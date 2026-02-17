@@ -214,7 +214,7 @@ if [ "$WEBPACK_CACHE_VALID" = false ]; then
         -v "$PROJECT_ROOT:/app" \
         -v /app/node_modules \
         -w /app \
-        node:18 \
+        node:20.10 \
         sh -c "npm ci --no-audit --no-fund && npm run build" || {
         echo "❌ Asset build failed"
         exit 1

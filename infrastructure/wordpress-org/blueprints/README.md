@@ -66,6 +66,8 @@ For deterministic local runs (no `npx` network fetch), install a local Playgroun
 npm install --save-dev @wp-playground/cli
 ```
 
+`playground:local` and `playground:local:check` require this local binary and fail fast if it is missing.
+
 Start interactive local Playground:
 
 ```bash
@@ -96,6 +98,7 @@ composer playground:local:check -- --strict
 
 Expected smoke check output includes:
 
+- `Version Verification` section (requested PHP vs actual runtime PHP)
 - `Preflight` section
 - `Checks` section
 - `Warnings` section
@@ -105,13 +108,15 @@ Expected smoke check output includes:
 
 Required checks for PASS:
 
+- Runtime PHP probe succeeds
+- Runtime PHP major.minor matches requested `--php`
 - WordPress bootstrap succeeds
 - Shield activation succeeds
 - Shield plugin is active after activation
 - Admin login step succeeds
 - WordPress.org blueprint schema is valid
 
-Warnings and failure diagnostics are shown explicitly in console output, including an output tail on failure. `playground:local:check` always removes per-run temp artifacts after execution. In `--strict` mode, warnings fail the run.
+Warnings and failure diagnostics are shown explicitly in console output, including an output tail on failure. `playground:local:check` always removes per-run temp artifacts after execution. Interactive `playground:local` performs a runtime PHP probe before startup and blocks startup on mismatch.
 
 ## WordPress.org Rollout
 

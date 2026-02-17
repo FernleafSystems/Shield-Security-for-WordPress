@@ -6,6 +6,7 @@
     "@babel/preset-env": "^7.29.0",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "@simplewebauthn/browser": "^8.3.7",
+    "@wp-playground/cli": "^3.0.53",
     "altcha-lib": "^1.4.1",
     "autoprefixer": "^10.4.24",
     "babel-loader": "^10.0.0",

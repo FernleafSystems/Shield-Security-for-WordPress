@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php declare( strict_types=1 );
 
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
+
 /**
  * Run WordPress Playground against the current Git working copy under the real plugin slug.
  *
@@ -17,6 +19,13 @@
 const EXIT_PASS = 0;
 const EXIT_FAIL = 1;
 const EXIT_ENV = 2;
+
+$autoloadPath = dirname( __DIR__ ).'/vendor/autoload.php';
+if ( !is_file( $autoloadPath ) ) {
+	fwrite( STDERR, "Dependencies are not installed. Run 'composer install' first.\n" );
+	exit( EXIT_ENV );
+}
+require $autoloadPath;
 
 $options = getopt( '', [
 	'php::',
@@ -46,17 +55,19 @@ $retentionDays = max( 0, (int)( $options['retention-days'] ?? 7 ) );
 $maxRuns = max( 1, (int)( $options['max-runs'] ?? 10 ) );
 
 $projectRoot = normalizePath( dirname( __DIR__ ) );
+$safeRemover = new SafeDirectoryRemover( $projectRoot );
 $runtimeRoot = normalizePath(
 	(string)( $options['runtime-root'] ?? ( normalizePath( sys_get_temp_dir() ).'/shield-playground-runtime' ) )
 );
 
 if ( $runClean ) {
-	exit( runCleanup( $runtimeRoot ) );
+	exit( runCleanup( $runtimeRoot, $safeRemover ) );
 }
 
 $runsRoot = pathJoin( $runtimeRoot, 'runs' );
 ensureDirectory( $runsRoot );
-$pruned = pruneRunDirectories( $runsRoot, $retentionDays, $maxRuns );
+$pruned = pruneRunDirectories( $runsRoot, $retentionDays, $maxRuns, $safeRemover );
+$localPlaygroundBinary = findLocalPlaygroundBinary( $projectRoot );
 
 if ( !$runBlueprintOnly ) {
 	exit( runInteractiveServer(
@@ -65,7 +76,9 @@ if ( !$runBlueprintOnly ) {
 		$port,
 		$projectRoot,
 		$runtimeRoot,
-		$pruned
+		$pruned,
+		$localPlaygroundBinary,
+		$safeRemover
 	) );
 }
 
@@ -76,7 +89,9 @@ exit( runSmokeCheck(
 	$runtimeRoot,
 	$runsRoot,
 	$pruned,
-	$strictMode
+	$strictMode,
+	$localPlaygroundBinary,
+	$safeRemover
 ) );
 
 function runInteractiveServer(
@@ -85,26 +100,61 @@ function runInteractiveServer(
 	int $port,
 	string $projectRoot,
 	string $runtimeRoot,
-	array $pruned
+	array $pruned,
+	?string $localPlaygroundBinary,
+	SafeDirectoryRemover $safeRemover
 ) :int {
+	if ( $localPlaygroundBinary === null ) {
+		fwrite( STDERR, "Local @wp-playground/cli binary not found.\n" );
+		fwrite( STDERR, "Install it with: npm install --save-dev @wp-playground/cli\n" );
+		return EXIT_ENV;
+	}
+
 	$pluginPathInVfs = '/wordpress/wp-content/plugins/wp-simple-firewall';
 	$tempDir = pathJoin( $runtimeRoot, 'server-tmp-'.substr( bin2hex( random_bytes( 4 ) ), 0, 8 ) );
 	ensureDirectory( $tempDir );
 	putenv( 'TEMP='.$tempDir );
 	putenv( 'TMP='.$tempDir );
 
-	$blueprintPath = buildSmokeCheckBlueprint( $runtimeRoot, false );
-	register_shutdown_function( static function () use ( $blueprintPath, $tempDir, $runtimeRoot ) :void {
+	$runtimeProbe = probeRuntimeEnvironment(
+		$localPlaygroundBinary,
+		$phpVersion,
+		$wpVersion,
+		$projectRoot,
+		$runtimeRoot,
+		$pluginPathInVfs,
+		$safeRemover
+	);
+	if ( !$runtimeProbe['ok'] ) {
+		fwrite( STDERR, "Interactive startup blocked: ".$runtimeProbe['error']."\n" );
+		fwrite(
+			STDERR,
+			sprintf(
+				"Requested PHP: %s (major.minor %s) | Actual runtime PHP: %s (major.minor %s)\n",
+				$runtimeProbe['requested_php'],
+				$runtimeProbe['requested_php_major_minor'],
+				$runtimeProbe['actual_php_version'],
+				$runtimeProbe['actual_php_major_minor']
+			)
+		);
+		if ( $runtimeProbe['output_tail'] !== '' ) {
+			fwrite( STDERR, "Output Tail (last 30 lines):\n".$runtimeProbe['output_tail']."\n" );
+		}
+		return (int)$runtimeProbe['exit_code'];
+	}
+
+	$blueprintPath = buildServerBlueprint( $runtimeRoot );
+	register_shutdown_function( static function () use ( $blueprintPath, $tempDir, $runtimeRoot, $safeRemover ) :void {
 		if ( is_file( $blueprintPath ) ) {
 			@unlink( $blueprintPath );
 		}
 		if ( is_dir( $tempDir ) ) {
-			removeDirectoryRecursive( $tempDir, $runtimeRoot );
+			$safeRemover->removeSubdirectoryOf( $tempDir, $runtimeRoot );
 		}
 	} );
 
 	$command = buildPlaygroundCommand(
-		$projectRoot,
+		$localPlaygroundBinary,
 		'server',
 		[
 			'--php',
@@ -128,6 +178,13 @@ function runInteractiveServer(
 	echo "Open in browser: http://127.0.0.1:{$port}/wp-admin/\n";
 	echo "Pruned stale runs: {$pruned['removed_dirs']} directories, ".formatBytes( $pruned['removed_bytes'] )."\n";
 	echo "Cleanup command: composer playground:local:clean\n";
+	echo sprintf(
+		"Version Verification: requested PHP %s (major.minor %s), runtime PHP %s (major.minor %s)\n",
+		$runtimeProbe['requested_php'],
+		$runtimeProbe['requested_php_major_minor'],
+		$runtimeProbe['actual_php_version'],
+		$runtimeProbe['actual_php_major_minor']
+	);
 
 	return runPassthruCommand( $command );
 }
@@ -139,7 +196,9 @@ function runSmokeCheck(
 	string $runtimeRoot,
 	string $runsRoot,
 	array $pruned,
-	bool $strictMode
+	bool $strictMode,
+	?string $localPlaygroundBinary,
+	SafeDirectoryRemover $safeRemover
 ) :int {
 	$pluginPathInVfs = '/wordpress/wp-content/plugins/wp-simple-firewall';
 	$runDir = createRunDirectory( $runsRoot );
@@ -169,6 +228,13 @@ function runSmokeCheck(
 		'errors' => [],
 		'pruned' => $pruned,
 		'strict_mode' => $strictMode,
+		'version_verification' => [
+			'requested_php' => $phpVersion,
+			'requested_php_major_minor' => normalizePhpMajorMinor( $phpVersion ),
+			'actual_runtime_php' => '',
+			'actual_runtime_php_major_minor' => '',
+			'actual_runtime_wp' => '',
+		],
 	];
 
 	$summary['preflight'] = [
@@ -176,12 +242,7 @@ function runSmokeCheck(
 		'run_dir_writable' => isWritableDirectory( $runDir ) ? 'pass' : 'fail',
 	];
 
-	$localBinary = findLocalPlaygroundBinary( $projectRoot );
-	$summary['preflight']['playground_cli_source'] = $localBinary !== null ? 'pass' : 'warn';
-	if ( $localBinary === null ) {
-		$summary['warnings'][] = 'Local @wp-playground/cli binary not found. Falling back to npx remote fetch.';
-		$summary['warnings'][] = 'For deterministic local runs, install local CLI: npm install --save-dev @wp-playground/cli';
-	}
+	$summary['preflight']['playground_cli_source'] = $localPlaygroundBinary !== null ? 'pass' : 'fail';
 
 	$wpOrgBlueprint = validateWpOrgBlueprint( $projectRoot );
 	$summary['checks']['blueprint_schema_valid'] = $wpOrgBlueprint['ok'] ? 'pass' : 'fail';
@@ -189,28 +250,50 @@ function runSmokeCheck(
 		$summary['errors'][] = $wpOrgBlueprint['message'];
 	}
 
-	$command = buildPlaygroundCommand(
-		$projectRoot,
-		'run-blueprint',
-		[
-			'--php',
-			$phpVersion,
-			'--wp',
-			$wpVersion,
-			'--mount-dir',
-			$projectRoot,
-			$pluginPathInVfs,
-			'--mount-dir',
-			$captureDir,
-			'/capture',
-			'--blueprint',
-			$blueprintPath,
-		]
-	);
-	$commandResult = runCommandCapture( $command );
-	$combinedOutput = trim( $commandResult['stdout']."\n".$commandResult['stderr'] );
+	$combinedOutput = '';
+	$environmentFailure = false;
+	$commandExecuted = false;
+	$commandResult = [
+		'exit_code' => 1,
+		'stdout' => '',
+		'stderr' => '',
+	];
 
-	if ( stripos( $combinedOutput, 'Plugin /wordpress/wp-content/plugins/wp-simple-firewall activation printed the following bytes' ) !== false ) {
+	if ( $localPlaygroundBinary === null ) {
+		$environmentFailure = true;
+		$summary['errors'][] = 'Local @wp-playground/cli binary not found.';
+		$summary['errors'][] = 'Install it with: npm install --save-dev @wp-playground/cli';
+	}
+	else {
+		$command = buildPlaygroundCommand(
+			$localPlaygroundBinary,
+			'run-blueprint',
+			[
+				'--php',
+				$phpVersion,
+				'--wp',
+				$wpVersion,
+				'--mount-dir',
+				$projectRoot,
+				$pluginPathInVfs,
+				'--mount-dir',
+				$captureDir,
+				'/capture',
+				'--blueprint',
+				$blueprintPath,
+			]
+		);
+		$commandResult = runCommandCapture( $command );
+		$commandExecuted = true;
+		$combinedOutput = trim( $commandResult['stdout']."\n".$commandResult['stderr'] );
+
+		if ( $commandResult['exit_code'] !== 0 && isEnvironmentFailureOutput( $combinedOutput ) ) {
+			$environmentFailure = true;
+			$summary['errors'][] = 'Environment failure while invoking Playground CLI.';
+		}
+	}
+
+	if ( $combinedOutput !== '' && stripos( $combinedOutput, 'Plugin /wordpress/wp-content/plugins/wp-simple-firewall activation printed the following bytes' ) !== false ) {
 		$summary['warnings'][] = 'Playground reported activation output bytes.';
 	}
 
@@ -235,29 +318,65 @@ function runSmokeCheck(
 				$summary['errors'][] = $error;
 			}
 		}
+		if ( isset( $report['runtime'] ) && is_array( $report['runtime'] ) ) {
+			$runtimePhpVersion = (string)( $report['runtime']['php_version'] ?? '' );
+			$runtimePhpMajorMinor = (string)( $report['runtime']['php_major_minor'] ?? '' );
+			$runtimeWpVersion = (string)( $report['runtime']['wp_version'] ?? '' );
+
+			$summary['version_verification']['actual_runtime_php'] = $runtimePhpVersion;
+			$summary['version_verification']['actual_runtime_php_major_minor'] = $runtimePhpMajorMinor;
+			$summary['version_verification']['actual_runtime_wp'] = $runtimeWpVersion;
+
+			$summary['checks']['runtime_probe'] = ( $runtimePhpMajorMinor !== '' ) ? 'pass' : 'fail';
+		}
+	}
+
+	if ( !$commandExecuted || $commandResult['exit_code'] !== 0 ) {
+		$summary['checks']['runtime_probe'] = 'skip';
+		$summary['checks']['runtime_php_version_match'] = 'skip';
+	}
+	else {
+		$requestedPhpMajorMinor = normalizePhpMajorMinor( $phpVersion );
+		$actualRuntimePhpMajorMinor = (string)( $summary['version_verification']['actual_runtime_php_major_minor'] ?? '' );
+		if ( $actualRuntimePhpMajorMinor === '' ) {
+			$summary['checks']['runtime_php_version_match'] = 'fail';
+			$summary['errors'][] = 'Runtime PHP probe did not provide php_major_minor.';
+		}
+		elseif ( $actualRuntimePhpMajorMinor !== $requestedPhpMajorMinor ) {
+			$summary['checks']['runtime_php_version_match'] = 'fail';
+			$summary['errors'][] = sprintf(
+				'Runtime PHP mismatch: requested %s (major.minor %s), actual %s (major.minor %s).',
+				$phpVersion,
+				$requestedPhpMajorMinor,
+				$summary['version_verification']['actual_runtime_php'] ?: '(unknown)',
+				$actualRuntimePhpMajorMinor
+			);
+		}
+		else {
+			$summary['checks']['runtime_php_version_match'] = 'pass';
+		}
 	}
 
 	$requiredChecks = [
 		'blueprint_schema_valid',
+		'runtime_probe',
+		'runtime_php_version_match',
 		'bootstrap_wordpress',
 		'activate_plugin',
 		'verify_plugin_active',
 		'login_admin',
 	];
 
-	foreach ( $requiredChecks as $requiredCheck ) {
-		if ( ( $summary['checks'][ $requiredCheck ] ?? '' ) !== 'pass' ) {
-			$summary['errors'][] = sprintf( 'Required check failed or missing: %s', $requiredCheck );
+	if ( $commandExecuted && $commandResult['exit_code'] === 0 && !$environmentFailure ) {
+		foreach ( $requiredChecks as $requiredCheck ) {
+			if ( ( $summary['checks'][ $requiredCheck ] ?? '' ) !== 'pass' ) {
+				$summary['errors'][] = sprintf( 'Required check failed or missing: %s', $requiredCheck );
+			}
 		}
 	}
 
-	$environmentFailure = false;
-	if ( $commandResult['exit_code'] !== 0 ) {
-		if ( isEnvironmentFailureOutput( $combinedOutput ) ) {
-			$environmentFailure = true;
-			$summary['errors'][] = 'Environment failure while invoking Playground CLI.';
-		}
-		else {
+	if ( $commandExecuted && $commandResult['exit_code'] !== 0 ) {
+		if ( !$environmentFailure ) {
 			$summary['errors'][] = sprintf( 'Playground command failed with exit code %d.', $commandResult['exit_code'] );
 		}
 	}
@@ -280,8 +399,14 @@ function runSmokeCheck(
 	}
 
 	$cleanupBytes = directorySize( $runDir );
-	removeDirectoryRecursive( $runDir, $runsRoot );
-	$summary['artifacts_cleaned'] = true;
+	try {
+		$safeRemover->removeSubdirectoryOf( $runDir, $runsRoot );
+		$summary['artifacts_cleaned'] = true;
+	}
+	catch ( Throwable $e ) {
+		$summary['artifacts_cleaned'] = false;
+		$summary['warnings'][] = 'Cleanup warning: '.$e->getMessage();
+	}
 	$summary['cleaned_bytes'] = $cleanupBytes;
 
 	renderSummary( $summary, $combinedOutput );
@@ -291,6 +416,18 @@ function runSmokeCheck(
 
 function buildSmokeCheckBlueprint( string $baseDir, bool $isCheckMode ) :string {
 	$blueprintPath = pathJoin( $baseDir, $isCheckMode ? 'blueprint.check.json' : 'blueprint.server.json' );
+
+	$runtimeCode = wrapReportUpdateCode( <<<PHP
+require '/wordpress/wp-load.php';
+global \$wp_version;
+\$report['runtime'] = [
+	'php_version' => PHP_VERSION,
+	'php_major_minor' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
+	'wp_version' => (string)( \$wp_version ?? '' ),
+];
+\$report['checks']['runtime_probe'] = 'pass';
+PHP
+	);
 
 	$bootstrapCode = wrapReportUpdateCode( <<<PHP
 require '/wordpress/wp-load.php';
@@ -375,6 +512,10 @@ PHP
 		'steps'   => [
 			[
 				'step' => 'runPHP',
+				'code' => $runtimeCode,
+			],
+			[
+				'step' => 'runPHP',
 				'code' => $bootstrapCode,
 			],
 			[
@@ -405,6 +546,80 @@ PHP
 	if ( $json === false || file_put_contents( $blueprintPath, $json ) === false ) {
 		fwrite( STDERR, "Failed to write blueprint file: {$blueprintPath}\n" );
 		exit( 1 );
+	}
+	return $blueprintPath;
+}
+
+function buildServerBlueprint( string $baseDir ) :string {
+	$blueprintPath = pathJoin( $baseDir, 'blueprint.server.json' );
+	$activationCode = <<<'PHP'
+<?php
+require '/wordpress/wp-load.php';
+require_once ABSPATH.'wp-admin/includes/plugin.php';
+$result = activate_plugin('wp-simple-firewall/icwp-wpsf.php');
+if ( is_wp_error( $result ) ) {
+	$code = (string)$result->get_error_code();
+	if ( $code !== 'unexpected_output' ) {
+		throw new Exception( 'Activation failed: '.$result->get_error_message() );
+	}
+}
+PHP;
+
+	$blueprint = [
+		'$schema' => 'https://playground.wordpress.net/blueprint-schema.json',
+		'steps' => [
+			[
+				'step' => 'runPHP',
+				'code' => $activationCode,
+			],
+			[
+				'step' => 'login',
+				'username' => 'admin',
+				'password' => 'password',
+			],
+		],
+	];
+
+	$json = json_encode( $blueprint, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+	if ( $json === false || file_put_contents( $blueprintPath, $json ) === false ) {
+		fwrite( STDERR, "Failed to write server blueprint file: {$blueprintPath}\n" );
+		exit( EXIT_ENV );
+	}
+	return $blueprintPath;
+}
+
+function buildRuntimeProbeBlueprint( string $baseDir ) :string {
+	$blueprintPath = pathJoin( $baseDir, 'blueprint.runtime-probe.json' );
+	$probeCode = <<<'PHP'
+<?php
+require '/wordpress/wp-load.php';
+global $wp_version;
+$report = [
+	'runtime' => [
+		'php_version' => PHP_VERSION,
+		'php_major_minor' => PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION,
+		'wp_version' => (string)( $wp_version ?? '' ),
+	],
+];
+if ( file_put_contents('/capture/report.json', json_encode($report)) === false ) {
+	throw new Exception('Failed to write runtime probe report');
+}
+PHP;
+
+	$blueprint = [
+		'$schema' => 'https://playground.wordpress.net/blueprint-schema.json',
+		'steps' => [
+			[
+				'step' => 'runPHP',
+				'code' => $probeCode,
+			],
+		],
+	];
+
+	$json = json_encode( $blueprint, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+	if ( $json === false || file_put_contents( $blueprintPath, $json ) === false ) {
+		fwrite( STDERR, "Failed to write runtime probe blueprint file: {$blueprintPath}\n" );
+		exit( EXIT_ENV );
 	}
 	return $blueprintPath;
 }
@@ -494,6 +709,14 @@ function normalizePath( string $path ) :string {
 	return rtrim( $normalized, '/' );
 }
 
+function normalizePhpMajorMinor( string $phpVersion ) :string {
+	$trimmed = trim( $phpVersion );
+	if ( preg_match( '/^(\d+)\.(\d+)/', $trimmed, $matches ) === 1 ) {
+		return $matches[1].'.'.$matches[2];
+	}
+	return $trimmed;
+}
+
 function pathJoin( string ...$parts ) :string {
 	$pieces = [];
 	foreach ( $parts as $part ) {
@@ -523,7 +746,12 @@ function createRunDirectory( string $runsRoot ) :string {
 	return $runDir;
 }
 
-function pruneRunDirectories( string $runsRoot, int $retentionDays, int $maxRuns ) :array {
+function pruneRunDirectories(
+	string $runsRoot,
+	int $retentionDays,
+	int $maxRuns,
+	SafeDirectoryRemover $safeRemover
+) :array {
 	if ( !is_dir( $runsRoot ) ) {
 		return [ 'removed_dirs' => 0, 'removed_bytes' => 0 ];
 	}
@@ -566,7 +794,7 @@ function pruneRunDirectories( string $runsRoot, int $retentionDays, int $maxRuns
 	$removedBytes = 0;
 	foreach ( array_keys( $toDelete ) as $dir ) {
 		$removedBytes += directorySize( $dir );
-		removeDirectoryRecursive( $dir, $runsRoot );
+		$safeRemover->removeSubdirectoryOf( $dir, $runsRoot );
 		$removedDirs++;
 	}
 
@@ -574,36 +802,6 @@ function pruneRunDirectories( string $runsRoot, int $retentionDays, int $maxRuns
 		'removed_dirs' => $removedDirs,
 		'removed_bytes' => $removedBytes,
 	];
-}
-
-function removeDirectoryRecursive( string $dir, string $allowedBase ) :void {
-	$realDir = realpath( $dir );
-	$realBase = realpath( $allowedBase );
-	if ( $realDir === false || $realBase === false ) {
-		return;
-	}
-	$normDir = normalizePath( $realDir );
-	$normBase = normalizePath( $realBase );
-	if ( strpos( $normDir, $normBase.'/' ) !== 0 ) {
-		throw new RuntimeException( sprintf( 'Refusing to remove directory outside allowed base. Dir: %s Base: %s', $normDir, $normBase ) );
-	}
-
-	$items = scandir( $realDir );
-	if ( is_array( $items ) ) {
-		foreach ( $items as $item ) {
-			if ( $item === '.' || $item === '..' ) {
-				continue;
-			}
-			$path = $realDir.DIRECTORY_SEPARATOR.$item;
-			if ( is_dir( $path ) && !is_link( $path ) ) {
-				removeDirectoryRecursive( $path, $allowedBase );
-			}
-			else {
-				@unlink( $path );
-			}
-		}
-	}
-	@rmdir( $realDir );
 }
 
 function directorySize( string $dir ) :int {
@@ -691,6 +889,9 @@ function isEnvironmentFailureOutput( string $output ) :bool {
 	$needles = [
 		'npm error code EACCES',
 		'FetchError',
+		'fetch failed',
+		'connect EACCES',
+		'spawn EPERM',
 		'Could not determine Node.js install directory',
 		'Cannot find module',
 		'not recognized as an internal or external command',
@@ -710,6 +911,14 @@ function renderSummary( array $summary, string $combinedOutput ) :void {
 	echo "Run Directory: {$summary['run_dir']}\n";
 	echo "Runtime Root: {$summary['runtime_root']}\n";
 	echo "Strict Mode: ".( $summary['strict_mode'] ? 'yes' : 'no' )."\n";
+
+	echo "\nVersion Verification:\n";
+	echo "  requested_php: {$summary['version_verification']['requested_php']}\n";
+	echo "  requested_php_major_minor: {$summary['version_verification']['requested_php_major_minor']}\n";
+	echo "  actual_runtime_php: ".( $summary['version_verification']['actual_runtime_php'] ?: '(unknown)' )."\n";
+	echo "  actual_runtime_php_major_minor: ".( $summary['version_verification']['actual_runtime_php_major_minor'] ?: '(unknown)' )."\n";
+	echo "  actual_runtime_wp: ".( $summary['version_verification']['actual_runtime_wp'] ?: '(unknown)' )."\n";
+
 	echo "\nPreflight:\n";
 	foreach ( $summary['preflight'] as $name => $status ) {
 		echo sprintf( "  [%s] %s\n", strtoupper( (string)$status ), $name );
@@ -758,7 +967,7 @@ function renderSummary( array $summary, string $combinedOutput ) :void {
 	echo "\nResult: {$summary['result']} (exit {$summary['exit_code']})\n";
 }
 
-function runCleanup( string $runtimeRoot ) :int {
+function runCleanup( string $runtimeRoot, SafeDirectoryRemover $safeRemover ) :int {
 	echo "Cleaning Playground runtime artifacts...\n";
 	echo "Runtime root: {$runtimeRoot}\n";
 	if ( !is_dir( $runtimeRoot ) ) {
@@ -777,50 +986,23 @@ function runCleanup( string $runtimeRoot ) :int {
 		return EXIT_ENV;
 	}
 	$reclaimed = directorySize( $realRuntimeRoot );
-	removeDirectoryRecursive( $realRuntimeRoot, dirname( $realRuntimeRoot ) );
+	$safeRemover->removeTempDirectory( $realRuntimeRoot );
 	echo "Removed runtime root. Reclaimed: ".formatBytes( $reclaimed )."\n";
 	return EXIT_PASS;
 }
 
-function buildBaseCommand( array $playgroundArgs ) :array {
-	if ( \PHP_OS_FAMILY !== 'Windows' ) {
-		return array_merge( [ 'npx' ], $playgroundArgs );
-	}
-
-	$programFiles = getenv( 'ProgramFiles' ) ?: 'C:/Program Files';
-	$npxPs1 = normalizePath( $programFiles ).'/nodejs/npx.ps1';
-
-	if ( is_file( $npxPs1 ) ) {
-		return array_merge(
-			[
-				'powershell.exe',
-				'-NoProfile',
-				'-ExecutionPolicy',
-				'Bypass',
-				'-File',
-				$npxPs1,
-			],
-			$playgroundArgs
-		);
-	}
-
-	return array_merge( [ 'npx.cmd' ], $playgroundArgs );
-}
-
-function buildPlaygroundCommand( string $projectRoot, string $subcommand, array $args ) :array {
-	$localBinary = findLocalPlaygroundBinary( $projectRoot );
-	if ( $localBinary !== null ) {
-		return array_merge( [ $localBinary, $subcommand ], $args );
-	}
-
-	return buildBaseCommand( array_merge( [ '@wp-playground/cli@latest', $subcommand ], $args ) );
+function buildPlaygroundCommand( string $localPlaygroundBinary, string $subcommand, array $args ) :array {
+	return array_merge( [ $localPlaygroundBinary, $subcommand ], $args );
 }
 
 function findLocalPlaygroundBinary( string $projectRoot ) :?string {
 	$candidates = \PHP_OS_FAMILY === 'Windows' ? [
+		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli.cmd' ),
+		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground.cmd' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground' ),
 	] : [
+		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground' ),
 	];
 
@@ -830,6 +1012,130 @@ function findLocalPlaygroundBinary( string $projectRoot ) :?string {
 		}
 	}
 	return null;
+}
+
+function probeRuntimeEnvironment(
+	string $localPlaygroundBinary,
+	string $phpVersion,
+	string $wpVersion,
+	string $projectRoot,
+	string $runtimeRoot,
+	string $pluginPathInVfs,
+	SafeDirectoryRemover $safeRemover
+) :array {
+	$probeDir = pathJoin( $runtimeRoot, 'probe-'.substr( bin2hex( random_bytes( 4 ) ), 0, 8 ) );
+	$captureDir = pathJoin( $probeDir, 'capture' );
+	$tempDir = pathJoin( $probeDir, 'tmp' );
+	$reportPath = pathJoin( $captureDir, 'report.json' );
+
+	ensureDirectory( $captureDir );
+	ensureDirectory( $tempDir );
+	putenv( 'TEMP='.$tempDir );
+	putenv( 'TMP='.$tempDir );
+
+	$blueprintPath = buildRuntimeProbeBlueprint( $probeDir );
+	try {
+		$command = buildPlaygroundCommand(
+			$localPlaygroundBinary,
+			'run-blueprint',
+			[
+				'--php',
+				$phpVersion,
+				'--wp',
+				$wpVersion,
+				'--mount-dir',
+				$projectRoot,
+				$pluginPathInVfs,
+				'--mount-dir',
+				$captureDir,
+				'/capture',
+				'--blueprint',
+				$blueprintPath,
+			]
+		);
+		$result = runCommandCapture( $command );
+		$combinedOutput = trim( $result['stdout']."\n".$result['stderr'] );
+
+		$report = readJsonFile( $reportPath );
+		$runtime = is_array( $report['runtime'] ?? null ) ? $report['runtime'] : [];
+		$actualPhpVersion = (string)( $runtime['php_version'] ?? '' );
+		$actualPhpMajorMinor = (string)( $runtime['php_major_minor'] ?? '' );
+		$actualWpVersion = (string)( $runtime['wp_version'] ?? '' );
+		$requestedPhpMajorMinor = normalizePhpMajorMinor( $phpVersion );
+
+		if ( $result['exit_code'] !== 0 ) {
+			$isEnvFailure = isEnvironmentFailureOutput( $combinedOutput );
+			return [
+				'ok' => false,
+				'exit_code' => $isEnvFailure ? EXIT_ENV : EXIT_FAIL,
+				'requested_php' => $phpVersion,
+				'requested_php_major_minor' => $requestedPhpMajorMinor,
+				'actual_php_version' => $actualPhpVersion,
+				'actual_php_major_minor' => $actualPhpMajorMinor,
+				'actual_wp_version' => $actualWpVersion,
+				'error' => $isEnvFailure
+					? 'Environment failure while running runtime probe.'
+					: sprintf( 'Runtime probe failed with exit code %d.', $result['exit_code'] ),
+				'output_tail' => tailOutput( $combinedOutput ),
+			];
+		}
+
+		if ( $actualPhpMajorMinor === '' ) {
+			return [
+				'ok' => false,
+				'exit_code' => EXIT_FAIL,
+				'requested_php' => $phpVersion,
+				'requested_php_major_minor' => $requestedPhpMajorMinor,
+				'actual_php_version' => $actualPhpVersion,
+				'actual_php_major_minor' => $actualPhpMajorMinor,
+				'actual_wp_version' => $actualWpVersion,
+				'error' => 'Runtime probe did not return php_major_minor.',
+				'output_tail' => tailOutput( $combinedOutput ),
+			];
+		}
+
+		if ( $actualPhpMajorMinor !== $requestedPhpMajorMinor ) {
+			return [
+				'ok' => false,
+				'exit_code' => EXIT_FAIL,
+				'requested_php' => $phpVersion,
+				'requested_php_major_minor' => $requestedPhpMajorMinor,
+				'actual_php_version' => $actualPhpVersion,
+				'actual_php_major_minor' => $actualPhpMajorMinor,
+				'actual_wp_version' => $actualWpVersion,
+				'error' => 'Runtime PHP mismatch detected.',
+				'output_tail' => tailOutput( $combinedOutput ),
+			];
+		}
+
+		return [
+			'ok' => true,
+			'exit_code' => EXIT_PASS,
+			'requested_php' => $phpVersion,
+			'requested_php_major_minor' => $requestedPhpMajorMinor,
+			'actual_php_version' => $actualPhpVersion,
+			'actual_php_major_minor' => $actualPhpMajorMinor,
+			'actual_wp_version' => $actualWpVersion,
+			'error' => '',
+			'output_tail' => '',
+		];
+	}
+	finally {
+		if ( is_file( $blueprintPath ) ) {
+			@unlink( $blueprintPath );
+		}
+		if ( is_dir( $probeDir ) ) {
+			$safeRemover->removeSubdirectoryOf( $probeDir, $runtimeRoot );
+		}
+	}
+}
+
+function tailOutput( string $output, int $lines = 30 ) :string {
+	if ( trim( $output ) === '' ) {
+		return '';
+	}
+	$parts = preg_split( '/\r\n|\r|\n/', $output ) ?: [];
+	return implode( "\n", array_slice( $parts, -$lines ) );
 }
 
 function usage() :string {
@@ -859,5 +1165,9 @@ Examples:
   composer playground:local:clean
   composer playground:local -- --php=8.3 --port=9500
   composer playground:local:check -- --strict
+
+Notes:
+  Local local-run workflows require node_modules/.bin/wp-playground.
+  Install once: npm install --save-dev @wp-playground/cli
 TXT;
 }
