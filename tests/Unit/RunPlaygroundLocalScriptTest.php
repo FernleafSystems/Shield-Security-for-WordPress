@@ -51,6 +51,10 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 	}
 
 	public function testComposerDeclaresPlaygroundCleanScript() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packaged artifacts (source-only assertion)' );
+		}
+
 		$composerJson = $this->getPluginFileContents( 'composer.json', 'composer manifest' );
 		$decoded = \json_decode( $composerJson, true );
 

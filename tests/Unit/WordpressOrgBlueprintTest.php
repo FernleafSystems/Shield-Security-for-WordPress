@@ -11,6 +11,12 @@ class WordpressOrgBlueprintTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
 
+	private function skipWhenTestingPackage() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'WordPress.org blueprint source checks run only in source mode.' );
+		}
+	}
+
 	private function getBlueprintPath() :string {
 		return $this->getPluginRoot().'/infrastructure/wordpress-org/blueprints/blueprint.json';
 	}
@@ -29,11 +35,12 @@ class WordpressOrgBlueprintTest extends BaseUnitTest {
 	}
 
 	public function testBlueprintFileExistsAndIsValidJson() :void {
-		$this->assertFalse( $this->isTestingPackage(), 'Blueprint source test should run only in source mode' );
+		$this->skipWhenTestingPackage();
 		$this->getBlueprint();
 	}
 
 	public function testBlueprintDefinesAdminSmokeFlow() :void {
+		$this->skipWhenTestingPackage();
 		$blueprint = $this->getBlueprint();
 
 		$this->assertArrayHasKey( '$schema', $blueprint, 'Blueprint should declare schema URL' );
