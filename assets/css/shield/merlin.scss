@@ -1,141 +1,355 @@
-﻿.sw {
-  --sw-border-color: #eeeeee;
-  --sw-toolbar-btn-color: #ffffff;
-  --sw-toolbar-btn-background-color: #4aa938;
-  --sw-anchor-default-primary-color: #f8f9fa;
-  --sw-anchor-default-secondary-color: #e7e7e7;
-  --sw-anchor-active-primary-color: #5aaf51;
-  --sw-anchor-active-secondary-color: #ffffff;
-  --sw-anchor-done-primary-color: #abc0ab;
-  --sw-anchor-done-secondary-color: #fefefe;
-  --sw-anchor-disabled-primary-color: #f8f9fa;
-  --sw-anchor-disabled-secondary-color: #dbe0e5;
-  --sw-anchor-error-primary-color: #dc3545;
-  --sw-anchor-error-secondary-color: #ffffff;
-  --sw-anchor-warning-primary-color: #ffc107;
-  --sw-anchor-warning-secondary-color: #ffffff;
-  --sw-progress-color: #3fad41;
-  --sw-progress-background-color: #f8f9fa;
-  --sw-loader-color: #59a84d;
-  --sw-loader-background-color: #f8f9fa;
-  --sw-loader-background-wrapper-color: rgba(255, 255, 255, 0.7);
+/* ── Modal Overlay ── */
+#MerlinOverlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 100000;
 }
 
-.sw .list-group {
-  --bs-list-group-bg: transparent;
+.merlin-modal-dialog {
+  max-width: 1400px;
 }
 
-.sw h4 {
+.merlin-modal-dialog .modal-content {
+  height: 85vh;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  background: $surface-color-neutral-base;
+  position: relative;
+  font-size: 0.875rem;
 }
 
-.sw li,
-.sw p {
-  font-size: 14px;
+.merlin-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
 }
 
-.sw .vimeo-feather {
-  box-shadow: 2px 2px 5px rgb(0 0 0 / 20%);
+.merlin-modal-dialog .modal-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
 }
 
-.sw input[name=offenses] {
-  width: 60px;
+#merlin {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 2.5rem 10rem 1.5rem;
 }
 
-#TableSecurityProfiles td,
-#TableSecurityProfiles th,
-#TableSecurityProfiles .level_cell,
-#TableSecurityProfiles .level_current {
-  border-color: transparent;
-  background-color: transparent;
+/* ── Custom Stepper ── */
+.stepper {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  padding: 0 1rem;
+}
+
+.stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  max-width: 120px;
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: calc(50% + 18px);
+    width: calc(100% - 36px);
+    height: 2px;
+    background: $border-color-neutral-subtle;
+    z-index: 0;
+  }
+
+  &.completed:not(:last-child)::after {
+    background: $status-color-good;
+  }
+}
+
+.stepper-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  z-index: 1;
+  position: relative;
+}
+
+.stepper-step.completed .stepper-circle {
+  background: $status-color-good;
+  color: #fff;
+}
+
+.stepper-step.current .stepper-circle {
+  background: #fff;
+  border: 2.5px solid $status-color-good;
+  color: $status-color-good;
+}
+
+.stepper-step.future .stepper-circle {
+  background: #fff;
+  border: 2px solid #ccc;
+  color: #999;
+}
+
+.stepper-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+  text-align: center;
+  color: #5f6974;
+  line-height: 1.2;
+}
+
+.stepper-step.current .stepper-label {
+  font-weight: 700;
+  color: $status-color-good;
+}
+
+/* ── Wizard Card ── */
+.wizard-card {
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  overflow: hidden;
+  background: #fff;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wizard-card-accent {
+  height: $card-accent-height;
+  background: $accent-color-salt-green;
+}
+
+.wizard-card-body {
+  padding: 2.5rem 3.5rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.wizard-card-footer {
+  padding: 2.5rem 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ── Content Typography ── */
+.wizard-step-pane {
+  h4 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+  }
+
+  p {
+    color: #5f6974;
+    font-size: 0.85rem;
+  }
+
+  li {
+    font-size: 14px;
+  }
+
+  .list-group {
+    --bs-list-group-bg: transparent;
+  }
+
+  .vimeo-feather {
+    box-shadow: 2px 2px 5px rgb(0 0 0 / 20%);
+  }
+
+  input[name=offenses] {
+    width: 60px;
+  }
+}
+
+/* ── Form Footer (separator + button) ── */
+.merlin-form-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid $border-color-neutral-subtle;
+  text-align: center;
+}
+
+/* ── Security Profile Cards ── */
+.profile-cards-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid transparent;
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  overflow: hidden;
+  background: #fff;
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+
+  &:hover:not(.profile-card-current) {
+    transform: translateY(-3px);
+    box-shadow: $card-box-shadow-hover;
+  }
+
+  &.selected {
+    border-color: $status-color-good;
+    border-width: 3px;
+    background: #edf7ed;
+    box-shadow: $card-box-shadow-hover, 0 0 0 2px $status-color-good;
+  }
 }
 
-#TableSecurityProfiles .level_cell svg,
-#TableSecurityProfiles .level_current svg {
-  height: 24px;
-  width: 24px;
+// Current config column — non-selectable, distinct styling
+.profile-card-current {
+  cursor: default;
+  border-color: $border-color-neutral-subtle;
+  background: $surface-color-neutral-raised;
+
+  .profile-card-accent {
+    background: $accent-color-salt-green;
+  }
 }
 
-#TableSecurityProfiles .level_current > div {
-  border-width: 0 2px 0 2px;
-  border-style: solid;
-  border-color: rgba(0, 0, 0, 0.3);
-  background-color: rgba(0, 0, 0, 0.1);
-  cursor: auto;
+.profile-card-accent {
+  height: $card-accent-height;
+  width: 100%;
+
+  &.level-light {
+    background: $status-color-good;
+  }
+
+  &.level-medium {
+    background: $status-color-warning;
+  }
+
+  &.level-strong {
+    background: $status-color-critical;
+  }
 }
 
-#TableSecurityProfiles thead th.level_current > div {
-  border-top-width: 2px;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+.profile-card-header {
+  padding: 1rem 1rem 0.5rem;
+  border-bottom: 1px solid $border-color-neutral-subtle;
+
+  h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  small {
+    font-size: 0.78rem;
+    color: #5f6974;
+  }
 }
 
-#TableSecurityProfiles tfoot td.level_current > div {
-  border-bottom-width: 2px;
+.profile-card-body {
+  padding: 0.75rem 1rem 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-#TableSecurityProfiles .level_cell > div {
-  transition: background-color, border-color 0.25s;
-  -webkit-transition: background-color, border-color .25s;
-  -o-transition: background-color, border-color .25s;
-  -moz-transition: background-color, border-color .25s;
+/* ── Feature List ── */
+.feature-list {
+  display: flex;
+  flex-direction: column;
 }
 
-#TableSecurityProfiles .level_cell > div {
-  border-width: 0 2px 0 2px;
-  border-style: solid;
-  border-color: transparent;
+.section-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #5f6974;
+  margin-top: 0.5rem;
+  padding-bottom: 0.15rem;
+  border-bottom: 1px solid $border-color-neutral-subtle;
+
+  &:first-child {
+    margin-top: 0;
+  }
 }
 
-#TableSecurityProfiles thead th.level_current > div,
-#TableSecurityProfiles thead th.level_cell > div {
-  border-radius: 5px 5px 0 0;
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0;
+  font-size: 0.75rem;
+
+  .bi {
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .fi-on {
+    color: $status-color-good;
+  }
+
+  .fi-off {
+    color: #ccc;
+  }
+
+  .fi-val {
+    color: $status-color-info;
+  }
+
+  .fi-label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fi-value {
+    margin-left: auto;
+    font-weight: 600;
+    color: #5f6974;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
 }
 
-#TableSecurityProfiles .level_cell.active_column > div,
-#TableSecurityProfiles .level_cell.hover_column > div {
-  background-color: rgba(0, 128, 0, 0.1);
+/* ── Selected Badge (hidden — selection indicated by border/background) ── */
+.profile-card .selected-badge {
+  display: none;
 }
 
-#TableSecurityProfiles .level_cell.active_column > div,
-#TableSecurityProfiles .level_cell.hover_column > div {
-  border-color: $primary;
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .profile-cards-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-#TableSecurityProfiles tfoot th.level_cell > div {
-  border-top: 2px;
-  border-top-style: solid;
-  border-top-color: transparent;
-}
-
-#TableSecurityProfiles th.level_cell.active_column > div,
-#TableSecurityProfiles th.level_cell.hover_column > div {
-  border-top-color: $primary;
-}
-
-#TableSecurityProfiles th.level_cell > div {
-  border-top: 2px;
-  border-top-style: solid;
-  border-top-color: transparent;
-}
-
-#TableSecurityProfiles th.level_cell.active_column > div,
-#TableSecurityProfiles th.level_cell.hover_column > div {
-  border-top-color: $primary;
-}
-
-#TableSecurityProfiles th.level_cell > div,
-#TableSecurityProfiles tfoot td.level_cell > div {
-  border-bottom: 2px;
-  border-bottom-style: solid;
-  border-bottom-color: transparent;
-}
-
-#TableSecurityProfiles thead th.level_cell.active_column > div,
-#TableSecurityProfiles tfoot td.level_cell.hover_column > div {
-  border-bottom-color: $primary;
-}
-
-#TableSecurityProfiles thead th.level_cell.active_column > div {
-  color: $white;
-  background-color: $primary;
+@media (max-width: 768px) {
+  .stepper {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .stepper-step:not(:last-child)::after {
+    display: none;
+  }
+  .profile-cards-row {
+    grid-template-columns: 1fr;
+  }
 }

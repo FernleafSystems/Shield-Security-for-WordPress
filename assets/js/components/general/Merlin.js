@@ -1,5 +1,3 @@
-import $ from 'jquery';
-import smartWizard from 'smartwizard';
 import { BaseComponent } from "../BaseComponent";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { AjaxService } from "../services/AjaxService";
@@ -11,6 +9,7 @@ export class Merlin extends BaseComponent {
 
 	init() {
 		this.merlinContainer = document.getElementById( 'merlin' ) || false;
+		this.currentStep = 0;
 		this.exec();
 	}
 
@@ -19,47 +18,86 @@ export class Merlin extends BaseComponent {
 	}
 
 	run() {
-		this.$merlin = $( this.merlinContainer ).smartWizard( this._base_data.vars.smartwizard_cfg );
+		this.stepPanes = this.merlinContainer.querySelectorAll( '.wizard-step-pane' );
+		this.stepperSteps = this.merlinContainer.querySelectorAll( '.stepper-step' );
+		this.totalSteps = this.stepPanes.length;
 
-		shieldEventsHandler_Main.add_Submit( 'form.merlin-form.ajax-form', ( targetEl ) => this.#runSettingUpdate( targetEl ) );
-		shieldEventsHandler_Main.add_Click( '#merlin a.skip-step', () => this.$merlin.smartWizard( 'next' ) );
-		this.$merlin.on( 'showStep', () => BootstrapTooltips.RegisterNewTooltipsWithin( this.merlinContainer ) );
+		this.merlinContainer.querySelector( '.merlin-next' )
+			?.addEventListener( 'click', () => this.next() );
+		this.merlinContainer.querySelector( '.merlin-prev' )
+			?.addEventListener( 'click', () => this.prev() );
+
+		shieldEventsHandler_Main.add_Submit(
+			'form.merlin-form.ajax-form',
+			( targetEl ) => this.#runSettingUpdate( targetEl )
+		);
+		shieldEventsHandler_Main.add_Click(
+			'#merlin a.skip-step, #merlin .skip-link',
+			() => this.next()
+		);
 
 		this.slideSecurityProfiles();
+		this.goToStep( 0 );
 	}
+
+	goToStep( index ) {
+		if ( index < 0 || index >= this.totalSteps ) return;
+		this.currentStep = index;
+
+		this.stepPanes.forEach( ( pane, i ) =>
+			pane.classList.toggle( 'd-none', i !== index )
+		);
+
+		this.stepperSteps.forEach( ( step, i ) => {
+			step.classList.remove( 'completed', 'current', 'future' );
+			const num = step.querySelector( '.step-number' );
+			const check = step.querySelector( '.step-check' );
+			if ( i < index ) {
+				step.classList.add( 'completed' );
+				num?.classList.add( 'd-none' );
+				check?.classList.remove( 'd-none' );
+			}
+			else if ( i === index ) {
+				step.classList.add( 'current' );
+				num?.classList.remove( 'd-none' );
+				check?.classList.add( 'd-none' );
+			}
+			else {
+				step.classList.add( 'future' );
+				num?.classList.remove( 'd-none' );
+				check?.classList.add( 'd-none' );
+			}
+		} );
+
+		const isFirst = index === 0;
+		const isLast = index === this.totalSteps - 1;
+
+		this.merlinContainer.querySelector( '.merlin-prev' ).disabled = isFirst;
+		this.merlinContainer.querySelector( '.merlin-next' ).disabled = isLast;
+
+		BootstrapTooltips.RegisterNewTooltipsWithin( this.merlinContainer );
+	}
+
+	next() { this.goToStep( this.currentStep + 1 ); }
+	prev() { this.goToStep( this.currentStep - 1 ); }
 
 	slideSecurityProfiles() {
 
-		shieldEventsHandler_Main.add_Mouseover( '#TableSecurityProfiles .level_cell', ( targetEl ) => {
-			const level = targetEl.dataset.level;
-			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell' ).forEach( ( cell ) => {
-				cell.classList.remove( 'hover_column' );
-			} );
-			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell_' + level ).forEach( ( cell ) => {
-				cell.classList.add( 'hover_column' );
-			} );
-		} );
-		shieldEventsHandler_Main.add_Mouseout( '#TableSecurityProfiles .level_cell', ( targetEl ) => {
-			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell' ).forEach( ( cell ) => {
-				cell.classList.remove( 'hover_column' );
-			} );
-		} );
+		shieldEventsHandler_Main.add_Click( '#ProfileCards .profile-card:not(.profile-card-current)', ( card ) => {
+			const level = card.dataset.level;
+			const wasSelected = card.classList.contains( 'selected' );
 
-		shieldEventsHandler_Main.add_Click( '#TableSecurityProfiles .level_cell', ( cell ) => {
-			const level = cell.dataset.level;
-			const wasActive = cell.classList.contains( 'active_column' );
-			this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell' ).forEach( ( levelCell ) => {
-				levelCell.classList.remove( 'active_column' );
+			this.merlinContainer.querySelectorAll( '#ProfileCards .profile-card' ).forEach( ( c ) => {
+				c.classList.remove( 'selected' );
 			} );
-			if ( !wasActive ) {
-				this.merlinContainer.querySelectorAll( '#TableSecurityProfiles .level_cell_' + level ).forEach( ( levelCell ) => {
-					levelCell.classList.add( 'active_column' );
-				} );
+
+			if ( !wasSelected ) {
+				card.classList.add( 'selected' );
 			}
 
 			const input = document.getElementById( 'SelectedSecurityProfile' ) || false;
 			if ( input ) {
-				input.value = wasActive ? '' : level;
+				input.value = wasSelected ? '' : level;
 			}
 		} );
 	}
@@ -72,7 +110,7 @@ export class Merlin extends BaseComponent {
 		.then( ( resp ) => {
 
 			if ( resp.success ) {
-				this.$merlin.smartWizard( 'next' );
+				this.next();
 			}
 			else {
 				alert( resp.data.message );
