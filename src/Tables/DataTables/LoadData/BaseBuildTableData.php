@@ -189,6 +189,10 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$wheres[] = $userWhere;
 			}
 		}
+		$requestIDWhere = $this->buildSqlWhereForRequestIdSearch();
+		if ( !empty( $requestIDWhere ) ) {
+			$wheres[] = $requestIDWhere;
+		}
 		return $wheres;
 	}
 
@@ -200,16 +204,17 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	protected function buildSqlWhereForUserSearch( string $searchParam ) :string {
 		$where = '';
 		$parsed = $this->parseSearchText();
-		if ( \in_array( $searchParam, [ SearchTextParser::USER_NAME, SearchTextParser::USER_NAME, SearchTextParser::USER_ID ] )
-			 && !empty( $parsed[ $searchParam ] ) ) {
-			if ( $searchParam == SearchTextParser::USER_NAME ) {
-				$user = Services::WpUsers()->getUserByUsername( $parsed[ $searchParam ] );
+		$searchValue = $parsed[ $searchParam ] ?? '';
+		if ( \in_array( $searchParam, [ SearchTextParser::USER_NAME, SearchTextParser::USER_EMAIL, SearchTextParser::USER_ID ], true )
+			 && !empty( $searchValue ) ) {
+			if ( $searchParam === SearchTextParser::USER_NAME ) {
+				$user = Services::WpUsers()->getUserByUsername( $searchValue );
 			}
-			elseif ( $searchParam == SearchTextParser::USER_EMAIL ) {
-				$user = Services::WpUsers()->getUserByEmail( $parsed[ $searchParam ] );
+			elseif ( $searchParam === SearchTextParser::USER_EMAIL ) {
+				$user = Services::WpUsers()->getUserByEmail( $searchValue );
 			}
-			elseif ( $searchParam == SearchTextParser::USER_ID ) {
-				$user = Services::WpUsers()->getUserById( $parsed[ $searchParam ] );
+			else {
+				$user = Services::WpUsers()->getUserById( $searchValue );
 			}
 			if ( empty( $user ) ) {
 				throw new ImpossibleQueryException( $searchParam );
@@ -217,6 +222,11 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$where = \sprintf( "`req`.`uid`=%d", $user->ID );
 		}
 		return $where;
+	}
+
+	protected function buildSqlWhereForRequestIdSearch() :string {
+		$requestID = $this->parseSearchText()[ SearchTextParser::REQUEST_ID ] ?? '';
+		return empty( $requestID ) ? '' : \sprintf( "`req`.`req_id`='%s'", esc_sql( $requestID ) );
 	}
 
 	/**

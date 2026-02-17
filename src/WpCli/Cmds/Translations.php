@@ -164,7 +164,12 @@ class Translations extends BaseCmd {
 		\WP_CLI::log( '' );
 
 		\WP_CLI::log( \sprintf( 'Cache Directory: %s', $con->cache_dir_handler->buildSubDir( 'languages' ) ?: 'Not configured' ) );
-		\WP_CLI::log( \sprintf( 'Queued Locales: %d', \count( $tranCon->getQueue() ) ) );
+		if ( \count( $tranCon->getQueue() ) > 0 ) {
+			\WP_CLI::log( \sprintf( 'Queued Locales: %s', \implode( ', ', $tranCon->getQueue() ) ) );
+		}
+		else {
+			\WP_CLI::log( 'Queued Locales: none' );
+		}
 
 		// Show last attempt time
 		$lastAttempt = $tranCon->cfg()[ 'last_download_at' ] ?? 0;
@@ -193,6 +198,21 @@ class Translations extends BaseCmd {
 			}
 			else {
 				\WP_CLI::log( 'No cached translation files found.' );
+			}
+		}
+
+		if ( !empty( $available ) ) {
+			\WP_CLI::log( '--- Cached Locale Meta Data ---' );
+			$items = [];
+			foreach ( $available as $l => $av ) {
+				$av[ 'locale' ] = $l;
+				$items[] = $av;
+			}
+			if ( !empty( $items ) ) {
+				\WP_CLI\Utils\format_items( 'table', $items, [ 'locale', 'hash', 'hash_type', 'size' ] );
+			}
+			else {
+				\WP_CLI::log( 'No cached meta data found.' );
 			}
 		}
 

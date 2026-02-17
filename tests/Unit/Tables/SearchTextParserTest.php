@@ -31,6 +31,12 @@ class SearchTextParserTest extends BaseUnitTest {
 		$this->assertSame( '', $result[ 'remaining' ] );
 	}
 
+	public function test_parse_request_id_filter() :void {
+		$result = SearchTextParser::Parse( 'request_id:abc123' );
+		$this->assertSame( 'abc123', $result[ 'request_id' ] );
+		$this->assertSame( '', $result[ 'remaining' ] );
+	}
+
 	public function test_sanitise_user_name_strips_invalid_chars() :void {
 		$result = SearchTextParser::Parse( 'user_name:bad!name#here' );
 		$this->assertSame( 'badnamehere', $result[ 'user_name' ] );
@@ -44,6 +50,11 @@ class SearchTextParserTest extends BaseUnitTest {
 	public function test_sanitise_user_email_strips_invalid_chars() :void {
 		$result = SearchTextParser::Parse( 'user_email:user!name@example.com' );
 		$this->assertSame( 'username@example.com', $result[ 'user_email' ] );
+	}
+
+	public function test_sanitise_request_id_strips_invalid_chars() :void {
+		$result = SearchTextParser::Parse( 'request_id:abc-123#' );
+		$this->assertSame( 'abc123', $result[ 'request_id' ] );
 	}
 
 	public function test_multiple_filters_combined() :void {
@@ -62,6 +73,7 @@ class SearchTextParserTest extends BaseUnitTest {
 	public function test_empty_input() :void {
 		$result = SearchTextParser::Parse( '' );
 		$this->assertSame( '', $result[ 'ip' ] );
+		$this->assertSame( '', $result[ 'request_id' ] );
 		$this->assertSame( '', $result[ 'user_id' ] );
 		$this->assertSame( '', $result[ 'user_name' ] );
 		$this->assertSame( '', $result[ 'user_email' ] );
@@ -70,7 +82,7 @@ class SearchTextParserTest extends BaseUnitTest {
 
 	public function test_get_filter_definitions_returns_all_keys() :void {
 		$defs = SearchTextParser::GetFilterDefinitions();
-		$this->assertSame( [ 'ip', 'user_id', 'user_name', 'user_email' ], \array_keys( $defs ) );
+		$this->assertSame( [ 'ip', 'request_id', 'user_id', 'user_name', 'user_email' ], \array_keys( $defs ) );
 	}
 
 	public function test_each_definition_has_required_fields() :void {
@@ -94,9 +106,10 @@ class SearchTextParserTest extends BaseUnitTest {
 		$this->assertSame( 'admin', $result[ 'user_name' ] );
 	}
 
-	public function test_all_four_filters_combined() :void {
-		$result = SearchTextParser::Parse( 'ip:1.2.3.4 user_id:7 user_name:admin user_email:a@b.com leftover' );
+	public function test_all_five_filters_combined() :void {
+		$result = SearchTextParser::Parse( 'ip:1.2.3.4 request_id:abc123 user_id:7 user_name:admin user_email:a@b.com leftover' );
 		$this->assertSame( '1.2.3.4', $result[ 'ip' ] );
+		$this->assertSame( 'abc123', $result[ 'request_id' ] );
 		$this->assertSame( '7', $result[ 'user_id' ] );
 		$this->assertSame( 'admin', $result[ 'user_name' ] );
 		$this->assertSame( 'a@b.com', $result[ 'user_email' ] );
