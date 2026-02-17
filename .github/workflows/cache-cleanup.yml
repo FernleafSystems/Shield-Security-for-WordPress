@@ -1,0 +1,61 @@
+name: Cache Cleanup
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry-run mode (no deletions)'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      retention_days:
+        description: 'Delete BuildKit caches older than this many days'
+        required: true
+        default: 3
+        type: number
+      target_buildkit_gb:
+        description: 'Keep BuildKit cache at or below this many GiB'
+        required: true
+        default: 7
+        type: number
+
+jobs:
+  cleanup:
+    name: "Cleanup Actions Cache"
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    concurrency:
+      group: actions-cache-prune
+      cancel-in-progress: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run cache cleanup
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        chmod +x .github/scripts/cleanup-actions-cache.sh
+
+        DRY_RUN="false"
+        RETENTION_DAYS="3"
+        TARGET_BUILDKIT_GB="7"
+
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          DRY_RUN="${{ github.event.inputs.dry_run }}"
+          RETENTION_DAYS="${{ github.event.inputs.retention_days }}"
+          TARGET_BUILDKIT_GB="${{ github.event.inputs.target_buildkit_gb }}"
+        fi
+
+        ./.github/scripts/cleanup-actions-cache.sh \
+          --dry-run "$DRY_RUN" \
+          --retention-days "$RETENTION_DAYS" \
+          --target-buildkit-gb "$TARGET_BUILDKIT_GB"

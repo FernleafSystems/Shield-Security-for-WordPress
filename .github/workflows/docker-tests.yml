@@ -82,7 +82,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.wp-api-cache
-        key: wp-versions-${{ runner.os }}-${{ hashFiles('.github/scripts/detect-wp-versions.sh') }}-${{ github.run_id }}
+        key: wp-versions-${{ runner.os }}-${{ hashFiles('.github/scripts/detect-wp-versions.sh') }}
         restore-keys: |
           wp-versions-${{ runner.os }}-${{ hashFiles('.github/scripts/detect-wp-versions.sh') }}-
           wp-versions-${{ runner.os }}-
@@ -278,8 +278,8 @@ jobs:
         context: tests/docker
         file: tests/docker/Dockerfile
         tags: shield-test-runner:php${{ matrix.php }}-wp${{ matrix.wordpress }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=gha,scope=shield-docker-${{ matrix.php }}-${{ matrix.wordpress }}
+        cache-to: type=gha,scope=shield-docker-${{ matrix.php }}-${{ matrix.wordpress }},mode=min
         load: true
         build-args: |
           PHP_VERSION=${{ matrix.php }}
@@ -317,3 +317,30 @@ jobs:
         echo "Cleaning up Docker containers and volumes"
         docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml down -v --remove-orphans || true
         rm -f tests/docker/.env
+
+  cache-cleanup-post-run:
+    name: "Post-run Cache Cleanup"
+    if: always()
+    needs: [docker-test]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    concurrency:
+      group: actions-cache-prune
+      cancel-in-progress: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Cleanup BuildKit cache (non-blocking)
+      continue-on-error: true
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        chmod +x .github/scripts/cleanup-actions-cache.sh
+        ./.github/scripts/cleanup-actions-cache.sh \
+          --retention-days 3 \
+          --target-buildkit-gb 7 \
+          --dry-run false

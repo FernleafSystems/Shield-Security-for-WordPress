@@ -1,0 +1,228 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+RETENTION_DAYS=3
+TARGET_BUILDKIT_GB=7
+DRY_RUN=false
+LIST_LIMIT=5000
+
+usage() {
+    cat <<'EOF'
+Usage: cleanup-actions-cache.sh [options]
+
+Options:
+  --retention-days <days>       Delete BuildKit cache entries older than this many days (default: 3)
+  --target-buildkit-gb <gb>     Keep BuildKit cache at or below this size budget in GiB (default: 7)
+  --dry-run <true|false>        Show planned deletions without deleting (default: false)
+  -h, --help                    Show this help message
+EOF
+}
+
+log_info() {
+    echo "[INFO] $*"
+}
+
+log_warn() {
+    echo "[WARN] $*"
+}
+
+log_error() {
+    echo "[ERROR] $*" >&2
+}
+
+bytes_to_gib() {
+    awk -v b="$1" 'BEGIN { printf "%.3f", b / 1024 / 1024 / 1024 }'
+}
+
+bytes_to_mib() {
+    awk -v b="$1" 'BEGIN { printf "%.2f", b / 1024 / 1024 }'
+}
+
+fetch_buildkit_json() {
+    gh cache list \
+        --limit "$LIST_LIMIT" \
+        --sort last_accessed_at \
+        --order asc \
+        --json id,key,sizeInBytes,lastAccessedAt \
+    | jq '
+        [
+            .[]
+            | select((.key | startswith("buildkit-")) or (.key | startswith("index-buildkit-")))
+            | . + {lastAccessEpoch: (.lastAccessedAt | fromdateiso8601)}
+        ]
+        | sort_by(.lastAccessEpoch)
+    '
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --retention-days)
+            RETENTION_DAYS="$2"
+            shift 2
+            ;;
+        --target-buildkit-gb)
+            TARGET_BUILDKIT_GB="$2"
+            shift 2
+            ;;
+        --dry-run)
+            DRY_RUN="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            log_error "Unknown argument: $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+if ! [[ "$RETENTION_DAYS" =~ ^[0-9]+$ ]]; then
+    log_error "--retention-days must be a non-negative integer"
+    exit 1
+fi
+
+if ! [[ "$TARGET_BUILDKIT_GB" =~ ^[0-9]+$ ]] || [[ "$TARGET_BUILDKIT_GB" -le 0 ]]; then
+    log_error "--target-buildkit-gb must be a positive integer"
+    exit 1
+fi
+
+if [[ "$DRY_RUN" != "true" && "$DRY_RUN" != "false" ]]; then
+    log_error "--dry-run must be true or false"
+    exit 1
+fi
+
+for required_cmd in gh jq; do
+    if ! command -v "$required_cmd" >/dev/null 2>&1; then
+        log_error "Required command not found: $required_cmd"
+        exit 1
+    fi
+done
+
+now_epoch="$(date -u +%s)"
+retention_seconds="$((RETENTION_DAYS * 24 * 60 * 60))"
+target_bytes="$((TARGET_BUILDKIT_GB * 1024 * 1024 * 1024))"
+
+log_info "Starting GitHub Actions cache cleanup"
+log_info "Dry run: $DRY_RUN"
+log_info "Retention: ${RETENTION_DAYS} day(s)"
+log_info "Target BuildKit budget: ${TARGET_BUILDKIT_GB} GiB"
+
+buildkit_json="$(fetch_buildkit_json)"
+buildkit_count="$(jq 'length' <<<"$buildkit_json")"
+
+if [[ "$buildkit_count" -eq 0 ]]; then
+    log_info "No BuildKit caches found. Nothing to do."
+    exit 0
+fi
+
+declare -a ordered_ids=()
+declare -A cache_size=()
+declare -A cache_key=()
+declare -A cache_last=()
+declare -A selected_reason=()
+
+total_before=0
+
+while IFS=$'\t' read -r id key size_bytes last_accessed last_access_epoch; do
+    ordered_ids+=("$id")
+    cache_size["$id"]="$size_bytes"
+    cache_key["$id"]="$key"
+    cache_last["$id"]="$last_accessed"
+    total_before="$((total_before + size_bytes))"
+
+    age_seconds="$((now_epoch - last_access_epoch))"
+    if (( age_seconds > retention_seconds )); then
+        selected_reason["$id"]="retention"
+    fi
+done < <(jq -r '.[] | [.id, .key, .sizeInBytes, .lastAccessedAt, .lastAccessEpoch] | @tsv' <<<"$buildkit_json")
+
+selected_bytes=0
+for id in "${ordered_ids[@]}"; do
+    if [[ -n "${selected_reason[$id]:-}" ]]; then
+        selected_bytes="$((selected_bytes + cache_size[$id]))"
+    fi
+done
+
+remaining_bytes="$((total_before - selected_bytes))"
+if (( remaining_bytes > target_bytes )); then
+    for id in "${ordered_ids[@]}"; do
+        if [[ -n "${selected_reason[$id]:-}" ]]; then
+            continue
+        fi
+        selected_reason["$id"]="cap"
+        selected_bytes="$((selected_bytes + cache_size[$id]))"
+        remaining_bytes="$((remaining_bytes - cache_size[$id]))"
+        if (( remaining_bytes <= target_bytes )); then
+            break
+        fi
+    done
+fi
+
+planned_count=0
+for id in "${ordered_ids[@]}"; do
+    if [[ -n "${selected_reason[$id]:-}" ]]; then
+        planned_count="$((planned_count + 1))"
+    fi
+done
+
+log_info "BuildKit cache count: $buildkit_count"
+log_info "BuildKit size before cleanup: $(bytes_to_gib "$total_before") GiB"
+log_info "Planned deletions: $planned_count cache entries ($(bytes_to_gib "$selected_bytes") GiB)"
+
+if [[ "$planned_count" -eq 0 ]]; then
+    log_info "No deletions required. Cache is already within policy."
+    exit 0
+fi
+
+deleted_count=0
+deleted_bytes=0
+failed_count=0
+
+for id in "${ordered_ids[@]}"; do
+    reason="${selected_reason[$id]:-}"
+    if [[ -z "$reason" ]]; then
+        continue
+    fi
+
+    size_bytes="${cache_size[$id]}"
+    key="${cache_key[$id]}"
+    last_accessed="${cache_last[$id]}"
+
+    log_info "Delete[$reason] id=$id size=$(bytes_to_mib "$size_bytes") MiB last_accessed=$last_accessed key=$key"
+
+    if [[ "$DRY_RUN" == "true" ]]; then
+        continue
+    fi
+
+    if gh cache delete "$id" >/dev/null 2>&1; then
+        deleted_count="$((deleted_count + 1))"
+        deleted_bytes="$((deleted_bytes + size_bytes))"
+    else
+        failed_count="$((failed_count + 1))"
+        log_warn "Failed to delete cache id=$id; continuing"
+    fi
+done
+
+if [[ "$DRY_RUN" == "true" ]]; then
+    estimated_after="$((total_before - selected_bytes))"
+    log_info "Dry run complete"
+    log_info "Estimated BuildKit size after cleanup: $(bytes_to_gib "$estimated_after") GiB"
+    exit 0
+fi
+
+after_json="$(fetch_buildkit_json)"
+after_total="$(jq '[.[].sizeInBytes] | add // 0' <<<"$after_json")"
+
+log_info "Deleted cache entries: $deleted_count"
+log_info "Deleted bytes: $(bytes_to_gib "$deleted_bytes") GiB"
+log_info "Failed deletions: $failed_count"
+log_info "BuildKit size after cleanup: $(bytes_to_gib "$after_total") GiB"
+
+if (( failed_count > 0 )); then
+    log_warn "Cleanup completed with partial failures."
+fi
