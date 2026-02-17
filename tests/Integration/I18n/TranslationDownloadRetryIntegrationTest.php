@@ -8,6 +8,24 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase {
 
+	public function set_up() {
+		parent::set_up();
+		$this->resetTranslationConfig();
+	}
+
+	public function tear_down() {
+		$this->resetTranslationConfig();
+		parent::tear_down();
+	}
+
+	private function resetTranslationConfig() :void {
+		$controller = $this->controller();
+		$this->addCfg( $controller, 'queue', [] );
+		$this->addCfg( $controller, 'locales', [] );
+		$this->addCfg( $controller, 'last_fetch_at', 0 );
+		$this->addCfg( $controller, 'last_download_at', 0 );
+	}
+
 	private function controller() :TranslationDownloadController {
 		$controller = $this->requireController()->comps->translation_downloads;
 		$this->assertInstanceOf( TranslationDownloadController::class, $controller );
