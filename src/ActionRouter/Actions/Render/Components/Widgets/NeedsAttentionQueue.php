@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NeedsAttentionQueue extends BaseRender {
@@ -13,90 +11,14 @@ class NeedsAttentionQueue extends BaseRender {
 	public const TEMPLATE = '/wpadmin/components/widget/needs_attention_queue.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
-		$scansCon = $con->comps->scans;
-		$counter = $scansCon->getScanResultsCount();
-		$scansResultsLink = $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS );
-
-		$items = \array_values( \array_filter( [
-			$this->buildItem(
-				'scans',
-				__( 'WP Files', 'wp-simple-firewall' ),
-				$counter->countWPFiles(),
-				'critical',
-				sprintf(
-					_n( '%s WordPress core file needs review.', '%s WordPress core files need review.', $counter->countWPFiles(), 'wp-simple-firewall' ),
-					$counter->countWPFiles()
-				),
-				$scansResultsLink
-			),
-			$this->buildItem(
-				'scans',
-				__( 'Plugin Files', 'wp-simple-firewall' ),
-				$counter->countPluginFiles(),
-				'warning',
-				sprintf(
-					_n( '%s plugin file needs review.', '%s plugin files need review.', $counter->countPluginFiles(), 'wp-simple-firewall' ),
-					$counter->countPluginFiles()
-				),
-				$scansResultsLink
-			),
-			$this->buildItem(
-				'scans',
-				__( 'Theme Files', 'wp-simple-firewall' ),
-				$counter->countThemeFiles(),
-				'warning',
-				sprintf(
-					_n( '%s theme file needs review.', '%s theme files need review.', $counter->countThemeFiles(), 'wp-simple-firewall' ),
-					$counter->countThemeFiles()
-				),
-				$scansResultsLink
-			),
-			$scansCon->AFS()->isEnabledMalwareScanPHP()
-				? $this->buildItem(
-					'scans',
-					__( 'Malware', 'wp-simple-firewall' ),
-					$counter->countMalware(),
-					'critical',
-					sprintf(
-						_n( '%s malware issue detected.', '%s malware issues detected.', $counter->countMalware(), 'wp-simple-firewall' ),
-						$counter->countMalware()
-					),
-					$scansResultsLink
-				)
-				: null,
-			$scansCon->WPV()->isEnabled()
-				? $this->buildItem(
-					'scans',
-					__( 'Vulnerable Assets', 'wp-simple-firewall' ),
-					$counter->countVulnerableAssets(),
-					'critical',
-					sprintf(
-						_n( '%s vulnerable asset detected.', '%s vulnerable assets detected.', $counter->countVulnerableAssets(), 'wp-simple-firewall' ),
-						$counter->countVulnerableAssets()
-					),
-					$scansResultsLink
-				)
-				: null,
-			$scansCon->APC()->isEnabled()
-				? $this->buildItem(
-					'scans',
-					__( 'Abandoned Assets', 'wp-simple-firewall' ),
-					$counter->countAbandoned(),
-					'warning',
-					sprintf(
-						_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $counter->countAbandoned(), 'wp-simple-firewall' ),
-						$counter->countAbandoned()
-					),
-					$scansResultsLink
-				)
-				: null,
-		] ) );
+		$scansCon = self::con()->comps->scans;
+		$provider = new AttentionItemsProvider();
+		$items = $provider->buildQueueItems();
 
 		$zoneGroups = $this->buildZoneGroups( $items );
 		$hasItems = !empty( $items );
 
-		$latestScanAt = $this->getLatestCompletedScanTimestamp( $scansCon->getScanSlugs() );
+		$latestScanAt = $provider->getLatestCompletedScanTimestamp( $scansCon->getScanSlugs() );
 		$lastScanSubtext = $latestScanAt > 0
 			? sprintf(
 				__( 'Last completed scan: %s', 'wp-simple-firewall' ),
@@ -121,21 +43,6 @@ class NeedsAttentionQueue extends BaseRender {
 				'zone_groups'      => \array_values( $zoneGroups ),
 				'zone_chips'       => $this->buildAllClearZoneChips(),
 			],
-		];
-	}
-
-	private function buildItem( string $zone, string $label, int $count, string $severity, string $description, string $href ) :?array {
-		if ( $count <= 0 ) {
-			return null;
-		}
-
-		return [
-			'zone'        => $zone,
-			'label'       => $label,
-			'count'       => $count,
-			'severity'    => $severity,
-			'description' => $description,
-			'href'        => $href,
 		];
 	}
 
@@ -186,28 +93,6 @@ class NeedsAttentionQueue extends BaseRender {
 			}
 		}
 		return $highest;
-	}
-
-	private function getLatestCompletedScanTimestamp( array $scanSlugs ) :int {
-		$latest = 0;
-		foreach ( $scanSlugs as $scanSlug ) {
-			try {
-				$record = self::con()
-							  ->db_con
-							  ->scans
-							  ->getQuerySelector()
-							  ->filterByScan( (string)$scanSlug )
-							  ->filterByFinished()
-							  ->setOrderBy( 'id', 'DESC', true )
-							  ->first();
-				if ( $record instanceof ScanRecord && (int)$record->finished_at > $latest ) {
-					$latest = (int)$record->finished_at;
-				}
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $latest;
 	}
 
 	private function buildAllClearZoneChips() :array {

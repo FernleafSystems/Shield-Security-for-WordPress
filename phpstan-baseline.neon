@@ -13,12 +13,6 @@ parameters:
 			path: src/Controller/Admin/AdminBarMenu.php
 
 		-
-			message: '#^Variable \$dbh might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/Controller/Database/DbCon.php
-
-		-
 			message: '#^Action callback returns array but should not return anything\.$#'
 			identifier: return.void
 			count: 1

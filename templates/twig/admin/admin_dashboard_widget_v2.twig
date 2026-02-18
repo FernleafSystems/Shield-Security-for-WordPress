@@ -1,0 +1,82 @@
+<div class="shield-dashboard-widget-v2">
+	<div class="widget-main">
+		<div class="score-column status-{{ vars.traffic }}">
+			<div class="score-accent"></div>
+			<div class="score-body">
+				<div class="gauge-wrap">
+					<canvas class="hero-gauge-chart"
+							data-percentage="{{ vars.security_progress.totals.percentage }}"
+							data-rgbs="{{ vars.security_progress.rgbs|join(',') }}"></canvas>
+					<div class="gauge-score">{{ vars.security_progress.totals.percentage }} / 100</div>
+				</div>
+				<div class="gauge-scale">
+					<span>{{ strings.critical }}</span>
+					<span>{{ strings.needs_work }}</span>
+					<span>{{ strings.good }}</span>
+				</div>
+				<div class="score-meta">
+					<span class="score-label">{{ strings.protecting }}</span>
+					{% if flags.show_internal_links %}
+						<a href="{{ hrefs.overview }}" class="score-link">{{ strings.view_details }}</a>
+					{% else %}
+						<span class="score-link">{{ strings.view_details }}</span>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+		<div class="attention-column">
+			{% if vars.is_all_clear %}
+				<div class="attention-header is-good">
+					<span class="dashicons dashicons-yes-alt status-good" aria-hidden="true"></span>
+					<span class="attention-title">{{ strings.all_clear }}</span>
+				</div>
+				<p class="attention-all-clear">{{ strings.no_issues }}</p>
+			{% else %}
+				<div class="attention-header">
+					<span class="dashicons dashicons-warning status-warning" aria-hidden="true"></span>
+					<span class="attention-title">{{ strings.needs_attention }}</span>
+					<span class="attention-badge">{{ vars.attention_total }}</span>
+				</div>
+				<div class="attention-rows">
+					{% for item in vars.attention_items %}
+						<div class="attention-row severity-{{ item.severity }}">
+							<span class="severity-pip severity-{{ item.severity }}"></span>
+							<span class="attention-text">{{ item.text }}</span>
+							{% if flags.show_internal_links %}
+								<a href="{{ item.href }}" class="attention-action">{{ item.action }}</a>
+							{% else %}
+								<span class="attention-action">{{ item.action }}</span>
+							{% endif %}
+						</div>
+					{% endfor %}
+
+					{% if vars.attention_hidden > 0 %}
+						<div class="attention-row attention-row-more">
+							<span class="severity-pip severity-warning"></span>
+							{% if flags.show_internal_links %}
+								<a href="{{ hrefs.scans }}" class="attention-action">{{ strings.and_more|format( vars.attention_hidden ) }}</a>
+							{% else %}
+								<span class="attention-text">{{ strings.and_more|format( vars.attention_hidden ) }}</span>
+							{% endif %}
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="widget-footer">
+		<div class="footer-left">
+			{% if flags.show_internal_links %}
+				<a href="{{ hrefs.overview }}" class="footer-link">{{ strings.go_to_dashboard }}</a>
+			{% else %}
+				<span class="footer-link">{{ strings.go_to_dashboard }}</span>
+			{% endif %}
+			{% if vars.last_scan_human|default('') is not empty %}
+				<span class="scan-time">{{ strings.last_scan }}: {{ vars.last_scan_human }}</span>
+			{% endif %}
+		</div>
+		<a href="#" class="refresh_widget footer-refresh">{{ strings.refresh }}</a>
+	</div>
+</div>

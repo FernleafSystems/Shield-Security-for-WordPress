@@ -155,10 +155,6 @@ class SimplePluginTests extends BaseAction {
 		}
 	}
 
-	private function dbg_plugin_tests() {
-		( new RunTests() )->run();
-	}
-
 	private function dbg_telemetry() {
 		( new Plugin\Lib\PluginTelemetry() )->collectAndSend( true );
 	}

@@ -1,15 +1,9 @@
-import {
-	Chart as ChartJS,
-	DoughnutController,
-	ArcElement
-} from 'chart.js';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
-
-ChartJS.register( DoughnutController, ArcElement );
+import { renderHeroGauge } from "./HeroGaugeRenderer";
 
 export class ProgressMeters extends BaseAutoExecComponent {
 
@@ -134,47 +128,10 @@ export class ProgressMeters extends BaseAutoExecComponent {
 			return;
 		}
 
-		const percentage = parseInt( canvas.dataset.percentage, 10 ) || 0;
-		const rgbsRaw = canvas.dataset.rgbs || '';
-		const rgbParts = rgbsRaw.split( ',' ).map( v => parseInt( v, 10 ) );
-
-		let mainColor, bgColor;
-		if ( rgbParts.length >= 3 ) {
-			mainColor = 'rgb(' + rgbParts[ 0 ] + ',' + rgbParts[ 1 ] + ',' + rgbParts[ 2 ] + ')';
-			bgColor = 'rgba(' + rgbParts[ 0 ] + ',' + rgbParts[ 1 ] + ',' + rgbParts[ 2 ] + ',0.12)';
-		}
-		else {
-			const t = this._base_data.thresholds || { good: 70, warning: 40 };
-			mainColor = percentage > t.good ? '#008000' : ( percentage > t.warning ? '#edb41d' : '#c62f3e' );
-			bgColor = percentage > t.good ? 'rgba(0,128,0,0.12)' : ( percentage > t.warning ? 'rgba(237,180,29,0.12)' : 'rgba(198,47,62,0.12)' );
-		}
-
-		this.heroChart = new ChartJS( canvas, {
-			type: 'doughnut',
-			data: {
-				datasets: [ {
-					data: [ percentage, 100 - percentage ],
-					backgroundColor: [ mainColor, bgColor ],
-					borderWidth: 0,
-					borderRadius: [ 6, 0 ],
-				} ]
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				rotation: -90,
-				circumference: 180,
-				cutout: '75%',
-				plugins: {
-					legend: { display: false },
-					tooltip: { enabled: false },
-				},
-				animation: {
-					animateRotate: true,
-					duration: 1200,
-					easing: 'easeOutQuart',
-				}
-			}
+		this.heroChart = renderHeroGauge( canvas, {
+			percentage: canvas.dataset.percentage,
+			rgbs: canvas.dataset.rgbs || '',
+			thresholds: this._base_data.thresholds || { good: 70, warning: 40 },
 		} );
 	}
 

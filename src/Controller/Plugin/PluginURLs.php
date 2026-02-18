@@ -76,9 +76,6 @@ class PluginURLs {
 		return URL::Build( $this->adminIpRules(), [ 'analyse_ip' => $ip ] );
 	}
 
-	/**
-	 * @param string|mixed $componentSlug
-	 */
 	public function cfgForZoneComponent( string $componentSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}
@@ -90,8 +87,6 @@ class PluginURLs {
 		$def = self::con()->opts->optDef( $optKey );
 		if ( empty( $def ) || empty( $def[ 'zone_comp_slugs' ] ) ) {
 			$def = self::con()->opts->optDef( 'visitor_address_source' );
-			error_log( $optKey );
-			error_log( __METHOD__ );
 		}
 		return $this->cfgForZoneComponent( \current( $def[ 'zone_comp_slugs' ] ) );
 	}

@@ -4,74 +4,52 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
 	Handler,
 	Meter\MeterSummary
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Marketing\OurLatestBlogPosts;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	use AnyUserAuthRequired;
 
 	public const SLUG = 'render_dashboard_widget';
-	public const TEMPLATE = '/admin/admin_dashboard_widget.twig';
+	public const TEMPLATE = '/admin/admin_dashboard_widget_v2.twig';
+	public const MAX_ATTENTION_ROWS = 3;
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$vars = $this->getVars( (bool)$this->action_data[ 'refresh' ] ?? true );
+		$vars = $this->getVars( $this->isRefreshRequested() );
 		$vars[ 'generated_at' ] = Services::Request()
 							  ->carbon()
 							  ->setTimestamp( $vars[ 'generated_at' ] )
 							  ->diffForHumans();
-		$vars[ 'traffic' ] = BuildMeter::trafficFromPercentage(
-			(int)( $vars[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 )
-		);
-		$common = CommonDisplayStrings::pick( [ 'time_label', 'user_label' ] );
 		return [
 			'hrefs'   => [
-				'overview'   => $con->plugin_urls->adminHome(),
-				'logo'       => $con->labels->PluginURI,
-				'activity'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-				'sessions'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
-				'ips'        => $con->plugin_urls->adminIpRules(),
-				'blog_posts' => 'https://clk.shldscrty.com/recentblogposts',
+				'overview' => $con->plugin_urls->adminHome(),
+				'scans'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'flags'   => [
 				'show_internal_links' => $con->isPluginAdmin()
 			],
-			'imgs'    => [
-				'logo' => $con->labels->url_img_logo_small,
-			],
 			'strings' => [
-				'security_level'    => __( 'Level', 'wp-simple-firewall' ),
-				'security_progress' => __( 'Overall Security Progress', 'wp-simple-firewall' ),
-				'progress_overview' => __( 'Go To Overview', 'wp-simple-firewall' ),
-				'recent_blocked'    => __( 'Recently Blocked', 'wp-simple-firewall' ),
-				'recent_blogs'      => __( 'Recent Blog Posts', 'wp-simple-firewall' ),
-				'recent_offenses'   => __( 'Recent Offenses', 'wp-simple-firewall' ),
-				'recent_sessions'   => __( 'Recent Sessions', 'wp-simple-firewall' ),
-				'recent_activity'   => __( 'Recent Activity', 'wp-simple-firewall' ),
-				'view_all'          => __( 'View All', 'wp-simple-firewall' ),
-				'no_offenses'       => __( "No offenses recorded by IPs that haven't already been blocked.", 'wp-simple-firewall' ),
-				'no_blocked'        => __( 'No IP blocks recorded yet.', 'wp-simple-firewall' ),
-				'no_sessions'       => __( 'No new session activity recorded yet.', 'wp-simple-firewall' ),
-				'no_activity'       => __( 'No site activity recorded yet.', 'wp-simple-firewall' ),
-				'generated'         => __( 'Summary Generated', 'wp-simple-firewall' ),
-				'refresh'           => __( 'Refresh', 'wp-simple-firewall' ),
-				'events'            => __( 'Events', 'wp-simple-firewall' ),
-				'time'              => $common[ 'time_label' ],
-				'user'              => $common[ 'user_label' ],
-				'session_started'   => __( 'Session Started', 'wp-simple-firewall' ),
-				'last_offense'      => __( 'Last Offense', 'wp-simple-firewall' ),
-				'blocked'           => __( 'Blocked', 'wp-simple-firewall' ),
+				'title'              => sprintf( '%s: %s', $con->labels->Name, __( 'Overview', 'wp-simple-firewall' ) ),
+				'needs_attention'    => __( 'Needs Attention', 'wp-simple-firewall' ),
+				'all_clear'          => __( 'All Clear', 'wp-simple-firewall' ),
+				'no_issues'          => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
+				'protecting'         => __( 'Protecting', 'wp-simple-firewall' ),
+				'go_to_dashboard'    => __( 'Go to Shield Dashboard', 'wp-simple-firewall' ),
+				'last_scan'          => __( 'Last scan', 'wp-simple-firewall' ),
+				'view_details'       => __( 'View Details', 'wp-simple-firewall' ),
+				'critical'           => __( 'Critical', 'wp-simple-firewall' ),
+				'needs_work'         => __( 'Needs Work', 'wp-simple-firewall' ),
+				'good'               => __( 'Good', 'wp-simple-firewall' ),
+				'refresh'            => __( 'Refresh', 'wp-simple-firewall' ),
+				'and_more'           => __( 'and %s more', 'wp-simple-firewall' ),
+				'score_needs_review' => __( 'Security score needs review.', 'wp-simple-firewall' ),
 			],
 			'vars'    => $vars,
 		];
@@ -79,124 +57,83 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 
 	private function getVars( bool $refresh ) :array {
 		$con = self::con();
-		$recent = new RecentStats();
-
-		$vars = Transient::Get( $con->prefix( 'dashboard-widget-vars' ) );
+		$provider = new AttentionItemsProvider();
+		$vars = Transient::Get( $con->prefix( 'dashboard-widget-v2-vars' ) );
 		if ( $refresh || empty( $vars ) ) {
-			$vars = [
-				'generated_at'       => Services::Request()->ts(),
-				'security_progress'  => ( new Handler() )->getMeter( MeterSummary::class ),
-				'jump_links'         => [
-					[
-						'href'       => $con->plugin_urls->adminHome(),
-						'text'       => __( 'Dashboard', 'wp-simple-firewall' ),
-						'icon_class' => $con->svgs->iconClass( 'speedometer' ),
-					],
-					[
-						'href'       => $con->plugin_urls->adminIpRules(),
-						'text'       => __( 'IPs', 'wp-simple-firewall' ),
-						'icon_class' => $con->svgs->iconClass( 'diagram-3' ),
-					],
-					[
-						'href'       => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-						'text'       => __( 'Activity', 'wp-simple-firewall' ),
-						'icon_class' => $con->svgs->iconClass( 'person-lines-fill' ),
-					],
-					[
-						'href'       => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-						'text'       => __( 'Traffic', 'wp-simple-firewall' ),
-						'icon_class' => $con->svgs->iconClass( 'stoplights' ),
-					],
-					[
-						'href'       => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ZONES ),
-						'text'       => __( 'Zones', 'wp-simple-firewall' ),
-						'icon_class' => $con->svgs->iconClass( 'gear' ),
-					],
-				],
-				'blog_posts'         => ( new OurLatestBlogPosts() )->retrieve( 3 ),
-				'recent_events'      => \array_map(
-					function ( $evt ) {
-						/** @var EventsDB\Record $evt */
-						return [
-							'name' => self::con()->comps->events->getEventName( $evt->event ),
-							'at'   => Services::Request()
-											  ->carbon()
-											  ->setTimestamp( $evt->created_at )
-											  ->diffForHumans(),
-						];
-					},
-					\array_filter(
-						$recent->getRecentEvents(),
-						function ( $evt ) {
-							return \in_array( $evt->event, [
-								'conn_kill',
-								'login_block',
-								'firewall_block',
-								'ip_blocked',
-								'ip_offense',
-								'bottrack_fakewebcrawler',
-								'bottrack_logininvalid',
-								'bottrack_loginfailed',
-								'bottrack_xmlrpc',
-								'bottrack_404',
-								'spam_block_antibot',
-							] );
-						}
-					)
-				),
-				'recent_ips_blocked' => \array_map(
-					function ( $ip ) {
-						return [
-							'ip'      => $ip->ip,
-							'ip_href' => self::con()->plugin_urls->ipAnalysis( $ip->ip ),
-							'at'      => Services::Request()
-												 ->carbon()
-												 ->setTimestamp( $ip->blocked_at )
-												 ->diffForHumans()
-						];
-					},
-					$recent->getRecentlyBlockedIPs()
-				),
-				'recent_ips_offense' => \array_map(
-					function ( $ip ) {
-						return [
-							'ip'      => $ip->ip,
-							'ip_href' => self::con()->plugin_urls->ipAnalysis( $ip->ip ),
-							'at'      => Services::Request()
-												 ->carbon()
-												 ->setTimestamp( $ip->last_access_at )
-												 ->diffForHumans()
-						];
-					},
-					$recent->getRecentlyOffendedIPs()
-				),
-				'recent_users'       => \array_map(
-					function ( $sess ) {
-						$user = $sess[ 'user_login' ];
-						$userHref = Services::WpUsers()->getAdminUrl_ProfileEdit( $sess[ 'user_id' ] );
-						if ( !self::con()->isPluginAdmin() ) {
-							$user = is_email( $user ) ?
-								Obfuscate::Email( $user ) : \substr( $user, 0, 1 ).'****'.\substr( $user, -1, 1 );
-							$userHref = '#';
-						}
+			$securityProgress = ( new Handler() )->getMeter( MeterSummary::class );
+			$traffic = BuildMeter::trafficFromPercentage(
+				(int)( $securityProgress[ 'totals' ][ 'percentage' ] ?? 0 )
+			);
 
-						return [
-							'user'      => $user,
-							'user_href' => $userHref,
-							'ip'        => $sess[ 'ip' ],
-							'ip_href'   => self::con()->plugin_urls->ipAnalysis( $sess[ 'ip' ] ),
-							'at'        => Services::Request()
-												   ->carbon()
-												   ->setTimestamp( (int)$sess[ 'last_login_at' ] )
-												   ->diffForHumans()
-						];
-					},
-					$recent->getRecentUserSessions()
-				),
+			$attentionItems = $provider->buildScanItems();
+
+			$warningItem = $this->buildMeterWarningItem( $securityProgress, $traffic, $con->plugin_urls->adminHome() );
+			if ( !empty( $warningItem ) ) {
+				$attentionItems[] = $warningItem;
+			}
+
+			if ( empty( $attentionItems ) && $traffic !== 'good' ) {
+				$attentionItems[] = $this->buildScoreFallbackItem( $traffic, $con->plugin_urls->adminHome() );
+			}
+
+			$attentionItems = $provider->sortItems( $attentionItems );
+			$attentionTotal = \count( $attentionItems );
+			$attentionRows = \array_slice( $attentionItems, 0, self::MAX_ATTENTION_ROWS );
+
+			$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
+
+			$vars = [
+				'generated_at'      => Services::Request()->ts(),
+				'security_progress' => $securityProgress,
+				'traffic'           => $traffic,
+				'attention_items'   => $attentionRows,
+				'attention_total'   => $attentionTotal,
+				'attention_hidden'  => \max( 0, $attentionTotal - \count( $attentionRows ) ),
+				'is_all_clear'      => $attentionTotal === 0 && $traffic === 'good',
+				'last_scan_human'   => $latestScanAt > 0
+					? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
+					: '',
 			];
-			Transient::Set( $con->prefix( 'dashboard-widget-vars' ), $vars, 30 );
+			Transient::Set( $con->prefix( 'dashboard-widget-v2-vars' ), $vars, 30 );
 		}
 
 		return $vars;
 	}
+
+	private function isRefreshRequested() :bool {
+		return \filter_var( $this->action_data[ 'refresh' ] ?? false, \FILTER_VALIDATE_BOOLEAN );
+	}
+
+	private function buildMeterWarningItem( array $meter, string $traffic, string $defaultHref ) :array {
+		$warning = \is_array( $meter[ 'warning' ] ?? null ) ? $meter[ 'warning' ] : [];
+		$text = (string)( $warning[ 'text' ] ?? '' );
+		if ( empty( $text ) ) {
+			return [];
+		}
+
+		return [
+			'key'      => 'meter_warning',
+			'zone'     => 'summary',
+			'label'    => __( 'Security Meter', 'wp-simple-firewall' ),
+			'text'     => $text,
+			'count'    => 1,
+			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
+			'href'     => (string)( $warning[ 'href' ] ?? $defaultHref ),
+			'action'   => __( 'View', 'wp-simple-firewall' ),
+		];
+	}
+
+	private function buildScoreFallbackItem( string $traffic, string $href ) :array {
+		return [
+			'key'      => 'score_generic',
+			'zone'     => 'summary',
+			'label'    => __( 'Security Score', 'wp-simple-firewall' ),
+			'text'     => __( 'Security score needs review.', 'wp-simple-firewall' ),
+			'count'    => 1,
+			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
+			'href'     => $href,
+			'action'   => __( 'View', 'wp-simple-firewall' ),
+		];
+	}
+
 }
