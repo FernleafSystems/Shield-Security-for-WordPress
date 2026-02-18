@@ -69,7 +69,7 @@ class PageZone extends BasePluginAdminPage {
 				] ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'sliders' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'sliders' ),
 			],
 			'strings' => [
 				'inner_page_title'    => $zone->title(),

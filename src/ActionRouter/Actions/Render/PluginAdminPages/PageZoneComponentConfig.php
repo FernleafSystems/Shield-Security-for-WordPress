@@ -21,7 +21,7 @@ class PageZoneComponentConfig extends BasePluginAdminPage {
 				] ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'gear' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'gear' ),
 			],
 			'strings' => [
 				'inner_page_title'    => $component->title(),

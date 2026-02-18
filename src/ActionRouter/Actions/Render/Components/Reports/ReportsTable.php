@@ -41,7 +41,7 @@ class ReportsTable extends BaseRender {
 							'delete' => [
 								'title'   => __( 'Delete', 'wp-simple-firewall' ),
 								'classes' => [ 'btn-danger', 'shield_dynamic_action_button' ],
-								'svg'     => self::con()->svgs->raw( 'trash3-fill.svg' ),
+								'icon_class' => self::con()->svgs->iconClass( 'trash3-fill.svg' ),
 								'data'    => ActionData::Build( ReportTableAction::class, false, [
 									'report_action' => 'delete',
 									'rid'           => $report->id,
@@ -55,7 +55,7 @@ class ReportsTable extends BaseRender {
 								'href'    => $con->plugin_urls->fileDownload( 'report_download_pdf', [
 									'rid' => $report->id
 								] ),
-								'svg'     => $con->svgs->raw( 'file-earmark-pdf.svg' ),
+								'icon_class' => $con->svgs->iconClass( 'file-earmark-pdf.svg' ),
 							],
 							*/
 						],

@@ -20,7 +20,7 @@ class PageConfigForZoneComponents extends BasePluginAdminPage {
 				] ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'sliders' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'sliders' ),
 			],
 			'strings' => [
 //				'inner_page_title'    => $modStrings[ 'name' ],

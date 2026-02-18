@@ -63,7 +63,7 @@ class Container extends BaseScans {
 			],
 			'imgs'    => [
 				'svgs' => [
-					'file_download' => $con->svgs->raw( 'download.svg' ),
+					'file_download' => $con->svgs->iconClass( 'download.svg' ),
 				],
 			],
 			'strings' => [

@@ -36,7 +36,7 @@ class PageUserSessions extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'person-badge' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'person-badge' ),
 			],
 			'strings' => [
 				'title_filter_form'   => __( 'Sessions Table Filters', 'wp-simple-firewall' ),

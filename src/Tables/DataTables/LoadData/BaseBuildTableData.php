@@ -355,7 +355,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
 				$recordDeleteID,
 				__( 'Delete IP', 'wp-simple-firewall' ),
-				self::con()->svgs->raw( 'trash3-fill.svg' )
+				sprintf( '<i class="%s" aria-hidden="true"></i>', self::con()->svgs->iconClass( 'trash3-fill.svg' ) )
 			);
 
 			$content = \implode( '', \array_filter( [

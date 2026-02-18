@@ -26,7 +26,7 @@ class PageActivityLogTable extends BasePluginAdminPage {
 				'logtable_action' => ActionData::BuildJson( ActivityLogTableAction::class ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'person-lines-fill' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'person-lines-fill' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'View Logs', 'wp-simple-firewall' ),

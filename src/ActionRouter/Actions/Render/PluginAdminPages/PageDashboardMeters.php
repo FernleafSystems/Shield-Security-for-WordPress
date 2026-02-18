@@ -69,7 +69,7 @@ class PageDashboardMeters extends BasePluginAdminPage {
 				'is_show_view_as_message' => $viewAsState[ 'is_show_view_as' ],
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'speedometer' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'speedometer' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Analysis', 'wp-simple-firewall' ),

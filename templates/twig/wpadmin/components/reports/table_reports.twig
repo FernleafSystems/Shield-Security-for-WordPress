@@ -29,7 +29,7 @@
 						   {% for data_key,data_value in action.data|default([]) %}
 							   data-{{ data_key }}="{{ data_value }}"
 						   {% endfor %}
-						>{{ action.svg|raw }}</a>
+						><i class="{{ action.icon_class }}" aria-hidden="true"></i></a>
 					{% endfor %}
 				</div>
 			</div>

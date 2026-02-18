@@ -34,8 +34,8 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 			],
 			'imgs'    => [
 				'svgs' => [
-					'analysis'    => self::con()->svgs->raw( 'zoom-in' ),
-					'status_icon' => self::con()->svgs->raw( $iconName ),
+					'analysis'    => self::con()->svgs->iconClass( 'zoom-in' ),
+					'status_icon' => self::con()->svgs->iconClass( $iconName ),
 				],
 			],
 			'vars'    => [

@@ -25,7 +25,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'imgs'    => [
 				'svgs' => [
-					'importexport' => $con->svgs->raw( 'arrow-down-up' )
+					'importexport' => $con->svgs->iconClass( 'arrow-down-up' )
 				],
 			],
 			'vars'    => [

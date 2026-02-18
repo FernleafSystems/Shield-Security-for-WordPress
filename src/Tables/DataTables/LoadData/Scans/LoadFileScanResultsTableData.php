@@ -154,7 +154,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				\implode( ' ', $defaultButtonClasses ),
 				__( 'View File Details', 'wp-simple-firewall' ),
 				$item->VO->scanresult_id,
-				$con->svgs->raw( 'zoom-in.svg' )
+				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'zoom-in.svg' ) )
 			);
 		}
 
@@ -163,7 +163,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				\implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
 				$item->VO->scanresult_id,
-				$con->svgs->raw( 'x-square.svg' )
+				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'x-square.svg' ) )
 			);
 		}
 
@@ -180,7 +180,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 						\implode( ' ', $defaultButtonClasses ),
 						__( 'Repair', 'wp-simple-firewall' ),
 						$item->VO->scanresult_id,
-						$con->svgs->raw( 'tools.svg' )
+						sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'tools.svg' ) )
 					);
 				}
 			}
@@ -193,7 +193,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				\implode( ' ', $defaultButtonClasses ),
 				__( 'Ignore', 'wp-simple-firewall' ),
 				$item->VO->scanresult_id,
-				$con->svgs->raw( 'eye-slash-fill.svg' )
+				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'eye-slash-fill.svg' ) )
 			);
 		}
 
@@ -224,8 +224,8 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				self::con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
 		}
 		elseif ( $extension === 'SVG' ) {
-			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				self::con()->urls->svg( 'filetype-svg' ), $extension, $extension );
+			$type = sprintf( '<i class="%s" title="%s" aria-label="%s"></i>',
+				self::con()->svgs->iconClass( 'filetype-svg' ), $extension, $extension );
 		}
 		elseif ( $extension === 'JSON' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',

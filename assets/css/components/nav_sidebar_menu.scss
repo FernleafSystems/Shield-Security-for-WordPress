@@ -33,7 +33,7 @@
 	background: #f7f9f7;
 	border-color: $border-color-neutral-subtle;
 }
-#NavSideBar .nav-item:hover .nav-icon > svg { color: $primary; }
+#NavSideBar .nav-item:hover .nav-icon > .bi { color: $primary; }
 #NavSideBar .nav-item:hover .top-title { color: $primary; }
 
 // Active
@@ -47,15 +47,15 @@
 
 // --- Icons ---
 
-#NavSideBar .nav-item .nav-icon > svg {
+#NavSideBar .nav-item .nav-icon > .bi {
 	width: 18px;
 	height: 18px;
 	color: #333;
 	transition: color 0.2s ease;
 }
 
-#NavSideBar .nav-item.active .nav-icon > svg,
-#NavSideBar .nav-item.activesub .nav-icon > svg {
+#NavSideBar .nav-item.active .nav-icon > .bi,
+#NavSideBar .nav-item.activesub .nav-icon > .bi {
 	color: $primary;
 }
 
@@ -78,7 +78,7 @@
 
 // --- Collapse triangle ---
 
-#NavSideBar .nav-item .top-title svg {
+#NavSideBar .nav-item .top-title .bi {
 	transform-origin: 50% 50%;
 	transform: rotate(60deg);
 	height: 6px;
@@ -89,7 +89,7 @@
 	transition: transform 0.3s ease;
 }
 
-#NavSideBar .nav-item.activesub .top-title svg {
+#NavSideBar .nav-item.activesub .top-title .bi {
 	transform: rotate(-30deg);
 }
 
@@ -106,7 +106,7 @@
 	transition: background-color 0.2s ease;
 }
 
-.top-level-nav li > .nav-link > a.zone_component_action .svg-container > svg {
+.top-level-nav li > .nav-link > a.zone_component_action .svg-container > .bi {
 	color: $primary;
 	transform: rotate(0deg);
 	transition: transform 0.3s ease;
@@ -116,7 +116,7 @@
 	background-color: rgba($primary, 0.08);
 }
 
-.top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container > svg {
+.top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container > .bi {
 	transform: rotate(45deg);
 }
 
@@ -188,7 +188,7 @@
 	opacity: 0.8;
 }
 
-.primary_side_sub_menu > li:hover a.zone_config .svg-container > svg {
+.primary_side_sub_menu > li:hover a.zone_config .svg-container > .bi {
 	transform: rotate(45deg);
 	transition: transform 0.3s ease;
 }

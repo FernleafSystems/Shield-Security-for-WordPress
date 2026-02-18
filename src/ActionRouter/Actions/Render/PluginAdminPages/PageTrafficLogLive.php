@@ -34,7 +34,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 				'is_enabled' => self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0,
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'stoplights' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'stoplights' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Live Logs', 'wp-simple-firewall' ),

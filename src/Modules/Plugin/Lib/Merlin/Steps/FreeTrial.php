@@ -17,7 +17,7 @@ class FreeTrial extends Base {
 				'features'   => 'https://getshieldsecurity.com/features/',
 			],
 			'imgs'    => [
-				'free_trial' => self::con()->svgs->raw( 'shield-fill-plus.svg' ),
+				'free_trial' => self::con()->svgs->iconClass( 'shield-fill-plus.svg' ),
 			],
 			'strings' => [
 				'step_title' => sprintf( __( 'Try Pro For Free', 'wp-simple-firewall' ), self::con()->labels->Name ),

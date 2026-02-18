@@ -84,8 +84,8 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 					),
 				],
 				'imgs'    => [
-					'icon_delete' => $con->svgs->raw( 'trash3-fill.svg' ),
-					'icon_edit'   => $con->svgs->raw( 'pencil-square.svg' ),
+					'icon_delete' => $con->svgs->iconClass( 'trash3-fill.svg' ),
+					'icon_edit'   => $con->svgs->iconClass( 'pencil-square.svg' ),
 				],
 				'vars'    => [
 					'rid' => $rule->id,
@@ -100,7 +100,9 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 
 	private function colDrag( SecurityRulesDB\Record $rule ) :string {
 		return sprintf( '<div class="h-100 d-flex justify-content-center align-items-center" data-rid="%s">%s</div>',
-			$rule->id, self::con()->svgs->raw( 'arrows-move.svg' ) );
+			$rule->id,
+			sprintf( '<i class="%s" aria-hidden="true"></i>', self::con()->svgs->iconClass( 'arrows-move.svg' ) )
+		);
 	}
 
 	protected function countTotalRecords() :int {

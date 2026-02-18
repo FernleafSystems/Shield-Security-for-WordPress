@@ -21,7 +21,7 @@ class Secadmin extends Base {
 						'quietly' => '1',
 					]
 				),
-				'icon'    => $con->svgs->raw( 'toggle-off' ),
+				'icon'    => $con->svgs->iconClass( 'toggle-off' ),
 				'classes' => [
 					'list-group-item-warning',
 				],

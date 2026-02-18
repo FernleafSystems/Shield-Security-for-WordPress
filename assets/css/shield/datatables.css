@@ -88,7 +88,7 @@ td.severity .severity-icon.severity-notice {
 td.severity .severity-icon.severity-info {
 	color: #039aab;
 }
-td.severity .severity-icon > svg {
+td.severity .severity-icon > .bi {
 	width: 32px;
 	height: 32px;
 }

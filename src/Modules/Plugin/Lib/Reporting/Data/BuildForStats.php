@@ -80,7 +80,7 @@ class BuildForStats extends BuildBase {
 				'count_diff'             => $diff,
 				'count_diff_abs'         => \abs( $diff ),
 				'diff_symbol_email'      => $diff > 0 ? '↗' : ( $diff < 0 ? '↘' : '➡' ),
-				'diff_symbol_svg'        => $con->svgs->raw( $diff > 0 ? 'arrow-up-right' : ( $diff < 0 ? 'arrow-down-right' : 'arrow-right' ) ),
+				'diff_symbol_icon_class' => $con->svgs->iconClass( $diff > 0 ? 'arrow-up-right' : ( $diff < 0 ? 'arrow-down-right' : 'arrow-right' ) ),
 				'diff_symbol_plus_minus' => $diff > 0 ? '+' : ( $diff < 0 ? '-' : '' ),
 				'diff_colour'            => $diff > 0 ? 'warning' : ( $diff < 0 ? 'success' : 'info' ),
 				'diff_percentage'        => self::calcDiffPercentage( $sumCurrent, $sumPrevious ),

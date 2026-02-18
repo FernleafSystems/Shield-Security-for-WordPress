@@ -71,7 +71,7 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 				'is_early_draft'        => $isDraft,
 			],
 			'imgs'    => [
-				'icon_delete' => $con->svgs->raw( 'trash3-fill.svg' ),
+				'icon_delete' => $con->svgs->iconClass( 'trash3-fill.svg' ),
 			],
 			'strings' => [
 				'title'             => $isDraft ? __( 'Create New Rule', 'wp-simple-firewall' )

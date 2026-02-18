@@ -60,9 +60,9 @@ class PageLicense extends BasePluginAdminPage {
 				'keyless_cp'     => $config->def( 'keyless_cp' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'award' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'award' ),
 				'svgs'                  => [
-					'thumbs_up' => $con->svgs->raw( 'hand-thumbs-up.svg' ),
+					'thumbs_up' => $con->svgs->iconClass( 'hand-thumbs-up.svg' ),
 				],
 			],
 			'inputs'  => [

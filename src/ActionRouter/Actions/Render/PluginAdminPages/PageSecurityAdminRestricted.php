@@ -19,9 +19,9 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 				'allow_email_override' => $con->opts->optIs( 'allow_email_override', 'Y' )
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'person-badge' ),
-				'icon_shield'           => $con->svgs->raw( 'shield-fill' ),
-				'icon_external_link'    => $con->svgs->raw( 'box-arrow-up-right' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'person-badge' ),
+				'icon_shield'           => $con->svgs->iconClass( 'shield-fill' ),
+				'icon_external_link'    => $con->svgs->iconClass( 'box-arrow-up-right' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Plugin Protection', 'wp-simple-firewall' ),

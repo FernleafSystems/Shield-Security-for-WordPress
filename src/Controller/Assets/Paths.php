@@ -25,6 +25,9 @@ class Paths {
 		return $this->forAsset( 'images/'.\ltrim( $asset, '/' ) );
 	}
 
+	/**
+	 * @deprecated 21.2.2 Bootstrap icon SVG files are deprecated; use Svgs::iconClass()
+	 */
 	public function forSVG( string $asset ) :string {
 		return $this->forImage( 'bootstrap/'.Utilities\File\Paths::AddExt( \ltrim( $asset, '/' ), 'svg' ) );
 	}

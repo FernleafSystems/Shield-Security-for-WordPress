@@ -108,7 +108,7 @@ class NavMenuBuilder {
 			'slug'     => PluginNavs::NAV_IPS,
 			'title'    => __( 'Bots & IP Rules', 'wp-simple-firewall' ),
 			'subtitle' => __( "Blocked & Bypass IPs", 'wp-simple-firewall' ),
-			'img'      => $con->svgs->raw( 'diagram-3' ),
+			'img'      => $con->svgs->iconClass( 'diagram-3' ),
 			'href'     => $con->plugin_urls->adminIpRules(),
 			'active'   => $this->inav() === PluginNavs::NAV_IPS,
 			'introjs'  => [
@@ -132,7 +132,7 @@ class NavMenuBuilder {
 			'title'     => __( 'Activity Logs', 'wp-simple-firewall' ),
 			'subtitle'  => __( "All WP Site Activity", 'wp-simple-firewall' ),
 			//			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-			'img'       => $con->svgs->raw( 'person-lines-fill' ),
+			'img'       => $con->svgs->iconClass( 'person-lines-fill' ),
 			'active'    => $this->inav() === PluginNavs::NAV_ACTIVITY,
 			'introjs'   => [
 				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
@@ -159,7 +159,7 @@ class NavMenuBuilder {
 			'slug'      => PluginNavs::NAV_SCANS,
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'shield-shaded' ),
+			'img'       => $con->svgs->iconClass( 'shield-shaded' ),
 //			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_SCANS,
 //				[ ModuleScans::Slug(), ],
 //				__( 'Edit all scan settings', 'wp-simple-firewall' )
@@ -185,7 +185,7 @@ class NavMenuBuilder {
 			'slug'     => PluginNavs::NAV_DASHBOARD,
 			'title'    => __( 'Dashboard', 'wp-simple-firewall' ),
 			'subtitle' => __( 'Security At A Glance', 'wp-simple-firewall' ),
-			'img'      => $con->svgs->raw( 'speedometer' ),
+			'img'      => $con->svgs->iconClass( 'speedometer' ),
 			'href'     => $con->plugin_urls->adminHome(),
 			'introjs'  => [
 				'title' => __( 'Security Overview', 'wp-simple-firewall' ),
@@ -227,7 +227,7 @@ class NavMenuBuilder {
 			'slug'      => PluginNavs::NAV_ZONES,
 			'title'     => __( 'Security Zones', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Setup Your Security Zones', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'grid-1x2-fill' ),
+			'img'       => $con->svgs->iconClass( 'grid-1x2-fill' ),
 			'sub_items' => $subItems,
 			'introjs'   => [
 				'title' => __( 'Security Zones', 'wp-simple-firewall' ),
@@ -268,7 +268,7 @@ class NavMenuBuilder {
 			'slug'      => PluginNavs::NAV_LICENSE,
 			'title'     => $con->isPremiumActive() ? self::con()->labels->Name : __( 'Go PRO!', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Supercharged Security', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'award' ),
+			'img'       => $con->svgs->iconClass( 'award' ),
 			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
 			'sub_items' => $subItems,
 		];
@@ -279,7 +279,7 @@ class NavMenuBuilder {
 			'slug'      => PluginNavs::NAV_RULES,
 			'title'     => __( 'Custom Rules', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Custom Security Rules', 'wp-simple-firewall' ),
-			'img'       => self::con()->svgs->raw( 'node-plus-fill' ),
+			'img'       => self::con()->svgs->iconClass( 'node-plus-fill' ),
 			'introjs'   => [
 				'title' => __( 'Security Rules', 'wp-simple-firewall' ),
 				'body'  => __( "Create and view all your custom security rules.", 'wp-simple-firewall' ),
@@ -312,7 +312,7 @@ class NavMenuBuilder {
 			'slug'      => PluginNavs::NAV_TOOLS,
 			'title'     => __( 'Tools', 'wp-simple-firewall' ),
 			'subtitle'  => __( "Import, Whitelabel, Wizard", 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'tools' ),
+			'img'       => $con->svgs->iconClass( 'tools' ),
 			'introjs'   => [
 				'title' => __( 'Security Tools', 'wp-simple-firewall' ),
 				'body'  => __( "Important security tools, such a import/export, whitelabel, debug.", 'wp-simple-firewall' ),
@@ -380,7 +380,7 @@ class NavMenuBuilder {
 			'slug'     => PluginNavs::NAV_REPORTS,
 			'title'    => __( 'Reports', 'wp-simple-firewall' ),
 			'subtitle' => __( "See What's Happening", 'wp-simple-firewall' ),
-			'img'      => $con->svgs->raw( 'clipboard-data-fill' ),
+			'img'      => $con->svgs->iconClass( 'clipboard-data-fill' ),
 			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
 			'active'   => $this->inav() === PluginNavs::NAV_REPORTS,
 			'introjs'  => [
@@ -410,7 +410,7 @@ class NavMenuBuilder {
 		return [
 			'slug'    => $primaryNavSlug.'-config',
 			'title'   => __( 'Config', 'wp-simple-firewall' ),
-			'img'     => self::con()->svgs->raw( 'gear' ),
+			'img'     => self::con()->svgs->iconClass( 'gear' ),
 			'tooltip' => empty( $tooltip ) ? __( 'Edit Settings', 'wp-simple-firewall' ) : $tooltip,
 			'classes' => [
 				'zone_component_action',

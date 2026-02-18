@@ -6,23 +6,23 @@
 			<h6 class="component-title">{{ strings.title }}</h6>
 			{% if vars.enabled_status == 'good' %}
 				<span class="status-badge badge-good">
-					<span class="badge-icon">{{ imgs.svgs.status_good|raw }}</span> {{ strings.status_label }}
+					<span class="badge-icon"><i class="{{ imgs.svgs.status_good }}" aria-hidden="true"></i></span> {{ strings.status_label }}
 				</span>
 			{% elseif vars.enabled_status == 'neutral_enabled' %}
 				<span class="status-badge badge-neutral">
-					<span class="badge-icon">{{ imgs.svgs.status_neutral_enabled|raw }}</span> {{ strings.status_label }}
+					<span class="badge-icon"><i class="{{ imgs.svgs.status_neutral_enabled }}" aria-hidden="true"></i></span> {{ strings.status_label }}
 				</span>
 			{% elseif vars.enabled_status == 'okay' %}
 				<span class="status-badge badge-okay">
-					<span class="badge-icon">{{ imgs.svgs.status_okay|raw }}</span> {{ strings.status_label }}
+					<span class="badge-icon"><i class="{{ imgs.svgs.status_okay }}" aria-hidden="true"></i></span> {{ strings.status_label }}
 				</span>
 			{% elseif vars.enabled_status == 'bad' %}
 				<span class="status-badge badge-bad">
-					<span class="badge-icon">{{ imgs.svgs.status_bad|raw }}</span> {{ strings.status_label }}
+					<span class="badge-icon"><i class="{{ imgs.svgs.status_bad }}" aria-hidden="true"></i></span> {{ strings.status_label }}
 				</span>
 			{% else %}
 				<span class="status-badge badge-neutral">
-					<span class="badge-icon">{{ imgs.svgs.status_neutral|raw }}</span> {{ strings.status_label }}
+					<span class="badge-icon"><i class="{{ imgs.svgs.status_neutral }}" aria-hidden="true"></i></span> {{ strings.status_label }}
 				</span>
 			{% endif %}
 		</div>
@@ -31,7 +31,7 @@
 			   href="javascript:{}"
 			   title="{{ vars.actions.config.title }}"
 			   {% for key, value in vars.actions.config.data %}data-{{ key }}="{{ value }}"{% endfor %}
-			><span class="configure-gear">{{ imgs.svgs.gear|raw }}</span> {{ strings.configure }}</a>
+			><span class="configure-gear"><i class="{{ imgs.svgs.gear }}" aria-hidden="true"></i></span> {{ strings.configure }}</a>
 		{% endif %}
 	</div>
 
@@ -43,7 +43,7 @@
 		<div class="explanations-block">
 			{% for expl in strings.explanation %}
 				<div class="explanation-item">
-					<span class="explanation-icon">{{ imgs.svgs.explanation_info|raw }}</span>
+					<span class="explanation-icon"><i class="{{ imgs.svgs.explanation_info }}" aria-hidden="true"></i></span>
 					<span>{{ expl }}</span>
 				</div>
 			{% endfor %}

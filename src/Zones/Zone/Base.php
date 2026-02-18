@@ -51,7 +51,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 					'bs-title'     => $this->tooltip(),
 				]
 			),
-			'icon'    => self::con()->svgs->raw( 'gear' ),
+			'icon'    => self::con()->svgs->iconClass( 'gear' ),
 			'classes' => [
 				'list-group-item-primary',
 				'zone_component_action',

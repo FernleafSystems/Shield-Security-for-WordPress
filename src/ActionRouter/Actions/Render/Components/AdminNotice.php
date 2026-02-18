@@ -32,7 +32,7 @@ class AdminNotice extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 		$data[ 'can_dismiss' ] = $notice->can_dismiss ?? true;
 
 		$data[ 'imgs' ] = [
-			'icon_shield' => $con->svgs->raw( 'shield-shaded.svg' ),
+			'icon_shield' => $con->svgs->iconClass( 'shield-shaded.svg' ),
 		];
 
 		return $data;

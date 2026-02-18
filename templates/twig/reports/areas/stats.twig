@@ -37,7 +37,7 @@
 								<div class="stat-card-footer">
 									<span>{{ strings.previous_period }}: {{ stat.count_previous_period }}</span>
 									<span class="stat-trend {{ trend_class }}">
-										{{ stat.diff_symbol_svg|raw }}
+										<i class="{{ stat.diff_symbol_icon_class }}" aria-hidden="true"></i>
 										{{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage is defined and stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
 									</span>
 								</div>

@@ -43,7 +43,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 				'inner_page_subtitle' => __( 'View and manage IP rules that block malicious visitors and bots.', 'wp-simple-firewall' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'diagram-3' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'diagram-3' ),
 			],
 			'vars'    => [
 				'datatable_iprules' => wp_json_encode( [

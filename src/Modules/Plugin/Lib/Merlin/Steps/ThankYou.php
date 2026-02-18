@@ -20,9 +20,9 @@ class ThankYou extends Base {
 				'dashboard' => $con->plugin_urls->adminHome(),
 			],
 			'imgs'    => [
-				'facebook' => $con->svgs->raw( 'facebook.svg' ),
-				'twitter'  => $con->svgs->raw( 'twitter.svg' ),
-				'email'    => $con->svgs->raw( 'envelope-fill.svg' ),
+				'facebook' => $con->svgs->iconClass( 'facebook.svg' ),
+				'twitter'  => $con->svgs->iconClass( 'twitter.svg' ),
+				'email'    => $con->svgs->iconClass( 'envelope-fill.svg' ),
 			],
 			'vars'    => [
 				'video_id' => '269364269',

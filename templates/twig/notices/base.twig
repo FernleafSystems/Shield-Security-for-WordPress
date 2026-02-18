@@ -12,7 +12,7 @@
 		<div class="shield-notice-content-wrap">
 			{% if imgs.icon_shield|default('') is not empty %}
 			<div class="shield-notice-icon" aria-hidden="true">
-				{{ imgs.icon_shield|raw }}
+				<i class="{{ imgs.icon_shield }}" aria-hidden="true"></i>
 			</div>
 			{% endif %}
 			<div class="shield-notice-content">

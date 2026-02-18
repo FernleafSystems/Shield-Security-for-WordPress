@@ -28,7 +28,7 @@
 					   data-bs-trigger="hover"
 					   data-bs-placement="top"
 					   data-bs-title="Expand description"
-					>{{ imgs.svgs.expand|raw }}</a>
+					><i class="{{ imgs.svgs.expand }}" aria-hidden="true"></i></a>
 				{% endif %}
 
 				{% if option.beacon_id|default(false) %}
@@ -40,7 +40,7 @@
 					   data-bs-title="{{ strings.opt_info_helpdesk }}"
 					   data-beacon_article_format="sidebar"
 					   data-beacon_article_id="{{ option.beacon_id }}"
-					>{{ imgs.svgs.help|raw }}</a>
+					><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></a>
 
 				{% elseif option.link_info %}
 					<a href="{{ option.link_info }}"
@@ -50,7 +50,7 @@
 					   data-bs-trigger="hover"
 					   data-bs-placement="top"
 					   data-bs-title="{{ strings.opt_info_helpdesk }}"
-					>{{ imgs.svgs.help|raw }}</a>
+					><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></a>
 				{% endif %}
 
 				{% if option.vimeo_id|default('') is not empty %}
@@ -61,7 +61,7 @@
 					   data-bs-placement="top"
 					   data-bs-title="{{ strings.opt_info_video }}"
 					   data-vimeoid="{{ option.vimeo_id }}"
-					>{{ imgs.svgs.video|raw }}</a>
+					><i class="{{ imgs.svgs.video }}" aria-hidden="true"></i></a>
 				{% endif %}
 
 				{% if option.link_blog %}
@@ -71,7 +71,7 @@
 					   data-bs-trigger="hover"
 					   data-bs-placement="top"
 					   data-bs-title="{{ strings.opt_info_blog }}"
-					>{{ imgs.svgs.blog|raw }}</a>
+					><i class="{{ imgs.svgs.blog }}" aria-hidden="true"></i></a>
 				{% endif %}
 
 				{% if option.disabled and option.unavailable %}
@@ -80,7 +80,7 @@
 					   data-bs-toggle="tooltip"
 					   data-bs-trigger="hover"
 					   data-bs-placement="top"
-					   data-bs-title="Upgrade to Pro to unlock">{{ imgs.svgs.upgrade|raw }}</a>
+					   data-bs-title="Upgrade to Pro to unlock"><i class="{{ imgs.svgs.upgrade }}" aria-hidden="true"></i></a>
 				{% endif %}
 				<div class="clearfix"></div>
 			</div>
@@ -263,7 +263,7 @@
 	</div>
 </div>
 
-{% macro options_helper(svg, tooltip, href="javascript:{}", classes=[], attributes=[]) %}
+{% macro options_helper(icon_class, tooltip, href="javascript:{}", classes=[], attributes=[]) %}
 	<a href="{{ href }}"
 	   class="d-inline-block me-1 svg-container {{ classes|join(' ') }}"
 	   data-bs-toggle="tooltip"
@@ -271,5 +271,5 @@
 	   data-bs-placement="top"
 	   data-bs-title="{{ tooltip }}"
 			{{ attributes|join(' ') }}
-	>{{ svg|raw }}</a>
+	><i class="{{ icon_class }}" aria-hidden="true"></i></a>
 {% endmacro %}

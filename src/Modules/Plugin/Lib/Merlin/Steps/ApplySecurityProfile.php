@@ -46,9 +46,9 @@ class ApplySecurityProfile extends Base {
 			],
 			'imgs'    => [
 				'svgs' => [
-					'shield_x'           => $con->svgs->raw( 'shield-x.svg' ),
-					'shield_check'       => $con->svgs->raw( 'shield-check.svg' ),
-					'shield_exclamation' => $con->svgs->raw( 'shield-fill-exclamation.svg' ),
+					'shield_x'           => $con->svgs->iconClass( 'shield-x.svg' ),
+					'shield_check'       => $con->svgs->iconClass( 'shield-check.svg' ),
+					'shield_exclamation' => $con->svgs->iconClass( 'shield-fill-exclamation.svg' ),
 				],
 			],
 			'vars'    => [

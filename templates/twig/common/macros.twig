@@ -2,8 +2,8 @@
 	<span class="shieldpro"><strong>Shield</strong><span style="text-transform: uppercase">pro</span></span>
 {% endmacro %}
 
-{% macro svg(svg) %}
-	<span class="svg-container">{{ svg|raw }}</span>
+{% macro icon(icon_class, classes=[]) %}
+	<span class="svg-container {{ classes|join(' ') }}"><i class="{{ icon_class }}" aria-hidden="true"></i></span>
 {% endmacro %}
 
 {% macro issues_wrapper(components, strings) %}

@@ -37,7 +37,7 @@
 							<span class="nav-icon me-2 d-flex flex-column justify-content-center"
 								  style="vertical-align: text-bottom;"
 								  title="{{ mitem.title }}">
-								{{ mitem.img|raw }}
+								<i class="{{ mitem.img }}" aria-hidden="true"></i>
 							</span>
 						{% endif %}
 
@@ -45,7 +45,7 @@
 							<span class="title">
 								{{ mitem.title }}
 								{% if mitem.sub_items|default([]) is not empty %}
-									{{ imgs.svgs.triangle|raw }}
+									<i class="{{ imgs.svgs.triangle }}" aria-hidden="true"></i>
 								{% endif %}
 							</span>
 							<span class="subtitle">
@@ -73,7 +73,7 @@
 									data-bs-placement="right"
 									data-bs-title="{{ mitem.config.tooltip }}"
 								{% endif %}
-						><span class="svg-container">{{ mitem.config.img|raw }}</span></a>
+						><span class="svg-container"><i class="{{ mitem.config.img }}" aria-hidden="true"></i></span></a>
 					{% endif %}
 				</span>
 
@@ -111,7 +111,7 @@
 													data-bs-placement="right"
 													data-bs-title="{{ sub_item.config.tooltip }}"
 												{% endif %}
-										><span class="svg-container">{{ sub_item.config.icon|raw }}</span></a>
+										><span class="svg-container"><i class="{{ sub_item.config.icon }}" aria-hidden="true"></i></span></a>
 									{% endif %}
 
 								</span>

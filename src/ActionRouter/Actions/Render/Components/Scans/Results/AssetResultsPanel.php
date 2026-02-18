@@ -38,9 +38,9 @@ class AssetResultsPanel extends PluginThemesBase {
 			],
 			'imgs'    => [
 				'svgs' => [
-					'shield_x'           => $con->svgs->raw( 'shield-fill-x.svg' ),
-					'shield_check'       => $con->svgs->raw( 'shield-fill-check.svg' ),
-					'shield_exclamation' => $con->svgs->raw( 'shield-fill-exclamation.svg' ),
+					'shield_x'           => $con->svgs->iconClass( 'shield-fill-x.svg' ),
+					'shield_check'       => $con->svgs->iconClass( 'shield-fill-check.svg' ),
+					'shield_exclamation' => $con->svgs->iconClass( 'shield-fill-exclamation.svg' ),
 				],
 			],
 			'vars'    => [

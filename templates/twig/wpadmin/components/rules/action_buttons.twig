@@ -3,11 +3,11 @@
 	<a class="btn btn-outline-secondary svg-container me-2"
 	   href="{{ hrefs.edit }}"
 	   title="{{ strings.edit }}"
-	>{{ imgs.icon_edit|raw }}</a>
+	><i class="{{ imgs.icon_edit }}" aria-hidden="true"></i></a>
 
 	<button class="btn btn-outline-warning svg-container action delete"
 			title="{{ strings.delete }}"
 			data-sub_action="delete"
 			data-rid="{{ vars.rid }}"
-	>{{ imgs.icon_delete|raw }}</button>
+	><i class="{{ imgs.icon_delete }}" aria-hidden="true"></i></button>
 </div>

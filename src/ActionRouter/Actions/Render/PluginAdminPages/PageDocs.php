@@ -29,7 +29,7 @@ class PageDocs extends BasePluginAdminPage {
 				'knowledgebase' => 'https://help.getshieldsecurity.com',
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'book-half' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'book-half' ),
 			],
 			'strings' => [
 				'tab_changelog'     => __( 'Updates and Changes', 'wp-simple-firewall' ),

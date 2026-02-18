@@ -41,7 +41,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'arrow-down-up' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'arrow-down-up' ),
 			],
 			'vars'    => [
 				'file_upload_nonce'  => ActionData::Build( PluginImportFromFileUpload::class, true, [

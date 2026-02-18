@@ -27,7 +27,7 @@ class PageToolLockdown extends BasePluginAdminPage {
 		$moreHelpUrl = 'https://clk.shldscrty.com/lo';
 		return [
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'sign-stop-fill' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'sign-stop-fill' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Site Lockdown', 'wp-simple-firewall' ),

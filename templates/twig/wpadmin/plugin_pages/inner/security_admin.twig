@@ -15,7 +15,7 @@
 
 						<div class="text-center mb-4">
 							<div class="shield-pin-icon text-secondary mb-2">
-								{{ imgs.icon_shield|raw }}
+								<i class="{{ imgs.icon_shield }}" aria-hidden="true"></i>
 							</div>
 							<h5 id="SecurityAdminLabel" class="mb-1 fw-semibold text-secondary">{{ strings.aar_enter_access_key }}</h5>
 							<p class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
@@ -38,7 +38,7 @@
 							<a class="text-muted small"
 							   href="{{ hrefs.aar_forget_key }}" target="_blank" rel="noopener noreferrer">
 								{{ strings.aar_forget_key }}?
-								<span class="icon-external-link">{{ imgs.icon_external_link|raw }}</span>
+								<span class="icon-external-link"><i class="{{ imgs.icon_external_link }}" aria-hidden="true"></i></span>
 							</a>
 						</div>
 

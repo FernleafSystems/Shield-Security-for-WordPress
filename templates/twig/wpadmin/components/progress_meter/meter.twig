@@ -14,7 +14,7 @@
 					<p class="meter-card-subtitle">{{ meter.subtitle }}</p>
 				</div>
 				<div class="status-badge status-{{ traffic }}">
-					<span class="svg-container">{{ imgs.svgs.status_icon|raw }}</span>
+					<span class="svg-container"><i class="{{ imgs.svgs.status_icon }}" aria-hidden="true"></i></span>
 				</div>
 			</div>
 
@@ -59,7 +59,7 @@
 				   data-meter="{{ meter_slug }}"
 				   href="javascript:{}"
 				   aria-controls="ShieldProgressMeterOffcanvas">
-					<span class="svg-container">{{ imgs.svgs.analysis|raw }}</span>
+					<span class="svg-container"><i class="{{ imgs.svgs.analysis }}" aria-hidden="true"></i></span>
 					{{ strings.analysis }}
 				</a>
 			</div>

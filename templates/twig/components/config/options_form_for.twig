@@ -49,7 +49,7 @@
 									   data-beacon_article_id="{{ opt_section.beacon_id }}"
 									   data-beacon_article_format="modal"
 									   title="{{ strings.opt_info_helpdesk }}">
-										<sup>{{ imgs.svgs.help|raw }}</sup>
+										<sup><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></sup>
 									</a>
 								{% elseif ( opt_section.summary is defined ) and opt_section.summary|length %}
 									<a class="section_title_info"

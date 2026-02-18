@@ -27,7 +27,7 @@ class PageDashboardOverviewSimple extends BasePluginAdminPage {
 				'grades_page' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'speedometer' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'speedometer' ),
 			],
 			'strings' => [
 				'inner_page_title'     => __( 'Security Overview', 'wp-simple-firewall' ),

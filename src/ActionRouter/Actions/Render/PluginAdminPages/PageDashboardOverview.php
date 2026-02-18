@@ -38,7 +38,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 				] ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'speedometer' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'speedometer' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Security Overview', 'wp-simple-firewall' ),

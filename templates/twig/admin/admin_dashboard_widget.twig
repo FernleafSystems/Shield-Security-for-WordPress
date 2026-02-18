@@ -143,7 +143,7 @@
 	{% if flags.show_internal_links %}
 		{% for jump_link in vars.jump_links %}
 			<a href="{{ jump_link.href }}" class="jump-link" title="Jump to {{ jump_link.text }}">
-				{{ jump_link.svg|raw }} {{ jump_link.text }}
+				<i class="{{ jump_link.icon_class }}" aria-hidden="true"></i> {{ jump_link.text }}
 			</a>
 		{% endfor %}
 	{% endif %}

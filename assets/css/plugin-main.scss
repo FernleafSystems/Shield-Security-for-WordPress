@@ -870,7 +870,7 @@ $sidebar-transition-speed: 0.25s;
   font-size: 14px;
 }
 
-.inner-page-header .inner-page-header-title > svg {
+.inner-page-header .inner-page-header-title > .bi {
   width: 24px;
   height: 24px;
   margin-right: 9px;
@@ -1055,7 +1055,7 @@ td.status_file_size {
   margin-top: 100px;
 }
 
-#ModalSuperSearchBox .search-icon > svg {
+#ModalSuperSearchBox .search-icon > .bi {
   width: 32px;
   height: 32px;
   color: #999999;
@@ -1156,7 +1156,7 @@ td.status_file_size {
   box-shadow: 1px 1px 2px rgb(0 128 0 / 20%);
 }
 
-.inner-page-header .dropstart svg {
+.inner-page-header .dropstart .bi {
   width: 32px;
   height: 32px;
 }

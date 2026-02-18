@@ -16,7 +16,7 @@ abstract class PageScansBase extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		return [
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'node-plus-fill' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'node-plus-fill' ),
 			],
 			'strings' => [
 				'inner_page_title'    => $this->getInnerPageTitle(),

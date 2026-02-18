@@ -96,7 +96,7 @@ class PageScansResults extends PageScansBase {
 				'scans_results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'        => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'shield-shaded' ),
 			],
 			'strings'     => [
 				'inner_page_title'    => __( 'View Results', 'wp-simple-firewall' ),

@@ -291,7 +291,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 			$label,
 			$label,
 			$this->log->rid,
-			sprintf( '<span class="meta-icon">%s</span>', self::con()->svgs->raw( 'tags.svg' ) )
+			sprintf( '<span class="meta-icon"><i class="%s" aria-hidden="true"></i></span>', self::con()->svgs->iconClass( 'tags.svg' ) )
 		);
 	}
 
@@ -314,7 +314,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 						];
 		$displayLevel = isset( $levelDetails[ $level ] ) ? $level : 'notice';
 		return sprintf( '<div class="severity-%s severity-icon">%s</div>', $displayLevel,
-			self::con()->svgs->raw( $levelDetails[ $displayLevel ][ 'icon' ] )
+			sprintf( '<i class="%s" aria-hidden="true"></i>', self::con()->svgs->iconClass( $levelDetails[ $displayLevel ][ 'icon' ] ) )
 		);
 	}
 }

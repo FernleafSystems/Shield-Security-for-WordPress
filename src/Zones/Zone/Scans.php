@@ -17,7 +17,7 @@ class Scans extends Base {
 			'scan_results' => [
 				'title'   => __( 'View Scan Results', 'wp-simple-firewall' ),
 				'href'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-				'icon'    => $con->svgs->raw( 'shield-shaded' ),
+				'icon'    => $con->svgs->iconClass( 'shield-shaded' ),
 				'classes' => [],
 			]
 		] );

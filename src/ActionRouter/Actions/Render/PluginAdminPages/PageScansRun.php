@@ -35,9 +35,9 @@ class PageScansRun extends PageScansBase {
 				'scans_results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'shield-shaded' ),
-				'icon_shield_check'     => $con->svgs->raw( 'shield-check' ),
-				'icon_shield_x'         => $con->svgs->raw( 'shield-x' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'shield-shaded' ),
+				'icon_shield_check'     => $con->svgs->iconClass( 'shield-check' ),
+				'icon_shield_x'         => $con->svgs->iconClass( 'shield-x' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Run Manual Scan', 'wp-simple-firewall' ),

@@ -10,7 +10,7 @@
 	   class="btn btn-dark href-download{% if not flags.can_download %} disabled{% endif %}"
 	   {% if not flags.can_download %}disabled="disabled"{% endif %}
 	>
-		{{ imgs.svgs.file_download|raw }}
+		<i class="{{ imgs.svgs.file_download }}" aria-hidden="true"></i>
 		{{ strings.file_download }}
 	</a>
 

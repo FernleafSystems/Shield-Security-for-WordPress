@@ -17,6 +17,9 @@ class Urls {
 		return $this->forAsset( 'images/'.$asset );
 	}
 
+	/**
+	 * @deprecated 21.2.2 Bootstrap icon SVG files are deprecated; use Svgs::iconClass()
+	 */
 	public function svg( string $asset ) :string {
 		return $this->forImage( 'bootstrap/'.Paths::AddExt( $asset, 'svg' ) );
 	}

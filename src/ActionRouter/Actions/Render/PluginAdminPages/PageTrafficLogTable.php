@@ -26,7 +26,7 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 				'is_enabled' => $con->comps->opts_lookup->enabledTrafficLogger(),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->raw( 'stoplights' ),
+				'inner_page_title_icon' => $con->svgs->iconClass( 'stoplights' ),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Request Logs', 'wp-simple-firewall' ),

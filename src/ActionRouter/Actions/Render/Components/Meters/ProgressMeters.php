@@ -24,9 +24,9 @@ class ProgressMeters extends BaseRender {
 			],
 			'imgs'    => [
 				'svgs' => [
-					'icon_good'     => $con->svgs->raw( 'shield-fill-check' ),
-					'icon_warning'  => $con->svgs->raw( 'exclamation-triangle' ),
-					'icon_critical' => $con->svgs->raw( 'shield-fill-x' ),
+					'icon_good'     => $con->svgs->iconClass( 'shield-fill-check' ),
+					'icon_warning'  => $con->svgs->iconClass( 'exclamation-triangle' ),
+					'icon_critical' => $con->svgs->iconClass( 'shield-fill-x' ),
 				],
 			],
 			'vars'    => [

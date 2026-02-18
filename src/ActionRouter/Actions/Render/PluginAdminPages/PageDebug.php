@@ -70,7 +70,7 @@ class PageDebug extends BasePluginAdminPage {
 				'display_tests' => !empty( $availableTests ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'patch-question' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'patch-question' ),
 			],
 			'strings' => [
 				'inner_page_title'    => sprintf( __( '%s Debug Information', 'wp-simple-firewall' ), $con->labels->Name ),

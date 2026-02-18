@@ -17,7 +17,7 @@ class PageRulesBase extends BasePluginAdminPage {
 				'rules_builder' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'node-plus-fill' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'node-plus-fill' ),
 			],
 			'strings' => [
 				'inner_page_title'                      => $this->getInnerPageTitle(),

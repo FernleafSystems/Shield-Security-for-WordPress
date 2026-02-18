@@ -33,7 +33,7 @@
 			{% if asset.flags.is_vulnerable %}
 				<li class="list-group-item list-group-item-danger d-flex align-items-center justify-content-between">
 					<span>
-						<span class="svg-container">{{ imgs.svgs.shield_x|raw }}</span>
+						<span class="svg-container"><i class="{{ imgs.svgs.shield_x }}" aria-hidden="true"></i></span>
 						<span class="fw-bold">{{ strings.vulnerable_known }}</span>
 					</span>
 					<a href="{{ asset.hrefs.vul_info }}" target="_blank"
@@ -49,7 +49,7 @@
 			{% else %}
 				{% if asset.flags.has_guard_files %}
 					<li class="list-group-item list-group-item-danger d-flex align-items-center justify-content-start">
-						<span class="svg-container me-1">{{ imgs.svgs.shield_x|raw }}</span>
+						<span class="svg-container me-1"><i class="{{ imgs.svgs.shield_x }}" aria-hidden="true"></i></span>
 						<span class="fw-bold me-1">{{ strings.file_integrity }}:</span>
 						<span>{{ strings.files_found }}</span>
 					</li>
@@ -59,21 +59,21 @@
 			{% if asset.flags.is_abandoned %}
 				<li class="list-group-item list-group-item-danger d-flex align-items-center justify-content-between">
 					<span>
-						<span class="svg-container">{{ imgs.svgs.shield_x|raw }}</span>
+						<span class="svg-container"><i class="{{ imgs.svgs.shield_x }}" aria-hidden="true"></i></span>
 						<span class="fw-bold">{{ strings.abandoned }}</span>: {{ asset.info.abandoned_at }}
 					</span>
 					<button class="btn btn-sm py-0 btn-light action standalone-action ignore"
 							title="Ignore"
 							data-rid="{{ asset.vars.abandoned_rid }}"
 							data-action="ignore"
-					>{{ imgs.svgs.ignore|raw }} {{ strings.ignore }}</button>
+					><i class="{{ imgs.svgs.ignore }}" aria-hidden="true"></i> {{ strings.ignore }}</button>
 				</li>
 			{% endif %}
 
 			{% if asset.flags.has_update %}
 				<li class="list-group-item list-group-item-warning d-flex align-items-center justify-content-between">
 					<span class="fw-bold">
-						<span class="svg-container">{{ imgs.svgs.shield_exclamation|raw }} {{ strings.update_available }}</span>
+						<span class="svg-container"><i class="{{ imgs.svgs.shield_exclamation }}" aria-hidden="true"></i> {{ strings.update_available }}</span>
 					</span>
 					<a href="{{ hrefs.upgrade }}" target="_blank" class="btn btn-warning btn-sm py-0">{{ strings.updates }}</a>
 				</li>
@@ -82,7 +82,7 @@
 			{% if not asset.flags.is_active %}
 				<li class="list-group-item list-group-item-warning d-flex align-items-center justify-content-between">
 					<span class="fw-bolder">
-						<span class="svg-container me-1">{{ imgs.svgs.shield_exclamation|raw }}</span>{{ strings.not_active }}:
+						<span class="svg-container me-1"><i class="{{ imgs.svgs.shield_exclamation }}" aria-hidden="true"></i></span>{{ strings.not_active }}:
 						<span class="fw-normal">{{ strings.should_uninstall }}</span>
 					</span>
 					<a href="{{ hrefs.page_manage }}" target="_blank"
@@ -92,7 +92,7 @@
 
 			{% if not flags.ptg_is_restricted and not asset.flags.has_guard_files %}
 				<li class="list-group-item list-group-item-success d-flex align-items-center justify-content-start">
-					<span class="svg-container me-1">{{ imgs.svgs.shield_check|raw }}</span>
+					<span class="svg-container me-1"><i class="{{ imgs.svgs.shield_check }}" aria-hidden="true"></i></span>
 					<span>{{ strings.no_files }}</span>
 				</li>
 			{% endif %}
@@ -100,22 +100,22 @@
 			{% if not asset.flags.has_update %}
 				<li class="list-group-item list-group-item-success d-flex align-items-center justify-content-start">
 					<span class="">
-						<span class="svg-container me-1">{{ imgs.svgs.shield_check|raw }}</span>Up-To-Date
+						<span class="svg-container me-1"><i class="{{ imgs.svgs.shield_check }}" aria-hidden="true"></i></span>Up-To-Date
 					</span>
 				</li>
 			{% endif %}
 
 			{% if not asset.flags.is_wporg %}
 				<li class="list-group-item list-group-item-dark d-flex align-items-center justify-content-start">
-					<span class="svg-container me-1">{{ imgs.svgs.shield_exclamation|raw }}</span>{{ strings.not_wporg }}
+					<span class="svg-container me-1"><i class="{{ imgs.svgs.shield_exclamation }}" aria-hidden="true"></i></span>{{ strings.not_wporg }}
 				</li>
 			{% elseif not asset.flags.has_tag %}
 				<li class="list-group-item list-group-item-dark d-flex align-items-center justify-content-start">
-					<span class="svg-container me-1">{{ imgs.svgs.shield_exclamation|raw }}</span>{{ strings.no_tags }}
+					<span class="svg-container me-1"><i class="{{ imgs.svgs.shield_exclamation }}" aria-hidden="true"></i></span>{{ strings.no_tags }}
 				</li>
 			{% else %}
 				<li class="list-group-item list-group-item-info d-flex align-items-center justify-content-start">
-					<span class="svg-container me-1">{{ imgs.svgs.shield_check|raw }}</span>{{ strings.wporg_ok }}
+					<span class="svg-container me-1"><i class="{{ imgs.svgs.shield_check }}" aria-hidden="true"></i></span>{{ strings.wporg_ok }}
 				</li>
 			{% endif %}
 

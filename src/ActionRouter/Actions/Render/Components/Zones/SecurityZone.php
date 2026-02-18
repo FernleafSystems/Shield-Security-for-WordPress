@@ -42,7 +42,7 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 			],
 			'imgs'    => [
 				'svgs' => [
-					'title'   => $con->svgs->raw( $zone->icon() ),
+					'title'   => $con->svgs->iconClass( $zone->icon() ),
 					'heading' => $con->svgs->rawImage( sprintf( 'zones/zone_%s.svg', $zone::Slug() ) ),
 				],
 			],

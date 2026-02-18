@@ -33,7 +33,7 @@ export class SuperSearchService extends BaseComponent {
 				inputTooShort: () => this._base_data.strings.enter_at_least_3_chars
 			},
 			placeholder: this._base_data.strings.placeholder,
-			templateResult: ( val ) => ( typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2">' + val.icon + '</span>' )
+			templateResult: ( val ) => ( typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2"><i class="' + val.icon + '" aria-hidden="true"></i></span>' )
 				+ val.text,
 			escapeMarkup: ( content ) => content,
 			ajax: {
