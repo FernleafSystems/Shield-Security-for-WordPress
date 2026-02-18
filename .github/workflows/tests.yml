@@ -106,6 +106,9 @@ jobs:
     - name: Build plugin config
       run: composer build:config
 
+    - name: Run static analysis
+      run: composer analyze
+
     - name: Load Strauss version
       run: |
         source .github/scripts/read-packager-config.sh

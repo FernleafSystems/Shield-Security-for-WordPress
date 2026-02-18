@@ -18,7 +18,7 @@ abstract class ActivityLogBase extends BaseCmd {
 	 */
 	protected function addCmds() {
 		WP_CLI::add_command(
-			$this->buildCmd( [ 'display' ] ),
+			\implode( ' ', \array_merge( $this->getCmdBase(), [ 'display' ] ) ),
 			[ $this, 'cmdDisplay' ], $this->mergeCommonCmdArgs( [
 			'shortdesc' => 'Import configuration from another WP site running Shield',
 			'synopsis'  => [

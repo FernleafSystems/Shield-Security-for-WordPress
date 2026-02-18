@@ -271,6 +271,7 @@ class Afs extends Base {
 	public function purge() {
 		parent::purge();
 		( new StoreAction\DeleteAll() )->execute();
+		return $this;
 	}
 
 	public function getFileScanAreas() :array {
