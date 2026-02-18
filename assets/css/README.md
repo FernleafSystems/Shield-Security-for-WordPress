@@ -216,7 +216,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `options.scss` | `.options_form_for--modern`, `.shield-options-layout`, `.shield-options-rail`, `.shield-options-panel`, `.shield-option-row` |
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
-| `merlin.scss` | `.merlin-*` wizard components |
+| `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
 | `security-admin.scss` | Security admin modal and PIN form |
 
 ## Inline CSS Pattern (Reports)
@@ -226,6 +226,77 @@ the full HTML is stored in the database. `shield/reports.scss` is a reference-on
 file that documents the design token usage — it is NOT compiled by webpack. When
 updating report styles, edit the `<style>` block in
 `templates/twig/pages/report/security.twig` and keep `reports.scss` in sync.
+
+## Wizard (Merlin) — Card Stepper Design
+
+The setup wizard (`merlin.scss`) uses a custom **Card Stepper** pattern with vanilla JS step navigation (no third-party wizard library). It renders as a static Bootstrap modal (`modal show d-block`) with a `$surface-color-neutral-base` background, giving the white wizard card visible breathing room.
+
+### Layout Structure
+
+```
+#MerlinOverlay (modal backdrop, z-index: 1055)
+  .merlin-modal-dialog (max-width: 960px)
+    .modal-content (height: 85vh, background: $surface-color-neutral-base)
+      .modal-header (close button)
+      .modal-body
+        #merlin (flex column, padding: 0 1.25rem 1.25rem)
+          .stepper (horizontal step indicators)
+          .wizard-card (white card with accent bar, flex: 1)
+            .wizard-card-accent (salt-green bar)
+            .wizard-card-body (scrollable content, padding: 1rem)
+            .wizard-card-footer (prev/next buttons with separator line)
+```
+
+### Infrastructure
+
+**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in `plugin-main.scss`. This provides `<i class="bi bi-*">` icon classes used in the wizard stepper checkmarks and profile card feature icons. Webpack's `file-loader` rule emits the font files to `assets/dist/img/`.
+
+### Custom Stepper
+
+The stepper is built with real HTML elements (not pseudo-elements), making states easy to manage via CSS class toggles in JS:
+
+- `.stepper` — flex row of `.stepper-step` elements, centered, max-width 120px per step
+- `.stepper-circle` — 32px circle containing `.step-number` (text) and `.step-check` (checkmark icon)
+- Connecting lines between steps via `::after` pseudo-element on `.stepper-step:not(:last-child)`
+
+**Step states** (toggled by `Merlin.js` via `goToStep()`):
+
+- `.completed` — Solid `$status-color-good` circle, white checkmark, green connecting line
+- `.current` — White circle with `$status-color-good` border ring, green number and label
+- `.future` — White circle with grey border, muted number
+
+### Wizard Card
+
+`.wizard-card` follows the standard card component pattern with `$card-border-radius`, `$card-box-shadow`, and a `.wizard-card-accent` salt-green bar. The card body scrolls when content overflows. The footer contains prev/next navigation buttons that use `visibility: hidden` (Bootstrap `.invisible` class) instead of `display: none` so buttons stay in fixed positions across all steps.
+
+### Step Content
+
+Step templates extend `templates/twig/components/merlin/steps/base.twig` which provides block structure (`slide_body_title`, `slide_body_video_section_blurb`, `slide_body_video_section`, `slide_body_action_area`). Content renders directly without Bootstrap grid wrapping — the card body padding controls spacing.
+
+### Security Profile Cards
+
+The profile selection step uses a 4-column grid of clickable cards (current config + 3 profiles):
+
+- `.profile-cards-row` — 4-column CSS grid (`repeat(4, 1fr)`), 1rem gap
+- `.profile-card` — `$card-border-radius`, `$card-box-shadow`, transparent 2px border, hover lift
+- `.profile-card.selected` — 3px green border, `#edf7ed` background tint, double green glow ring
+- `.profile-card-current` — Non-selectable, neutral border and `$surface-color-neutral-raised` background
+- `.profile-card-accent` — Level-based colours: `.level-light` = `$status-color-good`, `.level-medium` = `$status-color-warning`, `.level-strong` = `$status-color-critical`
+- `.feature-list` — Vertical list of `.feature-item` rows with status icons (`.fi-on`, `.fi-off`, `.fi-val`)
+- `.merlin-form-footer` — Separator line + centered submit button below profile cards
+
+### Responsive
+
+- `max-width: 992px` — Profile cards switch to 2 columns
+- `max-width: 768px` — Profile cards switch to 1 column, stepper wraps with connecting lines hidden
+
+### JS Component
+
+`Merlin.js` extends `BaseComponent` and manages step navigation with `goToStep()`, `next()`, `prev()` methods. No jQuery or third-party wizard dependency — pure vanilla DOM manipulation (class toggles, `querySelectorAll`). Form submissions use `AjaxService` and advance to the next step on success.
+
+### Prototypes (Reference)
+
+Standalone HTML prototypes in `prototypes/wizard/` were used during design exploration. The implemented design follows `card-stepper.html` (Prototype B).
 
 ## Related Documentation
 

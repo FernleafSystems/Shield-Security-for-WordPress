@@ -8,7 +8,7 @@
 					{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
 			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
-				<span class="nav-link fs-6 mt-0 pt-2 pb-3 ps-2 pe-1 {{ mitem.classes|default([])|join( ' ' ) }} text-start {{ mitem.active|default(false) ? 'show':'' }}
+				<span class="nav-link {{ mitem.classes|default([])|join( ' ' ) }} {{ mitem.active|default(false) ? 'show':'' }}
 						d-flex justify-content-start"
 						{% if mitem.sub_items|default([]) is not empty %}
 							data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"
@@ -44,7 +44,7 @@
 									{{ imgs.svgs.triangle|raw }}
 								{% endif %}
 							</span>
-							<span class="subtitle p-0" style="font-size: 0.7rem">
+							<span class="subtitle">
 								{{ mitem.subtitle|default('') }}
 							</span>
 						</span>
@@ -58,7 +58,7 @@
 					</a>
 
 					{% if mitem.config|default([]) is not empty %}
-						<a class="flex-fill d-flex flex-row justify-content-end align-self-center me-1 z-3 fs-6 {{ mitem.config.classes|default([])|join( ' ' ) }}"
+						<a class="flex-fill d-flex flex-row justify-content-end align-self-center me-1 z-3 {{ mitem.config.classes|default([])|join( ' ' ) }}"
 						   href="{{ mitem.config.href|default('#') }}"
 						   {% if mitem.config.tooltip|default(false) is not empty %}title="{{ mitem.config.tooltip }}"{% endif %}
 								{% for data_key,data_val in mitem.config.data|default([]) %}
@@ -74,17 +74,17 @@
 				</span>
 
 			{% if mitem.sub_items|default([]) is not empty %}
-				<div class="ms-3 subnav-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}"
+				<div class="subnav-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}"
 					 id="subnav-{{ mitem.slug }}"
 					 data-bs-parent="#ShieldCollapseNav"
 				>
-					<ul class="nav flex-column pt-0 primary_side_sub_menu px-0 py-2">
+					<ul class="nav flex-column primary_side_sub_menu">
 						{% for sub_item in mitem.sub_items %}
-							<li class="mb-0 pl-0 py-0">
+							<li>
 
-								<span class="nav-link d-flex justify-content-between py-1 pe-1 ps-0 {{ sub_item.active ? 'active':'' }} ">
+								<span class="nav-link d-flex justify-content-between {{ sub_item.active ? 'active':'' }}">
 
-									<a class="flex-fill fs-6 {{ sub_item.classes|default([])|join( ' ' ) }}"
+									<a class="flex-fill {{ sub_item.classes|default([])|join( ' ' ) }}"
 									   href="{{ sub_item.href|default('#') }}"
 									   {% if sub_item.tooltip|default(false) is not empty %}title="{{ sub_item.tooltip }}"{% endif %}
 											{% for data_key,data_val in sub_item.data|default([]) %}
@@ -96,7 +96,7 @@
 									</a>
 
 									{% if sub_item.config|default(null) is not empty %}
-										<a class="zone_config text-end fs-6 {{ sub_item.config.classes|default([])|join( ' ' ) }}"
+										<a class="zone_config text-end {{ sub_item.config.classes|default([])|join( ' ' ) }}"
 										   href="{{ sub_item.config.href|default('#') }}"
 										   {% if sub_item.config.tooltip|default(false) is not empty %}title="{{ sub_item.config.tooltip }}"{% endif %}
 												{% for data_key,data_val in sub_item.config.data|default([]) %}

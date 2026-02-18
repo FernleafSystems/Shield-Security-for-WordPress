@@ -292,12 +292,20 @@ cd wporg-svn
 # 2. Package directly to trunk
 composer package-plugin -- --output=./trunk --version=21.0.102
 
-# 3. Create tag
+# 3. Sync WordPress.org preview blueprint (SVN root assets/, not trunk/)
+php /path/to/repo/bin/sync-wporg-blueprint.php --svn-root="$(pwd)"
+
+# 4. Create tag
 svn cp trunk tags/21.0.102
 
-# 4. Commit
+# 5. Commit
 svn commit -m "Release 21.0.102"
 ```
+
+Notes:
+
+- This example is a full plugin release flow, so it includes `svn cp trunk tags/<version>`.
+- For a blueprint-only preview update, commit only SVN root `assets/blueprints/blueprint.json` (no tag required).
 
 ### CI/CD Pipeline (GitHub Actions)
 

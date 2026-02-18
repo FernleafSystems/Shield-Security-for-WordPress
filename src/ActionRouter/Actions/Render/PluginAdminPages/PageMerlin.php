@@ -23,6 +23,8 @@ class PageMerlin extends BasePluginAdminPage {
 				],
 				'strings' => [
 					'exit_wizard' => __( 'Exit Wizard', 'wp-simple-firewall' ),
+					'next'        => __( 'Next Step', 'wp-simple-firewall' ),
+					'previous'    => __( 'Previous Step', 'wp-simple-firewall' ),
 				],
 			];
 		}

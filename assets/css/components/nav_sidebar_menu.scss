@@ -1,208 +1,266 @@
 
-#NavSideBar .nav-link:hover {
-}
+// ============================================================
+// Sidebar Navigation — "Refined Rail" Design
+// Visual sibling of the options rail nav. Rounded-rect items,
+// inset-shadow active state, compact sub-menu items.
+// ============================================================
 
-#NavSideBar .nav-link.active,
-.primary_side_sub_menu > li > a.active {
-  font-weight: bolder;
-  font-size: 0.8rem;
-  background-color: #fbfbfb;
-}
+// --- Top-level nav list ---
 
-#NavSideBar:hover ul.top-level-nav > .nav-item {
-}
-
-#NavSideBar ul.top-level-nav > .nav-item:hover {
+#NavSideBar .top-level-nav {
+	padding: 0.5rem;
 }
 
 #NavSideBar .top-level-nav > li.nav-item {
-  border: 1px solid transparent;
-  border-left: 2px solid transparent;
-  z-index: 1;
+	margin-bottom: 0.15rem;
+	z-index: 1;
 }
 
-#NavSideBar .top-level-nav > li.nav-item > .nav-link.active {
-  background-color: rgba(251, 251, 251, 1);
-  border-top: 1px solid rgba(0, 128, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 128, 0, 0.2);
-  border-left: 3px solid #008000;
-  box-shadow: -3px 5px 6px rgba(0, 0, 0, 0.03);
-  margin-right: -2px;
+// --- Top-level nav link ---
+
+#NavSideBar .nav-item > .nav-link {
+	border: 1px solid transparent;
+	border-radius: 8px;
+	font-size: 0.88rem;
+	font-weight: 600;
+	color: #2f3d4d;
+	padding: 0.5rem 0.7rem;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
+
+// Hover
+#NavSideBar .nav-item > .nav-link:hover {
+	background: #f7f9f7;
+	border-color: $border-color-neutral-subtle;
+}
+#NavSideBar .nav-item:hover .nav-icon > svg { color: $primary; }
+#NavSideBar .nav-item:hover .top-title { color: $primary; }
+
+// Active
+#NavSideBar .nav-item.active > .nav-link,
+#NavSideBar .nav-item.activesub > .nav-link {
+	background: #f2f9f2;
+	border-color: #c7dfc7;
+	box-shadow: inset 2px 0 0 #9ac99a;
+	color: $primary;
+}
+
+// --- Icons ---
 
 #NavSideBar .nav-item .nav-icon > svg {
-  width: 18px;
-  height: 18px;
-  color: #333333;
+	width: 18px;
+	height: 18px;
+	color: #333;
+	transition: color 0.2s ease;
 }
 
-#NavSideBar .nav-item.activesub .nav-icon > svg,
-#NavSideBar .nav-item .active .nav-icon > svg,
-#NavSideBar .nav-item:hover .nav-icon > svg {
-  color: #008000;
-  transform: scaleX(-1);
-  transition: transform 0.25s;
+#NavSideBar .nav-item.active .nav-icon > svg,
+#NavSideBar .nav-item.activesub .nav-icon > svg {
+	color: $primary;
 }
+
+// --- Title + subtitle ---
 
 #NavSideBar .nav-item .top-title {
-  color: black;
+	color: #2f3d4d;
 }
 
+#NavSideBar .nav-item.active .top-title,
+#NavSideBar .nav-item.activesub .top-title {
+	color: $primary;
+}
+
+#NavSideBar .nav-item .subtitle {
+	font-size: 0.7rem;
+	color: #5f6974;
+	padding: 0;
+}
+
+// --- Collapse triangle ---
+
 #NavSideBar .nav-item .top-title svg {
-  transform-origin: 50% 50%;
-  transform: rotate(60deg);
-  height: 6px;
-  width: 6px;
-  margin-top: -4px;
-  margin-left: 2px;
-  margin-right: -2px;
-  transition: transform 0.5s ease;
+	transform-origin: 50% 50%;
+	transform: rotate(60deg);
+	height: 6px;
+	width: 6px;
+	margin-top: -4px;
+	margin-left: 2px;
+	margin-right: -2px;
+	transition: transform 0.3s ease;
 }
 
 #NavSideBar .nav-item.activesub .top-title svg {
-  transform: rotate(-30deg);
+	transform: rotate(-30deg);
 }
 
-#NavSideBar .nav-item.activesub .top-title,
-#NavSideBar .nav-item .active .top-title,
-#NavSideBar .nav-item:hover .top-title {
-  color: #008000;
-}
-
-.primary_side_sub_menu {
-}
-
-.primary_side_sub_menu > li a {
-  text-decoration: none;
-}
-.primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
-  border-left: 3px solid transparent;
-  color: $secondary;
-}
-.primary_side_sub_menu > li > .nav-link > a.zone_config {
-  opacity: 0.5;
-  color: $primary;
-}
-.primary_side_sub_menu > li > .nav-link > a.zone_config:hover {
-  opacity: 1;
-}
-.primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
-  border-left: 1px solid transparent;
-  padding-left: 24px;
-}
-
-.primary_side_sub_menu > li > .nav-link:hover > a {
-}
-.primary_side_sub_menu > li > .nav-link:hover > a:not(.zone_config) {
-  border-left: 3px solid rgba(0, 128, 0, 0.3);
-  //padding-left: 22px;
-  color: $primary;
-  //text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-}
-
-.primary_side_sub_menu .nav-link.active > a:not(.zone_config) {
-  color: $primary;
-  border-left: 3px solid rgba(0, 128, 0, 0.7);
-  padding-left: 20px;
-}
+// --- Gear config (top-level) — always right-justified ---
 
 .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
+	margin-left: auto;
 }
 
 .top-level-nav li > .nav-link > a.zone_component_action .svg-container {
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 0 5px 1px;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	padding: 2px 5px;
+	transition: background-color 0.2s ease;
+}
+
+.top-level-nav li > .nav-link > a.zone_component_action .svg-container > svg {
+	color: $primary;
+	transform: rotate(0deg);
+	transition: transform 0.3s ease;
 }
 
 .top-level-nav li:hover > .nav-link > a.zone_component_action .svg-container {
-  //border-color: $primary;
-  background-color: rgba(0, 128, 0, 0.1);
+	background-color: rgba($primary, 0.08);
 }
 
-.top-level-nav > li > .nav-link > a.zone_component_action .svg-container > svg {
-  transform: rotate(0deg);
-  transition: transform 0.5s;
-}
-
-.primary_side_sub_menu > li:hover a.zone_config .svg-container > svg,
 .top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container > svg {
-  transform: rotate(45deg);
-  transition: transform 0.3s;
+	transform: rotate(45deg);
 }
+
+// --- Sub-menu ---
+
+#NavSideBar .subnav-menu {
+	margin-left: 1.75rem;
+	padding: 0.25rem 0;
+}
+
+.primary_side_sub_menu {
+	padding: 0;
+}
+
+.primary_side_sub_menu > li a {
+	text-decoration: none;
+}
+
+// Sub-links — compact, clearly smaller than top-level items.
+// Hover/active background on the .nav-link row so text + cog highlight together.
+.primary_side_sub_menu > li > .nav-link {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	padding: 0.35rem 0.6rem;
+	margin-bottom: 0.1rem;
+	font-size: 0.78rem;
+	font-weight: 500;
+	color: $secondary;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	transition: color 0.2s ease;
+}
+
+// Hover
+.primary_side_sub_menu > li > .nav-link:hover {
+	background: #f7f9f7;
+	border-color: $border-color-neutral-subtle;
+	color: $primary;
+}
+
+// Active — matches the options rail inset-shadow pattern
+.primary_side_sub_menu .nav-link.active {
+	background: #f2f9f2;
+	border-color: #c7dfc7;
+	box-shadow: inset 2px 0 0 #9ac99a;
+	color: $primary;
+	font-weight: 600;
+}
+
+// Sub-gear — always right-justified
+.primary_side_sub_menu > li > .nav-link > a.zone_config {
+	margin-left: auto;
+	opacity: 0.5;
+	color: $primary;
+	transition: opacity 0.2s ease;
+}
+.primary_side_sub_menu > li > .nav-link > a.zone_config:hover {
+	opacity: 1;
+}
+.primary_side_sub_menu > li:hover > .nav-link > a.zone_config {
+	opacity: 0.8;
+}
+
+.primary_side_sub_menu > li:hover a.zone_config .svg-container > svg {
+	transform: rotate(45deg);
+	transition: transform 0.3s ease;
+}
+
+// ============================================================
+// Responsive: collapsed / hover-expanded
+// ============================================================
 
 @include media-breakpoint-down(lg) {
 
-  // === COLLAPSED STATE ===
+	// === COLLAPSED STATE ===
 
-  // Hide text labels, subtitles, badges (!important needed to override Bootstrap d-flex)
-  #NavSideBar .nav-item .top-title {
-    display: none !important;
-  }
-  #NavSideBar .nav-item .nav-link .badge {
-    display: none !important;
-  }
-  // Hide config gear buttons (!important needed to override Bootstrap d-flex)
-  .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
-    display: none !important;
-  }
+	// Hide text labels, subtitles, badges (!important needed to override Bootstrap d-flex)
+	#NavSideBar .nav-item .top-title {
+		display: none !important;
+	}
+	#NavSideBar .nav-item .nav-link .badge {
+		display: none !important;
+	}
+	// Hide config gear buttons (!important needed to override Bootstrap d-flex)
+	.top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
+		display: none !important;
+	}
 
-  // Center icons in collapsed state
-  #NavSideBar .nav-item > .nav-link {
-    justify-content: center !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-  #NavSideBar .nav-item > .nav-link > a {
-    justify-content: center !important;
-  }
-  #NavSideBar .nav-item .nav-icon {
-    margin-right: 0 !important;
-  }
+	// Center icons in collapsed state
+	#NavSideBar .nav-item > .nav-link {
+		justify-content: center !important;
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	#NavSideBar .nav-item > .nav-link > a {
+		justify-content: center !important;
+	}
+	#NavSideBar .nav-item .nav-icon {
+		margin-right: 0 !important;
+	}
 
-  // Hide all submenus
-  #NavSideBar .subnav-menu {
-    display: none !important;
-  }
+	// Hide all submenus
+	#NavSideBar .subnav-menu {
+		display: none !important;
+	}
 
-  // Ensure active border still visible
-  #NavSideBar .top-level-nav > li.nav-item > .nav-link.active {
-    margin-right: 0;
-  }
+	// Defensive: ensure items without icons still have height
+	#NavSideBar .top-level-nav > li.nav-item {
+		min-height: 40px;
+	}
 
-  // Defensive: ensure items without icons still have height
-  #NavSideBar .top-level-nav > li.nav-item {
-    min-height: 40px;
-  }
+	// === HOVER-EXPANDED STATE ===
 
-  // === HOVER-EXPANDED STATE ===
-
-  #PageMainSide-Apto:hover #NavSideBar .nav-item .top-title {
-    display: flex !important;
-  }
-  #PageMainSide-Apto:hover #NavSideBar .nav-item .nav-link .badge {
-    display: inline-block !important;
-  }
-  #PageMainSide-Apto:hover .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
-    display: flex !important;
-  }
-  #PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link {
-    justify-content: start !important;
-    padding-left: 0.5rem !important;
-    padding-right: 0.25rem !important;
-  }
-  #PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link > a {
-    justify-content: start !important;
-  }
-  #PageMainSide-Apto:hover #NavSideBar .nav-item .nav-icon {
-    margin-right: 0.5rem !important;
-  }
-  // Show submenus that are expanded or animating (.collapsing is Bootstrap's mid-animation class)
-  #PageMainSide-Apto:hover #NavSideBar .subnav-menu.show,
-  #PageMainSide-Apto:hover #NavSideBar .subnav-menu.collapsing {
-    display: block !important;
-  }
-  #PageMainSide-Apto:hover #NavSideBar .top-level-nav > li.nav-item > .nav-link.active {
-    margin-right: -2px;
-  }
+	#PageMainSide-Apto:hover #NavSideBar .nav-item .top-title {
+		display: flex !important;
+	}
+	#PageMainSide-Apto:hover #NavSideBar .nav-item .nav-link .badge {
+		display: inline-block !important;
+	}
+	#PageMainSide-Apto:hover .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
+		display: flex !important;
+	}
+	#PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link {
+		justify-content: start !important;
+		padding-left: 0.5rem !important;
+		padding-right: 0.25rem !important;
+	}
+	#PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link > a {
+		justify-content: start !important;
+	}
+	#PageMainSide-Apto:hover #NavSideBar .nav-item .nav-icon {
+		margin-right: 0.5rem !important;
+	}
+	// Show submenus that are expanded or animating (.collapsing is Bootstrap's mid-animation class)
+	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.show,
+	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.collapsing {
+		display: block !important;
+	}
 }

@@ -76,11 +76,13 @@ module.exports = {
 			},
 			{
 				test: /\.(jpg|jpeg|png|gif|woff|woff2|eot|ttf|svg)$/i,
+				type: 'javascript/auto',
 				use: {
 					loader: "file-loader",
 					options: {
 						name: "[name].[ext]",
 						outputPath: "img",
+						esModule: false,
 					}
 				},
 			},
