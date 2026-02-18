@@ -56,6 +56,7 @@ class ConfigImport extends BaseCmd {
 	}
 
 	public function runCmd() :void {
+		$args = \is_array( $this->execCmdArgs ) ? $this->execCmdArgs : [];
 
 		$source = $args[ 'source' ] ?? '';
 		if ( empty( $source ) ) {

@@ -1,0 +1,25 @@
+parameters:
+	level: 0
+	paths:
+		- src
+		- icwp-wpsf.php
+		- plugin_autoload.php
+		- plugin_compatibility.php
+		- plugin_init.php
+		- uninstall.php
+		- unsupported.php
+	bootstrapFiles:
+		- vendor/autoload.php
+	scanFiles:
+		- vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+		- tests/stubs/phpstan-optional-dependencies.php
+	excludePaths:
+		analyse:
+			- */vendor/*
+			- */vendor_prefixed/*
+			- */node_modules/*
+			- */tests/*
+			- */assets/dist/*
+	tmpDir: tmp/phpstan
+	universalObjectCratesClasses:
+		- FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass

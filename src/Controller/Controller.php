@@ -65,6 +65,7 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
  * @property Shield\Crons\HourlyCron                  $cron_hourly
  * @property Shield\Crons\DailyCron                   $cron_daily
  * @property string[]                                 $reqs_not_met
+ * @phpstan-consistent-constructor
  */
 class Controller extends DynPropertiesClass {
 
