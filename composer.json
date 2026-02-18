@@ -98,9 +98,9 @@
       "@test:unit",
       "@test:integration"
     ],
+    "test:easy":        "@test:unit",
     "analyze":          [
-      "@build:config",
-      "@php vendor/phpstan/phpstan/phpstan analyse -c phpstan.neon.dist --no-progress --memory-limit=1G"
+      "@php bin/run-static-analysis.php"
     ],
     "phpcs":            "phpcs",
     "phpcs:fix":        "phpcbf",
