@@ -96,6 +96,20 @@ composer playground:local -- --php=8.3 --wp=latest --port=9500
 composer playground:local:check -- --strict
 ```
 
+Package artifact smoke (Playground lane):
+
+```bash
+composer playground:package:check
+```
+
+Equivalent explicit command:
+
+```bash
+php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package --php=8.2 --wp=latest
+```
+
+This package-artifact Playground smoke complements (does not replace) Docker/MySQL integration testing.
+
 Version note:
 
 - The local helper writes generated blueprints with `preferredVersions` set from your requested `--php` and `--wp` values.

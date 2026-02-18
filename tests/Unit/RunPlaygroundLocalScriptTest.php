@@ -40,10 +40,12 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( "'retention-days::'", $content );
 		$this->assertStringContainsString( "'max-runs::'", $content );
 		$this->assertStringContainsString( "'runtime-root::'", $content );
+		$this->assertStringContainsString( "'plugin-root::'", $content );
 		$this->assertStringContainsString( "'strict'", $content );
 		$this->assertStringNotContainsString( "'keep-success-artifacts'", $content );
 		$this->assertStringNotContainsString( '@wp-playground/cli@latest', $content );
 		$this->assertStringContainsString( 'Local @wp-playground/cli binary not found.', $content );
+		$this->assertStringContainsString( 'node_modules/.bin/wp-playground-cli', $content );
 		$this->assertStringContainsString( 'Version Verification:', $content );
 		$this->assertStringContainsString( 'runtime_php_version_match', $content );
 		$this->assertStringContainsString( "'preferredVersions' => buildPreferredVersions( \$phpVersion, \$wpVersion )", $content );
@@ -65,5 +67,31 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 		$this->assertIsArray( $decoded['scripts'] );
 		$this->assertArrayHasKey( 'playground:local:clean', $decoded['scripts'] );
 		$this->assertSame( '@php bin/run-playground-local.php --clean', $decoded['scripts']['playground:local:clean'] );
+		$this->assertArrayHasKey( 'playground:package:check', $decoded['scripts'] );
+		$this->assertSame(
+			'@php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package',
+			$decoded['scripts']['playground:package:check']
+		);
+	}
+
+	public function testRunPlaygroundCheckFailsFastForMissingPluginRoot() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+
+		$scriptPath = $this->getPluginFilePath( 'bin/run-playground-local.php' );
+		$missingPluginRoot = sys_get_temp_dir().DIRECTORY_SEPARATOR.'shield-playground-missing-'.bin2hex( random_bytes( 4 ) );
+		$this->assertDirectoryDoesNotExist( $missingPluginRoot );
+
+		$output = [];
+		$returnCode = 0;
+		\exec(
+			'php '.\escapeshellarg( $scriptPath ).' --run-blueprint --plugin-root='.escapeshellarg( $missingPluginRoot ).' 2>&1',
+			$output,
+			$returnCode
+		);
+
+		$this->assertSame( 2, $returnCode, 'Missing plugin root should fail with environment exit code (2).' );
+		$this->assertStringContainsString( 'Plugin root directory not found:', \implode( "\n", $output ) );
 	}
 }
