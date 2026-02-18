@@ -96,6 +96,11 @@ composer playground:local -- --php=8.3 --wp=latest --port=9500
 composer playground:local:check -- --strict
 ```
 
+Version note:
+
+- The local helper writes generated blueprints with `preferredVersions` set from your requested `--php` and `--wp` values.
+- This keeps `composer playground:local*` behavior deterministic even if upstream CLI flags drift.
+
 Expected smoke check output includes:
 
 - `Version Verification` section (requested PHP vs actual runtime PHP)

@@ -143,7 +143,7 @@ function runInteractiveServer(
 		return (int)$runtimeProbe['exit_code'];
 	}
 
-	$blueprintPath = buildServerBlueprint( $runtimeRoot );
+	$blueprintPath = buildServerBlueprint( $runtimeRoot, $phpVersion, $wpVersion );
 	register_shutdown_function( static function () use ( $blueprintPath, $tempDir, $runtimeRoot, $safeRemover ) :void {
 		if ( is_file( $blueprintPath ) ) {
 			@unlink( $blueprintPath );
@@ -211,7 +211,7 @@ function runSmokeCheck(
 	putenv( 'TEMP='.$tempDir );
 	putenv( 'TMP='.$tempDir );
 
-	$blueprintPath = buildSmokeCheckBlueprint( $runDir, true );
+	$blueprintPath = buildSmokeCheckBlueprint( $runDir, true, $phpVersion, $wpVersion );
 	register_shutdown_function( static function () use ( $blueprintPath ) :void {
 		if ( is_file( $blueprintPath ) ) {
 			@unlink( $blueprintPath );
@@ -414,7 +414,7 @@ function runSmokeCheck(
 	return (int)$summary['exit_code'];
 }
 
-function buildSmokeCheckBlueprint( string $baseDir, bool $isCheckMode ) :string {
+function buildSmokeCheckBlueprint( string $baseDir, bool $isCheckMode, string $phpVersion, string $wpVersion ) :string {
 	$blueprintPath = pathJoin( $baseDir, $isCheckMode ? 'blueprint.check.json' : 'blueprint.server.json' );
 
 	$runtimeCode = wrapReportUpdateCode( <<<PHP
@@ -509,6 +509,7 @@ PHP
 
 	$blueprint = [
 		'$schema' => 'https://playground.wordpress.net/blueprint-schema.json',
+		'preferredVersions' => buildPreferredVersions( $phpVersion, $wpVersion ),
 		'steps'   => [
 			[
 				'step' => 'runPHP',
@@ -550,7 +551,7 @@ PHP
 	return $blueprintPath;
 }
 
-function buildServerBlueprint( string $baseDir ) :string {
+function buildServerBlueprint( string $baseDir, string $phpVersion, string $wpVersion ) :string {
 	$blueprintPath = pathJoin( $baseDir, 'blueprint.server.json' );
 	$activationCode = <<<'PHP'
 <?php
@@ -567,6 +568,7 @@ PHP;
 
 	$blueprint = [
 		'$schema' => 'https://playground.wordpress.net/blueprint-schema.json',
+		'preferredVersions' => buildPreferredVersions( $phpVersion, $wpVersion ),
 		'steps' => [
 			[
 				'step' => 'runPHP',
@@ -588,7 +590,7 @@ PHP;
 	return $blueprintPath;
 }
 
-function buildRuntimeProbeBlueprint( string $baseDir ) :string {
+function buildRuntimeProbeBlueprint( string $baseDir, string $phpVersion, string $wpVersion ) :string {
 	$blueprintPath = pathJoin( $baseDir, 'blueprint.runtime-probe.json' );
 	$probeCode = <<<'PHP'
 <?php
@@ -608,6 +610,7 @@ PHP;
 
 	$blueprint = [
 		'$schema' => 'https://playground.wordpress.net/blueprint-schema.json',
+		'preferredVersions' => buildPreferredVersions( $phpVersion, $wpVersion ),
 		'steps' => [
 			[
 				'step' => 'runPHP',
@@ -653,6 +656,13 @@ if ($shouldFail !== '') {
 }
 PHP;
 	return str_replace( '__INNER_CODE__', trim( $innerCode ), $base );
+}
+
+function buildPreferredVersions( string $phpVersion, string $wpVersion ) :array {
+	return [
+		'php' => $phpVersion,
+		'wp' => $wpVersion,
+	];
 }
 
 function runPassthruCommand( array $command ) :int {
@@ -1033,7 +1043,7 @@ function probeRuntimeEnvironment(
 	putenv( 'TEMP='.$tempDir );
 	putenv( 'TMP='.$tempDir );
 
-	$blueprintPath = buildRuntimeProbeBlueprint( $probeDir );
+	$blueprintPath = buildRuntimeProbeBlueprint( $probeDir, $phpVersion, $wpVersion );
 	try {
 		$command = buildPlaygroundCommand(
 			$localPlaygroundBinary,
