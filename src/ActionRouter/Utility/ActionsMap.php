@@ -6,13 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 
 class ActionsMap {
 
-	/**
-	 * @var array
-	 */
-	private static $actions = [];
+	private static array $actions = [];
 
 	/**
-	 * @return \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction|string
+	 * @return string|class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction>
 	 */
 	public static function ActionFromSlug( string $classOrSlug ) :string {
 		if ( !isset( self::$actions[ $classOrSlug ] ) ) {

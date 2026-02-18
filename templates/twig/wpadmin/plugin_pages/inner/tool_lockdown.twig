@@ -16,74 +16,73 @@
 		</form>
 	{% else %}
 
-		<div class="alert alert-warning d-inline-block" role="alert">
-			<h4 class="alert-heading">{{ strings.warning_title }}</h4>
-			<p>{{ strings.warning_block_all }}</p>
-			<p>{{ strings.warning_whitelist_only }}</p>
-			{% if not flags.is_your_ip_whitelisted %}
-				<p class="fw-bold">{{ strings.warning_ip_not_whitelisted }}</p>
-			{% endif %}
-			<p>{{ strings.warning_note_security_admin }}</p>
-			<p class="mb-0">{{ strings.warning_more_help_html|raw }}</p>
+		<div class="row">
+
+			<div class="col-6">
+				<form class="form" id="FormBlockdown" autocomplete="off">
+
+					<div class="mb-3">
+						<h6 class="mb-2">{{ strings.whitelist_heading }}</h6>
+						<div class="form-check">
+							<input type="checkbox" class="form-check-input" id="whitelist_me" name="whitelist_me" value="Y"
+									{% if flags.is_your_ip_whitelisted %} disabled="disabled"{% endif %}>
+							<label class="form-check-label" for="whitelist_me">
+								{{ strings.whitelist_label|format('<code>' ~ vars.your_ip ~ '</code>')|raw }}
+								<br><small>{{ strings.whitelist_label_note }}</small>
+							</label>
+						</div>
+					</div>
+
+					<div class="mb-3">
+						<h6 class="mb-2">{{ strings.confirm_heading }}</h6>
+						<div class="form-check">
+							<input type="checkbox" class="form-check-input" id="confirm_cache" name="confirm[]"
+								   value="cache">
+							<label class="form-check-label" for="confirm_cache">
+								{{ strings.confirm_cache }}</label>
+						</div>
+						<div class="form-check">
+							<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
+								   value="access">
+							<label class="form-check-label" for="confirm_access">
+								{{ strings.confirm_access }}</label>
+						</div>
+						<div class="form-check">
+							<input type="checkbox" class="form-check-input" id="confirm_consequences" name="confirm[]"
+								   value="consequences">
+							<label class="form-check-label"
+								   for="confirm_consequences">{{ strings.confirm_consequences }}</label>
+						</div>
+						<div class="form-check">
+							<input type="checkbox" class="form-check-input" id="confirm_authority" name="confirm[]"
+								   value="authority">
+							<label class="form-check-label"
+								   for="confirm_authority">{{ strings.confirm_authority }}</label>
+						</div>
+					</div>
+
+					{% if flags.can_blockdown %}
+						<button type="submit" class="btn btn-danger mb-3">{{ strings.button_lockdown }}</button>
+					{% else %}
+						<button class="btn btn-danger mb-3" disabled="disabled">{{ strings.button_upgrade }}</button>
+					{% endif %}
+
+				</form>
+			</div>
+
+			<div class="col-6">
+				<div class="alert alert-warning d-inline-block" role="alert">
+					<h4 class="alert-heading">{{ strings.warning_title }}</h4>
+					<p>{{ strings.warning_block_all }}</p>
+					<p>{{ strings.warning_whitelist_only }}</p>
+					{% if not flags.is_your_ip_whitelisted %}
+						<p class="fw-bold">{{ strings.warning_ip_not_whitelisted }}</p>
+					{% endif %}
+					<p>{{ strings.warning_note_security_admin }}</p>
+					<p class="mb-0">{{ strings.warning_more_help_html|raw }}</p>
+				</div>
+			</div>
 		</div>
 
-		<form class="form" id="FormBlockdown" autocomplete="off">
-
-{#			<div class="mb-3">#}
-{#				<h6 class="mb-2">Exclusions (Services That Bypass Lockdown)</h6>#}
-{#				<div class="form-check">#}
-{#					<input type="checkbox" class="form-check-input" id="exclusions_search" name="exclusions[]"#}
-{#						   value="search">#}
-{#					<label class="form-check-label" for="exclusions_search">Search Engines</label>#}
-{#				</div>#}
-{#			</div>#}
-
-			<div class="mb-3">
-				<h6 class="mb-2">{{ strings.whitelist_heading }}</h6>
-				<div class="form-check">
-					<input type="checkbox" class="form-check-input" id="whitelist_me" name="whitelist_me" value="Y"
-							{% if flags.is_your_ip_whitelisted %} disabled="disabled"{% endif %}>
-					<label class="form-check-label" for="whitelist_me">
-						{{ strings.whitelist_label|format('<code>' ~ vars.your_ip ~ '</code>')|raw }}
-						<br><small>{{ strings.whitelist_label_note }}</small>
-					</label>
-				</div>
-			</div>
-
-			<div class="mb-3">
-				<h6 class="mb-2">{{ strings.confirm_heading }}</h6>
-				<div class="form-check">
-					<input type="checkbox" class="form-check-input" id="confirm_cache" name="confirm[]"
-						   value="cache">
-					<label class="form-check-label" for="confirm_cache">
-						{{ strings.confirm_cache }}</label>
-				</div>
-				<div class="form-check">
-					<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
-						   value="access">
-					<label class="form-check-label" for="confirm_access">
-						{{ strings.confirm_access }}</label>
-				</div>
-				<div class="form-check">
-					<input type="checkbox" class="form-check-input" id="confirm_consequences" name="confirm[]"
-						   value="consequences">
-					<label class="form-check-label"
-						   for="confirm_consequences">{{ strings.confirm_consequences }}</label>
-				</div>
-				<div class="form-check">
-					<input type="checkbox" class="form-check-input" id="confirm_authority" name="confirm[]"
-						   value="authority">
-					<label class="form-check-label"
-						   for="confirm_authority">{{ strings.confirm_authority }}</label>
-				</div>
-			</div>
-
-			{% if flags.can_blockdown %}
-				<button type="submit" class="btn btn-danger mb-3">{{ strings.button_lockdown }}</button>
-			{% else %}
-				<button class="btn btn-danger mb-3" disabled="disabled">{{ strings.button_upgrade }}</button>
-			{% endif %}
-
-		</form>
 	{% endif %}
 {% endblock %}

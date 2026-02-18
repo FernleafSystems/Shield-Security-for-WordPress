@@ -225,7 +225,7 @@ class BuildForScans extends BuildBase {
 			if ( $eventTotal > 0 ) {
 				/** @var LogsDB\Select $logSelect */
 				$logSelect = self::con()->db_con->activity_logs->getQuerySelector();
-				/** @var LogsDB\Record[] $logs */
+				/** @var LogsDB\Record[] $logIDs */
 				$logIDs = \array_map(
 					fn( $log ) => $log->id,
 					$logSelect->filterByEvent( $event )

@@ -43,7 +43,9 @@ class MfaEmailAutoLogin extends BaseAction {
 			\ob_start();
 			if ( $emailProvider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $this->action_data[ 'login_nonce' ] ) ) ) {
 				$success = true;
-				$emailProvider->postSuccessActions();
+				if ( \method_exists( $emailProvider, 'postSuccessActions' ) ) {
+					$emailProvider->postSuccessActions();
+				}
 				wp_set_auth_cookie( $userID, true );
 				$con->comps->events->fireEvent( '2fa_success' );
 			}

@@ -14,11 +14,11 @@ class RenderService {
 
 	public const STUB = 'twig';
 
-	protected $renderVars = [];
+	protected array $renderVars = [];
 
-	protected $roots = [];
+	protected array $roots = [];
 
-	protected $template = '';
+	protected string $template = '';
 
 	private $twigEnvVariables = [];
 

@@ -104,7 +104,7 @@ class InstantAlertsCon {
 
 			foreach ( $alertOptions as $alertKey ) {
 				if ( self::con()->opts->optGet( $alertKey ) !== 'disabled' ) {
-					/** @var ?InstantAlerts\Handlers\AlertHandlerBase|string $handler */
+					/** @var ?class-string<InstantAlerts\Handlers\AlertHandlerBase> $handler */
 					$handler = $this->enumHandlers()[ \str_replace( 'instant_alert_', '', $alertKey ) ] ?? null;
 					if ( !empty( $handler ) ) {
 						$this->alerts[ $handler ] = new $handler();

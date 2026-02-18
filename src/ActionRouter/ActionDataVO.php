@@ -7,13 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string|BaseAction $action
- * @property array             $aux
- * @property bool              $is_ajax
- * @property bool              $ip_in_nonce
- * @property bool              $is_rest
- * @property bool              $unique
- * @property array             $excluded_fields
+ * @property class-string<BaseAction> $action
+ * @property array                    $aux
+ * @property bool                     $is_ajax
+ * @property bool                     $ip_in_nonce
+ * @property bool                     $is_rest
+ * @property bool                     $unique
+ * @property array                    $excluded_fields
  */
 class ActionDataVO extends DynPropertiesClass {
 

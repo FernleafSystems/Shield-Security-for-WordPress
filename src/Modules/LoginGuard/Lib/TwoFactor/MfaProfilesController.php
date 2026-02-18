@@ -98,9 +98,10 @@ class MfaProfilesController {
 									'render_profile' => ActionData::BuildAjaxRender( Actions\Render\Components\UserMfa\ConfigForm::class ),
 								],
 								'vars'    => [
-									'providers' => \array_map( function ( $provider ) {
-										return $provider->getJavascriptVars();
-									}, $providers )
+									'providers' => \array_map(
+										fn( Provider\Provider2faInterface $p ) => \method_exists( $p, 'getJavascriptVars' ) ? $p->getJavascriptVars() : [],
+										$providers
+									)
 								],
 								'strings' => [
 									'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )

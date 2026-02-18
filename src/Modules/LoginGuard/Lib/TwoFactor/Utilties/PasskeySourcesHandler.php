@@ -50,14 +50,12 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	 * @return PublicKeyCredentialSource[]
 	 */
 	public function getExcludedSourcesFromAllUsers() :array {
-		/** @var MfaDB\Record[] $record */
-		$records = \array_filter(
-			( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() ),
-			function ( MfaDB\Record $record ) {
-				return $record->passwordless;
-			}
+		return $this->getSourcesFromRecords(
+			\array_filter(
+				( new MfaRecordsHandler() )->loadFor( $this->getWpUser(), Passkey::ProviderSlug() ),
+				fn( MfaDB\Record $record ) => $record->passwordless
+			)
 		);
-		return $this->getSourcesFromRecords( $records );
 	}
 
 	/**

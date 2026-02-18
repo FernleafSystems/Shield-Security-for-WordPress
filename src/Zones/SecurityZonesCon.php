@@ -20,7 +20,7 @@ class SecurityZonesCon {
 	}
 
 	/**
-	 * @return Component\Base|mixed
+	 * @return Component\Base
 	 */
 	public function getZoneComponent( string $slug ) :Component\Base {
 		$c = $this->enumZoneComponents()[ $slug ];
@@ -35,7 +35,7 @@ class SecurityZonesCon {
 	}
 
 	/**
-	 * @return Zone\Base[]|mixed
+	 * @return Zone\Base[]
 	 */
 	public function getZones() :array {
 		return $this->zones ??= \array_map( fn( string $class ) => new $class(), $this->enumZones() );

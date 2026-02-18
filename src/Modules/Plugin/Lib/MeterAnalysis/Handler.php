@@ -20,12 +20,9 @@ class Handler {
 		Meter\MeterSpam::SLUG          => Meter\MeterSpam::class,
 	];
 
-	private static $BuiltMeters;
+	private static array $BuiltMeters = [];
 
 	public function __construct() {
-		if ( !\is_array( self::$BuiltMeters ) ) {
-			self::$BuiltMeters = [];
-		}
 	}
 
 	/**
@@ -43,6 +40,7 @@ class Handler {
 	}
 
 	/**
+	 * @param string|class-string<Meter\MeterBase> $meterClassOrSlug
 	 * @throws \Exception
 	 */
 	public function getMeter( string $meterClassOrSlug, bool $orderComponentsByWeight = true ) :array {
@@ -51,7 +49,6 @@ class Handler {
 			$theSlug = $meterClassOrSlug;
 		}
 		elseif ( \in_array( $meterClassOrSlug, self::METERS ) ) {
-			/** @var Meter\MeterBase $meterClassOrSlug */
 			$theSlug = $meterClassOrSlug::SLUG;
 		}
 		else {

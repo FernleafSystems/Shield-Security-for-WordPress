@@ -55,7 +55,6 @@ class Retrieve {
 	public function latest( string $slug ) :?SnapshotsDB\Record {
 		/** @var SnapshotsDB\Select $select */
 		$select = self::con()->db_con->activity_snapshots->getQuerySelector();
-		/** @var ?SnapshotsDB\Record $record */
 		return $select->filterBySlug( $slug )->first();
 	}
 }

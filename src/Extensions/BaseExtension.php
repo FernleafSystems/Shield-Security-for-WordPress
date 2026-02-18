@@ -14,15 +14,9 @@ abstract class BaseExtension {
 
 	public const SLUG = '';
 
-	/**
-	 * @var string
-	 */
-	private $file;
+	private string $file;
 
-	/**
-	 * @var ExtensionConfigVO
-	 */
-	private $cfg;
+	private ExtensionConfigVO $cfg;
 
 	/**
 	 * @var UpgradeHandlersBase
@@ -74,6 +68,10 @@ abstract class BaseExtension {
 	}
 
 	public function getRuleConditions() :array {
+		return [];
+	}
+
+	public function getRuleEnumTypes() :array {
 		return [];
 	}
 

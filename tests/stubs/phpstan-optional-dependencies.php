@@ -13,14 +13,6 @@ namespace {
 		}
 	}
 
-	if ( !\class_exists( 'WP_CLI', false ) ) {
-		class WP_CLI {
-			public static function __callStatic( string $name, array $arguments ) {
-				return null;
-			}
-		}
-	}
-
 	if ( !\class_exists( 'BuddyPress', false ) ) {
 		class BuddyPress {
 			public static function instance() :self {
@@ -32,6 +24,9 @@ namespace {
 
 	if ( !\class_exists( 'Caldera_Forms', false ) ) {
 		class Caldera_Forms {
+			public static function form_redirect( ...$args ) :void {
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -40,6 +35,9 @@ namespace {
 
 	if ( !\class_exists( 'GFCommon', false ) ) {
 		class GFCommon {
+			public static function set_spam_filter( ...$args ) :void {
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -71,6 +69,10 @@ namespace {
 
 	if ( !\class_exists( 'SUPER_Common', false ) ) {
 		class SUPER_Common {
+			public static function output_message( ...$args ) {
+				return null;
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -92,6 +94,9 @@ namespace {
 
 	if ( !\class_exists( 'wordfence', false ) ) {
 		class wordfence {
+			public static function whitelistIP( ...$args ) :void {
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -152,29 +157,21 @@ namespace {
 			return null;
 		}
 	}
-}
 
-namespace WP_CLI\Utils {
-	if ( !\function_exists( __NAMESPACE__.'\format_items' ) ) {
-		function format_items( ...$args ) :void {
+	if ( !\function_exists( 'happyforms_get_version' ) ) {
+		function happyforms_get_version() :string {
+			return '0.0.0';
 		}
 	}
 
-	if ( !\function_exists( __NAMESPACE__.'\get_flag_value' ) ) {
-		function get_flag_value( array $args, string $key, $default = null ) {
-			return $args[ $key ] ?? $default;
+	if ( !\function_exists( 'wp_cache_clean_cache' ) ) {
+		function wp_cache_clean_cache( ...$args ) :void {
 		}
 	}
 
-	if ( !\function_exists( __NAMESPACE__.'\make_progress_bar' ) ) {
-		function make_progress_bar( ...$args ) {
-			return new class {
-				public function tick() :void {
-				}
-
-				public function finish() :void {
-				}
-			};
+	if ( !\function_exists( 'wp_cache_setting' ) ) {
+		function wp_cache_setting( ...$args ) {
+			return null;
 		}
 	}
 }
@@ -195,6 +192,11 @@ namespace MainWP\Child {
 
 	if ( !\class_exists( __NAMESPACE__.'\MainWP_Connect', false ) ) {
 		class MainWP_Connect {
+			public static function instance() :self {
+				static $instance;
+				return $instance ??= new self();
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -205,6 +207,10 @@ namespace MainWP\Child {
 namespace MainWP\Dashboard {
 	if ( !\class_exists( __NAMESPACE__.'\MainWP_Connect', false ) ) {
 		class MainWP_Connect {
+			public static function fetch_url_authed( ...$args ) {
+				return [];
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -213,6 +219,11 @@ namespace MainWP\Dashboard {
 
 	if ( !\class_exists( __NAMESPACE__.'\MainWP_DB', false ) ) {
 		class MainWP_DB {
+			public static function instance() :self {
+				static $instance;
+				return $instance ??= new self();
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -221,6 +232,10 @@ namespace MainWP\Dashboard {
 
 	if ( !\class_exists( __NAMESPACE__.'\MainWP_Extensions_Handler', false ) ) {
 		class MainWP_Extensions_Handler {
+			public static function get_extensions() :array {
+				return [];
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -229,6 +244,10 @@ namespace MainWP\Dashboard {
 
 	if ( !\class_exists( __NAMESPACE__.'\MainWP_Sync', false ) ) {
 		class MainWP_Sync {
+			public static function sync_site( ...$args ) :array {
+				return [];
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}

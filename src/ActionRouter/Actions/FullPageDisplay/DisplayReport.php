@@ -15,7 +15,7 @@ class DisplayReport extends FullPageDisplayStatic {
 	protected function retrieveContent() :string {
 		/** @var ReportDB\Select $select */
 		$select = self::con()->db_con->reports->getQuerySelector();
-		/** @var ?|ReportDB\Record $report */
+		/** @var ?ReportDB\Record $report */
 		$report = $select->filterByReportID( $this->action_data[ 'report_unique_id' ] )->first();
 		if ( empty( $report ) ) {
 			throw new ActionException( __( 'Report could not be found.', 'wp-simple-firewall' ) );

@@ -39,7 +39,7 @@ class ResponseProcessor {
 				}
 
 				$params = $respDef[ 'params' ] ?? [];
-				/** @var Responses\Base $responseClass */
+				/** @var class-string<Responses\Base> $responseClass */
 				$response = new $responseClass();
 				$response->setThisRequest( $this->req )
 						 ->setRule( $this->rule )
