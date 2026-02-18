@@ -24,7 +24,7 @@ class TabSitesListing extends BaseSubPage {
 		];
 
 		$sites = \array_filter( \array_map(
-			function ( $site ) use ( $statsHead ) {
+			function ( $site ) {
 				try {
 					return $this->buildEntireSiteData( $site );
 				}

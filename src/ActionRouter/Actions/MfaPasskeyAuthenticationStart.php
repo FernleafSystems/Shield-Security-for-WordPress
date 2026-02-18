@@ -19,7 +19,7 @@ class MfaPasskeyAuthenticationStart extends MfaLoginFlowBase {
 			$user = $this->getLoginWPUser();
 
 			$available = self::con()->comps->mfa->getProvidersAvailableToUser( $user );
-			/** @var Passkey $provider */
+			/** @var ?Passkey $provider */
 			$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 
 			if ( empty( $provider ) ) {

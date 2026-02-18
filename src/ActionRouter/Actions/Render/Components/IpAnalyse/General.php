@@ -38,8 +38,11 @@ class General extends Base {
 			$ipName = 'Unknown';
 		}
 
-		if ( $ipKey === IpID::UNKNOWN && !empty( $bypassIP ) ) {
-			$ipName = $bypassIP->label ?? '';
+		$ipRules = new IpRuleStatus( $ip );
+
+		if ( $ipKey === IpID::UNKNOWN && $ipRules->isBypass() ) {
+			$firstBypass = \current( $ipRules->getRulesForBypass() );
+			$ipName = $firstBypass->label ?? '';
 		}
 
 		$shieldNetScore = ( new GetIPReputation() )
@@ -49,7 +52,6 @@ class General extends Base {
 			->setIP( $ip )
 			->retrieve();
 
-		$ruleStatus = new IpRuleStatus( $ip );
 		return [
 			'flags'   => [
 				'has_geo' => !empty( $countryCode ),
@@ -76,7 +78,7 @@ class General extends Base {
 					'is_bypass'           => __( 'Bypass IP', 'wp-simple-firewall' ),
 					'ip_reputation'       => __( 'IP Reputation Score', 'wp-simple-firewall' ),
 					'snapi_ip_reputation' => sprintf( __( '%s IP Reputation Score', 'wp-simple-firewall' ), self::con()->labels->getBrandName( 'shieldnet' ) ),
-					'block_type'          => $ruleStatus->isBlocked() ? Handler::GetTypeName( $ruleStatus->getBlockType() ) : ''
+					'block_type'          => $ipRules->isBlocked() ? Handler::GetTypeName( $ipRules->getBlockType() ) : ''
 				],
 
 				'yes' => CommonDisplayStrings::get( 'yes_label' ),
@@ -100,10 +102,10 @@ class General extends Base {
 				'ip'       => $ip,
 				'status'   => [
 					'is_you'                 => Services::IP()::IpIn( $ip, [ self::con()->this_req->ip ] ),
-					'offenses'               => $ruleStatus->getOffenses(),
-					'is_blocked'             => $ruleStatus->isBlocked(),
-					'is_bypass'              => $ruleStatus->isBypass(),
-					'is_crowdsec'            => $ruleStatus->isBlockedByCrowdsec(),
+					'offenses'               => $ipRules->getOffenses(),
+					'is_blocked'             => $ipRules->isBlocked(),
+					'is_bypass'              => $ipRules->isBypass(),
+					'is_crowdsec'            => $ipRules->isBlockedByCrowdsec(),
 					'ip_reputation_score'    => ( new CalculateVisitorBotScores() )
 						->setIP( $ip )
 						->probability(),

@@ -93,7 +93,7 @@ class BotSignalsRecord {
 				$r->offense_at = $ruleStatus->getRuleForAutoBlock()->last_access_at;
 			}
 
-			/** @var IpRuleRecord $blockedRuleRecord */
+			/** @var false|IpRuleRecord $blockedRuleRecord */
 			$blockedRuleRecord = \current( $ruleStatus->getRulesForBlock() );
 			if ( !empty( $blockedRuleRecord ) ) {
 				$r->blocked_at = $blockedRuleRecord->blocked_at;

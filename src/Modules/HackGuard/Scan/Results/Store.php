@@ -25,7 +25,7 @@ class Store {
 
 			$scanResult = self::con()->comps->scans->getScanCon( $queueItem->scan )->buildScanResult( $result );
 
-			/** @var ResultItemsDB\Record $resultRecord */
+			/** @var ?ResultItemsDB\Record $resultRecord */
 			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )
 										   ->filterByItemNotDeleted()
 										   ->filterByItemNotRepaired()

@@ -17,7 +17,7 @@ class FileDownloadHandler {
 	public function downloadByItemId( int $resultID ) :array {
 		$item = ( new RetrieveItems() )->byID( $resultID );
 
-		if ( empty( $item ) || $item->VO->item_type !== Handler::ITEM_TYPE_FILE || empty( $item->VO->item_id ) ) {
+		if ( $item->VO->item_type !== Handler::ITEM_TYPE_FILE || empty( $item->VO->item_id ) ) {
 			throw new \Exception( __( 'Invalid download item data.', 'wp-simple-firewall' ) );
 		}
 

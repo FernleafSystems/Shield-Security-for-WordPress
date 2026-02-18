@@ -112,9 +112,9 @@ class EventsToSignals extends \FernleafSystems\Wordpress\Plugin\Shield\Events\Ev
 
 	private function getMilliseconds() :string {
 		$milli = '0';
-		if ( \function_exists( 'microtime' ) ) {
-			$ts = microtime();
-			if ( !empty( $ts ) && \strpos( $ts, ' ' ) ) {
+		if ( \function_exists( '\microtime' ) ) {
+			$ts = \microtime();
+			if ( \strpos( $ts, ' ' ) ) {
 				$ts = \explode( ' ', $ts )[ 0 ];
 				if ( \strpos( $ts, '.' ) ) {
 					$milli = \rtrim( \substr( \explode( '.', $ts )[ 1 ] ?? '', 0, 6 ), '0' );

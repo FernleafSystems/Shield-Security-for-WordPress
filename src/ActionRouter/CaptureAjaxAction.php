@@ -90,7 +90,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 					/** TODO: refine action process to ensure that excess data isn't included */
 				] ) ),
 				'noise'       => $noise,
-				'status_code' => $statusCode ?? 200
+				'status_code' => $statusCode
 			];
 			( new Response() )->issue( $issuePayload );
 		}

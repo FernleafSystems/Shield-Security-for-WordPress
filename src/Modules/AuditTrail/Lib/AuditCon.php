@@ -167,7 +167,7 @@ class AuditCon {
 			$store = true;
 		}
 		finally {
-			if ( $store ) {
+			if ( !empty( $store ) ) {
 				$this->updateStoredSnapshot( $auditor, $current ?? null );
 			}
 		}
@@ -207,11 +207,9 @@ class AuditCon {
 				}
 			}
 
-			if ( !empty( $current ) ) {
-				$this->latestSnapshots = null;
-				( new Ops\Delete() )->delete( $slug );
-				( new Ops\Store() )->store( $current );
-			}
+			$this->latestSnapshots = null;
+			( new Ops\Delete() )->delete( $slug );
+			( new Ops\Store() )->store( $current );
 		}
 	}
 

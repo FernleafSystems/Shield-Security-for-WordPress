@@ -19,7 +19,7 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 		if ( !empty( $userID ) && !empty( $plainNonce ) ) {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( $user instanceof \WP_User ) {
-				/** @var Email $p */
+				/** @var ?Email $p */
 				$p = self::con()->comps->mfa->getProvidersActiveForUser( $user )[ Email::ProviderSlug() ] ?? null;
 				try {
 					if ( !empty( $p ) && $p->sendEmailTwoFactorVerify( $plainNonce, $this->action_data[ 'redirect_to' ] ?? '' ) ) {

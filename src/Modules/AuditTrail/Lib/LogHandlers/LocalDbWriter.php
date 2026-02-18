@@ -82,7 +82,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 		/** @var LogsDB\Select $select */
 		$select = $dbCon->activity_logs->getQuerySelector();
-		/** @var LogsDB\Record $existingLog */
+		/** @var ?LogsDB\Record $existingLog */
 		$existingLog = $select->filterByEvent( $this->log[ 'context' ][ 'event_slug' ] )
 							  ->filterByRequestRefs( $reqIDs )
 							  ->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
@@ -135,7 +135,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			throw new \Exception( __( 'Failed to insert.', 'wp-simple-firewall' ) );
 		}
 
-		/** @var LogsDB\Record $log */
+		/** @var ?LogsDB\Record $log */
 		$log = $dbh->getQuerySelector()->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 		if ( empty( $log ) ) {
 			throw new \Exception( __( 'Could not load log record.', 'wp-simple-firewall' ) );

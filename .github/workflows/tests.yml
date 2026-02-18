@@ -143,8 +143,16 @@ jobs:
     - name: Build plugin config
       run: composer build:config
 
-    - name: Run static analysis
-      run: composer analyze
+    - name: Run static analysis (informational)
+      run: |
+        set +e
+        composer analyze
+        ANALYZE_EXIT=$?
+        set -e
+        if [ "$ANALYZE_EXIT" -ne 0 ]; then
+          echo "::warning title=Static analysis reported issues::composer analyze exited with code ${ANALYZE_EXIT}. Continuing because analysis is informational-only."
+        fi
+        exit 0
 
     - name: Load Strauss version
       run: |

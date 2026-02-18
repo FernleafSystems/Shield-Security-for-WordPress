@@ -33,10 +33,7 @@ class PageConfigForZoneComponents extends BasePluginAdminPage {
 	 * Must manually build breadcrumbs for dynamic loaded config.
 	 */
 	protected function getBreadCrumbs() :array {
-		if ( empty( $crumbs ) ) {
-			$crumbs = ( new BuildBreadCrumbs() )->for( PluginNavs::NAV_ZONE_COMPONENTS, \current( $this->action_data[ 'zone_component_slugs' ] ) );
-		}
-		return $crumbs;
+		return ( new BuildBreadCrumbs() )->for( PluginNavs::NAV_ZONE_COMPONENTS, \current( $this->action_data[ 'zone_component_slugs' ] ) );
 	}
 
 	protected function getRequiredDataKeys() :array {

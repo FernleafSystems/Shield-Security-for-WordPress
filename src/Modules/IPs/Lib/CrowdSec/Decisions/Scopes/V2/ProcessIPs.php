@@ -135,28 +135,26 @@ class ProcessIPs extends ProcessBase {
 //				} ) );
 
 				$singles = \array_keys( $slice );
-				if ( !empty( $singles ) ) {
-					$loader = new LoadIpRules();
-					$loader->wheres = [
-						sprintf( "`ips`.`ip` IN (%s)",
-							\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), $singles ) )
-						),
-						sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
-					];
+				$loader = new LoadIpRules();
+				$loader->wheres = [
+					sprintf( "`ips`.`ip` IN (%s)",
+						\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), $singles ) )
+					),
+					sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
+				];
 
-					foreach ( $loader->select() as $preExistingRule ) {
-						if ( \in_array( $preExistingRule->ip, $singles ) ) {
-							$duplicates[] = $preExistingRule->ip;
-						}
-						elseif ( \str_contains( $preExistingRule->ip, ':' ) ) {
-							$preExistingIPv6 = Factory::parseAddressString( $preExistingRule->ip )->toString( true );
-							// handle variance of IPv6 notation.
-							foreach ( $singles as $sliceIP ) {
-								if ( \str_contains( $sliceIP, ':' ) &&
-									 Factory::parseAddressString( $sliceIP )->toString( true ) === $preExistingIPv6 ) {
-									$duplicates[] = $sliceIP;
-									break;
-								}
+				foreach ( $loader->select() as $preExistingRule ) {
+					if ( \in_array( $preExistingRule->ip, $singles ) ) {
+						$duplicates[] = $preExistingRule->ip;
+					}
+					elseif ( \str_contains( $preExistingRule->ip, ':' ) ) {
+						$preExistingIPv6 = Factory::parseAddressString( $preExistingRule->ip )->toString( true );
+						// handle variance of IPv6 notation.
+						foreach ( $singles as $sliceIP ) {
+							if ( \str_contains( $sliceIP, ':' ) &&
+								 Factory::parseAddressString( $sliceIP )->toString( true ) === $preExistingIPv6 ) {
+								$duplicates[] = $sliceIP;
+								break;
 							}
 						}
 					}

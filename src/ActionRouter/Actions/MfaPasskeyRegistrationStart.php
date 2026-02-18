@@ -21,7 +21,7 @@ class MfaPasskeyRegistrationStart extends MfaUserConfigBase {
 		}
 		else {
 			$available = self::con()->comps->mfa->getProvidersAvailableToUser( $user );
-			/** @var Passkey $provider */
+			/** @var ?Passkey $provider */
 			$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 
 			if ( empty( $provider ) ) {

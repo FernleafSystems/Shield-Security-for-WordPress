@@ -31,7 +31,7 @@ class BotSignals extends Base {
 			foreach ( $scores as $scoreKey => $scoreValue ) {
 				$column = $scoreKey.'_at';
 				if ( $scoreValue !== 0 ) {
-					if ( empty( $record ) || empty( $record->{$column} ) ) {
+					if ( empty( $record->{$column} ) ) {
 						if ( \in_array( $scoreKey, [ 'known', 'created' ] ) ) {
 							$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
 						}

@@ -152,10 +152,7 @@ class DbCon extends DynPropertiesClass {
 		],
 	];
 
-	/**
-	 * @var ?|array
-	 */
-	private $dbHandlers = null;
+	private ?array $dbHandlers = null;
 
 	protected function run() {
 		$this->setupCronHooks();
@@ -202,22 +199,27 @@ class DbCon extends DynPropertiesClass {
 
 	/**
 	 * @return Handler|mixed|null
+	 * @throws \Exception
 	 */
 	public function load( string $dbKey ) {
 		return $this->loadDbH( $this->getHandlers()[ $dbKey ][ 'slug' ] );
 	}
 
 	/**
-	 * @return Handler|mixed|null
+	 * @param string $dbSlug
+	 * @param bool   $reload
+	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbSlug, bool $reload = false ) {
 		$con = self::con();
 
 		$dbKey = null;
+		$dbhSpec = null;
 		foreach ( $this->getHandlers() as $key => $handlerSpec ) {
 			if ( $handlerSpec[ 'slug' ] === $dbSlug ) {
 				$dbKey = $key;
-				$dbh = $handlerSpec;
+				$dbhSpec = $handlerSpec;
 				break;
 			}
 		}
@@ -226,12 +228,12 @@ class DbCon extends DynPropertiesClass {
 			throw new \Exception( '' );
 		}
 
-		if ( $reload || empty( $dbh[ 'handler' ] ) ) {
+		if ( $reload || empty( $dbhSpec[ 'handler' ] ) ) {
 			/**
 			 * We need to ensure that any dependent (foreign key references) tables are initiated before
 			 * attempting to initiate ourselves.
 			 */
-			$dbDef = $dbh[ 'def' ];
+			$dbDef = $dbhSpec[ 'def' ];
 			foreach ( $dbDef[ 'cols_custom' ] as $colDef ) {
 				if ( ( $colDef[ 'macro_type' ] ?? '' ) === Common\Types::MACROTYPE_FOREIGN_KEY_ID ) {
 					$table = $colDef[ 'foreign_key' ][ 'ref_table' ];
@@ -243,8 +245,9 @@ class DbCon extends DynPropertiesClass {
 
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 
-			/** @var Handler|mixed $dbh */
-			$dbh = new $dbh[ 'handler_class' ]( $dbDef );
+			$dbhClass = $dbhSpec[ 'handler_class' ];
+			/** @var class-string<Handler> $dbhClass */
+			$dbh = new $dbhClass( $dbDef );
 			$dbh->use_table_ready_cache = !$con->plugin_reset
 										  && $con->comps->opts_lookup->getActivatedPeriod() > Common\TableReadyCache::READY_LIFETIME
 										  && ( Services::Request()->ts()
