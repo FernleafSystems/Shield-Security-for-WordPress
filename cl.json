@@ -110,6 +110,24 @@
             ]
           }
         ]
+      },
+      {
+        "version":     "2",
+        "released_at": 1771410000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Fatal error with Ninja Forms integration",
+            "description": [
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "Navigation menu UI & Onboarding wizard UI",
+            "description": [
+            ]
+          }
+        ]
       }
     ]
   },
