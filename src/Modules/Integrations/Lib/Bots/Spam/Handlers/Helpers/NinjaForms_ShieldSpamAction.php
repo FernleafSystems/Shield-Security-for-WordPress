@@ -3,8 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\Handlers\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\Handlers\NinjaForms;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 final class NinjaForms_ShieldSpamAction extends \NF_Abstracts_Action {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @var string

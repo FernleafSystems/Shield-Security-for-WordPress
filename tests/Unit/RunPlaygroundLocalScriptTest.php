@@ -46,6 +46,8 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'Local @wp-playground/cli binary not found.', $content );
 		$this->assertStringContainsString( 'Version Verification:', $content );
 		$this->assertStringContainsString( 'runtime_php_version_match', $content );
+		$this->assertStringContainsString( "'preferredVersions' => buildPreferredVersions( \$phpVersion, \$wpVersion )", $content );
+		$this->assertStringContainsString( 'function buildPreferredVersions( string $phpVersion, string $wpVersion ) :array {', $content );
 		$this->assertStringContainsString( "=== Shield Playground Local Check ===", $content );
 		$this->assertStringContainsString( "Result: ", $content );
 	}
