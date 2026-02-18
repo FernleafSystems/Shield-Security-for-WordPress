@@ -3,8 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DashboardViewToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminAuthClear;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Dashboard\DashboardViewPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
 
 abstract class BasePluginAdminPage extends BaseRender {
@@ -38,6 +42,22 @@ abstract class BasePluginAdminPage extends BaseRender {
 
 	protected function getCommonAdminPageRenderData() :array {
 		$urls = self::con()->plugin_urls;
+		$toggleHref = '';
+		$toggleLabel = '';
+		if ( $this->isDashboardOverviewPage() ) {
+			$pref = new DashboardViewPreference();
+			$targetView = $pref->getToggleTarget();
+			$toggleHref = $urls->noncedPluginAction(
+				DashboardViewToggle::class,
+				$urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
+				[
+					'view' => $targetView,
+				]
+			);
+			$toggleLabel = $targetView === DashboardViewPreference::VIEW_ADVANCED
+				? __( 'Advanced View', 'wp-simple-firewall' )
+				: __( 'Simple View', 'wp-simple-firewall' );
+		}
 
 		$hrefs = $this->getPageContextualHrefs();
 		if ( self::con()->comps->sec_admin->hasActiveSession() ) {
@@ -51,9 +71,18 @@ abstract class BasePluginAdminPage extends BaseRender {
 		return [
 			'hrefs' => [
 				'breadcrumbs'                 => $this->getBreadCrumbs(),
+				'dashboard_view_toggle'       => $toggleHref,
 				'inner_page_contextual_hrefs' => \array_filter( $hrefs ),
 			],
+			'strings' => [
+				'dashboard_view_toggle_label' => $toggleLabel,
+			],
 		];
+	}
+
+	private function isDashboardOverviewPage() :bool {
+		return (string)( $this->action_data[ Constants::NAV_ID ] ?? '' ) === PluginNavs::NAV_DASHBOARD
+			   && (string)( $this->action_data[ Constants::NAV_SUB_ID ] ?? '' ) === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW;
 	}
 
 	protected function getBreadCrumbs() :array {

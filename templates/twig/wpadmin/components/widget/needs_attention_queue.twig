@@ -1,0 +1,51 @@
+<div class="card shield-card shield-needs-attention h-100">
+	<div class="shield-card-accent status-{{ vars.overall_severity }}"></div>
+	<div class="card-body">
+		<div class="shield-needs-attention__status-strip is-{{ vars.overall_severity }}">
+			<div class="shield-needs-attention__title">{{ strings.title }}</div>
+			{% if flags.has_items %}
+				<span class="shield-badge badge-{{ vars.overall_severity }}">{{ strings.issues_found }}: {{ vars.total_items }}</span>
+			{% else %}
+				<span class="shield-badge badge-good">{{ strings.all_clear }}</span>
+			{% endif %}
+		</div>
+
+		{% if flags.has_items %}
+			<div class="shield-needs-attention__zone-rows">
+				{% for zone in vars.zone_groups %}
+					<div class="shield-needs-attention__zone-row is-{{ zone.severity }}">
+						<div class="shield-needs-attention__zone-header">
+							<span class="shield-needs-attention__pip is-{{ zone.severity }}"></span>
+							<span class="shield-needs-attention__zone-label">{{ zone.label }}</span>
+							<span class="shield-badge badge-{{ zone.severity }}">{{ zone.total_issues }}</span>
+						</div>
+						<ul class="shield-needs-attention__items">
+							{% for item in zone.items %}
+								<li class="shield-needs-attention__item is-{{ item.severity }}">
+									<div class="shield-needs-attention__item-head">
+										<span class="shield-needs-attention__pip is-{{ item.severity }}"></span>
+										<a href="{{ item.href }}" class="shield-needs-attention__item-link">{{ item.label }}</a>
+										<span class="shield-needs-attention__item-count">{{ item.count }}</span>
+									</div>
+									<div class="shield-needs-attention__item-text">{{ item.description }}</div>
+								</li>
+							{% endfor %}
+						</ul>
+					</div>
+				{% endfor %}
+			</div>
+		{% else %}
+			<p class="shield-needs-attention__all-clear">{{ strings.all_clear_message }}</p>
+			<div class="shield-needs-attention__chips">
+				{% for chip in vars.zone_chips %}
+					<span class="shield-needs-attention__chip is-{{ chip.severity }}">{{ chip.label }}</span>
+				{% endfor %}
+			</div>
+		{% endif %}
+
+		{% if strings.last_scan_subtext|default('') is not empty %}
+			<p class="shield-needs-attention__subtext">{{ strings.last_scan_subtext }}</p>
+		{% endif %}
+	</div>
+</div>
+

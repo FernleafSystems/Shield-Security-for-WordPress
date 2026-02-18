@@ -16,7 +16,12 @@
 						{% endfor %}
 						{{ strings.inner_page_title|default(strings.no_inner_page_title) }}
 					</div>
-					{% block inner_page_title_after %}{% endblock %}
+					{% block inner_page_title_after %}
+						{% if hrefs.dashboard_view_toggle|default('') is not empty %}
+							<a href="{{ hrefs.dashboard_view_toggle }}"
+							   class="ms-3 fw-normal text-muted small text-decoration-none dashboard-view-toggle">{{ strings.dashboard_view_toggle_label|default('') }}</a>
+						{% endif %}
+					{% endblock %}
 				</h4>
 				{% if strings.inner_page_subtitle|default('') is not empty %}
 					<p class="mb-2">
