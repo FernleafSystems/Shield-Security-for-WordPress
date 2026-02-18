@@ -1,5 +1,9 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+	- phpstan-baseline.neon
+
 parameters:
-	level: 0
+	level: 1
 	paths:
 		- src
 		- icwp-wpsf.php
@@ -10,8 +14,12 @@ parameters:
 		- unsupported.php
 	bootstrapFiles:
 		- vendor/autoload.php
+		- tests/stubs/phpstan-project-constants.php
 	scanFiles:
-		- vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-tools-stubs.php
 		- tests/stubs/phpstan-optional-dependencies.php
 	excludePaths:
 		analyse:
