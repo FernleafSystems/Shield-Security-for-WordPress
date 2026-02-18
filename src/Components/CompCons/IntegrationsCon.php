@@ -33,8 +33,8 @@ class IntegrationsCon {
 				$opts->optSet( 'auto_integrations_track', $trk )->store();
 
 				$ints = $this->buildIntegrationsStates();
+				/** @var BaseBotDetectionController $formCon */
 				foreach ( [ self::con()->comps->forms_users, self::con()->comps->forms_spam ] as $formCon ) {
-					/** @var BaseBotDetectionController $formCon */
 					foreach ( \array_keys( $formCon->getInstalled() ) as $slug ) {
 						if ( ( $ints[ $slug ][ 'state' ] ?? '' ) === 'available' && $ints[ $slug ][ 'has_cap' ] ) {
 							$opts->optSet( $formCon->getSelectedProvidersOptKey(), \array_merge( $formCon->getSelectedProviders(), [ $slug ] ) );
@@ -47,8 +47,8 @@ class IntegrationsCon {
 
 	public function buildIntegrationsStates() :array {
 		$integrations = [];
+		/** @var BaseBotDetectionController $formCon */
 		foreach ( [ self::con()->comps->forms_users, self::con()->comps->forms_spam ] as $formCon ) {
-			/** @var BaseBotDetectionController $formCon */
 			foreach ( \array_keys( $formCon->getInstalled() ) as $slug ) {
 				if ( $slug === 'wordpress' ) {
 					$integrations[ $slug ] = [

@@ -7,14 +7,14 @@ use FernleafSystems\Wordpress\Services\Services;
 class ActionNonce {
 
 	/**
-	 * @param Actions\BaseAction|string $action
+	 * @param class-string<Actions\BaseAction> $action
 	 */
 	public static function Create( string $action ) :string {
 		return self::CreateNonces( $action )[ 0 ];
 	}
 
 	/**
-	 * @param Actions\BaseAction|string $action
+	 * @param class-string<Actions\BaseAction> $action
 	 */
 	public static function CreateNonces( string $action ) :array {
 		return \array_map(

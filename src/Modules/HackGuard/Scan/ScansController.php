@@ -72,7 +72,7 @@ class ScansController {
 	}
 
 	/**
-	 * @return Controller\Base[]|mixed
+	 * @return Controller\Base[]
 	 */
 	public function getAllScanCons() :array {
 		foreach ( $this->getScans() as $scan ) {
@@ -89,7 +89,7 @@ class ScansController {
 	}
 
 	/**
-	 * @return string[]|Controller\Base[]
+	 * @return class-string<Controller\Base>[]
 	 */
 	public function getScans() :array {
 		return [
@@ -100,7 +100,7 @@ class ScansController {
 	}
 
 	/**
-	 * @return ?|Controller\Afs|Controller\Apc|Controller\Wpv|Controller\Base
+	 * @return Controller\Afs|Controller\Apc|Controller\Wpv|Controller\Base|null
 	 */
 	public function getScanCon( string $slug ) {
 		return $this->getAllScanCons()[ $slug ] ?? null;

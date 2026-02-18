@@ -233,7 +233,6 @@ class ConsolidateAllEvents {
 					$record->event = $event;
 					$record->count = $sum;
 					$record->created_at = $time->timestamp + 1;
-					/** @var EventsDB\Insert $inserter */
 					$dbh->getQueryInserter()->insert( $record );
 				}
 			}

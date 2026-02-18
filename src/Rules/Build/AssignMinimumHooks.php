@@ -17,7 +17,7 @@ class AssignMinimumHooks {
 	/**
 	 * @var RuleVO[]
 	 */
-	private $rules;
+	private array $rules;
 
 	public function __construct( array $rules ) {
 		$this->rules = $rules;
@@ -26,7 +26,6 @@ class AssignMinimumHooks {
 	public function run() :void {
 		foreach ( $this->rules as $rule ) {
 			$minimumHook = WPHooksOrder::NONE;
-			/** @var Conditions\Base[] $allConditions */
 			try {
 				foreach ( ( new ExtractSubConditions() )->fromRule( $rule )[ 'classes' ] as $condition ) {
 					$minimumHook = \max( $minimumHook, $condition::MinimumHook() );

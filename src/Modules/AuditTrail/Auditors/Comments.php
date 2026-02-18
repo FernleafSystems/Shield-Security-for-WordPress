@@ -29,8 +29,8 @@ class Comments extends Base {
 	}
 
 	/**
-	 * @param int|mixed          $commentID
-	 * @param ?\WP_Comment|mixed $comment
+	 * @param int|mixed    $commentID
+	 * @param ?\WP_Comment $comment
 	 */
 	public function auditDelete( $commentID, $comment = null ) :void {
 		if ( $comment instanceof \WP_Comment ) {

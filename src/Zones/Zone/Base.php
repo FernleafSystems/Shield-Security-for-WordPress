@@ -60,7 +60,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	/**
-	 * @return ?string|ModuleBase
+	 * @return ?class-string<ModuleBase>
 	 */
 	protected function getUnderlyingModuleZone() :?string {
 		return null;

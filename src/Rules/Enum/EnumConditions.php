@@ -109,7 +109,7 @@ class EnumConditions {
 	 * to the 'shield/rules/enum_conditions' hook. The conditions are
 	 * filtered to only include those that start with the letter 'C'.
 	 *
-	 * @return string[]|Conditions\Base[].
+	 * @return class-string<Conditions\Base>[]
 	 */
 	public static function Conditions() :array {
 		return \apply_filters( 'shield/rules/enum_conditions', self::CONDITIONS );

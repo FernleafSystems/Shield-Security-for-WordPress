@@ -64,7 +64,7 @@ class ActionData {
 	}
 
 	/**
-	 * @param BaseAction|string $actionClass
+	 * @param class-string<BaseAction> $actionClass
 	 */
 	public static function BuildAjaxRender( string $actionClass = '', array $aux = [] ) :array {
 		$aux[ 'render_slug' ] = empty( $actionClass ) ? '' : $actionClass::SLUG;
