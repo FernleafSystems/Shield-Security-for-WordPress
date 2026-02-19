@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\FileSystemUtils;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 class RunPackagedPhpStanScriptTest extends BaseUnitTest {
@@ -46,24 +48,30 @@ class RunPackagedPhpStanScriptTest extends BaseUnitTest {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
 		}
 
-		$process = new Process(
-			[
-				\PHP_BINARY,
-				$this->getPluginFilePath( 'bin/run-packaged-phpstan.php' ),
-				'--project-root='.$this->getPluginRoot(),
-				'--composer-image=composer:2',
-				'--package-dir='.$this->getPluginFilePath( 'tests' ),
-				'--package-dir-relative=tests',
-			],
-			$this->getPluginRoot()
-		);
-		$process->run();
+		$missingVendorPackageDir = $this->createTempDir( 'shield-missing-vendor-' );
+		try {
+			$process = new Process(
+				[
+					\PHP_BINARY,
+					$this->getPluginFilePath( 'bin/run-packaged-phpstan.php' ),
+					'--project-root='.$this->getPluginRoot(),
+					'--composer-image=composer:2',
+					'--package-dir='.$missingVendorPackageDir,
+					'--package-dir-relative=tmp/shield-missing-vendor',
+				],
+				$this->getPluginRoot()
+			);
+			$process->run();
 
-		$this->assertSame( 1, $process->getExitCode() ?? 1 );
-		$this->assertStringContainsString(
-			'ERROR: Packaged vendor autoload not found:',
-			$process->getErrorOutput()
-		);
+			$this->assertSame( 1, $process->getExitCode() ?? 1 );
+			$this->assertStringContainsString(
+				'ERROR: Packaged vendor autoload not found:',
+				$process->getErrorOutput()
+			);
+		}
+		finally {
+			FileSystemUtils::removeDirectoryRecursive( $missingVendorPackageDir );
+		}
 	}
 
 	public function testRunPackagedPhpStanScriptHelpReturnsZero() :void {
@@ -79,5 +87,11 @@ class RunPackagedPhpStanScriptTest extends BaseUnitTest {
 
 		$this->assertSame( 0, $process->getExitCode() ?? 1 );
 		$this->assertStringContainsString( 'Usage: php bin/run-packaged-phpstan.php', $process->getOutput() );
+	}
+
+	private function createTempDir( string $prefix ) :string {
+		$path = Path::join( \sys_get_temp_dir(), $prefix.\bin2hex( \random_bytes( 6 ) ) );
+		\mkdir( $path, 0777, true );
+		return $path;
 	}
 }

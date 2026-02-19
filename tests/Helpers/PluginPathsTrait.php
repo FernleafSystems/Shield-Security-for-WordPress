@@ -74,7 +74,7 @@ trait PluginPathsTrait {
 	}
 
 	/**
-	 * Debug path information (only outputs in verbose mode).
+	 * Debug path information (only outputs when SHIELD_DEBUG_PATHS is enabled).
 	 * @param string $label
 	 * @param string $path
 	 */

@@ -5,6 +5,8 @@ use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanAnalysi
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
+const RUN_PACKAGED_PHPSTAN_USAGE = 'Usage: php bin/run-packaged-phpstan.php --project-root=<path> --composer-image=<image> --package-dir=<path> --package-dir-relative=<path>';
+
 $options = \getopt( '', [
 	'project-root:',
 	'composer-image:',
@@ -14,10 +16,7 @@ $options = \getopt( '', [
 ] );
 
 if ( isset( $options[ 'help' ] ) ) {
-	\fwrite(
-		\STDOUT,
-		"Usage: php bin/run-packaged-phpstan.php --project-root=<path> --composer-image=<image> --package-dir=<path> --package-dir-relative=<path>".PHP_EOL
-	);
+	writeUsage( \STDOUT );
 	exit( 0 );
 }
 
@@ -27,10 +26,7 @@ $packageDir = normalizePathOption( (string)( $options[ 'package-dir' ] ?? '' ) )
 $packageDirRelative = \trim( (string)( $options[ 'package-dir-relative' ] ?? '' ) );
 
 if ( $projectRoot === '' || $composerImage === '' || $packageDir === '' || $packageDirRelative === '' ) {
-	\fwrite(
-		\STDERR,
-		"Usage: php bin/run-packaged-phpstan.php --project-root=<path> --composer-image=<image> --package-dir=<path> --package-dir-relative=<path>".PHP_EOL
-	);
+	writeUsage( \STDERR );
 	exit( 1 );
 }
 
@@ -64,4 +60,11 @@ catch ( \Throwable $throwable ) {
 function normalizePathOption( string $value ) :string {
 	$value = \trim( $value, " \t\n\r\0\x0B\"'" );
 	return $value === '' ? '' : \str_replace( '\\', '/', $value );
+}
+
+/**
+ * @param resource $stream
+ */
+function writeUsage( $stream ) :void {
+	\fwrite( $stream, RUN_PACKAGED_PHPSTAN_USAGE.\PHP_EOL );
 }
