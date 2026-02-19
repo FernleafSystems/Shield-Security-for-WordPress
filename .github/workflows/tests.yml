@@ -144,15 +144,14 @@ jobs:
       run: composer build:config
 
     - name: Run static analysis (informational)
+      id: phpstan_informational
+      continue-on-error: true
+      run: composer analyze
+
+    - name: Report static analysis issues (informational)
+      if: steps.phpstan_informational.outcome == 'failure'
       run: |
-        set +e
-        composer analyze
-        ANALYZE_EXIT=$?
-        set -e
-        if [ "$ANALYZE_EXIT" -ne 0 ]; then
-          echo "::warning title=Static analysis reported issues::composer analyze exited with code ${ANALYZE_EXIT}. Continuing because analysis is informational-only."
-        fi
-        exit 0
+        echo "::warning title=Static analysis reported issues::composer analyze failed. Continuing because analysis is informational-only."
 
     - name: Load Strauss version
       run: |
