@@ -29,7 +29,7 @@ class MfaControllerTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_providers_for_new_user_without_mfa() {
-		$userId = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
 
 		// A new user without MFA configured should have no active providers
@@ -52,7 +52,7 @@ class MfaControllerTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_remove_all_factors_for_real_user() {
-		$userId = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$userId = $this->createAdministratorUser();
 		$result = $this->mfa()->removeAllFactorsForUser( $userId );
 
 		// Even with no MFA configured, this should succeed (no-op)
@@ -60,7 +60,7 @@ class MfaControllerTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_active_login_intents_empty_for_fresh_user() {
-		$userId = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
 
 		$intents = $this->mfa()->getActiveLoginIntents( $user );
@@ -71,7 +71,7 @@ class MfaControllerTest extends ShieldIntegrationTestCase {
 	public function test_verify_login_nonce_fails_for_invalid() {
 		$this->captureShieldEvents();
 
-		$userId = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
 
 		$result = $this->mfa()->verifyLoginNonce( $user, 'completely-invalid-nonce' );

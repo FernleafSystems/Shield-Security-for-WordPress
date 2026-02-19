@@ -34,7 +34,9 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		$this->disablePremiumCapabilities();
 		$this->truncateShieldTables();
 		$this->resetIpCaches();
-		$this->resetScanResultCountMemoization();
+		if ( static::con() !== null ) {
+			$this->resetScanResultCountMemoization();
+		}
 		parent::tear_down();
 	}
 
@@ -109,14 +111,24 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		$this->requireController()->this_req->is_security_admin = $enabled;
 	}
 
-	protected function loginAsSecurityAdmin( array $userData = [] ) :int {
-		$userId = self::factory()->user->create( \array_merge(
+	protected function createAdministratorUser( array $userData = [] ) :int {
+		return self::factory()->user->create( \array_merge(
 			[
 				'role' => 'administrator',
 			],
 			$userData
 		) );
+	}
+
+	protected function loginAsAdministrator( array $userData = [] ) :int {
+		$userId = $this->createAdministratorUser( $userData );
 		\wp_set_current_user( $userId );
+		$this->setSecurityAdminContext( false );
+		return $userId;
+	}
+
+	protected function loginAsSecurityAdmin( array $userData = [] ) :int {
+		$userId = $this->loginAsAdministrator( $userData );
 		$this->setSecurityAdminContext( true );
 		return $userId;
 	}

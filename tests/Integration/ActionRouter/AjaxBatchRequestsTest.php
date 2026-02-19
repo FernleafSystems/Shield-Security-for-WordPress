@@ -17,10 +17,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$userId = self::factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		\wp_set_current_user( $userId );
+		$this->loginAsAdministrator();
 	}
 
 	private function processor() :ActionProcessor {

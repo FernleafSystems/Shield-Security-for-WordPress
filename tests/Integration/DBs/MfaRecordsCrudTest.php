@@ -10,7 +10,7 @@ class MfaRecordsCrudTest extends ShieldIntegrationTestCase {
 	public function test_insert_and_retrieve_mfa_record() {
 		$this->requireDb( 'mfa' );
 
-		$userId = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$userId = $this->createAdministratorUser();
 
 		$id = TestDataFactory::insertMfaRecord( $userId, 'email', [ 'secret' => 'abc123' ] );
 		$this->assertGreaterThan( 0, $id );
@@ -27,7 +27,7 @@ class MfaRecordsCrudTest extends ShieldIntegrationTestCase {
 	public function test_select_by_user_id() {
 		$this->requireDb( 'mfa' );
 
-		$userId = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$userId = $this->createAdministratorUser();
 
 		TestDataFactory::insertMfaRecord( $userId, 'email' );
 		TestDataFactory::insertMfaRecord( $userId, 'google_auth' );

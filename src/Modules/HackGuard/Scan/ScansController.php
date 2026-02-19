@@ -25,7 +25,7 @@ class ScansController {
 
 	private array $scanCons = [];
 
-	private Results\Counts $scanResultsStatus;
+	private ?Results\Counts $scanResultsStatus = null;
 
 	protected function canRun() :bool {
 		return self::con()->opts->optIs( 'enable_hack_protect', 'Y' )
@@ -111,7 +111,7 @@ class ScansController {
 	}
 
 	public function resetScanResultsCountMemoization() :void {
-		$this->scanResultsStatus = new Results\Counts();
+		$this->scanResultsStatus = null;
 	}
 
 	private function handlePostScanCron() {

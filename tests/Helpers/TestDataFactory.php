@@ -173,7 +173,47 @@ class TestDataFactory {
 		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
 	}
 
-	// ── MFA Records ────────────────────────────────────────────────
+	// Scan Result Fixtures
+
+	/**
+	 * Insert a completed scan record and return its ID.
+	 */
+	public static function insertCompletedScan( string $scanSlug, ?int $finishedAt = null ) :int {
+		$dbh = self::con()->db_con->scans;
+		$record = $dbh->getRecord();
+		$record->scan = $scanSlug;
+		$record->ready_at = \max( 1, ( $finishedAt ?? \time() ) - 60 );
+		$record->finished_at = $finishedAt ?? \time();
+		$dbh->getQueryInserter()->insert( $record );
+		return (int)$dbh->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
+	}
+
+	/**
+	 * Insert a scan result item, link it to a scan, and add one meta flag.
+	 */
+	public static function insertScanResultMeta( int $scanId, string $metaKey ) :void {
+		$resultItemsDb = self::con()->db_con->scan_result_items;
+		$item = $resultItemsDb->getRecord();
+		$item->item_type = 'f';
+		$item->item_id = \uniqid( 'result-item-', true );
+		$resultItemsDb->getQueryInserter()->insert( $item );
+		$resultItemId = (int)$resultItemsDb->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
+
+		$scanResultsDb = self::con()->db_con->scan_results;
+		$scanResult = $scanResultsDb->getRecord();
+		$scanResult->scan_ref = $scanId;
+		$scanResult->resultitem_ref = $resultItemId;
+		$scanResultsDb->getQueryInserter()->insert( $scanResult );
+
+		$metaDb = self::con()->db_con->scan_result_item_meta;
+		$meta = $metaDb->getRecord();
+		$meta->ri_ref = $resultItemId;
+		$meta->meta_key = $metaKey;
+		$meta->meta_value = 1;
+		$metaDb->getQueryInserter()->insert( $meta );
+	}
+
+	// MFA Records
 
 	/**
 	 * Insert an MFA record for a user.

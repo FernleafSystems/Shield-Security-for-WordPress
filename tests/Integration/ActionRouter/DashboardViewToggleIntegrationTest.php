@@ -17,10 +17,7 @@ class DashboardViewToggleIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->adminUserId = self::factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		\wp_set_current_user( $this->adminUserId );
+		$this->adminUserId = $this->loginAsAdministrator();
 		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
 	}
 
@@ -67,4 +64,3 @@ class DashboardViewToggleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( (string)( $response->next_step[ 'url' ] ?? '' ) );
 	}
 }
-

@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
 	Meter\MeterSummary
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
@@ -95,38 +96,6 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$prop->setValue( null, [] );
 	}
 
-	private function createCompletedScan( string $scanSlug, ?int $finishedAt = null ) :int {
-		$dbh = self::con()->db_con->scans;
-		$record = $dbh->getRecord();
-		$record->scan = $scanSlug;
-		$record->ready_at = \max( 1, ( $finishedAt ?? \time() ) - 60 );
-		$record->finished_at = $finishedAt ?? \time();
-		$dbh->getQueryInserter()->insert( $record );
-		return (int)$dbh->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
-	}
-
-	private function addScanResultMeta( int $scanId, string $metaKey ) :void {
-		$resultItemsDb = self::con()->db_con->scan_result_items;
-		$item = $resultItemsDb->getRecord();
-		$item->item_type = 'f';
-		$item->item_id = \uniqid( 'result-item-', true );
-		$resultItemsDb->getQueryInserter()->insert( $item );
-		$resultItemId = (int)$resultItemsDb->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
-
-		$scanResultsDb = self::con()->db_con->scan_results;
-		$scanResult = $scanResultsDb->getRecord();
-		$scanResult->scan_ref = $scanId;
-		$scanResult->resultitem_ref = $resultItemId;
-		$scanResultsDb->getQueryInserter()->insert( $scanResult );
-
-		$metaDb = self::con()->db_con->scan_result_item_meta;
-		$meta = $metaDb->getRecord();
-		$meta->ri_ref = $resultItemId;
-		$meta->meta_key = $metaKey;
-		$meta->meta_value = 1;
-		$metaDb->getQueryInserter()->insert( $meta );
-	}
-
 	public function test_render_returns_v2_template_and_marker() :void {
 		$this->setSummaryMeter( 90 );
 		$payload = $this->renderSummary()->payload();
@@ -137,17 +106,19 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_attention_rows_follow_severity_rank_order() :void {
 		$this->setSummaryMeter( 90 );
+		$this->assertTrue( self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP() );
+		$this->assertTrue( self::con()->comps->scans->WPV()->isEnabled() );
 
-		$afsId = $this->createCompletedScan( 'afs' );
-		$this->addScanResultMeta( $afsId, 'is_mal' );
-		$this->addScanResultMeta( $afsId, 'is_mal' );
-		$this->addScanResultMeta( $afsId, 'is_in_core' );
-		$this->addScanResultMeta( $afsId, 'is_in_plugin' );
-		$this->addScanResultMeta( $afsId, 'is_in_plugin' );
-		$this->addScanResultMeta( $afsId, 'is_in_plugin' );
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_core' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
 
-		$wpvId = $this->createCompletedScan( 'wpv' );
-		$this->addScanResultMeta( $wpvId, 'is_vulnerable' );
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultMeta( $wpvId, 'is_vulnerable' );
 
 		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
 		$keys = \array_column( $vars[ 'attention_items' ] ?? [], 'key' );

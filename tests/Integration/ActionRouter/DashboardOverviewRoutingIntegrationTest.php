@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Dashboard\DashboardViewPreference;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
@@ -52,36 +53,20 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return $this->processor()->processAction( NeedsAttentionQueue::SLUG );
 	}
 
-	private function createCompletedScan( string $scanSlug, ?int $finishedAt = null ) :int {
-		$dbh = self::con()->db_con->scans;
-		$record = $dbh->getRecord();
-		$record->scan = $scanSlug;
-		$record->ready_at = \max( 1, ( $finishedAt ?? \time() ) - 60 );
-		$record->finished_at = $finishedAt ?? \time();
-		$dbh->getQueryInserter()->insert( $record );
-		return (int)$dbh->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
-	}
+	private function getZoneGroupBySlug( array $renderData, string $slug ) :array {
+		$zoneGroups = $renderData[ 'vars' ][ 'zone_groups' ] ?? [];
+		$matches = \array_values( \array_filter(
+			\is_array( $zoneGroups ) ? $zoneGroups : [],
+			fn( $zone ) => \is_array( $zone ) && (string)( $zone[ 'slug' ] ?? '' ) === $slug
+		) );
 
-	private function addScanResultMeta( int $scanId, string $metaKey ) :void {
-		$resultItemsDb = self::con()->db_con->scan_result_items;
-		$item = $resultItemsDb->getRecord();
-		$item->item_type = 'f';
-		$item->item_id = \uniqid( 'result-item-', true );
-		$resultItemsDb->getQueryInserter()->insert( $item );
-		$resultItemId = (int)$resultItemsDb->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
+		$this->assertCount(
+			1,
+			$matches,
+			\sprintf( 'Expected exactly one "%s" zone group.', $slug )
+		);
 
-		$scanResultsDb = self::con()->db_con->scan_results;
-		$scanResult = $scanResultsDb->getRecord();
-		$scanResult->scan_ref = $scanId;
-		$scanResult->resultitem_ref = $resultItemId;
-		$scanResultsDb->getQueryInserter()->insert( $scanResult );
-
-		$metaDb = self::con()->db_con->scan_result_item_meta;
-		$meta = $metaDb->getRecord();
-		$meta->ri_ref = $resultItemId;
-		$meta->meta_key = $metaKey;
-		$meta->meta_value = 1;
-		$metaDb->getQueryInserter()->insert( $meta );
+		return $matches[ 0 ] ?? [];
 	}
 
 	public function test_unset_preference_renders_simple_overview_marker() :void {
@@ -100,10 +85,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
-		$scanId = $this->createCompletedScan( 'afs' );
-		$this->addScanResultMeta( $scanId, 'is_in_core' );
-		$this->addScanResultMeta( $scanId, 'is_in_core' );
-		$this->addScanResultMeta( $scanId, 'is_in_plugin' );
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
+		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
+		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_plugin' );
 
 		$payload = $this->renderNeedsAttentionQueue()->payload();
 		$renderData = $payload[ 'render_data' ] ?? [];
@@ -111,25 +96,29 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? false ) );
 		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'overall_severity' ] ?? '' ) );
 
-		$zone = $renderData[ 'vars' ][ 'zone_groups' ][ 0 ] ?? [];
-		$this->assertSame( 'scans', (string)( $zone[ 'slug' ] ?? '' ) );
+		$zone = $this->getZoneGroupBySlug( $renderData, 'scans' );
 		$this->assertSame( 'critical', (string)( $zone[ 'severity' ] ?? '' ) );
 		$this->assertSame( 3, (int)( $zone[ 'total_issues' ] ?? 0 ) );
 	}
 
 	public function test_scan_result_counts_refresh_after_memoization_reset() :void {
-		$scanId = $this->createCompletedScan( 'afs' );
-		$this->addScanResultMeta( $scanId, 'is_in_core' );
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
 
 		$initialRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$initialZone = $initialRenderData[ 'vars' ][ 'zone_groups' ][ 0 ] ?? [];
+		$initialZone = $this->getZoneGroupBySlug( $initialRenderData, 'scans' );
 		$this->assertSame( 1, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
 
-		$this->addScanResultMeta( $scanId, 'is_in_core' );
+		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
+
+		$staleRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
+		$staleZone = $this->getZoneGroupBySlug( $staleRenderData, 'scans' );
+		$this->assertSame( 1, (int)( $staleZone[ 'total_issues' ] ?? 0 ) );
+
 		$this->resetScanResultCountMemoization();
 
 		$refreshedRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$refreshedZone = $refreshedRenderData[ 'vars' ][ 'zone_groups' ][ 0 ] ?? [];
+		$refreshedZone = $this->getZoneGroupBySlug( $refreshedRenderData, 'scans' );
 		$this->assertSame( 2, (int)( $refreshedZone[ 'total_issues' ] ?? 0 ) );
 	}
 
@@ -140,14 +129,14 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			->optSet( 'enabled_scan_apc', 'N' )
 			->store();
 
-		$afsId = $this->createCompletedScan( 'afs' );
-		$this->addScanResultMeta( $afsId, 'is_mal' );
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
 
-		$wpvId = $this->createCompletedScan( 'wpv' );
-		$this->addScanResultMeta( $wpvId, 'is_vulnerable' );
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultMeta( $wpvId, 'is_vulnerable' );
 
-		$apcId = $this->createCompletedScan( 'apc' );
-		$this->addScanResultMeta( $apcId, 'is_abandoned' );
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultMeta( $apcId, 'is_abandoned' );
 
 		$html = (string)( $this->renderNeedsAttentionQueue()->payload()[ 'render_output' ] ?? '' );
 		$this->assertHtmlNotContainsMarker( 'Malware', $html, 'Disabled scan rows' );
