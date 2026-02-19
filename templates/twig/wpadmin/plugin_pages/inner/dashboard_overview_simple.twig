@@ -1,22 +1,5 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div id="dashboard-overview-simple" class="dashboard-overview-simple">
-		<div class="row g-3 mt-3">
-			<div class="col-xl-6">
-				<div class="d-flex flex-column h-100">
-					<div class="flex-grow-1 d-flex w-100">
-						{{ content.hero_meter|raw }}
-					</div>
-					<h6 class="mb-0 mt-2 text-start ps-2">
-						<a href="{{ hrefs.grades_page }}" class="widget-footer-link">{{ strings.view_all_grades_link }} &rarr;</a>
-					</h6>
-				</div>
-			</div>
-			<div class="col-xl-6">
-				{{ content.needs_attention_queue|raw }}
-			</div>
-		</div>
-	</div>
+	{% include '/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig' %}
 {% endblock %}
-

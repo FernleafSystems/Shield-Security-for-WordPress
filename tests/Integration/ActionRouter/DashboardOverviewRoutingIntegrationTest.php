@@ -83,15 +83,34 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
 
 		$html = $this->renderDashboardOverviewHtml();
+		$this->assertHtmlContainsMarker( 'data-dashboard-view="simple"', $html, 'Simple dashboard panel marker' );
+		$this->assertHtmlContainsMarker( 'data-dashboard-view="advanced"', $html, 'Advanced dashboard panel marker' );
+		$this->assertHtmlContainsMarker( 'dashboard-overview-panel--simple is-active', $html, 'Simple dashboard active panel state' );
+		$this->assertHtmlNotContainsMarker( 'dashboard-overview-panel--advanced is-active', $html, 'Advanced dashboard inactive panel state' );
 		$this->assertHtmlContainsMarker( 'dashboard-overview-simple', $html, 'Simple dashboard overview' );
+		$this->assertHtmlContainsMarker( 'dashboard-view-switch is-simple', $html, 'Simple dashboard toggle state' );
+		$this->assertHtmlContainsMarker( 'dashboard-view-switch__toggle', $html, 'Simple dashboard toggle control' );
+		$this->assertHtmlContainsMarker( 'dashboard-view-switch__label--simple is-active', $html, 'Simple dashboard active toggle label' );
+		$this->assertHtmlNotContainsMarker( 'dashboard-view-switch__label--advanced is-active', $html, 'Advanced dashboard inactive toggle label' );
+		$this->assertHtmlContainsMarker( 'Simple View', $html, 'Simple dashboard toggle left label' );
+		$this->assertHtmlContainsMarker( 'Advanced View', $html, 'Simple dashboard toggle target label' );
 	}
 
 	public function test_advanced_preference_renders_advanced_overview_marker() :void {
 		update_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY, DashboardViewPreference::VIEW_ADVANCED );
 
 		$html = $this->renderDashboardOverviewHtml();
-		$this->assertHtmlNotContainsMarker( 'dashboard-overview-simple', $html, 'Advanced dashboard overview' );
+		$this->assertHtmlContainsMarker( 'data-dashboard-view="simple"', $html, 'Simple dashboard panel marker' );
+		$this->assertHtmlContainsMarker( 'data-dashboard-view="advanced"', $html, 'Advanced dashboard panel marker' );
+		$this->assertHtmlContainsMarker( 'dashboard-overview-panel--advanced is-active', $html, 'Advanced dashboard active panel state' );
+		$this->assertHtmlNotContainsMarker( 'dashboard-overview-panel--simple is-active', $html, 'Simple dashboard inactive panel state' );
+		$this->assertHtmlContainsMarker( 'dashboard-overview-simple', $html, 'Simple dashboard overview marker in combined render' );
 		$this->assertHtmlContainsMarker( 'scan-strip', $html, 'Advanced dashboard overview' );
+		$this->assertHtmlContainsMarker( 'dashboard-view-switch is-advanced', $html, 'Advanced dashboard toggle state' );
+		$this->assertHtmlContainsMarker( 'dashboard-view-switch__toggle', $html, 'Advanced dashboard toggle control' );
+		$this->assertHtmlContainsMarker( 'dashboard-view-switch__label--advanced is-active', $html, 'Advanced dashboard active toggle label' );
+		$this->assertHtmlNotContainsMarker( 'dashboard-view-switch__label--simple is-active', $html, 'Simple dashboard inactive toggle label' );
+		$this->assertHtmlContainsMarker( 'Simple View', $html, 'Advanced dashboard toggle target label' );
 	}
 
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
@@ -109,6 +128,13 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$zone = $this->getZoneGroupBySlug( $renderData, 'scans' );
 		$this->assertSame( 'critical', (string)( $zone[ 'severity' ] ?? '' ) );
 		$this->assertSame( 3, (int)( $zone[ 'total_issues' ] ?? 0 ) );
+
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertHtmlContainsMarker( 'shield-needs-attention__status-strip has-issues', $html, 'Needs attention strip with issues' );
+		$this->assertHtmlContainsMarker( 'shield-needs-attention__zone-card', $html, 'Needs attention zone cards' );
+		$this->assertHtmlContainsMarker( 'shield-needs-attention__zone-icon', $html, 'Needs attention zone icon' );
+		$this->assertHtmlContainsMarker( 'shield-needs-attention__item-action', $html, 'Needs attention item action' );
+		$this->assertHtmlContainsMarker( 'bi bi-arrow-right', $html, 'Needs attention action arrow icon' );
 	}
 
 	public function test_scan_result_counts_refresh_after_memoization_reset() :void {
@@ -155,7 +181,9 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function test_all_clear_state_includes_all_8_zone_chips() :void {
-		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
+		$payload = $this->renderNeedsAttentionQueue()->payload();
+		$renderData = $payload[ 'render_data' ] ?? [];
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$chips = $renderData[ 'vars' ][ 'zone_chips' ] ?? [];
 		$expectedZoneSlugs = \array_keys( self::con()->comps->zones->getZones() );
 
@@ -165,6 +193,9 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			$expectedZoneSlugs,
 			\array_column( $chips, 'slug' )
 		);
+		$this->assertHtmlContainsMarker( 'shield-needs-attention__all-clear-card', $html, 'Needs attention all-clear card' );
+		$this->assertHtmlContainsMarker( 'shield-needs-attention__all-clear-shield', $html, 'Needs attention all-clear shield icon' );
+		$this->assertHtmlContainsMarker( 'bi bi-check-circle-fill', $html, 'Needs attention all-clear chip icon' );
 	}
 
 	public function test_unprotected_maintenance_meter_component_adds_action_item() :void {
@@ -194,6 +225,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
 		$this->assertSame( '', (string)( $renderData[ 'strings' ][ 'last_scan_subtext' ] ?? '' ) );
-		$this->assertHtmlNotContainsMarker( 'Last completed scan', $html, 'No scan-subtext state' );
+		$this->assertHtmlNotContainsMarker( 'Last scan:', $html, 'No scan-subtext state' );
 	}
 }

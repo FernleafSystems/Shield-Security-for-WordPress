@@ -18,22 +18,22 @@ class IpRuleStatus {
 
 	use PluginControllerConsumer;
 
-	private $ipOrRange;
+	private string $ipOrRange;
 
 	/**
-	 * @var IpRuleRecord[][]
+	 * @var ?IpRuleRecord[][]
 	 */
-	private static $cache = [];
+	private static array $cache = [];
 
 	/**
-	 * @var IpRuleRecord[]
+	 * @var ?IpRuleRecord[]
 	 */
-	private static $ranges = null;
+	private static ?array $ranges = null;
 
 	/**
-	 * @var IpRuleRecord[]
+	 * @var ?IpRuleRecord[]
 	 */
-	private static $bypass = null;
+	private static ?array $bypass = null;
 
 	public function __construct( string $ipOrRange ) {
 		$this->ipOrRange = $ipOrRange;
@@ -286,7 +286,7 @@ class IpRuleStatus {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( '%s AND `ir`.`is_range`=\'0\'', IpAddressSql::equality( '`ips`.`ip`', $this->getIP() ) )
+				sprintf( '%s AND `ir`.`is_range`=0', IpAddressSql::equality( '`ips`.`ip`', $this->getIP() ) )
 			];
 
 			foreach ( \array_merge( $this->getRanges(), $this->getBypasses(), $loader->select() ) as $rec ) {
@@ -308,9 +308,7 @@ class IpRuleStatus {
 
 			$cachedRanges = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
 			if ( \is_array( $cachedRanges ) ) {
-				self::$ranges = \array_map( function ( array $record ) {
-					return ( new IpRuleRecord() )->applyFromArray( $record );
-				}, $cachedRanges );
+				self::$ranges = \array_map( fn( array $r ) => ( new IpRuleRecord() )->applyFromArray( $r ), $cachedRanges );
 			}
 			else {
 				self::$ranges = [];

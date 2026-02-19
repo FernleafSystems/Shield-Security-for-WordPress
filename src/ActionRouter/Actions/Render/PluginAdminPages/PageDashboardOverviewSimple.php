@@ -30,9 +30,11 @@ class PageDashboardOverviewSimple extends BasePluginAdminPage {
 				'inner_page_title_icon' => $con->svgs->iconClass( 'speedometer' ),
 			],
 			'strings' => [
-				'inner_page_title'     => __( 'Security Overview', 'wp-simple-firewall' ),
-				'inner_page_subtitle'  => __( 'Your entire WordPress site security at a glance.', 'wp-simple-firewall' ),
-				'view_all_grades_link' => __( 'View All Security Grades', 'wp-simple-firewall' ),
+				'inner_page_title'      => __( 'Security Overview', 'wp-simple-firewall' ),
+				'inner_page_subtitle'   => __( 'Your entire WordPress site security at a glance.', 'wp-simple-firewall' ),
+				'needs_attention_title' => __( 'Needs Attention Queue', 'wp-simple-firewall' ),
+				'security_summary_title'=> __( 'System Security Summary', 'wp-simple-firewall' ),
+				'view_all_grades_link'  => __( 'View All Security Grades', 'wp-simple-firewall' ),
 			],
 		];
 	}

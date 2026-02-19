@@ -5,6 +5,7 @@ import { ChartsSummaryCharts } from "../components/charts/ChartsSummaryCharts";
 import { ConfigImport } from "../components/options/ConfigImport";
 import { DivPrinter } from "../components/general/DivPrinter";
 import { DynamicActionButtons } from "../components/general/DynamicActionButtons";
+import { DashboardViewToggle } from "../components/general/DashboardViewToggle";
 import { FileLocker } from "../components/scans/FileLocker";
 import { HelpscoutBeacon } from "../components/general/HelpscoutBeacon";
 import { IpSourceAutoDetect } from "../components/ips/IpSourceAutoDetect";
@@ -64,6 +65,7 @@ export class AppMain extends AppBase {
 		this.components.blockdown = ( 'blockdown' in comps ) ? new Blockdown( comps.blockdown ) : null;
 		this.components.debug_tools = ( 'debug_tools' in comps ) ? new DebugTools( comps.debug_tools ) : null;
 		this.components.charts = ( 'charts' in comps ) ? new ChartsSummaryCharts( comps.charts ) : null;
+		this.components.dashboard_view_toggle = ( 'dashboard_view_toggle' in comps ) ? new DashboardViewToggle( comps.dashboard_view_toggle ) : null;
 		this.components.import = ( 'import' in comps ) ? new ConfigImport( comps.import ) : null;
 		this.components.div_printer = new DivPrinter();
 		this.components.dynamic_buttons = new DynamicActionButtons();

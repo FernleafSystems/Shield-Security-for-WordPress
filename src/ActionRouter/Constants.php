@@ -247,7 +247,6 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageMerlin::class,
 		Actions\Render\PluginAdminPages\PageDashboardMeters::class,
 		Actions\Render\PluginAdminPages\PageDashboardOverview::class,
-		Actions\Render\PluginAdminPages\PageDashboardOverviewSimple::class,
 		Actions\Render\PluginAdminPages\PageImportExport::class,
 		Actions\Render\PluginAdminPages\PageIpRulesTable::class,
 		Actions\Render\PluginAdminPages\PageLicense::class,

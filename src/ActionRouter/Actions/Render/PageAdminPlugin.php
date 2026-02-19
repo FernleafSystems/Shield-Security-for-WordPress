@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\Security
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Dashboard\DashboardViewPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\Handler;
 
@@ -43,9 +42,7 @@ class PageAdminPlugin extends BaseRender {
 		// The particular renderer for the main page body area, based on navigation
 		$delegateAction = PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ] ?? '';
 		if ( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ) {
-			$delegateAction = ( new DashboardViewPreference() )->getCurrent() === DashboardViewPreference::VIEW_ADVANCED
-				? PluginAdminPages\PageDashboardOverview::class
-				: PluginAdminPages\PageDashboardOverviewSimple::class;
+			$delegateAction = PluginAdminPages\PageDashboardOverview::class;
 		}
 		if ( empty( $delegateAction ) ) {
 			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav );

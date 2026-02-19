@@ -9,7 +9,7 @@ export class ProgressMeters extends BaseAutoExecComponent {
 
 	run() {
 		this.activeAnalysis = '';
-		this.heroChart = null;
+		this.heroCharts = new Map();
 		this.renderMetersAll();
 		this.events();
 	}
@@ -31,7 +31,7 @@ export class ProgressMeters extends BaseAutoExecComponent {
 	renderMetersBatch( meterElements ) {
 		const batch = new AjaxBatchService( this._base_data.ajax.batch_requests );
 
-		meterElements.forEach( ( container ) => {
+		meterElements.forEach( ( container, index ) => {
 			const slug = container.dataset.meter_slug || '';
 			if ( slug.length < 1 ) {
 				return;
@@ -39,7 +39,7 @@ export class ProgressMeters extends BaseAutoExecComponent {
 
 			const isHero = container.classList.contains( 'progress-metercard-hero' );
 			batch.add( {
-				id: this.buildMeterBatchID( slug, isHero ),
+				id: this.buildMeterBatchID( slug, isHero, index ),
 				request: this.buildMeterRenderRequest( slug, isHero ),
 				onSuccess: ( result ) => this.handleMeterBatchSuccess( container, isHero, result ),
 				onError: ( result ) => this.handleMeterBatchFailure( container, result ),
@@ -76,8 +76,8 @@ export class ProgressMeters extends BaseAutoExecComponent {
 		.finally();
 	}
 
-	buildMeterBatchID( slug, isHero ) {
-		return `meter-${slug}${isHero ? '-hero' : ''}`;
+	buildMeterBatchID( slug, isHero, index = 0 ) {
+		return `meter-${slug}${isHero ? '-hero' : ''}-${index}`;
 	}
 
 	buildMeterRenderRequest( slug, isHero ) {
@@ -118,21 +118,29 @@ export class ProgressMeters extends BaseAutoExecComponent {
 	}
 
 	renderHeroGauge( container ) {
-		if ( this.heroChart ) {
-			this.heroChart.destroy();
-			this.heroChart = null;
-		}
+		this.destroyHeroGauge( container );
 
 		const canvas = container.querySelector( '.hero-gauge-chart' );
 		if ( !canvas ) {
 			return;
 		}
 
-		this.heroChart = renderHeroGauge( canvas, {
+		const chart = renderHeroGauge( canvas, {
 			percentage: canvas.dataset.percentage,
 			rgbs: canvas.dataset.rgbs || '',
 			thresholds: this._base_data.thresholds || { good: 70, warning: 40 },
 		} );
+		if ( chart ) {
+			this.heroCharts.set( container, chart );
+		}
+	}
+
+	destroyHeroGauge( container ) {
+		const chart = this.heroCharts.get( container );
+		if ( chart ) {
+			chart.destroy();
+			this.heroCharts.delete( container );
+		}
 	}
 
 	updateStatsBar() {
@@ -185,5 +193,19 @@ export class ProgressMeters extends BaseAutoExecComponent {
 			'.offcanvas.offcanvas_meter_analysis',
 			() => this.renderMetersAll()
 		);
+		document.addEventListener( 'shield:dashboard-view-changed', () => this.refreshVisibleHeroGauges() );
+	}
+
+	refreshVisibleHeroGauges() {
+		document.querySelectorAll( '.dashboard-overview-panel.is-active .progress-metercard-hero' ).forEach( ( container ) => {
+			const chart = this.heroCharts.get( container );
+			if ( chart ) {
+				chart.resize();
+				chart.update( 'none' );
+			}
+			else {
+				this.renderHeroGauge( container );
+			}
+		} );
 	}
 }

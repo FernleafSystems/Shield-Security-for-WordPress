@@ -42,10 +42,15 @@ abstract class BasePluginAdminPage extends BaseRender {
 
 	protected function getCommonAdminPageRenderData() :array {
 		$urls = self::con()->plugin_urls;
+		$toggleCurrentView = DashboardViewPreference::VIEW_SIMPLE;
+		$toggleIsSimple = true;
+		$toggleIsAdvanced = false;
+		$toggleCurrentLabel = '';
 		$toggleHref = '';
-		$toggleLabel = '';
+		$toggleTargetLabel = '';
 		if ( $this->isDashboardOverviewPage() ) {
 			$pref = new DashboardViewPreference();
+			$currentView = $pref->getCurrent();
 			$targetView = $pref->getToggleTarget();
 			$toggleHref = $urls->noncedPluginAction(
 				DashboardViewToggle::class,
@@ -54,7 +59,13 @@ abstract class BasePluginAdminPage extends BaseRender {
 					'view' => $targetView,
 				]
 			);
-			$toggleLabel = $targetView === DashboardViewPreference::VIEW_ADVANCED
+			$toggleCurrentView = $currentView;
+			$toggleIsSimple = $currentView === DashboardViewPreference::VIEW_SIMPLE;
+			$toggleIsAdvanced = $currentView === DashboardViewPreference::VIEW_ADVANCED;
+			$toggleCurrentLabel = $currentView === DashboardViewPreference::VIEW_ADVANCED
+				? __( 'Advanced View', 'wp-simple-firewall' )
+				: __( 'Simple View', 'wp-simple-firewall' );
+			$toggleTargetLabel = $targetView === DashboardViewPreference::VIEW_ADVANCED
 				? __( 'Advanced View', 'wp-simple-firewall' )
 				: __( 'Simple View', 'wp-simple-firewall' );
 		}
@@ -74,8 +85,20 @@ abstract class BasePluginAdminPage extends BaseRender {
 				'dashboard_view_toggle'       => $toggleHref,
 				'inner_page_contextual_hrefs' => \array_filter( $hrefs ),
 			],
+			'vars' => [
+				'dashboard_view' => [
+					'current'     => $toggleCurrentView,
+					'is_simple'   => $toggleIsSimple,
+					'is_advanced' => $toggleIsAdvanced,
+				],
+			],
 			'strings' => [
-				'dashboard_view_toggle_label' => $toggleLabel,
+				'dashboard_view_simple_label' => __( 'Simple View', 'wp-simple-firewall' ),
+				'dashboard_view_advanced_label' => __( 'Advanced View', 'wp-simple-firewall' ),
+				'dashboard_view_current'      => $toggleCurrentView,
+				'dashboard_view_current_label' => $toggleCurrentLabel,
+				'dashboard_view_toggle_label' => $toggleTargetLabel,
+				'dashboard_view_target_label' => $toggleTargetLabel,
 			],
 		];
 	}

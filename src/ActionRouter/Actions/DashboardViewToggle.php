@@ -9,7 +9,18 @@ class DashboardViewToggle extends SecurityAdminBase {
 	public const SLUG = 'dashboard_view_toggle';
 
 	protected function exec() {
-		( new DashboardViewPreference() )->setCurrent( (string)( $this->action_data[ 'view' ] ?? '' ) );
+		$pref = new DashboardViewPreference();
+		$pref->setCurrent( (string)( $this->action_data[ 'view' ] ?? '' ) );
+
+		if ( self::con()->this_req->wp_is_ajax ) {
+			// The in-page dashboard toggle persists preference without forcing a page reload.
+			$this->response()->action_response_data = [
+				'success'     => true,
+				'page_reload' => false,
+				'view'        => $pref->getCurrent(),
+			];
+			return;
+		}
 
 		$this->response()->action_response_data = [
 			'success' => true,
@@ -20,4 +31,3 @@ class DashboardViewToggle extends SecurityAdminBase {
 		];
 	}
 }
-

@@ -1,51 +1,56 @@
-<div class="card shield-card shield-needs-attention h-100">
-	<div class="shield-card-accent status-{{ vars.overall_severity }}"></div>
-	<div class="card-body">
-		<div class="shield-needs-attention__status-strip is-{{ vars.overall_severity }}">
-			<div class="shield-needs-attention__title">{{ strings.title }}</div>
-			{% if flags.has_items %}
-				<span class="shield-badge badge-{{ vars.overall_severity }}">{{ strings.issues_found }}: {{ vars.total_items }}</span>
-			{% else %}
-				<span class="shield-badge badge-good">{{ strings.all_clear }}</span>
-			{% endif %}
-		</div>
-
-		{% if flags.has_items %}
-			<div class="shield-needs-attention__zone-rows">
-				{% for zone in vars.zone_groups %}
-					<div class="shield-needs-attention__zone-row is-{{ zone.severity }}">
-						<div class="shield-needs-attention__zone-header">
-							<span class="shield-needs-attention__pip is-{{ zone.severity }}"></span>
-							<span class="shield-needs-attention__zone-label">{{ zone.label }}</span>
-							<span class="shield-badge badge-{{ zone.severity }}">{{ zone.total_issues }}</span>
-						</div>
-						<ul class="shield-needs-attention__items">
-							{% for item in zone.items %}
-								<li class="shield-needs-attention__item is-{{ item.severity }}">
-									<div class="shield-needs-attention__item-head">
-										<span class="shield-needs-attention__pip is-{{ item.severity }}"></span>
-										<a href="{{ item.href }}" class="shield-needs-attention__item-link">{{ item.label }}</a>
-										<span class="shield-needs-attention__item-count">{{ item.count }}</span>
-									</div>
-									<div class="shield-needs-attention__item-text">{{ item.description }}</div>
-								</li>
-							{% endfor %}
-						</ul>
-					</div>
-				{% endfor %}
-			</div>
-		{% else %}
-			<p class="shield-needs-attention__all-clear">{{ strings.all_clear_message }}</p>
-			<div class="shield-needs-attention__chips">
-				{% for chip in vars.zone_chips %}
-					<span class="shield-needs-attention__chip is-{{ chip.severity }}">{{ chip.label }}</span>
-				{% endfor %}
-			</div>
-		{% endif %}
-
-		{% if strings.last_scan_subtext|default('') is not empty %}
-			<p class="shield-needs-attention__subtext">{{ strings.last_scan_subtext }}</p>
+<div class="shield-needs-attention h-100">
+	<div class="shield-needs-attention__status-strip {{ flags.has_items ? 'has-issues' : 'all-clear' }}">
+		<i class="{{ strings.status_strip_icon_class }}" aria-hidden="true"></i>
+		<span class="shield-needs-attention__strip-text">{{ strings.status_strip_text }}</span>
+		{% if strings.status_strip_subtext|default('') is not empty %}
+			<span class="shield-needs-attention__strip-sub">{{ strings.status_strip_subtext }}</span>
 		{% endif %}
 	</div>
-</div>
 
+	{% if flags.has_items %}
+		<div class="shield-needs-attention__zone-cards">
+			{% for zone in vars.zone_groups %}
+				<div class="shield-needs-attention__zone-card is-{{ zone.severity }}">
+					<div class="shield-needs-attention__zone-accent is-{{ zone.severity }}"></div>
+					<div class="shield-needs-attention__zone-header">
+						<span class="shield-needs-attention__zone-icon">
+							<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
+						</span>
+						<span class="shield-needs-attention__zone-name">{{ zone.label }}</span>
+						<span class="shield-badge badge-{{ zone.severity }} shield-needs-attention__zone-badge">{{ zone.total_issues }}</span>
+					</div>
+
+					{% for item in zone.items %}
+						<div class="shield-needs-attention__item is-{{ item.severity }}">
+							<span class="shield-needs-attention__pip is-{{ item.severity }}"></span>
+							<div class="shield-needs-attention__item-desc">
+								<strong>{{ item.label }}</strong> {{ item.description }}
+							</div>
+							<div class="shield-needs-attention__item-action">
+								<a href="{{ item.href }}" class="is-{{ item.severity }}">
+									{{ item.action }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
+								</a>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			{% endfor %}
+		</div>
+	{% else %}
+		<div class="shield-needs-attention__all-clear-card">
+			<div class="shield-needs-attention__all-clear-accent"></div>
+			<div class="shield-needs-attention__all-clear-shield">
+				<i class="{{ strings.all_clear_icon_class }}" aria-hidden="true"></i>
+			</div>
+			<div class="shield-needs-attention__all-clear-title">{{ strings.all_clear_title }}</div>
+			<div class="shield-needs-attention__all-clear-subtitle">{{ strings.all_clear_subtitle }}</div>
+			<div class="shield-needs-attention__chips">
+				{% for chip in vars.zone_chips %}
+					<span class="shield-needs-attention__chip is-{{ chip.severity }}">
+						<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
+					</span>
+				{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+</div>

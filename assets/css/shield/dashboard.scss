@@ -80,6 +80,72 @@
 	}
 }
 
+.dashboard-overview-simple__panel-title {
+	color: #50575e;
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	margin: 0 0 0.45rem;
+	text-transform: uppercase;
+}
+
+.dashboard-overview-simple__panel {
+	min-height: 100%;
+}
+
+.dashboard-overview-panels {
+	position: relative;
+}
+
+.dashboard-overview-panel {
+	display: none;
+	opacity: 0;
+	transform: translateY(4px);
+}
+
+.dashboard-overview-panel.is-active {
+	display: block;
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.dashboard-overview-panels.is-switching {
+	overflow: hidden;
+}
+
+.dashboard-overview-panels.is-switching .dashboard-overview-panel {
+	display: block;
+	inset: 0;
+	opacity: 0;
+	pointer-events: none;
+	position: absolute;
+	transition: opacity 220ms ease, transform 220ms ease;
+	transform: translateY(4px);
+	width: 100%;
+	will-change: opacity, transform;
+}
+
+.dashboard-overview-panels.is-switching .dashboard-overview-panel.is-current,
+.dashboard-overview-panels.is-switching .dashboard-overview-panel.is-entering {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.dashboard-overview-panels.is-switching .dashboard-overview-panel.is-current,
+.dashboard-overview-panels.is-switching .dashboard-overview-panel.is-leaving {
+	z-index: 2;
+}
+
+.dashboard-overview-panels.is-switching .dashboard-overview-panel.is-entering {
+	z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-overview-panels.is-switching .dashboard-overview-panel {
+		transition: none;
+	}
+}
+
 // ============================================================
 // Dashboard-specific: Stats Strip
 // ============================================================

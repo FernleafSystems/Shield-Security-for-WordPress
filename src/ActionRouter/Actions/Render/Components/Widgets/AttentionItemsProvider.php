@@ -51,12 +51,14 @@ class AttentionItemsProvider {
 		return \array_map(
 			function ( array $item ) :array {
 				return [
+					'key'         => $item[ 'key' ],
 					'zone'        => $item[ 'zone' ],
 					'label'       => $item[ 'label' ],
 					'count'       => $item[ 'count' ],
 					'severity'    => $item[ 'severity' ],
 					'description' => $item[ 'text' ],
 					'href'        => $item[ 'href' ],
+					'action'      => $item[ 'action' ],
 				];
 			},
 			$this->buildActionItems()

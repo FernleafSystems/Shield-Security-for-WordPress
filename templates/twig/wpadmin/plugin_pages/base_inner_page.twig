@@ -18,12 +18,7 @@
 						{% endfor %}
 						{{ strings.inner_page_title|default(strings.no_inner_page_title) }}
 					</div>
-					{% block inner_page_title_after %}
-						{% if hrefs.dashboard_view_toggle|default('') is not empty %}
-							<a href="{{ hrefs.dashboard_view_toggle }}"
-							   class="ms-3 fw-normal text-muted small text-decoration-none dashboard-view-toggle">{{ strings.dashboard_view_toggle_label|default('') }}</a>
-						{% endif %}
-					{% endblock %}
+					{% block inner_page_title_after %}{% endblock %}
 				</h4>
 				{% if strings.inner_page_subtitle|default('') is not empty %}
 					<p class="mb-2">
@@ -34,6 +29,23 @@
 				{% endif %}
 
 			</div>
+			{% if hrefs.dashboard_view_toggle|default('') is not empty %}
+				{% set current_view = vars.dashboard_view.current|default('simple') %}
+				{% if current_view not in [ 'simple', 'advanced' ] %}
+					{% set current_view = 'simple' %}
+				{% endif %}
+				<div class="inner-page-header-view-toggle">
+					<span class="dashboard-view-switch is-{{ current_view }}" data-dashboard-view-current="{{ current_view }}">
+						<span class="dashboard-view-switch__label dashboard-view-switch__label--simple {{ current_view == 'simple' ? 'is-active' : '' }}">{{ strings.dashboard_view_simple_label|default('Simple View') }}</span>
+						<a href="{{ hrefs.dashboard_view_toggle }}"
+						   class="text-decoration-none dashboard-view-switch__toggle"
+						   aria-label="{{ strings.dashboard_view_toggle_label|default('Toggle Dashboard View') }}">
+							<span class="dashboard-view-switch__thumb" aria-hidden="true"></span>
+						</a>
+						<span class="dashboard-view-switch__label dashboard-view-switch__label--advanced {{ current_view == 'advanced' ? 'is-active' : '' }}">{{ strings.dashboard_view_advanced_label|default('Advanced View') }}</span>
+					</span>
+				</div>
+			{% endif %}
 			<div class="col-2 text-end inner-page-config">
 
 				{% if hrefs.inner_page_contextual_hrefs|default([]) is not empty %}
@@ -44,7 +56,7 @@
 						 data-intro="Certain pages have their own specific actions. Use this menu for shortcuts to useful tools and options."
 					>
 						<button type="button"
-								class="btn btn-link dropdown-toggle"
+								class="btn btn-link dropdown-toggle page-action-menu-toggle"
 								data-bs-toggle="dropdown"
 								aria-expanded="false"><i class="{{ imgs.svgs.menu }}" aria-hidden="true"></i></button>
 							<ul class="dropdown-menu">

@@ -63,4 +63,24 @@ class DashboardViewToggleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'redirect', (string)( $response->next_step[ 'type' ] ?? '' ) );
 		$this->assertNotEmpty( (string)( $response->next_step[ 'url' ] ?? '' ) );
 	}
+
+	public function test_ajax_response_includes_no_reload_and_sanitized_view() :void {
+		$originalIsAjax = self::con()->this_req->wp_is_ajax;
+		self::con()->this_req->wp_is_ajax = true;
+		try {
+			$response = $this->processToggle( 'bad-value' );
+		}
+		finally {
+			self::con()->this_req->wp_is_ajax = $originalIsAjax;
+		}
+
+		$payload = $response->payload();
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertFalse( (bool)( $payload[ 'page_reload' ] ?? true ) );
+		$this->assertSame( DashboardViewPreference::VIEW_SIMPLE, (string)( $payload[ 'view' ] ?? '' ) );
+		$this->assertSame(
+			DashboardViewPreference::VIEW_SIMPLE,
+			(string)get_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY, true )
+		);
+	}
 }

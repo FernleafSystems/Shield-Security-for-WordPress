@@ -47,9 +47,21 @@
 
 // --- Icons ---
 
+#NavSideBar .nav-item > .nav-link > a {
+	align-items: flex-start;
+}
+
+#NavSideBar .nav-item .nav-icon {
+	display: inline-flex;
+	flex-shrink: 0;
+	line-height: 1;
+	margin-top: calc(0.08rem + 2px);
+}
+
 #NavSideBar .nav-item .nav-icon > .bi {
-	width: 18px;
-	height: 18px;
+	display: inline-block;
+	font-size: 1.125rem;
+	line-height: 1;
 	color: #333;
 	transition: color 0.2s ease;
 }
@@ -78,19 +90,21 @@
 
 // --- Collapse triangle ---
 
-#NavSideBar .nav-item .top-title .bi {
+#NavSideBar .nav-item .top-title .submenu-chevron {
+	display: inline-block;
+	font-size: 0.5rem;
+	line-height: 1;
 	transform-origin: 50% 50%;
-	transform: rotate(60deg);
-	height: 6px;
-	width: 6px;
-	margin-top: -4px;
+	transform: rotate(90deg);
+	margin-top: -2px;
 	margin-left: 2px;
-	margin-right: -2px;
+	margin-right: 0;
 	transition: transform 0.3s ease;
 }
 
-#NavSideBar .nav-item.activesub .top-title .bi {
-	transform: rotate(-30deg);
+#NavSideBar .nav-item > .nav-link > a[aria-expanded="true"] .top-title .submenu-chevron,
+#NavSideBar .nav-item.activesub .top-title .submenu-chevron {
+	transform: rotate(180deg);
 }
 
 // --- Gear config (top-level) — always right-justified ---
@@ -107,6 +121,9 @@
 }
 
 .top-level-nav li > .nav-link > a.zone_component_action .svg-container > .bi {
+	display: inline-block;
+	font-size: 1.05rem;
+	line-height: 1;
 	color: $primary;
 	transform: rotate(0deg);
 	transition: transform 0.3s ease;
@@ -221,9 +238,11 @@
 	}
 	#NavSideBar .nav-item > .nav-link > a {
 		justify-content: center !important;
+		align-items: center !important;
 	}
 	#NavSideBar .nav-item .nav-icon {
 		margin-right: 0 !important;
+		margin-top: 0 !important;
 	}
 
 	// Hide all submenus
@@ -254,6 +273,7 @@
 	}
 	#PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link > a {
 		justify-content: start !important;
+		align-items: flex-start !important;
 	}
 	#PageMainSide-Apto:hover #NavSideBar .nav-item .nav-icon {
 		margin-right: 0.5rem !important;

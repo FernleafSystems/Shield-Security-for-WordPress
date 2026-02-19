@@ -1,38 +1,19 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-
-	{{ content.summary_charts|raw }}
-
-	<div class="row g-3 mt-3">
-		{% for widget in vars.widget_grade %}
-			<div class="col-xl-6 dashboard_overview_widget">
-				<div class="d-flex flex-column h-100">
-					<div class="flex-grow-1 d-flex w-100">
-						{{ widget.content|raw }}
-					</div>
-					<h6 class="mb-0 mt-2 text-start ps-2">
-						<a href="{{ widget.href }}" class="widget-footer-link">{{ widget.href_text }} &rarr;</a>
-					</h6>
-				</div>
-			</div>
-		{% endfor %}
-		<div class="col-xl-6 dashboard_overview_widget">
-			<div class="d-flex flex-column h-100">
-				<div class="flex-grow-1 d-flex w-100">
-					{% include '/wpadmin/components/dashboard/scan_strip.twig' %}
-				</div>
-				<h6 class="mb-0 mt-2 text-start ps-2">
-					<a href="{{ vars.scans_link.href|default('#') }}" class="widget-footer-link">{{ vars.scans_link.href_text|default('View Scan Results') }} &rarr;</a>
-				</h6>
-			</div>
+	{% set current_view = vars.dashboard_view.current|default('simple') %}
+	{% if current_view not in [ 'simple', 'advanced' ] %}
+		{% set current_view = 'simple' %}
+	{% endif %}
+	<div class="dashboard-overview-panels">
+		<div class="dashboard-overview-panel dashboard-overview-panel--simple {{ current_view == 'simple' ? 'is-active' : '' }}"
+			 data-dashboard-view="simple">
+			{% include '/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig' %}
 		</div>
-	</div>
-
-	<div class="row g-3 mt-2">
-		{% for widget in vars.widget_general %}
-			{% include '/wpadmin/plugin_pages/inner/dashboard_overview_widget.twig' %}
-		{% endfor %}
+		<div class="dashboard-overview-panel dashboard-overview-panel--advanced {{ current_view == 'advanced' ? 'is-active' : '' }}"
+			 data-dashboard-view="advanced">
+			{% include '/wpadmin/plugin_pages/inner/dashboard_overview_advanced_body.twig' %}
+		</div>
 	</div>
 
 {% endblock %}

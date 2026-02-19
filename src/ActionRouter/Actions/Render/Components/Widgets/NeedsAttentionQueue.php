@@ -14,6 +14,7 @@ class NeedsAttentionQueue extends BaseRender {
 		$scansCon = self::con()->comps->scans;
 		$provider = new AttentionItemsProvider();
 		$items = $provider->buildQueueItems();
+		$totalItems = (int)\array_sum( \array_column( $items, 'count' ) );
 
 		$zoneGroups = $this->buildZoneGroups( $items );
 		$hasItems = !empty( $items );
@@ -21,25 +22,39 @@ class NeedsAttentionQueue extends BaseRender {
 		$latestScanAt = $provider->getLatestCompletedScanTimestamp( $scansCon->getScanSlugs() );
 		$lastScanSubtext = $latestScanAt > 0
 			? sprintf(
-				__( 'Last completed scan: %s', 'wp-simple-firewall' ),
+				__( 'Last scan: %s', 'wp-simple-firewall' ),
 				Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 			)
 			: '';
+		$statusStripText = $hasItems
+			? sprintf(
+				_n( '%s issue needs your attention', '%s issues need your attention', $totalItems, 'wp-simple-firewall' ),
+				$totalItems
+			)
+			: __( 'Your site is secure', 'wp-simple-firewall' );
 
 		return [
 			'flags'   => [
 				'has_items' => $hasItems,
 			],
 			'strings' => [
+				'status_strip_icon_class' => $hasItems
+					? self::con()->svgs->iconClass( 'exclamation-triangle-fill' )
+					: self::con()->svgs->iconClass( 'shield-check' ),
+				'status_strip_text' => $statusStripText,
+				'status_strip_subtext' => $lastScanSubtext,
 				'title'             => __( 'Action Required', 'wp-simple-firewall' ),
 				'issues_found'      => __( 'Actions Required', 'wp-simple-firewall' ),
 				'all_clear'         => __( 'All Clear', 'wp-simple-firewall' ),
+				'all_clear_icon_class' => self::con()->svgs->iconClass( 'shield-check' ),
+				'all_clear_title'   => __( 'All security zones are clear', 'wp-simple-firewall' ),
+				'all_clear_subtitle' => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
 				'all_clear_message' => __( 'No security actions currently require your attention.', 'wp-simple-firewall' ),
 				'last_scan_subtext' => $lastScanSubtext,
 			],
 			'vars'    => [
 				'overall_severity' => $this->determineOverallSeverity( $items ),
-				'total_items'      => \array_sum( \array_column( $items, 'count' ) ),
+				'total_items'      => $totalItems,
 				'zone_groups'      => \array_values( $zoneGroups ),
 				'zone_chips'       => $this->buildAllClearZoneChips(),
 			],
@@ -47,7 +62,7 @@ class NeedsAttentionQueue extends BaseRender {
 	}
 
 	private function buildZoneGroups( array $items ) :array {
-		$zoneLabels = $this->getZoneLabels();
+		$zonesData = $this->getZonesData();
 		$groups = [];
 
 		foreach ( $items as $item ) {
@@ -55,7 +70,8 @@ class NeedsAttentionQueue extends BaseRender {
 			if ( !isset( $groups[ $zone ] ) ) {
 				$groups[ $zone ] = [
 					'slug'         => $zone,
-					'label'        => $zoneLabels[ $zone ] ?? $zone,
+					'label'        => $zonesData[ $zone ][ 'label' ] ?? $zone,
+					'icon_class'   => $zonesData[ $zone ][ 'icon_class' ] ?? self::con()->svgs->iconClass( 'grid-1x2-fill' ),
 					'severity'     => 'good',
 					'total_issues' => 0,
 					'items'        => [],
@@ -97,10 +113,13 @@ class NeedsAttentionQueue extends BaseRender {
 
 	private function buildAllClearZoneChips() :array {
 		$chips = [];
+		$zonesData = $this->getZonesData();
+		$chipIconClass = self::con()->svgs->iconClass( 'check-circle-fill' );
 		foreach ( $this->getZoneSlugs() as $zone ) {
 			$chips[] = [
 				'slug'     => $zone,
-				'label'    => $this->getZoneLabels()[ $zone ] ?? $zone,
+				'label'    => $zonesData[ $zone ][ 'label' ] ?? $zone,
+				'icon_class' => $chipIconClass,
 				'severity' => 'good',
 			];
 		}
@@ -111,11 +130,14 @@ class NeedsAttentionQueue extends BaseRender {
 		return \array_keys( self::con()->comps->zones->getZones() );
 	}
 
-	private function getZoneLabels() :array {
-		$labels = [];
+	private function getZonesData() :array {
+		$data = [];
 		foreach ( self::con()->comps->zones->getZones() as $zone ) {
-			$labels[ $zone::Slug() ] = $zone->title();
+			$data[ $zone::Slug() ] = [
+				'label'      => $zone->title(),
+				'icon_class' => self::con()->svgs->iconClass( $zone->icon() ),
+			];
 		}
-		return $labels;
+		return $data;
 	}
 }
