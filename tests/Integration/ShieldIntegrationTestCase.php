@@ -109,6 +109,18 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		$this->requireController()->this_req->is_security_admin = $enabled;
 	}
 
+	protected function loginAsSecurityAdmin( array $userData = [] ) :int {
+		$userId = self::factory()->user->create( \array_merge(
+			[
+				'role' => 'administrator',
+			],
+			$userData
+		) );
+		\wp_set_current_user( $userId );
+		$this->setSecurityAdminContext( true );
+		return $userId;
+	}
+
 	// ── Cache resets ───────────────────────────────────────────────
 
 	protected function resetIpCaches() :void {
@@ -174,22 +186,10 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	}
 
 	protected function resetScanResultCountMemoization() :void {
-		$con = static::con();
-		if ( $con === null ) {
-			return;
-		}
-
-		try {
-			$counter = $con->comps->scans->getScanResultsCount();
-			$ref = new \ReflectionObject( $counter );
-			if ( $ref->hasProperty( 'counts' ) ) {
-				$p = $ref->getProperty( 'counts' );
-				$p->setAccessible( true );
-				$p->setValue( $counter, [] );
-			}
-		}
-		catch ( \Throwable $e ) {
-		}
+		$this->requireController()
+			 ->comps
+			 ->scans
+			 ->resetScanResultsCountMemoization();
 	}
 
 	// ── Event capture ──────────────────────────────────────────────

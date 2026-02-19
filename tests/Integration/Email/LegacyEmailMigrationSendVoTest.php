@@ -38,14 +38,11 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
 	public function testMfaEmailVerificationMessageIsSent() :void {
 		$con = $this->requireController();
-		$userId = self::factory()->user->create( [
+		$this->loginAsSecurityAdmin( [
 			'role'       => 'administrator',
 			'user_login' => 'secadmin',
 			'user_email' => 'secadmin@example.com',
 		] );
-		wp_set_current_user( $userId );
-
-		$this->setSecurityAdminContext( true );
 		$con->opts
 			->optSet( 'enable_email_authentication', 'Y' )
 			->optSet( 'email_can_send_verified_at', 0 );

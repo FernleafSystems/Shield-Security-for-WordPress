@@ -25,11 +25,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
 
-		$this->adminUserId = self::factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		\wp_set_current_user( $this->adminUserId );
-		$this->setSecurityAdminContext( true );
+		$this->adminUserId = $this->loginAsSecurityAdmin();
 		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
 	}
 
@@ -112,6 +108,22 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 'scans', (string)( $zone[ 'slug' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $zone[ 'severity' ] ?? '' ) );
 		$this->assertSame( 3, (int)( $zone[ 'total_issues' ] ?? 0 ) );
+	}
+
+	public function test_scan_result_counts_refresh_after_memoization_reset() :void {
+		$scanId = $this->createCompletedScan( 'afs' );
+		$this->addScanResultMeta( $scanId, 'is_in_core' );
+
+		$initialRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
+		$initialZone = $initialRenderData[ 'vars' ][ 'zone_groups' ][ 0 ] ?? [];
+		$this->assertSame( 1, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
+
+		$this->addScanResultMeta( $scanId, 'is_in_core' );
+		$this->resetScanResultCountMemoization();
+
+		$refreshedRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
+		$refreshedZone = $refreshedRenderData[ 'vars' ][ 'zone_groups' ][ 0 ] ?? [];
+		$this->assertSame( 2, (int)( $refreshedZone[ 'total_issues' ] ?? 0 ) );
 	}
 
 	public function test_disabled_malware_wpv_apc_do_not_inject_rows() :void {

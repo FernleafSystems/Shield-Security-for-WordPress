@@ -23,11 +23,7 @@ class RulesManagerTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->requireDb( 'rules' );
 
-		$userId = self::factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		\wp_set_current_user( $userId );
-		$this->setSecurityAdminContext( true );
+		$this->loginAsSecurityAdmin();
 	}
 
 	private function processor() :ActionProcessor {

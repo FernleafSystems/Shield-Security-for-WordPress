@@ -24,11 +24,7 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'rules' );
 		$this->enablePremiumCapabilities( [ 'custom_security_rules' ] );
 
-		$userId = self::factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		\wp_set_current_user( $userId );
-		$this->setSecurityAdminContext( true );
+		$this->loginAsSecurityAdmin();
 	}
 
 	private function processor() :ActionProcessor {

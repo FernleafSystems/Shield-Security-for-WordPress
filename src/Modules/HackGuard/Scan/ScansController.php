@@ -110,6 +110,10 @@ class ScansController {
 		return $this->scanResultsStatus ??= new Results\Counts();
 	}
 
+	public function resetScanResultsCountMemoization() :void {
+		$this->scanResultsStatus = new Results\Counts();
+	}
+
 	private function handlePostScanCron() {
 		add_action( self::con()->prefix( 'post_scan' ), function () {
 			( new ReportToMalai() )->run();
