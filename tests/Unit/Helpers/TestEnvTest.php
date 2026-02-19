@@ -56,6 +56,21 @@ class TestEnvTest extends TestCase {
 		$this->assertTrue( TestEnv::isVerbose() );
 	}
 
+	public function testPathDebugOnlyUsesExplicitPathDebugSignal() :void {
+		$this->assertFalse( TestEnv::isPathDebug() );
+
+		$this->setEnv( 'SHIELD_TEST_VERBOSE', '1' );
+		$this->assertFalse( TestEnv::isPathDebug() );
+		$this->unsetEnv( 'SHIELD_TEST_VERBOSE' );
+
+		$this->setEnv( 'SHIELD_DEBUG', '1' );
+		$this->assertFalse( TestEnv::isPathDebug() );
+		$this->unsetEnv( 'SHIELD_DEBUG' );
+
+		$this->setEnv( 'SHIELD_DEBUG_PATHS', '1' );
+		$this->assertTrue( TestEnv::isPathDebug() );
+	}
+
 	public function testStrictFailureUsesExplicitModeAndFallbackSignals() :void {
 		$this->setEnv( 'SHIELD_TEST_MODE', 'docker' );
 		$this->assertTrue( TestEnv::shouldFailMissingWordPressEnv() );

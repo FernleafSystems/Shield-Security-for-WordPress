@@ -17,10 +17,10 @@ class CommandRunner {
 
 	private ProcessRunner $processRunner;
 
-	public function __construct( string $projectRoot, callable $logger ) {
+	public function __construct( string $projectRoot, callable $logger, ?ProcessRunner $processRunner = null ) {
 		$this->projectRoot = $projectRoot;
 		$this->logger = $logger;
-		$this->processRunner = new ProcessRunner();
+		$this->processRunner = $processRunner ?? new ProcessRunner();
 	}
 
 	/**

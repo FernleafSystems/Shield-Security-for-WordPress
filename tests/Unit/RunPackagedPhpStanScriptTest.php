@@ -41,15 +41,29 @@ class RunPackagedPhpStanScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'Usage: php bin/run-packaged-phpstan.php', $process->getErrorOutput() );
 	}
 
-	public function testRunPackagedPhpStanScriptDelegatesExecutionToOrchestrator() :void {
+	public function testRunPackagedPhpStanScriptSurfacesPreflightFailures() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
 		}
 
-		$content = $this->getPluginFileContents( 'bin/run-packaged-phpstan.php', 'packaged phpstan runner script' );
-		$this->assertStringContainsString( 'assertPreflight', $content );
-		$this->assertStringContainsString( 'buildDockerCommand', $content );
-		$this->assertStringNotContainsString( 'Packaged vendor autoload not found', $content );
+		$process = new Process(
+			[
+				\PHP_BINARY,
+				$this->getPluginFilePath( 'bin/run-packaged-phpstan.php' ),
+				'--project-root='.$this->getPluginRoot(),
+				'--composer-image=composer:2',
+				'--package-dir='.$this->getPluginFilePath( 'tests' ),
+				'--package-dir-relative=tests',
+			],
+			$this->getPluginRoot()
+		);
+		$process->run();
+
+		$this->assertSame( 1, $process->getExitCode() ?? 1 );
+		$this->assertStringContainsString(
+			'ERROR: Packaged vendor autoload not found:',
+			$process->getErrorOutput()
+		);
 	}
 
 	public function testRunPackagedPhpStanScriptHelpReturnsZero() :void {

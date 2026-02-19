@@ -5,15 +5,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestEnv;
 require_once \dirname( __DIR__ ).'/Helpers/TestEnv.php';
 
 const SHIELD_TEST_MSG_MAIN_PLUGIN_NOT_FOUND_AT = 'ERROR: Main plugin file not found at: ';
-const SHIELD_TEST_MSG_WORDPRESS_ENV_NOT_FOUND = 'ERROR: WordPress test environment not found.';
-const SHIELD_TEST_MSG_WORDPRESS_ENV_SKIPPED = 'SKIP: WordPress integration tests skipped (WordPress test environment not found).';
 const SHIELD_TEST_MSG_CHECKED_PATH_PREFIX = 'Checked: ';
-
-if ( !\function_exists( 'shield_test_env_truthy' ) ) {
-	function shield_test_env_truthy( string $name ) :bool {
-		return TestEnv::isTruthy( $name );
-	}
-}
 
 if ( !\function_exists( 'shield_test_verbose' ) ) {
 	function shield_test_verbose() :bool {
@@ -32,24 +24,6 @@ if ( !\function_exists( 'shield_test_log' ) ) {
 if ( !\function_exists( 'shield_test_error' ) ) {
 	function shield_test_error( string $message ) :void {
 		\fwrite( \STDERR, $message.\PHP_EOL );
-	}
-}
-
-if ( !\function_exists( 'shield_test_should_fail_missing_wp_env' ) ) {
-	function shield_test_should_fail_missing_wp_env() :bool {
-		return TestEnv::shouldFailMissingWordPressEnv();
-	}
-}
-
-if ( !\function_exists( 'shield_test_is_explicit_docker_mode' ) ) {
-	function shield_test_is_explicit_docker_mode() :bool {
-		return TestEnv::isExplicitDockerMode();
-	}
-}
-
-if ( !\function_exists( 'shield_test_is_docker_mode_heuristic' ) ) {
-	function shield_test_is_docker_mode_heuristic() :bool {
-		return TestEnv::isDockerModeHeuristic();
 	}
 }
 
@@ -103,7 +77,7 @@ elseif ( \is_dir( '/tmp/wordpress/wp-content/plugins/wp-simple-firewall' ) ) {
 	}
 	shield_test_log( 'Docker mode using symlinked plugin path: '.shield_test_format_path_for_log( $plugin_dir ) );
 }
-elseif ( shield_test_is_explicit_docker_mode() || shield_test_is_docker_mode_heuristic() ) {
+elseif ( TestEnv::isExplicitDockerMode() || TestEnv::isDockerModeHeuristic() ) {
 	shield_test_error( 'ERROR: Docker environment detected but plugin symlink is missing.' );
 	exit( 1 );
 }
@@ -155,8 +129,8 @@ else {
 }
 
 if ( !$found_tests_dir ) {
-	if ( shield_test_should_fail_missing_wp_env() ) {
-		shield_test_error( SHIELD_TEST_MSG_WORDPRESS_ENV_NOT_FOUND );
+	if ( TestEnv::shouldFailMissingWordPressEnv() ) {
+		shield_test_error( 'ERROR: WordPress test environment not found.' );
 		if ( shield_test_verbose() ) {
 			foreach ( $checked_paths as $path ) {
 				shield_test_error( SHIELD_TEST_MSG_CHECKED_PATH_PREFIX.shield_test_format_path_for_log( $path ) );
@@ -165,7 +139,7 @@ if ( !$found_tests_dir ) {
 		exit( 1 );
 	}
 
-	echo SHIELD_TEST_MSG_WORDPRESS_ENV_SKIPPED.\PHP_EOL;
+	echo 'SKIP: WordPress integration tests skipped (WordPress test environment not found).'.\PHP_EOL;
 	if ( shield_test_verbose() ) {
 		foreach ( $checked_paths as $path ) {
 			shield_test_log( SHIELD_TEST_MSG_CHECKED_PATH_PREFIX.shield_test_format_path_for_log( $path ) );

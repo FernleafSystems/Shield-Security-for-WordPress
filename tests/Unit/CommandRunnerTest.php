@@ -21,19 +21,21 @@ class CommandRunnerTest extends TestCase {
 	}
 
 	private function createRunner( bool $silenceOutput = false ) :CommandRunner {
-		$runner = new CommandRunner( $this->projectRoot, static function ( string $message ) :void {
-		} );
+		$processRunner = null;
 		if ( $silenceOutput ) {
-			$property = new \ReflectionProperty( CommandRunner::class, 'processRunner' );
-			$property->setAccessible( true );
-			$property->setValue( $runner, new class extends ProcessRunner {
+			$processRunner = new class extends ProcessRunner {
 				public function run( array $command, string $workingDir, ?callable $onOutput = null ) :Process {
 					return parent::run( $command, $workingDir, $onOutput ?? static function () :void {
 					} );
 				}
-			} );
+			};
 		}
-		return $runner;
+		return new CommandRunner(
+			$this->projectRoot,
+			static function ( string $message ) :void {
+			},
+			$processRunner
+		);
 	}
 
 	// =========================================================================

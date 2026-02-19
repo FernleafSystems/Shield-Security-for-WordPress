@@ -79,7 +79,7 @@ trait PluginPathsTrait {
 	 * @param string $path
 	 */
 	private function debugPath( string $label, string $path ) :void {
-		if ( TestEnv::isVerbose() ) {
+		if ( TestEnv::isPathDebug() ) {
 			$this->debugWrite( "[PATH DEBUG] $label: ".TestEnv::normalizePathForLog( $path )."\n" );
 		}
 	}
@@ -110,7 +110,7 @@ trait PluginPathsTrait {
 	 * @param string $message
 	 */
 	protected function assertFileExistsWithDebug( string $path, string $message = '' ) :void {
-		if ( !\file_exists( $path ) && TestEnv::isVerbose() ) {
+		if ( !\file_exists( $path ) && TestEnv::isPathDebug() ) {
 			$this->debugWrite( "\n[PATH DEBUG] === File Not Found Debug Info ===\n" );
 			$this->debugWrite( "[PATH DEBUG] Looking for: ".TestEnv::normalizePathForLog( $path )."\n" );
 			$this->debugWrite( "[PATH DEBUG] File exists check: ".( \file_exists( $path ) ? 'YES' : 'NO' )."\n" );

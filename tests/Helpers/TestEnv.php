@@ -23,6 +23,10 @@ class TestEnv {
 			|| self::isTruthy( 'SHIELD_DEBUG_PATHS' );
 	}
 
+	public static function isPathDebug() :bool {
+		return self::isTruthy( 'SHIELD_DEBUG_PATHS' );
+	}
+
 	public static function isExplicitDockerMode() :bool {
 		return \getenv( 'SHIELD_TEST_MODE' ) === 'docker';
 	}
