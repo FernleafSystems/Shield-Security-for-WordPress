@@ -74,13 +74,13 @@ trait PluginPathsTrait {
 	}
 
 	/**
-	 * Debug path information (only outputs if SHIELD_DEBUG_PATHS is set)
+	 * Debug path information (only outputs in verbose mode).
 	 * @param string $label
 	 * @param string $path
 	 */
 	private function debugPath( string $label, string $path ) :void {
-		if ( getenv( 'SHIELD_DEBUG_PATHS' ) ) {
-			$this->debugWrite( "[PATH DEBUG] $label: $path\n" );
+		if ( TestEnv::isVerbose() ) {
+			$this->debugWrite( "[PATH DEBUG] $label: ".TestEnv::normalizePathForLog( $path )."\n" );
 		}
 	}
 
@@ -110,19 +110,19 @@ trait PluginPathsTrait {
 	 * @param string $message
 	 */
 	protected function assertFileExistsWithDebug( string $path, string $message = '' ) :void {
-		if ( !\file_exists( $path ) && getenv( 'SHIELD_DEBUG_PATHS' ) ) {
+		if ( !\file_exists( $path ) && TestEnv::isVerbose() ) {
 			$this->debugWrite( "\n[PATH DEBUG] === File Not Found Debug Info ===\n" );
-			$this->debugWrite( "[PATH DEBUG] Looking for: $path\n" );
+			$this->debugWrite( "[PATH DEBUG] Looking for: ".TestEnv::normalizePathForLog( $path )."\n" );
 			$this->debugWrite( "[PATH DEBUG] File exists check: ".( \file_exists( $path ) ? 'YES' : 'NO' )."\n" );
 			$this->debugWrite( "[PATH DEBUG] Is readable: ".( \is_readable( $path ) ? 'YES' : 'NO' )."\n" );
-			$this->debugWrite( "[PATH DEBUG] Current working directory: ".\getcwd()."\n" );
-			$this->debugWrite( "[PATH DEBUG] Plugin root: ".$this->getPluginRoot()."\n" );
-			$this->debugWrite( "[PATH DEBUG] SHIELD_PACKAGE_PATH env: ".( getenv( 'SHIELD_PACKAGE_PATH' ) ?: 'NOT SET' )."\n" );
+			$this->debugWrite( "[PATH DEBUG] Current working directory: ".TestEnv::normalizePathForLog( (string)\getcwd() )."\n" );
+			$this->debugWrite( "[PATH DEBUG] Plugin root: ".TestEnv::normalizePathForLog( $this->getPluginRoot() )."\n" );
+			$this->debugWrite( "[PATH DEBUG] SHIELD_PACKAGE_PATH env: ".TestEnv::normalizePathForLog( (string)( getenv( 'SHIELD_PACKAGE_PATH' ) ?: 'NOT SET' ) )."\n" );
 
 			// Try to show parent directory contents
 			$dir = \dirname( $path );
 			if ( \is_dir( $dir ) ) {
-				$this->debugWrite( "[PATH DEBUG] Parent directory ($dir) contents:\n" );
+				$this->debugWrite( "[PATH DEBUG] Parent directory (".TestEnv::normalizePathForLog( $dir ).") contents:\n" );
 				$files = \scandir( $dir );
 				foreach ( $files as $file ) {
 					if ( $file !== '.' && $file !== '..' ) {
@@ -131,7 +131,7 @@ trait PluginPathsTrait {
 				}
 			}
 			else {
-				$this->debugWrite( "[PATH DEBUG] Parent directory does not exist: $dir\n" );
+				$this->debugWrite( "[PATH DEBUG] Parent directory does not exist: ".TestEnv::normalizePathForLog( $dir )."\n" );
 			}
 			$this->debugWrite( "[PATH DEBUG] ===================================\n\n" );
 		}

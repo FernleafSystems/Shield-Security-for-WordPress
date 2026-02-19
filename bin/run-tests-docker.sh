@@ -201,9 +201,10 @@ is_truthy() {
 # Build PHPUnit extra flags
 # Resolution order:
 # 1) Explicit PHPUNIT_DEBUG wins.
-# 2) Verbose Shield flags force debug on.
-# 3) CI/GitHub Actions default to debug off.
-# 4) Local default remains debug on.
+# 2) SHIELD_TEST_VERBOSE forces debug on.
+# 3) Legacy aliases (SHIELD_DEBUG / SHIELD_DEBUG_PATHS) force debug on.
+# 4) CI/GitHub Actions default to debug off.
+# 5) Local default remains debug on.
 PHPUNIT_EXTRA_FLAGS=""
 if [ -n "${PHPUNIT_DEBUG:-}" ]; then
     if is_truthy "${PHPUNIT_DEBUG:-}"; then
@@ -212,9 +213,12 @@ if [ -n "${PHPUNIT_DEBUG:-}" ]; then
     else
         echo "PHPUnit debug mode disabled (explicit PHPUNIT_DEBUG)"
     fi
-elif is_truthy "${SHIELD_TEST_VERBOSE:-}" || is_truthy "${SHIELD_DEBUG:-}" || is_truthy "${SHIELD_DEBUG_PATHS:-}"; then
+elif is_truthy "${SHIELD_TEST_VERBOSE:-}"; then
     PHPUNIT_EXTRA_FLAGS="--debug"
-    echo "PHPUnit debug mode enabled (Shield verbose mode)"
+    echo "PHPUnit debug mode enabled (SHIELD_TEST_VERBOSE)"
+elif is_truthy "${SHIELD_DEBUG:-}" || is_truthy "${SHIELD_DEBUG_PATHS:-}"; then
+    PHPUNIT_EXTRA_FLAGS="--debug"
+    echo "PHPUnit debug mode enabled (legacy Shield verbose alias)"
 elif is_truthy "${CI:-}" || is_truthy "${GITHUB_ACTIONS:-}"; then
     echo "PHPUnit debug mode disabled (CI default)"
 else

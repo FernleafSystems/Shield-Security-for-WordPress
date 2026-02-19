@@ -1,20 +1,23 @@
 <?php declare( strict_types=1 );
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestEnv;
+
+require_once \dirname( __DIR__ ).'/Helpers/TestEnv.php';
+
+const SHIELD_TEST_MSG_MAIN_PLUGIN_NOT_FOUND_AT = 'ERROR: Main plugin file not found at: ';
+const SHIELD_TEST_MSG_WORDPRESS_ENV_NOT_FOUND = 'ERROR: WordPress test environment not found.';
+const SHIELD_TEST_MSG_WORDPRESS_ENV_SKIPPED = 'SKIP: WordPress integration tests skipped (WordPress test environment not found).';
+const SHIELD_TEST_MSG_CHECKED_PATH_PREFIX = 'Checked: ';
+
 if ( !\function_exists( 'shield_test_env_truthy' ) ) {
 	function shield_test_env_truthy( string $name ) :bool {
-		$value = \getenv( $name );
-		if ( !\is_string( $value ) || $value === '' ) {
-			return false;
-		}
-		return \in_array( \strtolower( $value ), [ '1', 'true', 'yes', 'on' ], true );
+		return TestEnv::isTruthy( $name );
 	}
 }
 
 if ( !\function_exists( 'shield_test_verbose' ) ) {
 	function shield_test_verbose() :bool {
-		return shield_test_env_truthy( 'SHIELD_TEST_VERBOSE' )
-			|| shield_test_env_truthy( 'SHIELD_DEBUG' )
-			|| shield_test_env_truthy( 'SHIELD_DEBUG_PATHS' );
+		return TestEnv::isVerbose();
 	}
 }
 
@@ -34,10 +37,25 @@ if ( !\function_exists( 'shield_test_error' ) ) {
 
 if ( !\function_exists( 'shield_test_should_fail_missing_wp_env' ) ) {
 	function shield_test_should_fail_missing_wp_env() :bool {
-		return shield_test_env_truthy( 'CI' )
-			|| shield_test_env_truthy( 'GITHUB_ACTIONS' )
-			|| \getenv( 'SHIELD_TEST_MODE' ) === 'docker'
-			|| \is_dir( '/tmp/wordpress' );
+		return TestEnv::shouldFailMissingWordPressEnv();
+	}
+}
+
+if ( !\function_exists( 'shield_test_is_explicit_docker_mode' ) ) {
+	function shield_test_is_explicit_docker_mode() :bool {
+		return TestEnv::isExplicitDockerMode();
+	}
+}
+
+if ( !\function_exists( 'shield_test_is_docker_mode_heuristic' ) ) {
+	function shield_test_is_docker_mode_heuristic() :bool {
+		return TestEnv::isDockerModeHeuristic();
+	}
+}
+
+if ( !\function_exists( 'shield_test_format_path_for_log' ) ) {
+	function shield_test_format_path_for_log( string $path ) :string {
+		return TestEnv::normalizePathForLog( $path );
 	}
 }
 
@@ -47,7 +65,7 @@ $_is_package_testing = $_package_path_env !== false && !empty( $_package_path_en
 shield_test_log( '=== SHIELD INTEGRATION TEST BOOTSTRAP ===' );
 shield_test_log( 'Environment: '.( $_is_package_testing ? 'Package Testing' : 'Source Testing' ) );
 shield_test_log( 'PHP Version: '.\PHP_VERSION );
-shield_test_log( 'Working Directory: '.\getcwd() );
+shield_test_log( 'Working Directory: '.shield_test_format_path_for_log( (string)\getcwd() ) );
 
 $rootAutoload = \dirname( \dirname( __DIR__ ) ).'/vendor/autoload.php';
 if ( \file_exists( $rootAutoload ) ) {
@@ -60,7 +78,7 @@ if ( $shield_package_path !== false && !empty( $shield_package_path ) ) {
 	$plugin_dir = $shield_package_path;
 	$main_plugin_file = $plugin_dir.'/icwp-wpsf.php';
 	if ( !\file_exists( $main_plugin_file ) ) {
-		shield_test_error( 'ERROR: Main plugin file not found at: '.$main_plugin_file );
+		shield_test_error( SHIELD_TEST_MSG_MAIN_PLUGIN_NOT_FOUND_AT.shield_test_format_path_for_log( $main_plugin_file ) );
 		exit( 1 );
 	}
 
@@ -70,22 +88,22 @@ if ( $shield_package_path !== false && !empty( $shield_package_path ) ) {
 		\define( 'WP_PLUGIN_DIR', $wp_plugin_dir );
 	}
 
-	shield_test_log( 'Package mode using plugin path: '.$plugin_dir );
+	shield_test_log( 'Package mode using plugin path: '.shield_test_format_path_for_log( $plugin_dir ) );
 }
 elseif ( \is_dir( '/tmp/wordpress/wp-content/plugins/wp-simple-firewall' ) ) {
 	$plugin_dir = '/tmp/wordpress/wp-content/plugins/wp-simple-firewall';
 	$main_plugin_file = $plugin_dir.'/icwp-wpsf.php';
 	if ( !\file_exists( $main_plugin_file ) ) {
-		shield_test_error( 'ERROR: Docker symlinked plugin file missing: '.$main_plugin_file );
+		shield_test_error( 'ERROR: Docker symlinked plugin file missing: '.shield_test_format_path_for_log( $main_plugin_file ) );
 		if ( shield_test_verbose() ) {
 			$target = \is_link( $plugin_dir ) ? (string)\readlink( $plugin_dir ) : 'NOT A SYMLINK';
-			shield_test_error( 'Symlink target: '.$target );
+			shield_test_error( 'Symlink target: '.shield_test_format_path_for_log( $target ) );
 		}
 		exit( 1 );
 	}
-	shield_test_log( 'Docker mode using symlinked plugin path: '.$plugin_dir );
+	shield_test_log( 'Docker mode using symlinked plugin path: '.shield_test_format_path_for_log( $plugin_dir ) );
 }
-elseif ( \getenv( 'SHIELD_TEST_MODE' ) === 'docker' || \is_dir( '/tmp/wordpress' ) ) {
+elseif ( shield_test_is_explicit_docker_mode() || shield_test_is_docker_mode_heuristic() ) {
 	shield_test_error( 'ERROR: Docker environment detected but plugin symlink is missing.' );
 	exit( 1 );
 }
@@ -93,10 +111,10 @@ else {
 	$plugin_dir = \dirname( \dirname( __DIR__ ) );
 	$main_plugin_file = $plugin_dir.'/icwp-wpsf.php';
 	if ( !\file_exists( $main_plugin_file ) ) {
-		shield_test_error( 'ERROR: Main plugin file not found at: '.$main_plugin_file );
+		shield_test_error( SHIELD_TEST_MSG_MAIN_PLUGIN_NOT_FOUND_AT.shield_test_format_path_for_log( $main_plugin_file ) );
 		exit( 1 );
 	}
-	shield_test_log( 'Source mode using plugin path: '.$plugin_dir );
+	shield_test_log( 'Source mode using plugin path: '.shield_test_format_path_for_log( $plugin_dir ) );
 }
 
 $_tests_dir = \getenv( 'WP_TESTS_DIR' );
@@ -138,19 +156,19 @@ else {
 
 if ( !$found_tests_dir ) {
 	if ( shield_test_should_fail_missing_wp_env() ) {
-		shield_test_error( 'ERROR: WordPress test environment not found.' );
+		shield_test_error( SHIELD_TEST_MSG_WORDPRESS_ENV_NOT_FOUND );
 		if ( shield_test_verbose() ) {
 			foreach ( $checked_paths as $path ) {
-				shield_test_error( 'Checked: '.$path );
+				shield_test_error( SHIELD_TEST_MSG_CHECKED_PATH_PREFIX.shield_test_format_path_for_log( $path ) );
 			}
 		}
 		exit( 1 );
 	}
 
-	echo 'SKIP: WordPress integration tests skipped (WordPress test environment not found).'.\PHP_EOL;
+	echo SHIELD_TEST_MSG_WORDPRESS_ENV_SKIPPED.\PHP_EOL;
 	if ( shield_test_verbose() ) {
 		foreach ( $checked_paths as $path ) {
-			shield_test_log( 'Checked: '.$path );
+			shield_test_log( SHIELD_TEST_MSG_CHECKED_PATH_PREFIX.shield_test_format_path_for_log( $path ) );
 		}
 	}
 	exit( 0 );
@@ -158,7 +176,7 @@ if ( !$found_tests_dir ) {
 
 $wp_tests_functions_file = $_tests_dir.'/includes/functions.php';
 if ( !\file_exists( $wp_tests_functions_file ) ) {
-	shield_test_error( 'ERROR: WordPress test functions file not found at: '.$wp_tests_functions_file );
+	shield_test_error( 'ERROR: WordPress test functions file not found at: '.shield_test_format_path_for_log( $wp_tests_functions_file ) );
 	exit( 1 );
 }
 
@@ -178,11 +196,11 @@ function _manually_load_shield_plugin() {
 	$plugin_autoload = $plugin_dir.'/plugin_autoload.php';
 
 	if ( !\file_exists( $main_plugin_file ) ) {
-		shield_test_error( 'ERROR: Main plugin file not found: '.$main_plugin_file );
+		shield_test_error( 'ERROR: Main plugin file not found: '.shield_test_format_path_for_log( $main_plugin_file ) );
 		return;
 	}
 	if ( !\file_exists( $plugin_autoload ) ) {
-		shield_test_error( 'ERROR: Plugin autoload file not found: '.$plugin_autoload );
+		shield_test_error( 'ERROR: Plugin autoload file not found: '.shield_test_format_path_for_log( $plugin_autoload ) );
 		return;
 	}
 
@@ -193,7 +211,7 @@ function _manually_load_shield_plugin() {
 	catch ( \Error $e ) {
 		shield_test_error( 'ERROR: Loading Shield plugin failed: '.$e->getMessage() );
 		if ( shield_test_verbose() ) {
-			shield_test_error( 'File: '.$e->getFile().':'.$e->getLine() );
+			shield_test_error( 'File: '.shield_test_format_path_for_log( $e->getFile() ).':'.$e->getLine() );
 		}
 	}
 }
@@ -205,7 +223,7 @@ $table_prefix = 'wptests_';
 
 $wp_tests_bootstrap_file = $_tests_dir.'/includes/bootstrap.php';
 if ( !\file_exists( $wp_tests_bootstrap_file ) ) {
-	shield_test_error( 'ERROR: WordPress test bootstrap file not found at: '.$wp_tests_bootstrap_file );
+	shield_test_error( 'ERROR: WordPress test bootstrap file not found at: '.shield_test_format_path_for_log( $wp_tests_bootstrap_file ) );
 	exit( 1 );
 }
 

@@ -7,6 +7,11 @@ use Symfony\Component\Process\Process;
 
 class PackagedPhpStanAnalysisOrchestrator {
 
+	private const PACKAGE_CONFIG_RELATIVE_PATH = 'phpstan.package.neon.dist';
+	private const PACKAGE_BOOTSTRAP_RELATIVE_PATH = 'tests/stubs/phpstan-package-bootstrap.php';
+	private const PACKAGE_VENDOR_AUTOLOAD_RELATIVE_PATH = 'vendor/autoload.php';
+	private const PACKAGE_VENDOR_PREFIXED_AUTOLOAD_RELATIVE_PATH = 'vendor_prefixed/autoload.php';
+
 	private ProcessRunner $processRunner;
 
 	private PackagedPhpStanOutcomeClassifier $classifier;
@@ -27,7 +32,7 @@ class PackagedPhpStanAnalysisOrchestrator {
 		string $composerImage,
 		string $packageDirRelative
 	) :array {
-		$packageContainerPath = '/app/'.$this->normalizeRelativePath( $packageDirRelative );
+		$packageContainerPath = $this->buildPackageContainerPath( $packageDirRelative );
 
 		return [
 			'docker',
@@ -53,6 +58,29 @@ class PackagedPhpStanAnalysisOrchestrator {
 		];
 	}
 
+	public function buildPackageContainerPath( string $packageDirRelative ) :string {
+		return '/app/'.$this->normalizeRelativePath( $packageDirRelative );
+	}
+
+	public function assertPreflight( string $projectRoot, string $packageDir ) :void {
+		$this->assertFileExists(
+			$projectRoot.'/'.self::PACKAGE_CONFIG_RELATIVE_PATH,
+			'ERROR: Missing '.self::PACKAGE_CONFIG_RELATIVE_PATH.' at project root'
+		);
+		$this->assertFileExists(
+			$projectRoot.'/'.self::PACKAGE_BOOTSTRAP_RELATIVE_PATH,
+			'ERROR: Missing '.self::PACKAGE_BOOTSTRAP_RELATIVE_PATH
+		);
+		$this->assertFileExists(
+			$packageDir.'/'.self::PACKAGE_VENDOR_AUTOLOAD_RELATIVE_PATH,
+			'ERROR: Packaged vendor autoload not found: '.$packageDir.'/'.self::PACKAGE_VENDOR_AUTOLOAD_RELATIVE_PATH
+		);
+		$this->assertFileExists(
+			$packageDir.'/'.self::PACKAGE_VENDOR_PREFIXED_AUTOLOAD_RELATIVE_PATH,
+			'ERROR: Packaged vendor_prefixed autoload not found: '.$packageDir.'/'.self::PACKAGE_VENDOR_PREFIXED_AUTOLOAD_RELATIVE_PATH
+		);
+	}
+
 	public function runCommand( array $command, string $workingDir, ?callable $onOutput = null ) :PackagedPhpStanOutcome {
 		$process = $this->processRunner->run( $command, $workingDir, $onOutput );
 		$combinedOutput = $this->buildClassifierInput( $process );
@@ -65,5 +93,11 @@ class PackagedPhpStanAnalysisOrchestrator {
 
 	private function normalizeRelativePath( string $path ) :string {
 		return \trim( \str_replace( '\\', '/', $path ), '/' );
+	}
+
+	private function assertFileExists( string $path, string $message ) :void {
+		if ( !\is_file( $path ) ) {
+			throw new \RuntimeException( $message );
+		}
 	}
 }

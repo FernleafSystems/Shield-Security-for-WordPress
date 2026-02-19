@@ -7,8 +7,9 @@
 // Unit tests always use the source autoloader.
 // Package testing is handled by integration tests which run in a full WordPress environment.
 $plugin_dir = dirname( dirname( __DIR__ ) );
+require_once dirname( __DIR__ ).'/Helpers/TestEnv.php';
 
-if ( getenv( 'SHIELD_TEST_VERBOSE' ) === '1' || getenv( 'SHIELD_DEBUG' ) === '1' || getenv( 'SHIELD_DEBUG_PATHS' ) === '1' ) {
+if ( \FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestEnv::isVerbose() ) {
 	echo "[UNIT TEST BOOTSTRAP] Using source directory: $plugin_dir\n";
 }
 

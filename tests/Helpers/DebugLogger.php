@@ -8,7 +8,7 @@ class DebugLogger {
 	private string $logFile;
 
 	public function __construct( ?bool $enabled = null ) {
-		$this->enabled = $enabled ?? ( ( $_ENV['SHIELD_DEBUG'] ?? '' ) === '1' );
+		$this->enabled = $enabled ?? TestEnv::isVerbose();
 		$this->logFile = __DIR__.'/../../debug.log';
 	}
 

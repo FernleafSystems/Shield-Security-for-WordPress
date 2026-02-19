@@ -13,13 +13,15 @@ Run the full CI-equivalent test suite locally with zero setup:
 | `PHP_VERSION` | from `matrix.conf` | PHP version to test against |
 | `PHPUNIT_DEBUG` | auto | Explicitly force PHPUnit `--debug` on/off (`1`/`0`) |
 | `SHIELD_TEST_VERBOSE` | `0` | Enable verbose Shield test bootstrap and force PHPUnit debug (`1`) |
+| `SHIELD_DEBUG` / `SHIELD_DEBUG_PATHS` | unset | Backward-compatible verbose aliases; prefer `SHIELD_TEST_VERBOSE` |
 | `DEBUG_MODE` | `false` | Enable verbose bash/process monitoring |
 
 `PHPUNIT_DEBUG` is resolved in `bin/run-tests-docker.sh` in this order:
 1. Explicit `PHPUNIT_DEBUG` value.
-2. `SHIELD_TEST_VERBOSE=1` (forces debug on).
-3. CI/GitHub Actions default to debug off.
-4. Local default is debug on.
+2. `SHIELD_TEST_VERBOSE=1` (canonical verbose flag, forces debug on).
+3. Legacy aliases `SHIELD_DEBUG=1` / `SHIELD_DEBUG_PATHS=1` (forces debug on).
+4. CI/GitHub Actions default to debug off.
+5. Local default is debug on.
 
 ### Examples
 

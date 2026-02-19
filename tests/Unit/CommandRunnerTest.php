@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\CommandRunner;
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 /**
  * Unit tests for CommandRunner.
@@ -18,8 +20,20 @@ class CommandRunnerTest extends TestCase {
 		$this->projectRoot = dirname( dirname( __DIR__ ) );
 	}
 
-	private function createRunner() :CommandRunner {
-		return new CommandRunner( $this->projectRoot, function ( string $message ) {} );
+	private function createRunner( bool $silenceOutput = false ) :CommandRunner {
+		$runner = new CommandRunner( $this->projectRoot, static function ( string $message ) :void {
+		} );
+		if ( $silenceOutput ) {
+			$property = new \ReflectionProperty( CommandRunner::class, 'processRunner' );
+			$property->setAccessible( true );
+			$property->setValue( $runner, new class extends ProcessRunner {
+				public function run( array $command, string $workingDir, ?callable $onOutput = null ) :Process {
+					return parent::run( $command, $workingDir, $onOutput ?? static function () :void {
+					} );
+				}
+			} );
+		}
+		return $runner;
 	}
 
 	// =========================================================================
@@ -137,7 +151,7 @@ class CommandRunnerTest extends TestCase {
 	 * Test that run() includes stderr output in exception message when command fails
 	 */
 	public function testRunIncludesStderrInException() :void {
-		$runner = $this->createRunner();
+		$runner = $this->createRunner( true );
 
 		try {
 			// Use PHP to write to stderr and exit with error - works on all platforms

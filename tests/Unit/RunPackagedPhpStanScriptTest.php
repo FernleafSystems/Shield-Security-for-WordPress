@@ -41,6 +41,17 @@ class RunPackagedPhpStanScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'Usage: php bin/run-packaged-phpstan.php', $process->getErrorOutput() );
 	}
 
+	public function testRunPackagedPhpStanScriptDelegatesExecutionToOrchestrator() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+
+		$content = $this->getPluginFileContents( 'bin/run-packaged-phpstan.php', 'packaged phpstan runner script' );
+		$this->assertStringContainsString( 'assertPreflight', $content );
+		$this->assertStringContainsString( 'buildDockerCommand', $content );
+		$this->assertStringNotContainsString( 'Packaged vendor autoload not found', $content );
+	}
+
 	public function testRunPackagedPhpStanScriptHelpReturnsZero() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
