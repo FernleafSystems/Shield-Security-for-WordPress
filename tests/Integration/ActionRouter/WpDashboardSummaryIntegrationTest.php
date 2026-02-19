@@ -27,11 +27,16 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_item_meta' );
 
 		$this->adminUserId = $this->loginAsSecurityAdmin();
+		$this->enablePremiumCapabilities( [
+			'scan_malware_local',
+			'scan_vulnerabilities',
+		] );
 
 		self::con()->opts
 			->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			->optSet( 'enable_wpvuln_scan', 'Y' )
 			->optSet( 'enabled_scan_apc', 'Y' )
+			->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
 			->store();
 
 		Transient::Delete( self::con()->prefix( 'dashboard-widget-v2-vars' ) );
@@ -152,12 +157,14 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_cap_behavior_displays_three_rows_and_hidden_count() :void {
 		$this->setSummaryMeter( 90 );
+		$this->assertTrue( self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP() );
+		$this->assertTrue( self::con()->comps->scans->WPV()->isEnabled() );
 
-		$afsId = $this->createCompletedScan( 'afs' );
-		$this->addScanResultMeta( $afsId, 'is_mal' );
-		$this->addScanResultMeta( $afsId, 'is_in_core' );
-		$this->addScanResultMeta( $afsId, 'is_in_plugin' );
-		$this->addScanResultMeta( $afsId, 'is_in_theme' );
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_core' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_theme' );
 
 		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
 

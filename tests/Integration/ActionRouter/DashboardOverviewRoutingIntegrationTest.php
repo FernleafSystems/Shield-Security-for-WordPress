@@ -34,11 +34,18 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	private function renderDashboardOverviewHtml() :string {
-		$response = $this->processor()->processAction( PageAdminPlugin::SLUG, [
-			Constants::NAV_ID     => PluginNavs::NAV_DASHBOARD,
-			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
-		] );
-		return (string)( $response->payload()[ 'render_output' ] ?? '' );
+		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
+		add_filter( $filter, '__return_true', 1000 );
+		try {
+			$response = $this->processor()->processAction( PageAdminPlugin::SLUG, [
+				Constants::NAV_ID     => PluginNavs::NAV_DASHBOARD,
+				Constants::NAV_SUB_ID => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			] );
+			return (string)( $response->payload()[ 'render_output' ] ?? '' );
+		}
+		finally {
+			remove_filter( $filter, '__return_true', 1000 );
+		}
 	}
 
 	private function renderNeedsAttentionQueue() :ActionResponse {
