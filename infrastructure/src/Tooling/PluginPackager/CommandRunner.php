@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Process\Process;
 
 /**
  * Handles shell command execution using Symfony Process for cross-platform compatibility.
@@ -15,9 +15,12 @@ class CommandRunner {
 	/** @var callable */
 	private $logger;
 
+	private ProcessRunner $processRunner;
+
 	public function __construct( string $projectRoot, callable $logger ) {
 		$this->projectRoot = $projectRoot;
 		$this->logger = $logger;
+		$this->processRunner = new ProcessRunner();
 	}
 
 	/**
@@ -46,18 +49,8 @@ class CommandRunner {
 
 		$this->log( '> '.\implode( ' ', $parts ) );
 
-		$process = new Process(
-			$parts,
-			$cwd,
-			null,  // env - inherit from parent
-			null,  // input
-			null   // timeout - no limit
-		);
-
-		// Run with real-time output streaming to console
-		$exitCode = $process->run( function ( string $type, string $buffer ) :void {
-			$this->writeOutputBuffer( $type, $buffer );
-		} );
+		$process = $this->processRunner->run( $parts, $cwd );
+		$exitCode = $process->getExitCode() ?? 1;
 
 		if ( $exitCode !== 0 ) {
 			$errorOutput = \trim( $process->getErrorOutput() );
@@ -136,24 +129,5 @@ class CommandRunner {
 
 	private function log( string $message ) :void {
 		( $this->logger )( $message );
-	}
-
-	private function writeOutputBuffer( string $type, string $buffer ) :void {
-		$normalized = $this->normalizeOutputLineEndings( $buffer );
-
-		if ( $type === Process::ERR ) {
-			\fwrite( \STDERR, $normalized );
-		}
-		else {
-			echo $normalized;
-		}
-	}
-
-	private function normalizeOutputLineEndings( string $buffer ) :string {
-		$normalized = \str_replace( [ "\r\n", "\r" ], "\n", $buffer );
-		if ( \PHP_EOL !== "\n" ) {
-			$normalized = \str_replace( "\n", \PHP_EOL, $normalized );
-		}
-		return $normalized;
 	}
 }

@@ -484,47 +484,14 @@ run_packaged_phpstan() {
     fi
 
     set +e
-    php -r '
-        $path = $argv[1] ?? "";
-        $content = @file_get_contents( $path );
-        if ( $content === false ) {
-            exit( 3 );
-        }
-        $content = str_replace( "\r", "", $content );
-        $start = strpos( $content, "{" );
-        $end = strrpos( $content, "}" );
-        if ( $start === false || $end === false || $end < $start ) {
-            exit( 2 );
-        }
-        $json = substr( $content, $start, $end - $start + 1 );
-        $decoded = json_decode( $json, true );
-        if ( !is_array( $decoded ) || !isset( $decoded["totals"] ) || !is_array( $decoded["totals"] ) ) {
-            exit( 2 );
-        }
-        $fileErrors = (int)( $decoded["totals"]["file_errors"] ?? 0 );
-        $errors = (int)( $decoded["totals"]["errors"] ?? 0 );
-        if ( $errors > 0 ) {
-            exit( 1 );
-        }
-        if ( $fileErrors > 0 ) {
-            exit( 0 );
-        }
-        exit( 1 );
-    ' "$output_file"
-    local parse_exit=$?
+    php "$PROJECT_ROOT/bin/classify-packaged-phpstan.php" "$output_file" "$phpstan_exit"
+    local classify_exit=$?
     set -e
 
     rm -f "$output_file"
 
-    if [ "$parse_exit" -eq 0 ]; then
-        echo "⚠️  Packaged PHPStan completed with findings (informational only)."
+    if [ "$classify_exit" -eq 0 ]; then
         return 0
-    fi
-
-    if [ "$parse_exit" -eq 1 ]; then
-        echo "ERROR: Packaged PHPStan returned non-zero without reportable findings."
-    else
-        echo "ERROR: Packaged PHPStan output could not be parsed as JSON (infrastructure/config failure)."
     fi
     return 1
 }

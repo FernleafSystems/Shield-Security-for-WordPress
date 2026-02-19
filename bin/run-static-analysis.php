@@ -1,31 +1,16 @@
 #!/usr/bin/env php
 <?php declare( strict_types=1 );
 
-use Symfony\Component\Process\Process;
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
 $rootDir = dirname( __DIR__ );
 $args = array_slice( $_SERVER['argv'] ?? [], 1 );
+$processRunner = new ProcessRunner();
 
-$run = static function ( array $command, string $workingDir ) :int {
-	$process = new Process( $command, $workingDir );
-	$process->setTimeout( null );
-	$process->run(
-		static function ( string $type, string $buffer ) :void {
-			$normalized = str_replace( [ "\r\n", "\r" ], "\n", $buffer );
-			if ( PHP_EOL !== "\n" ) {
-				$normalized = str_replace( "\n", PHP_EOL, $normalized );
-			}
-			if ( $type === Process::ERR ) {
-				fwrite( STDERR, $normalized );
-			}
-			else {
-				echo $normalized;
-			}
-		}
-	);
-	return $process->getExitCode() ?? 1;
+$run = static function ( array $command, string $workingDir ) use ( $processRunner ) :int {
+	return $processRunner->run( $command, $workingDir )->getExitCode() ?? 1;
 };
 
 if ( in_array( '--help', $args, true ) || in_array( '-h', $args, true ) ) {
