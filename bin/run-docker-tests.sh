@@ -434,66 +434,11 @@ echo "⚙️  Setting up Docker environment..."
 mkdir -p tests/docker
 
 run_packaged_phpstan() {
-    local package_container_path="/app/$PACKAGE_DIR_RELATIVE"
-    local package_vendor_autoload="$PACKAGE_DIR/vendor/autoload.php"
-    local package_prefixed_autoload="$PACKAGE_DIR/vendor_prefixed/autoload.php"
-    local output_file="/tmp/shield-phpstan-package-output.$$.$RANDOM.log"
-
-    if [ ! -f "$PROJECT_ROOT/phpstan.package.neon.dist" ]; then
-        echo "ERROR: Missing phpstan.package.neon.dist at project root"
-        return 1
-    fi
-
-    if [ ! -f "$PROJECT_ROOT/tests/stubs/phpstan-package-bootstrap.php" ]; then
-        echo "ERROR: Missing tests/stubs/phpstan-package-bootstrap.php"
-        return 1
-    fi
-
-    if [ ! -f "$package_vendor_autoload" ]; then
-        echo "ERROR: Packaged vendor autoload not found: $package_vendor_autoload"
-        return 1
-    fi
-
-    if [ ! -f "$package_prefixed_autoload" ]; then
-        echo "ERROR: Packaged vendor_prefixed autoload not found: $package_prefixed_autoload"
-        return 1
-    fi
-
-    echo "Running PHPStan against packaged plugin..."
-    echo "   Using config: /app/phpstan.package.neon.dist"
-    echo "   Using package path: $package_container_path"
-
-    set +e
-    docker run --rm --name shield-phpstan-package \
-        -v "$PROJECT_ROOT:/app" \
-        -w /app \
-        -e SHIELD_PACKAGE_PATH="$package_container_path" \
-        $COMPOSER_IMAGE \
-        php /app/vendor/phpstan/phpstan/phpstan analyse \
-            -c /app/phpstan.package.neon.dist \
-            --error-format=json \
-            --no-progress \
-            --memory-limit=1G 2>&1 | tee "$output_file"
-    local phpstan_exit=${PIPESTATUS[0]}
-    set -e
-
-    if [ "$phpstan_exit" -eq 0 ]; then
-        rm -f "$output_file"
-        echo "✅ Packaged PHPStan analysis completed with no findings."
-        return 0
-    fi
-
-    set +e
-    php "$PROJECT_ROOT/bin/classify-packaged-phpstan.php" "$output_file" "$phpstan_exit"
-    local classify_exit=$?
-    set -e
-
-    rm -f "$output_file"
-
-    if [ "$classify_exit" -eq 0 ]; then
-        return 0
-    fi
-    return 1
+    php "$PROJECT_ROOT/bin/run-packaged-phpstan.php" \
+        --project-root="$PROJECT_ROOT" \
+        --composer-image="$COMPOSER_IMAGE" \
+        --package-dir="$PACKAGE_DIR" \
+        --package-dir-relative="$PACKAGE_DIR_RELATIVE"
 }
 
 # Health check function for MySQL containers

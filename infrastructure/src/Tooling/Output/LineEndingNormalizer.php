@@ -4,6 +4,10 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Output;
 
 class LineEndingNormalizer {
 
+	/**
+	 * Tooling-scoped line-ending normalizer.
+	 * Runtime/plugin code intentionally uses wordpress-services ConvertLineEndings.
+	 */
 	public function toLf( string $text ) :string {
 		return \str_replace( [ "\r\n", "\r" ], "\n", $text );
 	}
@@ -16,4 +20,3 @@ class LineEndingNormalizer {
 		return $normalized;
 	}
 }
-

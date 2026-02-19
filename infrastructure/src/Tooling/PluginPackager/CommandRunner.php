@@ -39,31 +39,8 @@ class CommandRunner {
 	public function run( array $parts, ?string $workingDir = null ) :void {
 		$cwd = $workingDir ?? $this->projectRoot;
 
-		// Pre-validate working directory with consistent error message
-		if ( !\is_dir( $cwd ) ) {
-			throw new \RuntimeException( \sprintf(
-				'Working directory does not exist: %s',
-				$cwd
-			) );
-		}
-
 		$this->log( '> '.\implode( ' ', $parts ) );
-
-		$process = $this->processRunner->run( $parts, $cwd );
-		$exitCode = $process->getExitCode() ?? 1;
-
-		if ( $exitCode !== 0 ) {
-			$errorOutput = \trim( $process->getErrorOutput() );
-			$message = \sprintf(
-				'Command failed with exit code %d: %s',
-				$exitCode,
-				\implode( ' ', $parts )
-			);
-			if ( $errorOutput !== '' ) {
-				$message .= "\nError output: ".$errorOutput;
-			}
-			throw new \RuntimeException( $message );
-		}
+		$this->processRunner->runOrThrow( $parts, $cwd );
 	}
 
 	/**

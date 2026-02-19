@@ -39,6 +39,19 @@ class ClassifyPackagedPhpStanScriptTest extends BaseUnitTest {
 		);
 	}
 
+	public function testCleanResultReturnsSuccess() :void {
+		$result = $this->runClassifierScript(
+			'irrelevant when exit code is zero',
+			0
+		);
+
+		$this->assertSame( 0, $result[ 'exit_code' ] );
+		$this->assertStringContainsString(
+			'Packaged PHPStan analysis completed with no findings.',
+			$result[ 'output' ]
+		);
+	}
+
 	public function testInfrastructureFailureReturnsNonZero() :void {
 		$result = $this->runClassifierScript(
 			'{"totals":{"errors":1,"file_errors":0}}',
@@ -99,4 +112,3 @@ class ClassifyPackagedPhpStanScriptTest extends BaseUnitTest {
 		}
 	}
 }
-

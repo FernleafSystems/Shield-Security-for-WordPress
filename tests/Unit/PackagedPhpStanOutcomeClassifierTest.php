@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanOutcome;
 use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanOutcomeClassifier;
 use PHPUnit\Framework\TestCase;
 
@@ -15,10 +16,10 @@ class PackagedPhpStanOutcomeClassifierTest extends TestCase {
 	}
 
 	public function testClassifyReturnsCleanSuccessForZeroExitCode() :void {
-		$this->assertSame(
-			PackagedPhpStanOutcomeClassifier::OUTCOME_CLEAN_SUCCESS,
-			$this->classifier->classify( 0, 'anything at all' )
-		);
+		$outcome = $this->classifier->classify( 0, 'anything at all' );
+		$this->assertSame( PackagedPhpStanOutcome::STATUS_CLEAN_SUCCESS, $outcome->getStatus() );
+		$this->assertTrue( $outcome->isSuccess() );
+		$this->assertSame( 0, $outcome->toExitCode() );
 	}
 
 	public function testClassifyReturnsFindingsSuccessWhenOnlyFileErrorsExist() :void {
@@ -26,39 +27,45 @@ class PackagedPhpStanOutcomeClassifierTest extends TestCase {
 noise before json
 {"totals":{"errors":0,"file_errors":3}}
 TXT;
-		$this->assertSame(
-			PackagedPhpStanOutcomeClassifier::OUTCOME_FINDINGS_SUCCESS,
-			$this->classifier->classify( 1, $output )
-		);
+		$outcome = $this->classifier->classify( 1, $output );
+		$this->assertSame( PackagedPhpStanOutcome::STATUS_FINDINGS_SUCCESS, $outcome->getStatus() );
+		$this->assertTrue( $outcome->isSuccess() );
+		$this->assertSame( 0, $outcome->toExitCode() );
 	}
 
 	public function testClassifyReturnsNonReportableFailureWhenTotalsErrorsExist() :void {
 		$output = '{"totals":{"errors":2,"file_errors":3}}';
-		$this->assertSame(
-			PackagedPhpStanOutcomeClassifier::OUTCOME_NON_REPORTABLE_FAILURE,
-			$this->classifier->classify( 1, $output )
-		);
+		$outcome = $this->classifier->classify( 1, $output );
+		$this->assertSame( PackagedPhpStanOutcome::STATUS_NON_REPORTABLE_FAILURE, $outcome->getStatus() );
+		$this->assertFalse( $outcome->isSuccess() );
+		$this->assertSame( 1, $outcome->toExitCode() );
 	}
 
 	public function testClassifyReturnsParseFailureForNonJsonOutput() :void {
-		$this->assertSame(
-			PackagedPhpStanOutcomeClassifier::OUTCOME_PARSE_FAILURE,
-			$this->classifier->classify( 1, 'plain text output with no json envelope' )
-		);
+		$outcome = $this->classifier->classify( 1, 'plain text output with no json envelope' );
+		$this->assertSame( PackagedPhpStanOutcome::STATUS_PARSE_FAILURE, $outcome->getStatus() );
+		$this->assertFalse( $outcome->isSuccess() );
+		$this->assertSame( 1, $outcome->toExitCode() );
 	}
 
 	public function testClassifyReturnsParseFailureForMalformedJsonEnvelope() :void {
-		$this->assertSame(
-			PackagedPhpStanOutcomeClassifier::OUTCOME_PARSE_FAILURE,
-			$this->classifier->classify( 1, '{"totals":' )
-		);
+		$outcome = $this->classifier->classify( 1, '{"totals":' );
+		$this->assertSame( PackagedPhpStanOutcome::STATUS_PARSE_FAILURE, $outcome->getStatus() );
+		$this->assertFalse( $outcome->isSuccess() );
+		$this->assertSame( 1, $outcome->toExitCode() );
 	}
 
 	public function testClassifyReturnsParseFailureWhenTotalsMissing() :void {
-		$this->assertSame(
-			PackagedPhpStanOutcomeClassifier::OUTCOME_PARSE_FAILURE,
-			$this->classifier->classify( 1, '{"files":[]}' )
-		);
+		$outcome = $this->classifier->classify( 1, '{"files":[]}' );
+		$this->assertSame( PackagedPhpStanOutcome::STATUS_PARSE_FAILURE, $outcome->getStatus() );
+		$this->assertFalse( $outcome->isSuccess() );
+		$this->assertSame( 1, $outcome->toExitCode() );
+	}
+
+	public function testClassifyReturnsNonReportableFailureWhenTotalsAreZeroOnNonZeroExit() :void {
+		$outcome = $this->classifier->classify( 1, '{"totals":{"errors":0,"file_errors":0}}' );
+		$this->assertSame( PackagedPhpStanOutcome::STATUS_NON_REPORTABLE_FAILURE, $outcome->getStatus() );
+		$this->assertFalse( $outcome->isSuccess() );
+		$this->assertSame( 1, $outcome->toExitCode() );
 	}
 }
-

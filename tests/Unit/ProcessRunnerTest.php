@@ -83,5 +83,39 @@ class ProcessRunnerTest extends TestCase {
 			$this->projectRoot.'/missing-'.\uniqid()
 		);
 	}
-}
 
+	public function testRunOrThrowReturnsProcessForSuccessfulCommand() :void {
+		$runner = new ProcessRunner();
+		$process = $runner->runOrThrow(
+			[
+				\PHP_BINARY,
+				'-r',
+				'echo "ok"; exit(0);',
+			],
+			$this->projectRoot,
+			static function () :void {
+			}
+		);
+
+		$this->assertSame( 0, $process->getExitCode() );
+		$this->assertStringContainsString( 'ok', $process->getOutput() );
+	}
+
+	public function testRunOrThrowThrowsOnFailedCommandWithStderr() :void {
+		$runner = new ProcessRunner();
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Command failed with exit code 3' );
+		$this->expectExceptionMessage( 'Error output: boom' );
+
+		$runner->runOrThrow(
+			[
+				\PHP_BINARY,
+				'-r',
+				'fwrite(STDERR, "boom"); exit(3);',
+			],
+			$this->projectRoot,
+			static function () :void {
+			}
+		);
+	}
+}

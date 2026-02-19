@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Process\Process;
 
 class RunStaticAnalysisScriptTest extends BaseUnitTest {
 
@@ -25,14 +26,18 @@ class RunStaticAnalysisScriptTest extends BaseUnitTest {
 		);
 	}
 
-	public function testRunStaticAnalysisUsesSharedProcessRunner() :void {
+	public function testRunStaticAnalysisHelpReturnsUsage() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
 		}
 
-		$content = $this->getPluginFileContents( 'bin/run-static-analysis.php', 'static analysis runner script' );
-		$this->assertStringContainsString( 'Tooling\\Process\\ProcessRunner', $content );
-		$this->assertStringNotContainsString( 'use Symfony\\Component\\Process\\Process;', $content );
+		$process = new Process(
+			[ \PHP_BINARY, $this->getPluginFilePath( 'bin/run-static-analysis.php' ), '--help' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
+
+		$this->assertSame( 0, $process->getExitCode() ?? 1 );
+		$this->assertStringContainsString( 'Usage: php bin/run-static-analysis.php', $process->getOutput() );
 	}
 }
-

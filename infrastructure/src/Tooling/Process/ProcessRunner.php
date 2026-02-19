@@ -40,6 +40,32 @@ class ProcessRunner {
 		return $process;
 	}
 
+	/**
+	 * Run a command and throw when it exits non-zero.
+	 *
+	 * @param string[]       $command
+	 * @param callable|null  $onOutput Receives (string $type, string $buffer)
+	 */
+	public function runOrThrow( array $command, string $workingDir, ?callable $onOutput = null ) :Process {
+		$process = $this->run( $command, $workingDir, $onOutput );
+		$exitCode = $process->getExitCode() ?? 1;
+
+		if ( $exitCode !== 0 ) {
+			$errorOutput = \trim( $process->getErrorOutput() );
+			$message = \sprintf(
+				'Command failed with exit code %d: %s',
+				$exitCode,
+				\implode( ' ', $command )
+			);
+			if ( $errorOutput !== '' ) {
+				$message .= "\nError output: ".$errorOutput;
+			}
+			throw new \RuntimeException( $message );
+		}
+
+		return $process;
+	}
+
 	private function writeOutputBuffer( string $type, string $buffer ) :void {
 		$normalized = $this->lineEndingNormalizer->toHostEol( $buffer );
 
@@ -51,4 +77,3 @@ class ProcessRunner {
 		}
 	}
 }
-
