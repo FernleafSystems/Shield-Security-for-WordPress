@@ -99,9 +99,12 @@
       "@test:integration"
     ],
     "test:easy":        "@test:unit",
-    "analyze":          [
-      "@php bin/run-static-analysis.php"
+    "analyze":          "@analyze:package",
+    "analyze:package":  [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/run-static-analysis.php --package"
     ],
+    "analyze:source":   "@php bin/run-static-analysis.php --source",
     "phpcs":            "phpcs",
     "phpcs:fix":        "phpcbf",
     "package-plugin":   "@php bin/package-plugin.php",

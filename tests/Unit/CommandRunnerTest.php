@@ -137,7 +137,6 @@ class CommandRunnerTest extends TestCase {
 	 * Test that run() includes stderr output in exception message when command fails
 	 */
 	public function testRunIncludesStderrInException() :void {
-		$this->expectOutputRegex( '/test stderr message/' );
 		$runner = $this->createRunner();
 
 		try {
@@ -158,5 +157,21 @@ class CommandRunnerTest extends TestCase {
 			$this->assertStringContainsString( 'test stderr message', $message );
 			$this->assertStringContainsString( 'Error output:', $message );
 		}
+	}
+
+	/**
+	 * Test that run() normalizes carriage returns in streamed output.
+	 */
+	public function testRunNormalizesCarriageReturnsInOutput() :void {
+		$runner = $this->createRunner();
+
+		$this->expectOutputString(
+			\implode( \PHP_EOL, [ 'line1', 'line2', 'line3', '' ] )
+		);
+		$runner->run( [
+			PHP_BINARY,
+			'-r',
+			'echo "line1\rline2\r\nline3\n";'
+		], $this->projectRoot );
 	}
 }

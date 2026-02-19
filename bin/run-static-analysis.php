@@ -6,73 +6,75 @@ use Symfony\Component\Process\Process;
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
 $rootDir = dirname( __DIR__ );
-$packageDir = $rootDir.'/shield-package';
-
-/**
- * Remove local package artefacts created in the repository root.
- */
-$cleanupPackageDir = static function () use ( $packageDir ) :void {
-	if ( !is_dir( $packageDir ) ) {
-		return;
-	}
-
-	$iterator = new RecursiveIteratorIterator(
-		new RecursiveDirectoryIterator( $packageDir, RecursiveDirectoryIterator::SKIP_DOTS ),
-		RecursiveIteratorIterator::CHILD_FIRST
-	);
-
-	foreach ( $iterator as $item ) {
-		$itemPath = $item->getPathname();
-		if ( $item->isDir() ) {
-			@rmdir( $itemPath );
-		}
-		else {
-			@unlink( $itemPath );
-		}
-	}
-
-	@rmdir( $packageDir );
-};
+$args = array_slice( $_SERVER['argv'] ?? [], 1 );
 
 $run = static function ( array $command, string $workingDir ) :int {
 	$process = new Process( $command, $workingDir );
 	$process->setTimeout( null );
 	$process->run(
 		static function ( string $type, string $buffer ) :void {
-			echo $buffer;
+			$normalized = str_replace( [ "\r\n", "\r" ], "\n", $buffer );
+			if ( PHP_EOL !== "\n" ) {
+				$normalized = str_replace( "\n", PHP_EOL, $normalized );
+			}
+			if ( $type === Process::ERR ) {
+				fwrite( STDERR, $normalized );
+			}
+			else {
+				echo $normalized;
+			}
 		}
 	);
 	return $process->getExitCode() ?? 1;
 };
 
-$cleanupPackageDir();
+if ( in_array( '--help', $args, true ) || in_array( '-h', $args, true ) ) {
+	fwrite( STDOUT, "Usage: php bin/run-static-analysis.php [--source|--package]".PHP_EOL );
+	exit( 0 );
+}
 
-$exitCode = 1;
-try {
-	$buildCode = $run(
-		[ PHP_BINARY, $rootDir.'/bin/build-config.php' ],
-		$rootDir
-	);
-	if ( $buildCode !== 0 ) {
-		$exitCode = $buildCode;
-	}
-	else {
-		$exitCode = $run(
+$mode = 'source';
+if ( in_array( '--package', $args, true ) ) {
+	$mode = 'package';
+}
+elseif ( in_array( '--source', $args, true ) ) {
+	$mode = 'source';
+}
+
+if ( $mode === 'package' ) {
+	exit(
+		$run(
 			[
-				PHP_BINARY,
-				$rootDir.'/vendor/phpstan/phpstan/phpstan',
-				'analyse',
-				'-c',
-				$rootDir.'/phpstan.neon.dist',
-				'--no-progress',
-				'--memory-limit=1G',
+				'bash',
+				$rootDir.'/bin/run-docker-tests.sh',
+				'--analyze-package',
 			],
 			$rootDir
-		);
-	}
-}
-finally {
-	$cleanupPackageDir();
+		)
+	);
 }
 
-exit( $exitCode );
+// Source-only static analysis runner. Packaged analysis is executed through Docker.
+$buildCode = $run(
+	[ PHP_BINARY, $rootDir.'/bin/build-config.php' ],
+	$rootDir
+);
+
+if ( $buildCode !== 0 ) {
+	exit( $buildCode );
+}
+
+exit(
+	$run(
+		[
+			PHP_BINARY,
+			$rootDir.'/vendor/phpstan/phpstan/phpstan',
+			'analyse',
+			'-c',
+			$rootDir.'/phpstan.neon.dist',
+			'--no-progress',
+			'--memory-limit=1G',
+		],
+		$rootDir
+	)
+);

@@ -4,6 +4,29 @@
 
 set -e
 
+ANALYZE_PACKAGE_MODE=false
+
+for arg in "$@"; do
+    case "$arg" in
+        --analyze-package)
+            ANALYZE_PACKAGE_MODE=true
+            ;;
+        --help|-h)
+            echo "Usage: $0 [--analyze-package]"
+            echo ""
+            echo "Modes:"
+            echo "  (default)          Build package and run parallel Docker test suites"
+            echo "  --analyze-package  Build package and run packaged PHPStan analysis"
+            exit 0
+            ;;
+        *)
+            echo "Error: Unknown argument: $arg"
+            echo "Use --help for usage."
+            exit 1
+            ;;
+    esac
+done
+
 # Verify Docker is available (required for all operations)
 if ! command -v docker >/dev/null 2>&1; then
     echo "❌ Error: Docker is required but not found"
@@ -33,6 +56,11 @@ export MSYS_NO_PATHCONV=1
 export DOCKER_BUILDKIT=1
 
 echo "🚀 Starting Local Docker Tests (matching CI configuration)"
+if [ "$ANALYZE_PACKAGE_MODE" = true ]; then
+    echo "   Mode: Packaged PHPStan analysis"
+else
+    echo "   Mode: Parallel package test suites"
+fi
 echo "=================================================="
 
 # Get script directory
@@ -63,58 +91,63 @@ fi
 PHP_VERSION=${PHP_VERSION:-"$DEFAULT_PHP"}
 echo "🐘 PHP Version: $PHP_VERSION"
 
-# Detect WordPress versions (exactly like CI does)
-echo "📱 Detecting WordPress versions..."
+LATEST_VERSION=""
+PREVIOUS_VERSION=""
 
-# Run detection script with timeout to prevent hangs
-# Using if/else pattern because script has set -e (line 5)
-# The if/else ensures non-zero exit codes don't terminate the script
-VERSIONS_OUTPUT=""
-DETECTION_ERROR=""
+if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
+    # Detect WordPress versions (exactly like CI does)
+    echo "📱 Detecting WordPress versions..."
 
-if command -v timeout >/dev/null 2>&1; then
-    # Linux/Git Bash: use timeout command (60 seconds should be plenty)
-    if VERSIONS_OUTPUT=$(timeout 60 ./.github/scripts/detect-wp-versions.sh 2>&1); then
-        DETECTION_ERROR=""
+    # Run detection script with timeout to prevent hangs
+    # Using if/else pattern because script has set -e (line 5)
+    # The if/else ensures non-zero exit codes don't terminate the script
+    VERSIONS_OUTPUT=""
+    DETECTION_ERROR=""
+
+    if command -v timeout >/dev/null 2>&1; then
+        # Linux/Git Bash: use timeout command (60 seconds should be plenty)
+        if VERSIONS_OUTPUT=$(timeout 60 ./.github/scripts/detect-wp-versions.sh 2>&1); then
+            DETECTION_ERROR=""
+        else
+            DETECTION_ERROR=$?
+            # timeout returns 124 when command times out
+            if [[ "$DETECTION_ERROR" == "124" ]]; then
+                echo "   ⚠️  Detection script timed out after 60 seconds"
+            fi
+        fi
     else
-        DETECTION_ERROR=$?
-        # timeout returns 124 when command times out
-        if [[ "$DETECTION_ERROR" == "124" ]]; then
-            echo "   ⚠️  Detection script timed out after 60 seconds"
+        # Systems without timeout command (rare - most Git Bash has it)
+        if VERSIONS_OUTPUT=$(./.github/scripts/detect-wp-versions.sh 2>&1); then
+            DETECTION_ERROR=""
+        else
+            DETECTION_ERROR=$?
         fi
     fi
-else
-    # Systems without timeout command (rare - most Git Bash has it)
-    if VERSIONS_OUTPUT=$(./.github/scripts/detect-wp-versions.sh 2>&1); then
-        DETECTION_ERROR=""
+
+    # Parse the output (head -1 for defensive parsing in case of duplicate lines)
+    LATEST_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "^LATEST_VERSION=" | head -1 | cut -d'=' -f2 | tr -d '[:space:]')
+    PREVIOUS_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "^PREVIOUS_VERSION=" | head -1 | cut -d'=' -f2 | tr -d '[:space:]')
+
+    # Validate we got versions; use fallback if not
+    if [[ -z "$LATEST_VERSION" ]] || [[ -z "$PREVIOUS_VERSION" ]]; then
+        echo "❌ Could not parse WordPress versions from detect-wp-versions.sh"
+        # Provide context about what went wrong
+        if [[ -n "$DETECTION_ERROR" ]]; then
+            echo "   Detection script failed (exit code $DETECTION_ERROR):"
+        elif [[ -z "$VERSIONS_OUTPUT" ]]; then
+            echo "   Detection script produced no output"
+        else
+            echo "   Could not parse versions from output:"
+        fi
+        echo "$VERSIONS_OUTPUT" | head -20 | sed 's/^/      /'
+        exit 1
     else
-        DETECTION_ERROR=$?
+        echo "   ✅ Version detection script returned valid versions"
     fi
+
+    echo "   Latest WordPress: $LATEST_VERSION"
+    echo "   Previous WordPress: $PREVIOUS_VERSION"
 fi
-
-# Parse the output (head -1 for defensive parsing in case of duplicate lines)
-LATEST_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "^LATEST_VERSION=" | head -1 | cut -d'=' -f2 | tr -d '[:space:]')
-PREVIOUS_VERSION=$(echo "$VERSIONS_OUTPUT" | grep "^PREVIOUS_VERSION=" | head -1 | cut -d'=' -f2 | tr -d '[:space:]')
-
-# Validate we got versions; use fallback if not
-if [[ -z "$LATEST_VERSION" ]] || [[ -z "$PREVIOUS_VERSION" ]]; then
-    echo "❌ Could not parse WordPress versions from detect-wp-versions.sh"
-    # Provide context about what went wrong
-    if [[ -n "$DETECTION_ERROR" ]]; then
-        echo "   Detection script failed (exit code $DETECTION_ERROR):"
-    elif [[ -z "$VERSIONS_OUTPUT" ]]; then
-        echo "   Detection script produced no output"
-    else
-        echo "   Could not parse versions from output:"
-    fi
-    echo "$VERSIONS_OUTPUT" | head -20 | sed 's/^/      /'
-    exit 1
-else
-    echo "   ✅ Version detection script returned valid versions"
-fi
-
-echo "   Latest WordPress: $LATEST_VERSION"
-echo "   Previous WordPress: $PREVIOUS_VERSION"
 
 # Set environment variables early to avoid Docker Compose warnings
 # Use directory inside project so Docker can mount it on all platforms
@@ -156,21 +189,25 @@ hash_find_tree() {
 }
 
 # Ensure clean environment now that env vars are set
-echo "🧹 Cleaning up any existing test containers/volumes..."
-docker compose -f tests/docker/docker-compose.yml \
-    -f tests/docker/docker-compose.package.yml \
-    down -v --remove-orphans || true
-echo "   ✅ Clean start ensured"
+if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
+    echo "🧹 Cleaning up any existing test containers/volumes..."
+    docker compose -f tests/docker/docker-compose.yml \
+        -f tests/docker/docker-compose.package.yml \
+        down -v --remove-orphans || true
+    echo "   ✅ Clean start ensured"
+fi
 
 # Start MySQL containers early in background for parallel initialization
 # Based on testing, MySQL takes ~38 seconds to fully initialize
-echo "🗄️ Starting MySQL databases in background for parallel initialization..."
-# Only use base compose file for MySQL (package.yml requires package to exist)
-docker compose -f tests/docker/docker-compose.yml \
-    up -d mysql-latest mysql-previous 2>&1 | tee /tmp/mysql-startup.log &
-MYSQL_START_PID=$!
-echo "   MySQL containers starting in background (PID: $MYSQL_START_PID)"
-echo "   Containers will initialize while we build assets (~38 seconds typical)"
+if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
+    echo "🗄️ Starting MySQL databases in background for parallel initialization..."
+    # Only use base compose file for MySQL (package.yml requires package to exist)
+    docker compose -f tests/docker/docker-compose.yml \
+        up -d mysql-latest mysql-previous 2>&1 | tee /tmp/mysql-startup.log &
+    MYSQL_START_PID=$!
+    echo "   MySQL containers starting in background (PID: $MYSQL_START_PID)"
+    echo "   Containers will initialize while we build assets (~38 seconds typical)"
+fi
 
 # Build assets using Docker (no local Node.js required) - with caching
 echo "🔨 Building assets..."
@@ -395,6 +432,102 @@ echo "   Package built at $PACKAGE_DIR"
 # Prepare Docker environment directory
 echo "⚙️  Setting up Docker environment..."
 mkdir -p tests/docker
+
+run_packaged_phpstan() {
+    local package_container_path="/app/$PACKAGE_DIR_RELATIVE"
+    local package_vendor_autoload="$PACKAGE_DIR/vendor/autoload.php"
+    local package_prefixed_autoload="$PACKAGE_DIR/vendor_prefixed/autoload.php"
+    local output_file="/tmp/shield-phpstan-package-output.$$.$RANDOM.log"
+
+    if [ ! -f "$PROJECT_ROOT/phpstan.package.neon.dist" ]; then
+        echo "ERROR: Missing phpstan.package.neon.dist at project root"
+        return 1
+    fi
+
+    if [ ! -f "$PROJECT_ROOT/tests/stubs/phpstan-package-bootstrap.php" ]; then
+        echo "ERROR: Missing tests/stubs/phpstan-package-bootstrap.php"
+        return 1
+    fi
+
+    if [ ! -f "$package_vendor_autoload" ]; then
+        echo "ERROR: Packaged vendor autoload not found: $package_vendor_autoload"
+        return 1
+    fi
+
+    if [ ! -f "$package_prefixed_autoload" ]; then
+        echo "ERROR: Packaged vendor_prefixed autoload not found: $package_prefixed_autoload"
+        return 1
+    fi
+
+    echo "Running PHPStan against packaged plugin..."
+    echo "   Using config: /app/phpstan.package.neon.dist"
+    echo "   Using package path: $package_container_path"
+
+    set +e
+    docker run --rm --name shield-phpstan-package \
+        -v "$PROJECT_ROOT:/app" \
+        -w /app \
+        -e SHIELD_PACKAGE_PATH="$package_container_path" \
+        $COMPOSER_IMAGE \
+        php /app/vendor/phpstan/phpstan/phpstan analyse \
+            -c /app/phpstan.package.neon.dist \
+            --error-format=json \
+            --no-progress \
+            --memory-limit=1G 2>&1 | tee "$output_file"
+    local phpstan_exit=${PIPESTATUS[0]}
+    set -e
+
+    if [ "$phpstan_exit" -eq 0 ]; then
+        rm -f "$output_file"
+        echo "✅ Packaged PHPStan analysis completed with no findings."
+        return 0
+    fi
+
+    set +e
+    php -r '
+        $path = $argv[1] ?? "";
+        $content = @file_get_contents( $path );
+        if ( $content === false ) {
+            exit( 3 );
+        }
+        $content = str_replace( "\r", "", $content );
+        $start = strpos( $content, "{" );
+        $end = strrpos( $content, "}" );
+        if ( $start === false || $end === false || $end < $start ) {
+            exit( 2 );
+        }
+        $json = substr( $content, $start, $end - $start + 1 );
+        $decoded = json_decode( $json, true );
+        if ( !is_array( $decoded ) || !isset( $decoded["totals"] ) || !is_array( $decoded["totals"] ) ) {
+            exit( 2 );
+        }
+        $fileErrors = (int)( $decoded["totals"]["file_errors"] ?? 0 );
+        $errors = (int)( $decoded["totals"]["errors"] ?? 0 );
+        if ( $errors > 0 ) {
+            exit( 1 );
+        }
+        if ( $fileErrors > 0 ) {
+            exit( 0 );
+        }
+        exit( 1 );
+    ' "$output_file"
+    local parse_exit=$?
+    set -e
+
+    rm -f "$output_file"
+
+    if [ "$parse_exit" -eq 0 ]; then
+        echo "⚠️  Packaged PHPStan completed with findings (informational only)."
+        return 0
+    fi
+
+    if [ "$parse_exit" -eq 1 ]; then
+        echo "ERROR: Packaged PHPStan returned non-zero without reportable findings."
+    else
+        echo "ERROR: Packaged PHPStan output could not be parsed as JSON (infrastructure/config failure)."
+    fi
+    return 1
+}
 
 # Health check function for MySQL containers
 # Based on Task 4.2 testing, MySQL takes ~38 seconds to initialize
@@ -678,19 +811,30 @@ fi
 # Initialize overall exit code for the entire script
 OVERALL_SCRIPT_EXIT=0
 
-# Run tests in parallel with database isolation
-echo "🚀 Starting parallel execution mode..."
-if ! run_parallel_tests; then
-    OVERALL_SCRIPT_EXIT=1
-    echo "❌ Parallel testing failed - check logs above for details"
+# Run requested execution mode
+if [ "$ANALYZE_PACKAGE_MODE" = true ]; then
+    echo "Running packaged PHPStan mode..."
+    if ! run_packaged_phpstan; then
+        OVERALL_SCRIPT_EXIT=1
+        echo "ERROR: Packaged PHPStan analysis failed - check output above for details"
+    fi
+else
+    # Run tests in parallel with database isolation
+    echo "🚀 Starting parallel execution mode..."
+    if ! run_parallel_tests; then
+        OVERALL_SCRIPT_EXIT=1
+        echo "❌ Parallel testing failed - check logs above for details"
+    fi
 fi
 
 # Cleanup
-echo "🧹 Cleaning up..."
-docker compose -f tests/docker/docker-compose.yml \
-    -f tests/docker/docker-compose.package.yml \
-    down -v --remove-orphans || true
-rm -f tests/docker/.env
+if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
+    echo "🧹 Cleaning up..."
+    docker compose -f tests/docker/docker-compose.yml \
+        -f tests/docker/docker-compose.package.yml \
+        down -v --remove-orphans || true
+    rm -f tests/docker/.env
+fi
 
 echo ""
 if [ "$OVERALL_SCRIPT_EXIT" = "0" ]; then
@@ -699,12 +843,17 @@ else
     echo "❌ Local Docker tests completed with failures!"
 fi
 
-echo "   Tests ran in PARALLEL mode with isolated databases:"
-echo "   - WordPress $LATEST_VERSION (shield-db-latest:3309, database: wordpress_test_latest)"
-echo "   - WordPress $PREVIOUS_VERSION (shield-db-previous:3310, database: wordpress_test_previous)"
-echo "   - Execution mode: Parallel"
-echo "   - Output logs: /tmp/shield-test-*.log"
-echo "   - Package testing mode (production validation)"
+if [ "$ANALYZE_PACKAGE_MODE" = true ]; then
+    echo "   Execution mode: Packaged PHPStan analysis"
+    echo "   Packaged plugin path: $PACKAGE_DIR"
+else
+    echo "   Tests ran in PARALLEL mode with isolated databases:"
+    echo "   - WordPress $LATEST_VERSION (shield-db-latest:3309, database: wordpress_test_latest)"
+    echo "   - WordPress $PREVIOUS_VERSION (shield-db-previous:3310, database: wordpress_test_previous)"
+    echo "   - Execution mode: Parallel"
+    echo "   - Output logs: /tmp/shield-test-*.log"
+    echo "   - Package testing mode (production validation)"
+fi
 
 # Exit with the appropriate code for CI compatibility
 exit $OVERALL_SCRIPT_EXIT

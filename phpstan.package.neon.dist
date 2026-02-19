@@ -13,7 +13,7 @@ parameters:
 		- uninstall.php
 		- unsupported.php
 	bootstrapFiles:
-		- vendor/autoload.php
+		- tests/stubs/phpstan-package-bootstrap.php
 		- tests/stubs/phpstan-project-constants.php
 		- tests/stubs/phpstan-optional-dependencies.php
 	scanFiles:
@@ -28,6 +28,6 @@ parameters:
 			- */node_modules/*
 			- */tests/*
 			- */assets/dist/*
-	tmpDir: tmp/phpstan
+	tmpDir: tmp/phpstan-package
 	universalObjectCratesClasses:
 		- FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass

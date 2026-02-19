@@ -56,8 +56,7 @@ class CommandRunner {
 
 		// Run with real-time output streaming to console
 		$exitCode = $process->run( function ( string $type, string $buffer ) :void {
-			// Stream output directly (both stdout and stderr)
-			echo $buffer;
+			$this->writeOutputBuffer( $type, $buffer );
 		} );
 
 		if ( $exitCode !== 0 ) {
@@ -137,5 +136,24 @@ class CommandRunner {
 
 	private function log( string $message ) :void {
 		( $this->logger )( $message );
+	}
+
+	private function writeOutputBuffer( string $type, string $buffer ) :void {
+		$normalized = $this->normalizeOutputLineEndings( $buffer );
+
+		if ( $type === Process::ERR ) {
+			\fwrite( \STDERR, $normalized );
+		}
+		else {
+			echo $normalized;
+		}
+	}
+
+	private function normalizeOutputLineEndings( string $buffer ) :string {
+		$normalized = \str_replace( [ "\r\n", "\r" ], "\n", $buffer );
+		if ( \PHP_EOL !== "\n" ) {
+			$normalized = \str_replace( "\n", \PHP_EOL, $normalized );
+		}
+		return $normalized;
 	}
 }

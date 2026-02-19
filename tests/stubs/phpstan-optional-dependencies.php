@@ -15,6 +15,20 @@ namespace {
 
 	if ( !\class_exists( 'BuddyPress', false ) ) {
 		class BuddyPress {
+			/**
+			 * @var bool
+			 */
+			public $buddyboss = true;
+
+			/**
+			 * @var object
+			 */
+			public $signup;
+
+			public function __construct() {
+				$this->signup = (object)[ 'errors' => [] ];
+			}
+
 			public static function instance() :self {
 				static $instance;
 				return $instance ??= new self();
@@ -104,8 +118,8 @@ namespace {
 	}
 
 	if ( !\function_exists( 'buddypress' ) ) {
-		function buddypress() {
-			return null;
+		function buddypress() :BuddyPress {
+			return BuddyPress::instance();
 		}
 	}
 
@@ -197,6 +211,10 @@ namespace MainWP\Child {
 				return $instance ??= new self();
 			}
 
+			public function auth( ...$args ) :array {
+				return [];
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -224,6 +242,17 @@ namespace MainWP\Dashboard {
 				return $instance ??= new self();
 			}
 
+			public function get_website_by_id( int $siteID ) :?\stdClass {
+				return (object)[ 'id' => (string)$siteID ];
+			}
+
+			public function get_website_option( $website, string $optionKey ) :string {
+				return '';
+			}
+
+			public function update_website_option( $website, string $optionKey, string $optionValue ) :void {
+			}
+
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
 			}
@@ -238,6 +267,13 @@ namespace MainWP\Dashboard {
 
 			public static function __callStatic( string $name, array $arguments ) {
 				return null;
+			}
+		}
+	}
+
+	if ( !\class_exists( __NAMESPACE__.'\MainWP_Extensions_Groups', false ) ) {
+		class MainWP_Extensions_Groups {
+			public static function add_extension_menu( array $args ) :void {
 			}
 		}
 	}
@@ -275,112 +311,25 @@ namespace FluentForm\App {
 				static $instance;
 				return $instance ??= new self();
 			}
-		}
-	}
-}
 
-namespace AptowebDeps\Monolog\Processor {
-	if ( !\interface_exists( __NAMESPACE__.'\ProcessorInterface', false ) ) {
-		interface ProcessorInterface {
-		}
-	}
-}
-
-namespace AptowebDeps\Monolog\Handler {
-	if ( !\class_exists( __NAMESPACE__.'\AbstractProcessingHandler', false ) ) {
-		abstract class AbstractProcessingHandler {
-			public function __construct( ...$args ) {
-			}
-		}
-	}
-
-	if ( !\class_exists( __NAMESPACE__.'\FilterHandler', false ) ) {
-		class FilterHandler extends AbstractProcessingHandler {
-		}
-	}
-}
-
-namespace AptowebDeps\Monolog {
-	if ( !\class_exists( __NAMESPACE__.'\Logger', false ) ) {
-		class Logger {
-			public function __construct( ...$args ) {
-			}
-
-			public function __call( string $name, array $arguments ) {
-				return null;
+			public function addAction( ...$args ) :void {
 			}
 		}
 	}
 }
 
-namespace AptowebDeps\Twig\Loader {
-	if ( !\class_exists( __NAMESPACE__.'\FilesystemLoader', false ) ) {
-		class FilesystemLoader {
-			public function __construct( ...$args ) {
-			}
-		}
-	}
-}
+namespace ElementorPro\Modules\Forms\Classes {
+	if ( !\class_exists( __NAMESPACE__.'\Ajax_Handler', false ) ) {
+		class Ajax_Handler {
+			/**
+			 * @var array
+			 */
+			public $errors = [];
 
-namespace AptowebDeps\Twig {
-	if ( !\class_exists( __NAMESPACE__.'\Environment', false ) ) {
-		class Environment {
-			public function __construct( ...$args ) {
-			}
-		}
-	}
-}
-
-namespace AptowebDeps\CrowdSec\CapiClient {
-	if ( !\class_exists( __NAMESPACE__.'\ClientException', false ) ) {
-		class ClientException extends \Exception {
-		}
-	}
-
-	if ( !\class_exists( __NAMESPACE__.'\Watcher', false ) ) {
-		class Watcher {
-			public function __construct( ...$args ) {
+			public function add_error( string $key, string $message ) :void {
 			}
 
-			public function __call( string $name, array $arguments ) {
-				return [];
-			}
-		}
-	}
-}
-
-namespace AptowebDeps\CrowdSec\CapiClient\Client\CapiHandler {
-	if ( !\interface_exists( __NAMESPACE__.'\CapiHandlerInterface', false ) ) {
-		interface CapiHandlerInterface {
-		}
-	}
-}
-
-namespace AptowebDeps\CrowdSec\CapiClient\Storage {
-	if ( !\interface_exists( __NAMESPACE__.'\StorageInterface', false ) ) {
-		interface StorageInterface {
-		}
-	}
-}
-
-namespace AptowebDeps\CrowdSec\Common\Client {
-	if ( !\class_exists( __NAMESPACE__.'\ClientException', false ) ) {
-		class ClientException extends \Exception {
-		}
-	}
-}
-
-namespace AptowebDeps\CrowdSec\Common\Client\HttpMessage {
-	if ( !\class_exists( __NAMESPACE__.'\Request', false ) ) {
-		class Request {
-			public function __construct( ...$args ) {
-			}
-		}
-	}
-
-	if ( !\class_exists( __NAMESPACE__.'\Response', false ) ) {
-		class Response {
-			public function __construct( ...$args ) {
+			public function add_error_message( string $message ) :void {
 			}
 		}
 	}
