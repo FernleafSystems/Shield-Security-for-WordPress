@@ -29,6 +29,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'role' => 'administrator',
 		] );
 		\wp_set_current_user( $this->adminUserId );
+		$this->setSecurityAdminContext( true );
 		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
 	}
 

@@ -45,7 +45,7 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		] );
 		wp_set_current_user( $userId );
 
-		$con->this_req->is_security_admin = true;
+		$this->setSecurityAdminContext( true );
 		$con->opts
 			->optSet( 'enable_email_authentication', 'Y' )
 			->optSet( 'email_can_send_verified_at', 0 );

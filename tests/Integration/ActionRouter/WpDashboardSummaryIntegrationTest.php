@@ -30,6 +30,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			'role' => 'administrator',
 		] );
 		\wp_set_current_user( $this->adminUserId );
+		$this->setSecurityAdminContext( true );
 
 		self::con()->opts
 			->optSet( 'enable_core_file_integrity_scan', 'Y' )

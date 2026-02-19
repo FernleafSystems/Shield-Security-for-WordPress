@@ -27,9 +27,7 @@ class RulesManagerTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			'role' => 'administrator',
 		] );
 		\wp_set_current_user( $userId );
-
-		$con = $this->requireController();
-		$con->this_req->is_security_admin = true;
+		$this->setSecurityAdminContext( true );
 	}
 
 	private function processor() :ActionProcessor {

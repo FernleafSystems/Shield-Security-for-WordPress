@@ -26,6 +26,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		parent::set_up();
 		$this->capturedEvents = [];
 		$this->resetIpCaches();
+		$this->resetScanResultCountMemoization();
 		$this->disablePremiumCapabilities();
 	}
 
@@ -33,6 +34,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		$this->disablePremiumCapabilities();
 		$this->truncateShieldTables();
 		$this->resetIpCaches();
+		$this->resetScanResultCountMemoization();
 		parent::tear_down();
 	}
 
@@ -103,6 +105,10 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		return $handler;
 	}
 
+	protected function setSecurityAdminContext( bool $enabled = true ) :void {
+		$this->requireController()->this_req->is_security_admin = $enabled;
+	}
+
 	// ── Cache resets ───────────────────────────────────────────────
 
 	protected function resetIpCaches() :void {
@@ -165,6 +171,25 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
 		// IpRulesCache (WP option-backed)
 		IpRulesCache::ResetAll();
+	}
+
+	protected function resetScanResultCountMemoization() :void {
+		$con = static::con();
+		if ( $con === null ) {
+			return;
+		}
+
+		try {
+			$counter = $con->comps->scans->getScanResultsCount();
+			$ref = new \ReflectionObject( $counter );
+			if ( $ref->hasProperty( 'counts' ) ) {
+				$p = $ref->getProperty( 'counts' );
+				$p->setAccessible( true );
+				$p->setValue( $counter, [] );
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
 	}
 
 	// ── Event capture ──────────────────────────────────────────────
