@@ -49,7 +49,7 @@ fetch_buildkit_json() {
         [
             .[]
             | select((.key | startswith("buildkit-")) or (.key | startswith("index-buildkit-")))
-            | . + {lastAccessEpoch: (.lastAccessedAt | fromdateiso8601)}
+            | . + {lastAccessEpoch: (.lastAccessedAt | gsub("\\.[0-9]+Z$"; "Z") | fromdateiso8601)}
         ]
         | sort_by(.lastAccessEpoch)
     '

@@ -12,9 +12,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Dashboard\DashboardViewPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\BuiltMetersFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
+
+	use BuiltMetersFixture;
 
 	private int $adminUserId;
 
@@ -28,6 +31,13 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$this->adminUserId = $this->loginAsSecurityAdmin();
 		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
+		$this->resetBuiltMetersCache();
+		$this->setOverallConfigMeterComponents( [] );
+	}
+
+	public function tear_down() {
+		$this->resetBuiltMetersCache();
+		parent::tear_down();
 	}
 
 	private function processor() :ActionProcessor {
@@ -147,13 +157,35 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	public function test_all_clear_state_includes_all_8_zone_chips() :void {
 		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
 		$chips = $renderData[ 'vars' ][ 'zone_chips' ] ?? [];
+		$expectedZoneSlugs = \array_keys( self::con()->comps->zones->getZones() );
 
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? true ) );
-		$this->assertCount( 8, $chips );
+		$this->assertCount( \count( $expectedZoneSlugs ), $chips );
 		$this->assertSame(
-			[ 'scans', 'firewall', 'ips', 'login', 'users', 'spam', 'headers', 'secadmin' ],
+			$expectedZoneSlugs,
 			\array_column( $chips, 'slug' )
 		);
+	}
+
+	public function test_unprotected_maintenance_meter_component_adds_action_item() :void {
+		$this->setOverallConfigMeterComponents( [
+			[
+				'slug'            => 'wp_updates',
+				'is_protected'    => false,
+				'title'           => 'WordPress Version',
+				'title_unprotected' => 'WordPress Version',
+				'desc_unprotected'=> 'There is an upgrade available for WordPress.',
+				'href_full'       => self::con()->plugin_urls->adminHome(),
+				'fix'             => 'Fix',
+			],
+		] );
+
+		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
+		$zone = $this->getZoneGroupBySlug( $renderData, 'scans' );
+		$itemKeys = \array_column( $zone[ 'items' ] ?? [], 'label' );
+
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? false ) );
+		$this->assertContains( 'WordPress Version', $itemKeys );
 	}
 
 	public function test_last_scan_subtext_omitted_when_no_completed_scan() :void {

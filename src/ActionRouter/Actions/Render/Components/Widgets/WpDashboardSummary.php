@@ -37,7 +37,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 			],
 			'strings' => [
 				'title'              => sprintf( '%s: %s', $con->labels->Name, __( 'Overview', 'wp-simple-firewall' ) ),
-				'needs_attention'    => __( 'Needs Attention', 'wp-simple-firewall' ),
+				'needs_attention'    => __( 'Action Required', 'wp-simple-firewall' ),
 				'all_clear'          => __( 'All Clear', 'wp-simple-firewall' ),
 				'no_issues'          => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
 				'protecting'         => __( 'Protecting', 'wp-simple-firewall' ),
@@ -65,20 +65,15 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				(int)( $securityProgress[ 'totals' ][ 'percentage' ] ?? 0 )
 			);
 
-			$attentionItems = $provider->buildScanItems();
-
-			$warningItem = $this->buildMeterWarningItem( $securityProgress, $traffic, $con->plugin_urls->adminHome() );
-			if ( !empty( $warningItem ) ) {
-				$attentionItems[] = $warningItem;
-			}
-
-			if ( empty( $attentionItems ) && $traffic !== 'good' ) {
-				$attentionItems[] = $this->buildScoreFallbackItem( $traffic, $con->plugin_urls->adminHome() );
-			}
-
-			$attentionItems = $provider->sortItems( $attentionItems );
-			$attentionTotal = \count( $attentionItems );
-			$attentionRows = \array_slice( $attentionItems, 0, self::MAX_ATTENTION_ROWS );
+			$widgetRows = $provider->buildWidgetRows(
+				self::MAX_ATTENTION_ROWS,
+				$securityProgress,
+				$traffic,
+				$con->plugin_urls->adminHome()
+			);
+			$attentionRows = $widgetRows[ 'items' ] ?? [];
+			$attentionTotal = (int)( $widgetRows[ 'total' ] ?? 0 );
+			$attentionHidden = (int)( $widgetRows[ 'hidden' ] ?? 0 );
 
 			$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
 
@@ -88,7 +83,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'traffic'           => $traffic,
 				'attention_items'   => $attentionRows,
 				'attention_total'   => $attentionTotal,
-				'attention_hidden'  => \max( 0, $attentionTotal - \count( $attentionRows ) ),
+				'attention_hidden'  => $attentionHidden,
 				'is_all_clear'      => $attentionTotal === 0 && $traffic === 'good',
 				'last_scan_human'   => $latestScanAt > 0
 					? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
@@ -103,37 +98,4 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	private function isRefreshRequested() :bool {
 		return \filter_var( $this->action_data[ 'refresh' ] ?? false, \FILTER_VALIDATE_BOOLEAN );
 	}
-
-	private function buildMeterWarningItem( array $meter, string $traffic, string $defaultHref ) :array {
-		$warning = \is_array( $meter[ 'warning' ] ?? null ) ? $meter[ 'warning' ] : [];
-		$text = (string)( $warning[ 'text' ] ?? '' );
-		if ( empty( $text ) ) {
-			return [];
-		}
-
-		return [
-			'key'      => 'meter_warning',
-			'zone'     => 'summary',
-			'label'    => __( 'Security Meter', 'wp-simple-firewall' ),
-			'text'     => $text,
-			'count'    => 1,
-			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
-			'href'     => (string)( $warning[ 'href' ] ?? $defaultHref ),
-			'action'   => __( 'View', 'wp-simple-firewall' ),
-		];
-	}
-
-	private function buildScoreFallbackItem( string $traffic, string $href ) :array {
-		return [
-			'key'      => 'score_generic',
-			'zone'     => 'summary',
-			'label'    => __( 'Security Score', 'wp-simple-firewall' ),
-			'text'     => __( 'Security score needs review.', 'wp-simple-firewall' ),
-			'count'    => 1,
-			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
-			'href'     => $href,
-			'action'   => __( 'View', 'wp-simple-firewall' ),
-		];
-	}
-
 }

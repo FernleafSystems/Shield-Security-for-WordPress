@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	Handler as MeterHandler,
+	Meter\MeterOverallConfig
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class AttentionItemsProvider {
@@ -13,6 +17,7 @@ class AttentionItemsProvider {
 	private const SEVERITY_SORT = [
 		'critical' => 0,
 		'warning'  => 1,
+		'good'     => 2,
 	];
 
 	private const KEY_SORT = [
@@ -22,8 +27,21 @@ class AttentionItemsProvider {
 		'plugin_files',
 		'theme_files',
 		'abandoned',
+		'wp_updates',
+		'wp_plugins_updates',
+		'wp_themes_updates',
+		'wp_plugins_inactive',
+		'wp_themes_inactive',
 		'meter_warning',
 		'score_generic',
+	];
+
+	private const MAINTENANCE_COMPONENT_SLUGS = [
+		'wp_updates',
+		'wp_plugins_updates',
+		'wp_themes_updates',
+		'wp_plugins_inactive',
+		'wp_themes_inactive',
 	];
 
 	/**
@@ -41,8 +59,18 @@ class AttentionItemsProvider {
 					'href'        => $item[ 'href' ],
 				];
 			},
-			$this->buildScanItems()
+			$this->buildActionItems()
 		);
+	}
+
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function buildActionItems() :array {
+		return $this->sortItems( \array_merge(
+			$this->buildScanItems(),
+			$this->buildMaintenanceItems()
+		) );
 	}
 
 	/**
@@ -52,8 +80,17 @@ class AttentionItemsProvider {
 	 *     hidden: int
 	 * }
 	 */
-	public function buildWidgetRows( int $maxRows = 0 ) :array {
-		$items = $this->buildScanItems();
+	public function buildWidgetRows(
+		int $maxRows = 0,
+		array $summaryMeter = [],
+		string $traffic = 'good',
+		string $defaultHref = ''
+	) :array {
+		$items = $this->buildActionItems();
+		$summaryItems = $this->buildSummaryItems( $summaryMeter, $traffic, $defaultHref );
+		if ( !empty( $summaryItems ) ) {
+			$items = $this->sortItems( \array_merge( $items, $summaryItems ) );
+		}
 		$total = \count( $items );
 
 		if ( $maxRows > 0 ) {
@@ -64,6 +101,59 @@ class AttentionItemsProvider {
 			'items'  => $items,
 			'total'  => $total,
 			'hidden' => \max( 0, $total - \count( $items ) ),
+		];
+	}
+
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function buildSummaryItems( array $summaryMeter, string $traffic, string $defaultHref ) :array {
+		if ( empty( $summaryMeter ) ) {
+			return [];
+		}
+
+		$items = [];
+		$warningItem = $this->buildSummaryWarningItem( $summaryMeter, $traffic, $defaultHref );
+		if ( !empty( $warningItem ) ) {
+			$items[] = $warningItem;
+		}
+
+		if ( empty( $items ) && $traffic !== 'good' ) {
+			$items[] = $this->buildScoreFallbackItem( $traffic, $defaultHref );
+		}
+
+		return $items;
+	}
+
+	private function buildSummaryWarningItem( array $summaryMeter, string $traffic, string $defaultHref ) :array {
+		$warning = \is_array( $summaryMeter[ 'warning' ] ?? null ) ? $summaryMeter[ 'warning' ] : [];
+		$text = (string)( $warning[ 'text' ] ?? '' );
+		if ( empty( $text ) ) {
+			return [];
+		}
+
+		return [
+			'key'      => 'meter_warning',
+			'zone'     => 'summary',
+			'label'    => __( 'Security Meter', 'wp-simple-firewall' ),
+			'text'     => $text,
+			'count'    => 1,
+			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
+			'href'     => (string)( $warning[ 'href' ] ?? $defaultHref ),
+			'action'   => __( 'View', 'wp-simple-firewall' ),
+		];
+	}
+
+	private function buildScoreFallbackItem( string $traffic, string $href ) :array {
+		return [
+			'key'      => 'score_generic',
+			'zone'     => 'summary',
+			'label'    => __( 'Security Score', 'wp-simple-firewall' ),
+			'text'     => __( 'Security score needs review.', 'wp-simple-firewall' ),
+			'count'    => 1,
+			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
+			'href'     => $href,
+			'action'   => __( 'View', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -188,6 +278,53 @@ class AttentionItemsProvider {
 		] ) );
 
 		return $this->sortItems( $items );
+	}
+
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function buildMaintenanceItems() :array {
+		try {
+			$overallConfigMeter = ( new MeterHandler() )->getMeter( MeterOverallConfig::class, false );
+		}
+		catch ( \Exception $e ) {
+			return [];
+		}
+
+		$items = [];
+		foreach ( (array)( $overallConfigMeter[ 'components' ] ?? [] ) as $component ) {
+			$slug = (string)( $component[ 'slug' ] ?? '' );
+			if ( !\in_array( $slug, self::MAINTENANCE_COMPONENT_SLUGS, true ) ) {
+				continue;
+			}
+			if ( !empty( $component[ 'is_protected' ] ) ) {
+				continue;
+			}
+
+			$title = (string)( $component[ 'title_unprotected' ] ?? $component[ 'title' ] ?? '' );
+			$description = (string)( $component[ 'desc_unprotected' ] ?? $component[ 'description' ] ?? '' );
+			$href = (string)( $component[ 'href_full' ] ?? self::con()->plugin_urls->adminHome() );
+			$action = (string)( $component[ 'fix' ] ?? __( 'Fix', 'wp-simple-firewall' ) );
+			if ( empty( $title ) || empty( $description ) || empty( $href ) ) {
+				continue;
+			}
+
+			$item = $this->buildItem(
+				$slug,
+				'scans',
+				$title,
+				1,
+				'warning',
+				$description,
+				$href,
+				$action
+			);
+			if ( !empty( $item ) ) {
+				$items[] = $item;
+			}
+		}
+
+		return $items;
 	}
 
 	/**

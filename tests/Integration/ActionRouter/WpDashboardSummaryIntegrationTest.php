@@ -12,10 +12,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Meter\MeterSummary
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\BuiltMetersFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
+
+	use BuiltMetersFixture;
 
 	private int $adminUserId;
 
@@ -42,6 +45,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		Transient::Delete( self::con()->prefix( 'dashboard-widget-v2-vars' ) );
 		$this->resetBuiltMetersCache();
+		$this->setOverallConfigMeterComponents( [] );
 	}
 
 	public function tear_down() {
@@ -87,13 +91,6 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			'has_critical'=> false,
 		];
 		$prop->setValue( null, $meters );
-	}
-
-	private function resetBuiltMetersCache() :void {
-		$ref = new \ReflectionClass( Handler::class );
-		$prop = $ref->getProperty( 'BuiltMeters' );
-		$prop->setAccessible( true );
-		$prop->setValue( null, [] );
 	}
 
 	public function test_render_returns_v2_template_and_marker() :void {
@@ -152,6 +149,27 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $vars[ 'is_all_clear' ] ?? false ) );
 		$this->assertSame( 0, (int)( $vars[ 'attention_total' ] ?? -1 ) );
 		$this->assertHtmlContainsMarker( 'attention-all-clear', (string)( $payload[ 'render_output' ] ?? '' ), 'All-clear dashboard state' );
+	}
+
+	public function test_unprotected_maintenance_component_is_included_in_attention_rows() :void {
+		$this->setSummaryMeter( 95 );
+		$this->setOverallConfigMeterComponents( [
+			[
+				'slug'              => 'wp_updates',
+				'is_protected'      => false,
+				'title'             => 'WordPress Version',
+				'title_unprotected' => 'WordPress Version',
+				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
+				'href_full'         => self::con()->plugin_urls->adminHome(),
+				'fix'               => 'Fix',
+			],
+		] );
+
+		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
+		$keys = \array_column( $vars[ 'attention_items' ] ?? [], 'key' );
+
+		$this->assertContains( 'wp_updates', $keys );
+		$this->assertFalse( (bool)( $vars[ 'is_all_clear' ] ?? true ) );
 	}
 
 	public function test_non_good_without_concrete_items_injects_generic_score_row() :void {

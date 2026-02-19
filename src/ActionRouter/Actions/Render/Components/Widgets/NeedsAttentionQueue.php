@@ -31,10 +31,10 @@ class NeedsAttentionQueue extends BaseRender {
 				'has_items' => $hasItems,
 			],
 			'strings' => [
-				'title'             => __( 'Needs Attention', 'wp-simple-firewall' ),
-				'issues_found'      => __( 'Issues Found', 'wp-simple-firewall' ),
+				'title'             => __( 'Action Required', 'wp-simple-firewall' ),
+				'issues_found'      => __( 'Actions Required', 'wp-simple-firewall' ),
 				'all_clear'         => __( 'All Clear', 'wp-simple-firewall' ),
-				'all_clear_message' => __( 'No scan-based issues currently need your attention.', 'wp-simple-firewall' ),
+				'all_clear_message' => __( 'No security actions currently require your attention.', 'wp-simple-firewall' ),
 				'last_scan_subtext' => $lastScanSubtext,
 			],
 			'vars'    => [
@@ -97,16 +97,7 @@ class NeedsAttentionQueue extends BaseRender {
 
 	private function buildAllClearZoneChips() :array {
 		$chips = [];
-		foreach ( [
-			'scans',
-			'firewall',
-			'ips',
-			'login',
-			'users',
-			'spam',
-			'headers',
-			'secadmin',
-		] as $zone ) {
+		foreach ( $this->getZoneSlugs() as $zone ) {
 			$chips[] = [
 				'slug'     => $zone,
 				'label'    => $this->getZoneLabels()[ $zone ] ?? $zone,
@@ -116,16 +107,15 @@ class NeedsAttentionQueue extends BaseRender {
 		return $chips;
 	}
 
+	private function getZoneSlugs() :array {
+		return \array_keys( self::con()->comps->zones->getZones() );
+	}
+
 	private function getZoneLabels() :array {
-		return [
-			'scans'    => __( 'Scans', 'wp-simple-firewall' ),
-			'firewall' => __( 'Firewall', 'wp-simple-firewall' ),
-			'ips'      => __( 'IPs', 'wp-simple-firewall' ),
-			'login'    => __( 'Login', 'wp-simple-firewall' ),
-			'users'    => __( 'Users', 'wp-simple-firewall' ),
-			'spam'     => __( 'Spam', 'wp-simple-firewall' ),
-			'headers'  => __( 'Headers', 'wp-simple-firewall' ),
-			'secadmin' => __( 'SecAdmin', 'wp-simple-firewall' ),
-		];
+		$labels = [];
+		foreach ( self::con()->comps->zones->getZones() as $zone ) {
+			$labels[ $zone::Slug() ] = $zone->title();
+		}
+		return $labels;
 	}
 }
