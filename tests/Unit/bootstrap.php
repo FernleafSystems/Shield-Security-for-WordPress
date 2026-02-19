@@ -7,12 +7,15 @@
 // Unit tests always use the source autoloader.
 // Package testing is handled by integration tests which run in a full WordPress environment.
 $plugin_dir = dirname( dirname( __DIR__ ) );
-echo "[UNIT TEST BOOTSTRAP] Using source directory: $plugin_dir\n";
+
+if ( getenv( 'SHIELD_TEST_VERBOSE' ) === '1' || getenv( 'SHIELD_DEBUG' ) === '1' || getenv( 'SHIELD_DEBUG_PATHS' ) === '1' ) {
+	echo "[UNIT TEST BOOTSTRAP] Using source directory: $plugin_dir\n";
+}
 
 require_once $plugin_dir . '/vendor/autoload.php';
 
 // Load Brain Monkey
-// WARNING: Patchwork + the echo above make @runInSeparateProcess INCOMPATIBLE with this
+// WARNING: Patchwork + bootstrap stdout make @runInSeparateProcess INCOMPATIBLE with this
 // test suite. PHPUnit subprocesses communicate via stdout serialization—the echo corrupts
 // that stream, and Patchwork's state is non-serializable. If you need per-test isolation,
 // solve it by removing static/cached state, NOT by adding @runInSeparateProcess.

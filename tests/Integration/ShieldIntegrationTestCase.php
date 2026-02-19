@@ -224,4 +224,38 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		}
 		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
 	}
+
+	protected function compactSnippet( string $value, int $limit = 180 ) :string {
+		$single_line = \preg_replace( '/\s+/', ' ', \trim( $value ) );
+		if ( !\is_string( $single_line ) ) {
+			$single_line = '';
+		}
+		return \strlen( $single_line ) > $limit ? \substr( $single_line, 0, $limit ).'...' : $single_line;
+	}
+
+	protected function assertHtmlContainsMarker( string $marker, string $html, string $label ) :void {
+		$this->assertTrue(
+			\strpos( $html, $marker ) !== false,
+			\sprintf(
+				'%s missing marker "%s" (html_len=%d, html_head="%s")',
+				$label,
+				$marker,
+				\strlen( $html ),
+				$this->compactSnippet( $html )
+			)
+		);
+	}
+
+	protected function assertHtmlNotContainsMarker( string $marker, string $html, string $label ) :void {
+		$this->assertTrue(
+			\strpos( $html, $marker ) === false,
+			\sprintf(
+				'%s unexpectedly contains marker "%s" (html_len=%d, html_head="%s")',
+				$label,
+				$marker,
+				\strlen( $html ),
+				$this->compactSnippet( $html )
+			)
+		);
+	}
 }

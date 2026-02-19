@@ -190,12 +190,36 @@ fi
 # Run tests with environment variable support
 echo "Running PHPUnit tests..."
 
+# Normalize boolean-like environment values.
+is_truthy() {
+    case "$1" in
+        1|true|TRUE|True|yes|YES|on|ON) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 # Build PHPUnit extra flags
-# Default: debug enabled (set PHPUNIT_DEBUG=0 to disable)
+# Resolution order:
+# 1) Explicit PHPUNIT_DEBUG wins.
+# 2) Verbose Shield flags force debug on.
+# 3) CI/GitHub Actions default to debug off.
+# 4) Local default remains debug on.
 PHPUNIT_EXTRA_FLAGS=""
-if [ "${PHPUNIT_DEBUG:-1}" = "1" ] || [ "${PHPUNIT_DEBUG:-}" = "true" ]; then
+if [ -n "${PHPUNIT_DEBUG:-}" ]; then
+    if is_truthy "${PHPUNIT_DEBUG:-}"; then
+        PHPUNIT_EXTRA_FLAGS="--debug"
+        echo "PHPUnit debug mode enabled (explicit PHPUNIT_DEBUG)"
+    else
+        echo "PHPUnit debug mode disabled (explicit PHPUNIT_DEBUG)"
+    fi
+elif is_truthy "${SHIELD_TEST_VERBOSE:-}" || is_truthy "${SHIELD_DEBUG:-}" || is_truthy "${SHIELD_DEBUG_PATHS:-}"; then
     PHPUNIT_EXTRA_FLAGS="--debug"
-    echo "PHPUnit debug mode enabled"
+    echo "PHPUnit debug mode enabled (Shield verbose mode)"
+elif is_truthy "${CI:-}" || is_truthy "${GITHUB_ACTIONS:-}"; then
+    echo "PHPUnit debug mode disabled (CI default)"
+else
+    PHPUNIT_EXTRA_FLAGS="--debug"
+    echo "PHPUnit debug mode enabled (local default)"
 fi
 
 # Prepare environment variables for PHPUnit

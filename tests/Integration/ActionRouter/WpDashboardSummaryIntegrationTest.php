@@ -130,7 +130,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderSummary()->payload();
 
 		$this->assertSame( '/admin/admin_dashboard_widget_v2.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
-		$this->assertStringContainsString( 'shield-dashboard-widget-v2', (string)( $payload[ 'render_output' ] ?? '' ) );
+		$this->assertHtmlContainsMarker( 'shield-dashboard-widget-v2', (string)( $payload[ 'render_output' ] ?? '' ), 'Dashboard summary render' );
 	}
 
 	public function test_attention_rows_follow_severity_rank_order() :void {
@@ -176,7 +176,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( (bool)( $vars[ 'is_all_clear' ] ?? false ) );
 		$this->assertSame( 0, (int)( $vars[ 'attention_total' ] ?? -1 ) );
-		$this->assertStringContainsString( 'attention-all-clear', (string)( $payload[ 'render_output' ] ?? '' ) );
+		$this->assertHtmlContainsMarker( 'attention-all-clear', (string)( $payload[ 'render_output' ] ?? '' ), 'All-clear dashboard state' );
 	}
 
 	public function test_non_good_without_concrete_items_injects_generic_score_row() :void {
@@ -201,7 +201,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_internal_links' ] ?? true ) );
-		$this->assertStringNotContainsString( 'href="'.self::con()->plugin_urls->adminHome().'"', $html );
+		$this->assertHtmlNotContainsMarker( 'href="'.self::con()->plugin_urls->adminHome().'"', $html, 'Subscriber dashboard links' );
 	}
 
 	public function test_refresh_parameter_controls_cache_bypass() :void {

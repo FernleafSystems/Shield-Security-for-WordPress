@@ -3,113 +3,106 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
 /**
- * Base test case for Shield WordPress integration tests
- * 
- * Extends WordPress core WP_UnitTestCase to provide WordPress integration testing capabilities
- * Provides Shield-specific setup, teardown, and helper methods
+ * Base test case for Shield WordPress integration tests.
  */
 abstract class ShieldWordPressTestCase extends \WP_UnitTestCase {
 
+	protected function isVerbose() :bool {
+		return \function_exists( 'shield_test_verbose' ) && \shield_test_verbose();
+	}
+
+	protected function verboseLog( string $message ) :void {
+		if ( $this->isVerbose() ) {
+			echo $message.\PHP_EOL;
+		}
+	}
+
 	/**
-	 * Set up test environment
-	 * Called before each test method
+	 * Set up test environment.
 	 */
 	public function set_up() {
 		parent::set_up();
-		
-		echo "=== Shield WordPress TestCase Setup ===" . PHP_EOL;
-		
-		// WordPress is guaranteed to be loaded when extending WP_UnitTestCase - no need to check
-		echo "✓ WordPress environment ready (guaranteed by WP_UnitTestCase)" . PHP_EOL;
-		
-		// Verify Shield plugin is loaded
-		$this->assertTrue( class_exists( 'ICWP_WPSF_Shield_Security' ), 'Shield main class should be loaded' );
-		echo "✓ Shield main class loaded" . PHP_EOL;
-		
-		// Verify Shield controller is available
-		$this->assertTrue( 
-			class_exists( 'FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller' ), 
-			'Shield Controller class should be loaded' 
+
+		$this->verboseLog( '=== Shield WordPress TestCase Setup ===' );
+		$this->verboseLog( 'WordPress environment ready (guaranteed by WP_UnitTestCase)' );
+
+		$this->assertTrue( \class_exists( 'ICWP_WPSF_Shield_Security' ), 'Shield main class should be loaded' );
+		$this->verboseLog( 'Shield main class loaded' );
+
+		$this->assertTrue(
+			\class_exists( 'FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller' ),
+			'Shield Controller class should be loaded'
 		);
-		echo "✓ Shield Controller class loaded" . PHP_EOL;
-		
-		// Verify package path handling if testing package
-		$packagePath = getenv( 'SHIELD_PACKAGE_PATH' );
+		$this->verboseLog( 'Shield Controller class loaded' );
+
+		$packagePath = \getenv( 'SHIELD_PACKAGE_PATH' );
 		if ( $packagePath !== false && !empty( $packagePath ) ) {
-			echo "✓ Package testing mode - SHIELD_PACKAGE_PATH: " . $packagePath . PHP_EOL;
+			$this->verboseLog( 'Package testing mode - SHIELD_PACKAGE_PATH: '.$packagePath );
 			$this->assertDirectoryExists( $packagePath, 'Package directory should exist' );
-		} else {
-			echo "✓ Source testing mode" . PHP_EOL;
 		}
-		
-		echo "=== Shield WordPress TestCase Setup Complete ===" . PHP_EOL;
+		else {
+			$this->verboseLog( 'Source testing mode' );
+		}
+
+		$this->verboseLog( '=== Shield WordPress TestCase Setup Complete ===' );
 	}
 
 	/**
-	 * Tear down test environment
-	 * Called after each test method
+	 * Tear down test environment.
 	 */
 	public function tear_down() {
-		echo "=== Shield WordPress TestCase Teardown ===" . PHP_EOL;
-		
-		// Clean up any Shield-specific test data
+		$this->verboseLog( '=== Shield WordPress TestCase Teardown ===' );
+
 		$this->cleanUpShieldTestData();
-		
-		echo "✓ Shield test data cleaned up" . PHP_EOL;
-		
+		$this->verboseLog( 'Shield test data cleaned up' );
+
 		parent::tear_down();
-		
-		echo "=== Shield WordPress TestCase Teardown Complete ===" . PHP_EOL;
+
+		$this->verboseLog( '=== Shield WordPress TestCase Teardown Complete ===' );
 	}
 
 	/**
-	 * Clean up Shield-specific test data
+	 * Clean up Shield-specific test data.
 	 */
 	protected function cleanUpShieldTestData() {
-		// Clean up any Shield options that may have been set during testing
 		global $wpdb;
-		
+
 		if ( isset( $wpdb ) && $wpdb instanceof \wpdb ) {
-			// Remove any Shield-specific options that start with our prefix
 			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'icwp_%'" );
 			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'shield_%'" );
 		}
 	}
 
-
 	/**
-	 * Assert that Shield plugin is properly loaded and functional
-	 * Note: WordPress loading is guaranteed by extending WP_UnitTestCase
+	 * Assert that Shield plugin is properly loaded and functional.
 	 */
 	protected function assertShieldIsLoaded() {
-		// Check Shield main classes are available
-		$this->assertTrue( class_exists( 'ICWP_WPSF_Shield_Security' ), 'Shield main class should be loaded' );
-		$this->assertTrue( 
-			class_exists( 'FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller' ), 
-			'Shield Controller class should be loaded' 
+		$this->assertTrue( \class_exists( 'ICWP_WPSF_Shield_Security' ), 'Shield main class should be loaded' );
+		$this->assertTrue(
+			\class_exists( 'FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller' ),
+			'Shield Controller class should be loaded'
 		);
-		
-		echo "✓ Shield plugin verified as loaded" . PHP_EOL;
+
+		$this->verboseLog( 'Shield plugin verified as loaded' );
 	}
 
 	/**
-	 * Get Shield plugin instance if available
+	 * Get Shield plugin instance if available.
 	 */
 	protected function getShieldPlugin() {
-		if ( function_exists( 'shield_security_get_plugin' ) ) {
-			return shield_security_get_plugin();
+		if ( \function_exists( 'shield_security_get_plugin' ) ) {
+			return \shield_security_get_plugin();
 		}
-		
+
 		return null;
 	}
 
 	/**
 	 * Get the Shield plugin controller instance.
-	 * Static method to match the pattern used in production code.
 	 */
 	protected static function con() {
 		if ( \function_exists( 'shield_security_get_plugin' ) ) {
-			$plugin = shield_security_get_plugin();
+			$plugin = \shield_security_get_plugin();
 			if ( $plugin && \method_exists( $plugin, 'getController' ) ) {
 				return $plugin->getController();
 			}
@@ -118,14 +111,14 @@ abstract class ShieldWordPressTestCase extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Output debug information about the test environment
+	 * Output debug information about the test environment.
 	 */
 	protected function debugTestEnvironment() {
-		echo "=== Test Environment Debug Info ===" . PHP_EOL;
-		echo "PHP Version: " . PHP_VERSION . PHP_EOL;
-		echo "WordPress Version: " . ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'version' ) : 'Unknown' ) . PHP_EOL;
-		echo "Package Path: " . ( getenv( 'SHIELD_PACKAGE_PATH' ) ?: 'Not set (source testing)' ) . PHP_EOL;
-		echo "Shield Plugin Dir: " . ( defined( 'ICWP_WPSF_FULL_PATH' ) ? ICWP_WPSF_FULL_PATH : 'Not defined' ) . PHP_EOL;
-		echo "=== End Debug Info ===" . PHP_EOL;
+		$this->verboseLog( '=== Test Environment Debug Info ===' );
+		$this->verboseLog( 'PHP Version: '.\PHP_VERSION );
+		$this->verboseLog( 'WordPress Version: '.( \function_exists( 'get_bloginfo' ) ? \get_bloginfo( 'version' ) : 'Unknown' ) );
+		$this->verboseLog( 'Package Path: '.( \getenv( 'SHIELD_PACKAGE_PATH' ) ?: 'Not set (source testing)' ) );
+		$this->verboseLog( 'Shield Plugin Dir: '.( \defined( 'ICWP_WPSF_FULL_PATH' ) ? \ICWP_WPSF_FULL_PATH : 'Not defined' ) );
+		$this->verboseLog( '=== End Debug Info ===' );
 	}
 }

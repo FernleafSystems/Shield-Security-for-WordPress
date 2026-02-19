@@ -84,15 +84,15 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
 
 		$html = $this->renderDashboardOverviewHtml();
-		$this->assertStringContainsString( 'dashboard-overview-simple', $html );
+		$this->assertHtmlContainsMarker( 'dashboard-overview-simple', $html, 'Simple dashboard overview' );
 	}
 
 	public function test_advanced_preference_renders_advanced_overview_marker() :void {
 		update_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY, DashboardViewPreference::VIEW_ADVANCED );
 
 		$html = $this->renderDashboardOverviewHtml();
-		$this->assertStringNotContainsString( 'dashboard-overview-simple', $html );
-		$this->assertStringContainsString( 'scan-strip', $html );
+		$this->assertHtmlNotContainsMarker( 'dashboard-overview-simple', $html, 'Advanced dashboard overview' );
+		$this->assertHtmlContainsMarker( 'scan-strip', $html, 'Advanced dashboard overview' );
 	}
 
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
@@ -130,9 +130,9 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->addScanResultMeta( $apcId, 'is_abandoned' );
 
 		$html = (string)( $this->renderNeedsAttentionQueue()->payload()[ 'render_output' ] ?? '' );
-		$this->assertStringNotContainsString( 'Malware', $html );
-		$this->assertStringNotContainsString( 'Vulnerable Assets', $html );
-		$this->assertStringNotContainsString( 'Abandoned Assets', $html );
+		$this->assertHtmlNotContainsMarker( 'Malware', $html, 'Disabled scan rows' );
+		$this->assertHtmlNotContainsMarker( 'Vulnerable Assets', $html, 'Disabled scan rows' );
+		$this->assertHtmlNotContainsMarker( 'Abandoned Assets', $html, 'Disabled scan rows' );
 	}
 
 	public function test_all_clear_state_includes_all_8_zone_chips() :void {
@@ -153,7 +153,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
 		$this->assertSame( '', (string)( $renderData[ 'strings' ][ 'last_scan_subtext' ] ?? '' ) );
-		$this->assertStringNotContainsString( 'Last completed scan', $html );
+		$this->assertHtmlNotContainsMarker( 'Last completed scan', $html, 'No scan-subtext state' );
 	}
 }
-
