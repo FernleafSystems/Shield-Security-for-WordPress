@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,12 +29,12 @@ class LoadBotSignalRecords {
 						FROM `%s` as `bs`
 						INNER JOIN `%s` as `ips`
 							ON `ips`.`id` = `bs`.`ip_ref` 
-							AND `ips`.`ip`=INET6_ATON('%s')
+							AND %s
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
 				self::con()->db_con->bot_signals->getTable(),
 				self::con()->db_con->ips->getTable(),
-				$this->getIP()
+				IpAddressSql::equality( '`ips`.`ip`', $this->getIP() )
 			)
 		);
 		return \is_array( $raw ) ? $raw : [];

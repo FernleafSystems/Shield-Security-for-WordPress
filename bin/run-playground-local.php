@@ -125,8 +125,15 @@ function runInteractiveServer(
 	$pluginPathInVfs = '/wordpress/wp-content/plugins/wp-simple-firewall';
 	$tempDir = pathJoin( $runtimeRoot, 'server-tmp-'.substr( bin2hex( random_bytes( 4 ) ), 0, 8 ) );
 	ensureDirectory( $tempDir );
-	putenv( 'TEMP='.$tempDir );
-	putenv( 'TMP='.$tempDir );
+	$originalTempEnv = captureTempEnvironment();
+	$tempEnvRestored = false;
+	register_shutdown_function( static function () use ( &$tempEnvRestored, $originalTempEnv ) :void {
+		if ( !$tempEnvRestored ) {
+			restoreTempEnvironment( $originalTempEnv );
+			$tempEnvRestored = true;
+		}
+	} );
+	applyTempEnvironment( $tempDir );
 
 	$runtimeProbe = probeRuntimeEnvironment(
 		$localPlaygroundBinary,
@@ -137,6 +144,8 @@ function runInteractiveServer(
 		$pluginPathInVfs,
 		$safeRemover
 	);
+	// Runtime probe uses a separate temp dir; force server launch back to this session temp dir.
+	applyTempEnvironment( $tempDir );
 	if ( !$runtimeProbe['ok'] ) {
 		fwrite( STDERR, "Interactive startup blocked: ".$runtimeProbe['error']."\n" );
 		fwrite(
@@ -152,6 +161,8 @@ function runInteractiveServer(
 		if ( $runtimeProbe['output_tail'] !== '' ) {
 			fwrite( STDERR, "Output Tail (last 30 lines):\n".$runtimeProbe['output_tail']."\n" );
 		}
+		restoreTempEnvironment( $originalTempEnv );
+		$tempEnvRestored = true;
 		return (int)$runtimeProbe['exit_code'];
 	}
 
@@ -198,7 +209,18 @@ function runInteractiveServer(
 		$runtimeProbe['actual_php_major_minor']
 	);
 
-	return runPassthruCommand( $command );
+	$effectiveTempDir = resolveEffectiveTempDirectory();
+	if ( !is_dir( $effectiveTempDir ) ) {
+		fwrite( STDERR, "Playground CLI temp directory does not exist: {$effectiveTempDir}\n" );
+		restoreTempEnvironment( $originalTempEnv );
+		$tempEnvRestored = true;
+		return EXIT_ENV;
+	}
+
+	$exitCode = runPassthruCommand( $command );
+	restoreTempEnvironment( $originalTempEnv );
+	$tempEnvRestored = true;
+	return $exitCode;
 }
 
 function runSmokeCheck(
@@ -222,8 +244,7 @@ function runSmokeCheck(
 
 	ensureDirectory( $captureDir );
 	ensureDirectory( $tempDir );
-	putenv( 'TEMP='.$tempDir );
-	putenv( 'TMP='.$tempDir );
+	applyTempEnvironment( $tempDir );
 
 	$blueprintPath = buildSmokeCheckBlueprint( $runDir, true, $phpVersion, $wpVersion );
 	register_shutdown_function( static function () use ( $blueprintPath ) :void {
@@ -734,6 +755,42 @@ function runCommandCapture( array $command ) :array {
 	];
 }
 
+function captureTempEnvironment() :array {
+	return [
+		'TEMP' => getenv( 'TEMP' ),
+		'TMP' => getenv( 'TMP' ),
+		'TMPDIR' => getenv( 'TMPDIR' ),
+	];
+}
+
+function applyTempEnvironment( string $tempDir ) :void {
+	putenv( 'TEMP='.$tempDir );
+	putenv( 'TMP='.$tempDir );
+	putenv( 'TMPDIR='.$tempDir );
+}
+
+function restoreTempEnvironment( array $environment ) :void {
+	foreach ( [ 'TEMP', 'TMP', 'TMPDIR' ] as $key ) {
+		$value = $environment[ $key ] ?? false;
+		if ( $value === false ) {
+			putenv( $key );
+		}
+		else {
+			putenv( $key.'='.(string)$value );
+		}
+	}
+}
+
+function resolveEffectiveTempDirectory() :string {
+	foreach ( [ 'TMPDIR', 'TMP', 'TEMP' ] as $key ) {
+		$value = getenv( $key );
+		if ( is_string( $value ) && trim( $value ) !== '' ) {
+			return normalizePath( $value );
+		}
+	}
+	return normalizePath( sys_get_temp_dir() );
+}
+
 function normalizePath( string $path ) :string {
 	$normalized = str_replace( '\\', '/', $path );
 	return rtrim( $normalized, '/' );
@@ -1061,8 +1118,8 @@ function probeRuntimeEnvironment(
 
 	ensureDirectory( $captureDir );
 	ensureDirectory( $tempDir );
-	putenv( 'TEMP='.$tempDir );
-	putenv( 'TMP='.$tempDir );
+	$originalTempEnv = captureTempEnvironment();
+	applyTempEnvironment( $tempDir );
 
 	$blueprintPath = buildRuntimeProbeBlueprint( $probeDir, $phpVersion, $wpVersion );
 	try {
@@ -1152,6 +1209,7 @@ function probeRuntimeEnvironment(
 		];
 	}
 	finally {
+		restoreTempEnvironment( $originalTempEnv );
 		if ( is_file( $blueprintPath ) ) {
 			@unlink( $blueprintPath );
 		}

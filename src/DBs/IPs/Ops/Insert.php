@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Insert {
@@ -11,10 +12,10 @@ class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Inser
 	 */
 	public function insert( $record ) :bool {
 		return (bool)Services::WpDb()->doSql( sprintf(
-			"INSERT IGNORE INTO `%s` (`%s`,`created_at`) VALUES (INET6_ATON('%s'), %s)",
+			'INSERT IGNORE INTO `%s` (`%s`,`created_at`) VALUES (%s, %s)',
 			$this->getDbH()->getTableSchema()->table,
 			'ip',
-			$record->ip,
+			IpAddressSql::literalFromIp( $record->ip ),
 			Services::Request()->ts()
 		) );
 	}

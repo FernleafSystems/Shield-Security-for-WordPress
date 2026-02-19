@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -61,6 +62,6 @@ class FindSessions {
 	}
 
 	private function getWhere_IPEquals( string $ip ) :string {
-		return sprintf( "`ips`.`ip`=INET6_ATON('%s')", $ip );
+		return IpAddressSql::equality( '`ips`.`ip`', $ip );
 	}
 }

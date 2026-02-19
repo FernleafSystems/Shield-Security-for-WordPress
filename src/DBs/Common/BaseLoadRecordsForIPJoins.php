@@ -22,7 +22,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
-	protected $includeIpMeta = false;
+	protected bool $includeIpMeta = false;
 
 	abstract public function select() :array;
 
@@ -140,7 +140,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	protected function buildWheres() :array {
 		$wheres = \is_array( $this->wheres ) ? $this->wheres : [];
 		if ( !empty( $this->getIP() ) ) {
-			$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", $this->getIP() );
+			$wheres[] = IpAddressSql::equality( '`ips`.`ip`', $this->getIP() );
 		}
 		return $wheres;
 	}
@@ -161,7 +161,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 		);
 	}
 
-	public function setIncludeIpMeta() {
+	public function setIncludeIpMeta() :self {
 		$this->includeIpMeta = true;
 		return $this;
 	}

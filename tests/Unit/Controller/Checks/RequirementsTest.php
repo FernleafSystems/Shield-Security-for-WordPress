@@ -7,21 +7,30 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Services\Core\Db;
 use FernleafSystems\Wordpress\Services\Services;
 
+class SqliteWpdbRequirementsDouble {
+}
+
 class RequirementsTest extends BaseUnitTest {
 
 	private $origServiceItems;
 
 	private $origServices;
 
+	private $origWpdb;
+
 	protected function setUp() :void {
 		parent::setUp();
 		$this->origServiceItems = $this->getServicesProperty( 'items' )->getValue();
 		$this->origServices = $this->getServicesProperty( 'services' )->getValue();
+		global $wpdb;
+		$this->origWpdb = $wpdb ?? null;
 	}
 
 	protected function tearDown() :void {
 		$this->getServicesProperty( 'items' )->setValue( null, $this->origServiceItems );
 		$this->getServicesProperty( 'services' )->setValue( null, $this->origServices );
+		global $wpdb;
+		$wpdb = $this->origWpdb;
 		parent::tearDown();
 	}
 
@@ -45,6 +54,19 @@ class RequirementsTest extends BaseUnitTest {
 
 		$this->assertTrue( $supported );
 		$this->assertSame( 1, $db->selectCustomCalls );
+	}
+
+	public function testSqliteWpdbClassShortCircuitsAsSupported() :void {
+		$db = $this->createMockDb( '8.0.36' );
+		$this->injectWpDbService( $db );
+
+		global $wpdb;
+		$wpdb = new SqliteWpdbRequirementsDouble();
+
+		$supported = ( new Requirements() )->isMysqlVersionSupported( '5.6' );
+
+		$this->assertTrue( $supported );
+		$this->assertSame( 0, $db->selectCustomCalls );
 	}
 
 	public function testOldMysqlWithoutProbeSupportRemainsUnsupported() :void {

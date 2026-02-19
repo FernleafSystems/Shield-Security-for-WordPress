@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	MergeAutoBlockRules,
 	Ops as IpRulesDB
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -285,7 +286,7 @@ class IpRuleStatus {
 
 			$loader = new LoadIpRules();
 			$loader->wheres = [
-				sprintf( "`ips`.`ip`=INET6_ATON('%s') AND `ir`.`is_range`='0'", $this->getIP() )
+				sprintf( '%s AND `ir`.`is_range`=\'0\'', IpAddressSql::equality( '`ips`.`ip`', $this->getIP() ) )
 			];
 
 			foreach ( \array_merge( $this->getRanges(), $this->getBypasses(), $loader->select() ) as $rec ) {
@@ -351,7 +352,7 @@ class IpRuleStatus {
 
 				$loader = new LoadIpRules();
 				$loader->wheres = [
-					sprintf( "`ips`.`ip`=INET6_ATON('%s')", $this->getIP() ),
+					IpAddressSql::equality( '`ips`.`ip`', $this->getIP() ),
 					sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_MANUAL_BYPASS ),
 					"`ir`.`is_range`='0'",
 				];

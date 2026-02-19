@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\{
 	LoadBotSignalRecords,
 	Ops as BotSignalDB
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRuleRecord
 };
@@ -47,12 +48,12 @@ class BotSignalsRecord {
 						FROM `%s` as `bs`
 						INNER JOIN `%s` as `ips`
 							ON `ips`.id = `bs`.`ip_ref` 
-							AND `ips`.`ip`=INET6_ATON('%s')
+							AND %s
 						ORDER BY `bs`.`updated_at` DESC
 						LIMIT 1;",
 				self::con()->db_con->bot_signals->getTable(),
 				self::con()->db_con->ips->getTable(),
-				$this->getIP()
+				IpAddressSql::equality( '`ips`.`ip`', $this->getIP() )
 			)
 		);
 	}

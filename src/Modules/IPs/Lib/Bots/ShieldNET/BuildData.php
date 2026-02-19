@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\BotSignal\BotSignalRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -98,8 +99,7 @@ class BuildData {
 	 * @return BotSignalRecord[]
 	 */
 	private function getRecords() :array {
-		$serverIPs = \array_map(
-			fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ),
+		$serverIPs = IpAddressSql::literalsFromIps(
 			\is_array( Services::IP()->getServerPublicIPs() ) ? Services::IP()->getServerPublicIPs() : []
 		);
 

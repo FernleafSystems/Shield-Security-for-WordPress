@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseForScan;
 use FernleafSystems\Wordpress\Services\Services;
@@ -45,7 +46,7 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 			foreach ( \array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
 				switch ( $column ) {
 					case 'ip':
-						$wheres[] = sprintf( "ips.ip=INET6_ATON('%s')", \array_pop( $selected ) );
+						$wheres[] = IpAddressSql::equality( 'ips.ip', \array_pop( $selected ) );
 						break;
 					default:
 						break;

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LoadRequestLogs,
 	LogRecord,
@@ -123,7 +124,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 						$wheres[] = $this->buildSqlWhereForDaysSearch( $selected, 'req' );
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "`ips`.ip=INET6_ATON('%s')", \array_pop( $selected ) );
+						$wheres[] = IpAddressSql::equality( '`ips`.ip', \array_pop( $selected ) );
 						break;
 					case 'type':
 						$wheres[] = sprintf( "`req`.`%s` IN ('%s')", $column, \implode( "','", $selected ) );

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes\V2;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRulesIterator,
 	LoadIpRules,
@@ -55,7 +56,7 @@ class ProcessIPs extends ProcessBase {
 				$DB->doSql( sprintf( 'INSERT IGNORE INTO `%s` (`ip`, `created_at`) VALUES %s;',
 					$ipTableName,
 					\implode( ',', \array_map(
-						fn( $ip ) => sprintf( "(INET6_ATON('%s'), %s)", $ip, $now ),
+						fn( $ip ) => sprintf( '(%s, %s)', IpAddressSql::literalFromIp( $ip ), $now ),
 						\array_keys( $slice )
 					) )
 				) );
@@ -64,7 +65,7 @@ class ProcessIPs extends ProcessBase {
 				$ipRecords = $DB->selectCustom(
 					sprintf( "SELECT `id`, INET6_NTOA(`ip`) as `ip` FROM `%s` WHERE `ip` IN (%s);",
 						$ipTableName,
-						\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), \array_keys( $slice ) ) )
+						\implode( ',', IpAddressSql::literalsFromIps( \array_keys( $slice ) ) )
 					)
 				);
 
@@ -138,7 +139,7 @@ class ProcessIPs extends ProcessBase {
 				$loader = new LoadIpRules();
 				$loader->wheres = [
 					sprintf( "`ips`.`ip` IN (%s)",
-						\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), $singles ) )
+						\implode( ',', IpAddressSql::literalsFromIps( $singles ) )
 					),
 					sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
 				];
