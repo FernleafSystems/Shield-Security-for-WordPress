@@ -2,6 +2,7 @@
 <?php declare( strict_types=1 );
 
 use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanAnalysisOrchestrator;
+use Symfony\Component\Filesystem\Path;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
@@ -59,7 +60,7 @@ catch ( \Throwable $throwable ) {
 
 function normalizePathOption( string $value ) :string {
 	$value = \trim( $value, " \t\n\r\0\x0B\"'" );
-	return $value === '' ? '' : \str_replace( '\\', '/', $value );
+	return $value === '' ? '' : Path::normalize( $value );
 }
 
 /**

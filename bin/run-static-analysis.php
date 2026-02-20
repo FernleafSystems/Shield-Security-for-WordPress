@@ -2,10 +2,15 @@
 <?php declare( strict_types=1 );
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use Symfony\Component\Filesystem\Path;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
-$rootDir = dirname( __DIR__ );
+$rootDir = Path::normalize( dirname( __DIR__ ) );
+$dockerTestsScript = Path::join( $rootDir, 'bin', 'run-docker-tests.sh' );
+$buildConfigScript = Path::join( $rootDir, 'bin', 'build-config.php' );
+$phpStanBinary = Path::join( $rootDir, 'vendor', 'phpstan', 'phpstan', 'phpstan' );
+$phpStanConfig = Path::join( $rootDir, 'phpstan.neon.dist' );
 $args = array_slice( $_SERVER['argv'] ?? [], 1 );
 $processRunner = new ProcessRunner();
 
@@ -31,7 +36,7 @@ if ( $mode === 'package' ) {
 		$run(
 			[
 				'bash',
-				$rootDir.'/bin/run-docker-tests.sh',
+				$dockerTestsScript,
 				'--analyze-package',
 			],
 			$rootDir
@@ -41,7 +46,7 @@ if ( $mode === 'package' ) {
 
 // Source-only static analysis runner. Packaged analysis is executed through Docker.
 $buildCode = $run(
-	[ PHP_BINARY, $rootDir.'/bin/build-config.php' ],
+	[ PHP_BINARY, $buildConfigScript ],
 	$rootDir
 );
 
@@ -53,10 +58,10 @@ exit(
 	$run(
 		[
 			PHP_BINARY,
-			$rootDir.'/vendor/phpstan/phpstan/phpstan',
+			$phpStanBinary,
 			'analyse',
 			'-c',
-			$rootDir.'/phpstan.neon.dist',
+			$phpStanConfig,
 			'--no-progress',
 			'--memory-limit=1G',
 		],
