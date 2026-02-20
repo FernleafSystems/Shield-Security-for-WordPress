@@ -434,10 +434,20 @@ echo "⚙️  Setting up Docker environment..."
 mkdir -p tests/docker
 
 run_packaged_phpstan() {
-    php "$PROJECT_ROOT/bin/run-packaged-phpstan.php" \
-        --project-root="$PROJECT_ROOT" \
+    local project_root_for_php="$PROJECT_ROOT"
+    local package_dir_for_php="$PACKAGE_DIR"
+
+    # When running under Git Bash on Windows, PHP may be a native Windows binary.
+    # Convert POSIX-style /d/... paths to Windows-native D:/... paths for PHP args.
+    if command -v cygpath >/dev/null 2>&1; then
+        project_root_for_php="$(cygpath -m "$PROJECT_ROOT")"
+        package_dir_for_php="$(cygpath -m "$PACKAGE_DIR")"
+    fi
+
+    php "./bin/run-packaged-phpstan.php" \
+        --project-root="$project_root_for_php" \
         --composer-image="$COMPOSER_IMAGE" \
-        --package-dir="$PACKAGE_DIR" \
+        --package-dir="$package_dir_for_php" \
         --package-dir-relative="$PACKAGE_DIR_RELATIVE"
 }
 

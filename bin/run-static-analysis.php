@@ -7,7 +7,8 @@ use Symfony\Component\Filesystem\Path;
 require dirname( __DIR__ ).'/vendor/autoload.php';
 
 $rootDir = Path::normalize( dirname( __DIR__ ) );
-$dockerTestsScript = Path::join( $rootDir, 'bin', 'run-docker-tests.sh' );
+$dockerTestsScriptRelative = './'.Path::join( 'bin', 'run-docker-tests.sh' );
+$dockerTestsScript = Path::join( $rootDir, $dockerTestsScriptRelative );
 $buildConfigScript = Path::join( $rootDir, 'bin', 'build-config.php' );
 $phpStanBinary = Path::join( $rootDir, 'vendor', 'phpstan', 'phpstan', 'phpstan' );
 $phpStanConfig = Path::join( $rootDir, 'phpstan.neon.dist' );
@@ -32,11 +33,16 @@ elseif ( in_array( '--source', $args, true ) ) {
 }
 
 if ( $mode === 'package' ) {
+	if ( !is_file( $dockerTestsScript ) ) {
+		fwrite( STDERR, 'Package analysis script not found: '.$dockerTestsScript.PHP_EOL );
+		exit( 1 );
+	}
+
 	exit(
 		$run(
 			[
-				'bash',
-				$dockerTestsScript,
+				resolveBashCommand(),
+				$dockerTestsScriptRelative,
 				'--analyze-package',
 			],
 			$rootDir
@@ -68,3 +74,33 @@ exit(
 		$rootDir
 	)
 );
+
+function resolveBashCommand() :string {
+	if ( \PHP_OS_FAMILY !== 'Windows' ) {
+		return 'bash';
+	}
+
+	$override = normalizeOptionalPath( (string)( \getenv( 'SHIELD_BASH_BINARY' ) ?: '' ) );
+	if ( $override !== '' && \is_file( $override ) ) {
+		return $override;
+	}
+
+	foreach ( [ 'ProgramW6432', 'ProgramFiles', 'ProgramFiles(x86)' ] as $envVar ) {
+		$baseDir = normalizeOptionalPath( (string)( \getenv( $envVar ) ?: '' ) );
+		if ( $baseDir === '' ) {
+			continue;
+		}
+
+		$candidate = Path::join( $baseDir, 'Git', 'bin', 'bash.exe' );
+		if ( \is_file( $candidate ) ) {
+			return $candidate;
+		}
+	}
+
+	return 'bash';
+}
+
+function normalizeOptionalPath( string $value ) :string {
+	$trimmed = \trim( $value, " \t\n\r\0\x0B\"'" );
+	return $trimmed === '' ? '' : Path::normalize( $trimmed );
+}

@@ -18,6 +18,22 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'bin/run-packaged-phpstan.php', $content );
 	}
 
+	public function testPackagedPhpStanRunnerUsesWindowsSafePhpPaths() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+
+		$content = $this->getPluginFileContents( 'bin/run-docker-tests.sh', 'docker tests runner script' );
+
+		$this->assertStringContainsString( 'php "./bin/run-packaged-phpstan.php"', $content );
+		$this->assertStringContainsString( 'if command -v cygpath >/dev/null 2>&1; then', $content );
+		$this->assertStringContainsString( 'project_root_for_php="$(cygpath -m "$PROJECT_ROOT")"', $content );
+		$this->assertStringContainsString( 'package_dir_for_php="$(cygpath -m "$PACKAGE_DIR")"', $content );
+		$this->assertStringContainsString( '--project-root="$project_root_for_php"', $content );
+		$this->assertStringContainsString( '--package-dir="$package_dir_for_php"', $content );
+		$this->assertStringNotContainsString( 'php "$PROJECT_ROOT/bin/run-packaged-phpstan.php"', $content );
+	}
+
 	public function testScriptShowsHelpWithoutRequiringDocker() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );

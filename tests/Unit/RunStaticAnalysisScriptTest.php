@@ -66,6 +66,7 @@ class RunStaticAnalysisScriptTest extends BaseUnitTest {
 		if ( \PHP_OS_FAMILY === 'Windows' ) {
 			$pathExt = \getenv( 'PATHEXT' );
 			$env[ 'PATHEXT' ] = '.COM;.EXE;.BAT;.CMD'.( \is_string( $pathExt ) ? ';'.$pathExt : '' );
+			$env[ 'SHIELD_BASH_BINARY' ] = Path::join( $shimDir, 'bash.cmd' );
 		}
 
 		$process = new Process(
@@ -85,6 +86,7 @@ class RunStaticAnalysisScriptTest extends BaseUnitTest {
 		$capturedModeFlag = (string)( $capturedLines[ 1 ] ?? '' );
 
 		$this->assertNotSame( '', $capturedScriptPath, 'Expected run-static-analysis to pass docker script path to bash.' );
+		$this->assertSame( './bin/run-docker-tests.sh', $capturedScriptPath );
 		$this->assertSame( '--analyze-package', $capturedModeFlag );
 		$this->assertStringNotContainsString( '\\', $capturedScriptPath );
 		$this->assertStringEndsWith(
