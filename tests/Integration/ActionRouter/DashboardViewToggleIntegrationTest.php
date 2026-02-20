@@ -8,9 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\DashboardViewToggle
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Dashboard\DashboardViewPreference;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class DashboardViewToggleIntegrationTest extends ShieldIntegrationTestCase {
+
+	use ActionRequestNonceFixture;
 
 	private int $adminUserId;
 
@@ -65,12 +68,14 @@ class DashboardViewToggleIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_ajax_response_includes_no_reload_and_sanitized_view() :void {
+		$requestSnapshot = $this->seedActionNonceContext( DashboardViewToggle::class );
 		$originalIsAjax = self::con()->this_req->wp_is_ajax;
 		self::con()->this_req->wp_is_ajax = true;
 		try {
 			$response = $this->processToggle( 'bad-value' );
 		}
 		finally {
+			$this->restoreActionNonceContext( $requestSnapshot );
 			self::con()->this_req->wp_is_ajax = $originalIsAjax;
 		}
 
