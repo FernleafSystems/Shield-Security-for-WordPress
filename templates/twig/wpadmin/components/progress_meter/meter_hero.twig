@@ -2,6 +2,7 @@
 
 	{% set meter = vars.meter %}
 	{% set meter_slug = vars.meter_slug %}
+	{% set meter_channel = vars.meter_channel|default('') %}
 	{% set traffic = vars.traffic %}
 
 	<div class="card meter-hero-card h-100 status-{{ traffic }}">
@@ -43,6 +44,7 @@
 			<div class="mt-2">
 				<a class="offcanvas_meter_analysis btn btn-{{ traffic == 'good' ? 'success' : ( traffic == 'warning' ? 'warning' : 'danger' ) }} btn-analyse"
 				   data-meter="{{ meter_slug }}"
+				   data-meter_channel="{{ meter_channel }}"
 				   href="javascript:{}"
 				   aria-controls="ShieldProgressMeterOffcanvas">
 					<span class="svg-container"><i class="{{ imgs.svgs.analysis }}" aria-hidden="true"></i></span>

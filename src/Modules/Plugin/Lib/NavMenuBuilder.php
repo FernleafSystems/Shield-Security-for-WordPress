@@ -39,6 +39,7 @@ class NavMenuBuilder {
 			$this->reports(),
 			$this->gopro(),
 		];
+		$menu = $this->filterMenuForMode( $menu, $this->resolveCurrentMode() );
 
 		$isSecAdmin = self::con()->isPluginAdmin();
 		foreach ( $menu as $key => $item ) {
@@ -100,6 +101,56 @@ class NavMenuBuilder {
 		}
 
 		return $menu;
+	}
+
+	private function filterMenuForMode( array $menu, string $mode ) :array {
+		$allowedNavs = $this->allowedNavsForMode( $mode );
+
+		return \array_values( \array_filter( $menu, function ( array $item ) use ( $allowedNavs ) :bool {
+			$slug = (string)( $item[ 'slug' ] ?? '' );
+			return $slug === PluginNavs::NAV_LICENSE || \in_array( $slug, $allowedNavs, true );
+		} ) );
+	}
+
+	private function allowedNavsForMode( string $mode ) :array {
+		switch ( $mode ) {
+			case PluginNavs::MODE_INVESTIGATE:
+				$allowed = [
+					PluginNavs::NAV_DASHBOARD,
+					PluginNavs::NAV_ACTIVITY,
+					PluginNavs::NAV_IPS,
+					PluginNavs::NAV_TRAFFIC,
+				];
+				break;
+			case PluginNavs::MODE_CONFIGURE:
+				$allowed = [
+					PluginNavs::NAV_DASHBOARD,
+					PluginNavs::NAV_ZONES,
+					PluginNavs::NAV_RULES,
+					PluginNavs::NAV_TOOLS,
+				];
+				break;
+			case PluginNavs::MODE_REPORTS:
+				$allowed = [
+					PluginNavs::NAV_DASHBOARD,
+					PluginNavs::NAV_REPORTS,
+				];
+				break;
+			case PluginNavs::MODE_ACTIONS:
+			default:
+				$allowed = [
+					PluginNavs::NAV_DASHBOARD,
+					PluginNavs::NAV_SCANS,
+				];
+				break;
+		}
+
+		return $allowed;
+	}
+
+	private function resolveCurrentMode() :string {
+		$mode = PluginNavs::modeForNav( $this->inav() );
+		return empty( $mode ) ? PluginNavs::MODE_ACTIONS : $mode;
 	}
 
 	private function ips() :array {

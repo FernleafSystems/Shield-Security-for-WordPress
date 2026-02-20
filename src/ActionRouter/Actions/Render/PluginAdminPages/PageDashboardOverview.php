@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Placeholders\PlaceholderMeter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ChartsSummary;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
 	OverviewActivity,
 	OverviewIpBlocks,
@@ -37,11 +36,7 @@ class PageDashboardOverview extends BasePluginAdminPage {
 				'summary_charts' => $con->action_router->render( ChartsSummary::class, [
 					'reports_limit' => 5,
 				] ),
-				'hero_meter'            => $con->action_router->render( PlaceholderMeter::class, [
-					'meter_slug' => MeterSummary::SLUG,
-					'is_hero'    => true,
-				] ),
-				'needs_attention_queue' => $con->action_router->render( NeedsAttentionQueue::class ),
+				'operator_mode_landing' => $con->action_router->render( PageOperatorModeLanding::class ),
 			],
 			'hrefs'   => [
 				'grades_page' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
@@ -52,9 +47,8 @@ class PageDashboardOverview extends BasePluginAdminPage {
 			'strings' => [
 				'inner_page_title'       => __( 'Security Overview', 'wp-simple-firewall' ),
 				'inner_page_subtitle'    => __( 'Your entire WordPress site security at a glance.', 'wp-simple-firewall' ),
-				'needs_attention_title'  => __( 'Needs Attention Queue', 'wp-simple-firewall' ),
-				'security_summary_title' => __( 'System Security Summary', 'wp-simple-firewall' ),
-				'view_all_grades_link'   => __( 'View All Security Grades', 'wp-simple-firewall' ),
+				'simple_copy_score'      => __( 'Score reflects your configuration posture.', 'wp-simple-firewall' ),
+				'simple_copy_actions'    => __( 'Action queue reflects active findings and maintenance issues.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'widget_grade'   => [

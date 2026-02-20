@@ -10,8 +10,9 @@ class PlaceholderMeter extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRo
 	protected function getRenderData() :array {
 		return [
 			'vars' => [
-				'meter_slug' => $this->action_data[ 'meter_slug' ],
-				'is_hero'    => !empty( $this->action_data[ 'is_hero' ] ?? false ),
+				'meter_slug'    => $this->action_data[ 'meter_slug' ],
+				'meter_channel' => (string)( $this->action_data[ 'meter_channel' ] ?? '' ),
+				'is_hero'       => !empty( $this->action_data[ 'is_hero' ] ?? false ),
 			]
 		];
 	}

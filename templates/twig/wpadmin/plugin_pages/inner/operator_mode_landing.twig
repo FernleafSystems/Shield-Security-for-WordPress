@@ -1,0 +1,53 @@
+<div class="operator-mode-landing">
+	<div class="row g-3 mt-3">
+		<div class="col-xl-6">
+			<h6 class="dashboard-overview-simple__panel-title">{{ strings.actions_queue_title }}</h6>
+			<div class="dashboard-overview-simple__panel dashboard-overview-simple__panel--queue h-100">
+				{{ content.needs_attention_queue|raw }}
+			</div>
+		</div>
+		<div class="col-xl-6">
+			<h6 class="dashboard-overview-simple__panel-title text-xl-end">{{ strings.configure_score_title }}</h6>
+			<div class="d-flex flex-column h-100">
+				<div class="flex-grow-1 d-flex w-100">
+					{{ content.configure_meter|raw }}
+				</div>
+				<h6 class="mb-0 mt-2 text-xl-end pe-2">
+					<a href="{{ hrefs.configure_score_details }}" class="widget-footer-link">{{ strings.view_score_details }} &rarr;</a>
+				</h6>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-3 mt-2">
+		{% for mode in vars.mode_links %}
+			<div class="col-md-6 col-xl-3">
+				<a href="{{ mode.href }}"
+				   class="card h-100 text-decoration-none border-0 shadow-sm">
+					<div class="card-body">
+						<div class="fw-semibold">{{ mode.label }}</div>
+						<div class="small text-muted mt-1">{{ mode.summary }}</div>
+					</div>
+				</a>
+			</div>
+		{% endfor %}
+	</div>
+
+	<div class="card mt-3 border-0 shadow-sm">
+		<div class="card-body">
+			<form method="post" action="{{ hrefs.operator_mode_switch }}" class="row g-2 align-items-end">
+				<div class="col-md-8 col-xl-9">
+					<label for="shield_default_operator_mode" class="form-label mb-1">{{ strings.set_default_mode }}</label>
+					<select class="form-select" id="shield_default_operator_mode" name="mode">
+						{% for option in vars.mode_options %}
+							<option value="{{ option.mode }}" {{ option.mode == vars.default_mode ? 'selected' : '' }}>{{ option.label }}</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="col-md-4 col-xl-3">
+					<button type="submit" class="btn btn-outline-secondary w-100">{{ strings.save_default_mode }}</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

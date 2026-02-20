@@ -22,7 +22,11 @@ export class ProgressMeters extends BaseAutoExecComponent {
 		const promises = [];
 		meterElements.forEach( ( elem ) => {
 			if ( elem.dataset.meter_slug ) {
-				promises.push( this.renderMeter( elem, elem.dataset.meter_slug ) );
+				promises.push( this.renderMeter(
+					elem,
+					elem.dataset.meter_slug,
+					elem.dataset.meter_channel || ''
+				) );
 			}
 		} );
 		return Promise.all( promises );
@@ -33,14 +37,15 @@ export class ProgressMeters extends BaseAutoExecComponent {
 
 		meterElements.forEach( ( container, index ) => {
 			const slug = container.dataset.meter_slug || '';
+			const meterChannel = container.dataset.meter_channel || '';
 			if ( slug.length < 1 ) {
 				return;
 			}
 
 			const isHero = container.classList.contains( 'progress-metercard-hero' );
 			batch.add( {
-				id: this.buildMeterBatchID( slug, isHero, index ),
-				request: this.buildMeterRenderRequest( slug, isHero ),
+				id: this.buildMeterBatchID( slug, isHero, meterChannel, index ),
+				request: this.buildMeterRenderRequest( slug, isHero, meterChannel ),
 				onSuccess: ( result ) => this.handleMeterBatchSuccess( container, isHero, result ),
 				onError: ( result ) => this.handleMeterBatchFailure( container, result ),
 			} );
@@ -54,14 +59,11 @@ export class ProgressMeters extends BaseAutoExecComponent {
 			.then( () => this.updateStatsBar() );
 	}
 
-	renderMeter( container, slug ) {
+	renderMeter( container, slug, meterChannel = '' ) {
 		const isHero = container.classList.contains( 'progress-metercard-hero' );
 
 		return ( new AjaxService() )
-		.bg( ObjectOps.Merge( this._base_data.ajax.render_metercard, {
-			meter_slug: slug,
-			is_hero: isHero ? 1 : 0
-		} ) )
+		.bg( this.buildMeterRenderRequest( slug, isHero, meterChannel ) )
 		.then( ( resp ) => {
 			container.innerHTML = resp.data.html;
 		} )
@@ -76,15 +78,19 @@ export class ProgressMeters extends BaseAutoExecComponent {
 		.finally();
 	}
 
-	buildMeterBatchID( slug, isHero, index = 0 ) {
-		return `meter-${slug}${isHero ? '-hero' : ''}-${index}`;
+	buildMeterBatchID( slug, isHero, meterChannel = '', index = 0 ) {
+		return `meter-${slug}${isHero ? '-hero' : ''}${meterChannel ? `-${meterChannel}` : ''}-${index}`;
 	}
 
-	buildMeterRenderRequest( slug, isHero ) {
-		return ObjectOps.Merge( this._base_data.ajax.render_metercard, {
+	buildMeterRenderRequest( slug, isHero, meterChannel = '' ) {
+		const request = ObjectOps.Merge( this._base_data.ajax.render_metercard, {
 			meter_slug: slug,
 			is_hero: isHero ? 1 : 0
 		} );
+		if ( meterChannel.length > 0 ) {
+			request.meter_channel = meterChannel;
+		}
+		return request;
 	}
 
 	handleMeterBatchSuccess( container, isHero, result ) {

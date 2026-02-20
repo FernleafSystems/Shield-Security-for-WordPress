@@ -188,3 +188,42 @@ Validation notes:
 3. Integration run attempt for `WpDashboardSummaryIntegrationTest` was skipped because WordPress integration environment is not available in this workspace.
 4. No PHPCS run performed (per scope rule).
 5. No nav/breadcrumb/operator-landing/toggle-removal/UI-system rewrite changes were introduced in this slice.
+
+## 10) P2-P4 Execution Status (Implemented, Manual WP Admin Verification Pending)
+
+Execution date: 2026-02-20  
+Scope target: `OM-201` to `OM-403` only.  
+Status key: `[~]` = code + automated validation complete, manual WP admin checklist still pending.
+
+[~] OM-201 - codex - local workspace - implemented: dashboard simple panel now renders operator landing body with channel-correct config meter wiring and existing action queue data path - 2026-02-20  
+[~] OM-202 - codex - local workspace - implemented: retained existing traffic/status mapping (`BuildMeter::trafficFromPercentage()`) and existing queue severities (`good|warning|critical`) with no duplicate color logic - 2026-02-20  
+[~] OM-203 - codex - local workspace - implemented: existing JS/Ajax render pipeline retained; additive `meter_channel` passthrough only - 2026-02-20  
+
+[~] OM-301 - codex - local workspace - implemented: operator mode constants and mapping helpers added in `PluginNavs` (`allOperatorModes()`, `modeForNav()`, `defaultEntryForMode()`, `modeLabel()`) - 2026-02-20  
+[~] OM-302 - codex - local workspace - implemented: `OperatorModePreference` service added with `shield_default_operator_mode` storage/sanitize contract - 2026-02-20  
+[~] OM-303 - codex - local workspace - implemented: `PageOperatorModeLanding`, template, and `OperatorModeSwitch` action registered and integrated into dashboard simple panel - 2026-02-20  
+
+[~] OM-401 - codex - local workspace - implemented: mode-aware sidebar filtering in `NavMenuBuilder` with Tools constrained to Configure mode and License retained - 2026-02-20  
+[~] OM-402 - codex - local workspace - implemented: WP submenu relabeled to operator terms using existing nav IDs/page slug strategy - 2026-02-20  
+[~] OM-403 - codex - local workspace - implemented: breadcrumbs updated to selector-first + mode context with restricted-page mode-crumb bypass - 2026-02-20  
+
+Validation notes:
+1. New required unit tests added and passing:
+   1. `tests/Unit/Modules/Plugin/Lib/OperatorModePreferenceTest.php`
+   2. `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
+   3. `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
+   4. `tests/Unit/ActionRouter/Render/MeterCardChannelTest.php`
+   5. `tests/Unit/ActionRouter/Render/MeterAnalysisChannelTest.php`
+2. Required regression unit tests from plan pass:
+   1. `composer test:unit -- tests/Unit/Modules/Plugin/Lib/MeterAnalysis`
+   2. `composer test:unit -- tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`
+3. Additional validation run:
+   1. `composer test:unit` (full unit suite) passed in this workspace (with expected pre-existing skips).
+   2. `npm run build` passed (existing bundle size warnings only; no new build errors).
+4. PHPCS not run (per scope rule).
+5. Integration tests not run (per scope rule).
+6. Manual WP admin verification checklist in `docs/OperatorModes/Shield-Operator-Modes-Implementation-Plan-P2-P4.md` section 9.3 is pending.
+
+Implementation learnings recorded:
+1. Avoided duplicate queue/meter rendering in `PageDashboardOverview` by rendering only `operator_mode_landing` in the simple panel and reusing existing `NeedsAttentionQueue` + meter placeholder inside landing renderer.
+2. `BuildBreadCrumbs` now exposes small protected seam methods used by unit tests, while production behavior still delegates default-subnav resolution to `PluginNavs::GetDefaultSubNavForNav()`.
