@@ -157,21 +157,6 @@ class AssetsCustomizer {
 					]
 				],
 			],
-			'dashboard_view_toggle' => [
-				'key'      => 'dashboard_view_toggle',
-				'required' => PluginNavs::IsNavs( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
-				'handles'  => [
-					'main',
-				],
-				'data'     => [
-					'ajax' => [
-						'dashboard_view_toggle' => ActionData::Build( Actions\DashboardViewToggle::class ),
-					],
-					'strings' => [
-						'save_failed' => __( 'Could not save dashboard view preference. It may reset when you reload this page.', 'wp-simple-firewall' ),
-					],
-				],
-			],
 			'debug_tools'      => [
 				'key'     => 'debug_tools',
 				'handles' => [

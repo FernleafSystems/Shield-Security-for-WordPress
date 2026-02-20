@@ -1,19 +1,5 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% set current_view = vars.dashboard_view.current|default('simple') %}
-	{% if current_view not in [ 'simple', 'advanced' ] %}
-		{% set current_view = 'simple' %}
-	{% endif %}
-	<div class="dashboard-overview-panels">
-		<div class="dashboard-overview-panel dashboard-overview-panel--simple {{ current_view == 'simple' ? 'is-active' : '' }}"
-			 data-dashboard-view="simple">
-			{% include '/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig' %}
-		</div>
-		<div class="dashboard-overview-panel dashboard-overview-panel--advanced {{ current_view == 'advanced' ? 'is-active' : '' }}"
-			 data-dashboard-view="advanced">
-			{% include '/wpadmin/plugin_pages/inner/dashboard_overview_advanced_body.twig' %}
-		</div>
-	</div>
-
+	{% include '/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig' %}
 {% endblock %}
