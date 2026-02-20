@@ -13,10 +13,7 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 	public const TEMPLATE = '/wpadmin/components/progress_meter/meter.twig';
 
 	protected function getRenderData() :array {
-		$data = $this->action_data[ 'meter_data' ] ?? [];
-		if ( empty( $data ) ) {
-			$data = ( new Handler() )->getMeter( $this->action_data[ 'meter_slug' ] );
-		}
+		$data = $this->getMeterData();
 
 		$percentage = (int)( $data[ 'totals' ][ 'percentage' ] ?? 0 );
 		$traffic = BuildMeter::trafficFromPercentage( $percentage );
@@ -39,11 +36,29 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 				],
 			],
 			'vars'    => [
-				'meter_slug' => $this->action_data[ 'meter_slug' ],
-				'meter'      => $data,
-				'traffic'    => $traffic,
+				'meter_slug'    => $this->action_data[ 'meter_slug' ],
+				'meter_channel' => (string)( $this->action_data[ 'meter_channel' ] ?? '' ),
+				'meter'         => $data,
+				'traffic'       => $traffic,
 			],
 		];
+	}
+
+	protected function getMeterData() :array {
+		$data = $this->action_data[ 'meter_data' ] ?? [];
+		if ( empty( $data ) ) {
+			$data = ( new Handler() )->getMeter(
+				$this->action_data[ 'meter_slug' ],
+				true,
+				$this->getMeterChannel()
+			);
+		}
+		return $data;
+	}
+
+	protected function getMeterChannel() :?string {
+		$meterChannel = \strtolower( \trim( (string)( $this->action_data[ 'meter_channel' ] ?? '' ) ) );
+		return empty( $meterChannel ) ? null : $meterChannel;
 	}
 
 	protected function getRenderTemplate() :string {

@@ -22,6 +22,10 @@ class PluginNavs {
 	public const NAV_DASHBOARD = 'dashboard';
 	public const SUBNAV_DASHBOARD_GRADES = 'grades';
 	public const SUBNAV_DASHBOARD_OVERVIEW = 'overview';
+	public const MODE_ACTIONS = 'actions';
+	public const MODE_INVESTIGATE = 'investigate';
+	public const MODE_CONFIGURE = 'configure';
+	public const MODE_REPORTS = 'reports';
 	public const NAV_RESTRICTED = 'restricted';
 	public const NAV_REPORTS = 'reports';
 	public const SUBNAV_REPORTS_LIST = 'list';
@@ -225,5 +229,108 @@ class PluginNavs {
 	public static function NavExists( string $nav, ?string $subNav = null ) :bool {
 		return isset( self::GetNavHierarchy()[ $nav ] )
 			   && ( $subNav === null || isset( self::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ] ) );
+	}
+
+	public static function allOperatorModes() :array {
+		return [
+			self::MODE_ACTIONS,
+			self::MODE_INVESTIGATE,
+			self::MODE_CONFIGURE,
+			self::MODE_REPORTS,
+		];
+	}
+
+	public static function modeForNav( string $nav ) :string {
+		switch ( $nav ) {
+			case self::NAV_SCANS:
+				return self::MODE_ACTIONS;
+
+			case self::NAV_ACTIVITY:
+			case self::NAV_IPS:
+			case self::NAV_TRAFFIC:
+				return self::MODE_INVESTIGATE;
+
+			case self::NAV_ZONES:
+			case self::NAV_RULES:
+			case self::NAV_TOOLS:
+			case self::NAV_ZONE_COMPONENTS:
+			case self::NAV_OPTIONS_CONFIG:
+			case self::NAV_WIZARD:
+			case self::NAV_LICENSE:
+				return self::MODE_CONFIGURE;
+
+			case self::NAV_REPORTS:
+				return self::MODE_REPORTS;
+
+			case self::NAV_DASHBOARD:
+			case self::NAV_RESTRICTED:
+			default:
+				return '';
+		}
+	}
+
+	public static function defaultEntryForMode( string $mode ) :array {
+		$mode = self::sanitizeOperatorMode( $mode );
+
+		switch ( $mode ) {
+			case self::MODE_ACTIONS:
+				$entry = [
+					'nav'    => self::NAV_SCANS,
+					'subnav' => self::SUBNAV_SCANS_RESULTS,
+				];
+				break;
+			case self::MODE_INVESTIGATE:
+				$entry = [
+					'nav'    => self::NAV_ACTIVITY,
+					'subnav' => self::SUBNAV_LOGS,
+				];
+				break;
+			case self::MODE_CONFIGURE:
+				$entry = [
+					'nav'    => self::NAV_ZONES,
+					'subnav' => self::GetDefaultSubNavForNav( self::NAV_ZONES ),
+				];
+				break;
+			case self::MODE_REPORTS:
+				$entry = [
+					'nav'    => self::NAV_REPORTS,
+					'subnav' => self::SUBNAV_REPORTS_LIST,
+				];
+				break;
+			default:
+				$entry = [
+					'nav'    => self::NAV_DASHBOARD,
+					'subnav' => self::SUBNAV_DASHBOARD_OVERVIEW,
+				];
+				break;
+		}
+
+		return $entry;
+	}
+
+	public static function modeLabel( string $mode ) :string {
+		$mode = self::sanitizeOperatorMode( $mode );
+
+		switch ( $mode ) {
+			case self::MODE_ACTIONS:
+				return __( 'Actions Queue', 'wp-simple-firewall' );
+
+			case self::MODE_INVESTIGATE:
+				return __( 'Investigate', 'wp-simple-firewall' );
+
+			case self::MODE_CONFIGURE:
+				return __( 'Configure', 'wp-simple-firewall' );
+
+			case self::MODE_REPORTS:
+				return __( 'Reports', 'wp-simple-firewall' );
+
+			default:
+				return __( 'Mode Selector', 'wp-simple-firewall' );
+		}
+	}
+
+	private static function sanitizeOperatorMode( string $mode ) :string {
+		$mode = \strtolower( \trim( $mode ) );
+		return \in_array( $mode, self::allOperatorModes(), true ) ? $mode : '';
 	}
 }

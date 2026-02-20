@@ -27,7 +27,6 @@ class BuildBreadCrumbs {
 	 * @throws \Exception
 	 */
 	public function parse( string $nav, string $subNav ) :array {
-		$urls = self::con()->plugin_urls;
 		$crumbs = [];
 		if ( empty( $nav ) ) {
 			throw new \Exception( 'No nav provided.' );
@@ -36,7 +35,7 @@ class BuildBreadCrumbs {
 			$subNav = PluginNavs::SUBNAV_INDEX;
 		}
 
-		$hierarchy = PluginNavs::GetNavHierarchy();
+		$hierarchy = $this->getNavHierarchy();
 		$navStruct = $hierarchy[ $nav ] ?? null;
 		if ( empty( $navStruct ) ) {
 			throw new \Exception( 'Not a valid nav: '.$nav );
@@ -46,22 +45,43 @@ class BuildBreadCrumbs {
 		}
 
 		$crumbs[] = [
-			'text'  => $navStruct[ 'name' ],
-			'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
-			'href'  => $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) ),
+			'text'  => __( 'Shield Security', 'wp-simple-firewall' ),
+			'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), __( 'Mode Selector', 'wp-simple-firewall' ) ),
+			'href'  => $this->buildNavUrl( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
 		];
 
-		foreach ( $navStruct[ 'parents' ] as $parentNav ) {
-			if ( $parentNav !== $nav ) {
-				$name = $hierarchy[ $parentNav ][ 'name' ];
-				\array_unshift( $crumbs, [
-					'text'  => $name,
-					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $name ) ),
-					'href'  => $urls->adminTopNav( $parentNav, \key( $hierarchy[ $parentNav ][ 'sub_navs' ] ) ),
-				] );
+		if ( $nav !== PluginNavs::NAV_RESTRICTED ) {
+			$mode = PluginNavs::modeForNav( $nav );
+			if ( !empty( $mode ) ) {
+				$entry = PluginNavs::defaultEntryForMode( $mode );
+				$crumbs[] = [
+					'text'  => PluginNavs::modeLabel( $mode ),
+					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), PluginNavs::modeLabel( $mode ) ),
+					'href'  => $this->buildNavUrl( $entry[ 'nav' ], $entry[ 'subnav' ] ),
+				];
 			}
 		}
 
+		if ( !( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ) ) {
+			$crumbs[] = [
+				'text'  => $navStruct[ 'name' ],
+				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
+				'href'  => $this->buildNavUrl( $nav, $this->getDefaultSubNavForNav( $nav, $hierarchy ) ),
+			];
+		}
+
 		return $crumbs;
+	}
+
+	protected function getNavHierarchy() :array {
+		return PluginNavs::GetNavHierarchy();
+	}
+
+	protected function buildNavUrl( string $nav, string $subNav ) :string {
+		return self::con()->plugin_urls->adminTopNav( $nav, $subNav );
+	}
+
+	protected function getDefaultSubNavForNav( string $nav, array $hierarchy ) :string {
+		return PluginNavs::GetDefaultSubNavForNav( $nav );
 	}
 }
