@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\FileSystemUtils;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginPackager;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -13,8 +13,9 @@ use ReflectionClass;
  */
 class PluginPackagerTest extends TestCase {
 
+	use TempDirLifecycleTrait;
+
 	private string $projectRoot;
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -22,9 +23,7 @@ class PluginPackagerTest extends TestCase {
 	}
 
 	protected function tearDown() :void {
-		foreach ( $this->tempDirs as $tempDir ) {
-			FileSystemUtils::removeDirectoryRecursive( $tempDir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -37,13 +36,6 @@ class PluginPackagerTest extends TestCase {
 
 	private function createPackager() :PluginPackager {
 		return new PluginPackager( $this->projectRoot, function ( string $message ) {} );
-	}
-
-	private function createTempDirectory() :string {
-		$tempDir = sys_get_temp_dir().'/shield-packager-test-'.uniqid();
-		mkdir( $tempDir, 0755, true );
-		$this->tempDirs[] = $tempDir;
-		return $tempDir;
 	}
 
 	// =========================================================================
@@ -106,7 +98,7 @@ class PluginPackagerTest extends TestCase {
 
 	public function testUpdatePackageFilesSyncsReadmeAndHeaderFromPluginJson() :void {
 		$packager = $this->createPackager();
-		$tempDir = $this->createTempDirectory();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
 
 		file_put_contents(
 			$tempDir.'/plugin.json',
@@ -129,7 +121,7 @@ class PluginPackagerTest extends TestCase {
 
 	public function testUpdatePackageFilesFailsWhenPluginJsonVersionMissing() :void {
 		$packager = $this->createPackager();
-		$tempDir = $this->createTempDirectory();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
 
 		file_put_contents( $tempDir.'/plugin.json', json_encode( [ 'properties' => [] ], JSON_PRETTY_PRINT ) );
 		file_put_contents( $tempDir.'/readme.txt', "Stable tag: 1.0.0\n" );

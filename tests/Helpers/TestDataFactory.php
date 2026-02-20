@@ -20,6 +20,11 @@ class TestDataFactory {
 		return shield_security_get_plugin()->getController();
 	}
 
+	private static function lastInsertId() :int {
+		global $wpdb;
+		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
+	}
+
 	// ── IP Records ─────────────────────────────────────────────────
 
 	/**
@@ -185,7 +190,7 @@ class TestDataFactory {
 		$record->ready_at = \max( 1, ( $finishedAt ?? \time() ) - 60 );
 		$record->finished_at = $finishedAt ?? \time();
 		$dbh->getQueryInserter()->insert( $record );
-		return (int)$dbh->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
+		return self::lastInsertId();
 	}
 
 	/**
@@ -197,7 +202,7 @@ class TestDataFactory {
 		$item->item_type = 'f';
 		$item->item_id = \uniqid( 'result-item-', true );
 		$resultItemsDb->getQueryInserter()->insert( $item );
-		$resultItemId = (int)$resultItemsDb->getQuerySelector()->setOrderBy( 'id', 'DESC', true )->first()->id;
+		$resultItemId = self::lastInsertId();
 
 		$scanResultsDb = self::con()->db_con->scan_results;
 		$scanResult = $scanResultsDb->getRecord();

@@ -29,6 +29,7 @@ class IntegrationBootstrapDecisionsTest extends TestCase {
 		$this->assertSame( 'package', $context[ 'mode' ] );
 		$this->assertSame( '/tmp/shield-package', $context[ 'plugin_dir' ] );
 		$this->assertSame( '/tmp/shield-package/icwp-wpsf.php', $context[ 'main_plugin_file' ] );
+		$this->assertSame( '/tmp/shield-package/plugin_autoload.php', $context[ 'plugin_autoload_file' ] );
 		$this->assertSame( '/tmp', $context[ 'wp_plugin_dir' ] );
 	}
 
@@ -45,6 +46,10 @@ class IntegrationBootstrapDecisionsTest extends TestCase {
 
 		$this->assertSame( 'docker_symlink', $context[ 'mode' ] );
 		$this->assertSame( '/tmp/wordpress/wp-content/plugins/wp-simple-firewall', $context[ 'plugin_dir' ] );
+		$this->assertSame(
+			'/tmp/wordpress/wp-content/plugins/wp-simple-firewall/plugin_autoload.php',
+			$context[ 'plugin_autoload_file' ]
+		);
 	}
 
 	public function testResolvePluginContextUsesDockerMissingSymlinkWhenSignalsPresent() :void {
@@ -79,6 +84,7 @@ class IntegrationBootstrapDecisionsTest extends TestCase {
 		$this->assertSame( 'source', $context[ 'mode' ] );
 		$this->assertSame( $this->repoRoot, $context[ 'plugin_dir' ] );
 		$this->assertSame( Path::join( $this->repoRoot, 'icwp-wpsf.php' ), $context[ 'main_plugin_file' ] );
+		$this->assertSame( Path::join( $this->repoRoot, 'plugin_autoload.php' ), $context[ 'plugin_autoload_file' ] );
 	}
 
 	public function testResolveWpTestsDirContextPrefersWpTestsDir() :void {

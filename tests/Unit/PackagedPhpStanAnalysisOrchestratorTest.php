@@ -4,15 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanAnalysisOrchestrator;
 use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanOutcome;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use PHPUnit\Framework\TestCase;
 
 class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 
+	use TempDirLifecycleTrait;
+
 	private string $projectRoot;
-	/**
-	 * @var string[]
-	 */
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -20,10 +19,7 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 	}
 
 	protected function tearDown() :void {
-		foreach ( $this->tempDirs as $dir ) {
-			$this->removeDir( $dir );
-		}
-		$this->tempDirs = [];
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -110,8 +106,8 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 
 	public function testAssertPreflightThrowsWhenConfigMissing() :void {
 		$orchestrator = new PackagedPhpStanAnalysisOrchestrator();
-		$projectRoot = $this->createTempDir();
-		$packageDir = $this->createTempDir();
+		$projectRoot = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
+		$packageDir = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
 		\mkdir( $projectRoot.'/tests/stubs', 0777, true );
 		\mkdir( $packageDir.'/vendor', 0777, true );
 		\mkdir( $packageDir.'/vendor_prefixed', 0777, true );
@@ -126,8 +122,8 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 
 	public function testAssertPreflightThrowsWhenPackageVendorAutoloadMissing() :void {
 		$orchestrator = new PackagedPhpStanAnalysisOrchestrator();
-		$projectRoot = $this->createTempDir();
-		$packageDir = $this->createTempDir();
+		$projectRoot = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
+		$packageDir = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
 		\mkdir( $projectRoot.'/tests/stubs', 0777, true );
 		\mkdir( $packageDir.'/vendor_prefixed', 0777, true );
 		\file_put_contents( $projectRoot.'/phpstan.package.neon.dist', 'includes: []' );
@@ -141,8 +137,8 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 
 	public function testAssertPreflightPassesForValidLayout() :void {
 		$orchestrator = new PackagedPhpStanAnalysisOrchestrator();
-		$projectRoot = $this->createTempDir();
-		$packageDir = $this->createTempDir();
+		$projectRoot = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
+		$packageDir = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
 		\mkdir( $projectRoot.'/tests/stubs', 0777, true );
 		\mkdir( $packageDir.'/vendor', 0777, true );
 		\mkdir( $packageDir.'/vendor_prefixed', 0777, true );
@@ -155,35 +151,4 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 		$this->assertTrue( true );
 	}
 
-	private function createTempDir() :string {
-		$path = \sys_get_temp_dir().'/shield-phpstan-orchestrator-'.\bin2hex( \random_bytes( 6 ) );
-		\mkdir( $path, 0777, true );
-		$this->tempDirs[] = $path;
-		return $path;
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-
-		$items = \scandir( $dir );
-		if ( !\is_array( $items ) ) {
-			return;
-		}
-
-		foreach ( $items as $item ) {
-			if ( $item === '.' || $item === '..' ) {
-				continue;
-			}
-			$path = $dir.'/'.$item;
-			if ( \is_dir( $path ) ) {
-				$this->removeDir( $path );
-			}
-			else {
-				@\unlink( $path );
-			}
-		}
-		@\rmdir( $dir );
-	}
 }
