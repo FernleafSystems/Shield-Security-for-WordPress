@@ -11,6 +11,10 @@ class PluginNavs {
 
 	use PluginControllerConsumer;
 
+	public const MODE_ACTIONS = 'actions';
+	public const MODE_INVESTIGATE = 'investigate';
+	public const MODE_CONFIGURE = 'configure';
+	public const MODE_REPORTS = 'reports';
 	public const FIELD_NAV = 'nav';
 	public const FIELD_SUBNAV = 'nav_sub';
 	public const NAV_ACTIVITY = 'activity';
@@ -22,10 +26,6 @@ class PluginNavs {
 	public const NAV_DASHBOARD = 'dashboard';
 	public const SUBNAV_DASHBOARD_GRADES = 'grades';
 	public const SUBNAV_DASHBOARD_OVERVIEW = 'overview';
-	public const MODE_ACTIONS = 'actions';
-	public const MODE_INVESTIGATE = 'investigate';
-	public const MODE_CONFIGURE = 'configure';
-	public const MODE_REPORTS = 'reports';
 	public const NAV_RESTRICTED = 'restricted';
 	public const NAV_REPORTS = 'reports';
 	public const SUBNAV_REPORTS_LIST = 'list';

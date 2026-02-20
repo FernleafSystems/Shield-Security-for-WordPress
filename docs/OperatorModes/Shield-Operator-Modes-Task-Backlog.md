@@ -105,11 +105,43 @@ Cache key must include channel dimension (e.g. `summary|config`, `summary|action
 
 ### P4 - Mode-Aware Navigation
 
+**Implementation status (2026-02-20):** OM-401, OM-401a, OM-401b, OM-401c, OM-401d, OM-402, and OM-403 are complete.
+
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-401 | Make sidebar nav mode-aware | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-301 | Internal sidebar filtered by mode |
-| OM-402 | Replace WP submenu with mode entries | `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-301 | Submenu becomes mode-oriented without preference mutation side effects |
-| OM-403 | Update breadcrumbs for mode pathing | `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-401 | Breadcrumb path follows mode model |
+| OM-401 | ~~Make sidebar nav mode-aware~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-301 | **Done** - two-state sidebar implemented in `build()` using `buildModeSelector()` and `buildModeNav()`, with shared normalization extracted to `normalizeMenu()`. |
+| OM-401a | ~~Fix `resolveCurrentMode()` to return empty string for dashboard nav~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401 | **Done** - dashboard/empty nav now resolves to `''` mode and no longer falls back to `MODE_ACTIONS`. |
+| OM-401b | ~~Add `buildModeSelector()` method for State 1 sidebar~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401a | **Done** - mode selector state returns 4 flat mode entries plus Go PRO/License using existing `PluginNavs` entries/labels. |
+| OM-401c | ~~Add `buildModeNav()` method for State 2 sidebar (back link + mode items)~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401a | **Done** - mode state prepends `mode-selector-back` item (`mode-back-link`) and reuses mode-filtered nav items plus Go PRO/License. |
+| OM-401d | ~~Remove `NAV_DASHBOARD` from `allowedNavsForMode()`~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | **Done** - dashboard removed from mode allowlists; back-link now owns selector return path. |
+| OM-402 | ~~Replace WP submenu with mode entries~~ | `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-301 | **Done** - `addSubMenuItems()` registers Dashboard, Actions Queue, Investigate, Configure, Reports, Go PRO. |
+| OM-403 | ~~Update breadcrumbs for mode pathing~~ | `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-401 | **Done** - `parse()` builds mode-aware breadcrumbs: Shield Security -> Mode Label -> Current Page. |
+
+#### Implementation notes for OM-401a-d (completed)
+
+**File:** `src/Modules/Plugin/Lib/NavMenuBuilder.php`
+
+Implemented structure:
+1. `build()` now resolves mode once and branches to `buildModeSelector()` or `buildModeNav()`.
+2. Existing normalization logic was extracted to `normalizeMenu(array $menu): array` and reused for both paths.
+3. Mode selector state returns exactly 4 mode entries plus Go PRO/License.
+4. In-mode state prepends a `mode-selector-back` item and then reuses existing mode filtering + Go PRO/License.
+5. `allowedNavsForMode()` no longer includes `NAV_DASHBOARD`.
+
+Validation completed for this slice:
+1. `php -l src/Modules/Plugin/Lib/NavMenuBuilder.php`
+2. `composer test:unit -- tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
+3. `composer test:unit -- tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
+4. `composer test:unit -- tests/Unit/Modules/Plugin/Lib/OperatorModePreferenceTest.php`
+
+### P4.5 - Known Sidebar Gaps (After OM-401a–d, Before P5)
+
+These are not blockers for P4 completion but should be addressed before P5 cleanup:
+
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-410 | Add Security Grades as a direct link in Configure mode sidebar | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | When in Configure mode, sidebar includes a "Security Grades" link pointing to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`. Currently this page is a sub-nav of Dashboard and doesn't appear in Configure mode's `allowedNavsForMode()`. Simplest approach: add it as a hardcoded item in `buildModeNav()` when mode is `MODE_CONFIGURE`. |
+| OM-411 | Optional: Style back link distinctly | `assets/css/shield/dashboard.scss` or equivalent, `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | The "← Shield Security" back link has a `.mode-back-link` class and renders with a smaller font / muted style to visually separate it from mode nav items. This is a polish task, not a functional requirement. |
 
 ### P5 - Cleanup And Legacy Removal (Trigger-Based)
 
@@ -129,35 +161,29 @@ Cache key must include channel dimension (e.g. `summary|config`, `summary|action
 | UI-104 | Responsive behavior | Strip collapses cleanly on narrow widths |
 | UI-105 | Accessibility pass | Keyboard/focus/semantic heading-link order passes review |
 
-## 6) Phase A Starter Slice (Next Session)
+## 6) Overall Execution Status
 
-Start strictly with:
-1. OM-101
-2. OM-102
-3. OM-103
-4. OM-104
-5. OM-105
-6. OM-106
-7. OM-107
+| Phase | Status | Notes |
+|---|---|---|
+| P0 | Complete | Decisions locked |
+| P1 (Phase A) | Complete | Meter channel separation done (OM-101-107). See Section 9. |
+| P2 | Complete | Dashboard renders channel-aware metrics via `PageOperatorModeLanding`. |
+| P3 | Complete | Mode constants (`PluginNavs`), user preference (`OperatorModePreference`), landing page (`PageOperatorModeLanding` + `operator_mode_landing.twig`) all implemented. |
+| P4 | Complete | Sidebar two-state navigation (OM-401a-d), WP submenu (OM-402), and breadcrumbs (OM-403) are all complete. |
+| P5 | Not started | Legacy Simple/Advanced code still present. P5 can now begin (start with OM-501). |
+| P6+ | Not started | Investigate tools, Configure/Reports deepening, WP widget. |
 
-Phase A definition of done:
-1. Config-only and action-only meter retrieval are both available.
-2. Action-channel includes maintenance + scan-result components.
-3. Combined/default meter consumers remain functional with no behavior break.
-4. No nav/routing/legacy-toggle cleanup has started yet.
+## 7) Next Slice: P4.5 Sidebar Gaps, Then P5 Kickoff
 
-## 7) Verification Checklist For Implementers
+Execute in this order:
+1. OM-410 - add direct "Security Grades" link in Configure mode sidebar.
+2. OM-411 (optional) - style `.mode-back-link` for visual distinction.
+3. OM-501 - begin P5 runtime unwire of legacy dashboard toggle (no hard deletions yet).
 
-Before coding:
-1. Confirm no existing channel API already exists.
-2. Confirm all `ScanResults*` classes are included in action classification.
-3. Confirm cache key strategy in `Handler` cannot collide by channel.
-
-After coding:
-1. Run focused unit tests only for Phase A changes.
-2. Confirm no integration test run is required for this slice.
-3. Confirm no PHPCS run is required for this slice.
-4. Confirm no unrelated files are modified.
+Acceptance focus for the next slice:
+1. Configure mode surfaces Security Grades without reintroducing dashboard-mode coupling.
+2. Existing two-state sidebar behavior (OM-401a-d) remains unchanged.
+3. No PHPCS run required and no integration test run required for this slice.
 
 ## 8) Tracking Format
 
@@ -205,3 +231,4 @@ Deferred execution notes:
 1. Do not add PHPCS to these tasks.
 2. Integration tests are not required for this cleanup pass.
 3. Preserve existing meter severity/traffic logic (`BuildMeter::trafficFromPercentage()` and queue `good|warning|critical`) without introducing new fallback behavior.
+
