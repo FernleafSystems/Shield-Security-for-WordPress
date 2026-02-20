@@ -115,29 +115,19 @@ Cache key must include channel dimension (e.g. `summary|config`, `summary|action
 
 | ID | Task | Trigger | Files | Done When |
 |---|---|---|---|---|
-| OM-501 | Remove legacy dashboard toggle UI | After P4 ships | `templates/twig/wpadmin/plugin_pages/base_inner_page.twig`, `assets/js/components/general/DashboardViewToggle.js`, `assets/js/app/AppMain.js`, `src/Modules/Plugin/Lib/AssetsCustomizer.php`, `assets/css/plugin-main.scss`, `assets/css/shield/dashboard.scss` | No runtime/path references to `dashboard_view_toggle` remain |
-| OM-502 | Remove deprecated Simple/Advanced classes/templates | After OM-501 | `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig`, `src/ActionRouter/Constants.php` | Deprecated assets removed and references cleaned |
+| OM-501 | Unwire legacy dashboard toggle runtime (no deletions) | After P4 ships | `templates/twig/wpadmin/plugin_pages/base_inner_page.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview.twig`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverview.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/BasePluginAdminPage.php`, `src/Modules/Plugin/Lib/AssetsCustomizer.php` | Dashboard overview renders a single flow (no Simple/Advanced branch toggle) and no active UI/runtime path depends on `dashboard_view_toggle` |
+| OM-502 | Remove deprecated Simple/Advanced classes/templates (hard removal phase) | After OM-501 stabilization | `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig`, `src/ActionRouter/Constants.php` | Deprecated assets removed and references cleaned |
 | OM-503 | Replace/retire tests tied to old toggle behavior | After OM-502 | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, affected assertions in `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | Test suite reflects operator-mode behavior, not legacy toggle |
 
-## 5) Prototype B Translation Tasks (Decision-Complete)
+## 5) Prototype B Translation Tasks (When Landing Is Introduced)
 
-Out of scope for this block:
-1. No new operator modes.
-2. No new severity model.
-3. No dashboard architecture rewrite.
-
-| ID | Task | Depends On | Done When |
-|---|---|---|---|
-| UI-101 | Replace current landing structure with Prototype B shell (hero + 3-card strip) | OM-303 | Landing no longer uses two-column queue/config blocks or 4-card mode grid |
-| UI-102 | Build hero actions state from existing queue payload (`NeedsAttentionQueue`) | UI-101 | Hero reflects queue state with existing `good|warning|critical` severities and count text |
-| UI-103 | Build condensed Configure strip card from existing config-channel meter data | UI-101 | Configure card shows config-only posture state using existing `BuildMeter::trafficFromPercentage()` mapping |
-| UI-104 | Build Investigate/Reports strip cards using existing mode routing helpers | UI-101 | Cards route via `PluginNavs::defaultEntryForMode()` and reuse existing mode summaries |
-| UI-105 | Keep default-mode selector control and align placement below prototype strip | UI-101 | Selector remains functional with unchanged `OperatorModeSwitch` flow |
-| UI-106 | Add scoped dashboard styles for hero/strip parity at desktop/mobile | UI-102, UI-103, UI-104 | Hero + strip spacing/order/visual hierarchy aligns with `prototype-b-hero-strip.html` |
-| UI-107 | Accessibility pass for the landing cards and controls | UI-106 | Link labels, heading order, focus behavior, and contrast pass manual keyboard/screen review |
-| UI-108 | Remove obsolete landing elements from operator-mode template | UI-101 | No duplicate legacy layout fragments remain in template |
-| UI-109 | Manual visual parity checklist in WP admin runtime | UI-106, UI-107 | Screenshots/visual checks confirm parity in live WP admin context |
-| UI-110 | Regression verification for mode links, queue severity, and config score state mapping | UI-103, UI-104 | Existing routes and status-color behavior are unchanged beyond intended layout updates |
+| ID | Task | Done When |
+|---|---|---|
+| UI-101 | Actions hero first layout | Actions card is visually primary and first in reading order |
+| UI-102 | Dual hero states (`issues`/`all clear`) | Accent/copy/icon responds to queue state |
+| UI-103 | 3-mode strip for Investigate/Configure/Reports | Equal-weight secondary entry cards |
+| UI-104 | Responsive behavior | Strip collapses cleanly on narrow widths |
+| UI-105 | Accessibility pass | Keyboard/focus/semantic heading-link order passes review |
 
 ## 6) Phase A Starter Slice (Next Session)
 
@@ -199,65 +189,19 @@ Validation notes:
 4. No PHPCS run performed (per scope rule).
 5. No nav/breadcrumb/operator-landing/toggle-removal/UI-system rewrite changes were introduced in this slice.
 
-## 10) P2-P4 Execution Status (Implemented, Manual WP Admin Verification Pending)
+## 10) Deferred Hard-Removal Tasks After OM-501
 
-Execution date: 2026-02-20  
-Scope target: `OM-201` to `OM-403` only.  
-Status key: `[~]` = code + automated validation complete, manual WP admin checklist still pending.
+These tasks are intentionally deferred until the runtime unwire (`OM-501`) has settled.
 
-[x] OM-201 - codex - local workspace - implemented: dashboard simple panel now renders operator landing body with channel-correct config meter wiring and existing action queue data path - 2026-02-20  
-[x] OM-202 - codex - local workspace - implemented: retained existing traffic/status mapping (`BuildMeter::trafficFromPercentage()`) and existing queue severities (`good|warning|critical`) with no duplicate color logic - 2026-02-20  
-[x] OM-203 - codex - local workspace - implemented: existing JS/Ajax render pipeline retained; additive `meter_channel` passthrough only - 2026-02-20  
+| ID | Task | Files | Done When |
+|---|---|---|---|
+| OM-504 | Remove JS bootstrap wiring for legacy toggle | `assets/js/app/AppMain.js`, `assets/js/components/general/DashboardViewToggle.js` | `DashboardViewToggle` import/init is removed and legacy class file is deleted |
+| OM-505 | Remove legacy action/preference backend artifacts | `src/ActionRouter/Constants.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php` | No action registration or runtime contract remains for `dashboard_view_toggle` / `shield_dashboard_view` |
+| OM-506 | Remove deprecated simple dashboard renderer/templates | `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig` | Deprecated simple-render path is fully removed with no remaining includes/references |
+| OM-507 | Remove obsolete toggle/panel CSS | `assets/css/plugin-main.scss`, `assets/css/shield/dashboard.scss` | `.dashboard-view-switch*` and `.dashboard-overview-panels*` selectors are removed after runtime references are gone |
+| OM-508 | Migrate/remove legacy toggle tests | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | Old toggle tests removed/replaced and overview assertions reflect a single non-toggle render path |
 
-[x] OM-301 - codex - local workspace - implemented: operator mode constants and mapping helpers added in `PluginNavs` (`allOperatorModes()`, `modeForNav()`, `defaultEntryForMode()`, `modeLabel()`) - 2026-02-20  
-[x] OM-302 - codex - local workspace - implemented: `OperatorModePreference` service added with `shield_default_operator_mode` storage/sanitize contract - 2026-02-20  
-[x] OM-303 - codex - local workspace - implemented: `PageOperatorModeLanding`, template, and `OperatorModeSwitch` action registered and integrated into dashboard simple panel - 2026-02-20  
-
-[x] OM-401 - codex - local workspace - implemented: mode-aware sidebar filtering in `NavMenuBuilder` with Tools constrained to Configure mode and License retained - 2026-02-20  
-[x] OM-402 - codex - local workspace - implemented: WP submenu relabeled to operator terms using existing nav IDs/page slug strategy - 2026-02-20  
-[x] OM-403 - codex - local workspace - implemented: breadcrumbs updated to selector-first + mode context with restricted-page mode-crumb bypass - 2026-02-20  
-
-Validation notes:
-1. New required unit tests added and passing:
-   1. `tests/Unit/Modules/Plugin/Lib/OperatorModePreferenceTest.php`
-   2. `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
-   3. `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
-   4. `tests/Unit/ActionRouter/Render/MeterCardChannelTest.php`
-   5. `tests/Unit/ActionRouter/Render/MeterAnalysisChannelTest.php`
-2. Required regression unit tests from plan pass:
-   1. `composer test:unit -- tests/Unit/Modules/Plugin/Lib/MeterAnalysis`
-   2. `composer test:unit -- tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`
-3. Additional validation run:
-   1. `composer test:unit` (full unit suite) passed in this workspace (with expected pre-existing skips).
-   2. `npm run build` passed (existing bundle size warnings only; no new build errors).
-4. PHPCS not run (per scope rule).
-5. Integration tests not run (per scope rule).
-6. Manual WP admin verification checklist in `docs/OperatorModes/Shield-Operator-Modes-Implementation-Plan-P2-P4.md` section 9.3 is pending.
-
-Implementation learnings recorded:
-1. Avoided duplicate queue/meter rendering in `PageDashboardOverview` by rendering only `operator_mode_landing` in the simple panel and reusing existing `NeedsAttentionQueue` payload + existing config-channel meter handler inside landing renderer.
-2. `BuildBreadCrumbs` now exposes small protected seam methods used by unit tests, while production behavior still delegates default-subnav resolution to `PluginNavs::GetDefaultSubNavForNav()`.
-
-## 11) Prototype B Alignment Execution Status (Implemented, Manual WP Admin Verification Pending)
-
-Execution date: 2026-02-20
-Scope target: `UI-101` to `UI-110` only.
-Status key: `[~]` = code + automated validation complete, manual WP admin checklist still pending.
-
-[x] UI-101 - codex - local workspace - implemented: operator landing template now uses Prototype B structure (hero + 3-card strip) - 2026-02-20
-[x] UI-102 - codex - local workspace - implemented: actions hero state built from existing `NeedsAttentionQueue` payload fields; no duplicate queue provider logic added - 2026-02-20
-[x] UI-103 - codex - local workspace - implemented: configure strip card uses config-channel `MeterSummary` data and existing traffic mapping (`BuildMeter::trafficFromPercentage()`) - 2026-02-20
-[x] UI-104 - codex - local workspace - implemented: investigate/reports strip cards route via existing `PluginNavs::defaultEntryForMode()` mapping - 2026-02-20
-[x] UI-105 - codex - local workspace - implemented: existing default-mode selector control retained and repositioned beneath strip - 2026-02-20
-[x] UI-106 - codex - local workspace - implemented: scoped dashboard SCSS added for hero/strip parity at desktop/mobile breakpoints - 2026-02-20
-[x] UI-107 - codex - local workspace - partial: semantic/link/focus-friendly structure implemented; manual keyboard/screen-reader check in live WP admin pending - 2026-02-20
-[x] UI-108 - codex - local workspace - implemented: obsolete two-column + 4-card layout removed from landing template - 2026-02-20
-[x] UI-109 - codex - local workspace - pending manual: live WP admin visual parity checklist not executable in this workspace - 2026-02-20
-[x] UI-110 - codex - local workspace - partial: automated/unit/build regressions pass; live WP admin click-path regression still pending manual verification - 2026-02-20
-
-Prototype alignment validation notes:
-1. `composer test:unit` passes in this workspace (expected pre-existing skips only).
-2. `npm run build` passes; no new asset build errors.
-3. PHPCS not run (explicitly out of scope).
-4. Integration tests not run (explicitly out of scope).
-5. Manual WP admin visual/interaction verification remains required for `UI-107`, `UI-109`, `UI-110`.
+Deferred execution notes:
+1. Do not add PHPCS to these tasks.
+2. Integration tests are not required for this cleanup pass.
+3. Preserve existing meter severity/traffic logic (`BuildMeter::trafficFromPercentage()` and queue `good|warning|critical`) without introducing new fallback behavior.
