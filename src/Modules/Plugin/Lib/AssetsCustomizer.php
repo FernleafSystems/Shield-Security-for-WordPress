@@ -371,17 +371,6 @@ class AssetsCustomizer {
 					]
 				],
 			],
-			'offcanvas'        => [
-				'key'     => 'offcanvas',
-				'handles' => [
-					'main',
-				],
-				'data'    => [
-					'ajax' => [
-						'render' => ActionData::BuildAjaxRender(),
-					],
-				],
-			],
 			'rule_builder'     => [
 				'key'     => 'rule_builder',
 				'handles' => [

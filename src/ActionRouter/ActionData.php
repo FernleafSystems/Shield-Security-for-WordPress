@@ -66,9 +66,8 @@ class ActionData {
 	/**
 	 * @param class-string<BaseAction> $actionClass
 	 */
-	public static function BuildAjaxRender( string $actionClass = '', array $aux = [] ) :array {
-		$aux[ 'render_slug' ] = empty( $actionClass ) ? '' : $actionClass::SLUG;
-		return self::Build( AjaxRender::class, true, $aux );
+	public static function BuildAjaxRender( string $actionClass, array $aux = [] ) :array {
+		return self::Build( AjaxRender::class, true, \array_merge( $aux, [ 'render_slug' => $actionClass::SLUG ] ) );
 	}
 
 	public static function BuildJson( string $actionClass, bool $isAjax = true, array $aux = [] ) :string {
