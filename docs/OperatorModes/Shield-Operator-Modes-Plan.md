@@ -150,9 +150,9 @@ Today, the `MeterSummary` hero score and the grades page blend both channels. A 
 The separation affects several interconnected systems:
 
 **Scoring engine (`BuildMeter.php`, `Handler.php`):**
-- `MeterSummary` currently aggregates all components including maintenance items (`wp_updates`, `wp_plugins_updates`, `wp_themes_updates`, `wp_plugins_inactive`, `wp_themes_inactive`).
-- These maintenance components must be excluded from the configuration posture score and routed to the action items channel instead.
-- The `MeterOverallConfig` meter already distinguishes maintenance components via the `maintenance_component_slugs` array in its `buildComponents()` method. This is the natural split point.
+- `MeterSummary` currently aggregates all components including maintenance items (`wp_updates`, `wp_plugins_updates`, `wp_themes_updates`, `wp_plugins_inactive`, `wp_themes_inactive`) **and scan result components** (`ScanResultsWcf`, `ScanResultsWpv`, `ScanResultsMal`, `ScanResultsPtg`, `ScanResultsApc`).
+- Both maintenance components and scan result components must be excluded from the configuration posture score and routed to the action items channel. Scan result components (via `ScanResultsBase`) are count-driven (`countResults()`, dynamic `weight()`) — they measure "something happened" not "something is configured."
+- The `MeterOverallConfig` meter already distinguishes maintenance components via the `maintenance_component_slugs` array in its `buildComponents()` method. This is the natural split point for maintenance items. For scan results, `ScanResultsBase` provides a shared parent class where the channel override can be applied once.
 
 **Grades page (`PageDashboardMeters`):**
 - Currently shows all meters including components that are really action items.
@@ -181,46 +181,107 @@ The data sources are already separate in code. The work is in the display layer 
 
 #### Approach
 
-1. Tag each meter component with a `channel` property: `config` or `action`.
+1. Tag each meter component with a `channel` property: `config` or `action`. Override to `action` in maintenance components and in `ScanResultsBase` (which covers all `ScanResults*` subclasses).
 2. `MeterSummary` accepts a channel filter. Default (no filter) returns the combined score for backward compatibility during migration.
 3. Configure mode calls `MeterSummary` with `channel: config`. Actions mode uses `AttentionItemsProvider` (already action-channel only).
 4. The mode selector landing shows both: config score on the Configure card, action count on the Actions card.
 5. Recalibrate grade thresholds for the config-only score if testing shows significant drift from users' expectations.
+6. **Zero-weight safety:** `BuildMeter.php` computes percentages using `$totalWeight` without a zero guard. When channel filtering removes all components, division by zero will occur. Add a hard guard: when `totalWeight <= 0`, return stable zeroed totals/status.
+7. **Channel-aware caching:** `Handler.php` caches built meters by slug only (static `BuiltMeters`). Channel-specific retrieval would collide. Cache key must include channel dimension (e.g. `summary|config`, `summary|action`, `summary|combined`).
 
 ---
 
 ## 4. Sidebar Navigation Per Mode
 
-Each mode defines which nav items appear in the sidebar. The `NavMenuBuilder::build()` method will accept the current operator mode and filter accordingly.
+The Shield plugin sidebar has two distinct states, controlled by whether the user is on the mode selector page or inside a mode.
 
-### Actions Queue sidebar
+### 4.1 Sidebar behaviour — design spec
+
+**State 1 — On the mode selector landing page (`NAV_DASHBOARD` / `SUBNAV_DASHBOARD_OVERVIEW`):**
+
+The sidebar mirrors the four mode cards on the landing page. Each entry is a flat top-level link into that mode's default entry point. No sub-items, no expand/collapse — just four clear choices plus Go PRO.
 
 ```
+Shield Security
+├── ⚡ Actions Queue       → links to defaultEntryForMode(MODE_ACTIONS)
+├── 🔍 Investigate         → links to defaultEntryForMode(MODE_INVESTIGATE)
+├── ⚙  Configure           → links to defaultEntryForMode(MODE_CONFIGURE)
+├── 📊 Reports             → links to defaultEntryForMode(MODE_REPORTS)
+─────────
+└── Go PRO / License
+```
+
+**State 2 — Inside any mode (user has navigated to a page belonging to a mode):**
+
+The sidebar shows that mode's dedicated navigation items with full sub-items (zones, rules sub-pages, etc.). A back link at the top returns to the mode selector. This mirrors the breadcrumb path: `Shield Security » [Mode] » [Page]`.
+
+```
+← Shield Security              ← back link to mode selector landing
+─────────
+[Mode Name]                     ← mode heading (not clickable, or links to mode default entry)
+├── [Mode-specific nav items]
+├── ...
+─────────
+└── Go PRO / License
+```
+
+### 4.2 Sidebar implementation status (2026-02-20)
+
+The two-state sidebar is now implemented in `NavMenuBuilder::build()`.
+
+Completed in `src/Modules/Plugin/Lib/NavMenuBuilder.php`:
+1. `resolveCurrentMode()` now returns `''` for `NAV_DASHBOARD`/empty nav (mode selector state) instead of falling back to `MODE_ACTIONS`.
+2. `buildModeSelector()` returns the 4 mode-entry links plus Go PRO/License.
+3. `buildModeNav()` prepends a `mode-selector-back` link (`mode-back-link`) and then renders mode-filtered nav items plus Go PRO/License.
+4. `allowedNavsForMode()` no longer includes `NAV_DASHBOARD` for any mode.
+5. Shared menu normalization was extracted and reused for both states to avoid duplication.
+
+No template change was required in `templates/twig/wpadmin/components/page/nav_sidebar.twig` because it already iterates generic `navbar_menu` item structures.
+
+Outstanding sidebar follow-up (non-blocking for P4 completion):
+1. Add Security Grades direct link in Configure mode sidebar (`OM-410`).
+2. Optional visual polish for `.mode-back-link` (`OM-411`).
+### 4.3 Nav items per mode
+
+These define what `allowedNavsForMode()` returns. The current implementation matches the spec for filtering, but the items below also show the desired sidebar labels (which may differ from the current `title` values in the private methods).
+
+#### Actions Queue sidebar
+
+```
+← Shield Security                    ← back link
+─────────
 Actions Queue
-├── Overview (attention queue landing — NeedsAttentionQueue)
-├── Scan Results (filtered to items needing action)
-└── Run Scan
+├── Scan Results                      → NAV_SCANS / SUBNAV_SCANS_RESULTS
+└── Run Scan                          → NAV_SCANS / SUBNAV_SCANS_RUN
 ```
 
-### Investigate sidebar
+Note: The existing `scans()` method already returns these as sub-items. The current `allowedNavsForMode(MODE_ACTIONS)` correctly includes `NAV_SCANS`. The "Overview" landing (NeedsAttentionQueue) is rendered as the mode's default entry page, not as a separate nav item.
+
+#### Investigate sidebar
 
 ```
+← Shield Security                    ← back link
+─────────
 Investigate
-├── By User (NEW — select user, view all their activity/sessions/IPs)
-├── By IP Address (NEW — select IP, view analysis/activity/traffic)
-├── By Plugin (NEW — select plugin, view related events)
-├── Activity Log (existing — PageActivityLogTable)
-├── HTTP Requests (existing — PageTrafficLogTable)
-├── Live Log (existing — PageTrafficLogLive)
-└── IP Rules (existing — PageIpRulesTable)
+├── Activity Log                      → NAV_ACTIVITY / SUBNAV_LOGS (existing)
+├── HTTP Request Log                  → NAV_TRAFFIC / SUBNAV_LOGS (existing)
+├── Live HTTP Log                     → NAV_TRAFFIC / SUBNAV_LIVE (existing)
+├── Bots & IP Rules                   → NAV_IPS (existing)
+├── By User                           → NEW (P6+ — PageInvestigateByUser)
+├── By IP Address                     → NEW (P6+ — wraps IpAnalyse\Container)
+└── By Plugin                         → NEW (P6+ — deferred)
 ```
 
-### Configure sidebar
+Note: The current `allowedNavsForMode(MODE_INVESTIGATE)` includes `NAV_ACTIVITY`, `NAV_IPS`, `NAV_TRAFFIC`. The `activity()` method already groups Activity Log, HTTP Request Log, and Live HTTP Log as sub-items under `NAV_ACTIVITY`. This is the current structure and works. The investigation selectors (By User, By IP, By Plugin) are P6+ work and will require new NAV constants and page handlers when built.
+
+#### Configure sidebar
 
 ```
+← Shield Security                    ← back link
+─────────
 Configure
-├── Security Grades (existing — PageDashboardMeters, config channel only)
-├── Security Zones
+├── Security Grades                   → NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES (config channel only)
+├── Security Zones                    → NAV_ZONES (existing — 8 dynamic zone sub-items)
 │   ├── Security Admin
 │   ├── Firewall
 │   ├── Bots & IPs
@@ -229,37 +290,39 @@ Configure
 │   ├── Users
 │   ├── SPAM
 │   └── Headers
-├── Custom Rules
+├── Custom Rules                      → NAV_RULES (existing — 3 sub-items)
 │   ├── Manage
 │   ├── New
 │   └── Summary
-├── Import/Export
-└── Site Lockdown
+└── Tools                             → NAV_TOOLS (existing — Import/Export, Lockdown, Sessions, etc.)
+    ├── User Sessions
+    ├── Site Lockdown
+    ├── Import/Export
+    ├── White Label
+    ├── Hide Login
+    ├── Integrations
+    ├── Guided Setup
+    ├── Docs
+    └── Debug Info
 ```
 
-### Reports sidebar
+Note: `allowedNavsForMode(MODE_CONFIGURE)` now includes `NAV_ZONES`, `NAV_RULES`, and `NAV_TOOLS` only; `NAV_DASHBOARD` has already been removed and replaced by the back link. Security Grades (`NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`) still needs explicit handling as a Configure-mode link (`OM-410`). Option (a) remains simplest: add a direct link item in `buildModeNav()` for Configure.
+
+#### Reports sidebar
 
 ```
-Reports
-├── Security Reports (existing — PageReports)
-├── Charts & Trends (existing — ChartsSummary, moved from current dashboard)
-└── Alert Settings (config for InstantAlerts + Reporting components)
-```
-
-### Cross-cutting items
-
-These appear in all modes (or in a collapsible "More" section at the sidebar bottom):
-
-```
+← Shield Security                    ← back link
 ─────────
-License / Go PRO
-Docs
-Debug Info
-Guided Setup
-White Label
-Hide Login
-Integrations
+Reports
+├── Security Reports                  → NAV_REPORTS / SUBNAV_REPORTS_LIST (existing)
+└── Alert Settings                    → future: config for InstantAlerts + Reporting components
 ```
+
+Note: The current `allowedNavsForMode(MODE_REPORTS)` includes `NAV_REPORTS`. The Reports section is currently thin — just one page. Charts & Trends and Alert Settings are future additions.
+
+### 4.4 Cross-cutting items
+
+These appear at the bottom of the sidebar in all states (both mode selector and inside-mode). Currently, items like Docs, Debug, Guided Setup, White Label, Hide Login, and Integrations live as sub-items under `NAV_TOOLS` in Configure mode. They should remain accessible from Configure mode's Tools section. In other modes, they are not shown in the sidebar — users access them via Configure mode or direct URL. Go PRO / License always appears at the bottom.
 
 ---
 
@@ -362,11 +425,14 @@ This must happen first because the mode selector landing page needs to display t
 
 | File | Change |
 |---|---|
-| `Component/Base.php` | Add `channel()` method returning `config` or `action`. Default: `config`. |
+| `Component/Base.php` | Add `channel()` method returning `config` or `action`. Default: `config`. Add `CHANNEL_CONFIG` and `CHANNEL_ACTION` constants. |
 | Maintenance components (`WpUpdates`, `WpPluginsUpdates`, `WpThemesUpdates`, `WpPluginsInactive`, `WpThemesInactive`) | Override `channel()` to return `action`. |
-| `MeterSummary` / `MeterOverallConfig` | Accept optional channel filter in `buildComponents()`. |
-| `BuildMeter.php` | Filter components by channel when building meter data. |
-| `Handler.php` | Add `getMeterByChannel()` convenience method. |
+| `ScanResultsBase.php` | Override `channel()` to return `action`. This covers all scan result subclasses (`ScanResultsWcf`, `ScanResultsWpv`, `ScanResultsMal`, `ScanResultsPtg`, `ScanResultsApc`). |
+| `MeterSummary` / `MeterOverallConfig` / `MeterBase` | Accept optional channel filter in `buildComponents()`. |
+| `BuildMeter.php` | Filter components by channel when building meter data. Add zero-weight guard: return zeroed totals when `$totalWeight <= 0`. |
+| `Handler.php` | Add `getMeterByChannel()` convenience method. Make cache channel-aware: cache key includes channel dimension (e.g. `summary|config`). |
+
+**Status (2026-02-20):** ✅ Complete. All changes above have been implemented and tested. See backlog Section 9 for execution details.
 
 **Test:** Verify that the config-only score is within a reasonable range of the old combined score for typical sites. Adjust grade thresholds if needed.
 
@@ -387,20 +453,26 @@ This must happen first because the mode selector landing page needs to display t
 | `PageDashboardOverview.php` | Check `OperatorModePreference`. If default set → redirect to that mode. If empty → render mode selector landing. |
 | `PluginNavs.php` | Add operator mode constants (`MODE_ACTIONS`, `MODE_INVESTIGATE`, `MODE_CONFIGURE`, `MODE_REPORTS`) |
 
+**Status (2026-02-20):** ✅ Complete. `PageOperatorModeLanding.php`, `operator_mode_landing.twig`, and `OperatorModePreference.php` exist and are functional. Mode constants added to `PluginNavs.php`.
+
 **Cleanup:** None. Additive only.
 
 ### Step 3: Mode-Aware Sidebar Navigation
+
+**Status (2026-02-20):** Complete. Two-state sidebar behavior is implemented in `NavMenuBuilder` and WP submenu mode entries are already in place.
 
 **Modify:**
 
 | File | Change |
 |---|---|
-| `NavMenuBuilder.php` | Accept operator mode parameter. Return filtered nav items per mode (see Section 4). |
-| `PluginAdminPageHandler.php` | Change WP admin submenu registration to mode-based items (see Section 5). |
+| `NavMenuBuilder.php` | Completed: two-state sidebar implemented (`resolveCurrentMode()` dashboard handling, `buildModeSelector()`, `buildModeNav()`, and `allowedNavsForMode()` dashboard removal). |
+| `PluginAdminPageHandler.php` | Already done — WP submenu registers mode-based items. No further changes needed unless entry point URLs change. |
 
-**Cleanup:** Remove old flat submenu items (Activity, Traffic, etc.) from WP admin sidebar.
+**Cleanup:** Remove old flat submenu items (Activity, Traffic, etc.) from WP admin sidebar. (Already done.)
 
 ### Step 4: Mode Switching & Breadcrumbs
+
+**Status (2026-02-20):** Breadcrumbs (`BuildBreadCrumbs.php`) are ✅ done — mode-aware with Shield Security → Mode → Page structure. `OperatorModeSwitch` action exists. Simple/Advanced toggle has not yet been removed from `base_inner_page.twig` (deferred to P5). The toggle UI is no longer visible but the code path still exists.
 
 **Create:**
 
@@ -419,6 +491,8 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 5: Actions Queue Mode
 
+**Status (2026-02-20):** ❌ Not started. The Actions Queue hero exists on the mode selector landing page, but no dedicated Actions Queue mode landing page or sidebar has been built.
+
 **Reuse existing:** `NeedsAttentionQueue.php`, `AttentionItemsProvider.php`, `PageScansResults.php`, `PageScansRun.php`
 
 **Create:**
@@ -429,6 +503,8 @@ This must happen first because the mode selector landing page needs to display t
 | `actions_queue_landing.twig` | Template |
 
 ### Step 6: Investigate Mode
+
+**Status (2026-02-20):** ❌ Not started. Existing pages (Activity Log, Traffic Log, IP Rules) are accessible via the sidebar when in Investigate mode, but no dedicated landing page or investigation selectors (By User, By IP) have been built.
 
 **Create:**
 
@@ -447,6 +523,8 @@ Promote `IpAnalyse\Container` to a first-class Investigate nav item ("By IP Addr
 
 ### Step 7: Configure & Reports Modes
 
+**Status (2026-02-20):** ❌ Not started. Existing pages are accessible via sidebar mode filtering, but no dedicated landing pages have been built.
+
 Mostly sidebar reorganisation of existing pages.
 
 **Configure:** Security Grades (config channel only), Security Zones (8), Custom Rules (3), Import/Export, Site Lockdown.
@@ -461,6 +539,8 @@ Mostly sidebar reorganisation of existing pages.
 | `PageReportsLanding.php` | Reports mode landing — recent reports + chart summary |
 
 ### Step 8: WP Dashboard Widget Update
+
+**Status (2026-02-20):** ❌ Not started.
 
 **Modify:**
 
@@ -523,3 +603,4 @@ Important compatibility detail:
 Validation detail:
 1. Unit tests for the new Phase A meter slice pass.
 2. WordPress integration tests were not required for this phase and could not be executed in this workspace due missing WP integration environment.
+

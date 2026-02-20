@@ -11,14 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	ActivityLogging,
 	InstantAlerts,
-	IpBlockingRules,
 	LoginHide,
 	Modules\ModuleIntegrations,
 	Modules\ModulePlugin,
-	Modules\ModuleScans,
 	Reporting,
 	RequestLogging,
-	SilentCaptcha,
 	Whitelabel
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -28,7 +25,21 @@ class NavMenuBuilder {
 	use PluginControllerConsumer;
 
 	public function build() :array {
-		$menu = [
+		$baseMenu = $this->baseMenuItems();
+		$mode = $this->resolveCurrentMode();
+
+		if ( empty( $mode ) ) {
+			$menu = $this->buildModeSelector( $baseMenu );
+		}
+		else {
+			$menu = $this->buildModeNav( $baseMenu, $mode );
+		}
+
+		return $this->normalizeMenu( $menu );
+	}
+
+	private function baseMenuItems() :array {
+		return [
 			$this->dashboard(),
 			$this->zones(),
 			$this->ips(),
@@ -39,8 +50,58 @@ class NavMenuBuilder {
 			$this->reports(),
 			$this->gopro(),
 		];
-		$menu = $this->filterMenuForMode( $menu, $this->resolveCurrentMode() );
+	}
 
+	private function buildModeSelector( array $baseMenu ) :array {
+		$menu = [];
+		$baseMenuBySlug = [];
+
+		foreach ( $baseMenu as $item ) {
+			$baseMenuBySlug[ (string)( $item[ 'slug' ] ?? '' ) ] = $item;
+		}
+
+		foreach ( PluginNavs::allOperatorModes() as $mode ) {
+			$entry = PluginNavs::defaultEntryForMode( $mode );
+			$sourceItem = $baseMenuBySlug[ $entry[ 'nav' ] ] ?? [];
+
+			$menu[] = [
+				'slug'      => 'mode-'.$mode,
+				'title'     => PluginNavs::modeLabel( $mode ),
+				'subtitle'  => (string)( $sourceItem[ 'subtitle' ] ?? '' ),
+				'img'       => (string)( $sourceItem[ 'img' ] ?? '' ),
+				'href'      => self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] ),
+				'active'    => false,
+				'classes'   => [],
+				'sub_items' => [],
+			];
+		}
+
+		$license = $baseMenuBySlug[ PluginNavs::NAV_LICENSE ] ?? null;
+		if ( \is_array( $license ) ) {
+			$menu[] = $license;
+		}
+
+		return $menu;
+	}
+
+	private function buildModeNav( array $baseMenu, string $mode ) :array {
+		$backLink = [
+			'slug'      => 'mode-selector-back',
+			'title'     => __( "\u{2190} Shield Security", 'wp-simple-firewall' ),
+			'img'       => self::con()->svgs->iconClass( 'box-arrow-left' ),
+			'href'      => self::con()->plugin_urls->adminHome(),
+			'active'    => false,
+			'classes'   => [ 'mode-back-link' ],
+			'sub_items' => [],
+		];
+
+		return \array_merge(
+			[ $backLink ],
+			$this->filterMenuForMode( $baseMenu, $mode )
+		);
+	}
+
+	private function normalizeMenu( array $menu ) :array {
 		$isSecAdmin = self::con()->isPluginAdmin();
 		foreach ( $menu as $key => $item ) {
 			$item = Services::DataManipulation()->mergeArraysRecursive( [
@@ -49,7 +110,7 @@ class NavMenuBuilder {
 				'href'      => 'javascript:{}',
 				'classes'   => [],
 				'id'        => '',
-				'active'    => $this->inav() === $item[ 'slug' ],
+				'active'    => $this->inav() === ( $item[ 'slug' ] ?? '' ),
 				'sub_items' => [],
 				'target'    => '',
 				'data'      => [],
@@ -104,19 +165,16 @@ class NavMenuBuilder {
 	}
 
 	private function filterMenuForMode( array $menu, string $mode ) :array {
-		$allowedNavs = $this->allowedNavsForMode( $mode );
-
-		return \array_values( \array_filter( $menu, function ( array $item ) use ( $allowedNavs ) :bool {
-			$slug = (string)( $item[ 'slug' ] ?? '' );
-			return $slug === PluginNavs::NAV_LICENSE || \in_array( $slug, $allowedNavs, true );
-		} ) );
+		return \array_values( \array_filter(
+			$menu,
+			fn( array $item ) :bool => \in_array( $item[ 'slug' ] ?? '', $this->allowedNavsForMode( $mode ), true )
+		) );
 	}
 
 	private function allowedNavsForMode( string $mode ) :array {
 		switch ( $mode ) {
 			case PluginNavs::MODE_INVESTIGATE:
 				$allowed = [
-					PluginNavs::NAV_DASHBOARD,
 					PluginNavs::NAV_ACTIVITY,
 					PluginNavs::NAV_IPS,
 					PluginNavs::NAV_TRAFFIC,
@@ -124,7 +182,6 @@ class NavMenuBuilder {
 				break;
 			case PluginNavs::MODE_CONFIGURE:
 				$allowed = [
-					PluginNavs::NAV_DASHBOARD,
 					PluginNavs::NAV_ZONES,
 					PluginNavs::NAV_RULES,
 					PluginNavs::NAV_TOOLS,
@@ -132,14 +189,12 @@ class NavMenuBuilder {
 				break;
 			case PluginNavs::MODE_REPORTS:
 				$allowed = [
-					PluginNavs::NAV_DASHBOARD,
 					PluginNavs::NAV_REPORTS,
 				];
 				break;
 			case PluginNavs::MODE_ACTIONS:
 			default:
 				$allowed = [
-					PluginNavs::NAV_DASHBOARD,
 					PluginNavs::NAV_SCANS,
 				];
 				break;
@@ -149,8 +204,8 @@ class NavMenuBuilder {
 	}
 
 	private function resolveCurrentMode() :string {
-		$mode = PluginNavs::modeForNav( $this->inav() );
-		return empty( $mode ) ? PluginNavs::MODE_ACTIONS : $mode;
+		$nav = $this->inav();
+		return ( empty( $nav ) || $nav === PluginNavs::NAV_DASHBOARD ) ? '' : PluginNavs::modeForNav( $nav );
 	}
 
 	private function ips() :array {
@@ -166,13 +221,13 @@ class NavMenuBuilder {
 				'title' => __( 'IP Rules', 'wp-simple-firewall' ),
 				'body'  => __( "Review IP Rules that control whether a site visitor is blocked.", 'wp-simple-firewall' ),
 			],
-//			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_IPS,
-//				[
-//					IpBlockingRules::Slug(),
-//					SilentCaptcha::Slug(),
-//				],
-//				__( 'Edit IP block settings', 'wp-simple-firewall' )
-//			),
+			//			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_IPS,
+			//				[
+			//					IpBlockingRules::Slug(),
+			//					SilentCaptcha::Slug(),
+			//				],
+			//				__( 'Edit IP block settings', 'wp-simple-firewall' )
+			//			),
 		];
 	}
 
@@ -211,10 +266,6 @@ class NavMenuBuilder {
 			'title'     => __( 'Scans', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->iconClass( 'shield-shaded' ),
-//			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_SCANS,
-//				[ ModuleScans::Slug(), ],
-//				__( 'Edit all scan settings', 'wp-simple-firewall' )
-//			),
 			'sub_items' => [
 				$this->createSubItemForNavAndSub(
 					__( 'Results', 'wp-simple-firewall' ),
@@ -320,7 +371,7 @@ class NavMenuBuilder {
 			'title'     => $con->isPremiumActive() ? self::con()->labels->Name : __( 'Go PRO!', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Supercharged Security', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->iconClass( 'award' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
+			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK ),
 			'sub_items' => $subItems,
 		];
 	}
