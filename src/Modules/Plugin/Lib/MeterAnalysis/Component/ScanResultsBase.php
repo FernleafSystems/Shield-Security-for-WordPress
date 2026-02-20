@@ -8,6 +8,10 @@ abstract class ScanResultsBase extends Base {
 
 	public const WEIGHT = 6;
 
+	public function channel() :string {
+		return self::CHANNEL_ACTION;
+	}
+
 	abstract protected function countResults() :int;
 
 	protected function hrefFull() :string {

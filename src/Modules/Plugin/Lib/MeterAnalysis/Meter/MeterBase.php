@@ -26,9 +26,10 @@ abstract class MeterBase {
 		return $warning;
 	}
 
-	public function buildComponents() :array {
+	public function buildComponents( ?string $channel = null ) :array {
 		$con = self::con();
 		$prefs = $con->opts->optGet( 'sec_overview_prefs' );
+		$channel = empty( $channel ) ? null : \strtolower( \trim( $channel ) );
 
 		$viewAs = $prefs[ 'view_as' ] ?? '';
 		if ( !\in_array( $viewAs, [ 'free', 'starter', 'business' ], true ) ) {
@@ -64,8 +65,11 @@ abstract class MeterBase {
 		$builder = new Components();
 		foreach ( $componentClasses as $class ) {
 			try {
-				$built = $builder->buildComponent( $class );
-				$components[ $built[ 'slug' ] ] = $built;
+				$built = $builder->buildComponent( $class, $channel );
+				if ( empty( $channel )
+					 || ( $built[ 'channel' ] ?? Component\Base::CHANNEL_CONFIG ) === $channel ) {
+					$components[ $built[ 'slug' ] ] = $built;
+				}
 			}
 			catch ( \Exception $e ) {
 			}

@@ -10,6 +10,10 @@ class WpPluginsUpdates extends Base {
 	public const SLUG = 'wp_plugins_updates';
 	public const WEIGHT = 4;
 
+	public function channel() :string {
+		return self::CHANNEL_ACTION;
+	}
+
 	public function hrefFull() :string {
 		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins( true ), [
 			'plugin_status' => 'upgrade'

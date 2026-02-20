@@ -11,9 +11,9 @@ class SystemSslCertificate extends Base {
 	public const SLUG = 'system_ssl_certificate';
 	public const WEIGHT = 5;
 
-	public function build() :array {
+	public function build( ?string $meterChannel = null ) :array {
 		$this->getSslStatus(); // Ensure we've run the test and set the status before building begins
-		return parent::build();
+		return parent::build( $meterChannel );
 	}
 
 	protected function testIfProtected() :bool {

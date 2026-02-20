@@ -98,14 +98,19 @@ class Components {
 	 * @param class-string<Component\Base> $class
 	 * @throws \Exception
 	 */
-	public function buildComponent( string $class ) :array {
-		if ( !\is_array( self::$built[ $class ] ?? null ) ) {
+	public function buildComponent( string $class, ?string $channel = null ) :array {
+		$channelKey = $this->channelCacheKey( $channel );
+		if ( !\is_array( self::$built[ $class ][ $channelKey ] ?? null ) ) {
 			if ( !\in_array( $class, self::COMPONENTS ) ) {
 				throw new \Exception( sprintf( 'Invalid component class: %s', $class ) );
 			}
 			$compObj = new $class();
-			self::$built[ $class ] = $compObj->build();
+			self::$built[ $class ][ $channelKey ] = $compObj->build( $channel );
 		}
-		return self::$built[ $class ];
+		return self::$built[ $class ][ $channelKey ];
+	}
+
+	private function channelCacheKey( ?string $channel ) :string {
+		return empty( $channel ) ? 'combined' : \strtolower( \trim( $channel ) );
 	}
 }

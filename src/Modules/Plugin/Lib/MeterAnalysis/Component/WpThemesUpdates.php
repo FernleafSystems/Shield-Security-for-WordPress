@@ -9,6 +9,10 @@ class WpThemesUpdates extends Base {
 	public const SLUG = 'wp_themes_updates';
 	public const WEIGHT = 3;
 
+	public function channel() :string {
+		return self::CHANNEL_ACTION;
+	}
+
 	public function hrefFull() :string {
 		return Services::WpGeneral()->getAdminUrl_Themes( true );
 	}

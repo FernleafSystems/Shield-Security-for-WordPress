@@ -11,13 +11,18 @@ abstract class Base {
 	public const SLUG = '';
 	public const MINIMUM_EDITION = 'free';
 	public const WEIGHT = 3;
+	public const CHANNEL_CONFIG = 'config';
+	public const CHANNEL_ACTION = 'action';
 
 	protected ?bool $isProtected = null;
+	private ?string $meterChannel = null;
 
-	public function build() :array {
+	public function build( ?string $meterChannel = null ) :array {
+		$this->meterChannel = $meterChannel;
 		return \array_merge(
 			[
 				'slug'                   => $this->slug(),
+				'channel'                => $this->channel(),
 				'categories'             => $this->categories(),
 				'weight'                 => $this->weight(),
 				'score'                  => $this->score(),
@@ -33,6 +38,10 @@ abstract class Base {
 			],
 			$this->text(),
 		);
+	}
+
+	public function channel() :string {
+		return self::CHANNEL_CONFIG;
 	}
 
 	protected function text() :array {
@@ -120,5 +129,9 @@ abstract class Base {
 
 	protected function isViewAsFree() :bool {
 		return ( self::con()->opts->optGet( 'sec_overview_prefs' )[ 'view_as' ] ?? 'free' ) === 'free';
+	}
+
+	protected function meterChannel() :?string {
+		return $this->meterChannel;
 	}
 }

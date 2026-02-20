@@ -22,7 +22,7 @@ class BuildMeter {
 		self::STATUS_LOW    => [ 200, 50, 10 ],
 	];
 
-	public function build( string $meterClass ) :array {
+	public function build( string $meterClass, ?string $channel = null ) :array {
 		/** @var Meter\MeterBase $meter */
 		$meter = new $meterClass();
 		return $this->postProcessMeter( [
@@ -30,7 +30,7 @@ class BuildMeter {
 			'subtitle'    => $meter->subtitle(),
 			'warning'     => $meter->warning(),
 			'description' => $meter->description(),
-			'components'  => $meter->buildComponents(),
+			'components'  => $meter->buildComponents( $channel ),
 		] );
 	}
 
@@ -51,8 +51,8 @@ class BuildMeter {
 		}
 
 		foreach ( $meter[ 'components' ] as &$comp ) {
-			$comp[ 'score_as_percent' ] = (int)\round( 100*$comp[ 'score' ]/$totalWeight );
-			$comp[ 'weight_as_percent' ] = (int)\round( 100*$comp[ 'weight' ]/$totalWeight );
+			$comp[ 'score_as_percent' ] = $totalWeight > 0 ? (int)\round( 100*$comp[ 'score' ]/$totalWeight ) : 0;
+			$comp[ 'weight_as_percent' ] = $totalWeight > 0 ? (int)\round( 100*$comp[ 'weight' ]/$totalWeight ) : 0;
 		}
 
 		// Put critical components to the top of the list.
@@ -63,7 +63,7 @@ class BuildMeter {
 			return $a[ 'is_critical' ] ? -1 : 1;
 		} );
 
-		$percentage = (int)\round( 100*$totalScore/$totalWeight );
+		$percentage = $totalWeight > 0 ? (int)\round( 100*$totalScore/$totalWeight ) : 0;
 		$meter[ 'totals' ] = [
 			'score'        => $totalScore,
 			'max_weight'   => $totalWeight,

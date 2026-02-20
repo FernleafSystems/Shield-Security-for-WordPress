@@ -9,6 +9,10 @@ class WpUpdates extends Base {
 	public const SLUG = 'wp_updates';
 	public const WEIGHT = 5;
 
+	public function channel() :string {
+		return self::CHANNEL_ACTION;
+	}
+
 	protected function testIfProtected() :bool {
 		return !Services::WpGeneral()->hasCoreUpdate();
 	}

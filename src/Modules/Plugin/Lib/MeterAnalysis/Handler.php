@@ -21,6 +21,7 @@ class Handler {
 	];
 
 	private static array $BuiltMeters = [];
+	private static array $BuiltMetersByChannel = [];
 
 	public function __construct() {
 	}
@@ -43,7 +44,11 @@ class Handler {
 	 * @param string|class-string<Meter\MeterBase> $meterClassOrSlug
 	 * @throws \Exception
 	 */
-	public function getMeter( string $meterClassOrSlug, bool $orderComponentsByWeight = true ) :array {
+	public function getMeter(
+		string $meterClassOrSlug,
+		bool $orderComponentsByWeight = true,
+		?string $channel = null
+	) :array {
 
 		if ( isset( self::METERS[ $meterClassOrSlug ] ) ) {
 			$theSlug = $meterClassOrSlug;
@@ -55,11 +60,21 @@ class Handler {
 			throw new \Exception( 'Invalid Meter Class or Slug: '.$meterClassOrSlug );
 		}
 
-		if ( empty( self::$BuiltMeters[ $theSlug ] ) ) {
-			self::$BuiltMeters[ $theSlug ] = ( new BuildMeter() )->build( self::METERS[ $theSlug ] );
-		}
+		$normalizedChannel = $this->normalizeChannel( $channel );
 
-		$meter = self::$BuiltMeters[ $theSlug ];
+		if ( $normalizedChannel === null ) {
+			if ( empty( self::$BuiltMeters[ $theSlug ] ) ) {
+				self::$BuiltMeters[ $theSlug ] = ( new BuildMeter() )->build( self::METERS[ $theSlug ] );
+			}
+			$meter = self::$BuiltMeters[ $theSlug ];
+		}
+		else {
+			if ( empty( self::$BuiltMetersByChannel[ $theSlug ][ $normalizedChannel ] ) ) {
+				self::$BuiltMetersByChannel[ $theSlug ][ $normalizedChannel ] = ( new BuildMeter() )
+					->build( self::METERS[ $theSlug ], $normalizedChannel );
+			}
+			$meter = self::$BuiltMetersByChannel[ $theSlug ][ $normalizedChannel ];
+		}
 		if ( $orderComponentsByWeight ) {
 			\usort( $meter[ 'components' ], function ( $a, $b ) {
 				$wA = $a[ 'weight' ];
@@ -69,5 +84,21 @@ class Handler {
 		}
 
 		return $meter;
+	}
+
+	private function normalizeChannel( ?string $channel ) :?string {
+		$channel = \strtolower( \trim( (string)$channel ) );
+		if ( empty( $channel ) ) {
+			return null;
+		}
+
+		if ( \in_array( $channel, [
+			Component\Base::CHANNEL_CONFIG,
+			Component\Base::CHANNEL_ACTION
+		], true ) ) {
+			return $channel;
+		}
+
+		throw new \InvalidArgumentException( sprintf( 'Invalid channel requested for meter retrieval: %s', $channel ) );
 	}
 }
