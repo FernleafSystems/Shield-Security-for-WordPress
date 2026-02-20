@@ -1,32 +1,42 @@
 <div class="operator-mode-landing">
-	<div class="row g-3 mt-3">
-		<div class="col-xl-6">
-			<h6 class="dashboard-overview-simple__panel-title">{{ strings.actions_queue_title }}</h6>
-			<div class="dashboard-overview-simple__panel dashboard-overview-simple__panel--queue h-100">
-				{{ content.needs_attention_queue|raw }}
-			</div>
+	<a href="{{ hrefs.actions_queue }}"
+	   class="operator-mode-landing__hero shield-card d-block text-decoration-none mt-3"
+	   aria-label="{{ strings.actions_queue_title }}">
+		<div class="shield-card-accent status-{{ vars.actions_hero.severity }}"></div>
+		<div class="operator-mode-landing__hero-body">
+			<span class="operator-mode-landing__hero-icon is-{{ vars.actions_hero.severity }}">
+				<i class="{{ vars.actions_hero.icon_class }}" aria-hidden="true"></i>
+			</span>
+			<span class="operator-mode-landing__hero-content">
+				<span class="operator-mode-landing__hero-title">{{ strings.actions_queue_title }}</span>
+				<span class="operator-mode-landing__hero-sub">{{ vars.actions_hero.subtitle }}</span>
+				{% if vars.actions_hero.meta|default('') is not empty %}
+					<span class="operator-mode-landing__hero-meta">{{ vars.actions_hero.meta }}</span>
+				{% endif %}
+			</span>
+			<span class="shield-badge badge-{{ vars.actions_hero.badge_status }}">{{ vars.actions_hero.badge_text }}</span>
+			<span class="operator-mode-landing__hero-arrow">
+				<i class="bi bi-chevron-right" aria-hidden="true"></i>
+			</span>
 		</div>
-		<div class="col-xl-6">
-			<h6 class="dashboard-overview-simple__panel-title text-xl-end">{{ strings.configure_score_title }}</h6>
-			<div class="d-flex flex-column h-100">
-				<div class="flex-grow-1 d-flex w-100">
-					{{ content.configure_meter|raw }}
-				</div>
-				<h6 class="mb-0 mt-2 text-xl-end pe-2">
-					<a href="{{ hrefs.configure_score_details }}" class="widget-footer-link">{{ strings.view_score_details }} &rarr;</a>
-				</h6>
-			</div>
-		</div>
-	</div>
+	</a>
 
-	<div class="row g-3 mt-2">
-		{% for mode in vars.mode_links %}
-			<div class="col-md-6 col-xl-3">
+	<div class="operator-mode-landing__strip row g-3 mt-2">
+		{% for mode in vars.mode_strip %}
+			<div class="col-12 col-md-4">
 				<a href="{{ mode.href }}"
-				   class="card h-100 text-decoration-none border-0 shadow-sm">
-					<div class="card-body">
-						<div class="fw-semibold">{{ mode.label }}</div>
-						<div class="small text-muted mt-1">{{ mode.summary }}</div>
+				   class="operator-mode-landing__strip-card shield-card d-block h-100 text-decoration-none"
+				   aria-label="{{ mode.label }}">
+					<div class="shield-card-accent status-{{ mode.status }}"></div>
+					<div class="operator-mode-landing__strip-body">
+						<span class="operator-mode-landing__strip-icon is-{{ mode.status }}">
+							<i class="{{ mode.icon_class }}" aria-hidden="true"></i>
+						</span>
+						<span class="operator-mode-landing__strip-title">{{ mode.label }}</span>
+						<span class="operator-mode-landing__strip-summary">{{ mode.summary }}</span>
+						{% if mode.badge_text|default('') is not empty %}
+							<span class="shield-badge badge-{{ mode.badge_status|default(mode.status) }}">{{ mode.badge_text }}</span>
+						{% endif %}
 					</div>
 				</a>
 			</div>
@@ -43,6 +53,7 @@
 							<option value="{{ option.mode }}" {{ option.mode == vars.default_mode ? 'selected' : '' }}>{{ option.label }}</option>
 						{% endfor %}
 					</select>
+					<div class="form-text">{{ strings.start_mode_help }}</div>
 				</div>
 				<div class="col-md-4 col-xl-3">
 					<button type="submit" class="btn btn-outline-secondary w-100">{{ strings.save_default_mode }}</button>

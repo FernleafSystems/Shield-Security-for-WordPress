@@ -47,8 +47,6 @@ class PageDashboardOverview extends BasePluginAdminPage {
 			'strings' => [
 				'inner_page_title'       => __( 'Security Overview', 'wp-simple-firewall' ),
 				'inner_page_subtitle'    => __( 'Your entire WordPress site security at a glance.', 'wp-simple-firewall' ),
-				'simple_copy_score'      => __( 'Score reflects your configuration posture.', 'wp-simple-firewall' ),
-				'simple_copy_actions'    => __( 'Action queue reflects active findings and maintenance issues.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'widget_grade'   => [
