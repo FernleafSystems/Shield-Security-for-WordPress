@@ -27,9 +27,6 @@ class NavMenuBuilder {
 	private const GROUP_PRIMARY = 'primary';
 	private const GROUP_BACKLINK = 'backlink';
 	private const GROUP_META = 'meta';
-	private const LINK_SHIELD_HOME = 'https://clk.shldscrty.com/shieldsecurityhome';
-	private const LINK_FACEBOOK_GROUP = 'https://clk.shldscrty.com/pluginshieldsecuritygroupfb';
-	private const LINK_EMAIL_SIGNUP = 'https://clk.shldscrty.com/emailsubscribe';
 
 	public function build() :array {
 		$baseMenu = $this->baseMenuItems();
@@ -95,6 +92,7 @@ class NavMenuBuilder {
 	}
 
 	private function connectMetaItem() :array {
+		$links = new ExternalLinks();
 		return [
 			'slug'      => 'meta-connect',
 			'title'     => __( 'Connect', 'wp-simple-firewall' ),
@@ -103,25 +101,25 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'connect-home',
 					'title'  => __( 'Shield Home', 'wp-simple-firewall' ),
-					'href'   => self::LINK_SHIELD_HOME,
+					'href'   => $links->url( ExternalLinks::HOME ),
 					'target' => '_blank',
 				],
 				[
 					'slug'   => 'connect-facebook',
 					'title'  => __( 'Facebook Group', 'wp-simple-firewall' ),
-					'href'   => self::LINK_FACEBOOK_GROUP,
+					'href'   => $links->url( ExternalLinks::FACEBOOK_GROUP ),
 					'target' => '_blank',
 				],
 				[
 					'slug'   => 'connect-helpdesk',
 					'title'  => __( 'Help Desk', 'wp-simple-firewall' ),
-					'href'   => self::con()->labels->url_helpdesk,
+					'href'   => $links->url( ExternalLinks::HELPDESK ),
 					'target' => '_blank',
 				],
 				[
 					'slug'   => 'connect-newsletter',
 					'title'  => __( 'Newsletter', 'wp-simple-firewall' ),
-					'href'   => self::LINK_EMAIL_SIGNUP,
+					'href'   => $links->url( ExternalLinks::NEWSLETTER ),
 					'target' => '_blank',
 				],
 			],

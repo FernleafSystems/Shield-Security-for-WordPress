@@ -165,23 +165,17 @@ abstract class BaseRender extends BaseAction {
 				'ajax' => $WP->ajaxURL(),
 
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
-				'helpdesk'       => $con->labels->url_helpdesk,
 				'plugin_home'    => $con->labels->PluginURI,
 				'go_pro'         => 'https://clk.shldscrty.com/shieldgoprofeature',
 				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),
 				'form_action'    => Services::Request()->getUri(),
-
-				'facebook_group' => 'https://clk.shldscrty.com/pluginshieldsecuritygroupfb',
-				'email_signup'   => 'https://clk.shldscrty.com/emailsubscribe',
 			],
 			'imgs'             => [
 				'svgs'           => [
 					'exit'        => $con->svgs->iconClass( 'box-arrow-left' ),
 					'help'        => $con->svgs->iconClass( 'question-circle' ),
-					'helpdesk'    => $con->svgs->iconClass( 'life-preserver' ),
-					'newsletter'  => $con->svgs->iconClass( 'envelope' ),
 					'ignore'      => $con->svgs->iconClass( 'eye-slash-fill' ),
 					'info_square' => $con->svgs->iconClass( 'info-square' ),
 					'megaphone'   => $con->svgs->iconClass( 'megaphone' ),
@@ -192,7 +186,6 @@ abstract class BaseRender extends BaseAction {
 					'email'       => $con->svgs->iconClass( 'envelope-fill' ),
 					'triangle'    => $con->svgs->iconClass( 'triangle-fill' ),
 					'expand'      => $con->svgs->iconClass( 'chevron-bar-expand' ),
-					'home'        => $con->svgs->iconClass( 'house-door' ),
 					'facebook'    => $con->svgs->iconClass( 'facebook' ),
 					'twitter'     => $con->svgs->iconClass( 'twitter' ),
 					'wordpress'   => $con->svgs->iconClass( 'wordpress' ),
