@@ -1,0 +1,28 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="row g-3">
+		<div class="col-12 col-xl-7">
+			<h5 class="mb-2">{{ strings.posture_title }}</h5>
+			<div class="progress-metercard progress-metercard-hero progress-metercard-summary"
+				 data-meter_slug="summary"
+				 data-meter_channel="config">
+				{{ content.hero_meter|raw }}
+			</div>
+		</div>
+		<div class="col-12 col-xl-5">
+			<div class="card shield-card h-100">
+				<div class="shield-card-accent status-info"></div>
+				<div class="card-body">
+					<h5 class="card-title mb-3">{{ strings.quick_links_title }}</h5>
+					<div class="list-group list-group-flush">
+						<a href="{{ hrefs.grades }}" class="list-group-item list-group-item-action">{{ strings.link_grades }}</a>
+						<a href="{{ hrefs.zones_home }}" class="list-group-item list-group-item-action">{{ strings.link_zones }}</a>
+						<a href="{{ hrefs.rules_manage }}" class="list-group-item list-group-item-action">{{ strings.link_rules }}</a>
+						<a href="{{ hrefs.tools_import }}" class="list-group-item list-group-item-action">{{ strings.link_tools }}</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

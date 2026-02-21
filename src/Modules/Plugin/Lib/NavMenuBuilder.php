@@ -321,6 +321,8 @@ class NavMenuBuilder {
 				__( 'Edit logging settings', 'wp-simple-firewall' )
 			),
 			'sub_items' => [
+				$this->createSubItemForNavAndSub( __( 'By User', 'wp-simple-firewall' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
+				$this->createSubItemForNavAndSub( __( 'By IP Address', 'wp-simple-firewall' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
 				$this->createSubItemForNavAndSub( __( 'WP Activity Log', 'wp-simple-firewall' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 				$this->createSubItemForNavAndSub( __( 'HTTP Request Log', 'wp-simple-firewall' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 				$this->createSubItemForNavAndSub( __( 'Live HTTP Log', 'wp-simple-firewall' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),

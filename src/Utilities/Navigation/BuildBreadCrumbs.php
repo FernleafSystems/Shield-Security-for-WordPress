@@ -62,7 +62,8 @@ class BuildBreadCrumbs {
 			}
 		}
 
-		if ( !( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ) ) {
+		if ( !( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW )
+			 && !$this->isModeLandingRoute( $nav, $subNav ) ) {
 			$crumbs[] = [
 				'text'  => $navStruct[ 'name' ],
 				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
@@ -83,5 +84,16 @@ class BuildBreadCrumbs {
 
 	protected function getDefaultSubNavForNav( string $nav, array $hierarchy ) :string {
 		return PluginNavs::GetDefaultSubNavForNav( $nav );
+	}
+
+	private function isModeLandingRoute( string $nav, string $subNav ) :bool {
+		$landingRoutes = [
+			PluginNavs::NAV_SCANS    => PluginNavs::SUBNAV_SCANS_OVERVIEW,
+			PluginNavs::NAV_ACTIVITY => PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
+			PluginNavs::NAV_ZONES    => PluginNavs::SUBNAV_ZONES_OVERVIEW,
+			PluginNavs::NAV_REPORTS  => PluginNavs::SUBNAV_REPORTS_OVERVIEW,
+		];
+
+		return isset( $landingRoutes[ $nav ] ) && $landingRoutes[ $nav ] === $subNav;
 	}
 }

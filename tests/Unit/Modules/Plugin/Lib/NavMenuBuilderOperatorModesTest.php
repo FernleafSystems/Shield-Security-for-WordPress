@@ -16,18 +16,28 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore;
+use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Services\Services;
 
 class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
+
+	private $origServiceItems;
+
+	private $origServices;
 
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias(
 			fn( string $text ) :string => $text
 		);
+		$this->origServiceItems = $this->getServicesProperty( 'items' )->getValue();
+		$this->origServices = $this->getServicesProperty( 'services' )->getValue();
 	}
 
 	protected function tearDown() :void {
 		PluginStore::$plugin = null;
+		$this->getServicesProperty( 'items' )->setValue( null, $this->origServiceItems );
+		$this->getServicesProperty( 'services' )->setValue( null, $this->origServices );
 		parent::tearDown();
 	}
 
@@ -97,6 +107,27 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( '', $grades[ 'img' ] );
 		$this->assertSame( '', $grades[ 'subtitle' ] );
 		$this->assertSame( 'primary', $grades[ 'group' ] );
+	}
+
+	public function testActivityIncludesByUserAndByIpInvestigateEntries() :void {
+		$this->installControllerStubs();
+		$this->installRequestServiceStub();
+
+		$activity = $this->invokeActivity();
+		$subItems = $activity[ 'sub_items' ] ?? [];
+
+		$this->assertSame(
+			[
+				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS,
+				PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LOGS,
+				PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LIVE,
+			],
+			\array_column( $subItems, 'slug' )
+		);
+		$this->assertSame( '/admin/activity/by_user', $subItems[ 0 ][ 'href' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_ip', $subItems[ 1 ][ 'href' ] ?? '' );
 	}
 
 	public function testModeSelectorAssignsPrimaryAndMetaGroups() :void {
@@ -195,6 +226,13 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		return $method->invoke( $builder, $baseMenu );
 	}
 
+	private function invokeActivity() :array {
+		$builder = $this->newBuilderInstance();
+		$method = new \ReflectionMethod( $builder, 'activity' );
+		$method->setAccessible( true );
+		return $method->invoke( $builder );
+	}
+
 	private function newBuilderInstance() :NavMenuBuilder {
 		/** @var NavMenuBuilder $builder */
 		$builder = ( new \ReflectionClass( NavMenuBuilder::class ) )->newInstanceWithoutConstructor();
@@ -277,5 +315,19 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				'title' => 'Go PRO!',
 			],
 		];
+	}
+
+	private function installRequestServiceStub() :void {
+		$this->getServicesProperty( 'items' )->setValue( null, [
+			'service_request' => new Request(),
+		] );
+		$this->getServicesProperty( 'services' )->setValue( null, null );
+	}
+
+	private function getServicesProperty( string $propertyName ) :\ReflectionProperty {
+		$reflection = new \ReflectionClass( Services::class );
+		$property = $reflection->getProperty( $propertyName );
+		$property->setAccessible( true );
+		return $property;
 	}
 }

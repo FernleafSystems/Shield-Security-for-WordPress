@@ -1,0 +1,64 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="row g-3">
+		<div class="col-12">
+			<div class="card shield-card">
+				<div class="shield-card-accent status-info"></div>
+				<div class="card-body">
+					<h5 class="card-title mb-3">{{ strings.tools_title }}</h5>
+					<div class="d-flex flex-wrap gap-2">
+						<a href="{{ hrefs.activity_log }}" class="btn btn-outline-secondary">{{ strings.tool_activity }}</a>
+						<a href="{{ hrefs.traffic_log }}" class="btn btn-outline-secondary">{{ strings.tool_traffic }}</a>
+						<a href="{{ hrefs.live_traffic }}" class="btn btn-outline-secondary">{{ strings.tool_live }}</a>
+						<a href="{{ hrefs.ip_rules }}" class="btn btn-outline-secondary">{{ strings.tool_ip_rules }}</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-12">
+			<div class="card shield-card">
+				<div class="shield-card-accent status-warning"></div>
+				<div class="card-body">
+					<h5 class="card-title mb-3">{{ strings.selectors_title }}</h5>
+					<div class="row g-3">
+						<div class="col-12 col-lg-6">
+							<form method="get" action="{{ hrefs.by_user }}" class="d-flex flex-column gap-2">
+								<label class="form-label mb-0">{{ strings.by_user_title }}</label>
+								<input type="text" name="user_lookup" class="form-control" value=""
+									   placeholder="{{ strings.lookup_user }}"/>
+								<button type="submit" class="btn btn-outline-primary align-self-start">{{ strings.go_user }}</button>
+							</form>
+						</div>
+						<div class="col-12 col-lg-6">
+							<form method="get" action="{{ hrefs.by_ip }}" class="d-flex flex-column gap-2">
+								<label class="form-label mb-0">{{ strings.by_ip_title }}</label>
+								<input type="text" name="analyse_ip" class="form-control"
+									   value="{{ vars.by_ip_value|default('') }}" placeholder="{{ strings.lookup_ip }}"/>
+								<button type="submit" class="btn btn-outline-primary align-self-start">{{ strings.go_ip }}</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		{% if flags.has_by_ip_lookup %}
+			<div class="col-12">
+				<div class="card shield-card">
+					<div class="shield-card-accent status-{{ flags.by_ip_is_valid ? 'info' : 'warning' }}"></div>
+					<div class="card-body">
+						{% if flags.by_ip_is_valid %}
+							<h5 class="card-title mb-3">{{ strings.by_ip_results_title }}: <code>{{ vars.by_ip_value }}</code></h5>
+							{{ content.by_ip_analysis|raw }}
+						{% else %}
+							<h5 class="card-title mb-2">{{ strings.by_ip_invalid_title }}</h5>
+							<p class="mb-0">{{ strings.by_ip_invalid_text }}</p>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

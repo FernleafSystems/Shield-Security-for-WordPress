@@ -491,7 +491,7 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 5: Actions Queue Mode
 
-**Status (2026-02-20):** ❌ Not started. The Actions Queue hero exists on the mode selector landing page, but no dedicated Actions Queue mode landing page or sidebar has been built.
+**Status (2026-02-21):** ⚠️ Implemented, pending runtime acceptance. Landing code/routes are in place, but completion remains open until runtime UAT confirms mode-entry behavior.
 
 **Reuse existing:** `NeedsAttentionQueue.php`, `AttentionItemsProvider.php`, `PageScansResults.php`, `PageScansRun.php`
 
@@ -504,7 +504,7 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 6: Investigate Mode
 
-**Status (2026-02-20):** ❌ Not started. Existing pages (Activity Log, Traffic Log, IP Rules) are accessible via the sidebar when in Investigate mode, but no dedicated landing page or investigation selectors (By User, By IP) have been built.
+**Status (2026-02-21):** ⚠️ Implemented, pending runtime acceptance. Operator-reported "redirect/query-only" behavior reopened completion status; acceptance now requires verified user-observable outcomes for By User and By IP flows.
 
 **Create:**
 
@@ -523,7 +523,7 @@ Promote `IpAnalyse\Container` to a first-class Investigate nav item ("By IP Addr
 
 ### Step 7: Configure & Reports Modes
 
-**Status (2026-02-20):** ❌ Not started. Existing pages are accessible via sidebar mode filtering, but no dedicated landing pages have been built.
+**Status (2026-02-21):** ⚠️ Partially complete, reopened for Configure landing quality gap. Dedicated Configure and Reports landing pages exist (`PageConfigureLanding.php`, `PageReportsLanding.php`), and Configure landing is now aligned to the existing hero meter pipeline. Broader chart relocation/removal beyond these landings remains outside this delivered slice.
 
 Mostly sidebar reorganisation of existing pages.
 
@@ -540,7 +540,7 @@ Mostly sidebar reorganisation of existing pages.
 
 ### Step 8: WP Dashboard Widget Update
 
-**Status (2026-02-20):** ❌ Not started.
+**Status (2026-02-21):** ❌ Not started (deferred by scope lock to P6-C).
 
 **Modify:**
 
@@ -548,6 +548,14 @@ Mostly sidebar reorganisation of existing pages.
 |---|---|
 | `WpDashboardSummary.php` | Show two indicators: config posture score + action items count. Remove IP tables, blog posts, session tables, activity tables. |
 | `admin_dashboard_widget.twig` | Simplified template matching the new two-indicator design. |
+
+### Acceptance Governance Update (2026-02-21)
+
+For operator-mode landing/investigate work (OM-601..OM-615), completion status now requires:
+1. Route/template/unit-test verification, and
+2. Runtime UAT proof of user-observable behavior in WP admin.
+
+Unit success alone is no longer sufficient to mark these items complete.
 
 ---
 
@@ -561,7 +569,7 @@ Mostly sidebar reorganisation of existing pages.
 | Step 4 | `DashboardViewPreference`, `DashboardViewToggle`, `PageDashboardOverviewSimple`, `dashboard_overview_simple.twig`, Simple/Advanced toggle UI | Superseded by operator mode system |
 | Step 5 | Nothing | Reuses existing components |
 | Step 6 | Nothing | New investigation pages |
-| Step 7 | Old `PageDashboardOverview` chart rendering | Charts move to Reports mode |
+| Step 7 | Old `PageDashboardOverview` chart rendering | Partially addressed: Reports landing now surfaces charts; dashboard-overview chart relocation/removal remains a follow-up decision. |
 | Step 8 | Old WP dashboard widget tables/blog section | Replaced by two-indicator widget |
 
 ---

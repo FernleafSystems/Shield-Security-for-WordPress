@@ -183,10 +183,10 @@ Purpose:
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-601 | Add dedicated Actions/Configure/Reports landing page handlers and templates | `src/ActionRouter/Actions/Render/PluginAdminPages/PageActionsQueueLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageConfigureLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageReportsLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/actions_queue_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/configure_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/reports_landing.twig`, `src/ActionRouter/Constants.php` | P5 complete | Each mode has a first-class landing page that renders via existing services/components only. |
-| OM-602 | Wire mode default entries to new landing routes (not directly to tool pages) | `src/Controller/Plugin/PluginNavs.php`, `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-601 | Entering Actions/Configure/Reports from selector/sidebar/WP submenu lands on the corresponding landing page. |
-| OM-603 | Keep sidebar and breadcrumbs coherent for new landing routes | `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-602 | Mode sidebar highlights and breadcrumb path remain consistent for landing pages and child pages. |
-| OM-604 | Add focused tests for landing routing and mode-entry contracts | `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`, `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, `tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php` | OM-602, OM-603 | Unit coverage verifies mode entry targets and no regression in mode-aware sidebar/breadcrumb behavior. |
+| OM-601 | Add dedicated Actions/Configure/Reports landing page handlers and templates | `src/ActionRouter/Actions/Render/PluginAdminPages/PageActionsQueueLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageConfigureLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageReportsLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/actions_queue_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/configure_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/reports_landing.twig`, `src/ActionRouter/Constants.php` | P5 complete | **Implemented (2026-02-21), pending runtime acceptance** - delivery reopened after operator-reported functional issues in landing behavior. |
+| OM-602 | Wire mode default entries to new landing routes (not directly to tool pages) | `src/Controller/Plugin/PluginNavs.php`, `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-601 | **Implemented (2026-02-21), pending runtime acceptance** - route/default wiring present; acceptance gated by verified runtime journeys. |
+| OM-603 | Keep sidebar and breadcrumbs coherent for new landing routes | `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-602 | **Implemented (2026-02-21), pending runtime acceptance** - runtime coherence checks are now mandatory before closeout. |
+| OM-604 | Add focused tests for landing routing and mode-entry contracts | `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`, `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, `tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php` | OM-602, OM-603 | **Implemented (2026-02-21), pending runtime acceptance** - tests exist, but tests alone no longer qualify as completion for this pack. |
 
 ### P6-B - Investigate MVP Pack (Medium Complexity, Single Domain)
 
@@ -196,11 +196,11 @@ Purpose:
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-611 | Add Investigate landing page with subject selectors and links to existing log tools | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, `src/ActionRouter/Constants.php` | OM-601 | Investigate mode has a dedicated landing page linking to Activity/Traffic/IP Rules plus subject selectors. |
-| OM-612 | Promote By IP to first-class Investigate navigation entry using existing IP analysis flow | `src/Controller/Plugin/PluginNavs.php`, `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Controller/Plugin/PluginURLs.php` | OM-611 | Users can start IP investigation directly from Investigate mode without first opening another table row. |
-| OM-613 | Add By User data helpers in existing data layer | `src/Modules/UserManagement/Lib/Session/FindSessions.php`, `src/DBs/ActivityLogs/LoadLogs.php` | OM-611 | Data-layer contracts can fetch sessions/logs by user ID without duplicating query implementations. |
-| OM-614 | Add By User investigation page and template | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig`, `src/ActionRouter/Constants.php` | OM-613 | User investigation view renders activity, sessions, and related IP/request context for selected user. |
-| OM-615 | Add focused tests for Investigate selectors and By User flow contracts | `tests/Unit/**`, `tests/Integration/**` | OM-612, OM-614 | Routing, filtering, and empty-state behavior for Investigate MVP pass test coverage. |
+| OM-611 | Add Investigate landing page with subject selectors and links to existing log tools | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, `src/ActionRouter/Constants.php` | OM-601 | **Implemented (2026-02-21), pending runtime acceptance** - acceptance requires verified user-observable behavior, not route/template presence only. |
+| OM-612 | Promote By IP to first-class Investigate navigation entry using existing IP analysis flow | `src/Controller/Plugin/PluginNavs.php`, `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Controller/Plugin/PluginURLs.php` | OM-611 | **Implemented (2026-02-21), pending runtime acceptance** - reopened after operator-reported "redirect/query-only" failure behavior. |
+| OM-613 | Add By User data helpers in existing data layer | `src/Modules/UserManagement/Lib/Session/FindSessions.php`, `src/DBs/ActivityLogs/LoadLogs.php` | OM-611 | **Implemented (2026-02-21), pending runtime acceptance** - helper code exists; outcome must be proven in runtime flows. |
+| OM-614 | Add By User investigation page and template | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig`, `src/ActionRouter/Constants.php` | OM-613 | **Implemented (2026-02-21), pending runtime acceptance** - acceptance requires verified lookup/result behavior for ID/username/email cases. |
+| OM-615 | Add focused tests for Investigate selectors and By User flow contracts | `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`, `tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php`, `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, `tests/Unit/Modules/UserManagement/Lib/Session/FindSessionsIpWhereTest.php`, `tests/Unit/DBs/LoadLogsUserFilterTest.php` | OM-612, OM-614 | **Implemented (2026-02-21), pending runtime acceptance** - tests are necessary but no longer sufficient for completion status. |
 
 ### P6-C - Dashboard Widget Alignment Pack (Low Complexity, Isolated Surface)
 
@@ -234,18 +234,18 @@ Purpose:
 | P3 | Complete | Mode constants (`PluginNavs`), user preference (`OperatorModePreference`), landing page (`PageOperatorModeLanding` + `operator_mode_landing.twig`) all implemented. |
 | P4 | Complete | Sidebar two-state navigation (OM-401a-d), WP submenu (OM-402), breadcrumbs (OM-403), and P4.5 sidebar gap closure (OM-410/OM-411) are complete. |
 | P5 | Complete | Legacy Simple/Advanced runtime and artifacts removed (OM-501 through OM-508). Operator-mode landing path is now the only overview flow. |
-| P6+ | Planned | Grouped packs defined: P6-A (`OM-601` to `OM-604`), P6-B (`OM-611` to `OM-615`), P6-C (`OM-621` to `OM-623`). |
+| P6+ | In Progress | P6-A (`OM-601` to `OM-604`) and P6-B (`OM-611` to `OM-615`) are implemented but reopened pending runtime acceptance. P6-C (`OM-621` to `OM-623`) remains planned. |
 
-## 7) Next Slice: P6 Kickoff
+## 7) Next Slice: P6-A/P6-B Runtime Recovery + Acceptance
 
-Recommended grouped execution order:
-1. Group 1 (shared mode-entry surfaces): run P6-A (`OM-601` to `OM-604`) as one batch.
-2. Group 2 (single-domain investigation MVP): run P6-B (`OM-611` to `OM-615`) as one batch.
-3. Group 3 (isolated widget alignment): run P6-C (`OM-621` to `OM-623`) as one batch.
+P6-A and P6-B implementation is now under recovery/acceptance gating. The immediate grouped execution target is:
+1. Recovery pass for P6-A/P6-B runtime behavior (By IP open-on-submit, By User lookup/result clarity, Configure hero meter surface).
+2. After runtime acceptance closes P6-A/P6-B, execute Group 3 (isolated widget alignment): P6-C (`OM-621` to `OM-623`).
 
 Immediate implementation recommendation:
-1. Start with Group 1 + Group 2 in the same delivery train (same branch/PR series) because both touch operator-mode entry flow and Investigate UX.
-2. Hold Group 3 for a follow-up pass once mode landing and investigation routes are stable.
+1. Do not mark OM-601..OM-615 complete until runtime UAT proves user-observable behavior in WP admin.
+2. Keep P6 recovery scoped to existing systems only (no duplicate JS/data pipelines).
+3. Keep P6-C scoped to widget payload/template alignment only (no nav/routing rewrites).
 
 Acceptance focus for the next slice:
 1. Keep status/severity and traffic mapping contracts unchanged (`BuildMeter::trafficFromPercentage()`, queue `good|warning|critical`).
@@ -317,4 +317,65 @@ Validation notes:
 3. `npm run build` completed successfully.
 4. No PHPCS and no integration tests were run for this pass (per scope lock).
 5. `BuildMeter::trafficFromPercentage()`, `NeedsAttentionQueue`, and `PageOperatorModeLanding` status logic were not modified.
+
+## 11) P6-A + P6-B Execution Status (Implemented, Pending Runtime Acceptance)
+
+Execution date: 2026-02-21  
+Scope held to P6-A (`OM-601` to `OM-604`) + P6-B (`OM-611` to `OM-615`) only.
+
+[ ] OM-601 - codex - local workspace - implemented: landing handlers/templates added and registered; pending runtime acceptance - 2026-02-21  
+[ ] OM-602 - codex - local workspace - implemented: mode default route rewiring added; pending runtime acceptance - 2026-02-21  
+[ ] OM-603 - codex - local workspace - implemented: sidebar/breadcrumb landing coherence added; pending runtime acceptance - 2026-02-21  
+[ ] OM-604 - codex - local workspace - implemented: focused unit tests added/updated; pending runtime acceptance - 2026-02-21  
+[ ] OM-611 - codex - local workspace - implemented: Investigate landing/selector routes added; pending runtime acceptance - 2026-02-21  
+[ ] OM-612 - codex - local workspace - implemented: By IP route/nav promotion added; pending runtime acceptance - 2026-02-21  
+[ ] OM-613 - codex - local workspace - implemented: user helper methods added; pending runtime acceptance - 2026-02-21  
+[ ] OM-614 - codex - local workspace - implemented: By User page/template added; pending runtime acceptance - 2026-02-21  
+[ ] OM-615 - codex - local workspace - implemented: focused unit coverage added; pending runtime acceptance - 2026-02-21
+
+Validation notes:
+1. `php -l` passed on all touched PHP files for P6-A/P6-B.
+2. Required targeted unit tests passed:
+   `PluginNavsOperatorModesTest`,
+   `BuildBreadCrumbsOperatorModesTest`,
+   `NavMenuBuilderOperatorModesTest`,
+   `FindSessionsIpWhereTest`,
+   `LoadLogsUserFilterTest`.
+3. Additional adjacent unit sweeps also passed for:
+   `tests/Unit/Controller/Plugin`,
+   `tests/Unit/Utilities/Navigation`,
+   `tests/Unit/Modules/Plugin/Lib`,
+   `tests/Unit/Modules/UserManagement/Lib/Session`,
+   `tests/Unit/DBs`,
+   `tests/Unit/ActionRouter`,
+   `NavSidebarTemplateTest`,
+   `NavSidebarModeBackLinkStyleTest`,
+   `DashboardOverviewTemplateContractTest`.
+4. Historical scope lock for initial execution:
+   no PHPCS,
+   no integration tests,
+   no BuildMeter/NeedsAttentionQueue/CaptureRedirects/PageOperatorModeLanding rewrites,
+   no new JS data pipeline.
+5. Recovery note:
+   Section 12 includes a targeted `AssetsCustomizer` update to enable existing `ProgressMeters` on Configure landing.
+6. Acceptance gate update:
+   unit tests and static checks do not close these tasks without manual runtime UAT evidence.
+7. Remaining outstanding operator-mode task groups:
+   P6-A/P6-B runtime acceptance closure + P6-C (`OM-621` to `OM-623`).
+
+## 12) P6-A/P6-B Recovery Pass Status (In Progress)
+
+Execution date: 2026-02-21  
+Scope: runtime-behavior hardening for Investigate + Configure landings without introducing duplicate systems.
+
+[ ] Recovery-A - codex - local workspace - in progress: Configure landing now reuses hero-meter surface via `MeterCard` and `ProgressMeters` pipeline (`PageConfigureLanding.php`, `configure_landing.twig`, `AssetsCustomizer.php`) - 2026-02-21  
+[ ] Recovery-B - codex - local workspace - in progress: Investigate By IP now renders inline IP analysis on submit using existing `IpAnalyse\Container` plus invalid-IP state (`PageInvestigateLanding.php`, `investigate_landing.twig`) - 2026-02-21  
+[ ] Recovery-C - codex - local workspace - in progress: Investigate By User now distinguishes "no lookup" vs "lookup not found" states for clearer functional feedback (`PageInvestigateByUser.php`, `investigate_by_user.twig`) - 2026-02-21  
+[ ] Recovery-D - codex - local workspace - in progress: Added contract tests for Configure hero-meter surface and Investigate By IP runtime contract (`ConfigureLandingHeroMeterContractTest.php`, `InvestigateByIpLandingContractTest.php`, `AssetsCustomizerProgressMetersContractTest.php`) - 2026-02-21
+
+Recovery acceptance gate (must all pass before OM-601..OM-615 can be marked done):
+1. By IP submit from Investigate landing shows IP analysis immediately on resulting page.
+2. By User lookup by ID/username/email shows subject-scoped data or explicit not-found state.
+3. Configure landing shows hero meter using existing meter pipeline (no custom status pipeline).
+4. Manual runtime UAT evidence captured in this backlog entry.
 

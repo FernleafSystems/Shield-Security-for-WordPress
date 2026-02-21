@@ -20,6 +20,15 @@ class LoadLogs extends DynPropertiesClass {
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
+	public function forUserId( int $userId ) :self {
+		if ( $userId > 0 ) {
+			$wheres = \is_array( $this->wheres ) ? $this->wheres : [];
+			$wheres[] = \sprintf( '`req`.`uid`=%d', $userId );
+			$this->wheres = $wheres;
+		}
+		return $this;
+	}
+
 	/**
 	 * @return LogRecord[]
 	 */
