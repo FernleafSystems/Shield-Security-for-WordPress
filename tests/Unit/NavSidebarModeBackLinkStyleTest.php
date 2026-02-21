@@ -41,10 +41,28 @@ class NavSidebarModeBackLinkStyleTest extends BaseUnitTest {
 
 		$this->assertStringContainsString( 'font-size: 0.8rem;', $content );
 		$this->assertStringContainsString( 'color: #5f6974;', $content );
+		$this->assertStringContainsString( 'background: #f8f9f8;', $content );
 		$this->assertStringContainsString(
 			'#NavSideBar .nav-item > .nav-link.mode-back-link:hover {',
 			$content
 		);
 		$this->assertStringContainsString( 'background: #f7f9f7;', $content );
+	}
+
+	public function testMenuGroupBoundarySeparatorStylesExist() :void {
+		$content = $this->getPluginFileContents(
+			'assets/css/components/nav_sidebar_menu.scss',
+			'sidebar navigation stylesheet'
+		);
+
+		$this->assertStringContainsString(
+			'#NavSideBar .nav-item > .nav-link.menu-group-break-before {',
+			$content
+		);
+		$this->assertStringContainsString(
+			'#NavSideBar .nav-item > .nav-link.menu-group-break-before::before {',
+			$content
+		);
+		$this->assertStringContainsString( '$accent-color-salt-green-soft', $content );
 	}
 }

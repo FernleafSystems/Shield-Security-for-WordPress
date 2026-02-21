@@ -38,6 +38,8 @@
 	font-size: 0.8rem;
 	font-weight: 500;
 	color: #5f6974;
+	background: #f8f9f8;
+	border-color: $border-color-neutral-subtle;
 }
 
 #NavSideBar .nav-item > .nav-link.mode-back-link .subtitle {
@@ -48,6 +50,21 @@
 	background: #f7f9f7;
 	border-color: $border-color-neutral-subtle;
 	color: #2f3d4d;
+}
+
+#NavSideBar .nav-item > .nav-link.menu-group-break-before {
+	margin-top: 0.55rem;
+	position: relative;
+}
+
+#NavSideBar .nav-item > .nav-link.menu-group-break-before::before {
+	content: '';
+	position: absolute;
+	top: -0.32rem;
+	left: 0.7rem;
+	right: 0.7rem;
+	border-top: 1px solid $accent-color-salt-green-soft;
+	opacity: 0.8;
 }
 
 #NavSideBar .nav-item:hover .nav-icon > .bi { color: $primary; }
