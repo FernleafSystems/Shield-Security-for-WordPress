@@ -1,6 +1,6 @@
 # Shield Operator Modes - Delivery Task Backlog (Validated)
 
-Date: 2026-02-20  
+Date: 2026-02-21  
 Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`, `tests/`  
 Source plan: `docs/OperatorModes/Shield-Operator-Modes-Plan.md`  
 Prototype reference: `docs/OperatorModes/prototype-b-hero-strip.html`
@@ -162,11 +162,18 @@ Implementation notes:
 
 ### P5 - Cleanup And Legacy Removal (Trigger-Based)
 
+**Implementation status (2026-02-21):** OM-501 through OM-508 are complete.
+
 | ID | Task | Trigger | Files | Done When |
 |---|---|---|---|---|
-| OM-501 | Unwire legacy dashboard toggle runtime (no deletions) | After P4 ships | `templates/twig/wpadmin/plugin_pages/base_inner_page.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview.twig`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverview.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/BasePluginAdminPage.php`, `src/Modules/Plugin/Lib/AssetsCustomizer.php` | Dashboard overview renders a single flow (no Simple/Advanced branch toggle) and no active UI/runtime path depends on `dashboard_view_toggle` |
-| OM-502 | Remove deprecated Simple/Advanced classes/templates (hard removal phase) | After OM-501 stabilization | `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig`, `src/ActionRouter/Constants.php` | Deprecated assets removed and references cleaned |
-| OM-503 | Replace/retire tests tied to old toggle behavior | After OM-502 | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, affected assertions in `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | Test suite reflects operator-mode behavior, not legacy toggle |
+| OM-501 | ~~Unwire legacy dashboard toggle runtime (no deletions)~~ | After P4 ships | `templates/twig/wpadmin/plugin_pages/base_inner_page.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview.twig`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverview.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/BasePluginAdminPage.php`, `src/Modules/Plugin/Lib/AssetsCustomizer.php` | **Done** - dashboard overview now renders a single operator-mode landing flow and no active UI/runtime path depends on `dashboard_view_toggle`. |
+| OM-502 | ~~Remove deprecated Simple/Advanced classes/templates (hard removal phase)~~ | After OM-501 stabilization | `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig`, `src/ActionRouter/Constants.php` | **Done** - deprecated runtime/template artifacts were deleted and registration references cleaned. |
+| OM-503 | ~~Replace/retire tests tied to old toggle behavior~~ | After OM-502 | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, affected assertions in `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | **Done** - legacy toggle tests were removed and overview integration assertions were aligned to single-flow behavior. |
+
+Deferred cleanup note (P5 scope lock):
+1. `PageDashboardOverview.php` intentionally retains currently-unused payload elements in this pass.
+2. Payload pruning is deferred to a future cleanup slice.
+3. Any future payload removal must be confirmed with operator before implementation because some fields may be reused by other components.
 
 ## 5) Prototype B Translation Tasks (When Landing Is Introduced)
 
@@ -187,20 +194,21 @@ Implementation notes:
 | P2 | Complete | Dashboard renders channel-aware metrics via `PageOperatorModeLanding`. |
 | P3 | Complete | Mode constants (`PluginNavs`), user preference (`OperatorModePreference`), landing page (`PageOperatorModeLanding` + `operator_mode_landing.twig`) all implemented. |
 | P4 | Complete | Sidebar two-state navigation (OM-401a-d), WP submenu (OM-402), breadcrumbs (OM-403), and P4.5 sidebar gap closure (OM-410/OM-411) are complete. |
-| P5 | Not started | Legacy Simple/Advanced code still present. P5 can now begin (start with OM-501). |
+| P5 | Complete | Legacy Simple/Advanced runtime and artifacts removed (OM-501 through OM-508). Operator-mode landing path is now the only overview flow. |
 | P6+ | Not started | Investigate tools, Configure/Reports deepening, WP widget. |
 
-## 7) Next Slice: P5 Kickoff
+## 7) Next Slice: P6 Kickoff
 
 Execute in this order:
-1. OM-501 - begin P5 runtime unwire of legacy dashboard toggle (no hard deletions yet).
-2. OM-502 - remove deprecated Simple/Advanced classes/templates after OM-501 stabilization.
-3. OM-503 - align tests to operator-mode behavior after OM-502.
+1. Step 5 - Actions Queue mode landing (`PageActionsQueueLanding.php`, `actions_queue_landing.twig`) using existing queue providers.
+2. Step 6 - Investigate mode landing and By User flow; promote By IP path to first-class mode navigation.
+3. Step 7 - Configure and Reports dedicated landing pages while reusing existing status/score services.
+4. Step 8 - WP dashboard widget simplification to the two-indicator model.
 
 Acceptance focus for the next slice:
-1. Legacy Simple/Advanced runtime path is unwired before hard removals.
-2. Deprecated runtime/template artifacts are removed only after OM-501 stabilization.
-3. No PHPCS run required and no integration test run required for this slice.
+1. Keep status/severity and traffic mapping contracts unchanged (`BuildMeter::trafficFromPercentage()`, queue `good|warning|critical`).
+2. Reuse existing rendering/services and avoid duplicate data-pipeline logic.
+3. Keep implementation additive where possible; avoid introducing fallback frameworks.
 
 ## 8) Tracking Format
 
@@ -227,7 +235,7 @@ Scope held to P1 only (`OM-101` to `OM-107`).
 
 Validation notes:
 1. Focused unit suite pass: `composer test:unit -- tests/Unit/Modules/Plugin/Lib/MeterAnalysis` => `OK (10 tests, 27 assertions)`.
-2. Legacy toggle unit coverage still passes: `composer test:unit -- tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`.
+2. Historical note: legacy toggle unit coverage passed at this phase checkpoint; that legacy test file was intentionally removed during P5 cleanup.
 3. Integration run attempt for `WpDashboardSummaryIntegrationTest` was skipped because WordPress integration environment is not available in this workspace.
 4. No PHPCS run performed (per scope rule).
 5. No nav/breadcrumb/operator-landing/toggle-removal/UI-system rewrite changes were introduced in this slice.
@@ -246,20 +254,25 @@ Validation notes:
 3. Scope lock held: only `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `assets/css/components/nav_sidebar_menu.scss`, and two new unit test files changed.
 4. No PHPCS and no integration tests were run.
 
-## 10) Deferred Hard-Removal Tasks After OM-501
+## 10) P5 Artifact Cleanup Execution Status (Implemented)
 
-These tasks are intentionally deferred until the runtime unwire (`OM-501`) has settled.
+Execution date: 2026-02-21  
+Scope held to P5 artifact cleanup only (`OM-502` to `OM-508`) plus completion lock for `OM-501`.
 
-| ID | Task | Files | Done When |
-|---|---|---|---|
-| OM-504 | Remove JS bootstrap wiring for legacy toggle | `assets/js/app/AppMain.js`, `assets/js/components/general/DashboardViewToggle.js` | `DashboardViewToggle` import/init is removed and legacy class file is deleted |
-| OM-505 | Remove legacy action/preference backend artifacts | `src/ActionRouter/Constants.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php` | No action registration or runtime contract remains for `dashboard_view_toggle` / `shield_dashboard_view` |
-| OM-506 | Remove deprecated simple dashboard renderer/templates | `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig` | Deprecated simple-render path is fully removed with no remaining includes/references |
-| OM-507 | Remove obsolete toggle/panel CSS | `assets/css/plugin-main.scss`, `assets/css/shield/dashboard.scss` | `.dashboard-view-switch*` and `.dashboard-overview-panels*` selectors are removed after runtime references are gone |
-| OM-508 | Migrate/remove legacy toggle tests | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | Old toggle tests removed/replaced and overview assertions reflect a single non-toggle render path |
+[x] OM-501 - codex - local workspace - completed: runtime already unwired; dashboard overview contract locked to direct `operator_mode_landing` render path - 2026-02-21  
+[x] OM-502 - codex - local workspace - completed: removed `DashboardViewPreference`, `DashboardViewToggle`, `PageDashboardOverviewSimple`, and deprecated simple templates; removed legacy action registration from `Constants::ACTIONS` - 2026-02-21  
+[x] OM-503 - codex - local workspace - completed: removed legacy toggle tests and updated `DashboardOverviewRoutingIntegrationTest` to remove toggle-specific assertions and imports - 2026-02-21  
+[x] OM-504 - codex - local workspace - completed: removed `DashboardViewToggle` JS import/init and deleted `assets/js/components/general/DashboardViewToggle.js` - 2026-02-21  
+[x] OM-505 - codex - local workspace - completed: removed backend action/preference artifacts and all runtime registrations/contracts for `dashboard_view_toggle` and `shield_dashboard_view` - 2026-02-21  
+[x] OM-506 - codex - local workspace - completed: removed deprecated simple dashboard renderer/templates and include indirection - 2026-02-21  
+[x] OM-507 - codex - local workspace - completed: removed only legacy `.dashboard-view-switch*`, `.inner-page-header-view-toggle`, and `.dashboard-overview-panels*` CSS blocks - 2026-02-21  
+[x] OM-508 - codex - local workspace - completed: retired legacy tests and added targeted replacement unit contracts for action registration and dashboard template path - 2026-02-21  
 
-Deferred execution notes:
-1. Do not add PHPCS to these tasks.
-2. Integration tests are not required for this cleanup pass.
-3. Preserve existing meter severity/traffic logic (`BuildMeter::trafficFromPercentage()` and queue `good|warning|critical`) without introducing new fallback behavior.
+Validation notes:
+1. Mandatory legacy reference post-scan returned zero matches in `src`, `templates`, `assets/js`, `assets/css`, and `tests`.
+2. Targeted unit test commands for operator modes/template contracts all passed, including:
+   `PluginNavsOperatorModesTest`, `OperatorModePreferenceTest`, `NavSidebarTemplateTest`, `NavSidebarModeBackLinkStyleTest`, `ConstantsLegacyDashboardCleanupTest`, `DashboardOverviewTemplateContractTest`.
+3. `npm run build` completed successfully.
+4. No PHPCS and no integration tests were run for this pass (per scope lock).
+5. `BuildMeter::trafficFromPercentage()`, `NeedsAttentionQueue`, and `PageOperatorModeLanding` status logic were not modified.
 
