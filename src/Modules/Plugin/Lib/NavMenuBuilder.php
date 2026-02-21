@@ -27,6 +27,9 @@ class NavMenuBuilder {
 	private const GROUP_PRIMARY = 'primary';
 	private const GROUP_BACKLINK = 'backlink';
 	private const GROUP_META = 'meta';
+	private const LINK_SHIELD_HOME = 'https://clk.shldscrty.com/shieldsecurityhome';
+	private const LINK_FACEBOOK_GROUP = 'https://clk.shldscrty.com/pluginshieldsecuritygroupfb';
+	private const LINK_EMAIL_SIGNUP = 'https://clk.shldscrty.com/emailsubscribe';
 
 	public function build() :array {
 		$baseMenu = $this->baseMenuItems();
@@ -84,8 +87,45 @@ class NavMenuBuilder {
 		if ( \is_array( $license ) ) {
 			$menu[] = $this->withGroup( $license, self::GROUP_META );
 		}
+		if ( !self::con()->comps->whitelabel->isEnabled() ) {
+			$menu[] = $this->withGroup( $this->connectMetaItem(), self::GROUP_META );
+		}
 
 		return $menu;
+	}
+
+	private function connectMetaItem() :array {
+		return [
+			'slug'      => 'meta-connect',
+			'title'     => __( 'Connect', 'wp-simple-firewall' ),
+			'img'       => self::con()->svgs->iconClass( 'box-arrow-up-right' ),
+			'sub_items' => [
+				[
+					'slug'   => 'connect-home',
+					'title'  => __( 'Shield Home', 'wp-simple-firewall' ),
+					'href'   => self::LINK_SHIELD_HOME,
+					'target' => '_blank',
+				],
+				[
+					'slug'   => 'connect-facebook',
+					'title'  => __( 'Facebook Group', 'wp-simple-firewall' ),
+					'href'   => self::LINK_FACEBOOK_GROUP,
+					'target' => '_blank',
+				],
+				[
+					'slug'   => 'connect-helpdesk',
+					'title'  => __( 'Help Desk', 'wp-simple-firewall' ),
+					'href'   => self::con()->labels->url_helpdesk,
+					'target' => '_blank',
+				],
+				[
+					'slug'   => 'connect-newsletter',
+					'title'  => __( 'Newsletter', 'wp-simple-firewall' ),
+					'href'   => self::LINK_EMAIL_SIGNUP,
+					'target' => '_blank',
+				],
+			],
+		];
 	}
 
 	private function buildModeNav( array $baseMenu, string $mode ) :array {

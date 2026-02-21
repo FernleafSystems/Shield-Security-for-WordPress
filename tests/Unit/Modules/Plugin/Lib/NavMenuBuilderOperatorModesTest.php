@@ -111,14 +111,50 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				'mode-configure',
 				'mode-reports',
 				PluginNavs::NAV_LICENSE,
+				'meta-connect',
 			],
 			\array_column( $menu, 'slug' )
 		);
 
 		$this->assertSame(
-			[ 'primary', 'primary', 'primary', 'primary', 'meta' ],
+			[ 'primary', 'primary', 'primary', 'primary', 'meta', 'meta' ],
 			\array_column( $menu, 'group' )
 		);
+	}
+
+	public function testModeSelectorAddsConnectMetaItemWithExternalSubItems() :void {
+		$this->installControllerStubs();
+
+		$menu = $this->invokeBuildModeSelector( $this->baseMenuFixture() );
+		$connect = \array_values( \array_filter(
+			$menu,
+			fn( array $item ) :bool => ( $item[ 'slug' ] ?? '' ) === 'meta-connect'
+		) )[ 0 ] ?? [];
+
+		$this->assertSame( 'Connect', $connect[ 'title' ] ?? '' );
+		$this->assertSame( 'icon-box-arrow-up-right', $connect[ 'img' ] ?? '' );
+		$this->assertSame( 'meta', $connect[ 'group' ] ?? '' );
+
+		$subItems = $connect[ 'sub_items' ] ?? [];
+		$this->assertCount( 4, $subItems );
+		$this->assertSame( [ 'connect-home', 'connect-facebook', 'connect-helpdesk', 'connect-newsletter' ], \array_column( $subItems, 'slug' ) );
+		$this->assertSame(
+			[
+				'https://clk.shldscrty.com/shieldsecurityhome',
+				'https://clk.shldscrty.com/pluginshieldsecuritygroupfb',
+				'https://help.example.com',
+				'https://clk.shldscrty.com/emailsubscribe',
+			],
+			\array_column( $subItems, 'href' )
+		);
+		$this->assertSame( [ '_blank', '_blank', '_blank', '_blank' ], \array_column( $subItems, 'target' ) );
+	}
+
+	public function testModeSelectorOmitsConnectWhenWhitelabelEnabled() :void {
+		$this->installControllerStubs( true );
+
+		$menu = $this->invokeBuildModeSelector( $this->baseMenuFixture() );
+		$this->assertNotContains( 'meta-connect', \array_column( $menu, 'slug' ) );
 	}
 
 	public function testNormalizeGroupNormalizesKnownValuesAndFallsBackToPrimary() :void {
@@ -165,7 +201,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		return $builder;
 	}
 
-	private function installControllerStubs() :void {
+	private function installControllerStubs( bool $isWhitelabelled = false ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new class {
@@ -182,6 +218,22 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				return 'icon-'.$slug;
 			}
 		};
+		$controller->labels = (object)[
+			'url_helpdesk' => 'https://help.example.com',
+		];
+		$controller->comps = (object)[
+			'whitelabel' => new class( $isWhitelabelled ) {
+				private bool $enabled;
+
+				public function __construct( bool $enabled ) {
+					$this->enabled = $enabled;
+				}
+
+				public function isEnabled() :bool {
+					return $this->enabled;
+				}
+			},
+		];
 
 		PluginStore::$plugin = new class( $controller ) {
 			private Controller $controller;
