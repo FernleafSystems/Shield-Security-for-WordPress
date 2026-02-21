@@ -134,14 +134,31 @@ Validation completed for this slice:
 3. `composer test:unit -- tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
 4. `composer test:unit -- tests/Unit/Modules/Plugin/Lib/OperatorModePreferenceTest.php`
 
-### P4.5 - Known Sidebar Gaps (After OM-401a–d, Before P5)
+### P4.5 - Known Sidebar Gaps (After OM-401a-d, Before P5)
 
-These are not blockers for P4 completion but should be addressed before P5 cleanup:
+**Implementation status (2026-02-21):** OM-410 and OM-411 are complete.
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-410 | Add Security Grades as a direct link in Configure mode sidebar | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | When in Configure mode, sidebar includes a "Security Grades" link pointing to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`. Currently this page is a sub-nav of Dashboard and doesn't appear in Configure mode's `allowedNavsForMode()`. Simplest approach: add it as a hardcoded item in `buildModeNav()` when mode is `MODE_CONFIGURE`. |
-| OM-411 | Optional: Style back link distinctly | `assets/css/shield/dashboard.scss` or equivalent, `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | The "← Shield Security" back link has a `.mode-back-link` class and renders with a smaller font / muted style to visually separate it from mode nav items. This is a polish task, not a functional requirement. |
+| OM-410 | Add Security Grades as a direct link in Configure mode sidebar | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | When in Configure mode, sidebar includes a "Security Grades" link pointing to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`. Currently this page is a sub-nav of Dashboard and does not appear in Configure mode's `allowedNavsForMode()`. Simplest approach: add it as a hardcoded item in `buildModeNav()` when mode is `MODE_CONFIGURE`. |
+| OM-411 | Optional: Style back link distinctly | `assets/css/components/nav_sidebar_menu.scss` | OM-401c | The "<- Shield Security" back link has a `.mode-back-link` class and renders with a smaller font/muted style to visually separate it from mode nav items. This is a polish task, not a functional requirement. |
+
+Validation completed for this slice:
+1. `php -l src/Modules/Plugin/Lib/NavMenuBuilder.php`
+2. `php -l tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php`
+3. `php -l tests/Unit/NavSidebarModeBackLinkStyleTest.php`
+4. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php`
+5. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/NavSidebarModeBackLinkStyleTest.php`
+6. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
+7. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
+8. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/NavSidebarTemplateTest.php`
+9. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/Plugin/Lib/OperatorModePreferenceTest.php`
+
+Implementation notes:
+1. `buildModeNav()` now prepends a Configure-only synthetic `mode-configure-grades` item after `mode-selector-back` and before filtered Configure nav items.
+2. The synthetic grades item reuses dashboard `img`/`subtitle` metadata when available from base menu data.
+3. `.mode-back-link` styling is scoped in `assets/css/components/nav_sidebar_menu.scss` and does not alter Twig markup.
+4. `allowedNavsForMode()`, `resolveCurrentMode()`, `PluginNavs::modeForNav()`, and meter severity/status mapping were unchanged.
 
 ### P5 - Cleanup And Legacy Removal (Trigger-Based)
 
@@ -169,20 +186,20 @@ These are not blockers for P4 completion but should be addressed before P5 clean
 | P1 (Phase A) | Complete | Meter channel separation done (OM-101-107). See Section 9. |
 | P2 | Complete | Dashboard renders channel-aware metrics via `PageOperatorModeLanding`. |
 | P3 | Complete | Mode constants (`PluginNavs`), user preference (`OperatorModePreference`), landing page (`PageOperatorModeLanding` + `operator_mode_landing.twig`) all implemented. |
-| P4 | Complete | Sidebar two-state navigation (OM-401a-d), WP submenu (OM-402), and breadcrumbs (OM-403) are all complete. |
+| P4 | Complete | Sidebar two-state navigation (OM-401a-d), WP submenu (OM-402), breadcrumbs (OM-403), and P4.5 sidebar gap closure (OM-410/OM-411) are complete. |
 | P5 | Not started | Legacy Simple/Advanced code still present. P5 can now begin (start with OM-501). |
 | P6+ | Not started | Investigate tools, Configure/Reports deepening, WP widget. |
 
-## 7) Next Slice: P4.5 Sidebar Gaps, Then P5 Kickoff
+## 7) Next Slice: P5 Kickoff
 
 Execute in this order:
-1. OM-410 - add direct "Security Grades" link in Configure mode sidebar.
-2. OM-411 (optional) - style `.mode-back-link` for visual distinction.
-3. OM-501 - begin P5 runtime unwire of legacy dashboard toggle (no hard deletions yet).
+1. OM-501 - begin P5 runtime unwire of legacy dashboard toggle (no hard deletions yet).
+2. OM-502 - remove deprecated Simple/Advanced classes/templates after OM-501 stabilization.
+3. OM-503 - align tests to operator-mode behavior after OM-502.
 
 Acceptance focus for the next slice:
-1. Configure mode surfaces Security Grades without reintroducing dashboard-mode coupling.
-2. Existing two-state sidebar behavior (OM-401a-d) remains unchanged.
+1. Legacy Simple/Advanced runtime path is unwired before hard removals.
+2. Deprecated runtime/template artifacts are removed only after OM-501 stabilization.
 3. No PHPCS run required and no integration test run required for this slice.
 
 ## 8) Tracking Format
@@ -214,6 +231,20 @@ Validation notes:
 3. Integration run attempt for `WpDashboardSummaryIntegrationTest` was skipped because WordPress integration environment is not available in this workspace.
 4. No PHPCS run performed (per scope rule).
 5. No nav/breadcrumb/operator-landing/toggle-removal/UI-system rewrite changes were introduced in this slice.
+
+## 9.1) P4.5 Execution Status (Implemented)
+
+Execution date: 2026-02-21  
+Scope held to P4.5 only (`OM-410` and `OM-411`).
+
+[x] OM-410 - codex - local workspace - completed: Configure mode now includes synthetic `mode-configure-grades` linking to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES` and preserving existing mode filtering/order - 2026-02-21  
+[x] OM-411 - codex - local workspace - completed: `.mode-back-link` styling added in `assets/css/components/nav_sidebar_menu.scss` with muted/smaller text, scoped hover, and hidden subtitle - 2026-02-21
+
+Validation notes:
+1. New focused unit tests pass: `NavMenuBuilderOperatorModesTest` and `NavSidebarModeBackLinkStyleTest`.
+2. Existing related unit tests pass: `PluginNavsOperatorModesTest`, `BuildBreadCrumbsOperatorModesTest`, `NavSidebarTemplateTest`.
+3. Scope lock held: only `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `assets/css/components/nav_sidebar_menu.scss`, and two new unit test files changed.
+4. No PHPCS and no integration tests were run.
 
 ## 10) Deferred Hard-Removal Tasks After OM-501
 

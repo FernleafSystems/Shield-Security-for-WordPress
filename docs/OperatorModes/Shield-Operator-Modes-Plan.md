@@ -225,7 +225,7 @@ The sidebar shows that mode's dedicated navigation items with full sub-items (zo
 └── Go PRO / License
 ```
 
-### 4.2 Sidebar implementation status (2026-02-20)
+### 4.2 Sidebar implementation status (2026-02-21)
 
 The two-state sidebar is now implemented in `NavMenuBuilder::build()`.
 
@@ -238,9 +238,9 @@ Completed in `src/Modules/Plugin/Lib/NavMenuBuilder.php`:
 
 No template change was required in `templates/twig/wpadmin/components/page/nav_sidebar.twig` because it already iterates generic `navbar_menu` item structures.
 
-Outstanding sidebar follow-up (non-blocking for P4 completion):
-1. Add Security Grades direct link in Configure mode sidebar (`OM-410`).
-2. Optional visual polish for `.mode-back-link` (`OM-411`).
+Sidebar follow-up status:
+1. `OM-410` complete: Configure mode now includes a direct synthetic "Security Grades" top-level link added in `buildModeNav()` and routed to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`.
+2. `OM-411` complete: `.mode-back-link` now has scoped styling in `assets/css/components/nav_sidebar_menu.scss` (smaller/muted text, subtle hover, subtitle hidden).
 ### 4.3 Nav items per mode
 
 These define what `allowedNavsForMode()` returns. The current implementation matches the spec for filtering, but the items below also show the desired sidebar labels (which may differ from the current `title` values in the private methods).
@@ -306,7 +306,7 @@ Configure
     └── Debug Info
 ```
 
-Note: `allowedNavsForMode(MODE_CONFIGURE)` now includes `NAV_ZONES`, `NAV_RULES`, and `NAV_TOOLS` only; `NAV_DASHBOARD` has already been removed and replaced by the back link. Security Grades (`NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`) still needs explicit handling as a Configure-mode link (`OM-410`). Option (a) remains simplest: add a direct link item in `buildModeNav()` for Configure.
+Note: `allowedNavsForMode(MODE_CONFIGURE)` includes `NAV_ZONES`, `NAV_RULES`, and `NAV_TOOLS` only; `NAV_DASHBOARD` remains excluded and is not reintroduced. Security Grades (`NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`) is now handled explicitly as a Configure-mode synthetic item in `buildModeNav()`.
 
 #### Reports sidebar
 

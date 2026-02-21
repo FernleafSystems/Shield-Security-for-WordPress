@@ -33,6 +33,23 @@
 	background: #f7f9f7;
 	border-color: $border-color-neutral-subtle;
 }
+
+#NavSideBar .nav-item > .nav-link.mode-back-link {
+	font-size: 0.8rem;
+	font-weight: 500;
+	color: #5f6974;
+}
+
+#NavSideBar .nav-item > .nav-link.mode-back-link .subtitle {
+	display: none;
+}
+
+#NavSideBar .nav-item > .nav-link.mode-back-link:hover {
+	background: #f7f9f7;
+	border-color: $border-color-neutral-subtle;
+	color: #2f3d4d;
+}
+
 #NavSideBar .nav-item:hover .nav-icon > .bi { color: $primary; }
 #NavSideBar .nav-item:hover .top-title { color: $primary; }
 
