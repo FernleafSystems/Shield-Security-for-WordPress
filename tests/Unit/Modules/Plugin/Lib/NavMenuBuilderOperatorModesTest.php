@@ -48,6 +48,9 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		);
 
 		$backLink = $menu[ 0 ];
+		$this->assertSame( 'Back to Dashboard', $backLink[ 'title' ] );
+		$this->assertSame( 'icon-speedometer', $backLink[ 'img' ] );
+		$this->assertSame( 'backlink', $backLink[ 'group' ] );
 		$this->assertSame( [ 'mode-back-link' ], $backLink[ 'classes' ] );
 
 		$grades = $menu[ 1 ];
@@ -74,7 +77,9 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			$slugs
 		);
 		$this->assertNotContains( 'mode-configure-grades', $slugs );
+		$this->assertSame( 'backlink', $menu[ 0 ][ 'group' ] );
 		$this->assertSame( [ 'mode-back-link' ], $menu[ 0 ][ 'classes' ] );
+		$this->assertSame( 'primary', $menu[ 1 ][ 'group' ] );
 	}
 
 	public function testConfigureModeGradesItemUsesEmptyMetadataWhenDashboardSourceMissing() :void {
@@ -91,14 +96,73 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'mode-configure-grades', $grades[ 'slug' ] );
 		$this->assertSame( '', $grades[ 'img' ] );
 		$this->assertSame( '', $grades[ 'subtitle' ] );
+		$this->assertSame( 'primary', $grades[ 'group' ] );
+	}
+
+	public function testModeSelectorAssignsPrimaryAndMetaGroups() :void {
+		$this->installControllerStubs();
+
+		$menu = $this->invokeBuildModeSelector( $this->baseMenuFixture() );
+
+		$this->assertSame(
+			[
+				'mode-actions',
+				'mode-investigate',
+				'mode-configure',
+				'mode-reports',
+				PluginNavs::NAV_LICENSE,
+			],
+			\array_column( $menu, 'slug' )
+		);
+
+		$this->assertSame(
+			[ 'primary', 'primary', 'primary', 'primary', 'meta' ],
+			\array_column( $menu, 'group' )
+		);
+	}
+
+	public function testNormalizeGroupNormalizesKnownValuesAndFallsBackToPrimary() :void {
+		$builder = $this->newBuilderInstance();
+		$method = new \ReflectionMethod( $builder, 'normalizeGroup' );
+		$method->setAccessible( true );
+
+		$this->assertSame( 'meta', $method->invoke( $builder, ' META ' ) );
+		$this->assertSame( 'primary', $method->invoke( $builder, 'unexpected' ) );
+	}
+
+	public function testMarkGroupBoundaryAddsMarkerOnlyOnGroupTransition() :void {
+		$builder = $this->newBuilderInstance();
+		$method = new \ReflectionMethod( $builder, 'markGroupBoundary' );
+		$method->setAccessible( true );
+
+		$first = $method->invoke( $builder, [ 'group' => 'primary', 'classes' => [] ], '' );
+		$this->assertNotContains( 'menu-group-break-before', $first[ 'classes' ] );
+
+		$transition = $method->invoke( $builder, [ 'group' => 'meta', 'classes' => [] ], 'primary' );
+		$this->assertContains( 'menu-group-break-before', $transition[ 'classes' ] );
+
+		$sameGroup = $method->invoke( $builder, [ 'group' => 'meta', 'classes' => [] ], 'meta' );
+		$this->assertNotContains( 'menu-group-break-before', $sameGroup[ 'classes' ] );
 	}
 
 	private function invokeBuildModeNav( array $baseMenu, string $mode ) :array {
-		/** @var NavMenuBuilder $builder */
-		$builder = ( new \ReflectionClass( NavMenuBuilder::class ) )->newInstanceWithoutConstructor();
+		$builder = $this->newBuilderInstance();
 		$method = new \ReflectionMethod( $builder, 'buildModeNav' );
 		$method->setAccessible( true );
 		return $method->invoke( $builder, $baseMenu, $mode );
+	}
+
+	private function invokeBuildModeSelector( array $baseMenu ) :array {
+		$builder = $this->newBuilderInstance();
+		$method = new \ReflectionMethod( $builder, 'buildModeSelector' );
+		$method->setAccessible( true );
+		return $method->invoke( $builder, $baseMenu );
+	}
+
+	private function newBuilderInstance() :NavMenuBuilder {
+		/** @var NavMenuBuilder $builder */
+		$builder = ( new \ReflectionClass( NavMenuBuilder::class ) )->newInstanceWithoutConstructor();
+		return $builder;
 	}
 
 	private function installControllerStubs() :void {
@@ -155,6 +219,10 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			[
 				'slug'  => PluginNavs::NAV_SCANS,
 				'title' => 'Scans',
+			],
+			[
+				'slug' => PluginNavs::NAV_LICENSE,
+				'title' => 'Go PRO!',
 			],
 		];
 	}

@@ -24,6 +24,10 @@ class NavMenuBuilder {
 
 	use PluginControllerConsumer;
 
+	private const GROUP_PRIMARY = 'primary';
+	private const GROUP_BACKLINK = 'backlink';
+	private const GROUP_META = 'meta';
+
 	public function build() :array {
 		$baseMenu = $this->baseMenuItems();
 		$mode = $this->resolveCurrentMode();
@@ -64,7 +68,7 @@ class NavMenuBuilder {
 			$entry = PluginNavs::defaultEntryForMode( $mode );
 			$sourceItem = $baseMenuBySlug[ $entry[ 'nav' ] ] ?? [];
 
-			$menu[] = [
+			$menu[] = $this->withGroup( [
 				'slug'      => 'mode-'.$mode,
 				'title'     => PluginNavs::modeLabel( $mode ),
 				'subtitle'  => (string)( $sourceItem[ 'subtitle' ] ?? '' ),
@@ -73,12 +77,12 @@ class NavMenuBuilder {
 				'active'    => false,
 				'classes'   => [],
 				'sub_items' => [],
-			];
+			], self::GROUP_PRIMARY );
 		}
 
 		$license = $baseMenuBySlug[ PluginNavs::NAV_LICENSE ] ?? null;
 		if ( \is_array( $license ) ) {
-			$menu[] = $license;
+			$menu[] = $this->withGroup( $license, self::GROUP_META );
 		}
 
 		return $menu;
@@ -87,10 +91,11 @@ class NavMenuBuilder {
 	private function buildModeNav( array $baseMenu, string $mode ) :array {
 		$backLink = [
 			'slug'      => 'mode-selector-back',
-			'title'     => __( "\u{2190} Shield Security", 'wp-simple-firewall' ),
-			'img'       => self::con()->svgs->iconClass( 'box-arrow-left' ),
+			'title'     => __( 'Back to Dashboard', 'wp-simple-firewall' ),
+			'img'       => self::con()->svgs->iconClass( 'speedometer' ),
 			'href'      => self::con()->plugin_urls->adminHome(),
 			'active'    => false,
+			'group'     => self::GROUP_BACKLINK,
 			'classes'   => [ 'mode-back-link' ],
 			'sub_items' => [],
 		];
@@ -104,7 +109,7 @@ class NavMenuBuilder {
 			}
 			$dashboard = $baseMenuBySlug[ PluginNavs::NAV_DASHBOARD ] ?? [];
 
-			$modeMenu[] = [
+			$modeMenu[] = $this->withGroup( [
 				'slug'      => 'mode-configure-grades',
 				'title'     => __( 'Security Grades', 'wp-simple-firewall' ),
 				'subtitle'  => (string)( $dashboard[ 'subtitle' ] ?? '' ),
@@ -113,19 +118,23 @@ class NavMenuBuilder {
 				'active'    => false,
 				'classes'   => [],
 				'sub_items' => [],
-			];
+			], self::GROUP_PRIMARY );
 		}
 
-		return \array_merge( $modeMenu, $this->filterMenuForMode( $baseMenu, $mode ) );
+		$primaryNavItems = $this->withGroupForAll( $this->filterMenuForMode( $baseMenu, $mode ), self::GROUP_PRIMARY );
+
+		return \array_merge( $modeMenu, $primaryNavItems );
 	}
 
 	private function normalizeMenu( array $menu ) :array {
 		$isSecAdmin = self::con()->isPluginAdmin();
+		$previousGroup = '';
 		foreach ( $menu as $key => $item ) {
 			$item = Services::DataManipulation()->mergeArraysRecursive( [
 				'slug'      => 'no-slug',
 				'title'     => __( 'NO TITLE', 'wp-simple-firewall' ),
 				'href'      => 'javascript:{}',
+				'group'     => self::GROUP_PRIMARY,
 				'classes'   => [],
 				'id'        => '',
 				'active'    => $this->inav() === ( $item[ 'slug' ] ?? '' ),
@@ -135,6 +144,10 @@ class NavMenuBuilder {
 				'badge'     => [],
 				'introjs'   => [],
 			], $item );
+
+			$item[ 'group' ] = $this->normalizeGroup( (string)$item[ 'group' ] );
+			$item = $this->markGroupBoundary( $item, $previousGroup );
+			$previousGroup = $item[ 'group' ];
 
 			if ( !empty( $item[ 'introjs' ] ) ) {
 				$item[ 'classes' ][] = 'tour-'.$this->getIntroJsTourID();
@@ -544,6 +557,32 @@ class NavMenuBuilder {
 
 	private function getIntroJsTourID() :string {
 		return 'navigation_v1';
+	}
+
+	private function normalizeGroup( string $group ) :string {
+		$group = \strtolower( \trim( $group ) );
+		return \in_array( $group, [ self::GROUP_PRIMARY, self::GROUP_BACKLINK, self::GROUP_META ], true )
+			? $group
+			: self::GROUP_PRIMARY;
+	}
+
+	private function withGroup( array $item, string $group ) :array {
+		$item[ 'group' ] = $this->normalizeGroup( $group );
+		return $item;
+	}
+
+	private function withGroupForAll( array $items, string $group ) :array {
+		return \array_map(
+			fn( array $item ) :array => $this->withGroup( $item, $group ),
+			$items
+		);
+	}
+
+	private function markGroupBoundary( array $item, string $previousGroup ) :array {
+		if ( !empty( $previousGroup ) && $previousGroup !== (string)( $item[ 'group' ] ?? '' ) ) {
+			$item[ 'classes' ][] = 'menu-group-break-before';
+		}
+		return $item;
 	}
 
 	private function inav() :string {
