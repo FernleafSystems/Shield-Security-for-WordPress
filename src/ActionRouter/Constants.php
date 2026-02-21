@@ -15,7 +15,6 @@ class Constants {
 		Actions\BlockdownDisableFormSubmit::class,
 		Actions\BlockdownFormSubmit::class,
 		Actions\CrowdsecResetEnrollment::class,
-		Actions\DashboardViewToggle::class,
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
 		Actions\FileDownload::class,

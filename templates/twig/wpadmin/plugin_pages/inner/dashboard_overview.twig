@@ -1,5 +1,5 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% include '/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig' %}
+	{{ content.operator_mode_landing|raw }}
 {% endblock %}

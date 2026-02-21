@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Dashboard\DashboardViewPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\BuiltMetersFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -30,7 +29,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'scan_result_item_meta' );
 
 		$this->adminUserId = $this->loginAsSecurityAdmin();
-		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
 		$this->resetBuiltMetersCache();
 		$this->setOverallConfigMeterComponents( [] );
 	}
@@ -77,40 +75,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 
 		return $matches[ 0 ] ?? [];
-	}
-
-	public function test_unset_preference_renders_simple_overview_marker() :void {
-		delete_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY );
-
-		$html = $this->renderDashboardOverviewHtml();
-		$this->assertHtmlContainsMarker( 'data-dashboard-view="simple"', $html, 'Simple dashboard panel marker' );
-		$this->assertHtmlContainsMarker( 'data-dashboard-view="advanced"', $html, 'Advanced dashboard panel marker' );
-		$this->assertHtmlContainsMarker( 'dashboard-overview-panel--simple is-active', $html, 'Simple dashboard active panel state' );
-		$this->assertHtmlNotContainsMarker( 'dashboard-overview-panel--advanced is-active', $html, 'Advanced dashboard inactive panel state' );
-		$this->assertHtmlContainsMarker( 'dashboard-overview-simple', $html, 'Simple dashboard overview' );
-		$this->assertHtmlContainsMarker( 'dashboard-view-switch is-simple', $html, 'Simple dashboard toggle state' );
-		$this->assertHtmlContainsMarker( 'dashboard-view-switch__toggle', $html, 'Simple dashboard toggle control' );
-		$this->assertHtmlContainsMarker( 'dashboard-view-switch__label--simple is-active', $html, 'Simple dashboard active toggle label' );
-		$this->assertHtmlNotContainsMarker( 'dashboard-view-switch__label--advanced is-active', $html, 'Advanced dashboard inactive toggle label' );
-		$this->assertHtmlContainsMarker( 'Simple View', $html, 'Simple dashboard toggle left label' );
-		$this->assertHtmlContainsMarker( 'Advanced View', $html, 'Simple dashboard toggle target label' );
-	}
-
-	public function test_advanced_preference_renders_advanced_overview_marker() :void {
-		update_user_meta( $this->adminUserId, DashboardViewPreference::META_KEY, DashboardViewPreference::VIEW_ADVANCED );
-
-		$html = $this->renderDashboardOverviewHtml();
-		$this->assertHtmlContainsMarker( 'data-dashboard-view="simple"', $html, 'Simple dashboard panel marker' );
-		$this->assertHtmlContainsMarker( 'data-dashboard-view="advanced"', $html, 'Advanced dashboard panel marker' );
-		$this->assertHtmlContainsMarker( 'dashboard-overview-panel--advanced is-active', $html, 'Advanced dashboard active panel state' );
-		$this->assertHtmlNotContainsMarker( 'dashboard-overview-panel--simple is-active', $html, 'Simple dashboard inactive panel state' );
-		$this->assertHtmlContainsMarker( 'dashboard-overview-simple', $html, 'Simple dashboard overview marker in combined render' );
-		$this->assertHtmlContainsMarker( 'scan-strip', $html, 'Advanced dashboard overview' );
-		$this->assertHtmlContainsMarker( 'dashboard-view-switch is-advanced', $html, 'Advanced dashboard toggle state' );
-		$this->assertHtmlContainsMarker( 'dashboard-view-switch__toggle', $html, 'Advanced dashboard toggle control' );
-		$this->assertHtmlContainsMarker( 'dashboard-view-switch__label--advanced is-active', $html, 'Advanced dashboard active toggle label' );
-		$this->assertHtmlNotContainsMarker( 'dashboard-view-switch__label--simple is-active', $html, 'Simple dashboard inactive toggle label' );
-		$this->assertHtmlContainsMarker( 'Simple View', $html, 'Advanced dashboard toggle target label' );
 	}
 
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {

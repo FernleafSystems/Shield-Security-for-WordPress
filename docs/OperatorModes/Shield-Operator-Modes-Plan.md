@@ -60,11 +60,11 @@ The following Phase 1 artefacts become obsolete under operator modes:
 
 | Artefact | Status | Action |
 |---|---|---|
-| `DashboardViewPreference.php` | Exists at `src/Modules/Plugin/Lib/Dashboard/` | Replace with `OperatorModePreference` |
-| `DashboardViewToggle.php` | Exists at `src/ActionRouter/Actions/` | Replace with `OperatorModeSwitch` action |
-| `PageDashboardOverviewSimple.php` | Exists at `src/ActionRouter/Actions/Render/PluginAdminPages/` | Remove — its role is absorbed by mode landing + Actions Queue mode |
-| `dashboard_overview_simple.twig` | Exists at `templates/twig/wpadmin/plugin_pages/inner/` | Remove |
-| Simple/Advanced toggle in `base_inner_page.twig` | Exists | Remove toggle; replace with breadcrumb-based mode navigation |
+| `DashboardViewPreference.php` | Removed in P5 (2026-02-21) | Completed - superseded by operator-mode flow (`OperatorModePreference` remains active). |
+| `DashboardViewToggle.php` | Removed in P5 (2026-02-21) | Completed - superseded by `OperatorModeSwitch`. |
+| `PageDashboardOverviewSimple.php` | Removed in P5 (2026-02-21) | Completed - role absorbed by operator-mode landing path. |
+| `dashboard_overview_simple.twig` | Removed in P5 (2026-02-21) | Completed. |
+| Simple/Advanced toggle in `base_inner_page.twig` | Removed/deactivated in P5 flow | Completed - mode navigation now relies on selector + breadcrumbs/back-link patterns. |
 | `NeedsAttentionQueue.php` | Exists at `src/.../Widgets/` | **Keep** — moves into Actions Queue mode |
 | `AttentionItemsProvider.php` | Exists at `src/.../Widgets/` | **Keep** — data source for Actions Queue mode |
 | `needs_attention_queue.twig` | Exists at `templates/.../widget/` | **Keep** — used by Actions Queue mode |
@@ -472,7 +472,7 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 4: Mode Switching & Breadcrumbs
 
-**Status (2026-02-20):** Breadcrumbs (`BuildBreadCrumbs.php`) are ✅ done — mode-aware with Shield Security → Mode → Page structure. `OperatorModeSwitch` action exists. Simple/Advanced toggle has not yet been removed from `base_inner_page.twig` (deferred to P5). The toggle UI is no longer visible but the code path still exists.
+**Status (2026-02-21):** ✅ Complete. Breadcrumbs (`BuildBreadCrumbs.php`) are mode-aware with Shield Security → Mode → Page structure, `OperatorModeSwitch` action exists, and P5 cleanup removed the legacy Simple/Advanced toggle runtime/artifacts (`DashboardViewPreference`, `DashboardViewToggle`, `PageDashboardOverviewSimple`, simple templates, JS wiring, and legacy CSS blocks).
 
 **Create:**
 
