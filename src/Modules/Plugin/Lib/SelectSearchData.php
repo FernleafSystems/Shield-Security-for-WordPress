@@ -176,6 +176,7 @@ class SelectSearchData {
 
 	private function getExternalSearch() :array {
 		$con = self::con();
+		$links = new ExternalLinks();
 		return [
 			[
 				'text'     => __( 'External Links', 'wp-simple-firewall' ),
@@ -184,7 +185,7 @@ class SelectSearchData {
 						'id'          => 'external_helpdesk',
 						'text'        => __( 'Helpdesk and Knowledge Base', 'wp-simple-firewall' ),
 						'link'        => [
-							'href' => $con->labels->url_helpdesk,
+							'href' => $links->url( ExternalLinks::HELPDESK ),
 						],
 						'is_external' => true,
 						'tokens'      => 'help docs helpdesk support knowledge base doc',
@@ -194,7 +195,7 @@ class SelectSearchData {
 						'id'          => 'external_getshieldhome',
 						'text'        => sprintf( __( '%s Home Page', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
-							'href' => 'https://getshieldsecurity.com',
+							'href' => $links->url( ExternalLinks::HOME ),
 						],
 						'is_external' => true,
 						'tokens'      => 'shield security homepage home website site',
@@ -204,7 +205,7 @@ class SelectSearchData {
 						'id'          => 'external_gopro',
 						'text'        => sprintf( __( 'Get %s!', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
-							'href' => 'https://getshieldsecurity.com/pricing/',
+							'href' => $links->url( ExternalLinks::GOPRO ),
 						],
 						'is_external' => true,
 						'tokens'      => 'security pro premium security upgrade',
@@ -214,7 +215,7 @@ class SelectSearchData {
 						'id'          => 'external_trial',
 						'text'        => sprintf( __( '%s Free Trial', 'wp-simple-firewall' ), self::con()->labels->Name ),
 						'link'        => [
-							'href' => 'https://getshieldsecurity.com/free-trial/',
+							'href' => $links->url( ExternalLinks::FREE_TRIAL ),
 						],
 						'is_external' => true,
 						'tokens'      => 'security pro premium free trial',
@@ -224,7 +225,7 @@ class SelectSearchData {
 						'id'          => 'external_review',
 						'text'        => __( 'Leave A Review', 'wp-simple-firewall' ),
 						'link'        => [
-							'href' => 'https://clk.shldscrty.com/l1',
+							'href' => $links->url( ExternalLinks::REVIEW ),
 						],
 						'is_external' => true,
 						'tokens'      => 'review reviews stars',
@@ -234,7 +235,7 @@ class SelectSearchData {
 						'id'          => 'external_testimonials',
 						'text'        => __( 'Read Customer Testimonials', 'wp-simple-firewall' ),
 						'link'        => [
-							'href' => 'https://clk.shldscrty.com/l2',
+							'href' => $links->url( ExternalLinks::TESTIMONIALS ),
 						],
 						'is_external' => true,
 						'tokens'      => 'review reviews testimonial testimonials',
@@ -244,7 +245,7 @@ class SelectSearchData {
 						'id'          => 'external_crowdsec',
 						'text'        => __( 'CrowdSec Home', 'wp-simple-firewall' ),
 						'link'        => [
-							'href' => 'https://crowdsec.net/',
+							'href' => $links->url( ExternalLinks::CROWDSEC ),
 						],
 						'is_external' => true,
 						'tokens'      => 'crowdsec',
