@@ -76,6 +76,14 @@ class PluginURLs {
 		return URL::Build( $this->adminIpRules(), [ 'analyse_ip' => $ip ] );
 	}
 
+	public function investigateByIp( string $ip = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
+		if ( !empty( $ip ) ) {
+			$url = URL::Build( $url, [ 'analyse_ip' => $ip ] );
+		}
+		return $url;
+	}
+
 	public function cfgForZoneComponent( string $componentSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}

@@ -1,0 +1,16 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	{{ content.needs_attention_queue|raw }}
+
+	<div class="card shield-card mt-3">
+		<div class="shield-card-accent status-info"></div>
+		<div class="card-body">
+			<h5 class="card-title mb-3">{{ strings.cta_title }}</h5>
+			<div class="d-flex flex-wrap gap-2">
+				<a href="{{ hrefs.scan_results }}" class="btn btn-outline-primary">{{ strings.cta_scan_results }}</a>
+				<a href="{{ hrefs.scan_run }}" class="btn btn-outline-secondary">{{ strings.cta_scan_run }}</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}

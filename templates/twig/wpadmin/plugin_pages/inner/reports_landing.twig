@@ -1,0 +1,13 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="card shield-card mb-3">
+		<div class="shield-card-accent status-info"></div>
+		<div class="card-body d-flex justify-content-end">
+			<a href="{{ hrefs.reports_list }}" class="btn btn-outline-primary">{{ strings.cta_reports_list }}</a>
+		</div>
+	</div>
+
+	{{ content.summary_charts|raw }}
+	{{ content.reports_view|raw }}
+{% endblock %}

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginNavs {
@@ -18,6 +17,9 @@ class PluginNavs {
 	public const FIELD_NAV = 'nav';
 	public const FIELD_SUBNAV = 'nav_sub';
 	public const NAV_ACTIVITY = 'activity';
+	public const SUBNAV_ACTIVITY_OVERVIEW = 'overview';
+	public const SUBNAV_ACTIVITY_BY_USER = 'by_user';
+	public const SUBNAV_ACTIVITY_BY_IP = 'by_ip';
 	public const NAV_IPS = 'ips';
 	public const SUBNAV_IPS_RULES = 'rules';
 	public const NAV_LICENSE = 'license';
@@ -28,12 +30,14 @@ class PluginNavs {
 	public const SUBNAV_DASHBOARD_OVERVIEW = 'overview';
 	public const NAV_RESTRICTED = 'restricted';
 	public const NAV_REPORTS = 'reports';
+	public const SUBNAV_REPORTS_OVERVIEW = 'overview';
 	public const SUBNAV_REPORTS_LIST = 'list';
 	public const NAV_RULES = 'rules';
 	public const SUBNAV_RULES_MANAGE = 'manage';
 	public const SUBNAV_RULES_BUILD = 'build';
 	public const SUBNAV_RULES_SUMMARY = 'summary';
 	public const NAV_SCANS = 'scans';
+	public const SUBNAV_SCANS_OVERVIEW = 'overview';
 	public const SUBNAV_SCANS_STATE = 'state';
 	public const SUBNAV_SCANS_HISTORY = 'history';
 	public const SUBNAV_SCANS_RESULTS = 'results';
@@ -49,6 +53,7 @@ class PluginNavs {
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
 	public const NAV_ZONES = 'zones';
+	public const SUBNAV_ZONES_OVERVIEW = 'overview';
 	public const NAV_ZONE_COMPONENTS = 'zone_components';
 	public const SUBNAV_WIZARD_WELCOME = 'welcome';
 	public const SUBNAV_INDEX = 'index'; /* special case used only to indicate pick first in subnav list, for now */
@@ -66,11 +71,10 @@ class PluginNavs {
 		return self::GetNav() === $nav && self::GetSubNav() === $subNav;
 	}
 
-	/**
-	 * Handle special case for Config, so we ensure plugin general config is always default.
-	 */
 	public static function GetDefaultSubNavForNav( string $nav ) :string {
-		return $nav === self::NAV_ZONES ? Secadmin::Slug() : \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
+		return $nav === self::NAV_ZONES
+			? self::SUBNAV_ZONES_OVERVIEW
+			: \key( PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ] );
 	}
 
 	public static function GetNavHierarchy() :array {
@@ -88,7 +92,16 @@ class PluginNavs {
 				self::NAV_ACTIVITY        => [
 					'name'     => __( 'Activity', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_LOGS => [
+						self::SUBNAV_ACTIVITY_OVERVIEW => [
+							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+						],
+						self::SUBNAV_ACTIVITY_BY_USER  => [
+							'handler' => PluginAdminPages\PageInvestigateByUser::class,
+						],
+						self::SUBNAV_ACTIVITY_BY_IP    => [
+							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+						],
+						self::SUBNAV_LOGS              => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
 					],
@@ -123,7 +136,10 @@ class PluginNavs {
 				self::NAV_REPORTS         => [
 					'name'     => __( 'Reports', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_REPORTS_LIST => [
+						self::SUBNAV_REPORTS_OVERVIEW => [
+							'handler' => PluginAdminPages\PageReportsLanding::class,
+						],
+						self::SUBNAV_REPORTS_LIST     => [
 							'handler' => PluginAdminPages\PageReports::class,
 						],
 					],
@@ -153,6 +169,9 @@ class PluginNavs {
 				self::NAV_SCANS           => [
 					'name'     => __( 'Scans', 'wp-simple-firewall' ),
 					'sub_navs' => [
+						self::SUBNAV_SCANS_OVERVIEW => [
+							'handler' => PluginAdminPages\PageActionsQueueLanding::class,
+						],
 						self::SUBNAV_SCANS_RESULTS => [
 							'handler' => PluginAdminPages\PageScansResults::class,
 						],
@@ -202,13 +221,20 @@ class PluginNavs {
 				],
 				self::NAV_ZONES           => [
 					'name'     => __( 'Security Zones', 'wp-simple-firewall' ),
-					'sub_navs' => \array_map(
-						function () {
-							return [
-								'handler' => PluginAdminPages\PageDynamicLoad::class,
-							];
-						},
-						\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
+					'sub_navs' => \array_merge(
+						[
+							self::SUBNAV_ZONES_OVERVIEW => [
+								'handler' => PluginAdminPages\PageConfigureLanding::class,
+							],
+						],
+						\array_map(
+							function () {
+								return [
+									'handler' => PluginAdminPages\PageDynamicLoad::class,
+								];
+							},
+							\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
+						)
 					),
 				],
 				self::NAV_ZONE_COMPONENTS => [
@@ -276,25 +302,25 @@ class PluginNavs {
 			case self::MODE_ACTIONS:
 				$entry = [
 					'nav'    => self::NAV_SCANS,
-					'subnav' => self::SUBNAV_SCANS_RESULTS,
+					'subnav' => self::SUBNAV_SCANS_OVERVIEW,
 				];
 				break;
 			case self::MODE_INVESTIGATE:
 				$entry = [
 					'nav'    => self::NAV_ACTIVITY,
-					'subnav' => self::SUBNAV_LOGS,
+					'subnav' => self::SUBNAV_ACTIVITY_OVERVIEW,
 				];
 				break;
 			case self::MODE_CONFIGURE:
 				$entry = [
 					'nav'    => self::NAV_ZONES,
-					'subnav' => self::GetDefaultSubNavForNav( self::NAV_ZONES ),
+					'subnav' => self::SUBNAV_ZONES_OVERVIEW,
 				];
 				break;
 			case self::MODE_REPORTS:
 				$entry = [
 					'nav'    => self::NAV_REPORTS,
-					'subnav' => self::SUBNAV_REPORTS_LIST,
+					'subnav' => self::SUBNAV_REPORTS_OVERVIEW,
 				];
 				break;
 			default:

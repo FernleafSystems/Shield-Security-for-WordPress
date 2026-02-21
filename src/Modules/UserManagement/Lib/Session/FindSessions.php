@@ -28,6 +28,22 @@ class FindSessions {
 		return $sessions;
 	}
 
+	public function byUser( int $userId ) :array {
+		$sessions = [];
+		if ( $userId > 0 ) {
+			foreach ( $this->lookupFromUserMeta( [ \sprintf( '`user_meta`.`user_id`=%d', $userId ) ] ) as $userAtMeta ) {
+				$sessions[ (int)$userAtMeta[ 'user_id' ] ] = \array_map(
+					function ( $sess ) use ( $userAtMeta ) {
+						$sess[ 'user_login' ] = $userAtMeta[ 'user_login' ];
+						return $sess;
+					},
+					\WP_Session_Tokens::get_instance( (int)$userAtMeta[ 'user_id' ] )->get_all()
+				);
+			}
+		}
+		return $sessions;
+	}
+
 	public function lookupFromUserMeta( array $wheres = [], int $limit = 10, string $orderBy = '`user_meta`.`last_login_at`' ) :array {
 		$DB = Services::WpDb();
 		$results = $DB->selectCustom(

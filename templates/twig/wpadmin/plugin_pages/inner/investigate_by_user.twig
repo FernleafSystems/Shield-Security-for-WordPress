@@ -1,0 +1,217 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="card shield-card mb-3">
+		<div class="shield-card-accent status-info"></div>
+		<div class="card-body">
+			<form method="get" action="{{ hrefs.by_user }}" class="row g-2 align-items-end">
+				<div class="col-12 col-lg-8">
+					<label class="form-label mb-1">{{ strings.lookup_label }}</label>
+					<input type="text" name="user_lookup" value="{{ vars.user_lookup|default('') }}"
+						   class="form-control" placeholder="{{ strings.lookup_placeholder }}"/>
+				</div>
+				<div class="col-12 col-lg-4 d-flex gap-2">
+					<button type="submit" class="btn btn-outline-primary">{{ strings.lookup_submit }}</button>
+					<a href="{{ hrefs.back_to_investigate }}" class="btn btn-outline-secondary">{{ strings.back_to_investigate }}</a>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	{% if not flags.has_subject %}
+		<div class="card shield-card">
+			<div class="shield-card-accent status-warning"></div>
+			<div class="card-body">
+				{% if flags.subject_not_found %}
+					<h5 class="card-title mb-2">{{ strings.not_found_title }}</h5>
+					<p class="mb-0">{{ strings.not_found_text }}</p>
+				{% else %}
+					<h5 class="card-title mb-2">{{ strings.no_subject_title }}</h5>
+					<p class="mb-0">{{ strings.no_subject_text }}</p>
+				{% endif %}
+			</div>
+		</div>
+	{% else %}
+		<div class="row g-3">
+			<div class="col-12">
+				<div class="card shield-card">
+					<div class="shield-card-accent status-info"></div>
+					<div class="card-body">
+						<h5 class="card-title mb-3">{{ strings.summary_title }}</h5>
+						<div class="row g-2">
+							<div class="col-12 col-md-3"><strong>ID:</strong> {{ vars.subject.id }}</div>
+							<div class="col-12 col-md-3"><strong>Login:</strong> {{ vars.subject.login }}</div>
+							<div class="col-12 col-md-3"><strong>Email:</strong> {{ vars.subject.email }}</div>
+							<div class="col-12 col-md-3"><strong>Display:</strong> {{ vars.subject.display }}</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="card shield-card">
+					<div class="shield-card-accent status-info"></div>
+					<div class="card-body">
+						<h5 class="card-title mb-3">{{ strings.sessions_title }}</h5>
+						{% if vars.sessions is empty %}
+							<p class="mb-0">{{ strings.sessions_empty }}</p>
+						{% else %}
+							<div class="table-responsive">
+								<table class="table table-sm">
+									<thead>
+									<tr>
+										<th>{{ strings.sessions_user }}</th>
+										<th>{{ strings.sessions_login_at }}</th>
+										<th>{{ strings.sessions_last_at }}</th>
+										<th>{{ strings.sessions_ip }}</th>
+									</tr>
+									</thead>
+									<tbody>
+									{% for session in vars.sessions %}
+										<tr>
+											<td>
+												{{ session.user_login }}
+												{% if session.is_sec_admin %}
+													<span class="badge bg-warning text-dark ms-1">SecAdmin</span>
+												{% endif %}
+											</td>
+											<td>
+												{{ session.logged_in_at_ago }}
+												<div class="timestamp-small">{{ session.logged_in_at }}</div>
+											</td>
+											<td>
+												{{ session.last_activity_at_ago }}
+												<div class="timestamp-small">{{ session.last_activity_at }}</div>
+											</td>
+											<td>
+												{% if session.ip|default('') is not empty %}
+													<a href="{{ session.ip_href|default('#') }}"
+													   class="offcanvas_ip_analysis ip-address"
+													   data-ip="{{ session.ip }}">{{ session.ip }}</a>
+												{% else %}
+													-
+												{% endif %}
+											</td>
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="card shield-card">
+					<div class="shield-card-accent status-warning"></div>
+					<div class="card-body">
+						<h5 class="card-title mb-3">{{ strings.activity_title }}</h5>
+						{% if vars.activity_logs is empty %}
+							<p class="mb-0">{{ strings.activity_empty }}</p>
+						{% else %}
+							<div class="table-responsive">
+								<table class="table table-sm">
+									<thead>
+									<tr>
+										<th>{{ strings.activity_event }}</th>
+										<th>{{ strings.activity_when }}</th>
+										<th>{{ strings.activity_ip }}</th>
+									</tr>
+									</thead>
+									<tbody>
+									{% for log in vars.activity_logs %}
+										<tr>
+											<td>{{ log.event }}</td>
+											<td>
+												{{ log.created_at_ago }}
+												<div class="timestamp-small">{{ log.created_at }}</div>
+											</td>
+											<td>
+												<a href="{{ log.ip_href }}"
+												   class="offcanvas_ip_analysis ip-address"
+												   data-ip="{{ log.ip }}">{{ log.ip }}</a>
+											</td>
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="card shield-card">
+					<div class="shield-card-accent status-warning"></div>
+					<div class="card-body">
+						<h5 class="card-title mb-3">{{ strings.requests_title }}</h5>
+						{% if vars.request_logs is empty %}
+							<p class="mb-0">{{ strings.requests_empty }}</p>
+						{% else %}
+							<div class="table-responsive">
+								<table class="table table-sm">
+									<thead>
+									<tr>
+										<th>{{ strings.requests_path }}</th>
+										<th>{{ strings.requests_response }}</th>
+										<th>{{ strings.requests_when }}</th>
+										<th>{{ strings.requests_ip }}</th>
+									</tr>
+									</thead>
+									<tbody>
+									{% for request in vars.request_logs %}
+										<tr>
+											<td>
+												<code>{{ request.verb }}</code>
+												<code>{{ request.path }}</code>
+												{% if request.query is not empty %}
+													<div><code>?{{ request.query }}</code></div>
+												{% endif %}
+											</td>
+											<td>
+												<span class="badge bg-{{ request.code >= 400 ? 'danger' : (request.code >= 300 ? 'warning' : 'success') }}">{{ request.code }}</span>
+												<span class="badge bg-{{ request.offense ? 'danger' : 'info' }}">{{ request.offense ? 'Yes' : 'No' }}</span>
+											</td>
+											<td>
+												{{ request.created_at_ago }}
+												<div class="timestamp-small">{{ request.created_at }}</div>
+											</td>
+											<td>
+												<a href="{{ request.ip_href }}"
+												   class="offcanvas_ip_analysis ip-address"
+												   data-ip="{{ request.ip }}">{{ request.ip }}</a>
+											</td>
+										</tr>
+									{% endfor %}
+									</tbody>
+								</table>
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="card shield-card">
+					<div class="shield-card-accent status-good"></div>
+					<div class="card-body">
+						<h5 class="card-title mb-3">{{ strings.related_ips_title }}</h5>
+						{% if vars.related_ips is empty %}
+							<p class="mb-0">{{ strings.related_ips_empty }}</p>
+						{% else %}
+							<div class="d-flex flex-wrap gap-2">
+								{% for related in vars.related_ips %}
+									<a href="{{ related.href }}"
+									   class="badge bg-secondary text-decoration-none offcanvas_ip_analysis"
+									   data-ip="{{ related.ip }}">{{ related.ip }}</a>
+								{% endfor %}
+							</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

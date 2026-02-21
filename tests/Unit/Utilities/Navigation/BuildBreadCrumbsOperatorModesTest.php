@@ -19,7 +19,7 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 	public function test_selector_crumb_is_first() :void {
 		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
 			PluginNavs::NAV_SCANS,
-			PluginNavs::SUBNAV_SCANS_RESULTS
+			PluginNavs::SUBNAV_SCANS_OVERVIEW
 		);
 
 		$this->assertSame( 'Shield Security', $crumbs[ 0 ][ 'text' ] );
@@ -33,7 +33,37 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 'Actions Queue', $crumbs[ 1 ][ 'text' ] );
-		$this->assertSame( '/scans/results', $crumbs[ 1 ][ 'href' ] );
+		$this->assertSame( '/scans/overview', $crumbs[ 1 ][ 'href' ] );
+	}
+
+	public function test_mode_landing_subnav_omits_nav_home_crumb() :void {
+		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
+			PluginNavs::NAV_SCANS,
+			PluginNavs::SUBNAV_SCANS_OVERVIEW
+		);
+
+		$this->assertCount( 2, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Actions Queue' ], \array_column( $crumbs, 'text' ) );
+	}
+
+	public function test_investigate_landing_subnav_omits_nav_home_crumb() :void {
+		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_OVERVIEW
+		);
+
+		$this->assertCount( 2, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
+	}
+
+	public function test_child_tool_page_keeps_nav_home_crumb() :void {
+		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_LOGS
+		);
+
+		$this->assertCount( 3, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity' ], \array_column( $crumbs, 'text' ) );
 	}
 }
 
@@ -51,24 +81,30 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 			PluginNavs::NAV_SCANS     => [
 				'name'     => 'Scans',
 				'sub_navs' => [
+					PluginNavs::SUBNAV_SCANS_OVERVIEW => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_SCANS_RESULTS => [ 'handler' => 'handler' ],
 				],
 			],
 			PluginNavs::NAV_ACTIVITY  => [
 				'name'     => 'Activity',
 				'sub_navs' => [
-					PluginNavs::SUBNAV_LOGS => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_OVERVIEW => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_USER  => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_IP    => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_LOGS              => [ 'handler' => 'handler' ],
 				],
 			],
 			PluginNavs::NAV_ZONES     => [
 				'name'     => 'Security Zones',
 				'sub_navs' => [
-					'secadmin' => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ZONES_OVERVIEW => [ 'handler' => 'handler' ],
+					'secadmin'                        => [ 'handler' => 'handler' ],
 				],
 			],
 			PluginNavs::NAV_REPORTS   => [
 				'name'     => 'Reports',
 				'sub_navs' => [
+					PluginNavs::SUBNAV_REPORTS_OVERVIEW => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_REPORTS_LIST => [ 'handler' => 'handler' ],
 				],
 			],
