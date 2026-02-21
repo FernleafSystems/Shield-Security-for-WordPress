@@ -175,6 +175,45 @@ Deferred cleanup note (P5 scope lock):
 2. Payload pruning is deferred to a future cleanup slice.
 3. Any future payload removal must be confirmed with operator before implementation because some fields may be reused by other components.
 
+### P6-A - Mode Landing Pack (Low Complexity, Shared Surface Area)
+
+Purpose:
+1. Finish dedicated entry landings for mode-first navigation without adding new data services.
+2. Keep this pack additive by reusing current queue/meter/report providers.
+
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-601 | Add dedicated Actions/Configure/Reports landing page handlers and templates | `src/ActionRouter/Actions/Render/PluginAdminPages/PageActionsQueueLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageConfigureLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageReportsLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/actions_queue_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/configure_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/reports_landing.twig`, `src/ActionRouter/Constants.php` | P5 complete | Each mode has a first-class landing page that renders via existing services/components only. |
+| OM-602 | Wire mode default entries to new landing routes (not directly to tool pages) | `src/Controller/Plugin/PluginNavs.php`, `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-601 | Entering Actions/Configure/Reports from selector/sidebar/WP submenu lands on the corresponding landing page. |
+| OM-603 | Keep sidebar and breadcrumbs coherent for new landing routes | `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-602 | Mode sidebar highlights and breadcrumb path remain consistent for landing pages and child pages. |
+| OM-604 | Add focused tests for landing routing and mode-entry contracts | `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`, `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, `tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php` | OM-602, OM-603 | Unit coverage verifies mode entry targets and no regression in mode-aware sidebar/breadcrumb behavior. |
+
+### P6-B - Investigate MVP Pack (Medium Complexity, Single Domain)
+
+Purpose:
+1. Deliver the initial investigation selectors promised by the Operator Modes plan.
+2. Keep scope locked to By User + By IP, with By Plugin explicitly deferred.
+
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-611 | Add Investigate landing page with subject selectors and links to existing log tools | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, `src/ActionRouter/Constants.php` | OM-601 | Investigate mode has a dedicated landing page linking to Activity/Traffic/IP Rules plus subject selectors. |
+| OM-612 | Promote By IP to first-class Investigate navigation entry using existing IP analysis flow | `src/Controller/Plugin/PluginNavs.php`, `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Controller/Plugin/PluginURLs.php` | OM-611 | Users can start IP investigation directly from Investigate mode without first opening another table row. |
+| OM-613 | Add By User data helpers in existing data layer | `src/Modules/UserManagement/Lib/Session/FindSessions.php`, `src/DBs/ActivityLogs/LoadLogs.php` | OM-611 | Data-layer contracts can fetch sessions/logs by user ID without duplicating query implementations. |
+| OM-614 | Add By User investigation page and template | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig`, `src/ActionRouter/Constants.php` | OM-613 | User investigation view renders activity, sessions, and related IP/request context for selected user. |
+| OM-615 | Add focused tests for Investigate selectors and By User flow contracts | `tests/Unit/**`, `tests/Integration/**` | OM-612, OM-614 | Routing, filtering, and empty-state behavior for Investigate MVP pass test coverage. |
+
+### P6-C - Dashboard Widget Alignment Pack (Low Complexity, Isolated Surface)
+
+Purpose:
+1. Align the WordPress dashboard widget to the two-indicator operator model.
+2. Limit this pack to widget payload/template changes only.
+
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-621 | Reduce widget payload to config posture + action count using existing contracts | `src/ActionRouter/Actions/Render/Components/Widgets/WpDashboardSummary.php` | OM-601 | Widget data keeps `BuildMeter::trafficFromPercentage()` and queue severity mapping while removing unrelated tables/feeds payload. |
+| OM-622 | Simplify widget Twig markup to the two-indicator view | `templates/twig/admin/admin_dashboard_widget_v2.twig` | OM-621 | Widget UI shows only config posture and action queue summary with clear CTA links. |
+| OM-623 | Add/adjust tests for simplified widget data and rendering expectations | `tests/Unit/**`, `tests/Integration/**` | OM-621, OM-622 | Test coverage confirms new payload shape and no rendering errors for refresh/all-clear/non-clear states. |
+
 ## 5) Prototype B Translation Tasks (When Landing Is Introduced)
 
 | ID | Task | Done When |
@@ -195,15 +234,18 @@ Deferred cleanup note (P5 scope lock):
 | P3 | Complete | Mode constants (`PluginNavs`), user preference (`OperatorModePreference`), landing page (`PageOperatorModeLanding` + `operator_mode_landing.twig`) all implemented. |
 | P4 | Complete | Sidebar two-state navigation (OM-401a-d), WP submenu (OM-402), breadcrumbs (OM-403), and P4.5 sidebar gap closure (OM-410/OM-411) are complete. |
 | P5 | Complete | Legacy Simple/Advanced runtime and artifacts removed (OM-501 through OM-508). Operator-mode landing path is now the only overview flow. |
-| P6+ | Not started | Investigate tools, Configure/Reports deepening, WP widget. |
+| P6+ | Planned | Grouped packs defined: P6-A (`OM-601` to `OM-604`), P6-B (`OM-611` to `OM-615`), P6-C (`OM-621` to `OM-623`). |
 
 ## 7) Next Slice: P6 Kickoff
 
-Execute in this order:
-1. Step 5 - Actions Queue mode landing (`PageActionsQueueLanding.php`, `actions_queue_landing.twig`) using existing queue providers.
-2. Step 6 - Investigate mode landing and By User flow; promote By IP path to first-class mode navigation.
-3. Step 7 - Configure and Reports dedicated landing pages while reusing existing status/score services.
-4. Step 8 - WP dashboard widget simplification to the two-indicator model.
+Recommended grouped execution order:
+1. Group 1 (shared mode-entry surfaces): run P6-A (`OM-601` to `OM-604`) as one batch.
+2. Group 2 (single-domain investigation MVP): run P6-B (`OM-611` to `OM-615`) as one batch.
+3. Group 3 (isolated widget alignment): run P6-C (`OM-621` to `OM-623`) as one batch.
+
+Immediate implementation recommendation:
+1. Start with Group 1 + Group 2 in the same delivery train (same branch/PR series) because both touch operator-mode entry flow and Investigate UX.
+2. Hold Group 3 for a follow-up pass once mode landing and investigation routes are stable.
 
 Acceptance focus for the next slice:
 1. Keep status/severity and traffic mapping contracts unchanged (`BuildMeter::trafficFromPercentage()`, queue `good|warning|critical`).
