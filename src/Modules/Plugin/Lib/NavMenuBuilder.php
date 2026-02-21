@@ -95,10 +95,28 @@ class NavMenuBuilder {
 			'sub_items' => [],
 		];
 
-		return \array_merge(
-			[ $backLink ],
-			$this->filterMenuForMode( $baseMenu, $mode )
-		);
+		$modeMenu = [ $backLink ];
+
+		if ( $mode === PluginNavs::MODE_CONFIGURE ) {
+			$baseMenuBySlug = [];
+			foreach ( $baseMenu as $item ) {
+				$baseMenuBySlug[ (string)( $item[ 'slug' ] ?? '' ) ] = $item;
+			}
+			$dashboard = $baseMenuBySlug[ PluginNavs::NAV_DASHBOARD ] ?? [];
+
+			$modeMenu[] = [
+				'slug'      => 'mode-configure-grades',
+				'title'     => __( 'Security Grades', 'wp-simple-firewall' ),
+				'subtitle'  => (string)( $dashboard[ 'subtitle' ] ?? '' ),
+				'img'       => (string)( $dashboard[ 'img' ] ?? '' ),
+				'href'      => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
+				'active'    => false,
+				'classes'   => [],
+				'sub_items' => [],
+			];
+		}
+
+		return \array_merge( $modeMenu, $this->filterMenuForMode( $baseMenu, $mode ) );
 	}
 
 	private function normalizeMenu( array $menu ) :array {
