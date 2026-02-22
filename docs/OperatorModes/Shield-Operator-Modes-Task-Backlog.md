@@ -1,9 +1,11 @@
 # Shield Operator Modes - Delivery Task Backlog (Validated)
 
-Date: 2026-02-21  
-Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`, `tests/`  
-Source plan: `docs/OperatorModes/Shield-Operator-Modes-Plan.md`  
-Prototype reference: `docs/OperatorModes/prototype-b-hero-strip.html`
+Date: 2026-02-22 (updated, re-baselined to current code state)
+Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`, `tests/`
+Source plan: `Shield-Operator-Modes-Plan.md`
+Prototype references:
+- Mode selector: `docs/OperatorModes/prototype-b-hero-strip.html`
+- Investigate mode: `prototypes/investigate-mode/` (4 files: `investigate-landing.html`, `investigate-user.html`, `investigate-ip.html`, `investigate-plugin.html`)
 
 ## 1) Objective And Scope Controls
 
@@ -105,114 +107,62 @@ Cache key must include channel dimension (e.g. `summary|config`, `summary|action
 
 ### P4 - Mode-Aware Navigation
 
-**Implementation status (2026-02-20):** OM-401, OM-401a, OM-401b, OM-401c, OM-401d, OM-402, and OM-403 are complete.
+**Implementation status (2026-02-22):** Complete. OM-401 through OM-403 are implemented in code. The two-state sidebar behavior exists in `NavMenuBuilder` (`buildModeSelector()`, `buildModeNav()`, `resolveCurrentMode()` returning mode selector state for dashboard nav), and unit coverage exists in `tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php`.
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-401 | ~~Make sidebar nav mode-aware~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-301 | **Done** - two-state sidebar implemented in `build()` using `buildModeSelector()` and `buildModeNav()`, with shared normalization extracted to `normalizeMenu()`. |
-| OM-401a | ~~Fix `resolveCurrentMode()` to return empty string for dashboard nav~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401 | **Done** - dashboard/empty nav now resolves to `''` mode and no longer falls back to `MODE_ACTIONS`. |
-| OM-401b | ~~Add `buildModeSelector()` method for State 1 sidebar~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401a | **Done** - mode selector state returns 4 flat mode entries plus Go PRO/License using existing `PluginNavs` entries/labels. |
-| OM-401c | ~~Add `buildModeNav()` method for State 2 sidebar (back link + mode items)~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401a | **Done** - mode state prepends `mode-selector-back` item (`mode-back-link`) and reuses mode-filtered nav items plus Go PRO/License. |
-| OM-401d | ~~Remove `NAV_DASHBOARD` from `allowedNavsForMode()`~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | **Done** - dashboard removed from mode allowlists; back-link now owns selector return path. |
-| OM-402 | ~~Replace WP submenu with mode entries~~ | `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-301 | **Done** - `addSubMenuItems()` registers Dashboard, Actions Queue, Investigate, Configure, Reports, Go PRO. |
-| OM-403 | ~~Update breadcrumbs for mode pathing~~ | `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-401 | **Done** - `parse()` builds mode-aware breadcrumbs: Shield Security -> Mode Label -> Current Page. |
+| OM-401 | ~~Make sidebar nav mode-aware~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-301 | **Done** — mode selector state + in-mode state sidebar behavior implemented. |
+| OM-401a | ~~Fix `resolveCurrentMode()` to return empty string for dashboard nav~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401 | **Done** — dashboard nav resolves to mode selector state (`''`). |
+| OM-401b | ~~Add `buildModeSelector()` method for State 1 sidebar~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401a | **Done** — `build()` returns 4 mode entries in selector state. |
+| OM-401c | ~~Add `buildModeNav()` method for State 2 sidebar (back link + mode items)~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401a | **Done** — in-mode menu prepends back link and mode-specific items. |
+| OM-401d | ~~Remove `NAV_DASHBOARD` from `allowedNavsForMode()`~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | **Done** — dashboard entry is no longer mode-menu fallback. |
+| OM-402 | ~~Replace WP submenu with mode entries~~ | `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-301 | **Done** — `addSubMenuItems()` registers Dashboard, Actions Queue, Investigate, Configure, Reports, Go PRO. |
+| OM-403 | ~~Update breadcrumbs for mode pathing~~ | `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-401 | **Done** — `parse()` builds mode-aware breadcrumbs: Shield Security → Mode Label → Current Page. |
 
-#### Implementation notes for OM-401a-d (completed)
+#### Implementation notes for OM-401a–d (historical)
 
 **File:** `src/Modules/Plugin/Lib/NavMenuBuilder.php`
 
-Implemented structure:
-1. `build()` now resolves mode once and branches to `buildModeSelector()` or `buildModeNav()`.
-2. Existing normalization logic was extracted to `normalizeMenu(array $menu): array` and reused for both paths.
-3. Mode selector state returns exactly 4 mode entries plus Go PRO/License.
-4. In-mode state prepends a `mode-selector-back` item and then reuses existing mode filtering + Go PRO/License.
-5. `allowedNavsForMode()` no longer includes `NAV_DASHBOARD`.
+**Current `build()` method structure (lines 30–104):**
+1. Builds full 9-item menu array from private methods
+2. Calls `filterMenuForMode($menu, $this->resolveCurrentMode())`
+3. Normalizes items (defaults, active state, sub-item processing, security admin checks)
+4. Returns processed menu
 
-Validation completed for this slice:
-1. `php -l src/Modules/Plugin/Lib/NavMenuBuilder.php`
-2. `composer test:unit -- tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
-3. `composer test:unit -- tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
-4. `composer test:unit -- tests/Unit/Modules/Plugin/Lib/OperatorModePreferenceTest.php`
+**Target `build()` method structure:**
+1. Call `resolveCurrentMode()` (after OM-401a fix)
+2. If mode is `''`: call `buildModeSelector()` → returns 4 mode items + gopro
+3. If mode is non-empty: call `buildModeNav($mode)` → returns back-link + filtered items + gopro
+4. Normalize items (same logic as current lines 44–101, extracted to a shared method)
 
-### P4.5 - Known Sidebar Gaps (After OM-401a-d, Before P5)
+**Key constraint:** The normalization loop (lines 44–101) must still run on whatever array is returned. Extract it to a `normalizeMenu(array $menu): array` method and call it from `build()` after either path.
 
-**Implementation status (2026-02-21):** OM-410 and OM-411 are complete.
+**`nav_sidebar.twig` impact:** None expected. The template iterates `vars.navbar_menu` generically. The back-link item and mode-selector items are standard items with the same shape. If you want to style the back link differently, add `'mode-back-link'` to its `classes` array and add a CSS rule.
+
+**Testing approach:** No unit test infrastructure changes needed. Verify manually:
+1. Navigate to Dashboard (mode selector) → sidebar shows 4 mode entries + Go PRO
+2. Click "Investigate" → sidebar shows back link + Activity Logs + Bots & IP Rules + Go PRO
+3. Click "← Shield Security" → returns to mode selector, sidebar returns to State 1
+4. Navigate to any page via WP admin sidebar → sidebar shows correct mode's items with back link
+
+### P4.5 - Sidebar Follow-Up (Completed)
+
+These were delivered after P4 and before P5 cleanup:
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-410 | Add Security Grades as a direct link in Configure mode sidebar | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | When in Configure mode, sidebar includes a "Security Grades" link pointing to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`. Currently this page is a sub-nav of Dashboard and does not appear in Configure mode's `allowedNavsForMode()`. Simplest approach: add it as a hardcoded item in `buildModeNav()` when mode is `MODE_CONFIGURE`. |
-| OM-411 | Optional: Style back link distinctly | `assets/css/components/nav_sidebar_menu.scss` | OM-401c | The "<- Shield Security" back link has a `.mode-back-link` class and renders with a smaller font/muted style to visually separate it from mode nav items. This is a polish task, not a functional requirement. |
-
-Validation completed for this slice:
-1. `php -l src/Modules/Plugin/Lib/NavMenuBuilder.php`
-2. `php -l tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php`
-3. `php -l tests/Unit/NavSidebarModeBackLinkStyleTest.php`
-4. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php`
-5. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/NavSidebarModeBackLinkStyleTest.php`
-6. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
-7. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
-8. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/NavSidebarTemplateTest.php`
-9. `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/Plugin/Lib/OperatorModePreferenceTest.php`
-
-Implementation notes:
-1. `buildModeNav()` now prepends a Configure-only synthetic `mode-configure-grades` item after `mode-selector-back` and before filtered Configure nav items.
-2. The synthetic grades item reuses dashboard `img`/`subtitle` metadata when available from base menu data.
-3. `.mode-back-link` styling is scoped in `assets/css/components/nav_sidebar_menu.scss` and does not alter Twig markup.
-4. `allowedNavsForMode()`, `resolveCurrentMode()`, `PluginNavs::modeForNav()`, and meter severity/status mapping were unchanged.
+| OM-410 | ~~Add Security Grades as a direct link in Configure mode sidebar~~ | `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | **Done (2026-02-21)** — Configure mode inserts `mode-configure-grades` linking to dashboard grades. |
+| OM-411 | ~~Optional: Style back link distinctly~~ | `assets/css/components/nav_sidebar_menu.scss`, `src/Modules/Plugin/Lib/NavMenuBuilder.php` | OM-401c | **Done (2026-02-21)** — `.mode-back-link` styling added and scoped to sidebar nav link. |
 
 ### P5 - Cleanup And Legacy Removal (Trigger-Based)
 
-**Implementation status (2026-02-21):** OM-501 through OM-508 are complete.
+**Execution status:** Complete (2026-02-21). See archive execution plan for implementation notes.
 
 | ID | Task | Trigger | Files | Done When |
 |---|---|---|---|---|
-| OM-501 | ~~Unwire legacy dashboard toggle runtime (no deletions)~~ | After P4 ships | `templates/twig/wpadmin/plugin_pages/base_inner_page.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview.twig`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverview.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/BasePluginAdminPage.php`, `src/Modules/Plugin/Lib/AssetsCustomizer.php` | **Done** - dashboard overview now renders a single operator-mode landing flow and no active UI/runtime path depends on `dashboard_view_toggle`. |
-| OM-502 | ~~Remove deprecated Simple/Advanced classes/templates (hard removal phase)~~ | After OM-501 stabilization | `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig`, `src/ActionRouter/Constants.php` | **Done** - deprecated runtime/template artifacts were deleted and registration references cleaned. |
-| OM-503 | ~~Replace/retire tests tied to old toggle behavior~~ | After OM-502 | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, affected assertions in `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | **Done** - legacy toggle tests were removed and overview integration assertions were aligned to single-flow behavior. |
-
-Deferred cleanup note (P5 scope lock):
-1. `PageDashboardOverview.php` intentionally retains currently-unused payload elements in this pass.
-2. Payload pruning is deferred to a future cleanup slice.
-3. Any future payload removal must be confirmed with operator before implementation because some fields may be reused by other components.
-
-### P6-A - Mode Landing Pack (Low Complexity, Shared Surface Area)
-
-Purpose:
-1. Finish dedicated entry landings for mode-first navigation without adding new data services.
-2. Keep this pack additive by reusing current queue/meter/report providers.
-
-| ID | Task | Files | Depends On | Done When |
-|---|---|---|---|---|
-| OM-601 | Add dedicated Actions/Configure/Reports landing page handlers and templates | `src/ActionRouter/Actions/Render/PluginAdminPages/PageActionsQueueLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageConfigureLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageReportsLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/actions_queue_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/configure_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/reports_landing.twig`, `src/ActionRouter/Constants.php` | P5 complete | **Implemented (2026-02-21), pending runtime acceptance** - delivery reopened after operator-reported functional issues in landing behavior. |
-| OM-602 | Wire mode default entries to new landing routes (not directly to tool pages) | `src/Controller/Plugin/PluginNavs.php`, `src/ActionRouter/Actions/PluginAdmin/PluginAdminPageHandler.php` | OM-601 | **Implemented (2026-02-21), pending runtime acceptance** - route/default wiring present; acceptance gated by verified runtime journeys. |
-| OM-603 | Keep sidebar and breadcrumbs coherent for new landing routes | `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Utilities/Navigation/BuildBreadCrumbs.php` | OM-602 | **Implemented (2026-02-21), pending runtime acceptance** - runtime coherence checks are now mandatory before closeout. |
-| OM-604 | Add focused tests for landing routing and mode-entry contracts | `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`, `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, `tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php` | OM-602, OM-603 | **Implemented (2026-02-21), pending runtime acceptance** - tests exist, but tests alone no longer qualify as completion for this pack. |
-
-### P6-B - Investigate MVP Pack (Medium Complexity, Single Domain)
-
-Purpose:
-1. Deliver the initial investigation selectors promised by the Operator Modes plan.
-2. Keep scope locked to By User + By IP, with By Plugin explicitly deferred.
-
-| ID | Task | Files | Depends On | Done When |
-|---|---|---|---|---|
-| OM-611 | Add Investigate landing page with subject selectors and links to existing log tools | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, `src/ActionRouter/Constants.php` | OM-601 | **Implemented (2026-02-21), pending runtime acceptance** - acceptance requires verified user-observable behavior, not route/template presence only. |
-| OM-612 | Promote By IP to first-class Investigate navigation entry using existing IP analysis flow | `src/Controller/Plugin/PluginNavs.php`, `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `src/Controller/Plugin/PluginURLs.php` | OM-611 | **Implemented (2026-02-21), pending runtime acceptance** - reopened after operator-reported "redirect/query-only" failure behavior. |
-| OM-613 | Add By User data helpers in existing data layer | `src/Modules/UserManagement/Lib/Session/FindSessions.php`, `src/DBs/ActivityLogs/LoadLogs.php` | OM-611 | **Implemented (2026-02-21), pending runtime acceptance** - helper code exists; outcome must be proven in runtime flows. |
-| OM-614 | Add By User investigation page and template | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig`, `src/ActionRouter/Constants.php` | OM-613 | **Implemented (2026-02-21), pending runtime acceptance** - acceptance requires verified lookup/result behavior for ID/username/email cases. |
-| OM-615 | Add focused tests for Investigate selectors and By User flow contracts | `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`, `tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php`, `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, `tests/Unit/Modules/UserManagement/Lib/Session/FindSessionsIpWhereTest.php`, `tests/Unit/DBs/LoadLogsUserFilterTest.php` | OM-612, OM-614 | **Implemented (2026-02-21), pending runtime acceptance** - tests are necessary but no longer sufficient for completion status. |
-
-### P6-C - Dashboard Widget Alignment Pack (Low Complexity, Isolated Surface)
-
-Purpose:
-1. Align the WordPress dashboard widget to the two-indicator operator model.
-2. Limit this pack to widget payload/template changes only.
-
-| ID | Task | Files | Depends On | Done When |
-|---|---|---|---|---|
-| OM-621 | Reduce widget payload to config posture + action count using existing contracts | `src/ActionRouter/Actions/Render/Components/Widgets/WpDashboardSummary.php` | OM-601 | Widget data keeps `BuildMeter::trafficFromPercentage()` and queue severity mapping while removing unrelated tables/feeds payload. |
-| OM-622 | Simplify widget Twig markup to the two-indicator view | `templates/twig/admin/admin_dashboard_widget_v2.twig` | OM-621 | Widget UI shows only config posture and action queue summary with clear CTA links. |
-| OM-623 | Add/adjust tests for simplified widget data and rendering expectations | `tests/Unit/**`, `tests/Integration/**` | OM-621, OM-622 | Test coverage confirms new payload shape and no rendering errors for refresh/all-clear/non-clear states. |
+| OM-501 | ~~Unwire legacy dashboard toggle runtime (no deletions)~~ | After P4 ships | `templates/twig/wpadmin/plugin_pages/base_inner_page.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview.twig`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverview.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/BasePluginAdminPage.php`, `src/Modules/Plugin/Lib/AssetsCustomizer.php` | **Done** — no active runtime path depends on `dashboard_view_toggle`. |
+| OM-502 | ~~Remove deprecated Simple/Advanced classes/templates (hard removal phase)~~ | After OM-501 stabilization | `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig`, `src/ActionRouter/Constants.php` | **Done** — deprecated assets removed and references cleaned. |
+| OM-503 | ~~Replace/retire tests tied to old toggle behavior~~ | After OM-502 | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, affected assertions in `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | **Done** — legacy toggle tests removed/replaced. |
 
 ## 5) Prototype B Translation Tasks (When Landing Is Introduced)
 
@@ -228,29 +178,53 @@ Purpose:
 
 | Phase | Status | Notes |
 |---|---|---|
-| P0 | Complete | Decisions locked |
-| P1 (Phase A) | Complete | Meter channel separation done (OM-101-107). See Section 9. |
-| P2 | Complete | Dashboard renders channel-aware metrics via `PageOperatorModeLanding`. |
-| P3 | Complete | Mode constants (`PluginNavs`), user preference (`OperatorModePreference`), landing page (`PageOperatorModeLanding` + `operator_mode_landing.twig`) all implemented. |
-| P4 | Complete | Sidebar two-state navigation (OM-401a-d), WP submenu (OM-402), breadcrumbs (OM-403), and P4.5 sidebar gap closure (OM-410/OM-411) are complete. |
-| P5 | Complete | Legacy Simple/Advanced runtime and artifacts removed (OM-501 through OM-508). Operator-mode landing path is now the only overview flow. |
-| P6+ | In Progress | P6-A (`OM-601` to `OM-604`) and P6-B (`OM-611` to `OM-615`) are implemented but reopened pending runtime acceptance. P6-C (`OM-621` to `OM-623`) remains planned. |
+| P0 | ✅ Complete | Decisions locked |
+| P1 (Phase A) | ✅ Complete | Meter channel separation done (OM-101–107). See Section 9. |
+| P2 | ✅ Complete | Dashboard renders channel-aware metrics via `PageOperatorModeLanding`. |
+| P3 | ✅ Complete | Mode constants (`PluginNavs`), user preference (`OperatorModePreference`), landing page (`PageOperatorModeLanding` + `operator_mode_landing.twig`) all implemented. |
+| P4 | ✅ Complete | Two-state sidebar implemented (`buildModeSelector`, `buildModeNav`, mode selector fallback) plus WP submenu and breadcrumbs. |
+| P4.5 | ✅ Complete | Configure-grade shortcut and back-link styling delivered (OM-410/OM-411). |
+| P5 | ✅ Complete | Legacy Simple/Advanced toggle artifacts removed (runtime + source + tests). |
+| P6-FOUND | ❌ Not started | **Shared Investigation Table Framework** — `BaseInvestigationTable`, `BaseInvestigationData`, `InvestigationTable.js`, shared Twig partials. MUST complete before P6a–f. See Plan Section 12.2. |
+| P6a | ⚠ Partially complete | Landing route/page exists but does not yet match Section 12 architecture/prototype requirements. |
+| P6b | ⚠ Partially complete | By-user route/page exists, but implementation still uses static HTML tables and must be refactored to shared investigation DataTables. |
+| P6c | ❌ Not started | Investigate IP — wraps IpAnalyse\Container with subject header. Prototype: `investigate-ip.html`. |
+| P6d | ❌ Not started | Investigate Plugin — 4-tab analysis page. Prototype: `investigate-plugin.html`. |
+| P6e | ❌ Not started | Investigate Theme + WP Core — reuses plugin pattern. |
+| P6f | ❌ Not started | Cross-subject linking (IP↔User↔Plugin). |
+| P7+ | ❌ Not started | Configure/Reports deepening, WP dashboard widget. |
 
-## 7) Next Slice: P6-A/P6-B Runtime Recovery + Acceptance
+## 7) Next Slice: P6 Foundation Completion (OM-600a–OM-600g)
 
-P6-A and P6-B implementation is now under recovery/acceptance gating. The immediate grouped execution target is:
-1. Recovery pass for P6-A/P6-B runtime behavior (By IP open-on-submit, By User lookup/result clarity, Configure hero meter surface).
-2. After runtime acceptance closes P6-A/P6-B, execute Group 3 (isolated widget alignment): P6-C (`OM-621` to `OM-623`).
+Start strictly with:
+1. OM-600a — `BaseInvestigationTable`
+2. OM-600b — `BaseInvestigationData`
+3. OM-600c — Investigation Build child classes
+4. OM-600d — Investigation LoadData child classes
+5. OM-600e — `InvestigationTable.js`
+6. OM-600f — `InvestigationTableAction`
+7. OM-600g — Shared investigate Twig partials
 
-Immediate implementation recommendation:
-1. Do not mark OM-601..OM-615 complete until runtime UAT proves user-observable behavior in WP admin.
-2. Keep P6 recovery scoped to existing systems only (no duplicate JS/data pipelines).
-3. Keep P6-C scoped to widget payload/template alignment only (no nav/routing rewrites).
+These foundational changes span PHP Build/LoadData, JS table wiring, and Twig component templates.
 
-Acceptance focus for the next slice:
-1. Keep status/severity and traffic mapping contracts unchanged (`BuildMeter::trafficFromPercentage()`, queue `good|warning|critical`).
-2. Reuse existing rendering/services and avoid duplicate data-pipeline logic.
-3. Keep implementation additive where possible; avoid introducing fallback frameworks.
+Definition of done:
+1. `src/Tables/DataTables/Build/Investigation/BaseInvestigationTable.php` exists with subject contract and default no-SearchPanes behavior.
+2. `src/Tables/DataTables/LoadData/Investigation/BaseInvestigationData.php` exists and injects subject wheres while reusing base rendering helpers.
+3. Investigation table Build/LoadData child classes exist for Activity, Traffic, Sessions, and File Scan Results.
+4. `assets/js/components/tables/InvestigationTable.js` exists and is wired for investigation table defaults (`dom: 'frtip'`, page length 15, no select).
+5. `src/ActionRouter/Actions/InvestigationTableAction.php` routes table requests by `table_type` + subject context.
+6. `templates/twig/wpadmin/components/investigate/subject_header.twig` and `templates/twig/wpadmin/components/investigate/table_container.twig` exist and are reusable.
+7. No new static-table rendering is introduced for investigation tabs.
+
+Before coding:
+1. Read plan Section 12.2 in full before writing table code.
+2. Read plan Section 12.4.2 for strict rule: no static HTML investigation tables.
+3. Review existing full-page DataTable classes to mirror their row-building paths.
+
+After coding:
+1. Manual verification: wire one investigation tab using the new framework and verify server-side pagination/search/filter behavior.
+2. Confirm no PHPCS run is required for this slice.
+3. Confirm no unrelated files are modified.
 
 ## 8) Tracking Format
 
@@ -277,114 +251,109 @@ Scope held to P1 only (`OM-101` to `OM-107`).
 
 Validation notes:
 1. Focused unit suite pass: `composer test:unit -- tests/Unit/Modules/Plugin/Lib/MeterAnalysis` => `OK (10 tests, 27 assertions)`.
-2. Historical note: legacy toggle unit coverage passed at this phase checkpoint; that legacy test file was intentionally removed during P5 cleanup.
+2. Historical note: `DashboardViewPreferenceTest.php` was later removed in P5 legacy cleanup.
 3. Integration run attempt for `WpDashboardSummaryIntegrationTest` was skipped because WordPress integration environment is not available in this workspace.
 4. No PHPCS run performed (per scope rule).
 5. No nav/breadcrumb/operator-landing/toggle-removal/UI-system rewrite changes were introduced in this slice.
 
-## 9.1) P4.5 Execution Status (Implemented)
+## 10) P6 — Investigate Mode Implementation
 
-Execution date: 2026-02-21  
-Scope held to P4.5 only (`OM-410` and `OM-411`).
+**Date added:** 2026-02-22
+**Prototype reference:** `prototypes/investigate-mode/` (4 interactive HTML files)
+**Plan reference:** Section 11 (UI Spec) + Section 12 (Implementation Architecture) of `Shield-Operator-Modes-Plan.md`
 
-[x] OM-410 - codex - local workspace - completed: Configure mode now includes synthetic `mode-configure-grades` linking to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES` and preserving existing mode filtering/order - 2026-02-21  
-[x] OM-411 - codex - local workspace - completed: `.mode-back-link` styling added in `assets/css/components/nav_sidebar_menu.scss` with muted/smaller text, scoped hover, and hidden subtitle - 2026-02-21
+**Before starting ANY task in this section, implementors MUST:**
+1. Read **Section 12 of the plan document** in full — it maps every reusable component in the plugin and gives explicit directives on what to extend vs. create
+2. Read **Section 11** for UI specifications, tab definitions, and data sources
+3. Open and review ALL prototype HTML files in `prototypes/investigate-mode/` in a browser
+4. Read the existing classes listed in Section 12.1's component inventory — understand the class hierarchy before writing code
 
-Validation notes:
-1. New focused unit tests pass: `NavMenuBuilderOperatorModesTest` and `NavSidebarModeBackLinkStyleTest`.
-2. Existing related unit tests pass: `PluginNavsOperatorModesTest`, `BuildBreadCrumbsOperatorModesTest`, `NavSidebarTemplateTest`.
-3. Scope lock held: only `src/Modules/Plugin/Lib/NavMenuBuilder.php`, `assets/css/components/nav_sidebar_menu.scss`, and two new unit test files changed.
-4. No PHPCS and no integration tests were run.
+**Guiding principles:**
+- **DRY (Don't Repeat Yourself).** Every table, every link, every timestamp is rendered by a shared component. If you're writing timestamp formatting logic, stop — `BaseBuildTableData::getColumnContent_Date()` already does it. If you're generating an IP link, stop — `BaseBuildTableData::getColumnContent_LinkedIP()` already does it.
+- **Extend, don't duplicate.** The existing DataTable infrastructure (`Build\Base`, `BaseBuildTableData`, `ShieldTableBase.js`) is battle-tested with 50,000+ installs. Investigation tables are narrower versions of full-page tables — create child classes that inherit the heavy lifting and only override what's different (subject filter, column selection, SearchPane removal).
+- **One framework, all tables.** A change to `BaseInvestigationTable` or `InvestigationTable.js` must apply to every investigation table across every subject page. This is the test: "if I change the page size from 15 to 25 in one place, does it change everywhere?" The answer must be yes.
 
-## 10) P5 Artifact Cleanup Execution Status (Implemented)
+### P6-FOUNDATION — Shared Investigation Table Framework
 
-Execution date: 2026-02-21  
-Scope held to P5 artifact cleanup only (`OM-502` to `OM-508`) plus completion lock for `OM-501`.
+> **This phase MUST be completed before ANY tab implementation (OM-611+).** It creates the shared infrastructure all investigation tables depend on. See Plan Section 12.2 for full specification.
 
-[x] OM-501 - codex - local workspace - completed: runtime already unwired; dashboard overview contract locked to direct `operator_mode_landing` render path - 2026-02-21  
-[x] OM-502 - codex - local workspace - completed: removed `DashboardViewPreference`, `DashboardViewToggle`, `PageDashboardOverviewSimple`, and deprecated simple templates; removed legacy action registration from `Constants::ACTIONS` - 2026-02-21  
-[x] OM-503 - codex - local workspace - completed: removed legacy toggle tests and updated `DashboardOverviewRoutingIntegrationTest` to remove toggle-specific assertions and imports - 2026-02-21  
-[x] OM-504 - codex - local workspace - completed: removed `DashboardViewToggle` JS import/init and deleted `assets/js/components/general/DashboardViewToggle.js` - 2026-02-21  
-[x] OM-505 - codex - local workspace - completed: removed backend action/preference artifacts and all runtime registrations/contracts for `dashboard_view_toggle` and `shield_dashboard_view` - 2026-02-21  
-[x] OM-506 - codex - local workspace - completed: removed deprecated simple dashboard renderer/templates and include indirection - 2026-02-21  
-[x] OM-507 - codex - local workspace - completed: removed only legacy `.dashboard-view-switch*`, `.inner-page-header-view-toggle`, and `.dashboard-overview-panels*` CSS blocks - 2026-02-21  
-[x] OM-508 - codex - local workspace - completed: retired legacy tests and added targeted replacement unit contracts for action registration and dashboard template path - 2026-02-21  
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-600a | Create `BaseInvestigationTable` (Build layer) | `src/Tables/DataTables/Build/Investigation/BaseInvestigationTable.php` | P4 complete | Extends `Build\Base`. Adds `$subjectType`/`$subjectId` properties and `setSubject()` setter. Overrides `getSearchPanesData()` → returns `[]` (no SearchPanes by default). Adds `getSubjectFilterColumns(): array` method — columns to hide because they're redundant for the subject (e.g., user column when investigating a user). `getColumnsToDisplay()` calls parent then removes subject filter columns. See Plan Section 12.2 for pseudocode. |
+| OM-600b | Create `BaseInvestigationData` (LoadData layer) | `src/Tables/DataTables/LoadData/Investigation/BaseInvestigationData.php` | OM-600a | Extends `BaseBuildTableData`. Adds `$subjectType`/`$subjectId` properties. Overrides `buildWheresFromSearchParams()` to always inject subject filter via abstract `getSubjectWheres(): array`. Returns `null` from `getSearchPanesDataBuilder()`. Child classes implement `getSubjectWheres()` for their specific subject type. **Critical:** inherits `getColumnContent_Date()`, `getColumnContent_LinkedIP()`, `getUserHref()` from parent — these are the shared rendering utilities for timestamps, IPs, and user links. |
+| OM-600c | Create investigation-specific Build children | `src/Tables/DataTables/Build/Investigation/ForActivityLog.php`, `ForTraffic.php`, `ForSessions.php`, `ForFileScanResults.php` | OM-600a | Each extends `BaseInvestigationTable`. Column definitions mirror their parent full-page equivalents (`Build\ForActivityLog`, `Build\ForTraffic`, `Build\ForSessions`, `Build\Scans\ForPluginTheme`) but with SearchPanes disabled and subject-redundant columns removed. **Reuse** column definitions from the parent classes — copy the `getColumnDefs()` return value and adjust, or call `parent::getColumnDefs()` and filter. |
+| OM-600d | Create investigation-specific LoadData children | `src/Tables/DataTables/LoadData/Investigation/BuildActivityLogData.php`, `BuildTrafficData.php`, `BuildSessionsData.php`, `BuildFileScanResultsData.php` | OM-600b | Each extends `BaseInvestigationData`. Implements `getSubjectWheres()` for its subject type. **Delegates row building** to the same logic as the corresponding full-page loader (e.g., `BuildActivityLogTableData::buildTableRowsFromRawRecords()`). Option: extract row-building into a trait or call a shared static method so both the full-page loader and investigation loader share the same row rendering code. |
+| OM-600e | Create `InvestigationTable.js` | `assets/js/components/tables/InvestigationTable.js` | OM-600a | Extends `ShieldTableBase`. Overrides `getDefaultDatatableConfig()`: `dom: 'frtip'` (text search + table + info + pagination — no SearchPanes, no buttons), `pageLength: 15`, `select: false`. Adds `subjectFilter` init parameter passed with every AJAX request. **One JS class for all investigation tables** — a change here applies everywhere. |
+| OM-600f | Create `InvestigationTableAction` AJAX handler | `src/ActionRouter/Actions/InvestigationTableAction.php` | OM-600d | Handles `retrieve_table_data` sub-action. Receives `subject_type`, `subject_id`, and `table_type` in action data. Routes to the correct `BuildInvestigation*Data` class. Pattern: mirror existing `ActivityLogTableAction` but dispatches based on `table_type` parameter. |
+| OM-600g | Create shared Twig partials | `templates/twig/wpadmin/components/investigate/subject_header.twig`, `templates/twig/wpadmin/components/investigate/table_container.twig` | None | `subject_header.twig`: Reusable subject header bar (avatar, name, meta, status pills, "Change" button). Accepts `subject` data object. `table_container.twig`: Wraps a DataTable `<table>` element with config data attributes + panel heading + optional "Full Log" link. Used inside every tab pane. |
 
-Validation notes:
-1. Mandatory legacy reference post-scan returned zero matches in `src`, `templates`, `assets/js`, `assets/css`, and `tests`.
-2. Targeted unit test commands for operator modes/template contracts all passed, including:
-   `PluginNavsOperatorModesTest`, `OperatorModePreferenceTest`, `NavSidebarTemplateTest`, `NavSidebarModeBackLinkStyleTest`, `ConstantsLegacyDashboardCleanupTest`, `DashboardOverviewTemplateContractTest`.
-3. `npm run build` completed successfully.
-4. No PHPCS and no integration tests were run for this pass (per scope lock).
-5. `BuildMeter::trafficFromPercentage()`, `NeedsAttentionQueue`, and `PageOperatorModeLanding` status logic were not modified.
+### P6a — Investigate Landing Page
 
-## 11) P6-A + P6-B Execution Status (Implemented, Pending Runtime Acceptance)
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-601 | **Refactor** existing `PageInvestigateLanding` with subject selector grid | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig` | P4 complete | **Do NOT create a new file.** Refactor the existing `PageInvestigateLanding.php` — keep the user resolution logic (`resolveSubject()` using `Services::WpUsers()`) and IP validation. Replace the template with subject selector grid from `investigate-landing.html` prototype. `getRenderData()` provides: installed plugins list (from `get_plugins()`), installed themes list (from `wp_get_themes()`), hrefs for each subject page. See Plan Section 12.4.1. |
+| OM-602 | Implement lookup panels with autocomplete/dropdown | Same as OM-601 + JS | OM-601 | Users: text input + form submit (same as current user lookup — reuse `resolveSubject()` logic). IPs: text input with validation (same as current IP lookup). Plugins: `<select>` from `get_plugins()`. Themes: `<select>` from `wp_get_themes()`. WP Core/Requests/Activity: direct link buttons. No new AJAX endpoints needed — lookups are form submissions. |
+| OM-603 | Add quick-tools strip below lookup panels | Same as OM-601 | OM-601 | 4 pill-links: Activity Log → existing `PageActivityLogTable`, HTTP Requests → existing `PageTrafficLogTable`, Live Traffic → existing `PageTrafficLogLive`, IP Rules → existing `PageIpRulesTable`. Use existing URL generation via `PluginNavs` href helpers. |
+| OM-604 | Register NAV constants for investigation sub-navs | `src/Controller/Plugin/PluginNavs.php` | OM-601 | Add constants and register page handlers. Note: some of these may already exist (check `SUBNAV_ACTIVITY_BY_USER`, etc. in current `PluginNavs.php`). Register new page handlers in `GetNavHierarchy()`. |
 
-Execution date: 2026-02-21  
-Scope held to P6-A (`OM-601` to `OM-604`) + P6-B (`OM-611` to `OM-615`) only.
+### P6b — Investigate User
 
-[ ] OM-601 - codex - local workspace - implemented: landing handlers/templates added and registered; pending runtime acceptance - 2026-02-21  
-[ ] OM-602 - codex - local workspace - implemented: mode default route rewiring added; pending runtime acceptance - 2026-02-21  
-[ ] OM-603 - codex - local workspace - implemented: sidebar/breadcrumb landing coherence added; pending runtime acceptance - 2026-02-21  
-[ ] OM-604 - codex - local workspace - implemented: focused unit tests added/updated; pending runtime acceptance - 2026-02-21  
-[ ] OM-611 - codex - local workspace - implemented: Investigate landing/selector routes added; pending runtime acceptance - 2026-02-21  
-[ ] OM-612 - codex - local workspace - implemented: By IP route/nav promotion added; pending runtime acceptance - 2026-02-21  
-[ ] OM-613 - codex - local workspace - implemented: user helper methods added; pending runtime acceptance - 2026-02-21  
-[ ] OM-614 - codex - local workspace - implemented: By User page/template added; pending runtime acceptance - 2026-02-21  
-[ ] OM-615 - codex - local workspace - implemented: focused unit coverage added; pending runtime acceptance - 2026-02-21
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-611 | **Refactor** existing `PageInvestigateByUser` with rail+panel layout | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig` | OM-604, **OM-600a–f** | **Do NOT create a new file.** Refactor the existing `PageInvestigateByUser.php`. **Keep:** `resolveSubject()`, `buildSessions()`, `buildActivityLogs()`, `buildRequestLogs()`, `buildRelatedIps()` — use these for summary stat counts. **Replace:** template with rail+panel layout using `options_rail_tabs.twig` for the rail (see Plan Section 12.3). **Wire tabs** through the shared DataTable framework — pass `datatables_init` JSON from `Investigation\ForSessions`, `Investigation\ForActivityLog`, `Investigation\ForTraffic` and AJAX action data from `InvestigationTableAction`. Tables are AJAX-loaded by `InvestigationTable.js`, not rendered as static HTML. See Plan Section 12.4.3. |
+| OM-612 | Add `FindSessions::byUser(int $userId)` method | `src/Modules/Sessions/Lib/FindSessions.php` | None | New method mirroring existing `byIP()` pattern. Returns sessions for a given user ID. Used by Sessions investigation DataTable and for summary stat counts. |
+| OM-613 | Wire Sessions tab through investigation DataTable | `Investigation\ForSessions`, `Investigation\BuildSessionsData` | **OM-600c, OM-600d**, OM-612 | Sessions tab uses `Investigation\ForSessions` (column config) + `Investigation\BuildSessionsData` (data loading with `getSubjectWheres() → ['user_id' => $uid]`). Row building **reuses** existing `BuildSessionsTableData::buildTableRowsFromRawRecords()` logic. Columns: Login, Last Active, Logged In, IP Address (via `getColumnContent_LinkedIP()`), Sec Admin. No 'user' column (redundant — it's the investigation subject). |
+| OM-614 | Wire Activity tab through investigation DataTable | `Investigation\ForActivityLog`, `Investigation\BuildActivityLogData` | **OM-600c, OM-600d** | Activity tab uses `Investigation\ForActivityLog` + `Investigation\BuildActivityLogData` with `getSubjectWheres() → ['user_id' => $uid]`. Row building **reuses** `BuildActivityLogTableData::buildTableRowsFromRawRecords()`. Timestamps via `getColumnContent_Date()`, IPs via `getColumnContent_LinkedIP()`. "Full Log" link → Activity Log page with `?search=user_id:{uid}` pre-filter. |
+| OM-615 | Wire Requests tab through investigation DataTable | `Investigation\ForTraffic`, `Investigation\BuildTrafficData` | **OM-600c, OM-600d** | Same pattern. Subject filter: `['uid' => $uid]`. Row building reuses `BuildTrafficTableData` logic. "Full Log" link → Traffic Log with `?search=user_id:{uid}`. |
+| OM-616 | Implement IP Addresses tab (card grid, not DataTable) | Same as OM-611 | OM-611 | **Exception:** This tab is NOT a DataTable — it's a card grid rendered server-side. Aggregate unique IPs from `buildSessions()` + `buildRequestLogs()` return arrays. For each IP, render a shield-card using `getColumnContent_LinkedIP()` for the link. Card data: IP, last seen, status badge, counts. Render with a simple Twig loop (no DataTable needed — IP lists are typically <20 items). |
 
-Validation notes:
-1. `php -l` passed on all touched PHP files for P6-A/P6-B.
-2. Required targeted unit tests passed:
-   `PluginNavsOperatorModesTest`,
-   `BuildBreadCrumbsOperatorModesTest`,
-   `NavMenuBuilderOperatorModesTest`,
-   `FindSessionsIpWhereTest`,
-   `LoadLogsUserFilterTest`.
-3. Additional adjacent unit sweeps also passed for:
-   `tests/Unit/Controller/Plugin`,
-   `tests/Unit/Utilities/Navigation`,
-   `tests/Unit/Modules/Plugin/Lib`,
-   `tests/Unit/Modules/UserManagement/Lib/Session`,
-   `tests/Unit/DBs`,
-   `tests/Unit/ActionRouter`,
-   `NavSidebarTemplateTest`,
-   `NavSidebarModeBackLinkStyleTest`,
-   `DashboardOverviewTemplateContractTest`.
-4. Historical scope lock for initial execution:
-   no PHPCS,
-   no integration tests,
-   no BuildMeter/NeedsAttentionQueue/CaptureRedirects/PageOperatorModeLanding rewrites,
-   no new JS data pipeline.
-5. Recovery note:
-   Section 12 includes a targeted `AssetsCustomizer` update to enable existing `ProgressMeters` on Configure landing.
-6. Acceptance gate update:
-   unit tests and static checks do not close these tasks without manual runtime UAT evidence.
-7. Remaining outstanding operator-mode task groups:
-   P6-A/P6-B runtime acceptance closure + P6-C (`OM-621` to `OM-623`).
+### P6c — Investigate IP Address
 
-## 12) P6-A/P6-B Recovery Pass Status (In Progress)
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-621 | Create `PageInvestigateByIp` wrapping existing `IpAnalyse\Container` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByIp.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_ip.twig` | OM-604 | **Reuse `IpAnalyse\Container` as-is.** Do NOT rebuild the 5-tab analysis. This page adds: (1) subject header using shared `subject_header.twig` partial, (2) summary stats row, (3) renders existing `IpAnalyse\Container` below via `self::con()->action_router->render(IpAnalyseContainer::class, ['ip' => $ip])`. The only new code is the subject header/stats wrapper. See Plan Section 12.4.4. |
+| OM-622 | Add "Change IP" button linking back to landing | Same as OM-621 | OM-621 | Subject header uses shared `subject_header.twig` partial — "Change IP" button comes from the `change_href` data field linking to investigate landing with IPs subject pre-selected. |
 
-Execution date: 2026-02-21  
-Scope: runtime-behavior hardening for Investigate + Configure landings without introducing duplicate systems.
+### P6d — Investigate Plugin
 
-[x] Recovery-A - codex - local workspace - completed (code/tests): Configure landing reuses hero-meter surface via `MeterCard` and `ProgressMeters` pipeline (`PageConfigureLanding.php`, `configure_landing.twig`, `AssetsCustomizer.php`) - 2026-02-21  
-[x] Recovery-B - codex - local workspace - completed (code/tests): Investigate By IP renders inline IP analysis on submit using existing `IpAnalyse\Container` plus invalid-IP state (`PageInvestigateLanding.php`, `investigate_landing.twig`) - 2026-02-21  
-[x] Recovery-C - codex - local workspace - completed (code/tests): Investigate By User distinguishes "no lookup" vs "lookup not found" states (`PageInvestigateByUser.php`, `investigate_by_user.twig`) - 2026-02-21  
-[x] Recovery-D - codex - local workspace - completed (code/tests): contract tests for Configure hero-meter and Investigate By IP runtime contract (`ConfigureLandingHeroMeterContractTest.php`, `InvestigateByIpLandingContractTest.php`, `AssetsCustomizerProgressMetersContractTest.php`) - 2026-02-21  
-[x] Recovery-E - codex - local workspace - completed (code/tests): extracted shared landing composition base `PageModeLandingBase` and migrated Actions/Configure/Investigate/Reports landing handlers to reuse it - 2026-02-22  
-[x] Recovery-F - codex - local workspace - completed (code/tests): extracted user lookup resolver service `ResolveUserLookup` (ID/email/username) and wired Investigate By User to use it - 2026-02-22  
-[x] Recovery-G - codex - local workspace - completed (code/tests): added `LoadRequestLogs::forUserId()` helper and reused it in Investigate By User instead of page-local where construction - 2026-02-22  
-[x] Recovery-H - codex - local workspace - completed (code/tests): added focused unit coverage for landing base contract, landing inheritance, resolver branch dispatch, and request-log user filter helper - 2026-02-22
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-631 | Create `PageInvestigateByPlugin` with 4-tab rail+panel | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByPlugin.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_plugin.twig` | OM-604, **OM-600a–f** | Page handler. Rail tabs via `options_rail_tabs.twig` (reused). Subject header via shared `subject_header.twig` (reused). Summary stats via `stats_collection.twig` (reused). See Plan Section 12.4.5. |
+| OM-632 | Implement Overview tab | Same as OM-631 | OM-631 | **Reuse** `PluginThemesBase::buildPluginData()` for all plugin info (name, slug, version, author, flags). This method already returns `info[]`, `flags[]`, `vars[]` arrays with everything the Overview tab needs. Server-side rendered (no DataTable). Two-column Twig layout. |
+| OM-633 | Implement File Status tab via investigation DataTable | Same as OM-631, `Investigation\ForFileScanResults`, `Investigation\BuildFileScanResultsData` | **OM-600c, OM-600d** | Uses investigation DataTable framework with `getSubjectWheres() → ['ptg_slug' => $slug]`. Row building **reuses** existing `LoadFileScanResultsTableData::buildTableRowsFromRawRecords()` logic (which already renders file paths, status badges, and action buttons). Do NOT rebuild the action buttons — inherit them. |
+| OM-634 | Implement Vulnerabilities tab (server-side card list) | Same as OM-631 | OM-631 | **NOT a DataTable.** Vulnerability lists are typically 0–3 items. Query `WpVulnDb` by plugin slug, get `VulnVO` objects (title, vuln_type, fixed_in, disclosed_at). Cross-reference current installed version to determine Active vs Resolved. Render as Twig card list. |
+| OM-635 | Implement Activity tab via investigation DataTable | Same as OM-631, `Investigation\ForActivityLog`, `Investigation\BuildActivityLogData` | **OM-600c, OM-600d** | Same framework as OM-614 but with plugin subject filter: `getSubjectWheres() → ['plugin_slug' => $slug]`. Filter activity records where event meta contains the plugin slug (activations, deactivations, updates, file changes). Row building reuses `BuildActivityLogTableData` logic. |
 
-Code-level verification update (2026-02-22):
-1. `php -l` passed on all touched source/test files for this recovery pass.
-2. New focused tests passed: `PageModeLandingBaseTest`, `ModeLandingInheritanceTest`, `ResolveUserLookupTest`, `LoadRequestLogsUserFilterTest`.
-3. Adjacent operator-mode guard tests passed, including `InvestigateByIpLandingContractTest`, `PluginNavsOperatorModesTest`, `BuildBreadCrumbsOperatorModesTest`, `NavMenuBuilderOperatorModesTest`, `LoadLogsUserFilterTest`, `FindSessionsIpWhereTest`.
+### P6e — Investigate Theme + WordPress Core
 
-Recovery acceptance gate (must all pass before OM-601..OM-615 can be marked done):
-1. By IP submit from Investigate landing shows IP analysis immediately on resulting page.
-2. By User lookup by ID/username/email shows subject-scoped data or explicit not-found state.
-3. Configure landing shows hero meter using existing meter pipeline (no custom status pipeline).
-4. Manual runtime UAT evidence captured in this backlog entry.
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-641 | Create `BaseInvestigateAsset` shared by Plugin + Theme | `src/ActionRouter/Actions/Render/PluginAdminPages/BaseInvestigateAsset.php` | OM-631 | **Extract common logic** from `PageInvestigateByPlugin` into a shared parent class. Both Plugin and Theme pages extend this. Shared: subject header, summary stats, rail+panel layout, File Status tab (DataTable with `ptg_slug` filter), Vulnerability tab (card list), Activity tab (DataTable with asset slug filter). Theme-specific: `buildThemeData()` instead of `buildPluginData()`, additional child/parent theme fields. See Plan Section 12.4.6. |
+| OM-642 | Create WordPress Core investigation page | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByCore.php` | OM-604, **OM-600c, OM-600d** | Simplified: Overview (version, auto-update config), File Status (investigation DataTable with `getSubjectWheres() → ['is_in_core' => true]` — reuses `Investigation\BuildFileScanResultsData`), Activity (core-related events). |
 
+### P6f — Cross-subject linking
+
+> **These tasks should be inherently satisfied** if the cross-cutting rules in Plan Section 12.5 are followed. Every IP link uses `getColumnContent_LinkedIP()` which already generates linkable IPs. Every user link uses `getUserHref()`. The tasks below are verification tasks.
+
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-651 | Verify all IP address cells link to investigate-ip | All investigation DataTable `buildTableRowsFromRawRecords()` methods | OM-621 | Confirm `getColumnContent_LinkedIP()` output includes both `offcanvas_ip_analysis` class (for quick offcanvas view) AND a separate link/button to the full `investigate-ip` page. If `getColumnContent_LinkedIP()` doesn't currently do this, modify it ONCE in `BaseBuildTableData` — the change propagates to every table. |
+| OM-652 | Verify all username cells link to investigate-user | All investigation DataTable row builders | OM-611 | Confirm `getUserHref()` links to `investigate-user` page (not WordPress user profile). If it currently links to WP profile, modify it ONCE in `BaseBuildTableData`. |
+| OM-653 | Wire plugin-related activity events to investigate-plugin | `Investigation\BuildActivityLogData` row builder | OM-631 | Plugin names in activity event descriptions link to `investigate-plugin?slug={slug}`. This may need a custom column renderer in the activity log row builder — add it to the shared `BuildActivityLogData` class so it applies to all activity tables. |
+
+## 11) Hard-Removal Tasks (Completed)
+
+These tasks were deferred behind OM-501 and have now been executed (2026-02-21). This section is retained as a completion record.
+
+| ID | Task | Files | Done When |
+|---|---|---|---|
+| OM-504 | ~~Remove JS bootstrap wiring for legacy toggle~~ | `assets/js/app/AppMain.js`, `assets/js/components/general/DashboardViewToggle.js` | **Done** — `DashboardViewToggle` bootstrap removed and legacy class deleted. |
+| OM-505 | ~~Remove legacy action/preference backend artifacts~~ | `src/ActionRouter/Constants.php`, `src/ActionRouter/Actions/DashboardViewToggle.php`, `src/Modules/Plugin/Lib/Dashboard/DashboardViewPreference.php` | **Done** — no runtime contract remains for `dashboard_view_toggle` / `shield_dashboard_view`. |
+| OM-506 | ~~Remove deprecated simple dashboard renderer/templates~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageDashboardOverviewSimple.php`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple.twig`, `templates/twig/wpadmin/plugin_pages/inner/dashboard_overview_simple_body.twig` | **Done** — deprecated simple-render path removed. |
+| OM-507 | ~~Remove obsolete toggle/panel CSS~~ | `assets/css/plugin-main.scss`, `assets/css/shield/dashboard.scss` | **Done** — obsolete toggle/panel selectors removed. |
+| OM-508 | ~~Migrate/remove legacy toggle tests~~ | `tests/Integration/ActionRouter/DashboardViewToggleIntegrationTest.php`, `tests/Unit/Modules/Plugin/Lib/Dashboard/DashboardViewPreferenceTest.php`, `tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php` | **Done** — legacy toggle test coverage migrated/removed. |
+
+Deferred execution notes:
+1. Do not add PHPCS to these tasks.
+2. Integration tests are not required for this cleanup pass.
+3. Preserve existing meter severity/traffic logic (`BuildMeter::trafficFromPercentage()` and queue `good|warning|critical`) without introducing new fallback behavior.

@@ -1,6 +1,6 @@
 # Shield Security — Operator Modes Plan
 
-**Date:** 20 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
+**Date:** 20 February 2026 | **Last Updated:** 22 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
 
 ---
 
@@ -58,13 +58,15 @@ The existing breadcrumb system provides the "back" path. The first breadcrumb is
 
 The following Phase 1 artefacts become obsolete under operator modes:
 
+**Status update (2026-02-22):** This deprecation/cleanup was executed in P5. Legacy Simple/Advanced artifacts listed below have been removed from the active runtime/code paths.
+
 | Artefact | Status | Action |
 |---|---|---|
-| `DashboardViewPreference.php` | Removed in P5 (2026-02-21) | Completed - superseded by operator-mode flow (`OperatorModePreference` remains active). |
-| `DashboardViewToggle.php` | Removed in P5 (2026-02-21) | Completed - superseded by `OperatorModeSwitch`. |
-| `PageDashboardOverviewSimple.php` | Removed in P5 (2026-02-21) | Completed - role absorbed by operator-mode landing path. |
-| `dashboard_overview_simple.twig` | Removed in P5 (2026-02-21) | Completed. |
-| Simple/Advanced toggle in `base_inner_page.twig` | Removed/deactivated in P5 flow | Completed - mode navigation now relies on selector + breadcrumbs/back-link patterns. |
+| `DashboardViewPreference.php` | Removed (P5 cleanup) | Replaced by `OperatorModePreference` |
+| `DashboardViewToggle.php` | Removed (P5 cleanup) | Replaced by `OperatorModeSwitch` action |
+| `PageDashboardOverviewSimple.php` | Removed (P5 cleanup) | Role absorbed by mode landing + Actions Queue mode |
+| `dashboard_overview_simple.twig` | Removed (P5 cleanup) | Removed |
+| Simple/Advanced toggle in `base_inner_page.twig` | Removed (P5 cleanup) | Replaced with operator-mode navigation/breadcrumb flow |
 | `NeedsAttentionQueue.php` | Exists at `src/.../Widgets/` | **Keep** — moves into Actions Queue mode |
 | `AttentionItemsProvider.php` | Exists at `src/.../Widgets/` | **Keep** — data source for Actions Queue mode |
 | `needs_attention_queue.twig` | Exists at `templates/.../widget/` | **Keep** — used by Actions Queue mode |
@@ -225,22 +227,83 @@ The sidebar shows that mode's dedicated navigation items with full sub-items (zo
 └── Go PRO / License
 ```
 
-### 4.2 Sidebar implementation status (2026-02-21)
+### 4.2 Current implementation gap — what needs to change
 
-The two-state sidebar is now implemented in `NavMenuBuilder::build()`.
+**Status update (2026-02-22):** The sidebar gap documented in this section has been closed. `NavMenuBuilder` now implements the two-state sidebar (`buildModeSelector()`, `buildModeNav()`, and dashboard-to-selector mode resolution), with follow-up polish (Configure Security Grades shortcut + back-link styling) delivered. This section is retained as historical design/implementation context.
 
-Completed in `src/Modules/Plugin/Lib/NavMenuBuilder.php`:
-1. `resolveCurrentMode()` now returns `''` for `NAV_DASHBOARD`/empty nav (mode selector state) instead of falling back to `MODE_ACTIONS`.
-2. `buildModeSelector()` returns the 4 mode-entry links plus Go PRO/License.
-3. `buildModeNav()` prepends a `mode-selector-back` link (`mode-back-link`) and then renders mode-filtered nav items plus Go PRO/License.
-4. `allowedNavsForMode()` no longer includes `NAV_DASHBOARD` for any mode.
-5. Shared menu normalization was extracted and reused for both states to avoid duplication.
+**Current state of `NavMenuBuilder::build()` (as of 2026-02-20):**
 
-No template change was required in `templates/twig/wpadmin/components/page/nav_sidebar.twig` because it already iterates generic `navbar_menu` item structures.
+The method builds the full 9-item menu (`dashboard`, `zones`, `ips`, `scans`, `activity`, `rules`, `tools`, `reports`, `gopro`) and then calls `filterMenuForMode()` to whitelist nav slugs per mode. The mode is resolved via `resolveCurrentMode()` which calls `PluginNavs::modeForNav($this->inav())`.
 
-Sidebar follow-up status:
-1. `OM-410` complete: Configure mode now includes a direct synthetic "Security Grades" top-level link added in `buildModeNav()` and routed to `NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`.
-2. `OM-411` complete: `.mode-back-link` now has scoped styling in `assets/css/components/nav_sidebar_menu.scss` (smaller/muted text, subtle hover, subtitle hidden).
+**Problems with the current implementation:**
+
+1. **No mode selector state.** When `inav()` returns `dashboard` (the mode selector landing page), `modeForNav('dashboard')` returns `''` (empty string). `resolveCurrentMode()` falls back to `MODE_ACTIONS`. This means the mode selector landing page shows the Actions Queue sidebar items instead of the four mode entries.
+
+2. **No back link.** When inside a mode, the sidebar has no explicit link back to the mode selector. Users must rely on the breadcrumb "Shield Security" link or the WP admin sidebar "Dashboard" entry.
+
+3. **Dashboard item always included.** Every mode's `allowedNavsForMode()` includes `NAV_DASHBOARD`, but the Dashboard sidebar entry shows as "Dashboard — Security At A Glance" with a speedometer icon, which doesn't communicate "back to mode selector."
+
+4. **Mode label not shown.** The sidebar doesn't display the current mode name as a heading. Users inside Investigate mode see "Activity Logs", "Bots & IP Rules", etc. but nothing that says "Investigate" as a group label.
+
+**Required changes in `NavMenuBuilder`:**
+
+```
+// Pseudocode for the updated build() logic:
+
+public function build(): array {
+    $mode = $this->resolveCurrentMode();
+
+    if ($mode === '') {
+        // STATE 1: Mode selector page — return four mode entry links + gopro
+        return $this->buildModeSelector();
+    }
+
+    // STATE 2: Inside a mode — return back link + mode nav items + gopro
+    return $this->buildModeNav($mode);
+}
+
+private function buildModeSelector(): array {
+    // Return 4 flat items (no sub-items):
+    //   Actions Queue  → PluginNavs::defaultEntryForMode(MODE_ACTIONS)
+    //   Investigate    → PluginNavs::defaultEntryForMode(MODE_INVESTIGATE)
+    //   Configure      → PluginNavs::defaultEntryForMode(MODE_CONFIGURE)
+    //   Reports        → PluginNavs::defaultEntryForMode(MODE_REPORTS)
+    // Plus gopro() at the end.
+    // Each item uses PluginNavs::modeLabel() for its title
+    // and the mode's accent colour for its icon/styling.
+}
+
+private function buildModeNav(string $mode): array {
+    // First item: back link
+    //   slug: 'mode-selector-back'
+    //   title: '← Shield Security'
+    //   href: adminHome() (dashboard overview URL)
+    //   No sub-items, no expand
+    //
+    // Then: the mode-specific items from the existing private methods
+    //   (filtered by allowedNavsForMode, same as today but WITHOUT NAV_DASHBOARD)
+    //
+    // Then: gopro() at the end.
+}
+
+private function resolveCurrentMode(): string {
+    $nav = $this->inav();
+    // Dashboard overview = mode selector page = empty mode
+    if ($nav === '' || $nav === PluginNavs::NAV_DASHBOARD) {
+        return '';  // <-- THIS IS THE KEY FIX: don't fall back to MODE_ACTIONS
+    }
+    return PluginNavs::modeForNav($nav);
+}
+```
+
+**Required changes in `nav_sidebar.twig`:**
+
+The template already handles the `navbar_menu` array generically and supports items with or without `sub_items`. The back link item will render as a flat link (no sub-items). No template changes should be needed unless you want to style the back link differently (e.g. smaller font, left arrow icon). If styling is desired, add a CSS class like `mode-back-link` to the back link item's `classes` array and style it in the sidebar SCSS.
+
+**Required changes in `PageAdminPlugin.php`:**
+
+Currently line 74 creates the builder with no arguments: `(new NavMenuBuilder())->build()`. No change needed here — the builder resolves mode internally from the query string, which is the correct approach since the page handler already passes `NAV_ID` through the URL.
+
 ### 4.3 Nav items per mode
 
 These define what `allowedNavsForMode()` returns. The current implementation matches the spec for filtering, but the items below also show the desired sidebar labels (which may differ from the current `title` values in the private methods).
@@ -306,7 +369,7 @@ Configure
     └── Debug Info
 ```
 
-Note: `allowedNavsForMode(MODE_CONFIGURE)` includes `NAV_ZONES`, `NAV_RULES`, and `NAV_TOOLS` only; `NAV_DASHBOARD` remains excluded and is not reintroduced. Security Grades (`NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`) is now handled explicitly as a Configure-mode synthetic item in `buildModeNav()`.
+Note: The current `allowedNavsForMode(MODE_CONFIGURE)` includes `NAV_ZONES`, `NAV_RULES`, `NAV_TOOLS`. It also includes `NAV_DASHBOARD` which will be removed (replaced by the back link). Security Grades (`NAV_DASHBOARD / SUBNAV_DASHBOARD_GRADES`) needs special handling — it's a dashboard sub-nav that belongs in Configure mode. Options: (a) add it as a direct link item in `buildModeNav()` for Configure, or (b) create a new `NAV_GRADES` constant that maps to the same page handler. Option (a) is simpler.
 
 #### Reports sidebar
 
@@ -380,35 +443,38 @@ The current plugin offers raw log views (Activity, Traffic, IP Rules, Sessions).
 
 ### What needs building (investigation selectors)
 
-Three new investigation entry points that wire existing data with a subject filter:
+Three new investigation entry points that wire existing data with a subject filter. **All three reuse existing infrastructure — see Section 12 for the full component inventory and implementation directives.**
 
 **By User**
 - UI: Select a user by ID, username, or email (autocomplete dropdown from `wp_users`)
 - Result: A page showing for that user: all activity log entries, all sessions, all IP addresses used, all HTTP requests
-- Implementation: New page class that reuses existing DataTable components with pre-set filters. Filter `LoadLogs` by user ID from meta. `FindSessions::byUser()` (new method) queries directly by user ID.
+- Implementation: **Refactor** existing `PageInvestigateByUser.php`. Keep its data-loading methods. Replace its template with rail+panel layout using `options_rail_tabs.twig`. Wire tabs through the shared DataTable investigation framework (Section 12.2) — do NOT render static HTML tables. See Section 12.4.3 for detailed instructions.
 
 **By IP Address**
 - UI: Enter or select an IP address
-- Result: Redirect to the existing `IpAnalyse\Container` (already has General, Bot Signals, Sessions, Activity, Traffic tabs)
-- Implementation: Mostly a wrapper — the IP Analysis feature already exists. Promote it to a first-class nav item instead of requiring users to click an IP link from another table.
+- Result: The existing `IpAnalyse\Container` (5 tabs) wrapped with a subject header bar and summary stats
+- Implementation: Create `PageInvestigateByIp.php` that renders `IpAnalyse\Container` (reused as-is) below a new subject header. See Section 12.4.4 — the Container is not rebuilt.
 
 **By Plugin**
 - UI: Select an installed plugin from a dropdown
-- Result: Activity log entries related to that plugin (activation, updates, file changes), scan results for that plugin's files, vulnerability status
-- Implementation: New page class. Filter `LoadLogs` by event slugs related to plugins. Filter scan results by plugin directory path.
+- Result: 4-tab analysis: Overview (from `buildPluginData()`), File Status (from `LoadFileScanResultsTableData`), Vulnerabilities (from `WpVulnDb`), Activity (from investigation DataTable framework)
+- Implementation: Create `PageInvestigateByPlugin.php`. Reuses `PluginThemesBase::buildPluginData()` for overview, extends `LoadFileScanResultsTableData` for file status, queries `WpVulnDb` for vulnerabilities. See Section 12.4.5.
 
 ### Data layer notes
 
-- `LoadLogs` already supports `wheres[]` for flexible filtering — adding user/IP/plugin filters is additive SQL.
-- `IpAnalyse\Container` is already a complete IP investigation tool — just needs a direct nav entry.
+- `BaseBuildTableData` already provides utility methods for rendering timestamps (`getColumnContent_Date()`), IP links (`getColumnContent_LinkedIP()`), and user links (`getUserHref()`). All investigation tables must use these — see Section 12.5 cross-cutting rules.
+- `LoadLogs` already supports `wheres[]` for flexible filtering — adding user/IP/plugin filters is additive SQL via the investigation `BaseInvestigationData` class (Section 12.2).
+- `IpAnalyse\Container` is already a complete IP investigation tool — just needs a subject header wrapper.
 - `FindSessions::byIP()` exists. A `byUser()` variant would query directly by user ID.
+- `SearchTextParser` already parses `ip:x.x.x.x`, `user_id:42`, `user_name:admin` syntax — investigation tables reuse this.
 
 ### Minimum viable Investigate mode for release
 
 The investigation selectors (By User, By IP, By Plugin) are what make operator modes feel like an upgrade rather than a reshuffle. At minimum, the initial release must include:
 
-- **By IP** — essentially free, since `IpAnalyse\Container` already exists
-- **By User** — needs building but is achievable with existing data layer
+- **Shared investigation DataTable framework** (Section 12.2) — must be built FIRST as the foundation
+- **By IP** — essentially free, since `IpAnalyse\Container` already exists (just add subject header wrapper)
+- **By User** — refactor existing `PageInvestigateByUser` to use rail+panel layout + DataTable framework
 - Existing pages (Activity Log, Traffic Log, Live Log, IP Rules) reorganised into the Investigate sidebar
 
 By Plugin can follow in a subsequent release.
@@ -459,20 +525,20 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 3: Mode-Aware Sidebar Navigation
 
-**Status (2026-02-20):** Complete. Two-state sidebar behavior is implemented in `NavMenuBuilder` and WP submenu mode entries are already in place.
+**Status (2026-02-22):** ✅ Complete. Two-state sidebar behavior is implemented in `NavMenuBuilder` and WP submenu mode entries are in place. Breadcrumb mode-pathing is also in place.
 
 **Modify:**
 
 | File | Change |
 |---|---|
-| `NavMenuBuilder.php` | Completed: two-state sidebar implemented (`resolveCurrentMode()` dashboard handling, `buildModeSelector()`, `buildModeNav()`, and `allowedNavsForMode()` dashboard removal). |
-| `PluginAdminPageHandler.php` | Already done — WP submenu registers mode-based items. No further changes needed unless entry point URLs change. |
+| `NavMenuBuilder.php` | Implemented: mode selector state + in-mode sidebar state + back-link behavior + configure-grade shortcut insertion + normalized mode grouping/rendering. |
+| `PluginAdminPageHandler.php` | Implemented: WP submenu registers mode-based items. |
 
 **Cleanup:** Remove old flat submenu items (Activity, Traffic, etc.) from WP admin sidebar. (Already done.)
 
 ### Step 4: Mode Switching & Breadcrumbs
 
-**Status (2026-02-21):** ✅ Complete. Breadcrumbs (`BuildBreadCrumbs.php`) are mode-aware with Shield Security → Mode → Page structure, `OperatorModeSwitch` action exists, and P5 cleanup removed the legacy Simple/Advanced toggle runtime/artifacts (`DashboardViewPreference`, `DashboardViewToggle`, `PageDashboardOverviewSimple`, simple templates, JS wiring, and legacy CSS blocks).
+**Status (2026-02-22):** ✅ Complete. Breadcrumbs are mode-aware (`Shield Security → Mode → Page`), `OperatorModeSwitch` exists, and legacy Simple/Advanced toggle/runtime was removed in P5 cleanup.
 
 **Create:**
 
@@ -491,56 +557,89 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 5: Actions Queue Mode
 
-**Status (2026-02-22):** ⚠️ Implemented, pending runtime acceptance. Landing code/routes are in place, with follow-up hardening that consolidated mode landing handlers through a shared base abstraction (`PageModeLandingBase`), but completion remains open until runtime UAT confirms mode-entry behavior.
+**Status (2026-02-22):** ✅ Complete. `PageActionsQueueLanding.php` and `actions_queue_landing.twig` exist and are wired via `PluginNavs` (`SUBNAV_SCANS_OVERVIEW`), reusing `NeedsAttentionQueue`.
 
-**Reuse existing:** `NeedsAttentionQueue.php`, `AttentionItemsProvider.php`, `PageScansResults.php`, `PageScansRun.php`
+**How to build it — reuse, don't recreate:**
 
-**Create:**
+The Actions Queue landing page is primarily a composition of existing components. The heavy lifting is already done.
 
-| File | Purpose |
-|---|---|
-| `PageActionsQueueLanding.php` | Actions mode landing — action items count/list using action-channel data |
-| `actions_queue_landing.twig` | Template |
+| Component to Reuse | File | How |
+|---|---|---|
+| `NeedsAttentionQueue` widget | `src/ActionRouter/Actions/Render/Components/Widgets/NeedsAttentionQueue.php` | **Render directly** on the landing page via `self::con()->action_router->render(NeedsAttentionQueue::class)`. This widget already groups action items by zone, ranks by severity, and renders both "issues" and "all clear" states. Do NOT rebuild this logic. |
+| `AttentionItemsProvider` | `src/ActionRouter/Actions/Render/Components/Widgets/AttentionItemsProvider.php` | **Reuse as data source.** Already provides `buildScanItems()`, `buildMaintenanceItems()`, `buildSummaryWarningItems()`. Use these for the action count on the summary stats row. |
+| `MeterCard` (action channel) | `src/ActionRouter/Actions/Render/Components/Meters/MeterCard.php` | **Render** with `meter_channel: 'action'` to show the action-channel meter score alongside the queue. |
+| `PageScansResults` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageScansResults.php` | **Link to**, do not embed. The sidebar already has Scan Results as a nav item in Actions mode. |
+| `PageScansRun` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageScansRun.php` | **Link to**, do not embed. |
+
+**Create/Refactor:**
+
+| File | Purpose | Implementation Notes |
+|---|---|---|
+| `PageActionsQueueLanding.php` | Actions mode landing | Extends `BasePluginAdminPage`. `getRenderData()` renders `NeedsAttentionQueue` widget (reused) + action-channel `MeterCard` (reused) + summary stat counts from `AttentionItemsProvider` (reused). Minimal new code — this page is a composition of existing components. |
+| `actions_queue_landing.twig` | Template | Layout: action-channel meter card at top, NeedsAttentionQueue widget body below, quick links to Scan Results and Run Scan at bottom. |
 
 ### Step 6: Investigate Mode
 
-**Status (2026-02-22):** ⚠️ Implemented, pending runtime acceptance. Operator-reported "redirect/query-only" behavior reopened completion status; follow-up hardening extracted shared user lookup resolution (`ResolveUserLookup`) and reused request-log filtering via `LoadRequestLogs::forUserId()`. Acceptance still requires verified user-observable outcomes for By User and By IP flows.
+**Status (2026-02-22):** In progress, partially delivered and reopened for completion. `PageInvestigateLanding.php` and `PageInvestigateByUser.php` exist, but the shared investigation DataTable foundation (Section 12.2) is not implemented yet, and current user investigation rendering still relies on static tables that must be refactored.
 
-**Create:**
+**Prototype reference:** Implementors MUST review the HTML prototypes in `prototypes/investigate-mode/` before building. These define the exact visual layout, data columns, tab structure, and cross-linking patterns. See Section 11 for detailed specifications.
 
-| File | Purpose |
-|---|---|
-| `PageInvestigateLanding.php` | Investigate mode landing — subject selector UI |
-| `investigate_landing.twig` | Template |
-| `PageInvestigateByUser.php` | User investigation — aggregates activity, sessions, IPs |
-| `investigate_by_user.twig` | Template |
+**Create/Refactor:**
 
-Promote `IpAnalyse\Container` to a first-class Investigate nav item ("By IP Address").
+| File | Purpose | Prototype Reference |
+|---|---|---|
+| `PageInvestigateLanding.php` | Subject selector grid + lookup panels (refactor existing file) | `investigate-landing.html` |
+| `investigate_landing.twig` | Template for landing (refactor existing file) | `investigate-landing.html` |
+| `PageInvestigateByUser.php` | User analysis: header + stats + rail/panel (4 tabs) (refactor existing file) | `investigate-user.html` |
+| `investigate_by_user.twig` | Template — rail+panel with Sessions, Activity, Requests, IP Addresses tabs (refactor existing file) | `investigate-user.html` |
+| `PageInvestigateByIp.php` | IP analysis: wraps IpAnalyse\Container with subject header + stats | `investigate-ip.html` |
+| `investigate_by_ip.twig` | Template — subject header + existing IpAnalyse 5-tab container | `investigate-ip.html` |
+| `PageInvestigateByPlugin.php` | Plugin analysis: Overview, File Status, Vulnerabilities, Activity | `investigate-plugin.html` |
+| `investigate_by_plugin.twig` | Template — rail+panel with 4 tabs | `investigate-plugin.html` |
+| `PageInvestigateByTheme.php` | Theme analysis: same pattern as plugin (can share base class) | — |
 
 **Modify:**
-- `LoadLogs` — add convenience method for filtering by user ID
-- `FindSessions` — add `byUser(int $userId)` method
+- `LoadLogs` — add convenience method for filtering by user ID, by IP, by plugin slug (event meta)
+- `FindSessions` — add `byUser(int $userId)` method (mirrors existing `byIP()`)
+- `PluginNavs.php` — add NAV constants for By User, By IP, By Plugin sub-navs under `NAV_ACTIVITY`
+
+**Implementation order:** P6-FOUNDATION (shared table framework) → Landing → By User → By IP → By Plugin → By Theme → WordPress Core. See Section 11.9.
+
+**Critical prerequisite:** Before building ANY investigation tab, the shared investigation DataTable framework (Section 12.2) must be built. This includes `BaseInvestigationTable`, `BaseInvestigationData`, `InvestigationTable.js`, and the shared Twig partials. See Section 12 for the full implementation architecture, component inventory, and per-section directives.
 
 ### Step 7: Configure & Reports Modes
 
-**Status (2026-02-22):** ⚠️ Partially complete, reopened for Configure landing quality gap. Dedicated Configure and Reports landing pages exist (`PageConfigureLanding.php`, `PageReportsLanding.php`), Configure landing remains aligned to the existing hero meter pipeline, and landing render composition is now consolidated via `PageModeLandingBase`. Broader chart relocation/removal beyond these landings remains outside this delivered slice.
+**Status (2026-02-22):** ✅ Complete for landing slice. Dedicated landing pages exist and are wired: `PageConfigureLanding.php`/`configure_landing.twig` and `PageReportsLanding.php`/`reports_landing.twig`.
 
-Mostly sidebar reorganisation of existing pages.
+Mostly sidebar reorganisation of existing pages. The actual configuration and reporting pages already exist — only the landing pages are new.
 
-**Configure:** Security Grades (config channel only), Security Zones (8), Custom Rules (3), Import/Export, Site Lockdown.
+**How to build — reuse existing components:**
 
-**Reports:** Security Reports, Charts & Trends (relocated from current dashboard), Alert Settings.
+**Configure landing:**
+
+| Component to Reuse | File | How |
+|---|---|---|
+| `MeterCard` (config channel) | `src/ActionRouter/Actions/Render/Components/Meters/MeterCard.php` | **Render** with `meter_channel: 'config'` and `is_hero: true` for the config posture score hero card. This is the existing meter card — just filtered to config channel. |
+| Zone overview data | `SecurityZones` module | Query zone-level meter data to show a summary card per zone (8 zones). Each zone already has its own `MeterCard` — render a compact grid of zone meter cards. |
+| `stat_box.twig` | `templates/twig/components/events/stats/stat_box.twig` | **Reuse** for summary stats (total zones configured, grade distribution, etc.). |
+
+**Reports landing:**
+
+| Component to Reuse | File | How |
+|---|---|---|
+| `ChartsSummary` | `src/ActionRouter/Actions/Render/Components/Charts/ChartsSummary.php` | **Render directly** on the reports landing. These charts already exist on the current dashboard — relocate their rendering here. |
+| `PageReports` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageReports.php` | **Link to** from the landing page. The full reports page already exists. |
 
 **Create landing pages:**
 
-| File | Purpose |
-|---|---|
-| `PageConfigureLanding.php` | Configure mode landing — config posture score + zone overview |
-| `PageReportsLanding.php` | Reports mode landing — recent reports + chart summary |
+| File | Purpose | Implementation Notes |
+|---|---|---|
+| `PageConfigureLanding.php` | Configure mode landing — config posture score + zone overview | Extends `BasePluginAdminPage`. Renders `MeterCard` with config channel (reused), zone summary grid (each zone as a compact `MeterCard` — reused), and links to Security Grades page. |
+| `PageReportsLanding.php` | Reports mode landing — recent reports + chart summary | Extends `BasePluginAdminPage`. Renders `ChartsSummary` component (reused — relocated from dashboard), recent reports list, and link to full reports page. |
 
 ### Step 8: WP Dashboard Widget Update
 
-**Status (2026-02-21):** ❌ Not started (deferred by scope lock to P6-C).
+**Status (2026-02-20):** ❌ Not started.
 
 **Modify:**
 
@@ -548,14 +647,6 @@ Mostly sidebar reorganisation of existing pages.
 |---|---|
 | `WpDashboardSummary.php` | Show two indicators: config posture score + action items count. Remove IP tables, blog posts, session tables, activity tables. |
 | `admin_dashboard_widget.twig` | Simplified template matching the new two-indicator design. |
-
-### Acceptance Governance Update (2026-02-21)
-
-For operator-mode landing/investigate work (OM-601..OM-615), completion status now requires:
-1. Route/template/unit-test verification, and
-2. Runtime UAT proof of user-observable behavior in WP admin.
-
-Unit success alone is no longer sufficient to mark these items complete.
 
 ---
 
@@ -569,7 +660,7 @@ Unit success alone is no longer sufficient to mark these items complete.
 | Step 4 | `DashboardViewPreference`, `DashboardViewToggle`, `PageDashboardOverviewSimple`, `dashboard_overview_simple.twig`, Simple/Advanced toggle UI | Superseded by operator mode system |
 | Step 5 | Nothing | Reuses existing components |
 | Step 6 | Nothing | New investigation pages |
-| Step 7 | Old `PageDashboardOverview` chart rendering | Partially addressed: Reports landing now surfaces charts; dashboard-overview chart relocation/removal remains a follow-up decision. |
+| Step 7 | Old `PageDashboardOverview` chart rendering | Charts move to Reports mode |
 | Step 8 | Old WP dashboard widget tables/blog section | Replaced by two-indicator widget |
 
 ---
@@ -592,23 +683,641 @@ Unit success alone is no longer sufficient to mark these items complete.
 
 ---
 
-## 11. Phase A Implementation Notes (2026-02-20)
+## 11. UI Specification — Investigate Mode
 
-This note records what was implemented for the first meter-channel foundation slice.
+> **Prototypes:** `prototypes/investigate-mode/` — open these HTML files in a browser for interactive reference.
 
-Completed in scope:
-1. Added component channel contract and payload channel output.
-2. Classified maintenance + scan-result meter components to action channel.
-3. Threaded optional channel through meter build/retrieval flow.
-4. Added channel-aware cache partitioning while preserving combined/default retrieval behavior.
-5. Added divide-by-zero safety for zero-weight filtered sets.
-6. Added focused unit tests for classification, channel cache behavior, channel propagation, and zero-weight safety.
+This section defines the visual patterns, data layout, and component structure for the Investigate operator mode. Once the Investigate mode is implemented and validated, the same structural patterns (subject header, summary stats, rail+panel layout) will be adapted for Configure and Reports landing pages.
 
-Important compatibility detail:
-1. Existing combined/default consumer callsites were preserved unchanged.
-2. Legacy dashboard toggle flow remains untouched in Phase A.
+### 11.1 Design tokens (reference)
 
-Validation detail:
-1. Unit tests for the new Phase A meter slice pass.
-2. WordPress integration tests were not required for this phase and could not be executed in this workspace due missing WP integration environment.
+All prototypes and implementations use these CSS custom properties. They match the existing Shield SCSS variables documented in `CSS-README.md`.
 
+```
+--status-good:      #008000    (green — safe, active, clean)
+--status-warning:   #edb41d    (amber — needs attention, pending)
+--status-critical:  #c62f3e    (red — blocked, vulnerable, offense)
+--status-info:      #0ea8c7    (teal — neutral information, links)
+--card-radius:      10px
+--card-shadow:      0 1px 6px rgba(0,0,0,0.07)
+--card-accent-height: 4px      (coloured accent bar on top of cards)
+--surface-neutral:  #f5f6f5    (light grey background)
+--surface-raised:   #f8f9f8    (rail background)
+--border-subtle:    #d9dfd9    (dividers)
+--accent-salt-green: #d2ddd2   (rail accent bar)
+```
+
+### 11.2 Investigate landing page
+
+**Prototype file:** `investigate-landing.html`
+
+**Layout structure:**
+
+```
+┌─ Breadcrumbs: Shield Security » Investigate ──────────────────────┐
+│                                                                    │
+│  Page title: "Investigate"                                         │
+│  Subtitle: "Choose a subject to investigate..."                    │
+│                                                                    │
+│  ┌─ Subject Selector Grid (auto-fill, minmax 200px) ─────────┐   │
+│  │  [Users]  [IPs]  [Plugins]  [Themes]                       │   │
+│  │  [WP Core]  [HTTP Requests]  [Activity Log]  [WooCommerce] │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                    │
+│  ┌─ Lookup Panel (toggles per selected subject) ──────────────┐   │
+│  │  [Search input / dropdown / direct link depending on type]  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                    │
+│  Quick access: [Activity Log] [HTTP Requests] [Live Traffic] [IPs] │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+**Subject cards:** Each card is a clickable tile with an icon (48×48px, rounded 12px, `status-bg-info-light` background), a label (bold 0.9rem), and a one-line description (0.78rem, #888). The active card gets a 2px `status-info` border and `status-bg-info-light` background. Cards with `disabled` class are greyed out with a "PRO" badge.
+
+**Subjects and their lookup types:**
+
+| Subject | Icon | Lookup Type | Input | Action |
+|---|---|---|---|---|
+| Users | `bi-people-fill` | Text search | Username, email, or user ID | Navigate to `investigate-user` page |
+| IP Addresses | `bi-globe2` | Text input | IPv4 or IPv6 address | Navigate to `investigate-ip` page |
+| Plugins | `bi-puzzle-fill` | Dropdown select | Installed plugins list | Navigate to `investigate-plugin` page |
+| Themes | `bi-palette-fill` | Dropdown select | Installed themes list | Navigate to `investigate-theme` page |
+| WordPress Core | `bi-wordpress` | Direct link | — | Navigate to core file status page |
+| HTTP Requests | `bi-arrow-left-right` | Direct link | — | Navigate to Traffic Log (existing) |
+| Activity Log | `bi-journal-text` | Direct link | — | Navigate to Activity Log (existing) |
+| WooCommerce | `bi-cart3` | Disabled (PRO) | — | — |
+
+**Quick tools strip:** Row of small pill-buttons linking to existing full pages (Activity Log, HTTP Requests, Live Traffic, IP Rules). Always visible below the lookup panel. These are shortcuts — the same pages are accessible from the sidebar.
+
+**JavaScript:** Clicking a subject card toggles `.active` on that card and shows/hides the corresponding `#lookup-{subject}` panel. The panel for the initially active subject (Users) is visible on load.
+
+### 11.3 Investigation analysis page pattern
+
+All investigation subjects that load a specific entity (User, IP, Plugin, Theme) share a consistent three-part layout:
+
+```
+┌─ Breadcrumbs: Shield Security » Investigate » [Subject Type] ─────┐
+│                                                                    │
+│  ┌─ Subject Header Bar ──────────────────────────────────────┐    │
+│  │  [Avatar]  Name / identifier                    [Change ←] │    │
+│  │            Meta line (email, version, etc.)                │    │
+│  │            Status pills (active, vulnerable, etc.)         │    │
+│  └────────────────────────────────────────────────────────────┘    │
+│                                                                    │
+│  ┌─ Summary Stats Row (4 equal columns) ─────────────────────┐    │
+│  │  [Stat 1]  [Stat 2]  [Stat 3]  [Stat 4]                  │    │
+│  └────────────────────────────────────────────────────────────┘    │
+│                                                                    │
+│  ┌─ Rail + Panel Layout ─────────────────────────────────────┐    │
+│  │ ┌──── Rail ────┐ ┌──── Tab Content ────────────────────┐  │    │
+│  │ │ Tab 1 [badge] │ │                                     │  │    │
+│  │ │ Tab 2 [badge] │ │  (data table, cards, signals, etc.) │  │    │
+│  │ │ Tab 3 [badge] │ │                                     │  │    │
+│  │ │ Tab 4 [badge] │ │                                     │  │    │
+│  │ └───────────────┘ └─────────────────────────────────────┘  │    │
+│  └────────────────────────────────────────────────────────────┘    │
+└────────────────────────────────────────────────────────────────────┘
+```
+
+#### Subject Header Bar
+
+A horizontal bar (`display:flex`, `align-items:center`) with:
+
+- **Avatar** (52×52px): Circular for users/IPs, rounded-square (12px radius) for plugins/themes. Background colour reflects entity status (info=default, good=trusted, warning=attention, critical=blocked/vulnerable).
+- **Info block** (flex:1): Entity name (bold 1.1rem), meta line (0.82rem, #888 — email, version, author, directory, etc.), and status pills (inline badges — "Active", "Update Available", "1 Vulnerability", "3 Offenses").
+- **"Change" button** (flex-shrink:0): `btn-sm btn-outline-secondary` with back arrow, links to landing page.
+
+#### Summary Stats Row
+
+Four equal-width shield-cards in a `row g-2`. Each contains a coloured accent bar (status-info for neutral counts, status-warning/critical for concerning values) and a centred stat: large value (1.5rem bold) + small label (0.75rem uppercase).
+
+The stats displayed are subject-specific:
+
+| Subject | Stat 1 | Stat 2 | Stat 3 | Stat 4 |
+|---|---|---|---|---|
+| User | Sessions | Activity Events | HTTP Requests | Unique IPs |
+| IP Address | Offenses | Sessions | Activity Events | HTTP Requests |
+| Plugin | Vulnerabilities | Modified Files | Activity Events | Total Files |
+| Theme | Vulnerabilities | Modified Files | Activity Events | Total Files |
+
+#### Rail + Panel Layout
+
+The core analysis area uses the same `shield-analyse-layout` pattern as the existing `IpAnalyse\Container`:
+
+- **Rail** (200px fixed, `surface-raised` background): Vertical `nav flex-column` with `data-bs-toggle="tab"` buttons. Each button has an icon, label, and optional count badge. Active tab has a 3px left border in `status-info` and white background.
+- **Content** (flex:1): Bootstrap `tab-content` with `tab-pane` panels. Each panel has consistent 1.25rem padding.
+- **Responsive:** Below 768px, the rail collapses to a horizontal scrollable tab row.
+
+This matches the existing `options_rail_tabs.twig` template. The Twig template can be reused directly for the rail; panel content is page-specific.
+
+### 11.4 Investigate User — tab definitions
+
+**Prototype file:** `investigate-user.html`
+
+**Subject header meta:** Username (bold), email, User ID, WordPress role.
+
+**Tabs:**
+
+| Tab | Icon | Badge | Content |
+|---|---|---|---|
+| Sessions | `bi-key` | Session count | Table: Login (username), Last Active (relative+absolute), Logged In (relative+absolute), IP Address (link to IP analysis), Sec Admin (Yes/No badge) |
+| Activity | `bi-journal-text` | Event count | Table: Event (description), When (relative+absolute), IP Address (link). "Full Log" button links to Activity Log with user filter pre-applied. |
+| Requests | `bi-arrow-left-right` | Request count | Table: Request (verb badge + path code), When (relative+absolute), Response (code + Clean/Offense badge), IP Address (link). "Full Log" button links to Traffic Log with user filter. |
+| IP Addresses | `bi-globe2` | Unique IP count | Card grid (2-col): Each card shows IP address (monospace link), last seen, status badge (Current/Known/Blocked), and counts (sessions, events, requests). Card accent colour reflects IP status. |
+
+**Data sources (implementation):**
+
+- Sessions: `FindSessions::byUser($userId)` — query `wp_shield_sessions` by user_id. Return last 50.
+- Activity: `LoadLogs` with `wheres[user_id] = $userId`. Return last 75.
+- Requests: `LoadRequestLogs` with `wheres[uid] = $userId`. Return last 75.
+- IP Addresses: Aggregate unique IPs from sessions + request logs. For each IP, sub-query counts.
+
+### 11.5 Investigate IP Address — tab definitions
+
+**Prototype file:** `investigate-ip.html`
+
+**Subject header meta:** IP address (monospace), geolocation (city, country), ISP/ASN, first seen date. Avatar background adapts to IP status.
+
+This page wraps the existing `IpAnalyse\Container` with the standardised subject header and summary stats row. The five existing tabs are preserved.
+
+**Tabs:**
+
+| Tab | Icon | Badge | Content | Existing Component |
+|---|---|---|---|---|
+| General | `bi-info-circle` | — | IP details table (address, hostname, location, ISP, first/last seen, status) + IP Rule Status card (block status, offense count, linked users, block/bypass actions) | `IpAnalyse\General` |
+| Bot Signals | `bi-robot` | Bot score | Signal bar chart: each signal type as a labelled horizontal bar (0–100). Signals: Login Failures, 404 Probing, XML-RPC, Comment SPAM, Fake Crawler, User-Agent Invalid, etc. | `IpAnalyse\BotSignals` |
+| Sessions | `bi-key` | Session count | Table: User (link to user investigation), Login time, Last Active, Sec Admin status. | `IpAnalyse\Sessions` |
+| Activity | `bi-journal-text` | Event count | Table: Event description, When, User. "Full Log" link pre-filtered by IP. | `IpAnalyse\Activity` |
+| Traffic | `bi-arrow-left-right` | Request count | Table: Request (verb+path), When, Response (code+offense). "Full Log" link pre-filtered by IP. | `IpAnalyse\Traffic` |
+
+**Implementation note:** The existing `IpAnalyse\Container` already renders these five tabs using sub-component classes. The main change is adding the subject-header bar and summary-stats row above the container. This can be done by wrapping `Container::getRenderData()` output with the header data, or by creating a new `PageInvestigateByIp` page class that renders the header + container.
+
+### 11.6 Investigate Plugin — tab definitions
+
+**Prototype file:** `investigate-plugin.html`
+
+**Subject header meta:** Plugin name (bold), version, author, install directory. Status pills: Active/Inactive, Update Available, Vulnerability count, Abandoned.
+
+**Tabs:**
+
+| Tab | Icon | Badge | Content |
+|---|---|---|---|
+| Overview | `bi-info-circle` | — | Two-column layout. Left: info table (Name, Slug, Version with update pill, Author, Status, Source, Installed, Last Updated). Right: Security Summary card with vulnerability count, modified files count, update status, abandoned status. |
+| File Status | `bi-file-earmark-code` | Issue count | Table: File (monospace path + size/type), Status (Modified/Unrecognised/Missing/Malware with icon), Detected (relative+absolute), Actions (View/Repair/Delete/Ignore button group). Footer note about SVN checksum comparison. |
+| Vulnerabilities | `bi-shield-exclamation` | Active vuln count | Card list: Each vulnerability is a bordered card with title, type, disclosure date, fixed-in version, severity pill (Active/Resolved). Active vulns have `status-critical` left border; resolved vulns are dimmed. Link to vulnerability DB. |
+| Activity | `bi-journal-text` | Event count | Table: Event (icon + description), When (relative+absolute), User (link to user investigation), IP Address (link). Events filtered to plugin slug: activations, deactivations, updates, file changes, settings changes. |
+
+**Data sources (implementation):**
+
+- Overview: `buildPluginData()` from `PluginThemesBase` — provides all info/flags/vars fields.
+- File Status: `LoadFileScanResultsTableData` filtered by `ptg_slug` meta matching plugin slug. Returns `rid`, `file` (path_fragment), `status`, `detected_since`, `actions`.
+- Vulnerabilities: `WpVulnDb` lookup by plugin slug. Returns `VulnVO` objects: `title`, `vuln_type`, `fixed_in`, `disclosed_at`. Cross-reference current version to determine active vs resolved.
+- Activity: `LoadLogs` filtered by event slugs containing plugin identifier (activation/deactivation/update events store plugin slug in meta).
+
+### 11.7 Investigate Theme — tab definitions
+
+**No separate prototype** — uses identical layout to Investigate Plugin with these differences:
+
+- Avatar: `bi-palette-fill` icon with rounded-square shape.
+- Subject header meta: Theme name, version, author, active/parent/child status.
+- Overview: Additional fields for child/parent theme relationships (`child_theme`, `parent_theme` from `buildThemeData()`).
+- File Status: Same table, filtered by theme's `ptg_slug`.
+- Vulnerabilities: Same card list, queried by theme slug.
+- Activity: Filtered to theme-related events.
+
+### 11.8 WordPress Core — analysis page
+
+**No separate prototype** — this is a simplified version of the plugin/theme analysis pattern.
+
+**Subject header:** WordPress logo icon, "WordPress Core" name, current version, auto-update status.
+
+**Tabs:**
+
+| Tab | Content |
+|---|---|
+| Overview | Core version, update status, auto-update config, last scan time |
+| File Status | Table of modified/missing/unrecognised core files. Data from `LoadFileScanResultsTableData` with `is_in_core` filter. Same table format as plugin File Status tab. |
+| Activity | Core-related events: WordPress updates, core file modifications. Filtered from `LoadLogs`. |
+
+### 11.9 Implementation order for Investigate mode
+
+1. **Investigate Landing Page** — subject selector grid + lookup panels. Create `PageInvestigateLanding.php` rendering the subject grid. Each subject card links to its analysis page or existing log page.
+2. **Investigate User** — highest value, most complex. Create `PageInvestigateByUser.php` with rail+panel layout. Uses `FindSessions::byUser()` (new), `LoadLogs` filtered by user_id, `LoadRequestLogs` filtered by uid.
+3. **Investigate IP** — wraps existing `IpAnalyse\Container`. Create `PageInvestigateByIp.php` that adds subject-header + summary stats above the existing container.
+4. **Investigate Plugin** — Create `PageInvestigateByPlugin.php`. Uses `buildPluginData()`, `LoadFileScanResultsTableData` (filtered by ptg_slug), `WpVulnDb` lookup, `LoadLogs` (filtered by plugin events).
+5. **Investigate Theme** — Near-identical to Plugin. Can share a base class.
+6. **WordPress Core** — Simplified version of Plugin page with `is_in_core` filter.
+
+### 11.10 Cross-subject linking
+
+Investigation pages link to each other. This is critical for the investigative flow:
+
+- **User → IP:** IP addresses in user tables link to `investigate-ip?ip={address}`.
+- **IP → User:** User names in IP sessions tab link to `investigate-user?uid={id}`.
+- **Plugin Activity → User:** User column links to `investigate-user?uid={id}`.
+- **Plugin Activity → IP:** IP column links to `investigate-ip?ip={address}`.
+- **User Activity → Plugin:** Plugin-related events could link to `investigate-plugin?slug={slug}` (future enhancement).
+
+This creates a web of investigation paths. The "Change [Subject]" button in the header always returns to the landing page, while entity links within tables enable lateral investigation.
+
+---
+
+## 12. Implementation Architecture — Reusable Components & Patterns
+
+> **CRITICAL: Read this section before writing any code.** Every investigation page must be built by extending or composing existing plugin infrastructure. Do not create bespoke rendering logic when an existing component already handles the pattern. The guiding principle is DRY (Don't Repeat Yourself) — if you modify the framework for one table, it should apply across all tables.
+
+### 12.1 Component inventory — what already exists
+
+The plugin has a mature, battle-tested component architecture. The table below is the authoritative inventory. Before building anything, check whether it already exists here.
+
+#### Page handlers
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `BasePluginAdminPage` | `src/ActionRouter/Actions/Render/PluginAdminPages/BasePluginAdminPage.php` | Base class for all admin pages. Provides breadcrumbs, contextual hrefs, page title/subtitle, nonce field. | **Extend.** All investigation pages extend this. Override `getRenderData()`, `getInnerPageTitle()`, `getInnerPageSubTitle()`. |
+| `BaseRender` | `src/ActionRouter/Actions/Render/BaseRender.php` | Base class for all renderable components (pages, widgets, offcanvas). Provides `getAllRenderDataArrays()` merge at priority levels, Twig rendering. | **Extend indirectly** (via BasePluginAdminPage). Sub-components (summary stats, subject header) extend this directly. |
+| `PageInvestigateByUser` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php` | **Already exists.** Current implementation loads sessions, activity, requests, related IPs for a user. Currently renders as flat vertical sections. | **Refactor.** Keep the data-loading methods (`buildSessions()`, `buildActivityLogs()`, `buildRequestLogs()`, `buildRelatedIps()`). Replace the template with rail+panel layout. Wire data through DataTable infrastructure instead of static arrays. |
+| `PageInvestigateLanding` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php` | **Already exists.** Current implementation has tools card + user/IP lookup. | **Refactor.** Replace template with subject selector grid from prototype. Keep user/IP resolution logic. |
+
+#### DataTable build infrastructure (column definitions + configuration)
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `Build\Base` | `src/Tables/DataTables/Build/Base.php` | Abstract base for DataTable configuration. Defines `getColumnDefs()`, `getColumnsToDisplay()`, `getOrderColumnSlug()`, `getSearchPanesData()`. Returns JSON config consumed by JS. | **Extend.** Create child classes for investigation tables. Override column defs and display columns. SearchPanes can be disabled by returning empty array from `getSearchPanesData()`. |
+| `Build\ForActivityLog` | `src/Tables/DataTables/Build/ForActivityLog.php` | Activity log column definitions: event, user, ip, day, timestamp. Full SearchPanes for day/event/user. | **Extend.** Create `ForInvestigationActivityLog` that narrows columns (drop SearchPanes, pre-apply subject filter) for embedded use within investigation tabs. |
+| `Build\ForTraffic` | `src/Tables/DataTables/Build/ForTraffic.php` | Traffic log column definitions: path, verb, code, offense, ip, day. | **Extend.** Create `ForInvestigationTraffic` with narrowed columns for investigation context. |
+| `Build\ForSessions` | `src/Tables/DataTables/Build/ForSessions.php` | Session column definitions: user, logged_in, last_activity, ip, sec_admin. | **Extend.** Create `ForInvestigationSessions` — may remove user column when investigating a specific user (since it's redundant). |
+| `Build\Scans\ForPluginTheme` | `src/Tables/DataTables/Build/Scans/ForPluginTheme.php` | Plugin/theme file scan result columns: file, status, detected, actions. | **Extend.** Create `ForInvestigationPluginFiles` with pre-applied `ptg_slug` filter. |
+
+#### DataTable data loading (server-side AJAX)
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `BaseBuildTableData` | `src/Tables/DataTables/LoadData/BaseBuildTableData.php` | Abstract base for server-side DataTable data loading. Handles pagination, search text parsing, SearchPane validation, record counting, row building. Provides utility methods: `getColumnContent_Date()`, `getColumnContent_LinkedIP()`, `getUserHref()`. | **Extend.** All investigation data loaders extend this. The utility methods (`getColumnContent_LinkedIP()`, `getUserHref()`) are essential for cross-subject linking — reuse them, do not rewrite IP/user link generation. |
+| `ActivityLog\BuildActivityLogTableData` | `src/Tables/DataTables/LoadData/ActivityLog/BuildActivityLogTableData.php` | Loads activity log records with full search, pagination, SearchPanes. Builds rows from `ActivityLogs` DB. | **Extend.** Create `BuildInvestigationActivityLogData` that accepts a pre-set `$subjectFilter` (e.g. `['user_id' => 42]` or `['ip' => '1.2.3.4']` or `['plugin_slug' => 'woocommerce']`). Override `buildWheresFromSearchParams()` to inject the subject filter into every query. Disable or simplify SearchPanes. |
+| `Traffic\BuildTrafficTableData` | `src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php` | Loads traffic log records. | **Extend.** Same pattern as activity log — create `BuildInvestigationTrafficData` with pre-set subject filter. |
+| `Sessions\BuildSessionsTableData` | `src/Tables/DataTables/LoadData/Sessions/BuildSessionsTableData.php` | Loads session records. | **Extend.** Create `BuildInvestigationSessionsData` with subject filter (user_id or IP). |
+| `Scans\LoadFileScanResultsTableData` | `src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php` | Loads file scan results. Filters by `ptg_slug` meta, `is_in_core` meta, etc. | **Extend.** Create `BuildInvestigationFileScanData` with pre-set `ptg_slug` filter for plugin/theme investigation. |
+| `SearchTextParser` | `src/Tables/DataTables/LoadData/SearchTextParser.php` | Parses structured search syntax (`ip:x.x.x.x`, `user_id:42`, `user_name:admin`). | **Reuse as-is.** Investigation tables should support the same search syntax within their context. |
+
+#### JavaScript
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `ShieldTableBase` | `assets/js/components/tables/ShieldTableBase.js` | Initialises DataTables with AJAX, handles server-side requests, configures SearchPanes/buttons/select. Default config: `dom: 'PrBpftip'`, `serverSide: true`, `searchDelay: 600`, `pageLength: 25`. | **Extend.** Create `InvestigationTable extends ShieldTableBase` that overrides `getDefaultDatatableConfig()` to use a simplified `dom` string (remove SearchPanes `P`), disable multi-select, and set a smaller `pageLength`. This single JS class serves ALL investigation tabs — a change to `InvestigationTable` applies everywhere. |
+
+#### Tab/Rail templates
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `options_rail_tabs.twig` | `templates/twig/components/config/options_rail_tabs.twig` | Renders a vertical nav rail with Bootstrap `data-bs-toggle="tab"` tabs. Expects `nav_items[]` with `target`, `id`, `controls`, `label`, `is_focus`. | **Reuse directly.** All investigation analysis pages use this template for the left rail. The nav items are built in the PHP page handler and passed as data. |
+| `container.twig` (IpAnalyse) | `templates/twig/wpadmin/components/ip_analyse/container.twig` | Renders the IpAnalyse 5-tab layout using `options_rail_tabs.twig` for the rail and `tab-content` panels for the body. | **Reuse pattern.** Investigation pages follow the exact same layout structure. The IpAnalyse Container template is the reference implementation — study it, then apply the same pattern to new investigation templates. |
+
+#### Card and widget components
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `stat_box.twig` | `templates/twig/components/events/stats/stat_box.twig` | Renders a single stat card (count + label). | **Reuse.** Use for summary stats row on investigation pages. Adapt the data shape to pass investigation counts. |
+| `stats_collection.twig` | `templates/twig/components/events/stats/stats_collection.twig` | Renders a row of stat boxes. | **Reuse.** Wrap investigation summary stats in this template. |
+| `NeedsAttentionQueue` | `src/ActionRouter/Actions/Render/Components/Widgets/NeedsAttentionQueue.php` | Queue widget with severity-ranked items grouped by zone. | **Reuse for Actions Queue mode.** The Actions Queue landing page should render this component directly — it IS the actions queue. |
+| `MeterCard` | `src/ActionRouter/Actions/Render/Components/Meters/MeterCard.php` | Renders a security meter with progress, grade, and status. | **Reuse for Configure mode landing.** The config posture score card should render `MeterCard` with `meter_channel: 'config'`. |
+
+#### OffCanvas components
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `OffCanvasBase` | `src/ActionRouter/Actions/Render/Components/OffCanvas/OffCanvasBase.php` | Base for slide-out panels. Override `buildCanvasTitle()` and `buildCanvasBody()`. | **Reuse.** IP links in investigation tables should trigger the existing `IpAnalysis` offcanvas (class `offcanvas_ip_analysis`) for quick inspection without page navigation. |
+| `IpAnalysis` offcanvas | `src/ActionRouter/Actions/Render/Components/OffCanvas/IpAnalysis.php` | Slide-out IP analysis panel that renders `IpAnalyse\Container`. | **Reuse as-is.** Every IP address link in investigation tables should have class `offcanvas_ip_analysis` to enable this. Cross-subject links (to full investigation pages) are separate buttons. |
+
+#### AJAX actions
+
+| Component | File | Purpose | Extend or Reuse? |
+|---|---|---|---|
+| `ActivityLogTableAction` | `src/ActionRouter/Actions/ActivityLogTableAction.php` | Handles `retrieve_table_data` sub-action for activity log DataTable. Instantiates `BuildActivityLogTableData`. | **Extend pattern.** Create `InvestigationTableAction` that routes to the correct `BuildInvestigation*Data` class based on the table type parameter. Or create per-subject actions (simpler). |
+| `DynamicPageLoad` | `src/ActionRouter/Actions/DynamicPageLoad.php` | Lazy loads page content via AJAX. Request contains `dynamic_load_slug` + `dynamic_load_data`. | **Reuse.** Consider using dynamic loading for investigation tab panels so the initial page load is fast and tabs are loaded on demand. |
+
+### 12.2 The shared table framework — foundational task
+
+**This must be built BEFORE any investigation tab.** Every table in every investigation tab uses this shared framework. Modifying it once applies everywhere.
+
+#### What to build
+
+Create an `Investigation` sub-namespace within the existing DataTable infrastructure:
+
+```
+src/Tables/DataTables/Build/Investigation/
+    BaseInvestigationTable.php          ← extends Build\Base
+    ForActivityLog.php                  ← extends BaseInvestigationTable
+    ForTraffic.php                      ← extends BaseInvestigationTable
+    ForSessions.php                     ← extends BaseInvestigationTable
+    ForFileScanResults.php              ← extends BaseInvestigationTable
+
+src/Tables/DataTables/LoadData/Investigation/
+    BaseInvestigationData.php           ← extends BaseBuildTableData
+    BuildActivityLogData.php            ← extends BaseInvestigationData
+    BuildTrafficData.php                ← extends BaseInvestigationData
+    BuildSessionsData.php               ← extends BaseInvestigationData
+    BuildFileScanResultsData.php        ← extends BaseInvestigationData
+
+assets/js/components/tables/
+    InvestigationTable.js               ← extends ShieldTableBase
+```
+
+#### `BaseInvestigationTable` (Build layer)
+
+```php
+// Extends Build\Base
+// Adds:
+//   - $subjectType (string: 'user', 'ip', 'plugin', 'theme', 'core')
+//   - $subjectId (mixed: user ID, IP string, plugin slug, etc.)
+//   - Overrides getSearchPanesData() to return [] (no SearchPanes by default)
+//   - Adds getSubjectFilterColumns(): array — columns hidden because they're
+//     redundant (e.g., 'user' column when investigating a specific user)
+//   - getColumnsToDisplay() calls parent then removes subject filter columns
+```
+
+#### `BaseInvestigationData` (LoadData layer)
+
+```php
+// Extends BaseBuildTableData
+// Adds:
+//   - $subjectType and $subjectId properties
+//   - Overrides buildWheresFromSearchParams() to always inject subject filter
+//   - Provides getSubjectWheres(): array — returns the SQL WHERE clauses
+//     that filter all records to the current investigation subject
+//   - Overrides getSearchPanesDataBuilder() to return null (no SearchPanes)
+//   - Child classes override getSubjectWheres() for their specific subject:
+//       user → ['user_id' => $uid]
+//       ip → ['ip' => $ip]
+//       plugin → ['meta.ptg_slug' => $slug]
+```
+
+#### `InvestigationTable.js` (JavaScript layer)
+
+```javascript
+// Extends ShieldTableBase
+// Overrides getDefaultDatatableConfig():
+//   - dom: 'rtip'  (removes SearchPanes 'P', buttons 'B', search builder 'r')
+//     or 'frtip' if we want the text search box ('f')
+//   - serverSide: true (same as parent)
+//   - pageLength: 15 (smaller for embedded tabs)
+//   - select: false (no multi-select)
+//   - searching: true (text search still works, just no SearchPanes)
+//   - Adds custom init parameter: subjectFilter: {type, id}
+//     passed to the server with every AJAX request so the server
+//     always filters by the investigation subject
+```
+
+#### Why this approach works
+
+- **One change, all tables:** If you adjust pagination, column styling, or AJAX behaviour in `BaseInvestigationTable` or `InvestigationTable.js`, it applies to every investigation tab across every subject.
+- **DRY data loading:** `BaseInvestigationData` injects the subject filter once. Child classes only define the subject-specific WHERE clause and row-building logic (which they inherit mostly from their parent full-table loaders).
+- **Consistent cross-linking:** `BaseBuildTableData` already provides `getColumnContent_LinkedIP()` and `getUserHref()` for rendering clickable IP/user links. All investigation tables inherit these, so IP and user links look and behave identically everywhere.
+- **Progressive enhancement:** Start with text search only. SearchPanes can be added later to specific investigation tables by overriding `getSearchPanesData()` in the child class — the infrastructure already supports it.
+
+### 12.3 Rail+Panel layout — how to build it
+
+Every investigation analysis page (User, IP, Plugin, Theme, Core) uses the same layout. Here is exactly how to build it using existing components.
+
+#### PHP page handler pattern
+
+```php
+// Every investigation page follows this structure:
+
+class PageInvestigateByUser extends BasePluginAdminPage {
+
+    const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_user.twig';
+
+    protected function getRenderData(): array {
+        $subject = $this->resolveSubject();  // Resolve from query params
+        if (empty($subject)) {
+            return $this->buildLookupOnlyView();  // Show lookup form if no subject
+        }
+
+        return [
+            'strings' => [
+                'page_title' => 'Investigate User: '.$subject->user_login,
+                // ... tab labels, headings
+            ],
+            'vars' => [
+                'subject' => $this->buildSubjectHeaderData($subject),
+                'summary_stats' => $this->buildSummaryStats($subject),
+                'datatables_init' => [
+                    'sessions' => (new Investigation\ForSessions())
+                        ->setSubject('user', $subject->ID)->build(),
+                    'activity' => (new Investigation\ForActivityLog())
+                        ->setSubject('user', $subject->ID)->build(),
+                    'requests' => (new Investigation\ForTraffic())
+                        ->setSubject('user', $subject->ID)->build(),
+                ],
+            ],
+            'ajax' => [
+                'table_action' => ActionData::BuildJson(
+                    InvestigationTableAction::class,
+                    ['subject_type' => 'user', 'subject_id' => $subject->ID]
+                ),
+            ],
+            'content' => [
+                'nav_rail' => $this->buildNavRailItems(),
+                // Tab panel content is loaded by DataTables AJAX, not pre-rendered
+            ],
+        ];
+    }
+
+    private function buildNavRailItems(): array {
+        // Returns array matching options_rail_tabs.twig expected shape
+        return [
+            ['target' => '#tab-sessions', 'id' => 'nav-sessions',
+             'controls' => 'tab-sessions', 'label' => 'Sessions', 'is_focus' => true],
+            ['target' => '#tab-activity', 'id' => 'nav-activity',
+             'controls' => 'tab-activity', 'label' => 'Activity', 'is_focus' => false],
+            // ...
+        ];
+    }
+}
+```
+
+#### Twig template pattern
+
+```twig
+{# investigate_by_user.twig — follows IpAnalyse container.twig pattern #}
+
+{# ── Subject Header (new reusable partial) ── #}
+{% include 'components/investigate/subject_header.twig' with {subject: vars.subject} %}
+
+{# ── Summary Stats (reuse stat_box.twig) ── #}
+<div class="row g-2 mb-3">
+    {% for stat in vars.summary_stats %}
+        <div class="col">
+            {% include 'components/events/stats/stat_box.twig' with {stat: stat} %}
+        </div>
+    {% endfor %}
+</div>
+
+{# ── Rail + Panel (reuse options_rail_tabs.twig for rail) ── #}
+<div class="shield-options-layout has-rail">
+    <div class="shield-options-rail">
+        {% include 'components/config/options_rail_tabs.twig' with {
+            nav_items: content.nav_rail
+        } %}
+    </div>
+    <div class="tab-content">
+        {# Each panel contains a DataTable container — AJAX-loaded #}
+        <div class="tab-pane active show" id="tab-sessions">
+            <table class="shield-investigation-table"
+                   data-table-config='{{ vars.datatables_init.sessions }}'
+                   data-ajax-action='{{ ajax.table_action }}'>
+            </table>
+        </div>
+        <div class="tab-pane" id="tab-activity">
+            <table class="shield-investigation-table"
+                   data-table-config='{{ vars.datatables_init.activity }}'
+                   data-ajax-action='{{ ajax.table_action }}'>
+            </table>
+        </div>
+        {# ... more tab panes #}
+    </div>
+</div>
+```
+
+#### Reusable Twig partials to create
+
+Create these shared templates that ALL investigation pages include:
+
+| Partial | File | Purpose |
+|---|---|---|
+| Subject header | `templates/twig/wpadmin/components/investigate/subject_header.twig` | Avatar + name + meta + status pills + "Change" button. Accepts `subject` data with `type`, `name`, `meta[]`, `status_pills[]`, `avatar_icon`, `change_href`. |
+| Summary stats row | Reuse existing `stats_collection.twig` | Row of 4 stat cards. Already exists. |
+| Investigation table container | `templates/twig/wpadmin/components/investigate/table_container.twig` | Wraps a `<table>` element with DataTable data attributes + panel heading + "Full Log" link. Used inside each tab pane. |
+
+### 12.4 Per-section implementation directives
+
+This section gives the implementing agent specific instructions for each part of the investigation pages. Each directive says exactly which existing component to extend or reuse and what to change.
+
+#### 12.4.1 Investigate Landing Page
+
+**Page handler:** Refactor existing `PageInvestigateLanding.php` (do NOT create a new file).
+
+**What to keep:**
+- The user resolution logic (`resolveSubject()` using `Services::WpUsers()`)
+- The IP validation logic
+- The page handler registration in `PluginNavs.php`
+
+**What to replace:**
+- The template. Replace `investigate_landing.twig` contents with the subject selector grid from the prototype.
+- The `getRenderData()` return structure. Provide: installed plugins list (from `get_plugins()`), installed themes list (from `wp_get_themes()`), and hrefs for each subject's analysis page.
+
+**No new PHP infrastructure needed.** The landing page is pure UI — it's a grid of links and forms. The dropdowns for plugins/themes are populated from WordPress core functions, not from Shield components.
+
+#### 12.4.2 Investigation tables (all subjects)
+
+**DO NOT build static HTML tables.** Every data table in every investigation tab must be a DataTable instance using the shared framework from Section 12.2. This is non-negotiable.
+
+**Why DataTables, not static tables:**
+- Sorting: Users expect to click column headers to sort.
+- Pagination: Investigation data sets can be large (hundreds of activity events).
+- Consistent rendering: `BaseBuildTableData` already formats timestamps (`getColumnContent_Date()`), IP links (`getColumnContent_LinkedIP()`), and user links (`getUserHref()`). Using these ensures every timestamp, IP, and user link looks the same and behaves the same across all tables.
+- Text search: Even without SearchPanes, the text search box with `SearchTextParser` syntax (`ip:x.x.x.x`, `user_id:42`) works.
+- AJAX loading: Tables load data on demand, not on initial page render. This keeps the page fast.
+
+**For the Activity tab specifically:**
+- The existing `BuildActivityLogTableData` already loads activity records, formats rows, and handles pagination.
+- Create `Investigation\BuildActivityLogData extends BaseInvestigationData` that:
+  1. Delegates row building to the same logic as `BuildActivityLogTableData.buildTableRowsFromRawRecords()`
+  2. Injects subject filter via `getSubjectWheres()` (e.g., `['user_id' => 42]`)
+  3. Returns `getSearchPanesDataBuilder() → null` (no SearchPanes in investigation context)
+- The column definitions come from `Investigation\ForActivityLog extends BaseInvestigationTable` which mirrors `ForActivityLog` but removes SearchPane config and optionally hides the subject column.
+
+**For the Requests/Traffic tab:**
+- Same pattern. Extend `BuildTrafficTableData`'s row-building logic via `Investigation\BuildTrafficData`.
+
+**For the Sessions tab:**
+- Same pattern. Extend `BuildSessionsTableData`'s row-building logic.
+
+**For the File Status tab (Plugin/Theme investigation):**
+- Extend `LoadFileScanResultsTableData`. Pre-set `ptg_slug` filter in `getSubjectWheres()`.
+- The action buttons (View, Repair, Delete, Ignore) are already rendered by the existing scan results table row builder — reuse that rendering logic.
+
+#### 12.4.3 Investigate User page
+
+**Page handler:** Refactor existing `PageInvestigateByUser.php`.
+
+**What to keep:**
+- `resolveSubject(string $lookup): ?WP_User` — the user resolution logic
+- `buildSessions()`, `buildActivityLogs()`, `buildRequestLogs()`, `buildRelatedIps()` — keep these methods as data providers for summary stats counts, but DO NOT use their return arrays to render static tables.
+
+**What to change:**
+- Instead of passing full data arrays to the template for static rendering, pass DataTable configuration JSON (`datatables_init`) and AJAX action data. The tables are populated by the `InvestigationTable.js` JavaScript class making AJAX calls to `InvestigationTableAction`.
+- The summary stats row uses counts from the data providers (e.g., `count($this->buildSessions($user))`) but the actual table data is loaded on demand by DataTables.
+- The IP Addresses tab is the one exception — it shows cards, not a DataTable. This tab's data is built server-side in the page handler (aggregate unique IPs from sessions + requests, sub-query counts per IP) and rendered as a card grid in Twig. Use `getColumnContent_LinkedIP()` from `BaseBuildTableData` to generate consistent IP links.
+
+**Template:** Replace the current flat vertical layout with the rail+panel layout using `options_rail_tabs.twig` for the rail (see Section 12.3).
+
+#### 12.4.4 Investigate IP page
+
+**Page handler:** Create `PageInvestigateByIp.php`.
+
+**Key directive:** This page wraps the EXISTING `IpAnalyse\Container` component. Do NOT rebuild the 5-tab analysis — it already exists and works.
+
+**What to build:**
+1. Subject header bar (using the shared `subject_header.twig` partial)
+2. Summary stats row (query counts: offenses, sessions, activity, requests for this IP)
+3. Render the existing `IpAnalyse\Container` below the header/stats:
+   ```php
+   'content' => [
+       'ip_analysis' => self::con()->action_router->render(
+           IpAnalyseContainer::class,
+           ['ip' => $ip]
+       ),
+   ],
+   ```
+
+**The entire Container component is reused as-is.** The only new code is the subject header and summary stats wrapper.
+
+#### 12.4.5 Investigate Plugin page
+
+**Page handler:** Create `PageInvestigateByPlugin.php`.
+
+**Data sources — all existing:**
+- Plugin info: `buildPluginData()` from `Scans\Results\PluginThemesBase` — provides name, slug, version, author, flags (has_update, is_vulnerable, is_abandoned, has_guard_files). Reuse this method.
+- File scan results: `LoadFileScanResultsTableData` filtered by `ptg_slug` matching plugin slug. Extend via `Investigation\BuildFileScanResultsData`.
+- Vulnerabilities: `WpVulnDb` lookup by plugin slug. Returns `VulnVO` objects. This is NOT a DataTable — it's a small card list rendered server-side in the page handler.
+- Activity: `Investigation\BuildActivityLogData` with subject filter `['plugin_slug' => $slug]`. Filter logic: match event slugs that contain the plugin identifier in their meta data.
+
+**Tabs that use DataTables:** File Status, Activity.
+**Tabs that use server-side rendering:** Overview (info table + security summary card), Vulnerabilities (card list — typically 0–3 items, not worth a DataTable).
+
+#### 12.4.6 Investigate Theme page
+
+**Share a base class with Plugin.** Create `BaseInvestigateAsset` that both `PageInvestigateByPlugin` and `PageInvestigateByTheme` extend. The base class provides:
+- Subject header rendering (accepts any asset type)
+- Overview tab structure
+- File Status tab (DataTable with `ptg_slug` filter)
+- Vulnerability tab (card list)
+- Activity tab (DataTable with asset slug filter)
+
+Theme-specific overrides:
+- `buildThemeData()` instead of `buildPluginData()`
+- Additional fields: `child_theme`, `parent_theme`
+- Theme-specific event slugs for activity filtering
+
+### 12.5 Cross-cutting implementation rules
+
+These rules apply to ALL investigation pages. Violating them creates inconsistency.
+
+1. **IP links.** Every IP address displayed anywhere in an investigation table must:
+   - Be rendered using `BaseBuildTableData::getColumnContent_LinkedIP()` (which produces a monospace-styled `<a>` link)
+   - Have CSS class `offcanvas_ip_analysis` (triggers the existing IP analysis slide-out panel)
+   - Additionally link to the full `investigate-ip` page for deep investigation
+
+2. **User links.** Every username displayed in an investigation table must:
+   - Be rendered using `BaseBuildTableData::getUserHref()` (which generates the user profile link)
+   - Link to the `investigate-user` page, not the WordPress user profile
+
+3. **Timestamps.** Every timestamp must be rendered using `BaseBuildTableData::getColumnContent_Date()` which produces both relative ("3 hours ago") and absolute ("2026-02-22 14:48:22") displays. Do not write custom timestamp formatting.
+
+4. **Status colours.** Use the existing status colour variables: `--status-good`, `--status-warning`, `--status-critical`, `--status-info`. Do not introduce new colour values.
+
+5. **Tab badges.** Count badges on rail tabs show the total record count for that subject. These counts come from the `countTotalRecords()` method in the respective `BuildInvestigation*Data` class, called during page render (not AJAX). Cache with short TTL if performance is a concern.
+
+6. **"Full Log" links.** Each investigation table tab should include a "Full Log" link that opens the corresponding full-page table (Activity Log, Traffic Log, etc.) with the subject pre-filtered. Use `SearchTextParser` syntax in the URL: e.g., `?search=user_id:42` for the activity log filtered to user 42. The full-page tables already parse this syntax.
