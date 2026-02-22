@@ -409,6 +409,26 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return [];
 	}
 
+	public function exportBuildTableRowsFromRawRecords( array $records ) :array {
+		return $this->buildTableRowsFromRawRecords( $records );
+	}
+
+	public function exportGetSearchableColumns() :array {
+		return $this->getSearchableColumns();
+	}
+
+	public function exportGetRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
+		return $this->getRecords( $wheres, $offset, $limit );
+	}
+
+	public function exportBuildWheresFromSearchParams() :array {
+		return $this->buildWheresFromSearchParams();
+	}
+
+	public function exportValidateSearchPanes( array $searchPanes ) :array {
+		return $this->validateSearchPanes( $searchPanes );
+	}
+
 	protected function buildSqlWhereForDaysSearch( array $selectedDays, string $tableAbbr, string $column = 'created_at' ) :string {
 		$splitDates = \array_map(
 			function ( $selectedDay ) use ( $tableAbbr, $column ) {

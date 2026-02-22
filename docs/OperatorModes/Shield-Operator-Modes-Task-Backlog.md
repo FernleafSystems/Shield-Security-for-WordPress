@@ -5,7 +5,7 @@ Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`
 Source plan: `Shield-Operator-Modes-Plan.md`
 Prototype references:
 - Mode selector: `docs/OperatorModes/prototype-b-hero-strip.html`
-- Investigate mode: `prototypes/investigate-mode/` (4 files: `investigate-landing.html`, `investigate-user.html`, `investigate-ip.html`, `investigate-plugin.html`)
+- Investigate mode: `docs/OperatorModes/investigate-mode/` (4 files: `investigate-landing.html`, `investigate-user.html`, `investigate-ip.html`, `investigate-plugin.html`)
 
 ## 1) Objective And Scope Controls
 
@@ -185,7 +185,7 @@ These were delivered after P4 and before P5 cleanup:
 | P4 | ✅ Complete | Two-state sidebar implemented (`buildModeSelector`, `buildModeNav`, mode selector fallback) plus WP submenu and breadcrumbs. |
 | P4.5 | ✅ Complete | Configure-grade shortcut and back-link styling delivered (OM-410/OM-411). |
 | P5 | ✅ Complete | Legacy Simple/Advanced toggle artifacts removed (runtime + source + tests). |
-| P6-FOUND | ❌ Not started | **Shared Investigation Table Framework** — `BaseInvestigationTable`, `BaseInvestigationData`, `InvestigationTable.js`, shared Twig partials. MUST complete before P6a–f. See Plan Section 12.2. |
+| P6-FOUND | ✅ Complete | **Shared Investigation Table Framework** implemented: `BaseInvestigationTable`, `BaseInvestigationData`, investigation Build/LoadData child classes, `InvestigationTable.js`, `InvestigationTableAction`, and shared Twig partials. |
 | P6a | ⚠ Partially complete | Landing route/page exists but does not yet match Section 12 architecture/prototype requirements. |
 | P6b | ⚠ Partially complete | By-user route/page exists, but implementation still uses static HTML tables and must be refactored to shared investigation DataTables. |
 | P6c | ❌ Not started | Investigate IP — wraps IpAnalyse\Container with subject header. Prototype: `investigate-ip.html`. |
@@ -194,37 +194,23 @@ These were delivered after P4 and before P5 cleanup:
 | P6f | ❌ Not started | Cross-subject linking (IP↔User↔Plugin). |
 | P7+ | ❌ Not started | Configure/Reports deepening, WP dashboard widget. |
 
-## 7) Next Slice: P6 Foundation Completion (OM-600a–OM-600g)
+## 7) Next Slice: P6 Integration Completion (OM-601/OM-611+)
 
-Start strictly with:
-1. OM-600a — `BaseInvestigationTable`
-2. OM-600b — `BaseInvestigationData`
-3. OM-600c — Investigation Build child classes
-4. OM-600d — Investigation LoadData child classes
-5. OM-600e — `InvestigationTable.js`
-6. OM-600f — `InvestigationTableAction`
-7. OM-600g — Shared investigate Twig partials
+P6 foundation (`OM-600a` to `OM-600g`) is complete in code:
+1. Investigation Build/LoadData base classes and child classes exist for Activity, Traffic, Sessions, and File Scan Results.
+2. `InvestigationTable.js` exists and is bootstrapped.
+3. `InvestigationTableAction` exists and routes by `table_type` + `subject_type` + `subject_id`.
+4. Shared investigate partials (`subject_header.twig`, `table_container.twig`) exist.
 
-These foundational changes span PHP Build/LoadData, JS table wiring, and Twig component templates.
+Next execution focus:
+1. OM-601 to OM-604: complete investigate landing implementation alignment to Section 12 architecture/prototypes.
+2. OM-611 to OM-616: refactor investigate-by-user tabs from static rendering to shared investigation DataTables.
+3. Continue with P6c+ once OM-601/OM-611 integration is complete.
 
-Definition of done:
-1. `src/Tables/DataTables/Build/Investigation/BaseInvestigationTable.php` exists with subject contract and default no-SearchPanes behavior.
-2. `src/Tables/DataTables/LoadData/Investigation/BaseInvestigationData.php` exists and injects subject wheres while reusing base rendering helpers.
-3. Investigation table Build/LoadData child classes exist for Activity, Traffic, Sessions, and File Scan Results.
-4. `assets/js/components/tables/InvestigationTable.js` exists and is wired for investigation table defaults (`dom: 'frtip'`, page length 15, no select).
-5. `src/ActionRouter/Actions/InvestigationTableAction.php` routes table requests by `table_type` + subject context.
-6. `templates/twig/wpadmin/components/investigate/subject_header.twig` and `templates/twig/wpadmin/components/investigate/table_container.twig` exist and are reusable.
-7. No new static-table rendering is introduced for investigation tabs.
-
-Before coding:
-1. Read plan Section 12.2 in full before writing table code.
-2. Read plan Section 12.4.2 for strict rule: no static HTML investigation tables.
-3. Review existing full-page DataTable classes to mirror their row-building paths.
-
-After coding:
-1. Manual verification: wire one investigation tab using the new framework and verify server-side pagination/search/filter behavior.
-2. Confirm no PHPCS run is required for this slice.
-3. Confirm no unrelated files are modified.
+Verification targets for next slice:
+1. At least one investigate tab rendered through `table_container.twig` with `data-investigation-table="1"`.
+2. Search/filter/pagination for that tab round-trips through `InvestigationTableAction`.
+3. No new static HTML tables are introduced.
 
 ## 8) Tracking Format
 
@@ -259,13 +245,13 @@ Validation notes:
 ## 10) P6 — Investigate Mode Implementation
 
 **Date added:** 2026-02-22
-**Prototype reference:** `prototypes/investigate-mode/` (4 interactive HTML files)
+**Prototype reference:** `docs/OperatorModes/investigate-mode/` (4 interactive HTML files)
 **Plan reference:** Section 11 (UI Spec) + Section 12 (Implementation Architecture) of `Shield-Operator-Modes-Plan.md`
 
 **Before starting ANY task in this section, implementors MUST:**
 1. Read **Section 12 of the plan document** in full — it maps every reusable component in the plugin and gives explicit directives on what to extend vs. create
 2. Read **Section 11** for UI specifications, tab definitions, and data sources
-3. Open and review ALL prototype HTML files in `prototypes/investigate-mode/` in a browser
+3. Open and review ALL prototype HTML files in `docs/OperatorModes/investigate-mode/` in a browser
 4. Read the existing classes listed in Section 12.1's component inventory — understand the class hierarchy before writing code
 
 **Guiding principles:**
@@ -277,13 +263,15 @@ Validation notes:
 
 > **This phase MUST be completed before ANY tab implementation (OM-611+).** It creates the shared infrastructure all investigation tables depend on. See Plan Section 12.2 for full specification.
 
+**Implementation status (2026-02-22):** ✅ Complete in code. Foundation classes/actions/JS/partials are present; remaining work is integration into tab pages (OM-611+).
+
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
 | OM-600a | Create `BaseInvestigationTable` (Build layer) | `src/Tables/DataTables/Build/Investigation/BaseInvestigationTable.php` | P4 complete | Extends `Build\Base`. Adds `$subjectType`/`$subjectId` properties and `setSubject()` setter. Overrides `getSearchPanesData()` → returns `[]` (no SearchPanes by default). Adds `getSubjectFilterColumns(): array` method — columns to hide because they're redundant for the subject (e.g., user column when investigating a user). `getColumnsToDisplay()` calls parent then removes subject filter columns. See Plan Section 12.2 for pseudocode. |
-| OM-600b | Create `BaseInvestigationData` (LoadData layer) | `src/Tables/DataTables/LoadData/Investigation/BaseInvestigationData.php` | OM-600a | Extends `BaseBuildTableData`. Adds `$subjectType`/`$subjectId` properties. Overrides `buildWheresFromSearchParams()` to always inject subject filter via abstract `getSubjectWheres(): array`. Returns `null` from `getSearchPanesDataBuilder()`. Child classes implement `getSubjectWheres()` for their specific subject type. **Critical:** inherits `getColumnContent_Date()`, `getColumnContent_LinkedIP()`, `getUserHref()` from parent — these are the shared rendering utilities for timestamps, IPs, and user links. |
+| OM-600b | Create `BaseInvestigationData` (LoadData layer) | `src/Tables/DataTables/LoadData/Investigation/BaseInvestigationData.php` | OM-600a | Extends `BaseBuildTableData`. Adds `$subjectType`/`$subjectId` properties. Overrides `buildWheresFromSearchParams()` to always inject subject filter via abstract `getSubjectWheres(): array`. Keeps strict `getSearchPanesDataBuilder()` return contracts and disables SearchPanes in investigation context via empty-array behavior. Child classes implement `getSubjectWheres()` for their specific subject type. **Critical:** inherits `getColumnContent_Date()`, `getColumnContent_LinkedIP()`, `getUserHref()` from parent — these are the shared rendering utilities for timestamps, IPs, and user links. |
 | OM-600c | Create investigation-specific Build children | `src/Tables/DataTables/Build/Investigation/ForActivityLog.php`, `ForTraffic.php`, `ForSessions.php`, `ForFileScanResults.php` | OM-600a | Each extends `BaseInvestigationTable`. Column definitions mirror their parent full-page equivalents (`Build\ForActivityLog`, `Build\ForTraffic`, `Build\ForSessions`, `Build\Scans\ForPluginTheme`) but with SearchPanes disabled and subject-redundant columns removed. **Reuse** column definitions from the parent classes — copy the `getColumnDefs()` return value and adjust, or call `parent::getColumnDefs()` and filter. |
 | OM-600d | Create investigation-specific LoadData children | `src/Tables/DataTables/LoadData/Investigation/BuildActivityLogData.php`, `BuildTrafficData.php`, `BuildSessionsData.php`, `BuildFileScanResultsData.php` | OM-600b | Each extends `BaseInvestigationData`. Implements `getSubjectWheres()` for its subject type. **Delegates row building** to the same logic as the corresponding full-page loader (e.g., `BuildActivityLogTableData::buildTableRowsFromRawRecords()`). Option: extract row-building into a trait or call a shared static method so both the full-page loader and investigation loader share the same row rendering code. |
-| OM-600e | Create `InvestigationTable.js` | `assets/js/components/tables/InvestigationTable.js` | OM-600a | Extends `ShieldTableBase`. Overrides `getDefaultDatatableConfig()`: `dom: 'frtip'` (text search + table + info + pagination — no SearchPanes, no buttons), `pageLength: 15`, `select: false`. Adds `subjectFilter` init parameter passed with every AJAX request. **One JS class for all investigation tables** — a change here applies everywhere. |
+| OM-600e | Create `InvestigationTable.js` | `assets/js/components/tables/InvestigationTable.js` | OM-600a | Extends `ShieldTableBase`. Overrides `getDefaultDatatableConfig()`: `dom: 'frtip'` (text search + table + info + pagination — no SearchPanes, no buttons), `pageLength: 15`, `select: false`. Passes `table_type`, `subject_type`, and `subject_id` with every AJAX request. **One JS class for all investigation tables** — a change here applies everywhere. |
 | OM-600f | Create `InvestigationTableAction` AJAX handler | `src/ActionRouter/Actions/InvestigationTableAction.php` | OM-600d | Handles `retrieve_table_data` sub-action. Receives `subject_type`, `subject_id`, and `table_type` in action data. Routes to the correct `BuildInvestigation*Data` class. Pattern: mirror existing `ActivityLogTableAction` but dispatches based on `table_type` parameter. |
 | OM-600g | Create shared Twig partials | `templates/twig/wpadmin/components/investigate/subject_header.twig`, `templates/twig/wpadmin/components/investigate/table_container.twig` | None | `subject_header.twig`: Reusable subject header bar (avatar, name, meta, status pills, "Change" button). Accepts `subject` data object. `table_container.twig`: Wraps a DataTable `<table>` element with config data attributes + panel heading + optional "Full Log" link. Used inside every tab pane. |
 
@@ -291,8 +279,8 @@ Validation notes:
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-601 | **Refactor** existing `PageInvestigateLanding` with subject selector grid | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig` | P4 complete | **Do NOT create a new file.** Refactor the existing `PageInvestigateLanding.php` — keep the user resolution logic (`resolveSubject()` using `Services::WpUsers()`) and IP validation. Replace the template with subject selector grid from `investigate-landing.html` prototype. `getRenderData()` provides: installed plugins list (from `get_plugins()`), installed themes list (from `wp_get_themes()`), hrefs for each subject page. See Plan Section 12.4.1. |
-| OM-602 | Implement lookup panels with autocomplete/dropdown | Same as OM-601 + JS | OM-601 | Users: text input + form submit (same as current user lookup — reuse `resolveSubject()` logic). IPs: text input with validation (same as current IP lookup). Plugins: `<select>` from `get_plugins()`. Themes: `<select>` from `wp_get_themes()`. WP Core/Requests/Activity: direct link buttons. No new AJAX endpoints needed — lookups are form submissions. |
+| OM-601 | **Refactor** existing `PageInvestigateLanding` with subject selector grid | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig` | P4 complete | **Do NOT create a new file.** Refactor the existing `PageInvestigateLanding.php` — keep the current user lookup resolution flow (`ResolveUserLookup::resolve()` usage) and IP validation. Replace the template with subject selector grid from `investigate-landing.html` prototype. `getRenderData()` provides: installed plugins list (from `get_plugins()`), installed themes list (from `wp_get_themes()`), hrefs for each subject page. See Plan Section 12.4.1. |
+| OM-602 | Implement lookup panels with autocomplete/dropdown | Same as OM-601 + JS | OM-601 | Users: text input + form submit (same as current user lookup — reuse current `ResolveUserLookup` flow). IPs: text input with validation (same as current IP lookup). Plugins: `<select>` from `get_plugins()`. Themes: `<select>` from `wp_get_themes()`. WP Core/Requests/Activity: direct link buttons. No new AJAX endpoints needed — lookups are form submissions. |
 | OM-603 | Add quick-tools strip below lookup panels | Same as OM-601 | OM-601 | 4 pill-links: Activity Log → existing `PageActivityLogTable`, HTTP Requests → existing `PageTrafficLogTable`, Live Traffic → existing `PageTrafficLogLive`, IP Rules → existing `PageIpRulesTable`. Use existing URL generation via `PluginNavs` href helpers. |
 | OM-604 | Register NAV constants for investigation sub-navs | `src/Controller/Plugin/PluginNavs.php` | OM-601 | Add constants and register page handlers. Note: some of these may already exist (check `SUBNAV_ACTIVITY_BY_USER`, etc. in current `PluginNavs.php`). Register new page handlers in `GetNavHierarchy()`. |
 
@@ -300,8 +288,8 @@ Validation notes:
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-611 | **Refactor** existing `PageInvestigateByUser` with rail+panel layout | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig` | OM-604, **OM-600a–f** | **Do NOT create a new file.** Refactor the existing `PageInvestigateByUser.php`. **Keep:** `resolveSubject()`, `buildSessions()`, `buildActivityLogs()`, `buildRequestLogs()`, `buildRelatedIps()` — use these for summary stat counts. **Replace:** template with rail+panel layout using `options_rail_tabs.twig` for the rail (see Plan Section 12.3). **Wire tabs** through the shared DataTable framework — pass `datatables_init` JSON from `Investigation\ForSessions`, `Investigation\ForActivityLog`, `Investigation\ForTraffic` and AJAX action data from `InvestigationTableAction`. Tables are AJAX-loaded by `InvestigationTable.js`, not rendered as static HTML. See Plan Section 12.4.3. |
-| OM-612 | Add `FindSessions::byUser(int $userId)` method | `src/Modules/Sessions/Lib/FindSessions.php` | None | New method mirroring existing `byIP()` pattern. Returns sessions for a given user ID. Used by Sessions investigation DataTable and for summary stat counts. |
+| OM-611 | **Refactor** existing `PageInvestigateByUser` with rail+panel layout | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig` | OM-604, **OM-600a–f** | **Do NOT create a new file.** Refactor the existing `PageInvestigateByUser.php`. **Keep:** current lookup resolution flow and `buildSessions()`, `buildActivityLogs()`, `buildRequestLogs()`, `buildRelatedIps()` — use these for summary stat counts. **Replace:** template with rail+panel layout using `options_rail_tabs.twig` for the rail (see Plan Section 12.3). **Wire tabs** through the shared DataTable framework — pass `datatables_init` JSON from `Investigation\ForSessions`, `Investigation\ForActivityLog`, `Investigation\ForTraffic` and AJAX action data from `InvestigationTableAction`. Tables are AJAX-loaded by `InvestigationTable.js`, not rendered as static HTML. See Plan Section 12.4.3. |
+| OM-612 | Validate and use `FindSessions::byUser(int $userId)` method | `src/Modules/UserManagement/Lib/Session/FindSessions.php` | None | Confirm existing method behavior remains aligned with `byIP()` pattern and use it for Sessions investigation DataTable and summary stat counts. |
 | OM-613 | Wire Sessions tab through investigation DataTable | `Investigation\ForSessions`, `Investigation\BuildSessionsData` | **OM-600c, OM-600d**, OM-612 | Sessions tab uses `Investigation\ForSessions` (column config) + `Investigation\BuildSessionsData` (data loading with `getSubjectWheres() → ['user_id' => $uid]`). Row building **reuses** existing `BuildSessionsTableData::buildTableRowsFromRawRecords()` logic. Columns: Login, Last Active, Logged In, IP Address (via `getColumnContent_LinkedIP()`), Sec Admin. No 'user' column (redundant — it's the investigation subject). |
 | OM-614 | Wire Activity tab through investigation DataTable | `Investigation\ForActivityLog`, `Investigation\BuildActivityLogData` | **OM-600c, OM-600d** | Activity tab uses `Investigation\ForActivityLog` + `Investigation\BuildActivityLogData` with `getSubjectWheres() → ['user_id' => $uid]`. Row building **reuses** `BuildActivityLogTableData::buildTableRowsFromRawRecords()`. Timestamps via `getColumnContent_Date()`, IPs via `getColumnContent_LinkedIP()`. "Full Log" link → Activity Log page with `?search=user_id:{uid}` pre-filter. |
 | OM-615 | Wire Requests tab through investigation DataTable | `Investigation\ForTraffic`, `Investigation\BuildTrafficData` | **OM-600c, OM-600d** | Same pattern. Subject filter: `['uid' => $uid]`. Row building reuses `BuildTrafficTableData` logic. "Full Log" link → Traffic Log with `?search=user_id:{uid}`. |

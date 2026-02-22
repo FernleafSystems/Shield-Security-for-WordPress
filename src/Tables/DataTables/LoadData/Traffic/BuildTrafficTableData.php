@@ -155,6 +155,10 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		return new LoadRequestLogs();
 	}
 
+	public function exportGetRecordsLoader() :LoadRequestLogs {
+		return $this->getRecordsLoader();
+	}
+
 	protected function getSearchableColumns() :array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(

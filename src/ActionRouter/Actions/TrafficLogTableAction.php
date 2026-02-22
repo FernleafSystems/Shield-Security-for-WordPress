@@ -4,37 +4,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Traffic\BuildTrafficTableData;
 
-class TrafficLogTableAction extends BaseAction {
+class TrafficLogTableAction extends TableActionBase {
 
 	public const SLUG = 'traffictable_action';
 
-	protected function exec() {
-		try {
-			$action = $this->action_data[ 'sub_action' ];
-			switch ( $action ) {
-				case 'retrieve_table_data':
-					$response = $this->retrieveTableData();
-					break;
-				default:
-					throw new \Exception( 'Not a supported Traffic Log table sub_action: '.$action );
-			}
-		}
-		catch ( \Exception $e ) {
-			$response = [
-				'success'     => false,
-				'page_reload' => true,
-				'message'     => $e->getMessage(),
-			];
-		}
-		$this->response()->action_response_data = $response;
+	protected function getSubActionHandlers() :array {
+		return [
+			self::SUB_ACTION_RETRIEVE_TABLE_DATA => fn() => $this->retrieveTableData(),
+		];
 	}
 
-	private function retrieveTableData() :array {
-		$builder = new BuildTrafficTableData();
-		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
-		return [
-			'success'        => true,
-			'datatable_data' => $builder->build(),
-		];
+	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
+		return $this->buildUnsupportedSubActionMessage( 'Traffic Log', $subAction );
+	}
+
+	protected function retrieveTableData() :array {
+		return $this->buildRetrieveTableDataResponse( new BuildTrafficTableData() );
 	}
 }

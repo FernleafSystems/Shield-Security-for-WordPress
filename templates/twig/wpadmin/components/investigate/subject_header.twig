@@ -1,0 +1,52 @@
+{% set subject_status = subject.status|default('info') %}
+{% set subject_title = subject.title|default(subject.name|default('')) %}
+{% set status_badge_classes = {
+	'good': 'badge text-bg-success',
+	'warning': 'badge text-bg-warning',
+	'critical': 'badge text-bg-danger',
+	'info': 'badge text-bg-info'
+} %}
+
+<section class="card shield-card mb-3 status-{{ subject_status }}">
+	<div class="shield-card-accent status-{{ subject_status }}"></div>
+	<div class="card-body">
+		<div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3">
+			<div class="d-flex align-items-start gap-3">
+				<div class="rounded-circle border d-inline-flex align-items-center justify-content-center"
+					 style="width: 52px; height: 52px;">
+					{% if subject.avatar_icon|default('') is not empty %}
+						<i class="{{ subject.avatar_icon }}" aria-hidden="true"></i>
+					{% else %}
+						<span class="fw-semibold">{{ subject.avatar_text|default('?') }}</span>
+					{% endif %}
+				</div>
+				<div>
+					<h5 class="card-title mb-2">{{ subject_title }}</h5>
+					{% if subject.meta|default([]) is not empty %}
+						<div class="small">
+							{% for item in subject.meta %}
+								<div>
+									{% if item.label|default('') is not empty %}<strong>{{ item.label }}:</strong> {% endif %}{{ item.value|default('') }}
+								</div>
+							{% endfor %}
+						</div>
+					{% endif %}
+				</div>
+			</div>
+
+			<div class="d-flex flex-wrap justify-content-lg-end align-items-center gap-2">
+				{% for pill in subject.status_pills|default([]) %}
+					{% set pill_status = pill.status|default('info') %}
+					<span class="{{ status_badge_classes[pill_status]|default('badge text-bg-secondary') }}">{{ pill.label|default('') }}</span>
+				{% endfor %}
+
+				{% if subject.change_link_html|default('') is not empty %}
+					{{ subject.change_link_html|raw }}
+				{% elseif subject.change_href|default('') is not empty %}
+					<a href="{{ subject.change_href }}" class="btn btn-outline-secondary btn-sm">{{ subject.change_text|default('Change') }}</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</section>
+

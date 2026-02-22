@@ -439,7 +439,7 @@ The current plugin offers raw log views (Activity, Traffic, IP Rules, Sessions).
 | Traffic Log | `PageTrafficLogTable` | DataTable with filters. Request data: path, verb, response code, IP, timestamps. |
 | Live Log | `PageTrafficLogLive` | Real-time HTTP request stream. |
 | IP Analysis | `IpAnalyse\Container` | 5-tab deep dive on a single IP: General, Bot Signals, Sessions, Activity, Traffic. Already built. |
-| User Sessions | `PageUserSessions` | Session list. `FindSessions` class supports `byIP()` and `mostRecent()`. |
+| User Sessions | `PageUserSessions` | Session list. `FindSessions` class supports `byIP()`, `byUser()`, and `mostRecent()`. |
 
 ### What needs building (investigation selectors)
 
@@ -465,7 +465,7 @@ Three new investigation entry points that wire existing data with a subject filt
 - `BaseBuildTableData` already provides utility methods for rendering timestamps (`getColumnContent_Date()`), IP links (`getColumnContent_LinkedIP()`), and user links (`getUserHref()`). All investigation tables must use these — see Section 12.5 cross-cutting rules.
 - `LoadLogs` already supports `wheres[]` for flexible filtering — adding user/IP/plugin filters is additive SQL via the investigation `BaseInvestigationData` class (Section 12.2).
 - `IpAnalyse\Container` is already a complete IP investigation tool — just needs a subject header wrapper.
-- `FindSessions::byIP()` exists. A `byUser()` variant would query directly by user ID.
+- `FindSessions::byIP()` and `FindSessions::byUser()` already exist for subject-specific session queries.
 - `SearchTextParser` already parses `ip:x.x.x.x`, `user_id:42`, `user_name:admin` syntax — investigation tables reuse this.
 
 ### Minimum viable Investigate mode for release
@@ -580,9 +580,9 @@ The Actions Queue landing page is primarily a composition of existing components
 
 ### Step 6: Investigate Mode
 
-**Status (2026-02-22):** In progress, partially delivered and reopened for completion. `PageInvestigateLanding.php` and `PageInvestigateByUser.php` exist, but the shared investigation DataTable foundation (Section 12.2) is not implemented yet, and current user investigation rendering still relies on static tables that must be refactored.
+**Status (2026-02-22):** In progress, partially delivered. Shared investigation DataTable foundation (Section 12.2) is implemented (`BaseInvestigationTable`, `BaseInvestigationData`, investigation Build/LoadData child classes, `InvestigationTable.js`, `InvestigationTableAction`, shared investigate partials). `PageInvestigateLanding.php` and `PageInvestigateByUser.php` still require integration completion to replace current static table rendering in user investigation tabs.
 
-**Prototype reference:** Implementors MUST review the HTML prototypes in `prototypes/investigate-mode/` before building. These define the exact visual layout, data columns, tab structure, and cross-linking patterns. See Section 11 for detailed specifications.
+**Prototype reference:** Implementors MUST review the HTML prototypes in `docs/OperatorModes/investigate-mode/` before building. These define the exact visual layout, data columns, tab structure, and cross-linking patterns. See Section 11 for detailed specifications.
 
 **Create/Refactor:**
 
@@ -600,12 +600,12 @@ The Actions Queue landing page is primarily a composition of existing components
 
 **Modify:**
 - `LoadLogs` — add convenience method for filtering by user ID, by IP, by plugin slug (event meta)
-- `FindSessions` — add `byUser(int $userId)` method (mirrors existing `byIP()`)
+- `FindSessions` — use/validate existing `byUser(int $userId)` method (mirrors existing `byIP()`)
 - `PluginNavs.php` — add NAV constants for By User, By IP, By Plugin sub-navs under `NAV_ACTIVITY`
 
 **Implementation order:** P6-FOUNDATION (shared table framework) → Landing → By User → By IP → By Plugin → By Theme → WordPress Core. See Section 11.9.
 
-**Critical prerequisite:** Before building ANY investigation tab, the shared investigation DataTable framework (Section 12.2) must be built. This includes `BaseInvestigationTable`, `BaseInvestigationData`, `InvestigationTable.js`, and the shared Twig partials. See Section 12 for the full implementation architecture, component inventory, and per-section directives.
+**Critical prerequisite:** The shared investigation DataTable framework (Section 12.2) is now built. All remaining investigation tab work should consume this framework (`BaseInvestigationTable`, `BaseInvestigationData`, `InvestigationTable.js`, `InvestigationTableAction`, shared Twig partials) rather than introducing new table pipelines.
 
 ### Step 7: Configure & Reports Modes
 
@@ -685,13 +685,13 @@ Mostly sidebar reorganisation of existing pages. The actual configuration and re
 
 ## 11. UI Specification — Investigate Mode
 
-> **Prototypes:** `prototypes/investigate-mode/` — open these HTML files in a browser for interactive reference.
+> **Prototypes:** `docs/OperatorModes/investigate-mode/` — open these HTML files in a browser for interactive reference.
 
 This section defines the visual patterns, data layout, and component structure for the Investigate operator mode. Once the Investigate mode is implemented and validated, the same structural patterns (subject header, summary stats, rail+panel layout) will be adapted for Configure and Reports landing pages.
 
 ### 11.1 Design tokens (reference)
 
-All prototypes and implementations use these CSS custom properties. They match the existing Shield SCSS variables documented in `CSS-README.md`.
+All prototypes and implementations use these CSS custom properties. They match the existing Shield SCSS variables documented in `assets/css/README.md`.
 
 ```
 --status-good:      #008000    (green — safe, active, clean)
@@ -902,7 +902,7 @@ This page wraps the existing `IpAnalyse\Container` with the standardised subject
 ### 11.9 Implementation order for Investigate mode
 
 1. **Investigate Landing Page** — subject selector grid + lookup panels. Create `PageInvestigateLanding.php` rendering the subject grid. Each subject card links to its analysis page or existing log page.
-2. **Investigate User** — highest value, most complex. Create `PageInvestigateByUser.php` with rail+panel layout. Uses `FindSessions::byUser()` (new), `LoadLogs` filtered by user_id, `LoadRequestLogs` filtered by uid.
+2. **Investigate User** — highest value, most complex. Create `PageInvestigateByUser.php` with rail+panel layout. Uses `FindSessions::byUser()`, `LoadLogs` filtered by user_id, `LoadRequestLogs` filtered by uid.
 3. **Investigate IP** — wraps existing `IpAnalyse\Container`. Create `PageInvestigateByIp.php` that adds subject-header + summary stats above the existing container.
 4. **Investigate Plugin** — Create `PageInvestigateByPlugin.php`. Uses `buildPluginData()`, `LoadFileScanResultsTableData` (filtered by ptg_slug), `WpVulnDb` lookup, `LoadLogs` (filtered by plugin events).
 5. **Investigate Theme** — Near-identical to Plugin. Can share a base class.
@@ -954,9 +954,9 @@ The plugin has a mature, battle-tested component architecture. The table below i
 | Component | File | Purpose | Extend or Reuse? |
 |---|---|---|---|
 | `BaseBuildTableData` | `src/Tables/DataTables/LoadData/BaseBuildTableData.php` | Abstract base for server-side DataTable data loading. Handles pagination, search text parsing, SearchPane validation, record counting, row building. Provides utility methods: `getColumnContent_Date()`, `getColumnContent_LinkedIP()`, `getUserHref()`. | **Extend.** All investigation data loaders extend this. The utility methods (`getColumnContent_LinkedIP()`, `getUserHref()`) are essential for cross-subject linking — reuse them, do not rewrite IP/user link generation. |
-| `ActivityLog\BuildActivityLogTableData` | `src/Tables/DataTables/LoadData/ActivityLog/BuildActivityLogTableData.php` | Loads activity log records with full search, pagination, SearchPanes. Builds rows from `ActivityLogs` DB. | **Extend.** Create `BuildInvestigationActivityLogData` that accepts a pre-set `$subjectFilter` (e.g. `['user_id' => 42]` or `['ip' => '1.2.3.4']` or `['plugin_slug' => 'woocommerce']`). Override `buildWheresFromSearchParams()` to inject the subject filter into every query. Disable or simplify SearchPanes. |
+| `ActivityLog\BuildActivityLogTableData` | `src/Tables/DataTables/LoadData/ActivityLog/BuildActivityLogTableData.php` | Loads activity log records with full search, pagination, SearchPanes. Builds rows from `ActivityLogs` DB. | **Extend.** Create `BuildInvestigationActivityLogData` that receives subject context via the locked investigation contract (`table_type`, `subject_type`, `subject_id`) and injects subject WHERE constraints in `buildWheresFromSearchParams()`. Disable or simplify SearchPanes. |
 | `Traffic\BuildTrafficTableData` | `src/Tables/DataTables/LoadData/Traffic/BuildTrafficTableData.php` | Loads traffic log records. | **Extend.** Same pattern as activity log — create `BuildInvestigationTrafficData` with pre-set subject filter. |
-| `Sessions\BuildSessionsTableData` | `src/Tables/DataTables/LoadData/Sessions/BuildSessionsTableData.php` | Loads session records. | **Extend.** Create `BuildInvestigationSessionsData` with subject filter (user_id or IP). |
+| `Sessions\BuildSessionsTableData` | `src/Tables/DataTables/LoadData/Sessions/BuildSessionsTableData.php` | Loads session records. | **Extend.** Create `BuildInvestigationSessionsData` with user-only subject filtering (`user_id`). |
 | `Scans\LoadFileScanResultsTableData` | `src/Tables/DataTables/LoadData/Scans/LoadFileScanResultsTableData.php` | Loads file scan results. Filters by `ptg_slug` meta, `is_in_core` meta, etc. | **Extend.** Create `BuildInvestigationFileScanData` with pre-set `ptg_slug` filter for plugin/theme investigation. |
 | `SearchTextParser` | `src/Tables/DataTables/LoadData/SearchTextParser.php` | Parses structured search syntax (`ip:x.x.x.x`, `user_id:42`, `user_name:admin`). | **Reuse as-is.** Investigation tables should support the same search syntax within their context. |
 
@@ -1045,7 +1045,7 @@ assets/js/components/tables/
 //   - Overrides buildWheresFromSearchParams() to always inject subject filter
 //   - Provides getSubjectWheres(): array — returns the SQL WHERE clauses
 //     that filter all records to the current investigation subject
-//   - Overrides getSearchPanesDataBuilder() to return null (no SearchPanes)
+//   - Keeps strict getSearchPanesDataBuilder() return types and disables SearchPanes using empty-array behavior
 //   - Child classes override getSubjectWheres() for their specific subject:
 //       user → ['user_id' => $uid]
 //       ip → ['ip' => $ip]
@@ -1057,15 +1057,13 @@ assets/js/components/tables/
 ```javascript
 // Extends ShieldTableBase
 // Overrides getDefaultDatatableConfig():
-//   - dom: 'rtip'  (removes SearchPanes 'P', buttons 'B', search builder 'r')
-//     or 'frtip' if we want the text search box ('f')
+//   - dom: 'frtip'  (text search + table + info + pagination; no SearchPanes/buttons)
 //   - serverSide: true (same as parent)
 //   - pageLength: 15 (smaller for embedded tabs)
 //   - select: false (no multi-select)
 //   - searching: true (text search still works, just no SearchPanes)
-//   - Adds custom init parameter: subjectFilter: {type, id}
-//     passed to the server with every AJAX request so the server
-//     always filters by the investigation subject
+//   - Passes table_type, subject_type, and subject_id with every AJAX request
+//     so the server always filters by the investigation subject
 ```
 
 #### Why this approach works
@@ -1089,7 +1087,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
     const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_user.twig';
 
     protected function getRenderData(): array {
-        $subject = $this->resolveSubject();  // Resolve from query params
+        $subject = $this->resolveLookupSubject();  // Resolve from query params
         if (empty($subject)) {
             return $this->buildLookupOnlyView();  // Show lookup form if no subject
         }
@@ -1199,7 +1197,7 @@ This section gives the implementing agent specific instructions for each part of
 **Page handler:** Refactor existing `PageInvestigateLanding.php` (do NOT create a new file).
 
 **What to keep:**
-- The user resolution logic (`resolveSubject()` using `Services::WpUsers()`)
+- The current user lookup resolution logic (for example `ResolveUserLookup::resolve()` flow)
 - The IP validation logic
 - The page handler registration in `PluginNavs.php`
 
@@ -1225,7 +1223,7 @@ This section gives the implementing agent specific instructions for each part of
 - Create `Investigation\BuildActivityLogData extends BaseInvestigationData` that:
   1. Delegates row building to the same logic as `BuildActivityLogTableData.buildTableRowsFromRawRecords()`
   2. Injects subject filter via `getSubjectWheres()` (e.g., `['user_id' => 42]`)
-  3. Returns `getSearchPanesDataBuilder() → null` (no SearchPanes in investigation context)
+  3. Keeps strict `getSearchPanesDataBuilder()` contracts and disables SearchPanes in investigation context via empty-array behavior
 - The column definitions come from `Investigation\ForActivityLog extends BaseInvestigationTable` which mirrors `ForActivityLog` but removes SearchPane config and optionally hides the subject column.
 
 **For the Requests/Traffic tab:**
@@ -1243,7 +1241,7 @@ This section gives the implementing agent specific instructions for each part of
 **Page handler:** Refactor existing `PageInvestigateByUser.php`.
 
 **What to keep:**
-- `resolveSubject(string $lookup): ?WP_User` — the user resolution logic
+- The current subject lookup resolution flow for user input (returns `?WP_User` when valid)
 - `buildSessions()`, `buildActivityLogs()`, `buildRequestLogs()`, `buildRelatedIps()` — keep these methods as data providers for summary stats counts, but DO NOT use their return arrays to render static tables.
 
 **What to change:**

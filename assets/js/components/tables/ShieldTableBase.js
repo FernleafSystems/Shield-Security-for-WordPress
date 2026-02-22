@@ -55,21 +55,21 @@ export class ShieldTableBase extends BaseComponent {
 		.unbind() // Unbind previous default bindings
 		.bind(
 			'input',
-			( delay( ( e ) => { // Bind our desired behavior
+			( this.buildDelayedCallback( ( e ) => { // Bind our desired behavior
 				this.$table.search( e.currentTarget.value ).draw();
 			}, 800 ) )
 		); // Set delay in milliseconds
+	}
 
-		function delay( callback, ms ) {
-			let timer = 0;
-			return function () {
-				let context = this, args = arguments;
-				clearTimeout( timer );
-				timer = setTimeout( function () {
-					callback.apply( context, args );
-				}, ms || 0 );
-			};
-		}
+	buildDelayedCallback( callback, ms ) {
+		let timer = 0;
+		return function () {
+			let context = this, args = arguments;
+			clearTimeout( timer );
+			timer = setTimeout( function () {
+				callback.apply( context, args );
+			}, ms || 0 );
+		};
 	}
 
 	buildDatatableConfig() {

@@ -171,6 +171,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		return $loader;
 	}
 
+	public function exportGetRecordsLoader() :LoadLogs {
+		return $this->getRecordsLoader();
+	}
+
 	private function buildSqlWhereForEventTextSearch() :string {
 		if ( !$this->eventTextSearchComputed ) {
 			$this->eventTextSearchComputed = true;

@@ -93,4 +93,16 @@ abstract class Base {
 		}
 		return $col;
 	}
+
+	public function exportColumnDefs() :array {
+		return $this->getColumnDefs();
+	}
+
+	public function exportColumnsToDisplay() :array {
+		return $this->getColumnsToDisplay();
+	}
+
+	public function exportOrderColumnSlug() :string {
+		return $this->getOrderColumnSlug();
+	}
 }

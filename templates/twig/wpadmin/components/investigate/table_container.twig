@@ -1,0 +1,30 @@
+{% set panel_status = table.status|default('info') %}
+{% set datatables_init_attr = table.datatables_init is iterable ? table.datatables_init|json_encode : table.datatables_init|default('') %}
+{% set table_action_attr = table.table_action is iterable ? table.table_action|json_encode : table.table_action|default('') %}
+
+<section class="card shield-card mb-3 status-{{ panel_status }}">
+	<div class="shield-card-accent status-{{ panel_status }}"></div>
+	<div class="card-body">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h5 class="card-title mb-0">{{ table.title|default('') }}</h5>
+			{% if table.full_log_href|default('') is not empty %}
+				<a href="{{ table.full_log_href }}" class="btn btn-outline-secondary btn-sm">{{ table.full_log_text|default('Full Log') }}</a>
+			{% endif %}
+		</div>
+
+		<div class="row shield-section-datatable">
+			<div class="col">
+				<table class="table table-striped table-bordered"
+					   style="width: 100%;"
+					   data-investigation-table="1"
+					   data-table-type="{{ table.table_type|default('') }}"
+					   data-subject-type="{{ table.subject_type|default('') }}"
+					   data-subject-id="{{ table.subject_id|default('') }}"
+					   data-datatables-init="{{ datatables_init_attr|e('html_attr') }}"
+					   data-table-action="{{ table_action_attr|e('html_attr') }}"
+				></table>
+			</div>
+		</div>
+	</div>
+</section>
+
