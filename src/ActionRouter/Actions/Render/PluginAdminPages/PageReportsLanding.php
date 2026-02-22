@@ -8,29 +8,40 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-class PageReportsLanding extends BasePluginAdminPage {
+class PageReportsLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_reports_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/reports_landing.twig';
 
-	protected function getRenderData() :array {
+	protected function getLandingTitle() :string {
+		return __( 'Reports', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'Review report trends and open the full reporting workspace.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'clipboard-data-fill';
+	}
+
+	protected function getLandingContent() :array {
 		$con = self::con();
 		return [
-			'content' => [
-				'summary_charts' => $con->action_router->render( ChartsSummary::class ),
-				'reports_view'   => $con->action_router->render( PageReportsView::class ),
-			],
-			'hrefs'   => [
-				'reports_list' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
-			],
-			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( 'clipboard-data-fill' ),
-			],
-			'strings' => [
-				'inner_page_title'    => __( 'Reports', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Review report trends and open the full reporting workspace.', 'wp-simple-firewall' ),
-				'cta_reports_list'    => __( 'Open Reports List', 'wp-simple-firewall' ),
-			],
+			'summary_charts' => $con->action_router->render( ChartsSummary::class ),
+			'reports_view'   => $con->action_router->render( PageReportsView::class ),
+		];
+	}
+
+	protected function getLandingHrefs() :array {
+		return [
+			'reports_list' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
+		];
+	}
+
+	protected function getLandingStrings() :array {
+		return [
+			'cta_reports_list' => __( 'Open Reports List', 'wp-simple-firewall' ),
 		];
 	}
 }

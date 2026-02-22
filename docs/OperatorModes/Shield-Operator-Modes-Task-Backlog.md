@@ -368,10 +368,19 @@ Validation notes:
 Execution date: 2026-02-21  
 Scope: runtime-behavior hardening for Investigate + Configure landings without introducing duplicate systems.
 
-[ ] Recovery-A - codex - local workspace - in progress: Configure landing now reuses hero-meter surface via `MeterCard` and `ProgressMeters` pipeline (`PageConfigureLanding.php`, `configure_landing.twig`, `AssetsCustomizer.php`) - 2026-02-21  
-[ ] Recovery-B - codex - local workspace - in progress: Investigate By IP now renders inline IP analysis on submit using existing `IpAnalyse\Container` plus invalid-IP state (`PageInvestigateLanding.php`, `investigate_landing.twig`) - 2026-02-21  
-[ ] Recovery-C - codex - local workspace - in progress: Investigate By User now distinguishes "no lookup" vs "lookup not found" states for clearer functional feedback (`PageInvestigateByUser.php`, `investigate_by_user.twig`) - 2026-02-21  
-[ ] Recovery-D - codex - local workspace - in progress: Added contract tests for Configure hero-meter surface and Investigate By IP runtime contract (`ConfigureLandingHeroMeterContractTest.php`, `InvestigateByIpLandingContractTest.php`, `AssetsCustomizerProgressMetersContractTest.php`) - 2026-02-21
+[x] Recovery-A - codex - local workspace - completed (code/tests): Configure landing reuses hero-meter surface via `MeterCard` and `ProgressMeters` pipeline (`PageConfigureLanding.php`, `configure_landing.twig`, `AssetsCustomizer.php`) - 2026-02-21  
+[x] Recovery-B - codex - local workspace - completed (code/tests): Investigate By IP renders inline IP analysis on submit using existing `IpAnalyse\Container` plus invalid-IP state (`PageInvestigateLanding.php`, `investigate_landing.twig`) - 2026-02-21  
+[x] Recovery-C - codex - local workspace - completed (code/tests): Investigate By User distinguishes "no lookup" vs "lookup not found" states (`PageInvestigateByUser.php`, `investigate_by_user.twig`) - 2026-02-21  
+[x] Recovery-D - codex - local workspace - completed (code/tests): contract tests for Configure hero-meter and Investigate By IP runtime contract (`ConfigureLandingHeroMeterContractTest.php`, `InvestigateByIpLandingContractTest.php`, `AssetsCustomizerProgressMetersContractTest.php`) - 2026-02-21  
+[x] Recovery-E - codex - local workspace - completed (code/tests): extracted shared landing composition base `PageModeLandingBase` and migrated Actions/Configure/Investigate/Reports landing handlers to reuse it - 2026-02-22  
+[x] Recovery-F - codex - local workspace - completed (code/tests): extracted user lookup resolver service `ResolveUserLookup` (ID/email/username) and wired Investigate By User to use it - 2026-02-22  
+[x] Recovery-G - codex - local workspace - completed (code/tests): added `LoadRequestLogs::forUserId()` helper and reused it in Investigate By User instead of page-local where construction - 2026-02-22  
+[x] Recovery-H - codex - local workspace - completed (code/tests): added focused unit coverage for landing base contract, landing inheritance, resolver branch dispatch, and request-log user filter helper - 2026-02-22
+
+Code-level verification update (2026-02-22):
+1. `php -l` passed on all touched source/test files for this recovery pass.
+2. New focused tests passed: `PageModeLandingBaseTest`, `ModeLandingInheritanceTest`, `ResolveUserLookupTest`, `LoadRequestLogsUserFilterTest`.
+3. Adjacent operator-mode guard tests passed, including `InvestigateByIpLandingContractTest`, `PluginNavsOperatorModesTest`, `BuildBreadCrumbsOperatorModesTest`, `NavMenuBuilderOperatorModesTest`, `LoadLogsUserFilterTest`, `FindSessionsIpWhereTest`.
 
 Recovery acceptance gate (must all pass before OM-601..OM-615 can be marked done):
 1. By IP submit from Investigate landing shows IP analysis immediately on resulting page.

@@ -491,7 +491,7 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 5: Actions Queue Mode
 
-**Status (2026-02-21):** ⚠️ Implemented, pending runtime acceptance. Landing code/routes are in place, but completion remains open until runtime UAT confirms mode-entry behavior.
+**Status (2026-02-22):** ⚠️ Implemented, pending runtime acceptance. Landing code/routes are in place, with follow-up hardening that consolidated mode landing handlers through a shared base abstraction (`PageModeLandingBase`), but completion remains open until runtime UAT confirms mode-entry behavior.
 
 **Reuse existing:** `NeedsAttentionQueue.php`, `AttentionItemsProvider.php`, `PageScansResults.php`, `PageScansRun.php`
 
@@ -504,7 +504,7 @@ This must happen first because the mode selector landing page needs to display t
 
 ### Step 6: Investigate Mode
 
-**Status (2026-02-21):** ⚠️ Implemented, pending runtime acceptance. Operator-reported "redirect/query-only" behavior reopened completion status; acceptance now requires verified user-observable outcomes for By User and By IP flows.
+**Status (2026-02-22):** ⚠️ Implemented, pending runtime acceptance. Operator-reported "redirect/query-only" behavior reopened completion status; follow-up hardening extracted shared user lookup resolution (`ResolveUserLookup`) and reused request-log filtering via `LoadRequestLogs::forUserId()`. Acceptance still requires verified user-observable outcomes for By User and By IP flows.
 
 **Create:**
 
@@ -523,7 +523,7 @@ Promote `IpAnalyse\Container` to a first-class Investigate nav item ("By IP Addr
 
 ### Step 7: Configure & Reports Modes
 
-**Status (2026-02-21):** ⚠️ Partially complete, reopened for Configure landing quality gap. Dedicated Configure and Reports landing pages exist (`PageConfigureLanding.php`, `PageReportsLanding.php`), and Configure landing is now aligned to the existing hero meter pipeline. Broader chart relocation/removal beyond these landings remains outside this delivered slice.
+**Status (2026-02-22):** ⚠️ Partially complete, reopened for Configure landing quality gap. Dedicated Configure and Reports landing pages exist (`PageConfigureLanding.php`, `PageReportsLanding.php`), Configure landing remains aligned to the existing hero meter pipeline, and landing render composition is now consolidated via `PageModeLandingBase`. Broader chart relocation/removal beyond these landings remains outside this delivered slice.
 
 Mostly sidebar reorganisation of existing pages.
 
