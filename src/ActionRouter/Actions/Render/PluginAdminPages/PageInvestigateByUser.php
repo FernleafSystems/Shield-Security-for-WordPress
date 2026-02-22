@@ -12,7 +12,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LogRecord as RequestLogRecord
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\{
+	ResolveUserLookup,
+	Session\FindSessions
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageInvestigateByUser extends BasePluginAdminPage {
@@ -28,7 +31,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$con = self::con();
 		$request = Services::Request();
 		$lookup = \trim( sanitize_text_field( (string)$request->query( 'user_lookup', '' ) ) );
-		$subject = $this->resolveSubject( $lookup );
+		$subject = ( new ResolveUserLookup() )->resolve( $lookup );
 		$hasLookup = !empty( $lookup );
 		$hasSubject = $subject instanceof \WP_User;
 		$subjectNotFound = $hasLookup && !$hasSubject;
@@ -108,23 +111,6 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		];
 	}
 
-	private function resolveSubject( string $lookup ) :?\WP_User {
-		$user = null;
-		if ( !empty( $lookup ) ) {
-			$wpUsers = Services::WpUsers();
-			if ( \ctype_digit( $lookup ) ) {
-				$user = $wpUsers->getUserById( (int)$lookup );
-			}
-			elseif ( Services::Data()->validEmail( $lookup ) ) {
-				$user = $wpUsers->getUserByEmail( $lookup );
-			}
-			else {
-				$user = $wpUsers->getUserByUsername( $lookup );
-			}
-		}
-		return $user instanceof \WP_User ? $user : null;
-	}
-
 	private function buildSessions( \WP_User $subject ) :array {
 		$wp = Services::WpGeneral();
 
@@ -180,8 +166,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	private function buildRequestLogs( \WP_User $subject ) :array {
 		$wp = Services::WpGeneral();
-		$loader = new LoadRequestLogs();
-		$loader->wheres = [ \sprintf( '`req`.`uid`=%d', $subject->ID ) ];
+		$loader = ( new LoadRequestLogs() )->forUserId( (int)$subject->ID );
 		$loader->limit = self::LIMIT_REQUEST_LOGS;
 		$loader->order_by = 'created_at';
 		$loader->order_dir = 'DESC';
