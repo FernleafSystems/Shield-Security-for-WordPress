@@ -29,11 +29,9 @@ class PackagePluginScriptTest extends BaseUnitTest {
 			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
 		}
 
-		$composerJson = $this->decodePluginJsonFile( 'composer.json', 'composer.json' );
+		$commands = $this->getComposerScriptCommands( 'package-plugin' );
 
-		$this->assertArrayHasKey( 'scripts', $composerJson );
-		$this->assertArrayHasKey( 'package-plugin', $composerJson['scripts'] );
-		$this->assertSame( '@php bin/package-plugin.php', $composerJson['scripts']['package-plugin'] );
+		$this->assertContains( '@php bin/package-plugin.php', $commands );
 	}
 
 	public function testSkipRootComposerMapsToComposerInstallOption() :void {

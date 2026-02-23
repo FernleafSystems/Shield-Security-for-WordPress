@@ -38,14 +38,12 @@ class BuildZipScriptTest extends BaseUnitTest {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
 		}
-		$composerJson = $this->decodePluginJsonFile( 'composer.json', 'composer.json' );
+		$commands = $this->getComposerScriptCommands( 'build-zip' );
 
-		$this->assertArrayHasKey( 'scripts', $composerJson, 'composer.json should have scripts section' );
-		$this->assertArrayHasKey( 'build-zip', $composerJson['scripts'], 'composer.json should have build-zip script' );
-		$this->assertSame(
+		$this->assertContains(
 			'@php bin/build-zip.php',
-			$composerJson['scripts']['build-zip'],
-			'build-zip script should point to bin/build-zip.php'
+			$commands,
+			'build-zip script should include bin/build-zip.php command'
 		);
 	}
 

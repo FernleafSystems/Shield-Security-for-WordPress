@@ -105,6 +105,40 @@ trait PluginPathsTrait {
 	}
 
 	/**
+	 * @return string[]
+	 */
+	protected function getComposerScriptCommands( string $scriptName ) :array {
+		$composerJson = $this->decodePluginJsonFile( 'composer.json', 'composer.json' );
+		$this->assertArrayHasKey( 'scripts', $composerJson, 'composer.json should have scripts section' );
+		$this->assertIsArray( $composerJson[ 'scripts' ], 'composer.json scripts section should be an object/array' );
+		$this->assertArrayHasKey( $scriptName, $composerJson[ 'scripts' ], sprintf( 'composer.json should define script: %s', $scriptName ) );
+
+		$scriptEntry = $composerJson[ 'scripts' ][ $scriptName ];
+		if ( \is_string( $scriptEntry ) ) {
+			return [ $scriptEntry ];
+		}
+
+		if ( \is_array( $scriptEntry ) ) {
+			foreach ( $scriptEntry as $index => $scriptCommand ) {
+				$this->assertIsString(
+					$scriptCommand,
+					sprintf( 'composer script "%s" entry at index %d must be a string command', $scriptName, $index )
+				);
+			}
+			return \array_values( $scriptEntry );
+		}
+
+		$this->fail(
+			sprintf(
+				'composer script "%s" must be a string or array of strings; got %s',
+				$scriptName,
+				\get_debug_type( $scriptEntry )
+			)
+		);
+		return [];
+	}
+
+	/**
 	 * Assert file exists with helpful debug info
 	 * @param string $path
 	 * @param string $message

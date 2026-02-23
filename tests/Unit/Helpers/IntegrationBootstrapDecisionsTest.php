@@ -15,92 +15,80 @@ class IntegrationBootstrapDecisionsTest extends TestCase {
 		$this->repoRoot = \dirname( \dirname( \dirname( __DIR__ ) ) );
 	}
 
-	public function testResolvePluginContextPrefersPackagePath() :void {
+	/**
+	 * @dataProvider providerResolvePluginContextMatrix
+	 *
+	 * @param array<string,string|false> $env
+	 */
+	public function testResolvePluginContextMatrix(
+		array $env,
+		bool $dockerPluginDirExists,
+		bool $explicitDockerMode,
+		string $expectedMode
+	) :void {
 		$context = IntegrationBootstrapDecisions::resolvePluginContext(
 			$this->repoRoot,
-			[
-				'SHIELD_PACKAGE_PATH' => '/tmp/shield-package',
-			],
-			false,
-			false,
-			false
+			$env,
+			$dockerPluginDirExists,
+			$explicitDockerMode
 		);
 
-		$this->assertSame( 'package', $context[ 'mode' ] );
-		$this->assertSame( '/tmp/shield-package', $context[ 'plugin_dir' ] );
-		$this->assertSame( '/tmp/shield-package/icwp-wpsf.php', $context[ 'main_plugin_file' ] );
-		$this->assertSame( '/tmp/shield-package/plugin_autoload.php', $context[ 'plugin_autoload_file' ] );
-		$this->assertSame( '/tmp', $context[ 'wp_plugin_dir' ] );
+		$expectedPluginDir = $expectedMode === 'package'
+			? (string)$env[ 'SHIELD_PACKAGE_PATH' ]
+			: ( \in_array( $expectedMode, [ 'docker_symlink', 'docker_missing_symlink' ], true )
+				? '/tmp/wordpress/wp-content/plugins/wp-simple-firewall'
+				: $this->repoRoot );
+
+		$this->assertSame( $expectedMode, $context[ 'mode' ] );
+		$this->assertSame( $expectedPluginDir, $context[ 'plugin_dir' ] );
+		$this->assertSame( Path::join( $expectedPluginDir, 'icwp-wpsf.php' ), $context[ 'main_plugin_file' ] );
+		$this->assertSame( Path::join( $expectedPluginDir, 'plugin_autoload.php' ), $context[ 'plugin_autoload_file' ] );
+		$this->assertSame( \dirname( $expectedPluginDir ), $context[ 'wp_plugin_dir' ] );
 	}
 
-	public function testResolvePluginContextUsesDockerSymlinkWhenPresent() :void {
-		$context = IntegrationBootstrapDecisions::resolvePluginContext(
-			$this->repoRoot,
-			[
-				'SHIELD_PACKAGE_PATH' => false,
+	/**
+	 * @return array<string,array{
+	 *   0:array<string,string|false>,
+	 *   1:bool,
+	 *   2:bool,
+	 *   3:'package'|'docker_symlink'|'docker_missing_symlink'|'source'
+	 * }>
+	 */
+	public static function providerResolvePluginContextMatrix() :array {
+		return [
+			'package mode takes precedence' => [
+				[
+					'SHIELD_PACKAGE_PATH' => '/tmp/shield-package',
+				],
+				true,
+				true,
+				'package',
 			],
-			true,
-			true,
-			true
-		);
-
-		$this->assertSame( 'docker_symlink', $context[ 'mode' ] );
-		$this->assertSame( '/tmp/wordpress/wp-content/plugins/wp-simple-firewall', $context[ 'plugin_dir' ] );
-		$this->assertSame(
-			'/tmp/wordpress/wp-content/plugins/wp-simple-firewall/plugin_autoload.php',
-			$context[ 'plugin_autoload_file' ]
-		);
-	}
-
-	public function testResolvePluginContextUsesDockerMissingSymlinkWhenSignalsPresent() :void {
-		$context = IntegrationBootstrapDecisions::resolvePluginContext(
-			$this->repoRoot,
-			[
-				'SHIELD_PACKAGE_PATH' => false,
+			'docker symlink mode' => [
+				[
+					'SHIELD_PACKAGE_PATH' => false,
+				],
+				true,
+				true,
+				'docker_symlink',
 			],
-			false,
-			true,
-			false
-		);
-
-		$this->assertSame( 'docker_missing_symlink', $context[ 'mode' ] );
-		$this->assertSame(
-			'/tmp/wordpress/wp-content/plugins/wp-simple-firewall/icwp-wpsf.php',
-			$context[ 'main_plugin_file' ]
-		);
-	}
-
-	public function testResolvePluginContextHeuristicAloneFallsBackToSourceMode() :void {
-		$context = IntegrationBootstrapDecisions::resolvePluginContext(
-			$this->repoRoot,
-			[
-				'SHIELD_PACKAGE_PATH' => false,
+			'explicit docker missing symlink mode' => [
+				[
+					'SHIELD_PACKAGE_PATH' => false,
+				],
+				false,
+				true,
+				'docker_missing_symlink',
 			],
-			false,
-			false,
-			true
-		);
-
-		$this->assertSame( 'source', $context[ 'mode' ] );
-		$this->assertSame( $this->repoRoot, $context[ 'plugin_dir' ] );
-		$this->assertSame( Path::join( $this->repoRoot, 'icwp-wpsf.php' ), $context[ 'main_plugin_file' ] );
-	}
-
-	public function testResolvePluginContextFallsBackToSourceMode() :void {
-		$context = IntegrationBootstrapDecisions::resolvePluginContext(
-			$this->repoRoot,
-			[
-				'SHIELD_PACKAGE_PATH' => false,
+			'source fallback mode' => [
+				[
+					'SHIELD_PACKAGE_PATH' => false,
+				],
+				false,
+				false,
+				'source',
 			],
-			false,
-			false,
-			false
-		);
-
-		$this->assertSame( 'source', $context[ 'mode' ] );
-		$this->assertSame( $this->repoRoot, $context[ 'plugin_dir' ] );
-		$this->assertSame( Path::join( $this->repoRoot, 'icwp-wpsf.php' ), $context[ 'main_plugin_file' ] );
-		$this->assertSame( Path::join( $this->repoRoot, 'plugin_autoload.php' ), $context[ 'plugin_autoload_file' ] );
+		];
 	}
 
 	public function testResolveWpTestsDirContextPrefersWpTestsDir() :void {

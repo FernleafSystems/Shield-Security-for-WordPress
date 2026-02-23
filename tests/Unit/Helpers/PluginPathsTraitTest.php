@@ -68,6 +68,27 @@ class PluginPathsTraitTest extends TestCase {
 		$this->assertSame( $this->getPluginFilePath( 'plugin.json' ), $this->getPluginJsonPath() );
 	}
 
+	public function testGetComposerScriptCommandsNormalizesArrayScriptEntries() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
+
+		$commands = $this->getComposerScriptCommands( 'package-plugin' );
+		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $commands );
+		$this->assertContains( '@php bin/package-plugin.php', $commands );
+	}
+
+	public function testGetComposerScriptCommandsNormalizesStringScriptEntry() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
+
+		$this->assertSame(
+			[ '@php bin/run-playground-local.php --clean' ],
+			$this->getComposerScriptCommands( 'playground:local:clean' )
+		);
+	}
+
 	/**
 	 * Clear SHIELD_PACKAGE_PATH for tests that need source-mode behavior.
 	 */

@@ -135,8 +135,7 @@ function shield_integration_bootstrap_phase_prepare() :array {
 		$repoRoot,
 		$env,
 		\is_dir( '/tmp/wordpress/wp-content/plugins/wp-simple-firewall' ),
-		TestEnv::isExplicitDockerMode(),
-		TestEnv::isDockerModeHeuristic()
+		TestEnv::isExplicitDockerMode()
 	);
 	shield_test_set_plugin_context( $pluginContext );
 

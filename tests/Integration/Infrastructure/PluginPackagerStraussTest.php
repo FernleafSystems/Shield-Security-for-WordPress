@@ -231,10 +231,7 @@ class PluginPackagerStraussTest extends TestCase {
 		];
 
 		foreach ( $checks as $relativePath => [ $prefixedNamespace, $sourceNamespace ] ) {
-			$path = $this->packagePath.'/'.$relativePath;
-			$this->assertFileExists( $path, "Packaged runtime file missing: {$relativePath}" );
-
-			$content = (string)\file_get_contents( $path );
+			$content = $this->getPluginFileContents( $relativePath, "Packaged runtime file: {$relativePath}" );
 			$this->assertStringContainsString(
 				$prefixedNamespace,
 				$content,
@@ -306,15 +303,22 @@ class PluginPackagerStraussTest extends TestCase {
 		$legacyFindAssetsPath = $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php';
 		$runtimeFindAssetsPath = $this->packagePath.'/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php';
 
-		$this->assertFileExists( $legacyMonologPath );
-		$this->assertFileExists( $runtimeMonologPath );
-		$this->assertFileExists( $legacyFindAssetsPath );
-		$this->assertFileExists( $runtimeFindAssetsPath );
-
-		$legacyMonolog = (string)\file_get_contents( $legacyMonologPath );
-		$runtimeMonolog = (string)\file_get_contents( $runtimeMonologPath );
-		$legacyFindAssets = (string)\file_get_contents( $legacyFindAssetsPath );
-		$runtimeFindAssets = (string)\file_get_contents( $runtimeFindAssetsPath );
+		$legacyMonolog = $this->getPluginFileContents(
+			'src/lib/src/Controller/Dependencies/Monolog.php',
+			$legacyMonologPath
+		);
+		$runtimeMonolog = $this->getPluginFileContents(
+			'src/Controller/Dependencies/Monolog.php',
+			$runtimeMonologPath
+		);
+		$legacyFindAssets = $this->getPluginFileContents(
+			'src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php',
+			$legacyFindAssetsPath
+		);
+		$runtimeFindAssets = $this->getPluginFileContents(
+			'src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php',
+			$runtimeFindAssetsPath
+		);
 
 		$this->assertStringContainsString( "throw new \\Exception( 'Legacy shutdown guard: monolog disabled.' );", $legacyMonolog );
 		$this->assertStringNotContainsString( 'includePrefixedVendor()', $legacyMonolog );

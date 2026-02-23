@@ -22,8 +22,7 @@ class IntegrationBootstrapDecisions {
 		string $repoRoot,
 		array $env,
 		bool $dockerPluginDirExists,
-		bool $explicitDockerMode,
-		bool $dockerModeHeuristic
+		bool $explicitDockerMode
 	) :array {
 		$packagePath = self::sanitizeEnvValue( $env[ 'SHIELD_PACKAGE_PATH' ] ?? false );
 		if ( $packagePath !== '' ) {

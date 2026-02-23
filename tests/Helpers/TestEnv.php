@@ -34,17 +34,23 @@ class TestEnv {
 		return self::isTruthy( 'SHIELD_DEBUG_PATHS' );
 	}
 
+	/**
+	 * Plugin-context strictness is driven only by explicit docker mode.
+	 */
 	public static function isExplicitDockerMode() :bool {
 		return \getenv( 'SHIELD_TEST_MODE' ) === 'docker';
 	}
 
+	/**
+	 * Docker heuristics are used for WordPress test-environment strictness only.
+	 */
 	public static function isDockerModeHeuristic() :bool {
 		return \is_dir( '/tmp/wordpress' );
 	}
 
 	/**
-	 * Missing WP test env is always strict-fail in explicit docker mode,
-	 * and otherwise strict in CI/GHA or docker heuristic contexts.
+	 * Missing WP test environment is always strict-fail in explicit docker mode.
+	 * Outside explicit docker mode, strictness may still apply in CI/GHA or heuristic contexts.
 	 */
 	public static function shouldFailMissingWordPressEnv() :bool {
 		if ( self::isExplicitDockerMode() ) {

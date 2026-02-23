@@ -59,18 +59,13 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 			$this->markTestSkipped( 'composer.json is excluded from packaged artifacts (source-only assertion)' );
 		}
 
-		$composerJson = $this->getPluginFileContents( 'composer.json', 'composer manifest' );
-		$decoded = \json_decode( $composerJson, true );
+		$cleanCommands = $this->getComposerScriptCommands( 'playground:local:clean' );
+		$this->assertContains( '@php bin/run-playground-local.php --clean', $cleanCommands );
 
-		$this->assertIsArray( $decoded );
-		$this->assertArrayHasKey( 'scripts', $decoded );
-		$this->assertIsArray( $decoded['scripts'] );
-		$this->assertArrayHasKey( 'playground:local:clean', $decoded['scripts'] );
-		$this->assertSame( '@php bin/run-playground-local.php --clean', $decoded['scripts']['playground:local:clean'] );
-		$this->assertArrayHasKey( 'playground:package:check', $decoded['scripts'] );
-		$this->assertSame(
+		$packageCheckCommands = $this->getComposerScriptCommands( 'playground:package:check' );
+		$this->assertContains(
 			'@php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package',
-			$decoded['scripts']['playground:package:check']
+			$packageCheckCommands
 		);
 	}
 
