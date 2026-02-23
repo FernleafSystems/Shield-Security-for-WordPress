@@ -223,6 +223,31 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertTrue( class_exists( $crowdSecClass ) );
 	}
 
+	public function testPackageRuntimeCallSitesArePrefixed() :void {
+		$checks = [
+			'src/Modules/Traffic/Lib/RequestLogger.php'          => [ 'AptowebDeps\\Monolog\\Logger', 'Monolog\\Logger' ],
+			'src/Render/RenderService.php'                       => [ 'AptowebDeps\\Twig\\Environment', 'Twig\\Environment' ],
+			'src/Modules/IPs/Lib/CrowdSec/CrowdSecController.php' => [ 'AptowebDeps\\CrowdSec\\CapiClient\\Watcher', 'CrowdSec\\CapiClient\\Watcher' ],
+		];
+
+		foreach ( $checks as $relativePath => [ $prefixedNamespace, $sourceNamespace ] ) {
+			$path = $this->packagePath.'/'.$relativePath;
+			$this->assertFileExists( $path, "Packaged runtime file missing: {$relativePath}" );
+
+			$content = (string)\file_get_contents( $path );
+			$this->assertStringContainsString(
+				$prefixedNamespace,
+				$content,
+				"Expected rewritten prefixed call site in package output: {$relativePath}"
+			);
+			$this->assertStringNotContainsString(
+				'use '.$sourceNamespace.';',
+				$content,
+				"Unprefixed source namespace should not remain as a use-import in package output: {$relativePath}"
+			);
+		}
+	}
+
 	public function testLegacySnapshotOpsAreGuardedWhileRuntimeSourceRemainsActive() :void {
 		$legacyDeletePath = $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php';
 		$legacyStorePath = $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php';
@@ -293,7 +318,8 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$this->assertStringContainsString( "throw new \\Exception( 'Legacy shutdown guard: monolog disabled.' );", $legacyMonolog );
 		$this->assertStringNotContainsString( 'includePrefixedVendor()', $legacyMonolog );
-		$this->assertStringContainsString( 'includePrefixedVendor()', $runtimeMonolog );
+		$this->assertStringContainsString( 'ClassDependencyGuard', $runtimeMonolog );
+		$this->assertStringContainsString( "ensureAvailable( '\\Monolog\\Logger', 'Monolog' )", $runtimeMonolog );
 
 		$this->assertStringContainsString( 'return [];', $legacyFindAssets );
 		$this->assertStringNotContainsString( 'Services::WpPlugins()->getPluginsAsVo()', $legacyFindAssets );
@@ -431,38 +457,6 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
 		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
 		$this->assertFileExists( $this->packagePath.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php' );
-	}
-
-	public function testManifestSnapshotIfPresent() :void {
-		$fixturePath = $this->packagePath.'/tests/fixtures/packager/expected-manifest.json';
-		if ( !file_exists( $fixturePath ) ) {
-			$this->markTestSkipped( 'Manifest fixture not present; skip snapshot check.' );
-		}
-
-		$fixture = json_decode( (string)file_get_contents( $fixturePath ), true );
-		if ( !is_array( $fixture ) || empty( $fixture[ 'files' ] ?? [] ) ) {
-			$this->markTestSkipped( 'Manifest fixture empty; skip snapshot check.' );
-		}
-
-		$current = $this->buildManifest( $fixture[ 'files' ] );
-		$this->assertSame( $fixture[ 'files' ], $current, 'Package manifest does not match expected snapshot.' );
-	}
-
-	/**
-	 * @param array<string,array<string,mixed>> $fixtureFiles
-	 * @return array<string,array<string,mixed>>
-	 */
-	private function buildManifest( array $fixtureFiles ) :array {
-		$result = [];
-		foreach ( $fixtureFiles as $rel => $expected ) {
-			$path = $this->packagePath.'/'.$rel;
-			$this->assertFileExists( $path, "Manifest path missing: {$rel}" );
-			$result[ $rel ] = [
-				'sha256' => hash_file( 'sha256', $path ),
-				'size'   => filesize( $path ),
-			];
-		}
-		return $result;
 	}
 
 	/**

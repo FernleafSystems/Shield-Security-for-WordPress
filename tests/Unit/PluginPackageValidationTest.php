@@ -33,49 +33,6 @@ class PluginPackageValidationTest extends TestCase {
 	}
 
 	/**
-	 * Test that all required files are present in the package
-	 */
-	public function testRequiredFilesExist() :void {
-		$requiredFiles = [
-			'icwp-wpsf.php',
-			'plugin.json',
-			'readme.txt',
-			'plugin_init.php',
-			'plugin_autoload.php',
-			'vendor/autoload.php',
-			'vendor_prefixed/autoload.php',
-		];
-
-		foreach ( $requiredFiles as $file ) {
-			$this->assertFileExists(
-				$this->packagePath . '/' . $file,
-				"Required file missing from package: $file"
-			);
-		}
-	}
-
-	/**
-	 * Test that all required directories are present
-	 */
-	public function testRequiredDirectoriesExist() :void {
-		$requiredDirs = [
-			'assets/dist',
-			'assets/images',
-			'src',
-			'vendor',
-			'vendor_prefixed',
-			'templates',
-		];
-
-		foreach ( $requiredDirs as $dir ) {
-			$this->assertDirectoryExists(
-				$this->packagePath . '/' . $dir,
-				"Required directory missing from package: $dir"
-			);
-		}
-	}
-
-	/**
 	 * Test that development files are NOT included in the package
 	 */
 	public function testDevelopmentFilesExcluded() :void {
@@ -102,33 +59,6 @@ class PluginPackageValidationTest extends TestCase {
 	}
 
 	/**
-	 * Test that Strauss prefixing was applied
-	 */
-	public function testStraussPrefixingApplied() :void {
-		// Check that vendor_prefixed directory has content
-		$vendorPrefixedPath = $this->packagePath . '/vendor_prefixed';
-		$this->assertDirectoryExists( $vendorPrefixedPath );
-		
-		// Check for specific prefixed directories
-		$prefixedDirs = [
-			'monolog',
-			'crowdsec',
-			'symfony',
-			'twig',
-		];
-		
-		foreach ( $prefixedDirs as $dir ) {
-			$this->assertDirectoryExists(
-				$vendorPrefixedPath . '/' . $dir,
-				"Prefixed directory missing: $dir"
-			);
-		}
-		
-		// Check that autoload files exist
-		$this->assertFileExists( $vendorPrefixedPath . '/autoload.php' );
-	}
-
-	/**
 	 * Test that the main plugin file has correct header
 	 */
 	public function testPluginHeaderValid() :void {
@@ -142,35 +72,6 @@ class PluginPackageValidationTest extends TestCase {
 		$this->assertStringContainsString( 'Version:', $content );
 		$this->assertStringContainsString( 'Description:', $content );
 		$this->assertStringContainsString( 'Author:', $content );
-	}
-
-	/**
-	 * Test that autoload files don't contain references to pruned dependencies
-	 */
-	public function testAutoloadFilesPruned() :void {
-		$composerDir = $this->packagePath . '/vendor/composer';
-		
-		if ( !is_dir( $composerDir ) ) {
-			$this->markTestSkipped( 'Composer directory not found' );
-		}
-		
-		$autoloadFiles = [
-			'autoload_files.php',
-			'autoload_static.php',
-			'autoload_psr4.php',
-		];
-		
-		foreach ( $autoloadFiles as $file ) {
-			$filePath = $composerDir . '/' . $file;
-			if ( file_exists( $filePath ) ) {
-				$content = file_get_contents( $filePath );
-				$this->assertStringNotContainsString(
-					'/twig/twig/',
-					$content,
-					"Autoload file should not contain twig references: $file"
-				);
-			}
-		}
 	}
 
 	/**

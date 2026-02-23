@@ -3,6 +3,8 @@ name: Tests
 on:
   push:
     branches: [ develop, main, master, docker-matrix-testing-research ]
+  pull_request:
+    branches: [ develop, main, master, docker-matrix-testing-research ]
   workflow_dispatch:
     inputs:
       run_phpcs:
@@ -11,8 +13,8 @@ on:
         description: 'Enable PHPCS code standards check'
 
 jobs:
-  build-package:
-    name: 'Build Package'
+  source-static-analysis:
+    name: 'Source Static Analysis'
     runs-on: ubuntu-latest
 
     steps:
@@ -26,44 +28,96 @@ jobs:
         coverage: none
         tools: composer:v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Build plugin config
+      run: composer build:config
+
+    - name: Run source static analysis
+      run: composer analyze:source
+
+  source-unit-tests:
+    name: 'Source Unit Tests'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
       with:
-        node-version: '20.10'
-        cache: 'npm'
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
 
-    - name: Install build dependencies
-      run: |
-        composer install --no-interaction --prefer-dist --optimize-autoloader
-        npm ci --no-audit --no-fund
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Build assets
-      run: npm run build
+    - name: Build plugin config
+      run: composer build:config
 
-    - name: Build plugin package
-      run: |
-        PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        rm -rf "$PACKAGE_DIR" || true
-        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
+    - name: Run source unit tests
+      env:
+        SHIELD_DEBUG_PATHS: '1'
+        SHIELD_PACKAGE_PATH: ''
+      run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
 
-    - name: Validate package artifact
-      run: |
-        PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        test -d "$PACKAGE_DIR"
-        test -f "$PACKAGE_DIR/icwp-wpsf.php"
-        test -f "$PACKAGE_DIR/vendor/autoload.php"
-        test -d "$PACKAGE_DIR/assets/dist"
-        echo "Package artifact validation passed"
+  source-integration-tests:
+    name: 'Source Integration Tests'
+    runs-on: ubuntu-latest
 
-    - name: Upload package artifact
-      uses: actions/upload-artifact@v4
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
       with:
-        name: shield-package
-        path: ${{ github.workspace }}/shield-package/**
-        if-no-files-found: error
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Build plugin config
+      run: composer build:config
+
+    - name: Install WordPress Test Suite
+      run: |
+        sudo apt-get update && sudo apt-get install -y subversion
+        chmod +x ./bin/install-wp-tests.sh
+        ./bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+
+    - name: Run source integration tests
+      env:
+        SHIELD_DEBUG_PATHS: '1'
+        SHIELD_PACKAGE_PATH: ''
+      run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
+
+  build-package:
+    name: 'Build Package'
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/reusable-build-package.yml
+    with:
+      artifact_name: shield-package
+      package_dir: shield-package
 
   playground-package-smoke:
     name: 'Playground Package Smoke'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: build-package
 
@@ -100,7 +154,8 @@ jobs:
         php bin/run-playground-local.php --run-blueprint --plugin-root="${{ github.workspace }}/shield-package" --php=8.2 --wp=latest
 
   test:
-    name: 'Test (PHP ${{ matrix.php }})'
+    name: 'Package Runtime Checks (PHP ${{ matrix.php }})'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     needs: build-package
     
@@ -143,16 +198,6 @@ jobs:
     - name: Build plugin config
       run: composer build:config
 
-    - name: Run static analysis (informational)
-      id: phpstan_informational
-      continue-on-error: true
-      run: composer analyze
-
-    - name: Report static analysis issues (informational)
-      if: steps.phpstan_informational.outcome == 'failure'
-      run: |
-        echo "::warning title=Static analysis reported issues::composer analyze failed. Continuing because analysis is informational-only."
-
     - name: Load Strauss version
       run: |
         source .github/scripts/read-packager-config.sh
@@ -187,7 +232,13 @@ jobs:
         SHIELD_PACKAGE_PATH: ''
       run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
 
-    - name: Run integration tests
+    - name: Run package-focused unit validation
+      env:
+        SHIELD_DEBUG_PATHS: '1'
+        SHIELD_PACKAGE_PATH: ${{ github.workspace }}/shield-package
+      run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/PluginPackageValidationTest.php --no-coverage
+
+    - name: Run integration tests against package
       env:
         SHIELD_DEBUG_PATHS: '1'
         SHIELD_PACKAGE_PATH: ${{ github.workspace }}/shield-package

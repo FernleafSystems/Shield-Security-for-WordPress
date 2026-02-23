@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec;
 
-use AptowebDeps\CrowdSec\CapiClient\Watcher;
+use CrowdSec\CapiClient\Watcher;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\ClassDependencyGuard;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryNotFoundException;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Capi\Enroll;
@@ -38,19 +39,20 @@ class CrowdSecController {
 	}
 
 	/**
-	 * IMPORTANT: since this includes the prefixed vendor, it should only be called sparingly and only as-required. Ideally on a CRON.
-	 * @throws LibraryPrefixedAutoloadNotFoundException
+	 * IMPORTANT: this should only be called sparingly and only as-required. Ideally on a CRON.
 	 */
 	public function getCApiStore() :Capi\Storage {
-		self::con()->includePrefixedVendor();
 		return $this->cApiStore ??= new Capi\Storage();
 	}
 
 	/**
-	 * IMPORTANT: since this includes the prefixed vendor, it should only be called sparingly and only as-required. Ideally on a CRON.
-	 * @throws LibraryPrefixedAutoloadNotFoundException
+	 * IMPORTANT: this should only be called sparingly and only as-required. Ideally on a CRON.
+	 *
+	 * @throws LibraryNotFoundException
 	 */
 	public function getCApiWatcher() :Watcher {
+		( new ClassDependencyGuard() )->ensureAvailable( '\CrowdSec\CapiClient\Watcher', 'CrowdSec' );
+
 		$store = $this->getCApiStore();
 		return new Watcher(
 			[

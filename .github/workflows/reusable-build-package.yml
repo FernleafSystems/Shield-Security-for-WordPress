@@ -1,0 +1,74 @@
+name: Reusable Build Package
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: Artifact name for the packaged plugin upload
+        required: false
+        type: string
+        default: shield-package
+      package_dir:
+        description: Output directory name for the built package
+        required: false
+        type: string
+        default: shield-package
+
+jobs:
+  build-package:
+    name: Build Package Artifact
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.10'
+        cache: npm
+
+    - name: Install build dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        npm ci --no-audit --no-fund
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Load Strauss version
+      run: |
+        source .github/scripts/read-packager-config.sh
+        echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
+
+    - name: Build plugin package
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/${{ inputs.package_dir }}"
+        rm -rf "$PACKAGE_DIR" || true
+        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
+
+    - name: Validate package artifact
+      run: |
+        PACKAGE_DIR="${{ github.workspace }}/${{ inputs.package_dir }}"
+        test -d "$PACKAGE_DIR"
+        test -f "$PACKAGE_DIR/icwp-wpsf.php"
+        test -f "$PACKAGE_DIR/vendor/autoload.php"
+        test -d "$PACKAGE_DIR/assets/dist"
+        echo "Package artifact validation passed"
+
+    - name: Upload package artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: ${{ github.workspace }}/${{ inputs.package_dir }}/**
+        if-no-files-found: error

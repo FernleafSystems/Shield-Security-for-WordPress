@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 
 /**
  * Rapid smoke tests for Shield Security plugin core functionality
@@ -12,6 +13,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
  */
 class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	use PluginPathsTrait;
+	use TempDirLifecycleTrait;
+
+	public function tear_down() {
+		$this->cleanupTrackedTempDirs();
+		parent::tear_down();
+	}
 
 	/**
 	 * Test critical plugin files exist
@@ -36,9 +43,11 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	 */
 	public function testAutoloaderFilesExist() :void {
 		$autoloaders = [
-			'vendor/autoload.php'          => 'Main vendor autoloader',
-			'vendor_prefixed/autoload.php' => 'Prefixed vendor autoloader',
+			'vendor/autoload.php' => 'Main vendor autoloader',
 		];
+		if ( $this->isTestingPackage() ) {
+			$autoloaders[ 'vendor_prefixed/autoload.php' ] = 'Prefixed vendor autoloader';
+		}
 
 		foreach ( $autoloaders as $file => $description ) {
 			$path = $this->getPluginFilePath( $file );
@@ -48,6 +57,36 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 				"$description should be readable"
 			);
 		}
+	}
+
+	public function testSourceModeLoadsCoreDependenciesWithoutPrefixedAutoload() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'Source-mode dependency bootstrap check only applies outside package tests.' );
+		}
+
+		$tempDir = $this->createTrackedTempDir( 'shield-autoload-smoke-' );
+		$pluginAutoloadSrc = $this->getPluginFilePath( 'plugin_autoload.php' );
+		$pluginAutoloadCopy = $tempDir.'/plugin_autoload.php';
+		$vendorAutoload = $tempDir.'/vendor/autoload.php';
+
+		$this->assertTrue( \mkdir( $tempDir.'/vendor', 0777, true ) || \is_dir( $tempDir.'/vendor' ) );
+		$this->assertTrue( \copy( $pluginAutoloadSrc, $pluginAutoloadCopy ) );
+		$this->assertNotFalse( \file_put_contents(
+			$vendorAutoload,
+			"<?php\nif ( !\\defined( 'SHIELD_TEST_VENDOR_AUTOLOAD_RAN' ) ) { \\define( 'SHIELD_TEST_VENDOR_AUTOLOAD_RAN', true ); }\n"
+		) );
+
+		if ( !\defined( 'ABSPATH' ) ) {
+			\define( 'ABSPATH', $tempDir.'/' );
+		}
+
+		require $pluginAutoloadCopy;
+
+		$this->assertTrue( \defined( 'SHIELD_TEST_VENDOR_AUTOLOAD_RAN' ) );
+		$this->assertFileDoesNotExist( $tempDir.'/vendor_prefixed/autoload.php' );
+		$this->assertTrue( \class_exists( '\Monolog\Logger' ) );
+		$this->assertTrue( \class_exists( '\Twig\Environment' ) );
+		$this->assertTrue( \class_exists( '\CrowdSec\CapiClient\Watcher' ) );
 	}
 
 	/**
@@ -216,9 +255,11 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	 */
 	public function testVendorDirectoriesNotEmpty() :void {
 		$vendorDirs = [
-			'vendor'          => 'Main vendor directory',
-			'vendor_prefixed' => 'Prefixed vendor directory',
+			'vendor' => 'Main vendor directory',
 		];
+		if ( $this->isTestingPackage() ) {
+			$vendorDirs[ 'vendor_prefixed' ] = 'Prefixed vendor directory';
+		}
 
 		foreach ( $vendorDirs as $dir => $description ) {
 			$path = $this->getPluginFilePath( $dir );
@@ -260,26 +301,4 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 		);
 	}
 
-	/**
-	 * Test config directory is not required (configurations are in plugin.json)
-	 * This test verifies that the plugin works without separate config files
-	 */
-	public function testConfigurationIsEmbedded() :void {
-		// Config directory is optional - plugin.json contains all configurations
-		$configPath = $this->getPluginFilePath( 'config' );
-		
-		// Plugin should work fine without a config directory
-		$this->assertTrue(
-			true, // Always pass - this is just documentation
-			'Configuration is embedded in plugin.json, separate config directory is not required'
-		);
-
-		// If config directory exists, it should be readable
-		if ( \is_dir( $configPath ) ) {
-			$this->assertTrue(
-				\is_readable( $configPath ),
-				'Config directory should be readable if it exists'
-			);
-		}
-	}
 }

@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-
 class Monolog {
-
-	use PluginControllerConsumer;
 
 	public const API_VERSION_REQUIRED = '2';
 
@@ -18,11 +14,6 @@ class Monolog {
 	 * @throws \Exception
 	 */
 	public function assess() :void {
-		if ( \method_exists( self::con(), 'includePrefixedVendor' ) ) {
-			self::con()->includePrefixedVendor();
-		}
-		if ( !@\class_exists( '\AptowebDeps\Monolog\Logger' ) ) {
-			throw new Exceptions\LibraryNotFoundException( __( 'Prefixed Monolog library could not be found.', 'wp-simple-firewall' ) );
-		}
+		( new ClassDependencyGuard() )->ensureAvailable( '\Monolog\Logger', 'Monolog' );
 	}
 }

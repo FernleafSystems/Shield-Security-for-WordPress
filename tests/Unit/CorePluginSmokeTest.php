@@ -213,22 +213,17 @@ class CorePluginSmokeTest extends TestCase {
 	 * Test vendor autoload integration
 	 */
 	public function testVendorAutoloadIntegration() :void {
+		$vendorAutoload = $this->getPluginFilePath( 'vendor/autoload.php' );
+
 		if ( $this->isTestingPackage() ) {
-			// In package testing mode, vendor dependencies are bundled differently
-			$this->assertTrue( true, 'Package testing mode - vendor autoload handled by package build' );
-		} else {
-			// Check if vendor autoload exists (for source installations)
-			$vendorAutoload = $this->getPluginFilePath( 'vendor/autoload.php' );
-			if ( file_exists( $vendorAutoload ) ) {
-				$this->assertFileExistsWithDebug( $vendorAutoload, 'Vendor autoload should exist' );
-				
-				// Verify it's a valid PHP file
-				$content = \file_get_contents( $vendorAutoload );
-				$this->assertStringContainsString( '<?php', $content, 'Vendor autoload should be valid PHP' );
-			} else {
-				$this->markTestSkipped( 'Vendor autoload not found - run composer install' );
-			}
+			$this->assertFileExistsWithDebug( $vendorAutoload, 'Package vendor autoload should exist' );
 		}
+		elseif ( !file_exists( $vendorAutoload ) ) {
+			$this->markTestSkipped( 'Vendor autoload not found - run composer install' );
+		}
+
+		$content = \file_get_contents( $vendorAutoload );
+		$this->assertStringContainsString( '<?php', $content, 'Vendor autoload should be valid PHP' );
 	}
 
 	/**

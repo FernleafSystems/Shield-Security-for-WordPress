@@ -122,13 +122,15 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	public function test_no_stale_temporary_table_string_callbacks() :void {
 		global $wp_filter;
 
-		if ( !isset( $wp_filter['query'] ) ) {
-			$this->assertTrue( true, 'No query filters registered — safe.' );
+		$hasQueryFilter = \is_array( $wp_filter ) && isset( $wp_filter['query'] );
+		if ( !$hasQueryFilter ) {
+			$this->assertFalse( $hasQueryFilter, 'No query filters are registered, so there are no stale callbacks to validate.' );
 			return;
 		}
 
 		$hook = $wp_filter['query'];
 		$callbacks = ( $hook instanceof \WP_Hook ) ? $hook->callbacks : (array) $hook;
+		$this->assertIsArray( $callbacks, 'Query hook callbacks should be represented as an array for stale callback inspection.' );
 
 		foreach ( $callbacks as $priority => $funcs ) {
 			foreach ( $funcs as $key => $entry ) {
@@ -152,7 +154,6 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 			}
 		}
 
-		$this->assertTrue( true, 'No stale string callbacks found.' );
 	}
 
 	/**

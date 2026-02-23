@@ -62,6 +62,7 @@ jobs:
   # Detect WordPress versions dynamically using comprehensive detection script
   detect-wp-versions:
     name: "Detect WordPress Versions"
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     outputs:
       latest: ${{ steps.detect.outputs.latest }}
@@ -114,66 +115,17 @@ jobs:
 
   build-package:
     name: "Build Plugin Package"
+    if: github.event_name != 'pull_request'
     needs: detect-wp-versions
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.10'
-        cache: 'npm'
-
-    - name: Install build dependencies
-      run: |
-        composer install --no-interaction --prefer-dist --optimize-autoloader
-        npm ci --no-audit --no-fund
-
-    - name: Build assets
-      run: npm run build
-
-    - name: Load Strauss version
-      run: |
-        source .github/scripts/read-packager-config.sh
-        echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
-        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
-        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
-
-    - name: Build plugin package
-      run: |
-        PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        rm -rf "$PACKAGE_DIR" || true
-        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
-
-    - name: Validate package artifact
-      run: |
-        PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        test -d "$PACKAGE_DIR"
-        test -f "$PACKAGE_DIR/icwp-wpsf.php"
-        test -f "$PACKAGE_DIR/vendor/autoload.php"
-        test -d "$PACKAGE_DIR/assets/dist"
-        echo "Package artifact validation passed"
-
-    - name: Upload package artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: shield-package
-        path: ${{ github.workspace }}/shield-package/**
-        if-no-files-found: error
+    uses: ./.github/workflows/reusable-build-package.yml
+    with:
+      artifact_name: shield-package
+      package_dir: shield-package
 
   # Matrix Docker test job
   docker-test:
     name: "Test PHP ${{ matrix.php }} / WP ${{ matrix.wordpress }}"
+    if: github.event_name != 'pull_request'
     needs: [detect-wp-versions, build-package]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -320,7 +272,7 @@ jobs:
 
   cache-cleanup-post-run:
     name: "Post-run Cache Cleanup"
-    if: always()
+    if: always() && github.event_name != 'pull_request'
     needs: [docker-test]
     runs-on: ubuntu-latest
     permissions:
