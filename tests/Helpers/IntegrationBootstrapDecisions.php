@@ -46,7 +46,9 @@ class IntegrationBootstrapDecisions {
 			];
 		}
 
-		if ( $explicitDockerMode || $dockerModeHeuristic ) {
+		// Heuristic signals alone should not force docker_missing_symlink.
+		// Source integration runs can legitimately create /tmp/wordpress.
+		if ( $explicitDockerMode ) {
 			return [
 				'mode' => 'docker_missing_symlink',
 				'plugin_dir' => self::DOCKER_PLUGIN_DIR,

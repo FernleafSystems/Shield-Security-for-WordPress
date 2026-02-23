@@ -70,6 +70,22 @@ class IntegrationBootstrapDecisionsTest extends TestCase {
 		);
 	}
 
+	public function testResolvePluginContextHeuristicAloneFallsBackToSourceMode() :void {
+		$context = IntegrationBootstrapDecisions::resolvePluginContext(
+			$this->repoRoot,
+			[
+				'SHIELD_PACKAGE_PATH' => false,
+			],
+			false,
+			false,
+			true
+		);
+
+		$this->assertSame( 'source', $context[ 'mode' ] );
+		$this->assertSame( $this->repoRoot, $context[ 'plugin_dir' ] );
+		$this->assertSame( Path::join( $this->repoRoot, 'icwp-wpsf.php' ), $context[ 'main_plugin_file' ] );
+	}
+
 	public function testResolvePluginContextFallsBackToSourceMode() :void {
 		$context = IntegrationBootstrapDecisions::resolvePluginContext(
 			$this->repoRoot,

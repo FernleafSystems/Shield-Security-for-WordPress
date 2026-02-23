@@ -319,7 +319,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertStringContainsString( "throw new \\Exception( 'Legacy shutdown guard: monolog disabled.' );", $legacyMonolog );
 		$this->assertStringNotContainsString( 'includePrefixedVendor()', $legacyMonolog );
 		$this->assertStringContainsString( 'ClassDependencyGuard', $runtimeMonolog );
-		$this->assertStringContainsString( "ensureAvailable( '\\Monolog\\Logger', 'Monolog' )", $runtimeMonolog );
+		$this->assertStringContainsString( 'AptowebDeps\\Monolog\\Logger', $runtimeMonolog );
 
 		$this->assertStringContainsString( 'return [];', $legacyFindAssets );
 		$this->assertStringNotContainsString( 'Services::WpPlugins()->getPluginsAsVo()', $legacyFindAssets );
