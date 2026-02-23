@@ -80,9 +80,6 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}
 
-	/**
-	 * @param string|mixed $optKey
-	 */
 	public function cfgForOpt( string $optKey ) :string {
 		$def = self::con()->opts->optDef( $optKey );
 		if ( empty( $def ) || empty( $def[ 'zone_comp_slugs' ] ) ) {

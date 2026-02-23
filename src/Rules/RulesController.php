@@ -37,7 +37,11 @@ class RulesController {
 		// Rebuild the rules when configuration is updated
 		add_action(
 			self::con()->prefix( 'after_pre_options_store' ),
-			fn( $cfgChanged ) => $cfgChanged && $this->buildAndStore()
+			function ( $cfgChanged ) :void {
+				if ( $cfgChanged ) {
+					$this->buildAndStore();
+				}
+			}
 		);
 
 		// Rebuild the rules every hour
@@ -48,7 +52,7 @@ class RulesController {
 		$this->buildAndStore();
 	}
 
-	public function buildAndStore() {
+	public function buildAndStore() :void {
 		( new RulesStorageHandler() )->store( ( new Build\Builder() )->run() );
 	}
 

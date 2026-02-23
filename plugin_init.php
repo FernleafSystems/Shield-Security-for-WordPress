@@ -60,7 +60,7 @@ try {
 	$oICWP_Wpsf->start();
 }
 catch ( Controller\Exceptions\VersionMismatchException $e ) {
-	add_action( 'admin_notices', function () use ( $e ) {
+	add_action( 'admin_notices', function () {
 		echo sprintf( '<div class="notice error"><p>%s</p></div>',
 			'Shield Security: There appears to be a configuration issue - please reinstall the Shield Security plugin.' );
 	} );
