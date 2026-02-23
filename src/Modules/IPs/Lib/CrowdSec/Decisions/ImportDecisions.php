@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions;
 
-use AptowebDeps\CrowdSec\CapiClient\ClientException;
+use CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -67,17 +66,11 @@ class ImportDecisions {
 		];
 	}
 
-	/**
-	 * @throws LibraryPrefixedAutoloadNotFoundException
-	 * @throws ClientException
-	 */
+	/** @throws ClientException */
 	private function downloadDecisions() :array {
 		return self::con()->comps->crowdsec->getCApiWatcher()->getStreamDecisions();
 	}
 
-	/**
-	 * @throws LibraryPrefixedAutoloadNotFoundException
-	 */
 	public function testDownloadDecisionsViaFile() :array {
 		$FS = Services::WpFs();
 		$file = ABSPATH.'csDec.txt';

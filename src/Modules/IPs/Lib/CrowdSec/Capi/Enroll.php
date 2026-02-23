@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Capi;
 
-use AptowebDeps\CrowdSec\CapiClient\ClientException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
+use CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Enroll {
@@ -22,9 +21,6 @@ class Enroll {
 		}
 	}
 
-	/**
-	 * @throws LibraryPrefixedAutoloadNotFoundException
-	 */
 	public function enroll() :void {
 		$csCon = self::con()->comps->crowdsec;
 		$auth = $csCon->getCApiStore()->getAuth();

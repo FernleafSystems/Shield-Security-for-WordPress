@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
-use AptowebDeps\Monolog\Processor\ProcessorInterface;
+use Monolog\Processor\ProcessorInterface;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class BaseMetaProcessor implements ProcessorInterface {

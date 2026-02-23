@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals;
 
-use AptowebDeps\CrowdSec\CapiClient\ClientException;
+use CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\CrowdSecSignals\Ops as CrowdsecSignalsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -26,16 +25,9 @@ class PushSignalsToCS {
 	}
 
 	protected function run() {
-		try {
-			$this->push();
-		}
-		catch ( LibraryPrefixedAutoloadNotFoundException $e ) {
-		}
+		$this->push();
 	}
 
-	/**
-	 * @throws LibraryPrefixedAutoloadNotFoundException
-	 */
 	public function push() {
 		$watcher = self::con()->comps->crowdsec->getCApiWatcher();
 		$pushCount = 0;
@@ -71,9 +63,6 @@ class PushSignalsToCS {
 		}
 	}
 
-	/**
-	 * @throws LibraryPrefixedAutoloadNotFoundException
-	 */
 	private function convertRecordsToSignal( CrowdsecSignalsDB\Record $record ) :array {
 		$carbon = Services::Request()->carbon();
 		$carbon->setTimezone( 'UTC' );

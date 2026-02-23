@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
-use AptowebDeps\Monolog\Handler\FilterHandler;
-use AptowebDeps\Monolog\Logger;
+use Monolog\Handler\FilterHandler;
+use Monolog\Logger;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;

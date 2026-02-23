@@ -99,7 +99,7 @@
       "@test:integration"
     ],
     "test:easy":        "@test:unit",
-    "analyze":          "@analyze:package",
+    "analyze":          "@analyze:source",
     "analyze:package":  [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/run-static-analysis.php --package"
@@ -127,7 +127,7 @@
         "twig/twig",
         "crowdsec/capi-client"
       ],
-      "update_call_sites":              false,
+      "update_call_sites":              true,
       "optimize_autoloader":            false,
       "override_autoload":              {},
       "exclude_from_copy":              {

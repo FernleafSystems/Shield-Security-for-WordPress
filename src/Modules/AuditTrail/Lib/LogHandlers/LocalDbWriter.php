@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers;
 
-use AptowebDeps\Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ActivityLogs\Ops as LogsDB,
 	ActivityLogsMeta\Ops as MetaDB,
