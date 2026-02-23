@@ -107,8 +107,14 @@
     "analyze:source":   "@php bin/run-static-analysis.php --source",
     "phpcs":            "phpcs",
     "phpcs:fix":        "phpcbf",
-    "package-plugin":   "@php bin/package-plugin.php",
-    "build-zip":        "@php bin/build-zip.php",
+    "package-plugin":   [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/package-plugin.php"
+    ],
+    "build-zip":        [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/build-zip.php"
+    ],
     "playground:local": "@php bin/run-playground-local.php",
     "playground:local:check": "@php bin/run-playground-local.php --run-blueprint",
     "playground:package:check": "@php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package",
