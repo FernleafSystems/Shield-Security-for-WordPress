@@ -67,8 +67,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CALLER_PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HEAD_SNAPSHOT_DIR="$CALLER_PROJECT_ROOT/tmp/shield-head-snapshot"
 HEAD_INDEX_FILE="$CALLER_PROJECT_ROOT/tmp/shield-head-snapshot.index"
-HEAD_SNAPSHOT_RELATIVE="tmp/shield-head-snapshot"
-HEAD_INDEX_RELATIVE="tmp/shield-head-snapshot.index"
 
 HEAD_COMMIT="$(cd "$CALLER_PROJECT_ROOT" >/dev/null 2>&1 && git rev-parse HEAD 2>/dev/null || true)"
 
@@ -79,14 +77,23 @@ fi
 
 prepare_head_snapshot() {
     mkdir -p "$CALLER_PROJECT_ROOT/tmp"
-    rm -rf "$HEAD_SNAPSHOT_DIR"
+    if [ -e "$HEAD_SNAPSHOT_DIR" ]; then
+        chmod -R u+w "$HEAD_SNAPSHOT_DIR" >/dev/null 2>&1 || true
+        if ! rm -rf "$HEAD_SNAPSHOT_DIR"; then
+            # Retry via Docker to remove files that may be owned by container users.
+            if ! docker run --rm -v "$CALLER_PROJECT_ROOT:/app" alpine:3.20 sh -c "rm -rf /app/tmp/shield-head-snapshot"; then
+                HEAD_SNAPSHOT_DIR="$CALLER_PROJECT_ROOT/tmp/shield-head-snapshot.$(date +%s).$$"
+                echo "⚠️  Warning: Could not remove previous snapshot. Using alternate snapshot path: $HEAD_SNAPSHOT_DIR"
+            fi
+        fi
+    fi
     rm -f "$HEAD_INDEX_FILE"
     mkdir -p "$HEAD_SNAPSHOT_DIR"
 
     if ! (
         cd "$CALLER_PROJECT_ROOT" >/dev/null 2>&1 &&
-        GIT_INDEX_FILE="$HEAD_INDEX_RELATIVE" git read-tree HEAD &&
-        GIT_INDEX_FILE="$HEAD_INDEX_RELATIVE" git checkout-index -a -f --prefix="$HEAD_SNAPSHOT_RELATIVE/"
+        GIT_INDEX_FILE="$HEAD_INDEX_FILE" git read-tree HEAD &&
+        GIT_INDEX_FILE="$HEAD_INDEX_FILE" git checkout-index -a -f --prefix="$HEAD_SNAPSHOT_DIR/"
     ); then
         echo "❌ Error: Failed to export HEAD snapshot to $HEAD_SNAPSHOT_DIR"
         rm -f "$HEAD_INDEX_FILE"

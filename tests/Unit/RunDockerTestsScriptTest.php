@@ -41,7 +41,7 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$this->requireBash();
 
 		$process = new Process(
-			[ 'bash', $this->getPluginFilePath( 'bin/run-docker-tests.sh' ), '--help' ],
+			[ 'bash', 'bin/run-docker-tests.sh', '--help' ],
 			$this->getPluginRoot()
 		);
 		$process->run();
@@ -56,7 +56,7 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$this->requireBash();
 
 		$process = new Process(
-			[ 'bash', $this->getPluginFilePath( 'bin/run-docker-tests.sh' ), '--definitely-unknown-option' ],
+			[ 'bash', 'bin/run-docker-tests.sh', '--definitely-unknown-option' ],
 			$this->getPluginRoot()
 		);
 		$process->run();
