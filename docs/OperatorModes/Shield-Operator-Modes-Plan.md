@@ -580,7 +580,7 @@ The Actions Queue landing page is primarily a composition of existing components
 
 ### Step 6: Investigate Mode
 
-**Status (2026-02-22):** In progress, partially delivered. Shared investigation DataTable foundation (Section 12.2) is implemented (`BaseInvestigationTable`, `BaseInvestigationData`, investigation Build/LoadData child classes, `InvestigationTable.js`, `InvestigationTableAction`, shared investigate partials). `PageInvestigateLanding.php` and `PageInvestigateByUser.php` still require integration completion to replace current static table rendering in user investigation tabs.
+**Status (2026-02-24):** In progress, with P6 foundation + P6a + P6b delivered. Shared investigation DataTable foundation (Section 12.2) is implemented and integrated into Investigate Landing and Investigate By User (`PageInvestigateLanding.php`, `PageInvestigateByUser.php`, shared investigate partials, `InvestigationTable.js`, `InvestigationTableAction`). Remaining execution focus is P6c+ (IP/Plugin/Theme/Core pages and cross-subject link completion).
 
 **Prototype reference:** Implementors MUST review the HTML prototypes in `docs/OperatorModes/investigate-mode/` before building. These define the exact visual layout, data columns, tab structure, and cross-linking patterns. See Section 11 for detailed specifications.
 
@@ -588,10 +588,10 @@ The Actions Queue landing page is primarily a composition of existing components
 
 | File | Purpose | Prototype Reference |
 |---|---|---|
-| `PageInvestigateLanding.php` | Subject selector grid + lookup panels (refactor existing file) | `investigate-landing.html` |
-| `investigate_landing.twig` | Template for landing (refactor existing file) | `investigate-landing.html` |
-| `PageInvestigateByUser.php` | User analysis: header + stats + rail/panel (4 tabs) (refactor existing file) | `investigate-user.html` |
-| `investigate_by_user.twig` | Template — rail+panel with Sessions, Activity, Requests, IP Addresses tabs (refactor existing file) | `investigate-user.html` |
+| `PageInvestigateLanding.php` | Subject selector grid + lookup panels (refactor existing file) | `investigate-landing.html` (Completed 2026-02-24) |
+| `investigate_landing.twig` | Template for landing (refactor existing file) | `investigate-landing.html` (Completed 2026-02-24) |
+| `PageInvestigateByUser.php` | User analysis: header + stats + rail/panel (4 tabs) (refactor existing file) | `investigate-user.html` (Completed 2026-02-24) |
+| `investigate_by_user.twig` | Template — rail+panel with Sessions, Activity, Requests, IP Addresses tabs (refactor existing file) | `investigate-user.html` (Completed 2026-02-24) |
 | `PageInvestigateByIp.php` | IP analysis: wraps IpAnalyse\Container with subject header + stats | `investigate-ip.html` |
 | `investigate_by_ip.twig` | Template — subject header + existing IpAnalyse 5-tab container | `investigate-ip.html` |
 | `PageInvestigateByPlugin.php` | Plugin analysis: Overview, File Status, Vulnerabilities, Activity | `investigate-plugin.html` |
@@ -936,8 +936,8 @@ The plugin has a mature, battle-tested component architecture. The table below i
 |---|---|---|---|
 | `BasePluginAdminPage` | `src/ActionRouter/Actions/Render/PluginAdminPages/BasePluginAdminPage.php` | Base class for all admin pages. Provides breadcrumbs, contextual hrefs, page title/subtitle, nonce field. | **Extend.** All investigation pages extend this. Override `getRenderData()`, `getInnerPageTitle()`, `getInnerPageSubTitle()`. |
 | `BaseRender` | `src/ActionRouter/Actions/Render/BaseRender.php` | Base class for all renderable components (pages, widgets, offcanvas). Provides `getAllRenderDataArrays()` merge at priority levels, Twig rendering. | **Extend indirectly** (via BasePluginAdminPage). Sub-components (summary stats, subject header) extend this directly. |
-| `PageInvestigateByUser` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php` | **Already exists.** Current implementation loads sessions, activity, requests, related IPs for a user. Currently renders as flat vertical sections. | **Refactor.** Keep the data-loading methods (`buildSessions()`, `buildActivityLogs()`, `buildRequestLogs()`, `buildRelatedIps()`). Replace the template with rail+panel layout. Wire data through DataTable infrastructure instead of static arrays. |
-| `PageInvestigateLanding` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php` | **Already exists.** Current implementation has tools card + user/IP lookup. | **Refactor.** Replace template with subject selector grid from prototype. Keep user/IP resolution logic. |
+| `PageInvestigateByUser` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php` | **Implemented.** Uses rail+panel layout with shared investigation DataTable contracts for Sessions/Activity/Requests and server-rendered IP card grid. | **Reuse as reference.** Keep existing loader methods and shared table framework pattern for remaining subject pages. |
+| `PageInvestigateLanding` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php` | **Implemented.** Subject selector landing with lookup panels and quick-tools strip. | **Reuse as reference.** Keep active-subject and lookup contract pattern for other subject landing flows. |
 
 #### DataTable build infrastructure (column definitions + configuration)
 

@@ -32,183 +32,115 @@
 			</div>
 		</div>
 	{% else %}
-		<div class="row g-3">
-			<div class="col-12">
-				<div class="card shield-card">
-					<div class="shield-card-accent status-info"></div>
-					<div class="card-body">
-						<h5 class="card-title mb-3">{{ strings.summary_title }}</h5>
-						<div class="row g-2">
-							<div class="col-12 col-md-3"><strong>ID:</strong> {{ vars.subject.id }}</div>
-							<div class="col-12 col-md-3"><strong>Login:</strong> {{ vars.subject.login }}</div>
-							<div class="col-12 col-md-3"><strong>Email:</strong> {{ vars.subject.email }}</div>
-							<div class="col-12 col-md-3"><strong>Display:</strong> {{ vars.subject.display }}</div>
+		{% include '/wpadmin/components/investigate/subject_header.twig' with {
+			subject: vars.subject
+		} only %}
+
+		<div class="row g-2 mb-3 investigate-by-user-summary">
+			{% for stat in vars.summary %}
+				<div class="col-6 col-xl-3">
+					<div class="card shield-card h-100">
+						<div class="shield-card-accent status-{{ stat.status|default('info') }}"></div>
+						<div class="card-body py-3">
+							<div class="h4 mb-1">{{ stat.count|default(0) }}</div>
+							<div class="text-muted small">{{ stat.label|default('') }}</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			{% endfor %}
+		</div>
 
-			<div class="col-12">
-				<div class="card shield-card">
-					<div class="shield-card-accent status-info"></div>
-					<div class="card-body">
-						<h5 class="card-title mb-3">{{ strings.sessions_title }}</h5>
-						{% if vars.sessions is empty %}
-							<p class="mb-0">{{ strings.sessions_empty }}</p>
-						{% else %}
-							<div class="table-responsive">
-								<table class="table table-sm">
-									<thead>
-									<tr>
-										<th>{{ strings.sessions_user }}</th>
-										<th>{{ strings.sessions_login_at }}</th>
-										<th>{{ strings.sessions_last_at }}</th>
-										<th>{{ strings.sessions_ip }}</th>
-									</tr>
-									</thead>
-									<tbody>
-									{% for session in vars.sessions %}
-										<tr>
-											<td>
-												{{ session.user_login }}
-												{% if session.is_sec_admin %}
-													<span class="badge bg-warning text-dark ms-1">SecAdmin</span>
-												{% endif %}
-											</td>
-											<td>
-												{{ session.logged_in_at_ago }}
-												<div class="timestamp-small">{{ session.logged_in_at }}</div>
-											</td>
-											<td>
-												{{ session.last_activity_at_ago }}
-												<div class="timestamp-small">{{ session.last_activity_at }}</div>
-											</td>
-											<td>
-												{% if session.ip|default('') is not empty %}
-													<a href="{{ session.ip_href|default('#') }}"
-													   class="offcanvas_ip_analysis ip-address"
-													   data-ip="{{ session.ip }}">{{ session.ip }}</a>
-												{% else %}
-													-
-												{% endif %}
-											</td>
-										</tr>
-									{% endfor %}
-									</tbody>
-								</table>
-							</div>
-						{% endif %}
-					</div>
-				</div>
-			</div>
+		<div class="options_form_for--modern">
+			<div class="shield-options-layout has-rail">
+				<aside class="shield-options-rail">
+					<div class="shield-options-rail-accent"></div>
+					{% include '/components/config/options_rail_tabs.twig' with {
+						nav_id: 'ShieldInvestigateByUserTabsNav',
+						nav_items: vars.rail_nav_items
+					} only %}
+				</aside>
 
-			<div class="col-12">
-				<div class="card shield-card">
-					<div class="shield-card-accent status-warning"></div>
-					<div class="card-body">
-						<h5 class="card-title mb-3">{{ strings.activity_title }}</h5>
-						{% if vars.activity_logs is empty %}
-							<p class="mb-0">{{ strings.activity_empty }}</p>
-						{% else %}
-							<div class="table-responsive">
-								<table class="table table-sm">
-									<thead>
-									<tr>
-										<th>{{ strings.activity_event }}</th>
-										<th>{{ strings.activity_when }}</th>
-										<th>{{ strings.activity_ip }}</th>
-									</tr>
-									</thead>
-									<tbody>
-									{% for log in vars.activity_logs %}
-										<tr>
-											<td>{{ log.event }}</td>
-											<td>
-												{{ log.created_at_ago }}
-												<div class="timestamp-small">{{ log.created_at }}</div>
-											</td>
-											<td>
-												<a href="{{ log.ip_href }}"
-												   class="offcanvas_ip_analysis ip-address"
-												   data-ip="{{ log.ip }}">{{ log.ip }}</a>
-											</td>
-										</tr>
-									{% endfor %}
-									</tbody>
-								</table>
+				<div class="shield-options-content">
+					<div class="tab-content investigate-by-user-content">
+						<section class="tab-pane shield-options-panel active show"
+								 id="tabInvestigateUserSessions"
+								 role="tabpanel"
+								 aria-labelledby="tab-navlink-user-sessions">
+							<div class="shield-options-panel-accent"></div>
+							<div class="shield-options-panel-body">
+								{% include '/wpadmin/components/investigate/table_container.twig' with {
+									table: vars.tables.sessions
+								} only %}
 							</div>
-						{% endif %}
-					</div>
-				</div>
-			</div>
-
-			<div class="col-12">
-				<div class="card shield-card">
-					<div class="shield-card-accent status-warning"></div>
-					<div class="card-body">
-						<h5 class="card-title mb-3">{{ strings.requests_title }}</h5>
-						{% if vars.request_logs is empty %}
-							<p class="mb-0">{{ strings.requests_empty }}</p>
-						{% else %}
-							<div class="table-responsive">
-								<table class="table table-sm">
-									<thead>
-									<tr>
-										<th>{{ strings.requests_path }}</th>
-										<th>{{ strings.requests_response }}</th>
-										<th>{{ strings.requests_when }}</th>
-										<th>{{ strings.requests_ip }}</th>
-									</tr>
-									</thead>
-									<tbody>
-									{% for request in vars.request_logs %}
-										<tr>
-											<td>
-												<code>{{ request.verb }}</code>
-												<code>{{ request.path }}</code>
-												{% if request.query is not empty %}
-													<div><code>?{{ request.query }}</code></div>
-												{% endif %}
-											</td>
-											<td>
-												<span class="badge bg-{{ request.code >= 400 ? 'danger' : (request.code >= 300 ? 'warning' : 'success') }}">{{ request.code }}</span>
-												<span class="badge bg-{{ request.offense ? 'danger' : 'info' }}">{{ request.offense ? 'Yes' : 'No' }}</span>
-											</td>
-											<td>
-												{{ request.created_at_ago }}
-												<div class="timestamp-small">{{ request.created_at }}</div>
-											</td>
-											<td>
-												<a href="{{ request.ip_href }}"
-												   class="offcanvas_ip_analysis ip-address"
-												   data-ip="{{ request.ip }}">{{ request.ip }}</a>
-											</td>
-										</tr>
-									{% endfor %}
-									</tbody>
-								</table>
+						</section>
+						<section class="tab-pane shield-options-panel"
+								 id="tabInvestigateUserActivity"
+								 role="tabpanel"
+								 aria-labelledby="tab-navlink-user-activity">
+							<div class="shield-options-panel-accent"></div>
+							<div class="shield-options-panel-body">
+								{% include '/wpadmin/components/investigate/table_container.twig' with {
+									table: vars.tables.activity
+								} only %}
 							</div>
-						{% endif %}
-					</div>
-				</div>
-			</div>
-
-			<div class="col-12">
-				<div class="card shield-card">
-					<div class="shield-card-accent status-good"></div>
-					<div class="card-body">
-						<h5 class="card-title mb-3">{{ strings.related_ips_title }}</h5>
-						{% if vars.related_ips is empty %}
-							<p class="mb-0">{{ strings.related_ips_empty }}</p>
-						{% else %}
-							<div class="d-flex flex-wrap gap-2">
-								{% for related in vars.related_ips %}
-									<a href="{{ related.href }}"
-									   class="badge bg-secondary text-decoration-none offcanvas_ip_analysis"
-									   data-ip="{{ related.ip }}">{{ related.ip }}</a>
-								{% endfor %}
+						</section>
+						<section class="tab-pane shield-options-panel"
+								 id="tabInvestigateUserRequests"
+								 role="tabpanel"
+								 aria-labelledby="tab-navlink-user-requests">
+							<div class="shield-options-panel-accent"></div>
+							<div class="shield-options-panel-body">
+								{% include '/wpadmin/components/investigate/table_container.twig' with {
+									table: vars.tables.requests
+								} only %}
 							</div>
-						{% endif %}
+						</section>
+						<section class="tab-pane shield-options-panel"
+								 id="tabInvestigateUserIps"
+								 role="tabpanel"
+								 aria-labelledby="tab-navlink-user-ips">
+							<div class="shield-options-panel-accent"></div>
+							<div class="shield-options-panel-body">
+								<div class="card shield-card status-good">
+									<div class="shield-card-accent status-good"></div>
+									<div class="card-body">
+										<h5 class="card-title mb-3">{{ strings.related_ips_title }}</h5>
+										{% if vars.related_ips is empty %}
+											<p class="mb-0">{{ strings.related_ips_empty }}</p>
+										{% else %}
+											<div class="row g-3">
+												{% for related in vars.related_ips %}
+													<div class="col-12 col-md-6 col-xl-4">
+														<div class="card shield-card h-100 investigate-by-user-ip-card status-{{ related.status|default('info') }}">
+															<div class="shield-card-accent status-{{ related.status|default('info') }}"></div>
+															<div class="card-body d-flex flex-column gap-2">
+																<div class="d-flex justify-content-between align-items-start gap-2">
+																	<a href="{{ related.href }}"
+																	   class="offcanvas_ip_analysis ip-address fw-semibold"
+																	   data-ip="{{ related.ip }}">{{ related.ip }}</a>
+																	<span class="shield-badge badge-{{ related.status|default('info') }} status-{{ related.status|default('info') }} investigate-by-user-ip-status">{{ related.status|default('info')|upper }}</span>
+																</div>
+																<div>
+																	<div>{{ related.last_seen_ago|default('-') }}</div>
+																	{% if related.last_seen_at|default('') is not empty %}
+																		<div class="timestamp-small">{{ related.last_seen_at }}</div>
+																	{% endif %}
+																</div>
+																<div class="small text-muted investigate-by-user-ip-counts">
+																	S: {{ related.sessions_count|default(0) }} |
+																	A: {{ related.activity_count|default(0) }} |
+																	R: {{ related.requests_count|default(0) }}
+																</div>
+															</div>
+														</div>
+													</div>
+												{% endfor %}
+											</div>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</section>
 					</div>
 				</div>
 			</div>

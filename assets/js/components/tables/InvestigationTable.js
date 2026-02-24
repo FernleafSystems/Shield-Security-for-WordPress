@@ -16,6 +16,7 @@ export class InvestigationTable extends ShieldTableBase {
 
 	run() {
 		this.els.forEach( ( el ) => this.setupInvestigationTable( el ) );
+		this.bindShownTabAdjustHandler();
 	}
 
 	getDefaultDatatableConfig() {
@@ -33,6 +34,12 @@ export class InvestigationTable extends ShieldTableBase {
 		}
 
 		const $tableElement = $( tableEl );
+		if ( $.fn.dataTable && $.fn.dataTable.isDataTable( tableEl ) ) {
+			const datatable = $tableElement.DataTable();
+			this.ensureSearchDelay( datatable );
+			return;
+		}
+
 		const cfg = $.extend(
 			{},
 			context.datatablesInit,
@@ -44,6 +51,40 @@ export class InvestigationTable extends ShieldTableBase {
 
 		const datatable = $tableElement.DataTable( cfg );
 		this.ensureSearchDelay( datatable );
+	}
+
+	bindShownTabAdjustHandler() {
+		if ( this.hasBoundShownTabAdjustHandler ) {
+			return;
+		}
+		this.hasBoundShownTabAdjustHandler = true;
+
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.tab',
+			'#ShieldInvestigateByUserTabsNav [data-bs-toggle="tab"]',
+			( targetEl ) => {
+				const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
+				if ( typeof paneSelector !== 'string' || !paneSelector.startsWith( '#' ) ) {
+					return;
+				}
+
+				const pane = document.querySelector( paneSelector );
+				if ( pane === null || !$.fn.dataTable || !$.fn.dataTable.isDataTable ) {
+					return;
+				}
+				if ( pane.querySelector( '[data-investigation-table="1"]' ) === null ) {
+					return;
+				}
+
+				$( pane ).find( '[data-investigation-table="1"]' ).each( ( _, tableEl ) => {
+					if ( $.fn.dataTable.isDataTable( tableEl ) ) {
+						const datatable = $( tableEl ).DataTable();
+						datatable.columns.adjust();
+					}
+				} );
+			},
+			false
+		);
 	}
 
 	ensureSearchDelay( datatable ) {

@@ -1,6 +1,7 @@
 import { ShieldTableBase } from "./ShieldTableBase";
 import { Popover } from "bootstrap";
 import { AjaxService } from "../services/AjaxService";
+import { PageQueryParam } from "../../util/PageQueryParam";
 
 export class ShieldTableActivityLog extends ShieldTableBase {
 
@@ -13,6 +14,11 @@ export class ShieldTableActivityLog extends ShieldTableBase {
 		cfg.select = {
 			style: 'api'
 		};
+
+		const search = PageQueryParam.Retrieve( 'search' );
+		if ( typeof search === 'string' && search.length > 0 ) {
+			cfg.search = { search };
+		}
 		return cfg;
 	}
 
