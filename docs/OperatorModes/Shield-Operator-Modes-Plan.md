@@ -1,6 +1,6 @@
 # Shield Security — Operator Modes Plan
 
-**Date:** 20 February 2026 | **Last Updated:** 22 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
+**Date:** 20 February 2026 | **Last Updated:** 24 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
 
 ---
 
@@ -1196,6 +1196,14 @@ This section gives the implementing agent specific instructions for each part of
 
 **Page handler:** Refactor existing `PageInvestigateLanding.php` (do NOT create a new file).
 
+**Status update (2026-02-24):** Implemented for this slice.
+1. Landing refactored to subject-selector + panel architecture with Bootstrap tab behavior.
+2. Inline `IpAnalyse\Container` embed removed from the landing page.
+3. Landing data contract now provides `active_subject`, persisted `input`, and plugin/theme option lists.
+4. Transitional sub-nav routing for `by_plugin`, `by_theme`, `by_core` is registered and routed to the landing page until dedicated subject pages are delivered.
+5. Breadcrumb handling treats `activity/by_ip`, `activity/by_plugin`, `activity/by_theme`, and `activity/by_core` as landing-routed paths to preserve landing-consistent crumb depth.
+6. Fragile source-string test coverage was replaced with behavior-level unit coverage for landing contract, nav routes, and breadcrumb behavior.
+
 **What to keep:**
 - The current user lookup resolution logic (for example `ResolveUserLookup::resolve()` flow)
 - The IP validation logic
@@ -1203,9 +1211,9 @@ This section gives the implementing agent specific instructions for each part of
 
 **What to replace:**
 - The template. Replace `investigate_landing.twig` contents with the subject selector grid from the prototype.
-- The `getRenderData()` return structure. Provide: installed plugins list (from `get_plugins()`), installed themes list (from `wp_get_themes()`), and hrefs for each subject's analysis page.
+- The landing render structure. Provide plugin/theme options and subject hrefs via existing service wrappers and URL helpers (`Services::WpPlugins()->getPluginsAsVo()`, `Services::WpThemes()->getThemesAsVo()`, `plugin_urls`).
 
-**No new PHP infrastructure needed.** The landing page is pure UI — it's a grid of links and forms. The dropdowns for plugins/themes are populated from WordPress core functions, not from Shield components.
+**No new PHP infrastructure needed.** Keep logic in the existing landing page class with small private helpers and existing wrappers/helpers; no new service layer is required.
 
 #### 12.4.2 Investigation tables (all subjects)
 

@@ -15,7 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class PluginNavsOperatorModesTest extends BaseUnitTest {
 
@@ -28,7 +28,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
-		PluginStore::$plugin = null;
+		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
 
@@ -77,12 +77,58 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_IP ][ 'handler' ]
 		);
 		$this->assertSame(
+			PluginAdminPages\PageInvestigateLanding::class,
+			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'handler' ]
+		);
+		$this->assertSame(
+			PluginAdminPages\PageInvestigateLanding::class,
+			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'handler' ]
+		);
+		$this->assertSame(
+			PluginAdminPages\PageInvestigateLanding::class,
+			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ]
+		);
+		$this->assertSame(
 			PluginAdminPages\PageConfigureLanding::class,
 			$hierarchy[ PluginNavs::NAV_ZONES ][ 'sub_navs' ][ PluginNavs::SUBNAV_ZONES_OVERVIEW ][ 'handler' ]
 		);
 		$this->assertSame(
 			PluginAdminPages\PageReportsLanding::class,
 			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_OVERVIEW ][ 'handler' ]
+		);
+	}
+
+	public function test_mode_landing_helpers_expose_expected_route_contract() :void {
+		$this->assertSame(
+			[
+				PluginNavs::NAV_SCANS    => [
+					PluginNavs::SUBNAV_SCANS_OVERVIEW,
+				],
+				PluginNavs::NAV_ACTIVITY => [
+					PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
+					PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+					PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+					PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
+					PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
+				],
+				PluginNavs::NAV_ZONES    => [
+					PluginNavs::SUBNAV_ZONES_OVERVIEW,
+				],
+				PluginNavs::NAV_REPORTS  => [
+					PluginNavs::SUBNAV_REPORTS_OVERVIEW,
+				],
+			],
+			PluginNavs::modeLandingSubNavsByNav()
+		);
+
+		$this->assertTrue(
+			PluginNavs::isModeLandingRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN )
+		);
+		$this->assertFalse(
+			PluginNavs::isModeLandingRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER )
+		);
+		$this->assertFalse(
+			PluginNavs::isModeLandingRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS )
 		);
 	}
 
@@ -113,6 +159,18 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			PluginAdminPages\PageInvestigateLanding::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_IP ][ 'handler' ]
+		);
+		$this->assertSame(
+			PluginAdminPages\PageInvestigateLanding::class,
+			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'handler' ]
+		);
+		$this->assertSame(
+			PluginAdminPages\PageInvestigateLanding::class,
+			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'handler' ]
+		);
+		$this->assertSame(
+			PluginAdminPages\PageInvestigateLanding::class,
+			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ]
 		);
 		$this->assertSame(
 			PluginAdminPages\PageActivityLogTable::class,
@@ -149,6 +207,21 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_activity_nav_contains_transitional_subject_subnav_keys() :void {
+		$subNavs = PluginNavs::GetNavHierarchy()[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ];
+
+		$this->assertArrayHasKey( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN, $subNavs );
+		$this->assertArrayHasKey( PluginNavs::SUBNAV_ACTIVITY_BY_THEME, $subNavs );
+		$this->assertArrayHasKey( PluginNavs::SUBNAV_ACTIVITY_BY_CORE, $subNavs );
+	}
+
+	public function test_default_subnav_for_activity_is_overview() :void {
+		$this->assertSame(
+			PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
+			PluginNavs::GetDefaultSubNavForNav( PluginNavs::NAV_ACTIVITY )
+		);
+	}
+
 	private function installControllerStubs() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -169,16 +242,6 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			},
 		];
 
-		PluginStore::$plugin = new class( $controller ) {
-			private Controller $controller;
-
-			public function __construct( Controller $controller ) {
-				$this->controller = $controller;
-			}
-
-			public function getController() :Controller {
-				return $this->controller;
-			}
-		};
+		PluginControllerInstaller::install( $controller );
 	}
 }

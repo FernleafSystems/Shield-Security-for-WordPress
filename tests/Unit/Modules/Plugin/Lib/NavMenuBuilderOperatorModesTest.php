@@ -15,29 +15,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\Request;
-use FernleafSystems\Wordpress\Services\Services;
 
 class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
-	private $origServiceItems;
-
-	private $origServices;
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias(
 			fn( string $text ) :string => $text
 		);
-		$this->origServiceItems = $this->getServicesProperty( 'items' )->getValue();
-		$this->origServices = $this->getServicesProperty( 'services' )->getValue();
+		$this->servicesSnapshot = ServicesState::snapshot();
 	}
 
 	protected function tearDown() :void {
-		PluginStore::$plugin = null;
-		$this->getServicesProperty( 'items' )->setValue( null, $this->origServiceItems );
-		$this->getServicesProperty( 'services' )->setValue( null, $this->origServices );
+		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -273,17 +269,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			},
 		];
 
-		PluginStore::$plugin = new class( $controller ) {
-			private Controller $controller;
-
-			public function __construct( Controller $controller ) {
-				$this->controller = $controller;
-			}
-
-			public function getController() :Controller {
-				return $this->controller;
-			}
-		};
+		PluginControllerInstaller::install( $controller );
 	}
 
 	private function baseMenuFixture() :array {
@@ -318,16 +304,8 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	}
 
 	private function installRequestServiceStub() :void {
-		$this->getServicesProperty( 'items' )->setValue( null, [
+		ServicesState::installItems( [
 			'service_request' => new Request(),
 		] );
-		$this->getServicesProperty( 'services' )->setValue( null, null );
-	}
-
-	private function getServicesProperty( string $propertyName ) :\ReflectionProperty {
-		$reflection = new \ReflectionClass( Services::class );
-		$property = $reflection->getProperty( $propertyName );
-		$property->setAccessible( true );
-		return $property;
 	}
 }

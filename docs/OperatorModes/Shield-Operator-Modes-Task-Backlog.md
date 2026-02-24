@@ -186,7 +186,7 @@ These were delivered after P4 and before P5 cleanup:
 | P4.5 | ✅ Complete | Configure-grade shortcut and back-link styling delivered (OM-410/OM-411). |
 | P5 | ✅ Complete | Legacy Simple/Advanced toggle artifacts removed (runtime + source + tests). |
 | P6-FOUND | ✅ Complete | **Shared Investigation Table Framework** implemented: `BaseInvestigationTable`, `BaseInvestigationData`, investigation Build/LoadData child classes, `InvestigationTable.js`, `InvestigationTableAction`, and shared Twig partials. |
-| P6a | ⚠ Partially complete | Landing route/page exists but does not yet match Section 12 architecture/prototype requirements. |
+| P6a | ✅ Complete | Investigate landing delivered as subject-selector + panel architecture with quick tools, transitional sub-nav routes, landing-consistent breadcrumbs, and behavioral unit coverage. |
 | P6b | ⚠ Partially complete | By-user route/page exists, but implementation still uses static HTML tables and must be refactored to shared investigation DataTables. |
 | P6c | ❌ Not started | Investigate IP — wraps IpAnalyse\Container with subject header. Prototype: `investigate-ip.html`. |
 | P6d | ❌ Not started | Investigate Plugin — 4-tab analysis page. Prototype: `investigate-plugin.html`. |
@@ -194,7 +194,7 @@ These were delivered after P4 and before P5 cleanup:
 | P6f | ❌ Not started | Cross-subject linking (IP↔User↔Plugin). |
 | P7+ | ❌ Not started | Configure/Reports deepening, WP dashboard widget. |
 
-## 7) Next Slice: P6 Integration Completion (OM-601/OM-611+)
+## 7) Next Slice: P6 Integration Completion (OM-611+)
 
 P6 foundation (`OM-600a` to `OM-600g`) is complete in code:
 1. Investigation Build/LoadData base classes and child classes exist for Activity, Traffic, Sessions, and File Scan Results.
@@ -203,9 +203,8 @@ P6 foundation (`OM-600a` to `OM-600g`) is complete in code:
 4. Shared investigate partials (`subject_header.twig`, `table_container.twig`) exist.
 
 Next execution focus:
-1. OM-601 to OM-604: complete investigate landing implementation alignment to Section 12 architecture/prototypes.
-2. OM-611 to OM-616: refactor investigate-by-user tabs from static rendering to shared investigation DataTables.
-3. Continue with P6c+ once OM-601/OM-611 integration is complete.
+1. OM-611 to OM-616: refactor investigate-by-user tabs from static rendering to shared investigation DataTables.
+2. Continue with P6c+ once OM-611 integration is complete.
 
 Verification targets for next slice:
 1. At least one investigate tab rendered through `table_container.twig` with `data-investigation-table="1"`.
@@ -277,12 +276,22 @@ Validation notes:
 
 ### P6a — Investigate Landing Page
 
+**Implementation status (2026-02-24):** ✅ Complete (`OM-601` through `OM-604`).
+
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-601 | **Refactor** existing `PageInvestigateLanding` with subject selector grid | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig` | P4 complete | **Do NOT create a new file.** Refactor the existing `PageInvestigateLanding.php` — keep the current user lookup resolution flow (`ResolveUserLookup::resolve()` usage) and IP validation. Replace the template with subject selector grid from `investigate-landing.html` prototype. `getRenderData()` provides: installed plugins list (from `get_plugins()`), installed themes list (from `wp_get_themes()`), hrefs for each subject page. See Plan Section 12.4.1. |
-| OM-602 | Implement lookup panels with autocomplete/dropdown | Same as OM-601 + JS | OM-601 | Users: text input + form submit (same as current user lookup — reuse current `ResolveUserLookup` flow). IPs: text input with validation (same as current IP lookup). Plugins: `<select>` from `get_plugins()`. Themes: `<select>` from `wp_get_themes()`. WP Core/Requests/Activity: direct link buttons. No new AJAX endpoints needed — lookups are form submissions. |
-| OM-603 | Add quick-tools strip below lookup panels | Same as OM-601 | OM-601 | 4 pill-links: Activity Log → existing `PageActivityLogTable`, HTTP Requests → existing `PageTrafficLogTable`, Live Traffic → existing `PageTrafficLogLive`, IP Rules → existing `PageIpRulesTable`. Use existing URL generation via `PluginNavs` href helpers. |
-| OM-604 | Register NAV constants for investigation sub-navs | `src/Controller/Plugin/PluginNavs.php` | OM-601 | Add constants and register page handlers. Note: some of these may already exist (check `SUBNAV_ACTIVITY_BY_USER`, etc. in current `PluginNavs.php`). Register new page handlers in `GetNavHierarchy()`. |
+| OM-601 | ~~Refactor existing `PageInvestigateLanding` with subject selector grid~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig` | P4 complete | **Done (2026-02-24)** — landing handler refactored to subject-driven contract (`active_subject`, `input`, `plugin_options`, `theme_options`), active-subject precedence implemented, inline IP analysis rendering removed, by-user query key contract preserved. Plugin/theme options are sourced from existing service wrappers (`Services::WpPlugins()->getPluginsAsVo()`, `Services::WpThemes()->getThemesAsVo()`). |
+| OM-602 | ~~Implement lookup panels with autocomplete/dropdown~~ | Same as OM-601 + JS | OM-601 | **Done (2026-02-24)** — template replaced with Bootstrap tab subject cards and required lookup/direct-link panels (users, IPs, plugins, themes, core, requests, activity). No custom JS component and no new AJAX endpoint introduced. |
+| OM-603 | ~~Add quick-tools strip below lookup panels~~ | Same as OM-601 | OM-601 | **Done (2026-02-24)** — persistent quick-tools strip implemented with existing routes: Activity Log, HTTP Request Log, Live HTTP Log, IP Rules. |
+| OM-604 | ~~Register NAV constants for investigation sub-navs~~ | `src/Controller/Plugin/PluginNavs.php` | OM-601 | **Done (2026-02-24)** — added `by_plugin`, `by_theme`, `by_core` activity sub-nav constants and transitional route mappings to `PageInvestigateLanding`; updated breadcrumb landing-route detection so `activity/by_ip`, `activity/by_plugin`, `activity/by_theme`, `activity/by_core` retain landing-consistent crumb depth. |
+
+P6a validation evidence (2026-02-24):
+1. Fragile source-string test removed: `tests/Unit/InvestigateByIpLandingContractTest.php`.
+2. New behavior-focused landing test added: `tests/Unit/ActionRouter/Render/PageInvestigateLandingBehaviorTest.php`.
+3. Transitional route coverage extended:
+   - `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
+   - `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
+4. Targeted unit test runs passed for all three files above.
 
 ### P6b — Investigate User
 

@@ -20,6 +20,9 @@ class PluginNavs {
 	public const SUBNAV_ACTIVITY_OVERVIEW = 'overview';
 	public const SUBNAV_ACTIVITY_BY_USER = 'by_user';
 	public const SUBNAV_ACTIVITY_BY_IP = 'by_ip';
+	public const SUBNAV_ACTIVITY_BY_PLUGIN = 'by_plugin';
+	public const SUBNAV_ACTIVITY_BY_THEME = 'by_theme';
+	public const SUBNAV_ACTIVITY_BY_CORE = 'by_core';
 	public const NAV_IPS = 'ips';
 	public const SUBNAV_IPS_RULES = 'rules';
 	public const NAV_LICENSE = 'license';
@@ -99,6 +102,15 @@ class PluginNavs {
 							'handler' => PluginAdminPages\PageInvestigateByUser::class,
 						],
 						self::SUBNAV_ACTIVITY_BY_IP    => [
+							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+						],
+						self::SUBNAV_ACTIVITY_BY_PLUGIN => [
+							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+						],
+						self::SUBNAV_ACTIVITY_BY_THEME => [
+							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+						],
+						self::SUBNAV_ACTIVITY_BY_CORE => [
 							'handler' => PluginAdminPages\PageInvestigateLanding::class,
 						],
 						self::SUBNAV_LOGS              => [
@@ -293,6 +305,33 @@ class PluginNavs {
 			default:
 				return '';
 		}
+	}
+
+	public static function modeLandingSubNavsByNav() :array {
+		return [
+			self::NAV_SCANS    => [
+				self::SUBNAV_SCANS_OVERVIEW,
+			],
+			self::NAV_ACTIVITY => [
+				self::SUBNAV_ACTIVITY_OVERVIEW,
+				self::SUBNAV_ACTIVITY_BY_IP,
+				self::SUBNAV_ACTIVITY_BY_PLUGIN,
+				self::SUBNAV_ACTIVITY_BY_THEME,
+				self::SUBNAV_ACTIVITY_BY_CORE,
+			],
+			self::NAV_ZONES    => [
+				self::SUBNAV_ZONES_OVERVIEW,
+			],
+			self::NAV_REPORTS  => [
+				self::SUBNAV_REPORTS_OVERVIEW,
+			],
+		];
+	}
+
+	public static function isModeLandingRoute( string $nav, string $subNav ) :bool {
+		$landingRoutes = self::modeLandingSubNavsByNav();
+		return isset( $landingRoutes[ $nav ] )
+			   && \in_array( $subNav, $landingRoutes[ $nav ], true );
 	}
 
 	public static function defaultEntryForMode( string $mode ) :array {

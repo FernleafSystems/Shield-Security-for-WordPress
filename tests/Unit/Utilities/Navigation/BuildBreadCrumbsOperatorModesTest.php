@@ -56,6 +56,30 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
 	}
 
+	public function test_investigate_by_ip_subnav_omits_nav_home_crumb() :void {
+		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_BY_IP
+		);
+
+		$this->assertCount( 2, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
+	}
+
+	public function test_investigate_transitional_subject_subnavs_omit_nav_home_crumb() :void {
+		$builder = new BuildBreadCrumbsForTest();
+
+		foreach ( [
+			PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+			PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
+			PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
+		] as $subNav ) {
+			$crumbs = $builder->parse( PluginNavs::NAV_ACTIVITY, $subNav );
+			$this->assertCount( 2, $crumbs );
+			$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
+		}
+	}
+
 	public function test_child_tool_page_keeps_nav_home_crumb() :void {
 		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
 			PluginNavs::NAV_ACTIVITY,
@@ -91,6 +115,9 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 					PluginNavs::SUBNAV_ACTIVITY_OVERVIEW => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_ACTIVITY_BY_USER  => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_ACTIVITY_BY_IP    => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_LOGS              => [ 'handler' => 'handler' ],
 				],
 			],
