@@ -423,16 +423,14 @@ PACKAGE_DEPS_CACHE_DIR="$PACKAGE_DEPS_CACHE_ROOT/$PACKAGE_DEPS_KEY"
 mkdir -p "$PACKAGE_DEPS_CACHE_ROOT"
 PACKAGE_DEPS_CACHE_HIT=false
 
-if [ -f "$PACKAGE_DEPS_CACHE_DIR/vendor/autoload.php" ] && [ -f "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed/autoload.php" ]; then
+if [ -f "$PACKAGE_DEPS_CACHE_DIR/vendor/autoload.php" ]; then
     echo "   Restoring cached package dependencies..."
-    rm -rf "$PACKAGE_DIR/vendor" "$PACKAGE_DIR/vendor_prefixed"
+    rm -rf "$PACKAGE_DIR/vendor"
     cp -a "$PACKAGE_DEPS_CACHE_DIR/vendor" "$PACKAGE_DIR/vendor"
-    cp -a "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed" "$PACKAGE_DIR/vendor_prefixed"
     PACKAGE_DEPS_CACHE_HIT=true
 fi
 
 run_package_build() {
-    local skip_dependency_build=$1
     local -a package_args=(
         "--output=$PACKAGE_DIR_RELATIVE"
         "--skip-root-composer"
@@ -442,10 +440,6 @@ run_package_build() {
         "--skip-directory-clean"
         "--skip-copy"
     )
-
-    if [ "$skip_dependency_build" = true ]; then
-        package_args+=( "--skip-package-dependency-build" )
-    fi
 
     docker run --rm --name shield-composer-package \
         -v "$PROJECT_ROOT:/app" \
@@ -457,28 +451,27 @@ run_package_build() {
         composer package-plugin -- "${package_args[@]}"
 }
 
-echo "   Running Strauss prefixing..."
+echo "   Running package dependency build (composer + Strauss prefixing)..."
 if [ "$PACKAGE_DEPS_CACHE_HIT" = true ]; then
-    if ! run_package_build true; then
-        echo "   Cached package dependencies failed validation; retrying with full dependency build..."
+    if ! run_package_build; then
+        echo "   Cached package dependencies failed package build; retrying after package reset..."
         prepare_package_dir || exit 1
-        run_package_build false || {
+        run_package_build || {
             echo "Package build failed"
             exit 1
         }
     fi
 else
-    run_package_build false || {
+    run_package_build || {
         echo "Package build failed"
         exit 1
     }
 fi
 
-if [ -f "$PACKAGE_DIR/vendor/autoload.php" ] && [ -f "$PACKAGE_DIR/vendor_prefixed/autoload.php" ]; then
+if [ -f "$PACKAGE_DIR/vendor/autoload.php" ]; then
     mkdir -p "$PACKAGE_DEPS_CACHE_DIR"
     rm -rf "$PACKAGE_DEPS_CACHE_DIR/vendor" "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed"
     cp -a "$PACKAGE_DIR/vendor" "$PACKAGE_DEPS_CACHE_DIR/vendor"
-    cp -a "$PACKAGE_DIR/vendor_prefixed" "$PACKAGE_DEPS_CACHE_DIR/vendor_prefixed"
 fi
 
 echo "   Package built at $PACKAGE_DIR"
