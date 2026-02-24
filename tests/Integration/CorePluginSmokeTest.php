@@ -110,10 +110,9 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	 */
 	public function testCriticalDirectoriesExist() :void {
 		$directories = [
-			'src'          => 'Main source code directory',
-			'assets/dist'  => 'Compiled assets directory',
-			'templates'    => 'Template files directory',
-			'languages'    => 'Translations directory',
+			'src'       => 'Main source code directory',
+			'templates' => 'Template files directory',
+			'languages' => 'Translations directory',
 		];
 
 		foreach ( $directories as $dir => $description ) {
@@ -124,6 +123,15 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 				"$description should be readable"
 			);
 		}
+
+		$assetsDir = $this->isTestingPackage() ? 'assets/dist' : 'assets';
+		$assetsDescription = $this->isTestingPackage() ? 'Compiled assets directory' : 'Assets directory';
+		$assetsPath = $this->getPluginFilePath( $assetsDir );
+		$this->assertDirectoryExists( $assetsPath, "$assetsDescription should exist" );
+		$this->assertTrue(
+			\is_readable( $assetsPath ),
+			"$assetsDescription should be readable"
+		);
 	}
 
 	/**
@@ -206,6 +214,10 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 	 * Test critical distribution assets exist
 	 */
 	public function testDistributionAssetsExist() :void {
+		if ( !$this->isTestingPackage() ) {
+			$this->markTestSkipped( 'Distribution asset checks run only in package mode where assets/dist is expected.' );
+		}
+
 		// Note: Based on actual file listing, files have 'shield-' prefix and '.bundle' suffix
 		$criticalAssets = [
 			'shield-main.bundle.js'       => 'Main JavaScript bundle',
