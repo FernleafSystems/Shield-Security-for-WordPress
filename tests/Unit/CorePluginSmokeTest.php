@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -39,7 +40,8 @@ class CorePluginSmokeTest extends TestCase {
 	public function testPluginCanInitializeWithoutErrors() :void {
 		// Define required WordPress constants if not defined
 		if ( !defined( 'ABSPATH' ) ) {
-			define( 'ABSPATH', $this->getPluginRoot() . '/' );
+			// Intentional manual suffix: ABSPATH is expected to include a trailing slash.
+			define( 'ABSPATH', Path::join( $this->getPluginRoot(), '' ).'/' );
 		}
 		if ( !defined( 'WP_CONTENT_DIR' ) ) {
 			define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
@@ -141,7 +143,7 @@ class CorePluginSmokeTest extends TestCase {
 		// Check for common asset subdirectories
 		$expectedAssetDirs = [ 'css', 'js', 'images' ];
 		foreach ( $expectedAssetDirs as $subDir ) {
-			$subDirPath = $assetsDir . '/' . $subDir;
+			$subDirPath = Path::join( $assetsDir, $subDir );
 			if ( is_dir( $subDirPath ) ) {
 				$this->assertDirectoryExists( $subDirPath, "Asset subdirectory '{$subDir}' exists" );
 			}
@@ -164,12 +166,12 @@ class CorePluginSmokeTest extends TestCase {
 			
 			// Verify module directory exists if not testing a package
 			if ( !$this->isTestingPackage() ) {
-				$moduleDir = $this->getPluginFilePath( 'src/Modules/' . ucfirst( $module['slug'] ) );
+				$moduleDir = $this->getPluginFilePath( Path::join( 'src/Modules', ucfirst( $module['slug'] ) ) );
 				if ( is_dir( $moduleDir ) ) {
 					$this->assertDirectoryExists( $moduleDir, "Module directory for '{$moduleKey}' should exist" );
 					
 					// Check for common module files
-					$modConFile = $moduleDir . '/ModCon.php';
+					$modConFile = Path::join( $moduleDir, 'ModCon.php' );
 					if ( file_exists( $modConFile ) ) {
 						$this->assertFileExistsWithDebug( $modConFile, "ModCon file for module '{$moduleKey}' should exist" );
 					}

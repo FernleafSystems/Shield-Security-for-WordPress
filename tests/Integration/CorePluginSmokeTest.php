@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Rapid smoke tests for Shield Security plugin core functionality
@@ -66,10 +67,10 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 
 		$tempDir = $this->createTrackedTempDir( 'shield-autoload-smoke-' );
 		$pluginAutoloadSrc = $this->getPluginFilePath( 'plugin_autoload.php' );
-		$pluginAutoloadCopy = $tempDir.'/plugin_autoload.php';
-		$vendorAutoload = $tempDir.'/vendor/autoload.php';
+		$pluginAutoloadCopy = Path::join( $tempDir, 'plugin_autoload.php' );
+		$vendorAutoload = Path::join( $tempDir, 'vendor/autoload.php' );
 
-		$this->assertTrue( \mkdir( $tempDir.'/vendor', 0777, true ) || \is_dir( $tempDir.'/vendor' ) );
+		$this->assertTrue( \mkdir( Path::join( $tempDir, 'vendor' ), 0777, true ) || \is_dir( Path::join( $tempDir, 'vendor' ) ) );
 		$this->assertTrue( \copy( $pluginAutoloadSrc, $pluginAutoloadCopy ) );
 		$this->assertNotFalse( \file_put_contents(
 			$vendorAutoload,
@@ -77,13 +78,14 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 		) );
 
 		if ( !\defined( 'ABSPATH' ) ) {
+			// Intentional manual join: ABSPATH is expected to include a trailing slash.
 			\define( 'ABSPATH', $tempDir.'/' );
 		}
 
 		require $pluginAutoloadCopy;
 
 		$this->assertTrue( \defined( 'SHIELD_TEST_VENDOR_AUTOLOAD_RAN' ) );
-		$this->assertFileDoesNotExist( $tempDir.'/vendor_prefixed/autoload.php' );
+		$this->assertFileDoesNotExist( Path::join( $tempDir, 'vendor_prefixed/autoload.php' ) );
 		$this->assertTrue( \class_exists( '\Monolog\Logger' ) );
 		$this->assertTrue( \class_exists( '\Twig\Environment' ) );
 		$this->assertTrue( \class_exists( '\CrowdSec\CapiClient\Watcher' ) );
@@ -135,15 +137,15 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 		$this->assertDirectoryExists( $modulesPath, 'Modules directory should exist' );
 
 		foreach ( $modules as $module ) {
-			$modulePath = $modulesPath . '/' . $module;
+			$modulePath = Path::join( $modulesPath, $module );
 			$this->assertDirectoryExists( 
 				$modulePath, 
 				"Module directory '$module' should exist"
 			);
 
 			// Verify module directory is not empty and contains PHP files
-			$files = \glob( $modulePath . '/*.php' );
-			$subdirs = \glob( $modulePath . '/*', GLOB_ONLYDIR );
+			$files = \glob( Path::join( $modulePath, '*.php' ) );
+			$subdirs = \glob( Path::join( $modulePath, '*' ), GLOB_ONLYDIR );
 			$this->assertTrue(
 				!empty( $files ) || !empty( $subdirs ),
 				"Module directory '$module' should contain PHP files or subdirectories"
@@ -207,7 +209,7 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 		$this->assertDirectoryExists( $distPath, 'Distribution assets directory should exist' );
 
 		foreach ( $criticalAssets as $asset => $description ) {
-			$assetPath = $distPath . '/' . $asset;
+			$assetPath = Path::join( $distPath, $asset );
 			$this->assertFileExistsWithDebug(
 				$assetPath,
 				"$description ($asset) should exist"

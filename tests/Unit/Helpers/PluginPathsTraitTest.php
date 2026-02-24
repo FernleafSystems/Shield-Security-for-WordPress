@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 class PluginPathsTraitTest extends TestCase {
@@ -30,25 +31,25 @@ class PluginPathsTraitTest extends TestCase {
 	public function testGetPluginRootDefaultsToSourceDirectory() :void {
 		// This test explicitly needs source-mode (no package path)
 		$this->clearPackageEnv();
-		$expectedRoot = realpath( __DIR__.'/../../..' );
+		$expectedRoot = realpath( Path::join( __DIR__, '../../..' ) );
 		$this->assertNotFalse( $expectedRoot, 'Expected project root to resolve' );
 		$this->assertSame( $expectedRoot, $this->getPluginRoot(), 'Default plugin root should match project source directory' );
 	}
 
 	public function testGetPluginRootHonoursPackagePath() :void {
-		$tempDir = sys_get_temp_dir().'/shield-package-'.uniqid( '', true );
+		$tempDir = Path::join( sys_get_temp_dir(), 'shield-package-'.uniqid( '', true ) );
 		$this->assertTrue( mkdir( $tempDir ), 'Failed to create temporary package directory' );
-		$this->assertNotFalse( file_put_contents( $tempDir.'/icwp-wpsf.php', '<?php // stub plugin file' ), 'Failed to seed plugin file in temporary package directory' );
+		$this->assertNotFalse( file_put_contents( Path::join( $tempDir, 'icwp-wpsf.php' ), '<?php // stub plugin file' ), 'Failed to seed plugin file in temporary package directory' );
 
 		putenv( 'SHIELD_PACKAGE_PATH='.$tempDir );
 		$_ENV['SHIELD_PACKAGE_PATH'] = $tempDir;
 		$_SERVER['SHIELD_PACKAGE_PATH'] = $tempDir;
 
 		$this->assertSame( $tempDir, $this->getPluginRoot(), 'Plugin root should honour SHIELD_PACKAGE_PATH' );
-		$this->assertSame( $tempDir.'/icwp-wpsf.php', $this->getPluginFilePath( 'icwp-wpsf.php' ) );
+		$this->assertSame( Path::join( $tempDir, 'icwp-wpsf.php' ), $this->getPluginFilePath( 'icwp-wpsf.php' ) );
 
 		// Cleanup temp files (env restored by tear_down)
-		unlink( $tempDir.'/icwp-wpsf.php' );
+		unlink( Path::join( $tempDir, 'icwp-wpsf.php' ) );
 		rmdir( $tempDir );
 	}
 

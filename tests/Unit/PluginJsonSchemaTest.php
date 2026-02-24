@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -195,7 +196,7 @@ class PluginJsonSchemaTest extends TestCase {
 		];
 
 		foreach ( $criticalDirs as $key => $relativePath ) {
-			$fullPath = $baseDir.'/'.$relativePath;
+			$fullPath = Path::join( $baseDir, $relativePath );
 			$this->assertDirectoryExists( $fullPath, "Critical directory '{$key}' at '{$relativePath}' does not exist" );
 		}
 	}

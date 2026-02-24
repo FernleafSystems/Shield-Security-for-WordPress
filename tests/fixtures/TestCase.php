@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Fixtures;
 
 use Brain\Monkey;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase as PolyfillTestCase;
 
 /**
@@ -92,6 +93,6 @@ abstract class TestCase extends PolyfillTestCase {
      * Get plugin main file path
      */
     protected function getPluginFile() :string {
-        return $this->getPluginDir() . '/icwp-wpsf.php';
+        return Path::join( $this->getPluginDir(), 'icwp-wpsf.php' );
     }
 }

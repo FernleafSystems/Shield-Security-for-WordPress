@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
+use Symfony\Component\Filesystem\Path;
+
 /**
  * Trait to handle plugin paths consistently across all tests.
  *
@@ -38,7 +40,7 @@ trait PluginPathsTrait {
 		}
 
 		// Final fallback: check for known plugin file in /app
-		if ( !\file_exists( $root.'/icwp-wpsf.php' ) && \file_exists( '/app/icwp-wpsf.php' ) ) {
+		if ( !\file_exists( Path::join( $root, 'icwp-wpsf.php' ) ) && \file_exists( '/app/icwp-wpsf.php' ) ) {
 			$root = '/app';
 			$this->debugPath( 'Fallback to /app (Docker detected)', $root );
 		}
@@ -52,7 +54,7 @@ trait PluginPathsTrait {
 	 * @return string
 	 */
 	protected function getPluginFilePath( string $relativePath ) :string {
-		$path = $this->getPluginRoot() . '/' . ltrim( $relativePath, '/' );
+		$path = Path::join( $this->getPluginRoot(), ltrim( $relativePath, '/' ) );
 		$this->debugPath( "File path for '$relativePath'", $path );
 		return $path;
 	}

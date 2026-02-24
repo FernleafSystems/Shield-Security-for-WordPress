@@ -79,7 +79,7 @@ class PackagerConfig {
 			return Path::normalize( $envPath );
 		}
 
-		$fromTraitPerspective = realpath( __DIR__.'/../..' );
+		$fromTraitPerspective = realpath( Path::join( __DIR__, '../..' ) );
 		if ( is_string( $fromTraitPerspective ) ) {
 			return Path::normalize( $fromTraitPerspective );
 		}

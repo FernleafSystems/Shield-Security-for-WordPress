@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Validates the source-controlled WordPress.org preview blueprint.
@@ -18,7 +19,7 @@ class WordpressOrgBlueprintTest extends BaseUnitTest {
 	}
 
 	private function getBlueprintPath() :string {
-		return $this->getPluginRoot().'/infrastructure/wordpress-org/blueprints/blueprint.json';
+		return Path::join( $this->getPluginRoot(), 'infrastructure/wordpress-org/blueprints/blueprint.json' );
 	}
 
 	private function getBlueprint() :array {

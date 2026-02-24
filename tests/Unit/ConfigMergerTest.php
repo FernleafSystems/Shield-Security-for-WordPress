@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\ConfigMerger;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -25,8 +26,8 @@ class ConfigMergerTest extends TestCase {
 
 	protected function set_up() :void {
 		parent::set_up();
-		$this->specDir = dirname( dirname( __DIR__ ) ) . '/plugin-spec';
-		$this->tempOutputPath = sys_get_temp_dir() . '/plugin-json-test-' . uniqid() . '.json';
+		$this->specDir = Path::join( dirname( dirname( __DIR__ ) ), 'plugin-spec' );
+		$this->tempOutputPath = Path::join( sys_get_temp_dir(), 'plugin-json-test-'.uniqid().'.json' );
 	}
 
 	protected function tear_down() :void {
@@ -51,7 +52,7 @@ class ConfigMergerTest extends TestCase {
 		$this->assertGreaterThan( 0, \count( $manifest ), 'Should have spec files defined' );
 
 		foreach ( $manifest as $filename => $meta ) {
-			$filePath = $this->specDir . '/' . $filename;
+			$filePath = Path::join( $this->specDir, $filename );
 			$this->assertFileExists( $filePath, "Spec file must exist: {$filename}" );
 		}
 	}

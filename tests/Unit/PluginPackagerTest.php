@@ -6,6 +6,7 @@ use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginPackager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit tests for PluginPackager.
@@ -101,19 +102,19 @@ class PluginPackagerTest extends TestCase {
 		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
 
 		file_put_contents(
-			$tempDir.'/plugin.json',
+			Path::join( $tempDir, 'plugin.json' ),
 			json_encode( [ 'properties' => [ 'version' => '9.8.7' ] ], JSON_PRETTY_PRINT )
 		);
-		file_put_contents( $tempDir.'/readme.txt', "Stable tag: 1.0.0\n" );
+		file_put_contents( Path::join( $tempDir, 'readme.txt' ), "Stable tag: 1.0.0\n" );
 		file_put_contents(
-			$tempDir.'/icwp-wpsf.php',
+			Path::join( $tempDir, 'icwp-wpsf.php' ),
 			"<?php\n/*\n * Plugin Name: Test\n * Version: 1.0.0\n */\n"
 		);
 
 		$this->invokePrivateMethod( $packager, 'updatePackageFiles', [ $tempDir ] );
 
-		$readme = (string)file_get_contents( $tempDir.'/readme.txt' );
-		$pluginHeader = (string)file_get_contents( $tempDir.'/icwp-wpsf.php' );
+		$readme = (string)file_get_contents( Path::join( $tempDir, 'readme.txt' ) );
+		$pluginHeader = (string)file_get_contents( Path::join( $tempDir, 'icwp-wpsf.php' ) );
 
 		$this->assertStringContainsString( 'Stable tag: 9.8.7', $readme );
 		$this->assertStringContainsString( '* Version: 9.8.7', $pluginHeader );
@@ -123,10 +124,10 @@ class PluginPackagerTest extends TestCase {
 		$packager = $this->createPackager();
 		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
 
-		file_put_contents( $tempDir.'/plugin.json', json_encode( [ 'properties' => [] ], JSON_PRETTY_PRINT ) );
-		file_put_contents( $tempDir.'/readme.txt', "Stable tag: 1.0.0\n" );
+		file_put_contents( Path::join( $tempDir, 'plugin.json' ), json_encode( [ 'properties' => [] ], JSON_PRETTY_PRINT ) );
+		file_put_contents( Path::join( $tempDir, 'readme.txt' ), "Stable tag: 1.0.0\n" );
 		file_put_contents(
-			$tempDir.'/icwp-wpsf.php',
+			Path::join( $tempDir, 'icwp-wpsf.php' ),
 			"<?php\n/*\n * Plugin Name: Test\n * Version: 1.0.0\n */\n"
 		);
 
@@ -136,3 +137,4 @@ class PluginPackagerTest extends TestCase {
 		$this->invokePrivateMethod( $packager, 'updatePackageFiles', [ $tempDir ] );
 	}
 }
+

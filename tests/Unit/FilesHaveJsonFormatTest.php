@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -44,7 +45,7 @@ class FilesHaveJsonFormatTest extends TestCase {
 
 	private function resolveConfigDirectory() :?string {
 		$candidates = [
-			$this->getPluginRoot().'/src/config',
+			Path::join( $this->getPluginRoot(), 'src/config' ),
 		];
 
 		foreach ( $candidates as $candidate ) {
@@ -72,4 +73,3 @@ class FilesHaveJsonFormatTest extends TestCase {
 		return $files;
 	}
 }
-

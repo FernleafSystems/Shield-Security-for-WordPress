@@ -6,6 +6,7 @@ use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanAnalysi
 use FernleafSystems\ShieldPlatform\Tooling\StaticAnalysis\PackagedPhpStanOutcome;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Path;
 
 class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 
@@ -108,12 +109,12 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 		$orchestrator = new PackagedPhpStanAnalysisOrchestrator();
 		$projectRoot = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
 		$packageDir = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
-		\mkdir( $projectRoot.'/tests/stubs', 0777, true );
-		\mkdir( $packageDir.'/vendor', 0777, true );
-		\mkdir( $packageDir.'/vendor_prefixed', 0777, true );
-		\file_put_contents( $projectRoot.'/tests/stubs/phpstan-package-bootstrap.php', '<?php' );
-		\file_put_contents( $packageDir.'/vendor/autoload.php', '<?php' );
-		\file_put_contents( $packageDir.'/vendor_prefixed/autoload.php', '<?php' );
+		\mkdir( Path::join( $projectRoot, 'tests/stubs' ), 0777, true );
+		\mkdir( Path::join( $packageDir, 'vendor' ), 0777, true );
+		\mkdir( Path::join( $packageDir, 'vendor_prefixed' ), 0777, true );
+		\file_put_contents( Path::join( $projectRoot, 'tests/stubs/phpstan-package-bootstrap.php' ), '<?php' );
+		\file_put_contents( Path::join( $packageDir, 'vendor/autoload.php' ), '<?php' );
+		\file_put_contents( Path::join( $packageDir, 'vendor_prefixed/autoload.php' ), '<?php' );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'ERROR: Missing phpstan.package.neon.dist at project root' );
@@ -124,11 +125,11 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 		$orchestrator = new PackagedPhpStanAnalysisOrchestrator();
 		$projectRoot = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
 		$packageDir = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
-		\mkdir( $projectRoot.'/tests/stubs', 0777, true );
-		\mkdir( $packageDir.'/vendor_prefixed', 0777, true );
-		\file_put_contents( $projectRoot.'/phpstan.package.neon.dist', 'includes: []' );
-		\file_put_contents( $projectRoot.'/tests/stubs/phpstan-package-bootstrap.php', '<?php' );
-		\file_put_contents( $packageDir.'/vendor_prefixed/autoload.php', '<?php' );
+		\mkdir( Path::join( $projectRoot, 'tests/stubs' ), 0777, true );
+		\mkdir( Path::join( $packageDir, 'vendor_prefixed' ), 0777, true );
+		\file_put_contents( Path::join( $projectRoot, 'phpstan.package.neon.dist' ), 'includes: []' );
+		\file_put_contents( Path::join( $projectRoot, 'tests/stubs/phpstan-package-bootstrap.php' ), '<?php' );
+		\file_put_contents( Path::join( $packageDir, 'vendor_prefixed/autoload.php' ), '<?php' );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'ERROR: Packaged vendor autoload not found:' );
@@ -139,16 +140,17 @@ class PackagedPhpStanAnalysisOrchestratorTest extends TestCase {
 		$orchestrator = new PackagedPhpStanAnalysisOrchestrator();
 		$projectRoot = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
 		$packageDir = $this->createTrackedTempDir( 'shield-phpstan-orchestrator-' );
-		\mkdir( $projectRoot.'/tests/stubs', 0777, true );
-		\mkdir( $packageDir.'/vendor', 0777, true );
-		\mkdir( $packageDir.'/vendor_prefixed', 0777, true );
-		\file_put_contents( $projectRoot.'/phpstan.package.neon.dist', 'includes: []' );
-		\file_put_contents( $projectRoot.'/tests/stubs/phpstan-package-bootstrap.php', '<?php' );
-		\file_put_contents( $packageDir.'/vendor/autoload.php', '<?php' );
-		\file_put_contents( $packageDir.'/vendor_prefixed/autoload.php', '<?php' );
+		\mkdir( Path::join( $projectRoot, 'tests/stubs' ), 0777, true );
+		\mkdir( Path::join( $packageDir, 'vendor' ), 0777, true );
+		\mkdir( Path::join( $packageDir, 'vendor_prefixed' ), 0777, true );
+		\file_put_contents( Path::join( $projectRoot, 'phpstan.package.neon.dist' ), 'includes: []' );
+		\file_put_contents( Path::join( $projectRoot, 'tests/stubs/phpstan-package-bootstrap.php' ), '<?php' );
+		\file_put_contents( Path::join( $packageDir, 'vendor/autoload.php' ), '<?php' );
+		\file_put_contents( Path::join( $packageDir, 'vendor_prefixed/autoload.php' ), '<?php' );
 
 		$orchestrator->assertPreflight( $projectRoot, $packageDir );
 		$this->assertTrue( true );
 	}
 
 }
+

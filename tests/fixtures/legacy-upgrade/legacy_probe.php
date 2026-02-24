@@ -28,6 +28,7 @@ $normalisePath = static function ( string $path ) :string {
 	return \str_replace( '\\', '/', $path );
 };
 
+// Intentional manual join: this standalone probe runs without Composer autoload and forces forward-slash paths.
 $legacyRoot = \rtrim( $normalisePath( $pluginRoot ), '/' ).'/src/lib/src';
 $result[ 'legacyRoot' ] = $legacyRoot;
 
@@ -38,6 +39,7 @@ $shieldPrefix = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\';
 			return;
 		}
 		$relative = \substr( $className, \strlen( $shieldPrefix ) );
+		// Intentional manual join: class-to-file mapping here relies on normalized forward-slash strings.
 		$path = $legacyRoot.'/'.\str_replace( '\\', '/', $relative ).'.php';
 		if ( \file_exists( $path ) ) {
 			require_once $path;

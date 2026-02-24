@@ -3,15 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathDuplicator;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit tests for LegacyPathDuplicator.
  * Tests directory mirroring and file copying for upgrade compatibility.
  */
 class LegacyPathDuplicatorTest extends TestCase {
+
+	use TempPathJoinTrait;
 
 	private string $tempDir;
 
@@ -20,7 +24,7 @@ class LegacyPathDuplicatorTest extends TestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->fs = new Filesystem();
-		$this->tempDir = sys_get_temp_dir().'/shield-test-'.uniqid();
+		$this->tempDir = Path::join( sys_get_temp_dir(), 'shield-test-'.uniqid() );
 		$this->fs->mkdir( $this->tempDir );
 	}
 
@@ -48,14 +52,14 @@ class LegacyPathDuplicatorTest extends TestCase {
 	private function setupMinimalPackageStructure() :void {
 		// Source directories to mirror - create dir + dummy file so mirror has content
 		foreach ( $this->getConstant( 'SRC_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$dirPath = $this->tempDir.'/src/'.\implode( '/', $pathParts );
+			$dirPath = $this->tempPath( 'src', \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->fs->mkdir( $dirPath );
-			$this->fs->dumpFile( $dirPath.'/'.\end( $pathParts ).'Test.php', '<?php' );
+			$this->fs->dumpFile( Path::join( $dirPath, \end( $pathParts ).'Test.php' ), '<?php' );
 		}
 
 		// Individual source files to copy
 		foreach ( $this->getSrcFilesToCopy() as $pathParts ) {
-			$filePath = $this->tempDir.'/src/'.\implode( '/', $pathParts );
+			$filePath = $this->tempPath( 'src', \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->fs->mkdir( \dirname( $filePath ) );
 			$this->fs->dumpFile( $filePath, '<?php' );
 		}
@@ -65,31 +69,31 @@ class LegacyPathDuplicatorTest extends TestCase {
 
 		// Vendor prefixed directories to mirror - create dir + dummy file
 		foreach ( $this->getConstant( 'VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$dirPath = $this->tempDir.'/vendor_prefixed/'.\implode( '/', $pathParts );
+			$dirPath = $this->tempPath( 'vendor_prefixed', \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->fs->mkdir( $dirPath );
-			$this->fs->dumpFile( $dirPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php', '<?php' );
+			$this->fs->dumpFile( Path::join( $dirPath, \ucfirst( \end( $pathParts ) ).'Dummy.php' ), '<?php' );
 		}
 
 		// Vendor prefixed files to copy
 		foreach ( $this->getConstant( 'VENDOR_PREFIXED_FILES_TO_COPY' ) as $file ) {
-			$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/'.$file, '<?php' );
+			$this->fs->dumpFile( $this->tempPath( 'vendor_prefixed', $file ), '<?php' );
 		}
 
 		// Standard vendor directories to mirror - create dir + dummy file
 		foreach ( $this->getConstant( 'STD_VENDOR_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$dirPath = $this->tempDir.'/vendor/'.\implode( '/', $pathParts );
+			$dirPath = $this->tempPath( 'vendor', \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->fs->mkdir( $dirPath );
-			$this->fs->dumpFile( $dirPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php', '<?php' );
+			$this->fs->dumpFile( Path::join( $dirPath, \ucfirst( \end( $pathParts ) ).'Dummy.php' ), '<?php' );
 		}
 
 		// Standard vendor files to copy
 		foreach ( $this->getConstant( 'STD_VENDOR_FILES_TO_COPY' ) as $file ) {
-			$this->fs->dumpFile( $this->tempDir.'/vendor/'.$file, '<?php' );
+			$this->fs->dumpFile( $this->tempPath( 'vendor', $file ), '<?php' );
 		}
 	}
 
 	private function seedLegacyOverrideTargets() :void {
-		$deletePath = $this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php';
+		$deletePath = $this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
 		$this->fs->mkdir( \dirname( $deletePath ) );
 		$this->fs->dumpFile( $deletePath, <<<'PHP'
 <?php declare( strict_types=1 );
@@ -112,7 +116,7 @@ class Delete {
 PHP
 		);
 
-		$storePath = $this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php';
+		$storePath = $this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
 		$this->fs->mkdir( \dirname( $storePath ) );
 		$this->fs->dumpFile( $storePath, <<<'PHP'
 <?php declare( strict_types=1 );
@@ -137,7 +141,7 @@ class Store {
 PHP
 		);
 
-		$loginBoxPath = $this->tempDir.'/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php';
+		$loginBoxPath = $this->tempPath( 'src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php' );
 		$this->fs->mkdir( \dirname( $loginBoxPath ) );
 		$this->fs->dumpFile( $loginBoxPath, <<<'PHP'
 <?php declare( strict_types=1 );
@@ -168,7 +172,7 @@ class FormSecurityAdminLoginBox extends \FernleafSystems\Wordpress\Plugin\Shield
 PHP
 		);
 
-		$rulesBuilderPath = $this->tempDir.'/src/Rules/Build/Builder.php';
+		$rulesBuilderPath = $this->tempPath( 'src/Rules/Build/Builder.php' );
 		$this->fs->mkdir( \dirname( $rulesBuilderPath ) );
 		$this->fs->dumpFile( $rulesBuilderPath, <<<'PHP'
 <?php declare( strict_types=1 );
@@ -189,67 +193,67 @@ PHP
 
 	private function seedPrunedRuntimeOnlySources() :void {
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/Common/BaseLoadRecordsForIPJoins.php',
+			$this->tempPath( 'src/DBs/Common/BaseLoadRecordsForIPJoins.php' ),
 			'<?php declare( strict_types=1 ); class BaseLoadRecordsForIPJoins {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/Snapshots/Ops/Handler.php',
+			$this->tempPath( 'src/DBs/Snapshots/Ops/Handler.php' ),
 			'<?php declare( strict_types=1 ); class Handler {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/Snapshots/Ops/Record.php',
+			$this->tempPath( 'src/DBs/Snapshots/Ops/Record.php' ),
 			'<?php declare( strict_types=1 ); class Record {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php',
+			$this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' ),
 			'<?php declare( strict_types=1 ); class SnapshotVO {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php',
+			$this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' ),
 			'<?php declare( strict_types=1 ); class Build {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php',
+			$this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' ),
 			'<?php declare( strict_types=1 ); class Convert {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Diff.php',
+			$this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Diff.php' ),
 			'<?php declare( strict_types=1 ); class Diff {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php',
+			$this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' ),
 			'<?php declare( strict_types=1 ); class Retrieve {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/BotSignalRecord.php',
+			$this->tempPath( 'src/DBs/BotSignal/BotSignalRecord.php' ),
 			'<?php declare( strict_types=1 ); class BotSignalRecord extends Ops\Record {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/LoadBotSignalRecords.php',
+			$this->tempPath( 'src/DBs/BotSignal/LoadBotSignalRecords.php' ),
 			'<?php declare( strict_types=1 ); class LoadBotSignalRecords {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/Ops/Record.php',
+			$this->tempPath( 'src/DBs/BotSignal/Ops/Record.php' ),
 			'<?php declare( strict_types=1 ); class Record {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/Ops/Handler.php',
+			$this->tempPath( 'src/DBs/BotSignal/Ops/Handler.php' ),
 			'<?php declare( strict_types=1 ); class Handler {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/Ops/Insert.php',
+			$this->tempPath( 'src/DBs/BotSignal/Ops/Insert.php' ),
 			'<?php declare( strict_types=1 ); class Insert {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/Ops/Delete.php',
+			$this->tempPath( 'src/DBs/BotSignal/Ops/Delete.php' ),
 			'<?php declare( strict_types=1 ); class Delete {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/Ops/Select.php',
+			$this->tempPath( 'src/DBs/BotSignal/Ops/Select.php' ),
 			'<?php declare( strict_types=1 ); class Select {}'
 		);
 		$this->fs->dumpFile(
-			$this->tempDir.'/src/DBs/BotSignal/Ops/Common.php',
+			$this->tempPath( 'src/DBs/BotSignal/Ops/Common.php' ),
 			'<?php declare( strict_types=1 ); trait Common {}'
 		);
 	}
@@ -265,9 +269,9 @@ PHP
 		$duplicator->createDuplicates( $this->tempDir );
 
 		// Check legacy directories exist
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/src' );
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/vendor_prefixed' );
-		$this->assertDirectoryExists( $this->tempDir.'/src/lib/vendor' );
+		$this->assertDirectoryExists( $this->tempPath( 'src/lib/src' ) );
+		$this->assertDirectoryExists( $this->tempPath( 'src/lib/vendor_prefixed' ) );
+		$this->assertDirectoryExists( $this->tempPath( 'src/lib/vendor' ) );
 	}
 
 	public function testCreateDuplicatesMirrorsSourceDirectories() :void {
@@ -277,9 +281,9 @@ PHP
 		$duplicator->createDuplicates( $this->tempDir );
 
 		foreach ( $this->getConstant( 'SRC_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$legacyPath = $this->tempDir.'/src/lib/src/'.\implode( '/', $pathParts );
+			$legacyPath = $this->tempPath( 'src/lib/src', \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->assertDirectoryExists( $legacyPath );
-			$this->assertFileExists( $legacyPath.'/'.\end( $pathParts ).'Test.php' );
+			$this->assertFileExists( Path::join( $legacyPath, \end( $pathParts ).'Test.php' ) );
 		}
 	}
 
@@ -294,7 +298,7 @@ PHP
 
 		foreach ( $filesToCopy as $pathParts ) {
 			$this->assertFileExists(
-				$this->tempDir.'/src/lib/src/'.\implode( '/', $pathParts )
+				$this->tempPath( 'src/lib/src', \implode( DIRECTORY_SEPARATOR, $pathParts ) )
 			);
 		}
 	}
@@ -306,9 +310,9 @@ PHP
 		$duplicator->createDuplicates( $this->tempDir );
 
 		foreach ( $this->getConstant( 'VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$legacyPath = $this->tempDir.'/src/lib/vendor_prefixed/'.\implode( '/', $pathParts );
+			$legacyPath = $this->tempPath( 'src/lib/vendor_prefixed', \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->assertDirectoryExists( $legacyPath );
-			$this->assertFileExists( $legacyPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php' );
+			$this->assertFileExists( Path::join( $legacyPath, \ucfirst( \end( $pathParts ) ).'Dummy.php' ) );
 		}
 	}
 
@@ -319,7 +323,7 @@ PHP
 		$duplicator->createDuplicates( $this->tempDir );
 
 		foreach ( $this->getConstant( 'VENDOR_PREFIXED_FILES_TO_COPY' ) as $file ) {
-			$this->assertFileExists( $this->tempDir.'/src/lib/vendor_prefixed/'.$file );
+			$this->assertFileExists( $this->tempPath( 'src/lib/vendor_prefixed', $file ) );
 		}
 	}
 
@@ -330,9 +334,9 @@ PHP
 		$duplicator->createDuplicates( $this->tempDir );
 
 		foreach ( $this->getConstant( 'STD_VENDOR_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$legacyPath = $this->tempDir.'/src/lib/vendor/'.\implode( '/', $pathParts );
+			$legacyPath = $this->tempPath( 'src/lib/vendor', \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->assertDirectoryExists( $legacyPath );
-			$this->assertFileExists( $legacyPath.'/'.\ucfirst( \end( $pathParts ) ).'Dummy.php' );
+			$this->assertFileExists( Path::join( $legacyPath, \ucfirst( \end( $pathParts ) ).'Dummy.php' ) );
 		}
 	}
 
@@ -343,14 +347,14 @@ PHP
 		$duplicator->createDuplicates( $this->tempDir );
 
 		$legacyDelete = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php'
+			$this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' )
 		);
 		$this->assertStringContainsString( 'return false;', $legacyDelete );
 		$this->assertStringNotContainsString( 'filterBySlug( $slug )->query()', $legacyDelete );
 		$this->assertStringNotContainsString( 'PluginControllerConsumer', $legacyDelete );
 
 		$legacyStore = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php'
+			$this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' )
 		);
 		$this->assertStringContainsString( 'return false;', $legacyStore );
 		$this->assertStringNotContainsString( '->insert( Convert::SnapToRecord( $snapshot ) )', $legacyStore );
@@ -359,19 +363,19 @@ PHP
 		$this->assertStringNotContainsString( 'PluginControllerConsumer', $legacyStore );
 
 		$runtimeDelete = (string)\file_get_contents(
-			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php'
+			$this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' )
 		);
 		$this->assertStringContainsString( 'filterBySlug( $slug )->query()', $runtimeDelete );
 		$this->assertStringNotContainsString( 'return false;', $runtimeDelete );
 
 		$runtimeStore = (string)\file_get_contents(
-			$this->tempDir.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php'
+			$this->tempPath( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' )
 		);
 		$this->assertStringContainsString( '->insert( Convert::SnapToRecord( $snapshot ) )', $runtimeStore );
 		$this->assertStringNotContainsString( 'return false;', $runtimeStore );
 
 		$legacyLoginBox = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php'
+			$this->tempPath( 'src/lib/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php' )
 		);
 		$this->assertStringContainsString( 'extends BaseAction', $legacyLoginBox );
 		$this->assertStringContainsString( 'protected function checkAccess()', $legacyLoginBox );
@@ -382,7 +386,7 @@ PHP
 		$this->assertStringNotContainsString( 'ActionException', $legacyLoginBox );
 
 		$legacyMonolog = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/Controller/Dependencies/Monolog.php'
+			$this->tempPath( 'src/lib/src/Controller/Dependencies/Monolog.php' )
 		);
 		$this->assertStringContainsString(
 			"throw new \\Exception( 'Legacy shutdown guard: monolog disabled.' );",
@@ -391,13 +395,13 @@ PHP
 		$this->assertStringNotContainsString( 'includePrefixedVendor()', $legacyMonolog );
 
 		$legacyFindAssets = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php'
+			$this->tempPath( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php' )
 		);
 		$this->assertStringContainsString( 'return [];', $legacyFindAssets );
 		$this->assertStringNotContainsString( 'Services::WpPlugins()->getPluginsAsVo()', $legacyFindAssets );
 
 		$legacyRulesBuilder = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/Rules/Build/Builder.php'
+			$this->tempPath( 'src/lib/src/Rules/Build/Builder.php' )
 		);
 		$this->assertStringContainsString( 'class Builder', $legacyRulesBuilder );
 		$this->assertStringContainsString( 'public function run() :array', $legacyRulesBuilder );
@@ -406,14 +410,14 @@ PHP
 		$this->assertStringNotContainsString( 'AssignMinimumHooks', $legacyRulesBuilder );
 
 		$runtimeRulesBuilder = (string)\file_get_contents(
-			$this->tempDir.'/src/Rules/Build/Builder.php'
+			$this->tempPath( 'src/Rules/Build/Builder.php' )
 		);
 		$this->assertStringContainsString( 'RuleBuilderEnumerator', $runtimeRulesBuilder );
 		$this->assertStringContainsString( 'AssignMinimumHooks', $runtimeRulesBuilder );
 		$this->assertStringNotContainsString( 'return [];', $runtimeRulesBuilder );
 
 		$legacyProcessOffense = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/Modules/IPs/Components/ProcessOffense.php'
+			$this->tempPath( 'src/lib/src/Modules/IPs/Components/ProcessOffense.php' )
 		);
 		$this->assertStringContainsString( 'public function setIP', $legacyProcessOffense );
 		$this->assertStringContainsString( 'public function incrementOffenses', $legacyProcessOffense );
@@ -422,7 +426,7 @@ PHP
 		$this->assertStringNotContainsString( 'updateTransgressions', $legacyProcessOffense );
 
 		$legacyBotSignalsRecord = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php'
+			$this->tempPath( 'src/lib/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php' )
 		);
 		$this->assertStringContainsString( 'public function retrieve() :BotSignalRecord', $legacyBotSignalsRecord );
 		$this->assertStringContainsString( "'notbot_at'", $legacyBotSignalsRecord );
@@ -433,20 +437,20 @@ PHP
 		$this->assertStringNotContainsString( 'Services::WpDb()', $legacyBotSignalsRecord );
 
 		$legacyDbBotSignalRecord = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php'
+			$this->tempPath( 'src/lib/src/DBs/BotSignal/BotSignalRecord.php' )
 		);
 		$this->assertStringContainsString( 'class BotSignalRecord', $legacyDbBotSignalRecord );
 		$this->assertStringContainsString( 'public function applyFromArray', $legacyDbBotSignalRecord );
 		$this->assertStringNotContainsString( 'extends Ops\Record', $legacyDbBotSignalRecord );
 
 		$runtimeDbBotSignalRecord = (string)\file_get_contents(
-			$this->tempDir.'/src/DBs/BotSignal/BotSignalRecord.php'
+			$this->tempPath( 'src/DBs/BotSignal/BotSignalRecord.php' )
 		);
 		$this->assertStringContainsString( 'extends Ops\Record', $runtimeDbBotSignalRecord );
 		$this->assertStringNotContainsString( 'public function applyFromArray', $runtimeDbBotSignalRecord );
 
 		$legacyEventDbHandler = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/DBs/Event/Ops/Handler.php'
+			$this->tempPath( 'src/lib/src/DBs/Event/Ops/Handler.php' )
 		);
 		$this->assertStringContainsString( 'public bool $use_table_ready_cache = false;', $legacyEventDbHandler );
 		$this->assertStringContainsString( 'public function isReady() :bool', $legacyEventDbHandler );
@@ -458,7 +462,7 @@ PHP
 		);
 
 		$legacyCrowdSecDbHandler = (string)\file_get_contents(
-			$this->tempDir.'/src/lib/src/DBs/CrowdSecSignals/Ops/Handler.php'
+			$this->tempPath( 'src/lib/src/DBs/CrowdSecSignals/Ops/Handler.php' )
 		);
 		$this->assertStringContainsString( 'public bool $use_table_ready_cache = false;', $legacyCrowdSecDbHandler );
 		$this->assertStringContainsString( 'public function getRecord() :LegacyRecordStub', $legacyCrowdSecDbHandler );
@@ -478,51 +482,51 @@ PHP
 		$duplicator = $this->createDuplicator();
 		$duplicator->createDuplicates( $this->tempDir );
 
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/ActivityLogs' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/ActivityLogsMeta' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/ReqLogs' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/Logging' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/vendor_prefixed/monolog' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/IpRules' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/Modules/IPs/Lib/IpRules' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/UserMeta' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/IPs' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/vendor/mlocati/ip-lib' );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/DBs/ActivityLogs' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/DBs/ActivityLogsMeta' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/DBs/ReqLogs' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/Logging' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/vendor_prefixed/monolog' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/DBs/IpRules' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/Modules/IPs/Lib/IpRules' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/DBs/UserMeta' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/DBs/IPs' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/vendor/mlocati/ip-lib' ) );
 
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Events/EventStrings.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/ActivityLogMessageBuilder.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/LogHandlers/LocalDbWriter.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/HashesStorageDir.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/BaseAction.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/Load.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/Event/Ops/Insert.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/Event/Ops/Record.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/CrowdSecSignals/Ops/Insert.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/CrowdSecSignals/Ops/Record.php' );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Events/EventStrings.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/ActivityLogMessageBuilder.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/LogHandlers/LocalDbWriter.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/HashesStorageDir.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/BaseAction.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/Load.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/Event/Ops/Insert.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/Event/Ops/Record.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/CrowdSecSignals/Ops/Insert.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/CrowdSecSignals/Ops/Record.php' ) );
 
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/Common/BaseLoadRecordsForIPJoins.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/Snapshots/Ops/Handler.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/Snapshots/Ops/Record.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Diff.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' );
-		$this->assertDirectoryDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Exceptions/ActionException.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php' );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/Common/BaseLoadRecordsForIPJoins.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/Snapshots/Ops/Handler.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/Snapshots/Ops/Record.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Diff.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' ) );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/ActionRouter/Exceptions/ActionException.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' ) );
+		$this->assertFileExists( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' ) );
+		$this->assertFileExists( $this->tempPath( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' ) );
+		$this->assertFileExists( $this->tempPath( 'src/lib/src/DBs/BotSignal/BotSignalRecord.php' ) );
 	}
 
 	public function testCreateDuplicatesFailsWhenLegacyOverrideSourceMissing() :void {
 		$this->setupMinimalPackageStructure();
 
-		$missingOverridesRoot = $this->tempDir.'/missing-overrides';
+		$missingOverridesRoot = $this->tempPath( 'missing-overrides' );
 		$duplicator = new class( $missingOverridesRoot ) extends LegacyPathDuplicator {
 
 			private string $overridesRoot;

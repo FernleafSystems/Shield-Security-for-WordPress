@@ -25,11 +25,13 @@ class ControllerTest extends TestCase {
 		// Mock WordPress filesystem functions
 		Monkey\Functions\when( 'wp_normalize_path' )->returnArg( 1 );
 		Monkey\Functions\when( 'trailingslashit' )->alias( function( $path ) {
+			// Intentional manual join: this helper must preserve WordPress trailing-slash behavior exactly.
 			return rtrim( $path, '/' ) . '/';
 		} );
 
 		// Mock plugin constants
 		if ( !defined( 'ABSPATH' ) ) {
+			// Intentional manual join: ABSPATH must include a trailing slash to match core expectations.
 			define( 'ABSPATH', dirname( dirname( __DIR__ ) ) . '/' );
 		}
 	}
@@ -39,6 +41,7 @@ class ControllerTest extends TestCase {
 
 		// Mock the WordPress functions that Controller uses during initialization
 		Monkey\Functions\when( 'plugin_basename' )->justReturn( 'wp-plugin-shield/icwp-wpsf.php' );
+		// Intentional manual join: plugin_dir_path() contract returns a trailing slash.
 		Monkey\Functions\when( 'plugin_dir_path' )->justReturn( dirname( $pluginFile ) . '/' );
 		Monkey\Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.com/wp-content/plugins/wp-plugin-shield/' );
 		
@@ -62,6 +65,7 @@ class ControllerTest extends TestCase {
 
 		// Mock WordPress functions for singleton test
 		Monkey\Functions\when( 'plugin_basename' )->justReturn( 'wp-plugin-shield/icwp-wpsf.php' );
+		// Intentional manual join: plugin_dir_path() contract returns a trailing slash.
 		Monkey\Functions\when( 'plugin_dir_path' )->justReturn( dirname( $pluginFile ) . '/' );
 		Monkey\Functions\when( 'plugin_dir_url' )->justReturn( 'https://example.com/wp-content/plugins/wp-plugin-shield/' );
 		

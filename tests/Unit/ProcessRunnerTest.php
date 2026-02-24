@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Path;
 
 class ProcessRunnerTest extends TestCase {
 
@@ -80,7 +81,7 @@ class ProcessRunnerTest extends TestCase {
 
 		$runner->run(
 			[ \PHP_BINARY, '-r', 'echo "nope";' ],
-			$this->projectRoot.'/missing-'.\uniqid()
+			Path::join( $this->projectRoot, 'missing-'.\uniqid() )
 		);
 	}
 

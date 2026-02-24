@@ -3,7 +3,9 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\IntegrationBootstrapDecisions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestEnv;
 
+// Intentional manual joins: integration bootstrap starts before Composer autoload is guaranteed.
 require_once \dirname( __DIR__ ).'/Helpers/TestEnv.php';
+// Intentional manual join: integration bootstrap starts before Composer autoload is guaranteed.
 require_once \dirname( __DIR__ ).'/Helpers/IntegrationBootstrapDecisions.php';
 
 const SHIELD_TEST_MSG_MAIN_PLUGIN_NOT_FOUND_AT = 'ERROR: Main plugin file not found at: ';
@@ -125,6 +127,7 @@ function shield_integration_bootstrap_phase_prepare() :array {
 	shield_test_log( 'PHP Version: '.\PHP_VERSION );
 	shield_test_log( 'Working Directory: '.shield_test_format_path_for_log( (string)\getcwd() ) );
 
+	// Intentional manual join: this autoload probe occurs before Symfony classes can be assumed.
 	$rootAutoload = $repoRoot.'/vendor/autoload.php';
 	if ( \file_exists( $rootAutoload ) ) {
 		require_once $rootAutoload;
@@ -247,6 +250,7 @@ function shield_integration_bootstrap_phase_prepare() :array {
 function shield_integration_bootstrap_phase_bootstrap_wordpress( array $state ) :array {
 	$_tests_dir = $state[ 'tests_dir' ];
 
+	// Intentional manual join: WordPress test bootstrap paths are resolved before relying on Symfony Path.
 	$wp_tests_functions_file = $_tests_dir.'/includes/functions.php';
 	if ( !\file_exists( $wp_tests_functions_file ) ) {
 		shield_test_error( 'ERROR: WordPress test functions file not found at: '.shield_test_format_path_for_log( $wp_tests_functions_file ) );
@@ -265,6 +269,7 @@ function shield_integration_bootstrap_phase_bootstrap_wordpress( array $state ) 
 	global $table_prefix;
 	$table_prefix = 'wptests_';
 
+	// Intentional manual join: WordPress bootstrap include uses raw string composition for pre-bootstrap safety.
 	$wp_tests_bootstrap_file = $_tests_dir.'/includes/bootstrap.php';
 	if ( !\file_exists( $wp_tests_bootstrap_file ) ) {
 		shield_test_error( 'ERROR: WordPress test bootstrap file not found at: '.shield_test_format_path_for_log( $wp_tests_bootstrap_file ) );
@@ -351,8 +356,10 @@ function shield_integration_bootstrap_phase_finalize( array $state ) :void {
 		}
 	}
 
+	// Intentional manual join: helper discovery keeps raw glob path assembly in bootstrap context.
 	$helpers_dir = \dirname( __DIR__ ).'/Helpers';
 	if ( \is_dir( $helpers_dir ) ) {
+		// Intentional manual join: glob pattern is composed directly for bootstrap-time helper loading.
 		foreach ( \glob( $helpers_dir.'/*.php' ) as $helper ) {
 			require_once $helper;
 			shield_test_log( 'Loaded helper: '.\basename( $helper ) );

@@ -14,6 +14,10 @@ class PluginPackagerStraussTest extends TestCase {
 	private string $packagePath;
 	private string $straussVersion;
 
+	private function packagePathJoin( string ...$parts ) :string {
+		return Path::join( $this->packagePath, ...$parts );
+	}
+
 	protected function setUp() :void {
 		parent::setUp();
 
@@ -30,14 +34,14 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testVendorPrefixedExists() :void {
-		$prefixed = $this->packagePath.'/vendor_prefixed';
+		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
 		$this->assertDirectoryExists( $prefixed, 'vendor_prefixed directory missing' );
-		$this->assertFileExists( $prefixed.'/autoload.php' );
+		$this->assertFileExists( Path::join( $prefixed, 'autoload.php' ) );
 	}
 
 	public function testPackagePathParity() :void {
-		$vendorPackages = $this->collectPackagePaths( $this->packagePath.'/vendor' );
-		$prefixedPackages = $this->collectPackagePaths( $this->packagePath.'/vendor_prefixed' );
+		$vendorPackages = $this->collectPackagePaths( $this->packagePathJoin( 'vendor' ) );
+		$prefixedPackages = $this->collectPackagePaths( $this->packagePathJoin( 'vendor_prefixed' ) );
 
 		$overlap = array_values( array_intersect( $vendorPackages, $prefixedPackages ) );
 		$this->assertSame( [], $overlap, 'Packages duplicated between vendor and vendor_prefixed: '.implode( ', ', $overlap ) );
@@ -63,31 +67,31 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedLibrariesPresent() :void {
-		$prefixed = $this->packagePath.'/vendor_prefixed';
+		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
 		foreach ( [ 'monolog', 'twig', 'crowdsec' ] as $dir ) {
 			$this->assertDirectoryExists(
-				$prefixed.'/'.$dir,
+				Path::join( $prefixed, $dir ),
 				"Prefixed directory missing: {$dir}"
 			);
 		}
 	}
 
 	public function testUnprefixedRemoved() :void {
-		$vendor = $this->packagePath.'/vendor';
+		$vendor = $this->packagePathJoin( 'vendor' );
 		foreach ( [ 'monolog', 'twig', 'bin' ] as $dir ) {
 			$this->assertDirectoryDoesNotExist(
-				$vendor.'/'.$dir,
+				Path::join( $vendor, $dir ),
 				"Unprefixed directory should be removed: {$dir}"
 			);
 		}
 	}
 
 	public function testStraussPharRemoved() :void {
-		$this->assertFileDoesNotExist( $this->packagePath.'/strauss.phar' );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'strauss.phar' ) );
 	}
 
 	public function testAutoloaderSuffixApplied() :void {
-		$autoloadReal = $this->packagePath.'/vendor/composer/autoload_real.php';
+		$autoloadReal = $this->packagePathJoin( 'vendor/composer/autoload_real.php' );
 		$this->assertFileExists( $autoloadReal );
 
 		$content = file_get_contents( $autoloadReal );
@@ -100,7 +104,7 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testAutoloadsPruned() :void {
-		$composerDir = $this->packagePath.'/vendor/composer';
+		$composerDir = $this->packagePathJoin( 'vendor/composer' );
 		$files = [
 			'autoload_files.php',
 			'autoload_psr4.php',
@@ -108,7 +112,7 @@ class PluginPackagerStraussTest extends TestCase {
 		];
 
 		foreach ( $files as $file ) {
-			$path = $composerDir.'/'.$file;
+			$path = Path::join( $composerDir, $file );
 			if ( !file_exists( $path ) ) {
 				continue;
 			}
@@ -123,7 +127,7 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedAutoloadsHaveNoVendorLeaks() :void {
-		$autoloadFiles = glob( $this->packagePath.'/vendor_prefixed/autoload*.php' ) ?: [];
+		$autoloadFiles = glob( $this->packagePathJoin( 'vendor_prefixed/autoload*.php' ) ) ?: [];
 		$this->assertNotSame( [], $autoloadFiles, 'No prefixed autoload files found to inspect.' );
 
 		$leaks = [];
@@ -186,8 +190,8 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testPrefixedAutoloadSmoke() :void {
-		$prefixedAutoload = $this->packagePath.'/vendor_prefixed/autoload.php';
-		$vendorAutoload = $this->packagePath.'/vendor/autoload.php';
+		$prefixedAutoload = $this->packagePathJoin( 'vendor_prefixed/autoload.php' );
+		$vendorAutoload = $this->packagePathJoin( 'vendor/autoload.php' );
 
 		$this->assertFileExists( $prefixedAutoload );
 		$this->assertFileExists( $vendorAutoload );
@@ -204,7 +208,7 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$crowdSecClass = 'AptowebDeps\\CrowdSec\\CapiClient\\Watcher';
 		if ( !class_exists( $crowdSecClass ) ) {
-			$psr4Path = $this->packagePath.'/vendor_prefixed/composer/autoload_psr4.php';
+			$psr4Path = $this->packagePathJoin( 'vendor_prefixed/composer/autoload_psr4.php' );
 			$namespaces = [];
 			if ( file_exists( $psr4Path ) ) {
 				$psr4 = require $psr4Path;
@@ -246,10 +250,10 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testLegacySnapshotOpsAreGuardedWhileRuntimeSourceRemainsActive() :void {
-		$legacyDeletePath = $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php';
-		$legacyStorePath = $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php';
-		$runtimeDeletePath = $this->packagePath.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php';
-		$runtimeStorePath = $this->packagePath.'/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php';
+		$legacyDeletePath = $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
+		$legacyStorePath = $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
+		$runtimeDeletePath = $this->packagePathJoin( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
+		$runtimeStorePath = $this->packagePathJoin( 'src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
 
 		$this->assertFileExists( $legacyDeletePath );
 		$this->assertFileExists( $legacyStorePath );
@@ -274,10 +278,10 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testLegacySecurityAdminLoginBoxIsGuardedWhileRuntimeSourceRenders() :void {
-		$legacyLoginPath = $this->packagePath.'/src/lib/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php';
-		$runtimeLoginPath = $this->packagePath.'/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php';
-		$legacyActionExceptionPath = $this->packagePath.'/src/lib/src/ActionRouter/Exceptions/ActionException.php';
-		$legacySecurityAdminNotRequiredPath = $this->packagePath.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php';
+		$legacyLoginPath = $this->packagePathJoin( 'src/lib/src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php' );
+		$runtimeLoginPath = $this->packagePathJoin( 'src/ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php' );
+		$legacyActionExceptionPath = $this->packagePathJoin( 'src/lib/src/ActionRouter/Exceptions/ActionException.php' );
+		$legacySecurityAdminNotRequiredPath = $this->packagePathJoin( 'src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' );
 
 		$this->assertFileExists( $legacyLoginPath );
 		$this->assertFileExists( $runtimeLoginPath );
@@ -298,10 +302,10 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testLegacyMonologAndSnapshotFinderAreGuardedWhileRuntimeSourceRemainsActive() :void {
-		$legacyMonologPath = $this->packagePath.'/src/lib/src/Controller/Dependencies/Monolog.php';
-		$runtimeMonologPath = $this->packagePath.'/src/Controller/Dependencies/Monolog.php';
-		$legacyFindAssetsPath = $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php';
-		$runtimeFindAssetsPath = $this->packagePath.'/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php';
+		$legacyMonologPath = $this->packagePathJoin( 'src/lib/src/Controller/Dependencies/Monolog.php' );
+		$runtimeMonologPath = $this->packagePathJoin( 'src/Controller/Dependencies/Monolog.php' );
+		$legacyFindAssetsPath = $this->packagePathJoin( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php' );
+		$runtimeFindAssetsPath = $this->packagePathJoin( 'src/Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php' );
 
 		$legacyMonolog = $this->getPluginFileContents(
 			'src/lib/src/Controller/Dependencies/Monolog.php',
@@ -331,12 +335,12 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testLegacyIpOffenseAndBotSignalGuardsAreAppliedWhileRuntimeSourceRemainsActive() :void {
-		$legacyProcessOffensePath = $this->packagePath.'/src/lib/src/Modules/IPs/Components/ProcessOffense.php';
-		$runtimeProcessOffensePath = $this->packagePath.'/src/Modules/IPs/Components/ProcessOffense.php';
-		$legacyBotSignalsPath = $this->packagePath.'/src/lib/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php';
-		$runtimeBotSignalsPath = $this->packagePath.'/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php';
-		$legacyDbBotSignalRecordPath = $this->packagePath.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php';
-		$runtimeDbBotSignalRecordPath = $this->packagePath.'/src/DBs/BotSignal/BotSignalRecord.php';
+		$legacyProcessOffensePath = $this->packagePathJoin( 'src/lib/src/Modules/IPs/Components/ProcessOffense.php' );
+		$runtimeProcessOffensePath = $this->packagePathJoin( 'src/Modules/IPs/Components/ProcessOffense.php' );
+		$legacyBotSignalsPath = $this->packagePathJoin( 'src/lib/src/Modules/IPs/Lib/Bots/BotSignalsRecord.php' );
+		$runtimeBotSignalsPath = $this->packagePathJoin( 'src/Modules/IPs/Lib/Bots/BotSignalsRecord.php' );
+		$legacyDbBotSignalRecordPath = $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/BotSignalRecord.php' );
+		$runtimeDbBotSignalRecordPath = $this->packagePathJoin( 'src/DBs/BotSignal/BotSignalRecord.php' );
 
 		$this->assertFileExists( $legacyProcessOffensePath );
 		$this->assertFileExists( $runtimeProcessOffensePath );
@@ -375,10 +379,10 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testLegacyEventAndCrowdSecDbHandlersAreGuardedWhileRuntimeSourceRemainsActive() :void {
-		$legacyEventHandlerPath = $this->packagePath.'/src/lib/src/DBs/Event/Ops/Handler.php';
-		$runtimeEventHandlerPath = $this->packagePath.'/src/DBs/Event/Ops/Handler.php';
-		$legacyCrowdSecHandlerPath = $this->packagePath.'/src/lib/src/DBs/CrowdSecSignals/Ops/Handler.php';
-		$runtimeCrowdSecHandlerPath = $this->packagePath.'/src/DBs/CrowdSecSignals/Ops/Handler.php';
+		$legacyEventHandlerPath = $this->packagePathJoin( 'src/lib/src/DBs/Event/Ops/Handler.php' );
+		$runtimeEventHandlerPath = $this->packagePathJoin( 'src/DBs/Event/Ops/Handler.php' );
+		$legacyCrowdSecHandlerPath = $this->packagePathJoin( 'src/lib/src/DBs/CrowdSecSignals/Ops/Handler.php' );
+		$runtimeCrowdSecHandlerPath = $this->packagePathJoin( 'src/DBs/CrowdSecSignals/Ops/Handler.php' );
 
 		$this->assertFileExists( $legacyEventHandlerPath );
 		$this->assertFileExists( $runtimeEventHandlerPath );
@@ -417,50 +421,50 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	public function testLegacyPrunedShutdownPathsAreNotDuplicated() :void {
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/ActivityLogs' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/ActivityLogsMeta' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/ReqLogs' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/Logging' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/vendor_prefixed/monolog' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/IpRules' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/Modules/IPs/Lib/IpRules' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/UserMeta' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/src/DBs/IPs' );
-		$this->assertDirectoryDoesNotExist( $this->packagePath.'/src/lib/vendor/mlocati/ip-lib' );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/ActivityLogs' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/ActivityLogsMeta' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/ReqLogs' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/Logging' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/vendor_prefixed/monolog' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/IpRules' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/IPs/Lib/IpRules' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/UserMeta' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/IPs' ) );
+		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib/vendor/mlocati/ip-lib' ) );
 
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Events/EventStrings.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/ActivityLogMessageBuilder.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/LogHandlers/LocalDbWriter.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/HashesStorageDir.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/BaseAction.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/Load.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Event/Ops/Insert.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Event/Ops/Record.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/CrowdSecSignals/Ops/Insert.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/CrowdSecSignals/Ops/Record.php' );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Events/EventStrings.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/ActivityLogMessageBuilder.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/LogHandlers/LocalDbWriter.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/HashesStorageDir.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/Store.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/BaseAction.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/HackGuard/Lib/Snapshots/StoreAction/Load.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/Traffic/Lib/LogHandlers/LocalDbWriter.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/Event/Ops/Insert.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/Event/Ops/Record.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/CrowdSecSignals/Ops/Insert.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/CrowdSecSignals/Ops/Record.php' ) );
 
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Common/BaseLoadRecordsForIPJoins.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Handler.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Record.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/Snapshots/Ops/Insert.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Handler.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Record.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Insert.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Delete.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/DBs/BotSignal/Ops/Select.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/ActionRouter/Exceptions/ActionException.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Diff.php' );
-		$this->assertFileDoesNotExist( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' );
-		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' );
-		$this->assertFileExists( $this->packagePath.'/src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' );
-		$this->assertFileExists( $this->packagePath.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php' );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/Common/BaseLoadRecordsForIPJoins.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/Snapshots/Ops/Handler.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/Snapshots/Ops/Record.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/Snapshots/Ops/Insert.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/Ops/Handler.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/Ops/Record.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/Ops/Insert.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/Ops/Delete.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/Ops/Select.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/ActionRouter/Exceptions/ActionException.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/SnapshotVO.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Build.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Convert.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Diff.php' ) );
+		$this->assertFileDoesNotExist( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Retrieve.php' ) );
+		$this->assertFileExists( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php' ) );
+		$this->assertFileExists( $this->packagePathJoin( 'src/lib/src/Modules/AuditTrail/Lib/Snapshots/Ops/Store.php' ) );
+		$this->assertFileExists( $this->packagePathJoin( 'src/lib/src/DBs/BotSignal/BotSignalRecord.php' ) );
 	}
 
 	/**
@@ -476,7 +480,7 @@ class PluginPackagerStraussTest extends TestCase {
 			if ( $vendor === '.' || $vendor === '..' ) {
 				continue;
 			}
-			$vendorPath = $baseDir.'/'.$vendor;
+			$vendorPath = Path::join( $baseDir, $vendor );
 			if ( !is_dir( $vendorPath ) ) {
 				continue;
 			}
@@ -484,7 +488,7 @@ class PluginPackagerStraussTest extends TestCase {
 				if ( $package === '.' || $package === '..' ) {
 					continue;
 				}
-				$packagePath = $vendorPath.'/'.$package;
+				$packagePath = Path::join( $vendorPath, $package );
 				if ( is_dir( $packagePath ) ) {
 					$packages[] = "{$vendor}/{$package}";
 				}

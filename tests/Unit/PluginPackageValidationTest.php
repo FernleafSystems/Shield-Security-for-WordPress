@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Tests to validate the plugin package structure after build
@@ -50,7 +51,7 @@ class PluginPackageValidationTest extends TestCase {
 		];
 
 		foreach ( $excludedItems as $item ) {
-			$path = $this->packagePath . '/' . $item;
+			$path = Path::join( $this->packagePath, $item );
 			$this->assertFileDoesNotExist(
 				$path,
 				"Development file/directory should not be in package: $item"
@@ -62,7 +63,7 @@ class PluginPackageValidationTest extends TestCase {
 	 * Test that the main plugin file has correct header
 	 */
 	public function testPluginHeaderValid() :void {
-		$pluginFile = $this->packagePath . '/icwp-wpsf.php';
+		$pluginFile = Path::join( $this->packagePath, 'icwp-wpsf.php' );
 		$this->assertFileExists( $pluginFile );
 		
 		$content = file_get_contents( $pluginFile );
@@ -83,7 +84,7 @@ class PluginPackageValidationTest extends TestCase {
 			$this->markTestSkipped( 'File permission tests not applicable on Windows' );
 		}
 		
-		$mainPluginFile = $this->packagePath . '/icwp-wpsf.php';
+		$mainPluginFile = Path::join( $this->packagePath, 'icwp-wpsf.php' );
 		if ( file_exists( $mainPluginFile ) ) {
 			$perms = fileperms( $mainPluginFile );
 			$this->assertTrue(

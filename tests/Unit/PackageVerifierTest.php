@@ -3,14 +3,18 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PackageVerifier;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit tests for PackageVerifier.
  * Tests package verification pass/fail scenarios.
  */
 class PackageVerifierTest extends TestCase {
+
+	use TempPathJoinTrait;
 
 	private string $tempDir;
 
@@ -19,7 +23,7 @@ class PackageVerifierTest extends TestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->fs = new Filesystem();
-		$this->tempDir = sys_get_temp_dir().'/shield-test-'.uniqid();
+		$this->tempDir = Path::join( sys_get_temp_dir(), 'shield-test-'.uniqid() );
 		$this->fs->mkdir( $this->tempDir );
 	}
 
@@ -36,15 +40,15 @@ class PackageVerifierTest extends TestCase {
 
 	private function setupValidPackage() :void {
 		// Create all required files
-		$this->fs->dumpFile( $this->tempDir.'/plugin.json', '{}' );
-		$this->fs->dumpFile( $this->tempDir.'/icwp-wpsf.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor/autoload.php', '<?php' );
+		$this->fs->dumpFile( $this->tempPath( 'plugin.json' ), '{}' );
+		$this->fs->dumpFile( $this->tempPath( 'icwp-wpsf.php' ), '<?php' );
+		$this->fs->dumpFile( $this->tempPath( 'vendor/autoload.php' ), '<?php' );
 
 		// Create all required directories
-		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed' );
-		$this->fs->mkdir( $this->tempDir.'/assets/dist' );
-		$this->fs->mkdir( $this->tempDir.'/src/lib/src' );
-		$this->fs->mkdir( $this->tempDir.'/src/lib/vendor' );
+		$this->fs->mkdir( $this->tempPath( 'vendor_prefixed' ) );
+		$this->fs->mkdir( $this->tempPath( 'assets/dist' ) );
+		$this->fs->mkdir( $this->tempPath( 'src/lib/src' ) );
+		$this->fs->mkdir( $this->tempPath( 'src/lib/vendor' ) );
 	}
 
 	// =========================================================================
@@ -84,7 +88,7 @@ class PackageVerifierTest extends TestCase {
 
 	public function testVerifyFailsWhenPluginJsonMissing() :void {
 		$this->setupValidPackage();
-		$this->fs->remove( $this->tempDir.'/plugin.json' );
+		$this->fs->remove( $this->tempPath( 'plugin.json' ) );
 
 		$verifier = $this->createVerifier();
 
@@ -95,7 +99,7 @@ class PackageVerifierTest extends TestCase {
 
 	public function testVerifyFailsWhenMainPluginFileMissing() :void {
 		$this->setupValidPackage();
-		$this->fs->remove( $this->tempDir.'/icwp-wpsf.php' );
+		$this->fs->remove( $this->tempPath( 'icwp-wpsf.php' ) );
 
 		$verifier = $this->createVerifier();
 
@@ -106,7 +110,7 @@ class PackageVerifierTest extends TestCase {
 
 	public function testVerifyFailsWhenVendorAutoloadMissing() :void {
 		$this->setupValidPackage();
-		$this->fs->remove( $this->tempDir.'/vendor/autoload.php' );
+		$this->fs->remove( $this->tempPath( 'vendor/autoload.php' ) );
 
 		$verifier = $this->createVerifier();
 
@@ -121,7 +125,7 @@ class PackageVerifierTest extends TestCase {
 
 	public function testVerifyFailsWhenVendorPrefixedMissing() :void {
 		$this->setupValidPackage();
-		$this->fs->remove( $this->tempDir.'/vendor_prefixed' );
+		$this->fs->remove( $this->tempPath( 'vendor_prefixed' ) );
 
 		$verifier = $this->createVerifier();
 
@@ -132,7 +136,7 @@ class PackageVerifierTest extends TestCase {
 
 	public function testVerifyFailsWhenAssetsDistMissing() :void {
 		$this->setupValidPackage();
-		$this->fs->remove( $this->tempDir.'/assets/dist' );
+		$this->fs->remove( $this->tempPath( 'assets/dist' ) );
 
 		$verifier = $this->createVerifier();
 
@@ -143,7 +147,7 @@ class PackageVerifierTest extends TestCase {
 
 	public function testVerifyFailsWhenLegacySrcMissing() :void {
 		$this->setupValidPackage();
-		$this->fs->remove( $this->tempDir.'/src/lib/src' );
+		$this->fs->remove( $this->tempPath( 'src/lib/src' ) );
 
 		$verifier = $this->createVerifier();
 
@@ -154,7 +158,7 @@ class PackageVerifierTest extends TestCase {
 
 	public function testVerifyFailsWhenLegacyVendorMissing() :void {
 		$this->setupValidPackage();
-		$this->fs->remove( $this->tempDir.'/src/lib/vendor' );
+		$this->fs->remove( $this->tempPath( 'src/lib/vendor' ) );
 
 		$verifier = $this->createVerifier();
 
@@ -201,3 +205,4 @@ class PackageVerifierTest extends TestCase {
 		$this->assertTrue( $hasCheckmarks );
 	}
 }
+

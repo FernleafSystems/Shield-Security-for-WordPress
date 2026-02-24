@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\CommandRunner;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 /**
@@ -92,7 +93,7 @@ class CommandRunnerTest extends TestCase {
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'Working directory does not exist' );
 
-		$runner->run( [ 'echo', 'test' ], '/path/that/does/not/exist/'.uniqid() );
+		$runner->run( [ 'echo', 'test' ], Path::join( '/path/that/does/not/exist', uniqid() ) );
 	}
 
 	/**

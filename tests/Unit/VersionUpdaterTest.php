@@ -4,12 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\FileSystemUtils;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\VersionUpdater;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
  * Tests for the VersionUpdater class.
  */
 class VersionUpdaterTest extends TestCase {
+
+	use TempPathJoinTrait;
 
 	private string $projectRoot;
 
@@ -18,7 +22,7 @@ class VersionUpdaterTest extends TestCase {
 	protected function set_up() :void {
 		parent::set_up();
 		$this->projectRoot = \dirname( \dirname( __DIR__ ) );
-		$this->tempDir = \sys_get_temp_dir().'/version-updater-test-'.\uniqid();
+		$this->tempDir = Path::join( \sys_get_temp_dir(), 'version-updater-test-'.\uniqid() );
 		\mkdir( $this->tempDir, 0755, true );
 	}
 
@@ -179,7 +183,7 @@ class VersionUpdaterTest extends TestCase {
 			'build'             => '202602.0399',
 		] );
 
-		$path = $this->tempDir.'/plugin.json';
+		$path = $this->tempPath( 'plugin.json' );
 		$content = \file_get_contents( $path );
 		$config = \json_decode( $content, true );
 
@@ -203,13 +207,13 @@ class VersionUpdaterTest extends TestCase {
 			'other_key' => 'should be preserved',
 		];
 		\file_put_contents(
-			$this->tempDir.'/plugin.json',
+			$this->tempPath( 'plugin.json' ),
 			\json_encode( $initialConfig, \JSON_PRETTY_PRINT )
 		);
 
 		$updater->update( $this->tempDir, [ 'version' => '2.0.0' ] );
 
-		$content = \file_get_contents( $this->tempDir.'/plugin.json' );
+		$content = \file_get_contents( $this->tempPath( 'plugin.json' ) );
 		$config = \json_decode( $content, true );
 
 		// Updated field
@@ -227,11 +231,11 @@ class VersionUpdaterTest extends TestCase {
 
 		// Create readme.txt
 		$readmeContent = "=== Test Plugin ===\nStable tag: 1.0.0\n\nDescription here.";
-		\file_put_contents( $this->tempDir.'/readme.txt', $readmeContent );
+		\file_put_contents( $this->tempPath( 'readme.txt' ), $readmeContent );
 
 		$updater->update( $this->tempDir, [ 'version' => '2.0.0' ] );
 
-		$content = \file_get_contents( $this->tempDir.'/readme.txt' );
+		$content = \file_get_contents( $this->tempPath( 'readme.txt' ) );
 		$this->assertStringContainsString( 'Stable tag: 2.0.0', $content );
 		$this->assertStringNotContainsString( 'Stable tag: 1.0.0', $content );
 	}
@@ -242,11 +246,11 @@ class VersionUpdaterTest extends TestCase {
 
 		// Create readme.txt with CRLF line endings
 		$readmeContent = "=== Test Plugin ===\r\nStable tag: 1.0.0\r\n\r\nDescription here.";
-		\file_put_contents( $this->tempDir.'/readme.txt', $readmeContent );
+		\file_put_contents( $this->tempPath( 'readme.txt' ), $readmeContent );
 
 		$updater->update( $this->tempDir, [ 'version' => '2.0.0' ] );
 
-		$content = \file_get_contents( $this->tempDir.'/readme.txt' );
+		$content = \file_get_contents( $this->tempPath( 'readme.txt' ) );
 
 		// Should still have CRLF endings
 		$this->assertStringContainsString( "\r\n", $content, 'CRLF line endings should be preserved' );
@@ -265,11 +269,11 @@ class VersionUpdaterTest extends TestCase {
  * Description: Test
  */
 PHP;
-		\file_put_contents( $this->tempDir.'/icwp-wpsf.php', $pluginContent );
+		\file_put_contents( $this->tempPath( 'icwp-wpsf.php' ), $pluginContent );
 
 		$updater->update( $this->tempDir, [ 'version' => '2.0.0' ] );
 
-		$content = \file_get_contents( $this->tempDir.'/icwp-wpsf.php' );
+		$content = \file_get_contents( $this->tempPath( 'icwp-wpsf.php' ) );
 		$this->assertStringContainsString( '* Version: 2.0.0', $content );
 		$this->assertStringNotContainsString( '* Version: 1.0.0', $content );
 	}
@@ -285,14 +289,14 @@ PHP;
 			],
 		];
 		\file_put_contents(
-			$this->tempDir.'/plugin.json',
+			$this->tempPath( 'plugin.json' ),
 			\json_encode( $initialConfig, \JSON_PRETTY_PRINT )
 		);
 
 		// Only update build
 		$updater->update( $this->tempDir, [ 'build' => '202602.0199' ] );
 
-		$content = \file_get_contents( $this->tempDir.'/plugin.json' );
+		$content = \file_get_contents( $this->tempPath( 'plugin.json' ) );
 		$config = \json_decode( $content, true );
 
 		// Build updated
@@ -328,7 +332,7 @@ PHP;
 		$updater = new VersionUpdater( $this->projectRoot, static fn() => null );
 
 		// Create malformed plugin.json
-		\file_put_contents( $this->tempDir.'/plugin.json', '{ invalid json' );
+		\file_put_contents( $this->tempPath( 'plugin.json' ), '{ invalid json' );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'Failed to parse plugin.json' );
@@ -382,13 +386,13 @@ PHP;
 			],
 		];
 		\file_put_contents(
-			$this->tempDir.'/plugin.json',
+			$this->tempPath( 'plugin.json' ),
 			\json_encode( $initialConfig )
 		);
 
 		$updater->update( $this->tempDir, [ 'version' => '2.0.0' ] );
 
-		$content = \file_get_contents( $this->tempDir.'/plugin.json' );
+		$content = \file_get_contents( $this->tempPath( 'plugin.json' ) );
 
 		// Should be pretty-printed
 		$this->assertStringContainsString( "\n", $content );
@@ -417,7 +421,7 @@ PHP;
 			'build'             => '202602.0399',
 		] );
 
-		$path = $this->tempDir.'/plugin-spec/01_properties.json';
+		$path = $this->tempPath( 'plugin-spec/01_properties.json' );
 		$content = \file_get_contents( $path );
 		$data = \json_decode( $content, true );
 
@@ -430,7 +434,7 @@ PHP;
 		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
 
 		// Create properties with extra fields
-		$specDir = $this->tempDir.'/plugin-spec';
+		$specDir = $this->tempPath( 'plugin-spec' );
 		\mkdir( $specDir, 0755, true );
 		$initialData = [
 			'version'           => '1.0.0',
@@ -440,13 +444,13 @@ PHP;
 			'text_domain'       => 'test-domain',
 		];
 		\file_put_contents(
-			$specDir.'/01_properties.json',
+			Path::join( $specDir, '01_properties.json' ),
 			\json_encode( $initialData, \JSON_PRETTY_PRINT )
 		);
 
 		$updater->updateSourceProperties( [ 'version' => '2.0.0' ] );
 
-		$content = \file_get_contents( $specDir.'/01_properties.json' );
+		$content = \file_get_contents( Path::join( $specDir, '01_properties.json' ) );
 		$data = \json_decode( $content, true );
 
 		// Updated field
@@ -469,9 +473,9 @@ PHP;
 	public function testUpdateSourcePropertiesMalformedJsonThrowsException() :void {
 		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
 
-		$specDir = $this->tempDir.'/plugin-spec';
+		$specDir = $this->tempPath( 'plugin-spec' );
 		\mkdir( $specDir, 0755, true );
-		\file_put_contents( $specDir.'/01_properties.json', '{ invalid json' );
+		\file_put_contents( Path::join( $specDir, '01_properties.json' ), '{ invalid json' );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'Failed to parse source properties' );
@@ -483,11 +487,11 @@ PHP;
 		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
 
 		$this->createMinimalSourceProperties();
-		$originalContent = \file_get_contents( $this->tempDir.'/plugin-spec/01_properties.json' );
+		$originalContent = \file_get_contents( $this->tempPath( 'plugin-spec/01_properties.json' ) );
 
 		$updater->updateSourceProperties( [] );
 
-		$newContent = \file_get_contents( $this->tempDir.'/plugin-spec/01_properties.json' );
+		$newContent = \file_get_contents( $this->tempPath( 'plugin-spec/01_properties.json' ) );
 		$this->assertSame( $originalContent, $newContent );
 	}
 
@@ -527,7 +531,7 @@ PHP;
 	public function testUpdateSourcePropertiesJsonOutputUsesCorrectFormatting() :void {
 		$updater = new VersionUpdater( $this->tempDir, static fn() => null );
 
-		$specDir = $this->tempDir.'/plugin-spec';
+		$specDir = $this->tempPath( 'plugin-spec' );
 		\mkdir( $specDir, 0755, true );
 		$initialData = [
 			'version' => '1.0.0',
@@ -536,13 +540,13 @@ PHP;
 			],
 		];
 		\file_put_contents(
-			$specDir.'/01_properties.json',
+			Path::join( $specDir, '01_properties.json' ),
 			\json_encode( $initialData )
 		);
 
 		$updater->updateSourceProperties( [ 'version' => '2.0.0' ] );
 
-		$content = \file_get_contents( $specDir.'/01_properties.json' );
+		$content = \file_get_contents( Path::join( $specDir, '01_properties.json' ) );
 
 		// Should be pretty-printed
 		$this->assertStringContainsString( "\n", $content );
@@ -568,13 +572,13 @@ PHP;
 			],
 		];
 		\file_put_contents(
-			$this->tempDir.'/plugin.json',
+			$this->tempPath( 'plugin.json' ),
 			\json_encode( $config, \JSON_PRETTY_PRINT )
 		);
 	}
 
 	private function createMinimalSourceProperties() :void {
-		$specDir = $this->tempDir.'/plugin-spec';
+		$specDir = $this->tempPath( 'plugin-spec' );
 		if ( !\is_dir( $specDir ) ) {
 			\mkdir( $specDir, 0755, true );
 		}
@@ -584,8 +588,9 @@ PHP;
 			'build'             => '202001.0101',
 		];
 		\file_put_contents(
-			$specDir.'/01_properties.json',
+			Path::join( $specDir, '01_properties.json' ),
 			\json_encode( $data, \JSON_PRETTY_PRINT )
 		);
 	}
 }
+

@@ -3,12 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathDuplicator;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 class LegacyUpgradeSimulationTest extends TestCase {
+
+	use TempPathJoinTrait;
 
 	private string $projectRoot;
 
@@ -20,7 +24,7 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		parent::setUp();
 		$this->projectRoot = \dirname( \dirname( __DIR__ ) );
 		$this->fs = new Filesystem();
-		$this->tempDir = \sys_get_temp_dir().'/shield-upgrade-sim-'.\uniqid();
+		$this->tempDir = Path::join( \sys_get_temp_dir(), 'shield-upgrade-sim-'.\uniqid() );
 		$this->fs->mkdir( $this->tempDir );
 	}
 
@@ -112,15 +116,15 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'snapshot_delete_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
 		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'snapshot_store_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
 
-		$this->assertFileExists( $this->tempDir.'/src/lib/src/DBs/BotSignal/BotSignalRecord.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Handler.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Record.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Insert.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Delete.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/DBs/BotSignal/Ops/Select.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Exceptions/ActionException.php' );
-		$this->assertFileDoesNotExist( $this->tempDir.'/src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' );
+		$this->assertFileExists( $this->tempPath( 'src/lib/src/DBs/BotSignal/BotSignalRecord.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Handler.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Record.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Insert.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Delete.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Select.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/ActionRouter/Exceptions/ActionException.php' ) );
+		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' ) );
 	}
 
 	public function testBuiltPackageCanPassLegacyProbeWhenPackagePathProvided() :void {
@@ -134,27 +138,27 @@ class LegacyUpgradeSimulationTest extends TestCase {
 	}
 
 	private function setupMinimalSourceAndVendorStructure() :void {
-		$srcRoot = $this->tempDir.'/src';
-		$sourceSrcRoot = $this->projectRoot.'/src';
+		$srcRoot = $this->tempPath( 'src' );
+		$sourceSrcRoot = Path::join( $this->projectRoot, 'src' );
 
 		foreach ( $this->getConstant( 'SRC_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
 			$relativePath = \implode( '/', $pathParts );
-			$sourcePath = $sourceSrcRoot.'/'.$relativePath;
-			$targetPath = $srcRoot.'/'.$relativePath;
+			$sourcePath = Path::join( $sourceSrcRoot, $relativePath );
+			$targetPath = Path::join( $srcRoot, $relativePath );
 
 			if ( \is_dir( $sourcePath ) ) {
 				$this->fs->mirror( $sourcePath, $targetPath );
 			}
 			else {
 				$this->fs->mkdir( $targetPath );
-				$this->fs->dumpFile( $targetPath.'/placeholder.php', '<?php' );
+				$this->fs->dumpFile( Path::join( $targetPath, 'placeholder.php' ), '<?php' );
 			}
 		}
 
 		foreach ( $this->getSrcFilesToCopy() as $pathParts ) {
 			$relativePath = \implode( '/', $pathParts );
-			$sourcePath = $sourceSrcRoot.'/'.$relativePath;
-			$targetPath = $srcRoot.'/'.$relativePath;
+			$sourcePath = Path::join( $sourceSrcRoot, $relativePath );
+			$targetPath = Path::join( $srcRoot, $relativePath );
 			$this->fs->mkdir( \dirname( $targetPath ) );
 
 			if ( \file_exists( $sourcePath ) ) {
@@ -165,31 +169,31 @@ class LegacyUpgradeSimulationTest extends TestCase {
 			}
 		}
 
-		$vendorPrefixedRoot = $this->tempDir.'/vendor_prefixed';
+		$vendorPrefixedRoot = $this->tempPath( 'vendor_prefixed' );
 		foreach ( $this->getConstant( 'VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$dirPath = $vendorPrefixedRoot.'/'.\implode( '/', $pathParts );
+			$dirPath = Path::join( $vendorPrefixedRoot, \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->fs->mkdir( $dirPath );
-			$this->fs->dumpFile( $dirPath.'/placeholder.php', '<?php' );
+			$this->fs->dumpFile( Path::join( $dirPath, 'placeholder.php' ), '<?php' );
 		}
 		foreach ( $this->getConstant( 'VENDOR_PREFIXED_FILES_TO_COPY' ) as $file ) {
-			$this->fs->mkdir( \dirname( $vendorPrefixedRoot.'/'.$file ) );
-			$this->fs->dumpFile( $vendorPrefixedRoot.'/'.$file, '<?php' );
+			$this->fs->mkdir( \dirname( Path::join( $vendorPrefixedRoot, $file ) ) );
+			$this->fs->dumpFile( Path::join( $vendorPrefixedRoot, $file ), '<?php' );
 		}
 
-		$vendorRoot = $this->tempDir.'/vendor';
+		$vendorRoot = $this->tempPath( 'vendor' );
 		foreach ( $this->getConstant( 'STD_VENDOR_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$dirPath = $vendorRoot.'/'.\implode( '/', $pathParts );
+			$dirPath = Path::join( $vendorRoot, \implode( DIRECTORY_SEPARATOR, $pathParts ) );
 			$this->fs->mkdir( $dirPath );
-			$this->fs->dumpFile( $dirPath.'/placeholder.php', '<?php' );
+			$this->fs->dumpFile( Path::join( $dirPath, 'placeholder.php' ), '<?php' );
 		}
 		foreach ( $this->getConstant( 'STD_VENDOR_FILES_TO_COPY' ) as $file ) {
-			$this->fs->mkdir( \dirname( $vendorRoot.'/'.$file ) );
-			$this->fs->dumpFile( $vendorRoot.'/'.$file, '<?php' );
+			$this->fs->mkdir( \dirname( Path::join( $vendorRoot, $file ) ) );
+			$this->fs->dumpFile( Path::join( $vendorRoot, $file ), '<?php' );
 		}
 	}
 
 	private function runLegacyProbe( string $pluginRoot, string $scenario ) :array {
-		$probePath = $this->projectRoot.'/tests/fixtures/legacy-upgrade/legacy_probe.php';
+		$probePath = Path::join( $this->projectRoot, 'tests/fixtures/legacy-upgrade/legacy_probe.php' );
 		$process = new Process(
 			[
 				\PHP_BINARY,
@@ -230,3 +234,4 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		return \str_replace( '\\', '/', $path );
 	}
 }
+

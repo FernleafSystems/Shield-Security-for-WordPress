@@ -4,14 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PostStraussCleanup;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit tests for PostStraussCleanup.
  * Tests directory removal, file removal, and autoload cleaning.
  */
 class PostStraussCleanupTest extends TestCase {
+
+	use TempPathJoinTrait;
 
 	private string $tempDir;
 
@@ -20,7 +24,7 @@ class PostStraussCleanupTest extends TestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->fs = new Filesystem();
-		$this->tempDir = sys_get_temp_dir().'/shield-test-'.uniqid();
+		$this->tempDir = Path::join( sys_get_temp_dir(), 'shield-test-'.uniqid() );
 		$this->fs->mkdir( $this->tempDir );
 	}
 
@@ -42,9 +46,9 @@ class PostStraussCleanupTest extends TestCase {
 
 	public function testCleanPackageFilesRemovesVendorTwig() :void {
 		// Setup: Create vendor/twig directory
-		$twigDir = $this->tempDir.'/vendor/twig';
+		$twigDir = $this->tempPath( 'vendor/twig' );
 		$this->fs->mkdir( $twigDir );
-		$this->fs->dumpFile( $twigDir.'/file.php', '<?php' );
+		$this->fs->dumpFile( Path::join( $twigDir, 'file.php' ), '<?php' );
 
 		$cleanup = $this->createCleanup();
 		$cleanup->cleanPackageFiles( $this->tempDir );
@@ -54,9 +58,9 @@ class PostStraussCleanupTest extends TestCase {
 
 	public function testCleanPackageFilesRemovesVendorMonolog() :void {
 		// Setup: Create vendor/monolog directory
-		$monologDir = $this->tempDir.'/vendor/monolog';
+		$monologDir = $this->tempPath( 'vendor/monolog' );
 		$this->fs->mkdir( $monologDir );
-		$this->fs->dumpFile( $monologDir.'/file.php', '<?php' );
+		$this->fs->dumpFile( Path::join( $monologDir, 'file.php' ), '<?php' );
 
 		$cleanup = $this->createCleanup();
 		$cleanup->cleanPackageFiles( $this->tempDir );
@@ -66,9 +70,9 @@ class PostStraussCleanupTest extends TestCase {
 
 	public function testCleanPackageFilesRemovesVendorBin() :void {
 		// Setup: Create vendor/bin directory
-		$binDir = $this->tempDir.'/vendor/bin';
+		$binDir = $this->tempPath( 'vendor/bin' );
 		$this->fs->mkdir( $binDir );
-		$this->fs->dumpFile( $binDir.'/phpunit', '#!/bin/bash' );
+		$this->fs->dumpFile( Path::join( $binDir, 'phpunit' ), '#!/bin/bash' );
 
 		$cleanup = $this->createCleanup();
 		$cleanup->cleanPackageFiles( $this->tempDir );
@@ -78,8 +82,8 @@ class PostStraussCleanupTest extends TestCase {
 
 	public function testCleanPackageFilesRemovesAutoloadFilesPhp() :void {
 		// Setup: Create vendor_prefixed/autoload-files.php
-		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed' );
-		$autoloadFile = $this->tempDir.'/vendor_prefixed/autoload-files.php';
+		$this->fs->mkdir( $this->tempPath( 'vendor_prefixed' ) );
+		$autoloadFile = $this->tempPath( 'vendor_prefixed/autoload-files.php' );
 		$this->fs->dumpFile( $autoloadFile, '<?php' );
 
 		$cleanup = $this->createCleanup();
@@ -90,7 +94,7 @@ class PostStraussCleanupTest extends TestCase {
 
 	public function testCleanPackageFilesRemovesStraussPhar() :void {
 		// Setup: Create strauss.phar
-		$straussPhar = $this->tempDir.'/strauss.phar';
+		$straussPhar = $this->tempPath( 'strauss.phar' );
 		$this->fs->dumpFile( $straussPhar, '<?php' );
 
 		$cleanup = $this->createCleanup();
@@ -113,10 +117,11 @@ class PostStraussCleanupTest extends TestCase {
 
 	public function testCleanAutoloadFilesRemovesTwigReferences() :void {
 		// Setup: Create autoload file with twig references
-		$composerDir = $this->tempDir.'/vendor/composer';
+		$composerDir = $this->tempPath( 'vendor/composer' );
 		$this->fs->mkdir( $composerDir );
-		$autoloadFile = $composerDir.'/autoload_files.php';
+		$autoloadFile = Path::join( $composerDir, 'autoload_files.php' );
 
+		// Intentional manual joins in fixture text: this string mimics Composer autoload file internals.
 		$content = <<<'PHP'
 <?php
 $vendorDir = dirname(__DIR__);
@@ -137,9 +142,9 @@ PHP;
 
 	public function testCleanAutoloadFilesPreservesLineEndings() :void {
 		// Setup: Create file with CRLF line endings
-		$composerDir = $this->tempDir.'/vendor/composer';
+		$composerDir = $this->tempPath( 'vendor/composer' );
 		$this->fs->mkdir( $composerDir );
-		$autoloadFile = $composerDir.'/autoload_files.php';
+		$autoloadFile = Path::join( $composerDir, 'autoload_files.php' );
 
 		$content = "<?php\r\n\$twig = '/twig/twig/src/file.php';\r\n\$other = 'keep';\r\n";
 		$this->fs->dumpFile( $autoloadFile, $content );
@@ -168,13 +173,13 @@ PHP;
 
 	public function testCleanAutoloadFilesProcessesMultipleFiles() :void {
 		// Setup: Create multiple autoload files
-		$composerDir = $this->tempDir.'/vendor/composer';
+		$composerDir = $this->tempPath( 'vendor/composer' );
 		$this->fs->mkdir( $composerDir );
 
 		$files = [ 'autoload_files.php', 'autoload_static.php', 'autoload_psr4.php' ];
 		foreach ( $files as $file ) {
 			$this->fs->dumpFile(
-				$composerDir.'/'.$file,
+				Path::join( $composerDir, $file ),
 				"<?php\n// twig/twig reference\n"
 			);
 		}
@@ -183,8 +188,9 @@ PHP;
 		$cleanup->cleanAutoloadFiles( $this->tempDir );
 
 		foreach ( $files as $file ) {
-			$content = file_get_contents( $composerDir.'/'.$file );
+			$content = file_get_contents( Path::join( $composerDir, $file ) );
 			$this->assertStringNotContainsString( '/twig/twig/', $content );
 		}
 	}
 }
+
