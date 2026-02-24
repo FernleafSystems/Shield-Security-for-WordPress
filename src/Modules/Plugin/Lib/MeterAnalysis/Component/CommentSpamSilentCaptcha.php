@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-class CommentSpamAntibot extends Base {
+class CommentSpamSilentCaptcha extends Base {
 
 	use Traits\OptConfigBased;
 
-	public const SLUG = 'comment_spam_antibot';
+	public const SLUG = 'comment_spam_silentcaptcha';
 	public const WEIGHT = 7;
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->enabledAntiBotCommentSpam();
+		return self::con()->comps->opts_lookup->enabledSilentCaptchaCommentSpam();
 	}
 
 	protected function getOptConfigKey() :string {

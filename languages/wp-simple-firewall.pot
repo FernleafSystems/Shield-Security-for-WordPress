@@ -13230,15 +13230,15 @@ msgstr ""
 msgid "Comments are auto-approved only if they have at least 1 other approved comment."
 msgstr ""
 
-#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamAntibot.php:21
+#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamSilentCaptcha.php:21
 msgid "Bot Comment SPAM"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamAntibot.php:25
+#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamSilentCaptcha.php:25
 msgid "Your site is protected against automated Comment SPAM by Bots."
 msgstr ""
 
-#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamAntibot.php:29
+#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamSilentCaptcha.php:29
 msgid "Your site isn't protected against automated Comment SPAM by Bots."
 msgstr ""
 

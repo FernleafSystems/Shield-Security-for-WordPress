@@ -23,6 +23,10 @@ if ( !\function_exists( '\shield_security_get_plugin' ) ) {
 		return Functions\test_ip_is_bot( $IP );
 	}
 
+	function shield_get_silentcaptcha_bot_threshold() :int {
+		return Functions\get_silentcaptcha_bot_threshold();
+	}
+
 	function shield_get_ip_state( string $ip = '' ) :string {
 		return Functions\get_ip_state( $ip );
 	}

@@ -31,6 +31,10 @@ function test_ip_is_bot( $IP = null ) :bool {
 	return shield_security_get_plugin()->getController()->comps->bot_signals->isBot( (string)$IP );
 }
 
+function get_silentcaptcha_bot_threshold() :int {
+	return get_plugin()->getController()->comps->opts_lookup->getSilentCaptchaBotThreshold();
+}
+
 function get_ip_state( string $ip = '' ) :string {
 	$state = 'none';
 	try {

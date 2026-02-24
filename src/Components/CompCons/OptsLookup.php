@@ -9,12 +9,12 @@ class OptsLookup {
 
 	use PluginControllerConsumer;
 
-	public function enabledAntiBotCommentSpam() :bool {
+	public function enabledSilentCaptchaCommentSpam() :bool {
 		return self::con()->opts->optIs( 'enable_antibot_comments', 'Y' );
 	}
 
-	public function enabledAntiBotEngine() :bool {
-		return $this->getAntiBotMinScore() > 0;
+	public function enabledSilentCaptcha() :bool {
+		return $this->getSilentCaptchaBotThreshold() > 0;
 	}
 
 	public function enabledHumanCommentSpam() :bool {
@@ -64,8 +64,9 @@ class OptsLookup {
 		return Services::Request()->ts() - self::con()->opts->optGet( 'activated_at' );
 	}
 
-	public function getAntiBotMinScore() :int {
-		return (int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) );
+	public function getSilentCaptchaBotThreshold() :int {
+		return (int)apply_filters( 'shield/silent_captcha_bot_threshold',
+			apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) ) );
 	}
 
 	public function getBlockdownCfg() :array {
@@ -250,5 +251,19 @@ class OptsLookup {
 
 	public function isPassPreventPwned() :bool {
 		return $this->isPassPoliciesEnabled() && self::con()->opts->optIs( 'pass_prevent_pwned', 'Y' );
+	}
+
+	/**
+	 * @deprecated 21.2
+	 */
+	public function enabledAntiBotEngine() :bool {
+		return $this->getSilentCaptchaBotThreshold() > 0;
+	}
+
+	/**
+	 * @deprecated 21.2
+	 */
+	public function getAntiBotMinScore() :int {
+		return (int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) );
 	}
 }

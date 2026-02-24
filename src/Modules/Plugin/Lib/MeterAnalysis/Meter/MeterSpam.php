@@ -31,7 +31,7 @@ class MeterSpam extends MeterBase {
 
 	protected function getComponents() :array {
 		return [
-			Component\CommentSpamAntibot::class,
+			Component\CommentSpamSilentCaptcha::class,
 			Component\CommentSpamHuman::class,
 			Component\ContactFormSpam::class,
 			Component\CommentApprovedMinimum::class,

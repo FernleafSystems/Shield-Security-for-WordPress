@@ -7,7 +7,7 @@ class IpAdeThreshold extends IpBase {
 	public const SLUG = 'ip_ade_threshold';
 
 	protected function testIfProtected() :bool {
-		return self::con()->comps->opts_lookup->getAntiBotMinScore() > 0;
+		return self::con()->comps->opts_lookup->getSilentCaptchaBotThreshold() > 0;
 	}
 
 	protected function getOptConfigKey() :string {

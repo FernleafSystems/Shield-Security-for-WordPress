@@ -20,7 +20,7 @@ class NotBotHandler {
 
 	protected function canRun() :bool {
 		$con = self::con();
-		return (bool)apply_filters( 'shield/can_run_antibot', $con->comps->opts_lookup->enabledAntiBotEngine() && $con->db_con->bot_signals->isReady() );
+		return (bool)apply_filters( 'shield/can_run_antibot', $con->comps->opts_lookup->enabledSilentCaptcha() && $con->db_con->bot_signals->isReady() );
 	}
 
 	protected function run() {

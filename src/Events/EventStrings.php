@@ -195,15 +195,15 @@ class EventStrings {
 				],
 			],
 			'antibot_pass'                 => [
-				'name'  => __( 'AntiBot Pass', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Pass', 'wp-simple-firewall' ),
 				'audit' => [
-					__( "Request passed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}}).", 'wp-simple-firewall' ),
+					__( 'Request passed the silentCAPTCHA Test with a Visitor Score of {{score}} (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
 				],
 			],
 			'antibot_fail'                 => [
-				'name'  => __( 'AntiBot Fail', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( "Request failed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}}).", 'wp-simple-firewall' ),
+					__( 'Request failed the silentCAPTCHA Test with a Visitor Score of {{score}} (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
 				],
 			],
 			'report_generated'             => [
@@ -668,7 +668,7 @@ class EventStrings {
 			'spam_block_antibot'           => [
 				'name'  => sprintf( '%s: %s', __( 'SPAM Blocked', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
-					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
+					__( 'Blocked SPAM comment that failed silentCAPTCHA tests.', 'wp-simple-firewall' )
 				],
 			],
 			'spam_block_human'             => [

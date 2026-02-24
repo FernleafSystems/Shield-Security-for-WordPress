@@ -173,7 +173,7 @@ class SectionNotices {
 				if ( empty( $con->opts->optGet( 'bot_protection_locations' ) ) ) {
 					$warnings[] = sprintf( __( "%s detection isn't applied because you haven't selected any forms to protect, such as Login or Register.", 'wp-simple-firewall' ), $silentCaptcha );
 				}
-				elseif ( !$optsLookup->enabledAntiBotEngine() ) {
+				elseif ( !$optsLookup->enabledSilentCaptcha() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), $silentCaptcha )
@@ -182,7 +182,7 @@ class SectionNotices {
 				break;
 
 			case 'section_user_forms':
-				if ( !$optsLookup->enabledAntiBotEngine() ) {
+				if ( !$optsLookup->enabledSilentCaptcha() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), $silentCaptcha )
@@ -197,7 +197,7 @@ class SectionNotices {
 				break;
 
 			case 'section_spam':
-				if ( !$optsLookup->enabledAntiBotEngine() ) {
+				if ( !$optsLookup->enabledSilentCaptcha() ) {
 					$warnings[] = sprintf(
 						__( "WordPress login forms aren't protected against bots because you've set the bot minimum score to 0, which controls the %s system.", 'wp-simple-firewall' ),
 						sprintf( '<a href="%s">%s</a>', $con->plugin_urls->cfgForZoneComponent( SilentCaptcha::Slug() ), $silentCaptcha )
@@ -240,7 +240,7 @@ class SectionNotices {
 				break;
 
 			case 'section_silentcaptcha':
-				if ( !$optsLookup->enabledAntiBotEngine() ) {
+				if ( !$optsLookup->enabledSilentCaptcha() ) {
 					$warnings[] = sprintf( '%s: %s', __( 'Important', 'wp-simple-firewall' ),
 						sprintf( __( '%1$s is disabled when set to a minimum score of %2$s.', 'wp-simple-firewall' ), $silentCaptcha, '0' ) );
 				}

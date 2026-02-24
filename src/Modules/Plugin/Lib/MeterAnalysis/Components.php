@@ -18,7 +18,7 @@ class Components {
 		Component\AdeRegister::class,
 		Component\IpAdeThreshold::class,
 		Component\CommentApprovedMinimum::class,
-		Component\CommentSpamAntibot::class,
+		Component\CommentSpamSilentCaptcha::class,
 		Component\CommentSpamHuman::class,
 		Component\ContactFormSpam::class,
 		Component\FirewallAggressive::class,
