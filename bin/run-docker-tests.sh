@@ -17,6 +17,9 @@ for arg in "$@"; do
             echo "Modes:"
             echo "  (default)          Build package and run parallel Docker test suites"
             echo "  --analyze-package  Build package and run packaged PHPStan analysis"
+            echo ""
+            echo "Source:"
+            echo "  HEAD-only          Build and test from a clean HEAD snapshot (local changes are ignored)"
             exit 0
             ;;
         *)
@@ -46,10 +49,6 @@ if ! docker info >/dev/null 2>&1; then
     exit 1
 fi
 
-# Disable MSYS/Git Bash path conversion on Windows
-# Prevents /app from being converted to C:/Program Files/Git/app
-export MSYS_NO_PATHCONV=1
-
 # Enable Docker BuildKit for cache mount support
 # BuildKit provides automatic caching of apt packages and composer dependencies
 # Cache is created automatically if missing, reused on subsequent builds
@@ -65,8 +64,63 @@ echo "=================================================="
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+CALLER_PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+HEAD_SNAPSHOT_DIR="$CALLER_PROJECT_ROOT/tmp/shield-head-snapshot"
+HEAD_INDEX_FILE="$CALLER_PROJECT_ROOT/tmp/shield-head-snapshot.index"
+HEAD_SNAPSHOT_RELATIVE="tmp/shield-head-snapshot"
+HEAD_INDEX_RELATIVE="tmp/shield-head-snapshot.index"
+
+HEAD_COMMIT="$(cd "$CALLER_PROJECT_ROOT" >/dev/null 2>&1 && git rev-parse HEAD 2>/dev/null || true)"
+
+if [ -z "$HEAD_COMMIT" ]; then
+    echo "❌ Error: Unable to resolve HEAD commit at $CALLER_PROJECT_ROOT"
+    exit 1
+fi
+
+prepare_head_snapshot() {
+    mkdir -p "$CALLER_PROJECT_ROOT/tmp"
+    rm -rf "$HEAD_SNAPSHOT_DIR"
+    rm -f "$HEAD_INDEX_FILE"
+    mkdir -p "$HEAD_SNAPSHOT_DIR"
+
+    if ! (
+        cd "$CALLER_PROJECT_ROOT" >/dev/null 2>&1 &&
+        GIT_INDEX_FILE="$HEAD_INDEX_RELATIVE" git read-tree HEAD &&
+        GIT_INDEX_FILE="$HEAD_INDEX_RELATIVE" git checkout-index -a -f --prefix="$HEAD_SNAPSHOT_RELATIVE/"
+    ); then
+        echo "❌ Error: Failed to export HEAD snapshot to $HEAD_SNAPSHOT_DIR"
+        rm -f "$HEAD_INDEX_FILE"
+        exit 1
+    fi
+
+    rm -f "$HEAD_INDEX_FILE"
+
+    if [ ! -f "$HEAD_SNAPSHOT_DIR/icwp-wpsf.php" ]; then
+        echo "❌ Error: HEAD snapshot missing required file: icwp-wpsf.php"
+        exit 1
+    fi
+    if [ ! -d "$HEAD_SNAPSHOT_DIR/tests" ]; then
+        echo "❌ Error: HEAD snapshot missing required directory: tests"
+        exit 1
+    fi
+    if [ ! -d "$HEAD_SNAPSHOT_DIR/.github" ]; then
+        echo "❌ Error: HEAD snapshot missing required directory: .github"
+        exit 1
+    fi
+}
+
+prepare_head_snapshot
+
+PROJECT_ROOT="$HEAD_SNAPSHOT_DIR"
 cd "$PROJECT_ROOT"
+
+echo "   Source: HEAD-only snapshot"
+echo "   HEAD Commit: $HEAD_COMMIT"
+echo "   Effective Project Root: $PROJECT_ROOT"
+
+# Disable MSYS/Git Bash path conversion for Docker path arguments
+# Prevents /app from being converted to C:/Program Files/Git/app
+export MSYS_NO_PATHCONV=1
 
 # Set a predictable Compose project name to avoid generic "docker" container names
 export COMPOSE_PROJECT_NAME="shield-tests"
@@ -163,9 +217,9 @@ export PLUGIN_SOURCE="$PACKAGE_DIR"
 PACKAGE_DIR_RELATIVE="tmp/shield-package-local"
 
 # Local cache paths (all under tmp/ to keep cache lifecycle local to workspace)
-WEBPACK_CACHE_FILE="$PROJECT_ROOT/tmp/.shield-webpack-cache-checksum"
-COMPOSER_ROOT_CACHE_FILE="$PROJECT_ROOT/tmp/.shield-composer-root-cache-checksum"
-PACKAGE_DEPS_CACHE_ROOT="$PROJECT_ROOT/tmp/.shield-cache/package-deps"
+WEBPACK_CACHE_FILE="$CALLER_PROJECT_ROOT/tmp/.shield-webpack-cache-checksum"
+COMPOSER_ROOT_CACHE_FILE="$CALLER_PROJECT_ROOT/tmp/.shield-composer-root-cache-checksum"
+PACKAGE_DEPS_CACHE_ROOT="$CALLER_PROJECT_ROOT/tmp/.shield-cache/package-deps"
 
 hash_file_or_missing() {
     local file_path=$1
@@ -320,7 +374,7 @@ prepare_package_dir() {
     # Export tracked files using git archive (respects .gitattributes export-ignore)
     # This is MUCH faster than PHP file-by-file copying
     echo "   Exporting files via git archive..."
-    git archive HEAD | tar -x -C "$PACKAGE_DIR" || {
+    ( cd "$CALLER_PROJECT_ROOT" && git archive HEAD ) | tar -x -C "$PACKAGE_DIR" || {
         echo "Error: git archive failed"
         return 1
     }

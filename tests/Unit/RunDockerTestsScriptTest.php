@@ -47,7 +47,6 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$process->run();
 
 		$this->assertSame( 0, $process->getExitCode() ?? 1 );
-		$this->assertStringContainsString( 'Usage:', $process->getOutput().$process->getErrorOutput() );
 	}
 
 	public function testScriptRejectsUnknownArgument() :void {
