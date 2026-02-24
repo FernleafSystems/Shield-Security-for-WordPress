@@ -12,7 +12,7 @@ class MemberPress extends Base {
 	}
 
 	protected function register() {
-		add_filter( 'mepr-validate-signup', [ $this, 'checkRegister_MP' ], 10, 2 );
+		add_filter( 'mepr-validate-signup', [ $this, 'checkRegister_MP' ] );
 	}
 
 	protected function lostpassword() {

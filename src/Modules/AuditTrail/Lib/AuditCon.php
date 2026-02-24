@@ -45,6 +45,7 @@ class AuditCon {
 
 		// Realtime Snapshotting
 		if ( self::con()->db_con->activity_snapshots->isReady() ) {
+			// @phpstan-ignore return.void
 			add_action( 'wp_loaded', fn() => \array_map(
 				fn( $auditor ) => $auditor->canSnapRealtime() ? $this->runSnapshotDiscovery( $auditor ) : null,
 				$this->getAuditors()

@@ -92,7 +92,6 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
-	 * @return void
 	 */
 	public function postSuccessActions() :void {
 		self::con()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();

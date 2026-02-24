@@ -43,6 +43,7 @@ class TranslationDownloadController {
 		$now = Services::Request()->ts();
 		$localesLookup = $con->prefix( 'adhoc_locales_check' );
 		if ( empty( $this->getCachedLocales() ) ) {
+			// @phpstan-ignore return.void
 			add_action( $localesLookup, fn() => $this->getAvailableLocales() );
 			if ( !Services::WpGeneral()->isCron() && !wp_next_scheduled( $localesLookup ) ) {
 				wp_schedule_single_event( $now + \MINUTE_IN_SECONDS, $localesLookup );

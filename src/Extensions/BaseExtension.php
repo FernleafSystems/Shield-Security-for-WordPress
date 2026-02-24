@@ -45,6 +45,7 @@ abstract class BaseExtension {
 	}
 
 	protected function run() {
+		// @phpstan-ignore return.void
 		add_action( 'init', fn() => $this->getUpgradesHandler() );
 	}
 

@@ -12,6 +12,7 @@ class WPMembers extends Base {
 	}
 
 	protected function lostpassword() {
+		// @phpstan-ignore return.void
 		add_action( 'wpmem_pwdreset_args', [ $this, 'checkLostPassword_WM' ], 5 );
 	}
 

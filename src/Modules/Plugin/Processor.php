@@ -73,6 +73,7 @@ class Processor {
 				self::con()->comps->user_suspend->execute();
 
 				// All newly created users have their first seen and password start date set
+				// @phpstan-ignore return.void
 				add_action( 'user_register',
 					fn( $userID ) => self::con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) ) );
 

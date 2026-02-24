@@ -21,7 +21,7 @@ class IpRuleStatus {
 	private string $ipOrRange;
 
 	/**
-	 * @var ?IpRuleRecord[][]
+	 * @var array<string, IpRuleRecord[]>
 	 */
 	private static array $cache = [];
 

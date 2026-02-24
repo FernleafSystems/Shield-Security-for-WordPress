@@ -36,6 +36,7 @@ abstract class Base {
 	}
 
 	protected function run() {
+		// @phpstan-ignore return.void
 		add_action(
 			self::con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
 			fn() => self::con()->comps->scans->startNewScans( [ $this->getSlug() ] )

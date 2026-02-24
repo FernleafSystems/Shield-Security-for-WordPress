@@ -49,7 +49,9 @@ class LoginIntentRequestValidate {
 			try {
 				\ob_start();
 				if ( $provider->validateLoginIntent( $mfaCon->findHashedNonce( $user, $plainNonce ) ) ) {
-					$provider->postSuccessActions();
+					if ( \method_exists( $provider, 'postSuccessActions' ) ) {
+						$provider->postSuccessActions();
+					}
 					$this->auditLoginIntent( true, $provider->getProviderName() );
 					$validatedSlug = $provider::ProviderSlug();
 					break;

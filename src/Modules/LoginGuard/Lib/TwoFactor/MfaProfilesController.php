@@ -43,6 +43,7 @@ class MfaProfilesController {
 	}
 
 	private function provideUserLoginSecurityPage() {
+		// @phpstan-ignore return.void
 		add_action( 'admin_menu', fn() => add_users_page(
 			sprintf( '%s - %s', __( 'My Login Security', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			__( 'Login Security', 'wp-simple-firewall' ),

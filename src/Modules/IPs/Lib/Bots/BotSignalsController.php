@@ -23,6 +23,7 @@ class BotSignalsController {
 
 		if ( self::con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' ) ) {
 			$this->getEventListener()->execute();
+			// @phpstan-ignore return.void
 			add_action( 'init', fn() => \array_map( fn( $c ) => ( new $c() )->execute(), $this->enumerateBotTrackers() ) );
 			self::con()->comps->not_bot->execute();
 			$this->registerFrontPageLoad();

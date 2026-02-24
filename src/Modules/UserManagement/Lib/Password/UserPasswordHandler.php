@@ -26,7 +26,9 @@ class UserPasswordHandler {
 			$this->setupLoginCaptureHooks();
 			add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 			add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100 );
+			// @phpstan-ignore return.void
 			add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100 );
+			// @phpstan-ignore return.void
 			add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100 );
 		}
 	}

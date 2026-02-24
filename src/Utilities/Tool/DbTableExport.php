@@ -15,9 +15,7 @@ class DbTableExport {
 		$content = [];
 		/** @var Record $record */
 		foreach ( $this->getDbH()->getIterator() as $record ) {
-			if ( !empty( $record ) ) {
-				$content[] = $this->implodeForCSV( $this->getEntryAsRawArray( $record ) );
-			}
+			$content[] = $this->implodeForCSV( $this->getEntryAsRawArray( $record ) );
 		}
 		\array_unshift( $content, $this->implodeForCSV( $this->getActualColumns() ) );
 		return [

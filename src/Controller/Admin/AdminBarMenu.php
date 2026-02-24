@@ -25,6 +25,7 @@ class AdminBarMenu {
 	}
 
 	protected function run() {
+		// @phpstan-ignore return.void
 		add_action( 'admin_bar_menu', fn( $adminBar ) => $adminBar instanceof \WP_Admin_Bar ? $this->createAdminBarMenu( $adminBar ) : null, 100 );
 	}
 

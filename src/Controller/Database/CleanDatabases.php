@@ -33,7 +33,7 @@ class CleanDatabases {
 			->db_con
 			->bot_signals
 			->getQueryDeleter()
-			->addWhereOlderThan( Services::Request()->carbon( true )->subweeks( 2 )->timestamp, 'updated_at' )
+			->addWhereOlderThan( Services::Request()->carbon( true )->subWeeks( 2 )->timestamp, 'updated_at' )
 			->query();
 	}
 

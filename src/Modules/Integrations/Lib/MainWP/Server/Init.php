@@ -119,7 +119,7 @@ class Init {
 						'active_path'          => [ 'Extensions-Wp-Simple-Firewall' => 'managesites' ],
 					] );
 				}
-			}, 10, 2 );
+			}, 10, 0 );
 		}
 
 		return new ExtensionSettingsPage();
