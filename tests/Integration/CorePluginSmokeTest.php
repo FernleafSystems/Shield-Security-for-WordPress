@@ -39,6 +39,20 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 		}
 	}
 
+	public function testControllerConfigIsBootReady() :void {
+		$controller = self::con();
+		$this->assertNotNull( $controller, 'Shield controller should be available after bootstrap.' );
+
+		try {
+			$cfg = $controller->cfg;
+		}
+		catch ( \Throwable $e ) {
+			$this->fail( 'Shield controller config should be available after bootstrap: '.$e->getMessage() );
+		}
+
+		$this->assertIsObject( $cfg, 'Shield controller config should be an object.' );
+	}
+
 	/**
 	 * Test both autoloader files exist and are readable
 	 */

@@ -63,6 +63,125 @@ if ( !\function_exists( 'shield_test_get_plugin_context' ) ) {
 	}
 }
 
+if ( !\function_exists( 'shield_test_enable_php_error_logging' ) ) {
+	function shield_test_enable_php_error_logging() :void {
+		@\ini_set( 'log_errors', '1' );
+		@\ini_set( 'error_log', 'php://stderr' );
+		shield_test_log( 'PHP error logging redirected to stderr.' );
+	}
+}
+
+if ( !\function_exists( 'shield_test_apply_wp_plugin_dir' ) ) {
+	/**
+	 * @param array<string,mixed> $pluginContext
+	 */
+	function shield_test_apply_wp_plugin_dir( array $pluginContext ) :void {
+		$wpPluginDir = $pluginContext[ 'wp_plugin_dir' ] ?? '';
+		if ( !\is_string( $wpPluginDir ) || $wpPluginDir === '' ) {
+			shield_test_error( 'ERROR: Invalid plugin context: missing wp_plugin_dir.' );
+			exit( 1 );
+		}
+
+		\putenv( 'WP_PLUGIN_DIR='.$wpPluginDir );
+		if ( !\defined( 'WP_PLUGIN_DIR' ) ) {
+			\define( 'WP_PLUGIN_DIR', $wpPluginDir );
+		}
+
+		$effectiveWpPluginDir = \defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : $wpPluginDir;
+		shield_test_log( 'WP_PLUGIN_DIR: '.shield_test_format_path_for_log( (string)$effectiveWpPluginDir ) );
+	}
+}
+
+if ( !\function_exists( 'shield_test_fail_bootstrap' ) ) {
+	/**
+	 * @param array<string,mixed> $state
+	 */
+	function shield_test_fail_bootstrap( string $message, array $state = [], ?\Throwable $e = null ) :void {
+		shield_test_error( 'ERROR: '.$message );
+
+		$pluginContext = $state[ 'plugin_context' ] ?? shield_test_get_plugin_context();
+		if ( \is_array( $pluginContext ) && !empty( $pluginContext ) ) {
+			$mode = $pluginContext[ 'mode' ] ?? 'unknown';
+			$pluginDir = $pluginContext[ 'plugin_dir' ] ?? '';
+			$mainPluginFile = $pluginContext[ 'main_plugin_file' ] ?? '';
+
+			shield_test_error( 'Plugin context mode: '.(string)$mode );
+			if ( \is_string( $pluginDir ) && $pluginDir !== '' ) {
+				shield_test_error( 'Plugin context dir: '.shield_test_format_path_for_log( $pluginDir ) );
+			}
+			if ( \is_string( $mainPluginFile ) && $mainPluginFile !== '' ) {
+				shield_test_error( 'Main plugin file: '.shield_test_format_path_for_log( $mainPluginFile ) );
+			}
+		}
+
+		$wpPluginDir = \defined( 'WP_PLUGIN_DIR' ) ? WP_PLUGIN_DIR : ( \getenv( 'WP_PLUGIN_DIR' ) ?: 'not set' );
+		shield_test_error( 'WP_PLUGIN_DIR: '.shield_test_format_path_for_log( (string)$wpPluginDir ) );
+
+		if ( $e instanceof \Throwable ) {
+			shield_test_error( 'Exception: '.\get_class( $e ).': '.$e->getMessage() );
+			shield_test_error( 'Exception file: '.shield_test_format_path_for_log( $e->getFile() ).':'.$e->getLine() );
+			if ( shield_test_verbose() ) {
+				shield_test_error( $e->getTraceAsString() );
+			}
+		}
+
+		exit( 1 );
+	}
+}
+
+if ( !\function_exists( 'shield_integration_assert_controller_ready' ) ) {
+	/**
+	 * @param array<string,mixed> $state
+	 * @return \FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller
+	 */
+	function shield_integration_assert_controller_ready( array $state ) {
+		if ( !\function_exists( 'shield_security_get_plugin' ) ) {
+			shield_test_fail_bootstrap( 'Shield global helper function is unavailable after bootstrap.', $state );
+		}
+
+		try {
+			$plugin = \shield_security_get_plugin();
+		}
+		catch ( \Throwable $e ) {
+			shield_test_fail_bootstrap( 'Shield plugin instance could not be resolved.', $state, $e );
+		}
+
+		if ( !\is_object( $plugin ) || !\method_exists( $plugin, 'getController' ) ) {
+			shield_test_fail_bootstrap( 'Shield plugin instance is invalid or missing getController().', $state );
+		}
+
+		try {
+			$controller = $plugin->getController();
+		}
+		catch ( \Throwable $e ) {
+			shield_test_fail_bootstrap( 'Shield controller could not be resolved.', $state, $e );
+		}
+
+		if ( !\is_object( $controller ) ) {
+			shield_test_fail_bootstrap( 'Shield controller is not an object.', $state );
+		}
+
+		try {
+			$cfg = $controller->cfg;
+			$properties = $cfg->properties ?? null;
+			$slugParent = \is_array( $properties ) ? (string)( $properties[ 'slug_parent' ] ?? '' ) : '';
+			$slugPlugin = \is_array( $properties ) ? (string)( $properties[ 'slug_plugin' ] ?? '' ) : '';
+		}
+		catch ( \Throwable $e ) {
+			shield_test_fail_bootstrap( 'Shield controller config is not boot-ready.', $state, $e );
+		}
+
+		if ( !\is_object( $cfg ) || !\is_array( $properties ) || $slugParent === '' || $slugPlugin === '' ) {
+			shield_test_fail_bootstrap(
+				'Shield controller config is incomplete (missing properties.slug_parent/slug_plugin).',
+				$state
+			);
+		}
+
+		return $controller;
+	}
+}
+
 function _manually_load_shield_plugin() {
 	$pluginContext = shield_test_get_plugin_context();
 	if ( empty( $pluginContext ) ) {
@@ -113,6 +232,8 @@ function _manually_load_shield_plugin() {
  * }
  */
 function shield_integration_bootstrap_phase_prepare() :array {
+	shield_test_enable_php_error_logging();
+
 	$_package_path_env = \getenv( 'SHIELD_PACKAGE_PATH' );
 	$_is_package_testing = $_package_path_env !== false && !empty( $_package_path_env );
 	$repoRoot = \dirname( \dirname( __DIR__ ) );
@@ -151,12 +272,7 @@ function shield_integration_bootstrap_phase_prepare() :array {
 			exit( 1 );
 		}
 
-		$wp_plugin_dir = $pluginContext[ 'wp_plugin_dir' ];
-		\putenv( 'WP_PLUGIN_DIR='.$wp_plugin_dir );
-		if ( !\defined( 'WP_PLUGIN_DIR' ) ) {
-			\define( 'WP_PLUGIN_DIR', $wp_plugin_dir );
-		}
-
+		shield_test_apply_wp_plugin_dir( $pluginContext );
 		shield_test_log( 'Package mode using plugin path: '.shield_test_format_path_for_log( $plugin_dir ) );
 	}
 	elseif ( $pluginContext[ 'mode' ] === 'docker_symlink' ) {
@@ -168,6 +284,7 @@ function shield_integration_bootstrap_phase_prepare() :array {
 			}
 			exit( 1 );
 		}
+		shield_test_apply_wp_plugin_dir( $pluginContext );
 		shield_test_log( 'Docker mode using symlinked plugin path: '.shield_test_format_path_for_log( $plugin_dir ) );
 	}
 	elseif ( $pluginContext[ 'mode' ] === 'docker_missing_symlink' ) {
@@ -179,6 +296,7 @@ function shield_integration_bootstrap_phase_prepare() :array {
 			shield_test_error( SHIELD_TEST_MSG_MAIN_PLUGIN_NOT_FOUND_AT.shield_test_format_path_for_log( $main_plugin_file ) );
 			exit( 1 );
 		}
+		shield_test_apply_wp_plugin_dir( $pluginContext );
 		shield_test_log( 'Source mode using plugin path: '.shield_test_format_path_for_log( $plugin_dir ) );
 	}
 
@@ -296,64 +414,20 @@ function shield_integration_bootstrap_phase_bootstrap_wordpress( array $state ) 
  * } $state
  */
 function shield_integration_bootstrap_phase_finalize( array $state ) :void {
-	$shield_loaded = false;
-	$status_details = [];
+	$_shield_con = shield_integration_assert_controller_ready( $state );
 
-	if ( isset( $GLOBALS[ 'oICWP_Wpsf' ] ) && $GLOBALS[ 'oICWP_Wpsf' ] instanceof \ICWP_WPSF_Shield_Security ) {
-		$shield_loaded = true;
-		$status_details[] = 'Global $oICWP_Wpsf instance: available';
-	}
-	else {
-		$status_details[] = 'Global $oICWP_Wpsf instance: missing';
-	}
-
-	if ( \function_exists( 'shield_security_get_plugin' ) ) {
-		$shield_loaded = true;
-		$status_details[] = 'shield_security_get_plugin(): available';
-	}
-	else {
-		$status_details[] = 'shield_security_get_plugin(): missing';
-	}
-
-	if ( \class_exists( 'ICWP_WPSF_Shield_Security' ) && \class_exists( 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Controller\\Controller' ) ) {
-		$shield_loaded = true;
-		$status_details[] = 'Core Shield classes: available';
-	}
-	else {
-		$status_details[] = 'Core Shield classes: missing';
-	}
-
-	if ( !$shield_loaded ) {
-		shield_test_log( 'WARNING: Shield plugin may not have initialized correctly.' );
-	}
-	if ( shield_test_verbose() ) {
-		foreach ( $status_details as $detail ) {
-			shield_test_log( $detail );
+	try {
+		if ( isset( $_shield_con->db_con ) ) {
+			$_shield_con->db_con->reset();
+			$_shield_con->db_con->loadAll();
+			shield_test_log( 'All Shield DB tables created.' );
+		}
+		else {
+			shield_test_log( 'Shield db_con unavailable for eager table creation.' );
 		}
 	}
-
-	if ( $shield_loaded ) {
-		try {
-			$_shield_con = null;
-			if ( \function_exists( 'shield_security_get_plugin' ) ) {
-				$_shield_plugin = \shield_security_get_plugin();
-				if ( $_shield_plugin && \method_exists( $_shield_plugin, 'getController' ) ) {
-					$_shield_con = $_shield_plugin->getController();
-				}
-			}
-
-			if ( $_shield_con !== null && isset( $_shield_con->db_con ) ) {
-				$_shield_con->db_con->reset();
-				$_shield_con->db_con->loadAll();
-				shield_test_log( 'All Shield DB tables created.' );
-			}
-			else {
-				shield_test_log( 'Shield db_con unavailable for eager table creation.' );
-			}
-		}
-		catch ( \Throwable $e ) {
-			shield_test_log( 'Error creating Shield tables: '.$e->getMessage() );
-		}
+	catch ( \Throwable $e ) {
+		shield_test_fail_bootstrap( 'Error creating Shield DB tables during bootstrap finalize.', $state, $e );
 	}
 
 	// Intentional manual join: helper discovery keeps raw glob path assembly in bootstrap context.

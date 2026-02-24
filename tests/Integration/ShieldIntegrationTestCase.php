@@ -87,6 +87,22 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		return $con;
 	}
 
+	protected function isControllerConfigReady() :bool {
+		$con = static::con();
+		if ( !$con instanceof Controller ) {
+			return false;
+		}
+
+		try {
+			$cfg = $con->cfg;
+		}
+		catch ( \Throwable $e ) {
+			return false;
+		}
+
+		return \is_object( $cfg );
+	}
+
 	/**
 	 * Load a DB handler by its key in DbCon::MAP and assert it is ready.
 	 * Returns the handler or skips the test.
@@ -193,8 +209,10 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 			}
 		}
 
-		// IpRulesCache (WP option-backed)
-		IpRulesCache::ResetAll();
+		// Keep setup noise low if bootstrap has already identified controller boot issues.
+		if ( $this->isControllerConfigReady() ) {
+			IpRulesCache::ResetAll();
+		}
 	}
 
 	protected function resetScanResultCountMemoization() :void {
