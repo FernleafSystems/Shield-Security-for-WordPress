@@ -160,89 +160,102 @@ function runSourceRuntimeMode(
 	BashCommandResolver $bashCommandResolver
 ) :int {
 	fwrite( STDOUT, 'Mode: source'.PHP_EOL );
-
-	if ( !isDockerAvailable( $runner, $rootDir ) ) {
-		fwrite( STDERR, 'Error: Docker is required but not found in PATH.'.PHP_EOL );
-		return 1;
-	}
-	if ( !isDockerDaemonRunning( $runner, $rootDir ) ) {
-		fwrite( STDERR, 'Error: Docker daemon is not running.'.PHP_EOL );
-		return 1;
-	}
-
-	$defaultPhp = readDefaultPhpFromMatrixConfig( $rootDir );
-	$phpVersion = trim( (string)( getenv( 'PHP_VERSION' ) ?: '' ) );
-	if ( $phpVersion === '' ) {
-		$phpVersion = $defaultPhp;
-	}
-
-	[ $latestWpVersion, $previousWpVersion ] = detectWordpressVersions( $runner, $rootDir, $bashCommandResolver );
-
-	$dockerEnvPath = Path::join( $rootDir, 'tests', 'docker', '.env' );
-	writeSourceDockerEnvFile( $dockerEnvPath, $phpVersion, $latestWpVersion, $previousWpVersion );
-
-	putenv( 'DOCKER_BUILDKIT=1' );
-	putenv( 'MSYS_NO_PATHCONV=1' );
-	putenv( 'COMPOSE_PROJECT_NAME=shield-tests' );
-
-	$composeArgs = [
-		'docker',
-		'compose',
-		'-f',
-		'tests/docker/docker-compose.yml',
-	];
-
-	$overallExitCode = 0;
-
-	$runCompose = static function ( array $subCommand ) use ( $runner, $rootDir, $composeArgs ) :int {
-		$command = array_merge( $composeArgs, $subCommand );
-		$process = $runner->run( $command, $rootDir );
-		return $process->getExitCode() ?? 1;
-	};
-
-	$runComposeIgnoringFailure = static function ( array $subCommand ) use ( $runner, $rootDir, $composeArgs ) :void {
-		$command = array_merge( $composeArgs, $subCommand );
-		$runner->run(
-			$command,
-			$rootDir,
-			static function ( string $type, string $buffer ) :void {
-				if ( $type === \Symfony\Component\Process\Process::ERR ) {
-					fwrite( STDERR, $buffer );
-				}
-				else {
-					echo $buffer;
-				}
-			}
-		);
-	};
+	$originalShieldPackagePath = getenv( 'SHIELD_PACKAGE_PATH' );
+	$hasOriginalShieldPackagePath = is_string( $originalShieldPackagePath );
+	putenv( 'SHIELD_PACKAGE_PATH' );
 
 	try {
-		fwrite( STDOUT, 'Starting source-runtime Docker checks on working tree.'.PHP_EOL );
-		$runComposeIgnoringFailure( [ 'down', '-v', '--remove-orphans' ] );
-
-		if ( $runCompose( [ 'up', '-d', 'mysql-latest', 'mysql-previous' ] ) !== 0 ) {
+		if ( !isDockerAvailable( $runner, $rootDir ) ) {
+			fwrite( STDERR, 'Error: Docker is required but not found in PATH.'.PHP_EOL );
 			return 1;
 		}
-		if ( $runCompose( [ 'build', 'test-runner-latest', 'test-runner-previous' ] ) !== 0 ) {
-			return 1;
-		}
-		if ( runSourceSetupOnce( $runner, $rootDir, $composeArgs ) !== 0 ) {
+		if ( !isDockerDaemonRunning( $runner, $rootDir ) ) {
+			fwrite( STDERR, 'Error: Docker daemon is not running.'.PHP_EOL );
 			return 1;
 		}
 
-		if ( $runCompose( [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-latest' ] ) !== 0 ) {
-			$overallExitCode = 1;
-		}
-		if ( $runCompose( [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-previous' ] ) !== 0 ) {
-			$overallExitCode = 1;
+		$defaultPhp = readDefaultPhpFromMatrixConfig( $rootDir );
+		$phpVersion = trim( (string)( getenv( 'PHP_VERSION' ) ?: '' ) );
+		if ( $phpVersion === '' ) {
+			$phpVersion = $defaultPhp;
 		}
 
-		return $overallExitCode;
+		[ $latestWpVersion, $previousWpVersion ] = detectWordpressVersions( $runner, $rootDir, $bashCommandResolver );
+
+		$dockerEnvPath = Path::join( $rootDir, 'tests', 'docker', '.env' );
+		writeSourceDockerEnvFile( $dockerEnvPath, $phpVersion, $latestWpVersion, $previousWpVersion );
+
+		putenv( 'DOCKER_BUILDKIT=1' );
+		putenv( 'MSYS_NO_PATHCONV=1' );
+		putenv( 'COMPOSE_PROJECT_NAME=shield-tests' );
+
+		$composeArgs = [
+			'docker',
+			'compose',
+			'-f',
+			'tests/docker/docker-compose.yml',
+		];
+
+		$overallExitCode = 0;
+
+		$runCompose = static function ( array $subCommand ) use ( $runner, $rootDir, $composeArgs ) :int {
+			$command = array_merge( $composeArgs, $subCommand );
+			$process = $runner->run( $command, $rootDir );
+			return $process->getExitCode() ?? 1;
+		};
+
+		$runComposeIgnoringFailure = static function ( array $subCommand ) use ( $runner, $rootDir, $composeArgs ) :void {
+			$command = array_merge( $composeArgs, $subCommand );
+			$runner->run(
+				$command,
+				$rootDir,
+				static function ( string $type, string $buffer ) :void {
+					if ( $type === \Symfony\Component\Process\Process::ERR ) {
+						fwrite( STDERR, $buffer );
+					}
+					else {
+						echo $buffer;
+					}
+				}
+			);
+		};
+
+		try {
+			fwrite( STDOUT, 'Starting source-runtime Docker checks on working tree.'.PHP_EOL );
+			$runComposeIgnoringFailure( [ 'down', '-v', '--remove-orphans' ] );
+
+			if ( $runCompose( [ 'up', '-d', 'mysql-latest', 'mysql-previous' ] ) !== 0 ) {
+				return 1;
+			}
+			if ( $runCompose( [ 'build', 'test-runner-latest', 'test-runner-previous' ] ) !== 0 ) {
+				return 1;
+			}
+			if ( runSourceSetupOnce( $runner, $rootDir, $composeArgs ) !== 0 ) {
+				return 1;
+			}
+
+			if ( $runCompose( [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-latest' ] ) !== 0 ) {
+				$overallExitCode = 1;
+			}
+			if ( $runCompose( [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-previous' ] ) !== 0 ) {
+				$overallExitCode = 1;
+			}
+
+			return $overallExitCode;
+		}
+		finally {
+			$runComposeIgnoringFailure( [ 'down', '-v', '--remove-orphans' ] );
+			if ( is_file( $dockerEnvPath ) ) {
+				unlink( $dockerEnvPath );
+			}
+		}
 	}
 	finally {
-		$runComposeIgnoringFailure( [ 'down', '-v', '--remove-orphans' ] );
-		if ( is_file( $dockerEnvPath ) ) {
-			unlink( $dockerEnvPath );
+		if ( $hasOriginalShieldPackagePath ) {
+			putenv( 'SHIELD_PACKAGE_PATH='.$originalShieldPackagePath );
+		}
+		else {
+			putenv( 'SHIELD_PACKAGE_PATH' );
 		}
 	}
 }
@@ -374,7 +387,6 @@ function writeSourceDockerEnvFile( string $dockerEnvPath, string $phpVersion, st
 		'WP_VERSION_PREVIOUS='.$previousWpVersion,
 		'TEST_PHP_VERSION='.$phpVersion,
 		'SHIELD_TEST_MODE=source',
-		'SHIELD_PACKAGE_PATH=',
 	];
 
 	foreach ( [ 'PHPUNIT_DEBUG', 'SHIELD_TEST_VERBOSE' ] as $optionalEnvVar ) {

@@ -33,7 +33,7 @@ done
 
 # Verify Docker is available (required for all operations)
 if ! command -v docker >/dev/null 2>&1; then
-    echo "âŒ Error: Docker is required but not found"
+    echo " Error: Docker is required but not found"
     echo ""
     echo "   This script uses Docker for all build and test operations."
     echo "   Please install Docker Desktop from https://www.docker.com/products/docker-desktop"
@@ -43,7 +43,7 @@ fi
 
 # Verify Docker daemon is running
 if ! docker info >/dev/null 2>&1; then
-    echo "âŒ Error: Docker is installed but not running"
+    echo " Error: Docker is installed but not running"
     echo ""
     echo "   Please start Docker Desktop and try again."
     echo ""
@@ -55,7 +55,7 @@ fi
 # Cache is created automatically if missing, reused on subsequent builds
 export DOCKER_BUILDKIT=1
 
-echo "ðŸš€ Starting Local Docker Tests (matching CI configuration)"
+echo " Starting Local Docker Tests (matching CI configuration)"
 if [ "$ANALYZE_PACKAGE_MODE" = true ]; then
     echo "   Mode: Packaged PHPStan analysis"
 else
@@ -72,7 +72,7 @@ HEAD_INDEX_FILE="$CALLER_PROJECT_ROOT/tmp/shield-head-snapshot.index"
 HEAD_COMMIT="$(cd "$CALLER_PROJECT_ROOT" >/dev/null 2>&1 && git rev-parse HEAD 2>/dev/null || true)"
 
 if [ -z "$HEAD_COMMIT" ]; then
-    echo "âŒ Error: Unable to resolve HEAD commit at $CALLER_PROJECT_ROOT"
+    echo " Error: Unable to resolve HEAD commit at $CALLER_PROJECT_ROOT"
     exit 1
 fi
 
@@ -84,7 +84,7 @@ prepare_head_snapshot() {
             # Retry via Docker to remove files that may be owned by container users.
             if ! docker run --rm -v "$CALLER_PROJECT_ROOT:/app" alpine:3.20 sh -c "rm -rf /app/tmp/shield-head-snapshot"; then
                 HEAD_SNAPSHOT_DIR="$CALLER_PROJECT_ROOT/tmp/shield-head-snapshot.$(date +%s).$$"
-                echo "âš ï¸  Warning: Could not remove previous snapshot. Using alternate snapshot path: $HEAD_SNAPSHOT_DIR"
+                echo "  Warning: Could not remove previous snapshot. Using alternate snapshot path: $HEAD_SNAPSHOT_DIR"
             fi
         fi
     fi
@@ -96,7 +96,7 @@ prepare_head_snapshot() {
         GIT_INDEX_FILE="$HEAD_INDEX_FILE" git read-tree HEAD &&
         GIT_INDEX_FILE="$HEAD_INDEX_FILE" git checkout-index -a -f --prefix="$HEAD_SNAPSHOT_DIR/"
     ); then
-        echo "âŒ Error: Failed to export HEAD snapshot to $HEAD_SNAPSHOT_DIR"
+        echo " Error: Failed to export HEAD snapshot to $HEAD_SNAPSHOT_DIR"
         rm -f "$HEAD_INDEX_FILE"
         exit 1
     fi
@@ -104,15 +104,15 @@ prepare_head_snapshot() {
     rm -f "$HEAD_INDEX_FILE"
 
     if [ ! -f "$HEAD_SNAPSHOT_DIR/icwp-wpsf.php" ]; then
-        echo "âŒ Error: HEAD snapshot missing required file: icwp-wpsf.php"
+        echo " Error: HEAD snapshot missing required file: icwp-wpsf.php"
         exit 1
     fi
     if [ ! -d "$HEAD_SNAPSHOT_DIR/tests" ]; then
-        echo "âŒ Error: HEAD snapshot missing required directory: tests"
+        echo " Error: HEAD snapshot missing required directory: tests"
         exit 1
     fi
     if [ ! -d "$HEAD_SNAPSHOT_DIR/.github" ]; then
-        echo "âŒ Error: HEAD snapshot missing required directory: .github"
+        echo " Error: HEAD snapshot missing required directory: .github"
         exit 1
     fi
 }
@@ -137,7 +137,7 @@ export COMPOSE_PROJECT_NAME="shield-tests"
 if [ -f "$PROJECT_ROOT/.github/config/matrix.conf" ]; then
     source "$PROJECT_ROOT/.github/config/matrix.conf"
 else
-    echo "âš ï¸  Warning: Matrix config not found, using defaults"
+    echo "  Warning: Matrix config not found, using defaults"
     DEFAULT_PHP="8.2"
 fi
 
@@ -146,19 +146,19 @@ if [ -f "$PROJECT_ROOT/.github/scripts/read-packager-config.sh" ]; then
     # shellcheck source=/dev/null
     source "$PROJECT_ROOT/.github/scripts/read-packager-config.sh"
 else
-    echo "âš ï¸  Warning: Packager config loader not found, STRAUSS_VERSION not set"
+    echo "  Warning: Packager config loader not found, STRAUSS_VERSION not set"
 fi
 
 # PHP version to test (can be overridden via environment variable)
 PHP_VERSION=${PHP_VERSION:-"$DEFAULT_PHP"}
-echo "ðŸ˜ PHP Version: $PHP_VERSION"
+echo " PHP Version: $PHP_VERSION"
 
 LATEST_VERSION=""
 PREVIOUS_VERSION=""
 
 if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
     # Detect WordPress versions (exactly like CI does)
-    echo "ðŸ“± Detecting WordPress versions..."
+    echo " Detecting WordPress versions..."
 
     # Run detection script with timeout to prevent hangs
     # Using if/else pattern because script has set -e (line 5)
@@ -174,7 +174,7 @@ if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
             DETECTION_ERROR=$?
             # timeout returns 124 when command times out
             if [[ "$DETECTION_ERROR" == "124" ]]; then
-                echo "   âš ï¸  Detection script timed out after 60 seconds"
+                echo "     Detection script timed out after 60 seconds"
             fi
         fi
     else
@@ -192,7 +192,7 @@ if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
 
     # Validate we got versions; use fallback if not
     if [[ -z "$LATEST_VERSION" ]] || [[ -z "$PREVIOUS_VERSION" ]]; then
-        echo "âŒ Could not parse WordPress versions from detect-wp-versions.sh"
+        echo " Could not parse WordPress versions from detect-wp-versions.sh"
         # Provide context about what went wrong
         if [[ -n "$DETECTION_ERROR" ]]; then
             echo "   Detection script failed (exit code $DETECTION_ERROR):"
@@ -204,7 +204,7 @@ if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
         echo "$VERSIONS_OUTPUT" | head -20 | sed 's/^/      /'
         exit 1
     else
-        echo "   âœ… Version detection script returned valid versions"
+        echo "    Version detection script returned valid versions"
     fi
 
     echo "   Latest WordPress: $LATEST_VERSION"
@@ -252,17 +252,17 @@ hash_find_tree() {
 
 # Ensure clean environment now that env vars are set
 if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
-    echo "ðŸ§¹ Cleaning up any existing test containers/volumes..."
+    echo " Cleaning up any existing test containers/volumes..."
     docker compose -f tests/docker/docker-compose.yml \
         -f tests/docker/docker-compose.package.yml \
         down -v --remove-orphans || true
-    echo "   âœ… Clean start ensured"
+    echo "    Clean start ensured"
 fi
 
 # Start MySQL containers early in background for parallel initialization
 # Based on testing, MySQL takes ~38 seconds to fully initialize
 if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
-    echo "ðŸ—„ï¸ Starting MySQL databases in background for parallel initialization..."
+    echo " Starting MySQL databases in background for parallel initialization..."
     # Only use base compose file for MySQL (package.yml requires package to exist)
     docker compose -f tests/docker/docker-compose.yml \
         up -d mysql-latest mysql-previous 2>&1 | tee /tmp/mysql-startup.log &
@@ -272,7 +272,7 @@ if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
 fi
 
 # Build assets using Docker (no local Node.js required) - with caching
-echo "ðŸ”¨ Building assets..."
+echo " Building assets..."
 DIST_DIR="$PROJECT_ROOT/assets/dist"
 JS_SRC_DIR="$PROJECT_ROOT/assets/js"
 CSS_SRC_DIR="$PROJECT_ROOT/assets/css"
@@ -315,31 +315,31 @@ if [ "$WEBPACK_CACHE_VALID" = false ]; then
         -w /app \
         node:20.10 \
         sh -c "npm ci --no-audit --no-fund && npm run build" || {
-        echo "âŒ Asset build failed"
+        echo " Asset build failed"
         exit 1
     }
     # Save checksum
     echo "$WEBPACK_COMBINED_CHECKSUM" > "$WEBPACK_CACHE_FILE"
-    echo "   âœ… Build complete"
+    echo "    Build complete"
 fi
 
 # Build base PHP image for Composer operations (before installing dependencies)
 # Uses WP_VERSION=latest to skip WordPress download - we only need PHP + extensions + Composer
 # This image is reused for all Composer operations and shares layers with test-runner images
-echo "ðŸ³ Building PHP base image for Composer operations..."
+echo " Building PHP base image for Composer operations..."
 COMPOSER_IMAGE="shield-composer-runner:php${PHP_VERSION}"
 docker build tests/docker/ \
     --build-arg PHP_VERSION=$PHP_VERSION \
     --build-arg WP_VERSION=latest \
     --tag $COMPOSER_IMAGE || {
-    echo "âŒ Failed to build Composer runner image"
+    echo " Failed to build Composer runner image"
     exit 1
 }
-echo "   âœ… Composer runner image built: $COMPOSER_IMAGE"
+echo "    Composer runner image built: $COMPOSER_IMAGE"
 
 # Install dependencies using Docker (no local PHP/Composer required)
 # Uses the test-runner based image with all PHP extensions pre-installed
-echo "ðŸ“¦ Installing dependencies..."
+echo " Installing dependencies..."
 echo "   Using PHP ${PHP_VERSION} with full extension support"
 
 COMPOSER_ROOT_CHECKSUM=$( (
@@ -415,7 +415,7 @@ prepare_package_dir || exit 1
 
 # Validate PACKAGE_DIR_RELATIVE is set (defined in section 3.3.2)
 if [ -z "$PACKAGE_DIR_RELATIVE" ]; then
-    echo "âŒ Error: PACKAGE_DIR_RELATIVE not set"
+    echo " Error: PACKAGE_DIR_RELATIVE not set"
     exit 1
 fi
 
@@ -485,7 +485,7 @@ fi
 echo "   Package built at $PACKAGE_DIR"
 
 # Prepare Docker environment directory
-echo "âš™ï¸  Setting up Docker environment..."
+echo "  Setting up Docker environment..."
 mkdir -p tests/docker
 
 run_packaged_phpstan() {
@@ -513,11 +513,11 @@ wait_for_mysql() {
     local max_attempts=60  # 60 seconds based on testing
     local attempt=0
     
-    echo "â³ Waiting for $container to be ready (typically ~38 seconds)..."
+    echo " Waiting for $container to be ready (typically ~38 seconds)..."
     while [ $attempt -lt $max_attempts ]; do
         # Use mysqladmin ping to check if MySQL is ready
         if docker exec $container mysqladmin ping -h localhost --silent 2>/dev/null; then
-            echo "âœ… $container is ready (took $attempt seconds)"
+            echo " $container is ready (took $attempt seconds)"
             return 0
         fi
         
@@ -532,7 +532,7 @@ wait_for_mysql() {
     done
     
     # If we get here, MySQL failed to start
-    echo "âŒ $container failed to start within $max_attempts seconds"
+    echo " $container failed to start within $max_attempts seconds"
     echo "   Container logs:"
     docker logs --tail 20 $container
     return 1
@@ -540,7 +540,7 @@ wait_for_mysql() {
 
 # Function to run tests in parallel with database isolation
 run_parallel_tests() {
-    echo "ðŸ§ª Running parallel tests with isolated databases..."
+    echo " Running parallel tests with isolated databases..."
     
     # Prepare output directories
     mkdir -p /tmp
@@ -563,7 +563,7 @@ SHIELD_TEST_VERBOSE=${SHIELD_TEST_VERBOSE:-}
 EOF
     
     # Ensure MySQL containers are running (they were started early)
-    echo "ðŸ—„ï¸ Ensuring MySQL databases are running..."
+    echo " Ensuring MySQL databases are running..."
     # Check if containers are already running from early start
     # Container names are shield-db-latest/shield-db-previous (set via container_name in docker-compose.yml)
     if ! docker ps | grep -q shield-db-latest; then
@@ -576,25 +576,25 @@ EOF
     fi
     
     # Build test runner images to ensure they're ready
-    echo "ðŸ”¨ Building test runner images..."
+    echo " Building test runner images..."
     docker compose -f tests/docker/docker-compose.yml \
         -f tests/docker/docker-compose.package.yml \
         build test-runner-latest test-runner-previous
     
     # Wait for both MySQL containers to be ready using health checks
-    echo "â³ Ensuring MySQL databases are ready for testing..."
+    echo " Ensuring MySQL databases are ready for testing..."
     # Container names are shield-db-latest/shield-db-previous (set via container_name in docker-compose.yml)
     MYSQL_LATEST_CONTAINER=$(docker ps --filter "name=shield-db-latest" --format "{{.Names}}" | head -1)
     MYSQL_PREVIOUS_CONTAINER=$(docker ps --filter "name=shield-db-previous" --format "{{.Names}}" | head -1)
     
     if [ -z "$MYSQL_LATEST_CONTAINER" ]; then
-        echo "âŒ Cannot find shield-db-latest container"
+        echo " Cannot find shield-db-latest container"
         docker ps -a | grep shield-db
         exit 1
     fi
     
     if [ -z "$MYSQL_PREVIOUS_CONTAINER" ]; then
-        echo "âŒ Cannot find shield-db-previous container"
+        echo " Cannot find shield-db-previous container"
         docker ps -a | grep shield-db
         exit 1
     fi
@@ -603,23 +603,23 @@ EOF
     
     wait_for_mysql "$MYSQL_LATEST_CONTAINER" || exit 1
     wait_for_mysql "$MYSQL_PREVIOUS_CONTAINER" || exit 1
-    echo "âœ… Both MySQL databases are ready!"
+    echo " Both MySQL databases are ready!"
     
     # Layer 1 Verification: Verify containers are ready
-    echo "ðŸ” Layer 1 Verification: Checking database containers..."
+    echo " Layer 1 Verification: Checking database containers..."
     # Container names are shield-db-latest/shield-db-previous (set via container_name in docker-compose.yml)
     docker ps --filter "name=shield-db-latest" --filter "name=shield-db-previous" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
     
     # Record start time for performance measurement
     PARALLEL_START_TIME=$(date +%s)
-    echo "â±ï¸  Parallel execution started at: $(date)"
+    echo "  Parallel execution started at: $(date)"
     
     # Initialize exit code tracking
     declare -A EXIT_CODES
     declare -A PROCESS_PIDS
     
     # Run WordPress Latest tests in background with output capture
-    echo "ðŸš€ Starting WordPress $LATEST_VERSION test stream..."
+    echo " Starting WordPress $LATEST_VERSION test stream..."
     (
         echo "[LATEST] Starting tests for WordPress $LATEST_VERSION at $(date)" > /tmp/shield-test-latest.log
         echo "[LATEST] Command: docker compose run test-runner-wp682" >> /tmp/shield-test-latest.log
@@ -632,10 +632,10 @@ EOF
     ) &
     LATEST_PID=$!
     PROCESS_PIDS["latest"]=$LATEST_PID
-    echo "ðŸ“± WordPress Latest stream started (PID: $LATEST_PID)"
+    echo " WordPress Latest stream started (PID: $LATEST_PID)"
     
     # Run WordPress Previous tests in background with output capture
-    echo "ðŸš€ Starting WordPress $PREVIOUS_VERSION test stream..."
+    echo " Starting WordPress $PREVIOUS_VERSION test stream..."
     (
         echo "[PREVIOUS] Starting tests for WordPress $PREVIOUS_VERSION at $(date)" > /tmp/shield-test-previous.log
         echo "[PREVIOUS] Command: docker compose run test-runner-wp673" >> /tmp/shield-test-previous.log
@@ -648,10 +648,10 @@ EOF
     ) &
     PREVIOUS_PID=$!
     PROCESS_PIDS["previous"]=$PREVIOUS_PID
-    echo "ðŸ“± WordPress Previous stream started (PID: $PREVIOUS_PID)"
+    echo " WordPress Previous stream started (PID: $PREVIOUS_PID)"
     
     # Layer 2 Verification: Monitor parallel execution
-    echo "ðŸ” Layer 2 Verification: Monitoring parallel execution..."
+    echo " Layer 2 Verification: Monitoring parallel execution..."
     echo "   Active background processes: Latest PID $LATEST_PID, Previous PID $PREVIOUS_PID"
     
     # Monitor process startup with retries
@@ -676,7 +676,7 @@ EOF
         
         # Show progress indicator
         if [ $((i % 2)) -eq 0 ]; then
-            echo "     â³ Processes still running, continuing to monitor..."
+            echo "      Processes still running, continuing to monitor..."
         fi
     done
     
@@ -692,7 +692,7 @@ EOF
     fi
     
     # Wait for both test suites to complete and collect exit codes
-    echo "â³ Waiting for parallel test streams to complete..."
+    echo " Waiting for parallel test streams to complete..."
     
     # Wait for Latest stream
     echo "   Waiting for WordPress Latest stream (PID: $LATEST_PID)..."
@@ -720,11 +720,11 @@ EOF
     # Record end time and calculate duration
     PARALLEL_END_TIME=$(date +%s)
     PARALLEL_DURATION=$((PARALLEL_END_TIME - PARALLEL_START_TIME))
-    echo "â±ï¸  Parallel execution completed at: $(date)"
-    echo "â±ï¸  Total parallel execution time: ${PARALLEL_DURATION} seconds ($(date -d@$PARALLEL_DURATION -u +%M:%S) mm:ss)"
+    echo "  Parallel execution completed at: $(date)"
+    echo "  Total parallel execution time: ${PARALLEL_DURATION} seconds ($(date -d@$PARALLEL_DURATION -u +%M:%S) mm:ss)"
     
     # Layer 3 Verification: Check results and timing
-    echo "ðŸ” Layer 3 Verification: Analyzing results..."
+    echo " Layer 3 Verification: Analyzing results..."
     echo "   Latest stream exit code: ${EXIT_CODES[latest]}"
     echo "   Previous stream exit code: ${EXIT_CODES[previous]}"
     echo "   Log file sizes:"
@@ -733,14 +733,14 @@ EOF
     
     # Display results sequentially to prevent interleaving
     echo ""
-    echo "ðŸ“Š RESULTS SUMMARY"
+    echo " RESULTS SUMMARY"
     echo "=================="
     echo "WordPress $LATEST_VERSION Results (Exit Code: ${EXIT_CODES[latest]}):"
     echo "---------------------------------------------------------------"
     if [ -f /tmp/shield-test-latest.log ]; then
         tail -20 /tmp/shield-test-latest.log
     else
-        echo "âŒ Latest test log file not found"
+        echo " Latest test log file not found"
     fi
     
     echo ""
@@ -749,7 +749,7 @@ EOF
     if [ -f /tmp/shield-test-previous.log ]; then
         tail -20 /tmp/shield-test-previous.log
     else
-        echo "âŒ Previous test log file not found"
+        echo " Previous test log file not found"
     fi
     
     # Aggregate exit codes for CI compatibility
@@ -757,18 +757,18 @@ EOF
     if [ "${EXIT_CODES[latest]}" != "0" ] || [ "${EXIT_CODES[previous]}" != "0" ]; then
         OVERALL_EXIT_CODE=1
         echo ""
-        echo "âŒ FAILURE: One or more test streams failed"
-        echo "   WordPress $LATEST_VERSION: ${EXIT_CODES[latest]} ($([ "${EXIT_CODES[latest]}" = "0" ] && echo "âœ… PASS" || echo "âŒ FAIL"))"
-        echo "   WordPress $PREVIOUS_VERSION: ${EXIT_CODES[previous]} ($([ "${EXIT_CODES[previous]}" = "0" ] && echo "âœ… PASS" || echo "âŒ FAIL"))"
+        echo " FAILURE: One or more test streams failed"
+        echo "   WordPress $LATEST_VERSION: ${EXIT_CODES[latest]} ($([ "${EXIT_CODES[latest]}" = "0" ] && echo " PASS" || echo " FAIL"))"
+        echo "   WordPress $PREVIOUS_VERSION: ${EXIT_CODES[previous]} ($([ "${EXIT_CODES[previous]}" = "0" ] && echo " PASS" || echo " FAIL"))"
     else
         echo ""
-        echo "âœ… SUCCESS: All test streams passed"
-        echo "   WordPress $LATEST_VERSION: âœ… PASS"
-        echo "   WordPress $PREVIOUS_VERSION: âœ… PASS"
+        echo " SUCCESS: All test streams passed"
+        echo "   WordPress $LATEST_VERSION:  PASS"
+        echo "   WordPress $PREVIOUS_VERSION:  PASS"
     fi
     
     echo ""
-    echo "ðŸ Parallel execution verification complete!"
+    echo " Parallel execution verification complete!"
     echo "   Performance: ${PARALLEL_DURATION}s (target: ~210s for 50% improvement)"
     echo "   Full logs available at:"
     echo "     - Latest: /tmp/shield-test-latest.log"
@@ -782,7 +782,7 @@ EOF
 DEBUG_MODE=${DEBUG_MODE:-"false"}
 
 if [ "$DEBUG_MODE" = "true" ]; then
-    echo "ðŸ” Debug mode enabled - will show detailed process monitoring"
+    echo " Debug mode enabled - will show detailed process monitoring"
     set -x  # Enable bash debug output
 fi
 
@@ -798,16 +798,16 @@ if [ "$ANALYZE_PACKAGE_MODE" = true ]; then
     fi
 else
     # Run tests in parallel with database isolation
-    echo "ðŸš€ Starting parallel execution mode..."
+    echo " Starting parallel execution mode..."
     if ! run_parallel_tests; then
         OVERALL_SCRIPT_EXIT=1
-        echo "âŒ Parallel testing failed - check logs above for details"
+        echo " Parallel testing failed - check logs above for details"
     fi
 fi
 
 # Cleanup
 if [ "$ANALYZE_PACKAGE_MODE" = false ]; then
-    echo "ðŸ§¹ Cleaning up..."
+    echo " Cleaning up..."
     docker compose -f tests/docker/docker-compose.yml \
         -f tests/docker/docker-compose.package.yml \
         down -v --remove-orphans || true
@@ -816,9 +816,9 @@ fi
 
 echo ""
 if [ "$OVERALL_SCRIPT_EXIT" = "0" ]; then
-    echo "âœ… Local Docker tests completed successfully!"
+    echo " Local Docker tests completed successfully!"
 else
-    echo "âŒ Local Docker tests completed with failures!"
+    echo " Local Docker tests completed with failures!"
 fi
 
 if [ "$ANALYZE_PACKAGE_MODE" = true ]; then
