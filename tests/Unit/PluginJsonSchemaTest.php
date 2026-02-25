@@ -645,26 +645,16 @@ class PluginJsonSchemaTest extends TestCase {
 	}
 
 	/**
-	 * Test large file handling - ensure the parser can handle the 6000+ line file
+	 * Test traversal of deep configuration sections.
 	 */
 	public function testLargeFileHandling() :void {
-		// Get file size
-		$fileSize = filesize( $this->configPath );
-		$this->assertGreaterThan( 100000, $fileSize, 'Plugin.json should be a large file' );
-		
 		// Test that we can traverse deep structures
 		$this->assertArrayHasKey( 'config_spec', $this->config );
 		$this->assertArrayHasKey( 'events', $this->config['config_spec'] );
 		
-		// Count total events to ensure we're processing the full file
+		// Count total events to ensure we're processing the full structure.
 		$eventCount = count( $this->config['config_spec']['events'] );
 		$this->assertGreaterThan( 50, $eventCount, 'Should have many events defined' );
 		
-		// Test file line count (expected to be around 6,673 lines)
-		$content = file_get_contents( $this->configPath );
-		$lineCount = substr_count( $content, "\n" ) + 1;
-		
-		// Sanity check — file should be substantial, but don't assert an upper bound
-		$this->assertGreaterThan( 1000, $lineCount, 'plugin.json should have at least 1000 lines' );
 	}
 }

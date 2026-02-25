@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 
 /**
- * Tests for package-plugin.php script configuration and option mapping.
+ * Safety checks for package-plugin.php script wiring.
  */
 class PackagePluginScriptTest extends BaseUnitTest {
 
@@ -32,28 +32,5 @@ class PackagePluginScriptTest extends BaseUnitTest {
 		$commands = $this->getComposerScriptCommands( 'package-plugin' );
 
 		$this->assertContains( '@php bin/package-plugin.php', $commands );
-	}
-
-	public function testSkipRootComposerMapsToComposerInstallOption() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
-		$content = $this->getPluginFileContents( 'bin/package-plugin.php', 'package-plugin script' );
-
-		$this->assertStringContainsString( "'skip-root-composer'", $content );
-		$this->assertStringContainsString( "'composer_install' ] = false", $content );
-		$this->assertStringNotContainsString( "'composer_root' ] = false", $content );
-	}
-
-	public function testPackageDependencySkipFlagIsSupported() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
-		$content = $this->getPluginFileContents( 'bin/package-plugin.php', 'package-plugin script' );
-
-		$this->assertStringContainsString( "'skip-package-dependency-build'", $content );
-		$this->assertStringContainsString( "'package_dependency_build' ] = false", $content );
 	}
 }

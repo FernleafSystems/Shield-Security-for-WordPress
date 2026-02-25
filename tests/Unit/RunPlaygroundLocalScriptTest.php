@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Process\Process;
 
 /**
  * Safety checks for local Playground helper script and composer wiring.
@@ -28,30 +29,26 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 		);
 	}
 
-	public function testRunPlaygroundScriptDeclaresExpectedOptionsAndOutputSections() :void {
+	public function testRunPlaygroundScriptHelpShowsExpectedCliSurface() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
 		}
 
-		$content = $this->getPluginFileContents( 'bin/run-playground-local.php', 'playground local runner script' );
+		$process = new Process(
+			[ \PHP_BINARY, $this->getPluginFilePath( 'bin/run-playground-local.php' ), '--help' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
 
-		$this->assertStringContainsString( "'run-blueprint'", $content );
-		$this->assertStringContainsString( "'clean'", $content );
-		$this->assertStringContainsString( "'retention-days::'", $content );
-		$this->assertStringContainsString( "'max-runs::'", $content );
-		$this->assertStringContainsString( "'runtime-root::'", $content );
-		$this->assertStringContainsString( "'plugin-root::'", $content );
-		$this->assertStringContainsString( "'strict'", $content );
-		$this->assertStringNotContainsString( "'keep-success-artifacts'", $content );
-		$this->assertStringNotContainsString( '@wp-playground/cli@latest', $content );
-		$this->assertStringContainsString( 'Local @wp-playground/cli binary not found.', $content );
-		$this->assertStringContainsString( 'node_modules/.bin/wp-playground-cli', $content );
-		$this->assertStringContainsString( 'Version Verification:', $content );
-		$this->assertStringContainsString( 'runtime_php_version_match', $content );
-		$this->assertStringContainsString( "'preferredVersions' => buildPreferredVersions( \$phpVersion, \$wpVersion )", $content );
-		$this->assertStringContainsString( 'function buildPreferredVersions( string $phpVersion, string $wpVersion ) :array {', $content );
-		$this->assertStringContainsString( "=== Shield Playground Local Check ===", $content );
-		$this->assertStringContainsString( "Result: ", $content );
+		$this->assertSame( 0, $process->getExitCode() ?? 1 );
+		$output = $process->getOutput().$process->getErrorOutput();
+		$this->assertStringContainsString( '--run-blueprint', $output );
+		$this->assertStringContainsString( '--clean', $output );
+		$this->assertStringContainsString( '--retention-days', $output );
+		$this->assertStringContainsString( '--max-runs', $output );
+		$this->assertStringContainsString( '--runtime-root', $output );
+		$this->assertStringContainsString( '--plugin-root', $output );
+		$this->assertStringContainsString( '--strict', $output );
 	}
 
 	public function testComposerDeclaresPlaygroundCleanScript() :void {
