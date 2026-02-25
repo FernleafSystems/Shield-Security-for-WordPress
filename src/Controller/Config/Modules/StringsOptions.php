@@ -985,6 +985,15 @@ class StringsOptions {
 				];
 				break;
 
+			case 'language_override':
+				$name = __( 'Plugin Language Override', 'wp-simple-firewall' );
+				$summary = __( 'Override And Force Language Used Throughout Plugin', 'wp-simple-firewall' );
+				$desc = [
+					__( "Override the language used throughout the plugin regardless of site/user profile settings. E.g. 'en', 'es', 'de'.", 'wp-simple-firewall' ),
+					__( 'Only ISO 639-1 2-letter nomenclature is supported, e.g. English as "en".', 'wp-simple-firewall' ),
+				];
+				break;
+
 			case 'visitor_address_source':
 				$name = __( 'IP Source', 'wp-simple-firewall' );
 				$summary = __( 'Which IP Address Is Yours', 'wp-simple-firewall' );

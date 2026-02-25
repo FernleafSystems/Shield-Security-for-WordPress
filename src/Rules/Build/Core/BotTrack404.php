@@ -21,7 +21,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getConditions() :array {
-		$whitelistedConditions = [
+		$notAllowlisted404Conditions = [
 			[
 				'conditions' => Conditions\MatchRequestPath::class,
 				'logic'      => Enum\EnumLogic::LOGIC_INVERT,
@@ -32,7 +32,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 			]
 		];
 		foreach ( self::con()->comps->bot_signals->getAllowablePaths404s() as $allowablePaths404 ) {
-			$whitelistedConditions[] = [
+			$notAllowlisted404Conditions[] = [
 				'conditions' => Conditions\MatchRequestPath::class,
 				'logic'      => Enum\EnumLogic::LOGIC_INVERT,
 				'params'     => [
@@ -42,12 +42,18 @@ class BotTrack404 extends BuildRuleIpsBase {
 			];
 		}
 
-		$whitelistedConditions[] = [
-			'conditions' => Conditions\IsRequestToInvalidPlugin::class,
-		];
-		$whitelistedConditions[] = [
-			'conditions' => Conditions\IsRequestToInvalidTheme::class,
-		];
+		$trackable404Conditions = \array_filter( [
+			empty( $notAllowlisted404Conditions ) ? null : [
+				'logic'      => Enum\EnumLogic::LOGIC_AND,
+				'conditions' => $notAllowlisted404Conditions,
+			],
+			[
+				'conditions' => Conditions\IsRequestToInvalidPlugin::class,
+			],
+			[
+				'conditions' => Conditions\IsRequestToInvalidTheme::class,
+			],
+		] );
 
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
@@ -74,7 +80,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 				],
 				[
 					'logic'      => Enum\EnumLogic::LOGIC_OR,
-					'conditions' => $whitelistedConditions
+					'conditions' => $trackable404Conditions
 				]
 			]
 		];
