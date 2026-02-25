@@ -51,7 +51,21 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 		return ( new BotTrack404() )->build();
 	}
 
+	private function primeWordPress404State() :void {
+		// Use a non-existent post ID to force a deterministic 404, independent of permalink mode.
+		$this->go_to( '/?p='.PHP_INT_MAX );
+	}
+
 	private function prepareAnonymous404Request( string $path, string $track404Option = 'log' ) :void {
+		$con = $this->requireController();
+		\wp_set_current_user( 0 );
+		$con->opts->optSet( 'track_404', $track404Option );
+		$con->this_req->request_bypasses_all_restrictions = false;
+		$this->primeWordPress404State();
+		$con->this_req->path = $path;
+	}
+
+	private function prepareAnonymousNon404Request( string $path, string $track404Option = 'log' ) :void {
 		$con = $this->requireController();
 		\wp_set_current_user( 0 );
 		$con->opts->optSet( 'track_404', $track404Option );
@@ -110,7 +124,7 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 		$path = (string)\wp_parse_url( \get_permalink( $postId ), \PHP_URL_PATH );
 		$path = empty( $path ) ? '/' : $path;
 
-		$this->prepareAnonymous404Request( $path, 'log' );
+		$this->prepareAnonymousNon404Request( $path, 'log' );
 		$this->assertFalse( \is_404(), 'Test fixture should resolve as a non-404 request.' );
 		$this->assertFalse( $this->evaluateFullRule() );
 	}
@@ -122,7 +136,7 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$con->opts->optSet( 'track_404', 'log' );
 		$con->this_req->request_bypasses_all_restrictions = false;
-		$this->go_to( '/definitely/missing/for-logged-in-user.php' );
+		$this->primeWordPress404State();
 		$con->this_req->path = '/definitely/missing/for-logged-in-user.php';
 
 		$this->assertTrue( \is_404(), 'Request should be a 404 for this scenario.' );
