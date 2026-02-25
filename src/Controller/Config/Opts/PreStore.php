@@ -15,6 +15,7 @@ class PreStore {
 
 	public function run() {
 		( new OptionsCorrections() )->run();
+		$this->general();
 		$this->audit();
 		$this->comments();
 		$this->firewall();
@@ -25,6 +26,18 @@ class PreStore {
 		$this->scanners();
 		$this->securityAdmin();
 		$this->user();
+	}
+
+	private function general() :void {
+		$opts = self::con()->opts;
+
+		// TODO: filter against available language translations.
+		$current = $opts->optGet( 'language_override' );
+		$current = \strtolower( \preg_replace( '#[^a-z]#i', '', $current ) );
+		if ( \strlen( $current ) !== 2 ) {
+			$current = '';
+		}
+		$opts->optSet( 'language_override', $current );
 	}
 
 	private function audit() {
@@ -61,9 +74,7 @@ class PreStore {
 		if ( $opts->optChanged( 'trusted_user_roles' ) ) {
 			$opts->optSet( 'trusted_user_roles',
 				\array_unique( \array_filter( \array_map(
-					function ( $role ) {
-						return sanitize_key( \strtolower( $role ) );
-					},
+					fn( $role ) => sanitize_key( \strtolower( $role ) ),
 					$opts->optGet( 'trusted_user_roles' )
 				) ) )
 			);
@@ -151,9 +162,7 @@ class PreStore {
 				( new WildCardOptions() )->clean(
 					$opts->optGet( 'request_whitelist' ),
 					\array_unique( \array_map(
-						function ( $url ) {
-							return (string)wp_parse_url( $url, \PHP_URL_PATH );
-						},
+						fn( $url ) => (string)wp_parse_url( $url, \PHP_URL_PATH ),
 						[
 							'/',
 							$WP->getHomeUrl(),

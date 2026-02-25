@@ -112,4 +112,40 @@ class LoadTextDomainTest extends BaseUnitTest {
 			],
 		];
 	}
+
+	/**
+	 * @dataProvider providerFirstLocaleForLanguage
+	 */
+	public function testFirstLocaleForLanguageSelectsDeterministicFirst(
+		array $locales,
+		string $targetLang,
+		?string $expectedLocale
+	) :void {
+		$loader = new LoadTextDomain();
+		$reflection = new \ReflectionClass( $loader );
+		$method = $reflection->getMethod( 'getFirstLocaleForLanguage' );
+		$method->setAccessible( true );
+
+		$this->assertSame( $expectedLocale, $method->invoke( $loader, $locales, $targetLang ) );
+	}
+
+	public static function providerFirstLocaleForLanguage() :array {
+		return [
+			'choose first sorted for pt' => [
+				[ 'pt_PT', 'pt_BR' ],
+				'pt',
+				'pt_BR',
+			],
+			'choose first sorted for zh' => [
+				[ 'zh_TW', 'zh_CN', 'zh_HK' ],
+				'zh',
+				'zh_CN',
+			],
+			'no matching language returns null' => [
+				[ 'de_DE', 'fr_FR' ],
+				'en',
+				null,
+			],
+		];
+	}
 }

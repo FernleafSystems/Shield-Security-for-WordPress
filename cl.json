@@ -134,6 +134,12 @@
         "released_at": 1771977600,
         "items":       [
           {
+            "type":        "new",
+            "title":       "Added option to override plugin display language regardless of site/user locale.",
+            "description": [
+            ]
+          },
+          {
             "type":        "fixed",
             "title":       "404 bot tracking now correctly honours allowlisted file extensions.",
             "description": [
