@@ -33,12 +33,14 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->straussVersion = $version;
 	}
 
+	/** @group package-targeted */
 	public function testVendorPrefixedExists() :void {
 		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
 		$this->assertDirectoryExists( $prefixed, 'vendor_prefixed directory missing' );
 		$this->assertFileExists( Path::join( $prefixed, 'autoload.php' ) );
 	}
 
+	/** @group package-targeted */
 	public function testPackagePathParity() :void {
 		$vendorPackages = $this->collectPackagePaths( $this->packagePathJoin( 'vendor' ) );
 		$prefixedPackages = $this->collectPackagePaths( $this->packagePathJoin( 'vendor_prefixed' ) );
@@ -66,6 +68,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
+	/** @group package-targeted */
 	public function testPrefixedLibrariesPresent() :void {
 		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
 		foreach ( [ 'monolog', 'twig', 'crowdsec' ] as $dir ) {
@@ -76,6 +79,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
+	/** @group package-targeted */
 	public function testUnprefixedRemoved() :void {
 		$vendor = $this->packagePathJoin( 'vendor' );
 		foreach ( [ 'monolog', 'twig', 'bin' ] as $dir ) {
@@ -86,10 +90,12 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
+	/** @group package-targeted */
 	public function testStraussPharRemoved() :void {
 		$this->assertFileDoesNotExist( $this->packagePathJoin( 'strauss.phar' ) );
 	}
 
+	/** @group package-targeted */
 	public function testAutoloaderSuffixApplied() :void {
 		$autoloadReal = $this->packagePathJoin( 'vendor/composer/autoload_real.php' );
 		$this->assertFileExists( $autoloadReal );
@@ -103,6 +109,7 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
+	/** @group package-targeted */
 	public function testAutoloadsPruned() :void {
 		$composerDir = $this->packagePathJoin( 'vendor/composer' );
 		$files = [
@@ -126,6 +133,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
+	/** @group package-targeted */
 	public function testPrefixedAutoloadsHaveNoVendorLeaks() :void {
 		$autoloadFiles = glob( $this->packagePathJoin( 'vendor_prefixed/autoload*.php' ) ) ?: [];
 		$this->assertNotSame( [], $autoloadFiles, 'No prefixed autoload files found to inspect.' );
@@ -146,6 +154,7 @@ class PluginPackagerStraussTest extends TestCase {
 		);
 	}
 
+	/** @group package-targeted */
 	public function testPrefixedAutoloadContainsKeyNamespaces() :void {
 		$composerDir = Path::join( $this->packagePath, 'vendor_prefixed', 'composer' );
 		$autoloadFiles = [
@@ -189,6 +198,7 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
+	/** @group package-targeted */
 	public function testPrefixedAutoloadSmoke() :void {
 		$prefixedAutoload = $this->packagePathJoin( 'vendor_prefixed/autoload.php' );
 		$vendorAutoload = $this->packagePathJoin( 'vendor/autoload.php' );
