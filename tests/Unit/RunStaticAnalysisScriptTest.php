@@ -49,6 +49,57 @@ class RunStaticAnalysisScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'Usage: php bin/run-static-analysis.php', $process->getOutput() );
 	}
 
+	public function testRunStaticAnalysisRejectsUnknownArgument() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+
+		$process = new Process(
+			[ \PHP_BINARY, $this->getPluginFilePath( 'bin/run-static-analysis.php' ), '--definitely-unknown-option' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
+
+		$this->assertSame( 1, $process->getExitCode() ?? 1 );
+		$this->assertStringContainsString( 'Unknown argument', $process->getOutput().$process->getErrorOutput() );
+	}
+
+	public function testRunStaticAnalysisRejectsMultipleModeFlags() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+
+		$process = new Process(
+			[ \PHP_BINARY, $this->getPluginFilePath( 'bin/run-static-analysis.php' ), '--source', '--package' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
+
+		$this->assertSame( 1, $process->getExitCode() ?? 1 );
+		$this->assertStringContainsString(
+			'Only one mode flag can be provided at a time',
+			$process->getOutput().$process->getErrorOutput()
+		);
+	}
+
+	public function testComposerAnalyzeDefaultsToAnalyzeSource() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
+
+		$commands = $this->getComposerScriptCommands( 'analyze' );
+		$this->assertContains( '@analyze:source', $commands );
+	}
+
+	public function testComposerAnalyzePackageScriptUsesPackageFlag() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
+
+		$commands = $this->getComposerScriptCommands( 'analyze:package' );
+		$this->assertContains( '@php bin/run-static-analysis.php --package', $commands );
+	}
+
 	public function testRunStaticAnalysisPackageModeDelegatesWithNormalizedScriptPath() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
