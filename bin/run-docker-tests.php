@@ -226,11 +226,14 @@ function runSourceRuntimeMode(
 		if ( $runCompose( [ 'build', 'test-runner-latest', 'test-runner-previous' ] ) !== 0 ) {
 			return 1;
 		}
+		if ( runSourceSetupOnce( $runner, $rootDir, $composeArgs ) !== 0 ) {
+			return 1;
+		}
 
-		if ( $runCompose( [ 'run', '--rm', 'test-runner-latest' ] ) !== 0 ) {
+		if ( $runCompose( [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-latest' ] ) !== 0 ) {
 			$overallExitCode = 1;
 		}
-		if ( $runCompose( [ 'run', '--rm', 'test-runner-previous' ] ) !== 0 ) {
+		if ( $runCompose( [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-previous' ] ) !== 0 ) {
 			$overallExitCode = 1;
 		}
 
@@ -242,6 +245,47 @@ function runSourceRuntimeMode(
 			unlink( $dockerEnvPath );
 		}
 	}
+}
+
+/**
+ * @param string[] $composeArgs
+ */
+function runSourceSetupOnce( ProcessRunner $runner, string $rootDir, array $composeArgs ) :int {
+	fwrite( STDOUT, 'Preparing source mode test setup once before runtime checks.'.PHP_EOL );
+
+	$runCompose = static function ( array $subCommand ) use ( $runner, $rootDir, $composeArgs ) :int {
+		$command = array_merge( $composeArgs, $subCommand );
+		$process = $runner->run( $command, $rootDir );
+		return $process->getExitCode() ?? 1;
+	};
+
+	if ( $runCompose( [ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'install', '--no-interaction', '--no-cache' ] ) !== 0 ) {
+		return 1;
+	}
+	if ( $runCompose( [ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'build:config' ] ) !== 0 ) {
+		return 1;
+	}
+
+	$nodeProcess = $runner->run(
+		[
+			'docker',
+			'run',
+			'--rm',
+			'-v',
+			$rootDir.':/app',
+			'-v',
+			'/app/node_modules',
+			'-w',
+			'/app',
+			'node:20.10',
+			'sh',
+			'-c',
+			'npm ci --no-audit --no-fund && npm run build',
+		],
+		$rootDir
+	);
+
+	return $nodeProcess->getExitCode() ?? 1;
 }
 
 function isDockerAvailable( ProcessRunner $runner, string $rootDir ) :bool {

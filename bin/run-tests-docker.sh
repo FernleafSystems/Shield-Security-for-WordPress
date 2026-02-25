@@ -177,14 +177,18 @@ if [ -n "$SHIELD_PACKAGE_PATH" ]; then
     echo "Package Testing Mode: Skipping dependency installation (package should be pre-built)"
     echo "ℹ Note: Package testing assumes all dependencies are already installed in the package"
 else
-    # Install Composer dependencies for source testing
-    echo "Source Testing Mode: Installing Composer dependencies..."
-    composer install --no-interaction --no-cache
+    if [ "${SHIELD_SKIP_INNER_SETUP:-0}" = "1" ]; then
+        echo "Source Testing Mode: Skipping inner setup (SHIELD_SKIP_INNER_SETUP=1)"
+    else
+        # Install Composer dependencies for source testing
+        echo "Source Testing Mode: Installing Composer dependencies..."
+        composer install --no-interaction --no-cache
 
-    # Generate plugin.json from modular spec files (source testing only)
-    # In package mode, PluginPackager already generates plugin.json in the package
-    echo "Generating plugin.json from plugin-spec/ files..."
-    php bin/build-config.php
+        # Generate plugin.json from modular spec files (source testing only)
+        # In package mode, PluginPackager already generates plugin.json in the package
+        echo "Generating plugin.json from plugin-spec/ files..."
+        php bin/build-config.php
+    fi
 fi
 
 # Run tests with environment variable support
