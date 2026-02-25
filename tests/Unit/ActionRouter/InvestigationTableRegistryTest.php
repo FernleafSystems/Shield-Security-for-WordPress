@@ -22,6 +22,20 @@ class InvestigationTableRegistryTest extends BaseUnitTest {
 		);
 	}
 
+	public function testActivityAllowsUserIpPluginThemeAndCoreSubjects() :void {
+		$this->assertSame(
+			[ 'user', 'ip', 'plugin', 'theme', 'core' ],
+			InvestigationTableRegistry::getAllowedSubjectTypes( 'activity' )
+		);
+	}
+
+	public function testTrafficSubjectAllowanceRemainsUserAndIpOnly() :void {
+		$this->assertSame(
+			[ 'user', 'ip' ],
+			InvestigationTableRegistry::getAllowedSubjectTypes( 'traffic' )
+		);
+	}
+
 	public function testBuilderClassesAreRegisteredAsExistingClasses() :void {
 		foreach ( \array_keys( InvestigationTableRegistry::tableMap() ) as $tableType ) {
 			$builderClass = InvestigationTableRegistry::getBuilderClass( $tableType );

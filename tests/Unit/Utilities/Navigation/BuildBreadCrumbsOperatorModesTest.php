@@ -56,17 +56,17 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
 	}
 
-	public function test_investigate_by_ip_subnav_omits_nav_home_crumb() :void {
+	public function test_investigate_by_ip_subnav_keeps_nav_home_crumb() :void {
 		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
 			PluginNavs::NAV_ACTIVITY,
 			PluginNavs::SUBNAV_ACTIVITY_BY_IP
 		);
 
-		$this->assertCount( 2, $crumbs );
-		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
+		$this->assertCount( 3, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity' ], \array_column( $crumbs, 'text' ) );
 	}
 
-	public function test_investigate_transitional_subject_subnavs_omit_nav_home_crumb() :void {
+	public function test_investigate_asset_subnavs_keep_nav_home_crumb() :void {
 		$builder = new BuildBreadCrumbsForTest();
 
 		foreach ( [
@@ -75,8 +75,8 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 			PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
 		] as $subNav ) {
 			$crumbs = $builder->parse( PluginNavs::NAV_ACTIVITY, $subNav );
-			$this->assertCount( 2, $crumbs );
-			$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
+			$this->assertCount( 3, $crumbs );
+			$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity' ], \array_column( $crumbs, 'text' ) );
 		}
 	}
 

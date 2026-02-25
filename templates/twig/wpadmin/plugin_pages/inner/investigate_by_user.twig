@@ -123,6 +123,11 @@
 																	   data-ip="{{ related.ip }}">{{ related.ip }}</a>
 																	<span class="shield-badge badge-{{ related.status|default('info') }} status-{{ related.status|default('info') }} investigate-by-user-ip-status">{{ related.status|default('info')|upper }}</span>
 																</div>
+																{% if related.investigate_href|default('') is not empty %}
+																	<div>
+																		<a href="{{ related.investigate_href }}" class="btn btn-outline-secondary btn-sm">Investigate IP</a>
+																	</div>
+																{% endif %}
 																<div>
 																	<div>{{ related.last_seen_ago|default('-') }}</div>
 																	{% if related.last_seen_at|default('') is not empty %}

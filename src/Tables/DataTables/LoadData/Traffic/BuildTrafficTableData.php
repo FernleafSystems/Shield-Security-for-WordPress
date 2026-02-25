@@ -265,7 +265,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 			);
 	}
 
-	private function getTrafficUserDisplay( int $uid ) :string {
+	protected function getTrafficUserDisplay( int $uid ) :string {
 		if ( $uid <= 0 ) {
 			$display = __( 'No', 'wp-simple-firewall' );
 		}

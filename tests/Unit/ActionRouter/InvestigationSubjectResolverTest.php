@@ -72,4 +72,31 @@ class InvestigationSubjectResolverTest extends BaseUnitTest {
 		$this->expectException( UnsupportedInvestigationSubjectTypeException::class );
 		$resolver->normalize( 'sessions', 'ip', '1.2.3.4' );
 	}
+
+	public function testNormalizeAcceptsInstalledPluginForActivityTable() :void {
+		$resolver = $this->buildResolverWithAssets( [ 'akismet/akismet.php' ] );
+		$normalized = $resolver->normalize( 'activity', 'plugin', 'akismet/akismet.php' );
+
+		$this->assertSame( 'activity', $normalized[ 'table_type' ] );
+		$this->assertSame( 'plugin', $normalized[ 'subject_type' ] );
+		$this->assertSame( 'akismet/akismet.php', $normalized[ 'subject_id' ] );
+	}
+
+	public function testNormalizeAcceptsInstalledThemeForActivityTable() :void {
+		$resolver = $this->buildResolverWithAssets( [], [ 'twentytwentyfive' ] );
+		$normalized = $resolver->normalize( 'activity', 'theme', 'twentytwentyfive' );
+
+		$this->assertSame( 'activity', $normalized[ 'table_type' ] );
+		$this->assertSame( 'theme', $normalized[ 'subject_type' ] );
+		$this->assertSame( 'twentytwentyfive', $normalized[ 'subject_id' ] );
+	}
+
+	public function testNormalizeAcceptsCoreForActivityTable() :void {
+		$resolver = $this->buildResolverWithAssets();
+		$normalized = $resolver->normalize( 'activity', 'core', 'any-value' );
+
+		$this->assertSame( 'activity', $normalized[ 'table_type' ] );
+		$this->assertSame( 'core', $normalized[ 'subject_type' ] );
+		$this->assertSame( 'core', $normalized[ 'subject_id' ] );
+	}
 }

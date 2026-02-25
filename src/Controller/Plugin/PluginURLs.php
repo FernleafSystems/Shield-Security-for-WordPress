@@ -84,6 +84,34 @@ class PluginURLs {
 		return $url;
 	}
 
+	public function investigateByUser( string $lookup = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
+		if ( !empty( $lookup ) ) {
+			$url = URL::Build( $url, [ 'user_lookup' => $lookup ] );
+		}
+		return $url;
+	}
+
+	public function investigateByPlugin( string $slug = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+		if ( !empty( $slug ) ) {
+			$url = URL::Build( $url, [ 'plugin_slug' => $slug ] );
+		}
+		return $url;
+	}
+
+	public function investigateByTheme( string $slug = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
+		if ( !empty( $slug ) ) {
+			$url = URL::Build( $url, [ 'theme_slug' => $slug ] );
+		}
+		return $url;
+	}
+
+	public function investigateByCore() :string {
+		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
+	}
+
 	public function cfgForZoneComponent( string $componentSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}

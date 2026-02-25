@@ -57,4 +57,20 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
 	}
+
+	public function test_landing_plugin_lookup_form_includes_route_preservation_contract() :void {
+		$payload = $this->renderInvestigateLandingPage();
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+
+		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+	}
+
+	public function test_landing_theme_lookup_form_includes_route_preservation_contract() :void {
+		$payload = $this->renderInvestigateLandingPage();
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+
+		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
+		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
+	}
 }

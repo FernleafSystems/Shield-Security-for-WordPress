@@ -23,7 +23,13 @@ class InvestigationTableRegistry {
 		return self::$tableMap ??= [
 			InvestigationTableContract::TABLE_TYPE_ACTIVITY          => [
 				'builder'  => BuildActivityLogData::class,
-				'subjects' => [ InvestigationTableContract::SUBJECT_TYPE_USER, InvestigationTableContract::SUBJECT_TYPE_IP ],
+				'subjects' => [
+					InvestigationTableContract::SUBJECT_TYPE_USER,
+					InvestigationTableContract::SUBJECT_TYPE_IP,
+					InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+					InvestigationTableContract::SUBJECT_TYPE_THEME,
+					InvestigationTableContract::SUBJECT_TYPE_CORE,
+				],
 			],
 			InvestigationTableContract::TABLE_TYPE_TRAFFIC           => [
 				'builder'  => BuildTrafficData::class,

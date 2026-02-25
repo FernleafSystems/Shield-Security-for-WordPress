@@ -16,6 +16,15 @@ abstract class BaseDelegatingLogData extends BaseInvestigationData {
 			case 'ip':
 				$wheres = InvestigationSubjectWheres::forIpColumn( '`ips`.`ip`', (string)$this->subjectId );
 				break;
+			case 'plugin':
+			case 'theme':
+			case 'core':
+				$wheres = InvestigationSubjectWheres::forActivitySubject(
+					$this->subjectType,
+					(string)$this->subjectId,
+					self::con()->db_con->activity_logs_meta->getTable()
+				);
+				break;
 			default:
 				$wheres = InvestigationSubjectWheres::impossible();
 				break;

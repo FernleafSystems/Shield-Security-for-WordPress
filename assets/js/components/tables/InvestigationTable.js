@@ -61,18 +61,22 @@ export class InvestigationTable extends ShieldTableBase {
 
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
-			'#ShieldInvestigateByUserTabsNav [data-bs-toggle="tab"]',
+			'.shield-options-rail [data-bs-toggle="tab"]',
 			( targetEl ) => {
+				if ( targetEl === null ) {
+					return;
+				}
+
 				const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
-				if ( typeof paneSelector !== 'string' || !paneSelector.startsWith( '#' ) ) {
+				if ( typeof paneSelector !== 'string' || paneSelector.length === 0 || paneSelector.charAt( 0 ) !== '#' ) {
 					return;
 				}
 
 				const pane = document.querySelector( paneSelector );
-				if ( pane === null || !$.fn.dataTable || !$.fn.dataTable.isDataTable ) {
+				if ( pane === null || pane.querySelector( '[data-investigation-table="1"]' ) === null ) {
 					return;
 				}
-				if ( pane.querySelector( '[data-investigation-table="1"]' ) === null ) {
+				if ( !$.fn.dataTable || !$.fn.dataTable.isDataTable ) {
 					return;
 				}
 

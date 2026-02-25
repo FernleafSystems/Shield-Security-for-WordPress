@@ -129,6 +129,43 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$this->assertSame( 'unavailable_builder', $payload[ 'error_code' ] ?? '' );
 	}
 
+	/**
+	 * @dataProvider provideActivitySubjectSuccessCases
+	 */
+	public function testRetrieveTableDataAcceptsExpandedActivitySubjects( string $subjectType, $subjectId ) :void {
+		$payload = ( new InvestigationTableActionActivityRetrieveSuccessUnitTestDouble( [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => $subjectType,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $subjectId,
+		], $subjectType, $subjectId ) )->runExecForTest();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertSame( [], $payload[ 'datatable_data' ][ 'table_data' ] ?? null );
+	}
+
+	public function provideActivitySubjectSuccessCases() :array {
+		return [
+			'plugin_subject' => [ 'plugin', 'akismet/akismet.php' ],
+			'theme_subject'  => [ 'theme', 'twentytwentyfive' ],
+			'core_subject'   => [ 'core', 'core' ],
+		];
+	}
+
+	public function testRetrieveTableDataRejectsUnsupportedPluginSubjectForTrafficTable() :void {
+		$payload = $this->runAction( [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_TRAFFIC,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => 'akismet/akismet.php',
+			InvestigationTableContract::REQ_KEY_TABLE_DATA   => [],
+		] );
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
+		$this->assertSame( 'unsupported_subject_type', $payload[ 'error_code' ] ?? '' );
+	}
+
 	public function testMiswiredHandlerMapReturnsUnsupportedSubActionErrorCode() :void {
 		$payload = ( new InvestigationTableActionMiswiredHandlerMapTestDouble( [
 			InvestigationTableContract::REQ_KEY_SUB_ACTION => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
@@ -176,6 +213,31 @@ class InvestigationTableActionRetrieveSuccessUnitTestDouble extends Investigatio
 			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_SESSIONS,
 			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_USER,
 			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => 7,
+		];
+	}
+
+	protected function createBuilderForTableType( string $tableType ) :BaseInvestigationData {
+		return new InvestigationTableActionEchoTableDataBuilderTestDouble();
+	}
+}
+
+class InvestigationTableActionActivityRetrieveSuccessUnitTestDouble extends InvestigationTableActionUnitTestDouble {
+
+	private string $subjectType;
+
+	private $subjectId;
+
+	public function __construct( array $actionData, string $subjectType, $subjectId ) {
+		parent::__construct( $actionData );
+		$this->subjectType = $subjectType;
+		$this->subjectId = $subjectId;
+	}
+
+	protected function normalizeSubjectContext( string $tableType, string $subjectType, $subjectId ) :array {
+		return [
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => $this->subjectType,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $this->subjectId,
 		];
 	}
 

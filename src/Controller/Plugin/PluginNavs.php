@@ -102,16 +102,16 @@ class PluginNavs {
 							'handler' => PluginAdminPages\PageInvestigateByUser::class,
 						],
 						self::SUBNAV_ACTIVITY_BY_IP    => [
-							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+							'handler' => PluginAdminPages\PageInvestigateByIp::class,
 						],
 						self::SUBNAV_ACTIVITY_BY_PLUGIN => [
-							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+							'handler' => PluginAdminPages\PageInvestigateByPlugin::class,
 						],
 						self::SUBNAV_ACTIVITY_BY_THEME => [
-							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+							'handler' => PluginAdminPages\PageInvestigateByTheme::class,
 						],
 						self::SUBNAV_ACTIVITY_BY_CORE => [
-							'handler' => PluginAdminPages\PageInvestigateLanding::class,
+							'handler' => PluginAdminPages\PageInvestigateByCore::class,
 						],
 						self::SUBNAV_LOGS              => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
@@ -314,10 +314,6 @@ class PluginNavs {
 			],
 			self::NAV_ACTIVITY => [
 				self::SUBNAV_ACTIVITY_OVERVIEW,
-				self::SUBNAV_ACTIVITY_BY_IP,
-				self::SUBNAV_ACTIVITY_BY_PLUGIN,
-				self::SUBNAV_ACTIVITY_BY_THEME,
-				self::SUBNAV_ACTIVITY_BY_CORE,
 			],
 			self::NAV_ZONES    => [
 				self::SUBNAV_ZONES_OVERVIEW,

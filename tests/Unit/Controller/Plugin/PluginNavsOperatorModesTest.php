@@ -73,19 +73,19 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_USER ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByIp::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_IP ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByPlugin::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByTheme::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByCore::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ]
 		);
 		$this->assertSame(
@@ -106,10 +106,6 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 				],
 				PluginNavs::NAV_ACTIVITY => [
 					PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
-					PluginNavs::SUBNAV_ACTIVITY_BY_IP,
-					PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
-					PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
-					PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
 				],
 				PluginNavs::NAV_ZONES    => [
 					PluginNavs::SUBNAV_ZONES_OVERVIEW,
@@ -121,11 +117,11 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginNavs::modeLandingSubNavsByNav()
 		);
 
-		$this->assertTrue(
-			PluginNavs::isModeLandingRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN )
-		);
 		$this->assertFalse(
 			PluginNavs::isModeLandingRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER )
+		);
+		$this->assertFalse(
+			PluginNavs::isModeLandingRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN )
 		);
 		$this->assertFalse(
 			PluginNavs::isModeLandingRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS )
@@ -157,19 +153,19 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_USER ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByIp::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_IP ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByPlugin::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByTheme::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'handler' ]
 		);
 		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
+			PluginAdminPages\PageInvestigateByCore::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ]
 		);
 		$this->assertSame(

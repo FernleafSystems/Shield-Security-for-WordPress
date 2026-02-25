@@ -1,0 +1,58 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="card shield-card mb-3">
+		<div class="shield-card-accent status-info"></div>
+		<div class="card-body">
+			<form method="get" action="{{ hrefs.by_ip }}" class="row g-2 align-items-end">
+				<input type="hidden" name="page" value="{{ vars.lookup_route.page|default('') }}" />
+				<input type="hidden" name="nav" value="{{ vars.lookup_route.nav|default('') }}" />
+				<input type="hidden" name="nav_sub" value="{{ vars.lookup_route.nav_sub|default('') }}" />
+				<div class="col-12 col-lg-8">
+					<label class="form-label mb-1">{{ strings.lookup_label }}</label>
+					<input type="text" name="analyse_ip" value="{{ vars.analyse_ip|default('') }}"
+						   class="form-control" placeholder="{{ strings.lookup_placeholder }}"/>
+				</div>
+				<div class="col-12 col-lg-4 d-flex gap-2">
+					<button type="submit" class="btn btn-outline-primary">{{ strings.lookup_submit }}</button>
+					<a href="{{ hrefs.back_to_investigate }}" class="btn btn-outline-secondary">{{ strings.back_to_investigate }}</a>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	{% if not flags.has_subject %}
+		<div class="card shield-card">
+			<div class="shield-card-accent status-warning"></div>
+			<div class="card-body">
+				<h5 class="card-title mb-2">{{ strings.no_subject_title }}</h5>
+				<p class="mb-0">{{ strings.no_subject_text }}</p>
+			</div>
+		</div>
+	{% else %}
+		{% include '/wpadmin/components/investigate/subject_header.twig' with {
+			subject: vars.subject
+		} only %}
+
+		<div class="row g-2 mb-3">
+			{% for stat in vars.summary %}
+				<div class="col-6 col-xl-3">
+					<div class="card shield-card h-100">
+						<div class="shield-card-accent status-{{ stat.status|default('info') }}"></div>
+						<div class="card-body py-3">
+							<div class="h4 mb-1">{{ stat.count|default(0) }}</div>
+							<div class="text-muted small">{{ stat.label|default('') }}</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+
+		<div class="card shield-card">
+			<div class="shield-card-accent status-info"></div>
+			<div class="card-body">
+				{{ content.ip_analysis|raw }}
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

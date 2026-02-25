@@ -475,6 +475,22 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			public function investigateByIp( string $ip = '' ) :string {
 				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
 			}
+
+			public function investigateByUser( string $lookup = '' ) :string {
+				return empty( $lookup ) ? '/admin/activity/by_user' : '/admin/activity/by_user?user_lookup='.$lookup;
+			}
+
+			public function investigateByPlugin( string $slug = '' ) :string {
+				return empty( $slug ) ? '/admin/activity/by_plugin' : '/admin/activity/by_plugin?plugin_slug='.$slug;
+			}
+
+			public function investigateByTheme( string $slug = '' ) :string {
+				return empty( $slug ) ? '/admin/activity/by_theme' : '/admin/activity/by_theme?theme_slug='.$slug;
+			}
+
+			public function investigateByCore() :string {
+				return '/admin/activity/by_core';
+			}
 		};
 		PluginControllerInstaller::install( $controller );
 	}

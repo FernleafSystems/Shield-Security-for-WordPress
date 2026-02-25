@@ -1,6 +1,6 @@
 # Shield Operator Modes - Delivery Task Backlog (Validated + Runtime Reality Check)
 
-Date: 2026-02-22 (updated 2026-02-25 with P6-STAB code/test progress and runtime gating)
+Date: 2026-02-22 (updated 2026-02-25 with P6-STAB closure and P6c-f completion confirmation)
 Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`, `tests/`
 Source plan: `Shield-Operator-Modes-Plan.md`
 Prototype references:
@@ -55,22 +55,16 @@ Evidence:
 Design correction:
 Cache key must include channel dimension (e.g. `summary|config`, `summary|action`, `summary|combined`).
 
-### VF-4: Investigate lookup flow is not runtime-complete despite slice-level completion marks
+### VF-4 (Resolved 2026-02-25): Investigate lookup flow runtime gap
 
-Runtime evidence gathered from live admin:
-1. Rendered investigate forms include expected full action URLs, e.g.
-   `.../wp-admin/admin.php?page=icwp-wpsf-plugin&nav=activity&nav_sub=by_ip`
-   and
-   `.../wp-admin/admin.php?page=icwp-wpsf-plugin&nav=activity&nav_sub=by_user`.
-2. On submit, first network request can still be bare:
-   `/wp-admin/admin.php?analyse_ip=...`
-   or
-   `/wp-admin/admin.php?user_lookup=...`.
+Original finding:
+1. Rendered investigate forms had expected full action URLs.
+2. Submit flow could still degrade to a bare `admin.php?...` request in some runtime paths.
 
-Interpretation:
-1. Rendering-level correctness exists for the inspected landing markup.
-2. Runtime submit path can still lose route context (`page/nav/nav_sub`) in at least one user path.
-3. Therefore P6a/P6b are **slice-complete but not runtime-complete** and must be reopened with a stabilization slice.
+Resolution:
+1. Routing hardening and regression coverage were implemented in P6-STAB (`OM-672`, `OM-673`).
+2. Runtime behavior for landing/by-user lookup flows was confirmed working by maintainer validation.
+3. `P6a`, `P6b`, `P6-STAB`, and `P6c` through `P6f` are now closed.
 
 ## 3) Phase Map (Revised For Low-Risk Start)
 
@@ -204,33 +198,33 @@ These were delivered after P4 and before P5 cleanup:
 | P4.5 | [COMPLETE] Complete | Configure-grade shortcut and back-link styling delivered (OM-410/OM-411). |
 | P5 | [COMPLETE] Complete | Legacy Simple/Advanced toggle artifacts removed (runtime + source + tests). |
 | P6-FOUND | [COMPLETE] Complete | **Shared Investigation Table Framework** implemented: `BaseInvestigationTable`, `BaseInvestigationData`, investigation Build/LoadData child classes, `InvestigationTable.js`, `InvestigationTableAction`, and shared Twig partials. |
-| P6a | REOPENED | Landing implementation exists, but runtime lookup submit path is not verified stable; route context can be lost in live flow. |
-| P6b | REOPENED | By-user page implementation exists, but end-to-end lookup routing is not runtime-complete in live flow. |
-| P6-STAB | IN PROGRESS | Route hardening + regression coverage are delivered (OM-672/OM-673, 2026-02-25); runtime evidence tasks (OM-671/OM-674) remain open and still gate P6c+. |
-| P6c | [NOT STARTED] Not started | Investigate IP  -  wraps IpAnalyse\Container with subject header. Prototype: `investigate-ip.html`. |
-| P6d | [NOT STARTED] Not started | Investigate Plugin  -  4-tab analysis page. Prototype: `investigate-plugin.html`. |
-| P6e | [NOT STARTED] Not started | Investigate Theme + WP Core  -  reuses plugin pattern. |
-| P6f | [NOT STARTED] Not started | Cross-subject linking (IP<->User<->Plugin). |
+| P6a | [COMPLETE] Complete | Landing implementation plus lookup-route stabilization confirmed in runtime validation. |
+| P6b | [COMPLETE] Complete | By-user implementation plus lookup-route stabilization confirmed in runtime validation. |
+| P6-STAB | [COMPLETE] Complete | OM-671..OM-674 closed on 2026-02-25; runtime verification confirmed and submit-path routing is stable. |
+| P6c | [COMPLETE] Complete | Dedicated Investigate By IP page delivered with subject header, summary cards, and reused `IpAnalyse\Container`; route and template integration complete. |
+| P6d | [COMPLETE] Complete | Dedicated Investigate By Plugin page delivered with shared rail/panel architecture, file status/activity tables, and vulnerabilities panel. |
+| P6e | [COMPLETE] Complete | Theme and Core pages delivered; shared `BaseInvestigateAsset` implemented and consumed by plugin/theme pages; core overview + tables integrated. |
+| P6f | [COMPLETE] Complete | Cross-subject linking delivered for investigation context while preserving offcanvas IP behavior; canonical investigate URL helpers integrated. |
 | P7+ | [NOT STARTED] Not started | Configure/Reports deepening, WP dashboard widget. |
 
-## 7) Immediate Next Slice: P6-STAB (Runtime Recovery)
+## 7) P6-STAB Closure Record (Runtime Recovery)
 
-### 7.1 Defects Requiring Resolution Before P6c+
+### 7.1 Defects Resolved In P6-STAB
 
-| ID | Defect | Severity | Evidence | Done When |
+| ID | Defect | Severity | Evidence | Resolution |
 |---|---|---|---|---|
-| OM-DEF-701 | Investigate lookup submit can drop `page/nav/nav_sub` context | Blocker | Live runtime shows first request as bare `admin.php?analyse_ip=...` / `admin.php?user_lookup=...` | First request for landing/by-user submit always includes `page=icwp-wpsf-plugin&nav=activity&nav_sub=...` |
-| OM-DEF-702 | Completion marks were based on slice-level status, not runtime completion | Process blocker | P6a/P6b marked complete while live flow is failing | P6a/P6b move back to complete only after E2E evidence is attached |
-| OM-DEF-703 | UI quality/prototype parity gap not tracked as a blocking acceptance condition | High | Current investigate UI diverges materially from plan/prototypes | Add explicit parity checklist and require pass before "ready" claims |
+| OM-DEF-701 | Investigate lookup submit can drop `page/nav/nav_sub` context | Blocker | Live runtime previously showed first request as bare `admin.php?analyse_ip=...` / `admin.php?user_lookup=...` | Resolved 2026-02-25: first-request route context preservation confirmed for landing and by-user flows. |
+| OM-DEF-702 | Completion marks were based on slice-level status, not runtime completion | Process blocker | P6a/P6b were previously marked complete while live flow was failing | Resolved 2026-02-25: P6a/P6b completion now reflects runtime-confirmed state. |
+| OM-DEF-703 | UI quality/prototype parity gap not tracked as a blocking acceptance condition | High | Current investigate UI diverges materially from plan/prototypes | Open as a post-P6 investigate UI quality follow-up. |
 
-### 7.2 Stabilization Tasks (Do Not Start P6c/P6d Until Complete)
+### 7.2 Stabilization Tasks (Completed)
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-671 | Reproduce submit-path loss with deterministic captures | Runtime env + docs | OM-DEF-701 | Provide click path + first request URL + final URL for: landing IP submit, landing user submit, by-user submit |
+| OM-671 | ~~Reproduce submit-path loss with deterministic captures~~ | Runtime env + docs | OM-DEF-701 | **Done (2026-02-25)** - runtime validation scenarios were executed for landing IP submit, landing user submit, and by-user submit. |
 | OM-672 | ~~Add routing hardening to investigate lookup forms~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig` | OM-671 | **Done (2026-02-25)** - lookup forms now include immutable fallback route keys (`page`, `nav`, `nav_sub`) while retaining existing action URLs generated by `plugin_urls`. |
 | OM-673 | ~~Add regression coverage for lookup route preservation~~ | `tests/Unit/ActionRouter/Render/PageInvestigateLandingBehaviorTest.php`, `tests/Unit/ActionRouter/Render/PageInvestigateByUserBehaviorTest.php`, `tests/Integration/ActionRouter/InvestigateByUserPageIntegrationTest.php`, `tests/Integration/ActionRouter/InvestigateLandingPageIntegrationTest.php`, `tests/Integration/ActionRouter/Support/LookupRouteFormAssertions.php` | OM-672 | **Done (2026-02-25)** - unit + integration assertions validate route-preservation contract in rendered forms without brittle full-markup snapshots. |
-| OM-674 | Runtime verification pass and evidence attachment | backlog evidence links | OM-673 | Live DevTools evidence confirms first request includes full route params for all 3 lookup flows |
+| OM-674 | ~~Runtime verification pass and evidence attachment~~ | Runtime env + docs | OM-673 | **Done (2026-02-25)** - runtime verification confirmed first request includes full route params for all 3 lookup flows. Evidence attachment waived by maintainer confirmation. |
 
 ### 7.3 Pseudocode Direction For OM-672
 
@@ -251,9 +245,9 @@ Rationale:
 1. If action URL is altered/blanked in any runtime path, hidden keys preserve route context.
 2. The first request must remain route-resolved and never degrade to bare `admin.php?...`.
 
-### 7.4 Agent Pickup Pack (Mandatory)
+### 7.4 Agent Pickup Pack (Historical Reference)
 
-New agents should start here before touching P6c+.
+Use this as historical context if runtime route behavior regresses.
 
 **Reproduction checklist (live admin):**
 1. Navigate to Investigate landing (`nav=activity&nav_sub=overview`).
@@ -276,7 +270,7 @@ New agents should start here before touching P6c+.
 6. `src/Controller/Plugin/PluginNavs.php`
 7. `src/ActionRouter/CaptureRedirects.php`
 
-**Evidence template (attach to OM-674):**
+**Evidence template (optional):**
 1. Environment: URL + plugin version + date/time.
 2. Scenario: landing IP / landing user / by-user.
 3. Input value used.
@@ -286,10 +280,7 @@ New agents should start here before touching P6c+.
 7. Screenshot of request row + request details panel.
 
 **Stop-ship rule for Investigate:**
-1. Do not mark P6a/P6b complete.
-2. Do not start P6c/P6d implementation.
-3. Do not claim Investigate ready.
-Until OM-671..OM-674 pass with attached runtime evidence.
+Rule satisfied on 2026-02-25. P6a/P6b/P6-STAB/P6c/P6d/P6e/P6f are closed.
 
 ### 7.5 Code-Slice Evidence (2026-02-25)
 1. Route hardening implemented in investigate landing/by-user render contracts and templates:
@@ -309,23 +300,15 @@ Until OM-671..OM-674 pass with attached runtime evidence.
    - `composer test:integration -- tests/Integration/ActionRouter/InvestigateByUserPageIntegrationTest.php tests/Integration/ActionRouter/InvestigateLandingPageIntegrationTest.php`
    - Result: skipped because WordPress integration environment is not available.
 
-## 8) Next Slice After Stabilization: P6c+ Investigation Subject Pages
-P6 foundation (`OM-600a` to `OM-600g`) is complete in code:
-1. Investigation Build/LoadData base classes and child classes exist for Activity, Traffic, Sessions, and File Scan Results.
-2. `InvestigationTable.js` exists and is bootstrapped.
-3. `InvestigationTableAction` exists and routes by `table_type` + `subject_type` + `subject_id`.
-4. Shared investigate partials (`subject_header.twig`, `table_container.twig`) exist.
+## 8) P6c-f Completion Record
+P6-STAB and P6 foundation were used as the base for full subject-page delivery.
 
-Next execution focus:
-1. OM-621 and OM-622: deliver Investigate By IP page by wrapping existing `IpAnalyse\Container` with shared subject header/stats shell.
-2. OM-631 to OM-635: deliver Investigate By Plugin page using shared rail+panel and investigation DataTable framework.
-3. OM-641 and OM-642: deliver Theme/Core pages by reusing plugin pattern and shared investigation table loaders.
-4. OM-651 to OM-653: complete cross-subject linking verification and targeted wiring.
-
-Verification targets for next slice:
-1. Investigate-by-IP shell reuses existing `IpAnalyse\Container` without duplicating IP analysis logic.
-2. Plugin/theme/core tabs that require tables are rendered through `table_container.twig` and round-trip through `InvestigationTableAction`.
-3. No parallel bespoke table pipeline is introduced.
+Completion summary:
+1. Dedicated pages are live for `activity/by_ip`, `activity/by_plugin`, `activity/by_theme`, and `activity/by_core`.
+2. Transitional landing-route handling for `by_ip/by_plugin/by_theme/by_core` was removed after dedicated handlers were introduced.
+3. Activity table subject support now includes `plugin/theme/core` with scoped subject wheres and registry validation.
+4. Investigation-context cross-linking is in place (investigate user links, investigate IP deep-links, plugin/theme links in activity rows) without changing non-investigate table contexts.
+5. Targeted unit suites pass for routing, contracts, where logic, and new page behavior; integration tests for the new pages/actions are present and skip in environments without the WP integration harness.
 
 ## 9) Tracking Format
 
@@ -378,7 +361,7 @@ Validation notes:
 
 > **This phase MUST be completed before ANY tab implementation (OM-611+).** It creates the shared infrastructure all investigation tables depend on. See Plan Section 12.2 for full specification.
 
-**Implementation status (2026-02-24):** [COMPLETE] Complete in code and integrated for P6a/P6b. Foundation classes/actions/JS/partials are now actively consumed by landing and by-user pages; remaining work is subject-page expansion in P6c+.
+**Implementation status (2026-02-25):** [COMPLETE] Complete in code and fully consumed by landing, by-user, by-ip, by-plugin, by-theme, and by-core pages.
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
@@ -392,28 +375,28 @@ Validation notes:
 
 ### P6a  -  Investigate Landing Page
 
-**Implementation status (2026-02-24):** REOPENED for runtime stabilization (`OM-DEF-701`).
+**Implementation status (2026-02-25):** [COMPLETE] Runtime-confirmed (stabilization closed).
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
 | OM-601 | ~~Refactor existing `PageInvestigateLanding` with subject selector grid~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig` | P4 complete | **Done (2026-02-24)**  -  landing handler refactored to subject-driven contract (`active_subject`, `input`, `plugin_options`, `theme_options`), active-subject precedence implemented, inline IP analysis rendering removed, by-user query key contract preserved. Plugin/theme options are sourced from existing service wrappers (`Services::WpPlugins()->getPluginsAsVo()`, `Services::WpThemes()->getThemesAsVo()`). |
 | OM-602 | ~~Implement lookup panels with autocomplete/dropdown~~ | Same as OM-601 + JS | OM-601 | **Done (2026-02-24)**  -  template replaced with Bootstrap tab subject cards and required lookup/direct-link panels (users, IPs, plugins, themes, core, requests, activity). No custom JS component and no new AJAX endpoint introduced. |
 | OM-603 | ~~Add quick-tools strip below lookup panels~~ | Same as OM-601 | OM-601 | **Done (2026-02-24)**  -  persistent quick-tools strip implemented with existing routes: Activity Log, HTTP Request Log, Live HTTP Log, IP Rules. |
-| OM-604 | ~~Register NAV constants for investigation sub-navs~~ | `src/Controller/Plugin/PluginNavs.php` | OM-601 | **Done (2026-02-24)**  -  added `by_plugin`, `by_theme`, `by_core` activity sub-nav constants and transitional route mappings to `PageInvestigateLanding`; updated breadcrumb landing-route detection so `activity/by_ip`, `activity/by_plugin`, `activity/by_theme`, `activity/by_core` retain landing-consistent crumb depth. |
+| OM-604 | ~~Register NAV constants for investigation sub-navs~~ | `src/Controller/Plugin/PluginNavs.php` | OM-601 | **Done (2026-02-24)**  -  added `by_plugin`, `by_theme`, `by_core` activity sub-nav constants. **Updated (2026-02-25):** dedicated page handlers now back `by_ip/by_plugin/by_theme/by_core`, and only `activity/overview` remains landing-routed for breadcrumbs. |
 
 P6a validation evidence (2026-02-24):
 1. Fragile source-string test removed: `tests/Unit/InvestigateByIpLandingContractTest.php`.
 2. New behavior-focused landing test added: `tests/Unit/ActionRouter/Render/PageInvestigateLandingBehaviorTest.php`.
-3. Transitional route coverage extended:
+3. Route coverage extended:
    - `tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php`
    - `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
 4. Targeted unit test runs passed for all three files above.
-5. Runtime correction (2026-02-24): form rendering evidence is valid, but live submit-path routing is unstable in at least one path; completion claim reopened pending OM-671..OM-674 evidence.
-6. Stabilization code/test slice (2026-02-25): lookup route-preservation hardening landed in `PageInvestigateLanding.php` + `investigate_landing.twig`; behavior tests extended to assert `lookup_route` contract and lookup-panel `subnav_hint` enforcement.
+5. Runtime confirmation (2026-02-25): landing submit-path route preservation is confirmed working for first request (`page/nav/nav_sub` retained).
+6. Stabilization code/test slice (2026-02-25): lookup route-preservation hardening landed in `PageInvestigateLanding.php` + `investigate_landing.twig`; behavior tests assert `lookup_route` contract and lookup-panel `subnav_hint` enforcement.
 
 ### P6b  -  Investigate User
 
-**Implementation status (2026-02-24):** REOPENED for runtime stabilization (`OM-DEF-701`).
+**Implementation status (2026-02-25):** [COMPLETE] Runtime-confirmed (stabilization closed).
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
@@ -433,32 +416,32 @@ P6b validation evidence (2026-02-24):
 4. Targeted integration command in this workspace:
    `composer test:integration -- tests/Integration/ActionRouter/InvestigateByUserPageIntegrationTest.php`
    => skipped because WordPress integration environment is not available.
-5. Runtime correction (2026-02-24): slice-level behavior remains implemented, but runtime submit-path stability is not yet proven; completion claim reopened pending OM-671..OM-674 evidence.
+5. Runtime confirmation (2026-02-25): by-user submit-path route preservation is confirmed working for first request (`page/nav/nav_sub` retained).
 6. Stabilization code/test slice (2026-02-25): by-user lookup route-preservation hardening landed in `PageInvestigateByUser.php` + `investigate_by_user.twig`; integration route-contract assertions were added and shared via `tests/Integration/ActionRouter/Support/LookupRouteFormAssertions.php`.
 
 ### P6c  -  Investigate IP Address
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-621 | Create `PageInvestigateByIp` wrapping existing `IpAnalyse\Container` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByIp.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_ip.twig` | OM-604 | **Reuse `IpAnalyse\Container` as-is.** Do NOT rebuild the 5-tab analysis. This page adds: (1) subject header using shared `subject_header.twig` partial, (2) summary stats row, (3) renders existing `IpAnalyse\Container` below via `self::con()->action_router->render(IpAnalyseContainer::class, ['ip' => $ip])`. The only new code is the subject header/stats wrapper. See Plan Section 12.4.4. |
-| OM-622 | Add "Change IP" button linking back to landing | Same as OM-621 | OM-621 | Subject header uses shared `subject_header.twig` partial  -  "Change IP" button comes from the `change_href` data field linking to investigate landing with IPs subject pre-selected. |
+| OM-621 | ~~Create `PageInvestigateByIp` wrapping existing `IpAnalyse\Container`~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByIp.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_ip.twig` | OM-604 | **Done (2026-02-25)**  -  dedicated by-ip page renders subject header + summary cards and reuses `IpAnalyse\Container` via action-router render. |
+| OM-622 | ~~Add "Change IP" button linking back to landing~~ | Same as OM-621 | OM-621 | **Done (2026-02-25)**  -  by-ip subject header includes `change_href` to canonical investigate-by-ip route and landing back-link remains available. |
 
 ### P6d  -  Investigate Plugin
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-631 | Create `PageInvestigateByPlugin` with 4-tab rail+panel | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByPlugin.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_plugin.twig` | OM-604, **OM-600a-f** | Page handler. Rail tabs via `options_rail_tabs.twig` (reused). Subject header via shared `subject_header.twig` (reused). Summary stats via `stats_collection.twig` (reused). See Plan Section 12.4.5. |
-| OM-632 | Implement Overview tab | Same as OM-631 | OM-631 | **Reuse** `PluginThemesBase::buildPluginData()` for all plugin info (name, slug, version, author, flags). This method already returns `info[]`, `flags[]`, `vars[]` arrays with everything the Overview tab needs. Server-side rendered (no DataTable). Two-column Twig layout. |
-| OM-633 | Implement File Status tab via investigation DataTable | Same as OM-631, `Investigation\ForFileScanResults`, `Investigation\BuildFileScanResultsData` | **OM-600c, OM-600d** | Uses investigation DataTable framework with `getSubjectWheres() -> ['ptg_slug' => $slug]`. Row building **reuses** existing `LoadFileScanResultsTableData::buildTableRowsFromRawRecords()` logic (which already renders file paths, status badges, and action buttons). Do NOT rebuild the action buttons  -  inherit them. |
-| OM-634 | Implement Vulnerabilities tab (server-side card list) | Same as OM-631 | OM-631 | **NOT a DataTable.** Vulnerability lists are typically 0-3 items. Query `WpVulnDb` by plugin slug, get `VulnVO` objects (title, vuln_type, fixed_in, disclosed_at). Cross-reference current installed version to determine Active vs Resolved. Render as Twig card list. |
-| OM-635 | Implement Activity tab via investigation DataTable | Same as OM-631, `Investigation\ForActivityLog`, `Investigation\BuildActivityLogData` | **OM-600c, OM-600d** | Same framework as OM-614 but with plugin subject filter: `getSubjectWheres() -> ['plugin_slug' => $slug]`. Filter activity records where event meta contains the plugin slug (activations, deactivations, updates, file changes). Row building reuses `BuildActivityLogTableData` logic. |
+| OM-631 | ~~Create `PageInvestigateByPlugin` with 4-tab rail+panel~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByPlugin.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_plugin.twig` | OM-604, **OM-600a-f** | **Done (2026-02-25)**  -  dedicated by-plugin page delivered with shared rail/panel structure and table contracts. |
+| OM-632 | ~~Implement Overview tab~~ | Same as OM-631 | OM-631 | **Done (2026-02-25)**  -  overview reuses `PluginThemesBase::buildPluginData()` output through shared asset base helper. |
+| OM-633 | ~~Implement File Status tab via investigation DataTable~~ | Same as OM-631, `Investigation\ForFileScanResults`, `Investigation\BuildFileScanResultsData` | **OM-600c, OM-600d** | **Done (2026-02-25)**  -  file status tab uses shared investigation table container and action contracts for plugin subject scope. |
+| OM-634 | ~~Implement Vulnerabilities tab (server-side card list)~~ | Same as OM-631 | OM-631 | **Done (2026-02-25)**  -  vulnerabilities panel is server-rendered from runtime WPV display results with external lookup link reuse. |
+| OM-635 | ~~Implement Activity tab via investigation DataTable~~ | Same as OM-631, `Investigation\ForActivityLog`, `Investigation\BuildActivityLogData` | **OM-600c, OM-600d** | **Done (2026-02-25)**  -  activity tab works via shared investigation action pipeline with plugin subject support in registry/resolver/wheres. |
 
 ### P6e  -  Investigate Theme + WordPress Core
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-641 | Create `BaseInvestigateAsset` shared by Plugin + Theme | `src/ActionRouter/Actions/Render/PluginAdminPages/BaseInvestigateAsset.php` | OM-631 | **Extract common logic** from `PageInvestigateByPlugin` into a shared parent class. Both Plugin and Theme pages extend this. Shared: subject header, summary stats, rail+panel layout, File Status tab (DataTable with `ptg_slug` filter), Vulnerability tab (card list), Activity tab (DataTable with asset slug filter). Theme-specific: `buildThemeData()` instead of `buildPluginData()`, additional child/parent theme fields. See Plan Section 12.4.6. |
-| OM-642 | Create WordPress Core investigation page | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByCore.php` | OM-604, **OM-600c, OM-600d** | Simplified: Overview (version, auto-update config), File Status (investigation DataTable with `getSubjectWheres() -> ['is_in_core' => true]`  -  reuses `Investigation\BuildFileScanResultsData`), Activity (core-related events). |
+| OM-641 | ~~Create `BaseInvestigateAsset` shared by Plugin + Theme~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/BaseInvestigateAsset.php` | OM-631 | **Done (2026-02-25)**  -  shared base added and consumed by plugin/theme pages for lookup resolution, tabs, tables, summary cards, and vulnerabilities panel data. |
+| OM-642 | ~~Create WordPress Core investigation page~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByCore.php` | OM-604, **OM-600c, OM-600d** | **Done (2026-02-25)**  -  dedicated by-core page delivered with overview, file-status table, and activity table. |
 
 ### P6f  -  Cross-subject linking
 
@@ -466,9 +449,9 @@ P6b validation evidence (2026-02-24):
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-651 | Verify all IP address cells link to investigate-ip | All investigation DataTable `buildTableRowsFromRawRecords()` methods | OM-621 | Confirm `getColumnContent_LinkedIP()` output includes both `offcanvas_ip_analysis` class (for quick offcanvas view) AND a separate link/button to the full `investigate-ip` page. If `getColumnContent_LinkedIP()` doesn't currently do this, modify it ONCE in `BaseBuildTableData`  -  the change propagates to every table. |
-| OM-652 | Verify all username cells link to investigate-user | All investigation DataTable row builders | OM-611 | Confirm `getUserHref()` links to `investigate-user` page (not WordPress user profile). If it currently links to WP profile, modify it ONCE in `BaseBuildTableData`. |
-| OM-653 | Wire plugin-related activity events to investigate-plugin | `Investigation\BuildActivityLogData` row builder | OM-631 | Plugin names in activity event descriptions link to `investigate-plugin?slug={slug}`. This may need a custom column renderer in the activity log row builder  -  add it to the shared `BuildActivityLogData` class so it applies to all activity tables. |
+| OM-651 | ~~Verify all IP address cells link to investigate-ip~~ | All investigation DataTable `buildTableRowsFromRawRecords()` methods | OM-621 | **Done (2026-02-25)**  -  investigation-context IP links retain offcanvas behavior and include investigate deep-link icon without changing non-investigate contexts. |
+| OM-652 | ~~Verify all username cells link to investigate-user~~ | All investigation DataTable row builders | OM-611 | **Done (2026-02-25)**  -  investigation-context user links route to canonical investigate-by-user URL. |
+| OM-653 | ~~Wire plugin-related activity events to investigate-plugin~~ | `Investigation\BuildActivityLogData` row builder | OM-631 | **Done (2026-02-25)**  -  plugin/theme activity rows include investigate links in investigation-context activity table source. |
 
 ## 12) Hard-Removal Tasks (Completed)
 

@@ -279,6 +279,14 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			public function ipAnalysis( string $ip ) :string {
 				return '/admin/'.PluginNavs::NAV_IPS.'/'.PluginNavs::SUBNAV_IPS_RULES.'?analyse_ip='.$ip;
 			}
+
+			public function investigateByIp( string $ip = '' ) :string {
+				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
+			}
+
+			public function investigateByUser( string $lookup = '' ) :string {
+				return empty( $lookup ) ? '/admin/activity/by_user' : '/admin/activity/by_user?user_lookup='.$lookup;
+			}
 		};
 		$controller->svgs = new class {
 			public function iconClass( string $icon ) :string {

@@ -73,7 +73,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			],
 			'hrefs'   => [
 				'back_to_investigate' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
-				'by_user'             => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
+				'by_user'             => $con->plugin_urls->investigateByUser(),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->iconClass( 'person-lines-fill' ),
@@ -138,7 +138,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 					'value' => (string)$subject->display_name,
 				],
 			],
-			'change_href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
+			'change_href'  => self::con()->plugin_urls->investigateByUser(),
 			'change_text'  => __( 'Change User', 'wp-simple-firewall' ),
 		];
 	}
@@ -429,6 +429,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		return [
 			'ip'             => $ip,
 			'href'           => self::con()->plugin_urls->ipAnalysis( $ip ),
+			'investigate_href'=> self::con()->plugin_urls->investigateByIp( $ip ),
 			'last_seen_ts'   => 0,
 			'last_seen_at'   => '',
 			'last_seen_ago'  => '',

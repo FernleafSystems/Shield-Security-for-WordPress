@@ -4,13 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Inv
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\ForSessions as ForSessionsTable;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sessions\BuildSessionsTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildSessionsData extends BaseInvestigationData {
 
 	private ?array $searchFilteredRows = null;
-	private ?BuildSessionsTableData $source = null;
+	private ?InvestigationSessionsTableData $source = null;
 	private ?InvestigationStructuredSearch $structuredSearch = null;
 
 	public function loadForRecords() :array {
@@ -141,9 +140,9 @@ class BuildSessionsData extends BaseInvestigationData {
 		return empty( $user ) ? 0 : (int)$user->ID;
 	}
 
-	private function getSource() :BuildSessionsTableData {
+	private function getSource() :InvestigationSessionsTableData {
 		if ( $this->source === null ) {
-			$this->source = new BuildSessionsTableData();
+			$this->source = new InvestigationSessionsTableData();
 		}
 		$this->source->table_data = \is_array( $this->table_data ?? null ) ? $this->table_data : [];
 		return $this->source;

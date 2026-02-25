@@ -1,6 +1,6 @@
 # Shield Security — Operator Modes Plan
 
-**Date:** 20 February 2026 | **Last Updated:** 24 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
+**Date:** 20 February 2026 | **Last Updated:** 25 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
 
 ---
 
@@ -441,9 +441,9 @@ The current plugin offers raw log views (Activity, Traffic, IP Rules, Sessions).
 | IP Analysis | `IpAnalyse\Container` | 5-tab deep dive on a single IP: General, Bot Signals, Sessions, Activity, Traffic. Already built. |
 | User Sessions | `PageUserSessions` | Session list. `FindSessions` class supports `byIP()`, `byUser()`, and `mostRecent()`. |
 
-### What needs building (investigation selectors)
+### Investigation selectors delivery status
 
-Three new investigation entry points that wire existing data with a subject filter. **All three reuse existing infrastructure — see Section 12 for the full component inventory and implementation directives.**
+Dedicated investigation entry points are delivered and wired to subject-specific pages. **All entries reuse existing infrastructure — see Section 12 for the full component inventory and implementation directives.**
 
 **By User**
 - UI: Select a user by ID, username, or email (autocomplete dropdown from `wp_users`)
@@ -457,8 +457,13 @@ Three new investigation entry points that wire existing data with a subject filt
 
 **By Plugin**
 - UI: Select an installed plugin from a dropdown
-- Result: 4-tab analysis: Overview (from `buildPluginData()`), File Status (from `LoadFileScanResultsTableData`), Vulnerabilities (from `WpVulnDb`), Activity (from investigation DataTable framework)
-- Implementation: Create `PageInvestigateByPlugin.php`. Reuses `PluginThemesBase::buildPluginData()` for overview, extends `LoadFileScanResultsTableData` for file status, queries `WpVulnDb` for vulnerabilities. See Section 12.4.5.
+- Result: 4-tab analysis: Overview (from `buildPluginData()`), File Status (from shared investigation file-status table contract), Vulnerabilities (from runtime WPV display results), Activity (from investigation DataTable framework)
+- Implementation: `PageInvestigateByPlugin.php` is delivered. It reuses `PluginThemesBase::buildPluginData()` for overview, shared file-status table contracts for file status, and runtime vulnerability results from `WPV()->getResultsForDisplay()->getItemsForSlug()`. See Section 12.4.5.
+
+**By Theme / By Core**
+- UI: Select an installed theme, or navigate directly to WordPress Core.
+- Result: Dedicated by-theme and by-core pages with shared rail/panel structure and investigation table contracts.
+- Implementation: `PageInvestigateByTheme.php` and `PageInvestigateByCore.php` are delivered, with shared behavior consolidated in `BaseInvestigateAsset`.
 
 ### Data layer notes
 
@@ -468,16 +473,15 @@ Three new investigation entry points that wire existing data with a subject filt
 - `FindSessions::byIP()` and `FindSessions::byUser()` already exist for subject-specific session queries.
 - `SearchTextParser` already parses `ip:x.x.x.x`, `user_id:42`, `user_name:admin` syntax — investigation tables reuse this.
 
-### Minimum viable Investigate mode for release
+### Investigate mode delivered baseline
 
-The investigation selectors (By User, By IP, By Plugin) are what make operator modes feel like an upgrade rather than a reshuffle. At minimum, the initial release must include:
+The delivered investigate baseline includes:
 
-- **Shared investigation DataTable framework** (Section 12.2) — must be built FIRST as the foundation
-- **By IP** — essentially free, since `IpAnalyse\Container` already exists (just add subject header wrapper)
-- **By User** — refactor existing `PageInvestigateByUser` to use rail+panel layout + DataTable framework
+- **Shared investigation DataTable framework** (Section 12.2)
+- **By User** dedicated page with rail/panel + table contracts
+- **By IP** dedicated page wrapping `IpAnalyse\Container` with subject header/stats
+- **By Plugin / By Theme / By Core** dedicated subject pages with shared table pipeline
 - Existing pages (Activity Log, Traffic Log, Live Log, IP Rules) reorganised into the Investigate sidebar
-
-By Plugin can follow in a subsequent release.
 
 ---
 
@@ -580,7 +584,7 @@ The Actions Queue landing page is primarily a composition of existing components
 
 ### Step 6: Investigate Mode
 
-**Status (2026-02-25):** In progress, with P6 foundation + P6a + P6b delivered and P6-STAB code/test hardening added for investigate lookup route preservation (`PageInvestigateLanding.php`, `PageInvestigateByUser.php`, `investigate_landing.twig`, `investigate_by_user.twig`, and targeted unit/integration coverage). Runtime evidence capture for first-request route preservation remains pending (see backlog OM-671/OM-674), so P6c+ (IP/Plugin/Theme/Core pages) remains gated until stabilization evidence is attached.
+**Status (2026-02-25):** Complete for the P6 slice. P6 foundation + P6a + P6b + P6-STAB + P6c + P6d + P6e + P6f are implemented, with dedicated pages for IP/Plugin/Theme/Core and investigation-context cross-subject linking in place.
 
 **Prototype reference:** Implementors MUST review the HTML prototypes in `docs/OperatorModes/investigate-mode/` before building. These define the exact visual layout, data columns, tab structure, and cross-linking patterns. See Section 11 for detailed specifications.
 
@@ -592,20 +596,24 @@ The Actions Queue landing page is primarily a composition of existing components
 | `investigate_landing.twig` | Template for landing (refactor existing file) | `investigate-landing.html` (Completed 2026-02-24) |
 | `PageInvestigateByUser.php` | User analysis: header + stats + rail/panel (4 tabs) (refactor existing file) | `investigate-user.html` (Completed 2026-02-24) |
 | `investigate_by_user.twig` | Template — rail+panel with Sessions, Activity, Requests, IP Addresses tabs (refactor existing file) | `investigate-user.html` (Completed 2026-02-24) |
-| `PageInvestigateByIp.php` | IP analysis: wraps IpAnalyse\Container with subject header + stats | `investigate-ip.html` |
-| `investigate_by_ip.twig` | Template — subject header + existing IpAnalyse 5-tab container | `investigate-ip.html` |
-| `PageInvestigateByPlugin.php` | Plugin analysis: Overview, File Status, Vulnerabilities, Activity | `investigate-plugin.html` |
-| `investigate_by_plugin.twig` | Template — rail+panel with 4 tabs | `investigate-plugin.html` |
-| `PageInvestigateByTheme.php` | Theme analysis: same pattern as plugin (can share base class) | — |
+| `PageInvestigateByIp.php` | IP analysis: wraps IpAnalyse\Container with subject header + stats | `investigate-ip.html` (Completed 2026-02-25) |
+| `investigate_by_ip.twig` | Template — subject header + existing IpAnalyse 5-tab container | `investigate-ip.html` (Completed 2026-02-25) |
+| `PageInvestigateByPlugin.php` | Plugin analysis: Overview, File Status, Vulnerabilities, Activity | `investigate-plugin.html` (Completed 2026-02-25) |
+| `investigate_by_plugin.twig` | Template — rail+panel with 4 tabs | `investigate-plugin.html` (Completed 2026-02-25) |
+| `PageInvestigateByTheme.php` | Theme analysis: same pattern as plugin (shared base class) | Completed 2026-02-25 |
+| `investigate_by_theme.twig` | Template — rail+panel with 4 tabs for theme subject | Completed 2026-02-25 |
+| `PageInvestigateByCore.php` | Core analysis: Overview, File Status, Activity | Completed 2026-02-25 |
+| `investigate_by_core.twig` | Template — rail+panel with 3 tabs for core subject | Completed 2026-02-25 |
 
 **Modify:**
-- `LoadLogs` — add convenience method for filtering by user ID, by IP, by plugin slug (event meta)
-- `FindSessions` — use/validate existing `byUser(int $userId)` method (mirrors existing `byIP()`)
-- `PluginNavs.php` — add NAV constants for By User, By IP, By Plugin sub-navs under `NAV_ACTIVITY`
+- `PluginNavs.php` — route `by_ip/by_plugin/by_theme/by_core` to dedicated page handlers and keep only `activity/overview` as the Investigate landing route.
+- `PluginURLs.php` — add canonical investigate URL helpers for user/plugin/theme/core and use them in landing/page contracts.
+- Investigation table stack — expand registry/subject-wheres/delegating loaders to support activity subjects `plugin/theme/core`.
+- Investigation data sources — scope cross-subject link behavior to investigation-context loaders while preserving global non-investigate table behavior.
 
 **Implementation order:** P6-FOUNDATION (shared table framework) → Landing → By User → By IP → By Plugin → By Theme → WordPress Core. See Section 11.9.
 
-**Critical prerequisite:** The shared investigation DataTable framework (Section 12.2) is now built. All remaining investigation tab work should consume this framework (`BaseInvestigationTable`, `BaseInvestigationData`, `InvestigationTable.js`, `InvestigationTableAction`, shared Twig partials) rather than introducing new table pipelines.
+**Critical prerequisite:** The shared investigation DataTable framework (Section 12.2) was used for all delivered subject pages (`by_user`, `by_ip`, `by_plugin`, `by_theme`, `by_core`) without introducing a parallel table pipeline.
 
 ### Step 7: Configure & Reports Modes
 
@@ -871,7 +879,7 @@ This page wraps the existing `IpAnalyse\Container` with the standardised subject
 
 - Overview: `buildPluginData()` from `PluginThemesBase` — provides all info/flags/vars fields.
 - File Status: `LoadFileScanResultsTableData` filtered by `ptg_slug` meta matching plugin slug. Returns `rid`, `file` (path_fragment), `status`, `detected_since`, `actions`.
-- Vulnerabilities: `WpVulnDb` lookup by plugin slug. Returns `VulnVO` objects: `title`, `vuln_type`, `fixed_in`, `disclosed_at`. Cross-reference current version to determine active vs resolved.
+- Vulnerabilities: runtime WPV display results (`WPV()->getResultsForDisplay()->getItemsForSlug($slug)`), rendered as concise status cards with lookup links.
 - Activity: `LoadLogs` filtered by event slugs containing plugin identifier (activation/deactivation/update events store plugin slug in meta).
 
 ### 11.7 Investigate Theme — tab definitions
@@ -901,10 +909,12 @@ This page wraps the existing `IpAnalyse\Container` with the standardised subject
 
 ### 11.9 Implementation order for Investigate mode
 
+**Completion note (2026-02-25):** This execution order has been completed through WordPress Core and cross-subject linking.
+
 1. **Investigate Landing Page** — subject selector grid + lookup panels. Create `PageInvestigateLanding.php` rendering the subject grid. Each subject card links to its analysis page or existing log page.
 2. **Investigate User** — highest value, most complex. Create `PageInvestigateByUser.php` with rail+panel layout. Uses `FindSessions::byUser()`, `LoadLogs` filtered by user_id, `LoadRequestLogs` filtered by uid.
 3. **Investigate IP** — wraps existing `IpAnalyse\Container`. Create `PageInvestigateByIp.php` that adds subject-header + summary stats above the existing container.
-4. **Investigate Plugin** — Create `PageInvestigateByPlugin.php`. Uses `buildPluginData()`, `LoadFileScanResultsTableData` (filtered by ptg_slug), `WpVulnDb` lookup, `LoadLogs` (filtered by plugin events).
+4. **Investigate Plugin** — Delivered `PageInvestigateByPlugin.php`. Uses `buildPluginData()`, shared file-status table contracts, runtime WPV display results, and investigation activity tables filtered by plugin subject context.
 5. **Investigate Theme** — Near-identical to Plugin. Can share a base class.
 6. **WordPress Core** — Simplified version of Plugin page with `is_in_core` filter.
 
@@ -916,7 +926,7 @@ Investigation pages link to each other. This is critical for the investigative f
 - **IP → User:** User names in IP sessions tab link to `investigate-user?uid={id}`.
 - **Plugin Activity → User:** User column links to `investigate-user?uid={id}`.
 - **Plugin Activity → IP:** IP column links to `investigate-ip?ip={address}`.
-- **User Activity → Plugin:** Plugin-related events could link to `investigate-plugin?slug={slug}` (future enhancement).
+- **User Activity → Plugin:** Plugin/theme-related activity rows include investigate links where metadata identifies the asset.
 
 This creates a web of investigation paths. The "Change [Subject]" button in the header always returns to the landing page, while entity links within tables enable lateral investigation.
 
@@ -1196,13 +1206,13 @@ This section gives the implementing agent specific instructions for each part of
 
 **Page handler:** Refactor existing `PageInvestigateLanding.php` (do NOT create a new file).
 
-**Status update (2026-02-24):** Implemented for this slice.
+**Status update (2026-02-25):** Implemented and integrated with dedicated subject pages.
 1. Landing refactored to subject-selector + panel architecture with Bootstrap tab behavior.
 2. Inline `IpAnalyse\Container` embed removed from the landing page.
 3. Landing data contract now provides `active_subject`, persisted `input`, and plugin/theme option lists.
-4. Transitional sub-nav routing for `by_plugin`, `by_theme`, `by_core` is registered and routed to the landing page until dedicated subject pages are delivered.
-5. Breadcrumb handling treats `activity/by_ip`, `activity/by_plugin`, `activity/by_theme`, and `activity/by_core` as landing-routed paths to preserve landing-consistent crumb depth.
-6. Fragile source-string test coverage was replaced with behavior-level unit coverage for landing contract, nav routes, and breadcrumb behavior.
+4. Dedicated page routing is active for `by_ip`, `by_plugin`, `by_theme`, and `by_core`; transitional landing routing for those sub-navs is removed.
+5. Breadcrumb handling now treats only `activity/overview` as landing-routed in Investigate mode.
+6. Source-string fragile tests were replaced with behavior-level unit/integration coverage for route contracts and landing payload behavior.
 
 **What to keep:**
 - The current user lookup resolution logic (for example `ResolveUserLookup::resolve()` flow)
@@ -1263,6 +1273,11 @@ This section gives the implementing agent specific instructions for each part of
 
 **Page handler:** Create `PageInvestigateByIp.php`.
 
+**Status update (2026-02-25):** Completed.
+1. Dedicated by-ip page class/template implemented and registered in action routing.
+2. Input validation and empty/invalid lookup state are implemented with a landing back-link.
+3. Valid lookup renders shared subject header + summary cards and reuses `IpAnalyse\Container` unchanged.
+
 **Key directive:** This page wraps the EXISTING `IpAnalyse\Container` component. Do NOT rebuild the 5-tab analysis — it already exists and works.
 
 **What to build:**
@@ -1284,10 +1299,16 @@ This section gives the implementing agent specific instructions for each part of
 
 **Page handler:** Create `PageInvestigateByPlugin.php`.
 
+**Status update (2026-02-25):** Completed.
+1. Dedicated by-plugin page class/template implemented and routed.
+2. Shared rail+panel/tables contracts are provided through `BaseInvestigateAsset`.
+3. Overview data reuses existing plugin scan data builder logic; vulnerabilities panel uses runtime WPV display results.
+4. File status/activity tabs use the shared investigation DataTable pipeline.
+
 **Data sources — all existing:**
 - Plugin info: `buildPluginData()` from `Scans\Results\PluginThemesBase` — provides name, slug, version, author, flags (has_update, is_vulnerable, is_abandoned, has_guard_files). Reuse this method.
 - File scan results: `LoadFileScanResultsTableData` filtered by `ptg_slug` matching plugin slug. Extend via `Investigation\BuildFileScanResultsData`.
-- Vulnerabilities: `WpVulnDb` lookup by plugin slug. Returns `VulnVO` objects. This is NOT a DataTable — it's a small card list rendered server-side in the page handler.
+- Vulnerabilities: runtime WPV display results for the selected plugin slug. This is NOT a DataTable — it is rendered as a compact server-side status panel/card.
 - Activity: `Investigation\BuildActivityLogData` with subject filter `['plugin_slug' => $slug]`. Filter logic: match event slugs that contain the plugin identifier in their meta data.
 
 **Tabs that use DataTables:** File Status, Activity.
@@ -1307,9 +1328,19 @@ Theme-specific overrides:
 - Additional fields: `child_theme`, `parent_theme`
 - Theme-specific event slugs for activity filtering
 
+**Status update (2026-02-25):** Completed.
+1. `BaseInvestigateAsset` is implemented and shared by plugin/theme pages.
+2. Dedicated by-theme and by-core pages/templates are implemented and routed.
+3. Core page provides overview + file status + activity tabs using the shared table contracts.
+
 ### 12.5 Cross-cutting implementation rules
 
 These rules apply to ALL investigation pages. Violating them creates inconsistency.
+
+**Status update (2026-02-25):** Implemented in investigation context.
+1. Investigation table sources now apply canonical investigate links for user context.
+2. IP links keep offcanvas analysis behavior and add investigate deep-link navigation.
+3. Plugin/theme activity rows include investigate links where metadata identifies the asset.
 
 1. **IP links.** Every IP address displayed anywhere in an investigation table must:
    - Be rendered using `BaseBuildTableData::getColumnContent_LinkedIP()` (which produces a monospace-styled `<a>` link)

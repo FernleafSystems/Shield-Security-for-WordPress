@@ -50,4 +50,40 @@ class InvestigationSubjectWheresTest extends BaseUnitTest {
 		$this->assertStringContainsString( "`meta_key`='is_in_core'", $wheres[ 0 ] );
 		$this->assertStringContainsString( "`meta_value`=1", $wheres[ 1 ] );
 	}
+
+	public function testPluginActivityWheresIncludeEventFamilyAndPluginMetaMatching() :void {
+		$wheres = InvestigationSubjectWheres::forPluginActivitySubject( 'akismet/akismet.php', 'wp_activity_meta' );
+
+		$this->assertCount( 2, $wheres );
+		$this->assertSame( "`log`.`event_slug` LIKE 'plugin_%'", $wheres[ 0 ] );
+		$this->assertStringContainsString( "FROM `wp_activity_meta` as `meta_plugin`", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_plugin`.`meta_key`='plugin'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_plugin`.`meta_value`='akismet/akismet.php'", $wheres[ 1 ] );
+	}
+
+	public function testThemeActivityWheresIncludeEventFamilyAndThemeMetaMatching() :void {
+		$wheres = InvestigationSubjectWheres::forThemeActivitySubject( 'twentytwentyfive', 'wp_activity_meta' );
+
+		$this->assertCount( 2, $wheres );
+		$this->assertSame( "`log`.`event_slug` LIKE 'theme_%'", $wheres[ 0 ] );
+		$this->assertStringContainsString( "FROM `wp_activity_meta` as `meta_theme`", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_theme`.`meta_key`='theme'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_theme`.`meta_value`='twentytwentyfive'", $wheres[ 1 ] );
+	}
+
+	public function testCoreActivityWheresIncludeExpectedCoreAndWpOptionEvents() :void {
+		$wheres = InvestigationSubjectWheres::forCoreActivitySubject();
+
+		$this->assertCount( 1, $wheres );
+		$this->assertStringContainsString( "`log`.`event_slug` LIKE 'core_%'", $wheres[ 0 ] );
+		$this->assertStringContainsString( "`log`.`event_slug`='permalinks_structure'", $wheres[ 0 ] );
+		$this->assertStringContainsString( "`log`.`event_slug` LIKE 'wp_option_%'", $wheres[ 0 ] );
+	}
+
+	public function testActivitySubjectWhereRejectsUnsupportedSubjectType() :void {
+		$this->assertSame(
+			[ '1=0' ],
+			InvestigationSubjectWheres::forActivitySubject( 'request', 'abc', 'wp_activity_meta' )
+		);
+	}
 }

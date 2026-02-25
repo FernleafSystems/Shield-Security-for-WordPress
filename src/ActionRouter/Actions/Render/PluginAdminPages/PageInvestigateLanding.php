@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PageInvestigateLanding extends PageModeLandingBase {
 
+	use InvestigateAssetOptionsBuilder;
+
 	public const SLUG = 'plugin_admin_page_investigate_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_landing.twig';
 
@@ -142,11 +144,11 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'traffic_log'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 			'live_traffic' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
 			'ip_rules'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ),
-			'by_user'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
+			'by_user'      => $con->plugin_urls->investigateByUser(),
 			'by_ip'        => $con->plugin_urls->investigateByIp(),
-			'by_plugin'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ),
-			'by_theme'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_THEME ),
-			'by_core'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE ),
+			'by_plugin'    => $con->plugin_urls->investigateByPlugin(),
+			'by_theme'     => $con->plugin_urls->investigateByTheme(),
+			'by_core'      => $con->plugin_urls->investigateByCore(),
 		];
 	}
 
@@ -306,33 +308,6 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			}
 		}
 		return $this->optionsCache[ $optionsKey ];
-	}
-
-	private function buildAssetOptions( array $assets, string $valueField ) :array {
-		$options = [];
-		foreach ( $assets as $asset ) {
-			if ( !\is_object( $asset ) ) {
-				continue;
-			}
-
-			$value = \trim( (string)( $asset->{$valueField} ?? '' ) );
-			if ( $value === '' ) {
-				continue;
-			}
-
-			$name = \trim( (string)( $asset->Name ?? '' ) );
-			if ( $name === '' ) {
-				$name = $value;
-			}
-			$version = \trim( (string)( $asset->Version ?? '' ) );
-			$options[ $value ] = [
-				'value' => $value,
-				'label' => empty( $version ) ? $name : \sprintf( '%s (%s)', $name, $version ),
-			];
-		}
-
-		\uasort( $options, static fn( array $a, array $b ) :int => \strnatcasecmp( $a[ 'label' ], $b[ 'label' ] ) );
-		return \array_values( $options );
 	}
 
 	protected function getSubjectDefinitions() :array {
