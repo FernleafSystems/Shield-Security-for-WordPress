@@ -131,13 +131,15 @@
       },
       {
         "version":     "3",
-        "released_at": 1772020000,
+        "released_at": 1772023000,
         "items":       [
           {
             "type":        "new",
-            "title":       "Added option to override plugin display language regardless of site/user locale.",
-            "description": [
-            ]
+            "title":       "Added option to override plugin display language regardless of site/user locale."
+          },
+          {
+            "type":        "improved",
+            "title":       "Styling of Security Admin login box."
           },
           {
             "type":        "fixed",
