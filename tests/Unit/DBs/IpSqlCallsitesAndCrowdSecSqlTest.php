@@ -35,10 +35,14 @@ class IpSqlCallsitesAndCrowdSecSqlTest extends BaseUnitTest {
 
 	private $origServices;
 
+	private $origWpdb;
+
 	protected function setUp() :void {
 		parent::setUp();
 		$this->origServiceItems = $this->getServicesProperty( 'items' )->getValue();
 		$this->origServices = $this->getServicesProperty( 'services' )->getValue();
+		global $wpdb;
+		$this->origWpdb = $wpdb ?? null;
 	}
 
 	protected function tearDown() :void {
@@ -47,6 +51,8 @@ class IpSqlCallsitesAndCrowdSecSqlTest extends BaseUnitTest {
 		PluginStore::$plugin = null;
 		$this->getServicesProperty( 'items' )->setValue( null, $this->origServiceItems );
 		$this->getServicesProperty( 'services' )->setValue( null, $this->origServices );
+		global $wpdb;
+		$wpdb = $this->origWpdb;
 		parent::tearDown();
 	}
 
@@ -144,6 +150,46 @@ class IpSqlCallsitesAndCrowdSecSqlTest extends BaseUnitTest {
 
 		$this->assertContains( "`ips`.ip=INET6_ATON('127.0.0.1')", $mysqlWheres );
 		$this->assertContains( "`ips`.ip=X'7f000001'", $sqliteWheres );
+	}
+
+	public function testLoadLogsCountAllDetectsSqliteFromWpdbDbhWithoutOverride() :void {
+		$this->installController();
+		$db = new CapturingDb();
+		$this->injectServices( $db );
+
+		$dbhClass = $this->ensureGlobalClass( 'WP_SQLite_Translator_Callsites_Alias' );
+		global $wpdb;
+		$wpdb = (object)[
+			'dbh' => new $dbhClass(),
+		];
+		SqlBackend::resetForTests();
+
+		( new LoadLogs() )
+			->setIP( '127.0.0.1' )
+			->countAll();
+
+		$this->assertStringContainsString( "ips.ip=X'7f000001'", $db->lastGetVarSql );
+		$this->assertStringNotContainsString( 'INET6_ATON(', $db->lastGetVarSql );
+	}
+
+	public function testLoadLogsCountAllDoesNotDetectSqliteFromArbitraryDbhClassWithoutOverride() :void {
+		$this->installController();
+		$db = new CapturingDb();
+		$this->injectServices( $db );
+
+		$dbhClass = $this->ensureGlobalClass( 'AcmeSqliteDbhCallsitesAlias' );
+		global $wpdb;
+		$wpdb = (object)[
+			'dbh' => new $dbhClass(),
+		];
+		SqlBackend::resetForTests();
+
+		( new LoadLogs() )
+			->setIP( '127.0.0.1' )
+			->countAll();
+
+		$this->assertStringContainsString( "ips.ip=INET6_ATON('127.0.0.1')", $db->lastGetVarSql );
+		$this->assertStringNotContainsString( "ips.ip=X'7f000001'", $db->lastGetVarSql );
 	}
 
 	public function testCrowdsecV1AndV2GenerateValidSqlForMixedValidInvalidIpsInSqliteMode() :void {
@@ -257,6 +303,14 @@ class IpSqlCallsitesAndCrowdSecSqlTest extends BaseUnitTest {
 		$property = $reflection->getProperty( $propertyName );
 		$property->setAccessible( true );
 		return $property;
+	}
+
+	private function ensureGlobalClass( string $className ) :string {
+		$fqn = '\\'.$className;
+		if ( !\class_exists( $fqn, false ) ) {
+			eval( \sprintf( 'namespace { class %s {} }', $className ) );
+		}
+		return $fqn;
 	}
 }
 
