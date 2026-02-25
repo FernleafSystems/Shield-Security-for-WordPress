@@ -10,9 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\LookupRouteFormAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
+
+	use LookupRouteFormAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -130,5 +133,13 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlContainsMarker( 'investigate-by-user-ip-status', $html, 'By-user IP status marker' );
 		$this->assertHtmlContainsMarker( 'investigate-by-user-ip-counts', $html, 'By-user IP counts marker' );
 		$this->assertHtmlContainsMarker( '203.0.113.88', $html, 'By-user seeded related IP display' );
+	}
+
+	public function test_lookup_form_includes_route_preservation_contract() :void {
+		$payload = $this->renderByUserPage();
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+
+		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
+		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 	}
 }

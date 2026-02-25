@@ -5,6 +5,9 @@
 		<div class="shield-card-accent status-info"></div>
 		<div class="card-body">
 			<form method="get" action="{{ hrefs.by_user }}" class="row g-2 align-items-end">
+				<input type="hidden" name="page" value="{{ vars.lookup_route.page|default('') }}" />
+				<input type="hidden" name="nav" value="{{ vars.lookup_route.nav|default('') }}" />
+				<input type="hidden" name="nav_sub" value="{{ vars.lookup_route.nav_sub|default('') }}" />
 				<div class="col-12 col-lg-8">
 					<label class="form-label mb-1">{{ strings.lookup_label }}</label>
 					<input type="text" name="user_lookup" value="{{ vars.user_lookup|default('') }}"

@@ -94,6 +94,11 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'user_lookup'    => $lookup,
+				'lookup_route'   => [
+					'page'    => $con->plugin_urls->rootAdminPageSlug(),
+					'nav'     => PluginNavs::NAV_ACTIVITY,
+					'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+				],
 				'subject'        => $subjectData,
 				'summary'        => $summaryStats,
 				'rail_nav_items' => $railNavItems,

@@ -197,6 +197,46 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertNotEmpty( $plugins[ 'panel_title' ] );
 		$this->assertNotEmpty( $plugins[ 'lookup_placeholder' ] );
 		$this->assertNotEmpty( $plugins[ 'go_label' ] );
+
+		$subjectsByKey = [];
+		foreach ( $vars[ 'subjects' ] as $subject ) {
+			$subjectsByKey[ $subject[ 'key' ] ] = $subject;
+		}
+		$this->assertSame(
+			[
+				'page'    => 'icwp-wpsf-plugin',
+				'nav'     => PluginNavs::NAV_ACTIVITY,
+				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+			],
+			$subjectsByKey[ 'users' ][ 'lookup_route' ] ?? []
+		);
+		$this->assertSame(
+			[
+				'page'    => 'icwp-wpsf-plugin',
+				'nav'     => PluginNavs::NAV_ACTIVITY,
+				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+			],
+			$subjectsByKey[ 'ips' ][ 'lookup_route' ] ?? []
+		);
+		$this->assertSame(
+			[
+				'page'    => 'icwp-wpsf-plugin',
+				'nav'     => PluginNavs::NAV_ACTIVITY,
+				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+			],
+			$subjectsByKey[ 'plugins' ][ 'lookup_route' ] ?? []
+		);
+		$this->assertSame(
+			[
+				'page'    => 'icwp-wpsf-plugin',
+				'nav'     => PluginNavs::NAV_ACTIVITY,
+				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
+			],
+			$subjectsByKey[ 'themes' ][ 'lookup_route' ] ?? []
+		);
+		$this->assertSame( [], $subjectsByKey[ 'wordpress' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
+		$this->assertSame( [], $subjectsByKey[ 'requests' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
+		$this->assertSame( [], $subjectsByKey[ 'activity' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
 	}
 
 	public function test_request_input_values_are_cached_across_repeated_internal_access() :void {
@@ -370,6 +410,34 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->invokeProtectedMethod( $page, 'getLandingVars' );
 	}
 
+	public function test_lookup_subject_without_subnav_hint_throws_logic_exception() :void {
+		$this->installServicesStubs();
+		$page = new class extends PageInvestigateLanding {
+			protected function getSubjectDefinitions() :array {
+				return [
+					'users' => [
+						'key'         => 'users',
+						'subnav_hint' => '',
+						'input_key'   => 'user_lookup',
+						'options_key' => null,
+						'panel_type'  => 'lookup_text',
+						'href_key'    => 'by_user',
+						'string_keys' => [
+							'subject' => 'subject_users',
+							'panel'   => 'panel_users',
+							'lookup'  => 'lookup_user',
+							'go'      => 'go_user',
+						],
+					],
+				];
+			}
+		};
+
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'lookup panel requires subnav_hint' );
+		$this->invokeProtectedMethod( $page, 'getLandingVars' );
+	}
+
 	public function test_landing_hrefs_include_required_subject_and_tool_routes() :void {
 		$this->installServicesStubs();
 		$page = new PageInvestigateLanding();
@@ -396,6 +464,10 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new class {
+			public function rootAdminPageSlug() :string {
+				return 'icwp-wpsf-plugin';
+			}
+
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
 			}

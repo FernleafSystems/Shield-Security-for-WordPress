@@ -41,6 +41,9 @@
 								 aria-labelledby="{{ subject.tab_id }}-tab">
 								{% if subject.panel_type == 'lookup_text' %}
 									<form method="get" action="{{ subject.href }}" class="d-flex flex-column gap-2">
+										<input type="hidden" name="page" value="{{ subject.lookup_route.page|default('') }}" />
+										<input type="hidden" name="nav" value="{{ subject.lookup_route.nav|default('') }}" />
+										<input type="hidden" name="nav_sub" value="{{ subject.lookup_route.nav_sub|default('') }}" />
 										<label class="form-label mb-0">{{ subject.panel_title }}</label>
 										<input type="text"
 											   name="{{ subject.input_key }}"
@@ -54,6 +57,9 @@
 									{% endif %}
 								{% elseif subject.panel_type == 'lookup_select' %}
 									<form method="get" action="{{ subject.href }}" class="d-flex flex-column gap-2">
+										<input type="hidden" name="page" value="{{ subject.lookup_route.page|default('') }}" />
+										<input type="hidden" name="nav" value="{{ subject.lookup_route.nav|default('') }}" />
+										<input type="hidden" name="nav_sub" value="{{ subject.lookup_route.nav_sub|default('') }}" />
 										<label class="form-label mb-0">{{ subject.panel_title }}</label>
 										<select name="{{ subject.input_key }}" class="form-select">
 											<option value="">{{ subject.lookup_placeholder }}</option>
@@ -94,5 +100,4 @@
 		</div>
 	</div>
 {% endblock %}
-
 

@@ -200,6 +200,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			$stringKeys = $subject[ 'string_keys' ];
 			$inputKey = $subject[ 'input_key' ];
 			$optionsKey = $subject[ 'options_key' ];
+			$isLookupPanel = \in_array( $subject[ 'panel_type' ], [ 'lookup_text', 'lookup_select' ], true );
 
 			$subjects[] = [
 				'key'                => $subject[ 'key' ],
@@ -215,6 +216,9 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				'panel_title'        => $strings[ $stringKeys[ 'panel' ] ],
 				'lookup_placeholder' => isset( $stringKeys[ 'lookup' ] ) ? $strings[ $stringKeys[ 'lookup' ] ] : null,
 				'go_label'           => $strings[ $stringKeys[ 'go' ] ],
+				'lookup_route'       => $isLookupPanel
+					? $this->buildLookupRouteContract( (string)$subject[ 'subnav_hint' ] )
+					: [],
 			];
 		}
 
@@ -430,6 +434,12 @@ class PageInvestigateLanding extends PageModeLandingBase {
 					\sprintf( 'Investigate subject "%s" lookup panel requires input_key.', $subjectKey )
 				);
 			}
+			$subnavHint = $subject[ 'subnav_hint' ] ?? '';
+			if ( !\is_string( $subnavHint ) || $subnavHint === '' ) {
+				throw new \LogicException(
+					\sprintf( 'Investigate subject "%s" lookup panel requires subnav_hint.', $subjectKey )
+				);
+			}
 		}
 		elseif ( $panelType === 'direct_link' ) {
 			if ( $inputKey !== null ) {
@@ -448,6 +458,14 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'ip'         => $ip,
 			'has_lookup' => $hasLookup,
 			'is_valid'   => $hasLookup && Services::IP()->isValidIp( $ip ),
+		];
+	}
+
+	private function buildLookupRouteContract( string $subNav ) :array {
+		return [
+			'page'    => self::con()->plugin_urls->rootAdminPageSlug(),
+			'nav'     => PluginNavs::NAV_ACTIVITY,
+			'nav_sub' => $subNav,
 		];
 	}
 }

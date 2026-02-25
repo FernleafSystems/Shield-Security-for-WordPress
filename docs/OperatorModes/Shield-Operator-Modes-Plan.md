@@ -580,7 +580,7 @@ The Actions Queue landing page is primarily a composition of existing components
 
 ### Step 6: Investigate Mode
 
-**Status (2026-02-24):** In progress, with P6 foundation + P6a + P6b delivered. Shared investigation DataTable foundation (Section 12.2) is implemented and integrated into Investigate Landing and Investigate By User (`PageInvestigateLanding.php`, `PageInvestigateByUser.php`, shared investigate partials, `InvestigationTable.js`, `InvestigationTableAction`). Remaining execution focus is P6c+ (IP/Plugin/Theme/Core pages and cross-subject link completion).
+**Status (2026-02-25):** In progress, with P6 foundation + P6a + P6b delivered and P6-STAB code/test hardening added for investigate lookup route preservation (`PageInvestigateLanding.php`, `PageInvestigateByUser.php`, `investigate_landing.twig`, `investigate_by_user.twig`, and targeted unit/integration coverage). Runtime evidence capture for first-request route preservation remains pending (see backlog OM-671/OM-674), so P6c+ (IP/Plugin/Theme/Core pages) remains gated until stabilization evidence is attached.
 
 **Prototype reference:** Implementors MUST review the HTML prototypes in `docs/OperatorModes/investigate-mode/` before building. These define the exact visual layout, data columns, tab structure, and cross-linking patterns. See Section 11 for detailed specifications.
 

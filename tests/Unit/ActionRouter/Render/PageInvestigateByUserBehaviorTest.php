@@ -100,6 +100,14 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'subject_not_found' ] ?? true ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'tables' ] ?? [] );
+		$this->assertSame(
+			[
+				'page'    => 'icwp-wpsf-plugin',
+				'nav'     => PluginNavs::NAV_ACTIVITY,
+				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+			],
+			$renderData[ 'vars' ][ 'lookup_route' ] ?? []
+		);
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {
@@ -260,6 +268,10 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new class {
+			public function rootAdminPageSlug() :string {
+				return 'icwp-wpsf-plugin';
+			}
+
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
 			}
