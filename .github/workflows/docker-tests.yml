@@ -15,7 +15,7 @@ concurrency:
 # - WooCommerce: No Docker usage found, relies on native GitHub Actions
 #
 # OUR APPROACH (Following EDD Pattern + Working Evidence):
-# - Manual trigger only (workflow_dispatch) - prevents CI/CD overhead
+# - Scheduled + manual triggers for full packaged validation
 # - Simple MariaDB + test-runner architecture (matching EDD's docker-compose-phpunit.yml)
 # - Repository mounted to /app (following EDD volume pattern)
 # - Uses standard WordPress testing with bin/install-wp-tests.sh
@@ -31,13 +31,11 @@ concurrency:
 # ✅ PRODUCTION READY - Tested and validated implementation
 #
 # TRIGGER CONFIGURATION:
-# - Automatic triggers on main branches (develop, main, master) for comprehensive testing
+# - Scheduled weekday runs for full packaged validation
 # - Manual triggers allow testing specific PHP/WordPress combinations when needed
 # - Maintains proven patterns while adding Docker flexibility for branch validation
 
 on:
-  push:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
   workflow_dispatch:
     inputs:
       php_version:
@@ -57,12 +55,13 @@ on:
         description: 'WordPress version to test (leave empty to use latest detected version)'
         required: false
         type: string
+  schedule:
+    - cron: '0 6 * * 1-5'
 
 jobs:
   # Detect WordPress versions dynamically using comprehensive detection script
   detect-wp-versions:
     name: "Detect WordPress Versions"
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     outputs:
       latest: ${{ steps.detect.outputs.latest }}
@@ -115,7 +114,6 @@ jobs:
 
   build-package:
     name: "Build Plugin Package"
-    if: github.event_name != 'pull_request'
     needs: detect-wp-versions
     uses: ./.github/workflows/reusable-build-package.yml
     with:
@@ -125,7 +123,6 @@ jobs:
   # Matrix Docker test job
   docker-test:
     name: "Test PHP ${{ matrix.php }} / WP ${{ matrix.wordpress }}"
-    if: github.event_name != 'pull_request'
     needs: [detect-wp-versions, build-package]
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -134,8 +131,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # PHP versions from .github/config/matrix.conf (single source of truth)
-        php: ${{ fromJSON(needs.detect-wp-versions.outputs.php_versions) }}
+        # Full matrix for scheduled runs; single resolved value for manual runs.
+        php: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', github.event.inputs.php_version || needs.detect-wp-versions.outputs.default_php)) || fromJSON(needs.detect-wp-versions.outputs.php_versions) }}
         wordpress: ${{ github.event_name == 'workflow_dispatch' && fromJSON(format('["{0}"]', github.event.inputs.wp_version || needs.detect-wp-versions.outputs.latest)) || fromJSON(format('["{0}", "{1}"]', needs.detect-wp-versions.outputs.latest, needs.detect-wp-versions.outputs.previous)) }}
     
     steps:
@@ -194,14 +191,8 @@ jobs:
     - name: Setup Docker environment
       run: |
         # Create Docker environment file
-        # Use matrix values when running automatically, or manual inputs when triggered manually
-        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-          PHP_VERSION="${{ github.event.inputs.php_version || needs.detect-wp-versions.outputs.default_php }}"
-          WP_VERSION="${{ github.event.inputs.wp_version || needs.detect-wp-versions.outputs.latest }}"
-        else
-          PHP_VERSION="${{ matrix.php }}"
-          WP_VERSION="${{ matrix.wordpress }}"
-        fi
+        PHP_VERSION="${{ matrix.php }}"
+        WP_VERSION="${{ matrix.wordpress }}"
         
         {
           echo "PHP_VERSION=$PHP_VERSION"
@@ -270,10 +261,80 @@ jobs:
         docker compose -f tests/docker/docker-compose.yml -f tests/docker/docker-compose.ci.yml -f tests/docker/docker-compose.package.yml down -v --remove-orphans || true
         rm -f tests/docker/.env
 
+  package-analysis:
+    name: "Package Analysis"
+    needs: [detect-wp-versions, build-package]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ needs.detect-wp-versions.outputs.default_php }}
+        coverage: none
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Download package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: shield-package
+        path: ${{ github.workspace }}/shield-package
+
+    - name: Run packaged static analysis
+      run: |
+        php ./bin/run-packaged-phpstan.php \
+          --project-root="${{ github.workspace }}" \
+          --composer-image="composer:2" \
+          --package-dir="${{ github.workspace }}/shield-package" \
+          --package-dir-relative="shield-package"
+
+  playground-package-smoke:
+    name: "Playground Package Smoke"
+    needs: [detect-wp-versions, build-package]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ needs.detect-wp-versions.outputs.default_php }}
+        coverage: none
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.10'
+        cache: npm
+
+    - name: Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        npm ci --no-audit --no-fund
+
+    - name: Download package artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: shield-package
+        path: ${{ github.workspace }}/shield-package
+
+    - name: Run playground package smoke check
+      run: |
+        composer playground:package:check -- --php="${{ needs.detect-wp-versions.outputs.default_php }}" --wp="${{ needs.detect-wp-versions.outputs.latest }}"
+
   cache-cleanup-post-run:
     name: "Post-run Cache Cleanup"
-    if: always() && github.event_name != 'pull_request'
-    needs: [docker-test]
+    if: always()
+    needs: [docker-test, package-analysis, playground-package-smoke]
     runs-on: ubuntu-latest
     permissions:
       actions: write
