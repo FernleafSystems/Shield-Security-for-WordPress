@@ -92,15 +92,10 @@ class Components {
 		Component\WpThemesUpdates::class,
 	];
 
-	private static $built;
-
-	public function __construct() {
-		if ( !\is_array( self::$built ) ) {
-			self::$built = [];
-		}
-	}
+	private static array $built = [];
 
 	/**
+	 * @param class-string<Component\Base> $class
 	 * @throws \Exception
 	 */
 	public function buildComponent( string $class ) :array {
@@ -108,7 +103,6 @@ class Components {
 			if ( !\in_array( $class, self::COMPONENTS ) ) {
 				throw new \Exception( sprintf( 'Invalid component class: %s', $class ) );
 			}
-			/** @var Component\Base $compObj */
 			$compObj = new $class();
 			self::$built[ $class ] = $compObj->build();
 		}

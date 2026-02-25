@@ -18,10 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops\Record;
  */
 class ReportVO extends DynPropertiesClass {
 
-	/**
-	 * @var ?|Record
-	 */
-	public $record = null;
+	public ?Record $record = null;
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );

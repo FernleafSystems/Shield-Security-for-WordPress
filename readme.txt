@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.4
 Recommended PHP: 8.2
 Tested up to: 6.9
-Stable tag: 21.2.2
+Stable tag: 21.2.4
 Shield stops bot attacks before they hack your site. Bots CAN be stopped. Shield stops them.
 
 == Description ==
@@ -210,6 +210,18 @@ The Shield Security team prioritises email technical support over the WordPress.
 Individual, dedicated technical support is only available to customers who have [purchased Shield Pro](https://clk.shldscrty.com/ab).
 
 Discover all the advantages of switching your WordPress security Pro at [our Shield Security store](https://clk.shldscrty.com/ab).
+
+### Partnerships & Integrations
+
+We believe that [silentCAPTCHA](https://clk.shldscrty.com/ol) is one of the simplest and most powerful solutions available today for all WordPress site owners to block and eliminate automated bot spam.
+
+That's why we've started a collaboration campaign with other WordPress plugin developers to adapt their plugins to natively support Shield's silentCAPTCHA solution, alongside Google reCAPTCHA & Cloudflare Turnstile.
+
+When you use one of the products from any of our partners, you will be able to activate Shield's silentCAPTCHA bot spam protection so that your forms are protected from automated spam. You won't need any site/API keys, custom integrations, or JavaScript that can breaks your forms. It all works automatically for you when you enable the feature.
+
+As of this release, we have partnered with the following WordPress form providers:
+
+* [Easy Form Builder](https://wordpress.org/plugins/easy-form-builder/) v4+
 
 == Installation ==
 

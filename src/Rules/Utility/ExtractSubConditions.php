@@ -6,12 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules;
 
 class ExtractSubConditions {
 
-	private static $ConditionDeps = [];
+	private static array $ConditionDeps = [];
 
-	private static $AllConditions = [];
+	private static array $AllConditions = [];
 
 	/**
-	 * @return array{classes: Rules\Conditions\Base[]|string[], callables: callable[]}
+	 * @return array{classes: class-string<Rules\Conditions\Base>[], callables: callable[]}
 	 * @throws \Exception
 	 */
 	public function fromRule( Rules\RuleVO $ruleVO ) :array {
@@ -19,7 +19,7 @@ class ExtractSubConditions {
 	}
 
 	/**
-	 * @return array{classes: Rules\Conditions\Base[]|string[], callables: callable[]}
+	 * @return array{classes: class-string<Rules\Conditions\Base>[], callables: callable[]}
 	 * @throws \Exception
 	 */
 	public function fromConditions( Rules\ConditionsVO $conditionsVO ) :array {

@@ -43,12 +43,15 @@
     "yoast/phpunit-polyfills":              "^4.0",
     "brain/monkey":                         "^2.6",
     "mockery/mockery":                      "^1.6",
+    "phpstan/phpstan":                      "^2.1",
     "php-stubs/wordpress-stubs":            "^6.0",
     "squizlabs/php_codesniffer":            "^3.8",
     "wp-coding-standards/wpcs":             "^3.0",
     "phpcompatibility/phpcompatibility-wp": "^2.1",
     "symfony/filesystem":                   "^5.4|^6.0|^7.0",
-    "symfony/process":                      "^5.4|^6.0|^7.0"
+    "symfony/process":                      "^5.4|^6.0|^7.0",
+    "szepeviktor/phpstan-wordpress":       "^2.0",
+    "php-stubs/wp-cli-stubs":              "^2.12"
   },
   "autoload":          {
     "psr-4": {
@@ -89,12 +92,26 @@
       "@build:config",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml"
     ],
+    "test:ci":          [
+      "@build:config",
+      "@analyze",
+      "@test:unit",
+      "@test:integration"
+    ],
+    "test:easy":        "@test:unit",
+    "analyze":          [
+      "@php bin/run-static-analysis.php"
+    ],
     "phpcs":            "phpcs",
     "phpcs:fix":        "phpcbf",
-    "package-plugin":   "@php bin/package-plugin.php",
+    "package-plugin":   [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/package-plugin.php"
+    ],
     "build-zip":        "@php bin/build-zip.php",
     "playground:local": "@php bin/run-playground-local.php",
     "playground:local:check": "@php bin/run-playground-local.php --run-blueprint",
+    "playground:package:check": "@php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package",
     "playground:local:clean": "@php bin/run-playground-local.php --clean",
     "strauss:dev":      "@php bin/run-strauss-dev.php",
     "strauss:clean":    "@php bin/run-strauss-dev.php --clean"

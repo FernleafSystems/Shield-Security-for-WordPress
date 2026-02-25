@@ -72,9 +72,6 @@ class MerlinController {
 		return \array_map( fn( string $handlerClass ) => new $handlerClass(), $this->getWizardSteps( $wizardKey ) );
 	}
 
-	/**
-	 * @return Steps\Base|string|null
-	 */
 	private function getHandlerFromSlug( string $slug ) :?string {
 		$theHandler = null;
 		foreach ( $this->getAllHandlers() as $handler ) {
@@ -88,7 +85,7 @@ class MerlinController {
 
 	/**
 	 * Simply \array_unique(array_merge()) when more wizards are added.
-	 * @return Steps\Base[]|string[]
+	 * @return class-string<Steps\Base>[]
 	 */
 	private function getAllHandlers() :array {
 		return Wizards::WIZARD_STEPS_WELCOME;

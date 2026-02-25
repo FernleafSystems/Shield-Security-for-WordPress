@@ -61,9 +61,7 @@ class PreStore {
 		if ( $opts->optChanged( 'trusted_user_roles' ) ) {
 			$opts->optSet( 'trusted_user_roles',
 				\array_unique( \array_filter( \array_map(
-					function ( $role ) {
-						return sanitize_key( \strtolower( $role ) );
-					},
+					fn( $role ) => sanitize_key( \strtolower( $role ) ),
 					$opts->optGet( 'trusted_user_roles' )
 				) ) )
 			);
@@ -151,9 +149,7 @@ class PreStore {
 				( new WildCardOptions() )->clean(
 					$opts->optGet( 'request_whitelist' ),
 					\array_unique( \array_map(
-						function ( $url ) {
-							return (string)wp_parse_url( $url, \PHP_URL_PATH );
-						},
+						fn( $url ) => (string)wp_parse_url( $url, \PHP_URL_PATH ),
 						[
 							'/',
 							$WP->getHomeUrl(),

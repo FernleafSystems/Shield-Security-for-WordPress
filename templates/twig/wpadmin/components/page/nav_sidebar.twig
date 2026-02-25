@@ -3,16 +3,14 @@
 <ul class="nav top-level-nav flex-column accordion" id="ShieldCollapseNav">
 
 	{% for mitem in vars.navbar_menu %}
+		{% set is_expandable = mitem.sub_items|default([]) is not empty %}
 
 		<li class="nav-item {{ mitem.active|default(false) ? 'active':'' }}
-					{% if mitem.sub_items|default([]) is not empty %} with-submenu{% endif %}"
+					{% if is_expandable %} with-submenu{% endif %}"
 			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
 		>
 				<span class="nav-link {{ mitem.classes|default([])|join( ' ' ) }} {{ mitem.active|default(false) ? 'show':'' }}
 						d-flex justify-content-start"
-						{% if mitem.sub_items|default([]) is not empty %}
-							data-bs-toggle="collapse" data-bs-target="#subnav-{{ mitem.slug }}"
-						{% endif %}
 						{% for data_key,data_val in mitem.data|default([]) %}
 							data-{{ data_key }}="{{ data_val }}"
 						{% endfor %}
@@ -24,9 +22,15 @@
 							data-introposition="right"
 						{% endif %}
 				>
-					<a href="{{ mitem.sub_items|default([]) is empty ? mitem.href|default('javascript:{}') : 'javascript:{}' }}"
+					<a href="{{ is_expandable ? '#subnav-' ~ mitem.slug : mitem.href|default('javascript:{}') }}"
 					   class="d-flex justify-content-start"
-					   {% if sub.target|default('') is not empty %}target="{{ sub.target }}"{% endif %}
+					   {% if is_expandable %}
+						   data-bs-toggle="collapse"
+						   data-bs-target="#subnav-{{ mitem.slug }}"
+						   aria-controls="subnav-{{ mitem.slug }}"
+						   aria-expanded="{{ mitem.active|default(false) ? 'true' : 'false' }}"
+					   {% endif %}
+					   {% if mitem.target|default('') is not empty %}target="{{ mitem.target }}"{% endif %}
 					>
 
 						{% if mitem.img|default('') is not empty %}

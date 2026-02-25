@@ -9,7 +9,7 @@ class HandleOptionsSaveRequest {
 
 	use PluginControllerConsumer;
 
-	private $form;
+	private array $form;
 
 	public function handleSave() :bool {
 		try {
@@ -38,7 +38,7 @@ class HandleOptionsSaveRequest {
 	}
 
 	private function getForm() :array {
-		return $this->form ?? $this->form = FormParams::Retrieve();
+		return $this->form ??= FormParams::Retrieve();
 	}
 
 	/**

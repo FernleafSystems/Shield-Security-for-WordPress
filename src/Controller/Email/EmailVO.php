@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string   $text
  * @property bool     $is_alert
  * @property bool     $include_site_name
+ * @phpstan-consistent-constructor
  */
 class EmailVO extends DynPropertiesClass {
 

@@ -2,6 +2,7 @@
 <?php declare( strict_types=1 );
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Run WordPress Playground against the current Git working copy under the real plugin slug.
@@ -31,6 +32,7 @@ $options = getopt( '', [
 	'php::',
 	'wp::',
 	'port::',
+	'plugin-root::',
 	'run-blueprint',
 	'clean',
 	'strict',
@@ -64,17 +66,25 @@ if ( $runClean ) {
 	exit( runCleanup( $runtimeRoot, $safeRemover ) );
 }
 
+$pluginRootResolution = resolvePluginRoot( $projectRoot, $options );
+$pluginRoot = (string)( $pluginRootResolution['plugin_root'] ?? '' );
+
 $runsRoot = pathJoin( $runtimeRoot, 'runs' );
 ensureDirectory( $runsRoot );
 $pruned = pruneRunDirectories( $runsRoot, $retentionDays, $maxRuns, $safeRemover );
 $localPlaygroundBinary = findLocalPlaygroundBinary( $projectRoot );
 
 if ( !$runBlueprintOnly ) {
+	if ( !(bool)( $pluginRootResolution['ok'] ?? false ) ) {
+		fwrite( STDERR, "Plugin root validation failed: ".(string)( $pluginRootResolution['error'] ?? 'unknown error' )."\n" );
+		exit( EXIT_ENV );
+	}
+
 	exit( runInteractiveServer(
 		$phpVersion,
 		$wpVersion,
 		$port,
-		$projectRoot,
+		$pluginRoot,
 		$runtimeRoot,
 		$pruned,
 		$localPlaygroundBinary,
@@ -86,6 +96,8 @@ exit( runSmokeCheck(
 	$phpVersion,
 	$wpVersion,
 	$projectRoot,
+	$pluginRoot,
+	$pluginRootResolution,
 	$runtimeRoot,
 	$runsRoot,
 	$pruned,
@@ -98,7 +110,7 @@ function runInteractiveServer(
 	string $phpVersion,
 	string $wpVersion,
 	int $port,
-	string $projectRoot,
+	string $pluginRoot,
 	string $runtimeRoot,
 	array $pruned,
 	?string $localPlaygroundBinary,
@@ -120,7 +132,7 @@ function runInteractiveServer(
 		$localPlaygroundBinary,
 		$phpVersion,
 		$wpVersion,
-		$projectRoot,
+		$pluginRoot,
 		$runtimeRoot,
 		$pluginPathInVfs,
 		$safeRemover
@@ -162,7 +174,7 @@ function runInteractiveServer(
 			'--wp',
 			$wpVersion,
 			'--mount-dir',
-			$projectRoot,
+			$pluginRoot,
 			$pluginPathInVfs,
 			'--blueprint',
 			$blueprintPath,
@@ -173,7 +185,7 @@ function runInteractiveServer(
 
 	echo "Starting local Playground server for current repo plugin code.\n";
 	echo "Runtime root: {$runtimeRoot}\n";
-	echo "Mounted host path: {$projectRoot}\n";
+	echo "Mounted host path: {$pluginRoot}\n";
 	echo "Mounted plugin path: {$pluginPathInVfs}\n";
 	echo "Open in browser: http://127.0.0.1:{$port}/wp-admin/\n";
 	echo "Pruned stale runs: {$pruned['removed_dirs']} directories, ".formatBytes( $pruned['removed_bytes'] )."\n";
@@ -193,6 +205,8 @@ function runSmokeCheck(
 	string $phpVersion,
 	string $wpVersion,
 	string $projectRoot,
+	string $pluginRoot,
+	array $pluginRootResolution,
 	string $runtimeRoot,
 	string $runsRoot,
 	array $pruned,
@@ -222,6 +236,7 @@ function runSmokeCheck(
 		'started_at' => gmdate( 'c' ),
 		'run_dir' => $runDir,
 		'runtime_root' => $runtimeRoot,
+		'plugin_root' => $pluginRoot,
 		'preflight' => [],
 		'checks' => [],
 		'warnings' => [],
@@ -240,6 +255,7 @@ function runSmokeCheck(
 	$summary['preflight'] = [
 		'runtime_root_writable' => isWritableDirectory( $runtimeRoot ) ? 'pass' : 'fail',
 		'run_dir_writable' => isWritableDirectory( $runDir ) ? 'pass' : 'fail',
+		'plugin_root_valid' => (bool)( $pluginRootResolution['ok'] ?? false ) ? 'pass' : 'fail',
 	];
 
 	$summary['preflight']['playground_cli_source'] = $localPlaygroundBinary !== null ? 'pass' : 'fail';
@@ -259,7 +275,11 @@ function runSmokeCheck(
 		'stderr' => '',
 	];
 
-	if ( $localPlaygroundBinary === null ) {
+	if ( !(bool)( $pluginRootResolution['ok'] ?? false ) ) {
+		$environmentFailure = true;
+		$summary['errors'][] = (string)( $pluginRootResolution['error'] ?? 'Plugin root validation failed.' );
+	}
+	elseif ( $localPlaygroundBinary === null ) {
 		$environmentFailure = true;
 		$summary['errors'][] = 'Local @wp-playground/cli binary not found.';
 		$summary['errors'][] = 'Install it with: npm install --save-dev @wp-playground/cli';
@@ -274,7 +294,7 @@ function runSmokeCheck(
 				'--wp',
 				$wpVersion,
 				'--mount-dir',
-				$projectRoot,
+				$pluginRoot,
 				$pluginPathInVfs,
 				'--mount-dir',
 				$captureDir,
@@ -920,6 +940,7 @@ function renderSummary( array $summary, string $combinedOutput ) :void {
 	echo "=== Shield Playground Local Check ===\n";
 	echo "Run Directory: {$summary['run_dir']}\n";
 	echo "Runtime Root: {$summary['runtime_root']}\n";
+	echo "Plugin Root: {$summary['plugin_root']}\n";
 	echo "Strict Mode: ".( $summary['strict_mode'] ? 'yes' : 'no' )."\n";
 
 	echo "\nVersion Verification:\n";
@@ -1028,7 +1049,7 @@ function probeRuntimeEnvironment(
 	string $localPlaygroundBinary,
 	string $phpVersion,
 	string $wpVersion,
-	string $projectRoot,
+	string $pluginRoot,
 	string $runtimeRoot,
 	string $pluginPathInVfs,
 	SafeDirectoryRemover $safeRemover
@@ -1054,7 +1075,7 @@ function probeRuntimeEnvironment(
 				'--wp',
 				$wpVersion,
 				'--mount-dir',
-				$projectRoot,
+				$pluginRoot,
 				$pluginPathInVfs,
 				'--mount-dir',
 				$captureDir,
@@ -1148,10 +1169,63 @@ function tailOutput( string $output, int $lines = 30 ) :string {
 	return implode( "\n", array_slice( $parts, -$lines ) );
 }
 
+function resolvePluginRoot( string $projectRoot, array $options ) :array {
+	$rawOption = $options['plugin-root'] ?? null;
+	$pluginRoot = $projectRoot;
+
+	if ( is_string( $rawOption ) && trim( $rawOption ) !== '' ) {
+		$candidate = normalizePath( normalizeCliPathOption( $rawOption ) );
+		if ( !Path::isAbsolute( $candidate ) ) {
+			$candidate = normalizePath( pathJoin( $projectRoot, $candidate ) );
+		}
+		$pluginRoot = $candidate;
+	}
+
+	$resolved = realpath( $pluginRoot );
+	if ( $resolved !== false ) {
+		$pluginRoot = normalizePath( $resolved );
+	}
+
+	if ( !file_exists( $pluginRoot ) ) {
+		return [
+			'ok' => false,
+			'plugin_root' => $pluginRoot,
+			'error' => "Plugin root directory not found: {$pluginRoot}",
+		];
+	}
+
+	if ( !is_dir( $pluginRoot ) ) {
+		return [
+			'ok' => false,
+			'plugin_root' => $pluginRoot,
+			'error' => "Plugin root is not a directory: {$pluginRoot}",
+		];
+	}
+
+	$mainPluginFile = pathJoin( $pluginRoot, 'icwp-wpsf.php' );
+	if ( !is_file( $mainPluginFile ) ) {
+		return [
+			'ok' => false,
+			'plugin_root' => $pluginRoot,
+			'error' => "Plugin root is missing required file icwp-wpsf.php: {$mainPluginFile}",
+		];
+	}
+
+	return [
+		'ok' => true,
+		'plugin_root' => $pluginRoot,
+		'error' => '',
+	];
+}
+
+function normalizeCliPathOption( string $value ) :string {
+	return trim( $value, " \t\n\r\0\x0B\"'" );
+}
+
 function usage() :string {
 	return <<<TXT
 Usage:
-  php bin/run-playground-local.php [--run-blueprint] [--clean] [--php=<version>] [--wp=<version>] [--port=<port>]
+  php bin/run-playground-local.php [--run-blueprint] [--clean] [--php=<version>] [--wp=<version>] [--port=<port>] [--plugin-root=<path>]
                                    [--retention-days=<days>] [--max-runs=<count>] [--runtime-root=<path>] [--strict]
 
 Modes:
@@ -1163,6 +1237,7 @@ Options:
   --php             PHP version for Playground. Default: 8.2
   --wp              WordPress version for Playground. Default: latest
   --port            Local server port (server mode only). Default: 9400
+  --plugin-root     Optional plugin root directory to mount in Playground.
   --retention-days  Retain run artifacts for N days. Default: 7
   --max-runs        Retain at most N run directories. Default: 10
   --runtime-root    Override runtime root directory. Default: <system-temp>/shield-playground-runtime
@@ -1175,9 +1250,10 @@ Examples:
   composer playground:local:clean
   composer playground:local -- --php=8.3 --port=9500
   composer playground:local:check -- --strict
+  composer playground:local:check -- --plugin-root=./shield-package
 
 Notes:
-  Local local-run workflows require node_modules/.bin/wp-playground.
+  Local local-run workflows require node_modules/.bin/wp-playground-cli.
   Install once: npm install --save-dev @wp-playground/cli
 TXT;
 }

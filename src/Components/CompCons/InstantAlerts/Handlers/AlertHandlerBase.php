@@ -12,7 +12,7 @@ abstract class AlertHandlerBase {
 	use PluginControllerConsumer;
 
 	/**
-	 * @return string|EmailInstantAlertBase
+	 * @return class-string<EmailInstantAlertBase>
 	 */
 	abstract public function alertAction() :string;
 

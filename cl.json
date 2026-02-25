@@ -128,6 +128,27 @@
             ]
           }
         ]
+      },
+      {
+        "version":     "3",
+        "released_at": 1772023000,
+        "items":       [
+          {
+            "type":        "new",
+            "title":       "Added option to override plugin display language regardless of site/user locale."
+          },
+          {
+            "type":        "improved",
+            "title":       "Styling of Security Admin login box."
+          },
+          {
+            "type":        "fixed",
+            "title":       "404 bot tracking now correctly honours allowlisted file extensions.",
+            "description": [
+              "Requests such as /apple-touch-icon.png no longer incorrectly trigger a bottrack_404 offense when the extension is allowlisted."
+            ]
+          }
+        ]
       }
     ]
   },

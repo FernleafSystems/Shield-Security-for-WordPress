@@ -1,14 +1,14 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div id="SecurityAdminOverlay" class="modal show d-block"
+	<div id="SecurityAdminOverlay" class="modal fade"
 		 role="dialog" tabindex="-1"
 		 aria-labelledby="SecurityAdminLabel"
-		 aria-modal="true"
+		 aria-hidden="true"
 		 data-bs-backdrop="static"
 		 data-bs-keyboard="false">
-		<div class="modal-dialog modal-dialog-centered security-admin-dialog">
-			<div id="IcwpWpsfSecurityAdmin" class="modal-content rounded-3">
+		<div class="modal-dialog security-admin-dialog">
+			<div id="IcwpWpsfSecurityAdmin" class="modal-content rounded-3 shield-modal-content-raised">
 				<div class="modal-body p-4 p-md-5">
 
 					<form method="post" class="form-horizontal" id="SecurityAdminForm">

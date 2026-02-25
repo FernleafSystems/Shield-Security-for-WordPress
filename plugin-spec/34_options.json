@@ -2679,6 +2679,23 @@
         "description": "Preferred temporary directory override."
     },
     {
+        "key": "language_override",
+        "section": "section_defaults",
+        "zone_comp_slugs": [
+            "plugin_general",
+            "module_plugin"
+        ],
+        "premium": false,
+        "default": "",
+        "type": "text",
+        "link_info": "",
+        "link_blog": "",
+        "beacon_id": 855,
+        "name": "Plugin Language Override",
+        "summary": "Override And Force Language Used Throughout Plugin",
+        "description": "Specify the language use throughout the plugin regardless of user profile settings. E.g. 'en', 'es', 'de'"
+    },
+    {
         "key": "enable_beta",
         "section": "section_defaults",
         "zone_comp_slugs": [

@@ -216,8 +216,7 @@ class AuditCon {
 	}
 
 	/**
-	 * @param Auditors\Base|mixed $auditor
-	 * @param mixed               $item - type depends on the zone, e.g. \WP_User, \WP_Comment
+	 * @param mixed $item - type depends on the zone, e.g. \WP_User, \WP_Comment
 	 */
 	public function updateItemOnSnapshot( Auditors\Base $auditor, $item ) :void {
 		try {
@@ -232,8 +231,7 @@ class AuditCon {
 	}
 
 	/**
-	 * @param Auditors\Base|mixed $auditor
-	 * @param mixed               $item - type depends on the zone, e.g. \WP_User, \WP_Comment
+	 * @param mixed $item - type depends on the zone, e.g. \WP_User, \WP_Comment
 	 */
 	public function removeItemFromSnapshot( Auditors\Base $auditor, $item ) :void {
 		try {

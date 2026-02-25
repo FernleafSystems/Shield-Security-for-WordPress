@@ -12,6 +12,9 @@ class PreSetOptSanitize {
 
 	private string $key;
 
+	/**
+	 * @var mixed
+	 */
 	private $value;
 
 	public function __construct( string $key, $value ) {
@@ -36,6 +39,11 @@ class PreSetOptSanitize {
 		switch ( $this->key ) {
 			case 'log_level_db':
 				$this->value = NormaliseLogLevel::forDbSelection( $this->value );
+				break;
+			case 'language_override':
+				$raw = ( \is_scalar( $this->value ) || \is_null( $this->value ) ) ? (string)$this->value : '';
+				$normalised = \strtolower( (string)\preg_replace( '#[^a-z]#i', '', $raw ) );
+				$this->value = \strlen( $normalised ) === 2 ? $normalised : '';
 				break;
 			default:
 				break;

@@ -36,7 +36,7 @@ class ConfigurationVO extends DynPropertiesClass {
 	}
 
 	public function sectionsForModule( string $module ) :array {
-		return \array_filter( $this->sections, fn( array $opt ) => !empty( $sec[ 'module' ] ) && $sec[ 'module' ] === $module );
+		return \array_filter( $this->sections, fn( array $sec ) => !empty( $sec[ 'module' ] ) && $sec[ 'module' ] === $module );
 	}
 
 	public function transferableOptions() :array {
