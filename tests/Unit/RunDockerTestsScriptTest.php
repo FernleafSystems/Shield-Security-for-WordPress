@@ -9,29 +9,57 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
 
-	public function testPackagedPhpStanDelegatesToDedicatedPhpRunnerScript() :void {
+	public function testPhpRunnerShowsHelpWithoutRequiringDocker() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
 		}
 
-		$content = $this->getPluginFileContents( 'bin/run-docker-tests.sh', 'docker tests runner script' );
-		$this->assertStringContainsString( 'bin/run-packaged-phpstan.php', $content );
+		$process = new Process(
+			[ \PHP_BINARY, 'bin/run-docker-tests.php', '--help' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
+
+		$this->assertSame( 0, $process->getExitCode() ?? 1 );
+		$output = $process->getOutput().$process->getErrorOutput();
+		$this->assertStringContainsString( '--source', $output );
+		$this->assertStringContainsString( '--package-targeted', $output );
+		$this->assertStringContainsString( '--package-full', $output );
+		$this->assertStringContainsString( '--analyze-source', $output );
+		$this->assertStringContainsString( '--analyze-package', $output );
 	}
 
-	public function testPackagedPhpStanRunnerUsesWindowsSafePhpPaths() :void {
+	public function testPhpRunnerRejectsUnknownArgument() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
 		}
 
-		$content = $this->getPluginFileContents( 'bin/run-docker-tests.sh', 'docker tests runner script' );
+		$process = new Process(
+			[ \PHP_BINARY, 'bin/run-docker-tests.php', '--definitely-unknown-option' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
 
-		$this->assertStringContainsString( 'php "./bin/run-packaged-phpstan.php"', $content );
-		$this->assertStringContainsString( 'if command -v cygpath >/dev/null 2>&1; then', $content );
-		$this->assertStringContainsString( 'project_root_for_php="$(cygpath -m "$PROJECT_ROOT")"', $content );
-		$this->assertStringContainsString( 'package_dir_for_php="$(cygpath -m "$PACKAGE_DIR")"', $content );
-		$this->assertStringContainsString( '--project-root="$project_root_for_php"', $content );
-		$this->assertStringContainsString( '--package-dir="$package_dir_for_php"', $content );
-		$this->assertStringNotContainsString( 'php "$PROJECT_ROOT/bin/run-packaged-phpstan.php"', $content );
+		$this->assertSame( 1, $process->getExitCode() ?? 1 );
+		$this->assertStringContainsString( 'Unknown argument', $process->getOutput().$process->getErrorOutput() );
+	}
+
+	public function testPhpRunnerRejectsMultipleModeFlags() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+
+		$process = new Process(
+			[ \PHP_BINARY, 'bin/run-docker-tests.php', '--source', '--package-full' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
+
+		$this->assertSame( 1, $process->getExitCode() ?? 1 );
+		$this->assertStringContainsString(
+			'Only one mode flag can be provided at a time',
+			$process->getOutput().$process->getErrorOutput()
+		);
 	}
 
 	public function testScriptShowsHelpWithoutRequiringDocker() :void {
@@ -47,6 +75,12 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$process->run();
 
 		$this->assertSame( 0, $process->getExitCode() ?? 1 );
+		$output = $process->getOutput().$process->getErrorOutput();
+		$this->assertStringContainsString( '--source', $output );
+		$this->assertStringContainsString( '--package-targeted', $output );
+		$this->assertStringContainsString( '--package-full', $output );
+		$this->assertStringContainsString( '--analyze-source', $output );
+		$this->assertStringContainsString( '--analyze-package', $output );
 	}
 
 	public function testScriptRejectsUnknownArgument() :void {
@@ -63,6 +97,25 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 
 		$this->assertSame( 1, $process->getExitCode() ?? 1 );
 		$this->assertStringContainsString( 'Unknown argument', $process->getOutput().$process->getErrorOutput() );
+	}
+
+	public function testScriptRejectsMultipleModeFlags() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
+		}
+		$this->requireBash();
+
+		$process = new Process(
+			[ 'bash', 'bin/run-docker-tests.sh', '--source', '--package-full' ],
+			$this->getPluginRoot()
+		);
+		$process->run();
+
+		$this->assertSame( 1, $process->getExitCode() ?? 1 );
+		$this->assertStringContainsString(
+			'Only one mode flag can be provided at a time',
+			$process->getOutput().$process->getErrorOutput()
+		);
 	}
 
 	private function requireBash() :void {
