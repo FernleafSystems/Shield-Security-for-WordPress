@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Investigation\InvestigationTableContract,
 	Actions\InvestigationTableAction
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,6 +15,10 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 
 	public function set_up() {
 		parent::set_up();
+		$this->requireDb( 'ips' );
+		$this->requireDb( 'req_logs' );
+		$this->requireDb( 'activity_logs' );
+		$this->requireDb( 'activity_logs_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
@@ -130,6 +135,60 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertArrayHasKey( 'datatable_data', $payload );
 		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
+	}
+
+	public function testPluginActivityRowsIncludeInvestigatePluginLinkWhenPluginMetaPresent() :void {
+		$pluginSlug = $this->firstInstalledPluginSlug();
+		$logId = TestDataFactory::insertActivityLog( 'plugin_file_edited', '203.0.113.201' );
+		TestDataFactory::insertActivityLogMeta( $logId, 'plugin', $pluginSlug );
+		TestDataFactory::insertActivityLogMeta( $logId, 'file', $pluginSlug );
+
+		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $pluginSlug,
+			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$rows = $payload[ 'datatable_data' ][ 'data' ] ?? [];
+		$this->assertTrue(
+			$this->rowsContain( $rows, 'Investigate Plugin' ),
+			'Expected an activity row message with "Investigate Plugin".'
+		);
+	}
+
+	public function testThemeActivityRowsIncludeInvestigateThemeLinkWhenThemeMetaPresent() :void {
+		$themeSlug = $this->firstInstalledThemeSlug();
+		$logId = TestDataFactory::insertActivityLog( 'theme_file_edited', '203.0.113.202' );
+		TestDataFactory::insertActivityLogMeta( $logId, 'theme', $themeSlug );
+		TestDataFactory::insertActivityLogMeta( $logId, 'file', $themeSlug.'/functions.php' );
+
+		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_THEME,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $themeSlug,
+			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$rows = $payload[ 'datatable_data' ][ 'data' ] ?? [];
+		$this->assertTrue(
+			$this->rowsContain( $rows, 'Investigate Theme' ),
+			'Expected an activity row message with "Investigate Theme".'
+		);
+	}
+
+	private function rowsContain( array $rows, string $needle ) :bool {
+		foreach ( $rows as $row ) {
+			$message = (string)( $row[ 'message' ] ?? '' );
+			if ( \strpos( $message, $needle ) !== false ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function firstInstalledPluginSlug() :string {

@@ -154,6 +154,18 @@ class TestDataFactory {
 		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
 	}
 
+	/**
+	 * Insert a key/value metadata row for an existing activity log row.
+	 */
+	public static function insertActivityLogMeta( int $logId, string $metaKey, string $metaValue ) :void {
+		$dbh = self::con()->db_con->activity_logs_meta;
+		$record = $dbh->getRecord();
+		$record->log_ref = $logId;
+		$record->meta_key = $metaKey;
+		$record->meta_value = $metaValue;
+		$dbh->getQueryInserter()->insert( $record );
+	}
+
 	// ── Malware Records ───────────────────────────────────────────
 
 	/**

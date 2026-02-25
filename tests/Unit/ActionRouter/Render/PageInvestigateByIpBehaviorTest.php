@@ -98,6 +98,12 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 5, (int)( $summary[ 'activity' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 9, (int)( $summary[ 'requests' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 1, (int)( $summary[ 'offenses' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'good', (string)( $summary[ 'sessions' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'warning', (string)( $summary[ 'activity' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $summary[ 'requests' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $summary[ 'offenses' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'warning', (string)( $vars[ 'subject' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $vars[ 'subject' ][ 'status_pills' ][ 0 ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'rendered-ip:203.0.113.88', (string)( $renderData[ 'content' ][ 'ip_analysis' ] ?? '' ) );
 	}
 

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ActivityLog\BuildActivityLogTableData;
 
@@ -27,31 +28,24 @@ class InvestigationActivityLogTableData extends BuildActivityLogTableData {
 	}
 
 	private function appendAssetInvestigateLinks( array $row, LogRecord $record ) :array {
-		$links = [];
+		$linkSpecs = [];
 
 		$plugin = \trim( (string)( $record->meta_data[ 'plugin' ] ?? '' ) );
 		if ( !empty( $plugin ) ) {
-			$links[] = \sprintf(
-				'<a href="%s">%s</a>',
-				self::con()->plugin_urls->investigateByPlugin( $plugin ),
-				__( 'Investigate Plugin', 'wp-simple-firewall' )
-			);
+			$linkSpecs[] = $this->buildInvestigateAssetLinkSpec( InvestigationTableContract::SUBJECT_TYPE_PLUGIN, $plugin );
 		}
 
 		$theme = \trim( (string)( $record->meta_data[ 'theme' ] ?? '' ) );
 		if ( !empty( $theme ) ) {
-			$links[] = \sprintf(
-				'<a href="%s">%s</a>',
-				self::con()->plugin_urls->investigateByTheme( $theme ),
-				__( 'Investigate Theme', 'wp-simple-firewall' )
-			);
+			$linkSpecs[] = $this->buildInvestigateAssetLinkSpec( InvestigationTableContract::SUBJECT_TYPE_THEME, $theme );
 		}
 
+		$links = $this->renderAnchorSpecs( $linkSpecs );
 		if ( !empty( $links ) ) {
 			$row[ 'message' ] = \sprintf(
 				'%s<div class="small mt-1">%s</div>',
 				(string)( $row[ 'message' ] ?? '' ),
-				\implode( ' | ', $links )
+				$links
 			);
 		}
 

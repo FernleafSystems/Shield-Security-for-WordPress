@@ -49,7 +49,7 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 			],
 			'vars'    => [
 				'subject'        => [
-					'status'       => $hasCoreUpdate ? 'warning' : 'good',
+					'status'       => $this->mapCountToStatus( $hasCoreUpdate ? 1 : 0, 'good', 'warning' ),
 					'title'        => __( 'WordPress Core', 'wp-simple-firewall' ),
 					'avatar_icon'  => $con->svgs->iconClass( 'wordpress' ),
 					'meta'         => [
@@ -64,7 +64,7 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 					],
 					'status_pills' => [
 						[
-							'status' => $hasCoreUpdate ? 'warning' : 'good',
+							'status' => $this->mapCountToStatus( $hasCoreUpdate ? 1 : 0, 'good', 'warning' ),
 							'label'  => $hasCoreUpdate
 								? __( 'Core Update Available', 'wp-simple-firewall' )
 								: __( 'Core Up To Date', 'wp-simple-firewall' ),
@@ -77,12 +77,12 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 					'file_status' => [
 						'label'  => __( 'File Issues', 'wp-simple-firewall' ),
 						'count'  => $coreFileCount,
-						'status' => $coreFileCount > 0 ? 'warning' : 'good',
+						'status' => $this->mapCountToStatus( $coreFileCount, 'good', 'warning' ),
 					],
 					'activity'    => [
 						'label'  => __( 'Activity', 'wp-simple-firewall' ),
 						'count'  => $activityCount,
-						'status' => $activityCount > 0 ? 'warning' : 'info',
+						'status' => $this->mapCountToStatus( $activityCount, 'info', 'warning' ),
 					],
 				],
 				'tabs'           => $tabs,

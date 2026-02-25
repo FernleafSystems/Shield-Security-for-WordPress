@@ -42,8 +42,12 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
 		$this->assertSame( 'WordPress Core', (string)( $vars[ 'subject' ][ 'title' ] ?? '' ) );
+		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status_pills' ][ 0 ][ 'status' ] ?? '' ) );
 		$this->assertSame( 4, (int)( $vars[ 'summary' ][ 'file_status' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 7, (int)( $vars[ 'summary' ][ 'activity' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'file_status' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'activity' ][ 'status' ] ?? '' ) );
 
 		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );

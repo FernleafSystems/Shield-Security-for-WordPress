@@ -59,6 +59,12 @@ class InvestigationSubjectWheresTest extends BaseUnitTest {
 		$this->assertStringContainsString( "FROM `wp_activity_meta` as `meta_plugin`", $wheres[ 1 ] );
 		$this->assertStringContainsString( "`meta_plugin`.`meta_key`='plugin'", $wheres[ 1 ] );
 		$this->assertStringContainsString( "`meta_plugin`.`meta_value`='akismet/akismet.php'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "FROM `wp_activity_meta` as `meta_plugin_file`", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`log`.`event_slug`='plugin_file_edited'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_plugin_file`.`meta_key`='file'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_plugin_file`.`meta_value` LIKE '%akismet/akismet.php%'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_plugin_file`.`meta_value` LIKE '%akismet/%'", $wheres[ 1 ] );
+		$this->assertStringNotContainsString( "`meta_key` NOT IN ('uid','audit_count')", $wheres[ 1 ] );
 	}
 
 	public function testThemeActivityWheresIncludeEventFamilyAndThemeMetaMatching() :void {
@@ -69,6 +75,28 @@ class InvestigationSubjectWheresTest extends BaseUnitTest {
 		$this->assertStringContainsString( "FROM `wp_activity_meta` as `meta_theme`", $wheres[ 1 ] );
 		$this->assertStringContainsString( "`meta_theme`.`meta_key`='theme'", $wheres[ 1 ] );
 		$this->assertStringContainsString( "`meta_theme`.`meta_value`='twentytwentyfive'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "FROM `wp_activity_meta` as `meta_theme_file`", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`log`.`event_slug`='theme_file_edited'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_theme_file`.`meta_key`='file'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_theme_file`.`meta_value` LIKE '%twentytwentyfive/%'", $wheres[ 1 ] );
+		$this->assertStringNotContainsString( "`meta_key` NOT IN ('uid','audit_count')", $wheres[ 1 ] );
+		$this->assertStringNotContainsString( "`meta_theme_file`.`meta_value` LIKE '%twentytwentyfive%'", $wheres[ 1 ] );
+	}
+
+	public function testActivityFileFallbackEscapesSqlLikeWildcardsInTokens() :void {
+		$wheres = InvestigationSubjectWheres::forPluginActivitySubject( 'foo_%/main.php', 'wp_activity_meta' );
+
+		$this->assertCount( 2, $wheres );
+		$this->assertStringContainsString( "`meta_plugin_file`.`meta_value` LIKE '%foo\\_\\%/main.php%'", $wheres[ 1 ] );
+	}
+
+	public function testThemeActivityFallbackUsesDirOnlyTokensWhenSubjectContainsPath() :void {
+		$wheres = InvestigationSubjectWheres::forThemeActivitySubject( 'theme-dir/style.css', 'wp_activity_meta' );
+
+		$this->assertCount( 2, $wheres );
+		$this->assertStringContainsString( "`meta_theme_file`.`meta_value` LIKE '%theme-dir/%'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_theme_file`.`meta_value` LIKE '%/theme-dir/%'", $wheres[ 1 ] );
+		$this->assertStringNotContainsString( "`meta_theme_file`.`meta_value` LIKE '%theme-dir/style.css/%'", $wheres[ 1 ] );
 	}
 
 	public function testCoreActivityWheresIncludeExpectedCoreAndWpOptionEvents() :void {

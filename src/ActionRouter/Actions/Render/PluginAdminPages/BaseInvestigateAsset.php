@@ -6,9 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\Investigation\InvestigationTableContract,
 	Actions\Investigation\InvestigationSubjectResolver,
-	Actions\InvestigationTableAction
+	Actions\InvestigationTableAction,
+	Exceptions\InvalidInvestigationSubjectIdentifierException,
+	Exceptions\UnsupportedInvestigationSubjectTypeException,
+	Exceptions\UnsupportedInvestigationTableTypeException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\PluginThemesBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\{
@@ -23,8 +25,10 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 
 	use InvestigateAssetOptionsBuilder;
+	use InvestigateCountCache;
+	use InvestigateStatusMapping;
 
-	private $assetDataBuilder;
+	private ?InvestigateAssetDataAdapter $assetDataAdapter = null;
 
 	protected function getLookupValue( string $queryKey ) :string {
 		return \trim( sanitize_text_field( (string)Services::Request()->query( $queryKey, '' ) ) );
@@ -200,18 +204,18 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	}
 
 	protected function buildPluginScanData( $plugin ) :array {
-		return $this->getAssetDataBuilder()->exposeBuildPluginData( $plugin );
+		return $this->getAssetDataAdapter()->buildPluginDataForInvestigate( $plugin );
 	}
 
 	protected function buildThemeScanData( $theme ) :array {
-		return $this->getAssetDataBuilder()->exposeBuildThemeData( $theme );
+		return $this->getAssetDataAdapter()->buildThemeDataForInvestigate( $theme );
 	}
 
 	protected function buildVulnerabilityData( string $subjectId, string $lookupHref ) :array {
 		try {
 			$items = self::con()->comps->scans->WPV()->getResultsForDisplay()->getItemsForSlug( $subjectId );
 		}
-		catch ( \Throwable $e ) {
+		catch ( \Exception $e ) {
 			$items = [];
 		}
 		$count = \count( $items );
@@ -230,47 +234,54 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 
 	protected function countFileScanResultsForSubject( string $subjectType, string $subjectId ) :int {
 		$subjectType = \strtolower( \trim( $subjectType ) );
-		switch ( $subjectType ) {
-			case InvestigationTableContract::SUBJECT_TYPE_PLUGIN:
-			case InvestigationTableContract::SUBJECT_TYPE_THEME:
-				$wheres = InvestigationSubjectWheres::forAssetSlug( $subjectId );
-				break;
-			case InvestigationTableContract::SUBJECT_TYPE_CORE:
-				$wheres = InvestigationSubjectWheres::forCoreResults();
-				break;
-			default:
-				$wheres = InvestigationSubjectWheres::impossible();
-				break;
-		}
+		return $this->cachedCount(
+			'file_status',
+			$subjectType,
+			$subjectId,
+			function () use ( $subjectType, $subjectId ) :int {
+				switch ( $subjectType ) {
+					case InvestigationTableContract::SUBJECT_TYPE_PLUGIN:
+					case InvestigationTableContract::SUBJECT_TYPE_THEME:
+						$wheres = InvestigationSubjectWheres::forAssetSlug( $subjectId );
+						break;
+					case InvestigationTableContract::SUBJECT_TYPE_CORE:
+						$wheres = InvestigationSubjectWheres::forCoreResults();
+						break;
+					default:
+						$wheres = InvestigationSubjectWheres::impossible();
+						break;
+				}
 
-		$loader = new LoadFileScanResultsTableData();
-		$loader->custom_record_retriever_wheres = $wheres;
-		return $loader->countAll();
+				$loader = new LoadFileScanResultsTableData();
+				$loader->custom_record_retriever_wheres = $wheres;
+				return $loader->countAll();
+			}
+		);
 	}
 
 	protected function countActivityForSubject( string $subjectType, string $subjectId ) :int {
-		$loader = new LoadLogs();
-		$loader->wheres = InvestigationSubjectWheres::forActivitySubject(
+		$subjectType = \strtolower( \trim( $subjectType ) );
+		return $this->cachedCount(
+			'activity',
 			$subjectType,
 			$subjectId,
-			self::con()->db_con->activity_logs_meta->getTable()
+			function () use ( $subjectType, $subjectId ) :int {
+				$loader = new LoadLogs();
+				$loader->wheres = InvestigationSubjectWheres::forActivitySubject(
+					$subjectType,
+					$subjectId,
+					self::con()->db_con->activity_logs_meta->getTable()
+				);
+				return $loader->countAll();
+			}
 		);
-		return $loader->countAll();
 	}
 
-	private function getAssetDataBuilder() {
-		if ( $this->assetDataBuilder === null ) {
-			$this->assetDataBuilder = new class extends PluginThemesBase {
-				public function exposeBuildPluginData( $plugin ) :array {
-					return $this->buildPluginData( $plugin );
-				}
-
-				public function exposeBuildThemeData( $theme ) :array {
-					return $this->buildThemeData( $theme );
-				}
-			};
+	private function getAssetDataAdapter() :InvestigateAssetDataAdapter {
+		if ( $this->assetDataAdapter === null ) {
+			$this->assetDataAdapter = new InvestigateAssetDataAdapter();
 		}
-		return $this->assetDataBuilder;
+		return $this->assetDataAdapter;
 	}
 
 	private function normalizeAssetLookup( string $subjectType, string $lookup ) :string {
@@ -281,7 +292,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 				$lookup
 			);
 		}
-		catch ( \Throwable $e ) {
+		catch ( InvalidInvestigationSubjectIdentifierException | UnsupportedInvestigationSubjectTypeException | UnsupportedInvestigationTableTypeException $e ) {
 			$normalized = [];
 		}
 

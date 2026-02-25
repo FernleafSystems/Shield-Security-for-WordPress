@@ -39,6 +39,9 @@ class BuildActivityLogDataSubjectWhereTest extends BaseUnitTest {
 		$this->assertSame( "`log`.`event_slug` LIKE 'plugin_%'", $wheres[ 0 ] );
 		$this->assertStringContainsString( "`meta_plugin`.`meta_key`='plugin'", $wheres[ 1 ] );
 		$this->assertStringContainsString( "`meta_plugin`.`meta_value`='akismet/akismet.php'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`log`.`event_slug`='plugin_file_edited'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_plugin_file`.`meta_key`='file'", $wheres[ 1 ] );
+		$this->assertStringNotContainsString( "`meta_key` NOT IN ('uid','audit_count')", $wheres[ 1 ] );
 	}
 
 	public function testThemeSubjectBuildsThemeFamilyWhereClauses() :void {
@@ -48,6 +51,10 @@ class BuildActivityLogDataSubjectWhereTest extends BaseUnitTest {
 		$this->assertSame( "`log`.`event_slug` LIKE 'theme_%'", $wheres[ 0 ] );
 		$this->assertStringContainsString( "`meta_theme`.`meta_key`='theme'", $wheres[ 1 ] );
 		$this->assertStringContainsString( "`meta_theme`.`meta_value`='twentytwentyfive'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`log`.`event_slug`='theme_file_edited'", $wheres[ 1 ] );
+		$this->assertStringContainsString( "`meta_theme_file`.`meta_key`='file'", $wheres[ 1 ] );
+		$this->assertStringNotContainsString( "`meta_key` NOT IN ('uid','audit_count')", $wheres[ 1 ] );
+		$this->assertStringNotContainsString( "`meta_theme_file`.`meta_value` LIKE '%twentytwentyfive%'", $wheres[ 1 ] );
 	}
 
 	public function testCoreSubjectBuildsCoreAndWpOptionWhereClause() :void {

@@ -64,15 +64,16 @@ class InvestigationSubjectWheres {
 			return self::impossible();
 		}
 
-		$fallbackToken = \trim( \basename( \str_replace( '\\', '/', $subjectId ) ) );
-		$metaWhere = self::existsActivityMetaEquals( $activityMetaTable, 'plugin', $subjectId, 'meta_plugin' );
-		if ( !empty( $fallbackToken ) ) {
-			$metaWhere = \sprintf(
-				'(%s OR %s)',
-				$metaWhere,
-				self::existsActivityMetaLike( $activityMetaTable, $fallbackToken, 'meta_plugin_fallback' )
-			);
-		}
+		$metaWhere = \sprintf(
+			'(%s OR %s)',
+			self::existsActivityMetaEquals( $activityMetaTable, 'plugin', $subjectId, 'meta_plugin' ),
+			self::existsActivityFileEditMetaLike(
+				$activityMetaTable,
+				'plugin_file_edited',
+				self::buildPluginFileTokens( $subjectId ),
+				'meta_plugin_file'
+			)
+		);
 
 		return [
 			"`log`.`event_slug` LIKE 'plugin_%'",
@@ -86,11 +87,15 @@ class InvestigationSubjectWheres {
 			return self::impossible();
 		}
 
-		$metaWhere = self::existsActivityMetaEquals( $activityMetaTable, 'theme', $subjectId, 'meta_theme' );
 		$metaWhere = \sprintf(
 			'(%s OR %s)',
-			$metaWhere,
-			self::existsActivityMetaLike( $activityMetaTable, $subjectId, 'meta_theme_fallback' )
+			self::existsActivityMetaEquals( $activityMetaTable, 'theme', $subjectId, 'meta_theme' ),
+			self::existsActivityFileEditMetaLike(
+				$activityMetaTable,
+				'theme_file_edited',
+				self::buildThemeFileTokens( $subjectId ),
+				'meta_theme_file'
+			)
 		);
 
 		return [
@@ -118,15 +123,68 @@ class InvestigationSubjectWheres {
 		);
 	}
 
-	private static function existsActivityMetaLike( string $activityMetaTable, string $search, string $abbr ) :string {
+	private static function existsActivityFileEditMetaLike( string $activityMetaTable, string $eventSlug, array $searchTokens, string $abbr ) :string {
+		$likeClauses = \array_values( \array_filter( \array_map(
+			static fn( string $token ) :string => \trim( $token ) === ''
+				? ''
+				: \sprintf( "`%s`.`meta_value` LIKE '%%%s%%'", $abbr, esc_sql( self::escapeLikeToken( $token ) ) ),
+			$searchTokens
+		), '\strlen' ) );
+
+		if ( empty( $likeClauses ) ) {
+			return '0=1';
+		}
+
 		return \sprintf(
-			"EXISTS (SELECT 1 FROM `%s` as `%s` WHERE `%s`.`log_ref`=`log`.`id` AND `%s`.`meta_key` NOT IN ('uid','audit_count') AND `%s`.`meta_value` LIKE '%%%s%%')",
+			"EXISTS (SELECT 1 FROM `%s` as `%s` WHERE `%s`.`log_ref`=`log`.`id` AND `log`.`event_slug`='%s' AND `%s`.`meta_key`='file' AND (%s))",
 			$activityMetaTable,
 			$abbr,
 			$abbr,
+			esc_sql( $eventSlug ),
 			$abbr,
-			$abbr,
-			esc_sql( $search )
+			\implode( ' OR ', $likeClauses )
 		);
+	}
+
+	private static function buildPluginFileTokens( string $subjectId ) :array {
+		$subjectId = \trim( \str_replace( '\\', '/', $subjectId ), '/' );
+		if ( empty( $subjectId ) ) {
+			return [];
+		}
+
+		$tokens = [ $subjectId ];
+		$dir = \trim( \dirname( $subjectId ), './\\' );
+		if ( !empty( $dir ) && $dir !== '.' ) {
+			$tokens[] = $dir.'/';
+			$tokens[] = '/'.$dir.'/';
+		}
+
+		return \array_values( \array_unique( \array_filter( $tokens, '\strlen' ) ) );
+	}
+
+	private static function buildThemeFileTokens( string $subjectId ) :array {
+		$subjectId = \trim( \str_replace( '\\', '/', $subjectId ), '/' );
+		if ( empty( $subjectId ) ) {
+			return [];
+		}
+
+		$tokens = [];
+		$dir = \trim( \dirname( $subjectId ), './\\' );
+		if ( !empty( $dir ) && $dir !== '.' ) {
+			$tokens[] = $dir.'/';
+			$tokens[] = '/'.$dir.'/';
+		}
+		else {
+			$tokens[] = $subjectId.'/';
+			$tokens[] = '/'.$subjectId.'/';
+		}
+
+		return \array_values( \array_unique( \array_filter( $tokens, '\strlen' ) ) );
+	}
+
+	private static function escapeLikeToken( string $token ) :string {
+		return \function_exists( 'esc_like' )
+			? esc_like( $token )
+			: \addcslashes( $token, '_%\\' );
 	}
 }

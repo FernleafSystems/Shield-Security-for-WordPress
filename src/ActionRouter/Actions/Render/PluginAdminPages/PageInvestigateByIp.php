@@ -11,6 +11,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PageInvestigateByIp extends BasePluginAdminPage {
 
+	use InvestigateCountCache;
+	use InvestigateStatusMapping;
+
 	public const SLUG = 'plugin_admin_page_investigate_by_ip';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_ip.twig';
 
@@ -29,27 +32,30 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				'sessions' => [
 					'label'  => __( 'Sessions', 'wp-simple-firewall' ),
 					'count'  => $counts[ 'sessions' ],
-					'status' => $counts[ 'sessions' ] > 0 ? 'good' : 'info',
+					'status' => $this->mapCountToStatus( $counts[ 'sessions' ], 'info', 'good' ),
 				],
 				'activity' => [
 					'label'  => __( 'Activity', 'wp-simple-firewall' ),
 					'count'  => $counts[ 'activity' ],
-					'status' => $counts[ 'activity' ] > 0 ? 'warning' : 'info',
+					'status' => $this->mapCountToStatus( $counts[ 'activity' ], 'info', 'warning' ),
 				],
 				'requests' => [
 					'label'  => __( 'Requests', 'wp-simple-firewall' ),
 					'count'  => $counts[ 'requests' ],
-					'status' => $counts[ 'offenses' ] > 0 ? 'critical' : ( $counts[ 'requests' ] > 0 ? 'warning' : 'info' ),
+					'status' => $this->highestStatus( [
+						$this->mapCountToStatus( $counts[ 'requests' ], 'info', 'warning' ),
+						$counts[ 'offenses' ] > 0 ? 'critical' : '',
+					], 'info' ),
 				],
 				'offenses' => [
 					'label'  => __( 'Offenses', 'wp-simple-firewall' ),
 					'count'  => $counts[ 'offenses' ],
-					'status' => $counts[ 'offenses' ] > 0 ? 'critical' : 'good',
+					'status' => $this->mapCountToStatus( $counts[ 'offenses' ], 'good', 'critical' ),
 				],
 			];
 
 			$subject = [
-				'status'       => $counts[ 'offenses' ] > 0 ? 'warning' : 'info',
+				'status'       => $this->highestStatus( [ $counts[ 'offenses' ] > 0 ? 'warning' : '' ], 'info' ),
 				'title'        => $lookup,
 				'avatar_icon'  => $con->svgs->iconClass( 'globe2' ),
 				'meta'         => [
@@ -60,7 +66,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				],
 				'status_pills' => [
 					[
-						'status' => $counts[ 'offenses' ] > 0 ? 'critical' : 'good',
+						'status' => $this->mapCountToStatus( $counts[ 'offenses' ], 'good', 'critical' ),
 						'label'  => $counts[ 'offenses' ] > 0
 							? \sprintf( _n( '%d offense', '%d offenses', $counts[ 'offenses' ], 'wp-simple-firewall' ), $counts[ 'offenses' ] )
 							: __( 'No offenses', 'wp-simple-firewall' ),
@@ -114,20 +120,29 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 	}
 
 	protected function buildSummaryCounts( string $ip ) :array {
-		$sessions = 0;
-		foreach ( ( new FindSessions() )->byIP( $ip ) as $byUser ) {
-			$sessions += \count( $byUser );
-		}
+		$sessions = $this->cachedCount( 'sessions', 'ip', $ip, function () use ( $ip ) :int {
+			$total = 0;
+			foreach ( ( new FindSessions() )->byIP( $ip ) as $byUser ) {
+				$total += \count( $byUser );
+			}
+			return $total;
+		} );
 
-		$activityLoader = ( new LoadLogs() )->setIP( $ip );
-		$activity = $activityLoader->countAll();
+		$activity = $this->cachedCount( 'activity', 'ip', $ip, function () use ( $ip ) :int {
+			$activityLoader = ( new LoadLogs() )->setIP( $ip );
+			return $activityLoader->countAll();
+		} );
 
-		$requestLoader = ( new LoadRequestLogs() )->setIP( $ip );
-		$requests = $requestLoader->countAll();
+		$requests = $this->cachedCount( 'requests', 'ip', $ip, function () use ( $ip ) :int {
+			$requestLoader = ( new LoadRequestLogs() )->setIP( $ip );
+			return $requestLoader->countAll();
+		} );
 
-		$offenseLoader = ( new LoadRequestLogs() )->setIP( $ip );
-		$offenseLoader->wheres = [ '`req`.`offense`=1' ];
-		$offenses = $offenseLoader->countAll();
+		$offenses = $this->cachedCount( 'offenses', 'ip', $ip, function () use ( $ip ) :int {
+			$offenseLoader = ( new LoadRequestLogs() )->setIP( $ip );
+			$offenseLoader->wheres = [ '`req`.`offense`=1' ];
+			return $offenseLoader->countAll();
+		} );
 
 		return [
 			'sessions' => $sessions,
@@ -136,4 +151,5 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 			'offenses' => $offenses,
 		];
 	}
+
 }
