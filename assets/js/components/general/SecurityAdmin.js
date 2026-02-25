@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
+import { Modal } from "bootstrap";
 import { Forms } from "../../util/Forms";
 import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
@@ -14,6 +15,7 @@ export class SecurityAdmin extends BaseComponent {
 
 		if ( this._base_data ) {
 			this.timeoutInterval = 500 * this._base_data.vars.time_remaining;
+			this.showRestrictedPageModal();
 
 			this.restrictWPOptions();
 
@@ -45,6 +47,20 @@ export class SecurityAdmin extends BaseComponent {
 			} );
 
 			shieldEventsHandler_Main.add_Click( '#SecAdminDialog a', () => this.#performSecAdminDialogLogin() );
+		}
+	}
+
+	showRestrictedPageModal() {
+		const modalEl = document.getElementById( 'SecurityAdminOverlay' );
+		if ( modalEl ) {
+			modalEl.addEventListener( 'shown.bs.modal', () => {
+				modalEl.querySelector( '#sec_admin_key' )?.focus();
+			}, { once: true } );
+
+			( new Modal( modalEl, {
+				backdrop: 'static',
+				keyboard: false
+			} ) ).show();
 		}
 	}
 
