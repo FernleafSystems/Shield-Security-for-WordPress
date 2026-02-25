@@ -17,18 +17,7 @@ class LoadTextDomain {
 		 * provided by WordPress.org since getting our existing translations into the WP.org
 		 * system is full of friction, though that's where we'd like to end-up eventually.
 		 */
-		add_filter( 'load_textdomain_mofile', function ( $moFile, $domain ) {
-			if ( !self::$processing && $domain === self::con()->getTextDomain() ) {
-				self::$processing = true;
-				try {
-					$moFile = $this->overrideTranslations( $moFile );
-				}
-				finally {
-					self::$processing = false;
-				}
-			}
-			return $moFile;
-		}, 100, 2 );
+		add_filter( 'load_textdomain_mofile', [ $this, 'onLoadTextdomainMofile' ], 100, 2 );
 		/**
 		 * No longer needed, apparently:
 		 * https://make.wordpress.org/core/2024/10/21/i18n-improvements-6-7/
@@ -38,6 +27,19 @@ class LoadTextDomain {
 		 * plugin_basename( self::con()->getPath_Languages() )
 		 * );
 		 */
+	}
+
+	public function onLoadTextdomainMofile( string $moFile, string $domain ) :string {
+		if ( !self::$processing && $domain === self::con()->getTextDomain() ) {
+			self::$processing = true;
+			try {
+				$moFile = $this->overrideTranslations( $moFile );
+			}
+			finally {
+				self::$processing = false;
+			}
+		}
+		return $moFile;
 	}
 
 	/**
@@ -73,22 +75,16 @@ class LoadTextDomain {
 
 	private function findPluginIntegratedMo( string $targetLocale ) :?string {
 		$foundMoPath = null;
-		$targetLang = $this->localeToLang( $targetLocale );
 		$availableLocales = ( new GetAllAvailableLocales() )->run();
 
-		// First look for exact .mo files.
-		foreach ( $availableLocales as $loc => $moPath ) {
-			if ( $targetLocale === $loc && Services::WpFs()->exists( $moPath ) ) {
-				$foundMoPath = $moPath;
-				break;
-			}
+		$exactMoPath = $availableLocales[ $targetLocale ] ?? '';
+		if ( !empty( $exactMoPath ) && Services::WpFs()->exists( $exactMoPath ) ) {
+			$foundMoPath = $exactMoPath;
 		}
 
 		// Then look for mo for that language.
-		if ( empty( $foundMoPath ) && !empty( $targetLang ) ) {
-			// We intentionally pick the first available locale for a language for now.
-			// Canonical locale selection is more complex and deferred.
-			$languageLocale = $this->getFirstLocaleForLanguage( \array_keys( $availableLocales ), $targetLang );
+		if ( empty( $foundMoPath ) ) {
+			$languageLocale = ( new LocaleLanguageMatcher() )->getFirstLocaleForLanguage( \array_keys( $availableLocales ), $targetLocale );
 			if ( !empty( $languageLocale ) ) {
 				$moPath = $availableLocales[ $languageLocale ] ?? '';
 				if ( !empty( $moPath ) && Services::WpFs()->exists( $moPath ) ) {
@@ -103,19 +99,17 @@ class LoadTextDomain {
 	private function findDynamicMo( string $targetLocale ) :?string {
 		$foundMoPath = null;
 		$transDownloaderCon = self::con()->comps->translation_downloads;
+		$cachedLocales = \array_keys( $transDownloaderCon->getCachedLocales() );
 
-		// Check for exact locale match in cache
+		// Check for the exact locale match in the cache
 		$cachedPath = $transDownloaderCon->getLocaleMoFilePath( $targetLocale );
 		if ( !empty( $cachedPath ) ) {
 			$foundMoPath = $cachedPath;
 		}
 
 		// Try language-only match in cache (e.g., 'de' from 'de_DE')
-		$targetLang = $this->localeToLang( $targetLocale );
-		if ( empty( $foundMoPath ) && !empty( $targetLang ) ) {
-			// We intentionally pick the first available locale for a language for now.
-			// Canonical locale selection is more complex and deferred.
-			$languageLocale = $this->getFirstLocaleForLanguage( \array_keys( $transDownloaderCon->getCachedLocales() ), $targetLang );
+		if ( empty( $foundMoPath ) ) {
+			$languageLocale = ( new LocaleLanguageMatcher() )->getFirstLocaleForLanguage( $cachedLocales, $targetLocale );
 			if ( !empty( $languageLocale ) ) {
 				$cachedPath = $transDownloaderCon->getLocaleMoFilePath( $languageLocale );
 				if ( !empty( $cachedPath ) ) {
@@ -126,13 +120,11 @@ class LoadTextDomain {
 
 		// 3. Queue for async download if not found
 		if ( empty( $foundMoPath ) ) {
-			$localeToQueue = null;
-
 			if ( $transDownloaderCon->isLocaleAvailable( $targetLocale ) ) {
 				$localeToQueue = $targetLocale;
 			}
-			elseif ( !empty( $targetLang ) ) {
-				$localeToQueue = $this->getFirstLocaleForLanguage( \array_keys( $transDownloaderCon->getCachedLocales() ), $targetLang );
+			else {
+				$localeToQueue = ( new LocaleLanguageMatcher() )->getFirstLocaleForLanguage( $cachedLocales, $targetLocale );
 			}
 			if ( !empty( $localeToQueue ) ) {
 				$transDownloaderCon->enqueueLocaleForDownload( $localeToQueue );
@@ -140,26 +132,5 @@ class LoadTextDomain {
 		}
 
 		return $foundMoPath;
-	}
-
-	private function getFirstLocaleForLanguage( array $locales, string $targetLang ) :?string {
-		$firstLocale = null;
-
-		if ( !empty( $targetLang ) ) {
-			$locales = \array_filter( \array_map( 'strval', $locales ) );
-			\sort( $locales, \SORT_STRING );
-			foreach ( $locales as $maybeLocale ) {
-				if ( $targetLang === $this->localeToLang( $maybeLocale ) ) {
-					$firstLocale = $maybeLocale;
-					break;
-				}
-			}
-		}
-
-		return $firstLocale;
-	}
-
-	private function localeToLang( string $locale ) :string {
-		return \substr( $locale, 0, 2 );
 	}
 }

@@ -15,7 +15,6 @@ class PreStore {
 
 	public function run() {
 		( new OptionsCorrections() )->run();
-		$this->general();
 		$this->audit();
 		$this->comments();
 		$this->firewall();
@@ -26,18 +25,6 @@ class PreStore {
 		$this->scanners();
 		$this->securityAdmin();
 		$this->user();
-	}
-
-	private function general() :void {
-		$opts = self::con()->opts;
-
-		// TODO: filter against available language translations.
-		$current = $opts->optGet( 'language_override' );
-		$current = \strtolower( \preg_replace( '#[^a-z]#i', '', $current ) );
-		if ( \strlen( $current ) !== 2 ) {
-			$current = '';
-		}
-		$opts->optSet( 'language_override', $current );
 	}
 
 	private function audit() {

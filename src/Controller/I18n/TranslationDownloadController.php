@@ -259,9 +259,9 @@ class TranslationDownloadController {
 
 	public function isQueueRelevantToLocale( string $locale ) :bool {
 		$isRelevant = false;
-		$lang = \substr( $locale, 0, 2 );
+		$localeMatcher = new LocaleLanguageMatcher();
 		foreach ( $this->getQueue() as $queuedLocale ) {
-			if ( $locale === $queuedLocale || $lang === \substr( $queuedLocale, 0, 2 ) ) {
+			if ( $localeMatcher->isLocaleOrLanguageMatch( (string)$queuedLocale, $locale ) ) {
 				$isRelevant = true;
 				break;
 			}

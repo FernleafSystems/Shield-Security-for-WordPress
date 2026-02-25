@@ -9,21 +9,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldWordPressTes
 class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestCase {
 
 	private LoadTextDomain $loader;
-	private \ReflectionMethod $overrideTranslationsMethod;
 
 	public function set_up() {
 		parent::set_up();
 
 		$this->loader = new LoadTextDomain();
-		$reflection = new \ReflectionClass( $this->loader );
-		$this->overrideTranslationsMethod = $reflection->getMethod( 'overrideTranslations' );
-		$this->overrideTranslationsMethod->setAccessible( true );
-
+		$this->loader->run();
 		$this->setLanguageOverride( '' );
 	}
 
 	public function tear_down() {
 		$this->setLanguageOverride( '' );
+		remove_filter( 'load_textdomain_mofile', [ $this->loader, 'onLoadTextdomainMofile' ], 100 );
 		parent::tear_down();
 	}
 
@@ -39,7 +36,7 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 		$this->setLanguageOverride( 'de' );
 		$sourcePath = path_join( $con->getPath_Languages(), \sprintf( '%s-%s.mo', $con->getTextDomain(), 'fr_FR' ) );
 
-		$this->assertSame( $expectedPath, $this->invokeOverrideTranslations( $sourcePath ) );
+		$this->assertSame( $expectedPath, $this->resolveMoForPluginDomain( $sourcePath ) );
 	}
 
 	public function testLanguageOverrideUsesFirstAvailableLocaleForLanguage() :void {
@@ -54,20 +51,17 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 		$this->setLanguageOverride( 'zh' );
 		$sourcePath = path_join( $con->getPath_Languages(), \sprintf( '%s-%s.mo', $con->getTextDomain(), 'fr_FR' ) );
 
-		$this->assertSame( $expectedPath, $this->invokeOverrideTranslations( $sourcePath ) );
+		$this->assertSame( $expectedPath, $this->resolveMoForPluginDomain( $sourcePath ) );
 	}
 
 	public function testLanguageOverrideWithoutMatchAvoidsUnrelatedLocaleFile() :void {
-		$con = self::con();
-		$this->assertNotNull( $con );
-
 		$sourcePath = $this->firstIntegratedLocalePathForLanguage( 'de' );
 		if ( $sourcePath === null ) {
 			$this->markTestSkipped( 'No integrated German locale is available in this environment.' );
 		}
 
 		$this->setLanguageOverride( 'en' );
-		$resolved = $this->invokeOverrideTranslations( $sourcePath );
+		$resolved = $this->resolveMoForPluginDomain( $sourcePath );
 
 		$expectedEnglishPath = $this->firstIntegratedLocalePathForLanguage( 'en' );
 		if ( $expectedEnglishPath !== null ) {
@@ -79,9 +73,6 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 	}
 
 	public function testNoOverrideUsesPluginLocaleTarget() :void {
-		$con = self::con();
-		$this->assertNotNull( $con );
-
 		$expectedFrenchPath = $this->firstIntegratedLocalePathForLanguage( 'fr' );
 		if ( $expectedFrenchPath === null ) {
 			$this->markTestSkipped( 'No integrated French locale is available in this environment.' );
@@ -93,15 +84,12 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 		}
 
 		$this->setLanguageOverride( '' );
-		$resolved = $this->invokeWithPluginLocale( 'fr_FR', fn() => $this->invokeOverrideTranslations( $sourcePath ) );
+		$resolved = $this->invokeWithPluginLocale( 'fr_FR', fn() => $this->resolveMoForPluginDomain( $sourcePath ) );
 
 		$this->assertSame( $expectedFrenchPath, $resolved );
 	}
 
 	public function testOverrideLanguageTakesPrecedenceOverPluginLocale() :void {
-		$con = self::con();
-		$this->assertNotNull( $con );
-
 		$expectedGermanPath = $this->firstIntegratedLocalePathForLanguage( 'de' );
 		if ( $expectedGermanPath === null ) {
 			$this->markTestSkipped( 'No integrated German locale is available in this environment.' );
@@ -113,23 +101,36 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 		}
 
 		$this->setLanguageOverride( 'de' );
-		$resolved = $this->invokeWithPluginLocale( 'fr_FR', fn() => $this->invokeOverrideTranslations( $sourcePath ) );
+		$resolved = $this->invokeWithPluginLocale( 'fr_FR', fn() => $this->resolveMoForPluginDomain( $sourcePath ) );
 
 		$this->assertSame( $expectedGermanPath, $resolved );
 	}
 
-	public function testInvalidOverrideIsSanitizedToEmptyOnStore() :void {
+	public function testLanguageOverrideIsNormalisedOnStore() :void {
 		$con = self::con();
 		$this->assertNotNull( $con );
 
-		$this->setLanguageOverride( 'ENG<script>' );
-		$con->opts->store();
+		$con->opts->optSet( 'language_override', 'EN' )->store();
+		$this->assertSame( 'en', (string)$con->opts->optGet( 'language_override' ) );
+	}
 
+	public function testInvalidLanguageOverrideIsSanitizedToEmptyOnStore() :void {
+		$con = self::con();
+		$this->assertNotNull( $con );
+
+		$con->opts->optSet( 'language_override', 'ENG<script>' )->store();
 		$this->assertSame( '', (string)$con->opts->optGet( 'language_override' ) );
 	}
 
-	private function invokeOverrideTranslations( string $moFilePath ) :string {
-		return (string)$this->overrideTranslationsMethod->invoke( $this->loader, $moFilePath );
+	public function testFilterIgnoredForDifferentDomain() :void {
+		$con = self::con();
+		$this->assertNotNull( $con );
+
+		$this->setLanguageOverride( 'de' );
+		$sourcePath = path_join( $con->getPath_Languages(), \sprintf( '%s-%s.mo', $con->getTextDomain(), 'fr_FR' ) );
+		$resolved = apply_filters( 'load_textdomain_mofile', $sourcePath, 'another-text-domain' );
+
+		$this->assertSame( $sourcePath, $resolved );
 	}
 
 	/**
@@ -144,6 +145,10 @@ class LoadTextDomainLanguageOverrideIntegrationTest extends ShieldWordPressTestC
 		finally {
 			remove_filter( 'plugin_locale', $filter, 10 );
 		}
+	}
+
+	private function resolveMoForPluginDomain( string $moFilePath ) :string {
+		return (string)apply_filters( 'load_textdomain_mofile', $moFilePath, self::con()->getTextDomain() );
 	}
 
 	private function setLanguageOverride( string $value ) :void {
