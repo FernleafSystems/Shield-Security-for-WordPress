@@ -1,7 +1,7 @@
 import BigPicture from "bigpicture";
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
-import { Modal } from 'bootstrap';
+import { BootstrapModals } from "../ui/BootstrapModals";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 
 export class MiscHooks extends BaseComponent {
@@ -40,8 +40,7 @@ export class MiscHooks extends BaseComponent {
 						);
 					}
 					modalContainer.querySelector( '.modal-content' ).innerHTML = resp.data.html;
-					const myModal = new Modal( modalContainer, {} );
-					myModal.show();
+					BootstrapModals.Show( modalContainer );
 				}
 				else {
 					alert( resp.data.message );

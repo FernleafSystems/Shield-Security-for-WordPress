@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
-import { Modal } from "bootstrap";
 import { Forms } from "../../util/Forms";
 import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
+import { BootstrapModals } from "../ui/BootstrapModals";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 
 export class SecurityAdmin extends BaseComponent {
@@ -57,10 +57,10 @@ export class SecurityAdmin extends BaseComponent {
 				modalEl.querySelector( '#sec_admin_key' )?.focus();
 			}, { once: true } );
 
-			( new Modal( modalEl, {
+			BootstrapModals.Show( modalEl, {
 				backdrop: 'static',
 				keyboard: false
-			} ) ).show();
+			} );
 		}
 	}
 

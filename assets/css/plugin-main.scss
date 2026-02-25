@@ -27,6 +27,7 @@ $code-color: $secondary;
 @import './shield/zones';
 @import './shield/dashboard';
 @import './shield/needs-attention';
+@import './shield/modal-layout';
 @import './shield/security-admin';
 
 @import './components/notices';
@@ -1055,10 +1056,6 @@ td.status_file_size {
 #SuperSearchLaunch > input.disabled {
   border: 2px solid transparent;
   cursor: no-drop;
-}
-
-.shield-modal-content-raised {
-  margin-top: 100px;
 }
 
 #ModalSuperSearchBox .search-icon > .bi {
