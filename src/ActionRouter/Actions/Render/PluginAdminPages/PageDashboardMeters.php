@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\ProgressMeters;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityOverviewViewAs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponent;
 
 class PageDashboardMeters extends BasePluginAdminPage {
 
@@ -63,7 +64,9 @@ class PageDashboardMeters extends BasePluginAdminPage {
 
 		return [
 			'content' => [
-				'progress_meters' => $con->action_router->render( ProgressMeters::class ),
+				'progress_meters' => $con->action_router->render( ProgressMeters::class, [
+					'meter_channel' => MeterComponent::CHANNEL_CONFIG,
+				] ),
 			],
 			'flags'   => [
 				'is_show_view_as_message' => $viewAsState[ 'is_show_view_as' ],

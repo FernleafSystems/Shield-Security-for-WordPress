@@ -1,13 +1,13 @@
 <div class="shield-dashboard-widget-v2">
 	<div class="widget-main">
-		<div class="score-column status-{{ vars.traffic }}">
+		<div class="score-column status-{{ vars.config_traffic }}">
 			<div class="score-accent"></div>
 			<div class="score-body">
 				<div class="gauge-wrap">
 					<canvas class="hero-gauge-chart"
-							data-percentage="{{ vars.security_progress.totals.percentage }}"
-							data-rgbs="{{ vars.security_progress.rgbs|join(',') }}"></canvas>
-					<div class="gauge-score">{{ vars.security_progress.totals.percentage }} / 100</div>
+							data-percentage="{{ vars.config_progress.totals.percentage }}"
+							data-rgbs="{{ vars.config_progress.rgbs|join(',') }}"></canvas>
+					<div class="gauge-score">{{ vars.config_progress.totals.percentage }} / 100</div>
 				</div>
 				<div class="gauge-scale">
 					<span>{{ strings.critical }}</span>
@@ -15,17 +15,17 @@
 					<span>{{ strings.good }}</span>
 				</div>
 				<div class="score-meta">
-					<span class="score-label">{{ strings.protecting }}</span>
+					<span class="score-label">{{ strings.config_posture }}</span>
 					{% if flags.show_internal_links %}
-						<a href="{{ hrefs.overview }}" class="score-link">{{ strings.view_details }}</a>
+						<a href="{{ hrefs.overview }}" class="score-link">{{ strings.view_posture }}</a>
 					{% else %}
-						<span class="score-link">{{ strings.view_details }}</span>
+						<span class="score-link">{{ strings.view_posture }}</span>
 					{% endif %}
 				</div>
 			</div>
 		</div>
 
-		<div class="attention-column">
+		<div class="attention-column status-{{ vars.action_traffic }}">
 			{% if vars.is_all_clear %}
 				<div class="attention-header is-good">
 					<span class="dashicons dashicons-yes-alt status-good" aria-hidden="true"></span>
@@ -34,35 +34,19 @@
 				<p class="attention-all-clear">{{ strings.no_issues }}</p>
 			{% else %}
 				<div class="attention-header">
-					<span class="dashicons dashicons-warning status-warning" aria-hidden="true"></span>
+					<span class="dashicons dashicons-warning status-{{ vars.action_traffic }}" aria-hidden="true"></span>
 					<span class="attention-title">{{ strings.needs_attention }}</span>
-					<span class="attention-badge">{{ vars.attention_total }}</span>
+					<span class="attention-badge">{{ vars.action_total }}</span>
 				</div>
-				<div class="attention-rows">
-					{% for item in vars.attention_items %}
-						<div class="attention-row severity-{{ item.severity }}">
-							<span class="severity-pip severity-{{ item.severity }}"></span>
-							<span class="attention-text">{{ item.text }}</span>
-							{% if flags.show_internal_links %}
-								<a href="{{ item.href }}" class="attention-action">{{ item.action }}</a>
-							{% else %}
-								<span class="attention-action">{{ item.action }}</span>
-							{% endif %}
-						</div>
-					{% endfor %}
-
-					{% if vars.attention_hidden > 0 %}
-						<div class="attention-row attention-row-more">
-							<span class="severity-pip severity-warning"></span>
-							{% if flags.show_internal_links %}
-								<a href="{{ hrefs.scans }}" class="attention-action">{{ strings.and_more|format( vars.attention_hidden ) }}</a>
-							{% else %}
-								<span class="attention-text">{{ strings.and_more|format( vars.attention_hidden ) }}</span>
-							{% endif %}
-						</div>
-					{% endif %}
-				</div>
+				<div class="attention-summary">{{ vars.action_total }} {{ strings.action_items }}</div>
 			{% endif %}
+			<div class="attention-actions">
+				{% if flags.show_internal_links %}
+					<a href="{{ hrefs.scans }}" class="attention-action-link">{{ strings.view_actions }}</a>
+				{% else %}
+					<span class="attention-action-link">{{ strings.view_actions }}</span>
+				{% endif %}
+			</div>
 		</div>
 	</div>
 

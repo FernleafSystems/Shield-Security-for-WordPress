@@ -223,6 +223,20 @@
   border-radius: 8px;
   background: #ffffff;
   padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-column.status-good {
+  background: #f2fbf2;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-column.status-warning {
+  background: #fff8ea;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-column.status-critical {
+  background: #fff1f2;
 }
 
 #ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header {
@@ -240,6 +254,10 @@
 
 #ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .dashicons.status-warning {
   color: #b98900;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .dashicons.status-critical {
+  color: #c62f3e;
 }
 
 #ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .dashicons.status-good {
@@ -260,53 +278,24 @@
   font-weight: 700;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 6px 0;
-  border-top: 1px solid #f0f0f1;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-row:first-child {
-  border-top: 0;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .severity-pip {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  margin-top: 4px;
-  flex: 0 0 8px;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .severity-pip.severity-critical {
-  background: #c62f3e;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .severity-pip.severity-warning {
-  background: #edb41d;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-text {
-  flex: 1;
-  min-width: 0;
-  line-height: 1.35;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-action {
-  white-space: nowrap;
-  font-weight: 600;
-  color: #2271b1 !important;
-}
-
 #ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-all-clear {
   margin: 2px 0 0;
   color: #3c434a;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-row-more {
-  padding-top: 8px;
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-summary {
+  margin: 2px 0 0;
+  color: #3c434a;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-actions {
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-action-link {
+  font-weight: 600;
+  color: #2271b1 !important;
 }
 
 #ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer {

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserA
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
+	Component\Base as MeterComponent,
 	Handler,
 	Meter\MeterSummary
 };
@@ -18,7 +19,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 
 	public const SLUG = 'render_dashboard_widget';
 	public const TEMPLATE = '/admin/admin_dashboard_widget_v2.twig';
-	public const MAX_ATTENTION_ROWS = 3;
+	private const VARS_CACHE_KEY = 'dashboard-widget-v3-vars';
 
 	protected function getRenderData() :array {
 		$con = self::con();
@@ -40,16 +41,16 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'needs_attention'    => __( 'Action Required', 'wp-simple-firewall' ),
 				'all_clear'          => __( 'All Clear', 'wp-simple-firewall' ),
 				'no_issues'          => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
-				'protecting'         => __( 'Protecting', 'wp-simple-firewall' ),
+				'config_posture'     => __( 'Configuration Posture', 'wp-simple-firewall' ),
+				'action_items'       => __( 'Action Items', 'wp-simple-firewall' ),
+				'view_actions'       => __( 'View Actions', 'wp-simple-firewall' ),
+				'view_posture'       => __( 'View Posture', 'wp-simple-firewall' ),
 				'go_to_dashboard'    => __( 'Go to Shield Dashboard', 'wp-simple-firewall' ),
 				'last_scan'          => __( 'Last scan', 'wp-simple-firewall' ),
-				'view_details'       => __( 'View Details', 'wp-simple-firewall' ),
 				'critical'           => __( 'Critical', 'wp-simple-firewall' ),
 				'needs_work'         => __( 'Needs Work', 'wp-simple-firewall' ),
 				'good'               => __( 'Good', 'wp-simple-firewall' ),
 				'refresh'            => __( 'Refresh', 'wp-simple-firewall' ),
-				'and_more'           => __( 'and %s more', 'wp-simple-firewall' ),
-				'score_needs_review' => __( 'Security score needs review.', 'wp-simple-firewall' ),
 			],
 			'vars'    => $vars,
 		];
@@ -58,41 +59,46 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	private function getVars( bool $refresh ) :array {
 		$con = self::con();
 		$provider = new AttentionItemsProvider();
-		$vars = Transient::Get( $con->prefix( 'dashboard-widget-v2-vars' ) );
+		$cacheKey = $con->prefix( self::VARS_CACHE_KEY );
+		$vars = Transient::Get( $cacheKey );
 		if ( $refresh || empty( $vars ) ) {
-			$securityProgress = ( new Handler() )->getMeter( MeterSummary::class );
-			$traffic = BuildMeter::trafficFromPercentage(
-				(int)( $securityProgress[ 'totals' ][ 'percentage' ] ?? 0 )
+			$configProgress = ( new Handler() )->getMeter(
+				MeterSummary::SLUG,
+				false,
+				MeterComponent::CHANNEL_CONFIG
 			);
-
-			$widgetRows = $provider->buildWidgetRows(
-				self::MAX_ATTENTION_ROWS,
-				$securityProgress,
-				$traffic,
-				$con->plugin_urls->adminHome()
+			$configTraffic = BuildMeter::trafficFromPercentage(
+				(int)( $configProgress[ 'totals' ][ 'percentage' ] ?? 0 )
 			);
-			$attentionRows = $widgetRows[ 'items' ] ?? [];
-			$attentionTotal = (int)( $widgetRows[ 'total' ] ?? 0 );
-			$attentionHidden = (int)( $widgetRows[ 'hidden' ] ?? 0 );
+			$actionItems = $provider->buildActionItems();
+			$actionTotal = \count( $actionItems );
+			$actionTraffic = $this->resolveActionTraffic( $actionItems );
 
 			$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
 
 			$vars = [
-				'generated_at'      => Services::Request()->ts(),
-				'security_progress' => $securityProgress,
-				'traffic'           => $traffic,
-				'attention_items'   => $attentionRows,
-				'attention_total'   => $attentionTotal,
-				'attention_hidden'  => $attentionHidden,
-				'is_all_clear'      => $attentionTotal === 0 && $traffic === 'good',
-				'last_scan_human'   => $latestScanAt > 0
+				'generated_at'    => Services::Request()->ts(),
+				'config_progress' => $configProgress,
+				'config_traffic'  => $configTraffic,
+				'action_total'    => $actionTotal,
+				'action_traffic'  => $actionTraffic,
+				'is_all_clear'    => $actionTotal === 0,
+				'last_scan_human' => $latestScanAt > 0
 					? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 					: '',
 			];
-			Transient::Set( $con->prefix( 'dashboard-widget-v2-vars' ), $vars, 30 );
+			Transient::Set( $cacheKey, $vars, 30 );
 		}
 
 		return $vars;
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $actionItems
+	 */
+	private function resolveActionTraffic( array $actionItems ) :string {
+		$severity = \strtolower( \trim( (string)( $actionItems[ 0 ][ 'severity' ] ?? 'good' ) ) );
+		return \in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ? $severity : 'warning';
 	}
 
 	private function isRefreshRequested() :bool {

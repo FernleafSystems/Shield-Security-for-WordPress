@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	Component\Base as MeterComponent,
 	Handler,
 	Meter\MeterOverallConfig,
 	Meter\MeterSummary
@@ -16,6 +17,7 @@ class ProgressMeters extends BaseRender {
 
 	protected function getRenderData() :array {
 		$con = self::con();
+		$meterChannel = $this->normalizeMeterChannel( (string)( $this->action_data[ 'meter_channel' ] ?? '' ) );
 		return [
 			'strings' => [
 				'good'       => __( 'Good', 'wp-simple-firewall' ),
@@ -35,7 +37,16 @@ class ProgressMeters extends BaseRender {
 					MeterOverallConfig::SLUG
 				] ),
 				'primary_meter_slug' => MeterSummary::SLUG,
+				'meter_channel'      => $meterChannel,
 			],
 		];
+	}
+
+	private function normalizeMeterChannel( string $channel ) :string {
+		$channel = \strtolower( \trim( $channel ) );
+		return \in_array( $channel, [
+			MeterComponent::CHANNEL_CONFIG,
+			MeterComponent::CHANNEL_ACTION
+		], true ) ? $channel : '';
 	}
 }

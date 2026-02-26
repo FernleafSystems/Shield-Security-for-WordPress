@@ -7,7 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionResponse
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	Component\Base as MeterComponent,
 	Handler,
 	Meter\MeterSummary
 };
@@ -19,6 +21,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	use BuiltMetersFixture;
+
+	private const WIDGET_CACHE_KEY = 'dashboard-widget-v3-vars';
 
 	private int $adminUserId;
 
@@ -43,14 +47,14 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
 			->store();
 
-		Transient::Delete( self::con()->prefix( 'dashboard-widget-v2-vars' ) );
+		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
 		$this->resetBuiltMetersCache();
 		$this->setOverallConfigMeterComponents( [] );
 	}
 
 	public function tear_down() {
 		$this->resetBuiltMetersCache();
-		Transient::Delete( self::con()->prefix( 'dashboard-widget-v2-vars' ) );
+		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
 		parent::tear_down();
 	}
 
@@ -64,20 +68,35 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 	}
 
-	private function setSummaryMeter( int $percentage, array $warning = [] ) :void {
+	private function setSummaryMeters( int $combinedPercentage, int $configPercentage ) :void {
 		$ref = new \ReflectionClass( Handler::class );
-		$prop = $ref->getProperty( 'BuiltMeters' );
-		$prop->setAccessible( true );
+		$combinedProp = $ref->getProperty( 'BuiltMeters' );
+		$combinedProp->setAccessible( true );
+		$channelProp = $ref->getProperty( 'BuiltMetersByChannel' );
+		$channelProp->setAccessible( true );
 
+		$meters = (array)$combinedProp->getValue();
+		$meters[ MeterSummary::SLUG ] = $this->meterFixture( $combinedPercentage );
+		$combinedProp->setValue( null, $meters );
+
+		$metersByChannel = (array)$channelProp->getValue();
+		$metersByChannel[ MeterSummary::SLUG ] = \array_merge(
+			$metersByChannel[ MeterSummary::SLUG ] ?? [],
+			[
+				MeterComponent::CHANNEL_CONFIG => $this->meterFixture( $configPercentage ),
+			]
+		);
+		$channelProp->setValue( null, $metersByChannel );
+	}
+
+	private function meterFixture( int $percentage ) :array {
 		$rgbs = $percentage > 80
 			? [ 16, 128, 0 ]
 			: ( $percentage > 40 ? [ 200, 150, 10 ] : [ 200, 50, 10 ] );
-
-		$meters = (array)$prop->getValue();
-		$meters[ MeterSummary::SLUG ] = [
+		return [
 			'title'       => 'Summary',
 			'subtitle'    => 'Summary',
-			'warning'     => $warning,
+			'warning'     => [],
 			'description' => [],
 			'components'  => [],
 			'totals'      => [
@@ -90,69 +109,53 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			'rgbs'        => $rgbs,
 			'has_critical'=> false,
 		];
-		$prop->setValue( null, $meters );
 	}
 
 	public function test_render_returns_v2_template_and_marker() :void {
-		$this->setSummaryMeter( 90 );
+		$this->setSummaryMeters( 90, 90 );
 		$payload = $this->renderSummary()->payload();
 
 		$this->assertSame( '/admin/admin_dashboard_widget_v2.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
 		$this->assertHtmlContainsMarker( 'shield-dashboard-widget-v2', (string)( $payload[ 'render_output' ] ?? '' ), 'Dashboard summary render' );
 	}
 
-	public function test_attention_rows_follow_severity_rank_order() :void {
-		$this->setSummaryMeter( 90 );
+	public function test_config_score_uses_config_channel_meter() :void {
+		$this->setSummaryMeters( 33, 92 );
+		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
+
+		$this->assertSame( 92, (int)( $vars[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 'good', (string)( $vars[ 'config_traffic' ] ?? '' ) );
+	}
+
+	public function test_action_total_and_severity_reflect_scan_findings() :void {
+		$this->setSummaryMeters( 90, 90 );
 		$this->assertTrue( self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP() );
 		$this->assertTrue( self::con()->comps->scans->WPV()->isEnabled() );
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
 		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_core' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
 
 		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
 		TestDataFactory::insertScanResultMeta( $wpvId, 'is_vulnerable' );
 
 		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$keys = \array_column( $vars[ 'attention_items' ] ?? [], 'key' );
-
-		$this->assertSame( [ 'malware', 'vulnerable_assets', 'wp_files' ], $keys );
-	}
-
-	public function test_cap_behavior_displays_three_rows_and_hidden_count() :void {
-		$this->setSummaryMeter( 90 );
-		$this->assertTrue( self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP() );
-		$this->assertTrue( self::con()->comps->scans->WPV()->isEnabled() );
-
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_core' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_theme' );
-
-		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
-
-		$this->assertCount( 3, $vars[ 'attention_items' ] ?? [] );
-		$this->assertSame( 4, (int)( $vars[ 'attention_total' ] ?? 0 ) );
-		$this->assertSame( 1, (int)( $vars[ 'attention_hidden' ] ?? 0 ) );
+		$this->assertGreaterThanOrEqual( 2, (int)( $vars[ 'action_total' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $vars[ 'action_traffic' ] ?? '' ) );
 	}
 
 	public function test_all_clear_state_when_no_items_and_good_traffic() :void {
-		$this->setSummaryMeter( 95 );
+		$this->setSummaryMeters( 95, 95 );
 		$payload = $this->renderSummary()->payload();
 		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
 
 		$this->assertTrue( (bool)( $vars[ 'is_all_clear' ] ?? false ) );
-		$this->assertSame( 0, (int)( $vars[ 'attention_total' ] ?? -1 ) );
+		$this->assertSame( 0, (int)( $vars[ 'action_total' ] ?? -1 ) );
 		$this->assertHtmlContainsMarker( 'attention-all-clear', (string)( $payload[ 'render_output' ] ?? '' ), 'All-clear dashboard state' );
 	}
 
 	public function test_unprotected_maintenance_component_is_included_in_attention_rows() :void {
-		$this->setSummaryMeter( 95 );
+		$this->setSummaryMeters( 95, 95 );
 		$this->setOverallConfigMeterComponents( [
 			[
 				'slug'              => 'wp_updates',
@@ -166,24 +169,13 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$keys = \array_column( $vars[ 'attention_items' ] ?? [], 'key' );
-
-		$this->assertContains( 'wp_updates', $keys );
+		$this->assertGreaterThanOrEqual( 1, (int)( $vars[ 'action_total' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $vars[ 'action_traffic' ] ?? '' ) );
 		$this->assertFalse( (bool)( $vars[ 'is_all_clear' ] ?? true ) );
-	}
-
-	public function test_non_good_without_concrete_items_injects_generic_score_row() :void {
-		$this->setSummaryMeter( 55 );
-		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$item = $vars[ 'attention_items' ][ 0 ] ?? [];
-
-		$this->assertFalse( (bool)( $vars[ 'is_all_clear' ] ?? true ) );
-		$this->assertSame( 'score_generic', (string)( $item[ 'key' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $item[ 'severity' ] ?? '' ) );
 	}
 
 	public function test_non_plugin_admin_hides_internal_links() :void {
-		$this->setSummaryMeter( 95 );
+		$this->setSummaryMeters( 95, 95 );
 		$subscriberId = self::factory()->user->create( [
 			'role' => 'subscriber',
 		] );
@@ -195,31 +187,36 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_internal_links' ] ?? true ) );
 		$this->assertHtmlNotContainsMarker( 'href="'.self::con()->plugin_urls->adminHome().'"', $html, 'Subscriber dashboard links' );
+		$this->assertHtmlNotContainsMarker(
+			'href="'.self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ).'"',
+			$html,
+			'Subscriber scans links'
+		);
 	}
 
 	public function test_refresh_parameter_controls_cache_bypass() :void {
-		$this->setSummaryMeter( 95 );
+		$this->setSummaryMeters( 95, 95 );
 		$first = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $first[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 95, (int)( $first[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
 
-		$this->setSummaryMeter( 45 );
+		$this->setSummaryMeters( 45, 45 );
 		$cached = $this->renderSummary( false )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $cached[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 95, (int)( $cached[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
 
 		$refreshed = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 45, (int)( $refreshed[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 45, (int)( $refreshed[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
 	}
 
 	public function test_refresh_false_string_does_not_bypass_cache() :void {
-		$this->setSummaryMeter( 95 );
+		$this->setSummaryMeters( 95, 95 );
 		$first = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $first[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 95, (int)( $first[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
 
-		$this->setSummaryMeter( 45 );
+		$this->setSummaryMeters( 45, 45 );
 		$cached = $this->renderSummary( 'false' )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $cached[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 95, (int)( $cached[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
 
 		$refreshed = $this->renderSummary( 'true' )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 45, (int)( $refreshed[ 'security_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 45, (int)( $refreshed[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
 	}
 }
