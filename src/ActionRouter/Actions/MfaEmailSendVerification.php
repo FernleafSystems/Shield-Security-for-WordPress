@@ -27,10 +27,10 @@ class MfaEmailSendVerification extends BaseAction {
 			$msg = __( 'Verification email resent.', 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
 			'message' => $msg
-		];
+		] );
 	}
 
 	private function sendEmailVerifyCanSend() {

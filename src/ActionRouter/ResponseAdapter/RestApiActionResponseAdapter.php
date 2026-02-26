@@ -9,11 +9,7 @@ class RestApiActionResponseAdapter extends BaseAdapter {
 
 	public function adapt( ActionResponse $response ) :RoutedResponse {
 		$payload = $response->payload();
-		if ( !\array_key_exists( 'success', $payload ) ) {
-			$payload[ 'success' ] = (bool)$response->success;
-		}
 		$response->setPayload( $payload );
-
 		return new RoutedResponse( $response, $payload );
 	}
 }

@@ -9,9 +9,6 @@ class ShieldActionResponseAdapter extends BaseAdapter {
 
 	public function adapt( ActionResponse $response ) :RoutedResponse {
 		$payload = $response->payload();
-		if ( !isset( $payload[ 'next_step' ] ) && !empty( $response->next_step ) ) {
-			$payload[ 'next_step' ] = $response->next_step;
-		}
 
 		switch ( $response->action_data[ 'notification_type' ] ?? '' ) {
 			case 'wp_admin_notice':

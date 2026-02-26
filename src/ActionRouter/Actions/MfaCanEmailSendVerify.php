@@ -20,10 +20,10 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 			);
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'  => true,
 			'message'  => __( 'Email verification completed successfully.', 'wp-simple-firewall' ),
 			'redirect' => self::con()->plugin_urls->adminHome()
-		];
+		] );
 	}
 }

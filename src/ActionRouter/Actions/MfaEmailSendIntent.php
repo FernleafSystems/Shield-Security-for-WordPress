@@ -37,11 +37,11 @@ class MfaEmailSendIntent extends MfaUserConfigBase {
 			}
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => $success,
 			'message'     => empty( $msg ) ? __( 'There was a problem sending the One-Time Password email.', 'wp-simple-firewall' ) : $msg,
 			'page_reload' => false
-		];
+		] );
 	}
 
 	protected function getRequiredDataKeys() :array {

@@ -88,7 +88,7 @@ class RulesManagerTableAction extends BaseAction {
 			];
 		}
 
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 
 	private function retrieveTableData() :array {

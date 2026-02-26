@@ -20,7 +20,7 @@ class ScansCheck extends ScansBase {
 
 		$running = \count( ( new ScansStatus() )->enqueued() );
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
 			'running' => $con->comps->scans_queue->getScansRunningStates(),
 			'vars'    => [
@@ -32,6 +32,6 @@ class ScansCheck extends ScansBase {
 					'progress'        => 100*$con->comps->scans_queue->getScanJobProgress(),
 				] ),
 			]
-		];
+		] );
 	}
 }

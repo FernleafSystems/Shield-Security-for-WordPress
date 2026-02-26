@@ -7,12 +7,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 /**
  * @property string $action_slug
  * @property array  $action_data
- * @property array  $action_response_data
+ * @property array  $action_response_data Legacy compatibility payload field.
  *
- * @property array  $next_step
+ * @property array  $next_step Legacy compatibility field; canonical transport is payload-native `next_step`.
  *
  * AJAX Actions:
  * @property array  $ajax_data
+ *
+ * Canonical payload transport paths:
+ * - payload()
+ * - setPayload()
+ * - mergePayload()
+ * - setPayloadSuccess()
+ * - setPayloadRedirectNextStep()
  */
 class ActionResponse extends Response {
 
@@ -46,6 +53,21 @@ class ActionResponse extends Response {
 		}
 		$this->action_response_data = \array_merge( $existing, $payload );
 		return $this;
+	}
+
+	public function setPayloadSuccess( bool $success ) :self {
+		return $this->mergePayload( [
+			'success' => $success,
+		] );
+	}
+
+	public function setPayloadRedirectNextStep( string $url ) :self {
+		return $this->mergePayload( [
+			'next_step' => [
+				'type' => 'redirect',
+				'url'  => $url,
+			],
+		] );
 	}
 
 	public function payload() :array {

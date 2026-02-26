@@ -14,10 +14,10 @@ class MfaSmsRemove extends MfaUserConfigBase {
 		$provider = $available[ Sms::ProviderSlug() ];
 		$provider->removeFromProfile();
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => true,
 			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
 			'page_reload' => true
-		];
+		] );
 	}
 }

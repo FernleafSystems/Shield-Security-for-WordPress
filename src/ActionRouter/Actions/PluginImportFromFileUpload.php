@@ -19,9 +19,9 @@ class PluginImportFromFileUpload extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => $success,
 			'message' => $msg
-		];
+		] );
 	}
 }

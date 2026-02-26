@@ -16,8 +16,7 @@ abstract class IpAutoUnblockBase extends BaseAction {
 		if ( $unBlocker->canRunAutoUnblockProcess() && $unBlocker->processAutoUnblockRequest() ) {
 			Services::Response()->redirectToHome();
 		}
-		$this->response()->success = false;
-		$this->response()->mergePayload( [ 'success' => false ] );
+		$this->response()->setPayloadSuccess( false );
 	}
 
 	abstract protected function getAutoUnblockerClass() :string;

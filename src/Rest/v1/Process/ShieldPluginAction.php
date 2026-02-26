@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
 
 class ShieldPluginAction extends Base {
 
@@ -35,11 +36,7 @@ class ShieldPluginAction extends Base {
 		/** See AJAX normalised data */
 		return [
 			'success' => (bool)( $data[ 'success' ] ?? false ),
-			'data'    => \array_merge( [
-				'page_reload' => false,
-				'message'     => '',
-				'html'        => '',
-			], $data )
+			'data'    => ResponseEnvelopeNormalizer::forRestProcess( $data )
 		];
 	}
 }

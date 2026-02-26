@@ -100,9 +100,19 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 		$this->assertIsArray( $payload[ 'results' ][ 'valid' ][ 'data' ] );
 		$this->assertEquals( 200, $payload[ 'results' ][ 'valid' ][ 'status_code' ] );
+		$this->assertArrayHasKey( 'success', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'page_reload', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'message', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'error', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'html', $payload[ 'results' ][ 'valid' ][ 'data' ] );
 
 		$this->assertFalse( $payload[ 'results' ][ 'invalid' ][ 'success' ] );
 		$this->assertEquals( 401, $payload[ 'results' ][ 'invalid' ][ 'status_code' ] );
+		$this->assertArrayHasKey( 'success', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'page_reload', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'message', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'error', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'html', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
 	}
 
 	public function test_batch_processes_only_last_duplicate_id_occurrence() {

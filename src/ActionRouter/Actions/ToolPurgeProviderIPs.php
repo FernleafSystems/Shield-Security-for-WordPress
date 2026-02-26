@@ -12,9 +12,9 @@ class ToolPurgeProviderIPs extends BaseAction {
 
 	protected function exec() {
 		Services::ServiceProviders()->clearProviders();
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
 			'message' => 'Providers Cleared.'
-		];
+		] );
 	}
 }

@@ -11,7 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\InvalidActionNonceException,
 	Exceptions\SecurityAdminRequiredException,
 	Exceptions\UserAuthRequiredException,
-	ResponseAdapter\AjaxResponseAdapter
+	ResponseAdapter\AjaxResponseAdapter,
+	Utility\ResponseEnvelopeNormalizer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
 	AnyUserAuthRequired,
@@ -53,11 +54,11 @@ class AjaxBatchRequests extends BaseAction {
 			$results[ $key ] = $this->processBatchRequest( $requestItem );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
 			'message' => '',
 			'results' => $results,
-		];
+		] );
 	}
 
 	protected function getRequiredDataKeys() :array {
@@ -170,13 +171,7 @@ class AjaxBatchRequests extends BaseAction {
 	}
 
 	private function normaliseAjaxPayload( array $payload ) :array {
-		return \array_merge( [
-			'success'     => false,
-			'page_reload' => false,
-			'message'     => __( 'No AJAX message provided', 'wp-simple-firewall' ),
-			'error'       => '',
-			'html'        => '',
-		], $payload );
+		return ResponseEnvelopeNormalizer::forBatchSubresponse( $payload );
 	}
 
 	private function sanitizeSubrequestPayload( array $payload ) :array {

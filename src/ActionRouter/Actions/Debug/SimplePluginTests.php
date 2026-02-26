@@ -32,13 +32,13 @@ class SimplePluginTests extends BaseAction {
 		}
 		\ob_start();
 		$this->{$testMethod}();
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'debug_output' => \ob_get_clean()
-		];
+		] );
 	}
 
 	protected function postExec() {
-		var_dump( $this->response()->action_response_data[ 'debug_output' ] );
+		var_dump( $this->response()->payload()[ 'debug_output' ] );
 		die( 'end tests' );
 	}
 

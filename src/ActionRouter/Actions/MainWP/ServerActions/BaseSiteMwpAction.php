@@ -29,7 +29,7 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 			];
 		}
 
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 
 	/**
@@ -47,7 +47,7 @@ abstract class BaseSiteMwpAction extends MainwpBase {
 	}
 
 	protected function isPostSyncRequired() :bool {
-		return ( $this->response()->action_response_data[ 'success' ] ?? false )
+		return ( $this->response()->payload()[ 'success' ] ?? false )
 			   && !\in_array( static::SLUG, [ SiteActionSync::SLUG, SiteActionDeactivate::SLUG ] );
 	}
 

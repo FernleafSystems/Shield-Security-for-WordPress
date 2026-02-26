@@ -16,11 +16,11 @@ class MfaPasskeyRemoveSource extends MfaUserConfigBase {
 			$success = $provider->deleteSource( $this->action_data[ 'wan_source_id' ] ?? '' );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => $success,
 			'message'     => $success ? __( 'Passkey removed from your profile', 'wp-simple-firewall' )
 				: __( 'There was a problem removing this passkey', 'wp-simple-firewall' ),
 			'page_reload' => !$success,
-		];
+		] );
 	}
 }

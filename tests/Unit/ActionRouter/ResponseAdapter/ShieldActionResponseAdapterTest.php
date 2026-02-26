@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class ShieldActionResponseAdapterTest extends BaseUnitTest {
 
-	public function test_adapt_adds_next_step_to_transport_payload_when_missing() :void {
+	public function test_adapt_does_not_promote_legacy_next_step_property_when_payload_missing() :void {
 		$response = ( new ActionResponse() )->setPayload( [
 			'success' => true,
 		] );
@@ -21,11 +21,10 @@ class ShieldActionResponseAdapterTest extends BaseUnitTest {
 			->adapt( $response )
 			->payload();
 
-		$this->assertSame( 'redirect', $payload[ 'next_step' ][ 'type' ] ?? '' );
-		$this->assertSame( '/wp-admin/', $payload[ 'next_step' ][ 'url' ] ?? '' );
+		$this->assertArrayNotHasKey( 'next_step', $payload );
 	}
 
-	public function test_adapt_preserves_payload_next_step_when_already_present() :void {
+	public function test_adapt_preserves_payload_next_step_when_present() :void {
 		$response = ( new ActionResponse() )->setPayload( [
 			'success'   => true,
 			'next_step' => [
@@ -33,16 +32,12 @@ class ShieldActionResponseAdapterTest extends BaseUnitTest {
 				'url'  => '/from-payload/',
 			],
 		] );
-		$response->next_step = [
-			'type' => 'redirect',
-			'url'  => '/from-response/',
-		];
 
 		$payload = ( new ShieldActionResponseAdapter() )
 			->adapt( $response )
 			->payload();
 
+		$this->assertSame( 'redirect', $payload[ 'next_step' ][ 'type' ] ?? '' );
 		$this->assertSame( '/from-payload/', $payload[ 'next_step' ][ 'url' ] ?? '' );
 	}
 }
-

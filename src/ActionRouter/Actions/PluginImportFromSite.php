@@ -38,10 +38,10 @@ class PluginImportFromSite extends BaseAction {
 			}
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => $success,
 			'message'     => $msg,
 			'page_reload' => $success,
-		];
+		] );
 	}
 }

@@ -30,6 +30,9 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertArrayHasKey( 'page_reload', $result[ 'data' ] );
 		$this->assertArrayHasKey( 'message', $result[ 'data' ] );
 		$this->assertArrayHasKey( 'html', $result[ 'data' ] );
+		$this->assertFalse( (bool)$result[ 'data' ][ 'page_reload' ] );
+		$this->assertIsString( $result[ 'data' ][ 'message' ] );
+		$this->assertIsString( $result[ 'data' ][ 'html' ] );
 	}
 
 	public function test_process_returns_failure_envelope_for_action_exception() :void {
@@ -44,6 +47,9 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertArrayHasKey( 'page_reload', $result[ 'data' ] );
 		$this->assertArrayHasKey( 'message', $result[ 'data' ] );
 		$this->assertArrayHasKey( 'html', $result[ 'data' ] );
+		$this->assertFalse( (bool)$result[ 'data' ][ 'page_reload' ] );
+		$this->assertIsString( $result[ 'data' ][ 'message' ] );
+		$this->assertIsString( $result[ 'data' ][ 'html' ] );
 	}
 }
 
@@ -58,4 +64,3 @@ class ShieldPluginActionProcessTestDouble extends ShieldPluginAction {
 		return $this->process();
 	}
 }
-

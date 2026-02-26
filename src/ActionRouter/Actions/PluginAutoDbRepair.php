@@ -51,10 +51,10 @@ class PluginAutoDbRepair extends BaseAction {
 			$msg = __( "Tables appear to be valid and haven't been repaired.", 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => true,
 			'page_reload' => true,
 			'message'     => $msg
-		];
+		] );
 	}
 }

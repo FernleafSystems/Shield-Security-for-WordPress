@@ -19,7 +19,7 @@ class MainwpServerClientActionHandler extends MainwpBase {
 				'message' => $e->getMessage()
 			];
 		}
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 
 	/**

@@ -19,10 +19,10 @@ class OptionTransferIncludeToggle extends BaseAction {
 
 		self::con()->opts->optSet( 'xfer_excluded', \array_unique( $excluded ) );
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => true,
 			'page_reload' => false,
 			'message'     => $msg
-		];
+		] );
 	}
 }

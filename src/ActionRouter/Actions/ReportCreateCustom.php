@@ -51,11 +51,11 @@ class ReportCreateCustom extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => $success,
 			'message'     => $msg,
 			'page_reload' => $success
-		];
+		] );
 	}
 
 	private function carbonFromFormDate( string $date ) :Carbon {

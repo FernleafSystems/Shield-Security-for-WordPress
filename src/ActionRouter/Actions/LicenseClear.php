@@ -10,10 +10,10 @@ class LicenseClear extends LicenseBase {
 		$licHandler = self::con()->comps->license;
 		$licHandler->deactivate( false );
 		$licHandler->clearLicense();
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => true,
 			'message'     => sprintf( __( '%s License Cleared', 'wp-simple-firewall' ), self::con()->labels->Name ),
 			'page_reload' => true,
-		];
+		] );
 	}
 }

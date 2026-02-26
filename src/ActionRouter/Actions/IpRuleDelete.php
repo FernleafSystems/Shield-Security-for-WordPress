@@ -18,10 +18,10 @@ class IpRuleDelete extends BaseAction {
 			$msg = $success ? __( 'IP Rule deleted', 'wp-simple-firewall' ) : __( "IP Rule couldn't be deleted from the list", 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => $success,
 			'page_reload' => false,
 			'message'     => $msg,
-		];
+		] );
 	}
 }

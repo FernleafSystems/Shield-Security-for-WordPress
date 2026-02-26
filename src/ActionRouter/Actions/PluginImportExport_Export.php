@@ -10,8 +10,8 @@ class PluginImportExport_Export extends PluginImportExport_Base {
 
 	protected function exec() {
 		( new Export() )->run( $this->action_data[ 'method' ] ?? '' );
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
-		];
+		] );
 	}
 }

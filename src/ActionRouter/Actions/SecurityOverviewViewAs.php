@@ -15,8 +15,8 @@ class SecurityOverviewViewAs extends SecurityAdminBase {
 			self::con()->opts->optSet( 'sec_overview_prefs', $secOverviewPrefs );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
-		];
+		] );
 	}
 }

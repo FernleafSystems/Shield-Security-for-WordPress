@@ -14,9 +14,8 @@ class SecurityAdminRemove extends SecurityAdminBase {
 
 	protected function exec() {
 		( new RemoveSecAdmin() )->remove( (bool)( $this->action_data[ 'quietly' ] ?? false ) );
-		$this->response()->next_step = [
-			'type' => 'redirect',
-			'url'  => self::con()->plugin_urls->zone( Secadmin::Slug() ),
-		];
+		$this->response()
+			->setPayloadSuccess( true )
+			->setPayloadRedirectNextStep( self::con()->plugin_urls->zone( Secadmin::Slug() ) );
 	}
 }

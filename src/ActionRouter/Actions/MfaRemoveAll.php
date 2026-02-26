@@ -33,7 +33,7 @@ class MfaRemoveAll extends MfaUserConfigBase {
 			];
 		}
 
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 
 	protected function getRequiredDataKeys() :array {

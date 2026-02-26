@@ -30,6 +30,6 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 			];
 		}
 
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 }

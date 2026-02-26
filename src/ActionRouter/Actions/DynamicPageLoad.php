@@ -18,12 +18,10 @@ class DynamicPageLoad extends BaseAction {
 				$this->action_data[ 'dynamic_load_params' ][ 'dynamic_load_data' ]
 			)->payload();
 			$resp->setPayload( $childPayload );
-			$resp->mergePayload( [ 'success' => true ] );
-			$resp->success = true;
+			$resp->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
-			$resp->mergePayload( [ 'success' => false ] );
-			$resp->success = false;
+			$resp->setPayloadSuccess( false );
 			$resp->message = $e->getMessage();
 		}
 	}

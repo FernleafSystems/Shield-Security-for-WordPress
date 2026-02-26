@@ -18,11 +18,9 @@ abstract class Base extends BaseAction {
 				'page_url'   => $this->getPageUrl(),
 				'page_title' => $this->getPageTitle(),
 			] );
-			$resp->success = true;
 		}
 		catch ( \Exception $e ) {
-			$resp->mergePayload( [ 'success' => false ] );
-			$resp->success = false;
+			$resp->setPayloadSuccess( false );
 			$resp->message = $e->getMessage();
 		}
 	}

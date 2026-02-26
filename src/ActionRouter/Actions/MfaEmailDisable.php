@@ -12,9 +12,9 @@ class MfaEmailDisable extends BaseAction {
 
 	protected function exec() {
 		self::con()->opts->optSet( 'enable_email_authentication', 'N' );
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
 			'message' => __( '2FA by email has been disabled', 'wp-simple-firewall' ),
-		];
+		] );
 	}
 }

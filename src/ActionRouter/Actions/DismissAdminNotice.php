@@ -15,12 +15,12 @@ class DismissAdminNotice extends BaseAction {
 				if ( $noticeID == $notice->id ) {
 					if ( $notice->can_dismiss ) {
 						self::con()->admin_notices->setNoticeDismissed( $notice );
-						$this->response()->action_response_data = [
+						$this->response()->setPayload( [
 							'success'   => true,
 							'message'   => __( 'Admin notice dismissed', 'wp-simple-firewall' ),
 							//not currently rendered
 							'notice_id' => $notice->id,
-						];
+						] );
 					}
 					break;
 				}

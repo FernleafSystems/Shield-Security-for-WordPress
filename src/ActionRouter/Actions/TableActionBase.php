@@ -35,7 +35,7 @@ abstract class TableActionBase extends BaseAction {
 			$response = $this->buildFailurePayload( $e );
 		}
 
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 
 	/**

@@ -15,8 +15,8 @@ class TestRestFetchRequests extends BaseAction {
 		$data[ 'success_test_at' ] = Services::Request()->ts();
 		$opts->optSet( 'test_rest_data', $data );
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
-		];
+		] );
 	}
 }

@@ -15,7 +15,7 @@ class ModuleOptionsSave extends BaseAction {
 
 		$success = ( new HandleOptionsSaveRequest() )->handleSave();
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => $success,
 			'html'        => '',
 			'page_reload' => !$wasSecAdminEnabled && $con->comps->sec_admin->isEnabledSecAdmin(),
@@ -23,6 +23,6 @@ class ModuleOptionsSave extends BaseAction {
 			'message'     => $success ?
 				sprintf( __( '%s Plugin options updated successfully.', 'wp-simple-firewall' ), $con->labels->Name )
 				: sprintf( __( 'Failed to update %s plugin options.', 'wp-simple-firewall' ), $con->labels->Name )
-		];
+		] );
 	}
 }

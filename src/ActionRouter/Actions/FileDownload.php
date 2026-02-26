@@ -24,8 +24,11 @@ class FileDownload extends BaseAction {
 		}
 		catch ( \Exception $e ) {
 			$resp = $this->response();
-			$resp->success = false;
 			$resp->message = $e->getMessage();
+			$resp->mergePayload( [
+				'success' => false,
+				'message' => $e->getMessage(),
+			] );
 		}
 	}
 

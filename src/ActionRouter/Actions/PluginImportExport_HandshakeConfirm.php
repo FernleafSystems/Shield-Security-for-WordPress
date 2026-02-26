@@ -13,8 +13,8 @@ class PluginImportExport_HandshakeConfirm extends PluginImportExport_Base {
 			echo \wp_json_encode( [ 'success' => true ] );
 			die();
 		}
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => false,
-		];
+		] );
 	}
 }

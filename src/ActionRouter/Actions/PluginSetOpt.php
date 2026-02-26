@@ -8,8 +8,8 @@ class PluginSetOpt extends BaseAction {
 
 	protected function exec() {
 		self::con()->opts->optSet( $this->action_data[ 'opt_key' ], $this->action_data[ 'opt_value' ] );
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => true,
-		];
+		] );
 	}
 }

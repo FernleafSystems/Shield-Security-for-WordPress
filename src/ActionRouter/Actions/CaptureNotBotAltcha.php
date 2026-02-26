@@ -22,13 +22,11 @@ class CaptureNotBotAltcha extends BaseAction {
 
 			self::con()->comps->not_bot->sendNotBotFlagCookie();
 
-			$response->success = true;
-			$response->mergePayload( [ 'success' => true ] );
+			$response->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
-			$response->success = false;
-			$response->mergePayload( [ 'success' => false ] );
+			$response->setPayloadSuccess( false );
 		}
 	}
 

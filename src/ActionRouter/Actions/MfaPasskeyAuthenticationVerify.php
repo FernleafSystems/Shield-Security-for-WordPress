@@ -35,6 +35,6 @@ class MfaPasskeyAuthenticationVerify extends MfaLoginFlowBase {
 			];
 		}
 
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 }

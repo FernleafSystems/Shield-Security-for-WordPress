@@ -24,9 +24,9 @@ class LicenseCheckDebug extends LicenseBase {
 			$msg = __( 'Failed to connect to license server.', 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => $success,
 			'message' => $msg,
-		];
+		] );
 	}
 }

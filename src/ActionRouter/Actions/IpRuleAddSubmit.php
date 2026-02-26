@@ -64,10 +64,10 @@ class IpRuleAddSubmit extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success'     => $success,
 			'page_reload' => false,
 			'message'     => $msg,
-		];
+		] );
 	}
 }

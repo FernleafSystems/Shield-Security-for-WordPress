@@ -35,5 +35,26 @@ class AjaxResponseAdapterContractTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'action_response_data', $payload );
 		$this->assertArrayNotHasKey( 'action_data', $payload );
 	}
-}
 
+	public function test_adapter_enforces_payload_canonical_success_when_payload_success_missing() :void {
+		$response = new ActionResponse();
+		$response->success = true;
+		$response->message = 'fallback message';
+		$response->error = 'fallback error';
+		$response->setPayload( [
+			'message' => 'payload message',
+		] );
+
+		$payload = ( new AjaxResponseAdapter() )
+			->adapt( $response )
+			->payload();
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertSame( 'payload message', $payload[ 'message' ] ?? '' );
+		$this->assertSame( 'fallback error', $payload[ 'error' ] ?? '' );
+		$this->assertArrayHasKey( 'html', $payload );
+		$this->assertArrayHasKey( 'page_title', $payload );
+		$this->assertArrayHasKey( 'page_url', $payload );
+		$this->assertArrayHasKey( 'show_toast', $payload );
+	}
+}

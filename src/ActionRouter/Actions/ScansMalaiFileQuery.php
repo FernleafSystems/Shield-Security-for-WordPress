@@ -29,10 +29,10 @@ class ScansMalaiFileQuery extends ScansBase {
 			$msg = __( 'Please upgrade your plan to access the MAL{ai} malware service.', 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'success' => $success,
 			'message' => $msg
-		];
+		] );
 	}
 
 	/**

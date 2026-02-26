@@ -7,13 +7,10 @@ abstract class FullPageDisplayStatic extends BaseFullPageDisplay {
 	public const SLUG = 'display_full_page_static';
 
 	protected function exec() {
-		$response = $this->response();
-		$responseData = $response->payload();
-		$responseData[ 'success' ] = true;
-		$responseData[ 'render_output' ] = $this->retrieveContent();
-
-		$this->response()->success = true;
-		$response->setPayload( $responseData );
+		$this->response()->mergePayload( [
+			'success'       => true,
+			'render_output' => $this->retrieveContent(),
+		] );
 	}
 
 	abstract protected function retrieveContent() :string;

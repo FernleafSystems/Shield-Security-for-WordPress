@@ -69,10 +69,7 @@ abstract class BaseFullPageDisplay extends BaseAction {
 
 	protected function isSuccess() :bool {
 		$payload = $this->response()->payload();
-		if ( \array_key_exists( 'success', $payload ) ) {
-			return (bool)$payload[ 'success' ];
-		}
-		return $this->response()->success ?? false;
+		return (bool)( $payload[ 'success' ] ?? false );
 	}
 
 	protected function getRequiredDataKeys() :array {

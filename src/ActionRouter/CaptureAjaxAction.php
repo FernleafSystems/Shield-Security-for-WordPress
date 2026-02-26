@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidActionNonceException,
 	SecurityAdminRequiredException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax\Response;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -100,15 +101,7 @@ class CaptureAjaxAction extends CaptureActionBase {
 	 */
 	protected function normaliseAjaxResponse( array $ajaxResponse ) :array {
 		if ( !empty( $ajaxResponse ) ) {
-			$ajaxResponse = \array_merge(
-				[
-					'success'     => false,
-					'page_reload' => false,
-				'message'     => __( 'No AJAX message provided', 'wp-simple-firewall' ),
-					'html'        => '',
-				],
-				$ajaxResponse
-			);
+			$ajaxResponse = ResponseEnvelopeNormalizer::forAjax( $ajaxResponse );
 		}
 		return $ajaxResponse;
 	}

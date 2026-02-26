@@ -40,7 +40,7 @@ class MfaPasskeyAuthenticationStart extends MfaLoginFlowBase {
 			$response[ 'message' ] = __( 'There was a problem preparing the Passkey Auth Challenge.', 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = $response;
+		$this->response()->setPayload( $response );
 	}
 
 	protected function getRequiredDataKeys() :array {

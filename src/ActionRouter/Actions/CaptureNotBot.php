@@ -26,7 +26,6 @@ class CaptureNotBot extends BaseAction {
 			$notBotCon = $con->comps->not_bot;
 			$notBotCon->sendNotBotFlagCookie();
 
-			$response->success = true;
 			$response->setPayload( [
 				'success'     => true,
 				'altcha_data' => $notBotCon->getRequiredSignals() ?
@@ -35,8 +34,7 @@ class CaptureNotBot extends BaseAction {
 		}
 		catch ( \Exception $e ) {
 //			error_log( $e->getMessage() );
-			$response->success = false;
-			$response->mergePayload( [ 'success' => false ] );
+			$response->setPayloadSuccess( false );
 		}
 	}
 
