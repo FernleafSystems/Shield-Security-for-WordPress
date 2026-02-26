@@ -52,10 +52,9 @@ class ReportCreateCustom extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => $success,
 			'message'     => $msg,
 			'page_reload' => $success
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 
 	private function carbonFromFormDate( string $date ) :Carbon {

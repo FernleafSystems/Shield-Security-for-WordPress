@@ -42,6 +42,11 @@ class MfaPasskeyRegistrationStart extends MfaUserConfigBase {
 			}
 		}
 
-		$this->response()->setPayload( $response );
+		$payloadSuccess = (bool)( $response[ 'success' ] ?? false );
+		unset( $response[ 'success' ] );
+
+		$this->response()
+			 ->setPayload( $response )
+			 ->setPayloadSuccess( $payloadSuccess );
 	}
 }

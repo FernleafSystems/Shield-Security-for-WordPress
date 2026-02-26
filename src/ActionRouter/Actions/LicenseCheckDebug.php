@@ -25,8 +25,7 @@ class LicenseCheckDebug extends LicenseBase {
 		}
 
 		$this->response()->setPayload( [
-			'success' => $success,
 			'message' => $msg,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

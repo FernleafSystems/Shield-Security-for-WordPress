@@ -26,9 +26,9 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 		$con = self::con();
 		$vars = $this->getVars( $this->isRefreshRequested() );
 		$vars[ 'generated_at' ] = Services::Request()
-							  ->carbon()
-							  ->setTimestamp( $vars[ 'generated_at' ] )
-							  ->diffForHumans();
+										  ->carbon()
+										  ->setTimestamp( $vars[ 'generated_at' ] )
+										  ->diffForHumans();
 		return [
 			'hrefs'   => [
 				'overview' => $con->plugin_urls->adminHome(),
@@ -38,20 +38,20 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'show_internal_links' => $con->isPluginAdmin()
 			],
 			'strings' => [
-				'title'              => sprintf( '%s: %s', $con->labels->Name, __( 'Overview', 'wp-simple-firewall' ) ),
-				'needs_attention'    => __( 'Action Required', 'wp-simple-firewall' ),
-				'all_clear'          => __( 'All Clear', 'wp-simple-firewall' ),
-				'no_issues'          => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
-				'config_posture'     => __( 'Configuration Posture', 'wp-simple-firewall' ),
-				'action_items'       => __( 'Action Items', 'wp-simple-firewall' ),
-				'view_actions'       => __( 'View Actions', 'wp-simple-firewall' ),
-				'view_posture'       => __( 'View Posture', 'wp-simple-firewall' ),
-				'go_to_dashboard'    => __( 'Go to Shield Dashboard', 'wp-simple-firewall' ),
-				'last_scan'          => __( 'Last scan', 'wp-simple-firewall' ),
-				'critical'           => __( 'Critical', 'wp-simple-firewall' ),
-				'needs_work'         => __( 'Needs Work', 'wp-simple-firewall' ),
-				'good'               => __( 'Good', 'wp-simple-firewall' ),
-				'refresh'            => __( 'Refresh', 'wp-simple-firewall' ),
+				'title'           => sprintf( '%s: %s', $con->labels->Name, __( 'Overview', 'wp-simple-firewall' ) ),
+				'needs_attention' => __( 'Action Required', 'wp-simple-firewall' ),
+				'all_clear'       => __( 'All Clear', 'wp-simple-firewall' ),
+				'no_issues'       => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
+				'config_posture'  => __( 'Configuration Posture', 'wp-simple-firewall' ),
+				'action_items'    => __( 'Action Items', 'wp-simple-firewall' ),
+				'view_actions'    => __( 'View Actions', 'wp-simple-firewall' ),
+				'view_posture'    => __( 'View Posture', 'wp-simple-firewall' ),
+				'go_to_dashboard' => __( 'Go to Shield Dashboard', 'wp-simple-firewall' ),
+				'last_scan'       => __( 'Last scan', 'wp-simple-firewall' ),
+				'critical'        => __( 'Critical', 'wp-simple-firewall' ),
+				'needs_work'      => __( 'Needs Work', 'wp-simple-firewall' ),
+				'good'            => __( 'Good', 'wp-simple-firewall' ),
+				'refresh'         => __( 'Refresh', 'wp-simple-firewall' ),
 			],
 			'vars'    => $vars,
 		];

@@ -151,5 +151,4 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 			'offenses' => $offenses,
 		];
 	}
-
 }

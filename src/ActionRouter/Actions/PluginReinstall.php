@@ -33,9 +33,8 @@ class PluginReinstall extends ScansBase {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => $success,
 			'message'     => $success ? __( 'Plugin re-installed. Reloading...', 'wp-simple-firewall' ) : __( 'Re-install failed.', 'wp-simple-firewall' ),
 			'page_reload' => $success
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

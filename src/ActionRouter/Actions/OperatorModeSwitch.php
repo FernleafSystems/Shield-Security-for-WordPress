@@ -14,16 +14,16 @@ class OperatorModeSwitch extends SecurityAdminBase {
 
 		if ( self::con()->this_req->wp_is_ajax ) {
 			$this->response()
-				->setPayload( [
-					'page_reload' => false,
-					'mode'        => $pref->getCurrent(),
-				] )
-				->setPayloadSuccess( true );
+				 ->setPayload( [
+					 'page_reload' => false,
+					 'mode'        => $pref->getCurrent(),
+				 ] )
+				 ->setPayloadSuccess( true );
 			return;
 		}
 
 		$this->response()
-			->setPayloadSuccess( true )
-			->setPayloadRedirectNextStep( self::con()->plugin_urls->adminRefererOrHome() );
+			 ->setPayloadSuccess( true )
+			 ->setPayloadRedirectNextStep( self::con()->plugin_urls->adminRefererOrHome() );
 	}
 }

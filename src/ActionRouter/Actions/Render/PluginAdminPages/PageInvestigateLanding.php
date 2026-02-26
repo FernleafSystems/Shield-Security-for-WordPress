@@ -11,9 +11,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_investigate_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_landing.twig';
-
 	private const ACTIVE_SUBJECT_INPUT_PRECEDENCE = [ 'plugin_slug', 'theme_slug', 'analyse_ip', 'user_lookup' ];
-
 	private const SUBJECT_DEFINITIONS = [
 		'users'     => [
 			'key'         => 'users',
@@ -113,8 +111,11 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	];
 
 	private ?array $inputValuesCache = null;
+
 	private ?array $optionsCache = null;
+
 	private ?array $subjectBySubnavHintMapCache = null;
+
 	private ?array $subjectByInputKeyMapCache = null;
 
 	protected function getLandingTitle() :string {
@@ -154,38 +155,38 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'selector_title'      => __( 'What Do You Want To Investigate?', 'wp-simple-firewall' ),
-			'quick_tools_title'   => __( 'Quick Access', 'wp-simple-firewall' ),
-			'subject_users'       => __( 'Users', 'wp-simple-firewall' ),
-			'subject_ips'         => __( 'IP Addresses', 'wp-simple-firewall' ),
-			'subject_plugins'     => __( 'Plugins', 'wp-simple-firewall' ),
-			'subject_themes'      => __( 'Themes', 'wp-simple-firewall' ),
-			'subject_wordpress'   => __( 'WordPress Core', 'wp-simple-firewall' ),
-			'subject_requests'    => __( 'HTTP Requests', 'wp-simple-firewall' ),
-			'subject_activity'    => __( 'Activity Log', 'wp-simple-firewall' ),
-			'tool_activity'       => __( 'WP Activity Log', 'wp-simple-firewall' ),
-			'tool_traffic'        => __( 'HTTP Request Log', 'wp-simple-firewall' ),
-			'tool_live'           => __( 'Live HTTP Log', 'wp-simple-firewall' ),
-			'tool_ip_rules'       => __( 'IP Rules', 'wp-simple-firewall' ),
-			'panel_users'         => __( 'Investigate A User', 'wp-simple-firewall' ),
-			'panel_ips'           => __( 'Investigate An IP Address', 'wp-simple-firewall' ),
-			'panel_plugins'       => __( 'Investigate A Plugin', 'wp-simple-firewall' ),
-			'panel_themes'        => __( 'Investigate A Theme', 'wp-simple-firewall' ),
-			'panel_wordpress'     => __( 'WordPress Core Integrity', 'wp-simple-firewall' ),
-			'panel_requests'      => __( 'HTTP Request Log', 'wp-simple-firewall' ),
-			'panel_activity'      => __( 'Activity Log', 'wp-simple-firewall' ),
-			'lookup_user'         => __( 'User ID, username, or email', 'wp-simple-firewall' ),
-			'lookup_ip'           => __( 'IP address', 'wp-simple-firewall' ),
-			'lookup_plugin'       => __( 'Select a plugin', 'wp-simple-firewall' ),
-			'lookup_theme'        => __( 'Select a theme', 'wp-simple-firewall' ),
-			'go_user'             => __( 'Investigate User', 'wp-simple-firewall' ),
-			'go_ip'               => __( 'Investigate IP', 'wp-simple-firewall' ),
-			'go_plugin'           => __( 'Investigate Plugin', 'wp-simple-firewall' ),
-			'go_theme'            => __( 'Investigate Theme', 'wp-simple-firewall' ),
-			'go_wordpress'        => __( 'View Core Status', 'wp-simple-firewall' ),
-			'go_requests'         => __( 'Open Request Log', 'wp-simple-firewall' ),
-			'go_activity'         => __( 'Open Activity Log', 'wp-simple-firewall' ),
-			'ip_invalid_text'     => __( 'Enter a valid IPv4 or IPv6 address to investigate this IP.', 'wp-simple-firewall' ),
+			'selector_title'    => __( 'What Do You Want To Investigate?', 'wp-simple-firewall' ),
+			'quick_tools_title' => __( 'Quick Access', 'wp-simple-firewall' ),
+			'subject_users'     => __( 'Users', 'wp-simple-firewall' ),
+			'subject_ips'       => __( 'IP Addresses', 'wp-simple-firewall' ),
+			'subject_plugins'   => __( 'Plugins', 'wp-simple-firewall' ),
+			'subject_themes'    => __( 'Themes', 'wp-simple-firewall' ),
+			'subject_wordpress' => __( 'WordPress Core', 'wp-simple-firewall' ),
+			'subject_requests'  => __( 'HTTP Requests', 'wp-simple-firewall' ),
+			'subject_activity'  => __( 'Activity Log', 'wp-simple-firewall' ),
+			'tool_activity'     => __( 'WP Activity Log', 'wp-simple-firewall' ),
+			'tool_traffic'      => __( 'HTTP Request Log', 'wp-simple-firewall' ),
+			'tool_live'         => __( 'Live HTTP Log', 'wp-simple-firewall' ),
+			'tool_ip_rules'     => __( 'IP Rules', 'wp-simple-firewall' ),
+			'panel_users'       => __( 'Investigate A User', 'wp-simple-firewall' ),
+			'panel_ips'         => __( 'Investigate An IP Address', 'wp-simple-firewall' ),
+			'panel_plugins'     => __( 'Investigate A Plugin', 'wp-simple-firewall' ),
+			'panel_themes'      => __( 'Investigate A Theme', 'wp-simple-firewall' ),
+			'panel_wordpress'   => __( 'WordPress Core Integrity', 'wp-simple-firewall' ),
+			'panel_requests'    => __( 'HTTP Request Log', 'wp-simple-firewall' ),
+			'panel_activity'    => __( 'Activity Log', 'wp-simple-firewall' ),
+			'lookup_user'       => __( 'User ID, username, or email', 'wp-simple-firewall' ),
+			'lookup_ip'         => __( 'IP address', 'wp-simple-firewall' ),
+			'lookup_plugin'     => __( 'Select a plugin', 'wp-simple-firewall' ),
+			'lookup_theme'      => __( 'Select a theme', 'wp-simple-firewall' ),
+			'go_user'           => __( 'Investigate User', 'wp-simple-firewall' ),
+			'go_ip'             => __( 'Investigate IP', 'wp-simple-firewall' ),
+			'go_plugin'         => __( 'Investigate Plugin', 'wp-simple-firewall' ),
+			'go_theme'          => __( 'Investigate Theme', 'wp-simple-firewall' ),
+			'go_wordpress'      => __( 'View Core Status', 'wp-simple-firewall' ),
+			'go_requests'       => __( 'Open Request Log', 'wp-simple-firewall' ),
+			'go_activity'       => __( 'Open Activity Log', 'wp-simple-firewall' ),
+			'ip_invalid_text'   => __( 'Enter a valid IPv4 or IPv6 address to investigate this IP.', 'wp-simple-firewall' ),
 		];
 	}
 

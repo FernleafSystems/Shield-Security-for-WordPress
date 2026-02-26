@@ -25,8 +25,7 @@ class MfaBackupCodeDelete extends MfaUserConfigBase {
 		self::con()->admin_notices->addFlash( $msg, $this->getActiveWPUser(), !$success );
 
 		$this->response()->setPayload( [
-			'success' => $success,
 			'message' => $msg,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

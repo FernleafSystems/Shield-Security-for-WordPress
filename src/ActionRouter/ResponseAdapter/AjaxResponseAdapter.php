@@ -13,8 +13,8 @@ class AjaxResponseAdapter extends BaseAdapter {
 		$payload = $response->payload();
 		$responseData = ResponseEnvelopeNormalizer::forAjaxAdapter(
 			\array_merge( $response->getRawData(), $payload ),
-			(string)( $response->message ?? '' ),
-			(string)( $response->error ?? '' )
+			$response->message ?? '',
+			$response->error ?? '',
 		);
 		$responseData = \array_diff_key(
 			$responseData,

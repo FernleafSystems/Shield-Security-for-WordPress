@@ -23,8 +23,6 @@ class MfaLoginVerifyStep extends BaseAction {
 			$success = false;
 		}
 
-		$this->response()->setPayload( [
-			'success' => $success,
-		] );
+		$this->response()->setPayload()->setPayloadSuccess( $success );
 	}
 }

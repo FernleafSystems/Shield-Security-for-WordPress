@@ -16,8 +16,8 @@ class EventsEnum extends Actions\Render\BaseRender {
 
 		$eventsSortedByLevel = [
 			'Warning' => [],
-			'Notice' => [],
-			'Info'   => [],
+			'Notice'  => [],
+			'Info'    => [],
 		];
 		foreach ( $srvEvents->getEvents() as $event ) {
 			$level = \ucfirst( \strtolower( $event[ 'level' ] ) );

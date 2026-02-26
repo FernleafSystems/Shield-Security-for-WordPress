@@ -43,9 +43,8 @@ class ScansFileLockerAction extends ScansBase {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => $success,
 			'message'     => $msg,
 			'page_reload' => $success,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

@@ -49,10 +49,9 @@ class SecurityAdminLogin extends SecurityAdminBase {
 		}
 
 		$resp->setPayload( [
-			'success'      => $success,
 			'html'         => '',
 			'page_reload'  => true,
 			'redirect_url' => self::con()->plugin_urls->adminRefererOrHome(),
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

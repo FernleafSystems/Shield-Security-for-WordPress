@@ -25,7 +25,6 @@ class AjaxBatchRequests extends BaseAction {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'ajax_batch_requests';
-
 	private const MAX_BATCH_SIZE = 20;
 
 	protected function exec() {
@@ -37,7 +36,7 @@ class AjaxBatchRequests extends BaseAction {
 		if ( \count( $requests ) > self::MAX_BATCH_SIZE ) {
 			throw new ActionException(
 				sprintf(
-					/* translators: %s: request count limit */
+				/* translators: %s: request count limit */
 					__( 'Too many batched requests. Maximum allowed is %s.', 'wp-simple-firewall' ),
 					self::MAX_BATCH_SIZE
 				)
@@ -55,10 +54,9 @@ class AjaxBatchRequests extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success' => true,
 			'message' => '',
 			'results' => $results,
-		] );
+		] )->setPayloadSuccess( true );
 	}
 
 	protected function getRequiredDataKeys() :array {

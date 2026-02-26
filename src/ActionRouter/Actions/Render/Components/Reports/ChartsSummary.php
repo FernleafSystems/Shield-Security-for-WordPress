@@ -19,12 +19,12 @@ class ChartsSummary extends Base {
 		$rangeEnd = Services::Request()
 							->carbon()
 							->endOfDay()
-							->timestamp;
+			->timestamp;
 		$rangeStart = Services::Request()
 							  ->carbon()
 							  ->subDays( $windowDays - 1 )
 							  ->startOfDay()
-							  ->timestamp;
+			->timestamp;
 		/* translators: %1$s: number of days, %2$s: units */
 		$periodLabel = sprintf( __( '%1$s %2$s', 'wp-simple-firewall' ), $windowDays, __( 'days', 'wp-simple-firewall' ) );
 

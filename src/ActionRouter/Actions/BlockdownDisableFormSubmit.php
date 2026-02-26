@@ -48,9 +48,8 @@ class BlockdownDisableFormSubmit extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => $success,
 			'page_reload' => true,
 			'message'     => $msg,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

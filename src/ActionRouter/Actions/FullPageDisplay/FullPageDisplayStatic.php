@@ -8,9 +8,8 @@ abstract class FullPageDisplayStatic extends BaseFullPageDisplay {
 
 	protected function exec() {
 		$this->response()->mergePayload( [
-			'success'       => true,
 			'render_output' => $this->retrieveContent(),
-		] );
+		] )->setPayloadSuccess( true );
 	}
 
 	abstract protected function retrieveContent() :string;

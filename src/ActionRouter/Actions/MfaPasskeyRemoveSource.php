@@ -17,10 +17,9 @@ class MfaPasskeyRemoveSource extends MfaUserConfigBase {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => $success,
 			'message'     => $success ? __( 'Passkey removed from your profile', 'wp-simple-firewall' )
 				: __( 'There was a problem removing this passkey', 'wp-simple-firewall' ),
 			'page_reload' => !$success,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

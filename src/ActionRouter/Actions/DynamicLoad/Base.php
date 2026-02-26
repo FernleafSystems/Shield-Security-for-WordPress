@@ -13,11 +13,10 @@ abstract class Base extends BaseAction {
 		$resp = $this->response();
 		try {
 			$resp->setPayload( [
-				'success'    => true,
 				'html'       => $this->getContent(),
 				'page_url'   => $this->getPageUrl(),
 				'page_title' => $this->getPageTitle(),
-			] );
+			] )->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
 			$resp->setPayloadSuccess( false );

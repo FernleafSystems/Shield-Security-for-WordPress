@@ -24,6 +24,7 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'No AJAX message provided', $payload[ 'message' ] ?? '' );
 		$this->assertSame( '', $payload[ 'error' ] ?? null );
 		$this->assertSame( '<div>ok</div>', $payload[ 'html' ] ?? '' );
+		$this->assertArrayNotHasKey( 'page_title', $payload );
 	}
 
 	public function test_for_rest_process_applies_expected_defaults() :void {
@@ -57,6 +58,7 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 		$this->assertSame( '-', $payload[ 'page_title' ] ?? '' );
 		$this->assertSame( '-', $payload[ 'page_url' ] ?? '' );
 		$this->assertTrue( $payload[ 'show_toast' ] ?? false );
+		$this->assertArrayNotHasKey( 'page_reload', $payload );
 	}
 
 	public function test_for_ajax_adapter_allows_payload_overrides() :void {

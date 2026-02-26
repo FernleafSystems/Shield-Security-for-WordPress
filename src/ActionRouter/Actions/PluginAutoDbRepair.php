@@ -52,9 +52,8 @@ class PluginAutoDbRepair extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => true,
 			'page_reload' => true,
 			'message'     => $msg
-		] );
+		] )->setPayloadSuccess( true );
 	}
 }

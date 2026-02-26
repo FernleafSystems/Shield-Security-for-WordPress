@@ -20,7 +20,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investiga
 class InvestigationTableAction extends TableActionBase {
 
 	public const SLUG = 'investigationtable_action';
-
 	private const ERROR_UNSUPPORTED_SUB_ACTION = 'unsupported_sub_action';
 	private const ERROR_MISSING_REQUIRED_ACTION_DATA = 'missing_required_action_data';
 	private const ERROR_UNSUPPORTED_TABLE_TYPE = 'unsupported_table_type';

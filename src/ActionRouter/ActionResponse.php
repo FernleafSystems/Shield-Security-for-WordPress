@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
  * @property array  $action_data
  * @property array  $action_response_data Legacy compatibility payload field.
  *
- * @property array  $next_step Legacy compatibility field; canonical transport is payload-native `next_step`.
+ * @property array  $next_step            Legacy compatibility field; canonical transport is payload-native `next_step`.
  *
  * AJAX Actions:
  * @property array  $ajax_data
@@ -41,17 +41,14 @@ class ActionResponse extends Response {
 		return $value;
 	}
 
-	public function setPayload( array $payload ) :self {
+	public function setPayload( array $payload = [] ) :self {
 		$this->action_response_data = $payload;
 		return $this;
 	}
 
 	public function mergePayload( array $payload ) :self {
 		$existing = $this->action_response_data;
-		if ( !\is_array( $existing ) ) {
-			$existing = [];
-		}
-		$this->action_response_data = \array_merge( $existing, $payload );
+		$this->action_response_data = \array_merge( \is_array( $existing ) ? $existing : [], $payload );
 		return $this;
 	}
 

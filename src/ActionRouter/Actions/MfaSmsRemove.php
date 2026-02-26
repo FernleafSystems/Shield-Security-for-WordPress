@@ -15,9 +15,8 @@ class MfaSmsRemove extends MfaUserConfigBase {
 		$provider->removeFromProfile();
 
 		$this->response()->setPayload( [
-			'success'     => true,
 			'message'     => __( 'SMS Registration Removed', 'wp-simple-firewall' ),
 			'page_reload' => true
-		] );
+		] )->setPayloadSuccess( true );
 	}
 }

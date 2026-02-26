@@ -45,6 +45,14 @@ class TableActionBaseTest extends BaseUnitTest {
 		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
 	}
 
+	public function testHandlerResponseWithoutSuccessDefaultsToFailureEnvelopeSuccessFlag() :void {
+		$action = new TableActionBaseDispatchTestDouble( [ 'sub_action' => 'handler_missing_success' ] );
+		$payload = $action->runExecForTest();
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertSame( 'handler_missing_success_ok', $payload[ 'message' ] ?? '' );
+	}
+
 	public function testThrowableFromHandlerReturnsFailureEnvelope() :void {
 		$action = new TableActionBaseDispatchTestDouble( [ 'sub_action' => 'handler_type_error' ] );
 		$payload = $action->runExecForTest();
@@ -185,6 +193,7 @@ class TableActionBaseDispatchTestDouble extends TableActionBase {
 		return [
 			'handler_one'          => fn() => $this->handlerOne(),
 			'handler_non_array'    => fn() => $this->handlerNonArray(),
+			'handler_missing_success' => fn() => $this->handlerMissingSuccess(),
 			'handler_type_error'   => fn() => $this->handlerTypeError(),
 			'handler_requires_key' => fn() => $this->handlerRequiresKey(),
 		];
@@ -210,6 +219,12 @@ class TableActionBaseDispatchTestDouble extends TableActionBase {
 
 	protected function handlerNonArray() {
 		return 'not-an-array';
+	}
+
+	protected function handlerMissingSuccess() :array {
+		return [
+			'message' => 'handler_missing_success_ok',
+		];
 	}
 
 	protected function handlerTypeError() :array {

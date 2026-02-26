@@ -17,8 +17,7 @@ class MfaGoogleAuthToggle extends MfaUserConfigBase {
 		$result = empty( $otp ) ? $provider->removeGA() : $provider->activateGA( $otp );
 
 		$this->response()->setPayload( [
-			'success' => $result->success,
 			'message' => $result->success ? $result->msg_text : $result->error_text,
-		] );
+		] )->setPayloadSuccess( (bool)( $result->success ) );
 	}
 }

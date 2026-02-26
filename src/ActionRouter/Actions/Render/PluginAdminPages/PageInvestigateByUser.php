@@ -34,7 +34,6 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	public const SLUG = 'plugin_admin_page_investigate_by_user';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_user.twig';
-
 	private const LIMIT_SESSIONS = 50;
 	private const LIMIT_ACTIVITY_LOGS = 75;
 	private const LIMIT_REQUEST_LOGS = 75;
@@ -115,11 +114,11 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$displayName = \trim( (string)$subject->display_name );
 		$title = empty( $displayName ) ? (string)$subject->user_login : $displayName;
 		return [
-			'status'       => 'info',
-			'title'        => $title,
-			'avatar_icon'  => self::con()->svgs->iconClass( 'person-fill' ),
-			'avatar_text'  => \strtoupper( \substr( $title, 0, 1 ) ?: 'U' ),
-			'meta'         => [
+			'status'      => 'info',
+			'title'       => $title,
+			'avatar_icon' => self::con()->svgs->iconClass( 'person-fill' ),
+			'avatar_text' => \strtoupper( \substr( $title, 0, 1 ) ?: 'U' ),
+			'meta'        => [
 				[
 					'label' => __( 'ID', 'wp-simple-firewall' ),
 					'value' => (string)$subject->ID,
@@ -137,8 +136,8 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 					'value' => (string)$subject->display_name,
 				],
 			],
-			'change_href'  => self::con()->plugin_urls->investigateByUser(),
-			'change_text'  => __( 'Change User', 'wp-simple-firewall' ),
+			'change_href' => self::con()->plugin_urls->investigateByUser(),
+			'change_text' => __( 'Change User', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -189,9 +188,18 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 	}
 
 	protected function buildRailNavItems( array $summaryStats ) :array {
-		$sessionSummary = $summaryStats[ 'sessions' ] ?? [ 'label' => __( 'Sessions', 'wp-simple-firewall' ), 'count' => 0 ];
-		$activitySummary = $summaryStats[ 'activity' ] ?? [ 'label' => __( 'Activity', 'wp-simple-firewall' ), 'count' => 0 ];
-		$requestSummary = $summaryStats[ 'requests' ] ?? [ 'label' => __( 'Requests', 'wp-simple-firewall' ), 'count' => 0 ];
+		$sessionSummary = $summaryStats[ 'sessions' ] ?? [
+			'label' => __( 'Sessions', 'wp-simple-firewall' ),
+			'count' => 0
+		];
+		$activitySummary = $summaryStats[ 'activity' ] ?? [
+			'label' => __( 'Activity', 'wp-simple-firewall' ),
+			'count' => 0
+		];
+		$requestSummary = $summaryStats[ 'requests' ] ?? [
+			'label' => __( 'Requests', 'wp-simple-firewall' ),
+			'count' => 0
+		];
 		$ipSummary = $summaryStats[ 'ips' ] ?? [ 'label' => __( 'IP Addresses', 'wp-simple-firewall' ), 'count' => 0 ];
 
 		return [
@@ -334,8 +342,8 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 		return \array_values( \array_map(
 			fn( ActivityLogRecord $record ) :array => [
-				'created_at_ts'  => (int)$record->created_at,
-				'ip'             => (string)$record->ip,
+				'created_at_ts' => (int)$record->created_at,
+				'ip'            => (string)$record->ip,
 			],
 			$loader->run()
 		) );
@@ -350,9 +358,9 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		return \array_values( \array_map(
 			static function ( RequestLogRecord $record ) :array {
 				return [
-					'created_at_ts'  => (int)$record->created_at,
-					'ip'             => (string)$record->ip,
-					'offense'        => (bool)$record->offense,
+					'created_at_ts' => (int)$record->created_at,
+					'ip'            => (string)$record->ip,
+					'offense'       => (bool)$record->offense,
 				];
 			},
 			$loader->select()
@@ -426,17 +434,17 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	private function newIpCardSeed( string $ip ) :array {
 		return [
-			'ip'             => $ip,
-			'href'           => self::con()->plugin_urls->ipAnalysis( $ip ),
-			'investigate_href'=> self::con()->plugin_urls->investigateByIp( $ip ),
-			'last_seen_ts'   => 0,
-			'last_seen_at'   => '',
-			'last_seen_ago'  => '',
-			'sessions_count' => 0,
-			'activity_count' => 0,
-			'requests_count' => 0,
-			'status'         => 'info',
-			'has_offense'    => false,
+			'ip'               => $ip,
+			'href'             => self::con()->plugin_urls->ipAnalysis( $ip ),
+			'investigate_href' => self::con()->plugin_urls->investigateByIp( $ip ),
+			'last_seen_ts'     => 0,
+			'last_seen_at'     => '',
+			'last_seen_ago'    => '',
+			'sessions_count'   => 0,
+			'activity_count'   => 0,
+			'requests_count'   => 0,
+			'status'           => 'info',
+			'has_offense'      => false,
 		];
 	}
 

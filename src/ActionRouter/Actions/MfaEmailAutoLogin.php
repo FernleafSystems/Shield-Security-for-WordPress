@@ -68,8 +68,8 @@ class MfaEmailAutoLogin extends BaseAction {
 
 		$redirectTo = $this->action_data[ 'redirect_to' ] ?? '';
 		$this->response()
-			->setPayloadSuccess( $success )
-			->setPayloadRedirectNextStep( empty( $redirectTo ) ? Services::WpGeneral()->getHomeUrl() : $redirectTo );
+			 ->setPayloadSuccess( $success )
+			 ->setPayloadRedirectNextStep( empty( $redirectTo ) ? Services::WpGeneral()->getHomeUrl() : $redirectTo );
 	}
 
 	protected function getRequiredDataKeys() :array {

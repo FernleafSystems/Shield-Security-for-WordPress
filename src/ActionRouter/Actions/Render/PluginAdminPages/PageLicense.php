@@ -76,25 +76,25 @@ class PageLicense extends BasePluginAdminPage {
 				'inner_page_subtitle' => sprintf( __( 'Seamlessly activate and manage your %s license without any license keys.', 'wp-simple-firewall' ), $con->labels->Name ),
 				'pro_features'        => $this->getProFeatureStrings(),
 
-				'pro_available_blurb'        => sprintf( __( '%s Pro is available from our online store.', 'wp-simple-firewall' ), $con->labels->Name ),
-				'title_license_summary'    => __( 'License Summary', 'wp-simple-firewall' ),
-				'title_license_activation' => __( 'License Activation', 'wp-simple-firewall' ),
+				'pro_available_blurb'          => sprintf( __( '%s Pro is available from our online store.', 'wp-simple-firewall' ), $con->labels->Name ),
+				'title_license_summary'        => __( 'License Summary', 'wp-simple-firewall' ),
+				'title_license_activation'     => __( 'License Activation', 'wp-simple-firewall' ),
 				'license_step_purchase_prefix' => __( 'Just grab a new license from the', 'wp-simple-firewall' ),
 				'license_step_purchase_link'   => sprintf( __( '%s Pro store', 'wp-simple-firewall' ), $con->labels->Name ),
 				'license_step_register'        => __( 'Register your site URL with our control panel.', 'wp-simple-firewall' ),
 				'license_step_activate'        => __( "Activate your license on your sites using the 'Check License' button.", 'wp-simple-firewall' ),
-				'check_license'            => __( 'Check License', 'wp-simple-firewall' ),
-				'clear_license'            => __( 'Remove License', 'wp-simple-firewall' ),
-				'url_to_activate'          => __( 'URL To Activate', 'wp-simple-firewall' ),
-				'activate_site_in'         => sprintf(
+				'check_license'                => __( 'Check License', 'wp-simple-firewall' ),
+				'clear_license'                => __( 'Remove License', 'wp-simple-firewall' ),
+				'url_to_activate'              => __( 'URL To Activate', 'wp-simple-firewall' ),
+				'activate_site_in'             => sprintf(
 					__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
 					__( 'Keyless Activation', 'wp-simple-firewall' )
 				),
-				'license_check_limit'      => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
-				'more_frequent'            => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
-				'incase_debug'             => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
-				'cta_upgrade'              => sprintf( __( 'Upgrade To %s Pro Now', 'wp-simple-firewall' ), $con->labels->Name ),
-				'cta_view_features'        => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
+				'license_check_limit'          => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
+				'more_frequent'                => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
+				'incase_debug'                 => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
+				'cta_upgrade'                  => sprintf( __( 'Upgrade To %s Pro Now', 'wp-simple-firewall' ), $con->labels->Name ),
+				'cta_view_features'            => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'license_table'  => [

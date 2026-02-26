@@ -28,9 +28,8 @@ class MfaEmailSendVerification extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success' => true,
 			'message' => $msg
-		] );
+		] )->setPayloadSuccess( true );
 	}
 
 	private function sendEmailVerifyCanSend() {

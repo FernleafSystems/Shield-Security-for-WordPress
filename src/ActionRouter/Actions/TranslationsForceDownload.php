@@ -10,9 +10,8 @@ class TranslationsForceDownload extends BaseAction {
 		self::con()->comps->translation_downloads->processQueue( true );
 
 		$this->response()->setPayload( [
-			'success'     => true,
 			'page_reload' => true,
 			'message'     => __( 'Translations have been downloaded.', 'wp-simple-firewall' ),
-		] );
+		] )->setPayloadSuccess( true );
 	}
 }

@@ -10,8 +10,6 @@ class CrowdsecResetEnrollment extends BaseAction {
 
 	protected function exec() {
 		( new Enroll() )->clearEnrollment();
-		$this->response()->setPayload( [
-			'success' => true,
-		] );
+		$this->response()->setPayload()->setPayloadSuccess( true );
 	}
 }

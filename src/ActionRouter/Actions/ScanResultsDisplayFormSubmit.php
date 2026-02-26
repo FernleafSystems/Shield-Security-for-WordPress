@@ -30,9 +30,8 @@ class ScanResultsDisplayFormSubmit extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => $success,
 			'page_reload' => $con->opts->optChanged( 'scan_results_table_display' ),
 			'message'     => $msg,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

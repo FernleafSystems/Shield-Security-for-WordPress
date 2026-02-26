@@ -65,9 +65,8 @@ class IpRuleAddSubmit extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => $success,
 			'page_reload' => false,
 			'message'     => $msg,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

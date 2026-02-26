@@ -20,10 +20,11 @@ abstract class ReportingChartBase extends BaseAction {
 			$chartData = [];
 		}
 
-		$this->response()->setPayload( [
-			'success' => $success,
-			'message' => $msg,
-			'chart'   => $chartData
-		] );
+		$this->response()
+			 ->setPayload( [
+				 'message' => $msg,
+				 'chart'   => $chartData
+			 ] )
+			 ->setPayloadSuccess( $success );
 	}
 }

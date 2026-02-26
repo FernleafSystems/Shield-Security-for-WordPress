@@ -16,9 +16,8 @@ class PluginDeleteForceOff extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'success'     => true,
 			'page_reload' => true,
 			'message'     => __( 'Removed the forceoff file.', 'wp-simple-firewall' ),
-		] );
+		] )->setPayloadSuccess( true );
 	}
 }

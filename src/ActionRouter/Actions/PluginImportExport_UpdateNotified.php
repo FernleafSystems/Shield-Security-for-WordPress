@@ -11,8 +11,6 @@ class PluginImportExport_UpdateNotified extends BaseAction {
 
 	protected function exec() {
 		self::con()->comps->import_export->runOptionsUpdateNotified();
-		$this->response()->setPayload( [
-			'success' => true,
-		] );
+		$this->response()->setPayload()->setPayloadSuccess( true );
 	}
 }

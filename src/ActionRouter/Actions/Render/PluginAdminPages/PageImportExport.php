@@ -72,7 +72,7 @@ class PageImportExport extends BasePluginAdminPage {
 
 				'master_site_url'  => __( 'Master Site URL', 'wp-simple-firewall' ),
 				'remember_include' => sprintf(
-					/* translators: %1$s: https protocol, %2$s: http protocol */
+				/* translators: %1$s: https protocol, %2$s: http protocol */
 					__( 'Remember to include %1$s or %2$s', 'wp-simple-firewall' ),
 					'<code>https://</code>',
 					'<code>http://</code>'

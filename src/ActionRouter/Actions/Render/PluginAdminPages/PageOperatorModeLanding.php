@@ -30,7 +30,7 @@ class PageOperatorModeLanding extends BaseRender {
 
 		return [
 			'hrefs'   => [
-				'actions_queue'       => $this->modeHref( PluginNavs::MODE_ACTIONS ),
+				'actions_queue'        => $this->modeHref( PluginNavs::MODE_ACTIONS ),
 				'operator_mode_switch' => $con->plugin_urls->noncedPluginAction(
 					OperatorModeSwitch::class,
 					$con->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW )
@@ -62,7 +62,7 @@ class PageOperatorModeLanding extends BaseRender {
 			'severity'     => $severity,
 			'badge_status' => $severity,
 			'icon_class'   => (string)( $queuePayload[ 'strings' ][ $hasItems ? 'status_strip_icon_class' : 'all_clear_icon_class' ]
-				?? self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ) ),
+										?? self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ) ),
 			'subtitle'     => $hasItems
 				? sprintf(
 					_n(

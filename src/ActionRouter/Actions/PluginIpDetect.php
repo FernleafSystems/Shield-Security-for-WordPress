@@ -19,11 +19,10 @@ class PluginIpDetect extends BaseAction {
 			self::con()->opts->optSet( 'visitor_address_source', $source );
 		}
 		$this->response()->setPayload( [
-			'success'   => !empty( $source ),
 			'message'   => empty( $source )
 				? sprintf( __( 'Could not find source from IP: %s', 'wp-simple-firewall' ), \esc_html( $this->action_data[ 'ip' ] ) )
 				: sprintf( __( 'IP Source Found: %s', 'wp-simple-firewall' ), $source ),
 			'ip_source' => $source,
-		] );
+		] )->setPayloadSuccess( (bool)( !empty( $source ) ) );
 	}
 }

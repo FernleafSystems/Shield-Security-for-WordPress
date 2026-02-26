@@ -19,7 +19,6 @@ class AttentionItemsProvider {
 		'warning'  => 1,
 		'good'     => 2,
 	];
-
 	private const KEY_SORT = [
 		'malware',
 		'vulnerable_assets',
@@ -35,7 +34,6 @@ class AttentionItemsProvider {
 		'meter_warning',
 		'score_generic',
 	];
-
 	private const MAINTENANCE_COMPONENT_SLUGS = [
 		'wp_updates',
 		'wp_plugins_updates',
@@ -106,14 +104,14 @@ class AttentionItemsProvider {
 	}
 
 	/**
-	 * @deprecated 21.3.0 Legacy dashboard widget rows compatibility path.
-	 *                    Prefer buildActionItems() and buildActionSummary().
-	 *
 	 * @return array{
 	 *     items: array<int, array<string, mixed>>,
 	 *     total: int,
 	 *     hidden: int
 	 * }
+	 * @deprecated        21.3.0 Legacy dashboard widget rows compatibility path.
+	 *                    Prefer buildActionItems() and buildActionSummary().
+	 *
 	 */
 	public function buildWidgetRows(
 		int $maxRows = 0,
@@ -200,13 +198,13 @@ class AttentionItemsProvider {
 		foreach ( $scanSlugs as $scanSlug ) {
 			try {
 				$record = self::con()
-							  ->db_con
-							  ->scans
-							  ->getQuerySelector()
-							  ->filterByScan( (string)$scanSlug )
-							  ->filterByFinished()
-							  ->setOrderBy( 'id', 'DESC', true )
-							  ->first();
+					->db_con
+					->scans
+					->getQuerySelector()
+					->filterByScan( (string)$scanSlug )
+					->filterByFinished()
+					->setOrderBy( 'id', 'DESC', true )
+					->first();
 				if ( $record instanceof ScanRecord && (int)$record->finished_at > $latest ) {
 					$latest = (int)$record->finished_at;
 				}
@@ -267,48 +265,48 @@ class AttentionItemsProvider {
 			),
 			$scansCon->AFS()->isEnabledMalwareScanPHP()
 				? $this->buildItem(
-					'malware',
-					'scans',
-					__( 'Malware', 'wp-simple-firewall' ),
-					$counter->countMalware(),
-					'critical',
-					sprintf(
-						_n( '%s malware issue detected.', '%s malware issues detected.', $counter->countMalware(), 'wp-simple-firewall' ),
-						$counter->countMalware()
-					),
-					$scansResultsLink,
-					__( 'Review', 'wp-simple-firewall' )
-				)
+				'malware',
+				'scans',
+				__( 'Malware', 'wp-simple-firewall' ),
+				$counter->countMalware(),
+				'critical',
+				sprintf(
+					_n( '%s malware issue detected.', '%s malware issues detected.', $counter->countMalware(), 'wp-simple-firewall' ),
+					$counter->countMalware()
+				),
+				$scansResultsLink,
+				__( 'Review', 'wp-simple-firewall' )
+			)
 				: null,
 			$scansCon->WPV()->isEnabled()
 				? $this->buildItem(
-					'vulnerable_assets',
-					'scans',
-					__( 'Vulnerable Assets', 'wp-simple-firewall' ),
-					$counter->countVulnerableAssets(),
-					'critical',
-					sprintf(
-						_n( '%s vulnerable asset detected.', '%s vulnerable assets detected.', $counter->countVulnerableAssets(), 'wp-simple-firewall' ),
-						$counter->countVulnerableAssets()
-					),
-					$scansResultsLink,
-					__( 'Update', 'wp-simple-firewall' )
-				)
+				'vulnerable_assets',
+				'scans',
+				__( 'Vulnerable Assets', 'wp-simple-firewall' ),
+				$counter->countVulnerableAssets(),
+				'critical',
+				sprintf(
+					_n( '%s vulnerable asset detected.', '%s vulnerable assets detected.', $counter->countVulnerableAssets(), 'wp-simple-firewall' ),
+					$counter->countVulnerableAssets()
+				),
+				$scansResultsLink,
+				__( 'Update', 'wp-simple-firewall' )
+			)
 				: null,
 			$scansCon->APC()->isEnabled()
 				? $this->buildItem(
-					'abandoned',
-					'scans',
-					__( 'Abandoned Assets', 'wp-simple-firewall' ),
-					$counter->countAbandoned(),
-					'warning',
-					sprintf(
-						_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $counter->countAbandoned(), 'wp-simple-firewall' ),
-						$counter->countAbandoned()
-					),
-					$scansResultsLink,
-					__( 'Update', 'wp-simple-firewall' )
-				)
+				'abandoned',
+				'scans',
+				__( 'Abandoned Assets', 'wp-simple-firewall' ),
+				$counter->countAbandoned(),
+				'warning',
+				sprintf(
+					_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $counter->countAbandoned(), 'wp-simple-firewall' ),
+					$counter->countAbandoned()
+				),
+				$scansResultsLink,
+				__( 'Update', 'wp-simple-firewall' )
+			)
 				: null,
 		] ) );
 

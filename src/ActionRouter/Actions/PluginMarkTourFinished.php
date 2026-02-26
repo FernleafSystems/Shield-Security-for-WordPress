@@ -11,8 +11,7 @@ class PluginMarkTourFinished extends BaseAction {
 	protected function exec() {
 		( new TourManager() )->setCompleted( $this->action_data[ 'tour_key' ] ?? '' );
 		$this->response()->setPayload( [
-			'success' => true,
 			'message' => __( 'Tour Finished', 'wp-simple-firewall' ),
-		] );
+		] )->setPayloadSuccess( true );
 	}
 }

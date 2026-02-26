@@ -31,8 +31,7 @@ class MfaEmailToggle extends MfaUserConfigBase {
 		}
 
 		$this->response()->setPayload( [
-			'success' => $success,
 			'message' => $msg,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

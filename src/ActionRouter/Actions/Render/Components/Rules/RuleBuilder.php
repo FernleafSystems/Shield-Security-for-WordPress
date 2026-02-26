@@ -76,7 +76,7 @@ class RuleBuilder extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\
 			'strings' => [
 				'title'             => $isDraft ? __( 'Create New Rule', 'wp-simple-firewall' )
 					: sprintf(
-						/* translators: %1$s: rule ID, %2$s: rule name */
+					/* translators: %1$s: rule ID, %2$s: rule name */
 						__( 'Edit Rule #%1$s (%2$s)', 'wp-simple-firewall' ), $record->id, $record->name ),
 				'create_rule'       => __( 'Create New Rule', 'wp-simple-firewall' ),
 				'update_rule'       => __( 'Update This Rule', 'wp-simple-firewall' ),

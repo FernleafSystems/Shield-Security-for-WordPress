@@ -12,8 +12,6 @@ class SetFlagShieldIntroVideoClosed extends BaseAction {
 
 	protected function exec() {
 		self::con()->opts->optSet( 'v20_intro_closed_at', Services::Request()->ts() );
-		$this->response()->setPayload( [
-			'success' => true,
-		] );
+		$this->response()->setPayload()->setPayloadSuccess( true );
 	}
 }

@@ -12,7 +12,7 @@ class SecurityAdminAuthClear extends SecurityAdminBase {
 		( new ToggleSecAdminStatus() )->turnOff();
 
 		$this->response()
-			->setPayloadSuccess( true )
-			->setPayloadRedirectNextStep( self::con()->plugin_urls->adminRefererOrHome() );
+			 ->setPayloadSuccess( true )
+			 ->setPayloadRedirectNextStep( self::con()->plugin_urls->adminRefererOrHome() );
 	}
 }

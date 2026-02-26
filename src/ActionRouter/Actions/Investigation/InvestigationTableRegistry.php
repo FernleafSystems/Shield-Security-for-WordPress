@@ -33,7 +33,10 @@ class InvestigationTableRegistry {
 			],
 			InvestigationTableContract::TABLE_TYPE_TRAFFIC           => [
 				'builder'  => BuildTrafficData::class,
-				'subjects' => [ InvestigationTableContract::SUBJECT_TYPE_USER, InvestigationTableContract::SUBJECT_TYPE_IP ],
+				'subjects' => [
+					InvestigationTableContract::SUBJECT_TYPE_USER,
+					InvestigationTableContract::SUBJECT_TYPE_IP
+				],
 			],
 			InvestigationTableContract::TABLE_TYPE_SESSIONS          => [
 				'builder'  => BuildSessionsData::class,

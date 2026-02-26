@@ -39,10 +39,10 @@ class ReportsTable extends BaseRender {
 						'created_at' => Services::WpGeneral()->getTimeStringForDisplay( $report->created_at ),
 						'actions'    => [
 							'delete' => [
-								'title'   => __( 'Delete', 'wp-simple-firewall' ),
-								'classes' => [ 'btn-danger', 'shield_dynamic_action_button' ],
+								'title'      => __( 'Delete', 'wp-simple-firewall' ),
+								'classes'    => [ 'btn-danger', 'shield_dynamic_action_button' ],
 								'icon_class' => self::con()->svgs->iconClass( 'trash3-fill.svg' ),
-								'data'    => ActionData::Build( ReportTableAction::class, false, [
+								'data'       => ActionData::Build( ReportTableAction::class, false, [
 									'report_action' => 'delete',
 									'rid'           => $report->id,
 									'confirm'       => true,

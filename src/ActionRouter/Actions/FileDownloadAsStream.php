@@ -25,9 +25,8 @@ class FileDownloadAsStream extends BaseAction {
 			$resp = $this->response();
 			$resp->message = $e->getMessage();
 			$resp->mergePayload( [
-				'success' => false,
 				'message' => $e->getMessage(),
-			] );
+			] )->setPayloadSuccess( false );
 		}
 	}
 

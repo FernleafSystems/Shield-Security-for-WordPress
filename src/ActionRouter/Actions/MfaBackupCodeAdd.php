@@ -25,7 +25,6 @@ class MfaBackupCodeAdd extends MfaUserConfigBase {
 		$this->response()->setPayload( [
 			'message' => $msg,
 			'code'    => $pass ?? '',
-			'success' => $success
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }

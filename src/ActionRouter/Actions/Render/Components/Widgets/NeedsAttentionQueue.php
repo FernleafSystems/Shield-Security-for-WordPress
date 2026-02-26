@@ -41,16 +41,16 @@ class NeedsAttentionQueue extends BaseRender {
 				'status_strip_icon_class' => $hasItems
 					? self::con()->svgs->iconClass( 'exclamation-triangle-fill' )
 					: self::con()->svgs->iconClass( 'shield-check' ),
-				'status_strip_text' => $statusStripText,
-				'status_strip_subtext' => $lastScanSubtext,
-				'title'             => __( 'Action Required', 'wp-simple-firewall' ),
-				'issues_found'      => __( 'Actions Required', 'wp-simple-firewall' ),
-				'all_clear'         => __( 'All Clear', 'wp-simple-firewall' ),
-				'all_clear_icon_class' => self::con()->svgs->iconClass( 'shield-check' ),
-				'all_clear_title'   => __( 'All security zones are clear', 'wp-simple-firewall' ),
-				'all_clear_subtitle' => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
-				'all_clear_message' => __( 'No security actions currently require your attention.', 'wp-simple-firewall' ),
-				'last_scan_subtext' => $lastScanSubtext,
+				'status_strip_text'       => $statusStripText,
+				'status_strip_subtext'    => $lastScanSubtext,
+				'title'                   => __( 'Action Required', 'wp-simple-firewall' ),
+				'issues_found'            => __( 'Actions Required', 'wp-simple-firewall' ),
+				'all_clear'               => __( 'All Clear', 'wp-simple-firewall' ),
+				'all_clear_icon_class'    => self::con()->svgs->iconClass( 'shield-check' ),
+				'all_clear_title'         => __( 'All security zones are clear', 'wp-simple-firewall' ),
+				'all_clear_subtitle'      => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
+				'all_clear_message'       => __( 'No security actions currently require your attention.', 'wp-simple-firewall' ),
+				'last_scan_subtext'       => $lastScanSubtext,
 			],
 			'vars'    => [
 				'overall_severity' => $this->determineOverallSeverity( $items ),
@@ -117,10 +117,10 @@ class NeedsAttentionQueue extends BaseRender {
 		$chipIconClass = self::con()->svgs->iconClass( 'check-circle-fill' );
 		foreach ( $this->getZoneSlugs() as $zone ) {
 			$chips[] = [
-				'slug'     => $zone,
-				'label'    => $zonesData[ $zone ][ 'label' ] ?? $zone,
+				'slug'       => $zone,
+				'label'      => $zonesData[ $zone ][ 'label' ] ?? $zone,
 				'icon_class' => $chipIconClass,
-				'severity' => 'good',
+				'severity'   => 'good',
 			];
 		}
 		return $chips;

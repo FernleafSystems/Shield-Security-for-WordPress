@@ -21,7 +21,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'flags'   => [
 				'show_transfer_switch' => true,
-//				'show_transfer_switch' => $con->isPremiumActive() && !empty( $con->comps->import_export->getImportExportMasterImportUrl() ),
+				//				'show_transfer_switch' => $con->isPremiumActive() && !empty( $con->comps->import_export->getImportExportMasterImportUrl() ),
 			],
 			'imgs'    => [
 				'svgs' => [

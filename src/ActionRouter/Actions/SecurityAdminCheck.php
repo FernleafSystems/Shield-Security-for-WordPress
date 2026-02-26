@@ -9,7 +9,6 @@ class SecurityAdminCheck extends SecurityAdminBase {
 	protected function exec() {
 		$this->response()->setPayload( [
 			'time_remaining' => self::con()->comps->sec_admin->getSecAdminTimeRemaining(),
-			'success'        => self::con()->this_req->is_security_admin
-		] );
+		] )->setPayloadSuccess( (bool)( self::con()->this_req->is_security_admin ) );
 	}
 }

@@ -10,8 +10,7 @@ class PluginSuperSearch extends BaseAction {
 
 	protected function exec() {
 		$this->response()->setPayload( [
-			'success' => true,
 			'results' => ( new SelectSearchData() )->build( $this->action_data[ 'search' ] ?? '' ),
-		] );
+		] )->setPayloadSuccess( true );
 	}
 }

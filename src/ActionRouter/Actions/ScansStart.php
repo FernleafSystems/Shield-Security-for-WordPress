@@ -28,10 +28,9 @@ class ScansStart extends ScansBase {
 		$isScanRunning = $con->comps->scans_queue->hasRunningScans();
 
 		$this->response()->setPayload( [
-			'success'       => $success,
 			'scans_running' => $isScanRunning,
 			'page_reload'   => $reloadPage && !$isScanRunning,
 			'message'       => $msg,
-		] );
+		] )->setPayloadSuccess( $success );
 	}
 }
