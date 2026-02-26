@@ -16,12 +16,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	InvokesNonPublicMethods,
 	PluginControllerInstaller,
 	ServicesState
 };
 use FernleafSystems\Wordpress\Services\Core\Request;
 
 class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private array $servicesSnapshot = [];
 
@@ -44,7 +47,7 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->installServices();
 		$page = new PageInvestigateByThemeUnitTestDouble( null, [] );
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? true ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
@@ -63,7 +66,7 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->installServices( [ 'theme_slug' => 'missing-theme' ] );
 		$page = new PageInvestigateByThemeUnitTestDouble( null, [] );
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? false ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'subject_not_found' ] ?? false ) );
@@ -99,7 +102,7 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 			0
 		);
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
 		$tables = $vars[ 'tables' ] ?? [];
 
@@ -160,11 +163,6 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		] );
 	}
 
-	private function invokeGetRenderData( PageInvestigateByTheme $page ) :array {
-		$method = new \ReflectionMethod( $page, 'getRenderData' );
-		$method->setAccessible( true );
-		return $method->invoke( $page );
-	}
 }
 
 class PageInvestigateByThemeUnitTestDouble extends PageInvestigateByTheme {

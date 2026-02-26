@@ -9,10 +9,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\MeterAnalysisBuiltMetersCacheTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 
 class MeterAnalysisChannelTest extends BaseUnitTest {
 
 	use MeterAnalysisBuiltMetersCacheTrait;
+	use InvokesNonPublicMethods;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -37,9 +39,7 @@ class MeterAnalysisChannelTest extends BaseUnitTest {
 			'meter_channel' => '  ConFig ',
 		] );
 
-		$ref = new \ReflectionMethod( $action, 'getMeterComponents' );
-		$ref->setAccessible( true );
-		$components = $ref->invoke( $action );
+		$components = $this->invokeNonPublicMethod( $action, 'getMeterComponents' );
 
 		$this->assertSame( 88, (int)$components[ 'totals' ][ 'percentage' ] );
 	}
@@ -49,10 +49,7 @@ class MeterAnalysisChannelTest extends BaseUnitTest {
 			'meter'         => MeterSummary::SLUG,
 			'meter_channel' => 'invalid-channel',
 		] );
-		$ref = new \ReflectionMethod( $action, 'getMeterComponents' );
-		$ref->setAccessible( true );
-
 		$this->expectException( \InvalidArgumentException::class );
-		$ref->invoke( $action );
+		$this->invokeNonPublicMethod( $action, 'getMeterComponents' );
 	}
 }

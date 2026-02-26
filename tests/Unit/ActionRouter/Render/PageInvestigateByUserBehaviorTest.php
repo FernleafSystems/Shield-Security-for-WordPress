@@ -32,6 +32,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -41,6 +42,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 };
 
 class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private array $servicesSnapshot = [];
 
@@ -94,7 +97,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->installServices();
 		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [] );
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? true ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
@@ -116,7 +119,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		] );
 		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [] );
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? false ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
@@ -170,7 +173,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
 		$tables = $vars[ 'tables' ] ?? [];
 		$summary = $vars[ 'summary' ] ?? [];
@@ -259,7 +262,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$summary = $renderData[ 'vars' ][ 'summary' ] ?? [];
 		$this->assertSame( 'warning', (string)( $summary[ 'ips' ][ 'status' ] ?? '' ) );
 	}
@@ -338,11 +341,6 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		] );
 	}
 
-	private function invokeGetRenderData( PageInvestigateByUser $page ) :array {
-		$method = new \ReflectionMethod( $page, 'getRenderData' );
-		$method->setAccessible( true );
-		return $method->invoke( $page );
-	}
 }
 
 class PageInvestigateByUserUnitTestDouble extends PageInvestigateByUser {

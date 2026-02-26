@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	InvokesNonPublicMethods,
 	PluginControllerInstaller,
 	ServicesState
 };
@@ -23,6 +24,8 @@ use FernleafSystems\Wordpress\Services\Core\Request;
 use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private array $servicesSnapshot = [];
 
@@ -48,7 +51,7 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->installServices();
 		$page = new PageInvestigateByIpUnitTestDouble();
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? true ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
@@ -69,7 +72,7 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		);
 		$page = new PageInvestigateByIpUnitTestDouble();
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? false ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
 	}
@@ -88,7 +91,7 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
 		$summary = $vars[ 'summary' ] ?? [];
 
@@ -166,11 +169,6 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		] );
 	}
 
-	private function invokeGetRenderData( PageInvestigateByIp $page ) :array {
-		$method = new \ReflectionMethod( $page, 'getRenderData' );
-		$method->setAccessible( true );
-		return $method->invoke( $page );
-	}
 }
 
 class PageInvestigateByIpUnitTestDouble extends PageInvestigateByIp {

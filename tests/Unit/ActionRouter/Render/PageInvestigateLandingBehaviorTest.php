@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -25,6 +26,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private array $servicesSnapshot = [];
 
@@ -572,9 +575,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function invokeProtectedMethod( object $subject, string $methodName ) :array {
-		$method = new \ReflectionMethod( $subject, $methodName );
-		$method->setAccessible( true );
-		return $method->invoke( $subject );
+		return $this->invokeNonPublicMethod( $subject, $methodName );
 	}
 
 }

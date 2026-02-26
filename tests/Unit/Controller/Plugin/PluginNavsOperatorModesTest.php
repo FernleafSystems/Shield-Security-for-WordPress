@@ -11,6 +11,8 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Plugin;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -52,22 +54,31 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_REPORTS_LIST     => [
-					'menu_title'    => 'Security Reports',
-					'landing_cta'   => 'Open Reports List',
-					'page_title'    => 'View & Create',
-					'page_subtitle' => 'View and create new security reports.',
+					'menu_title'         => 'Security Reports',
+					'landing_cta'        => 'Open Reports List',
+					'page_title'         => 'View & Create',
+					'page_subtitle'      => 'View and create new security reports.',
+					'content_key'        => 'create_report',
+					'render_action'      => Reports\PageReportsView::class,
+					'show_create_action' => true,
 				],
 				PluginNavs::SUBNAV_REPORTS_CHARTS   => [
-					'menu_title'    => 'Charts & Trends',
-					'landing_cta'   => 'Open Charts & Trends',
-					'page_title'    => 'Charts & Trends',
-					'page_subtitle' => 'Review recent security trend metrics.',
+					'menu_title'         => 'Charts & Trends',
+					'landing_cta'        => 'Open Charts & Trends',
+					'page_title'         => 'Charts & Trends',
+					'page_subtitle'      => 'Review recent security trend metrics.',
+					'content_key'        => 'summary_charts',
+					'render_action'      => Reports\ChartsSummary::class,
+					'show_create_action' => false,
 				],
 				PluginNavs::SUBNAV_REPORTS_SETTINGS => [
-					'menu_title'    => 'Alert Settings',
-					'landing_cta'   => 'Open Alert Settings',
-					'page_title'    => 'Alert Settings',
-					'page_subtitle' => 'Manage instant alerts and report delivery settings.',
+					'menu_title'         => 'Alert Settings',
+					'landing_cta'        => 'Open Alert Settings',
+					'page_title'         => 'Alert Settings',
+					'page_subtitle'      => 'Manage instant alerts and report delivery settings.',
+					'content_key'        => 'alerts_settings',
+					'render_action'      => OptionsFormFor::class,
+					'show_create_action' => false,
 				],
 			],
 			PluginNavs::reportsWorkspaceDefinitions()

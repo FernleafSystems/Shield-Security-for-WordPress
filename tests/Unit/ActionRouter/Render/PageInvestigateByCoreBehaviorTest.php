@@ -14,9 +14,12 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByCore;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -36,7 +39,7 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 	public function test_render_data_contains_core_subject_tabs_and_table_contracts() :void {
 		$page = new PageInvestigateByCoreUnitTestDouble( '6.5.2', false, 4, 7 );
 
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
 		$tables = $vars[ 'tables' ] ?? [];
 
@@ -76,11 +79,6 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function invokeGetRenderData( PageInvestigateByCore $page ) :array {
-		$method = new \ReflectionMethod( $page, 'getRenderData' );
-		$method->setAccessible( true );
-		return $method->invoke( $page );
-	}
 }
 
 class PageInvestigateByCoreUnitTestDouble extends PageInvestigateByCore {

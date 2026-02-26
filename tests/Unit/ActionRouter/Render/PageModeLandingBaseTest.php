@@ -4,8 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageModeLandingBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 
 class PageModeLandingBaseTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	public function test_render_data_contains_shared_and_extended_sections() :void {
 		$page = new class extends PageModeLandingBase {
@@ -48,7 +51,7 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 			}
 		};
 
-		$data = $this->invokeGetRenderData( $page );
+		$data = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertSame( 'Landing Title', $data[ 'strings' ][ 'inner_page_title' ] );
 		$this->assertSame( 'Landing Subtitle', $data[ 'strings' ][ 'inner_page_subtitle' ] );
@@ -81,7 +84,7 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 			}
 		};
 
-		$data = $this->invokeGetRenderData( $page );
+		$data = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertSame( 'Minimal Title', $data[ 'strings' ][ 'inner_page_title' ] );
 		$this->assertSame( 'Minimal Subtitle', $data[ 'strings' ][ 'inner_page_subtitle' ] );
@@ -91,9 +94,4 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'vars', $data );
 	}
 
-	private function invokeGetRenderData( PageModeLandingBase $page ) :array {
-		$ref = new \ReflectionMethod( $page, 'getRenderData' );
-		$ref->setAccessible( true );
-		return $ref->invoke( $page );
-	}
 }

@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
@@ -387,22 +389,31 @@ class PluginNavs {
 	public static function reportsWorkspaceDefinitions() :array {
 		return [
 			self::SUBNAV_REPORTS_LIST     => [
-				'menu_title'    => __( 'Security Reports', 'wp-simple-firewall' ),
-				'landing_cta'   => __( 'Open Reports List', 'wp-simple-firewall' ),
-				'page_title'    => __( 'View & Create', 'wp-simple-firewall' ),
-				'page_subtitle' => __( 'View and create new security reports.', 'wp-simple-firewall' ),
+				'menu_title'         => __( 'Security Reports', 'wp-simple-firewall' ),
+				'landing_cta'        => __( 'Open Reports List', 'wp-simple-firewall' ),
+				'page_title'         => __( 'View & Create', 'wp-simple-firewall' ),
+				'page_subtitle'      => __( 'View and create new security reports.', 'wp-simple-firewall' ),
+				'content_key'        => 'create_report',
+				'render_action'      => Reports\PageReportsView::class,
+				'show_create_action' => true,
 			],
 			self::SUBNAV_REPORTS_CHARTS   => [
-				'menu_title'    => __( 'Charts & Trends', 'wp-simple-firewall' ),
-				'landing_cta'   => __( 'Open Charts & Trends', 'wp-simple-firewall' ),
-				'page_title'    => __( 'Charts & Trends', 'wp-simple-firewall' ),
-				'page_subtitle' => __( 'Review recent security trend metrics.', 'wp-simple-firewall' ),
+				'menu_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
+				'landing_cta'        => __( 'Open Charts & Trends', 'wp-simple-firewall' ),
+				'page_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
+				'page_subtitle'      => __( 'Review recent security trend metrics.', 'wp-simple-firewall' ),
+				'content_key'        => 'summary_charts',
+				'render_action'      => Reports\ChartsSummary::class,
+				'show_create_action' => false,
 			],
 			self::SUBNAV_REPORTS_SETTINGS => [
-				'menu_title'    => __( 'Alert Settings', 'wp-simple-firewall' ),
-				'landing_cta'   => __( 'Open Alert Settings', 'wp-simple-firewall' ),
-				'page_title'    => __( 'Alert Settings', 'wp-simple-firewall' ),
-				'page_subtitle' => __( 'Manage instant alerts and report delivery settings.', 'wp-simple-firewall' ),
+				'menu_title'         => __( 'Alert Settings', 'wp-simple-firewall' ),
+				'landing_cta'        => __( 'Open Alert Settings', 'wp-simple-firewall' ),
+				'page_title'         => __( 'Alert Settings', 'wp-simple-firewall' ),
+				'page_subtitle'      => __( 'Manage instant alerts and report delivery settings.', 'wp-simple-firewall' ),
+				'content_key'        => 'alerts_settings',
+				'render_action'      => OptionsFormFor::class,
+				'show_create_action' => false,
 			],
 		];
 	}

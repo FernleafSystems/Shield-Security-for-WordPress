@@ -9,10 +9,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\MeterAnalysisBuiltMetersCacheTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 
 class MeterCardChannelTest extends BaseUnitTest {
 
 	use MeterAnalysisBuiltMetersCacheTrait;
+	use InvokesNonPublicMethods;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -36,7 +38,7 @@ class MeterCardChannelTest extends BaseUnitTest {
 			'meter_slug'    => MeterSummary::SLUG,
 			'meter_channel' => '  ConFig ',
 		] );
-		$meterData = $this->invokeGetMeterData( $action );
+		$meterData = $this->invokeNonPublicMethod( $action, 'getMeterData' );
 
 		$this->assertSame( 94, (int)$meterData[ 'totals' ][ 'percentage' ] );
 	}
@@ -46,22 +48,16 @@ class MeterCardChannelTest extends BaseUnitTest {
 			'meter_slug'    => MeterSummary::SLUG,
 			'meter_channel' => '',
 		] );
-		$meterData = $this->invokeGetMeterData( $action );
+		$meterData = $this->invokeNonPublicMethod( $action, 'getMeterData' );
 
 		$this->assertSame( 27, (int)$meterData[ 'totals' ][ 'percentage' ] );
 	}
 
 	public function test_invalid_meter_channel_surfaces_strict_handler_rejection() :void {
 		$this->expectException( \InvalidArgumentException::class );
-		$this->invokeGetMeterData( new MeterCard( [
+		$this->invokeNonPublicMethod( new MeterCard( [
 			'meter_slug'    => MeterSummary::SLUG,
 			'meter_channel' => 'invalid-channel',
-		] ) );
-	}
-
-	private function invokeGetMeterData( MeterCard $action ) :array {
-		$ref = new \ReflectionMethod( $action, 'getMeterData' );
-		$ref->setAccessible( true );
-		return $ref->invoke( $action );
+		] ), 'getMeterData' );
 	}
 }

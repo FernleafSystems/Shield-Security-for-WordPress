@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
@@ -78,29 +76,9 @@ class PageReports extends BasePluginAdminPage {
 		];
 	}
 
-	private function getSubNavRenderDefinitions() :array {
-		return [
-			PluginNavs::SUBNAV_REPORTS_LIST     => [
-				'content_key'        => 'create_report',
-				'render_action'      => Reports\PageReportsView::class,
-				'show_create_action' => true,
-			],
-			PluginNavs::SUBNAV_REPORTS_CHARTS   => [
-				'content_key'        => 'summary_charts',
-				'render_action'      => Reports\ChartsSummary::class,
-				'show_create_action' => false,
-			],
-			PluginNavs::SUBNAV_REPORTS_SETTINGS => [
-				'content_key'        => 'alerts_settings',
-				'render_action'      => OptionsFormFor::class,
-				'show_create_action' => false,
-			],
-		];
-	}
-
 	private function getCurrentSubNavRenderDefinition() :array {
 		$subNav = (string)( $this->action_data[ 'nav_sub' ] ?? '' );
-		return $this->getSubNavRenderDefinitions()[ $subNav ] ?? [];
+		return PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
 	}
 
 	private function getCurrentWorkspaceDefinition() :array {
