@@ -24,10 +24,15 @@ class CapturePluginAction extends CaptureActionBase {
 	}
 
 	protected function postRun() {
-		if ( !empty( $this->actionResponse ) && isset( $this->actionResponse->next_step[ 'type' ] ) ) {
-			switch ( $this->actionResponse->next_step[ 'type' ] ) {
+		if ( empty( $this->actionResponse ) ) {
+			return;
+		}
+
+		$payload = $this->actionResponse->payload();
+		if ( isset( $payload[ 'next_step' ][ 'type' ] ) ) {
+			switch ( $payload[ 'next_step' ][ 'type' ] ) {
 				case 'redirect':
-					$url = $this->actionResponse->next_step[ 'url' ];
+					$url = $payload[ 'next_step' ][ 'url' ] ?? '';
 					Services::Response()->redirect( empty( $url ) ? Services::WpGeneral()->getHomeUrl() : $url );
 					break;
 				default:

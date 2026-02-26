@@ -14,17 +14,19 @@ class AjaxRender extends BaseAction {
 	public const SLUG = 'ajax_render';
 
 	protected function exec() {
-		$response = self::con()->action_router->action(
+		$routedResponse = self::con()->action_router->action(
 			$this->action_data[ 'render_slug' ],
 			$this->getParamsMinusAjax()
 		);
+		$payload = $routedResponse->payload();
+		$response = $routedResponse->actionResponse();
 		foreach ( [ 'success', 'message', 'error' ] as $item ) {
-			if ( isset( $response->action_response_data[ $item ] ) ) {
-				$response->{$item} = $response->action_response_data[ $item ];
+			if ( isset( $payload[ $item ] ) ) {
+				$response->{$item} = $payload[ $item ];
 			}
 		}
 
-		$this->setResponse( $response );
+		$this->setResponse( $routedResponse );
 	}
 
 	protected function getParamsMinusAjax() :array {

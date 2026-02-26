@@ -25,6 +25,7 @@ class AjaxResponseAdapter extends BaseAdapter {
 			),
 			\array_flip( [
 				'action_response_data',
+				'action_data',
 			] )
 		);
 

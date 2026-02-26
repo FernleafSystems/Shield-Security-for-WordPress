@@ -82,7 +82,7 @@ class Init {
 						}
 
 						$action->process();
-						$response = $action->response()->action_response_data;
+						$response = $action->response()->payload();
 					}
 					catch ( ActionException $ae ) {
 						$response = [

@@ -17,6 +17,7 @@ abstract class IpAutoUnblockBase extends BaseAction {
 			Services::Response()->redirectToHome();
 		}
 		$this->response()->success = false;
+		$this->response()->mergePayload( [ 'success' => false ] );
 	}
 
 	abstract protected function getAutoUnblockerClass() :string;

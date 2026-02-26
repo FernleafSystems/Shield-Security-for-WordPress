@@ -4,6 +4,11 @@ This document covers Docker-runner specifics only.
 
 For canonical testing commands, CI role split, and overall testing guidance, see [TESTING.md](../../TESTING.md).
 
+## Documentation Ownership
+
+1. `TESTING.md` owns canonical testing commands and workflow policy.
+2. `tests/docker/README.md` owns Docker runner behavior, environment variables, and troubleshooting.
+
 ## Entry Point
 
 ```bash
@@ -19,7 +24,7 @@ The shell script is a thin delegator to `bin/run-docker-tests.php`.
 | `(default)` | Source runtime checks against working tree | Daily local CI-like runtime checks |
 | `--source` | Source runtime checks against working tree | Explicit source-mode invocation |
 | `--package-targeted` | Build package and run packaged runtime checks | Package-targeted runtime validation |
-| `--package-full` | Build package and run packaged runtime checks | Full-pathway package runtime mode |
+| `--package-full` | Build package and run full packaged pathway | Full-pathway package runtime mode |
 | `--analyze-source` | Run source static analysis pathway | Source static analysis from runner |
 | `--analyze-package` | Build package and run packaged static analysis | Packaged static analysis |
 
@@ -59,6 +64,16 @@ Packaged modes (`--package-targeted`, `--package-full`, `--analyze-package`):
 
 1. Routed through `bin/run-docker-tests.legacy.sh` by `bin/run-docker-tests.php`.
 2. Used for packaged runtime/static analysis pathways.
+3. `--package-targeted` and `--package-full` are distinct lane selectors, but currently share the same packaged legacy implementation path.
+
+## Static Analysis Entrypoints
+
+Use the direct static-analysis runner when Docker routing is not required:
+
+```bash
+php bin/run-static-analysis.php --source
+php bin/run-static-analysis.php --package
+```
 
 ## Quick Examples
 

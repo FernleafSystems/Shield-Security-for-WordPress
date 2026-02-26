@@ -38,12 +38,13 @@ class TabSiteManage extends BaseSubPage {
 	protected function runAction() :string {
 		return 'nothing';
 		try {
-			return self::con()->action_router->action( Render::class, [
+			$payload = self::con()->action_router->action( Render::class, [
 				'render_action_slug' => TabManageSitePage::SLUG,
 				'render_action_data' => [
 					'site_id' => $this->getActiveSiteID(),
 				],
-			] )->action_response_data[ 'render_output' ];
+			] )->payload();
+			return (string)( $payload[ 'render_output' ] ?? '' );
 		}
 		catch ( ActionException $e ) {
 			error_log( $e->getMessage() );

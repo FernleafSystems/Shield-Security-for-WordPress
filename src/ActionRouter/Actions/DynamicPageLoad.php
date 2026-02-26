@@ -13,13 +13,16 @@ class DynamicPageLoad extends BaseAction {
 	protected function exec() {
 		$resp = $this->response();
 		try {
-			$resp->action_response_data = self::con()->action_router->action(
+			$childPayload = self::con()->action_router->action(
 				$this->action_data[ 'dynamic_load_params' ][ 'dynamic_load_slug' ],
 				$this->action_data[ 'dynamic_load_params' ][ 'dynamic_load_data' ]
-			)->action_response_data;
+			)->payload();
+			$resp->setPayload( $childPayload );
+			$resp->mergePayload( [ 'success' => true ] );
 			$resp->success = true;
 		}
 		catch ( \Exception $e ) {
+			$resp->mergePayload( [ 'success' => false ] );
 			$resp->success = false;
 			$resp->message = $e->getMessage();
 		}

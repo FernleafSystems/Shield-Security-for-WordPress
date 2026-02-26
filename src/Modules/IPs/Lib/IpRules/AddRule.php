@@ -199,7 +199,7 @@ class AddRule {
 		$tmp = $dbh->getRecord();
 		$tmp->applyFromArray( $data );
 		$tmp->ip_ref = $ipRecord->id;
-		$tmp->cidr = \explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
+		$tmp->cidr = (int)\explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
 		$tmp->is_range = $parsedRange->getSize() > 1;
 		$tmp->type = $type;
 		/** Only whitelisted IPs may be exported */

@@ -12,14 +12,16 @@ abstract class Base extends BaseAction {
 	protected function exec() {
 		$resp = $this->response();
 		try {
-			$resp->action_response_data = [
+			$resp->setPayload( [
+				'success'    => true,
 				'html'       => $this->getContent(),
 				'page_url'   => $this->getPageUrl(),
 				'page_title' => $this->getPageTitle(),
-			];
+			] );
 			$resp->success = true;
 		}
 		catch ( \Exception $e ) {
+			$resp->mergePayload( [ 'success' => false ] );
 			$resp->success = false;
 			$resp->message = $e->getMessage();
 		}

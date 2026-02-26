@@ -4,6 +4,11 @@ This is the canonical operational testing guide for Shield.
 
 For Docker-runner internals and environment variables, see [tests/docker/README.md](tests/docker/README.md).
 
+## Documentation Ownership
+
+1. `TESTING.md` is the canonical overall testing guide (commands, CI role split, verification flow).
+2. `tests/docker/README.md` is Docker-runner-specific (modes, topology, environment variables, troubleshooting).
+
 ## Canonical Command Map
 
 | Goal | Command | Notes |
@@ -15,7 +20,7 @@ For Docker-runner internals and environment variables, see [tests/docker/README.
 | Source runtime (default) | `./bin/run-docker-tests.sh` | Source-first working-tree Docker checks |
 | Source runtime (explicit) | `./bin/run-docker-tests.sh --source` | Same behavior as default mode |
 | Package-targeted runtime | `./bin/run-docker-tests.sh --package-targeted` | Packaged runtime checks |
-| Package-full runtime | `./bin/run-docker-tests.sh --package-full` | Packaged runtime checks via full-pathway mode |
+| Package-full runtime | `./bin/run-docker-tests.sh --package-full` | Build package and run full packaged pathway |
 | Source static analysis | `composer analyze` | Default maps to `analyze:source` |
 | Source static analysis (explicit) | `composer analyze:source` | Runs `php bin/run-static-analysis.php --source` |
 | Packaged static analysis | `composer analyze:package` | Runs `php bin/run-static-analysis.php --package` |
@@ -29,9 +34,13 @@ For Docker-runner internals and environment variables, see [tests/docker/README.
 | `(default)` | Source runtime checks against working tree |
 | `--source` | Source runtime checks against working tree |
 | `--package-targeted` | Build package and run packaged runtime checks |
-| `--package-full` | Build package and run packaged runtime checks |
+| `--package-full` | Build package and run full packaged pathway |
 | `--analyze-source` | Run source static analysis pathway |
 | `--analyze-package` | Build package and run packaged static analysis |
+
+Package lane note:
+1. `--package-targeted` and `--package-full` are explicit lane selectors.
+2. Both currently route through the packaged legacy runner implementation.
 
 Source defaults are intentional:
 

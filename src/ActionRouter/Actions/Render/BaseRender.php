@@ -25,15 +25,16 @@ abstract class BaseRender extends BaseAction {
 	 */
 	private function render() :self {
 		$response = $this->response();
-		$respData = $response->action_response_data;
+		$respData = $response->payload();
 		$respData[ 'render_template' ] = $this->getRenderTemplate();
 		$respData[ 'render_data' ] = $this->buildRenderData();
 		$respData[ 'render_output' ] = $this->buildRenderOutput( $respData[ 'render_data' ] );
 
 		$respData[ 'html' ] = $respData[ 'render_output' ]; // TODO: This is a hack to get the data into the AJAX response
+		$respData[ 'success' ] = $respData[ 'success' ] ?? true;
 
-		$response->success = $respData[ 'success' ] ?? true;
-		$response->action_response_data = $respData;
+		$response->success = (bool)$respData[ 'success' ];
+		$response->setPayload( $respData );
 		return $this;
 	}
 

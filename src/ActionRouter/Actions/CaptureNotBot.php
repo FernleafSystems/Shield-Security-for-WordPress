@@ -13,6 +13,7 @@ class CaptureNotBot extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
+		$response = $this->response();
 		try {
 			$con->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
@@ -25,16 +26,17 @@ class CaptureNotBot extends BaseAction {
 			$notBotCon = $con->comps->not_bot;
 			$notBotCon->sendNotBotFlagCookie();
 
-			$this->response()->success = true;
-			$this->response()->action_response_data = [
+			$response->success = true;
+			$response->setPayload( [
 				'success'     => true,
 				'altcha_data' => $notBotCon->getRequiredSignals() ?
 					ActionData::Build( CaptureNotBotAltcha::class, true, $con->comps->altcha->generateChallenge() ) : [],
-			];
+			] );
 		}
 		catch ( \Exception $e ) {
 //			error_log( $e->getMessage() );
-			$this->response()->success = false;
+			$response->success = false;
+			$response->mergePayload( [ 'success' => false ] );
 		}
 	}
 

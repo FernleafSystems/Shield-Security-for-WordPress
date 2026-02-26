@@ -12,13 +12,10 @@ class ShieldPluginAction extends Base {
 		$params = $req->get_params();
 
 		try {
-			$response = self::con()
+			$routed = self::con()
 				->action_router
 				->action( $params[ 'ex' ], $params[ 'payload' ], ActionRoutingController::ACTION_REST );
-			$data = $response->action_response_data;
-			if ( !isset( $data[ 'success' ] ) ) {
-				$data[ 'success' ] = $response->success;
-			}
+			$data = $routed->payload();
 		}
 //		catch ( ActionDoesNotExistException $e ) {
 //		}
@@ -37,7 +34,7 @@ class ShieldPluginAction extends Base {
 
 		/** See AJAX normalised data */
 		return [
-			'success' => $data[ 'success' ],
+			'success' => (bool)( $data[ 'success' ] ?? false ),
 			'data'    => \array_merge( [
 				'page_reload' => false,
 				'message'     => '',

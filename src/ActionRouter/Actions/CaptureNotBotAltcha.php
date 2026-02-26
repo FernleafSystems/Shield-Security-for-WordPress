@@ -9,6 +9,7 @@ class CaptureNotBotAltcha extends BaseAction {
 	public const SLUG = 'capture_not_bot_altcha';
 
 	protected function exec() {
+		$response = $this->response();
 		try {
 			self::con()->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
@@ -21,11 +22,13 @@ class CaptureNotBotAltcha extends BaseAction {
 
 			self::con()->comps->not_bot->sendNotBotFlagCookie();
 
-			$this->response()->success = true;
+			$response->success = true;
+			$response->mergePayload( [ 'success' => true ] );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
-			$this->response()->success = false;
+			$response->success = false;
+			$response->mergePayload( [ 'success' => false ] );
 		}
 	}
 

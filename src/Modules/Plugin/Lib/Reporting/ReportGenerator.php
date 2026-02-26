@@ -94,12 +94,13 @@ class ReportGenerator {
 		}
 
 		try {
-			$report->content = $con->action_router->action( FullPageDisplayNonTerminating::class, [
+			$payload = $con->action_router->action( FullPageDisplayNonTerminating::class, [
 				'render_slug' => SecurityReport::SLUG,
 				'render_data' => [
 					'report' => $report->getRawData(),
 				],
-			] )->action_response_data[ 'render_output' ];
+			] )->payload();
+			$report->content = (string)( $payload[ 'render_output' ] ?? '' );
 		}
 		catch ( ActionException $e ) {
 			$report->content = $e->getMessage();

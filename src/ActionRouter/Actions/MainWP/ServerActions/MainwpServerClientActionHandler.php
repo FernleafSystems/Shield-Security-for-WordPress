@@ -33,7 +33,7 @@ class MainwpServerClientActionHandler extends MainwpBase {
 
 		return self::con()->action_router
 			->action( $clientSiteActionData[ 'site_action_slug' ], $actionParams )
-			->action_response_data;
+			->payload();
 	}
 
 	protected function getRequiredDataKeys() :array {

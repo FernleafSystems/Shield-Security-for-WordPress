@@ -6,6 +6,7 @@ use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\AbstractShieldProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -269,6 +270,9 @@ class MfaController {
 		return $valid;
 	}
 
+	/**
+	 * @return class-string<AbstractShieldProvider>[]
+	 */
 	private function enumShieldProviders() :array {
 		return [
 			Provider\Email::class,

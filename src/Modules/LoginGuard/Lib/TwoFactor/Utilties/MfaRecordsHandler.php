@@ -12,7 +12,7 @@ class MfaRecordsHandler {
 	/**
 	 * @var MfaDB\Record[][]
 	 */
-	private static $records = [];
+	private static array $records = [];
 
 	public function insert( MfaDB\Record $record ) {
 		self::con()

@@ -43,9 +43,6 @@ class CaptureAjaxAction extends CaptureActionBase {
 				ActionRoutingController::ACTION_AJAX
 			);
 			$payload = $routedResponse->payload();
-			if ( empty( $payload ) ) {
-				$payload = $routedResponse->actionResponse()->payload(); // @todo Remove fallback once all adapters supply transport payloads directly.
-			}
 			$response = $this->normaliseAjaxResponse( $payload );
 			$statusCode = $routedResponse->statusCode();
 		}
