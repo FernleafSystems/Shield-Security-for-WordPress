@@ -7,11 +7,6 @@ parameters:
 			path: src/Modules/Plugin/Components/BadgeWidget.php
 
 		-
-			message: '#^Array has 2 duplicate keys with value ''\./'' \(ABSPATH, WP_CONTENT_DIR\)\.$#'
-			identifier: array.duplicateKey
-			count: 1
-			path: src/Scans/Afs/BuildScanItems.php
-		-
 			message: '#^Variable \$rootFile in PHPDoc tag @var does not match any global variable\: \$oICWP_Wpsf$#'
 			identifier: varTag.differentVariable
 			count: 1
@@ -28,12 +23,6 @@ parameters:
 			identifier: property.notFound
 			count: 1
 			path: src/ActionRouter/Actions/AjaxRender.php
-
-		-
-			message: '#^Access to an undefined property FernleafSystems\\Wordpress\\Services\\Utilities\\WpOrg\\Plugin\\VOs\\PluginInfoVO\:\:\$download_link\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/ActionRouter/Actions/MainWP/ServerActions/SiteActionInstall.php
 
 		-
 			message: '#^Method PclZip\:\:add\(\) invoked with 3 parameters, 1 required\.$#'
