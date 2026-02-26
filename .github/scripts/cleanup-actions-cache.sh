@@ -46,10 +46,24 @@ fetch_buildkit_json() {
         --order asc \
         --json id,key,sizeInBytes,lastAccessedAt \
     | jq '
+        def normalize_iso8601:
+            sub("\\.[0-9]+(?<tz>Z|[+-][0-9]{2}:[0-9]{2})$"; "\(.tz)");
+
+        def parse_epoch($timestamp):
+            ($timestamp | normalize_iso8601) as $normalized
+            | (if $normalized == $timestamp then [$timestamp] else [$timestamp, $normalized] end)
+            | map(try fromdateiso8601 catch null)
+            | map(select(. != null))
+            | .[0] // (now | floor);
+
         [
             .[]
             | select((.key | startswith("buildkit-")) or (.key | startswith("index-buildkit-")))
-            | . + {lastAccessEpoch: (.lastAccessedAt | gsub("\\.[0-9]+Z$"; "Z") | fromdateiso8601)}
+            | ((.lastAccessedAt // .last_accessed_at) // "") as $lastAccessed
+            | . + {
+                lastAccessedAt: (if $lastAccessed == "" then "unknown" else $lastAccessed end),
+                lastAccessEpoch: (if $lastAccessed == "" then (now | floor) else parse_epoch($lastAccessed) end)
+            }
         ]
         | sort_by(.lastAccessEpoch)
     '
