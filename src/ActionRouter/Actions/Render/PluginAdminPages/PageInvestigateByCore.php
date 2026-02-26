@@ -24,11 +24,34 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 			InvestigationTableContract::SUBJECT_TYPE_CORE
 		);
 		$hasCoreUpdate = $this->hasCoreUpdate();
+		$strings = [
+			'inner_page_title'       => __( 'Investigate WordPress Core', 'wp-simple-firewall' ),
+			'inner_page_subtitle'    => __( 'Review WordPress core integrity and relevant platform activity.', 'wp-simple-firewall' ),
+			'overview_title'         => __( 'WordPress Core Overview', 'wp-simple-firewall' ),
+			'back_to_investigate'    => __( 'Back To Investigate', 'wp-simple-firewall' ),
+			'file_status_empty_text' => __( 'No file status records were found for this subject.', 'wp-simple-firewall' ),
+			'activity_empty_text'    => __( 'No activity records were found for this subject.', 'wp-simple-firewall' ),
+		];
 
 		$tabs = $this->buildAssetTabsPayload( InvestigationTableContract::SUBJECT_TYPE_CORE, [
 			'file_status' => $coreFileCount,
 			'activity'    => $activityCount,
 		], false );
+		$tables = $this->buildAssetTables(
+			InvestigationTableContract::SUBJECT_TYPE_CORE,
+			InvestigationTableContract::SUBJECT_TYPE_CORE,
+			'core_'
+		);
+		$tables[ 'file_status' ] = $this->withEmptyStateTableContract(
+			$tables[ 'file_status' ],
+			$coreFileCount,
+			$strings[ 'file_status_empty_text' ]
+		);
+		$tables[ 'activity' ] = $this->withEmptyStateTableContract(
+			$tables[ 'activity' ],
+			$activityCount,
+			$strings[ 'activity_empty_text' ]
+		);
 
 		return [
 			'flags'   => [
@@ -41,12 +64,7 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->iconClass( 'wordpress' ),
 			],
-			'strings' => [
-				'inner_page_title'    => __( 'Investigate WordPress Core', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Review WordPress core integrity and relevant platform activity.', 'wp-simple-firewall' ),
-				'overview_title'      => __( 'WordPress Core Overview', 'wp-simple-firewall' ),
-				'back_to_investigate' => __( 'Back To Investigate', 'wp-simple-firewall' ),
-			],
+			'strings' => $strings,
 			'vars'    => [
 				'subject'        => [
 					'status'       => $this->mapCountToStatus( $hasCoreUpdate ? 1 : 0, 'good', 'warning' ),
@@ -70,8 +88,6 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 								: __( 'Core Up To Date', 'wp-simple-firewall' ),
 						],
 					],
-					'change_href'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
-					'change_text'  => __( 'Back To Investigate', 'wp-simple-firewall' ),
 				],
 				'summary'        => [
 					'file_status' => [
@@ -87,11 +103,7 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 				],
 				'tabs'           => $tabs,
 				'rail_nav_items' => $this->buildRailNavItemsFromTabs( $tabs ),
-				'tables'         => $this->buildAssetTables(
-					InvestigationTableContract::SUBJECT_TYPE_CORE,
-					InvestigationTableContract::SUBJECT_TYPE_CORE,
-					'core_'
-				),
+				'tables'         => $tables,
 				'overview_rows'  => [
 					[
 						'label' => __( 'WordPress Version', 'wp-simple-firewall' ),

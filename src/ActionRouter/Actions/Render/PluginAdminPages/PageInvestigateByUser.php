@@ -204,11 +204,18 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 		return [
 			[
+				'target'   => '#tabInvestigateUserOverview',
+				'id'       => 'tab-navlink-user-overview',
+				'controls' => 'tabInvestigateUserOverview',
+				'label'    => __( 'Overview', 'wp-simple-firewall' ),
+				'is_focus' => true,
+			],
+			[
 				'target'   => '#tabInvestigateUserSessions',
 				'id'       => 'tab-navlink-user-sessions',
 				'controls' => 'tabInvestigateUserSessions',
 				'label'    => \sprintf( '%s (%d)', (string)$sessionSummary[ 'label' ], (int)$sessionSummary[ 'count' ] ),
-				'is_focus' => true,
+				'is_focus' => false,
 			],
 			[
 				'target'   => '#tabInvestigateUserActivity',

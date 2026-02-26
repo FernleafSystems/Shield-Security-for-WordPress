@@ -9,6 +9,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 
 	protected function getRenderData() :array {
 		$con = self::con();
+		$strings = $this->getPageStrings();
 		$lookup = $this->getLookupValue( $this->getLookupQueryKey() );
 		$subject = $this->resolveSubject( $lookup );
 
@@ -63,6 +64,16 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 			], true );
 			$railNavItems = $this->buildRailNavItemsFromTabs( $tabs );
 			$tables = $this->buildAssetTables( $subjectType, $subjectId, $subjectId );
+			$tables[ 'file_status' ] = $this->withEmptyStateTableContract(
+				$tables[ 'file_status' ],
+				$fileStatusCount,
+				(string)( $strings[ 'file_status_empty_text' ] ?? __( 'No file status records were found for this subject.', 'wp-simple-firewall' ) )
+			);
+			$tables[ 'activity' ] = $this->withEmptyStateTableContract(
+				$tables[ 'activity' ],
+				$activityCount,
+				(string)( $strings[ 'activity_empty_text' ] ?? __( 'No activity records were found for this subject.', 'wp-simple-firewall' ) )
+			);
 			$subjectData = $this->buildSubjectHeaderData( $assetData );
 			$overviewRows = $this->buildOverviewRows( $assetData );
 		}
@@ -74,24 +85,24 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				'subject_not_found' => $subjectNotFound,
 			],
 			'hrefs'   => [
-				'back_to_investigate' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
+				'back_to_investigate'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
 				$this->getLookupHrefKey() => $this->getLookupHref(),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->iconClass( $this->getSubjectAvatarIcon() ),
 			],
-			'strings' => $this->getPageStrings(),
+			'strings' => $strings,
 			'vars'    => [
-				$this->getLookupQueryKey() => $lookup,
+				$this->getLookupQueryKey()      => $lookup,
 				$this->getLookupOptionsVarKey() => $this->buildLookupOptions(),
-				'lookup_route'    => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
-				'subject'         => $subjectData,
-				'summary'         => $summary,
-				'tabs'            => $tabs,
-				'rail_nav_items'  => $railNavItems,
-				'tables'          => $tables,
-				'overview_rows'   => $overviewRows,
-				'vulnerabilities' => $vulnerabilities,
+				'lookup_route'                  => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
+				'subject'                       => $subjectData,
+				'summary'                       => $summary,
+				'tabs'                          => $tabs,
+				'rail_nav_items'                => $railNavItems,
+				'tables'                        => $tables,
+				'overview_rows'                 => $overviewRows,
+				'vulnerabilities'               => $vulnerabilities,
 			],
 		];
 	}
@@ -189,8 +200,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				],
 			],
 			'status_pills' => $pills,
-			'change_href'  => $this->getLookupHref(),
-			'change_text'  => $this->getChangeLookupText(),
 		];
 	}
 

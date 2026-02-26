@@ -62,14 +62,32 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		$renderData = (array)( $this->renderByThemeInnerPage( $themeSlug )[ 'render_data' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+		$fileStatusCount = (int)( $renderData[ 'vars' ][ 'tabs' ][ 'file_status' ][ 'count' ] ?? 0 );
+		$activityCount = (int)( $renderData[ 'vars' ][ 'tabs' ][ 'activity' ][ 'count' ] ?? 0 );
+		$expectedTableCount = ( $fileStatusCount > 0 ? 1 : 0 ) + ( $activityCount > 0 ? 1 : 0 );
 
 		$payload = $this->renderByThemePage( $themeSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
-		$this->assertHtmlContainsMarker( 'data-investigation-table="1"', $html, 'By-theme investigation table marker' );
-		$this->assertHtmlContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-theme file status table marker' );
-		$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-theme activity table marker' );
-		$this->assertHtmlContainsMarker( 'data-subject-type="theme"', $html, 'By-theme subject type marker' );
+		$this->assertSame( $expectedTableCount, \substr_count( $html, 'data-investigation-table="1"' ) );
+		if ( $fileStatusCount > 0 ) {
+			$this->assertHtmlContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-theme file status table marker' );
+		}
+		else {
+			$this->assertHtmlNotContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-theme file status empty state' );
+		}
+		if ( $activityCount > 0 ) {
+			$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-theme activity table marker' );
+		}
+		else {
+			$this->assertHtmlNotContainsMarker( 'data-table-type="activity"', $html, 'By-theme activity empty state' );
+		}
+		if ( $expectedTableCount > 0 ) {
+			$this->assertHtmlContainsMarker( 'data-subject-type="theme"', $html, 'By-theme subject type marker' );
+		}
+		else {
+			$this->assertHtmlNotContainsMarker( 'data-subject-type="theme"', $html, 'By-theme subject type absent on empty tables' );
+		}
 	}
 
 	public function test_no_lookup_renders_without_investigation_tables() :void {

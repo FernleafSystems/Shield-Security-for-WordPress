@@ -93,6 +93,8 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderByUserPage( (string)$userId );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
+		$this->assertHtmlContainsMarker( 'tab-navlink-user-overview', $html, 'By-user overview rail nav marker' );
+		$this->assertHtmlContainsMarker( 'id="tabInvestigateUserOverview"', $html, 'By-user overview tab panel marker' );
 		$this->assertSame( 3, \substr_count( $html, 'data-investigation-table="1"' ) );
 		$this->assertHtmlContainsMarker( 'data-table-type="sessions"', $html, 'By-user sessions table marker' );
 		$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-user activity table marker' );

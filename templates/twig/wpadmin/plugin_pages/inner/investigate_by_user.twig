@@ -35,24 +35,6 @@
 			</div>
 		</div>
 	{% else %}
-		{% include '/wpadmin/components/investigate/subject_header.twig' with {
-			subject: vars.subject
-		} only %}
-
-		<div class="row g-2 mb-3 investigate-by-user-summary">
-			{% for stat in vars.summary %}
-				<div class="col-6 col-xl-3">
-					<div class="card shield-card h-100">
-						<div class="shield-card-accent status-{{ stat.status|default('info') }}"></div>
-						<div class="card-body py-3">
-							<div class="h4 mb-1">{{ stat.count|default(0) }}</div>
-							<div class="text-muted small">{{ stat.label|default('') }}</div>
-						</div>
-					</div>
-				</div>
-			{% endfor %}
-		</div>
-
 		<div class="options_form_for--modern">
 			<div class="shield-options-layout has-rail">
 				<aside class="shield-options-rail">
@@ -66,6 +48,31 @@
 				<div class="shield-options-content">
 					<div class="tab-content investigate-by-user-content">
 						<section class="tab-pane shield-options-panel active show"
+								 id="tabInvestigateUserOverview"
+								 role="tabpanel"
+								 aria-labelledby="tab-navlink-user-overview">
+							<div class="shield-options-panel-accent"></div>
+							<div class="shield-options-panel-body">
+								{% include '/wpadmin/components/investigate/subject_header.twig' with {
+									subject: vars.subject
+								} only %}
+
+								<div class="row g-2 mb-3 investigate-by-user-summary">
+									{% for stat in vars.summary %}
+										<div class="col-6 col-xl-3">
+											<div class="card shield-card h-100">
+												<div class="shield-card-accent status-{{ stat.status|default('info') }}"></div>
+												<div class="card-body py-3">
+													<div class="h4 mb-1">{{ stat.count|default(0) }}</div>
+													<div class="text-muted small">{{ stat.label|default('') }}</div>
+												</div>
+											</div>
+										</div>
+									{% endfor %}
+								</div>
+							</div>
+						</section>
+						<section class="tab-pane shield-options-panel"
 								 id="tabInvestigateUserSessions"
 								 role="tabpanel"
 								 aria-labelledby="tab-navlink-user-sessions">

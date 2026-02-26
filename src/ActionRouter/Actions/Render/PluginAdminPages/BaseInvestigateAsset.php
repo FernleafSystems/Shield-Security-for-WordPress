@@ -203,6 +203,19 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		];
 	}
 
+	protected function withEmptyStateTableContract( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
+		if ( $count > 0 ) {
+			$table[ 'is_empty' ] = false;
+			return $table;
+		}
+
+		$table[ 'is_empty' ] = true;
+		$table[ 'empty_status' ] = $emptyStatus;
+		$table[ 'empty_text' ] = $emptyText;
+		unset( $table[ 'datatables_init' ], $table[ 'table_action' ], $table[ 'table_type' ], $table[ 'subject_type' ], $table[ 'subject_id' ] );
+		return $table;
+	}
+
 	protected function buildPluginScanData( $plugin ) :array {
 		return $this->getAssetDataAdapter()->buildPluginDataForInvestigate( $plugin );
 	}
@@ -223,7 +236,9 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		return [
 			'count'       => $count,
 			'status'      => $count > 0 ? 'critical' : 'good',
-			'title'       => __( 'Known Vulnerabilities', 'wp-simple-firewall' ),
+			'title'       => $count > 0
+				? __( 'Known Vulnerabilities', 'wp-simple-firewall' )
+				: __( 'No Known Vulnerabilities', 'wp-simple-firewall' ),
 			'summary'     => $count > 0
 				? \sprintf( _n( '%d vulnerability detected for this asset.', '%d vulnerabilities detected for this asset.', $count, 'wp-simple-firewall' ), $count )
 				: __( 'No known vulnerabilities were detected for this asset in the current scan results.', 'wp-simple-firewall' ),
@@ -292,7 +307,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 				$lookup
 			);
 		}
-		catch ( InvalidInvestigationSubjectIdentifierException | UnsupportedInvestigationSubjectTypeException | UnsupportedInvestigationTableTypeException $e ) {
+		catch ( InvalidInvestigationSubjectIdentifierException|UnsupportedInvestigationSubjectTypeException|UnsupportedInvestigationTableTypeException $e ) {
 			$normalized = [];
 		}
 

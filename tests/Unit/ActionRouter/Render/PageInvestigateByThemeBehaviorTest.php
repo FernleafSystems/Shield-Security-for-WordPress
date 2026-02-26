@@ -113,14 +113,67 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'twentytwentyfive', (string)( $tables[ 'activity' ][ 'subject_id' ] ?? '' ) );
 		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
+		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? true ) );
 		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status_pills' ][ 0 ][ 'status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'change_href', $vars[ 'subject' ] ?? [] );
+		$this->assertArrayNotHasKey( 'change_text', $vars[ 'subject' ] ?? [] );
 		$this->assertSame( 'good', (string)( $vars[ 'summary' ][ 'vulnerabilities' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'file_status' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'activity' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'issues' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $vars[ 'vulnerabilities' ][ 'count' ] ?? 99 ) );
+		$this->assertSame( 'No Known Vulnerabilities', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? '' ) );
 		$this->assertArrayHasKey( 'vulnerabilities', $vars[ 'tabs' ] ?? [] );
+	}
+
+	public function test_zero_counts_build_empty_table_contracts() :void {
+		$this->installServices( [ 'theme_slug' => 'twentytwentyfive' ] );
+		$subject = (object)[
+			'stylesheet' => 'twentytwentyfive',
+		];
+		$page = new PageInvestigateByThemeUnitTestDouble(
+			$subject,
+			[
+				'info'  => [
+					'name'    => 'Twenty Twenty-Five',
+					'slug'    => 'twentytwentyfive',
+					'file'    => 'twentytwentyfive',
+					'version' => '1.0',
+					'author'  => 'WordPress.org',
+				],
+				'flags' => [
+					'is_active' => false,
+				],
+				'hrefs' => [
+					'vul_info' => 'https://lookup.example/theme',
+				],
+				'vars'  => [
+					'count_items' => 0,
+				],
+			],
+			0,
+			0,
+			0
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$vars = $renderData[ 'vars' ] ?? [];
+		$tables = $vars[ 'tables' ] ?? [];
+
+		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? false ) );
+		$this->assertTrue( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? false ) );
+		$this->assertSame(
+			'No file status records were found for this subject.',
+			(string)( $tables[ 'file_status' ][ 'empty_text' ] ?? '' )
+		);
+		$this->assertSame(
+			'No activity records were found for this subject.',
+			(string)( $tables[ 'activity' ][ 'empty_text' ] ?? '' )
+		);
+		$this->assertArrayNotHasKey( 'table_type', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'table_type', $tables[ 'activity' ] ?? [] );
 	}
 
 	private function installControllerStub() :void {
@@ -205,7 +258,7 @@ class PageInvestigateByThemeUnitTestDouble extends PageInvestigateByTheme {
 		return [
 			'count'       => $this->vulnerabilityCount,
 			'status'      => $this->vulnerabilityCount > 0 ? 'critical' : 'good',
-			'title'       => 'Known Vulnerabilities',
+			'title'       => $this->vulnerabilityCount > 0 ? 'Known Vulnerabilities' : 'No Known Vulnerabilities',
 			'summary'     => 'Summary',
 			'lookup_href' => $lookupHref,
 			'lookup_text' => 'Lookup',

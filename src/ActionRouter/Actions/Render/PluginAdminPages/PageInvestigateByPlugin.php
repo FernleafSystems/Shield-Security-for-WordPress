@@ -67,6 +67,8 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 			'not_found_title'     => __( 'Plugin Not Found', 'wp-simple-firewall' ),
 			'not_found_text'      => __( 'The selected plugin isn\'t currently installed on this site.', 'wp-simple-firewall' ),
 			'overview_title'      => __( 'Plugin Overview', 'wp-simple-firewall' ),
+			'file_status_empty_text' => __( 'No file status records were found for this subject.', 'wp-simple-firewall' ),
+			'activity_empty_text'    => __( 'No activity records were found for this subject.', 'wp-simple-firewall' ),
 		];
 	}
 

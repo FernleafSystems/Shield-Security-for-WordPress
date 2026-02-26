@@ -14,17 +14,20 @@
 
 		<div class="row shield-section-datatable">
 			<div class="col">
-				<table class="table table-striped table-bordered"
-					   style="width: 100%;"
-					   data-investigation-table="1"
-					   data-table-type="{{ table.table_type|default('') }}"
-					   data-subject-type="{{ table.subject_type|default('') }}"
-					   data-subject-id="{{ table.subject_id|default('') }}"
-					   data-datatables-init="{{ datatables_init_attr|e('html_attr') }}"
-					   data-table-action="{{ table_action_attr|e('html_attr') }}"
-				></table>
+				{% if table.is_empty|default(false) %}
+					<div class="alert alert-{{ table.empty_status|default('info') }} mb-0">{{ table.empty_text|default('') }}</div>
+				{% else %}
+					<table class="table table-striped table-bordered"
+						   style="width: 100%;"
+						   data-investigation-table="1"
+						   data-table-type="{{ table.table_type|default('') }}"
+						   data-subject-type="{{ table.subject_type|default('') }}"
+						   data-subject-id="{{ table.subject_id|default('') }}"
+						   data-datatables-init="{{ datatables_init_attr|e('html_attr') }}"
+						   data-table-action="{{ table_action_attr|e('html_attr') }}"
+					></table>
+				{% endif %}
 			</div>
 		</div>
 	</div>
 </section>
-

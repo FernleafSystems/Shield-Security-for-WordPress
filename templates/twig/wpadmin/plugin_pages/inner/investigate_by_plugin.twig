@@ -41,24 +41,6 @@
 			</div>
 		</div>
 	{% else %}
-		{% include '/wpadmin/components/investigate/subject_header.twig' with {
-			subject: vars.subject
-		} only %}
-
-		<div class="row g-2 mb-3">
-			{% for stat in vars.summary %}
-				<div class="col-6 col-xl-3">
-					<div class="card shield-card h-100">
-						<div class="shield-card-accent status-{{ stat.status|default('info') }}"></div>
-						<div class="card-body py-3">
-							<div class="h4 mb-1">{{ stat.count|default(0) }}</div>
-							<div class="text-muted small">{{ stat.label|default('') }}</div>
-						</div>
-					</div>
-				</div>
-			{% endfor %}
-		</div>
-
 		<div class="options_form_for--modern">
 			<div class="shield-options-layout has-rail">
 				<aside class="shield-options-rail">
@@ -77,6 +59,24 @@
 								 aria-labelledby="{{ vars.tabs.overview.nav_id }}">
 							<div class="shield-options-panel-accent"></div>
 							<div class="shield-options-panel-body">
+								{% include '/wpadmin/components/investigate/subject_header.twig' with {
+									subject: vars.subject
+								} only %}
+
+								<div class="row g-2 mb-3">
+									{% for stat in vars.summary %}
+										<div class="col-6 col-xl-3">
+											<div class="card shield-card h-100">
+												<div class="shield-card-accent status-{{ stat.status|default('info') }}"></div>
+												<div class="card-body py-3">
+													<div class="h4 mb-1">{{ stat.count|default(0) }}</div>
+													<div class="text-muted small">{{ stat.label|default('') }}</div>
+												</div>
+											</div>
+										</div>
+									{% endfor %}
+								</div>
+
 								<div class="card shield-card status-info">
 									<div class="shield-card-accent status-info"></div>
 									<div class="card-body">

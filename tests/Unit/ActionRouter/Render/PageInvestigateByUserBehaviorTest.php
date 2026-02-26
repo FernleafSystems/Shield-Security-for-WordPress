@@ -177,11 +177,25 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$vars = $renderData[ 'vars' ] ?? [];
 		$tables = $vars[ 'tables' ] ?? [];
 		$summary = $vars[ 'summary' ] ?? [];
+		$railNavItems = $vars[ 'rail_nav_items' ] ?? [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
 		$this->assertArrayHasKey( 'subject', $vars );
 		$this->assertArrayHasKey( 'summary', $vars );
 		$this->assertArrayHasKey( 'rail_nav_items', $vars );
+		$this->assertSame( 'tab-navlink-user-overview', (string)( $railNavItems[ 0 ][ 'id' ] ?? '' ) );
+		$this->assertSame( 'Overview', (string)( $railNavItems[ 0 ][ 'label' ] ?? '' ) );
+		$this->assertTrue( (bool)( $railNavItems[ 0 ][ 'is_focus' ] ?? false ) );
+		$this->assertSame(
+			[
+				'tab-navlink-user-overview',
+				'tab-navlink-user-sessions',
+				'tab-navlink-user-activity',
+				'tab-navlink-user-requests',
+				'tab-navlink-user-ips',
+			],
+			\array_column( $railNavItems, 'id' )
+		);
 		$this->assertArrayHasKey( 'sessions', $tables );
 		$this->assertArrayHasKey( 'activity', $tables );
 		$this->assertArrayHasKey( 'requests', $tables );

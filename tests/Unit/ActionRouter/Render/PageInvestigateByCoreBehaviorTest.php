@@ -47,6 +47,8 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'WordPress Core', (string)( $vars[ 'subject' ][ 'title' ] ?? '' ) );
 		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status_pills' ][ 0 ][ 'status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'change_href', $vars[ 'subject' ] ?? [] );
+		$this->assertArrayNotHasKey( 'change_text', $vars[ 'subject' ] ?? [] );
 		$this->assertSame( 4, (int)( $vars[ 'summary' ][ 'file_status' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 7, (int)( $vars[ 'summary' ][ 'activity' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'file_status' ][ 'status' ] ?? '' ) );
@@ -54,9 +56,31 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
+		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? true ) );
 		$this->assertSame( 'core', (string)( $tables[ 'file_status' ][ 'subject_type' ] ?? '' ) );
 		$this->assertSame( 'core', (string)( $tables[ 'activity' ][ 'subject_type' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'vulnerabilities', $vars[ 'tabs' ] ?? [] );
+	}
+
+	public function test_zero_counts_render_empty_state_table_contracts() :void {
+		$page = new PageInvestigateByCoreUnitTestDouble( '6.5.2', false, 0, 0 );
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$tables = $renderData[ 'vars' ][ 'tables' ] ?? [];
+
+		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? false ) );
+		$this->assertTrue( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? false ) );
+		$this->assertSame(
+			'No file status records were found for this subject.',
+			(string)( $tables[ 'file_status' ][ 'empty_text' ] ?? '' )
+		);
+		$this->assertSame(
+			'No activity records were found for this subject.',
+			(string)( $tables[ 'activity' ][ 'empty_text' ] ?? '' )
+		);
+		$this->assertArrayNotHasKey( 'table_type', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'table_type', $tables[ 'activity' ] ?? [] );
 	}
 
 	private function installControllerStub() :void {
