@@ -191,6 +191,7 @@ function _manually_load_shield_plugin() {
 
 	$main_plugin_file = $pluginContext[ 'main_plugin_file' ] ?? '';
 	$plugin_autoload = $pluginContext[ 'plugin_autoload_file' ] ?? '';
+	$plugin_mode = (string)( $pluginContext[ 'mode' ] ?? '' );
 
 	if ( !\is_string( $main_plugin_file ) || $main_plugin_file === '' ) {
 		shield_test_error( 'ERROR: Invalid plugin context: missing main_plugin_file.' );
@@ -208,6 +209,12 @@ function _manually_load_shield_plugin() {
 	if ( !\file_exists( $plugin_autoload ) ) {
 		shield_test_error( 'ERROR: Plugin autoload file not found: '.shield_test_format_path_for_log( $plugin_autoload ) );
 		return;
+	}
+
+	// Manual loading in docker symlink mode can bypass WordPress' normal plugin realpath registration.
+	// Registering the plugin realpath ensures plugin_basename() resolves to the expected base file.
+	if ( $plugin_mode === 'docker_symlink' && \function_exists( 'wp_register_plugin_realpath' ) ) {
+		\wp_register_plugin_realpath( $main_plugin_file );
 	}
 
 	try {

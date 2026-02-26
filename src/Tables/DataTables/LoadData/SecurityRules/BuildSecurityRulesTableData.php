@@ -25,7 +25,7 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 	}
 
 	/**
-	 * @param array[] $records
+	 * @param SecurityRulesDB\Record[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		return \array_values( \array_filter( \array_map(
@@ -118,7 +118,7 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 	}
 
 	/**
-	 * @return array[]
+	 * @return SecurityRulesDB\Record[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		$loader = $this->getRecordsLoader();

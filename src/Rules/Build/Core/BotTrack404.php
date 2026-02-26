@@ -42,19 +42,6 @@ class BotTrack404 extends BuildRuleIpsBase {
 			];
 		}
 
-		$trackable404Conditions = \array_filter( [
-			[
-				'logic'      => Enum\EnumLogic::LOGIC_AND,
-				'conditions' => $notAllowlisted404Conditions,
-			],
-			[
-				'conditions' => Conditions\IsRequestToInvalidPlugin::class,
-			],
-			[
-				'conditions' => Conditions\IsRequestToInvalidTheme::class,
-			],
-		] );
-
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
@@ -80,7 +67,18 @@ class BotTrack404 extends BuildRuleIpsBase {
 				],
 				[
 					'logic'      => Enum\EnumLogic::LOGIC_OR,
-					'conditions' => $trackable404Conditions
+					'conditions' => [
+						[
+							'logic'      => Enum\EnumLogic::LOGIC_AND,
+							'conditions' => $notAllowlisted404Conditions,
+						],
+						[
+							'conditions' => Conditions\IsRequestToInvalidPlugin::class,
+						],
+						[
+							'conditions' => Conditions\IsRequestToInvalidTheme::class,
+						],
+					]
 				]
 			]
 		];
