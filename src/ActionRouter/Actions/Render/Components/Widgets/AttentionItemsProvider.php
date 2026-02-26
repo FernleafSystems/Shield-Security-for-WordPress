@@ -106,6 +106,9 @@ class AttentionItemsProvider {
 	}
 
 	/**
+	 * @deprecated 21.3.0 Legacy dashboard widget rows compatibility path.
+	 *                    Prefer buildActionItems() and buildActionSummary().
+	 *
 	 * @return array{
 	 *     items: array<int, array<string, mixed>>,
 	 *     total: int,

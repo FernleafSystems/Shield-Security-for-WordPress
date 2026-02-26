@@ -6,21 +6,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Handler,
 	Meter\MeterSummary
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\MeterAnalysisBuiltMetersCacheTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class HandlerChannelValidationTest extends BaseUnitTest {
 
+	use MeterAnalysisBuiltMetersCacheTrait;
+
 	protected function setUp() :void {
 		parent::setUp();
-		$this->setCombinedCache( [
-			MeterSummary::SLUG => $this->meterFixture( 83 ),
+		$this->setBuiltMetersCache( [
+			MeterSummary::SLUG => $this->buildMeterFixture( 83 ),
 		] );
-		$this->setChannelCache( [] );
+		$this->setBuiltMetersByChannelCache( [] );
 	}
 
 	protected function tearDown() :void {
-		$this->setCombinedCache( [] );
-		$this->setChannelCache( [] );
+		$this->resetBuiltMetersCaches();
 		parent::tearDown();
 	}
 
@@ -33,38 +35,4 @@ class HandlerChannelValidationTest extends BaseUnitTest {
 		$this->expectException( \InvalidArgumentException::class );
 		( new Handler() )->getMeter( MeterSummary::SLUG, false, 'unknown-channel' );
 	}
-
-	private function meterFixture( int $percentage ) :array {
-		return [
-			'title'       => 'Summary',
-			'subtitle'    => 'Summary',
-			'warning'     => [],
-			'description' => [],
-			'components'  => [],
-			'totals'      => [
-				'score'        => 0,
-				'max_weight'   => 0,
-				'percentage'   => $percentage,
-				'letter_score' => 'A',
-			],
-			'status'      => 'h',
-			'rgbs'        => [ 16, 128, 0 ],
-			'has_critical'=> false,
-		];
-	}
-
-	private function setCombinedCache( array $cache ) :void {
-		$ref = new \ReflectionClass( Handler::class );
-		$prop = $ref->getProperty( 'BuiltMeters' );
-		$prop->setAccessible( true );
-		$prop->setValue( null, $cache );
-	}
-
-	private function setChannelCache( array $cache ) :void {
-		$ref = new \ReflectionClass( Handler::class );
-		$prop = $ref->getProperty( 'BuiltMetersByChannel' );
-		$prop->setAccessible( true );
-		$prop->setValue( null, $cache );
-	}
 }
-

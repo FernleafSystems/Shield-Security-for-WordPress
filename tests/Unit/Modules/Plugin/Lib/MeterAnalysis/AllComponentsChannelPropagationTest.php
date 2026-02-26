@@ -5,29 +5,30 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib\
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Component\AllComponents,
 	Component\Base as ComponentBase,
-	Handler,
 	Meter\MeterOverallConfig
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\MeterAnalysisBuiltMetersCacheTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class AllComponentsChannelPropagationTest extends BaseUnitTest {
 
+	use MeterAnalysisBuiltMetersCacheTrait;
+
 	protected function setUp() :void {
 		parent::setUp();
-		$this->setCombinedCache( [
-			MeterOverallConfig::SLUG => $this->meterFixture( 50 ),
+		$this->setBuiltMetersCache( [
+			MeterOverallConfig::SLUG => $this->buildMeterFixture( 50, 'Overall' ),
 		] );
-		$this->setChannelCache( [
+		$this->setBuiltMetersByChannelCache( [
 			MeterOverallConfig::SLUG => [
-				ComponentBase::CHANNEL_CONFIG => $this->meterFixture( 90 ),
-				ComponentBase::CHANNEL_ACTION => $this->meterFixture( 10 ),
+				ComponentBase::CHANNEL_CONFIG => $this->buildMeterFixture( 90, 'Overall' ),
+				ComponentBase::CHANNEL_ACTION => $this->buildMeterFixture( 10, 'Overall' ),
 			],
 		] );
 	}
 
 	protected function tearDown() :void {
-		$this->setCombinedCache( [] );
-		$this->setChannelCache( [] );
+		$this->resetBuiltMetersCaches();
 		parent::tearDown();
 	}
 
@@ -53,38 +54,4 @@ class AllComponentsChannelPropagationTest extends BaseUnitTest {
 		$prop->setAccessible( true );
 		$prop->setValue( $component, $channel );
 	}
-
-	private function meterFixture( int $percentage ) :array {
-		return [
-			'title'       => 'Overall',
-			'subtitle'    => 'Overall',
-			'warning'     => [],
-			'description' => [],
-			'components'  => [],
-			'totals'      => [
-				'score'        => 0,
-				'max_weight'   => 0,
-				'percentage'   => $percentage,
-				'letter_score' => 'A',
-			],
-			'status'      => 'h',
-			'rgbs'        => [ 16, 128, 0 ],
-			'has_critical'=> false,
-		];
-	}
-
-	private function setCombinedCache( array $cache ) :void {
-		$ref = new \ReflectionClass( Handler::class );
-		$prop = $ref->getProperty( 'BuiltMeters' );
-		$prop->setAccessible( true );
-		$prop->setValue( null, $cache );
-	}
-
-	private function setChannelCache( array $cache ) :void {
-		$ref = new \ReflectionClass( Handler::class );
-		$prop = $ref->getProperty( 'BuiltMetersByChannel' );
-		$prop->setAccessible( true );
-		$prop->setValue( null, $cache );
-	}
 }
-

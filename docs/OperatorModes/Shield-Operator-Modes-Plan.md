@@ -647,14 +647,28 @@ Mostly sidebar reorganisation of existing pages. The actual configuration and re
 
 ### Step 8: WP Dashboard Widget Update
 
-**Status (2026-02-20):** ❌ Not started.
+**Status (2026-02-26):** ✅ Complete.
 
-**Modify:**
+Implemented in two bounded passes:
+1. Dashboard/widget refactor pass completed:
+   - Shared channel normalization reuse across meter/widget callsites.
+   - Action summary derivation moved to `AttentionItemsProvider`.
+   - Legacy v2 widget transient cleanup added in v3 regeneration path.
+   - Legacy widget template removed and legacy-only widget style blocks cleaned.
+2. Follow-up optimization/simplification pass completed:
+   - `ProgressMeters::normalizeMeterChannel()` readability simplification (no behavior change).
+   - `WpDashboardSummary::getVars()` split to separate cache orchestration from payload construction.
+   - `AttentionItemsProvider::buildWidgetRows()` preserved for compatibility with docblock deprecation only.
+   - Shared built-meter cache helper consolidation across unit/integration support tests.
+
+Implemented changes:
 
 | File | Change |
 |---|---|
-| `WpDashboardSummary.php` | Show two indicators: config posture score + action items count. Remove IP tables, blog posts, session tables, activity tables. |
-| `admin_dashboard_widget.twig` | Simplified template matching the new two-indicator design. |
+| `WpDashboardSummary.php` | Two-indicator widget behavior delivered (configuration posture + action summary), with legacy v2 transient cleanup during v3 regeneration. |
+| `AttentionItemsProvider.php` | Action summary derivation is provider-owned and reused by widget rendering; legacy `buildWidgetRows()` compatibility path remains. |
+| `templates/twig/admin/admin_dashboard_widget.twig` | Legacy template removed; v2 template path remains authoritative (`admin_dashboard_widget_v2.twig`). |
+| `assets/css/shield/dashboard-widget.scss` | Legacy-only widget style blocks removed while v2 widget styling remains intact. |
 
 ---
 

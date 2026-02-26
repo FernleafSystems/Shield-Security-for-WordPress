@@ -65,35 +65,40 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 		$vars = Transient::Get( $cacheKeyV3 );
 		if ( $refresh || empty( $vars ) ) {
 			Transient::Delete( $cacheKeyV2 );
-
-			$configProgress = ( new Handler() )->getMeter(
-				MeterSummary::SLUG,
-				false,
-				MeterComponent::CHANNEL_CONFIG
-			);
-			$configTraffic = BuildMeter::trafficFromPercentage(
-				(int)( $configProgress[ 'totals' ][ 'percentage' ] ?? 0 )
-			);
-			$actionSummary = $provider->buildActionSummary();
-
-			$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
-
-			$vars = [
-				'generated_at'    => Services::Request()->ts(),
-				'config_progress' => $configProgress,
-				'config_traffic'  => $configTraffic,
-				'action_total'    => (int)( $actionSummary[ 'total' ] ?? 0 ),
-				'action_traffic'  => (string)( $actionSummary[ 'severity' ] ?? 'good' ),
-				'is_all_clear'    => (bool)( $actionSummary[ 'is_all_clear' ] ?? false ),
-				'last_scan_human' => $latestScanAt > 0
-					? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
-					: '',
-			];
+			$vars = $this->buildFreshVars( $provider );
 			Transient::Set( $cacheKeyV3, $vars, 30 );
 		}
 
 		return $vars;
 	}
+
+	private function buildFreshVars( AttentionItemsProvider $provider ) :array {
+		$con = self::con();
+		$configProgress = ( new Handler() )->getMeter(
+			MeterSummary::SLUG,
+			false,
+			MeterComponent::CHANNEL_CONFIG
+		);
+		$configTraffic = BuildMeter::trafficFromPercentage(
+			(int)( $configProgress[ 'totals' ][ 'percentage' ] ?? 0 )
+		);
+		$actionSummary = $provider->buildActionSummary();
+
+		$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
+
+		return [
+			'generated_at'    => Services::Request()->ts(),
+			'config_progress' => $configProgress,
+			'config_traffic'  => $configTraffic,
+			'action_total'    => (int)( $actionSummary[ 'total' ] ?? 0 ),
+			'action_traffic'  => (string)( $actionSummary[ 'severity' ] ?? 'good' ),
+			'is_all_clear'    => (bool)( $actionSummary[ 'is_all_clear' ] ?? false ),
+			'last_scan_human' => $latestScanAt > 0
+				? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
+				: '',
+		];
+	}
+
 	private function isRefreshRequested() :bool {
 		return \filter_var( $this->action_data[ 'refresh' ] ?? false, \FILTER_VALIDATE_BOOLEAN );
 	}

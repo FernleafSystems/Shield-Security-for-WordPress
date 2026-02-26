@@ -1,6 +1,6 @@
 # Shield Operator Modes - Delivery Task Backlog (Validated + Runtime Reality Check)
 
-Date: 2026-02-22 (updated 2026-02-25 with P6-STAB closure and P6c-f completion confirmation)
+Date: 2026-02-22 (updated 2026-02-26 with P6-STAB/P6c-f closure and WP dashboard widget alignment completion)
 Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`, `tests/`
 Source plan: `Shield-Operator-Modes-Plan.md`
 Prototype references:
@@ -205,7 +205,7 @@ These were delivered after P4 and before P5 cleanup:
 | P6d | [COMPLETE] Complete | Dedicated Investigate By Plugin page delivered with shared rail/panel architecture, file status/activity tables, and vulnerabilities panel. |
 | P6e | [COMPLETE] Complete | Theme and Core pages delivered; shared `BaseInvestigateAsset` implemented and consumed by plugin/theme pages; core overview + tables integrated. |
 | P6f | [COMPLETE] Complete | Cross-subject linking delivered for investigation context while preserving offcanvas IP behavior; canonical investigate URL helpers integrated. |
-| P7+ | [NOT STARTED] Not started | Configure/Reports deepening, WP dashboard widget. |
+| P7+ | [IN PROGRESS] Partially complete | WP dashboard widget alignment is complete; Configure/Reports deepening remains pending. |
 
 ## 7) P6-STAB Closure Record (Runtime Recovery)
 
@@ -309,6 +309,24 @@ Completion summary:
 3. Activity table subject support now includes `plugin/theme/core` with scoped subject wheres and registry validation.
 4. Investigation-context cross-linking is in place (investigate user links, investigate IP deep-links, plugin/theme links in activity rows) without changing non-investigate table contexts.
 5. Targeted unit suites pass for routing, contracts, where logic, and new page behavior; integration tests for the new pages/actions are present and skip in environments without the WP integration harness.
+
+### 8.1) WP Dashboard Widget Alignment Completion Record (2026-02-26)
+
+Work done previously:
+1. Dashboard/widget channel refactor was completed:
+   - meter channel normalization/validation was centralized and reused across callsites,
+   - widget action summary derivation moved into `AttentionItemsProvider`,
+   - v2 stale transient cleanup was added to v3 widget regeneration,
+   - legacy widget template path was removed,
+   - legacy-only widget SCSS blocks were removed while v2 styling remained intact.
+2. Contract-style dashboard/widget tests were replaced with behavior-focused unit coverage.
+3. Integration coverage for summary behavior and stale-key cleanup was added/updated.
+
+Optimisation tasks:
+1. `ProgressMeters::normalizeMeterChannel()` was simplified to explicit branching for readability with no semantic change.
+2. `WpDashboardSummary::getVars()` was decomposed by extracting payload construction into a dedicated method while preserving cache behavior and output contract.
+3. `AttentionItemsProvider::buildWidgetRows()` was retained for compatibility and marked deprecated via docblock only (no runtime deprecation signaling).
+4. Built-meter cache helper duplication across targeted unit tests was consolidated via shared helper reuse, including integration support composition.
 
 ## 9) Tracking Format
 
