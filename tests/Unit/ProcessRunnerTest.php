@@ -119,4 +119,62 @@ class ProcessRunnerTest extends TestCase {
 			}
 		);
 	}
+
+	public function testRunAppliesEnvOverrideValuesToChildProcess() :void {
+		$runner = new ProcessRunner();
+		$envKey = 'SHIELD_PROCESS_RUNNER_ENV_OVERRIDE_TEST';
+		$envValue = 'expected-value';
+
+		$process = $runner->run(
+			[
+				\PHP_BINARY,
+				'-r',
+				'echo getenv("'.$envKey.'") ?: "__UNSET__";',
+			],
+			$this->projectRoot,
+			static function () :void {
+			},
+			[
+				$envKey => $envValue,
+			]
+		);
+
+		$this->assertSame( 0, $process->getExitCode() );
+		$this->assertSame( $envValue, \trim( $process->getOutput() ) );
+	}
+
+	public function testRunSupportsFalseEnvOverrideToUnsetInheritedEnvVar() :void {
+		$runner = new ProcessRunner();
+		$envKey = 'SHIELD_PROCESS_RUNNER_ENV_UNSET_TEST';
+		$originalValue = \getenv( $envKey );
+		$hadOriginalValue = \is_string( $originalValue );
+		\putenv( $envKey.'=from-parent' );
+
+		try {
+			$process = $runner->run(
+				[
+					\PHP_BINARY,
+					'-r',
+					'echo getenv("'.$envKey.'") === false ? "__UNSET__" : getenv("'.$envKey.'");',
+				],
+				$this->projectRoot,
+				static function () :void {
+				},
+				[
+					$envKey => false,
+				]
+			);
+
+			$this->assertSame( 0, $process->getExitCode() );
+			$this->assertSame( '__UNSET__', \trim( $process->getOutput() ) );
+		}
+		finally {
+			if ( $hadOriginalValue ) {
+				\putenv( $envKey.'='.$originalValue );
+			}
+			else {
+				\putenv( $envKey );
+			}
+		}
+	}
 }

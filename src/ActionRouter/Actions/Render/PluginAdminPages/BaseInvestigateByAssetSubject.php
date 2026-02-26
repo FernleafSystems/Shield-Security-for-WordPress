@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
@@ -43,17 +42,17 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				'file_status'     => [
 					'label'  => __( 'File Issues', 'wp-simple-firewall' ),
 					'count'  => $fileStatusCount,
-					'status' => $this->mapCountToStatus( $fileStatusCount, 'good', 'warning' ),
+					'status' => $this->mapCountToStatus( $fileStatusCount, 'good' ),
 				],
 				'activity'        => [
 					'label'  => __( 'Activity', 'wp-simple-firewall' ),
 					'count'  => $activityCount,
-					'status' => $this->mapCountToStatus( $activityCount, 'info', 'warning' ),
+					'status' => $this->mapCountToStatus( $activityCount ),
 				],
 				'issues'          => [
 					'label'  => __( 'Total Findings', 'wp-simple-firewall' ),
 					'count'  => (int)( $assetData[ 'vars' ][ 'count_items' ] ?? 0 ),
-					'status' => $this->mapCountToStatus( (int)( $assetData[ 'vars' ][ 'count_items' ] ?? 0 ), 'good', 'warning' ),
+					'status' => $this->mapCountToStatus( (int)( $assetData[ 'vars' ][ 'count_items' ] ?? 0 ), 'good' ),
 				],
 			];
 

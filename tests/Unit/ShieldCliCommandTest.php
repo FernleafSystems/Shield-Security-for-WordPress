@@ -46,6 +46,17 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( $commandName, $this->processOutput( $process ) );
 	}
 
+	public function testPackageTargetedHelpIncludesStrictSkipOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/shield', [ 'test:package-targeted', '--help' ] );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+
+		$output = $this->processOutput( $process );
+		$this->assertStringContainsString( '--fail-on-skipped', $output );
+		$this->assertStringContainsString( '--no-fail-on-skipped', $output );
+	}
+
 	/**
 	 * @return array<string,array{string}>
 	 */

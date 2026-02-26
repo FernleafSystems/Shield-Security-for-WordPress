@@ -4,7 +4,6 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Process\Process;
 
 class PackageFullTestLane {
 
@@ -14,16 +13,20 @@ class PackageFullTestLane {
 
 	private TestingEnvironmentResolver $environmentResolver;
 
+	private DockerComposeExecutor $dockerComposeExecutor;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?PackagePathResolver $packagePathResolver = null,
-		?TestingEnvironmentResolver $environmentResolver = null
+		?TestingEnvironmentResolver $environmentResolver = null,
+		?DockerComposeExecutor $dockerComposeExecutor = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->packagePathResolver = $packagePathResolver ?? new PackagePathResolver( $this->processRunner );
 		$this->environmentResolver = $environmentResolver ?? new TestingEnvironmentResolver(
 			$this->processRunner
 		);
+		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
 	}
 
 	public function run( string $rootDir, ?string $packagePath = null ) :int {
@@ -49,65 +52,121 @@ class PackageFullTestLane {
 			)
 		);
 
-		\putenv( 'DOCKER_BUILDKIT=1' );
-		\putenv( 'MSYS_NO_PATHCONV=1' );
-		\putenv( 'COMPOSE_PROJECT_NAME=shield-tests' );
-
-		$composeArgs = [
-			'docker',
-			'compose',
-			'-f',
-			'tests/docker/docker-compose.yml',
-			'-f',
-			'tests/docker/docker-compose.package.yml',
-		];
-
-		$runCompose = function ( array $subCommand ) use ( $rootDir, $composeArgs ) :int {
-			$command = \array_merge( $composeArgs, $subCommand );
-			return $this->processRunner->run( $command, $rootDir )->getExitCode() ?? 1;
-		};
-		$runComposeIgnoringFailure = function ( array $subCommand ) use ( $rootDir, $composeArgs ) :void {
-			$command = \array_merge( $composeArgs, $subCommand );
-			$this->processRunner->run(
-				$command,
-				$rootDir,
-				static function ( string $type, string $buffer ) :void {
-					if ( $type === Process::ERR ) {
-						\fwrite( \STDERR, $buffer );
-					}
-					else {
-						echo $buffer;
-					}
-				}
-			);
-		};
+		$composeFiles = $this->buildComposeFiles();
+		$dockerProcessEnvOverrides = $this->buildDockerProcessEnvOverrides();
 
 		try {
-			$runComposeIgnoringFailure( [ 'down', '-v', '--remove-orphans' ] );
+			$this->dockerComposeExecutor->runIgnoringFailure(
+				$rootDir,
+				$composeFiles,
+				$this->buildComposeCleanupCommand(),
+				$dockerProcessEnvOverrides
+			);
 
-			if ( $runCompose( [ 'up', '-d', 'mysql-latest', 'mysql-previous' ] ) !== 0 ) {
+			if ( $this->dockerComposeExecutor->run(
+				$rootDir,
+				$composeFiles,
+				$this->buildComposeMysqlUpCommand(),
+				$dockerProcessEnvOverrides
+			) !== 0 ) {
 				return 1;
 			}
-			if ( $runCompose( [ 'build', 'test-runner-latest', 'test-runner-previous' ] ) !== 0 ) {
+			if ( $this->dockerComposeExecutor->run(
+				$rootDir,
+				$composeFiles,
+				$this->buildComposeBuildRunnersCommand(),
+				$dockerProcessEnvOverrides
+			) !== 0 ) {
 				return 1;
 			}
 
 			$overallExitCode = 0;
-			if ( $runCompose( [ 'run', '--rm', 'test-runner-latest' ] ) !== 0 ) {
+			if ( $this->dockerComposeExecutor->run(
+				$rootDir,
+				$composeFiles,
+				$this->buildComposeRunLatestCommand(),
+				$dockerProcessEnvOverrides
+			) !== 0 ) {
 				$overallExitCode = 1;
 			}
-			if ( $runCompose( [ 'run', '--rm', 'test-runner-previous' ] ) !== 0 ) {
+			if ( $this->dockerComposeExecutor->run(
+				$rootDir,
+				$composeFiles,
+				$this->buildComposeRunPreviousCommand(),
+				$dockerProcessEnvOverrides
+			) !== 0 ) {
 				$overallExitCode = 1;
 			}
 
 			return $overallExitCode;
 		}
 		finally {
-			$runComposeIgnoringFailure( [ 'down', '-v', '--remove-orphans' ] );
+			$this->dockerComposeExecutor->runIgnoringFailure(
+				$rootDir,
+				$composeFiles,
+				$this->buildComposeCleanupCommand(),
+				$dockerProcessEnvOverrides
+			);
 			if ( \is_file( $dockerEnvPath ) ) {
 				\unlink( $dockerEnvPath );
 			}
 		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildComposeFiles() :array {
+		return [
+			'tests/docker/docker-compose.yml',
+			'tests/docker/docker-compose.package.yml',
+		];
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function buildDockerProcessEnvOverrides() :array {
+		return [
+			'DOCKER_BUILDKIT' => '1',
+			'MSYS_NO_PATHCONV' => '1',
+			'COMPOSE_PROJECT_NAME' => 'shield-tests',
+		];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildComposeCleanupCommand() :array {
+		return [ 'down', '-v', '--remove-orphans' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildComposeMysqlUpCommand() :array {
+		return [ 'up', '-d', 'mysql-latest', 'mysql-previous' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildComposeBuildRunnersCommand() :array {
+		return [ 'build', 'test-runner-latest', 'test-runner-previous' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildComposeRunLatestCommand() :array {
+		return [ 'run', '--rm', 'test-runner-latest' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildComposeRunPreviousCommand() :array {
+		return [ 'run', '--rm', 'test-runner-previous' ];
 	}
 
 	/**

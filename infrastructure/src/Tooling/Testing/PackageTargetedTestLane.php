@@ -24,13 +24,94 @@ class PackageTargetedTestLane {
 		);
 	}
 
-	public function run( string $rootDir, ?string $packagePath = null ) :int {
+	public function run( string $rootDir, ?string $packagePath = null, ?bool $failOnSkipped = null ) :int {
 		echo 'Mode: package-targeted'.\PHP_EOL;
 
 		$resolvedPackagePath = $this->packagePathResolver->resolve( $rootDir, $packagePath );
 		echo 'Using package path: '.$resolvedPackagePath.\PHP_EOL;
 
 		$packagerConfig = $this->environmentResolver->resolvePackagerConfig( $rootDir );
+		$envOverrides = $this->buildProcessEnvOverrides( $resolvedPackagePath, $packagerConfig );
+		$strictSkipArgs = $this->resolveStrictSkipArgs( $failOnSkipped );
+
+		$unitExitCode = $this->runCommand(
+			$this->buildUnitValidationCommand( $strictSkipArgs ),
+			$rootDir,
+			$envOverrides
+		);
+		if ( $unitExitCode !== 0 ) {
+			return $unitExitCode;
+		}
+
+		return $this->runCommand(
+			$this->buildIntegrationValidationCommand( $strictSkipArgs ),
+			$rootDir,
+			$envOverrides
+		);
+	}
+
+	/**
+	 * @param string[] $command
+	 * @param array<string,string|false>|null $envOverrides
+	 */
+	private function runCommand( array $command, string $rootDir, ?array $envOverrides = null ) :int {
+		return $this->processRunner->run( $command, $rootDir, null, $envOverrides )->getExitCode() ?? 1;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function resolveStrictSkipArgs( ?bool $failOnSkipped ) :array {
+		if ( $failOnSkipped === true ) {
+			return [ '--fail-on-skipped' ];
+		}
+		if ( $failOnSkipped === false ) {
+			return [];
+		}
+
+		return \PHP_OS_FAMILY === 'Windows' ? [] : [ '--fail-on-skipped' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildUnitValidationCommand( array $strictSkipArgs ) :array {
+		return \array_merge(
+			[
+				\PHP_BINARY,
+				'./vendor/phpunit/phpunit/phpunit',
+				'--no-configuration',
+				'--no-coverage',
+				'tests/Unit/PluginPackageValidationTest.php',
+			],
+			$strictSkipArgs
+		);
+	}
+
+	/**
+	 * @param string[] $strictSkipArgs
+	 * @return string[]
+	 */
+	private function buildIntegrationValidationCommand( array $strictSkipArgs ) :array {
+		return \array_merge(
+			[
+				\PHP_BINARY,
+				'./vendor/phpunit/phpunit/phpunit',
+				'--no-configuration',
+				'--no-coverage',
+				'--group',
+				'package-targeted',
+				'tests/Integration/Infrastructure/PluginPackagerStraussTest.php',
+			],
+			$strictSkipArgs
+		);
+	}
+
+	/**
+	 * @param array{strauss_version:?string,strauss_fork_repo:?string} $packagerConfig
+	 * @return array<string,string>
+	 */
+	private function buildProcessEnvOverrides( string $resolvedPackagePath, array $packagerConfig ) :array {
 		$env = [
 			'SHIELD_PACKAGE_PATH' => $resolvedPackagePath,
 		];
@@ -41,105 +122,6 @@ class PackageTargetedTestLane {
 			$env[ 'SHIELD_STRAUSS_FORK_REPO' ] = $packagerConfig[ 'strauss_fork_repo' ];
 		}
 
-		return $this->runInTemporaryEnv( $env, function () use ( $rootDir ) :int {
-			$strictArgs = $this->strictSkipFailureArgs();
-			$unitExitCode = $this->runCommand(
-				\array_merge(
-					[
-					\PHP_BINARY,
-					'./vendor/phpunit/phpunit/phpunit',
-					'--no-configuration',
-					'--no-coverage',
-					'tests/Unit/PluginPackageValidationTest.php',
-					],
-					$strictArgs
-				),
-				$rootDir
-			);
-			if ( $unitExitCode !== 0 ) {
-				return $unitExitCode;
-			}
-
-			return $this->runCommand(
-				\array_merge(
-					[
-					\PHP_BINARY,
-					'./vendor/phpunit/phpunit/phpunit',
-					'--no-configuration',
-					'--no-coverage',
-					'--group',
-					'package-targeted',
-					'tests/Integration/Infrastructure/PluginPackagerStraussTest.php',
-					],
-					$strictArgs
-				),
-				$rootDir
-			);
-		} );
-	}
-
-	/**
-	 * @param string[] $command
-	 */
-	private function runCommand( array $command, string $rootDir ) :int {
-		return $this->processRunner->run( $command, $rootDir )->getExitCode() ?? 1;
-	}
-
-	/**
-	 * Keep CI strictness while avoiding expected Windows-specific skips from failing local execution.
-	 *
-	 * @return string[]
-	 */
-	private function strictSkipFailureArgs() :array {
-		return \PHP_OS_FAMILY === 'Windows' ? [] : [ '--fail-on-skipped' ];
-	}
-
-	/**
-	 * @param array<string,string> $env
-	 */
-	private function runInTemporaryEnv( array $env, callable $callback ) :int {
-		$previous = [];
-		foreach ( $env as $key => $value ) {
-			$oldValue = \getenv( $key );
-			$previous[ $key ] = [
-				'process' => \is_string( $oldValue ) ? $oldValue : null,
-				'server_exists' => \array_key_exists( $key, $_SERVER ),
-				'server_value' => $_SERVER[ $key ] ?? null,
-				'env_exists' => \array_key_exists( $key, $_ENV ),
-				'env_value' => $_ENV[ $key ] ?? null,
-			];
-			\putenv( $key.'='.$value );
-			$_SERVER[ $key ] = $value;
-			$_ENV[ $key ] = $value;
-		}
-
-		try {
-			return (int)$callback();
-		}
-		finally {
-			foreach ( $env as $key => $_ ) {
-				$oldValue = $previous[ $key ] ?? null;
-				if ( \is_array( $oldValue ) && \is_string( $oldValue[ 'process' ] ?? null ) ) {
-					\putenv( $key.'='.(string)$oldValue[ 'process' ] );
-				}
-				else {
-					\putenv( $key );
-				}
-
-				if ( \is_array( $oldValue ) && ( $oldValue[ 'server_exists' ] ?? false ) ) {
-					$_SERVER[ $key ] = $oldValue[ 'server_value' ];
-				}
-				else {
-					unset( $_SERVER[ $key ] );
-				}
-
-				if ( \is_array( $oldValue ) && ( $oldValue[ 'env_exists' ] ?? false ) ) {
-					$_ENV[ $key ] = $oldValue[ 'env_value' ];
-				}
-				else {
-					unset( $_ENV[ $key ] );
-				}
-			}
-		}
+		return $env;
 	}
 }

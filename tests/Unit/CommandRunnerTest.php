@@ -25,9 +25,19 @@ class CommandRunnerTest extends TestCase {
 		$processRunner = null;
 		if ( $silenceOutput ) {
 			$processRunner = new class extends ProcessRunner {
-				public function run( array $command, string $workingDir, ?callable $onOutput = null ) :Process {
-					return parent::run( $command, $workingDir, $onOutput ?? static function () :void {
-					} );
+				public function run(
+					array $command,
+					string $workingDir,
+					?callable $onOutput = null,
+					?array $envOverrides = null
+				) :Process {
+					return parent::run(
+						$command,
+						$workingDir,
+						$onOutput ?? static function () :void {
+						},
+						$envOverrides
+					);
 				}
 			};
 		}

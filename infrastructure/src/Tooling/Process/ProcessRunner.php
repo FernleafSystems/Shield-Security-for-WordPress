@@ -16,8 +16,14 @@ class ProcessRunner {
 	/**
 	 * @param string[]       $command
 	 * @param callable|null  $onOutput Receives (string $type, string $buffer)
+	 * @param array<string,string|false>|null $envOverrides
 	 */
-	public function run( array $command, string $workingDir, ?callable $onOutput = null ) :Process {
+	public function run(
+		array $command,
+		string $workingDir,
+		?callable $onOutput = null,
+		?array $envOverrides = null
+	) :Process {
 		if ( !\is_dir( $workingDir ) ) {
 			throw new \RuntimeException( \sprintf(
 				'Working directory does not exist: %s',
@@ -28,7 +34,7 @@ class ProcessRunner {
 		$process = new Process(
 			$command,
 			$workingDir,
-			null,  // env - inherit from parent
+			$envOverrides,  // env - inherit from parent when null
 			null,  // input
 			null   // timeout - no limit
 		);
@@ -45,9 +51,15 @@ class ProcessRunner {
 	 *
 	 * @param string[]       $command
 	 * @param callable|null  $onOutput Receives (string $type, string $buffer)
+	 * @param array<string,string|false>|null $envOverrides
 	 */
-	public function runOrThrow( array $command, string $workingDir, ?callable $onOutput = null ) :Process {
-		$process = $this->run( $command, $workingDir, $onOutput );
+	public function runOrThrow(
+		array $command,
+		string $workingDir,
+		?callable $onOutput = null,
+		?array $envOverrides = null
+	) :Process {
+		$process = $this->run( $command, $workingDir, $onOutput, $envOverrides );
 		$exitCode = $process->getExitCode() ?? 1;
 
 		if ( $exitCode !== 0 ) {
