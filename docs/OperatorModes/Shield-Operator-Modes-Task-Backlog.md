@@ -78,6 +78,8 @@ Resolution:
 | P5 | Mode cleanup + legacy removal | Simple/Advanced toggle and deprecated artifacts removed safely |
 | P6-STAB | Investigate runtime stabilization | Investigate lookup submits retain `page/nav/nav_sub` in first request across landing/by-user flows |
 | P6+ | Investigate/Configure/Reports deepening + widget alignment | Remaining feature slices delivered incrementally |
+| P7-INV-UX | Investigate UX parity + breadcrumb audit | Post-P6 UX criteria are implemented across landing/by-user/by-ip/by-plugin/by-theme/by-core and breadcrumbs match final IA labels |
+| P8 | Configure deepening | Remaining Configure depth is delivered after investigate parity closure |
 
 ## 4) Task Backlog
 
@@ -201,11 +203,12 @@ These were delivered after P4 and before P5 cleanup:
 | P6a | [COMPLETE] Complete | Landing implementation plus lookup-route stabilization confirmed in runtime validation. |
 | P6b | [COMPLETE] Complete | By-user implementation plus lookup-route stabilization confirmed in runtime validation. |
 | P6-STAB | [COMPLETE] Complete | OM-671..OM-674 closed on 2026-02-25; runtime verification confirmed and submit-path routing is stable. |
-| P6c | [COMPLETE] Complete | Dedicated Investigate By IP page delivered with subject header, summary cards, and reused `IpAnalyse\Container`; route and template integration complete. |
+| P6c | [COMPLETE] Complete | Dedicated Investigate By IP page delivered with reused `IpAnalyse\Container`; original header/summary framing is baseline delivery and is refined in P7-INV-UX (`OM-707`). |
 | P6d | [COMPLETE] Complete | Dedicated Investigate By Plugin page delivered with shared rail/panel architecture, file status/activity tables, and vulnerabilities panel. |
 | P6e | [COMPLETE] Complete | Theme and Core pages delivered; shared `BaseInvestigateAsset` implemented and consumed by plugin/theme pages; core overview + tables integrated. |
 | P6f | [COMPLETE] Complete | Cross-subject linking delivered for investigation context while preserving offcanvas IP behavior; canonical investigate URL helpers integrated. |
-| P7+ | [IN PROGRESS] Partially complete | WP dashboard widget alignment and Reports deepening are complete; Configure deepening remains pending. |
+| P7-INV-UX | [PENDING] Not started | Tracks maintainer UX feedback parity for Investigate pages and breadcrumb normalization (OM-701..OM-711). |
+| P8 | [IN PROGRESS] Partially complete | WP dashboard widget alignment and Reports deepening are complete; Configure deepening remains pending. |
 
 ## 7) P6-STAB Closure Record (Runtime Recovery)
 
@@ -215,7 +218,7 @@ These were delivered after P4 and before P5 cleanup:
 |---|---|---|---|---|
 | OM-DEF-701 | Investigate lookup submit can drop `page/nav/nav_sub` context | Blocker | Live runtime previously showed first request as bare `admin.php?analyse_ip=...` / `admin.php?user_lookup=...` | Resolved 2026-02-25: first-request route context preservation confirmed for landing and by-user flows. |
 | OM-DEF-702 | Completion marks were based on slice-level status, not runtime completion | Process blocker | P6a/P6b were previously marked complete while live flow was failing | Resolved 2026-02-25: P6a/P6b completion now reflects runtime-confirmed state. |
-| OM-DEF-703 | UI quality/prototype parity gap not tracked as a blocking acceptance condition | High | Current investigate UI diverges materially from plan/prototypes | Open as a post-P6 investigate UI quality follow-up. |
+| OM-DEF-703 | UI quality/prototype parity gap not tracked as a blocking acceptance condition | High | Current investigate UI diverges materially from plan/prototypes | Open. Tracked in P7-INV-UX tasks `OM-701` through `OM-711`. |
 
 ### 7.2 Stabilization Tasks (Completed)
 
@@ -347,6 +350,30 @@ Validation evidence:
 3. Full unit suite passed in workspace (`composer test:unit`), with only environment/package-related skips.
 4. Reports routing integration test file was authored; execution is skipped in this workspace when the WordPress integration harness is unavailable.
 
+### 8.3) Reports Contract Consolidation Completion Record (2026-02-26)
+
+Scope delivered:
+1. Reports workspace subpage metadata was consolidated into `PluginNavs::reportsWorkspaceDefinitions()` and consumed by:
+   - Reports route handlers in nav hierarchy (`reportsRouteHandlers()`),
+   - reports sidebar sub-item generation,
+   - reports landing CTA href/string generation.
+2. Reports default workspace subnav was centralized via `PluginNavs::reportsDefaultWorkspaceSubNav()` and reused by:
+   - reports sidebar top-level href,
+   - reports JS-localization `required` gate.
+3. Reports settings zone-component slugs were centralized via `PluginNavs::reportsSettingsZoneComponentSlugs()` and reused by:
+   - reports page settings rendering option assembly,
+   - reports sidebar config action metadata.
+4. `PageReports` switch-heavy title/subtitle/content logic was replaced with definition-map rendering and preserved unknown-subnav fallback behavior.
+5. Unit render-test reflection scaffolding was reduced in targeted files through shared `InvokesNonPublicMethods` trait reuse.
+
+Validation evidence:
+1. Focused contract-validation command passed:
+   - `composer test:unit -- tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php tests/Unit/Modules/Plugin/Lib/NavMenuBuilderOperatorModesTest.php tests/Unit/ActionRouter/Render/PageReportsBehaviorTest.php tests/Unit/ActionRouter/Render/PageReportsLandingBehaviorTest.php tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`
+   - Result: `OK (13 tests, 53 assertions)`.
+2. Full unit suite passed:
+   - `composer test:unit`
+   - Result: pass with environment/package-related skips only.
+
 ## 9) Tracking Format
 
 Use:
@@ -460,7 +487,7 @@ P6b validation evidence (2026-02-24):
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
-| OM-621 | ~~Create `PageInvestigateByIp` wrapping existing `IpAnalyse\Container`~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByIp.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_ip.twig` | OM-604 | **Done (2026-02-25)**  -  dedicated by-ip page renders subject header + summary cards and reuses `IpAnalyse\Container` via action-router render. |
+| OM-621 | ~~Create `PageInvestigateByIp` wrapping existing `IpAnalyse\Container`~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByIp.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_ip.twig` | OM-604 | **Done (2026-02-25)**  -  dedicated by-ip page reuses `IpAnalyse\Container` via action-router render (top framing is refined in `OM-707`). |
 | OM-622 | ~~Add "Change IP" button linking back to landing~~ | Same as OM-621 | OM-621 | **Done (2026-02-25)**  -  by-ip subject header includes `change_href` to canonical investigate-by-ip route and landing back-link remains available. |
 
 ### P6d  -  Investigate Plugin
@@ -490,7 +517,49 @@ P6b validation evidence (2026-02-24):
 | OM-652 | ~~Verify all username cells link to investigate-user~~ | All investigation DataTable row builders | OM-611 | **Done (2026-02-25)**  -  investigation-context user links route to canonical investigate-by-user URL. |
 | OM-653 | ~~Wire plugin-related activity events to investigate-plugin~~ | `Investigation\BuildActivityLogData` row builder | OM-631 | **Done (2026-02-25)**  -  plugin/theme activity rows include investigate links in investigation-context activity table source. |
 
-## 12) Hard-Removal Tasks (Completed)
+## 12) P7-INV-UX  -  Investigate UX Parity + Breadcrumb Audit (Pending)
+
+Date added: 2026-02-26  
+Source feedback: maintainer UX audit covering Investigate landing, by-user, by-ip, by-plugin, by-theme, by-core, and breadcrumbs.
+
+This phase is the authoritative follow-up for `OM-DEF-703`. It converts post-P6 UX feedback into concrete implementation tasks and acceptance criteria.
+
+Supersession rules:
+1. Supersedes prior expectation that quick-tools strip remains visible on Investigate landing (`OM-603` baseline).
+2. Supersedes blanket offcanvas preference from `OM-651` for dedicated Investigate navigation flows (user IP cards should navigate directly without loading IP offcanvas in parallel).
+3. Treats previous P6 completion as structural delivery complete; P7-INV-UX is visual/interaction parity and copy/state correctness.
+
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-701 | Remove redundant top summary/header blocks on plugin, theme, and core investigation pages | `templates/twig/wpadmin/plugin_pages/inner/investigate_by_plugin.twig`, `investigate_by_theme.twig`, `investigate_by_core.twig`, related render data builders | P6d, P6e | Plugin/theme/core pages no longer render duplicated top header/summary blocks above rail tabs; overview details live in the Overview tab only; legacy `Change Theme`/subject-change controls from removed headers are not migrated into Overview. |
+| OM-702 | Add User `Overview` tab and move current top header summary content into it | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig` | P6b | User page has an Overview tab as first tab; duplicate top boxes are removed; existing Sessions/Activity/Requests/IP tabs remain. |
+| OM-703 | Add conditional empty-state rendering for File Status and Activity tabs (plugin/theme/core) and skip table AJAX boot when empty | `PageInvestigateByPlugin.php`, `PageInvestigateByTheme.php`, `PageInvestigateByCore.php`, associated Twig templates and table init payload builders | OM-701 | If dataset count is zero, render explicit empty-state copy and do not initialize investigation table JS/AJAX for that tab. |
+| OM-704 | Apply vulnerability zero-state copy rules | `PageInvestigateByPlugin.php`, `PageInvestigateByTheme.php`, shared vulnerability panel rendering | OM-701 | Vulnerability tab heading/title reads `No Known Vulnerabilities` when count is zero; non-zero state keeps `Known Vulnerabilities` with count/badges. |
+| OM-705 | Improve user IP card semantics: status mapping + explicit counter labels | `PageInvestigateByUser.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_user.twig` | OM-702 | IP cards no longer default all states to warning without reason; counters show full labels (`Sessions`, `Activity`, `Requests`) instead of abbreviated cryptic tokens. |
+| OM-706 | Prevent parallel IP offcanvas load when navigating from user IP cards to dedicated Investigate IP page | User IP card link generation + investigate-context link helpers | OM-705 | Clicking `Investigate IP` from user context performs single-page navigation to by-ip route with no automatic offcanvas bootstrap in that action path. |
+| OM-707 | Simplify dedicated Investigate IP page framing and tab naming | `PageInvestigateByIp.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_ip.twig`, `IpAnalyse\Container` tab label mapping | P6c | Remove extra top header/summary duplication on by-ip page; tab naming uses `Overview` (replacing ambiguous `General`) and retains existing analysis capability. |
+| OM-708 | Breadcrumb audit and normalization across all operator pages | `src/Utilities/Navigation/BuildBreadCrumbs.php`, `src/Controller/Plugin/PluginNavs.php`, breadcrumb tests | P4, OM-701, OM-702, OM-707 | Breadcrumbs never repeat mode/page labels (e.g. no `Investigate > Investigate`), avoid generic intermediate labels like `Activity` for subject pages, and use final IA labels (e.g. `Shield Security > Investigate > Users`). |
+| OM-709 | Investigate landing visual cleanup for prototype parity and interaction clarity | `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, associated SCSS and render contract in `PageInvestigateLanding.php` | P6a | Remove nested card-within-card treatment and disconnected selector/content framing; replace ambiguous title/copy with direct investigate intent language; landing clearly communicates that subject selections drive the panel content. |
+| OM-710 | Remove Investigate quick-access strip from landing | `PageInvestigateLanding.php`, `investigate_landing.twig` | OM-709 | Quick-access strip is removed because links are already present in mode nav; no duplicate shortcut rail remains at landing footer. |
+| OM-711 | Add/adjust unit coverage for new breadcrumb and empty-state contracts | `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, new/updated page behavior tests under `tests/Unit/ActionRouter/Render/` | OM-703, OM-708, OM-710 | Tests assert normalized breadcrumb labels/routes and empty-state/no-AJAX contracts for zero-result tabs. |
+
+Feedback-to-task mapping:
+
+| Feedback Theme | Tasks |
+|---|---|
+| Plugin/Theme/Core duplicated top blocks | OM-701 |
+| User page needs `Overview` and no duplicated top boxes | OM-702 |
+| No table + no AJAX when File Status/Activity empty | OM-703 |
+| `No Known Vulnerabilities` zero-state copy | OM-704 |
+| User IP cards warning-state confusion + cryptic counters | OM-705 |
+| Investigate IP click should not auto-load offcanvas in parallel | OM-706 |
+| IP page framing simplification + `General` -> `Overview` | OM-707 |
+| Breadcrumb duplication/intermediate-label audit | OM-708 |
+| Investigate landing design/prototype parity cleanup | OM-709 |
+| Remove landing quick-access strip | OM-710 |
+| Regression coverage for breadcrumb/empty-state contracts | OM-711 |
+
+## 13) Hard-Removal Tasks (Completed)
 
 These tasks were deferred behind OM-501 and have now been executed (2026-02-21). This section is retained as a completion record.
 
