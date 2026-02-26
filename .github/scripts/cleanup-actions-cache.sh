@@ -47,26 +47,97 @@ fetch_buildkit_json() {
         --json id,key,sizeInBytes,lastAccessedAt \
     | jq '
         def normalize_iso8601:
-            sub("\\.[0-9]+(?<tz>Z|[+-][0-9]{2}:[0-9]{2})$"; "\(.tz)");
+            sub("\\.[0-9]+Z$"; "Z");
 
-        def parse_epoch($timestamp):
-            ($timestamp | normalize_iso8601) as $normalized
-            | (if $normalized == $timestamp then [$timestamp] else [$timestamp, $normalized] end)
-            | map(try fromdateiso8601 catch null)
-            | map(select(. != null))
-            | .[0] // (now | floor);
+        def parse_epoch_strict($entry):
+            if (($entry.lastAccessedAt | type) != "string") or ($entry.lastAccessedAt | length == 0) then
+                error("Missing lastAccessedAt for cache id=\($entry.id) key=\($entry.key)")
+            else
+                ($entry.lastAccessedAt | normalize_iso8601) as $normalized
+                | (try ($normalized | fromdateiso8601) catch error("Invalid lastAccessedAt for cache id=\($entry.id) key=\($entry.key) value=\($entry.lastAccessedAt). Expected ISO8601 UTC timestamp, e.g. 2026-02-25T12:49:04Z"))
+            end;
 
         [
             .[]
             | select((.key | startswith("buildkit-")) or (.key | startswith("index-buildkit-")))
-            | ((.lastAccessedAt // .last_accessed_at) // "") as $lastAccessed
             | . + {
-                lastAccessedAt: (if $lastAccessed == "" then "unknown" else $lastAccessed end),
-                lastAccessEpoch: (if $lastAccessed == "" then (now | floor) else parse_epoch($lastAccessed) end)
+                lastAccessEpoch: parse_epoch_strict(.)
             }
         ]
         | sort_by(.lastAccessEpoch)
     '
+}
+
+fetch_buildkit_json_or_fail() {
+    local context="$1"
+    local output
+
+    if ! output="$(fetch_buildkit_json 2>&1)"; then
+        log_error "$context: failed to parse BuildKit cache metadata."
+        log_error "$output"
+        log_error "Diagnostic command: gh cache list --limit 20 --sort last_accessed_at --order asc --json id,key,lastAccessedAt"
+        echo "::error::BuildKit cache metadata parse failed. Expected lastAccessedAt in ISO8601 UTC format (example: 2026-02-25T12:49:04Z)." >&2
+        exit 5
+    fi
+
+    printf '%s\n' "$output"
+}
+
+build_cleanup_plan() {
+    local buildkit_json="$1"
+
+    jq \
+        --argjson now "$now_epoch" \
+        --argjson retention "$retention_seconds" \
+        --argjson target "$target_bytes" \
+        '
+        def total_bytes:
+            (map(.sizeInBytes) | add // 0);
+
+        def mark_retention($now; $retention):
+            map(
+                . + {
+                    reason: (
+                        if (($now - .lastAccessEpoch) > $retention) then
+                            "retention"
+                        else
+                            null
+                        end
+                    )
+                }
+            );
+
+        def mark_cap($target):
+            (map(select(.reason != null) | .sizeInBytes) | add // 0) as $already_selected
+            | (total_bytes - $already_selected) as $remaining_initial
+            | reduce .[] as $entry (
+                {
+                    remaining: $remaining_initial,
+                    entries: []
+                };
+                if $entry.reason != null then
+                    .entries += [$entry]
+                elif .remaining <= $target then
+                    .entries += [$entry]
+                else
+                    .remaining = (.remaining - $entry.sizeInBytes)
+                    | .entries += [$entry + {reason: "cap"}]
+                end
+            )
+            | .entries;
+
+        mark_retention($now; $retention) as $with_retention
+        | ($with_retention | total_bytes) as $total_before
+        | ($with_retention | mark_cap($target)) as $planned_entries
+        | ($planned_entries | map(select(.reason != null) | .sizeInBytes) | add // 0) as $selected_bytes
+        | ($planned_entries | map(select(.reason != null)) | length) as $planned_count
+        | {
+            total_before: $total_before,
+            selected_bytes: $selected_bytes,
+            planned_count: $planned_count,
+            entries: $planned_entries
+        }
+        ' <<<"$buildkit_json"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -126,63 +197,18 @@ log_info "Dry run: $DRY_RUN"
 log_info "Retention: ${RETENTION_DAYS} day(s)"
 log_info "Target BuildKit budget: ${TARGET_BUILDKIT_GB} GiB"
 
-buildkit_json="$(fetch_buildkit_json)"
-buildkit_count="$(jq 'length' <<<"$buildkit_json")"
+buildkit_json="$(fetch_buildkit_json_or_fail "Initial cache fetch")"
+plan_json="$(build_cleanup_plan "$buildkit_json")"
+buildkit_count="$(jq '.entries | length' <<<"$plan_json")"
 
 if [[ "$buildkit_count" -eq 0 ]]; then
     log_info "No BuildKit caches found. Nothing to do."
     exit 0
 fi
 
-declare -a ordered_ids=()
-declare -A cache_size=()
-declare -A cache_key=()
-declare -A cache_last=()
-declare -A selected_reason=()
-
-total_before=0
-
-while IFS=$'\t' read -r id key size_bytes last_accessed last_access_epoch; do
-    ordered_ids+=("$id")
-    cache_size["$id"]="$size_bytes"
-    cache_key["$id"]="$key"
-    cache_last["$id"]="$last_accessed"
-    total_before="$((total_before + size_bytes))"
-
-    age_seconds="$((now_epoch - last_access_epoch))"
-    if (( age_seconds > retention_seconds )); then
-        selected_reason["$id"]="retention"
-    fi
-done < <(jq -r '.[] | [.id, .key, .sizeInBytes, .lastAccessedAt, .lastAccessEpoch] | @tsv' <<<"$buildkit_json")
-
-selected_bytes=0
-for id in "${ordered_ids[@]}"; do
-    if [[ -n "${selected_reason[$id]:-}" ]]; then
-        selected_bytes="$((selected_bytes + cache_size[$id]))"
-    fi
-done
-
-remaining_bytes="$((total_before - selected_bytes))"
-if (( remaining_bytes > target_bytes )); then
-    for id in "${ordered_ids[@]}"; do
-        if [[ -n "${selected_reason[$id]:-}" ]]; then
-            continue
-        fi
-        selected_reason["$id"]="cap"
-        selected_bytes="$((selected_bytes + cache_size[$id]))"
-        remaining_bytes="$((remaining_bytes - cache_size[$id]))"
-        if (( remaining_bytes <= target_bytes )); then
-            break
-        fi
-    done
-fi
-
-planned_count=0
-for id in "${ordered_ids[@]}"; do
-    if [[ -n "${selected_reason[$id]:-}" ]]; then
-        planned_count="$((planned_count + 1))"
-    fi
-done
+total_before="$(jq '.total_before' <<<"$plan_json")"
+selected_bytes="$(jq '.selected_bytes' <<<"$plan_json")"
+planned_count="$(jq '.planned_count' <<<"$plan_json")"
 
 log_info "BuildKit cache count: $buildkit_count"
 log_info "BuildKit size before cleanup: $(bytes_to_gib "$total_before") GiB"
@@ -197,16 +223,7 @@ deleted_count=0
 deleted_bytes=0
 failed_count=0
 
-for id in "${ordered_ids[@]}"; do
-    reason="${selected_reason[$id]:-}"
-    if [[ -z "$reason" ]]; then
-        continue
-    fi
-
-    size_bytes="${cache_size[$id]}"
-    key="${cache_key[$id]}"
-    last_accessed="${cache_last[$id]}"
-
+while IFS=$'\t' read -r id reason size_bytes key last_accessed; do
     log_info "Delete[$reason] id=$id size=$(bytes_to_mib "$size_bytes") MiB last_accessed=$last_accessed key=$key"
 
     if [[ "$DRY_RUN" == "true" ]]; then
@@ -220,7 +237,7 @@ for id in "${ordered_ids[@]}"; do
         failed_count="$((failed_count + 1))"
         log_warn "Failed to delete cache id=$id; continuing"
     fi
-done
+done < <(jq -r '.entries[] | select(.reason != null) | [.id, .reason, .sizeInBytes, .key, .lastAccessedAt] | @tsv' <<<"$plan_json")
 
 if [[ "$DRY_RUN" == "true" ]]; then
     estimated_after="$((total_before - selected_bytes))"
@@ -229,7 +246,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
     exit 0
 fi
 
-after_json="$(fetch_buildkit_json)"
+after_json="$(fetch_buildkit_json_or_fail "Post-delete cache fetch")"
 after_total="$(jq '[.[].sizeInBytes] | add // 0' <<<"$after_json")"
 
 log_info "Deleted cache entries: $deleted_count"
