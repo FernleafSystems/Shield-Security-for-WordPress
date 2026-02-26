@@ -8,6 +8,20 @@ on:
   workflow_dispatch:
 
 jobs:
+  cache-cleanup-script-tests:
+    name: 'Cache Cleanup Script Tests'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run cache cleanup script regression tests
+      run: |
+        chmod +x .github/scripts/cleanup-actions-cache.sh
+        chmod +x .github/scripts/test-cleanup-actions-cache.sh
+        ./.github/scripts/test-cleanup-actions-cache.sh
+
   source-static-analysis:
     name: 'Source Static Analysis'
     runs-on: ubuntu-latest
