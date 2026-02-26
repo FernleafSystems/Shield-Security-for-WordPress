@@ -77,6 +77,36 @@ class AttentionItemsProvider {
 
 	/**
 	 * @return array{
+	 *     total: int,
+	 *     severity: string,
+	 *     is_all_clear: bool
+	 * }
+	 */
+	public function buildActionSummary() :array {
+		$items = $this->buildActionItems();
+		$total = \count( $items );
+		if ( $total === 0 ) {
+			return [
+				'total'        => 0,
+				'severity'     => 'good',
+				'is_all_clear' => true,
+			];
+		}
+
+		$severity = \strtolower( \trim( (string)( $items[ 0 ][ 'severity' ] ?? '' ) ) );
+		if ( !\in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ) {
+			$severity = 'warning';
+		}
+
+		return [
+			'total'        => $total,
+			'severity'     => $severity,
+			'is_all_clear' => false,
+		];
+	}
+
+	/**
+	 * @return array{
 	 *     items: array<int, array<string, mixed>>,
 	 *     total: int,
 	 *     hidden: int

@@ -17,6 +17,36 @@ abstract class Base {
 	protected ?bool $isProtected = null;
 	private ?string $meterChannel = null;
 
+	public static function normalizeChannelRaw( ?string $channel ) :string {
+		return \strtolower( \trim( (string)$channel ) );
+	}
+
+	public static function normalizeChannel( ?string $channel ) :?string {
+		$normalized = self::normalizeChannelRaw( $channel );
+		return $normalized === '' ? null : $normalized;
+	}
+
+	public static function isValidChannel( ?string $channel ) :bool {
+		if ( $channel === null ) {
+			return true;
+		}
+		return \in_array( $channel, [
+			self::CHANNEL_CONFIG,
+			self::CHANNEL_ACTION
+		], true );
+	}
+
+	public static function assertValidChannel(
+		?string $channel,
+		string $messageTemplate = 'Invalid channel: %s'
+	) :?string {
+		$normalized = self::normalizeChannel( $channel );
+		if ( !self::isValidChannel( $normalized ) ) {
+			throw new \InvalidArgumentException( \sprintf( $messageTemplate, (string)$normalized ) );
+		}
+		return $normalized;
+	}
+
 	public function build( ?string $meterChannel = null ) :array {
 		$this->meterChannel = $meterChannel;
 		return \array_merge(

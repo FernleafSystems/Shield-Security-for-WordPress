@@ -33,7 +33,7 @@ class MeterCardChannelTest extends BaseUnitTest {
 	public function test_meter_channel_config_uses_config_channel_data() :void {
 		$action = new MeterCard( [
 			'meter_slug'    => MeterSummary::SLUG,
-			'meter_channel' => ComponentBase::CHANNEL_CONFIG,
+			'meter_channel' => '  ConFig ',
 		] );
 		$meterData = $this->invokeGetMeterData( $action );
 
@@ -48,6 +48,14 @@ class MeterCardChannelTest extends BaseUnitTest {
 		$meterData = $this->invokeGetMeterData( $action );
 
 		$this->assertSame( 27, (int)$meterData[ 'totals' ][ 'percentage' ] );
+	}
+
+	public function test_invalid_meter_channel_surfaces_strict_handler_rejection() :void {
+		$this->expectException( \InvalidArgumentException::class );
+		$this->invokeGetMeterData( new MeterCard( [
+			'meter_slug'    => MeterSummary::SLUG,
+			'meter_channel' => 'invalid-channel',
+		] ) );
 	}
 
 	private function invokeGetMeterData( MeterCard $action ) :array {

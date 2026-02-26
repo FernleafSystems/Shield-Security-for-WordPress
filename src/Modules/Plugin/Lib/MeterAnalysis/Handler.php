@@ -87,18 +87,9 @@ class Handler {
 	}
 
 	private function normalizeChannel( ?string $channel ) :?string {
-		$channel = \strtolower( \trim( (string)$channel ) );
-		if ( empty( $channel ) ) {
-			return null;
-		}
-
-		if ( \in_array( $channel, [
-			Component\Base::CHANNEL_CONFIG,
-			Component\Base::CHANNEL_ACTION
-		], true ) ) {
-			return $channel;
-		}
-
-		throw new \InvalidArgumentException( sprintf( 'Invalid channel requested for meter retrieval: %s', $channel ) );
+		return Component\Base::assertValidChannel(
+			$channel,
+			'Invalid channel requested for meter retrieval: %s'
+		);
 	}
 }

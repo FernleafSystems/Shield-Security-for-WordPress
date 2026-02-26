@@ -33,7 +33,7 @@ class MeterAnalysisChannelTest extends BaseUnitTest {
 	public function test_offcanvas_analysis_uses_supplied_meter_channel() :void {
 		$action = new MeterAnalysis( [
 			'meter'         => MeterSummary::SLUG,
-			'meter_channel' => ComponentBase::CHANNEL_CONFIG,
+			'meter_channel' => '  ConFig ',
 		] );
 
 		$ref = new \ReflectionMethod( $action, 'getMeterComponents' );
@@ -41,6 +41,18 @@ class MeterAnalysisChannelTest extends BaseUnitTest {
 		$components = $ref->invoke( $action );
 
 		$this->assertSame( 88, (int)$components[ 'totals' ][ 'percentage' ] );
+	}
+
+	public function test_invalid_meter_channel_surfaces_strict_handler_rejection() :void {
+		$action = new MeterAnalysis( [
+			'meter'         => MeterSummary::SLUG,
+			'meter_channel' => 'invalid-channel',
+		] );
+		$ref = new \ReflectionMethod( $action, 'getMeterComponents' );
+		$ref->setAccessible( true );
+
+		$this->expectException( \InvalidArgumentException::class );
+		$ref->invoke( $action );
 	}
 
 	private function meterFixture( int $percentage ) :array {

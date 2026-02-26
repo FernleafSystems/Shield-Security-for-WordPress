@@ -43,10 +43,7 @@ class ProgressMeters extends BaseRender {
 	}
 
 	private function normalizeMeterChannel( string $channel ) :string {
-		$channel = \strtolower( \trim( $channel ) );
-		return \in_array( $channel, [
-			MeterComponent::CHANNEL_CONFIG,
-			MeterComponent::CHANNEL_ACTION
-		], true ) ? $channel : '';
+		$normalized = MeterComponent::normalizeChannel( $channel );
+		return MeterComponent::isValidChannel( $normalized ) ? (string)$normalized : '';
 	}
 }

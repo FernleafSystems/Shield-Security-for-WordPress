@@ -76,4 +76,23 @@ class AttentionItemsProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'score_generic', (string)( $item[ 'key' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $item[ 'severity' ] ?? '' ) );
 	}
+
+	public function test_build_action_summary_reports_warning_for_maintenance_item() :void {
+		$this->setOverallConfigMeterComponents( [
+			[
+				'slug'              => 'wp_updates',
+				'is_protected'      => false,
+				'title'             => 'WordPress Version',
+				'title_unprotected' => 'WordPress Version',
+				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
+				'href_full'         => self::con()->plugin_urls->adminHome(),
+				'fix'               => 'Fix',
+			],
+		] );
+
+		$summary = ( new AttentionItemsProvider() )->buildActionSummary();
+		$this->assertGreaterThanOrEqual( 1, (int)( $summary[ 'total' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $summary[ 'severity' ] ?? '' ) );
+		$this->assertFalse( (bool)( $summary[ 'is_all_clear' ] ?? true ) );
+	}
 }

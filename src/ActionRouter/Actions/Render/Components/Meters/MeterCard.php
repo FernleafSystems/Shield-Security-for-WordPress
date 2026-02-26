@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
+	Component\Base as MeterComponent,
 	Handler
 };
 
@@ -57,8 +58,7 @@ class MeterCard extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Ac
 	}
 
 	protected function getMeterChannel() :?string {
-		$meterChannel = \strtolower( \trim( (string)( $this->action_data[ 'meter_channel' ] ?? '' ) ) );
-		return empty( $meterChannel ) ? null : $meterChannel;
+		return MeterComponent::normalizeChannel( (string)( $this->action_data[ 'meter_channel' ] ?? '' ) );
 	}
 
 	protected function getRenderTemplate() :string {

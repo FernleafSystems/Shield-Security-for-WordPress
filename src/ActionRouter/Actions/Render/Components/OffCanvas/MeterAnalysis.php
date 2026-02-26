@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\Analysis;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponent;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
 
 class MeterAnalysis extends OffCanvasBase {
@@ -30,7 +31,6 @@ class MeterAnalysis extends OffCanvasBase {
 	}
 
 	private function getMeterChannel() :?string {
-		$meterChannel = \strtolower( \trim( (string)( $this->action_data[ 'meter_channel' ] ?? '' ) ) );
-		return empty( $meterChannel ) ? null : $meterChannel;
+		return MeterComponent::normalizeChannel( (string)( $this->action_data[ 'meter_channel' ] ?? '' ) );
 	}
 }

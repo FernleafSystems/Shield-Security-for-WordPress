@@ -20,6 +20,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	public const SLUG = 'render_dashboard_widget';
 	public const TEMPLATE = '/admin/admin_dashboard_widget_v2.twig';
 	private const VARS_CACHE_KEY = 'dashboard-widget-v3-vars';
+	private const LEGACY_VARS_CACHE_KEY = 'dashboard-widget-v2-vars';
 
 	protected function getRenderData() :array {
 		$con = self::con();
@@ -59,9 +60,12 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	private function getVars( bool $refresh ) :array {
 		$con = self::con();
 		$provider = new AttentionItemsProvider();
-		$cacheKey = $con->prefix( self::VARS_CACHE_KEY );
-		$vars = Transient::Get( $cacheKey );
+		$cacheKeyV3 = $con->prefix( self::VARS_CACHE_KEY );
+		$cacheKeyV2 = $con->prefix( self::LEGACY_VARS_CACHE_KEY );
+		$vars = Transient::Get( $cacheKeyV3 );
 		if ( $refresh || empty( $vars ) ) {
+			Transient::Delete( $cacheKeyV2 );
+
 			$configProgress = ( new Handler() )->getMeter(
 				MeterSummary::SLUG,
 				false,
@@ -70,9 +74,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 			$configTraffic = BuildMeter::trafficFromPercentage(
 				(int)( $configProgress[ 'totals' ][ 'percentage' ] ?? 0 )
 			);
-			$actionItems = $provider->buildActionItems();
-			$actionTotal = \count( $actionItems );
-			$actionTraffic = $this->resolveActionTraffic( $actionItems );
+			$actionSummary = $provider->buildActionSummary();
 
 			$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
 
@@ -80,27 +82,18 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'generated_at'    => Services::Request()->ts(),
 				'config_progress' => $configProgress,
 				'config_traffic'  => $configTraffic,
-				'action_total'    => $actionTotal,
-				'action_traffic'  => $actionTraffic,
-				'is_all_clear'    => $actionTotal === 0,
+				'action_total'    => (int)( $actionSummary[ 'total' ] ?? 0 ),
+				'action_traffic'  => (string)( $actionSummary[ 'severity' ] ?? 'good' ),
+				'is_all_clear'    => (bool)( $actionSummary[ 'is_all_clear' ] ?? false ),
 				'last_scan_human' => $latestScanAt > 0
 					? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 					: '',
 			];
-			Transient::Set( $cacheKey, $vars, 30 );
+			Transient::Set( $cacheKeyV3, $vars, 30 );
 		}
 
 		return $vars;
 	}
-
-	/**
-	 * @param array<int, array<string, mixed>> $actionItems
-	 */
-	private function resolveActionTraffic( array $actionItems ) :string {
-		$severity = \strtolower( \trim( (string)( $actionItems[ 0 ][ 'severity' ] ?? 'good' ) ) );
-		return \in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ? $severity : 'warning';
-	}
-
 	private function isRefreshRequested() :bool {
 		return \filter_var( $this->action_data[ 'refresh' ] ?? false, \FILTER_VALIDATE_BOOLEAN );
 	}

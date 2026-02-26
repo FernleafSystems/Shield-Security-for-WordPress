@@ -44,6 +44,22 @@ class HandlerChannelCacheTest extends BaseUnitTest {
 		$this->assertSame( 12, (int)$action[ 'totals' ][ 'percentage' ] );
 	}
 
+	public function test_invalid_channel_throws_invalid_argument_exception() :void {
+		$this->expectException( \InvalidArgumentException::class );
+		( new Handler() )->getMeter( MeterSummary::SLUG, false, 'invalid-channel' );
+	}
+
+	public function test_channel_with_case_and_whitespace_is_normalized() :void {
+		$this->setChannelCache( [
+			MeterSummary::SLUG => [
+				ComponentBase::CHANNEL_CONFIG => $this->meterFixture( 83 ),
+			],
+		] );
+
+		$meter = ( new Handler() )->getMeter( MeterSummary::SLUG, false, '  ConFig  ' );
+		$this->assertSame( 83, (int)( $meter[ 'totals' ][ 'percentage' ] ?? 0 ) );
+	}
+
 	private function meterFixture( int $percentage ) :array {
 		return [
 			'title'       => 'Summary',
@@ -77,4 +93,3 @@ class HandlerChannelCacheTest extends BaseUnitTest {
 		$prop->setValue( null, $cache );
 	}
 }
-

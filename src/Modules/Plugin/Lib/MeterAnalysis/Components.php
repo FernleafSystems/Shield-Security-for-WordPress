@@ -111,6 +111,6 @@ class Components {
 	}
 
 	private function channelCacheKey( ?string $channel ) :string {
-		return empty( $channel ) ? 'combined' : \strtolower( \trim( $channel ) );
+		return Component\Base::normalizeChannel( $channel ) ?? 'combined';
 	}
 }

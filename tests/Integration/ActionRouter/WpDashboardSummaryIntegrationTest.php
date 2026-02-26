@@ -23,6 +23,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 	use BuiltMetersFixture;
 
 	private const WIDGET_CACHE_KEY = 'dashboard-widget-v3-vars';
+	private const LEGACY_WIDGET_CACHE_KEY = 'dashboard-widget-v2-vars';
 
 	private int $adminUserId;
 
@@ -48,6 +49,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			->store();
 
 		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
+		Transient::Delete( self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY ) );
 		$this->resetBuiltMetersCache();
 		$this->setOverallConfigMeterComponents( [] );
 	}
@@ -55,6 +57,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 	public function tear_down() {
 		$this->resetBuiltMetersCache();
 		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
+		Transient::Delete( self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY ) );
 		parent::tear_down();
 	}
 
@@ -218,5 +221,19 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$refreshed = $this->renderSummary( 'true' )->payload()[ 'render_data' ][ 'vars' ] ?? [];
 		$this->assertSame( 45, (int)( $refreshed[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+	}
+
+	public function test_legacy_v2_transient_is_removed_during_v3_regeneration() :void {
+		$this->setSummaryMeters( 95, 95 );
+
+		$legacyKey = self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY );
+		$v3Key = self::con()->prefix( self::WIDGET_CACHE_KEY );
+
+		Transient::Set( $legacyKey, [ 'legacy' => true ], 30 );
+		Transient::Delete( $v3Key );
+		$this->assertNotEmpty( Transient::Get( $legacyKey ) );
+
+		$this->renderSummary( false );
+		$this->assertEmpty( Transient::Get( $legacyKey ) );
 	}
 }

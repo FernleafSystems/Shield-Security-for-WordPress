@@ -29,7 +29,7 @@ abstract class MeterBase {
 	public function buildComponents( ?string $channel = null ) :array {
 		$con = self::con();
 		$prefs = $con->opts->optGet( 'sec_overview_prefs' );
-		$channel = empty( $channel ) ? null : \strtolower( \trim( $channel ) );
+		$channel = Component\Base::normalizeChannel( $channel );
 
 		$viewAs = $prefs[ 'view_as' ] ?? '';
 		if ( !\in_array( $viewAs, [ 'free', 'starter', 'business' ], true ) ) {
