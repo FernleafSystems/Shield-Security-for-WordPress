@@ -78,7 +78,7 @@ echo "MySQL is ready!"
 echo "Installing WordPress test environment..."
 if [ -f "bin/install-wp-tests.sh" ]; then
     # Pass 'true' as SKIP_DB_CREATE parameter (6th arg) since database is pre-created by Docker
-    bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION" true
+    bash bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION" true
 else
     echo "Error: bin/install-wp-tests.sh not found"
     exit 1
