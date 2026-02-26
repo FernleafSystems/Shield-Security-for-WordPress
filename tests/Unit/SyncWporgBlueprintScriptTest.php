@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -14,6 +15,7 @@ class SyncWporgBlueprintScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
 	use TempDirLifecycleTrait;
+	use ScriptCommandTestTrait;
 
 	protected function tearDown() :void {
 		$this->cleanupTrackedTempDirs();
@@ -21,23 +23,12 @@ class SyncWporgBlueprintScriptTest extends BaseUnitTest {
 	}
 
 	public function testSyncScriptHasValidSyntax() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
-		$scriptPath = $this->getPluginFilePath( 'bin/sync-wporg-blueprint.php' );
-		$output = [];
-		$returnCode = 0;
-		\exec( 'php -l '.\escapeshellarg( $scriptPath ).' 2>&1', $output, $returnCode );
-
-		$this->assertSame( 0, $returnCode, 'bin/sync-wporg-blueprint.php should have valid PHP syntax: '.\implode( "\n", $output ) );
+		$this->skipIfPackageScriptUnavailable();
+		$this->assertPhpScriptSyntaxValid( 'bin/sync-wporg-blueprint.php' );
 	}
 
 	public function testSyncScriptHelpShowsUsageAndCliOptions() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
+		$this->skipIfPackageScriptUnavailable();
 		$process = $this->runSyncScript( [ '--help' ] );
 
 		$this->assertSame( 0, $process->getExitCode() ?? 1 );
@@ -49,10 +40,7 @@ class SyncWporgBlueprintScriptTest extends BaseUnitTest {
 	}
 
 	public function testSyncScriptRequiresSvnRoot() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
+		$this->skipIfPackageScriptUnavailable();
 		$process = $this->runSyncScript( [] );
 
 		$this->assertSame( 1, $process->getExitCode() ?? 1 );
@@ -63,10 +51,7 @@ class SyncWporgBlueprintScriptTest extends BaseUnitTest {
 	}
 
 	public function testCheckOnlyModeReturnsExitTwoWhenDestinationMissing() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
+		$this->skipIfPackageScriptUnavailable();
 		$svnRoot = $this->createTrackedTempDir( 'shield-sync-svn-root-' );
 		\mkdir( Path::join( $svnRoot, 'trunk' ), 0777, true );
 		\mkdir( Path::join( $svnRoot, 'tags' ), 0777, true );

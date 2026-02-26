@@ -6,6 +6,7 @@ use Brain\Monkey;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Fixtures\TestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Process\Process;
 
 /**
  * Unit tests for the main Controller class
@@ -50,14 +51,8 @@ class ControllerTest extends TestCase {
 		$version = $pluginConfig['properties']['version'] ?? '0.0.0';
 		Monkey\Functions\when( 'get_file_data' )->justReturn( [ $version ] );
 
-		try {
-			$controller = Controller::GetInstance( $pluginFile );
-			$this->assertInstanceOf( Controller::class, $controller );
-		}
-		catch ( \Exception $e ) {
-			// If it fails due to missing dependencies that's expected in unit test environment
-			$this->assertStringContainsString( 'plugin', strtolower( $e->getMessage() ) );
-		}
+		$controller = Controller::GetInstance( $pluginFile );
+		$this->assertInstanceOf( Controller::class, $controller );
 	}
 
 	public function testControllerIsSingleton() :void {
@@ -74,30 +69,31 @@ class ControllerTest extends TestCase {
 		$version = $pluginConfig['properties']['version'] ?? '0.0.0';
 		Monkey\Functions\when( 'get_file_data' )->justReturn( [ $version ] );
 
-		try {
-			$controller1 = Controller::GetInstance( $pluginFile );
-			$controller2 = Controller::GetInstance( $pluginFile );
-			
-			$this->assertSame( $controller1, $controller2, 'Controller should be a singleton' );
-		}
-		catch ( \Exception $e ) {
-			// Expected in unit test environment due to missing config
-			$this->addToAssertionCount( 1 );
-		}
+		$controller1 = Controller::GetInstance( $pluginFile );
+		$controller2 = Controller::GetInstance( $pluginFile );
+		$this->assertSame( $controller1, $controller2, 'Controller should be a singleton' );
 	}
 
 	public function testControllerRequiresValidPluginFile() :void {
-		// Test that controller requires a valid plugin file
-		// In the actual implementation, it may not throw InvalidArgumentException
-		// but rather handle the error gracefully, so let's test for that
-		try {
-			Controller::GetInstance( '/non/existent/plugin.php' );
-			$this->fail( 'Controller should not accept non-existent plugin file' );
-		}
-		catch ( \Exception $e ) {
-			// Any exception is acceptable for this test
-			$this->addToAssertionCount( 1 );
-		}
+		$command = [
+			\PHP_BINARY,
+			'-r',
+			'require getcwd()."/vendor/autoload.php";'.
+			'if (!function_exists("__")) { function __($v) { return $v; } }'.
+			'try {'.
+			'\\FernleafSystems\\Wordpress\\Plugin\\Shield\\Controller\\Controller::GetInstance(null);'.
+			'echo "unexpected-success";'.
+			'exit(1);'.
+			'} catch (\\Exception $e) {'.
+			'echo $e->getMessage();'.
+			'exit(0);'.
+			'}',
+		];
+		$process = new Process( $command, $this->getPluginRoot() );
+		$process->run();
+
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $process->getOutput().$process->getErrorOutput() );
+		$this->assertStringContainsString( 'Empty root file provided for instantiation', $process->getOutput() );
 	}
 
 	public function testControllerClassConstants() :void {
@@ -127,4 +123,5 @@ class ControllerTest extends TestCase {
 			);
 		}
 	}
+
 }

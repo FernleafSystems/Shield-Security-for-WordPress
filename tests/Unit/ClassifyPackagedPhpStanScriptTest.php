@@ -3,27 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
-use Symfony\Component\Process\Process;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 
 class ClassifyPackagedPhpStanScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
+	use ScriptCommandTestTrait;
 
 	public function testClassifierScriptHasValidSyntax() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
-		$scriptPath = $this->getPluginFilePath( 'bin/classify-packaged-phpstan.php' );
-		$output = [];
-		$returnCode = 0;
-		\exec( 'php -l '.\escapeshellarg( $scriptPath ).' 2>&1', $output, $returnCode );
-
-		$this->assertSame(
-			0,
-			$returnCode,
-			'bin/classify-packaged-phpstan.php should have valid PHP syntax: '.\implode( "\n", $output )
-		);
+		$this->skipIfPackageScriptUnavailable();
+		$this->assertPhpScriptSyntaxValid( 'bin/classify-packaged-phpstan.php' );
 	}
 
 	public function testFindingsOnlyResultReturnsSuccess() :void {
@@ -82,25 +71,20 @@ class ClassifyPackagedPhpStanScriptTest extends BaseUnitTest {
 	 * @return array{exit_code:int,output:string}
 	 */
 	private function runClassifierScript( string $content, int $phpstanExitCode ) :array {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
+		$this->skipIfPackageScriptUnavailable();
 
 		$tempFile = \tempnam( \sys_get_temp_dir(), 'shield-phpstan-' );
 		$this->assertNotFalse( $tempFile );
 		\file_put_contents( $tempFile, $content );
 
 		try {
-			$process = new Process(
+			$process = $this->runPhpScript(
+				'bin/classify-packaged-phpstan.php',
 				[
-					\PHP_BINARY,
-					$this->getPluginFilePath( 'bin/classify-packaged-phpstan.php' ),
 					$tempFile,
 					(string)$phpstanExitCode,
-				],
-				$this->getPluginRoot()
+				]
 			);
-			$process->run();
 
 			return [
 				'exit_code' => $process->getExitCode() ?? 1,

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
-use Symfony\Component\Process\Process;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 
 /**
  * Safety checks for local Playground helper script and composer wiring.
@@ -11,34 +11,16 @@ use Symfony\Component\Process\Process;
 class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
+	use ScriptCommandTestTrait;
 
 	public function testRunPlaygroundScriptHasValidSyntax() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
-		$scriptPath = $this->getPluginFilePath( 'bin/run-playground-local.php' );
-		$output = [];
-		$returnCode = 0;
-		\exec( 'php -l '.\escapeshellarg( $scriptPath ).' 2>&1', $output, $returnCode );
-
-		$this->assertSame(
-			0,
-			$returnCode,
-			'bin/run-playground-local.php should have valid PHP syntax: '.\implode( "\n", $output )
-		);
+		$this->skipIfPackageScriptUnavailable();
+		$this->assertPhpScriptSyntaxValid( 'bin/run-playground-local.php' );
 	}
 
 	public function testRunPlaygroundScriptHelpShowsExpectedCliSurface() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
-		$process = new Process(
-			[ \PHP_BINARY, $this->getPluginFilePath( 'bin/run-playground-local.php' ), '--help' ],
-			$this->getPluginRoot()
-		);
-		$process->run();
+		$this->skipIfPackageScriptUnavailable();
+		$process = $this->runPhpScript( 'bin/run-playground-local.php', [ '--help' ] );
 
 		$this->assertSame( 0, $process->getExitCode() ?? 1 );
 		$output = $process->getOutput().$process->getErrorOutput();
@@ -67,18 +49,15 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 	}
 
 	public function testRunPlaygroundCheckFailsFastForMissingPluginRoot() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-
-		$scriptPath = $this->getPluginFilePath( 'bin/run-playground-local.php' );
+		$this->skipIfPackageScriptUnavailable();
 		$missingPluginRoot = sys_get_temp_dir().DIRECTORY_SEPARATOR.'shield-playground-missing-'.bin2hex( random_bytes( 4 ) );
 		$this->assertDirectoryDoesNotExist( $missingPluginRoot );
 
 		$output = [];
 		$returnCode = 0;
 		\exec(
-			'php '.\escapeshellarg( $scriptPath ).' --run-blueprint --plugin-root='.escapeshellarg( $missingPluginRoot ).' 2>&1',
+			'php '.\escapeshellarg( $this->getPluginFilePath( 'bin/run-playground-local.php' ) )
+			.' --run-blueprint --plugin-root='.escapeshellarg( $missingPluginRoot ).' 2>&1',
 			$output,
 			$returnCode
 		);

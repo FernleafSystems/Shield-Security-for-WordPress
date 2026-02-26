@@ -9,28 +9,34 @@ For canonical testing commands, CI role split, and overall testing guidance, see
 1. `TESTING.md` owns canonical testing commands and workflow policy.
 2. `tests/docker/README.md` owns Docker runner behavior, environment variables, and troubleshooting.
 
-## Entry Point
+## Primary Entry Point
+
+```bash
+php bin/shield <command>
+```
+
+Compatibility entrypoints remain:
 
 ```bash
 ./bin/run-docker-tests.sh
+php bin/run-docker-tests.php
+php bin/run-static-analysis.php
 ```
-
-The shell script is a thin delegator to `bin/run-docker-tests.php`.
 
 ## Modes
 
 | Mode | Behavior | Typical Use |
 |---|---|---|
-| `(default)` | Source runtime checks against working tree | Daily local CI-like runtime checks |
-| `--source` | Source runtime checks against working tree | Explicit source-mode invocation |
-| `--package-targeted` | Build package and run packaged runtime checks | Package-targeted runtime validation |
-| `--package-full` | Build package and run full packaged pathway | Full-pathway package runtime mode |
-| `--analyze-source` | Run source static analysis pathway | Source static analysis from runner |
-| `--analyze-package` | Build package and run packaged static analysis | Packaged static analysis |
+| `test:source` | Source runtime checks against working tree | Daily local CI-like runtime checks |
+| `test:package-targeted` | Focused package validation checks | Package-targeted validation |
+| `test:package-full` | Full packaged runtime checks | Full-pathway package runtime mode |
+| `analyze:source` | Run source static analysis pathway | Source static analysis |
+| `analyze:package` | Run packaged static analysis pathway | Packaged static analysis |
 
 Show live help at any time:
 
 ```bash
+php bin/shield --help
 php bin/run-docker-tests.php --help
 ```
 
@@ -42,7 +48,7 @@ php bin/run-docker-tests.php --help
 | `PHPUNIT_DEBUG` | auto-resolved | Force PHPUnit debug on/off (`1` or `0`) |
 | `SHIELD_TEST_VERBOSE` | `0` | Canonical verbose flag; enables debug behavior |
 | `SHIELD_DEBUG` / `SHIELD_DEBUG_PATHS` | unset | Legacy verbose aliases |
-| `DEBUG_MODE` | `false` | Extra bash/process monitoring in packaged legacy path |
+| `DEBUG_MODE` | `false` | Optional extra bash/process monitoring for custom local debug runs |
 
 `PHPUNIT_DEBUG` resolution in `bin/run-tests-docker.sh`:
 
@@ -60,41 +66,41 @@ Source mode (`default` / `--source`):
 2. Runs one setup pass before runtime streams.
 3. Runs latest and previous WordPress streams with `SHIELD_SKIP_INNER_SETUP=1`.
 
-Packaged modes (`--package-targeted`, `--package-full`, `--analyze-package`):
+Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`):
 
-1. Routed through `bin/run-docker-tests.legacy.sh` by `bin/run-docker-tests.php`.
-2. Used for packaged runtime/static analysis pathways.
-3. `--package-targeted` and `--package-full` are distinct lane selectors, but currently share the same packaged legacy implementation path.
+1. Resolved through `php bin/shield` lane services.
+2. Package path resolution supports explicit `--package-path` or deterministic temp package build.
+3. Compatibility adapters map legacy flags to these commands.
 
 ## Static Analysis Entrypoints
 
 Use the direct static-analysis runner when Docker routing is not required:
 
 ```bash
-php bin/run-static-analysis.php --source
-php bin/run-static-analysis.php --package
+php bin/shield analyze:source
+php bin/shield analyze:package
 ```
 
 ## Quick Examples
 
 ```bash
 # Source runtime checks (default)
-./bin/run-docker-tests.sh
+php bin/shield test:source
 
-# Explicit source runtime checks
+# Compatibility explicit source runtime checks
 ./bin/run-docker-tests.sh --source
 
 # Package-targeted runtime checks
-./bin/run-docker-tests.sh --package-targeted
+php bin/shield test:package-targeted
 
 # Full-pathway packaged runtime mode
-./bin/run-docker-tests.sh --package-full
+php bin/shield test:package-full
 
-# Source static analysis via Docker runner command surface
-./bin/run-docker-tests.sh --analyze-source
+# Source static analysis
+php bin/shield analyze:source
 
 # Packaged static analysis
-./bin/run-docker-tests.sh --analyze-package
+php bin/shield analyze:package
 ```
 
 ## Troubleshooting

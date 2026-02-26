@@ -44,7 +44,7 @@ jobs:
       run: composer build:config
 
     - name: Run source static analysis
-      run: composer analyze:source
+      run: php bin/shield analyze:source
 
   source-docker-runtime:
     name: 'Source Docker Runtime'
@@ -101,7 +101,7 @@ jobs:
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
     - name: Run source docker runtime checks
-      run: bash ./bin/run-docker-tests.sh --source
+      run: php bin/shield test:source
 
   build-package:
     name: 'Build Package'
@@ -150,20 +150,8 @@ jobs:
         test -d "$PACKAGE_DIR/vendor_prefixed"
         echo "Downloaded package validation passed"
 
-    - name: Run package-targeted unit validation
+    - name: Run package-targeted validation
       env:
         SHIELD_PACKAGE_PATH: ${{ github.workspace }}/shield-package
       run: |
-        php ./vendor/phpunit/phpunit/phpunit \
-          --no-configuration --no-coverage --fail-on-skipped \
-          tests/Unit/PluginPackageValidationTest.php
-
-    - name: Run package-targeted Strauss integration validation
-      env:
-        SHIELD_PACKAGE_PATH: ${{ github.workspace }}/shield-package
-        SHIELD_STRAUSS_VERSION: ${{ env.SHIELD_STRAUSS_VERSION }}
-      run: |
-        php ./vendor/phpunit/phpunit/phpunit \
-          --no-configuration --no-coverage --fail-on-skipped \
-          --group package-targeted \
-          tests/Integration/Infrastructure/PluginPackagerStraussTest.php
+        php bin/shield test:package-targeted --package-path="${{ github.workspace }}/shield-package"

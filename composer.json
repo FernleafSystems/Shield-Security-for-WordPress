@@ -49,6 +49,7 @@
     "wp-coding-standards/wpcs":             "^3.0",
     "phpcompatibility/phpcompatibility-wp": "^2.1",
     "symfony/filesystem":                   "^5.4|^6.0|^7.0",
+    "symfony/console":                      "^5.4|^6.0|^7.0",
     "symfony/process":                      "^5.4|^6.0|^7.0",
     "szepeviktor/phpstan-wordpress":       "^2.0",
     "php-stubs/wp-cli-stubs":              "^2.12"
@@ -99,12 +100,24 @@
       "@test:integration"
     ],
     "test:easy":        "@test:unit",
+    "test:source":      [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:source"
+    ],
+    "test:package-targeted": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:package-targeted"
+    ],
+    "test:package-full": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:package-full"
+    ],
     "analyze":          "@analyze:source",
     "analyze:package":  [
       "Composer\\Config::disableProcessTimeout",
-      "@php bin/run-static-analysis.php --package"
+      "@php bin/shield analyze:package"
     ],
-    "analyze:source":   "@php bin/run-static-analysis.php --source",
+    "analyze:source":   "@php bin/shield analyze:source",
     "phpcs":            "phpcs",
     "phpcs:fix":        "phpcbf",
     "package-plugin":   [

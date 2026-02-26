@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 
 /**
  * Tests for the build-zip.php script configuration.
@@ -14,20 +15,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 class BuildZipScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
+	use ScriptCommandTestTrait;
 
 	/**
 	 * Verify the script has valid PHP syntax.
 	 * Catches syntax errors before they reach CI/production.
 	 */
 	public function testBuildZipScriptHasValidSyntax() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'bin/ directory is excluded from packages (development-only)' );
-		}
-		$scriptPath = $this->getPluginFilePath( 'bin/build-zip.php' );
-		$output = [];
-		$returnCode = 0;
-		\exec( 'php -l '.\escapeshellarg( $scriptPath ).' 2>&1', $output, $returnCode );
-		$this->assertSame( 0, $returnCode, 'bin/build-zip.php should have valid PHP syntax: '.\implode( "\n", $output ) );
+		$this->skipIfPackageScriptUnavailable();
+		$this->assertPhpScriptSyntaxValid( 'bin/build-zip.php' );
 	}
 
 	/**

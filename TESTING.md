@@ -17,30 +17,38 @@ For Docker-runner internals and environment variables, see [tests/docker/README.
 | Full local test suite | `composer test` | Runs unit and integration suites |
 | Unit tests only | `composer test:unit` | Includes config generation |
 | Integration tests only | `composer test:integration` | Includes config generation |
-| Source runtime (default) | `./bin/run-docker-tests.sh` | Source-first working-tree Docker checks |
-| Source runtime (explicit) | `./bin/run-docker-tests.sh --source` | Same behavior as default mode |
-| Package-targeted runtime | `./bin/run-docker-tests.sh --package-targeted` | Packaged runtime checks |
-| Package-full runtime | `./bin/run-docker-tests.sh --package-full` | Build package and run full packaged pathway |
-| Source static analysis | `composer analyze` | Default maps to `analyze:source` |
-| Source static analysis (explicit) | `composer analyze:source` | Runs `php bin/run-static-analysis.php --source` |
-| Packaged static analysis | `composer analyze:package` | Runs `php bin/run-static-analysis.php --package` |
+| Source runtime (canonical) | `php bin/shield test:source` | Source-first working-tree Docker checks |
+| Package-targeted runtime (canonical) | `php bin/shield test:package-targeted` | Focused package validation lane |
+| Package-full runtime (canonical) | `php bin/shield test:package-full` | Full packaged Docker runtime lane |
+| Source static analysis (canonical) | `php bin/shield analyze:source` | Build config + PHPStan on source |
+| Packaged static analysis (canonical) | `php bin/shield analyze:package` | Packaged PHPStan via Docker |
+| Source runtime (compat) | `./bin/run-docker-tests.sh --source` | Backwards-compatible adapter |
+| Source static analysis (compat) | `php bin/run-static-analysis.php --source` | Backwards-compatible adapter |
+| Source static analysis (composer) | `composer analyze` | Default maps to `analyze:source` |
+| Packaged static analysis (composer) | `composer analyze:package` | Runs `php bin/shield analyze:package` |
 
 ## Docker Runner Modes
 
-`./bin/run-docker-tests.sh` supports these modes:
+Primary CLI supports these commands:
+
+| Command | Behavior |
+|---|---|
+| `php bin/shield test:source` | Source runtime checks against working tree |
+| `php bin/shield test:package-targeted` | Focused package validation checks |
+| `php bin/shield test:package-full` | Full packaged runtime checks |
+| `php bin/shield analyze:source` | Source static analysis pathway |
+| `php bin/shield analyze:package` | Packaged static analysis pathway |
+
+Compatibility adapter `./bin/run-docker-tests.sh` supports these modes:
 
 | Mode | Behavior |
 |---|---|
 | `(default)` | Source runtime checks against working tree |
 | `--source` | Source runtime checks against working tree |
-| `--package-targeted` | Build package and run packaged runtime checks |
-| `--package-full` | Build package and run full packaged pathway |
-| `--analyze-source` | Run source static analysis pathway |
-| `--analyze-package` | Build package and run packaged static analysis |
-
-Package lane note:
-1. `--package-targeted` and `--package-full` are explicit lane selectors.
-2. Both currently route through the packaged legacy runner implementation.
+| `--package-targeted` | Focused package validation checks |
+| `--package-full` | Full packaged runtime checks |
+| `--analyze-source` | Source static analysis pathway |
+| `--analyze-package` | Packaged static analysis pathway |
 
 Source defaults are intentional:
 
@@ -49,10 +57,15 @@ Source defaults are intentional:
 
 ## Static Analysis Entrypoints
 
-`php bin/run-static-analysis.php`:
+`php bin/shield`:
 
-1. Default or `--source`: source static analysis (`build-config` + PHPStan).
-2. `--package`: packaged static analysis via `./bin/run-docker-tests.sh --analyze-package`.
+1. `analyze:source`: source static analysis (`build-config` + PHPStan).
+2. `analyze:package`: packaged static analysis via Docker.
+
+Compatibility adapter `php bin/run-static-analysis.php`:
+
+1. Default or `--source`: maps to `php bin/shield analyze:source`.
+2. `--package`: maps to `php bin/shield analyze:package`.
 
 Composer mapping:
 
@@ -87,6 +100,7 @@ For `.github/workflows/docker-tests.yml`:
 Use these to verify command surface and docs alignment:
 
 ```bash
+php bin/shield --help
 php bin/run-docker-tests.php --help
 php bin/run-static-analysis.php --help
 composer run-script --list
