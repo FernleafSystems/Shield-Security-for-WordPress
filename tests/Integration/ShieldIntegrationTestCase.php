@@ -288,9 +288,29 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		return \strlen( $single_line ) > $limit ? \substr( $single_line, 0, $limit ).'...' : $single_line;
 	}
 
+	protected function htmlContainsMarker( string $marker, string $html ) :bool {
+		if ( \strpos( $html, $marker ) !== false ) {
+			return true;
+		}
+
+		$decodedHtml = $this->decodeHtmlEntities( $html );
+		if ( \strpos( $decodedHtml, $marker ) !== false ) {
+			return true;
+		}
+
+		$decodedMarker = $this->decodeHtmlEntities( $marker );
+		return $decodedMarker !== $marker
+			   && ( \strpos( $html, $decodedMarker ) !== false
+					|| \strpos( $decodedHtml, $decodedMarker ) !== false );
+	}
+
+	protected function decodeHtmlEntities( string $value ) :string {
+		return \html_entity_decode( $value, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' );
+	}
+
 	protected function assertHtmlContainsMarker( string $marker, string $html, string $label ) :void {
 		$this->assertTrue(
-			\strpos( $html, $marker ) !== false,
+			$this->htmlContainsMarker( $marker, $html ),
 			\sprintf(
 				'%s missing marker "%s" (html_len=%d, html_head="%s")',
 				$label,
@@ -303,7 +323,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
 	protected function assertHtmlNotContainsMarker( string $marker, string $html, string $label ) :void {
 		$this->assertTrue(
-			\strpos( $html, $marker ) === false,
+			!$this->htmlContainsMarker( $marker, $html ),
 			\sprintf(
 				'%s unexpectedly contains marker "%s" (html_len=%d, html_head="%s")',
 				$label,
