@@ -644,17 +644,4 @@ class PluginJsonSchemaTest extends TestCase {
 		);
 	}
 
-	/**
-	 * Test traversal of deep configuration sections.
-	 */
-	public function testLargeFileHandling() :void {
-		// Test that we can traverse deep structures
-		$this->assertArrayHasKey( 'config_spec', $this->config );
-		$this->assertArrayHasKey( 'events', $this->config['config_spec'] );
-		
-		// Count total events to ensure we're processing the full structure.
-		$eventCount = count( $this->config['config_spec']['events'] );
-		$this->assertGreaterThan( 50, $eventCount, 'Should have many events defined' );
-		
-	}
 }

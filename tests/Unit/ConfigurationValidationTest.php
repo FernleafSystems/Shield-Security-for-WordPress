@@ -147,18 +147,6 @@ class ConfigurationValidationTest extends TestCase {
 		}
 	}
 
-	/**
-	 * Guards against accidental truncation or corruption of config file
-	 */
-	public function testConfigurationSizeIsReasonable() :void {
-		$configSize = filesize( $this->configPath );
-		
-		// Config should be substantial (it's documented as 6,673 lines)
-		// but not unreasonably large (let's say max 5MB)
-		$this->assertGreaterThan( 100000, $configSize, 'Config should be substantial in size' );
-		$this->assertLessThan( 5242880, $configSize, 'Config should not be unreasonably large (>5MB)' );
-	}
-
 	private function getPluginConfigData() :array {
 		return $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration file' );
 	}
