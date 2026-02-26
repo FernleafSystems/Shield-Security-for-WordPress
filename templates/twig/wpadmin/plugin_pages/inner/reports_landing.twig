@@ -3,11 +3,13 @@
 {% block inner_page_body %}
 	<div class="card shield-card mb-3">
 		<div class="shield-card-accent status-info"></div>
-		<div class="card-body d-flex justify-content-end">
+		<div class="card-body d-flex justify-content-end gap-2 flex-wrap">
 			<a href="{{ hrefs.reports_list }}" class="btn btn-outline-primary">{{ strings.cta_reports_list }}</a>
+			<a href="{{ hrefs.reports_charts }}" class="btn btn-outline-primary">{{ strings.cta_reports_charts }}</a>
+			<a href="{{ hrefs.reports_settings }}" class="btn btn-outline-primary">{{ strings.cta_reports_settings }}</a>
 		</div>
 	</div>
 
 	{{ content.summary_charts|raw }}
-	{{ content.reports_view|raw }}
+	{{ content.recent_reports|raw }}
 {% endblock %}

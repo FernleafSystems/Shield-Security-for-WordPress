@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\{
 	ChartsSummary,
-	PageReportsView
+	ReportsTable
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
@@ -29,19 +29,25 @@ class PageReportsLanding extends PageModeLandingBase {
 		$con = self::con();
 		return [
 			'summary_charts' => $con->action_router->render( ChartsSummary::class ),
-			'reports_view'   => $con->action_router->render( PageReportsView::class ),
+			'recent_reports' => $con->action_router->render( ReportsTable::class, [
+				'reports_limit' => 5,
+			] ),
 		];
 	}
 
 	protected function getLandingHrefs() :array {
 		return [
-			'reports_list' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
+			'reports_list'     => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
+			'reports_charts'   => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CHARTS ),
+			'reports_settings' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS ),
 		];
 	}
 
 	protected function getLandingStrings() :array {
 		return [
-			'cta_reports_list' => __( 'Open Reports List', 'wp-simple-firewall' ),
+			'cta_reports_list'     => __( 'Open Reports List', 'wp-simple-firewall' ),
+			'cta_reports_charts'   => __( 'Open Charts & Trends', 'wp-simple-firewall' ),
+			'cta_reports_settings' => __( 'Open Alert Settings', 'wp-simple-firewall' ),
 		];
 	}
 }

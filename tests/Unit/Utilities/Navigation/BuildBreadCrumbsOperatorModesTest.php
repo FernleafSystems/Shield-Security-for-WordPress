@@ -89,6 +89,21 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertCount( 3, $crumbs );
 		$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity' ], \array_column( $crumbs, 'text' ) );
 	}
+
+	public function test_reports_non_landing_subnavs_keep_nav_home_crumb() :void {
+		$builder = new BuildBreadCrumbsForTest();
+
+		foreach ( [
+			PluginNavs::SUBNAV_REPORTS_LIST,
+			PluginNavs::SUBNAV_REPORTS_CHARTS,
+			PluginNavs::SUBNAV_REPORTS_SETTINGS,
+		] as $subNav ) {
+			$crumbs = $builder->parse( PluginNavs::NAV_REPORTS, $subNav );
+			$this->assertCount( 3, $crumbs );
+			$this->assertSame( [ 'Shield Security', 'Reports', 'Reports' ], \array_column( $crumbs, 'text' ) );
+			$this->assertSame( '/reports/overview', $crumbs[ 2 ][ 'href' ] ?? '' );
+		}
+	}
 }
 
 class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
@@ -133,6 +148,8 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'sub_navs' => [
 					PluginNavs::SUBNAV_REPORTS_OVERVIEW => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_REPORTS_LIST => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_REPORTS_CHARTS => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_REPORTS_SETTINGS => [ 'handler' => 'handler' ],
 				],
 			],
 		];

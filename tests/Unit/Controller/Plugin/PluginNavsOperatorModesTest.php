@@ -39,6 +39,11 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::MODE_REPORTS, PluginNavs::modeForNav( PluginNavs::NAV_REPORTS ) );
 	}
 
+	public function test_reports_subnav_constants_match_expected_contract() :void {
+		$this->assertSame( 'charts', PluginNavs::SUBNAV_REPORTS_CHARTS );
+		$this->assertSame( 'settings', PluginNavs::SUBNAV_REPORTS_SETTINGS );
+	}
+
 	public function test_default_entry_for_mode_returns_expected_nav_subnav_pairs() :void {
 		$actions = PluginNavs::defaultEntryForMode( PluginNavs::MODE_ACTIONS );
 		$this->assertSame( PluginNavs::NAV_SCANS, $actions[ 'nav' ] );
@@ -193,6 +198,14 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			PluginAdminPages\PageReports::class,
 			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_LIST ][ 'handler' ]
+		);
+		$this->assertSame(
+			PluginAdminPages\PageReports::class,
+			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_CHARTS ][ 'handler' ]
+		);
+		$this->assertSame(
+			PluginAdminPages\PageReports::class,
+			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_SETTINGS ][ 'handler' ]
 		);
 	}
 

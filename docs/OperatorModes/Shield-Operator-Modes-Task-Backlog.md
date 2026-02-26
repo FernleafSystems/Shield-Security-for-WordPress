@@ -1,6 +1,6 @@
 # Shield Operator Modes - Delivery Task Backlog (Validated + Runtime Reality Check)
 
-Date: 2026-02-22 (updated 2026-02-26 with P6-STAB/P6c-f closure and WP dashboard widget alignment completion)
+Date: 2026-02-22 (updated 2026-02-26 with P6-STAB/P6c-f closure, WP dashboard widget alignment completion, and Reports deepening delivery)
 Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`, `tests/`
 Source plan: `Shield-Operator-Modes-Plan.md`
 Prototype references:
@@ -205,7 +205,7 @@ These were delivered after P4 and before P5 cleanup:
 | P6d | [COMPLETE] Complete | Dedicated Investigate By Plugin page delivered with shared rail/panel architecture, file status/activity tables, and vulnerabilities panel. |
 | P6e | [COMPLETE] Complete | Theme and Core pages delivered; shared `BaseInvestigateAsset` implemented and consumed by plugin/theme pages; core overview + tables integrated. |
 | P6f | [COMPLETE] Complete | Cross-subject linking delivered for investigation context while preserving offcanvas IP behavior; canonical investigate URL helpers integrated. |
-| P7+ | [IN PROGRESS] Partially complete | WP dashboard widget alignment is complete; Configure/Reports deepening remains pending. |
+| P7+ | [IN PROGRESS] Partially complete | WP dashboard widget alignment and Reports deepening are complete; Configure deepening remains pending. |
 
 ## 7) P6-STAB Closure Record (Runtime Recovery)
 
@@ -327,6 +327,25 @@ Optimisation tasks:
 2. `WpDashboardSummary::getVars()` was decomposed by extracting payload construction into a dedicated method while preserving cache behavior and output contract.
 3. `AttentionItemsProvider::buildWidgetRows()` was retained for compatibility and marked deprecated via docblock only (no runtime deprecation signaling).
 4. Built-meter cache helper duplication across targeted unit tests was consolidated via shared helper reuse, including integration support composition.
+
+### 8.2) Reports Deepening Completion Record (2026-02-26)
+
+Scope delivered:
+1. Reports mode route contract expanded with `reports/charts` and `reports/settings` while keeping reports mode default entry and landing-route mapping unchanged.
+2. Reports sidebar now exposes three practical destinations: Security Reports, Charts & Trends, and Alert Settings.
+3. Reports page rendering now switches by subnav using existing components only:
+   - list: existing reports view/create flow,
+   - charts: existing `ChartsSummary`,
+   - settings: existing `OptionsFormFor` fed by `GetOptionsForZoneComponents([InstantAlerts, Reporting])`.
+4. Reports landing now renders chart summary plus a limited recent reports table and exposes direct CTAs to list/charts/settings.
+5. Landing/list create-report contract mismatch is removed by keeping create-report interactions on list only.
+6. Legacy dashboard chart twig templates were removed after reference validation confirmed no active runtime references.
+
+Validation evidence:
+1. Targeted report deepening unit tests were added/updated for nav hierarchy, breadcrumb behavior, sidebar items, reports page behavior, and reports landing behavior.
+2. Focused related unit suites passed for render/controller/nav domains.
+3. Full unit suite passed in workspace (`composer test:unit`), with only environment/package-related skips.
+4. Reports routing integration test file was authored; execution is skipped in this workspace when the WordPress integration harness is unavailable.
 
 ## 9) Tracking Format
 

@@ -126,6 +126,31 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( '/admin/activity/by_ip', $subItems[ 1 ][ 'href' ] ?? '' );
 	}
 
+	public function testReportsIncludesListChartsAndSettingsSubItems() :void {
+		$this->installControllerStubs();
+		$this->installRequestServiceStub();
+
+		$reports = $this->invokeReports();
+		$subItems = $reports[ 'sub_items' ] ?? [];
+
+		$this->assertSame(
+			[
+				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_CHARTS,
+				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_SETTINGS,
+			],
+			\array_column( $subItems, 'slug' )
+		);
+		$this->assertSame(
+			[
+				'/admin/reports/list',
+				'/admin/reports/charts',
+				'/admin/reports/settings',
+			],
+			\array_column( $subItems, 'href' )
+		);
+	}
+
 	public function testModeSelectorAssignsPrimaryAndMetaGroups() :void {
 		$this->installControllerStubs();
 
@@ -225,6 +250,13 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	private function invokeActivity() :array {
 		$builder = $this->newBuilderInstance();
 		$method = new \ReflectionMethod( $builder, 'activity' );
+		$method->setAccessible( true );
+		return $method->invoke( $builder );
+	}
+
+	private function invokeReports() :array {
+		$builder = $this->newBuilderInstance();
+		$method = new \ReflectionMethod( $builder, 'reports' );
 		$method->setAccessible( true );
 		return $method->invoke( $builder );
 	}

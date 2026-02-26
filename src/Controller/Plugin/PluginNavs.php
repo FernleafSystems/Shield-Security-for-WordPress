@@ -35,6 +35,8 @@ class PluginNavs {
 	public const NAV_REPORTS = 'reports';
 	public const SUBNAV_REPORTS_OVERVIEW = 'overview';
 	public const SUBNAV_REPORTS_LIST = 'list';
+	public const SUBNAV_REPORTS_CHARTS = 'charts';
+	public const SUBNAV_REPORTS_SETTINGS = 'settings';
 	public const NAV_RULES = 'rules';
 	public const SUBNAV_RULES_MANAGE = 'manage';
 	public const SUBNAV_RULES_BUILD = 'build';
@@ -152,6 +154,12 @@ class PluginNavs {
 							'handler' => PluginAdminPages\PageReportsLanding::class,
 						],
 						self::SUBNAV_REPORTS_LIST     => [
+							'handler' => PluginAdminPages\PageReports::class,
+						],
+						self::SUBNAV_REPORTS_CHARTS   => [
+							'handler' => PluginAdminPages\PageReports::class,
+						],
+						self::SUBNAV_REPORTS_SETTINGS => [
 							'handler' => PluginAdminPages\PageReports::class,
 						],
 					],

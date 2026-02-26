@@ -1,6 +1,6 @@
 # Shield Security — Operator Modes Plan
 
-**Date:** 20 February 2026 | **Last Updated:** 25 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
+**Date:** 20 February 2026 | **Last Updated:** 26 February 2026 | **Plugin:** 21.2.2 | **Author:** Paul Goodchild / Fernleaf Systems
 
 ---
 
@@ -374,14 +374,15 @@ Note: The current `allowedNavsForMode(MODE_CONFIGURE)` includes `NAV_ZONES`, `NA
 #### Reports sidebar
 
 ```
-← Shield Security                    ← back link
-─────────
+<- Shield Security                   <- back link
+---------
 Reports
-├── Security Reports                  → NAV_REPORTS / SUBNAV_REPORTS_LIST (existing)
-└── Alert Settings                    → future: config for InstantAlerts + Reporting components
+|- Security Reports                  -> NAV_REPORTS / SUBNAV_REPORTS_LIST
+|- Charts & Trends                   -> NAV_REPORTS / SUBNAV_REPORTS_CHARTS
+|- Alert Settings                    -> NAV_REPORTS / SUBNAV_REPORTS_SETTINGS
 ```
 
-Note: The current `allowedNavsForMode(MODE_REPORTS)` includes `NAV_REPORTS`. The Reports section is currently thin — just one page. Charts & Trends and Alert Settings are future additions.
+Status update (2026-02-26): Reports deepening delivered. `PageReports` now handles list/charts/settings subnavs and sidebar entries are in place for all three destinations.
 
 ### 4.4 Cross-cutting items
 
@@ -617,9 +618,9 @@ The Actions Queue landing page is primarily a composition of existing components
 
 ### Step 7: Configure & Reports Modes
 
-**Status (2026-02-22):** ✅ Complete for landing slice. Dedicated landing pages exist and are wired: `PageConfigureLanding.php`/`configure_landing.twig` and `PageReportsLanding.php`/`reports_landing.twig`.
+**Status (2026-02-26):** In progress by area. Configure remains complete for landing slice; Reports deepening is complete for landing + list/charts/settings subpages.
 
-Mostly sidebar reorganisation of existing pages. The actual configuration and reporting pages already exist — only the landing pages are new.
+This step continues to prioritize reuse of existing components and handlers rather than introducing parallel systems.
 
 **How to build — reuse existing components:**
 
@@ -635,15 +636,17 @@ Mostly sidebar reorganisation of existing pages. The actual configuration and re
 
 | Component to Reuse | File | How |
 |---|---|---|
-| `ChartsSummary` | `src/ActionRouter/Actions/Render/Components/Charts/ChartsSummary.php` | **Render directly** on the reports landing. These charts already exist on the current dashboard — relocate their rendering here. |
-| `PageReports` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageReports.php` | **Link to** from the landing page. The full reports page already exists. |
+| `ChartsSummary` | `src/ActionRouter/Actions/Render/Components/Reports/ChartsSummary.php` | **Reuse directly** on reports landing and on `reports/charts`. |
+| `PageReports` | `src/ActionRouter/Actions/Render/PluginAdminPages/PageReports.php` | **Reuse as subnav container** for `reports/list`, `reports/charts`, and `reports/settings`. |
+| `OptionsFormFor` + `GetOptionsForZoneComponents` | Existing render/options stack | **Reuse for `reports/settings`** with `InstantAlerts` and `Reporting` component options. |
+| `ReportsTable` | `src/ActionRouter/Actions/Render/Components/Reports/ReportsTable.php` | **Reuse on reports landing** for recent reports snapshot to avoid list-only create-report interactions on landing. |
 
 **Create landing pages:**
 
 | File | Purpose | Implementation Notes |
 |---|---|---|
 | `PageConfigureLanding.php` | Configure mode landing — config posture score + zone overview | Extends `BasePluginAdminPage`. Renders `MeterCard` with config channel (reused), zone summary grid (each zone as a compact `MeterCard` — reused), and links to Security Grades page. |
-| `PageReportsLanding.php` | Reports mode landing — recent reports + chart summary | Extends `BasePluginAdminPage`. Renders `ChartsSummary` component (reused — relocated from dashboard), recent reports list, and link to full reports page. |
+| `PageReportsLanding.php` | Reports mode landing - charts + recent reports + direct CTAs | Extends `BasePluginAdminPage`. Renders `ChartsSummary` and `ReportsTable` (limited rows), with direct links to reports list, charts, and settings pages. |
 
 ### Step 8: WP Dashboard Widget Update
 
@@ -697,7 +700,7 @@ Implemented changes:
 
 4. **Investigate: additional investigation subjects.** Beyond User, IP, Plugin — what about: by WordPress post/page, by WooCommerce order, by time period ("what happened last Tuesday")? Future consideration.
 
-5. **Reports mode depth.** Currently thin — just existing Reports page and relocated charts. Early bulk can come from moving `ChartsSummary` data into a dedicated Charts & Trends page. Future phases: scheduled PDF reports, email digest configuration, comparison reports.
+5. **Reports mode depth.** Charts & Trends and Alert Settings subpages are now delivered with sidebar/route/test coverage. Remaining reports depth is future-facing (for example scheduled PDF reports, digest workflows, and comparison reports) rather than core mode navigation.
 
 6. **Grade threshold recalibration.** After meter channel separation, test the config-only score across a range of real sites. If the typical score shifts significantly upward (because action items are removed), the grade boundaries (A+: >85, A: >80, B: >70, etc.) may need adjustment so users don't see an unexplained score jump.
 

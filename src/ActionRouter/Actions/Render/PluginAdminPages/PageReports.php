@@ -2,9 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	InstantAlerts,
+	Reporting
+};
 
 class PageReports extends BasePluginAdminPage {
 
@@ -13,7 +19,7 @@ class PageReports extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();
 		$hrefs = [];
-		if ( $con->caps->canReportsLocal() ) {
+		if ( $this->action_data[ 'nav_sub' ] === PluginNavs::SUBNAV_REPORTS_LIST && $con->caps->canReportsLocal() ) {
 			\array_unshift( $hrefs, [
 				'title'   => __( 'Create Custom Report', 'wp-simple-firewall' ),
 				'href'    => '#',
@@ -49,6 +55,12 @@ class PageReports extends BasePluginAdminPage {
 			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$title = __( 'View & Create', 'wp-simple-firewall' );
 				break;
+			case PluginNavs::SUBNAV_REPORTS_CHARTS:
+				$title = __( 'Charts & Trends', 'wp-simple-firewall' );
+				break;
+			case PluginNavs::SUBNAV_REPORTS_SETTINGS:
+				$title = __( 'Alert Settings', 'wp-simple-firewall' );
+				break;
 			default:
 				$title = CommonDisplayStrings::get( 'security_reports_label' );
 				break;
@@ -60,6 +72,12 @@ class PageReports extends BasePluginAdminPage {
 		switch ( $this->action_data[ 'nav_sub' ] ) {
 			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$title = __( 'View and create new security reports.', 'wp-simple-firewall' );
+				break;
+			case PluginNavs::SUBNAV_REPORTS_CHARTS:
+				$title = __( 'Review recent security trend metrics.', 'wp-simple-firewall' );
+				break;
+			case PluginNavs::SUBNAV_REPORTS_SETTINGS:
+				$title = __( 'Manage instant alerts and report delivery settings.', 'wp-simple-firewall' );
 				break;
 			default:
 				$title = __( 'Summary Security Reports.', 'wp-simple-firewall' );
@@ -74,6 +92,21 @@ class PageReports extends BasePluginAdminPage {
 			case PluginNavs::SUBNAV_REPORTS_LIST:
 				$content = [
 					'create_report' => $AR->render( Reports\PageReportsView::class ),
+				];
+				break;
+			case PluginNavs::SUBNAV_REPORTS_CHARTS:
+				$content = [
+					'summary_charts' => $AR->render( Reports\ChartsSummary::class ),
+				];
+				break;
+			case PluginNavs::SUBNAV_REPORTS_SETTINGS:
+				$content = [
+					'alerts_settings' => $AR->render( OptionsFormFor::class, [
+						'options' => ( new GetOptionsForZoneComponents() )->run( [
+							InstantAlerts::Slug(),
+							Reporting::Slug(),
+						] ),
+					] ),
 				];
 				break;
 			default:
