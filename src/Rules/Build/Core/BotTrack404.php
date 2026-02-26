@@ -43,7 +43,7 @@ class BotTrack404 extends BuildRuleIpsBase {
 		}
 
 		$trackable404Conditions = \array_filter( [
-			empty( $notAllowlisted404Conditions ) ? null : [
+			[
 				'logic'      => Enum\EnumLogic::LOGIC_AND,
 				'conditions' => $notAllowlisted404Conditions,
 			],
