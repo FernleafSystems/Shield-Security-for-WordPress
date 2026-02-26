@@ -13,18 +13,6 @@ parameters:
 			path: plugin_init.php
 
 		-
-			message: '#^Access to an undefined property FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\RoutedResponse\:\:\$error\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/ActionRouter/Actions/AjaxRender.php
-
-		-
-			message: '#^Access to an undefined property FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\RoutedResponse\:\:\$message\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/ActionRouter/Actions/AjaxRender.php
-
-		-
 			message: '#^Method PclZip\:\:add\(\) invoked with 3 parameters, 1 required\.$#'
 			identifier: arguments.count
 			count: 1
