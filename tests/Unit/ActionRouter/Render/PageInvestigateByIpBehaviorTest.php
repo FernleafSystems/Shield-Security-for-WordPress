@@ -33,9 +33,6 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		parent::setUp();
 		Functions\when( 'sanitize_text_field' )->alias( static fn( $text ) => \is_string( $text ) ? \trim( $text ) : '' );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
-		Functions\when( '_n' )->alias(
-			static fn( string $single, string $plural, int $count ) :string => $count === 1 ? $single : $plural
-		);
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installControllerStub();
@@ -77,36 +74,20 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
 	}
 
-	public function test_valid_lookup_builds_subject_summary_and_ip_analysis_content() :void {
+	public function test_valid_lookup_retains_lookup_contract_and_renders_ip_analysis_content() :void {
 		$this->installServices(
 			[ 'analyse_ip' => '203.0.113.88' ],
 			static fn( string $ip ) :bool => $ip === '203.0.113.88'
 		);
-		$page = new PageInvestigateByIpUnitTestDouble(
-			[
-				'sessions' => 2,
-				'activity' => 5,
-				'requests' => 9,
-				'offenses' => 1,
-			]
-		);
+		$page = new PageInvestigateByIpUnitTestDouble();
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
-		$summary = $vars[ 'summary' ] ?? [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
-		$this->assertSame( '203.0.113.88', (string)( $vars[ 'subject' ][ 'title' ] ?? '' ) );
-		$this->assertSame( 2, (int)( $summary[ 'sessions' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 5, (int)( $summary[ 'activity' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 9, (int)( $summary[ 'requests' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 1, (int)( $summary[ 'offenses' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'good', (string)( $summary[ 'sessions' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $summary[ 'activity' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $summary[ 'requests' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $summary[ 'offenses' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $vars[ 'subject' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $vars[ 'subject' ][ 'status_pills' ][ 0 ][ 'status' ] ?? '' ) );
+		$this->assertSame( '203.0.113.88', (string)( $vars[ 'analyse_ip' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'subject', $vars );
+		$this->assertArrayNotHasKey( 'summary', $vars );
 		$this->assertSame( 'rendered-ip:203.0.113.88', (string)( $renderData[ 'content' ][ 'ip_analysis' ] ?? '' ) );
 	}
 
@@ -172,14 +153,4 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 }
 
 class PageInvestigateByIpUnitTestDouble extends PageInvestigateByIp {
-
-	private ?array $summaryCounts;
-
-	public function __construct( ?array $summaryCounts = null ) {
-		$this->summaryCounts = $summaryCounts;
-	}
-
-	protected function buildSummaryCounts( string $ip ) :array {
-		return $this->summaryCounts ?? parent::buildSummaryCounts( $ip );
-	}
 }

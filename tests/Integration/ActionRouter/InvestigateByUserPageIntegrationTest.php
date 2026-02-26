@@ -156,6 +156,17 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlContainsMarker( 'investigate-by-user-ip-status', $html, 'By-user IP status marker' );
 		$this->assertHtmlContainsMarker( 'investigate-by-user-ip-counts', $html, 'By-user IP counts marker' );
 		$this->assertHtmlContainsMarker( '203.0.113.88', $html, 'By-user seeded related IP display' );
+		$this->assertHtmlContainsMarker( 'Sessions:', $html, 'By-user explicit session counter label marker' );
+		$this->assertHtmlContainsMarker( 'Activity:', $html, 'By-user explicit activity counter label marker' );
+		$this->assertHtmlContainsMarker( 'Requests:', $html, 'By-user explicit request counter label marker' );
+		$this->assertMatchesRegularExpression(
+			'#<a[^>]*class="[^"]*btn[^"]*"[^>]*>Investigate IP</a>#',
+			$html
+		);
+		$this->assertDoesNotMatchRegularExpression(
+			'#<a[^>]*class="[^"]*offcanvas_ip_analysis[^"]*"[^>]*>Investigate IP</a>#',
+			$html
+		);
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {

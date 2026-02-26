@@ -386,6 +386,26 @@ class PluginNavs {
 		}
 	}
 
+	public static function investigateSubNavCrumbLabel( string $subNav ) :string {
+		$subNavDefinition = self::investigateSubNavDefinition( $subNav );
+		return \is_string( $subNavDefinition[ 'label' ] ?? null ) ? $subNavDefinition[ 'label' ] : '';
+	}
+
+	public static function investigateSubNavDefinitions() :array {
+		return [
+			self::SUBNAV_ACTIVITY_BY_USER   => [ 'label' => __( 'Users', 'wp-simple-firewall' ) ],
+			self::SUBNAV_ACTIVITY_BY_IP     => [ 'label' => __( 'IP Addresses', 'wp-simple-firewall' ) ],
+			self::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'label' => __( 'Plugins', 'wp-simple-firewall' ) ],
+			self::SUBNAV_ACTIVITY_BY_THEME  => [ 'label' => __( 'Themes', 'wp-simple-firewall' ) ],
+			self::SUBNAV_ACTIVITY_BY_CORE   => [ 'label' => __( 'WordPress Core', 'wp-simple-firewall' ) ],
+			self::SUBNAV_LOGS               => [ 'label' => __( 'Activity Log', 'wp-simple-firewall' ) ],
+		];
+	}
+
+	public static function investigateSubNavDefinition( string $subNav ) :array {
+		return self::investigateSubNavDefinitions()[ $subNav ] ?? [];
+	}
+
 	public static function reportsWorkspaceDefinitions() :array {
 		return [
 			self::SUBNAV_REPORTS_LIST     => [

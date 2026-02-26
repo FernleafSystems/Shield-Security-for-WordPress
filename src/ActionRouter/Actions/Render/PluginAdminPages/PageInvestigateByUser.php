@@ -27,7 +27,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigatio
 	ForTraffic as InvestigationTrafficTableBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
-use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class PageInvestigateByUser extends BasePluginAdminPage {
@@ -56,10 +55,10 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			$sessions = $this->buildSessions( $subject );
 			$activityLogs = $this->buildActivityLogs( $subject );
 			$requestLogs = $this->buildRequestLogs( $subject );
-			$relatedIps = $this->buildRelatedIps( $sessions, $activityLogs, $requestLogs );
+			$relatedIps = $this->getRelatedIpCardsBuilder()->build( $sessions, $activityLogs, $requestLogs );
 			$summaryStats = $this->buildSummaryStats( $sessions, $activityLogs, $requestLogs, $relatedIps );
 			$railNavItems = $this->buildRailNavItems( $summaryStats );
-			$tables = $this->buildTableContractsForUser( (int)$subject->ID );
+			$tables = $this->buildTableContractsForUser( $subject->ID );
 			$subjectData = $this->buildSubjectHeaderData( $subject );
 		}
 
@@ -111,8 +110,8 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 	}
 
 	protected function buildSubjectHeaderData( \WP_User $subject ) :array {
-		$displayName = \trim( (string)$subject->display_name );
-		$title = empty( $displayName ) ? (string)$subject->user_login : $displayName;
+		$displayName = \trim( $subject->display_name );
+		$title = empty( $displayName ) ? $subject->user_login : $displayName;
 		return [
 			'status'      => 'info',
 			'title'       => $title,
@@ -125,15 +124,15 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				],
 				[
 					'label' => __( 'Login', 'wp-simple-firewall' ),
-					'value' => (string)$subject->user_login,
+					'value' => $subject->user_login,
 				],
 				[
 					'label' => __( 'Email', 'wp-simple-firewall' ),
-					'value' => (string)$subject->user_email,
+					'value' => $subject->user_email,
 				],
 				[
 					'label' => __( 'Display', 'wp-simple-firewall' ),
-					'value' => (string)$subject->display_name,
+					'value' => $subject->display_name,
 				],
 			],
 			'change_href' => self::con()->plugin_urls->investigateByUser(),
@@ -157,10 +156,9 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 		$ipsStatus = StatusPriority::highest(
 			\array_map(
-				static fn( array $card ) :string => (string)( $card[ 'status' ] ?? 'info' ),
+				static fn( array $card ) :string => $card[ 'status' ] ?? 'info',
 				$relatedIps
-			),
-			'info'
+			)
 		);
 
 		return [
@@ -214,28 +212,28 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'target'   => '#tabInvestigateUserSessions',
 				'id'       => 'tab-navlink-user-sessions',
 				'controls' => 'tabInvestigateUserSessions',
-				'label'    => \sprintf( '%s (%d)', (string)$sessionSummary[ 'label' ], (int)$sessionSummary[ 'count' ] ),
+				'label'    => \sprintf( '%s (%d)', $sessionSummary[ 'label' ], $sessionSummary[ 'count' ] ),
 				'is_focus' => false,
 			],
 			[
 				'target'   => '#tabInvestigateUserActivity',
 				'id'       => 'tab-navlink-user-activity',
 				'controls' => 'tabInvestigateUserActivity',
-				'label'    => \sprintf( '%s (%d)', (string)$activitySummary[ 'label' ], (int)$activitySummary[ 'count' ] ),
+				'label'    => \sprintf( '%s (%d)', $activitySummary[ 'label' ], $activitySummary[ 'count' ] ),
 				'is_focus' => false,
 			],
 			[
 				'target'   => '#tabInvestigateUserRequests',
 				'id'       => 'tab-navlink-user-requests',
 				'controls' => 'tabInvestigateUserRequests',
-				'label'    => \sprintf( '%s (%d)', (string)$requestSummary[ 'label' ], (int)$requestSummary[ 'count' ] ),
+				'label'    => \sprintf( '%s (%d)', $requestSummary[ 'label' ], $requestSummary[ 'count' ] ),
 				'is_focus' => false,
 			],
 			[
 				'target'   => '#tabInvestigateUserIps',
 				'id'       => 'tab-navlink-user-ips',
 				'controls' => 'tabInvestigateUserIps',
-				'label'    => \sprintf( '%s (%d)', (string)$ipSummary[ 'label' ], (int)$ipSummary[ 'count' ] ),
+				'label'    => \sprintf( '%s (%d)', $ipSummary[ 'label' ], $ipSummary[ 'count' ] ),
 				'is_focus' => false,
 			],
 		];
@@ -349,8 +347,8 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 		return \array_values( \array_map(
 			fn( ActivityLogRecord $record ) :array => [
-				'created_at_ts' => (int)$record->created_at,
-				'ip'            => (string)$record->ip,
+				'created_at_ts' => $record->created_at,
+				'ip'            => $record->ip,
 			],
 			$loader->run()
 		) );
@@ -363,105 +361,16 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$loader->order_dir = 'DESC';
 
 		return \array_values( \array_map(
-			static function ( RequestLogRecord $record ) :array {
-				return [
-					'created_at_ts' => (int)$record->created_at,
-					'ip'            => (string)$record->ip,
-					'offense'       => (bool)$record->offense,
-				];
-			},
+			static fn( RequestLogRecord $record ) :array => [
+				'created_at_ts' => $record->created_at,
+				'ip'            => $record->ip,
+				'offense'       => $record->offense,
+			],
 			$loader->select()
 		) );
 	}
 
-	private function buildRelatedIps( array $sessions, array $activityLogs, array $requestLogs ) :array {
-		return $this->buildRelatedIpCards( $sessions, $activityLogs, $requestLogs );
-	}
-
-	private function buildRelatedIpCards( array $sessions, array $activityLogs, array $requestLogs ) :array {
-		$byIp = [];
-
-		foreach ( $sessions as $session ) {
-			$ip = (string)( $session[ 'ip' ] ?? '' );
-			if ( $ip !== '' ) {
-				$ts = (int)( $session[ 'last_activity_ts' ] ?? 0 );
-				$byIp[ $ip ] = $byIp[ $ip ] ?? $this->newIpCardSeed( $ip );
-				$byIp[ $ip ][ 'sessions_count' ]++;
-				$byIp[ $ip ][ 'last_seen_ts' ] = \max( $byIp[ $ip ][ 'last_seen_ts' ], $ts );
-			}
-		}
-		foreach ( $activityLogs as $log ) {
-			$ip = (string)( $log[ 'ip' ] ?? '' );
-			if ( $ip !== '' ) {
-				$ts = (int)( $log[ 'created_at_ts' ] ?? 0 );
-				$byIp[ $ip ] = $byIp[ $ip ] ?? $this->newIpCardSeed( $ip );
-				$byIp[ $ip ][ 'activity_count' ]++;
-				$byIp[ $ip ][ 'last_seen_ts' ] = \max( $byIp[ $ip ][ 'last_seen_ts' ], $ts );
-			}
-		}
-		foreach ( $requestLogs as $log ) {
-			$ip = (string)( $log[ 'ip' ] ?? '' );
-			if ( $ip !== '' ) {
-				$ts = (int)( $log[ 'created_at_ts' ] ?? 0 );
-				$byIp[ $ip ] = $byIp[ $ip ] ?? $this->newIpCardSeed( $ip );
-				$byIp[ $ip ][ 'requests_count' ]++;
-				$byIp[ $ip ][ 'has_offense' ] = $byIp[ $ip ][ 'has_offense' ] || !empty( $log[ 'offense' ] );
-				$byIp[ $ip ][ 'last_seen_ts' ] = \max( $byIp[ $ip ][ 'last_seen_ts' ], $ts );
-			}
-		}
-
-		foreach ( $byIp as &$card ) {
-			$statuses = [];
-			if ( $card[ 'sessions_count' ] > 0 ) {
-				$statuses[] = 'good';
-			}
-			if ( $card[ 'requests_count' ] > 0 ) {
-				$statuses[] = 'warning';
-			}
-			if ( $card[ 'has_offense' ] ) {
-				$statuses[] = 'critical';
-			}
-			$card[ 'status' ] = StatusPriority::highest( $statuses );
-
-			if ( $card[ 'last_seen_ts' ] > 0 ) {
-				$card[ 'last_seen_at' ] = Services::WpGeneral()->getTimeStringForDisplay( $card[ 'last_seen_ts' ] );
-				$card[ 'last_seen_ago' ] = $this->getTimeAgo( $card[ 'last_seen_ts' ] );
-			}
-			else {
-				$card[ 'last_seen_at' ] = '';
-				$card[ 'last_seen_ago' ] = '';
-			}
-			unset( $card[ 'has_offense' ] );
-		}
-		unset( $card );
-
-		\uasort( $byIp, static fn( array $a, array $b ) :int => $b[ 'last_seen_ts' ] <=> $a[ 'last_seen_ts' ] );
-		return \array_values( $byIp );
-	}
-
-	private function newIpCardSeed( string $ip ) :array {
-		return [
-			'ip'               => $ip,
-			'href'             => self::con()->plugin_urls->ipAnalysis( $ip ),
-			'investigate_href' => self::con()->plugin_urls->investigateByIp( $ip ),
-			'last_seen_ts'     => 0,
-			'last_seen_at'     => '',
-			'last_seen_ago'    => '',
-			'sessions_count'   => 0,
-			'activity_count'   => 0,
-			'requests_count'   => 0,
-			'status'           => 'info',
-			'has_offense'      => false,
-		];
-	}
-
-	private function getTimeAgo( int $timestamp ) :string {
-		if ( $timestamp <= 0 ) {
-			return '';
-		}
-		return Services::Request()
-					   ->carbon( true )
-					   ->setTimestamp( $timestamp )
-					   ->diffForHumans();
+	protected function getRelatedIpCardsBuilder() :InvestigateByUserRelatedIpCardsBuilder {
+		return new InvestigateByUserRelatedIpCardsBuilder();
 	}
 }

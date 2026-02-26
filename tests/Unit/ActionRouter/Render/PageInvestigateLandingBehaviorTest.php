@@ -240,6 +240,26 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $subjectsByKey[ 'wordpress' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $subjectsByKey[ 'requests' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $subjectsByKey[ 'activity' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
+		$this->assertSame(
+			[
+				'users'     => 'Users',
+				'ips'       => 'IP Addresses',
+				'plugins'   => 'Plugins',
+				'themes'    => 'Themes',
+				'wordpress' => 'WordPress Core',
+				'requests'  => 'HTTP Requests',
+				'activity'  => 'Activity Log',
+			],
+			[
+				'users'     => $subjectsByKey[ 'users' ][ 'subject_label' ] ?? '',
+				'ips'       => $subjectsByKey[ 'ips' ][ 'subject_label' ] ?? '',
+				'plugins'   => $subjectsByKey[ 'plugins' ][ 'subject_label' ] ?? '',
+				'themes'    => $subjectsByKey[ 'themes' ][ 'subject_label' ] ?? '',
+				'wordpress' => $subjectsByKey[ 'wordpress' ][ 'subject_label' ] ?? '',
+				'requests'  => $subjectsByKey[ 'requests' ][ 'subject_label' ] ?? '',
+				'activity'  => $subjectsByKey[ 'activity' ][ 'subject_label' ] ?? '',
+			]
+		);
 	}
 
 	public function test_request_input_values_are_cached_across_repeated_internal_access() :void {
@@ -441,15 +461,13 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->invokeProtectedMethod( $page, 'getLandingVars' );
 	}
 
-	public function test_landing_hrefs_include_required_subject_and_tool_routes() :void {
+	public function test_landing_hrefs_include_required_subject_and_log_routes() :void {
 		$this->installServicesStubs();
 		$page = new PageInvestigateLanding();
 
 		$hrefs = $this->invokeProtectedMethod( $page, 'getLandingHrefs' );
 		$this->assertArrayHasKey( 'activity_log', $hrefs );
 		$this->assertArrayHasKey( 'traffic_log', $hrefs );
-		$this->assertArrayHasKey( 'live_traffic', $hrefs );
-		$this->assertArrayHasKey( 'ip_rules', $hrefs );
 		$this->assertArrayHasKey( 'by_user', $hrefs );
 		$this->assertArrayHasKey( 'by_ip', $hrefs );
 		$this->assertArrayHasKey( 'by_plugin', $hrefs );

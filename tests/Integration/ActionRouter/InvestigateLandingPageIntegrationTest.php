@@ -73,4 +73,14 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
 	}
+
+	public function test_landing_quick_access_strip_labels_are_absent() :void {
+		$payload = $this->renderInvestigateLandingPage();
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+
+		$this->assertHtmlNotContainsMarker( 'Quick Access', $html, 'Landing quick-access title marker' );
+		$this->assertHtmlNotContainsMarker( 'WP Activity Log', $html, 'Landing quick-access activity marker' );
+		$this->assertHtmlNotContainsMarker( 'Live HTTP Log', $html, 'Landing quick-access live traffic marker' );
+		$this->assertHtmlNotContainsMarker( 'IP Rules', $html, 'Landing quick-access IP rules marker' );
+	}
 }

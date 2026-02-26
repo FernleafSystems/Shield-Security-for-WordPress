@@ -143,8 +143,6 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		return [
 			'activity_log' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
 			'traffic_log'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-			'live_traffic' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
-			'ip_rules'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ),
 			'by_user'      => $con->plugin_urls->investigateByUser(),
 			'by_ip'        => $con->plugin_urls->investigateByIp(),
 			'by_plugin'    => $con->plugin_urls->investigateByPlugin(),
@@ -155,8 +153,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'selector_title'    => __( 'What Do You Want To Investigate?', 'wp-simple-firewall' ),
-			'quick_tools_title' => __( 'Quick Access', 'wp-simple-firewall' ),
+			'selector_title'    => __( 'Choose A Subject To Investigate', 'wp-simple-firewall' ),
+			'selector_intro'    => __( 'Select a subject type to load the matching investigation actions and lookup controls.', 'wp-simple-firewall' ),
 			'subject_users'     => __( 'Users', 'wp-simple-firewall' ),
 			'subject_ips'       => __( 'IP Addresses', 'wp-simple-firewall' ),
 			'subject_plugins'   => __( 'Plugins', 'wp-simple-firewall' ),
@@ -164,10 +162,6 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'subject_wordpress' => __( 'WordPress Core', 'wp-simple-firewall' ),
 			'subject_requests'  => __( 'HTTP Requests', 'wp-simple-firewall' ),
 			'subject_activity'  => __( 'Activity Log', 'wp-simple-firewall' ),
-			'tool_activity'     => __( 'WP Activity Log', 'wp-simple-firewall' ),
-			'tool_traffic'      => __( 'HTTP Request Log', 'wp-simple-firewall' ),
-			'tool_live'         => __( 'Live HTTP Log', 'wp-simple-firewall' ),
-			'tool_ip_rules'     => __( 'IP Rules', 'wp-simple-firewall' ),
 			'panel_users'       => __( 'Investigate A User', 'wp-simple-firewall' ),
 			'panel_ips'         => __( 'Investigate An IP Address', 'wp-simple-firewall' ),
 			'panel_plugins'     => __( 'Investigate A Plugin', 'wp-simple-firewall' ),
@@ -175,6 +169,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'panel_wordpress'   => __( 'WordPress Core Integrity', 'wp-simple-firewall' ),
 			'panel_requests'    => __( 'HTTP Request Log', 'wp-simple-firewall' ),
 			'panel_activity'    => __( 'Activity Log', 'wp-simple-firewall' ),
+			'panel_intro'       => __( 'Use the selected subject to run the matching investigation workflow below.', 'wp-simple-firewall' ),
 			'lookup_user'       => __( 'User ID, username, or email', 'wp-simple-firewall' ),
 			'lookup_ip'         => __( 'IP address', 'wp-simple-firewall' ),
 			'lookup_plugin'     => __( 'Select a plugin', 'wp-simple-firewall' ),
@@ -190,6 +185,9 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		];
 	}
 
+	/**
+	 * @throws \LogicException
+	 */
 	protected function getLandingVars() :array {
 		$input = $this->getInputValues();
 		$strings = $this->getLandingStrings();
@@ -202,8 +200,16 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			$this->assertSubjectDefinitionContract( $subject, $hrefs, $strings );
 			$stringKeys = $subject[ 'string_keys' ];
 			$inputKey = $subject[ 'input_key' ];
+			$subNavHint = $subject[ 'subnav_hint' ];
 			$optionsKey = $subject[ 'options_key' ];
 			$isLookupPanel = \in_array( $subject[ 'panel_type' ], [ 'lookup_text', 'lookup_select' ], true );
+			$subjectLabel = $strings[ $stringKeys[ 'subject' ] ];
+			if ( \is_string( $subNavHint ) && $subNavHint !== '' ) {
+				$subNavDefinition = PluginNavs::investigateSubNavDefinition( $subNavHint );
+				$subjectLabel = \is_string( $subNavDefinition[ 'label' ] ?? null ) && $subNavDefinition[ 'label' ] !== ''
+					? $subNavDefinition[ 'label' ]
+					: $subjectLabel;
+			}
 
 			$subjects[] = [
 				'key'                => $subject[ 'key' ],
@@ -215,12 +221,12 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				'input_value'        => $inputKey !== null ? ( $input[ $inputKey ] ?? '' ) : null,
 				'options_key'        => $optionsKey,
 				'options'            => $optionsKey !== null ? $this->getOptionsByKey( $optionsKey ) : [],
-				'subject_label'      => $strings[ $stringKeys[ 'subject' ] ],
+				'subject_label'      => $subjectLabel,
 				'panel_title'        => $strings[ $stringKeys[ 'panel' ] ],
 				'lookup_placeholder' => isset( $stringKeys[ 'lookup' ] ) ? $strings[ $stringKeys[ 'lookup' ] ] : null,
 				'go_label'           => $strings[ $stringKeys[ 'go' ] ],
 				'lookup_route'       => $isLookupPanel
-					? $this->buildLookupRouteContract( (string)$subject[ 'subnav_hint' ] )
+					? $this->buildLookupRouteContract( $subNavHint )
 					: [],
 			];
 		}
@@ -290,6 +296,9 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		);
 	}
 
+	/**
+	 * @throws \LogicException
+	 */
 	private function getOptionsByKey( string $optionsKey ) :array {
 		if ( $this->optionsCache === null ) {
 			$this->optionsCache = [];
@@ -341,6 +350,9 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		return $this->subjectByInputKeyMapCache;
 	}
 
+	/**
+	 * @throws \LogicException
+	 */
 	private function assertSubjectDefinitionContract( array $subject, array $hrefs, array $strings ) :void {
 		$subjectKey = (string)( $subject[ 'key' ] ?? '[undefined]' );
 		$hrefKey = $subject[ 'href_key' ] ?? '';
@@ -396,12 +408,10 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				);
 			}
 		}
-		else {
-			if ( $optionsKey !== null ) {
-				throw new \LogicException(
-					\sprintf( 'Investigate subject "%s" non-select panel requires null options_key.', $subjectKey )
-				);
-			}
+		elseif ( $optionsKey !== null ) {
+			throw new \LogicException(
+				\sprintf( 'Investigate subject "%s" non-select panel requires null options_key.', $subjectKey )
+			);
 		}
 
 		if ( $isLookupPanel ) {

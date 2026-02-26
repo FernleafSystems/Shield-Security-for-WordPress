@@ -64,10 +64,24 @@ class BuildBreadCrumbs {
 
 		if ( !( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW )
 			 && !$this->isModeLandingRoute( $nav, $subNav ) ) {
+			$crumbText = $navStruct[ 'name' ];
+			$crumbHrefSubNav = $this->getDefaultSubNavForNav( $nav, $hierarchy );
+			$crumbTitleLabel = sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] );
+
+			if ( $nav === PluginNavs::NAV_ACTIVITY ) {
+				$investigateDefinition = PluginNavs::investigateSubNavDefinition( $subNav );
+				$investigateLabel = $investigateDefinition[ 'label' ] ?? null;
+				if ( \is_string( $investigateLabel ) && $investigateLabel !== '' ) {
+					$crumbText = $investigateLabel;
+					$crumbHrefSubNav = $subNav;
+					$crumbTitleLabel = $investigateLabel;
+				}
+			}
+
 			$crumbs[] = [
-				'text'  => $navStruct[ 'name' ],
-				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
-				'href'  => $this->buildNavUrl( $nav, $this->getDefaultSubNavForNav( $nav, $hierarchy ) ),
+				'text'  => $crumbText,
+				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), $crumbTitleLabel ),
+				'href'  => $this->buildNavUrl( $nav, $crumbHrefSubNav ),
 			];
 		}
 

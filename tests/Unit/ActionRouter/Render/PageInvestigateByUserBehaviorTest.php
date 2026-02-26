@@ -233,8 +233,12 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			[ 'critical', 'warning', 'good' ],
 			\array_column( $relatedIps, 'status' )
 		);
+		$this->assertSame(
+			[ 'Offense Detected', 'Requests Observed', 'Sessions Observed' ],
+			\array_column( $relatedIps, 'status_label' )
+		);
 
-		$requiredIpKeys = [ 'ip', 'href', 'status', 'last_seen_ts', 'last_seen_at', 'last_seen_ago', 'sessions_count', 'activity_count', 'requests_count' ];
+		$requiredIpKeys = [ 'ip', 'href', 'status', 'status_label', 'last_seen_ts', 'last_seen_at', 'last_seen_ago', 'sessions_count', 'activity_count', 'requests_count' ];
 		foreach ( $relatedIps as $card ) {
 			foreach ( $requiredIpKeys as $requiredKey ) {
 				$this->assertArrayHasKey( $requiredKey, $card );

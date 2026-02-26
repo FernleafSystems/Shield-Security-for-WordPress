@@ -31,6 +31,12 @@ export class IpAnalyse extends BaseAutoExecComponent {
 	}
 
 	runAnalysisOnLoad() {
+		const nav = PageQueryParam.Retrieve( 'nav' );
+		const subNav = PageQueryParam.Retrieve( 'nav_sub' );
+		if ( nav === 'activity' && subNav === 'by_ip' ) {
+			return;
+		}
+
 		let theIP = PageQueryParam.Retrieve( 'analyse_ip' );
 		if ( theIP ) {
 			this.render( theIP );

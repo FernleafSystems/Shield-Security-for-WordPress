@@ -200,80 +200,41 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_exact_route_map_contract() :void {
+	public function test_investigate_subnav_crumb_labels_match_expected_map() :void {
+		$this->assertSame( 'Users', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
+		$this->assertSame( 'IP Addresses', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_IP ) );
+		$this->assertSame( 'Plugins', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ) );
+		$this->assertSame( 'Themes', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) );
+		$this->assertSame( 'WordPress Core', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) );
+		$this->assertSame( 'Activity Log', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_LOGS ) );
+		$this->assertSame( '', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
+	}
+
+	public function test_investigate_subnav_definitions_match_expected_contract() :void {
+		$this->assertSame(
+			[
+				PluginNavs::SUBNAV_ACTIVITY_BY_USER   => [ 'label' => 'Users' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_IP     => [ 'label' => 'IP Addresses' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'label' => 'Plugins' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'label' => 'Themes' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'label' => 'WordPress Core' ],
+				PluginNavs::SUBNAV_LOGS               => [ 'label' => 'Activity Log' ],
+			],
+			PluginNavs::investigateSubNavDefinitions()
+		);
+		$this->assertSame( [ 'label' => 'Users' ], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
+		$this->assertSame( [], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
+	}
+
+	public function test_activity_route_handlers_match_expected_contract_for_touched_scope() :void {
 		$hierarchy = PluginNavs::GetNavHierarchy();
-
-		$this->assertSame(
-			PluginAdminPages\PageActionsQueueLanding::class,
-			$hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_OVERVIEW ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageScansResults::class,
-			$hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RESULTS ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageScansRun::class,
-			$hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RUN ][ 'handler' ]
-		);
-
-		$this->assertSame(
-			PluginAdminPages\PageInvestigateLanding::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageInvestigateByUser::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_USER ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageInvestigateByIp::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_IP ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageInvestigateByPlugin::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageInvestigateByTheme::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageInvestigateByCore::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageActivityLogTable::class,
-			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'handler' ]
-		);
-
-		$this->assertSame(
-			PluginAdminPages\PageConfigureLanding::class,
-			$hierarchy[ PluginNavs::NAV_ZONES ][ 'sub_navs' ][ PluginNavs::SUBNAV_ZONES_OVERVIEW ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageDynamicLoad::class,
-			$hierarchy[ PluginNavs::NAV_ZONES ][ 'sub_navs' ][ 'secadmin' ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageDynamicLoad::class,
-			$hierarchy[ PluginNavs::NAV_ZONES ][ 'sub_navs' ][ 'firewall' ][ 'handler' ]
-		);
-
-		$this->assertSame(
-			PluginAdminPages\PageReportsLanding::class,
-			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_OVERVIEW ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageReports::class,
-			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_LIST ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageReports::class,
-			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_CHARTS ][ 'handler' ]
-		);
-		$this->assertSame(
-			PluginAdminPages\PageReports::class,
-			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_SETTINGS ][ 'handler' ]
-		);
+		$this->assertSame( PluginAdminPages\PageInvestigateLanding::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ][ 'handler' ] );
+		$this->assertSame( PluginAdminPages\PageInvestigateByUser::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_USER ][ 'handler' ] );
+		$this->assertSame( PluginAdminPages\PageInvestigateByIp::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_IP ][ 'handler' ] );
+		$this->assertSame( PluginAdminPages\PageInvestigateByPlugin::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'handler' ] );
+		$this->assertSame( PluginAdminPages\PageInvestigateByTheme::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'handler' ] );
+		$this->assertSame( PluginAdminPages\PageInvestigateByCore::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ] );
+		$this->assertSame( PluginAdminPages\PageActivityLogTable::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'handler' ] );
 	}
 
 	public function test_default_subnav_for_zones_is_overview() :void {

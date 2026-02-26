@@ -56,38 +56,57 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
 	}
 
-	public function test_investigate_by_ip_subnav_keeps_nav_home_crumb() :void {
+	public function test_investigate_by_ip_subnav_uses_contextual_crumb_label_and_href() :void {
 		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
 			PluginNavs::NAV_ACTIVITY,
 			PluginNavs::SUBNAV_ACTIVITY_BY_IP
 		);
 
 		$this->assertCount( 3, $crumbs );
-		$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( [ 'Shield Security', 'Investigate', 'IP Addresses' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/activity/by_ip', $crumbs[ 2 ][ 'href' ] ?? '' );
+		$this->assertSame( 'Navigation: IP Addresses', $crumbs[ 2 ][ 'title' ] ?? '' );
 	}
 
-	public function test_investigate_asset_subnavs_keep_nav_home_crumb() :void {
+	public function test_investigate_by_user_subnav_uses_contextual_crumb_label_and_href() :void {
+		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_BY_USER
+		);
+
+		$this->assertCount( 3, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Investigate', 'Users' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/activity/by_user', $crumbs[ 2 ][ 'href' ] ?? '' );
+		$this->assertSame( 'Navigation: Users', $crumbs[ 2 ][ 'title' ] ?? '' );
+	}
+
+	public function test_investigate_asset_subnavs_use_contextual_crumb_labels_and_hrefs() :void {
 		$builder = new BuildBreadCrumbsForTest();
 
-		foreach ( [
-			PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
-			PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
-			PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
-		] as $subNav ) {
+		$expected = [
+			PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => 'Plugins',
+			PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => 'Themes',
+			PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => 'WordPress Core',
+		];
+		foreach ( $expected as $subNav => $label ) {
 			$crumbs = $builder->parse( PluginNavs::NAV_ACTIVITY, $subNav );
 			$this->assertCount( 3, $crumbs );
-			$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity' ], \array_column( $crumbs, 'text' ) );
+			$this->assertSame( [ 'Shield Security', 'Investigate', $label ], \array_column( $crumbs, 'text' ) );
+			$this->assertSame( '/activity/'.$subNav, $crumbs[ 2 ][ 'href' ] ?? '' );
+			$this->assertSame( 'Navigation: '.$label, $crumbs[ 2 ][ 'title' ] ?? '' );
 		}
 	}
 
-	public function test_child_tool_page_keeps_nav_home_crumb() :void {
+	public function test_investigate_logs_subnav_uses_activity_log_crumb_label_and_href() :void {
 		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
 			PluginNavs::NAV_ACTIVITY,
 			PluginNavs::SUBNAV_LOGS
 		);
 
 		$this->assertCount( 3, $crumbs );
-		$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( [ 'Shield Security', 'Investigate', 'Activity Log' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/activity/logs', $crumbs[ 2 ][ 'href' ] ?? '' );
+		$this->assertSame( 'Navigation: Activity Log', $crumbs[ 2 ][ 'title' ] ?? '' );
 	}
 
 	public function test_reports_non_landing_subnavs_keep_nav_home_crumb() :void {

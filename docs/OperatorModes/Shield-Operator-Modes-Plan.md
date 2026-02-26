@@ -621,6 +621,11 @@ The Actions Queue landing page is primarily a composition of existing components
 
 This step is required to close post-P6 UX feedback and remove duplicated/legacy presentation patterns.
 
+**Execution snapshot (2026-02-26):**
+1. Completed in current code/tests: `OM-701`, `OM-702`, `OM-703`, `OM-704`, `OM-705`, `OM-706`, `OM-707`, `OM-710`.
+2. Pending and next-session scope: `OM-708`, `OM-709`, `OM-711`.
+3. Recommended execution order for the next session: `OM-708` -> `OM-709` -> `OM-711`.
+
 Mandatory criteria:
 1. Remove duplicated header/summary blocks where the same content exists in overview/tab content (plugin/theme/core and by-ip framing).
    - Do not migrate legacy subject-change buttons from removed headers into Overview tab content.

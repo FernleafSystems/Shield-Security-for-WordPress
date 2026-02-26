@@ -1,0 +1,33 @@
+{% if subject.panel_type == 'lookup_text' %}
+	<form method="get" action="{{ subject.href }}" class="d-flex flex-column gap-2">
+		{% include '/wpadmin/components/investigate/lookup_route_hidden_inputs.twig' with {
+			lookup_route: subject.lookup_route
+		} only %}
+		<label class="form-label mb-0">{{ subject.panel_title }}</label>
+		<input type="text"
+			   name="{{ subject.input_key }}"
+			   class="form-control"
+			   value="{{ subject.input_value|default('') }}"
+			   placeholder="{{ subject.lookup_placeholder }}"{% if subject.input_key == 'user_lookup' %} autocomplete="on"{% endif %}/>
+		<button type="submit" class="btn btn-outline-primary align-self-start">{{ subject.go_label }}</button>
+	</form>
+	{% if subject.key == 'ips' and flags.has_ip_lookup and not flags.ip_is_valid %}
+		<div class="alert alert-warning mt-3 mb-0">{{ strings.ip_invalid_text }}</div>
+	{% endif %}
+{% elseif subject.panel_type == 'lookup_select' %}
+	<form method="get" action="{{ subject.href }}" class="d-flex flex-column gap-2">
+		{% include '/wpadmin/components/investigate/lookup_route_hidden_inputs.twig' with {
+			lookup_route: subject.lookup_route
+		} only %}
+		<label class="form-label mb-0">{{ subject.panel_title }}</label>
+		<select name="{{ subject.input_key }}" class="form-select">
+			<option value="">{{ subject.lookup_placeholder }}</option>
+			{% for option in subject.options %}
+				<option value="{{ option.value }}" {{ subject.input_value == option.value ? 'selected' : '' }}>
+					{{ option.label }}
+				</option>
+			{% endfor %}
+		</select>
+		<button type="submit" class="btn btn-outline-primary align-self-start">{{ subject.go_label }}</button>
+	</form>
+{% endif %}

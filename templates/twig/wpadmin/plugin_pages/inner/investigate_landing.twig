@@ -1,103 +1,53 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="investigate-landing row g-3">
-		<div class="col-12">
-			<div class="card shield-card">
-				<div class="shield-card-accent status-info"></div>
-				<div class="card-body">
-					<h5 class="card-title mb-3">{{ strings.selector_title }}</h5>
-					<ul class="nav row g-3 list-unstyled mb-0" id="investigateSubjectTabs" role="tablist">
-						{% for subject in vars.subjects %}
-							<li class="col-12 col-md-6 col-xl-4 nav-item" role="presentation">
-								<a class="nav-link h-100 p-0 {{ subject.is_active ? 'active' : '' }}"
-								   id="{{ subject.tab_id }}-tab"
-								   data-bs-toggle="tab"
-								   href="#{{ subject.tab_id }}"
-								   role="tab"
-								   aria-controls="{{ subject.tab_id }}"
-								   aria-selected="{{ subject.is_active ? 'true' : 'false' }}">
-									<div class="card shield-card h-100">
-										<div class="shield-card-accent status-info"></div>
-										<div class="card-body fw-semibold">{{ subject.subject_label }}</div>
-									</div>
-								</a>
-							</li>
-						{% endfor %}
-					</ul>
-				</div>
-			</div>
-		</div>
+	<div class="investigate-landing">
+		<div class="card shield-card">
+			<div class="shield-card-accent status-info"></div>
+			<div class="card-body">
+				<h5 class="card-title mb-1">{{ strings.selector_title }}</h5>
+				<p class="text-muted small mb-3">{{ strings.selector_intro }}</p>
 
-		<div class="col-12">
-			<div class="card shield-card">
-				<div class="shield-card-accent status-warning"></div>
-				<div class="card-body">
-					<div class="tab-content" id="investigateSubjectTabContent">
-						{% for subject in vars.subjects %}
-							<div class="tab-pane fade {{ subject.is_active ? 'show active' : '' }}"
-								 id="{{ subject.tab_id }}"
-								 role="tabpanel"
-								 aria-labelledby="{{ subject.tab_id }}-tab">
-								{% if subject.panel_type == 'lookup_text' %}
-									<form method="get" action="{{ subject.href }}" class="d-flex flex-column gap-2">
-										<input type="hidden" name="page" value="{{ subject.lookup_route.page|default('') }}" />
-										<input type="hidden" name="nav" value="{{ subject.lookup_route.nav|default('') }}" />
-										<input type="hidden" name="nav_sub" value="{{ subject.lookup_route.nav_sub|default('') }}" />
-										<label class="form-label mb-0">{{ subject.panel_title }}</label>
-										<input type="text"
-											   name="{{ subject.input_key }}"
-											   class="form-control"
-											   value="{{ subject.input_value|default('') }}"
-											   placeholder="{{ subject.lookup_placeholder }}"{% if subject.input_key == 'user_lookup' %} autocomplete="on"{% endif %}/>
-										<button type="submit" class="btn btn-outline-primary align-self-start">{{ subject.go_label }}</button>
-									</form>
-									{% if subject.key == 'ips' and flags.has_ip_lookup and not flags.ip_is_valid %}
-										<div class="alert alert-warning mt-3 mb-0">{{ strings.ip_invalid_text }}</div>
-									{% endif %}
-								{% elseif subject.panel_type == 'lookup_select' %}
-									<form method="get" action="{{ subject.href }}" class="d-flex flex-column gap-2">
-										<input type="hidden" name="page" value="{{ subject.lookup_route.page|default('') }}" />
-										<input type="hidden" name="nav" value="{{ subject.lookup_route.nav|default('') }}" />
-										<input type="hidden" name="nav_sub" value="{{ subject.lookup_route.nav_sub|default('') }}" />
-										<label class="form-label mb-0">{{ subject.panel_title }}</label>
-										<select name="{{ subject.input_key }}" class="form-select">
-											<option value="">{{ subject.lookup_placeholder }}</option>
-											{% for option in subject.options %}
-												<option value="{{ option.value }}" {{ subject.input_value == option.value ? 'selected' : '' }}>
-													{{ option.label }}
-												</option>
-											{% endfor %}
-										</select>
-										<button type="submit" class="btn btn-outline-primary align-self-start">{{ subject.go_label }}</button>
-									</form>
-								{% else %}
-									<label class="form-label mb-2">{{ subject.panel_title }}</label>
-									<div>
-										<a href="{{ subject.href }}" class="btn btn-outline-primary">{{ subject.go_label }}</a>
-									</div>
-								{% endif %}
-							</div>
-						{% endfor %}
-					</div>
-				</div>
-			</div>
-		</div>
+				<ul class="nav nav-pills row g-2 list-unstyled mb-3" id="investigateSubjectTabs" role="tablist">
+					{% for subject in vars.subjects %}
+						<li class="col-12 col-md-6 col-xl-4 nav-item" role="presentation">
+							<a class="nav-link w-100 text-start {{ subject.is_active ? 'active' : '' }}"
+							   id="{{ subject.tab_id }}-tab"
+							   data-bs-toggle="tab"
+							   href="#{{ subject.tab_id }}"
+							   role="tab"
+							   aria-controls="{{ subject.tab_id }}"
+							   aria-selected="{{ subject.is_active ? 'true' : 'false' }}">
+								{{ subject.subject_label }}
+							</a>
+						</li>
+					{% endfor %}
+				</ul>
 
-		<div class="col-12">
-			<div class="card shield-card">
-				<div class="shield-card-accent status-info"></div>
-				<div class="card-body">
-					<h5 class="card-title mb-3">{{ strings.quick_tools_title }}</h5>
-					<div class="d-flex flex-wrap gap-2">
-						<a href="{{ hrefs.activity_log }}" class="btn btn-outline-secondary">{{ strings.tool_activity }}</a>
-						<a href="{{ hrefs.traffic_log }}" class="btn btn-outline-secondary">{{ strings.tool_traffic }}</a>
-						<a href="{{ hrefs.live_traffic }}" class="btn btn-outline-secondary">{{ strings.tool_live }}</a>
-						<a href="{{ hrefs.ip_rules }}" class="btn btn-outline-secondary">{{ strings.tool_ip_rules }}</a>
-					</div>
+				<div class="tab-content" id="investigateSubjectTabContent">
+					{% for subject in vars.subjects %}
+						<div class="tab-pane fade {{ subject.is_active ? 'show active' : '' }}"
+							 id="{{ subject.tab_id }}"
+							 role="tabpanel"
+							 aria-labelledby="{{ subject.tab_id }}-tab">
+							<p class="text-muted small mb-2">{{ strings.panel_intro }}</p>
+
+							{% if subject.panel_type == 'lookup_text' or subject.panel_type == 'lookup_select' %}
+								{% include '/wpadmin/components/investigate/lookup_panel.twig' with {
+									subject: subject,
+									strings: strings,
+									flags: flags
+								} only %}
+							{% else %}
+								<label class="form-label mb-2">{{ subject.panel_title }}</label>
+								<div>
+									<a href="{{ subject.href }}" class="btn btn-outline-primary">{{ subject.go_label }}</a>
+								</div>
+							{% endif %}
+						</div>
+					{% endfor %}
 				</div>
 			</div>
 		</div>
 	</div>
 {% endblock %}
-

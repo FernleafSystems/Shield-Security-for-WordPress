@@ -128,7 +128,7 @@
 																	<a href="{{ related.href }}"
 																	   class="offcanvas_ip_analysis ip-address fw-semibold"
 																	   data-ip="{{ related.ip }}">{{ related.ip }}</a>
-																	<span class="shield-badge badge-{{ related.status|default('info') }} status-{{ related.status|default('info') }} investigate-by-user-ip-status">{{ related.status|default('info')|upper }}</span>
+																	<span class="shield-badge badge-{{ related.status|default('info') }} status-{{ related.status|default('info') }} investigate-by-user-ip-status">{{ related.status_label|default('') }}</span>
 																</div>
 																{% if related.investigate_href|default('') is not empty %}
 																	<div>
@@ -142,9 +142,9 @@
 																	{% endif %}
 																</div>
 																<div class="small text-muted investigate-by-user-ip-counts">
-																	S: {{ related.sessions_count|default(0) }} |
-																	A: {{ related.activity_count|default(0) }} |
-																	R: {{ related.requests_count|default(0) }}
+																	Sessions: {{ related.sessions_count|default(0) }} |
+																	Activity: {{ related.activity_count|default(0) }} |
+																	Requests: {{ related.requests_count|default(0) }}
 																</div>
 															</div>
 														</div>

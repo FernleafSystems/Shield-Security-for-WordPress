@@ -70,6 +70,8 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
 		$this->assertHtmlContainsMarker( 'shield-ipanalyse', $html, 'By-ip analysis container marker' );
+		$this->assertHtmlContainsMarker( 'Overview', $html, 'By-ip overview tab label marker' );
+		$this->assertHtmlNotContainsMarker( 'Change IP', $html, 'Removed by-ip wrapper text marker' );
 	}
 
 	public function test_no_lookup_renders_without_ip_analysis_container() :void {
