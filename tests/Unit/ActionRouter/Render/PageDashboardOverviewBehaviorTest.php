@@ -17,9 +17,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private object $renderCapture;
 
@@ -36,7 +39,7 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 
 	public function test_dashboard_overview_renders_operator_mode_landing_content_only() :void {
 		$page = new PageDashboardOverview();
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertSame( PageOperatorModeLanding::class, (string)$this->renderCapture->action );
 		$this->assertSame( [], (array)$this->renderCapture->actionData );
@@ -74,11 +77,5 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 		};
 
 		PluginControllerInstaller::install( $controller );
-	}
-
-	private function invokeGetRenderData( PageDashboardOverview $page ) :array {
-		$method = new \ReflectionMethod( $page, 'getRenderData' );
-		$method->setAccessible( true );
-		return $method->invoke( $page );
 	}
 }

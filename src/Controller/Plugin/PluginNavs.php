@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	InstantAlerts,
+	Reporting
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginNavs {
@@ -97,25 +101,25 @@ class PluginNavs {
 				self::NAV_ACTIVITY        => [
 					'name'     => __( 'Activity', 'wp-simple-firewall' ),
 					'sub_navs' => [
-						self::SUBNAV_ACTIVITY_OVERVIEW => [
+						self::SUBNAV_ACTIVITY_OVERVIEW  => [
 							'handler' => PluginAdminPages\PageInvestigateLanding::class,
 						],
-						self::SUBNAV_ACTIVITY_BY_USER  => [
+						self::SUBNAV_ACTIVITY_BY_USER   => [
 							'handler' => PluginAdminPages\PageInvestigateByUser::class,
 						],
-						self::SUBNAV_ACTIVITY_BY_IP    => [
+						self::SUBNAV_ACTIVITY_BY_IP     => [
 							'handler' => PluginAdminPages\PageInvestigateByIp::class,
 						],
 						self::SUBNAV_ACTIVITY_BY_PLUGIN => [
 							'handler' => PluginAdminPages\PageInvestigateByPlugin::class,
 						],
-						self::SUBNAV_ACTIVITY_BY_THEME => [
+						self::SUBNAV_ACTIVITY_BY_THEME  => [
 							'handler' => PluginAdminPages\PageInvestigateByTheme::class,
 						],
-						self::SUBNAV_ACTIVITY_BY_CORE => [
+						self::SUBNAV_ACTIVITY_BY_CORE   => [
 							'handler' => PluginAdminPages\PageInvestigateByCore::class,
 						],
-						self::SUBNAV_LOGS              => [
+						self::SUBNAV_LOGS               => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
 						],
 					],
@@ -149,20 +153,10 @@ class PluginNavs {
 				],
 				self::NAV_REPORTS         => [
 					'name'     => __( 'Reports', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_REPORTS_OVERVIEW => [
-							'handler' => PluginAdminPages\PageReportsLanding::class,
-						],
-						self::SUBNAV_REPORTS_LIST     => [
-							'handler' => PluginAdminPages\PageReports::class,
-						],
-						self::SUBNAV_REPORTS_CHARTS   => [
-							'handler' => PluginAdminPages\PageReports::class,
-						],
-						self::SUBNAV_REPORTS_SETTINGS => [
-							'handler' => PluginAdminPages\PageReports::class,
-						],
-					],
+					'sub_navs' => \array_map(
+						fn( string $handler ) :array => [ 'handler' => $handler ],
+						self::reportsRouteHandlers()
+					),
 				],
 				self::NAV_RESTRICTED      => [
 					'name'     => __( 'Restricted', 'wp-simple-firewall' ),
@@ -192,10 +186,10 @@ class PluginNavs {
 						self::SUBNAV_SCANS_OVERVIEW => [
 							'handler' => PluginAdminPages\PageActionsQueueLanding::class,
 						],
-						self::SUBNAV_SCANS_RESULTS => [
+						self::SUBNAV_SCANS_RESULTS  => [
 							'handler' => PluginAdminPages\PageScansResults::class,
 						],
-						self::SUBNAV_SCANS_RUN     => [
+						self::SUBNAV_SCANS_RUN      => [
 							'handler' => PluginAdminPages\PageScansRun::class,
 						],
 					],
@@ -248,11 +242,7 @@ class PluginNavs {
 							],
 						],
 						\array_map(
-							function () {
-								return [
-									'handler' => PluginAdminPages\PageDynamicLoad::class,
-								];
-							},
+							fn() :array => [ 'handler' => PluginAdminPages\PageDynamicLoad::class ],
 							\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
 						)
 					),
@@ -260,11 +250,7 @@ class PluginNavs {
 				self::NAV_ZONE_COMPONENTS => [
 					'name'     => __( 'Security Zones Config', 'wp-simple-firewall' ),
 					'sub_navs' => \array_map(
-						function () {
-							return [
-								'handler' => PluginAdminPages\PageZoneComponentConfig::class,
-							];
-						},
+						fn() :array => [ 'handler' => PluginAdminPages\PageZoneComponentConfig::class, ],
 						\array_flip( \array_keys( self::con()->comps->zones->enumZoneComponents() ) )
 					),
 				],
@@ -396,6 +382,55 @@ class PluginNavs {
 			default:
 				return __( 'Mode Selector', 'wp-simple-firewall' );
 		}
+	}
+
+	public static function reportsWorkspaceDefinitions() :array {
+		return [
+			self::SUBNAV_REPORTS_LIST     => [
+				'menu_title'    => __( 'Security Reports', 'wp-simple-firewall' ),
+				'landing_cta'   => __( 'Open Reports List', 'wp-simple-firewall' ),
+				'page_title'    => __( 'View & Create', 'wp-simple-firewall' ),
+				'page_subtitle' => __( 'View and create new security reports.', 'wp-simple-firewall' ),
+			],
+			self::SUBNAV_REPORTS_CHARTS   => [
+				'menu_title'    => __( 'Charts & Trends', 'wp-simple-firewall' ),
+				'landing_cta'   => __( 'Open Charts & Trends', 'wp-simple-firewall' ),
+				'page_title'    => __( 'Charts & Trends', 'wp-simple-firewall' ),
+				'page_subtitle' => __( 'Review recent security trend metrics.', 'wp-simple-firewall' ),
+			],
+			self::SUBNAV_REPORTS_SETTINGS => [
+				'menu_title'    => __( 'Alert Settings', 'wp-simple-firewall' ),
+				'landing_cta'   => __( 'Open Alert Settings', 'wp-simple-firewall' ),
+				'page_title'    => __( 'Alert Settings', 'wp-simple-firewall' ),
+				'page_subtitle' => __( 'Manage instant alerts and report delivery settings.', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
+	public static function reportsRouteHandlers() :array {
+		return \array_merge(
+			[
+				self::SUBNAV_REPORTS_OVERVIEW => PluginAdminPages\PageReportsLanding::class,
+			],
+			\array_fill_keys(
+				\array_keys( self::reportsWorkspaceDefinitions() ),
+				PluginAdminPages\PageReports::class
+			)
+		);
+	}
+
+	public static function reportsDefaultWorkspaceSubNav() :string {
+		$subNav = \key( self::reportsWorkspaceDefinitions() );
+		return \is_string( $subNav ) && !empty( $subNav )
+			? $subNav
+			: self::SUBNAV_REPORTS_LIST;
+	}
+
+	public static function reportsSettingsZoneComponentSlugs() :array {
+		return [
+			InstantAlerts::Slug(),
+			Reporting::Slug(),
+		];
 	}
 
 	private static function sanitizeOperatorMode( string $mode ) :string {

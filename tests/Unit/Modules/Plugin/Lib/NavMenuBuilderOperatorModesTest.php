@@ -149,6 +149,11 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			],
 			\array_column( $subItems, 'href' )
 		);
+		$this->assertSame( '/admin/reports/list', $reports[ 'href' ] ?? '' );
+		$this->assertSame(
+			\implode( ',', PluginNavs::reportsSettingsZoneComponentSlugs() ),
+			$reports[ 'config' ][ 'data' ][ 'zone_component_slug' ] ?? ''
+		);
 	}
 
 	public function testModeSelectorAssignsPrimaryAndMetaGroups() :void {

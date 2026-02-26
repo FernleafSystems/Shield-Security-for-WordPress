@@ -20,9 +20,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class PageReportsLandingBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private object $renderCapture;
 
@@ -39,7 +42,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_landing_content_renders_charts_summary_and_reports_table() :void {
 		$page = new PageReportsLanding();
-		$content = $this->invokeProtectedMethod( $page, 'getLandingContent' );
+		$content = $this->invokeNonPublicMethod( $page, 'getLandingContent' );
 
 		$this->assertSame(
 			[
@@ -63,7 +66,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_landing_hrefs_include_list_charts_and_settings() :void {
 		$page = new PageReportsLanding();
-		$hrefs = $this->invokeProtectedMethod( $page, 'getLandingHrefs' );
+		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
 
 		$this->assertSame(
 			[
@@ -77,7 +80,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_landing_strings_include_list_charts_and_settings_ctas() :void {
 		$page = new PageReportsLanding();
-		$strings = $this->invokeProtectedMethod( $page, 'getLandingStrings' );
+		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
 		$this->assertSame( 'Open Reports List', $strings[ 'cta_reports_list' ] ?? '' );
 		$this->assertSame( 'Open Charts & Trends', $strings[ 'cta_reports_charts' ] ?? '' );
@@ -118,11 +121,5 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		};
 
 		PluginControllerInstaller::install( $controller );
-	}
-
-	private function invokeProtectedMethod( object $subject, string $methodName ) {
-		$method = new \ReflectionMethod( $subject, $methodName );
-		$method->setAccessible( true );
-		return $method->invoke( $subject );
 	}
 }

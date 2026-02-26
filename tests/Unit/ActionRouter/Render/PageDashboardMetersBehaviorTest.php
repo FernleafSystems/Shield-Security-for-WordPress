@@ -16,9 +16,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponent;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class PageDashboardMetersBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private object $renderCapture;
 
@@ -39,7 +42,7 @@ class PageDashboardMetersBehaviorTest extends BaseUnitTest {
 			'view_as_msg'     => '',
 			'view_as_href'    => [],
 		] );
-		$renderData = $this->invokeGetRenderData( $page );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertSame( ProgressMeters::class, (string)$this->renderCapture->action );
 		$this->assertSame(
@@ -82,12 +85,6 @@ class PageDashboardMetersBehaviorTest extends BaseUnitTest {
 		};
 
 		PluginControllerInstaller::install( $controller );
-	}
-
-	private function invokeGetRenderData( PageDashboardMeters $page ) :array {
-		$method = new \ReflectionMethod( $page, 'getRenderData' );
-		$method->setAccessible( true );
-		return $method->invoke( $page );
 	}
 }
 

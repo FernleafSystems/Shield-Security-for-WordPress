@@ -16,6 +16,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	InstantAlerts,
+	Reporting
+};
 
 class PluginNavsOperatorModesTest extends BaseUnitTest {
 
@@ -42,6 +46,58 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	public function test_reports_subnav_constants_match_expected_contract() :void {
 		$this->assertSame( 'charts', PluginNavs::SUBNAV_REPORTS_CHARTS );
 		$this->assertSame( 'settings', PluginNavs::SUBNAV_REPORTS_SETTINGS );
+	}
+
+	public function test_reports_workspace_definitions_match_expected_contract() :void {
+		$this->assertSame(
+			[
+				PluginNavs::SUBNAV_REPORTS_LIST     => [
+					'menu_title'    => 'Security Reports',
+					'landing_cta'   => 'Open Reports List',
+					'page_title'    => 'View & Create',
+					'page_subtitle' => 'View and create new security reports.',
+				],
+				PluginNavs::SUBNAV_REPORTS_CHARTS   => [
+					'menu_title'    => 'Charts & Trends',
+					'landing_cta'   => 'Open Charts & Trends',
+					'page_title'    => 'Charts & Trends',
+					'page_subtitle' => 'Review recent security trend metrics.',
+				],
+				PluginNavs::SUBNAV_REPORTS_SETTINGS => [
+					'menu_title'    => 'Alert Settings',
+					'landing_cta'   => 'Open Alert Settings',
+					'page_title'    => 'Alert Settings',
+					'page_subtitle' => 'Manage instant alerts and report delivery settings.',
+				],
+			],
+			PluginNavs::reportsWorkspaceDefinitions()
+		);
+	}
+
+	public function test_reports_route_handlers_match_expected_contract() :void {
+		$this->assertSame(
+			[
+				PluginNavs::SUBNAV_REPORTS_OVERVIEW => PluginAdminPages\PageReportsLanding::class,
+				PluginNavs::SUBNAV_REPORTS_LIST     => PluginAdminPages\PageReports::class,
+				PluginNavs::SUBNAV_REPORTS_CHARTS   => PluginAdminPages\PageReports::class,
+				PluginNavs::SUBNAV_REPORTS_SETTINGS => PluginAdminPages\PageReports::class,
+			],
+			PluginNavs::reportsRouteHandlers()
+		);
+	}
+
+	public function test_reports_default_workspace_subnav_is_list() :void {
+		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, PluginNavs::reportsDefaultWorkspaceSubNav() );
+	}
+
+	public function test_reports_settings_zone_component_slugs_match_expected_contract() :void {
+		$this->assertSame(
+			[
+				InstantAlerts::Slug(),
+				Reporting::Slug(),
+			],
+			PluginNavs::reportsSettingsZoneComponentSlugs()
+		);
 	}
 
 	public function test_default_entry_for_mode_returns_expected_nav_subnav_pairs() :void {

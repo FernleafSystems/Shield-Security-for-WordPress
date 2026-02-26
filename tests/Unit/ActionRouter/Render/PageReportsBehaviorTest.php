@@ -11,12 +11,14 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageReports;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	InstantAlerts,
@@ -24,6 +26,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 };
 
 class PageReportsBehaviorTest extends BaseUnitTest {
+
+	use InvokesNonPublicMethods;
 
 	private object $renderCapture;
 
@@ -45,8 +49,8 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			'nav_sub' => PluginNavs::SUBNAV_REPORTS_LIST,
 		] );
 
-		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
-		$contextualHrefs = $this->invokeProtectedMethod( $page, 'getPageContextualHrefs' );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextualHrefs = $this->invokeNonPublicMethod( $page, 'getPageContextualHrefs' );
 
 		$this->assertSame(
 			[
@@ -71,8 +75,8 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			'nav_sub' => PluginNavs::SUBNAV_REPORTS_CHARTS,
 		] );
 
-		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
-		$contextualHrefs = $this->invokeProtectedMethod( $page, 'getPageContextualHrefs' );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextualHrefs = $this->invokeNonPublicMethod( $page, 'getPageContextualHrefs' );
 
 		$this->assertSame(
 			[
@@ -94,14 +98,11 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			'nav_sub' => PluginNavs::SUBNAV_REPORTS_SETTINGS,
 		] );
 
-		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
-		$contextualHrefs = $this->invokeProtectedMethod( $page, 'getPageContextualHrefs' );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextualHrefs = $this->invokeNonPublicMethod( $page, 'getPageContextualHrefs' );
 
 		$this->assertSame(
-			[
-				InstantAlerts::Slug(),
-				Reporting::Slug(),
-			],
+			PluginNavs::reportsSettingsZoneComponentSlugs(),
 			$this->zoneCapture->requested
 		);
 		$this->assertSame(
@@ -123,6 +124,25 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'alerts_settings' ] ?? '' );
 		$this->assertSame( 'Alert Settings', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
 		$this->assertSame( 'Manage instant alerts and report delivery settings.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertSame( [], $contextualHrefs );
+	}
+
+	public function test_unknown_subnav_preserves_fallback_title_subtitle_and_empty_content() :void {
+		$page = new PageReports( [
+			'nav_sub' => 'unknown-subnav',
+		] );
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextualHrefs = $this->invokeNonPublicMethod( $page, 'getPageContextualHrefs' );
+
+		$this->assertSame( [], $this->renderCapture->calls );
+		$this->assertSame( [], $this->zoneCapture->requested );
+		$this->assertSame( [], $renderData[ 'content' ] ?? [] );
+		$this->assertSame(
+			CommonDisplayStrings::get( 'security_reports_label' ),
+			$renderData[ 'strings' ][ 'inner_page_title' ] ?? ''
+		);
+		$this->assertSame( 'Summary Security Reports.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
 		$this->assertSame( [], $contextualHrefs );
 	}
 
@@ -190,11 +210,5 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		];
 
 		PluginControllerInstaller::install( $controller );
-	}
-
-	private function invokeProtectedMethod( object $subject, string $methodName ) {
-		$method = new \ReflectionMethod( $subject, $methodName );
-		$method->setAccessible( true );
-		return $method->invoke( $subject );
 	}
 }

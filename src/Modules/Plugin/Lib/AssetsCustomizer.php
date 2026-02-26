@@ -401,7 +401,7 @@ class AssetsCustomizer {
 			],
 			'reports'          => [
 				'key'      => 'reports',
-				'required' => PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
+				'required' => PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::reportsDefaultWorkspaceSubNav() ),
 				'handles'  => [
 					'main',
 				],

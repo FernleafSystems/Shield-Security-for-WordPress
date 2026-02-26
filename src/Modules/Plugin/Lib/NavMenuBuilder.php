@@ -10,11 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	ActivityLogging,
-	InstantAlerts,
 	LoginHide,
 	Modules\ModuleIntegrations,
 	Modules\ModulePlugin,
-	Reporting,
 	RequestLogging,
 	Whitelabel
 };
@@ -549,41 +547,32 @@ class NavMenuBuilder {
 
 	private function reports() :array {
 		$con = self::con();
+		$workspace = PluginNavs::reportsWorkspaceDefinitions();
+		$subItems = [];
+		foreach ( $workspace as $subNav => $definition ) {
+			$subItems[] = $this->createSubItemForNavAndSub(
+				(string)( $definition[ 'menu_title' ] ?? '' ),
+				PluginNavs::NAV_REPORTS,
+				$subNav
+			);
+		}
+
 		return [
 			'slug'      => PluginNavs::NAV_REPORTS,
 			'title'     => __( 'Reports', 'wp-simple-firewall' ),
 			'subtitle'  => __( "See What's Happening", 'wp-simple-firewall' ),
 			'img'       => $con->svgs->iconClass( 'clipboard-data-fill' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
+			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::reportsDefaultWorkspaceSubNav() ),
 			'active'    => $this->inav() === PluginNavs::NAV_REPORTS,
 			'introjs'   => [
 				'title' => __( 'Reports', 'wp-simple-firewall' ),
 				'body'  => __( "Security Reports.", 'wp-simple-firewall' ),
 			],
 			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_REPORTS,
-				[
-					InstantAlerts::Slug(),
-					Reporting::Slug()
-				],
+				PluginNavs::reportsSettingsZoneComponentSlugs(),
 				__( 'Edit reporting settings', 'wp-simple-firewall' )
 			),
-			'sub_items' => [
-				$this->createSubItemForNavAndSub(
-					__( 'Security Reports', 'wp-simple-firewall' ),
-					PluginNavs::NAV_REPORTS,
-					PluginNavs::SUBNAV_REPORTS_LIST
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Charts & Trends', 'wp-simple-firewall' ),
-					PluginNavs::NAV_REPORTS,
-					PluginNavs::SUBNAV_REPORTS_CHARTS
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Alert Settings', 'wp-simple-firewall' ),
-					PluginNavs::NAV_REPORTS,
-					PluginNavs::SUBNAV_REPORTS_SETTINGS
-				),
-			],
+			'sub_items' => $subItems,
 		];
 	}
 

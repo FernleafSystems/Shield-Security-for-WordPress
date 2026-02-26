@@ -7,10 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
-	InstantAlerts,
-	Reporting
-};
 
 class PageReports extends BasePluginAdminPage {
 
@@ -19,7 +15,10 @@ class PageReports extends BasePluginAdminPage {
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();
 		$hrefs = [];
-		if ( $this->action_data[ 'nav_sub' ] === PluginNavs::SUBNAV_REPORTS_LIST && $con->caps->canReportsLocal() ) {
+		$renderDefinition = $this->getCurrentSubNavRenderDefinition();
+		if ( !empty( $renderDefinition )
+			 && ( $renderDefinition[ 'show_create_action' ] ?? false )
+			 && $con->caps->canReportsLocal() ) {
 			\array_unshift( $hrefs, [
 				'title'   => __( 'Create Custom Report', 'wp-simple-firewall' ),
 				'href'    => '#',
@@ -51,68 +50,79 @@ class PageReports extends BasePluginAdminPage {
 	}
 
 	protected function getInnerPageTitle() :string {
-		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_REPORTS_LIST:
-				$title = __( 'View & Create', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_REPORTS_CHARTS:
-				$title = __( 'Charts & Trends', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_REPORTS_SETTINGS:
-				$title = __( 'Alert Settings', 'wp-simple-firewall' );
-				break;
-			default:
-				$title = CommonDisplayStrings::get( 'security_reports_label' );
-				break;
-		}
-		return $title;
+		$definition = $this->getCurrentWorkspaceDefinition();
+		return !empty( $definition[ 'page_title' ] )
+			? (string)$definition[ 'page_title' ]
+			: CommonDisplayStrings::get( 'security_reports_label' );
 	}
 
 	protected function getInnerPageSubTitle() :string {
-		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_REPORTS_LIST:
-				$title = __( 'View and create new security reports.', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_REPORTS_CHARTS:
-				$title = __( 'Review recent security trend metrics.', 'wp-simple-firewall' );
-				break;
-			case PluginNavs::SUBNAV_REPORTS_SETTINGS:
-				$title = __( 'Manage instant alerts and report delivery settings.', 'wp-simple-firewall' );
-				break;
-			default:
-				$title = __( 'Summary Security Reports.', 'wp-simple-firewall' );
-				break;
-		}
-		return $title;
+		$definition = $this->getCurrentWorkspaceDefinition();
+		return !empty( $definition[ 'page_subtitle' ] )
+			? (string)$definition[ 'page_subtitle' ]
+			: __( 'Summary Security Reports.', 'wp-simple-firewall' );
 	}
 
 	private function buildContent() :array {
-		$AR = self::con()->action_router;
-		switch ( $this->action_data[ 'nav_sub' ] ) {
-			case PluginNavs::SUBNAV_REPORTS_LIST:
-				$content = [
-					'create_report' => $AR->render( Reports\PageReportsView::class ),
-				];
-				break;
-			case PluginNavs::SUBNAV_REPORTS_CHARTS:
-				$content = [
-					'summary_charts' => $AR->render( Reports\ChartsSummary::class ),
-				];
-				break;
-			case PluginNavs::SUBNAV_REPORTS_SETTINGS:
-				$content = [
-					'alerts_settings' => $AR->render( OptionsFormFor::class, [
-						'options' => ( new GetOptionsForZoneComponents() )->run( [
-							InstantAlerts::Slug(),
-							Reporting::Slug(),
-						] ),
-					] ),
-				];
-				break;
-			default:
-				$content = [];
-				break;
+		$subNav = (string)( $this->action_data[ 'nav_sub' ] ?? '' );
+		$definition = $this->getCurrentSubNavRenderDefinition();
+		if ( empty( $definition[ 'content_key' ] ) || empty( $definition[ 'render_action' ] ) ) {
+			return [];
 		}
-		return $content;
+
+		return [
+			(string)$definition[ 'content_key' ] => self::con()->action_router->render(
+				(string)$definition[ 'render_action' ],
+				$this->buildActionDataForSubNav( $subNav )
+			),
+		];
+	}
+
+	private function getSubNavRenderDefinitions() :array {
+		return [
+			PluginNavs::SUBNAV_REPORTS_LIST     => [
+				'content_key'        => 'create_report',
+				'render_action'      => Reports\PageReportsView::class,
+				'show_create_action' => true,
+			],
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => [
+				'content_key'        => 'summary_charts',
+				'render_action'      => Reports\ChartsSummary::class,
+				'show_create_action' => false,
+			],
+			PluginNavs::SUBNAV_REPORTS_SETTINGS => [
+				'content_key'        => 'alerts_settings',
+				'render_action'      => OptionsFormFor::class,
+				'show_create_action' => false,
+			],
+		];
+	}
+
+	private function getCurrentSubNavRenderDefinition() :array {
+		$subNav = (string)( $this->action_data[ 'nav_sub' ] ?? '' );
+		return $this->getSubNavRenderDefinitions()[ $subNav ] ?? [];
+	}
+
+	private function getCurrentWorkspaceDefinition() :array {
+		$subNav = (string)( $this->action_data[ 'nav_sub' ] ?? '' );
+		return PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
+	}
+
+	private function buildActionDataForSubNav( string $subNav ) :array {
+		return $subNav === PluginNavs::SUBNAV_REPORTS_SETTINGS
+			? $this->buildReportsSettingsActionData()
+			: [];
+	}
+
+	private function buildReportsSettingsActionData() :array {
+		return [
+			'options' => $this->buildReportsSettingsOptions(),
+		];
+	}
+
+	private function buildReportsSettingsOptions() :array {
+		return ( new GetOptionsForZoneComponents() )->run(
+			PluginNavs::reportsSettingsZoneComponentSlugs()
+		);
 	}
 }
