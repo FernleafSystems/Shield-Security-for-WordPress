@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\Render\PageAdminPlugin,
+	Actions\Render\PluginAdminPages\PageInvestigateByTheme,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -27,6 +28,14 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderByThemePage( string $themeSlug = '' ) :array {
+		return $this->renderByThemePageAction( PageAdminPlugin::SLUG, $themeSlug );
+	}
+
+	private function renderByThemeInnerPage( string $themeSlug = '' ) :array {
+		return $this->renderByThemePageAction( PageInvestigateByTheme::SLUG, $themeSlug );
+	}
+
+	private function renderByThemePageAction( string $actionSlug, string $themeSlug = '' ) :array {
 		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
 		add_filter( $filter, '__return_true', 1000 );
 
@@ -40,7 +49,7 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 			}
 
 			return $this->processor()
-						->processAction( PageAdminPlugin::SLUG, $params )
+						->processAction( $actionSlug, $params )
 						->payload();
 		}
 		finally {
@@ -50,6 +59,10 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {
 		$themeSlug = $this->firstInstalledThemeSlug();
+		$renderData = (array)( $this->renderByThemeInnerPage( $themeSlug )[ 'render_data' ] ?? [] );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+
 		$payload = $this->renderByThemePage( $themeSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 

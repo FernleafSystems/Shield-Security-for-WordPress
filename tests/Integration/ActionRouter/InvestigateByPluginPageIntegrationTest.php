@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\Render\PageAdminPlugin,
+	Actions\Render\PluginAdminPages\PageInvestigateByPlugin,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -28,6 +29,14 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderByPluginPage( string $pluginSlug = '' ) :array {
+		return $this->renderByPluginPageAction( PageAdminPlugin::SLUG, $pluginSlug );
+	}
+
+	private function renderByPluginInnerPage( string $pluginSlug = '' ) :array {
+		return $this->renderByPluginPageAction( PageInvestigateByPlugin::SLUG, $pluginSlug );
+	}
+
+	private function renderByPluginPageAction( string $actionSlug, string $pluginSlug = '' ) :array {
 		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
 		add_filter( $filter, '__return_true', 1000 );
 
@@ -41,7 +50,7 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 			}
 
 			return $this->processor()
-						->processAction( PageAdminPlugin::SLUG, $params )
+						->processAction( $actionSlug, $params )
 						->payload();
 		}
 		finally {
@@ -51,6 +60,10 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
+		$renderData = (array)( $this->renderByPluginInnerPage( $pluginSlug )[ 'render_data' ] ?? [] );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+
 		$payload = $this->renderByPluginPage( $pluginSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 

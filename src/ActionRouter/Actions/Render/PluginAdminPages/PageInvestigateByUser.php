@@ -41,8 +41,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$request = Services::Request();
-		$lookup = \trim( sanitize_text_field( (string)$request->query( 'user_lookup', '' ) ) );
+		$lookup = $this->getTextInputFromRequestOrActionData( 'user_lookup' );
 		$subject = $this->resolveSubject( $lookup );
 		$hasLookup = !empty( $lookup );
 		$hasSubject = $subject instanceof \WP_User;

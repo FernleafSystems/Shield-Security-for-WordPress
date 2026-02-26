@@ -19,7 +19,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$lookup = \trim( sanitize_text_field( (string)Services::Request()->query( 'analyse_ip', '' ) ) );
+		$lookup = $this->getTextInputFromRequestOrActionData( 'analyse_ip' );
 		$hasLookup = !empty( $lookup );
 		$hasSubject = $hasLookup && Services::IP()->isValidIp( $lookup );
 

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\Render\PageAdminPlugin,
+	Actions\Render\PluginAdminPages\PageInvestigateByUser,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -32,6 +33,14 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderByUserPage( string $lookup = '' ) :array {
+		return $this->renderByUserPageAction( PageAdminPlugin::SLUG, $lookup );
+	}
+
+	private function renderByUserInnerPage( string $lookup = '' ) :array {
+		return $this->renderByUserPageAction( PageInvestigateByUser::SLUG, $lookup );
+	}
+
+	private function renderByUserPageAction( string $actionSlug, string $lookup = '' ) :array {
 		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
 		add_filter( $filter, '__return_true', 1000 );
 
@@ -45,7 +54,7 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 			}
 
 			return $this->processor()
-						->processAction( PageAdminPlugin::SLUG, $params )
+						->processAction( $actionSlug, $params )
 						->payload();
 		}
 		finally {
@@ -77,6 +86,10 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $userId );
 		$this->seedRequestLogForUser( $userId );
 
+		$renderData = (array)( $this->renderByUserInnerPage( (string)$userId )[ 'render_data' ] ?? [] );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+
 		$payload = $this->renderByUserPage( (string)$userId );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
@@ -97,6 +110,10 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$userId = \get_current_user_id();
 		$this->assertGreaterThan( 0, $userId );
 		$this->seedRequestLogForUser( $userId );
+
+		$renderData = (array)( $this->renderByUserInnerPage( (string)$userId )[ 'render_data' ] ?? [] );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
 
 		$payload = $this->renderByUserPage( (string)$userId );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
@@ -125,6 +142,10 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$userId = \get_current_user_id();
 		$this->assertGreaterThan( 0, $userId );
 		$this->seedRequestLogForUser( $userId, '203.0.113.88' );
+
+		$renderData = (array)( $this->renderByUserInnerPage( (string)$userId )[ 'render_data' ] ?? [] );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
 
 		$payload = $this->renderByUserPage( (string)$userId );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminAuthClear;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BasePluginAdminPage extends BaseRender {
 
@@ -58,5 +59,16 @@ abstract class BasePluginAdminPage extends BaseRender {
 
 	protected function getBreadCrumbs() :array {
 		return ( new BuildBreadCrumbs() )->current();
+	}
+
+	protected function getTextInputFromRequestOrActionData( string $key, string $default = '' ) :string {
+		$value = Services::Request()->query( $key, null );
+		if ( $value === null && \array_key_exists( $key, $this->action_data ) ) {
+			$value = $this->action_data[ $key ];
+		}
+		if ( $value === null ) {
+			$value = $default;
+		}
+		return \trim( sanitize_text_field( (string)$value ) );
 	}
 }

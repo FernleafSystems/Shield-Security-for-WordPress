@@ -240,7 +240,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	private function resolveActiveSubject() :string {
 		$explicit = $this->normalizeSubjectKey(
-			(string)Services::Request()->query( 'subject', '' )
+			$this->getTextInputFromRequestOrActionData( 'subject' )
 		);
 		if ( $explicit !== '' ) {
 			return $explicit;
@@ -266,10 +266,10 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	private function getInputValues() :array {
 		if ( $this->inputValuesCache === null ) {
 			$this->inputValuesCache = [
-				'user_lookup' => \trim( sanitize_text_field( (string)Services::Request()->query( 'user_lookup', '' ) ) ),
-				'analyse_ip'  => \trim( sanitize_text_field( (string)Services::Request()->query( 'analyse_ip', '' ) ) ),
-				'plugin_slug' => \trim( sanitize_text_field( (string)Services::Request()->query( 'plugin_slug', '' ) ) ),
-				'theme_slug'  => \trim( sanitize_text_field( (string)Services::Request()->query( 'theme_slug', '' ) ) ),
+				'user_lookup' => $this->getTextInputFromRequestOrActionData( 'user_lookup' ),
+				'analyse_ip'  => $this->getTextInputFromRequestOrActionData( 'analyse_ip' ),
+				'plugin_slug' => $this->getTextInputFromRequestOrActionData( 'plugin_slug' ),
+				'theme_slug'  => $this->getTextInputFromRequestOrActionData( 'theme_slug' ),
 			];
 		}
 		return $this->inputValuesCache;

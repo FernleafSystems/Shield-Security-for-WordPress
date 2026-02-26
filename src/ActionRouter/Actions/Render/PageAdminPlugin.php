@@ -15,6 +15,7 @@ class PageAdminPlugin extends BaseRender {
 
 	public const SLUG = 'page_admin_plugin';
 	public const TEMPLATE = '/wpadmin_pages/insights/index.twig';
+	private const INVESTIGATE_INPUT_KEYS = [ 'user_lookup', 'analyse_ip', 'plugin_slug', 'theme_slug', 'subject' ];
 
 	protected function getRenderData() :array {
 		$con = self::con();
@@ -53,10 +54,10 @@ class PageAdminPlugin extends BaseRender {
 				'page_container' => 'page-'.$nav
 			],
 			'content' => [
-				'rendered_page_body' => self::con()->action_router->render( $delegateAction::SLUG, [
-					Constants::NAV_ID     => $nav,
-					Constants::NAV_SUB_ID => $subNav,
-				] ),
+				'rendered_page_body' => self::con()->action_router->render(
+					$delegateAction::SLUG,
+					$this->buildDelegateActionData( $nav, $subNav )
+				),
 			],
 			'flags'   => [
 				'is_advanced' => false,
@@ -74,6 +75,23 @@ class PageAdminPlugin extends BaseRender {
 				'navbar_menu'            => ( new NavMenuBuilder() )->build(),
 			],
 		];
+	}
+
+	private function buildDelegateActionData( string $nav, string $subNav ) :array {
+		$data = [
+			Constants::NAV_ID     => $nav,
+			Constants::NAV_SUB_ID => $subNav,
+		];
+
+		if ( $nav === PluginNavs::NAV_ACTIVITY ) {
+			foreach ( self::INVESTIGATE_INPUT_KEYS as $key ) {
+				if ( \array_key_exists( $key, $this->action_data ) ) {
+					$data[ $key ] = $this->action_data[ $key ];
+				}
+			}
+		}
+
+		return $data;
 	}
 
 	protected function buildTopPageWarnings() :array {

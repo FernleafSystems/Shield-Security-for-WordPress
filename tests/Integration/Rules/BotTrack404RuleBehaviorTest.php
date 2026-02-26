@@ -144,7 +144,13 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_normal_404_response_fires_bottrack_event_with_offense_count() {
+		$this->enablePremiumCapabilities();
 		$this->prepareAnonymous404Request( '/definitely/missing/for-offense.php', 'transgression-single' );
+		$this->assertSame(
+			1,
+			self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_404' ),
+			'track_404 transgression-single should map to offense count of 1 in premium mode.'
+		);
 		$this->assertTrue( \is_404(), 'Request should be a 404 for this scenario.' );
 		$this->assertTrue( $this->evaluateFullRule(), 'Full BotTrack404 rule should match this request.' );
 
