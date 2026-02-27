@@ -182,7 +182,7 @@ else
     else
         # Install Composer dependencies for source testing
         echo "Source Testing Mode: Installing Composer dependencies..."
-        composer install --no-interaction --no-cache
+        composer install --no-interaction --prefer-dist --no-progress
 
         # Generate plugin.json from modular spec files (source testing only)
         # In package mode, PluginPackager already generates plugin.json in the package

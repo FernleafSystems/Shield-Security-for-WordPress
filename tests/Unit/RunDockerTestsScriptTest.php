@@ -119,10 +119,15 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$composerInstallLines = \array_values( \array_filter(
 			$capturedLines,
 			static function ( string $line ) :bool {
-				return \str_contains( $line, 'composer install --no-interaction --no-cache' );
+				return \str_contains( $line, 'composer install ' );
 			}
 		) );
 		$this->assertCount( 1, $composerInstallLines );
+		$composerInstallLine = $composerInstallLines[ 0 ];
+		$this->assertStringContainsString( '--no-interaction', $composerInstallLine );
+		$this->assertStringContainsString( '--prefer-dist', $composerInstallLine );
+		$this->assertStringContainsString( '--no-progress', $composerInstallLine );
+		$this->assertStringNotContainsString( '--no-cache', $composerInstallLine );
 
 		$buildConfigLines = \array_values( \array_filter(
 			$capturedLines,

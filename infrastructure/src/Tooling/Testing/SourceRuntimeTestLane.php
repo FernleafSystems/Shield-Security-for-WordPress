@@ -206,7 +206,7 @@ class SourceRuntimeTestLane {
 	 */
 	private function buildSourceSetupComposeCommands() :array {
 		return [
-			[ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'install', '--no-interaction', '--no-cache' ],
+			[ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'install', '--no-interaction', '--prefer-dist', '--no-progress' ],
 			[ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'build:config' ],
 		];
 	}

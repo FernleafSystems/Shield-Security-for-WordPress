@@ -59,12 +59,14 @@ services:
         condition: service_healthy
     volumes:
       - ../../:/app
+      - ../../tmp/.docker-composer-cache:/tmp/composer-cache
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
       TEST_WP_VERSION: ${WP_VERSION_LATEST:-6.9}
       PHPUNIT_DEBUG: ${PHPUNIT_DEBUG:-}
       SHIELD_TEST_VERBOSE: ${SHIELD_TEST_VERBOSE:-}
+      COMPOSER_CACHE_DIR: /tmp/composer-cache
     command: bin/run-tests-docker.sh wordpress_test_latest root testpass mysql-latest ${WP_VERSION_LATEST:-6.9}
 
   # Test runner for WordPress previous
@@ -80,10 +82,12 @@ services:
         condition: service_healthy
     volumes:
       - ../../:/app
+      - ../../tmp/.docker-composer-cache:/tmp/composer-cache
     working_dir: /app
     environment:
       TEST_PHP_VERSION: ${PHP_VERSION:-8.2}
       TEST_WP_VERSION: ${WP_VERSION_PREVIOUS:-6.8.3}
       PHPUNIT_DEBUG: ${PHPUNIT_DEBUG:-}
       SHIELD_TEST_VERBOSE: ${SHIELD_TEST_VERBOSE:-}
+      COMPOSER_CACHE_DIR: /tmp/composer-cache
     command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}

@@ -119,3 +119,14 @@ php bin/shield analyze:package
 1. Ensure Docker is installed and daemon is running.
 2. Use `php bin/run-docker-tests.php --help` to verify mode flags.
 3. If a mode fails immediately, check for unknown arguments and conflicting mode flags.
+4. If Composer reports `Could not authenticate against github.com`, verify auth:
+```bash
+gh auth status -h github.com
+composer diagnose
+```
+5. Re-authenticate GH CLI, then sync Composer GitHub OAuth token:
+```bash
+gh auth login -h github.com --git-protocol https --web
+composer config --global github-oauth.github.com "$(gh auth token)"
+```
+6. Source runtime uses a persistent Composer cache at `tmp/.docker-composer-cache`; if cache corruption is suspected, remove that directory and rerun.

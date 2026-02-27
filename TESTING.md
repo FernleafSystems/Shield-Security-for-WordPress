@@ -123,6 +123,8 @@ php bin/run-static-analysis.php --help
 composer run-script --list
 ```
 
+For GitHub authentication issues during Docker/source runs, follow the troubleshooting steps in [tests/docker/README.md](tests/docker/README.md).
+
 ## Operational Boundaries
 
 1. Keep test validation focused on runtime, static analysis, and package correctness.
