@@ -50,6 +50,42 @@ class ProcessRunnerTest extends TestCase {
 		$this->assertStringContainsString( 'failing', $process->getOutput() );
 	}
 
+	public function testRunForExitCodeReturnsNormalizedExitCode() :void {
+		$runner = new ProcessRunner();
+
+		$exitCode = $runner->runForExitCode(
+			[
+				\PHP_BINARY,
+				'-r',
+				'exit(9);',
+			],
+			$this->projectRoot
+		);
+
+		$this->assertSame( 9, $exitCode );
+	}
+
+	public function testRunForExitCodeSupportsEnvOverrides() :void {
+		$runner = new ProcessRunner();
+		$envKey = 'SHIELD_PROCESS_RUNNER_EXIT_CODE_ENV_TEST';
+
+		$exitCode = $runner->runForExitCode(
+			[
+				\PHP_BINARY,
+				'-r',
+				'exit(getenv("'.$envKey.'")==="ok" ? 0 : 1);',
+			],
+			$this->projectRoot,
+			static function () :void {
+			},
+			[
+				$envKey => 'ok',
+			]
+		);
+
+		$this->assertSame( 0, $exitCode );
+	}
+
 	public function testRunSupportsCustomOutputCallback() :void {
 		$runner = new ProcessRunner();
 		$outputTypes = [];

@@ -16,7 +16,7 @@ class SourceStaticAnalysisLane {
 	public function run( string $rootDir ) :int {
 		echo 'Mode: analyze-source'.\PHP_EOL;
 
-		$buildCode = $this->runCommand(
+		$buildCode = $this->processRunner->runForExitCode(
 			[ \PHP_BINARY, Path::join( '.', 'bin', 'build-config.php' ) ],
 			$rootDir
 		);
@@ -24,7 +24,7 @@ class SourceStaticAnalysisLane {
 			return $buildCode;
 		}
 
-		return $this->runCommand(
+		return $this->processRunner->runForExitCode(
 			[
 				\PHP_BINARY,
 				Path::join( '.', 'vendor', 'phpstan', 'phpstan', 'phpstan' ),
@@ -36,12 +36,5 @@ class SourceStaticAnalysisLane {
 			],
 			$rootDir
 		);
-	}
-
-	/**
-	 * @param string[] $command
-	 */
-	private function runCommand( array $command, string $rootDir ) :int {
-		return $this->processRunner->run( $command, $rootDir )->getExitCode() ?? 1;
 	}
 }

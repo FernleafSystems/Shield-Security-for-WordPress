@@ -34,28 +34,22 @@ class PackageTargetedTestLane {
 		$envOverrides = $this->buildProcessEnvOverrides( $resolvedPackagePath, $packagerConfig );
 		$strictSkipArgs = $this->resolveStrictSkipArgs( $failOnSkipped );
 
-		$unitExitCode = $this->runCommand(
+		$unitExitCode = $this->processRunner->runForExitCode(
 			$this->buildUnitValidationCommand( $strictSkipArgs ),
 			$rootDir,
+			null,
 			$envOverrides
 		);
 		if ( $unitExitCode !== 0 ) {
 			return $unitExitCode;
 		}
 
-		return $this->runCommand(
+		return $this->processRunner->runForExitCode(
 			$this->buildIntegrationValidationCommand( $strictSkipArgs ),
 			$rootDir,
+			null,
 			$envOverrides
 		);
-	}
-
-	/**
-	 * @param string[] $command
-	 * @param array<string,string|false>|null $envOverrides
-	 */
-	private function runCommand( array $command, string $rootDir, ?array $envOverrides = null ) :int {
-		return $this->processRunner->run( $command, $rootDir, null, $envOverrides )->getExitCode() ?? 1;
 	}
 
 	/**

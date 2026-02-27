@@ -7,27 +7,41 @@ use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 
 class LocalIntegrationTestLane {
 
+	private const COMPOSE_FILE = 'tests/docker/docker-compose.local-db.yml';
+	private const COMPOSE_PROJECT_NAME = 'shield-local-db';
+	private const MYSQL_SERVICE_NAME = 'mysql-local';
+	private const DB_NAME = 'wordpress_test_local';
+	private const DB_USER = 'root';
+	private const DB_PASS = 'testpass';
+	private const DB_HOST = '127.0.0.1:3311';
+	private const WP_VERSION = 'latest';
+	private const SKIP_DB_CREATE = true;
+
 	private ProcessRunner $processRunner;
 
 	private TestingEnvironmentResolver $environmentResolver;
 
 	private DockerComposeExecutor $dockerComposeExecutor;
 
-	private BashCommandResolver $bashCommandResolver;
+	private LocalWpTestsInstallerCommandBuilder $installerCommandBuilder;
 
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?TestingEnvironmentResolver $environmentResolver = null,
 		?DockerComposeExecutor $dockerComposeExecutor = null,
-		?BashCommandResolver $bashCommandResolver = null
+		?BashCommandResolver $bashCommandResolver = null,
+		?LocalWpTestsInstallerCommandBuilder $installerCommandBuilder = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
+		$resolvedBashCommandResolver = $bashCommandResolver ?? new BashCommandResolver();
 		$this->environmentResolver = $environmentResolver ?? new TestingEnvironmentResolver(
 			$this->processRunner,
-			$bashCommandResolver
+			$resolvedBashCommandResolver
 		);
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
-		$this->bashCommandResolver = $bashCommandResolver ?? new BashCommandResolver();
+		$this->installerCommandBuilder = $installerCommandBuilder ?? new LocalWpTestsInstallerCommandBuilder(
+			$resolvedBashCommandResolver
+		);
 	}
 
 	/**
@@ -38,7 +52,10 @@ class LocalIntegrationTestLane {
 
 		$this->environmentResolver->assertDockerReady( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
-		$envOverrides = $this->buildDockerProcessEnvOverrides();
+		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
+			self::COMPOSE_PROJECT_NAME,
+			true
+		);
 
 		if ( $dbDown ) {
 			return $this->dockerComposeExecutor->run(
@@ -58,27 +75,20 @@ class LocalIntegrationTestLane {
 			return 1;
 		}
 
-		if ( $this->runCommand( $this->buildInstallerCommand(), $rootDir, $envOverrides ) !== 0 ) {
+		if ( $this->processRunner->runForExitCode( $this->buildInstallerCommand(), $rootDir, null, $envOverrides ) !== 0 ) {
 			return 1;
 		}
 
-		if ( $this->runCommand( $this->buildBuildConfigCommand(), $rootDir, $envOverrides ) !== 0 ) {
+		if ( $this->processRunner->runForExitCode( $this->buildBuildConfigCommand(), $rootDir, null, $envOverrides ) !== 0 ) {
 			return 1;
 		}
 
-		return $this->runCommand(
+		return $this->processRunner->runForExitCode(
 			$this->buildPhpUnitCommand( $phpunitArgs ),
 			$rootDir,
+			null,
 			$envOverrides
 		);
-	}
-
-	/**
-	 * @param string[] $command
-	 * @param array<string,string|false>|null $envOverrides
-	 */
-	private function runCommand( array $command, string $rootDir, ?array $envOverrides = null ) :int {
-		return $this->processRunner->run( $command, $rootDir, null, $envOverrides )->getExitCode() ?? 1;
 	}
 
 	/**
@@ -86,19 +96,7 @@ class LocalIntegrationTestLane {
 	 */
 	private function buildComposeFiles() :array {
 		return [
-			'tests/docker/docker-compose.local-db.yml',
-		];
-	}
-
-	/**
-	 * @return array<string,string|false>
-	 */
-	private function buildDockerProcessEnvOverrides() :array {
-		return [
-			'COMPOSE_PROJECT_NAME' => 'shield-local-db',
-			'DOCKER_BUILDKIT' => '1',
-			'MSYS_NO_PATHCONV' => '1',
-			'SHIELD_PACKAGE_PATH' => false,
+			self::COMPOSE_FILE,
 		];
 	}
 
@@ -113,51 +111,21 @@ class LocalIntegrationTestLane {
 	 * @return string[]
 	 */
 	private function buildComposeUpCommand() :array {
-		return [ 'up', '-d', '--wait', 'mysql-local' ];
+		return [ 'up', '-d', '--wait', self::MYSQL_SERVICE_NAME ];
 	}
 
 	/**
 	 * @return string[]
 	 */
 	private function buildInstallerCommand() :array {
-		return $this->buildInstallerCommandForOs( \PHP_OS_FAMILY );
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function buildInstallerCommandForOs( string $osFamily ) :array {
-		if ( $osFamily === 'Windows' ) {
-			return [
-				'powershell',
-				'-NoProfile',
-				'-ExecutionPolicy',
-				'Bypass',
-				'-File',
-				'./bin/install-wp-tests.ps1',
-				'-DB_NAME',
-				'wordpress_test_local',
-				'-DB_USER',
-				'root',
-				'-DB_PASS',
-				'testpass',
-				'-DB_HOST',
-				'127.0.0.1:3311',
-				'-WP_VERSION',
-				'latest',
-			];
-		}
-
-		return [
-			$this->bashCommandResolver->resolve(),
-			'./bin/install-wp-tests.sh',
-			'wordpress_test_local',
-			'root',
-			'testpass',
-			'127.0.0.1:3311',
-			'latest',
-			'true',
-		];
+		return $this->installerCommandBuilder->build(
+			self::DB_NAME,
+			self::DB_USER,
+			self::DB_PASS,
+			self::DB_HOST,
+			self::WP_VERSION,
+			self::SKIP_DB_CREATE
+		);
 	}
 
 	/**
@@ -165,7 +133,7 @@ class LocalIntegrationTestLane {
 	 */
 	private function buildBuildConfigCommand() :array {
 		return [
-			'php',
+			\PHP_BINARY,
 			'./bin/build-config.php',
 		];
 	}
@@ -177,7 +145,7 @@ class LocalIntegrationTestLane {
 	private function buildPhpUnitCommand( array $phpunitArgs ) :array {
 		return \array_merge(
 			[
-				'php',
+				\PHP_BINARY,
 				'./vendor/phpunit/phpunit/phpunit',
 				'-c',
 				'phpunit-integration.xml',

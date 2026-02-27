@@ -2,13 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\Process\BashCommandResolver;
-use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerComposeExecutor;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalWpTestsInstallerCommandBuilder;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\TestingEnvironmentResolver;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Process;
 
 class LocalIntegrationTestLaneTest extends TestCase {
 
@@ -20,16 +19,17 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	}
 
 	public function testDefaultRunIssuesComposeUpWaitAndRunsLocalCommands() :void {
-		$processRunner = $this->createRecordingProcessRunner( [ 0, 0, 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0 ] );
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
-		$dockerComposeExecutor = $this->createRecordingDockerComposeExecutor( [ 0 ] );
-		$bashCommandResolver = $this->createFixedBashCommandResolver( '/custom/bash' );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$installerCommandBuilder = $this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] );
 
 		$lane = new LocalIntegrationTestLane(
 			$processRunner,
 			$environmentResolver,
 			$dockerComposeExecutor,
-			$bashCommandResolver
+			null,
+			$installerCommandBuilder
 		);
 
 		$exitCode = $this->runLaneSilenced( $lane, false, [ '--filter', 'RuleBuilderTest' ] );
@@ -55,51 +55,39 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		);
 		$this->assertSame(
 			[
-				'COMPOSE_PROJECT_NAME' => 'shield-local-db',
 				'DOCKER_BUILDKIT' => '1',
 				'MSYS_NO_PATHCONV' => '1',
+				'COMPOSE_PROJECT_NAME' => 'shield-local-db',
 				'SHIELD_PACKAGE_PATH' => false,
 			],
 			$dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ]
 		);
 
-		$this->assertCount( 3, $processRunner->calls );
-
-		if ( \PHP_OS_FAMILY === 'Windows' ) {
-			$this->assertSame( 'powershell', $processRunner->calls[ 0 ][ 'command' ][ 0 ] );
-			$this->assertContains( '-DB_NAME', $processRunner->calls[ 0 ][ 'command' ] );
-			$this->assertContains( 'wordpress_test_local', $processRunner->calls[ 0 ][ 'command' ] );
-			$this->assertContains( '-DB_HOST', $processRunner->calls[ 0 ][ 'command' ] );
-			$this->assertContains( '127.0.0.1:3311', $processRunner->calls[ 0 ][ 'command' ] );
-			$this->assertContains( '-WP_VERSION', $processRunner->calls[ 0 ][ 'command' ] );
-			$this->assertContains( 'latest', $processRunner->calls[ 0 ][ 'command' ] );
-		}
-		else {
-			$this->assertSame(
-				[
-					'/custom/bash',
-					'./bin/install-wp-tests.sh',
-					'wordpress_test_local',
-					'root',
-					'testpass',
-					'127.0.0.1:3311',
-					'latest',
-					'true',
-				],
-				$processRunner->calls[ 0 ][ 'command' ]
-			);
-		}
-
+		$this->assertCount( 1, $installerCommandBuilder->calls );
 		$this->assertSame(
 			[
-				'php',
+				'db_name' => 'wordpress_test_local',
+				'db_user' => 'root',
+				'db_pass' => 'testpass',
+				'db_host' => '127.0.0.1:3311',
+				'wp_version' => 'latest',
+				'skip_db_create' => true,
+			],
+			$installerCommandBuilder->calls[ 0 ]
+		);
+
+		$this->assertCount( 3, $processRunner->calls );
+		$this->assertSame( [ 'custom-installer' ], $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertSame(
+			[
+				\PHP_BINARY,
 				'./bin/build-config.php',
 			],
 			$processRunner->calls[ 1 ][ 'command' ]
 		);
 		$this->assertSame(
 			[
-				'php',
+				\PHP_BINARY,
 				'./vendor/phpunit/phpunit/phpunit',
 				'-c',
 				'phpunit-integration.xml',
@@ -111,9 +99,9 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		foreach ( $processRunner->calls as $call ) {
 			$this->assertSame(
 				[
-					'COMPOSE_PROJECT_NAME' => 'shield-local-db',
 					'DOCKER_BUILDKIT' => '1',
 					'MSYS_NO_PATHCONV' => '1',
+					'COMPOSE_PROJECT_NAME' => 'shield-local-db',
 					'SHIELD_PACKAGE_PATH' => false,
 				],
 				$call[ 'env_overrides' ]
@@ -121,63 +109,15 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		}
 	}
 
-	public function testInstallerCommandSelectionSupportsWindowsAndNonWindowsPaths() :void {
-		$processRunner = $this->createRecordingProcessRunner( [] );
-		$environmentResolver = $this->createRecordingEnvironmentResolver();
-		$dockerComposeExecutor = $this->createRecordingDockerComposeExecutor( [] );
-		$bashCommandResolver = $this->createFixedBashCommandResolver( '/resolved/bash' );
-
-		$lane = new LocalIntegrationTestLane(
-			$processRunner,
-			$environmentResolver,
-			$dockerComposeExecutor,
-			$bashCommandResolver
-		);
-
-		$method = new \ReflectionMethod( LocalIntegrationTestLane::class, 'buildInstallerCommandForOs' );
-		$method->setAccessible( true );
-
-		$windowsCommand = $method->invoke( $lane, 'Windows' );
-		$this->assertSame( 'powershell', $windowsCommand[ 0 ] );
-		$this->assertContains( './bin/install-wp-tests.ps1', $windowsCommand );
-		$this->assertContains( '-DB_NAME', $windowsCommand );
-		$this->assertContains( 'wordpress_test_local', $windowsCommand );
-		$this->assertContains( '-DB_USER', $windowsCommand );
-		$this->assertContains( 'root', $windowsCommand );
-		$this->assertContains( '-DB_PASS', $windowsCommand );
-		$this->assertContains( 'testpass', $windowsCommand );
-		$this->assertContains( '-DB_HOST', $windowsCommand );
-		$this->assertContains( '127.0.0.1:3311', $windowsCommand );
-		$this->assertContains( '-WP_VERSION', $windowsCommand );
-		$this->assertContains( 'latest', $windowsCommand );
-
-		$nonWindowsCommand = $method->invoke( $lane, 'Linux' );
-		$this->assertSame(
-			[
-				'/resolved/bash',
-				'./bin/install-wp-tests.sh',
-				'wordpress_test_local',
-				'root',
-				'testpass',
-				'127.0.0.1:3311',
-				'latest',
-				'true',
-			],
-			$nonWindowsCommand
-		);
-	}
-
 	public function testDbDownOnlyRunsComposeDownAndExits() :void {
-		$processRunner = $this->createRecordingProcessRunner( [] );
+		$processRunner = new RecordingProcessRunner();
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
-		$dockerComposeExecutor = $this->createRecordingDockerComposeExecutor( [ 7 ] );
-		$bashCommandResolver = $this->createFixedBashCommandResolver( '/custom/bash' );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 7 ] );
 
 		$lane = new LocalIntegrationTestLane(
 			$processRunner,
 			$environmentResolver,
-			$dockerComposeExecutor,
-			$bashCommandResolver
+			$dockerComposeExecutor
 		);
 
 		$exitCode = $this->runLaneSilenced( $lane, true );
@@ -213,54 +153,6 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @param int[] $exitCodes
-	 */
-	private function createRecordingProcessRunner( array $exitCodes ) :ProcessRunner {
-		return new class( $exitCodes ) extends ProcessRunner {
-
-			/** @var array<int,array{command:array,working_dir:string,env_overrides:?array}> */
-			public array $calls = [];
-
-			/** @var int[] */
-			private array $exitCodes;
-
-			/**
-			 * @param int[] $exitCodes
-			 */
-			public function __construct( array $exitCodes ) {
-				parent::__construct();
-				$this->exitCodes = $exitCodes;
-			}
-
-			public function run(
-				array $command,
-				string $workingDir,
-				?callable $onOutput = null,
-				?array $envOverrides = null
-			) :Process {
-				$this->calls[] = [
-					'command' => $command,
-					'working_dir' => $workingDir,
-					'env_overrides' => $envOverrides,
-				];
-
-				$exitCode = \array_shift( $this->exitCodes );
-				$process = new Process(
-					[
-						\PHP_BINARY,
-						'-r',
-						'exit('.(int)( $exitCode ?? 0 ).');',
-					]
-				);
-				$process->run( static function () :void {
-				} );
-
-				return $process;
-			}
-		};
-	}
-
 	private function createRecordingEnvironmentResolver() :TestingEnvironmentResolver {
 		return new class() extends TestingEnvironmentResolver {
 
@@ -272,54 +164,40 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		};
 	}
 
-	/**
-	 * @param int[] $exitCodes
-	 */
-	private function createRecordingDockerComposeExecutor( array $exitCodes ) :DockerComposeExecutor {
-		return new class( $exitCodes ) extends DockerComposeExecutor {
+	private function createRecordingInstallerCommandBuilder( array $command ) :LocalWpTestsInstallerCommandBuilder {
+		return new class( $command ) extends LocalWpTestsInstallerCommandBuilder {
 
-			/** @var array<int,array{root_dir:string,compose_files:array,sub_command:array,env_overrides:?array}> */
+			/** @var array<int,array{db_name:string,db_user:string,db_pass:string,db_host:string,wp_version:string,skip_db_create:bool}> */
 			public array $calls = [];
 
-			/** @var int[] */
-			private array $exitCodes;
+			/** @var string[] */
+			private array $command;
 
 			/**
-			 * @param int[] $exitCodes
+			 * @param string[] $command
 			 */
-			public function __construct( array $exitCodes ) {
+			public function __construct( array $command ) {
 				parent::__construct();
-				$this->exitCodes = $exitCodes;
-			}
-
-			public function run(
-				string $rootDir,
-				array $composeFiles,
-				array $subCommand,
-				?array $envOverrides = null
-			) :int {
-				$this->calls[] = [
-					'root_dir' => $rootDir,
-					'compose_files' => $composeFiles,
-					'sub_command' => $subCommand,
-					'env_overrides' => $envOverrides,
-				];
-
-				return (int)( \array_shift( $this->exitCodes ) ?? 0 );
-			}
-		};
-	}
-
-	private function createFixedBashCommandResolver( string $command ) :BashCommandResolver {
-		return new class( $command ) extends BashCommandResolver {
-
-			private string $command;
-
-			public function __construct( string $command ) {
 				$this->command = $command;
 			}
 
-			public function resolve() :string {
+			public function build(
+				string $dbName,
+				string $dbUser,
+				string $dbPass,
+				string $dbHost,
+				string $wpVersion,
+				bool $skipDbCreate
+			) :array {
+				$this->calls[] = [
+					'db_name' => $dbName,
+					'db_user' => $dbUser,
+					'db_pass' => $dbPass,
+					'db_host' => $dbHost,
+					'wp_version' => $wpVersion,
+					'skip_db_create' => $skipDbCreate,
+				];
+
 				return $this->command;
 			}
 		};

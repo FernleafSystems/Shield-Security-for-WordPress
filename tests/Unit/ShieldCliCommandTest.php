@@ -67,6 +67,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$output = $this->processOutput( $process );
 		$this->assertStringContainsString( 'test:integration-local', $output );
 		$this->assertStringContainsString( '--db-down', $output );
+		$this->assertStringContainsString( 'composer: -- -- --filter FooTest', $output );
 	}
 
 	/**

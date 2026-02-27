@@ -2,10 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerComposeExecutor;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Process;
 
 class DockerComposeExecutorTest extends TestCase {
 
@@ -17,7 +16,7 @@ class DockerComposeExecutorTest extends TestCase {
 	}
 
 	public function testRunBuildsExpectedComposeCommand() :void {
-		$processRunner = $this->createRecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$executor = new DockerComposeExecutor( $processRunner );
 		$envOverrides = [
 			'COMPOSE_PROJECT_NAME' => 'shield-tests',
@@ -50,7 +49,7 @@ class DockerComposeExecutorTest extends TestCase {
 	}
 
 	public function testRunReturnsUnderlyingExitCode() :void {
-		$processRunner = $this->createRecordingProcessRunner( [ 9 ] );
+		$processRunner = new RecordingProcessRunner( [ 9 ] );
 		$executor = new DockerComposeExecutor( $processRunner );
 
 		$exitCode = $executor->run(
@@ -63,7 +62,7 @@ class DockerComposeExecutorTest extends TestCase {
 	}
 
 	public function testRunIgnoringFailureDoesNotThrowOnNonZeroExitCode() :void {
-		$processRunner = $this->createRecordingProcessRunner( [ 5 ] );
+		$processRunner = new RecordingProcessRunner( [ 5 ] );
 		$executor = new DockerComposeExecutor( $processRunner );
 
 		$executor->runIgnoringFailure(
@@ -74,54 +73,5 @@ class DockerComposeExecutorTest extends TestCase {
 
 		$this->assertCount( 1, $processRunner->calls );
 		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
-	}
-
-	/**
-	 * @param int[] $exitCodes
-	 */
-	private function createRecordingProcessRunner( array $exitCodes ) :ProcessRunner {
-		return new class( $exitCodes ) extends ProcessRunner {
-
-			/** @var array<int,array{command:array,working_dir:string,env_overrides:?array,has_output_callback:bool}> */
-			public array $calls = [];
-
-			/** @var int[] */
-			private array $exitCodes;
-
-			/**
-			 * @param int[] $exitCodes
-			 */
-			public function __construct( array $exitCodes ) {
-				parent::__construct();
-				$this->exitCodes = $exitCodes;
-			}
-
-			public function run(
-				array $command,
-				string $workingDir,
-				?callable $onOutput = null,
-				?array $envOverrides = null
-			) :Process {
-				$this->calls[] = [
-					'command' => $command,
-					'working_dir' => $workingDir,
-					'env_overrides' => $envOverrides,
-					'has_output_callback' => $onOutput !== null,
-				];
-
-				$exitCode = \array_shift( $this->exitCodes );
-				$process = new Process(
-					[
-						\PHP_BINARY,
-						'-r',
-						'exit('.(int)( $exitCode ?? 0 ).');',
-					]
-				);
-				$process->run( static function () :void {
-				} );
-
-				return $process;
-			}
-		};
 	}
 }

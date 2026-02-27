@@ -137,6 +137,22 @@ class TestingEnvironmentResolver {
 		return $values;
 	}
 
+	/**
+	 * @return array<string,string|false>
+	 */
+	public function buildDockerProcessEnvOverrides( string $composeProjectName, bool $unsetShieldPackagePath = false ) :array {
+		$envOverrides = [
+			'DOCKER_BUILDKIT' => '1',
+			'MSYS_NO_PATHCONV' => '1',
+			'COMPOSE_PROJECT_NAME' => $composeProjectName,
+		];
+		if ( $unsetShieldPackagePath ) {
+			$envOverrides[ 'SHIELD_PACKAGE_PATH' ] = false;
+		}
+
+		return $envOverrides;
+	}
+
 	private function isDockerAvailable( string $rootDir ) :bool {
 		$process = $this->processRunner->run(
 			[ 'docker', '--version' ],

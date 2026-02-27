@@ -53,7 +53,9 @@ class PackageFullTestLane {
 		);
 
 		$composeFiles = $this->buildComposeFiles();
-		$dockerProcessEnvOverrides = $this->buildDockerProcessEnvOverrides();
+		$dockerProcessEnvOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
+			'shield-tests'
+		);
 
 		try {
 			$this->dockerComposeExecutor->runIgnoringFailure(
@@ -120,17 +122,6 @@ class PackageFullTestLane {
 		return [
 			'tests/docker/docker-compose.yml',
 			'tests/docker/docker-compose.package.yml',
-		];
-	}
-
-	/**
-	 * @return array<string,string>
-	 */
-	private function buildDockerProcessEnvOverrides() :array {
-		return [
-			'DOCKER_BUILDKIT' => '1',
-			'MSYS_NO_PATHCONV' => '1',
-			'COMPOSE_PROJECT_NAME' => 'shield-tests',
 		];
 	}
 

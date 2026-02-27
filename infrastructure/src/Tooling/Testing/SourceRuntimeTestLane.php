@@ -45,7 +45,10 @@ class SourceRuntimeTestLane {
 			);
 
 			$composeFiles = $this->buildComposeFiles();
-			$dockerProcessEnvOverrides = $this->buildDockerProcessEnvOverrides();
+			$dockerProcessEnvOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
+				'shield-tests',
+				true
+			);
 			$overallExitCode = 0;
 			try {
 				echo 'Starting source-runtime Docker checks on working tree.'.\PHP_EOL;
@@ -135,14 +138,12 @@ class SourceRuntimeTestLane {
 			}
 		}
 
-		$nodeProcess = $this->processRunner->run(
+		return $this->processRunner->runForExitCode(
 			$this->buildNodeAssetBuildCommand( $rootDir ),
 			$rootDir,
 			null,
 			$envOverrides
 		);
-
-		return $nodeProcess->getExitCode() ?? 1;
 	}
 
 	/**
@@ -151,18 +152,6 @@ class SourceRuntimeTestLane {
 	private function buildComposeFiles() :array {
 		return [
 			'tests/docker/docker-compose.yml',
-		];
-	}
-
-	/**
-	 * @return array<string,string|false>
-	 */
-	private function buildDockerProcessEnvOverrides() :array {
-		return [
-			'DOCKER_BUILDKIT' => '1',
-			'MSYS_NO_PATHCONV' => '1',
-			'COMPOSE_PROJECT_NAME' => 'shield-tests',
-			'SHIELD_PACKAGE_PATH' => false,
 		];
 	}
 

@@ -3,9 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Cli\LegacyCliAdapterRunner;
-use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Process\Process;
 
 class LegacyCliAdapterRunnerTest extends TestCase {
 
@@ -17,7 +16,7 @@ class LegacyCliAdapterRunnerTest extends TestCase {
 	}
 
 	public function testUnknownArgumentReturnsErrorWithoutRunningSubprocess() :void {
-		$processRunner = $this->createRecordingProcessRunner();
+		$processRunner = new RecordingProcessRunner();
 		$adapter = new LegacyCliAdapterRunner( $processRunner );
 		$helpCalls = 0;
 
@@ -39,7 +38,7 @@ class LegacyCliAdapterRunnerTest extends TestCase {
 	}
 
 	public function testMultipleModeFlagsReturnErrorWithoutRunningSubprocess() :void {
-		$processRunner = $this->createRecordingProcessRunner();
+		$processRunner = new RecordingProcessRunner();
 		$adapter = new LegacyCliAdapterRunner( $processRunner );
 
 		$exitCode = $adapter->run(
@@ -59,7 +58,7 @@ class LegacyCliAdapterRunnerTest extends TestCase {
 	}
 
 	public function testDefaultModeRoutesToConfiguredDefaultCommand() :void {
-		$processRunner = $this->createRecordingProcessRunner( [ 7 ] );
+		$processRunner = new RecordingProcessRunner( [ 7 ] );
 		$adapter = new LegacyCliAdapterRunner( $processRunner );
 
 		$exitCode = $adapter->run(
@@ -84,7 +83,7 @@ class LegacyCliAdapterRunnerTest extends TestCase {
 	}
 
 	public function testExplicitModeRoutesToMappedCommand() :void {
-		$processRunner = $this->createRecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$adapter = new LegacyCliAdapterRunner( $processRunner );
 
 		$exitCode = $adapter->run(
@@ -108,7 +107,7 @@ class LegacyCliAdapterRunnerTest extends TestCase {
 	}
 
 	public function testHelpShortCircuitsWithoutRunningSubprocess() :void {
-		$processRunner = $this->createRecordingProcessRunner();
+		$processRunner = new RecordingProcessRunner();
 		$adapter = new LegacyCliAdapterRunner( $processRunner );
 		$helpCalls = 0;
 
@@ -127,53 +126,5 @@ class LegacyCliAdapterRunnerTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 		$this->assertSame( 1, $helpCalls );
 		$this->assertCount( 0, $processRunner->calls );
-	}
-
-	/**
-	 * @param int[] $exitCodes
-	 */
-	private function createRecordingProcessRunner( array $exitCodes = [ 0 ] ) :ProcessRunner {
-		return new class( $exitCodes ) extends ProcessRunner {
-
-			/** @var array<int,array{command:array,working_dir:string,env_overrides:?array}> */
-			public array $calls = [];
-
-			/** @var int[] */
-			private array $exitCodes;
-
-			/**
-			 * @param int[] $exitCodes
-			 */
-			public function __construct( array $exitCodes ) {
-				parent::__construct();
-				$this->exitCodes = $exitCodes;
-			}
-
-			public function run(
-				array $command,
-				string $workingDir,
-				?callable $onOutput = null,
-				?array $envOverrides = null
-			) :Process {
-				$this->calls[] = [
-					'command' => $command,
-					'working_dir' => $workingDir,
-					'env_overrides' => $envOverrides,
-				];
-
-				$exitCode = \array_shift( $this->exitCodes );
-				$process = new Process(
-					[
-						\PHP_BINARY,
-						'-r',
-						'exit('.(int)( $exitCode ?? 0 ).');',
-					]
-				);
-				$process->run( static function () :void {
-				} );
-
-				return $process;
-			}
-		};
 	}
 }

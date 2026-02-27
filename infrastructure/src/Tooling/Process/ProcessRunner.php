@@ -78,6 +78,22 @@ class ProcessRunner {
 		return $process;
 	}
 
+	/**
+	 * Run a command and return a normalized integer exit code.
+	 *
+	 * @param string[]       $command
+	 * @param callable|null  $onOutput Receives (string $type, string $buffer)
+	 * @param array<string,string|false>|null $envOverrides
+	 */
+	public function runForExitCode(
+		array $command,
+		string $workingDir,
+		?callable $onOutput = null,
+		?array $envOverrides = null
+	) :int {
+		return $this->run( $command, $workingDir, $onOutput, $envOverrides )->getExitCode() ?? 1;
+	}
+
 	private function writeOutputBuffer( string $type, string $buffer ) :void {
 		$normalized = $this->lineEndingNormalizer->toHostEol( $buffer );
 

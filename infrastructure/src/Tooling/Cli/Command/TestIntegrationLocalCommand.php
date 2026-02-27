@@ -35,7 +35,7 @@ class TestIntegrationLocalCommand extends Command {
 			->addArgument(
 				'phpunit_args',
 				InputArgument::IS_ARRAY,
-				'Additional PHPUnit arguments passed through to the integration runner.'
+				'Additional PHPUnit args (direct: -- --filter FooTest; composer: -- -- --filter FooTest).'
 			);
 	}
 
