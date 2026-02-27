@@ -142,6 +142,11 @@ jobs:
     - name: Build assets
       run: npm run build
 
+    - name: Verify admin bundle safety
+      run: |
+        chmod +x .github/scripts/verify-admin-bundle-safety.sh
+        ./.github/scripts/verify-admin-bundle-safety.sh
+
     - name: Load Strauss version
       run: |
         source .github/scripts/read-packager-config.sh
