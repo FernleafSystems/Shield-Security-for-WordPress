@@ -4,9 +4,11 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Cli;
 
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzePackageCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackagePathResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageStaticAnalysisLane;
@@ -29,6 +31,12 @@ class ShieldCliApplication {
 
 		$this->application->add(
 			new TestSourceCommand( $projectRoot, new SourceRuntimeTestLane( null, $environmentResolver ) )
+		);
+		$this->application->add(
+			new TestIntegrationLocalCommand(
+				$projectRoot,
+				new LocalIntegrationTestLane( null, $environmentResolver )
+			)
 		);
 		$this->application->add(
 			new TestPackageTargetedCommand(

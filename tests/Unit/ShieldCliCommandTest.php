@@ -25,6 +25,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		foreach (
 			[
 				'test:source',
+				'test:integration-local',
 				'test:package-targeted',
 				'test:package-full',
 				'analyze:source',
@@ -57,12 +58,24 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( '--no-fail-on-skipped', $output );
 	}
 
+	public function testIntegrationLocalHelpIncludesDbDownOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/shield', [ 'test:integration-local', '--help' ] );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+
+		$output = $this->processOutput( $process );
+		$this->assertStringContainsString( 'test:integration-local', $output );
+		$this->assertStringContainsString( '--db-down', $output );
+	}
+
 	/**
 	 * @return array<string,array{string}>
 	 */
 	public function providerCommandNames() :array {
 		return [
 			'test-source' => [ 'test:source' ],
+			'test-integration-local' => [ 'test:integration-local' ],
 			'test-package-targeted' => [ 'test:package-targeted' ],
 			'test-package-full' => [ 'test:package-full' ],
 			'analyze-source' => [ 'analyze:source' ],

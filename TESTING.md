@@ -17,6 +17,7 @@ For Docker-runner internals and environment variables, see [tests/docker/README.
 | Full local test suite | `composer test` | Runs unit and integration suites |
 | Unit tests only | `composer test:unit` | Includes config generation |
 | Integration tests only | `composer test:integration` | Includes config generation |
+| Local integration DB sidecar (composer) | `composer test:integration:local` | Host PHP integration tests with isolated Docker MySQL sidecar |
 | Source runtime (canonical) | `php bin/shield test:source` | Source-first working-tree Docker checks |
 | Package-targeted runtime (canonical) | `php bin/shield test:package-targeted` | Focused package validation lane |
 | Package-full runtime (canonical) | `php bin/shield test:package-full` | Full packaged Docker runtime lane |
@@ -34,10 +35,26 @@ Primary CLI supports these commands:
 | Command | Behavior |
 |---|---|
 | `php bin/shield test:source` | Source runtime checks against working tree |
+| `php bin/shield test:integration-local` | Host PHP integration tests with local Docker MySQL sidecar |
 | `php bin/shield test:package-targeted` | Focused package validation checks |
 | `php bin/shield test:package-full` | Full packaged runtime checks |
 | `php bin/shield analyze:source` | Source static analysis pathway |
 | `php bin/shield analyze:package` | Packaged static analysis pathway |
+
+## Local Integration DB Sidecar Lane
+
+Use this when you want fast local integration loops on host PHP without running full Docker runtime lanes:
+
+```bash
+composer test:integration:local
+composer test:integration:local -- -- --filter RuleBuilderTest
+```
+
+Teardown is explicit and isolated to the sidecar project:
+
+```bash
+php bin/shield test:integration-local --db-down
+```
 
 Compatibility adapter `./bin/run-docker-tests.sh` supports these modes:
 

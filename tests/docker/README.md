@@ -28,6 +28,7 @@ php bin/run-static-analysis.php
 | Mode | Behavior | Typical Use |
 |---|---|---|
 | `test:source` | Source runtime checks against working tree | Daily local CI-like runtime checks |
+| `test:integration-local` | Host PHP integration tests with local Docker MySQL sidecar | Fast local integration loop with persistent DB |
 | `test:package-targeted` | Focused package validation checks | Package-targeted validation |
 | `test:package-full` | Full packaged runtime checks | Full-pathway package runtime mode |
 | `analyze:source` | Run source static analysis pathway | Source static analysis |
@@ -72,6 +73,13 @@ Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`)
 2. Package path resolution supports explicit `--package-path` or deterministic temp package build.
 3. Compatibility adapters map legacy flags to these commands.
 
+Local sidecar mode (`test:integration-local`):
+
+1. Uses `tests/docker/docker-compose.local-db.yml` (DB-only compose file).
+2. Uses `COMPOSE_PROJECT_NAME=shield-local-db` and port `3311` for isolation.
+3. Keeps DB container running for repeat local runs.
+4. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
+
 ## Static Analysis Entrypoints
 
 Use the direct static-analysis runner when Docker routing is not required:
@@ -86,6 +94,9 @@ php bin/shield analyze:package
 ```bash
 # Source runtime checks (default)
 php bin/shield test:source
+
+# Local integration with DB sidecar
+php bin/shield test:integration-local
 
 # Compatibility explicit source runtime checks
 ./bin/run-docker-tests.sh --source

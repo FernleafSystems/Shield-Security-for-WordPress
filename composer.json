@@ -104,6 +104,10 @@
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:source"
     ],
+    "test:integration:local": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:integration-local"
+    ],
     "test:package-targeted": [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:package-targeted"
