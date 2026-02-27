@@ -58,13 +58,22 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
 	}
 
-	public function test_landing_quick_access_strip_labels_are_absent() :void {
+	public function test_landing_renders_selector_lookup_and_disabled_woocommerce_tile_markers() :void {
 		$payload = $this->renderInvestigateLandingPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
-		$this->assertHtmlNotContainsMarker( 'Quick Access', $html, 'Landing quick-access title marker' );
-		$this->assertHtmlNotContainsMarker( 'WP Activity Log', $html, 'Landing quick-access activity marker' );
-		$this->assertHtmlNotContainsMarker( 'Live HTTP Log', $html, 'Landing quick-access live traffic marker' );
-		$this->assertHtmlNotContainsMarker( 'IP Rules', $html, 'Landing quick-access IP rules marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-section="selector"', $html, 'Landing selector section marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-section="lookup-shell"', $html, 'Landing lookup shell marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="users"', $html, 'Landing users subject marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="ips"', $html, 'Landing ips subject marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="plugins"', $html, 'Landing plugins subject marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="themes"', $html, 'Landing themes subject marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="wordpress"', $html, 'Landing wordpress subject marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="requests"', $html, 'Landing requests subject marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="activity"', $html, 'Landing activity subject marker' );
+		$this->assertHtmlContainsMarker( 'data-investigate-subject="woocommerce"', $html, 'Landing woocommerce subject marker' );
+		$this->assertHtmlContainsMarker( 'aria-disabled="true"', $html, 'Landing woocommerce disabled marker' );
+		$this->assertHtmlNotContainsMarker( 'quick-tool-link', $html, 'Landing quick-access class marker' );
+		$this->assertHtmlNotContainsMarker( 'data-investigate-section="quick-access"', $html, 'Landing quick-access section marker' );
 	}
 }

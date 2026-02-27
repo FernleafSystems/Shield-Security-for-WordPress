@@ -1,0 +1,102 @@
+.investigate-landing__section-label {
+	color: #646970;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	margin-bottom: 0.6rem;
+	text-transform: uppercase;
+}
+
+.investigate-landing__subject-card {
+	align-items: center;
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	color: #1d2327;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	height: 100%;
+	justify-content: center;
+	min-height: 170px;
+	padding: 1rem 0.85rem;
+	text-align: center;
+	text-decoration: none;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+}
+
+.investigate-landing__subject-card:hover {
+	border-color: $status-color-info;
+	box-shadow: $card-box-shadow-hover;
+	color: #1d2327;
+	transform: translateY(-2px);
+}
+
+.investigate-landing__subject-card.active,
+.investigate-landing__subject-card.active:hover {
+	background: $status-bg-info-light;
+	border-color: $status-color-info;
+	box-shadow: inset 0 0 0 1px rgba($status-color-info, 0.15);
+	color: #1d2327;
+	transform: none;
+}
+
+.investigate-landing__subject-card.is-disabled,
+.investigate-landing__subject-card.is-disabled:hover {
+	background: $surface-color-neutral-raised;
+	border-color: $border-color-neutral-subtle;
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: 0.7;
+	transform: none;
+}
+
+.investigate-landing__subject-icon {
+	align-items: center;
+	background: $status-bg-info-light;
+	border-radius: 12px;
+	color: $status-color-info;
+	display: inline-flex;
+	height: 48px;
+	justify-content: center;
+	width: 48px;
+}
+
+.investigate-landing__subject-icon i {
+	font-size: 1.2rem;
+}
+
+.investigate-landing__subject-card.is-disabled .investigate-landing__subject-icon {
+	background: #edf0ef;
+	color: #6c757d;
+}
+
+.investigate-landing__subject-label {
+	align-items: center;
+	display: inline-flex;
+	font-size: 0.88rem;
+	font-weight: 700;
+	gap: 0.35rem;
+	justify-content: center;
+	line-height: 1.25;
+}
+
+.investigate-landing__subject-description {
+	color: #646970;
+	font-size: 0.78rem;
+	line-height: 1.35;
+}
+
+.investigate-landing__lookup-shell .tab-pane {
+	min-height: 96px;
+}
+
+.investigate-landing__direct-link .btn {
+	margin-top: 0.25rem;
+}
+
+@media (max-width: 767.98px) {
+	.investigate-landing__subject-card {
+		min-height: 152px;
+	}
+}

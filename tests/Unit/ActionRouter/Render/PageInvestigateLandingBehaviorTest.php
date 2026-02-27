@@ -260,6 +260,57 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'activity'  => $subjectsByKey[ 'activity' ][ 'subject_label' ] ?? '',
 			]
 		);
+		$this->assertSame(
+			[
+				'users'     => 'bi bi-people-fill',
+				'ips'       => 'bi bi-globe2',
+				'plugins'   => 'bi bi-puzzle-fill',
+				'themes'    => 'bi bi-palette-fill',
+				'wordpress' => 'bi bi-wordpress',
+				'requests'  => 'bi bi-arrow-left-right',
+				'activity'  => 'bi bi-journal-text',
+			],
+			[
+				'users'     => $subjectsByKey[ 'users' ][ 'icon_class' ] ?? '',
+				'ips'       => $subjectsByKey[ 'ips' ][ 'icon_class' ] ?? '',
+				'plugins'   => $subjectsByKey[ 'plugins' ][ 'icon_class' ] ?? '',
+				'themes'    => $subjectsByKey[ 'themes' ][ 'icon_class' ] ?? '',
+				'wordpress' => $subjectsByKey[ 'wordpress' ][ 'icon_class' ] ?? '',
+				'requests'  => $subjectsByKey[ 'requests' ][ 'icon_class' ] ?? '',
+				'activity'  => $subjectsByKey[ 'activity' ][ 'icon_class' ] ?? '',
+			]
+		);
+		foreach ( [ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity' ] as $subjectKey ) {
+			$this->assertNotSame(
+				'',
+				\trim( (string)( $subjectsByKey[ $subjectKey ][ 'subject_description' ] ?? '' ) ),
+				\sprintf( 'Subject "%s" description should be non-empty.', $subjectKey )
+			);
+		}
+	}
+
+	public function test_landing_strings_include_section_and_subject_description_contract() :void {
+		$this->installServicesStubs();
+		$page = new PageInvestigateLanding();
+
+		$strings = $this->invokeProtectedMethod( $page, 'getLandingStrings' );
+		foreach ( [
+			'selector_section_label',
+			'lookup_section_label',
+			'subject_desc_users',
+			'subject_desc_ips',
+			'subject_desc_plugins',
+			'subject_desc_themes',
+			'subject_desc_wordpress',
+			'subject_desc_requests',
+			'subject_desc_activity',
+			'subject_woocommerce',
+			'subject_desc_woocommerce',
+			'label_pro',
+		] as $key ) {
+			$this->assertArrayHasKey( $key, $strings );
+			$this->assertNotSame( '', \trim( (string)$strings[ $key ] ) );
+		}
 	}
 
 	public function test_request_input_values_are_cached_across_repeated_internal_access() :void {
@@ -417,6 +468,8 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 						'options_key' => null,
 						'panel_type'  => 'lookup_select',
 						'href_key'    => 'by_plugin',
+						'icon_class'  => 'bi bi-puzzle-fill',
+						'description_key' => 'subject_desc_plugins',
 						'string_keys' => [
 							'subject' => 'subject_plugins',
 							'panel'   => 'panel_plugins',
@@ -445,6 +498,8 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 						'options_key' => null,
 						'panel_type'  => 'lookup_text',
 						'href_key'    => 'by_user',
+						'icon_class'  => 'bi bi-people-fill',
+						'description_key' => 'subject_desc_users',
 						'string_keys' => [
 							'subject' => 'subject_users',
 							'panel'   => 'panel_users',

@@ -2,36 +2,68 @@
 
 {% block inner_page_body %}
 	<div class="investigate-landing">
-		<div class="card shield-card">
+		<section class="card shield-card investigate-landing__selector-shell" data-investigate-section="selector">
 			<div class="shield-card-accent status-info"></div>
 			<div class="card-body">
 				<h5 class="card-title mb-1">{{ strings.selector_title }}</h5>
 				<p class="text-muted small mb-3">{{ strings.selector_intro }}</p>
 
-				<ul class="nav nav-pills row g-2 list-unstyled mb-3" id="investigateSubjectTabs" role="tablist">
+				<div class="investigate-landing__section-label">{{ strings.selector_section_label }}</div>
+
+				<ul class="nav row g-2 list-unstyled investigate-landing__subject-grid mb-0"
+					id="investigateSubjectTabs"
+					role="tablist">
 					{% for subject in vars.subjects %}
-						<li class="col-12 col-md-6 col-xl-4 nav-item" role="presentation">
-							<a class="nav-link w-100 text-start {{ subject.is_active ? 'active' : '' }}"
+						<li class="col-12 col-md-6 col-xl-4" role="presentation">
+							<a class="investigate-landing__subject-card nav-link {{ subject.is_active ? 'active' : '' }}"
 							   id="{{ subject.tab_id }}-tab"
+							   data-investigate-subject="{{ subject.key }}"
 							   data-bs-toggle="tab"
 							   href="#{{ subject.tab_id }}"
 							   role="tab"
 							   aria-controls="{{ subject.tab_id }}"
 							   aria-selected="{{ subject.is_active ? 'true' : 'false' }}">
-								{{ subject.subject_label }}
+								<span class="investigate-landing__subject-icon" aria-hidden="true">
+									<i class="{{ subject.icon_class }}"></i>
+								</span>
+								<span class="investigate-landing__subject-label">{{ subject.subject_label }}</span>
+								<span class="investigate-landing__subject-description">{{ subject.subject_description }}</span>
 							</a>
 						</li>
 					{% endfor %}
+
+					<li class="col-12 col-md-6 col-xl-4" role="presentation">
+						<div class="investigate-landing__subject-card is-disabled"
+							 data-investigate-subject="woocommerce"
+							 aria-disabled="true">
+							<span class="investigate-landing__subject-icon" aria-hidden="true">
+								<i class="bi bi-cart3"></i>
+							</span>
+							<span class="investigate-landing__subject-label">
+								{{ strings.subject_woocommerce }}
+								<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
+							</span>
+							<span class="investigate-landing__subject-description">{{ strings.subject_desc_woocommerce }}</span>
+						</div>
+					</li>
 				</ul>
+			</div>
+		</section>
+
+		<section class="card shield-card investigate-landing__lookup-shell mt-3"
+				 data-investigate-section="lookup-shell">
+			<div class="shield-card-accent status-info"></div>
+			<div class="card-body">
+				<div class="investigate-landing__section-label mb-2">{{ strings.lookup_section_label }}</div>
+				<p class="text-muted small mb-3">{{ strings.panel_intro }}</p>
 
 				<div class="tab-content" id="investigateSubjectTabContent">
 					{% for subject in vars.subjects %}
 						<div class="tab-pane fade {{ subject.is_active ? 'show active' : '' }}"
+							 data-investigate-subject-panel="{{ subject.key }}"
 							 id="{{ subject.tab_id }}"
 							 role="tabpanel"
 							 aria-labelledby="{{ subject.tab_id }}-tab">
-							<p class="text-muted small mb-2">{{ strings.panel_intro }}</p>
-
 							{% if subject.panel_type == 'lookup_text' or subject.panel_type == 'lookup_select' %}
 								{% include '/wpadmin/components/investigate/lookup_panel.twig' with {
 									subject: subject,
@@ -39,8 +71,8 @@
 									flags: flags
 								} only %}
 							{% else %}
-								<label class="form-label mb-2">{{ subject.panel_title }}</label>
-								<div>
+								<label class="form-label mb-2 d-block">{{ subject.panel_title }}</label>
+								<div class="investigate-landing__direct-link">
 									<a href="{{ subject.href }}" class="btn btn-outline-primary">{{ subject.go_label }}</a>
 								</div>
 							{% endif %}
@@ -48,6 +80,6 @@
 					{% endfor %}
 				</div>
 			</div>
-		</div>
+		</section>
 	</div>
 {% endblock %}

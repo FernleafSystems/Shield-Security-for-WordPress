@@ -20,6 +20,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'options_key' => null,
 			'panel_type'  => 'lookup_text',
 			'href_key'    => 'by_user',
+			'icon_class'  => 'bi bi-people-fill',
+			'description_key' => 'subject_desc_users',
 			'string_keys' => [
 				'subject' => 'subject_users',
 				'panel'   => 'panel_users',
@@ -34,6 +36,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'options_key' => null,
 			'panel_type'  => 'lookup_text',
 			'href_key'    => 'by_ip',
+			'icon_class'  => 'bi bi-globe2',
+			'description_key' => 'subject_desc_ips',
 			'string_keys' => [
 				'subject' => 'subject_ips',
 				'panel'   => 'panel_ips',
@@ -48,6 +52,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'options_key' => 'plugin_options',
 			'panel_type'  => 'lookup_select',
 			'href_key'    => 'by_plugin',
+			'icon_class'  => 'bi bi-puzzle-fill',
+			'description_key' => 'subject_desc_plugins',
 			'string_keys' => [
 				'subject' => 'subject_plugins',
 				'panel'   => 'panel_plugins',
@@ -62,6 +68,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'options_key' => 'theme_options',
 			'panel_type'  => 'lookup_select',
 			'href_key'    => 'by_theme',
+			'icon_class'  => 'bi bi-palette-fill',
+			'description_key' => 'subject_desc_themes',
 			'string_keys' => [
 				'subject' => 'subject_themes',
 				'panel'   => 'panel_themes',
@@ -76,6 +84,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'options_key' => null,
 			'panel_type'  => 'direct_link',
 			'href_key'    => 'by_core',
+			'icon_class'  => 'bi bi-wordpress',
+			'description_key' => 'subject_desc_wordpress',
 			'string_keys' => [
 				'subject' => 'subject_wordpress',
 				'panel'   => 'panel_wordpress',
@@ -89,6 +99,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'options_key' => null,
 			'panel_type'  => 'direct_link',
 			'href_key'    => 'traffic_log',
+			'icon_class'  => 'bi bi-arrow-left-right',
+			'description_key' => 'subject_desc_requests',
 			'string_keys' => [
 				'subject' => 'subject_requests',
 				'panel'   => 'panel_requests',
@@ -102,6 +114,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'options_key' => null,
 			'panel_type'  => 'direct_link',
 			'href_key'    => 'activity_log',
+			'icon_class'  => 'bi bi-journal-text',
+			'description_key' => 'subject_desc_activity',
 			'string_keys' => [
 				'subject' => 'subject_activity',
 				'panel'   => 'panel_activity',
@@ -155,6 +169,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		return [
 			'selector_title'    => __( 'Choose A Subject To Investigate', 'wp-simple-firewall' ),
 			'selector_intro'    => __( 'Select a subject type to load the matching investigation actions and lookup controls.', 'wp-simple-firewall' ),
+			'selector_section_label' => __( 'What Do You Want To Investigate?', 'wp-simple-firewall' ),
+			'lookup_section_label'   => __( 'Investigation Workflow', 'wp-simple-firewall' ),
 			'subject_users'     => __( 'Users', 'wp-simple-firewall' ),
 			'subject_ips'       => __( 'IP Addresses', 'wp-simple-firewall' ),
 			'subject_plugins'   => __( 'Plugins', 'wp-simple-firewall' ),
@@ -162,6 +178,16 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'subject_wordpress' => __( 'WordPress Core', 'wp-simple-firewall' ),
 			'subject_requests'  => __( 'HTTP Requests', 'wp-simple-firewall' ),
 			'subject_activity'  => __( 'Activity Log', 'wp-simple-firewall' ),
+			'subject_woocommerce' => __( 'WooCommerce', 'wp-simple-firewall' ),
+			'subject_desc_users'     => __( 'Sessions, activity, and related IP addresses.', 'wp-simple-firewall' ),
+			'subject_desc_ips'       => __( 'Reputation, bot signals, sessions, and traffic context.', 'wp-simple-firewall' ),
+			'subject_desc_plugins'   => __( 'File status, vulnerabilities, and plugin activity.', 'wp-simple-firewall' ),
+			'subject_desc_themes'    => __( 'File status, vulnerabilities, and theme activity.', 'wp-simple-firewall' ),
+			'subject_desc_wordpress' => __( 'Core file integrity and platform update state.', 'wp-simple-firewall' ),
+			'subject_desc_requests'  => __( 'Browse full HTTP request log data.', 'wp-simple-firewall' ),
+			'subject_desc_activity'  => __( 'Browse full site activity events.', 'wp-simple-firewall' ),
+			'subject_desc_woocommerce' => __( 'Orders and customer security context.', 'wp-simple-firewall' ),
+			'label_pro' => __( 'PRO', 'wp-simple-firewall' ),
 			'panel_users'       => __( 'Investigate A User', 'wp-simple-firewall' ),
 			'panel_ips'         => __( 'Investigate An IP Address', 'wp-simple-firewall' ),
 			'panel_plugins'     => __( 'Investigate A Plugin', 'wp-simple-firewall' ),
@@ -217,6 +243,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				'is_active'          => $activeSubject === $subject[ 'key' ],
 				'panel_type'         => $subject[ 'panel_type' ],
 				'href'               => $hrefs[ $subject[ 'href_key' ] ],
+				'icon_class'         => (string)$subject[ 'icon_class' ],
+				'subject_description' => $strings[ (string)$subject[ 'description_key' ] ] ?? '',
 				'input_key'          => $inputKey,
 				'input_value'        => $inputKey !== null ? ( $input[ $inputKey ] ?? '' ) : null,
 				'options_key'        => $optionsKey,
@@ -381,6 +409,24 @@ class PageInvestigateLanding extends PageModeLandingBase {
 					)
 				);
 			}
+		}
+
+		$descriptionKey = $subject[ 'description_key' ] ?? '';
+		if ( !\is_string( $descriptionKey ) || !\array_key_exists( $descriptionKey, $strings ) ) {
+			throw new \LogicException(
+				\sprintf(
+					'Investigate subject "%s" requires description string key "%s".',
+					$subjectKey,
+					(string)$descriptionKey
+				)
+			);
+		}
+
+		$iconClass = $subject[ 'icon_class' ] ?? '';
+		if ( !\is_string( $iconClass ) || \trim( $iconClass ) === '' ) {
+			throw new \LogicException(
+				\sprintf( 'Investigate subject "%s" requires icon_class.', $subjectKey )
+			);
 		}
 
 		if ( isset( $stringKeys[ 'lookup' ] ) ) {
