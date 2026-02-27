@@ -130,7 +130,7 @@
         ]
       },
       {
-        "version":     "3",
+        "version":     "4",
         "released_at": 1772023000,
         "items":       [
           {
@@ -147,6 +147,16 @@
             "description": [
               "Requests such as /apple-touch-icon.png no longer incorrectly trigger a bottrack_404 offense when the extension is allowlisted."
             ]
+          }
+        ]
+      },
+      {
+        "version":     "5",
+        "released_at": 1772191000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Javascript collisions on WP Admin dashboard which also broke MainWP dashboard."
           }
         ]
       }

@@ -22,6 +22,25 @@ jobs:
         chmod +x .github/scripts/test-cleanup-actions-cache.sh
         ./.github/scripts/test-cleanup-actions-cache.sh
 
+  admin-bundle-safety-script-tests:
+    name: 'Admin Bundle Safety Script Tests'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.10'
+
+    - name: Run admin bundle safety script regression tests
+      run: |
+        chmod +x .github/scripts/verify-admin-bundle-safety.sh
+        chmod +x .github/scripts/test-verify-admin-bundle-safety.sh
+        ./.github/scripts/test-verify-admin-bundle-safety.sh
+
   source-static-analysis:
     name: 'Source Static Analysis'
     runs-on: ubuntu-latest
