@@ -10,24 +10,7 @@
 						<i class="{{ imgs.inner_page_title_icon }}" aria-hidden="true"></i>
 					{% endif %}
 					<div class="d-inline-block">
-						{% set header_segments = [] %}
-						{% for breadcrumb in hrefs.breadcrumbs|default([]) %}
-							{% set header_segments = header_segments|merge( [ {
-								text: breadcrumb.text|default(''),
-								href: breadcrumb.href|default(''),
-								title: breadcrumb.title|default('')
-							} ] ) %}
-						{% endfor %}
-
-						{% set leaf_title = strings.inner_page_title|default(strings.no_inner_page_title) %}
-						{% if header_segments is not empty and (header_segments|last).text|trim|lower == leaf_title|trim|lower %}
-							{% set leaf_title = '' %}
-						{% endif %}
-						{% if leaf_title is not empty %}
-							{% set header_segments = header_segments|merge( [ { text: leaf_title, href: '', title: '' } ] ) %}
-						{% endif %}
-
-						{% for segment in header_segments %}
+						{% for segment in hrefs.inner_page_header_segments|default([]) %}
 							{% if segment.href is not empty %}
 								<a href="{{ segment.href }}"
 								   title="{{ segment.title }}"

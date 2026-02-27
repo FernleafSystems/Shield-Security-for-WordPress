@@ -37,6 +37,19 @@ abstract class BasePluginAdminPage extends BaseRender {
 		return $data;
 	}
 
+	/**
+	 * @throws ActionException
+	 */
+	protected function buildRenderData() :array {
+		$data = parent::buildRenderData();
+		$data[ 'hrefs' ][ 'inner_page_header_segments' ] = $this->buildInnerPageHeaderSegments(
+			\is_array( $data[ 'hrefs' ][ 'breadcrumbs' ] ?? null ) ? $data[ 'hrefs' ][ 'breadcrumbs' ] : [],
+			(string)( $data[ 'strings' ][ 'inner_page_title' ] ?? '' ),
+			(string)( $data[ 'strings' ][ 'no_inner_page_title' ] ?? '' )
+		);
+		return $data;
+	}
+
 	protected function getCommonAdminPageRenderData() :array {
 		$urls = self::con()->plugin_urls;
 
@@ -59,6 +72,39 @@ abstract class BasePluginAdminPage extends BaseRender {
 
 	protected function getBreadCrumbs() :array {
 		return ( new BuildBreadCrumbs() )->current();
+	}
+
+	protected function buildInnerPageHeaderSegments( array $breadcrumbs, string $innerPageTitle, string $fallbackTitle ) :array {
+		$segments = [];
+		foreach ( $breadcrumbs as $breadcrumb ) {
+			if ( !\is_array( $breadcrumb ) ) {
+				continue;
+			}
+			$segments[] = [
+				'text'  => (string)( $breadcrumb[ 'text' ] ?? '' ),
+				'href'  => (string)( $breadcrumb[ 'href' ] ?? '' ),
+				'title' => (string)( $breadcrumb[ 'title' ] ?? '' ),
+			];
+		}
+
+		$leafTitle = \trim( $innerPageTitle ) === '' ? $fallbackTitle : $innerPageTitle;
+		if ( !empty( $segments ) ) {
+			$lastSegment = \end( $segments );
+			$lastText = \trim( \is_array( $lastSegment ) ? (string)( $lastSegment[ 'text' ] ?? '' ) : '' );
+			if ( \strtolower( $lastText ) === \strtolower( \trim( $leafTitle ) ) ) {
+				$leafTitle = '';
+			}
+		}
+
+		if ( \trim( $leafTitle ) !== '' ) {
+			$segments[] = [
+				'text'  => $leafTitle,
+				'href'  => '',
+				'title' => '',
+			];
+		}
+
+		return $segments;
 	}
 
 	protected function getTextInputFromRequestOrActionData( string $key, string $default = '' ) :string {

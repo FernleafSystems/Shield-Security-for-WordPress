@@ -45,104 +45,88 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertNoSelfRouteHref( $crumbs, PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS );
 	}
 
-	public function test_required_route_matrix_has_no_self_route_breadcrumb_hrefs() :void {
+	/**
+	 * @dataProvider providerRequiredRouteMatrix
+	 */
+	public function test_required_route_matrix_has_no_self_route_breadcrumb_hrefs( string $nav, string $subNav, array $expectedTexts ) :void {
 		$builder = new BuildBreadCrumbsForTest();
-
-		foreach ( [
-			[
-				'nav'            => PluginNavs::NAV_DASHBOARD,
-				'subNav'         => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
-				'expected_texts' => [],
-			],
-			[
-				'nav'            => PluginNavs::NAV_DASHBOARD,
-				'subNav'         => PluginNavs::SUBNAV_DASHBOARD_GRADES,
-				'expected_texts' => [ 'Shield Security', 'Configure' ],
-			],
-			[
-				'nav'            => PluginNavs::NAV_SCANS,
-				'subNav'         => PluginNavs::SUBNAV_SCANS_OVERVIEW,
-				'expected_texts' => [ 'Shield Security' ],
-			],
-			[
-				'nav'            => PluginNavs::NAV_ACTIVITY,
-				'subNav'         => PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
-				'expected_texts' => [ 'Shield Security' ],
-			],
-			[
-				'nav'            => PluginNavs::NAV_ACTIVITY,
-				'subNav'         => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
-				'expected_texts' => [ 'Shield Security', 'Investigate' ],
-			],
-			[
-				'nav'            => PluginNavs::NAV_ACTIVITY,
-				'subNav'         => PluginNavs::SUBNAV_LOGS,
-				'expected_texts' => [ 'Shield Security', 'Investigate' ],
-			],
-			[
-				'nav'            => PluginNavs::NAV_TRAFFIC,
-				'subNav'         => PluginNavs::SUBNAV_LOGS,
-				'expected_texts' => [ 'Shield Security', 'Investigate' ],
-			],
-			[
-				'nav'            => PluginNavs::NAV_TRAFFIC,
-				'subNav'         => PluginNavs::SUBNAV_LIVE,
-				'expected_texts' => [ 'Shield Security', 'Investigate' ],
-			],
-		] as $route ) {
-			$crumbs = $builder->parse( $route[ 'nav' ], $route[ 'subNav' ] );
-			$this->assertSame( $route[ 'expected_texts' ], \array_column( $crumbs, 'text' ) );
-			$this->assertNoSelfRouteHref( $crumbs, $route[ 'nav' ], $route[ 'subNav' ] );
-		}
+		$crumbs = $builder->parse( $nav, $subNav );
+		$this->assertSame( $expectedTexts, \array_column( $crumbs, 'text' ) );
+		$this->assertNoSelfRouteHref( $crumbs, $nav, $subNav );
 	}
 
-	public function test_reports_non_landing_subnavs_keep_reports_mode_ancestor() :void {
+	/**
+	 * @dataProvider providerReportsWorkspaceSubNavs
+	 */
+	public function test_reports_non_landing_subnavs_keep_reports_mode_ancestor( string $subNav ) :void {
 		$builder = new BuildBreadCrumbsForTest();
-
-		foreach ( [
-			PluginNavs::SUBNAV_REPORTS_LIST,
-			PluginNavs::SUBNAV_REPORTS_CHARTS,
-			PluginNavs::SUBNAV_REPORTS_SETTINGS,
-		] as $subNav ) {
-			$crumbs = $builder->parse( PluginNavs::NAV_REPORTS, $subNav );
-			$this->assertCount( 2, $crumbs );
-			$this->assertSame( [ 'Shield Security', 'Reports' ], \array_column( $crumbs, 'text' ) );
-			$this->assertSame( '/reports/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
-			$this->assertNoSelfRouteHref( $crumbs, PluginNavs::NAV_REPORTS, $subNav );
-		}
+		$crumbs = $builder->parse( PluginNavs::NAV_REPORTS, $subNav );
+		$this->assertCount( 2, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Reports' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/reports/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
+		$this->assertNoSelfRouteHref( $crumbs, PluginNavs::NAV_REPORTS, $subNav );
 	}
 
-	public function test_scans_non_landing_subnavs_keep_actions_queue_mode_ancestor() :void {
+	/**
+	 * @dataProvider providerScansWorkspaceSubNavs
+	 */
+	public function test_scans_non_landing_subnavs_keep_actions_queue_mode_ancestor( string $subNav ) :void {
 		$builder = new BuildBreadCrumbsForTest();
-
-		foreach ( [
-			PluginNavs::SUBNAV_SCANS_RESULTS,
-			PluginNavs::SUBNAV_SCANS_RUN,
-		] as $subNav ) {
-			$crumbs = $builder->parse( PluginNavs::NAV_SCANS, $subNav );
-			$this->assertCount( 2, $crumbs );
-			$this->assertSame( [ 'Shield Security', 'Actions Queue' ], \array_column( $crumbs, 'text' ) );
-			$this->assertSame( '/scans/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
-			$this->assertNoSelfRouteHref( $crumbs, PluginNavs::NAV_SCANS, $subNav );
-		}
+		$crumbs = $builder->parse( PluginNavs::NAV_SCANS, $subNav );
+		$this->assertCount( 2, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Actions Queue' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/scans/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
+		$this->assertNoSelfRouteHref( $crumbs, PluginNavs::NAV_SCANS, $subNav );
 	}
 
-	public function test_investigate_and_ips_supporting_routes_keep_investigate_mode_ancestor() :void {
+	/**
+	 * @dataProvider providerInvestigateSupportingRoutes
+	 */
+	public function test_investigate_and_ips_supporting_routes_keep_investigate_mode_ancestor( string $nav, string $subNav ) :void {
 		$builder = new BuildBreadCrumbsForTest();
+		$crumbs = $builder->parse( $nav, $subNav );
+		$this->assertCount( 2, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/activity/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
+		$this->assertNoSelfRouteHref( $crumbs, $nav, $subNav );
+	}
 
-		foreach ( [
+	public function providerRequiredRouteMatrix() :array {
+		return [
+			'dashboard_overview' => [ PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW, [] ],
+			'dashboard_grades'   => [ PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES, [ 'Shield Security', 'Configure' ] ],
+			'scans_overview'     => [ PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW, [ 'Shield Security' ] ],
+			'activity_overview'  => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW, [ 'Shield Security' ] ],
+			'activity_by_user'   => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER, [ 'Shield Security', 'Investigate' ] ],
+			'activity_logs'      => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, [ 'Shield Security', 'Investigate' ] ],
+			'traffic_logs'       => [ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS, [ 'Shield Security', 'Investigate' ] ],
+			'traffic_live'       => [ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE, [ 'Shield Security', 'Investigate' ] ],
+		];
+	}
+
+	public function providerReportsWorkspaceSubNavs() :array {
+		return [
+			'reports_list'     => [ PluginNavs::SUBNAV_REPORTS_LIST ],
+			'reports_charts'   => [ PluginNavs::SUBNAV_REPORTS_CHARTS ],
+			'reports_settings' => [ PluginNavs::SUBNAV_REPORTS_SETTINGS ],
+		];
+	}
+
+	public function providerScansWorkspaceSubNavs() :array {
+		return [
+			'scans_results' => [ PluginNavs::SUBNAV_SCANS_RESULTS ],
+			'scans_run'     => [ PluginNavs::SUBNAV_SCANS_RUN ],
+		];
+	}
+
+	public function providerInvestigateSupportingRoutes() :array {
+		return [
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP ],
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ],
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_THEME ],
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE ],
 			[ PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ],
-		] as $route ) {
-			$crumbs = $builder->parse( $route[ 0 ], $route[ 1 ] );
-			$this->assertCount( 2, $crumbs );
-			$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $crumbs, 'text' ) );
-			$this->assertSame( '/activity/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
-			$this->assertNoSelfRouteHref( $crumbs, $route[ 0 ], $route[ 1 ] );
-		}
+		];
 	}
 }
 

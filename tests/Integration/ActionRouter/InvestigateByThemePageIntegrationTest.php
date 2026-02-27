@@ -3,19 +3,20 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionProcessor,
-	Actions\Render\PageAdminPlugin,
 	Actions\Render\PluginAdminPages\PageInvestigateByTheme,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\LookupRouteFormAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	LookupRouteFormAssertions,
+	PluginAdminRouteRenderAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions;
+	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -23,38 +24,23 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
 
-	private function processor() :ActionProcessor {
-		return new ActionProcessor();
-	}
-
 	private function renderByThemePage( string $themeSlug = '' ) :array {
-		return $this->renderByThemePageAction( PageAdminPlugin::SLUG, $themeSlug );
+		return $this->renderPluginAdminRoutePayload(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
+			$themeSlug !== '' ? [ 'theme_slug' => $themeSlug ] : []
+		);
 	}
 
 	private function renderByThemeInnerPage( string $themeSlug = '' ) :array {
-		return $this->renderByThemePageAction( PageInvestigateByTheme::SLUG, $themeSlug );
-	}
-
-	private function renderByThemePageAction( string $actionSlug, string $themeSlug = '' ) :array {
-		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
-		add_filter( $filter, '__return_true', 1000 );
-
-		try {
-			$params = [
-				Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
-				Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
-			];
-			if ( $themeSlug !== '' ) {
-				$params[ 'theme_slug' ] = $themeSlug;
-			}
-
-			return $this->processor()
-						->processAction( $actionSlug, $params )
-						->payload();
+		$params = [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
+		];
+		if ( $themeSlug !== '' ) {
+			$params[ 'theme_slug' ] = $themeSlug;
 		}
-		finally {
-			remove_filter( $filter, '__return_true', 1000 );
-		}
+		return $this->processActionPayloadWithAdminBypass( PageInvestigateByTheme::SLUG, $params );
 	}
 
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {

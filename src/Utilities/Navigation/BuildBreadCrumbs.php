@@ -44,25 +44,35 @@ class BuildBreadCrumbs {
 			throw new \Exception( 'Not a valid sub_nav: '.$subNav );
 		}
 
-		if ( !$this->isSameRoute( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW, $nav, $subNav ) ) {
-			$crumbs[] = [
+		$this->appendCrumbIfNotCurrentRoute(
+			$crumbs,
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			$nav,
+			$subNav,
+			[
 				'text'  => __( 'Shield Security', 'wp-simple-firewall' ),
 				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), __( 'Mode Selector', 'wp-simple-firewall' ) ),
 				'href'  => $this->buildNavUrl( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
-			];
-		}
+			]
+		);
 
 		if ( $nav !== PluginNavs::NAV_RESTRICTED ) {
 			$mode = PluginNavs::modeForRoute( $nav, $subNav );
 			if ( !empty( $mode ) ) {
 				$entry = PluginNavs::defaultEntryForMode( $mode );
-				if ( !$this->isSameRoute( $entry[ 'nav' ], $entry[ 'subnav' ], $nav, $subNav ) ) {
-					$crumbs[] = [
+				$this->appendCrumbIfNotCurrentRoute(
+					$crumbs,
+					$entry[ 'nav' ],
+					$entry[ 'subnav' ],
+					$nav,
+					$subNav,
+					[
 						'text'  => PluginNavs::modeLabel( $mode ),
 						'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), PluginNavs::modeLabel( $mode ) ),
 						'href'  => $this->buildNavUrl( $entry[ 'nav' ], $entry[ 'subnav' ] ),
-					];
-				}
+					]
+				);
 			}
 		}
 
@@ -80,13 +90,18 @@ class BuildBreadCrumbs {
 				$crumbTitleLabel = $subNavLabel;
 			}
 
-			if ( !$this->isSameRoute( $nav, $crumbHrefSubNav, $nav, $subNav ) ) {
-				$crumbs[] = [
+			$this->appendCrumbIfNotCurrentRoute(
+				$crumbs,
+				$nav,
+				$crumbHrefSubNav,
+				$nav,
+				$subNav,
+				[
 					'text'  => $crumbText,
 					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), $crumbTitleLabel ),
 					'href'  => $this->buildNavUrl( $nav, $crumbHrefSubNav ),
-				];
-			}
+				]
+			);
 		}
 
 		return $crumbs;
@@ -106,6 +121,12 @@ class BuildBreadCrumbs {
 
 	private function isModeLandingRoute( string $nav, string $subNav ) :bool {
 		return PluginNavs::isModeLandingRoute( $nav, $subNav );
+	}
+
+	private function appendCrumbIfNotCurrentRoute( array &$crumbs, string $candidateNav, string $candidateSubNav, string $currentNav, string $currentSubNav, array $crumb ) :void {
+		if ( !$this->isSameRoute( $candidateNav, $candidateSubNav, $currentNav, $currentSubNav ) ) {
+			$crumbs[] = $crumb;
+		}
 	}
 
 	private function isSameRoute( string $candidateNav, string $candidateSubNav, string $currentNav, string $currentSubNav ) :bool {

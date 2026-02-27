@@ -3,19 +3,20 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionProcessor,
-	Actions\Render\PageAdminPlugin,
 	Actions\Render\PluginAdminPages\PageInvestigateByPlugin,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\LookupRouteFormAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	LookupRouteFormAssertions,
+	PluginAdminRouteRenderAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions;
+	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -24,38 +25,23 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
 
-	private function processor() :ActionProcessor {
-		return new ActionProcessor();
-	}
-
 	private function renderByPluginPage( string $pluginSlug = '' ) :array {
-		return $this->renderByPluginPageAction( PageAdminPlugin::SLUG, $pluginSlug );
+		return $this->renderPluginAdminRoutePayload(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+			$pluginSlug !== '' ? [ 'plugin_slug' => $pluginSlug ] : []
+		);
 	}
 
 	private function renderByPluginInnerPage( string $pluginSlug = '' ) :array {
-		return $this->renderByPluginPageAction( PageInvestigateByPlugin::SLUG, $pluginSlug );
-	}
-
-	private function renderByPluginPageAction( string $actionSlug, string $pluginSlug = '' ) :array {
-		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
-		add_filter( $filter, '__return_true', 1000 );
-
-		try {
-			$params = [
-				Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
-				Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
-			];
-			if ( $pluginSlug !== '' ) {
-				$params[ 'plugin_slug' ] = $pluginSlug;
-			}
-
-			return $this->processor()
-						->processAction( $actionSlug, $params )
-						->payload();
+		$params = [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+		];
+		if ( $pluginSlug !== '' ) {
+			$params[ 'plugin_slug' ] = $pluginSlug;
 		}
-		finally {
-			remove_filter( $filter, '__return_true', 1000 );
-		}
+		return $this->processActionPayloadWithAdminBypass( PageInvestigateByPlugin::SLUG, $params );
 	}
 
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {

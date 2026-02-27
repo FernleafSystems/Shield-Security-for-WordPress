@@ -2,15 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionProcessor,
-	Actions\Render\PageAdminPlugin,
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
+
+	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -20,24 +18,9 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
 
-	private function processor() :ActionProcessor {
-		return new ActionProcessor();
-	}
-
 	private function renderReportsSubNavHtml( string $subNav ) :string {
-		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
-		add_filter( $filter, '__return_true', 1000 );
-
-		try {
-			$response = $this->processor()->processAction( PageAdminPlugin::SLUG, [
-				Constants::NAV_ID     => PluginNavs::NAV_REPORTS,
-				Constants::NAV_SUB_ID => $subNav,
-			] );
-			return (string)( $response->payload()[ 'render_output' ] ?? '' );
-		}
-		finally {
-			remove_filter( $filter, '__return_true', 1000 );
-		}
+		$payload = $this->renderPluginAdminRoutePayload( PluginNavs::NAV_REPORTS, $subNav );
+		return (string)( $payload[ 'render_output' ] ?? '' );
 	}
 
 	public function test_reports_routes_render_expected_markers_without_render_exceptions() :void {

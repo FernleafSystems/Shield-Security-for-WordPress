@@ -3,20 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionProcessor,
-	Actions\Render\PageAdminPlugin,
 	Actions\Render\PluginAdminPages\PageInvestigateByUser,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\LookupRouteFormAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	LookupRouteFormAssertions,
+	PluginAdminRouteRenderAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions;
+	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -28,38 +29,23 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
 
-	private function processor() :ActionProcessor {
-		return new ActionProcessor();
-	}
-
 	private function renderByUserPage( string $lookup = '' ) :array {
-		return $this->renderByUserPageAction( PageAdminPlugin::SLUG, $lookup );
+		return $this->renderPluginAdminRoutePayload(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+			$lookup !== '' ? [ 'user_lookup' => $lookup ] : []
+		);
 	}
 
 	private function renderByUserInnerPage( string $lookup = '' ) :array {
-		return $this->renderByUserPageAction( PageInvestigateByUser::SLUG, $lookup );
-	}
-
-	private function renderByUserPageAction( string $actionSlug, string $lookup = '' ) :array {
-		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
-		add_filter( $filter, '__return_true', 1000 );
-
-		try {
-			$params = [
-				Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
-				Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
-			];
-			if ( $lookup !== '' ) {
-				$params[ 'user_lookup' ] = $lookup;
-			}
-
-			return $this->processor()
-						->processAction( $actionSlug, $params )
-						->payload();
+		$params = [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+		];
+		if ( $lookup !== '' ) {
+			$params[ 'user_lookup' ] = $lookup;
 		}
-		finally {
-			remove_filter( $filter, '__return_true', 1000 );
-		}
+		return $this->processActionPayloadWithAdminBypass( PageInvestigateByUser::SLUG, $params );
 	}
 
 	private function seedRequestLogForUser( int $userId, string $ip = '198.51.100.24' ) :void {

@@ -6,17 +6,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	ActionResponse,
 	Actions\Render\Components\Widgets\NeedsAttentionQueue,
-	Actions\Render\PageAdminPlugin,
-	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\BuiltMetersFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	BuiltMetersFixture,
+	PluginAdminRouteRenderAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
-	use BuiltMetersFixture;
+	use BuiltMetersFixture, PluginAdminRouteRenderAssertions;
 
 	private int $adminUserId;
 
@@ -43,18 +44,11 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	private function renderDashboardOverviewHtml() :string {
-		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
-		add_filter( $filter, '__return_true', 1000 );
-		try {
-			$response = $this->processor()->processAction( PageAdminPlugin::SLUG, [
-				Constants::NAV_ID     => PluginNavs::NAV_DASHBOARD,
-				Constants::NAV_SUB_ID => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
-			] );
-			return (string)( $response->payload()[ 'render_output' ] ?? '' );
-		}
-		finally {
-			remove_filter( $filter, '__return_true', 1000 );
-		}
+		$payload = $this->renderPluginAdminRoutePayload(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
+		);
+		return (string)( $payload[ 'render_output' ] ?? '' );
 	}
 
 	private function renderNeedsAttentionQueue() :ActionResponse {
