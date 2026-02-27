@@ -207,7 +207,7 @@ These were delivered after P4 and before P5 cleanup:
 | P6d | [COMPLETE] Complete | Dedicated Investigate By Plugin page delivered with shared rail/panel architecture, file status/activity tables, and vulnerabilities panel. |
 | P6e | [COMPLETE] Complete | Theme and Core pages delivered; shared `BaseInvestigateAsset` implemented and consumed by plugin/theme pages; core overview + tables integrated. |
 | P6f | [COMPLETE] Complete | Cross-subject linking delivered for investigation context while preserving offcanvas IP behavior; canonical investigate URL helpers integrated. |
-| P7-INV-UX | [IN PROGRESS] Partially complete | **Completed:** OM-701, OM-702, OM-703, OM-704, OM-705, OM-706, OM-707, OM-708, OM-710. **Pending:** OM-709, OM-711. |
+| P7-INV-UX | [IN PROGRESS] Partially complete | **Completed:** OM-701, OM-702, OM-703, OM-704, OM-705, OM-706, OM-707, OM-708, OM-709, OM-710. **Pending:** OM-711. |
 | P8 | [IN PROGRESS] Partially complete | WP dashboard widget alignment and Reports deepening are complete; Configure deepening remains pending. |
 
 ## 7) P6-STAB Closure Record (Runtime Recovery)
@@ -530,9 +530,9 @@ Supersession rules:
 3. Treats previous P6 completion as structural delivery complete; P7-INV-UX is visual/interaction parity and copy/state correctness.
 
 Execution snapshot (2026-02-27):
-1. Completed and validated in code/tests: `OM-701`, `OM-702`, `OM-703`, `OM-704`, `OM-705`, `OM-706`, `OM-707`, `OM-708`, `OM-710`.
-2. Remaining open work: `OM-709`, `OM-711`.
-3. Next-session starting queue: `OM-709` -> `OM-711`.
+1. Completed and validated in code/tests: `OM-701`, `OM-702`, `OM-703`, `OM-704`, `OM-705`, `OM-706`, `OM-707`, `OM-708`, `OM-709`, `OM-710`.
+2. Remaining open work: `OM-711`.
+3. Next-session starting queue: `OM-711`.
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
@@ -544,7 +544,7 @@ Execution snapshot (2026-02-27):
 | OM-706 | ~~Prevent parallel IP offcanvas load when navigating from user IP cards to dedicated Investigate IP page~~ | User IP card link generation + investigate-context link helpers | OM-705 | **Done (2026-02-26)**  -  `Investigate IP` action navigates directly and is not bound to offcanvas auto-bootstrap path. |
 | OM-707 | ~~Simplify dedicated Investigate IP page framing and tab naming~~ | `PageInvestigateByIp.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_by_ip.twig`, `IpAnalyse\Container` tab label mapping | P6c | **Done (2026-02-26)**  -  by-ip page uses simplified framing; tab label is `Overview` (not `General`). |
 | OM-708 | ~~Breadcrumb audit and normalization across all operator pages~~ | `src/Utilities/Navigation/BuildBreadCrumbs.php`, `src/Controller/Plugin/PluginNavs.php`, breadcrumb tests | P4, OM-701, OM-702, OM-707 | **Done (2026-02-27)**  -  breadcrumb self-route links are suppressed, duplicate terminal labels are normalized, and focused unit/integration coverage was added for the finalized contract. |
-| OM-709 | Investigate landing visual cleanup for prototype parity and interaction clarity | `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, associated SCSS and render contract in `PageInvestigateLanding.php` | P6a | **Pending**  -  quick-access removal is complete via OM-710, but full visual parity and copy/layout cleanup are not yet complete. |
+| OM-709 | ~~Investigate landing visual cleanup for prototype parity and interaction clarity~~ | `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, associated SCSS and render contract in `PageInvestigateLanding.php` | P6a | **Done (2026-02-27)**  -  landing selector/panel visual cleanup and interaction clarity updates are complete, including disabled subject handling (WooCommerce tile) and canonical subject definition reuse via `PluginNavs`. |
 | OM-710 | ~~Remove Investigate quick-access strip from landing~~ | `PageInvestigateLanding.php`, `investigate_landing.twig` | OM-709 | **Done (2026-02-26)**  -  quick-access strip is removed from landing output. |
 | OM-711 | Add/adjust unit coverage for new breadcrumb and empty-state contracts | `tests/Unit/Utilities/Navigation/BuildBreadCrumbsOperatorModesTest.php`, new/updated page behavior tests under `tests/Unit/ActionRouter/Render/` | OM-703, OM-708, OM-710 | **Pending**  -  empty-state coverage is present; continue alignment checks and close any remaining breadcrumb/empty-state contract gaps. |
 

@@ -64,6 +64,16 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'themes', $vars[ 'active_subject' ] );
 	}
 
+	public function test_active_subject_ignores_disabled_subject_query_parameter() :void {
+		$this->installServicesStubs( [
+			'subject' => 'woocommerce',
+		] );
+		$page = new PageInvestigateLanding();
+
+		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
+		$this->assertSame( 'users', $vars[ 'active_subject' ] );
+	}
+
 	public function test_active_subject_uses_subnav_hint_when_subject_query_is_absent() :void {
 		$this->installServicesStubs( [
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
@@ -152,9 +162,9 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$page = new PageInvestigateLanding();
 
 		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$this->assertCount( 7, $vars[ 'subjects' ] );
+		$this->assertCount( 8, $vars[ 'subjects' ] );
 		$this->assertSame(
-			[ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity' ],
+			[ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity', 'woocommerce' ],
 			\array_column( $vars[ 'subjects' ], 'key' )
 		);
 
@@ -184,6 +194,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'wordpress' => null,
 				'requests'  => null,
 				'activity'  => null,
+				'woocommerce' => null,
 			],
 			$optionsKeysBySubject
 		);
@@ -240,6 +251,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $subjectsByKey[ 'wordpress' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $subjectsByKey[ 'requests' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $subjectsByKey[ 'activity' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
+		$this->assertSame( [], $subjectsByKey[ 'woocommerce' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
 		$this->assertSame(
 			[
 				'users'     => 'Users',
@@ -249,6 +261,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'wordpress' => 'WordPress Core',
 				'requests'  => 'HTTP Requests',
 				'activity'  => 'Activity Log',
+				'woocommerce' => 'WooCommerce',
 			],
 			[
 				'users'     => $subjectsByKey[ 'users' ][ 'subject_label' ] ?? '',
@@ -258,6 +271,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'wordpress' => $subjectsByKey[ 'wordpress' ][ 'subject_label' ] ?? '',
 				'requests'  => $subjectsByKey[ 'requests' ][ 'subject_label' ] ?? '',
 				'activity'  => $subjectsByKey[ 'activity' ][ 'subject_label' ] ?? '',
+				'woocommerce' => $subjectsByKey[ 'woocommerce' ][ 'subject_label' ] ?? '',
 			]
 		);
 		$this->assertSame(
@@ -269,6 +283,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'wordpress' => 'bi bi-wordpress',
 				'requests'  => 'bi bi-arrow-left-right',
 				'activity'  => 'bi bi-journal-text',
+				'woocommerce' => 'bi bi-cart3',
 			],
 			[
 				'users'     => $subjectsByKey[ 'users' ][ 'icon_class' ] ?? '',
@@ -278,35 +293,34 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'wordpress' => $subjectsByKey[ 'wordpress' ][ 'icon_class' ] ?? '',
 				'requests'  => $subjectsByKey[ 'requests' ][ 'icon_class' ] ?? '',
 				'activity'  => $subjectsByKey[ 'activity' ][ 'icon_class' ] ?? '',
+				'woocommerce' => $subjectsByKey[ 'woocommerce' ][ 'icon_class' ] ?? '',
 			]
 		);
-		foreach ( [ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity' ] as $subjectKey ) {
+		foreach ( [ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity', 'woocommerce' ] as $subjectKey ) {
 			$this->assertNotSame(
 				'',
 				\trim( (string)( $subjectsByKey[ $subjectKey ][ 'subject_description' ] ?? '' ) ),
 				\sprintf( 'Subject "%s" description should be non-empty.', $subjectKey )
 			);
 		}
+		$this->assertFalse( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_enabled' ] ?? true ) );
+		$this->assertTrue( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_pro' ] ?? false ) );
+		$this->assertFalse( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_active' ] ?? true ) );
 	}
 
-	public function test_landing_strings_include_section_and_subject_description_contract() :void {
+	public function test_landing_strings_include_section_and_panel_contract() :void {
 		$this->installServicesStubs();
 		$page = new PageInvestigateLanding();
 
 		$strings = $this->invokeProtectedMethod( $page, 'getLandingStrings' );
 		foreach ( [
+			'selector_title',
+			'selector_intro',
 			'selector_section_label',
 			'lookup_section_label',
-			'subject_desc_users',
-			'subject_desc_ips',
-			'subject_desc_plugins',
-			'subject_desc_themes',
-			'subject_desc_wordpress',
-			'subject_desc_requests',
-			'subject_desc_activity',
-			'subject_woocommerce',
-			'subject_desc_woocommerce',
+			'panel_intro',
 			'label_pro',
+			'ip_invalid_text',
 		] as $key ) {
 			$this->assertArrayHasKey( $key, $strings );
 			$this->assertNotSame( '', \trim( (string)$strings[ $key ] ) );
@@ -462,20 +476,20 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			protected function getSubjectDefinitions() :array {
 				return [
 					'plugins' => [
-						'key'         => 'plugins',
-						'subnav_hint' => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
-						'input_key'   => 'plugin_slug',
-						'options_key' => null,
-						'panel_type'  => 'lookup_select',
-						'href_key'    => 'by_plugin',
-						'icon_class'  => 'bi bi-puzzle-fill',
-						'description_key' => 'subject_desc_plugins',
-						'string_keys' => [
-							'subject' => 'subject_plugins',
-							'panel'   => 'panel_plugins',
-							'lookup'  => 'lookup_plugin',
-							'go'      => 'go_plugin',
-						],
+						'key'                => 'plugins',
+						'label'              => 'Plugins',
+						'description'        => 'File status, vulnerabilities, and plugin activity.',
+						'icon_class'         => 'bi bi-puzzle-fill',
+						'panel_type'         => 'lookup_select',
+						'subnav_hint'        => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+						'href_key'           => 'by_plugin',
+						'input_key'          => 'plugin_slug',
+						'options_key'        => null,
+						'panel_title'        => 'Investigate A Plugin',
+						'lookup_placeholder' => 'Select a plugin',
+						'go_label'           => 'Investigate Plugin',
+						'is_enabled'         => true,
+						'is_pro'             => false,
 					],
 				];
 			}
@@ -492,20 +506,20 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			protected function getSubjectDefinitions() :array {
 				return [
 					'users' => [
-						'key'         => 'users',
-						'subnav_hint' => '',
-						'input_key'   => 'user_lookup',
-						'options_key' => null,
-						'panel_type'  => 'lookup_text',
-						'href_key'    => 'by_user',
-						'icon_class'  => 'bi bi-people-fill',
-						'description_key' => 'subject_desc_users',
-						'string_keys' => [
-							'subject' => 'subject_users',
-							'panel'   => 'panel_users',
-							'lookup'  => 'lookup_user',
-							'go'      => 'go_user',
-						],
+						'key'                => 'users',
+						'label'              => 'Users',
+						'description'        => 'Sessions, activity, and related IP addresses.',
+						'icon_class'         => 'bi bi-people-fill',
+						'panel_type'         => 'lookup_text',
+						'subnav_hint'        => '',
+						'href_key'           => 'by_user',
+						'input_key'          => 'user_lookup',
+						'options_key'        => null,
+						'panel_title'        => 'Investigate A User',
+						'lookup_placeholder' => 'User ID, username, or email',
+						'go_label'           => 'Investigate User',
+						'is_enabled'         => true,
+						'is_pro'             => false,
 					],
 				];
 			}

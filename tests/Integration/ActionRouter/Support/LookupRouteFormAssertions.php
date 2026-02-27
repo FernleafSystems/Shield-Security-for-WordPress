@@ -7,27 +7,54 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 trait LookupRouteFormAssertions {
 
+	use HtmlDomAssertions;
+
 	/**
 	 * @return array{action: string, html: string}
 	 */
 	private function extractLookupFormForSubNav( string $html, string $subNav ) :array {
-		$subNavPattern = \preg_quote( $subNav, '#' );
-		$pattern = '#<form[^>]*method="get"[^>]*action="([^"]*nav_sub='.$subNavPattern.'[^"]*)"[^>]*>(.*?)</form>#si';
-		$matched = \preg_match( $pattern, $html, $matches ) === 1;
-		$this->assertTrue( $matched, \sprintf( 'Lookup form for subnav "%s" missing from render output.', $subNav ) );
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$formNodes = $xpath->query( '//form[translate(@method, "GET", "get") = "get"]' );
+		$this->assertNotFalse( $formNodes, 'Lookup form query failed.' );
+
+		$matchedForm = null;
+		$matchedAction = '';
+		foreach ( $formNodes as $formNode ) {
+			$action = \html_entity_decode(
+				(string)( $formNode instanceof \DOMElement ? $formNode->getAttribute( 'action' ) : '' ),
+				\ENT_QUOTES | \ENT_HTML5,
+				'UTF-8'
+			);
+			$query = [];
+			\parse_str( (string)\parse_url( $action, \PHP_URL_QUERY ), $query );
+			if ( (string)( $query[ Constants::NAV_SUB_ID ] ?? '' ) === $subNav ) {
+				$matchedForm = $formNode;
+				$matchedAction = $action;
+				break;
+			}
+		}
+
+		$this->assertNotNull(
+			$matchedForm,
+			\sprintf( 'Lookup form for subnav "%s" missing from render output.', $subNav )
+		);
 
 		return [
-			'action' => \html_entity_decode( (string)( $matches[ 1 ] ?? '' ), \ENT_QUOTES, 'UTF-8' ),
-			'html'   => (string)( $matches[ 2 ] ?? '' ),
+			'action' => $matchedAction,
+			'html'   => $matchedForm instanceof \DOMNode ? $this->nodeOuterHtml( $matchedForm ) : '',
 		];
 	}
 
 	private function extractHiddenInputValue( string $html, string $name ) :string {
-		$namePattern = \preg_quote( $name, '#' );
-		$pattern = '#<input\b(?=[^>]*\bname="'.$namePattern.'")(?=[^>]*\bvalue="([^"]*)")[^>]*>#i';
-		$matched = \preg_match( $pattern, $html, $matches ) === 1;
-		$this->assertTrue( $matched, \sprintf( 'Hidden input "%s" missing from lookup form.', $name ) );
-		return (string)( $matches[ 1 ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$nameQuoted = \sprintf( '"%s"', $name );
+		$input = $this->assertXPathExists(
+			$xpath,
+			'//input[@name='.$nameQuoted.']',
+			\sprintf( 'Hidden input "%s" missing from lookup form.', $name )
+		);
+
+		return $input instanceof \DOMElement ? (string)$input->getAttribute( 'value' ) : '';
 	}
 
 	private function assertLookupFormRouteContract( array $form, string $expectedSubNav ) :void {
@@ -42,4 +69,3 @@ trait LookupRouteFormAssertions {
 		$this->assertSame( $expectedSubNav, $this->extractHiddenInputValue( (string)$form[ 'html' ], 'nav_sub' ) );
 	}
 }
-

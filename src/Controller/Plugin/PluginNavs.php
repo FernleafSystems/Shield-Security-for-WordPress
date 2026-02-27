@@ -392,20 +392,148 @@ class PluginNavs {
 		}
 	}
 
+	public static function investigateLandingSubjectDefinitions() :array {
+		return [
+			'users'       => [
+				'label'              => __( 'Users', 'wp-simple-firewall' ),
+				'description'        => __( 'Sessions, activity, and related IP addresses.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-people-fill',
+				'panel_type'         => 'lookup_text',
+				'subnav_hint'        => self::SUBNAV_ACTIVITY_BY_USER,
+				'href_key'           => 'by_user',
+				'input_key'          => 'user_lookup',
+				'options_key'        => null,
+				'panel_title'        => __( 'Investigate A User', 'wp-simple-firewall' ),
+				'lookup_placeholder' => __( 'User ID, username, or email', 'wp-simple-firewall' ),
+				'go_label'           => __( 'Investigate User', 'wp-simple-firewall' ),
+				'is_enabled'         => true,
+				'is_pro'             => false,
+			],
+			'ips'         => [
+				'label'              => __( 'IP Addresses', 'wp-simple-firewall' ),
+				'description'        => __( 'Reputation, bot signals, sessions, and traffic context.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-globe2',
+				'panel_type'         => 'lookup_text',
+				'subnav_hint'        => self::SUBNAV_ACTIVITY_BY_IP,
+				'href_key'           => 'by_ip',
+				'input_key'          => 'analyse_ip',
+				'options_key'        => null,
+				'panel_title'        => __( 'Investigate An IP Address', 'wp-simple-firewall' ),
+				'lookup_placeholder' => __( 'IP address', 'wp-simple-firewall' ),
+				'go_label'           => __( 'Investigate IP', 'wp-simple-firewall' ),
+				'is_enabled'         => true,
+				'is_pro'             => false,
+			],
+			'plugins'     => [
+				'label'              => __( 'Plugins', 'wp-simple-firewall' ),
+				'description'        => __( 'File status, vulnerabilities, and plugin activity.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-puzzle-fill',
+				'panel_type'         => 'lookup_select',
+				'subnav_hint'        => self::SUBNAV_ACTIVITY_BY_PLUGIN,
+				'href_key'           => 'by_plugin',
+				'input_key'          => 'plugin_slug',
+				'options_key'        => 'plugin_options',
+				'panel_title'        => __( 'Investigate A Plugin', 'wp-simple-firewall' ),
+				'lookup_placeholder' => __( 'Select a plugin', 'wp-simple-firewall' ),
+				'go_label'           => __( 'Investigate Plugin', 'wp-simple-firewall' ),
+				'is_enabled'         => true,
+				'is_pro'             => false,
+			],
+			'themes'      => [
+				'label'              => __( 'Themes', 'wp-simple-firewall' ),
+				'description'        => __( 'File status, vulnerabilities, and theme activity.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-palette-fill',
+				'panel_type'         => 'lookup_select',
+				'subnav_hint'        => self::SUBNAV_ACTIVITY_BY_THEME,
+				'href_key'           => 'by_theme',
+				'input_key'          => 'theme_slug',
+				'options_key'        => 'theme_options',
+				'panel_title'        => __( 'Investigate A Theme', 'wp-simple-firewall' ),
+				'lookup_placeholder' => __( 'Select a theme', 'wp-simple-firewall' ),
+				'go_label'           => __( 'Investigate Theme', 'wp-simple-firewall' ),
+				'is_enabled'         => true,
+				'is_pro'             => false,
+			],
+			'wordpress'   => [
+				'label'              => __( 'WordPress Core', 'wp-simple-firewall' ),
+				'description'        => __( 'Core file integrity and platform update state.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-wordpress',
+				'panel_type'         => 'direct_link',
+				'subnav_hint'        => self::SUBNAV_ACTIVITY_BY_CORE,
+				'href_key'           => 'by_core',
+				'input_key'          => null,
+				'options_key'        => null,
+				'panel_title'        => __( 'WordPress Core Integrity', 'wp-simple-firewall' ),
+				'lookup_placeholder' => '',
+				'go_label'           => __( 'View Core Status', 'wp-simple-firewall' ),
+				'is_enabled'         => true,
+				'is_pro'             => false,
+			],
+			'requests'    => [
+				'label'              => __( 'HTTP Requests', 'wp-simple-firewall' ),
+				'description'        => __( 'Browse full HTTP request log data.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-arrow-left-right',
+				'panel_type'         => 'direct_link',
+				'subnav_hint'        => null,
+				'href_key'           => 'traffic_log',
+				'input_key'          => null,
+				'options_key'        => null,
+				'panel_title'        => __( 'HTTP Request Log', 'wp-simple-firewall' ),
+				'lookup_placeholder' => '',
+				'go_label'           => __( 'Open Request Log', 'wp-simple-firewall' ),
+				'is_enabled'         => true,
+				'is_pro'             => false,
+			],
+			'activity'    => [
+				'label'              => __( 'Activity Log', 'wp-simple-firewall' ),
+				'description'        => __( 'Browse full site activity events.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-journal-text',
+				'panel_type'         => 'direct_link',
+				'subnav_hint'        => null,
+				'href_key'           => 'activity_log',
+				'input_key'          => null,
+				'options_key'        => null,
+				'panel_title'        => __( 'Activity Log', 'wp-simple-firewall' ),
+				'lookup_placeholder' => '',
+				'go_label'           => __( 'Open Activity Log', 'wp-simple-firewall' ),
+				'is_enabled'         => true,
+				'is_pro'             => false,
+			],
+			'woocommerce' => [
+				'label'              => __( 'WooCommerce', 'wp-simple-firewall' ),
+				'description'        => __( 'Orders and customer security context.', 'wp-simple-firewall' ),
+				'icon_class'         => 'bi bi-cart3',
+				'panel_type'         => 'disabled',
+				'subnav_hint'        => null,
+				'href_key'           => '',
+				'input_key'          => null,
+				'options_key'        => null,
+				'panel_title'        => '',
+				'lookup_placeholder' => '',
+				'go_label'           => '',
+				'is_enabled'         => false,
+				'is_pro'             => true,
+			],
+		];
+	}
+
 	public static function investigateSubNavCrumbLabel( string $subNav ) :string {
 		$subNavDefinition = self::investigateSubNavDefinition( $subNav );
 		return \is_string( $subNavDefinition[ 'label' ] ?? null ) ? $subNavDefinition[ 'label' ] : '';
 	}
 
 	public static function investigateSubNavDefinitions() :array {
-		return [
-			self::SUBNAV_ACTIVITY_BY_USER   => [ 'label' => __( 'Users', 'wp-simple-firewall' ) ],
-			self::SUBNAV_ACTIVITY_BY_IP     => [ 'label' => __( 'IP Addresses', 'wp-simple-firewall' ) ],
-			self::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'label' => __( 'Plugins', 'wp-simple-firewall' ) ],
-			self::SUBNAV_ACTIVITY_BY_THEME  => [ 'label' => __( 'Themes', 'wp-simple-firewall' ) ],
-			self::SUBNAV_ACTIVITY_BY_CORE   => [ 'label' => __( 'WordPress Core', 'wp-simple-firewall' ) ],
-			self::SUBNAV_LOGS               => [ 'label' => __( 'Activity Log', 'wp-simple-firewall' ) ],
-		];
+		$definitions = [];
+		foreach ( self::investigateLandingSubjectDefinitions() as $subject ) {
+			$subNav = (string)( $subject[ 'subnav_hint' ] ?? '' );
+			$label = (string)( $subject[ 'label' ] ?? '' );
+			if ( !empty( $subNav ) && !empty( $label ) ) {
+				$definitions[ $subNav ] = [ 'label' => $label ];
+			}
+		}
+
+		$definitions[ self::SUBNAV_LOGS ] = [ 'label' => __( 'Activity Log', 'wp-simple-firewall' ) ];
+		return $definitions;
 	}
 
 	public static function investigateSubNavDefinition( string $subNav ) :array {

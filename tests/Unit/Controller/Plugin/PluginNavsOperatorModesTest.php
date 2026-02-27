@@ -241,6 +241,29 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( [], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
 	}
 
+	public function test_investigate_landing_subject_definitions_match_expected_contract() :void {
+		$definitions = PluginNavs::investigateLandingSubjectDefinitions();
+		$this->assertSame(
+			[ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity', 'woocommerce' ],
+			\array_keys( $definitions )
+		);
+
+		$this->assertSame( 'lookup_text', $definitions[ 'users' ][ 'panel_type' ] ?? '' );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_USER, $definitions[ 'users' ][ 'subnav_hint' ] ?? '' );
+		$this->assertSame( 'lookup_select', $definitions[ 'plugins' ][ 'panel_type' ] ?? '' );
+		$this->assertSame( 'plugin_options', $definitions[ 'plugins' ][ 'options_key' ] ?? '' );
+		$this->assertSame( 'direct_link', $definitions[ 'wordpress' ][ 'panel_type' ] ?? '' );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_CORE, $definitions[ 'wordpress' ][ 'subnav_hint' ] ?? '' );
+		$this->assertFalse( (bool)( $definitions[ 'woocommerce' ][ 'is_enabled' ] ?? true ) );
+		$this->assertTrue( (bool)( $definitions[ 'woocommerce' ][ 'is_pro' ] ?? false ) );
+
+		foreach ( $definitions as $subjectKey => $subject ) {
+			$this->assertNotSame( '', \trim( (string)( $subject[ 'label' ] ?? '' ) ), 'Missing label for '.$subjectKey );
+			$this->assertNotSame( '', \trim( (string)( $subject[ 'description' ] ?? '' ) ), 'Missing description for '.$subjectKey );
+			$this->assertNotSame( '', \trim( (string)( $subject[ 'icon_class' ] ?? '' ) ), 'Missing icon_class for '.$subjectKey );
+		}
+	}
+
 	public function test_breadcrumb_subnav_definition_matches_expected_contract_for_scope_routes() :void {
 		$this->assertSame(
 			[ 'label' => 'Users' ],
