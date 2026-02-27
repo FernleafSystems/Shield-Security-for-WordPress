@@ -60,6 +60,22 @@ MainWP uses Semantic UI jQuery plugins with the same names, so Bootstrap and Mai
 
 Result: `shield-wpadmin.bundle.js` no longer carries Bootstrap JS in this path, so the jQuery bridge collision source is removed without changing Shield-page modal behavior.
 
+## Automated CI Guard
+
+Shared admin safety is enforced in CI with:
+
+- `.github/scripts/verify-admin-bundle-safety.sh`
+- `.github/scripts/test-verify-admin-bundle-safety.sh`
+
+Guard coverage:
+
+1. `wpadmin` target:
+   - Fails if dependency graph reachable from `assets/js/plugin-wpadmin.js` imports `bootstrap` or `jquery`.
+   - Fails if `assets/dist/shield-wpadmin.bundle.js` contains `No method named "`.
+2. `mainwp_server` target:
+   - Fails if dependency graph reachable from `assets/js/plugin-mainwp_server.js` imports `bootstrap`.
+   - Fails if `assets/dist/shield-mainwp_server.bundle.js` contains `No method named "`.
+
 ## Hard Rule: No New jQuery Imports
 
 Future agents must follow this directive for shared wp-admin safety:
@@ -84,6 +100,7 @@ For any code that ships in the `wpadmin` bundle:
 Before merging any JS change:
 
 1. Confirm which bundle the file lands in (`main` vs `wpadmin`).
-2. If it affects `wpadmin`, verify no jQuery plugin bridges are introduced.
+2. If it affects shared admin bundles (`wpadmin`, `mainwp_server`), verify no collision markers are introduced.
 3. Smoke-test with MainWP active on a standard WordPress dashboard screen.
-4. Run `npm run build` and verify `assets/dist/shield-wpadmin.bundle.js` output.
+4. Run `npm run build`.
+5. Run `./.github/scripts/verify-admin-bundle-safety.sh`.
