@@ -303,6 +303,12 @@ class PluginNavs {
 		}
 	}
 
+	public static function modeForRoute( string $nav, string $subNav ) :string {
+		return $nav === self::NAV_DASHBOARD && $subNav === self::SUBNAV_DASHBOARD_GRADES
+			? self::MODE_CONFIGURE
+			: self::modeForNav( $nav );
+	}
+
 	public static function modeLandingSubNavsByNav() :array {
 		return [
 			self::NAV_SCANS    => [
@@ -404,6 +410,39 @@ class PluginNavs {
 
 	public static function investigateSubNavDefinition( string $subNav ) :array {
 		return self::investigateSubNavDefinitions()[ $subNav ] ?? [];
+	}
+
+	public static function breadcrumbSubNavDefinition( string $nav, string $subNav ) :array {
+		if ( $nav === self::NAV_ACTIVITY ) {
+			return self::investigateSubNavDefinition( $subNav );
+		}
+
+		if ( $nav === self::NAV_REPORTS ) {
+			$workspace = self::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
+			$menuTitle = $workspace[ 'menu_title' ] ?? null;
+			if ( \is_string( $menuTitle ) && $menuTitle !== '' ) {
+				return [ 'label' => $menuTitle ];
+			}
+		}
+
+		$definitions = [
+			self::NAV_DASHBOARD => [
+				self::SUBNAV_DASHBOARD_GRADES => [ 'label' => __( 'Security Grades', 'wp-simple-firewall' ) ],
+			],
+			self::NAV_IPS       => [
+				self::SUBNAV_IPS_RULES => [ 'label' => __( 'Bots & IP Rules', 'wp-simple-firewall' ) ],
+			],
+			self::NAV_SCANS     => [
+				self::SUBNAV_SCANS_RESULTS => [ 'label' => __( 'Scan Results', 'wp-simple-firewall' ) ],
+				self::SUBNAV_SCANS_RUN     => [ 'label' => __( 'Run Scan', 'wp-simple-firewall' ) ],
+			],
+			self::NAV_TRAFFIC   => [
+				self::SUBNAV_LOGS => [ 'label' => __( 'HTTP Request Log', 'wp-simple-firewall' ) ],
+				self::SUBNAV_LIVE => [ 'label' => __( 'Live HTTP Log', 'wp-simple-firewall' ) ],
+			],
+		];
+
+		return $definitions[ $nav ][ $subNav ] ?? [];
 	}
 
 	public static function reportsWorkspaceDefinitions() :array {

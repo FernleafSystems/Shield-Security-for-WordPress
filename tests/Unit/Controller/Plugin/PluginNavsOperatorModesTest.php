@@ -45,6 +45,21 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::MODE_REPORTS, PluginNavs::modeForNav( PluginNavs::NAV_REPORTS ) );
 	}
 
+	public function test_mode_for_route_applies_dashboard_grades_override_and_nav_fallback() :void {
+		$this->assertSame(
+			PluginNavs::MODE_CONFIGURE,
+			PluginNavs::modeForRoute( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES )
+		);
+		$this->assertSame(
+			PluginNavs::MODE_ACTIONS,
+			PluginNavs::modeForRoute( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
+		);
+		$this->assertSame(
+			PluginNavs::MODE_INVESTIGATE,
+			PluginNavs::modeForRoute( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS )
+		);
+	}
+
 	public function test_reports_subnav_constants_match_expected_contract() :void {
 		$this->assertSame( 'charts', PluginNavs::SUBNAV_REPORTS_CHARTS );
 		$this->assertSame( 'settings', PluginNavs::SUBNAV_REPORTS_SETTINGS );
@@ -224,6 +239,53 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 		$this->assertSame( [ 'label' => 'Users' ], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
 		$this->assertSame( [], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
+	}
+
+	public function test_breadcrumb_subnav_definition_matches_expected_contract_for_scope_routes() :void {
+		$this->assertSame(
+			[ 'label' => 'Users' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER )
+		);
+		$this->assertSame(
+			[ 'label' => 'Security Reports' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST )
+		);
+		$this->assertSame(
+			[ 'label' => 'Charts & Trends' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CHARTS )
+		);
+		$this->assertSame(
+			[ 'label' => 'Alert Settings' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS )
+		);
+		$this->assertSame(
+			[ 'label' => 'Security Grades' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES )
+		);
+		$this->assertSame(
+			[ 'label' => 'Bots & IP Rules' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES )
+		);
+		$this->assertSame(
+			[ 'label' => 'Scan Results' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
+		);
+		$this->assertSame(
+			[ 'label' => 'Run Scan' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN )
+		);
+		$this->assertSame(
+			[ 'label' => 'HTTP Request Log' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS )
+		);
+		$this->assertSame(
+			[ 'label' => 'Live HTTP Log' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE )
+		);
+		$this->assertSame(
+			[],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW )
+		);
 	}
 
 	public function test_activity_route_handlers_match_expected_contract_for_touched_scope() :void {

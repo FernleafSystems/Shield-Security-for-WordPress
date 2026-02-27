@@ -36,6 +36,18 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( '/scans/overview', $crumbs[ 1 ][ 'href' ] );
 	}
 
+	public function test_dashboard_grades_route_uses_configure_mode_crumb() :void {
+		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_GRADES
+		);
+
+		$this->assertCount( 3, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Configure', 'Security Grades' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/zones/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
+		$this->assertSame( '/dashboard/grades', $crumbs[ 2 ][ 'href' ] ?? '' );
+	}
+
 	public function test_mode_landing_subnav_omits_nav_home_crumb() :void {
 		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
 			PluginNavs::NAV_SCANS,
@@ -109,18 +121,64 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'Navigation: Activity Log', $crumbs[ 2 ][ 'title' ] ?? '' );
 	}
 
-	public function test_reports_non_landing_subnavs_keep_nav_home_crumb() :void {
+	public function test_reports_non_landing_subnavs_use_workspace_labels_and_hrefs() :void {
 		$builder = new BuildBreadCrumbsForTest();
 
 		foreach ( [
-			PluginNavs::SUBNAV_REPORTS_LIST,
-			PluginNavs::SUBNAV_REPORTS_CHARTS,
-			PluginNavs::SUBNAV_REPORTS_SETTINGS,
-		] as $subNav ) {
+			PluginNavs::SUBNAV_REPORTS_LIST     => 'Security Reports',
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => 'Charts & Trends',
+			PluginNavs::SUBNAV_REPORTS_SETTINGS => 'Alert Settings',
+		] as $subNav => $label ) {
 			$crumbs = $builder->parse( PluginNavs::NAV_REPORTS, $subNav );
 			$this->assertCount( 3, $crumbs );
-			$this->assertSame( [ 'Shield Security', 'Reports', 'Reports' ], \array_column( $crumbs, 'text' ) );
-			$this->assertSame( '/reports/overview', $crumbs[ 2 ][ 'href' ] ?? '' );
+			$this->assertSame( [ 'Shield Security', 'Reports', $label ], \array_column( $crumbs, 'text' ) );
+			$this->assertSame( '/reports/'.$subNav, $crumbs[ 2 ][ 'href' ] ?? '' );
+			$this->assertSame( 'Navigation: '.$label, $crumbs[ 2 ][ 'title' ] ?? '' );
+		}
+	}
+
+	public function test_scans_non_landing_subnavs_use_explicit_leaf_labels_and_hrefs() :void {
+		$builder = new BuildBreadCrumbsForTest();
+
+		foreach ( [
+			PluginNavs::SUBNAV_SCANS_RESULTS => 'Scan Results',
+			PluginNavs::SUBNAV_SCANS_RUN     => 'Run Scan',
+		] as $subNav => $label ) {
+			$crumbs = $builder->parse( PluginNavs::NAV_SCANS, $subNav );
+			$this->assertCount( 3, $crumbs );
+			$this->assertSame( [ 'Shield Security', 'Actions Queue', $label ], \array_column( $crumbs, 'text' ) );
+			$this->assertSame( '/scans/'.$subNav, $crumbs[ 2 ][ 'href' ] ?? '' );
+			$this->assertSame( 'Navigation: '.$label, $crumbs[ 2 ][ 'title' ] ?? '' );
+		}
+	}
+
+	public function test_investigate_supporting_routes_use_explicit_leaf_labels_and_hrefs() :void {
+		$builder = new BuildBreadCrumbsForTest();
+
+		$routes = [
+			[
+				'nav'   => PluginNavs::NAV_TRAFFIC,
+				'sub'   => PluginNavs::SUBNAV_LOGS,
+				'label' => 'HTTP Request Log',
+			],
+			[
+				'nav'   => PluginNavs::NAV_TRAFFIC,
+				'sub'   => PluginNavs::SUBNAV_LIVE,
+				'label' => 'Live HTTP Log',
+			],
+			[
+				'nav'   => PluginNavs::NAV_IPS,
+				'sub'   => PluginNavs::SUBNAV_IPS_RULES,
+				'label' => 'Bots & IP Rules',
+			],
+		];
+
+		foreach ( $routes as $route ) {
+			$crumbs = $builder->parse( $route[ 'nav' ], $route[ 'sub' ] );
+			$this->assertCount( 3, $crumbs );
+			$this->assertSame( [ 'Shield Security', 'Investigate', $route[ 'label' ] ], \array_column( $crumbs, 'text' ) );
+			$this->assertSame( '/'.$route[ 'nav' ].'/'.$route[ 'sub' ], $crumbs[ 2 ][ 'href' ] ?? '' );
+			$this->assertSame( 'Navigation: '.$route[ 'label' ], $crumbs[ 2 ][ 'title' ] ?? '' );
 		}
 	}
 }
@@ -141,6 +199,13 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'sub_navs' => [
 					PluginNavs::SUBNAV_SCANS_OVERVIEW => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_SCANS_RESULTS => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_SCANS_RUN => [ 'handler' => 'handler' ],
+				],
+			],
+			PluginNavs::NAV_IPS       => [
+				'name'     => 'IPs',
+				'sub_navs' => [
+					PluginNavs::SUBNAV_IPS_RULES => [ 'handler' => 'handler' ],
 				],
 			],
 			PluginNavs::NAV_ACTIVITY  => [
@@ -169,6 +234,13 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 					PluginNavs::SUBNAV_REPORTS_LIST => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_REPORTS_CHARTS => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_REPORTS_SETTINGS => [ 'handler' => 'handler' ],
+				],
+			],
+			PluginNavs::NAV_TRAFFIC   => [
+				'name'     => 'Traffic',
+				'sub_navs' => [
+					PluginNavs::SUBNAV_LOGS => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_LIVE => [ 'handler' => 'handler' ],
 				],
 			],
 		];

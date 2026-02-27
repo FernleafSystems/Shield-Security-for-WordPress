@@ -51,7 +51,7 @@ class BuildBreadCrumbs {
 		];
 
 		if ( $nav !== PluginNavs::NAV_RESTRICTED ) {
-			$mode = PluginNavs::modeForNav( $nav );
+			$mode = PluginNavs::modeForRoute( $nav, $subNav );
 			if ( !empty( $mode ) ) {
 				$entry = PluginNavs::defaultEntryForMode( $mode );
 				$crumbs[] = [
@@ -68,14 +68,12 @@ class BuildBreadCrumbs {
 			$crumbHrefSubNav = $this->getDefaultSubNavForNav( $nav, $hierarchy );
 			$crumbTitleLabel = sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] );
 
-			if ( $nav === PluginNavs::NAV_ACTIVITY ) {
-				$investigateDefinition = PluginNavs::investigateSubNavDefinition( $subNav );
-				$investigateLabel = $investigateDefinition[ 'label' ] ?? null;
-				if ( \is_string( $investigateLabel ) && $investigateLabel !== '' ) {
-					$crumbText = $investigateLabel;
-					$crumbHrefSubNav = $subNav;
-					$crumbTitleLabel = $investigateLabel;
-				}
+			$subNavDefinition = PluginNavs::breadcrumbSubNavDefinition( $nav, $subNav );
+			$subNavLabel = $subNavDefinition[ 'label' ] ?? null;
+			if ( \is_string( $subNavLabel ) && $subNavLabel !== '' ) {
+				$crumbText = $subNavLabel;
+				$crumbHrefSubNav = $subNav;
+				$crumbTitleLabel = $subNavLabel;
 			}
 
 			$crumbs[] = [
