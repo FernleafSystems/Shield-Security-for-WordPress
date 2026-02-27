@@ -1,54 +1,8 @@
 import $ from 'jquery';
-import { AjaxService } from "../services/AjaxService";
-import { BaseComponent } from "../BaseComponent";
 import { Modal } from "bootstrap";
-import { Forms } from "../../util/Forms";
-import { Navigation } from "../../util/Navigation";
-import { ObjectOps } from "../../util/ObjectOps";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
+import { SecurityAdminBase } from "./SecurityAdminBase";
 
-export class SecurityAdmin extends BaseComponent {
-
-	init() {
-		this.hasCheckInPlace = false;
-		this.isWarningShown = false;
-
-		if ( this._base_data ) {
-			this.timeoutInterval = 500 * this._base_data.vars.time_remaining;
-			this.showRestrictedPageModal();
-
-			this.restrictWPOptions();
-
-			if ( this._base_data.flags.run_checks ) {
-				this.scheduleSecAdminCheck();
-			}
-
-			shieldEventsHandler_Main.add_Submit( 'form#SecurityAdminForm', ( form ) => {
-				const btn = form.querySelector( 'button[type="submit"]' );
-				btn.disabled = true;
-				( new AjaxService() )
-				.send(
-					ObjectOps.Merge( this._base_data.ajax.sec_admin_login, { form_params: Forms.Serialize( form ) } )
-				)
-				.then( ( resp ) => {
-					if ( !resp?.data?.page_reload ) {
-						btn.disabled = false;
-					}
-				} )
-				.finally();
-			} );
-
-			shieldEventsHandler_Main.add_Click( '#SecAdminRemoveConfirmEmail', () => {
-				if ( confirm( this._base_data.strings.confirm_disable ) ) {
-					( new AjaxService() )
-					.send( this._base_data.ajax.req_email_remove )
-					.finally();
-				}
-			} );
-
-			shieldEventsHandler_Main.add_Click( '#SecAdminDialog a', () => this.#performSecAdminDialogLogin() );
-		}
-	}
+export class SecurityAdmin extends SecurityAdminBase {
 
 	showRestrictedPageModal() {
 		const modalEl = document.getElementById( 'SecurityAdminOverlay' );
@@ -115,28 +69,5 @@ export class SecurityAdmin extends BaseComponent {
 				);
 			} );
 		}
-	};
-
-	#performSecAdminDialogLogin() {
-		let pinInput = document.getElementById( 'SecAdminPinInput' );
-		this._base_data.ajax.sec_admin_login.sec_admin_key = pinInput.value;
-
-		let input = document.getElementById( 'SecAdminPinInputContainer' );
-		input.innerHTML = '<div class="spinner"></div>';
-
-		( new AjaxService() )
-		.send( this._base_data.ajax.sec_admin_login, false )
-		.then( ( resp ) => {
-			if ( resp.success ) {
-				Navigation.RedirectOrReload( resp, null );
-			}
-			else if ( resp.data && resp.data.html ) {
-				input.innerHTML = resp.data.html;
-			}
-			else {
-				input.innerHTML = 'There was an unknown error';
-			}
-		} )
-		.finally();
 	};
 }
