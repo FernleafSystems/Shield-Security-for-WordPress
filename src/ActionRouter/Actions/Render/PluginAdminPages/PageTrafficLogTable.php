@@ -29,7 +29,7 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 				'inner_page_title_icon' => $con->svgs->iconClass( 'stoplights' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Request Logs', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'View HTTP Request Logs', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'View and explore details of HTTP requests made to your site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [

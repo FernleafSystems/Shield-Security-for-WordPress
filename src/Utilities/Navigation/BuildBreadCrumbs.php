@@ -44,21 +44,25 @@ class BuildBreadCrumbs {
 			throw new \Exception( 'Not a valid sub_nav: '.$subNav );
 		}
 
-		$crumbs[] = [
-			'text'  => __( 'Shield Security', 'wp-simple-firewall' ),
-			'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), __( 'Mode Selector', 'wp-simple-firewall' ) ),
-			'href'  => $this->buildNavUrl( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
-		];
+		if ( !$this->isSameRoute( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW, $nav, $subNav ) ) {
+			$crumbs[] = [
+				'text'  => __( 'Shield Security', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), __( 'Mode Selector', 'wp-simple-firewall' ) ),
+				'href'  => $this->buildNavUrl( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
+			];
+		}
 
 		if ( $nav !== PluginNavs::NAV_RESTRICTED ) {
 			$mode = PluginNavs::modeForRoute( $nav, $subNav );
 			if ( !empty( $mode ) ) {
 				$entry = PluginNavs::defaultEntryForMode( $mode );
-				$crumbs[] = [
-					'text'  => PluginNavs::modeLabel( $mode ),
-					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), PluginNavs::modeLabel( $mode ) ),
-					'href'  => $this->buildNavUrl( $entry[ 'nav' ], $entry[ 'subnav' ] ),
-				];
+				if ( !$this->isSameRoute( $entry[ 'nav' ], $entry[ 'subnav' ], $nav, $subNav ) ) {
+					$crumbs[] = [
+						'text'  => PluginNavs::modeLabel( $mode ),
+						'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), PluginNavs::modeLabel( $mode ) ),
+						'href'  => $this->buildNavUrl( $entry[ 'nav' ], $entry[ 'subnav' ] ),
+					];
+				}
 			}
 		}
 
@@ -76,11 +80,13 @@ class BuildBreadCrumbs {
 				$crumbTitleLabel = $subNavLabel;
 			}
 
-			$crumbs[] = [
-				'text'  => $crumbText,
-				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), $crumbTitleLabel ),
-				'href'  => $this->buildNavUrl( $nav, $crumbHrefSubNav ),
-			];
+			if ( !$this->isSameRoute( $nav, $crumbHrefSubNav, $nav, $subNav ) ) {
+				$crumbs[] = [
+					'text'  => $crumbText,
+					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), $crumbTitleLabel ),
+					'href'  => $this->buildNavUrl( $nav, $crumbHrefSubNav ),
+				];
+			}
 		}
 
 		return $crumbs;
@@ -100,5 +106,9 @@ class BuildBreadCrumbs {
 
 	private function isModeLandingRoute( string $nav, string $subNav ) :bool {
 		return PluginNavs::isModeLandingRoute( $nav, $subNav );
+	}
+
+	private function isSameRoute( string $candidateNav, string $candidateSubNav, string $currentNav, string $currentSubNav ) :bool {
+		return $candidateNav === $currentNav && $candidateSubNav === $currentSubNav;
 	}
 }

@@ -10,13 +10,35 @@
 						<i class="{{ imgs.inner_page_title_icon }}" aria-hidden="true"></i>
 					{% endif %}
 					<div class="d-inline-block">
-						{% for breadcrumb in hrefs.breadcrumbs %}
-							<a href="{{ breadcrumb.href }}"
-							   title="{{ breadcrumb.title|default('') }}"
-							   class="border-bottom">{{ breadcrumb.text }}</a>
-							<span class="mx-1 fs-6" style="line-height: inherit">&raquo;</span>
+						{% set header_segments = [] %}
+						{% for breadcrumb in hrefs.breadcrumbs|default([]) %}
+							{% set header_segments = header_segments|merge( [ {
+								text: breadcrumb.text|default(''),
+								href: breadcrumb.href|default(''),
+								title: breadcrumb.title|default('')
+							} ] ) %}
 						{% endfor %}
-						{{ strings.inner_page_title|default(strings.no_inner_page_title) }}
+
+						{% set leaf_title = strings.inner_page_title|default(strings.no_inner_page_title) %}
+						{% if header_segments is not empty and (header_segments|last).text|trim|lower == leaf_title|trim|lower %}
+							{% set leaf_title = '' %}
+						{% endif %}
+						{% if leaf_title is not empty %}
+							{% set header_segments = header_segments|merge( [ { text: leaf_title, href: '', title: '' } ] ) %}
+						{% endif %}
+
+						{% for segment in header_segments %}
+							{% if segment.href is not empty %}
+								<a href="{{ segment.href }}"
+								   title="{{ segment.title }}"
+								   class="border-bottom">{{ segment.text }}</a>
+							{% else %}
+								{{ segment.text }}
+							{% endif %}
+							{% if not loop.last %}
+								<span class="mx-1 fs-6" style="line-height: inherit">&raquo;</span>
+							{% endif %}
+						{% endfor %}
 					</div>
 					{% block inner_page_title_after %}{% endblock %}
 				</h4>
