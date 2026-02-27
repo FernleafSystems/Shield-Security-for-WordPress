@@ -1,44 +1,22 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="card shield-card mb-3">
-		<div class="shield-card-accent status-info"></div>
-		<div class="card-body">
-			<form method="get" action="{{ hrefs.by_theme }}" class="row g-2 align-items-end">
-				<input type="hidden" name="page" value="{{ vars.lookup_route.page|default('') }}" />
-				<input type="hidden" name="nav" value="{{ vars.lookup_route.nav|default('') }}" />
-				<input type="hidden" name="nav_sub" value="{{ vars.lookup_route.nav_sub|default('') }}" />
-				<div class="col-12 col-lg-8">
-					<label class="form-label mb-1">{{ strings.lookup_label }}</label>
-					<select name="theme_slug" class="form-select">
-						<option value="">{{ strings.lookup_placeholder }}</option>
-						{% for option in vars.theme_options|default([]) %}
-							<option value="{{ option.value }}" {{ vars.theme_slug == option.value ? 'selected' : '' }}>
-								{{ option.label }}
-							</option>
-						{% endfor %}
-					</select>
-				</div>
-				<div class="col-12 col-lg-4 d-flex gap-2">
-					<button type="submit" class="btn btn-outline-primary">{{ strings.lookup_submit }}</button>
-					<a href="{{ hrefs.back_to_investigate }}" class="btn btn-outline-secondary">{{ strings.back_to_investigate }}</a>
-				</div>
-			</form>
-		</div>
-	</div>
+	{% include '/wpadmin/components/investigate/lookup_strip.twig' with {
+		action: hrefs.by_theme,
+		lookup_route: vars.lookup_route,
+		label: strings.lookup_label,
+		input_name: 'theme_slug',
+		input_type: 'select',
+		input_value: vars.theme_slug|default(''),
+		placeholder: strings.lookup_placeholder,
+		options: vars.theme_options|default([]),
+		submit_text: strings.lookup_submit
+	} only %}
 
 	{% if not flags.has_subject %}
-		<div class="card shield-card">
-			<div class="shield-card-accent status-warning"></div>
-			<div class="card-body">
-				{% if flags.subject_not_found %}
-					<h5 class="card-title mb-2">{{ strings.not_found_title }}</h5>
-					<p class="mb-0">{{ strings.not_found_text }}</p>
-				{% else %}
-					<h5 class="card-title mb-2">{{ strings.no_subject_title }}</h5>
-					<p class="mb-0">{{ strings.no_subject_text }}</p>
-				{% endif %}
-			</div>
+		<div class="alert alert-warning mb-0">
+			<strong>{{ flags.subject_not_found ? strings.not_found_title : strings.no_subject_title }}</strong>
+			<div>{{ flags.subject_not_found ? strings.not_found_text : strings.no_subject_text }}</div>
 		</div>
 	{% else %}
 		<div class="options_form_for--modern">
@@ -59,38 +37,10 @@
 								 aria-labelledby="{{ vars.tabs.overview.nav_id }}">
 							<div class="shield-options-panel-accent"></div>
 							<div class="shield-options-panel-body">
-								{% include '/wpadmin/components/investigate/subject_header.twig' with {
-									subject: vars.subject
+								{% include '/wpadmin/components/investigate/overview_table.twig' with {
+									title: strings.overview_title,
+									rows: vars.overview_rows
 								} only %}
-
-								{% include '/wpadmin/components/investigate/summary_cards.twig' with {
-									summary: vars.summary
-								} only %}
-
-								<div class="card shield-card status-info">
-									<div class="shield-card-accent status-info"></div>
-									<div class="card-body">
-										<h5 class="card-title mb-3">{{ strings.overview_title }}</h5>
-										<div class="table-responsive">
-											<table class="table table-sm">
-												<tbody>
-												{% for row in vars.overview_rows|default([]) %}
-													<tr>
-														<th class="w-25">{{ row.label }}</th>
-														<td>
-															{% if row.value_href|default('') is not empty %}
-																<a href="{{ row.value_href }}" target="_blank">{{ row.value|default('') }}</a>
-															{% else %}
-																{{ row.value|default('') }}
-															{% endif %}
-														</td>
-													</tr>
-												{% endfor %}
-												</tbody>
-											</table>
-										</div>
-									</div>
-								</div>
 							</div>
 						</section>
 

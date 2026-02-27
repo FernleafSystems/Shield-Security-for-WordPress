@@ -50,10 +50,6 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 		return __( 'File', 'wp-simple-firewall' );
 	}
 
-	protected function getChangeLookupText() :string {
-		return __( 'Change Plugin', 'wp-simple-firewall' );
-	}
-
 	protected function getPageStrings() :array {
 		return [
 			'inner_page_title'    => __( 'Investigate By Plugin', 'wp-simple-firewall' ),
@@ -61,13 +57,12 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 			'lookup_label'        => __( 'Plugin Lookup', 'wp-simple-firewall' ),
 			'lookup_placeholder'  => __( 'Select a plugin', 'wp-simple-firewall' ),
 			'lookup_submit'       => __( 'Load Plugin Context', 'wp-simple-firewall' ),
-			'back_to_investigate' => __( 'Back To Investigate', 'wp-simple-firewall' ),
 			'no_subject_title'    => __( 'No Plugin Selected', 'wp-simple-firewall' ),
 			'no_subject_text'     => __( 'Select a plugin to load file status and activity context.', 'wp-simple-firewall' ),
 			'not_found_title'     => __( 'Plugin Not Found', 'wp-simple-firewall' ),
 			'not_found_text'      => __( 'The selected plugin isn\'t currently installed on this site.', 'wp-simple-firewall' ),
 			'overview_title'      => __( 'Plugin Overview', 'wp-simple-firewall' ),
-			'file_status_empty_text' => __( 'No file status records were found for this subject.', 'wp-simple-firewall' ),
+			'file_status_empty_text' => __( 'No file scan status records were found for this subject.', 'wp-simple-firewall' ),
 			'activity_empty_text'    => __( 'No activity records were found for this subject.', 'wp-simple-firewall' ),
 		];
 	}

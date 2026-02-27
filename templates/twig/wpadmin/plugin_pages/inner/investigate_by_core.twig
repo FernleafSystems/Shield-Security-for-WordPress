@@ -1,13 +1,6 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="card shield-card mb-3">
-		<div class="shield-card-accent status-info"></div>
-		<div class="card-body d-flex justify-content-end">
-			<a href="{{ hrefs.back_to_investigate }}" class="btn btn-outline-secondary">{{ strings.back_to_investigate }}</a>
-		</div>
-	</div>
-
 	<div class="options_form_for--modern">
 		<div class="shield-options-layout has-rail">
 			<aside class="shield-options-rail">
@@ -26,32 +19,10 @@
 							 aria-labelledby="{{ vars.tabs.overview.nav_id }}">
 						<div class="shield-options-panel-accent"></div>
 						<div class="shield-options-panel-body">
-							{% include '/wpadmin/components/investigate/subject_header.twig' with {
-								subject: vars.subject
+							{% include '/wpadmin/components/investigate/overview_table.twig' with {
+								title: strings.overview_title,
+								rows: vars.overview_rows
 							} only %}
-
-							{% include '/wpadmin/components/investigate/summary_cards.twig' with {
-								summary: vars.summary
-							} only %}
-
-							<div class="card shield-card status-info">
-								<div class="shield-card-accent status-info"></div>
-								<div class="card-body">
-									<h5 class="card-title mb-3">{{ strings.overview_title }}</h5>
-									<div class="table-responsive">
-										<table class="table table-sm">
-											<tbody>
-											{% for row in vars.overview_rows|default([]) %}
-												<tr>
-													<th class="w-25">{{ row.label }}</th>
-													<td>{{ row.value|default('') }}</td>
-												</tr>
-											{% endfor %}
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
 						</div>
 					</section>
 

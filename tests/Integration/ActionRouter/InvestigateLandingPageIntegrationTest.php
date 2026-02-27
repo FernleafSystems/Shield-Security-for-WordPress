@@ -5,14 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
-	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use HtmlDomAssertions, LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use HtmlDomAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -27,39 +26,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_landing_user_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderInvestigateLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
-	}
-
-	public function test_landing_ip_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderInvestigateLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
-	}
-
-	public function test_landing_plugin_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderInvestigateLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
-	}
-
-	public function test_landing_theme_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderInvestigateLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
-	}
-
-	public function test_landing_renders_selector_lookup_and_disabled_woocommerce_tile_markers() :void {
+	public function test_landing_renders_subject_tiles_and_disabled_woocommerce_marker() :void {
 		$payload = $this->renderInvestigateLandingPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
@@ -69,9 +36,16 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@data-investigate-section="selector"]',
 			'Landing selector section marker'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
+			$xpath,
+			'//section[@data-investigate-section="selector"]//form',
+			0,
+			'Landing selector should not render lookup forms'
+		);
+		$this->assertXPathCount(
 			$xpath,
 			'//section[@data-investigate-section="lookup-shell"]',
+			0,
 			'Landing lookup shell marker'
 		);
 
@@ -87,18 +61,6 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//div[@data-investigate-subject="woocommerce" and @aria-disabled="true"]',
 			'Landing woocommerce disabled marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " quick-tool-link ")]',
-			0,
-			'Landing quick-access class marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigate-section="quick-access"]',
-			0,
-			'Landing quick-access section marker'
 		);
 	}
 }

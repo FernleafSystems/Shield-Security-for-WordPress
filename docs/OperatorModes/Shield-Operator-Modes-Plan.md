@@ -459,7 +459,7 @@ Dedicated investigation entry points are delivered and wired to subject-specific
 
 **By Plugin**
 - UI: Select an installed plugin from a dropdown
-- Result: 4-tab analysis: Overview (from `buildPluginData()`), File Status (from shared investigation file-status table contract), Vulnerabilities (from runtime WPV display results), Activity (from investigation DataTable framework)
+- Result: 4-tab analysis: Overview (from `buildPluginData()`), File Scan Status (from shared investigation file-status table contract), Vulnerabilities (from runtime WPV display results), Activity (from investigation DataTable framework)
 - Implementation: `PageInvestigateByPlugin.php` is delivered. It reuses `PluginThemesBase::buildPluginData()` for overview, shared file-status table contracts for file status, and runtime vulnerability results from `WPV()->getResultsForDisplay()->getItemsForSlug()`. See Section 12.4.5.
 
 **By Theme / By Core**
@@ -600,11 +600,11 @@ The Actions Queue landing page is primarily a composition of existing components
 | `investigate_by_user.twig` | Template - rail+panel with Overview, Sessions, Activity, Requests, IP Addresses tabs (refactor existing file) | `investigate-user.html` (Completed 2026-02-24) |
 | `PageInvestigateByIp.php` | IP analysis page reusing `IpAnalyse\Container` | `investigate-ip.html` (Completed 2026-02-25) |
 | `investigate_by_ip.twig` | Template - by-ip page shell plus existing IP analysis container | `investigate-ip.html` (Completed 2026-02-25) |
-| `PageInvestigateByPlugin.php` | Plugin analysis: Overview, File Status, Vulnerabilities, Activity | `investigate-plugin.html` (Completed 2026-02-25) |
+| `PageInvestigateByPlugin.php` | Plugin analysis: Overview, File Scan Status, Vulnerabilities, Activity | `investigate-plugin.html` (Completed 2026-02-25) |
 | `investigate_by_plugin.twig` | Template — rail+panel with 4 tabs | `investigate-plugin.html` (Completed 2026-02-25) |
 | `PageInvestigateByTheme.php` | Theme analysis: same pattern as plugin (shared base class) | Completed 2026-02-25 |
 | `investigate_by_theme.twig` | Template — rail+panel with 4 tabs for theme subject | Completed 2026-02-25 |
-| `PageInvestigateByCore.php` | Core analysis: Overview, File Status, Activity | Completed 2026-02-25 |
+| `PageInvestigateByCore.php` | Core analysis: Overview, File Scan Status, Activity | Completed 2026-02-25 |
 | `investigate_by_core.twig` | Template — rail+panel with 3 tabs for core subject | Completed 2026-02-25 |
 
 **Modify:**
@@ -623,21 +623,20 @@ This step is required to close post-P6 UX feedback and remove duplicated/legacy 
 
 **Execution snapshot (2026-02-27):**
 1. Completed in current code/tests: `OM-701`, `OM-702`, `OM-703`, `OM-704`, `OM-705`, `OM-706`, `OM-707`, `OM-708`, `OM-709`, `OM-710`.
-2. Pending and next-session scope: `OM-711`.
-3. Recommended execution order for the next session: `OM-711`.
+2. Superseding continuation completed in current code/tests: `OM-712`, `OM-713`, `OM-714`, `OM-715`, `OM-716`, `OM-717`, `OM-718`, `OM-719`, `OM-720`.
+3. Historical completion rows remain for audit history; superseding tasks are the executed source of truth.
 
 Mandatory criteria:
-1. Remove duplicated header/summary blocks where the same content exists in overview/tab content (plugin/theme/core and by-ip framing).
-   - Do not migrate legacy subject-change buttons from removed headers into Overview tab content.
-2. Add a dedicated `Overview` tab to user investigation and move current top-level summary content there.
-3. Implement empty-state gating on File Status and Activity tabs (plugin/theme/core): no table render and no table AJAX boot when there is no data.
-4. Vulnerability zero-state copy must read `No Known Vulnerabilities` when the count is zero.
-5. User IP cards must use explicit counter labels (`Sessions`, `Activity`, `Requests`) and meaningful status mapping.
-6. Clicking `Investigate IP` from user context must navigate directly to the by-ip page without auto-loading IP offcanvas in parallel.
-7. Breadcrumbs must be audited across all investigate pages to remove duplicate/intermediate labels and use clear IA labels.
-8. Investigate landing must remove the quick-access strip and nested card-within-card styling, and clearly indicate selector-to-content relationship.
+1. Investigate landing is direct-navigation-only subject tiles; no workflow lookup shell/panel.
+2. Landing grid uses 6/4/3/2/1 responsive columns (`xl/lg/md/sm/xs`).
+3. By-user/by-ip/by-plugin/by-theme pages use compact centered lookup strips and preserve route-hidden-input contract.
+4. All investigate pages remove `Back To Investigate` controls.
+5. User/plugin/theme/core overview panes use a canonical overview table contract and remove redundant summary/header surfaces.
+6. Plugin/theme/core file tab naming is `File Scan Status` and file CTA text is `Full Scan Results`.
+7. File scan tab rendering is flat (no nested card-within-card container) while preserving empty-state/no-AJAX behavior.
+8. Breadcrumb and IA naming clarity remains enforced.
 
-Implementation tracker: see `docs/OperatorModes/Shield-Operator-Modes-Task-Backlog.md` P7-INV-UX (`OM-701` through `OM-711`).
+Implementation tracker: see `docs/OperatorModes/Shield-Operator-Modes-Task-Backlog.md` P7-INV-UX superseding block (`OM-712` through `OM-720`).
 Feedback-to-task mapping table is maintained in backlog Section 12 for implementation handoff clarity.
 
 ### Step 7: Configure & Reports Modes
@@ -762,82 +761,73 @@ All prototypes and implementations use these CSS custom properties. They match t
 
 **Prototype file:** `investigate-landing.html`
 
-**Layout structure:**
+Landing is direct-navigation-only.
 
-```
-┌─ Breadcrumbs: Shield Security » Investigate ──────────────────────┐
-│                                                                    │
-│  Page title: "Investigate"                                         │
-│  Subtitle: "Choose a subject to investigate..."                    │
-│                                                                    │
-│  ┌─ Subject Selector Grid (auto-fill, minmax 200px) ─────────┐   │
-│  │  [Users]  [IPs]  [Plugins]  [Themes]                       │   │
-│  │  [WP Core]  [HTTP Requests]  [Activity Log]  [WooCommerce] │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-│                                                                    │
-│  ┌─ Lookup Panel (toggles per selected subject) ──────────────┐   │
-│  │  [Search input / dropdown / direct link depending on type]  │   │
-│  └─────────────────────────────────────────────────────────────┘   │
-│                                                                    │
-  [Quick access strip removed; use mode navigation links]
-└────────────────────────────────────────────────────────────────────┘
-```
+1. Render only subject tiles from `PluginNavs::investigateLandingSubjectDefinitions()`.
+2. Enabled subjects are direct anchors to their destination routes.
+3. Disabled subjects (WooCommerce) render inert tile markup with `aria-disabled="true"`.
+4. Do not render a workflow shell, lookup panel tabs, or active-subject lookup panel toggling.
+5. Selector framing is flat (no card-within-card shell).
 
-**Subject cards:** Each card is a clickable tile with an icon (48×48px, rounded 12px, `status-bg-info-light` background), a label (bold 0.9rem), and a one-line description (0.78rem, #888). The active card gets a 2px `status-info` border and `status-bg-info-light` background. Cards with `disabled` class are greyed out with a "PRO" badge.
+**Responsive grid contract:**
+1. `>=1200px`: 6 columns.
+2. `>=992px` and `<1200px`: 4 columns.
+3. `>=768px` and `<992px`: 3 columns.
+4. `>=576px` and `<768px`: 2 columns.
+5. `<576px`: 1 column.
 
-**Subjects and their lookup types:**
+**Subjects and actions:**
 
-| Subject | Icon | Lookup Type | Input | Action |
-|---|---|---|---|---|
-| Users | `bi-people-fill` | Text search | Username, email, or user ID | Navigate to `investigate-user` page |
-| IP Addresses | `bi-globe2` | Text input | IPv4 or IPv6 address | Navigate to `investigate-ip` page |
-| Plugins | `bi-puzzle-fill` | Dropdown select | Installed plugins list | Navigate to `investigate-plugin` page |
-| Themes | `bi-palette-fill` | Dropdown select | Installed themes list | Navigate to `investigate-theme` page |
-| WordPress Core | `bi-wordpress` | Direct link | — | Navigate to core file status page |
-| HTTP Requests | `bi-arrow-left-right` | Direct link | — | Navigate to Traffic Log (existing) |
-| Activity Log | `bi-journal-text` | Direct link | — | Navigate to Activity Log (existing) |
-| WooCommerce | `bi-cart3` | Disabled (PRO) | — | — |
-
-**Quick tools strip:** Removed. Do not render quick-access shortcut pills on the Investigate landing page because these destinations are already present in the mode navigation.
-
-**JavaScript:** Clicking a subject card toggles `.active` on that card and shows/hides the corresponding `#lookup-{subject}` panel. The panel for the initially active subject (Users) is visible on load.
+| Subject | Icon | Action |
+|---|---|---|
+| Users | `bi-people-fill` | Navigate to `investigate-user` page |
+| IP Addresses | `bi-globe2` | Navigate to `investigate-ip` page |
+| Plugins | `bi-puzzle-fill` | Navigate to `investigate-plugin` page |
+| Themes | `bi-palette-fill` | Navigate to `investigate-theme` page |
+| WordPress Core | `bi-wordpress` | Navigate to `investigate-core` page |
+| HTTP Requests | `bi-arrow-left-right` | Navigate to Traffic Log |
+| Activity Log | `bi-journal-text` | Navigate to Activity Log |
+| WooCommerce | `bi-cart3` | Disabled (PRO marker only) |
 
 ### 11.3 Investigation analysis page pattern
 
-Layouts are subject-specific and intentionally avoid duplicated summary surfaces:
+Layouts are subject-specific and intentionally avoid duplicated summary surfaces.
 
-1. **User page:** first tab is `Overview`; prior top-of-page header/summary content is moved into that tab.
-2. **Plugin/Theme/Core pages:** no standalone top summary/header block when equivalent information exists in `Overview`.
-3. **IP page:** reuse `IpAnalyse\Container` without an additional duplicated top summary strip.
-4. **All investigation pages:** use rail+panel tab layout with clear badge counts and no redundant card-within-card containers.
+1. User/plugin/theme/core pages use one canonical `Overview` table surface in the overview tab.
+2. Do not render standalone top summary/header strips above the tab layout.
+3. By-user/by-ip/by-plugin/by-theme pages use compact centered lookup strips and preserve hidden route fields (`page/nav/nav_sub`).
+4. No investigate page renders a `Back To Investigate` control.
+5. IP page reuses `IpAnalyse\Container` without an extra wrapper summary shell.
+6. Rail + panel layout (`options_rail_tabs.twig`) remains the canonical tab navigation pattern.
 
 #### Shared layout rules
 
 - **Rail + Panel:** keep `options_rail_tabs.twig` pattern and responsive behavior.
-- **No duplication:** when a tab contains the canonical summary content, do not render a second summary surface above tabs.
+- **No duplication:** overview information appears once inside the `Overview` tab.
 - **Empty states first:** tabs with no data render explicit empty-state copy and skip table/AJAX initialization.
 - **Naming clarity:** tab names and breadcrumb labels must use direct IA names (`Overview`, `Users`, `IP Addresses`, `Plugins`, `Themes`, `WordPress Core`).
 - **Breadcrumb examples:** `Shield Security > Investigate` for landing, and `Shield Security > Investigate > Users` for by-user pages (never `Investigate > Investigate` or `Investigate > Activity > Investigate By User`).
 
-### 11.4 Investigate User — tab definitions
+### 11.4 Investigate User - tab definitions
 
 **Prototype file:** `investigate-user.html`
 
-**Overview tab content:** Username (bold), email, User ID, WordPress role, and user-level summary signals previously shown in the top header area.
+**Overview tab content:** canonical overview table rows for identity and investigation context.
+Required rows: User ID, Login, Email, Display Name, Sessions count, Activity count, Requests count, IP Addresses count.
 
 **Tabs:**
 
 | Tab | Icon | Badge | Content |
 |---|---|---|---|
-| Overview | `bi-info-circle` | — | User identity/context panel (username, email, role, ID) and summary signals. This replaces duplicated top-of-page summary/header content. |
+| Overview | `bi-info-circle` | - | Canonical overview table rows listed above. No duplicated header/summary cards above tabs. |
 | Sessions | `bi-key` | Session count | Table: Login (username), Last Active (relative+absolute), Logged In (relative+absolute), IP Address (link to IP analysis), Sec Admin (Yes/No badge) |
-| Activity | `bi-journal-text` | Event count | Table: Event (description), When (relative+absolute), IP Address (link). "Full Log" button links to Activity Log with user filter pre-applied. |
-| Requests | `bi-arrow-left-right` | Request count | Table: Request (verb badge + path code), When (relative+absolute), Response (code + Clean/Offense badge), IP Address (link). "Full Log" button links to Traffic Log with user filter. |
+| Activity | `bi-journal-text` | Event count | Table: Event (description), When (relative+absolute), IP Address (link). `Full Log` button links to Activity Log with user filter pre-applied. |
+| Requests | `bi-arrow-left-right` | Request count | Table: Request (verb badge + path code), When (relative+absolute), Response (code + Clean/Offense badge), IP Address (link). `Full Log` button links to Traffic Log with user filter. |
 | IP Addresses | `bi-globe2` | Unique IP count | Card grid (2-col): each card shows IP address (monospace link), last seen, status badge (mapped from real signal state, not a default warning), and explicit counters labelled `Sessions`, `Activity`, `Requests`. |
 
 **Data sources (implementation):**
 
-- Sessions: `FindSessions::byUser($userId)` — query `wp_shield_sessions` by user_id. Return last 50.
+- Sessions: `FindSessions::byUser($userId)` - query `wp_shield_sessions` by user_id. Return last 50.
 - Activity: `LoadLogs` with `wheres[user_id] = $userId`. Return last 75.
 - Requests: `LoadRequestLogs` with `wheres[uid] = $userId`. Return last 75.
 - IP Addresses: Aggregate unique IPs from sessions + request logs. For each IP, sub-query counts.
@@ -857,8 +847,8 @@ This page reuses `IpAnalyse\Container` directly. Do not add a second top-level s
 | Overview | `bi-info-circle` | - | IP details table (address, hostname, location, ISP, first/last seen, status) + IP Rule Status card (block status, offense count, linked users, block/bypass actions) | `IpAnalyse\General` |
 | Bot Signals | `bi-robot` | Bot score | Signal bar chart: each signal type as a labelled horizontal bar (0-100). Signals: Login Failures, 404 Probing, XML-RPC, Comment SPAM, Fake Crawler, User-Agent Invalid, etc. | `IpAnalyse\BotSignals` |
 | Sessions | `bi-key` | Session count | Table: User (link to user investigation), Login time, Last Active, Sec Admin status. | `IpAnalyse\Sessions` |
-| Activity | `bi-journal-text` | Event count | Table: Event description, When, User. "Full Log" link pre-filtered by IP. | `IpAnalyse\Activity` |
-| Traffic | `bi-arrow-left-right` | Request count | Table: Request (verb+path), When, Response (code+offense). "Full Log" link pre-filtered by IP. | `IpAnalyse\Traffic` |
+| Activity | `bi-journal-text` | Event count | Table: Event description, When, User. `Full Log` link pre-filtered by IP. | `IpAnalyse\Activity` |
+| Traffic | `bi-arrow-left-right` | Request count | Table: Request (verb+path), When, Response (code+offense). `Full Log` link pre-filtered by IP. | `IpAnalyse\Traffic` |
 
 **Implementation note:** The existing `IpAnalyse\Container` already renders these tabs using sub-component classes. Keep this container as the canonical surface and avoid adding duplicated framing above it. Navigation from user IP cards should load this dedicated page directly without triggering IP offcanvas in parallel.
 
@@ -866,21 +856,21 @@ This page reuses `IpAnalyse\Container` directly. Do not add a second top-level s
 
 **Prototype file:** `investigate-plugin.html`
 
-**Top-of-page framing:** no standalone subject header/summary block above tabs when those details are already represented in `Overview`.
+**Top-of-page framing:** no standalone subject header/summary block above tabs.
 
 **Tabs:**
 
 | Tab | Icon | Badge | Content |
 |---|---|---|---|
-| Overview | `bi-info-circle` | - | Two-column layout. Left: info table (Name, Slug, Version with update pill, Author, Status, Source, Installed, Last Updated). Right: security summary card with vulnerability count, modified files count, update status, abandoned status. |
-| File Status | `bi-file-earmark-code` | Issue count | Data table when rows exist. If zero rows, render explicit empty-state copy and do not initialize table/AJAX for this tab. |
+| Overview | `bi-info-circle` | - | Canonical overview table rows (minimum): Name, Slug, Version, Author, File, Install Directory, Installed, Active status, Update Available status, Vulnerability status. |
+| File Scan Status | `bi-file-earmark-code` | Issue count | Data table when rows exist. If zero rows, render explicit empty-state copy and do not initialize table/AJAX for this tab. CTA text is `Full Scan Results` and uses prominent button styling. |
 | Vulnerabilities | `bi-shield-exclamation` | Active vuln count | Card list. Heading/copy is `No Known Vulnerabilities` when count is zero; otherwise use normal known-vulnerability heading with counts. |
 | Activity | `bi-journal-text` | Event count | Data table when rows exist. If zero rows, render explicit empty-state copy and do not initialize table/AJAX for this tab. |
 
 **Data sources (implementation):**
 
 - Overview: `buildPluginData()` from `PluginThemesBase` - provides info/flags/vars fields.
-- File Status: `LoadFileScanResultsTableData` filtered by `ptg_slug` meta matching plugin slug.
+- File Scan Status: `LoadFileScanResultsTableData` filtered by `ptg_slug` meta matching plugin slug.
 - Vulnerabilities: runtime WPV display results (`WPV()->getResultsForDisplay()->getItemsForSlug($slug)`).
 - Activity: `LoadLogs` filtered by event slugs containing plugin identifier (activation/deactivation/update events store plugin slug in meta).
 
@@ -890,8 +880,8 @@ Uses the same contract as Investigate Plugin with theme-specific data fields and
 
 Theme-specific criteria:
 - No duplicated top header/summary block above tabs when the same info is in `Overview`.
-- `Overview` includes theme version/author and child-parent relationship fields (`child_theme`, `parent_theme`).
-- `File Status` and `Activity` tabs follow the same empty-state/no-AJAX gating rules as plugin.
+- `Overview` uses canonical table rows and includes theme version/author and child-parent relationship fields (`child_theme`, `parent_theme`).
+- `File Scan Status` and `Activity` tabs follow the same empty-state/no-AJAX gating rules as plugin.
 - `Vulnerabilities` follows the same zero-state copy rule: `No Known Vulnerabilities` when count is zero.
 
 ### 11.8 WordPress Core - analysis page
@@ -902,8 +892,8 @@ Core uses the plugin/theme investigation pattern with a reduced tab set.
 
 | Tab | Content |
 |---|---|
-| Overview | Core version, update status, auto-update config, last scan time. |
-| File Status | Core file status table when rows exist; otherwise explicit empty-state copy and no table/AJAX boot. |
+| Overview | Canonical overview table rows (minimum): WordPress Version, Core Update status, Install Directory. |
+| File Scan Status | Core file status table when rows exist; otherwise explicit empty-state copy and no table/AJAX boot. |
 | Activity | Core-related events table when rows exist; otherwise explicit empty-state copy and no table/AJAX boot. |
 
 Core-specific criteria:
@@ -915,10 +905,10 @@ Core-specific criteria:
 
 **Refinement note (2026-02-26):** post-P6 UX parity work is now required and tracked as Step 6.1 / P7-INV-UX.
 
-1. **Investigate Landing Page** - subject selector grid + lookup panels (without quick-access strip).
-2. **Investigate User** - include `Overview` tab and move legacy top summary content into tab content.
-3. **Investigate IP** - keep `IpAnalyse\Container` as canonical analysis surface and avoid duplicated top framing.
-4. **Investigate Plugin/Theme/Core** - enforce no-duplication framing, empty-state/no-AJAX gating, and vulnerability zero-state copy rules.
+1. **Investigate Landing Page** - direct-navigation subject tiles only; no workflow shell/panels.
+2. **Shared lookup strip + by pages** - compact centered lookup strips for user/ip/plugin/theme and removal of back controls.
+3. **Overview canonicalization** - user/plugin/theme/core overview panes render canonical overview tables.
+4. **File scan tab update** - `File Scan Status` naming, `Full Scan Results` CTA text, flat file table container rendering.
 5. **Breadcrumb normalization** - ensure IA labels and no duplicate/intermediate crumb artifacts.
 
 ### 11.10 Cross-subject linking
@@ -1199,7 +1189,7 @@ Create these shared templates that ALL investigation pages include:
 |---|---|---|
 | Subject header | `templates/twig/wpadmin/components/investigate/subject_header.twig` | Avatar + name + meta + status pills + "Change" button. Accepts `subject` data with `type`, `name`, `meta[]`, `status_pills[]`, `avatar_icon`, `change_href`. |
 | Summary stats row | Reuse existing `stats_collection.twig` | Row of 4 stat cards. Already exists. |
-| Investigation table container | `templates/twig/wpadmin/components/investigate/table_container.twig` | Wraps a `<table>` element with DataTable data attributes + panel heading + "Full Log" link. Used inside each tab pane. |
+| Investigation table container | `templates/twig/wpadmin/components/investigate/table_container.twig` | Wraps a `<table>` element with DataTable data attributes + panel heading + context CTA link (`Full Scan Results` for file scan tab, `Full Log` for activity/traffic tabs). Used inside each tab pane. |
 
 ### 12.4 Per-section implementation directives
 
@@ -1253,7 +1243,7 @@ This section gives the implementing agent specific instructions for each part of
 **For the Sessions tab:**
 - Same pattern. Extend `BuildSessionsTableData`'s row-building logic.
 
-**For the File Status tab (Plugin/Theme investigation):**
+**For the File Scan Status tab (Plugin/Theme investigation):**
 - Extend `LoadFileScanResultsTableData`. Pre-set `ptg_slug` filter in `getSubjectWheres()`.
 - The action buttons (View, Repair, Delete, Ignore) are already rendered by the existing scan results table row builder — reuse that rendering logic.
 
@@ -1307,17 +1297,17 @@ This section gives the implementing agent specific instructions for each part of
 - Vulnerabilities: runtime WPV display results for the selected plugin slug. This is NOT a DataTable — it is rendered as a compact server-side status panel/card.
 - Activity: `Investigation\BuildActivityLogData` with subject filter `['plugin_slug' => $slug]`. Filter logic: match event slugs that contain the plugin identifier in their meta data.
 
-**Tabs that use DataTables:** File Status, Activity.
+**Tabs that use DataTables:** File Scan Status, Activity.
 **Tabs that use server-side rendering:** Overview (info table + security summary card), Vulnerabilities (card list — typically 0–3 items, not worth a DataTable).
 
 #### 12.4.6 Investigate Theme page
 
 **Share a base class with Plugin.** Create `BaseInvestigateAsset` that both `PageInvestigateByPlugin` and `PageInvestigateByTheme` extend. The base class provides:
 - Overview tab structure
-- File Status tab (DataTable with `ptg_slug` filter)
+- File Scan Status tab (DataTable with `ptg_slug` filter)
 - Vulnerability tab (card list)
 - Activity tab (DataTable with asset slug filter)
-- Empty-state/no-AJAX gating helpers for File Status and Activity tabs
+- Empty-state/no-AJAX gating helpers for File Scan Status and Activity tabs
 - Zero-state vulnerability heading/copy handling
 
 Theme-specific overrides:
@@ -1354,4 +1344,6 @@ These rules apply to ALL investigation pages. Violating them creates inconsisten
 
 5. **Tab badges.** Count badges on rail tabs show the total record count for that subject. These counts come from the `countTotalRecords()` method in the respective `BuildInvestigation*Data` class, called during page render (not AJAX). Cache with short TTL if performance is a concern.
 
-6. **"Full Log" links.** Each investigation table tab should include a "Full Log" link that opens the corresponding full-page table (Activity Log, Traffic Log, etc.) with the subject pre-filtered. Use `SearchTextParser` syntax in the URL: e.g., `?search=user_id:42` for the activity log filtered to user 42. The full-page tables already parse this syntax.
+6. **Table CTA links.** Investigation tabs should include full-page links with context-appropriate CTA text (`Full Scan Results` for file scan tab, `Full Log` for activity/traffic tabs) and pre-filtered search parameters. Use `SearchTextParser` syntax in the URL: e.g., `?search=user_id:42` for the activity log filtered to user 42. The full-page tables already parse this syntax.
+
+

@@ -44,15 +44,18 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		$tables = $vars[ 'tables' ] ?? [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
-		$this->assertSame( 'WordPress Core', (string)( $vars[ 'subject' ][ 'title' ] ?? '' ) );
-		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status_pills' ][ 0 ][ 'status' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'change_href', $vars[ 'subject' ] ?? [] );
-		$this->assertArrayNotHasKey( 'change_text', $vars[ 'subject' ] ?? [] );
-		$this->assertSame( 4, (int)( $vars[ 'summary' ][ 'file_status' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 7, (int)( $vars[ 'summary' ][ 'activity' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'file_status' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'activity' ][ 'status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'subject', $vars );
+		$this->assertArrayNotHasKey( 'summary', $vars );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
+		$this->assertSame(
+			[ 'WordPress Version', 'Core Update Status', 'Install Directory' ],
+			\array_column( $vars[ 'overview_rows' ] ?? [], 'label' )
+		);
+		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
+		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
+		$this->assertSame( 'Full Scan Results', (string)( $tables[ 'file_status' ][ 'full_log_text' ] ?? '' ) );
+		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
 
 		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
@@ -72,7 +75,7 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? false ) );
 		$this->assertTrue( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? false ) );
 		$this->assertSame(
-			'No file status records were found for this subject.',
+			'No file scan status records were found for this subject.',
 			(string)( $tables[ 'file_status' ][ 'empty_text' ] ?? '' )
 		);
 		$this->assertSame(
@@ -141,9 +144,13 @@ class PageInvestigateByCoreUnitTestDouble extends PageInvestigateByCore {
 	protected function buildAssetTables( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
 		return [
 			'file_status' => [
+				'title'        => 'File Scan Status',
 				'table_type'   => 'file_scan_results',
 				'subject_type' => $subjectType,
 				'subject_id'   => $subjectId,
+				'full_log_text' => 'Full Scan Results',
+				'full_log_button_class' => 'btn btn-primary btn-sm',
+				'is_flat' => true,
 			],
 			'activity'    => [
 				'table_type'   => 'activity',
@@ -153,3 +160,5 @@ class PageInvestigateByCoreUnitTestDouble extends PageInvestigateByCore {
 		];
 	}
 }
+
+

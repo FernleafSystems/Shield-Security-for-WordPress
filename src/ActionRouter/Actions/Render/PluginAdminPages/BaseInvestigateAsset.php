@@ -91,7 +91,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			'file_status' => [
 				'pane_id'   => $idPrefix.'FileStatus',
 				'nav_id'    => 'tab-navlink-'.$subjectKey.'-file-status',
-				'label'     => __( 'File Status', 'wp-simple-firewall' ),
+				'label'     => __( 'File Scan Status', 'wp-simple-firewall' ),
 				'count'     => (int)( $counts[ 'file_status' ] ?? 0 ),
 				'is_active' => false,
 			],
@@ -147,17 +147,22 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	protected function buildAssetTables( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
 		$tableAction = ActionData::Build( InvestigationTableAction::class );
 
+		$fileTable = $this->buildTableContainerContract(
+			__( 'File Scan Status', 'wp-simple-firewall' ),
+			'warning',
+			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
+			$subjectType,
+			$subjectId,
+			( new InvestigationFileScanResultsTableBuilder() )->setSubject( $subjectType, $subjectId )->buildRaw(),
+			$tableAction,
+			self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
+		);
+		$fileTable[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
+		$fileTable[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
+		$fileTable[ 'is_flat' ] = true;
+
 		return [
-			'file_status' => $this->buildTableContainerContract(
-				__( 'File Status', 'wp-simple-firewall' ),
-				'warning',
-				InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-				$subjectType,
-				$subjectId,
-				( new InvestigationFileScanResultsTableBuilder() )->setSubject( $subjectType, $subjectId )->buildRaw(),
-				$tableAction,
-				self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
-			),
+			'file_status' => $fileTable,
 			'activity'    => $this->buildTableContainerContract(
 				__( 'Activity', 'wp-simple-firewall' ),
 				'warning',

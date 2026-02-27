@@ -207,7 +207,7 @@ These were delivered after P4 and before P5 cleanup:
 | P6d | [COMPLETE] Complete | Dedicated Investigate By Plugin page delivered with shared rail/panel architecture, file status/activity tables, and vulnerabilities panel. |
 | P6e | [COMPLETE] Complete | Theme and Core pages delivered; shared `BaseInvestigateAsset` implemented and consumed by plugin/theme pages; core overview + tables integrated. |
 | P6f | [COMPLETE] Complete | Cross-subject linking delivered for investigation context while preserving offcanvas IP behavior; canonical investigate URL helpers integrated. |
-| P7-INV-UX | [IN PROGRESS] Partially complete | **Completed:** OM-701, OM-702, OM-703, OM-704, OM-705, OM-706, OM-707, OM-708, OM-709, OM-710. **Pending:** OM-711. |
+| P7-INV-UX | [COMPLETE] Complete (superseded continuation executed) | **Historical completed rows retained:** OM-701..OM-710. **Superseding execution source of truth executed:** `P7-SUPERSEDE-2026-02-27` tasks OM-712..OM-720 are complete. |
 | P8 | [IN PROGRESS] Partially complete | WP dashboard widget alignment and Reports deepening are complete; Configure deepening remains pending. |
 
 ## 7) P6-STAB Closure Record (Runtime Recovery)
@@ -218,7 +218,7 @@ These were delivered after P4 and before P5 cleanup:
 |---|---|---|---|---|
 | OM-DEF-701 | Investigate lookup submit can drop `page/nav/nav_sub` context | Blocker | Live runtime previously showed first request as bare `admin.php?analyse_ip=...` / `admin.php?user_lookup=...` | Resolved 2026-02-25: first-request route context preservation confirmed for landing and by-user flows. |
 | OM-DEF-702 | Completion marks were based on slice-level status, not runtime completion | Process blocker | P6a/P6b were previously marked complete while live flow was failing | Resolved 2026-02-25: P6a/P6b completion now reflects runtime-confirmed state. |
-| OM-DEF-703 | UI quality/prototype parity gap not tracked as a blocking acceptance condition | High | Current investigate UI diverges materially from plan/prototypes | Open. Tracked in P7-INV-UX tasks `OM-701` through `OM-711`. |
+| OM-DEF-703 | UI quality/prototype parity gap not tracked as a blocking acceptance condition | High | Current investigate UI diverges materially from plan/prototypes | Open. Historical P7 rows retained; active remediation tracked in superseding block `OM-712` through `OM-720`. |
 
 ### 7.2 Stabilization Tasks (Completed)
 
@@ -517,7 +517,7 @@ P6b validation evidence (2026-02-24):
 | OM-652 | ~~Verify all username cells link to investigate-user~~ | All investigation DataTable row builders | OM-611 | **Done (2026-02-25)**  -  investigation-context user links route to canonical investigate-by-user URL. |
 | OM-653 | ~~Wire plugin-related activity events to investigate-plugin~~ | `Investigation\BuildActivityLogData` row builder | OM-631 | **Done (2026-02-25)**  -  plugin/theme activity rows include investigate links in investigation-context activity table source. |
 
-## 12) P7-INV-UX  -  Investigate UX Parity + Breadcrumb Audit (In Progress)
+## 12) P7-INV-UX  -  Investigate UX Parity + Breadcrumb Audit (Complete)
 
 Date added: 2026-02-26  
 Source feedback: maintainer UX audit covering Investigate landing, by-user, by-ip, by-plugin, by-theme, by-core, and breadcrumbs.
@@ -531,8 +531,8 @@ Supersession rules:
 
 Execution snapshot (2026-02-27):
 1. Completed and validated in code/tests: `OM-701`, `OM-702`, `OM-703`, `OM-704`, `OM-705`, `OM-706`, `OM-707`, `OM-708`, `OM-709`, `OM-710`.
-2. Remaining open work: `OM-711`.
-3. Next-session starting queue: `OM-711`.
+2. Supersession execution complete: `OM-712`, `OM-713`, `OM-714`, `OM-715`, `OM-716`, `OM-717`, `OM-718`, `OM-719`, `OM-720`.
+3. Historical/supersession note: session guidance dated 2026-02-27 supersedes conflicting prior P7 wording; historical completion rows remain for audit fidelity.
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
@@ -563,6 +563,22 @@ Feedback-to-task mapping:
 | Investigate landing design/prototype parity cleanup | OM-709 |
 | Remove landing quick-access strip | OM-710 |
 | Regression coverage for breadcrumb/empty-state contracts | OM-711 |
+
+### P7-SUPERSEDE-2026-02-27 - Investigate UX Session Supersession
+
+Session guidance dated 2026-02-27 supersedes conflicting prior P7 wording. Historical completion rows are retained for audit history; OM-712+ is the current execution source of truth.
+
+| ID | Task | Files | Depends On | Done When |
+|---|---|---|---|---|
+| OM-712 | ~~Convert investigate landing to direct-navigation-only tiles~~ | `src/ActionRouter/Actions/Render/PluginAdminPages/PageInvestigateLanding.php`, `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig` | OM-710 | **Done (2026-02-27)**  -  landing now renders direct-navigation subject tiles only, with disabled WooCommerce tile marker retained. |
+| OM-713 | ~~Remove landing workflow shell and related copy/data contracts~~ | `PageInvestigateLanding.php`, `investigate_landing.twig`, investigate landing tests | OM-712 | **Done (2026-02-27)**  -  workflow shell/panel and workflow copy/contracts (`Investigation Workflow`, panel intro, active-subject landing payloads) removed. |
+| OM-714 | ~~Update landing grid responsiveness and flatten selector framing~~ | `templates/twig/wpadmin/plugin_pages/inner/investigate_landing.twig`, `assets/css/shield/investigate.scss` | OM-713 | **Done (2026-02-27)**  -  landing grid uses 6/4/3/2/1 breakpoint columns and selector framing is flat. |
+| OM-715 | ~~Remove back-to-investigate controls from all investigate pages~~ | `PageInvestigateByUser.php`, `PageInvestigateByIp.php`, `PageInvestigateByPlugin.php`, `PageInvestigateByTheme.php`, `PageInvestigateByCore.php`, corresponding Twig templates/tests | OM-712 | **Done (2026-02-27)**  -  no investigate page render contract or template emits `Back To Investigate` control text or href. |
+| OM-716 | ~~Introduce shared compact lookup strip and apply to by-user/by-ip/by-plugin/by-theme~~ | `templates/twig/wpadmin/components/investigate/lookup_strip.twig`, investigate by-page templates, `assets/css/shield/investigate.scss` | OM-715 | **Done (2026-02-27)**  -  compact centered lookup strip component is shared across by-user/by-ip/by-plugin/by-theme with hidden route contract preserved. |
+| OM-717 | ~~Unify user/plugin/theme/core overview rendering into canonical overview table contract; remove redundant summary/header components~~ | `PageInvestigateByUser.php`, `BaseInvestigateByAssetSubject.php`, `PageInvestigateByCore.php`, investigate by-page templates, new `overview_table.twig` | OM-716 | **Done (2026-02-27)**  -  overview panes now render canonical rows via shared overview table include; duplicate subject-header/summary-card surfaces removed. |
+| OM-718 | ~~Rename `File Status` to `File Scan Status`, rename file CTA to `Full Scan Results`, and flatten file tab container layering~~ | `BaseInvestigateAsset.php`, `templates/twig/wpadmin/components/investigate/table_container.twig`, investigate templates/tests | OM-717 | **Done (2026-02-27)**  -  investigate file tab labels/titles/CTA updated; file table container renders flat mode with prominent CTA button. |
+| OM-719 | ~~Investigate test hardening: remove brittle assertions, add behavior-contract tests for superseded UX~~ | Investigate unit/integration tests under `tests/Unit/ActionRouter/Render/` and `tests/Integration/ActionRouter/` | OM-713, OM-715, OM-717, OM-718 | **Done (2026-02-27)**  -  landing workflow-shell assertions removed; by-page contract assertions cover lookup routes, back-button absence, overview rows, and file scan naming/CTA contracts. |
+| OM-720 | ~~Reconcile `Shield-Operator-Modes-Plan.md` section 11 and Step 6.1 against this superseding guidance~~ | `docs/OperatorModes/Shield-Operator-Modes-Plan.md` | OM-712..OM-719 | **Done (2026-02-27)**  -  plan text now reflects direct-navigation landing, canonical overview tables, removed back controls, and investigate file scan naming/CTA wording. |
 
 ## 13) Hard-Removal Tasks (Completed)
 

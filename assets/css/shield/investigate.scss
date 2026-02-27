@@ -1,3 +1,7 @@
+.investigate-landing__selector-shell {
+	margin-bottom: 1rem;
+}
+
 .investigate-landing__section-label {
 	color: #646970;
 	font-size: 0.72rem;
@@ -5,6 +9,12 @@
 	letter-spacing: 0.04em;
 	margin-bottom: 0.6rem;
 	text-transform: uppercase;
+}
+
+.investigate-landing__subject-grid {
+	display: grid;
+	gap: 0.65rem;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
 .investigate-landing__subject-card {
@@ -18,7 +28,7 @@
 	gap: 0.35rem;
 	height: 100%;
 	justify-content: center;
-	min-height: 170px;
+	min-height: 160px;
 	padding: 1rem 0.85rem;
 	text-align: center;
 	text-decoration: none;
@@ -30,15 +40,6 @@
 	box-shadow: $card-box-shadow-hover;
 	color: #1d2327;
 	transform: translateY(-2px);
-}
-
-.investigate-landing__subject-card.active,
-.investigate-landing__subject-card.active:hover {
-	background: $status-bg-info-light;
-	border-color: $status-color-info;
-	box-shadow: inset 0 0 0 1px rgba($status-color-info, 0.15);
-	color: #1d2327;
-	transform: none;
 }
 
 .investigate-landing__subject-card.is-disabled,
@@ -87,26 +88,69 @@
 	line-height: 1.35;
 }
 
-.investigate-landing__lookup-shell .tab-pane {
-	min-height: 96px;
+.investigate-lookup-strip {
+	margin: 0 auto 1rem;
+	max-width: 760px;
 }
 
-.investigate-landing__direct-link .btn {
-	margin-top: 0.25rem;
+.investigate-lookup-strip__form {
+	align-items: end;
+	display: flex;
+	gap: 0.75rem;
 }
 
-@media (max-width: 767.98px) {
-	.investigate-landing__subject-card {
-		min-height: 152px;
+.investigate-lookup-strip__field {
+	flex: 1;
+}
+
+.investigate-lookup-strip__submit {
+	display: flex;
+	flex-shrink: 0;
+}
+
+.investigate-lookup-strip__submit .btn {
+	white-space: nowrap;
+}
+
+.investigate-table-panel--flat {
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	padding: 1rem;
+}
+
+@media (min-width: 576px) {
+	.investigate-landing__subject-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
-.investigate-summary-card__value {
-	line-height: 1.15;
+@media (min-width: 768px) {
+	.investigate-landing__subject-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
 }
 
-.investigate-summary-card__label {
-	line-height: 1.35;
-	min-height: 2.1em;
+@media (min-width: 992px) {
+	.investigate-landing__subject-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
 }
 
+@media (min-width: 1200px) {
+	.investigate-landing__subject-grid {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 575.98px) {
+	.investigate-lookup-strip__form {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.investigate-lookup-strip__submit,
+	.investigate-lookup-strip__submit .btn {
+		width: 100%;
+	}
+}

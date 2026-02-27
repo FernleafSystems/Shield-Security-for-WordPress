@@ -81,6 +81,11 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertHtmlContainsMarker( 'tab-navlink-user-overview', $html, 'By-user overview rail nav marker' );
 		$this->assertHtmlContainsMarker( 'id="tabInvestigateUserOverview"', $html, 'By-user overview tab panel marker' );
+		$this->assertHtmlContainsMarker( 'User Overview', $html, 'By-user overview heading marker' );
+		$this->assertHtmlContainsMarker( '<th class="w-25">User ID</th>', $html, 'By-user overview table row marker' );
+		$this->assertHtmlContainsMarker( '<th class="w-25">IP Addresses Count</th>', $html, 'By-user overview IP count row marker' );
+		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-user back button removed marker' );
+		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-user summary cards removed marker' );
 		$this->assertSame( 3, \substr_count( $html, 'data-investigation-table="1"' ) );
 		$this->assertHtmlContainsMarker( 'data-table-type="sessions"', $html, 'By-user sessions table marker' );
 		$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-user activity table marker' );
@@ -145,6 +150,7 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlContainsMarker( 'Sessions:', $html, 'By-user explicit session counter label marker' );
 		$this->assertHtmlContainsMarker( 'Activity:', $html, 'By-user explicit activity counter label marker' );
 		$this->assertHtmlContainsMarker( 'Requests:', $html, 'By-user explicit request counter label marker' );
+		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-user back button removed marker' );
 		$this->assertMatchesRegularExpression(
 			'#<a[^>]*class="[^"]*btn[^"]*"[^>]*>Investigate IP</a>#',
 			$html
@@ -163,3 +169,4 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 	}
 }
+

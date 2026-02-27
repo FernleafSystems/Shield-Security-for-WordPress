@@ -1,38 +1,21 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="card shield-card mb-3">
-		<div class="shield-card-accent status-info"></div>
-		<div class="card-body">
-			<form method="get" action="{{ hrefs.by_user }}" class="row g-2 align-items-end">
-				<input type="hidden" name="page" value="{{ vars.lookup_route.page|default('') }}" />
-				<input type="hidden" name="nav" value="{{ vars.lookup_route.nav|default('') }}" />
-				<input type="hidden" name="nav_sub" value="{{ vars.lookup_route.nav_sub|default('') }}" />
-				<div class="col-12 col-lg-8">
-					<label class="form-label mb-1">{{ strings.lookup_label }}</label>
-					<input type="text" name="user_lookup" value="{{ vars.user_lookup|default('') }}"
-						   class="form-control" placeholder="{{ strings.lookup_placeholder }}"/>
-				</div>
-				<div class="col-12 col-lg-4 d-flex gap-2">
-					<button type="submit" class="btn btn-outline-primary">{{ strings.lookup_submit }}</button>
-					<a href="{{ hrefs.back_to_investigate }}" class="btn btn-outline-secondary">{{ strings.back_to_investigate }}</a>
-				</div>
-			</form>
-		</div>
-	</div>
+	{% include '/wpadmin/components/investigate/lookup_strip.twig' with {
+		action: hrefs.by_user,
+		lookup_route: vars.lookup_route,
+		label: strings.lookup_label,
+		input_name: 'user_lookup',
+		input_type: 'text',
+		input_value: vars.user_lookup|default(''),
+		placeholder: strings.lookup_placeholder,
+		submit_text: strings.lookup_submit
+	} only %}
 
 	{% if not flags.has_subject %}
-		<div class="card shield-card">
-			<div class="shield-card-accent status-warning"></div>
-			<div class="card-body">
-				{% if flags.subject_not_found %}
-					<h5 class="card-title mb-2">{{ strings.not_found_title }}</h5>
-					<p class="mb-0">{{ strings.not_found_text }}</p>
-				{% else %}
-					<h5 class="card-title mb-2">{{ strings.no_subject_title }}</h5>
-					<p class="mb-0">{{ strings.no_subject_text }}</p>
-				{% endif %}
-			</div>
+		<div class="alert alert-warning mb-0">
+			<strong>{{ flags.subject_not_found ? strings.not_found_title : strings.no_subject_title }}</strong>
+			<div>{{ flags.subject_not_found ? strings.not_found_text : strings.no_subject_text }}</div>
 		</div>
 	{% else %}
 		<div class="options_form_for--modern">
@@ -53,12 +36,9 @@
 								 aria-labelledby="tab-navlink-user-overview">
 							<div class="shield-options-panel-accent"></div>
 							<div class="shield-options-panel-body">
-								{% include '/wpadmin/components/investigate/subject_header.twig' with {
-									subject: vars.subject
-								} only %}
-
-								{% include '/wpadmin/components/investigate/summary_cards.twig' with {
-									summary: vars.summary
+								{% include '/wpadmin/components/investigate/overview_table.twig' with {
+									title: strings.overview_title,
+									rows: vars.overview_rows
 								} only %}
 							</div>
 						</section>

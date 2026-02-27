@@ -42,6 +42,11 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByCorePage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-core file tab label marker' );
+		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-core file CTA label marker' );
+		$this->assertHtmlContainsMarker( '<th class="w-25">WordPress Version</th>', $html, 'By-core overview table row marker' );
+		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-core back button removed marker' );
+		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-core summary cards removed marker' );
 
 		$this->assertSame( $expectedTableCount, \substr_count( $html, 'data-investigation-table="1"' ) );
 		if ( $fileStatusCount > 0 ) {
@@ -64,3 +69,4 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 }
+

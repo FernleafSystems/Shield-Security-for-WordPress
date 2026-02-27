@@ -45,8 +45,8 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$hasSubject = $subject instanceof \WP_User;
 		$subjectNotFound = $hasLookup && !$hasSubject;
 
-		$subjectData = [];
 		$summaryStats = [];
+		$overviewRows = [];
 		$railNavItems = [];
 		$tables = [];
 		$relatedIps = [];
@@ -57,9 +57,9 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			$requestLogs = $this->buildRequestLogs( $subject );
 			$relatedIps = $this->getRelatedIpCardsBuilder()->build( $sessions, $activityLogs, $requestLogs );
 			$summaryStats = $this->buildSummaryStats( $sessions, $activityLogs, $requestLogs, $relatedIps );
+			$overviewRows = $this->buildOverviewRows( $subject, $summaryStats );
 			$railNavItems = $this->buildRailNavItems( $summaryStats );
 			$tables = $this->buildTableContractsForUser( $subject->ID );
-			$subjectData = $this->buildSubjectHeaderData( $subject );
 		}
 
 		return [
@@ -69,8 +69,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'subject_not_found' => $subjectNotFound,
 			],
 			'hrefs'   => [
-				'back_to_investigate' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
-				'by_user'             => $con->plugin_urls->investigateByUser(),
+				'by_user' => $con->plugin_urls->investigateByUser(),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->iconClass( 'person-lines-fill' ),
@@ -81,7 +80,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'lookup_label'        => __( 'User Lookup', 'wp-simple-firewall' ),
 				'lookup_placeholder'  => __( 'User ID, username, or email', 'wp-simple-firewall' ),
 				'lookup_submit'       => __( 'Load User Context', 'wp-simple-firewall' ),
-				'back_to_investigate' => __( 'Back To Investigate', 'wp-simple-firewall' ),
+				'overview_title'      => __( 'User Overview', 'wp-simple-firewall' ),
 				'no_subject_title'    => __( 'No User Selected', 'wp-simple-firewall' ),
 				'no_subject_text'     => __( 'Enter a user ID, email, or username to load user-scoped investigate data.', 'wp-simple-firewall' ),
 				'not_found_title'     => __( 'No Matching User Found', 'wp-simple-firewall' ),
@@ -96,8 +95,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 					'nav'     => PluginNavs::NAV_ACTIVITY,
 					'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
 				],
-				'subject'        => $subjectData,
-				'summary'        => $summaryStats,
+				'overview_rows'  => $overviewRows,
 				'rail_nav_items' => $railNavItems,
 				'tables'         => $tables,
 				'related_ips'    => $relatedIps,
@@ -109,34 +107,45 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		return ( new ResolveUserLookup() )->resolve( $lookup );
 	}
 
-	protected function buildSubjectHeaderData( \WP_User $subject ) :array {
-		$displayName = \trim( $subject->display_name );
-		$title = empty( $displayName ) ? $subject->user_login : $displayName;
+	protected function buildOverviewRows( \WP_User $subject, array $summaryStats ) :array {
+		$sessions = (int)( $summaryStats[ 'sessions' ][ 'count' ] ?? 0 );
+		$activity = (int)( $summaryStats[ 'activity' ][ 'count' ] ?? 0 );
+		$requests = (int)( $summaryStats[ 'requests' ][ 'count' ] ?? 0 );
+		$ips = (int)( $summaryStats[ 'ips' ][ 'count' ] ?? 0 );
+
 		return [
-			'status'      => 'info',
-			'title'       => $title,
-			'avatar_icon' => self::con()->svgs->iconClass( 'person-fill' ),
-			'avatar_text' => \strtoupper( \substr( $title, 0, 1 ) ?: 'U' ),
-			'meta'        => [
-				[
-					'label' => __( 'ID', 'wp-simple-firewall' ),
-					'value' => (string)$subject->ID,
-				],
-				[
-					'label' => __( 'Login', 'wp-simple-firewall' ),
-					'value' => $subject->user_login,
-				],
-				[
-					'label' => __( 'Email', 'wp-simple-firewall' ),
-					'value' => $subject->user_email,
-				],
-				[
-					'label' => __( 'Display', 'wp-simple-firewall' ),
-					'value' => $subject->display_name,
-				],
+			[
+				'label' => __( 'User ID', 'wp-simple-firewall' ),
+				'value' => (string)$subject->ID,
 			],
-			'change_href' => self::con()->plugin_urls->investigateByUser(),
-			'change_text' => __( 'Change User', 'wp-simple-firewall' ),
+			[
+				'label' => __( 'Login', 'wp-simple-firewall' ),
+				'value' => (string)$subject->user_login,
+			],
+			[
+				'label' => __( 'Email', 'wp-simple-firewall' ),
+				'value' => (string)$subject->user_email,
+			],
+			[
+				'label' => __( 'Display Name', 'wp-simple-firewall' ),
+				'value' => \trim( (string)$subject->display_name ),
+			],
+			[
+				'label' => __( 'Sessions Count', 'wp-simple-firewall' ),
+				'value' => (string)$sessions,
+			],
+			[
+				'label' => __( 'Activity Count', 'wp-simple-firewall' ),
+				'value' => (string)$activity,
+			],
+			[
+				'label' => __( 'Requests Count', 'wp-simple-firewall' ),
+				'value' => (string)$requests,
+			],
+			[
+				'label' => __( 'IP Addresses Count', 'wp-simple-firewall' ),
+				'value' => (string)$ips,
+			],
 		];
 	}
 

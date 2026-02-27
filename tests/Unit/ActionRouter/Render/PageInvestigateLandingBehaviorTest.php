@@ -13,541 +13,116 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
-use FernleafSystems\Wordpress\Services\Core\{
-	Plugins,
-	Request,
-	Themes
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	InvokesNonPublicMethods,
+	PluginControllerInstaller
 };
-use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
-	private array $servicesSnapshot = [];
-
 	protected function setUp() :void {
 		parent::setUp();
-		Functions\when( 'sanitize_text_field' )->alias(
-			fn( $text ) => $text
-		);
-		Functions\when( '__' )->alias(
-			fn( string $text ) :string => $text
-		);
+		Functions\when( 'sanitize_text_field' )->alias( fn( $text ) => $text );
+		Functions\when( '__' )->alias( fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
-		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installControllerStub();
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
-		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
-	public function test_active_subject_prefers_explicit_subject_query_parameter() :void {
-		$this->installServicesStubs( [
-			'subject'     => 'themes',
-			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_ACTIVITY_BY_IP,
-			'plugin_slug' => 'akismet/akismet.php',
-		] );
+	public function test_landing_vars_include_direct_navigation_subject_contract() :void {
 		$page = new PageInvestigateLanding();
-
 		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$this->assertSame( 'themes', $vars[ 'active_subject' ] );
-	}
+		$subjects = $vars[ 'subjects' ] ?? [];
 
-	public function test_active_subject_ignores_disabled_subject_query_parameter() :void {
-		$this->installServicesStubs( [
-			'subject' => 'woocommerce',
-		] );
-		$page = new PageInvestigateLanding();
-
-		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$this->assertSame( 'users', $vars[ 'active_subject' ] );
-	}
-
-	public function test_active_subject_uses_subnav_hint_when_subject_query_is_absent() :void {
-		$this->installServicesStubs( [
-			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
-			'user_lookup'            => 'admin',
-		] );
-		$page = new PageInvestigateLanding();
-
-		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$this->assertSame( 'wordpress', $vars[ 'active_subject' ] );
-	}
-
-	public function test_active_subject_uses_input_precedence_and_falls_back_to_users() :void {
-		$this->installServicesStubs( [
-			'plugin_slug' => 'security/plugin.php',
-			'theme_slug'  => 'twentytwentyfour',
-			'analyse_ip'  => '1.2.3.4',
-			'user_lookup' => 'admin',
-		] );
-		$page = new PageInvestigateLanding();
-		$this->assertSame( 'plugins', $this->invokeProtectedMethod( $page, 'getLandingVars' )[ 'active_subject' ] );
-
-		$this->installServicesStubs( [
-			'theme_slug'  => 'twentytwentyfour',
-			'analyse_ip'  => '1.2.3.4',
-			'user_lookup' => 'admin',
-		] );
-		$page = new PageInvestigateLanding();
-		$this->assertSame( 'themes', $this->invokeProtectedMethod( $page, 'getLandingVars' )[ 'active_subject' ] );
-
-		$this->installServicesStubs( [
-			'analyse_ip'  => '1.2.3.4',
-			'user_lookup' => 'admin',
-		] );
-		$page = new PageInvestigateLanding();
-		$this->assertSame( 'ips', $this->invokeProtectedMethod( $page, 'getLandingVars' )[ 'active_subject' ] );
-
-		$this->installServicesStubs( [
-			'user_lookup' => 'admin',
-		] );
-		$page = new PageInvestigateLanding();
-		$this->assertSame( 'users', $this->invokeProtectedMethod( $page, 'getLandingVars' )[ 'active_subject' ] );
-
-		$this->installServicesStubs();
-		$page = new PageInvestigateLanding();
-		$this->assertSame( 'users', $this->invokeProtectedMethod( $page, 'getLandingVars' )[ 'active_subject' ] );
-	}
-
-	public function test_input_values_are_persisted_in_landing_vars() :void {
-		$this->installServicesStubs( [
-			'user_lookup' => '  admin@example.com ',
-			'analyse_ip'  => ' 2001:db8::1 ',
-			'plugin_slug' => ' my-plugin/main.php ',
-			'theme_slug'  => ' twentytwentyfour ',
-		] );
-		$page = new PageInvestigateLanding();
-
-		$input = $this->invokeProtectedMethod( $page, 'getLandingVars' )[ 'input' ];
-		$this->assertSame( 'admin@example.com', $input[ 'user_lookup' ] );
-		$this->assertSame( '2001:db8::1', $input[ 'analyse_ip' ] );
-		$this->assertSame( 'my-plugin/main.php', $input[ 'plugin_slug' ] );
-		$this->assertSame( 'twentytwentyfour', $input[ 'theme_slug' ] );
-	}
-
-	public function test_landing_vars_include_loop_ready_subject_contract() :void {
-		$this->installServicesStubs(
-			[
-				'subject'     => 'plugins',
-				'plugin_slug' => 'akismet/akismet.php',
-				'theme_slug'  => 'astra',
-			],
-			[
-				(object)[
-					'file'    => 'akismet/akismet.php',
-					'Name'    => 'Akismet',
-					'Version' => '5.0',
-				],
-			],
-			[
-				(object)[
-					'stylesheet' => 'astra',
-					'Name'       => 'Astra',
-					'Version'    => '4.6',
-				],
-			]
-		);
-		$page = new PageInvestigateLanding();
-
-		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$this->assertCount( 8, $vars[ 'subjects' ] );
-		$this->assertSame(
-			[ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity', 'woocommerce' ],
-			\array_column( $vars[ 'subjects' ], 'key' )
-		);
-
-		$plugins = \array_values(
-			\array_filter(
-				$vars[ 'subjects' ],
-				static fn( array $subject ) :bool => $subject[ 'key' ] === 'plugins'
-			)
-		)[ 0 ];
-		$themes = \array_values(
-			\array_filter(
-				$vars[ 'subjects' ],
-				static fn( array $subject ) :bool => $subject[ 'key' ] === 'themes'
-			)
-		)[ 0 ];
-
-		$optionsKeysBySubject = [];
-		foreach ( $vars[ 'subjects' ] as $subject ) {
-			$optionsKeysBySubject[ $subject[ 'key' ] ] = $subject[ 'options_key' ];
-		}
-		$this->assertSame(
-			[
-				'users'     => null,
-				'ips'       => null,
-				'plugins'   => 'plugin_options',
-				'themes'    => 'theme_options',
-				'wordpress' => null,
-				'requests'  => null,
-				'activity'  => null,
-				'woocommerce' => null,
-			],
-			$optionsKeysBySubject
-		);
-
-		$this->assertTrue( $plugins[ 'is_active' ] );
-		$this->assertSame( 'lookup_select', $plugins[ 'panel_type' ] );
-		$this->assertSame( '/admin/activity/by_plugin', $plugins[ 'href' ] );
-		$this->assertSame( 'plugin_slug', $plugins[ 'input_key' ] );
-		$this->assertSame( 'akismet/akismet.php', $plugins[ 'input_value' ] );
-		$this->assertSame( 'plugin_options', $plugins[ 'options_key' ] );
-		$this->assertSame( $vars[ 'plugin_options' ], $plugins[ 'options' ] );
-		$this->assertSame( $vars[ 'theme_options' ], $themes[ 'options' ] );
-		$this->assertNotEmpty( $plugins[ 'subject_label' ] );
-		$this->assertNotEmpty( $plugins[ 'panel_title' ] );
-		$this->assertNotEmpty( $plugins[ 'lookup_placeholder' ] );
-		$this->assertNotEmpty( $plugins[ 'go_label' ] );
+		$this->assertArrayNotHasKey( 'active_subject', $vars );
+		$this->assertArrayNotHasKey( 'input', $vars );
+		$this->assertArrayNotHasKey( 'plugin_options', $vars );
+		$this->assertArrayNotHasKey( 'theme_options', $vars );
+		$this->assertCount( 8, $subjects );
 
 		$subjectsByKey = [];
-		foreach ( $vars[ 'subjects' ] as $subject ) {
+		foreach ( $subjects as $subject ) {
 			$subjectsByKey[ $subject[ 'key' ] ] = $subject;
+			foreach ( [ 'key', 'is_enabled', 'href', 'icon_class', 'subject_label', 'subject_description', 'is_pro' ] as $requiredKey ) {
+				$this->assertArrayHasKey( $requiredKey, $subject );
+			}
+			foreach ( [ 'panel_type', 'input_key', 'input_value', 'options_key', 'options', 'lookup_route', 'tab_id', 'is_active' ] as $removedKey ) {
+				$this->assertArrayNotHasKey( $removedKey, $subject );
+			}
 		}
-		$this->assertSame(
-			[
-				'page'    => 'icwp-wpsf-plugin',
-				'nav'     => PluginNavs::NAV_ACTIVITY,
-				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
-			],
-			$subjectsByKey[ 'users' ][ 'lookup_route' ] ?? []
-		);
-		$this->assertSame(
-			[
-				'page'    => 'icwp-wpsf-plugin',
-				'nav'     => PluginNavs::NAV_ACTIVITY,
-				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_IP,
-			],
-			$subjectsByKey[ 'ips' ][ 'lookup_route' ] ?? []
-		);
-		$this->assertSame(
-			[
-				'page'    => 'icwp-wpsf-plugin',
-				'nav'     => PluginNavs::NAV_ACTIVITY,
-				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
-			],
-			$subjectsByKey[ 'plugins' ][ 'lookup_route' ] ?? []
-		);
-		$this->assertSame(
-			[
-				'page'    => 'icwp-wpsf-plugin',
-				'nav'     => PluginNavs::NAV_ACTIVITY,
-				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
-			],
-			$subjectsByKey[ 'themes' ][ 'lookup_route' ] ?? []
-		);
-		$this->assertSame( [], $subjectsByKey[ 'wordpress' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
-		$this->assertSame( [], $subjectsByKey[ 'requests' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
-		$this->assertSame( [], $subjectsByKey[ 'activity' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
-		$this->assertSame( [], $subjectsByKey[ 'woocommerce' ][ 'lookup_route' ] ?? [ 'unexpected' ] );
-		$this->assertSame(
-			[
-				'users'     => 'Users',
-				'ips'       => 'IP Addresses',
-				'plugins'   => 'Plugins',
-				'themes'    => 'Themes',
-				'wordpress' => 'WordPress Core',
-				'requests'  => 'HTTP Requests',
-				'activity'  => 'Activity Log',
-				'woocommerce' => 'WooCommerce',
-			],
-			[
-				'users'     => $subjectsByKey[ 'users' ][ 'subject_label' ] ?? '',
-				'ips'       => $subjectsByKey[ 'ips' ][ 'subject_label' ] ?? '',
-				'plugins'   => $subjectsByKey[ 'plugins' ][ 'subject_label' ] ?? '',
-				'themes'    => $subjectsByKey[ 'themes' ][ 'subject_label' ] ?? '',
-				'wordpress' => $subjectsByKey[ 'wordpress' ][ 'subject_label' ] ?? '',
-				'requests'  => $subjectsByKey[ 'requests' ][ 'subject_label' ] ?? '',
-				'activity'  => $subjectsByKey[ 'activity' ][ 'subject_label' ] ?? '',
-				'woocommerce' => $subjectsByKey[ 'woocommerce' ][ 'subject_label' ] ?? '',
-			]
-		);
-		$this->assertSame(
-			[
-				'users'     => 'bi bi-people-fill',
-				'ips'       => 'bi bi-globe2',
-				'plugins'   => 'bi bi-puzzle-fill',
-				'themes'    => 'bi bi-palette-fill',
-				'wordpress' => 'bi bi-wordpress',
-				'requests'  => 'bi bi-arrow-left-right',
-				'activity'  => 'bi bi-journal-text',
-				'woocommerce' => 'bi bi-cart3',
-			],
-			[
-				'users'     => $subjectsByKey[ 'users' ][ 'icon_class' ] ?? '',
-				'ips'       => $subjectsByKey[ 'ips' ][ 'icon_class' ] ?? '',
-				'plugins'   => $subjectsByKey[ 'plugins' ][ 'icon_class' ] ?? '',
-				'themes'    => $subjectsByKey[ 'themes' ][ 'icon_class' ] ?? '',
-				'wordpress' => $subjectsByKey[ 'wordpress' ][ 'icon_class' ] ?? '',
-				'requests'  => $subjectsByKey[ 'requests' ][ 'icon_class' ] ?? '',
-				'activity'  => $subjectsByKey[ 'activity' ][ 'icon_class' ] ?? '',
-				'woocommerce' => $subjectsByKey[ 'woocommerce' ][ 'icon_class' ] ?? '',
-			]
-		);
-		foreach ( [ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity', 'woocommerce' ] as $subjectKey ) {
-			$this->assertNotSame(
-				'',
-				\trim( (string)( $subjectsByKey[ $subjectKey ][ 'subject_description' ] ?? '' ) ),
-				\sprintf( 'Subject "%s" description should be non-empty.', $subjectKey )
-			);
-		}
+
+		$this->assertSame( '/admin/activity/by_user', (string)( $subjectsByKey[ 'users' ][ 'href' ] ?? '' ) );
+		$this->assertSame( '/admin/activity/by_ip', (string)( $subjectsByKey[ 'ips' ][ 'href' ] ?? '' ) );
+		$this->assertSame( '/admin/activity/by_plugin', (string)( $subjectsByKey[ 'plugins' ][ 'href' ] ?? '' ) );
+		$this->assertSame( '/admin/activity/by_theme', (string)( $subjectsByKey[ 'themes' ][ 'href' ] ?? '' ) );
+		$this->assertSame( '/admin/activity/by_core', (string)( $subjectsByKey[ 'wordpress' ][ 'href' ] ?? '' ) );
+		$this->assertSame( '/admin/traffic/logs', (string)( $subjectsByKey[ 'requests' ][ 'href' ] ?? '' ) );
+		$this->assertSame( '/admin/activity/logs', (string)( $subjectsByKey[ 'activity' ][ 'href' ] ?? '' ) );
 		$this->assertFalse( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_enabled' ] ?? true ) );
 		$this->assertTrue( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_pro' ] ?? false ) );
-		$this->assertFalse( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_active' ] ?? true ) );
+		$this->assertSame( '', (string)( $subjectsByKey[ 'woocommerce' ][ 'href' ] ?? 'missing' ) );
 	}
 
-	public function test_landing_strings_include_section_and_panel_contract() :void {
-		$this->installServicesStubs();
+	public function test_landing_strings_exclude_workflow_shell_copy() :void {
 		$page = new PageInvestigateLanding();
-
 		$strings = $this->invokeProtectedMethod( $page, 'getLandingStrings' );
-		foreach ( [
-			'selector_title',
-			'selector_intro',
-			'selector_section_label',
-			'lookup_section_label',
-			'panel_intro',
-			'label_pro',
-			'ip_invalid_text',
-		] as $key ) {
-			$this->assertArrayHasKey( $key, $strings );
-			$this->assertNotSame( '', \trim( (string)$strings[ $key ] ) );
+
+		foreach ( [ 'selector_title', 'selector_intro', 'selector_section_label', 'label_pro' ] as $expectedKey ) {
+			$this->assertArrayHasKey( $expectedKey, $strings );
+		}
+		foreach ( [ 'lookup_section_label', 'panel_intro', 'ip_invalid_text' ] as $removedKey ) {
+			$this->assertArrayNotHasKey( $removedKey, $strings );
 		}
 	}
 
-	public function test_request_input_values_are_cached_across_repeated_internal_access() :void {
-		$queryCallCount = (object)[
-			'count' => 0,
-		];
-		$this->installServicesStubs(
-			[
-				'user_lookup' => 'admin',
-				'analyse_ip'  => '203.0.113.9',
-				'plugin_slug' => 'akismet/akismet.php',
-				'theme_slug'  => 'astra',
-			],
-			[],
-			[],
-			null,
-			$queryCallCount
-		);
+	public function test_landing_flags_are_empty() :void {
 		$page = new PageInvestigateLanding();
-
-		$this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$countAfterLandingVars = $queryCallCount->count;
-		$this->assertGreaterThan( 0, $countAfterLandingVars );
-
-		$this->invokeProtectedMethod( $page, 'getLandingFlags' );
-		$this->assertSame( $countAfterLandingVars, $queryCallCount->count );
-	}
-
-	public function test_ip_lookup_flags_use_has_lookup_and_validity_contract() :void {
-		$this->installServicesStubs(
-			[ 'analyse_ip' => 'not-an-ip' ],
-			[],
-			[],
-			fn( string $ip ) :bool => \filter_var( $ip, \FILTER_VALIDATE_IP ) !== false
-		);
-		$page = new PageInvestigateLanding();
-
-		$flags = $this->invokeProtectedMethod( $page, 'getLandingFlags' );
-		$this->assertTrue( $flags[ 'has_ip_lookup' ] );
-		$this->assertFalse( $flags[ 'ip_is_valid' ] );
-
-		$this->installServicesStubs(
-			[ 'analyse_ip' => '203.0.113.22' ],
-			[],
-			[],
-			fn( string $ip ) :bool => \filter_var( $ip, \FILTER_VALIDATE_IP ) !== false
-		);
-		$page = new PageInvestigateLanding();
-
-		$flags = $this->invokeProtectedMethod( $page, 'getLandingFlags' );
-		$this->assertTrue( $flags[ 'has_ip_lookup' ] );
-		$this->assertTrue( $flags[ 'ip_is_valid' ] );
-	}
-
-	public function test_plugin_and_theme_options_map_to_value_label_lists_using_expected_identifiers() :void {
-		$this->installServicesStubs(
-			[],
-			[
-				(object)[
-					'file'    => 'zeta/zeta.php',
-					'Name'    => 'Zeta',
-					'Version' => '1.0.0',
-				],
-				(object)[
-					'file'    => 'alpha/alpha.php',
-					'Name'    => 'Alpha',
-					'Version' => '2.5.0',
-				],
-			],
-			[
-				(object)[
-					'stylesheet' => 'twentytwentythree',
-					'Name'       => 'Twenty Twenty-Three',
-					'Version'    => '1.9',
-				],
-				(object)[
-					'stylesheet' => 'astra',
-					'Name'       => 'Astra',
-					'Version'    => '4.6',
-				],
-			]
-		);
-		$page = new PageInvestigateLanding();
-		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
-
-		$this->assertSame(
-			[
-				[
-					'value' => 'alpha/alpha.php',
-					'label' => 'Alpha (2.5.0)',
-				],
-				[
-					'value' => 'zeta/zeta.php',
-					'label' => 'Zeta (1.0.0)',
-				],
-			],
-			$vars[ 'plugin_options' ]
-		);
-		$this->assertSame(
-			[
-				[
-					'value' => 'astra',
-					'label' => 'Astra (4.6)',
-				],
-				[
-					'value' => 'twentytwentythree',
-					'label' => 'Twenty Twenty-Three (1.9)',
-				],
-			],
-			$vars[ 'theme_options' ]
-		);
-	}
-
-	public function test_option_lists_are_memoized_across_subject_and_top_level_access() :void {
-		$optionsBuildCount = (object)[
-			'plugins' => 0,
-			'themes'  => 0,
-		];
-		$this->installServicesStubs(
-			[],
-			[
-				(object)[
-					'file'    => 'akismet/akismet.php',
-					'Name'    => 'Akismet',
-					'Version' => '5.0',
-				],
-			],
-			[
-				(object)[
-					'stylesheet' => 'astra',
-					'Name'       => 'Astra',
-					'Version'    => '4.6',
-				],
-			],
-			null,
-			null,
-			$optionsBuildCount
-		);
-		$page = new PageInvestigateLanding();
-
-		$this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$this->assertSame( 1, $optionsBuildCount->plugins );
-		$this->assertSame( 1, $optionsBuildCount->themes );
+		$this->assertSame( [], $this->invokeProtectedMethod( $page, 'getLandingFlags' ) );
 	}
 
 	public function test_subject_definition_contract_violation_throws_logic_exception() :void {
-		$this->installServicesStubs();
 		$page = new class extends PageInvestigateLanding {
 			protected function getSubjectDefinitions() :array {
 				return [
 					'plugins' => [
-						'key'                => 'plugins',
-						'label'              => 'Plugins',
-						'description'        => 'File status, vulnerabilities, and plugin activity.',
-						'icon_class'         => 'bi bi-puzzle-fill',
-						'panel_type'         => 'lookup_select',
-						'subnav_hint'        => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
-						'href_key'           => 'by_plugin',
-						'input_key'          => 'plugin_slug',
-						'options_key'        => null,
-						'panel_title'        => 'Investigate A Plugin',
-						'lookup_placeholder' => 'Select a plugin',
-						'go_label'           => 'Investigate Plugin',
-						'is_enabled'         => true,
-						'is_pro'             => false,
+						'key'         => 'plugins',
+						'label'       => 'Plugins',
+						'description' => 'Plugin analysis',
+						'icon_class'  => 'bi bi-puzzle-fill',
+						'panel_type'  => 'direct_link',
+						'href_key'    => '',
+						'is_enabled'  => true,
+						'is_pro'      => false,
 					],
 				];
 			}
 		};
 
 		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'lookup_select requires options_key' );
-		$this->invokeProtectedMethod( $page, 'getLandingVars' );
-	}
-
-	public function test_lookup_subject_without_subnav_hint_throws_logic_exception() :void {
-		$this->installServicesStubs();
-		$page = new class extends PageInvestigateLanding {
-			protected function getSubjectDefinitions() :array {
-				return [
-					'users' => [
-						'key'                => 'users',
-						'label'              => 'Users',
-						'description'        => 'Sessions, activity, and related IP addresses.',
-						'icon_class'         => 'bi bi-people-fill',
-						'panel_type'         => 'lookup_text',
-						'subnav_hint'        => '',
-						'href_key'           => 'by_user',
-						'input_key'          => 'user_lookup',
-						'options_key'        => null,
-						'panel_title'        => 'Investigate A User',
-						'lookup_placeholder' => 'User ID, username, or email',
-						'go_label'           => 'Investigate User',
-						'is_enabled'         => true,
-						'is_pro'             => false,
-					],
-				];
-			}
-		};
-
-		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'lookup panel requires subnav_hint' );
+		$this->expectExceptionMessage( 'requires href key' );
 		$this->invokeProtectedMethod( $page, 'getLandingVars' );
 	}
 
 	public function test_landing_hrefs_include_required_subject_and_log_routes() :void {
-		$this->installServicesStubs();
 		$page = new PageInvestigateLanding();
-
 		$hrefs = $this->invokeProtectedMethod( $page, 'getLandingHrefs' );
-		$this->assertArrayHasKey( 'activity_log', $hrefs );
-		$this->assertArrayHasKey( 'traffic_log', $hrefs );
-		$this->assertArrayHasKey( 'by_user', $hrefs );
-		$this->assertArrayHasKey( 'by_ip', $hrefs );
-		$this->assertArrayHasKey( 'by_plugin', $hrefs );
-		$this->assertArrayHasKey( 'by_theme', $hrefs );
-		$this->assertArrayHasKey( 'by_core', $hrefs );
 
-		$this->assertSame( '/admin/activity/by_user', $hrefs[ 'by_user' ] );
-		$this->assertSame( '/admin/activity/by_ip', $hrefs[ 'by_ip' ] );
-		$this->assertSame( '/admin/activity/by_plugin', $hrefs[ 'by_plugin' ] );
-		$this->assertSame( '/admin/activity/by_theme', $hrefs[ 'by_theme' ] );
-		$this->assertSame( '/admin/activity/by_core', $hrefs[ 'by_core' ] );
+		$this->assertSame( '/admin/activity/logs', $hrefs[ 'activity_log' ] ?? '' );
+		$this->assertSame( '/admin/traffic/logs', $hrefs[ 'traffic_log' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_user', $hrefs[ 'by_user' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_ip', $hrefs[ 'by_ip' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_plugin', $hrefs[ 'by_plugin' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_theme', $hrefs[ 'by_theme' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_core', $hrefs[ 'by_core' ] ?? '' );
 	}
 
 	private function installControllerStub() :void {
@@ -585,84 +160,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function installServicesStubs(
-		array $query = [],
-		array $plugins = [],
-		array $themes = [],
-		?\Closure $ipValidator = null,
-		?object $queryCallCount = null,
-		?object $optionsBuildCount = null
-	) :void {
-		ServicesState::installItems( [
-			'service_request'   => new class( $query, $queryCallCount ) extends Request {
-				private array $queryValues;
-
-				private ?object $queryCallCount;
-
-				public function __construct( array $queryValues = [], ?object $queryCallCount = null ) {
-					$this->queryValues = $queryValues;
-					$this->queryCallCount = $queryCallCount;
-				}
-
-				public function query( $key, $default = null ) {
-					if ( $this->queryCallCount !== null ) {
-						$this->queryCallCount->count++;
-					}
-					return $this->queryValues[ $key ] ?? $default;
-				}
-			},
-			'service_ip'        => new class( $ipValidator ) extends IpUtils {
-				private ?\Closure $validator;
-
-				public function __construct( ?\Closure $validator ) {
-					$this->validator = $validator;
-				}
-
-				public function isValidIp( $ip, $flags = null ) {
-					return $this->validator instanceof \Closure
-						? (bool)( $this->validator )( $ip )
-						: \filter_var( $ip, \FILTER_VALIDATE_IP ) !== false;
-				}
-			},
-			'service_wpplugins' => new class( $plugins, $optionsBuildCount ) extends Plugins {
-				private array $plugins;
-
-				private ?object $optionsBuildCount;
-
-				public function __construct( array $plugins, ?object $optionsBuildCount = null ) {
-					$this->plugins = $plugins;
-					$this->optionsBuildCount = $optionsBuildCount;
-				}
-
-				public function getPluginsAsVo() :array {
-					if ( $this->optionsBuildCount !== null ) {
-						$this->optionsBuildCount->plugins++;
-					}
-					return $this->plugins;
-				}
-			},
-			'service_wpthemes'  => new class( $themes, $optionsBuildCount ) extends Themes {
-				private array $themes;
-
-				private ?object $optionsBuildCount;
-
-				public function __construct( array $themes, ?object $optionsBuildCount = null ) {
-					$this->themes = $themes;
-					$this->optionsBuildCount = $optionsBuildCount;
-				}
-
-				public function getThemesAsVo() :array {
-					if ( $this->optionsBuildCount !== null ) {
-						$this->optionsBuildCount->themes++;
-					}
-					return $this->themes;
-				}
-			},
-		] );
-	}
-
 	private function invokeProtectedMethod( object $subject, string $methodName ) :array {
 		return $this->invokeNonPublicMethod( $subject, $methodName );
 	}
-
 }

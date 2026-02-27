@@ -1,0 +1,31 @@
+<section class="investigate-lookup-strip">
+	<form method="get" action="{{ action }}" class="investigate-lookup-strip__form">
+		{% include '/wpadmin/components/investigate/lookup_route_hidden_inputs.twig' with {
+			lookup_route: lookup_route
+		} only %}
+
+		<div class="investigate-lookup-strip__field">
+			<label class="form-label mb-1">{{ label }}</label>
+			{% if input_type == 'select' %}
+				<select name="{{ input_name }}" class="form-select">
+					<option value="">{{ placeholder|default('') }}</option>
+					{% for option in options|default([]) %}
+						<option value="{{ option.value }}" {{ input_value == option.value ? 'selected' : '' }}>
+							{{ option.label }}
+						</option>
+					{% endfor %}
+				</select>
+			{% else %}
+				<input type="text"
+					   name="{{ input_name }}"
+					   value="{{ input_value|default('') }}"
+					   class="form-control"
+					   placeholder="{{ placeholder|default('') }}"/>
+			{% endif %}
+		</div>
+
+		<div class="investigate-lookup-strip__submit">
+			<button type="submit" class="btn btn-outline-primary">{{ submit_text }}</button>
+		</div>
+	</form>
+</section>

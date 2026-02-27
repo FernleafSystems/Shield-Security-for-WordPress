@@ -102,6 +102,8 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? true ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'subject_not_found' ] ?? true ) );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'tables' ] ?? [] );
 		$this->assertSame(
 			[
@@ -176,13 +178,16 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
 		$tables = $vars[ 'tables' ] ?? [];
-		$summary = $vars[ 'summary' ] ?? [];
 		$railNavItems = $vars[ 'rail_nav_items' ] ?? [];
+		$overviewRows = $vars[ 'overview_rows' ] ?? [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
-		$this->assertArrayHasKey( 'subject', $vars );
-		$this->assertArrayHasKey( 'summary', $vars );
+		$this->assertArrayNotHasKey( 'subject', $vars );
+		$this->assertArrayNotHasKey( 'summary', $vars );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'rail_nav_items', $vars );
+		$this->assertArrayHasKey( 'overview_rows', $vars );
 		$this->assertSame( 'tab-navlink-user-overview', (string)( $railNavItems[ 0 ][ 'id' ] ?? '' ) );
 		$this->assertSame( 'Overview', (string)( $railNavItems[ 0 ][ 'label' ] ?? '' ) );
 		$this->assertTrue( (bool)( $railNavItems[ 0 ][ 'is_focus' ] ?? false ) );
@@ -207,10 +212,14 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 42, (int)( $tables[ 'sessions' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'activity' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'requests' ][ 'subject_id' ] ?? 0 ) );
-		$this->assertSame( 'good', (string)( $summary[ 'sessions' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $summary[ 'activity' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $summary[ 'requests' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $summary[ 'ips' ][ 'status' ] ?? '' ) );
+		$this->assertSame(
+			[ 'User ID', 'Login', 'Email', 'Display Name', 'Sessions Count', 'Activity Count', 'Requests Count', 'IP Addresses Count' ],
+			\array_column( $overviewRows, 'label' )
+		);
+		$this->assertSame(
+			[ '42', 'operator', 'operator@example.com', 'Operator User', '2', '2', '2', '3' ],
+			\array_column( $overviewRows, 'value' )
+		);
 
 		$activityHref = (string)( $tables[ 'activity' ][ 'full_log_href' ] ?? '' );
 		$requestsHref = (string)( $tables[ 'requests' ][ 'full_log_href' ] ?? '' );
@@ -281,8 +290,8 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		);
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
-		$summary = $renderData[ 'vars' ][ 'summary' ] ?? [];
-		$this->assertSame( 'warning', (string)( $summary[ 'ips' ][ 'status' ] ?? '' ) );
+		$overviewRows = $renderData[ 'vars' ][ 'overview_rows' ] ?? [];
+		$this->assertSame( '2', (string)( $overviewRows[ 7 ][ 'value' ] ?? '' ) );
 	}
 
 	private function installControllerStub() :void {
@@ -393,3 +402,4 @@ class PageInvestigateByUserUnitTestDouble extends PageInvestigateByUser {
 }
 
 }
+

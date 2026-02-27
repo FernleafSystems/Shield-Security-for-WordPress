@@ -54,6 +54,12 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByThemePage( $themeSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-theme file tab label marker' );
+		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-theme file CTA label marker' );
+		$this->assertHtmlContainsMarker( '<th class="w-25">Name</th>', $html, 'By-theme overview table row marker' );
+		$this->assertHtmlContainsMarker( '<th class="w-25">Child Theme Status</th>', $html, 'By-theme child-theme row marker' );
+		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-theme back button removed marker' );
+		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-theme summary cards removed marker' );
 
 		$this->assertSame( $expectedTableCount, \substr_count( $html, 'data-investigation-table="1"' ) );
 		if ( $fileStatusCount > 0 ) {
@@ -99,3 +105,4 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		return (string)\array_values( $themes )[ 0 ];
 	}
 }
+

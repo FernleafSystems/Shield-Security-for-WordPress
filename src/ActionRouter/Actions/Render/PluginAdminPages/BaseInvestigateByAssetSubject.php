@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 
 abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 
@@ -16,8 +16,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 		$hasSubject = !empty( $subject );
 		$subjectNotFound = $hasLookup && !$hasSubject;
 
-		$subjectData = [];
-		$summary = [];
 		$tabs = [];
 		$railNavItems = [];
 		$tables = [];
@@ -33,29 +31,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 			$activityCount = $this->countActivityForSubject( $subjectType, $subjectId );
 			$vulnerabilities = $this->buildVulnerabilityData( $subjectId, (string)( $assetData[ 'hrefs' ][ 'vul_info' ] ?? '' ) );
 
-			$summary = [
-				'vulnerabilities' => [
-					'label'  => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-					'count'  => (int)$vulnerabilities[ 'count' ],
-					'status' => (string)$vulnerabilities[ 'status' ],
-				],
-				'file_status'     => [
-					'label'  => __( 'File Issues', 'wp-simple-firewall' ),
-					'count'  => $fileStatusCount,
-					'status' => $this->mapCountToStatus( $fileStatusCount, 'good' ),
-				],
-				'activity'        => [
-					'label'  => __( 'Activity', 'wp-simple-firewall' ),
-					'count'  => $activityCount,
-					'status' => $this->mapCountToStatus( $activityCount ),
-				],
-				'issues'          => [
-					'label'  => __( 'Total Findings', 'wp-simple-firewall' ),
-					'count'  => (int)( $assetData[ 'vars' ][ 'count_items' ] ?? 0 ),
-					'status' => $this->mapCountToStatus( (int)( $assetData[ 'vars' ][ 'count_items' ] ?? 0 ), 'good' ),
-				],
-			];
-
 			$tabs = $this->buildAssetTabsPayload( $subjectType, [
 				'file_status'     => $fileStatusCount,
 				'vulnerabilities' => (int)$vulnerabilities[ 'count' ],
@@ -66,15 +41,14 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 			$tables[ 'file_status' ] = $this->withEmptyStateTableContract(
 				$tables[ 'file_status' ],
 				$fileStatusCount,
-				(string)( $strings[ 'file_status_empty_text' ] ?? __( 'No file status records were found for this subject.', 'wp-simple-firewall' ) )
+				(string)( $strings[ 'file_status_empty_text' ] ?? __( 'No file scan status records were found for this subject.', 'wp-simple-firewall' ) )
 			);
 			$tables[ 'activity' ] = $this->withEmptyStateTableContract(
 				$tables[ 'activity' ],
 				$activityCount,
 				(string)( $strings[ 'activity_empty_text' ] ?? __( 'No activity records were found for this subject.', 'wp-simple-firewall' ) )
 			);
-			$subjectData = $this->buildSubjectHeaderData( $assetData );
-			$overviewRows = $this->buildOverviewRows( $assetData );
+			$overviewRows = $this->buildOverviewRows( $assetData, $vulnerabilities );
 		}
 
 		return [
@@ -84,7 +58,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				'subject_not_found' => $subjectNotFound,
 			],
 			'hrefs'   => [
-				'back_to_investigate'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
 				$this->getLookupHrefKey() => $this->getLookupHref(),
 			],
 			'imgs'    => [
@@ -95,8 +68,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				$this->getLookupQueryKey()      => $lookup,
 				$this->getLookupOptionsVarKey() => $this->buildLookupOptions(),
 				'lookup_route'                  => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
-				'subject'                       => $subjectData,
-				'summary'                       => $summary,
 				'tabs'                          => $tabs,
 				'rail_nav_items'                => $railNavItems,
 				'tables'                        => $tables,
@@ -106,12 +77,13 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 		];
 	}
 
-	protected function buildOverviewRows( array $assetData ) :array {
+	protected function buildOverviewRows( array $assetData, array $vulnerabilities ) :array {
 		$info = $assetData[ 'info' ] ?? [];
+		$flags = $assetData[ 'flags' ] ?? [];
 		$author = (string)( $info[ 'author' ] ?? '' );
 		$authorUrl = (string)( $info[ 'author_url' ] ?? '' );
 
-		return [
+		$rows = [
 			[
 				'label' => __( 'Name', 'wp-simple-firewall' ),
 				'value' => (string)( $info[ 'name' ] ?? '' ),
@@ -141,69 +113,38 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				'label' => __( 'Installed', 'wp-simple-firewall' ),
 				'value' => (string)( $info[ 'installed_at' ] ?? '' ),
 			],
-		];
-	}
-
-	protected function buildSubjectHeaderData( array $assetData ) :array {
-		$info = $assetData[ 'info' ] ?? [];
-		$flags = $assetData[ 'flags' ] ?? [];
-
-		$status = $this->mapFlagGroupToStatus( [
-			!empty( $flags[ 'is_vulnerable' ] ) ? 'critical' : '',
-			( !empty( $flags[ 'has_guard_files' ] ) || !empty( $flags[ 'is_abandoned' ] ) || !empty( $flags[ 'has_update' ] ) )
-				? 'warning'
-				: '',
-		], 'good' );
-
-		$pills = [
 			[
-				'status' => $this->mapCountToStatus( !empty( $flags[ 'is_active' ] ) ? 1 : 0, 'warning', 'good' ),
-				'label'  => !empty( $flags[ 'is_active' ] )
-					? __( 'Active', 'wp-simple-firewall' )
-					: __( 'Inactive', 'wp-simple-firewall' ),
-			]
-		];
-
-		if ( !empty( $flags[ 'has_update' ] ) ) {
-			$pills[] = [
-				'status' => 'warning',
-				'label'  => __( 'Update Available', 'wp-simple-firewall' ),
-			];
-		}
-
-		if ( !empty( $flags[ 'is_vulnerable' ] ) ) {
-			$pills[] = [
-				'status' => 'critical',
-				'label'  => __( 'Vulnerable', 'wp-simple-firewall' ),
-			];
-		}
-
-		$pills = \array_merge( $pills, $this->getExtraStatusPills( $flags ) );
-
-		return [
-			'status'       => $status,
-			'title'        => (string)( $info[ 'name' ] ?? '' ),
-			'avatar_icon'  => self::con()->svgs->iconClass( $this->getSubjectAvatarIcon() ),
-			'meta'         => [
-				[
-					'label' => __( 'Version', 'wp-simple-firewall' ),
-					'value' => (string)( $info[ 'version' ] ?? '' ),
-				],
-				[
-					'label' => __( 'Author', 'wp-simple-firewall' ),
-					'value' => (string)( $info[ 'author' ] ?? '' ),
-				],
-				[
-					'label' => $this->getAssetIdentifierLabel(),
-					'value' => (string)( $info[ 'file' ] ?? '' ),
-				],
+				'label' => __( 'Active Status', 'wp-simple-firewall' ),
+				'value' => !empty( $flags[ 'is_active' ] )
+					? __( 'Yes', 'wp-simple-firewall' )
+					: __( 'No', 'wp-simple-firewall' ),
 			],
-			'status_pills' => $pills,
 		];
-	}
 
-	protected function getExtraStatusPills( array $assetFlags ) :array {
-		return [];
+		if ( $this->getSubjectType() === InvestigationTableContract::SUBJECT_TYPE_PLUGIN ) {
+			$rows[] = [
+				'label' => __( 'Update Available Status', 'wp-simple-firewall' ),
+				'value' => !empty( $flags[ 'has_update' ] )
+					? __( 'Yes', 'wp-simple-firewall' )
+					: __( 'No', 'wp-simple-firewall' ),
+			];
+			$rows[] = [
+				'label' => __( 'Vulnerability Status', 'wp-simple-firewall' ),
+				'value' => ( (int)( $vulnerabilities[ 'count' ] ?? 0 ) > 0 )
+					? __( 'Known Vulnerabilities', 'wp-simple-firewall' )
+					: __( 'No Known Vulnerabilities', 'wp-simple-firewall' ),
+			];
+		}
+		elseif ( $this->getSubjectType() === InvestigationTableContract::SUBJECT_TYPE_THEME ) {
+			$rows[] = [
+				'label' => __( 'Child Theme Status', 'wp-simple-firewall' ),
+				'value' => !empty( $flags[ 'is_child' ] )
+					? __( 'Yes', 'wp-simple-firewall' )
+					: __( 'No', 'wp-simple-firewall' ),
+			];
+		}
+
+		return $rows;
 	}
 
 	protected function extractAssetSubjectId( array $assetData ) :string {
@@ -225,8 +166,6 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	abstract protected function getSubjectAvatarIcon() :string;
 
 	abstract protected function getAssetIdentifierLabel() :string;
-
-	abstract protected function getChangeLookupText() :string;
 
 	abstract protected function getPageStrings() :array;
 

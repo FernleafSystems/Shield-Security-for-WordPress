@@ -51,6 +51,8 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_lookup' ] ?? true ) );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? true ) );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'tables' ] ?? [] );
 		$this->assertSame(
 			[
@@ -89,6 +91,7 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 				],
 				'flags' => [
 					'is_active' => true,
+					'is_child'  => true,
 				],
 				'hrefs' => [
 					'vul_info' => 'https://lookup.example/theme',
@@ -115,14 +118,17 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? true ) );
 		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? true ) );
-		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'good', (string)( $vars[ 'subject' ][ 'status_pills' ][ 0 ][ 'status' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'change_href', $vars[ 'subject' ] ?? [] );
-		$this->assertArrayNotHasKey( 'change_text', $vars[ 'subject' ] ?? [] );
-		$this->assertSame( 'good', (string)( $vars[ 'summary' ][ 'vulnerabilities' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'file_status' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'activity' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $vars[ 'summary' ][ 'issues' ][ 'status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
+		$this->assertArrayNotHasKey( 'subject', $vars );
+		$this->assertArrayNotHasKey( 'summary', $vars );
+		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
+		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
+		$this->assertSame( 'Full Scan Results', (string)( $tables[ 'file_status' ][ 'full_log_text' ] ?? '' ) );
+		$this->assertSame(
+			[ 'Name', 'Slug', 'Version', 'Author', 'Stylesheet', 'Install Directory', 'Installed', 'Active Status', 'Child Theme Status' ],
+			\array_column( $vars[ 'overview_rows' ] ?? [], 'label' )
+		);
 		$this->assertSame( 0, (int)( $vars[ 'vulnerabilities' ][ 'count' ] ?? 99 ) );
 		$this->assertSame( 'No Known Vulnerabilities', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? '' ) );
 		$this->assertArrayHasKey( 'vulnerabilities', $vars[ 'tabs' ] ?? [] );
@@ -165,7 +171,7 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? false ) );
 		$this->assertTrue( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? false ) );
 		$this->assertSame(
-			'No file status records were found for this subject.',
+			'No file scan status records were found for this subject.',
 			(string)( $tables[ 'file_status' ][ 'empty_text' ] ?? '' )
 		);
 		$this->assertSame(
@@ -268,9 +274,13 @@ class PageInvestigateByThemeUnitTestDouble extends PageInvestigateByTheme {
 	protected function buildAssetTables( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
 		return [
 			'file_status' => [
+				'title'        => 'File Scan Status',
 				'table_type'   => 'file_scan_results',
 				'subject_type' => $subjectType,
 				'subject_id'   => $subjectId,
+				'full_log_text' => 'Full Scan Results',
+				'full_log_button_class' => 'btn btn-primary btn-sm',
+				'is_flat' => true,
 			],
 			'activity'    => [
 				'table_type'   => 'activity',
@@ -289,3 +299,5 @@ class PageInvestigateByThemeUnitTestDouble extends PageInvestigateByTheme {
 		];
 	}
 }
+
+

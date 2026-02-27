@@ -55,6 +55,11 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByPluginPage( $pluginSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-plugin file tab label marker' );
+		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-plugin file CTA label marker' );
+		$this->assertHtmlContainsMarker( '<th class="w-25">Name</th>', $html, 'By-plugin overview table row marker' );
+		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-plugin back button removed marker' );
+		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-plugin summary cards removed marker' );
 
 		$this->assertSame( $expectedTableCount, \substr_count( $html, 'data-investigation-table="1"' ) );
 		if ( $fileStatusCount > 0 ) {

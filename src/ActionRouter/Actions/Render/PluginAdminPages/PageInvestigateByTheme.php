@@ -50,10 +50,6 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 		return __( 'Stylesheet', 'wp-simple-firewall' );
 	}
 
-	protected function getChangeLookupText() :string {
-		return __( 'Change Theme', 'wp-simple-firewall' );
-	}
-
 	protected function getPageStrings() :array {
 		return [
 			'inner_page_title'    => __( 'Investigate By Theme', 'wp-simple-firewall' ),
@@ -61,13 +57,12 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 			'lookup_label'        => __( 'Theme Lookup', 'wp-simple-firewall' ),
 			'lookup_placeholder'  => __( 'Select a theme', 'wp-simple-firewall' ),
 			'lookup_submit'       => __( 'Load Theme Context', 'wp-simple-firewall' ),
-			'back_to_investigate' => __( 'Back To Investigate', 'wp-simple-firewall' ),
 			'no_subject_title'    => __( 'No Theme Selected', 'wp-simple-firewall' ),
 			'no_subject_text'     => __( 'Select a theme to load file status and activity context.', 'wp-simple-firewall' ),
 			'not_found_title'     => __( 'Theme Not Found', 'wp-simple-firewall' ),
 			'not_found_text'      => __( 'The selected theme isn\'t currently installed on this site.', 'wp-simple-firewall' ),
 			'overview_title'      => __( 'Theme Overview', 'wp-simple-firewall' ),
-			'file_status_empty_text' => __( 'No file status records were found for this subject.', 'wp-simple-firewall' ),
+			'file_status_empty_text' => __( 'No file scan status records were found for this subject.', 'wp-simple-firewall' ),
 			'activity_empty_text'    => __( 'No activity records were found for this subject.', 'wp-simple-firewall' ),
 		];
 	}
@@ -76,16 +71,4 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 		return $this->buildThemeLookupOptions();
 	}
 
-	protected function getExtraStatusPills( array $assetFlags ) :array {
-		if ( empty( $assetFlags[ 'is_child' ] ) ) {
-			return [];
-		}
-
-		return [
-			[
-				'status' => 'info',
-				'label'  => __( 'Child Theme', 'wp-simple-firewall' ),
-			],
-		];
-	}
 }

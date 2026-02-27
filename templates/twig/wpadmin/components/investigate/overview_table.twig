@@ -1,0 +1,33 @@
+{% set overview_rows = rows|default([]) %}
+
+<section class="card shield-card status-info investigate-overview-table">
+	<div class="shield-card-accent status-info"></div>
+	<div class="card-body">
+		{% if title|default('') is not empty %}
+			<h5 class="card-title mb-3">{{ title }}</h5>
+		{% endif %}
+
+		{% if overview_rows is empty %}
+			<div class="small text-muted mb-0">No overview data is available for this subject.</div>
+		{% else %}
+			<div class="table-responsive">
+				<table class="table table-sm mb-0">
+					<tbody>
+					{% for row in overview_rows %}
+						<tr>
+							<th class="w-25">{{ row.label|default('') }}</th>
+							<td>
+								{% if row.value_href|default('') is not empty %}
+									<a href="{{ row.value_href }}" target="_blank" rel="noopener noreferrer">{{ row.value|default('') }}</a>
+								{% else %}
+									{{ row.value|default('') }}
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		{% endif %}
+	</div>
+</section>

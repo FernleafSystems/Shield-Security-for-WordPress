@@ -30,8 +30,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				'has_subject' => $hasSubject,
 			],
 			'hrefs'   => [
-				'back_to_investigate' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
-				'by_ip'               => $con->plugin_urls->investigateByIp(),
+				'by_ip' => $con->plugin_urls->investigateByIp(),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->iconClass( 'globe2' ),
@@ -42,7 +41,6 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				'lookup_label'        => __( 'IP Lookup', 'wp-simple-firewall' ),
 				'lookup_placeholder'  => __( 'IPv4 or IPv6 address', 'wp-simple-firewall' ),
 				'lookup_submit'       => __( 'Load IP Context', 'wp-simple-firewall' ),
-				'back_to_investigate' => __( 'Back To Investigate', 'wp-simple-firewall' ),
 				'no_subject_title'    => __( 'No IP Selected', 'wp-simple-firewall' ),
 				'no_subject_text'     => __( 'Enter a valid IP address to load investigate context for that subject.', 'wp-simple-firewall' ),
 			],
