@@ -1,56 +1,39 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="options_form_for--modern">
-		<div class="shield-options-layout has-rail">
-			<aside class="shield-options-rail">
-				<div class="shield-options-rail-accent"></div>
-				{% include '/components/config/options_rail_tabs.twig' with {
-					nav_id: 'ShieldInvestigateByCoreTabsNav',
-					nav_items: vars.rail_nav_items
-				} only %}
-			</aside>
-
-			<div class="shield-options-content">
-				<div class="tab-content">
-					<section class="tab-pane shield-options-panel active show"
-							 id="{{ vars.tabs.overview.pane_id }}"
-							 role="tabpanel"
-							 aria-labelledby="{{ vars.tabs.overview.nav_id }}">
-						<div class="shield-options-panel-accent"></div>
-						<div class="shield-options-panel-body">
-							{% include '/wpadmin/components/investigate/overview_table.twig' with {
-								title: strings.overview_title,
-								rows: vars.overview_rows
-							} only %}
-						</div>
-					</section>
-
-					<section class="tab-pane shield-options-panel"
-							 id="{{ vars.tabs.file_status.pane_id }}"
-							 role="tabpanel"
-							 aria-labelledby="{{ vars.tabs.file_status.nav_id }}">
-						<div class="shield-options-panel-accent"></div>
-						<div class="shield-options-panel-body">
-							{% include '/wpadmin/components/investigate/table_container.twig' with {
-								table: vars.tables.file_status
-							} only %}
-						</div>
-					</section>
-
-					<section class="tab-pane shield-options-panel"
-							 id="{{ vars.tabs.activity.pane_id }}"
-							 role="tabpanel"
-							 aria-labelledby="{{ vars.tabs.activity.nav_id }}">
-						<div class="shield-options-panel-accent"></div>
-						<div class="shield-options-panel-body">
-							{% include '/wpadmin/components/investigate/table_container.twig' with {
-								table: vars.tables.activity
-							} only %}
-						</div>
-					</section>
-				</div>
-			</div>
-		</div>
-	</div>
+	{% set panes = [
+		{
+			id: vars.tabs.overview.pane_id,
+			nav_id: vars.tabs.overview.nav_id,
+			is_active: true,
+			body_include: '/wpadmin/components/investigate/overview_table.twig',
+			body_vars: {
+				title: strings.overview_title,
+				rows: vars.overview_rows
+			}
+		},
+		{
+			id: vars.tabs.file_status.pane_id,
+			nav_id: vars.tabs.file_status.nav_id,
+			is_active: false,
+			body_include: '/wpadmin/components/investigate/table_container.twig',
+			body_vars: {
+				table: vars.tables.file_status
+			}
+		},
+		{
+			id: vars.tabs.activity.pane_id,
+			nav_id: vars.tabs.activity.nav_id,
+			is_active: false,
+			body_include: '/wpadmin/components/investigate/table_container.twig',
+			body_vars: {
+				table: vars.tables.activity
+			}
+		}
+	] %}
+	{% include '/wpadmin/components/investigate/page_shell.twig' with {
+		nav_id: 'ShieldInvestigateByCoreTabsNav',
+		nav_items: vars.rail_nav_items,
+		panes: panes
+	} only %}
 {% endblock %}

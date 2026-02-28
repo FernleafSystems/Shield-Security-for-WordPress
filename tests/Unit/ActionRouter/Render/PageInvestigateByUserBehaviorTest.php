@@ -208,6 +208,9 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_SESSIONS, $tables[ 'sessions' ][ 'table_type' ] ?? '' );
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_ACTIVITY, $tables[ 'activity' ][ 'table_type' ] ?? '' );
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_TRAFFIC, $tables[ 'requests' ][ 'table_type' ] ?? '' );
+		$this->assertSame( 'Full Log', (string)( $tables[ 'sessions' ][ 'full_log_text' ] ?? '' ) );
+		$this->assertSame( 'btn btn-outline-secondary btn-sm', (string)( $tables[ 'sessions' ][ 'full_log_button_class' ] ?? '' ) );
+		$this->assertFalse( (bool)( $tables[ 'sessions' ][ 'is_flat' ] ?? true ) );
 		$this->assertSame( InvestigationTableContract::SUBJECT_TYPE_USER, $tables[ 'sessions' ][ 'subject_type' ] ?? '' );
 		$this->assertSame( 42, (int)( $tables[ 'sessions' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'activity' ][ 'subject_id' ] ?? 0 ) );
@@ -291,7 +294,11 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$overviewRows = $renderData[ 'vars' ][ 'overview_rows' ] ?? [];
-		$this->assertSame( '2', (string)( $overviewRows[ 7 ][ 'value' ] ?? '' ) );
+		$overviewByLabel = [];
+		foreach ( $overviewRows as $row ) {
+			$overviewByLabel[ (string)( $row[ 'label' ] ?? '' ) ] = (string)( $row[ 'value' ] ?? '' );
+		}
+		$this->assertSame( '2', (string)( $overviewByLabel[ 'IP Addresses Count' ] ?? '' ) );
 	}
 
 	private function installControllerStub() :void {

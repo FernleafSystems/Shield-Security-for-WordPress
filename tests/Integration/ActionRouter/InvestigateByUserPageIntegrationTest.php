@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	InvestigatePageAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -17,7 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use InvestigatePageAssertions, LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -78,18 +79,19 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByUserPage( (string)$userId );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 
 		$this->assertHtmlContainsMarker( 'tab-navlink-user-overview', $html, 'By-user overview rail nav marker' );
 		$this->assertHtmlContainsMarker( 'id="tabInvestigateUserOverview"', $html, 'By-user overview tab panel marker' );
 		$this->assertHtmlContainsMarker( 'User Overview', $html, 'By-user overview heading marker' );
-		$this->assertHtmlContainsMarker( '<th class="w-25">User ID</th>', $html, 'By-user overview table row marker' );
-		$this->assertHtmlContainsMarker( '<th class="w-25">IP Addresses Count</th>', $html, 'By-user overview IP count row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'User ID', 'By-user overview table row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'IP Addresses Count', 'By-user overview IP count row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-user back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-user summary cards removed marker' );
-		$this->assertSame( 3, \substr_count( $html, 'data-investigation-table="1"' ) );
-		$this->assertHtmlContainsMarker( 'data-table-type="sessions"', $html, 'By-user sessions table marker' );
-		$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-user activity table marker' );
-		$this->assertHtmlContainsMarker( 'data-table-type="traffic"', $html, 'By-user traffic table marker' );
+		$this->assertInvestigateDatatableCount( $xpath, 3, 'By-user datatable count marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'sessions', 1, 'By-user sessions table marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'activity', 1, 'By-user activity table marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'traffic', 1, 'By-user traffic table marker' );
 	}
 
 	public function test_no_lookup_renders_without_investigation_table_markers() :void {

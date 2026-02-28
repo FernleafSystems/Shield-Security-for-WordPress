@@ -1,3 +1,4 @@
+/* Landing */
 .investigate-landing__selector-shell {
 	margin-bottom: 1rem;
 }
@@ -88,6 +89,7 @@
 	line-height: 1.35;
 }
 
+/* Lookup strip */
 .investigate-lookup-strip {
 	margin: 0 auto 1rem;
 	max-width: 760px;
@@ -112,6 +114,11 @@
 	white-space: nowrap;
 }
 
+/* Shared investigate shell/table panel */
+.investigate-page-shell {
+	margin: 0;
+}
+
 .investigate-table-panel--flat {
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;
@@ -119,6 +126,7 @@
 	padding: 1rem;
 }
 
+/* Responsive landing grid */
 @media (min-width: 576px) {
 	.investigate-landing__subject-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -143,6 +151,7 @@
 	}
 }
 
+/* Responsive lookup strip */
 @media (max-width: 575.98px) {
 	.investigate-lookup-strip__form {
 		align-items: stretch;

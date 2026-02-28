@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	InvestigatePageAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -16,7 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use InvestigatePageAssertions, LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -54,32 +55,18 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByThemePage( $themeSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-theme file tab label marker' );
 		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-theme file CTA label marker' );
-		$this->assertHtmlContainsMarker( '<th class="w-25">Name</th>', $html, 'By-theme overview table row marker' );
-		$this->assertHtmlContainsMarker( '<th class="w-25">Child Theme Status</th>', $html, 'By-theme child-theme row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'Name', 'By-theme overview table row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'Child Theme Status', 'By-theme child-theme row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-theme back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-theme summary cards removed marker' );
 
-		$this->assertSame( $expectedTableCount, \substr_count( $html, 'data-investigation-table="1"' ) );
-		if ( $fileStatusCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-theme file status table marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-theme file status empty state' );
-		}
-		if ( $activityCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-theme activity table marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-table-type="activity"', $html, 'By-theme activity empty state' );
-		}
-		if ( $expectedTableCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-subject-type="theme"', $html, 'By-theme subject type marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-subject-type="theme"', $html, 'By-theme subject type absent on empty tables' );
-		}
+		$this->assertInvestigateDatatableCount( $xpath, $expectedTableCount, 'By-theme datatable count marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'file_scan_results', $fileStatusCount, 'By-theme file status table marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'activity', $activityCount, 'By-theme activity table marker' );
+		$this->assertInvestigateSubjectTypeByCount( $xpath, 'theme', $expectedTableCount, 'By-theme subject type marker' );
 	}
 
 	public function test_no_lookup_renders_without_investigation_tables() :void {

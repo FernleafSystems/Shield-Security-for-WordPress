@@ -1,0 +1,14 @@
+<div class="card shield-card status-{{ vulnerabilities.status|default('info') }}">
+	<div class="shield-card-accent status-{{ vulnerabilities.status|default('info') }}"></div>
+	<div class="card-body">
+		<div class="d-flex justify-content-between align-items-start gap-2">
+			<div>
+				<h5 class="card-title mb-2">{{ vulnerabilities.title|default('') }}</h5>
+				<p class="mb-0">{{ vulnerabilities.summary|default('') }}</p>
+			</div>
+			{% if vulnerabilities.lookup_href|default('') is not empty %}
+				<a href="{{ vulnerabilities.lookup_href }}" target="_blank" class="btn btn-outline-secondary btn-sm">{{ vulnerabilities.lookup_text|default('Lookup') }}</a>
+			{% endif %}
+		</div>
+	</div>
+</div>

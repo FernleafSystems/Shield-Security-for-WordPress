@@ -1,20 +1,20 @@
-{% set panel_status = table.status|default('info') %}
-{% set datatables_init_attr = table.datatables_init is iterable ? table.datatables_init|json_encode : table.datatables_init|default('') %}
-{% set table_action_attr = table.table_action is iterable ? table.table_action|json_encode : table.table_action|default('') %}
-{% set full_log_button_class = table.full_log_button_class|default('btn btn-outline-secondary btn-sm') %}
+{% set panel_status = table.status %}
+{% set datatables_init_attr = table.datatables_init is iterable ? table.datatables_init|json_encode : table.datatables_init %}
+{% set table_action_attr = table.table_action is iterable ? table.table_action|json_encode : table.table_action %}
+{% set full_log_button_class = table.full_log_button_class %}
 
 {% set table_markup %}
 	<div class="row shield-section-datatable">
 		<div class="col">
-			{% if table.is_empty|default(false) %}
-				<div class="alert alert-{{ table.empty_status|default('info') }} mb-0">{{ table.empty_text|default('') }}</div>
+			{% if table.is_empty %}
+				<div class="alert alert-{{ table.empty_status }} mb-0">{{ table.empty_text }}</div>
 			{% else %}
 				<table class="table table-striped table-bordered"
 					   style="width: 100%;"
 					   data-investigation-table="1"
-					   data-table-type="{{ table.table_type|default('') }}"
-					   data-subject-type="{{ table.subject_type|default('') }}"
-					   data-subject-id="{{ table.subject_id|default('') }}"
+					   data-table-type="{{ table.table_type }}"
+					   data-subject-type="{{ table.subject_type }}"
+					   data-subject-id="{{ table.subject_id }}"
 					   data-datatables-init="{{ datatables_init_attr|e('html_attr') }}"
 					   data-table-action="{{ table_action_attr|e('html_attr') }}"
 				></table>
@@ -23,12 +23,12 @@
 	</div>
 {% endset %}
 
-{% if table.is_flat|default(false) %}
+{% if table.is_flat %}
 	<section class="investigate-table-panel investigate-table-panel--flat mb-3 status-{{ panel_status }}">
 		<div class="d-flex justify-content-between align-items-center mb-3">
-			<h5 class="card-title mb-0">{{ table.title|default('') }}</h5>
-			{% if table.full_log_href|default('') is not empty %}
-				<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text|default('Full Log') }}</a>
+			<h5 class="card-title mb-0">{{ table.title }}</h5>
+			{% if table.full_log_href is not empty %}
+				<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text }}</a>
 			{% endif %}
 		</div>
 		{{ table_markup }}
@@ -38,9 +38,9 @@
 		<div class="shield-card-accent status-{{ panel_status }}"></div>
 		<div class="card-body">
 			<div class="d-flex justify-content-between align-items-center mb-3">
-				<h5 class="card-title mb-0">{{ table.title|default('') }}</h5>
-				{% if table.full_log_href|default('') is not empty %}
-					<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text|default('Full Log') }}</a>
+				<h5 class="card-title mb-0">{{ table.title }}</h5>
+				{% if table.full_log_href is not empty %}
+					<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text }}</a>
 				{% endif %}
 			</div>
 			{{ table_markup }}

@@ -66,22 +66,11 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 				'tabs'           => $tabs,
 				'rail_nav_items' => $this->buildRailNavItemsFromTabs( $tabs ),
 				'tables'         => $tables,
-				'overview_rows'  => [
-					[
-						'label' => __( 'WordPress Version', 'wp-simple-firewall' ),
-						'value' => $coreVersion,
-					],
-					[
-						'label' => __( 'Core Update Status', 'wp-simple-firewall' ),
-						'value' => $hasCoreUpdate
-							? __( 'An update is available.', 'wp-simple-firewall' )
-							: __( 'No update available.', 'wp-simple-firewall' ),
-					],
-					[
-						'label' => __( 'Install Directory', 'wp-simple-firewall' ),
-						'value' => wp_normalize_path( ABSPATH ),
-					],
-				],
+				'overview_rows'  => ( new InvestigateOverviewRowsBuilder() )->forCore(
+					$coreVersion,
+					$hasCoreUpdate,
+					wp_normalize_path( ABSPATH )
+				),
 			],
 		];
 	}

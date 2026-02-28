@@ -27,9 +27,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigatio
 	ForTraffic as InvestigationTrafficTableBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
-
 class PageInvestigateByUser extends BasePluginAdminPage {
+
+	use InvestigateRenderContracts;
 
 	public const SLUG = 'plugin_admin_page_investigate_by_user';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_user.twig';
@@ -90,11 +90,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'user_lookup'    => $lookup,
-				'lookup_route'   => [
-					'page'    => $con->plugin_urls->rootAdminPageSlug(),
-					'nav'     => PluginNavs::NAV_ACTIVITY,
-					'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
-				],
+				'lookup_route'   => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
 				'overview_rows'  => $overviewRows,
 				'rail_nav_items' => $railNavItems,
 				'tables'         => $tables,
@@ -108,45 +104,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 	}
 
 	protected function buildOverviewRows( \WP_User $subject, array $summaryStats ) :array {
-		$sessions = (int)( $summaryStats[ 'sessions' ][ 'count' ] ?? 0 );
-		$activity = (int)( $summaryStats[ 'activity' ][ 'count' ] ?? 0 );
-		$requests = (int)( $summaryStats[ 'requests' ][ 'count' ] ?? 0 );
-		$ips = (int)( $summaryStats[ 'ips' ][ 'count' ] ?? 0 );
-
-		return [
-			[
-				'label' => __( 'User ID', 'wp-simple-firewall' ),
-				'value' => (string)$subject->ID,
-			],
-			[
-				'label' => __( 'Login', 'wp-simple-firewall' ),
-				'value' => (string)$subject->user_login,
-			],
-			[
-				'label' => __( 'Email', 'wp-simple-firewall' ),
-				'value' => (string)$subject->user_email,
-			],
-			[
-				'label' => __( 'Display Name', 'wp-simple-firewall' ),
-				'value' => \trim( (string)$subject->display_name ),
-			],
-			[
-				'label' => __( 'Sessions Count', 'wp-simple-firewall' ),
-				'value' => (string)$sessions,
-			],
-			[
-				'label' => __( 'Activity Count', 'wp-simple-firewall' ),
-				'value' => (string)$activity,
-			],
-			[
-				'label' => __( 'Requests Count', 'wp-simple-firewall' ),
-				'value' => (string)$requests,
-			],
-			[
-				'label' => __( 'IP Addresses Count', 'wp-simple-firewall' ),
-				'value' => (string)$ips,
-			],
-		];
+		return ( new InvestigateOverviewRowsBuilder() )->forUser( $subject, $summaryStats );
 	}
 
 	protected function buildSummaryStats( array $sessions, array $activityLogs, array $requestLogs, array $relatedIps ) :array {
@@ -303,27 +261,17 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		BaseInvestigationTable $tableBuilder,
 		string $fullLogHref
 	) :array {
-		return [
-			'title'           => $title,
-			'status'          => $status,
-			'table_type'      => $tableType,
-			'subject_type'    => $subjectType,
-			'subject_id'      => $uid,
-			'datatables_init' => $tableBuilder
+		return $this->buildTableContainerContract(
+			$title,
+			$status,
+			$tableType,
+			$subjectType,
+			(string)$uid,
+			$tableBuilder
 				->setSubject( $subjectType, $uid )
 				->buildRaw(),
-			'table_action'    => $tableAction,
-			'full_log_href'   => $fullLogHref,
-			'full_log_text'   => __( 'Full Log', 'wp-simple-firewall' ),
-		];
-	}
-
-	protected function buildFullLogHrefWithSearch( string $nav, string $subNav, string $search ) :string {
-		return URL::Build(
-			self::con()->plugin_urls->adminTopNav( $nav, $subNav ),
-			[
-				'search' => $search,
-			]
+			$tableAction,
+			$fullLogHref
 		);
 	}
 

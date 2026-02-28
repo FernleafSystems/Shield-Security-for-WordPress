@@ -20,26 +20,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigatio
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\InvestigationSubjectWheres;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 
 	use InvestigateAssetOptionsBuilder;
 	use InvestigateCountCache;
+	use InvestigateRenderContracts;
 	use InvestigateStatusMapping;
 
 	private ?InvestigateAssetDataAdapter $assetDataAdapter = null;
 
 	protected function getLookupValue( string $queryKey ) :string {
 		return $this->getTextInputFromRequestOrActionData( $queryKey );
-	}
-
-	protected function buildLookupRouteContract( string $subNav ) :array {
-		return [
-			'page'    => self::con()->plugin_urls->rootAdminPageSlug(),
-			'nav'     => PluginNavs::NAV_ACTIVITY,
-			'nav_sub' => $subNav,
-		];
 	}
 
 	protected function resolvePluginByLookup( string $lookup ) {
@@ -160,6 +152,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		$fileTable[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
 		$fileTable[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
 		$fileTable[ 'is_flat' ] = true;
+		$fileTable = $this->normalizeInvestigationTableContract( $fileTable );
 
 		return [
 			'file_status' => $fileTable,
@@ -174,51 +167,6 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 				$this->buildFullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, $activitySearchToken )
 			),
 		];
-	}
-
-	protected function buildFullLogHrefWithSearch( string $nav, string $subNav, string $search ) :string {
-		return URL::Build(
-			self::con()->plugin_urls->adminTopNav( $nav, $subNav ),
-			[
-				'search' => $search,
-			]
-		);
-	}
-
-	protected function buildTableContainerContract(
-		string $title,
-		string $status,
-		string $tableType,
-		string $subjectType,
-		string $subjectId,
-		array $datatablesInit,
-		array $tableAction,
-		string $fullLogHref
-	) :array {
-		return [
-			'title'           => $title,
-			'status'          => $status,
-			'table_type'      => $tableType,
-			'subject_type'    => $subjectType,
-			'subject_id'      => $subjectId,
-			'datatables_init' => $datatablesInit,
-			'table_action'    => $tableAction,
-			'full_log_href'   => $fullLogHref,
-			'full_log_text'   => __( 'Full Log', 'wp-simple-firewall' ),
-		];
-	}
-
-	protected function withEmptyStateTableContract( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
-		if ( $count > 0 ) {
-			$table[ 'is_empty' ] = false;
-			return $table;
-		}
-
-		$table[ 'is_empty' ] = true;
-		$table[ 'empty_status' ] = $emptyStatus;
-		$table[ 'empty_text' ] = $emptyText;
-		unset( $table[ 'datatables_init' ], $table[ 'table_action' ], $table[ 'table_type' ], $table[ 'subject_type' ], $table[ 'subject_id' ] );
-		return $table;
 	}
 
 	protected function buildPluginScanData( $plugin ) :array {

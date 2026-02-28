@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
-
 abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 
 	protected function getRenderData() :array {
@@ -78,73 +76,12 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	}
 
 	protected function buildOverviewRows( array $assetData, array $vulnerabilities ) :array {
-		$info = $assetData[ 'info' ] ?? [];
-		$flags = $assetData[ 'flags' ] ?? [];
-		$author = (string)( $info[ 'author' ] ?? '' );
-		$authorUrl = (string)( $info[ 'author_url' ] ?? '' );
-
-		$rows = [
-			[
-				'label' => __( 'Name', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'name' ] ?? '' ),
-			],
-			[
-				'label' => __( 'Slug', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'slug' ] ?? '' ),
-			],
-			[
-				'label' => __( 'Version', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'version' ] ?? '' ),
-			],
-			[
-				'label'      => __( 'Author', 'wp-simple-firewall' ),
-				'value'      => $author,
-				'value_href' => $authorUrl,
-			],
-			[
-				'label' => $this->getAssetIdentifierLabel(),
-				'value' => (string)( $info[ 'file' ] ?? '' ),
-			],
-			[
-				'label' => __( 'Install Directory', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'dir' ] ?? '' ),
-			],
-			[
-				'label' => __( 'Installed', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'installed_at' ] ?? '' ),
-			],
-			[
-				'label' => __( 'Active Status', 'wp-simple-firewall' ),
-				'value' => !empty( $flags[ 'is_active' ] )
-					? __( 'Yes', 'wp-simple-firewall' )
-					: __( 'No', 'wp-simple-firewall' ),
-			],
-		];
-
-		if ( $this->getSubjectType() === InvestigationTableContract::SUBJECT_TYPE_PLUGIN ) {
-			$rows[] = [
-				'label' => __( 'Update Available Status', 'wp-simple-firewall' ),
-				'value' => !empty( $flags[ 'has_update' ] )
-					? __( 'Yes', 'wp-simple-firewall' )
-					: __( 'No', 'wp-simple-firewall' ),
-			];
-			$rows[] = [
-				'label' => __( 'Vulnerability Status', 'wp-simple-firewall' ),
-				'value' => ( (int)( $vulnerabilities[ 'count' ] ?? 0 ) > 0 )
-					? __( 'Known Vulnerabilities', 'wp-simple-firewall' )
-					: __( 'No Known Vulnerabilities', 'wp-simple-firewall' ),
-			];
-		}
-		elseif ( $this->getSubjectType() === InvestigationTableContract::SUBJECT_TYPE_THEME ) {
-			$rows[] = [
-				'label' => __( 'Child Theme Status', 'wp-simple-firewall' ),
-				'value' => !empty( $flags[ 'is_child' ] )
-					? __( 'Yes', 'wp-simple-firewall' )
-					: __( 'No', 'wp-simple-firewall' ),
-			];
-		}
-
-		return $rows;
+		return ( new InvestigateOverviewRowsBuilder() )->forAsset(
+			$assetData,
+			$vulnerabilities,
+			$this->getSubjectType(),
+			$this->getAssetIdentifierLabel()
+		);
 	}
 
 	protected function extractAssetSubjectId( array $assetData ) :string {

@@ -7,12 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
+	InvestigatePageAssertions,
+	PluginAdminRouteRenderAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use PluginAdminRouteRenderAssertions;
+	use HtmlDomAssertions, InvestigatePageAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -42,31 +46,17 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByCorePage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-core file tab label marker' );
 		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-core file CTA label marker' );
-		$this->assertHtmlContainsMarker( '<th class="w-25">WordPress Version</th>', $html, 'By-core overview table row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'WordPress Version', 'By-core overview table row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-core back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-core summary cards removed marker' );
 
-		$this->assertSame( $expectedTableCount, \substr_count( $html, 'data-investigation-table="1"' ) );
-		if ( $fileStatusCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-core file status table marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-core file status empty state' );
-		}
-		if ( $activityCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-core activity table marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-table-type="activity"', $html, 'By-core activity empty state' );
-		}
-		if ( $expectedTableCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-subject-type="core"', $html, 'By-core subject type marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-subject-type="core"', $html, 'By-core subject type absent on empty tables' );
-		}
+		$this->assertInvestigateDatatableCount( $xpath, $expectedTableCount, 'By-core datatable count marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'file_scan_results', $fileStatusCount, 'By-core file status table marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'activity', $activityCount, 'By-core activity table marker' );
+		$this->assertInvestigateSubjectTypeByCount( $xpath, 'core', $expectedTableCount, 'By-core subject type marker' );
 	}
 }
 

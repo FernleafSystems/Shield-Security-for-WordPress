@@ -625,6 +625,7 @@ This step is required to close post-P6 UX feedback and remove duplicated/legacy 
 1. Completed in current code/tests: `OM-701`, `OM-702`, `OM-703`, `OM-704`, `OM-705`, `OM-706`, `OM-707`, `OM-708`, `OM-709`, `OM-710`.
 2. Superseding continuation completed in current code/tests: `OM-712`, `OM-713`, `OM-714`, `OM-715`, `OM-716`, `OM-717`, `OM-718`, `OM-719`, `OM-720`.
 3. Historical completion rows remain for audit history; superseding tasks are the executed source of truth.
+4. Maintainability refinement completed (2026-02-27): shared investigate shell/panel includes, centralized overview row construction, shared render contract helpers, and structural investigate test assertions replace brittle marker checks.
 
 Mandatory criteria:
 1. Investigate landing is direct-navigation-only subject tiles; no workflow lookup shell/panel.

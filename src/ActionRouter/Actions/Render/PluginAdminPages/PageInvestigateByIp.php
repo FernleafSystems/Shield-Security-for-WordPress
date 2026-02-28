@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class PageInvestigateByIp extends BasePluginAdminPage {
 
+	use InvestigateRenderContracts;
+
 	public const SLUG = 'plugin_admin_page_investigate_by_ip';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_ip.twig';
 
@@ -46,11 +48,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'analyse_ip'   => $lookup,
-				'lookup_route' => [
-					'page'    => $con->plugin_urls->rootAdminPageSlug(),
-					'nav'     => PluginNavs::NAV_ACTIVITY,
-					'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_IP,
-				],
+				'lookup_route' => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
 			],
 			'content' => [
 				'ip_analysis' => $ipAnalysis,

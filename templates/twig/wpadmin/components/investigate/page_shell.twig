@@ -1,0 +1,30 @@
+<div class="options_form_for--modern investigate-page-shell">
+	<div class="shield-options-layout has-rail">
+		<aside class="shield-options-rail">
+			<div class="shield-options-rail-accent"></div>
+			{% include '/components/config/options_rail_tabs.twig' with {
+				nav_id: nav_id|default(''),
+				nav_items: nav_items|default([]),
+				nav_list_class: nav_list_class|default('')
+			} only %}
+		</aside>
+
+		<div class="shield-options-content">
+			<div class="tab-content{% if tab_content_class|default('') is not empty %} {{ tab_content_class }}{% endif %}">
+				{% for pane in panes|default([]) %}
+					<section class="tab-pane shield-options-panel{% if pane.is_active|default(false) %} active show{% endif %}"
+							 id="{{ pane.id|default('') }}"
+							 role="tabpanel"
+							 aria-labelledby="{{ pane.nav_id|default('') }}">
+						<div class="shield-options-panel-accent"></div>
+						<div class="shield-options-panel-body">
+							{% if pane.body_include|default('') is not empty %}
+								{% include pane.body_include with pane.body_vars|default({}) only %}
+							{% endif %}
+						</div>
+					</section>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</div>

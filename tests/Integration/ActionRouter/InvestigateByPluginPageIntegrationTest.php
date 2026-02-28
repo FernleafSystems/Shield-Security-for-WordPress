@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	InvestigatePageAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -16,7 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use InvestigatePageAssertions, LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -55,31 +56,17 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByPluginPage( $pluginSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-plugin file tab label marker' );
 		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-plugin file CTA label marker' );
-		$this->assertHtmlContainsMarker( '<th class="w-25">Name</th>', $html, 'By-plugin overview table row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'Name', 'By-plugin overview table row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-plugin back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-plugin summary cards removed marker' );
 
-		$this->assertSame( $expectedTableCount, \substr_count( $html, 'data-investigation-table="1"' ) );
-		if ( $fileStatusCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-plugin file status table marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-table-type="file_scan_results"', $html, 'By-plugin file status empty state' );
-		}
-		if ( $activityCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-table-type="activity"', $html, 'By-plugin activity table marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-table-type="activity"', $html, 'By-plugin activity empty state' );
-		}
-		if ( $expectedTableCount > 0 ) {
-			$this->assertHtmlContainsMarker( 'data-subject-type="plugin"', $html, 'By-plugin subject type marker' );
-		}
-		else {
-			$this->assertHtmlNotContainsMarker( 'data-subject-type="plugin"', $html, 'By-plugin subject type absent on empty tables' );
-		}
+		$this->assertInvestigateDatatableCount( $xpath, $expectedTableCount, 'By-plugin datatable count marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'file_scan_results', $fileStatusCount, 'By-plugin file status table marker' );
+		$this->assertInvestigateTableTypeByCount( $xpath, 'activity', $activityCount, 'By-plugin activity table marker' );
+		$this->assertInvestigateSubjectTypeByCount( $xpath, 'plugin', $expectedTableCount, 'By-plugin subject type marker' );
 	}
 
 	public function test_no_lookup_renders_without_investigation_tables() :void {

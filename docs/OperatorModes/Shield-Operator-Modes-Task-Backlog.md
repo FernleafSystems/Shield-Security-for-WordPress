@@ -533,6 +533,7 @@ Execution snapshot (2026-02-27):
 1. Completed and validated in code/tests: `OM-701`, `OM-702`, `OM-703`, `OM-704`, `OM-705`, `OM-706`, `OM-707`, `OM-708`, `OM-709`, `OM-710`.
 2. Supersession execution complete: `OM-712`, `OM-713`, `OM-714`, `OM-715`, `OM-716`, `OM-717`, `OM-718`, `OM-719`, `OM-720`.
 3. Historical/supersession note: session guidance dated 2026-02-27 supersedes conflicting prior P7 wording; historical completion rows remain for audit fidelity.
+4. Post-supersession maintainability refinement complete (2026-02-27): investigate render contract duplication reduced, shared investigate page shell/panel includes introduced, overview row construction centralized, and investigate tests hardened toward structural assertions.
 
 | ID | Task | Files | Depends On | Done When |
 |---|---|---|---|---|
