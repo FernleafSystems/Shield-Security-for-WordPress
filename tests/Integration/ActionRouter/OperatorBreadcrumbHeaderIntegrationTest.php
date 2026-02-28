@@ -6,12 +6,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
+	PluginAdminRouteRenderAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class OperatorBreadcrumbHeaderIntegrationTest extends ShieldIntegrationTestCase {
 
-	use PluginAdminRouteRenderAssertions;
+	use HtmlDomAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -20,23 +24,96 @@ class OperatorBreadcrumbHeaderIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	private function renderRoute( string $nav, string $subNav ) :array {
-		return $this->renderPluginAdminRoutePayload( $nav, $subNav );
+		return $this->withRouteQueryContext(
+			$nav,
+			$subNav,
+			fn() :array => $this->renderPluginAdminRoutePayload( $nav, $subNav )
+		);
 	}
 
-	private function getHeaderSegments( array $payload ) :array {
-		$segments = $payload[ 'render_data' ][ 'hrefs' ][ 'inner_page_header_segments' ] ?? [];
-		$this->assertIsArray( $segments );
+	private function withRouteQueryContext( string $nav, string $subNav, callable $callback ) :array {
+		$servicesRequest = Services::Request();
+		$thisRequest = self::con()->this_req->request;
+
+		$snapshotServicesQuery = \is_array( $servicesRequest->query ) ? $servicesRequest->query : [];
+		$snapshotThisQuery = \is_array( $thisRequest->query ) ? $thisRequest->query : [];
+
+		$routeQuery = [
+			Constants::NAV_ID     => $nav,
+			Constants::NAV_SUB_ID => $subNav,
+		];
+		$servicesRequest->query = \array_merge( $snapshotServicesQuery, $routeQuery );
+		$thisRequest->query = \array_merge( $snapshotThisQuery, $routeQuery );
+
+		try {
+			$payload = $callback();
+			$this->assertIsArray( $payload );
+			return $payload;
+		}
+		finally {
+			$servicesRequest->query = $snapshotServicesQuery;
+			$thisRequest->query = $snapshotThisQuery;
+		}
+	}
+
+	private function getHeaderSegmentsFromHtml( string $html ) :array {
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$headerContainer = $this->assertXPathExists(
+			$xpath,
+			'//h4[contains(concat(" ", normalize-space(@class), " "), " inner-page-header-title ")]/div',
+			'Inner page header segment container'
+		);
+
+		$headerText = \preg_replace( '/\s+/u', ' ', \trim( (string)$headerContainer->textContent ) );
+		if ( !\is_string( $headerText ) || $headerText === '' ) {
+			return [];
+		}
+
+		$parts = \preg_split( '/\x{00BB}/u', $headerText );
+		if ( !\is_array( $parts ) ) {
+			return [];
+		}
+
+		$segments = [];
+		foreach ( $parts as $part ) {
+			$part = \trim( (string)$part );
+			if ( $part !== '' ) {
+				$segments[] = $part;
+			}
+		}
 		return $segments;
 	}
 
-	private function assertNoSelfRouteBreadcrumbLink( array $segments, string $nav, string $subNav ) :void {
-		foreach ( $segments as $segment ) {
-			$href = \html_entity_decode( (string)( $segment[ 'href' ] ?? '' ), \ENT_QUOTES, 'UTF-8' );
-			if ( $href === '' ) {
+	private function getHeaderBreadcrumbHrefsFromHtml( string $html ) :array {
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$hrefNodes = $xpath->query(
+			'//h4[contains(concat(" ", normalize-space(@class), " "), " inner-page-header-title ")]/div/a[@href]'
+		);
+		$this->assertNotFalse( $hrefNodes, 'Header breadcrumb href query failed.' );
+
+		$hrefs = [];
+		foreach ( $hrefNodes as $hrefNode ) {
+			if ( !$hrefNode instanceof \DOMElement ) {
 				continue;
 			}
+			$href = \html_entity_decode(
+				(string)$hrefNode->getAttribute( 'href' ),
+				\ENT_QUOTES | \ENT_HTML5,
+				'UTF-8'
+			);
+			if ( $href !== '' ) {
+				$hrefs[] = $href;
+			}
+		}
+		return $hrefs;
+	}
+
+	private function assertNoSelfRouteBreadcrumbLink( array $hrefs, string $nav, string $subNav ) :void {
+		$this->assertNotEmpty( $hrefs, 'Expected at least one breadcrumb href in inner page header.' );
+
+		foreach ( $hrefs as $href ) {
 			$query = [];
-			\parse_str( (string)\parse_url( $href, \PHP_URL_QUERY ), $query );
+			\parse_str( (string)\parse_url( (string)$href, \PHP_URL_QUERY ), $query );
 			$this->assertFalse(
 				( $query[ Constants::NAV_ID ] ?? '' ) === $nav
 				&& ( $query[ Constants::NAV_SUB_ID ] ?? '' ) === $subNav,
@@ -50,9 +127,13 @@ class OperatorBreadcrumbHeaderIntegrationTest extends ShieldIntegrationTestCase 
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$this->assertHtmlContainsMarker( 'Investigate', $html, 'Investigate landing header text marker' );
 
-		$segments = $this->getHeaderSegments( $payload );
-		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $segments, 'text' ) );
-		$this->assertNoSelfRouteBreadcrumbLink( $segments, PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW );
+		$segments = $this->getHeaderSegmentsFromHtml( $html );
+		$this->assertSame( [ 'Shield Security', 'Investigate' ], $segments );
+		$this->assertNoSelfRouteBreadcrumbLink(
+			$this->getHeaderBreadcrumbHrefsFromHtml( $html ),
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_OVERVIEW
+		);
 	}
 
 	public function test_activity_log_header_uses_normalized_terminal_leaf_title() :void {
@@ -60,10 +141,14 @@ class OperatorBreadcrumbHeaderIntegrationTest extends ShieldIntegrationTestCase 
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$this->assertHtmlContainsMarker( 'View Activity Logs', $html, 'Activity log header text marker' );
 
-		$segments = $this->getHeaderSegments( $payload );
+		$segments = $this->getHeaderSegmentsFromHtml( $html );
 		$lastSegment = \end( $segments );
-		$this->assertSame( 'View Activity Logs', \is_array( $lastSegment ) ? (string)( $lastSegment[ 'text' ] ?? '' ) : '' );
-		$this->assertNoSelfRouteBreadcrumbLink( $segments, PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS );
+		$this->assertSame( 'View Activity Logs', \is_string( $lastSegment ) ? $lastSegment : '' );
+		$this->assertNoSelfRouteBreadcrumbLink(
+			$this->getHeaderBreadcrumbHrefsFromHtml( $html ),
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_LOGS
+		);
 	}
 
 	public function test_traffic_log_header_uses_normalized_terminal_leaf_title() :void {
@@ -71,10 +156,14 @@ class OperatorBreadcrumbHeaderIntegrationTest extends ShieldIntegrationTestCase 
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$this->assertHtmlContainsMarker( 'View HTTP Request Logs', $html, 'Traffic log header text marker' );
 
-		$segments = $this->getHeaderSegments( $payload );
+		$segments = $this->getHeaderSegmentsFromHtml( $html );
 		$lastSegment = \end( $segments );
-		$this->assertSame( 'View HTTP Request Logs', \is_array( $lastSegment ) ? (string)( $lastSegment[ 'text' ] ?? '' ) : '' );
-		$this->assertNoSelfRouteBreadcrumbLink( $segments, PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS );
+		$this->assertSame( 'View HTTP Request Logs', \is_string( $lastSegment ) ? $lastSegment : '' );
+		$this->assertNoSelfRouteBreadcrumbLink(
+			$this->getHeaderBreadcrumbHrefsFromHtml( $html ),
+			PluginNavs::NAV_TRAFFIC,
+			PluginNavs::SUBNAV_LOGS
+		);
 	}
 
 	public function test_live_traffic_log_header_uses_normalized_terminal_leaf_title() :void {
@@ -82,9 +171,13 @@ class OperatorBreadcrumbHeaderIntegrationTest extends ShieldIntegrationTestCase 
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$this->assertHtmlContainsMarker( 'View Live HTTP Logs', $html, 'Live traffic log header text marker' );
 
-		$segments = $this->getHeaderSegments( $payload );
+		$segments = $this->getHeaderSegmentsFromHtml( $html );
 		$lastSegment = \end( $segments );
-		$this->assertSame( 'View Live HTTP Logs', \is_array( $lastSegment ) ? (string)( $lastSegment[ 'text' ] ?? '' ) : '' );
-		$this->assertNoSelfRouteBreadcrumbLink( $segments, PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE );
+		$this->assertSame( 'View Live HTTP Logs', \is_string( $lastSegment ) ? $lastSegment : '' );
+		$this->assertNoSelfRouteBreadcrumbLink(
+			$this->getHeaderBreadcrumbHrefsFromHtml( $html ),
+			PluginNavs::NAV_TRAFFIC,
+			PluginNavs::SUBNAV_LIVE
+		);
 	}
 }
