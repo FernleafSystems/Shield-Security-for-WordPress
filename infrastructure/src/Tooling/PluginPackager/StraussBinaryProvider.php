@@ -219,6 +219,8 @@ class StraussBinaryProvider {
 			);
 		}
 
+		$this->assertOpenSslCaConfigValid( $downloadUrl, $targetPath );
+
 		// Create HTTP context for the download
 		$context = stream_context_create( [
 			'http' => [
@@ -332,6 +334,70 @@ class StraussBinaryProvider {
 
 		$this->log( '  ✓ strauss.phar downloaded' );
 		$this->log( '' );
+	}
+
+	private function assertOpenSslCaConfigValid( string $downloadUrl, string $targetPath ) :void {
+		$this->assertConfiguredOpenSslPathValid(
+			'openssl.cafile',
+			$this->normalizeIniPath( (string)\ini_get( 'openssl.cafile' ) ),
+			false,
+			$downloadUrl,
+			$targetPath
+		);
+		$this->assertConfiguredOpenSslPathValid(
+			'openssl.capath',
+			$this->normalizeIniPath( (string)\ini_get( 'openssl.capath' ) ),
+			true,
+			$downloadUrl,
+			$targetPath
+		);
+	}
+
+	private function assertConfiguredOpenSslPathValid(
+		string $settingName,
+		string $configuredPath,
+		bool $expectsDirectory,
+		string $downloadUrl,
+		string $targetPath
+	) :void {
+		if ( $configuredPath === '' ) {
+			return;
+		}
+
+		$isValidPath = $expectsDirectory
+			? \is_dir( $configuredPath ) && \is_readable( $configuredPath )
+			: \is_file( $configuredPath ) && \is_readable( $configuredPath );
+
+		if ( $isValidPath ) {
+			return;
+		}
+
+		$expectedType = $expectsDirectory ? 'directory' : 'file';
+		$phpIniPath = \php_ini_loaded_file();
+		$phpIniPath = \is_string( $phpIniPath ) && $phpIniPath !== '' ? $phpIniPath : '(unknown php.ini path)';
+
+		throw new \RuntimeException(
+			\sprintf(
+				'Strauss download failed: OpenSSL CA configuration is invalid. '.
+				'WHAT FAILED: PHP setting "%s" points to a missing or unreadable %s: %s. '.
+				'WHY: HTTPS downloads require a valid certificate authority path for TLS verification. '.
+				'HOW TO FIX: Update "%s" in php.ini (%s) to a valid readable %s, '.
+				'or clear the setting to use system defaults. Then retry packaging. '.
+				'If needed, manually download strauss.phar from %s and place it at: %s',
+				$settingName,
+				$expectedType,
+				$configuredPath,
+				$settingName,
+				$phpIniPath,
+				$expectedType,
+				$downloadUrl,
+				$targetPath
+			)
+		);
+	}
+
+	private function normalizeIniPath( string $value ) :string {
+		return \trim( $value, " \t\n\r\0\x0B\"'" );
 	}
 
 	private function log( string $message ) :void {
