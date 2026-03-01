@@ -626,6 +626,7 @@ This step is required to close post-P6 UX feedback and remove duplicated/legacy 
 2. Superseding continuation completed in current code/tests: `OM-712`, `OM-713`, `OM-714`, `OM-715`, `OM-716`, `OM-717`, `OM-718`, `OM-719`, `OM-720`.
 3. Historical completion rows remain for audit history; superseding tasks are the executed source of truth.
 4. Maintainability refinement completed (2026-02-27): shared investigate shell/panel includes, centralized overview row construction, shared render contract helpers, and structural investigate test assertions replace brittle marker checks.
+5. Regression coverage closure completed (2026-03-01): `OM-711` is complete; breadcrumb landing-route matrix coverage was expanded and empty-state investigation table contracts now have explicit unit assertions for no-table/no-AJAX key removal.
 
 Mandatory criteria:
 1. Investigate landing is direct-navigation-only subject tiles; no workflow lookup shell/panel.
@@ -1346,5 +1347,4 @@ These rules apply to ALL investigation pages. Violating them creates inconsisten
 5. **Tab badges.** Count badges on rail tabs show the total record count for that subject. These counts come from the `countTotalRecords()` method in the respective `BuildInvestigation*Data` class, called during page render (not AJAX). Cache with short TTL if performance is a concern.
 
 6. **Table CTA links.** Investigation tabs should include full-page links with context-appropriate CTA text (`Full Scan Results` for file scan tab, `Full Log` for activity/traffic tabs) and pre-filtered search parameters. Use `SearchTextParser` syntax in the URL: e.g., `?search=user_id:42` for the activity log filtered to user 42. The full-page tables already parse this syntax.
-
 

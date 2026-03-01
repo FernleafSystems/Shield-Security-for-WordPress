@@ -97,6 +97,8 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 			'dashboard_grades'   => [ PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES, [ 'Shield Security', 'Configure' ] ],
 			'scans_overview'     => [ PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW, [ 'Shield Security' ] ],
 			'activity_overview'  => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW, [ 'Shield Security' ] ],
+			'zones_overview'     => [ PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'Shield Security' ] ],
+			'reports_overview'   => [ PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW, [ 'Shield Security' ] ],
 			'activity_by_user'   => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER, [ 'Shield Security', 'Investigate' ] ],
 			'activity_logs'      => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, [ 'Shield Security', 'Investigate' ] ],
 			'traffic_logs'       => [ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS, [ 'Shield Security', 'Investigate' ] ],

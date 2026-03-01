@@ -115,6 +115,10 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'akismet/akismet.php', (string)( $tables[ 'activity' ][ 'subject_id' ] ?? '' ) );
 		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
+		$this->assertArrayHasKey( 'datatables_init', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayHasKey( 'datatables_init', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayHasKey( 'table_action', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayHasKey( 'table_action', $tables[ 'activity' ] ?? [] );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? true ) );
 		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? true ) );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
@@ -167,20 +171,31 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ] ?? [];
+		$strings = $renderData[ 'strings' ] ?? [];
 		$tables = $vars[ 'tables' ] ?? [];
 
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? false ) );
 		$this->assertTrue( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? false ) );
 		$this->assertSame(
-			'No file scan status records were found for this subject.',
+			(string)( $strings[ 'file_status_empty_text' ] ?? '' ),
 			(string)( $tables[ 'file_status' ][ 'empty_text' ] ?? '' )
 		);
 		$this->assertSame(
-			'No activity records were found for this subject.',
+			(string)( $strings[ 'activity_empty_text' ] ?? '' ),
 			(string)( $tables[ 'activity' ][ 'empty_text' ] ?? '' )
 		);
+		$this->assertSame( 'info', (string)( $tables[ 'file_status' ][ 'empty_status' ] ?? '' ) );
+		$this->assertSame( 'info', (string)( $tables[ 'activity' ][ 'empty_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'table_type', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'table_type', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'datatables_init', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'datatables_init', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'table_action', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'table_action', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'subject_type', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'subject_type', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'activity' ] ?? [] );
 		$this->assertSame( 'No Known Vulnerabilities', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? '' ) );
 	}
 
@@ -280,6 +295,8 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 				'table_type'   => 'file_scan_results',
 				'subject_type' => $subjectType,
 				'subject_id'   => $subjectId,
+				'datatables_init' => [ 'columns' => [] ],
+				'table_action' => [ 'slug' => 'investigation_table' ],
 				'full_log_text' => 'Full Scan Results',
 				'full_log_button_class' => 'btn btn-primary btn-sm',
 				'is_flat' => true,
@@ -288,6 +305,8 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 				'table_type'   => 'activity',
 				'subject_type' => $subjectType,
 				'subject_id'   => $subjectId,
+				'datatables_init' => [ 'columns' => [] ],
+				'table_action' => [ 'slug' => 'investigation_table' ],
 			],
 		];
 	}
@@ -301,5 +320,4 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 		];
 	}
 }
-
 
