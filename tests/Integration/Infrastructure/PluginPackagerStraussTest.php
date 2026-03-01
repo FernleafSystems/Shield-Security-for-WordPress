@@ -62,6 +62,23 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 	}
 
+	public function testRequiredPrefixedPackageDirectoriesAreNonEmpty() :void {
+		$requiredPrefixedOnly = [
+			'monolog/monolog',
+			'twig/twig',
+			'crowdsec/capi-client',
+		];
+
+		foreach ( $requiredPrefixedOnly as $package ) {
+			$packageDir = Path::join( $this->packagePath, 'vendor_prefixed', $package );
+			$this->assertDirectoryExists( $packageDir, "Required prefixed package missing: {$package}" );
+
+			$entries = \scandir( $packageDir ) ?: [];
+			$entries = \array_values( \array_diff( $entries, [ '.', '..' ] ) );
+			$this->assertNotSame( [], $entries, "Required prefixed package directory is empty: {$package}" );
+		}
+	}
+
 	public function testPrefixedLibrariesPresent() :void {
 		$prefixed = $this->packagePath.'/vendor_prefixed';
 		foreach ( [ 'monolog', 'twig', 'crowdsec' ] as $dir ) {
