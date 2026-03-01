@@ -116,9 +116,10 @@ class PluginPackager {
 		// Synchronize package-specific files (readme.txt, icwp-wpsf.php) from generated plugin.json.
 		$this->updatePackageFiles( $targetDir );
 
+		$requiredPrefixedPackages = [];
 		if ( $options[ 'package_dependency_build' ] ) {
 			$this->installComposerDependencies( $targetDir );
-			( new VendorCleaner( $this->logger ) )->clean( $targetDir );
+			$requiredPrefixedPackages = $this->readRequiredStraussPackages( $targetDir );
 
 			// Run Strauss prefixing
 			$straussProvider = new StraussBinaryProvider(
@@ -128,7 +129,10 @@ class PluginPackager {
 				$this->directoryRemover,
 				$this->logger
 			);
-			$straussProvider->runPrefixing( $targetDir );
+			$straussProvider->runPrefixing( $targetDir, $requiredPrefixedPackages );
+
+			// Clean vendor files after successful Strauss prefixing.
+			( new VendorCleaner( $this->logger ) )->clean( $targetDir );
 
 			$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
 			$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
@@ -142,7 +146,7 @@ class PluginPackager {
 		// Create legacy path duplicates for upgrade compatibility
 		$this->legacyPathDuplicator->createDuplicates( $targetDir );
 
-		$this->packageVerifier->verify( $targetDir );
+		$this->packageVerifier->verify( $targetDir, $requiredPrefixedPackages );
 
 		$this->log( sprintf( 'Package created at: %s', $targetDir ) );
 
@@ -400,5 +404,44 @@ class PluginPackager {
 				$this->log( \sprintf( '  Removed %s from package', $file ) );
 			}
 		}
+	}
+
+	/**
+	 * @return string[] Package names in "vendor/package" format
+	 */
+	private function readRequiredStraussPackages( string $targetDir ) :array {
+		$composerJson = Path::join( $targetDir, 'composer.json' );
+		if ( !\file_exists( $composerJson ) ) {
+			return [];
+		}
+
+		$content = \file_get_contents( $composerJson );
+		if ( $content === false ) {
+			return [];
+		}
+
+		$config = \json_decode( $content, true );
+		if ( !\is_array( $config ) ) {
+			return [];
+		}
+
+		$packages = $config[ 'extra' ][ 'strauss' ][ 'packages' ] ?? null;
+		if ( !\is_array( $packages ) ) {
+			return [];
+		}
+
+		return \array_values( \array_filter(
+			\array_map(
+				static function ( $package ) :?string {
+					if ( !\is_string( $package ) ) {
+						return null;
+					}
+					$normalized = \strtolower( \trim( $package ) );
+					return \preg_match( '#^[a-z0-9_.-]+/[a-z0-9_.-]+$#', $normalized ) === 1 ? $normalized : null;
+				},
+				$packages
+			),
+			static fn( ?string $package ) :bool => $package !== null
+		) );
 	}
 }

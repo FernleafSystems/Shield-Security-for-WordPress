@@ -58,9 +58,10 @@ class StraussBinaryProvider {
 	/**
 	 * Run Strauss to prefix vendor namespaces.
 	 *
+	 * @param string[] $requiredPackages
 	 * @throws \RuntimeException if Strauss execution fails
 	 */
-	public function runPrefixing( string $targetDir ) :void {
+	public function runPrefixing( string $targetDir, array $requiredPackages = [] ) :void {
 		$vendorPrefixedDir = Path::join( $targetDir, 'vendor_prefixed' );
 
 		// Get path to strauss binary (either fork's bin/strauss or downloaded PHAR)
@@ -98,6 +99,8 @@ class StraussBinaryProvider {
 				)
 			);
 		}
+
+		$this->assertRequiredPackagesPresent( $targetDir, $requiredPackages );
 	}
 
 	/**
@@ -398,6 +401,45 @@ class StraussBinaryProvider {
 
 	private function normalizeIniPath( string $value ) :string {
 		return \trim( $value, " \t\n\r\0\x0B\"'" );
+	}
+
+	/**
+	 * @param string[] $requiredPackages
+	 */
+	private function assertRequiredPackagesPresent( string $targetDir, array $requiredPackages ) :void {
+		if ( empty( $requiredPackages ) ) {
+			return;
+		}
+
+		$vendorPrefixedDir = Path::join( $targetDir, 'vendor_prefixed' );
+		$missing = [];
+		foreach ( $requiredPackages as $package ) {
+			$packagePath = Path::join( $vendorPrefixedDir, $package );
+			if ( !\is_dir( $packagePath ) || $this->isDirectoryEmpty( $packagePath ) ) {
+				$missing[] = $package;
+			}
+		}
+
+		if ( !empty( $missing ) ) {
+			throw new \RuntimeException(
+				sprintf(
+					'Strauss execution failed: required prefixed packages are missing. '.
+					'WHAT FAILED: The following packages were not produced in vendor_prefixed: %s. '.
+					'WHY: Strauss reported success but did not prefix required package directories. '.
+					'HOW TO FIX: Review Strauss output for missing package path warnings and retry packaging.',
+					implode( ', ', $missing )
+				)
+			);
+		}
+	}
+
+	private function isDirectoryEmpty( string $dir ) :bool {
+		$contents = @\scandir( $dir );
+		if ( $contents === false ) {
+			return true;
+		}
+
+		return \count( \array_diff( $contents, [ '.', '..' ] ) ) === 0;
 	}
 
 	private function log( string $message ) :void {

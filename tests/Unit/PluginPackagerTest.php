@@ -136,5 +136,92 @@ class PluginPackagerTest extends TestCase {
 
 		$this->invokePrivateMethod( $packager, 'updatePackageFiles', [ $tempDir ] );
 	}
-}
 
+	public function testReadRequiredStraussPackagesParsesComposerConfig() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
+
+		file_put_contents(
+			Path::join( $tempDir, 'composer.json' ),
+			json_encode(
+				[
+					'extra' => [
+						'strauss' => [
+							'packages' => [
+								' Monolog/Monolog ',
+								"\ttwig/twig\t",
+								'INVALID-PACKAGE',
+								123,
+								null,
+							],
+						],
+					],
+				],
+				JSON_PRETTY_PRINT
+			)
+		);
+
+		$packages = $this->invokePrivateMethod( $packager, 'readRequiredStraussPackages', [ $tempDir ] );
+
+		$this->assertSame( [ 'monolog/monolog', 'twig/twig' ], $packages );
+	}
+
+	public function testReadRequiredStraussPackagesReturnsEmptyOnInvalidJson() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
+		file_put_contents( Path::join( $tempDir, 'composer.json' ), '{ invalid-json' );
+
+		$packages = $this->invokePrivateMethod( $packager, 'readRequiredStraussPackages', [ $tempDir ] );
+		$this->assertSame( [], $packages );
+	}
+
+	public function testReadRequiredStraussPackagesReturnsEmptyWhenStraussPackagesMissing() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
+
+		file_put_contents(
+			Path::join( $tempDir, 'composer.json' ),
+			json_encode(
+				[
+					'extra' => [
+						'strauss' => [],
+					],
+				],
+				JSON_PRETTY_PRINT
+			)
+		);
+
+		$packages = $this->invokePrivateMethod( $packager, 'readRequiredStraussPackages', [ $tempDir ] );
+		$this->assertSame( [], $packages );
+	}
+
+	public function testReadRequiredStraussPackagesReturnsEmptyWhenStraussPackagesNotArray() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
+
+		file_put_contents(
+			Path::join( $tempDir, 'composer.json' ),
+			json_encode(
+				[
+					'extra' => [
+						'strauss' => [
+							'packages' => 'monolog/monolog',
+						],
+					],
+				],
+				JSON_PRETTY_PRINT
+			)
+		);
+
+		$packages = $this->invokePrivateMethod( $packager, 'readRequiredStraussPackages', [ $tempDir ] );
+		$this->assertSame( [], $packages );
+	}
+
+	public function testReadRequiredStraussPackagesReturnsEmptyWithoutComposerFile() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
+
+		$packages = $this->invokePrivateMethod( $packager, 'readRequiredStraussPackages', [ $tempDir ] );
+		$this->assertSame( [], $packages );
+	}
+}

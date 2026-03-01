@@ -19,9 +19,10 @@ class PackageVerifier {
 	/**
 	 * Verify the package was built correctly by checking required files and directories.
 	 *
+	 * @param string[] $requiredPrefixedPackages
 	 * @throws \RuntimeException if critical package files are missing
 	 */
-	public function verify( string $targetDir ) :void {
+	public function verify( string $targetDir, array $requiredPrefixedPackages = [] ) :void {
 		$this->log( '=== Package Verification ===' );
 
 		$errors = [];
@@ -61,6 +62,22 @@ class PackageVerifier {
 			}
 		}
 
+		foreach ( $requiredPrefixedPackages as $package ) {
+			if ( !\is_string( $package ) || $package === '' ) {
+				continue;
+			}
+
+			$package = \strtolower( $package );
+			$packageDir = Path::join( $targetDir, 'vendor_prefixed', $package );
+			if ( is_dir( $packageDir ) && !$this->isDirectoryEmpty( $packageDir ) ) {
+				$this->log( sprintf( 'PASS vendor_prefixed package exists: %s', $package ) );
+			}
+			else {
+				$this->log( sprintf( 'FAIL vendor_prefixed package MISSING: %s', $package ) );
+				$errors[] = 'vendor_prefixed/'.$package;
+			}
+		}
+
 		if ( !empty( $errors ) ) {
 			throw new \RuntimeException(
 				sprintf(
@@ -79,5 +96,14 @@ class PackageVerifier {
 
 	private function log( string $message ) :void {
 		( $this->logger )( $message );
+	}
+
+	private function isDirectoryEmpty( string $dir ) :bool {
+		$contents = @\scandir( $dir );
+		if ( $contents === false ) {
+			return true;
+		}
+
+		return \count( \array_diff( $contents, [ '.', '..' ] ) ) === 0;
 	}
 }
