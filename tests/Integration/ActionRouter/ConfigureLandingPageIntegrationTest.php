@@ -35,14 +35,19 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="hero"]', 'Configure hero section marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-configure-section="stats"]', 'Configure stats section marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-configure-section="overview-meters"]', 'Configure overview section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="zones"]', 'Configure zones section marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-configure-section="stats"]', 0, 'Configure stats section removed' );
+		$this->assertXPathCount( $xpath, '//*[@data-configure-section="overview-meters"]', 0, 'Configure overview section removed' );
 
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-section="hero"]//a[contains(concat(" ", normalize-space(@class), " "), " offcanvas_meter_analysis ") and @data-meter_channel="config"]',
 			'Configure hero offcanvas meter link with config channel'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="zones"]//div[contains(concat(" ", normalize-space(@class), " "), " shield-card-accent ") and contains(concat(" ", normalize-space(@class), " "), " status-good ")]',
+			'Configure zones section uses good status accent'
 		);
 
 		$zoneCount = \count( self::con()->comps->zones->getZones() );
@@ -54,4 +59,3 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 }
-

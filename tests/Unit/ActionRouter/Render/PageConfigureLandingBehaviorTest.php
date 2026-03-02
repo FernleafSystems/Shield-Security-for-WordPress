@@ -30,6 +30,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( '_n' )->alias(
+			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
+		);
 		$this->installControllerStub();
 	}
 
@@ -38,7 +41,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_landing_content_renders_hero_and_overview_meter_cards() :void {
+	public function test_landing_content_renders_hero_meter_only() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
 		$content = $this->invokeNonPublicMethod( $page, 'getLandingContent' );
 
@@ -53,36 +56,19 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			],
 			$this->renderCapture->calls[ 0 ] ?? []
 		);
-		$this->assertCount( 4, $this->renderCapture->calls );
-		$this->assertMeterRenderCallForSlug( 'ips', $this->meterFixturesBySlug()[ 'ips' ] );
-		$this->assertMeterRenderCallForSlug( 'assets', $this->meterFixturesBySlug()[ 'assets' ] );
-		$this->assertMeterRenderCallForSlug( 'login', $this->meterFixturesBySlug()[ 'login' ] );
+		$this->assertCount( 1, $this->renderCapture->calls );
 
 		$this->assertSame( 'rendered-1', $content[ 'hero_meter' ] ?? '' );
-		$this->assertCount( 3, $content[ 'overview_meter_cards' ] ?? [] );
-		$cardsBySlug = [];
-		foreach ( $content[ 'overview_meter_cards' ] ?? [] as $card ) {
-			$cardsBySlug[ (string)( $card[ 'slug' ] ?? '' ) ] = $card;
-		}
-		$this->assertSame( 'good', $cardsBySlug[ 'ips' ][ 'traffic' ] ?? '' );
-		$this->assertSame( 'warning', $cardsBySlug[ 'assets' ][ 'traffic' ] ?? '' );
-		$this->assertSame( 'critical', $cardsBySlug[ 'login' ][ 'traffic' ] ?? '' );
+		$this->assertArrayNotHasKey( 'overview_meter_cards', $content );
 	}
 
-	public function test_landing_vars_include_stats_and_zone_links() :void {
+	public function test_landing_vars_include_posture_summary_and_zone_links() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->assertSame( [], $this->renderCapture->calls );
 
-		$this->assertSame( 4, \count( $vars[ 'configure_stats' ] ?? [] ) );
-		$this->assertSame( 'Good Areas', $vars[ 'configure_stats' ][ 0 ][ 'name' ] ?? '' );
-		$this->assertSame( 1, (int)( $vars[ 'configure_stats' ][ 0 ][ 'counts' ][ 'lifetime' ] ?? 0 ) );
-		$this->assertSame( 'Needs Work', $vars[ 'configure_stats' ][ 1 ][ 'name' ] ?? '' );
-		$this->assertSame( 1, (int)( $vars[ 'configure_stats' ][ 1 ][ 'counts' ][ 'lifetime' ] ?? 0 ) );
-		$this->assertSame( 'Critical Areas', $vars[ 'configure_stats' ][ 2 ][ 'name' ] ?? '' );
-		$this->assertSame( 1, (int)( $vars[ 'configure_stats' ][ 2 ][ 'counts' ][ 'lifetime' ] ?? 0 ) );
-		$this->assertSame( 'Security Zones', $vars[ 'configure_stats' ][ 3 ][ 'name' ] ?? '' );
-		$this->assertSame( 2, (int)( $vars[ 'configure_stats' ][ 3 ][ 'counts' ][ 'lifetime' ] ?? 0 ) );
+		$this->assertArrayNotHasKey( 'configure_stats', $vars );
+		$this->assertSame( '1 critical area, 1 area needs work', $vars[ 'posture_summary' ] ?? '' );
 
 		$this->assertSame(
 			[
@@ -103,19 +89,31 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_landing_hrefs_preserve_existing_quick_links() :void {
+	public function test_landing_vars_use_all_clear_summary_when_no_areas_need_work() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->allGoodMeterFixturesBySlug() );
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$this->assertSame( [], $this->renderCapture->calls );
+
+		$this->assertSame( 'All configuration areas look good', $vars[ 'posture_summary' ] ?? '' );
+	}
+
+	public function test_landing_hrefs_are_empty() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
 		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
+		$this->assertSame( [], $hrefs );
+	}
 
-		$this->assertSame(
-			[
-				'grades'       => '/admin/dashboard/grades',
-				'zones_home'   => '/admin/zones/secadmin',
-				'rules_manage' => '/admin/rules/manage',
-				'tools_import' => '/admin/tools/importexport',
-			],
-			$hrefs
-		);
+	public function test_landing_strings_include_current_headings_only() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
+		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
+
+		$this->assertSame( 'Configuration Posture', $strings[ 'posture_title' ] ?? '' );
+		$this->assertSame( 'Security Zones', $strings[ 'zones_title' ] ?? '' );
+		$this->assertSame( 'Jump directly to a security zone to review and adjust settings.', $strings[ 'zones_subtitle' ] ?? '' );
+
+		foreach ( [ 'stats_title', 'overview_title', 'quick_links_title', 'link_grades', 'link_zones', 'link_rules', 'link_tools' ] as $removedKey ) {
+			$this->assertArrayNotHasKey( $removedKey, $strings );
+		}
 	}
 
 	private function meterFixturesBySlug() :array {
@@ -123,6 +121,14 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			'ips'    => [ 'totals' => [ 'percentage' => 91 ] ],
 			'assets' => [ 'totals' => [ 'percentage' => 64 ] ],
 			'login'  => [ 'totals' => [ 'percentage' => 32 ] ],
+		];
+	}
+
+	private function allGoodMeterFixturesBySlug() :array {
+		return [
+			'ips'    => [ 'totals' => [ 'percentage' => 91 ] ],
+			'assets' => [ 'totals' => [ 'percentage' => 85 ] ],
+			'login'  => [ 'totals' => [ 'percentage' => 82 ] ],
 		];
 	}
 
@@ -198,19 +204,6 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		];
 
 		PluginControllerInstaller::install( $controller );
-	}
-
-	private function assertMeterRenderCallForSlug( string $slug, array $meterData ) :void {
-		$matches = \array_values( \array_filter(
-			$this->renderCapture->calls,
-			static function ( array $call ) use ( $slug ) :bool {
-				return ( $call[ 'action' ] ?? '' ) === MeterCard::class
-					   && (string)( $call[ 'action_data' ][ 'meter_slug' ] ?? '' ) === $slug;
-			}
-		) );
-		$this->assertCount( 1, $matches );
-		$this->assertSame( MeterComponent::CHANNEL_CONFIG, $matches[ 0 ][ 'action_data' ][ 'meter_channel' ] ?? '' );
-		$this->assertSame( $meterData, $matches[ 0 ][ 'action_data' ][ 'meter_data' ] ?? [] );
 	}
 }
 
