@@ -43,9 +43,11 @@ abstract class BasePluginAdminPage extends BaseRender {
 	protected function buildRenderData() :array {
 		$data = parent::buildRenderData();
 		$data[ 'hrefs' ][ 'inner_page_header_segments' ] = $this->buildInnerPageHeaderSegments(
-			\is_array( $data[ 'hrefs' ][ 'breadcrumbs' ] ?? null ) ? $data[ 'hrefs' ][ 'breadcrumbs' ] : [],
-			(string)( $data[ 'strings' ][ 'inner_page_title' ] ?? '' ),
-			(string)( $data[ 'strings' ][ 'no_inner_page_title' ] ?? '' )
+			$data[ 'hrefs' ][ 'breadcrumbs' ],
+			\array_key_exists( 'inner_page_title', $data[ 'strings' ] )
+				? $data[ 'strings' ][ 'inner_page_title' ]
+				: '',
+			$data[ 'strings' ][ 'no_inner_page_title' ]
 		);
 		return $data;
 	}
@@ -70,27 +72,24 @@ abstract class BasePluginAdminPage extends BaseRender {
 		];
 	}
 
+	/**
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
 	protected function getBreadCrumbs() :array {
 		return ( new BuildBreadCrumbs() )->current();
 	}
 
+	/**
+	 * @param list<array{text:string, title:string, href:string}> $breadcrumbs
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
 	protected function buildInnerPageHeaderSegments( array $breadcrumbs, string $innerPageTitle, string $fallbackTitle ) :array {
-		$segments = [];
-		foreach ( $breadcrumbs as $breadcrumb ) {
-			if ( !\is_array( $breadcrumb ) ) {
-				continue;
-			}
-			$segments[] = [
-				'text'  => (string)( $breadcrumb[ 'text' ] ?? '' ),
-				'href'  => (string)( $breadcrumb[ 'href' ] ?? '' ),
-				'title' => (string)( $breadcrumb[ 'title' ] ?? '' ),
-			];
-		}
+		$segments = $breadcrumbs;
 
 		$leafTitle = \trim( $innerPageTitle ) === '' ? $fallbackTitle : $innerPageTitle;
 		if ( !empty( $segments ) ) {
 			$lastSegment = \end( $segments );
-			$lastText = \trim( \is_array( $lastSegment ) ? (string)( $lastSegment[ 'text' ] ?? '' ) : '' );
+			$lastText = \trim( $lastSegment[ 'text' ] );
 			if ( \strtolower( $lastText ) === \strtolower( \trim( $leafTitle ) ) ) {
 				$leafTitle = '';
 			}

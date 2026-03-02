@@ -11,7 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageReports;
@@ -127,23 +126,15 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $contextualHrefs );
 	}
 
-	public function test_unknown_subnav_preserves_fallback_title_subtitle_and_empty_content() :void {
+	public function test_unknown_subnav_throws_contract_violation() :void {
 		$page = new PageReports( [
 			'nav_sub' => 'unknown-subnav',
 		] );
 
-		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
-		$contextualHrefs = $this->invokeNonPublicMethod( $page, 'getPageContextualHrefs' );
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'Missing reports workspace definition for subnav: unknown-subnav' );
 
-		$this->assertSame( [], $this->renderCapture->calls );
-		$this->assertSame( [], $this->zoneCapture->requested );
-		$this->assertSame( [], $renderData[ 'content' ] ?? [] );
-		$this->assertSame(
-			CommonDisplayStrings::get( 'security_reports_label' ),
-			$renderData[ 'strings' ][ 'inner_page_title' ] ?? ''
-		);
-		$this->assertSame( 'Summary Security Reports.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
-		$this->assertSame( [], $contextualHrefs );
+		$this->invokeNonPublicMethod( $page, 'getRenderData' );
 	}
 
 	private function installControllerStub() :void {

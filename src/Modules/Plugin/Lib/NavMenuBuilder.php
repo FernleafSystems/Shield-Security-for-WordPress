@@ -56,21 +56,17 @@ class NavMenuBuilder {
 
 	private function buildModeSelector( array $baseMenu ) :array {
 		$menu = [];
-		$baseMenuBySlug = [];
-
-		foreach ( $baseMenu as $item ) {
-			$baseMenuBySlug[ (string)( $item[ 'slug' ] ?? '' ) ] = $item;
-		}
+		$baseMenuBySlug = $this->indexMenuBySlug( $baseMenu );
 
 		foreach ( PluginNavs::allOperatorModes() as $mode ) {
 			$entry = PluginNavs::defaultEntryForMode( $mode );
-			$sourceItem = $baseMenuBySlug[ $entry[ 'nav' ] ] ?? [];
+			$sourceItem = $this->requireMenuItem( $baseMenuBySlug, $entry[ 'nav' ] );
 
 			$menu[] = $this->withGroup( [
 				'slug'      => 'mode-'.$mode,
 				'title'     => PluginNavs::modeLabel( $mode ),
-				'subtitle'  => (string)( $sourceItem[ 'subtitle' ] ?? '' ),
-				'img'       => (string)( $sourceItem[ 'img' ] ?? '' ),
+				'subtitle'  => $this->requireMenuItemString( $sourceItem, 'subtitle', $entry[ 'nav' ] ),
+				'img'       => $this->requireMenuItemString( $sourceItem, 'img', $entry[ 'nav' ] ),
 				'href'      => self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] ),
 				'active'    => false,
 				'classes'   => [],
@@ -78,10 +74,10 @@ class NavMenuBuilder {
 			], self::GROUP_PRIMARY );
 		}
 
-		$license = $baseMenuBySlug[ PluginNavs::NAV_LICENSE ] ?? null;
-		if ( \is_array( $license ) ) {
-			$menu[] = $this->withGroup( $license, self::GROUP_META );
-		}
+		$menu[] = $this->withGroup(
+			$this->requireMenuItem( $baseMenuBySlug, PluginNavs::NAV_LICENSE ),
+			self::GROUP_META
+		);
 		if ( !self::con()->comps->whitelabel->isEnabled() ) {
 			$menu[] = $this->withGroup( $this->connectMetaItem(), self::GROUP_META );
 		}
@@ -139,17 +135,14 @@ class NavMenuBuilder {
 		$modeMenu = [ $backLink ];
 
 		if ( $mode === PluginNavs::MODE_CONFIGURE ) {
-			$baseMenuBySlug = [];
-			foreach ( $baseMenu as $item ) {
-				$baseMenuBySlug[ (string)( $item[ 'slug' ] ?? '' ) ] = $item;
-			}
-			$dashboard = $baseMenuBySlug[ PluginNavs::NAV_DASHBOARD ] ?? [];
+			$baseMenuBySlug = $this->indexMenuBySlug( $baseMenu );
+			$dashboard = $this->requireMenuItem( $baseMenuBySlug, PluginNavs::NAV_DASHBOARD );
 
 			$modeMenu[] = $this->withGroup( [
 				'slug'      => 'mode-configure-grades',
 				'title'     => __( 'Security Grades', 'wp-simple-firewall' ),
-				'subtitle'  => (string)( $dashboard[ 'subtitle' ] ?? '' ),
-				'img'       => (string)( $dashboard[ 'img' ] ?? '' ),
+				'subtitle'  => $this->requireMenuItemString( $dashboard, 'subtitle', PluginNavs::NAV_DASHBOARD ),
+				'img'       => $this->requireMenuItemString( $dashboard, 'img', PluginNavs::NAV_DASHBOARD ),
 				'href'      => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES ),
 				'active'    => false,
 				'classes'   => [],
@@ -551,7 +544,7 @@ class NavMenuBuilder {
 		$subItems = [];
 		foreach ( $workspace as $subNav => $definition ) {
 			$subItems[] = $this->createSubItemForNavAndSub(
-				(string)( $definition[ 'menu_title' ] ?? '' ),
+				$definition[ 'menu_title' ],
 				PluginNavs::NAV_REPORTS,
 				$subNav
 			);
@@ -625,10 +618,43 @@ class NavMenuBuilder {
 	}
 
 	private function markGroupBoundary( array $item, string $previousGroup ) :array {
-		if ( !empty( $previousGroup ) && $previousGroup !== (string)( $item[ 'group' ] ?? '' ) ) {
+		if ( !empty( $previousGroup ) && $previousGroup !== $item[ 'group' ] ) {
 			$item[ 'classes' ][] = 'menu-group-break-before';
 		}
 		return $item;
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $menu
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function indexMenuBySlug( array $menu ) :array {
+		$menuBySlug = [];
+		foreach ( $menu as $item ) {
+			$menuBySlug[ $item[ 'slug' ] ] = $item;
+		}
+		return $menuBySlug;
+	}
+
+	/**
+	 * @param array<string,array<string,mixed>> $menuBySlug
+	 * @return array<string,mixed>
+	 */
+	private function requireMenuItem( array $menuBySlug, string $slug ) :array {
+		if ( !isset( $menuBySlug[ $slug ] ) ) {
+			throw new \LogicException( 'Missing menu item for slug: '.$slug );
+		}
+		return $menuBySlug[ $slug ];
+	}
+
+	/**
+	 * @param array<string,mixed> $item
+	 */
+	private function requireMenuItemString( array $item, string $key, string $slug ) :string {
+		if ( !isset( $item[ $key ] ) || !\is_string( $item[ $key ] ) ) {
+			throw new \LogicException( sprintf( 'Missing menu item "%s" for slug: %s', $key, $slug ) );
+		}
+		return $item[ $key ];
 	}
 
 	private function inav() :string {

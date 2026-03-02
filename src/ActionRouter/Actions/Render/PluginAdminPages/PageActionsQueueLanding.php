@@ -36,14 +36,14 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 				'meter_channel' => MeterComponent::CHANNEL_ACTION,
 				'is_hero'       => true,
 			] ),
-			'needs_attention_queue' => (string)( $this->getNeedsAttentionPayload()[ 'render_output' ] ?? '' ),
+			'needs_attention_queue' => $this->getNeedsAttentionPayload()[ 'render_output' ],
 		];
 	}
 
 	protected function getLandingFlags() :array {
 		$renderData = $this->getNeedsAttentionRenderData();
 		return [
-			'queue_is_empty' => empty( $renderData[ 'flags' ][ 'has_items' ] ),
+			'queue_is_empty' => !$renderData[ 'flags' ][ 'has_items' ],
 		];
 	}
 
@@ -67,15 +67,39 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 		];
 	}
 
+	/**
+	 * @return array{
+	 *   flags:array{has_items:bool},
+	 *   strings:array{
+	 *     all_clear_title:string,
+	 *     all_clear_subtitle:string,
+	 *     status_strip_subtext:string,
+	 *     all_clear_icon_class:string
+	 *   }
+	 * }
+	 */
 	private function getNeedsAttentionRenderData() :array {
-		$renderData = $this->getNeedsAttentionPayload()[ 'render_data' ] ?? [];
-		return \is_array( $renderData ) ? $renderData : [];
+		return $this->getNeedsAttentionPayload()[ 'render_data' ];
 	}
 
 	private function getNeedsAttentionString( string $key ) :string {
 		return $this->getNeedsAttentionRenderData()[ 'strings' ][ $key ];
 	}
 
+	/**
+	 * @return array{
+	 *   render_output:string,
+	 *   render_data:array{
+	 *     flags:array{has_items:bool},
+	 *     strings:array{
+	 *       all_clear_title:string,
+	 *       all_clear_subtitle:string,
+	 *       status_strip_subtext:string,
+	 *       all_clear_icon_class:string
+	 *     }
+	 *   }
+	 * }
+	 */
 	private function getNeedsAttentionPayload() :array {
 		if ( $this->needsAttentionPayload === null ) {
 			$this->needsAttentionPayload = self::con()

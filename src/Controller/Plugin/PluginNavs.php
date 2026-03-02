@@ -571,6 +571,17 @@ class PluginNavs {
 		return $definitions[ $nav ][ $subNav ] ?? [];
 	}
 
+	/**
+	 * @return array<string,array{
+	 *   menu_title:string,
+	 *   landing_cta:string,
+	 *   page_title:string,
+	 *   page_subtitle:string,
+	 *   content_key:string,
+	 *   render_action:string,
+	 *   show_create_action:bool
+	 * }>
+	 */
 	public static function reportsWorkspaceDefinitions() :array {
 		return [
 			self::SUBNAV_REPORTS_LIST     => [

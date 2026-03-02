@@ -14,9 +14,7 @@ class PageReports extends BasePluginAdminPage {
 		$con = self::con();
 		$hrefs = [];
 		$renderDefinition = $this->getCurrentSubNavRenderDefinition();
-		if ( !empty( $renderDefinition )
-			 && $renderDefinition[ 'show_create_action' ]
-			 && $con->caps->canReportsLocal() ) {
+		if ( $renderDefinition[ 'show_create_action' ] && $con->caps->canReportsLocal() ) {
 			\array_unshift( $hrefs, [
 				'title'   => __( 'Create Custom Report', 'wp-simple-firewall' ),
 				'href'    => '#',
@@ -49,26 +47,17 @@ class PageReports extends BasePluginAdminPage {
 
 	protected function getInnerPageTitle() :string {
 		$definition = $this->getCurrentWorkspaceDefinition();
-		return !empty( $definition[ 'page_title' ] )
-			? $definition[ 'page_title' ]
-			: CommonDisplayStrings::get( 'security_reports_label' );
+		return $definition[ 'page_title' ];
 	}
 
 	protected function getInnerPageSubTitle() :string {
 		$definition = $this->getCurrentWorkspaceDefinition();
-		return !empty( $definition[ 'page_subtitle' ] )
-			? $definition[ 'page_subtitle' ]
-			: __( 'Summary Security Reports.', 'wp-simple-firewall' );
+		return $definition[ 'page_subtitle' ];
 	}
 
 	private function buildContent() :array {
 		$subNav = $this->getCurrentSubNav();
 		$definition = $this->getCurrentSubNavRenderDefinition();
-		if ( empty( $definition )
-			 || empty( $definition[ 'content_key' ] )
-			 || empty( $definition[ 'render_action' ] ) ) {
-			return [];
-		}
 
 		return [
 			$definition[ 'content_key' ] => self::con()->action_router->render(
@@ -87,8 +76,7 @@ class PageReports extends BasePluginAdminPage {
 	}
 
 	private function getCurrentSubNav() :string {
-		$subNav = $this->action_data[ 'nav_sub' ] ?? '';
-		return \is_string( $subNav ) ? $subNav : '';
+		return $this->action_data[ 'nav_sub' ];
 	}
 
 	private function buildActionDataForSubNav( string $subNav ) :array {
@@ -97,9 +85,23 @@ class PageReports extends BasePluginAdminPage {
 			: [];
 	}
 
+	/**
+	 * @return array{
+	 *   menu_title:string,
+	 *   landing_cta:string,
+	 *   page_title:string,
+	 *   page_subtitle:string,
+	 *   content_key:string,
+	 *   render_action:string,
+	 *   show_create_action:bool
+	 * }
+	 */
 	private function getWorkspaceDefinitionForSubNav( string $subNav ) :array {
 		$definitions = PluginNavs::reportsWorkspaceDefinitions();
-		return $definitions[ $subNav ] ?? [];
+		if ( !isset( $definitions[ $subNav ] ) ) {
+			throw new \LogicException( 'Missing reports workspace definition for subnav: '.$subNav );
+		}
+		return $definitions[ $subNav ];
 	}
 
 	private function buildReportsSettingsActionData() :array {
@@ -112,5 +114,11 @@ class PageReports extends BasePluginAdminPage {
 		return ( new GetOptionsForZoneComponents() )->run(
 			PluginNavs::reportsSettingsZoneComponentSlugs()
 		);
+	}
+
+	protected function getRequiredDataKeys() :array {
+		return [
+			'nav_sub',
+		];
 	}
 }

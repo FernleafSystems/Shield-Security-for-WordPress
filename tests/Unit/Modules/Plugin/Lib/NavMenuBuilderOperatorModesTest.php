@@ -88,7 +88,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'primary', $menu[ 1 ][ 'group' ] );
 	}
 
-	public function testConfigureModeGradesItemUsesEmptyMetadataWhenDashboardSourceMissing() :void {
+	public function testConfigureModeGradesItemThrowsWhenDashboardSourceMissing() :void {
 		$this->installControllerStubs();
 
 		$baseMenu = \array_values( \array_filter(
@@ -96,13 +96,10 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			fn( array $item ) :bool => ( $item[ 'slug' ] ?? '' ) !== PluginNavs::NAV_DASHBOARD
 		) );
 
-		$menu = $this->invokeBuildModeNav( $baseMenu, PluginNavs::MODE_CONFIGURE );
-		$grades = $menu[ 1 ];
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'Missing menu item for slug: dashboard' );
 
-		$this->assertSame( 'mode-configure-grades', $grades[ 'slug' ] );
-		$this->assertSame( '', $grades[ 'img' ] );
-		$this->assertSame( '', $grades[ 'subtitle' ] );
-		$this->assertSame( 'primary', $grades[ 'group' ] );
+		$this->invokeBuildModeNav( $baseMenu, PluginNavs::MODE_CONFIGURE );
 	}
 
 	public function testActivityIncludesByUserAndByIpInvestigateEntries() :void {
@@ -318,20 +315,40 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				'img'      => 'icon-speedometer',
 			],
 			[
-				'slug'  => PluginNavs::NAV_ZONES,
-				'title' => 'Security Zones',
+				'slug'     => PluginNavs::NAV_ZONES,
+				'title'    => 'Security Zones',
+				'subtitle' => 'Setup Your Security Zones',
+				'img'      => 'icon-grid-1x2-fill',
 			],
 			[
-				'slug'  => PluginNavs::NAV_RULES,
-				'title' => 'Rules',
+				'slug'     => PluginNavs::NAV_RULES,
+				'title'    => 'Rules',
+				'subtitle' => 'Custom Security Rules',
+				'img'      => 'icon-node-plus-fill',
 			],
 			[
-				'slug'  => PluginNavs::NAV_TOOLS,
-				'title' => 'Tools',
+				'slug'     => PluginNavs::NAV_TOOLS,
+				'title'    => 'Tools',
+				'subtitle' => 'Import, Whitelabel, Wizard',
+				'img'      => 'icon-tools',
 			],
 			[
-				'slug'  => PluginNavs::NAV_SCANS,
-				'title' => 'Scans',
+				'slug'     => PluginNavs::NAV_SCANS,
+				'title'    => 'Scans',
+				'subtitle' => 'Results & Manual Scans',
+				'img'      => 'icon-shield-shaded',
+			],
+			[
+				'slug'     => PluginNavs::NAV_ACTIVITY,
+				'title'    => 'Activity Logs',
+				'subtitle' => 'All WP Site Activity',
+				'img'      => 'icon-person-lines-fill',
+			],
+			[
+				'slug'     => PluginNavs::NAV_REPORTS,
+				'title'    => 'Reports',
+				'subtitle' => "See What's Happening",
+				'img'      => 'icon-clipboard-data-fill',
 			],
 			[
 				'slug' => PluginNavs::NAV_LICENSE,

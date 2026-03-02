@@ -9,10 +9,16 @@ class BuildBreadCrumbs {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
 	public function current() :array {
 		return $this->for( PluginNavs::GetNav(), PluginNavs::GetSubNav() );
 	}
 
+	/**
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
 	public function for( string $nav, string $subnav ) :array {
 		try {
 			$crumbs = $this->parse( $nav, $subnav );
@@ -25,6 +31,7 @@ class BuildBreadCrumbs {
 
 	/**
 	 * @throws \Exception
+	 * @return list<array{text:string, title:string, href:string}>
 	 */
 	public function parse( string $nav, string $subNav ) :array {
 		$crumbs = [];
@@ -123,6 +130,10 @@ class BuildBreadCrumbs {
 		return PluginNavs::isModeLandingRoute( $nav, $subNav );
 	}
 
+	/**
+	 * @param list<array{text:string, title:string, href:string}> $crumbs
+	 * @param array{text:string, title:string, href:string} $crumb
+	 */
 	private function appendCrumbIfNotCurrentRoute( array &$crumbs, string $candidateNav, string $candidateSubNav, string $currentNav, string $currentSubNav, array $crumb ) :void {
 		if ( !$this->isSameRoute( $candidateNav, $candidateSubNav, $currentNav, $currentSubNav ) ) {
 			$crumbs[] = $crumb;
