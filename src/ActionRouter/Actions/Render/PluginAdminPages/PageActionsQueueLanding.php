@@ -2,8 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	Component\Base as MeterComponent,
+	Meter\MeterSummary
+};
 
 class PageActionsQueueLanding extends PageModeLandingBase {
 
@@ -25,6 +30,11 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	protected function getLandingContent() :array {
 		$con = self::con();
 		return [
+			'action_meter'          => $con->action_router->render( MeterCard::class, [
+				'meter_slug'    => MeterSummary::SLUG,
+				'meter_channel' => MeterComponent::CHANNEL_ACTION,
+				'is_hero'       => true,
+			] ),
 			'needs_attention_queue' => $con->action_router->render( NeedsAttentionQueue::class ),
 		];
 	}

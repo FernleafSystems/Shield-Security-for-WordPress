@@ -24,6 +24,7 @@ class MeterCardChannelTest extends BaseUnitTest {
 		$this->setBuiltMetersByChannelCache( [
 			MeterSummary::SLUG => [
 				ComponentBase::CHANNEL_CONFIG => $this->buildMeterFixture( 94 ),
+				ComponentBase::CHANNEL_ACTION => $this->buildMeterFixture( 61 ),
 			],
 		] );
 	}
@@ -51,6 +52,16 @@ class MeterCardChannelTest extends BaseUnitTest {
 		$meterData = $this->invokeNonPublicMethod( $action, 'getMeterData' );
 
 		$this->assertSame( 27, (int)$meterData[ 'totals' ][ 'percentage' ] );
+	}
+
+	public function test_meter_channel_action_uses_action_channel_data() :void {
+		$action = new MeterCard( [
+			'meter_slug'    => MeterSummary::SLUG,
+			'meter_channel' => '  AcTiOn ',
+		] );
+		$meterData = $this->invokeNonPublicMethod( $action, 'getMeterData' );
+
+		$this->assertSame( 61, (int)$meterData[ 'totals' ][ 'percentage' ] );
 	}
 
 	public function test_invalid_meter_channel_surfaces_strict_handler_rejection() :void {

@@ -1,6 +1,12 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
+	<div class="progress-metercard progress-metercard-hero progress-metercard-summary mb-3"
+		 data-meter_slug="summary"
+		 data-meter_channel="action">
+		{{ content.action_meter|raw }}
+	</div>
+
 	{{ content.needs_attention_queue|raw }}
 
 	<div class="card shield-card mt-3">
