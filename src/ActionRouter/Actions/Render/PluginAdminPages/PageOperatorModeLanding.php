@@ -22,8 +22,7 @@ class PageOperatorModeLanding extends BaseRender {
 	protected function getRenderData() :array {
 		$con = self::con();
 
-		$queuePayload = $con->action_router->action( NeedsAttentionQueue::class )->payload();
-		$queueSummary = $queuePayload[ 'vars' ][ 'summary' ];
+		$queueSummary = $this->getQueueSummary();
 		$configMeter = ( new Handler() )->getMeter( MeterSummary::SLUG, true, MeterComponent::CHANNEL_CONFIG );
 		$configPercentage = $configMeter[ 'totals' ][ 'percentage' ];
 		$configTraffic = BuildMeter::trafficFromPercentage( $configPercentage );
@@ -50,6 +49,12 @@ class PageOperatorModeLanding extends BaseRender {
 				'default_mode' => $defaultMode,
 			],
 		];
+	}
+
+	private function getQueueSummary() :array {
+		return NeedsAttentionQueue::summaryFromRenderPayload(
+			self::con()->action_router->action( NeedsAttentionQueue::class )->payload()
+		);
 	}
 
 	private function buildActionsHero( array $queueSummary ) :array {

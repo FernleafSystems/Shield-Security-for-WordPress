@@ -1,47 +1,25 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
-	function shield_security_get_plugin() {
-		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
-	InvokesNonPublicMethods,
-	PluginControllerInstaller
-};
 
 class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 
-	use InvokesNonPublicMethods;
-
-	protected function setUp() :void {
-		parent::setUp();
-		$this->installControllerStub();
-	}
-
-	protected function tearDown() :void {
-		PluginControllerInstaller::reset();
-		parent::tearDown();
-	}
-
-	public function test_summary_contract_with_items_uses_highest_severity_and_alert_icon() :void {
-		$queue = new NeedsAttentionQueue();
-		$summary = $this->invokeNonPublicMethod( $queue, 'buildQueueSummaryContract', [
-			true,
-			4,
-			[
-				[ 'severity' => 'warning' ],
-				[ 'severity' => 'critical' ],
+	public function test_extracts_summary_from_render_payload_contract() :void {
+		$summary = NeedsAttentionQueue::summaryFromRenderPayload( [
+			'render_data' => [
+				'vars' => [
+					'summary' => [
+						'has_items'   => true,
+						'total_items' => 4,
+						'severity'    => 'critical',
+						'icon_class'  => 'bi bi-exclamation-triangle-fill',
+						'subtext'     => 'Last scan: 2 minutes ago',
+					],
+				],
 			],
-			'Last scan: 2 minutes ago',
 		] );
 
 		$this->assertSame( true, $summary[ 'has_items' ] );
@@ -51,30 +29,34 @@ class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 		$this->assertSame( 'Last scan: 2 minutes ago', $summary[ 'subtext' ] );
 	}
 
-	public function test_summary_contract_without_items_is_all_clear() :void {
-		$queue = new NeedsAttentionQueue();
-		$summary = $this->invokeNonPublicMethod( $queue, 'buildQueueSummaryContract', [
-			false,
-			0,
-			[],
-			'',
+	public function test_prefers_render_data_summary_contract_over_top_level_vars() :void {
+		$summary = NeedsAttentionQueue::summaryFromRenderPayload( [
+			'vars'        => [
+				'summary' => [
+					'has_items'   => false,
+					'total_items' => 0,
+					'severity'    => 'good',
+					'icon_class'  => 'wrong-path',
+					'subtext'     => 'wrong-path',
+				],
+			],
+			'render_data' => [
+				'vars' => [
+					'summary' => [
+						'has_items'   => true,
+						'total_items' => 3,
+						'severity'    => 'warning',
+						'icon_class'  => 'from-render-data',
+						'subtext'     => 'from-render-data',
+					],
+				],
+			],
 		] );
 
-		$this->assertSame( false, $summary[ 'has_items' ] );
-		$this->assertSame( 0, $summary[ 'total_items' ] );
-		$this->assertSame( 'good', $summary[ 'severity' ] );
-		$this->assertSame( 'bi bi-shield-check', $summary[ 'icon_class' ] );
-		$this->assertSame( '', $summary[ 'subtext' ] );
-	}
-
-	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+		$this->assertSame( true, $summary[ 'has_items' ] );
+		$this->assertSame( 3, $summary[ 'total_items' ] );
+		$this->assertSame( 'warning', $summary[ 'severity' ] );
+		$this->assertSame( 'from-render-data', $summary[ 'icon_class' ] );
+		$this->assertSame( 'from-render-data', $summary[ 'subtext' ] );
 	}
 }
