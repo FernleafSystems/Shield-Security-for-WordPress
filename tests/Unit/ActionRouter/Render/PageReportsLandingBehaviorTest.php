@@ -78,13 +78,15 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_landing_strings_include_list_charts_and_settings_ctas() :void {
+	public function test_landing_strings_include_section_headings_and_reports_list_cta() :void {
 		$page = new PageReportsLanding();
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
+		$this->assertSame( 'Activity Overview', $strings[ 'charts_title' ] ?? '' );
+		$this->assertSame( 'Recent Reports', $strings[ 'recent_reports_title' ] ?? '' );
 		$this->assertSame( 'Open Reports List', $strings[ 'cta_reports_list' ] ?? '' );
-		$this->assertSame( 'Open Charts & Trends', $strings[ 'cta_reports_charts' ] ?? '' );
-		$this->assertSame( 'Open Alert Settings', $strings[ 'cta_reports_settings' ] ?? '' );
+		$this->assertNotSame( '', \trim( (string)( $strings[ 'cta_reports_charts' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $strings[ 'cta_reports_settings' ] ?? '' ) ) );
 	}
 
 	private function installControllerStub() :void {

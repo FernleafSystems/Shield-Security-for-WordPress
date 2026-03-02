@@ -44,9 +44,12 @@ class PageReportsLanding extends PageModeLandingBase {
 	}
 
 	protected function getLandingStrings() :array {
-		$strings = [];
+		$strings = [
+			'charts_title'         => __( 'Activity Overview', 'wp-simple-firewall' ),
+			'recent_reports_title' => __( 'Recent Reports', 'wp-simple-firewall' ),
+		];
 		foreach ( PluginNavs::reportsWorkspaceDefinitions() as $subNav => $definition ) {
-			$strings[ 'cta_reports_'.$subNav ] = $definition[ 'landing_cta' ];
+			$strings[ 'cta_reports_'.$subNav ] = (string)( $definition[ 'landing_cta' ] ?? '' );
 		}
 		return $strings;
 	}

@@ -1,15 +1,20 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="card shield-card mb-3">
-		<div class="shield-card-accent status-info"></div>
-		<div class="card-body d-flex justify-content-end gap-2 flex-wrap">
-			<a href="{{ hrefs.reports_list }}" class="btn btn-outline-primary">{{ strings.cta_reports_list }}</a>
-			<a href="{{ hrefs.reports_charts }}" class="btn btn-outline-primary">{{ strings.cta_reports_charts }}</a>
-			<a href="{{ hrefs.reports_settings }}" class="btn btn-outline-primary">{{ strings.cta_reports_settings }}</a>
+	<div data-reports-section="charts">
+		<h5 class="mb-2" data-reports-heading="charts">{{ strings.charts_title }}</h5>
+		<div data-reports-content="summary-charts">
+			{{ content.summary_charts|raw }}
 		</div>
 	</div>
 
-	{{ content.summary_charts|raw }}
-	{{ content.recent_reports|raw }}
+	<div class="mt-4" data-reports-section="recent-reports">
+		<div class="d-flex align-items-center justify-content-between mb-2">
+			<h5 class="mb-0" data-reports-heading="recent-reports">{{ strings.recent_reports_title }}</h5>
+			<a href="{{ hrefs.reports_list }}" class="btn btn-sm btn-outline-secondary" data-reports-cta="reports-list">{{ strings.cta_reports_list }}</a>
+		</div>
+		<div data-reports-content="recent-reports">
+			{{ content.recent_reports|raw }}
+		</div>
+	</div>
 {% endblock %}
