@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
@@ -41,16 +45,28 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	private function renderActionsQueueLandingInnerPage() :array {
+		return $this->processActionPayloadWithAdminBypass(
+			PageActionsQueueLanding::SLUG,
+			[
+				Constants::NAV_ID     => PluginNavs::NAV_SCANS,
+				Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
+			]
+		);
+	}
+
 	public function test_all_clear_state_renders_page_banner_and_compact_widget_without_duplicate_copy() :void {
-		TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
+
+		$innerPayload = $this->renderActionsQueueLandingInnerPage();
+		$subtext = (string)( $innerPayload[ 'render_data' ][ 'strings' ][ 'all_clear_subtext' ] ?? '' );
+		$this->assertNotSame( '', $subtext, 'Expected all-clear temporal context from queue payload.' );
+		$this->assertFalse( (bool)( $innerPayload[ 'render_data' ][ 'flags' ][ 'has_items' ] ?? true ) );
 
 		$payload = $this->renderActionsQueueLandingPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$this->assertNotSame( '', $html, 'Expected non-empty render output for actions queue landing.' );
 		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Actions queue landing render exception check' );
-
-		$subtext = (string)( $payload[ 'render_data' ][ 'strings' ][ 'all_clear_subtext' ] ?? '' );
-		$this->assertNotSame( '', $subtext, 'Expected all-clear temporal context from queue payload.' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathExists( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 'All-clear context banner marker' );
