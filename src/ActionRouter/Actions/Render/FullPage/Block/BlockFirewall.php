@@ -38,7 +38,7 @@ class BlockFirewall extends BaseBlock {
 		return \array_merge( [
 			__( 'Remaining Offenses Allowed', 'wp-simple-firewall' ) => $remainingOffenses,
 			__( 'Firewall Rule Category', 'wp-simple-firewall' )     =>
-				( new FirewallCategoryNames() )->getFor( (string)$blockMeta[ 'match_category' ] ?? '' ),
+				( new FirewallCategoryNames() )->getFor( (string)( $blockMeta[ 'match_category' ] ?? '' ) ),
 			__( 'Request Parameter', 'wp-simple-firewall' )          => $blockMeta[ 'match_request_param' ],
 			__( 'Request Parameter Value', 'wp-simple-firewall' )    => $blockMeta[ 'match_request_value' ],
 			__( 'Firewall Pattern', 'wp-simple-firewall' )           => $blockMeta[ 'match_pattern' ],

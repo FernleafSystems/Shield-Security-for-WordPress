@@ -91,7 +91,7 @@ class AttentionItemsProvider {
 			];
 		}
 
-		$severity = \strtolower( \trim( (string)( $items[ 0 ][ 'severity' ] ?? '' ) ) );
+		$severity = \strtolower( \trim( $items[ 0 ][ 'severity' ] ) );
 		if ( !\in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ) {
 			$severity = 'warning';
 		}
@@ -159,10 +159,19 @@ class AttentionItemsProvider {
 	}
 
 	private function buildSummaryWarningItem( array $summaryMeter, string $traffic, string $defaultHref ) :array {
-		$warning = \is_array( $summaryMeter[ 'warning' ] ?? null ) ? $summaryMeter[ 'warning' ] : [];
-		$text = (string)( $warning[ 'text' ] ?? '' );
-		if ( empty( $text ) ) {
+		$warning = $summaryMeter[ 'warning' ] ?? null;
+		if ( !\is_array( $warning ) ) {
 			return [];
+		}
+
+		$text = $warning[ 'text' ] ?? '';
+		if ( !\is_string( $text ) || $text === '' ) {
+			return [];
+		}
+
+		$href = $warning[ 'href' ] ?? $defaultHref;
+		if ( !\is_string( $href ) || $href === '' ) {
+			$href = $defaultHref;
 		}
 
 		return [
@@ -172,7 +181,7 @@ class AttentionItemsProvider {
 			'text'     => $text,
 			'count'    => 1,
 			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
-			'href'     => (string)( $warning[ 'href' ] ?? $defaultHref ),
+			'href'     => $href,
 			'action'   => __( 'View', 'wp-simple-firewall' ),
 		];
 	}
@@ -324,33 +333,35 @@ class AttentionItemsProvider {
 			return [];
 		}
 
+		$components = $overallConfigMeter[ 'components' ] ?? [];
+		if ( !\is_array( $components ) ) {
+			return [];
+		}
+
 		$items = [];
-		foreach ( (array)( $overallConfigMeter[ 'components' ] ?? [] ) as $component ) {
-			$slug = (string)( $component[ 'slug' ] ?? '' );
-			if ( !\in_array( $slug, self::MAINTENANCE_COMPONENT_SLUGS, true ) ) {
-				continue;
-			}
-			if ( !empty( $component[ 'is_protected' ] ) ) {
+		foreach ( $components as $component ) {
+			if ( !\is_array( $component ) ) {
 				continue;
 			}
 
-			$title = (string)( $component[ 'title_unprotected' ] ?? $component[ 'title' ] ?? '' );
-			$description = (string)( $component[ 'desc_unprotected' ] ?? $component[ 'description' ] ?? '' );
-			$href = (string)( $component[ 'href_full' ] ?? self::con()->plugin_urls->adminHome() );
-			$action = (string)( $component[ 'fix' ] ?? __( 'Fix', 'wp-simple-firewall' ) );
-			if ( empty( $title ) || empty( $description ) || empty( $href ) ) {
+			$normalized = $this->normalizeMaintenanceComponent( $component );
+			if ( $normalized === null || !\in_array( $normalized[ 'slug' ], self::MAINTENANCE_COMPONENT_SLUGS, true ) ) {
+				continue;
+			}
+
+			if ( $normalized[ 'is_protected' ] ) {
 				continue;
 			}
 
 			$item = $this->buildItem(
-				$slug,
+				$normalized[ 'slug' ],
 				'scans',
-				$title,
+				$normalized[ 'title' ],
 				1,
 				'warning',
-				$description,
-				$href,
-				$action
+				$normalized[ 'description' ],
+				$normalized[ 'href' ],
+				$normalized[ 'action' ]
 			);
 			if ( !empty( $item ) ) {
 				$items[] = $item;
@@ -361,34 +372,82 @@ class AttentionItemsProvider {
 	}
 
 	/**
+	 * @param array<string, mixed> $component
+	 * @return array{
+	 *   slug:string,
+	 *   is_protected:bool,
+	 *   title:string,
+	 *   description:string,
+	 *   href:string,
+	 *   action:string
+	 * }|null
+	 */
+	private function normalizeMaintenanceComponent( array $component ) :?array {
+		$slug = $component[ 'slug' ] ?? '';
+		$title = $component[ 'title_unprotected' ] ?? $component[ 'title' ] ?? '';
+		$description = $component[ 'desc_unprotected' ] ?? $component[ 'description' ] ?? '';
+		$href = $component[ 'href_full' ] ?? self::con()->plugin_urls->adminHome();
+		$action = $component[ 'fix' ] ?? __( 'Fix', 'wp-simple-firewall' );
+
+		if ( !\is_string( $slug ) || $slug === '' ) {
+			return null;
+		}
+		if ( !\is_string( $title ) || $title === '' ) {
+			return null;
+		}
+		if ( !\is_string( $description ) || $description === '' ) {
+			return null;
+		}
+		if ( !\is_string( $href ) || $href === '' ) {
+			return null;
+		}
+		if ( !\is_string( $action ) || $action === '' ) {
+			return null;
+		}
+
+		return [
+			'slug'         => $slug,
+			'is_protected' => !empty( $component[ 'is_protected' ] ),
+			'title'        => $title,
+			'description'  => $description,
+			'href'         => $href,
+			'action'       => $action,
+		];
+	}
+
+	/**
 	 * @param array<int, array<string, mixed>> $items
 	 * @return array<int, array<string, mixed>>
 	 */
 	public function sortItems( array $items ) :array {
 		\usort( $items, function ( array $a, array $b ) :int {
-			$rankA = self::SEVERITY_SORT[ (string)( $a[ 'severity' ] ?? '' ) ] ?? \PHP_INT_MAX;
-			$rankB = self::SEVERITY_SORT[ (string)( $b[ 'severity' ] ?? '' ) ] ?? \PHP_INT_MAX;
+			$rankA = $this->severityRank( $a[ 'severity' ] );
+			$rankB = $this->severityRank( $b[ 'severity' ] );
 			if ( $rankA !== $rankB ) {
 				return $rankA <=> $rankB;
 			}
 
-			$countCmp = (int)( $b[ 'count' ] ?? 0 ) <=> (int)( $a[ 'count' ] ?? 0 );
+			$countCmp = $b[ 'count' ] <=> $a[ 'count' ];
 			if ( $countCmp !== 0 ) {
 				return $countCmp;
 			}
 
-			$keyA = \array_search( (string)( $a[ 'key' ] ?? '' ), self::KEY_SORT, true );
-			$keyB = \array_search( (string)( $b[ 'key' ] ?? '' ), self::KEY_SORT, true );
+			$keyA = \array_search( $a[ 'key' ], self::KEY_SORT, true );
+			$keyB = \array_search( $b[ 'key' ], self::KEY_SORT, true );
 			$keyA = $keyA === false ? \PHP_INT_MAX : $keyA;
 			$keyB = $keyB === false ? \PHP_INT_MAX : $keyB;
 			if ( $keyA !== $keyB ) {
 				return $keyA <=> $keyB;
 			}
 
-			return \strcmp( (string)( $a[ 'key' ] ?? '' ), (string)( $b[ 'key' ] ?? '' ) );
+			return \strcmp( $a[ 'key' ], $b[ 'key' ] );
 		} );
 
 		return $items;
+	}
+
+	private function severityRank( string $severity ) :int {
+		return self::SEVERITY_SORT[ $severity ] ?? \PHP_INT_MAX;
 	}
 
 	private function buildItem(

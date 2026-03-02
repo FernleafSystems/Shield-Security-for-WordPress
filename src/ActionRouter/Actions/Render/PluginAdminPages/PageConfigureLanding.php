@@ -45,7 +45,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 		return [
 			'hero_meter'           => $heroMeter,
-			'overview_meter_cards' => $this->buildOverviewMeterCards( $meterPayload[ 'snapshots' ] ?? [] ),
+			'overview_meter_cards' => $this->buildOverviewMeterCards( $meterPayload[ 'snapshots' ] ),
 		];
 	}
 
@@ -63,7 +63,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 		$meterPayload = $this->getConfigureMeterPayload();
 		$zoneLinks = ( new ZoneRenderDataBuilder() )->getZoneLinks();
 		return [
-			'configure_stats' => $this->buildConfigureStats( $meterPayload[ 'traffic_counts' ] ?? $this->buildEmptyTrafficCounts(), \count( $zoneLinks ) ),
+			'configure_stats' => $this->buildConfigureStats( $meterPayload[ 'traffic_counts' ], \count( $zoneLinks ) ),
 			'zone_links'      => $zoneLinks,
 		];
 	}
@@ -100,9 +100,9 @@ class PageConfigureLanding extends PageModeLandingBase {
 	private function buildOverviewMeterCards( array $meterSnapshots ) :array {
 		$cards = [];
 		foreach ( $meterSnapshots as $meterSnapshot ) {
-			$meterSlug = (string)( $meterSnapshot[ 'slug' ] ?? '' );
-			$meterData = (array)( $meterSnapshot[ 'meter_data' ] ?? [] );
-			$traffic = (string)( $meterSnapshot[ 'traffic' ] ?? '' );
+			$meterSlug = $meterSnapshot[ 'slug' ];
+			$meterData = $meterSnapshot[ 'meter_data' ];
+			$traffic = $meterSnapshot[ 'traffic' ];
 			$cards[] = [
 				'slug'    => $meterSlug,
 				'traffic' => $traffic,
@@ -122,10 +122,8 @@ class PageConfigureLanding extends PageModeLandingBase {
 			$trafficCounts = $this->buildEmptyTrafficCounts();
 			foreach ( $this->getConfigureMeterSlugs() as $meterSlug ) {
 				$meterData = $this->getMeterDataForSlug( $meterSlug );
-				$traffic = BuildMeter::trafficFromPercentage( (int)( $meterData[ 'totals' ][ 'percentage' ] ?? 0 ) );
-				if ( isset( $trafficCounts[ $traffic ] ) ) {
-					$trafficCounts[ $traffic ]++;
-				}
+				$traffic = BuildMeter::trafficFromPercentage( $meterData[ 'totals' ][ 'percentage' ] );
+				$trafficCounts[ $traffic ]++;
 				$snapshots[] = [
 					'slug'       => $meterSlug,
 					'meter_data' => $meterData,
@@ -151,15 +149,15 @@ class PageConfigureLanding extends PageModeLandingBase {
 		return [
 			[
 				'name'   => __( 'Good Areas', 'wp-simple-firewall' ),
-				'counts' => [ 'lifetime' => (int)( $meterTrafficCounts[ 'good' ] ?? 0 ) ],
+				'counts' => [ 'lifetime' => $meterTrafficCounts[ 'good' ] ],
 			],
 			[
 				'name'   => __( 'Needs Work', 'wp-simple-firewall' ),
-				'counts' => [ 'lifetime' => (int)( $meterTrafficCounts[ 'warning' ] ?? 0 ) ],
+				'counts' => [ 'lifetime' => $meterTrafficCounts[ 'warning' ] ],
 			],
 			[
 				'name'   => __( 'Critical Areas', 'wp-simple-firewall' ),
-				'counts' => [ 'lifetime' => (int)( $meterTrafficCounts[ 'critical' ] ?? 0 ) ],
+				'counts' => [ 'lifetime' => $meterTrafficCounts[ 'critical' ] ],
 			],
 			[
 				'name'   => __( 'Security Zones', 'wp-simple-firewall' ),

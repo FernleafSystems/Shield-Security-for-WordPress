@@ -84,14 +84,14 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 				'pane_id'   => $idPrefix.'FileStatus',
 				'nav_id'    => 'tab-navlink-'.$subjectKey.'-file-status',
 				'label'     => __( 'File Scan Status', 'wp-simple-firewall' ),
-				'count'     => (int)( $counts[ 'file_status' ] ?? 0 ),
+				'count'     => $counts[ 'file_status' ],
 				'is_active' => false,
 			],
 			'activity'    => [
 				'pane_id'   => $idPrefix.'Activity',
 				'nav_id'    => 'tab-navlink-'.$subjectKey.'-activity',
 				'label'     => __( 'Activity', 'wp-simple-firewall' ),
-				'count'     => (int)( $counts[ 'activity' ] ?? 0 ),
+				'count'     => $counts[ 'activity' ],
 				'is_active' => false,
 			],
 		];
@@ -104,7 +104,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 					'pane_id'   => $idPrefix.'Vulnerabilities',
 					'nav_id'    => 'tab-navlink-'.$subjectKey.'-vulnerabilities',
 					'label'     => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-					'count'     => (int)( $counts[ 'vulnerabilities' ] ?? 0 ),
+					'count'     => $counts[ 'vulnerabilities' ],
 					'is_active' => false,
 				],
 				'activity'        => $tabs[ 'activity' ],
@@ -128,9 +128,9 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 				'id'       => $tab[ 'nav_id' ],
 				'controls' => $tab[ 'controls' ],
 				'label'    => $count === null
-					? (string)$tab[ 'label' ]
-					: \sprintf( '%s (%d)', (string)$tab[ 'label' ], (int)$count ),
-				'is_focus' => (bool)$tab[ 'is_active' ],
+					? $tab[ 'label' ]
+					: \sprintf( '%s (%d)', $tab[ 'label' ], $count ),
+				'is_focus' => $tab[ 'is_active' ],
 			];
 		}
 		return $items;
@@ -264,6 +264,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			$normalized = [];
 		}
 
-		return (string)( $normalized[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ] ?? '' );
+		$subjectId = $normalized[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ] ?? '';
+		return \is_string( $subjectId ) ? $subjectId : '';
 	}
 }

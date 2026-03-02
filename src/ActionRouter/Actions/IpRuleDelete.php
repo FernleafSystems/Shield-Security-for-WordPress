@@ -7,7 +7,7 @@ class IpRuleDelete extends BaseAction {
 	public const SLUG = 'ip_rule_delete';
 
 	protected function exec() {
-		$ID = (int)$this->action_data[ 'rid' ] ?? -1;
+		$ID = (int)( $this->action_data[ 'rid' ] ?? -1 );
 
 		if ( $ID < 0 ) {
 			$success = false;

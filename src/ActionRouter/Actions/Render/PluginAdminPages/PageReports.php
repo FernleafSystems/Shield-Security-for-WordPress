@@ -15,7 +15,7 @@ class PageReports extends BasePluginAdminPage {
 		$hrefs = [];
 		$renderDefinition = $this->getCurrentSubNavRenderDefinition();
 		if ( !empty( $renderDefinition )
-			 && ( $renderDefinition[ 'show_create_action' ] ?? false )
+			 && $renderDefinition[ 'show_create_action' ]
 			 && $con->caps->canReportsLocal() ) {
 			\array_unshift( $hrefs, [
 				'title'   => __( 'Create Custom Report', 'wp-simple-firewall' ),
@@ -50,40 +50,47 @@ class PageReports extends BasePluginAdminPage {
 	protected function getInnerPageTitle() :string {
 		$definition = $this->getCurrentWorkspaceDefinition();
 		return !empty( $definition[ 'page_title' ] )
-			? (string)$definition[ 'page_title' ]
+			? $definition[ 'page_title' ]
 			: CommonDisplayStrings::get( 'security_reports_label' );
 	}
 
 	protected function getInnerPageSubTitle() :string {
 		$definition = $this->getCurrentWorkspaceDefinition();
 		return !empty( $definition[ 'page_subtitle' ] )
-			? (string)$definition[ 'page_subtitle' ]
+			? $definition[ 'page_subtitle' ]
 			: __( 'Summary Security Reports.', 'wp-simple-firewall' );
 	}
 
 	private function buildContent() :array {
-		$subNav = (string)( $this->action_data[ 'nav_sub' ] ?? '' );
+		$subNav = $this->getCurrentSubNav();
 		$definition = $this->getCurrentSubNavRenderDefinition();
-		if ( empty( $definition[ 'content_key' ] ) || empty( $definition[ 'render_action' ] ) ) {
+		if ( empty( $definition )
+			 || empty( $definition[ 'content_key' ] )
+			 || empty( $definition[ 'render_action' ] ) ) {
 			return [];
 		}
 
 		return [
-			(string)$definition[ 'content_key' ] => self::con()->action_router->render(
-				(string)$definition[ 'render_action' ],
+			$definition[ 'content_key' ] => self::con()->action_router->render(
+				$definition[ 'render_action' ],
 				$this->buildActionDataForSubNav( $subNav )
 			),
 		];
 	}
 
 	private function getCurrentSubNavRenderDefinition() :array {
-		$subNav = (string)( $this->action_data[ 'nav_sub' ] ?? '' );
+		$subNav = $this->getCurrentSubNav();
 		return PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
 	}
 
 	private function getCurrentWorkspaceDefinition() :array {
-		$subNav = (string)( $this->action_data[ 'nav_sub' ] ?? '' );
+		$subNav = $this->getCurrentSubNav();
 		return PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
+	}
+
+	private function getCurrentSubNav() :string {
+		$subNav = $this->action_data[ 'nav_sub' ] ?? '';
+		return \is_string( $subNav ) ? $subNav : '';
 	}
 
 	private function buildActionDataForSubNav( string $subNav ) :array {

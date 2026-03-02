@@ -23,8 +23,9 @@ class PageOperatorModeLanding extends BaseRender {
 		$con = self::con();
 
 		$queuePayload = $con->action_router->action( NeedsAttentionQueue::class )->payload();
+		$queueSummary = $this->normalizeQueueSummary( $queuePayload );
 		$configMeter = ( new Handler() )->getMeter( MeterSummary::SLUG, true, MeterComponent::CHANNEL_CONFIG );
-		$configPercentage = (int)( $configMeter[ 'totals' ][ 'percentage' ] ?? 0 );
+		$configPercentage = $configMeter[ 'totals' ][ 'percentage' ];
 		$configTraffic = BuildMeter::trafficFromPercentage( $configPercentage );
 		$defaultMode = ( new OperatorModePreference() )->getCurrent();
 
@@ -43,7 +44,7 @@ class PageOperatorModeLanding extends BaseRender {
 				'start_mode_help'     => __( 'Choose where Shield opens when you select the plugin menu.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'actions_hero' => $this->buildActionsHero( $queuePayload ),
+				'actions_hero' => $this->buildActionsHero( $queueSummary ),
 				'mode_strip'   => $this->buildModeStrip( $configPercentage, $configTraffic ),
 				'mode_options' => $this->buildModeOptions(),
 				'default_mode' => $defaultMode,
@@ -51,33 +52,70 @@ class PageOperatorModeLanding extends BaseRender {
 		];
 	}
 
-	private function buildActionsHero( array $queuePayload ) :array {
-		$hasItems = !empty( $queuePayload[ 'flags' ][ 'has_items' ] );
-		$totalItems = (int)( $queuePayload[ 'vars' ][ 'total_items' ] ?? 0 );
-		$severity = $hasItems
-			? $this->normalizeSeverity( (string)( $queuePayload[ 'vars' ][ 'overall_severity' ] ?? 'critical' ) )
-			: 'good';
-
+	private function buildActionsHero( array $queueSummary ) :array {
 		return [
-			'severity'     => $severity,
-			'badge_status' => $severity,
-			'icon_class'   => (string)( $queuePayload[ 'strings' ][ $hasItems ? 'status_strip_icon_class' : 'all_clear_icon_class' ]
-										?? self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ) ),
-			'subtitle'     => $hasItems
+			'severity'     => $queueSummary[ 'severity' ],
+			'badge_status' => $queueSummary[ 'severity' ],
+			'icon_class'   => $queueSummary[ 'icon_class' ],
+			'subtitle'     => $queueSummary[ 'has_items' ]
 				? sprintf(
 					_n(
 						'%s issue needs your attention - review and resolve now',
 						'%s issues need your attention - review and resolve now',
-						$totalItems,
+						$queueSummary[ 'total_items' ],
 						'wp-simple-firewall'
 					),
-					$totalItems
+					$queueSummary[ 'total_items' ]
 				)
 				: __( 'All clear - no issues require your attention', 'wp-simple-firewall' ),
-			'meta'         => (string)( $queuePayload[ 'strings' ][ 'status_strip_subtext' ] ?? '' ),
-			'badge_text'   => $hasItems
-				? sprintf( _n( '%s item', '%s items', $totalItems, 'wp-simple-firewall' ), $totalItems )
+			'meta'         => $queueSummary[ 'subtext' ],
+			'badge_text'   => $queueSummary[ 'has_items' ]
+				? sprintf( _n( '%s item', '%s items', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ), $queueSummary[ 'total_items' ] )
 				: __( 'All clear', 'wp-simple-firewall' ),
+		];
+	}
+
+	/**
+	 * @return array{
+	 *   has_items:bool,
+	 *   total_items:int,
+	 *   severity:string,
+	 *   icon_class:string,
+	 *   subtext:string
+	 * }
+	 */
+	private function normalizeQueueSummary( array $queuePayload ) :array {
+		$flags = $queuePayload[ 'flags' ] ?? [];
+		$vars = $queuePayload[ 'vars' ] ?? [];
+		$strings = $queuePayload[ 'strings' ] ?? [];
+
+		$hasItems = !empty( $flags[ 'has_items' ] );
+		$totalItems = $vars[ 'total_items' ] ?? 0;
+		if ( !\is_int( $totalItems ) ) {
+			$totalItems = (int)$totalItems;
+		}
+
+		$severity = $hasItems
+			? $this->normalizeSeverity( \is_string( $vars[ 'overall_severity' ] ?? null ) ? $vars[ 'overall_severity' ] : 'critical' )
+			: 'good';
+
+		$iconClassKey = $hasItems ? 'status_strip_icon_class' : 'all_clear_icon_class';
+		$iconClass = $strings[ $iconClassKey ] ?? self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' );
+		if ( !\is_string( $iconClass ) || $iconClass === '' ) {
+			$iconClass = self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' );
+		}
+
+		$subtext = $strings[ 'status_strip_subtext' ] ?? '';
+		if ( !\is_string( $subtext ) ) {
+			$subtext = '';
+		}
+
+		return [
+			'has_items'   => $hasItems,
+			'total_items' => $totalItems,
+			'severity'    => $severity,
+			'icon_class'  => $iconClass,
+			'subtext'     => $subtext,
 		];
 	}
 

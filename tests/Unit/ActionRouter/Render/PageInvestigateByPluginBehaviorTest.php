@@ -88,9 +88,13 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 					'file'    => 'akismet/akismet.php',
 					'version' => '5.0',
 					'author'  => 'Automattic',
+					'author_url' => '',
+					'dir' => '/wp-content/plugins/akismet',
+					'installed_at' => '2026-02-27',
 				],
 				'flags' => [
 					'is_active' => true,
+					'has_update' => false,
 				],
 				'hrefs' => [
 					'vul_info' => 'https://lookup.example/plugin',
@@ -153,9 +157,13 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 					'file'    => 'akismet/akismet.php',
 					'version' => '5.0',
 					'author'  => 'Automattic',
+					'author_url' => '',
+					'dir' => '/wp-content/plugins/akismet',
+					'installed_at' => '2026-02-27',
 				],
 				'flags' => [
 					'is_active' => false,
+					'has_update' => false,
 				],
 				'hrefs' => [
 					'vul_info' => 'https://lookup.example/plugin',
@@ -320,4 +328,3 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 		];
 	}
 }
-

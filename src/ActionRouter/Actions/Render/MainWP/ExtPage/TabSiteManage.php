@@ -53,7 +53,7 @@ class TabSiteManage extends BaseSubPage {
 	}
 
 	protected function getActiveSiteID() :int {
-		return (int)$this->action_data[ 'site_id' ] ?? 0;
+		return (int)( $this->action_data[ 'site_id' ] ?? 0 );
 	}
 
 	protected function getMenuTopNavItems() :array {

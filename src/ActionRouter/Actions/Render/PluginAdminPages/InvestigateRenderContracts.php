@@ -60,14 +60,32 @@ trait InvestigateRenderContracts {
 	}
 
 	protected function normalizeInvestigationTableContract( array $table ) :array {
-		$table[ 'title' ] = (string)( $table[ 'title' ] ?? '' );
-		$table[ 'status' ] = (string)( $table[ 'status' ] ?? 'info' );
-		$table[ 'full_log_text' ] = (string)( $table[ 'full_log_text' ] ?? __( 'Full Log', 'wp-simple-firewall' ) );
-		$table[ 'full_log_button_class' ] = (string)( $table[ 'full_log_button_class' ] ?? 'btn btn-outline-secondary btn-sm' );
-		$table[ 'is_flat' ] = (bool)( $table[ 'is_flat' ] ?? false );
-		$table[ 'is_empty' ] = (bool)( $table[ 'is_empty' ] ?? false );
-		$table[ 'empty_status' ] = (string)( $table[ 'empty_status' ] ?? 'info' );
-		$table[ 'empty_text' ] = (string)( $table[ 'empty_text' ] ?? '' );
+		$table[ 'title' ] = $this->normalizeContractString( $table, 'title', '' );
+		$table[ 'status' ] = $this->normalizeContractString( $table, 'status', 'info' );
+		$table[ 'full_log_text' ] = $this->normalizeContractString(
+			$table,
+			'full_log_text',
+			__( 'Full Log', 'wp-simple-firewall' )
+		);
+		$table[ 'full_log_button_class' ] = $this->normalizeContractString(
+			$table,
+			'full_log_button_class',
+			'btn btn-outline-secondary btn-sm'
+		);
+		$table[ 'is_flat' ] = $this->normalizeContractBool( $table, 'is_flat', false );
+		$table[ 'is_empty' ] = $this->normalizeContractBool( $table, 'is_empty', false );
+		$table[ 'empty_status' ] = $this->normalizeContractString( $table, 'empty_status', 'info' );
+		$table[ 'empty_text' ] = $this->normalizeContractString( $table, 'empty_text', '' );
 		return $table;
+	}
+
+	private function normalizeContractString( array $table, string $key, string $default ) :string {
+		$value = $table[ $key ] ?? $default;
+		return \is_string( $value ) ? $value : $default;
+	}
+
+	private function normalizeContractBool( array $table, string $key, bool $default ) :bool {
+		$value = $table[ $key ] ?? $default;
+		return \is_bool( $value ) ? $value : $default;
 	}
 }

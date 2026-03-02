@@ -86,6 +86,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 						'slug' => 'twentytwentyfive',
 						'version' => '1.0',
 						'author' => 'WordPress.org',
+						'author_url' => '',
 						'file' => 'twentytwentyfive',
 						'dir' => '/wp-content/themes/twentytwentyfive/',
 						'installed_at' => '2026-02-27',

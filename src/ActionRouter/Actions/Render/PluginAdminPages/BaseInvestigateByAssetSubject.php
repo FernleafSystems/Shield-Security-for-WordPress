@@ -27,11 +27,11 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 
 			$fileStatusCount = $this->countFileScanResultsForSubject( $subjectType, $subjectId );
 			$activityCount = $this->countActivityForSubject( $subjectType, $subjectId );
-			$vulnerabilities = $this->buildVulnerabilityData( $subjectId, (string)( $assetData[ 'hrefs' ][ 'vul_info' ] ?? '' ) );
+			$vulnerabilities = $this->buildVulnerabilityData( $subjectId, $assetData[ 'hrefs' ][ 'vul_info' ] );
 
 			$tabs = $this->buildAssetTabsPayload( $subjectType, [
 				'file_status'     => $fileStatusCount,
-				'vulnerabilities' => (int)$vulnerabilities[ 'count' ],
+				'vulnerabilities' => $vulnerabilities[ 'count' ],
 				'activity'        => $activityCount,
 			], true );
 			$railNavItems = $this->buildRailNavItemsFromTabs( $tabs );
@@ -39,12 +39,12 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 			$tables[ 'file_status' ] = $this->withEmptyStateTableContract(
 				$tables[ 'file_status' ],
 				$fileStatusCount,
-				(string)( $strings[ 'file_status_empty_text' ] ?? __( 'No file scan status records were found for this subject.', 'wp-simple-firewall' ) )
+				$strings[ 'file_status_empty_text' ]
 			);
 			$tables[ 'activity' ] = $this->withEmptyStateTableContract(
 				$tables[ 'activity' ],
 				$activityCount,
-				(string)( $strings[ 'activity_empty_text' ] ?? __( 'No activity records were found for this subject.', 'wp-simple-firewall' ) )
+				$strings[ 'activity_empty_text' ]
 			);
 			$overviewRows = $this->buildOverviewRows( $assetData, $vulnerabilities );
 		}
@@ -85,7 +85,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	}
 
 	protected function extractAssetSubjectId( array $assetData ) :string {
-		return (string)( $assetData[ 'info' ][ 'file' ] ?? '' );
+		return $assetData[ 'info' ][ 'file' ];
 	}
 
 	abstract protected function getSubjectType() :string;

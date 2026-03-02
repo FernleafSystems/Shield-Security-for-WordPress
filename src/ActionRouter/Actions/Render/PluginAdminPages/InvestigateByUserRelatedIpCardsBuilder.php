@@ -14,36 +14,36 @@ class InvestigateByUserRelatedIpCardsBuilder {
 		$byIp = [];
 
 		foreach ( $sessions as $session ) {
-			$ip = (string)( $session[ 'ip' ] ?? '' );
+			$ip = $session[ 'ip' ];
 			if ( $ip === '' ) {
 				continue;
 			}
-			$timestamp = (int)( $session[ 'last_activity_ts' ] ?? 0 );
+			$timestamp = $session[ 'last_activity_ts' ];
 			$byIp[ $ip ] = $byIp[ $ip ] ?? $this->newIpCardSeed( $ip );
 			$byIp[ $ip ][ 'sessions_count' ]++;
 			$byIp[ $ip ][ 'last_seen_ts' ] = \max( $byIp[ $ip ][ 'last_seen_ts' ], $timestamp );
 		}
 
 		foreach ( $activityLogs as $log ) {
-			$ip = (string)( $log[ 'ip' ] ?? '' );
+			$ip = $log[ 'ip' ];
 			if ( $ip === '' ) {
 				continue;
 			}
-			$timestamp = (int)( $log[ 'created_at_ts' ] ?? 0 );
+			$timestamp = $log[ 'created_at_ts' ];
 			$byIp[ $ip ] = $byIp[ $ip ] ?? $this->newIpCardSeed( $ip );
 			$byIp[ $ip ][ 'activity_count' ]++;
 			$byIp[ $ip ][ 'last_seen_ts' ] = \max( $byIp[ $ip ][ 'last_seen_ts' ], $timestamp );
 		}
 
 		foreach ( $requestLogs as $log ) {
-			$ip = (string)( $log[ 'ip' ] ?? '' );
+			$ip = $log[ 'ip' ];
 			if ( $ip === '' ) {
 				continue;
 			}
-			$timestamp = (int)( $log[ 'created_at_ts' ] ?? 0 );
+			$timestamp = $log[ 'created_at_ts' ];
 			$byIp[ $ip ] = $byIp[ $ip ] ?? $this->newIpCardSeed( $ip );
 			$byIp[ $ip ][ 'requests_count' ]++;
-			$byIp[ $ip ][ 'has_offense' ] = $byIp[ $ip ][ 'has_offense' ] || !empty( $log[ 'offense' ] );
+			$byIp[ $ip ][ 'has_offense' ] = $byIp[ $ip ][ 'has_offense' ] || $log[ 'offense' ];
 			$byIp[ $ip ][ 'last_seen_ts' ] = \max( $byIp[ $ip ][ 'last_seen_ts' ], $timestamp );
 		}
 

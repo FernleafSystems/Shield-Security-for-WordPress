@@ -80,7 +80,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 			MeterComponent::CHANNEL_CONFIG
 		);
 		$configTraffic = BuildMeter::trafficFromPercentage(
-			(int)( $configProgress[ 'totals' ][ 'percentage' ] ?? 0 )
+			$configProgress[ 'totals' ][ 'percentage' ]
 		);
 		$actionSummary = $provider->buildActionSummary();
 
@@ -90,9 +90,9 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 			'generated_at'    => Services::Request()->ts(),
 			'config_progress' => $configProgress,
 			'config_traffic'  => $configTraffic,
-			'action_total'    => (int)( $actionSummary[ 'total' ] ?? 0 ),
-			'action_traffic'  => (string)( $actionSummary[ 'severity' ] ?? 'good' ),
-			'is_all_clear'    => (bool)( $actionSummary[ 'is_all_clear' ] ?? false ),
+			'action_total'    => $actionSummary[ 'total' ],
+			'action_traffic'  => $actionSummary[ 'severity' ],
+			'is_all_clear'    => $actionSummary[ 'is_all_clear' ],
 			'last_scan_human' => $latestScanAt > 0
 				? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 				: '',

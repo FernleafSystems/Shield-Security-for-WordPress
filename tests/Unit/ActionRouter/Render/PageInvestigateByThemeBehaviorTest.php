@@ -88,6 +88,9 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 					'file'    => 'twentytwentyfive',
 					'version' => '1.0',
 					'author'  => 'WordPress.org',
+					'author_url' => '',
+					'dir' => '/wp-content/themes/twentytwentyfive',
+					'installed_at' => '2026-02-27',
 				],
 				'flags' => [
 					'is_active' => true,
@@ -152,9 +155,13 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 					'file'    => 'twentytwentyfive',
 					'version' => '1.0',
 					'author'  => 'WordPress.org',
+					'author_url' => '',
+					'dir' => '/wp-content/themes/twentytwentyfive',
+					'installed_at' => '2026-02-27',
 				],
 				'flags' => [
 					'is_active' => false,
+					'is_child'  => false,
 				],
 				'hrefs' => [
 					'vul_info' => 'https://lookup.example/theme',
@@ -318,4 +325,3 @@ class PageInvestigateByThemeUnitTestDouble extends PageInvestigateByTheme {
 		];
 	}
 }
-

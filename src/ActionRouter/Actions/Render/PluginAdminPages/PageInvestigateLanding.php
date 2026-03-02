@@ -69,13 +69,13 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			$hrefKey = $this->normalizeOptionalString( $subject[ 'href_key' ] ?? null );
 			$isEnabled = !empty( $subject[ 'is_enabled' ] );
 			$subjects[] = [
-				'key'                 => (string)$subject[ 'key' ],
+				'key'                 => $subject[ 'key' ],
 				'is_enabled'          => $isEnabled,
 				'is_pro'              => !empty( $subject[ 'is_pro' ] ),
-				'href'                => $isEnabled && $hrefKey !== null ? (string)( $hrefs[ $hrefKey ] ?? '' ) : '',
-				'icon_class'          => (string)$subject[ 'icon_class' ],
-				'subject_label'       => (string)$subject[ 'label' ],
-				'subject_description' => (string)$subject[ 'description' ],
+				'href'                => $isEnabled && $hrefKey !== null ? $hrefs[ $hrefKey ] : '',
+				'icon_class'          => $subject[ 'icon_class' ],
+				'subject_label'       => $subject[ 'label' ],
+				'subject_description' => $subject[ 'description' ],
 			];
 		}
 		return $subjects;
@@ -88,8 +88,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				if ( !\is_array( $subject ) ) {
 					continue;
 				}
-				$subject[ 'key' ] = (string)$subjectKey;
-				$this->subjectDefinitionsCache[ (string)$subjectKey ] = $subject;
+				$subject[ 'key' ] = $subjectKey;
+				$this->subjectDefinitionsCache[ $subjectKey ] = $subject;
 			}
 		}
 		return $this->subjectDefinitionsCache;
@@ -99,17 +99,12 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 * @throws \LogicException
 	 */
 	private function assertSubjectDefinitionContract( array $subject, array $hrefs ) :void {
-		$subjectKey = (string)( $subject[ 'key' ] ?? '[undefined]' );
+		$subjectKey = $this->requireSubjectString( $subject, 'key', '[undefined]' );
 		foreach ( [ 'label', 'description', 'icon_class' ] as $requiredKey ) {
-			$value = (string)( $subject[ $requiredKey ] ?? '' );
-			if ( \trim( $value ) === '' ) {
-				throw new \LogicException(
-					\sprintf( 'Investigate subject "%s" requires %s.', $subjectKey, $requiredKey )
-				);
-			}
+			$this->requireSubjectString( $subject, $requiredKey, $subjectKey );
 		}
 
-		$panelType = (string)( $subject[ 'panel_type' ] ?? '' );
+		$panelType = $this->requireSubjectString( $subject, 'panel_type', $subjectKey );
 		if ( !\in_array( $panelType, [ 'lookup_text', 'lookup_select', 'direct_link', 'disabled' ], true ) ) {
 			throw new \LogicException(
 				\sprintf( 'Investigate subject "%s" has invalid panel_type "%s".', $subjectKey, $panelType )
@@ -126,7 +121,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			}
 			if ( $hrefKey === null || !\array_key_exists( $hrefKey, $hrefs ) ) {
 				throw new \LogicException(
-					\sprintf( 'Investigate subject "%s" requires href key "%s".', $subjectKey, (string)$hrefKey )
+					\sprintf( 'Investigate subject "%s" requires href key "%s".', $subjectKey, $hrefKey ?? '' )
 				);
 			}
 		}
@@ -135,6 +130,19 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				\sprintf( 'Investigate subject "%s" disabled entries must use panel_type disabled.', $subjectKey )
 			);
 		}
+	}
+
+	/**
+	 * @throws \LogicException
+	 */
+	private function requireSubjectString( array $subject, string $key, string $subjectKey ) :string {
+		$value = $subject[ $key ] ?? null;
+		if ( !\is_string( $value ) || \trim( $value ) === '' ) {
+			throw new \LogicException(
+				\sprintf( 'Investigate subject "%s" requires %s.', $subjectKey, $key )
+			);
+		}
+		return $value;
 	}
 
 	private function normalizeOptionalString( $value ) :?string {

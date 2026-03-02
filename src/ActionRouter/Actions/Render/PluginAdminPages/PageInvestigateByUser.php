@@ -123,7 +123,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 		$ipsStatus = StatusPriority::highest(
 			\array_map(
-				static fn( array $card ) :string => $card[ 'status' ] ?? 'info',
+				static fn( array $card ) :string => $card[ 'status' ],
 				$relatedIps
 			)
 		);
@@ -153,19 +153,10 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 	}
 
 	protected function buildRailNavItems( array $summaryStats ) :array {
-		$sessionSummary = $summaryStats[ 'sessions' ] ?? [
-			'label' => __( 'Sessions', 'wp-simple-firewall' ),
-			'count' => 0
-		];
-		$activitySummary = $summaryStats[ 'activity' ] ?? [
-			'label' => __( 'Activity', 'wp-simple-firewall' ),
-			'count' => 0
-		];
-		$requestSummary = $summaryStats[ 'requests' ] ?? [
-			'label' => __( 'Requests', 'wp-simple-firewall' ),
-			'count' => 0
-		];
-		$ipSummary = $summaryStats[ 'ips' ] ?? [ 'label' => __( 'IP Addresses', 'wp-simple-firewall' ), 'count' => 0 ];
+		$sessionSummary = $summaryStats[ 'sessions' ];
+		$activitySummary = $summaryStats[ 'activity' ];
+		$requestSummary = $summaryStats[ 'requests' ];
+		$ipSummary = $summaryStats[ 'ips' ];
 
 		return [
 			[
@@ -279,12 +270,10 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$sessions = [];
 		foreach ( ( new FindSessions() )->byUser( (int)$subject->ID ) as $userSessions ) {
 			foreach ( $userSessions as $session ) {
-				$loginAt = (int)( $session[ 'login' ] ?? 0 );
-				$activityAt = (int)( $session[ 'shield' ][ 'last_activity_at' ] ?? $loginAt );
-				$sessions[] = [
-					'ip'               => (string)( $session[ 'shield' ][ 'ip' ] ?? '' ),
-					'last_activity_ts' => $activityAt,
-				];
+				$normalized = $this->normalizeUserSession( $session );
+				if ( $normalized !== null ) {
+					$sessions[] = $normalized;
+				}
 			}
 		}
 
@@ -321,10 +310,33 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			static fn( RequestLogRecord $record ) :array => [
 				'created_at_ts' => $record->created_at,
 				'ip'            => $record->ip,
-				'offense'       => $record->offense,
+				'offense'       => (bool)$record->offense,
 			],
 			$loader->select()
 		) );
+	}
+
+	/**
+	 * @param array<string, mixed> $session
+	 * @return array{ip:string, last_activity_ts:int}|null
+	 */
+	private function normalizeUserSession( array $session ) :?array {
+		$loginAt = $session[ 'login' ] ?? null;
+		$shield = $session[ 'shield' ] ?? null;
+		if ( !\is_int( $loginAt ) || !\is_array( $shield ) ) {
+			return null;
+		}
+
+		$ip = $shield[ 'ip' ] ?? null;
+		$activityAt = $shield[ 'last_activity_at' ] ?? $loginAt;
+		if ( !\is_string( $ip ) || !\is_int( $activityAt ) ) {
+			return null;
+		}
+
+		return [
+			'ip'               => $ip,
+			'last_activity_ts' => $activityAt,
+		];
 	}
 
 	protected function getRelatedIpCardsBuilder() :InvestigateByUserRelatedIpCardsBuilder {

@@ -64,26 +64,26 @@ class NeedsAttentionQueue extends BaseRender {
 	}
 
 	private function buildZoneGroups( array $items ) :array {
-		$zonesData = $this->getZonesData();
 		$groups = [];
 
 		foreach ( $items as $item ) {
-			$zone = (string)$item[ 'zone' ];
+			$zone = $item[ 'zone' ];
 			if ( !isset( $groups[ $zone ] ) ) {
+				$zoneData = $this->zoneDataFor( $zone );
 				$groups[ $zone ] = [
 					'slug'         => $zone,
-					'label'        => $zonesData[ $zone ][ 'label' ] ?? $zone,
-					'icon_class'   => $zonesData[ $zone ][ 'icon_class' ] ?? self::con()->svgs->iconClass( 'grid-1x2-fill' ),
+					'label'        => $zoneData[ 'label' ],
+					'icon_class'   => $zoneData[ 'icon_class' ],
 					'severity'     => 'good',
 					'total_issues' => 0,
 					'items'        => [],
 				];
 			}
 			$groups[ $zone ][ 'items' ][] = $item;
-			$groups[ $zone ][ 'total_issues' ] += (int)$item[ 'count' ];
+			$groups[ $zone ][ 'total_issues' ] += $item[ 'count' ];
 			$groups[ $zone ][ 'severity' ] = $this->maxSeverity( [
 				$groups[ $zone ][ 'severity' ],
-				(string)$item[ 'severity' ],
+				$item[ 'severity' ],
 			] );
 		}
 
@@ -105,7 +105,6 @@ class NeedsAttentionQueue extends BaseRender {
 		];
 		$highest = 'good';
 		foreach ( $severities as $severity ) {
-			$severity = (string)$severity;
 			if ( ( $rankMap[ $severity ] ?? -1 ) > ( $rankMap[ $highest ] ?? -1 ) ) {
 				$highest = $severity;
 			}
@@ -120,7 +119,7 @@ class NeedsAttentionQueue extends BaseRender {
 		foreach ( $this->getZoneSlugs() as $zone ) {
 			$chips[] = [
 				'slug'       => $zone,
-				'label'      => $zonesData[ $zone ][ 'label' ] ?? $zone,
+				'label'      => $zonesData[ $zone ][ 'label' ],
 				'icon_class' => $chipIconClass,
 				'severity'   => 'good',
 			];
@@ -134,6 +133,26 @@ class NeedsAttentionQueue extends BaseRender {
 
 	private function getZonesData() :array {
 		return $this->zoneRenderDataBuilder()->getZonesIndexed();
+	}
+
+	/**
+	 * @return array{label:string, icon_class:string}
+	 */
+	private function zoneDataFor( string $zone ) :array {
+		$zonesData = $this->getZonesData();
+		if ( isset( $zonesData[ $zone ] ) ) {
+			return [
+				'label'      => $zonesData[ $zone ][ 'label' ],
+				'icon_class' => $zonesData[ $zone ][ 'icon_class' ],
+			];
+		}
+
+		return [
+			'label'      => $zone === 'summary'
+				? __( 'Summary', 'wp-simple-firewall' )
+				: __( 'Scans', 'wp-simple-firewall' ),
+			'icon_class' => self::con()->svgs->iconClass( 'grid-1x2-fill' ),
+		];
 	}
 
 	private function zoneRenderDataBuilder() :ZoneRenderDataBuilder {

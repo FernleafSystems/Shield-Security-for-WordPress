@@ -21,7 +21,7 @@ class PageAdminPlugin extends BaseRender {
 		$con = self::con();
 
 		if ( self::con()->isPluginAdmin() ) {
-			$nav = sanitize_key( (string)$this->action_data[ Constants::NAV_ID ] ?? '' );
+			$nav = sanitize_key( (string)( $this->action_data[ Constants::NAV_ID ] ?? '' ) );
 			if ( !PluginNavs::NavExists( $nav ) ) {
 				$nav = PluginNavs::NAV_DASHBOARD;
 			}
@@ -34,7 +34,7 @@ class PageAdminPlugin extends BaseRender {
 			$subNav = PluginNavs::SUBNAV_INDEX;
 		}
 		else {
-			$subNav = sanitize_key( (string)$this->action_data[ Constants::NAV_SUB_ID ] ?? '' );
+			$subNav = sanitize_key( (string)( $this->action_data[ Constants::NAV_SUB_ID ] ?? '' ) );
 			if ( !PluginNavs::NavExists( $nav, $subNav ) ) {
 				$subNav = PluginNavs::GetDefaultSubNavForNav( $nav );
 			}

@@ -45,7 +45,7 @@ class FileDownload extends BaseAction {
 				break;
 
 			case 'scan_file':
-				$fileDetails = ( new FileDownloadHandler() )->downloadByItemId( (int)$this->action_data[ 'rid' ] ?? -1 );
+				$fileDetails = ( new FileDownloadHandler() )->downloadByItemId( (int)( $this->action_data[ 'rid' ] ?? -1 ) );
 				break;
 
 			case 'db_ip':
@@ -61,7 +61,7 @@ class FileDownload extends BaseAction {
 			case 'report_download_pdf':
 				$fileDetails = [
 					'name'    => wp_rand().'.pdf',
-					'content' => self::con()->comps->reports->convertToPdf( (int)$this->action_data[ 'rid' ] ?? -1 )
+					'content' => self::con()->comps->reports->convertToPdf( (int)( $this->action_data[ 'rid' ] ?? -1 ) )
 				];
 				break;
 

@@ -41,7 +41,7 @@ class ScansMalaiFileQuery extends ScansBase {
 		$FS = Services::WpFs();
 
 		/** @var ResultItem $item */
-		$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] ?? -1 );
+		$item = ( new RetrieveItems() )->byID( (int)( $this->action_data[ 'rid' ] ?? -1 ) );
 		$path = $item->path_full;
 		if ( !$FS->isAccessibleFile( $path ) ) {
 			throw new \Exception( __( 'There was a problem locating or reading the file on this site', 'wp-simple-firewall' ) );

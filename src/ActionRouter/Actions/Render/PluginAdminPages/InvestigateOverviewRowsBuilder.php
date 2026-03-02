@@ -7,10 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\I
 class InvestigateOverviewRowsBuilder {
 
 	public function forUser( \WP_User $subject, array $summaryStats ) :array {
-		$sessions = (int)( $summaryStats[ 'sessions' ][ 'count' ] ?? 0 );
-		$activity = (int)( $summaryStats[ 'activity' ][ 'count' ] ?? 0 );
-		$requests = (int)( $summaryStats[ 'requests' ][ 'count' ] ?? 0 );
-		$ips = (int)( $summaryStats[ 'ips' ][ 'count' ] ?? 0 );
+		$sessions = $summaryStats[ 'sessions' ][ 'count' ];
+		$activity = $summaryStats[ 'activity' ][ 'count' ];
+		$requests = $summaryStats[ 'requests' ][ 'count' ];
+		$ips = $summaryStats[ 'ips' ][ 'count' ];
 
 		return [
 			[
@@ -19,15 +19,15 @@ class InvestigateOverviewRowsBuilder {
 			],
 			[
 				'label' => __( 'Login', 'wp-simple-firewall' ),
-				'value' => (string)$subject->user_login,
+				'value' => $subject->user_login,
 			],
 			[
 				'label' => __( 'Email', 'wp-simple-firewall' ),
-				'value' => (string)$subject->user_email,
+				'value' => $subject->user_email,
 			],
 			[
 				'label' => __( 'Display Name', 'wp-simple-firewall' ),
-				'value' => \trim( (string)$subject->display_name ),
+				'value' => \trim( $subject->display_name ),
 			],
 			[
 				'label' => __( 'Sessions Count', 'wp-simple-firewall' ),
@@ -54,23 +54,23 @@ class InvestigateOverviewRowsBuilder {
 		string $subjectType,
 		string $assetIdentifierLabel
 	) :array {
-		$info = $assetData[ 'info' ] ?? [];
-		$flags = $assetData[ 'flags' ] ?? [];
-		$author = (string)( $info[ 'author' ] ?? '' );
-		$authorUrl = (string)( $info[ 'author_url' ] ?? '' );
+		$info = $assetData[ 'info' ];
+		$flags = $assetData[ 'flags' ];
+		$author = $info[ 'author' ];
+		$authorUrl = $info[ 'author_url' ];
 
 		$rows = [
 			[
 				'label' => __( 'Name', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'name' ] ?? '' ),
+				'value' => $info[ 'name' ],
 			],
 			[
 				'label' => __( 'Slug', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'slug' ] ?? '' ),
+				'value' => $info[ 'slug' ],
 			],
 			[
 				'label' => __( 'Version', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'version' ] ?? '' ),
+				'value' => $info[ 'version' ],
 			],
 			[
 				'label'      => __( 'Author', 'wp-simple-firewall' ),
@@ -79,15 +79,15 @@ class InvestigateOverviewRowsBuilder {
 			],
 			[
 				'label' => $assetIdentifierLabel,
-				'value' => (string)( $info[ 'file' ] ?? '' ),
+				'value' => $info[ 'file' ],
 			],
 			[
 				'label' => __( 'Install Directory', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'dir' ] ?? '' ),
+				'value' => $info[ 'dir' ],
 			],
 			[
 				'label' => __( 'Installed', 'wp-simple-firewall' ),
-				'value' => (string)( $info[ 'installed_at' ] ?? '' ),
+				'value' => $info[ 'installed_at' ],
 			],
 			[
 				'label' => __( 'Active Status', 'wp-simple-firewall' ),
@@ -106,7 +106,7 @@ class InvestigateOverviewRowsBuilder {
 			];
 			$rows[] = [
 				'label' => __( 'Vulnerability Status', 'wp-simple-firewall' ),
-				'value' => ( (int)( $vulnerabilities[ 'count' ] ?? 0 ) > 0 )
+				'value' => ( $vulnerabilities[ 'count' ] > 0 )
 					? __( 'Known Vulnerabilities', 'wp-simple-firewall' )
 					: __( 'No Known Vulnerabilities', 'wp-simple-firewall' ),
 			];
