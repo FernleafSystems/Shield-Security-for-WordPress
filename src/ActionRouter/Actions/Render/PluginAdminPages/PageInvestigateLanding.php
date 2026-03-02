@@ -42,10 +42,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'selector_title'         => __( 'Choose A Subject To Investigate', 'wp-simple-firewall' ),
-			'selector_intro'         => __( 'Choose a subject tile to navigate directly to the relevant investigation page.', 'wp-simple-firewall' ),
-			'selector_section_label' => __( 'What Do You Want To Investigate?', 'wp-simple-firewall' ),
-			'label_pro'              => __( 'PRO', 'wp-simple-firewall' ),
+			'label_pro' => __( 'PRO', 'wp-simple-firewall' ),
 		];
 	}
 

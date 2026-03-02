@@ -3,11 +3,6 @@
 {% block inner_page_body %}
 	<div class="investigate-landing">
 		<section class="investigate-landing__selector-shell" data-investigate-section="selector">
-			<h5 class="mb-1">{{ strings.selector_title }}</h5>
-			<p class="text-muted small mb-3">{{ strings.selector_intro }}</p>
-
-			<div class="investigate-landing__section-label">{{ strings.selector_section_label }}</div>
-
 			<div class="investigate-landing__subject-grid">
 				{% for subject in vars.subjects %}
 					{% if subject.is_enabled %}

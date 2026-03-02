@@ -44,6 +44,18 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
+			'//section[@data-investigate-section="selector"]/h5',
+			0,
+			'Landing selector should not render in-body heading'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//section[@data-investigate-section="selector"]/div[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__section-label ")]',
+			0,
+			'Landing selector should not render section-label wrapper'
+		);
+		$this->assertXPathCount(
+			$xpath,
 			'//section[@data-investigate-section="lookup-shell"]',
 			0,
 			'Landing lookup shell marker'

@@ -76,10 +76,10 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$page = new PageInvestigateLanding();
 		$strings = $this->invokeProtectedMethod( $page, 'getLandingStrings' );
 
-		foreach ( [ 'selector_title', 'selector_intro', 'selector_section_label', 'label_pro' ] as $expectedKey ) {
+		foreach ( [ 'label_pro' ] as $expectedKey ) {
 			$this->assertArrayHasKey( $expectedKey, $strings );
 		}
-		foreach ( [ 'lookup_section_label', 'panel_intro', 'ip_invalid_text' ] as $removedKey ) {
+		foreach ( [ 'selector_title', 'selector_intro', 'selector_section_label', 'lookup_section_label', 'panel_intro', 'ip_invalid_text' ] as $removedKey ) {
 			$this->assertArrayNotHasKey( $removedKey, $strings );
 		}
 	}
