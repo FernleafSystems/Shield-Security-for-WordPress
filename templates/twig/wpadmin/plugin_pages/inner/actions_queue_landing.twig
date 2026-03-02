@@ -34,8 +34,14 @@
 		<div class="card-body">
 			<h5 class="card-title mb-3">{{ strings.cta_title }}</h5>
 			<div class="d-flex flex-wrap gap-2">
-				<a href="{{ hrefs.scan_results }}" class="btn btn-outline-primary">{{ strings.cta_scan_results }}</a>
-				<a href="{{ hrefs.scan_run }}" class="btn btn-outline-secondary">{{ strings.cta_scan_run }}</a>
+				{% if not flags.queue_is_empty|default(false) %}
+					<a href="{{ hrefs.scan_results }}"
+					   class="btn btn-outline-primary"
+					   data-actions-queue-cta="scan-results">{{ strings.cta_scan_results }}</a>
+				{% endif %}
+				<a href="{{ hrefs.scan_run }}"
+				   class="btn btn-outline-secondary"
+				   data-actions-queue-cta="run-scan">{{ strings.cta_scan_run }}</a>
 			</div>
 		</div>
 	</div>

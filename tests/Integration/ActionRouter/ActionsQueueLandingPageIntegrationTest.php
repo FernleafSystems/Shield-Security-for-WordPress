@@ -56,6 +56,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathExists( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 'All-clear context banner marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 'Compact all-clear widget mode marker' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-widget-copy="all-clear"]', 0, 'No duplicated widget all-clear copy marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 0, 'Scan results CTA hidden when queue is clear' );
+		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when queue is clear' );
 		$this->assertHtmlContainsMarker( $subtext, $html, 'All-clear temporal context is present in output' );
 	}
 
@@ -80,6 +82,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context banner hidden when queue has items' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 0, 'No compact all-clear marker when queue has items' );
+		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 1, 'Scan results CTA shown when queue has items' );
+		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when queue has items' );
 		$this->assertHtmlContainsMarker( 'shield-needs-attention__status-strip has-issues', $html, 'Queue issue-state marker when items exist' );
 	}
 
@@ -95,6 +99,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context banner hidden when scan-result issues exist' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 0, 'No compact all-clear marker when scan-result issues exist' );
+		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 1, 'Scan results CTA shown when scan-result issues exist' );
+		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when scan-result issues exist' );
 		$this->assertHtmlContainsMarker( 'shield-needs-attention__status-strip has-issues', $html, 'Queue issue-state marker when scan-result items exist' );
 	}
 }
