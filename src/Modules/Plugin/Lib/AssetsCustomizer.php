@@ -383,7 +383,8 @@ class AssetsCustomizer {
 			'progress_meters'  => [
 				'key'      => 'progress_meters',
 				'required' => PluginNavs::GetNav() === PluginNavs::NAV_DASHBOARD
-							  || PluginNavs::IsNavs( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW ),
+							  || PluginNavs::IsNavs( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW )
+							  || PluginNavs::IsNavs( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW ),
 				'handles'  => [
 					'main',
 				],

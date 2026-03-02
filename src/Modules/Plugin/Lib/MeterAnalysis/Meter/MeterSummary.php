@@ -29,8 +29,17 @@ class MeterSummary extends MeterBase {
 			Component\SystemPhpVersion::class,
 			Component\IpAddressSource::class,
 			Component\WpUpdates::class,
+			Component\WpPluginsUpdates::class,
+			Component\WpPluginsInactive::class,
+			Component\WpThemesUpdates::class,
+			Component\WpThemesInactive::class,
 			Component\WpDbPassword::class,
 			Component\SystemLibOpenssl::class,
+			Component\ScanResultsMal::class,
+			Component\ScanResultsWpv::class,
+			Component\ScanResultsWcf::class,
+			Component\ScanResultsPtg::class,
+			Component\ScanResultsApc::class,
 		];
 	}
 }
