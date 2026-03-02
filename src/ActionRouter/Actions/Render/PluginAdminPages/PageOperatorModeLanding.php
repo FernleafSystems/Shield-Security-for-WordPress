@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Meter\MeterSummary
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\OperatorModePreference;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
 
 class PageOperatorModeLanding extends BaseRender {
 
@@ -26,6 +27,8 @@ class PageOperatorModeLanding extends BaseRender {
 		$configMeter = ( new Handler() )->getMeter( MeterSummary::SLUG, true, MeterComponent::CHANNEL_CONFIG );
 		$configPercentage = $configMeter[ 'totals' ][ 'percentage' ];
 		$configTraffic = BuildMeter::trafficFromPercentage( $configPercentage );
+		$investigateBadgeText = $this->buildInvestigateBadgeText( $this->getInvestigateActiveSessionsCount() );
+		$reportsBadgeText = $this->buildReportsBadgeText( $this->getGeneratedReportsCount() );
 		$defaultMode = ( new OperatorModePreference() )->getCurrent();
 
 		return [
@@ -44,7 +47,7 @@ class PageOperatorModeLanding extends BaseRender {
 			],
 			'vars'    => [
 				'actions_hero' => $this->buildActionsHero( $queueSummary ),
-				'mode_strip'   => $this->buildModeStrip( $configPercentage, $configTraffic ),
+				'mode_strip'   => $this->buildModeStrip( $configPercentage, $configTraffic, $investigateBadgeText, $reportsBadgeText ),
 				'mode_options' => $this->buildModeOptions(),
 				'default_mode' => $defaultMode,
 			],
@@ -80,14 +83,14 @@ class PageOperatorModeLanding extends BaseRender {
 		];
 	}
 
-	private function buildModeStrip( int $configPercentage, string $configTraffic ) :array {
+	private function buildModeStrip( int $configPercentage, string $configTraffic, string $investigateBadgeText, string $reportsBadgeText ) :array {
 		return [
 			[
 				'mode'       => PluginNavs::MODE_INVESTIGATE,
 				'label'      => PluginNavs::modeLabel( PluginNavs::MODE_INVESTIGATE ),
 				'href'       => $this->modeHref( PluginNavs::MODE_INVESTIGATE ),
 				'status'     => 'info',
-				'badge_text' => '',
+				'badge_text' => $investigateBadgeText,
 				'icon_class' => self::con()->svgs->iconClass( 'search' ),
 				'summary'    => $this->modeSummary( PluginNavs::MODE_INVESTIGATE ),
 			],
@@ -97,6 +100,7 @@ class PageOperatorModeLanding extends BaseRender {
 				'href'         => $this->modeHref( PluginNavs::MODE_CONFIGURE ),
 				'status'       => $configTraffic,
 				'badge_text'   => sprintf( '%s%%', $configPercentage ),
+				'badge_label'  => __( 'Config Score', 'wp-simple-firewall' ),
 				'badge_status' => $configTraffic,
 				'icon_class'   => self::con()->svgs->iconClass( 'gear' ),
 				'summary'      => $this->configureSummary( $configTraffic ),
@@ -106,11 +110,51 @@ class PageOperatorModeLanding extends BaseRender {
 				'label'      => PluginNavs::modeLabel( PluginNavs::MODE_REPORTS ),
 				'href'       => $this->modeHref( PluginNavs::MODE_REPORTS ),
 				'status'     => 'warning',
-				'badge_text' => '',
+				'badge_text' => $reportsBadgeText,
 				'icon_class' => self::con()->svgs->iconClass( 'file-text-fill' ),
 				'summary'    => $this->modeSummary( PluginNavs::MODE_REPORTS ),
 			],
 		];
+	}
+
+	private function getInvestigateActiveSessionsCount() :int {
+		try {
+			$count = \count( ( new FindSessions() )->mostRecent( 5 ) );
+		}
+		catch ( \Exception $e ) {
+			$count = 0;
+		}
+		return \max( 0, $count );
+	}
+
+	private function getGeneratedReportsCount() :int {
+		try {
+			$count = (int)self::con()->db_con->reports->getQuerySelector()
+							 ->addWhere( 'unique_id', '', '!=' )
+							 ->count();
+		}
+		catch ( \Exception $e ) {
+			$count = 0;
+		}
+		return \max( 0, $count );
+	}
+
+	private function buildInvestigateBadgeText( int $sessionCount ) :string {
+		return $sessionCount > 0
+			? sprintf(
+				_n( '%s active session', '%s active sessions', $sessionCount, 'wp-simple-firewall' ),
+				$sessionCount
+			)
+			: '';
+	}
+
+	private function buildReportsBadgeText( int $reportsCount ) :string {
+		return $reportsCount > 0
+			? sprintf(
+				_n( '%s report', '%s reports', $reportsCount, 'wp-simple-firewall' ),
+				$reportsCount
+			)
+			: '';
 	}
 
 	private function modeHref( string $mode ) :string {

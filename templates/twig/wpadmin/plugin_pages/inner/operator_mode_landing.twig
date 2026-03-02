@@ -36,6 +36,9 @@
 						<span class="operator-mode-landing__strip-summary">{{ mode.summary }}</span>
 						{% if mode.badge_text|default('') is not empty %}
 							<span class="shield-badge badge-{{ mode.badge_status|default(mode.status) }}">{{ mode.badge_text }}</span>
+							{% if mode.badge_label|default('') is not empty %}
+								<span class="operator-mode-landing__strip-badge-label">{{ mode.badge_label }}</span>
+							{% endif %}
 						{% endif %}
 					</div>
 				</a>

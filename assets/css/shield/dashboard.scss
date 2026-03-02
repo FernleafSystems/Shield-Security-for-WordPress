@@ -233,6 +233,14 @@
 	line-height: 1.38;
 }
 
+.operator-mode-landing__strip-badge-label {
+	color: #646970;
+	display: block;
+	font-size: 0.72rem;
+	line-height: 1.2;
+	margin-top: 0.15rem;
+}
+
 @media (max-width: 767.98px) {
 	.operator-mode-landing__hero-body {
 		flex-wrap: wrap;

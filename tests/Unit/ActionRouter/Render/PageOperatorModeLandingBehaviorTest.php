@@ -27,7 +27,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
-			static fn( string $single, string $plural, int $count ) :string => $count === 1 ? $single : $plural
+			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
 		$this->installControllerStubWithQueuePayload( [] );
 	}
@@ -130,9 +130,57 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'from-render-data', $summary[ 'subtext' ] );
 	}
 
+	public function test_build_investigate_badge_text_handles_zero_singular_and_plural() :void {
+		$page = new PageOperatorModeLanding();
+
+		$this->assertSame( '', $this->invokeNonPublicMethod( $page, 'buildInvestigateBadgeText', [ 0 ] ) );
+		$this->assertSame( '1 active session', $this->invokeNonPublicMethod( $page, 'buildInvestigateBadgeText', [ 1 ] ) );
+		$this->assertSame( '4 active sessions', $this->invokeNonPublicMethod( $page, 'buildInvestigateBadgeText', [ 4 ] ) );
+	}
+
+	public function test_build_reports_badge_text_handles_zero_singular_and_plural() :void {
+		$page = new PageOperatorModeLanding();
+
+		$this->assertSame( '', $this->invokeNonPublicMethod( $page, 'buildReportsBadgeText', [ 0 ] ) );
+		$this->assertSame( '1 report', $this->invokeNonPublicMethod( $page, 'buildReportsBadgeText', [ 1 ] ) );
+		$this->assertSame( '5 reports', $this->invokeNonPublicMethod( $page, 'buildReportsBadgeText', [ 5 ] ) );
+	}
+
+	public function test_build_mode_strip_includes_live_badges_and_config_badge_label() :void {
+		$page = new PageOperatorModeLanding();
+		$strip = $this->invokeNonPublicMethod( $page, 'buildModeStrip', [ 72, 'warning', '3 active sessions', '8 reports' ] );
+
+		$this->assertSame( '3 active sessions', $strip[ 0 ][ 'badge_text' ] ?? '' );
+		$this->assertSame( '72%', $strip[ 1 ][ 'badge_text' ] ?? '' );
+		$this->assertSame( 'Config Score', $strip[ 1 ][ 'badge_label' ] ?? '' );
+		$this->assertSame( '8 reports', $strip[ 2 ][ 'badge_text' ] ?? '' );
+	}
+
+	public function test_build_mode_strip_keeps_badges_empty_when_no_live_data() :void {
+		$page = new PageOperatorModeLanding();
+		$strip = $this->invokeNonPublicMethod( $page, 'buildModeStrip', [ 72, 'warning', '', '' ] );
+
+		$this->assertSame( '', $strip[ 0 ][ 'badge_text' ] ?? 'not-empty' );
+		$this->assertSame( '', $strip[ 2 ][ 'badge_text' ] ?? 'not-empty' );
+	}
+
 	private function installControllerStubWithQueuePayload( array $queuePayload ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->plugin_urls = new class {
+			public function adminTopNav( string $nav, string $subnav = '' ) :string {
+				return '/admin/'.$nav.'/'.$subnav;
+			}
+
+			public function noncedPluginAction( string $action, string $redirectUrl ) :string {
+				return '/action/'.$action.'?redirect='.urlencode( $redirectUrl );
+			}
+		};
+		$controller->svgs = new class {
+			public function iconClass( string $icon ) :string {
+				return 'bi bi-'.$icon;
+			}
+		};
 		$controller->action_router = new class( $queuePayload ) {
 			private array $queuePayload;
 
