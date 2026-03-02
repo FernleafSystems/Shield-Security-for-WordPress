@@ -3,12 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NeedsAttentionQueue extends BaseRender {
 
 	public const SLUG = 'render_widget_needs_attention_queue';
 	public const TEMPLATE = '/wpadmin/components/widget/needs_attention_queue.twig';
+	private ?ZoneRenderDataBuilder $zoneRenderDataBuilder = null;
 
 	protected function getRenderData() :array {
 		$scansCon = self::con()->comps->scans;
@@ -127,17 +129,17 @@ class NeedsAttentionQueue extends BaseRender {
 	}
 
 	private function getZoneSlugs() :array {
-		return \array_keys( self::con()->comps->zones->getZones() );
+		return $this->zoneRenderDataBuilder()->getZoneSlugs();
 	}
 
 	private function getZonesData() :array {
-		$data = [];
-		foreach ( self::con()->comps->zones->getZones() as $zone ) {
-			$data[ $zone::Slug() ] = [
-				'label'      => $zone->title(),
-				'icon_class' => self::con()->svgs->iconClass( $zone->icon() ),
-			];
+		return $this->zoneRenderDataBuilder()->getZonesIndexed();
+	}
+
+	private function zoneRenderDataBuilder() :ZoneRenderDataBuilder {
+		if ( $this->zoneRenderDataBuilder === null ) {
+			$this->zoneRenderDataBuilder = new ZoneRenderDataBuilder();
 		}
-		return $data;
+		return $this->zoneRenderDataBuilder;
 	}
 }

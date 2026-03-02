@@ -3,9 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCard;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
+	BuildMeter,
 	Component\Base as MeterComponent,
+	Handler as MeterHandler,
+	Meter\MeterOverallConfig,
 	Meter\MeterSummary
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
@@ -14,6 +18,8 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_configure_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/configure_landing.twig';
+	private ?array $configureMeterPayload = null;
+	private ?MeterHandler $meterHandler = null;
 
 	protected function getLandingTitle() :string {
 		return __( 'Configure', 'wp-simple-firewall' );
@@ -29,6 +35,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 	protected function getLandingContent() :array {
 		$con = self::con();
+		$meterPayload = $this->getConfigureMeterPayload();
 
 		$heroMeter = $con->action_router->render( MeterCard::class, [
 			'meter_slug'    => MeterSummary::SLUG,
@@ -37,7 +44,8 @@ class PageConfigureLanding extends PageModeLandingBase {
 		] );
 
 		return [
-			'hero_meter' => $heroMeter,
+			'hero_meter'           => $heroMeter,
+			'overview_meter_cards' => $this->buildOverviewMeterCards( $meterPayload[ 'snapshots' ] ?? [] ),
 		];
 	}
 
@@ -51,14 +59,120 @@ class PageConfigureLanding extends PageModeLandingBase {
 		];
 	}
 
+	protected function getLandingVars() :array {
+		$meterPayload = $this->getConfigureMeterPayload();
+		$zoneLinks = ( new ZoneRenderDataBuilder() )->getZoneLinks();
+		return [
+			'configure_stats' => $this->buildConfigureStats( $meterPayload[ 'traffic_counts' ] ?? $this->buildEmptyTrafficCounts(), \count( $zoneLinks ) ),
+			'zone_links'      => $zoneLinks,
+		];
+	}
+
 	protected function getLandingStrings() :array {
 		return [
 			'posture_title'     => __( 'Configuration Posture', 'wp-simple-firewall' ),
+			'stats_title'       => __( 'Posture Snapshot', 'wp-simple-firewall' ),
+			'overview_title'    => __( 'Configuration Areas', 'wp-simple-firewall' ),
+			'zones_title'       => __( 'Security Zones', 'wp-simple-firewall' ),
+			'zones_subtitle'    => __( 'Jump directly to a security zone to review and adjust settings.', 'wp-simple-firewall' ),
 			'quick_links_title' => __( 'Quick Links', 'wp-simple-firewall' ),
 			'link_grades'       => __( 'Security Grades', 'wp-simple-firewall' ),
 			'link_zones'        => __( 'Security Zones', 'wp-simple-firewall' ),
 			'link_rules'        => __( 'Rules Manager', 'wp-simple-firewall' ),
 			'link_tools'        => __( 'Import/Export Tool', 'wp-simple-firewall' ),
+		];
+	}
+
+	protected function getConfigureMeterSlugs() :array {
+		return \array_values( \array_diff(
+			\array_keys( MeterHandler::METERS ),
+			[
+				MeterSummary::SLUG,
+				MeterOverallConfig::SLUG,
+			]
+		) );
+	}
+
+	protected function getMeterDataForSlug( string $meterSlug ) :array {
+		return $this->getMeterHandler()->getMeter( $meterSlug, true, MeterComponent::CHANNEL_CONFIG );
+	}
+
+	private function buildOverviewMeterCards( array $meterSnapshots ) :array {
+		$cards = [];
+		foreach ( $meterSnapshots as $meterSnapshot ) {
+			$meterSlug = (string)( $meterSnapshot[ 'slug' ] ?? '' );
+			$meterData = (array)( $meterSnapshot[ 'meter_data' ] ?? [] );
+			$traffic = (string)( $meterSnapshot[ 'traffic' ] ?? '' );
+			$cards[] = [
+				'slug'    => $meterSlug,
+				'traffic' => $traffic,
+				'html'    => self::con()->action_router->render( MeterCard::class, [
+					'meter_slug'    => $meterSlug,
+					'meter_channel' => MeterComponent::CHANNEL_CONFIG,
+					'meter_data'    => $meterData,
+				] ),
+			];
+		}
+		return $cards;
+	}
+
+	private function getConfigureMeterPayload() :array {
+		if ( $this->configureMeterPayload === null ) {
+			$snapshots = [];
+			$trafficCounts = $this->buildEmptyTrafficCounts();
+			foreach ( $this->getConfigureMeterSlugs() as $meterSlug ) {
+				$meterData = $this->getMeterDataForSlug( $meterSlug );
+				$traffic = BuildMeter::trafficFromPercentage( (int)( $meterData[ 'totals' ][ 'percentage' ] ?? 0 ) );
+				if ( isset( $trafficCounts[ $traffic ] ) ) {
+					$trafficCounts[ $traffic ]++;
+				}
+				$snapshots[] = [
+					'slug'       => $meterSlug,
+					'meter_data' => $meterData,
+					'traffic'    => $traffic,
+				];
+			}
+			$this->configureMeterPayload = [
+				'snapshots'     => $snapshots,
+				'traffic_counts' => $trafficCounts,
+			];
+		}
+		return $this->configureMeterPayload;
+	}
+
+	private function getMeterHandler() :MeterHandler {
+		if ( $this->meterHandler === null ) {
+			$this->meterHandler = new MeterHandler();
+		}
+		return $this->meterHandler;
+	}
+
+	private function buildConfigureStats( array $meterTrafficCounts, int $zoneCount ) :array {
+		return [
+			[
+				'name'   => __( 'Good Areas', 'wp-simple-firewall' ),
+				'counts' => [ 'lifetime' => (int)( $meterTrafficCounts[ 'good' ] ?? 0 ) ],
+			],
+			[
+				'name'   => __( 'Needs Work', 'wp-simple-firewall' ),
+				'counts' => [ 'lifetime' => (int)( $meterTrafficCounts[ 'warning' ] ?? 0 ) ],
+			],
+			[
+				'name'   => __( 'Critical Areas', 'wp-simple-firewall' ),
+				'counts' => [ 'lifetime' => (int)( $meterTrafficCounts[ 'critical' ] ?? 0 ) ],
+			],
+			[
+				'name'   => __( 'Security Zones', 'wp-simple-firewall' ),
+				'counts' => [ 'lifetime' => $zoneCount ],
+			],
+		];
+	}
+
+	private function buildEmptyTrafficCounts() :array {
+		return [
+			'good'     => 0,
+			'warning'  => 0,
+			'critical' => 0,
 		];
 	}
 }

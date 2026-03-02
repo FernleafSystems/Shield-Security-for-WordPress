@@ -1,6 +1,6 @@
 # Shield Operator Modes - Delivery Task Backlog (Validated + Runtime Reality Check)
 
-Date: 2026-02-22 (updated 2026-02-26 with P6-STAB/P6c-f closure, WP dashboard widget alignment completion, and Reports deepening delivery)
+Date: 2026-02-22 (updated 2026-03-02 with P6-STAB/P6c-f closure, WP dashboard widget alignment completion, Reports deepening delivery, and Configure deepening completion)
 Validated against source: `src/`, `templates/twig/`, `assets/js/`, `assets/css/`, `tests/`
 Source plan: `Shield-Operator-Modes-Plan.md`
 Prototype references:
@@ -79,7 +79,7 @@ Resolution:
 | P6-STAB | Investigate runtime stabilization | Investigate lookup submits retain `page/nav/nav_sub` in first request across landing/by-user flows |
 | P6+ | Investigate/Configure/Reports deepening + widget alignment | Remaining feature slices delivered incrementally |
 | P7-INV-UX | Investigate UX parity + breadcrumb audit | Post-P6 UX criteria are implemented across landing/by-user/by-ip/by-plugin/by-theme/by-core and breadcrumbs match final IA labels |
-| P8 | Configure deepening | Remaining Configure depth is delivered after investigate parity closure |
+| P8 | Configure deepening | Configure landing depth is delivered after investigate parity closure (completed 2026-03-02) |
 
 ## 4) Task Backlog
 
@@ -208,7 +208,7 @@ These were delivered after P4 and before P5 cleanup:
 | P6e | [COMPLETE] Complete | Theme and Core pages delivered; shared `BaseInvestigateAsset` implemented and consumed by plugin/theme pages; core overview + tables integrated. |
 | P6f | [COMPLETE] Complete | Cross-subject linking delivered for investigation context while preserving offcanvas IP behavior; canonical investigate URL helpers integrated. |
 | P7-INV-UX | [COMPLETE] Complete (superseded continuation executed) | **Historical completed rows retained:** OM-701..OM-710. **Superseding execution source of truth executed:** `P7-SUPERSEDE-2026-02-27` tasks OM-712..OM-720 are complete. |
-| P8 | [IN PROGRESS] Partially complete | WP dashboard widget alignment and Reports deepening are complete; Configure deepening remains pending. |
+| P8 | [COMPLETE] Complete | WP dashboard widget alignment, Reports deepening, and Configure deepening (landing scope) are complete. |
 
 ## 7) P6-STAB Closure Record (Runtime Recovery)
 
@@ -373,6 +373,27 @@ Validation evidence:
 2. Full unit suite passed:
    - `composer test:unit`
    - Result: pass with environment/package-related skips only.
+
+### 8.4) Configure Deepening Completion Record (2026-03-02)
+
+Scope delivered:
+1. Configure landing hero reuses existing config-channel `MeterCard` contract (`meter_channel: config`, `is_hero: true`) sourced from the summary meter.
+2. Configure-area overview cards reuse canonical meter definitions (`Handler::METERS`) and existing `MeterCard` rendering for non-summary meters (`summary` and `overall_config` excluded).
+3. Configure landing stats reuse existing traffic/status derivation and render via the existing `stat_box.twig` contract.
+4. Security Zones quick-link grid reuses canonical zone data from `comps->zones->getZones()` with no duplicate zone provider or parallel data path.
+
+Validation evidence:
+1. Behavior-focused unit coverage added: `tests/Unit/ActionRouter/Render/PageConfigureLandingBehaviorTest.php`.
+2. Legacy brittle source-string test removed: `tests/Unit/ConfigureLandingHeroMeterContractTest.php`.
+3. Focused command passed:
+   - `composer test:unit -- tests/Unit/ActionRouter/Render/PageConfigureLandingBehaviorTest.php`
+   - Result: `OK (3 tests, 18 assertions)`.
+4. Related render-domain unit suite passed:
+   - `composer test:unit -- tests/Unit/ActionRouter/Render`
+   - Result: `OK (63 tests, 540 assertions)`.
+5. Integration route contract coverage added: `tests/Integration/ActionRouter/ConfigureLandingPageIntegrationTest.php`.
+   - Execution note: integration execution is skipped in this workspace when the WordPress integration harness is unavailable.
+6. No PHPCS run performed (per scope rule).
 
 ## 9) Tracking Format
 

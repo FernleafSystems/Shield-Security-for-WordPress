@@ -1,7 +1,7 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="row g-3">
+	<div class="row g-3" data-configure-section="hero">
 		<div class="col-12 col-xl-7">
 			<h5 class="mb-2">{{ strings.posture_title }}</h5>
 			<div class="progress-metercard progress-metercard-hero progress-metercard-summary"
@@ -22,6 +22,48 @@
 						<a href="{{ hrefs.tools_import }}" class="list-group-item list-group-item-action">{{ strings.link_tools }}</a>
 					</div>
 				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="mt-4" data-configure-section="stats">
+		<h5 class="mb-2">{{ strings.stats_title }}</h5>
+		<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
+			{% for stat in vars.configure_stats|default([]) %}
+				<div class="col">
+					{% include '/components/events/stats/stat_box.twig' %}
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<div class="mt-4" data-configure-section="overview-meters">
+		<h5 class="mb-2">{{ strings.overview_title }}</h5>
+		<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+			{% for card in content.overview_meter_cards|default([]) %}
+				<div class="col" data-configure-meter="{{ card.slug }}">
+					{{ card.html|raw }}
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<div class="card shield-card mt-4" data-configure-section="zones">
+		<div class="shield-card-accent status-neutral"></div>
+		<div class="card-body">
+			<h5 class="card-title mb-1">{{ strings.zones_title }}</h5>
+			<p class="text-muted small mb-3">{{ strings.zones_subtitle }}</p>
+			<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-2">
+				{% for zone in vars.zone_links|default([]) %}
+					<div class="col">
+						<a href="{{ zone.href }}"
+						   class="btn btn-outline-secondary w-100 text-start d-flex align-items-center gap-2"
+						   data-configure-zone="{{ zone.slug }}">
+							<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
+							<span>{{ zone.label }}</span>
+						</a>
+					</div>
+				{% endfor %}
 			</div>
 		</div>
 	</div>

@@ -643,7 +643,16 @@ Feedback-to-task mapping table is maintained in backlog Section 12 for implement
 
 ### Step 7: Configure & Reports Modes
 
-**Status (2026-02-26):** In progress by area. Configure remains complete for landing slice; Reports deepening is complete for landing + list/charts/settings subpages.
+**Status (2026-03-02):** ✅ Complete. Reports deepening is complete for landing + list/charts/settings subpages, and Configure deepening is now complete for the landing scope.
+
+Configure deepening completion summary (2026-03-02):
+1. `PageConfigureLanding` now renders:
+   - config-channel hero posture meter (`MeterCard`, `meter_channel: config`, `is_hero: true`),
+   - config-area overview meter cards using existing non-summary meter slugs via `Handler::METERS` + `MeterCard` reuse,
+   - summary stats via existing `stat_box.twig` contract,
+   - Security Zones quick-link grid from canonical zones service data (`comps->zones->getZones()`).
+2. Existing quick-link contract (`grades`, `zones_home`, `rules_manage`, `tools_import`) remains unchanged.
+3. Targeted behavior tests were added for configure landing payload/render contracts, and a configure landing integration route contract test was added (execution skips in environments without WP integration harness).
 
 This step continues to prioritize reuse of existing components and handlers rather than introducing parallel systems.
 
@@ -654,7 +663,8 @@ This step continues to prioritize reuse of existing components and handlers rath
 | Component to Reuse | File | How |
 |---|---|---|
 | `MeterCard` (config channel) | `src/ActionRouter/Actions/Render/Components/Meters/MeterCard.php` | **Render** with `meter_channel: 'config'` and `is_hero: true` for the config posture score hero card. This is the existing meter card — just filtered to config channel. |
-| Zone overview data | `SecurityZones` module | Query zone-level meter data to show a summary card per zone (8 zones). Each zone already has its own `MeterCard` — render a compact grid of zone meter cards. |
+| Configure-area overview cards | `MeterAnalysis/Handler::METERS` + `MeterCard` | Render compact config-channel `MeterCard` blocks for non-summary meters (`summary` + `overall_config` excluded). |
+| Security zone navigation data | `SecurityZones` module | Reuse `comps->zones->getZones()` to render the canonical 8-zone quick-link grid on landing. |
 | `stat_box.twig` | `templates/twig/components/events/stats/stat_box.twig` | **Reuse** for summary stats (total zones configured, grade distribution, etc.). |
 
 **Reports landing:**
@@ -670,7 +680,7 @@ This step continues to prioritize reuse of existing components and handlers rath
 
 | File | Purpose | Implementation Notes |
 |---|---|---|
-| `PageConfigureLanding.php` | Configure mode landing — config posture score + zone overview | Extends `BasePluginAdminPage`. Renders `MeterCard` with config channel (reused), zone summary grid (each zone as a compact `MeterCard` — reused), and links to Security Grades page. |
+| `PageConfigureLanding.php` | Configure mode landing — config posture score + overview + zones | Extends `BasePluginAdminPage`. Renders config hero `MeterCard`, config-area overview meter cards, summary stats, and Security Zones quick-link grid using existing services/components. |
 | `PageReportsLanding.php` | Reports mode landing - charts + recent reports + direct CTAs | Extends `BasePluginAdminPage`. Renders `ChartsSummary` and `ReportsTable` (limited rows), with direct links to reports list, charts, and settings pages. |
 
 ### Step 8: WP Dashboard Widget Update
@@ -1347,4 +1357,3 @@ These rules apply to ALL investigation pages. Violating them creates inconsisten
 5. **Tab badges.** Count badges on rail tabs show the total record count for that subject. These counts come from the `countTotalRecords()` method in the respective `BuildInvestigation*Data` class, called during page render (not AJAX). Cache with short TTL if performance is a concern.
 
 6. **Table CTA links.** Investigation tabs should include full-page links with context-appropriate CTA text (`Full Scan Results` for file scan tab, `Full Log` for activity/traffic tabs) and pre-filtered search parameters. Use `SearchTextParser` syntax in the URL: e.g., `?search=user_id:42` for the activity log filtered to user 42. The full-page tables already parse this syntax.
-
