@@ -23,7 +23,7 @@ class PageOperatorModeLanding extends BaseRender {
 		$con = self::con();
 
 		$queuePayload = $con->action_router->action( NeedsAttentionQueue::class )->payload();
-		$queueSummary = $this->normalizeQueueSummary( $queuePayload );
+		$queueSummary = $queuePayload[ 'vars' ][ 'summary' ];
 		$configMeter = ( new Handler() )->getMeter( MeterSummary::SLUG, true, MeterComponent::CHANNEL_CONFIG );
 		$configPercentage = $configMeter[ 'totals' ][ 'percentage' ];
 		$configTraffic = BuildMeter::trafficFromPercentage( $configPercentage );
@@ -72,50 +72,6 @@ class PageOperatorModeLanding extends BaseRender {
 			'badge_text'   => $queueSummary[ 'has_items' ]
 				? sprintf( _n( '%s item', '%s items', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ), $queueSummary[ 'total_items' ] )
 				: __( 'All clear', 'wp-simple-firewall' ),
-		];
-	}
-
-	/**
-	 * @return array{
-	 *   has_items:bool,
-	 *   total_items:int,
-	 *   severity:string,
-	 *   icon_class:string,
-	 *   subtext:string
-	 * }
-	 */
-	private function normalizeQueueSummary( array $queuePayload ) :array {
-		$flags = $queuePayload[ 'flags' ] ?? [];
-		$vars = $queuePayload[ 'vars' ] ?? [];
-		$strings = $queuePayload[ 'strings' ] ?? [];
-
-		$hasItems = !empty( $flags[ 'has_items' ] );
-		$totalItems = $vars[ 'total_items' ] ?? 0;
-		if ( !\is_int( $totalItems ) ) {
-			$totalItems = (int)$totalItems;
-		}
-
-		$severity = $hasItems
-			? $this->normalizeSeverity( \is_string( $vars[ 'overall_severity' ] ?? null ) ? $vars[ 'overall_severity' ] : 'critical' )
-			: 'good';
-
-		$iconClassKey = $hasItems ? 'status_strip_icon_class' : 'all_clear_icon_class';
-		$iconClass = $strings[ $iconClassKey ] ?? self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' );
-		if ( !\is_string( $iconClass ) || $iconClass === '' ) {
-			$iconClass = self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' );
-		}
-
-		$subtext = $strings[ 'status_strip_subtext' ] ?? '';
-		if ( !\is_string( $subtext ) ) {
-			$subtext = '';
-		}
-
-		return [
-			'has_items'   => $hasItems,
-			'total_items' => $totalItems,
-			'severity'    => $severity,
-			'icon_class'  => $iconClass,
-			'subtext'     => $subtext,
 		];
 	}
 
@@ -192,11 +148,6 @@ class PageOperatorModeLanding extends BaseRender {
 				break;
 		}
 		return $summary;
-	}
-
-	private function normalizeSeverity( string $severity ) :string {
-		$severity = \strtolower( \trim( $severity ) );
-		return \in_array( $severity, [ 'good', 'warning', 'critical', 'info' ], true ) ? $severity : 'good';
 	}
 
 	private function configureSummary( string $configTraffic ) :string {

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NeedsAttentionQueue extends BaseRender {
@@ -34,17 +35,16 @@ class NeedsAttentionQueue extends BaseRender {
 				$totalItems
 			)
 			: __( 'Your site is secure', 'wp-simple-firewall' );
+		$summary = $this->buildQueueSummaryContract( $hasItems, $totalItems, $items, $lastScanSubtext );
 
 		return [
 			'flags'   => [
-				'has_items' => $hasItems,
+				'has_items' => $summary[ 'has_items' ],
 			],
 			'strings' => [
-				'status_strip_icon_class' => $hasItems
-					? self::con()->svgs->iconClass( 'exclamation-triangle-fill' )
-					: self::con()->svgs->iconClass( 'shield-check' ),
+				'status_strip_icon_class' => $summary[ 'icon_class' ],
 				'status_strip_text'       => $statusStripText,
-				'status_strip_subtext'    => $lastScanSubtext,
+				'status_strip_subtext'    => $summary[ 'subtext' ],
 				'title'                   => __( 'Action Required', 'wp-simple-firewall' ),
 				'issues_found'            => __( 'Actions Required', 'wp-simple-firewall' ),
 				'all_clear'               => __( 'All Clear', 'wp-simple-firewall' ),
@@ -55,8 +55,9 @@ class NeedsAttentionQueue extends BaseRender {
 				'last_scan_subtext'       => $lastScanSubtext,
 			],
 			'vars'    => [
-				'overall_severity' => $this->determineOverallSeverity( $items ),
-				'total_items'      => $totalItems,
+				'summary'          => $summary,
+				'overall_severity' => $summary[ 'severity' ],
+				'total_items'      => $summary[ 'total_items' ],
 				'zone_groups'      => \array_values( $zoneGroups ),
 				'zone_chips'       => $this->buildAllClearZoneChips(),
 			],
@@ -81,10 +82,10 @@ class NeedsAttentionQueue extends BaseRender {
 			}
 			$groups[ $zone ][ 'items' ][] = $item;
 			$groups[ $zone ][ 'total_issues' ] += $item[ 'count' ];
-			$groups[ $zone ][ 'severity' ] = $this->maxSeverity( [
+			$groups[ $zone ][ 'severity' ] = StatusPriority::highest( [
 				$groups[ $zone ][ 'severity' ],
 				$item[ 'severity' ],
-			] );
+			], 'good' );
 		}
 
 		return $groups;
@@ -94,22 +95,26 @@ class NeedsAttentionQueue extends BaseRender {
 		if ( empty( $items ) ) {
 			return 'good';
 		}
-		return $this->maxSeverity( \array_column( $items, 'severity' ) );
+		return StatusPriority::highest( \array_column( $items, 'severity' ), 'good' );
 	}
 
-	private function maxSeverity( array $severities ) :string {
-		$rankMap = [
-			'good'     => 0,
-			'warning'  => 1,
-			'critical' => 2,
+	/**
+	 * @return array{
+	 *   has_items:bool,
+	 *   total_items:int,
+	 *   severity:string,
+	 *   icon_class:string,
+	 *   subtext:string
+	 * }
+	 */
+	private function buildQueueSummaryContract( bool $hasItems, int $totalItems, array $items, string $lastScanSubtext ) :array {
+		return [
+			'has_items'   => $hasItems,
+			'total_items' => $totalItems,
+			'severity'    => $this->determineOverallSeverity( $items ),
+			'icon_class'  => self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ),
+			'subtext'     => $lastScanSubtext,
 		];
-		$highest = 'good';
-		foreach ( $severities as $severity ) {
-			if ( ( $rankMap[ $severity ] ?? -1 ) > ( $rankMap[ $highest ] ?? -1 ) ) {
-				$highest = $severity;
-			}
-		}
-		return $highest;
 	}
 
 	private function buildAllClearZoneChips() :array {

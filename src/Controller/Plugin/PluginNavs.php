@@ -518,16 +518,15 @@ class PluginNavs {
 	}
 
 	public static function investigateSubNavCrumbLabel( string $subNav ) :string {
-		$subNavDefinition = self::investigateSubNavDefinition( $subNav );
-		return \is_string( $subNavDefinition[ 'label' ] ?? null ) ? $subNavDefinition[ 'label' ] : '';
+		return self::investigateSubNavDefinition( $subNav )[ 'label' ] ?? '';
 	}
 
 	public static function investigateSubNavDefinitions() :array {
 		$definitions = [];
 		foreach ( self::investigateLandingSubjectDefinitions() as $subject ) {
-			$subNav = (string)( $subject[ 'subnav_hint' ] ?? '' );
-			$label = (string)( $subject[ 'label' ] ?? '' );
-			if ( !empty( $subNav ) && !empty( $label ) ) {
+			$subNav = $subject[ 'subnav_hint' ];
+			$label = $subject[ 'label' ];
+			if ( \is_string( $subNav ) && $subNav !== '' && $label !== '' ) {
 				$definitions[ $subNav ] = [ 'label' => $label ];
 			}
 		}
@@ -546,10 +545,9 @@ class PluginNavs {
 		}
 
 		if ( $nav === self::NAV_REPORTS ) {
-			$workspace = self::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
-			$menuTitle = $workspace[ 'menu_title' ] ?? null;
-			if ( \is_string( $menuTitle ) && $menuTitle !== '' ) {
-				return [ 'label' => $menuTitle ];
+			$workspaceDefinitions = self::reportsWorkspaceDefinitions();
+			if ( isset( $workspaceDefinitions[ $subNav ] ) ) {
+				return [ 'label' => $workspaceDefinitions[ $subNav ][ 'menu_title' ] ];
 			}
 		}
 

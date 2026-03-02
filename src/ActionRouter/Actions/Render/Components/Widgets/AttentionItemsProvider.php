@@ -9,16 +9,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Meter\MeterOverallConfig
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 class AttentionItemsProvider {
 
 	use PluginControllerConsumer;
 
-	private const SEVERITY_SORT = [
-		'critical' => 0,
-		'warning'  => 1,
-		'good'     => 2,
-	];
 	private const KEY_SORT = [
 		'malware',
 		'vulnerable_assets',
@@ -91,8 +87,8 @@ class AttentionItemsProvider {
 			];
 		}
 
-		$severity = \strtolower( \trim( $items[ 0 ][ 'severity' ] ) );
-		if ( !\in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ) {
+		$severity = StatusPriority::normalize( $items[ 0 ][ 'severity' ], 'warning' );
+		if ( $severity === 'info' ) {
 			$severity = 'warning';
 		}
 
@@ -384,8 +380,8 @@ class AttentionItemsProvider {
 	 */
 	private function normalizeMaintenanceComponent( array $component ) :?array {
 		$slug = $component[ 'slug' ] ?? '';
-		$title = $component[ 'title_unprotected' ] ?? $component[ 'title' ] ?? '';
-		$description = $component[ 'desc_unprotected' ] ?? $component[ 'description' ] ?? '';
+		$title = !empty( $component[ 'title_unprotected' ] ) ? $component[ 'title_unprotected' ] : ( $component[ 'title' ] ?? '' );
+		$description = !empty( $component[ 'desc_unprotected' ] ) ? $component[ 'desc_unprotected' ] : ( $component[ 'description' ] ?? '' );
 		$href = $component[ 'href_full' ] ?? self::con()->plugin_urls->adminHome();
 		$action = $component[ 'fix' ] ?? __( 'Fix', 'wp-simple-firewall' );
 
@@ -421,10 +417,10 @@ class AttentionItemsProvider {
 	 */
 	public function sortItems( array $items ) :array {
 		\usort( $items, function ( array $a, array $b ) :int {
-			$rankA = $this->severityRank( $a[ 'severity' ] );
-			$rankB = $this->severityRank( $b[ 'severity' ] );
+			$rankA = StatusPriority::rank( $a[ 'severity' ] );
+			$rankB = StatusPriority::rank( $b[ 'severity' ] );
 			if ( $rankA !== $rankB ) {
-				return $rankA <=> $rankB;
+				return $rankB <=> $rankA;
 			}
 
 			$countCmp = $b[ 'count' ] <=> $a[ 'count' ];
@@ -444,10 +440,6 @@ class AttentionItemsProvider {
 		} );
 
 		return $items;
-	}
-
-	private function severityRank( string $severity ) :int {
-		return self::SEVERITY_SORT[ $severity ] ?? \PHP_INT_MAX;
 	}
 
 	private function buildItem(

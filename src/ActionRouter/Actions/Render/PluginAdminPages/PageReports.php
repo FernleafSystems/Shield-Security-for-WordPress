@@ -79,13 +79,11 @@ class PageReports extends BasePluginAdminPage {
 	}
 
 	private function getCurrentSubNavRenderDefinition() :array {
-		$subNav = $this->getCurrentSubNav();
-		return PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
+		return $this->getWorkspaceDefinitionForSubNav( $this->getCurrentSubNav() );
 	}
 
 	private function getCurrentWorkspaceDefinition() :array {
-		$subNav = $this->getCurrentSubNav();
-		return PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ?? [];
+		return $this->getWorkspaceDefinitionForSubNav( $this->getCurrentSubNav() );
 	}
 
 	private function getCurrentSubNav() :string {
@@ -97,6 +95,11 @@ class PageReports extends BasePluginAdminPage {
 		return $subNav === PluginNavs::SUBNAV_REPORTS_SETTINGS
 			? $this->buildReportsSettingsActionData()
 			: [];
+	}
+
+	private function getWorkspaceDefinitionForSubNav( string $subNav ) :array {
+		$definitions = PluginNavs::reportsWorkspaceDefinitions();
+		return $definitions[ $subNav ] ?? [];
 	}
 
 	private function buildReportsSettingsActionData() :array {

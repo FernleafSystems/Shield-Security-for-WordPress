@@ -89,29 +89,6 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->invokeProtectedMethod( $page, 'getLandingFlags' ) );
 	}
 
-	public function test_subject_definition_contract_violation_throws_logic_exception() :void {
-		$page = new class extends PageInvestigateLanding {
-			protected function getSubjectDefinitions() :array {
-				return [
-					'plugins' => [
-						'key'         => 'plugins',
-						'label'       => 'Plugins',
-						'description' => 'Plugin analysis',
-						'icon_class'  => 'bi bi-puzzle-fill',
-						'panel_type'  => 'direct_link',
-						'href_key'    => '',
-						'is_enabled'  => true,
-						'is_pro'      => false,
-					],
-				];
-			}
-		};
-
-		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'requires href key' );
-		$this->invokeProtectedMethod( $page, 'getLandingVars' );
-	}
-
 	public function test_landing_hrefs_include_required_subject_and_log_routes() :void {
 		$page = new PageInvestigateLanding();
 		$hrefs = $this->invokeProtectedMethod( $page, 'getLandingHrefs' );

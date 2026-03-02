@@ -19,27 +19,24 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_normalize_queue_summary_coerces_boundary_values_once() :void {
+	public function test_build_actions_hero_single_item_uses_singular_copy() :void {
 		$page = new PageOperatorModeLanding();
-		$summary = $this->invokeNonPublicMethod( $page, 'normalizeQueueSummary', [
+		$hero = $this->invokeNonPublicMethod( $page, 'buildActionsHero', [
 			[
-				'flags'   => [ 'has_items' => true ],
-				'vars'    => [
-					'total_items'      => '4',
-					'overall_severity' => 'CRITICAL',
-				],
-				'strings' => [
-					'status_strip_icon_class' => 'bi bi-exclamation-triangle-fill',
-					'status_strip_subtext'    => 'Last scan: 2 minutes ago',
-				],
+				'has_items'   => true,
+				'total_items' => 1,
+				'severity'    => 'critical',
+				'icon_class'  => 'bi bi-exclamation-triangle-fill',
+				'subtext'     => 'Last scan: 2 minutes ago',
 			],
 		] );
 
-		$this->assertSame( true, $summary[ 'has_items' ] ?? false );
-		$this->assertSame( 4, $summary[ 'total_items' ] ?? 0 );
-		$this->assertSame( 'critical', $summary[ 'severity' ] ?? '' );
-		$this->assertSame( 'bi bi-exclamation-triangle-fill', $summary[ 'icon_class' ] ?? '' );
-		$this->assertSame( 'Last scan: 2 minutes ago', $summary[ 'subtext' ] ?? '' );
+		$this->assertSame( 'critical', $hero[ 'severity' ] ?? '' );
+		$this->assertSame( 'critical', $hero[ 'badge_status' ] ?? '' );
+		$this->assertSame( 'bi bi-exclamation-triangle-fill', $hero[ 'icon_class' ] ?? '' );
+		$this->assertSame( 'Last scan: 2 minutes ago', $hero[ 'meta' ] ?? '' );
+		$this->assertSame( '1 item', $hero[ 'badge_text' ] ?? '' );
+		$this->assertStringContainsString( '1 issue needs your attention', $hero[ 'subtitle' ] ?? '' );
 	}
 
 	public function test_build_actions_hero_uses_normalized_summary_contract() :void {

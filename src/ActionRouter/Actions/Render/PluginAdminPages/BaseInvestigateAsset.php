@@ -254,17 +254,14 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 
 	private function normalizeAssetLookup( string $subjectType, string $lookup ) :string {
 		try {
-			$normalized = ( new InvestigationSubjectResolver() )->normalize(
+			return ( new InvestigationSubjectResolver() )->normalize(
 				InvestigationTableContract::TABLE_TYPE_ACTIVITY,
 				$subjectType,
 				$lookup
-			);
+			)[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ];
 		}
 		catch ( InvalidInvestigationSubjectIdentifierException|UnsupportedInvestigationSubjectTypeException|UnsupportedInvestigationTableTypeException $e ) {
-			$normalized = [];
+			return '';
 		}
-
-		$subjectId = $normalized[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ] ?? '';
-		return \is_string( $subjectId ) ? $subjectId : '';
 	}
 }

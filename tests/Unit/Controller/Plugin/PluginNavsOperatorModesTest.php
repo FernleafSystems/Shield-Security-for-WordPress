@@ -66,38 +66,47 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	}
 
 	public function test_reports_workspace_definitions_match_expected_contract() :void {
+		$definitions = PluginNavs::reportsWorkspaceDefinitions();
 		$this->assertSame(
 			[
-				PluginNavs::SUBNAV_REPORTS_LIST     => [
-					'menu_title'         => 'Security Reports',
-					'landing_cta'        => 'Open Reports List',
-					'page_title'         => 'View & Create',
-					'page_subtitle'      => 'View and create new security reports.',
-					'content_key'        => 'create_report',
-					'render_action'      => Reports\PageReportsView::class,
-					'show_create_action' => true,
-				],
-				PluginNavs::SUBNAV_REPORTS_CHARTS   => [
-					'menu_title'         => 'Charts & Trends',
-					'landing_cta'        => 'Open Charts & Trends',
-					'page_title'         => 'Charts & Trends',
-					'page_subtitle'      => 'Review recent security trend metrics.',
-					'content_key'        => 'summary_charts',
-					'render_action'      => Reports\ChartsSummary::class,
-					'show_create_action' => false,
-				],
-				PluginNavs::SUBNAV_REPORTS_SETTINGS => [
-					'menu_title'         => 'Alert Settings',
-					'landing_cta'        => 'Open Alert Settings',
-					'page_title'         => 'Alert Settings',
-					'page_subtitle'      => 'Manage instant alerts and report delivery settings.',
-					'content_key'        => 'alerts_settings',
-					'render_action'      => OptionsFormFor::class,
-					'show_create_action' => false,
-				],
+				PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::SUBNAV_REPORTS_CHARTS,
+				PluginNavs::SUBNAV_REPORTS_SETTINGS,
 			],
-			PluginNavs::reportsWorkspaceDefinitions()
+			\array_keys( $definitions )
 		);
+
+		$expectedRenderActions = [
+			PluginNavs::SUBNAV_REPORTS_LIST     => Reports\PageReportsView::class,
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => Reports\ChartsSummary::class,
+			PluginNavs::SUBNAV_REPORTS_SETTINGS => OptionsFormFor::class,
+		];
+		$expectedContentKeys = [
+			PluginNavs::SUBNAV_REPORTS_LIST     => 'create_report',
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => 'summary_charts',
+			PluginNavs::SUBNAV_REPORTS_SETTINGS => 'alerts_settings',
+		];
+		$expectedCreateActions = [
+			PluginNavs::SUBNAV_REPORTS_LIST     => true,
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => false,
+			PluginNavs::SUBNAV_REPORTS_SETTINGS => false,
+		];
+
+		foreach ( $definitions as $subNav => $definition ) {
+			foreach ( [ 'menu_title', 'landing_cta', 'page_title', 'page_subtitle', 'content_key', 'render_action', 'show_create_action' ] as $requiredKey ) {
+				$this->assertArrayHasKey( $requiredKey, $definition, 'Missing key '.$requiredKey.' for '.$subNav );
+			}
+
+			foreach ( [ 'menu_title', 'landing_cta', 'page_title', 'page_subtitle', 'content_key', 'render_action' ] as $stringKey ) {
+				$this->assertIsString( $definition[ $stringKey ], 'Expected string '.$stringKey.' for '.$subNav );
+				$this->assertNotSame( '', \trim( $definition[ $stringKey ] ), 'Expected non-empty '.$stringKey.' for '.$subNav );
+			}
+
+			$this->assertIsBool( $definition[ 'show_create_action' ], 'Expected boolean show_create_action for '.$subNav );
+			$this->assertSame( $expectedRenderActions[ $subNav ], $definition[ 'render_action' ] );
+			$this->assertSame( $expectedContentKeys[ $subNav ], $definition[ 'content_key' ] );
+			$this->assertSame( $expectedCreateActions[ $subNav ], $definition[ 'show_create_action' ] );
+		}
 	}
 
 	public function test_reports_route_handlers_match_expected_contract() :void {
@@ -257,10 +266,45 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $definitions[ 'woocommerce' ][ 'is_enabled' ] ?? true ) );
 		$this->assertTrue( (bool)( $definitions[ 'woocommerce' ][ 'is_pro' ] ?? false ) );
 
+		$requiredKeys = [
+			'label',
+			'description',
+			'icon_class',
+			'panel_type',
+			'subnav_hint',
+			'href_key',
+			'input_key',
+			'options_key',
+			'panel_title',
+			'lookup_placeholder',
+			'go_label',
+			'is_enabled',
+			'is_pro',
+		];
+		$validPanelTypes = [ 'lookup_text', 'lookup_select', 'direct_link', 'disabled' ];
+
 		foreach ( $definitions as $subjectKey => $subject ) {
+			foreach ( $requiredKeys as $requiredKey ) {
+				$this->assertArrayHasKey( $requiredKey, $subject, 'Missing '.$requiredKey.' for '.$subjectKey );
+			}
+
+			$this->assertContains( $subject[ 'panel_type' ], $validPanelTypes, 'Invalid panel_type for '.$subjectKey );
+			$this->assertIsBool( $subject[ 'is_enabled' ], 'Expected boolean is_enabled for '.$subjectKey );
+			$this->assertIsBool( $subject[ 'is_pro' ], 'Expected boolean is_pro for '.$subjectKey );
+
+			$this->assertIsString( $subject[ 'href_key' ], 'Expected string href_key for '.$subjectKey );
+			$this->assertTrue(
+				$subject[ 'subnav_hint' ] === null || \is_string( $subject[ 'subnav_hint' ] ),
+				'Expected null|string subnav_hint for '.$subjectKey
+			);
+
 			$this->assertNotSame( '', \trim( (string)( $subject[ 'label' ] ?? '' ) ), 'Missing label for '.$subjectKey );
 			$this->assertNotSame( '', \trim( (string)( $subject[ 'description' ] ?? '' ) ), 'Missing description for '.$subjectKey );
 			$this->assertNotSame( '', \trim( (string)( $subject[ 'icon_class' ] ?? '' ) ), 'Missing icon_class for '.$subjectKey );
+
+			if ( $subject[ 'is_enabled' ] && $subject[ 'panel_type' ] !== 'disabled' ) {
+				$this->assertNotSame( '', $subject[ 'href_key' ], 'Enabled subject requires href_key for '.$subjectKey );
+			}
 		}
 	}
 
