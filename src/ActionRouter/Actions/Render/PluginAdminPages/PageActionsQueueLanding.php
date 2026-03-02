@@ -14,6 +14,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_actions_queue_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/actions_queue_landing.twig';
+	private ?array $needsAttentionPayload = null;
 
 	protected function getLandingTitle() :string {
 		return __( 'Actions Queue', 'wp-simple-firewall' );
@@ -35,7 +36,14 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 				'meter_channel' => MeterComponent::CHANNEL_ACTION,
 				'is_hero'       => true,
 			] ),
-			'needs_attention_queue' => $con->action_router->render( NeedsAttentionQueue::class ),
+			'needs_attention_queue' => (string)( $this->getNeedsAttentionPayload()[ 'render_output' ] ?? '' ),
+		];
+	}
+
+	protected function getLandingFlags() :array {
+		$renderData = $this->getNeedsAttentionRenderData();
+		return [
+			'queue_is_empty' => empty( $renderData[ 'flags' ][ 'has_items' ] ),
 		];
 	}
 
@@ -49,9 +57,34 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'cta_title'        => __( 'Quick Actions', 'wp-simple-firewall' ),
-			'cta_scan_results' => __( 'Open Scan Results', 'wp-simple-firewall' ),
-			'cta_scan_run'     => __( 'Run Manual Scan', 'wp-simple-firewall' ),
+			'cta_title'           => __( 'Quick Actions', 'wp-simple-firewall' ),
+			'cta_scan_results'    => __( 'Open Scan Results', 'wp-simple-firewall' ),
+			'cta_scan_run'        => __( 'Run Manual Scan', 'wp-simple-firewall' ),
+			'all_clear_title'     => $this->getNeedsAttentionString( 'all_clear_title' ),
+			'all_clear_context'   => $this->getNeedsAttentionString( 'all_clear_subtitle' ),
+			'all_clear_subtext'   => $this->getNeedsAttentionString( 'status_strip_subtext' ),
+			'all_clear_icon_class' => $this->getNeedsAttentionString( 'all_clear_icon_class' ),
 		];
+	}
+
+	private function getNeedsAttentionRenderData() :array {
+		$renderData = $this->getNeedsAttentionPayload()[ 'render_data' ] ?? [];
+		return \is_array( $renderData ) ? $renderData : [];
+	}
+
+	private function getNeedsAttentionString( string $key ) :string {
+		return $this->getNeedsAttentionRenderData()[ 'strings' ][ $key ];
+	}
+
+	private function getNeedsAttentionPayload() :array {
+		if ( $this->needsAttentionPayload === null ) {
+			$this->needsAttentionPayload = self::con()
+											->action_router
+											->action( NeedsAttentionQueue::class, [
+												'compact_all_clear' => true,
+											] )
+											->payload();
+		}
+		return $this->needsAttentionPayload;
 	}
 }

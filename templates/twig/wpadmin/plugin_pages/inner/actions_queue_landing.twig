@@ -7,6 +7,26 @@
 		{{ content.action_meter|raw }}
 	</div>
 
+	{% if flags.queue_is_empty|default(false) %}
+		<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
+			<div class="shield-needs-attention__all-clear-accent"></div>
+			<div class="d-flex align-items-center justify-content-center flex-wrap gap-3">
+				<div class="shield-needs-attention__all-clear-shield">
+					<i class="{{ strings.all_clear_icon_class }}" aria-hidden="true"></i>
+				</div>
+				<div>
+					<div class="shield-needs-attention__all-clear-title">{{ strings.all_clear_title }}</div>
+					{% if strings.all_clear_context|default('') is not empty %}
+						<div class="shield-needs-attention__all-clear-subtitle">{{ strings.all_clear_context }}</div>
+					{% endif %}
+					{% if strings.all_clear_subtext|default('') is not empty %}
+						<div class="shield-needs-attention__all-clear-subtitle">{{ strings.all_clear_subtext }}</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
 	{{ content.needs_attention_queue|raw }}
 
 	<div class="card shield-card mt-3">

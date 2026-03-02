@@ -1,11 +1,14 @@
 <div class="shield-needs-attention h-100">
-	<div class="shield-needs-attention__status-strip {{ flags.has_items ? 'has-issues' : 'all-clear' }}">
-		<i class="{{ strings.status_strip_icon_class }}" aria-hidden="true"></i>
-		<span class="shield-needs-attention__strip-text">{{ strings.status_strip_text }}</span>
-		{% if strings.status_strip_subtext|default('') is not empty %}
-			<span class="shield-needs-attention__strip-sub">{{ strings.status_strip_subtext }}</span>
-		{% endif %}
-	</div>
+	{% set is_compact_all_clear = flags.compact_all_clear|default(false) and not flags.has_items %}
+	{% if not is_compact_all_clear %}
+		<div class="shield-needs-attention__status-strip {{ flags.has_items ? 'has-issues' : 'all-clear' }}">
+			<i class="{{ strings.status_strip_icon_class }}" aria-hidden="true"></i>
+			<span class="shield-needs-attention__strip-text">{{ strings.status_strip_text }}</span>
+			{% if strings.status_strip_subtext|default('') is not empty %}
+				<span class="shield-needs-attention__strip-sub">{{ strings.status_strip_subtext }}</span>
+			{% endif %}
+		</div>
+	{% endif %}
 
 	{% if flags.has_items %}
 		<div class="shield-needs-attention__zone-cards">
@@ -37,13 +40,15 @@
 			{% endfor %}
 		</div>
 	{% else %}
-		<div class="shield-needs-attention__all-clear-card">
+		<div class="shield-needs-attention__all-clear-card" data-needs-attention-all-clear-mode="{{ is_compact_all_clear ? 'compact' : 'full' }}">
 			<div class="shield-needs-attention__all-clear-accent"></div>
 			<div class="shield-needs-attention__all-clear-shield">
 				<i class="{{ strings.all_clear_icon_class }}" aria-hidden="true"></i>
 			</div>
-			<div class="shield-needs-attention__all-clear-title">{{ strings.all_clear_title }}</div>
-			<div class="shield-needs-attention__all-clear-subtitle">{{ strings.all_clear_subtitle }}</div>
+			{% if not is_compact_all_clear %}
+				<div class="shield-needs-attention__all-clear-title" data-needs-attention-widget-copy="all-clear">{{ strings.all_clear_title }}</div>
+				<div class="shield-needs-attention__all-clear-subtitle">{{ strings.all_clear_subtitle }}</div>
+			{% endif %}
 			<div class="shield-needs-attention__chips">
 				{% for chip in vars.zone_chips %}
 					<span class="shield-needs-attention__chip is-{{ chip.severity }}">

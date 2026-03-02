@@ -31,6 +31,7 @@ class NeedsAttentionQueue extends BaseRender {
 		$provider = new AttentionItemsProvider();
 		$items = $provider->buildQueueItems();
 		$totalItems = (int)\array_sum( \array_column( $items, 'count' ) );
+		$isCompactAllClear = !empty( $this->action_data[ 'compact_all_clear' ] );
 
 		$zoneGroups = $this->buildZoneGroups( $items );
 		$hasItems = !empty( $items );
@@ -52,7 +53,8 @@ class NeedsAttentionQueue extends BaseRender {
 
 		return [
 			'flags'   => [
-				'has_items' => $summary[ 'has_items' ],
+				'has_items'         => $summary[ 'has_items' ],
+				'compact_all_clear' => $isCompactAllClear,
 			],
 			'strings' => [
 				'status_strip_icon_class' => $summary[ 'icon_class' ],
