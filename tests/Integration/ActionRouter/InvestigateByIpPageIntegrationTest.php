@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -15,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use HtmlDomAssertions, LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -54,7 +55,23 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->renderByIpPage( '203.0.113.88' );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
 
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-ip route renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="ip" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-ip route marks ip tile active'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip" and @aria-hidden="false"]',
+			'Legacy by-ip route opens ip panel'
+		);
 		$this->assertHtmlContainsMarker( 'shield-ipanalyse', $html, 'By-ip analysis container marker' );
 		$this->assertHtmlContainsMarker( 'Overview', $html, 'By-ip overview tab label marker' );
 		$this->assertHtmlNotContainsMarker( 'Change IP', $html, 'Removed by-ip wrapper text marker' );
@@ -64,7 +81,18 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_no_lookup_renders_without_ip_analysis_container() :void {
 		$payload = $this->renderByIpPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
 
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-ip route without lookup still renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="ip" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-ip route without lookup keeps ip tile active'
+		);
 		$this->assertHtmlNotContainsMarker( 'shield-ipanalyse', $html, 'By-ip analysis container without lookup' );
 	}
 

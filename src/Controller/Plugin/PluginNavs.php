@@ -529,6 +529,25 @@ class PluginNavs {
 		return self::investigateSubNavDefinition( $subNav )[ 'label' ] ?? '';
 	}
 
+	public static function investigateSubjectKeyForSubNav( string $subNav ) :string {
+		$subNav = sanitize_key( $subNav );
+		if ( empty( $subNav ) ) {
+			return '';
+		}
+
+		foreach ( self::investigateLandingSubjectDefinitions() as $subjectKey => $subject ) {
+			if ( ( $subject[ 'subnav_hint' ] ?? null ) === $subNav ) {
+				return $subjectKey;
+			}
+		}
+
+		return '';
+	}
+
+	public static function isInvestigateLegacyContextSubNav( string $subNav ) :bool {
+		return self::investigateSubjectKeyForSubNav( $subNav ) !== '';
+	}
+
 	public static function investigateSubNavDefinitions() :array {
 		$definitions = [];
 		foreach ( self::investigateLandingSubjectDefinitions() as $subject ) {

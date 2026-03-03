@@ -57,23 +57,46 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderByPluginPage( $pluginSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$xpath = $this->investigateDomXPath( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-plugin route renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="plugin" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-plugin route marks plugin tile active'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="plugin" and @aria-hidden="false"]',
+			'Legacy by-plugin route opens plugin panel'
+		);
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-plugin file tab label marker' );
 		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-plugin file CTA label marker' );
 		$this->assertInvestigateOverviewLabel( $xpath, 'Name', 'By-plugin overview table row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-plugin back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-plugin summary cards removed marker' );
 
-		$this->assertInvestigateDatatableCount( $xpath, $expectedTableCount, 'By-plugin datatable count marker' );
-		$this->assertInvestigateTableTypeByCount( $xpath, 'file_scan_results', $fileStatusCount, 'By-plugin file status table marker' );
-		$this->assertInvestigateTableTypeByCount( $xpath, 'activity', $activityCount, 'By-plugin activity table marker' );
 		$this->assertInvestigateSubjectTypeByCount( $xpath, 'plugin', $expectedTableCount, 'By-plugin subject type marker' );
 	}
 
 	public function test_no_lookup_renders_without_investigation_tables() :void {
 		$payload = $this->renderByPluginPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 
-		$this->assertHtmlNotContainsMarker( 'data-investigation-table="1"', $html, 'By-plugin page without lookup' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-plugin route without lookup still renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="plugin" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-plugin route without lookup keeps plugin tile active'
+		);
+		$this->assertHtmlNotContainsMarker( 'data-subject-type="plugin"', $html, 'By-plugin page without lookup should not render plugin subject tables' );
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {

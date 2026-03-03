@@ -47,6 +47,21 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderByCorePage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$xpath = $this->investigateDomXPath( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-core route renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="core" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-core route marks core tile active'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="core" and @aria-hidden="false"]',
+			'Legacy by-core route opens core panel'
+		);
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-core file tab label marker' );
 		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-core file CTA label marker' );
 		$this->assertInvestigateOverviewLabel( $xpath, 'WordPress Version', 'By-core overview table row marker' );
@@ -59,4 +74,3 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertInvestigateSubjectTypeByCount( $xpath, 'core', $expectedTableCount, 'By-core subject type marker' );
 	}
 }
-

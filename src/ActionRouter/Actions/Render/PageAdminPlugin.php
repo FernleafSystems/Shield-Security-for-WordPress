@@ -45,6 +45,9 @@ class PageAdminPlugin extends BaseRender {
 		if ( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ) {
 			$delegateAction = PluginAdminPages\PageDashboardOverview::class;
 		}
+		elseif ( $nav === PluginNavs::NAV_ACTIVITY && PluginNavs::isInvestigateLegacyContextSubNav( $subNav ) ) {
+			$delegateAction = PluginAdminPages\PageInvestigateLanding::class;
+		}
 		if ( empty( $delegateAction ) ) {
 			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav );
 		}
@@ -88,6 +91,11 @@ class PageAdminPlugin extends BaseRender {
 				if ( \array_key_exists( $key, $this->action_data ) ) {
 					$data[ $key ] = $this->action_data[ $key ];
 				}
+			}
+
+			$legacySubjectKey = PluginNavs::investigateSubjectKeyForSubNav( $subNav );
+			if ( !empty( $legacySubjectKey ) ) {
+				$data[ 'subject' ] = $legacySubjectKey;
 			}
 		}
 

@@ -151,6 +151,20 @@ class OperatorBreadcrumbHeaderIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
+	public function test_legacy_investigate_by_user_route_keeps_investigate_header_segments() :void {
+		$payload = $this->renderRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertHtmlContainsMarker( 'Investigate', $html, 'Investigate by-user legacy route header text marker' );
+
+		$segments = $this->getHeaderSegmentsFromHtml( $html );
+		$this->assertSame( [ 'Shield Security', 'Investigate' ], $segments );
+		$this->assertNoSelfRouteBreadcrumbLink(
+			$this->getHeaderBreadcrumbHrefsFromHtml( $html ),
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_BY_USER
+		);
+	}
+
 	public function test_traffic_log_header_uses_normalized_terminal_leaf_title() :void {
 		$payload = $this->renderRoute( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );

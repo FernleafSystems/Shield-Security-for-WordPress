@@ -33,6 +33,9 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		Functions\when( '__' )->alias(
 			fn( string $text ) :string => $text
 		);
+		Functions\when( 'sanitize_key' )->alias(
+			fn( string $key ) :string => \strtolower( \trim( $key ) )
+		);
 		$this->installControllerStubs();
 	}
 
@@ -251,6 +254,18 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 		$this->assertSame( [ 'label' => 'User' ], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
 		$this->assertSame( [], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
+	}
+
+	public function test_investigate_legacy_subnav_subject_mapping_matches_contract() :void {
+		$this->assertSame( 'user', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
+		$this->assertSame( 'ip', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_IP ) );
+		$this->assertSame( 'plugin', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ) );
+		$this->assertSame( 'theme', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) );
+		$this->assertSame( 'core', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) );
+		$this->assertSame( '', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
+		$this->assertSame( '', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_LOGS ) );
+		$this->assertTrue( PluginNavs::isInvestigateLegacyContextSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_IP ) );
+		$this->assertFalse( PluginNavs::isInvestigateLegacyContextSubNav( PluginNavs::SUBNAV_LOGS ) );
 	}
 
 	public function test_investigate_landing_subject_definitions_match_expected_contract() :void {

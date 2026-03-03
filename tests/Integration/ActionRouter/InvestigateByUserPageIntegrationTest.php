@@ -81,6 +81,21 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$xpath = $this->investigateDomXPath( $html );
 
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-user route renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="user" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-user route marks user tile active'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="user" and @aria-hidden="false"]',
+			'Legacy by-user route opens user panel'
+		);
 		$this->assertHtmlContainsMarker( 'tab-navlink-user-overview', $html, 'By-user overview rail nav marker' );
 		$this->assertHtmlContainsMarker( 'id="tabInvestigateUserOverview"', $html, 'By-user overview tab panel marker' );
 		$this->assertHtmlContainsMarker( 'User Overview', $html, 'By-user overview heading marker' );
@@ -88,17 +103,25 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertInvestigateOverviewLabel( $xpath, 'IP Addresses Count', 'By-user overview IP count row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-user back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-user summary cards removed marker' );
-		$this->assertInvestigateDatatableCount( $xpath, 3, 'By-user datatable count marker' );
-		$this->assertInvestigateTableTypeByCount( $xpath, 'sessions', 1, 'By-user sessions table marker' );
-		$this->assertInvestigateTableTypeByCount( $xpath, 'activity', 1, 'By-user activity table marker' );
-		$this->assertInvestigateTableTypeByCount( $xpath, 'traffic', 1, 'By-user traffic table marker' );
+		$this->assertInvestigateSubjectTypeByCount( $xpath, 'user', 3, 'By-user subject table markers' );
 	}
 
 	public function test_no_lookup_renders_without_investigation_table_markers() :void {
 		$payload = $this->renderByUserPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 
-		$this->assertHtmlNotContainsMarker( 'data-investigation-table="1"', $html, 'By-user page without lookup' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-user route without lookup still renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="user" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-user route without lookup keeps user tile active'
+		);
+		$this->assertHtmlNotContainsMarker( 'data-subject-type="user"', $html, 'By-user page without lookup should not render user subject tables' );
 	}
 
 	public function test_full_log_links_include_user_search_prefilter() :void {
@@ -171,4 +194,3 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 	}
 }
-

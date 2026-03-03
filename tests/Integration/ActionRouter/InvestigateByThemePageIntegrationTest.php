@@ -56,6 +56,21 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderByThemePage( $themeSlug );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$xpath = $this->investigateDomXPath( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-theme route renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="theme" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-theme route marks theme tile active'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="theme" and @aria-hidden="false"]',
+			'Legacy by-theme route opens theme panel'
+		);
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-theme file tab label marker' );
 		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-theme file CTA label marker' );
 		$this->assertInvestigateOverviewLabel( $xpath, 'Name', 'By-theme overview table row marker' );
@@ -63,17 +78,25 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-theme back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-theme summary cards removed marker' );
 
-		$this->assertInvestigateDatatableCount( $xpath, $expectedTableCount, 'By-theme datatable count marker' );
-		$this->assertInvestigateTableTypeByCount( $xpath, 'file_scan_results', $fileStatusCount, 'By-theme file status table marker' );
-		$this->assertInvestigateTableTypeByCount( $xpath, 'activity', $activityCount, 'By-theme activity table marker' );
 		$this->assertInvestigateSubjectTypeByCount( $xpath, 'theme', $expectedTableCount, 'By-theme subject type marker' );
 	}
 
 	public function test_no_lookup_renders_without_investigation_tables() :void {
 		$payload = $this->renderByThemePage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 
-		$this->assertHtmlNotContainsMarker( 'data-investigation-table="1"', $html, 'By-theme page without lookup' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1"]',
+			'Legacy by-theme route without lookup still renders investigate landing'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-investigate-subject="theme" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'Legacy by-theme route without lookup keeps theme tile active'
+		);
+		$this->assertHtmlNotContainsMarker( 'data-subject-type="theme"', $html, 'By-theme page without lookup should not render theme subject tables' );
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {
@@ -92,4 +115,3 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		return (string)\array_values( $themes )[ 0 ];
 	}
 }
-
