@@ -29,7 +29,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_landing_renders_subject_tiles_and_disabled_woocommerce_marker() :void {
+	public function test_landing_renders_final_subject_tiles_and_disabled_premium_integrations_marker() :void {
 		$payload = $this->renderInvestigateLandingPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
@@ -39,7 +39,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@data-investigate-section="selector"]',
 			'Landing selector section marker'
 		);
-		$this->assertModeShellAndAccentContract( $xpath, 'investigate', 'info', 'Investigate' );
+		$this->assertModeShellAndAccentContract( $xpath, 'investigate', 'info', 'Investigate', true );
 		$this->assertXPathCount(
 			$xpath,
 			'//section[@data-investigate-section="selector"]//form',
@@ -65,7 +65,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'Landing lookup shell marker'
 		);
 
-		foreach ( [ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity' ] as $subjectKey ) {
+		foreach ( [ 'user', 'ip', 'plugin', 'theme', 'core', 'live_traffic' ] as $subjectKey ) {
 			$this->assertXPathExists(
 				$xpath,
 				'//*[@data-investigate-subject="'.$subjectKey.'"]',
@@ -75,15 +75,20 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertXPathExists(
 			$xpath,
-			'//div[@data-investigate-subject="woocommerce" and @aria-disabled="true"]',
-			'Landing woocommerce disabled marker'
+			'//div[@data-investigate-subject="premium_integrations" and @aria-disabled="true"]',
+			'Landing premium integrations disabled marker'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-mode-tile="1"]',
-			8,
+			7,
 			'Investigate shared mode tile marker count'
 		);
-		$this->assertSharedModePanelMarker( $xpath, 'Investigate' );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigate-panel and @data-mode-panel="1"]',
+			6,
+			'Investigate inline panel marker count'
+		);
 	}
 }

@@ -87,7 +87,15 @@ export class ModePanelStateController extends BaseAutoExecComponent {
 		delete shell.dataset.modeActivePanel;
 
 		if ( panel !== null ) {
-			panel.dataset.modePanelTarget = '';
+			if ( this.isPanelTargetStatic( panel ) ) {
+				const defaultTarget = ( panel.dataset.modePanelTargetDefault || '' ).trim();
+				panel.dataset.modePanelTarget = defaultTarget.length > 0
+					? defaultTarget
+					: ( panel.dataset.modePanelTarget || '' ).trim();
+			}
+			else {
+				panel.dataset.modePanelTarget = '';
+			}
 		}
 
 		this.dispatchModeEvent( shell, 'shield:mode-panel-closed', tile, target, trigger );
@@ -137,6 +145,10 @@ export class ModePanelStateController extends BaseAutoExecComponent {
 		return tile.dataset.modeTileDisabled === '1'
 			|| tile.getAttribute( 'aria-disabled' ) === 'true'
 			|| tile.classList.contains( 'is-disabled' );
+	}
+
+	isPanelTargetStatic( panel ) {
+		return panel.dataset.modePanelStaticTarget === '1';
 	}
 
 	dispatchModeEvent( shell, eventName, tile, panelTarget, trigger ) {

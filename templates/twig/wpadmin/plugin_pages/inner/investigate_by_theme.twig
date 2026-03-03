@@ -5,11 +5,14 @@
 		action: hrefs.by_theme,
 		lookup_route: vars.lookup_route,
 		label: strings.lookup_label,
+		panel_form: true,
 		input_name: 'theme_slug',
 		input_type: 'select',
 		input_value: vars.theme_slug|default(''),
 		placeholder: strings.lookup_placeholder,
 		options: vars.theme_options|default([]),
+		use_select2: true,
+		auto_submit_on_change: true,
 		submit_text: strings.lookup_submit
 	} only %}
 

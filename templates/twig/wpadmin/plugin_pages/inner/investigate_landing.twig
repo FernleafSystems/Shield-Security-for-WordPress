@@ -1,61 +1,80 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="investigate-landing">
+	{% set active_subject = vars.active_subject|default('') %}
+
+	<div class="investigate-landing" data-investigate-landing="1">
 		<section class="investigate-landing__selector-shell" data-investigate-section="selector">
 			<div class="investigate-landing__subject-grid" data-mode-tiles="1">
 				{% for subject in vars.subjects %}
+					{% set is_active = subject.is_enabled and active_subject == subject.key %}
 					{% if subject.is_enabled %}
-						<a class="investigate-landing__subject-card"
-						   data-investigate-subject="{{ subject.key }}"
-						   data-mode-tile="1"
-						   data-mode-tile-key="{{ subject.key }}"
-						   data-mode-panel-target="{{ subject.panel_target|default(subject.key) }}"
-						   aria-expanded="false"
-						   href="{{ subject.href }}">
+						<button type="button"
+								class="investigate-landing__subject-card status-{{ subject.status }}{% if is_active %} is-active{% endif %}"
+								data-investigate-subject="{{ subject.key }}"
+								data-mode-tile="1"
+								data-mode-tile-key="{{ subject.key }}"
+								data-mode-panel-target="{{ subject.panel_target }}"
+								aria-expanded="{{ is_active ? 'true' : 'false' }}">
 							<span class="investigate-landing__subject-icon" aria-hidden="true">
 								<i class="{{ subject.icon_class }}"></i>
 							</span>
 							<span class="investigate-landing__subject-label">
-								{{ subject.subject_label }}
+								{{ subject.title }}
 								{% if subject.is_pro %}
 									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
 								{% endif %}
 							</span>
-							<span class="investigate-landing__subject-description">{{ subject.subject_description }}</span>
-						</a>
+							<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
+						</button>
 					{% else %}
-						<div class="investigate-landing__subject-card is-disabled"
+						<div class="investigate-landing__subject-card is-disabled status-{{ subject.status }}"
 							 data-investigate-subject="{{ subject.key }}"
 							 data-mode-tile="1"
 							 data-mode-tile-key="{{ subject.key }}"
-							 data-mode-panel-target="{{ subject.panel_target|default(subject.key) }}"
+							 data-mode-panel-target="{{ subject.panel_target }}"
 							 data-mode-tile-disabled="1"
 							 aria-disabled="true">
 							<span class="investigate-landing__subject-icon" aria-hidden="true">
 								<i class="{{ subject.icon_class }}"></i>
 							</span>
 							<span class="investigate-landing__subject-label">
-								{{ subject.subject_label }}
+								{{ subject.title }}
 								{% if subject.is_pro %}
 									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
 								{% endif %}
 							</span>
-							<span class="investigate-landing__subject-description">{{ subject.subject_description }}</span>
+							<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
 						</div>
 					{% endif %}
 				{% endfor %}
 			</div>
 		</section>
 
-		{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
-			panel: {
-				id: 'InvestigateModePanelShell',
-				target: '',
-				title: strings.mode_panel_title|default(strings.inner_page_title),
-				status: 'info'
-			},
-			strings: strings
-		} only %}
+		{% for subject in vars.subjects if subject.is_enabled %}
+			{% set is_open = active_subject == subject.key %}
+			<section id="InvestigateModePanel-{{ subject.key }}"
+					 class="card shield-card mt-3 investigate-landing__subject-panel{% if not is_open %} d-none{% else %} is-open{% endif %}"
+					 data-mode-panel="1"
+					 data-mode-panel-target="{{ subject.panel_target }}"
+					 data-mode-panel-target-default="{{ subject.panel_target }}"
+					 data-mode-panel-static-target="1"
+					 data-investigate-panel="{{ subject.key }}"
+					 data-investigate-render-action="{{ subject.render_action|default({})|json_encode|e('html_attr') }}"
+					 aria-hidden="{{ is_open ? 'false' : 'true' }}">
+				<div class="shield-card-accent status-{{ subject.panel_status }}" data-mode-panel-accent="1"></div>
+				<div class="card-body">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<h5 class="card-title mb-0" data-mode-panel-title>{{ subject.panel_title }}</h5>
+						<button type="button"
+								class="btn btn-sm btn-outline-secondary"
+								data-mode-panel-close="1">{{ strings.mode_panel_close }}</button>
+					</div>
+					<div data-mode-panel-body>
+						{{ subject.panel_body|raw }}
+					</div>
+				</div>
+			</section>
+		{% endfor %}
 	</div>
 {% endblock %}

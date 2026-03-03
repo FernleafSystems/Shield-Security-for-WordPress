@@ -1,6 +1,8 @@
 {% import "/common/macros.twig" as icwp_macros %}
 {% set mode_shell = vars.mode_shell|default({}) %}
+{% set mode_panel = vars.mode_panel|default({}) %}
 {% set is_mode_landing = mode_shell.is_mode_landing|default(false) %}
+{% set mode_active_panel = mode_panel.active_target|default('') %}
 
 {% block inner_page_header %}
 
@@ -83,6 +85,9 @@
 		 data-mode-shell="1"
 		 data-mode="{{ mode_shell.mode|default('') }}"
 		 data-mode-interactive="{{ mode_shell.is_interactive|default(false) ? '1' : '0' }}"
+		 {% if mode_active_panel is not empty %}
+		 data-mode-active-panel="{{ mode_active_panel }}"
+		 {% endif %}
 		 {% endif %}>
 		{% block inner_page_body %}
 			{% for element in content|default([]) %}

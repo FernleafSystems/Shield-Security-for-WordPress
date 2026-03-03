@@ -5,6 +5,8 @@ import { ShieldTableBase } from "./ShieldTableBase";
 
 export class InvestigationTable extends ShieldTableBase {
 
+	static hasBoundShownTabAdjustHandler = false;
+
 	init() {
 		this.els = Array.from( document.querySelectorAll( '[data-investigation-table="1"]' ) );
 		this.exec();
@@ -54,10 +56,10 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	bindShownTabAdjustHandler() {
-		if ( this.hasBoundShownTabAdjustHandler ) {
+		if ( InvestigationTable.hasBoundShownTabAdjustHandler ) {
 			return;
 		}
-		this.hasBoundShownTabAdjustHandler = true;
+		InvestigationTable.hasBoundShownTabAdjustHandler = true;
 
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',

@@ -225,11 +225,11 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	}
 
 	public function test_investigate_subnav_crumb_labels_match_expected_map() :void {
-		$this->assertSame( 'Users', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
-		$this->assertSame( 'IP Addresses', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_IP ) );
-		$this->assertSame( 'Plugins', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ) );
-		$this->assertSame( 'Themes', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) );
-		$this->assertSame( 'WordPress Core', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) );
+		$this->assertSame( 'User', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
+		$this->assertSame( 'IP Address', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_IP ) );
+		$this->assertSame( 'Plugin', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ) );
+		$this->assertSame( 'Theme', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) );
+		$this->assertSame( 'Core Files', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) );
 		$this->assertSame( 'Activity Log', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_LOGS ) );
 		$this->assertSame( '', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
 	}
@@ -237,80 +237,91 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	public function test_investigate_subnav_definitions_match_expected_contract() :void {
 		$this->assertSame(
 			[
-				PluginNavs::SUBNAV_ACTIVITY_BY_USER   => [ 'label' => 'Users' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_IP     => [ 'label' => 'IP Addresses' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'label' => 'Plugins' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'label' => 'Themes' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'label' => 'WordPress Core' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_USER   => [ 'label' => 'User' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_IP     => [ 'label' => 'IP Address' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'label' => 'Plugin' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'label' => 'Theme' ],
+				PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'label' => 'Core Files' ],
 				PluginNavs::SUBNAV_LOGS               => [ 'label' => 'Activity Log' ],
 			],
 			PluginNavs::investigateSubNavDefinitions()
 		);
-		$this->assertSame( [ 'label' => 'Users' ], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
+		$this->assertSame( [ 'label' => 'User' ], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
 		$this->assertSame( [], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
 	}
 
 	public function test_investigate_landing_subject_definitions_match_expected_contract() :void {
 		$definitions = PluginNavs::investigateLandingSubjectDefinitions();
 		$this->assertSame(
-			[ 'users', 'ips', 'plugins', 'themes', 'wordpress', 'requests', 'activity', 'woocommerce' ],
+			[ 'user', 'ip', 'plugin', 'theme', 'core', 'live_traffic', 'premium_integrations' ],
 			\array_keys( $definitions )
 		);
 
-		$this->assertSame( 'lookup_text', $definitions[ 'users' ][ 'panel_type' ] ?? '' );
-		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_USER, $definitions[ 'users' ][ 'subnav_hint' ] ?? '' );
-		$this->assertSame( 'lookup_select', $definitions[ 'plugins' ][ 'panel_type' ] ?? '' );
-		$this->assertSame( 'plugin_options', $definitions[ 'plugins' ][ 'options_key' ] ?? '' );
-		$this->assertSame( 'direct_link', $definitions[ 'wordpress' ][ 'panel_type' ] ?? '' );
-		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_CORE, $definitions[ 'wordpress' ][ 'subnav_hint' ] ?? '' );
-		$this->assertFalse( (bool)( $definitions[ 'woocommerce' ][ 'is_enabled' ] ?? true ) );
-		$this->assertTrue( (bool)( $definitions[ 'woocommerce' ][ 'is_pro' ] ?? false ) );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_USER, $definitions[ 'user' ][ 'subnav_hint' ] ?? '' );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_CORE, $definitions[ 'core' ][ 'subnav_hint' ] ?? '' );
+		$this->assertSame( PluginAdminPages\PageInvestigateByPlugin::class, $definitions[ 'plugin' ][ 'render_action' ] ?? '' );
+		$this->assertSame( PluginAdminPages\PageTrafficLogLive::class, $definitions[ 'live_traffic' ][ 'render_action' ] ?? '' );
+		$this->assertFalse( (bool)( $definitions[ 'premium_integrations' ][ 'is_enabled' ] ?? true ) );
+		$this->assertTrue( (bool)( $definitions[ 'premium_integrations' ][ 'is_pro' ] ?? false ) );
 
 		$requiredKeys = [
 			'label',
-			'description',
 			'icon_class',
-			'panel_type',
+			'status',
+			'stat_text',
 			'subnav_hint',
-			'href_key',
-			'input_key',
-			'options_key',
 			'panel_title',
-			'lookup_placeholder',
-			'go_label',
+			'panel_status',
+			'render_action',
+			'render_nav',
+			'render_subnav',
+			'lookup_key',
 			'is_enabled',
 			'is_pro',
 		];
-		$validPanelTypes = [ 'lookup_text', 'lookup_select', 'direct_link', 'disabled' ];
+		$validStatuses = [ 'good', 'warning', 'critical', 'info', 'neutral' ];
 
 		foreach ( $definitions as $subjectKey => $subject ) {
 			foreach ( $requiredKeys as $requiredKey ) {
 				$this->assertArrayHasKey( $requiredKey, $subject, 'Missing '.$requiredKey.' for '.$subjectKey );
 			}
 
-			$this->assertContains( $subject[ 'panel_type' ], $validPanelTypes, 'Invalid panel_type for '.$subjectKey );
+			$this->assertContains( $subject[ 'status' ], $validStatuses, 'Invalid status for '.$subjectKey );
+			$this->assertContains( $subject[ 'panel_status' ], $validStatuses, 'Invalid panel_status for '.$subjectKey );
 			$this->assertIsBool( $subject[ 'is_enabled' ], 'Expected boolean is_enabled for '.$subjectKey );
 			$this->assertIsBool( $subject[ 'is_pro' ], 'Expected boolean is_pro for '.$subjectKey );
 
-			$this->assertIsString( $subject[ 'href_key' ], 'Expected string href_key for '.$subjectKey );
 			$this->assertTrue(
 				$subject[ 'subnav_hint' ] === null || \is_string( $subject[ 'subnav_hint' ] ),
 				'Expected null|string subnav_hint for '.$subjectKey
 			);
+			$this->assertTrue(
+				$subject[ 'lookup_key' ] === null || \is_string( $subject[ 'lookup_key' ] ),
+				'Expected null|string lookup_key for '.$subjectKey
+			);
+			$this->assertIsString( $subject[ 'render_nav' ], 'Expected string render_nav for '.$subjectKey );
+			$this->assertIsString( $subject[ 'render_subnav' ], 'Expected string render_subnav for '.$subjectKey );
+			$this->assertTrue(
+				\is_string( $subject[ 'render_action' ] ),
+				'Expected string render_action for '.$subjectKey
+			);
 
 			$this->assertNotSame( '', \trim( (string)( $subject[ 'label' ] ?? '' ) ), 'Missing label for '.$subjectKey );
-			$this->assertNotSame( '', \trim( (string)( $subject[ 'description' ] ?? '' ) ), 'Missing description for '.$subjectKey );
+			$this->assertNotSame( '', \trim( (string)( $subject[ 'stat_text' ] ?? '' ) ), 'Missing stat_text for '.$subjectKey );
 			$this->assertNotSame( '', \trim( (string)( $subject[ 'icon_class' ] ?? '' ) ), 'Missing icon_class for '.$subjectKey );
+			$this->assertNotSame( '', \trim( (string)( $subject[ 'panel_title' ] ?? '' ) ), 'Missing panel_title for '.$subjectKey );
 
-			if ( $subject[ 'is_enabled' ] && $subject[ 'panel_type' ] !== 'disabled' ) {
-				$this->assertNotSame( '', $subject[ 'href_key' ], 'Enabled subject requires href_key for '.$subjectKey );
+			if ( $subject[ 'is_enabled' ] ) {
+				$this->assertNotSame( '', $subject[ 'render_action' ], 'Enabled subject requires render_action for '.$subjectKey );
+				$this->assertNotSame( '', $subject[ 'render_nav' ], 'Enabled subject requires render_nav for '.$subjectKey );
+				$this->assertNotSame( '', $subject[ 'render_subnav' ], 'Enabled subject requires render_subnav for '.$subjectKey );
 			}
 		}
 	}
 
 	public function test_breadcrumb_subnav_definition_matches_expected_contract_for_scope_routes() :void {
 		$this->assertSame(
-			[ 'label' => 'Users' ],
+			[ 'label' => 'User' ],
 			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER )
 		);
 		$this->assertSame(
