@@ -72,6 +72,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-header ") and contains(concat(" ", normalize-space(@class), " "), " inner-page-header-compact ")]',
+			'Actions compact header marker'
+		);
+		$this->assertXPathCount( $xpath, '//*[@data-mode-tiles="1"]', 0, 'Actions landing does not introduce mode tile grid' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', 0, 'Actions landing does not introduce mode tiles' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', 0, 'Actions landing does not introduce mode panel shell' );
 		$this->assertXPathExists( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 'All-clear context banner marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 'Compact all-clear widget mode marker' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-widget-copy="all-clear"]', 0, 'No duplicated widget all-clear copy marker' );
@@ -104,7 +112,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 0, 'No compact all-clear marker when queue has items' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 1, 'Scan results CTA shown when queue has items' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when queue has items' );
-		$this->assertHtmlContainsMarker( 'shield-needs-attention__status-strip has-issues', $html, 'Queue issue-state marker when items exist' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-needs-attention__status-strip ") and contains(concat(" ", normalize-space(@class), " "), " has-issues ")]',
+			'Queue issue-state marker when items exist'
+		);
 	}
 
 	public function test_scan_result_issue_state_hides_page_banner() :void {
@@ -122,6 +134,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 0, 'No compact all-clear marker when scan-result issues exist' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 1, 'Scan results CTA shown when scan-result issues exist' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when scan-result issues exist' );
-		$this->assertHtmlContainsMarker( 'shield-needs-attention__status-strip has-issues', $html, 'Queue issue-state marker when scan-result items exist' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-needs-attention__status-strip ") and contains(concat(" ", normalize-space(@class), " "), " has-issues ")]',
+			'Queue issue-state marker when scan-result items exist'
+		);
 	}
 }

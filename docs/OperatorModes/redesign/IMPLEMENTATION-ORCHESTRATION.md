@@ -99,9 +99,10 @@ If two conflicting claims have identical `Start (UTC)` values:
 
 ### 3.3 Required Steps When Finishing
 
-1. Update task status to `READY_FOR_REVIEW`.
-2. Fill in `PR/Commit`, `End (UTC)`, and `Notes`.
-3. If reviewer signs off, set status to `DONE`.
+1. Fill in `PR/Commit`, `End (UTC)`, and `Notes` handoff artifacts (Section 9.1).
+2. Update task status to `READY_FOR_REVIEW`.
+3. Update the track row `Updated (UTC)` in Section 8 in the same save operation.
+4. If reviewer signs off, set status to `DONE`.
 
 ### 3.3.1 Claim heartbeat
 
@@ -115,7 +116,17 @@ If an `IN_PROGRESS` task has no heartbeat update for more than 90 minutes:
 2. update `Owner` to `-`
 3. append previous owner and reclaim timestamp in `Notes`
 4. update track row `Updated (UTC)`
-4. a new agent may then claim the task following Section 3.2
+5. a new agent may then claim the task following Section 3.2
+
+### 3.3.3 Completion Metadata Integrity Rule
+
+Before a task can be set to `READY_FOR_REVIEW` or `DONE`:
+
+1. `End (UTC)` must be non-empty and formatted per Section 3.7.
+2. `PR/Commit` must be non-empty and must not be `-`.
+3. `Notes` must include the required handoff artifacts in Section 9.1.
+4. if any completion field is missing, keep the task `IN_PROGRESS` (or return it to `IN_PROGRESS`).
+5. existing historical rows are not bulk-rewritten; any row touched after this rule is added must comply.
 
 ### 3.4 Blocked Work
 
@@ -393,7 +404,7 @@ No release branch integration before G3.
 | T0 | DONE | codex-gpt5 | 2026-03-03 11:43 UTC | 2026-03-03 11:54 UTC | T0 shared foundation implemented and verified (unit suite + asset build). |
 | T1 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:21 UTC | 2026-03-03 12:21 UTC | Claimed T1-01 for implementation. |
 | T2 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:24 UTC | 2026-03-03 12:24 UTC | Claimed T2-01 for implementation. |
-| T3 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:28 UTC | 2026-03-03 13:02 UTC | T3-02,T3-03,T3-04 moved to READY_FOR_REVIEW; T3-01 remains NOT_STARTED pending T2 dependencies. |
+| T3 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:28 UTC | 2026-03-03 13:06 UTC | T3-02,T3-03,T3-04 moved to READY_FOR_REVIEW; T3-01 remains NOT_STARTED pending T2 dependencies. |
 | QA | NOT_STARTED | - | - | - | - |
 
 Track status values must use the same vocabulary as tasks.
@@ -407,6 +418,7 @@ Track status transition rules:
 3. `BLOCKED` -> `IN_PROGRESS` when at least one blocked task is unblocked and reclaimed.
 4. `IN_PROGRESS` -> `READY_FOR_REVIEW` when all track tasks are `READY_FOR_REVIEW` or `DONE`.
 5. `READY_FOR_REVIEW` -> `DONE` when all track tasks are `DONE`.
+6. any task transition to `READY_FOR_REVIEW` or `DONE` must update the track row `Updated (UTC)` in the same save operation.
 
 ---
 
@@ -427,7 +439,7 @@ Track status transition rules:
 | T2-04 | T2 | Implement Select2 lookup and auto-load behavior contract | T2-02 | NOT_STARTED | - | - | - | - | - | - |
 | T2-05 | T2 | Remove tile exposure for Activity/Sessions/historical Traffic | T2-01 | NOT_STARTED | - | - | - | - | - | - |
 | T3-01 | T3 | Route old investigate URLs to redesigned panel contexts | T2-01,T2-02 | NOT_STARTED | - | - | - | - | - | - |
-| T3-02 | T3 | Apply minimal shell consistency to Reports landing | G0 | READY_FOR_REVIEW | codex-gpt5 | develop | 2026-03-03 12:28 UTC | 2026-03-03 12:54 UTC | - | Files: tests/Integration/ActionRouter/ReportsRoutingIntegrationTest.php, tests/Unit/ActionRouter/Render/PageReportsLandingBehaviorTest.php. Tests: `composer test:unit -- --filter PageReportsLandingBehaviorTest`, `composer test:unit -- --filter PluginNavsOperatorModesTest`, `composer test:integration -- --filter ReportsRoutingIntegrationTest` (skipped: WP env unavailable). Risks: full integration execution pending WP test env. No forbidden edit zones crossed. Traceability: Section 2.2 T3 row + REDESIGN-OVERVIEW 4.4 + user-journeys Journey 6. |
+| T3-02 | T3 | Apply minimal shell consistency to Reports landing | G0 | READY_FOR_REVIEW | codex-gpt5 | develop | 2026-03-03 12:28 UTC | 2026-03-03 12:54 UTC | 059e49a6e | Files: tests/Integration/ActionRouter/ReportsRoutingIntegrationTest.php, tests/Unit/ActionRouter/Render/PageReportsLandingBehaviorTest.php. Tests: `composer test:unit -- --filter PageReportsLandingBehaviorTest`, `composer test:unit -- --filter PluginNavsOperatorModesTest`, `composer test:integration -- --filter ReportsRoutingIntegrationTest` (skipped: WP env unavailable). Risks: full integration execution pending WP test env. No forbidden edit zones crossed. Traceability: Section 2.2 T3 row + REDESIGN-OVERVIEW 4.4 + user-journeys Journey 6. |
 | T3-03 | T3 | Apply minimal shell consistency to Actions Queue landing | G0 | READY_FOR_REVIEW | codex-gpt5 | develop | 2026-03-03 12:58 UTC | 2026-03-03 13:02 UTC | - | Files: tests/Integration/ActionRouter/ActionsQueueLandingPageIntegrationTest.php. Tests: `composer test:unit -- --filter PageActionsQueueLandingBehaviorTest`, `composer test:unit -- --filter ModeLandingInheritanceTest`, `composer test:unit -- --filter PluginNavsOperatorModesTest`, `composer test:unit -- --filter BuildBreadCrumbsOperatorModesTest`, `composer test:integration -- --filter ActionsQueueLandingPageIntegrationTest` (skipped: WP env unavailable). Risks: full integration execution pending WP test env. No forbidden edit zones crossed. Traceability: Section 2.2 T3 row + REDESIGN-OVERVIEW 4.5 + user-journeys Journey 1. |
 | T3-04 | T3 | Keep docs and prototypes aligned to locked decisions | - | READY_FOR_REVIEW | codex-gpt5 | develop | 2026-03-03 12:38 UTC | 2026-03-03 13:02 UTC | - | Files: docs/OperatorModes/redesign/prototype-configure-unified.html, docs/OperatorModes/redesign/prototype-reports-alerts.html, docs/OperatorModes/redesign/IMPLEMENTATION-ORCHESTRATION.md. Tests: N/A (docs/prototype alignment only); validation via `rg` checks for stale REM-009 wording and locked-scope notes retained. Risks: none beyond normal review pass. No forbidden edit zones crossed (T3-04 owns docs path). Traceability: Section 2.2 T3 row + REDESIGN-OVERVIEW 4.4/4.5 + orchestration 6.1 rule 6. |
 | QA-01 | Cross | Update/unit integration tests for changed contracts/routes | T1-03,T2-05,T3-01,T3-02,T3-03 | NOT_STARTED | - | - | - | - | - | - |
@@ -461,6 +473,20 @@ Before claiming a task, the agent must verify:
 6. required timestamp fields for the current transition are filled using Section 3.7 format
 
 If any check fails, do not claim and set `BLOCKED` with reason if appropriate.
+
+---
+
+## 9.3 Task Completion Validation Checklist
+
+Before setting a task to `READY_FOR_REVIEW` or `DONE`, the agent must verify:
+
+1. `End (UTC)` is non-empty and formatted per Section 3.7.
+2. `PR/Commit` is non-empty and not `-`.
+3. `Notes` contains all required handoff artifacts listed in Section 9.1.
+4. track row `Updated (UTC)` in Section 8 is refreshed in the same save operation.
+5. status transition aligns with Section 8 track transition rules.
+
+If any check fails, do not complete the transition; keep or return the task to `IN_PROGRESS` until corrected.
 
 ---
 
