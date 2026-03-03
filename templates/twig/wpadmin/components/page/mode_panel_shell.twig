@@ -1,0 +1,21 @@
+{% set panel_id = panel.id|default('ModePanelShell') %}
+{% set panel_status = panel.status|default('neutral') %}
+
+<section id="{{ panel_id }}"
+		 class="card shield-card mt-3 d-none"
+		 data-mode-panel="1"
+		 data-mode-panel-target="{{ panel.target|default('') }}"
+		 aria-hidden="true">
+	<div class="shield-card-accent status-{{ panel_status }}" data-mode-panel-accent="1"></div>
+	<div class="card-body">
+		<div class="d-flex justify-content-between align-items-center mb-2">
+			<h5 class="card-title mb-0" data-mode-panel-title>{{ panel.title|default(strings.mode_panel_title|default('Details')) }}</h5>
+			<button type="button"
+					class="btn btn-sm btn-outline-secondary"
+					data-mode-panel-close="1">{{ strings.mode_panel_close|default('Close') }}</button>
+		</div>
+		<div data-mode-panel-body>
+			{{ panel.body|default('')|raw }}
+		</div>
+	</div>
+</section>

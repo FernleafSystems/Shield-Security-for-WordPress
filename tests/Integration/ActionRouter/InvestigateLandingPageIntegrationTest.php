@@ -5,13 +5,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
+	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use HtmlDomAssertions, PluginAdminRouteRenderAssertions;
+	use HtmlDomAssertions;
+	use ModeLandingAssertions;
+	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -36,6 +39,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@data-investigate-section="selector"]',
 			'Landing selector section marker'
 		);
+		$this->assertModeShellAndAccentContract( $xpath, 'investigate', 'info', 'Investigate' );
 		$this->assertXPathCount(
 			$xpath,
 			'//section[@data-investigate-section="selector"]//form',
@@ -74,5 +78,12 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//div[@data-investigate-subject="woocommerce" and @aria-disabled="true"]',
 			'Landing woocommerce disabled marker'
 		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-tile="1"]',
+			8,
+			'Investigate shared mode tile marker count'
+		);
+		$this->assertSharedModePanelMarker( $xpath, 'Investigate' );
 	}
 }

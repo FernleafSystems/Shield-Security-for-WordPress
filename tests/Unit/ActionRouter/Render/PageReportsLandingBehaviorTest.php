@@ -32,6 +32,9 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
+		);
 		$this->installControllerStub();
 	}
 
@@ -87,6 +90,17 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Open Reports List', $strings[ 'cta_reports_list' ] ?? '' );
 		$this->assertNotSame( '', \trim( (string)( $strings[ 'cta_reports_charts' ] ?? '' ) ) );
 		$this->assertNotSame( '', \trim( (string)( $strings[ 'cta_reports_settings' ] ?? '' ) ) );
+	}
+
+	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
+		$page = new PageReportsLanding();
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertSame( 'reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
+		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
+		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 	}
 
 	private function installControllerStub() :void {

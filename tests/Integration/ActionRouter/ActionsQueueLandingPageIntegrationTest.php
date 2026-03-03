@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	BuiltMetersFixture,
 	HtmlDomAssertions,
+	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -19,6 +20,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	use BuiltMetersFixture;
 	use HtmlDomAssertions;
+	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -69,6 +71,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Actions queue landing render exception check' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions' );
 		$this->assertXPathExists( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 'All-clear context banner marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 'Compact all-clear widget mode marker' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-widget-copy="all-clear"]', 0, 'No duplicated widget all-clear copy marker' );
@@ -96,6 +99,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Actions queue landing render exception check' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertModeShellContract( $xpath, 'actions', 'Actions' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context banner hidden when queue has items' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 0, 'No compact all-clear marker when queue has items' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 1, 'Scan results CTA shown when queue has items' );
@@ -113,6 +117,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Actions queue landing render exception check' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertModeShellContract( $xpath, 'actions', 'Actions' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context banner hidden when scan-result issues exist' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 0, 'No compact all-clear marker when scan-result issues exist' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 1, 'Scan results CTA shown when scan-result issues exist' );

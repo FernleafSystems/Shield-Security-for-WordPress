@@ -25,6 +25,10 @@ class PageReportsLanding extends PageModeLandingBase {
 		return 'clipboard-data-fill';
 	}
 
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_REPORTS;
+	}
+
 	protected function getLandingContent() :array {
 		$con = self::con();
 		return [
@@ -49,7 +53,7 @@ class PageReportsLanding extends PageModeLandingBase {
 			'recent_reports_title' => __( 'Recent Reports', 'wp-simple-firewall' ),
 		];
 		foreach ( PluginNavs::reportsWorkspaceDefinitions() as $subNav => $definition ) {
-			$strings[ 'cta_reports_'.$subNav ] = (string)( $definition[ 'landing_cta' ] ?? '' );
+			$strings[ 'cta_reports_'.$subNav ] = $definition[ 'landing_cta' ];
 		}
 		return $strings;
 	}

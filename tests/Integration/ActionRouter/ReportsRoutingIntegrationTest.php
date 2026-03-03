@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
+	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -12,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
 	use HtmlDomAssertions;
+	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -36,6 +38,7 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_reports_overview_renders_structured_sections_and_contextual_cta() :void {
 		$xpath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_OVERVIEW );
+		$this->assertModeShellAndAccentContract( $xpath, 'reports', 'warning', 'Reports' );
 		$this->assertXPathExists( $xpath, '//*[@data-reports-section="charts"]', 'Reports overview charts section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-reports-heading="charts"]', 'Reports overview charts heading marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="summary-charts"]', 'Reports overview summary charts content marker' );

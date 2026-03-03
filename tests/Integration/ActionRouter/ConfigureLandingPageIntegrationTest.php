@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
+	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -12,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	use HtmlDomAssertions;
+	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -36,6 +38,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="hero"]', 'Configure hero section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="zones"]', 'Configure zones section marker' );
+		$this->assertModeShellAndAccentContract( $xpath, 'configure', 'good', 'Configure' );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="stats"]', 0, 'Configure stats section removed' );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="overview-meters"]', 0, 'Configure overview section removed' );
 
@@ -57,5 +60,12 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$zoneCount,
 			'Configure zone navigation marker count'
 		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-tile="1"]',
+			$zoneCount,
+			'Configure shared mode tile marker count'
+		);
+		$this->assertSharedModePanelMarker( $xpath, 'Configure' );
 	}
 }

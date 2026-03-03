@@ -1,4 +1,4 @@
-﻿# Operator Modes Redesign - Multi-Agent Implementation Orchestration
+# Operator Modes Redesign - Multi-Agent Implementation Orchestration
 
 **Date:** 2026-03-03  
 **Status:** Execution document (authoritative for implementation sequencing and ownership)  
@@ -323,13 +323,26 @@ Prototype files are behavioral and visual references only. Agents are forbidden 
 
 ---
 
+## 6.3 Producer-Consumer Contract Rule (Internal Data)
+
+For internal data produced and consumed inside Shield code (where we control both sides), agents must follow this contract discipline:
+
+1. Define data shape at the producer using explicit PHPDoc array-shape annotations.
+2. Consume producer fields directly; do not add inline defensive access patterns such as `?? ''`, `?? false`, or repeated per-field casts.
+3. If normalization is needed, do it once at the system boundary (external/untrusted input) in a central producer/builder path, not at every consumption site.
+4. If a consumer cannot trust a producer shape, stop and fix/sign the producer contract first (code + PHPDoc + targeted tests), then consume it.
+
+This is mandatory for all implementation tracks in this wave.
+
+---
+
 ## 7. Dependency Gates (Strict)
 
 Gate completion is tracked in this table and is the only valid source for gate state:
 
 | Gate | Description | Status | Owner | Completed (UTC) | Notes |
 |---|---|---|---|---|---|
-| G0 | Shared foundation interface freeze published | NOT_COMPLETE | - | - | - |
+| G0 | Shared foundation interface freeze published | COMPLETE | codex-gpt5 | 2026-03-03 11:54 UTC | T0-01,T0-02,T0-03,T0-04 complete. Frozen: mode_shell/mode_tiles/mode_panel PHP vars; Twig data contracts (data-mode-shell,data-mode-tile,data-mode-panel,data-mode-panel-close); JS events (shield:mode-panel-opening/opened/closed); accent/header compact shell contract. |
 | G1 | T1/T2 parallel start gate opened | NOT_COMPLETE | - | - | - |
 | G2 | T3 old-route wiring gate opened after subject key freeze | NOT_COMPLETE | - | - | - |
 | G3 | Final integration gate (all tracks merged + regression green) | NOT_COMPLETE | - | - | - |
@@ -377,10 +390,10 @@ No release branch integration before G3.
 
 | Track | Status | Owner | Started (UTC) | Updated (UTC) | Notes |
 |---|---|---|---|---|---|
-| T0 | NOT_STARTED | - | - | - | - |
-| T1 | NOT_STARTED | - | - | - | - |
-| T2 | NOT_STARTED | - | - | - | - |
-| T3 | NOT_STARTED | - | - | - | - |
+| T0 | DONE | codex-gpt5 | 2026-03-03 11:43 UTC | 2026-03-03 11:54 UTC | T0 shared foundation implemented and verified (unit suite + asset build). |
+| T1 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:21 UTC | 2026-03-03 12:21 UTC | Claimed T1-01 for implementation. |
+| T2 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:24 UTC | 2026-03-03 12:24 UTC | Claimed T2-01 for implementation. |
+| T3 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:28 UTC | 2026-03-03 12:38 UTC | Claimed T3-02 and T3-04 for implementation. |
 | QA | NOT_STARTED | - | - | - | - |
 
 Track status values must use the same vocabulary as tasks.
@@ -401,22 +414,22 @@ Track status transition rules:
 
 | Task ID | Track | Task | Depends On | Status | Owner | Branch | Start (UTC) | End (UTC) | PR/Commit | Notes |
 |---|---|---|---|---|---|---|---|---|---|---|
-| T0-01 | T0 | Define and implement shared tile/panel contracts in PHP/Twig | - | NOT_STARTED | - | - | - | - | - | - |
-| T0-02 | T0 | Implement shared tile/panel JS state controller contract | T0-01 | NOT_STARTED | - | - | - | - | - | - |
-| T0-03 | T0 | Implement mode accent bar and compact header shell contract | T0-01 | NOT_STARTED | - | - | - | - | - | - |
-| T0-04 | T0 | Publish G0 interface freeze notes in this document | T0-01,T0-02,T0-03 | NOT_STARTED | - | - | - | - | - | - |
-| T1-01 | T1 | Rebuild Configure landing tiles to shared contract | G0 | NOT_STARTED | - | - | - | - | - | - |
+| T0-01 | T0 | Define and implement shared tile/panel contracts in PHP/Twig | - | DONE | codex-gpt5 | develop | 2026-03-03 11:43 UTC | 2026-03-03 11:54 UTC | - | Files: PageModeLandingBase + mode landing classes + base_inner_page + configure/investigate landing templates + shared mode panel component. Tests: full `composer test:unit`. Risks: integration env unavailable locally. No forbidden zones crossed. Traceability: Section 2.2 T0 row + overview/journeys shell contracts. |
+| T0-02 | T0 | Implement shared tile/panel JS state controller contract | T0-01 | DONE | codex-gpt5 | develop | 2026-03-03 11:48 UTC | 2026-03-03 11:54 UTC | - | Files: assets/js/components/mode/ModePanelStateController.js, AppMain.js. Tests: full `composer test:unit`, `npm run build`. Risks: controller opt-in requires data-mode-interactive=1 (intentional). No forbidden zones crossed. Traceability: Section 2.2 T0 interaction/loading contract. |
+| T0-03 | T0 | Implement mode accent bar and compact header shell contract | T0-01 | DONE | codex-gpt5 | develop | 2026-03-03 11:49 UTC | 2026-03-03 11:54 UTC | - | Files: base_inner_page.twig, plugin-main.scss, landing integration tests for shell markers. Tests: full `composer test:unit`, `npm run build`; integration command skipped (no WP env). No forbidden zones crossed. Traceability: Section 2.2 T0 shared shell expectations + overview shell/accent rules. |
+| T0-04 | T0 | Publish G0 interface freeze notes in this document | T0-01,T0-02,T0-03 | DONE | codex-gpt5 | develop | 2026-03-03 11:54 UTC | 2026-03-03 11:54 UTC | - | G0 published with frozen interface contract details and task refs. T0 exception applied for this docs update as pre-agreed. |
+| T1-01 | T1 | Rebuild Configure landing tiles to shared contract | G0 | IN_PROGRESS | codex-gpt5 | develop | 2026-03-03 12:21 UTC | - | - | Claim initiated per Section 3.2. |
 | T1-02 | T1 | Implement Configure inline panel content and actions | T1-01 | NOT_STARTED | - | - | - | - | - | - |
 | T1-03 | T1 | Preserve and validate Security Grades nav mapping | T1-01 | NOT_STARTED | - | - | - | - | - | - |
-| T2-01 | T2 | Implement Investigate final 7 tile payload and rendering | G0 | NOT_STARTED | - | - | - | - | - | - |
+| T2-01 | T2 | Implement Investigate final 7 tile payload and rendering | G0 | IN_PROGRESS | codex-gpt5 | develop | 2026-03-03 12:24 UTC | - | - | Claim initiated per Section 3.2. |
 | T2-02 | T2 | Implement panel flows for User/IP/Plugin/Theme/Core/Live Traffic | T2-01 | NOT_STARTED | - | - | - | - | - | - |
 | T2-03 | T2 | Implement disabled Premium Integrations tile behavior | T2-01 | NOT_STARTED | - | - | - | - | - | - |
 | T2-04 | T2 | Implement Select2 lookup and auto-load behavior contract | T2-02 | NOT_STARTED | - | - | - | - | - | - |
 | T2-05 | T2 | Remove tile exposure for Activity/Sessions/historical Traffic | T2-01 | NOT_STARTED | - | - | - | - | - | - |
 | T3-01 | T3 | Route old investigate URLs to redesigned panel contexts | T2-01,T2-02 | NOT_STARTED | - | - | - | - | - | - |
-| T3-02 | T3 | Apply minimal shell consistency to Reports landing | G0 | NOT_STARTED | - | - | - | - | - | - |
+| T3-02 | T3 | Apply minimal shell consistency to Reports landing | G0 | IN_PROGRESS | codex-gpt5 | develop | 2026-03-03 12:28 UTC | - | - | Claim initiated per Section 3.2. |
 | T3-03 | T3 | Apply minimal shell consistency to Actions Queue landing | G0 | NOT_STARTED | - | - | - | - | - | - |
-| T3-04 | T3 | Keep docs and prototypes aligned to locked decisions | - | NOT_STARTED | - | - | - | - | - | - |
+| T3-04 | T3 | Keep docs and prototypes aligned to locked decisions | - | IN_PROGRESS | codex-gpt5 | develop | 2026-03-03 12:38 UTC | - | - | Claim initiated per Section 3.2. |
 | QA-01 | Cross | Update/unit integration tests for changed contracts/routes | T1-03,T2-05,T3-01,T3-02,T3-03 | NOT_STARTED | - | - | - | - | - | - |
 | QA-02 | Cross | Full regression run and signoff notes | QA-01,T3-04 | NOT_STARTED | - | - | - | - | - | - |
 
@@ -600,3 +613,4 @@ If an agent believes an assumption is unavoidable:
 ### Current register
 
 1. none
+

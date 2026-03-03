@@ -885,6 +885,48 @@ $sidebar-transition-speed: 0.25s;
   position: relative;
 }
 
+.mode-landing-accent-bar {
+  border-radius: 2px;
+  height: 4px;
+  margin-bottom: 0.55rem;
+
+  &.status-good {
+    background: $status-color-good;
+  }
+
+  &.status-warning {
+    background: $status-color-warning;
+  }
+
+  &.status-critical {
+    background: $status-color-critical;
+  }
+
+  &.status-info {
+    background: $status-color-info;
+  }
+
+  &.status-neutral {
+    background: $accent-color-salt-green;
+  }
+}
+
+.inner-page-header.inner-page-header-compact {
+  margin-bottom: 0.45rem !important;
+
+  .inner-page-header-title {
+    margin-bottom: 0.35rem !important;
+  }
+
+  p {
+    margin-bottom: 0.35rem !important;
+  }
+}
+
+[data-mode-panel="1"].is-open {
+  display: block !important;
+}
+
 #StatsNav {
   background-color: #f1f1f1;
   display: inline-block;

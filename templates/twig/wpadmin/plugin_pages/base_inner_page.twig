@@ -1,9 +1,15 @@
 {% import "/common/macros.twig" as icwp_macros %}
+{% set mode_shell = vars.mode_shell|default({}) %}
+{% set is_mode_landing = mode_shell.is_mode_landing|default(false) %}
 
 {% block inner_page_header %}
 
 	{% if strings.inner_page_title|default('') is not empty %}
-		<div class="row border-bottom mb-2 inner-page-header">
+		{% if is_mode_landing %}
+			<div class="mode-landing-accent-bar status-{{ mode_shell.accent_status|default('neutral') }}"
+				 data-mode-accent="1"></div>
+		{% endif %}
+		<div class="row border-bottom mb-2 inner-page-header{% if is_mode_landing and mode_shell.header_density|default('default') == 'compact' %} inner-page-header-compact{% endif %}">
 			<div class="col">
 				<h4 class="mb-2 inner-page-header-title d-flex align-items-center">
 					{% if imgs.inner_page_title_icon|default('') is not empty %}
@@ -71,8 +77,17 @@
 
 {% endblock %}
 
-{% block inner_page_body %}
-	{% for element in content|default([]) %}
-		{{ element|raw }}
-	{% endfor %}
+{% block inner_page_body_shell %}
+	<div class="inner-page-body-shell{% if is_mode_landing %} is-mode-landing{% endif %}"
+		 {% if is_mode_landing %}
+		 data-mode-shell="1"
+		 data-mode="{{ mode_shell.mode|default('') }}"
+		 data-mode-interactive="{{ mode_shell.is_interactive|default(false) ? '1' : '0' }}"
+		 {% endif %}>
+		{% block inner_page_body %}
+			{% for element in content|default([]) %}
+				{{ element|raw }}
+			{% endfor %}
+		{% endblock %}
+	</div>
 {% endblock %}

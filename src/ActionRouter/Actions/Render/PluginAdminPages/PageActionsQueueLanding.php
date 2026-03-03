@@ -28,6 +28,10 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 		return 'shield-shaded';
 	}
 
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_ACTIONS;
+	}
+
 	protected function getLandingContent() :array {
 		$con = self::con();
 		return [

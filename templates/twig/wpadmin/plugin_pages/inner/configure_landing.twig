@@ -13,7 +13,7 @@
 		{% endif %}
 	</div>
 
-	<div class="card shield-card mt-4" data-configure-section="zones">
+	<div class="card shield-card mt-4" data-configure-section="zones" data-mode-tiles="1">
 		<div class="shield-card-accent status-good"></div>
 		<div class="card-body">
 			<h5 class="card-title mb-1">{{ strings.zones_title }}</h5>
@@ -23,7 +23,11 @@
 					<div class="col">
 						<a href="{{ zone.href }}"
 						   class="btn btn-outline-secondary w-100 text-start d-flex align-items-center gap-2"
-						   data-configure-zone="{{ zone.slug }}">
+						   data-configure-zone="{{ zone.slug }}"
+						   data-mode-tile="1"
+						   data-mode-tile-key="{{ zone.slug }}"
+						   data-mode-panel-target="{{ zone.slug }}"
+						   aria-expanded="false">
 							<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
 							<span>{{ zone.label }}</span>
 						</a>
@@ -32,4 +36,14 @@
 			</div>
 		</div>
 	</div>
+
+	{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+		panel: {
+			id: 'ConfigureModePanelShell',
+			target: '',
+			title: strings.mode_panel_title|default(strings.zones_title),
+			status: 'good'
+		},
+		strings: strings
+	} only %}
 {% endblock %}

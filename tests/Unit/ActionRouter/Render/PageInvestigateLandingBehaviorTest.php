@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+	private object $pluginUrlsCapture;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -52,24 +53,36 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$subjectsByKey = [];
 		foreach ( $subjects as $subject ) {
 			$subjectsByKey[ $subject[ 'key' ] ] = $subject;
-			foreach ( [ 'key', 'is_enabled', 'href', 'icon_class', 'subject_label', 'subject_description', 'is_pro' ] as $requiredKey ) {
+			foreach ( [ 'key', 'panel_target', 'is_enabled', 'is_disabled', 'href', 'icon_class', 'subject_label', 'subject_description', 'is_pro' ] as $requiredKey ) {
 				$this->assertArrayHasKey( $requiredKey, $subject );
 			}
 			foreach ( [ 'panel_type', 'input_key', 'input_value', 'options_key', 'options', 'lookup_route', 'tab_id', 'is_active' ] as $removedKey ) {
 				$this->assertArrayNotHasKey( $removedKey, $subject );
 			}
+			$this->assertSame( $subject[ 'key' ], $subject[ 'panel_target' ] );
+			$this->assertSame( !(bool)$subject[ 'is_enabled' ], (bool)$subject[ 'is_disabled' ] );
 		}
 
-		$this->assertSame( '/admin/activity/by_user', (string)( $subjectsByKey[ 'users' ][ 'href' ] ?? '' ) );
-		$this->assertSame( '/admin/activity/by_ip', (string)( $subjectsByKey[ 'ips' ][ 'href' ] ?? '' ) );
-		$this->assertSame( '/admin/activity/by_plugin', (string)( $subjectsByKey[ 'plugins' ][ 'href' ] ?? '' ) );
-		$this->assertSame( '/admin/activity/by_theme', (string)( $subjectsByKey[ 'themes' ][ 'href' ] ?? '' ) );
-		$this->assertSame( '/admin/activity/by_core', (string)( $subjectsByKey[ 'wordpress' ][ 'href' ] ?? '' ) );
-		$this->assertSame( '/admin/traffic/logs', (string)( $subjectsByKey[ 'requests' ][ 'href' ] ?? '' ) );
-		$this->assertSame( '/admin/activity/logs', (string)( $subjectsByKey[ 'activity' ][ 'href' ] ?? '' ) );
-		$this->assertFalse( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_enabled' ] ?? true ) );
-		$this->assertTrue( (bool)( $subjectsByKey[ 'woocommerce' ][ 'is_pro' ] ?? false ) );
-		$this->assertSame( '', (string)( $subjectsByKey[ 'woocommerce' ][ 'href' ] ?? 'missing' ) );
+		$this->assertSame( '/admin/activity/by_user', $subjectsByKey[ 'users' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_ip', $subjectsByKey[ 'ips' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_plugin', $subjectsByKey[ 'plugins' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_theme', $subjectsByKey[ 'themes' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_core', $subjectsByKey[ 'wordpress' ][ 'href' ] );
+		$this->assertSame( '/admin/traffic/logs', $subjectsByKey[ 'requests' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/logs', $subjectsByKey[ 'activity' ][ 'href' ] );
+		$this->assertFalse( $subjectsByKey[ 'woocommerce' ][ 'is_enabled' ] );
+		$this->assertTrue( $subjectsByKey[ 'woocommerce' ][ 'is_pro' ] );
+		$this->assertSame( '', $subjectsByKey[ 'woocommerce' ][ 'href' ] );
+	}
+
+	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
+		$page = new PageInvestigateLanding();
+		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
+
+		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
+		$this->assertSame( 'info', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
+		$this->assertCount( 8, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 	}
 
 	public function test_landing_strings_exclude_workflow_shell_copy() :void {
@@ -102,35 +115,70 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '/admin/activity/by_core', $hrefs[ 'by_core' ] ?? '' );
 	}
 
+	public function test_subject_payload_and_hrefs_are_cached_per_instance() :void {
+		$page = new PageInvestigateLanding();
+		$this->invokeProtectedMethod( $page, 'getLandingVars' );
+		$this->invokeProtectedMethod( $page, 'getLandingTiles' );
+		$this->invokeProtectedMethod( $page, 'getLandingHrefs' );
+
+		$this->assertSame( 2, $this->pluginUrlsCapture->adminTopNav );
+		$this->assertSame( 1, $this->pluginUrlsCapture->investigateByUser );
+		$this->assertSame( 1, $this->pluginUrlsCapture->investigateByIp );
+		$this->assertSame( 1, $this->pluginUrlsCapture->investigateByPlugin );
+		$this->assertSame( 1, $this->pluginUrlsCapture->investigateByTheme );
+		$this->assertSame( 1, $this->pluginUrlsCapture->investigateByCore );
+	}
+
 	private function installControllerStub() :void {
+		$this->pluginUrlsCapture = (object)[
+			'adminTopNav'          => 0,
+			'investigateByIp'      => 0,
+			'investigateByUser'    => 0,
+			'investigateByPlugin'  => 0,
+			'investigateByTheme'   => 0,
+			'investigateByCore'    => 0,
+		];
+
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
+		$controller->plugin_urls = new class( $this->pluginUrlsCapture ) {
+			private object $capture;
+
+			public function __construct( object $capture ) {
+				$this->capture = $capture;
+			}
+
 			public function rootAdminPageSlug() :string {
 				return 'icwp-wpsf-plugin';
 			}
 
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
+				$this->capture->adminTopNav++;
 				return '/admin/'.$nav.'/'.$subnav;
 			}
 
 			public function investigateByIp( string $ip = '' ) :string {
+				$this->capture->investigateByIp++;
 				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
 			}
 
 			public function investigateByUser( string $lookup = '' ) :string {
+				$this->capture->investigateByUser++;
 				return empty( $lookup ) ? '/admin/activity/by_user' : '/admin/activity/by_user?user_lookup='.$lookup;
 			}
 
 			public function investigateByPlugin( string $slug = '' ) :string {
+				$this->capture->investigateByPlugin++;
 				return empty( $slug ) ? '/admin/activity/by_plugin' : '/admin/activity/by_plugin?plugin_slug='.$slug;
 			}
 
 			public function investigateByTheme( string $slug = '' ) :string {
+				$this->capture->investigateByTheme++;
 				return empty( $slug ) ? '/admin/activity/by_theme' : '/admin/activity/by_theme?theme_slug='.$slug;
 			}
 
 			public function investigateByCore() :string {
+				$this->capture->investigateByCore++;
 				return '/admin/activity/by_core';
 			}
 		};

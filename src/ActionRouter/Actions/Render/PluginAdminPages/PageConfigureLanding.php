@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
 	Component\Base as MeterComponent,
@@ -18,6 +19,16 @@ class PageConfigureLanding extends PageModeLandingBase {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/configure_landing.twig';
 	private ?MeterHandler $meterHandler = null;
 
+	/**
+	 * @var list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   href:string
+	 * }>|null
+	 */
+	private ?array $zoneLinksCache = null;
+
 	protected function getLandingTitle() :string {
 		return __( 'Configure', 'wp-simple-firewall' );
 	}
@@ -28,6 +39,24 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 	protected function getLandingIcon() :string {
 		return 'gear';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_CONFIGURE;
+	}
+
+	protected function getLandingTiles() :array {
+		return \array_map(
+			function ( array $zone ) :array {
+				return [
+					'key'          => $zone[ 'slug' ],
+					'panel_target' => $zone[ 'slug' ],
+					'is_enabled'   => true,
+					'is_disabled'  => false,
+				];
+			},
+			$this->getZoneLinks()
+		);
 	}
 
 	protected function getLandingContent() :array {
@@ -41,10 +70,9 @@ class PageConfigureLanding extends PageModeLandingBase {
 	}
 
 	protected function getLandingVars() :array {
-		$zoneLinks = ( new ZoneRenderDataBuilder() )->getZoneLinks();
 		return [
 			'posture_summary' => $this->buildPostureSummary( $this->getMeterTrafficCounts() ),
-			'zone_links'      => $zoneLinks,
+			'zone_links'      => $this->getZoneLinks(),
 		];
 	}
 
@@ -119,5 +147,20 @@ class PageConfigureLanding extends PageModeLandingBase {
 			'warning'  => 0,
 			'critical' => 0,
 		];
+	}
+
+	/**
+	 * @return list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   href:string
+	 * }>
+	 */
+	private function getZoneLinks() :array {
+		if ( $this->zoneLinksCache === null ) {
+			$this->zoneLinksCache = ( new ZoneRenderDataBuilder() )->getZoneLinks();
+		}
+		return $this->zoneLinksCache;
 	}
 }

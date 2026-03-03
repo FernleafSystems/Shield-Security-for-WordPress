@@ -392,6 +392,26 @@ class PluginNavs {
 		}
 	}
 
+	/**
+	 * Producer contract for Investigate landing subject definitions.
+	 * Internal consumers must rely on this shape directly and avoid inline defensive casts.
+	 *
+	 * @return array<string,array{
+	 *   label:string,
+	 *   description:string,
+	 *   icon_class:string,
+	 *   panel_type:string,
+	 *   subnav_hint:string|null,
+	 *   href_key:string,
+	 *   input_key:string|null,
+	 *   options_key:string|null,
+	 *   panel_title:string,
+	 *   lookup_placeholder:string,
+	 *   go_label:string,
+	 *   is_enabled:bool,
+	 *   is_pro:bool
+	 * }>
+	 */
 	public static function investigateLandingSubjectDefinitions() :array {
 		return [
 			'users'       => [

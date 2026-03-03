@@ -22,6 +22,7 @@ import { ReportingHandler } from "../components/reporting/ReportingHandler";
 import { RuleBuilder } from "../components/rules/RuleBuilder";
 import { RulesManager } from "../components/rules/RulesManager";
 import { ScansHandler } from "../components/scans/ScansHandler";
+import { ModePanelStateController } from "../components/mode/ModePanelStateController";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
 import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
@@ -77,6 +78,7 @@ export class AppMain extends AppBase {
 		this.components.merlin = ( 'merlin' in comps ) ? new Merlin( comps.merlin ) : null;
 		this.components.misc_hooks = ( 'misc_hooks' in comps ) ? new MiscHooks( comps.misc_hooks ) : null;
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
+		this.components.mode_panel_state = new ModePanelStateController();
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
 		this.components.progress_meters = ( 'progress_meters' in comps ) ? new ProgressMeters( comps.progress_meters ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;

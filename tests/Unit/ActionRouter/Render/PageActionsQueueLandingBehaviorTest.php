@@ -34,6 +34,9 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
+		);
 		$this->installControllerStub();
 	}
 
@@ -130,6 +133,11 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'rendered-queue', $renderData[ 'content' ][ 'needs_attention_queue' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
 		$this->assertSame( 'Last scan: 3 minutes ago', $renderData[ 'strings' ][ 'all_clear_subtext' ] ?? '' );
+		$this->assertSame( 'actions', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
+		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
+		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 	}
 
 	private function installControllerStub() :void {

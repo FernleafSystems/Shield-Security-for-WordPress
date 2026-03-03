@@ -33,6 +33,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
+		);
 		$this->installControllerStub();
 	}
 
@@ -87,6 +90,23 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			],
 			$vars[ 'zone_links' ] ?? []
 		);
+	}
+
+	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
+		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
+		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertCount( 2, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
+		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'key' ] ?? '' );
+		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'panel_target' ] ?? '' );
+		$this->assertSame( 'firewall', $renderData[ 'vars' ][ 'mode_tiles' ][ 1 ][ 'key' ] ?? '' );
+		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
+		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
 	}
 
 	public function test_landing_vars_use_all_clear_summary_when_no_areas_need_work() :void {

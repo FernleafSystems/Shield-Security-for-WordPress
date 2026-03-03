@@ -3,11 +3,15 @@
 {% block inner_page_body %}
 	<div class="investigate-landing">
 		<section class="investigate-landing__selector-shell" data-investigate-section="selector">
-			<div class="investigate-landing__subject-grid">
+			<div class="investigate-landing__subject-grid" data-mode-tiles="1">
 				{% for subject in vars.subjects %}
 					{% if subject.is_enabled %}
 						<a class="investigate-landing__subject-card"
 						   data-investigate-subject="{{ subject.key }}"
+						   data-mode-tile="1"
+						   data-mode-tile-key="{{ subject.key }}"
+						   data-mode-panel-target="{{ subject.panel_target|default(subject.key) }}"
+						   aria-expanded="false"
 						   href="{{ subject.href }}">
 							<span class="investigate-landing__subject-icon" aria-hidden="true">
 								<i class="{{ subject.icon_class }}"></i>
@@ -23,6 +27,10 @@
 					{% else %}
 						<div class="investigate-landing__subject-card is-disabled"
 							 data-investigate-subject="{{ subject.key }}"
+							 data-mode-tile="1"
+							 data-mode-tile-key="{{ subject.key }}"
+							 data-mode-panel-target="{{ subject.panel_target|default(subject.key) }}"
+							 data-mode-tile-disabled="1"
 							 aria-disabled="true">
 							<span class="investigate-landing__subject-icon" aria-hidden="true">
 								<i class="{{ subject.icon_class }}"></i>
@@ -39,5 +47,15 @@
 				{% endfor %}
 			</div>
 		</section>
+
+		{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+			panel: {
+				id: 'InvestigateModePanelShell',
+				target: '',
+				title: strings.mode_panel_title|default(strings.inner_page_title),
+				status: 'info'
+			},
+			strings: strings
+		} only %}
 	</div>
 {% endblock %}
