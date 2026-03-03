@@ -7,12 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\PageAdminPlugin,
 	Constants
 };
+use FernleafSystems\Wordpress\Services\Services;
 
 trait PluginAdminRouteRenderAssertions {
 
 	private function processActionPayloadWithAdminBypass( string $actionSlug, array $params = [] ) :array {
-		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
+		$con = self::con();
+		$filter = $con->prefix( 'bypass_is_plugin_admin' );
+		$isSecurityAdminSnapshot = $con->this_req->is_security_admin;
 		add_filter( $filter, '__return_true', 1000 );
+		$con->this_req->is_security_admin = true;
 
 		try {
 			return ( new ActionProcessor() )
@@ -20,21 +24,34 @@ trait PluginAdminRouteRenderAssertions {
 						->payload();
 		}
 		finally {
+			$con->this_req->is_security_admin = $isSecurityAdminSnapshot;
 			remove_filter( $filter, '__return_true', 1000 );
 		}
 	}
 
 	private function renderPluginAdminRoutePayload( string $nav, string $subNav, array $extra = [] ) :array {
-		return $this->processActionPayloadWithAdminBypass(
-			PageAdminPlugin::SLUG,
-			\array_merge(
-				[
-					Constants::NAV_ID     => $nav,
-					Constants::NAV_SUB_ID => $subNav,
-				],
-				$extra
-			)
-		);
+		$servicesRequest = Services::Request();
+		$thisRequest = self::con()->this_req->request;
+
+		$snapshotServicesQuery = \is_array( $servicesRequest->query ) ? $servicesRequest->query : [];
+		$snapshotThisQuery = \is_array( $thisRequest->query ) ? $thisRequest->query : [];
+
+		$routeQuery = [
+			Constants::NAV_ID     => $nav,
+			Constants::NAV_SUB_ID => $subNav,
+		];
+		$servicesRequest->query = \array_merge( $snapshotServicesQuery, $routeQuery );
+		$thisRequest->query = \array_merge( $snapshotThisQuery, $routeQuery );
+
+		try {
+			return $this->processActionPayloadWithAdminBypass(
+				PageAdminPlugin::SLUG,
+				\array_merge( $routeQuery, $extra )
+			);
+		}
+		finally {
+			$servicesRequest->query = $snapshotServicesQuery;
+			$thisRequest->query = $snapshotThisQuery;
+		}
 	}
 }
-

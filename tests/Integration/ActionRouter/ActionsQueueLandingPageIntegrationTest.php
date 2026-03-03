@@ -61,6 +61,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$innerPayload = $this->renderActionsQueueLandingInnerPage();
+		$this->assertSame(
+			PageActionsQueueLanding::SLUG,
+			(string)( $innerPayload[ 'action_slug' ] ?? '' ),
+			'Expected actions queue inner payload action slug.'
+		);
 		$subtext = (string)( $innerPayload[ 'render_data' ][ 'strings' ][ 'all_clear_subtext' ] ?? '' );
 		$this->assertNotSame( '', $subtext, 'Expected all-clear temporal context from queue payload.' );
 		$this->assertFalse( (bool)( $innerPayload[ 'render_data' ][ 'flags' ][ 'has_items' ] ?? true ) );
