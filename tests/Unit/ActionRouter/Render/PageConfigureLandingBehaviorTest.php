@@ -145,58 +145,103 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	 */
 	private function zoneTileFixtures() :array {
 		return [
-			[
-				'key'            => 'secadmin',
-				'panel_target'   => 'secadmin',
-				'is_enabled'     => true,
-				'is_disabled'    => false,
-				'label'          => 'Security Admin',
-				'icon_class'     => 'bi bi-shield-lock',
-				'status'         => 'good',
-				'status_label'   => 'Good',
-				'stat_line'      => 'All components healthy',
-				'settings_href'  => '/admin/zones/secadmin',
-				'settings_label' => 'Configure Security Admin Settings',
-				'panel'          => [
-					'title'        => 'Security Admin',
-					'status'       => 'good',
-					'status_label' => 'Good',
-					'components'   => [
-						[
-							'title'        => 'PIN Protection',
-							'status'       => 'good',
-							'status_label' => 'Active',
-							'note'         => 'PIN is configured.',
-						],
-					],
-				],
+			$this->buildZoneTileFixture(
+				'secadmin',
+				'Security Admin',
+				'shield-lock',
+				'good',
+				'Good',
+				'All components healthy',
+				'/admin/zones/secadmin',
+				'Configure Security Admin Settings',
+				[
+					$this->buildZoneComponentFixture( 'PIN Protection', 'good', 'Active', 'PIN is configured.' ),
+				]
+			),
+			$this->buildZoneTileFixture(
+				'firewall',
+				'Firewall',
+				'fire',
+				'warning',
+				'Needs Work',
+				'1 component needs work',
+				'/admin/zones/firewall',
+				'Configure Firewall Settings',
+				[
+					$this->buildZoneComponentFixture( 'WAF Rules', 'warning', 'Needs Work', 'One rule requires review.' ),
+				]
+			),
+		];
+	}
+
+	/**
+	 * @param list<array{title:string,status:string,status_label:string,note:string}> $components
+	 * @return array{
+	 *   key:string,
+	 *   panel_target:string,
+	 *   is_enabled:bool,
+	 *   is_disabled:bool,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   stat_line:string,
+	 *   settings_href:string,
+	 *   settings_label:string,
+	 *   panel:array{
+	 *     title:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     components:list<array{title:string,status:string,status_label:string,note:string}>
+	 *   }
+	 * }
+	 */
+	private function buildZoneTileFixture(
+		string $key,
+		string $label,
+		string $icon,
+		string $status,
+		string $statusLabel,
+		string $statLine,
+		string $settingsHref,
+		string $settingsLabel,
+		array $components
+	) :array {
+		return [
+			'key'            => $key,
+			'panel_target'   => $key,
+			'is_enabled'     => true,
+			'is_disabled'    => false,
+			'label'          => $label,
+			'icon_class'     => 'bi bi-'.$icon,
+			'status'         => $status,
+			'status_label'   => $statusLabel,
+			'stat_line'      => $statLine,
+			'settings_href'  => $settingsHref,
+			'settings_label' => $settingsLabel,
+			'panel'          => [
+				'title'        => $label,
+				'status'       => $status,
+				'status_label' => $statusLabel,
+				'components'   => $components,
 			],
-			[
-				'key'            => 'firewall',
-				'panel_target'   => 'firewall',
-				'is_enabled'     => true,
-				'is_disabled'    => false,
-				'label'          => 'Firewall',
-				'icon_class'     => 'bi bi-fire',
-				'status'         => 'warning',
-				'status_label'   => 'Needs Work',
-				'stat_line'      => '1 component needs work',
-				'settings_href'  => '/admin/zones/firewall',
-				'settings_label' => 'Configure Firewall Settings',
-				'panel'          => [
-					'title'        => 'Firewall',
-					'status'       => 'warning',
-					'status_label' => 'Needs Work',
-					'components'   => [
-						[
-							'title'        => 'WAF Rules',
-							'status'       => 'warning',
-							'status_label' => 'Needs Work',
-							'note'         => 'One rule requires review.',
-						],
-					],
-				],
-			],
+		];
+	}
+
+	/**
+	 * @return array{title:string,status:string,status_label:string,note:string}
+	 */
+	private function buildZoneComponentFixture(
+		string $title,
+		string $status,
+		string $statusLabel,
+		string $note
+	) :array {
+		return [
+			'title'        => $title,
+			'status'       => $status,
+			'status_label' => $statusLabel,
+			'note'         => $note,
 		];
 	}
 

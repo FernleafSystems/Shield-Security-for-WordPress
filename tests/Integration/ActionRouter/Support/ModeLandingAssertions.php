@@ -32,4 +32,21 @@ trait ModeLandingAssertions {
 			$labelPrefix.' shared mode panel marker'
 		);
 	}
+
+	private function assertSharedModePanelMarkerCount( \DOMXPath $xpath, int $expectedCount, string $labelPrefix ) :void {
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1"]',
+			$expectedCount,
+			$labelPrefix.' shared mode panel marker count'
+		);
+	}
+
+	private function assertModePanelHasDataAttribute( \DOMXPath $xpath, string $dataAttribute, string $labelPrefix ) :void {
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode-panel="1" and @data-'.$dataAttribute.']',
+			$labelPrefix.' mode panel data attribute '.$dataAttribute
+		);
+	}
 }

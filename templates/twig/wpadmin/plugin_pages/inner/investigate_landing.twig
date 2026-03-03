@@ -53,28 +53,24 @@
 
 		{% for subject in vars.subjects if subject.is_enabled %}
 			{% set is_open = active_subject == subject.key %}
-			<section id="InvestigateModePanel-{{ subject.key }}"
-					 class="card shield-card mt-3 investigate-landing__subject-panel{% if not is_open %} d-none{% else %} is-open{% endif %}"
-					 data-mode-panel="1"
-					 data-mode-panel-target="{{ subject.panel_target }}"
-					 data-mode-panel-target-default="{{ subject.panel_target }}"
-					 data-mode-panel-static-target="1"
-					 data-investigate-panel="{{ subject.key }}"
-					 data-investigate-render-action="{{ subject.render_action|default({})|json_encode|e('html_attr') }}"
-					 aria-hidden="{{ is_open ? 'false' : 'true' }}">
-				<div class="shield-card-accent status-{{ subject.panel_status }}" data-mode-panel-accent="1"></div>
-				<div class="card-body">
-					<div class="d-flex justify-content-between align-items-center mb-2">
-						<h5 class="card-title mb-0" data-mode-panel-title>{{ subject.panel_title }}</h5>
-						<button type="button"
-								class="btn btn-sm btn-outline-secondary"
-								data-mode-panel-close="1">{{ strings.mode_panel_close }}</button>
-					</div>
-					<div data-mode-panel-body>
-						{{ subject.panel_body|raw }}
-					</div>
-				</div>
-			</section>
+			{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+				panel: {
+					id: 'InvestigateModePanel-' ~ subject.key,
+					class: 'investigate-landing__subject-panel' ~ (is_open ? ' is-open' : ''),
+					is_open: is_open,
+					target: subject.panel_target,
+					target_default: subject.panel_target,
+					static_target: true,
+					status: subject.panel_status,
+					title: subject.panel_title,
+					body: subject.panel_body,
+					data: {
+						'investigate-panel': subject.key,
+						'investigate-render-action': subject.render_action|default({})|json_encode
+					}
+				},
+				strings: strings
+			} only %}
 		{% endfor %}
 	</div>
 {% endblock %}

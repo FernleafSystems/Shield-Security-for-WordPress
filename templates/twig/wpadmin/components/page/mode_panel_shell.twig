@@ -1,15 +1,31 @@
 {% set panel_id = panel.id|default('ModePanelShell') %}
 {% set panel_status = panel.status|default('neutral') %}
+{% set panel_class = panel.class|default('') %}
+{% set panel_is_open = panel.is_open|default(false) %}
 
 <section id="{{ panel_id }}"
-		 class="card shield-card mt-3 d-none"
+		 class="card shield-card mt-3{% if not panel_is_open %} d-none{% endif %}{% if panel_class is not empty %} {{ panel_class }}{% endif %}"
 		 data-mode-panel="1"
 		 data-mode-panel-target="{{ panel.target|default('') }}"
-		 aria-hidden="true">
+		 {% if panel.target_default|default('') is not empty %}
+		 data-mode-panel-target-default="{{ panel.target_default }}"
+		 {% endif %}
+		 {% if panel.static_target|default(false) %}
+		 data-mode-panel-static-target="1"
+		 {% endif %}
+		 {% for data_key, data_value in panel.data|default({}) %}
+		 data-{{ data_key|e('html_attr') }}="{{ data_value|e('html_attr') }}"
+		 {% endfor %}
+		 aria-hidden="{{ panel_is_open ? 'false' : 'true' }}">
 	<div class="shield-card-accent status-{{ panel_status }}" data-mode-panel-accent="1"></div>
 	<div class="card-body">
 		<div class="d-flex justify-content-between align-items-center mb-2">
-			<h5 class="card-title mb-0" data-mode-panel-title>{{ panel.title|default(strings.mode_panel_title|default('Details')) }}</h5>
+			<div class="d-flex align-items-center gap-2">
+				<h5 class="card-title mb-0" data-mode-panel-title>{{ panel.title|default(strings.mode_panel_title|default('Details')) }}</h5>
+				{% if panel.badge_label|default('') is not empty %}
+					<span class="{{ panel.badge_class|default('') }}">{{ panel.badge_label }}</span>
+				{% endif %}
+			</div>
 			<button type="button"
 					class="btn btn-sm btn-outline-secondary"
 					data-mode-panel-close="1">{{ strings.mode_panel_close|default('Close') }}</button>

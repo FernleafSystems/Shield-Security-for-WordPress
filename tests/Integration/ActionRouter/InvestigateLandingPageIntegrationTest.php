@@ -90,5 +90,10 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			6,
 			'Investigate inline panel marker count'
 		);
+		$this->assertSharedModePanelMarkerCount( $xpath, 6, 'Investigate' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-panel', 'Investigate' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-render-action', 'Investigate' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-target-default', 'Investigate' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-static-target', 'Investigate' );
 	}
 }

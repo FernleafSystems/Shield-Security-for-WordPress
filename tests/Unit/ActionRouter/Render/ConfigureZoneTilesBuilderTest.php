@@ -13,6 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
@@ -39,6 +40,11 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 	public function test_build_returns_expected_tile_contract() :void {
 		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
 		$this->assertCount( 8, $tiles );
+
+		$this->assertSame(
+			\array_column( PluginNavs::configureLandingTileDefinitions(), 'key' ),
+			\array_column( $tiles, 'key' )
+		);
 
 		$this->assertSame(
 			[

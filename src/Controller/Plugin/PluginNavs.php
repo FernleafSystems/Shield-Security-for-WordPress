@@ -7,9 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	ActivityLogging,
 	InstantAlerts,
-	Reporting
+	Reporting,
+	RequestLogging
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginNavs {
@@ -574,6 +577,68 @@ class PluginNavs {
 		];
 
 		return $definitions[ $nav ][ $subNav ] ?? [];
+	}
+
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   zone_slug?:string,
+	 *   component_slug?:string
+	 * }>
+	 */
+	public static function configureLandingTileDefinitions() :array {
+		return [
+			[
+				'key'      => 'secadmin',
+				'label'    => __( 'Security Admin', 'wp-simple-firewall' ),
+				'icon'     => 'shield-lock',
+				'zone_slug' => Zone\Secadmin::Slug(),
+			],
+			[
+				'key'      => 'login',
+				'label'    => __( 'Login Protection', 'wp-simple-firewall' ),
+				'icon'     => 'person-lock',
+				'zone_slug' => Zone\Login::Slug(),
+			],
+			[
+				'key'      => 'firewall',
+				'label'    => __( 'Firewall', 'wp-simple-firewall' ),
+				'icon'     => 'fire',
+				'zone_slug' => Zone\Firewall::Slug(),
+			],
+			[
+				'key'      => 'ips',
+				'label'    => __( 'Bots and IPs', 'wp-simple-firewall' ),
+				'icon'     => 'robot',
+				'zone_slug' => Zone\Ips::Slug(),
+			],
+			[
+				'key'      => 'scans',
+				'label'    => __( 'HackGuard', 'wp-simple-firewall' ),
+				'icon'     => 'bug',
+				'zone_slug' => Zone\Scans::Slug(),
+			],
+			[
+				'key'      => 'spam',
+				'label'    => __( 'Comments Filter', 'wp-simple-firewall' ),
+				'icon'     => 'chat-dots',
+				'zone_slug' => Zone\Spam::Slug(),
+			],
+			[
+				'key'            => 'audit_trail',
+				'label'          => __( 'Audit Trail', 'wp-simple-firewall' ),
+				'icon'           => 'journal-text',
+				'component_slug' => ActivityLogging::Slug(),
+			],
+			[
+				'key'            => 'traffic_monitor',
+				'label'          => __( 'Traffic Monitor', 'wp-simple-firewall' ),
+				'icon'           => 'graph-up',
+				'component_slug' => RequestLogging::Slug(),
+			],
+		];
 	}
 
 	/**

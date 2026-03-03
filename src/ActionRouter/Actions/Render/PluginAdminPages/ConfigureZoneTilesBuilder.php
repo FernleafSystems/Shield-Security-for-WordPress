@@ -2,11 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
 class ConfigureZoneTilesBuilder {
 
@@ -55,56 +56,7 @@ class ConfigureZoneTilesBuilder {
 	 * }>
 	 */
 	private function getTileDefinitions() :array {
-		return [
-			[
-				'key'      => 'secadmin',
-				'label'    => __( 'Security Admin', 'wp-simple-firewall' ),
-				'icon'     => 'shield-lock',
-				'zone_slug' => Zone\Secadmin::Slug(),
-			],
-			[
-				'key'      => 'login',
-				'label'    => __( 'Login Protection', 'wp-simple-firewall' ),
-				'icon'     => 'person-lock',
-				'zone_slug' => Zone\Login::Slug(),
-			],
-			[
-				'key'      => 'firewall',
-				'label'    => __( 'Firewall', 'wp-simple-firewall' ),
-				'icon'     => 'fire',
-				'zone_slug' => Zone\Firewall::Slug(),
-			],
-			[
-				'key'      => 'ips',
-				'label'    => __( 'Bots and IPs', 'wp-simple-firewall' ),
-				'icon'     => 'robot',
-				'zone_slug' => Zone\Ips::Slug(),
-			],
-			[
-				'key'      => 'scans',
-				'label'    => __( 'HackGuard', 'wp-simple-firewall' ),
-				'icon'     => 'bug',
-				'zone_slug' => Zone\Scans::Slug(),
-			],
-			[
-				'key'      => 'spam',
-				'label'    => __( 'Comments Filter', 'wp-simple-firewall' ),
-				'icon'     => 'chat-dots',
-				'zone_slug' => Zone\Spam::Slug(),
-			],
-			[
-				'key'            => 'audit_trail',
-				'label'          => __( 'Audit Trail', 'wp-simple-firewall' ),
-				'icon'           => 'journal-text',
-				'component_slug' => Component\ActivityLogging::Slug(),
-			],
-			[
-				'key'            => 'traffic_monitor',
-				'label'          => __( 'Traffic Monitor', 'wp-simple-firewall' ),
-				'icon'           => 'graph-up',
-				'component_slug' => Component\RequestLogging::Slug(),
-			],
-		];
+		return PluginNavs::configureLandingTileDefinitions();
 	}
 
 	/**
@@ -241,13 +193,7 @@ class ConfigureZoneTilesBuilder {
 	 * @param list<array{title:string,status:string,status_label:string,note:string}> $components
 	 */
 	private function aggregateTileStatus( array $components ) :string {
-		$status = 'good';
-		foreach ( $components as $component ) {
-			if ( $this->severityRank( $component[ 'status' ] ) > $this->severityRank( $status ) ) {
-				$status = $component[ 'status' ];
-			}
-		}
-		return $status;
+		return StatusPriority::highest( \array_column( $components, 'status' ), 'good' );
 	}
 
 	/**
@@ -312,33 +258,10 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	private function componentStatusToSeverity( string $componentStatus ) :string {
-		switch ( $componentStatus ) {
-			case EnumEnabledStatus::BAD:
-				return 'critical';
-			case EnumEnabledStatus::OKAY:
-			case EnumEnabledStatus::NEUTRAL:
-				return 'warning';
-			case EnumEnabledStatus::GOOD:
-			case EnumEnabledStatus::NEUTRAL_ENABLED:
-			default:
-				return 'good';
-		}
-	}
-
-	private function severityRank( string $status ) :int {
-		switch ( $status ) {
-			case 'critical':
-				return 2;
-			case 'warning':
-				return 1;
-			case 'good':
-			default:
-				return 0;
-		}
+		return EnumEnabledStatus::toSeverity( $componentStatus, 'good' );
 	}
 
 	private function zonesCon() :SecurityZonesCon {
 		return self::con()->comps->zones;
 	}
 }
-

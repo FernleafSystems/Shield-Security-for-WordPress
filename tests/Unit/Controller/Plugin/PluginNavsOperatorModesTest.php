@@ -19,9 +19,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	ActivityLogging,
 	InstantAlerts,
-	Reporting
+	Reporting,
+	RequestLogging
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
 class PluginNavsOperatorModesTest extends BaseUnitTest {
 
@@ -317,6 +320,32 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 				$this->assertNotSame( '', $subject[ 'render_subnav' ], 'Enabled subject requires render_subnav for '.$subjectKey );
 			}
 		}
+	}
+
+	public function test_configure_landing_tile_definitions_match_expected_contract() :void {
+		$definitions = PluginNavs::configureLandingTileDefinitions();
+		$this->assertSame(
+			[ 'secadmin', 'login', 'firewall', 'ips', 'scans', 'spam', 'audit_trail', 'traffic_monitor' ],
+			\array_column( $definitions, 'key' )
+		);
+
+		$requiredStringKeys = [ 'key', 'label', 'icon' ];
+		foreach ( $definitions as $definition ) {
+			foreach ( $requiredStringKeys as $requiredKey ) {
+				$this->assertArrayHasKey( $requiredKey, $definition );
+				$this->assertIsString( $definition[ $requiredKey ] );
+				$this->assertNotSame( '', \trim( $definition[ $requiredKey ] ) );
+			}
+
+			$hasZoneSlug = !empty( $definition[ 'zone_slug' ] ?? '' );
+			$hasComponentSlug = !empty( $definition[ 'component_slug' ] ?? '' );
+			$this->assertTrue( $hasZoneSlug xor $hasComponentSlug );
+		}
+
+		$this->assertSame( Zone\Secadmin::Slug(), $definitions[ 0 ][ 'zone_slug' ] ?? '' );
+		$this->assertSame( Zone\Login::Slug(), $definitions[ 1 ][ 'zone_slug' ] ?? '' );
+		$this->assertSame( ActivityLogging::Slug(), $definitions[ 6 ][ 'component_slug' ] ?? '' );
+		$this->assertSame( RequestLogging::Slug(), $definitions[ 7 ][ 'component_slug' ] ?? '' );
 	}
 
 	public function test_breadcrumb_subnav_definition_matches_expected_contract_for_scope_routes() :void {
