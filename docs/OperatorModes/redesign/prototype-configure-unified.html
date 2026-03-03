@@ -1,0 +1,656 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shield â€” Configure Mode (Redesign Prototype)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+/* â”€â”€ Shield Design Tokens â”€â”€ */
+:root {
+  --status-good:         #008000;
+  --status-warning:      #edb41d;
+  --status-critical:     #c62f3e;
+  --status-info:         #0ea8c7;
+  --status-bg-good-light:     #e6f5e6;
+  --status-bg-warning-light:  #fef6e6;
+  --status-bg-critical-light: #fdeaec;
+  --card-radius:  10px;
+  --card-shadow:  0 1px 6px rgba(0,0,0,.07);
+  --card-shadow-hover: 0 4px 16px rgba(0,0,0,.13);
+  --card-accent-height: 4px;
+}
+body { background: #f0f0f1; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+
+/* â”€â”€ Prototype Controls â”€â”€ */
+.proto-controls {
+  position: sticky; top: 0; z-index: 100;
+  background: #1e1e2e; color: #cdd6f4; padding: .5rem 1rem;
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  font-size: .8rem;
+}
+.proto-controls strong { color: #cba6f7; margin-right: .5rem; }
+.proto-btn { background: #313244; color: #cdd6f4; border: 1px solid #45475a; padding: .2rem .65rem; border-radius: 4px; cursor: pointer; font-size: .75rem; }
+.proto-btn:hover, .proto-btn.active { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+
+/* â”€â”€ WP Admin Simulated Chrome â”€â”€ */
+.wp-wrap { display: flex; height: 100vh; overflow: hidden; }
+.wp-sidebar {
+  width: 200px; flex-shrink: 0;
+  background: #1d2327; color: #a7aaad;
+  overflow-y: auto;
+}
+.wp-sidebar-brand { padding: .9rem 1rem .5rem; font-size: .85rem; font-weight: 700; color: #fff; border-bottom: 1px solid #2d3338; margin-bottom: .25rem; }
+.wp-sidebar-back { padding: .4rem 1rem; font-size: .78rem; color: #7eb1d6; text-decoration: none; display: block; border-bottom: 1px solid #2d3338; margin-bottom: .25rem; }
+.wp-sidebar-back:hover { color: #fff; }
+.wp-sidebar-section { padding: .3rem 1rem .1rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: #616d77; margin-top: .5rem; }
+.wp-sidebar-item { padding: .35rem 1rem; font-size: .82rem; color: #a7aaad; display: block; text-decoration: none; }
+.wp-sidebar-item:hover { color: #fff; }
+.wp-sidebar-item.active { color: #fff; background: #2271b1; border-radius: 0 4px 4px 0; }
+.wp-sidebar-sub { padding: .28rem 1rem .28rem 1.6rem; font-size: .77rem; color: #a7aaad; display: block; text-decoration: none; }
+.wp-sidebar-sub:hover { color: #fff; }
+.wp-sidebar-sub.active { color: #72aee6; }
+.wp-content { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+/* â”€â”€ Page Chrome â”€â”€ */
+.shield-breadcrumbs { font-size: .82rem; color: #888; margin-bottom: .4rem; }
+.shield-breadcrumbs a { color: var(--status-good); text-decoration: none; }
+.shield-breadcrumbs a:hover { text-decoration: underline; }
+.shield-breadcrumbs .sep { margin: 0 .3rem; }
+.mode-accent-bar { height: var(--card-accent-height); background: var(--status-good); border-radius: 2px; margin-bottom: 1rem; }
+.page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .1rem; color: #1d2327; }
+.page-subtitle { font-size: .85rem; color: #666; margin-bottom: 1.1rem; }
+
+/* â”€â”€ Posture Strip â”€â”€ */
+.posture-strip {
+  background: #fff; border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow); padding: .85rem 1.1rem;
+  display: flex; align-items: center; gap: 1.25rem;
+  margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+.posture-status-chip {
+  padding: .5rem 1rem; border-radius: 20px;
+  font-size: .92rem; font-weight: 700; white-space: nowrap;
+  display: flex; align-items: center; gap: .4rem;
+  flex-shrink: 0; letter-spacing: .01em;
+}
+.posture-status-chip.status-good     { background: var(--status-bg-good-light);     color: #006400; }
+.posture-status-chip.status-warning  { background: var(--status-bg-warning-light);  color: #b97a00; }
+.posture-status-chip.status-critical { background: var(--status-bg-critical-light); color: #c62f3e; }
+.posture-info { flex: 1; min-width: 200px; }
+.posture-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: #888; margin-bottom: .2rem; }
+.posture-bar-wrap { background: #e8e8e8; border-radius: 6px; height: 10px; overflow: hidden; width: 100%; max-width: 320px; margin-bottom: .3rem; }
+.posture-bar-fill { height: 100%; border-radius: 6px; background: var(--status-good); transition: width .4s; }
+.posture-summary-line { font-size: .78rem; color: #777; }
+.posture-summary-line .badge-critical { color: var(--status-critical); font-weight: 600; }
+.posture-summary-line .badge-warning  { color: var(--status-warning);  font-weight: 600; }
+.posture-summary-line .badge-good     { color: var(--status-good);     font-weight: 600; }
+
+/* â”€â”€ Status Badge (on tiles) â”€â”€ */
+.status-badge {
+  font-size: .72rem; font-weight: 700; padding: .15rem .5rem;
+  border-radius: 4px; letter-spacing: .02em; white-space: nowrap;
+}
+.status-badge.status-good     { background: var(--status-bg-good-light);     color: #006400; }
+.status-badge.status-warning  { background: var(--status-bg-warning-light);  color: #b97a00; }
+.status-badge.status-critical { background: var(--status-bg-critical-light); color: #c62f3e; }
+
+/* â”€â”€ Zone Grid â”€â”€ */
+.zone-grid-header { font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; color: #888; margin-bottom: .65rem; }
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: .7rem;
+  margin-bottom: 1rem;
+}
+.zone-tile {
+  background: #fff; border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  padding: .9rem 1rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all .2s;
+  display: flex; flex-direction: column; gap: .25rem;
+  position: relative;
+  overflow: hidden;
+}
+.zone-tile::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.zone-tile.status-good-tile::before     { background: var(--status-good); }
+.zone-tile.status-warning-tile::before  { background: var(--status-warning); }
+.zone-tile.status-critical-tile::before { background: var(--status-critical); }
+.zone-tile:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+  border-color: #ccc;
+}
+.zone-tile.active          { border-color: var(--status-good);     background: #f8fdf8; }
+.zone-tile.active-warning  { border-color: var(--status-warning);  background: #fffdf5; }
+.zone-tile.active-critical { border-color: var(--status-critical); background: #fff8f8; }
+.zone-tile-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.zone-tile-icon { font-size: 1.05rem; color: #666; }
+.zone-tile-name { font-size: .88rem; font-weight: 600; color: #1d2327; margin-top: .1rem; }
+.zone-tile-stat { font-size: .74rem; color: #666; margin-top: .2rem; }
+
+/* â”€â”€ Expansion Panel â”€â”€ */
+.expansion-panel {
+  background: #fff; border-radius: var(--card-radius);
+  box-shadow: 0 2px 12px rgba(0,0,0,.1);
+  margin-bottom: 1rem;
+  border: 2px solid var(--status-good);
+  overflow: hidden;
+  display: none;
+}
+.expansion-panel.show { display: block; }
+.expansion-panel.warning-panel  { border-color: var(--status-warning); }
+.expansion-panel.critical-panel { border-color: var(--status-critical); }
+.expansion-panel-accent { height: var(--card-accent-height); background: var(--status-good); }
+.expansion-panel.warning-panel  .expansion-panel-accent { background: var(--status-warning); }
+.expansion-panel.critical-panel .expansion-panel-accent { background: var(--status-critical); }
+.expansion-panel-header {
+  padding: .85rem 1.1rem .6rem;
+  display: flex; align-items: center; gap: .75rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.expansion-panel-title { font-size: 1rem; font-weight: 700; color: #1d2327; flex: 1; }
+.expansion-panel-status { font-size: 1rem; }
+.expansion-panel-close { background: none; border: none; color: #aaa; font-size: 1.1rem; cursor: pointer; padding: .1rem .4rem; border-radius: 4px; }
+.expansion-panel-close:hover { background: #f0f0f0; color: #333; }
+.expansion-panel-body { padding: 1rem 1.1rem; }
+.component-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .45rem; }
+.component-row {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .5rem .7rem; border-radius: 6px; background: #fafafa;
+  border: 1px solid #f0f0f0;
+}
+.component-row .status-icon { font-size: .95rem; flex-shrink: 0; }
+.component-row .status-icon.good     { color: var(--status-good); }
+.component-row .status-icon.warning  { color: var(--status-warning); }
+.component-row .status-icon.critical { color: var(--status-critical); }
+.component-name { font-size: .84rem; font-weight: 500; color: #333; flex: 1; }
+.component-note { font-size: .75rem; color: #999; }
+.expansion-panel-actions { padding: .75rem 1.1rem 1rem; display: flex; gap: .6rem; flex-wrap: wrap; border-top: 1px solid #f0f0f0; }
+.btn-configure { background: var(--status-good); color: #fff; border: none; padding: .42rem .9rem; border-radius: 6px; font-size: .84rem; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn-configure:hover          { background: #005c00; color: #fff; text-decoration: none; }
+.btn-configure.warning        { background: var(--status-warning); }
+.btn-configure.warning:hover  { background: #c49000; }
+.btn-configure.critical       { background: var(--status-critical); }
+.btn-configure.critical:hover { background: #a02232; }
+.btn-link-quiet { color: #666; font-size: .84rem; padding: .42rem .6rem; text-decoration: none; border-radius: 6px; }
+.btn-link-quiet:hover { background: #f5f5f5; color: #333; text-decoration: none; }
+
+/* â”€â”€ Annotation boxes â”€â”€ */
+.annotation { background: #fffacc; border: 1px solid #e8cc00; padding: .6rem .85rem; border-radius: 6px; font-size: .78rem; color: #5a4600; margin-bottom: .75rem; }
+.annotation strong { color: #3d2f00; }
+.locked-note { background: #eef6ff; border: 1px solid #7aa7d9; padding: .6rem .85rem; border-radius: 6px; font-size: .78rem; color: #1f3f66; }
+.locked-note strong { color: #16304d; }
+</style>
+</head>
+<body>
+
+<!-- PROTOTYPE CONTROLS -->
+<div class="proto-controls">
+  <strong>PROTOTYPE: Configure Mode â€” Unified Zone Health Dashboard</strong>
+  <span style="color:#a6adc8; font-size:.75rem; margin-right:.5rem;">Click tiles below, or use quick states:</span>
+  <button class="proto-btn active" onclick="setState('overview-healthy')">Overview (healthy)</button>
+  <button class="proto-btn" onclick="setState('overview-issues')">Overview (with issues)</button>
+  <button class="proto-btn" onclick="setState('expanded-comments')">Expanded: Comments (critical)</button>
+  <button class="proto-btn" onclick="setState('expanded-login')">Expanded: Login (warning)</button>
+  <button class="proto-btn" onclick="setState('expanded-hackguard')">Expanded: HackGuard (good)</button>
+</div>
+<div class="locked-note">
+  <strong>Locked-spec note:</strong> This prototype is visual reference only. Production implementation rules are defined in
+  `REDESIGN-OVERVIEW.md`, `user-journeys.md`, and `IMPLEMENTATION-ORCHESTRATION.md`. Do not copy this HTML/CSS into production templates.
+</div>
+
+<div class="wp-wrap">
+  <!-- SIDEBAR -->
+  <nav class="wp-sidebar">
+    <div class="wp-sidebar-brand">ðŸ›¡ Shield Security</div>
+    <a href="#" class="wp-sidebar-back" onclick="return false">â† Mode Selector</a>
+    <div class="wp-sidebar-section">Configure</div>
+    <a href="#" class="wp-sidebar-item active" onclick="return false"><i class="bi bi-grid me-1"></i> Zone Overview</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-bar-chart me-1"></i> Security Grades</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-diagram-3 me-1"></i> Rules Manager</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-arrow-left-right me-1"></i> Import / Export</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-lock me-1"></i> Site Lockdown</a>
+    <div class="wp-sidebar-section" style="margin-top:1.5rem">Zones</div>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">Security Admin</a>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">Login Protection</a>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">Firewall</a>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">Bots &amp; IPs</a>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">HackGuard</a>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">Comments Filter</a>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">Audit Trail</a>
+    <a href="#" class="wp-sidebar-sub" onclick="return false">Traffic Monitor</a>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="wp-content">
+    <!-- Breadcrumb -->
+    <div class="shield-breadcrumbs">
+      <a href="#">Shield Security</a>
+      <span class="sep">â€º</span>
+      Configure
+    </div>
+
+    <!-- Mode accent bar (REM-009 â€” not yet implemented in production) -->
+    <div class="mode-accent-bar"></div>
+
+    <h1 class="page-title">Configure</h1>
+    <p class="page-subtitle">Review your security posture and adjust zone settings.</p>
+
+    <!-- ANNOTATION: Design decision -->
+    <div class="annotation" id="anno-main">
+      <strong>Design Change:</strong> The separate "hero posture meter" + "zone buttons" layout is replaced with a single
+      Zone Health Dashboard. The posture score is now a compact strip (not a full-height hero card). Zone status is
+      visible on each tile using good / warning / critical indicators for quick checks. Security Grades remains available from the sidebar. Letter grades (A/B/C/D/F) are not used.
+    </div>
+
+    <!-- POSTURE STRIP -->
+    <div class="posture-strip" id="posture-strip">
+      <div class="posture-status-chip status-warning" id="posture-status-chip">
+        <i class="bi bi-exclamation-circle-fill"></i> Warning
+      </div>
+      <div class="posture-info">
+        <div class="posture-label">Overall Security Posture</div>
+        <div class="posture-bar-wrap">
+          <div class="posture-bar-fill" id="posture-bar-fill" style="width:78%;"></div>
+        </div>
+        <div class="posture-summary-line" id="posture-summary-line">
+          78% â€” <span class="badge-critical">1 critical</span> Â·
+          <span class="badge-warning">2 need work</span> Â·
+          <span class="badge-good">5 good</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZONE GRID HEADER -->
+    <div class="zone-grid-header">Security Zones â€” click any zone to see details</div>
+
+    <!-- ZONE GRID -->
+    <div class="zone-grid" id="zone-grid">
+
+      <div class="zone-tile status-good-tile" id="tile-secadmin" onclick="toggleZone('secadmin')">
+        <div class="zone-tile-head">
+          <i class="bi bi-shield-lock zone-tile-icon"></i>
+          <span class="status-badge status-good" id="badge-secadmin">Good</span>
+        </div>
+        <div class="zone-tile-name">Security Admin</div>
+        <div class="zone-tile-stat">PIN active</div>
+      </div>
+
+      <div class="zone-tile status-warning-tile" id="tile-login" onclick="toggleZone('login')">
+        <div class="zone-tile-head">
+          <i class="bi bi-person-lock zone-tile-icon"></i>
+          <span class="status-badge status-warning" id="badge-login">Warning</span>
+        </div>
+        <div class="zone-tile-name">Login Protection</div>
+        <div class="zone-tile-stat">2FA not enforced for admins</div>
+      </div>
+
+      <div class="zone-tile status-warning-tile" id="tile-firewall" onclick="toggleZone('firewall')">
+        <div class="zone-tile-head">
+          <i class="bi bi-fire zone-tile-icon"></i>
+          <span class="status-badge status-warning" id="badge-firewall">Warning</span>
+        </div>
+        <div class="zone-tile-name">Firewall</div>
+        <div class="zone-tile-stat">2 rule groups relaxed</div>
+      </div>
+
+      <div class="zone-tile status-good-tile" id="tile-bots" onclick="toggleZone('bots')">
+        <div class="zone-tile-head">
+          <i class="bi bi-robot zone-tile-icon"></i>
+          <span class="status-badge status-good" id="badge-bots">Good</span>
+        </div>
+        <div class="zone-tile-name">Bots &amp; IPs</div>
+        <div class="zone-tile-stat">IP blocking enabled</div>
+      </div>
+
+      <div class="zone-tile status-good-tile" id="tile-hackguard" onclick="toggleZone('hackguard')">
+        <div class="zone-tile-head">
+          <i class="bi bi-bug zone-tile-icon"></i>
+          <span class="status-badge status-good" id="badge-hackguard">Good</span>
+        </div>
+        <div class="zone-tile-name">HackGuard</div>
+        <div class="zone-tile-stat">No threats detected</div>
+      </div>
+
+      <div class="zone-tile status-critical-tile" id="tile-comments" onclick="toggleZone('comments')">
+        <div class="zone-tile-head">
+          <i class="bi bi-chat-dots zone-tile-icon"></i>
+          <span class="status-badge status-critical" id="badge-comments">Critical</span>
+        </div>
+        <div class="zone-tile-name">Comments Filter</div>
+        <div class="zone-tile-stat" id="stat-comments">SPAM filter incomplete</div>
+      </div>
+
+      <div class="zone-tile status-good-tile" id="tile-audit" onclick="toggleZone('audit')">
+        <div class="zone-tile-head">
+          <i class="bi bi-journal-text zone-tile-icon"></i>
+          <span class="status-badge status-good" id="badge-audit">Good</span>
+        </div>
+        <div class="zone-tile-name">Audit Trail</div>
+        <div class="zone-tile-stat">Retention set</div>
+      </div>
+
+      <div class="zone-tile status-warning-tile" id="tile-traffic" onclick="toggleZone('traffic')">
+        <div class="zone-tile-head">
+          <i class="bi bi-graph-up zone-tile-icon"></i>
+          <span class="status-badge status-warning" id="badge-traffic">Warning</span>
+        </div>
+        <div class="zone-tile-name">Traffic Monitor</div>
+        <div class="zone-tile-stat">No alert rules configured</div>
+      </div>
+
+    </div><!-- /zone-grid -->
+
+    <!-- EXPANSION PANEL (populated by JS) -->
+    <div class="expansion-panel" id="expansion-panel" role="region" aria-live="polite">
+      <div class="expansion-panel-accent" id="panel-accent"></div>
+      <div class="expansion-panel-header">
+        <div class="expansion-panel-status" id="panel-status"></div>
+        <div class="expansion-panel-title" id="panel-title"></div>
+        <button class="expansion-panel-close" onclick="closePanel()" aria-label="Close zone detail">âœ•</button>
+      </div>
+      <div class="expansion-panel-body">
+        <div id="panel-annotation" class="annotation" style="margin-bottom:.75rem;"></div>
+        <ul class="component-list" id="panel-components"></ul>
+      </div>
+      <div class="expansion-panel-actions" id="panel-actions"></div>
+    </div>
+
+    <!-- ANNOTATION: No separate page navigation -->
+    <div class="annotation" id="anno-pattern">
+      <strong>No page navigation:</strong> Zone details expand in-place, below the tile grid. The grid stays visible
+      so the user always knows what other zones exist and their status. Clicking another tile switches the panel to
+      that zone. The full zone settings are one click away via "Configure Zone Settings" â€” that does navigate to the
+      full zone settings page, which is a deliberate choice for the deeper settings edit experience.
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Zone data â€” no letter grades
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+const zones = {
+  secadmin: {
+    status: 'good', label: 'Security Admin',
+    annotation: 'All good. No action needed here.',
+    components: [
+      { status: 'good', name: 'Shield Security PIN',      note: 'Active â€” brute force protected' },
+      { status: 'good', name: 'Admin access restriction', note: 'IP whitelist enabled' },
+      { status: 'good', name: 'Security admin whitelist', note: 'Configured' },
+    ],
+    actions: [
+      { label: 'Configure Security Admin Settings', class: 'btn-configure', href: '#' },
+    ]
+  },
+  login: {
+    status: 'warning', label: 'Login Protection',
+    annotation: '<strong>Warning:</strong> 2FA is active but not enforced for administrator accounts. Clicking "Configure" opens the full Login Protection settings page.',
+    components: [
+      { status: 'good',    name: 'Login attempt limits',      note: '5 attempts per hour' },
+      { status: 'good',    name: 'Magic link support',        note: 'Available' },
+      { status: 'warning', name: 'Two-Factor Authentication', note: 'Active but not enforced for admins' },
+      { status: 'good',    name: 'Password strength check',   note: 'Active' },
+      { status: 'good',    name: 'Username enumeration block',note: 'Active' },
+    ],
+    actions: [
+      { label: 'Configure Login Protection Settings', class: 'btn-configure warning', href: '#' },
+      { label: 'View Login Activity', class: 'btn-link-quiet', href: '#' },
+    ]
+  },
+  firewall: {
+    status: 'warning', label: 'Firewall',
+    annotation: '<strong>Warning:</strong> WAF is active but two rule groups have not been optimised for this site. Expand to see exactly which ones.',
+    components: [
+      { status: 'good',    name: 'SQL Injection rules',        note: 'Active' },
+      { status: 'good',    name: 'XSS rules',                 note: 'Active' },
+      { status: 'warning', name: 'Directory traversal rules',  note: 'Partially disabled for compatibility' },
+      { status: 'warning', name: 'PHP code injection rules',   note: 'Relaxed mode â€” consider tightening' },
+      { status: 'good',    name: 'Agent blocking',             note: 'Active' },
+    ],
+    actions: [
+      { label: 'Configure Firewall Settings', class: 'btn-configure warning', href: '#' },
+      { label: 'View Blocked Requests', class: 'btn-link-quiet', href: '#' },
+    ]
+  },
+  bots: {
+    status: 'good', label: 'Bots & IPs',
+    annotation: 'All components active. Bot detection and IP blocking fully configured.',
+    components: [
+      { status: 'good', name: 'Bot signal tracking',    note: 'Active' },
+      { status: 'good', name: 'Automatic IP blocking',  note: 'Active â€” threshold: 10 signals' },
+      { status: 'good', name: 'CrowdSec integration',   note: 'Syncing' },
+      { status: 'good', name: 'IP bypass list',         note: 'Configured' },
+    ],
+    actions: [
+      { label: 'Configure Bots & IP Settings', class: 'btn-configure', href: '#' },
+      { label: 'Investigate by IP', class: 'btn-link-quiet', href: '#' },
+    ]
+  },
+  hackguard: {
+    status: 'good', label: 'HackGuard',
+    annotation: 'Good status â€” all scan types scheduled and running. No threats detected.',
+    components: [
+      { status: 'good', name: 'WordPress core file scan',  note: 'Scheduled: daily' },
+      { status: 'good', name: 'Plugin vulnerability scan', note: 'Scheduled: daily' },
+      { status: 'good', name: 'Malware scan',              note: 'Scheduled: weekly' },
+      { status: 'good', name: 'Abandoned plugin detection',note: 'Active' },
+      { status: 'good', name: 'File change monitor',       note: 'Active' },
+    ],
+    actions: [
+      { label: 'Configure HackGuard Settings', class: 'btn-configure', href: '#' },
+      { label: 'View Scan Results', class: 'btn-link-quiet', href: '#' },
+    ]
+  },
+  comments: {
+    status: 'critical', label: 'Comments Filter',
+    annotation: '<strong>Critical:</strong> Two key SPAM protection components are completely disabled and need immediate attention. "Configure Comments Filter" navigates to the full zone settings.',
+    components: [
+      { status: 'critical', name: 'SPAM Bot Protection', note: 'Not configured â€” setup required' },
+      { status: 'critical', name: 'Human SPAM Filter',   note: 'Not configured â€” setup required' },
+      { status: 'good',     name: 'Comment cooldown',    note: 'Active' },
+      { status: 'good',     name: 'Honeypot field',      note: 'Active' },
+    ],
+    actions: [
+      { label: 'Configure Comments Filter Settings', class: 'btn-configure critical', href: '#' },
+      { label: 'View Comment Activity', class: 'btn-link-quiet', href: '#' },
+    ]
+  },
+  audit: {
+    status: 'good', label: 'Audit Trail',
+    annotation: 'Good status. All event categories are being logged with a configured retention policy.',
+    components: [
+      { status: 'good', name: 'User events logging',     note: 'Active' },
+      { status: 'good', name: 'Plugin events logging',   note: 'Active' },
+      { status: 'good', name: 'WordPress events logging',note: 'Active' },
+      { status: 'good', name: 'Log retention policy',    note: '90 days' },
+    ],
+    actions: [
+      { label: 'Configure Audit Trail Settings', class: 'btn-configure', href: '#' },
+      { label: 'View Activity Log', class: 'btn-link-quiet', href: '#' },
+    ]
+  },
+  traffic: {
+    status: 'warning', label: 'Traffic Monitor',
+    annotation: '<strong>Warning:</strong> Traffic logging is active but no alert rules are configured. This is a "nice to have" improvement, not a critical gap.',
+    components: [
+      { status: 'good',    name: 'Request logging',     note: 'Active â€” all requests' },
+      { status: 'good',    name: 'Log retention',       note: '30 days' },
+      { status: 'warning', name: 'Anomaly alert rules', note: 'No rules configured' },
+      { status: 'warning', name: 'Rate-based blocking', note: 'Disabled â€” optional feature' },
+    ],
+    actions: [
+      { label: 'Configure Traffic Monitor Settings', class: 'btn-configure warning', href: '#' },
+      { label: 'View Traffic Log', class: 'btn-link-quiet', href: '#' },
+    ]
+  }
+};
+
+let currentZone = null;
+
+const STATUS_LABELS = { good: 'Good', warning: 'Warning', critical: 'Critical' };
+const STATUS_ICONS  = { good: 'bi-check-circle-fill', warning: 'bi-exclamation-circle-fill', critical: 'bi-x-circle-fill' };
+
+function toggleZone(zoneKey) {
+  if (currentZone === zoneKey) { closePanel(); return; }
+  openPanel(zoneKey);
+}
+
+function openPanel(zoneKey) {
+  const z = zones[zoneKey];
+  if (!z) return;
+
+  // Clear active state from all tiles
+  document.querySelectorAll('.zone-tile').forEach(t => {
+    t.classList.remove('active', 'active-warning', 'active-critical');
+  });
+
+  // Set active on clicked tile
+  const tile = document.getElementById('tile-' + zoneKey);
+  if (tile) {
+    if (z.status === 'critical') tile.classList.add('active-critical');
+    else if (z.status === 'warning') tile.classList.add('active-warning');
+    else tile.classList.add('active');
+  }
+
+  // Set panel border/accent colour
+  const panel = document.getElementById('expansion-panel');
+  panel.classList.remove('warning-panel', 'critical-panel');
+  if (z.status === 'critical') panel.classList.add('critical-panel');
+  else if (z.status === 'warning') panel.classList.add('warning-panel');
+
+  // Status badge in panel header
+  document.getElementById('panel-status').innerHTML =
+    `<span class="status-badge status-${z.status}" style="font-size:.8rem;padding:.25rem .65rem;">${STATUS_LABELS[z.status]}</span>`;
+
+  document.getElementById('panel-title').textContent = z.label;
+  document.getElementById('panel-annotation').innerHTML = z.annotation;
+
+  // Component list
+  document.getElementById('panel-components').innerHTML = z.components.map(c => `
+    <li class="component-row">
+      <i class="bi ${STATUS_ICONS[c.status]} status-icon ${c.status}"></i>
+      <span class="component-name">${c.name}</span>
+      <span class="component-note">${c.note}</span>
+    </li>`).join('');
+
+  // Actions
+  document.getElementById('panel-actions').innerHTML = z.actions.map(a =>
+    `<a href="${a.href}" class="${a.class}" onclick="return false">${a.label}</a>`
+  ).join('');
+
+  panel.classList.add('show');
+  currentZone = zoneKey;
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function closePanel() {
+  document.getElementById('expansion-panel').classList.remove('show');
+  document.querySelectorAll('.zone-tile').forEach(t => {
+    t.classList.remove('active', 'active-warning', 'active-critical');
+  });
+  currentZone = null;
+}
+
+/* â”€â”€ Zone status updater â”€â”€ */
+function setZoneStatus(zoneKey, status) {
+  const badge = document.getElementById('badge-' + zoneKey);
+  const tile  = document.getElementById('tile-' + zoneKey);
+  if (badge) {
+    badge.className = `status-badge status-${status}`;
+    badge.textContent = STATUS_LABELS[status] || status;
+  }
+  if (tile) {
+    tile.className = tile.className
+      .replace(/status-(good|warning|critical)-tile/g, '').trim()
+      + ` status-${status}-tile`;
+  }
+  if (zones[zoneKey]) zones[zoneKey].status = status;
+}
+
+/* â”€â”€ Posture strip updater â”€â”€ */
+function updatePosture(pct, overallStatus, critical, warning, good, barColor) {
+  document.getElementById('posture-bar-fill').style.width = pct + '%';
+  document.getElementById('posture-bar-fill').style.background = barColor;
+  const chip = document.getElementById('posture-status-chip');
+  chip.className = `posture-status-chip status-${overallStatus}`;
+  chip.innerHTML = `<i class="bi ${STATUS_ICONS[overallStatus]}"></i> ${STATUS_LABELS[overallStatus]}`;
+  document.getElementById('posture-summary-line').innerHTML =
+    `${pct}% â€” <span class="badge-critical">${critical}</span> Â· ` +
+    `<span class="badge-warning">${warning}</span> Â· ` +
+    `<span class="badge-good">${good}</span>`;
+}
+
+/* â”€â”€ State switcher â”€â”€ */
+function setState(state) {
+  document.querySelectorAll('.proto-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  if (state === 'overview-healthy') {
+    closePanel();
+    ['secadmin','login','firewall','bots','hackguard','comments','audit','traffic']
+      .forEach(k => setZoneStatus(k, 'good'));
+    updatePosture(96, 'good', '0 critical', '0 need work', '8 good', '#008000');
+    document.getElementById('stat-comments').textContent = 'SPAM filters active';
+    document.getElementById('anno-main').innerHTML =
+      '<strong>State: Healthy Site.</strong> All zones show Good status (green). The posture strip shows 96% ' +
+      'with no issues. The user immediately sees they\'re in good shape. Status is visible directly on every tile for quick checks, while Security Grades remains available from the sidebar.';
+
+  } else if (state === 'overview-issues') {
+    closePanel();
+    setZoneStatus('secadmin',  'good');
+    setZoneStatus('login',     'warning');
+    setZoneStatus('firewall',  'warning');
+    setZoneStatus('bots',      'good');
+    setZoneStatus('hackguard', 'good');
+    setZoneStatus('comments',  'critical');
+    setZoneStatus('audit',     'good');
+    setZoneStatus('traffic',   'warning');
+    updatePosture(78, 'warning', '1 critical', '2 need work', '5 good', '#edb41d');
+    document.getElementById('stat-comments').textContent = 'SPAM filter incomplete';
+    document.getElementById('anno-main').innerHTML =
+      '<strong>State: Issues Present.</strong> Zones with Warning (amber) and Critical (red) status are ' +
+      'immediately visible by their tile top-bar colour and status badge. Comments Filter (Critical) stands ' +
+      'out clearly in red. The user can click it to see exactly what needs fixing while Security Grades remains available from the sidebar.';
+
+  } else if (state === 'expanded-comments') {
+    setState_withZone('overview-issues', 'comments');
+  } else if (state === 'expanded-login') {
+    setState_withZone('overview-issues', 'login');
+  } else if (state === 'expanded-hackguard') {
+    setState_withZone('overview-healthy', 'hackguard');
+  }
+}
+
+function setState_withZone(baseState, zoneKey) {
+  if (baseState === 'overview-issues') {
+    setZoneStatus('secadmin',  'good');
+    setZoneStatus('login',     'warning');
+    setZoneStatus('firewall',  'warning');
+    setZoneStatus('bots',      'good');
+    setZoneStatus('hackguard', 'good');
+    setZoneStatus('comments',  'critical');
+    setZoneStatus('audit',     'good');
+    setZoneStatus('traffic',   'warning');
+    updatePosture(78, 'warning', '1 critical', '2 need work', '5 good', '#edb41d');
+  } else {
+    ['secadmin','login','firewall','bots','hackguard','comments','audit','traffic']
+      .forEach(k => setZoneStatus(k, 'good'));
+    updatePosture(96, 'good', '0 critical', '0 need work', '8 good', '#008000');
+  }
+  closePanel();
+  setTimeout(() => openPanel(zoneKey), 50);
+}
+</script>
+</body>
+</html>
+

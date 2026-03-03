@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shield — Investigate Mode (Redesign Prototype)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root {
+  --status-good:         #008000;
+  --status-warning:      #edb41d;
+  --status-critical:     #c62f3e;
+  --status-info:         #0ea8c7;
+  --status-bg-info-light:  #e7f7fb;
+  --status-bg-good-light:  #e6f5e6;
+  --card-radius:  10px;
+  --card-shadow:  0 1px 6px rgba(0,0,0,.07);
+  --card-shadow-hover: 0 4px 16px rgba(0,0,0,.13);
+}
+body { background: #f0f0f1; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+
+/* ── Prototype controls ── */
+.proto-controls {
+  position: sticky; top: 0; z-index: 100;
+  background: #1e1e2e; color: #cdd6f4; padding: .5rem 1rem;
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  font-size: .8rem;
+}
+.proto-controls strong { color: #89dceb; margin-right: .5rem; }
+.proto-btn { background: #313244; color: #cdd6f4; border: 1px solid #45475a; padding: .2rem .65rem; border-radius: 4px; cursor: pointer; font-size: .75rem; }
+.proto-btn:hover, .proto-btn.active { background: #0ea8c7; border-color: #0ea8c7; color: #fff; }
+.annotation { background: #e7f7fb; border: 1px solid #0ea8c7; padding: .6rem .85rem; border-radius: 6px; font-size: .78rem; color: #0a5c6e; margin-bottom: .75rem; }
+.annotation strong { color: #063d4a; }
+.locked-note { background: #eef6ff; border: 1px solid #7aa7d9; padding: .6rem .85rem; border-radius: 6px; font-size: .78rem; color: #1f3f66; margin-bottom: .75rem; }
+.locked-note strong { color: #16304d; }
+
+/* ── WP Admin Chrome ── */
+.wp-wrap { display: flex; height: 100vh; overflow: hidden; }
+.wp-sidebar { width: 200px; flex-shrink: 0; background: #1d2327; color: #a7aaad; overflow-y: auto; }
+.wp-sidebar-brand { padding: .9rem 1rem .5rem; font-size: .85rem; font-weight: 700; color: #fff; border-bottom: 1px solid #2d3338; margin-bottom: .25rem; }
+.wp-sidebar-back { padding: .4rem 1rem; font-size: .78rem; color: #7eb1d6; text-decoration: none; display: block; border-bottom: 1px solid #2d3338; margin-bottom: .25rem; }
+.wp-sidebar-back:hover { color: #fff; }
+.wp-sidebar-section { padding: .3rem 1rem .1rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: #616d77; margin-top: .5rem; }
+.wp-sidebar-item { padding: .35rem 1rem; font-size: .82rem; color: #a7aaad; display: block; text-decoration: none; }
+.wp-sidebar-item:hover { color: #fff; }
+.wp-sidebar-item.active { color: #fff; background: #0ea8c7; border-radius: 0 4px 4px 0; }
+.wp-content { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+/* ── Page Chrome ── */
+.shield-breadcrumbs { font-size: .82rem; color: #888; margin-bottom: .4rem; }
+.shield-breadcrumbs a { color: var(--status-info); text-decoration: none; }
+.shield-breadcrumbs a:hover { text-decoration: underline; }
+.shield-breadcrumbs .sep { margin: 0 .3rem; }
+.mode-accent-bar { height: 4px; background: var(--status-info); border-radius: 2px; margin-bottom: 1rem; }
+.page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .1rem; color: #1d2327; }
+.page-subtitle { font-size: .85rem; color: #666; margin-bottom: 1.1rem; }
+
+/* ── Subject Grid — always visible, tiles never compress ── */
+.subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: .7rem;
+  margin-bottom: 1rem;
+}
+.subject-card {
+  background: #fff; border-radius: var(--card-radius); box-shadow: var(--card-shadow);
+  padding: .9rem 1rem; cursor: pointer;
+  border: 2px solid transparent;
+  transition: all .2s;
+  display: flex; flex-direction: column; align-items: flex-start; gap: .2rem;
+  position: relative; overflow: hidden;
+}
+/* Top accent bar — shows on hover and when active */
+.subject-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--status-info); opacity: 0; transition: opacity .2s;
+}
+.subject-card:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); border-color: var(--status-info); }
+.subject-card:hover::before { opacity: 1; }
+/* Selected tile: highlighted border and tinted background — same size, never compressed */
+.subject-card.active { border-color: var(--status-info); background: var(--status-bg-info-light); }
+.subject-card.active::before { opacity: 1; }
+.subject-card.is-disabled,
+.subject-card.is-disabled:hover {
+  cursor: not-allowed;
+  opacity: .6;
+  transform: none;
+  box-shadow: var(--card-shadow);
+  border-color: #d9dee3;
+  background: #f6f7f7;
+}
+.subject-card.is-disabled::before { opacity: 0; }
+.subject-card .subject-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--status-bg-info-light); color: var(--status-info);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.05rem; margin-bottom: .35rem; flex-shrink: 0;
+}
+.subject-card .subject-label { font-size: .88rem; font-weight: 600; color: #1d2327; }
+.subject-card .subject-stat  { font-size: .72rem; color: var(--status-info); font-weight: 500; margin-top: .2rem; }
+
+/* ── Exploration Panel ── */
+.explore-panel {
+  background: #fff; border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  border: 1px solid #ddeef5;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.explore-panel-accent { height: 4px; background: var(--status-info); }
+.explore-panel-header {
+  padding: .85rem 1.1rem .6rem;
+  display: flex; align-items: center; gap: .75rem;
+  border-bottom: 1px solid #f0f5f8;
+}
+.explore-panel-title { font-size: .95rem; font-weight: 700; color: #1d2327; flex: 1; }
+.explore-panel-close { background: none; border: none; color: #aaa; font-size: 1.1rem; cursor: pointer; padding: .1rem .4rem; border-radius: 4px; }
+.explore-panel-close:hover { background: #f0f0f0; color: #333; }
+.explore-panel-body { padding: 1rem 1.1rem; }
+
+/* ── Lookup strip (within panel) ── */
+.lookup-row { display: flex; gap: .6rem; align-items: flex-end; margin-bottom: 1rem; flex-wrap: wrap; }
+.lookup-row .form-control, .lookup-row .form-select { flex: 1; min-width: 200px; font-size: .88rem; }
+.lookup-submit { flex-shrink: 0; }
+
+/* ── No-subject message ── */
+.no-subject-msg { color: #888; font-size: .85rem; padding: .5rem 0; }
+
+/* ── Subject Header (when loaded) ── */
+.subject-loaded-header {
+  background: var(--status-bg-info-light); border: 1px solid #b8e0ec;
+  border-radius: 8px; padding: .7rem 1rem;
+  display: flex; align-items: center; gap: .75rem;
+  margin-bottom: .9rem; flex-wrap: wrap;
+}
+.subject-loaded-title { font-size: .95rem; font-weight: 700; color: #063d4a; flex: 1; }
+.subject-loaded-meta  { font-size: .78rem; color: #4a7b8a; }
+.change-subject-link { font-size: .78rem; color: var(--status-info); text-decoration: none; cursor: pointer; }
+.change-subject-link:hover { text-decoration: underline; }
+
+/* ── Horizontal pill tabs (NOT left-rail) ── */
+.subject-tabs {
+  display: flex; gap: .3rem; flex-wrap: wrap;
+  margin-bottom: .9rem; border-bottom: 1px solid #e8f0f4; padding-bottom: .5rem;
+}
+.subject-tab {
+  padding: .3rem .8rem; border-radius: 20px; font-size: .82rem; color: #555;
+  cursor: pointer; text-decoration: none; transition: all .15s; border: 1px solid transparent;
+}
+.subject-tab:hover { background: #f0f8fb; color: var(--status-info); }
+.subject-tab.active { background: var(--status-info); color: #fff; border-color: var(--status-info); }
+
+/* ── Flat content (no card wrappers) ── */
+.overview-dl { display: grid; grid-template-columns: 180px 1fr; gap: .3rem 1rem; margin: 0; }
+.overview-dl dt { font-size: .82rem; font-weight: 600; color: #555; padding: .3rem 0; border-bottom: 1px solid #f5f5f5; }
+.overview-dl dd { font-size: .83rem; color: #1d2327; padding: .3rem 0; border-bottom: 1px solid #f5f5f5; margin: 0; }
+.overview-section-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: #aaa; margin: .8rem 0 .3rem; }
+
+/* Table placeholder */
+.table-placeholder { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 1.25rem; text-align: center; color: #999; font-size: .85rem; }
+.table-placeholder i { font-size: 1.8rem; display: block; margin-bottom: .4rem; color: #ccc; }
+
+/* Flat table header */
+.flat-table-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+.flat-table-head h6 { margin: 0; font-size: .88rem; font-weight: 600; color: #1d2327; }
+.flat-table-head a { font-size: .78rem; color: var(--status-info); text-decoration: none; }
+.flat-table-head a:hover { text-decoration: underline; }
+
+/* IP tag pill */
+.ip-tag { display: inline-block; background: #f0f5f8; border: 1px solid #c8dde8; border-radius: 4px; padding: .1rem .45rem; font-size: .75rem; font-family: monospace; color: #2c5f74; }
+
+/* Auto-load note */
+.auto-load-note { background: var(--status-bg-good-light); border: 1px solid #b0d8b0; border-radius: 6px; padding: .5rem .85rem; font-size: .78rem; color: #2a5e2a; margin-bottom: .75rem; }
+.auto-load-note i { margin-right: .3rem; }
+</style>
+</head>
+<body>
+
+<!-- PROTOTYPE CONTROLS -->
+<div class="proto-controls">
+  <strong>PROTOTYPE: Investigate Mode — In-Place Subject Exploration</strong>
+  <span style="color:#a6adc8; font-size:.75rem; margin-right:.5rem;">Use states or click subject tiles:</span>
+  <button class="proto-btn active" onclick="showState('landing')">Landing (initial)</button>
+  <button class="proto-btn" onclick="showState('user-empty')">By User (empty)</button>
+  <button class="proto-btn" onclick="showState('user-loaded')">By User (loaded)</button>
+  <button class="proto-btn" onclick="showState('user-activity')">By User — Activity tab</button>
+  <button class="proto-btn" onclick="showState('ip-loaded')">By IP (loaded)</button>
+  <button class="proto-btn" onclick="showState('plugin-empty')">By Plugin (select)</button>
+  <button class="proto-btn" onclick="showState('plugin-loaded')">By Plugin (loaded)</button>
+  <button class="proto-btn" onclick="showState('live-traffic')">Live Traffic</button>
+</div>
+<div class="locked-note">
+  <strong>Locked-spec note:</strong> This prototype is visual reference only. Authoritative implementation rules are defined in
+  `REDESIGN-OVERVIEW.md`, `user-journeys.md`, and `IMPLEMENTATION-ORCHESTRATION.md`.
+  Do not copy this HTML/CSS into production templates.
+</div>
+
+<div class="wp-wrap">
+  <!-- SIDEBAR -->
+  <nav class="wp-sidebar">
+    <div class="wp-sidebar-brand">🛡 Shield Security</div>
+    <a href="#" class="wp-sidebar-back" onclick="return false">← Mode Selector</a>
+    <div class="wp-sidebar-section">Investigate</div>
+    <a href="#" class="wp-sidebar-item active" onclick="return false"><i class="bi bi-search me-1"></i> Investigate</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-list-ul me-1"></i> Activity Log</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-wifi me-1"></i> Traffic Log</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-lightning me-1"></i> Live Traffic</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-shield-check me-1"></i> IP Rules</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-person-check me-1"></i> Sessions</a>
+    <div style="padding: 1rem; font-size:.72rem; border-top: 1px solid #2d3338; margin-top: 2rem; color: #888;">
+      Sidebar shows mode-level navigation. Subject investigation happens in the main panel — no sidebar change on subject select.
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="wp-content">
+
+    <!-- Breadcrumb — updates when subject loads -->
+    <div class="shield-breadcrumbs" id="breadcrumb">
+      <a href="#">Shield Security</a>
+      <span class="sep">›</span>
+      Investigate
+    </div>
+
+    <div class="mode-accent-bar"></div>
+    <h1 class="page-title">Investigate</h1>
+    <p class="page-subtitle">Dig into a specific user, IP address, plugin, theme, core status, or live traffic.</p>
+
+    <!-- ANNOTATION -->
+    <div class="annotation" id="anno-main">
+      <strong>Design Change:</strong> Clicking a subject tile no longer loads a new page. Content appears
+      in-place below the tile grid. The tile grid stays visible and at <em>full size</em> — the selected
+      tile is highlighted with a coloured border and tinted background. No chip compression. This locked
+      prototype now uses the 7-tile IA and compact tile content (icon, title, stat only).
+    </div>
+
+    <!-- ── SUBJECT GRID — always visible, never hidden or compressed ── -->
+    <div class="subject-grid" id="subject-grid">
+
+      <div class="subject-card" id="card-user" onclick="openSubject('user')">
+        <div class="subject-icon"><i class="bi bi-person"></i></div>
+        <div class="subject-label">User</div>
+        <div class="subject-stat"><i class="bi bi-circle-fill" style="font-size:.5rem;"></i> 12 active sessions</div>
+      </div>
+
+      <div class="subject-card" id="card-ip" onclick="openSubject('ip')">
+        <div class="subject-icon"><i class="bi bi-globe"></i></div>
+        <div class="subject-label">IP Address</div>
+        <div class="subject-stat"><i class="bi bi-circle-fill" style="font-size:.5rem;"></i> Last request 2m ago</div>
+      </div>
+
+      <div class="subject-card" id="card-plugin" onclick="openSubject('plugin')">
+        <div class="subject-icon"><i class="bi bi-plug"></i></div>
+        <div class="subject-label">Plugin</div>
+        <div class="subject-stat">87 installed</div>
+      </div>
+
+      <div class="subject-card" id="card-theme" onclick="openSubject('theme')">
+        <div class="subject-icon"><i class="bi bi-brush"></i></div>
+        <div class="subject-label">Theme</div>
+        <div class="subject-stat">8 themes</div>
+      </div>
+
+      <div class="subject-card" id="card-core" onclick="openSubject('core')">
+        <div class="subject-icon"><i class="bi bi-wordpress"></i></div>
+        <div class="subject-label">Core Files</div>
+        <div class="subject-stat"><i class="bi bi-check-circle-fill" style="color:var(--status-good);font-size:.75rem;"></i> Monitoring active</div>
+      </div>
+
+      <div class="subject-card" id="card-live_traffic" onclick="openSubject('live_traffic')">
+        <div class="subject-icon"><i class="bi bi-lightning"></i></div>
+        <div class="subject-label">Live Traffic</div>
+        <div class="subject-stat">32 req/min</div>
+      </div>
+
+      <div class="subject-card is-disabled" id="card-premium_integrations" aria-disabled="true">
+        <div class="subject-icon"><i class="bi bi-stars"></i></div>
+        <div class="subject-label">Premium Integrations</div>
+        <div class="subject-stat">Coming soon</div>
+      </div>
+
+    </div><!-- /subject-grid -->
+
+    <!-- Landing hint — hidden once a subject is selected -->
+    <div class="no-subject-msg" id="no-subject-hint">
+      <i class="bi bi-arrow-up me-1" style="font-size:.9rem;"></i>
+      Select a subject above to begin investigating.
+    </div>
+
+    <!-- ── EXPLORE PANEL — appears below the always-visible tile grid ── -->
+    <div class="explore-panel" id="explore-panel" style="display:none">
+      <div class="explore-panel-accent"></div>
+      <div class="explore-panel-header">
+        <div class="explore-panel-title" id="panel-title">Investigate</div>
+        <button class="explore-panel-close" onclick="closePanelAndReset()">✕</button>
+      </div>
+      <div class="explore-panel-body" id="panel-body">
+        <!-- Content injected by JS based on selected subject -->
+      </div>
+    </div>
+
+    <!-- COMPARISON NOTE (shown on landing) -->
+    <div class="annotation" id="anno-current" style="margin-top:.5rem;">
+      <strong>Current implementation (for comparison):</strong> Each subject tile navigates to a new page with a
+      full-width layout, left-rail tabs, and nested cards. That page has no visual connection to the tile grid —
+      the user can't switch subjects without going back and re-clicking. The left-rail tab structure is borrowed
+      from the configuration settings pages, making investigation pages feel like settings pages.
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ────────────────────────────────────────────
+   Panel content builders
+   ──────────────────────────────────────────── */
+
+const subjectPanels = {
+
+  user: {
+    title: 'Investigate by User',
+    emptyBody: `
+      <div class="annotation" style="margin-bottom:.85rem;">
+        <strong>Design change — User lookup:</strong> The search field lives directly inside this panel —
+        no page navigation. In the real implementation this uses <strong>Select2 with AJAX</strong>
+        (Select2 is already installed in Shield) for find-as-you-type user search. Results load into
+        the tabs below without leaving the page.
+      </div>
+      <div class="lookup-row">
+        <div style="flex:1; min-width:200px;">
+          <label class="form-label mb-1" style="font-size:.82rem;">Username, email, or user ID</label>
+          <input type="text" class="form-control" placeholder="e.g. paul or paul@example.com" />
+        </div>
+        <button class="btn btn-outline-primary lookup-submit" onclick="loadUserResult()">Investigate</button>
+      </div>
+      <p class="no-subject-msg">No user loaded. Enter a username or email above to begin.</p>`,
+
+    loadedBody: `
+      <div class="subject-loaded-header">
+        <div>
+          <div class="subject-loaded-title">paul <span style="font-weight:400;font-size:.83rem;color:#4a7b8a;">(paul@example.com)</span></div>
+          <div class="subject-loaded-meta">Administrator · Registered 15 Jan 2020 · Shield tracking active</div>
+        </div>
+        <a class="change-subject-link" onclick="reloadEmptyUser();return false" href="#">Change user</a>
+      </div>
+      <div class="annotation" style="margin-bottom:.75rem;">
+        <strong>Design change — Tabs:</strong> Horizontal pill tabs replace the previous left-rail layout.
+        Tab content is flat — no card wrapper inside the panel. The overview is a
+        simple key-value list, not a nested card-inside-panel-inside-shell structure.
+      </div>
+      <div class="subject-tabs">
+        <a class="subject-tab active" onclick="switchTab('user','overview');return false" href="#" id="tab-user-overview">Overview</a>
+        <a class="subject-tab" onclick="switchTab('user','sessions');return false" href="#" id="tab-user-sessions">Sessions <span style="opacity:.6;font-size:.75rem;">(3)</span></a>
+        <a class="subject-tab" onclick="switchTab('user','activity');return false" href="#" id="tab-user-activity">Activity <span style="opacity:.6;font-size:.75rem;">(247)</span></a>
+        <a class="subject-tab" onclick="switchTab('user','requests');return false" href="#" id="tab-user-requests">Requests <span style="opacity:.6;font-size:.75rem;">(1.2k)</span></a>
+        <a class="subject-tab" onclick="switchTab('user','ips');return false" href="#" id="tab-user-ips">IPs <span style="opacity:.6;font-size:.75rem;">(4)</span></a>
+      </div>
+      <div id="tab-content-user-overview">
+        <dl class="overview-dl">
+          <dt>Username</dt><dd>paul</dd>
+          <dt>Display Name</dt><dd>Paul Goodchild</dd>
+          <dt>Email</dt><dd>paul@example.com</dd>
+          <dt>Role</dt><dd>Administrator</dd>
+          <dt>Registered</dt><dd>15 January 2020</dd>
+          <dt>Last Login</dt><dd>Today at 09:42 · from <span class="ip-tag">203.0.113.45</span></dd>
+          <dt>Active Sessions</dt><dd>3</dd>
+          <dt>Shield Status</dt><dd style="color:var(--status-good)"><i class="bi bi-check-circle-fill me-1"></i>Tracked — 247 events on record</dd>
+          <dt>Offence Score</dt><dd>0 (clean)</dd>
+        </dl>
+        <div class="overview-section-label">Recent IPs</div>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+          <span class="ip-tag">203.0.113.45</span>
+          <span class="ip-tag">203.0.113.12</span>
+          <span class="ip-tag">198.51.100.7</span>
+          <span class="ip-tag">192.0.2.88</span>
+        </div>
+      </div>
+      <div id="tab-content-user-sessions" style="display:none">
+        <div class="flat-table-head">
+          <h6>Active Sessions</h6>
+          <a href="#" onclick="return false">View all in Sessions →</a>
+        </div>
+        <div class="table-placeholder"><i class="bi bi-table"></i>DataTable — 3 active sessions for paul</div>
+      </div>
+      <div id="tab-content-user-activity" style="display:none">
+        <div class="flat-table-head">
+          <h6>Activity Events</h6>
+          <a href="#" onclick="return false">View all in Activity Log →</a>
+        </div>
+        <div class="table-placeholder"><i class="bi bi-table"></i>DataTable — 247 activity events for paul, most recent first</div>
+      </div>
+      <div id="tab-content-user-requests" style="display:none">
+        <div class="flat-table-head">
+          <h6>HTTP Requests</h6>
+          <a href="#" onclick="return false">View all in Traffic Log →</a>
+        </div>
+        <div class="table-placeholder"><i class="bi bi-table"></i>DataTable — 1,247 requests from IPs associated with paul's sessions</div>
+      </div>
+      <div id="tab-content-user-ips" style="display:none">
+        <div class="flat-table-head"><h6>Associated IP Addresses</h6></div>
+        <div class="table-placeholder"><i class="bi bi-table"></i>4 IPs associated with paul's sessions — each row has an "Investigate this IP" link</div>
+      </div>`
+  },
+
+  ip: {
+    title: 'Investigate by IP Address',
+    loadedBody: `
+      <div class="annotation" style="margin-bottom:.75rem;">
+        <strong>Design change — IP panel:</strong> The IpAnalyse component renders inline here.
+        No left-rail. Flat tabs. No nested cards.
+      </div>
+      <div class="lookup-row">
+        <div style="flex:1; min-width:200px;">
+          <label class="form-label mb-1" style="font-size:.82rem;">IP Address</label>
+          <input type="text" class="form-control" value="203.0.113.45" />
+        </div>
+        <button class="btn btn-outline-primary lookup-submit">Investigate</button>
+      </div>
+      <div class="subject-loaded-header">
+        <div>
+          <div class="subject-loaded-title"><span class="ip-tag" style="font-size:1rem;padding:.25rem .6rem;">203.0.113.45</span></div>
+          <div class="subject-loaded-meta">United Kingdom · ISP: ExampleNet Ltd · <span style="color:var(--status-warning)">⚠ 3 offences on record</span></div>
+        </div>
+      </div>
+      <div class="subject-tabs">
+        <a class="subject-tab active" href="#">Overview</a>
+        <a class="subject-tab" href="#">Offences <span style="opacity:.6;font-size:.75rem;">(3)</span></a>
+        <a class="subject-tab" href="#">Requests <span style="opacity:.6;font-size:.75rem;">(412)</span></a>
+        <a class="subject-tab" href="#">Sessions <span style="opacity:.6;font-size:.75rem;">(2)</span></a>
+        <a class="subject-tab" href="#">Bypass / Block</a>
+      </div>
+      <dl class="overview-dl">
+        <dt>IP Address</dt><dd><span class="ip-tag">203.0.113.45</span></dd>
+        <dt>Country</dt><dd>🇬🇧 United Kingdom</dd>
+        <dt>ISP / ASN</dt><dd>ExampleNet Ltd (AS12345)</dd>
+        <dt>Shield Status</dt><dd><span style="color:var(--status-warning)">⚠ Tracked — 3 offences</span></dd>
+        <dt>First Seen</dt><dd>3 days ago</dd>
+        <dt>Last Request</dt><dd>2 minutes ago</dd>
+        <dt>CrowdSec</dt><dd><span style="color:var(--status-good)">✓ Clean (no reports)</span></dd>
+        <dt>Block / Bypass</dt><dd>
+          <button class="btn btn-sm btn-outline-danger" onclick="return false">Block this IP</button>
+          <button class="btn btn-sm btn-outline-success ms-1" onclick="return false">Add to bypass</button>
+        </dd>
+      </dl>`
+  },
+
+  plugin: {
+    title: 'Investigate Plugin',
+    emptyBody: `
+      <div class="annotation" style="margin-bottom:.75rem;">
+        <strong>Design change — Plugin selection:</strong> No separate "Load" button.
+        Selecting a plugin from the dropdown auto-loads the panel immediately
+        (simulated here with onchange). This panel is for generic plugin events and plugin security context.
+      </div>
+      <div class="auto-load-note">
+        <i class="bi bi-lightning-fill"></i>Select a plugin below — results load automatically.
+      </div>
+      <div class="lookup-row" style="margin-bottom:.5rem;">
+        <div style="flex:1;">
+          <label class="form-label mb-1" style="font-size:.82rem;">Plugin</label>
+          <select class="form-select" onchange="if(this.value) loadPluginResult(this.value)">
+            <option value="">— Search or select a plugin —</option>
+            <option value="woocommerce">WooCommerce (9.2.0)</option>
+            <option value="elementor">Elementor Page Builder (3.21.4)</option>
+            <option value="yoast">Yoast SEO (22.1)</option>
+            <option value="contact-form-7">Contact Form 7 (5.9.5)</option>
+            <option value="wpforms-lite">WPForms Lite (1.8.9)</option>
+          </select>
+        </div>
+      </div>
+      <p class="no-subject-msg">Select a plugin above to inspect generic plugin events and security context.</p>`,
+
+    loadedBody: (plugin) => `
+      <div class="auto-load-note">
+        <i class="bi bi-lightning-fill"></i>Auto-loaded on selection — no "Load" button needed.
+      </div>
+      <div class="lookup-row" style="margin-bottom:.5rem;">
+        <div style="flex:1;">
+          <label class="form-label mb-1" style="font-size:.82rem;">Plugin</label>
+          <select class="form-select" onchange="if(this.value) loadPluginResult(this.value)">
+            <option value="">— Search or select a plugin —</option>
+            <option value="woocommerce" ${plugin==='woocommerce'?'selected':''}>WooCommerce (9.2.0)</option>
+            <option value="elementor"   ${plugin==='elementor'?'selected':''}>Elementor Page Builder (3.21.4)</option>
+            <option value="yoast"       ${plugin==='yoast'?'selected':''}>Yoast SEO (22.1)</option>
+            <option value="contact-form-7" ${plugin==='contact-form-7'?'selected':''}>Contact Form 7 (5.9.5)</option>
+            <option value="wpforms-lite" ${plugin==='wpforms-lite'?'selected':''}>WPForms Lite (1.8.9)</option>
+          </select>
+        </div>
+      </div>
+      <div class="subject-loaded-header">
+        <div>
+          <div class="subject-loaded-title">${pluginNames[plugin]||plugin} <span style="font-weight:400;font-size:.83rem;color:#4a7b8a;">(v${pluginVersions[plugin]||'1.0'})</span></div>
+          <div class="subject-loaded-meta">${pluginStatus[plugin]||'Status unknown'}</div>
+        </div>
+      </div>
+      <div class="subject-tabs">
+        <a class="subject-tab active" href="#">Overview</a>
+        <a class="subject-tab" href="#">Events</a>
+        <a class="subject-tab" href="#">File Status</a>
+        <a class="subject-tab" href="#">Security Notes</a>
+      </div>
+      <dl class="overview-dl">
+        <dt>Plugin</dt><dd>${pluginNames[plugin]||plugin}</dd>
+        <dt>Version</dt><dd>${pluginVersions[plugin]||'1.0'}</dd>
+        <dt>Status</dt><dd>${pluginStatus[plugin]||'Active'}</dd>
+        <dt>Last Updated</dt><dd>${pluginUpdated[plugin]||'Unknown'}</dd>
+        <dt>File Changes</dt><dd>${pluginFiles[plugin]||'No changes detected'}</dd>
+        <dt>Recent Events</dt><dd>${pluginEvents[plugin]||'No recent generic plugin events'}</dd>
+      </dl>`
+  },
+
+  live_traffic: {
+    title: 'Live Traffic',
+    loadedBody: `
+      <div class="annotation" style="margin-bottom:.75rem;">
+        <strong>Live Traffic tile:</strong> This is the immediate request stream view for investigate-now workflows.
+        Historical Traffic Log remains available in the sidebar as a dedicated page.
+      </div>
+      <div class="flat-table-head">
+        <h6>Live Request Stream</h6>
+        <a href="#" onclick="return false">Open historical traffic log →</a>
+      </div>
+      <div class="table-placeholder">
+        <i class="bi bi-table"></i>
+        DataTable — streaming/live HTTP requests.<br>
+        <span style="font-size:.75rem;">Columns: Time · IP · Path · Method · Status · Rule Outcome</span>
+      </div>`
+  },
+
+  core: {
+    title: 'Core Files',
+    loadedBody: `
+      <div class="annotation" style="margin-bottom:.75rem;">
+        <strong>Core file monitoring:</strong> No lookup needed — there is only one WordPress core.
+        The panel loads file status immediately on tile click.
+      </div>
+      <div class="subject-loaded-header" style="background:var(--status-bg-good-light); border-color: #b0d8b0;">
+        <div>
+          <div class="subject-loaded-title" style="color:#1a4d1a;">WordPress Core — 6.5.3</div>
+          <div class="subject-loaded-meta" style="color:#2a5e2a;">✓ All core files match expected checksums</div>
+        </div>
+      </div>
+      <div class="subject-tabs">
+        <a class="subject-tab active" href="#">Overview</a>
+        <a class="subject-tab" href="#">File Status</a>
+        <a class="subject-tab" href="#">Scan History</a>
+      </div>
+      <dl class="overview-dl">
+        <dt>WP Version</dt><dd>6.5.3</dd>
+        <dt>Files Monitored</dt><dd>1,247 core files</dd>
+        <dt>Modified Files</dt><dd style="color:var(--status-good)">0 — all clean</dd>
+        <dt>Unknown Files</dt><dd>0</dd>
+        <dt>Last Scan</dt><dd>Today at 03:00 (scheduled)</dd>
+      </dl>`
+  },
+
+  theme: {
+    title: 'Investigate by Theme',
+    emptyBody: `
+      <div class="auto-load-note"><i class="bi bi-lightning-fill"></i>Select a theme — results load automatically.</div>
+      <div class="lookup-row">
+        <div style="flex:1;">
+          <label class="form-label mb-1" style="font-size:.82rem;">Theme</label>
+          <select class="form-select">
+            <option value="">— Select a theme —</option>
+            <option>Astra (4.8.0) — Active</option>
+            <option>Hello Elementor (3.0.0)</option>
+            <option>Twenty Twenty-Four (1.1)</option>
+          </select>
+        </div>
+      </div>
+      <p class="no-subject-msg">Select a theme above to view its file status.</p>`
+  }
+};
+
+const pluginNames    = { woocommerce:'WooCommerce', elementor:'Elementor Page Builder', yoast:'Yoast SEO', 'contact-form-7':'Contact Form 7', 'wpforms-lite':'WPForms Lite' };
+const pluginVersions = { woocommerce:'9.2.0', elementor:'3.21.4', yoast:'22.1', 'contact-form-7':'5.9.5', 'wpforms-lite':'1.8.9' };
+const pluginStatus   = { woocommerce:'Active - monitored', elementor:'Active - monitored', yoast:'Active - monitored', 'contact-form-7':'Active - monitored', 'wpforms-lite':'Active - monitored' };
+const pluginUpdated  = { woocommerce:'3 days ago', elementor:'1 week ago', yoast:'2 weeks ago', 'contact-form-7':'1 month ago', 'wpforms-lite':'5 days ago' };
+const pluginFiles    = { woocommerce:'No changes detected', elementor:'No changes detected', yoast:'No changes detected', 'contact-form-7':'No changes detected', 'wpforms-lite':'No changes detected' };
+const pluginEvents   = { woocommerce:'Activated, settings updated, plugin file deleted event recorded', elementor:'Activated, version updated', yoast:'Activated, config changed', 'contact-form-7':'Activated, shortcode usage detected', 'wpforms-lite':'Activated, form action hooks detected' };
+
+/* ────────────────────────────────────────────
+   State management
+   ──────────────────────────────────────────── */
+
+let currentSubject = null;
+
+function openSubject(key) {
+  const p = subjectPanels[key];
+  if (!p) return;
+
+  // Highlight the active tile — grid stays visible at full size, no chip strip
+  document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('card-' + key);
+  if (card) card.classList.add('active');
+
+  // Hide landing-only elements
+  document.getElementById('no-subject-hint').style.display = 'none';
+  document.getElementById('anno-current').style.display = 'none';
+
+  // Show exploration panel
+  document.getElementById('explore-panel').style.display = 'block';
+
+  // Set panel title
+  document.getElementById('panel-title').textContent = p.title;
+
+  // Set panel body (use emptyBody first if no preloaded state, else loadedBody)
+  const body = p.emptyBody || p.loadedBody || '';
+  document.getElementById('panel-body').innerHTML = typeof body === 'function' ? body() : body;
+
+  // Update breadcrumb
+  const subjects = {
+    user:'User', ip:'IP Address', plugin:'Plugin', theme:'Theme',
+    core:'Core Files', live_traffic:'Live Traffic'
+  };
+  document.getElementById('breadcrumb').innerHTML =
+    `<a href="#">Shield Security</a><span class="sep">›</span><a href="#">Investigate</a><span class="sep">›</span>${subjects[key]||key}`;
+
+  currentSubject = key;
+  setTimeout(() => document.getElementById('explore-panel').scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+}
+
+function closePanelAndReset() {
+  // Remove active highlight from all tiles
+  document.querySelectorAll('.subject-card').forEach(c => c.classList.remove('active'));
+  // Hide panel, restore landing elements
+  document.getElementById('explore-panel').style.display = 'none';
+  document.getElementById('no-subject-hint').style.display = 'block';
+  document.getElementById('anno-current').style.display = 'block';
+  document.getElementById('breadcrumb').innerHTML =
+    '<a href="#">Shield Security</a><span class="sep">›</span>Investigate';
+  currentSubject = null;
+}
+
+function loadUserResult()  { document.getElementById('panel-body').innerHTML = subjectPanels.user.loadedBody; }
+function reloadEmptyUser() { document.getElementById('panel-body').innerHTML = subjectPanels.user.emptyBody; }
+
+function loadPluginResult(plugin) {
+  document.getElementById('panel-body').innerHTML = subjectPanels.plugin.loadedBody(plugin);
+}
+
+function switchTab(subject, tab) {
+  document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
+  const tabEl = document.getElementById('tab-' + subject + '-' + tab);
+  if (tabEl) tabEl.classList.add('active');
+  ['overview','sessions','activity','requests','ips'].forEach(t => {
+    const el = document.getElementById('tab-content-' + subject + '-' + t);
+    if (el) el.style.display = (t === tab) ? 'block' : 'none';
+  });
+}
+
+/* ── Quick state switcher ── */
+function showState(state) {
+  document.querySelectorAll('.proto-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  closePanelAndReset();
+  document.getElementById('anno-main').style.display = 'block';
+
+  if (state === 'landing') {
+    // already reset
+  } else if (state === 'user-empty') {
+    openSubject('user');
+  } else if (state === 'user-loaded') {
+    openSubject('user');
+    loadUserResult();
+  } else if (state === 'user-activity') {
+    openSubject('user');
+    loadUserResult();
+    setTimeout(() => switchTab('user','activity'), 50);
+  } else if (state === 'ip-loaded') {
+    openSubject('ip');
+  } else if (state === 'plugin-empty') {
+    openSubject('plugin');
+  } else if (state === 'plugin-loaded') {
+    openSubject('plugin');
+    setTimeout(() => loadPluginResult('woocommerce'), 50);
+  } else if (state === 'live-traffic') {
+    openSubject('live_traffic');
+  }
+}
+</script>
+</body>
+</html>

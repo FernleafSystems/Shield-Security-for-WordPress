@@ -1,0 +1,527 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shield â€” Reports Mode (Redesign Prototype)</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root {
+  --mode-color:        #edb41d;  /* Reports = amber/warning */
+  --mode-color-light:  #fef6e6;
+  --status-good:       #008000;
+  --status-warning:    #edb41d;
+  --status-critical:   #c62f3e;
+  --status-bg-good:    #e6f5e6;
+  --status-bg-warning: #fef6e6;
+  --card-radius:  10px;
+  --card-shadow:  0 1px 6px rgba(0,0,0,.07);
+  --card-shadow-hover: 0 4px 16px rgba(0,0,0,.13);
+}
+body { background: #f0f0f1; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+
+/* â”€â”€ Prototype controls â”€â”€ */
+.proto-controls {
+  position: sticky; top: 0; z-index: 100;
+  background: #1e1e2e; color: #cdd6f4; padding: .5rem 1rem;
+  display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-size: .8rem;
+}
+.proto-controls strong { color: var(--mode-color); margin-right: .5rem; }
+.proto-btn { background: #313244; color: #cdd6f4; border: 1px solid #45475a; padding: .2rem .65rem; border-radius: 4px; cursor: pointer; font-size: .75rem; }
+.proto-btn:hover, .proto-btn.active { background: var(--mode-color); border-color: var(--mode-color); color: #1d1d1d; }
+.annotation { background: var(--mode-color-light); border: 1px solid var(--mode-color); padding: .6rem .85rem; border-radius: 6px; font-size: .78rem; color: #5a3f00; margin-bottom: .75rem; }
+.annotation strong { color: #3d2800; }
+.question-callout { background: #eff6ff; border: 1px solid #2563eb; padding: .6rem .85rem; border-radius: 6px; font-size: .78rem; color: #1e3a8a; margin-bottom: .75rem; }
+.question-callout strong { color: #1e3a8a; }
+.locked-note { background: #eef6ff; border: 1px solid #7aa7d9; padding: .6rem .85rem; border-radius: 6px; font-size: .78rem; color: #1f3f66; margin-bottom: .75rem; }
+.locked-note strong { color: #16304d; }
+
+/* â”€â”€ WP Admin Chrome (simulated) â”€â”€ */
+.wp-wrap { display: flex; height: 100vh; overflow: hidden; }
+.wp-sidebar { width: 200px; flex-shrink: 0; background: #1d2327; color: #a7aaad; overflow-y: auto; }
+.wp-sidebar-brand { padding: .9rem 1rem .5rem; font-size: .85rem; font-weight: 700; color: #fff; border-bottom: 1px solid #2d3338; margin-bottom: .25rem; }
+.wp-sidebar-back { padding: .4rem 1rem; font-size: .78rem; color: #f0c040; text-decoration: none; display: block; border-bottom: 1px solid #2d3338; margin-bottom: .25rem; }
+.wp-sidebar-back:hover { color: #fff; }
+.wp-sidebar-section { padding: .3rem 1rem .1rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: #616d77; margin-top: .5rem; }
+.wp-sidebar-item { padding: .35rem 1rem; font-size: .82rem; color: #a7aaad; display: block; text-decoration: none; }
+.wp-sidebar-item:hover { color: #fff; }
+.wp-sidebar-item.active { color: #1d2327; background: var(--mode-color); border-radius: 0 4px 4px 0; font-weight: 600; }
+.wp-content { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+/* â”€â”€ Page Chrome â”€â”€ */
+.shield-breadcrumbs { font-size: .82rem; color: #888; margin-bottom: .4rem; }
+.shield-breadcrumbs a { color: var(--mode-color); text-decoration: none; }
+.shield-breadcrumbs a:hover { text-decoration: underline; }
+.shield-breadcrumbs .sep { margin: 0 .3rem; }
+.mode-accent-bar { height: 4px; background: var(--mode-color); border-radius: 2px; margin-bottom: 1rem; }
+.page-title { font-size: 1.3rem; font-weight: 700; margin-bottom: .1rem; color: #1d2327; }
+.page-subtitle { font-size: .85rem; color: #666; margin-bottom: 1.1rem; }
+
+/* â”€â”€ Tile Grid (shared pattern â€” same as Configure and Investigate) â”€â”€ */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: .7rem;
+  margin-bottom: 1rem;
+}
+.tile {
+  background: #fff; border-radius: var(--card-radius); box-shadow: var(--card-shadow);
+  padding: .9rem 1rem; cursor: pointer;
+  border: 2px solid transparent;
+  transition: all .2s;
+  display: flex; flex-direction: column; gap: .25rem;
+  position: relative; overflow: hidden;
+}
+.tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--mode-color); opacity: 0; transition: opacity .2s; }
+.tile:hover { box-shadow: var(--card-shadow-hover); transform: translateY(-2px); border-color: #ddd; }
+.tile:hover::before, .tile.active::before { opacity: 1; }
+.tile.active { border-color: var(--mode-color); background: var(--mode-color-light); }
+.tile-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.tile-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--mode-color-light); color: var(--mode-color); display: flex; align-items: center; justify-content: center; font-size: 1.05rem; }
+.tile-stat { font-size: .72rem; color: var(--mode-color); font-weight: 500; }
+.tile-name { font-size: .9rem; font-weight: 600; color: #1d2327; margin-top: .15rem; }
+
+/* â”€â”€ Content Panel (shared pattern) â”€â”€ */
+.content-panel {
+  background: #fff; border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow); border: 2px solid var(--mode-color);
+  overflow: hidden; margin-bottom: 1rem; display: none;
+}
+.content-panel.show { display: block; }
+.content-panel-accent { height: 4px; background: var(--mode-color); }
+.content-panel-header {
+  padding: .85rem 1.1rem .6rem;
+  display: flex; align-items: center; gap: .75rem;
+  border-bottom: 1px solid #f5f0e0;
+}
+.content-panel-title { font-size: .95rem; font-weight: 700; color: #1d2327; flex: 1; }
+.content-panel-close { background: none; border: none; color: #aaa; font-size: 1.1rem; cursor: pointer; padding: .1rem .4rem; border-radius: 4px; }
+.content-panel-close:hover { background: #f5f5f5; color: #333; }
+.content-panel-body { padding: 1rem 1.1rem; }
+
+/* â”€â”€ Pill Tabs (shared pattern) â”€â”€ */
+.panel-tabs { display: flex; gap: .3rem; flex-wrap: wrap; margin-bottom: .9rem; border-bottom: 1px solid #f0ead0; padding-bottom: .5rem; }
+.panel-tab { padding: .3rem .8rem; border-radius: 20px; font-size: .82rem; color: #555; cursor: pointer; text-decoration: none; transition: all .15s; border: 1px solid transparent; }
+.panel-tab:hover { background: var(--mode-color-light); color: var(--mode-color); }
+.panel-tab.active { background: var(--mode-color); color: #1d2327; font-weight: 600; }
+
+/* â”€â”€ Flat content â”€â”€ */
+.flat-overview dt { font-size: .82rem; font-weight: 600; color: #555; padding: .3rem 0; border-bottom: 1px solid #faf7ee; }
+.flat-overview dd { font-size: .83rem; color: #1d2327; padding: .3rem 0; border-bottom: 1px solid #faf7ee; margin: 0; }
+dl.flat-overview { display: grid; grid-template-columns: 160px 1fr; gap: .1rem 1rem; }
+.table-placeholder { background: #faf7ee; border: 1px solid #e8ddb5; border-radius: 6px; padding: 1.25rem; text-align: center; color: #8a7640; font-size: .85rem; }
+.table-placeholder i { font-size: 1.8rem; display: block; margin-bottom: .4rem; color: #c9a633; }
+.flat-table-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+.flat-table-head h6 { margin: 0; font-size: .88rem; font-weight: 600; color: #1d2327; }
+.flat-table-head a { font-size: .78rem; color: var(--mode-color); text-decoration: none; font-weight: 600; }
+
+/* â”€â”€ Status badge (no letter grades â€” good/warning/critical only) â”€â”€ */
+.status-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .55rem; border-radius: 20px; font-size: .75rem; font-weight: 600; }
+.status-badge.good { background: var(--status-bg-good); color: var(--status-good); }
+.status-badge.warning { background: var(--status-bg-warning); color: #7a5800; }
+.status-badge.critical { background: #fdeaec; color: var(--status-critical); }
+
+/* â”€â”€ Report row (mini report card) â”€â”€ */
+.report-row { display: flex; align-items: center; gap: .75rem; padding: .6rem .75rem; border: 1px solid #f0ead0; border-radius: 6px; margin-bottom: .4rem; }
+.report-row-icon { font-size: 1.1rem; color: var(--mode-color); flex-shrink: 0; }
+.report-row-info { flex: 1; }
+.report-row-title { font-size: .85rem; font-weight: 600; color: #1d2327; }
+.report-row-meta { font-size: .74rem; color: #888; }
+.report-row-action { font-size: .78rem; color: var(--mode-color); text-decoration: none; font-weight: 600; }
+.report-row-action:hover { text-decoration: underline; }
+
+/* â”€â”€ Alert settings form â”€â”€ */
+.alert-form-section { margin-bottom: 1.1rem; }
+.alert-form-section h6 { font-size: .85rem; font-weight: 700; color: #1d2327; margin-bottom: .5rem; padding-bottom: .3rem; border-bottom: 1px solid #f0ead0; }
+.alert-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: .4rem 0; border-bottom: 1px solid #f8f3e0; }
+.alert-toggle-label { font-size: .83rem; color: #333; }
+.alert-toggle-desc { font-size: .73rem; color: #888; }
+.form-check-input:checked { background-color: var(--mode-color); border-color: var(--mode-color); }
+.chart-placeholder { background: #faf7ee; border: 1px solid #e8ddb5; border-radius: 8px; padding: 1.5rem 1rem; text-align: center; color: #8a7640; }
+.chart-placeholder i { font-size: 2.5rem; display: block; margin-bottom: .5rem; color: var(--mode-color); }
+.chart-placeholder .chart-bars { display: flex; align-items: flex-end; justify-content: center; gap: 4px; height: 80px; margin-top: .75rem; }
+.chart-bar { border-radius: 3px 3px 0 0; background: var(--mode-color); opacity: .6; width: 20px; }
+.chart-bar.accent { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- PROTOTYPE CONTROLS -->
+<div class="proto-controls">
+  <strong>PROTOTYPE: Reports Mode â€” Tile-Panel Pattern</strong>
+  <span style="color:#a6adc8; font-size:.75rem; margin-right:.5rem;">Click tiles below or use quick states:</span>
+  <button class="proto-btn active" onclick="showState('landing')">Landing (initial)</button>
+  <button class="proto-btn" onclick="showState('reports')">Security Reports</button>
+  <button class="proto-btn" onclick="showState('charts')">Charts &amp; Trends</button>
+  <button class="proto-btn" onclick="showState('alerts')">Alert Settings</button>
+  <button class="proto-btn" onclick="showState('scheduled')">Scheduled Reports</button>
+</div>
+<div class="locked-note">
+  <strong>Locked-spec note:</strong> This file is a future-phase visual concept. In the current implementation wave,
+  Reports remains on current IA (charts + recent reports) with shell/accent alignment only.
+  Follow `REDESIGN-OVERVIEW.md`, `user-journeys.md`, and `IMPLEMENTATION-ORCHESTRATION.md` as the authoritative scope.
+</div>
+
+<div class="wp-wrap">
+  <!-- SIDEBAR -->
+  <nav class="wp-sidebar">
+    <div class="wp-sidebar-brand">ðŸ›¡ Shield Security</div>
+    <a href="#" class="wp-sidebar-back" onclick="return false">â† Mode Selector</a>
+    <div class="wp-sidebar-section">Reports</div>
+    <a href="#" class="wp-sidebar-item active" onclick="return false"><i class="bi bi-grid me-1"></i> Reports Home</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-file-text me-1"></i> Security Reports</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-bar-chart-line me-1"></i> Charts &amp; Trends</a>
+    <a href="#" class="wp-sidebar-item" onclick="return false"><i class="bi bi-bell me-1"></i> Alert Settings</a>
+    <div style="margin-top:2rem;padding:1rem;font-size:.72rem;color:#4a5568;border-top:1px solid #2d3338;">
+      Sidebar items are for direct page navigation. Tile selection is in-page â€” no page load.
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="wp-content">
+
+    <!-- Breadcrumb -->
+    <div class="shield-breadcrumbs">
+      <a href="#">Shield Security</a>
+      <span class="sep">â€º</span>
+      Reports
+    </div>
+
+    <!-- Mode accent bar (amber for Reports â€” REM-009) -->
+    <div class="mode-accent-bar"></div>
+
+    <h1 class="page-title">Reports</h1>
+    <p class="page-subtitle">Security reports, activity trends, and alert configuration.</p>
+
+    <!-- ANNOTATION -->
+    <div class="annotation" id="anno-main">
+      <strong>Prototype Note (future-phase only):</strong> This visual shows a possible Reports tile-panel pattern for a later phase.
+      It is not current-wave scope. The tile grid shows report categories and in-panel behavior for conceptual reference only.
+      The amber mode accent bar at the top identifies this as the Reports mode (REM-009 â€” not yet implemented in production).
+    </div>
+
+    <!-- LOCKED-SCOPE CALLOUT -->
+    <div class="question-callout">
+      <strong>Locked scope:</strong> This tile-panel layout is future-phase reference only and is not part of the current implementation wave.
+      Current wave scope for Reports is shell/accent/layout consistency on the existing landing IA.
+    </div>
+
+    <!-- TILE GRID -->
+    <div class="tile-grid" id="tile-grid">
+
+      <div class="tile" id="tile-reports" onclick="openTile('reports')">
+        <div class="tile-head">
+          <div class="tile-icon"><i class="bi bi-file-text"></i></div>
+          <span class="tile-stat">4 reports generated</span>
+        </div>
+        <div class="tile-name">Security Reports</div>
+      </div>
+
+      <div class="tile" id="tile-charts" onclick="openTile('charts')">
+        <div class="tile-head">
+          <div class="tile-icon"><i class="bi bi-bar-chart-line"></i></div>
+          <span class="tile-stat">30-day view</span>
+        </div>
+        <div class="tile-name">Charts &amp; Trends</div>
+      </div>
+
+      <div class="tile" id="tile-alerts" onclick="openTile('alerts')">
+        <div class="tile-head">
+          <div class="tile-icon"><i class="bi bi-bell"></i></div>
+          <span class="tile-stat" id="alert-stat">3 alerts active</span>
+        </div>
+        <div class="tile-name">Alert Settings</div>
+      </div>
+
+      <div class="tile" id="tile-scheduled" onclick="openTile('scheduled')">
+        <div class="tile-head">
+          <div class="tile-icon"><i class="bi bi-calendar-check"></i></div>
+          <span class="tile-stat">Weekly Â· Friday</span>
+        </div>
+        <div class="tile-name">Scheduled Reports</div>
+      </div>
+
+    </div>
+
+    <!-- CONTENT PANEL -->
+    <div class="content-panel" id="content-panel">
+      <div class="content-panel-accent"></div>
+      <div class="content-panel-header">
+        <div class="content-panel-title" id="panel-title">Reports</div>
+        <button class="content-panel-close" onclick="closePanel()">âœ•</button>
+      </div>
+      <div class="content-panel-body" id="panel-body">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+    <!-- STATE ANNOTATION (updated per state) -->
+    <div class="annotation" id="anno-state" style="display:none"></div>
+
+  </main>
+</div>
+
+<script>
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Panel content definitions
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+const panels = {
+
+  reports: {
+    title: 'Security Reports',
+    body: `
+      <div class="annotation" style="margin-bottom:.8rem;">
+        <strong>Design note:</strong> Security Reports render as a compact list within the panel.
+        The "Generate New Report" action is available inline. The full reports list (for pagination and filtering)
+        is accessible via "View All Reports" or the sidebar. No card wrapper around the list.
+      </div>
+      <div class="flat-table-head">
+        <h6>Recent Reports</h6>
+        <div style="display:flex;gap:.6rem;align-items:center;">
+          <a href="#" onclick="return false" style="color:var(--mode-color);font-size:.78rem;font-weight:600;">View All Reports â†’</a>
+          <button class="btn btn-sm" style="background:var(--mode-color);color:#1d2327;font-size:.78rem;border:none;" onclick="return false">+ Generate Report</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.75rem;">
+        <div class="report-row">
+          <i class="bi bi-file-earmark-check report-row-icon"></i>
+          <div class="report-row-info">
+            <div class="report-row-title">Weekly Security Summary</div>
+            <div class="report-row-meta">Generated 3 days ago Â· 28 Feb 2026 Â· Covers 21â€“28 Feb</div>
+          </div>
+          <a href="#" class="report-row-action" onclick="return false">View â†’</a>
+        </div>
+        <div class="report-row">
+          <i class="bi bi-file-earmark-check report-row-icon"></i>
+          <div class="report-row-info">
+            <div class="report-row-title">Weekly Security Summary</div>
+            <div class="report-row-meta">Generated 10 days ago Â· 21 Feb 2026 Â· Covers 14â€“21 Feb</div>
+          </div>
+          <a href="#" class="report-row-action" onclick="return false">View â†’</a>
+        </div>
+        <div class="report-row">
+          <i class="bi bi-file-earmark-check report-row-icon"></i>
+          <div class="report-row-info">
+            <div class="report-row-title">Monthly Overview â€” January 2026</div>
+            <div class="report-row-meta">Generated 1 Feb 2026 Â· Covers Jan 2026</div>
+          </div>
+          <a href="#" class="report-row-action" onclick="return false">View â†’</a>
+        </div>
+        <div class="report-row">
+          <i class="bi bi-file-earmark-check report-row-icon"></i>
+          <div class="report-row-info">
+            <div class="report-row-title">Weekly Security Summary</div>
+            <div class="report-row-meta">Generated 17 days ago Â· 14 Feb 2026</div>
+          </div>
+          <a href="#" class="report-row-action" onclick="return false">View â†’</a>
+        </div>
+      </div>`,
+    stateNote: 'Security Reports panel: compact list with generate action. Flat layout â€” no nested cards.'
+  },
+
+  charts: {
+    title: 'Charts & Trends',
+    body: `
+      <div class="annotation" style="margin-bottom:.8rem;">
+        <strong>Design note:</strong> The existing ChartsSummary component renders within this panel.
+        The charts fill the panel width without any additional card wrapper.
+        Date range controls appear at the top of the charts section.
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;">
+        <h6 style="margin:0;font-size:.9rem;font-weight:700;">Activity Overview â€” Last 30 Days</h6>
+        <select class="form-select form-select-sm" style="width:auto;">
+          <option>Last 30 days</option>
+          <option>Last 7 days</option>
+          <option>Last 90 days</option>
+        </select>
+      </div>
+      <div class="chart-placeholder" style="margin-bottom:.75rem;">
+        <i class="bi bi-bar-chart-line"></i>
+        <div style="font-size:.85rem;font-weight:600;">Blocked Requests</div>
+        <div class="chart-bars">
+          <div class="chart-bar" style="height:35%"></div>
+          <div class="chart-bar" style="height:42%"></div>
+          <div class="chart-bar" style="height:28%"></div>
+          <div class="chart-bar" style="height:65%"></div>
+          <div class="chart-bar accent" style="height:88%"></div>
+          <div class="chart-bar" style="height:55%"></div>
+          <div class="chart-bar" style="height:40%"></div>
+          <div class="chart-bar" style="height:33%"></div>
+          <div class="chart-bar" style="height:48%"></div>
+          <div class="chart-bar" style="height:60%"></div>
+          <div class="chart-bar" style="height:25%"></div>
+          <div class="chart-bar" style="height:38%"></div>
+          <div class="chart-bar" style="height:55%"></div>
+          <div class="chart-bar" style="height:70%"></div>
+        </div>
+        <div style="font-size:.72rem;color:#8a7640;margin-top:.5rem;">ChartsSummary component renders here â€” existing implementation, no changes needed</div>
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <div class="chart-placeholder" style="flex:1;min-width:180px;">
+          <i class="bi bi-person-x"></i>
+          <div style="font-size:.82rem;font-weight:600;">Failed Logins</div>
+          <div class="chart-bars">
+            <div class="chart-bar" style="height:20%"></div>
+            <div class="chart-bar" style="height:55%"></div>
+            <div class="chart-bar" style="height:30%"></div>
+            <div class="chart-bar" style="height:80%"></div>
+            <div class="chart-bar accent" style="height:45%"></div>
+            <div class="chart-bar" style="height:25%"></div>
+            <div class="chart-bar" style="height:60%"></div>
+          </div>
+        </div>
+        <div class="chart-placeholder" style="flex:1;min-width:180px;">
+          <i class="bi bi-shield-exclamation"></i>
+          <div style="font-size:.82rem;font-weight:600;">Bot Detections</div>
+          <div class="chart-bars">
+            <div class="chart-bar" style="height:70%"></div>
+            <div class="chart-bar" style="height:85%"></div>
+            <div class="chart-bar accent" style="height:95%"></div>
+            <div class="chart-bar" style="height:60%"></div>
+            <div class="chart-bar" style="height:40%"></div>
+            <div class="chart-bar" style="height:55%"></div>
+            <div class="chart-bar" style="height:75%"></div>
+          </div>
+        </div>
+      </div>`,
+    stateNote: 'Charts & Trends panel: existing ChartsSummary component renders in-panel. No new chart implementation needed.'
+  },
+
+  alerts: {
+    title: 'Alert Settings',
+    body: `
+      <div class="annotation" style="margin-bottom:.8rem;">
+        <strong>Design note:</strong> Alert settings render as a flat form within the panel.
+        No card wrappers. Save button at the bottom of the form. This replaces the separate "Alert Settings" page.
+        The form uses the existing options infrastructure â€” this is a display-layer change only.
+      </div>
+      <div class="question-callout" style="margin-bottom:.75rem;">
+        <strong>Future-phase note:</strong> Alert settings panel content shown here is conceptual reference for a later phase.
+        Current implementation wave keeps Reports on existing IA and does not ship this panel model.
+      </div>
+      <div class="alert-form-section">
+        <h6>Email Recipients</h6>
+        <div style="margin-bottom:.6rem;">
+          <label class="form-label mb-1" style="font-size:.82rem;">Send alerts to</label>
+          <input type="email" class="form-control form-control-sm" value="admin@example.com" />
+          <div class="form-text" style="font-size:.73rem;">Separate multiple addresses with commas.</div>
+        </div>
+      </div>
+      <div class="alert-form-section">
+        <h6>Instant Alerts (sent immediately when triggered)</h6>
+        <div class="alert-toggle-row">
+          <div><div class="alert-toggle-label">Successful admin login</div><div class="alert-toggle-desc">Alert when any administrator account logs in</div></div>
+          <input class="form-check-input" type="checkbox" checked>
+        </div>
+        <div class="alert-toggle-row">
+          <div><div class="alert-toggle-label">IP address blocked</div><div class="alert-toggle-desc">Alert when Shield automatically blocks an IP</div></div>
+          <input class="form-check-input" type="checkbox" checked>
+        </div>
+        <div class="alert-toggle-row">
+          <div><div class="alert-toggle-label">Plugin vulnerability detected</div><div class="alert-toggle-desc">Alert when a new vulnerability is found for an installed plugin</div></div>
+          <input class="form-check-input" type="checkbox" checked>
+        </div>
+        <div class="alert-toggle-row">
+          <div><div class="alert-toggle-label">Core file modification detected</div><div class="alert-toggle-desc">Alert when a WordPress core file is modified unexpectedly</div></div>
+          <input class="form-check-input" type="checkbox">
+        </div>
+        <div class="alert-toggle-row">
+          <div><div class="alert-toggle-label">Repeated login failures for a user</div><div class="alert-toggle-desc">Alert when a user account experiences repeated failed logins</div></div>
+          <input class="form-check-input" type="checkbox">
+        </div>
+      </div>
+      <div class="alert-form-section">
+        <h6>Report Digest (scheduled summaries)</h6>
+        <div style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.5rem;">
+          <div>
+            <label class="form-label mb-1" style="font-size:.82rem;">Frequency</label>
+            <select class="form-select form-select-sm">
+              <option>Weekly</option><option>Daily</option><option>Monthly</option><option>Disabled</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label mb-1" style="font-size:.82rem;">Send on</label>
+            <select class="form-select form-select-sm">
+              <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+              <option>Thursday</option><option selected>Friday</option>
+              <option>Saturday</option><option>Sunday</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="padding-top:.5rem;border-top:1px solid #f0ead0;">
+        <button class="btn btn-sm" style="background:var(--mode-color);color:#1d2327;border:none;font-weight:600;" onclick="return false">Save Alert Settings</button>
+        <span id="save-confirm" style="font-size:.78rem;color:var(--status-good);margin-left:.75rem;display:none;">âœ“ Settings saved</span>
+      </div>`,
+    stateNote: 'Alert Settings panel: flat form with toggles. No nested cards. Save is inline â€” no page navigation needed.'
+  },
+
+  scheduled: {
+    title: 'Scheduled Reports',
+    body: `
+      <div class="question-callout" style="margin-bottom:.75rem;">
+        <strong>Future-phase note:</strong> Scheduled reports panel is shown as conceptual reference only.
+        It is outside the current implementation wave and must not be implemented now.
+      </div>
+      <div class="annotation" style="margin-bottom:.75rem;">
+        <strong>Prototype reference:</strong> This demonstrates a potential future scheduling UX, not current-wave scope.
+      </div>
+      <div style="margin-bottom:.75rem;">
+        <label class="form-label mb-1" style="font-size:.82rem;">Auto-generate reports</label>
+        <select class="form-select form-select-sm" style="width:auto;">
+          <option>Weekly</option><option>Monthly</option><option>Disabled</option>
+        </select>
+      </div>
+      <div style="margin-bottom:.75rem;">
+        <label class="form-label mb-1" style="font-size:.82rem;">Report scope</label>
+        <div class="form-check"><input class="form-check-input" type="checkbox" checked><label class="form-check-label" style="font-size:.82rem;">Include login activity</label></div>
+        <div class="form-check"><input class="form-check-input" type="checkbox" checked><label class="form-check-label" style="font-size:.82rem;">Include blocked requests</label></div>
+        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label" style="font-size:.82rem;">Include scan results</label></div>
+      </div>
+      <button class="btn btn-sm" style="background:var(--mode-color);color:#1d2327;border:none;font-weight:600;" onclick="return false">Save Schedule</button>`,
+    stateNote: 'Scheduled Reports panel: future-phase placeholder only. This is outside the current implementation wave.'
+  }
+};
+
+let currentTile = null;
+
+function openTile(key) {
+  const p = panels[key];
+  if (!p) return;
+
+  document.querySelectorAll('.tile').forEach(t => t.classList.remove('active'));
+  document.getElementById('tile-' + key).classList.add('active');
+
+  document.getElementById('panel-title').textContent = p.title;
+  document.getElementById('panel-body').innerHTML = p.body;
+  document.getElementById('content-panel').classList.add('show');
+
+  const annoState = document.getElementById('anno-state');
+  annoState.innerHTML = '<strong>Panel open:</strong> ' + p.stateNote;
+  annoState.style.display = 'block';
+
+  currentTile = key;
+  setTimeout(() => document.getElementById('content-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function closePanel() {
+  document.getElementById('content-panel').classList.remove('show');
+  document.querySelectorAll('.tile').forEach(t => t.classList.remove('active'));
+  document.getElementById('anno-state').style.display = 'none';
+  currentTile = null;
+}
+
+function showState(state) {
+  document.querySelectorAll('.proto-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  closePanel();
+  if (state !== 'landing') {
+    setTimeout(() => openTile(state), 50);
+  }
+}
+</script>
+</body>
+</html>
+
