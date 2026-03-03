@@ -45,7 +45,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_landing_content_renders_hero_meter_only() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
 		$content = $this->invokeNonPublicMethod( $page, 'getLandingContent' );
 
 		$this->assertSame(
@@ -65,52 +65,38 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'overview_meter_cards', $content );
 	}
 
-	public function test_landing_vars_include_posture_summary_and_zone_links() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
+	public function test_landing_vars_include_posture_summary_and_zone_tiles() :void {
+		$zoneTiles = $this->zoneTileFixtures();
+		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $zoneTiles );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->assertSame( [], $this->renderCapture->calls );
 
 		$this->assertArrayNotHasKey( 'configure_stats', $vars );
 		$this->assertSame( '1 critical area, 1 area needs work', $vars[ 'posture_summary' ] ?? '' );
-
-		$this->assertSame(
-			[
-				[
-					'slug'       => 'secadmin',
-					'label'      => 'Security Admin',
-					'icon_class' => 'bi bi-shield-fill',
-					'href'       => '/admin/zones/secadmin',
-				],
-				[
-					'slug'       => 'firewall',
-					'label'      => 'Firewall',
-					'icon_class' => 'bi bi-shield-shaded',
-					'href'       => '/admin/zones/firewall',
-				],
-			],
-			$vars[ 'zone_links' ] ?? []
-		);
+		$this->assertSame( $zoneTiles, $vars[ 'zone_tiles' ] ?? [] );
 	}
 
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
-		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
+
 		$this->assertCount( 2, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'key' ] ?? '' );
 		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'panel_target' ] ?? '' );
 		$this->assertSame( 'firewall', $renderData[ 'vars' ][ 'mode_tiles' ][ 1 ][ 'key' ] ?? '' );
+
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
 	}
 
 	public function test_landing_vars_use_all_clear_summary_when_no_areas_need_work() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->allGoodMeterFixturesBySlug() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->allGoodMeterFixturesBySlug(), $this->zoneTileFixtures() );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->assertSame( [], $this->renderCapture->calls );
 
@@ -118,13 +104,13 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_landing_hrefs_are_empty() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
 		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
 		$this->assertSame( [], $hrefs );
 	}
 
 	public function test_landing_strings_include_current_headings_only() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
 		$this->assertSame( 'Configuration Posture', $strings[ 'posture_title' ] ?? '' );
@@ -134,6 +120,84 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		foreach ( [ 'stats_title', 'overview_title', 'quick_links_title', 'link_grades', 'link_zones', 'link_rules', 'link_tools' ] as $removedKey ) {
 			$this->assertArrayNotHasKey( $removedKey, $strings );
 		}
+	}
+
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   panel_target:string,
+	 *   is_enabled:bool,
+	 *   is_disabled:bool,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   stat_line:string,
+	 *   settings_href:string,
+	 *   settings_label:string,
+	 *   panel:array{
+	 *     title:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     components:list<array{title:string,status:string,status_label:string,note:string}>
+	 *   }
+	 * }>
+	 */
+	private function zoneTileFixtures() :array {
+		return [
+			[
+				'key'            => 'secadmin',
+				'panel_target'   => 'secadmin',
+				'is_enabled'     => true,
+				'is_disabled'    => false,
+				'label'          => 'Security Admin',
+				'icon_class'     => 'bi bi-shield-lock',
+				'status'         => 'good',
+				'status_label'   => 'Good',
+				'stat_line'      => 'All components healthy',
+				'settings_href'  => '/admin/zones/secadmin',
+				'settings_label' => 'Configure Security Admin Settings',
+				'panel'          => [
+					'title'        => 'Security Admin',
+					'status'       => 'good',
+					'status_label' => 'Good',
+					'components'   => [
+						[
+							'title'        => 'PIN Protection',
+							'status'       => 'good',
+							'status_label' => 'Active',
+							'note'         => 'PIN is configured.',
+						],
+					],
+				],
+			],
+			[
+				'key'            => 'firewall',
+				'panel_target'   => 'firewall',
+				'is_enabled'     => true,
+				'is_disabled'    => false,
+				'label'          => 'Firewall',
+				'icon_class'     => 'bi bi-fire',
+				'status'         => 'warning',
+				'status_label'   => 'Needs Work',
+				'stat_line'      => '1 component needs work',
+				'settings_href'  => '/admin/zones/firewall',
+				'settings_label' => 'Configure Firewall Settings',
+				'panel'          => [
+					'title'        => 'Firewall',
+					'status'       => 'warning',
+					'status_label' => 'Needs Work',
+					'components'   => [
+						[
+							'title'        => 'WAF Rules',
+							'status'       => 'warning',
+							'status_label' => 'Needs Work',
+							'note'         => 'One rule requires review.',
+						],
+					],
+				],
+			],
+		];
 	}
 
 	private function meterFixturesBySlug() :array {
@@ -163,10 +227,6 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
 			}
-
-			public function zone( string $zoneSlug ) :string {
-				return '/admin/zones/'.$zoneSlug;
-			}
 		};
 		$controller->svgs = new class {
 			public function iconClass( string $icon ) :string {
@@ -188,41 +248,6 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				return 'rendered-'.\count( $this->capture->calls );
 			}
 		};
-		$controller->comps = (object)[
-			'zones' => new class {
-				public function getZones() :array {
-					return [
-						'secadmin' => new class {
-							public static function Slug() :string {
-								return 'secadmin';
-							}
-
-							public function title() :string {
-								return 'Security Admin';
-							}
-
-							public function icon() :string {
-								return 'shield-fill';
-							}
-						},
-						'firewall' => new class {
-							public static function Slug() :string {
-								return 'firewall';
-							}
-
-							public function title() :string {
-								return 'Firewall';
-							}
-
-							public function icon() :string {
-								return 'shield-shaded';
-							}
-						},
-					];
-				}
-			},
-		];
-
 		PluginControllerInstaller::install( $controller );
 	}
 }
@@ -231,8 +256,11 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 
 	private array $meterFixturesBySlug;
 
-	public function __construct( array $meterFixturesBySlug ) {
+	private array $zoneTileFixtures;
+
+	public function __construct( array $meterFixturesBySlug, array $zoneTileFixtures ) {
 		$this->meterFixturesBySlug = $meterFixturesBySlug;
+		$this->zoneTileFixtures = $zoneTileFixtures;
 	}
 
 	protected function getConfigureMeterSlugs() :array {
@@ -241,5 +269,9 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 
 	protected function getMeterDataForSlug( string $meterSlug ) :array {
 		return $this->meterFixturesBySlug[ $meterSlug ] ?? [ 'totals' => [ 'percentage' => 0 ] ];
+	}
+
+	protected function getConfigureZoneTiles() :array {
+		return $this->zoneTileFixtures;
 	}
 }

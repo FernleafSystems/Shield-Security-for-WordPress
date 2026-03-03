@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCard;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
@@ -21,13 +20,31 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 	/**
 	 * @var list<array{
-	 *   slug:string,
+	 *   key:string,
+	 *   panel_target:string,
+	 *   is_enabled:bool,
+	 *   is_disabled:bool,
 	 *   label:string,
 	 *   icon_class:string,
-	 *   href:string
+	 *   status:string,
+	 *   status_label:string,
+	 *   stat_line:string,
+	 *   settings_href:string,
+	 *   settings_label:string,
+	 *   panel:array{
+	 *     title:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     components:list<array{
+	 *       title:string,
+	 *       status:string,
+	 *       status_label:string,
+	 *       note:string
+	 *     }>
+	 *   }
 	 * }>|null
 	 */
-	private ?array $zoneLinksCache = null;
+	private ?array $configureZoneTilesCache = null;
 
 	protected function getLandingTitle() :string {
 		return __( 'Configure', 'wp-simple-firewall' );
@@ -45,17 +62,29 @@ class PageConfigureLanding extends PageModeLandingBase {
 		return PluginNavs::MODE_CONFIGURE;
 	}
 
+	protected function isLandingInteractive() :bool {
+		return true;
+	}
+
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   panel_target:string,
+	 *   is_enabled:bool,
+	 *   is_disabled:bool
+	 * }>
+	 */
 	protected function getLandingTiles() :array {
 		return \array_map(
-			function ( array $zone ) :array {
+			function ( array $tile ) :array {
 				return [
-					'key'          => $zone[ 'slug' ],
-					'panel_target' => $zone[ 'slug' ],
-					'is_enabled'   => true,
-					'is_disabled'  => false,
+					'key'          => $tile[ 'key' ],
+					'panel_target' => $tile[ 'panel_target' ],
+					'is_enabled'   => $tile[ 'is_enabled' ],
+					'is_disabled'  => $tile[ 'is_disabled' ],
 				];
 			},
-			$this->getZoneLinks()
+			$this->getConfigureZoneTiles()
 		);
 	}
 
@@ -72,7 +101,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 	protected function getLandingVars() :array {
 		return [
 			'posture_summary' => $this->buildPostureSummary( $this->getMeterTrafficCounts() ),
-			'zone_links'      => $this->getZoneLinks(),
+			'zone_tiles'      => $this->getConfigureZoneTiles(),
 		];
 	}
 
@@ -151,16 +180,34 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 	/**
 	 * @return list<array{
-	 *   slug:string,
+	 *   key:string,
+	 *   panel_target:string,
+	 *   is_enabled:bool,
+	 *   is_disabled:bool,
 	 *   label:string,
 	 *   icon_class:string,
-	 *   href:string
+	 *   status:string,
+	 *   status_label:string,
+	 *   stat_line:string,
+	 *   settings_href:string,
+	 *   settings_label:string,
+	 *   panel:array{
+	 *     title:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     components:list<array{
+	 *       title:string,
+	 *       status:string,
+	 *       status_label:string,
+	 *       note:string
+	 *     }>
+	 *   }
 	 * }>
 	 */
-	private function getZoneLinks() :array {
-		if ( $this->zoneLinksCache === null ) {
-			$this->zoneLinksCache = ( new ZoneRenderDataBuilder() )->getZoneLinks();
+	protected function getConfigureZoneTiles() :array {
+		if ( $this->configureZoneTilesCache === null ) {
+			$this->configureZoneTilesCache = ( new ConfigureZoneTilesBuilder() )->build();
 		}
-		return $this->zoneLinksCache;
+		return $this->configureZoneTilesCache;
 	}
 }

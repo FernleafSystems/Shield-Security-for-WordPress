@@ -38,7 +38,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="hero"]', 'Configure hero section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="zones"]', 'Configure zones section marker' );
-		$this->assertModeShellAndAccentContract( $xpath, 'configure', 'good', 'Configure' );
+		$this->assertModeShellAndAccentContract( $xpath, 'configure', 'good', 'Configure', true );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="stats"]', 0, 'Configure stats section removed' );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="overview-meters"]', 0, 'Configure overview section removed' );
 
@@ -53,18 +53,34 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'Configure zones section uses good status accent'
 		);
 
-		$zoneCount = \count( self::con()->comps->zones->getZones() );
 		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-configure-zone]',
-			$zoneCount,
+			'//*[@data-configure-zone and @data-mode-tile="1"]',
+			8,
 			'Configure zone navigation marker count'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-mode-tile="1"]',
-			$zoneCount,
+			8,
 			'Configure shared mode tile marker count'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-tile="1" and self::a]',
+			0,
+			'Configure tiles must not navigate directly'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-panel and @data-mode-panel="1"]',
+			8,
+			'Configure inline panel marker count'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-panel="secadmin"]//*[@data-configure-zone-settings="secadmin"]',
+			'Configure secadmin panel settings CTA'
 		);
 		$this->assertSharedModePanelMarker( $xpath, 'Configure' );
 	}

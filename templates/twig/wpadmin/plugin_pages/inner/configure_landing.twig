@@ -1,49 +1,72 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div data-configure-section="hero">
-		<h5 class="mb-2">{{ strings.posture_title }}</h5>
-		<div class="progress-metercard progress-metercard-hero progress-metercard-summary"
-			 data-meter_slug="summary"
-			 data-meter_channel="config">
-			{{ content.hero_meter|raw }}
+	<div class="configure-landing" data-configure-landing="1">
+		<div data-configure-section="hero">
+			<h5 class="mb-2">{{ strings.posture_title }}</h5>
+			<div class="progress-metercard progress-metercard-hero progress-metercard-summary"
+				 data-meter_slug="summary"
+				 data-meter_channel="config">
+				{{ content.hero_meter|raw }}
+			</div>
+			{% if vars.posture_summary|default('') is not empty %}
+				<p class="text-muted small mt-2 mb-0">{{ vars.posture_summary }}</p>
+			{% endif %}
 		</div>
-		{% if vars.posture_summary|default('') is not empty %}
-			<p class="text-muted small mt-2 mb-0">{{ vars.posture_summary }}</p>
-		{% endif %}
-	</div>
 
-	<div class="card shield-card mt-4" data-configure-section="zones" data-mode-tiles="1">
-		<div class="shield-card-accent status-good"></div>
-		<div class="card-body">
-			<h5 class="card-title mb-1">{{ strings.zones_title }}</h5>
-			<p class="text-muted small mb-3">{{ strings.zones_subtitle }}</p>
-			<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-2">
-				{% for zone in vars.zone_links|default([]) %}
-					<div class="col">
-						<a href="{{ zone.href }}"
-						   class="btn btn-outline-secondary w-100 text-start d-flex align-items-center gap-2"
-						   data-configure-zone="{{ zone.slug }}"
-						   data-mode-tile="1"
-						   data-mode-tile-key="{{ zone.slug }}"
-						   data-mode-panel-target="{{ zone.slug }}"
-						   aria-expanded="false">
-							<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
-							<span>{{ zone.label }}</span>
-						</a>
-					</div>
-				{% endfor %}
+		<div class="card shield-card mt-4" data-configure-section="zones">
+			<div class="shield-card-accent status-good"></div>
+			<div class="card-body">
+				<h5 class="card-title mb-1">{{ strings.zones_title }}</h5>
+				<p class="text-muted small mb-3">{{ strings.zones_subtitle }}</p>
+				<div class="configure-landing__zone-grid" data-mode-tiles="1">
+					{% for zone in vars.zone_tiles %}
+						<button type="button"
+								class="configure-landing__zone-tile status-{{ zone.status }}{% if zone.is_disabled %} is-disabled{% endif %}"
+								data-configure-zone="{{ zone.key }}"
+								data-mode-tile="1"
+								data-mode-tile-key="{{ zone.key }}"
+								data-mode-panel-target="{{ zone.panel_target }}"
+								data-mode-tile-disabled="{{ zone.is_disabled ? '1' : '0' }}"
+								aria-disabled="{{ zone.is_disabled ? 'true' : 'false' }}"
+								aria-expanded="false">
+							<span class="configure-landing__zone-tile-header">
+								<span class="configure-landing__zone-tile-icon"><i class="{{ zone.icon_class }}" aria-hidden="true"></i></span>
+								<span class="configure-landing__zone-status status-{{ zone.status }}">{{ zone.status_label }}</span>
+							</span>
+							<span class="configure-landing__zone-title">{{ zone.label }}</span>
+							<span class="configure-landing__zone-stat">{{ zone.stat_line }}</span>
+						</button>
+					{% endfor %}
+				</div>
 			</div>
 		</div>
-	</div>
 
-	{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
-		panel: {
-			id: 'ConfigureModePanelShell',
-			target: '',
-			title: strings.mode_panel_title|default(strings.zones_title),
-			status: 'good'
-		},
-		strings: strings
-	} only %}
+		{% for zone in vars.zone_tiles %}
+			<section id="ConfigureModePanel-{{ zone.key }}"
+						 class="card shield-card mt-3 d-none configure-landing__zone-panel"
+						 data-mode-panel="1"
+						 data-mode-panel-target="{{ zone.panel_target }}"
+						 data-configure-panel="{{ zone.key }}"
+						 aria-hidden="true">
+				<div class="shield-card-accent status-{{ zone.panel.status }}" data-mode-panel-accent="1"></div>
+				<div class="card-body">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<div class="d-flex align-items-center gap-2">
+							<h5 class="card-title mb-0" data-mode-panel-title>{{ zone.panel.title }}</h5>
+							<span class="configure-landing__zone-status status-{{ zone.panel.status }}">{{ zone.panel.status_label }}</span>
+						</div>
+						<button type="button"
+								class="btn btn-sm btn-outline-secondary"
+								data-mode-panel-close="1">{{ strings.mode_panel_close }}</button>
+					</div>
+					<div data-mode-panel-body>
+						{% include '/wpadmin/components/configure/zone_panel_body.twig' with {
+							zone: zone
+						} only %}
+					</div>
+				</div>
+			</section>
+		{% endfor %}
+	</div>
 {% endblock %}

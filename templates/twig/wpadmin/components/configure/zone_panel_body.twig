@@ -1,0 +1,16 @@
+<ul class="configure-landing__component-list">
+	{% for component in zone.panel.components %}
+		<li class="configure-landing__component-row" data-configure-component-status="{{ component.status }}">
+			<div class="configure-landing__component-main">
+				<span class="configure-landing__component-title">{{ component.title }}</span>
+				<span class="configure-landing__component-note">{{ component.note }}</span>
+			</div>
+			<span class="configure-landing__zone-status status-{{ component.status }}">{{ component.status_label }}</span>
+		</li>
+	{% endfor %}
+</ul>
+<div class="configure-landing__panel-actions mt-3">
+	<a href="{{ zone.settings_href }}"
+	   class="btn btn-sm btn-outline-secondary"
+	   data-configure-zone-settings="{{ zone.key }}">{{ zone.settings_label }}</a>
+</div>

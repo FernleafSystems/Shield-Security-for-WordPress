@@ -1,0 +1,193 @@
+.configure-landing__zone-grid {
+	display: grid;
+	gap: 0.65rem;
+	grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.configure-landing__zone-tile {
+	align-items: flex-start;
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	color: #1d2327;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	height: 100%;
+	min-height: 120px;
+	padding: 0.8rem 0.9rem;
+	position: relative;
+	text-align: left;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+	width: 100%;
+}
+
+.configure-landing__zone-tile::before {
+	content: '';
+	height: 3px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+
+.configure-landing__zone-tile.status-good::before {
+	background: $status-color-good;
+}
+
+.configure-landing__zone-tile.status-warning::before {
+	background: $status-color-warning;
+}
+
+.configure-landing__zone-tile.status-critical::before {
+	background: $status-color-critical;
+}
+
+.configure-landing__zone-tile:hover {
+	border-color: $border-color-neutral-strong;
+	box-shadow: $card-box-shadow-hover;
+	color: #1d2327;
+	transform: translateY(-2px);
+}
+
+.configure-landing__zone-tile.is-active {
+	box-shadow: $card-box-shadow-hover;
+	transform: translateY(-1px);
+}
+
+.configure-landing__zone-tile.status-good.is-active {
+	background: $card-bg-good;
+	border-color: rgba($status-color-good, 0.45);
+}
+
+.configure-landing__zone-tile.status-warning.is-active {
+	background: $card-bg-warning;
+	border-color: rgba($status-color-warning, 0.45);
+}
+
+.configure-landing__zone-tile.status-critical.is-active {
+	background: $card-bg-critical;
+	border-color: rgba($status-color-critical, 0.45);
+}
+
+.configure-landing__zone-tile.is-disabled,
+.configure-landing__zone-tile.is-disabled:hover {
+	background: $surface-color-neutral-raised;
+	border-color: $border-color-neutral-subtle;
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: 0.7;
+	transform: none;
+}
+
+.configure-landing__zone-tile-header {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.configure-landing__zone-tile-icon {
+	align-items: center;
+	background: $surface-color-neutral-raised;
+	border-radius: 10px;
+	color: #4a5560;
+	display: inline-flex;
+	height: 32px;
+	justify-content: center;
+	width: 32px;
+}
+
+.configure-landing__zone-title {
+	font-size: 0.92rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.configure-landing__zone-stat {
+	color: #646970;
+	font-size: 0.78rem;
+	line-height: 1.3;
+}
+
+.configure-landing__zone-status {
+	border-radius: 12px;
+	display: inline-flex;
+	font-size: 0.68rem;
+	font-weight: 600;
+	line-height: 1.2;
+	padding: 0.2rem 0.55rem;
+	white-space: nowrap;
+}
+
+.configure-landing__zone-status.status-good {
+	background: $badge-good-bg;
+	color: $badge-good-color;
+}
+
+.configure-landing__zone-status.status-warning {
+	background: $badge-warning-bg;
+	color: $badge-warning-color;
+}
+
+.configure-landing__zone-status.status-critical {
+	background: $badge-critical-bg;
+	color: $badge-critical-color;
+}
+
+.configure-landing__component-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.configure-landing__component-row {
+	align-items: center;
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	display: flex;
+	gap: 0.6rem;
+	justify-content: space-between;
+	padding: 0.55rem 0.7rem;
+}
+
+.configure-landing__component-main {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.configure-landing__component-title {
+	font-size: 0.85rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.configure-landing__component-note {
+	color: #646970;
+	font-size: 0.74rem;
+	line-height: 1.3;
+}
+
+.configure-landing__panel-actions {
+	border-top: 1px solid $border-color-neutral-subtle;
+	padding-top: 0.75rem;
+}
+
+@media (min-width: 576px) {
+	.configure-landing__zone-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (min-width: 992px) {
+	.configure-landing__zone-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
