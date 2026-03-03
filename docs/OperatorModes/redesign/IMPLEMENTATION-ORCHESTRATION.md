@@ -393,7 +393,7 @@ No release branch integration before G3.
 | T0 | DONE | codex-gpt5 | 2026-03-03 11:43 UTC | 2026-03-03 11:54 UTC | T0 shared foundation implemented and verified (unit suite + asset build). |
 | T1 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:21 UTC | 2026-03-03 12:21 UTC | Claimed T1-01 for implementation. |
 | T2 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:24 UTC | 2026-03-03 12:24 UTC | Claimed T2-01 for implementation. |
-| T3 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:28 UTC | 2026-03-03 12:38 UTC | Claimed T3-02 and T3-04 for implementation. |
+| T3 | IN_PROGRESS | codex-gpt5 | 2026-03-03 12:28 UTC | 2026-03-03 13:02 UTC | T3-02,T3-03,T3-04 moved to READY_FOR_REVIEW; T3-01 remains NOT_STARTED pending T2 dependencies. |
 | QA | NOT_STARTED | - | - | - | - |
 
 Track status values must use the same vocabulary as tasks.
@@ -427,9 +427,9 @@ Track status transition rules:
 | T2-04 | T2 | Implement Select2 lookup and auto-load behavior contract | T2-02 | NOT_STARTED | - | - | - | - | - | - |
 | T2-05 | T2 | Remove tile exposure for Activity/Sessions/historical Traffic | T2-01 | NOT_STARTED | - | - | - | - | - | - |
 | T3-01 | T3 | Route old investigate URLs to redesigned panel contexts | T2-01,T2-02 | NOT_STARTED | - | - | - | - | - | - |
-| T3-02 | T3 | Apply minimal shell consistency to Reports landing | G0 | IN_PROGRESS | codex-gpt5 | develop | 2026-03-03 12:28 UTC | - | - | Claim initiated per Section 3.2. |
-| T3-03 | T3 | Apply minimal shell consistency to Actions Queue landing | G0 | NOT_STARTED | - | - | - | - | - | - |
-| T3-04 | T3 | Keep docs and prototypes aligned to locked decisions | - | IN_PROGRESS | codex-gpt5 | develop | 2026-03-03 12:38 UTC | - | - | Claim initiated per Section 3.2. |
+| T3-02 | T3 | Apply minimal shell consistency to Reports landing | G0 | READY_FOR_REVIEW | codex-gpt5 | develop | 2026-03-03 12:28 UTC | 2026-03-03 12:54 UTC | - | Files: tests/Integration/ActionRouter/ReportsRoutingIntegrationTest.php, tests/Unit/ActionRouter/Render/PageReportsLandingBehaviorTest.php. Tests: `composer test:unit -- --filter PageReportsLandingBehaviorTest`, `composer test:unit -- --filter PluginNavsOperatorModesTest`, `composer test:integration -- --filter ReportsRoutingIntegrationTest` (skipped: WP env unavailable). Risks: full integration execution pending WP test env. No forbidden edit zones crossed. Traceability: Section 2.2 T3 row + REDESIGN-OVERVIEW 4.4 + user-journeys Journey 6. |
+| T3-03 | T3 | Apply minimal shell consistency to Actions Queue landing | G0 | READY_FOR_REVIEW | codex-gpt5 | develop | 2026-03-03 12:58 UTC | 2026-03-03 13:02 UTC | - | Files: tests/Integration/ActionRouter/ActionsQueueLandingPageIntegrationTest.php. Tests: `composer test:unit -- --filter PageActionsQueueLandingBehaviorTest`, `composer test:unit -- --filter ModeLandingInheritanceTest`, `composer test:unit -- --filter PluginNavsOperatorModesTest`, `composer test:unit -- --filter BuildBreadCrumbsOperatorModesTest`, `composer test:integration -- --filter ActionsQueueLandingPageIntegrationTest` (skipped: WP env unavailable). Risks: full integration execution pending WP test env. No forbidden edit zones crossed. Traceability: Section 2.2 T3 row + REDESIGN-OVERVIEW 4.5 + user-journeys Journey 1. |
+| T3-04 | T3 | Keep docs and prototypes aligned to locked decisions | - | READY_FOR_REVIEW | codex-gpt5 | develop | 2026-03-03 12:38 UTC | 2026-03-03 13:02 UTC | - | Files: docs/OperatorModes/redesign/prototype-configure-unified.html, docs/OperatorModes/redesign/prototype-reports-alerts.html, docs/OperatorModes/redesign/IMPLEMENTATION-ORCHESTRATION.md. Tests: N/A (docs/prototype alignment only); validation via `rg` checks for stale REM-009 wording and locked-scope notes retained. Risks: none beyond normal review pass. No forbidden edit zones crossed (T3-04 owns docs path). Traceability: Section 2.2 T3 row + REDESIGN-OVERVIEW 4.4/4.5 + orchestration 6.1 rule 6. |
 | QA-01 | Cross | Update/unit integration tests for changed contracts/routes | T1-03,T2-05,T3-01,T3-02,T3-03 | NOT_STARTED | - | - | - | - | - | - |
 | QA-02 | Cross | Full regression run and signoff notes | QA-01,T3-04 | NOT_STARTED | - | - | - | - | - | - |
 

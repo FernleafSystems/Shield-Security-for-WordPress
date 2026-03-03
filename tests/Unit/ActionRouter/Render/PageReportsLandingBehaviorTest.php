@@ -84,12 +84,17 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 	public function test_landing_strings_include_section_headings_and_reports_list_cta() :void {
 		$page = new PageReportsLanding();
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
+		$workspaceDefinitions = PluginNavs::reportsWorkspaceDefinitions();
 
 		$this->assertSame( 'Activity Overview', $strings[ 'charts_title' ] ?? '' );
 		$this->assertSame( 'Recent Reports', $strings[ 'recent_reports_title' ] ?? '' );
-		$this->assertSame( 'Open Reports List', $strings[ 'cta_reports_list' ] ?? '' );
-		$this->assertNotSame( '', \trim( (string)( $strings[ 'cta_reports_charts' ] ?? '' ) ) );
-		$this->assertNotSame( '', \trim( (string)( $strings[ 'cta_reports_settings' ] ?? '' ) ) );
+		foreach ( $workspaceDefinitions as $subNav => $definition ) {
+			$this->assertSame(
+				$definition[ 'landing_cta' ],
+				$strings[ 'cta_reports_'.$subNav ] ?? '',
+				'Landing CTA mismatch for reports workspace subnav '.$subNav
+			);
+		}
 	}
 
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {

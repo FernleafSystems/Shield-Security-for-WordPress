@@ -39,6 +39,11 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_reports_overview_renders_structured_sections_and_contextual_cta() :void {
 		$xpath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_OVERVIEW );
 		$this->assertModeShellAndAccentContract( $xpath, 'reports', 'warning', 'Reports' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-header ") and contains(concat(" ", normalize-space(@class), " "), " inner-page-header-compact ")]',
+			'Reports compact header marker'
+		);
 		$this->assertXPathExists( $xpath, '//*[@data-reports-section="charts"]', 'Reports overview charts section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-reports-heading="charts"]', 'Reports overview charts heading marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="summary-charts"]', 'Reports overview summary charts content marker' );
@@ -50,6 +55,9 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reports-list"]', 1, 'Reports overview contextual reports-list CTA marker count' );
 		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reports-charts"]', 0, 'Reports overview no charts CTA marker' );
 		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reports-settings"]', 0, 'Reports overview no settings CTA marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-tiles="1"]', 0, 'Reports overview does not introduce mode tile grid' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', 0, 'Reports overview does not introduce mode tiles' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', 0, 'Reports overview does not introduce mode panel shell' );
 	}
 
 	public function test_reports_workspace_routes_render_expected_structural_markers() :void {
