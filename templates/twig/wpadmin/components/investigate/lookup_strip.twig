@@ -1,8 +1,13 @@
+{% set lookup_behavior = lookup_behavior|default({}) %}
+{% set is_panel_form = lookup_behavior.panel_form|default(panel_form|default(false)) %}
+{% set is_select2 = lookup_behavior.use_select2|default(use_select2|default(false)) %}
+{% set is_auto_submit_on_change = lookup_behavior.auto_submit_on_change|default(auto_submit_on_change|default(false)) %}
+
 <section class="investigate-lookup-strip">
 	<form method="get"
 		  action="{{ action }}"
 		  class="investigate-lookup-strip__form"
-		  {% if panel_form|default(false) %}
+		  {% if is_panel_form %}
 		  data-investigate-panel-form="1"
 		  {% endif %}>
 		{% include '/wpadmin/components/investigate/lookup_route_hidden_inputs.twig' with {
@@ -13,11 +18,11 @@
 			<label class="form-label mb-1">{{ label }}</label>
 			{% if input_type == 'select' %}
 				<select name="{{ input_name }}"
-						class="form-select{% if use_select2|default(false) %} investigate-lookup-select2{% endif %}"
-						{% if use_select2|default(false) %}
+						class="form-select{% if is_select2 %} investigate-lookup-select2{% endif %}"
+						{% if is_select2 %}
 						data-investigate-select2="1"
 						{% endif %}
-						{% if auto_submit_on_change|default(false) %}
+						{% if is_auto_submit_on_change %}
 						data-investigate-auto-submit="1"
 						{% endif %}>
 					<option value="">{{ placeholder|default('') }}</option>

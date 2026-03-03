@@ -89,12 +89,13 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'related_ips_empty'   => __( 'No related IP addresses were found.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'user_lookup'    => $lookup,
-				'lookup_route'   => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
-				'overview_rows'  => $overviewRows,
-				'rail_nav_items' => $railNavItems,
-				'tables'         => $tables,
-				'related_ips'    => $relatedIps,
+				'user_lookup'      => $lookup,
+				'lookup_route'     => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
+				'lookup_behavior'  => $this->buildLookupBehaviorContract(),
+				'overview_rows'    => $overviewRows,
+				'rail_nav_items'   => $railNavItems,
+				'tables'           => $tables,
+				'related_ips'      => $relatedIps,
 			],
 		];
 	}

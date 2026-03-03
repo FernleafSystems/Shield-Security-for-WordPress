@@ -47,8 +47,9 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				'no_subject_text'     => __( 'Enter a valid IP address to load investigate context for that subject.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'analyse_ip'   => $lookup,
-				'lookup_route' => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
+				'analyse_ip'      => $lookup,
+				'lookup_route'    => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
+				'lookup_behavior' => $this->buildLookupBehaviorContract(),
 			],
 			'content' => [
 				'ip_analysis' => $ipAnalysis,

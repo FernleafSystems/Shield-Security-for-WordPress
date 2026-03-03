@@ -62,6 +62,14 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_route' ] ?? []
 		);
+		$this->assertSame(
+			[
+				'panel_form'            => true,
+				'use_select2'           => false,
+				'auto_submit_on_change' => false,
+			],
+			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
+		);
 	}
 
 	public function test_invalid_lookup_sets_has_lookup_without_subject() :void {

@@ -66,6 +66,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				$this->getLookupQueryKey()      => $lookup,
 				$this->getLookupOptionsVarKey() => $this->buildLookupOptions(),
 				'lookup_route'                  => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
+				'lookup_behavior'               => $this->buildLookupBehaviorContract( true, true, true ),
 				'tabs'                          => $tabs,
 				'rail_nav_items'                => $railNavItems,
 				'tables'                        => $tables,

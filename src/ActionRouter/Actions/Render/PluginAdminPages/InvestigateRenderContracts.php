@@ -7,6 +7,25 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 trait InvestigateRenderContracts {
 
+	/**
+	 * @return array{
+	 *   panel_form:bool,
+	 *   use_select2:bool,
+	 *   auto_submit_on_change:bool
+	 * }
+	 */
+	protected function buildLookupBehaviorContract(
+		bool $panelForm = true,
+		bool $useSelect2 = false,
+		bool $autoSubmitOnChange = false
+	) :array {
+		return [
+			'panel_form'            => $panelForm,
+			'use_select2'           => $useSelect2,
+			'auto_submit_on_change' => $autoSubmitOnChange,
+		];
+	}
+
 	protected function buildLookupRouteContract( string $subNav ) :array {
 		return [
 			'page'    => self::con()->plugin_urls->rootAdminPageSlug(),

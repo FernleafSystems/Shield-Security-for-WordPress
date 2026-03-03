@@ -19,7 +19,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
-use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Services\Core\{
+	General,
+	Request,
+	Users
+};
 
 class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
@@ -34,6 +38,36 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( '__' )->alias( fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
+		);
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
+		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
 		);
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installServices();
@@ -67,6 +101,8 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'is_enabled',
 				'is_disabled',
 				'is_pro',
+				'is_loaded',
+				'is_live',
 				'title',
 				'icon_class',
 				'status',
@@ -85,12 +121,19 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
 		foreach ( [ 'user', 'ip', 'plugin', 'theme', 'core', 'live_traffic' ] as $enabledKey ) {
 			$this->assertTrue( $subjectsByKey[ $enabledKey ][ 'is_enabled' ] );
+			$this->assertFalse( $subjectsByKey[ $enabledKey ][ 'is_loaded' ] );
 			$this->assertNotSame( [], $subjectsByKey[ $enabledKey ][ 'render_action' ] );
-			$this->assertStringContainsString( 'body-for:', $subjectsByKey[ $enabledKey ][ 'panel_body' ] );
+			$this->assertStringContainsString( 'Loading investigation panel...', $subjectsByKey[ $enabledKey ][ 'panel_body' ] );
+		}
+
+		$this->assertTrue( $subjectsByKey[ 'live_traffic' ][ 'is_live' ] );
+		foreach ( [ 'user', 'ip', 'plugin', 'theme', 'core', 'premium_integrations' ] as $nonLiveKey ) {
+			$this->assertFalse( $subjectsByKey[ $nonLiveKey ][ 'is_live' ] );
 		}
 
 		$this->assertFalse( $subjectsByKey[ 'premium_integrations' ][ 'is_enabled' ] );
 		$this->assertTrue( $subjectsByKey[ 'premium_integrations' ][ 'is_disabled' ] );
+		$this->assertFalse( $subjectsByKey[ 'premium_integrations' ][ 'is_loaded' ] );
 		$this->assertSame( [], $subjectsByKey[ 'premium_integrations' ][ 'render_action' ] );
 		$this->assertSame( '', $subjectsByKey[ 'premium_integrations' ][ 'panel_body' ] );
 	}
@@ -107,6 +150,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertCount( 7, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
+		$this->assertArrayHasKey( 'batch_render_action', $renderData[ 'vars' ] ?? [] );
 	}
 
 	public function test_active_panel_context_is_derived_from_subject_and_lookup_action_data() :void {
@@ -129,6 +173,11 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			'analyse_ip=203.0.113.99',
 			$subjectsByKey[ 'ip' ][ 'panel_body' ] ?? ''
 		);
+		$this->assertTrue( $subjectsByKey[ 'ip' ][ 'is_loaded' ] ?? false );
+		foreach ( [ 'user', 'plugin', 'theme', 'core', 'live_traffic' ] as $key ) {
+			$this->assertFalse( $subjectsByKey[ $key ][ 'is_loaded' ] ?? true );
+		}
+		$this->assertCount( 1, $this->renderCapture->calls );
 	}
 
 	public function test_subject_panel_payload_is_cached_per_instance() :void {
@@ -137,7 +186,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->invokeProtectedMethod( $page, 'getLandingTiles' );
 		$this->invokeProtectedMethod( $page, 'getLandingVars' );
 
-		$this->assertCount( 6, $this->renderCapture->calls );
+		$this->assertCount( 0, $this->renderCapture->calls );
 	}
 
 	private function installControllerStub() :void {
@@ -189,6 +238,24 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
 				public function query( $key, $default = null ) {
 					return $this->queryValues[ $key ] ?? $default;
+				}
+
+				public function ip() :string {
+					return '127.0.0.1';
+				}
+
+				public function ts( bool $update = true ) :int {
+					return 1700000000;
+				}
+			},
+			'service_wpgeneral' => new class extends General {
+				public function ajaxURL() :string {
+					return '/admin-ajax.php';
+				}
+			},
+			'service_wpusers' => new class extends Users {
+				public function getCurrentWpUserId() {
+					return 1;
 				}
 			},
 		] );

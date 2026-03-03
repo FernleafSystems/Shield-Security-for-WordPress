@@ -50,6 +50,28 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'info', $normalized[ 'empty_status' ] ?? '' );
 		$this->assertSame( '', $normalized[ 'empty_text' ] ?? 'missing' );
 	}
+
+	public function test_lookup_behavior_contract_defaults_and_overrides() :void {
+		$subject = new InvestigateRenderContractsTestDouble();
+
+		$this->assertSame(
+			[
+				'panel_form'            => true,
+				'use_select2'           => false,
+				'auto_submit_on_change' => false,
+			],
+			$subject->lookupBehavior()
+		);
+
+		$this->assertSame(
+			[
+				'panel_form'            => true,
+				'use_select2'           => true,
+				'auto_submit_on_change' => true,
+			],
+			$subject->lookupBehavior( true, true, true )
+		);
+	}
 }
 
 class InvestigateRenderContractsTestDouble {
@@ -58,5 +80,9 @@ class InvestigateRenderContractsTestDouble {
 
 	public function normalizeTableContract( array $table ) :array {
 		return $this->normalizeInvestigationTableContract( $table );
+	}
+
+	public function lookupBehavior( bool $panelForm = true, bool $useSelect2 = false, bool $autoSubmit = false ) :array {
+		return $this->buildLookupBehaviorContract( $panelForm, $useSelect2, $autoSubmit );
 	}
 }

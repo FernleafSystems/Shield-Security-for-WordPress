@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
+	Actions\AjaxBatchRequests,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -12,6 +13,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_investigate_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_landing.twig';
+	private const SUBJECT_LIVE_TRAFFIC = 'live_traffic';
 
 	/**
 	 * @var array<string,array{
@@ -40,6 +42,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
 	 *   is_pro:bool,
+	 *   is_loaded:bool,
+	 *   is_live:bool,
 	 *   title:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -107,14 +111,17 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'label_pro' => __( 'PRO', 'wp-simple-firewall' ),
+			'label_pro'        => __( 'PRO', 'wp-simple-firewall' ),
+			'panel_loading'    => $this->getPanelLoadingMessage(),
+			'panel_load_error' => $this->getPanelLoadErrorMessage(),
 		];
 	}
 
 	protected function getLandingVars() :array {
 		return [
-			'subjects'       => $this->getSubjectsPayload(),
-			'active_subject' => $this->getActiveSubject(),
+			'subjects'            => $this->getSubjectsPayload(),
+			'active_subject'      => $this->getActiveSubject(),
+			'batch_render_action' => ActionData::Build( AjaxBatchRequests::class ),
 		];
 	}
 
@@ -125,6 +132,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
 	 *   is_pro:bool,
+	 *   is_loaded:bool,
+	 *   is_live:bool,
 	 *   title:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -149,6 +158,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
 	 *   is_pro:bool,
+	 *   is_loaded:bool,
+	 *   is_live:bool,
 	 *   title:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -164,23 +175,52 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		$subjects = [];
 		foreach ( $this->getSubjectDefinitions() as $subject ) {
 			$isEnabled = $subject[ 'is_enabled' ];
+			$isLoaded = $this->shouldPreloadSubjectPanel( $subject, $activeSubject );
 			$subjects[] = [
 				'key'          => $subject[ 'key' ],
 				'panel_target' => $subject[ 'key' ],
 				'is_enabled'   => $isEnabled,
 				'is_disabled'  => !$isEnabled,
 				'is_pro'       => $subject[ 'is_pro' ],
+				'is_loaded'    => $isLoaded,
+				'is_live'      => $this->isLiveTrafficSubject( $subject ),
 				'title'        => $subject[ 'label' ],
 				'icon_class'   => $subject[ 'icon_class' ],
 				'status'       => $subject[ 'status' ],
 				'stat_text'    => $subject[ 'stat_text' ],
 				'panel_title'  => $subject[ 'panel_title' ],
 				'panel_status' => $subject[ 'panel_status' ],
-				'panel_body'   => $this->buildSubjectPanelBody( $subject, $activeSubject ),
+				'panel_body'   => $isLoaded
+					? $this->buildSubjectPanelBody( $subject, $activeSubject )
+					: $this->buildSubjectUnloadedPanelBody( $subject ),
 				'render_action' => $isEnabled ? $this->buildPanelRenderActionData( $subject ) : [],
 			];
 		}
 		return $subjects;
+	}
+
+	/**
+	 * @param array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   status:string,
+	 *   stat_text:string,
+	 *   subnav_hint:string|null,
+	 *   panel_title:string,
+	 *   panel_status:string,
+	 *   render_action:string,
+	 *   render_nav:string,
+	 *   render_subnav:string,
+	 *   lookup_key:string|null,
+	 *   is_enabled:bool,
+	 *   is_pro:bool
+	 * } $subject
+	 */
+	private function shouldPreloadSubjectPanel( array $subject, string $activeSubject ) :bool {
+		return $subject[ 'is_enabled' ]
+			   && !empty( $subject[ 'render_action' ] )
+			   && $subject[ 'key' ] === $activeSubject;
 	}
 
 	/**
@@ -270,11 +310,68 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 		if ( empty( \trim( $panelBody ) ) ) {
 			$panelBody = '<div class="alert alert-warning mb-0">'
-						 .__( 'Unable to load this investigation panel. Please try again.', 'wp-simple-firewall' )
+						 .$this->getPanelLoadErrorMessage()
 						 .'</div>';
 		}
 
 		return $panelBody;
+	}
+
+	/**
+	 * @param array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   status:string,
+	 *   stat_text:string,
+	 *   subnav_hint:string|null,
+	 *   panel_title:string,
+	 *   panel_status:string,
+	 *   render_action:string,
+	 *   render_nav:string,
+	 *   render_subnav:string,
+	 *   lookup_key:string|null,
+	 *   is_enabled:bool,
+	 *   is_pro:bool
+	 * } $subject
+	 */
+	private function buildSubjectUnloadedPanelBody( array $subject ) :string {
+		if ( !$subject[ 'is_enabled' ] || empty( $subject[ 'render_action' ] ) ) {
+			return '';
+		}
+		return '<div class="text-muted small" data-investigate-panel-placeholder="1">'
+			   .$this->getPanelLoadingMessage()
+			   .'</div>';
+	}
+
+	/**
+	 * @param array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   status:string,
+	 *   stat_text:string,
+	 *   subnav_hint:string|null,
+	 *   panel_title:string,
+	 *   panel_status:string,
+	 *   render_action:string,
+	 *   render_nav:string,
+	 *   render_subnav:string,
+	 *   lookup_key:string|null,
+	 *   is_enabled:bool,
+	 *   is_pro:bool
+	 * } $subject
+	 */
+	private function isLiveTrafficSubject( array $subject ) :bool {
+		return $subject[ 'key' ] === self::SUBJECT_LIVE_TRAFFIC;
+	}
+
+	private function getPanelLoadingMessage() :string {
+		return __( 'Loading investigation panel...', 'wp-simple-firewall' );
+	}
+
+	private function getPanelLoadErrorMessage() :string {
+		return __( 'Unable to load this investigation panel. Please try again.', 'wp-simple-firewall' );
 	}
 
 	private function getActiveSubject() :string {

@@ -62,6 +62,14 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_route' ] ?? []
 		);
+		$this->assertSame(
+			[
+				'panel_form'            => true,
+				'use_select2'           => true,
+				'auto_submit_on_change' => true,
+			],
+			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
+		);
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {

@@ -90,9 +90,33 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			6,
 			'Investigate inline panel marker count'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1" and @data-investigate-batch-action]',
+			'Investigate landing batch action marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1" and @data-investigate-panel-error]',
+			'Investigate landing panel error marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigate-panel and @data-investigate-panel-loaded="0"]',
+			6,
+			'Investigate landing preloads only active panel marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigate-panel and @data-investigate-panel-live="1"]',
+			1,
+			'Investigate landing live panel marker'
+		);
 		$this->assertSharedModePanelMarkerCount( $xpath, 6, 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-panel', 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-render-action', 'Investigate' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-panel-loaded', 'Investigate' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-panel-live', 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-target-default', 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-static-target', 'Investigate' );
 	}

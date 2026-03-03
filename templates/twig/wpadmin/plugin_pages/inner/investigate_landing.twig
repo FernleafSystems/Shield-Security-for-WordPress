@@ -3,7 +3,10 @@
 {% block inner_page_body %}
 	{% set active_subject = vars.active_subject|default('') %}
 
-	<div class="investigate-landing" data-investigate-landing="1">
+	<div class="investigate-landing"
+		 data-investigate-landing="1"
+		 data-investigate-batch-action="{{ vars.batch_render_action|default({})|json_encode|e('html_attr') }}"
+		 data-investigate-panel-error="{{ strings.panel_load_error|default('')|e('html_attr') }}">
 		<section class="investigate-landing__selector-shell" data-investigate-section="selector">
 			<div class="investigate-landing__subject-grid" data-mode-tiles="1">
 				{% for subject in vars.subjects %}
@@ -66,6 +69,8 @@
 					body: subject.panel_body,
 					data: {
 						'investigate-panel': subject.key,
+						'investigate-panel-loaded': subject.is_loaded ? '1' : '0',
+						'investigate-panel-live': subject.is_live ? '1' : '0',
 						'investigate-render-action': subject.render_action|default({})|json_encode
 					}
 				},

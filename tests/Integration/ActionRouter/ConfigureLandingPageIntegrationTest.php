@@ -79,6 +79,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertSharedModePanelMarkerCount( $xpath, 8, 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'configure-panel', 'Configure' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-target-default', 'Configure' );
+		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-static-target', 'Configure' );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-panel="secadmin"]//*[@data-configure-zone-settings="secadmin"]',
