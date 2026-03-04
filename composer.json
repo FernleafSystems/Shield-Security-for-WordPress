@@ -88,15 +88,15 @@
     ],
     "test:unit":        [
       "@build:config",
-      "@php bin/run-unit-tests.php"
+      "@php bin/run-unit-tests.php --runner-mode=auto"
     ],
     "test:unit:serial": [
       "@build:config",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml"
+      "@php bin/run-unit-tests.php --runner-mode=serial"
     ],
     "test:unit:parallel": [
       "@build:config",
-      "@php vendor/brianium/paratest/bin/paratest -c phpunit-unit.xml --runner WrapperRunner --processes=auto --no-coverage"
+      "@php bin/run-unit-tests.php --runner-mode=parallel"
     ],
     "test:unit:verify-power": [
       "@test:unit:serial",

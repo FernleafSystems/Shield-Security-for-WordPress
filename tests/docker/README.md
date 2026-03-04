@@ -48,7 +48,7 @@ php bin/run-docker-tests.php --help
 | `PHP_VERSION` | from `.github/config/matrix.conf` (`DEFAULT_PHP`) | Select PHP version used by runner |
 | `PHPUNIT_DEBUG` | auto-resolved | Force PHPUnit debug on/off (`1` or `0`) |
 | `SHIELD_TEST_VERBOSE` | `0` | Canonical verbose flag; enables debug behavior |
-| `SHIELD_PARATEST` | `1` | Unit runner mode in Docker runtime lanes (`1` = ParaTest, `0` = serial PHPUnit) |
+| `SHIELD_UNIT_TEST_MODE` | `parallel` | Unit runner mode in Docker runtime lanes (`auto`, `parallel`, or `serial`) |
 | `SHIELD_DEBUG` / `SHIELD_DEBUG_PATHS` | unset | Legacy verbose aliases |
 | `DEBUG_MODE` | `false` | Optional extra bash/process monitoring for custom local debug runs |
 
@@ -60,11 +60,12 @@ php bin/run-docker-tests.php --help
 4. CI/GitHub Actions defaults debug off.
 5. Local defaults debug on.
 
-`SHIELD_PARATEST` behavior in `bin/run-tests-docker.sh`:
+`SHIELD_UNIT_TEST_MODE` behavior in `bin/run-tests-docker.sh`:
 
-1. Default is ParaTest for unit stage.
-2. Set `SHIELD_PARATEST=0` to force serial PHPUnit for unit stage.
-3. Integration stage remains serial PHPUnit.
+1. Default is `parallel` for unit stage.
+2. Set `SHIELD_UNIT_TEST_MODE=auto` to allow filter-aware serial fallback.
+3. Set `SHIELD_UNIT_TEST_MODE=serial` to force serial PHPUnit.
+4. Integration stage remains serial PHPUnit.
 
 ## Runtime Topology
 

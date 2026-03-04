@@ -67,46 +67,16 @@ jobs:
 
   unit-parallel:
     name: 'Unit Parallel'
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2
-
-    - name: Install dependencies
-      run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
-    - name: Run unit tests (parallel default)
-      run: composer test:unit
+    uses: ./.github/workflows/reusable-unit-tests.yml
+    with:
+      run_command: composer test:unit
 
   unit-serial-sentinel:
     name: 'Unit Serial Sentinel'
-    runs-on: ubuntu-latest
-    continue-on-error: true
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2
-
-    - name: Install dependencies
-      run: composer install --no-interaction --prefer-dist --optimize-autoloader
-
-    - name: Run unit tests in serial (sentinel)
-      run: composer test:unit:serial
+    uses: ./.github/workflows/reusable-unit-tests.yml
+    with:
+      run_command: composer test:unit:serial
+      allow_failure: true
 
   source-docker-runtime:
     name: 'Source Docker Runtime'

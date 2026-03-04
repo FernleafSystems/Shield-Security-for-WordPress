@@ -17,16 +17,13 @@ class PowerTestToolingContractTest extends TestCase {
 		$this->assertIsArray( $scripts[ 'test:unit:parallel' ] ?? null );
 		$this->assertIsArray( $scripts[ 'test:unit:verify-power' ] ?? null );
 		$this->assertContains( '@build:config', $scripts[ 'test:unit' ] );
-		$this->assertContains( '@php bin/run-unit-tests.php', $scripts[ 'test:unit' ] );
+		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=auto', $scripts[ 'test:unit' ] );
 
 		$serial = \implode( ' ', $scripts[ 'test:unit:serial' ] );
-		$this->assertStringContainsString( 'vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml', $serial );
+		$this->assertStringContainsString( 'bin/run-unit-tests.php --runner-mode=serial', $serial );
 
 		$parallel = \implode( ' ', $scripts[ 'test:unit:parallel' ] );
-		$this->assertStringContainsString( 'vendor/brianium/paratest/bin/paratest -c phpunit-unit.xml', $parallel );
-		$this->assertStringContainsString( '--runner WrapperRunner', $parallel );
-		$this->assertStringContainsString( '--processes=auto', $parallel );
-		$this->assertStringContainsString( '--no-coverage', $parallel );
+		$this->assertStringContainsString( 'bin/run-unit-tests.php --runner-mode=parallel', $parallel );
 
 		$this->assertSame(
 			[ '@test:unit:serial', '@test:unit:parallel' ],

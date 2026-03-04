@@ -13,10 +13,26 @@ class UnitTestExecutionSelectorTest extends TestCase {
 		$this->assertTrue( $selector->shouldUseSerialPhpUnit( [ '--filter=FooTest' ] ) );
 	}
 
-	public function testShouldUseParatestWhenNoFilterArgProvided() :void {
+	public function testShouldUseParatestWhenNoFilterArgProvidedInAutoMode() :void {
 		$selector = new UnitTestExecutionSelector();
 		$this->assertFalse( $selector->shouldUseSerialPhpUnit( [ 'tests/Unit/Rules' ] ) );
 		$this->assertFalse( $selector->shouldUseSerialPhpUnit( [ '--group', 'fast' ] ) );
+	}
+
+	public function testExplicitModeOverridesAutoFilterHeuristic() :void {
+		$selector = new UnitTestExecutionSelector();
+		$this->assertTrue(
+			$selector->shouldUseSerialPhpUnit(
+				[ 'tests/Unit/UnitTestExecutionSelectorTest.php' ],
+				UnitTestExecutionSelector::MODE_SERIAL
+			)
+		);
+		$this->assertFalse(
+			$selector->shouldUseSerialPhpUnit(
+				[ '--filter', 'FooTest' ],
+				UnitTestExecutionSelector::MODE_PARALLEL
+			)
+		);
 	}
 
 	public function testBuildCommandUsesSerialPhpUnitWhenFilterIsPresent() :void {
@@ -39,5 +55,33 @@ class UnitTestExecutionSelectorTest extends TestCase {
 		$this->assertContains( 'WrapperRunner', $command );
 		$this->assertContains( '--processes=auto', $command );
 		$this->assertContains( '--no-coverage', $command );
+	}
+
+	public function testBuildCommandUsesExplicitSerialMode() :void {
+		$selector = new UnitTestExecutionSelector();
+		$command = $selector->buildCommand(
+			[ 'tests/Unit/UnitTestExecutionSelectorTest.php' ],
+			UnitTestExecutionSelector::MODE_SERIAL
+		);
+
+		$this->assertContains( './vendor/phpunit/phpunit/phpunit', $command );
+		$this->assertNotContains( './vendor/brianium/paratest/bin/paratest', $command );
+	}
+
+	public function testBuildCommandUsesExplicitParallelMode() :void {
+		$selector = new UnitTestExecutionSelector();
+		$command = $selector->buildCommand(
+			[ '--filter', 'FooTest', 'tests/Unit/UnitTestExecutionSelectorTest.php' ],
+			UnitTestExecutionSelector::MODE_PARALLEL
+		);
+
+		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $command );
+		$this->assertNotContains( './vendor/phpunit/phpunit/phpunit', $command );
+	}
+
+	public function testInvalidModeThrows() :void {
+		$selector = new UnitTestExecutionSelector();
+		$this->expectException( \InvalidArgumentException::class );
+		$selector->buildCommand( [ 'tests/Unit' ], 'bogus' );
 	}
 }

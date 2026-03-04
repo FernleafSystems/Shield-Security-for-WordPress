@@ -1,0 +1,37 @@
+name: Reusable Unit Tests
+
+on:
+  workflow_call:
+    inputs:
+      run_command:
+        description: Unit test command to execute
+        required: true
+        type: string
+      allow_failure:
+        description: Mark command failures as advisory warnings
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Run unit command
+      continue-on-error: ${{ inputs.allow_failure }}
+      run: ${{ inputs.run_command }}

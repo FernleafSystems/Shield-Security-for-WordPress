@@ -237,28 +237,25 @@ if [ -n "$SHIELD_PACKAGE_PATH" ]; then
     echo " Passing SHIELD_PACKAGE_PATH to PHPUnit: $SHIELD_PACKAGE_PATH"
 fi
 
-# Unit runner defaults to ParaTest unless explicitly disabled.
-SHIELD_PARATEST_RESOLVED=1
-if [ -n "${SHIELD_PARATEST:-}" ] && ! is_truthy "${SHIELD_PARATEST:-}"; then
-    SHIELD_PARATEST_RESOLVED=0
-fi
+# Unit runner mode defaults to explicit parallel execution.
+SHIELD_UNIT_TEST_MODE_RESOLVED="${SHIELD_UNIT_TEST_MODE:-parallel}"
+case "$SHIELD_UNIT_TEST_MODE_RESOLVED" in
+    auto|parallel|serial)
+        ;;
+    *)
+        echo "ERROR: Invalid SHIELD_UNIT_TEST_MODE value: $SHIELD_UNIT_TEST_MODE_RESOLVED"
+        echo "Expected one of: auto, parallel, serial"
+        exit 1
+        ;;
+esac
 
 # Run Unit Tests
 echo "Running Unit Tests..."
-if [ "$SHIELD_PARATEST_RESOLVED" = "1" ]; then
-    echo "Unit test runner: ParaTest (WrapperRunner)"
-    if [ -n "$PHPUNIT_ENV" ]; then
-        env $PHPUNIT_ENV vendor/brianium/paratest/bin/paratest -c phpunit-unit.xml --runner WrapperRunner --processes=auto --no-coverage $PHPUNIT_EXTRA_FLAGS
-    else
-        vendor/brianium/paratest/bin/paratest -c phpunit-unit.xml --runner WrapperRunner --processes=auto --no-coverage $PHPUNIT_EXTRA_FLAGS
-    fi
+echo "Unit test runner mode: $SHIELD_UNIT_TEST_MODE_RESOLVED"
+if [ -n "$PHPUNIT_ENV" ]; then
+    env $PHPUNIT_ENV php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
 else
-    echo "Unit test runner: PHPUnit (serial)"
-    if [ -n "$PHPUNIT_ENV" ]; then
-        env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
-    else
-        vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
-    fi
+    php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
 fi
 
 # Run Integration Tests

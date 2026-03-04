@@ -1,8 +1,7 @@
 #!/usr/bin/env php
 <?php declare( strict_types=1 );
 
-use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\UnitTestExecutionSelector;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\UnitTestScriptRunner;
 use Symfony\Component\Filesystem\Path;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
@@ -11,10 +10,8 @@ $rootDir = Path::normalize( dirname( __DIR__ ) );
 $args = \array_slice( $_SERVER[ 'argv' ] ?? [], 1 );
 
 try {
-	$selector = new UnitTestExecutionSelector();
-	$command = $selector->buildCommand( $args );
 	exit(
-		( new ProcessRunner() )->runForExitCode( $command, $rootDir )
+		( new UnitTestScriptRunner() )->run( $args, $rootDir )
 	);
 }
 catch ( \Throwable $throwable ) {

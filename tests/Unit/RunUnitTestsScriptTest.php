@@ -22,25 +22,59 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 
 		$commands = $this->getComposerScriptCommands( 'test:unit' );
 		$this->assertContains( '@build:config', $commands );
-		$this->assertContains( '@php bin/run-unit-tests.php', $commands );
+		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=auto', $commands );
 	}
 
-	public function testRunUnitTestsUsesParatestWhenNoFilterIsPassed() :void {
-		$this->skipIfPackageScriptUnavailable();
+	public function testComposerUnitSerialScriptUsesDispatcher() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
 
-		$process = $this->runPhpScript( 'bin/run-unit-tests.php', [ 'tests/Unit/UnitTestExecutionSelectorTest.php' ] );
-		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
-		$this->assertStringContainsString( 'ParaTest', $this->processOutput( $process ) );
+		$commands = $this->getComposerScriptCommands( 'test:unit:serial' );
+		$this->assertContains( '@build:config', $commands );
+		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=serial', $commands );
 	}
 
-	public function testRunUnitTestsFallsBackToSerialWhenFilterIsPassed() :void {
+	public function testComposerUnitParallelScriptUsesDispatcher() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
+
+		$commands = $this->getComposerScriptCommands( 'test:unit:parallel' );
+		$this->assertContains( '@build:config', $commands );
+		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=parallel', $commands );
+	}
+
+	public function testRunUnitTestsAutoModeExecutesSuccessfully() :void {
 		$this->skipIfPackageScriptUnavailable();
 
 		$process = $this->runPhpScript(
 			'bin/run-unit-tests.php',
-			[ '--filter', 'testBuildCommandUsesSerialPhpUnitWhenFilterIsPresent', 'tests/Unit/UnitTestExecutionSelectorTest.php' ]
+			[ '--runner-mode=auto', 'tests/Unit/UnitTestExecutionSelectorTest.php' ]
 		);
 		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
-		$this->assertStringContainsString( 'PHPUnit', $this->processOutput( $process ) );
+	}
+
+	public function testRunUnitTestsAutoModeFilterExecutesSuccessfully() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript(
+			'bin/run-unit-tests.php',
+			[
+				'--runner-mode=auto',
+				'--filter',
+				'testBuildCommandUsesSerialPhpUnitWhenFilterIsPresent',
+				'tests/Unit/UnitTestExecutionSelectorTest.php',
+			]
+		);
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+	}
+
+	public function testRunUnitTestsFailsOnInvalidMode() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/run-unit-tests.php', [ '--runner-mode=bogus' ] );
+		$this->assertSame( 1, $process->getExitCode() ?? 0 );
+		$this->assertStringContainsString( 'Invalid unit test runner mode', $this->processOutput( $process ) );
 	}
 }

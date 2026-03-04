@@ -201,10 +201,10 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		}
 	}
 
-	public function testSourceModeForwardsShieldParatestToDockerProcesses() :void {
+	public function testSourceModeForwardsShieldUnitTestModeToDockerProcesses() :void {
 		$this->skipIfPackageScriptUnavailable();
 
-		$shimDir = $this->createTrackedTempDir( 'shield-docker-paratest-shims-' );
+		$shimDir = $this->createTrackedTempDir( 'shield-docker-unit-mode-shims-' );
 		$capturePath = Path::join( $shimDir, 'captured-docker-env.txt' );
 		$this->writeDockerEnvCaptureShim( $shimDir );
 		$this->writeBashVersionShim( $shimDir );
@@ -213,7 +213,7 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$env = [
 			'PATH' => $shimDir.\PATH_SEPARATOR.( \is_string( $path ) ? $path : '' ),
 			'SHIELD_TEST_DOCKER_CAPTURE' => $capturePath,
-			'SHIELD_PARATEST' => '0',
+			'SHIELD_UNIT_TEST_MODE' => 'serial',
 		];
 		if ( \PHP_OS_FAMILY === 'Windows' ) {
 			$pathExt = \getenv( 'PATHEXT' );
@@ -230,7 +230,7 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		$this->assertNotEmpty( $capturedLines );
 
 		foreach ( $capturedLines as $line ) {
-			$this->assertStringContainsString( 'PARATEST=0', $line );
+			$this->assertStringContainsString( 'UNIT_MODE=serial', $line );
 		}
 	}
 
@@ -275,9 +275,9 @@ setlocal
 if "%SHIELD_TEST_DOCKER_CAPTURE%"=="" exit /b 2
 set "_env=__UNSET__"
 if defined SHIELD_PACKAGE_PATH set "_env=%SHIELD_PACKAGE_PATH%"
-set "_paratest=__UNSET__"
-if defined SHIELD_PARATEST set "_paratest=%SHIELD_PARATEST%"
->> "%SHIELD_TEST_DOCKER_CAPTURE%" echo ENV=%_env% PARATEST=%_paratest% ARGS=%*
+set "_unit_mode=__UNSET__"
+if defined SHIELD_UNIT_TEST_MODE set "_unit_mode=%SHIELD_UNIT_TEST_MODE%"
+>> "%SHIELD_TEST_DOCKER_CAPTURE%" echo ENV=%_env% UNIT_MODE=%_unit_mode% ARGS=%*
 exit /b 0
 CMD;
 			\file_put_contents( Path::join( $shimDir, 'docker.cmd' ), $shimContent );
@@ -293,11 +293,11 @@ env_value="__UNSET__"
 if [ "${SHIELD_PACKAGE_PATH+x}" = "x" ]; then
 	env_value="$SHIELD_PACKAGE_PATH"
 fi
-paratest_value="__UNSET__"
-if [ "${SHIELD_PARATEST+x}" = "x" ]; then
-	paratest_value="$SHIELD_PARATEST"
+unit_mode_value="__UNSET__"
+if [ "${SHIELD_UNIT_TEST_MODE+x}" = "x" ]; then
+	unit_mode_value="$SHIELD_UNIT_TEST_MODE"
 fi
-printf 'ENV=%s PARATEST=%s ARGS=%s\n' "$env_value" "$paratest_value" "$*" >> "$SHIELD_TEST_DOCKER_CAPTURE"
+printf 'ENV=%s UNIT_MODE=%s ARGS=%s\n' "$env_value" "$unit_mode_value" "$*" >> "$SHIELD_TEST_DOCKER_CAPTURE"
 exit 0
 SH;
 		\file_put_contents( $shimPath, $shimContent );
