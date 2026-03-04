@@ -201,6 +201,39 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		}
 	}
 
+	public function testSourceModeForwardsShieldParatestToDockerProcesses() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$shimDir = $this->createTrackedTempDir( 'shield-docker-paratest-shims-' );
+		$capturePath = Path::join( $shimDir, 'captured-docker-env.txt' );
+		$this->writeDockerEnvCaptureShim( $shimDir );
+		$this->writeBashVersionShim( $shimDir );
+
+		$path = \getenv( 'PATH' );
+		$env = [
+			'PATH' => $shimDir.\PATH_SEPARATOR.( \is_string( $path ) ? $path : '' ),
+			'SHIELD_TEST_DOCKER_CAPTURE' => $capturePath,
+			'SHIELD_PARATEST' => '0',
+		];
+		if ( \PHP_OS_FAMILY === 'Windows' ) {
+			$pathExt = \getenv( 'PATHEXT' );
+			$env[ 'PATHEXT' ] = '.COM;.EXE;.BAT;.CMD'.( \is_string( $pathExt ) ? ';'.$pathExt : '' );
+			$env[ 'SHIELD_BASH_BINARY' ] = Path::join( $shimDir, 'bash.cmd' );
+		}
+
+		$process = $this->runPhpScript( 'bin/run-docker-tests.php', [ '--source' ], $env );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+		$this->assertFileExists( $capturePath, 'Docker shim did not capture any commands.' );
+
+		$capturedLines = \file( $capturePath, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES );
+		$this->assertIsArray( $capturedLines );
+		$this->assertNotEmpty( $capturedLines );
+
+		foreach ( $capturedLines as $line ) {
+			$this->assertStringContainsString( 'PARATEST=0', $line );
+		}
+	}
+
 	private function requireBash() :void {
 		$process = new Process( [ 'bash', '--version' ], $this->getPluginRoot() );
 		$process->run();
@@ -242,7 +275,9 @@ setlocal
 if "%SHIELD_TEST_DOCKER_CAPTURE%"=="" exit /b 2
 set "_env=__UNSET__"
 if defined SHIELD_PACKAGE_PATH set "_env=%SHIELD_PACKAGE_PATH%"
->> "%SHIELD_TEST_DOCKER_CAPTURE%" echo ENV=%_env% ARGS=%*
+set "_paratest=__UNSET__"
+if defined SHIELD_PARATEST set "_paratest=%SHIELD_PARATEST%"
+>> "%SHIELD_TEST_DOCKER_CAPTURE%" echo ENV=%_env% PARATEST=%_paratest% ARGS=%*
 exit /b 0
 CMD;
 			\file_put_contents( Path::join( $shimDir, 'docker.cmd' ), $shimContent );
@@ -258,7 +293,11 @@ env_value="__UNSET__"
 if [ "${SHIELD_PACKAGE_PATH+x}" = "x" ]; then
 	env_value="$SHIELD_PACKAGE_PATH"
 fi
-printf 'ENV=%s ARGS=%s\n' "$env_value" "$*" >> "$SHIELD_TEST_DOCKER_CAPTURE"
+paratest_value="__UNSET__"
+if [ "${SHIELD_PARATEST+x}" = "x" ]; then
+	paratest_value="$SHIELD_PARATEST"
+fi
+printf 'ENV=%s PARATEST=%s ARGS=%s\n' "$env_value" "$paratest_value" "$*" >> "$SHIELD_TEST_DOCKER_CAPTURE"
 exit 0
 SH;
 		\file_put_contents( $shimPath, $shimContent );

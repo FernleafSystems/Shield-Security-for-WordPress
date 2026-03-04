@@ -15,7 +15,8 @@ For Docker-runner internals and environment variables, see [tests/docker/README.
 |---|---|---|
 | Fast local subset | `composer test:fast` | Rules-focused subset for rapid iteration |
 | Full local test suite | `composer test` | Runs unit and integration suites |
-| Unit tests only | `composer test:unit` | Includes config generation |
+| Unit tests only | `composer test:unit` | Parallel by default; auto-falls back to serial when `--filter` is passed |
+| Unit tests (serial fallback) | `composer test:unit:serial` | Explicit serial fallback for troubleshooting and compatibility |
 | Integration tests only | `composer test:integration` | Includes config generation |
 | Local integration DB sidecar (composer) | `composer test:integration:local` | Host PHP integration tests with isolated Docker MySQL sidecar |
 | Source runtime (canonical) | `php bin/shield test:source` | Source-first working-tree Docker checks |

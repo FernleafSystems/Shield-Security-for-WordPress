@@ -192,7 +192,7 @@ else
 fi
 
 # Run tests with environment variable support
-echo "Running PHPUnit tests..."
+echo "Running tests..."
 
 # Normalize boolean-like environment values.
 is_truthy() {
@@ -237,12 +237,28 @@ if [ -n "$SHIELD_PACKAGE_PATH" ]; then
     echo " Passing SHIELD_PACKAGE_PATH to PHPUnit: $SHIELD_PACKAGE_PATH"
 fi
 
+# Unit runner defaults to ParaTest unless explicitly disabled.
+SHIELD_PARATEST_RESOLVED=1
+if [ -n "${SHIELD_PARATEST:-}" ] && ! is_truthy "${SHIELD_PARATEST:-}"; then
+    SHIELD_PARATEST_RESOLVED=0
+fi
+
 # Run Unit Tests
 echo "Running Unit Tests..."
-if [ -n "$PHPUNIT_ENV" ]; then
-    env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
+if [ "$SHIELD_PARATEST_RESOLVED" = "1" ]; then
+    echo "Unit test runner: ParaTest (WrapperRunner)"
+    if [ -n "$PHPUNIT_ENV" ]; then
+        env $PHPUNIT_ENV vendor/brianium/paratest/bin/paratest -c phpunit-unit.xml --runner WrapperRunner --processes=auto --no-coverage $PHPUNIT_EXTRA_FLAGS
+    else
+        vendor/brianium/paratest/bin/paratest -c phpunit-unit.xml --runner WrapperRunner --processes=auto --no-coverage $PHPUNIT_EXTRA_FLAGS
+    fi
 else
-    vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
+    echo "Unit test runner: PHPUnit (serial)"
+    if [ -n "$PHPUNIT_ENV" ]; then
+        env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
+    else
+        vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
+    fi
 fi
 
 # Run Integration Tests

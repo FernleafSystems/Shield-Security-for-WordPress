@@ -86,7 +86,10 @@
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Rules",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml tests/Integration/Rules tests/Integration/CrossSystem/RuleToEventToAuditFlowTest.php tests/Integration/Bots/BotEventListenerTest.php"
     ],
-    "test:unit":        "@test:unit:serial",
+    "test:unit":        [
+      "@build:config",
+      "@php bin/run-unit-tests.php"
+    ],
     "test:unit:serial": [
       "@build:config",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml"

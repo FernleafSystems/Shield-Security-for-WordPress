@@ -8,14 +8,16 @@ use Symfony\Component\Process\Process;
 
 class PowerTestToolingContractTest extends TestCase {
 
-	public function testComposerScriptsEncodeSerialDefaultAndParallelUnitLane() :void {
+	public function testComposerScriptsEncodeDispatcherDefaultAndParallelUnitLane() :void {
 		$composer = $this->loadComposerJson();
 		$scripts = $composer[ 'scripts' ] ?? [];
 
-		$this->assertSame( '@test:unit:serial', $scripts[ 'test:unit' ] ?? null );
+		$this->assertIsArray( $scripts[ 'test:unit' ] ?? null );
 		$this->assertIsArray( $scripts[ 'test:unit:serial' ] ?? null );
 		$this->assertIsArray( $scripts[ 'test:unit:parallel' ] ?? null );
 		$this->assertIsArray( $scripts[ 'test:unit:verify-power' ] ?? null );
+		$this->assertContains( '@build:config', $scripts[ 'test:unit' ] );
+		$this->assertContains( '@php bin/run-unit-tests.php', $scripts[ 'test:unit' ] );
 
 		$serial = \implode( ' ', $scripts[ 'test:unit:serial' ] );
 		$this->assertStringContainsString( 'vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml', $serial );
