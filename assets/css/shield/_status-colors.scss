@@ -8,17 +8,18 @@ $status-color-info: $info;           // #0ea8c7
 $status-bg-good-light: #e6f5e6;
 $status-bg-warning-light: #fef6e6;
 $status-bg-critical-light: #fdeaec;
-$status-bg-info-light: #e7f1ff;
+$status-bg-info-light: #e7f7fb;
 
 // Status badge pill colours (zone component pill badges)
-$badge-good-bg: #d1e7dd;
-$badge-good-color: #0a5c36;
-$badge-warning-bg: #fff3cd;
-$badge-warning-color: #856404;
-$badge-critical-bg: #f8d7da;
-$badge-critical-color: #842029;
-$badge-info-bg: #e7f1ff;
-$badge-info-color: #0a58ca;
+$badge-good-bg: #e6f5e6;
+$badge-good-color: #006400;
+$badge-warning-bg: #fef6e6;
+$badge-warning-color: #b97a00;
+$badge-critical-bg: #fdeaec;
+$badge-critical-color: #c62f3e;
+$badge-info-bg: #e7f7fb;
+$badge-info-color: #0ea8c7;
+$panel-border-info-subtle: #ddeef5;
 
 // Card status tint backgrounds (very subtle, for card body fill)
 $card-bg-good: #f9fdf9;

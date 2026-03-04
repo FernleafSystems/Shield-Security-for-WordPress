@@ -32,6 +32,8 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_landing_renders_final_subject_tiles_and_disabled_premium_integrations_marker() :void {
 		$payload = $this->renderInvestigateLandingPage();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertNotSame( '', $html, 'Expected non-empty render output for investigate landing.' );
+		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Investigate landing render exception check' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertXPathExists(
@@ -112,6 +114,18 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			1,
 			'Investigate landing live panel marker'
 		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigate-panel and @data-mode-panel="1"]//*[@data-investigate-panel-tabs="1"]',
+			6,
+			'Investigate landing panel tabs host marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigate-panel and @data-mode-panel="1"]//*[@data-investigate-panel-content="1"]',
+			6,
+			'Investigate landing panel content host marker'
+		);
 		$this->assertSharedModePanelMarkerCount( $xpath, 6, 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-panel', 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-render-action', 'Investigate' );
@@ -119,5 +133,23 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertModePanelHasDataAttribute( $xpath, 'investigate-panel-live', 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-target-default', 'Investigate' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-static-target', 'Investigate' );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1" and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical ") or contains(concat(" ", normalize-space(@class), " "), " status-info ") or contains(concat(" ", normalize-space(@class), " "), " status-neutral "))]',
+			6,
+			'Investigate mode panels include status class on panel root'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1"]//button[@data-mode-panel-close="1" and contains(concat(" ", normalize-space(@class), " "), " mode-panel-close-btn ")]',
+			6,
+			'Investigate mode panel close button uses minimal close class'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1"]//button[contains(concat(" ", normalize-space(@class), " "), " btn-outline-secondary ")]',
+			0,
+			'Investigate mode panel close button no longer uses bootstrap outline class'
+		);
 	}
 }

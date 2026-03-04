@@ -4,7 +4,7 @@
 {% set panel_is_open = panel.is_open|default(false) %}
 
 <section id="{{ panel_id }}"
-		 class="card shield-card mt-3{% if not panel_is_open %} d-none{% endif %}{% if panel_class is not empty %} {{ panel_class }}{% endif %}"
+		 class="card shield-card mt-3 status-{{ panel_status }}{% if not panel_is_open %} d-none{% endif %}{% if panel_class is not empty %} {{ panel_class }}{% endif %}"
 		 data-mode-panel="1"
 		 data-mode-panel-target="{{ panel.target|default('') }}"
 		 {% if panel.target_default|default('') is not empty %}
@@ -27,8 +27,9 @@
 				{% endif %}
 			</div>
 			<button type="button"
-					class="btn btn-sm btn-outline-secondary"
-					data-mode-panel-close="1">{{ strings.mode_panel_close|default('Close') }}</button>
+					class="mode-panel-close-btn"
+					data-mode-panel-close="1"
+					aria-label="{{ strings.mode_panel_close|default('Close') }}">&times;</button>
 		</div>
 		<div data-mode-panel-body>
 			{{ panel.body|default('')|raw }}

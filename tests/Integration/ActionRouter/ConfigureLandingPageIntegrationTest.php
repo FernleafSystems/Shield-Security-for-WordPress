@@ -44,13 +44,35 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-section="hero"]//a[contains(concat(" ", normalize-space(@class), " "), " offcanvas_meter_analysis ") and @data-meter_channel="config"]',
-			'Configure hero offcanvas meter link with config channel'
+			'//*[@data-configure-section="hero"]//*[@data-configure-posture-strip="1"]',
+			'Configure posture strip container marker'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-section="zones"]//div[contains(concat(" ", normalize-space(@class), " "), " shield-card-accent ") and contains(concat(" ", normalize-space(@class), " "), " status-good ")]',
-			'Configure zones section uses good status accent'
+			'//*[@data-configure-section="hero"]//*[@data-configure-posture-chip="1"]',
+			'Configure posture status chip marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="hero"]//*[@data-configure-posture-bar="1"]',
+			'Configure posture bar marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="hero"]//*[@data-configure-posture-summary="1"]',
+			'Configure posture summary marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="hero"]//*[contains(concat(" ", normalize-space(@class), " "), " progress-metercard ")]',
+			0,
+			'Configure hero no longer renders progress meter card wrapper'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="hero"]//a[contains(concat(" ", normalize-space(@class), " "), " offcanvas_meter_analysis ")]',
+			0,
+			'Configure hero no longer renders offcanvas meter link'
 		);
 
 		$this->assertXPathCount(
@@ -81,6 +103,24 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertModePanelHasDataAttribute( $xpath, 'configure-panel', 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-target-default', 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-static-target', 'Configure' );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1" and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical ") or contains(concat(" ", normalize-space(@class), " "), " status-info ") or contains(concat(" ", normalize-space(@class), " "), " status-neutral "))]',
+			8,
+			'Configure mode panels include status class on panel root'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1"]//button[@data-mode-panel-close="1" and contains(concat(" ", normalize-space(@class), " "), " mode-panel-close-btn ")]',
+			8,
+			'Configure mode panel close button uses minimal close class'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1"]//button[contains(concat(" ", normalize-space(@class), " "), " btn-outline-secondary ")]',
+			0,
+			'Configure mode panel close button no longer uses bootstrap outline class'
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-panel="secadmin"]//*[@data-configure-zone-settings="secadmin"]',

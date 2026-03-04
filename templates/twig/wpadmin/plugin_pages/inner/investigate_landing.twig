@@ -54,28 +54,36 @@
 			</div>
 		</section>
 
-		{% for subject in vars.subjects if subject.is_enabled %}
-			{% set is_open = active_subject == subject.key %}
-			{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
-				panel: {
-					id: 'InvestigateModePanel-' ~ subject.key,
-					class: 'investigate-landing__subject-panel' ~ (is_open ? ' is-open' : ''),
-					is_open: is_open,
-					target: subject.panel_target,
-					target_default: subject.panel_target,
-					static_target: true,
-					status: subject.panel_status,
-					title: subject.panel_title,
-					body: subject.panel_body,
-					data: {
-						'investigate-panel': subject.key,
-						'investigate-panel-loaded': subject.is_loaded ? '1' : '0',
-						'investigate-panel-live': subject.is_live ? '1' : '0',
-						'investigate-render-action': subject.render_action|default({})|json_encode
-					}
-				},
-				strings: strings
-			} only %}
+		{% for subject in vars.subjects %}
+			{% if subject.is_enabled %}
+				{% set is_open = active_subject == subject.key %}
+				{% set panel_body %}
+					<div class="investigate-panel__tabs" data-investigate-panel-tabs="1"></div>
+					<div data-investigate-panel-content="1">
+						{{ subject.panel_body|raw }}
+					</div>
+				{% endset %}
+				{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+					panel: {
+						id: 'InvestigateModePanel-' ~ subject.key,
+						class: 'investigate-landing__subject-panel' ~ (is_open ? ' is-open' : ''),
+						is_open: is_open,
+						target: subject.panel_target,
+						target_default: subject.panel_target,
+						static_target: true,
+						status: subject.panel_status,
+						title: subject.panel_title,
+						body: panel_body,
+						data: {
+							'investigate-panel': subject.key,
+							'investigate-panel-loaded': subject.is_loaded ? '1' : '0',
+							'investigate-panel-live': subject.is_live ? '1' : '0',
+							'investigate-render-action': subject.render_action|default({})|json_encode
+						}
+					},
+					strings: strings
+				} only %}
+			{% endif %}
 		{% endfor %}
 	</div>
 {% endblock %}

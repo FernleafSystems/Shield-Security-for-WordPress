@@ -1,13 +1,93 @@
+.configure-landing__posture-strip {
+	align-items: center;
+	background: #fff;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.25rem;
+	margin-bottom: 1.25rem;
+	padding: 0.85rem 1.1rem;
+}
+
+.configure-landing__posture-chip {
+	align-items: center;
+	border-radius: 20px;
+	display: inline-flex;
+	flex-shrink: 0;
+	font-size: 0.92rem;
+	font-weight: 700;
+	gap: 0.4rem;
+	letter-spacing: 0.01em;
+	padding: 0.5rem 1rem;
+	white-space: nowrap;
+}
+
+.configure-landing__posture-chip.status-good {
+	background: $badge-good-bg;
+	color: $badge-good-color;
+}
+
+.configure-landing__posture-chip.status-warning {
+	background: $badge-warning-bg;
+	color: $badge-warning-color;
+}
+
+.configure-landing__posture-chip.status-critical {
+	background: $badge-critical-bg;
+	color: $badge-critical-color;
+}
+
+.configure-landing__posture-info {
+	flex: 1;
+	min-width: 200px;
+}
+
+.configure-landing__posture-bar-wrap {
+	background: #e8e8e8;
+	border-radius: 6px;
+	height: 10px;
+	max-width: 320px;
+	overflow: hidden;
+	width: 100%;
+}
+
+.configure-landing__posture-bar {
+	border-radius: 6px;
+	height: 100%;
+	transition: width 0.4s;
+}
+
+.configure-landing__posture-bar.status-good {
+	background: $status-color-good;
+}
+
+.configure-landing__posture-bar.status-warning {
+	background: $status-color-warning;
+}
+
+.configure-landing__posture-bar.status-critical {
+	background: $status-color-critical;
+}
+
+.configure-landing__posture-summary {
+	color: #777;
+	display: inline-block;
+	font-size: 0.78rem;
+	line-height: 1.3;
+	margin-top: 0.3rem;
+}
+
 .configure-landing__zone-grid {
 	display: grid;
-	gap: 0.65rem;
-	grid-template-columns: repeat(1, minmax(0, 1fr));
+	gap: 0.7rem;
+	grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
 }
 
 .configure-landing__zone-tile {
 	align-items: flex-start;
 	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
+	border: 2px solid transparent;
 	border-radius: $card-border-radius;
 	box-shadow: $card-box-shadow;
 	color: #1d2327;
@@ -45,7 +125,7 @@
 }
 
 .configure-landing__zone-tile:hover {
-	border-color: $border-color-neutral-strong;
+	border-color: #ccc;
 	box-shadow: $card-box-shadow-hover;
 	color: #1d2327;
 	transform: translateY(-2px);
@@ -57,18 +137,18 @@
 }
 
 .configure-landing__zone-tile.status-good.is-active {
-	background: $card-bg-good;
-	border-color: rgba($status-color-good, 0.45);
+	background: #f8fdf8;
+	border-color: $status-color-good;
 }
 
 .configure-landing__zone-tile.status-warning.is-active {
-	background: $card-bg-warning;
-	border-color: rgba($status-color-warning, 0.45);
+	background: #fffdf5;
+	border-color: $status-color-warning;
 }
 
 .configure-landing__zone-tile.status-critical.is-active {
-	background: $card-bg-critical;
-	border-color: rgba($status-color-critical, 0.45);
+	background: #fff8f8;
+	border-color: $status-color-critical;
 }
 
 .configure-landing__zone-tile.is-disabled,
@@ -178,16 +258,4 @@
 .configure-landing__panel-actions {
 	border-top: 1px solid $border-color-neutral-subtle;
 	padding-top: 0.75rem;
-}
-
-@media (min-width: 576px) {
-	.configure-landing__zone-grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-}
-
-@media (min-width: 992px) {
-	.configure-landing__zone-grid {
-		grid-template-columns: repeat(4, minmax(0, 1fr));
-	}
 }

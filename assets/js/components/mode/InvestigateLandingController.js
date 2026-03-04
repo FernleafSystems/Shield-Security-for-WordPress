@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import 'select2';
+import { Tab } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
@@ -19,6 +20,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		this.initializeSelect2Within( this.rootEl );
 		this.bindHandlers();
+		this.syncInlineTabsForAllPanels();
 		this.preloadInactivePanels();
 		this.syncLivePanelPolling();
 	}
@@ -37,6 +39,17 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		shieldEventsHandler_Main.add_Change(
 			'[data-investigate-landing="1"] [data-investigate-auto-submit="1"]',
 			( input ) => this.handleAutoSubmitChange( input ),
+			false
+		);
+		shieldEventsHandler_Main.add_Click(
+			'[data-investigate-landing="1"] [data-investigate-panel-tab="1"]',
+			( tabButton, evt ) => this.handleInlineTabClick( tabButton, evt ),
+			false
+		);
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.tab',
+			'[data-investigate-landing="1"] [data-investigate-source-tab="1"]',
+			( sourceTab ) => this.handleSourceTabShown( sourceTab ),
 			false
 		);
 
@@ -246,8 +259,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	}
 
 	applyRenderOutputToPanel( panel, renderOutput ) {
-		const panelBody = panel.querySelector( '[data-mode-panel-body]' );
-		if ( panelBody === null ) {
+		const panelContent = this.getPanelContentContainer( panel );
+		if ( panelContent === null ) {
 			return false;
 		}
 
@@ -256,24 +269,26 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return false;
 		}
 
-		panelBody.innerHTML = panelBodyHtml;
-		this.initializeSelect2Within( panelBody );
+		panelContent.innerHTML = panelBodyHtml;
+		this.initializeSelect2Within( panelContent );
 		new InvestigationTable();
+		this.rebuildInlineTabs( panel );
 		return true;
 	}
 
 	handlePanelLoadFailure( panel ) {
-		const panelBody = panel.querySelector( '[data-mode-panel-body]' );
-		if ( panelBody !== null ) {
-			panelBody.innerHTML = this.buildInlineErrorMarkup();
+		const panelContent = this.getPanelContentContainer( panel );
+		if ( panelContent !== null ) {
+			panelContent.innerHTML = this.buildInlineErrorMarkup();
 		}
+		this.clearInlineTabs( panel );
 		this.setPanelLoadedState( panel, false );
 	}
 
 	setPanelLoadingState( panel, isLoading ) {
-		const panelBody = panel.querySelector( '[data-mode-panel-body]' );
-		if ( panelBody !== null ) {
-			panelBody.classList.toggle( 'investigate-panel-is-loading', isLoading );
+		const panelContent = this.getPanelContentContainer( panel );
+		if ( panelContent !== null ) {
+			panelContent.classList.toggle( 'investigate-panel-is-loading', isLoading );
 		}
 	}
 
@@ -304,6 +319,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		const afterLoad = () => {
+			this.rebuildInlineTabs( panel );
 			if ( this.isLivePanel( panel ) ) {
 				this.startLivePanelPoller( panel );
 			}
@@ -445,5 +461,137 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return '<div class="alert alert-warning mb-0">'
 			   + this.escapeHtml( message )
 			   + '</div>';
+	}
+
+	syncInlineTabsForAllPanels() {
+		if ( this.rootEl === null ) {
+			return;
+		}
+		this.rootEl.querySelectorAll( '[data-investigate-panel]' ).forEach( ( panel ) => {
+			this.rebuildInlineTabs( panel );
+		} );
+	}
+
+	getPanelContentContainer( panel ) {
+		return panel.querySelector( '[data-investigate-panel-content="1"]' )
+			|| panel.querySelector( '[data-mode-panel-body]' );
+	}
+
+	getPanelTabsContainer( panel ) {
+		return panel.querySelector( '[data-investigate-panel-tabs="1"]' );
+	}
+
+	clearInlineTabs( panel ) {
+		const tabsContainer = this.getPanelTabsContainer( panel );
+		if ( tabsContainer !== null ) {
+			tabsContainer.innerHTML = '';
+		}
+	}
+
+	rebuildInlineTabs( panel ) {
+		const tabsContainer = this.getPanelTabsContainer( panel );
+		if ( tabsContainer === null ) {
+			return;
+		}
+
+		const sourceTabs = this.collectSourceTabs( panel );
+		if ( sourceTabs.length < 1 ) {
+			this.clearInlineTabs( panel );
+			return;
+		}
+
+		const fragment = document.createDocumentFragment();
+		sourceTabs.forEach( ( sourceTab, index ) => {
+			if ( sourceTab.id.length < 1 ) {
+				sourceTab.id = this.buildSourceTabID( panel, index );
+			}
+
+			const targetSelector = this.getTabTargetSelector( sourceTab );
+			if ( targetSelector.length < 1 ) {
+				return;
+			}
+
+			const tabButton = document.createElement( 'button' );
+			tabButton.type = 'button';
+			tabButton.className = 'investigate-panel__tab';
+			tabButton.dataset.investigatePanelTab = '1';
+			tabButton.dataset.sourceTabId = sourceTab.id;
+			tabButton.textContent = sourceTab.textContent.trim();
+
+			if ( sourceTab.classList.contains( 'active' ) || sourceTab.getAttribute( 'aria-selected' ) === 'true' ) {
+				tabButton.classList.add( 'is-active' );
+			}
+
+			fragment.appendChild( tabButton );
+		} );
+
+		tabsContainer.innerHTML = '';
+		tabsContainer.appendChild( fragment );
+		this.syncInlineActiveTab( panel );
+	}
+
+	collectSourceTabs( panel ) {
+		const panelContent = this.getPanelContentContainer( panel );
+		if ( panelContent === null ) {
+			return [];
+		}
+
+		return Array.from( panelContent.querySelectorAll( '.shield-options-rail [data-bs-toggle="tab"]' ) ).filter( ( sourceTab ) => {
+			const targetSelector = this.getTabTargetSelector( sourceTab );
+			if ( targetSelector.length < 1 || panelContent.querySelector( targetSelector ) === null ) {
+				delete sourceTab.dataset.investigateSourceTab;
+				return false;
+			}
+
+			sourceTab.dataset.investigateSourceTab = '1';
+			return true;
+		} );
+	}
+
+	getTabTargetSelector( sourceTab ) {
+		const targetSelector = ( sourceTab.dataset.bsTarget || sourceTab.getAttribute( 'href' ) || '' ).trim();
+		return targetSelector.startsWith( '#' ) ? targetSelector : '';
+	}
+
+	buildSourceTabID( panel, index ) {
+		const panelKey = ( panel.dataset.investigatePanel || 'panel' ).toLowerCase().replace( /[^a-z0-9_-]/g, '-' );
+		return `investigate-inline-source-tab-${panelKey}-${index}`;
+	}
+
+	handleInlineTabClick( tabButton, evt ) {
+		const sourceTabID = ( tabButton.dataset.sourceTabId || '' ).trim();
+		if ( sourceTabID.length < 1 ) {
+			return;
+		}
+
+		const sourceTab = document.getElementById( sourceTabID );
+		if ( sourceTab === null ) {
+			return;
+		}
+
+		evt.preventDefault();
+		Tab.getOrCreateInstance( sourceTab ).show();
+	}
+
+	handleSourceTabShown( sourceTab ) {
+		const panel = this.findPanelFromElement( sourceTab );
+		if ( panel === null ) {
+			return;
+		}
+		this.syncInlineActiveTab( panel );
+	}
+
+	syncInlineActiveTab( panel ) {
+		const tabsContainer = this.getPanelTabsContainer( panel );
+		if ( tabsContainer === null ) {
+			return;
+		}
+
+		const activeSourceTab = panel.querySelector( '[data-investigate-source-tab="1"].active' )
+			|| panel.querySelector( '[data-investigate-source-tab="1"][aria-selected="true"]' );
+		const activeSourceTabID = activeSourceTab !== null ? activeSourceTab.id : '';
+		tabsContainer.querySelectorAll( '[data-investigate-panel-tab="1"]' ).forEach( ( inlineTab ) => {
+			inlineTab.classList.toggle( 'is-active', activeSourceTabID.length > 0 && inlineTab.dataset.sourceTabId === activeSourceTabID );
+		} );
 	}
 }

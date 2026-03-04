@@ -889,7 +889,7 @@ $sidebar-transition-speed: 0.25s;
 .mode-landing-accent-bar {
   border-radius: 2px;
   height: 4px;
-  margin-bottom: 0.55rem;
+  margin-bottom: 1rem;
 
   &.status-good {
     background: $status-color-good;
@@ -921,6 +921,50 @@ $sidebar-transition-speed: 0.25s;
 
   p {
     margin-bottom: 0.35rem !important;
+  }
+}
+
+[data-mode-panel="1"] {
+  border: 1px solid $border-color-neutral-subtle;
+  border-radius: $card-border-radius;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  overflow: hidden;
+
+  &.status-good {
+    border: 2px solid $status-color-good;
+  }
+
+  &.status-warning {
+    border: 2px solid $status-color-warning;
+  }
+
+  &.status-critical {
+    border: 2px solid $status-color-critical;
+  }
+
+  &.status-info {
+    border: 1px solid $panel-border-info-subtle;
+  }
+
+  &.status-neutral {
+    border: 1px solid $border-color-neutral-subtle;
+  }
+}
+
+.mode-panel-close-btn {
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.1rem 0.4rem;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #333;
   }
 }
 

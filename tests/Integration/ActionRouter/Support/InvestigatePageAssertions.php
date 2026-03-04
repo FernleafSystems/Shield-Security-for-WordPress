@@ -33,7 +33,7 @@ trait InvestigatePageAssertions {
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-subject-type="'.$subjectType.'"]',
-			$count > 0 ? 1 : 0,
+			$count,
 			$label
 		);
 	}

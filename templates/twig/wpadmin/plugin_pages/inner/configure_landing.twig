@@ -3,15 +3,23 @@
 {% block inner_page_body %}
 	<div class="configure-landing" data-configure-landing="1">
 		<div data-configure-section="hero">
-			<h5 class="mb-2">{{ strings.posture_title }}</h5>
-			<div class="progress-metercard progress-metercard-hero progress-metercard-summary"
-				 data-meter_slug="summary"
-				 data-meter_channel="config">
-				{{ content.hero_meter|raw }}
+			<div class="configure-landing__posture-strip" data-configure-posture-strip="1">
+				<span class="configure-landing__posture-chip status-{{ vars.posture_status }}"
+					  data-configure-posture-chip="1">
+					<i class="{{ vars.posture_icon_class }}" aria-hidden="true"></i>
+					{{ vars.posture_label }}
+				</span>
+				<div class="configure-landing__posture-info">
+					<div class="configure-landing__posture-bar-wrap">
+						<div class="configure-landing__posture-bar status-{{ vars.posture_status }}"
+							 data-configure-posture-bar="1"
+							 style="width: {{ vars.posture_percentage|default(0) }}%;"></div>
+					</div>
+					<span class="configure-landing__posture-summary" data-configure-posture-summary="1">
+						{{ vars.posture_summary|default('') }}
+					</span>
+				</div>
 			</div>
-			{% if vars.posture_summary|default('') is not empty %}
-				<p class="text-muted small mt-2 mb-0">{{ vars.posture_summary }}</p>
-			{% endif %}
 		</div>
 
 		<div class="card shield-card mt-4" data-configure-section="zones">

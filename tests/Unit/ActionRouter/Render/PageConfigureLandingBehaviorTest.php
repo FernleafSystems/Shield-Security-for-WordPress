@@ -11,10 +11,8 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Meters\MeterCard;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponent;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -44,40 +42,34 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_landing_content_renders_hero_meter_only() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
+	public function test_landing_content_is_empty_for_posture_strip_layout() :void {
+		$page = new PageConfigureLandingUnitTestDouble(
+			$this->summaryMeterFixture( 78 ),
+			$this->zoneTileFixtures()
+		);
 		$content = $this->invokeNonPublicMethod( $page, 'getLandingContent' );
 
-		$this->assertSame(
-			[
-				'action'      => MeterCard::class,
-				'action_data' => [
-					'meter_slug'    => 'summary',
-					'meter_channel' => MeterComponent::CHANNEL_CONFIG,
-					'is_hero'       => true,
-				],
-			],
-			$this->renderCapture->calls[ 0 ] ?? []
-		);
-		$this->assertCount( 1, $this->renderCapture->calls );
-
-		$this->assertSame( 'rendered-1', $content[ 'hero_meter' ] ?? '' );
-		$this->assertArrayNotHasKey( 'overview_meter_cards', $content );
+		$this->assertSame( [], $content );
+		$this->assertSame( [], $this->renderCapture->calls );
 	}
 
-	public function test_landing_vars_include_posture_summary_and_zone_tiles() :void {
+	public function test_landing_vars_include_posture_strip_contract_and_zone_tiles() :void {
 		$zoneTiles = $this->zoneTileFixtures();
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $zoneTiles );
+		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $zoneTiles );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->assertSame( [], $this->renderCapture->calls );
 
 		$this->assertArrayNotHasKey( 'configure_stats', $vars );
-		$this->assertSame( '1 critical area, 1 area needs work', $vars[ 'posture_summary' ] ?? '' );
+		$this->assertSame( 78, $vars[ 'posture_percentage' ] ?? 0 );
+		$this->assertSame( 'warning', $vars[ 'posture_status' ] ?? '' );
+		$this->assertSame( 'Warning', $vars[ 'posture_label' ] ?? '' );
+		$this->assertSame( 'bi bi-exclamation-circle-fill', $vars[ 'posture_icon_class' ] ?? '' );
+		$this->assertSame( '78% - 1 critical - 1 needs work - 1 good', $vars[ 'posture_summary' ] ?? '' );
 		$this->assertSame( $zoneTiles, $vars[ 'zone_tiles' ] ?? [] );
 	}
 
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
@@ -86,31 +78,39 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
 
-		$this->assertCount( 2, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
+		$this->assertCount( 3, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'key' ] ?? '' );
 		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'panel_target' ] ?? '' );
 		$this->assertSame( 'firewall', $renderData[ 'vars' ][ 'mode_tiles' ][ 1 ][ 'key' ] ?? '' );
+		$this->assertSame( 'spam', $renderData[ 'vars' ][ 'mode_tiles' ][ 2 ][ 'key' ] ?? '' );
 
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
 	}
 
-	public function test_landing_vars_use_all_clear_summary_when_no_areas_need_work() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->allGoodMeterFixturesBySlug(), $this->zoneTileFixtures() );
+	public function test_landing_vars_use_zero_issue_breakdown_when_all_zones_are_good() :void {
+		$page = new PageConfigureLandingUnitTestDouble(
+			$this->summaryMeterFixture( 96 ),
+			$this->allGoodZoneTileFixtures()
+		);
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->assertSame( [], $this->renderCapture->calls );
 
-		$this->assertSame( 'All configuration areas look good', $vars[ 'posture_summary' ] ?? '' );
+		$this->assertSame( 96, $vars[ 'posture_percentage' ] ?? 0 );
+		$this->assertSame( 'good', $vars[ 'posture_status' ] ?? '' );
+		$this->assertSame( 'Good', $vars[ 'posture_label' ] ?? '' );
+		$this->assertSame( 'bi bi-check-circle-fill', $vars[ 'posture_icon_class' ] ?? '' );
+		$this->assertSame( '96% - 0 critical - 0 need work - 2 good', $vars[ 'posture_summary' ] ?? '' );
 	}
 
 	public function test_landing_hrefs_are_empty() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
 		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
 		$this->assertSame( [], $hrefs );
 	}
 
 	public function test_landing_strings_include_current_headings_only() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->meterFixturesBySlug(), $this->zoneTileFixtures() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
 		$this->assertSame( 'Configuration Posture', $strings[ 'posture_title' ] ?? '' );
@@ -169,6 +169,71 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'Configure Firewall Settings',
 				[
 					$this->buildZoneComponentFixture( 'WAF Rules', 'warning', 'Needs Work', 'One rule requires review.' ),
+				]
+			),
+			$this->buildZoneTileFixture(
+				'spam',
+				'Comments Filter',
+				'chat-dots',
+				'critical',
+				'Critical',
+				'1 critical component',
+				'/admin/zones/spam',
+				'Configure Comments Filter Settings',
+				[
+					$this->buildZoneComponentFixture( 'Spam Filter', 'critical', 'Issue', 'Spam filter requires setup.' ),
+				]
+			),
+		];
+	}
+
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   panel_target:string,
+	 *   is_enabled:bool,
+	 *   is_disabled:bool,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   stat_line:string,
+	 *   settings_href:string,
+	 *   settings_label:string,
+	 *   panel:array{
+	 *     title:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     components:list<array{title:string,status:string,status_label:string,note:string}>
+	 *   }
+	 * }>
+	 */
+	private function allGoodZoneTileFixtures() :array {
+		return [
+			$this->buildZoneTileFixture(
+				'secadmin',
+				'Security Admin',
+				'shield-lock',
+				'good',
+				'Good',
+				'All components healthy',
+				'/admin/zones/secadmin',
+				'Configure Security Admin Settings',
+				[
+					$this->buildZoneComponentFixture( 'PIN Protection', 'good', 'Active', 'PIN is configured.' ),
+				]
+			),
+			$this->buildZoneTileFixture(
+				'login',
+				'Login Protection',
+				'person-lock',
+				'good',
+				'Good',
+				'All components healthy',
+				'/admin/zones/login',
+				'Configure Login Protection Settings',
+				[
+					$this->buildZoneComponentFixture( '2FA', 'good', 'Active', '2FA is enforced.' ),
 				]
 			),
 		];
@@ -245,19 +310,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		];
 	}
 
-	private function meterFixturesBySlug() :array {
+	private function summaryMeterFixture( int $percentage ) :array {
 		return [
-			'ips'    => [ 'totals' => [ 'percentage' => 91 ] ],
-			'assets' => [ 'totals' => [ 'percentage' => 64 ] ],
-			'login'  => [ 'totals' => [ 'percentage' => 32 ] ],
-		];
-	}
-
-	private function allGoodMeterFixturesBySlug() :array {
-		return [
-			'ips'    => [ 'totals' => [ 'percentage' => 91 ] ],
-			'assets' => [ 'totals' => [ 'percentage' => 85 ] ],
-			'login'  => [ 'totals' => [ 'percentage' => 82 ] ],
+			'totals' => [ 'percentage' => $percentage ],
 		];
 	}
 
@@ -299,21 +354,17 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 
-	private array $meterFixturesBySlug;
+	private array $summaryMeterFixture;
 
 	private array $zoneTileFixtures;
 
-	public function __construct( array $meterFixturesBySlug, array $zoneTileFixtures ) {
-		$this->meterFixturesBySlug = $meterFixturesBySlug;
+	public function __construct( array $summaryMeterFixture, array $zoneTileFixtures ) {
+		$this->summaryMeterFixture = $summaryMeterFixture;
 		$this->zoneTileFixtures = $zoneTileFixtures;
 	}
 
-	protected function getConfigureMeterSlugs() :array {
-		return \array_keys( $this->meterFixturesBySlug );
-	}
-
-	protected function getMeterDataForSlug( string $meterSlug ) :array {
-		return $this->meterFixturesBySlug[ $meterSlug ] ?? [ 'totals' => [ 'percentage' => 0 ] ];
+	protected function getSummaryMeterData() :array {
+		return $this->summaryMeterFixture;
 	}
 
 	protected function getConfigureZoneTiles() :array {
