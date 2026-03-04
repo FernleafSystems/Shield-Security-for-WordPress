@@ -4,9 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\FileScanner;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsExcludedPhpTranslationFile;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldWordPressTestCase;
 
 class IsExcludedPhpTranslationFileIntegrationTest extends ShieldWordPressTestCase {
+
+	use TempDirLifecycleTrait;
 
 	private string $testRoot = '';
 
@@ -17,7 +20,10 @@ class IsExcludedPhpTranslationFileIntegrationTest extends ShieldWordPressTestCas
 			$this->markTestSkipped( 'WP_LANG_DIR is unavailable in this test environment.' );
 		}
 
-		$this->testRoot = wp_normalize_path( path_join( WP_LANG_DIR, 'shield-tests-l10n' ) );
+		$this->testRoot = wp_normalize_path( path_join(
+			WP_LANG_DIR,
+			'shield-tests-l10n-'.\bin2hex( \random_bytes( 6 ) )
+		) );
 		if ( !is_dir( $this->testRoot ) && !wp_mkdir_p( $this->testRoot ) ) {
 			$this->markTestSkipped( 'Unable to create temporary language test directory.' );
 		}
@@ -29,6 +35,7 @@ class IsExcludedPhpTranslationFileIntegrationTest extends ShieldWordPressTestCas
 
 	public function tear_down() {
 		$this->deleteDirectoryRecursively( $this->testRoot );
+		$this->cleanupTrackedTempDirs();
 		parent::tear_down();
 	}
 
@@ -57,18 +64,11 @@ class IsExcludedPhpTranslationFileIntegrationTest extends ShieldWordPressTestCas
 	}
 
 	public function testDoesNotExcludeFilesOutsideWordpressLanguageDirectory() :void {
-		$outsideDir = wp_normalize_path( path_join( wp_normalize_path( \sys_get_temp_dir() ), 'shield-tests-l10n-outside' ) );
-		if ( !is_dir( $outsideDir ) && !wp_mkdir_p( $outsideDir ) ) {
-			$this->markTestSkipped( 'Unable to create outside test directory.' );
-		}
-
+		$outsideDir = wp_normalize_path( $this->createTrackedTempDir( 'shield-tests-l10n-outside-' ) );
 		$outsidePath = wp_normalize_path( path_join( $outsideDir, 'wp-simple-firewall-tr_TR.l10n.php' ) );
 		\file_put_contents( $outsidePath, $this->validTranslationContent() );
 
 		$this->assertFalse( ( new IsExcludedPhpTranslationFile() )->check( $outsidePath ) );
-
-		@unlink( $outsidePath );
-		@rmdir( $outsideDir );
 	}
 
 	public function testDoesNotExcludeExecutablePhpDisguisedAsTranslationFile() :void {

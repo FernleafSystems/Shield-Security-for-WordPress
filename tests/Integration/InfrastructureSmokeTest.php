@@ -284,6 +284,69 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	/**
 	 * @group smoke
 	 */
+	public function test_namespaced_integration_tests_extend_supported_base_classes() :void {
+		$integrationRoot = __DIR__;
+		$allowedStandalone = \array_filter( [
+			\realpath( __FILE__ ),
+			\realpath( __DIR__.'/FilesHaveJsonFormatTest.php' ),
+			\realpath( __DIR__.'/Infrastructure/PluginPackagerStraussTest.php' ),
+		] );
+
+		$allowedParents = [
+			'ShieldIntegrationTestCase',
+			'ShieldWordPressTestCase',
+			'FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase',
+			'FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldWordPressTestCase',
+		];
+
+		$violations = [];
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $integrationRoot, \FilesystemIterator::SKIP_DOTS )
+		);
+		foreach ( $iterator as $file ) {
+			/** @var \SplFileInfo $file */
+			if ( !$file->isFile() ) {
+				continue;
+			}
+
+			$path = \realpath( $file->getPathname() );
+			if ( !\is_string( $path ) || !\preg_match( '#Test\.php$#', $path ) ) {
+				continue;
+			}
+
+			if ( \in_array( $path, $allowedStandalone, true ) ) {
+				continue;
+			}
+
+			$content = \file_get_contents( $path );
+			if ( !\is_string( $content ) ) {
+				$violations[] = $path.' (could not read file contents)';
+				continue;
+			}
+
+			if ( \strpos( $content, 'namespace FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Integration' ) === false ) {
+				$violations[] = $path.' (missing integration namespace)';
+				continue;
+			}
+
+			if ( \preg_match( '#class\s+\w+\s+extends\s+([\\\\A-Za-z0-9_]+)#', $content, $matches ) !== 1 ) {
+				$violations[] = $path.' (missing class extends declaration)';
+				continue;
+			}
+
+			$parent = \ltrim( (string)$matches[ 1 ], '\\' );
+			if ( !\in_array( $parent, $allowedParents, true ) ) {
+				$violations[] = $path.' (unsupported base class: '.$parent.')';
+			}
+		}
+
+		$this->assertSame( [], $violations, "Integration tests must extend Shield base test cases.\n".\implode( "\n", $violations ) );
+	}
+
+	/**
+	 * @group smoke
+	 */
 	public function test_php_reflection_capabilities() :void {
 		$testClass = \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords::class;
 		$ref = new \ReflectionClass( $testClass );

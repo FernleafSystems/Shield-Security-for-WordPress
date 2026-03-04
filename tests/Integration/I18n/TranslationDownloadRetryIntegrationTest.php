@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\I18n;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\LoadTextDomain;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\TranslationDownloadController;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
@@ -518,5 +519,28 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 
 		$count = \array_count_values( $controller->getQueue() )[ $locale ] ?? 0;
 		$this->assertSame( 1, $count );
+	}
+
+	public function testDynamicMoLookupQueuesLanguageFallbackLocaleDeterministically() :void {
+		$controller = $this->controller();
+		$this->addCfg( $controller, 'queue', [] );
+		$this->addCfg( $controller, 'locales', [
+			'ar' => [
+				'hash'      => \hash( 'sha256', 'ar-fallback-mo' ),
+				'hash_type' => 'sha256',
+			],
+		] );
+
+		$loader = new LoadTextDomain();
+		$reflection = new \ReflectionClass( $loader );
+		$findDynamicMo = $reflection->getMethod( 'findDynamicMo' );
+		$findDynamicMo->setAccessible( true );
+
+		$resolvedPath = $findDynamicMo->invoke( $loader, 'ar_EG' );
+		$this->assertNull( $resolvedPath, 'No cached MO should resolve before download.' );
+
+		$queue = $controller->getQueue();
+		$this->assertContains( 'ar', $queue, 'Language fallback locale should be queued.' );
+		$this->assertNotContains( 'ar_EG', $queue, 'Unavailable exact locale should not be queued.' );
 	}
 }

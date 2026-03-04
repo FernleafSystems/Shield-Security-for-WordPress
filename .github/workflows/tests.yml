@@ -65,6 +65,28 @@ jobs:
     - name: Run source static analysis
       run: php bin/shield analyze:source
 
+  unit-parallel-advisory:
+    name: 'Unit Parallel Advisory'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Run unit tests in parallel (advisory)
+      run: composer test:unit:parallel
+
   source-docker-runtime:
     name: 'Source Docker Runtime'
     runs-on: ubuntu-latest

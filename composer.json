@@ -42,6 +42,7 @@
     "phpunit/phpunit":                      "^9.6",
     "yoast/phpunit-polyfills":              "^4.0",
     "brain/monkey":                         "^2.6",
+    "brianium/paratest":                    "^6.11.1",
     "mockery/mockery":                      "^1.6",
     "phpstan/phpstan":                      "^2.1",
     "php-stubs/wordpress-stubs":            "^6.0",
@@ -85,9 +86,18 @@
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Rules",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml tests/Integration/Rules tests/Integration/CrossSystem/RuleToEventToAuditFlowTest.php tests/Integration/Bots/BotEventListenerTest.php"
     ],
-    "test:unit":        [
+    "test:unit":        "@test:unit:serial",
+    "test:unit:serial": [
       "@build:config",
       "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml"
+    ],
+    "test:unit:parallel": [
+      "@build:config",
+      "@php vendor/brianium/paratest/bin/paratest -c phpunit-unit.xml --runner WrapperRunner --processes=auto --no-coverage"
+    ],
+    "test:unit:verify-power": [
+      "@test:unit:serial",
+      "@test:unit:parallel"
     ],
     "test:integration": [
       "@build:config",

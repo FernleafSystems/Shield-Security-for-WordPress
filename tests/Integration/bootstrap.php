@@ -450,6 +450,27 @@ function shield_integration_bootstrap_phase_finalize( array $state ) :void {
 	shield_test_log( '=== SHIELD INTEGRATION TEST BOOTSTRAP COMPLETE ===' );
 }
 
+/**
+ * Integration tests currently share WordPress DB/table state and must run serially.
+ * ParaTest process tokens indicate parallel execution; fail fast with a clear message.
+ */
+function shield_integration_assert_serial_execution() :void {
+	$testToken = \getenv( 'TEST_TOKEN' );
+	$uniqueTestToken = \getenv( 'UNIQUE_TEST_TOKEN' );
+	if (
+		( \is_string( $testToken ) && $testToken !== '' )
+		|| ( \is_string( $uniqueTestToken ) && $uniqueTestToken !== '' )
+	) {
+		\fwrite(
+			\STDERR,
+			'ERROR: Shield integration tests are serial-only. '
+			.'Parallel execution tokens detected (TEST_TOKEN/UNIQUE_TEST_TOKEN).'.\PHP_EOL
+		);
+		exit( 1 );
+	}
+}
+
+shield_integration_assert_serial_execution();
 $state = shield_integration_bootstrap_phase_prepare();
 $state = shield_integration_bootstrap_phase_bootstrap_wordpress( $state );
 shield_integration_bootstrap_phase_finalize( $state );
