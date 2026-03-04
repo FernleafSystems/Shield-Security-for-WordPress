@@ -102,6 +102,65 @@ class ModeTileBorderStyleContractTest extends BaseUnitTest {
 			]
 		);
 
+		$zoneTileIconBody = $this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-tile-icon',
+			[
+				'background: none;',
+				'border-radius: 0;',
+				'color: #666;',
+				'font-size: 1.05rem;',
+				'height: auto;',
+				'width: auto;',
+			]
+		);
+		$this->assertStringNotContainsString( 'background: $surface-color-neutral-raised;', $zoneTileIconBody );
+		$this->assertStringNotContainsString( 'border-radius: 10px;', $zoneTileIconBody );
+		$this->assertStringNotContainsString( 'color: #4a5560;', $zoneTileIconBody );
+		$this->assertStringNotContainsString( 'height: 32px;', $zoneTileIconBody );
+		$this->assertStringNotContainsString( 'width: 32px;', $zoneTileIconBody );
+
+		$zoneStatusBody = $this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-status',
+			[
+				'border-radius: 4px;',
+				'font-size: 0.72rem;',
+				'font-weight: 700;',
+				'letter-spacing: 0.02em;',
+			]
+		);
+		$this->assertStringNotContainsString( 'border-radius: 12px;', $zoneStatusBody );
+		$this->assertStringNotContainsString( 'font-size: 0.68rem;', $zoneStatusBody );
+		$this->assertStringNotContainsString( 'font-weight: 600;', $zoneStatusBody );
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-status.status-good',
+			[
+				'background: $badge-good-bg;',
+				'color: $badge-good-color;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-status.status-warning',
+			[
+				'background: $badge-warning-bg;',
+				'color: $badge-warning-color;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-status.status-critical',
+			[
+				'background: $badge-critical-bg;',
+				'color: $badge-critical-color;',
+			]
+		);
+
 		$this->assertStringNotContainsString( 'border-color: rgba($status-color-good, 0.45);', $content );
 		$this->assertStringNotContainsString( 'border-color: rgba($status-color-warning, 0.45);', $content );
 		$this->assertStringNotContainsString( 'border-color: rgba($status-color-critical, 0.45);', $content );
@@ -160,6 +219,67 @@ class ModeTileBorderStyleContractTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'grid-template-columns: repeat(3, minmax(0, 1fr));', $content );
 		$this->assertStringNotContainsString( 'grid-template-columns: repeat(4, minmax(0, 1fr));', $content );
 		$this->assertStringNotContainsString( 'grid-template-columns: repeat(6, minmax(0, 1fr));', $content );
+	}
+
+	public function testConfigurePanelCtaStyleContract() :void {
+		$content = $this->getStylesheetContents( 'assets/css/shield/configure.scss' );
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta',
+			[
+				'background: $status-color-good;',
+				'color: #fff;',
+				'border: none;',
+				'padding: 0.42rem 0.9rem;',
+				'border-radius: 6px;',
+				'font-size: 0.84rem;',
+				'display: inline-block;',
+				'font-weight: 600;',
+				'text-decoration: none;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta:hover',
+			[
+				'background: #005c00;',
+				'color: #fff;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta.status-warning',
+			[
+				'background: $status-color-warning;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta.status-warning:hover',
+			[
+				'background: #c49000;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta.status-critical',
+			[
+				'background: $status-color-critical;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta.status-critical:hover',
+			[
+				'background: #a02232;',
+			]
+		);
 	}
 
 	private function getStylesheetContents( string $path ) :string {

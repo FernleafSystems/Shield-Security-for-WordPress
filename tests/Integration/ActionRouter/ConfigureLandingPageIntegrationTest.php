@@ -38,6 +38,28 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="hero"]', 'Configure hero section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="zones"]', 'Configure zones section marker' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="zones" and not(contains(concat(" ", normalize-space(@class), " "), " card ")) and not(contains(concat(" ", normalize-space(@class), " "), " shield-card "))]',
+			'Configure zones section no longer uses card wrapper classes'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-mode-tiles="1" and contains(concat(" ", normalize-space(@class), " "), " configure-landing__zone-grid ")]',
+			'Configure zones section renders mode tile grid directly'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-card-accent ")]',
+			0,
+			'Configure zones section should not render shield card accent'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " card-body ")]',
+			0,
+			'Configure zones section should not render card body wrapper'
+		);
 		$this->assertModeShellAndAccentContract( $xpath, 'configure', 'good', 'Configure', true );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="stats"]', 0, 'Configure stats section removed' );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="overview-meters"]', 0, 'Configure overview section removed' );
@@ -121,10 +143,29 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			0,
 			'Configure mode panel close button no longer uses bootstrap outline class'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-configure-panel="secadmin"]//*[@data-configure-zone-settings="secadmin"]',
-			'Configure secadmin panel settings CTA'
+			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings]',
+			8,
+			'Configure panel settings CTA marker count'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ")]',
+			8,
+			'Configure panel settings CTA uses redesign class'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical "))]',
+			8,
+			'Configure panel settings CTA carries status class'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and contains(concat(" ", normalize-space(@class), " "), " btn-outline-secondary ")]',
+			0,
+			'Configure panel settings CTA no longer uses bootstrap outline class'
 		);
 	}
 }

@@ -22,31 +22,28 @@
 			</div>
 		</div>
 
-		<div class="card shield-card mt-4" data-configure-section="zones">
-			<div class="shield-card-accent status-good"></div>
-			<div class="card-body">
-				<h5 class="card-title mb-1">{{ strings.zones_title }}</h5>
-				<p class="text-muted small mb-3">{{ strings.zones_subtitle }}</p>
-				<div class="configure-landing__zone-grid" data-mode-tiles="1">
-					{% for zone in vars.zone_tiles %}
-						<button type="button"
-								class="configure-landing__zone-tile status-{{ zone.status }}{% if zone.is_disabled %} is-disabled{% endif %}"
-								data-configure-zone="{{ zone.key }}"
-								data-mode-tile="1"
-								data-mode-tile-key="{{ zone.key }}"
-								data-mode-panel-target="{{ zone.panel_target }}"
-								data-mode-tile-disabled="{{ zone.is_disabled ? '1' : '0' }}"
-								aria-disabled="{{ zone.is_disabled ? 'true' : 'false' }}"
-								aria-expanded="false">
-							<span class="configure-landing__zone-tile-header">
-								<span class="configure-landing__zone-tile-icon"><i class="{{ zone.icon_class }}" aria-hidden="true"></i></span>
-								<span class="configure-landing__zone-status status-{{ zone.status }}">{{ zone.status_label }}</span>
-							</span>
-							<span class="configure-landing__zone-title">{{ zone.label }}</span>
-							<span class="configure-landing__zone-stat">{{ zone.stat_line }}</span>
-						</button>
-					{% endfor %}
-				</div>
+		<div class="mt-4" data-configure-section="zones">
+			<h5 class="card-title mb-1">{{ strings.zones_title }}</h5>
+			<p class="text-muted small mb-3">{{ strings.zones_subtitle }}</p>
+			<div class="configure-landing__zone-grid" data-mode-tiles="1">
+				{% for zone in vars.zone_tiles %}
+					<button type="button"
+							class="configure-landing__zone-tile status-{{ zone.status }}{% if zone.is_disabled %} is-disabled{% endif %}"
+							data-configure-zone="{{ zone.key }}"
+							data-mode-tile="1"
+							data-mode-tile-key="{{ zone.key }}"
+							data-mode-panel-target="{{ zone.panel_target }}"
+							data-mode-tile-disabled="{{ zone.is_disabled ? '1' : '0' }}"
+							aria-disabled="{{ zone.is_disabled ? 'true' : 'false' }}"
+							aria-expanded="false">
+						<span class="configure-landing__zone-tile-header">
+							<span class="configure-landing__zone-tile-icon"><i class="{{ zone.icon_class }}" aria-hidden="true"></i></span>
+							<span class="configure-landing__zone-status status-{{ zone.status }}">{{ zone.status_label }}</span>
+						</span>
+						<span class="configure-landing__zone-title">{{ zone.label }}</span>
+						<span class="configure-landing__zone-stat">{{ zone.stat_line }}</span>
+					</button>
+				{% endfor %}
 			</div>
 		</div>
 

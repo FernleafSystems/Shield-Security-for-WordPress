@@ -171,13 +171,14 @@
 
 .configure-landing__zone-tile-icon {
 	align-items: center;
-	background: $surface-color-neutral-raised;
-	border-radius: 10px;
-	color: #4a5560;
+	background: none;
+	border-radius: 0;
+	color: #666;
 	display: inline-flex;
-	height: 32px;
+	font-size: 1.05rem;
+	height: auto;
 	justify-content: center;
-	width: 32px;
+	width: auto;
 }
 
 .configure-landing__zone-title {
@@ -193,10 +194,11 @@
 }
 
 .configure-landing__zone-status {
-	border-radius: 12px;
+	border-radius: 4px;
 	display: inline-flex;
-	font-size: 0.68rem;
-	font-weight: 600;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.02em;
 	line-height: 1.2;
 	padding: 0.2rem 0.55rem;
 	white-space: nowrap;
@@ -258,4 +260,37 @@
 .configure-landing__panel-actions {
 	border-top: 1px solid $border-color-neutral-subtle;
 	padding-top: 0.75rem;
+}
+
+.configure-landing__panel-cta {
+	background: $status-color-good;
+	border: none;
+	border-radius: 6px;
+	color: #fff;
+	display: inline-block;
+	font-size: 0.84rem;
+	font-weight: 600;
+	padding: 0.42rem 0.9rem;
+	text-decoration: none;
+}
+
+.configure-landing__panel-cta:hover {
+	background: #005c00;
+	color: #fff;
+}
+
+.configure-landing__panel-cta.status-warning {
+	background: $status-color-warning;
+}
+
+.configure-landing__panel-cta.status-warning:hover {
+	background: #c49000;
+}
+
+.configure-landing__panel-cta.status-critical {
+	background: $status-color-critical;
+}
+
+.configure-landing__panel-cta.status-critical:hover {
+	background: #a02232;
 }
