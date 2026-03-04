@@ -2,15 +2,36 @@
 	{% for component in zone.panel.components %}
 		<li class="configure-landing__component-row" data-configure-component-status="{{ component.status }}">
 			<div class="configure-landing__component-main">
-				<span class="configure-landing__component-title">{{ component.title }}</span>
-				<span class="configure-landing__component-note">{{ component.note }}</span>
+				<div class="configure-landing__component-row-head">
+					<span class="configure-landing__component-title">{{ component.title }}</span>
+					{% if component.config_action is not empty %}
+						<a class="configure-landing__component-config-link {{ component.config_action.classes|default([])|join( ' ' ) }}"
+						   href="{{ component.config_action.href|default('javascript:{}') }}"
+						   {% if component.config_action.title|default('') is not empty %}title="{{ component.config_action.title }}"{% endif %}
+						   {% for key, value in component.config_action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+						>Configure</a>
+					{% endif %}
+				</div>
+				{% if component.note|default('') is not empty %}
+					<span class="configure-landing__component-note">{{ component.note }}</span>
+				{% endif %}
+				{% if component.explanations|default([]) is not empty and component.status in [ 'warning', 'critical' ] %}
+					<ul class="configure-landing__component-explanations">
+						{% for explanation in component.explanations %}
+							<li>{{ explanation }}</li>
+						{% endfor %}
+					</ul>
+				{% endif %}
 			</div>
 			<span class="configure-landing__zone-status status-{{ component.status }}">{{ component.status_label }}</span>
 		</li>
 	{% endfor %}
 </ul>
 <div class="configure-landing__panel-actions mt-3">
-	<a href="{{ zone.settings_href }}"
-	   class="configure-landing__panel-cta status-{{ zone.panel.status }}"
-	   data-configure-zone-settings="{{ zone.key }}">{{ zone.settings_label }}</a>
+	<a href="{{ zone.settings_action.href|default(zone.settings_href) }}"
+	   class="configure-landing__panel-cta status-{{ zone.panel.status }} {{ zone.settings_action.classes|default([])|join( ' ' ) }}"
+	   data-configure-zone-settings="{{ zone.key }}"
+	   {% if zone.settings_action.title|default('') is not empty %}title="{{ zone.settings_action.title }}"{% endif %}
+	   {% for key, value in zone.settings_action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+	>{{ zone.settings_label }}</a>
 </div>

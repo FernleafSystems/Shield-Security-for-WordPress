@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerI
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	ActivityLogging,
 	InstantAlerts,
+	PluginGeneral,
 	Reporting,
 	RequestLogging
 };
@@ -67,6 +68,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	}
 
 	public function test_reports_subnav_constants_match_expected_contract() :void {
+		$this->assertSame( 'alerts', PluginNavs::SUBNAV_REPORTS_ALERTS );
+		$this->assertSame( 'reporting', PluginNavs::SUBNAV_REPORTS_REPORTING );
 		$this->assertSame( 'charts', PluginNavs::SUBNAV_REPORTS_CHARTS );
 		$this->assertSame( 'settings', PluginNavs::SUBNAV_REPORTS_SETTINGS );
 	}
@@ -76,6 +79,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::SUBNAV_REPORTS_ALERTS,
+				PluginNavs::SUBNAV_REPORTS_REPORTING,
 				PluginNavs::SUBNAV_REPORTS_CHARTS,
 				PluginNavs::SUBNAV_REPORTS_SETTINGS,
 			],
@@ -84,22 +89,60 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 
 		$expectedRenderActions = [
 			PluginNavs::SUBNAV_REPORTS_LIST     => Reports\PageReportsView::class,
+			PluginNavs::SUBNAV_REPORTS_ALERTS   => OptionsFormFor::class,
+			PluginNavs::SUBNAV_REPORTS_REPORTING => OptionsFormFor::class,
 			PluginNavs::SUBNAV_REPORTS_CHARTS   => Reports\ChartsSummary::class,
 			PluginNavs::SUBNAV_REPORTS_SETTINGS => OptionsFormFor::class,
 		];
 		$expectedContentKeys = [
 			PluginNavs::SUBNAV_REPORTS_LIST     => 'create_report',
+			PluginNavs::SUBNAV_REPORTS_ALERTS   => 'alerts_settings',
+			PluginNavs::SUBNAV_REPORTS_REPORTING => 'reporting_configuration',
 			PluginNavs::SUBNAV_REPORTS_CHARTS   => 'summary_charts',
 			PluginNavs::SUBNAV_REPORTS_SETTINGS => 'alerts_settings',
 		];
 		$expectedCreateActions = [
 			PluginNavs::SUBNAV_REPORTS_LIST     => true,
+			PluginNavs::SUBNAV_REPORTS_ALERTS   => false,
+			PluginNavs::SUBNAV_REPORTS_REPORTING => false,
 			PluginNavs::SUBNAV_REPORTS_CHARTS   => false,
 			PluginNavs::SUBNAV_REPORTS_SETTINGS => false,
 		];
+		$expectedSidebarVisibility = [
+			PluginNavs::SUBNAV_REPORTS_LIST      => true,
+			PluginNavs::SUBNAV_REPORTS_ALERTS    => true,
+			PluginNavs::SUBNAV_REPORTS_REPORTING => true,
+			PluginNavs::SUBNAV_REPORTS_CHARTS    => false,
+			PluginNavs::SUBNAV_REPORTS_SETTINGS  => false,
+		];
+		$expectedLandingVisibility = [
+			PluginNavs::SUBNAV_REPORTS_LIST      => true,
+			PluginNavs::SUBNAV_REPORTS_ALERTS    => true,
+			PluginNavs::SUBNAV_REPORTS_REPORTING => true,
+			PluginNavs::SUBNAV_REPORTS_CHARTS    => false,
+			PluginNavs::SUBNAV_REPORTS_SETTINGS  => false,
+		];
+		$expectedConfigZoneComponentSlugs = [
+			PluginNavs::SUBNAV_REPORTS_LIST      => [],
+			PluginNavs::SUBNAV_REPORTS_ALERTS    => [ InstantAlerts::Slug() ],
+			PluginNavs::SUBNAV_REPORTS_REPORTING => [ Reporting::Slug() ],
+			PluginNavs::SUBNAV_REPORTS_CHARTS    => [],
+			PluginNavs::SUBNAV_REPORTS_SETTINGS  => [ InstantAlerts::Slug(), Reporting::Slug() ],
+		];
 
 		foreach ( $definitions as $subNav => $definition ) {
-			foreach ( [ 'menu_title', 'landing_cta', 'page_title', 'page_subtitle', 'content_key', 'render_action', 'show_create_action' ] as $requiredKey ) {
+			foreach ( [
+				'menu_title',
+				'landing_cta',
+				'page_title',
+				'page_subtitle',
+				'content_key',
+				'render_action',
+				'show_create_action',
+				'show_in_sidebar',
+				'show_on_landing',
+				'config_zone_component_slugs'
+			] as $requiredKey ) {
 				$this->assertArrayHasKey( $requiredKey, $definition, 'Missing key '.$requiredKey.' for '.$subNav );
 			}
 
@@ -109,10 +152,38 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			}
 
 			$this->assertIsBool( $definition[ 'show_create_action' ], 'Expected boolean show_create_action for '.$subNav );
+			$this->assertIsBool( $definition[ 'show_in_sidebar' ], 'Expected boolean show_in_sidebar for '.$subNav );
+			$this->assertIsBool( $definition[ 'show_on_landing' ], 'Expected boolean show_on_landing for '.$subNav );
+			$this->assertIsArray( $definition[ 'config_zone_component_slugs' ], 'Expected list config_zone_component_slugs for '.$subNav );
 			$this->assertSame( $expectedRenderActions[ $subNav ], $definition[ 'render_action' ] );
 			$this->assertSame( $expectedContentKeys[ $subNav ], $definition[ 'content_key' ] );
 			$this->assertSame( $expectedCreateActions[ $subNav ], $definition[ 'show_create_action' ] );
+			$this->assertSame( $expectedSidebarVisibility[ $subNav ], $definition[ 'show_in_sidebar' ] );
+			$this->assertSame( $expectedLandingVisibility[ $subNav ], $definition[ 'show_on_landing' ] );
+			$this->assertSame( $expectedConfigZoneComponentSlugs[ $subNav ], $definition[ 'config_zone_component_slugs' ] );
 		}
+	}
+
+	public function test_reports_sidebar_workspace_definitions_include_only_visible_entries() :void {
+		$this->assertSame(
+			[
+				PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::SUBNAV_REPORTS_ALERTS,
+				PluginNavs::SUBNAV_REPORTS_REPORTING,
+			],
+			\array_keys( PluginNavs::reportsSidebarWorkspaceDefinitions() )
+		);
+	}
+
+	public function test_reports_landing_workspace_definitions_include_only_visible_entries() :void {
+		$this->assertSame(
+			[
+				PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::SUBNAV_REPORTS_ALERTS,
+				PluginNavs::SUBNAV_REPORTS_REPORTING,
+			],
+			\array_keys( PluginNavs::reportsLandingWorkspaceDefinitions() )
+		);
 	}
 
 	public function test_reports_route_handlers_match_expected_contract() :void {
@@ -120,6 +191,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			[
 				PluginNavs::SUBNAV_REPORTS_OVERVIEW => PluginAdminPages\PageReportsLanding::class,
 				PluginNavs::SUBNAV_REPORTS_LIST     => PluginAdminPages\PageReports::class,
+				PluginNavs::SUBNAV_REPORTS_ALERTS   => PluginAdminPages\PageReports::class,
+				PluginNavs::SUBNAV_REPORTS_REPORTING => PluginAdminPages\PageReports::class,
 				PluginNavs::SUBNAV_REPORTS_CHARTS   => PluginAdminPages\PageReports::class,
 				PluginNavs::SUBNAV_REPORTS_SETTINGS => PluginAdminPages\PageReports::class,
 			],
@@ -132,6 +205,18 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	}
 
 	public function test_reports_settings_zone_component_slugs_match_expected_contract() :void {
+		$this->assertSame(
+			[
+				InstantAlerts::Slug(),
+			],
+			PluginNavs::reportsAlertSettingsZoneComponentSlugs()
+		);
+		$this->assertSame(
+			[
+				Reporting::Slug(),
+			],
+			PluginNavs::reportsReportingConfigurationZoneComponentSlugs()
+		);
 		$this->assertSame(
 			[
 				InstantAlerts::Slug(),
@@ -340,7 +425,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	public function test_configure_landing_tile_definitions_match_expected_contract() :void {
 		$definitions = PluginNavs::configureLandingTileDefinitions();
 		$this->assertSame(
-			[ 'secadmin', 'login', 'firewall', 'ips', 'scans', 'spam', 'audit_trail', 'traffic_monitor' ],
+			[ 'secadmin', 'firewall', 'ips', 'scans', 'login', 'users', 'spam', 'headers', 'general' ],
 			\array_column( $definitions, 'key' )
 		);
 
@@ -354,13 +439,20 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 
 			$hasZoneSlug = !empty( $definition[ 'zone_slug' ] ?? '' );
 			$hasComponentSlug = !empty( $definition[ 'component_slug' ] ?? '' );
-			$this->assertTrue( $hasZoneSlug xor $hasComponentSlug );
+			$hasComponentSlugs = !empty( $definition[ 'component_slugs' ] ?? [] );
+			$this->assertSame( 1, (int)$hasZoneSlug + (int)$hasComponentSlug + (int)$hasComponentSlugs );
 		}
 
 		$this->assertSame( Zone\Secadmin::Slug(), $definitions[ 0 ][ 'zone_slug' ] ?? '' );
-		$this->assertSame( Zone\Login::Slug(), $definitions[ 1 ][ 'zone_slug' ] ?? '' );
-		$this->assertSame( ActivityLogging::Slug(), $definitions[ 6 ][ 'component_slug' ] ?? '' );
-		$this->assertSame( RequestLogging::Slug(), $definitions[ 7 ][ 'component_slug' ] ?? '' );
+		$this->assertSame( Zone\Firewall::Slug(), $definitions[ 1 ][ 'zone_slug' ] ?? '' );
+		$this->assertSame( Zone\Users::Slug(), $definitions[ 5 ][ 'zone_slug' ] ?? '' );
+		$this->assertSame( Zone\Headers::Slug(), $definitions[ 7 ][ 'zone_slug' ] ?? '' );
+		$this->assertSame(
+			[ PluginGeneral::Slug(), ActivityLogging::Slug(), RequestLogging::Slug() ],
+			$definitions[ 8 ][ 'component_slugs' ] ?? []
+		);
+		$this->assertFalse( $definitions[ 8 ][ 'include_in_posture' ] ?? true );
+		$this->assertTrue( $definitions[ 8 ][ 'force_neutral' ] ?? false );
 	}
 
 	public function test_breadcrumb_subnav_definition_matches_expected_contract_for_scope_routes() :void {
@@ -371,6 +463,14 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[ 'label' => 'Security Reports' ],
 			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST )
+		);
+		$this->assertSame(
+			[ 'label' => 'Alert Settings' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_ALERTS )
+		);
+		$this->assertSame(
+			[ 'label' => 'Reporting Configuration' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_REPORTING )
 		);
 		$this->assertSame(
 			[ 'label' => 'Charts & Trends' ],

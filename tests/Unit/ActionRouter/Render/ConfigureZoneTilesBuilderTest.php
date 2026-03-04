@@ -39,7 +39,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 
 	public function test_build_returns_expected_tile_contract() :void {
 		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
-		$this->assertCount( 8, $tiles );
+		$this->assertCount( 9, $tiles );
 
 		$this->assertSame(
 			\array_column( PluginNavs::configureLandingTileDefinitions(), 'key' ),
@@ -49,13 +49,14 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'secadmin',
-				'login',
 				'firewall',
 				'ips',
 				'scans',
+				'login',
+				'users',
 				'spam',
-				'audit_trail',
-				'traffic_monitor',
+				'headers',
+				'general',
 			],
 			\array_column( $tiles, 'key' )
 		);
@@ -66,11 +67,14 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			$this->assertSame( $tile[ 'key' ], $tile[ 'panel_target' ] );
 			$this->assertSame( !$tile[ 'is_enabled' ], $tile[ 'is_disabled' ] );
 			$this->assertSame( 'bi bi-', \substr( $tile[ 'icon_class' ], 0, 6 ) );
+			$this->assertSame( $tile[ 'include_in_posture' ], $tile[ 'key' ] !== 'general' );
 		}
 
 		$this->assertSame( 'good', $tilesByKey[ 'secadmin' ][ 'status' ] );
 		$this->assertSame( 'All components healthy', $tilesByKey[ 'secadmin' ][ 'stat_line' ] );
-		$this->assertSame( '/admin/zones/secadmin', $tilesByKey[ 'secadmin' ][ 'settings_href' ] );
+		$this->assertSame( 'zone_component_action', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'classes' ][ 0 ] ?? '' );
+		$this->assertSame( 'offcanvas_zone_component_config', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'data' ][ 'zone_component_action' ] ?? '' );
+		$this->assertSame( 'offcanvas', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'data' ][ 'form_context' ] ?? '' );
 
 		$this->assertSame( 'warning', $tilesByKey[ 'login' ][ 'status' ] );
 		$this->assertSame( '1 component needs work', $tilesByKey[ 'login' ][ 'stat_line' ] );
@@ -79,41 +83,43 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( '1 critical, 1 need work', $tilesByKey[ 'spam' ][ 'stat_line' ] );
 		$this->assertCount( 2, $tilesByKey[ 'spam' ][ 'panel' ][ 'components' ] );
 
-		$this->assertSame( '/admin/zone_components/activity_logging', $tilesByKey[ 'audit_trail' ][ 'settings_href' ] );
-		$this->assertSame( 'good', $tilesByKey[ 'audit_trail' ][ 'panel' ][ 'components' ][ 0 ][ 'status' ] );
-
-		$this->assertSame( 'warning', $tilesByKey[ 'traffic_monitor' ][ 'status' ] );
-		$this->assertSame( 'Needs Work', $tilesByKey[ 'traffic_monitor' ][ 'status_label' ] );
+		$this->assertSame( 'neutral', $tilesByKey[ 'general' ][ 'status' ] );
+		$this->assertSame( 'General settings', $tilesByKey[ 'general' ][ 'stat_line' ] );
+		$this->assertSame( 'General', $tilesByKey[ 'general' ][ 'status_label' ] );
+		$this->assertSame( '/admin/zone_components/plugin_general', $tilesByKey[ 'general' ][ 'settings_href' ] );
 		$this->assertSame(
-			'Request logging note from subtitle.',
-			$tilesByKey[ 'traffic_monitor' ][ 'panel' ][ 'components' ][ 0 ][ 'note' ]
+			'neutral',
+			$tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'status' ]
 		);
+		$this->assertNotEmpty( $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ] );
+		$this->assertSame( 'offcanvas', $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ][ 'data' ][ 'form_context' ] ?? '' );
 	}
 
 	private function installControllerStub() :void {
-		$secadminZone = $this->newZone();
-		$loginZone = $this->newZone();
-		$firewallZone = $this->newZone();
-		$ipsZone = $this->newZone();
-		$scansZone = $this->newZone();
-		$spamZone = $this->newZone();
+		$secadminZone = $this->newZone( 'module_secadmin' );
+		$firewallZone = $this->newZone( 'module_firewall' );
+		$ipsZone = $this->newZone( 'module_ips' );
+		$scansZone = $this->newZone( 'module_scans' );
+		$loginZone = $this->newZone( 'module_login' );
+		$usersZone = $this->newZone( 'module_users' );
+		$spamZone = $this->newZone( 'module_spam' );
+		$headersZone = $this->newZone( 'module_headers' );
 
 		/** @var SecurityZonesCon $zonesCon */
 		$zonesCon = new class(
 			[
 				Zone\Secadmin::Slug() => $secadminZone,
-				Zone\Login::Slug()    => $loginZone,
 				Zone\Firewall::Slug() => $firewallZone,
 				Zone\Ips::Slug()      => $ipsZone,
 				Zone\Scans::Slug()    => $scansZone,
+				Zone\Login::Slug()    => $loginZone,
+				Zone\Users::Slug()    => $usersZone,
 				Zone\Spam::Slug()     => $spamZone,
+				Zone\Headers::Slug()  => $headersZone,
 			],
 			[
 				\spl_object_id( $secadminZone ) => [
 					$this->newComponent( 'PIN Protection', EnumEnabledStatus::GOOD, 'PIN subtitle', [ 'PIN is active.' ] ),
-				],
-				\spl_object_id( $loginZone )    => [
-					$this->newComponent( '2FA Enforcement', EnumEnabledStatus::OKAY, '2FA subtitle', [ '2FA is not enforced.' ] ),
 				],
 				\spl_object_id( $firewallZone ) => [
 					$this->newComponent( 'WAF Rules', EnumEnabledStatus::NEUTRAL, 'WAF subtitle', [ 'WAF rules need review.' ] ),
@@ -124,12 +130,27 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				\spl_object_id( $scansZone )    => [
 					$this->newComponent( 'Scan Schedule', EnumEnabledStatus::NEUTRAL_ENABLED, 'Scan subtitle', [ 'Scans are active.' ] ),
 				],
+				\spl_object_id( $loginZone )    => [
+					$this->newComponent( '2FA Enforcement', EnumEnabledStatus::OKAY, '2FA subtitle', [ '2FA is not enforced.' ] ),
+				],
+				\spl_object_id( $usersZone )    => [
+					$this->newComponent( 'Inactive Users', EnumEnabledStatus::OKAY, 'Inactive user policy', [ 'Suspension policy needs review.' ] ),
+				],
 				\spl_object_id( $spamZone )     => [
 					$this->newComponent( 'Bot SPAM Blocking', EnumEnabledStatus::BAD, 'Bot subtitle', [ 'Bot SPAM blocking is disabled.' ] ),
 					$this->newComponent( 'Human SPAM Filtering', EnumEnabledStatus::OKAY, 'Human subtitle', [ 'Human SPAM filtering needs setup.' ] ),
 				],
+				\spl_object_id( $headersZone )  => [
+					$this->newComponent( 'CSP Headers', EnumEnabledStatus::GOOD, 'CSP subtitle', [ 'CSP is active.' ] ),
+				],
 			],
 			[
+				'plugin_general'                  => $this->newComponent(
+					'General Plugin Configuration',
+					EnumEnabledStatus::GOOD,
+					'General plugin settings.',
+					[ 'General configuration is active.' ]
+				),
 				Component\ActivityLogging::Slug() => $this->newComponent(
 					'WordPress Activity Logging',
 					EnumEnabledStatus::GOOD,
@@ -190,8 +211,28 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function newZone() :Zone\Base {
-		return new class extends Zone\Base {
+	private function newZone( string $moduleSlug ) :Zone\Base {
+		return new class( $moduleSlug ) extends Zone\Base {
+			private string $moduleSlug;
+
+			public function __construct( string $moduleSlug ) {
+				$this->moduleSlug = $moduleSlug;
+			}
+
+			public function getAction_Config() :?array {
+				return [
+					'title'   => 'Config',
+					'data'    => [
+						'zone_component_action' => 'offcanvas_zone_component_config',
+						'zone_component_slug'   => $this->moduleSlug,
+					],
+					'icon'    => 'bi bi-gear',
+					'classes' => [
+						'list-group-item-primary',
+						'zone_component_action',
+					],
+				];
+			}
 		};
 	}
 

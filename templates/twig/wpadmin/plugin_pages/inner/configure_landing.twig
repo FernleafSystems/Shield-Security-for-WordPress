@@ -1,7 +1,9 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="configure-landing" data-configure-landing="1">
+	<div class="configure-landing"
+		 data-configure-landing="1"
+		 data-configure-render-action="{{ vars.configure_render_action|default({})|json_encode|e('html_attr') }}">
 		<div data-configure-section="hero">
 			<div class="configure-landing__posture-strip" data-configure-posture-strip="1">
 				<span class="configure-landing__posture-chip status-{{ vars.posture_status }}"
@@ -23,8 +25,6 @@
 		</div>
 
 		<div class="mt-4" data-configure-section="zones">
-			<h5 class="card-title mb-1">{{ strings.zones_title }}</h5>
-			<p class="text-muted small mb-3">{{ strings.zones_subtitle }}</p>
 			<div class="configure-landing__zone-grid" data-mode-tiles="1">
 				{% for zone in vars.zone_tiles %}
 					<button type="button"

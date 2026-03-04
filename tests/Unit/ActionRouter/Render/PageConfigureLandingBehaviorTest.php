@@ -11,8 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -66,6 +68,19 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'bi bi-exclamation-circle-fill', $vars[ 'posture_icon_class' ] ?? '' );
 		$this->assertSame( '78% - 1 critical - 1 needs work - 1 good', $vars[ 'posture_summary' ] ?? '' );
 		$this->assertSame( $zoneTiles, $vars[ 'zone_tiles' ] ?? [] );
+		$this->assertIsArray( $vars[ 'configure_render_action' ] ?? null );
+		$this->assertSame(
+			PageConfigureLanding::SLUG,
+			$vars[ 'configure_render_action' ][ 'render_slug' ] ?? ''
+		);
+		$this->assertSame(
+			PluginNavs::NAV_ZONES,
+			$vars[ 'configure_render_action' ][ Constants::NAV_ID ] ?? ''
+		);
+		$this->assertSame(
+			PluginNavs::SUBNAV_ZONES_OVERVIEW,
+			$vars[ 'configure_render_action' ][ Constants::NAV_SUB_ID ] ?? ''
+		);
 	}
 
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
@@ -103,6 +118,63 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '96% - 0 critical - 0 need work - 2 good', $vars[ 'posture_summary' ] ?? '' );
 	}
 
+	public function test_landing_summary_ignores_tiles_excluded_from_posture() :void {
+		$zoneTiles = [
+			\array_merge(
+				$this->buildZoneTileFixture(
+					'secadmin',
+					'Security Admin',
+					'shield-lock',
+					'good',
+					'Good',
+					'All components healthy',
+					'/admin/zones/secadmin',
+					'Configure Security Admin Settings',
+					[
+						$this->buildZoneComponentFixture( 'PIN Protection', 'good', 'Active', 'PIN is configured.' ),
+					]
+				),
+				[ 'include_in_posture' => true ]
+			),
+			\array_merge(
+				$this->buildZoneTileFixture(
+					'login',
+					'Login',
+					'person-lock',
+					'warning',
+					'Needs Work',
+					'1 component needs work',
+					'/admin/zones/login',
+					'Configure Login Settings',
+					[
+						$this->buildZoneComponentFixture( '2FA', 'warning', 'Needs Work', '2FA requires review.' ),
+					]
+				),
+				[ 'include_in_posture' => true ]
+			),
+			\array_merge(
+				$this->buildZoneTileFixture(
+					'general',
+					'General',
+					'sliders',
+					'critical',
+					'Critical',
+					'1 critical component',
+					'/admin/zone_components/plugin_general',
+					'Configure General Settings',
+					[
+						$this->buildZoneComponentFixture( 'Traffic Monitoring', 'critical', 'Issue', 'Traffic monitor disabled.' ),
+					]
+				),
+				[ 'include_in_posture' => false ]
+			),
+		];
+
+		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $zoneTiles );
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$this->assertSame( '78% - 0 critical - 1 needs work - 1 good', $vars[ 'posture_summary' ] ?? '' );
+	}
+
 	public function test_landing_hrefs_are_empty() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
 		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
@@ -114,8 +186,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
 		$this->assertSame( 'Configuration Posture', $strings[ 'posture_title' ] ?? '' );
-		$this->assertSame( 'Security Zones', $strings[ 'zones_title' ] ?? '' );
-		$this->assertSame( 'Jump directly to a security zone to review and adjust settings.', $strings[ 'zones_subtitle' ] ?? '' );
+		$this->assertArrayNotHasKey( 'zones_title', $strings );
+		$this->assertArrayNotHasKey( 'zones_subtitle', $strings );
 
 		foreach ( [ 'stats_title', 'overview_title', 'quick_links_title', 'link_grades', 'link_zones', 'link_rules', 'link_tools' ] as $removedKey ) {
 			$this->assertArrayNotHasKey( $removedKey, $strings );
@@ -369,5 +441,16 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 
 	protected function getConfigureZoneTiles() :array {
 		return $this->zoneTileFixtures;
+	}
+
+	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
+		return \array_merge(
+			[
+				'action'      => 'shield_action',
+				'ex'          => 'ajax_render',
+				'render_slug' => $renderAction::SLUG,
+			],
+			$auxData
+		);
 	}
 }

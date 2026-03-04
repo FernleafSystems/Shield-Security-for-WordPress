@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
@@ -14,6 +18,10 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_configure_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/configure_landing.twig';
+	private const EXCLUDED_POSTURE_COMPONENT_SLUGS = [
+		'activity_log_enabled',
+		'traffic_log_enabled',
+	];
 	private ?MeterHandler $meterHandler = null;
 
 	/**
@@ -22,6 +30,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 	 *   panel_target:string,
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
+	 *   include_in_posture:bool,
 	 *   label:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -29,6 +38,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 	 *   stat_line:string,
 	 *   settings_href:string,
 	 *   settings_label:string,
+	 *   settings_action:array<string,mixed>,
 	 *   panel:array{
 	 *     title:string,
 	 *     status:string,
@@ -37,7 +47,9 @@ class PageConfigureLanding extends PageModeLandingBase {
 	 *       title:string,
 	 *       status:string,
 	 *       status_label:string,
-	 *       note:string
+	 *       note:string,
+	 *       explanations:list<string>,
+	 *       config_action:array<string,mixed>
 	 *     }>
 	 *   }
 	 * }>|null
@@ -92,23 +104,22 @@ class PageConfigureLanding extends PageModeLandingBase {
 		$postureStatus = BuildMeter::trafficFromPercentage( $posturePercentage );
 
 		return [
-			'posture_status'     => $postureStatus,
-			'posture_percentage' => $posturePercentage,
-			'posture_label'      => $this->buildPostureLabel( $postureStatus ),
-			'posture_icon_class' => $this->buildPostureIconClass( $postureStatus ),
-			'posture_summary'    => $this->buildPostureSummary(
+			'posture_status'          => $postureStatus,
+			'posture_percentage'      => $posturePercentage,
+			'posture_label'           => $this->buildPostureLabel( $postureStatus ),
+			'posture_icon_class'      => $this->buildPostureIconClass( $postureStatus ),
+			'posture_summary'         => $this->buildPostureSummary(
 				$posturePercentage,
 				$this->getZoneStatusCounts( $zoneTiles )
 			),
-			'zone_tiles'         => $zoneTiles,
+			'zone_tiles'              => $zoneTiles,
+			'configure_render_action' => $this->buildConfigureRenderActionData(),
 		];
 	}
 
 	protected function getLandingStrings() :array {
 		return [
 			'posture_title'  => __( 'Configuration Posture', 'wp-simple-firewall' ),
-			'zones_title'    => __( 'Security Zones', 'wp-simple-firewall' ),
-			'zones_subtitle' => __( 'Jump directly to a security zone to review and adjust settings.', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -117,10 +128,34 @@ class PageConfigureLanding extends PageModeLandingBase {
 	}
 
 	private function getPosturePercentage() :int {
-		return max( 0, min(
-			100,
-			(int)( $this->getSummaryMeterData()[ 'totals' ][ 'percentage' ] ?? 0 )
-		) );
+		$summaryMeter = $this->getSummaryMeterData();
+		$totalWeight = 0;
+		$totalScore = 0;
+
+		foreach ( $summaryMeter[ 'components' ] ?? [] as $component ) {
+			if ( !\is_array( $component ) ) {
+				continue;
+			}
+
+			$slug = (string)( $component[ 'slug' ] ?? '' );
+			if ( \in_array( $slug, self::EXCLUDED_POSTURE_COMPONENT_SLUGS, true ) ) {
+				continue;
+			}
+
+			$weight = (int)( $component[ 'weight' ] ?? 0 );
+			if ( $weight <= 0 ) {
+				continue;
+			}
+
+			$totalWeight += $weight;
+			$totalScore += max( 0, (int)( $component[ 'score' ] ?? 0 ) );
+		}
+
+		$percentage = $totalWeight > 0
+			? (int)\round( 100*$totalScore/$totalWeight )
+			: (int)( $summaryMeter[ 'totals' ][ 'percentage' ] ?? 0 );
+
+		return max( 0, min( 100, $percentage ) );
 	}
 
 	private function getMeterHandler() :MeterHandler {
@@ -131,7 +166,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @param list<array{status:string}> $zoneTiles
+	 * @param list<array{status:string,include_in_posture?:bool}> $zoneTiles
 	 * @return array{good:int,warning:int,critical:int}
 	 */
 	private function getZoneStatusCounts( array $zoneTiles ) :array {
@@ -142,6 +177,9 @@ class PageConfigureLanding extends PageModeLandingBase {
 		];
 
 		foreach ( $zoneTiles as $zoneTile ) {
+			if ( \array_key_exists( 'include_in_posture', $zoneTile ) && !$zoneTile[ 'include_in_posture' ] ) {
+				continue;
+			}
 			$status = $zoneTile[ 'status' ] ?? '';
 			if ( isset( $counts[ $status ] ) ) {
 				$counts[ $status ]++;
@@ -196,11 +234,31 @@ class PageConfigureLanding extends PageModeLandingBase {
 	}
 
 	/**
+	 * @return array<string,mixed>
+	 */
+	private function buildConfigureRenderActionData() :array {
+		return $this->buildAjaxRenderActionData( self::class, [
+			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
+		] );
+	}
+
+	/**
+	 * @param class-string<BasePluginAdminPage|PageModeLandingBase> $renderAction
+	 * @param array<string,mixed> $auxData
+	 * @return array<string,mixed>
+	 */
+	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
+		return ActionData::BuildAjaxRender( $renderAction, $auxData );
+	}
+
+	/**
 	 * @return list<array{
 	 *   key:string,
 	 *   panel_target:string,
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
+	 *   include_in_posture:bool,
 	 *   label:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -208,6 +266,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 	 *   stat_line:string,
 	 *   settings_href:string,
 	 *   settings_label:string,
+	 *   settings_action:array<string,mixed>,
 	 *   panel:array{
 	 *     title:string,
 	 *     status:string,
@@ -216,7 +275,9 @@ class PageConfigureLanding extends PageModeLandingBase {
 	 *       title:string,
 	 *       status:string,
 	 *       status_label:string,
-	 *       note:string
+	 *       note:string,
+	 *       explanations:list<string>,
+	 *       config_action:array<string,mixed>
 	 *     }>
 	 *   }
 	 * }>

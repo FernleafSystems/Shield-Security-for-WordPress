@@ -64,6 +64,17 @@ class ModeTileBorderStyleContractTest extends BaseUnitTest {
 			'.configure-landing__zone-tile',
 			[
 				'border: 2px solid transparent;',
+				'overflow: hidden;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-tile::before',
+			[
+				'border-top-left-radius: $card-border-radius;',
+				'border-top-right-radius: $card-border-radius;',
+				'pointer-events: none;',
 			]
 		);
 
@@ -99,6 +110,15 @@ class ModeTileBorderStyleContractTest extends BaseUnitTest {
 			[
 				'background: #fff8f8;',
 				'border-color: $status-color-critical;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-tile.status-neutral.is-active',
+			[
+				'background: #f4fbfd;',
+				'border-color: $status-color-info;',
 			]
 		);
 
@@ -161,11 +181,24 @@ class ModeTileBorderStyleContractTest extends BaseUnitTest {
 			]
 		);
 
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__zone-status.status-neutral',
+			[
+				'background: $badge-info-bg;',
+				'color: $badge-info-color;',
+			]
+		);
+
 		$this->assertStringNotContainsString( 'border-color: rgba($status-color-good, 0.45);', $content );
 		$this->assertStringNotContainsString( 'border-color: rgba($status-color-warning, 0.45);', $content );
 		$this->assertStringNotContainsString( 'border-color: rgba($status-color-critical, 0.45);', $content );
-		$this->assertStringNotContainsString( 'grid-template-columns: repeat(2, minmax(0, 1fr));', $content );
 		$this->assertStringNotContainsString( 'grid-template-columns: repeat(4, minmax(0, 1fr));', $content );
+
+		$this->assertMatchesRegularExpression(
+			'/@media\s*\(min-width:\s*1600px\)\s*\{[^}]*\.configure-landing__component-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s',
+			$content
+		);
 	}
 
 	public function testInvestigateTileStyleContract() :void {
@@ -278,6 +311,22 @@ class ModeTileBorderStyleContractTest extends BaseUnitTest {
 			'.configure-landing__panel-cta.status-critical:hover',
 			[
 				'background: #a02232;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta.status-neutral',
+			[
+				'background: $status-color-info;',
+			]
+		);
+
+		$this->assertSelectorBlockContains(
+			$content,
+			'.configure-landing__panel-cta.status-neutral:hover',
+			[
+				'background: #0b8da6;',
 			]
 		);
 	}

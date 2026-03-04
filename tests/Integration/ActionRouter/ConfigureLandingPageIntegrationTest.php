@@ -36,6 +36,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Configure landing render exception check' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-landing="1" and string-length(normalize-space(@data-configure-render-action)) > 0]',
+			'Configure landing render action marker'
+		);
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="hero"]', 'Configure hero section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="zones"]', 'Configure zones section marker' );
 		$this->assertXPathExists(
@@ -59,6 +64,18 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " card-body ")]',
 			0,
 			'Configure zones section should not render card body wrapper'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-landing__section-title ")]',
+			0,
+			'Configure zones section title removed'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-landing__section-subtitle ")]',
+			0,
+			'Configure zones section subtitle removed'
 		);
 		$this->assertModeShellAndAccentContract( $xpath, 'configure', 'good', 'Configure', true );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="stats"]', 0, 'Configure stats section removed' );
@@ -100,13 +117,13 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-zone and @data-mode-tile="1"]',
-			8,
+			9,
 			'Configure zone navigation marker count'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-mode-tile="1"]',
-			8,
+			9,
 			'Configure shared mode tile marker count'
 		);
 		$this->assertXPathCount(
@@ -118,23 +135,23 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-panel and @data-mode-panel="1"]',
-			8,
+			9,
 			'Configure inline panel marker count'
 		);
-		$this->assertSharedModePanelMarkerCount( $xpath, 8, 'Configure' );
+		$this->assertSharedModePanelMarkerCount( $xpath, 9, 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'configure-panel', 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-target-default', 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-static-target', 'Configure' );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-mode-panel="1" and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical ") or contains(concat(" ", normalize-space(@class), " "), " status-info ") or contains(concat(" ", normalize-space(@class), " "), " status-neutral "))]',
-			8,
+			9,
 			'Configure mode panels include status class on panel root'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-mode-panel="1"]//button[@data-mode-panel-close="1" and contains(concat(" ", normalize-space(@class), " "), " mode-panel-close-btn ")]',
-			8,
+			9,
 			'Configure mode panel close button uses minimal close class'
 		);
 		$this->assertXPathCount(
@@ -146,19 +163,19 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings]',
-			8,
+			9,
 			'Configure panel settings CTA marker count'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ")]',
-			8,
+			9,
 			'Configure panel settings CTA uses redesign class'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical "))]',
-			8,
+			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical ") or contains(concat(" ", normalize-space(@class), " "), " status-neutral "))]',
+			9,
 			'Configure panel settings CTA carries status class'
 		);
 		$this->assertXPathCount(
@@ -166,6 +183,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and contains(concat(" ", normalize-space(@class), " "), " btn-outline-secondary ")]',
 			0,
 			'Configure panel settings CTA no longer uses bootstrap outline class'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-panel and @data-mode-panel="1"]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__component-config-link ") and contains(concat(" ", normalize-space(@class), " "), " zone_component_action ")]',
+			'Configure panel component-level offcanvas links rendered'
 		);
 	}
 }

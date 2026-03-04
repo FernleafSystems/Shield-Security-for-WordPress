@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	ActivityLogging,
 	InstantAlerts,
+	PluginGeneral,
 	Reporting,
 	RequestLogging
 };
@@ -604,7 +605,10 @@ class PluginNavs {
 	 *   label:string,
 	 *   icon:string,
 	 *   zone_slug?:string,
-	 *   component_slug?:string
+	 *   component_slug?:string,
+	 *   component_slugs?:list<string>,
+	 *   include_in_posture?:bool,
+	 *   force_neutral?:bool
 	 * }>
 	 */
 	public static function configureLandingTileDefinitions() :array {
@@ -614,12 +618,6 @@ class PluginNavs {
 				'label'    => __( 'Security Admin', 'wp-simple-firewall' ),
 				'icon'     => 'shield-lock',
 				'zone_slug' => Zone\Secadmin::Slug(),
-			],
-			[
-				'key'      => 'login',
-				'label'    => __( 'Login Protection', 'wp-simple-firewall' ),
-				'icon'     => 'person-lock',
-				'zone_slug' => Zone\Login::Slug(),
 			],
 			[
 				'key'      => 'firewall',
@@ -635,27 +633,45 @@ class PluginNavs {
 			],
 			[
 				'key'      => 'scans',
-				'label'    => __( 'HackGuard', 'wp-simple-firewall' ),
+				'label'    => __( 'Scans', 'wp-simple-firewall' ),
 				'icon'     => 'bug',
 				'zone_slug' => Zone\Scans::Slug(),
 			],
 			[
+				'key'      => 'login',
+				'label'    => __( 'Login', 'wp-simple-firewall' ),
+				'icon'     => 'person-lock',
+				'zone_slug' => Zone\Login::Slug(),
+			],
+			[
+				'key'      => 'users',
+				'label'    => __( 'Users', 'wp-simple-firewall' ),
+				'icon'     => 'people',
+				'zone_slug' => Zone\Users::Slug(),
+			],
+			[
 				'key'      => 'spam',
-				'label'    => __( 'Comments Filter', 'wp-simple-firewall' ),
+				'label'    => __( 'SPAM', 'wp-simple-firewall' ),
 				'icon'     => 'chat-dots',
 				'zone_slug' => Zone\Spam::Slug(),
 			],
 			[
-				'key'            => 'audit_trail',
-				'label'          => __( 'Audit Trail', 'wp-simple-firewall' ),
-				'icon'           => 'journal-text',
-				'component_slug' => ActivityLogging::Slug(),
+				'key'      => 'headers',
+				'label'    => __( 'HTTP Headers', 'wp-simple-firewall' ),
+				'icon'     => 'file-earmark-lock',
+				'zone_slug' => Zone\Headers::Slug(),
 			],
 			[
-				'key'            => 'traffic_monitor',
-				'label'          => __( 'Traffic Monitor', 'wp-simple-firewall' ),
-				'icon'           => 'graph-up',
-				'component_slug' => RequestLogging::Slug(),
+				'key'                => 'general',
+				'label'              => __( 'General', 'wp-simple-firewall' ),
+				'icon'               => 'sliders',
+				'component_slugs'    => [
+					PluginGeneral::Slug(),
+					ActivityLogging::Slug(),
+					RequestLogging::Slug(),
+				],
+				'include_in_posture' => false,
+				'force_neutral'      => true,
 			],
 		];
 	}
