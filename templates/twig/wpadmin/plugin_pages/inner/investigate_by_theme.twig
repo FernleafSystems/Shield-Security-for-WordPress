@@ -12,7 +12,7 @@
 		placeholder: strings.lookup_placeholder,
 		options: vars.theme_options|default([]),
 		submit_text: strings.lookup_submit,
-		helper_text: 'Select a theme to view its file status, vulnerabilities, and related activity.'
+		helper_text: strings.lookup_helper
 	} only %}
 
 	{% if flags.subject_not_found|default(false) %}

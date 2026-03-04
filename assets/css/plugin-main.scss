@@ -15,6 +15,7 @@ $code-color: $secondary;
 @import '~highlight.js/styles/github.css';
 @import '~bootstrap-icons/font/bootstrap-icons.css';
 @import './shield/status-colors';
+@import './shield/sidebar-theme';
 @import "./plugin-wpadmin.scss";
 @import './shield/datatables.css';
 @import './shield/merlin.scss';
@@ -765,11 +766,6 @@ body.folded #FooterBannerGoPro {
   background-color: #f1f1f1;
 }
 
-$sidebar-width-expanded: 200px;
-$sidebar-width-collapsed: 56px;
-$sidebar-transition-speed: 0.25s;
-$sidebar-bg: #1d2327;
-
 #PageMainSide-Apto {
   background-color: $sidebar-bg;
   border: 0 none;
@@ -851,21 +847,6 @@ $sidebar-bg: #1d2327;
   #PageMainSide-Apto:hover #SuperSearchLaunch {
     display: flex !important;
   }
-
-  // --- Version Footer ---
-  .sidebar-version-footer {
-    display: none;
-  }
-  #PageMainSide-Apto:hover .sidebar-version-footer {
-    display: block;
-  }
-}
-
-.sidebar-version-footer {
-  color: #616d77;
-  font-size: 0.72rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 0.5rem;
 }
 
 #PageMainBody_Inner-Apto {
@@ -897,20 +878,6 @@ $sidebar-bg: #1d2327;
 .inner-page-header .inner-page-subtitle {
   font-size: 0.85rem;
   color: #666;
-}
-
-.inner-page-header .inner-page-breadcrumbs {
-  font-size: 0.82rem;
-  color: #888;
-
-  a {
-    color: #888;
-    text-decoration: none;
-
-    &:hover {
-      color: #2271b1;
-    }
-  }
 }
 
 .inner-page-header {

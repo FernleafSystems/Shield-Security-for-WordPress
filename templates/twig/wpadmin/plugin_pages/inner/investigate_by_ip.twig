@@ -11,7 +11,7 @@
 		input_value: vars.analyse_ip|default(''),
 		placeholder: strings.lookup_placeholder,
 		submit_text: strings.lookup_submit,
-		helper_text: 'Enter a full IP address. Analysis includes reputation, bot signals, sessions, and traffic.'
+		helper_text: strings.lookup_helper
 	} only %}
 
 	{% if flags.has_subject %}

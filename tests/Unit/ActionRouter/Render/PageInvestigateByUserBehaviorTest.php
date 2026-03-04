@@ -309,6 +309,16 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '2', (string)( $overviewByLabel[ 'IP Addresses Count' ] ?? '' ) );
 	}
 
+	public function test_render_data_includes_lookup_helper_string() :void {
+		$this->installServices();
+		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [] );
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertArrayHasKey( 'lookup_helper', $renderData[ 'strings' ] ?? [] );
+		$this->assertNotEmpty( $renderData[ 'strings' ][ 'lookup_helper' ] ?? '' );
+	}
+
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();

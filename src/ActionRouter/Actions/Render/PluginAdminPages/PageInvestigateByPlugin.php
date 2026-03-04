@@ -57,6 +57,7 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 			'lookup_label'        => __( 'Plugin Lookup', 'wp-simple-firewall' ),
 			'lookup_placeholder'  => __( 'Select a plugin', 'wp-simple-firewall' ),
 			'lookup_submit'       => __( 'Load Plugin Context', 'wp-simple-firewall' ),
+			'lookup_helper'       => __( 'Select a plugin to view its file status, vulnerabilities, and related activity.', 'wp-simple-firewall' ),
 			'no_subject_title'    => __( 'No Plugin Selected', 'wp-simple-firewall' ),
 			'no_subject_text'     => __( 'Select a plugin to load file status and activity context.', 'wp-simple-firewall' ),
 			'not_found_title'     => __( 'Plugin Not Found', 'wp-simple-firewall' ),

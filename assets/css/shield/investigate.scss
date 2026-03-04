@@ -243,11 +243,16 @@
 /* Flat content sections (de-boxed investigate panels) */
 .investigate-flat-section {
 	padding: 0.75rem 0;
-	border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+	border-bottom: 1px solid $border-color-neutral-subtle;
 
 	&:last-child {
 		border-bottom: none;
 	}
+}
+
+.investigate-section-title {
+	font-size: 0.95rem;
+	font-weight: 600;
 }
 
 .investigate-ip-card {

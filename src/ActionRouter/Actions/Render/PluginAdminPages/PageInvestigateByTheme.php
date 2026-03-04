@@ -57,6 +57,7 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 			'lookup_label'        => __( 'Theme Lookup', 'wp-simple-firewall' ),
 			'lookup_placeholder'  => __( 'Select a theme', 'wp-simple-firewall' ),
 			'lookup_submit'       => __( 'Load Theme Context', 'wp-simple-firewall' ),
+			'lookup_helper'       => __( 'Select a theme to view its file status, vulnerabilities, and related activity.', 'wp-simple-firewall' ),
 			'no_subject_title'    => __( 'No Theme Selected', 'wp-simple-firewall' ),
 			'no_subject_text'     => __( 'Select a theme to load file status and activity context.', 'wp-simple-firewall' ),
 			'not_found_title'     => __( 'Theme Not Found', 'wp-simple-firewall' ),

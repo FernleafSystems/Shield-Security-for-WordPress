@@ -4,13 +4,6 @@
 // Matches prototype dark sidebar (#1d2327)
 // ============================================================
 
-$sidebar-text: #a7aaad;
-$sidebar-text-hover: #fff;
-$sidebar-active-bg: #2271b1;
-$sidebar-hover-bg: rgba(255, 255, 255, 0.08);
-$sidebar-separator: rgba(255, 255, 255, 0.08);
-$sidebar-section-header: #616d77;
-
 // --- Top-level nav list ---
 
 #NavSideBar .top-level-nav {
@@ -280,6 +273,13 @@ $sidebar-section-header: #616d77;
 	font-size: 0.7rem;
 }
 
+.sidebar-version-footer {
+	color: $sidebar-section-header;
+	font-size: 0.7rem;
+	border-bottom: 1px solid $sidebar-separator;
+	padding-bottom: 0.5rem;
+}
+
 // ============================================================
 // Responsive: collapsed / hover-expanded
 // ============================================================
@@ -352,5 +352,13 @@ $sidebar-section-header: #616d77;
 	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.show,
 	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.collapsing {
 		display: block !important;
+	}
+
+	// --- Version Footer ---
+	.sidebar-version-footer {
+		display: none;
+	}
+	#PageMainSide-Apto:hover .sidebar-version-footer {
+		display: block;
 	}
 }

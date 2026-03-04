@@ -43,6 +43,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				'lookup_label'        => __( 'IP Lookup', 'wp-simple-firewall' ),
 				'lookup_placeholder'  => __( 'IPv4 or IPv6 address', 'wp-simple-firewall' ),
 				'lookup_submit'       => __( 'Load IP Context', 'wp-simple-firewall' ),
+				'lookup_helper'       => __( 'Enter a full IP address. Analysis includes reputation, bot signals, sessions, and traffic.', 'wp-simple-firewall' ),
 				'no_subject_title'    => __( 'No IP Selected', 'wp-simple-firewall' ),
 				'no_subject_text'     => __( 'Enter a valid IP address to load investigate context for that subject.', 'wp-simple-firewall' ),
 			],

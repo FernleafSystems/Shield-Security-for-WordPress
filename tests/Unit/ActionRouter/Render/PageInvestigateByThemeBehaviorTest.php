@@ -212,6 +212,16 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'activity' ] ?? [] );
 	}
 
+	public function test_render_data_includes_lookup_helper_string() :void {
+		$this->installServices();
+		$page = new PageInvestigateByThemeUnitTestDouble( null, [] );
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertArrayHasKey( 'lookup_helper', $renderData[ 'strings' ] ?? [] );
+		$this->assertNotEmpty( $renderData[ 'strings' ][ 'lookup_helper' ] ?? '' );
+	}
+
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();

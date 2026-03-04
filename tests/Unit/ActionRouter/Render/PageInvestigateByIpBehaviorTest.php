@@ -105,6 +105,16 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'rendered-ip:203.0.113.88', (string)( $renderData[ 'content' ][ 'ip_analysis' ] ?? '' ) );
 	}
 
+	public function test_render_data_includes_lookup_helper_string() :void {
+		$this->installServices();
+		$page = new PageInvestigateByIpUnitTestDouble();
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertArrayHasKey( 'lookup_helper', $renderData[ 'strings' ] ?? [] );
+		$this->assertNotEmpty( $renderData[ 'strings' ][ 'lookup_helper' ] ?? '' );
+	}
+
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();

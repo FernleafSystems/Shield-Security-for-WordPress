@@ -80,6 +80,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'lookup_label'        => __( 'User Lookup', 'wp-simple-firewall' ),
 				'lookup_placeholder'  => __( 'User ID, username, or email', 'wp-simple-firewall' ),
 				'lookup_submit'       => __( 'Load User Context', 'wp-simple-firewall' ),
+				'lookup_helper'       => __( 'Type at least 2 characters. Autocomplete will suggest matching users.', 'wp-simple-firewall' ),
 				'overview_title'      => __( 'User Overview', 'wp-simple-firewall' ),
 				'no_subject_title'    => __( 'No User Selected', 'wp-simple-firewall' ),
 				'no_subject_text'     => __( 'Enter a user ID, email, or username to load user-scoped investigate data.', 'wp-simple-firewall' ),
