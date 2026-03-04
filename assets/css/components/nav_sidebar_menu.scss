@@ -1,45 +1,45 @@
 
 // ============================================================
-// Sidebar Navigation — Dark Theme
-// Matches prototype dark sidebar (#1d2327)
+// Sidebar Navigation — "Refined Rail" Design
+// Visual sibling of the options rail nav. Rounded-rect items,
+// inset-shadow active state, compact sub-menu items.
 // ============================================================
 
 // --- Top-level nav list ---
 
 #NavSideBar .top-level-nav {
-	padding: 0.5rem 0.3rem;
+	padding: 0.5rem;
 }
 
 #NavSideBar .top-level-nav > li.nav-item {
-	margin-bottom: 0.1rem;
+	margin-bottom: 0.15rem;
 	z-index: 1;
 }
 
 // --- Top-level nav link ---
 
 #NavSideBar .nav-item > .nav-link {
-	border: none;
-	border-radius: 0 4px 4px 0;
-	font-size: 0.84rem;
-	font-weight: 500;
-	color: $sidebar-text;
-	padding: 0.45rem 0.9rem;
-	background: transparent;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	font-size: 0.88rem;
+	font-weight: 600;
+	color: #2f3d4d;
+	padding: 0.5rem 0.7rem;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 // Hover
 #NavSideBar .nav-item > .nav-link:hover {
-	background: $sidebar-hover-bg;
-	color: $sidebar-text-hover;
+	background: #f7f9f7;
+	border-color: $border-color-neutral-subtle;
 }
 
 #NavSideBar .nav-item > .nav-link.mode-back-link {
-	font-size: 0.78rem;
+	font-size: 0.8rem;
 	font-weight: 500;
-	color: $sidebar-text;
-	background: transparent;
-	border: none;
+	color: #5f6974;
+	background: #f8f9f8;
+	border-color: $border-color-neutral-subtle;
 }
 
 #NavSideBar .nav-item > .nav-link.mode-back-link .subtitle {
@@ -47,8 +47,9 @@
 }
 
 #NavSideBar .nav-item > .nav-link.mode-back-link:hover {
-	background: $sidebar-hover-bg;
-	color: $sidebar-text-hover;
+	background: #f7f9f7;
+	border-color: $border-color-neutral-subtle;
+	color: #2f3d4d;
 }
 
 #NavSideBar .nav-item > .nav-link.menu-group-break-before {
@@ -60,34 +61,22 @@
 	content: '';
 	position: absolute;
 	top: -0.32rem;
-	left: 0.9rem;
-	right: 0.9rem;
-	border-top: 1px solid $sidebar-separator;
-	opacity: 1;
+	left: 0.7rem;
+	right: 0.7rem;
+	border-top: 1px solid $accent-color-salt-green-soft;
+	opacity: 0.8;
 }
 
-#NavSideBar .nav-item:hover .nav-icon > .bi { color: $sidebar-text-hover; }
-#NavSideBar .nav-item:hover .top-title { color: $sidebar-text-hover; }
+#NavSideBar .nav-item:hover .nav-icon > .bi { color: $primary; }
+#NavSideBar .nav-item:hover .top-title { color: $primary; }
 
 // Active
 #NavSideBar .nav-item.active > .nav-link,
 #NavSideBar .nav-item.activesub > .nav-link {
-	background: $sidebar-active-bg;
-	color: $sidebar-text-hover;
-	font-weight: 600;
-	border: none;
-	box-shadow: none;
-}
-
-// --- Section headers (if any group labels) ---
-
-#NavSideBar .nav-section-header {
-	color: $sidebar-section-header;
-	font-size: 0.68rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	padding: 1.2rem 0.9rem 0.4rem;
-	text-transform: uppercase;
+	background: #f2f9f2;
+	border-color: #c7dfc7;
+	box-shadow: inset 2px 0 0 #9ac99a;
+	color: $primary;
 }
 
 // --- Icons ---
@@ -105,37 +94,31 @@
 
 #NavSideBar .nav-item .nav-icon > .bi {
 	display: inline-block;
-	font-size: 1.05rem;
+	font-size: 1.125rem;
 	line-height: 1;
-	color: inherit;
-	opacity: 0.7;
-	transition: color 0.15s ease, opacity 0.15s ease;
+	color: #333;
+	transition: color 0.2s ease;
 }
 
 #NavSideBar .nav-item.active .nav-icon > .bi,
 #NavSideBar .nav-item.activesub .nav-icon > .bi {
-	color: $sidebar-text-hover;
-	opacity: 1;
-}
-
-#NavSideBar .nav-item:hover .nav-icon > .bi {
-	opacity: 1;
+	color: $primary;
 }
 
 // --- Title + subtitle ---
 
 #NavSideBar .nav-item .top-title {
-	color: $sidebar-text;
+	color: #2f3d4d;
 }
 
 #NavSideBar .nav-item.active .top-title,
 #NavSideBar .nav-item.activesub .top-title {
-	color: $sidebar-text-hover;
+	color: $primary;
 }
 
 #NavSideBar .nav-item .subtitle {
-	font-size: 0.68rem;
-	color: $sidebar-section-header;
+	font-size: 0.7rem;
+	color: #5f6974;
 	padding: 0;
 }
 
@@ -175,25 +158,24 @@
 	display: inline-block;
 	font-size: 1.05rem;
 	line-height: 1;
-	color: $sidebar-text;
+	color: $primary;
 	transform: rotate(0deg);
-	transition: transform 0.3s ease, color 0.15s ease;
+	transition: transform 0.3s ease;
 }
 
 .top-level-nav li:hover > .nav-link > a.zone_component_action .svg-container {
-	background-color: rgba(255, 255, 255, 0.1);
+	background-color: rgba($primary, 0.08);
 }
 
 .top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container > .bi {
 	transform: rotate(45deg);
-	color: $sidebar-text-hover;
 }
 
 // --- Sub-menu ---
 
 #NavSideBar .subnav-menu {
-	margin-left: 1.5rem;
-	padding: 0.2rem 0;
+	margin-left: 1.75rem;
+	padding: 0.25rem 0;
 }
 
 .primary_side_sub_menu {
@@ -204,80 +186,62 @@
 	text-decoration: none;
 }
 
-// Sub-links
+// Sub-links — compact, clearly smaller than top-level items.
+// Hover/active background on the .nav-link row so text + cog highlight together.
 .primary_side_sub_menu > li > .nav-link {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border: none;
-	border-radius: 0 4px 4px 0;
-	padding: 0.3rem 0.6rem;
-	margin-bottom: 0.05rem;
-	font-size: 0.76rem;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	padding: 0.35rem 0.6rem;
+	margin-bottom: 0.1rem;
+	font-size: 0.78rem;
 	font-weight: 500;
-	color: $sidebar-text;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	color: $secondary;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
 	color: inherit;
 	font-size: inherit;
 	font-weight: inherit;
-	transition: color 0.15s ease;
+	transition: color 0.2s ease;
 }
 
 // Hover
 .primary_side_sub_menu > li > .nav-link:hover {
-	background: $sidebar-hover-bg;
-	color: $sidebar-text-hover;
+	background: #f7f9f7;
+	border-color: $border-color-neutral-subtle;
+	color: $primary;
 }
 
-// Active
+// Active — matches the options rail inset-shadow pattern
 .primary_side_sub_menu .nav-link.active {
-	background: $sidebar-active-bg;
-	color: $sidebar-text-hover;
+	background: #f2f9f2;
+	border-color: #c7dfc7;
+	box-shadow: inset 2px 0 0 #9ac99a;
+	color: $primary;
 	font-weight: 600;
-	border: none;
-	box-shadow: none;
 }
 
-// Sub-gear
+// Sub-gear — always right-justified
 .primary_side_sub_menu > li > .nav-link > a.zone_config {
 	margin-left: auto;
 	opacity: 0.5;
-	color: $sidebar-text;
-	transition: opacity 0.2s ease, color 0.15s ease;
+	color: $primary;
+	transition: opacity 0.2s ease;
 }
 .primary_side_sub_menu > li > .nav-link > a.zone_config:hover {
 	opacity: 1;
-	color: $sidebar-text-hover;
 }
 .primary_side_sub_menu > li:hover > .nav-link > a.zone_config {
 	opacity: 0.8;
-	color: $sidebar-text-hover;
 }
 
 .primary_side_sub_menu > li:hover a.zone_config .svg-container > .bi {
 	transform: rotate(45deg);
 	transition: transform 0.3s ease;
-}
-
-// --- Badges (dark sidebar) ---
-#NavSideBar .nav-link .badge {
-	font-size: 0.65rem;
-}
-
-// --- Version footer in sidebar ---
-#PageMainSide-Apto .shield-footer-version {
-	color: $sidebar-section-header;
-	font-size: 0.7rem;
-}
-
-.sidebar-version-footer {
-	color: $sidebar-section-header;
-	font-size: 0.7rem;
-	border-bottom: 1px solid $sidebar-separator;
-	padding-bottom: 0.5rem;
 }
 
 // ============================================================
@@ -288,14 +252,14 @@
 
 	// === COLLAPSED STATE ===
 
-	// Hide text labels, subtitles, badges
+	// Hide text labels, subtitles, badges (!important needed to override Bootstrap d-flex)
 	#NavSideBar .nav-item .top-title {
 		display: none !important;
 	}
 	#NavSideBar .nav-item .nav-link .badge {
 		display: none !important;
 	}
-	// Hide config gear buttons
+	// Hide config gear buttons (!important needed to override Bootstrap d-flex)
 	.top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
 		display: none !important;
 	}
@@ -348,17 +312,9 @@
 	#PageMainSide-Apto:hover #NavSideBar .nav-item .nav-icon {
 		margin-right: 0.5rem !important;
 	}
-	// Show submenus that are expanded or animating
+	// Show submenus that are expanded or animating (.collapsing is Bootstrap's mid-animation class)
 	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.show,
 	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.collapsing {
 		display: block !important;
-	}
-
-	// --- Version Footer ---
-	.sidebar-version-footer {
-		display: none;
-	}
-	#PageMainSide-Apto:hover .sidebar-version-footer {
-		display: block;
 	}
 }

@@ -30,15 +30,15 @@ class NavSidebarModeBackLinkStyleTest extends BaseUnitTest {
 	public function testModeBackLinkHasMutedBaseAndHoverStyles() :void {
 		$content = $this->getNavSidebarStylesheetContents();
 
-		$this->assertStringContainsString( 'font-size: 0.78rem;', $content );
-		$this->assertStringContainsString( 'color: $sidebar-text;', $content );
-		$this->assertStringContainsString( 'background: transparent;', $content );
+		$this->assertStringContainsString( 'font-size: 0.8rem;', $content );
+		$this->assertStringContainsString( 'color: #5f6974;', $content );
+		$this->assertStringContainsString( 'background: #f8f9f8;', $content );
 		$this->assertStringContainsString(
 			'#NavSideBar .nav-item > .nav-link.mode-back-link:hover {',
 			$content
 		);
-		$this->assertStringContainsString( 'background: $sidebar-hover-bg;', $content );
-		$this->assertStringContainsString( 'color: $sidebar-text-hover;', $content );
+		$this->assertStringContainsString( 'background: #f7f9f7;', $content );
+		$this->assertStringContainsString( 'color: #2f3d4d;', $content );
 	}
 
 	public function testMenuGroupBoundarySeparatorStylesExist() :void {
@@ -52,7 +52,7 @@ class NavSidebarModeBackLinkStyleTest extends BaseUnitTest {
 			'#NavSideBar .nav-item > .nav-link.menu-group-break-before::before {',
 			$content
 		);
-		$this->assertStringContainsString( 'border-top: 1px solid $sidebar-separator;', $content );
+		$this->assertStringContainsString( '$accent-color-salt-green-soft', $content );
 	}
 
 	private function getNavSidebarStylesheetContents() :string {

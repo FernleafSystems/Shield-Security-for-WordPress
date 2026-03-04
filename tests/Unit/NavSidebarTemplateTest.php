@@ -40,4 +40,17 @@ class NavSidebarTemplateTest extends BaseUnitTest {
 		$this->assertStringContainsString( '{% if mitem.target|default(\'\') is not empty %}target="{{ mitem.target }}"{% endif %}', $content );
 		$this->assertStringNotContainsString( 'sub.target', $content );
 	}
+
+	public function testRunningVersionFooterUsesLegacyLightMarkup() :void {
+		$content = $this->getPluginFileContents(
+			'templates/twig/wpadmin/components/page/nav_sidebar.twig',
+			'sidebar navigation template'
+		);
+
+		$this->assertStringContainsString(
+			'<div class="mt-2 text-center border-bottom mx-auto" style="color: #008000;">',
+			$content
+		);
+		$this->assertStringNotContainsString( 'sidebar-version-footer', $content );
+	}
 }
