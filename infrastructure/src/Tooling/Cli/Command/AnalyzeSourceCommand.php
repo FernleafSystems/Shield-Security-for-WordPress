@@ -5,6 +5,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Cli\Command;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceStaticAnalysisLane;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class AnalyzeSourceCommand extends Command {
@@ -22,12 +23,19 @@ class AnalyzeSourceCommand extends Command {
 	}
 
 	protected function configure() :void {
-		$this->setDescription( 'Run source static analysis checks.' );
+		$this
+			->setDescription( 'Run source static analysis checks.' )
+			->addOption(
+				'refresh-setup',
+				null,
+				InputOption::VALUE_NONE,
+				'Force refresh source setup cache and rerun setup steps.'
+			);
 	}
 
 	protected function execute( InputInterface $input, OutputInterface $output ) :int {
 		try {
-			return $this->lane->run( $this->projectRoot );
+			return $this->lane->run( $this->projectRoot, (bool)$input->getOption( 'refresh-setup' ) );
 		}
 		catch ( \Throwable $throwable ) {
 			$output->writeln( '<error>Error: '.$throwable->getMessage().'</error>' );

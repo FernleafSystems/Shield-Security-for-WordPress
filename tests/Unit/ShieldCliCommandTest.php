@@ -70,6 +70,22 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'composer: -- -- --filter FooTest', $output );
 	}
 
+	public function testSourceCommandHelpIncludesRefreshSetupOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/shield', [ 'test:source', '--help' ] );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+		$this->assertStringContainsString( '--refresh-setup', $this->processOutput( $process ) );
+	}
+
+	public function testAnalyzeSourceHelpIncludesRefreshSetupOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/shield', [ 'analyze:source', '--help' ] );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+		$this->assertStringContainsString( '--refresh-setup', $this->processOutput( $process ) );
+	}
+
 	/**
 	 * @return array<string,array{string}>
 	 */

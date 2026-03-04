@@ -9,6 +9,9 @@ class RecordingDockerComposeExecutor extends DockerComposeExecutor {
 	/** @var array<int,array{root_dir:string,compose_files:array,sub_command:array,env_overrides:?array}> */
 	public array $calls = [];
 
+	/** @var array<int,array{root_dir:string,compose_files:array,sub_command:array,env_overrides:?array}> */
+	public array $ignoredFailureCalls = [];
+
 	/** @var int[] */
 	private array $exitCodes;
 
@@ -34,5 +37,19 @@ class RecordingDockerComposeExecutor extends DockerComposeExecutor {
 		];
 
 		return (int)( \array_shift( $this->exitCodes ) ?? 0 );
+	}
+
+	public function runIgnoringFailure(
+		string $rootDir,
+		array $composeFiles,
+		array $subCommand,
+		?array $envOverrides = null
+	) :void {
+		$this->ignoredFailureCalls[] = [
+			'root_dir' => $rootDir,
+			'compose_files' => $composeFiles,
+			'sub_command' => $subCommand,
+			'env_overrides' => $envOverrides,
+		];
 	}
 }

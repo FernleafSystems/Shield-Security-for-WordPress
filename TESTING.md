@@ -28,6 +28,13 @@ For Docker-runner internals and environment variables, see [tests/docker/README.
 | Source static analysis (composer) | `composer analyze` | Default maps to `analyze:source` |
 | Packaged static analysis (composer) | `composer analyze:package` | Runs `php bin/shield analyze:package` |
 
+Source setup caching:
+
+1. `test:source` and `analyze:source` cache setup state by default for faster local reruns.
+2. Use `--refresh-setup` to force setup refresh:
+   - `php bin/shield test:source --refresh-setup`
+   - `php bin/shield analyze:source --refresh-setup`
+
 ## Docker Runner Modes
 
 Primary CLI supports these commands:

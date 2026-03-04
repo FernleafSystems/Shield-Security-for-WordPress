@@ -13,19 +13,23 @@ class SourceRuntimeTestLane {
 
 	private DockerComposeExecutor $dockerComposeExecutor;
 
+	private SourceSetupCacheCoordinator $setupCacheCoordinator;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?TestingEnvironmentResolver $environmentResolver = null,
-		?DockerComposeExecutor $dockerComposeExecutor = null
+		?DockerComposeExecutor $dockerComposeExecutor = null,
+		?SourceSetupCacheCoordinator $setupCacheCoordinator = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->environmentResolver = $environmentResolver ?? new TestingEnvironmentResolver(
 			$this->processRunner
 		);
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
+		$this->setupCacheCoordinator = $setupCacheCoordinator ?? new SourceSetupCacheCoordinator();
 	}
 
-	public function run( string $rootDir ) :int {
+	public function run( string $rootDir, bool $refreshSetup = false ) :int {
 		echo 'Mode: source'.\PHP_EOL;
 
 		$originalShieldPackagePath = \getenv( 'SHIELD_PACKAGE_PATH' );
@@ -75,7 +79,7 @@ class SourceRuntimeTestLane {
 				) !== 0 ) {
 					return 1;
 				}
-				if ( $this->runSourceSetupOnce( $rootDir, $dockerProcessEnvOverrides ) !== 0 ) {
+				if ( $this->runSourceSetupOnce( $rootDir, $phpVersion, $refreshSetup, $dockerProcessEnvOverrides ) !== 0 ) {
 					return 1;
 				}
 
@@ -123,27 +127,87 @@ class SourceRuntimeTestLane {
 	/**
 	 * @param array<string,string|false>|null $envOverrides
 	 */
-	private function runSourceSetupOnce( string $rootDir, ?array $envOverrides = null ) :int {
+	private function runSourceSetupOnce(
+		string $rootDir,
+		string $phpVersion,
+		bool $refreshSetup = false,
+		?array $envOverrides = null
+	) :int {
 		echo 'Preparing source mode test setup once before runtime checks.'.\PHP_EOL;
 
+		if ( $refreshSetup ) {
+			echo 'Refreshing source setup cache state.'.\PHP_EOL;
+			$this->setupCacheCoordinator->clearState( $rootDir );
+			$this->purgeNodeModulesVolume(
+				$rootDir,
+				$this->setupCacheCoordinator->getNodeModulesVolumeName( $rootDir ),
+				$envOverrides
+			);
+		}
+
+		$setup = $this->setupCacheCoordinator->evaluateRuntimeSetup( $rootDir, $phpVersion, $refreshSetup );
 		$composeFiles = $this->buildComposeFiles();
-		foreach ( $this->buildSourceSetupComposeCommands() as $subCommand ) {
+
+		if ( $setup[ 'needs_composer_install' ] ) {
+			echo 'Running source composer install setup.'.\PHP_EOL;
 			if ( $this->dockerComposeExecutor->run(
 				$rootDir,
 				$composeFiles,
-				$subCommand,
+				$this->buildSourceComposerInstallSetupCommand(),
 				$envOverrides
 			) !== 0 ) {
 				return 1;
 			}
 		}
+		else {
+			echo 'Skipping composer install setup (cache hit).'.\PHP_EOL;
+		}
 
-		return $this->processRunner->runForExitCode(
-			$this->buildNodeAssetBuildCommand( $rootDir ),
-			$rootDir,
-			null,
-			$envOverrides
-		);
+		if ( $setup[ 'needs_build_config' ] ) {
+			echo 'Running source build-config setup.'.\PHP_EOL;
+			if ( $this->dockerComposeExecutor->run(
+				$rootDir,
+				$composeFiles,
+				$this->buildSourceBuildConfigSetupCommand(),
+				$envOverrides
+			) !== 0 ) {
+				return 1;
+			}
+		}
+		else {
+			echo 'Skipping build-config setup (cache hit).'.\PHP_EOL;
+		}
+
+		if ( $setup[ 'needs_npm_install' ] ) {
+			echo 'Running node dependency install and asset build.'.\PHP_EOL;
+			$nodeExitCode = $this->processRunner->runForExitCode(
+				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], true ),
+				$rootDir,
+				null,
+				$envOverrides
+			);
+			if ( $nodeExitCode !== 0 ) {
+				return $nodeExitCode;
+			}
+		}
+		elseif ( $setup[ 'needs_npm_build' ] ) {
+			echo 'Running asset build only.'.\PHP_EOL;
+			$nodeExitCode = $this->processRunner->runForExitCode(
+				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], false ),
+				$rootDir,
+				null,
+				$envOverrides
+			);
+			if ( $nodeExitCode !== 0 ) {
+				return $nodeExitCode;
+			}
+		}
+		else {
+			echo 'Skipping node install/build setup (cache hit).'.\PHP_EOL;
+		}
+
+		$this->setupCacheCoordinator->persistRuntimeSetupState( $rootDir, $setup[ 'fingerprints' ] );
+		return 0;
 	}
 
 	/**
@@ -191,19 +255,31 @@ class SourceRuntimeTestLane {
 	}
 
 	/**
-	 * @return array<int,array<int,string>>
+	 * @return string[]
 	 */
-	private function buildSourceSetupComposeCommands() :array {
-		return [
-			[ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'install', '--no-interaction', '--prefer-dist', '--no-progress' ],
-			[ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'build:config' ],
-		];
+	private function buildSourceComposerInstallSetupCommand() :array {
+		return [ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'install', '--no-interaction', '--prefer-dist', '--no-progress' ];
 	}
 
 	/**
 	 * @return string[]
 	 */
-	private function buildNodeAssetBuildCommand( string $rootDir ) :array {
+	private function buildSourceBuildConfigSetupCommand() :array {
+		return [ 'run', '--rm', '--no-deps', 'test-runner-latest', 'composer', 'build:config' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildNodeAssetBuildCommand(
+		string $rootDir,
+		string $nodeModulesVolume,
+		bool $installDependencies
+	) :array {
+		$command = $installDependencies
+			? 'npm ci --no-audit --no-fund && npm run build'
+			: 'npm run build';
+
 		return [
 			'docker',
 			'run',
@@ -211,14 +287,37 @@ class SourceRuntimeTestLane {
 			'-v',
 			$rootDir.':/app',
 			'-v',
-			'/app/node_modules',
+			$nodeModulesVolume.':/app/node_modules',
 			'-w',
 			'/app',
-			'node:20.10',
+			$this->setupCacheCoordinator->getNodeImageTag(),
 			'sh',
 			'-c',
-			'npm ci --no-audit --no-fund && npm run build',
+			$command,
 		];
+	}
+
+	/**
+	 * @param array<string,string|false>|null $envOverrides
+	 */
+	private function purgeNodeModulesVolume(
+		string $rootDir,
+		string $nodeModulesVolume,
+		?array $envOverrides = null
+	) :void {
+		$this->processRunner->run(
+			[
+				'docker',
+				'volume',
+				'rm',
+				'-f',
+				$nodeModulesVolume,
+			],
+			$rootDir,
+			static function () :void {
+			},
+			$envOverrides
+		);
 	}
 
 	/**

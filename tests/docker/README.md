@@ -66,6 +66,8 @@ Source mode (`default` / `--source`):
 1. Uses `tests/docker/docker-compose.yml`.
 2. Runs one setup pass before runtime streams.
 3. Runs latest and previous WordPress streams with `SHIELD_SKIP_INNER_SETUP=1`.
+4. Uses setup cache by default for source dependency/build steps.
+5. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
 
 Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`):
 
@@ -87,6 +89,12 @@ Use the direct static-analysis runner when Docker routing is not required:
 ```bash
 php bin/shield analyze:source
 php bin/shield analyze:package
+```
+
+Source static analysis also uses setup cache for `build-config` and supports:
+
+```bash
+php bin/shield analyze:source --refresh-setup
 ```
 
 ## Quick Examples
