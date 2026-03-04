@@ -53,11 +53,27 @@
 				{% endfor %}
 			</div>
 		</section>
+		<div class="investigate-landing__hint{% if active_subject is not empty %} d-none{% endif %}"
+			 data-mode-landing-hint="1"
+			 aria-hidden="{{ active_subject is not empty ? 'true' : 'false' }}">
+			<i class="bi bi-arrow-up investigate-landing__hint-icon" aria-hidden="true"></i>
+			{{ strings.landing_hint|default('Select a subject above to begin investigating.') }}
+		</div>
 
 		{% for subject in vars.subjects %}
 			{% if subject.is_enabled %}
 				{% set is_open = active_subject == subject.key %}
 				{% set panel_body %}
+					<div class="investigate-panel__subject-banner{% if subject.subject_title|default('') is empty %} d-none{% endif %}"
+						 data-investigate-panel-subject-banner="1"
+						 aria-hidden="{{ subject.subject_title|default('') is empty ? 'true' : 'false' }}">
+						<i class="{{ subject.subject_icon|default(subject.icon_class) }}"
+						   data-investigate-panel-subject-icon="1"
+						   aria-hidden="true"></i>
+						<span class="investigate-panel__subject-title" data-investigate-panel-subject-title="1">{{ subject.subject_title|default('') }}</span>
+						<span class="investigate-panel__subject-meta{% if subject.subject_meta|default('') is empty %} d-none{% endif %}"
+							  data-investigate-panel-subject-meta="1">{{ subject.subject_meta|default('') }}</span>
+					</div>
 					<div class="investigate-panel__tabs" data-investigate-panel-tabs="1"></div>
 					<div data-investigate-panel-content="1">
 						{{ subject.panel_body|raw }}
@@ -78,6 +94,9 @@
 							'investigate-panel': subject.key,
 							'investigate-panel-loaded': subject.is_loaded ? '1' : '0',
 							'investigate-panel-live': subject.is_live ? '1' : '0',
+							'investigate-lookup-key': subject.lookup_key|default(''),
+							'investigate-subject-icon': subject.subject_icon|default(subject.icon_class),
+							'investigate-subject-meta': subject.subject_meta|default(subject.stat_text),
 							'investigate-render-action': subject.render_action|default({})|json_encode
 						}
 					},

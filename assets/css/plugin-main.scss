@@ -765,12 +765,13 @@ body.folded #FooterBannerGoPro {
   background-color: #f1f1f1;
 }
 
-$sidebar-width-expanded: 230px;
+$sidebar-width-expanded: 200px;
 $sidebar-width-collapsed: 56px;
 $sidebar-transition-speed: 0.25s;
+$sidebar-bg: #1d2327;
 
 #PageMainSide-Apto {
-  background-color: transparent;
+  background-color: $sidebar-bg;
   border: 0 none;
   min-width: $sidebar-width-expanded;
   width: $sidebar-width-expanded;
@@ -801,8 +802,8 @@ $sidebar-transition-speed: 0.25s;
 
     &:hover .sidebar-inner {
       width: $sidebar-width-expanded;
-      background-color: #f1f1f1;
-      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.15);
+      background-color: $sidebar-bg;
+      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.3);
       overflow: visible;
     }
   }
@@ -810,12 +811,13 @@ $sidebar-transition-speed: 0.25s;
 
 #PageMainSide-Apto > .sidebar-inner > .logo-container,
 #PageMainSide-Apto > .logo-container {
-  padding: 5px 20px 8px;
+  padding: 1rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 #PageMainSide-Apto .nav-link.disabled {
   opacity: 0.4 !important;
-  color: #b7b7b7 !important;
+  color: #616d77 !important;
 }
 
 @include media-breakpoint-down(lg) {
@@ -833,7 +835,7 @@ $sidebar-transition-speed: 0.25s;
     display: none;
   }
   #PageMainSide-Apto:hover .logo-container {
-    padding: 5px 20px 8px !important;
+    padding: 1rem 0.9rem !important;
     .navbar-brand {
       max-width: none;
     }
@@ -851,20 +853,25 @@ $sidebar-transition-speed: 0.25s;
   }
 
   // --- Version Footer ---
-  #PageMainSide-Apto > .sidebar-inner > .mt-2.text-center {
+  .sidebar-version-footer {
     display: none;
   }
-  #PageMainSide-Apto:hover > .sidebar-inner > .mt-2.text-center {
+  #PageMainSide-Apto:hover .sidebar-version-footer {
     display: block;
   }
 }
 
+.sidebar-version-footer {
+  color: #616d77;
+  font-size: 0.72rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.5rem;
+}
+
 #PageMainBody_Inner-Apto {
-  background-color: rgba(251, 251, 251, 1);
-  padding: 14px 20px 20px;
+  background-color: #f0f0f1;
+  padding: 1.5rem;
   min-height: 800px;
-  border: 1px solid rgba(0, 128, 0, 0.2);
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.1);
 }
 
 #PageMainBody_Inner-Apto p,
@@ -875,11 +882,35 @@ $sidebar-transition-speed: 0.25s;
 
 .inner-page-header .inner-page-header-title > .bi {
   display: inline-block;
-  font-size: 24px;
+  font-size: 1.2rem;
   line-height: 1;
   flex-shrink: 0;
-  margin-right: 9px;
+  margin-right: 6px;
   color: #008000;
+}
+
+.inner-page-header .inner-page-header-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.inner-page-header .inner-page-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.inner-page-header .inner-page-breadcrumbs {
+  font-size: 0.82rem;
+  color: #888;
+
+  a {
+    color: #888;
+    text-decoration: none;
+
+    &:hover {
+      color: #2271b1;
+    }
+  }
 }
 
 .inner-page-header {
@@ -1125,25 +1156,28 @@ td.status_file_size {
 }
 
 #SuperSearchLaunch > input {
-  border: 2px solid rgba(0, 128, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   cursor: pointer;
   width: 100%;
   margin-bottom: 20px;
   text-indent: 20px;
   font-size: 11px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 5px rgba(255, 255, 255, 0.4);
+  color: #a7aaad;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a7aaad' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 5px rgba(255, 255, 255, 0.06);
   padding: 5px;
   border-radius: 6px;
   text-align: left;
 }
 
 #SuperSearchLaunch > input:hover {
-  border: 2px solid rgba(0, 128, 0, 1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
 }
 
 #SuperSearchLaunch > input.disabled {
-  border: 2px solid transparent;
+  border: 1px solid transparent;
   cursor: no-drop;
+  opacity: 0.4;
 }
 
 #ModalSuperSearchBox .search-icon > .bi {
@@ -1264,10 +1298,6 @@ td.status_file_size {
   line-height: 1;
 }
 
-.inner-page-header .inner-page-subtitle {
-  font-size: small;
-  font-weight: normal;
-}
 
 .load-wrapper {
   position: relative;

@@ -22,10 +22,11 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
 
-	private function renderInvestigateLandingPage() :array {
+	private function renderInvestigateLandingPage( array $extra = [] ) :array {
 		return $this->renderPluginAdminRoutePayload(
 			PluginNavs::NAV_ACTIVITY,
-			PluginNavs::SUBNAV_ACTIVITY_OVERVIEW
+			PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
+			$extra
 		);
 	}
 
@@ -65,6 +66,11 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@data-investigate-section="lookup-shell"]',
 			0,
 			'Landing lookup shell marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode-landing-hint="1" and not(contains(concat(" ", normalize-space(@class), " "), " d-none ")) and @aria-hidden="false"]',
+			'Investigate landing hint is visible without active subject'
 		);
 
 		foreach ( [ 'user', 'ip', 'plugin', 'theme', 'core', 'live_traffic' ] as $subjectKey ) {
@@ -150,6 +156,37 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-mode-panel="1"]//button[contains(concat(" ", normalize-space(@class), " "), " btn-outline-secondary ")]',
 			0,
 			'Investigate mode panel close button no longer uses bootstrap outline class'
+		);
+	}
+
+	public function test_lookup_preload_hides_landing_hint_and_renders_subject_banner_contract() :void {
+		$payload = $this->renderInvestigateLandingPage( [
+			'subject'    => 'ip',
+			'analyse_ip' => '203.0.113.88',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertNotSame( '', $html, 'Expected non-empty render output for investigate landing preload.' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode-landing-hint="1" and contains(concat(" ", normalize-space(@class), " "), " d-none ") and @aria-hidden="true"]',
+			'Investigate landing hint is hidden when a panel is pre-opened'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip" and @aria-hidden="false"]',
+			'Investigate IP panel opens for preloaded lookup'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-banner="1" and not(contains(concat(" ", normalize-space(@class), " "), " d-none ")) and @aria-hidden="false"]',
+			'Investigate IP panel subject banner is visible for preloaded lookup'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-title="1" and normalize-space()="203.0.113.88"]',
+			'Investigate IP panel subject banner title matches lookup value'
 		);
 	}
 }

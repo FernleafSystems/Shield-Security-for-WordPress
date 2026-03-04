@@ -59,12 +59,6 @@
   border-radius: $card-border-radius;
   box-shadow: $card-box-shadow;
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-
-  &:hover {
-    box-shadow: $card-box-shadow-hover;
-    transform: translateY(-2px);
-  }
 }
 
 .shield-needs-attention__zone-accent {

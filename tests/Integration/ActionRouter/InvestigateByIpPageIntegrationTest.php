@@ -72,6 +72,21 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@data-investigate-panel="ip" and @aria-hidden="false"]',
 			'Legacy by-ip route opens ip panel'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode-landing-hint="1" and contains(concat(" ", normalize-space(@class), " "), " d-none ") and @aria-hidden="true"]',
+			'Legacy by-ip route hides landing hint when panel is pre-opened'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-banner="1" and not(contains(concat(" ", normalize-space(@class), " "), " d-none ")) and @aria-hidden="false"]',
+			'Legacy by-ip route renders subject banner'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-title="1" and normalize-space()="203.0.113.88"]',
+			'Legacy by-ip route subject banner title matches lookup value'
+		);
 		$this->assertHtmlContainsMarker( 'shield-ipanalyse', $html, 'By-ip analysis container marker' );
 		$this->assertHtmlContainsMarker( 'Overview', $html, 'By-ip overview tab label marker' );
 		$this->assertHtmlNotContainsMarker( 'Change IP', $html, 'Removed by-ip wrapper text marker' );

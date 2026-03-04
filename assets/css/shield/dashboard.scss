@@ -11,11 +11,6 @@
 	box-shadow: $card-box-shadow;
 	overflow: hidden;
 	background: #fff;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
-	&:hover {
-		transform: translateY(-3px);
-		box-shadow: $card-box-shadow-hover;
-	}
 }
 
 // ------------------------------------
@@ -521,9 +516,6 @@
 // Dashboard-specific: Widget card overrides
 // ============================================================
 .widget-card {
-	&.shield-card:hover {
-		transform: translateY(-2px);
-	}
 	.widget-content-scroll {
 		max-height: 500px;
 		overflow-y: auto;

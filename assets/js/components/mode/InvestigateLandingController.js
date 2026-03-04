@@ -21,6 +21,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.initializeSelect2Within( this.rootEl );
 		this.bindHandlers();
 		this.syncInlineTabsForAllPanels();
+		this.syncSubjectBannerForAllPanels();
+		this.syncLandingHintVisibilityFromPanelState();
 		this.preloadInactivePanels();
 		this.syncLivePanelPolling();
 	}
@@ -273,6 +275,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.initializeSelect2Within( panelContent );
 		new InvestigationTable();
 		this.rebuildInlineTabs( panel );
+		this.syncSubjectBanner( panel );
 		return true;
 	}
 
@@ -283,6 +286,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 		this.clearInlineTabs( panel );
 		this.setPanelLoadedState( panel, false );
+		this.hideSubjectBanner( panel );
 	}
 
 	setPanelLoadingState( panel, isLoading ) {
@@ -309,8 +313,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
+		this.setLandingHintVisible( false );
+
 		const panel = this.findPanelByTarget( evt.detail?.panel_target || '' );
 		if ( panel === null ) {
+			this.syncLandingHintVisibilityFromPanelState();
 			this.stopLivePanelPoller();
 			return;
 		}
@@ -320,6 +327,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		const afterLoad = () => {
 			this.rebuildInlineTabs( panel );
+			this.syncSubjectBanner( panel );
 			if ( this.isLivePanel( panel ) ) {
 				this.startLivePanelPoller( panel );
 			}
@@ -348,6 +356,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( !this.isInvestigateModeEvent( evt ) ) {
 			return;
 		}
+		this.syncLandingHintVisibilityFromPanelState();
 		this.stopLivePanelPoller();
 	}
 
@@ -479,6 +488,145 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	getPanelTabsContainer( panel ) {
 		return panel.querySelector( '[data-investigate-panel-tabs="1"]' );
+	}
+
+	getLandingHintElement() {
+		if ( this.rootEl === null ) {
+			return null;
+		}
+		return this.rootEl.querySelector( '[data-mode-landing-hint="1"]' );
+	}
+
+	setLandingHintVisible( isVisible ) {
+		const hint = this.getLandingHintElement();
+		if ( hint === null ) {
+			return;
+		}
+
+		hint.classList.toggle( 'd-none', !isVisible );
+		hint.setAttribute( 'aria-hidden', isVisible ? 'false' : 'true' );
+	}
+
+	syncLandingHintVisibilityFromPanelState() {
+		if ( this.modeShellEl === null ) {
+			return;
+		}
+		this.setLandingHintVisible(
+			this.modeShellEl.querySelector( '[data-mode-panel="1"].is-open' ) === null
+		);
+	}
+
+	syncSubjectBannerForAllPanels() {
+		if ( this.rootEl === null ) {
+			return;
+		}
+		this.rootEl.querySelectorAll( '[data-investigate-panel]' ).forEach( ( panel ) => {
+			this.syncSubjectBanner( panel );
+		} );
+	}
+
+	getSubjectBannerContainer( panel ) {
+		return panel.querySelector( '[data-investigate-panel-subject-banner="1"]' );
+	}
+
+	hideSubjectBanner( panel ) {
+		const banner = this.getSubjectBannerContainer( panel );
+		if ( banner === null ) {
+			return;
+		}
+
+		const titleNode = banner.querySelector( '[data-investigate-panel-subject-title="1"]' );
+		if ( titleNode !== null ) {
+			titleNode.textContent = '';
+		}
+
+		banner.classList.add( 'd-none' );
+		banner.setAttribute( 'aria-hidden', 'true' );
+	}
+
+	syncSubjectBanner( panel ) {
+		const banner = this.getSubjectBannerContainer( panel );
+		if ( banner === null ) {
+			return;
+		}
+
+		const titleNode = banner.querySelector( '[data-investigate-panel-subject-title="1"]' );
+		const metaNode = banner.querySelector( '[data-investigate-panel-subject-meta="1"]' );
+		const iconNode = banner.querySelector( '[data-investigate-panel-subject-icon="1"]' );
+		const lookupKey = ( panel.dataset.investigateLookupKey || '' ).trim();
+		const iconClass = ( panel.dataset.investigateSubjectIcon || '' ).trim();
+		const metaText = ( panel.dataset.investigateSubjectMeta || '' ).trim();
+
+		if ( iconNode !== null && iconClass.length > 0 ) {
+			iconNode.className = iconClass;
+		}
+
+		if ( metaNode !== null ) {
+			metaNode.textContent = metaText;
+			metaNode.classList.toggle( 'd-none', metaText.length < 1 );
+		}
+
+		if ( lookupKey.length < 1 ) {
+			this.hideSubjectBanner( panel );
+			return;
+		}
+
+		const lookupState = this.extractLookupDisplayValue( panel, lookupKey );
+		let title = lookupState.value;
+		if ( title.length < 1 && !lookupState.hasLookupControl && titleNode !== null ) {
+			title = ( titleNode.textContent || '' ).trim();
+		}
+
+		if ( titleNode !== null ) {
+			titleNode.textContent = title;
+		}
+
+		const hasTitle = title.length > 0;
+		banner.classList.toggle( 'd-none', !hasTitle );
+		banner.setAttribute( 'aria-hidden', hasTitle ? 'false' : 'true' );
+	}
+
+	extractLookupDisplayValue( panel, lookupKey ) {
+		const panelContent = this.getPanelContentContainer( panel );
+		if ( panelContent === null ) {
+			return {
+				value: '',
+				hasLookupControl: false,
+			};
+		}
+
+		const lookupInput = panelContent.querySelector( `[name="${lookupKey}"]` );
+		if ( lookupInput === null ) {
+			return {
+				value: '',
+				hasLookupControl: false,
+			};
+		}
+
+		if ( lookupInput.tagName === 'SELECT' ) {
+			if ( ( lookupInput.value || '' ).trim().length < 1 ) {
+				return {
+					value: '',
+					hasLookupControl: true,
+				};
+			}
+
+			const selectedOption = lookupInput.selectedOptions && lookupInput.selectedOptions.length > 0
+				? lookupInput.selectedOptions[ 0 ]
+				: null;
+			const value = selectedOption !== null
+				? ( selectedOption.textContent || '' ).trim()
+				: '';
+			return {
+				value,
+				hasLookupControl: true,
+			};
+		}
+
+		return {
+			value: ( lookupInput.value || '' ).trim(),
+			hasLookupControl: true,
+		};
 	}
 
 	clearInlineTabs( panel ) {

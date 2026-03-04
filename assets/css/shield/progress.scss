@@ -171,13 +171,7 @@
 	border-radius: $card-border-radius;
 	box-shadow: $card-box-shadow;
 	overflow: hidden;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
 	background: white;
-
-	&:hover {
-		transform: translateY(-3px);
-		box-shadow: $card-box-shadow-hover;
-	}
 }
 
 .meter-card-accent {

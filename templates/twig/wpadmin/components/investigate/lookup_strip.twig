@@ -2,6 +2,7 @@
 {% set is_panel_form = lookup_behavior.panel_form|default(panel_form|default(false)) %}
 {% set is_select2 = lookup_behavior.use_select2|default(use_select2|default(false)) %}
 {% set is_auto_submit_on_change = lookup_behavior.auto_submit_on_change|default(auto_submit_on_change|default(false)) %}
+{% set helper_text = helper_text|default('') %}
 
 <section class="investigate-lookup-strip">
 	<form method="get"
@@ -39,10 +40,15 @@
 					   class="form-control"
 					   placeholder="{{ placeholder|default('') }}"/>
 			{% endif %}
+			{% if helper_text is not empty %}
+				<div class="form-text mt-1">{{ helper_text }}</div>
+			{% endif %}
 		</div>
 
-		<div class="investigate-lookup-strip__submit">
-			<button type="submit" class="btn btn-outline-primary">{{ submit_text }}</button>
-		</div>
+		{% if not is_auto_submit_on_change %}
+			<div class="investigate-lookup-strip__submit">
+				<button type="submit" class="btn btn-outline-primary">{{ submit_text }}</button>
+			</div>
+		{% endif %}
 	</form>
 </section>

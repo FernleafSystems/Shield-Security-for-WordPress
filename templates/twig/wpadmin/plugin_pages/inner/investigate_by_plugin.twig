@@ -11,15 +11,16 @@
 		input_value: vars.plugin_slug|default(''),
 		placeholder: strings.lookup_placeholder,
 		options: vars.plugin_options|default([]),
-		submit_text: strings.lookup_submit
+		submit_text: strings.lookup_submit,
+		helper_text: 'Select a plugin to view its file status, vulnerabilities, and related activity.'
 	} only %}
 
-	{% if not flags.has_subject %}
+	{% if flags.subject_not_found|default(false) %}
 		<div class="alert alert-warning mb-0">
-			<strong>{{ flags.subject_not_found ? strings.not_found_title : strings.no_subject_title }}</strong>
-			<div>{{ flags.subject_not_found ? strings.not_found_text : strings.no_subject_text }}</div>
+			<strong>{{ strings.not_found_title }}</strong>
+			<div>{{ strings.not_found_text }}</div>
 		</div>
-	{% else %}
+	{% elseif flags.has_subject %}
 		{% set panes = [
 			{
 				id: vars.tabs.overview.pane_id,

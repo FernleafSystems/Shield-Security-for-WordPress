@@ -10,15 +10,11 @@
 		input_type: 'text',
 		input_value: vars.analyse_ip|default(''),
 		placeholder: strings.lookup_placeholder,
-		submit_text: strings.lookup_submit
+		submit_text: strings.lookup_submit,
+		helper_text: 'Enter a full IP address. Analysis includes reputation, bot signals, sessions, and traffic.'
 	} only %}
 
-	{% if not flags.has_subject %}
-		<div class="alert alert-warning mb-0">
-			<strong>{{ strings.no_subject_title }}</strong>
-			<div>{{ strings.no_subject_text }}</div>
-		</div>
-	{% else %}
+	{% if flags.has_subject %}
 		{{ content.ip_analysis|raw }}
 	{% endif %}
 {% endblock %}

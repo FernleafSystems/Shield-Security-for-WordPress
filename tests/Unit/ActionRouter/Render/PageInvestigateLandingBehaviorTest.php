@@ -107,6 +107,10 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'icon_class',
 				'status',
 				'stat_text',
+				'lookup_key',
+				'subject_title',
+				'subject_icon',
+				'subject_meta',
 				'panel_title',
 				'panel_status',
 				'panel_body',
@@ -124,7 +128,14 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			$this->assertFalse( $subjectsByKey[ $enabledKey ][ 'is_loaded' ] );
 			$this->assertNotSame( [], $subjectsByKey[ $enabledKey ][ 'render_action' ] );
 			$this->assertStringContainsString( 'Loading investigation panel...', $subjectsByKey[ $enabledKey ][ 'panel_body' ] );
+			$this->assertSame( '', $subjectsByKey[ $enabledKey ][ 'subject_title' ] );
 		}
+		$this->assertSame( 'user_lookup', $subjectsByKey[ 'user' ][ 'lookup_key' ] );
+		$this->assertSame( 'analyse_ip', $subjectsByKey[ 'ip' ][ 'lookup_key' ] );
+		$this->assertSame( 'plugin_slug', $subjectsByKey[ 'plugin' ][ 'lookup_key' ] );
+		$this->assertSame( 'theme_slug', $subjectsByKey[ 'theme' ][ 'lookup_key' ] );
+		$this->assertSame( '', $subjectsByKey[ 'core' ][ 'lookup_key' ] );
+		$this->assertSame( '', $subjectsByKey[ 'live_traffic' ][ 'lookup_key' ] );
 
 		$this->assertTrue( $subjectsByKey[ 'live_traffic' ][ 'is_live' ] );
 		foreach ( [ 'user', 'ip', 'plugin', 'theme', 'core', 'premium_integrations' ] as $nonLiveKey ) {
@@ -151,6 +162,10 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
 		$this->assertArrayHasKey( 'batch_render_action', $renderData[ 'vars' ] ?? [] );
+		$this->assertSame(
+			'Select a subject above to begin investigating.',
+			$renderData[ 'strings' ][ 'landing_hint' ] ?? ''
+		);
 	}
 
 	public function test_active_panel_context_is_derived_from_subject_and_lookup_action_data() :void {
@@ -174,6 +189,9 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			$subjectsByKey[ 'ip' ][ 'panel_body' ] ?? ''
 		);
 		$this->assertTrue( $subjectsByKey[ 'ip' ][ 'is_loaded' ] ?? false );
+		$this->assertSame( '203.0.113.99', $subjectsByKey[ 'ip' ][ 'subject_title' ] ?? '' );
+		$this->assertSame( 'bi bi-globe', $subjectsByKey[ 'ip' ][ 'subject_icon' ] ?? '' );
+		$this->assertSame( 'Requests and offences', $subjectsByKey[ 'ip' ][ 'subject_meta' ] ?? '' );
 		foreach ( [ 'user', 'plugin', 'theme', 'core', 'live_traffic' ] as $key ) {
 			$this->assertFalse( $subjectsByKey[ $key ][ 'is_loaded' ] ?? true );
 		}

@@ -48,6 +48,10 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 *   icon_class:string,
 	 *   status:string,
 	 *   stat_text:string,
+	 *   lookup_key:string,
+	 *   subject_title:string,
+	 *   subject_icon:string,
+	 *   subject_meta:string,
 	 *   panel_title:string,
 	 *   panel_status:string,
 	 *   panel_body:string,
@@ -114,6 +118,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			'label_pro'        => __( 'PRO', 'wp-simple-firewall' ),
 			'panel_loading'    => $this->getPanelLoadingMessage(),
 			'panel_load_error' => $this->getPanelLoadErrorMessage(),
+			'landing_hint'     => __( 'Select a subject above to begin investigating.', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -138,6 +143,10 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 *   icon_class:string,
 	 *   status:string,
 	 *   stat_text:string,
+	 *   lookup_key:string,
+	 *   subject_title:string,
+	 *   subject_icon:string,
+	 *   subject_meta:string,
 	 *   panel_title:string,
 	 *   panel_status:string,
 	 *   panel_body:string,
@@ -164,6 +173,10 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 *   icon_class:string,
 	 *   status:string,
 	 *   stat_text:string,
+	 *   lookup_key:string,
+	 *   subject_title:string,
+	 *   subject_icon:string,
+	 *   subject_meta:string,
 	 *   panel_title:string,
 	 *   panel_status:string,
 	 *   panel_body:string,
@@ -172,10 +185,12 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 */
 	private function buildSubjectsPayload() :array {
 		$activeSubject = $this->getActiveSubject();
+		$lookupValues = $this->getLookupValues();
 		$subjects = [];
 		foreach ( $this->getSubjectDefinitions() as $subject ) {
 			$isEnabled = $subject[ 'is_enabled' ];
 			$isLoaded = $this->shouldPreloadSubjectPanel( $subject, $activeSubject );
+			$banner = $this->buildSubjectBannerData( $subject, $isLoaded, $activeSubject, $lookupValues );
 			$subjects[] = [
 				'key'          => $subject[ 'key' ],
 				'panel_target' => $subject[ 'key' ],
@@ -188,6 +203,10 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				'icon_class'   => $subject[ 'icon_class' ],
 				'status'       => $subject[ 'status' ],
 				'stat_text'    => $subject[ 'stat_text' ],
+				'lookup_key'   => $banner[ 'lookup_key' ],
+				'subject_title' => $banner[ 'subject_title' ],
+				'subject_icon'  => $banner[ 'subject_icon' ],
+				'subject_meta'  => $banner[ 'subject_meta' ],
 				'panel_title'  => $subject[ 'panel_title' ],
 				'panel_status' => $subject[ 'panel_status' ],
 				'panel_body'   => $isLoaded
@@ -197,6 +216,46 @@ class PageInvestigateLanding extends PageModeLandingBase {
 			];
 		}
 		return $subjects;
+	}
+
+	/**
+	 * @param array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   status:string,
+	 *   stat_text:string,
+	 *   subnav_hint:string|null,
+	 *   panel_title:string,
+	 *   panel_status:string,
+	 *   render_action:string,
+	 *   render_nav:string,
+	 *   render_subnav:string,
+	 *   lookup_key:string|null,
+	 *   is_enabled:bool,
+	 *   is_pro:bool
+	 * } $subject
+	 * @param array<string,string> $lookupValues
+	 * @return array{
+	 *   lookup_key:string,
+	 *   subject_title:string,
+	 *   subject_icon:string,
+	 *   subject_meta:string
+	 * }
+	 */
+	private function buildSubjectBannerData( array $subject, bool $isLoaded, string $activeSubject, array $lookupValues ) :array {
+		$lookupKey = \is_string( $subject[ 'lookup_key' ] ) ? $subject[ 'lookup_key' ] : '';
+		$lookupValue = '';
+		if ( $isLoaded && $subject[ 'key' ] === $activeSubject && !empty( $lookupKey ) ) {
+			$lookupValue = \trim( (string)( $lookupValues[ $lookupKey ] ?? '' ) );
+		}
+
+		return [
+			'lookup_key'   => $lookupKey,
+			'subject_title' => $lookupValue,
+			'subject_icon'  => (string)$subject[ 'icon_class' ],
+			'subject_meta'  => (string)$subject[ 'stat_text' ],
+		];
 	}
 
 	/**

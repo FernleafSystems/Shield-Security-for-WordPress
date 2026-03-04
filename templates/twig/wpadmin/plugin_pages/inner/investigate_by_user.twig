@@ -10,15 +10,16 @@
 		input_type: 'text',
 		input_value: vars.user_lookup|default(''),
 		placeholder: strings.lookup_placeholder,
-		submit_text: strings.lookup_submit
+		submit_text: strings.lookup_submit,
+		helper_text: 'Type at least 2 characters. Autocomplete will suggest matching users.'
 	} only %}
 
-	{% if not flags.has_subject %}
+	{% if flags.subject_not_found|default(false) %}
 		<div class="alert alert-warning mb-0">
-			<strong>{{ flags.subject_not_found ? strings.not_found_title : strings.no_subject_title }}</strong>
-			<div>{{ flags.subject_not_found ? strings.not_found_text : strings.no_subject_text }}</div>
+			<strong>{{ strings.not_found_title }}</strong>
+			<div>{{ strings.not_found_text }}</div>
 		</div>
-	{% else %}
+	{% elseif flags.has_subject %}
 		{% set panes = [
 			{
 				id: 'tabInvestigateUserOverview',
