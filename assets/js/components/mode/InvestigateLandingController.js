@@ -21,7 +21,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.initializeSelect2Within( this.rootEl );
 		this.bindHandlers();
 		this.syncInlineTabsForAllPanels();
-		this.syncSubjectBannerForAllPanels();
 		this.syncLandingHintVisibilityFromPanelState();
 		this.preloadInactivePanels();
 		this.syncLivePanelPolling();
@@ -48,6 +47,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			( tabButton, evt ) => this.handleInlineTabClick( tabButton, evt ),
 			false
 		);
+		shieldEventsHandler_Main.add_Click(
+			'[data-investigate-landing="1"] [data-investigate-change-subject="1"]',
+			( changeLink, evt ) => this.handleChangeSubjectClick( changeLink, evt ),
+			false
+		);
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
 			'[data-investigate-landing="1"] [data-investigate-source-tab="1"]',
@@ -71,12 +75,30 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( input === null ) {
 			return;
 		}
+		if ( typeof input.matches === 'function' && input.matches( 'select[data-investigate-select2="1"]' ) ) {
+			return;
+		}
 
 		const form = input.closest( 'form[data-investigate-panel-form="1"]' );
 		if ( form === null ) {
 			return;
 		}
 		form.requestSubmit();
+	}
+
+	handleChangeSubjectClick( changeLink, evt ) {
+		const panel = this.findPanelFromElement( changeLink );
+		if ( panel === null ) {
+			return;
+		}
+
+		const renderActionData = this.parsePanelRenderActionData( panel );
+		if ( renderActionData === null ) {
+			return;
+		}
+
+		evt.preventDefault();
+		this.loadPanelBodyFromRenderAction( panel, renderActionData ).finally();
 	}
 
 	handlePanelFormSubmit( form, evt ) {
@@ -133,18 +155,92 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		contextEl.querySelectorAll( 'select[data-investigate-select2="1"]' ).forEach( ( selectEl ) => {
 			const $select = $( selectEl );
+			const shouldAutoSubmit = selectEl.dataset.investigateAutoSubmit === '1';
 			if ( $select.hasClass( 'select2-hidden-accessible' ) ) {
+				if ( shouldAutoSubmit ) {
+					this.bindSelect2AutoSubmit( selectEl, $select );
+				}
 				return;
 			}
 
 			const firstOption = selectEl.querySelector( 'option[value=""]' );
 			const placeholder = firstOption ? ( firstOption.textContent || '' ) : '';
-
-			$select.select2( {
+			const ajaxContract = this.parseSelect2AjaxConfig( selectEl.dataset.investigateSelect2Ajax || '' );
+			const select2Config = {
 				width: '100%',
 				placeholder,
-			} );
+			};
+
+			if ( ajaxContract !== null ) {
+				select2Config.minimumInputLength = ajaxContract.minimumInputLength;
+				select2Config.ajax = this.buildSelect2AjaxConfig( ajaxContract );
+			}
+
+			$select.select2( select2Config );
+
+			if ( shouldAutoSubmit ) {
+				this.bindSelect2AutoSubmit( selectEl, $select );
+			}
 		} );
+	}
+
+	bindSelect2AutoSubmit( selectEl, $select ) {
+		$select.off( 'select2:select.investigateAutoSubmit select2:clear.investigateAutoSubmit' );
+		$select.on( 'select2:select.investigateAutoSubmit select2:clear.investigateAutoSubmit', () => {
+			const form = selectEl.closest( 'form[data-investigate-panel-form="1"]' );
+			if ( form !== null ) {
+				form.requestSubmit();
+			}
+		} );
+	}
+
+	parseSelect2AjaxConfig( rawJson ) {
+		if ( typeof rawJson !== 'string' || rawJson.trim().length < 1 ) {
+			return null;
+		}
+
+		const parsed = this.parseJsonObject( rawJson );
+		if ( parsed === null ) {
+			return null;
+		}
+
+		const action = ( parsed.action && typeof parsed.action === 'object' ) ? parsed.action : null;
+		const subject = typeof parsed.subject === 'string' ? parsed.subject.trim() : '';
+		const ajaxUrl = typeof action?.ajaxurl === 'string' ? action.ajaxurl : '';
+		if ( action === null || subject.length < 1 || ajaxUrl.length < 1 ) {
+			return null;
+		}
+
+		return {
+			action,
+			subject,
+			ajaxUrl,
+			minimumInputLength: Math.max( 1, Number.isInteger( parsed.minimum_input_length ) ? parsed.minimum_input_length : 2 ),
+			delayMs: Math.max( 0, Number.isInteger( parsed.delay_ms ) ? parsed.delay_ms : 700 ),
+		};
+	}
+
+	buildSelect2AjaxConfig( ajaxContract ) {
+		return {
+			type: 'POST',
+			delay: ajaxContract.delayMs,
+			url: ajaxContract.ajaxUrl,
+			dataType: 'json',
+			data: ( params ) => this.buildSelect2Query( ajaxContract, params?.term || '' ),
+			processResults: ( response ) => {
+				return {
+					results: Array.isArray( response?.data?.results ) ? response.data.results : [],
+				};
+			},
+		};
+	}
+
+	buildSelect2Query( ajaxContract, term ) {
+		return {
+			...ajaxContract.action,
+			subject: ajaxContract.subject,
+			search: typeof term === 'string' ? term : '',
+		};
 	}
 
 	preloadInactivePanels() {
@@ -275,7 +371,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.initializeSelect2Within( panelContent );
 		new InvestigationTable();
 		this.rebuildInlineTabs( panel );
-		this.syncSubjectBanner( panel );
 		return true;
 	}
 
@@ -286,7 +381,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 		this.clearInlineTabs( panel );
 		this.setPanelLoadedState( panel, false );
-		this.hideSubjectBanner( panel );
 	}
 
 	setPanelLoadingState( panel, isLoading ) {
@@ -327,7 +421,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		const afterLoad = () => {
 			this.rebuildInlineTabs( panel );
-			this.syncSubjectBanner( panel );
 			if ( this.isLivePanel( panel ) ) {
 				this.startLivePanelPoller( panel );
 			}
@@ -514,119 +607,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.setLandingHintVisible(
 			this.modeShellEl.querySelector( '[data-mode-panel="1"].is-open' ) === null
 		);
-	}
-
-	syncSubjectBannerForAllPanels() {
-		if ( this.rootEl === null ) {
-			return;
-		}
-		this.rootEl.querySelectorAll( '[data-investigate-panel]' ).forEach( ( panel ) => {
-			this.syncSubjectBanner( panel );
-		} );
-	}
-
-	getSubjectBannerContainer( panel ) {
-		return panel.querySelector( '[data-investigate-panel-subject-banner="1"]' );
-	}
-
-	hideSubjectBanner( panel ) {
-		const banner = this.getSubjectBannerContainer( panel );
-		if ( banner === null ) {
-			return;
-		}
-
-		const titleNode = banner.querySelector( '[data-investigate-panel-subject-title="1"]' );
-		if ( titleNode !== null ) {
-			titleNode.textContent = '';
-		}
-
-		banner.classList.add( 'd-none' );
-		banner.setAttribute( 'aria-hidden', 'true' );
-	}
-
-	syncSubjectBanner( panel ) {
-		const banner = this.getSubjectBannerContainer( panel );
-		if ( banner === null ) {
-			return;
-		}
-
-		const titleNode = banner.querySelector( '[data-investigate-panel-subject-title="1"]' );
-		const metaNode = banner.querySelector( '[data-investigate-panel-subject-meta="1"]' );
-		const iconNode = banner.querySelector( '[data-investigate-panel-subject-icon="1"]' );
-		const lookupKey = ( panel.dataset.investigateLookupKey || '' ).trim();
-		const iconClass = ( panel.dataset.investigateSubjectIcon || '' ).trim();
-		const metaText = ( panel.dataset.investigateSubjectMeta || '' ).trim();
-
-		if ( iconNode !== null && iconClass.length > 0 ) {
-			iconNode.className = iconClass;
-		}
-
-		if ( metaNode !== null ) {
-			metaNode.textContent = metaText;
-			metaNode.classList.toggle( 'd-none', metaText.length < 1 );
-		}
-
-		if ( lookupKey.length < 1 ) {
-			this.hideSubjectBanner( panel );
-			return;
-		}
-
-		const lookupState = this.extractLookupDisplayValue( panel, lookupKey );
-		let title = lookupState.value;
-		if ( title.length < 1 && !lookupState.hasLookupControl && titleNode !== null ) {
-			title = ( titleNode.textContent || '' ).trim();
-		}
-
-		if ( titleNode !== null ) {
-			titleNode.textContent = title;
-		}
-
-		const hasTitle = title.length > 0;
-		banner.classList.toggle( 'd-none', !hasTitle );
-		banner.setAttribute( 'aria-hidden', hasTitle ? 'false' : 'true' );
-	}
-
-	extractLookupDisplayValue( panel, lookupKey ) {
-		const panelContent = this.getPanelContentContainer( panel );
-		if ( panelContent === null ) {
-			return {
-				value: '',
-				hasLookupControl: false,
-			};
-		}
-
-		const lookupInput = panelContent.querySelector( `[name="${lookupKey}"]` );
-		if ( lookupInput === null ) {
-			return {
-				value: '',
-				hasLookupControl: false,
-			};
-		}
-
-		if ( lookupInput.tagName === 'SELECT' ) {
-			if ( ( lookupInput.value || '' ).trim().length < 1 ) {
-				return {
-					value: '',
-					hasLookupControl: true,
-				};
-			}
-
-			const selectedOption = lookupInput.selectedOptions && lookupInput.selectedOptions.length > 0
-				? lookupInput.selectedOptions[ 0 ]
-				: null;
-			const value = selectedOption !== null
-				? ( selectedOption.textContent || '' ).trim()
-				: '';
-			return {
-				value,
-				hasLookupControl: true,
-			};
-		}
-
-		return {
-			value: ( lookupInput.value || '' ).trim(),
-			hasLookupControl: true,
-		};
 	}
 
 	clearInlineTabs( panel ) {

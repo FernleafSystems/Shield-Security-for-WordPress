@@ -135,33 +135,39 @@
 	pointer-events: none;
 }
 
-.investigate-panel__subject-banner {
-	align-items: center;
-	background: $status-bg-info-light;
-	border: 1px solid #b8e0ec;
-	border-radius: 8px;
+.investigate-subject-header {
+	align-items: flex-start;
+	border-bottom: 1px solid $border-color-neutral-subtle;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.75rem;
-	margin-bottom: 0.9rem;
-	padding: 0.7rem 1rem;
+	gap: 0.65rem 1rem;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	padding-bottom: 0.7rem;
 }
 
-.investigate-panel__subject-banner i[data-investigate-panel-subject-icon="1"] {
-	color: #0a5c6e;
-	font-size: 0.95rem;
-}
-
-.investigate-panel__subject-title {
-	color: #063d4a;
-	flex: 1;
-	font-size: 0.95rem;
+.investigate-subject-header__title {
+	color: #1d2327;
+	font-size: 1rem;
 	font-weight: 700;
+	line-height: 1.35;
 }
 
-.investigate-panel__subject-meta {
-	color: #4a7b8a;
-	font-size: 0.78rem;
+.investigate-subject-header__meta {
+	color: #646970;
+	font-size: 0.8rem;
+	margin-top: 0.1rem;
+}
+
+.investigate-subject-header__change-link {
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.investigate-subject-header__change-link:hover {
+	text-decoration: underline;
 }
 
 .investigate-panel__tabs {
@@ -208,12 +214,8 @@
 
 /* Lookup strip */
 .investigate-lookup-strip {
-	background: #f8f9fa;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	margin: 0 auto 1rem;
-	max-width: 760px;
-	padding: 1.25rem;
+	margin: 0 0 1rem;
+	padding: 0;
 }
 
 .investigate-lookup-strip__form {
@@ -231,6 +233,16 @@
 	flex: 1;
 }
 
+.investigate-lookup-strip__field .form-control,
+.investigate-lookup-strip__field .form-select,
+.investigate-lookup-strip__field .select2-container .select2-selection--single {
+	min-height: 38px;
+}
+
+.investigate-lookup-strip__field .select2-container .select2-selection--single {
+	border-color: $border-color-neutral-subtle;
+}
+
 .investigate-lookup-strip__submit {
 	display: flex;
 	flex-shrink: 0;
@@ -238,6 +250,12 @@
 
 .investigate-lookup-strip__submit .btn {
 	white-space: nowrap;
+}
+
+.investigate-empty-state-text {
+	color: #646970;
+	font-size: 0.9rem;
+	padding: 0.35rem 0;
 }
 
 /* Flat content sections (de-boxed investigate panels) */
@@ -271,10 +289,44 @@
 }
 
 .investigate-table-panel--flat {
-	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: $card-border-radius;
-	padding: 1rem;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	padding: 0;
+}
+
+.investigate-table-panel--flat .shield-section-datatable {
+	margin: 0;
+}
+
+.investigate-table-panel--flat .table {
+	border-color: $border-color-neutral-subtle;
+}
+
+.investigate-inline-ipanalyse .shield-ipanalyse.options_form_for--modern .shield-options-layout {
+	gap: 0;
+	grid-template-columns: 1fr;
+}
+
+.investigate-inline-ipanalyse .shield-options-rail {
+	display: none;
+}
+
+.investigate-inline-ipanalyse .shield-options-panel {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin: 0;
+}
+
+.investigate-inline-ipanalyse .shield-options-panel-accent {
+	display: none;
+}
+
+.investigate-inline-ipanalyse .shield-options-panel-body {
+	overflow-x: visible;
+	padding: 0;
 }
 
 /* Responsive lookup strip */

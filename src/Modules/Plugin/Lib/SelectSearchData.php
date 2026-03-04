@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 	StringsSections
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ContactFormSpamBlockBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\LoginProtectionForms;
@@ -47,50 +46,10 @@ class SelectSearchData {
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function ipSearch( string $terms ) :array {
-		$ipTerms = \array_filter(
-			\array_map( '\trim', \explode( ' ', $terms ) ),
-			function ( string $term ) {
-				return \preg_match( '#^[\d.]{3,}$#i', $term ) || \preg_match( '#^[\da-f:]{3,}$#i', $term );
-			}
-		);
-
-		$results = [];
-		$dbhIPs = self::con()->db_con->ips;
-		foreach ( $ipTerms as $ipTerm ) {
-			$selector = $dbhIPs->getQuerySelector();
-			// Support searches for hexadecimal IP representation
-			if ( \preg_match( '#[.:]#', $ipTerm ) ) {
-				$selector->addRawWhere( [
-					sprintf( 'INET6_NTOA(`%s`.`ip`)', $dbhIPs->getTableSchema()->table ),
-					'LIKE',
-					"'%$ipTerm%'"
-				] );
-			}
-			else {
-				$selector->addRawWhere( [
-					sprintf( '`%s`.`ip`', $dbhIPs->getTableSchema()->table ),
-					'=',
-					"X'$ipTerm'"
-				] );
-			}
-
-			$ips = $selector->queryWithResult();
-			$results = \array_merge(
-				$results,
-				\array_map(
-					function ( Record $ipRecord ) {
-						return $ipRecord->ip;
-					},
-					\is_array( $ips ) ? $ips : []
-				)
-			);
-		}
-
-		if ( empty( $results ) ) {
+		$results = ( new IpLookupSearch() )->findMatchingIps( $terms );
+		if ( \count( $results ) < 1 ) {
 			return [];
 		}
-
-		\natsort( $results );
 
 		return [
 			[
@@ -112,7 +71,7 @@ class SelectSearchData {
 							'icon'        => self::con()->svgs->iconClass( 'diagram-2-fill.svg' ),
 						];
 					},
-					\array_unique( $results )
+					$results
 				),
 			]
 		];

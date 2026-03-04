@@ -1,0 +1,17 @@
+{% set header_title = title|default('') %}
+{% set header_meta = meta|default('') %}
+{% set change_label = change_label|default('') %}
+
+<div class="investigate-subject-header">
+	<div>
+		<div class="investigate-subject-header__title">{{ header_title }}</div>
+		{% if header_meta is not empty %}
+			<div class="investigate-subject-header__meta">{{ header_meta }}</div>
+		{% endif %}
+	</div>
+	{% if change_label is not empty %}
+		<a href="#"
+		   class="investigate-subject-header__change-link"
+		   data-investigate-change-subject="1">{{ change_label }}</a>
+	{% endif %}
+</div>

@@ -21,6 +21,7 @@ class Constants {
 		Actions\FileDownloadAsStream::class,
 		Actions\OperatorModeSwitch::class,
 		Actions\InvestigationTableAction::class,
+		Actions\InvestigateLookupSelect::class,
 		Actions\IpAnalyseAction::class,
 		Actions\IpRuleAddSubmit::class,
 		Actions\IpRuleDelete::class,

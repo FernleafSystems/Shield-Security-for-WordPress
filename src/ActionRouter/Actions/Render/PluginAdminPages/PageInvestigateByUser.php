@@ -50,6 +50,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$railNavItems = [];
 		$tables = [];
 		$relatedIps = [];
+		$subjectHeader = [];
 
 		if ( $hasSubject ) {
 			$sessions = $this->buildSessions( $subject );
@@ -57,9 +58,17 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			$requestLogs = $this->buildRequestLogs( $subject );
 			$relatedIps = $this->getRelatedIpCardsBuilder()->build( $sessions, $activityLogs, $requestLogs );
 			$summaryStats = $this->buildSummaryStats( $sessions, $activityLogs, $requestLogs, $relatedIps );
-			$overviewRows = $this->buildOverviewRows( $subject, $summaryStats );
+			$overviewRows = $this->buildOverviewRows(
+				$subject,
+				$summaryStats,
+				$this->buildOverviewContext( $subject, $sessions, $requestLogs, $relatedIps )
+			);
 			$railNavItems = $this->buildRailNavItems( $summaryStats );
 			$tables = $this->buildTableContractsForUser( $subject->ID );
+			$subjectHeader = [
+				'title' => (string)$subject->user_login,
+				'meta'  => empty( $subject->user_email ) ? '' : (string)$subject->user_email,
+			];
 		}
 
 		return [
@@ -78,21 +87,24 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'inner_page_title'    => __( 'Investigate By User', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Select a user to review recent sessions, activity, and requests.', 'wp-simple-firewall' ),
 				'lookup_label'        => __( 'User Lookup', 'wp-simple-firewall' ),
-				'lookup_placeholder'  => __( 'User ID, username, or email', 'wp-simple-firewall' ),
+				'lookup_placeholder'  => __( 'Search for a user...', 'wp-simple-firewall' ),
 				'lookup_submit'       => __( 'Load User Context', 'wp-simple-firewall' ),
-				'lookup_helper'       => __( 'Type at least 2 characters. Autocomplete will suggest matching users.', 'wp-simple-firewall' ),
+				'lookup_helper'       => __( 'Type at least 2 characters to search by username, display name, or email.', 'wp-simple-firewall' ),
+				'change_subject'      => __( 'Change user', 'wp-simple-firewall' ),
 				'overview_title'      => __( 'User Overview', 'wp-simple-firewall' ),
 				'no_subject_title'    => __( 'No User Selected', 'wp-simple-firewall' ),
-				'no_subject_text'     => __( 'Enter a user ID, email, or username to load user-scoped investigate data.', 'wp-simple-firewall' ),
+				'no_subject_text'     => __( 'Use the lookup above to load user-scoped investigate data.', 'wp-simple-firewall' ),
 				'not_found_title'     => __( 'No Matching User Found', 'wp-simple-firewall' ),
-				'not_found_text'      => __( 'No WordPress user matched your lookup value. Check the ID, username, or email and try again.', 'wp-simple-firewall' ),
+				'not_found_text'      => __( 'No WordPress user matched your lookup value. Try a different search term.', 'wp-simple-firewall' ),
 				'related_ips_title'   => __( 'Related IP Addresses', 'wp-simple-firewall' ),
 				'related_ips_empty'   => __( 'No related IP addresses were found.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'user_lookup'      => $lookup,
 				'lookup_route'     => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
-				'lookup_behavior'  => $this->buildLookupBehaviorContract(),
+				'lookup_behavior'  => $this->buildLookupBehaviorContract( true, true, true ),
+				'lookup_ajax'      => $this->buildLookupAjaxContract( 'user', 1 ),
+				'subject_header'   => $subjectHeader,
 				'overview_rows'    => $overviewRows,
 				'rail_nav_items'   => $railNavItems,
 				'tables'           => $tables,
@@ -105,8 +117,66 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		return ( new ResolveUserLookup() )->resolve( $lookup );
 	}
 
-	protected function buildOverviewRows( \WP_User $subject, array $summaryStats ) :array {
-		return ( new InvestigateOverviewRowsBuilder() )->forUser( $subject, $summaryStats );
+	protected function buildOverviewRows( \WP_User $subject, array $summaryStats, array $context = [] ) :array {
+		return ( new InvestigateOverviewRowsBuilder() )->forUser( $subject, $summaryStats, $context );
+	}
+
+	protected function buildOverviewContext( \WP_User $subject, array $sessions, array $requestLogs, array $relatedIps ) :array {
+		$con = self::con();
+		$meta = $con->user_metas->for( $subject );
+
+		$roleText = __( 'Unknown', 'wp-simple-firewall' );
+		$roles = \array_values( \array_filter(
+			\array_map(
+				static fn( string $role ) :string => \trim( \ucwords( \str_replace( '_', ' ', $role ) ) ),
+				\is_array( $subject->roles ?? null ) ? $subject->roles : []
+			)
+		) );
+		if ( !empty( $roles ) ) {
+			$roleText = \implode( ', ', $roles );
+		}
+
+		$lastLoginIp = '';
+		$ipRef = (int)( $meta->record->ip_ref ?? 0 );
+		if ( $ipRef > 0 ) {
+			$ipRecord = $con->db_con->ips->getQuerySelector()->byId( $ipRef );
+			if ( \is_object( $ipRecord ) && \is_string( $ipRecord->ip ?? null ) ) {
+				$lastLoginIp = $ipRecord->ip;
+			}
+		}
+		if ( $lastLoginIp === '' ) {
+			$session = \current( $sessions );
+			if ( \is_array( $session ) && \is_string( $session[ 'ip' ] ?? null ) ) {
+				$lastLoginIp = $session[ 'ip' ];
+			}
+		}
+
+		$recentIps = \array_values( \array_unique( \array_filter(
+			\array_map(
+				static fn( array $card ) :string => (string)( $card[ 'ip' ] ?? '' ),
+				$relatedIps
+			)
+		) ) );
+		$recentIps = \array_slice( $recentIps, 0, 6 );
+
+		$eventScore = 0;
+		foreach ( $requestLogs as $requestLog ) {
+			if ( !empty( $requestLog[ 'offense' ] ) ) {
+				$eventScore++;
+			}
+		}
+
+		$shieldStatus = ( (int)( $meta->record->hard_suspended_at ?? 0 ) > 0 )
+			? __( 'Suspended', 'wp-simple-firewall' )
+			: __( 'Tracked', 'wp-simple-firewall' );
+
+		return [
+			'role'          => $roleText,
+			'last_login_ip' => $lastLoginIp === '' ? __( 'Unknown', 'wp-simple-firewall' ) : $lastLoginIp,
+			'recent_ips'    => empty( $recentIps ) ? [] : $recentIps,
+			'event_score'   => $eventScore,
+			'shield_status' => $shieldStatus,
+		];
 	}
 
 	protected function buildSummaryStats( array $sessions, array $activityLogs, array $requestLogs, array $relatedIps ) :array {
@@ -240,6 +310,8 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				$spec[ 'builder' ],
 				$spec[ 'href' ]
 			);
+			$contracts[ $key ][ 'is_flat' ] = true;
+			$contracts[ $key ] = $this->normalizeInvestigationTableContract( $contracts[ $key ] );
 		}
 		return $contracts;
 	}

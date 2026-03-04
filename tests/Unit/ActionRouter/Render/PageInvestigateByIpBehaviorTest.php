@@ -20,7 +20,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
-use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Services\Core\{
+	General,
+	Request,
+	Users
+};
 use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
@@ -32,7 +36,38 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( 'sanitize_text_field' )->alias( static fn( $text ) => \is_string( $text ) ? \trim( $text ) : '' );
+		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
+		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
+		);
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installControllerStub();
@@ -65,11 +100,15 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'panel_form'            => true,
-				'use_select2'           => false,
-				'auto_submit_on_change' => false,
+				'use_select2'           => true,
+				'auto_submit_on_change' => true,
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
+		$this->assertSame( 'ip', (string)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] ?? '' ) );
+		$this->assertSame( 2, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'minimum_input_length' ] ?? 0 ) );
+		$this->assertSame( 700, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'delay_ms' ] ?? 0 ) );
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'action' ] ?? [] );
 	}
 
 	public function test_invalid_lookup_sets_has_lookup_without_subject() :void {
@@ -102,6 +141,7 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject', $vars );
 		$this->assertArrayNotHasKey( 'summary', $vars );
+		$this->assertSame( '203.0.113.88', (string)( $vars[ 'subject_header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( 'rendered-ip:203.0.113.88', (string)( $renderData[ 'content' ][ 'ip_analysis' ] ?? '' ) );
 	}
 
@@ -156,6 +196,24 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 
 				public function query( $key, $default = null ) {
 					return $this->queryValues[ $key ] ?? $default;
+				}
+
+				public function ip() :string {
+					return '127.0.0.1';
+				}
+
+				public function ts( bool $update = true ) :int {
+					return 1700000000;
+				}
+			},
+			'service_wpgeneral' => new class extends General {
+				public function ajaxURL() :string {
+					return '/admin-ajax.php';
+				}
+			},
+			'service_wpusers' => new class extends Users {
+				public function getCurrentWpUserId() {
+					return 1;
 				}
 			},
 			'service_ip'      => new class( $ipValidator ) extends IpUtils {

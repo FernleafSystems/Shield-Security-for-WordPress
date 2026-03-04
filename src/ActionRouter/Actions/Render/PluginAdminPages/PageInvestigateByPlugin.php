@@ -42,6 +42,10 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 		return PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN;
 	}
 
+	protected function getLookupSubjectKey() :string {
+		return 'plugin';
+	}
+
 	protected function getSubjectAvatarIcon() :string {
 		return 'puzzle-fill';
 	}
@@ -55,9 +59,10 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 			'inner_page_title'    => __( 'Investigate By Plugin', 'wp-simple-firewall' ),
 			'inner_page_subtitle' => __( 'Inspect plugin integrity, vulnerability status, and activity footprint.', 'wp-simple-firewall' ),
 			'lookup_label'        => __( 'Plugin Lookup', 'wp-simple-firewall' ),
-			'lookup_placeholder'  => __( 'Select a plugin', 'wp-simple-firewall' ),
+			'lookup_placeholder'  => __( 'Search for a plugin...', 'wp-simple-firewall' ),
 			'lookup_submit'       => __( 'Load Plugin Context', 'wp-simple-firewall' ),
-			'lookup_helper'       => __( 'Select a plugin to view its file status, vulnerabilities, and related activity.', 'wp-simple-firewall' ),
+			'lookup_helper'       => __( 'Type at least 2 characters to search installed plugins.', 'wp-simple-firewall' ),
+			'change_subject'      => __( 'Change plugin', 'wp-simple-firewall' ),
 			'no_subject_title'    => __( 'No Plugin Selected', 'wp-simple-firewall' ),
 			'no_subject_text'     => __( 'Select a plugin to load file status and activity context.', 'wp-simple-firewall' ),
 			'not_found_title'     => __( 'Plugin Not Found', 'wp-simple-firewall' ),

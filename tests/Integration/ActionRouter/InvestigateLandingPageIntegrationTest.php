@@ -159,7 +159,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_lookup_preload_hides_landing_hint_and_renders_subject_banner_contract() :void {
+	public function test_lookup_preload_hides_landing_hint_and_renders_subject_header_contract() :void {
 		$payload = $this->renderInvestigateLandingPage( [
 			'subject'    => 'ip',
 			'analyse_ip' => '203.0.113.88',
@@ -180,13 +180,18 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-banner="1" and not(contains(concat(" ", normalize-space(@class), " "), " d-none ")) and @aria-hidden="false"]',
-			'Investigate IP panel subject banner is visible for preloaded lookup'
+			'//section[@data-investigate-panel="ip"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header ")]',
+			'Investigate IP panel subject header is visible for preloaded lookup'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-title="1" and normalize-space()="203.0.113.88"]',
-			'Investigate IP panel subject banner title matches lookup value'
+			'//section[@data-investigate-panel="ip"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header__title ") and normalize-space()="203.0.113.88"]',
+			'Investigate IP panel subject header title matches lookup value'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-change-subject="1"]',
+			'Investigate IP panel exposes change subject action'
 		);
 	}
 }

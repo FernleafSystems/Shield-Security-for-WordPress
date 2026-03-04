@@ -51,6 +51,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		parent::setUp();
 
 		Functions\when( 'sanitize_text_field' )->alias( static fn( $text ) => \is_string( $text ) ? \trim( $text ) : '' );
+		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
@@ -116,11 +117,15 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'panel_form'            => true,
-				'use_select2'           => false,
-				'auto_submit_on_change' => false,
+				'use_select2'           => true,
+				'auto_submit_on_change' => true,
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
+		$this->assertSame( 'user', (string)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'minimum_input_length' ] ?? 0 ) );
+		$this->assertSame( 700, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'delay_ms' ] ?? 0 ) );
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'action' ] ?? [] );
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {
@@ -218,17 +223,26 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_TRAFFIC, $tables[ 'requests' ][ 'table_type' ] ?? '' );
 		$this->assertSame( 'Full Log', (string)( $tables[ 'sessions' ][ 'full_log_text' ] ?? '' ) );
 		$this->assertSame( 'btn btn-outline-secondary btn-sm', (string)( $tables[ 'sessions' ][ 'full_log_button_class' ] ?? '' ) );
-		$this->assertFalse( (bool)( $tables[ 'sessions' ][ 'is_flat' ] ?? true ) );
+		$this->assertTrue( (bool)( $tables[ 'sessions' ][ 'is_flat' ] ?? false ) );
 		$this->assertSame( InvestigationTableContract::SUBJECT_TYPE_USER, $tables[ 'sessions' ][ 'subject_type' ] ?? '' );
 		$this->assertSame( 42, (int)( $tables[ 'sessions' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'activity' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'requests' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame(
-			[ 'User ID', 'Login', 'Email', 'Display Name', 'Sessions Count', 'Activity Count', 'Requests Count', 'IP Addresses Count' ],
+			[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Event Score', 'Shield Status' ],
 			\array_column( $overviewRows, 'label' )
 		);
 		$this->assertSame(
-			[ '42', 'operator', 'operator@example.com', 'Operator User', '2', '2', '2', '3' ],
+			[
+				'operator',
+				'Operator User',
+				'operator@example.com',
+				'Unknown',
+				'203.0.113.9',
+				'198.51.100.4, 192.0.2.1, 203.0.113.9',
+				'1',
+				'Tracked',
+			],
 			\array_column( $overviewRows, 'value' )
 		);
 
@@ -306,7 +320,13 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		foreach ( $overviewRows as $row ) {
 			$overviewByLabel[ (string)( $row[ 'label' ] ?? '' ) ] = (string)( $row[ 'value' ] ?? '' );
 		}
-		$this->assertSame( '2', (string)( $overviewByLabel[ 'IP Addresses Count' ] ?? '' ) );
+		$recentIps = \array_map(
+			'trim',
+			\explode( ',', (string)( $overviewByLabel[ 'Recent IPs' ] ?? '' ) )
+		);
+		\sort( $recentIps );
+		$this->assertSame( [ '198.51.100.77', '203.0.113.55' ], $recentIps );
+		$this->assertSame( '0', (string)( $overviewByLabel[ 'Event Score' ] ?? '' ) );
 	}
 
 	public function test_render_data_includes_lookup_helper_string() :void {
@@ -423,6 +443,26 @@ class PageInvestigateByUserUnitTestDouble extends PageInvestigateByUser {
 
 	protected function buildRequestLogs( \WP_User $subject ) :array {
 		return $this->requestLogs;
+	}
+
+	protected function buildOverviewContext( \WP_User $subject, array $sessions, array $requestLogs, array $relatedIps ) :array {
+		$recentIps = \array_values( \array_unique( \array_map(
+			static fn( array $card ) :string => (string)( $card[ 'ip' ] ?? '' ),
+			$relatedIps
+		) ) );
+
+		$eventScore = \count( \array_filter(
+			$requestLogs,
+			static fn( array $log ) :bool => !empty( $log[ 'offense' ] )
+		) );
+
+		return [
+			'role'          => 'Unknown',
+			'last_login_ip' => (string)( $sessions[ 0 ][ 'ip' ] ?? 'Unknown' ),
+			'recent_ips'    => \array_values( \array_filter( $recentIps ) ),
+			'event_score'   => $eventScore,
+			'shield_status' => 'Tracked',
+		];
 	}
 }
 

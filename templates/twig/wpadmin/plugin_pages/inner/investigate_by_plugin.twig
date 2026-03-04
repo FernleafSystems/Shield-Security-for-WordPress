@@ -1,26 +1,13 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% include '/wpadmin/components/investigate/lookup_strip.twig' with {
-		action: hrefs.by_plugin,
-		lookup_route: vars.lookup_route,
-		lookup_behavior: vars.lookup_behavior|default({}),
-		label: strings.lookup_label,
-		input_name: 'plugin_slug',
-		input_type: 'select',
-		input_value: vars.plugin_slug|default(''),
-		placeholder: strings.lookup_placeholder,
-		options: vars.plugin_options|default([]),
-		submit_text: strings.lookup_submit,
-		helper_text: strings.lookup_helper
-	} only %}
+	{% if flags.has_subject %}
+		{% include '/wpadmin/components/investigate/subject_header.twig' with {
+			title: vars.subject_header.title|default(''),
+			meta: vars.subject_header.meta|default(''),
+			change_label: strings.change_subject|default('Change plugin')
+		} only %}
 
-	{% if flags.subject_not_found|default(false) %}
-		<div class="alert alert-warning mb-0">
-			<strong>{{ strings.not_found_title }}</strong>
-			<div>{{ strings.not_found_text }}</div>
-		</div>
-	{% elseif flags.has_subject %}
 		{% set panes = [
 			{
 				id: vars.tabs.overview.pane_id,
@@ -63,7 +50,33 @@
 		{% include '/wpadmin/components/investigate/page_shell.twig' with {
 			nav_id: 'ShieldInvestigateByPluginTabsNav',
 			nav_items: vars.rail_nav_items,
-			panes: panes
+			panes: panes,
+			is_flat: true
 		} only %}
+	{% else %}
+		{% include '/wpadmin/components/investigate/lookup_strip.twig' with {
+			action: hrefs.by_plugin,
+			lookup_route: vars.lookup_route,
+			lookup_behavior: vars.lookup_behavior|default({}),
+			lookup_ajax: vars.lookup_ajax|default({}),
+			label: strings.lookup_label,
+			input_name: 'plugin_slug',
+			input_type: 'select',
+			input_value: vars.plugin_slug|default(''),
+			selected_option_label: vars.plugin_slug|default(''),
+			placeholder: strings.lookup_placeholder,
+			options: vars.plugin_options|default([]),
+			submit_text: strings.lookup_submit,
+			helper_text: strings.lookup_helper
+		} only %}
+
+		{% if flags.subject_not_found|default(false) %}
+			<div class="alert alert-warning mb-0">
+				<strong>{{ strings.not_found_title }}</strong>
+				<div>{{ strings.not_found_text }}</div>
+			</div>
+		{% else %}
+			<div class="investigate-empty-state-text">{{ strings.no_subject_text }}</div>
+		{% endif %}
 	{% endif %}
 {% endblock %}

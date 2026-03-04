@@ -19,6 +19,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 		$tables = [];
 		$overviewRows = [];
 		$vulnerabilities = [];
+		$subjectHeader = [];
 
 		if ( $hasSubject ) {
 			$assetData = $this->buildSubjectAssetData( $subject );
@@ -47,6 +48,10 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				$strings[ 'activity_empty_text' ]
 			);
 			$overviewRows = $this->buildOverviewRows( $assetData, $vulnerabilities );
+			$subjectHeader = [
+				'title' => (string)( $assetData[ 'info' ][ 'name' ] ?? '' ),
+				'meta'  => (string)( $assetData[ 'info' ][ 'version' ] ?? '' ),
+			];
 		}
 
 		return [
@@ -67,6 +72,10 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				$this->getLookupOptionsVarKey() => $this->buildLookupOptions(),
 				'lookup_route'                  => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
 				'lookup_behavior'               => $this->buildLookupBehaviorContract( true, true, true ),
+				'lookup_ajax'                   => $this->buildLookupAjaxContract(
+					$this->getLookupSubjectKey()
+				),
+				'subject_header'                => $subjectHeader,
 				'tabs'                          => $tabs,
 				'rail_nav_items'                => $railNavItems,
 				'tables'                        => $tables,
@@ -100,6 +109,8 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	abstract protected function getLookupHref() :string;
 
 	abstract protected function getLookupSubNav() :string;
+
+	abstract protected function getLookupSubjectKey() :string;
 
 	abstract protected function getSubjectAvatarIcon() :string;
 

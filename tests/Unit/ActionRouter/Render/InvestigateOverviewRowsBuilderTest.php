@@ -32,18 +32,40 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 			$user->user_email = 'operator@example.com';
 			$user->display_name = 'Operator User';
 
-			$rows = ( new InvestigateOverviewRowsBuilder() )->forUser( $user, [
-				'sessions' => [ 'count' => 2 ],
-				'activity' => [ 'count' => 3 ],
-				'requests' => [ 'count' => 4 ],
-				'ips'      => [ 'count' => 5 ],
-			] );
+			$rows = ( new InvestigateOverviewRowsBuilder() )->forUser(
+				$user,
+				[
+					'sessions' => [ 'count' => 2 ],
+					'activity' => [ 'count' => 3 ],
+					'requests' => [ 'count' => 4 ],
+					'ips'      => [ 'count' => 5 ],
+				],
+				[
+					'role'          => 'Administrator',
+					'last_login_ip' => '203.0.113.77',
+					'recent_ips'    => [ '203.0.113.77', '198.51.100.12' ],
+					'event_score'   => 6,
+					'shield_status' => 'Tracked',
+				]
+			);
 
 			$this->assertSame(
-				[ 'User ID', 'Login', 'Email', 'Display Name', 'Sessions Count', 'Activity Count', 'Requests Count', 'IP Addresses Count' ],
+				[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Event Score', 'Shield Status' ],
 				\array_column( $rows, 'label' )
 			);
-			$this->assertSame( [ '7', 'operator', 'operator@example.com', 'Operator User', '2', '3', '4', '5' ], \array_column( $rows, 'value' ) );
+			$this->assertSame(
+				[
+					'operator',
+					'Operator User',
+					'operator@example.com',
+					'Administrator',
+					'203.0.113.77',
+					'203.0.113.77, 198.51.100.12',
+					'6',
+					'Tracked',
+				],
+				\array_column( $rows, 'value' )
+			);
 		}
 
 		public function test_plugin_asset_rows_include_update_and_vulnerability_status() :void {

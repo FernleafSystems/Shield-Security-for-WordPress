@@ -12,17 +12,30 @@
 		<div class="shield-options-content">
 			<div class="tab-content{% if tab_content_class|default('') is not empty %} {{ tab_content_class }}{% endif %}">
 				{% for pane in panes|default([]) %}
-					<section class="tab-pane shield-options-panel{% if pane.is_active|default(false) %} active show{% endif %}"
-							 id="{{ pane.id|default('') }}"
-							 role="tabpanel"
-							 aria-labelledby="{{ pane.nav_id|default('') }}">
-						<div class="shield-options-panel-accent"></div>
-						<div class="shield-options-panel-body">
-							{% if pane.body_include|default('') is not empty %}
-								{% include pane.body_include with pane.body_vars|default({}) only %}
-							{% endif %}
-						</div>
-					</section>
+					{% if is_flat|default(false) %}
+						<section class="tab-pane investigate-tab-pane{% if pane.is_active|default(false) %} active show{% endif %}"
+								 id="{{ pane.id|default('') }}"
+								 role="tabpanel"
+								 aria-labelledby="{{ pane.nav_id|default('') }}">
+							<div class="investigate-tab-pane-body">
+								{% if pane.body_include|default('') is not empty %}
+									{% include pane.body_include with pane.body_vars|default({}) only %}
+								{% endif %}
+							</div>
+						</section>
+					{% else %}
+						<section class="tab-pane shield-options-panel{% if pane.is_active|default(false) %} active show{% endif %}"
+								 id="{{ pane.id|default('') }}"
+								 role="tabpanel"
+								 aria-labelledby="{{ pane.nav_id|default('') }}">
+							<div class="shield-options-panel-accent"></div>
+							<div class="shield-options-panel-body">
+								{% if pane.body_include|default('') is not empty %}
+									{% include pane.body_include with pane.body_vars|default({}) only %}
+								{% endif %}
+							</div>
+						</section>
+					{% endif %}
 				{% endfor %}
 			</div>
 		</div>

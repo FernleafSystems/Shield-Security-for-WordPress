@@ -436,7 +436,7 @@ class PluginNavs {
 				'label'         => __( 'IP Address', 'wp-simple-firewall' ),
 				'icon_class'    => 'bi bi-globe',
 				'status'        => 'info',
-				'stat_text'     => __( 'Requests and offences', 'wp-simple-firewall' ),
+				'stat_text'     => __( 'Requests and activity', 'wp-simple-firewall' ),
 				'subnav_hint'   => self::SUBNAV_ACTIVITY_BY_IP,
 				'panel_title'   => __( 'Investigate IP Address', 'wp-simple-firewall' ),
 				'panel_status'  => 'info',

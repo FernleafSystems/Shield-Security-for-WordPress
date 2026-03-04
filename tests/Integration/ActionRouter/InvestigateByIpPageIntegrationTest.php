@@ -79,17 +79,22 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-banner="1" and not(contains(concat(" ", normalize-space(@class), " "), " d-none ")) and @aria-hidden="false"]',
-			'Legacy by-ip route renders subject banner'
+			'//section[@data-investigate-panel="ip"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header ")]',
+			'Legacy by-ip route renders subject header'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-subject-title="1" and normalize-space()="203.0.113.88"]',
-			'Legacy by-ip route subject banner title matches lookup value'
+			'//section[@data-investigate-panel="ip"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header__title ") and normalize-space()="203.0.113.88"]',
+			'Legacy by-ip route subject header title matches lookup value'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-change-subject="1"]',
+			'Legacy by-ip route exposes change IP action'
 		);
 		$this->assertHtmlContainsMarker( 'shield-ipanalyse', $html, 'By-ip analysis container marker' );
 		$this->assertHtmlContainsMarker( 'Overview', $html, 'By-ip overview tab label marker' );
-		$this->assertHtmlNotContainsMarker( 'Change IP', $html, 'Removed by-ip wrapper text marker' );
+		$this->assertHtmlContainsMarker( 'Change IP address', $html, 'By-ip subject header change action marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-ip back button removed marker' );
 	}
 

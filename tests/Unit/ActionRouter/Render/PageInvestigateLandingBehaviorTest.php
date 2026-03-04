@@ -191,7 +191,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( $subjectsByKey[ 'ip' ][ 'is_loaded' ] ?? false );
 		$this->assertSame( '203.0.113.99', $subjectsByKey[ 'ip' ][ 'subject_title' ] ?? '' );
 		$this->assertSame( 'bi bi-globe', $subjectsByKey[ 'ip' ][ 'subject_icon' ] ?? '' );
-		$this->assertSame( 'Requests and offences', $subjectsByKey[ 'ip' ][ 'subject_meta' ] ?? '' );
+		$this->assertSame( 'Requests and activity', $subjectsByKey[ 'ip' ][ 'subject_meta' ] ?? '' );
 		foreach ( [ 'user', 'plugin', 'theme', 'core', 'live_traffic' ] as $key ) {
 			$this->assertFalse( $subjectsByKey[ $key ][ 'is_loaded' ] ?? true );
 		}

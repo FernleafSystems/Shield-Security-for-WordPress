@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions\InvestigateLookupSelect
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -31,6 +35,23 @@ trait InvestigateRenderContracts {
 			'page'    => self::con()->plugin_urls->rootAdminPageSlug(),
 			'nav'     => PluginNavs::NAV_ACTIVITY,
 			'nav_sub' => $subNav,
+		];
+	}
+
+	/**
+	 * @return array{
+	 *   subject:string,
+	 *   minimum_input_length:int,
+	 *   delay_ms:int,
+	 *   action:array<string,mixed>
+	 * }
+	 */
+	protected function buildLookupAjaxContract( string $subject, int $minimumInputLength = 2, int $delayMs = 700 ) :array {
+		return [
+			'subject'              => sanitize_key( $subject ),
+			'minimum_input_length' => \max( 1, $minimumInputLength ),
+			'delay_ms'             => \max( 0, $delayMs ),
+			'action'               => ActionData::Build( InvestigateLookupSelect::class ),
 		];
 	}
 

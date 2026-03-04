@@ -20,7 +20,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
-use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Services\Core\{
+	General,
+	Request,
+	Users
+};
 
 class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 
@@ -31,7 +35,38 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( 'sanitize_text_field' )->alias( static fn( $text ) => \is_string( $text ) ? \trim( $text ) : '' );
+		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
+		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
+		);
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installControllerStub();
@@ -260,6 +295,24 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 
 				public function query( $key, $default = null ) {
 					return $this->queryValues[ $key ] ?? $default;
+				}
+
+				public function ip() :string {
+					return '127.0.0.1';
+				}
+
+				public function ts( bool $update = true ) :int {
+					return 1700000000;
+				}
+			},
+			'service_wpgeneral' => new class extends General {
+				public function ajaxURL() :string {
+					return '/admin-ajax.php';
+				}
+			},
+			'service_wpusers' => new class extends Users {
+				public function getCurrentWpUserId() {
+					return 1;
 				}
 			},
 		] );

@@ -99,8 +99,8 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertHtmlContainsMarker( 'tab-navlink-user-overview', $html, 'By-user overview rail nav marker' );
 		$this->assertHtmlContainsMarker( 'id="tabInvestigateUserOverview"', $html, 'By-user overview tab panel marker' );
 		$this->assertHtmlContainsMarker( 'User Overview', $html, 'By-user overview heading marker' );
-		$this->assertInvestigateOverviewLabel( $xpath, 'User ID', 'By-user overview table row marker' );
-		$this->assertInvestigateOverviewLabel( $xpath, 'IP Addresses Count', 'By-user overview IP count row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'Username', 'By-user overview username row marker' );
+		$this->assertInvestigateOverviewLabel( $xpath, 'Recent IPs', 'By-user overview recent IPs row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-user back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-user summary cards removed marker' );
 		$this->assertInvestigateSubjectTypeByCount( $xpath, 'user', 3, 'By-user subject table markers' );
@@ -187,24 +187,47 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@id="tabInvestigateUserIps"]//a[@data-ip="203.0.113.88"]',
 			'By-user seeded related IP link marker'
 		);
-		$investigateLink = $this->assertXPathExists(
-			$xpath,
-			'//section[@id="tabInvestigateUserIps"]//a[contains(@href, "subnav=by_ip") and contains(@href, "analyse_ip=203.0.113.88")]',
-			'By-user investigate IP route marker'
-		);
-		$investigateLinkClass = '';
-		if ( $investigateLink->attributes instanceof \DOMNamedNodeMap ) {
-			$classNode = $investigateLink->attributes->getNamedItem( 'class' );
-			if ( $classNode instanceof \DOMNode ) {
-				$investigateLinkClass = (string)$classNode->nodeValue;
+		$investigateLinkNodes = $xpath->query( '//section[@id="tabInvestigateUserIps"]//a[@href]' );
+		$this->assertNotFalse( $investigateLinkNodes, 'By-user investigate IP route query failed.' );
+
+		$investigateLink = null;
+		$investigateHref = '';
+		foreach ( $investigateLinkNodes as $linkNode ) {
+			if ( !$linkNode instanceof \DOMElement ) {
+				continue;
+			}
+
+			$candidateHref = \html_entity_decode(
+				(string)$linkNode->getAttribute( 'href' ),
+				\ENT_QUOTES | \ENT_HTML5,
+				'UTF-8'
+			);
+			$query = [];
+			\parse_str( (string)\parse_url( $candidateHref, \PHP_URL_QUERY ), $query );
+			if (
+				(string)( $query[ Constants::NAV_SUB_ID ] ?? '' ) === PluginNavs::SUBNAV_ACTIVITY_BY_IP
+				&& (string)( $query[ 'analyse_ip' ] ?? '' ) === '203.0.113.88'
+			) {
+				$investigateLink = $linkNode;
+				$investigateHref = $candidateHref;
+				break;
 			}
 		}
+
+		$this->assertNotNull( $investigateLink, 'By-user investigate IP route marker missing for seeded related IP.' );
+		$investigateLinkClass = $investigateLink instanceof \DOMElement
+			? (string)$investigateLink->getAttribute( 'class' )
+			: '';
 		$this->assertStringNotContainsString(
 			'offcanvas_ip_analysis',
 			$investigateLinkClass,
 			'By-user investigate IP action should not reuse offcanvas class'
 		);
-		$this->assertHtmlContainsMarker( (string)( $relatedIp[ 'investigate_href' ] ?? '' ), $html, 'By-user investigate href from contract marker' );
+		$this->assertSame(
+			(string)( $relatedIp[ 'investigate_href' ] ?? '' ),
+			$investigateHref,
+			'By-user investigate href from contract marker'
+		);
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-user back button removed marker' );
 	}
 

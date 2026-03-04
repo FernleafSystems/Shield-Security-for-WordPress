@@ -6,44 +6,49 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\I
 
 class InvestigateOverviewRowsBuilder {
 
-	public function forUser( \WP_User $subject, array $summaryStats ) :array {
-		$sessions = $summaryStats[ 'sessions' ][ 'count' ];
-		$activity = $summaryStats[ 'activity' ][ 'count' ];
-		$requests = $summaryStats[ 'requests' ][ 'count' ];
-		$ips = $summaryStats[ 'ips' ][ 'count' ];
+	public function forUser( \WP_User $subject, array $summaryStats, array $context = [] ) :array {
+		$recentIps = $context[ 'recent_ips' ] ?? [];
+		$recentIpsText = \is_array( $recentIps ) && !empty( $recentIps )
+			? \implode( ', ', \array_map( '\trim', $recentIps ) )
+			: __( 'None Recorded', 'wp-simple-firewall' );
+
+		$role = (string)( $context[ 'role' ] ?? __( 'Unknown', 'wp-simple-firewall' ) );
+		$lastLoginIp = (string)( $context[ 'last_login_ip' ] ?? __( 'Unknown', 'wp-simple-firewall' ) );
+		$eventScore = (string)( $context[ 'event_score' ] ?? 0 );
+		$shieldStatus = (string)( $context[ 'shield_status' ] ?? __( 'Tracked', 'wp-simple-firewall' ) );
 
 		return [
 			[
-				'label' => __( 'User ID', 'wp-simple-firewall' ),
-				'value' => (string)$subject->ID,
-			],
-			[
-				'label' => __( 'Login', 'wp-simple-firewall' ),
+				'label' => __( 'Username', 'wp-simple-firewall' ),
 				'value' => $subject->user_login,
-			],
-			[
-				'label' => __( 'Email', 'wp-simple-firewall' ),
-				'value' => $subject->user_email,
 			],
 			[
 				'label' => __( 'Display Name', 'wp-simple-firewall' ),
 				'value' => \trim( $subject->display_name ),
 			],
 			[
-				'label' => __( 'Sessions Count', 'wp-simple-firewall' ),
-				'value' => (string)$sessions,
+				'label' => __( 'Email', 'wp-simple-firewall' ),
+				'value' => $subject->user_email,
 			],
 			[
-				'label' => __( 'Activity Count', 'wp-simple-firewall' ),
-				'value' => (string)$activity,
+				'label' => __( 'Role', 'wp-simple-firewall' ),
+				'value' => $role,
 			],
 			[
-				'label' => __( 'Requests Count', 'wp-simple-firewall' ),
-				'value' => (string)$requests,
+				'label' => __( 'Last Login IP', 'wp-simple-firewall' ),
+				'value' => $lastLoginIp,
 			],
 			[
-				'label' => __( 'IP Addresses Count', 'wp-simple-firewall' ),
-				'value' => (string)$ips,
+				'label' => __( 'Recent IPs', 'wp-simple-firewall' ),
+				'value' => $recentIpsText,
+			],
+			[
+				'label' => __( 'Event Score', 'wp-simple-firewall' ),
+				'value' => $eventScore,
+			],
+			[
+				'label' => __( 'Shield Status', 'wp-simple-firewall' ),
+				'value' => $shieldStatus,
 			],
 		];
 	}

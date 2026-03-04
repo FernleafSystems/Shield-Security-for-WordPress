@@ -42,6 +42,10 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 		return PluginNavs::SUBNAV_ACTIVITY_BY_THEME;
 	}
 
+	protected function getLookupSubjectKey() :string {
+		return 'theme';
+	}
+
 	protected function getSubjectAvatarIcon() :string {
 		return 'palette-fill';
 	}
@@ -55,9 +59,10 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 			'inner_page_title'    => __( 'Investigate By Theme', 'wp-simple-firewall' ),
 			'inner_page_subtitle' => __( 'Inspect theme integrity, vulnerability status, and activity footprint.', 'wp-simple-firewall' ),
 			'lookup_label'        => __( 'Theme Lookup', 'wp-simple-firewall' ),
-			'lookup_placeholder'  => __( 'Select a theme', 'wp-simple-firewall' ),
+			'lookup_placeholder'  => __( 'Search for a theme...', 'wp-simple-firewall' ),
 			'lookup_submit'       => __( 'Load Theme Context', 'wp-simple-firewall' ),
-			'lookup_helper'       => __( 'Select a theme to view its file status, vulnerabilities, and related activity.', 'wp-simple-firewall' ),
+			'lookup_helper'       => __( 'Type at least 2 characters to search installed themes.', 'wp-simple-firewall' ),
+			'change_subject'      => __( 'Change theme', 'wp-simple-firewall' ),
 			'no_subject_title'    => __( 'No Theme Selected', 'wp-simple-firewall' ),
 			'no_subject_text'     => __( 'Select a theme to load file status and activity context.', 'wp-simple-firewall' ),
 			'not_found_title'     => __( 'Theme Not Found', 'wp-simple-firewall' ),

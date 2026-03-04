@@ -3,6 +3,9 @@
 {% set is_select2 = lookup_behavior.use_select2|default(use_select2|default(false)) %}
 {% set is_auto_submit_on_change = lookup_behavior.auto_submit_on_change|default(auto_submit_on_change|default(false)) %}
 {% set helper_text = helper_text|default('') %}
+{% set lookup_ajax = lookup_ajax|default({}) %}
+{% set lookup_ajax_attr = lookup_ajax is iterable ? lookup_ajax|json_encode : '' %}
+{% set selected_option_label = selected_option_label|default(input_value|default('')) %}
 
 <section class="investigate-lookup-strip">
 	<form method="get"
@@ -23,10 +26,16 @@
 						{% if is_select2 %}
 						data-investigate-select2="1"
 						{% endif %}
+						{% if is_select2 and lookup_ajax_attr is not empty %}
+						data-investigate-select2-ajax="{{ lookup_ajax_attr|e('html_attr') }}"
+						{% endif %}
 						{% if is_auto_submit_on_change %}
 						data-investigate-auto-submit="1"
 						{% endif %}>
 					<option value="">{{ placeholder|default('') }}</option>
+					{% if input_value|default('') is not empty and options|default([]) is empty %}
+						<option value="{{ input_value }}" selected>{{ selected_option_label }}</option>
+					{% endif %}
 					{% for option in options|default([]) %}
 						<option value="{{ option.value }}" {{ input_value == option.value ? 'selected' : '' }}>
 							{{ option.label }}

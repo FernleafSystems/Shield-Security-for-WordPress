@@ -154,18 +154,22 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		$fileTable[ 'is_flat' ] = true;
 		$fileTable = $this->normalizeInvestigationTableContract( $fileTable );
 
+		$activityTable = $this->buildTableContainerContract(
+			__( 'Activity', 'wp-simple-firewall' ),
+			'warning',
+			InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			$subjectType,
+			$subjectId,
+			( new InvestigationActivityTableBuilder() )->setSubject( $subjectType, $subjectId )->buildRaw(),
+			$tableAction,
+			$this->buildFullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, $activitySearchToken )
+		);
+		$activityTable[ 'is_flat' ] = true;
+		$activityTable = $this->normalizeInvestigationTableContract( $activityTable );
+
 		return [
 			'file_status' => $fileTable,
-			'activity'    => $this->buildTableContainerContract(
-				__( 'Activity', 'wp-simple-firewall' ),
-				'warning',
-				InvestigationTableContract::TABLE_TYPE_ACTIVITY,
-				$subjectType,
-				$subjectId,
-				( new InvestigationActivityTableBuilder() )->setSubject( $subjectType, $subjectId )->buildRaw(),
-				$tableAction,
-				$this->buildFullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, $activitySearchToken )
-			),
+			'activity'    => $activityTable,
 		];
 	}
 
