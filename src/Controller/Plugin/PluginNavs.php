@@ -45,6 +45,8 @@ class PluginNavs {
 	public const NAV_REPORTS = 'reports';
 	public const SUBNAV_REPORTS_OVERVIEW = 'overview';
 	public const SUBNAV_REPORTS_LIST = 'list';
+	public const SUBNAV_REPORTS_ALERTS = 'alerts';
+	public const SUBNAV_REPORTS_REPORTING = 'reporting';
 	public const SUBNAV_REPORTS_CHARTS = 'charts';
 	public const SUBNAV_REPORTS_SETTINGS = 'settings';
 	public const NAV_RULES = 'rules';
@@ -684,7 +686,10 @@ class PluginNavs {
 	 *   page_subtitle:string,
 	 *   content_key:string,
 	 *   render_action:string,
-	 *   show_create_action:bool
+	 *   show_create_action:bool,
+	 *   show_in_sidebar:bool,
+	 *   show_on_landing:bool,
+	 *   config_zone_component_slugs:list<string>
 	 * }>
 	 */
 	public static function reportsWorkspaceDefinitions() :array {
@@ -697,6 +702,33 @@ class PluginNavs {
 				'content_key'        => 'create_report',
 				'render_action'      => Reports\PageReportsView::class,
 				'show_create_action' => true,
+				'show_in_sidebar'    => true,
+				'show_on_landing'    => true,
+				'config_zone_component_slugs' => [],
+			],
+			self::SUBNAV_REPORTS_ALERTS   => [
+				'menu_title'         => __( 'Alert Settings', 'wp-simple-firewall' ),
+				'landing_cta'        => __( 'Open Alert Settings', 'wp-simple-firewall' ),
+				'page_title'         => __( 'Alert Settings', 'wp-simple-firewall' ),
+				'page_subtitle'      => __( 'Manage instant alerts for important security events.', 'wp-simple-firewall' ),
+				'content_key'        => 'alerts_settings',
+				'render_action'      => OptionsFormFor::class,
+				'show_create_action' => false,
+				'show_in_sidebar'    => true,
+				'show_on_landing'    => true,
+				'config_zone_component_slugs' => self::reportsAlertSettingsZoneComponentSlugs(),
+			],
+			self::SUBNAV_REPORTS_REPORTING => [
+				'menu_title'         => __( 'Reporting Configuration', 'wp-simple-firewall' ),
+				'landing_cta'        => __( 'Open Reporting Configuration', 'wp-simple-firewall' ),
+				'page_title'         => __( 'Reporting Configuration', 'wp-simple-firewall' ),
+				'page_subtitle'      => __( 'Manage report generation and delivery preferences.', 'wp-simple-firewall' ),
+				'content_key'        => 'reporting_configuration',
+				'render_action'      => OptionsFormFor::class,
+				'show_create_action' => false,
+				'show_in_sidebar'    => true,
+				'show_on_landing'    => true,
+				'config_zone_component_slugs' => self::reportsReportingConfigurationZoneComponentSlugs(),
 			],
 			self::SUBNAV_REPORTS_CHARTS   => [
 				'menu_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
@@ -706,6 +738,9 @@ class PluginNavs {
 				'content_key'        => 'summary_charts',
 				'render_action'      => Reports\ChartsSummary::class,
 				'show_create_action' => false,
+				'show_in_sidebar'    => false,
+				'show_on_landing'    => false,
+				'config_zone_component_slugs' => [],
 			],
 			self::SUBNAV_REPORTS_SETTINGS => [
 				'menu_title'         => __( 'Alert Settings', 'wp-simple-firewall' ),
@@ -715,8 +750,53 @@ class PluginNavs {
 				'content_key'        => 'alerts_settings',
 				'render_action'      => OptionsFormFor::class,
 				'show_create_action' => false,
+				'show_in_sidebar'    => false,
+				'show_on_landing'    => false,
+				'config_zone_component_slugs' => self::reportsSettingsZoneComponentSlugs(),
 			],
 		];
+	}
+
+	/**
+	 * @return array<string,array{
+	 *   menu_title:string,
+	 *   landing_cta:string,
+	 *   page_title:string,
+	 *   page_subtitle:string,
+	 *   content_key:string,
+	 *   render_action:string,
+	 *   show_create_action:bool,
+	 *   show_in_sidebar:bool,
+	 *   show_on_landing:bool,
+	 *   config_zone_component_slugs:list<string>
+	 * }>
+	 */
+	public static function reportsSidebarWorkspaceDefinitions() :array {
+		return \array_filter(
+			self::reportsWorkspaceDefinitions(),
+			static fn( array $definition ) :bool => (bool)( $definition[ 'show_in_sidebar' ] ?? false )
+		);
+	}
+
+	/**
+	 * @return array<string,array{
+	 *   menu_title:string,
+	 *   landing_cta:string,
+	 *   page_title:string,
+	 *   page_subtitle:string,
+	 *   content_key:string,
+	 *   render_action:string,
+	 *   show_create_action:bool,
+	 *   show_in_sidebar:bool,
+	 *   show_on_landing:bool,
+	 *   config_zone_component_slugs:list<string>
+	 * }>
+	 */
+	public static function reportsLandingWorkspaceDefinitions() :array {
+		return \array_filter(
+			self::reportsWorkspaceDefinitions(),
+			static fn( array $definition ) :bool => (bool)( $definition[ 'show_on_landing' ] ?? false )
+		);
 	}
 
 	public static function reportsRouteHandlers() :array {
@@ -738,11 +818,23 @@ class PluginNavs {
 			: self::SUBNAV_REPORTS_LIST;
 	}
 
-	public static function reportsSettingsZoneComponentSlugs() :array {
+	public static function reportsAlertSettingsZoneComponentSlugs() :array {
 		return [
 			InstantAlerts::Slug(),
+		];
+	}
+
+	public static function reportsReportingConfigurationZoneComponentSlugs() :array {
+		return [
 			Reporting::Slug(),
 		];
+	}
+
+	public static function reportsSettingsZoneComponentSlugs() :array {
+		return \array_merge(
+			self::reportsAlertSettingsZoneComponentSlugs(),
+			self::reportsReportingConfigurationZoneComponentSlugs()
+		);
 	}
 
 	private static function sanitizeOperatorMode( string $mode ) :string {

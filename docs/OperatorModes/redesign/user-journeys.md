@@ -15,7 +15,7 @@ Global context:
 
 1. Shield runs inside WordPress admin.
 2. Breadcrumb starts with `Shield Security` and returns to mode selector.
-3. In Configure and Investigate, tile clicks open an inline panel and do not navigate.
+3. In Configure, Investigate, and Reports landings, tile clicks open an inline panel and do not navigate.
 4. Exactly one panel is open at a time.
 
 Canonical Investigate subject keys used in implementation and tests:
@@ -180,18 +180,21 @@ Detailed state assertions:
 **Intent:** review trends and jump to investigation
 
 1. User enters Reports mode from selector.
-2. Reports landing remains charts + recent reports in this wave.
-3. Shared shell styling is consistent with other modes.
-4. User identifies spike and pivots to Investigate for deeper analysis.
+2. Reports landing shows 3 tiles: `Security Reports`, `Alert Settings`, `Reporting Configuration`.
+3. Security Reports panel is open by default and shows the current reports table content.
+4. Alert Settings and Reporting Configuration panels provide explicit CTA navigation to their full configuration pages.
+5. Shared shell styling is consistent with other modes.
+6. User identifies spike and pivots to Investigate for deeper analysis.
 
 Rule:
 
-1. Reports tile-panel redesign is not part of this wave.
+1. `Charts & Trends` remains a legacy/compatibility route and is intentionally hidden from the Reports landing and sidebar in this phase.
 
 Detailed state assertions:
 
-1. Reports current IA remains intact in this wave.
-2. Shared shell/spacing/accent standards still apply.
+1. Reports landing uses the shared mode tile/panel contract (`data-mode-tile`, `data-mode-panel`).
+2. Reports default-open panel target is `list` (Security Reports).
+3. Shared shell/spacing/accent standards still apply.
 
 ---
 
@@ -263,7 +266,7 @@ Treat these as hard implementation assertions:
 3. `Premium Integrations` is disabled and opens no panel.
 4. Activity Log and Sessions are sidebar pages, not Investigate tiles.
 5. Plugin panel does not include WooCommerce-specific modeling in this wave.
-6. Reports stays on current IA (charts + recent reports) in this wave.
+6. Reports uses tile-panel landing with Security Reports default-open in this wave.
 7. Actions Queue stays on current IA in this wave.
 
 ---

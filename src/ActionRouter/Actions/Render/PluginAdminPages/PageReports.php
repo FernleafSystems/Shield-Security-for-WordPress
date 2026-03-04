@@ -80,8 +80,9 @@ class PageReports extends BasePluginAdminPage {
 	}
 
 	private function buildActionDataForSubNav( string $subNav ) :array {
-		return $subNav === PluginNavs::SUBNAV_REPORTS_SETTINGS
-			? $this->buildReportsSettingsActionData()
+		$definition = $this->getWorkspaceDefinitionForSubNav( $subNav );
+		return !empty( $definition[ 'config_zone_component_slugs' ] )
+			? $this->buildReportsSettingsActionData( $definition[ 'config_zone_component_slugs' ] )
 			: [];
 	}
 
@@ -93,7 +94,10 @@ class PageReports extends BasePluginAdminPage {
 	 *   page_subtitle:string,
 	 *   content_key:string,
 	 *   render_action:string,
-	 *   show_create_action:bool
+	 *   show_create_action:bool,
+	 *   show_in_sidebar:bool,
+	 *   show_on_landing:bool,
+	 *   config_zone_component_slugs:list<string>
 	 * }
 	 */
 	private function getWorkspaceDefinitionForSubNav( string $subNav ) :array {
@@ -104,15 +108,22 @@ class PageReports extends BasePluginAdminPage {
 		return $definitions[ $subNav ];
 	}
 
-	private function buildReportsSettingsActionData() :array {
+	/**
+	 * @param list<string> $zoneComponentSlugs
+	 */
+	private function buildReportsSettingsActionData( array $zoneComponentSlugs ) :array {
 		return [
-			'options' => $this->buildReportsSettingsOptions(),
+			'options' => $this->buildReportsSettingsOptions( $zoneComponentSlugs ),
 		];
 	}
 
-	private function buildReportsSettingsOptions() :array {
+	/**
+	 * @param list<string> $zoneComponentSlugs
+	 * @return list<string>
+	 */
+	private function buildReportsSettingsOptions( array $zoneComponentSlugs ) :array {
 		return ( new GetOptionsForZoneComponents() )->run(
-			PluginNavs::reportsSettingsZoneComponentSlugs()
+			$zoneComponentSlugs
 		);
 	}
 

@@ -123,7 +123,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( '/admin/activity/by_ip', $subItems[ 1 ][ 'href' ] ?? '' );
 	}
 
-	public function testReportsIncludesListChartsAndSettingsSubItems() :void {
+	public function testReportsIncludesVisibleWorkspaceSubItemsOnly() :void {
 		$this->installControllerStubs();
 		$this->installRequestServiceStub();
 
@@ -133,20 +133,20 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_LIST,
-				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_CHARTS,
-				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_SETTINGS,
+				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_ALERTS,
+				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_REPORTING,
 			],
 			\array_column( $subItems, 'slug' )
 		);
 		$this->assertSame(
 			[
 				'/admin/reports/list',
-				'/admin/reports/charts',
-				'/admin/reports/settings',
+				'/admin/reports/alerts',
+				'/admin/reports/reporting',
 			],
 			\array_column( $subItems, 'href' )
 		);
-		$this->assertSame( '/admin/reports/list', $reports[ 'href' ] ?? '' );
+		$this->assertSame( '/admin/reports/overview', $reports[ 'href' ] ?? '' );
 		$this->assertSame(
 			\implode( ',', PluginNavs::reportsSettingsZoneComponentSlugs() ),
 			$reports[ 'config' ][ 'data' ][ 'zone_component_slug' ] ?? ''

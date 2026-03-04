@@ -109,6 +109,8 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 	public function providerReportsWorkspaceSubNavs() :array {
 		return [
 			'reports_list'     => [ PluginNavs::SUBNAV_REPORTS_LIST ],
+			'reports_alerts'   => [ PluginNavs::SUBNAV_REPORTS_ALERTS ],
+			'reports_reporting' => [ PluginNavs::SUBNAV_REPORTS_REPORTING ],
 			'reports_charts'   => [ PluginNavs::SUBNAV_REPORTS_CHARTS ],
 			'reports_settings' => [ PluginNavs::SUBNAV_REPORTS_SETTINGS ],
 		];
@@ -181,6 +183,8 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'sub_navs' => [
 					PluginNavs::SUBNAV_REPORTS_OVERVIEW => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_REPORTS_LIST => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_REPORTS_ALERTS => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_REPORTS_REPORTING => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_REPORTS_CHARTS => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_REPORTS_SETTINGS => [ 'handler' => 'handler' ],
 				],

@@ -36,38 +36,43 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		return $this->createDomXPathFromHtml( $html );
 	}
 
-	public function test_reports_overview_renders_structured_sections_and_contextual_cta() :void {
+	public function test_reports_overview_renders_interactive_tile_panel_with_default_reports_table() :void {
 		$xpath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_OVERVIEW );
-		$this->assertModeShellAndAccentContract( $xpath, 'reports', 'warning', 'Reports' );
+		$this->assertModeShellAndAccentContract( $xpath, 'reports', 'warning', 'Reports', true );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-header ") and contains(concat(" ", normalize-space(@class), " "), " inner-page-header-compact ")]',
 			'Reports compact header marker'
 		);
-		$this->assertXPathExists( $xpath, '//*[@data-reports-section="charts"]', 'Reports overview charts section marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-reports-heading="charts"]', 'Reports overview charts heading marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-reports-content="summary-charts"]', 'Reports overview summary charts content marker' );
-		$this->assertXPathExists( $xpath, '//*[@id="SectionStats"]', 'Reports overview summary stats strip marker' );
-
-		$this->assertXPathExists( $xpath, '//*[@data-reports-section="recent-reports"]', 'Reports overview recent reports section marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-reports-heading="recent-reports"]', 'Reports overview recent reports heading marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-reports-content="recent-reports"]', 'Reports overview recent reports content marker' );
-		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reports-list"]', 1, 'Reports overview contextual reports-list CTA marker count' );
-		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reports-charts"]', 0, 'Reports overview no charts CTA marker' );
-		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reports-settings"]', 0, 'Reports overview no settings CTA marker' );
-		$this->assertXPathCount( $xpath, '//*[@data-mode-tiles="1"]', 0, 'Reports overview does not introduce mode tile grid' );
-		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', 0, 'Reports overview does not introduce mode tiles' );
-		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', 0, 'Reports overview does not introduce mode panel shell' );
+		$this->assertXPathExists( $xpath, '//*[@data-reports-landing="1"]', 'Reports landing root marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', 3, 'Reports mode tile count marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', 3, 'Reports mode panel count marker' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-reports-panel="list" and contains(concat(" ", normalize-space(@class), " "), " is-open ") and @aria-hidden="false"]',
+			'Reports security reports panel default-open marker'
+		);
+		$this->assertXPathExists( $xpath, '//*[@data-reports-content="security-reports"]', 'Reports table panel content marker' );
+		$this->assertXPathExists( $xpath, '//*[@data-reports-content="security-reports"]//*[@id="ReportsTable"]', 'Reports table in landing panel marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="alerts"]', 1, 'Reports alerts CTA marker count' );
+		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reporting"]', 1, 'Reports reporting CTA marker count' );
+		$this->assertXPathCount( $xpath, '//*[@data-reports-section="charts"]', 0, 'Reports overview no longer renders charts section marker' );
 	}
 
-	public function test_reports_workspace_routes_render_expected_structural_markers() :void {
+	public function test_reports_workspace_routes_render_expected_structural_markers_including_legacy_routes() :void {
 		$listXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_LIST );
 		$this->assertXPathExists( $listXPath, '//*[@id="ReportsTable"]', 'Reports list table container marker' );
 
+		$alertsXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_ALERTS );
+		$this->assertXPathExists( $alertsXPath, '//*[contains(concat(" ", normalize-space(@class), " "), " options_form_for--modern ")]', 'Reports alerts options form marker' );
+
+		$reportingXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_REPORTING );
+		$this->assertXPathExists( $reportingXPath, '//*[contains(concat(" ", normalize-space(@class), " "), " options_form_for--modern ")]', 'Reports reporting options form marker' );
+
 		$chartsXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_CHARTS );
-		$this->assertXPathExists( $chartsXPath, '//*[@id="SectionStats"]', 'Reports charts stats strip marker' );
+		$this->assertXPathExists( $chartsXPath, '//*[@id="SectionStats"]', 'Reports legacy charts stats strip marker' );
 
 		$settingsXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_SETTINGS );
-		$this->assertXPathExists( $settingsXPath, '//*[contains(concat(" ", normalize-space(@class), " "), " options_form_for--modern ")]', 'Reports settings options form marker' );
+		$this->assertXPathExists( $settingsXPath, '//*[contains(concat(" ", normalize-space(@class), " "), " options_form_for--modern ")]', 'Reports legacy settings options form marker' );
 	}
 }

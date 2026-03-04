@@ -1,20 +1,70 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div data-reports-section="charts">
-		<h5 class="mb-2" data-reports-heading="charts">{{ strings.charts_title }}</h5>
-		<div data-reports-content="summary-charts">
-			{{ content.summary_charts|raw }}
-		</div>
-	</div>
+	<div class="reports-landing" data-reports-landing="1">
+		<section class="reports-landing__selector-shell" data-reports-section="selector">
+			<div class="reports-landing__tile-grid" data-mode-tiles="1">
+				{% for tile in vars.report_tiles %}
+					<button type="button"
+							class="reports-landing__tile status-{{ tile.status }}{% if vars.mode_panel.active_target|default('') == tile.panel_target %} is-active{% endif %}"
+							data-reports-tile="{{ tile.key }}"
+							data-mode-tile="1"
+							data-mode-tile-key="{{ tile.key }}"
+							data-mode-panel-target="{{ tile.panel_target }}"
+							data-mode-tile-disabled="{{ tile.is_disabled ? '1' : '0' }}"
+							aria-disabled="{{ tile.is_disabled ? 'true' : 'false' }}"
+							aria-expanded="{{ vars.mode_panel.active_target|default('') == tile.panel_target ? 'true' : 'false' }}">
+						<span class="reports-landing__tile-icon" aria-hidden="true">
+							<i class="{{ tile.icon_class }}"></i>
+						</span>
+						<span class="reports-landing__tile-title">{{ tile.title }}</span>
+						<span class="reports-landing__tile-stat">{{ tile.stat_line }}</span>
+					</button>
+				{% endfor %}
+				{# Future phase placeholder: keep charts tile definition available for later implementation.
+				   This remains intentionally excluded from current landing UI until charts-in-panel scope is approved. #}
+			</div>
+		</section>
 
-	<div class="mt-4" data-reports-section="recent-reports">
-		<div class="d-flex align-items-center justify-content-between mb-2">
-			<h5 class="mb-0" data-reports-heading="recent-reports">{{ strings.recent_reports_title }}</h5>
-			<a href="{{ hrefs.reports_list }}" class="btn btn-sm btn-outline-secondary" data-reports-cta="reports-list">{{ strings.cta_reports_list }}</a>
+		<div class="reports-landing__hint{% if vars.mode_panel.active_target|default('') is not empty %} d-none{% endif %}"
+			 data-mode-landing-hint="1"
+			 aria-hidden="{{ vars.mode_panel.active_target|default('') is not empty ? 'true' : 'false' }}">
+			<i class="bi bi-arrow-up reports-landing__hint-icon" aria-hidden="true"></i>
+			{{ strings.landing_hint|default('Select a reports area above to view details.') }}
 		</div>
-		<div data-reports-content="recent-reports">
-			{{ content.recent_reports|raw }}
-		</div>
+
+		{% for tile in vars.report_tiles %}
+			{% set panel_body %}
+				{% if tile.panel_variant == 'reports_table' %}
+					<div class="reports-landing__panel-reports-table" data-reports-content="security-reports">
+						{{ tile.panel_content|raw }}
+					</div>
+				{% else %}
+					<div class="reports-landing__panel-copy" data-reports-content="{{ tile.key }}">
+						<p class="mb-3">{{ tile.panel_description }}</p>
+						<a class="reports-landing__panel-cta"
+						   href="{{ tile.panel_cta_href }}"
+						   data-reports-cta="{{ tile.key }}">{{ tile.panel_cta_label }}</a>
+					</div>
+				{% endif %}
+			{% endset %}
+			{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+				panel: {
+					id: 'ReportsModePanel-' ~ tile.key,
+					class: 'reports-landing__panel' ~ (vars.mode_panel.active_target|default('') == tile.panel_target ? ' is-open' : ''),
+					is_open: vars.mode_panel.active_target|default('') == tile.panel_target,
+					target: tile.panel_target,
+					target_default: tile.panel_target,
+					static_target: true,
+					status: tile.panel_status,
+					title: tile.panel_title,
+					body: panel_body,
+					data: {
+						'reports-panel': tile.key
+					}
+				},
+				strings: strings
+			} only %}
+		{% endfor %}
 	</div>
 {% endblock %}

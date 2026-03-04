@@ -540,7 +540,7 @@ class NavMenuBuilder {
 
 	private function reports() :array {
 		$con = self::con();
-		$workspace = PluginNavs::reportsWorkspaceDefinitions();
+		$workspace = PluginNavs::reportsSidebarWorkspaceDefinitions();
 		$subItems = [];
 		foreach ( $workspace as $subNav => $definition ) {
 			$subItems[] = $this->createSubItemForNavAndSub(
@@ -555,7 +555,7 @@ class NavMenuBuilder {
 			'title'     => __( 'Reports', 'wp-simple-firewall' ),
 			'subtitle'  => __( "See What's Happening", 'wp-simple-firewall' ),
 			'img'       => $con->svgs->iconClass( 'clipboard-data-fill' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::reportsDefaultWorkspaceSubNav() ),
+			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW ),
 			'active'    => $this->inav() === PluginNavs::NAV_REPORTS,
 			'introjs'   => [
 				'title' => __( 'Reports', 'wp-simple-firewall' ),

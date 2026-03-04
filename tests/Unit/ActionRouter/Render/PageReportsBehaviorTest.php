@@ -69,7 +69,71 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'offcanvas_report_create_form' ], $contextualHrefs[ 0 ][ 'classes' ] ?? [] );
 	}
 
-	public function test_charts_subnav_renders_summary_charts_without_create_action() :void {
+	public function test_alerts_subnav_renders_alert_settings_without_create_action() :void {
+		$page = new PageReports( [
+			'nav_sub' => PluginNavs::SUBNAV_REPORTS_ALERTS,
+		] );
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextualHrefs = $this->invokeNonPublicMethod( $page, 'getPageContextualHrefs' );
+
+		$this->assertSame(
+			PluginNavs::reportsAlertSettingsZoneComponentSlugs(),
+			$this->zoneCapture->requested
+		);
+		$this->assertSame(
+			[
+				[
+					'action'     => OptionsFormFor::class,
+					'action_data' => [
+						'options' => [
+							InstantAlerts::Slug().'-opt-a',
+							InstantAlerts::Slug().'-opt-b',
+						],
+					],
+				],
+			],
+			$this->renderCapture->calls
+		);
+		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'alerts_settings' ] ?? '' );
+		$this->assertSame( 'Alert Settings', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
+		$this->assertSame( 'Manage instant alerts for important security events.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertSame( [], $contextualHrefs );
+	}
+
+	public function test_reporting_subnav_renders_reporting_configuration_without_create_action() :void {
+		$page = new PageReports( [
+			'nav_sub' => PluginNavs::SUBNAV_REPORTS_REPORTING,
+		] );
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextualHrefs = $this->invokeNonPublicMethod( $page, 'getPageContextualHrefs' );
+
+		$this->assertSame(
+			PluginNavs::reportsReportingConfigurationZoneComponentSlugs(),
+			$this->zoneCapture->requested
+		);
+		$this->assertSame(
+			[
+				[
+					'action'     => OptionsFormFor::class,
+					'action_data' => [
+						'options' => [
+							Reporting::Slug().'-opt-a',
+							Reporting::Slug().'-opt-b',
+						],
+					],
+				],
+			],
+			$this->renderCapture->calls
+		);
+		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'reporting_configuration' ] ?? '' );
+		$this->assertSame( 'Reporting Configuration', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
+		$this->assertSame( 'Manage report generation and delivery preferences.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertSame( [], $contextualHrefs );
+	}
+
+	public function test_charts_subnav_remains_available_as_hidden_legacy_route() :void {
 		$page = new PageReports( [
 			'nav_sub' => PluginNavs::SUBNAV_REPORTS_CHARTS,
 		] );
@@ -92,7 +156,7 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $contextualHrefs );
 	}
 
-	public function test_settings_subnav_renders_alert_settings_without_create_action() :void {
+	public function test_settings_subnav_remains_available_as_hidden_legacy_route() :void {
 		$page = new PageReports( [
 			'nav_sub' => PluginNavs::SUBNAV_REPORTS_SETTINGS,
 		] );

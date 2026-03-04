@@ -1,0 +1,133 @@
+.reports-landing__selector-shell {
+	margin-bottom: 1rem;
+}
+
+.reports-landing__tile-grid {
+	display: grid;
+	gap: 0.7rem;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.reports-landing__tile {
+	align-items: flex-start;
+	background: #fff;
+	border: 2px solid transparent;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	color: #1d2327;
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	height: 100%;
+	min-height: 122px;
+	padding: 0.85rem 0.95rem;
+	position: relative;
+	text-align: left;
+	text-decoration: none;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+	width: 100%;
+}
+
+.reports-landing__tile::before {
+	content: '';
+	background: $status-color-warning;
+	height: 3px;
+	left: 0;
+	opacity: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	transition: opacity 0.2s;
+}
+
+.reports-landing__tile:hover {
+	border-color: #ccc;
+	box-shadow: $card-box-shadow-hover;
+	color: #1d2327;
+	transform: translateY(-2px);
+}
+
+.reports-landing__tile:hover::before,
+.reports-landing__tile.is-active::before {
+	opacity: 1;
+}
+
+.reports-landing__tile.is-active {
+	background: $status-bg-warning-light;
+	border-color: $status-color-warning;
+	box-shadow: $card-box-shadow-hover;
+	transform: translateY(-1px);
+}
+
+.reports-landing__tile-icon {
+	align-items: center;
+	background: $status-bg-warning-light;
+	border-radius: 12px;
+	color: $status-color-warning;
+	display: inline-flex;
+	height: 46px;
+	justify-content: center;
+	width: 46px;
+}
+
+.reports-landing__tile-icon i {
+	font-size: 1.1rem;
+}
+
+.reports-landing__tile-title {
+	font-size: 0.9rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.reports-landing__tile-stat {
+	color: #646970;
+	font-size: 0.77rem;
+	line-height: 1.25;
+}
+
+.reports-landing__hint {
+	color: #888;
+	font-size: 0.85rem;
+	padding: 0.5rem 0;
+}
+
+.reports-landing__hint-icon {
+	font-size: 0.9rem;
+	margin-right: 0.25rem;
+}
+
+.reports-landing__panel-reports-table .row.border-bottom.fw-bold {
+	border-top: 1px solid $border-color-neutral-subtle;
+}
+
+.reports-landing__panel-reports-table .shield_legend_table .row {
+	margin: 0;
+}
+
+.reports-landing__panel-reports-table .shield_legend_table .row > div {
+	padding-left: 0.65rem;
+	padding-right: 0.65rem;
+}
+
+.reports-landing__panel-copy {
+	font-size: 0.88rem;
+}
+
+.reports-landing__panel-cta {
+	background: $status-color-warning;
+	border: none;
+	border-radius: 6px;
+	color: #1d2327;
+	display: inline-block;
+	font-size: 0.84rem;
+	font-weight: 600;
+	padding: 0.42rem 0.9rem;
+	text-decoration: none;
+}
+
+.reports-landing__panel-cta:hover {
+	background: #c49000;
+	color: #1d2327;
+	text-decoration: none;
+}
