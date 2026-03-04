@@ -23,14 +23,36 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 		return new ActionProcessor();
 	}
 
-	public function test_short_search_term_returns_empty_results() :void {
+	public function test_short_search_term_returns_empty_results_for_ip() :void {
+		$payload = $this->processor()->processAction( InvestigateLookupSelect::SLUG, [
+			'subject' => 'ip',
+			'search'  => 'a',
+		] )->payload();
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertSame( [], $payload[ 'results' ] ?? [] );
+	}
+
+	public function test_user_lookup_allows_single_character_search() :void {
+		$userLogin = 'a_lookup_user_'.\wp_rand( 1000, 9999 );
+		$email = $userLogin.'@example.com';
+		$userId = \wp_create_user( $userLogin, \wp_generate_password( 24, true, true ), $email );
+		$this->assertIsInt( $userId );
+		$this->assertGreaterThan( 0, $userId );
+
 		$payload = $this->processor()->processAction( InvestigateLookupSelect::SLUG, [
 			'subject' => 'user',
 			'search'  => 'a',
 		] )->payload();
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
-		$this->assertSame( [], $payload[ 'results' ] ?? [] );
+		$results = (array)( $payload[ 'results' ] ?? [] );
+		$this->assertNotEmpty( $results );
+		$this->assertTrue(
+			$this->resultsContainId( $results, (string)$userId ),
+			'Expected user lookup to include the created user when searching with a single character.'
+		);
+		$this->assertResultsHaveSelect2Shape( $results );
 	}
 
 	public function test_user_lookup_returns_matching_user_result_shape() :void {
