@@ -22,18 +22,14 @@ class InvestigateLookupSelect extends BaseAction {
 		$subject = sanitize_key( (string)$this->action_data[ 'subject' ] );
 		$search = \strtolower( \trim( sanitize_text_field( (string)$this->action_data[ 'search' ] ) ) );
 		$minimumLength = [
-			'user'   => 1,
-			'ip'     => 3,
-			'plugin' => 2,
-			'theme'  => 2,
-		][ $subject ] ?? 2;
-
-		$results = \strlen( $search ) < $minimumLength
-			? []
-			: $this->searchBySubject( $subject, $search );
+							 'user'   => 1,
+							 'ip'     => 3,
+							 'plugin' => 2,
+							 'theme'  => 2,
+						 ][ $subject ] ?? 2;
 
 		$this->response()->setPayload( [
-			'results' => $results,
+			'results' => \strlen( $search ) < $minimumLength ? [] : $this->searchBySubject( $subject, $search ),
 		] )->setPayloadSuccess( true );
 	}
 
@@ -97,11 +93,10 @@ class InvestigateLookupSelect extends BaseAction {
 	private function searchUsersByNumericTerm( string $search ) :array {
 		$wpdb = Services::WpDb()->loadWpdb();
 		$like = '%'.$wpdb->esc_like( $search ).'%';
-		$searchId = (int)$search;
-
-		$sql = $wpdb->prepare(
-			\sprintf(
-				"SELECT `ID`, `user_login`, `display_name`, `user_email`
+		$rows = $wpdb->get_results(
+			(string)$wpdb->prepare(
+				\sprintf(
+					"SELECT `ID`, `user_login`, `display_name`, `user_email`
 				FROM `%s`
 				WHERE CAST(`ID` AS CHAR) LIKE %%s
 					OR `user_login` LIKE %%s
@@ -109,31 +104,28 @@ class InvestigateLookupSelect extends BaseAction {
 					OR `display_name` LIKE %%s
 				ORDER BY (`ID` = %%d) DESC, `user_login` ASC
 				LIMIT %%d",
-				$wpdb->users
-			),
-			$like,
-			$like,
-			$like,
-			$like,
-			$searchId,
-			self::RESULT_LIMIT
+					$wpdb->users
+				),
+				$like,
+				$like,
+				$like,
+				$like,
+				(int)$search,
+				self::RESULT_LIMIT
+			)
 		);
-
-		$rows = $wpdb->get_results( (string)$sql );
 		return \is_array( $rows ) ? $rows : [];
 	}
 
 	private function searchUsersByTextTerm( string $search ) :array {
-		$query = new \WP_User_Query( [
+		$rows = ( new \WP_User_Query( [
 			'number'         => self::RESULT_LIMIT,
 			'search'         => '*'.$search.'*',
 			'search_columns' => [ 'user_login', 'user_email', 'display_name' ],
 			'orderby'        => 'user_login',
 			'order'          => 'ASC',
 			'fields'         => [ 'ID', 'user_login', 'user_email', 'display_name' ],
-		] );
-
-		$rows = $query->get_results();
+		] ) )->get_results();
 		return \is_array( $rows ) ? $rows : [];
 	}
 
@@ -141,17 +133,15 @@ class InvestigateLookupSelect extends BaseAction {
 	 * @return array{id:string,text:string}
 	 */
 	private function buildUserResultFromFields( int $userId, string $userLogin, string $displayName, string $userEmail ) :array {
-		$parts = [ $userLogin ];
-		if ( !empty( $displayName ) && $displayName !== $userLogin ) {
-			$parts[] = $displayName;
-		}
+		$username = !empty( $userLogin ) ? $userLogin : $displayName;
+		$label = \sprintf( '[ID:%d] %s', $userId, $username );
 		if ( !empty( $userEmail ) ) {
-			$parts[] = $userEmail;
+			$label .= ' | '.$userEmail;
 		}
 
 		return [
 			'id'   => (string)$userId,
-			'text' => \implode( ' | ', $parts ),
+			'text' => $label,
 		];
 	}
 
@@ -159,14 +149,12 @@ class InvestigateLookupSelect extends BaseAction {
 	 * @return array<int,array{id:string,text:string}>
 	 */
 	private function searchIps( string $search ) :array {
-		$ips = ( new IpLookupSearch() )->findMatchingIps( $search, self::RESULT_LIMIT );
-
 		return \array_map(
 			static fn( string $ip ) :array => [
 				'id'   => $ip,
 				'text' => $ip,
 			],
-			$ips
+			( new IpLookupSearch() )->findMatchingIps( $search, self::RESULT_LIMIT )
 		);
 	}
 
@@ -197,19 +185,17 @@ class InvestigateLookupSelect extends BaseAction {
 	 * @return array<int,array{id:string,text:string}>
 	 */
 	private function searchAssets( array $assets, string $valueField, string $search ) :array {
-		$options = ( new InvestigateAssetLookupOptionsBuilder() )->build(
-			$assets,
-			$valueField,
-			$search,
-			self::RESULT_LIMIT
-		);
-
 		return \array_map(
 			static fn( array $option ) :array => [
 				'id'   => $option[ 'value' ],
 				'text' => $option[ 'label' ],
 			],
-			$options
+			( new InvestigateAssetLookupOptionsBuilder() )->build(
+				$assets,
+				$valueField,
+				$search,
+				self::RESULT_LIMIT
+			)
 		);
 	}
 }

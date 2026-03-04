@@ -71,6 +71,10 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 		$userId = \wp_create_user( $userLogin, \wp_generate_password( 24, true, true ), $email );
 		$this->assertIsInt( $userId );
 		$this->assertGreaterThan( 0, $userId );
+		\wp_update_user( [
+			'ID'           => $userId,
+			'display_name' => 'Lookup Display '.\wp_rand( 1000, 9999 ),
+		] );
 
 		$payload = $this->processor()->processAction( InvestigateLookupSelect::SLUG, [
 			'subject' => 'user',
@@ -84,6 +88,9 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 			$this->resultsContainId( $results, (string)$userId ),
 			'Expected user lookup results to include the created user ID.'
 		);
+		$result = $this->findResultById( $results, (string)$userId );
+		$this->assertIsArray( $result );
+		$this->assertSame( \sprintf( '[ID:%d] %s | %s', $userId, $userLogin, $email ), (string)( $result[ 'text' ] ?? '' ) );
 		$this->assertResultsHaveSelect2Shape( $results );
 	}
 
@@ -219,12 +226,16 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function resultsContainId( array $results, string $expectedId ) :bool {
+		return $this->findResultById( $results, $expectedId ) !== null;
+	}
+
+	private function findResultById( array $results, string $expectedId ) :?array {
 		foreach ( $results as $result ) {
 			if ( \is_array( $result ) && (string)( $result[ 'id' ] ?? '' ) === $expectedId ) {
-				return true;
+				return $result;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	private function assertResultsHaveSelect2Shape( array $results ) :void {
