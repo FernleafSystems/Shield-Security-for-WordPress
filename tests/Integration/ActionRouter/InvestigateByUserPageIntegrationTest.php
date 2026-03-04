@@ -164,26 +164,48 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$renderData = (array)( $this->renderByUserInnerPage( (string)$userId )[ 'render_data' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+		$relatedIps = \array_values(
+			\array_filter(
+				(array)( $renderData[ 'vars' ][ 'related_ips' ] ?? [] ),
+				static fn( $card ) :bool => \is_array( $card ) && ( $card[ 'ip' ] ?? '' ) === '203.0.113.88'
+			)
+		);
+		$this->assertCount( 1, $relatedIps );
+
+		$relatedIp = $relatedIps[ 0 ];
+		$this->assertGreaterThanOrEqual( 1, (int)( $relatedIp[ 'requests_count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $relatedIp[ 'status' ] ?? '' ) );
+		$this->assertNotEmpty( (string)( $relatedIp[ 'status_label' ] ?? '' ) );
+		$this->assertNotEmpty( (string)( $relatedIp[ 'investigate_href' ] ?? '' ) );
 
 		$payload = $this->renderByUserPage( (string)$userId );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->investigateDomXPath( $html );
 
-		$this->assertHtmlContainsMarker( 'investigate-by-user-ip-card', $html, 'By-user IP card wrapper marker' );
-		$this->assertHtmlContainsMarker( 'investigate-by-user-ip-status', $html, 'By-user IP status marker' );
-		$this->assertHtmlContainsMarker( 'investigate-by-user-ip-counts', $html, 'By-user IP counts marker' );
-		$this->assertHtmlContainsMarker( '203.0.113.88', $html, 'By-user seeded related IP display' );
-		$this->assertHtmlContainsMarker( 'Sessions:', $html, 'By-user explicit session counter label marker' );
-		$this->assertHtmlContainsMarker( 'Activity:', $html, 'By-user explicit activity counter label marker' );
-		$this->assertHtmlContainsMarker( 'Requests:', $html, 'By-user explicit request counter label marker' );
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@id="tabInvestigateUserIps"]//a[@data-ip="203.0.113.88"]',
+			'By-user seeded related IP link marker'
+		);
+		$investigateLink = $this->assertXPathExists(
+			$xpath,
+			'//section[@id="tabInvestigateUserIps"]//a[contains(@href, "subnav=by_ip") and contains(@href, "analyse_ip=203.0.113.88")]',
+			'By-user investigate IP route marker'
+		);
+		$investigateLinkClass = '';
+		if ( $investigateLink->attributes instanceof \DOMNamedNodeMap ) {
+			$classNode = $investigateLink->attributes->getNamedItem( 'class' );
+			if ( $classNode instanceof \DOMNode ) {
+				$investigateLinkClass = (string)$classNode->nodeValue;
+			}
+		}
+		$this->assertStringNotContainsString(
+			'offcanvas_ip_analysis',
+			$investigateLinkClass,
+			'By-user investigate IP action should not reuse offcanvas class'
+		);
+		$this->assertHtmlContainsMarker( (string)( $relatedIp[ 'investigate_href' ] ?? '' ), $html, 'By-user investigate href from contract marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-user back button removed marker' );
-		$this->assertMatchesRegularExpression(
-			'#<a[^>]*class="[^"]*btn[^"]*"[^>]*>Investigate IP</a>#',
-			$html
-		);
-		$this->assertDoesNotMatchRegularExpression(
-			'#<a[^>]*class="[^"]*offcanvas_ip_analysis[^"]*"[^>]*>Investigate IP</a>#',
-			$html
-		);
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {

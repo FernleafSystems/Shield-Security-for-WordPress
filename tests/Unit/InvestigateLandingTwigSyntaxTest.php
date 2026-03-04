@@ -33,7 +33,7 @@ class InvestigateLandingTwigSyntaxTest extends BaseUnitTest {
 			$this->fail(
 				\sprintf(
 					'Investigate landing template should compile without Twig syntax errors. %s: %s',
-					$e::class,
+					\get_class( $e ),
 					$e->getMessage()
 				)
 			);
