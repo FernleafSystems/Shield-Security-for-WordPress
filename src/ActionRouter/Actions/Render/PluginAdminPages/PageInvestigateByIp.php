@@ -48,7 +48,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				'lookup_label'        => __( 'IP Lookup', 'wp-simple-firewall' ),
 				'lookup_placeholder'  => __( 'Search for an IP address...', 'wp-simple-firewall' ),
 				'lookup_submit'       => __( 'Load IP Context', 'wp-simple-firewall' ),
-				'lookup_helper'       => __( 'Type at least 2 characters to find matching IP addresses.', 'wp-simple-firewall' ),
+				'lookup_helper'       => __( 'Type at least 3 characters to find matching IP addresses.', 'wp-simple-firewall' ),
 				'change_subject'      => __( 'Change IP address', 'wp-simple-firewall' ),
 				'no_subject_title'    => __( 'No IP Selected', 'wp-simple-firewall' ),
 				'no_subject_text'     => __( 'Use the lookup above to load investigate context for an IP address.', 'wp-simple-firewall' ),
@@ -57,7 +57,7 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				'analyse_ip'      => $lookup,
 				'lookup_route'    => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
 				'lookup_behavior' => $this->buildLookupBehaviorContract( true, true, true ),
-				'lookup_ajax'     => $this->buildLookupAjaxContract( 'ip' ),
+				'lookup_ajax'     => $this->buildLookupAjaxContract( 'ip', 3 ),
 				'subject_header'  => $subjectHeader,
 			],
 			'content' => [

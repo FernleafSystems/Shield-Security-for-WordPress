@@ -39,7 +39,7 @@ class IpLookupSearch {
 				$selector->setLimit( \max( 1, $limit - \count( $matchedIps ) ) );
 			}
 
-			if ( \preg_match( '#[.:]#', $ipTerm ) === 1 ) {
+			if ( \preg_match( '#[.:]#', $ipTerm ) === 1 || \ctype_digit( $ipTerm ) ) {
 				$selector->addRawWhere( [
 					\sprintf( 'INET6_NTOA(`%s`.`ip`)', $table ),
 					'LIKE',

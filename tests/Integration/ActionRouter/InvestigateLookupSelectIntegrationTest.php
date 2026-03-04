@@ -33,6 +33,16 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $payload[ 'results' ] ?? [] );
 	}
 
+	public function test_two_character_ip_search_returns_empty_results() :void {
+		$payload = $this->processor()->processAction( InvestigateLookupSelect::SLUG, [
+			'subject' => 'ip',
+			'search'  => '21',
+		] )->payload();
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertSame( [], $payload[ 'results' ] ?? [] );
+	}
+
 	public function test_user_lookup_allows_single_character_search() :void {
 		$userLogin = 'a_lookup_user_'.\wp_rand( 1000, 9999 );
 		$email = $userLogin.'@example.com';
@@ -77,6 +87,65 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertResultsHaveSelect2Shape( $results );
 	}
 
+	public function test_user_numeric_lookup_prioritises_exact_id_result() :void {
+		$exactUserLogin = 'investigate_exact_'.\wp_rand( 1000, 9999 );
+		$exactUserId = \wp_create_user(
+			$exactUserLogin,
+			\wp_generate_password( 24, true, true ),
+			$exactUserLogin.'@example.com'
+		);
+		$this->assertIsInt( $exactUserId );
+		$this->assertGreaterThan( 0, $exactUserId );
+
+		$numericTerm = (string)$exactUserId;
+		$noiseLogin = 'investigate_noise_'.$numericTerm.'_'.\wp_rand( 1000, 9999 );
+		$noiseUserId = \wp_create_user(
+			$noiseLogin,
+			\wp_generate_password( 24, true, true ),
+			$noiseLogin.'@example.com'
+		);
+		$this->assertIsInt( $noiseUserId );
+		$this->assertGreaterThan( 0, $noiseUserId );
+
+		$payload = $this->processor()->processAction( InvestigateLookupSelect::SLUG, [
+			'subject' => 'user',
+			'search'  => $numericTerm,
+		] )->payload();
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$results = (array)( $payload[ 'results' ] ?? [] );
+		$this->assertNotEmpty( $results );
+		$this->assertSame( (string)$exactUserId, (string)( $results[ 0 ][ 'id' ] ?? '' ) );
+		$this->assertResultsHaveSelect2Shape( $results );
+	}
+
+	public function test_user_numeric_lookup_falls_back_to_partial_text_matching() :void {
+		$numericTerm = (string)\wp_rand( 50000, 99999 );
+		$login = 'investigate_numeric_'.$numericTerm.'_'.\wp_rand( 1000, 9999 );
+		$userId = \wp_create_user(
+			$login,
+			\wp_generate_password( 24, true, true ),
+			$login.'@example.com'
+		);
+		$this->assertIsInt( $userId );
+		$this->assertGreaterThan( 0, $userId );
+		$this->assertNull( Services::WpUsers()->getUserById( (int)$numericTerm ) );
+
+		$payload = $this->processor()->processAction( InvestigateLookupSelect::SLUG, [
+			'subject' => 'user',
+			'search'  => $numericTerm,
+		] )->payload();
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$results = (array)( $payload[ 'results' ] ?? [] );
+		$this->assertNotEmpty( $results );
+		$this->assertTrue(
+			$this->resultsContainId( $results, (string)$userId ),
+			'Expected numeric user lookup to include a user found via partial text matching.'
+		);
+		$this->assertResultsHaveSelect2Shape( $results );
+	}
+
 	public function test_ip_lookup_returns_matching_ip_result() :void {
 		TestDataFactory::createIpRecord( '203.0.113.231' );
 
@@ -90,6 +159,23 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue(
 			$this->resultsContainId( $results, '203.0.113.231' ),
 			'Expected IP lookup results to include the inserted IP.'
+		);
+		$this->assertResultsHaveSelect2Shape( $results );
+	}
+
+	public function test_ip_lookup_returns_matching_numeric_fragment_result() :void {
+		TestDataFactory::createIpRecord( '212.159.74.132' );
+
+		$payload = $this->processor()->processAction( InvestigateLookupSelect::SLUG, [
+			'subject' => 'ip',
+			'search'  => '212',
+		] )->payload();
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$results = (array)( $payload[ 'results' ] ?? [] );
+		$this->assertTrue(
+			$this->resultsContainId( $results, '212.159.74.132' ),
+			'Expected numeric IP fragment lookup to include the matching IP.'
 		);
 		$this->assertResultsHaveSelect2Shape( $results );
 	}
