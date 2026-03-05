@@ -47,6 +47,15 @@ class PackageVerifierTest extends TestCase {
 		$this->fs->mkdir( $this->tempDir.'/src/lib/vendor' );
 	}
 
+	private function setupRequiredPrefixedPackages() :void {
+		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/monolog/monolog' );
+		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/twig/twig' );
+		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/crowdsec/capi-client' );
+		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/monolog/monolog/Logger.php', '<?php' );
+		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/twig/twig/Environment.php', '<?php' );
+		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/crowdsec/capi-client/Watcher.php', '<?php' );
+	}
+
 	// =========================================================================
 	// verify() - Pass scenarios
 	// =========================================================================
@@ -54,11 +63,9 @@ class PackageVerifierTest extends TestCase {
 	public function testVerifyPassesWithAllRequiredFilesAndDirectories() :void {
 		$this->setupValidPackage();
 
+		$this->expectNotToPerformAssertions();
 		$verifier = $this->createVerifier();
-
-		// Should not throw
 		$verifier->verify( $this->tempDir );
-		$this->assertTrue( true );
 	}
 
 	public function testVerifyLogsSuccessMessage() :void {
@@ -76,6 +83,27 @@ class PackageVerifierTest extends TestCase {
 			fn( $m ) => \strpos( $m, 'Package built successfully' ) !== false
 		) ) > 0;
 		$this->assertTrue( $hasSuccessMessage );
+	}
+
+	public function testVerifyPassesWhenRequiredPrefixedPackagesExist() :void {
+		$this->setupValidPackage();
+		$this->setupRequiredPrefixedPackages();
+
+		$messages = [];
+		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
+			$messages[] = $msg;
+		} );
+		$verifier->verify( $this->tempDir, [
+			'monolog/monolog',
+			'twig/twig',
+			'crowdsec/capi-client',
+		] );
+
+		$passLogs = \array_filter(
+			$messages,
+			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists:' ) !== false
+		);
+		$this->assertCount( 3, $passLogs );
 	}
 
 	// =========================================================================
@@ -113,6 +141,103 @@ class PackageVerifierTest extends TestCase {
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'vendor/autoload.php' );
 		$verifier->verify( $this->tempDir );
+	}
+
+	public function testVerifyFailsWhenRequiredPrefixedPackageMissing() :void {
+		$this->setupValidPackage();
+		$this->setupRequiredPrefixedPackages();
+		$this->fs->remove( $this->tempDir.'/vendor_prefixed/twig/twig' );
+
+		$verifier = $this->createVerifier();
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'vendor_prefixed/twig/twig' );
+		$verifier->verify( $this->tempDir, [
+			'monolog/monolog',
+			'twig/twig',
+			'crowdsec/capi-client',
+		] );
+	}
+
+	public function testVerifyFailsWhenRequiredPrefixedPackageDirectoryIsEmpty() :void {
+		$this->setupValidPackage();
+		$this->setupRequiredPrefixedPackages();
+		$this->fs->remove( $this->tempDir.'/vendor_prefixed/twig/twig/Environment.php' );
+
+		$verifier = $this->createVerifier();
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'vendor_prefixed/twig/twig' );
+		$verifier->verify( $this->tempDir, [
+			'twig/twig',
+		] );
+	}
+
+	public function testVerifyNormalizesRequiredPackageNamesToLowercase() :void {
+		$this->setupValidPackage();
+		$this->setupRequiredPrefixedPackages();
+
+		$messages = [];
+		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
+			$messages[] = $msg;
+		} );
+		$verifier->verify( $this->tempDir, [
+			'Monolog/Monolog',
+			'TWIG/TWIG',
+		] );
+
+		$this->assertTrue( \count( \array_filter(
+			$messages,
+			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists: monolog/monolog' ) !== false
+		) ) > 0 );
+		$this->assertTrue( \count( \array_filter(
+			$messages,
+			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists: twig/twig' ) !== false
+		) ) > 0 );
+	}
+
+	public function testVerifyIgnoresInvalidRequiredPrefixedPackageEntries() :void {
+		$this->setupValidPackage();
+		$this->setupRequiredPrefixedPackages();
+
+		$messages = [];
+		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
+			$messages[] = $msg;
+		} );
+		$verifier->verify( $this->tempDir, [
+			'monolog/monolog',
+			'',
+			null,
+			123,
+		] );
+
+		$passLogs = \array_filter(
+			$messages,
+			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists:' ) !== false
+		);
+		$this->assertCount( 1, $passLogs );
+	}
+
+	public function testVerifyFailsWhenMultipleRequiredPackagesMissingListsAll() :void {
+		$this->setupValidPackage();
+		$this->setupRequiredPrefixedPackages();
+		$this->fs->remove( $this->tempDir.'/vendor_prefixed/twig/twig' );
+		$this->fs->remove( $this->tempDir.'/vendor_prefixed/crowdsec/capi-client' );
+
+		$verifier = $this->createVerifier();
+
+		try {
+			$verifier->verify( $this->tempDir, [
+				'monolog/monolog',
+				'twig/twig',
+				'crowdsec/capi-client',
+			] );
+			$this->fail( 'Expected RuntimeException' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'vendor_prefixed/twig/twig', $e->getMessage() );
+			$this->assertStringContainsString( 'vendor_prefixed/crowdsec/capi-client', $e->getMessage() );
+		}
 	}
 
 	// =========================================================================
