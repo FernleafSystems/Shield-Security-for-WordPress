@@ -216,6 +216,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayHasKey( 'traffic', $liveMonitor );
 		$this->assertArrayHasKey( 'loading', $liveMonitor );
 		$this->assertHtmlContainsMarker( 'data-dashboard-live-monitor="1"', $html, 'Live monitor root marker' );
+		$this->assertHtmlContainsMarker( 'data-live-monitor-docked="1"', $html, 'Live monitor dock marker' );
 		$this->assertHtmlContainsMarker( 'data-live-monitor-output="ticker"', $html, 'Live monitor ticker output marker' );
 		$this->assertHtmlContainsMarker( 'data-live-monitor-output="traffic"', $html, 'Live monitor traffic output marker' );
 		$this->assertSame( 1, \substr_count( $html, 'data-dashboard-live-monitor="1"' ) );

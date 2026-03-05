@@ -1,7 +1,8 @@
 {% set is_collapsed = vars.is_collapsed|default(false) %}
 <section id="ShieldDashboardLiveMonitor"
-		 class="dashboard-live-monitor mt-3{{ is_collapsed ? ' is-collapsed' : '' }}"
+		 class="dashboard-live-monitor{{ is_collapsed ? ' is-collapsed' : '' }}"
 		 data-dashboard-live-monitor="1"
+		 data-live-monitor-docked="1"
 		 data-is-collapsed="{{ is_collapsed ? '1' : '0' }}">
 	<div class="dashboard-live-monitor__header">
 		<div class="dashboard-live-monitor__title-wrap">

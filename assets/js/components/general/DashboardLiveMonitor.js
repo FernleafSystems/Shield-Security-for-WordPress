@@ -9,12 +9,16 @@ export class DashboardLiveMonitor extends BaseComponent {
 		this.bodyEl = this.rootEl?.querySelector( '[data-live-monitor-body="1"]' ) || null;
 		this.toggleButton = this.rootEl?.querySelector( '[data-live-monitor-toggle="1"]' ) || null;
 		this.toggleText = this.rootEl?.querySelector( '[data-live-monitor-toggle-text="1"]' ) || null;
+		this.contentContainer = document.querySelector( '#PageMainBody_Inner-Apto' ) || null;
 		this.outputs = {
 			ticker: this.rootEl?.querySelector( '[data-live-monitor-output="ticker"]' ) || null,
 			traffic: this.rootEl?.querySelector( '[data-live-monitor-output="traffic"]' ) || null,
 		};
 		this.latestTickerID = 0;
 		this.poller = null;
+		this.resizeObserver = null;
+		this.dockingUpdatePending = false;
+		this.boundScheduleDockingUpdate = () => this.scheduleDockingUpdate();
 		this.exec();
 	}
 
@@ -43,6 +47,8 @@ export class DashboardLiveMonitor extends BaseComponent {
 		if ( !this.isCollapsed() ) {
 			this.poller.start();
 		}
+
+		this.setupDockingLayout();
 	}
 
 	buildBatchRequestData() {
@@ -101,6 +107,55 @@ export class DashboardLiveMonitor extends BaseComponent {
 				this.poller.start();
 			}
 		}
+
+		this.scheduleDockingUpdate();
+	}
+
+	setupDockingLayout() {
+		if ( !this.rootEl || !this.contentContainer ) {
+			return;
+		}
+
+		this.rootEl.classList.add( 'is-docked' );
+		this.contentContainer.classList.add( 'has-live-monitor-docked' );
+
+		window.addEventListener( 'resize', this.boundScheduleDockingUpdate );
+		window.addEventListener( 'orientationchange', this.boundScheduleDockingUpdate );
+
+		if ( 'ResizeObserver' in window ) {
+			this.resizeObserver = new ResizeObserver( this.boundScheduleDockingUpdate );
+			this.resizeObserver.observe( this.rootEl );
+			this.resizeObserver.observe( this.contentContainer );
+		}
+
+		this.scheduleDockingUpdate();
+	}
+
+	scheduleDockingUpdate() {
+		if ( !this.rootEl || !this.contentContainer || this.dockingUpdatePending ) {
+			return;
+		}
+
+		this.dockingUpdatePending = true;
+		window.requestAnimationFrame( () => {
+			this.dockingUpdatePending = false;
+			this.updateDockingLayout();
+		} );
+	}
+
+	updateDockingLayout() {
+		if ( !this.rootEl || !this.contentContainer ) {
+			return;
+		}
+
+		const contentRect = this.contentContainer.getBoundingClientRect();
+		const leftOffset = Math.max( Math.round( contentRect.left ), 0 );
+		const rightOffset = Math.max( Math.round( window.innerWidth - contentRect.right ), 0 );
+		const monitorHeight = Math.max( Math.ceil( this.rootEl.getBoundingClientRect().height ), 0 );
+
+		this.rootEl.style.setProperty( '--dashboard-live-monitor-left', `${leftOffset}px` );
+		this.rootEl.style.setProperty( '--dashboard-live-monitor-right', `${rightOffset}px` );
+		this.contentContainer.style.setProperty( '--dashboard-live-monitor-clearance', `${monitorHeight}px` );
 	}
 
 	persistCollapsedState() {
@@ -121,6 +176,7 @@ export class DashboardLiveMonitor extends BaseComponent {
 		const results = resp?.data?.results || {};
 		this.applyTickerResult( results.ticker || null );
 		this.applyTrafficResult( results.traffic || null );
+		this.scheduleDockingUpdate();
 	}
 
 	applyTickerResult( result ) {
