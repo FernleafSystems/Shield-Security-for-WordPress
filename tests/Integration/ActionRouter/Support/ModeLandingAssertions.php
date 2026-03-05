@@ -15,7 +15,7 @@ trait ModeLandingAssertions {
 	private function assertModeAccentContract( \DOMXPath $xpath, string $accentStatus, string $labelPrefix ) :void {
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " mode-landing-accent-bar ") and contains(concat(" ", normalize-space(@class), " "), " status-'.$accentStatus.' ")]',
+			'//*[@data-mode-accent="1" and @data-mode-accent-status="'.$accentStatus.'"]',
 			$labelPrefix.' mode accent marker'
 		);
 	}

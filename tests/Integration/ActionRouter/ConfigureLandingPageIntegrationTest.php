@@ -37,9 +37,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_configure_landing_renders_expected_sections_and_contract_markers() :void {
 		$payload = $this->renderConfigureLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for configure landing.' );
-		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Configure landing render exception check' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$tileDefinitions = PluginNavs::configureLandingTileDefinitions();
 		$expectedCount = \count( $tileDefinitions );
 		$xpath = $this->createDomXPathFromHtml( $html );
@@ -139,7 +137,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-panel and @data-mode-panel="1"]//*[@data-configure-component-status]//span[contains(concat(" ", normalize-space(@class), " "), " configure-landing__component-status-icon ") and @role="img" and string-length(normalize-space(@aria-label)) > 0]',
+			'//*[@data-configure-panel and @data-mode-panel="1"]//*[@data-configure-component-status]//span[@role="img" and string-length(normalize-space(@aria-label)) > 0]',
 			'Configure component status icon accessibility contract'
 		);
 		$this->assertXPathExists(
@@ -149,7 +147,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-configure-zone and @data-mode-tile="1"]//span[contains(concat(" ", normalize-space(@class), " "), " configure-landing__zone-tile-icon ")]//i[@aria-hidden="true"]',
+			'//*[@data-configure-zone and @data-mode-tile="1"]//i[@aria-hidden="true"]',
 			$expectedCount,
 			'Configure icon-led tile marker count'
 		);
@@ -174,21 +172,4 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	/**
-	 * @return array<string,mixed>
-	 */
-	private function decodeJsonAttribute( \DOMNode $node, string $attribute, string $label ) :array {
-		$this->assertInstanceOf( \DOMElement::class, $node, $label.' node type contract' );
-		/** @var \DOMElement $node */
-
-		$raw = \trim( (string)$node->getAttribute( $attribute ) );
-		$this->assertNotSame( '', $raw, $label.' attribute should not be empty' );
-
-		$decoded = \json_decode(
-			\html_entity_decode( $raw, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ),
-			true
-		);
-		$this->assertIsArray( $decoded, $label.' JSON decode contract' );
-		return $decoded;
-	}
 }

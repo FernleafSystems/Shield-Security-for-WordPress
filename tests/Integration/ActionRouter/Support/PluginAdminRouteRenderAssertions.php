@@ -11,6 +11,13 @@ use FernleafSystems\Wordpress\Services\Services;
 
 trait PluginAdminRouteRenderAssertions {
 
+	private function assertRouteRenderOutputHealthy( array $payload, string $label ) :string {
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertNotSame( '', $html, 'Expected non-empty render output for '.$label.'.' );
+		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, $label.' render exception check' );
+		return $html;
+	}
+
 	private function processActionPayloadWithAdminBypass( string $actionSlug, array $params = [] ) :array {
 		$con = self::con();
 		$filter = $con->prefix( 'bypass_is_plugin_admin' );

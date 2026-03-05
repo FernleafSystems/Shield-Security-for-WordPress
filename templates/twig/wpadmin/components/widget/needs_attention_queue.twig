@@ -1,7 +1,9 @@
 <div class="shield-needs-attention h-100">
 	{% set is_compact_all_clear = flags.compact_all_clear|default(false) and not flags.has_items %}
 	{% if not is_compact_all_clear %}
-		<div class="shield-needs-attention__status-strip {{ flags.has_items ? 'has-issues' : 'all-clear' }}">
+		<div class="shield-needs-attention__status-strip {{ flags.has_items ? 'has-issues' : 'all-clear' }}"
+			 data-needs-attention-status-strip="1"
+			 data-needs-attention-status="{{ flags.has_items ? 'has-issues' : 'all-clear' }}">
 			<i class="{{ strings.status_strip_icon_class }}" aria-hidden="true"></i>
 			<span class="shield-needs-attention__strip-text">{{ strings.status_strip_text }}</span>
 			{% if strings.status_strip_subtext|default('') is not empty %}

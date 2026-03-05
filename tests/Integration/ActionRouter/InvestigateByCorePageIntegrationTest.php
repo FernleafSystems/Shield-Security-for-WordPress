@@ -83,7 +83,7 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//section[@data-investigate-panel="core"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-body-shell ")]',
+			'//section[@data-investigate-panel="core"]//*[@data-investigate-panel-content="1"]//*[@data-inner-page-body-shell="1"]',
 			0,
 			'By-core panel content should not include nested inner-page-body shell'
 		);

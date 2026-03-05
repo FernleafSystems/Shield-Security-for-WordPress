@@ -1,0 +1,57 @@
+/* Shared landing tile frame + accent geometry */
+.configure-landing__zone-tile,
+.investigate-landing__subject-card,
+.reports-landing__tile {
+	align-items: flex-start;
+	background: #fff;
+	border: 2px solid transparent;
+	border-radius: $card-border-radius;
+	color: #1d2327;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+	text-align: left;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+	width: 100%;
+}
+
+.configure-landing__zone-tile,
+.reports-landing__tile {
+	box-shadow: $card-box-shadow;
+}
+
+.configure-landing__zone-tile::before,
+.investigate-landing__subject-card::before,
+.reports-landing__tile::before {
+	content: '';
+	height: 3px;
+	left: 0;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	top: 0;
+	border-top-left-radius: $card-border-radius;
+	border-top-right-radius: $card-border-radius;
+}
+
+.configure-landing__zone-tile:hover,
+.investigate-landing__subject-card:hover,
+.reports-landing__tile:hover {
+	box-shadow: $card-box-shadow-hover;
+	color: #1d2327;
+	transform: translateY(-2px);
+}
+
+.configure-landing__zone-tile.is-disabled,
+.configure-landing__zone-tile.is-disabled:hover,
+.investigate-landing__subject-card.is-disabled,
+.investigate-landing__subject-card.is-disabled:hover {
+	background: $surface-color-neutral-raised;
+	border-color: $border-color-neutral-subtle;
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: 0.7;
+	transform: none;
+}

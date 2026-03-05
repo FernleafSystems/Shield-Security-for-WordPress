@@ -353,7 +353,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		const parsed = ( new DOMParser() ).parseFromString( renderOutput, 'text/html' );
-		const innerShell = parsed.querySelector( '.inner-page-body-shell' );
+		const innerShell = parsed.querySelector( '[data-inner-page-body-shell="1"]' )
+			|| parsed.querySelector( '.inner-page-body-shell' );
 		return innerShell ? innerShell.innerHTML : '';
 	}
 
@@ -369,10 +370,9 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		panelContent.innerHTML = panelBodyHtml;
-		this.syncPanelHeader( panel, true );
 		this.initializeSelect2Within( panelContent );
 		new InvestigationTable();
-		this.rebuildInlineTabs( panel );
+		this.syncPanelChrome( panel, true );
 		return true;
 	}
 
@@ -381,8 +381,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( panelContent !== null ) {
 			panelContent.innerHTML = this.buildInlineErrorMarkup();
 		}
-		this.syncPanelHeader( panel, true );
-		this.clearInlineTabs( panel );
+		this.syncPanelChrome( panel, true );
 		this.setPanelLoadedState( panel, false );
 	}
 
@@ -423,8 +422,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		const afterLoad = () => {
-			this.syncPanelHeader( panel );
-			this.rebuildInlineTabs( panel );
 			if ( this.isLivePanel( panel ) ) {
 				this.startLivePanelPoller( panel );
 			}
@@ -434,6 +431,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		};
 
 		if ( this.isPanelLoaded( panel ) ) {
+			this.syncPanelChrome( panel );
 			afterLoad();
 			return;
 		}
@@ -587,6 +585,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		} );
 	}
 
+	syncPanelChrome( panel, clearHeaderIfMissing = false ) {
+		this.syncPanelHeader( panel, clearHeaderIfMissing );
+		this.rebuildInlineTabs( panel );
+	}
+
 	syncPanelHeader( panel, clearIfMissing = false ) {
 		const panelHeader = this.getPanelHeaderContainer( panel );
 		if ( panelHeader === null ) {
@@ -596,7 +599,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		const panelContent = this.getPanelContentContainer( panel );
 		const subjectHeader = panelContent === null
 			? null
-			: panelContent.querySelector( '.investigate-subject-header' );
+			: ( panelContent.querySelector( '[data-investigate-subject-header="1"]' )
+				|| panelContent.querySelector( '.investigate-subject-header' ) );
 
 		if ( subjectHeader !== null ) {
 			panelHeader.innerHTML = '';

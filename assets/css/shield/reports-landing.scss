@@ -9,46 +9,20 @@
 }
 
 .reports-landing__tile {
-	align-items: flex-start;
-	background: #fff;
-	border: 2px solid transparent;
-	border-radius: $card-border-radius;
-	box-shadow: $card-box-shadow;
-	color: #1d2327;
-	display: flex;
-	flex-direction: column;
 	gap: 0.3rem;
-	height: 100%;
 	min-height: 122px;
 	padding: 0.85rem 0.95rem;
-	position: relative;
-	overflow: hidden;
-	text-align: left;
 	text-decoration: none;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
-	width: 100%;
 }
 
 .reports-landing__tile::before {
-	content: '';
 	background: $status-color-warning;
-	height: 3px;
-	left: 0;
 	opacity: 0;
-	position: absolute;
-	right: 0;
-	top: 0;
-	border-top-left-radius: $card-border-radius;
-	border-top-right-radius: $card-border-radius;
-	pointer-events: none;
 	transition: opacity 0.2s;
 }
 
 .reports-landing__tile:hover {
 	border-color: #ccc;
-	box-shadow: $card-box-shadow-hover;
-	color: #1d2327;
-	transform: translateY(-2px);
 }
 
 .reports-landing__tile:hover::before,

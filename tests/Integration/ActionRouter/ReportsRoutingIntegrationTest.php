@@ -26,9 +26,7 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function renderReportsSubNavPayload( string $subNav ) :array {
 		$payload = $this->renderPluginAdminRoutePayload( PluginNavs::NAV_REPORTS, $subNav );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for reports/'.$subNav );
-		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Reports route render exception check for '.$subNav );
+		$this->assertRouteRenderOutputHealthy( $payload, 'reports/'.$subNav );
 		return $payload;
 	}
 

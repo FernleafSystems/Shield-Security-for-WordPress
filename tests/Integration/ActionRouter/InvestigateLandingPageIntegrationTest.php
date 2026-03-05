@@ -38,9 +38,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_landing_renders_final_subject_tiles_and_disabled_premium_integrations_marker() :void {
 		$payload = $this->renderInvestigateLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for investigate landing.' );
-		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Investigate landing render exception check' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'investigate landing' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$subjectDefinitions = PluginNavs::investigateLandingSubjectDefinitions();
 		$enabledSubjectDefinitions = \array_filter(
@@ -224,8 +222,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'subject'    => 'ip',
 			'analyse_ip' => '203.0.113.88',
 		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for investigate landing preload.' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'investigate landing preload' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertXPathExists(
@@ -261,12 +258,12 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header ")]',
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-header="1"]',
 			'Investigate IP panel subject header is visible for preloaded lookup'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header__title ") and normalize-space()="203.0.113.88"]',
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-title="1" and normalize-space()="203.0.113.88"]',
 			'Investigate IP panel subject header title matches lookup value'
 		);
 		$this->assertXPathExists(
@@ -276,21 +273,4 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	/**
-	 * @return array<string,mixed>
-	 */
-	private function decodeJsonAttribute( \DOMNode $node, string $attribute, string $label ) :array {
-		$this->assertInstanceOf( \DOMElement::class, $node, $label.' node type contract' );
-		/** @var \DOMElement $node */
-
-		$raw = \trim( (string)$node->getAttribute( $attribute ) );
-		$this->assertNotSame( '', $raw, $label.' attribute should not be empty' );
-
-		$decoded = \json_decode(
-			\html_entity_decode( $raw, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ),
-			true
-		);
-		$this->assertIsArray( $decoded, $label.' JSON decode contract' );
-		return $decoded;
-	}
 }

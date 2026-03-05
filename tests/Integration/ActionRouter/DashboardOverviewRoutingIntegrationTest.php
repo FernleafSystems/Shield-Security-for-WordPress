@@ -88,7 +88,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 3, (int)( $zone[ 'total_issues' ] ?? 0 ) );
 
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertHtmlContainsMarker( 'shield-needs-attention__status-strip has-issues', $html, 'Needs attention strip with issues' );
+		$this->assertHtmlContainsMarker( 'data-needs-attention-status="has-issues"', $html, 'Needs attention strip with issues' );
 		$this->assertHtmlContainsMarker( 'shield-needs-attention__zone-card', $html, 'Needs attention zone cards' );
 		$this->assertHtmlContainsMarker( 'shield-needs-attention__zone-icon', $html, 'Needs attention zone icon' );
 		$this->assertHtmlContainsMarker( 'shield-needs-attention__item-action', $html, 'Needs attention item action' );

@@ -2,10 +2,10 @@
 {% set header_meta = meta|default('') %}
 {% set change_label = change_label|default('') %}
 
-<div class="investigate-subject-header">
+<div class="investigate-subject-header" data-investigate-subject-header="1">
 	<div class="d-flex align-items-start flex-wrap gap-2">
 		<div>
-			<div class="investigate-subject-header__title">{{ header_title }}</div>
+			<div class="investigate-subject-header__title" data-investigate-subject-title="1">{{ header_title }}</div>
 			{% if header_meta is not empty %}
 				<div class="investigate-subject-header__meta">{{ header_meta }}</div>
 			{% endif %}

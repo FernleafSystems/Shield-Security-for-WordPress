@@ -96,12 +96,12 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header ")]',
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-header="1"]',
 			'Legacy by-ip route renders subject header within panel content'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header__title ") and normalize-space()="203.0.113.88"]',
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-title="1" and normalize-space()="203.0.113.88"]',
 			'Legacy by-ip route subject header title matches lookup value'
 		);
 		$this->assertXPathExists(
@@ -116,7 +116,7 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-body-shell ")]',
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-inner-page-body-shell="1"]',
 			0,
 			'By-ip panel content should not include nested inner-page-body shell'
 		);

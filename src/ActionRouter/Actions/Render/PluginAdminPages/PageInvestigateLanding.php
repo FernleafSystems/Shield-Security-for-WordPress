@@ -496,7 +496,10 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		}
 
 		$xpath = new \DOMXPath( $dom );
-		$nodes = $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-body-shell ")]' );
+		$nodes = $xpath->query( '//*[@data-inner-page-body-shell="1"]' );
+		if ( !( $nodes instanceof \DOMNodeList ) || $nodes->length < 1 ) {
+			$nodes = $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-body-shell ")]' );
+		}
 		if ( !( $nodes instanceof \DOMNodeList ) || $nodes->length < 1 ) {
 			return $renderOutput;
 		}

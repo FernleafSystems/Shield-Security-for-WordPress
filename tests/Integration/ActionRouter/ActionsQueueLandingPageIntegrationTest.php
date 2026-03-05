@@ -66,15 +66,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $innerPayload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? false ) );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for actions queue landing.' );
-		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Actions queue landing render exception check' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions' );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-header ") and contains(concat(" ", normalize-space(@class), " "), " inner-page-header-compact ")]',
+			'//*[@data-mode-header-density="compact"]',
 			'Actions compact header marker'
 		);
 		$this->assertXPathCount( $xpath, '//*[@data-mode-tiles="1"]', 0, 'Actions landing does not introduce mode tile grid' );
@@ -82,6 +80,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', 0, 'Actions landing does not introduce mode panel shell' );
 		$this->assertXPathExists( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 'All-clear context banner marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-needs-attention-all-clear-mode="compact"]', 'Compact all-clear widget mode marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-status-strip="1"]', 0, 'Issue status strip hidden in compact all-clear mode' );
 		$this->assertXPathCount( $xpath, '//*[@data-needs-attention-widget-copy="all-clear"]', 0, 'No duplicated widget all-clear copy marker' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="scan-results"]', 0, 'Scan results CTA hidden when queue is clear' );
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when queue is clear' );
@@ -102,9 +101,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for actions queue landing with active items.' );
-		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Actions queue landing render exception check' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing with active items' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertModeShellContract( $xpath, 'actions', 'Actions' );
@@ -114,7 +111,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when queue has items' );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-needs-attention__status-strip ") and contains(concat(" ", normalize-space(@class), " "), " has-issues ")]',
+			'//*[@data-needs-attention-status-strip="1" and @data-needs-attention-status="has-issues"]',
 			'Queue issue-state marker when items exist'
 		);
 	}
@@ -124,9 +121,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for actions queue landing with scan-result items.' );
-		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Actions queue landing render exception check' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing with scan-result items' );
 
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertModeShellContract( $xpath, 'actions', 'Actions' );
@@ -136,7 +131,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-cta="run-scan"]', 1, 'Run scan CTA shown when scan-result issues exist' );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-needs-attention__status-strip ") and contains(concat(" ", normalize-space(@class), " "), " has-issues ")]',
+			'//*[@data-needs-attention-status-strip="1" and @data-needs-attention-status="has-issues"]',
 			'Queue issue-state marker when scan-result items exist'
 		);
 	}

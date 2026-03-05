@@ -26,6 +26,24 @@ trait HtmlDomAssertions {
 		return $doc instanceof \DOMDocument ? (string)$doc->saveHTML( $node ) : '';
 	}
 
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function decodeJsonAttribute( \DOMNode $node, string $attribute, string $label ) :array {
+		$this->assertInstanceOf( \DOMElement::class, $node, $label.' node type contract' );
+		/** @var \DOMElement $node */
+
+		$raw = \trim( (string)$node->getAttribute( $attribute ) );
+		$this->assertNotSame( '', $raw, $label.' attribute should not be empty' );
+
+		$decoded = \json_decode(
+			\html_entity_decode( $raw, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ),
+			true
+		);
+		$this->assertIsArray( $decoded, $label.' JSON decode contract' );
+		return $decoded;
+	}
+
 	private function assertXPathExists( \DOMXPath $xpath, string $query, string $label ) :\DOMNode {
 		$nodes = $xpath->query( $query );
 		$this->assertNotFalse( $nodes, $label.' query failed: '.$query );
