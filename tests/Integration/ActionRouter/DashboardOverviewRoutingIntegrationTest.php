@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	ActionResponse,
 	Actions\Render\Components\Widgets\NeedsAttentionQueue,
+	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -184,5 +185,21 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$this->assertSame( '', (string)( $renderData[ 'strings' ][ 'last_scan_subtext' ] ?? '' ) );
 		$this->assertHtmlNotContainsMarker( 'Last scan:', $html, 'No scan-subtext state' );
+	}
+
+	public function test_operator_mode_landing_grid_cells_are_in_expected_order() :void {
+		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
+		$renderData = $payload[ 'render_data' ] ?? [];
+		$cells = $renderData[ 'vars' ][ 'mode_grid_cells' ] ?? [];
+
+		$this->assertCount( 4, $cells );
+		$this->assertSame(
+			[ 'actions', 'investigate', 'configure', 'reports' ],
+			\array_column( $cells, 'mode' )
+		);
+		$this->assertSame(
+			[ 'status', 'status', 'posture', 'status' ],
+			\array_column( $cells, 'indicator_type' )
+		);
 	}
 }

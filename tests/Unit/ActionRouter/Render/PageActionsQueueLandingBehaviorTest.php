@@ -221,6 +221,25 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_missing_needs_attention_strings_fall_back_to_safe_defaults() :void {
+		$payload = $this->buildQueuePayload( false, 0, 'good', '', [] );
+		$payload[ 'render_data' ][ 'strings' ] = [];
+		$this->capture->queuePayload = $payload;
+
+		$page = new PageActionsQueueLanding();
+		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
+		$allClear = $this->invokeNonPublicMethod( $page, 'buildAllClearContract' );
+
+		$this->assertSame( 'All security zones are clear', $strings[ 'all_clear_title' ] ?? '' );
+		$this->assertSame(
+			'Shield is actively protecting your site. Nothing requires your action.',
+			$strings[ 'all_clear_subtitle' ] ?? ''
+		);
+		$this->assertSame( 'bi bi-shield-check', $strings[ 'all_clear_icon_class' ] ?? '' );
+		$this->assertSame( 'All security zones are clear', $allClear[ 'title' ] ?? '' );
+		$this->assertSame( 'bi bi-shield-check', $allClear[ 'icon_class' ] ?? '' );
+	}
+
 	public function test_queue_and_scan_results_payloads_are_cached_per_page_instance() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			true,

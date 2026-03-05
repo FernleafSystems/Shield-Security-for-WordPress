@@ -48,8 +48,26 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'subtext'     => 'Last scan: 2 minutes ago',
 			],
 			[
-				[ 'severity' => 'critical', 'total_issues' => 2 ],
-				[ 'severity' => 'warning', 'total_issues' => 1 ],
+				[
+					'slug'         => 'scans',
+					'label'        => 'Scans',
+					'icon_class'   => 'bi bi-scans',
+					'severity'     => 'critical',
+					'total_issues' => 2,
+					'items'        => [
+						[ 'severity' => 'critical', 'count' => 2 ],
+					],
+				],
+				[
+					'slug'         => 'maintenance',
+					'label'        => 'Maintenance',
+					'icon_class'   => 'bi bi-maintenance',
+					'severity'     => 'warning',
+					'total_issues' => 1,
+					'items'        => [
+						[ 'severity' => 'warning', 'count' => 1 ],
+					],
+				],
 			],
 		] );
 
@@ -61,6 +79,34 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Last scan: 2 minutes ago', $cell[ 'footnote' ] ?? '' );
 		$this->assertSame( 'from-summary', $cell[ 'icon_class' ] ?? '' );
 		$this->assertSame( '/admin/scans/overview', $cell[ 'href' ] ?? '' );
+	}
+
+	public function test_actions_cell_breakdown_uses_item_level_counts_within_same_zone() :void {
+		$page = new PageOperatorModeLanding();
+		$cell = $this->invokeNonPublicMethod( $page, 'buildActionsCell', [
+			[
+				'has_items'   => true,
+				'total_items' => 3,
+				'severity'    => 'critical',
+				'icon_class'  => 'from-summary',
+				'subtext'     => '',
+			],
+			[
+				[
+					'slug'         => 'scans',
+					'label'        => 'Scans',
+					'icon_class'   => 'bi bi-scans',
+					'severity'     => 'critical',
+					'total_issues' => 3,
+					'items'        => [
+						[ 'severity' => 'critical', 'count' => 1 ],
+						[ 'severity' => 'warning', 'count' => 2 ],
+					],
+				],
+			],
+		] );
+
+		$this->assertSame( '1 critical - 2 warnings', $cell[ 'indicator_subtext' ] ?? '' );
 	}
 
 	public function test_actions_cell_all_clear_branch_uses_all_clear_copy() :void {
@@ -146,8 +192,26 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			'render_data' => [
 				'vars' => [
 					'zone_groups' => [
-						[ 'severity' => 'critical', 'total_issues' => 2 ],
-						[ 'severity' => 'warning', 'total_issues' => 1 ],
+						[
+							'slug'         => 'scans',
+							'label'        => 'Scans',
+							'icon_class'   => 'bi bi-scans',
+							'severity'     => 'critical',
+							'total_issues' => 2,
+							'items'        => [
+								[ 'severity' => 'critical', 'count' => 2 ],
+							],
+						],
+						[
+							'slug'         => 'maintenance',
+							'label'        => 'Maintenance',
+							'icon_class'   => 'bi bi-maintenance',
+							'severity'     => 'warning',
+							'total_issues' => 1,
+							'items'        => [
+								[ 'severity' => 'warning', 'count' => 1 ],
+							],
+						],
 					],
 				],
 			],
@@ -155,8 +219,26 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame(
 			[
-				[ 'severity' => 'critical', 'total_issues' => 2 ],
-				[ 'severity' => 'warning', 'total_issues' => 1 ],
+				[
+					'slug'         => 'scans',
+					'label'        => 'Scans',
+					'icon_class'   => 'bi bi-scans',
+					'severity'     => 'critical',
+					'total_issues' => 2,
+					'items'        => [
+						[ 'severity' => 'critical', 'count' => 2 ],
+					],
+				],
+				[
+					'slug'         => 'maintenance',
+					'label'        => 'Maintenance',
+					'icon_class'   => 'bi bi-maintenance',
+					'severity'     => 'warning',
+					'total_issues' => 1,
+					'items'        => [
+						[ 'severity' => 'warning', 'count' => 1 ],
+					],
+				],
 			],
 			$zoneGroups
 		);

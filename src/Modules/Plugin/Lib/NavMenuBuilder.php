@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
@@ -122,27 +123,27 @@ class NavMenuBuilder {
 	private function buildToolsForHome() :array {
 		$con = self::con();
 		return [
-			[
-				'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
-				'title'  => __( 'Guided Setup', 'wp-simple-firewall' ),
-				'img'    => $con->svgs->iconClass( 'compass' ),
-				'href'   => $con->plugin_urls->wizard( Wizards::WIZARD_WELCOME ),
-				'active' => $this->inav() === PluginNavs::NAV_WIZARD,
-			],
-			[
-				'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DOCS,
-				'title'  => __( 'Docs', 'wp-simple-firewall' ),
-				'img'    => $con->svgs->iconClass( 'file-text-fill' ),
-				'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS ),
-				'active' => $this->inav() === PluginNavs::NAV_TOOLS && $this->subnav() === PluginNavs::SUBNAV_TOOLS_DOCS,
-			],
-			[
-				'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
-				'title'  => __( 'Debug Info', 'wp-simple-firewall' ),
-				'img'    => $con->svgs->iconClass( 'bug' ),
-				'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
-				'active' => $this->inav() === PluginNavs::NAV_TOOLS && $this->subnav() === PluginNavs::SUBNAV_TOOLS_DEBUG,
-			],
+			$this->buildToolItem(
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
+				__( 'Guided Setup', 'wp-simple-firewall' ),
+				'compass',
+				$con->plugin_urls->wizard( Wizards::WIZARD_WELCOME ),
+				$this->inav() === PluginNavs::NAV_WIZARD
+			),
+			$this->buildToolItem(
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DOCS,
+				__( 'Docs', 'wp-simple-firewall' ),
+				'file-text-fill',
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS ),
+				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS )
+			),
+			$this->buildToolItem(
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
+				__( 'Debug Info', 'wp-simple-firewall' ),
+				'bug',
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
+				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG )
+			),
 		];
 	}
 
@@ -154,39 +155,39 @@ class NavMenuBuilder {
 		switch ( $mode ) {
 			case PluginNavs::MODE_ACTIONS:
 				$items = [
-					[
-						'slug'   => PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN,
-						'title'  => __( 'Run Manual Scan', 'wp-simple-firewall' ),
-						'img'    => $con->svgs->iconClass( 'play-circle' ),
-						'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
-						'active' => $this->inav() === PluginNavs::NAV_SCANS && $this->subnav() === PluginNavs::SUBNAV_SCANS_RUN,
-					],
+					$this->buildToolItem(
+						PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN,
+						__( 'Run Manual Scan', 'wp-simple-firewall' ),
+						'play-circle',
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
+						$this->isCurrentRoute( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN )
+					),
 				];
 				break;
 
 			case PluginNavs::MODE_INVESTIGATE:
 				$items = [
-					[
-						'slug'   => PluginNavs::NAV_IPS.'-'.PluginNavs::SUBNAV_IPS_RULES,
-						'title'  => __( 'Bots & IP Rules', 'wp-simple-firewall' ),
-						'img'    => $con->svgs->iconClass( 'diagram-3' ),
-						'href'   => $con->plugin_urls->adminIpRules(),
-						'active' => $this->inav() === PluginNavs::NAV_IPS && $this->subnav() === PluginNavs::SUBNAV_IPS_RULES,
-					],
-					[
-						'slug'   => PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS,
-						'title'  => __( 'WP Activity Log', 'wp-simple-firewall' ),
-						'img'    => $con->svgs->iconClass( 'person-lines-fill' ),
-						'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-						'active' => $this->inav() === PluginNavs::NAV_ACTIVITY && $this->subnav() === PluginNavs::SUBNAV_LOGS,
-					],
-					[
-						'slug'   => PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LOGS,
-						'title'  => __( 'HTTP Request Log', 'wp-simple-firewall' ),
-						'img'    => $con->svgs->iconClass( 'globe' ),
-						'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-						'active' => $this->inav() === PluginNavs::NAV_TRAFFIC && $this->subnav() === PluginNavs::SUBNAV_LOGS,
-					],
+					$this->buildToolItem(
+						PluginNavs::NAV_IPS.'-'.PluginNavs::SUBNAV_IPS_RULES,
+						__( 'Bots & IP Rules', 'wp-simple-firewall' ),
+						'diagram-3',
+						$con->plugin_urls->adminIpRules(),
+						$this->isCurrentRoute( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES )
+					),
+					$this->buildToolItem(
+						PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS,
+						__( 'WP Activity Log', 'wp-simple-firewall' ),
+						'person-lines-fill',
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
+						$this->isCurrentRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS )
+					),
+					$this->buildToolItem(
+						PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LOGS,
+						__( 'HTTP Request Log', 'wp-simple-firewall' ),
+						'globe',
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
+						$this->isCurrentRoute( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS )
+					),
 				];
 				break;
 
@@ -209,34 +210,34 @@ class NavMenuBuilder {
 		$con = self::con();
 		$zoneCon = $con->comps->zones;
 		return [
-			[
-				'slug'   => PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_MANAGE,
-				'title'  => __( 'Custom Rules Manager', 'wp-simple-firewall' ),
-				'img'    => $con->svgs->iconClass( 'node-plus-fill' ),
-				'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ),
-				'active' => $this->inav() === PluginNavs::NAV_RULES && $this->subnav() === PluginNavs::SUBNAV_RULES_MANAGE,
-			],
-			[
-				'slug'   => PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_BUILD,
-				'title'  => __( 'New Custom Rule', 'wp-simple-firewall' ),
-				'img'    => $con->svgs->iconClass( 'plus-circle' ),
-				'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
-				'active' => $this->inav() === PluginNavs::NAV_RULES && $this->subnav() === PluginNavs::SUBNAV_RULES_BUILD,
-			],
-			[
-				'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
-				'title'  => __( 'Site Lockdown', 'wp-simple-firewall' ),
-				'img'    => $con->svgs->iconClass( 'lock-fill' ),
-				'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN ),
-				'active' => $this->inav() === PluginNavs::NAV_TOOLS && $this->subnav() === PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
-			],
-			[
-				'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_IMPORT,
-				'title'  => __( 'Import / Export', 'wp-simple-firewall' ),
-				'img'    => $con->svgs->iconClass( 'arrow-left-right' ),
-				'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ),
-				'active' => $this->inav() === PluginNavs::NAV_TOOLS && $this->subnav() === PluginNavs::SUBNAV_TOOLS_IMPORT,
-			],
+			$this->buildToolItem(
+				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_MANAGE,
+				__( 'Custom Rules Manager', 'wp-simple-firewall' ),
+				'node-plus-fill',
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ),
+				$this->isCurrentRoute( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE )
+			),
+			$this->buildToolItem(
+				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_BUILD,
+				__( 'New Custom Rule', 'wp-simple-firewall' ),
+				'plus-circle',
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+				$this->isCurrentRoute( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD )
+			),
+			$this->buildToolItem(
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
+				__( 'Site Lockdown', 'wp-simple-firewall' ),
+				'lock-fill',
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN ),
+				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN )
+			),
+			$this->buildToolItem(
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_IMPORT,
+				__( 'Import / Export', 'wp-simple-firewall' ),
+				'arrow-left-right',
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ),
+				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT )
+			),
 			\array_merge(
 				$zoneCon->getZoneComponent( Whitelabel::Slug() )->getActions()[ 'config' ],
 				[
@@ -380,23 +381,37 @@ class NavMenuBuilder {
 	 * @return array{has_items:bool,total_items:int,severity:string}
 	 */
 	private function getActionsQueueSummary() :array {
-		$summary = [
+		$defaults = [
 			'has_items'   => false,
 			'total_items' => 0,
 			'severity'    => 'good',
 		];
 		try {
 			$payload = self::con()->action_router->action( NeedsAttentionQueue::class )->payload();
-			$queueSummary = NeedsAttentionQueue::summaryFromRenderPayload( $payload );
-			$summary = [
-				'has_items'   => (bool)( $queueSummary[ 'has_items' ] ?? false ),
-				'total_items' => (int)( $queueSummary[ 'total_items' ] ?? 0 ),
-				'severity'    => (string)( $queueSummary[ 'severity' ] ?? 'good' ),
-			];
+			$summary = NeedsAttentionQueuePayload::summary( $payload, $defaults );
 		}
 		catch ( \Throwable $e ) {
+			$summary = $defaults;
 		}
-		return $summary;
+		return [
+			'has_items'   => (bool)$summary[ 'has_items' ],
+			'total_items' => (int)$summary[ 'total_items' ],
+			'severity'    => (string)$summary[ 'severity' ],
+		];
+	}
+
+	private function buildToolItem( string $slug, string $title, string $icon, string $href, bool $active ) :array {
+		return [
+			'slug'   => $slug,
+			'title'  => $title,
+			'img'    => self::con()->svgs->iconClass( $icon ),
+			'href'   => $href,
+			'active' => $active,
+		];
+	}
+
+	private function isCurrentRoute( string $nav, string $subnav = '' ) :bool {
+		return $this->inav() === $nav && $this->subnav() === $subnav;
 	}
 
 	private function normalizeItems( array $items ) :array {

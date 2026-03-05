@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -54,6 +55,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		$zones = $this->getZonesIndexed();
+		$queueStrings = $this->getNeedsAttentionStrings();
 		return [
 			'status_action_required'   => __( 'Action Required', 'wp-simple-firewall' ),
 			'status_all_clear'         => __( 'All Clear', 'wp-simple-firewall' ),
@@ -64,9 +66,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'panel_maintenance_actions' => __( 'Maintenance Actions', 'wp-simple-firewall' ),
 			'panel_wp_updates'         => __( 'Open WordPress Updates', 'wp-simple-firewall' ),
 			'panel_manage_plugins'     => __( 'Open Plugins', 'wp-simple-firewall' ),
-			'all_clear_title'          => $this->getNeedsAttentionString( 'all_clear_title' ),
-			'all_clear_subtitle'       => $this->getNeedsAttentionString( 'all_clear_subtitle' ),
-			'all_clear_icon_class'     => $this->getNeedsAttentionString( 'all_clear_icon_class' ),
+			'all_clear_title'          => $queueStrings[ 'all_clear_title' ],
+			'all_clear_subtitle'       => $queueStrings[ 'all_clear_subtitle' ],
+			'all_clear_icon_class'     => $queueStrings[ 'all_clear_icon_class' ],
 			'zone_scans'               => $zones[ 'scans' ][ 'label' ],
 			'zone_maintenance'         => $zones[ 'maintenance' ][ 'label' ],
 		];
@@ -104,21 +106,20 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	/**
 	 * @return array{
-	 *   flags:array{has_items:bool},
-	 *   strings:array{
-	 *     all_clear_title:string,
-	 *     all_clear_subtitle:string,
-	 *     status_strip_subtext:string,
-	 *     all_clear_icon_class:string
-	 *   }
+	 *   all_clear_title:string,
+	 *   all_clear_subtitle:string,
+	 *   all_clear_icon_class:string
 	 * }
 	 */
-	private function getNeedsAttentionRenderData() :array {
-		return $this->getNeedsAttentionPayload()[ 'render_data' ];
-	}
-
-	private function getNeedsAttentionString( string $key ) :string {
-		return $this->getNeedsAttentionRenderData()[ 'strings' ][ $key ];
+	private function getNeedsAttentionStrings() :array {
+		return NeedsAttentionQueuePayload::strings(
+			$this->getNeedsAttentionPayload(),
+			[
+				'all_clear_title'      => __( 'All security zones are clear', 'wp-simple-firewall' ),
+				'all_clear_subtitle'   => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
+				'all_clear_icon_class' => $this->buildLandingIconClass( 'shield-check' ),
+			]
+		);
 	}
 
 	/**
@@ -131,7 +132,16 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 * }
 	 */
 	private function getQueueSummary() :array {
-		return NeedsAttentionQueue::summaryFromRenderPayload( $this->getNeedsAttentionPayload() );
+		return NeedsAttentionQueuePayload::summary(
+			$this->getNeedsAttentionPayload(),
+			[
+				'has_items'   => false,
+				'total_items' => 0,
+				'severity'    => 'good',
+				'icon_class'  => $this->buildLandingIconClass( 'shield-check' ),
+				'subtext'     => '',
+			]
+		);
 	}
 
 	/**
@@ -174,16 +184,18 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 				],
 			];
 
-			foreach ( $this->getNeedsAttentionRenderData()[ 'vars' ][ 'zone_groups' ] as $zoneGroup ) {
+			foreach ( NeedsAttentionQueuePayload::zoneGroups( $this->getNeedsAttentionPayload() ) as $zoneGroup ) {
 				$slug = sanitize_key( (string)( $zoneGroup[ 'slug' ] ?? '' ) );
 				if ( !isset( $zones[ $slug ] ) ) {
 					continue;
 				}
 
+				$label = (string)( $zoneGroup[ 'label' ] ?? '' );
+				$iconClass = (string)( $zoneGroup[ 'icon_class' ] ?? '' );
 				$zones[ $slug ] = [
 					'slug'         => $slug,
-					'label'        => (string)( $zoneGroup[ 'label' ] ?? $zones[ $slug ][ 'label' ] ),
-					'icon_class'   => (string)( $zoneGroup[ 'icon_class' ] ?? $zones[ $slug ][ 'icon_class' ] ),
+					'label'        => empty( $label ) ? $zones[ $slug ][ 'label' ] : $label,
+					'icon_class'   => empty( $iconClass ) ? $zones[ $slug ][ 'icon_class' ] : $iconClass,
 					'severity'     => (string)( $zoneGroup[ 'severity' ] ?? 'good' ),
 					'total_issues' => (int)( $zoneGroup[ 'total_issues' ] ?? 0 ),
 					'items'        => \is_array( $zoneGroup[ 'items' ] ?? null ) ? \array_values( $zoneGroup[ 'items' ] ) : [],
@@ -217,7 +229,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 		if ( $this->zoneTilesCache === null ) {
 			$this->zoneTilesCache = \array_map(
 				function ( array $zone ) :array {
-					$countBySeverity = $this->countIssuesBySeverity( $zone[ 'items' ] );
+					$countBySeverity = NeedsAttentionQueuePayload::countsFromItems( $zone[ 'items' ] );
 					$totalIssues = $zone[ 'total_issues' ];
 					$isEnabled = $totalIssues > 0;
 
@@ -241,24 +253,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			);
 		}
 		return $this->zoneTilesCache;
-	}
-
-	/**
-	 * @param list<array{count:int,severity:string}> $items
-	 * @return array{critical:int,warning:int}
-	 */
-	private function countIssuesBySeverity( array $items ) :array {
-		$counts = [
-			'critical' => 0,
-			'warning'  => 0,
-		];
-		foreach ( $items as $item ) {
-			$severity = (string)( $item[ 'severity' ] ?? '' );
-			if ( isset( $counts[ $severity ] ) ) {
-				$counts[ $severity ] += (int)( $item[ 'count' ] ?? 0 );
-			}
-		}
-		return $counts;
 	}
 
 	/**
@@ -306,13 +300,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 */
 	private function buildSeverityStripContract() :array {
 		$summary = $this->getQueueSummary();
-		$criticalCount = 0;
-		$warningCount = 0;
-
-		foreach ( $this->getZoneTiles() as $zoneTile ) {
-			$criticalCount += $zoneTile[ 'critical_count' ];
-			$warningCount += $zoneTile[ 'warning_count' ];
-		}
+		$counts = NeedsAttentionQueuePayload::countsFromZoneGroups( \array_values( $this->getZonesIndexed() ) );
+		$criticalCount = $counts[ 'critical' ];
+		$warningCount = $counts[ 'warning' ];
 
 		return [
 			'severity'       => $summary[ 'severity' ],
@@ -345,11 +335,12 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 */
 	private function buildAllClearContract() :array {
 		$checkIconClass = $this->buildLandingIconClass( 'check-circle-fill' );
+		$queueStrings = $this->getNeedsAttentionStrings();
 
 		return [
-			'title'      => $this->getNeedsAttentionString( 'all_clear_title' ),
-			'subtitle'   => $this->getNeedsAttentionString( 'all_clear_subtitle' ),
-			'icon_class' => $this->getNeedsAttentionString( 'all_clear_icon_class' ),
+			'title'      => $queueStrings[ 'all_clear_title' ],
+			'subtitle'   => $queueStrings[ 'all_clear_subtitle' ],
+			'icon_class' => $queueStrings[ 'all_clear_icon_class' ],
 			'zone_chips' => \array_map(
 				static fn( array $zone ) :array => [
 					'slug'       => $zone[ 'slug' ],

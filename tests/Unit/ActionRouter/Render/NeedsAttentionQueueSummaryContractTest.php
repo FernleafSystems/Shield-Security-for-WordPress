@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 
 	public function test_extracts_summary_from_render_payload_contract() :void {
-		$summary = NeedsAttentionQueue::summaryFromRenderPayload( [
+		$summary = NeedsAttentionQueuePayload::summary( [
 			'render_data' => [
 				'vars' => [
 					'summary' => [
@@ -30,7 +30,7 @@ class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 	}
 
 	public function test_prefers_render_data_summary_contract_over_top_level_vars() :void {
-		$summary = NeedsAttentionQueue::summaryFromRenderPayload( [
+		$summary = NeedsAttentionQueuePayload::summary( [
 			'vars'        => [
 				'summary' => [
 					'has_items'   => false,
@@ -58,5 +58,130 @@ class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $summary[ 'severity' ] );
 		$this->assertSame( 'from-render-data', $summary[ 'icon_class' ] );
 		$this->assertSame( 'from-render-data', $summary[ 'subtext' ] );
+	}
+
+	public function test_safe_summary_uses_defaults_when_payload_contract_is_missing() :void {
+		$summary = NeedsAttentionQueuePayload::summary(
+			[],
+			[
+				'has_items'   => false,
+				'total_items' => 0,
+				'severity'    => 'good',
+				'icon_class'  => 'bi bi-shield-check',
+				'subtext'     => '',
+			]
+		);
+
+		$this->assertSame( false, $summary[ 'has_items' ] );
+		$this->assertSame( 0, $summary[ 'total_items' ] );
+		$this->assertSame( 'good', $summary[ 'severity' ] );
+		$this->assertSame( 'bi bi-shield-check', $summary[ 'icon_class' ] );
+		$this->assertSame( '', $summary[ 'subtext' ] );
+	}
+
+	public function test_safe_zone_group_extractor_normalizes_zone_groups() :void {
+		$groups = NeedsAttentionQueuePayload::zoneGroups( [
+			'render_data' => [
+				'vars' => [
+					'zone_groups' => [
+						[
+							'slug'         => 'scans',
+							'label'        => 'Scans',
+							'icon_class'   => 'bi bi-shield-exclamation',
+							'severity'     => 'critical',
+							'total_issues' => 4,
+							'items'        => [
+								[ 'key' => 'malware' ],
+							],
+						],
+						[
+							'slug' => 'maintenance',
+						],
+						'not-an-array',
+					],
+				],
+			],
+		] );
+
+		$this->assertSame(
+			[
+				[
+					'slug'         => 'scans',
+					'label'        => 'Scans',
+					'icon_class'   => 'bi bi-shield-exclamation',
+					'severity'     => 'critical',
+					'total_issues' => 4,
+					'items'        => [
+						[ 'key' => 'malware' ],
+					],
+				],
+				[
+					'slug'         => 'maintenance',
+					'label'        => '',
+					'icon_class'   => '',
+					'severity'     => 'good',
+					'total_issues' => 0,
+					'items'        => [],
+				],
+			],
+			$groups
+		);
+	}
+
+	public function test_counts_from_items_uses_item_level_severity_totals() :void {
+		$counts = NeedsAttentionQueuePayload::countsFromItems( [
+			[ 'severity' => 'critical', 'count' => 2 ],
+			[ 'severity' => 'warning', 'count' => 1 ],
+			[ 'severity' => 'warning', 'count' => 3 ],
+			[ 'severity' => 'good', 'count' => 99 ],
+		] );
+
+		$this->assertSame( 2, $counts[ 'critical' ] );
+		$this->assertSame( 4, $counts[ 'warning' ] );
+	}
+
+	public function test_counts_from_zone_groups_aggregates_item_level_counts() :void {
+		$counts = NeedsAttentionQueuePayload::countsFromZoneGroups( [
+			[
+				'slug'         => 'scans',
+				'label'        => 'Scans',
+				'icon_class'   => 'bi bi-scans',
+				'severity'     => 'critical',
+				'total_issues' => 3,
+				'items'        => [
+					[ 'severity' => 'critical', 'count' => 1 ],
+					[ 'severity' => 'warning', 'count' => 2 ],
+				],
+			],
+			[
+				'slug'         => 'maintenance',
+				'label'        => 'Maintenance',
+				'icon_class'   => 'bi bi-maintenance',
+				'severity'     => 'warning',
+				'total_issues' => 2,
+				'items'        => [
+					[ 'severity' => 'critical', 'count' => 1 ],
+					[ 'severity' => 'warning', 'count' => 1 ],
+				],
+			],
+		] );
+
+		$this->assertSame( 2, $counts[ 'critical' ] );
+		$this->assertSame( 3, $counts[ 'warning' ] );
+	}
+
+	public function test_strings_returns_defaults_for_missing_payload_keys() :void {
+		$strings = NeedsAttentionQueuePayload::strings(
+			[],
+			[
+				'all_clear_title'      => 'All security zones are clear',
+				'all_clear_subtitle'   => 'Nothing requires your action.',
+				'all_clear_icon_class' => 'bi bi-shield-check',
+			]
+		);
+
+		$this->assertSame( 'All security zones are clear', $strings[ 'all_clear_title' ] );
+		$this->assertSame( 'Nothing requires your action.', $strings[ 'all_clear_subtitle' ] );
+		$this->assertSame( 'bi bi-shield-check', $strings[ 'all_clear_icon_class' ] );
 	}
 }

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
@@ -64,44 +65,33 @@ class PageOperatorModeLanding extends BaseRender {
 			'icon_class'  => self::con()->svgs->iconClass( 'shield-check' ),
 			'subtext'     => '',
 		];
-
-		try {
-			$summary = NeedsAttentionQueue::summaryFromRenderPayload( $payload );
-		}
-		catch ( \Throwable $e ) {
-			$summary = [];
-		}
-
-		$defaults[ 'has_items' ] = (bool)( $summary[ 'has_items' ] ?? false );
-		$defaults[ 'total_items' ] = (int)( $summary[ 'total_items' ] ?? 0 );
-		$defaults[ 'severity' ] = (string)( $summary[ 'severity' ] ?? 'good' );
-		$defaults[ 'icon_class' ] = (string)( $summary[ 'icon_class' ] ?? $defaults[ 'icon_class' ] );
-		$defaults[ 'subtext' ] = (string)( $summary[ 'subtext' ] ?? '' );
-		return $defaults;
+		return NeedsAttentionQueuePayload::summary( $payload, $defaults );
 	}
 
 	/**
-	 * @return list<array{severity:string,total_issues:int}>
+	 * @return list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }>
 	 */
 	private function getQueueZoneGroups( array $payload ) :array {
-		$groups = $payload[ 'render_data' ][ 'vars' ][ 'zone_groups' ] ?? [];
-		if ( !\is_array( $groups ) ) {
-			return [];
-		}
-		return \array_values( \array_filter( \array_map( function ( $group ) {
-			if ( !\is_array( $group ) ) {
-				return null;
-			}
-			return [
-				'severity'    => (string)( $group[ 'severity' ] ?? '' ),
-				'total_issues' => (int)( $group[ 'total_issues' ] ?? 0 ),
-			];
-		}, $groups ) ) );
+		return NeedsAttentionQueuePayload::zoneGroups( $payload );
 	}
 
 	/**
 	 * @param array{has_items:bool,total_items:int,severity:string,icon_class:string,subtext:string} $queueSummary
-	 * @param list<array{severity:string,total_issues:int}> $zoneGroups
+	 * @param list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }> $zoneGroups
 	 */
 	private function buildActionsCell( array $queueSummary, array $zoneGroups ) :array {
 		$indicatorText = $queueSummary[ 'has_items' ]
@@ -126,19 +116,19 @@ class PageOperatorModeLanding extends BaseRender {
 	}
 
 	/**
-	 * @param list<array{severity:string,total_issues:int}> $zoneGroups
+	 * @param list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }> $zoneGroups
 	 */
 	private function buildQueueBreakdownText( array $zoneGroups ) :string {
-		$critical = 0;
-		$warning = 0;
-		foreach ( $zoneGroups as $group ) {
-			if ( $group[ 'severity' ] === 'critical' ) {
-				$critical += max( 0, (int)$group[ 'total_issues' ] );
-			}
-			elseif ( $group[ 'severity' ] === 'warning' ) {
-				$warning += max( 0, (int)$group[ 'total_issues' ] );
-			}
-		}
+		$counts = NeedsAttentionQueuePayload::countsFromZoneGroups( $zoneGroups );
+		$critical = $counts[ 'critical' ];
+		$warning = $counts[ 'warning' ];
 
 		$parts = [];
 		if ( $critical > 0 ) {

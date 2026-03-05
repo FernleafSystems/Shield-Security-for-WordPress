@@ -13,19 +13,6 @@ class NeedsAttentionQueue extends BaseRender {
 	public const TEMPLATE = '/wpadmin/components/widget/needs_attention_queue.twig';
 	private ?ZoneRenderDataBuilder $zoneRenderDataBuilder = null;
 
-	/**
-	 * @return array{
-	 *   has_items:bool,
-	 *   total_items:int,
-	 *   severity:string,
-	 *   icon_class:string,
-	 *   subtext:string
-	 * }
-	 */
-	public static function summaryFromRenderPayload( array $payload ) :array {
-		return $payload[ 'render_data' ][ 'vars' ][ 'summary' ];
-	}
-
 	protected function getRenderData() :array {
 		$scansCon = self::con()->comps->scans;
 		$provider = new AttentionItemsProvider();
