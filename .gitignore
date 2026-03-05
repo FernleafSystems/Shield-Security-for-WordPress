@@ -1,6 +1,7 @@
 .idea/
 /assets/dist
 /config/deprecated/
+/node_modules/.cache
 /plugin.json
 /node_modules
 /package-lock.json
