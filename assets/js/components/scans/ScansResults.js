@@ -13,6 +13,7 @@ export class ScansResults extends BaseComponent {
 		$( '.nav-vertical a[data-bs-toggle="tab"]' ).on( 'shown.bs.tab', ( evt ) => {
 			window.scrollTo( { top: 0, behavior: 'smooth' } )
 		} );
+		this.bindModePanelOpenAdjustHandler();
 		this.exec();
 	}
 
@@ -28,6 +29,8 @@ export class ScansResults extends BaseComponent {
 		this.loadedAssets = [];
 
 		shieldEventsHandler_Main.addHandler( 'shown.bs.tab', '#ScanResultsTabsNav a.nav-link[data-bs-toggle="tab"]', ( targetEl, evt ) => {
+			this.handleScanResultsTabShown( targetEl );
+
 			if ( targetEl.id === 'h-tabs-plugins-tab' || targetEl.id === 'h-tabs-themes-tab' ) {
 				const tabPane = document.getElementById( targetEl.dataset[ 'bsTarget' ].slice( 1 ) ) || false;
 				const selectedSubTab = tabPane.querySelectorAll( '.scan-results-section ul.nav-tabs a.active' );
@@ -39,12 +42,48 @@ export class ScansResults extends BaseComponent {
 				}
 			}
 		} );
+		shieldEventsHandler_Main.addHandler( 'shown.bs.tab', '#ActionsQueueScansTabsNav a.nav-link[data-bs-toggle="tab"]', ( targetEl ) => {
+			this.handleScanResultsTabShown( targetEl );
+		} );
 
 		shieldEventsHandler_Main.add_Click( '.scan-results-section ul.nav-tabs a', ( targetEl ) => {
 			this.handleDisplayScanResultsForAsset( targetEl );
 		} );
 		shieldEventsHandler_Main.add_DblClick( '.scan-results-section ul.nav-tabs a', ( targetEl ) => {
 			this.handleDisplayScanResultsForAsset( targetEl, true );
+		} );
+	}
+
+	bindModePanelOpenAdjustHandler() {
+		document.querySelectorAll( '[data-mode-shell="1"]' ).forEach( ( modeShell ) => {
+			modeShell.addEventListener( 'shield:mode-panel-opened', () => {
+				const panel = modeShell.querySelector( '[data-mode-panel="1"].is-open' );
+				if ( panel !== null && panel.querySelector( '#ScanResultsTabs' ) !== null ) {
+					window.requestAnimationFrame( () => this.adjustDataTableColumnsWithin( panel ) );
+				}
+			} );
+		} );
+	}
+
+	handleScanResultsTabShown( targetEl ) {
+		if ( targetEl === null ) {
+			return;
+		}
+
+		const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
+		const paneEl = paneSelector.startsWith( '#' ) ? document.querySelector( paneSelector ) : null;
+		window.requestAnimationFrame( () => this.adjustDataTableColumnsWithin( paneEl || document ) );
+	}
+
+	adjustDataTableColumnsWithin( contextEl ) {
+		if ( contextEl === null || !$.fn.dataTable || !$.fn.dataTable.isDataTable ) {
+			return;
+		}
+
+		contextEl.querySelectorAll( 'table' ).forEach( ( tableEl ) => {
+			if ( $.fn.dataTable.isDataTable( tableEl ) ) {
+				$( tableEl ).DataTable().columns.adjust();
+			}
 		} );
 	}
 

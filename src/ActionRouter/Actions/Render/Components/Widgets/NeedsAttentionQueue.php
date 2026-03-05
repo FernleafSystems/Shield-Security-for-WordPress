@@ -170,8 +170,14 @@ class NeedsAttentionQueue extends BaseRender {
 		return [
 			'label'      => $zone === 'summary'
 				? __( 'Summary', 'wp-simple-firewall' )
-				: __( 'Scans', 'wp-simple-firewall' ),
-			'icon_class' => self::con()->svgs->iconClass( 'grid-1x2-fill' ),
+				: ( $zone === 'maintenance'
+					? __( 'Maintenance', 'wp-simple-firewall' )
+					: __( 'Scans', 'wp-simple-firewall' ) ),
+			'icon_class' => self::con()->svgs->iconClass(
+				$zone === 'maintenance'
+					? 'tools'
+					: 'grid-1x2-fill'
+			),
 		];
 	}
 

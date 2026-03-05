@@ -170,11 +170,11 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		] );
 
 		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$zone = $this->getZoneGroupBySlug( $renderData, 'scans' );
-		$itemKeys = \array_column( $zone[ 'items' ] ?? [], 'label' );
+		$zone = $this->getZoneGroupBySlug( $renderData, 'maintenance' );
+		$itemKeys = \array_column( $zone[ 'items' ] ?? [], 'key' );
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? false ) );
-		$this->assertContains( 'WordPress Version', $itemKeys );
+		$this->assertContains( 'wp_updates', $itemKeys );
 	}
 
 	public function test_last_scan_subtext_omitted_when_no_completed_scan() :void {

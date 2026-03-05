@@ -1,0 +1,299 @@
+.actions-landing__severity-strip {
+	margin-bottom: 1rem;
+	overflow: hidden;
+}
+
+.actions-landing__severity-chip {
+	align-items: center;
+	border-radius: 20px;
+	display: inline-flex;
+	flex-shrink: 0;
+	font-size: 0.86rem;
+	font-weight: 700;
+	gap: 0.35rem;
+	letter-spacing: 0.01em;
+	padding: 0.4rem 0.85rem;
+	white-space: nowrap;
+}
+
+.actions-landing__severity-chip.status-good {
+	background: $badge-good-bg;
+	color: $badge-good-color;
+}
+
+.actions-landing__severity-chip.status-warning {
+	background: $badge-warning-bg;
+	color: $badge-warning-color;
+}
+
+.actions-landing__severity-chip.status-critical {
+	background: $badge-critical-bg;
+	color: $badge-critical-color;
+}
+
+.actions-landing__severity-copy {
+	flex: 1;
+	min-width: 220px;
+}
+
+.actions-landing__severity-label {
+	color: #646970;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	line-height: 1.2;
+	text-transform: uppercase;
+}
+
+.actions-landing__severity-summary {
+	color: #1d2327;
+	font-size: 0.93rem;
+	font-weight: 700;
+	line-height: 1.3;
+	margin-top: 0.18rem;
+}
+
+.actions-landing__severity-subtext {
+	color: #646970;
+	font-size: 0.78rem;
+	line-height: 1.3;
+	margin-top: 0.2rem;
+}
+
+.actions-landing__selector-shell {
+	margin-bottom: 1rem;
+}
+
+.actions-landing__tile-grid {
+	display: grid;
+	gap: 0.7rem;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.actions-landing__tile {
+	appearance: none;
+	cursor: pointer;
+	gap: 0.35rem;
+	line-height: inherit;
+	min-height: 126px;
+	padding: 0.85rem 0.95rem;
+	text-decoration: none;
+}
+
+.actions-landing__tile::before {
+	opacity: 0;
+	transition: opacity 0.2s;
+}
+
+.actions-landing__tile.status-good::before {
+	background: $status-color-good;
+}
+
+.actions-landing__tile.status-warning::before {
+	background: $status-color-warning;
+}
+
+.actions-landing__tile.status-critical::before {
+	background: $status-color-critical;
+}
+
+.actions-landing__tile.status-neutral::before,
+.actions-landing__tile.status-info::before {
+	background: $status-color-info;
+}
+
+.actions-landing__tile:hover {
+	border-color: #ccc;
+}
+
+.actions-landing__tile:hover::before,
+.actions-landing__tile.is-active::before {
+	opacity: 1;
+}
+
+.actions-landing__tile.is-active {
+	box-shadow: $card-box-shadow-hover;
+	transform: translateY(-1px);
+}
+
+.actions-landing__tile.status-good.is-active {
+	background: #f8fdf8;
+	border-color: $status-color-good;
+}
+
+.actions-landing__tile.status-warning.is-active {
+	background: #fffdf5;
+	border-color: $status-color-warning;
+}
+
+.actions-landing__tile.status-critical.is-active {
+	background: #fff8f8;
+	border-color: $status-color-critical;
+}
+
+.actions-landing__tile.status-neutral.is-active,
+.actions-landing__tile.status-info.is-active {
+	background: #f4fbfd;
+	border-color: $status-color-info;
+}
+
+.actions-landing__tile-header {
+	align-items: center;
+	display: flex;
+	gap: 0.5rem;
+	justify-content: space-between;
+	width: 100%;
+}
+
+.actions-landing__tile-icon {
+	align-items: center;
+	border-radius: 12px;
+	display: inline-flex;
+	font-size: 1.05rem;
+	height: 44px;
+	justify-content: center;
+	width: 44px;
+}
+
+.actions-landing__tile.status-good .actions-landing__tile-icon {
+	background: $status-bg-good-light;
+	color: $status-color-good;
+}
+
+.actions-landing__tile.status-warning .actions-landing__tile-icon {
+	background: $status-bg-warning-light;
+	color: $status-color-warning;
+}
+
+.actions-landing__tile.status-critical .actions-landing__tile-icon {
+	background: $status-bg-critical-light;
+	color: $status-color-critical;
+}
+
+.actions-landing__tile.status-neutral .actions-landing__tile-icon,
+.actions-landing__tile.status-info .actions-landing__tile-icon {
+	background: $status-bg-info-light;
+	color: $status-color-info;
+}
+
+.actions-landing__tile.is-disabled .actions-landing__tile-icon {
+	background: #edf0ef;
+	color: #6c757d;
+}
+
+.actions-landing__tile-title {
+	font-size: 0.9rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.actions-landing__tile-stat {
+	color: #646970;
+	font-size: 0.77rem;
+	line-height: 1.25;
+}
+
+.actions-landing__panel-tabs {
+	border-bottom: 1px solid $border-color-neutral-subtle;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	margin-bottom: 0.9rem;
+	padding-bottom: 0.5rem;
+}
+
+.actions-landing__panel-tabs .nav-link {
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 20px;
+	color: #555;
+	font-size: 0.82rem;
+	font-weight: 600;
+	padding: 0.3rem 0.8rem;
+}
+
+.actions-landing__panel-tabs .nav-link:hover {
+	background: #fef6e6;
+	border-color: #f3dda4;
+	color: #6b5300;
+}
+
+.actions-landing__panel-tabs .nav-link.active {
+	background: $status-color-warning;
+	border-color: $status-color-warning;
+	color: #1d2327;
+}
+
+.actions-landing__panel-tabs .nav-link .badge {
+	margin-left: 0.3rem;
+}
+
+.actions-landing__summary-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+}
+
+.actions-landing__summary-row {
+	align-items: flex-start;
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	display: flex;
+	gap: 0.6rem;
+	padding: 0.55rem 0.7rem;
+}
+
+.actions-landing__summary-row.is-warning {
+	background: $status-bg-warning-light;
+}
+
+.actions-landing__summary-row.is-critical {
+	background: $status-bg-critical-light;
+}
+
+.actions-landing__summary-copy {
+	min-width: 0;
+}
+
+.actions-landing__summary-title {
+	color: #1d2327;
+	font-size: 0.84rem;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.actions-landing__summary-desc {
+	color: #646970;
+	font-size: 0.76rem;
+	line-height: 1.3;
+	margin-top: 0.2rem;
+}
+
+.actions-landing__summary-pip {
+	border-radius: 999px;
+	flex-shrink: 0;
+	height: 8px;
+	margin-top: 0.42rem;
+	width: 8px;
+}
+
+.actions-landing__summary-pip.is-good {
+	background: $status-color-good;
+}
+
+.actions-landing__summary-pip.is-warning {
+	background: $status-color-warning;
+}
+
+.actions-landing__summary-pip.is-critical {
+	background: $status-color-critical;
+}
+
+.actions-landing__summary-pip.is-info {
+	background: $status-color-info;
+}
+
+.actions-landing__scan-results-shell {
+	margin-top: 0.25rem;
+}

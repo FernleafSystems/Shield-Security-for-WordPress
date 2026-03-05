@@ -351,7 +351,7 @@ class AttentionItemsProvider {
 
 			$item = $this->buildItem(
 				$normalized[ 'slug' ],
-				'scans',
+				'maintenance',
 				$normalized[ 'title' ],
 				1,
 				'warning',

@@ -1,48 +1,174 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div class="progress-metercard progress-metercard-hero progress-metercard-summary mb-3"
-		 data-meter_slug="summary"
-		 data-meter_channel="action">
-		{{ content.action_meter|raw }}
-	</div>
+	{% set active_panel = vars.mode_panel.active_target|default('') %}
+	{% set strip = vars.severity_strip|default({}) %}
+	<div class="actions-landing" data-actions-landing="1">
 
-	{% if flags.queue_is_empty|default(false) %}
-		<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
-			<div class="shield-needs-attention__all-clear-accent"></div>
-			<div class="d-flex align-items-center justify-content-center flex-wrap gap-3">
-				<div class="shield-needs-attention__all-clear-shield">
-					<i class="{{ strings.all_clear_icon_class }}" aria-hidden="true"></i>
-				</div>
-				<div>
-					<div class="shield-needs-attention__all-clear-title">{{ strings.all_clear_title }}</div>
-					{% if strings.all_clear_context|default('') is not empty %}
-						<div class="shield-needs-attention__all-clear-subtitle">{{ strings.all_clear_context }}</div>
-					{% endif %}
-					{% if strings.all_clear_subtext|default('') is not empty %}
-						<div class="shield-needs-attention__all-clear-subtitle">{{ strings.all_clear_subtext }}</div>
+		<section class="actions-landing__severity-strip shield-card mb-3"
+				 data-actions-queue-section="severity-strip">
+			<div class="shield-card-accent status-{{ strip.severity|default('good') }}"></div>
+			<div class="card-body d-flex align-items-center gap-3 flex-wrap">
+				<span class="actions-landing__severity-chip status-{{ strip.severity|default('good') }}">
+					<i class="{{ strip.icon_class|default('') }}" aria-hidden="true"></i>
+					{{ strip.label|default(strings.status_all_clear) }}
+				</span>
+				<div class="actions-landing__severity-copy">
+					<div class="actions-landing__severity-label">{{ strings.severity_strip_label }}</div>
+					<div class="actions-landing__severity-summary">{{ strip.summary_text|default('') }}</div>
+					{% if strip.subtext|default('') is not empty %}
+						<div class="actions-landing__severity-subtext">{{ strip.subtext }}</div>
 					{% endif %}
 				</div>
 			</div>
-		</div>
-	{% endif %}
+		</section>
 
-	{{ content.needs_attention_queue|raw }}
+		{% if not flags.queue_is_empty|default(false) %}
+			<section class="actions-landing__selector-shell" data-actions-queue-section="tiles">
+				<div class="actions-landing__tile-grid" data-mode-tiles="1">
+					{% for zone in vars.zone_tiles|default([]) %}
+						<button type="button"
+								class="actions-landing__tile status-{{ zone.status }}{% if zone.is_disabled %} is-disabled{% endif %}{% if active_panel == zone.panel_target %} is-active{% endif %}"
+								data-actions-zone="{{ zone.key }}"
+								data-mode-tile="1"
+								data-mode-tile-key="{{ zone.key }}"
+								data-mode-panel-target="{{ zone.panel_target }}"
+								data-mode-tile-disabled="{{ zone.is_disabled ? '1' : '0' }}"
+								aria-disabled="{{ zone.is_disabled ? 'true' : 'false' }}"
+								aria-expanded="{{ active_panel == zone.panel_target ? 'true' : 'false' }}">
+							<span class="actions-landing__tile-header">
+								<span class="actions-landing__tile-icon"><i class="{{ zone.icon_class }}" aria-hidden="true"></i></span>
+								<span class="shield-badge badge-{{ zone.status }}">{{ zone.status_label }}</span>
+							</span>
+							<span class="actions-landing__tile-title">{{ zone.label }}</span>
+							<span class="actions-landing__tile-stat">{{ zone.summary_text }}</span>
+						</button>
+					{% endfor %}
+				</div>
+			</section>
 
-	<div class="card shield-card mt-3">
-		<div class="shield-card-accent status-info"></div>
-		<div class="card-body">
-			<h5 class="card-title mb-3">{{ strings.cta_title }}</h5>
-			<div class="d-flex flex-wrap gap-2">
-				{% if not flags.queue_is_empty|default(false) %}
-					<a href="{{ hrefs.scan_results }}"
-					   class="btn btn-outline-primary"
-					   data-actions-queue-cta="scan-results">{{ strings.cta_scan_results }}</a>
+			{% for zone in vars.zone_tiles|default([]) %}
+				{% if zone.is_enabled %}
+					{% set is_open = active_panel == zone.panel_target %}
+					{% set panel_body %}
+						{% if zone.key == 'scans' %}
+							<ul class="nav nav-tabs shield_body-sub-nav actions-landing__panel-tabs" id="ActionsQueueScansTabsNav" role="tablist">
+								<li class="nav-item">
+									<a class="nav-link active" id="actions-queue-scans-summary-tab"
+									   data-bs-toggle="tab"
+									   href="#actions-queue-scans-summary"
+									   role="tab"
+									   aria-controls="actions-queue-scans-summary">
+										{{ strings.panel_scan_summary_tab }}
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="actions-queue-scans-results-tab"
+									   data-bs-toggle="tab"
+									   href="#actions-queue-scans-results"
+									   role="tab"
+									   aria-controls="actions-queue-scans-results">
+										{{ strings.panel_scan_results_tab }}
+										<span class="badge bg-danger">{{ zone.total_issues }}</span>
+									</a>
+								</li>
+							</ul>
+							<div class="tab-content">
+								<div class="tab-pane show active" id="actions-queue-scans-summary" role="tabpanel" aria-labelledby="actions-queue-scans-summary-tab">
+									<div class="actions-landing__summary-list">
+										{% for item in zone.items %}
+											<div class="actions-landing__summary-row is-{{ item.severity }}">
+												<span class="actions-landing__summary-pip is-{{ item.severity }}"></span>
+												<div class="actions-landing__summary-copy">
+													<div class="actions-landing__summary-title">{{ item.label }}</div>
+													<div class="actions-landing__summary-desc">{{ item.description }}</div>
+												</div>
+												<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
+											</div>
+										{% endfor %}
+									</div>
+									<div class="actions-landing__summary-footer d-flex flex-wrap gap-2 mt-3">
+										<a href="#actions-queue-scans-results"
+										   data-bs-toggle="tab"
+										   class="btn btn-outline-secondary btn-sm">{{ strings.panel_scan_results_tab }}</a>
+										<a href="{{ hrefs.scan_results }}"
+										   class="btn btn-outline-secondary btn-sm">{{ strings.panel_scan_results_link }}</a>
+									</div>
+								</div>
+
+								<div class="tab-pane" id="actions-queue-scans-results" role="tabpanel" aria-labelledby="actions-queue-scans-results-tab">
+									{% set scans_results = vars.scans_results|default({}) %}
+									<div id="ScanResultsTabs" class="actions-landing__scan-results-shell">
+										{% include '/wpadmin_pages/insights/scans/results/scan_results.twig' with {
+											strings: scans_results.strings|default({}),
+											vars: scans_results.vars|default({}),
+											file_locker: scans_results.file_locker|default({}),
+											content: scans_results.content|default({}),
+											flags: scans_results.flags|default({}),
+											hrefs: scans_results.hrefs|default({}),
+											imgs: scans_results.imgs|default({}),
+										} only %}
+									</div>
+								</div>
+							</div>
+						{% else %}
+							<div class="actions-landing__summary-list">
+								{% for item in zone.items %}
+									<div class="actions-landing__summary-row is-{{ item.severity }}">
+										<span class="actions-landing__summary-pip is-{{ item.severity }}"></span>
+										<div class="actions-landing__summary-copy">
+											<div class="actions-landing__summary-title">{{ item.label }}</div>
+											<div class="actions-landing__summary-desc">{{ item.description }}</div>
+										</div>
+										<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
+									</div>
+								{% endfor %}
+							</div>
+							<div class="actions-landing__maintenance-actions mt-3">
+								<div class="actions-landing__severity-label mb-2">{{ strings.panel_maintenance_actions }}</div>
+								<div class="d-flex flex-wrap gap-2">
+									<a href="{{ hrefs.wp_updates }}" class="btn btn-outline-secondary btn-sm">{{ strings.panel_wp_updates }}</a>
+									<a href="{{ hrefs.manage_plugins }}" class="btn btn-outline-secondary btn-sm">{{ strings.panel_manage_plugins }}</a>
+								</div>
+							</div>
+						{% endif %}
+					{% endset %}
+
+					{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+						panel: {
+							id: 'ActionsQueueModePanel-' ~ zone.key,
+							class: 'actions-landing__panel' ~ (is_open ? ' is-open' : ''),
+							is_open: is_open,
+							target: zone.panel_target,
+							target_default: zone.panel_target,
+							static_target: true,
+							status: zone.status,
+							title: zone.label,
+							body: panel_body,
+							data: {
+								'actions-panel': zone.key
+							}
+						},
+						strings: strings
+					} only %}
 				{% endif %}
-				<a href="{{ hrefs.scan_run }}"
-				   class="btn btn-outline-secondary"
-				   data-actions-queue-cta="run-scan">{{ strings.cta_scan_run }}</a>
+			{% endfor %}
+		{% else %}
+			<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
+				<div class="shield-needs-attention__all-clear-accent"></div>
+				<div class="shield-needs-attention__all-clear-shield">
+					<i class="{{ vars.all_clear.icon_class|default(strings.all_clear_icon_class) }}" aria-hidden="true"></i>
+				</div>
+				<div class="shield-needs-attention__all-clear-title">{{ vars.all_clear.title|default(strings.all_clear_title) }}</div>
+				<div class="shield-needs-attention__all-clear-subtitle">{{ vars.all_clear.subtitle|default(strings.all_clear_subtitle) }}</div>
+				<div class="shield-needs-attention__chips">
+					{% for chip in vars.all_clear.zone_chips|default([]) %}
+						<span class="shield-needs-attention__chip is-{{ chip.severity }}">
+							<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
+						</span>
+					{% endfor %}
+				</div>
 			</div>
-		</div>
+		{% endif %}
 	</div>
 {% endblock %}

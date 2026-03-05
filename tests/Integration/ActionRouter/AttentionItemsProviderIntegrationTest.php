@@ -41,8 +41,13 @@ class AttentionItemsProviderIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$items = ( new AttentionItemsProvider() )->buildActionItems();
-		$keys = \array_column( $items, 'key' );
-		$this->assertContains( 'wp_updates', $keys );
+		$itemsByKey = [];
+		foreach ( $items as $item ) {
+			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+		}
+
+		$this->assertArrayHasKey( 'wp_updates', $itemsByKey );
+		$this->assertSame( 'maintenance', (string)( $itemsByKey[ 'wp_updates' ][ 'zone' ] ?? '' ) );
 	}
 
 	public function test_build_widget_rows_adds_summary_warning_item() :void {
