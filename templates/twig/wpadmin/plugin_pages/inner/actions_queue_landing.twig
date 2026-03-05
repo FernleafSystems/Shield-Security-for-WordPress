@@ -75,18 +75,9 @@
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane show active" id="actions-queue-scans-summary" role="tabpanel" aria-labelledby="actions-queue-scans-summary-tab">
-									<div class="actions-landing__summary-list">
-										{% for item in zone.items %}
-											<div class="actions-landing__summary-row is-{{ item.severity }}">
-												<span class="actions-landing__summary-pip is-{{ item.severity }}"></span>
-												<div class="actions-landing__summary-copy">
-													<div class="actions-landing__summary-title">{{ item.label }}</div>
-													<div class="actions-landing__summary-desc">{{ item.description }}</div>
-												</div>
-												<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
-											</div>
-										{% endfor %}
-									</div>
+									{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+										items: zone.items
+									} only %}
 									<div class="actions-landing__summary-footer d-flex flex-wrap gap-2 mt-3">
 										<a href="#actions-queue-scans-results"
 										   data-bs-toggle="tab"
@@ -112,18 +103,9 @@
 								</div>
 							</div>
 						{% else %}
-							<div class="actions-landing__summary-list">
-								{% for item in zone.items %}
-									<div class="actions-landing__summary-row is-{{ item.severity }}">
-										<span class="actions-landing__summary-pip is-{{ item.severity }}"></span>
-										<div class="actions-landing__summary-copy">
-											<div class="actions-landing__summary-title">{{ item.label }}</div>
-											<div class="actions-landing__summary-desc">{{ item.description }}</div>
-										</div>
-										<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
-									</div>
-								{% endfor %}
-							</div>
+							{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+								items: zone.items
+							} only %}
 							<div class="actions-landing__maintenance-actions mt-3">
 								<div class="actions-landing__severity-label mb-2">{{ strings.panel_maintenance_actions }}</div>
 								<div class="d-flex flex-wrap gap-2">

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -154,16 +155,20 @@ class NeedsAttentionQueue extends BaseRender {
 			];
 		}
 
+		$actionsZones = PluginNavs::actionsLandingZoneDefinitions();
+		if ( isset( $actionsZones[ $zone ] ) ) {
+			return [
+				'label'      => $actionsZones[ $zone ][ 'label' ],
+				'icon_class' => self::con()->svgs->iconClass( $actionsZones[ $zone ][ 'icon' ] ),
+			];
+		}
+
 		return [
 			'label'      => $zone === 'summary'
 				? __( 'Summary', 'wp-simple-firewall' )
-				: ( $zone === 'maintenance'
-					? __( 'Maintenance', 'wp-simple-firewall' )
-					: __( 'Scans', 'wp-simple-firewall' ) ),
+				: __( 'Scans', 'wp-simple-firewall' ),
 			'icon_class' => self::con()->svgs->iconClass(
-				$zone === 'maintenance'
-					? 'tools'
-					: 'grid-1x2-fill'
+				'grid-1x2-fill'
 			),
 		];
 	}

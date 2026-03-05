@@ -6,6 +6,7 @@ import { OffCanvasService } from "../ui/OffCanvasService";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableScanResults } from "../tables/ShieldTableScanResults";
+import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
 
 export class ScansResults extends BaseComponent {
 
@@ -59,7 +60,7 @@ export class ScansResults extends BaseComponent {
 			modeShell.addEventListener( 'shield:mode-panel-opened', () => {
 				const panel = modeShell.querySelector( '[data-mode-panel="1"].is-open' );
 				if ( panel !== null && panel.querySelector( '#ScanResultsTabs' ) !== null ) {
-					window.requestAnimationFrame( () => this.adjustDataTableColumnsWithin( panel ) );
+					DataTableVisibilityAdjuster.adjustWithinNextFrame( panel );
 				}
 			} );
 		} );
@@ -72,19 +73,7 @@ export class ScansResults extends BaseComponent {
 
 		const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
 		const paneEl = paneSelector.startsWith( '#' ) ? document.querySelector( paneSelector ) : null;
-		window.requestAnimationFrame( () => this.adjustDataTableColumnsWithin( paneEl || document ) );
-	}
-
-	adjustDataTableColumnsWithin( contextEl ) {
-		if ( contextEl === null || !$.fn.dataTable || !$.fn.dataTable.isDataTable ) {
-			return;
-		}
-
-		contextEl.querySelectorAll( 'table' ).forEach( ( tableEl ) => {
-			if ( $.fn.dataTable.isDataTable( tableEl ) ) {
-				$( tableEl ).DataTable().columns.adjust();
-			}
-		} );
+		DataTableVisibilityAdjuster.adjustWithinNextFrame( paneEl || document );
 	}
 
 	handleDisplayScanResultsForAsset( targetEl, forceReload = false ) {

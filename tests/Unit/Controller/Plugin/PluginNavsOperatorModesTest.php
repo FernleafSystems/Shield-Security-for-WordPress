@@ -74,6 +74,26 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'settings', PluginNavs::SUBNAV_REPORTS_SETTINGS );
 	}
 
+	public function test_actions_landing_zone_definitions_match_expected_contract() :void {
+		$definitions = PluginNavs::actionsLandingZoneDefinitions();
+		$this->assertSame(
+			[ 'scans', 'maintenance' ],
+			\array_keys( $definitions )
+		);
+
+		foreach ( $definitions as $slug => $definition ) {
+			foreach ( [ 'slug', 'label', 'icon' ] as $requiredKey ) {
+				$this->assertArrayHasKey( $requiredKey, $definition, 'Missing key '.$requiredKey.' for '.$slug );
+				$this->assertIsString( $definition[ $requiredKey ], 'Expected string '.$requiredKey.' for '.$slug );
+				$this->assertNotSame( '', \trim( $definition[ $requiredKey ] ), 'Expected non-empty '.$requiredKey.' for '.$slug );
+			}
+			$this->assertSame( $slug, $definition[ 'slug' ] );
+		}
+
+		$this->assertSame( 'shield-exclamation', $definitions[ 'scans' ][ 'icon' ] );
+		$this->assertSame( 'wrench', $definitions[ 'maintenance' ][ 'icon' ] );
+	}
+
 	public function test_reports_workspace_definitions_match_expected_contract() :void {
 		$definitions = PluginNavs::reportsWorkspaceDefinitions();
 		$this->assertSame(

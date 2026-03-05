@@ -680,6 +680,28 @@ class PluginNavs {
 
 	/**
 	 * @return array<string,array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string
+	 * }>
+	 */
+	public static function actionsLandingZoneDefinitions() :array {
+		return [
+			'scans'       => [
+				'slug'  => 'scans',
+				'label' => __( 'Scans', 'wp-simple-firewall' ),
+				'icon'  => 'shield-exclamation',
+			],
+			'maintenance' => [
+				'slug'  => 'maintenance',
+				'label' => __( 'Maintenance', 'wp-simple-firewall' ),
+				'icon'  => 'wrench',
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,array{
 	 *   menu_title:string,
 	 *   landing_cta:string,
 	 *   page_title:string,

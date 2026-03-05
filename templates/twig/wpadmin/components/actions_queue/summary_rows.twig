@@ -1,0 +1,12 @@
+<div class="actions-landing__summary-list">
+	{% for item in items|default([]) %}
+		<div class="actions-landing__summary-row is-{{ item.severity }}">
+			<span class="actions-landing__summary-pip is-{{ item.severity }}"></span>
+			<div class="actions-landing__summary-copy">
+				<div class="actions-landing__summary-title">{{ item.label }}</div>
+				<div class="actions-landing__summary-desc">{{ item.description }}</div>
+			</div>
+			<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
+		</div>
+	{% endfor %}
+</div>

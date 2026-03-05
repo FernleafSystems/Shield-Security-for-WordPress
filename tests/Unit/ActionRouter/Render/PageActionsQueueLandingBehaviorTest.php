@@ -228,7 +228,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		$page = new PageActionsQueueLanding();
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
-		$allClear = $this->invokeNonPublicMethod( $page, 'buildAllClearContract' );
+		$allClear = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'all_clear' ] ?? [];
 
 		$this->assertSame( 'All security zones are clear', $strings[ 'all_clear_title' ] ?? '' );
 		$this->assertSame(
