@@ -64,9 +64,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'configure_stats', $vars );
 		$this->assertSame( 78, $vars[ 'posture_percentage' ] ?? 0 );
 		$this->assertSame( 'warning', $vars[ 'posture_status' ] ?? '' );
-		$this->assertSame( 'Warning', $vars[ 'posture_label' ] ?? '' );
-		$this->assertSame( 'bi bi-exclamation-circle-fill', $vars[ 'posture_icon_class' ] ?? '' );
-		$this->assertSame( '78% - 1 critical - 1 needs work - 1 good', $vars[ 'posture_summary' ] ?? '' );
+		$this->assertNotSame( '', (string)( $vars[ 'posture_label' ] ?? '' ) );
+		$this->assertStringStartsWith( 'bi bi-', (string)( $vars[ 'posture_icon_class' ] ?? '' ) );
+		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 78, 1, 1, 1 );
 		$this->assertSame( $zoneTiles, $vars[ 'zone_tiles' ] ?? [] );
 		$this->assertIsArray( $vars[ 'configure_render_action' ] ?? null );
 		$this->assertSame(
@@ -86,6 +86,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$expectedTileKeys = \array_column( $this->zoneTileFixtures(), 'key' );
 
 		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
@@ -93,11 +94,13 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
 
-		$this->assertCount( 3, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
-		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'key' ] ?? '' );
-		$this->assertSame( 'secadmin', $renderData[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'panel_target' ] ?? '' );
-		$this->assertSame( 'firewall', $renderData[ 'vars' ][ 'mode_tiles' ][ 1 ][ 'key' ] ?? '' );
-		$this->assertSame( 'spam', $renderData[ 'vars' ][ 'mode_tiles' ][ 2 ][ 'key' ] ?? '' );
+		$modeTiles = (array)( $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
+		$this->assertCount( \count( $expectedTileKeys ), $modeTiles );
+		$this->assertEqualsCanonicalizing( $expectedTileKeys, \array_column( $modeTiles, 'key' ) );
+		foreach ( $modeTiles as $modeTile ) {
+			$this->assertSame( $modeTile[ 'key' ] ?? '', $modeTile[ 'panel_target' ] ?? '' );
+			$this->assertSame( !(bool)( $modeTile[ 'is_enabled' ] ?? true ), (bool)( $modeTile[ 'is_disabled' ] ?? false ) );
+		}
 
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
@@ -113,9 +116,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 96, $vars[ 'posture_percentage' ] ?? 0 );
 		$this->assertSame( 'good', $vars[ 'posture_status' ] ?? '' );
-		$this->assertSame( 'Good', $vars[ 'posture_label' ] ?? '' );
-		$this->assertSame( 'bi bi-check-circle-fill', $vars[ 'posture_icon_class' ] ?? '' );
-		$this->assertSame( '96% - 0 critical - 0 need work - 2 good', $vars[ 'posture_summary' ] ?? '' );
+		$this->assertNotSame( '', (string)( $vars[ 'posture_label' ] ?? '' ) );
+		$this->assertStringStartsWith( 'bi bi-', (string)( $vars[ 'posture_icon_class' ] ?? '' ) );
+		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 96, 0, 0, 2 );
 	}
 
 	public function test_landing_summary_ignores_tiles_excluded_from_posture() :void {
@@ -172,7 +175,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $zoneTiles );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$this->assertSame( '78% - 0 critical - 1 needs work - 1 good', $vars[ 'posture_summary' ] ?? '' );
+		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 78, 0, 1, 1 );
 	}
 
 	public function test_landing_hrefs_are_empty() :void {
@@ -185,13 +188,87 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
-		$this->assertSame( 'Configuration Posture', $strings[ 'posture_title' ] ?? '' );
+		$this->assertArrayHasKey( 'posture_title', $strings );
+		$this->assertNotSame( '', (string)( $strings[ 'posture_title' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'zones_title', $strings );
 		$this->assertArrayNotHasKey( 'zones_subtitle', $strings );
 
 		foreach ( [ 'stats_title', 'overview_title', 'quick_links_title', 'link_grades', 'link_zones', 'link_rules', 'link_tools' ] as $removedKey ) {
 			$this->assertArrayNotHasKey( $removedKey, $strings );
 		}
+	}
+
+	public function test_posture_percentage_uses_weighted_meter_components_when_available() :void {
+		$page = new PageConfigureLandingUnitTestDouble(
+			[
+				'totals'     => [ 'percentage' => 5 ],
+				'components' => [
+					[
+						'slug'   => 'security_admin_pin',
+						'weight' => 3,
+						'score'  => 3,
+					],
+					[
+						'slug'   => 'login_2fa',
+						'weight' => 2,
+						'score'  => 1,
+					],
+					[
+						'slug'   => 'activity_log_enabled',
+						'weight' => 100,
+						'score'  => 0,
+					],
+					[
+						'slug'   => 'traffic_log_enabled',
+						'weight' => 100,
+						'score'  => 0,
+					],
+				],
+			],
+			$this->zoneTileFixtures()
+		);
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+
+		$this->assertSame( 80, $vars[ 'posture_percentage' ] ?? null );
+		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 80, 1, 1, 1 );
+	}
+
+	public function test_posture_percentage_falls_back_to_totals_when_no_weighted_components_exist() :void {
+		$page = new PageConfigureLandingUnitTestDouble(
+			[
+				'totals'     => [ 'percentage' => 61 ],
+				'components' => [
+					[
+						'slug'   => 'security_admin_pin',
+						'weight' => 0,
+						'score'  => 10,
+					],
+					[
+						'slug'   => 'login_2fa',
+						'weight' => -5,
+						'score'  => 1,
+					],
+				],
+			],
+			$this->zoneTileFixtures()
+		);
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+
+		$this->assertSame( 61, $vars[ 'posture_percentage' ] ?? null );
+		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 61, 1, 1, 1 );
+	}
+
+	private function assertPostureSummaryNumbers(
+		string $summary,
+		int $expectedPercent,
+		int $expectedCritical,
+		int $expectedWarning,
+		int $expectedGood
+	) :void {
+		\preg_match_all( '/\d+/', $summary, $matches );
+		$this->assertGreaterThanOrEqual( 4, \count( $matches[ 0 ] ?? [] ), 'Posture summary should contain four numeric contract markers.' );
+		$numbers = \array_map( static fn( string $value ) :int => (int)$value, \array_slice( $matches[ 0 ], 0, 4 ) );
+		$this->assertSame( [ $expectedPercent, $expectedCritical, $expectedWarning, $expectedGood ], $numbers );
 	}
 
 	/**

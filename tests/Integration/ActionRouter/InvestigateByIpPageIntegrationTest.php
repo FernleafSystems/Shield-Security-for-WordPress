@@ -52,6 +52,8 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		$renderData = (array)( $this->renderByIpInnerPage( '203.0.113.88' )[ 'render_data' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 
 		$payload = $this->renderByIpPage( '203.0.113.88' );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
@@ -64,27 +66,42 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//button[@data-investigate-subject="ip" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'//button[@data-investigate-subject="ip" and @data-mode-panel-target="ip" and @aria-expanded="true"]',
 			'Legacy by-ip route marks ip tile active'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip" and @aria-hidden="false"]',
+			'//section[@data-investigate-panel="ip" and @aria-hidden="false" and @data-investigate-panel-loaded="1"]',
 			'Legacy by-ip route opens ip panel'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-mode-landing-hint="1" and contains(concat(" ", normalize-space(@class), " "), " d-none ") and @aria-hidden="true"]',
+			'//*[@data-mode-shell="1" and @data-mode-active-panel="ip"]',
+			'Legacy by-ip route mode shell active panel marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode-landing-hint="1" and @aria-hidden="true"]',
 			'Legacy by-ip route hides landing hint when panel is pre-opened'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header ")]',
-			'Legacy by-ip route renders subject header'
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-header="1"]',
+			'Legacy by-ip route renders panel header host marker'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header__title ") and normalize-space()="203.0.113.88"]',
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]',
+			'Legacy by-ip route renders panel content host marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header ")]',
+			'Legacy by-ip route renders subject header within panel content'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-subject-header__title ") and normalize-space()="203.0.113.88"]',
 			'Legacy by-ip route subject header title matches lookup value'
 		);
 		$this->assertXPathExists(
@@ -92,10 +109,17 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@data-investigate-panel="ip"]//*[@data-investigate-change-subject="1"]',
 			'Legacy by-ip route exposes change IP action'
 		);
-		$this->assertHtmlContainsMarker( 'shield-ipanalyse', $html, 'By-ip analysis container marker' );
-		$this->assertHtmlContainsMarker( 'Overview', $html, 'By-ip overview tab label marker' );
-		$this->assertHtmlContainsMarker( 'Change IP address', $html, 'By-ip subject header change action marker' );
-		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-ip back button removed marker' );
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-ipanalyse ")]',
+			'By-ip analysis container marker in panel content'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-body-shell ")]',
+			0,
+			'By-ip panel content should not include nested inner-page-body shell'
+		);
 	}
 
 	public function test_no_lookup_renders_without_ip_analysis_container() :void {
@@ -110,10 +134,26 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//button[@data-investigate-subject="ip" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
+			'//button[@data-investigate-subject="ip" and @data-mode-panel-target="ip" and @aria-expanded="true"]',
 			'Legacy by-ip route without lookup keeps ip tile active'
 		);
-		$this->assertHtmlNotContainsMarker( 'shield-ipanalyse', $html, 'By-ip analysis container without lookup' );
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip" and @aria-hidden="false" and @data-investigate-panel-loaded="1"]',
+			'Legacy by-ip route without lookup keeps ip panel preloaded'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-ipanalyse ")]',
+			0,
+			'By-ip analysis container should not render without valid lookup'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-change-subject="1"]',
+			0,
+			'By-ip change-subject action does not render without active subject'
+		);
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {

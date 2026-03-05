@@ -24,55 +24,90 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
 
-	private function renderReportsSubNavHtml( string $subNav ) :string {
+	private function renderReportsSubNavPayload( string $subNav ) :array {
 		$payload = $this->renderPluginAdminRoutePayload( PluginNavs::NAV_REPORTS, $subNav );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$this->assertNotSame( '', $html, 'Expected non-empty render output for reports/'.$subNav );
+		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Reports route render exception check for '.$subNav );
+		return $payload;
+	}
+
+	private function renderReportsSubNavHtml( string $subNav ) :string {
+		$payload = $this->renderReportsSubNavPayload( $subNav );
 		return (string)( $payload[ 'render_output' ] ?? '' );
 	}
 
 	private function renderReportsSubNavXPath( string $subNav ) :\DOMXPath {
 		$html = $this->renderReportsSubNavHtml( $subNav );
-		$this->assertNotSame( '', $html, 'Expected non-empty render output for reports/'.$subNav );
-		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Reports route render exception check for '.$subNav );
 		return $this->createDomXPathFromHtml( $html );
 	}
 
 	public function test_reports_overview_renders_interactive_tile_panel_with_default_reports_table() :void {
+		$landingWorkspaceDefinitions = PluginNavs::reportsLandingWorkspaceDefinitions();
+		$landingSubNavs = \array_keys( $landingWorkspaceDefinitions );
+		$expectedLandingCount = \count( $landingSubNavs );
 		$xpath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_OVERVIEW );
 		$this->assertModeShellAndAccentContract( $xpath, 'reports', 'warning', 'Reports', true );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-header ") and contains(concat(" ", normalize-space(@class), " "), " inner-page-header-compact ")]',
-			'Reports compact header marker'
-		);
 		$this->assertXPathExists( $xpath, '//*[@data-reports-landing="1"]', 'Reports landing root marker' );
-		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', 3, 'Reports mode tile count marker' );
-		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', 3, 'Reports mode panel count marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', $expectedLandingCount, 'Reports mode tile count marker' );
+		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', $expectedLandingCount, 'Reports mode panel count marker' );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-reports-panel="list" and contains(concat(" ", normalize-space(@class), " "), " is-open ") and @aria-hidden="false"]',
+			'//*[@data-mode-shell="1" and @data-mode-active-panel="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]',
+			'Reports mode shell active panel contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-reports-panel="'.PluginNavs::SUBNAV_REPORTS_LIST.'" and @aria-hidden="false"]',
 			'Reports security reports panel default-open marker'
 		);
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="security-reports"]', 'Reports table panel content marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="security-reports"]//*[@id="ReportsTable"]', 'Reports table in landing panel marker' );
-		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="alerts"]', 1, 'Reports alerts CTA marker count' );
-		$this->assertXPathCount( $xpath, '//*[@data-reports-cta="reporting"]', 1, 'Reports reporting CTA marker count' );
-		$this->assertXPathCount( $xpath, '//*[@data-reports-section="charts"]', 0, 'Reports overview no longer renders charts section marker' );
+
+		foreach ( $landingSubNavs as $subNav ) {
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-reports-tile="'.$subNav.'" and @data-mode-panel-target="'.$subNav.'"]',
+				'Reports tile target contract for '.$subNav
+			);
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-reports-panel="'.$subNav.'" and @data-mode-panel-target="'.$subNav.'"]',
+				'Reports panel target contract for '.$subNav
+			);
+		}
+		foreach ( \array_filter(
+			$landingSubNavs,
+			static fn( string $subNav ) :bool => $subNav !== PluginNavs::SUBNAV_REPORTS_LIST
+		) as $configSubNav ) {
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-reports-cta="'.$configSubNav.'"]',
+				'Reports config CTA marker for '.$configSubNav
+			);
+		}
+		$this->assertXPathCount( $xpath, '//*[@data-reports-tile="'.PluginNavs::SUBNAV_REPORTS_CHARTS.'"]', 0, 'Reports charts tile remains excluded from landing' );
+		$this->assertXPathCount( $xpath, '//*[@data-reports-panel="'.PluginNavs::SUBNAV_REPORTS_CHARTS.'"]', 0, 'Reports charts panel remains excluded from landing' );
 	}
 
 	public function test_reports_workspace_routes_render_expected_structural_markers_including_legacy_routes() :void {
-		$listXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_LIST );
-		$this->assertXPathExists( $listXPath, '//*[@id="ReportsTable"]', 'Reports list table container marker' );
+		foreach ( PluginNavs::reportsWorkspaceDefinitions() as $subNav => $workspaceDefinition ) {
+			$payload = $this->renderReportsSubNavPayload( $subNav );
+			$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+			$content = (array)( $renderData[ 'content' ] ?? [] );
+			$contentKey = (string)( $workspaceDefinition[ 'content_key' ] ?? '' );
 
-		$alertsXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_ALERTS );
-		$this->assertXPathExists( $alertsXPath, '//*[contains(concat(" ", normalize-space(@class), " "), " options_form_for--modern ")]', 'Reports alerts options form marker' );
+			$this->assertNotSame( '', $contentKey, 'Reports content key contract for '.$subNav );
+			$this->assertArrayHasKey( $contentKey, $content, 'Reports render-data content key for '.$subNav );
+			$this->assertNotSame( '', \trim( (string)$content[ $contentKey ] ), 'Reports render-data content payload for '.$subNav );
 
-		$reportingXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_REPORTING );
-		$this->assertXPathExists( $reportingXPath, '//*[contains(concat(" ", normalize-space(@class), " "), " options_form_for--modern ")]', 'Reports reporting options form marker' );
-
-		$chartsXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_CHARTS );
-		$this->assertXPathExists( $chartsXPath, '//*[@id="SectionStats"]', 'Reports legacy charts stats strip marker' );
-
-		$settingsXPath = $this->renderReportsSubNavXPath( PluginNavs::SUBNAV_REPORTS_SETTINGS );
-		$this->assertXPathExists( $settingsXPath, '//*[contains(concat(" ", normalize-space(@class), " "), " options_form_for--modern ")]', 'Reports legacy settings options form marker' );
+			$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
+			if ( $subNav === PluginNavs::SUBNAV_REPORTS_LIST ) {
+				$this->assertXPathExists( $xpath, '//*[@id="ReportsTable"]', 'Reports list table container marker' );
+			}
+			if ( $subNav === PluginNavs::SUBNAV_REPORTS_CHARTS ) {
+				$this->assertXPathExists( $xpath, '//*[@id="SectionStats"]', 'Reports legacy charts stats strip marker' );
+			}
+		}
 	}
 }

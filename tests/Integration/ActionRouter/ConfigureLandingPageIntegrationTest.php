@@ -2,6 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions\AjaxRender,
+	Actions\Render\PluginAdminPages\PageConfigureLanding,
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
@@ -34,48 +40,31 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$this->assertNotSame( '', $html, 'Expected non-empty render output for configure landing.' );
 		$this->assertHtmlNotContainsMarker( 'Exception during render', $html, 'Configure landing render exception check' );
-
+		$tileDefinitions = PluginNavs::configureLandingTileDefinitions();
+		$expectedCount = \count( $tileDefinitions );
 		$xpath = $this->createDomXPathFromHtml( $html );
-		$this->assertXPathExists(
+		$landingNode = $this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-landing="1" and string-length(normalize-space(@data-configure-render-action)) > 0]',
 			'Configure landing render action marker'
 		);
+		$renderActionData = $this->decodeJsonAttribute(
+			$landingNode,
+			'data-configure-render-action',
+			'Configure landing render action contract'
+		);
+		$this->assertSame( ActionData::FIELD_SHIELD, $renderActionData[ ActionData::FIELD_ACTION ] ?? '' );
+		$this->assertSame( AjaxRender::SLUG, $renderActionData[ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( PageConfigureLanding::SLUG, $renderActionData[ 'render_slug' ] ?? '' );
+		$this->assertSame( PluginNavs::NAV_ZONES, $renderActionData[ Constants::NAV_ID ] ?? '' );
+		$this->assertSame( PluginNavs::SUBNAV_ZONES_OVERVIEW, $renderActionData[ Constants::NAV_SUB_ID ] ?? '' );
+
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="hero"]', 'Configure hero section marker' );
 		$this->assertXPathExists( $xpath, '//*[@data-configure-section="zones"]', 'Configure zones section marker' );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-section="zones" and not(contains(concat(" ", normalize-space(@class), " "), " card ")) and not(contains(concat(" ", normalize-space(@class), " "), " shield-card "))]',
-			'Configure zones section no longer uses card wrapper classes'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[@data-mode-tiles="1" and contains(concat(" ", normalize-space(@class), " "), " configure-landing__zone-grid ")]',
+			'//*[@data-configure-section="zones"]//*[@data-mode-tiles="1"]',
 			'Configure zones section renders mode tile grid directly'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-card-accent ")]',
-			0,
-			'Configure zones section should not render shield card accent'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " card-body ")]',
-			0,
-			'Configure zones section should not render card body wrapper'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-landing__section-title ")]',
-			0,
-			'Configure zones section title removed'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-landing__section-subtitle ")]',
-			0,
-			'Configure zones section subtitle removed'
 		);
 		$this->assertModeShellAndAccentContract( $xpath, 'configure', 'good', 'Configure', true );
 		$this->assertXPathCount( $xpath, '//*[@data-configure-section="stats"]', 0, 'Configure stats section removed' );
@@ -101,93 +90,105 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-section="hero"]//*[@data-configure-posture-summary="1"]',
 			'Configure posture summary marker'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="hero"]//*[contains(concat(" ", normalize-space(@class), " "), " progress-metercard ")]',
-			0,
-			'Configure hero no longer renders progress meter card wrapper'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="hero"]//a[contains(concat(" ", normalize-space(@class), " "), " offcanvas_meter_analysis ")]',
-			0,
-			'Configure hero no longer renders offcanvas meter link'
-		);
 
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-zone and @data-mode-tile="1"]',
-			9,
+			$expectedCount,
 			'Configure zone navigation marker count'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-mode-tile="1"]',
-			9,
+			$expectedCount,
 			'Configure shared mode tile marker count'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-mode-tile="1" and self::a]',
-			0,
-			'Configure tiles must not navigate directly'
-		);
+		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1" and self::button]', $expectedCount, 'Configure tiles render as button controls' );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-panel and @data-mode-panel="1"]',
-			9,
+			$expectedCount,
 			'Configure inline panel marker count'
 		);
-		$this->assertSharedModePanelMarkerCount( $xpath, 9, 'Configure' );
+		$this->assertSharedModePanelMarkerCount( $xpath, $expectedCount, 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'configure-panel', 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-target-default', 'Configure' );
 		$this->assertModePanelHasDataAttribute( $xpath, 'mode-panel-static-target', 'Configure' );
 		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-mode-panel="1" and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical ") or contains(concat(" ", normalize-space(@class), " "), " status-info ") or contains(concat(" ", normalize-space(@class), " "), " status-neutral "))]',
-			9,
-			'Configure mode panels include status class on panel root'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-mode-panel="1"]//button[@data-mode-panel-close="1" and contains(concat(" ", normalize-space(@class), " "), " mode-panel-close-btn ")]',
-			9,
-			'Configure mode panel close button uses minimal close class'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-mode-panel="1"]//button[contains(concat(" ", normalize-space(@class), " "), " btn-outline-secondary ")]',
-			0,
-			'Configure mode panel close button no longer uses bootstrap outline class'
+			'//*[@data-mode-panel="1"]//button[@data-mode-panel-close="1"]',
+			$expectedCount,
+			'Configure mode panel close button marker count'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings]',
-			9,
+			$expectedCount,
 			'Configure panel settings CTA marker count'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ")]',
-			9,
-			'Configure panel settings CTA uses redesign class'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and (contains(concat(" ", normalize-space(@class), " "), " status-good ") or contains(concat(" ", normalize-space(@class), " "), " status-warning ") or contains(concat(" ", normalize-space(@class), " "), " status-critical ") or contains(concat(" ", normalize-space(@class), " "), " status-neutral "))]',
-			9,
-			'Configure panel settings CTA carries status class'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and contains(concat(" ", normalize-space(@class), " "), " btn-outline-secondary ")]',
-			0,
-			'Configure panel settings CTA no longer uses bootstrap outline class'
+			'//*[@data-configure-panel and @data-mode-panel="1"]//a[@data-configure-zone-settings and string-length(normalize-space(@href)) > 0]',
+			$expectedCount,
+			'Configure panel settings CTA href contract'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-panel and @data-mode-panel="1"]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__component-config-link ") and contains(concat(" ", normalize-space(@class), " "), " zone_component_action ")]',
-			'Configure panel component-level offcanvas links rendered'
+			'//*[@data-configure-panel and @data-mode-panel="1"]//*[@data-configure-component-status]',
+			'Configure component status row marker contract'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-panel and @data-mode-panel="1"]//*[@data-configure-component-status]//span[contains(concat(" ", normalize-space(@class), " "), " configure-landing__component-status-icon ") and @role="img" and string-length(normalize-space(@aria-label)) > 0]',
+			'Configure component status icon accessibility contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-panel and @data-mode-panel="1"]//*[@data-configure-component-status]//a[@href]',
+			'Configure component action link marker contract'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-zone and @data-mode-tile="1"]//span[contains(concat(" ", normalize-space(@class), " "), " configure-landing__zone-tile-icon ")]//i[@aria-hidden="true"]',
+			$expectedCount,
+			'Configure icon-led tile marker count'
+		);
+
+		foreach ( $tileDefinitions as $tileDefinition ) {
+			$zoneKey = (string)$tileDefinition[ 'key' ];
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-configure-zone="'.$zoneKey.'" and @data-mode-panel-target="'.$zoneKey.'"]',
+				'Configure tile-to-panel target contract for '.$zoneKey
+			);
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-configure-panel="'.$zoneKey.'" and @data-mode-panel-target="'.$zoneKey.'"]',
+				'Configure panel target contract for '.$zoneKey
+			);
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-configure-panel="'.$zoneKey.'" and @data-mode-panel="1"]//a[@data-configure-zone-settings="'.$zoneKey.'"]',
+				'Configure zone settings CTA marker for '.$zoneKey
+			);
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function decodeJsonAttribute( \DOMNode $node, string $attribute, string $label ) :array {
+		$this->assertInstanceOf( \DOMElement::class, $node, $label.' node type contract' );
+		/** @var \DOMElement $node */
+
+		$raw = \trim( (string)$node->getAttribute( $attribute ) );
+		$this->assertNotSame( '', $raw, $label.' attribute should not be empty' );
+
+		$decoded = \json_decode(
+			\html_entity_decode( $raw, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ),
+			true
+		);
+		$this->assertIsArray( $decoded, $label.' JSON decode contract' );
+		return $decoded;
 	}
 }

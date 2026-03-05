@@ -11,8 +11,14 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions\AjaxBatchRequests,
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -34,6 +40,9 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( 'sanitize_text_field' )->alias( fn( $text ) => $text );
 		Functions\when( '__' )->alias( fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
@@ -84,11 +93,16 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$page = new PageInvestigateLandingUnitTestDouble();
 		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
 		$subjects = $vars[ 'subjects' ] ?? [];
+		$subjectDefinitions = PluginNavs::investigateLandingSubjectDefinitions();
+		$enabledSubjectDefinitions = \array_filter(
+			$subjectDefinitions,
+			static fn( array $subject ) :bool => (bool)( $subject[ 'is_enabled' ] ?? false )
+		);
 
 		$this->assertSame( '', $vars[ 'active_subject' ] ?? null );
-		$this->assertCount( 7, $subjects );
+		$this->assertCount( \count( $subjectDefinitions ), $subjects );
 		$this->assertSame(
-			[ 'user', 'ip', 'plugin', 'theme', 'core', 'live_traffic', 'premium_integrations' ],
+			\array_keys( $subjectDefinitions ),
 			\array_values( \array_map( fn( array $subject ) :string => $subject[ 'key' ], $subjects ) )
 		);
 
@@ -123,23 +137,44 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			$this->assertSame( !(bool)$subject[ 'is_enabled' ], (bool)$subject[ 'is_disabled' ] );
 		}
 
-		foreach ( [ 'user', 'ip', 'plugin', 'theme', 'core', 'live_traffic' ] as $enabledKey ) {
+		foreach ( \array_keys( $enabledSubjectDefinitions ) as $enabledKey ) {
+			$subjectDefinition = $subjectDefinitions[ $enabledKey ];
 			$this->assertTrue( $subjectsByKey[ $enabledKey ][ 'is_enabled' ] );
 			$this->assertFalse( $subjectsByKey[ $enabledKey ][ 'is_loaded' ] );
 			$this->assertNotSame( [], $subjectsByKey[ $enabledKey ][ 'render_action' ] );
-			$this->assertStringContainsString( 'Loading investigation panel...', $subjectsByKey[ $enabledKey ][ 'panel_body' ] );
+			$this->assertStringContainsString( 'data-investigate-panel-placeholder="1"', $subjectsByKey[ $enabledKey ][ 'panel_body' ] ?? '' );
 			$this->assertSame( '', $subjectsByKey[ $enabledKey ][ 'subject_title' ] );
+			$this->assertSame(
+				(string)( $subjectDefinition[ 'lookup_key' ] ?? '' ),
+				$subjectsByKey[ $enabledKey ][ 'lookup_key' ] ?? ''
+			);
+			$this->assertSame(
+				$subjectDefinition[ 'render_action' ]::SLUG,
+				$subjectsByKey[ $enabledKey ][ 'render_action' ][ 'render_slug' ] ?? ''
+			);
+			$this->assertSame(
+				$subjectDefinition[ 'render_nav' ],
+				$subjectsByKey[ $enabledKey ][ 'render_action' ][ Constants::NAV_ID ] ?? ''
+			);
+			$this->assertSame(
+				$subjectDefinition[ 'render_subnav' ],
+				$subjectsByKey[ $enabledKey ][ 'render_action' ][ Constants::NAV_SUB_ID ] ?? ''
+			);
 		}
-		$this->assertSame( 'user_lookup', $subjectsByKey[ 'user' ][ 'lookup_key' ] );
-		$this->assertSame( 'analyse_ip', $subjectsByKey[ 'ip' ][ 'lookup_key' ] );
-		$this->assertSame( 'plugin_slug', $subjectsByKey[ 'plugin' ][ 'lookup_key' ] );
-		$this->assertSame( 'theme_slug', $subjectsByKey[ 'theme' ][ 'lookup_key' ] );
-		$this->assertSame( '', $subjectsByKey[ 'core' ][ 'lookup_key' ] );
-		$this->assertSame( '', $subjectsByKey[ 'live_traffic' ][ 'lookup_key' ] );
 
-		$this->assertTrue( $subjectsByKey[ 'live_traffic' ][ 'is_live' ] );
-		foreach ( [ 'user', 'ip', 'plugin', 'theme', 'core', 'premium_integrations' ] as $nonLiveKey ) {
-			$this->assertFalse( $subjectsByKey[ $nonLiveKey ][ 'is_live' ] );
+		foreach ( $subjectDefinitions as $subjectKey => $subjectDefinition ) {
+			$this->assertSame(
+				$subjectKey === 'live_traffic',
+				(bool)( $subjectsByKey[ $subjectKey ][ 'is_live' ] ?? false )
+			);
+			$this->assertSame(
+				(string)( $subjectDefinition[ 'icon_class' ] ?? '' ),
+				$subjectsByKey[ $subjectKey ][ 'subject_icon' ] ?? ''
+			);
+			$this->assertSame(
+				(string)( $subjectDefinition[ 'stat_text' ] ?? '' ),
+				$subjectsByKey[ $subjectKey ][ 'subject_meta' ] ?? ''
+			);
 		}
 
 		$this->assertFalse( $subjectsByKey[ 'premium_integrations' ][ 'is_enabled' ] );
@@ -152,20 +187,21 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
 		$page = new PageInvestigateLandingUnitTestDouble();
 		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
+		$subjectDefinitions = PluginNavs::investigateLandingSubjectDefinitions();
 
 		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertSame( 'info', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
 
-		$this->assertCount( 7, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
+		$this->assertCount( \count( $subjectDefinitions ), $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
-		$this->assertArrayHasKey( 'batch_render_action', $renderData[ 'vars' ] ?? [] );
-		$this->assertSame(
-			'Select a subject above to begin investigating.',
-			$renderData[ 'strings' ][ 'landing_hint' ] ?? ''
-		);
+		$batchRenderAction = (array)( $renderData[ 'vars' ][ 'batch_render_action' ] ?? [] );
+		$this->assertSame( ActionData::FIELD_SHIELD, $batchRenderAction[ ActionData::FIELD_ACTION ] ?? '' );
+		$this->assertSame( AjaxBatchRequests::SLUG, $batchRenderAction[ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertArrayHasKey( ActionData::FIELD_NONCE, $batchRenderAction );
+		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'landing_hint' ] ?? '' ) );
 	}
 
 	public function test_active_panel_context_is_derived_from_subject_and_lookup_action_data() :void {
@@ -174,6 +210,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			'subject'    => 'ip',
 			'analyse_ip' => '203.0.113.99',
 		];
+		$ipDefinition = PluginNavs::investigateLandingSubjectDefinitions()[ 'ip' ];
 
 		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
 		$this->assertSame( 'ip', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
@@ -184,18 +221,45 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			$subjectsByKey[ $subject[ 'key' ] ] = $subject;
 		}
 
-		$this->assertStringContainsString(
-			'analyse_ip=203.0.113.99',
-			$subjectsByKey[ 'ip' ][ 'panel_body' ] ?? ''
-		);
 		$this->assertTrue( $subjectsByKey[ 'ip' ][ 'is_loaded' ] ?? false );
 		$this->assertSame( '203.0.113.99', $subjectsByKey[ 'ip' ][ 'subject_title' ] ?? '' );
-		$this->assertSame( 'bi bi-globe', $subjectsByKey[ 'ip' ][ 'subject_icon' ] ?? '' );
-		$this->assertSame( 'Requests and activity', $subjectsByKey[ 'ip' ][ 'subject_meta' ] ?? '' );
+		$this->assertSame( (string)$ipDefinition[ 'icon_class' ], $subjectsByKey[ 'ip' ][ 'subject_icon' ] ?? '' );
+		$this->assertSame( (string)$ipDefinition[ 'stat_text' ], $subjectsByKey[ 'ip' ][ 'subject_meta' ] ?? '' );
+		$this->assertNotSame( '', \trim( (string)( $subjectsByKey[ 'ip' ][ 'panel_body' ] ?? '' ) ) );
 		foreach ( [ 'user', 'plugin', 'theme', 'core', 'live_traffic' ] as $key ) {
 			$this->assertFalse( $subjectsByKey[ $key ][ 'is_loaded' ] ?? true );
 		}
 		$this->assertCount( 1, $this->renderCapture->calls );
+		$this->assertSame( $ipDefinition[ 'render_action' ], $this->renderCapture->calls[ 0 ][ 'action' ] ?? '' );
+		$this->assertSame( $ipDefinition[ 'render_nav' ], $this->renderCapture->calls[ 0 ][ 'action_data' ][ Constants::NAV_ID ] ?? '' );
+		$this->assertSame( $ipDefinition[ 'render_subnav' ], $this->renderCapture->calls[ 0 ][ 'action_data' ][ Constants::NAV_SUB_ID ] ?? '' );
+		$this->assertSame( '203.0.113.99', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'analyse_ip' ] ?? '' );
+	}
+
+	public function test_active_subject_falls_back_to_lookup_when_subject_key_is_invalid() :void {
+		$page = new PageInvestigateLandingUnitTestDouble();
+		$page->action_data = [
+			'subject'      => 'invalid',
+			'plugin_slug'  => 'hello-dolly/hello.php',
+		];
+		$pluginDefinition = PluginNavs::investigateLandingSubjectDefinitions()[ 'plugin' ];
+
+		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
+		$this->assertSame( 'plugin', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
+
+		$subjects = [];
+		foreach ( (array)( $renderData[ 'vars' ][ 'subjects' ] ?? [] ) as $subject ) {
+			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
+				$subjects[ $subject[ 'key' ] ] = $subject;
+			}
+		}
+		$this->assertTrue( (bool)( $subjects[ 'plugin' ][ 'is_loaded' ] ?? false ) );
+		$this->assertSame( 'hello-dolly/hello.php', $subjects[ 'plugin' ][ 'subject_title' ] ?? '' );
+		$this->assertCount( 1, $this->renderCapture->calls );
+		$this->assertSame( $pluginDefinition[ 'render_action' ], $this->renderCapture->calls[ 0 ][ 'action' ] ?? '' );
+		$this->assertSame( $pluginDefinition[ 'render_nav' ], $this->renderCapture->calls[ 0 ][ 'action_data' ][ Constants::NAV_ID ] ?? '' );
+		$this->assertSame( $pluginDefinition[ 'render_subnav' ], $this->renderCapture->calls[ 0 ][ 'action_data' ][ Constants::NAV_SUB_ID ] ?? '' );
+		$this->assertSame( 'hello-dolly/hello.php', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'plugin_slug' ] ?? '' );
 	}
 
 	public function test_subject_panel_payload_is_cached_per_instance() :void {

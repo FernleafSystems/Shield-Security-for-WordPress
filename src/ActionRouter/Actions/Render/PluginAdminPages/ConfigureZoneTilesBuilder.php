@@ -37,6 +37,7 @@ class ConfigureZoneTilesBuilder {
 	 *       title:string,
 	 *       status:string,
 	 *       status_label:string,
+	 *       status_icon_class:string,
 	 *       note:string,
 	 *       explanations:list<string>,
 	 *       config_action:array<string,mixed>
@@ -100,6 +101,7 @@ class ConfigureZoneTilesBuilder {
 	 *       title:string,
 	 *       status:string,
 	 *       status_label:string,
+	 *       status_icon_class:string,
 	 *       note:string,
 	 *       explanations:list<string>,
 	 *       config_action:array<string,mixed>
@@ -217,6 +219,7 @@ class ConfigureZoneTilesBuilder {
 	 *   title:string,
 	 *   status:string,
 	 *   status_label:string,
+	 *   status_icon_class:string,
 	 *   note:string,
 	 *   explanations:list<string>,
 	 *   config_action:array<string,mixed>
@@ -234,6 +237,7 @@ class ConfigureZoneTilesBuilder {
 	 *   title:string,
 	 *   status:string,
 	 *   status_label:string,
+	 *   status_icon_class:string,
 	 *   note:string,
 	 *   explanations:list<string>,
 	 *   config_action:array<string,mixed>
@@ -253,10 +257,30 @@ class ConfigureZoneTilesBuilder {
 			'title'        => $component->title(),
 			'status'       => $status,
 			'status_label' => $this->componentStatusLabel( $status ),
+			'status_icon_class' => $this->componentStatusIconClass( $status ),
 			'note'         => $this->componentNote( $component ),
 			'explanations' => $explanations,
 			'config_action' => $this->normalizeActionContract( $component->getActions()[ 'config' ] ?? null ),
 		];
+	}
+
+	private function componentStatusIconClass( string $status ) :string {
+		switch ( $status ) {
+			case 'good':
+				$icon = 'check-circle-fill';
+				break;
+			case 'warning':
+				$icon = 'exclamation-triangle-fill';
+				break;
+			case 'critical':
+				$icon = 'x-circle-fill';
+				break;
+			case 'neutral':
+			default:
+				$icon = 'info-circle-fill';
+				break;
+		}
+		return self::con()->svgs->iconClass( $icon );
 	}
 
 	private function componentNote( Component\Base $component ) :string {

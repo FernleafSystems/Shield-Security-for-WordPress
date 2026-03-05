@@ -3,14 +3,23 @@
 		<li class="configure-landing__component-row" data-configure-component-status="{{ component.status }}">
 			<div class="configure-landing__component-main">
 				<div class="configure-landing__component-row-head">
-					<span class="configure-landing__component-title">{{ component.title }}</span>
-					{% if component.config_action is not empty %}
-						<a class="configure-landing__component-config-link {{ component.config_action.classes|default([])|join( ' ' ) }}"
-						   href="{{ component.config_action.href|default('javascript:{}') }}"
-						   {% if component.config_action.title|default('') is not empty %}title="{{ component.config_action.title }}"{% endif %}
-						   {% for key, value in component.config_action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
-						>Configure</a>
-					{% endif %}
+					<span class="configure-landing__component-row-heading">
+						<span class="configure-landing__component-title">{{ component.title }}</span>
+						{% if component.config_action is not empty %}
+							<a class="configure-landing__component-config-link {{ component.config_action.classes|default([])|join( ' ' ) }}"
+							   href="{{ component.config_action.href|default('javascript:{}') }}"
+							   {% if component.config_action.title|default('') is not empty %}title="{{ component.config_action.title }}"{% endif %}
+							   {% for key, value in component.config_action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+							>
+								<i class="{{ component.config_action.icon|default('bi bi-gear') }}" aria-hidden="true"></i>
+								<span class="configure-landing__component-config-link-label">Configure</span>
+							</a>
+						{% endif %}
+					</span>
+					<span class="configure-landing__component-status-icon status-{{ component.status }}" role="img" aria-label="{{ component.status_label }}">
+						<i class="{{ component.status_icon_class|default('bi bi-info-circle-fill') }}" aria-hidden="true"></i>
+						<span class="visually-hidden">{{ component.status_label }}</span>
+					</span>
 				</div>
 				{% if component.note|default('') is not empty %}
 					<span class="configure-landing__component-note">{{ component.note }}</span>
@@ -18,12 +27,16 @@
 				{% if component.explanations|default([]) is not empty and component.status in [ 'warning', 'critical' ] %}
 					<ul class="configure-landing__component-explanations">
 						{% for explanation in component.explanations %}
-							<li>{{ explanation }}</li>
+							<li>
+								<span class="configure-landing__component-explanation-icon" aria-hidden="true">
+									<i class="bi bi-exclamation-circle-fill"></i>
+								</span>
+								<span>{{ explanation }}</span>
+							</li>
 						{% endfor %}
 					</ul>
 				{% endif %}
 			</div>
-			<span class="configure-landing__zone-status status-{{ component.status }}">{{ component.status_label }}</span>
 		</li>
 	{% endfor %}
 </ul>

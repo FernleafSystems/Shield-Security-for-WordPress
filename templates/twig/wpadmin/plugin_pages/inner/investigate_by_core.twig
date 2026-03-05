@@ -1,6 +1,10 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
+	{% include '/wpadmin/components/investigate/subject_header.twig' with {
+		title: vars.subject_header.title|default(strings.inner_page_title|default('WordPress Core')),
+		meta: vars.subject_header.meta|default('')
+	} only %}
 	{% set panes = [
 		{
 			id: vars.tabs.overview.pane_id,
@@ -34,6 +38,7 @@
 	{% include '/wpadmin/components/investigate/page_shell.twig' with {
 		nav_id: 'ShieldInvestigateByCoreTabsNav',
 		nav_items: vars.rail_nav_items,
-		panes: panes
+		panes: panes,
+		is_flat: true
 	} only %}
 {% endblock %}

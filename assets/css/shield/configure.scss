@@ -247,7 +247,7 @@
 }
 
 .configure-landing__component-row {
-	align-items: center;
+	align-items: flex-start;
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;
 	border-radius: 8px;
@@ -265,10 +265,18 @@
 }
 
 .configure-landing__component-row-head {
-	align-items: flex-start;
+	align-items: center;
 	display: flex;
 	gap: 0.5rem;
 	justify-content: space-between;
+}
+
+.configure-landing__component-row-heading {
+	align-items: center;
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	min-width: 0;
 }
 
 .configure-landing__component-title {
@@ -278,15 +286,57 @@
 }
 
 .configure-landing__component-config-link {
+	align-items: center;
 	color: $status-color-info;
+	display: inline-flex;
 	font-size: 0.75rem;
 	font-weight: 600;
+	gap: 0.25rem;
 	text-decoration: none;
 	white-space: nowrap;
 }
 
+.configure-landing__component-config-link i {
+	font-size: 0.78rem;
+	line-height: 1;
+}
+
 .configure-landing__component-config-link:hover {
 	text-decoration: underline;
+}
+
+.configure-landing__component-status-icon {
+	align-items: center;
+	border-radius: 999px;
+	display: inline-flex;
+	height: 1.25rem;
+	justify-content: center;
+	width: 1.25rem;
+}
+
+.configure-landing__component-status-icon i {
+	font-size: 0.82rem;
+	line-height: 1;
+}
+
+.configure-landing__component-status-icon.status-good {
+	background: $badge-good-bg;
+	color: $badge-good-color;
+}
+
+.configure-landing__component-status-icon.status-warning {
+	background: $badge-warning-bg;
+	color: $badge-warning-color;
+}
+
+.configure-landing__component-status-icon.status-critical {
+	background: $badge-critical-bg;
+	color: $badge-critical-color;
+}
+
+.configure-landing__component-status-icon.status-neutral {
+	background: $badge-info-bg;
+	color: $badge-info-color;
 }
 
 .configure-landing__component-note {
@@ -297,14 +347,34 @@
 
 .configure-landing__component-explanations {
 	color: #646970;
+	list-style: none;
 	font-size: 0.72rem;
 	line-height: 1.35;
 	margin: 0.15rem 0 0;
-	padding-left: 1rem;
+	padding-left: 0;
 }
 
 .configure-landing__component-explanations li {
+	align-items: flex-start;
+	display: flex;
+	gap: 0.35rem;
 	margin-bottom: 0.1rem;
+}
+
+.configure-landing__component-explanation-icon {
+	color: #7d8894;
+	display: inline-flex;
+	font-size: 0.72rem;
+	line-height: 1.2;
+	margin-top: 0.05rem;
+}
+
+.configure-landing__component-row[data-configure-component-status="warning"] .configure-landing__component-explanation-icon {
+	color: $badge-warning-color;
+}
+
+.configure-landing__component-row[data-configure-component-status="critical"] .configure-landing__component-explanation-icon {
+	color: $badge-critical-color;
 }
 
 .configure-landing__panel-actions {

@@ -20,6 +20,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		this.initializeSelect2Within( this.rootEl );
 		this.bindHandlers();
+		this.syncPanelHeadersForAllPanels();
 		this.syncInlineTabsForAllPanels();
 		this.syncLandingHintVisibilityFromPanelState();
 		this.preloadInactivePanels();
@@ -368,6 +369,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		panelContent.innerHTML = panelBodyHtml;
+		this.syncPanelHeader( panel, true );
 		this.initializeSelect2Within( panelContent );
 		new InvestigationTable();
 		this.rebuildInlineTabs( panel );
@@ -379,6 +381,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( panelContent !== null ) {
 			panelContent.innerHTML = this.buildInlineErrorMarkup();
 		}
+		this.syncPanelHeader( panel, true );
 		this.clearInlineTabs( panel );
 		this.setPanelLoadedState( panel, false );
 	}
@@ -420,6 +423,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		const afterLoad = () => {
+			this.syncPanelHeader( panel );
 			this.rebuildInlineTabs( panel );
 			if ( this.isLivePanel( panel ) ) {
 				this.startLivePanelPoller( panel );
@@ -574,9 +578,44 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		} );
 	}
 
+	syncPanelHeadersForAllPanels() {
+		if ( this.rootEl === null ) {
+			return;
+		}
+		this.rootEl.querySelectorAll( '[data-investigate-panel]' ).forEach( ( panel ) => {
+			this.syncPanelHeader( panel, true );
+		} );
+	}
+
+	syncPanelHeader( panel, clearIfMissing = false ) {
+		const panelHeader = this.getPanelHeaderContainer( panel );
+		if ( panelHeader === null ) {
+			return;
+		}
+
+		const panelContent = this.getPanelContentContainer( panel );
+		const subjectHeader = panelContent === null
+			? null
+			: panelContent.querySelector( '.investigate-subject-header' );
+
+		if ( subjectHeader !== null ) {
+			panelHeader.innerHTML = '';
+			panelHeader.appendChild( subjectHeader );
+			return;
+		}
+
+		if ( clearIfMissing ) {
+			panelHeader.innerHTML = '';
+		}
+	}
+
 	getPanelContentContainer( panel ) {
 		return panel.querySelector( '[data-investigate-panel-content="1"]' )
 			|| panel.querySelector( '[data-mode-panel-body]' );
+	}
+
+	getPanelHeaderContainer( panel ) {
+		return panel.querySelector( '[data-investigate-panel-header="1"]' );
 	}
 
 	getPanelTabsContainer( panel ) {

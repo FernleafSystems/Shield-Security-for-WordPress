@@ -64,6 +64,7 @@
 			{% if subject.is_enabled %}
 				{% set is_open = active_subject == subject.key %}
 				{% set panel_body %}
+					<div data-investigate-panel-header="1"></div>
 					<div class="investigate-panel__tabs" data-investigate-panel-tabs="1"></div>
 					<div data-investigate-panel-content="1">
 						{{ subject.panel_body|raw }}
