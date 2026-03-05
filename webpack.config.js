@@ -13,6 +13,12 @@ const outputPath = './assets/dist';
 
 module.exports = {
 	mode: "production",
+	cache: {
+		type: 'filesystem',
+		buildDependencies: {
+			config: [__filename]
+		}
+	},
 	entry: {
 		'shield-main': pathResources + '/plugin-main.js',
 		'shield-badge': pathResources + '/plugin-badge.js',
@@ -76,15 +82,10 @@ module.exports = {
 			},
 			{
 				test: /\.(jpg|jpeg|png|gif|woff|woff2|eot|ttf|svg)$/i,
-				type: 'javascript/auto',
-				use: {
-					loader: "file-loader",
-					options: {
-						name: "[name].[ext]",
-						outputPath: "img",
-						esModule: false,
-					}
-				},
+				type: 'asset/resource',
+				generator: {
+					filename: 'img/[name][ext]'
+				}
 			},
 			// {
 			// 	// Loader for webpack to process CSS with PostCSS

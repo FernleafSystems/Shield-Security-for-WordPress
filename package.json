@@ -6,17 +6,17 @@
     "@babel/preset-env": "^7.29.0",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "@simplewebauthn/browser": "^8.3.7",
-    "@wp-playground/cli": "^3.0.53",
+    "@wp-playground/cli": "^3.1.4",
+    "ajv": "^8.18.0",
     "altcha-lib": "^1.4.1",
     "autoprefixer": "^10.4.24",
     "babel-loader": "^10.0.0",
     "bigpicture": "^2.6.4",
     "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.5",
     "css-loader": "^7.1.2",
-    "css-minimizer-webpack-plugin": "^7.0.4",
-    "file-loader": "^6.2.0",
-    "bootstrap-icons": "^1.11.3",
+    "css-minimizer-webpack-plugin": "^8.0.0",
     "highlight.js": "^11.11.1",
     "intro.js": "^7.2.0",
     "jquery": "^3.7.1",
@@ -47,6 +47,9 @@
     "jquery-mousewheel": "^3.2.2",
     "select2": "^4.1.0-rc.0",
     "sortablejs": "^1.15.6"
+  },
+  "overrides": {
+    "ajv": "^8.18.0"
   },
   "scripts": {
     "start": "webpack --config webpack.config.js",
