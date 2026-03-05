@@ -1,21 +1,80 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	PageDashboardOverview,
+	PageOperatorModeLanding
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	InvokesNonPublicMethods,
+	PluginControllerInstaller
+};
 
 class DashboardOverviewTemplateContractTest extends BaseUnitTest {
 
-	use PluginPathsTrait;
+	use InvokesNonPublicMethods;
 
-	public function testDashboardOverviewTemplateRendersOperatorModeLandingDirectly() :void {
-		$content = $this->getPluginFileContents(
-			'templates/twig/wpadmin/plugin_pages/inner/dashboard_overview.twig',
-			'dashboard overview template'
-		);
-		$legacyInclude = 'dashboard_overview'.'_simple'.'_body.twig';
+	private object $renderCapture;
 
-		$this->assertStringContainsString( '{{ content.operator_mode_landing|raw }}', $content );
-		$this->assertStringNotContainsString( $legacyInclude, $content );
+	protected function setUp() :void {
+		parent::setUp();
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		$this->installControllerStub();
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		parent::tearDown();
+	}
+
+	public function test_dashboard_overview_contract_delegates_to_operator_mode_landing_component() :void {
+		$page = new PageDashboardOverview();
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertSame( PageOperatorModeLanding::class, (string)$this->renderCapture->action );
+		$this->assertSame( [], (array)$this->renderCapture->actionData );
+		$this->assertSame( [ 'operator_mode_landing' ], \array_keys( $renderData[ 'content' ] ?? [] ) );
+		$this->assertSame( 'rendered-operator-mode-landing', $renderData[ 'content' ][ 'operator_mode_landing' ] ?? '' );
+	}
+
+	private function installControllerStub() :void {
+		$this->renderCapture = (object)[
+			'action'     => '',
+			'actionData' => [],
+		];
+
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->svgs = new class {
+			public function iconClass( string $icon ) :string {
+				return 'bi bi-'.$icon;
+			}
+		};
+		$controller->action_router = new class( $this->renderCapture ) {
+			private object $capture;
+
+			public function __construct( object $capture ) {
+				$this->capture = $capture;
+			}
+
+			public function render( string $action, array $actionData = [] ) :string {
+				$this->capture->action = $action;
+				$this->capture->actionData = $actionData;
+				return 'rendered-operator-mode-landing';
+			}
+		};
+
+		PluginControllerInstaller::install( $controller );
 	}
 }

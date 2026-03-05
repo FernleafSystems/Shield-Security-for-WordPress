@@ -37,49 +37,35 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_actions_hero_single_item_uses_singular_copy() :void {
+	public function test_actions_cell_uses_summary_contract_for_status_copy_and_breakdown() :void {
 		$page = new PageOperatorModeLanding();
-		$hero = $this->invokeNonPublicMethod( $page, 'buildActionsHero', [
+		$cell = $this->invokeNonPublicMethod( $page, 'buildActionsCell', [
 			[
 				'has_items'   => true,
 				'total_items' => 1,
 				'severity'    => 'critical',
-				'icon_class'  => 'bi bi-exclamation-triangle-fill',
+				'icon_class'  => 'from-summary',
 				'subtext'     => 'Last scan: 2 minutes ago',
 			],
-		] );
-
-		$this->assertSame( 'critical', $hero[ 'severity' ] ?? '' );
-		$this->assertSame( 'critical', $hero[ 'badge_status' ] ?? '' );
-		$this->assertSame( 'bi bi-exclamation-triangle-fill', $hero[ 'icon_class' ] ?? '' );
-		$this->assertSame( 'Last scan: 2 minutes ago', $hero[ 'meta' ] ?? '' );
-		$this->assertSame( '1 item', $hero[ 'badge_text' ] ?? '' );
-		$this->assertStringContainsString( '1 issue needs your attention', $hero[ 'subtitle' ] ?? '' );
-	}
-
-	public function test_build_actions_hero_uses_normalized_summary_contract() :void {
-		$page = new PageOperatorModeLanding();
-		$hero = $this->invokeNonPublicMethod( $page, 'buildActionsHero', [
 			[
-				'has_items'   => true,
-				'total_items' => 2,
-				'severity'    => 'warning',
-				'icon_class'  => 'bi bi-exclamation-triangle-fill',
-				'subtext'     => 'Last scan: 4 minutes ago',
+				[ 'severity' => 'critical', 'total_issues' => 2 ],
+				[ 'severity' => 'warning', 'total_issues' => 1 ],
 			],
 		] );
 
-		$this->assertSame( 'warning', $hero[ 'severity' ] ?? '' );
-		$this->assertSame( 'warning', $hero[ 'badge_status' ] ?? '' );
-		$this->assertSame( 'bi bi-exclamation-triangle-fill', $hero[ 'icon_class' ] ?? '' );
-		$this->assertSame( 'Last scan: 4 minutes ago', $hero[ 'meta' ] ?? '' );
-		$this->assertSame( '2 items', $hero[ 'badge_text' ] ?? '' );
-		$this->assertStringContainsString( '2 issues need your attention', $hero[ 'subtitle' ] ?? '' );
+		$this->assertSame( 'actions', $cell[ 'mode' ] ?? '' );
+		$this->assertSame( 'status', $cell[ 'indicator_type' ] ?? '' );
+		$this->assertSame( 'status-critical', $cell[ 'indicator_class' ] ?? '' );
+		$this->assertSame( '1 issue needs attention', $cell[ 'indicator_text' ] ?? '' );
+		$this->assertSame( '2 critical - 1 warning', $cell[ 'indicator_subtext' ] ?? '' );
+		$this->assertSame( 'Last scan: 2 minutes ago', $cell[ 'footnote' ] ?? '' );
+		$this->assertSame( 'from-summary', $cell[ 'icon_class' ] ?? '' );
+		$this->assertSame( '/admin/scans/overview', $cell[ 'href' ] ?? '' );
 	}
 
-	public function test_build_actions_hero_all_clear_branch_uses_good_defaults() :void {
+	public function test_actions_cell_all_clear_branch_uses_all_clear_copy() :void {
 		$page = new PageOperatorModeLanding();
-		$hero = $this->invokeNonPublicMethod( $page, 'buildActionsHero', [
+		$cell = $this->invokeNonPublicMethod( $page, 'buildActionsCell', [
 			[
 				'has_items'   => false,
 				'total_items' => 0,
@@ -87,17 +73,41 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'icon_class'  => 'bi bi-shield-check',
 				'subtext'     => '',
 			],
+			[],
 		] );
 
-		$this->assertSame( 'good', $hero[ 'severity' ] ?? '' );
-		$this->assertSame( 'good', $hero[ 'badge_status' ] ?? '' );
-		$this->assertSame( 'bi bi-shield-check', $hero[ 'icon_class' ] ?? '' );
-		$this->assertSame( 'All clear', $hero[ 'badge_text' ] ?? '' );
-		$this->assertSame( 'All clear - no issues require your attention', $hero[ 'subtitle' ] ?? '' );
+		$this->assertSame( 'status-good', $cell[ 'indicator_class' ] ?? '' );
+		$this->assertSame( 'All Clear', $cell[ 'indicator_text' ] ?? '' );
+		$this->assertSame( '', $cell[ 'indicator_subtext' ] ?? 'not-empty' );
+	}
+
+	public function test_investigate_configure_and_reports_cells_use_expected_indicator_contracts() :void {
+		$page = new PageOperatorModeLanding();
+
+		$investigate = $this->invokeNonPublicMethod( $page, 'buildInvestigateCell', [ 3 ] );
+		$this->assertSame( 'status', $investigate[ 'indicator_type' ] ?? '' );
+		$this->assertSame( 'status-neutral', $investigate[ 'indicator_class' ] ?? '' );
+		$this->assertSame( '3 active sessions', $investigate[ 'indicator_text' ] ?? '' );
+		$this->assertSame( '/admin/activity/overview', $investigate[ 'href' ] ?? '' );
+
+		$configure = $this->invokeNonPublicMethod( $page, 'buildConfigureCell', [ 95, 'good' ] );
+		$this->assertSame( 'posture', $configure[ 'indicator_type' ] ?? '' );
+		$this->assertSame( 95, $configure[ 'posture_percentage' ] ?? null );
+		$this->assertSame( 'good', $configure[ 'posture_status' ] ?? '' );
+		$this->assertSame( '95% configured', $configure[ 'posture_text' ] ?? '' );
+		$this->assertSame( '/admin/zones/overview', $configure[ 'href' ] ?? '' );
+
+		$reportsWithData = $this->invokeNonPublicMethod( $page, 'buildReportsCell', [ 5 ] );
+		$this->assertSame( 'status-neutral', $reportsWithData[ 'indicator_class' ] ?? '' );
+		$this->assertSame( '5 reports', $reportsWithData[ 'indicator_text' ] ?? '' );
+		$this->assertSame( '/admin/reports/overview', $reportsWithData[ 'href' ] ?? '' );
+
+		$reportsFallback = $this->invokeNonPublicMethod( $page, 'buildReportsCell', [ 0 ] );
+		$this->assertSame( 'Summaries & Alerts', $reportsFallback[ 'indicator_text' ] ?? '' );
 	}
 
 	public function test_queue_summary_is_loaded_from_render_data_contract_path() :void {
-		$this->installControllerStubWithQueuePayload( [
+		$payload = [
 			'vars'        => [
 				'summary' => [
 					'has_items'   => false,
@@ -118,50 +128,49 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					],
 				],
 			],
-		] );
+		];
 
 		$page = new PageOperatorModeLanding();
-		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary' );
+		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ $payload ] );
 
-		$this->assertSame( true, $summary[ 'has_items' ] );
-		$this->assertSame( 3, $summary[ 'total_items' ] );
-		$this->assertSame( 'warning', $summary[ 'severity' ] );
-		$this->assertSame( 'from-render-data', $summary[ 'icon_class' ] );
-		$this->assertSame( 'from-render-data', $summary[ 'subtext' ] );
+		$this->assertTrue( (bool)( $summary[ 'has_items' ] ?? false ) );
+		$this->assertSame( 3, $summary[ 'total_items' ] ?? null );
+		$this->assertSame( 'warning', $summary[ 'severity' ] ?? '' );
+		$this->assertSame( 'from-render-data', $summary[ 'icon_class' ] ?? '' );
+		$this->assertSame( 'from-render-data', $summary[ 'subtext' ] ?? '' );
 	}
 
-	public function test_build_investigate_badge_text_handles_zero_singular_and_plural() :void {
+	public function test_queue_zone_groups_are_extracted_and_normalized() :void {
 		$page = new PageOperatorModeLanding();
+		$zoneGroups = $this->invokeNonPublicMethod( $page, 'getQueueZoneGroups', [ [
+			'render_data' => [
+				'vars' => [
+					'zone_groups' => [
+						[ 'severity' => 'critical', 'total_issues' => 2 ],
+						[ 'severity' => 'warning', 'total_issues' => 1 ],
+					],
+				],
+			],
+		] ] );
 
-		$this->assertSame( '', $this->invokeNonPublicMethod( $page, 'buildInvestigateBadgeText', [ 0 ] ) );
-		$this->assertSame( '1 active session', $this->invokeNonPublicMethod( $page, 'buildInvestigateBadgeText', [ 1 ] ) );
-		$this->assertSame( '4 active sessions', $this->invokeNonPublicMethod( $page, 'buildInvestigateBadgeText', [ 4 ] ) );
+		$this->assertSame(
+			[
+				[ 'severity' => 'critical', 'total_issues' => 2 ],
+				[ 'severity' => 'warning', 'total_issues' => 1 ],
+			],
+			$zoneGroups
+		);
 	}
 
-	public function test_build_reports_badge_text_handles_zero_singular_and_plural() :void {
+	public function test_queue_summary_falls_back_to_safe_defaults_for_missing_fields() :void {
 		$page = new PageOperatorModeLanding();
+		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ [] ] );
 
-		$this->assertSame( '', $this->invokeNonPublicMethod( $page, 'buildReportsBadgeText', [ 0 ] ) );
-		$this->assertSame( '1 report', $this->invokeNonPublicMethod( $page, 'buildReportsBadgeText', [ 1 ] ) );
-		$this->assertSame( '5 reports', $this->invokeNonPublicMethod( $page, 'buildReportsBadgeText', [ 5 ] ) );
-	}
-
-	public function test_build_mode_strip_includes_live_badges_and_config_badge_label() :void {
-		$page = new PageOperatorModeLanding();
-		$strip = $this->invokeNonPublicMethod( $page, 'buildModeStrip', [ 72, 'warning', '3 active sessions', '8 reports' ] );
-
-		$this->assertSame( '3 active sessions', $strip[ 0 ][ 'badge_text' ] ?? '' );
-		$this->assertSame( '72%', $strip[ 1 ][ 'badge_text' ] ?? '' );
-		$this->assertSame( 'Config Score', $strip[ 1 ][ 'badge_label' ] ?? '' );
-		$this->assertSame( '8 reports', $strip[ 2 ][ 'badge_text' ] ?? '' );
-	}
-
-	public function test_build_mode_strip_keeps_badges_empty_when_no_live_data() :void {
-		$page = new PageOperatorModeLanding();
-		$strip = $this->invokeNonPublicMethod( $page, 'buildModeStrip', [ 72, 'warning', '', '' ] );
-
-		$this->assertSame( '', $strip[ 0 ][ 'badge_text' ] ?? 'not-empty' );
-		$this->assertSame( '', $strip[ 2 ][ 'badge_text' ] ?? 'not-empty' );
+		$this->assertFalse( (bool)( $summary[ 'has_items' ] ?? true ) );
+		$this->assertSame( 0, $summary[ 'total_items' ] ?? null );
+		$this->assertSame( 'good', $summary[ 'severity' ] ?? '' );
+		$this->assertSame( 'bi bi-shield-check', $summary[ 'icon_class' ] ?? '' );
+		$this->assertSame( '', $summary[ 'subtext' ] ?? 'not-empty' );
 	}
 
 	private function installControllerStubWithQueuePayload( array $queuePayload ) :void {
@@ -170,10 +179,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$controller->plugin_urls = new class {
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
-			}
-
-			public function noncedPluginAction( string $action, string $redirectUrl ) :string {
-				return '/action/'.$action.'?redirect='.urlencode( $redirectUrl );
 			}
 		};
 		$controller->svgs = new class {
@@ -202,6 +207,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				};
 			}
 		};
+
 		PluginControllerInstaller::install( $controller );
 	}
 }

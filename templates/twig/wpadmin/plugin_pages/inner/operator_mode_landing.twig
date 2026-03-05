@@ -1,67 +1,32 @@
 <div class="operator-mode-landing">
-	<a href="{{ hrefs.actions_queue }}"
-	   class="operator-mode-landing__hero shield-card d-block text-decoration-none mt-3"
-	   aria-label="{{ strings.actions_queue_title }}">
-		<div class="shield-card-accent status-{{ vars.actions_hero.severity }}"></div>
-		<div class="operator-mode-landing__hero-body">
-			<span class="operator-mode-landing__hero-icon is-{{ vars.actions_hero.severity }}">
-				<i class="{{ vars.actions_hero.icon_class }}" aria-hidden="true"></i>
-			</span>
-			<span class="operator-mode-landing__hero-content">
-				<span class="operator-mode-landing__hero-title">{{ strings.actions_queue_title }}</span>
-				<span class="operator-mode-landing__hero-sub">{{ vars.actions_hero.subtitle }}</span>
-				{% if vars.actions_hero.meta|default('') is not empty %}
-					<span class="operator-mode-landing__hero-meta">{{ vars.actions_hero.meta }}</span>
-				{% endif %}
-			</span>
-			<span class="shield-badge badge-{{ vars.actions_hero.badge_status }}">{{ vars.actions_hero.badge_text }}</span>
-			<span class="operator-mode-landing__hero-arrow">
-				<i class="bi bi-chevron-right" aria-hidden="true"></i>
-			</span>
-		</div>
-	</a>
+	<div class="mode-selector-grid" data-mode-selector-grid="1">
+		{% for cell in vars.mode_grid_cells|default([]) %}
+			<a href="{{ cell.href }}"
+			   class="mode-selector-cell"
+			   data-mode="{{ cell.mode }}"
+			   aria-label="{{ cell.label }}">
+				<span class="mode-selector-cell-icon"><i class="{{ cell.icon_class }}" aria-hidden="true"></i></span>
+				<span class="mode-selector-cell-title">{{ cell.label }}</span>
+				<span class="mode-selector-cell-description">{{ cell.description }}</span>
 
-	<div class="operator-mode-landing__strip row g-3 mt-2">
-		{% for mode in vars.mode_strip %}
-			<div class="col-12 col-md-4">
-				<a href="{{ mode.href }}"
-				   class="operator-mode-landing__strip-card shield-card d-block h-100 text-decoration-none"
-				   aria-label="{{ mode.label }}">
-					<div class="shield-card-accent status-{{ mode.status }}"></div>
-					<div class="operator-mode-landing__strip-body">
-						<span class="operator-mode-landing__strip-icon is-{{ mode.status }}">
-							<i class="{{ mode.icon_class }}" aria-hidden="true"></i>
+				{% if cell.indicator_type == 'posture' %}
+					<span class="cell-posture-wrap">
+						<span class="cell-posture-track">
+							<span class="cell-posture-fill status-{{ cell.posture_status }}" style="width: {{ cell.posture_percentage }}%"></span>
 						</span>
-						<span class="operator-mode-landing__strip-title">{{ mode.label }}</span>
-						<span class="operator-mode-landing__strip-summary">{{ mode.summary }}</span>
-						{% if mode.badge_text|default('') is not empty %}
-							<span class="shield-badge badge-{{ mode.badge_status|default(mode.status) }}">{{ mode.badge_text }}</span>
-							{% if mode.badge_label|default('') is not empty %}
-								<span class="operator-mode-landing__strip-badge-label">{{ mode.badge_label }}</span>
-							{% endif %}
-						{% endif %}
-					</div>
-				</a>
-			</div>
-		{% endfor %}
-	</div>
+						<span class="cell-posture-label status-{{ cell.posture_status }}">{{ cell.posture_text }}</span>
+					</span>
+				{% else %}
+					<span class="cell-status-bar {{ cell.indicator_class|default('status-neutral') }}">{{ cell.indicator_text }}</span>
+					{% if cell.indicator_subtext|default('') is not empty %}
+						<span class="cell-status-subtext">{{ cell.indicator_subtext }}</span>
+					{% endif %}
+				{% endif %}
 
-	<div class="card mt-3 border-0 shadow-sm">
-		<div class="card-body">
-			<form method="post" action="{{ hrefs.operator_mode_switch }}" class="row g-2 align-items-end">
-				<div class="col-md-8 col-xl-9">
-					<label for="shield_default_operator_mode" class="form-label mb-1">{{ strings.set_default_mode }}</label>
-					<select class="form-select" id="shield_default_operator_mode" name="mode">
-						{% for option in vars.mode_options %}
-							<option value="{{ option.mode }}" {{ option.mode == vars.default_mode ? 'selected' : '' }}>{{ option.label }}</option>
-						{% endfor %}
-					</select>
-					<div class="form-text">{{ strings.start_mode_help }}</div>
-				</div>
-				<div class="col-md-4 col-xl-3">
-					<button type="submit" class="btn btn-outline-secondary w-100">{{ strings.save_default_mode }}</button>
-				</div>
-			</form>
-		</div>
+				{% if cell.footnote|default('') is not empty %}
+					<span class="mode-selector-cell-footnote">{{ cell.footnote }}</span>
+				{% endif %}
+			</a>
+		{% endfor %}
 	</div>
 </div>

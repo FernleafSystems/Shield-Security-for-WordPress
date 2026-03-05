@@ -17,8 +17,17 @@ class PageDashboardOverview extends BasePluginAdminPage {
 				'inner_page_title_icon' => $con->svgs->iconClass( 'speedometer' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Security Overview', 'wp-simple-firewall' ),
+				'inner_page_title'    => __( 'Shield Security', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Your entire WordPress site security at a glance.', 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'mode_shell' => [
+					'mode'            => '',
+					'accent_status'   => 'good',
+					'header_density'  => 'compact',
+					'is_mode_landing' => true,
+					'is_interactive'  => false,
+				],
 			],
 		];
 	}

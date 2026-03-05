@@ -368,9 +368,32 @@ table.odp-table.scan-table td.column-path code {
 }
 
 #navbar-bannerlogo {
-  width: 100%;
+  width: 26px;
+  height: 26px;
   display: inline-block;
   background-repeat: no-repeat;
+  flex-shrink: 0;
+}
+
+#PageMainSide-Apto .logo-container .logo-text {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+#PageMainSide-Apto .logo-container .logo-title {
+  color: #1d2327;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+#PageMainSide-Apto .logo-container .logo-subtitle {
+  color: #5f6974;
+  font-size: 0.64rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navbar .nav-item {
@@ -767,19 +790,19 @@ body.folded #FooterBannerGoPro {
   background-color: #f1f1f1;
 }
 
-$sidebar-width-expanded: 230px;
-$sidebar-width-collapsed: 56px;
+$sidebar-width-expanded: 210px;
+$sidebar-width-collapsed: 52px;
 $sidebar-transition-speed: 0.25s;
 
 #PageMainSide-Apto {
-  background-color: transparent;
-  border: 0 none;
+  background-color: #f6f7f7;
+  border-right: 1px solid #dcdcde;
   min-width: $sidebar-width-expanded;
   width: $sidebar-width-expanded;
 
   .sidebar-inner {
     width: $sidebar-width-expanded;
-    min-height: 100%;
+    min-height: 100vh;
   }
 
   @include media-breakpoint-down(lg) {
@@ -803,8 +826,8 @@ $sidebar-transition-speed: 0.25s;
 
     &:hover .sidebar-inner {
       width: $sidebar-width-expanded;
-      background-color: #f1f1f1;
-      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.15);
+      background-color: #f6f7f7;
+      box-shadow: 3px 0 12px rgba(0, 0, 0, 0.1);
       overflow: visible;
     }
   }
@@ -812,10 +835,10 @@ $sidebar-transition-speed: 0.25s;
 
 #PageMainSide-Apto > .sidebar-inner > .logo-container,
 #PageMainSide-Apto > .logo-container {
-  padding: 5px 20px 8px;
+  padding: 6px 10px 8px;
 }
 
-#PageMainSide-Apto .nav-link.disabled {
+#PageMainSide-Apto a.disabled {
   opacity: 0.4 !important;
   color: #b7b7b7 !important;
 }
@@ -824,46 +847,51 @@ $sidebar-transition-speed: 0.25s;
 
   // --- Logo Section ---
   #PageMainSide-Apto .logo-container {
-    padding: 8px 4px !important;
+    padding: 8px 2px !important;
     .navbar-brand {
-      max-width: 32px;
+      max-width: 26px;
       display: block;
       margin: 0 auto;
     }
   }
-  #PageMainSide-Apto .logo-container + .row {
-    display: none;
-  }
   #PageMainSide-Apto:hover .logo-container {
-    padding: 5px 20px 8px !important;
+    padding: 6px 10px 8px !important;
     .navbar-brand {
       max-width: none;
     }
   }
-  #PageMainSide-Apto:hover .logo-container + .row {
+
+  // --- Super Search (icon-only while collapsed, full control on hover) ---
+  #SuperSearchLaunch {
     display: flex !important;
   }
-
-  // --- Super Search (hide entirely when collapsed, restore on hover) ---
-  #SuperSearchLaunch {
-    display: none !important;
+  #SuperSearchLaunch > input {
+    width: 34px !important;
+    min-width: 34px;
+    text-indent: -9999px;
+    background-position: center !important;
+    margin-bottom: 10px !important;
   }
   #PageMainSide-Apto:hover #SuperSearchLaunch {
     display: flex !important;
   }
+  #PageMainSide-Apto:hover #SuperSearchLaunch > input {
+    width: 100% !important;
+    text-indent: 20px;
+  }
 
   // --- Version Footer ---
-  #PageMainSide-Apto > .sidebar-inner > .mt-2.text-center {
+  #PageMainSide-Apto > .sidebar-inner > .shield-sidebar-footer {
     display: none;
   }
-  #PageMainSide-Apto:hover > .sidebar-inner > .mt-2.text-center {
+  #PageMainSide-Apto:hover > .sidebar-inner > .shield-sidebar-footer {
     display: block;
   }
 }
 
 #PageMainBody_Inner-Apto {
   background-color: #f0f0f1;
-  padding: 1.5rem;
+  padding: 2rem;
   min-height: 800px;
 }
 

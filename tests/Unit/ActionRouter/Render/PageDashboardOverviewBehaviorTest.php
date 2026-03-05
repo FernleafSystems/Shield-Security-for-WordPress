@@ -43,10 +43,19 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( PageOperatorModeLanding::class, (string)$this->renderCapture->action );
 		$this->assertSame( [], (array)$this->renderCapture->actionData );
+		$this->assertSame( [ 'operator_mode_landing' ], \array_keys( $renderData[ 'content' ] ?? [] ) );
+		$this->assertSame( 'rendered-operator-mode-landing', $renderData[ 'content' ][ 'operator_mode_landing' ] ?? '' );
+		$this->assertSame( 'bi bi-speedometer', $renderData[ 'imgs' ][ 'inner_page_title_icon' ] ?? '' );
+		$this->assertSame( 'Shield Security', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
 		$this->assertSame(
-			[ 'operator_mode_landing' => 'rendered-operator-mode-landing' ],
-			$renderData[ 'content' ] ?? []
+			'Your entire WordPress site security at a glance.',
+			$renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? ''
 		);
+		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? 'missing' );
+		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
+		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 	}
 
 	private function installControllerStub() :void {

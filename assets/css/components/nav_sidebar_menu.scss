@@ -1,320 +1,375 @@
+$mode-actions: $danger;
+$mode-actions-light: #fdeaec;
+$mode-actions-border: #f5c6cb;
 
-// ============================================================
-// Sidebar Navigation — "Refined Rail" Design
-// Visual sibling of the options rail nav. Rounded-rect items,
-// inset-shadow active state, compact sub-menu items.
-// ============================================================
+$mode-investigate: $info;
+$mode-investigate-light: #e0f4f8;
+$mode-investigate-border: #b6e3ed;
 
-// --- Top-level nav list ---
+$mode-configure: $primary;
+$mode-configure-light: #e8f5e8;
+$mode-configure-border: #c7dfc7;
 
-#NavSideBar .top-level-nav {
-	padding: 0.5rem;
-}
+$mode-reports: #d4880f;
+$mode-reports-light: #fef6e6;
+$mode-reports-border: #f0ddb8;
 
-#NavSideBar .top-level-nav > li.nav-item {
-	margin-bottom: 0.15rem;
-	z-index: 1;
-}
-
-// --- Top-level nav link ---
-
-#NavSideBar .nav-item > .nav-link {
-	border: 1px solid transparent;
-	border-radius: 8px;
-	font-size: 0.88rem;
-	font-weight: 600;
-	color: #2f3d4d;
-	padding: 0.5rem 0.7rem;
-	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-// Hover
-#NavSideBar .nav-item > .nav-link:hover {
-	background: #f7f9f7;
-	border-color: $border-color-neutral-subtle;
-}
-
-#NavSideBar .nav-item > .nav-link.mode-back-link {
-	font-size: 0.8rem;
-	font-weight: 500;
-	color: #5f6974;
-	background: #f8f9f8;
-	border-color: $border-color-neutral-subtle;
-}
-
-#NavSideBar .nav-item > .nav-link.mode-back-link .subtitle {
-	display: none;
-}
-
-#NavSideBar .nav-item > .nav-link.mode-back-link:hover {
-	background: #f7f9f7;
-	border-color: $border-color-neutral-subtle;
-	color: #2f3d4d;
-}
-
-#NavSideBar .nav-item > .nav-link.menu-group-break-before {
-	margin-top: 0.55rem;
-	position: relative;
-}
-
-#NavSideBar .nav-item > .nav-link.menu-group-break-before::before {
-	content: '';
-	position: absolute;
-	top: -0.32rem;
-	left: 0.7rem;
-	right: 0.7rem;
-	border-top: 1px solid $accent-color-salt-green-soft;
-	opacity: 0.8;
-}
-
-#NavSideBar .nav-item:hover .nav-icon > .bi { color: $primary; }
-#NavSideBar .nav-item:hover .top-title { color: $primary; }
-
-// Active
-#NavSideBar .nav-item.active > .nav-link,
-#NavSideBar .nav-item.activesub > .nav-link {
-	background: #f2f9f2;
-	border-color: #c7dfc7;
-	box-shadow: inset 2px 0 0 #9ac99a;
-	color: $primary;
-}
-
-// --- Icons ---
-
-#NavSideBar .nav-item > .nav-link > a {
-	align-items: flex-start;
-}
-
-#NavSideBar .nav-item .nav-icon {
-	display: inline-flex;
-	flex-shrink: 0;
-	line-height: 1;
-	margin-top: calc(0.08rem + 2px);
-}
-
-#NavSideBar .nav-item .nav-icon > .bi {
-	display: inline-block;
-	font-size: 1.125rem;
-	line-height: 1;
-	color: #333;
-	transition: color 0.2s ease;
-}
-
-#NavSideBar .nav-item.active .nav-icon > .bi,
-#NavSideBar .nav-item.activesub .nav-icon > .bi {
-	color: $primary;
-}
-
-// --- Title + subtitle ---
-
-#NavSideBar .nav-item .top-title {
-	color: #2f3d4d;
-}
-
-#NavSideBar .nav-item.active .top-title,
-#NavSideBar .nav-item.activesub .top-title {
-	color: $primary;
-}
-
-#NavSideBar .nav-item .subtitle {
-	font-size: 0.7rem;
-	color: #5f6974;
-	padding: 0;
-}
-
-// --- Collapse triangle ---
-
-#NavSideBar .nav-item .top-title .submenu-chevron {
-	display: inline-block;
-	font-size: 0.5rem;
-	line-height: 1;
-	transform-origin: 50% 50%;
-	transform: rotate(90deg);
-	margin-top: -2px;
-	margin-left: 2px;
-	margin-right: 0;
-	transition: transform 0.3s ease;
-}
-
-#NavSideBar .nav-item > .nav-link > a[aria-expanded="true"] .top-title .submenu-chevron,
-#NavSideBar .nav-item.activesub .top-title .submenu-chevron {
-	transform: rotate(180deg);
-}
-
-// --- Gear config (top-level) — always right-justified ---
-
-.top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
-	margin-left: auto;
-}
-
-.top-level-nav li > .nav-link > a.zone_component_action .svg-container {
-	border: 1px solid transparent;
-	border-radius: 8px;
-	padding: 2px 5px;
-	transition: background-color 0.2s ease;
-}
-
-.top-level-nav li > .nav-link > a.zone_component_action .svg-container > .bi {
-	display: inline-block;
-	font-size: 1.05rem;
-	line-height: 1;
-	color: $primary;
-	transform: rotate(0deg);
-	transition: transform 0.3s ease;
-}
-
-.top-level-nav li:hover > .nav-link > a.zone_component_action .svg-container {
-	background-color: rgba($primary, 0.08);
-}
-
-.top-level-nav > li.nav-item:hover > .nav-link > a.zone_component_action .svg-container > .bi {
-	transform: rotate(45deg);
-}
-
-// --- Sub-menu ---
-
-#NavSideBar .subnav-menu {
-	margin-left: 1.75rem;
-	padding: 0.25rem 0;
-}
-
-.primary_side_sub_menu {
-	padding: 0;
-}
-
-.primary_side_sub_menu > li a {
-	text-decoration: none;
-}
-
-// Sub-links — compact, clearly smaller than top-level items.
-// Hover/active background on the .nav-link row so text + cog highlight together.
-.primary_side_sub_menu > li > .nav-link {
+#NavSideBar {
 	display: flex;
-	justify-content: space-between;
+	flex-direction: column;
+	gap: 0.35rem;
+	min-height: 100%;
+	padding: 0.4rem 0.5rem 0.5rem;
+}
+
+.sidebar-back-item {
 	align-items: center;
+	background: #ffffff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 7px;
+	color: #3f4853;
+	display: flex;
+	font-size: 0.78rem;
+	font-weight: 600;
+	gap: 0.45rem;
+	padding: 0.43rem 0.55rem;
+	text-decoration: none;
+	transition: background-color 0.2s ease, border-color 0.2s ease;
+
+	&:hover {
+		background: #f8fafb;
+		border-color: $border-color-neutral-strong;
+	}
+
+	.sidebar-back-icon {
+		display: inline-flex;
+		font-size: 0.95rem;
+		line-height: 1;
+	}
+}
+
+.shield-mode-selector {
+	display: flex;
+	flex-direction: column;
+	gap: 0.12rem;
+}
+
+.mode-item {
+	align-items: center;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 7px;
+	color: #2f3d4d;
+	display: flex;
+	font-size: 0.84rem;
+	font-weight: 600;
+	gap: 0.48rem;
+	padding: 0.47rem 0.58rem;
+	text-decoration: none;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+
+	&:hover {
+		background: #ffffff;
+		border-color: #dcdcde;
+	}
+
+	.mode-icon {
+		display: inline-flex;
+		font-size: 1.05rem;
+		line-height: 1;
+	}
+
+	.mode-label {
+		line-height: 1.2;
+	}
+
+	.mode-badge {
+		background: #eff1f3;
+		border-radius: 999px;
+		color: #3f4853;
+		font-size: 0.68rem;
+		font-weight: 700;
+		line-height: 1;
+		margin-left: auto;
+		padding: 0.2rem 0.42rem;
+	}
+}
+
+.mode-item[data-mode="actions"] .mode-icon > i {
+	color: $mode-actions;
+}
+
+.mode-item[data-mode="investigate"] .mode-icon > i {
+	color: $mode-investigate;
+}
+
+.mode-item[data-mode="configure"] .mode-icon > i {
+	color: $mode-configure;
+}
+
+.mode-item[data-mode="reports"] .mode-icon > i {
+	color: $mode-reports;
+}
+
+.mode-item.active[data-mode="actions"] {
+	background: $mode-actions-light;
+	border-color: $mode-actions-border;
+	box-shadow: inset 3px 0 0 $mode-actions;
+	color: $mode-actions;
+}
+
+.mode-item.active[data-mode="investigate"] {
+	background: $mode-investigate-light;
+	border-color: $mode-investigate-border;
+	box-shadow: inset 3px 0 0 $mode-investigate;
+	color: $mode-investigate;
+}
+
+.mode-item.active[data-mode="configure"] {
+	background: $mode-configure-light;
+	border-color: $mode-configure-border;
+	box-shadow: inset 3px 0 0 $mode-configure;
+	color: $mode-configure;
+}
+
+.mode-item.active[data-mode="reports"] {
+	background: $mode-reports-light;
+	border-color: $mode-reports-border;
+	box-shadow: inset 3px 0 0 $mode-reports;
+	color: $mode-reports;
+}
+
+.mode-item.active[data-mode="actions"] .mode-badge {
+	background: $mode-actions;
+	color: #ffffff;
+}
+
+.mode-item.active[data-mode="investigate"] .mode-badge {
+	background: $mode-investigate;
+	color: #ffffff;
+}
+
+.mode-item.active[data-mode="configure"] .mode-badge {
+	background: $mode-configure;
+	color: #ffffff;
+}
+
+.mode-item.active[data-mode="reports"] .mode-badge {
+	background: $mode-reports;
+	color: #ffffff;
+}
+
+.sidebar-sep {
+	border-top: 1px solid #e2e4e7;
+	margin: 0.25rem 0.35rem 0.2rem;
+}
+
+.sidebar-license-item {
+	align-items: center;
+	background: #ffffff;
+	border: 1px solid #c7dfc7;
+	border-radius: 7px;
+	color: #2f3d4d;
+	display: flex;
+	gap: 0.48rem;
+	padding: 0.48rem 0.55rem;
+	text-decoration: none;
+
+	.sidebar-license-icon {
+		color: $mode-configure;
+		display: inline-flex;
+		font-size: 1rem;
+		line-height: 1;
+	}
+
+	.sidebar-license-content {
+		display: flex;
+		flex: 1 1 auto;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.sidebar-license-title {
+		font-size: 0.79rem;
+		font-weight: 700;
+		line-height: 1.2;
+	}
+
+	.sidebar-license-subtitle {
+		color: #5f6974;
+		font-size: 0.67rem;
+		line-height: 1.2;
+	}
+
+	.sidebar-license-badge {
+		border-radius: 999px;
+		font-size: 0.64rem;
+		font-weight: 700;
+		line-height: 1;
+		padding: 0.2rem 0.38rem;
+
+		&.status-good {
+			background: #dff3df;
+			color: #006400;
+		}
+
+		&.status-warning {
+			background: #fff3da;
+			color: #9e6700;
+		}
+	}
+}
+
+.sidebar-tools {
+	display: flex;
+	flex-direction: column;
+	gap: 0.1rem;
+}
+
+.tool-item {
+	align-items: center;
+	background: transparent;
 	border: 1px solid transparent;
 	border-radius: 6px;
-	padding: 0.35rem 0.6rem;
-	margin-bottom: 0.1rem;
-	font-size: 0.78rem;
-	font-weight: 500;
-	color: $secondary;
-	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.primary_side_sub_menu > li > .nav-link > a:not(.zone_config) {
-	color: inherit;
-	font-size: inherit;
-	font-weight: inherit;
-	transition: color 0.2s ease;
-}
-
-// Hover
-.primary_side_sub_menu > li > .nav-link:hover {
-	background: #f7f9f7;
-	border-color: $border-color-neutral-subtle;
-	color: $primary;
-}
-
-// Active — matches the options rail inset-shadow pattern
-.primary_side_sub_menu .nav-link.active {
-	background: #f2f9f2;
-	border-color: #c7dfc7;
-	box-shadow: inset 2px 0 0 #9ac99a;
-	color: $primary;
+	color: #36404b;
+	display: flex;
+	font-size: 0.77rem;
 	font-weight: 600;
+	gap: 0.45rem;
+	padding: 0.38rem 0.5rem;
+	text-decoration: none;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+	.tool-icon {
+		display: inline-flex;
+		font-size: 0.95rem;
+		line-height: 1;
+		opacity: 0.8;
+	}
+
+	&:hover {
+		background: #ffffff;
+		border-color: #dcdcde;
+		color: #212b36;
+	}
+
+	&.active {
+		background: #f0f4f0;
+		border-color: #d0d8d0;
+		color: $mode-configure;
+	}
 }
 
-// Sub-gear — always right-justified
-.primary_side_sub_menu > li > .nav-link > a.zone_config {
-	margin-left: auto;
-	opacity: 0.5;
-	color: $primary;
-	transition: opacity 0.2s ease;
-}
-.primary_side_sub_menu > li > .nav-link > a.zone_config:hover {
-	opacity: 1;
-}
-.primary_side_sub_menu > li:hover > .nav-link > a.zone_config {
-	opacity: 0.8;
+.sidebar-connect {
+	margin-top: 0.2rem;
+
+	.sidebar-connect-title {
+		color: #737c86;
+		font-size: 0.62rem;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		margin: 0 0 0.32rem;
+		text-transform: uppercase;
+	}
+
+	.sidebar-connect-grid {
+		display: grid;
+		gap: 0.2rem;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.sidebar-connect-item {
+		background: transparent;
+		border: 1px solid transparent;
+		border-radius: 6px;
+		color: #848d97;
+		font-size: 0.62rem;
+		font-weight: 600;
+		line-height: 1.2;
+		padding: 0.28rem 0.32rem;
+		text-decoration: none;
+		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+		&:hover {
+			background: #eef5fb;
+			border-color: #d8e9f5;
+			color: #3b5268;
+		}
+	}
 }
 
-.primary_side_sub_menu > li:hover a.zone_config .svg-container > .bi {
-	transform: rotate(45deg);
-	transition: transform 0.3s ease;
+.shield-sidebar-footer {
+	border-top: 1px solid #dcdcde;
+	color: #5f6974;
+	font-size: 0.69rem;
+	line-height: 1.3;
+	margin-top: 0.5rem;
+	padding: 0.45rem 0.35rem 0.2rem;
+	text-align: center;
 }
-
-// ============================================================
-// Responsive: collapsed / hover-expanded
-// ============================================================
 
 @include media-breakpoint-down(lg) {
-
-	// === COLLAPSED STATE ===
-
-	// Hide text labels, subtitles, badges (!important needed to override Bootstrap d-flex)
-	#NavSideBar .nav-item .top-title {
-		display: none !important;
-	}
-	#NavSideBar .nav-item .nav-link .badge {
-		display: none !important;
-	}
-	// Hide config gear buttons (!important needed to override Bootstrap d-flex)
-	.top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
-		display: none !important;
+	#NavSideBar {
+		padding-left: 0.2rem;
+		padding-right: 0.2rem;
 	}
 
-	// Center icons in collapsed state
-	#NavSideBar .nav-item > .nav-link {
+	#PageMainSide-Apto .logo-container .logo-text,
+	#NavSideBar .sidebar-back-label,
+	#NavSideBar .mode-label,
+	#NavSideBar .mode-badge,
+	#NavSideBar .sidebar-license-item,
+	#NavSideBar .sidebar-tools,
+	#NavSideBar .sidebar-connect,
+	#NavSideBar .shield-sidebar-footer {
+		display: none !important;
+	}
+
+	#NavSideBar .sidebar-back-item,
+	#NavSideBar .mode-item {
 		justify-content: center !important;
 		padding-left: 0 !important;
 		padding-right: 0 !important;
 	}
-	#NavSideBar .nav-item > .nav-link > a {
-		justify-content: center !important;
-		align-items: center !important;
-	}
-	#NavSideBar .nav-item .nav-icon {
-		margin-right: 0 !important;
-		margin-top: 0 !important;
+
+	#NavSideBar .sidebar-back-icon,
+	#NavSideBar .mode-icon {
+		margin: 0 !important;
 	}
 
-	// Hide all submenus
-	#NavSideBar .subnav-menu {
-		display: none !important;
+	#PageMainSide-Apto:hover .logo-container .logo-text {
+		display: inline-flex !important;
+		flex-direction: column;
 	}
 
-	// Defensive: ensure items without icons still have height
-	#NavSideBar .top-level-nav > li.nav-item {
-		min-height: 40px;
-	}
-
-	// === HOVER-EXPANDED STATE ===
-
-	#PageMainSide-Apto:hover #NavSideBar .nav-item .top-title {
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-back-label,
+	#PageMainSide-Apto:hover #NavSideBar .mode-label,
+	#PageMainSide-Apto:hover #NavSideBar .mode-badge,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-license-item,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect,
+	#PageMainSide-Apto:hover #NavSideBar .shield-sidebar-footer {
 		display: flex !important;
 	}
-	#PageMainSide-Apto:hover #NavSideBar .nav-item .nav-link .badge {
-		display: inline-block !important;
+
+	#PageMainSide-Apto:hover #NavSideBar .mode-item,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-back-item {
+		justify-content: flex-start !important;
+		padding-left: 0.52rem !important;
+		padding-right: 0.52rem !important;
 	}
-	#PageMainSide-Apto:hover .top-level-nav > li.nav-item > .nav-link > a.zone_component_action {
+
+	#PageMainSide-Apto:hover #NavSideBar .mode-badge {
+		display: inline-flex !important;
+	}
+
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect,
+	#PageMainSide-Apto:hover #NavSideBar .shield-sidebar-footer {
 		display: flex !important;
 	}
-	#PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link {
-		justify-content: start !important;
-		padding-left: 0.5rem !important;
-		padding-right: 0.25rem !important;
-	}
-	#PageMainSide-Apto:hover #NavSideBar .nav-item > .nav-link > a {
-		justify-content: start !important;
-		align-items: flex-start !important;
-	}
-	#PageMainSide-Apto:hover #NavSideBar .nav-item .nav-icon {
-		margin-right: 0.5rem !important;
-	}
-	// Show submenus that are expanded or animating (.collapsing is Bootstrap's mid-animation class)
-	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.show,
-	#PageMainSide-Apto:hover #NavSideBar .subnav-menu.collapsing {
-		display: block !important;
+
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect-grid {
+		display: grid !important;
 	}
 }

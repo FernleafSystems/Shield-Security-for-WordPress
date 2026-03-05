@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Services\Utilities\DataManipulation;
 
 class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
@@ -25,9 +26,8 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
-		Functions\when( '__' )->alias(
-			fn( string $text ) :string => $text
-		);
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'apply_filters' )->alias( static fn( string $tag, $value ) => $value );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
 
@@ -37,241 +37,150 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function testConfigureModePrependsBackLinkAndSecurityGradesThenFilteredItems() :void {
+	public function test_home_mode_builds_structured_sidebar_contract() :void {
 		$this->installControllerStubs();
+		$this->installRequestServiceStub( [] );
 
-		$menu = $this->invokeBuildModeNav( $this->baseMenuFixture(), PluginNavs::MODE_CONFIGURE );
+		$sidebar = ( new NavMenuBuilder() )->build();
 
+		$this->assertArrayHasKey( 'back_item', $sidebar );
+		$this->assertArrayHasKey( 'mode_items', $sidebar );
+		$this->assertArrayHasKey( 'tool_items', $sidebar );
+		$this->assertArrayHasKey( 'home_license_item', $sidebar );
+		$this->assertArrayHasKey( 'home_connect_title', $sidebar );
+		$this->assertArrayHasKey( 'home_connect_items', $sidebar );
+
+		$this->assertNull( $sidebar[ 'back_item' ] );
 		$this->assertSame(
-			[
-				'mode-selector-back',
-				'mode-configure-grades',
-				PluginNavs::NAV_ZONES,
-				PluginNavs::NAV_RULES,
-				PluginNavs::NAV_TOOLS,
-			],
-			\array_column( $menu, 'slug' )
+			[ 'mode-actions', 'mode-investigate', 'mode-configure', 'mode-reports' ],
+			\array_column( $sidebar[ 'mode_items' ], 'slug' )
 		);
-
-		$backLink = $menu[ 0 ];
-		$this->assertSame( 'Back to Dashboard', $backLink[ 'title' ] );
-		$this->assertSame( 'icon-speedometer', $backLink[ 'img' ] );
-		$this->assertSame( 'backlink', $backLink[ 'group' ] );
-		$this->assertSame( [ 'mode-back-link' ], $backLink[ 'classes' ] );
-
-		$grades = $menu[ 1 ];
-		$this->assertSame( 'Security Grades', $grades[ 'title' ] );
-		$this->assertSame( '/admin/dashboard/grades', $grades[ 'href' ] );
-		$this->assertFalse( $grades[ 'active' ] );
-		$this->assertSame( [], $grades[ 'classes' ] );
-		$this->assertSame( [], $grades[ 'sub_items' ] );
-		$this->assertSame( 'icon-speedometer', $grades[ 'img' ] );
-		$this->assertSame( 'Security At A Glance', $grades[ 'subtitle' ] );
-	}
-
-	public function testNonConfigureModeDoesNotAddSyntheticSecurityGradesItem() :void {
-		$this->installControllerStubs();
-
-		$menu = $this->invokeBuildModeNav( $this->baseMenuFixture(), PluginNavs::MODE_ACTIONS );
-		$slugs = \array_column( $menu, 'slug' );
-
 		$this->assertSame(
 			[
-				'mode-selector-back',
-				PluginNavs::NAV_SCANS,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DOCS,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
 			],
-			$slugs
+			\array_column( $sidebar[ 'tool_items' ], 'slug' )
 		);
-		$this->assertNotContains( 'mode-configure-grades', $slugs );
-		$this->assertSame( 'backlink', $menu[ 0 ][ 'group' ] );
-		$this->assertSame( [ 'mode-back-link' ], $menu[ 0 ][ 'classes' ] );
-		$this->assertSame( 'primary', $menu[ 1 ][ 'group' ] );
+		$this->assertSame( 'Connect', $sidebar[ 'home_connect_title' ] );
+		$this->assertSame(
+			[ 'connect-home', 'connect-facebook', 'connect-helpdesk', 'connect-newsletter' ],
+			\array_column( $sidebar[ 'home_connect_items' ], 'slug' )
+		);
+		$this->assertSame(
+			[ '_blank', '_blank', '_blank', '_blank' ],
+			\array_column( $sidebar[ 'home_connect_items' ], 'target' )
+		);
+		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] ?? '' );
+		$this->assertSame( 'Go PRO!', $sidebar[ 'home_license_item' ][ 'badge' ][ 'text' ] ?? '' );
+		$this->assertSame( 'warning', $sidebar[ 'home_license_item' ][ 'badge' ][ 'status' ] ?? '' );
 	}
 
-	public function testConfigureModeGradesItemThrowsWhenDashboardSourceMissing() :void {
-		$this->installControllerStubs();
+	public function test_actions_mode_includes_back_item_and_actions_badge() :void {
+		$this->installControllerStubs( false, false, [
+			'has_items'   => true,
+			'total_items' => 7,
+			'severity'    => 'critical',
+			'icon_class'  => 'bi bi-exclamation-triangle-fill',
+			'subtext'     => 'Last scan: 4 minutes ago',
+		] );
+		$this->installRequestServiceStub( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_SCANS,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_SCANS_RUN,
+		] );
 
-		$baseMenu = \array_values( \array_filter(
-			$this->baseMenuFixture(),
-			fn( array $item ) :bool => ( $item[ 'slug' ] ?? '' ) !== PluginNavs::NAV_DASHBOARD
-		) );
+		$sidebar = ( new NavMenuBuilder() )->build();
 
-		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'Missing menu item for slug: dashboard' );
+		$this->assertSame( 'mode-selector-back', $sidebar[ 'back_item' ][ 'slug' ] ?? '' );
+		$this->assertSame( '/admin/home', $sidebar[ 'back_item' ][ 'href' ] ?? '' );
+		$this->assertContains( 'sidebar-back-link', $sidebar[ 'back_item' ][ 'classes' ] ?? [] );
 
-		$this->invokeBuildModeNav( $baseMenu, PluginNavs::MODE_CONFIGURE );
+		$actionsMode = \array_values( \array_filter(
+			$sidebar[ 'mode_items' ],
+			static fn( array $item ) :bool => ( $item[ 'slug' ] ?? '' ) === 'mode-actions'
+		) )[ 0 ] ?? [];
+		$this->assertTrue( (bool)( $actionsMode[ 'active' ] ?? false ) );
+		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] ?? '' );
+		$this->assertSame( 'critical', $actionsMode[ 'badge' ][ 'status' ] ?? '' );
+
+		$this->assertSame(
+			[ PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN ],
+			\array_column( $sidebar[ 'tool_items' ], 'slug' )
+		);
+		$this->assertTrue( (bool)( $sidebar[ 'tool_items' ][ 0 ][ 'active' ] ?? false ) );
+		$this->assertNull( $sidebar[ 'home_license_item' ] );
+		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
+		$this->assertSame( [], $sidebar[ 'home_connect_items' ] );
 	}
 
-	public function testActivityIncludesByUserAndByIpInvestigateEntries() :void {
+	public function test_investigate_mode_tools_match_required_peers_without_parent_activity_item() :void {
 		$this->installControllerStubs();
-		$this->installRequestServiceStub();
+		$this->installRequestServiceStub( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_ACTIVITY,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LOGS,
+		] );
 
-		$activity = $this->invokeActivity();
-		$subItems = $activity[ 'sub_items' ] ?? [];
+		$sidebar = ( new NavMenuBuilder() )->build();
+		$toolItems = $sidebar[ 'tool_items' ];
 
 		$this->assertSame(
 			[
-				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_ACTIVITY_BY_USER,
-				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+				PluginNavs::NAV_IPS.'-'.PluginNavs::SUBNAV_IPS_RULES,
 				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS,
 				PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LOGS,
-				PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LIVE,
 			],
-			\array_column( $subItems, 'slug' )
+			\array_column( $toolItems, 'slug' )
 		);
-		$this->assertSame( '/admin/activity/by_user', $subItems[ 0 ][ 'href' ] ?? '' );
-		$this->assertSame( '/admin/activity/by_ip', $subItems[ 1 ][ 'href' ] ?? '' );
-	}
-
-	public function testReportsIncludesVisibleWorkspaceSubItemsOnly() :void {
-		$this->installControllerStubs();
-		$this->installRequestServiceStub();
-
-		$reports = $this->invokeReports();
-		$subItems = $reports[ 'sub_items' ] ?? [];
-
+		$this->assertSame(
+			[ 'Bots & IP Rules', 'WP Activity Log', 'HTTP Request Log' ],
+			\array_column( $toolItems, 'title' )
+		);
+		$this->assertNotContains( 'Activity Logs', \array_column( $toolItems, 'title' ) );
 		$this->assertSame(
 			[
-				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_LIST,
-				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_ALERTS,
-				PluginNavs::NAV_REPORTS.'-'.PluginNavs::SUBNAV_REPORTS_REPORTING,
+				'/admin/ips/rules',
+				'/admin/activity/logs',
+				'/admin/traffic/logs',
 			],
-			\array_column( $subItems, 'slug' )
+			\array_column( $toolItems, 'href' )
 		);
-		$this->assertSame(
-			[
-				'/admin/reports/list',
-				'/admin/reports/alerts',
-				'/admin/reports/reporting',
-			],
-			\array_column( $subItems, 'href' )
-		);
-		$this->assertSame( '/admin/reports/overview', $reports[ 'href' ] ?? '' );
-		$this->assertSame(
-			\implode( ',', PluginNavs::reportsSettingsZoneComponentSlugs() ),
-			$reports[ 'config' ][ 'data' ][ 'zone_component_slug' ] ?? ''
-		);
+		$this->assertFalse( (bool)( $toolItems[ 0 ][ 'active' ] ?? true ) );
+		$this->assertTrue( (bool)( $toolItems[ 1 ][ 'active' ] ?? false ) );
+		$this->assertFalse( (bool)( $toolItems[ 2 ][ 'active' ] ?? true ) );
 	}
 
-	public function testModeSelectorAssignsPrimaryAndMetaGroups() :void {
-		$this->installControllerStubs();
-
-		$menu = $this->invokeBuildModeSelector( $this->baseMenuFixture() );
-
-		$this->assertSame(
-			[
-				'mode-actions',
-				'mode-investigate',
-				'mode-configure',
-				'mode-reports',
-				PluginNavs::NAV_LICENSE,
-				'meta-connect',
-			],
-			\array_column( $menu, 'slug' )
-		);
-
-		$this->assertSame(
-			[ 'primary', 'primary', 'primary', 'primary', 'meta', 'meta' ],
-			\array_column( $menu, 'group' )
-		);
-	}
-
-	public function testModeSelectorAddsConnectMetaItemWithExternalSubItems() :void {
-		$this->installControllerStubs();
-
-		$menu = $this->invokeBuildModeSelector( $this->baseMenuFixture() );
-		$connect = \array_values( \array_filter(
-			$menu,
-			fn( array $item ) :bool => ( $item[ 'slug' ] ?? '' ) === 'meta-connect'
-		) )[ 0 ] ?? [];
-
-		$this->assertSame( 'Connect', $connect[ 'title' ] ?? '' );
-		$this->assertSame( 'icon-box-arrow-up-right', $connect[ 'img' ] ?? '' );
-		$this->assertSame( 'meta', $connect[ 'group' ] ?? '' );
-
-		$subItems = $connect[ 'sub_items' ] ?? [];
-		$this->assertCount( 4, $subItems );
-		$this->assertSame( [ 'connect-home', 'connect-facebook', 'connect-helpdesk', 'connect-newsletter' ], \array_column( $subItems, 'slug' ) );
-		$this->assertSame(
-			[
-				'https://clk.shldscrty.com/shieldsecurityhome',
-				'https://clk.shldscrty.com/pluginshieldsecuritygroupfb',
-				'https://help.example.com',
-				'https://clk.shldscrty.com/emailsubscribe',
-			],
-			\array_column( $subItems, 'href' )
-		);
-		$this->assertSame( [ '_blank', '_blank', '_blank', '_blank' ], \array_column( $subItems, 'target' ) );
-	}
-
-	public function testModeSelectorOmitsConnectWhenWhitelabelEnabled() :void {
+	public function test_home_connect_items_are_omitted_for_whitelabel() :void {
 		$this->installControllerStubs( true );
+		$this->installRequestServiceStub( [] );
 
-		$menu = $this->invokeBuildModeSelector( $this->baseMenuFixture() );
-		$this->assertNotContains( 'meta-connect', \array_column( $menu, 'slug' ) );
+		$sidebar = ( new NavMenuBuilder() )->build();
+
+		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
+		$this->assertSame( [], $sidebar[ 'home_connect_items' ] );
 	}
 
-	public function testNormalizeGroupNormalizesKnownValuesAndFallsBackToPrimary() :void {
-		$builder = $this->newBuilderInstance();
-		$method = new \ReflectionMethod( $builder, 'normalizeGroup' );
-		$method->setAccessible( true );
-
-		$this->assertSame( 'meta', $method->invoke( $builder, ' META ' ) );
-		$this->assertSame( 'primary', $method->invoke( $builder, 'unexpected' ) );
-	}
-
-	public function testMarkGroupBoundaryAddsMarkerOnlyOnGroupTransition() :void {
-		$builder = $this->newBuilderInstance();
-		$method = new \ReflectionMethod( $builder, 'markGroupBoundary' );
-		$method->setAccessible( true );
-
-		$first = $method->invoke( $builder, [ 'group' => 'primary', 'classes' => [] ], '' );
-		$this->assertNotContains( 'menu-group-break-before', $first[ 'classes' ] );
-
-		$transition = $method->invoke( $builder, [ 'group' => 'meta', 'classes' => [] ], 'primary' );
-		$this->assertContains( 'menu-group-break-before', $transition[ 'classes' ] );
-
-		$sameGroup = $method->invoke( $builder, [ 'group' => 'meta', 'classes' => [] ], 'meta' );
-		$this->assertNotContains( 'menu-group-break-before', $sameGroup[ 'classes' ] );
-	}
-
-	private function invokeBuildModeNav( array $baseMenu, string $mode ) :array {
-		$builder = $this->newBuilderInstance();
-		$method = new \ReflectionMethod( $builder, 'buildModeNav' );
-		$method->setAccessible( true );
-		return $method->invoke( $builder, $baseMenu, $mode );
-	}
-
-	private function invokeBuildModeSelector( array $baseMenu ) :array {
-		$builder = $this->newBuilderInstance();
-		$method = new \ReflectionMethod( $builder, 'buildModeSelector' );
-		$method->setAccessible( true );
-		return $method->invoke( $builder, $baseMenu );
-	}
-
-	private function invokeActivity() :array {
-		$builder = $this->newBuilderInstance();
-		$method = new \ReflectionMethod( $builder, 'activity' );
-		$method->setAccessible( true );
-		return $method->invoke( $builder );
-	}
-
-	private function invokeReports() :array {
-		$builder = $this->newBuilderInstance();
-		$method = new \ReflectionMethod( $builder, 'reports' );
-		$method->setAccessible( true );
-		return $method->invoke( $builder );
-	}
-
-	private function newBuilderInstance() :NavMenuBuilder {
-		/** @var NavMenuBuilder $builder */
-		$builder = ( new \ReflectionClass( NavMenuBuilder::class ) )->newInstanceWithoutConstructor();
-		return $builder;
-	}
-
-	private function installControllerStubs( bool $isWhitelabelled = false ) :void {
+	private function installControllerStubs(
+		bool $isWhitelabelled = false,
+		bool $isPremium = false,
+		array $queueSummary = [
+			'has_items'   => false,
+			'total_items' => 0,
+			'severity'    => 'good',
+			'icon_class'  => 'bi bi-shield-check',
+			'subtext'     => '',
+		]
+	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+
+		$controller->cfg = (object)[
+			'properties' => [
+				'slug_parent' => 'icwp',
+				'slug_plugin' => 'wpsf',
+			],
+		];
+		$controller->user_can_base_permissions = true;
 		$controller->plugin_urls = new class {
 			public function adminHome() :string {
 				return '/admin/home';
@@ -279,6 +188,14 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
+			}
+
+			public function adminIpRules() :string {
+				return '/admin/ips/rules';
+			}
+
+			public function wizard( string $step ) :string {
+				return '/admin/wizard/'.$step;
 			}
 		};
 		$controller->svgs = new class {
@@ -288,8 +205,20 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		};
 		$controller->labels = (object)[
 			'url_helpdesk' => 'https://help.example.com',
+			'Name'         => 'Shield',
 		];
 		$controller->comps = (object)[
+			'license'    => new class( $isPremium ) {
+				private bool $isPremium;
+
+				public function __construct( bool $isPremium ) {
+					$this->isPremium = $isPremium;
+				}
+
+				public function hasValidWorkingLicense() :bool {
+					return $this->isPremium;
+				}
+			},
 			'whitelabel' => new class( $isWhitelabelled ) {
 				private bool $enabled;
 
@@ -302,64 +231,42 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				}
 			},
 		];
+		$controller->action_router = new class( $queueSummary ) {
+			private array $queueSummary;
+
+			public function __construct( array $queueSummary ) {
+				$this->queueSummary = $queueSummary;
+			}
+
+			public function action( string $class ) :object {
+				return new class( $this->queueSummary ) {
+					private array $queueSummary;
+
+					public function __construct( array $queueSummary ) {
+						$this->queueSummary = $queueSummary;
+					}
+
+					public function payload() :array {
+						return [
+							'render_data' => [
+								'vars' => [
+									'summary' => $this->queueSummary,
+								],
+							],
+						];
+					}
+				};
+			}
+		};
 
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function baseMenuFixture() :array {
-		return [
-			[
-				'slug'     => PluginNavs::NAV_DASHBOARD,
-				'title'    => 'Dashboard',
-				'subtitle' => 'Security At A Glance',
-				'img'      => 'icon-speedometer',
-			],
-			[
-				'slug'     => PluginNavs::NAV_ZONES,
-				'title'    => 'Security Zones',
-				'subtitle' => 'Setup Your Security Zones',
-				'img'      => 'icon-grid-1x2-fill',
-			],
-			[
-				'slug'     => PluginNavs::NAV_RULES,
-				'title'    => 'Rules',
-				'subtitle' => 'Custom Security Rules',
-				'img'      => 'icon-node-plus-fill',
-			],
-			[
-				'slug'     => PluginNavs::NAV_TOOLS,
-				'title'    => 'Tools',
-				'subtitle' => 'Import, Whitelabel, Wizard',
-				'img'      => 'icon-tools',
-			],
-			[
-				'slug'     => PluginNavs::NAV_SCANS,
-				'title'    => 'Scans',
-				'subtitle' => 'Results & Manual Scans',
-				'img'      => 'icon-shield-shaded',
-			],
-			[
-				'slug'     => PluginNavs::NAV_ACTIVITY,
-				'title'    => 'Activity Logs',
-				'subtitle' => 'All WP Site Activity',
-				'img'      => 'icon-person-lines-fill',
-			],
-			[
-				'slug'     => PluginNavs::NAV_REPORTS,
-				'title'    => 'Reports',
-				'subtitle' => "See What's Happening",
-				'img'      => 'icon-clipboard-data-fill',
-			],
-			[
-				'slug' => PluginNavs::NAV_LICENSE,
-				'title' => 'Go PRO!',
-			],
-		];
-	}
-
-	private function installRequestServiceStub() :void {
+	private function installRequestServiceStub( array $query ) :void {
+		$_GET = $query;
 		ServicesState::installItems( [
-			'service_request' => new Request(),
+			'service_request'          => new Request(),
+			'service_datamanipulation' => new DataManipulation(),
 		] );
 	}
 }

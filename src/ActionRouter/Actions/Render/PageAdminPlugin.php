@@ -75,7 +75,7 @@ class PageAdminPlugin extends BaseRender {
 			],
 			'vars'    => [
 				'active_module_settings' => $subNav,
-				'navbar_menu'            => ( new NavMenuBuilder() )->build(),
+				'nav_sidebar'            => ( new NavMenuBuilder() )->build(),
 			],
 		];
 	}

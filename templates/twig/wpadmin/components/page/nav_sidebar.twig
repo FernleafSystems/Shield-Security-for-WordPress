@@ -1,133 +1,119 @@
-<div id="NavSideBar">
+{% set sidebar = vars.nav_sidebar|default({}) %}
 
-<ul class="nav top-level-nav flex-column accordion" id="ShieldCollapseNav">
+<div id="NavSideBar" class="d-flex flex-column flex-fill">
 
-	{% for mitem in vars.navbar_menu %}
-		{% set is_expandable = mitem.sub_items|default([]) is not empty %}
-
-		<li class="nav-item {{ mitem.active|default(false) ? 'active':'' }}
-					{% if is_expandable %} with-submenu{% endif %}"
-			{% if mitem.id|default('') is not empty %}id="{{ mitem.id }}"{% endif %}
+	{% if sidebar.back_item|default(null) is not empty %}
+		{% set back = sidebar.back_item %}
+		<a href="{{ back.href|default('#') }}"
+		   class="sidebar-back-item {{ back.classes|default([])|join(' ') }}"
+		   {% if back.target|default('') is not empty %}target="{{ back.target }}"{% endif %}
+		   {% for data_key,data_val in back.data|default([]) %}
+			   data-{{ data_key }}="{{ data_val }}"
+		   {% endfor %}
 		>
-				<span class="nav-link {{ mitem.classes|default([])|join( ' ' ) }} {{ mitem.active|default(false) ? 'show':'' }}
-						d-flex justify-content-start"
-						{% for data_key,data_val in mitem.data|default([]) %}
-							data-{{ data_key }}="{{ data_val }}"
-						{% endfor %}
-						{% if mitem.introjs|default([]) is not empty %}
-							{% if mitem.introjs.title|default('') is not empty %}
-								data-introtitle="{{ mitem.introjs.title }}"
-							{% endif %}
-							data-intro="{{ mitem.introjs.body }}"
-							data-introposition="right"
-						{% endif %}
-				>
-					<a href="{{ is_expandable ? '#subnav-' ~ mitem.slug : mitem.href|default('javascript:{}') }}"
-					   class="d-flex justify-content-start"
-					   {% if is_expandable %}
-						   data-bs-toggle="collapse"
-						   data-bs-target="#subnav-{{ mitem.slug }}"
-						   aria-controls="subnav-{{ mitem.slug }}"
-						   aria-expanded="{{ mitem.active|default(false) ? 'true' : 'false' }}"
-					   {% endif %}
-					   {% if mitem.target|default('') is not empty %}target="{{ mitem.target }}"{% endif %}
-					>
+			<span class="sidebar-back-icon"><i class="{{ back.img|default('') }}" aria-hidden="true"></i></span>
+			<span class="sidebar-back-label">{{ back.title }}</span>
+		</a>
+	{% endif %}
 
-						{% if mitem.img|default('') is not empty %}
-							<span class="nav-icon me-2"
-								  title="{{ mitem.title }}">
-								<i class="{{ mitem.img }}" aria-hidden="true"></i>
-							</span>
-						{% endif %}
-
-						<span class="top-title d-flex flex-column">
-							<span class="title">
-								{{ mitem.title }}
-								{% if mitem.sub_items|default([]) is not empty %}
-									<i class="{{ imgs.svgs.triangle }} submenu-chevron" aria-hidden="true"></i>
-								{% endif %}
-							</span>
-							<span class="subtitle">
-								{{ mitem.subtitle|default('') }}
-							</span>
-						</span>
-
-						{% if mitem.badge|default([]) is not empty %}
-							<span class="badge bg-{{ mitem.badge.type|default('info') }}">
-								{{ mitem.badge.text }}
-							</span>
-						{% endif %}
-
-					</a>
-
-					{% if mitem.config|default([]) is not empty %}
-						<a class="flex-fill d-flex flex-row justify-content-end align-self-center me-1 z-3 {{ mitem.config.classes|default([])|join( ' ' ) }}"
-						   href="{{ mitem.config.href|default('#') }}"
-						   {% if mitem.config.tooltip|default(false) is not empty %}title="{{ mitem.config.tooltip }}"{% endif %}
-								{% for data_key,data_val in mitem.config.data|default([]) %}
-									data-{{ data_key }}="{{ data_val }}"
-								{% endfor %}
-								{% if mitem.config.tooltip|default(false) is not empty %}
-									data-bs-toggle="tooltip"
-									data-bs-placement="right"
-									data-bs-title="{{ mitem.config.tooltip }}"
-								{% endif %}
-						><span class="svg-container"><i class="{{ mitem.config.img }}" aria-hidden="true"></i></span></a>
-					{% endif %}
-				</span>
-
-			{% if mitem.sub_items|default([]) is not empty %}
-				<div class="subnav-menu accordion-collapse {{ mitem.active|default(false) ? 'show':'collapse' }}"
-					 id="subnav-{{ mitem.slug }}"
-					 data-bs-parent="#ShieldCollapseNav"
-				>
-					<ul class="nav flex-column primary_side_sub_menu">
-						{% for sub_item in mitem.sub_items %}
-							<li>
-
-								<span class="nav-link d-flex justify-content-between {{ sub_item.active ? 'active':'' }}">
-
-									<a class="flex-fill {{ sub_item.classes|default([])|join( ' ' ) }}"
-									   href="{{ sub_item.href|default('#') }}"
-									   {% if sub_item.tooltip|default(false) is not empty %}title="{{ sub_item.tooltip }}"{% endif %}
-											{% for data_key,data_val in sub_item.data|default([]) %}
-												data-{{ data_key }}="{{ data_val }}"
-											{% endfor %}
-											{% if sub_item.target|default('') is not empty %}target="{{ sub_item.target }}"{% endif %}
-									>
-										{{ sub_item.title }}
-									</a>
-
-									{% if sub_item.config|default(null) is not empty %}
-										<a class="zone_config text-end {{ sub_item.config.classes|default([])|join( ' ' ) }}"
-										   href="{{ sub_item.config.href|default('#') }}"
-										   {% if sub_item.config.tooltip|default(false) is not empty %}title="{{ sub_item.config.tooltip }}"{% endif %}
-												{% for data_key,data_val in sub_item.config.data|default([]) %}
-													data-{{ data_key }}="{{ data_val }}"
-												{% endfor %}
-												{% if sub_item.config.tooltip|default(false) is not empty %}
-													data-bs-toggle="tooltip"
-													data-bs-placement="right"
-													data-bs-title="{{ sub_item.config.tooltip }}"
-												{% endif %}
-										><span class="svg-container"><i class="{{ sub_item.config.icon }}" aria-hidden="true"></i></span></a>
-									{% endif %}
-
-								</span>
-
-							</li>
-						{% endfor %}
-					</ul>
-				</div>
-			{% endif %}
-		</li>
-
-	{% endfor %}
-</ul>
-</div>
-
-{% if not flags.is_whitelabelled %}
-	<div class="mt-2 text-center border-bottom mx-auto" style="color: #008000;">
-		{{ strings.running_version|raw }}
+	<div class="shield-mode-selector">
+		{% for mode_item in sidebar.mode_items|default([]) %}
+			<a href="{{ mode_item.href|default('#') }}"
+			   class="mode-item {{ mode_item.active|default(false) ? 'active' : '' }} {{ mode_item.classes|default([])|join(' ') }}"
+			   data-mode="{{ mode_item.mode|default('') }}"
+			   {% if mode_item.target|default('') is not empty %}target="{{ mode_item.target }}"{% endif %}
+			   {% for data_key,data_val in mode_item.data|default([]) %}
+				   data-{{ data_key }}="{{ data_val }}"
+			   {% endfor %}
+			   {% if mode_item.introjs|default([]) is not empty %}
+				   {% if mode_item.introjs.title|default('') is not empty %}
+					   data-introtitle="{{ mode_item.introjs.title }}"
+				   {% endif %}
+				   data-intro="{{ mode_item.introjs.body|default('') }}"
+				   data-introposition="right"
+			   {% endif %}
+			>
+				<span class="mode-icon"><i class="{{ mode_item.img|default('') }}" aria-hidden="true"></i></span>
+				<span class="mode-label">{{ mode_item.title }}</span>
+				{% if mode_item.badge|default([]) is not empty %}
+					<span class="mode-badge {{ mode_item.badge.status|default('') is not empty ? 'status-' ~ mode_item.badge.status : '' }}">
+						{{ mode_item.badge.text }}
+					</span>
+				{% endif %}
+			</a>
+		{% endfor %}
 	</div>
-{% endif %}
+
+	{% set has_dynamic_sections = sidebar.tool_items|default([]) is not empty
+		or sidebar.home_license_item|default(null) is not empty
+		or sidebar.home_connect_items|default([]) is not empty %}
+
+	{% if has_dynamic_sections %}
+		<div class="sidebar-sep"></div>
+	{% endif %}
+
+	{% if sidebar.home_license_item|default(null) is not empty %}
+		{% set license = sidebar.home_license_item %}
+		<a href="{{ license.href|default('#') }}"
+		   class="sidebar-license-item {{ license.classes|default([])|join(' ') }}"
+		   {% if license.target|default('') is not empty %}target="{{ license.target }}"{% endif %}
+		   {% for data_key,data_val in license.data|default([]) %}
+			   data-{{ data_key }}="{{ data_val }}"
+		   {% endfor %}
+		>
+			<span class="sidebar-license-icon"><i class="{{ license.img|default('') }}" aria-hidden="true"></i></span>
+			<span class="sidebar-license-content">
+				<span class="sidebar-license-title">{{ license.title }}</span>
+				{% if license.subtitle|default('') is not empty %}
+					<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
+				{% endif %}
+			</span>
+			{% if license.badge|default([]) is not empty %}
+				<span class="sidebar-license-badge {{ license.badge.status|default('') is not empty ? 'status-' ~ license.badge.status : '' }}">{{ license.badge.text }}</span>
+			{% endif %}
+		</a>
+	{% endif %}
+
+	{% if sidebar.tool_items|default([]) is not empty %}
+		<div class="sidebar-tools">
+			{% for tool in sidebar.tool_items %}
+				<a href="{{ tool.href|default('#') }}"
+				   class="tool-item {{ tool.active|default(false) ? 'active' : '' }} {{ tool.classes|default([])|join(' ') }}"
+				   {% if tool.target|default('') is not empty %}target="{{ tool.target }}"{% endif %}
+				   {% for data_key,data_val in tool.data|default([]) %}
+					   data-{{ data_key }}="{{ data_val }}"
+				   {% endfor %}
+				>
+					{% if tool.img|default('') is not empty %}
+						<span class="tool-icon"><i class="{{ tool.img }}" aria-hidden="true"></i></span>
+					{% endif %}
+					<span class="tool-label">{{ tool.title }}</span>
+				</a>
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	{% if sidebar.home_connect_items|default([]) is not empty %}
+		<div class="sidebar-connect">
+			<div class="sidebar-connect-title">{{ sidebar.home_connect_title|default('Connect') }}</div>
+			<div class="sidebar-connect-grid">
+				{% for link in sidebar.home_connect_items %}
+					<a href="{{ link.href|default('#') }}"
+					   class="sidebar-connect-item {{ link.classes|default([])|join(' ') }}"
+					   {% if link.target|default('') is not empty %}target="{{ link.target }}"{% endif %}
+					   {% for data_key,data_val in link.data|default([]) %}
+						   data-{{ data_key }}="{{ data_val }}"
+					   {% endfor %}
+					>
+						{{ link.title }}
+					</a>
+				{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+
+	{% if not flags.is_whitelabelled %}
+		<div class="shield-sidebar-footer mt-auto">{{ strings.running_version|raw }}</div>
+	{% endif %}
+
+</div>

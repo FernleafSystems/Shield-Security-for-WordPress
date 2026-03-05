@@ -1,8 +1,8 @@
 <div class="mx-2 d-flex flex-column align-items-center" id="SuperSearchLaunch">
 	<input type="button"
 		   id="SuperSearchLaunchButton"
-		   class="tour-navigation_v1"
-		   {% if not flags.is_security_admin %}disabled="disabled" class="disabled"{% endif %}
+		   class="tour-navigation_v1 {{ not flags.is_security_admin ? 'disabled' : '' }}"
+		   {% if not flags.is_security_admin %}disabled="disabled"{% endif %}
 		   data-introtitle="Super Search"
 		   data-introposition="right"
 		   data-intro="{{ strings.search_shield_intro }} "
