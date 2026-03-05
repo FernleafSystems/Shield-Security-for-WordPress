@@ -71,6 +71,10 @@ body.rtl {
   background-color: #f1f1f1;
 }
 
+#wpbody-content {
+  padding-bottom: 0;
+}
+
 .pluginlogo_16 {
   background: url("../images/pluginlogo_16x16.png?ver=1.0.0") no-repeat 0 3px transparent;
 }
@@ -881,13 +885,6 @@ $sidebar-transition-speed: 0.25s;
     text-indent: 20px;
   }
 
-  // --- Version Footer ---
-  #PageMainSide-Apto > .sidebar-inner > .shield-sidebar-footer {
-    display: none;
-  }
-  #PageMainSide-Apto:hover > .sidebar-inner > .shield-sidebar-footer {
-    display: block;
-  }
 }
 
 #PageMainBody_Inner-Apto {
