@@ -17,6 +17,7 @@ class Constants {
 		Actions\CrowdsecResetEnrollment::class,
 		Actions\DismissAdminNotice::class,
 		Actions\DynamicPageLoad::class,
+		Actions\DashboardLiveMonitorSetState::class,
 		Actions\FileDownload::class,
 		Actions\FileDownloadAsStream::class,
 		Actions\OperatorModeSwitch::class,
@@ -131,6 +132,7 @@ class Constants {
 
 		Actions\Render\Components\AdminNotice::class,
 		Actions\Render\Components\Widgets\WpDashboardSummary::class,
+		Actions\Render\Components\Widgets\DashboardLiveMonitorTicker::class,
 		Actions\Render\Components\FormSecurityAdminLoginBox::class,
 		Actions\Render\Components\PrivacyPolicy::class,
 		Actions\Render\Components\ToastPlaceholder::class,

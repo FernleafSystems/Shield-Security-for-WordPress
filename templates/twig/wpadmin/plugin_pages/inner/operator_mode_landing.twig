@@ -29,4 +29,7 @@
 			</a>
 		{% endfor %}
 	</div>
+	{% include '/wpadmin/components/dashboard/live_monitor.twig' with {
+		vars: vars.live_monitor|default({})
+	} only %}
 </div>

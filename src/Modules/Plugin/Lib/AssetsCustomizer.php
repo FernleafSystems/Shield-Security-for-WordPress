@@ -157,6 +157,25 @@ class AssetsCustomizer {
 					]
 				],
 			],
+			'dashboard_live_monitor' => [
+				'key'      => 'dashboard_live_monitor',
+				'required' => PluginNavs::IsNavs( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
+				'handles'  => [
+					'main',
+				],
+				'data'     => [
+					'ajax' => [
+						'batch_requests' => ActionData::Build( Actions\AjaxBatchRequests::class ),
+						'set_state'      => ActionData::Build( Actions\DashboardLiveMonitorSetState::class ),
+						'render_ticker'  => ActionData::BuildAjaxRender( Components\Widgets\DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
+						'render_traffic' => ActionData::BuildAjaxRender( Components\Traffic\TrafficLiveLogs::class, [ 'limit' => 12 ] ),
+					],
+					'vars' => [
+						'poll_interval_ms' => 5000,
+						'max_polls'        => 17280,
+					],
+				],
+			],
 			'debug_tools'      => [
 				'key'     => 'debug_tools',
 				'handles' => [

@@ -1,0 +1,43 @@
+{% set is_collapsed = vars.is_collapsed|default(false) %}
+<section id="ShieldDashboardLiveMonitor"
+		 class="dashboard-live-monitor mt-3{{ is_collapsed ? ' is-collapsed' : '' }}"
+		 data-dashboard-live-monitor="1"
+		 data-is-collapsed="{{ is_collapsed ? '1' : '0' }}">
+	<div class="dashboard-live-monitor__header">
+		<div class="dashboard-live-monitor__title-wrap">
+			<h5 class="dashboard-live-monitor__title mb-0">{{ vars.title|default('Live Monitor') }}</h5>
+		</div>
+		<button type="button"
+				class="btn btn-sm btn-outline-secondary dashboard-live-monitor__toggle"
+				data-live-monitor-toggle="1"
+				data-label-expand="{{ vars.expand|default('Expand')|e('html_attr') }}"
+				data-label-minimize="{{ vars.minimize|default('Minimize')|e('html_attr') }}"
+				aria-expanded="{{ is_collapsed ? 'false' : 'true' }}"
+				aria-controls="ShieldDashboardLiveMonitorBody">
+			<span data-live-monitor-toggle-text="1">
+				{{ is_collapsed ? vars.expand|default('Expand') : vars.minimize|default('Minimize') }}
+			</span>
+		</button>
+	</div>
+	<div id="ShieldDashboardLiveMonitorBody"
+		 class="dashboard-live-monitor__body"
+		 data-live-monitor-body="1"
+		 aria-hidden="{{ is_collapsed ? 'true' : 'false' }}">
+		<div class="dashboard-live-monitor__lane">
+			<h6 class="dashboard-live-monitor__lane-title">{{ vars.activity|default('High-Value Events') }}</h6>
+			<div class="live_logs">
+				<div class="output w-100 font-monospace" data-live-monitor-output="ticker">
+					<div class="text-muted small">{{ vars.loading|default('Waiting for live updates...') }}</div>
+				</div>
+			</div>
+		</div>
+		<div class="dashboard-live-monitor__lane">
+			<h6 class="dashboard-live-monitor__lane-title">{{ vars.traffic|default('Live Traffic') }}</h6>
+			<div class="live_logs">
+				<div class="output w-100 font-monospace" data-live-monitor-output="traffic">
+					<div class="text-muted small">{{ vars.loading|default('Waiting for live updates...') }}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

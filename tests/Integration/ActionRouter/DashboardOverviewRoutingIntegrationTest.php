@@ -202,4 +202,22 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			\array_column( $cells, 'indicator_type' )
 		);
 	}
+
+	public function test_operator_mode_landing_includes_live_monitor_contract_and_markup() :void {
+		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
+		$renderData = $payload[ 'render_data' ] ?? [];
+		$liveMonitor = $renderData[ 'vars' ][ 'live_monitor' ] ?? [];
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+
+		$this->assertIsArray( $liveMonitor );
+		$this->assertArrayHasKey( 'is_collapsed', $liveMonitor );
+		$this->assertArrayHasKey( 'title', $liveMonitor );
+		$this->assertArrayHasKey( 'activity', $liveMonitor );
+		$this->assertArrayHasKey( 'traffic', $liveMonitor );
+		$this->assertArrayHasKey( 'loading', $liveMonitor );
+		$this->assertHtmlContainsMarker( 'data-dashboard-live-monitor="1"', $html, 'Live monitor root marker' );
+		$this->assertHtmlContainsMarker( 'data-live-monitor-output="ticker"', $html, 'Live monitor ticker output marker' );
+		$this->assertHtmlContainsMarker( 'data-live-monitor-output="traffic"', $html, 'Live monitor traffic output marker' );
+		$this->assertSame( 1, \substr_count( $html, 'data-dashboard-live-monitor="1"' ) );
+	}
 }

@@ -52,6 +52,28 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		$this->assertArrayHasKey( 'progress_meters', $comps );
 	}
 
+	public function test_dashboard_live_monitor_is_localized_for_dashboard_overview() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
+		);
+
+		$this->assertArrayHasKey( 'dashboard_live_monitor', $comps );
+		$this->assertArrayHasKey( 'ajax', $comps[ 'dashboard_live_monitor' ] ?? [] );
+		$this->assertArrayHasKey( 'render_ticker', $comps[ 'dashboard_live_monitor' ][ 'ajax' ] ?? [] );
+		$this->assertArrayHasKey( 'render_traffic', $comps[ 'dashboard_live_monitor' ][ 'ajax' ] ?? [] );
+		$this->assertArrayHasKey( 'set_state', $comps[ 'dashboard_live_monitor' ][ 'ajax' ] ?? [] );
+	}
+
+	public function test_dashboard_live_monitor_is_not_localized_outside_dashboard_overview() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_TRAFFIC,
+			PluginNavs::SUBNAV_LOGS
+		);
+
+		$this->assertArrayNotHasKey( 'dashboard_live_monitor', $comps );
+	}
+
 	private function getMainLocalisedComponentsForRoute( string $nav, string $subNav ) :array {
 		Services::Request()->query = \array_merge( $this->originalQuery, [
 			PluginNavs::FIELD_NAV    => $nav,

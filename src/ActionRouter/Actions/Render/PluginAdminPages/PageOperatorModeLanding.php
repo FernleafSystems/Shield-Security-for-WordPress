@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	BuildMeter,
 	Component\Base as MeterComponent,
@@ -40,7 +41,27 @@ class PageOperatorModeLanding extends BaseRender {
 					$this->buildConfigureCell( $configPercentage, $configTraffic ),
 					$this->buildReportsCell( $reportsCount ),
 				],
+				'live_monitor'    => $this->buildLiveMonitorVars(),
 			],
+		];
+	}
+
+	private function buildLiveMonitorVars() :array {
+		try {
+			$isCollapsed = ( new DashboardLiveMonitorPreference() )->isCollapsed();
+		}
+		catch ( \Throwable $e ) {
+			$isCollapsed = false;
+		}
+
+		return [
+			'is_collapsed' => $isCollapsed,
+			'title'        => __( 'Live Monitor', 'wp-simple-firewall' ),
+			'minimize'     => __( 'Minimize', 'wp-simple-firewall' ),
+			'expand'       => __( 'Expand', 'wp-simple-firewall' ),
+			'activity'     => __( 'High-Value Events', 'wp-simple-firewall' ),
+			'traffic'      => __( 'Live Traffic', 'wp-simple-firewall' ),
+			'loading'      => __( 'Waiting for live updates...', 'wp-simple-firewall' ),
 		];
 	}
 
