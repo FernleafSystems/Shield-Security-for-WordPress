@@ -10,11 +10,19 @@ class Container extends Base {
 	public const SLUG = 'ipanalyse_container';
 	public const TEMPLATE = '/wpadmin/components/ip_analyse/container.twig';
 
+	protected function getRequiredDataKeys() :array {
+		return [
+			...parent::getRequiredDataKeys(),
+			'render_inline_tabs',
+		];
+	}
+
 	protected function getRenderData() :array {
 		$ip = $this->getAnalyseIP();
 		$actionRouter = self::con()->action_router;
 		return [
 			'flags'   => [
+				// New callers should use ContainerRenderer so this contract stays owned in one place.
 				'render_inline_tabs' => (bool)$this->action_data[ 'render_inline_tabs' ],
 			],
 			'content' => [

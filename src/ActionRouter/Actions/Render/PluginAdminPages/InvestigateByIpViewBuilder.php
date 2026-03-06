@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\Container as IpAnalyseContainer;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\ContainerRenderer;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -92,10 +92,7 @@ class InvestigateByIpViewBuilder {
 			],
 			'content' => [
 				'ip_analysis' => $hasSubject
-					? self::con()->action_router->render( IpAnalyseContainer::class, [
-						'ip'                 => $lookup,
-						'render_inline_tabs' => $renderInlineTabs,
-					] )
+					? ( new ContainerRenderer() )->render( $lookup, $renderInlineTabs )
 					: '',
 			],
 		];

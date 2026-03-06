@@ -101,8 +101,18 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-panel__tabs ")]//button[@data-bs-toggle="tab"]',
-			'IP analysis offcanvas inline tabs contract'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-panel__tabs ") and @role="tablist"]',
+			'IP analysis offcanvas inline tablist contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-panel__tabs ") and @role="tablist"]//button[@data-bs-toggle="tab" and @data-bs-target="#tabIpInfoGeneral" and @aria-controls="tabIpInfoGeneral"]',
+			'IP analysis offcanvas general inline tab button contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="tabIpInfoGeneral" and @aria-labelledby="tab-navlink-ip-general"]',
+			'IP analysis offcanvas general tab panel contract'
 		);
 		$this->assertXPathExists(
 			$xpath,

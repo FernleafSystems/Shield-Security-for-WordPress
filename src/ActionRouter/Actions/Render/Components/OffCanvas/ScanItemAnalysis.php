@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\Container;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\ContainerRenderer;
 
 class ScanItemAnalysis extends OffCanvasBase {
 
@@ -13,9 +13,6 @@ class ScanItemAnalysis extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		return self::con()->action_router->render( Container::class, [
-			'ip'                 => $this->action_data[ 'ip' ],
-			'render_inline_tabs' => false,
-		] );
+		return ( new ContainerRenderer() )->render( (string)$this->action_data[ 'ip' ], false );
 	}
 }

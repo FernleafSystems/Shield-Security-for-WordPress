@@ -38,7 +38,7 @@
 	] %}
 
 	{% if flags.render_inline_tabs %}
-		<div class="investigate-panel__tabs">
+		<div class="investigate-panel__tabs" role="tablist">
 			{% for item in rail_nav_items %}
 				<button type="button"
 						class="investigate-panel__tab {{ item.is_focus ? 'is-active active' : '' }}"

@@ -54,6 +54,8 @@ export class InvestigateLookupSelect2 {
 			return null;
 		}
 
+		// TODO: If another investigate/off-canvas feature needs this JSON contract parsing beyond select2 setup,
+		// extract a shared investigate contract reader instead of growing this helper.
 		try {
 			const parsed = JSON.parse( rawJson );
 			const action = ( parsed.action && typeof parsed.action === 'object' ) ? parsed.action : null;
