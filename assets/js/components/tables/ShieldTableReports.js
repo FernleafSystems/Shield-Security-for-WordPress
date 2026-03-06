@@ -10,8 +10,22 @@ export class ShieldTableReports extends ShieldTableBase {
 	buildDatatableConfig() {
 		let cfg = super.buildDatatableConfig();
 		cfg.dom = 'Brftip';
-		cfg.select = false;
 		return cfg;
+	}
+
+	getButtons() {
+		let buttons = super.getButtons();
+		buttons.push( {
+			text: 'Delete Selected',
+			name: 'selected-delete',
+			className: 'action selected-action delete btn-outline-warning mb-2',
+			action: () => {
+				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+					this.bulkTableAction( 'delete' );
+				}
+			}
+		} );
+		return buttons;
 	}
 
 	bindEvents() {
@@ -37,5 +51,14 @@ export class ShieldTableReports extends ShieldTableBase {
 				}
 			} );
 		} );
+	}
+
+	rowSelectionChanged() {
+		if ( this.$table.rows( { selected: true } ).count() > 0 ) {
+			this.$table.buttons( 'selected-delete:name' ).enable();
+		}
+		else {
+			this.$table.buttons( 'selected-delete:name' ).disable();
+		}
 	}
 }
