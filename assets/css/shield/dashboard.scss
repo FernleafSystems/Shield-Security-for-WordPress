@@ -432,6 +432,23 @@
 	letter-spacing: 0.02em;
 }
 
+.dashboard-live-monitor__title-wrap {
+	align-items: center;
+	display: inline-flex;
+	gap: 0.45rem;
+}
+
+.dashboard-live-monitor__status-dot {
+	animation: dashboard-live-monitor-status-dot 1.4s ease-in-out infinite;
+	background-color: #9aa0a6;
+	border-radius: 50%;
+	box-shadow: 0 0 0 0 rgba(58, 198, 123, 0.3);
+	display: inline-block;
+	flex: 0 0 auto;
+	height: 0.5rem;
+	width: 0.5rem;
+}
+
 .dashboard-live-monitor__chevron {
 	color: #50575e;
 	font-size: 0.95rem;
@@ -498,6 +515,20 @@
 	}
 }
 
+@keyframes dashboard-live-monitor-status-dot {
+	0%,
+	100% {
+		background-color: #9aa0a6;
+		box-shadow: 0 0 0 0 rgba(58, 198, 123, 0);
+		transform: scale(1);
+	}
+	50% {
+		background-color: #3ac67b;
+		box-shadow: 0 0 0 0.28rem rgba(58, 198, 123, 0.18);
+		transform: scale(1.12);
+	}
+}
+
 @media (max-width: 991.98px) {
 	.dashboard-live-monitor__body {
 		grid-template-columns: 1fr;
@@ -507,6 +538,21 @@
 		--shield-live-logs-height: 180px;
 		--shield-live-logs-min-height: 180px;
 		--shield-live-logs-max-height: 180px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.dashboard-live-monitor__status-dot {
+		animation: none;
+		background-color: #3ac67b;
+		box-shadow: none;
+		transform: none;
+	}
+
+	.dashboard-live-monitor .live_logs .output.is-new,
+	.dashboard-live-monitor__chevron {
+		animation: none;
+		transition: none;
 	}
 }
 

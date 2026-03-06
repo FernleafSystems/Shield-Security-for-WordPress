@@ -15,6 +15,7 @@ module.exports = {
 	mode: "production",
 	cache: {
 		type: 'filesystem',
+		cacheDirectory: path.resolve( __dirname, 'tmp/.webpack-cache' ),
 		buildDependencies: {
 			config: [__filename]
 		}

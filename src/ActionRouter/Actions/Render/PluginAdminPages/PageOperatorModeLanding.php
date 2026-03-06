@@ -69,7 +69,7 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'is_collapsed' => $isCollapsed,
 			'title'        => __( 'Live Monitor', 'wp-simple-firewall' ),
-			'activity'     => __( 'Recent WP Activity Events', 'wp-simple-firewall' ),
+			'activity'     => __( 'WP Activity', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Live Traffic', 'wp-simple-firewall' ),
 			'loading'      => __( 'Waiting for live updates...', 'wp-simple-firewall' ),
 		];
@@ -89,14 +89,13 @@ class PageOperatorModeLanding extends BaseRender {
 	 * @return array{has_items:bool,total_items:int,severity:string,icon_class:string,subtext:string}
 	 */
 	private function getQueueSummary( array $payload ) :array {
-		$defaults = [
+		return NeedsAttentionQueuePayload::summary( $payload, [
 			'has_items'   => false,
 			'total_items' => 0,
 			'severity'    => 'good',
 			'icon_class'  => self::con()->svgs->iconClass( 'shield-check' ),
 			'subtext'     => '',
-		];
-		return NeedsAttentionQueuePayload::summary( $payload, $defaults );
+		] );
 	}
 
 	/**
@@ -281,7 +280,7 @@ class PageOperatorModeLanding extends BaseRender {
 
 	private function getGeneratedReportsCount() :int {
 		try {
-			$count = (int)self::con()->db_con->reports->getQuerySelector()
+			$count = self::con()->db_con->reports->getQuerySelector()
 							 ->addWhere( 'unique_id', '', '!=' )
 							 ->count();
 		}

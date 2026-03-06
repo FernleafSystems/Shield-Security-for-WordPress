@@ -8,7 +8,10 @@
 			data-live-monitor-toggle="1"
 			aria-expanded="{{ is_collapsed ? 'false' : 'true' }}"
 			aria-controls="ShieldDashboardLiveMonitorBody">
-		<span class="dashboard-live-monitor__title">{{ vars.title|default('Live Monitor') }}</span>
+		<span class="dashboard-live-monitor__title-wrap">
+			<span class="dashboard-live-monitor__title">{{ vars.title|default('Live Monitor') }}</span>
+			<span class="dashboard-live-monitor__status-dot" aria-hidden="true"></span>
+		</span>
 		<i class="bi bi-chevron-down dashboard-live-monitor__chevron" aria-hidden="true"></i>
 	</button>
 	<div id="ShieldDashboardLiveMonitorBody"
