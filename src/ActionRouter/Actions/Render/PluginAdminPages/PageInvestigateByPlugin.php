@@ -76,4 +76,8 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 	protected function buildLookupOptions() :array {
 		return $this->buildPluginLookupOptions();
 	}
+
+	protected function buildLookupAjaxPayload() :array {
+		return [];
+	}
 }

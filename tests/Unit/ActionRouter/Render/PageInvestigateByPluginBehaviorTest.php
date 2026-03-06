@@ -105,6 +105,16 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
+		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_ajax' ] ?? null );
+		$this->assertSame(
+			[
+				[
+					'value' => 'akismet/akismet.php',
+					'label' => 'Akismet (5.0)',
+				],
+			],
+			$renderData[ 'vars' ][ 'plugin_options' ] ?? []
+		);
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {

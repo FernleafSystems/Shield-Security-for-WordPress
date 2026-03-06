@@ -48,6 +48,10 @@ class NavSidebarTemplateTest extends BaseUnitTest {
 		$this->assertNotNull( $sidebar[ 'home_license_item' ] );
 		$this->assertSame( 'Connect', $sidebar[ 'home_connect_title' ] );
 		$this->assertCount( 4, $sidebar[ 'home_connect_items' ] );
+		$this->assertSame(
+			[ 'icon-house-door', 'icon-people', 'icon-life-preserver', 'icon-envelope-paper' ],
+			\array_column( $sidebar[ 'home_connect_items' ], 'img' )
+		);
 	}
 
 	public function test_mode_sidebar_contract_replaces_home_sections_with_back_link_and_mode_tools() :void {

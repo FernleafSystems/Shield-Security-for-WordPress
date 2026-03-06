@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
@@ -15,7 +16,7 @@ class PageReportsLanding extends PageModeLandingBase {
 	}
 
 	protected function getLandingSubtitle() :string {
-		return __( 'Review security reports and manage reporting settings.', 'wp-simple-firewall' );
+		return __( 'Review security reports and manage reporting and alert settings.', 'wp-simple-firewall' );
 	}
 
 	protected function getLandingIcon() :string {
@@ -91,15 +92,17 @@ class PageReportsLanding extends PageModeLandingBase {
 	 *   panel_status:string,
 	 *   panel_variant:string,
 	 *   panel_content:string,
-	 *   panel_description:string,
-	 *   panel_cta_href:string,
-	 *   panel_cta_label:string
+	 *   panel_description:string
 	 * }>
 	 */
 	private function getReportsLandingTiles() :array {
-		$hrefs = $this->getLandingHrefs();
 		$workspace = PluginNavs::reportsLandingWorkspaceDefinitions();
 		$reportsTable = self::con()->action_router->render( ReportsTable::class );
+		$settingsDefinition = $workspace[ PluginNavs::SUBNAV_REPORTS_SETTINGS ];
+		$settingsForm = self::con()->action_router->render(
+			OptionsFormFor::class,
+			( new ReportsSettingsActionDataBuilder() )->build( $settingsDefinition[ 'config_zone_component_slugs' ] )
+		);
 
 		return [
 			[
@@ -116,42 +119,21 @@ class PageReportsLanding extends PageModeLandingBase {
 				'panel_variant'    => 'reports_table',
 				'panel_content'    => $reportsTable,
 				'panel_description' => '',
-				'panel_cta_href'   => $hrefs[ 'reports_'.PluginNavs::SUBNAV_REPORTS_LIST ] ?? '',
-				'panel_cta_label'  => $workspace[ PluginNavs::SUBNAV_REPORTS_LIST ][ 'landing_cta' ],
 			],
 			[
-				'key'              => PluginNavs::SUBNAV_REPORTS_ALERTS,
-				'panel_target'     => PluginNavs::SUBNAV_REPORTS_ALERTS,
-				'is_enabled'       => true,
-				'is_disabled'      => false,
-				'status'           => 'warning',
-				'icon_class'       => 'bi bi-bell',
-				'title'            => $workspace[ PluginNavs::SUBNAV_REPORTS_ALERTS ][ 'menu_title' ],
-				'stat_line'        => __( 'Configuration page', 'wp-simple-firewall' ),
-				'panel_title'      => $workspace[ PluginNavs::SUBNAV_REPORTS_ALERTS ][ 'menu_title' ],
-				'panel_status'     => 'warning',
-				'panel_variant'    => 'config_cta',
-				'panel_content'    => '',
-				'panel_description' => $workspace[ PluginNavs::SUBNAV_REPORTS_ALERTS ][ 'page_subtitle' ],
-				'panel_cta_href'   => $hrefs[ 'reports_'.PluginNavs::SUBNAV_REPORTS_ALERTS ] ?? '',
-				'panel_cta_label'  => $workspace[ PluginNavs::SUBNAV_REPORTS_ALERTS ][ 'landing_cta' ],
-			],
-			[
-				'key'              => PluginNavs::SUBNAV_REPORTS_REPORTING,
-				'panel_target'     => PluginNavs::SUBNAV_REPORTS_REPORTING,
+				'key'              => PluginNavs::SUBNAV_REPORTS_SETTINGS,
+				'panel_target'     => PluginNavs::SUBNAV_REPORTS_SETTINGS,
 				'is_enabled'       => true,
 				'is_disabled'      => false,
 				'status'           => 'warning',
 				'icon_class'       => 'bi bi-sliders',
-				'title'            => $workspace[ PluginNavs::SUBNAV_REPORTS_REPORTING ][ 'menu_title' ],
-				'stat_line'        => __( 'Configuration page', 'wp-simple-firewall' ),
-				'panel_title'      => $workspace[ PluginNavs::SUBNAV_REPORTS_REPORTING ][ 'menu_title' ],
+				'title'            => $settingsDefinition[ 'menu_title' ],
+				'stat_line'        => __( 'Inline settings', 'wp-simple-firewall' ),
+				'panel_title'      => $settingsDefinition[ 'menu_title' ],
 				'panel_status'     => 'warning',
-				'panel_variant'    => 'config_cta',
-				'panel_content'    => '',
-				'panel_description' => $workspace[ PluginNavs::SUBNAV_REPORTS_REPORTING ][ 'page_subtitle' ],
-				'panel_cta_href'   => $hrefs[ 'reports_'.PluginNavs::SUBNAV_REPORTS_REPORTING ] ?? '',
-				'panel_cta_label'  => $workspace[ PluginNavs::SUBNAV_REPORTS_REPORTING ][ 'landing_cta' ],
+				'panel_variant'    => 'config_form',
+				'panel_content'    => $settingsForm,
+				'panel_description' => $settingsDefinition[ 'page_subtitle' ],
 			],
 		];
 	}

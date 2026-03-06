@@ -74,9 +74,9 @@
 			input_name: 'user_lookup',
 			input_type: 'select',
 			input_value: vars.user_lookup|default(''),
-			selected_option_label: vars.user_lookup|default(''),
+			selected_option_label: vars.user_lookup_label|default(vars.user_lookup|default('')),
 			placeholder: strings.lookup_placeholder,
-			options: [],
+			options: vars.user_options|default([]),
 			submit_text: strings.lookup_submit,
 			helper_text: strings.lookup_helper
 		} only %}

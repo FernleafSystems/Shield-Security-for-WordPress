@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
-
 class PageReports extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_reports';
@@ -112,19 +110,7 @@ class PageReports extends BasePluginAdminPage {
 	 * @param list<string> $zoneComponentSlugs
 	 */
 	private function buildReportsSettingsActionData( array $zoneComponentSlugs ) :array {
-		return [
-			'options' => $this->buildReportsSettingsOptions( $zoneComponentSlugs ),
-		];
-	}
-
-	/**
-	 * @param list<string> $zoneComponentSlugs
-	 * @return list<string>
-	 */
-	private function buildReportsSettingsOptions( array $zoneComponentSlugs ) :array {
-		return ( new GetOptionsForZoneComponents() )->run(
-			$zoneComponentSlugs
-		);
+		return ( new ReportsSettingsActionDataBuilder() )->build( $zoneComponentSlugs );
 	}
 
 	protected function getRequiredDataKeys() :array {

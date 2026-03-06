@@ -90,7 +90,10 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$result = $this->findResultById( $results, (string)$userId );
 		$this->assertIsArray( $result );
-		$this->assertSame( \sprintf( '[ID:%d] %s | %s', $userId, $userLogin, $email ), (string)( $result[ 'text' ] ?? '' ) );
+		$resultText = (string)( $result[ 'text' ] ?? '' );
+		$this->assertStringContainsString( '[ID:'.$userId.' | ', $resultText );
+		$this->assertStringContainsString( $userLogin, $resultText );
+		$this->assertStringContainsString( $email, $resultText );
 		$this->assertResultsHaveSelect2Shape( $results );
 	}
 

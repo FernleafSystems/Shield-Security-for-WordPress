@@ -105,15 +105,14 @@
 						   data-{{ data_key }}="{{ data_val }}"
 					   {% endfor %}
 					>
-						{{ link.title }}
+						{% if link.img|default('') is not empty %}
+							<span class="sidebar-connect-icon"><i class="{{ link.img }}" aria-hidden="true"></i></span>
+						{% endif %}
+						<span class="sidebar-connect-label">{{ link.title }}</span>
 					</a>
 				{% endfor %}
 			</div>
 		</div>
-	{% endif %}
-
-	{% if not flags.is_whitelabelled %}
-		<div class="shield-sidebar-footer">{{ strings.running_version|raw }}</div>
 	{% endif %}
 
 </div>

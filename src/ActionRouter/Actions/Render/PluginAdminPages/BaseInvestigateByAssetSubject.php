@@ -69,12 +69,10 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 			'strings' => $strings,
 			'vars'    => [
 				$this->getLookupQueryKey()      => $lookup,
-				$this->getLookupOptionsVarKey() => $this->buildLookupOptions(),
+				$this->getLookupOptionsVarKey() => $this->buildLookupOptionsPayload(),
 				'lookup_route'                  => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
 				'lookup_behavior'               => $this->buildLookupBehaviorContract( true, true, true ),
-				'lookup_ajax'                   => $this->buildLookupAjaxContract(
-					$this->getLookupSubjectKey()
-				),
+				'lookup_ajax'                   => $this->buildLookupAjaxPayload(),
 				'subject_header'                => $subjectHeader,
 				'tabs'                          => $tabs,
 				'rail_nav_items'                => $railNavItems,
@@ -83,6 +81,14 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				'vulnerabilities'               => $vulnerabilities,
 			],
 		];
+	}
+
+	protected function buildLookupOptionsPayload() :array {
+		return $this->buildLookupOptions();
+	}
+
+	protected function buildLookupAjaxPayload() :array {
+		return $this->buildLookupAjaxContract( $this->getLookupSubjectKey() );
 	}
 
 	protected function buildOverviewRows( array $assetData, array $vulnerabilities ) :array {

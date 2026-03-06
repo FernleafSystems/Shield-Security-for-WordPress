@@ -5,7 +5,7 @@
 .reports-landing__tile-grid {
 	display: grid;
 	gap: 0.7rem;
-	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
 .reports-landing__tile {
@@ -88,24 +88,20 @@
 	padding-right: 0.65rem;
 }
 
-.reports-landing__panel-copy {
-	font-size: 0.88rem;
-}
-
-.reports-landing__panel-cta {
-	background: $status-color-warning;
-	border: none;
-	border-radius: 6px;
-	color: #1d2327;
-	display: inline-block;
+.reports-landing__panel-content {
 	font-size: 0.84rem;
-	font-weight: 600;
-	padding: 0.42rem 0.9rem;
-	text-decoration: none;
 }
 
-.reports-landing__panel-cta:hover {
-	background: #c49000;
-	color: #1d2327;
-	text-decoration: none;
+.reports-landing__panel-description {
+	font-size: 0.88rem;
+	margin-bottom: 1rem;
+}
+
+.reports-landing__panel-content--config_form .moduleCard {
+	margin-bottom: 0;
+}
+
+.reports-landing__panel-content--config_form .form-group:last-child,
+.reports-landing__panel-content--config_form .mb-4:last-child {
+	margin-bottom: 0 !important;
 }

@@ -105,6 +105,16 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
+		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_ajax' ] ?? null );
+		$this->assertSame(
+			[
+				[
+					'value' => 'twentytwentyfive',
+					'label' => 'Twenty Twenty-Five (1.0)',
+				],
+			],
+			$renderData[ 'vars' ][ 'theme_options' ] ?? []
+		);
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {

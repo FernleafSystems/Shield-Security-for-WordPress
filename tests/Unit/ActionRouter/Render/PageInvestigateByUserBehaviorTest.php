@@ -31,6 +31,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\I
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByUser;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\InvestigateUserLookupBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
@@ -96,7 +97,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 
 	public function test_no_lookup_returns_no_subject_flags_and_no_table_contracts() :void {
 		$this->installServices();
-		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [] );
+		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [], new InvestigateUserLookupBuilderTestDouble( false ) );
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
@@ -132,7 +133,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->installServices( [
 			'user_lookup' => 'unknown-user',
 		] );
-		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [] );
+		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [], new InvestigateUserLookupBuilderTestDouble( false ) );
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
@@ -185,7 +186,8 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 					'created_at_ts' => 1600,
 					'offense'       => false,
 				],
-			]
+			],
+			new InvestigateUserLookupBuilderTestDouble( false, [], '[ID:42 | Administrator] operator | operator@example.com' )
 		);
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
@@ -195,6 +197,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$overviewRows = $vars[ 'overview_rows' ] ?? [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
+		$this->assertSame( '[ID:42 | Administrator] operator | operator@example.com', (string)( $vars[ 'user_lookup_label' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'subject', $vars );
 		$this->assertArrayNotHasKey( 'summary', $vars );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
@@ -313,7 +316,8 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 					'created_at_ts' => 1200,
 					'offense'       => false,
 				],
-			]
+			],
+			new InvestigateUserLookupBuilderTestDouble( false )
 		);
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
@@ -333,12 +337,44 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 
 	public function test_render_data_includes_lookup_helper_string() :void {
 		$this->installServices();
-		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [] );
+		$page = new PageInvestigateByUserUnitTestDouble( null, [], [], [], new InvestigateUserLookupBuilderTestDouble( false ) );
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertArrayHasKey( 'lookup_helper', $renderData[ 'strings' ] ?? [] );
 		$this->assertNotEmpty( $renderData[ 'strings' ][ 'lookup_helper' ] ?? '' );
+	}
+
+	public function test_small_user_sites_use_static_select2_options_without_ajax() :void {
+		$this->installServices();
+		$page = new PageInvestigateByUserUnitTestDouble(
+			null,
+			[],
+			[],
+			[],
+			new InvestigateUserLookupBuilderTestDouble(
+				true,
+				[
+					[
+						'value' => '12',
+						'label' => '[ID:12 | Author] small-site-user | small@example.com',
+					],
+				]
+			)
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_ajax' ] ?? null );
+		$this->assertSame(
+			[
+				[
+					'value' => '12',
+					'label' => '[ID:12 | Author] small-site-user | small@example.com',
+				],
+			],
+			$renderData[ 'vars' ][ 'user_options' ] ?? []
+		);
 	}
 
 	private function installControllerStub() :void {
@@ -427,12 +463,14 @@ class PageInvestigateByUserUnitTestDouble extends PageInvestigateByUser {
 	private array $sessions;
 	private array $activityLogs;
 	private array $requestLogs;
+	private InvestigateUserLookupBuilder $userLookupBuilder;
 
-	public function __construct( ?\WP_User $subject, array $sessions, array $activityLogs, array $requestLogs ) {
+	public function __construct( ?\WP_User $subject, array $sessions, array $activityLogs, array $requestLogs, InvestigateUserLookupBuilder $userLookupBuilder ) {
 		$this->subject = $subject;
 		$this->sessions = $sessions;
 		$this->activityLogs = $activityLogs;
 		$this->requestLogs = $requestLogs;
+		$this->userLookupBuilder = $userLookupBuilder;
 	}
 
 	protected function resolveSubject( string $lookup ) :?\WP_User {
@@ -469,6 +507,35 @@ class PageInvestigateByUserUnitTestDouble extends PageInvestigateByUser {
 			'event_score'   => $eventScore,
 			'shield_status' => 'Tracked',
 		];
+	}
+
+	protected function getUserLookupBuilder() :InvestigateUserLookupBuilder {
+		return $this->userLookupBuilder;
+	}
+}
+
+class InvestigateUserLookupBuilderTestDouble extends InvestigateUserLookupBuilder {
+
+	private bool $useStaticLookup;
+	private array $staticOptions;
+	private string $formattedLabel;
+
+	public function __construct( bool $useStaticLookup, array $staticOptions = [], string $formattedLabel = '' ) {
+		$this->useStaticLookup = $useStaticLookup;
+		$this->staticOptions = $staticOptions;
+		$this->formattedLabel = $formattedLabel;
+	}
+
+	public function shouldUseStaticSelect( int $threshold = 10 ) :bool {
+		return $this->useStaticLookup;
+	}
+
+	public function buildStaticOptions( int $limit = 10 ) :array {
+		return $this->staticOptions;
+	}
+
+	public function formatLabel( \WP_User $user ) :string {
+		return $this->formattedLabel !== '' ? $this->formattedLabel : parent::formatLabel( $user );
 	}
 }
 

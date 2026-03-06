@@ -59,8 +59,9 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-reports-panel="'.PluginNavs::SUBNAV_REPORTS_LIST.'" and @aria-hidden="false"]',
 			'Reports security reports panel default-open marker'
 		);
-		$this->assertXPathExists( $xpath, '//*[@data-reports-content="security-reports"]', 'Reports table panel content marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-reports-content="security-reports"]//*[@id="ReportsTable"]', 'Reports table in landing panel marker' );
+		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]', 'Reports table panel content marker' );
+		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]//*[@id="ReportsTable"]', 'Reports table in landing panel marker' );
+		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_SETTINGS.'"]//form', 'Inline reports settings form marker' );
 
 		foreach ( $landingSubNavs as $subNav ) {
 			$this->assertXPathExists(
@@ -72,16 +73,6 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 				$xpath,
 				'//*[@data-reports-panel="'.$subNav.'" and @data-mode-panel-target="'.$subNav.'"]',
 				'Reports panel target contract for '.$subNav
-			);
-		}
-		foreach ( \array_filter(
-			$landingSubNavs,
-			static fn( string $subNav ) :bool => $subNav !== PluginNavs::SUBNAV_REPORTS_LIST
-		) as $configSubNav ) {
-			$this->assertXPathExists(
-				$xpath,
-				'//*[@data-reports-cta="'.$configSubNav.'"]',
-				'Reports config CTA marker for '.$configSubNav
 			);
 		}
 		$this->assertXPathCount( $xpath, '//*[@data-reports-tile="'.PluginNavs::SUBNAV_REPORTS_CHARTS.'"]', 0, 'Reports charts tile remains excluded from landing' );

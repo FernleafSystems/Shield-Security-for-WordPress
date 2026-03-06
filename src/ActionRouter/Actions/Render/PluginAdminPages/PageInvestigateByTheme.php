@@ -77,4 +77,8 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 		return $this->buildThemeLookupOptions();
 	}
 
+	protected function buildLookupAjaxPayload() :array {
+		return [];
+	}
+
 }

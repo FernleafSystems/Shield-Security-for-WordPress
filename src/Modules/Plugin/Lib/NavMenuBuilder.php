@@ -304,24 +304,28 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'connect-home',
 					'title'  => __( 'Shield Home', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'house-door' ),
 					'href'   => $links->url( ExternalLinks::HOME ),
 					'target' => '_blank',
 				],
 				[
 					'slug'   => 'connect-facebook',
 					'title'  => __( 'Facebook Group', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'people' ),
 					'href'   => $links->url( ExternalLinks::FACEBOOK_GROUP ),
 					'target' => '_blank',
 				],
 				[
 					'slug'   => 'connect-helpdesk',
 					'title'  => __( 'Help Desk', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'life-preserver' ),
 					'href'   => $links->url( ExternalLinks::HELPDESK ),
 					'target' => '_blank',
 				],
 				[
 					'slug'   => 'connect-newsletter',
 					'title'  => __( 'Newsletter', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'envelope-paper' ),
 					'href'   => $links->url( ExternalLinks::NEWSLETTER ),
 					'target' => '_blank',
 				],

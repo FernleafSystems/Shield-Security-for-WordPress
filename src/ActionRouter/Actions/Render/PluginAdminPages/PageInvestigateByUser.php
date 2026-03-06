@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LogRecord as RequestLogRecord
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\{
+	InvestigateUserLookupBuilder,
 	ResolveUserLookup,
 	Session\FindSessions
 };
@@ -40,10 +41,12 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = self::con();
 		$lookup = $this->getTextInputFromRequestOrActionData( 'user_lookup' );
+		$userLookupBuilder = $this->getUserLookupBuilder();
 		$subject = $this->resolveSubject( $lookup );
 		$hasLookup = !empty( $lookup );
 		$hasSubject = $subject instanceof \WP_User;
 		$subjectNotFound = $hasLookup && !$hasSubject;
+		$useStaticLookup = $userLookupBuilder->shouldUseStaticSelect();
 
 		$summaryStats = [];
 		$overviewRows = [];
@@ -101,9 +104,11 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			],
 			'vars'    => [
 				'user_lookup'      => $lookup,
+				'user_options'     => $useStaticLookup ? $userLookupBuilder->buildStaticOptions() : [],
+				'user_lookup_label'=> $hasSubject ? $userLookupBuilder->formatLabel( $subject ) : $lookup,
 				'lookup_route'     => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
 				'lookup_behavior'  => $this->buildLookupBehaviorContract( true, true, true ),
-				'lookup_ajax'      => $this->buildLookupAjaxContract( 'user', 1 ),
+				'lookup_ajax'      => $useStaticLookup ? [] : $this->buildLookupAjaxContract( 'user', 1 ),
 				'subject_header'   => $subjectHeader,
 				'overview_rows'    => $overviewRows,
 				'rail_nav_items'   => $railNavItems,
@@ -415,5 +420,9 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	protected function getRelatedIpCardsBuilder() :InvestigateByUserRelatedIpCardsBuilder {
 		return new InvestigateByUserRelatedIpCardsBuilder();
+	}
+
+	protected function getUserLookupBuilder() :InvestigateUserLookupBuilder {
+		return new InvestigateUserLookupBuilder();
 	}
 }

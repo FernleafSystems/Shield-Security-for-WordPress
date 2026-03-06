@@ -121,7 +121,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginNavs::SUBNAV_REPORTS_ALERTS   => 'alerts_settings',
 			PluginNavs::SUBNAV_REPORTS_REPORTING => 'reporting_configuration',
 			PluginNavs::SUBNAV_REPORTS_CHARTS   => 'summary_charts',
-			PluginNavs::SUBNAV_REPORTS_SETTINGS => 'alerts_settings',
+			PluginNavs::SUBNAV_REPORTS_SETTINGS => 'reporting_alerts_configuration',
 		];
 		$expectedCreateActions = [
 			PluginNavs::SUBNAV_REPORTS_LIST     => true,
@@ -132,17 +132,17 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		];
 		$expectedSidebarVisibility = [
 			PluginNavs::SUBNAV_REPORTS_LIST      => true,
-			PluginNavs::SUBNAV_REPORTS_ALERTS    => true,
-			PluginNavs::SUBNAV_REPORTS_REPORTING => true,
+			PluginNavs::SUBNAV_REPORTS_ALERTS    => false,
+			PluginNavs::SUBNAV_REPORTS_REPORTING => false,
 			PluginNavs::SUBNAV_REPORTS_CHARTS    => false,
-			PluginNavs::SUBNAV_REPORTS_SETTINGS  => false,
+			PluginNavs::SUBNAV_REPORTS_SETTINGS  => true,
 		];
 		$expectedLandingVisibility = [
 			PluginNavs::SUBNAV_REPORTS_LIST      => true,
-			PluginNavs::SUBNAV_REPORTS_ALERTS    => true,
-			PluginNavs::SUBNAV_REPORTS_REPORTING => true,
+			PluginNavs::SUBNAV_REPORTS_ALERTS    => false,
+			PluginNavs::SUBNAV_REPORTS_REPORTING => false,
 			PluginNavs::SUBNAV_REPORTS_CHARTS    => false,
-			PluginNavs::SUBNAV_REPORTS_SETTINGS  => false,
+			PluginNavs::SUBNAV_REPORTS_SETTINGS  => true,
 		];
 		$expectedConfigZoneComponentSlugs = [
 			PluginNavs::SUBNAV_REPORTS_LIST      => [],
@@ -190,8 +190,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_REPORTS_LIST,
-				PluginNavs::SUBNAV_REPORTS_ALERTS,
-				PluginNavs::SUBNAV_REPORTS_REPORTING,
+				PluginNavs::SUBNAV_REPORTS_SETTINGS,
 			],
 			\array_keys( PluginNavs::reportsSidebarWorkspaceDefinitions() )
 		);
@@ -201,8 +200,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_REPORTS_LIST,
-				PluginNavs::SUBNAV_REPORTS_ALERTS,
-				PluginNavs::SUBNAV_REPORTS_REPORTING,
+				PluginNavs::SUBNAV_REPORTS_SETTINGS,
 			],
 			\array_keys( PluginNavs::reportsLandingWorkspaceDefinitions() )
 		);
@@ -506,7 +504,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CHARTS )
 		);
 		$this->assertSame(
-			[ 'label' => 'Alert Settings' ],
+			[ 'label' => 'Reporting & Alerts Configuration' ],
 			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS )
 		);
 		$this->assertSame(

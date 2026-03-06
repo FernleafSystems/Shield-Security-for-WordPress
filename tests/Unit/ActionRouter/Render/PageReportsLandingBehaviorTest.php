@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageReportsLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -39,34 +40,38 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_landing_vars_include_three_tiles_and_reports_table_panel() :void {
+	public function test_landing_vars_include_two_tiles_and_inline_settings_panel() :void {
 		$page = new PageReportsLanding();
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$tiles = $vars[ 'report_tiles' ] ?? [];
 
 		$this->assertSame(
+			ReportsTable::class,
+			$this->renderCapture->calls[ 0 ][ 'action' ] ?? ''
+		);
+		$this->assertSame( [], $this->renderCapture->calls[ 0 ][ 'action_data' ] ?? null );
+		$this->assertSame( OptionsFormFor::class, $this->renderCapture->calls[ 1 ][ 'action' ] ?? '' );
+		$this->assertCount( 4, $this->renderCapture->calls[ 1 ][ 'action_data' ][ 'options' ] ?? [] );
+		$this->assertSame(
+			[ 'instant_alerts-opt-a', 'reporting-opt-a' ],
 			[
-				[
-					'action'     => ReportsTable::class,
-					'action_data' => [],
-				],
-			],
-			$this->renderCapture->calls
+				$this->renderCapture->calls[ 1 ][ 'action_data' ][ 'options' ][ 0 ] ?? '',
+				$this->renderCapture->calls[ 1 ][ 'action_data' ][ 'options' ][ 2 ] ?? '',
+			]
 		);
 
-		$this->assertCount( 3, $tiles );
+		$this->assertCount( 2, $tiles );
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_REPORTS_LIST,
-				PluginNavs::SUBNAV_REPORTS_ALERTS,
-				PluginNavs::SUBNAV_REPORTS_REPORTING,
+				PluginNavs::SUBNAV_REPORTS_SETTINGS,
 			],
 			\array_column( $tiles, 'key' )
 		);
 		$this->assertSame( 'reports_table', $tiles[ 0 ][ 'panel_variant' ] ?? '' );
 		$this->assertSame( 'rendered-1', $tiles[ 0 ][ 'panel_content' ] ?? '' );
-		$this->assertSame( 'config_cta', $tiles[ 1 ][ 'panel_variant' ] ?? '' );
-		$this->assertSame( 'config_cta', $tiles[ 2 ][ 'panel_variant' ] ?? '' );
+		$this->assertSame( 'config_form', $tiles[ 1 ][ 'panel_variant' ] ?? '' );
+		$this->assertSame( 'rendered-2', $tiles[ 1 ][ 'panel_content' ] ?? '' );
 	}
 
 	public function test_landing_hrefs_include_canonical_and_legacy_workspace_routes() :void {
@@ -107,7 +112,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
-		$this->assertCount( 3, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
+		$this->assertCount( 2, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? false ) );
 	}
@@ -139,6 +144,26 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 				return 'rendered-'.\count( $this->capture->calls );
 			}
 		};
+		$controller->comps = (object)[
+			'zones' => new class {
+				public function getZoneComponent( string $slug ) :object {
+					return new class( $slug ) {
+						private string $slug;
+
+						public function __construct( string $slug ) {
+							$this->slug = $slug;
+						}
+
+						public function getOptions() :array {
+							return [
+								$this->slug.'-opt-a',
+								$this->slug.'-opt-b',
+							];
+						}
+					};
+				}
+			},
+		];
 		$controller->svgs = new class {
 			public function iconClass( string $icon ) :string {
 				return 'bi bi-'.$icon;

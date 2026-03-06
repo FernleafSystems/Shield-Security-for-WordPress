@@ -35,18 +35,12 @@
 
 		{% for tile in vars.report_tiles %}
 			{% set panel_body %}
-				{% if tile.panel_variant == 'reports_table' %}
-					<div class="reports-landing__panel-reports-table" data-reports-content="security-reports">
-						{{ tile.panel_content|raw }}
-					</div>
-				{% else %}
-					<div class="reports-landing__panel-copy" data-reports-content="{{ tile.key }}">
-						<p class="mb-3">{{ tile.panel_description }}</p>
-						<a class="reports-landing__panel-cta"
-						   href="{{ tile.panel_cta_href }}"
-						   data-reports-cta="{{ tile.key }}">{{ tile.panel_cta_label }}</a>
-					</div>
-				{% endif %}
+				<div class="reports-landing__panel-content reports-landing__panel-content--{{ tile.panel_variant }}" data-reports-content="{{ tile.key }}">
+					{% if tile.panel_description is not empty and tile.panel_variant != 'reports_table' %}
+						<p class="reports-landing__panel-description">{{ tile.panel_description }}</p>
+					{% endif %}
+					{{ tile.panel_content|raw }}
+				</div>
 			{% endset %}
 			{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
 				panel: {

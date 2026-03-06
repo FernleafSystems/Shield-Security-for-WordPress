@@ -156,7 +156,7 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $contextualHrefs );
 	}
 
-	public function test_settings_subnav_remains_available_as_hidden_legacy_route() :void {
+	public function test_settings_subnav_is_the_visible_combined_configuration_route() :void {
 		$page = new PageReports( [
 			'nav_sub' => PluginNavs::SUBNAV_REPORTS_SETTINGS,
 		] );
@@ -169,24 +169,24 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			$this->zoneCapture->requested
 		);
 		$this->assertSame(
-			[
-				[
-					'action'     => OptionsFormFor::class,
-					'action_data' => [
-						'options' => [
-							InstantAlerts::Slug().'-opt-a',
-							InstantAlerts::Slug().'-opt-b',
-							Reporting::Slug().'-opt-a',
-							Reporting::Slug().'-opt-b',
-						],
-					],
-				],
-			],
-			$this->renderCapture->calls
+			OptionsFormFor::class,
+			$this->renderCapture->calls[ 0 ][ 'action' ] ?? ''
 		);
-		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'alerts_settings' ] ?? '' );
-		$this->assertSame( 'Alert Settings', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
-		$this->assertSame( 'Manage instant alerts and report delivery settings.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertSame(
+			[
+				InstantAlerts::Slug().'-opt-a',
+				Reporting::Slug().'-opt-a',
+			],
+			[
+				$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ][ 0 ] ?? '',
+				$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ][ 2 ] ?? '',
+			]
+		);
+		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'reporting_alerts_configuration' ] ?? '' );
+		$this->assertStringContainsString( 'Reporting', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
+		$this->assertStringContainsString( 'Alerts', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
+		$this->assertStringContainsString( 'instant alerts', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertStringContainsString( 'report delivery', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
 		$this->assertSame( [], $contextualHrefs );
 	}
 

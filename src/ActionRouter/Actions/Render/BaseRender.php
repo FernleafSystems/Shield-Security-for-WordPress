@@ -286,11 +286,8 @@ abstract class BaseRender extends BaseAction {
 
 				'wphashes_token' => sprintf( '%s API Token', self::con()->labels->Name ),
 
-				'running_version' => sprintf( '%s %s', $con->labels->Name,
-					Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ?
-						sprintf( '<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
-							Services::WpGeneral()->getAdminUrl_Updates(), $con->cfg->version() ) : $con->cfg->version()
-				),
+				'running_version'      => sprintf( '%s %s', $con->labels->Name, $this->buildRunningVersionHtml() ),
+				'running_version_only' => $this->buildRunningVersionHtml(),
 
 				'product_name'    => CommonDisplayStrings::get( 'name_label' ),
 				'license_active'  => __( 'Active', 'wp-simple-firewall' ),
@@ -334,5 +331,16 @@ abstract class BaseRender extends BaseAction {
 		return [
 			'strict_variables' => false,
 		];
+	}
+
+	private function buildRunningVersionHtml() :string {
+		$con = self::con();
+		return Services::WpPlugins()->isUpdateAvailable( $con->base_file )
+			? sprintf(
+				'<a href="%s" target="_blank" class="text-danger shield-footer-version">%s</a>',
+				Services::WpGeneral()->getAdminUrl_Updates(),
+				$con->cfg->version()
+			)
+			: $con->cfg->version();
 	}
 }
