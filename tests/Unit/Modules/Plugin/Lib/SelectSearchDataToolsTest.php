@@ -30,7 +30,7 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_tools_search_uses_wizard_welcome_and_debug_routes() :void {
+	public function test_tools_search_uses_canonical_tool_routes() :void {
 		$this->installControllerStubs();
 
 		$searchData = new SelectSearchData();
@@ -45,8 +45,10 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 			$childrenById[ $child[ 'id' ] ] = $child;
 		}
 
-		$this->assertSame( '/admin/wizard/welcome', $childrenById[ 'tool_guidedsetup' ][ 'link' ][ 'href' ] ?? '' );
+		$this->assertSame( '/admin/merlin/welcome', $childrenById[ 'tool_guidedsetup' ][ 'link' ][ 'href' ] ?? '' );
 		$this->assertSame( '/admin/tools/debug', $childrenById[ 'tool_debug' ][ 'link' ][ 'href' ] ?? '' );
+		$this->assertSame( '/admin/reports/overview', $childrenById[ 'tool_reports' ][ 'link' ][ 'href' ] ?? '' );
+		$this->assertSame( '/admin/activity/sessions', $childrenById[ 'tool_sessions' ][ 'link' ][ 'href' ] ?? '' );
 	}
 
 	private function installControllerStubs() :void {

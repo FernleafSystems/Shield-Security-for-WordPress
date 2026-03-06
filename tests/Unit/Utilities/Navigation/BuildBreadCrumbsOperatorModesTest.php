@@ -163,34 +163,34 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'name'     => 'Dashboard',
 				'sub_navs' => [
 					PluginNavs::SUBNAV_DASHBOARD_OVERVIEW => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_DASHBOARD_GRADES   => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_DASHBOARD_GRADES   => [ 'handler' => 'handler', 'label' => 'Security Grades' ],
 				],
 			],
 			PluginNavs::NAV_SCANS     => [
 				'name'     => 'Scans',
 				'sub_navs' => [
 					PluginNavs::SUBNAV_SCANS_OVERVIEW => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_SCANS_RESULTS => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_SCANS_RUN => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_SCANS_RESULTS => [ 'handler' => 'handler', 'label' => 'Scan Results' ],
+					PluginNavs::SUBNAV_SCANS_RUN => [ 'handler' => 'handler', 'label' => 'Run Scan' ],
 				],
 			],
 			PluginNavs::NAV_IPS       => [
 				'name'     => 'IPs',
 				'sub_navs' => [
-					PluginNavs::SUBNAV_IPS_RULES => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_IPS_RULES => [ 'handler' => 'handler', 'label' => 'Bots & IP Rules' ],
 				],
 			],
 			PluginNavs::NAV_ACTIVITY  => [
 				'name'     => 'Activity',
 				'sub_navs' => [
 					PluginNavs::SUBNAV_ACTIVITY_OVERVIEW => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_ACTIVITY_BY_USER  => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_ACTIVITY_BY_IP    => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_ACTIVITY_SESSIONS => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_LOGS              => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_USER  => [ 'handler' => 'handler', 'label' => 'User' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_IP    => [ 'handler' => 'handler', 'label' => 'IP Address' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'handler' => 'handler', 'label' => 'Plugin' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'handler' => 'handler', 'label' => 'Theme' ],
+					PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'handler' => 'handler', 'label' => 'Core Files' ],
+					PluginNavs::SUBNAV_ACTIVITY_SESSIONS => [ 'handler' => 'handler', 'label' => 'User Sessions' ],
+					PluginNavs::SUBNAV_LOGS              => [ 'handler' => 'handler', 'label' => 'Activity Log' ],
 				],
 			],
 			PluginNavs::NAV_ZONES     => [
@@ -204,7 +204,7 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'name'     => 'Tools',
 				'sub_navs' => [
 					PluginNavs::SUBNAV_TOOLS_BLOCKDOWN => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_TOOLS_DEBUG     => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_TOOLS_DEBUG     => [ 'handler' => 'handler', 'label' => 'Debug Info' ],
 					PluginNavs::SUBNAV_TOOLS_IMPORT    => [ 'handler' => 'handler' ],
 				],
 			],
@@ -218,18 +218,18 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'name'     => 'Reports',
 				'sub_navs' => [
 					PluginNavs::SUBNAV_REPORTS_OVERVIEW => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_REPORTS_LIST => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_REPORTS_ALERTS => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_REPORTS_REPORTING => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_REPORTS_CHARTS => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_REPORTS_SETTINGS => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_REPORTS_LIST => [ 'handler' => 'handler', 'label' => 'Security Reports' ],
+					PluginNavs::SUBNAV_REPORTS_ALERTS => [ 'handler' => 'handler', 'label' => 'Alert Settings' ],
+					PluginNavs::SUBNAV_REPORTS_REPORTING => [ 'handler' => 'handler', 'label' => 'Reporting Configuration' ],
+					PluginNavs::SUBNAV_REPORTS_CHARTS => [ 'handler' => 'handler', 'label' => 'Charts & Trends' ],
+					PluginNavs::SUBNAV_REPORTS_SETTINGS => [ 'handler' => 'handler', 'label' => 'Reporting & Alerts Configuration' ],
 				],
 			],
 			PluginNavs::NAV_TRAFFIC   => [
 				'name'     => 'Traffic',
 				'sub_navs' => [
-					PluginNavs::SUBNAV_LOGS => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_LIVE => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_LOGS => [ 'handler' => 'handler', 'label' => 'HTTP Request Log' ],
+					PluginNavs::SUBNAV_LIVE => [ 'handler' => 'handler', 'label' => 'Live HTTP Log' ],
 				],
 			],
 		];

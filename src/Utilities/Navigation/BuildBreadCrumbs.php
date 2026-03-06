@@ -89,7 +89,7 @@ class BuildBreadCrumbs {
 			$crumbHrefSubNav = $this->getDefaultSubNavForNav( $nav, $hierarchy );
 			$crumbTitleLabel = sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] );
 
-			$subNavDefinition = PluginNavs::breadcrumbSubNavDefinition( $nav, $subNav );
+			$subNavDefinition = $navStruct[ 'sub_navs' ][ $subNav ];
 			$subNavLabel = $subNavDefinition[ 'label' ] ?? null;
 			if ( \is_string( $subNavLabel ) && $subNavLabel !== '' ) {
 				$crumbText = $subNavLabel;

@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	LoginHide,
@@ -121,51 +120,13 @@ class NavMenuBuilder {
 	 * @return list<array<string,mixed>>
 	 */
 	private function toolsForMode( string $mode ) :array {
-		$con = self::con();
 		switch ( $mode ) {
 			case PluginNavs::MODE_ACTIONS:
-				$items = [
-					$this->buildToolItem(
-						PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN,
-						__( 'Run Manual Scan', 'wp-simple-firewall' ),
-						'play-circle',
-						$con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
-						$this->isCurrentRoute( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN )
-					),
-				];
+				$items = $this->buildStaticToolItemsForMode( PluginNavs::MODE_ACTIONS );
 				break;
 
 			case PluginNavs::MODE_INVESTIGATE:
-				$items = [
-					$this->buildToolItem(
-						PluginNavs::NAV_IPS.'-'.PluginNavs::SUBNAV_IPS_RULES,
-						__( 'Bots & IP Rules', 'wp-simple-firewall' ),
-						'diagram-3',
-						$con->plugin_urls->adminIpRules(),
-						$this->isCurrentRoute( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES )
-					),
-					$this->buildToolItem(
-						PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS,
-						__( 'WP Activity Log', 'wp-simple-firewall' ),
-						'person-lines-fill',
-						$con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-						$this->isCurrentRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS )
-					),
-					$this->buildToolItem(
-						PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LOGS,
-						__( 'HTTP Request Log', 'wp-simple-firewall' ),
-						'globe',
-						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-						$this->isCurrentRoute( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS )
-					),
-					$this->buildToolItem(
-						PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_ACTIVITY_SESSIONS,
-						__( 'User Sessions', 'wp-simple-firewall' ),
-						'person-badge',
-						$con->plugin_urls->investigateUserSessions(),
-						$this->isCurrentRoute( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS )
-					),
-				];
+				$items = $this->buildStaticToolItemsForMode( PluginNavs::MODE_INVESTIGATE );
 				break;
 
 			case PluginNavs::MODE_CONFIGURE:
@@ -186,49 +147,9 @@ class NavMenuBuilder {
 	private function buildConfigureTools() :array {
 		$con = self::con();
 		$zoneCon = $con->comps->zones;
-		return [
-			$this->buildToolItem(
-				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_MANAGE,
-				__( 'Custom Rules Manager', 'wp-simple-firewall' ),
-				'node-plus-fill',
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ),
-				$this->isCurrentRoute( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE )
-			),
-			$this->buildToolItem(
-				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_BUILD,
-				__( 'New Custom Rule', 'wp-simple-firewall' ),
-				'plus-circle',
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
-				$this->isCurrentRoute( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD )
-			),
-			$this->buildToolItem(
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
-				__( 'Site Lockdown', 'wp-simple-firewall' ),
-				'lock-fill',
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN ),
-				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN )
-			),
-			$this->buildToolItem(
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_IMPORT,
-				__( 'Import / Export', 'wp-simple-firewall' ),
-				'arrow-left-right',
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ),
-				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT )
-			),
-			$this->buildToolItem(
-				PluginNavs::NAV_WIZARD.'-'.Wizards::WIZARD_WELCOME,
-				__( 'Guided Setup', 'wp-simple-firewall' ),
-				'compass',
-				$con->plugin_urls->wizard( Wizards::WIZARD_WELCOME ),
-				$this->isCurrentRoute( PluginNavs::NAV_WIZARD, Wizards::WIZARD_WELCOME )
-			),
-			$this->buildToolItem(
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
-				__( 'Debug Info', 'wp-simple-firewall' ),
-				'bug',
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
-				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG )
-			),
+		return \array_merge(
+			$this->buildStaticToolItemsForMode( PluginNavs::MODE_CONFIGURE ),
+			[
 			\array_merge(
 				$zoneCon->getZoneComponent( Whitelabel::Slug() )->getActions()[ 'config' ],
 				[
@@ -253,7 +174,37 @@ class NavMenuBuilder {
 					'img'   => $con->svgs->iconClass( 'puzzle' ),
 				]
 			),
-		];
+			]
+		);
+	}
+
+	/**
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildStaticToolItemsForMode( string $mode ) :array {
+		return \array_map(
+			fn( array $definition ) :array => $this->buildToolItemFromDefinition( $definition ),
+			StaticToolDefinitions::forMode( $mode )
+		);
+	}
+
+	/**
+	 * @param array{
+	 *   id:string,
+	 *   title:string,
+	 *   icon:string,
+	 *   nav:string,
+	 *   subnav:string
+	 * } $definition
+	 */
+	private function buildToolItemFromDefinition( array $definition ) :array {
+		return $this->buildToolItem(
+			$definition[ 'nav' ].'-'.$definition[ 'subnav' ],
+			$definition[ 'title' ],
+			$definition[ 'icon' ],
+			self::con()->plugin_urls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
+			$this->isCurrentRoute( $definition[ 'nav' ], $definition[ 'subnav' ] )
+		);
 	}
 
 	private function buildHomeLicenseItem() :?array {

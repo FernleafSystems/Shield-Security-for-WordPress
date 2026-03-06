@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 	StringsSections
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ContactFormSpamBlockBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\LoginProtectionForms;
@@ -217,123 +216,56 @@ class SelectSearchData {
 	}
 
 	private function getToolsSearch() :array {
-		$con = self::con();
-		$pageURLs = $con->plugin_urls;
 		return [
 			[
 				'text'     => __( 'Security Tools', 'wp-simple-firewall' ),
-				'children' => [
-					[
-						'id'     => 'tool_ip_manager',
-						'text'   => __( 'Manage IP Rules', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminIpRules(),
-						],
-						'tokens' => 'tool ips ip address analyse analysis rules rule manager block black white list lists bypass crowdsec table',
-						'icon'   => $con->svgs->iconClass( 'diagram-3-fill.svg' ),
-					],
-					[
-						'id'     => 'tool_scan_run',
-						'text'   => __( 'Run A File Scan', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ),
-						],
-						'tokens' => 'tool scan scans run file files modified hacked missing core wordpress plugins themes malware',
-						'icon'   => $con->svgs->iconClass( 'shield-shaded.svg' ),
-					],
-					[
-						'id'     => 'tool_scan_results',
-						'text'   => __( 'View Scan Results', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
-						],
-						'tokens' => 'tool filelocker locker wp-config scans scan results files file modified hacked missing core wordpress plugins themes malware guard repair ignore',
-						'icon'   => $con->svgs->iconClass( 'shield-fill.svg' ),
-					],
-					[
-						'id'     => 'tool_activity_log',
-						'text'   => __( 'View User Activity Log', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-						],
-						'tokens' => 'tool audit trail activity log table traffic request requests bots review',
-						'icon'   => $con->svgs->iconClass( 'person-lines-fill.svg' ),
-					],
-					[
-						'id'     => 'tool_traffic_log',
-						'text'   => __( 'View Traffic and Request Log', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-						],
-						'tokens' => 'tool activity log table traffic request requests bots review',
-						'icon'   => $con->svgs->iconClass( 'stoplights.svg' ),
-					],
-					[
-						'id'     => 'tool_sessions',
-						'text'   => __( 'View User Sessions', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->investigateUserSessions(),
-						],
-						'tokens' => 'tool user users session sessions expire discard logout',
-						'icon'   => $con->svgs->iconClass( 'person-badge.svg' ),
-					],
-					[
-						'id'     => 'tool_license',
-						'text'   => sprintf( __( 'Activate %s License', 'wp-simple-firewall' ), self::con()->labels->Name ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_LICENSE ),
-						],
-						'tokens' => 'tool pro license shieldpro upgrade buy purchase pricing',
-						'icon'   => $con->svgs->iconClass( 'award.svg' ),
-					],
-					[
-						'id'     => 'tool_importexport',
-						'text'   => __( 'Import / Export Settings', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ),
-						],
-						'tokens' => 'tool sync import export transfer download settings configuration options slave master network',
-						'icon'   => $con->svgs->iconClass( 'arrows-expand.svg' ),
-					],
-					[
-						'id'     => 'tool_overview',
-						'text'   => __( 'My Security Overview', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminHome(),
-						],
-						'tokens' => 'tool overview grade grading charts performance dashboard summary',
-						'icon'   => $con->svgs->iconClass( 'speedometer.svg' ),
-					],
-					[
-						'id'     => 'tool_guidedsetup',
-						'text'   => __( 'Run Guided Setup Wizard', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->wizard( Wizards::WIZARD_WELCOME ),
-						],
-						'tokens' => 'tool setup guide guided wizard',
-						'icon'   => $con->svgs->iconClass( 'magic.svg' ),
-					],
-					[
-						'id'     => 'tool_reports',
-						'text'   => __( 'Reports', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_WIZARD ),
-						],
-						'tokens' => 'reports report reporting alert alerts',
-						'icon'   => $con->svgs->iconClass( 'clipboard-data-fill.svg' ),
-					],
-					[
-						'id'     => 'tool_debug',
-						'text'   => __( 'View Debug Info', 'wp-simple-firewall' ),
-						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
-						],
-						'tokens' => 'tool debug info help',
-						'icon'   => $con->svgs->iconClass( 'tools.svg' ),
-					],
-				],
+				'children' => $this->buildToolSearchChildren(),
 			]
 		];
+	}
+
+	/**
+	 * @return list<array{id:string,text:string,link:array{href:string},tokens:string,icon:string}>
+	 */
+	private function buildToolSearchChildren() :array {
+		return \array_map(
+			fn( array $definition ) :array => $this->buildToolSearchChild( $definition ),
+			StaticToolDefinitions::forSearch()
+		);
+	}
+
+	/**
+	 * @param array{
+	 *   id:string,
+	 *   title:string,
+	 *   icon:string,
+	 *   nav:string,
+	 *   subnav:string,
+	 *   search_text?:string,
+	 *   search_tokens?:string
+	 * } $definition
+	 * @return array{id:string,text:string,link:array{href:string},tokens:string,icon:string}
+	 */
+	private function buildToolSearchChild( array $definition ) :array {
+		return [
+			'id'     => $definition[ 'id' ],
+			'text'   => $this->toolSearchText( $definition ),
+			'link'   => [
+				'href' => self::con()->plugin_urls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
+			],
+			'tokens' => (string)( $definition[ 'search_tokens' ] ?? '' ),
+			'icon'   => self::con()->svgs->iconClass( $definition[ 'icon' ].'.svg' ),
+		];
+	}
+
+	/**
+	 * @param array{id:string,title:string,search_text?:string} $definition
+	 */
+	private function toolSearchText( array $definition ) :string {
+		if ( $definition[ 'id' ] === 'tool_license' ) {
+			return sprintf( __( 'Activate %s License', 'wp-simple-firewall' ), self::con()->labels->Name );
+		}
+		return (string)( $definition[ 'search_text' ] ?? $definition[ 'title' ] );
 	}
 
 	private function getIntegrationsSearch() :array {

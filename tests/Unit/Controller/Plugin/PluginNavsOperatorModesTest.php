@@ -339,32 +339,32 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_investigate_subnav_crumb_labels_match_expected_map() :void {
-		$this->assertSame( 'User', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
-		$this->assertSame( 'IP Address', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_IP ) );
-		$this->assertSame( 'Plugin', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ) );
-		$this->assertSame( 'Theme', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) );
-		$this->assertSame( 'Core Files', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) );
-		$this->assertSame( 'User Sessions', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) );
-		$this->assertSame( 'Activity Log', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_LOGS ) );
-		$this->assertSame( '', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
-	}
+	public function test_route_hierarchy_carries_breadcrumb_labels_for_touched_routes() :void {
+		$hierarchy = PluginNavs::GetNavHierarchy();
 
-	public function test_investigate_subnav_definitions_match_expected_contract() :void {
-		$this->assertSame(
-			[
-				PluginNavs::SUBNAV_ACTIVITY_BY_USER   => [ 'label' => 'User' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_IP     => [ 'label' => 'IP Address' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'label' => 'Plugin' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'label' => 'Theme' ],
-				PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'label' => 'Core Files' ],
-				PluginNavs::SUBNAV_LOGS               => [ 'label' => 'Activity Log' ],
-				PluginNavs::SUBNAV_ACTIVITY_SESSIONS  => [ 'label' => 'User Sessions' ],
-			],
-			PluginNavs::investigateSubNavDefinitions()
-		);
-		$this->assertSame( [ 'label' => 'User' ], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_BY_USER ) );
-		$this->assertSame( [], PluginNavs::investigateSubNavDefinition( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
+		$this->assertSame( 'User', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_USER ][ 'label' ] ?? '' );
+		$this->assertSame( 'IP Address', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_IP ][ 'label' ] ?? '' );
+		$this->assertSame( 'Plugin', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'label' ] ?? '' );
+		$this->assertSame( 'Theme', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'label' ] ?? '' );
+		$this->assertSame( 'Core Files', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'label' ] ?? '' );
+		$this->assertSame( 'User Sessions', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_SESSIONS ][ 'label' ] ?? '' );
+		$this->assertSame( 'Activity Log', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'label' ] ?? '' );
+		$this->assertArrayNotHasKey( 'label', $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ] );
+
+		$this->assertSame( 'Security Reports', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_LIST ][ 'label' ] ?? '' );
+		$this->assertSame( 'Alert Settings', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_ALERTS ][ 'label' ] ?? '' );
+		$this->assertSame( 'Reporting Configuration', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_REPORTING ][ 'label' ] ?? '' );
+		$this->assertSame( 'Charts & Trends', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_CHARTS ][ 'label' ] ?? '' );
+		$this->assertSame( 'Reporting & Alerts Configuration', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_SETTINGS ][ 'label' ] ?? '' );
+		$this->assertArrayNotHasKey( 'label', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
+
+		$this->assertSame( 'Security Grades', $hierarchy[ PluginNavs::NAV_DASHBOARD ][ 'sub_navs' ][ PluginNavs::SUBNAV_DASHBOARD_GRADES ][ 'label' ] ?? '' );
+		$this->assertSame( 'Bots & IP Rules', $hierarchy[ PluginNavs::NAV_IPS ][ 'sub_navs' ][ PluginNavs::SUBNAV_IPS_RULES ][ 'label' ] ?? '' );
+		$this->assertSame( 'Scan Results', $hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RESULTS ][ 'label' ] ?? '' );
+		$this->assertSame( 'Run Scan', $hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RUN ][ 'label' ] ?? '' );
+		$this->assertSame( 'Debug Info', $hierarchy[ PluginNavs::NAV_TOOLS ][ 'sub_navs' ][ PluginNavs::SUBNAV_TOOLS_DEBUG ][ 'label' ] ?? '' );
+		$this->assertSame( 'HTTP Request Log', $hierarchy[ PluginNavs::NAV_TRAFFIC ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'label' ] ?? '' );
+		$this->assertSame( 'Live HTTP Log', $hierarchy[ PluginNavs::NAV_TRAFFIC ][ 'sub_navs' ][ PluginNavs::SUBNAV_LIVE ][ 'label' ] ?? '' );
 	}
 
 	public function test_investigate_legacy_subnav_subject_mapping_matches_contract() :void {
@@ -480,65 +480,6 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 		$this->assertFalse( $definitions[ 8 ][ 'include_in_posture' ] ?? true );
 		$this->assertTrue( $definitions[ 8 ][ 'force_neutral' ] ?? false );
-	}
-
-	public function test_breadcrumb_subnav_definition_matches_expected_contract_for_scope_routes() :void {
-		$this->assertSame(
-			[ 'label' => 'User' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER )
-		);
-		$this->assertSame(
-			[ 'label' => 'Security Reports' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST )
-		);
-		$this->assertSame(
-			[ 'label' => 'Alert Settings' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_ALERTS )
-		);
-		$this->assertSame(
-			[ 'label' => 'Reporting Configuration' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_REPORTING )
-		);
-		$this->assertSame(
-			[ 'label' => 'Charts & Trends' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CHARTS )
-		);
-		$this->assertSame(
-			[ 'label' => 'Reporting & Alerts Configuration' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS )
-		);
-		$this->assertSame(
-			[ 'label' => 'Security Grades' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES )
-		);
-		$this->assertSame(
-			[ 'label' => 'Bots & IP Rules' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES )
-		);
-		$this->assertSame(
-			[ 'label' => 'Scan Results' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
-		);
-		$this->assertSame(
-			[ 'label' => 'Run Scan' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN )
-		);
-		$this->assertSame(
-			[ 'label' => 'HTTP Request Log' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS )
-		);
-		$this->assertSame(
-			[ 'label' => 'Debug Info' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG )
-		);
-		$this->assertSame(
-			[ 'label' => 'Live HTTP Log' ],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE )
-		);
-		$this->assertSame(
-			[],
-			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW )
-		);
 	}
 
 	public function test_activity_route_handlers_match_expected_contract_for_touched_scope() :void {

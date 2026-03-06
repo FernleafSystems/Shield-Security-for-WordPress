@@ -96,172 +96,21 @@ class PluginNavs {
 
 	public static function GetNavHierarchy() :array {
 		return \array_map(
-			function ( array $nav ) {
-				if ( !isset( $nav[ 'parents' ] ) ) {
-					$nav[ 'parents' ] = [];
-				}
-				if ( !\in_array( self::NAV_DASHBOARD, $nav[ 'parents' ] ) ) {
-					$nav[ 'parents' ][] = self::NAV_DASHBOARD;
-				}
-				return $nav;
-			},
+			[ self::class, 'normalizeNavDefinition' ],
 			[
-				self::NAV_ACTIVITY        => [
-					'name'     => __( 'Activity', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_ACTIVITY_OVERVIEW  => [
-							'handler' => PluginAdminPages\PageInvestigateLanding::class,
-						],
-						self::SUBNAV_ACTIVITY_BY_USER   => [
-							'handler' => PluginAdminPages\PageInvestigateByUser::class,
-						],
-						self::SUBNAV_ACTIVITY_BY_IP     => [
-							'handler' => PluginAdminPages\PageInvestigateByIp::class,
-						],
-						self::SUBNAV_ACTIVITY_BY_PLUGIN => [
-							'handler' => PluginAdminPages\PageInvestigateByPlugin::class,
-						],
-						self::SUBNAV_ACTIVITY_BY_THEME  => [
-							'handler' => PluginAdminPages\PageInvestigateByTheme::class,
-						],
-						self::SUBNAV_ACTIVITY_BY_CORE   => [
-							'handler' => PluginAdminPages\PageInvestigateByCore::class,
-						],
-						self::SUBNAV_ACTIVITY_SESSIONS  => [
-							'handler' => PluginAdminPages\PageUserSessions::class,
-						],
-						self::SUBNAV_LOGS               => [
-							'handler' => PluginAdminPages\PageActivityLogTable::class,
-						],
-					],
-				],
-				self::NAV_DASHBOARD       => [
-					'name'     => __( 'Dashboard', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_DASHBOARD_OVERVIEW => [
-							'handler' => PluginAdminPages\PageDashboardOverview::class,
-						],
-						self::SUBNAV_DASHBOARD_GRADES   => [
-							'handler' => PluginAdminPages\PageDashboardMeters::class,
-						],
-					],
-				],
-				self::NAV_IPS             => [
-					'name'     => __( 'IPs', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_IPS_RULES => [
-							'handler' => PluginAdminPages\PageIpRulesTable::class,
-						],
-					],
-				],
-				self::NAV_LICENSE         => [
-					'name'     => __( 'License', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_LICENSE_CHECK => [
-							'handler' => PluginAdminPages\PageLicense::class,
-						],
-					],
-				],
-				self::NAV_REPORTS         => [
-					'name'     => __( 'Reports', 'wp-simple-firewall' ),
-					'sub_navs' => \array_map(
-						fn( string $handler ) :array => [ 'handler' => $handler ],
-						self::reportsRouteHandlers()
-					),
-				],
-				self::NAV_RESTRICTED      => [
-					'name'     => __( 'Restricted', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_INDEX => [
-							'handler' => PluginAdminPages\PageSecurityAdminRestricted::class,
-						],
-					],
-				],
-				self::NAV_RULES           => [
-					'name'     => __( 'Rules', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_RULES_MANAGE  => [
-							'handler' => PluginAdminPages\PageRulesManage::class,
-						],
-						self::SUBNAV_RULES_BUILD   => [
-							'handler' => PluginAdminPages\PageRulesBuild::class,
-						],
-						self::SUBNAV_RULES_SUMMARY => [
-							'handler' => PluginAdminPages\PageRulesSummary::class,
-						],
-					],
-				],
-				self::NAV_SCANS           => [
-					'name'     => __( 'Scans', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_SCANS_OVERVIEW => [
-							'handler' => PluginAdminPages\PageActionsQueueLanding::class,
-						],
-						self::SUBNAV_SCANS_RESULTS  => [
-							'handler' => PluginAdminPages\PageScansResults::class,
-						],
-						self::SUBNAV_SCANS_RUN      => [
-							'handler' => PluginAdminPages\PageScansRun::class,
-						],
-					],
-				],
-				self::NAV_TOOLS           => [
-					'name'     => __( 'Tools', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_TOOLS_BLOCKDOWN => [
-							'handler' => PluginAdminPages\PageToolLockdown::class,
-						],
-						self::SUBNAV_TOOLS_SESSIONS  => [
-							'handler' => PluginAdminPages\PageUserSessions::class,
-						],
-						self::SUBNAV_TOOLS_DEBUG     => [
-							'handler' => PluginAdminPages\PageDebug::class,
-						],
-						self::SUBNAV_TOOLS_IMPORT    => [
-							'handler' => PluginAdminPages\PageImportExport::class,
-						],
-					],
-				],
-				self::NAV_TRAFFIC         => [
-					'name'     => __( 'Traffic', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_LOGS => [
-							'handler' => PluginAdminPages\PageTrafficLogTable::class,
-						],
-						self::SUBNAV_LIVE => [
-							'handler' => PluginAdminPages\PageTrafficLogLive::class,
-						],
-					],
-				],
-				self::NAV_WIZARD          => [
-					'name'     => __( 'Wizards', 'wp-simple-firewall' ),
-					'sub_navs' => [
-						self::SUBNAV_WIZARD_WELCOME => [
-							'handler' => PluginAdminPages\PageMerlin::class,
-						],
-					],
-				],
-				self::NAV_ZONES           => [
-					'name'     => __( 'Security Zones', 'wp-simple-firewall' ),
-					'sub_navs' => \array_merge(
-						[
-							self::SUBNAV_ZONES_OVERVIEW => [
-								'handler' => PluginAdminPages\PageConfigureLanding::class,
-							],
-						],
-						\array_map(
-							fn() :array => [ 'handler' => PluginAdminPages\PageDynamicLoad::class ],
-							\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
-						)
-					),
-				],
-				self::NAV_ZONE_COMPONENTS => [
-					'name'     => __( 'Security Zones Config', 'wp-simple-firewall' ),
-					'sub_navs' => \array_map(
-						fn() :array => [ 'handler' => PluginAdminPages\PageZoneComponentConfig::class, ],
-						\array_flip( \array_keys( self::con()->comps->zones->enumZoneComponents() ) )
-					),
-				],
+				self::NAV_ACTIVITY        => self::activityNavDefinition(),
+				self::NAV_DASHBOARD       => self::dashboardNavDefinition(),
+				self::NAV_IPS             => self::ipsNavDefinition(),
+				self::NAV_LICENSE         => self::licenseNavDefinition(),
+				self::NAV_REPORTS         => self::reportsNavDefinition(),
+				self::NAV_RESTRICTED      => self::restrictedNavDefinition(),
+				self::NAV_RULES           => self::rulesNavDefinition(),
+				self::NAV_SCANS           => self::scansNavDefinition(),
+				self::NAV_TOOLS           => self::toolsNavDefinition(),
+				self::NAV_TRAFFIC         => self::trafficNavDefinition(),
+				self::NAV_WIZARD          => self::wizardNavDefinition(),
+				self::NAV_ZONES           => self::zonesNavDefinition(),
+				self::NAV_ZONE_COMPONENTS => self::zoneComponentsNavDefinition(),
 			]
 		);
 	}
@@ -528,10 +377,6 @@ class PluginNavs {
 		];
 	}
 
-	public static function investigateSubNavCrumbLabel( string $subNav ) :string {
-		return self::investigateSubNavDefinition( $subNav )[ 'label' ] ?? '';
-	}
-
 	public static function investigateSubjectKeyForSubNav( string $subNav ) :string {
 		$subNav = sanitize_key( $subNav );
 		if ( empty( $subNav ) ) {
@@ -549,60 +394,6 @@ class PluginNavs {
 
 	public static function isInvestigateLegacyContextSubNav( string $subNav ) :bool {
 		return self::investigateSubjectKeyForSubNav( $subNav ) !== '';
-	}
-
-	public static function investigateSubNavDefinitions() :array {
-		$definitions = [];
-		foreach ( self::investigateLandingSubjectDefinitions() as $subject ) {
-			$subNav = $subject[ 'subnav_hint' ];
-			$label = $subject[ 'label' ];
-			if ( \is_string( $subNav ) && $subNav !== '' && $label !== '' ) {
-				$definitions[ $subNav ] = [ 'label' => $label ];
-			}
-		}
-
-		$definitions[ self::SUBNAV_LOGS ] = [ 'label' => __( 'Activity Log', 'wp-simple-firewall' ) ];
-		$definitions[ self::SUBNAV_ACTIVITY_SESSIONS ] = [ 'label' => __( 'User Sessions', 'wp-simple-firewall' ) ];
-		return $definitions;
-	}
-
-	public static function investigateSubNavDefinition( string $subNav ) :array {
-		return self::investigateSubNavDefinitions()[ $subNav ] ?? [];
-	}
-
-	public static function breadcrumbSubNavDefinition( string $nav, string $subNav ) :array {
-		if ( $nav === self::NAV_ACTIVITY ) {
-			return self::investigateSubNavDefinition( $subNav );
-		}
-
-		if ( $nav === self::NAV_REPORTS ) {
-			$workspaceDefinitions = self::reportsWorkspaceDefinitions();
-			if ( isset( $workspaceDefinitions[ $subNav ] ) ) {
-				return [ 'label' => $workspaceDefinitions[ $subNav ][ 'menu_title' ] ];
-			}
-		}
-
-		$definitions = [
-			self::NAV_DASHBOARD => [
-				self::SUBNAV_DASHBOARD_GRADES => [ 'label' => __( 'Security Grades', 'wp-simple-firewall' ) ],
-			],
-			self::NAV_IPS       => [
-				self::SUBNAV_IPS_RULES => [ 'label' => __( 'Bots & IP Rules', 'wp-simple-firewall' ) ],
-			],
-			self::NAV_SCANS     => [
-				self::SUBNAV_SCANS_RESULTS => [ 'label' => __( 'Scan Results', 'wp-simple-firewall' ) ],
-				self::SUBNAV_SCANS_RUN     => [ 'label' => __( 'Run Scan', 'wp-simple-firewall' ) ],
-			],
-			self::NAV_TOOLS     => [
-				self::SUBNAV_TOOLS_DEBUG => [ 'label' => __( 'Debug Info', 'wp-simple-firewall' ) ],
-			],
-			self::NAV_TRAFFIC   => [
-				self::SUBNAV_LOGS => [ 'label' => __( 'HTTP Request Log', 'wp-simple-firewall' ) ],
-				self::SUBNAV_LIVE => [ 'label' => __( 'Live HTTP Log', 'wp-simple-firewall' ) ],
-			],
-		];
-
-		return $definitions[ $nav ][ $subNav ] ?? [];
 	}
 
 	/**
@@ -866,5 +657,188 @@ class PluginNavs {
 	private static function sanitizeOperatorMode( string $mode ) :string {
 		$mode = \strtolower( \trim( $mode ) );
 		return \in_array( $mode, self::allOperatorModes(), true ) ? $mode : '';
+	}
+
+	private static function normalizeNavDefinition( array $nav ) :array {
+		if ( !isset( $nav[ 'parents' ] ) ) {
+			$nav[ 'parents' ] = [];
+		}
+		if ( !\in_array( self::NAV_DASHBOARD, $nav[ 'parents' ], true ) ) {
+			$nav[ 'parents' ][] = self::NAV_DASHBOARD;
+		}
+		return $nav;
+	}
+
+	private static function activityNavDefinition() :array {
+		$labels = self::activityBreadcrumbLabels();
+		return [
+			'name'     => __( 'Activity', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_ACTIVITY_OVERVIEW  => self::routeDefinition( PluginAdminPages\PageInvestigateLanding::class ),
+				self::SUBNAV_ACTIVITY_BY_USER   => self::routeDefinition( PluginAdminPages\PageInvestigateByUser::class, $labels[ self::SUBNAV_ACTIVITY_BY_USER ] ?? '' ),
+				self::SUBNAV_ACTIVITY_BY_IP     => self::routeDefinition( PluginAdminPages\PageInvestigateByIp::class, $labels[ self::SUBNAV_ACTIVITY_BY_IP ] ?? '' ),
+				self::SUBNAV_ACTIVITY_BY_PLUGIN => self::routeDefinition( PluginAdminPages\PageInvestigateByPlugin::class, $labels[ self::SUBNAV_ACTIVITY_BY_PLUGIN ] ?? '' ),
+				self::SUBNAV_ACTIVITY_BY_THEME  => self::routeDefinition( PluginAdminPages\PageInvestigateByTheme::class, $labels[ self::SUBNAV_ACTIVITY_BY_THEME ] ?? '' ),
+				self::SUBNAV_ACTIVITY_BY_CORE   => self::routeDefinition( PluginAdminPages\PageInvestigateByCore::class, $labels[ self::SUBNAV_ACTIVITY_BY_CORE ] ?? '' ),
+				self::SUBNAV_ACTIVITY_SESSIONS  => self::routeDefinition( PluginAdminPages\PageUserSessions::class, $labels[ self::SUBNAV_ACTIVITY_SESSIONS ] ?? '' ),
+				self::SUBNAV_LOGS               => self::routeDefinition( PluginAdminPages\PageActivityLogTable::class, $labels[ self::SUBNAV_LOGS ] ?? '' ),
+			],
+		];
+	}
+
+	private static function dashboardNavDefinition() :array {
+		return [
+			'name'     => __( 'Dashboard', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_DASHBOARD_OVERVIEW => self::routeDefinition( PluginAdminPages\PageDashboardOverview::class ),
+				self::SUBNAV_DASHBOARD_GRADES   => self::routeDefinition( PluginAdminPages\PageDashboardMeters::class, __( 'Security Grades', 'wp-simple-firewall' ) ),
+			],
+		];
+	}
+
+	private static function ipsNavDefinition() :array {
+		return [
+			'name'     => __( 'IPs', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_IPS_RULES => self::routeDefinition( PluginAdminPages\PageIpRulesTable::class, __( 'Bots & IP Rules', 'wp-simple-firewall' ) ),
+			],
+		];
+	}
+
+	private static function licenseNavDefinition() :array {
+		return [
+			'name'     => __( 'License', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_LICENSE_CHECK => self::routeDefinition( PluginAdminPages\PageLicense::class ),
+			],
+		];
+	}
+
+	private static function reportsNavDefinition() :array {
+		return [
+			'name'     => __( 'Reports', 'wp-simple-firewall' ),
+			'sub_navs' => self::reportsSubNavDefinitions(),
+		];
+	}
+
+	private static function restrictedNavDefinition() :array {
+		return [
+			'name'     => __( 'Restricted', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_INDEX => self::routeDefinition( PluginAdminPages\PageSecurityAdminRestricted::class ),
+			],
+		];
+	}
+
+	private static function rulesNavDefinition() :array {
+		return [
+			'name'     => __( 'Rules', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_RULES_MANAGE  => self::routeDefinition( PluginAdminPages\PageRulesManage::class ),
+				self::SUBNAV_RULES_BUILD   => self::routeDefinition( PluginAdminPages\PageRulesBuild::class ),
+				self::SUBNAV_RULES_SUMMARY => self::routeDefinition( PluginAdminPages\PageRulesSummary::class ),
+			],
+		];
+	}
+
+	private static function scansNavDefinition() :array {
+		return [
+			'name'     => __( 'Scans', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_SCANS_OVERVIEW => self::routeDefinition( PluginAdminPages\PageActionsQueueLanding::class ),
+				self::SUBNAV_SCANS_RESULTS  => self::routeDefinition( PluginAdminPages\PageScansResults::class, __( 'Scan Results', 'wp-simple-firewall' ) ),
+				self::SUBNAV_SCANS_RUN      => self::routeDefinition( PluginAdminPages\PageScansRun::class, __( 'Run Scan', 'wp-simple-firewall' ) ),
+			],
+		];
+	}
+
+	private static function toolsNavDefinition() :array {
+		return [
+			'name'     => __( 'Tools', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_TOOLS_BLOCKDOWN => self::routeDefinition( PluginAdminPages\PageToolLockdown::class ),
+				self::SUBNAV_TOOLS_SESSIONS  => self::routeDefinition( PluginAdminPages\PageUserSessions::class ),
+				self::SUBNAV_TOOLS_DEBUG     => self::routeDefinition( PluginAdminPages\PageDebug::class, __( 'Debug Info', 'wp-simple-firewall' ) ),
+				self::SUBNAV_TOOLS_IMPORT    => self::routeDefinition( PluginAdminPages\PageImportExport::class ),
+			],
+		];
+	}
+
+	private static function trafficNavDefinition() :array {
+		return [
+			'name'     => __( 'Traffic', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_LOGS => self::routeDefinition( PluginAdminPages\PageTrafficLogTable::class, __( 'HTTP Request Log', 'wp-simple-firewall' ) ),
+				self::SUBNAV_LIVE => self::routeDefinition( PluginAdminPages\PageTrafficLogLive::class, __( 'Live HTTP Log', 'wp-simple-firewall' ) ),
+			],
+		];
+	}
+
+	private static function wizardNavDefinition() :array {
+		return [
+			'name'     => __( 'Wizards', 'wp-simple-firewall' ),
+			'sub_navs' => [
+				self::SUBNAV_WIZARD_WELCOME => self::routeDefinition( PluginAdminPages\PageMerlin::class ),
+			],
+		];
+	}
+
+	private static function zonesNavDefinition() :array {
+		return [
+			'name'     => __( 'Security Zones', 'wp-simple-firewall' ),
+			'sub_navs' => \array_merge(
+				[
+					self::SUBNAV_ZONES_OVERVIEW => self::routeDefinition( PluginAdminPages\PageConfigureLanding::class ),
+				],
+				\array_map(
+					fn() :array => self::routeDefinition( PluginAdminPages\PageDynamicLoad::class ),
+					\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
+				)
+			),
+		];
+	}
+
+	private static function zoneComponentsNavDefinition() :array {
+		return [
+			'name'     => __( 'Security Zones Config', 'wp-simple-firewall' ),
+			'sub_navs' => \array_map(
+				fn() :array => self::routeDefinition( PluginAdminPages\PageZoneComponentConfig::class ),
+				\array_flip( \array_keys( self::con()->comps->zones->enumZoneComponents() ) )
+			),
+		];
+	}
+
+	private static function routeDefinition( string $handler, string $label = '' ) :array {
+		$route = [
+			'handler' => $handler,
+		];
+		if ( $label !== '' ) {
+			$route[ 'label' ] = $label;
+		}
+		return $route;
+	}
+
+	private static function activityBreadcrumbLabels() :array {
+		$definitions = [];
+		foreach ( self::investigateLandingSubjectDefinitions() as $subject ) {
+			$subNav = $subject[ 'subnav_hint' ] ?? null;
+			$label = $subject[ 'label' ] ?? '';
+			if ( \is_string( $subNav ) && $subNav !== '' && \is_string( $label ) && $label !== '' ) {
+				$definitions[ $subNav ] = $label;
+			}
+		}
+
+		$definitions[ self::SUBNAV_LOGS ] = __( 'Activity Log', 'wp-simple-firewall' );
+		$definitions[ self::SUBNAV_ACTIVITY_SESSIONS ] = __( 'User Sessions', 'wp-simple-firewall' );
+		return $definitions;
+	}
+
+	private static function reportsSubNavDefinitions() :array {
+		$definitions = [];
+		$workspaceDefinitions = self::reportsWorkspaceDefinitions();
+		foreach ( self::reportsRouteHandlers() as $subNav => $handler ) {
+			$definitions[ $subNav ] = self::routeDefinition( $handler, $workspaceDefinitions[ $subNav ][ 'menu_title' ] ?? '' );
+		}
+		return $definitions;
 	}
 }

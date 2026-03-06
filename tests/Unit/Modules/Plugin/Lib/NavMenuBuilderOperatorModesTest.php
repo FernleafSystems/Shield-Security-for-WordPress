@@ -13,7 +13,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
@@ -194,7 +193,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_BUILD,
 				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
 				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_IMPORT,
-				PluginNavs::NAV_WIZARD.'-'.Wizards::WIZARD_WELCOME,
+				PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME,
 				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
 				PluginNavs::NAV_TOOLS.'-whitelabel',
 				PluginNavs::NAV_TOOLS.'-loginhide',
@@ -222,7 +221,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				'/admin/rules/build',
 				'/admin/tools/blockdown',
 				'/admin/tools/importexport',
-				'/admin/wizard/welcome',
+				'/admin/merlin/welcome',
 				'/admin/tools/debug',
 			],
 			\array_slice( \array_column( $toolItems, 'href' ), 0, 6 )
@@ -235,7 +234,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->installControllerStubs();
 		$this->installRequestServiceStub( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_WIZARD,
-			PluginNavs::FIELD_SUBNAV => Wizards::WIZARD_WELCOME,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_WIZARD_WELCOME,
 		] );
 
 		$toolItems = ( new NavMenuBuilder() )->build()[ 'tool_items' ];
