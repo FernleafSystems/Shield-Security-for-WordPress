@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Investigation\InvestigationTableContract,
 	InvestigationTableAction,
 	IpRulesTableAction,
+	ReportTableAction,
 	SessionsTableAction,
 	TrafficLogTableAction
 };
@@ -22,6 +23,13 @@ class TableActionsFailureEnvelopeTest extends BaseUnitTest {
 
 	public function testSessionsFailureUsesNoPageReload() :void {
 		$payload = ( new SessionsTableActionTestDouble( [ 'sub_action' => 'unknown' ] ) )->runExecForTest();
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+	}
+
+	public function testReportsFailureUsesNoPageReload() :void {
+		$payload = ( new ReportTableActionTestDouble( [ 'sub_action' => 'unknown' ] ) )->runExecForTest();
 
 		$this->assertFalse( $payload[ 'success' ] ?? true );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
@@ -71,6 +79,10 @@ class TableActionsFailureEnvelopeTest extends BaseUnitTest {
 				'keys'   => [ 'retrieve_table_data', 'delete' ],
 			],
 			[
+				'action' => new ReportTableActionTestDouble( [] ),
+				'keys'   => [ 'retrieve_table_data', 'delete' ],
+			],
+			[
 				'action' => new IpRulesTableActionTestDouble( [] ),
 				'keys'   => [ 'retrieve_table_data' ],
 			],
@@ -113,6 +125,11 @@ class TrafficLogTableActionTestDouble extends TrafficLogTableAction {
 }
 
 class SessionsTableActionTestDouble extends SessionsTableAction {
+
+	use RunsTableActionExecForTest;
+}
+
+class ReportTableActionTestDouble extends ReportTableAction {
 
 	use RunsTableActionExecForTest;
 }

@@ -1,40 +1,5 @@
-{% if flags.has_reports %}
-	<div class="row border-bottom fw-bold py-2 bg-white">
-		<div class="col-lg-2">Type</div>
-		<div class="col-lg-4">Title</div>
-		<div class="col-lg-4">Date Generated</div>
-		<div class="col-lg-2">Actions</div>
+<div class="row shield-section-datatable">
+	<div class="col">
+		<table id="ShieldTable-Reports" class="table table-striped table-bordered" style="width:100%;"></table>
 	</div>
-	<div class="shield_legend_table" data-reports-table="1">
-		{% for report in vars.reports %}
-			<div class="row {{ report.is_active ? 'bg-info text-white' :'' }} ">
-				<div class="col-lg-2 py-2 text-black">
-					<span class="badge bg-{{ report.class }}">{{ report.type }}</span>
-				</div>
-				<div class="col-lg-4 text-black fw-bold">
-					<a href="{{ report.href }}"
-					   class="d-block py-2 ps-2"
-					   target="_blank"
-					   title="{{ strings.view_report }}"
-					>{{ report.title }}</a>
-				</div>
-				<div class="col-lg-4 py-2 text-black">
-					{{ report.created_at }}
-				</div>
-				<div class="col-lg-2 py-2 text-black">
-					{% for action in report.actions %}
-						<a href="{{ action.href|default('javascript:{}') }}"
-						   class="btn report_action svg-container p-1 {{ action.classes|join(' ') }}"
-						   title="{{ action.title }}"
-						   {% for data_key,data_value in action.data|default([]) %}
-							   data-{{ data_key }}="{{ data_value }}"
-						   {% endfor %}
-						><i class="{{ action.icon_class }}" aria-hidden="true"></i></a>
-					{% endfor %}
-				</div>
-			</div>
-		{% endfor %}
-	</div>
-{% else %}
-	<p class="m-0" data-reports-table="1">{{ strings.no_reports }}</p>
-{% endif %}
+</div>

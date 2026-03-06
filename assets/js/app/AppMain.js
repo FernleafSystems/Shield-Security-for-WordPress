@@ -30,6 +30,7 @@ import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
 import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
 import { ShieldTableIpRules } from "../components/tables/ShieldTableIpRules";
+import { ShieldTableReports } from "../components/tables/ShieldTableReports";
 import { ShieldTableSecurityRules } from "../components/tables/ShieldTableSecurityRules";
 import { ShieldTableTrafficLog } from "../components/tables/ShieldTableTrafficLog";
 import { ShieldTableSessions } from "../components/tables/ShieldTableSessions";
@@ -99,6 +100,7 @@ export class AppMain extends AppBase {
 
 		this.components.tables_activity = ( 'activity' in comps.tables ) ? new ShieldTableActivityLog( comps.tables.activity ) : null;
 		this.components.tables_ip_rules = ( 'ip_rules' in comps.tables ) ? new ShieldTableIpRules( comps.tables.ip_rules ) : null;
+		this.components.tables_reports = ( 'reports' in comps.tables ) ? new ShieldTableReports( comps.tables.reports ) : null;
 		this.components.tables_sessions = ( 'sessions' in comps.tables ) ? new ShieldTableSessions( comps.tables.sessions ) : null;
 		this.components.tables_traffic = ( 'traffic' in comps.tables ) ? new ShieldTableTrafficLog( comps.tables.traffic ) : null;
 		this.components.tables_scans_history = ( 'scans_history' in comps.tables ) ? new ShieldTableScansHistory( comps.tables.scans_history ) : null;

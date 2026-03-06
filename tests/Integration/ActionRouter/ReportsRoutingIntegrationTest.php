@@ -41,7 +41,7 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function assertReportsTableRendered( \DOMXPath $xpath, string $label ) :void {
-		$this->assertXPathExists( $xpath, '//*[@data-reports-table="1"]', $label.' reports table marker' );
+		$this->assertXPathExists( $xpath, '//*[@id="ShieldTable-Reports"]', $label.' reports table element' );
 	}
 
 	public function test_reports_overview_renders_interactive_tile_panel_with_default_reports_table() :void {
@@ -66,8 +66,8 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]', 'Reports table panel content marker' );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]//*[@data-reports-table="1"]',
-			'Reports table in landing panel marker'
+			'//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]//*[@id="ShieldTable-Reports"]',
+			'Reports table in landing panel element'
 		);
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_SETTINGS.'"]//form', 'Inline reports settings form marker' );
 

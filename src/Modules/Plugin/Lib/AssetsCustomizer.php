@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Bui
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
 	ForIpRules,
+	ForReports,
 	ForScansHistory,
 	ForSecurityRules,
 	ForSessions,
@@ -591,6 +592,19 @@ class AssetsCustomizer {
 							],
 							'vars'    => [
 								'datatables_init' => ( new ForSecurityRules() )->buildRaw(),
+							]
+						];
+					}
+					elseif (
+						PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW )
+						|| PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST )
+					) {
+						$data[ 'reports' ] = [
+							'ajax' => [
+								'table_action' => ActionData::Build( Actions\ReportTableAction::class ),
+							],
+							'vars' => [
+								'datatables_init' => ( new ForReports() )->buildRaw(),
 							]
 						];
 					}
