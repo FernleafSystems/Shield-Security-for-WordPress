@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Traffic\LiveLogRowsBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\{
 	HighValueEvents
 };
@@ -14,16 +15,9 @@ class DashboardLiveMonitorTicker extends OverviewBase {
 	public const TEMPLATE = '/wpadmin/components/traffic/live_logs.twig';
 
 	protected function getRenderData() :array {
-		$records = [];
-
-		$limit = (int)( $this->action_data[ 'limit' ] ?? 12 );
-		$limit = \min( 30, \max( 1, $limit ) );
-
+		$limit = (int)\min( 30, \max( 1, ( $this->action_data[ 'limit' ] ?? 12 ) ) );
 		$eventSlugs = ( new HighValueEvents() )->forDashboardTicker();
-		if ( !empty( $eventSlugs ) ) {
-			$records = $this->loadRecords( $eventSlugs, $limit );
-		}
-
+		$records = empty( $eventSlugs ) ? [] : $this->loadRecords( $eventSlugs, $limit );
 		return [
 			'vars' => [
 				'rows'      => ( new LiveLogRowsBuilder() )->buildActivityRows( $records ),
@@ -45,7 +39,6 @@ class DashboardLiveMonitorTicker extends OverviewBase {
 		$loader->wheres = [
 			\sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", \array_map( 'esc_sql', $eventSlugs ) ) ),
 		];
-
 		return \array_values( $loader->run() );
 	}
 }
