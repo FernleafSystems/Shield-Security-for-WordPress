@@ -265,12 +265,14 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $summary[ 'subtext' ] ?? 'not-empty' );
 	}
 
-	public function test_live_monitor_vars_use_updated_compact_contract() :void {
+	public function test_live_monitor_vars_use_current_compact_contract() :void {
 		$page = new PageOperatorModeLanding();
 		$vars = $this->invokeNonPublicMethod( $page, 'buildLiveMonitorVars' );
 
+		$this->assertArrayHasKey( 'is_collapsed', $vars );
+		$this->assertIsBool( $vars[ 'is_collapsed' ] ?? null );
 		$this->assertSame( 'Live Monitor', $vars[ 'title' ] ?? '' );
-		$this->assertSame( 'Recent WP Activity Events', $vars[ 'activity' ] ?? '' );
+		$this->assertSame( 'WP Activity', $vars[ 'activity' ] ?? '' );
 		$this->assertSame( 'Live Traffic', $vars[ 'traffic' ] ?? '' );
 		$this->assertSame( 'Waiting for live updates...', $vars[ 'loading' ] ?? '' );
 		$this->assertArrayNotHasKey( 'minimize', $vars );

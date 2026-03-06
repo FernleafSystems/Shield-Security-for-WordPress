@@ -295,7 +295,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayHasKey( 'activity', $liveMonitor );
 		$this->assertArrayHasKey( 'traffic', $liveMonitor );
 		$this->assertArrayHasKey( 'loading', $liveMonitor );
-		$this->assertSame( 'Recent WP Activity Events', (string)( $liveMonitor[ 'activity' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertHtmlContainsMarker( 'data-dashboard-live-monitor="1"', $html, 'Live monitor root marker' );
@@ -313,6 +312,18 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'//*[@data-live-monitor-output="traffic" and contains(@class,"shield-live-logs--light")]',
 			'Dashboard live monitor traffic uses light live-log skin'
 		);
+		$activityTitleNode = $this->assertXPathExists(
+			$xpath,
+			'//*[@data-live-monitor-output="ticker"]/ancestor::div[contains(@class,"live_logs")]/preceding-sibling::h6[contains(@class,"dashboard-live-monitor__lane-title")]',
+			'Dashboard live monitor activity lane title'
+		);
+		$trafficTitleNode = $this->assertXPathExists(
+			$xpath,
+			'//*[@data-live-monitor-output="traffic"]/ancestor::div[contains(@class,"live_logs")]/preceding-sibling::h6[contains(@class,"dashboard-live-monitor__lane-title")]',
+			'Dashboard live monitor traffic lane title'
+		);
+		$this->assertSame( (string)( $liveMonitor[ 'activity' ] ?? '' ), \trim( $activityTitleNode->textContent ) );
+		$this->assertSame( (string)( $liveMonitor[ 'traffic' ] ?? '' ), \trim( $trafficTitleNode->textContent ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-live-monitor-output="ticker" and contains(@class,"shield-live-logs--dark")]',
