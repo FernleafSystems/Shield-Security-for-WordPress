@@ -9,8 +9,4 @@ abstract class IpBase extends Base {
 	protected function testIfProtected() :bool {
 		return self::con()->comps->opts_lookup->isPluginEnabled();
 	}
-
-	protected function getOptConfigKey() :string {
-		return 'enable_ips';
-	}
 }

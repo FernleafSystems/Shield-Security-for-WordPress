@@ -28,9 +28,7 @@ class ScansController {
 	private ?Results\Counts $scanResultsStatus = null;
 
 	protected function canRun() :bool {
-		return self::con()->opts->optIs( 'enable_hack_protect', 'Y' )
-			   && self::con()->db_con->scan_results->isReady()
-			   && self::con()->db_con->scan_items->isReady();
+		return self::con()->db_con->scan_results->isReady() && self::con()->db_con->scan_items->isReady();
 	}
 
 	protected function run() {

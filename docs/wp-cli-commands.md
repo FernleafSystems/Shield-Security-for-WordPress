@@ -78,9 +78,6 @@ wp shield opt-get --key=<option_key>
 
 **Examples:**
 ```bash
-# Get the value of a specific option
-wp shield opt-get --key=enable_firewall
-
 # Check login protection setting
 wp shield opt-get --key=enable_login_gasp
 ```
@@ -109,10 +106,10 @@ wp shield opt-set --key=<option_key> --value=<new_value>
 **Examples:**
 ```bash
 # Enable a feature (Y/N for checkboxes)
-wp shield opt-set --key=enable_firewall --value=Y
+wp shield opt-set --key=enable_login_gasp --value=Y
 
 # Disable a feature
-wp shield opt-set --key=enable_firewall --value=N
+wp shield opt-set --key=enable_login_gasp --value=N
 
 # Set a numeric value
 wp shield opt-set --key=login_limit_interval --value=10

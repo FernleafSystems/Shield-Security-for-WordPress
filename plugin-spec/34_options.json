@@ -1,77 +1,5 @@
 [
     {
-        "key": "enable_admin_access_restriction",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_audit_trail",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_comments_filter",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_firewall",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_hack_protect",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_headers",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_integrations",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_ips",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_lockdown",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_login_protect",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_traffic",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_user_management",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
         "key": "admin_access_key",
         "section": "section_security_admin_settings",
         "zone_comp_slugs": [
@@ -2128,43 +2056,6 @@
         "name": "Login Cooldown Interval",
         "summary": "Limit login attempts to every X seconds",
         "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
-    },
-    {
-        "key": "enable_antibot_check",
-        "section": "section_deprecated",
-        "default": "N",
-        "type": "checkbox",
-        "link_info": "https://clk.shldscrty.com/k0",
-        "link_blog": "https://clk.shldscrty.com/jo",
-        "beacon_id": 426,
-        "name": "Block Login Bots",
-        "summary": "Block Login Attempted By Automated Bots",
-        "description": "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
-    },
-    {
-        "key": "enable_login_gasp_check",
-        "section": "section_deprecated",
-        "default": "N",
-        "type": "checkbox",
-        "link_info": "https://clk.shldscrty.com/3r",
-        "link_blog": "https://clk.shldscrty.com/9n",
-        "beacon_id": 313,
-        "name": "Bot Protection",
-        "summary": "Protect WP Login From Automated Login Attempts By Bots",
-        "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
-    },
-    {
-        "key": "antibot_form_ids",
-        "section": "section_deprecated",
-        "premium": true,
-        "type": "array",
-        "default": [],
-        "link_info": "https://clk.shldscrty.com/hg",
-        "link_blog": "",
-        "beacon_id": 144,
-        "name": "AntiBot Forms",
-        "summary": "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS",
-        "description": "For Use With AnitBot JS (above)."
     },
     {
         "key": "enable_passkeys",

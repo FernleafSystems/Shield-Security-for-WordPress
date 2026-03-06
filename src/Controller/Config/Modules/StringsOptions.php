@@ -25,14 +25,6 @@ class StringsOptions {
 		$modStrings = new StringsModules();
 
 		switch ( $key ) {
-
-			case 'enable_audit_trail':
-				$modName = $modStrings->getFor( EnumModules::ACTIVITY )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
-				break;
-
 			case 'autoupdate_plugin_self':
 				$name = __( 'Self AutoUpdate', 'wp-simple-firewall' );
 				$summary = __( 'Always Automatically Update This Plugin', 'wp-simple-firewall' );
@@ -48,12 +40,6 @@ class StringsOptions {
 					sprintf( __( '%s will delay upgrades until the new update has been available for the set number of days.', 'wp-simple-firewall' ), $pluginName ),
 					__( "This helps ensure updates are more stable before they're automatically applied to your site.", 'wp-simple-firewall' )
 				];
-				break;
-
-			case 'enable_comments_filter':
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modStrings->getFor( EnumModules::COMMENTS )[ 'name' ] );
-				$summary = __( 'Enable (or Disable) The Comment SPAM Protection Feature', 'wp-simple-firewall' );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), __( 'Comment SPAM Protection', 'wp-simple-firewall' ) ) ];
 				break;
 			case 'comments_cooldown':
 				$name = __( 'Comments Cooldown', 'wp-simple-firewall' );
@@ -110,15 +96,6 @@ class StringsOptions {
 					sprintf( __( 'When a comment is detected as being bot SPAM, %s will move the comment to this folder.', 'wp-simple-firewall' ), $pluginName )
 				];
 				break;
-
-			case 'enable_firewall':
-				$modName = $modStrings->getFor( EnumModules::FIREWALL )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [
-					sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName )
-				];
-				break;
 			case 'include_cookie_checks':
 				$name = __( 'Include Cookies', 'wp-simple-firewall' );
 				$summary = __( 'Also Test Cookie Values In Firewall Tests', 'wp-simple-firewall' );
@@ -164,13 +141,6 @@ class StringsOptions {
 				$name = __( 'Whitelist Parameters', 'wp-simple-firewall' );
 				$summary = __( 'Detail pages and parameters that are whitelisted (ignored by the firewall)', 'wp-simple-firewall' );
 				$desc = [ __( 'This should be used with caution and you should only provide parameter names that you must have excluded', 'wp-simple-firewall' ) ];
-				break;
-
-			case 'enable_hack_protect':
-				$modName = $modStrings->getFor( EnumModules::SCANS )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 			case 'scan_frequency':
 				$name = __( 'Daily Scan Frequency', 'wp-simple-firewall' );
@@ -405,13 +375,6 @@ class StringsOptions {
 					'- '.__( "We don't provide support for creating CSP rules and whether they're correct for your site.", 'wp-simple-firewall' ),
 					'- '.__( "Many WordPress caching plugins ignore HTTP Headers - if they're not showing up, disable page caching.", 'wp-simple-firewall' )
 				];
-				break;
-
-			case 'enable_ips':
-				$modName = $modStrings->getFor( EnumModules::IPS )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 			case 'transgression_limit':
 				$name = __( 'Offense Limit', 'wp-simple-firewall' );
@@ -727,13 +690,6 @@ class StringsOptions {
 					sprintf( __( 'When enabled, any URL requests containing "%s" will be killed.', 'wp-simple-firewall' ), 'author=' ),
 					sprintf( '%s - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Enabling this option may interfere with expected operations of your site.', 'wp-simple-firewall' ) )
 				];
-				break;
-
-			case 'enable_login_protect':
-				$modName = $modStrings->getFor( EnumModules::LOGIN )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 			case 'rename_wplogin_path':
 				$name = __( 'Hide WP Login & Admin', 'wp-simple-firewall' );
@@ -1163,12 +1119,6 @@ class StringsOptions {
 					__( "FileLocker must be active to enable this option.", 'wp-simple-firewall' ),
 				];
 				break;
-
-			case 'enable_admin_access_restriction':
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), __( 'Security Admin', 'wp-simple-firewall' ) );
-				$summary = __( 'Enforce Security Admin Access Restriction', 'wp-simple-firewall' );
-				$desc = [ __( "Enable this with great care and consideration. Ensure that you set an Security PIN that you'll remember.", 'wp-simple-firewall' ) ];
-				break;
 			case 'admin_access_key':
 				$name = __( 'Security Admin PIN', 'wp-simple-firewall' );
 				$summary = __( 'Provide/Update Security Admin PIN', 'wp-simple-firewall' );
@@ -1400,13 +1350,6 @@ class StringsOptions {
 							__( 'Use %1$s to test for excessive requests within a %2$s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) ),
 					__( 'Use a smaller interval to reduce the risk of blocking legitimate visitors.', 'wp-simple-firewall' )
 				];
-				break;
-
-			case 'enable_user_management':
-				$modName = $modStrings->getFor( EnumModules::USERS )[ 'name' ];
-				$name = sprintf( __( 'Enable %s Module', 'wp-simple-firewall' ), $modName );
-				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
-				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
 			case 'enable_admin_login_email_notification':
 				$name = __( 'Admin Login Notification Email', 'wp-simple-firewall' );
