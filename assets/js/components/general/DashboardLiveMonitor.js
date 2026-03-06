@@ -8,7 +8,6 @@ export class DashboardLiveMonitor extends BaseComponent {
 		this.rootEl = document.querySelector( '[data-dashboard-live-monitor="1"]' ) || null;
 		this.bodyEl = this.rootEl?.querySelector( '[data-live-monitor-body="1"]' ) || null;
 		this.toggleButton = this.rootEl?.querySelector( '[data-live-monitor-toggle="1"]' ) || null;
-		this.toggleText = this.rootEl?.querySelector( '[data-live-monitor-toggle-text="1"]' ) || null;
 		this.contentContainer = document.querySelector( '#PageMainBody_Inner-Apto' ) || null;
 		this.outputs = {
 			ticker: this.rootEl?.querySelector( '[data-live-monitor-output="ticker"]' ) || null,
@@ -91,13 +90,6 @@ export class DashboardLiveMonitor extends BaseComponent {
 		this.rootEl.classList.toggle( 'is-collapsed', isCollapsed );
 		this.toggleButton.setAttribute( 'aria-expanded', isCollapsed ? 'false' : 'true' );
 		this.bodyEl.setAttribute( 'aria-hidden', isCollapsed ? 'true' : 'false' );
-
-		if ( this.toggleText ) {
-			const label = isCollapsed
-				? ( this.toggleButton.dataset.labelExpand || 'Expand' )
-				: ( this.toggleButton.dataset.labelMinimize || 'Minimize' );
-			this.toggleText.textContent = label;
-		}
 
 		if ( this.poller ) {
 			if ( isCollapsed ) {

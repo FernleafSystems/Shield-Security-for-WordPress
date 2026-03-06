@@ -2,24 +2,15 @@
 <section id="ShieldDashboardLiveMonitor"
 		 class="dashboard-live-monitor{{ is_collapsed ? ' is-collapsed' : '' }}"
 		 data-dashboard-live-monitor="1"
-		 data-live-monitor-docked="1"
 		 data-is-collapsed="{{ is_collapsed ? '1' : '0' }}">
-	<div class="dashboard-live-monitor__header">
-		<div class="dashboard-live-monitor__title-wrap">
-			<h5 class="dashboard-live-monitor__title mb-0">{{ vars.title|default('Live Monitor') }}</h5>
-		</div>
-		<button type="button"
-				class="btn btn-sm btn-outline-secondary dashboard-live-monitor__toggle"
-				data-live-monitor-toggle="1"
-				data-label-expand="{{ vars.expand|default('Expand')|e('html_attr') }}"
-				data-label-minimize="{{ vars.minimize|default('Minimize')|e('html_attr') }}"
-				aria-expanded="{{ is_collapsed ? 'false' : 'true' }}"
-				aria-controls="ShieldDashboardLiveMonitorBody">
-			<span data-live-monitor-toggle-text="1">
-				{{ is_collapsed ? vars.expand|default('Expand') : vars.minimize|default('Minimize') }}
-			</span>
-		</button>
-	</div>
+	<button type="button"
+			class="dashboard-live-monitor__header"
+			data-live-monitor-toggle="1"
+			aria-expanded="{{ is_collapsed ? 'false' : 'true' }}"
+			aria-controls="ShieldDashboardLiveMonitorBody">
+		<span class="dashboard-live-monitor__title">{{ vars.title|default('Live Monitor') }}</span>
+		<i class="bi bi-chevron-down dashboard-live-monitor__chevron" aria-hidden="true"></i>
+	</button>
 	<div id="ShieldDashboardLiveMonitorBody"
 		 class="dashboard-live-monitor__body"
 		 data-live-monitor-body="1"

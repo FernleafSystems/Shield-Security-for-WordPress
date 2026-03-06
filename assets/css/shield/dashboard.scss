@@ -339,11 +339,23 @@
 
 .dashboard-live-monitor__header {
 	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
 	border-bottom: 1px solid $border-color-neutral-subtle;
 	display: flex;
+	cursor: pointer;
+	font: inherit;
 	gap: 0.75rem;
 	justify-content: space-between;
 	padding: 0.75rem 1rem;
+	text-align: left;
+	width: 100%;
+}
+
+.dashboard-live-monitor__header:focus-visible {
+	outline: 2px solid $border-color-neutral-strong;
+	outline-offset: -2px;
 }
 
 .dashboard-live-monitor__title {
@@ -351,6 +363,13 @@
 	font-size: 0.9rem;
 	font-weight: 700;
 	letter-spacing: 0.02em;
+}
+
+.dashboard-live-monitor__chevron {
+	color: #50575e;
+	font-size: 0.95rem;
+	line-height: 1;
+	transition: transform 0.18s ease;
 }
 
 .dashboard-live-monitor__body {
@@ -392,6 +411,10 @@
 
 .dashboard-live-monitor.is-collapsed .dashboard-live-monitor__body {
 	display: none;
+}
+
+.dashboard-live-monitor.is-collapsed .dashboard-live-monitor__chevron {
+	transform: rotate(180deg);
 }
 
 @keyframes dashboard-live-monitor-new {
