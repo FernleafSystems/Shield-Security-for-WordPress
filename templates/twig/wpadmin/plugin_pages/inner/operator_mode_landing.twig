@@ -1,34 +1,61 @@
-<div class="operator-mode-landing">
-	<div class="mode-selector-grid" data-mode-selector-grid="1">
-		{% for cell in vars.mode_grid_cells|default([]) %}
-			<a href="{{ cell.href }}"
-			   class="mode-selector-cell"
-			   data-mode="{{ cell.mode }}"
-			   aria-label="{{ cell.label }}">
-				<span class="mode-selector-cell-icon"><i class="{{ cell.icon_class }}" aria-hidden="true"></i></span>
-				<span class="mode-selector-cell-title">{{ cell.label }}</span>
-				<span class="mode-selector-cell-description">{{ cell.description }}</span>
+{% set badge_class_map = {
+	'good': 'badge-good',
+	'warning': 'badge-warning',
+	'critical': 'badge-critical',
+	'neutral': 'badge-disabled'
+} %}
+<div class="operator-mode-landing" data-shield-status="{{ vars.shield_status|default('good') }}">
+	<div class="dash-header">
+		<div class="shield-orb">
+			<i class="{{ vars.shield_icon_class|default('') }}" aria-hidden="true"></i>
+		</div>
+		<div class="dash-header-text">
+			<h1 class="dash-header-title">{{ strings.title|default('') }}</h1>
+			<p class="dash-header-subtitle">
+				<span class="status-dot"></span>
+				<span>{{ strings.subtitle|default('') }}</span>
+			</p>
+		</div>
+	</div>
 
-				{% if cell.indicator_type == 'posture' %}
-					<span class="cell-posture-wrap">
-						<span class="cell-posture-track">
-							<span class="cell-posture-fill status-{{ cell.posture_status }}" style="width: {{ cell.posture_percentage }}%"></span>
-						</span>
-						<span class="cell-posture-label status-{{ cell.posture_status }}">{{ cell.posture_text }}</span>
-					</span>
-				{% else %}
-					<span class="cell-status-bar {{ cell.indicator_class|default('status-neutral') }}">{{ cell.indicator_text }}</span>
-					{% if cell.indicator_subtext|default('') is not empty %}
-						<span class="cell-status-subtext">{{ cell.indicator_subtext }}</span>
-					{% endif %}
-				{% endif %}
-
-				{% if cell.footnote|default('') is not empty %}
-					<span class="mode-selector-cell-footnote">{{ cell.footnote }}</span>
-				{% endif %}
+	<div class="lane-stack">
+		{% for lane in vars.lanes|default([]) %}
+			<a href="{{ lane.href }}"
+			   class="lane-card shield-card{{ lane.extra_classes|default('') }}"
+			   data-mode="{{ lane.mode }}"
+			   aria-label="{{ lane.label }}">
+				<div class="lane-edge edge-{{ lane.edge_status|default('neutral') }}"></div>
+				<div class="lane-body">
+					<div class="lane-icon">
+						<i class="{{ lane.icon_class }}" aria-hidden="true"></i>
+					</div>
+					<div class="lane-content">
+						<div class="lane-title">{{ lane.label }}</div>
+						<div class="lane-desc">{{ lane.description }}</div>
+					</div>
+					<div class="lane-right">
+						{% if lane.indicator_type == 'posture' %}
+							<div class="lane-posture">
+								<div class="posture-track">
+									<div class="posture-fill fill-{{ lane.posture_status }}" style="width:{{ lane.posture_percentage }}%"></div>
+								</div>
+								<div class="posture-label status-{{ lane.posture_status }}">{{ lane.posture_text }}</div>
+							</div>
+						{% else %}
+							<div class="lane-indicator">
+								<span class="shield-badge {{ badge_class_map[lane.indicator_severity|default('neutral')] ?? 'badge-disabled' }}">{{ lane.indicator_text }}</span>
+								{% if lane.indicator_subtext|default('') is not empty %}
+									<div class="lane-subtext">{{ lane.indicator_subtext }}</div>
+								{% endif %}
+							</div>
+						{% endif %}
+						<i class="bi bi-chevron-right lane-arrow" aria-hidden="true"></i>
+					</div>
+				</div>
 			</a>
 		{% endfor %}
 	</div>
+
 	{% include '/wpadmin/components/dashboard/live_monitor.twig' with {
 		vars: vars.live_monitor|default({})
 	} only %}

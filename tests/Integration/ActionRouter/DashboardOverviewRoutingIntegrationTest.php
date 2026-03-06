@@ -187,19 +187,29 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertHtmlNotContainsMarker( 'Last scan:', $html, 'No scan-subtext state' );
 	}
 
-	public function test_operator_mode_landing_grid_cells_are_in_expected_order() :void {
+	public function test_operator_mode_landing_lanes_are_in_expected_order() :void {
 		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 		$renderData = $payload[ 'render_data' ] ?? [];
-		$cells = $renderData[ 'vars' ][ 'mode_grid_cells' ] ?? [];
+		$lanes = $renderData[ 'vars' ][ 'lanes' ] ?? [];
 
-		$this->assertCount( 4, $cells );
+		$this->assertCount( 4, $lanes );
 		$this->assertSame(
 			[ 'actions', 'investigate', 'configure', 'reports' ],
-			\array_column( $cells, 'mode' )
+			\array_column( $lanes, 'mode' )
 		);
 		$this->assertSame(
 			[ 'status', 'status', 'posture', 'status' ],
-			\array_column( $cells, 'indicator_type' )
+			\array_column( $lanes, 'indicator_type' )
+		);
+		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'title' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'subtitle' ] ?? '' ) );
+		$this->assertContains(
+			(string)( $renderData[ 'vars' ][ 'shield_status' ] ?? '' ),
+			[ 'good', 'warning', 'critical' ]
+		);
+		$this->assertStringStartsWith(
+			'bi bi-shield',
+			(string)( $renderData[ 'vars' ][ 'shield_icon_class' ] ?? '' )
 		);
 	}
 

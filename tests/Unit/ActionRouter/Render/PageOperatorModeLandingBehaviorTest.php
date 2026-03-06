@@ -26,6 +26,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
+		);
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
@@ -37,9 +40,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_actions_cell_uses_summary_contract_for_status_copy_and_breakdown() :void {
+	public function test_actions_lane_uses_summary_contract_for_status_copy_and_breakdown() :void {
 		$page = new PageOperatorModeLanding();
-		$cell = $this->invokeNonPublicMethod( $page, 'buildActionsCell', [
+		$lane = $this->invokeNonPublicMethod( $page, 'buildActionsLane', [
 			[
 				'has_items'   => true,
 				'total_items' => 1,
@@ -71,19 +74,20 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			],
 		] );
 
-		$this->assertSame( 'actions', $cell[ 'mode' ] ?? '' );
-		$this->assertSame( 'status', $cell[ 'indicator_type' ] ?? '' );
-		$this->assertSame( 'status-critical', $cell[ 'indicator_class' ] ?? '' );
-		$this->assertSame( '1 issue needs attention', $cell[ 'indicator_text' ] ?? '' );
-		$this->assertSame( '2 critical - 1 warning', $cell[ 'indicator_subtext' ] ?? '' );
-		$this->assertSame( 'Last scan: 2 minutes ago', $cell[ 'footnote' ] ?? '' );
-		$this->assertSame( 'from-summary', $cell[ 'icon_class' ] ?? '' );
-		$this->assertSame( '/admin/scans/overview', $cell[ 'href' ] ?? '' );
+		$this->assertSame( 'actions', $lane[ 'mode' ] ?? '' );
+		$this->assertSame( 'status', $lane[ 'indicator_type' ] ?? '' );
+		$this->assertSame( 'critical', $lane[ 'indicator_severity' ] ?? '' );
+		$this->assertSame( 'shield', $lane[ 'edge_status' ] ?? '' );
+		$this->assertSame( ' has-critical', $lane[ 'extra_classes' ] ?? '' );
+		$this->assertSame( '1 issue needs attention', $lane[ 'indicator_text' ] ?? '' );
+		$this->assertSame( '2 critical - 1 warning', $lane[ 'indicator_subtext' ] ?? '' );
+		$this->assertSame( 'bi bi-shield-x', $lane[ 'icon_class' ] ?? '' );
+		$this->assertSame( '/admin/scans/overview', $lane[ 'href' ] ?? '' );
 	}
 
-	public function test_actions_cell_breakdown_uses_item_level_counts_within_same_zone() :void {
+	public function test_actions_lane_breakdown_uses_item_level_counts_within_same_zone() :void {
 		$page = new PageOperatorModeLanding();
-		$cell = $this->invokeNonPublicMethod( $page, 'buildActionsCell', [
+		$lane = $this->invokeNonPublicMethod( $page, 'buildActionsLane', [
 			[
 				'has_items'   => true,
 				'total_items' => 3,
@@ -106,12 +110,12 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			],
 		] );
 
-		$this->assertSame( '1 critical - 2 warnings', $cell[ 'indicator_subtext' ] ?? '' );
+		$this->assertSame( '1 critical - 2 warnings', $lane[ 'indicator_subtext' ] ?? '' );
 	}
 
-	public function test_actions_cell_all_clear_branch_uses_all_clear_copy() :void {
+	public function test_actions_lane_all_clear_branch_uses_all_clear_copy() :void {
 		$page = new PageOperatorModeLanding();
-		$cell = $this->invokeNonPublicMethod( $page, 'buildActionsCell', [
+		$lane = $this->invokeNonPublicMethod( $page, 'buildActionsLane', [
 			[
 				'has_items'   => false,
 				'total_items' => 0,
@@ -122,33 +126,39 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			[],
 		] );
 
-		$this->assertSame( 'status-good', $cell[ 'indicator_class' ] ?? '' );
-		$this->assertSame( 'All Clear', $cell[ 'indicator_text' ] ?? '' );
-		$this->assertSame( '', $cell[ 'indicator_subtext' ] ?? 'not-empty' );
+		$this->assertSame( 'good', $lane[ 'indicator_severity' ] ?? '' );
+		$this->assertSame( 'shield', $lane[ 'edge_status' ] ?? '' );
+		$this->assertSame( '', $lane[ 'extra_classes' ] ?? 'not-empty' );
+		$this->assertSame( 'All Clear', $lane[ 'indicator_text' ] ?? '' );
+		$this->assertSame( '', $lane[ 'indicator_subtext' ] ?? 'not-empty' );
+		$this->assertSame( 'bi bi-shield-check', $lane[ 'icon_class' ] ?? '' );
 	}
 
-	public function test_investigate_configure_and_reports_cells_use_expected_indicator_contracts() :void {
+	public function test_investigate_configure_and_reports_lanes_use_expected_indicator_contracts() :void {
 		$page = new PageOperatorModeLanding();
 
-		$investigate = $this->invokeNonPublicMethod( $page, 'buildInvestigateCell', [ 3 ] );
+		$investigate = $this->invokeNonPublicMethod( $page, 'buildInvestigateLane', [ 3 ] );
 		$this->assertSame( 'status', $investigate[ 'indicator_type' ] ?? '' );
-		$this->assertSame( 'status-neutral', $investigate[ 'indicator_class' ] ?? '' );
+		$this->assertSame( 'neutral', $investigate[ 'indicator_severity' ] ?? '' );
+		$this->assertSame( 'info', $investigate[ 'edge_status' ] ?? '' );
 		$this->assertSame( '3 active sessions', $investigate[ 'indicator_text' ] ?? '' );
 		$this->assertSame( '/admin/activity/overview', $investigate[ 'href' ] ?? '' );
 
-		$configure = $this->invokeNonPublicMethod( $page, 'buildConfigureCell', [ 95, 'good' ] );
+		$configure = $this->invokeNonPublicMethod( $page, 'buildConfigureLane', [ 95, 'good' ] );
 		$this->assertSame( 'posture', $configure[ 'indicator_type' ] ?? '' );
+		$this->assertSame( 'good', $configure[ 'edge_status' ] ?? '' );
 		$this->assertSame( 95, $configure[ 'posture_percentage' ] ?? null );
 		$this->assertSame( 'good', $configure[ 'posture_status' ] ?? '' );
 		$this->assertSame( '95% configured', $configure[ 'posture_text' ] ?? '' );
 		$this->assertSame( '/admin/zones/overview', $configure[ 'href' ] ?? '' );
 
-		$reportsWithData = $this->invokeNonPublicMethod( $page, 'buildReportsCell', [ 5 ] );
-		$this->assertSame( 'status-neutral', $reportsWithData[ 'indicator_class' ] ?? '' );
+		$reportsWithData = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [ 5 ] );
+		$this->assertSame( 'neutral', $reportsWithData[ 'indicator_severity' ] ?? '' );
+		$this->assertSame( 'warning', $reportsWithData[ 'edge_status' ] ?? '' );
 		$this->assertSame( '5 reports', $reportsWithData[ 'indicator_text' ] ?? '' );
 		$this->assertSame( '/admin/reports/overview', $reportsWithData[ 'href' ] ?? '' );
 
-		$reportsFallback = $this->invokeNonPublicMethod( $page, 'buildReportsCell', [ 0 ] );
+		$reportsFallback = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [ 0 ] );
 		$this->assertSame( 'Summaries & Alerts', $reportsFallback[ 'indicator_text' ] ?? '' );
 	}
 

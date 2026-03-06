@@ -19,11 +19,17 @@ class PageOperatorModeLanding extends BaseRender {
 
 	public const SLUG = 'plugin_admin_page_operator_mode_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/operator_mode_landing.twig';
+	private const VALID_SEVERITIES = [
+		'good',
+		'warning',
+		'critical',
+	];
 
 	protected function getRenderData() :array {
 		$queuePayload = $this->getQueuePayload();
 		$queueSummary = $this->getQueueSummary( $queuePayload );
 		$queueZoneGroups = $this->getQueueZoneGroups( $queuePayload );
+		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] ?? 'good' );
 
 		$configMeter = ( new Handler() )->getMeter( MeterSummary::SLUG, true, MeterComponent::CHANNEL_CONFIG );
 		$configPercentage = (int)( $configMeter[ 'totals' ][ 'percentage' ] ?? 0 );
@@ -34,14 +40,20 @@ class PageOperatorModeLanding extends BaseRender {
 		$reportsCount = $this->getGeneratedReportsCount();
 
 		return [
+			'strings' => [
+				'title'    => __( 'Shield Security', 'wp-simple-firewall' ),
+				'subtitle' => $this->buildShieldSubtitle( $queueSummary ),
+			],
 			'vars' => [
-				'mode_grid_cells' => [
-					$this->buildActionsCell( $queueSummary, $queueZoneGroups ),
-					$this->buildInvestigateCell( $sessionCount ),
-					$this->buildConfigureCell( $configPercentage, $configTraffic ),
-					$this->buildReportsCell( $reportsCount ),
+				'shield_status'     => $shieldStatus,
+				'shield_icon_class' => $this->buildShieldIconClass( $shieldStatus ),
+				'lanes'             => [
+					$this->buildActionsLane( $queueSummary, $queueZoneGroups ),
+					$this->buildInvestigateLane( $sessionCount ),
+					$this->buildConfigureLane( $configPercentage, $configTraffic ),
+					$this->buildReportsLane( $reportsCount ),
 				],
-				'live_monitor'    => $this->buildLiveMonitorVars(),
+				'live_monitor'      => $this->buildLiveMonitorVars(),
 			],
 		];
 	}
@@ -101,6 +113,32 @@ class PageOperatorModeLanding extends BaseRender {
 		return NeedsAttentionQueuePayload::zoneGroups( $payload );
 	}
 
+	private function normalizeSeverity( string $severity ) :string {
+		$severity = sanitize_key( $severity );
+		return \in_array( $severity, self::VALID_SEVERITIES, true ) ? $severity : 'good';
+	}
+
+	/**
+	 * @param array{has_items:bool,total_items:int,severity:string,icon_class:string,subtext:string} $queueSummary
+	 */
+	private function buildShieldSubtitle( array $queueSummary ) :string {
+		return $queueSummary[ 'has_items' ]
+			? sprintf(
+				_n( '%s issue needs your attention.', '%s issues need your attention.', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ),
+				$queueSummary[ 'total_items' ]
+			)
+			: __( 'Your site is protected. All systems operational.', 'wp-simple-firewall' );
+	}
+
+	private function buildShieldIconClass( string $shieldStatus ) :string {
+		$iconMap = [
+			'good'     => 'shield-shaded',
+			'warning'  => 'shield-exclamation',
+			'critical' => 'shield-x',
+		];
+		return self::con()->svgs->iconClass( $iconMap[ $shieldStatus ] ?? $iconMap[ 'good' ] );
+	}
+
 	/**
 	 * @param array{has_items:bool,total_items:int,severity:string,icon_class:string,subtext:string} $queueSummary
 	 * @param list<array{
@@ -112,7 +150,13 @@ class PageOperatorModeLanding extends BaseRender {
 	 *   items:list<array<string,mixed>>
 	 * }> $zoneGroups
 	 */
-	private function buildActionsCell( array $queueSummary, array $zoneGroups ) :array {
+	private function buildActionsLane( array $queueSummary, array $zoneGroups ) :array {
+		$severity = $this->normalizeSeverity( (string)( $queueSummary[ 'severity' ] ?? 'good' ) );
+		$iconMap = [
+			'good'     => 'shield-check',
+			'warning'  => 'shield-exclamation',
+			'critical' => 'shield-x',
+		];
 		$indicatorText = $queueSummary[ 'has_items' ]
 			? sprintf(
 				_n( '%s issue needs attention', '%s issues need attention', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ),
@@ -120,17 +164,26 @@ class PageOperatorModeLanding extends BaseRender {
 			)
 			: __( 'All Clear', 'wp-simple-firewall' );
 
+		$extraClasses = '';
+		if ( $severity === 'critical' ) {
+			$extraClasses = ' has-critical';
+		}
+		elseif ( $severity === 'warning' ) {
+			$extraClasses = ' has-issues';
+		}
+
 		return [
-			'mode'             => PluginNavs::MODE_ACTIONS,
-			'label'            => PluginNavs::modeLabel( PluginNavs::MODE_ACTIONS ),
-			'description'      => __( 'Resolve active findings and maintenance issues.', 'wp-simple-firewall' ),
-			'href'             => $this->modeHref( PluginNavs::MODE_ACTIONS ),
-			'icon_class'       => $queueSummary[ 'icon_class' ],
-			'indicator_type'   => 'status',
-			'indicator_class'  => 'status-'.$queueSummary[ 'severity' ],
-			'indicator_text'   => $indicatorText,
-			'indicator_subtext'=> $queueSummary[ 'has_items' ] ? $this->buildQueueBreakdownText( $zoneGroups ) : '',
-			'footnote'         => $queueSummary[ 'subtext' ],
+			'mode'               => PluginNavs::MODE_ACTIONS,
+			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_ACTIONS ),
+			'description'        => __( 'Resolve active findings and maintenance issues.', 'wp-simple-firewall' ),
+			'href'               => $this->modeHref( PluginNavs::MODE_ACTIONS ),
+			'icon_class'         => self::con()->svgs->iconClass( $iconMap[ $severity ] ?? $iconMap[ 'good' ] ),
+			'edge_status'        => 'shield',
+			'extra_classes'      => $extraClasses,
+			'indicator_type'     => 'status',
+			'indicator_severity' => $severity,
+			'indicator_text'     => $indicatorText,
+			'indicator_subtext'  => $queueSummary[ 'has_items' ] ? $this->buildQueueBreakdownText( $zoneGroups ) : '',
 		];
 	}
 
@@ -160,51 +213,59 @@ class PageOperatorModeLanding extends BaseRender {
 		return empty( $parts ) ? '' : implode( ' - ', $parts );
 	}
 
-	private function buildInvestigateCell( int $sessionCount ) :array {
+	private function buildInvestigateLane( int $sessionCount ) :array {
 		$text = $sessionCount > 0
 			? sprintf( _n( '%s active session', '%s active sessions', $sessionCount, 'wp-simple-firewall' ), $sessionCount )
 			: __( 'Activity & Events', 'wp-simple-firewall' );
 
 		return [
-			'mode'            => PluginNavs::MODE_INVESTIGATE,
-			'label'           => PluginNavs::modeLabel( PluginNavs::MODE_INVESTIGATE ),
-			'description'     => __( 'Investigate activity, traffic, and IP behavior.', 'wp-simple-firewall' ),
-			'href'            => $this->modeHref( PluginNavs::MODE_INVESTIGATE ),
-			'icon_class'      => self::con()->svgs->iconClass( 'search' ),
-			'indicator_type'  => 'status',
-			'indicator_class' => 'status-neutral',
-			'indicator_text'  => $text,
+			'mode'               => PluginNavs::MODE_INVESTIGATE,
+			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_INVESTIGATE ),
+			'description'        => __( 'Investigate activity, traffic, and IP behavior.', 'wp-simple-firewall' ),
+			'href'               => $this->modeHref( PluginNavs::MODE_INVESTIGATE ),
+			'icon_class'         => self::con()->svgs->iconClass( 'search' ),
+			'edge_status'        => 'info',
+			'extra_classes'      => '',
+			'indicator_type'     => 'status',
+			'indicator_severity' => 'neutral',
+			'indicator_text'     => $text,
+			'indicator_subtext'  => '',
 		];
 	}
 
-	private function buildConfigureCell( int $percentage, string $status ) :array {
+	private function buildConfigureLane( int $percentage, string $status ) :array {
 		return [
-			'mode'              => PluginNavs::MODE_CONFIGURE,
-			'label'             => PluginNavs::modeLabel( PluginNavs::MODE_CONFIGURE ),
-			'description'       => __( 'Tune security zones, rules, and tools.', 'wp-simple-firewall' ),
-			'href'              => $this->modeHref( PluginNavs::MODE_CONFIGURE ),
-			'icon_class'        => self::con()->svgs->iconClass( 'sliders' ),
-			'indicator_type'    => 'posture',
-			'posture_percentage'=> $percentage,
-			'posture_status'    => $status,
-			'posture_text'      => sprintf( __( '%s%% configured', 'wp-simple-firewall' ), $percentage ),
+			'mode'               => PluginNavs::MODE_CONFIGURE,
+			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_CONFIGURE ),
+			'description'        => __( 'Tune security zones, rules, and tools.', 'wp-simple-firewall' ),
+			'href'               => $this->modeHref( PluginNavs::MODE_CONFIGURE ),
+			'icon_class'         => self::con()->svgs->iconClass( 'sliders' ),
+			'edge_status'        => 'good',
+			'extra_classes'      => '',
+			'indicator_type'     => 'posture',
+			'posture_percentage' => $percentage,
+			'posture_status'     => $this->normalizeSeverity( $status ),
+			'posture_text'       => sprintf( __( '%s%% configured', 'wp-simple-firewall' ), $percentage ),
 		];
 	}
 
-	private function buildReportsCell( int $reportsCount ) :array {
+	private function buildReportsLane( int $reportsCount ) :array {
 		$text = $reportsCount > 0
 			? sprintf( _n( '%s report', '%s reports', $reportsCount, 'wp-simple-firewall' ), $reportsCount )
 			: __( 'Summaries & Alerts', 'wp-simple-firewall' );
 
 		return [
-			'mode'            => PluginNavs::MODE_REPORTS,
-			'label'           => PluginNavs::modeLabel( PluginNavs::MODE_REPORTS ),
-			'description'     => __( 'Review security reports and trends.', 'wp-simple-firewall' ),
-			'href'            => $this->modeHref( PluginNavs::MODE_REPORTS ),
-			'icon_class'      => self::con()->svgs->iconClass( 'bar-chart-line' ),
-			'indicator_type'  => 'status',
-			'indicator_class' => 'status-neutral',
-			'indicator_text'  => $text,
+			'mode'               => PluginNavs::MODE_REPORTS,
+			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_REPORTS ),
+			'description'        => __( 'Review security reports and trends.', 'wp-simple-firewall' ),
+			'href'               => $this->modeHref( PluginNavs::MODE_REPORTS ),
+			'icon_class'         => self::con()->svgs->iconClass( 'bar-chart-line' ),
+			'edge_status'        => 'warning',
+			'extra_classes'      => '',
+			'indicator_type'     => 'status',
+			'indicator_severity' => 'neutral',
+			'indicator_text'     => $text,
+			'indicator_subtext'  => '',
 		];
 	}
 
