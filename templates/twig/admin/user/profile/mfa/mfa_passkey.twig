@@ -18,11 +18,12 @@
 				{% for reg in vars.passkeys %}
 					<li style="margin: 10px 0 0;">
 						<code>{{ reg.label }}</code>
-						<a href="#"
-						   class="shield_remove_passkey"
-						   style="text-decoration: none;"
-						   title="Remove"
-						   data-wan_source_id="{{ reg.id }}">&#10006;</a>
+						<button type="button"
+								class="shield_remove_passkey shield-button-link"
+								style="text-decoration: none;"
+								title="{{ strings.remove_label }}"
+								aria-label="{{ strings.remove_label }} {{ reg.label }}"
+								data-wan_source_id="{{ reg.id }}">&#10006;</button>
 						<ul style="list-style: none; margin-left: 20px; margin-top: 0;">
 							<li style="margin: 0;">{{ reg.used_at }}</li>
 							<li>{{ reg.reg_at }}</li>

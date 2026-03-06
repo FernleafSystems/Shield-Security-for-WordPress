@@ -3,37 +3,62 @@
 		<ul class="nav nav-tabs shield_body-sub-nav">
 
 			<li class="nav-item">
-				<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#tabInfo"
-				   data-bs-toggle="tab">
+				<a class="nav-link active"
+				   id="tabInfo-tab"
+				   data-bs-toggle="tab"
+				   role="tab"
+				   href="#tabInfo"
+				   aria-controls="tabInfo"
+				   aria-selected="true">
 					{{ strings.tab_info }}
 				</a>
 			</li>
 
 			<li class="nav-item">
-				<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabHistory"
-				   data-bs-toggle="tab">
+				<a class="nav-link"
+				   id="tabHistory-tab"
+				   data-bs-toggle="tab"
+				   role="tab"
+				   href="#tabHistory"
+				   aria-controls="tabHistory"
+				   aria-selected="false">
 					{{ strings.tab_history }}
 				</a>
 			</li>
 
 			<li class="nav-item">
-				<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabContents"
-				   data-bs-toggle="tab">
+				<a class="nav-link"
+				   id="tabContents-tab"
+				   data-bs-toggle="tab"
+				   role="tab"
+				   href="#tabContents"
+				   aria-controls="tabContents"
+				   aria-selected="false">
 					{{ strings.tab_filecontents }}
 				</a>
 			</li>
 
 			<li class="nav-item">
-				<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabDiff"
-				   data-bs-toggle="tab">
+				<a class="nav-link"
+				   id="tabDiff-tab"
+				   data-bs-toggle="tab"
+				   role="tab"
+				   href="#tabDiff"
+				   aria-controls="tabDiff"
+				   aria-selected="false">
 					{{ strings.tab_diff }}
 				</a>
 			</li>
 
 			{% if flags.can_query_malai %}
 				<li class="nav-item">
-					<a class="nav-link" data-bs-toggle="tab" role="tab" href="#tabMalai"
-					   data-bs-toggle="tab">
+					<a class="nav-link"
+					   id="tabMalai-tab"
+					   data-bs-toggle="tab"
+					   role="tab"
+					   href="#tabMalai"
+					   aria-controls="tabMalai"
+					   aria-selected="false">
 						{{ strings.tab_malai }}
 					</a>
 				</li>
@@ -45,7 +70,7 @@
 
 <div class="tab-content">
 
-	<div class="tab-pane show active" id="tabInfo" role="tabpanel" aria-labelledby="tabInfo">
+	<div class="tab-pane show active" id="tabInfo" role="tabpanel" aria-labelledby="tabInfo-tab">
 		<div class="row">
 			<div class="col pt-3">
 				{{ content.tab_info|raw }}
@@ -53,7 +78,7 @@
 		</div>
 	</div>
 
-	<div class="tab-pane" id="tabHistory" role="tabpanel" aria-labelledby="tabHistory">
+	<div class="tab-pane" id="tabHistory" role="tabpanel" aria-labelledby="tabHistory-tab">
 		<div class="row">
 			<div class="col pt-3">
 				{{ content.tab_history|raw }}
@@ -61,7 +86,7 @@
 		</div>
 	</div>
 
-	<div class="tab-pane" id="tabContents" role="tabpanel" aria-labelledby="tabContents">
+	<div class="tab-pane" id="tabContents" role="tabpanel" aria-labelledby="tabContents-tab">
 		<div class="row">
 			<div class="col pt-3">
 				{{ content.tab_filecontents|raw }}
@@ -69,7 +94,7 @@
 		</div>
 	</div>
 
-	<div class="tab-pane" id="tabDiff" role="tabpanel" aria-labelledby="tabDiff">
+	<div class="tab-pane" id="tabDiff" role="tabpanel" aria-labelledby="tabDiff-tab">
 		<div class="row">
 			<div class="col pt-3">
 				{{ content.tab_diff|raw }}
@@ -78,7 +103,7 @@
 	</div>
 
 	{% if flags.can_query_malai %}
-		<div class="tab-pane" id="tabMalai" role="tabpanel" aria-labelledby="tabMalai">
+		<div class="tab-pane" id="tabMalai" role="tabpanel" aria-labelledby="tabMalai-tab">
 			<div class="row">
 				<div class="col pt-3">
 					{{ content.tab_malai|raw }}

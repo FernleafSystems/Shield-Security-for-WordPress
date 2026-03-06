@@ -1,5 +1,5 @@
 <div class="offcanvas-header">
-  <h5 class="offcanvas-title">{{ content.canvas_title|default('')|raw }}</h5>
+  <h5 class="offcanvas-title" id="AptoOffcanvasLabel">{{ content.canvas_title|default('')|raw }}</h5>
 	{% if flags.show_close|default(true) %}
 		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	{% endif %}

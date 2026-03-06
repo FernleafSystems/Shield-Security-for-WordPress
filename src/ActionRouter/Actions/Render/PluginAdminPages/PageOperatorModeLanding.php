@@ -175,7 +175,7 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'mode'               => PluginNavs::MODE_ACTIONS,
 			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_ACTIONS ),
-			'description'        => __( 'Resolve active findings and maintenance issues.', 'wp-simple-firewall' ),
+			'description'        => __( 'Take action on critical issues such as scan results, vulnerabilities and malware.', 'wp-simple-firewall' ),
 			'href'               => $this->modeHref( PluginNavs::MODE_ACTIONS ),
 			'icon_class'         => self::con()->svgs->iconClass( $iconMap[ $severity ] ?? $iconMap[ 'good' ] ),
 			'edge_status'        => 'shield',
@@ -221,7 +221,7 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'mode'               => PluginNavs::MODE_INVESTIGATE,
 			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_INVESTIGATE ),
-			'description'        => __( 'Investigate activity, traffic, and IP behavior.', 'wp-simple-firewall' ),
+			'description'        => __( 'Deep dive to explore every aspect of your site including users, plugins, themes & IP addresses.', 'wp-simple-firewall' ),
 			'href'               => $this->modeHref( PluginNavs::MODE_INVESTIGATE ),
 			'icon_class'         => self::con()->svgs->iconClass( 'search' ),
 			'edge_status'        => 'info',
@@ -237,7 +237,7 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'mode'               => PluginNavs::MODE_CONFIGURE,
 			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_CONFIGURE ),
-			'description'        => __( 'Tune security zones, rules, and tools.', 'wp-simple-firewall' ),
+			'description'        => __( 'Fine tune your WordPress security posture to exactly what you need.','wp-simple-firewall' ),
 			'href'               => $this->modeHref( PluginNavs::MODE_CONFIGURE ),
 			'icon_class'         => self::con()->svgs->iconClass( 'sliders' ),
 			'edge_status'        => 'good',

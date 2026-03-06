@@ -225,6 +225,10 @@
   font-weight: 600;
 }
 
+#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer button.footer-refresh {
+  appearance: none;
+}
+
 @media (max-width: 782px) {
   #ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-main {
     flex-direction: column;

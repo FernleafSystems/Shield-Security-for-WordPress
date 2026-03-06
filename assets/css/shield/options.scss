@@ -207,6 +207,12 @@ $options-rail-width-max: 260px;
   transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
+.options_form_for--modern .option-help-container button.svg-container,
+.options_form_for--modern .shield-options-panel-header-actions button.beacon-article,
+.options_form_for--modern .shield-options-panel-header-actions button.section_title_info {
+  appearance: none;
+}
+
 .options_form_for--modern .option-help-container .svg-container:hover {
   color: $primary;
   border-color: #c1d9c1;
@@ -310,12 +316,13 @@ $options-rail-width-max: 260px;
   padding-left: 0.1rem;
 }
 
-.options_form_for--modern a.section_title_info .dashicons {
+.options_form_for--modern .section_title_info .dashicons {
   color: #5b665f;
   transition: color 0.2s ease;
 }
 
-.options_form_for--modern a.section_title_info:hover .dashicons {
+.options_form_for--modern .section_title_info:hover .dashicons,
+.options_form_for--modern .section_title_info:focus-visible .dashicons {
   color: $primary;
 }
 

@@ -4,6 +4,7 @@
 	<div id="SecurityAdminOverlay" class="modal fade"
 		 role="dialog" tabindex="-1"
 		 aria-labelledby="SecurityAdminLabel"
+		 aria-modal="true"
 		 aria-hidden="true"
 		 data-bs-backdrop="static"
 		 data-bs-keyboard="false">
@@ -22,6 +23,7 @@
 						</div>
 
 						<div class="mb-3">
+							<label for="sec_admin_key" class="visually-hidden">{{ strings.aar_enter_access_key }}</label>
 							<input type="password" name="sec_admin_key"
 								   class="form-control form-control-lg text-center rounded-3"
 								   id="sec_admin_key"
@@ -47,9 +49,9 @@
 					{% if flags.allow_email_override %}
 						<hr class="my-3">
 						<div class="text-center">
-							<a href="#" id="SecAdminRemoveConfirmEmail" class="small fw-semibold">
+							<button type="button" id="SecAdminRemoveConfirmEmail" class="small fw-semibold shield-button-link">
 								{{ strings.disable_security_admin }}
-							</a>
+							</button>
 							<p class="text-muted small mt-1 mb-0">
 								{{ strings.send_to_email }}
 							</p>

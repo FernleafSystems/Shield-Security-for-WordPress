@@ -10,7 +10,7 @@ export class ProviderPasskeys extends ProviderBase {
 	}
 
 	run() {
-		shieldEventsHandler_UserProfile.add_Click( 'a.shield_remove_passkey', ( targetEl ) => {
+		shieldEventsHandler_UserProfile.add_Click( '.shield_remove_passkey', ( targetEl ) => {
 			if ( confirm( this._base_data.strings.are_you_sure ) ) {
 				this.sendReq( ObjectOps.Merge( this._base_data.ajax.passkey_remove_registration, targetEl.dataset ) );
 			}

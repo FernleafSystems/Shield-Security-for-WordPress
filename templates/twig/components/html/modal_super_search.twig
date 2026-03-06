@@ -1,13 +1,18 @@
 <div class="modal fade" role="dialog"
      id="ModalSuperSearchBox"
      tabindex="-1"
+     aria-labelledby="ModalSuperSearchTitle"
+     aria-modal="true"
      aria-hidden="true">
 	<div class="modal-dialog modal-dialog-scrollable">
 		<div class="modal-content shield-modal-content-raised">
 			<div class="modal-header">
 				<h5 class="modal-title d-flex align-items-center">
+					<span id="ModalSuperSearchTitle" class="visually-hidden">{{ strings.search_shield }}</span>
 					<span class="search-icon"><i class="{{ imgs.svgs.search }}" aria-hidden="true"></i></span>
+					<label for="ModalSuperSearchInput" class="visually-hidden">{{ strings.search_shield }}</label>
 					<input type="text"
+					       id="ModalSuperSearchInput"
 					       class="search-text flex-fill"
 					       placeholder="Search for anything..."
 					       {% if not flags.is_security_admin %}disabled="disabled"{% endif %}
@@ -19,8 +24,8 @@
 				<div class="w-100" style="">
 					<p class="my-1 fs-6">
 						{{ strings.search_modal_placeholder }}
-						<div class="mt-1">{{ strings.search_modal_you_could }}:</div>
 					</p>
+					<div class="mt-1">{{ strings.search_modal_you_could }}:</div>
 					<ul class="list-group list-group-flush mb-3">
 						{% for suggestion in strings.search_suggestions %}
 							<li class="fs-6 list-group-item">&#10003; {{ suggestion }}</li>

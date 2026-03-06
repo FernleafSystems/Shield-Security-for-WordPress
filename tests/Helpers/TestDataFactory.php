@@ -235,13 +235,15 @@ class TestDataFactory {
 	}
 
 	/**
-	 * Insert a scan result item, link it to a scan, and add one meta flag.
+	 * Insert a scan result item, link it to a scan, and return the scan result ID.
+	 *
+	 * @param array<string,mixed> $meta
 	 */
-	public static function insertScanResultMeta( int $scanId, string $metaKey ) :void {
+	public static function insertScanResultItem( int $scanId, array $meta = [] ) :int {
 		$resultItemsDb = self::con()->db_con->scan_result_items;
 		$item = $resultItemsDb->getRecord();
 		$item->item_type = 'f';
-		$item->item_id = \uniqid( 'result-item-', true );
+		$item->item_id = (string)( $meta[ 'item_id' ] ?? \uniqid( 'result-item-', true ) );
 		$resultItemsDb->getQueryInserter()->insert( $item );
 		$resultItemId = self::lastInsertId();
 
@@ -250,13 +252,31 @@ class TestDataFactory {
 		$scanResult->scan_ref = $scanId;
 		$scanResult->resultitem_ref = $resultItemId;
 		$scanResultsDb->getQueryInserter()->insert( $scanResult );
+		$scanResultId = self::lastInsertId();
 
 		$metaDb = self::con()->db_con->scan_result_item_meta;
-		$meta = $metaDb->getRecord();
-		$meta->ri_ref = $resultItemId;
-		$meta->meta_key = $metaKey;
-		$meta->meta_value = 1;
-		$metaDb->getQueryInserter()->insert( $meta );
+		foreach ( $meta as $metaKey => $metaValue ) {
+			if ( $metaKey === 'item_id' ) {
+				continue;
+			}
+
+			$metaRecord = $metaDb->getRecord();
+			$metaRecord->ri_ref = $resultItemId;
+			$metaRecord->meta_key = (string)$metaKey;
+			$metaRecord->meta_value = $metaValue;
+			$metaDb->getQueryInserter()->insert( $metaRecord );
+		}
+
+		return $scanResultId;
+	}
+
+	/**
+	 * Insert a scan result item, link it to a scan, and add one meta flag.
+	 */
+	public static function insertScanResultMeta( int $scanId, string $metaKey ) :void {
+		self::insertScanResultItem( $scanId, [
+			$metaKey => 1,
+		] );
 	}
 
 	// MFA Records

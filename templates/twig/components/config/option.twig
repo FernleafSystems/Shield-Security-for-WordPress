@@ -13,34 +13,26 @@
 			<div class="mt-1 text-start text-nowrap">
 
 				{% if option.description|length > 0 %}
-					{#                    {{ _self.options_helper( #}
-					{#                        imgs.svgs.expand, #}
-					{#                        'Expand description', #}
-					{#                        'javascript:{}', #}
-					{#                        ['option-description-expander'], #}
-					{#                        ['data-option_description_key="'~option.key~"'] #}
-					{#                    ) }} #}
-
-					<a href="javascript:{}"
-					   class="d-inline-block me-1 svg-container  option-description-expander"
-					   data-option_description_key="{{ option.key }}"
-					   data-bs-toggle="tooltip"
-					   data-bs-trigger="hover"
-					   data-bs-placement="top"
-					   data-bs-title="Expand description"
-					><i class="{{ imgs.svgs.expand }}" aria-hidden="true"></i></a>
+					{{ _self.options_helper(
+						imgs.svgs.expand,
+						strings.description,
+						'',
+						['option-description-expander'],
+						['data-option_description_key="'~option.key~'"']
+					) }}
 				{% endif %}
 
 				{% if option.beacon_id|default(false) %}
-					<a href="javascript:{}"
-					   class="d-inline-block me-1 svg-container  beacon-article"
-					   data-bs-toggle="tooltip"
-					   data-bs-trigger="hover"
-					   data-bs-placement="top"
-					   data-bs-title="{{ strings.opt_info_helpdesk }}"
-					   data-beacon_article_format="sidebar"
-					   data-beacon_article_id="{{ option.beacon_id }}"
-					><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></a>
+					{{ _self.options_helper(
+						imgs.svgs.help,
+						strings.opt_info_helpdesk,
+						'',
+						['beacon-article'],
+						[
+							'data-beacon_article_format="sidebar"',
+							'data-beacon_article_id="'~option.beacon_id~'"'
+						]
+					) }}
 
 				{% elseif option.link_info %}
 					<a href="{{ option.link_info }}"
@@ -54,14 +46,13 @@
 				{% endif %}
 
 				{% if option.vimeo_id|default('') is not empty %}
-					<a href="#"
-					   class="d-inline-block me-1 svg-container option-video"
-					   data-bs-toggle="tooltip"
-					   data-bs-trigger="hover"
-					   data-bs-placement="top"
-					   data-bs-title="{{ strings.opt_info_video }}"
-					   data-vimeoid="{{ option.vimeo_id }}"
-					><i class="{{ imgs.svgs.video }}" aria-hidden="true"></i></a>
+					{{ _self.options_helper(
+						imgs.svgs.video,
+						strings.opt_info_video,
+						'',
+						['option-video'],
+						['data-vimeoid="'~option.vimeo_id~'"']
+					) }}
 				{% endif %}
 
 				{% if option.link_blog %}
@@ -263,13 +254,26 @@
 	</div>
 </div>
 
-{% macro options_helper(icon_class, tooltip, href="javascript:{}", classes=[], attributes=[]) %}
-	<a href="{{ href }}"
-	   class="d-inline-block me-1 svg-container {{ classes|join(' ') }}"
-	   data-bs-toggle="tooltip"
-	   data-bs-trigger="hover"
-	   data-bs-placement="top"
-	   data-bs-title="{{ tooltip }}"
-			{{ attributes|join(' ') }}
-	><i class="{{ icon_class }}" aria-hidden="true"></i></a>
+{% macro options_helper(icon_class, tooltip, href="", classes=[], attributes=[]) %}
+	{% set is_link = href is not empty %}
+	{% if is_link %}
+		<a href="{{ href }}"
+		   class="d-inline-block me-1 svg-container {{ classes|join(' ') }}"
+		   data-bs-toggle="tooltip"
+		   data-bs-trigger="hover"
+		   data-bs-placement="top"
+		   data-bs-title="{{ tooltip }}"
+				{{ attributes|join(' ') }}
+		><i class="{{ icon_class }}" aria-hidden="true"></i></a>
+	{% else %}
+		<button type="button"
+				class="d-inline-block me-1 svg-container shield-button-link {{ classes|join(' ') }}"
+				aria-label="{{ tooltip }}"
+				data-bs-toggle="tooltip"
+				data-bs-trigger="hover"
+				data-bs-placement="top"
+				data-bs-title="{{ tooltip }}"
+				{{ attributes|join(' ') }}
+		><i class="{{ icon_class }}" aria-hidden="true"></i></button>
+	{% endif %}
 {% endmacro %}

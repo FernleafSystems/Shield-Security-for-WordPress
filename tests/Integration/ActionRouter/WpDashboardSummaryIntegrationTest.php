@@ -14,13 +14,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
 	Meter\MeterSummary
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\BuiltMetersFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	BuiltMetersFixture,
+	HtmlDomAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	use BuiltMetersFixture;
+	use HtmlDomAssertions;
 
 	private const WIDGET_CACHE_KEY = 'dashboard-widget-v3-vars';
 	private const LEGACY_WIDGET_CACHE_KEY = 'dashboard-widget-v2-vars';
@@ -120,6 +124,23 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( '/admin/admin_dashboard_widget_v2.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
 		$this->assertHtmlContainsMarker( 'shield-dashboard-widget-v2', (string)( $payload[ 'render_output' ] ?? '' ), 'Dashboard summary render' );
+	}
+
+	public function test_render_uses_button_for_refresh_control() :void {
+		$this->setSummaryMeters( 90, 90 );
+		$xpath = $this->createDomXPathFromHtml( (string)( $this->renderSummary()->payload()[ 'render_output' ] ?? '' ) );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//button[contains(@class,"refresh_widget") and contains(@class,"footer-refresh") and @type="button"]',
+			'Dashboard summary refresh action button contract'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//a[contains(@class,"refresh_widget") and contains(@class,"footer-refresh")]',
+			0,
+			'Dashboard summary legacy refresh anchor removed'
+		);
 	}
 
 	public function test_config_score_uses_config_channel_meter() :void {

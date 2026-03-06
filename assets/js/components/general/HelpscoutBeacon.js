@@ -12,7 +12,7 @@ export class HelpscoutBeacon extends BaseAutoExecComponent {
 		window.Beacon( 'init', this._base_data.beacon_id );
 		Beacon( 'navigate', '/' );
 
-		shieldEventsHandler_Main.add_Click( 'a.beacon-article', ( targetEl ) => {
+		shieldEventsHandler_Main.add_Click( '.beacon-article', ( targetEl ) => {
 			if ( targetEl.dataset[ 'beacon_article_id' ] ?? false ) {
 				let format = '';
 				if ( targetEl.dataset[ 'beacon_article_format' ] ?? false ) {

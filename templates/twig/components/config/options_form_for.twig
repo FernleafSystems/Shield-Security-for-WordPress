@@ -45,17 +45,20 @@
 
 							<div class="shield-options-panel-header-actions">
 								{% if opt_section.beacon_id|default(false) %}
-									<a href="javascript:{}" class="beacon-article"
+									<button type="button" class="beacon-article shield-button-link"
 									   data-beacon_article_id="{{ opt_section.beacon_id }}"
 									   data-beacon_article_format="modal"
+									   aria-label="{{ strings.opt_info_helpdesk }}"
 									   title="{{ strings.opt_info_helpdesk }}">
 										<sup><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></sup>
-									</a>
+									</button>
 								{% elseif ( opt_section.summary is defined ) and opt_section.summary|length %}
-									<a class="section_title_info"
-									   data-bs-toggle="collapse"
-									   data-bs-target="#collapse-{{ opt_section.slug }}"
-									><span class="dashicons dashicons-editor-help"></span></a>
+									<button type="button"
+											class="section_title_info shield-button-link"
+											data-bs-toggle="collapse"
+											data-bs-target="#collapse-{{ opt_section.slug }}"
+											aria-label="{{ strings.description }}"
+									><span class="dashicons dashicons-editor-help" aria-hidden="true"></span></button>
 								{% endif %}
 							</div>
 						</div>

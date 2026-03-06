@@ -8,6 +8,7 @@ import php from 'highlight.js/lib/languages/php';
 import sql from 'highlight.js/lib/languages/sql';
 import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
+import { BootstrapModals } from "../ui/BootstrapModals";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { ShieldTableBase } from "./ShieldTableBase";
@@ -83,7 +84,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 					if ( resp.success ) {
 						const modal = document.getElementById( 'ShieldModalContainer' );
 						modal.querySelector( '.modal-content' ).innerHTML = resp.data.html;
-						$( modal ).modal( 'show' );
+						BootstrapModals.Show( modal );
 						const unknownLanguageBlocks = [];
 						modal.querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
 							const languageClass = Array.from( el.classList ).find( ( cls ) => cls.startsWith( 'language-' ) ) || '';

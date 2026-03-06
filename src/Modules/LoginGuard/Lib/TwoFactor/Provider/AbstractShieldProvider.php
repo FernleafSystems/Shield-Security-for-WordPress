@@ -112,7 +112,8 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 			],
 			'strings' => [
 				'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
-				'provider_name' => $this->getProviderName()
+				'provider_name' => $this->getProviderName(),
+				'remove_label'  => __( 'Remove', 'wp-simple-firewall' ),
 			],
 		];
 	}

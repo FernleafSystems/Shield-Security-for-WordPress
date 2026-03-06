@@ -4,9 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageSecurityAdminRestricted;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\HtmlDomAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class SecurityAdminRestrictedPageIntegrationTest extends ShieldIntegrationTestCase {
+
+	use HtmlDomAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -20,14 +23,34 @@ class SecurityAdminRestrictedPageIntegrationTest extends ShieldIntegrationTestCa
 	public function test_restricted_page_renders_expected_modal_contract() :void {
 		$payload = $this->processor()->processAction( PageSecurityAdminRestricted::SLUG )->payload();
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', $html );
-		$this->assertHtmlContainsMarker( 'id="SecurityAdminOverlay"', $html, 'Security admin restricted modal root id' );
-		$this->assertHtmlContainsMarker( 'modal fade', $html, 'Security admin restricted modal lifecycle classes' );
-		$this->assertHtmlContainsMarker( 'data-bs-backdrop="static"', $html, 'Security admin restricted modal static backdrop' );
-		$this->assertHtmlContainsMarker( 'data-bs-keyboard="false"', $html, 'Security admin restricted modal keyboard lock' );
-		$this->assertHtmlContainsMarker( 'shield-modal-content-raised', $html, 'Security admin restricted modal raised offset class' );
-		$this->assertHtmlContainsMarker( 'id="sec_admin_key"', $html, 'Security admin restricted modal key input' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="SecurityAdminOverlay" and contains(@class,"modal") and @aria-labelledby="SecurityAdminLabel" and @aria-modal="true" and @data-bs-backdrop="static" and @data-bs-keyboard="false"]',
+			'Security admin restricted modal contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="IcwpWpsfSecurityAdmin" and contains(@class,"shield-modal-content-raised")]',
+			'Security admin restricted modal content shell'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//h5[@id="SecurityAdminLabel" and normalize-space()!=""]',
+			'Security admin restricted modal labelled heading'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//label[@for="sec_admin_key" and contains(@class,"visually-hidden")]',
+			'Security admin restricted modal hidden input label'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//input[@id="sec_admin_key" and @type="password"]',
+			'Security admin restricted modal key input'
+		);
 		$this->assertHtmlNotContainsMarker( 'autofocus', $html, 'Security admin restricted modal input autofocus attribute' );
 	}
 }

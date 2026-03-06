@@ -88,6 +88,41 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
+	public function test_dashboard_overview_includes_labelled_super_search_and_offcanvas_shells() :void {
+		$xpath = $this->createDomXPathFromHtml( $this->renderDashboardOverviewHtml() );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="AptoOffcanvas" and @aria-labelledby="AptoOffcanvasLabel"]',
+			'Shared offcanvas root labelled-by contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="AptoOffcanvasLabel" and contains(@class,"offcanvas-title")]',
+			'Shared offcanvas title id contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="ModalSuperSearchBox" and @aria-labelledby="ModalSuperSearchTitle" and @aria-modal="true"]',
+			'Super search modal labelled-by contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="ModalSuperSearchTitle" and contains(@class,"visually-hidden") and normalize-space()!=""]',
+			'Super search modal hidden title'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//label[@for="ModalSuperSearchInput" and contains(@class,"visually-hidden")]',
+			'Super search input hidden label'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//input[@id="ModalSuperSearchInput" and contains(@class,"search-text")]',
+			'Super search input id contract'
+		);
+	}
+
 	private function renderNeedsAttentionQueue() :ActionResponse {
 		return $this->processor()->processAction( NeedsAttentionQueue::SLUG );
 	}

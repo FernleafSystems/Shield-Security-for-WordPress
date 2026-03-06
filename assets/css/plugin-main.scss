@@ -445,10 +445,6 @@ a.nav-link:hover {
   text-decoration: none;
 }
 
-a:focus .gravatar, a:focus, a:focus .media-icon img {
-  box-shadow: none !important;
-}
-
 .col-form-label {
   font-weight: bold;
 }
@@ -473,13 +469,41 @@ a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-
 }
 
 .force-cursor-pointer,
-a.beacon-article,
-a.section_title_info {
+.beacon-article,
+.section_title_info {
   cursor: pointer;
 }
 
-a.section_title_info .dashicons {
+.section_title_info .dashicons {
   color: rgba(0, 128, 0, 1);
+}
+
+.shield-button-link {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: 0 none;
+  border-radius: 0;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  margin: 0;
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  text-align: inherit;
+  text-decoration: none;
+}
+
+.shield-button-link:disabled {
+  cursor: default;
+}
+
+.shield-button-link:focus {
+  box-shadow: none;
 }
 
 dl.pro-features dt {
@@ -1173,12 +1197,22 @@ td.status_file_size {
 
 #ModalSuperSearchBox input.search-text,
 #ModalSuperSearchBox input.search-text:active,
-#ModalSuperSearchBox input.search-text:focus,
 #ModalSuperSearchBox input.search-text:hover {
   border: 1px solid transparent !important;
   box-shadow: none;
   margin-left: 20px;
   min-width: 400px;
+}
+
+#ModalSuperSearchBox input.search-text:focus {
+  margin-left: 20px;
+  min-width: 400px;
+}
+
+#ModalSuperSearchBox input.search-text:focus-visible {
+  border-color: rgba(0, 128, 0, 1) !important;
+  box-shadow: 0 0 0 2px rgba(0, 128, 0, 0.15);
+  outline: 0;
 }
 
 .select2-search__field:active,
@@ -1225,6 +1259,26 @@ td.status_file_size {
 
 #AptoOffcanvas .offcanvas-header .btn-close:hover {
   opacity: 1;
+}
+
+#AptoOffcanvas .offcanvas-header .btn-close:focus-visible,
+#ShieldModalContainer .btn-close:focus-visible,
+#ModalSuperSearchBox .btn-close:focus-visible,
+#ScanProgressModal .btn-close:focus-visible,
+#SecurityAdminOverlay .btn-close:focus-visible,
+.shield-topwarning-dismiss:focus-visible,
+.footer-refresh:focus-visible,
+.mode-panel-close-btn:focus-visible,
+.beacon-article:focus-visible,
+.section_title_info:focus-visible,
+.option-description-expander:focus-visible,
+.option-video:focus-visible,
+#ajax_intent_email_send:focus-visible,
+.shield_remove_passkey:focus-visible,
+.shield_remove_yubi:focus-visible,
+ul.nav.nav-tabs.shield_body-sub-nav a.nav-link:focus-visible {
+  outline: 2px solid rgba(0, 128, 0, 0.65);
+  outline-offset: 2px;
 }
 
 #AptoOffcanvas .offcanvas-body {

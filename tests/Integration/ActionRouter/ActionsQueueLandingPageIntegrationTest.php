@@ -152,6 +152,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@id="ScanResultsTabs"]',
 			'Embedded scan results shell marker'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="h-tabs-file_locker-tab" and @aria-controls="h-tabs-file_locker"]',
+			'Embedded scan results file locker tab contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="h-tabs-file_locker" and @aria-labelledby="h-tabs-file_locker-tab"]',
+			'Embedded scan results file locker panel contract'
+		);
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context hidden when scan issues exist' );
 	}
 }

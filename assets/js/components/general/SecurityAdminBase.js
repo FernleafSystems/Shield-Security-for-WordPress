@@ -43,7 +43,7 @@ export class SecurityAdminBase extends BaseComponent {
 				}
 			} );
 
-			shieldEventsHandler_Main.add_Click( '#SecAdminDialog a', () => this.performSecAdminDialogLogin() );
+			shieldEventsHandler_Main.add_Click( '#SecAdminDialog button.button', () => this.performSecAdminDialogLogin() );
 		}
 	}
 
