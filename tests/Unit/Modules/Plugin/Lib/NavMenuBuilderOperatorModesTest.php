@@ -69,7 +69,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			\array_column( $sidebar[ 'home_connect_items' ], 'target' )
 		);
 		$this->assertSame(
-			[ 'icon-house-door', 'icon-people', 'icon-life-preserver', 'icon-envelope-paper' ],
+			[ 'icon-house-door', 'icon-facebook', 'icon-life-preserver', 'icon-envelope-paper' ],
 			\array_column( $sidebar[ 'home_connect_items' ], 'img' )
 		);
 		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] ?? '' );

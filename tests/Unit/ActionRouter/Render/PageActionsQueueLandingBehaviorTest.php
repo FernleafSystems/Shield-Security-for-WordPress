@@ -165,6 +165,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$this->capture->scansResultsPayload[ 'render_data' ],
 			$vars[ 'scans_results' ] ?? []
 		);
+		$this->assertSame( 0, (int)( $vars[ 'scans_vulnerabilities' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $vars[ 'scans_vulnerabilities' ][ 'status' ] ?? '' ) );
 
 		$scanResultsCalls = \array_values( \array_filter(
 			$this->capture->actionCalls,
@@ -199,6 +201,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( [], $vars[ 'scans_results' ] ?? null );
+		$this->assertSame( [], $vars[ 'scans_vulnerabilities' ][ 'items' ] ?? null );
 
 		$scanResultsCalls = \array_values( \array_filter(
 			$this->capture->actionCalls,
@@ -213,12 +216,45 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame(
 			[
-				'scan_results'   => '/admin/scans/results',
-				'wp_updates'     => '/wp-admin/update-core.php',
-				'manage_plugins' => '/wp-admin/plugins.php',
+				'scan_results' => '/admin/scans/results',
+				'wp_updates'   => '/wp-admin/update-core.php',
 			],
 			$hrefs
 		);
+	}
+
+	public function test_maintenance_items_get_explicit_row_ctas_only_for_inactive_plugins_and_themes() :void {
+		$this->capture->queuePayload = $this->buildQueuePayload(
+			true,
+			2,
+			'warning',
+			'',
+			[
+				$this->buildZoneGroup( 'scans', 'good', 0, [] ),
+				$this->buildZoneGroup( 'maintenance', 'warning', 2, [
+					$this->buildQueueItem( 'wp_plugins_inactive', 'maintenance', 'Inactive Plugins', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_themes_inactive', 'maintenance', 'Inactive Themes', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_updates', 'maintenance', 'WordPress Version', 1, 'warning' ),
+				] ),
+			]
+		);
+
+		$page = new PageActionsQueueLanding();
+		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'zone_tiles' ] ?? [];
+		$maintenance = \array_values( \array_filter(
+			$zoneTiles,
+			static fn( array $tile ) :bool => ( $tile[ 'key' ] ?? '' ) === 'maintenance'
+		) )[ 0 ] ?? [];
+		$itemsByKey = [];
+		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
+			$itemsByKey[ $item[ 'key' ] ?? '' ] = $item;
+		}
+
+		$this->assertSame( 'Go to plugins', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/admin/wp_plugins_inactive', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] ?? '' );
+		$this->assertSame( 'Go to themes', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/admin/wp_themes_inactive', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'href' ] ?? '' );
+		$this->assertArrayNotHasKey( 'cta', $itemsByKey[ 'wp_updates' ] ?? [] );
 	}
 
 	public function test_missing_needs_attention_strings_fall_back_to_safe_defaults() :void {

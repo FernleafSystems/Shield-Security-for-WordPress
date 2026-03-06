@@ -11,4 +11,9 @@
 		     alt=""
 		     aria-hidden="true" />
 	</a>
+	{% if not flags.is_whitelabelled %}
+		<div class="shield-sidebar-version">
+			{{ strings.plugin_name|default('Shield Security') }} version {{ strings.running_version_only|raw }}.
+		</div>
+	{% endif %}
 </div>

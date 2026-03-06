@@ -47,9 +47,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
+		$strip = $payload[ 'render_data' ][ 'vars' ][ 'severity_strip' ] ?? [];
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing all-clear' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
+		$this->assertStringContainsString( 'Last scan:', (string)( $strip[ 'subtext' ] ?? '' ) );
 		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions', true );
 		$this->assertXPathExists(
 			$xpath,
@@ -95,9 +97,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$payload = $this->renderActionsQueueLandingPage();
+		$strip = $payload[ 'render_data' ][ 'vars' ][ 'severity_strip' ] ?? [];
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
+		$this->assertSame( '', (string)( $strip[ 'subtext' ] ?? '' ) );
 		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions', true );
 		$this->assertXPathExists(
 			$xpath,
@@ -112,15 +116,68 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-subtext") and contains(normalize-space(),"Last scan:")]',
-			'Severity strip last-scan subtext marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
 			'//*[@data-mode-panel="1" and @data-actions-panel="maintenance"]',
 			'Maintenance panel marker'
 		);
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context hidden when queue has items' );
+	}
+
+	public function test_maintenance_panel_renders_single_footer_action_and_inactive_asset_ctas() :void {
+		$this->setOverallConfigMeterComponents( [
+			[
+				'slug'              => 'wp_plugins_inactive',
+				'is_protected'      => false,
+				'title'             => 'Inactive Plugins',
+				'title_unprotected' => 'Inactive Plugins',
+				'desc_unprotected'  => 'There are plugins installed that are not active.',
+				'href_full'         => '/wp-admin/plugins.php',
+				'fix'               => 'Fix',
+			],
+			[
+				'slug'              => 'wp_themes_inactive',
+				'is_protected'      => false,
+				'title'             => 'Inactive Themes',
+				'title_unprotected' => 'Inactive Themes',
+				'desc_unprotected'  => 'There are themes installed that are not active.',
+				'href_full'         => '/wp-admin/themes.php',
+				'fix'               => 'Fix',
+			],
+			[
+				'slug'              => 'wp_updates',
+				'is_protected'      => false,
+				'title'             => 'WordPress Version',
+				'title_unprotected' => 'WordPress Version',
+				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
+				'href_full'         => '/wp-admin/update-core.php',
+				'fix'               => 'Fix',
+			],
+		] );
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance ctas' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-panel="maintenance"]//*[contains(@class,"actions-landing__summary-action") and @href="/wp-admin/plugins.php"]',
+			'Inactive plugins CTA marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-panel="maintenance"]//*[contains(@class,"actions-landing__summary-action") and @href="/wp-admin/themes.php"]',
+			'Inactive themes CTA marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-panel="maintenance"]//a[@href="/wp-admin/update-core.php" and contains(@class,"btn")]',
+			'Maintenance footer WordPress updates action'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-actions-panel="maintenance"]//a[@href="/wp-admin/plugins.php" and contains(@class,"btn") and not(contains(@class,"actions-landing__summary-action"))]',
+			0,
+			'Maintenance footer no longer exposes Open Plugins'
+		);
 	}
 
 	public function test_scan_result_items_render_scans_panel_tabs_and_embedded_results_shell() :void {
@@ -146,6 +203,22 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@id="ActionsQueueScansTabsNav"]',
 			'Scans panel tabs marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="actions-queue-scans-vulnerabilities-tab" and @aria-controls="actions-queue-scans-vulnerabilities"]',
+			'Scans vulnerabilities tab marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="actions-queue-scans-summary"]//button[@data-bs-target="#actions-queue-scans-results"]',
+			'Summary footer tab-open button marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@id="actions-queue-scans-summary"]//a[@href="/admin/scans/results"]',
+			0,
+			'Summary footer no longer links to full scan results page'
 		);
 		$this->assertXPathExists(
 			$xpath,

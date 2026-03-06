@@ -2,15 +2,6 @@
   color: #1d2327;
 }
 
-#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse.options_form_for--modern .shield-options-layout {
-  grid-template-columns: minmax(185px, 225px) minmax(0, 1fr);
-  gap: 0.85rem;
-}
-
-#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail {
-  top: 0;
-}
-
 #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-content {
   min-width: 0;
 }
@@ -130,29 +121,4 @@
   color: #30424d;
   font-size: 0.78rem;
   padding: 0.05rem 0.3rem;
-}
-
-@media (max-width: 780px) {
-  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse.options_form_for--modern .shield-options-layout {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail {
-    position: static;
-  }
-
-  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail-nav {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    gap: 0.35rem;
-    padding-bottom: 0.25rem;
-  }
-
-  #AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse .shield-options-rail-nav .nav-item {
-    margin: 0;
-    min-width: 130px;
-  }
 }

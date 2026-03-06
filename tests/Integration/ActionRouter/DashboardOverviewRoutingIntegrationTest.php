@@ -55,7 +55,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return (string)( $payload[ 'render_output' ] ?? '' );
 	}
 
-	public function test_dashboard_sidebar_renders_separate_logo_assets_and_footer_version() :void {
+	public function test_dashboard_sidebar_renders_separate_logo_assets_and_version_beneath_logo() :void {
 		$html = $this->renderDashboardOverviewHtml();
 		$xpath = $this->createDomXPathFromHtml( $html );
 
@@ -74,17 +74,16 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'//img[contains(@class,"sidebar-logo-icon")]',
 			'Sidebar icon logo marker'
 		);
-		$this->assertXPathCount(
+		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(@class,"shield-sidebar-footer")]',
-			1,
-			'Sidebar footer version marker count'
+			'//*[contains(@class,"logo-container")]//*[contains(@class,"shield-sidebar-version") and normalize-space()!=""]',
+			'Sidebar version beneath logo marker'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//*[contains(@class,"logo-text--sidebar")]',
+			'//*[contains(@class,"shield-sidebar-footer")]',
 			0,
-			'Sidebar version subtitle removed from logo area'
+			'Sidebar footer version removed'
 		);
 	}
 

@@ -61,6 +61,7 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 			'verb'    => 'POST',
 			'path'    => '/wp-login.php',
 			'code'    => 403,
+			'uid'     => get_current_user_id(),
 			'offense' => true,
 			'meta'    => [
 				'query' => 'reauth=1',
@@ -80,8 +81,11 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertStringContainsString( 'POST', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
 		$this->assertStringContainsString( '/wp-login.php', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
 		$this->assertContains( 'HTTP', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
+		$this->assertContains( 'securityadmin', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
 		$this->assertContains( '403', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
 		$this->assertContains( 'Offense', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
+		$this->assertStringContainsString( ':', (string)( $rows[ 0 ][ 'timestamp' ] ?? '' ) );
+		$this->assertStringNotContainsString( 'Response:', (string)( $rows[ 0 ][ 'description' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( $html ) );
 	}
 

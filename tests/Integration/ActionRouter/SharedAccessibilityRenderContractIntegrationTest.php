@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\Render\Components\OffCanvas\FormReportCreate,
+	Actions\Render\Components\OffCanvas\IpAnalysis,
 	Actions\Render\Components\Scans\ItemAnalysis\Container
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -75,6 +76,19 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 			$xpath,
 			'//*[@id="tabHistory" and @aria-labelledby="tabHistory-tab"]',
 			'Scan item analysis history panel contract'
+		);
+	}
+
+	public function test_ip_analysis_offcanvas_reuses_investigate_inline_wrapper_contract() :void {
+		$payload = $this->processor()->processAction( IpAnalysis::SLUG, [
+			'ip' => '198.51.100.20',
+		] )->payload();
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(@class,"investigate-inline-ipanalyse")]//*[contains(@class,"shield-ipanalyse")]',
+			'IP analysis offcanvas shared wrapper marker'
 		);
 	}
 }

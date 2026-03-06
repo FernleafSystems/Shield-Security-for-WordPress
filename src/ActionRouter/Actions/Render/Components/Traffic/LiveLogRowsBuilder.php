@@ -46,8 +46,8 @@ class LiveLogRowsBuilder {
 	public function buildCompactTimestamp( int $timestamp, ?int $referenceTimestamp = null ) :string {
 		$referenceTimestamp = $referenceTimestamp ?? \time();
 		$format = wp_date( 'Y-m-d', $timestamp ) === wp_date( 'Y-m-d', $referenceTimestamp )
-			? 'H:i'
-			: 'M j, H:i';
+			? 'H:i:s'
+			: 'M j, H:i:s';
 
 		return wp_date( $format, $timestamp );
 	}
@@ -94,23 +94,6 @@ class LiveLogRowsBuilder {
 	private function buildTrafficDescription( RequestLogRecord $record ) :string {
 		$parts = [];
 
-		if ( $record->uid > 0 ) {
-			$user = Services::WpUsers()->getUserById( $record->uid );
-			$parts[] = \sprintf(
-				/* translators: %s: WordPress user login or ID */
-				__( 'User: %s', 'wp-simple-firewall' ),
-				$user instanceof \WP_User ? $user->user_login : \sprintf( 'ID %d', $record->uid )
-			);
-		}
-
-		if ( $record->code > 0 ) {
-			$parts[] = \sprintf(
-				/* translators: %s: HTTP response code */
-				__( 'Response: %s', 'wp-simple-firewall' ),
-				$record->code
-			);
-		}
-
 		if ( $record->offense ) {
 			$parts[] = __( 'Offense detected', 'wp-simple-firewall' );
 		}
@@ -125,6 +108,13 @@ class LiveLogRowsBuilder {
 				'class' => 'bg-secondary-subtle text-body-secondary border border-secondary-subtle',
 			],
 		];
+
+		if ( $record->uid > 0 ) {
+			$badges[] = [
+				'label' => $this->buildTrafficUserLabel( $record ),
+				'class' => 'bg-primary-subtle text-primary-emphasis border border-primary-subtle',
+			];
+		}
 
 		if ( $record->code > 0 ) {
 			$badges[] = [
@@ -141,6 +131,14 @@ class LiveLogRowsBuilder {
 		}
 
 		return $badges;
+	}
+
+	private function buildTrafficUserLabel( RequestLogRecord $record ) :string {
+		$user = Services::WpUsers()->getUserById( $record->uid );
+
+		return \is_object( $user ) && isset( $user->user_login ) && \is_string( $user->user_login ) && $user->user_login !== ''
+			? $user->user_login
+			: \sprintf( 'ID %d', $record->uid );
 	}
 
 	private function getResponseBadgeClass( int $code ) :string {

@@ -51,6 +51,8 @@
 					{% set is_open = active_panel == zone.panel_target %}
 					{% set panel_body %}
 						{% if zone.key == 'scans' %}
+							{% set vulnerabilities = vars.scans_vulnerabilities|default({}) %}
+							{% set vulnerability_status = vulnerabilities.status|default('good') %}
 							<ul class="nav nav-tabs shield_body-sub-nav actions-landing__panel-tabs" id="ActionsQueueScansTabsNav" role="tablist">
 								<li class="nav-item">
 									<a class="nav-link active" id="actions-queue-scans-summary-tab"
@@ -71,6 +73,16 @@
 										<span class="badge bg-danger">{{ zone.total_issues }}</span>
 									</a>
 								</li>
+								<li class="nav-item">
+									<a class="nav-link" id="actions-queue-scans-vulnerabilities-tab"
+									   data-bs-toggle="tab"
+									   href="#actions-queue-scans-vulnerabilities"
+									   role="tab"
+									   aria-controls="actions-queue-scans-vulnerabilities">
+										{{ strings.panel_scan_vulnerabilities_tab }}
+										<span class="badge {{ vulnerability_status == 'good' ? 'bg-success' : 'bg-danger' }}">{{ vulnerabilities.count|default(0) }}</span>
+									</a>
+								</li>
 							</ul>
 							<div class="tab-content">
 								<div class="tab-pane show active" id="actions-queue-scans-summary" role="tabpanel" aria-labelledby="actions-queue-scans-summary-tab">
@@ -78,11 +90,11 @@
 										items: zone.items
 									} only %}
 									<div class="actions-landing__summary-footer d-flex flex-wrap gap-2 mt-3">
-										<a href="#actions-queue-scans-results"
-										   data-bs-toggle="tab"
-										   class="btn btn-outline-secondary btn-sm">{{ strings.panel_scan_results_tab }}</a>
-										<a href="{{ hrefs.scan_results }}"
-										   class="btn btn-outline-secondary btn-sm">{{ strings.panel_scan_results_link }}</a>
+										<button type="button"
+												class="btn btn-outline-secondary btn-sm"
+												data-bs-toggle="tab"
+												data-bs-target="#actions-queue-scans-results"
+												aria-controls="actions-queue-scans-results">{{ strings.panel_scan_results_open }}</button>
 									</div>
 								</div>
 
@@ -100,6 +112,16 @@
 										} only %}
 									</div>
 								</div>
+
+								<div class="tab-pane" id="actions-queue-scans-vulnerabilities" role="tabpanel" aria-labelledby="actions-queue-scans-vulnerabilities-tab">
+									{% if vulnerabilities.items|default([]) is not empty %}
+										{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+											items: vulnerabilities.items
+										} only %}
+									{% else %}
+										<div class="actions-landing__empty-state">{{ strings.panel_scan_vulnerabilities_empty }}</div>
+									{% endif %}
+								</div>
 							</div>
 						{% else %}
 							{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
@@ -109,7 +131,6 @@
 								<div class="actions-landing__severity-label mb-2">{{ strings.panel_maintenance_actions }}</div>
 								<div class="d-flex flex-wrap gap-2">
 									<a href="{{ hrefs.wp_updates }}" class="btn btn-outline-secondary btn-sm">{{ strings.panel_wp_updates }}</a>
-									<a href="{{ hrefs.manage_plugins }}" class="btn btn-outline-secondary btn-sm">{{ strings.panel_manage_plugins }}</a>
 								</div>
 							</div>
 						{% endif %}

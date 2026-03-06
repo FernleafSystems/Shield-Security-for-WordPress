@@ -17,8 +17,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord as Activi
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\LogRecord as RequestLogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Services\Core\Users;
 
 class LiveLogRowsBuilderTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -59,10 +63,21 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		};
 
 		PluginControllerInstaller::install( $controller );
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( [
+			'service_wpusers' => new class extends Users {
+				public function getUserById( $id ) {
+					return (object)[
+						'user_login' => 'admin-user',
+					];
+				}
+			},
+		] );
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -70,7 +85,7 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$builder = new LiveLogRowsBuilder();
 
 		$this->assertSame(
-			'14:35',
+			'14:35:00',
 			$builder->buildCompactTimestamp( 1713278100, 1713290000 )
 		);
 	}
@@ -79,7 +94,7 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$builder = new LiveLogRowsBuilder();
 		$timestamp = $builder->buildCompactTimestamp( 1713278100, 1713380000 );
 
-		$this->assertSame( 'Apr 16, 14:35', $timestamp );
+		$this->assertSame( 'Apr 16, 14:35:00', $timestamp );
 		$this->assertStringNotContainsString( '+', $timestamp );
 	}
 
@@ -112,7 +127,7 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$record->code = 403;
 		$record->type = 'H';
 		$record->offense = true;
-		$record->uid = 0;
+		$record->uid = 8;
 		$record->meta = [
 			'query' => 'reauth=1',
 		];
@@ -122,10 +137,11 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '/ip/203.0.113.55', $row[ 'ip_href' ] );
 		$this->assertStringContainsString( 'POST', $row[ 'title' ] );
 		$this->assertStringContainsString( '/wp-login.php', $row[ 'title' ] );
-		$this->assertStringContainsString( 'Response: 403', $row[ 'description' ] );
 		$this->assertStringContainsString( 'Offense detected', $row[ 'description' ] );
 		$this->assertContains( 'HTTP', \array_column( $row[ 'badges' ], 'label' ) );
+		$this->assertContains( 'admin-user', \array_column( $row[ 'badges' ], 'label' ) );
 		$this->assertContains( '403', \array_column( $row[ 'badges' ], 'label' ) );
 		$this->assertContains( 'Offense', \array_column( $row[ 'badges' ], 'label' ) );
+		$this->assertStringNotContainsString( 'Response:', $row[ 'description' ] );
 	}
 }

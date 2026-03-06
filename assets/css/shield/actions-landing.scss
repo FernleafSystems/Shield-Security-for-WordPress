@@ -243,7 +243,7 @@
 }
 
 .actions-landing__summary-row {
-	align-items: flex-start;
+	align-items: center;
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;
 	border-radius: 8px;
@@ -261,6 +261,7 @@
 }
 
 .actions-landing__summary-copy {
+	flex: 1 1 auto;
 	min-width: 0;
 }
 
@@ -282,7 +283,6 @@
 	border-radius: 999px;
 	flex-shrink: 0;
 	height: 8px;
-	margin-top: 0.42rem;
 	width: 8px;
 }
 
@@ -304,4 +304,32 @@
 
 .actions-landing__scan-results-shell {
 	margin-top: 0.25rem;
+}
+
+.actions-landing__summary-meta {
+	align-items: center;
+	display: flex;
+	flex-shrink: 0;
+	gap: 0.55rem;
+	margin-left: auto;
+}
+
+.actions-landing__summary-meta .shield-badge {
+	align-items: center;
+	display: inline-flex;
+	justify-content: center;
+	min-width: 2rem;
+}
+
+.actions-landing__summary-action {
+	white-space: nowrap;
+}
+
+.actions-landing__empty-state {
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	color: #646970;
+	font-size: 0.8rem;
+	padding: 0.8rem 0.9rem;
 }

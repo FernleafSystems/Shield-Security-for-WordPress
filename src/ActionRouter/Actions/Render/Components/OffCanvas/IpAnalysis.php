@@ -13,8 +13,11 @@ class IpAnalysis extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		return self::con()->action_router->render( Container::class, [
-			'ip' => $this->action_data[ 'ip' ]
-		] );
+		return sprintf(
+			'<div class="investigate-inline-ipanalyse">%s</div>',
+			self::con()->action_router->render( Container::class, [
+				'ip' => $this->action_data[ 'ip' ]
+			] )
+		);
 	}
 }

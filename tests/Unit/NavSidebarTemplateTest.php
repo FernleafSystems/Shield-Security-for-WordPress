@@ -49,7 +49,7 @@ class NavSidebarTemplateTest extends BaseUnitTest {
 		$this->assertSame( 'Connect', $sidebar[ 'home_connect_title' ] );
 		$this->assertCount( 4, $sidebar[ 'home_connect_items' ] );
 		$this->assertSame(
-			[ 'icon-house-door', 'icon-people', 'icon-life-preserver', 'icon-envelope-paper' ],
+			[ 'icon-house-door', 'icon-facebook', 'icon-life-preserver', 'icon-envelope-paper' ],
 			\array_column( $sidebar[ 'home_connect_items' ], 'img' )
 		);
 	}

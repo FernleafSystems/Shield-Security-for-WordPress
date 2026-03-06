@@ -6,7 +6,16 @@
 				<div class="actions-landing__summary-title">{{ item.label }}</div>
 				<div class="actions-landing__summary-desc">{{ item.description }}</div>
 			</div>
-			<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
+			<div class="actions-landing__summary-meta">
+				<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
+				{% if item.cta|default({}) is not empty and item.cta.href|default('') is not empty %}
+					<a href="{{ item.cta.href }}"
+					   class="btn btn-outline-secondary btn-sm actions-landing__summary-action"
+					   {% if item.cta.target|default('') is not empty %}target="{{ item.cta.target }}"{% endif %}>
+						{{ item.cta.label|default('Open') }}
+					</a>
+				{% endif %}
+			</div>
 		</div>
 	{% endfor %}
 </div>

@@ -4,7 +4,7 @@
 {% else %}
 	{% for row in rows %}
 		<div class="shield-live-logs__row">
-			<div class="shield-live-logs__meta">
+			<div class="shield-live-logs__row-main">
 				<div class="shield-live-logs__timestamp">{{ row.timestamp|default('') }}</div>
 				{% if row.ip|default('') is not empty %}
 					<div class="shield-live-logs__ip">
@@ -15,14 +15,14 @@
 						{% endif %}
 					</div>
 				{% endif %}
+				<div class="shield-live-logs__title">{{ row.title|default('') }}</div>
+				{% if row.description|default('') is not empty %}
+					<div class="shield-live-logs__description">{{ row.description }}</div>
+				{% endif %}
 				{% for badge in row.badges|default([]) %}
 					<span class="badge rounded-pill shield-live-logs__badge {{ badge.class|default('bg-secondary-subtle text-body-secondary border border-secondary-subtle') }}">{{ badge.label|default('') }}</span>
 				{% endfor %}
 			</div>
-			<div class="shield-live-logs__title">{{ row.title|default('') }}</div>
-			{% if row.description|default('') is not empty %}
-				<div class="shield-live-logs__description">{{ row.description }}</div>
-			{% endif %}
 		</div>
 	{% endfor %}
 {% endif %}

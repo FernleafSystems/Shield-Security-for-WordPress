@@ -262,7 +262,7 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'connect-facebook',
 					'title'  => __( 'Facebook Group', 'wp-simple-firewall' ),
-					'img'    => self::con()->svgs->iconClass( 'people' ),
+					'img'    => self::con()->svgs->iconClass( 'facebook' ),
 					'href'   => $links->url( ExternalLinks::FACEBOOK_GROUP ),
 					'target' => '_blank',
 				],
