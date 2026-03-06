@@ -188,6 +188,13 @@ class NavMenuBuilder {
 						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
 						$this->isCurrentRoute( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS )
 					),
+					$this->buildToolItem(
+						PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_SESSIONS,
+						__( 'User Sessions', 'wp-simple-firewall' ),
+						'person-badge',
+						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
+						$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS )
+					),
 				];
 				break;
 
