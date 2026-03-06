@@ -1,10 +1,10 @@
-<ul class="configure-landing__component-list">
+<ul class="configure-landing__component-list shield-stack-detail-list">
 	{% for component in zone.panel.components %}
-		<li class="configure-landing__component-row" data-configure-component-status="{{ component.status }}">
-			<div class="configure-landing__component-main">
+		<li class="configure-landing__component-row shield-stack-detail-row is-{{ component.status }}" data-configure-component-status="{{ component.status }}">
+			<div class="configure-landing__component-main shield-stack-detail-copy">
 				<div class="configure-landing__component-row-head">
 					<span class="configure-landing__component-row-heading">
-						<span class="configure-landing__component-title">{{ component.title }}</span>
+						<span class="configure-landing__component-title shield-stack-detail-title">{{ component.title }}</span>
 						{% if component.config_action is not empty %}
 							<a class="configure-landing__component-config-link {{ component.config_action.classes|default([])|join( ' ' ) }}"
 							   href="{{ component.config_action.href|default('javascript:{}') }}"
@@ -22,7 +22,7 @@
 					</span>
 				</div>
 				{% if component.note|default('') is not empty %}
-					<span class="configure-landing__component-note">{{ component.note }}</span>
+					<span class="configure-landing__component-note shield-stack-detail-desc">{{ component.note }}</span>
 				{% endif %}
 				{% if component.explanations|default([]) is not empty and component.status in [ 'warning', 'critical' ] %}
 					<ul class="configure-landing__component-explanations">

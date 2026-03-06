@@ -1,12 +1,12 @@
-<div class="actions-landing__summary-list">
+<div class="actions-landing__summary-list shield-stack-detail-list">
 	{% for item in items|default([]) %}
-		<div class="actions-landing__summary-row is-{{ item.severity }}">
-			<span class="actions-landing__summary-pip is-{{ item.severity }}"></span>
-			<div class="actions-landing__summary-copy">
-				<div class="actions-landing__summary-title">{{ item.label }}</div>
-				<div class="actions-landing__summary-desc">{{ item.description }}</div>
+		<div class="actions-landing__summary-row shield-stack-detail-row is-{{ item.severity }}">
+			<span class="actions-landing__summary-pip shield-stack-detail-pip is-{{ item.severity }}"></span>
+			<div class="actions-landing__summary-copy shield-stack-detail-copy">
+				<div class="actions-landing__summary-title shield-stack-detail-title">{{ item.label }}</div>
+				<div class="actions-landing__summary-desc shield-stack-detail-desc">{{ item.description }}</div>
 			</div>
-			<div class="actions-landing__summary-meta">
+			<div class="actions-landing__summary-meta shield-stack-detail-meta">
 				<span class="shield-badge badge-{{ item.severity }}">{{ item.count }}</span>
 				{% if item.cta|default({}) is not empty and item.cta.href|default('') is not empty %}
 					<a href="{{ item.cta.href }}"

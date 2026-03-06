@@ -1,6 +1,28 @@
 .actions-landing__severity-strip {
 	margin-bottom: 1rem;
-	overflow: visible;
+	overflow: hidden;
+	position: relative;
+}
+
+.actions-landing__severity-strip::before {
+	content: '';
+	bottom: 0;
+	left: 0;
+	position: absolute;
+	top: 0;
+	width: 4px;
+}
+
+.actions-landing__severity-strip.status-good::before {
+	background: $status-color-good;
+}
+
+.actions-landing__severity-strip.status-warning::before {
+	background: $status-color-warning;
+}
+
+.actions-landing__severity-strip.status-critical::before {
+	background: $status-color-critical;
 }
 
 .actions-landing__severity-body {
@@ -236,82 +258,12 @@
 	margin-left: 0.3rem;
 }
 
-.actions-landing__summary-list {
-	display: flex;
-	flex-direction: column;
-	gap: 0.45rem;
-}
-
-.actions-landing__summary-row {
-	align-items: center;
-	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: 8px;
-	display: flex;
-	gap: 0.6rem;
-	padding: 0.55rem 0.7rem;
-}
-
-.actions-landing__summary-row.is-warning {
-	background: $status-bg-warning-light;
-}
-
-.actions-landing__summary-row.is-critical {
-	background: $status-bg-critical-light;
-}
-
-.actions-landing__summary-copy {
-	flex: 1 1 auto;
-	min-width: 0;
-}
-
-.actions-landing__summary-title {
-	color: #1d2327;
-	font-size: 0.84rem;
-	font-weight: 600;
-	line-height: 1.2;
-}
-
-.actions-landing__summary-desc {
-	color: #646970;
-	font-size: 0.76rem;
-	line-height: 1.3;
-	margin-top: 0.2rem;
-}
-
-.actions-landing__summary-pip {
-	border-radius: 999px;
-	flex-shrink: 0;
-	height: 8px;
-	width: 8px;
-}
-
-.actions-landing__summary-pip.is-good {
-	background: $status-color-good;
-}
-
-.actions-landing__summary-pip.is-warning {
-	background: $status-color-warning;
-}
-
-.actions-landing__summary-pip.is-critical {
-	background: $status-color-critical;
-}
-
-.actions-landing__summary-pip.is-info {
-	background: $status-color-info;
-}
-
 .actions-landing__scan-results-shell {
 	margin-top: 0.25rem;
 }
 
-.actions-landing__summary-meta {
-	align-items: center;
-	display: flex;
-	flex-shrink: 0;
-	gap: 0.55rem;
-	margin-left: auto;
+.actions-landing__summary-row {
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.92));
 }
 
 .actions-landing__summary-meta .shield-badge {

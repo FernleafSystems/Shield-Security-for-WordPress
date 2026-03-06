@@ -5,7 +5,7 @@
 	{% set strip = vars.severity_strip|default({}) %}
 	<div class="actions-landing" data-actions-landing="1">
 
-		<section class="actions-landing__severity-strip shield-card mb-3"
+		<section class="actions-landing__severity-strip shield-card mb-3 status-{{ strip.severity|default('good') }}"
 				 data-actions-queue-section="severity-strip">
 			<div class="card-body actions-landing__severity-body">
 				<span class="actions-landing__severity-chip status-{{ strip.severity|default('good') }}">
