@@ -3,6 +3,9 @@
 }
 
 .live_logs .output {
+	--shield-live-logs-height: auto;
+	--shield-live-logs-min-height: 180px;
+	--shield-live-logs-max-height: none;
 	background: #ffffff;
 	border: 1px solid $border-color-neutral-subtle;
 	border-radius: 8px;
@@ -11,7 +14,9 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.6rem;
-	min-height: 180px;
+	height: var(--shield-live-logs-height);
+	max-height: var(--shield-live-logs-max-height);
+	min-height: var(--shield-live-logs-min-height);
 	overflow-y: auto;
 	padding: 0.7rem 0.8rem;
 }

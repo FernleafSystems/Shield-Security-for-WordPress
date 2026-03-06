@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Traffic;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayText;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord as ActivityLogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LogRecord as RequestLogRecord,
@@ -14,6 +15,13 @@ use FernleafSystems\Wordpress\Services\Services;
 class LiveLogRowsBuilder {
 
 	use PluginControllerConsumer;
+
+	/**
+	 * This builder currently owns compact timestamp formatting plus activity and
+	 * traffic row mapping. If its scope grows further, split it into smaller
+	 * collaborators such as CompactTimestampFormatter, ActivityLogRowBuilder,
+	 * and TrafficLogRowBuilder.
+	 */
 
 	/**
 	 * @param ActivityLogRecord[] $records
@@ -53,7 +61,7 @@ class LiveLogRowsBuilder {
 			'ip'          => $record->ip,
 			'ip_href'     => $this->buildIpHref( $record->ip ),
 			'title'       => empty( $title ) ? $record->event_slug : $title,
-			'description' => $this->truncate( $description, 140 ),
+			'description' => CommonDisplayText::truncate( $description, 140 ),
 			'badges'      => [],
 		];
 	}
@@ -79,7 +87,7 @@ class LiveLogRowsBuilder {
 		return \sprintf(
 			'%s %s',
 			\strtoupper( empty( $record->verb ) ? 'GET' : $record->verb ),
-			$this->truncate( $path === '' ? '/' : $path, 110 )
+			CommonDisplayText::truncate( $path === '' ? '/' : $path, 110 )
 		);
 	}
 
@@ -147,9 +155,5 @@ class LiveLogRowsBuilder {
 
 	private function buildIpHref( string $ip ) :string {
 		return \filter_var( $ip, \FILTER_VALIDATE_IP ) ? self::con()->plugin_urls->ipAnalysis( $ip ) : '';
-	}
-
-	private function truncate( string $value, int $length ) :string {
-		return \strlen( $value ) > $length ? \substr( $value, 0, $length ).' (...truncated)' : $value;
 	}
 }

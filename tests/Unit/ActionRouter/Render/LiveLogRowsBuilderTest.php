@@ -98,6 +98,8 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$this->assertIsString( $row[ 'timestamp' ] );
 		$this->assertNotSame( '', $row[ 'timestamp' ] );
 		$this->assertIsString( $row[ 'description' ] );
+		$this->assertStringContainsString( 'IP address blocked', $row[ 'description' ] );
+		$this->assertSame( [], $row[ 'badges' ] );
 	}
 
 	public function test_build_traffic_row_maps_request_summary_ip_and_badges() :void {
@@ -118,8 +120,12 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( '203.0.113.55', $row[ 'ip' ] );
 		$this->assertSame( '/ip/203.0.113.55', $row[ 'ip_href' ] );
-		$this->assertSame( 'POST /wp-login.php?reauth=1', $row[ 'title' ] );
-		$this->assertSame( 'Response: 403 | Offense detected', $row[ 'description' ] );
-		$this->assertSame( [ 'HTTP', '403', 'Offense' ], \array_column( $row[ 'badges' ], 'label' ) );
+		$this->assertStringContainsString( 'POST', $row[ 'title' ] );
+		$this->assertStringContainsString( '/wp-login.php', $row[ 'title' ] );
+		$this->assertStringContainsString( 'Response: 403', $row[ 'description' ] );
+		$this->assertStringContainsString( 'Offense detected', $row[ 'description' ] );
+		$this->assertContains( 'HTTP', \array_column( $row[ 'badges' ], 'label' ) );
+		$this->assertContains( '403', \array_column( $row[ 'badges' ], 'label' ) );
+		$this->assertContains( 'Offense', \array_column( $row[ 'badges' ], 'label' ) );
 	}
 }

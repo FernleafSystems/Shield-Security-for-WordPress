@@ -11,28 +11,29 @@ namespace {
 	}
 }
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\UserManagement\Lib;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\UserManagement\Lib {
 
-use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\InvestigateUserLookupBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+	use Brain\Monkey\Functions;
+	use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\InvestigateUserLookupBuilder;
+	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
-class InvestigateUserLookupBuilderTest extends BaseUnitTest {
+	class InvestigateUserLookupBuilderTest extends BaseUnitTest {
 
-	protected function setUp() :void {
-		parent::setUp();
-		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
-	}
+		protected function setUp() :void {
+			parent::setUp();
+			Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		}
 
-	public function test_format_label_includes_id_primary_role_login_and_email() :void {
-		$user = new \WP_User();
-		$user->ID = 42;
-		$user->user_login = 'operator';
-		$user->user_email = 'operator@example.com';
-		$user->roles = [ 'administrator', 'editor' ];
+		public function test_format_label_includes_id_primary_role_login_and_email() :void {
+			$user = new \WP_User();
+			$user->ID = 42;
+			$user->user_login = 'operator';
+			$user->user_email = 'operator@example.com';
+			$user->roles = [ 'administrator', 'editor' ];
 
-		$label = ( new InvestigateUserLookupBuilder() )->formatLabel( $user );
+			$label = ( new InvestigateUserLookupBuilder() )->formatLabel( $user );
 
-		$this->assertSame( '[ID:42 | Administrator] operator | operator@example.com', $label );
+			$this->assertSame( '[ID:42 | Administrator] operator | operator@example.com', $label );
+		}
 	}
 }

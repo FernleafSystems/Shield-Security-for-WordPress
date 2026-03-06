@@ -407,12 +407,12 @@
 }
 
 .dashboard-live-monitor .live_logs .output {
+	--shield-live-logs-height: 220px;
+	--shield-live-logs-min-height: 220px;
+	--shield-live-logs-max-height: 220px;
 	flex: 1 1 auto;
 	font-size: 0.74rem;
-	height: 220px;
 	line-height: 1.35;
-	max-height: 220px;
-	min-height: 220px;
 }
 
 .dashboard-live-monitor .live_logs .output .text-muted {
@@ -446,9 +446,9 @@
 	}
 
 	.dashboard-live-monitor .live_logs .output {
-		max-height: 180px;
-		min-height: 180px;
-		height: 180px;
+		--shield-live-logs-height: 180px;
+		--shield-live-logs-min-height: 180px;
+		--shield-live-logs-max-height: 180px;
 	}
 }
 
