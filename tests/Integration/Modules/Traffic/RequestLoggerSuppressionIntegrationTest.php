@@ -10,20 +10,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
-use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Services\Core\Request as ServicesRequest;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
 class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase {
 
-	private array $servicesSnapshot = [];
+	use CurrentRequestFixture;
 
-	private array $serverSnapshot = [];
-
-	private array $querySnapshot = [];
-
-	private array $postSnapshot = [];
+	private array $requestSnapshot = [];
 
 	public function set_up() {
 		parent::set_up();
@@ -31,10 +25,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'ips' );
 		$this->requireDb( 'req_logs' );
 
-		$this->servicesSnapshot = $this->servicesStateSnapshot();
-		$this->serverSnapshot = $_SERVER;
-		$this->querySnapshot = $_GET;
-		$this->postSnapshot = $_POST;
+		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 
 		$this->requireController()->opts
 			 ->optSet( 'enable_logger', 'Y' )
@@ -43,16 +34,13 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function tear_down() {
-		$_SERVER = $this->serverSnapshot;
-		$_GET = $this->querySnapshot;
-		$_POST = $this->postSnapshot;
-		$this->restoreServicesState( $this->servicesSnapshot );
+		$this->restoreCurrentRequestState( $this->requestSnapshot );
 
 		parent::tear_down();
 	}
 
 	public function test_rest_route_normalisation_supports_permalink_and_query_forms() :void {
-		$this->applyRequestState(
+		$this->applyCurrentRequestState(
 			[
 				'REQUEST_METHOD' => 'GET',
 				'REQUEST_URI'    => '/wp-json/wp/v2/users/me?context=edit&_locale=user',
@@ -65,7 +53,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		);
 		$this->assertSame( 'wp/v2/users/me', $this->requireController()->this_req->getRestRoute() );
 
-		$this->applyRequestState(
+		$this->applyCurrentRequestState(
 			[
 				'REQUEST_METHOD' => 'GET',
 				'REQUEST_URI'    => '/?rest_route=/wp/v2/users/me',
@@ -85,7 +73,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 
 	public function test_logged_in_users_me_rest_requests_are_suppressed() :void {
 		$this->loginAsAdministrator();
-		$this->applyRequestState(
+		$this->applyCurrentRequestState(
 			[
 				'REQUEST_METHOD' => 'GET',
 				'REQUEST_URI'    => '/wp-json/wp/v2/users/me?context=edit&_locale=user',
@@ -102,7 +90,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 
 	public function test_logged_out_users_me_rest_requests_remain_loggable() :void {
 		\wp_set_current_user( 0 );
-		$this->applyRequestState(
+		$this->applyCurrentRequestState(
 			[
 				'REQUEST_METHOD' => 'GET',
 				'REQUEST_URI'    => '/?rest_route=/wp/v2/users/me',
@@ -113,6 +101,16 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		);
 
 		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_live_monitor_ajax_render_requests_are_suppressed() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
+			true
+		);
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 	}
 
 	public function test_live_monitor_batch_requests_are_suppressed_only_when_all_nested_requests_match() :void {
@@ -131,12 +129,8 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 			],
 		] );
 
-		$this->applyShieldAjaxRequest( $allSuppressible, true );
-		$beforeSuppressed = $this->rowCount( 'req_logs' );
-		$this->withTrafficLoggingEnabled( function () {
-			$this->runShutdownLogger( new RequestLogger() );
-		} );
-		$this->assertSame( $beforeSuppressed, $this->rowCount( 'req_logs' ) );
+		$this->applyCurrentShieldAjaxRequest( $allSuppressible, true );
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 
 		$mixedBatch = ActionData::Build( AjaxBatchRequests::class, true, [
 			'requests' => [
@@ -151,17 +145,42 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 			],
 		] );
 
-		$this->applyShieldAjaxRequest( $mixedBatch, true );
-		$beforeMixed = $this->rowCount( 'req_logs' );
-		$this->withTrafficLoggingEnabled( function () {
-			$this->runShutdownLogger( new RequestLogger() );
-		} );
-		$this->assertSame( $beforeMixed + 1, $this->rowCount( 'req_logs' ) );
+		$this->applyCurrentShieldAjaxRequest( $mixedBatch, true );
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_empty_live_monitor_batch_requests_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( AjaxBatchRequests::class, true, [
+				'requests' => [],
+			] ),
+			true
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_malformed_live_monitor_batch_requests_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( AjaxBatchRequests::class, true, [
+				'requests' => [
+					[
+						'id'      => 'broken',
+						'request' => 'not-an-array',
+					],
+				],
+			] ),
+			true
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 	}
 
 	public function test_programmatic_filter_can_disable_suppressions() :void {
 		$this->loginAsSecurityAdmin();
-		$this->applyShieldAjaxRequest(
+		$this->applyCurrentShieldAjaxRequest(
 			ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
 			true
 		);
@@ -179,7 +198,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 
 	public function test_live_logging_bypasses_suppressions() :void {
 		$this->loginAsSecurityAdmin();
-		$this->applyShieldAjaxRequest(
+		$this->applyCurrentShieldAjaxRequest(
 			ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
 			true
 		);
@@ -200,7 +219,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 
 	public function test_dependent_log_creation_still_writes_suppressible_requests() :void {
 		$this->loginAsSecurityAdmin();
-		$this->applyShieldAjaxRequest(
+		$this->applyCurrentShieldAjaxRequest(
 			ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
 			true
 		);
@@ -211,85 +230,6 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		} );
 
 		$this->assertSame( $before + 1, $this->rowCount( 'req_logs' ) );
-	}
-
-	private function applyShieldAjaxRequest( array $post, bool $isSecurityAdmin ) :void {
-		$this->applyRequestState(
-			[
-				'REQUEST_METHOD' => 'POST',
-				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
-			],
-			[],
-			$post,
-			[
-				'path'              => '/wp-admin/admin-ajax.php',
-				'wp_is_ajax'        => true,
-				'is_security_admin' => $isSecurityAdmin,
-			]
-		);
-	}
-
-	private function applyRequestState(
-		array $server,
-		array $query = [],
-		array $post = [],
-		array $requestOverrides = []
-	) :void {
-		$host = (string)\wp_parse_url( \home_url(), \PHP_URL_HOST );
-		$_SERVER = \array_merge( $this->serverSnapshot, [
-			'HTTP_HOST'      => empty( $host ) ? 'example.org' : $host,
-			'HTTP_USER_AGENT'=> 'phpunit',
-			'REMOTE_ADDR'    => '198.51.100.25',
-			'REQUEST_METHOD' => 'GET',
-			'REQUEST_URI'    => '/',
-		], $server );
-		$_GET = $query;
-		$_POST = $post;
-
-		$request = new ServicesRequest();
-		$this->installServiceRequest( $request );
-
-		$this->requireController()->this_req = new ThisRequest( \array_merge( [
-			'request'                  => $request,
-			'path'                     => empty( $request->getPath() ) ? '/' : $request->getPath(),
-			'wp_is_ajax'               => false,
-			'wp_is_permalinks_enabled' => true,
-			'rest_api_root'            => \rest_url(),
-			'is_security_admin'        => false,
-		], $requestOverrides ) );
-	}
-
-	private function installServiceRequest( ServicesRequest $request ) :void {
-		$itemsProperty = $this->servicesProperty( 'items' );
-		$servicesProperty = $this->servicesProperty( 'services' );
-
-		$items = $itemsProperty->getValue() ?? [];
-		if ( !\is_array( $items ) ) {
-			$items = [];
-		}
-		$items[ 'service_request' ] = $request;
-
-		$itemsProperty->setValue( null, $items );
-		$servicesProperty->setValue( null, null );
-	}
-
-	private function servicesStateSnapshot() :array {
-		return [
-			'items'    => $this->servicesProperty( 'items' )->getValue(),
-			'services' => $this->servicesProperty( 'services' )->getValue(),
-		];
-	}
-
-	private function restoreServicesState( array $snapshot ) :void {
-		$this->servicesProperty( 'items' )->setValue( null, $snapshot[ 'items' ] ?? null );
-		$this->servicesProperty( 'services' )->setValue( null, $snapshot[ 'services' ] ?? null );
-	}
-
-	private function servicesProperty( string $propertyName ) :\ReflectionProperty {
-		$reflection = new \ReflectionClass( Services::class );
-		$property = $reflection->getProperty( $propertyName );
-		$property->setAccessible( true );
-		return $property;
 	}
 
 	private function rowCount( string $dbKey ) :int {
@@ -311,15 +251,5 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		finally {
 			remove_filter( 'shield/is_log_traffic', '__return_true', \PHP_INT_MAX );
 		}
-	}
-
-	private function runShutdownLogger( RequestLogger $logger ) :void {
-		$hook = $this->requireController()->prefix( 'plugin_shutdown' );
-		remove_all_actions( $hook );
-
-		$logger->resetExecution();
-		$logger->execute();
-
-		do_action( $hook );
 	}
 }
