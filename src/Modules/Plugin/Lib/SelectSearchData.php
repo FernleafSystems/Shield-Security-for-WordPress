@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 	StringsSections
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ContactFormSpamBlockBot;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\LoginProtectionForms;
@@ -307,7 +308,7 @@ class SelectSearchData {
 						'id'     => 'tool_guidedsetup',
 						'text'   => __( 'Run Guided Setup Wizard', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_WIZARD ),
+							'href' => $pageURLs->wizard( Wizards::WIZARD_WELCOME ),
 						],
 						'tokens' => 'tool setup guide guided wizard',
 						'icon'   => $con->svgs->iconClass( 'magic.svg' ),

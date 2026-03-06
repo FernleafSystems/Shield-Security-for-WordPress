@@ -97,6 +97,10 @@ class NavSidebarModeBackLinkStyleTest extends BaseUnitTest {
 			public function wizard( string $step ) :string {
 				return '/admin/wizard/'.$step;
 			}
+
+			public function investigateUserSessions() :string {
+				return '/admin/activity/sessions';
+			}
 		};
 		$controller->svgs = new class {
 			public function iconClass( string $slug ) :string {

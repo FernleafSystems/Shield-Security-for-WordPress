@@ -91,6 +91,18 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 		$this->assertNoSelfRouteHref( $crumbs, $nav, $subNav );
 	}
 
+	/**
+	 * @dataProvider providerConfigureSupportingRoutes
+	 */
+	public function test_configure_supporting_routes_keep_configure_mode_ancestor( string $nav, string $subNav ) :void {
+		$builder = new BuildBreadCrumbsForTest();
+		$crumbs = $builder->parse( $nav, $subNav );
+		$this->assertCount( 2, $crumbs );
+		$this->assertSame( [ 'Shield Security', 'Configure' ], \array_column( $crumbs, 'text' ) );
+		$this->assertSame( '/zones/overview', $crumbs[ 1 ][ 'href' ] ?? '' );
+		$this->assertNoSelfRouteHref( $crumbs, $nav, $subNav );
+	}
+
 	public function providerRequiredRouteMatrix() :array {
 		return [
 			'dashboard_overview' => [ PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW, [] ],
@@ -132,6 +144,13 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE ],
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ],
 			[ PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ],
+		];
+	}
+
+	public function providerConfigureSupportingRoutes() :array {
+		return [
+			[ PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ],
+			[ PluginNavs::NAV_WIZARD, PluginNavs::SUBNAV_WIZARD_WELCOME ],
 		];
 	}
 }
@@ -179,6 +198,20 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'sub_navs' => [
 					PluginNavs::SUBNAV_ZONES_OVERVIEW => [ 'handler' => 'handler' ],
 					'secadmin'                        => [ 'handler' => 'handler' ],
+				],
+			],
+			PluginNavs::NAV_TOOLS     => [
+				'name'     => 'Tools',
+				'sub_navs' => [
+					PluginNavs::SUBNAV_TOOLS_BLOCKDOWN => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_TOOLS_DEBUG     => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_TOOLS_IMPORT    => [ 'handler' => 'handler' ],
+				],
+			],
+			PluginNavs::NAV_WIZARD    => [
+				'name'     => 'Wizards',
+				'sub_navs' => [
+					PluginNavs::SUBNAV_WIZARD_WELCOME => [ 'handler' => 'handler' ],
 				],
 			],
 			PluginNavs::NAV_REPORTS   => [

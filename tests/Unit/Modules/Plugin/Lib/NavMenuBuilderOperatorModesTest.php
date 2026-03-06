@@ -13,6 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
@@ -56,11 +57,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			\array_column( $sidebar[ 'mode_items' ], 'slug' )
 		);
 		$this->assertSame(
-			[
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DOCS,
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
-			],
+			[],
 			\array_column( $sidebar[ 'tool_items' ], 'slug' )
 		);
 		$this->assertSame( 'Connect', $sidebar[ 'home_connect_title' ] );
@@ -177,6 +174,72 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_configure_mode_includes_guided_setup_and_debug_info_tools() :void {
+		$this->installControllerStubs();
+		$this->installRequestServiceStub( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_DEBUG,
+		] );
+
+		$sidebar = ( new NavMenuBuilder() )->build();
+		$toolItems = $sidebar[ 'tool_items' ];
+
+		$this->assertSame(
+			[
+				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_MANAGE,
+				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_BUILD,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_IMPORT,
+				PluginNavs::NAV_WIZARD.'-'.Wizards::WIZARD_WELCOME,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
+				PluginNavs::NAV_TOOLS.'-whitelabel',
+				PluginNavs::NAV_TOOLS.'-loginhide',
+				PluginNavs::NAV_TOOLS.'-integrations',
+			],
+			\array_column( $toolItems, 'slug' )
+		);
+		$this->assertSame(
+			[
+				'Custom Rules Manager',
+				'New Custom Rule',
+				'Site Lockdown',
+				'Import / Export',
+				'Guided Setup',
+				'Debug Info',
+				'White Label',
+				'Hide Login',
+				'Integrations',
+			],
+			\array_column( $toolItems, 'title' )
+		);
+		$this->assertSame(
+			[
+				'/admin/rules/manage',
+				'/admin/rules/build',
+				'/admin/tools/blockdown',
+				'/admin/tools/importexport',
+				'/admin/wizard/welcome',
+				'/admin/tools/debug',
+			],
+			\array_slice( \array_column( $toolItems, 'href' ), 0, 6 )
+		);
+		$this->assertTrue( (bool)( $toolItems[ 5 ][ 'active' ] ?? false ) );
+		$this->assertFalse( (bool)( $toolItems[ 4 ][ 'active' ] ?? true ) );
+	}
+
+	public function test_configure_wizard_route_marks_guided_setup_tool_active() :void {
+		$this->installControllerStubs();
+		$this->installRequestServiceStub( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_WIZARD,
+			PluginNavs::FIELD_SUBNAV => Wizards::WIZARD_WELCOME,
+		] );
+
+		$toolItems = ( new NavMenuBuilder() )->build()[ 'tool_items' ];
+
+		$this->assertTrue( (bool)( $toolItems[ 4 ][ 'active' ] ?? false ) );
+		$this->assertFalse( (bool)( $toolItems[ 5 ][ 'active' ] ?? true ) );
+	}
+
 	public function test_home_connect_items_are_omitted_for_whitelabel() :void {
 		$this->installControllerStubs( true );
 		$this->installRequestServiceStub( [] );
@@ -259,6 +322,27 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 				public function isEnabled() :bool {
 					return $this->enabled;
+				}
+			},
+			'zones'      => new class {
+				public function getZoneComponent( string $slug ) :object {
+					return new class( $slug ) {
+						private string $slug;
+
+						public function __construct( string $slug ) {
+							$this->slug = $slug;
+						}
+
+						public function getActions() :array {
+							return [
+								'config' => [
+									'href'    => '/admin/zone/'.$this->slug,
+									'active'  => false,
+									'classes' => [],
+								],
+							];
+						}
+					};
 				}
 			},
 		];

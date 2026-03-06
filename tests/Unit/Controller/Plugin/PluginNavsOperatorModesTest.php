@@ -49,6 +49,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::MODE_ACTIONS, PluginNavs::modeForNav( PluginNavs::NAV_SCANS ) );
 		$this->assertSame( PluginNavs::MODE_INVESTIGATE, PluginNavs::modeForNav( PluginNavs::NAV_ACTIVITY ) );
 		$this->assertSame( PluginNavs::MODE_CONFIGURE, PluginNavs::modeForNav( PluginNavs::NAV_ZONES ) );
+		$this->assertSame( PluginNavs::MODE_CONFIGURE, PluginNavs::modeForNav( PluginNavs::NAV_TOOLS ) );
+		$this->assertSame( PluginNavs::MODE_CONFIGURE, PluginNavs::modeForNav( PluginNavs::NAV_WIZARD ) );
 		$this->assertSame( PluginNavs::MODE_REPORTS, PluginNavs::modeForNav( PluginNavs::NAV_REPORTS ) );
 	}
 
@@ -528,6 +530,10 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS )
 		);
 		$this->assertSame(
+			[ 'label' => 'Debug Info' ],
+			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG )
+		);
+		$this->assertSame(
 			[ 'label' => 'Live HTTP Log' ],
 			PluginNavs::breadcrumbSubNavDefinition( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE )
 		);
@@ -556,6 +562,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginAdminPages\PageUserSessions::class,
 			$hierarchy[ PluginNavs::NAV_TOOLS ][ 'sub_navs' ][ PluginNavs::SUBNAV_TOOLS_SESSIONS ][ 'handler' ]
 		);
+		$this->assertArrayNotHasKey( 'docs', $hierarchy[ PluginNavs::NAV_TOOLS ][ 'sub_navs' ] );
 	}
 
 	public function test_default_subnav_for_zones_is_overview() :void {

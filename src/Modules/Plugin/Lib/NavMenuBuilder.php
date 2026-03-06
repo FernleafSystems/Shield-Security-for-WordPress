@@ -42,7 +42,7 @@ class NavMenuBuilder {
 			return [
 				'back_item'          => null,
 				'mode_items'         => $modeItems,
-				'tool_items'         => $this->normalizeItems( $this->buildToolsForHome() ),
+				'tool_items'         => [],
 				'home_license_item'  => $licenseItem === null ? null : $this->normalizeItems( [ $licenseItem ] )[ 0 ],
 				'home_connect_title' => $connect[ 'title' ],
 				'home_connect_items' => $this->normalizeItems( $connect[ 'items' ] ),
@@ -114,36 +114,6 @@ class NavMenuBuilder {
 			'img'     => self::con()->svgs->iconClass( 'arrow-left' ),
 			'href'    => self::con()->plugin_urls->adminHome(),
 			'classes' => [ 'sidebar-back-link' ],
-		];
-	}
-
-	/**
-	 * @return list<array<string,mixed>>
-	 */
-	private function buildToolsForHome() :array {
-		$con = self::con();
-		return [
-			$this->buildToolItem(
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
-				__( 'Guided Setup', 'wp-simple-firewall' ),
-				'compass',
-				$con->plugin_urls->wizard( Wizards::WIZARD_WELCOME ),
-				$this->inav() === PluginNavs::NAV_WIZARD
-			),
-			$this->buildToolItem(
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DOCS,
-				__( 'Docs', 'wp-simple-firewall' ),
-				'file-text-fill',
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS ),
-				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS )
-			),
-			$this->buildToolItem(
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
-				__( 'Debug Info', 'wp-simple-firewall' ),
-				'bug',
-				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
-				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG )
-			),
 		];
 	}
 
@@ -244,6 +214,20 @@ class NavMenuBuilder {
 				'arrow-left-right',
 				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ),
 				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT )
+			),
+			$this->buildToolItem(
+				PluginNavs::NAV_WIZARD.'-'.Wizards::WIZARD_WELCOME,
+				__( 'Guided Setup', 'wp-simple-firewall' ),
+				'compass',
+				$con->plugin_urls->wizard( Wizards::WIZARD_WELCOME ),
+				$this->isCurrentRoute( PluginNavs::NAV_WIZARD, Wizards::WIZARD_WELCOME )
+			),
+			$this->buildToolItem(
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
+				__( 'Debug Info', 'wp-simple-firewall' ),
+				'bug',
+				$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
+				$this->isCurrentRoute( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG )
 			),
 			\array_merge(
 				$zoneCon->getZoneComponent( Whitelabel::Slug() )->getActions()[ 'config' ],

@@ -66,7 +66,6 @@ class PluginNavs {
 	public const NAV_TOOLS = 'tools';
 	public const SUBNAV_TOOLS_DEBUG = 'debug';
 	public const SUBNAV_TOOLS_IMPORT = 'importexport';
-	public const SUBNAV_TOOLS_DOCS = 'docs';
 	public const SUBNAV_TOOLS_BLOCKDOWN = 'blockdown';
 	public const SUBNAV_TOOLS_SESSIONS = 'sessions';
 	public const NAV_WIZARD = 'merlin';
@@ -217,9 +216,6 @@ class PluginNavs {
 						],
 						self::SUBNAV_TOOLS_DEBUG     => [
 							'handler' => PluginAdminPages\PageDebug::class,
-						],
-						self::SUBNAV_TOOLS_DOCS      => [
-							'handler' => PluginAdminPages\PageDocs::class,
 						],
 						self::SUBNAV_TOOLS_IMPORT    => [
 							'handler' => PluginAdminPages\PageImportExport::class,
@@ -596,6 +592,9 @@ class PluginNavs {
 			self::NAV_SCANS     => [
 				self::SUBNAV_SCANS_RESULTS => [ 'label' => __( 'Scan Results', 'wp-simple-firewall' ) ],
 				self::SUBNAV_SCANS_RUN     => [ 'label' => __( 'Run Scan', 'wp-simple-firewall' ) ],
+			],
+			self::NAV_TOOLS     => [
+				self::SUBNAV_TOOLS_DEBUG => [ 'label' => __( 'Debug Info', 'wp-simple-firewall' ) ],
 			],
 			self::NAV_TRAFFIC   => [
 				self::SUBNAV_LOGS => [ 'label' => __( 'HTTP Request Log', 'wp-simple-firewall' ) ],

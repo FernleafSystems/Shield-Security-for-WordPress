@@ -36,7 +36,7 @@ class NavSidebarTemplateTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_home_sidebar_contract_includes_mode_tools_license_and_connect_sections() :void {
+	public function test_home_sidebar_contract_includes_mode_license_and_connect_sections() :void {
 		$this->installControllerStubs();
 		$this->installRequestServiceStub( [] );
 
@@ -44,7 +44,7 @@ class NavSidebarTemplateTest extends BaseUnitTest {
 
 		$this->assertNull( $sidebar[ 'back_item' ] );
 		$this->assertCount( 4, $sidebar[ 'mode_items' ] );
-		$this->assertCount( 3, $sidebar[ 'tool_items' ] );
+		$this->assertCount( 0, $sidebar[ 'tool_items' ] );
 		$this->assertNotNull( $sidebar[ 'home_license_item' ] );
 		$this->assertSame( 'Connect', $sidebar[ 'home_connect_title' ] );
 		$this->assertCount( 4, $sidebar[ 'home_connect_items' ] );
@@ -63,7 +63,7 @@ class NavSidebarTemplateTest extends BaseUnitTest {
 		$this->assertSame( '/admin/home', $sidebar[ 'back_item' ][ 'href' ] ?? '' );
 		$this->assertSame( 'Dashboard', $sidebar[ 'back_item' ][ 'title' ] ?? '' );
 		$this->assertSame(
-			[ 'Bots & IP Rules', 'WP Activity Log', 'HTTP Request Log' ],
+			[ 'Bots & IP Rules', 'WP Activity Log', 'HTTP Request Log', 'User Sessions' ],
 			\array_column( $sidebar[ 'tool_items' ], 'title' )
 		);
 		$this->assertNull( $sidebar[ 'home_license_item' ] );
@@ -112,6 +112,10 @@ class NavSidebarTemplateTest extends BaseUnitTest {
 
 			public function wizard( string $step ) :string {
 				return '/admin/wizard/'.$step;
+			}
+
+			public function investigateUserSessions() :string {
+				return '/admin/activity/sessions';
 			}
 		};
 		$controller->svgs = new class {
