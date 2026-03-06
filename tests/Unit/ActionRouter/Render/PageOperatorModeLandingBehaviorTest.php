@@ -255,6 +255,18 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $summary[ 'subtext' ] ?? 'not-empty' );
 	}
 
+	public function test_live_monitor_vars_use_updated_compact_contract() :void {
+		$page = new PageOperatorModeLanding();
+		$vars = $this->invokeNonPublicMethod( $page, 'buildLiveMonitorVars' );
+
+		$this->assertSame( 'Live Monitor', $vars[ 'title' ] ?? '' );
+		$this->assertSame( 'Recent WP Activity Events', $vars[ 'activity' ] ?? '' );
+		$this->assertSame( 'Live Traffic', $vars[ 'traffic' ] ?? '' );
+		$this->assertSame( 'Waiting for live updates...', $vars[ 'loading' ] ?? '' );
+		$this->assertArrayNotHasKey( 'minimize', $vars );
+		$this->assertArrayNotHasKey( 'expand', $vars );
+	}
+
 	private function installControllerStubWithQueuePayload( array $queuePayload ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();

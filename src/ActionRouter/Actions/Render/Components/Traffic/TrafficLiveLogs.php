@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Traffic;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\LoadRequestLogs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\ConvertLogsToFlatText;
 
 class TrafficLiveLogs extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -18,7 +17,8 @@ class TrafficLiveLogs extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 		$logLoader->order_dir = 'DESC';
 		return [
 			'vars' => [
-				'logs' => ( new ConvertLogsToFlatText() )->convert( $logLoader->select(), true ),
+				'rows'  => ( new LiveLogRowsBuilder() )->buildTrafficRows( $logLoader->select() ),
+				'empty' => __( 'No live traffic entries are available yet.', 'wp-simple-firewall' ),
 			]
 		];
 	}

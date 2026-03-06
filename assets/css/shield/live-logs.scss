@@ -1,0 +1,113 @@
+.live_logs {
+	min-height: 0;
+}
+
+.live_logs .output {
+	background: #ffffff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	box-shadow: none;
+	color: #1d2327;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+	min-height: 180px;
+	overflow-y: auto;
+	padding: 0.7rem 0.8rem;
+}
+
+.shield-live-logs__row {
+	border-bottom: 1px solid rgba( 100, 105, 112, 0.14 );
+	display: flex;
+	flex-direction: column;
+	gap: 0.22rem;
+	padding-bottom: 0.55rem;
+
+	&:last-child {
+		border-bottom: 0;
+		padding-bottom: 0;
+	}
+}
+
+.shield-live-logs__meta {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem 0.45rem;
+}
+
+.shield-live-logs__timestamp {
+	color: #5f6974;
+	font-size: 0.68rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+}
+
+.shield-live-logs__ip,
+.shield-live-logs__ip a {
+	color: #0f5132;
+	font-size: 0.72rem;
+	font-weight: 600;
+}
+
+.shield-live-logs__title {
+	color: #1d2327;
+	font-size: 0.82rem;
+	font-weight: 700;
+	line-height: 1.35;
+	word-break: break-word;
+}
+
+.shield-live-logs__description {
+	color: #50575e;
+	font-size: 0.75rem;
+	line-height: 1.45;
+	word-break: break-word;
+}
+
+.shield-live-logs__badge {
+	font-size: 0.64rem;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+}
+
+.shield-live-logs__empty {
+	color: #646970;
+	font-size: 0.78rem;
+}
+
+.shield-live-logs--light {
+	background: #ffffff;
+}
+
+.shield-live-logs--dark {
+	background: #0f1419;
+	border-color: #1f2c39;
+	color: #ebf4ef;
+
+	.shield-live-logs__row {
+		border-bottom-color: rgba( 180, 198, 188, 0.18 );
+	}
+
+	.shield-live-logs__timestamp {
+		color: #9db5a9;
+	}
+
+	.shield-live-logs__ip,
+	.shield-live-logs__ip a {
+		color: #8ce8c2;
+	}
+
+	.shield-live-logs__title {
+		color: #f4fbf7;
+	}
+
+	.shield-live-logs__description {
+		color: #d2dfd8;
+	}
+
+	.shield-live-logs__empty,
+	.text-muted {
+		color: #9db5a9 !important;
+	}
+}

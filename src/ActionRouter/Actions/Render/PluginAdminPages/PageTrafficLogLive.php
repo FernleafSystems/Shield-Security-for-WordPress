@@ -41,6 +41,8 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 				'inner_page_subtitle' => __( 'View request logs as they reach your site.', 'wp-simple-firewall' ),
 				'not_enabled'         => __( "The Live HTTP Request Logging option isn't switched-on, so you may not see many updates.", 'wp-simple-firewall' ),
 				'toggle_live_log'     => __( "Toggle Live Traffic Logging", 'wp-simple-firewall' ),
+				'live_view_status'    => __( 'Viewing the latest request entries as they arrive.', 'wp-simple-firewall' ),
+				'waiting_live_logs'   => __( 'Waiting for live updates...', 'wp-simple-firewall' ),
 			],
 		];
 	}

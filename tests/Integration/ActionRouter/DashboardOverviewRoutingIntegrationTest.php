@@ -215,10 +215,14 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayHasKey( 'activity', $liveMonitor );
 		$this->assertArrayHasKey( 'traffic', $liveMonitor );
 		$this->assertArrayHasKey( 'loading', $liveMonitor );
+		$this->assertSame( 'Recent WP Activity Events', (string)( $liveMonitor[ 'activity' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
+		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertHtmlContainsMarker( 'data-dashboard-live-monitor="1"', $html, 'Live monitor root marker' );
 		$this->assertHtmlContainsMarker( 'data-live-monitor-toggle="1"', $html, 'Live monitor toggle marker' );
 		$this->assertHtmlContainsMarker( 'data-live-monitor-output="ticker"', $html, 'Live monitor ticker output marker' );
 		$this->assertHtmlContainsMarker( 'data-live-monitor-output="traffic"', $html, 'Live monitor traffic output marker' );
+		$this->assertHtmlContainsMarker( 'Recent WP Activity Events', $html, 'Live monitor activity lane label' );
 		$this->assertSame( 1, \substr_count( $html, 'data-dashboard-live-monitor="1"' ) );
 		$this->assertSame( 1, \substr_count( $html, 'data-live-monitor-toggle="1"' ) );
 	}

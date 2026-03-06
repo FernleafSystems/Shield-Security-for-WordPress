@@ -2,15 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\{
-	LoadLogs,
-	LogRecord
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Traffic\LiveLogRowsBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\{
-	ActivityLogMessageBuilder,
 	HighValueEvents
 };
-use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardLiveMonitorTicker extends OverviewBase {
 
@@ -30,10 +26,8 @@ class DashboardLiveMonitorTicker extends OverviewBase {
 
 		return [
 			'vars' => [
-				'logs'      => \array_map(
-					fn( LogRecord $log ) => $this->buildTickerLine( $log ),
-					$records
-				),
+				'rows'      => ( new LiveLogRowsBuilder() )->buildActivityRows( $records ),
+				'empty'     => __( 'No recent WordPress activity events yet.', 'wp-simple-firewall' ),
 				'latest_id' => empty( $records ) ? 0 : (int)\reset( $records )->id,
 			]
 		];
@@ -53,13 +47,5 @@ class DashboardLiveMonitorTicker extends OverviewBase {
 		];
 
 		return \array_values( $loader->run() );
-	}
-
-	private function buildTickerLine( LogRecord $log ) :string {
-		return esc_html( \implode( ' | ', \array_filter( [
-			Services::WpGeneral()->getTimeStampForDisplay( $log->created_at ),
-			self::con()->comps->events->getEventName( $log->event_slug ),
-			ActivityLogMessageBuilder::Build( $log->event_slug, $log->meta_data ?? [], ' ' ),
-		] ) ) );
 	}
 }

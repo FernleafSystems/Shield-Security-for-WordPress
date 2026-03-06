@@ -1,22 +1,6 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<style>
-		    .blink {
-				animation: blinker 2s infinite;
-			}
-			@keyframes blinker {
-				from {
-					opacity: 1.0;
-				}
-				50% {
-					opacity: 0.25;
-				}
-				to {
-					opacity: 1.0;
-				}
-			}
-	</style>
 	<div id="SectionTrafficLiveLogs">
 		<div class="row">
 			<div class="col">
@@ -32,14 +16,16 @@
 					</div>
 				{% endif %}
 				<div class="text-start">
-					<span class="font-monospace">&gt;</span> <span class="blink text-start">&hellip;</span>
+					<div class="text-muted small">{{ strings.live_view_status|default('Viewing the latest request entries as they arrive.') }}</div>
 				</div>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col">
 				<div class="live_logs">
-					<div class="output w-100 font-monospace"></div>
+					<div class="output w-100 shield-live-logs--light">
+						<div class="text-muted small">{{ strings.waiting_live_logs|default('Waiting for live updates...') }}</div>
+					</div>
 				</div>
 			</div>
 		</div>

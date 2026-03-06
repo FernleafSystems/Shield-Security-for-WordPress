@@ -1,6 +1,28 @@
-{% for row in vars.logs %}
-	<div class="m-0 font-monospace d-flex">
-		<div class="me-1">&gt;</div>
-		<div class="" style="word-break: break-all;">{{ row|raw }}</div>
-	</div>
-{% endfor %}
+{% set rows = vars.rows|default([]) %}
+{% if rows is empty %}
+	<div class="shield-live-logs__empty">{{ vars.empty|default('No live entries are available yet.') }}</div>
+{% else %}
+	{% for row in rows %}
+		<div class="shield-live-logs__row">
+			<div class="shield-live-logs__meta">
+				<div class="shield-live-logs__timestamp">{{ row.timestamp|default('') }}</div>
+				{% if row.ip|default('') is not empty %}
+					<div class="shield-live-logs__ip">
+						{% if row.ip_href|default('') is not empty %}
+							<a href="{{ row.ip_href }}" class="offcanvas_ip_analysis" data-ip="{{ row.ip }}">{{ row.ip }}</a>
+						{% else %}
+							{{ row.ip }}
+						{% endif %}
+					</div>
+				{% endif %}
+				{% for badge in row.badges|default([]) %}
+					<span class="badge rounded-pill shield-live-logs__badge {{ badge.class|default('bg-secondary-subtle text-body-secondary border border-secondary-subtle') }}">{{ badge.label|default('') }}</span>
+				{% endfor %}
+			</div>
+			<div class="shield-live-logs__title">{{ row.title|default('') }}</div>
+			{% if row.description|default('') is not empty %}
+				<div class="shield-live-logs__description">{{ row.description }}</div>
+			{% endif %}
+		</div>
+	{% endfor %}
+{% endif %}

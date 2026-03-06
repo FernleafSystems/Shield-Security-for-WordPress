@@ -57,9 +57,7 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'is_collapsed' => $isCollapsed,
 			'title'        => __( 'Live Monitor', 'wp-simple-firewall' ),
-			'minimize'     => __( 'Minimize', 'wp-simple-firewall' ),
-			'expand'       => __( 'Expand', 'wp-simple-firewall' ),
-			'activity'     => __( 'High-Value Events', 'wp-simple-firewall' ),
+			'activity'     => __( 'Recent WP Activity Events', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Live Traffic', 'wp-simple-firewall' ),
 			'loading'      => __( 'Waiting for live updates...', 'wp-simple-firewall' ),
 		];

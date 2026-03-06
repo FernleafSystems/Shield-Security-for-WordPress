@@ -26,6 +26,7 @@ $code-color: $secondary;
 @import './shield/configure.scss';
 @import './shield/reports-landing.scss';
 @import './shield/actions-landing.scss';
+@import './shield/live-logs';
 @import './shield/progress.scss';
 @import './shield/third-party-overrides.scss';
 @import './shield/video_modal';
@@ -1381,13 +1382,6 @@ td.status_file_size {
 
 .shield_legend_table .row:nth-of-type(even) div {
   background: #f9f9f9;
-}
-
-.live_logs .output {
-  background-color: transparent;
-  border: 1px solid transparent;
-  color: black;
-  box-shadow: none;
 }
 
 .shield-chart {

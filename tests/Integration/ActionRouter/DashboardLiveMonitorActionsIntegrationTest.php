@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\DashboardLiveMonitorSetState,
+	Actions\Render\Components\Traffic\TrafficLiveLogs,
 	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\HighValueEvents;
@@ -43,12 +44,45 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 			'limit' => 12,
 		] )->payload();
 		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
-		$logs = \is_array( $vars[ 'logs' ] ?? null ) ? $vars[ 'logs' ] : [];
+		$rows = \is_array( $vars[ 'rows' ] ?? null ) ? $vars[ 'rows' ] : [];
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
-		$this->assertNotEmpty( $logs );
+		$this->assertNotEmpty( $rows );
 		$this->assertSame( $highId, (int)( $vars[ 'latest_id' ] ?? 0 ) );
 		$this->assertNotSame( $lowId, (int)( $vars[ 'latest_id' ] ?? 0 ) );
+		$this->assertSame( '198.51.100.21', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
+		$this->assertIsString( $rows[ 0 ][ 'title' ] ?? null );
+		$this->assertNotSame( '', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
+		$this->assertArrayHasKey( 'description', $rows[ 0 ] ?? [] );
+	}
+
+	public function test_live_traffic_render_returns_structured_rows() :void {
+		TestDataFactory::insertRequestLog( '203.0.113.61', [
+			'verb'    => 'POST',
+			'path'    => '/wp-login.php',
+			'code'    => 403,
+			'offense' => true,
+			'meta'    => [
+				'query' => 'reauth=1',
+			],
+		] );
+
+		$payload = $this->processor()->processAction( TrafficLiveLogs::SLUG, [
+			'limit' => 5,
+		] )->payload();
+		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
+		$rows = \is_array( $vars[ 'rows' ] ?? null ) ? $vars[ 'rows' ] : [];
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertCount( 1, $rows );
+		$this->assertSame( '203.0.113.61', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
+		$this->assertStringContainsString( 'POST', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
+		$this->assertStringContainsString( '/wp-login.php', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
+		$this->assertContains( 'HTTP', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
+		$this->assertContains( '403', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
+		$this->assertContains( 'Offense', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
+		$this->assertHtmlContainsMarker( 'shield-live-logs__row', $html, 'Structured live traffic row markup' );
 	}
 
 	public function test_set_state_action_persists_collapsed_preference() :void {
@@ -71,4 +105,3 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertFalse( $pref->isCollapsed() );
 	}
 }
-

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Handler as MalwareHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Services\Services;
@@ -23,6 +24,34 @@ class TestDataFactory {
 	private static function lastInsertId() :int {
 		global $wpdb;
 		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
+	}
+
+	/**
+	 * Insert a request log entry and return its ID.
+	 *
+	 * @param array<string,mixed> $overrides
+	 */
+	public static function insertRequestLog( string $ip = '198.51.100.10', array $overrides = [] ) :int {
+		$con = self::con();
+		$ipRecord = self::createIpRecord( $ip );
+		$reqRecord = ( new RequestRecords() )->loadReq(
+			(string)( $overrides[ 'rid' ] ?? \substr( \wp_generate_uuid4(), 0, 10 ) ),
+			$ipRecord->id
+		);
+
+		$con->db_con->req_logs->getQueryUpdater()->updateById( $reqRecord->id, [
+			'type'       => $overrides[ 'type' ] ?? ReqLogsHandler::TYPE_HTTP,
+			'verb'       => $overrides[ 'verb' ] ?? 'GET',
+			'path'       => $overrides[ 'path' ] ?? '/index.php',
+			'code'       => $overrides[ 'code' ] ?? 200,
+			'uid'        => $overrides[ 'uid' ] ?? 0,
+			'offense'    => empty( $overrides[ 'offense' ] ) ? 0 : 1,
+			'transient'  => empty( $overrides[ 'transient' ] ) ? 0 : 1,
+			'meta'       => \base64_encode( \wp_json_encode( $overrides[ 'meta' ] ?? [] ) ?: '{}' ),
+			'created_at' => $overrides[ 'created_at' ] ?? Services::Request()->ts(),
+		] );
+
+		return (int)$reqRecord->id;
 	}
 
 	// ── IP Records ─────────────────────────────────────────────────
