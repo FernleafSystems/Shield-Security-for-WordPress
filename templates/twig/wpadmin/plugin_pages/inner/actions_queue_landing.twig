@@ -7,8 +7,7 @@
 
 		<section class="actions-landing__severity-strip shield-card mb-3"
 				 data-actions-queue-section="severity-strip">
-			<div class="shield-card-accent status-{{ strip.severity|default('good') }}"></div>
-			<div class="card-body d-flex align-items-center gap-3 flex-wrap">
+			<div class="card-body actions-landing__severity-body">
 				<span class="actions-landing__severity-chip status-{{ strip.severity|default('good') }}">
 					<i class="{{ strip.icon_class|default('') }}" aria-hidden="true"></i>
 					{{ strip.label|default(strings.status_all_clear) }}

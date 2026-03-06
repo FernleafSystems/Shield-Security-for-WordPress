@@ -12,13 +12,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	BuiltMetersFixture,
+	HtmlDomAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
-	use BuiltMetersFixture, PluginAdminRouteRenderAssertions;
+	use BuiltMetersFixture;
+	use HtmlDomAssertions;
+	use PluginAdminRouteRenderAssertions;
 
 	private int $adminUserId;
 
@@ -50,6 +53,39 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
 		);
 		return (string)( $payload[ 'render_output' ] ?? '' );
+	}
+
+	public function test_dashboard_sidebar_renders_separate_logo_assets_and_footer_version() :void {
+		$html = $this->renderDashboardOverviewHtml();
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(@class,"sidebar-logo-link")]',
+			'Sidebar logo link marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//img[contains(@class,"sidebar-logo-banner")]',
+			'Sidebar banner logo marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//img[contains(@class,"sidebar-logo-icon")]',
+			'Sidebar icon logo marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(@class,"shield-sidebar-footer")]',
+			1,
+			'Sidebar footer version marker count'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(@class,"logo-text--sidebar")]',
+			0,
+			'Sidebar version subtitle removed from logo area'
+		);
 	}
 
 	private function renderNeedsAttentionQueue() :ActionResponse {
@@ -232,6 +268,29 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertHtmlContainsMarker( 'data-live-monitor-toggle="1"', $html, 'Live monitor toggle marker' );
 		$this->assertHtmlContainsMarker( 'data-live-monitor-output="ticker"', $html, 'Live monitor ticker output marker' );
 		$this->assertHtmlContainsMarker( 'data-live-monitor-output="traffic"', $html, 'Live monitor traffic output marker' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-live-monitor-output="ticker" and contains(@class,"shield-live-logs--light")]',
+			'Dashboard live monitor ticker uses light live-log skin'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-live-monitor-output="traffic" and contains(@class,"shield-live-logs--light")]',
+			'Dashboard live monitor traffic uses light live-log skin'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-live-monitor-output="ticker" and contains(@class,"shield-live-logs--dark")]',
+			0,
+			'Dashboard live monitor ticker no longer uses dark live-log skin'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-live-monitor-output="traffic" and contains(@class,"shield-live-logs--dark")]',
+			0,
+			'Dashboard live monitor traffic no longer uses dark live-log skin'
+		);
 		$this->assertSame( 1, \substr_count( $html, 'data-dashboard-live-monitor="1"' ) );
 		$this->assertSame( 1, \substr_count( $html, 'data-live-monitor-toggle="1"' ) );
 	}

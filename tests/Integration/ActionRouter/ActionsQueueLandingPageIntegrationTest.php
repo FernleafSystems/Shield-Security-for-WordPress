@@ -58,6 +58,21 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-chip")]',
+			'Severity strip chip marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-label") and normalize-space()="Queue Status"]',
+			'Severity strip queue-status label'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-summary")]',
+			'Severity strip summary marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-actions-queue-section="all-clear-context"]',
 			'All-clear context marker'
 		);
@@ -97,6 +112,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-subtext") and contains(normalize-space(),"Last scan:")]',
+			'Severity strip last-scan subtext marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-mode-panel="1" and @data-actions-panel="maintenance"]',
 			'Maintenance panel marker'
 		);
@@ -127,7 +147,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@id="ActionsQueueScansTabsNav"]',
 			'Scans panel tabs marker'
 		);
-		$this->assertHtmlContainsMarker( 'id="ScanResultsTabs"', $html, 'Embedded scan results shell marker' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="ScanResultsTabs"]',
+			'Embedded scan results shell marker'
+		);
 		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context hidden when scan issues exist' );
 	}
 }

@@ -18,35 +18,30 @@ $mode-reports-border: #f0ddb8;
 	display: flex;
 	flex-direction: column;
 	gap: 0.35rem;
+	min-height: 100%;
 	padding: 0.4rem 0.5rem 0.5rem;
 }
 
 .sidebar-logo-link {
-	align-items: stretch;
+	align-items: center;
 	display: flex;
-	flex-direction: column;
-	gap: 0.35rem;
+	justify-content: center;
 	text-decoration: none;
-
-	.navbar-brand {
-		height: auto;
-		max-width: 100%;
-		width: 100%;
-	}
+	width: 100%;
 }
 
-.logo-text--sidebar {
-	display: flex;
-	flex-direction: column;
-	gap: 0.05rem;
+.sidebar-logo-banner {
+	display: block;
+	height: auto;
+	margin: 0 auto;
+	max-width: 100%;
+	width: 100%;
 }
 
-.logo-text--sidebar .logo-subtitle {
-	color: #5f6974;
-	font-size: 0.68rem;
-	font-weight: 600;
-	line-height: 1.3;
-	text-align: center;
+.sidebar-logo-icon {
+	display: none;
+	height: 26px;
+	width: 26px;
 }
 
 .sidebar-back-item {
@@ -302,40 +297,35 @@ $mode-reports-border: #f0ddb8;
 
 	.sidebar-connect-grid {
 		display: grid;
-		gap: 0.2rem;
+		gap: 0.15rem;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.sidebar-connect-item {
-		align-items: center;
 		background: transparent;
-		background-clip: padding-box;
-		border: 1px solid #d9e6dc;
+		border: 0;
 		border-radius: 6px;
-		box-shadow: none;
-		color: #3b4651;
+		color: #848d97;
 		display: flex;
-		font-family: inherit;
-		font-size: 0.68rem;
+		flex-direction: column;
+		font-size: 0.62rem;
 		font-weight: 600;
-		gap: 0.38rem;
-		justify-content: flex-start;
-		letter-spacing: 0.01em;
-		line-height: 1.25;
-		min-height: 2.1rem;
-		padding: 0.38rem 0.42rem;
+		gap: 0.18rem;
+		justify-content: center;
+		line-height: 1.2;
+		min-height: 2.75rem;
+		padding: 0.4rem 0.28rem;
+		text-align: center;
 		text-decoration: none;
-		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+		transition: background-color 0.2s ease, color 0.2s ease;
 
 		&:hover {
 			background: #edf8f0;
-			border-color: #bdddc3;
-			box-shadow: inset 0 0 0 1px rgba(31, 79, 43, 0.04);
 			color: #1f4f2b;
 		}
 
 		&:focus-visible {
-			outline: 2px solid #bdddc3;
+			outline: 2px solid #c7dfc7;
 			outline-offset: 1px;
 		}
 
@@ -345,9 +335,10 @@ $mode-reports-border: #f0ddb8;
 	}
 
 	.sidebar-connect-icon {
-		color: $mode-configure;
+		color: #a8afb8;
 		display: inline-flex;
-		font-size: 0.9rem;
+		font-size: 0.82rem;
+		justify-content: center;
 		line-height: 1;
 
 		> i {
@@ -356,9 +347,7 @@ $mode-reports-border: #f0ddb8;
 	}
 
 	.sidebar-connect-label {
-		display: inline-flex;
-		flex: 1 1 auto;
-		justify-content: flex-start;
+		display: block;
 		min-width: 0;
 	}
 
@@ -369,17 +358,6 @@ $mode-reports-border: #f0ddb8;
 
 #PageMainSide-Apto .logo-container {
 	margin-bottom: 0.15rem;
-}
-
-#PageMainSide-Apto .logo-container .navbar-brand {
-	display: block;
-	margin: 0 auto;
-}
-
-#PageMainSide-Apto .logo-container .logo-text--sidebar a,
-#PageMainSide-Apto .logo-container .logo-text--sidebar span,
-#PageMainSide-Apto .logo-container .logo-text--sidebar strong {
-	white-space: normal;
 }
 
 .mode-item.active[data-mode="actions"] .mode-badge.status-warning,
@@ -405,11 +383,12 @@ $mode-reports-border: #f0ddb8;
 }
 
 .shield-sidebar-footer {
-	display: none;
-}
-
-#PageMainSide-Apto:hover .logo-text--sidebar {
-	display: flex !important;
+	border-top: 1px solid #dcdcde;
+	color: #5f6974;
+	font-size: 0.69rem;
+	line-height: 1.3;
+	padding: 0.45rem 0.35rem 0.2rem;
+	text-align: center;
 }
 
 @include media-breakpoint-down(lg) {
@@ -418,7 +397,6 @@ $mode-reports-border: #f0ddb8;
 		padding-right: 0.2rem;
 	}
 
-	#PageMainSide-Apto .logo-container .logo-text,
 	#NavSideBar .sidebar-back-label,
 	#NavSideBar .mode-label,
 	#NavSideBar .mode-badge,
@@ -441,18 +419,14 @@ $mode-reports-border: #f0ddb8;
 		margin: 0 !important;
 	}
 
-	#PageMainSide-Apto:hover .logo-container .logo-text {
-		display: inline-flex !important;
-		flex-direction: column;
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-back-label,
+	#PageMainSide-Apto:hover #NavSideBar .mode-label {
+		display: block !important;
 	}
 
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-back-label,
-	#PageMainSide-Apto:hover #NavSideBar .mode-label,
 	#PageMainSide-Apto:hover #NavSideBar .mode-badge,
 	#PageMainSide-Apto:hover #NavSideBar .sidebar-license-item,
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools,
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect,
-	#PageMainSide-Apto:hover #NavSideBar .shield-sidebar-footer {
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools {
 		display: flex !important;
 	}
 
@@ -467,10 +441,9 @@ $mode-reports-border: #f0ddb8;
 		display: inline-flex !important;
 	}
 
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools,
 	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect,
 	#PageMainSide-Apto:hover #NavSideBar .shield-sidebar-footer {
-		display: flex !important;
+		display: block !important;
 	}
 
 	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect-grid {

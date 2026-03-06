@@ -373,35 +373,6 @@ table.odp-table.scan-table td.column-path code {
   margin-bottom: 0;
 }
 
-#navbar-bannerlogo {
-  width: 26px;
-  height: 26px;
-  display: inline-block;
-  background-repeat: no-repeat;
-  flex-shrink: 0;
-}
-
-#PageMainSide-Apto .logo-container .logo-text {
-  display: inline-flex;
-  flex-direction: column;
-  line-height: 1.15;
-  min-width: 0;
-}
-
-#PageMainSide-Apto .logo-container .logo-title {
-  color: #1d2327;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-#PageMainSide-Apto .logo-container .logo-subtitle {
-  color: #5f6974;
-  font-size: 0.64rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .navbar .nav-item {
   transition: letter-spacing 0.5s ease;
 }
@@ -854,16 +825,27 @@ $sidebar-transition-speed: 0.25s;
   // --- Logo Section ---
   #PageMainSide-Apto .logo-container {
     padding: 8px 2px !important;
-    .navbar-brand {
-      max-width: 26px;
+    .sidebar-logo-link {
+      justify-content: center;
+    }
+    .sidebar-logo-banner {
+      display: none;
+    }
+    .sidebar-logo-icon {
       display: block;
       margin: 0 auto;
+      width: 26px;
+      height: 26px;
     }
   }
   #PageMainSide-Apto:hover .logo-container {
     padding: 6px 10px 8px !important;
-    .navbar-brand {
-      max-width: none;
+    .sidebar-logo-banner {
+      display: block;
+      max-width: 100%;
+    }
+    .sidebar-logo-icon {
+      display: none;
     }
   }
 

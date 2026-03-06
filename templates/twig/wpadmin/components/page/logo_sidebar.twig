@@ -1,11 +1,14 @@
 <div class="mt-3 mb-2 logo-container">
-	<a href="{{ hrefs.plugin_home }}" class="page-header-item sidebar-logo-link" target="_blank">
-		<img class="navbar-brand"
+	<a href="{{ hrefs.plugin_home }}"
+	   class="page-header-item sidebar-logo-link"
+	   target="_blank"
+	   aria-label="{{ strings.plugin_name|default('Shield Security') }}">
+		<img class="sidebar-logo-banner"
 		     src="{{ imgs.logo_banner|default(imgs.logo_small) }}"
-		     id="navbar-bannerlogo"
 		     alt="Shield Logo" />
-		<span class="logo-text logo-text--sidebar">
-			<span class="logo-subtitle">{{ strings.running_version_only|raw }}</span>
-		</span>
+		<img class="sidebar-logo-icon"
+		     src="{{ imgs.logo_small }}"
+		     alt=""
+		     aria-hidden="true" />
 	</a>
 </div>
