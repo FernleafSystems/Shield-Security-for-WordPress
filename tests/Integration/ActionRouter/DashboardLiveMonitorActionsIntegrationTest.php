@@ -74,16 +74,18 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
 		$rows = \is_array( $vars[ 'rows' ] ?? null ) ? $vars[ 'rows' ] : [];
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$badgeLabels = \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' );
+		$currentUser = wp_get_current_user();
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
 		$this->assertCount( 1, $rows );
 		$this->assertSame( '203.0.113.61', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
 		$this->assertStringContainsString( 'POST', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
 		$this->assertStringContainsString( '/wp-login.php', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
-		$this->assertContains( 'HTTP', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
-		$this->assertContains( 'securityadmin', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
-		$this->assertContains( '403', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
-		$this->assertContains( 'Offense', \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' ) );
+		$this->assertContains( 'HTTP', $badgeLabels );
+		$this->assertContains( (string)( $currentUser->user_login ?? '' ), $badgeLabels );
+		$this->assertContains( '403', $badgeLabels );
+		$this->assertContains( 'Offense', $badgeLabels );
 		$this->assertStringContainsString( ':', (string)( $rows[ 0 ][ 'timestamp' ] ?? '' ) );
 		$this->assertStringNotContainsString( 'Response:', (string)( $rows[ 0 ][ 'description' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( $html ) );

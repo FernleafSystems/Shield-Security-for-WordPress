@@ -75,6 +75,25 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportId ) );
 	}
 
+	public function test_delete_sub_action_removes_multiple_reports_without_page_reload() :void {
+		$reportIdA = $this->insertReport( 'Delete Me A' );
+		$reportIdB = $this->insertReport( 'Delete Me B' );
+		$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdA ) );
+		$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdB ) );
+
+		$payload = $this->processor()->processAction( ReportTableAction::SLUG, [
+			'sub_action' => 'delete',
+			'rids'       => [ $reportIdA, $reportIdB ],
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+		$this->assertIsString( $payload[ 'message' ] ?? null );
+		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
+		$this->assertEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdA ) );
+		$this->assertEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdB ) );
+	}
+
 	private function processor() :ActionProcessor {
 		return new ActionProcessor();
 	}

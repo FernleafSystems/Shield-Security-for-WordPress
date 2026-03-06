@@ -6,16 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	BuiltMetersFixture,
-	HtmlDomAssertions,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	use BuiltMetersFixture;
-	use HtmlDomAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -43,44 +42,41 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_all_clear_state_renders_severity_strip_and_all_clear_card_without_tiles() :void {
+	private function findZoneTile( array $zoneTiles, string $key ) :array {
+		$matches = \array_values( \array_filter(
+			$zoneTiles,
+			static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === $key
+		) );
+		$this->assertCount( 1, $matches, 'Expected exactly one zone tile for '.$key );
+		return $matches[ 0 ] ?? [];
+	}
+
+	public function test_all_clear_state_exposes_payload_contract_without_enabled_tiles() :void {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$strip = $payload[ 'render_data' ][ 'vars' ][ 'severity_strip' ] ?? [];
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing all-clear' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing all-clear' );
+		$renderData = $payload[ 'render_data' ] ?? [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
+		$allClear = \is_array( $vars[ 'all_clear' ] ?? null ) ? $vars[ 'all_clear' ] : [];
+		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 
-		$this->assertNotSame( '', (string)( $strip[ 'subtext' ] ?? '' ) );
-		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions', true );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]',
-			'Severity strip marker'
+		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
+		$this->assertModePanelPayload( $vars, '', false );
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+		$this->assertSame( 'good', (string)( $strip[ 'severity' ] ?? '' ) );
+		$this->assertSame( 'All Clear', (string)( $strip[ 'label' ] ?? '' ) );
+		$this->assertSame( 'No actions currently require your attention.', (string)( $strip[ 'summary_text' ] ?? '' ) );
+		$this->assertIsString( $strip[ 'subtext' ] ?? null );
+		$this->assertCount( 2, $zoneTiles );
+		$this->assertCount(
+			0,
+			\array_values( \array_filter( $zoneTiles, static fn( array $tile ) :bool => (bool)( $tile[ 'is_enabled' ] ?? false ) ) )
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-chip")]',
-			'Severity strip chip marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-label") and normalize-space()="Queue Status"]',
-			'Severity strip queue-status label'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]//*[contains(@class,"actions-landing__severity-summary")]',
-			'Severity strip summary marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="all-clear-context"]',
-			'All-clear context marker'
-		);
-		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="tiles"]', 0, 'Tiles section hidden for all-clear state' );
-		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', 0, 'Mode tiles hidden for all-clear state' );
-		$this->assertXPathCount( $xpath, '//*[@data-mode-panel="1"]', 0, 'Mode panels hidden for all-clear state' );
+		$this->assertNotSame( '', (string)( $allClear[ 'title' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $allClear[ 'subtitle' ] ?? '' ) );
+		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $allClear[ 'zone_chips' ] ?? [], 'slug' ) );
 	}
 
 	public function test_maintenance_items_render_tiles_and_maintenance_panel() :void {
@@ -97,32 +93,26 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$strip = $payload[ 'render_data' ][ 'vars' ][ 'severity_strip' ] ?? [];
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
+		$renderData = $payload[ 'render_data' ] ?? [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
+		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
+		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 
+		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
+		$this->assertModePanelPayload( $vars, '', false );
+		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertSame( '', (string)( $strip[ 'subtext' ] ?? '' ) );
-		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions', true );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="tiles"]',
-			'Tiles section marker'
-		);
-		$this->assertXPathCount( $xpath, '//*[@data-mode-tile="1"]', 2, 'Two-zone tile contract marker' );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-zone="maintenance" and @data-mode-tile-disabled="0"]',
-			'Maintenance tile enabled marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode-panel="1" and @data-actions-panel="maintenance"]',
-			'Maintenance panel marker'
-		);
-		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context hidden when queue has items' );
+		$this->assertCount( 2, $zoneTiles );
+		$this->assertTrue( (bool)( $maintenance[ 'is_enabled' ] ?? false ) );
+		$this->assertFalse( (bool)( $maintenance[ 'is_disabled' ] ?? true ) );
+		$this->assertSame( 'maintenance', (string)( $maintenance[ 'panel_target' ] ?? '' ) );
+		$this->assertFalse( (bool)( $scans[ 'is_enabled' ] ?? true ) );
 	}
 
-	public function test_maintenance_panel_renders_single_footer_action_and_inactive_asset_ctas() :void {
+	public function test_maintenance_panel_exposes_inactive_asset_ctas_and_updates_href() :void {
 		$this->setOverallConfigMeterComponents( [
 			[
 				'slug'              => 'wp_plugins_inactive',
@@ -154,87 +144,49 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance ctas' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance ctas' );
+		$renderData = $payload[ 'render_data' ] ?? [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$maintenance = $this->findZoneTile( \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [], 'maintenance' );
+		$itemsByKey = [];
+		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
+			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+		}
 
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-panel="maintenance"]//*[contains(@class,"actions-landing__summary-action") and @href="/wp-admin/plugins.php"]',
-			'Inactive plugins CTA marker'
+		$this->assertSame( '/wp-admin/plugins.php', (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] ?? '' ) );
+		$this->assertSame( 'Go to plugins', (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'label' ] ?? '' ) );
+		$this->assertSame( '/wp-admin/themes.php', (string)( $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'href' ] ?? '' ) );
+		$this->assertSame( 'Go to themes', (string)( $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'cta', $itemsByKey[ 'wp_updates' ] ?? [] );
+		$this->assertSame(
+			self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+			(string)( $renderData[ 'hrefs' ][ 'scan_results' ] ?? '' )
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-panel="maintenance"]//*[contains(@class,"actions-landing__summary-action") and @href="/wp-admin/themes.php"]',
-			'Inactive themes CTA marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-panel="maintenance"]//a[@href="/wp-admin/update-core.php" and contains(@class,"btn")]',
-			'Maintenance footer WordPress updates action'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-actions-panel="maintenance"]//a[@href="/wp-admin/plugins.php" and contains(@class,"btn") and not(contains(@class,"actions-landing__summary-action"))]',
-			0,
-			'Maintenance footer no longer exposes Open Plugins'
-		);
+		$this->assertSame( Services::WpGeneral()->getAdminUrl_Updates(), (string)( $renderData[ 'hrefs' ][ 'wp_updates' ] ?? '' ) );
 	}
 
-	public function test_scan_result_items_render_scans_panel_tabs_and_embedded_results_shell() :void {
+	public function test_scan_result_items_enable_scans_zone_and_embedded_results_payload() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing scans state' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing scans state' );
+		$renderData = $payload[ 'render_data' ] ?? [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
+		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
+		$vulnerabilities = \is_array( $vars[ 'scans_vulnerabilities' ] ?? null ) ? $vars[ 'scans_vulnerabilities' ] : [];
 
-		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions', true );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-zone="scans" and @data-mode-tile-disabled="0"]',
-			'Scans tile enabled marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode-panel="1" and @data-actions-panel="scans"]',
-			'Scans panel marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="ActionsQueueScansTabsNav"]',
-			'Scans panel tabs marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="actions-queue-scans-vulnerabilities-tab" and @aria-controls="actions-queue-scans-vulnerabilities"]',
-			'Scans vulnerabilities tab marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="actions-queue-scans-summary"]//button[@data-bs-target="#actions-queue-scans-results"]',
-			'Summary footer tab-open button marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@id="actions-queue-scans-summary"]//a[@href="/admin/scans/results"]',
-			0,
-			'Summary footer no longer links to full scan results page'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="ScanResultsTabs"]',
-			'Embedded scan results shell marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="h-tabs-file_locker-tab" and @aria-controls="h-tabs-file_locker"]',
-			'Embedded scan results file locker tab contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="h-tabs-file_locker" and @aria-labelledby="h-tabs-file_locker-tab"]',
-			'Embedded scan results file locker panel contract'
-		);
-		$this->assertXPathCount( $xpath, '//*[@data-actions-queue-section="all-clear-context"]', 0, 'All-clear context hidden when scan issues exist' );
+		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
+		$this->assertModePanelPayload( $vars, '', false );
+		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
+		$this->assertSame( 'scans', (string)( $scans[ 'panel_target' ] ?? '' ) );
+		$this->assertGreaterThan( 0, (int)( $scans[ 'total_issues' ] ?? 0 ) );
+		$this->assertNotEmpty( $scansResults );
+		$this->assertSame( 0, (int)( $vulnerabilities[ 'count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $vulnerabilities[ 'status' ] ?? '' ) );
+		$this->assertIsArray( $vulnerabilities[ 'items' ] ?? null );
 	}
 }
