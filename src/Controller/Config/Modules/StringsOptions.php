@@ -32,32 +32,6 @@ class StringsOptions {
 				$summary = sprintf( __( 'Enable (or Disable) The %s Module', 'wp-simple-firewall' ), $modName );
 				$desc = [ sprintf( __( 'Un-Checking this option will completely disable the %s module.', 'wp-simple-firewall' ), $modName ) ];
 				break;
-			case 'log_level_db':
-				$name = __( 'Logging Level', 'wp-simple-firewall' );
-				$summary = __( 'Logging Level For DB-Based Logs', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Specify the logging levels when using the local database.', 'wp-simple-firewall' ),
-					__( 'Info logging should only be enabled when investigating specific problems.', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>',
-						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DOCS ),
-						__( 'View all event details and their assigned levels', 'wp-simple-firewall' )
-					)
-				];
-				break;
-			case 'audit_trail_auto_clean':
-				$name = __( 'Log Retention', 'wp-simple-firewall' );
-				$summary = __( 'Automatically Purge Activity Logs Older Than The Set Number Of Days', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Events older than the number of days specified will be automatically cleaned from the database.', 'wp-simple-firewall' )
-				];
-				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
-					$desc[] = sprintf(
-						__( 'The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan.', 'wp-simple-firewall' ),
-						$con->caps->getMaxLogRetentionDays(),
-						$pluginName
-					);
-				}
-				break;
 
 			case 'autoupdate_plugin_self':
 				$name = __( 'Self AutoUpdate', 'wp-simple-firewall' );
@@ -1363,15 +1337,6 @@ class StringsOptions {
 				$summary = __( 'Log Requests To Your WordPress Site', 'wp-simple-firewall' );
 				$desc = [ __( 'Monitor web requests sent to your WordPress site.', 'wp-simple-firewall' ) ];
 				break;
-			case 'type_exclusions':
-				$name = __( 'Request Log Exclusions', 'wp-simple-firewall' );
-				$summary = __( 'Select Which Types Of Requests To Exclude', 'wp-simple-firewall' );
-				$desc = [
-					__( "There's no need to have unnecessary traffic noise in your logs, so we automatically exclude certain types of requests.", 'wp-simple-firewall' ),
-					__( "Select request types that you don't want to appear in the traffic viewer.", 'wp-simple-firewall' ),
-					__( 'If a request matches any exclusion rule, it wont show in the traffic logs.', 'wp-simple-firewall' )
-				];
-				break;
 			case 'enable_live_log':
 				$max = \round( $opts->getTrafficLiveLogDuration()/\MINUTE_IN_SECONDS );
 
@@ -1398,33 +1363,6 @@ class StringsOptions {
 															->addSeconds( $remaining )
 															->diffForHumans()
 						)
-					);
-				}
-				break;
-			case 'custom_exclusions':
-				$name = __( 'Custom Exclusions', 'wp-simple-firewall' );
-				$summary = __( 'Provide Custom Traffic Exclusions', 'wp-simple-firewall' );
-				$desc = [
-					__( "For each entry, if the text is present in either the User Agent or request Path, it will be excluded.", 'wp-simple-firewall' ),
-					__( 'Take a new line for each entry.', 'wp-simple-firewall' ),
-					__( 'Comparisons are case-insensitive.', 'wp-simple-firewall' )
-				];
-				break;
-			case 'auto_clean':
-				$name = __( 'Log Retention', 'wp-simple-firewall' );
-				$summary = __( 'Traffic Log Retention Policy (Days)', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Traffic logs older than this maximum number of days will be automatically deleted.', 'wp-simple-firewall' ),
-					sprintf( '%s: %s',
-						__( 'Note', 'wp-simple-firewall' ),
-						__( 'Activity logs depend on these traffic logs so if they have a longer retention period, some traffic logs will be retained longer.', 'wp-simple-firewall' )
-					),
-				];
-				if ( !$con->caps->hasCap( 'logs_retention_unlimited' ) ) {
-					$desc[] = sprintf(
-						__( 'The maximum log retention limit (%1$s) may be increased by upgrading your %2$s plan.', 'wp-simple-firewall' ),
-						$con->caps->getMaxLogRetentionDays(),
-						$pluginName
 					);
 				}
 				break;

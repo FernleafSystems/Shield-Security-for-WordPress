@@ -3,10 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class ActivityLogEnabled extends Base {
-
-	use Traits\OptConfigBased;
 
 	public const SLUG = 'activity_log_enabled';
 	public const WEIGHT = 5;
@@ -23,8 +22,8 @@ class ActivityLogEnabled extends Base {
 		return $protected;
 	}
 
-	protected function getOptConfigKey() :string {
-		return 'log_level_db';
+	protected function hrefFull() :string {
+		return self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS );
 	}
 
 	public function title() :string {

@@ -411,58 +411,6 @@
         "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
     },
     {
-        "key": "log_level_db",
-        "section": "section_log_wordpress_activity",
-        "zone_comp_slugs": [
-            "activity_logging"
-        ],
-        "type": "multiple_select",
-        "default": [
-            "warning",
-            "notice"
-        ],
-        "value_options": [
-            {
-                "value_key": "disabled",
-                "text": "Logging Disabled"
-            },
-            {
-                "value_key": "warning",
-                "text": "Warning"
-            },
-            {
-                "value_key": "notice",
-                "text": "Notice"
-            },
-            {
-                "value_key": "info",
-                "text": "Info"
-            }
-        ],
-        "link_info": "",
-        "link_blog": "",
-        "beacon_id": 375,
-        "name": "Logging Level",
-        "summary": "Logging Level For DB-Based Logs",
-        "description": "Logging Level For DB-Based Logs"
-    },
-    {
-        "key": "audit_trail_auto_clean",
-        "section": "section_log_wordpress_activity",
-        "zone_comp_slugs": [
-            "activity_logging"
-        ],
-        "type": "integer",
-        "default": 7,
-        "min": 1,
-        "link_info": "https://clk.shldscrty.com/a2",
-        "link_blog": "https://clk.shldscrty.com/a1",
-        "beacon_id": 375,
-        "name": "Auto Clean",
-        "summary": "Enable Audit Auto Cleaning",
-        "description": "Events older than the number of days specified will be automatically cleaned from the database"
-    },
-    {
         "key": "update_delay",
         "section": "section_scan_wpv",
         "zone_comp_slugs": [
@@ -3281,79 +3229,6 @@
         "name": "Live Logging",
         "summary": "Enable Live Logging Of All Traffic",
         "description": "Switch-on logging of all site traffic."
-    },
-    {
-        "key": "type_exclusions",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging"
-        ],
-        "type": "multiple_select",
-        "default": [
-            "logged_in",
-            "server",
-            "cron",
-            "search",
-            "uptime"
-        ],
-        "value_options": [
-            {
-                "value_key": "logged_in",
-                "text": "Logged-In Users"
-            },
-            {
-                "value_key": "cron",
-                "text": "WP CRON"
-            },
-            {
-                "value_key": "server",
-                "text": "This Server"
-            },
-            {
-                "value_key": "search",
-                "text": "Search Engines"
-            },
-            {
-                "value_key": "uptime",
-                "text": "Uptime Monitoring Services"
-            }
-        ],
-        "link_info": "https://clk.shldscrty.com/eb",
-        "link_blog": "",
-        "beacon_id": 154,
-        "name": "Request Log Exclusions",
-        "summary": "Select Which Types Of Requests To Exclude",
-        "description": "Deselect any requests that you don't want to appear in the traffic viewer."
-    },
-    {
-        "key": "custom_exclusions",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging"
-        ],
-        "default": [],
-        "type": "array",
-        "link_info": "https://clk.shldscrty.com/ec",
-        "link_blog": "",
-        "beacon_id": 154,
-        "name": "Custom Exclusions",
-        "summary": "Provide Custom Traffic Exclusions",
-        "description": "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded."
-    },
-    {
-        "key": "auto_clean",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging"
-        ],
-        "type": "integer",
-        "default": 7,
-        "min": 1,
-        "link_info": "",
-        "link_blog": "",
-        "name": "Log Retention",
-        "summary": "Enable Traffic Log Auto Expiry",
-        "description": "Automated DB cleanup will delete logs older than this maximum value (in days)."
     },
     {
         "key": "enable_limiter",

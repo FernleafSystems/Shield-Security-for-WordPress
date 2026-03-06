@@ -21,4 +21,8 @@ class ActivityLogging extends Base {
 	public function enabledStatus() :string {
 		return self::con()->comps->activity_log->isLogToDB() ? EnumEnabledStatus::GOOD : EnumEnabledStatus::BAD;
 	}
+
+	protected function hasConfigAction() :bool {
+		return false;
+	}
 }

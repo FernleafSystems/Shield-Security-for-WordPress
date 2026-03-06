@@ -47,12 +47,7 @@ class ShieldLogRequest extends BuildRuleCoreShieldBase {
 									]
 								],
 								[
-									'conditions' => Conditions\ShieldConfigurationOption::class,
-									'params'     => [
-										'name'        => 'auto_clean',
-										'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_GREATER_THAN,
-										'match_value' => 0,
-									]
+									'conditions' => Conditions\RequestHasAnyParameters::class,
 								],
 							]
 						],

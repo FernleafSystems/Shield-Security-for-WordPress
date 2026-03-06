@@ -7,8 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	Mfa\Ops as MfaDB,
 	Reports\Ops as ReportsDB,
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogRetentionPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogRetentionPolicy;
 use FernleafSystems\Wordpress\Services\Services;
 
 class CleanDatabases {
@@ -37,48 +39,70 @@ class CleanDatabases {
 			->query();
 	}
 
-	private function cleanRequestLogs() {
+	private function cleanRequestLogs() :void {
+		$this->cleanActivityLogsByPolicy();
+		$this->cleanUnreferencedRequestLogsByPolicy();
+	}
+
+	private function cleanActivityLogsByPolicy() :void {
 		$con = self::con();
-		$comps = $con->comps;
+		$policy = new ActivityLogRetentionPolicy();
+		$retentionByEvent = $policy->retentionSecondsByEvent();
+		$now = Services::Request()->ts();
 
-		// 1. Clean Requests & Audit Trail
-		// Deleting Request Logs automatically cascades to Audit Trail and then to Audit Trail Meta.
-
-		$con->db_con->req_logs->deleteRowsOlderThan(
-			Services::Request()
-					->carbon( true )
-					->startOfDay()
-					->subDays(
-						\max( $comps->requests_log->getAutoCleanDays(), $comps->activity_log->getAutoCleanDays() )
-					)->timestamp
-		);
-
-		// 2. Delete transient logs older than 1 hr.
-		$con->db_con
-			->req_logs
-			->getQueryDeleter()
-			->addWhereOlderThan( Services::Request()->carbon( true )->subHour()->timestamp )
-			->addWhereEquals( 'transient', '1' )
-			->query();
-
-		// 3. Delete traffic logs past their TTL that aren't referenced by activity logs.
-		if ( $comps->opts_lookup->enabledTrafficLogger()
-			 && $comps->requests_log->getAutoCleanDays() < $con->comps->activity_log->getAutoCleanDays() ) {
-			$oldest = Services::Request()
-							  ->carbon( true )
-							  ->startOfDay()
-							  ->subDays( $comps->requests_log->getAutoCleanDays() )->timestamp;
-			Services::WpDb()->doSql(
-				sprintf( 'DELETE FROM `%s` WHERE `created_at` < %s AND `id` NOT IN ( %s );',
-					$con->db_con->req_logs->getTable(),
-					$oldest,
-					sprintf( 'SELECT DISTINCT `req_ref` FROM `%s` WHERE `created_at` < %s',
-						$con->db_con->activity_logs->getTable(),
-						$oldest
-					)
-				)
-			);
+		$groupedEvents = [];
+		foreach ( $retentionByEvent as $event => $seconds ) {
+			$groupedEvents[ \max( \HOUR_IN_SECONDS, (int)$seconds ) ][] = $event;
 		}
+
+		foreach ( $groupedEvents as $seconds => $events ) {
+			$con->db_con
+				->activity_logs
+				->getQueryDeleter()
+				->addWhereOlderThan( $now - $seconds )
+				->addWhereIn( 'event_slug', $events )
+				->query();
+		}
+
+		$deleter = $con->db_con
+					   ->activity_logs
+					   ->getQueryDeleter()
+					   ->addWhereOlderThan( $now - $policy->defaultRetentionSeconds() );
+
+		if ( !empty( $retentionByEvent ) ) {
+			$deleter->addWhereNotIn( 'event_slug', \array_keys( $retentionByEvent ) );
+		}
+
+		$deleter->query();
+	}
+
+	private function cleanUnreferencedRequestLogsByPolicy() :void {
+		$retention = ( new RequestLogRetentionPolicy() )->retentionSeconds();
+		$now = Services::Request()->ts();
+
+		$this->deleteUnreferencedRequestLogsOlderThan(
+			$now - $retention[ 'transient' ],
+			true
+		);
+		$this->deleteUnreferencedRequestLogsOlderThan(
+			$now - $retention[ 'standard' ],
+			false
+		);
+	}
+
+	private function deleteUnreferencedRequestLogsOlderThan( int $cutoffTimestamp, bool $transient ) :void {
+		$con = self::con();
+		Services::WpDb()->doSql( sprintf(
+			'DELETE `req` FROM `%s` AS `req`
+				LEFT JOIN `%s` AS `activity` ON `activity`.`req_ref`=`req`.`id`
+				WHERE `activity`.`id` IS NULL
+					AND `req`.`created_at` < %d
+					AND `req`.`transient` = %d;',
+			$con->db_con->req_logs->getTable(),
+			$con->db_con->activity_logs->getTable(),
+			$cutoffTimestamp,
+			$transient ? 1 : 0
+		) );
 	}
 
 	public function cleanStaleReports() :void {

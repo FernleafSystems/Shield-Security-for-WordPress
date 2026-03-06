@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogRetentionPolicy;
 
 class PrivacyPolicy extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -14,10 +15,17 @@ class PrivacyPolicy extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 	protected function getRenderData() :array {
 		$con = self::con();
 		$white = $con->comps->whitelabel->isEnabled();
+		$retentionPolicy = new ActivityLogRetentionPolicy();
+		$retentionByLevel = $retentionPolicy->retentionSecondsByLevel();
 		return [
 			'name'             => $white ? $con->labels->Name : $con->cfg->menu[ 'title' ],
 			'href'             => $white ? $con->labels->PluginURI : $con->cfg->meta[ 'privacy_policy_href' ],
-			'audit_trail_days' => $con->comps->activity_log->getAutoCleanDays(),
+			'audit_retention'  => [
+				'info_hours'      => \max( 1, (int)\round( ( $retentionByLevel[ 'info' ] ?? \DAY_IN_SECONDS )/\HOUR_IN_SECONDS ) ),
+				'notice_days'     => \max( 1, (int)\round( ( $retentionByLevel[ 'notice' ] ?? 30*\DAY_IN_SECONDS )/\DAY_IN_SECONDS ) ),
+				'warning_days'    => \max( 1, (int)\round( ( $retentionByLevel[ 'warning' ] ?? 180*\DAY_IN_SECONDS )/\DAY_IN_SECONDS ) ),
+				'high_value_days' => \max( 1, (int)\round( $retentionPolicy->highValueRetentionSeconds()/\DAY_IN_SECONDS ) ),
+			],
 			'strings'          => [
 				'heading_security'           => __( 'Security', 'wp-simple-firewall' ),
 				'security_sentence_1'        => __( 'Our website uses specialist security software - %s.', 'wp-simple-firewall' ),
@@ -41,8 +49,8 @@ class PrivacyPolicy extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 				'audit_item_3'               => __( 'Originating IP address of the request', 'wp-simple-firewall' ),
 				'audit_explanation_1'        => __( 'For logged-in users this represents information that may be used to locate (by IP address) and identify individuals and their activity on the site.', 'wp-simple-firewall' ),
 				'audit_explanation_2'        => __( 'This information is stored for security purposes by the site administrator.', 'wp-simple-firewall' ),
-				'audit_retention_sentence_1' => __( 'This data will be retained and then automatically purged from the database after a fixed time period, as determined by the site administrator.', 'wp-simple-firewall' ),
-				'audit_retention_sentence_2' => __( '(Currently this is set to %s days.)', 'wp-simple-firewall' ),
+				'audit_retention_sentence_1' => __( 'This data is retained using an automated policy based on event sensitivity and then purged from the database.', 'wp-simple-firewall' ),
+				'audit_retention_sentence_2' => __( 'Retention currently spans approximately %1$s hours (low signal), %2$s days (standard), %3$s days (warnings), and up to %4$s days for high-value events.', 'wp-simple-firewall' ),
 			],
 		];
 	}

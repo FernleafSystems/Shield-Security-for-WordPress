@@ -19,10 +19,12 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			global $argv;
 			$path = $argv[ 0 ];
 			$query = \count( $argv ) === 1 ? '' : \implode( ' ', \array_slice( $argv, 1 ) );
+			$hasParams = \count( $argv ) > 1;
 		}
 		else {
 			$path = $leadingPath.$req->getPath();
 			$query = empty( $_GET ) ? '' : \http_build_query( $_GET );
+			$hasParams = !empty( $_GET ) || !empty( $_POST );
 		}
 
 		if ( $isWpCli ) {
@@ -62,6 +64,7 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			'ts'   => \microtime( true ),
 			'path' => $path,
 			'type' => $type,
+			'has_params' => $hasParams ? 1 : 0,
 		];
 		if ( !$isWpCli ) {
 			$data[ 'ua' ] = sanitize_text_field( $req->getUserAgent() );

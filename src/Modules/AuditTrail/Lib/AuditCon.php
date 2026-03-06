@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
-use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Exceptions\InconsistentDataException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
@@ -57,29 +57,32 @@ class AuditCon {
 		}
 	}
 
-	public function getAutoCleanDays() :int {
-		$con = self::con();
-		$days = (int)\min( $con->opts->optGet( 'audit_trail_auto_clean' ), $con->caps->getMaxLogRetentionDays() );
-		$con->opts->optSet( 'audit_trail_auto_clean', $days );
-		return $days;
-	}
-
-	public function getLogLevelsDB() :array {
-		$optsCon = self::con()->opts;
-		$current = $optsCon->optGet( 'log_level_db' );
-		$levels = NormaliseLogLevel::forDbSelection( $current );
-		if ( empty( $levels ) ) {
-			$optsCon->optReset( 'log_level_db' );
-			$levels = NormaliseLogLevel::forDbSelection( $optsCon->optGet( 'log_level_db' ) );
-		}
-		elseif ( \serialize( $levels ) !== \serialize( $current ) ) {
-			$optsCon->optSet( 'log_level_db', $levels );
-		}
-		return $levels;
-	}
-
 	public function isLogToDB() :bool {
-		return !\in_array( 'disabled', $this->getLogLevelsDB() );
+		$isReady = self::con()->db_con->activity_logs->isReady();
+		if ( $isReady ) {
+			try {
+				( new Monolog() )->assess();
+			}
+			catch ( \Exception $e ) {
+				$isReady = false;
+			}
+		}
+		return $isReady;
+	}
+
+	/**
+	 * @deprecated 21.3 Use ActivityLogRetentionPolicy::defaultRetentionSeconds()
+	 */
+	public function getAutoCleanDays() :int {
+		return \max( 1, (int)\ceil( ( new ActivityLogRetentionPolicy() )->defaultRetentionSeconds()/\DAY_IN_SECONDS ) );
+	}
+
+	/**
+	 * @deprecated 21.3 Activity logging now captures canonical event levels automatically.
+	 * @return string[]
+	 */
+	public function getLogLevelsDB() :array {
+		return ( new ActivityLogRetentionPolicy() )->canonicalLevels();
 	}
 
 	private function primeSnapshots() {

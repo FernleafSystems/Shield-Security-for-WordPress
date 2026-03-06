@@ -94,14 +94,11 @@ class RequestLogger {
 		}
 	}
 
+	/**
+	 * @deprecated 21.3 Use RequestLogRetentionPolicy::retentionDays()
+	 */
 	public function getAutoCleanDays() :int {
-		$con = self::con();
-		$days = $con->opts->optGet( 'auto_clean' );
-		if ( $days !== $con->caps->getMaxLogRetentionDays() ) {
-			$days = (int)\min( $days, $con->caps->getMaxLogRetentionDays() );
-			$con->opts->optSet( 'auto_clean', $days );
-		}
-		return $days;
+		return ( new RequestLogRetentionPolicy() )->retentionDays()[ 'standard' ];
 	}
 
 	public function getLogger() :Logger {

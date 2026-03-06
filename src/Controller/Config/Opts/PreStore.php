@@ -30,23 +30,6 @@ class PreStore {
 	private function audit() {
 		$opts = self::con()->opts;
 
-		$current = $opts->optGet( 'log_level_db' );
-		if ( empty( $current ) ) {
-			$opts->optReset( 'log_level_db' );
-		}
-		elseif ( \in_array( 'disabled', $opts->optGet( 'log_level_db' ) ) ) {
-			$opts->optSet( 'log_level_db', [ 'disabled' ] );
-		}
-
-		if ( $opts->optChanged( 'custom_exclusions' ) ) {
-			$opts->optSet( 'custom_exclusions', \array_filter( \array_map(
-				function ( $excl ) {
-					return \trim( esc_js( $excl ) );
-				},
-				$opts->optGet( 'custom_exclusions' )
-			) ) );
-		}
-
 		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
 			$opts->optSet( 'enable_logger', 'Y' );
 		}

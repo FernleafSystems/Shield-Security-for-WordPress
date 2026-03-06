@@ -51,7 +51,6 @@ class RuleBuilderEnumerator {
 			Core\IsSecurityAdmin::class,
 
 			Core\ShieldLogRequest::class,
-			Core\ShieldExcludeLogRequest::class,
 			Core\IsRateLimitExceeded::class,
 
 			Core\IpWhitelisted::class,

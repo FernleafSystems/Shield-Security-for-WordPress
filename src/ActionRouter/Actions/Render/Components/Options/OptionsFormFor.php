@@ -30,7 +30,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'vars'    => [
 				'all_opts_keys'      => $options,
-				'all_options'        => ( new BuildOptionsForDisplay( $options, [] ) )
+				'all_options'        => empty( $options ) ? [] : ( new BuildOptionsForDisplay( $options, [] ) )
 					->setFocusOption( $this->action_data[ 'config_item' ] ?? '' )
 					->standard(),
 				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',

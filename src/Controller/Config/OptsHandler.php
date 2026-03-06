@@ -4,7 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PreStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogRetentionPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogRetentionPolicy;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -20,6 +22,17 @@ class OptsHandler extends DynPropertiesClass {
 	public const TYPE_FREE = 'free';
 	public const TYPE_PRO = 'pro';
 
+	/**
+	 * @var string[]
+	 */
+	private const LEGACY_LOGGING_OPTION_KEYS = [
+		'log_level_db',
+		'audit_trail_auto_clean',
+		'type_exclusions',
+		'custom_exclusions',
+		'auto_clean',
+	];
+
 	private array $changes = [];
 
 	private ?array $values = null;
@@ -27,6 +40,11 @@ class OptsHandler extends DynPropertiesClass {
 	private bool $merged = false;
 
 	private bool $startedAsPremium = false;
+
+	/**
+	 * @var array<string,mixed>|null
+	 */
+	private ?array $legacyLoggingValues = null;
 
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
@@ -234,11 +252,7 @@ class OptsHandler extends DynPropertiesClass {
 		foreach ( ( $con->isPremiumActive() && $this->startedAsPremium ) ? $this->values() : $this->mod_opts_all[ 'values' ][ self::TYPE_PRO ] as $optKey => $optValue ) {
 			$store = false;
 
-			// Special case: These values can vary depending on whether free/pro
-			if ( \in_array( $optKey, [ 'audit_trail_auto_clean', 'auto_clean' ] ) ) {
-				$store = true;
-			}
-			elseif ( !isset( $freeValues[ $optKey ] ) ) {
+			if ( !isset( $freeValues[ $optKey ] ) ) {
 				$freeValues[ $optKey ] = $optValue;
 			}
 			elseif ( \is_scalar( $optValue ) ) {
@@ -288,6 +302,9 @@ class OptsHandler extends DynPropertiesClass {
 	 * Use only when you're sure the option key exists.
 	 */
 	public function optDef( string $key ) :array {
+		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
+			return $this->legacyLoggingOptionDefs()[ $key ];
+		}
 		return self::con()->cfg->configuration->options[ $key ];
 	}
 
@@ -321,10 +338,14 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function optExists( string $key ) :bool {
-		return isset( self::con()->cfg->configuration->options[ $key ] );
+		return isset( self::con()->cfg->configuration->options[ $key ] ) || $this->isLegacyLoggingOptionKey( $key );
 	}
 
 	public function optGet( string $key ) {
+		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
+			return $this->legacyLoggingOptionValues()[ $key ];
+		}
+
 		$value = $this->values()[ $key ] ?? null;
 
 		if ( $this->optExists( $key ) ) {
@@ -367,10 +388,17 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function optReset( string $key ) :void {
+		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
+			return;
+		}
 		$this->optSet( $key, $this->optDefault( $key ) );
 	}
 
 	public function optSet( string $key, $newValue ) :self {
+		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
+			return $this;
+		}
+
 		try {
 			/** Don't use optGet() */
 			$current = $this->values[ $key ] ?? null;
@@ -419,6 +447,65 @@ class OptsHandler extends DynPropertiesClass {
 				break;
 		}
 		return $valid;
+	}
+
+	private function isLegacyLoggingOptionKey( string $key ) :bool {
+		return \in_array( $key, self::LEGACY_LOGGING_OPTION_KEYS, true );
+	}
+
+	/**
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function legacyLoggingOptionDefs() :array {
+		return [
+			'log_level_db'          => [
+				'type'    => 'multiple_select',
+				'default' => $this->legacyLoggingOptionValues()[ 'log_level_db' ],
+			],
+			'audit_trail_auto_clean' => [
+				'type'    => 'integer',
+				'default' => $this->legacyLoggingOptionValues()[ 'audit_trail_auto_clean' ],
+			],
+			'type_exclusions'       => [
+				'type'    => 'array',
+				'default' => [],
+			],
+			'custom_exclusions'     => [
+				'type'    => 'array',
+				'default' => [],
+			],
+			'auto_clean'            => [
+				'type'    => 'integer',
+				'default' => $this->legacyLoggingOptionValues()[ 'auto_clean' ],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function legacyLoggingOptionValues() :array {
+		if ( $this->legacyLoggingValues !== null ) {
+			return $this->legacyLoggingValues;
+		}
+
+		$activityPolicy = new ActivityLogRetentionPolicy();
+		$activityRetentionDays = \max(
+			1,
+			(int)\ceil( $activityPolicy->defaultRetentionSeconds()/\DAY_IN_SECONDS )
+		);
+		$requestRetentionDays = ( new RequestLogRetentionPolicy() )->retentionDays()[ 'standard' ];
+		$levels = $activityPolicy->canonicalLevels();
+
+		$this->legacyLoggingValues = [
+			'log_level_db'          => $levels,
+			'audit_trail_auto_clean' => $activityRetentionDays,
+			'type_exclusions'       => [],
+			'custom_exclusions'     => [],
+			'auto_clean'            => \max( 1, (int)$requestRetentionDays ),
+		];
+
+		return $this->legacyLoggingValues;
 	}
 
 	private function defaultAllStorageStruct() :array {

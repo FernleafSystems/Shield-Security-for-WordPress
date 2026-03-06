@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -37,9 +36,6 @@ class PreSetOptSanitize {
 
 	private function normaliseKnownValues() :void {
 		switch ( $this->key ) {
-			case 'log_level_db':
-				$this->value = NormaliseLogLevel::forDbSelection( $this->value );
-				break;
 			case 'language_override':
 				$raw = ( \is_scalar( $this->value ) || \is_null( $this->value ) ) ? (string)$this->value : '';
 				$normalised = \strtolower( (string)\preg_replace( '#[^a-z]#i', '', $raw ) );
@@ -86,19 +82,9 @@ class PreSetOptSanitize {
 	}
 
 	/**
-	 * @throws \Exception
+	 * @deprecated 21.3 Legacy option-specific checks are no longer required.
 	 */
 	public function specificOptChecks() :void {
-		switch ( $this->key ) {
-			case 'auto_clean':
-			case 'audit_trail_auto_clean':
-				if ( $this->value > self::con()->caps->getMaxLogRetentionDays() ) {
-					throw new \Exception( __( 'Cannot set log retention days to anything longer than max.', 'wp-simple-firewall' ) );
-				}
-				break;
-			default:
-				break;
-		}
 	}
 
 	/**

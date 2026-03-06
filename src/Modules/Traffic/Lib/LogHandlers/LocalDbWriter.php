@@ -6,15 +6,10 @@ use Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogRetentionPolicy;
 
 /**
- * Logic is a bit convoluted here. Basically a request is logged when:
- * - The activity log needs it (handled in the activity logger)
- * - The request isn't excluded by the various exclusion mechanisms
- * - The admin has selected to log all traffic (live logging)
- *
- * When live logging is enabled, we mark the request as transient if the request wouldn't otherwise normally have been
- * logged.
+ * Request logs are tiered during write so pruning can retain high-signal requests longer without user configuration.
  */
 class LocalDbWriter extends AbstractProcessingHandler {
 
@@ -56,7 +51,10 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 		$update = \array_intersect_key( $meta, \array_flip( [ 'verb', 'code', 'path', 'type', 'uid', 'offense' ] ) );
 		$update[ 'meta' ] = \base64_encode( \wp_json_encode( \array_diff_key( $meta, $update ) ) );
-		$update[ 'transient' ] = false;
+		$update[ 'transient' ] = ( new RequestLogRetentionPolicy() )->shouldMarkAsTransient( [
+			'has_params' => !empty( $meta[ 'has_params' ] ),
+			'offense'    => !empty( $meta[ 'offense' ] ),
+		] );
 
 		if ( !self::con()->db_con->req_logs->getQueryUpdater()->updateById( $reqRecord->id, $update ) ) {
 			throw new \Exception( 'Failed to insert' );

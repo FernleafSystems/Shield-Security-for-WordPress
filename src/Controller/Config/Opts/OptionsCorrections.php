@@ -34,7 +34,6 @@ class OptionsCorrections {
 			$opts->optReset( 'enable_admin_access_restriction' );
 		}
 		if ( $opts->optIs( 'enable_audit_trail', 'N' ) ) {
-			$opts->optSet( 'log_level_db', 'disabled' );
 			$opts->optReset( 'enable_audit_trail' );
 		}
 		if ( $opts->optIs( 'enable_comments_filter', 'N' ) ) {

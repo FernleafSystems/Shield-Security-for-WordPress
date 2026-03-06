@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
-use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener;
@@ -16,10 +15,8 @@ class AuditLogger extends EventsListener {
 	private Logger $logger;
 
 	protected function init() {
-		if ( self::con()->comps->activity_log->isLogToDB() ) {
-			// The Request Logger is required to link up the DB entries.
-			self::con()->comps->requests_log->execute();
-		}
+		// The Request Logger is required to link up DB request references for activity entries.
+		self::con()->comps->requests_log->execute();
 	}
 
 	/**
@@ -44,18 +41,8 @@ class AuditLogger extends EventsListener {
 	}
 
 	protected function initLogger() {
-		$con = self::con();
-		$auditCon = $con->comps->activity_log;
-
 		if ( $this->isMonologLibrarySupported() ) {
-
-			if ( $auditCon->isLogToDB() ) {
-				$this->getLogger()
-					 ->pushHandler(
-						 new FilterHandler( new LocalDbWriter(), $auditCon->getLogLevelsDB() )
-					 );
-			}
-
+			$this->getLogger()->pushHandler( new LocalDbWriter() );
 			$this->pushCustomHandlers();
 		}
 	}
