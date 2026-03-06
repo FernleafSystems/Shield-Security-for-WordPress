@@ -30,6 +30,13 @@ trait InvestigateRenderContracts {
 		];
 	}
 
+	/**
+	 * @return array{
+	 *   page:string,
+	 *   nav:string,
+	 *   nav_sub:string
+	 * }
+	 */
 	protected function buildLookupRouteContract( string $subNav ) :array {
 		return [
 			'page'    => self::con()->plugin_urls->rootAdminPageSlug(),

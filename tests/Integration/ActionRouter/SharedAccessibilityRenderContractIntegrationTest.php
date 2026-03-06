@@ -22,6 +22,10 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
+		$this->requireDb( 'ips' );
+		$this->requireDb( 'req_logs' );
+		$this->requireDb( 'activity_logs' );
+		$this->requireDb( 'user_meta' );
 		$this->loginAsSecurityAdmin();
 	}
 
@@ -79,12 +83,27 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 	}
 
-	public function test_ip_analysis_offcanvas_reuses_investigate_inline_wrapper_contract() :void {
+	public function test_ip_analysis_offcanvas_reuses_investigate_lookup_and_inline_tabs_contract() :void {
 		$payload = $this->processor()->processAction( IpAnalysis::SLUG, [
 			'ip' => '198.51.100.20',
 		] )->payload();
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="AptoOffcanvasLabel" and contains(@class,"offcanvas-title") and normalize-space()!=""]',
+			'IP analysis offcanvas title contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//form[@data-investigate-panel-form="1"]//select[@data-investigate-select2="1"]',
+			'IP analysis offcanvas lookup select contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-panel__tabs ")]//button[@data-bs-toggle="tab"]',
+			'IP analysis offcanvas inline tabs contract'
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[contains(@class,"investigate-inline-ipanalyse")]//*[contains(@class,"shield-ipanalyse")]',

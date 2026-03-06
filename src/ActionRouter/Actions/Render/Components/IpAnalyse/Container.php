@@ -14,6 +14,9 @@ class Container extends Base {
 		$ip = $this->getAnalyseIP();
 		$actionRouter = self::con()->action_router;
 		return [
+			'flags'   => [
+				'render_inline_tabs' => (bool)$this->action_data[ 'render_inline_tabs' ],
+			],
 			'content' => [
 				'general'  => $actionRouter->render( General::class, [
 					'ip' => $ip,

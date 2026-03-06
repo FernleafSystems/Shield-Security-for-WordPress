@@ -1,0 +1,47 @@
+{% set show_lookup_with_subject = ui.show_lookup_with_subject %}
+{% set change_label = ui.change_label %}
+
+{% if flags.has_subject %}
+	{% include '/wpadmin/components/investigate/subject_header.twig' with {
+		title: vars.subject_header.title,
+		meta: vars.subject_header.meta,
+		change_label: change_label
+	} only %}
+	{% if show_lookup_with_subject %}
+		{% include '/wpadmin/components/investigate/lookup_strip.twig' with {
+			action: hrefs.by_ip,
+			lookup_route: vars.lookup_route,
+			lookup_behavior: vars.lookup_behavior,
+			lookup_ajax: vars.lookup_ajax,
+			label: strings.lookup_label,
+			input_name: 'analyse_ip',
+			input_type: 'select',
+			input_value: vars.analyse_ip,
+			selected_option_label: vars.analyse_ip,
+			options: [],
+			placeholder: strings.lookup_placeholder,
+			submit_text: strings.lookup_submit,
+			helper_text: strings.lookup_helper
+		} only %}
+	{% endif %}
+	<div class="investigate-inline-ipanalyse">
+		{{ content.ip_analysis|raw }}
+	</div>
+{% else %}
+	{% include '/wpadmin/components/investigate/lookup_strip.twig' with {
+		action: hrefs.by_ip,
+		lookup_route: vars.lookup_route,
+		lookup_behavior: vars.lookup_behavior,
+		lookup_ajax: vars.lookup_ajax,
+		label: strings.lookup_label,
+		input_name: 'analyse_ip',
+		input_type: 'select',
+		input_value: vars.analyse_ip,
+		selected_option_label: vars.analyse_ip,
+		options: [],
+		placeholder: strings.lookup_placeholder,
+		submit_text: strings.lookup_submit,
+		helper_text: strings.lookup_helper
+	} only %}
+	<div class="investigate-empty-state-text">{{ strings.no_subject_text }}</div>
+{% endif %}

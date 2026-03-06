@@ -14,7 +14,8 @@ class ScanItemAnalysis extends OffCanvasBase {
 
 	protected function buildCanvasBody() :string {
 		return self::con()->action_router->render( Container::class, [
-			'ip' => $this->action_data[ 'ip' ]
+			'ip'                 => $this->action_data[ 'ip' ],
+			'render_inline_tabs' => false,
 		] );
 	}
 }

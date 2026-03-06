@@ -37,6 +37,22 @@
 		}
 	] %}
 
+	{% if flags.render_inline_tabs %}
+		<div class="investigate-panel__tabs">
+			{% for item in rail_nav_items %}
+				<button type="button"
+						class="investigate-panel__tab {{ item.is_focus ? 'is-active active' : '' }}"
+						data-bs-target="{{ item.target }}"
+						data-bs-toggle="tab"
+						role="tab"
+						aria-controls="{{ item.controls }}"
+						aria-selected="{{ item.is_focus ? 'true' : 'false' }}">
+					{{ item.label }}
+				</button>
+			{% endfor %}
+		</div>
+	{% endif %}
+
 	<div class="shield-options-layout has-rail">
 		<aside class="shield-options-rail">
 			<div class="shield-options-rail-accent"></div>

@@ -173,6 +173,12 @@
 	color: #fff;
 }
 
+.investigate-panel__tab.active {
+	background: $status-color-info;
+	border-color: $status-color-info;
+	color: #fff;
+}
+
 .investigate-landing__subject-panel [data-investigate-panel-content="1"] .shield-options-layout.has-rail {
 	grid-template-columns: 1fr;
 }

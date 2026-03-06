@@ -2,22 +2,31 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\Container;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateByIpViewBuilder;
 
 class IpAnalysis extends OffCanvasBase {
 
 	public const SLUG = 'offcanvas_ipanalysis';
 
 	protected function buildCanvasTitle() :string {
-		return sprintf( '%s: %s', __( 'IP Analysis', 'wp-simple-firewall' ), $this->action_data[ 'ip' ] );
+		return __( 'Investigate IP', 'wp-simple-firewall' );
 	}
 
 	protected function buildCanvasBody() :string {
-		return sprintf(
-			'<div class="investigate-inline-ipanalyse">%s</div>',
-			self::con()->action_router->render( Container::class, [
-				'ip' => $this->action_data[ 'ip' ]
-			] )
+		$renderData = ( new InvestigateByIpViewBuilder() )->build(
+			(string)$this->action_data[ 'ip' ],
+			true
 		);
+		$renderData[ 'ui' ] = [
+			'show_lookup_with_subject' => true,
+			'change_label'             => '',
+		];
+
+		return self::con()
+				   ->comps
+				   ->render
+				   ->setTemplate( '/wpadmin/components/investigate/ip_body.twig' )
+				   ->setData( $renderData )
+				   ->render();
 	}
 }
