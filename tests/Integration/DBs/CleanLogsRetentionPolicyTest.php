@@ -568,6 +568,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 			return $policy;
 		};
 		$requestFilter = static function ( array $policy ) :array {
+			$policy[ 'retention_days' ][ 'transient' ] = 1;
 			$policy[ 'retention_days' ][ 'standard' ] = 5;
 			return $policy;
 		};

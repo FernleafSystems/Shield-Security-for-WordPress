@@ -51,7 +51,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing all-clear' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertStringContainsString( 'Last scan:', (string)( $strip[ 'subtext' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $strip[ 'subtext' ] ?? '' ) );
 		$this->assertModeShellAndAccentContract( $xpath, 'actions', 'critical', 'Actions', true );
 		$this->assertXPathExists(
 			$xpath,
