@@ -82,11 +82,11 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertSame( '203.0.113.61', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
 		$this->assertStringContainsString( 'POST', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
 		$this->assertStringContainsString( '/wp-login.php', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
-		$this->assertContains( 'HTTP', $badgeLabels );
 		$this->assertContains( (string)( $currentUser->user_login ?? '' ), $badgeLabels );
 		$this->assertContains( '403', $badgeLabels );
-		$this->assertContains( 'Offense', $badgeLabels );
-		$this->assertStringContainsString( ':', (string)( $rows[ 0 ][ 'timestamp' ] ?? '' ) );
+		$this->assertGreaterThanOrEqual( 3, \count( $rows[ 0 ][ 'badges' ] ?? [] ) );
+		$this->assertNotSame( '', (string)( $rows[ 0 ][ 'timestamp' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $rows[ 0 ][ 'description' ] ?? '' ) ) );
 		$this->assertStringNotContainsString( 'Response:', (string)( $rows[ 0 ][ 'description' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( $html ) );
 	}

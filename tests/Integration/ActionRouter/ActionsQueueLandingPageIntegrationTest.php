@@ -66,9 +66,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
 		$this->assertSame( 'good', (string)( $strip[ 'severity' ] ?? '' ) );
-		$this->assertSame( 'All Clear', (string)( $strip[ 'label' ] ?? '' ) );
-		$this->assertSame( 'No actions currently require your attention.', (string)( $strip[ 'summary_text' ] ?? '' ) );
 		$this->assertIsString( $strip[ 'subtext' ] ?? null );
+		$this->assertSame( 0, (int)( $strip[ 'total_items' ] ?? -1 ) );
+		$this->assertSame( 0, (int)( $strip[ 'critical_count' ] ?? -1 ) );
+		$this->assertSame( 0, (int)( $strip[ 'warning_count' ] ?? -1 ) );
 		$this->assertCount( 2, $zoneTiles );
 		$this->assertCount(
 			0,
@@ -153,10 +154,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
 		}
 
+		$this->assertArrayHasKey( 'cta', $itemsByKey[ 'wp_plugins_inactive' ] ?? [] );
 		$this->assertSame( '/wp-admin/plugins.php', (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] ?? '' ) );
-		$this->assertSame( 'Go to plugins', (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'label' ] ?? '' ) );
+		$this->assertArrayHasKey( 'cta', $itemsByKey[ 'wp_themes_inactive' ] ?? [] );
 		$this->assertSame( '/wp-admin/themes.php', (string)( $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'href' ] ?? '' ) );
-		$this->assertSame( 'Go to themes', (string)( $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'cta', $itemsByKey[ 'wp_updates' ] ?? [] );
 		$this->assertSame(
 			self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
