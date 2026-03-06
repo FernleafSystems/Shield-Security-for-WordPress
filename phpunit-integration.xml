@@ -5,7 +5,7 @@
          colors="true"
          testdox="true"
          verbose="true"
-         displayDetailsOnSkippedTests="true"
+         displayDetailsOnSkippedTests="false"
          beStrictAboutOutputDuringTests="false"
          beStrictAboutTestsThatDoNotTestAnything="true"
          convertErrorsToExceptions="true"

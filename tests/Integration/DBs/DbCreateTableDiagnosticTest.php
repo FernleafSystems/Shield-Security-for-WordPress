@@ -14,6 +14,7 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 	/**
 	 * For every handler that reports isReady() === false, capture the
 	 * CREATE TABLE SQL and the MySQL error, then dump both.
+	 * @group diagnostics
 	 */
 	public function test_diagnose_table_creation_failures() {
 		if ( !$this->isVerbose() ) {
@@ -100,6 +101,7 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * Directly test that column names with MySQL reserved words are properly handled.
+	 * @group diagnostics
 	 */
 	public function test_reserved_word_column_detection() {
 		if ( !$this->isVerbose() ) {

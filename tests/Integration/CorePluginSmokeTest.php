@@ -212,6 +212,7 @@ class CorePluginSmokeTest extends ShieldWordPressTestCase {
 
 	/**
 	 * Test critical distribution assets exist
+	 * @group package-targeted
 	 */
 	public function testDistributionAssetsExist() :void {
 		if ( !$this->isTestingPackage() ) {

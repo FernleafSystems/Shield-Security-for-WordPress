@@ -93,11 +93,14 @@ class CleanDatabases {
 	private function deleteUnreferencedRequestLogsOlderThan( int $cutoffTimestamp, bool $transient ) :void {
 		$con = self::con();
 		Services::WpDb()->doSql( sprintf(
-			'DELETE `req` FROM `%s` AS `req`
-				LEFT JOIN `%s` AS `activity` ON `activity`.`req_ref`=`req`.`id`
-				WHERE `activity`.`id` IS NULL
-					AND `req`.`created_at` < %d
-					AND `req`.`transient` = %d;',
+			'DELETE FROM `%1$s`
+				WHERE `created_at` < %3$d
+					AND `transient` = %4$d
+					AND NOT EXISTS (
+						SELECT 1
+						FROM `%2$s` AS `activity`
+						WHERE `activity`.`req_ref` = `%1$s`.`id`
+					);',
 			$con->db_con->req_logs->getTable(),
 			$con->db_con->activity_logs->getTable(),
 			$cutoffTimestamp,

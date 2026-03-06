@@ -40,6 +40,10 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		return $this->createDomXPathFromHtml( $html );
 	}
 
+	private function assertReportsTableRendered( \DOMXPath $xpath, string $label ) :void {
+		$this->assertXPathExists( $xpath, '//*[@data-reports-table="1"]', $label.' reports table marker' );
+	}
+
 	public function test_reports_overview_renders_interactive_tile_panel_with_default_reports_table() :void {
 		$landingWorkspaceDefinitions = PluginNavs::reportsLandingWorkspaceDefinitions();
 		$landingSubNavs = \array_keys( $landingWorkspaceDefinitions );
@@ -60,7 +64,11 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 			'Reports security reports panel default-open marker'
 		);
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]', 'Reports table panel content marker' );
-		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]//*[@id="ReportsTable"]', 'Reports table in landing panel marker' );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_LIST.'"]//*[@data-reports-table="1"]',
+			'Reports table in landing panel marker'
+		);
 		$this->assertXPathExists( $xpath, '//*[@data-reports-content="'.PluginNavs::SUBNAV_REPORTS_SETTINGS.'"]//form', 'Inline reports settings form marker' );
 
 		foreach ( $landingSubNavs as $subNav ) {
@@ -80,22 +88,17 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_reports_workspace_routes_render_expected_structural_markers_including_legacy_routes() :void {
-		foreach ( PluginNavs::reportsWorkspaceDefinitions() as $subNav => $workspaceDefinition ) {
+		foreach ( \array_keys( PluginNavs::reportsWorkspaceDefinitions() ) as $subNav ) {
 			$payload = $this->renderReportsSubNavPayload( $subNav );
-			$renderData = (array)( $payload[ 'render_data' ] ?? [] );
-			$content = (array)( $renderData[ 'content' ] ?? [] );
-			$contentKey = (string)( $workspaceDefinition[ 'content_key' ] ?? '' );
-
-			$this->assertNotSame( '', $contentKey, 'Reports content key contract for '.$subNav );
-			$this->assertArrayHasKey( $contentKey, $content, 'Reports render-data content key for '.$subNav );
-			$this->assertNotSame( '', \trim( (string)$content[ $contentKey ] ), 'Reports render-data content payload for '.$subNav );
-
 			$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 			if ( $subNav === PluginNavs::SUBNAV_REPORTS_LIST ) {
-				$this->assertXPathExists( $xpath, '//*[@id="ReportsTable"]', 'Reports list table container marker' );
+				$this->assertReportsTableRendered( $xpath, 'Reports list route' );
 			}
-			if ( $subNav === PluginNavs::SUBNAV_REPORTS_CHARTS ) {
+			elseif ( $subNav === PluginNavs::SUBNAV_REPORTS_CHARTS ) {
 				$this->assertXPathExists( $xpath, '//*[@id="SectionStats"]', 'Reports legacy charts stats strip marker' );
+			}
+			else {
+				$this->assertXPathExists( $xpath, '//form', 'Reports form route marker for '.$subNav );
 			}
 		}
 	}

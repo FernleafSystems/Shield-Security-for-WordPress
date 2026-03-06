@@ -80,9 +80,7 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 			PluginNavs::SUBNAV_ACTIVITY_SESSIONS
 		);
 
-		$this->assertArrayHasKey( 'sessions', $comps );
-		$this->assertArrayHasKey( 'ajax', $comps[ 'sessions' ] ?? [] );
-		$this->assertArrayHasKey( 'table_action', $comps[ 'sessions' ][ 'ajax' ] ?? [] );
+		$this->assertSessionsTableLocalized( $comps );
 	}
 
 	public function test_sessions_table_remains_localized_for_legacy_tools_sessions_route() :void {
@@ -91,9 +89,7 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 			PluginNavs::SUBNAV_TOOLS_SESSIONS
 		);
 
-		$this->assertArrayHasKey( 'sessions', $comps );
-		$this->assertArrayHasKey( 'ajax', $comps[ 'sessions' ] ?? [] );
-		$this->assertArrayHasKey( 'table_action', $comps[ 'sessions' ][ 'ajax' ] ?? [] );
+		$this->assertSessionsTableLocalized( $comps );
 	}
 
 	private function getMainLocalisedComponentsForRoute( string $nav, string $subNav ) :array {
@@ -128,5 +124,14 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		else {
 			$wp_filter[ 'shield/custom_localisations' ] = $this->localisationsFilterBackup;
 		}
+	}
+
+	private function assertSessionsTableLocalized( array $comps ) :void {
+		$this->assertArrayHasKey( 'tables', $comps );
+		$this->assertArrayHasKey( 'sessions', $comps[ 'tables' ] ?? [] );
+		$this->assertArrayHasKey( 'ajax', $comps[ 'tables' ][ 'sessions' ] ?? [] );
+		$this->assertArrayHasKey( 'table_action', $comps[ 'tables' ][ 'sessions' ][ 'ajax' ] ?? [] );
+		$this->assertArrayHasKey( 'vars', $comps[ 'tables' ][ 'sessions' ] ?? [] );
+		$this->assertArrayHasKey( 'datatables_init', $comps[ 'tables' ][ 'sessions' ][ 'vars' ] ?? [] );
 	}
 }

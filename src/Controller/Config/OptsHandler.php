@@ -41,11 +41,6 @@ class OptsHandler extends DynPropertiesClass {
 
 	private bool $startedAsPremium = false;
 
-	/**
-	 * @var array<string,mixed>|null
-	 */
-	private ?array $legacyLoggingValues = null;
-
 	public function __get( string $key ) {
 		$val = parent::__get( $key );
 
@@ -485,10 +480,6 @@ class OptsHandler extends DynPropertiesClass {
 	 * @return array<string,mixed>
 	 */
 	private function legacyLoggingOptionValues() :array {
-		if ( $this->legacyLoggingValues !== null ) {
-			return $this->legacyLoggingValues;
-		}
-
 		$activityPolicy = new ActivityLogRetentionPolicy();
 		$activityRetentionDays = \max(
 			1,
@@ -497,15 +488,13 @@ class OptsHandler extends DynPropertiesClass {
 		$requestRetentionDays = ( new RequestLogRetentionPolicy() )->retentionDays()[ 'standard' ];
 		$levels = $activityPolicy->canonicalLevels();
 
-		$this->legacyLoggingValues = [
+		return [
 			'log_level_db'          => $levels,
 			'audit_trail_auto_clean' => $activityRetentionDays,
 			'type_exclusions'       => [],
 			'custom_exclusions'     => [],
 			'auto_clean'            => \max( 1, (int)$requestRetentionDays ),
 		];
-
-		return $this->legacyLoggingValues;
 	}
 
 	private function defaultAllStorageStruct() :array {

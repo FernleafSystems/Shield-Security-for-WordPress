@@ -5,7 +5,7 @@
 		<div class="col-lg-4">Date Generated</div>
 		<div class="col-lg-2">Actions</div>
 	</div>
-	<div class="shield_legend_table">
+	<div class="shield_legend_table" data-reports-table="1">
 		{% for report in vars.reports %}
 			<div class="row {{ report.is_active ? 'bg-info text-white' :'' }} ">
 				<div class="col-lg-2 py-2 text-black">
@@ -36,5 +36,5 @@
 		{% endfor %}
 	</div>
 {% else %}
-	<p class="m-0">{{ strings.no_reports }}</p>
+	<p class="m-0" data-reports-table="1">{{ strings.no_reports }}</p>
 {% endif %}
