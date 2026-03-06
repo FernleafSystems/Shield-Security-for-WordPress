@@ -62,6 +62,52 @@ class RequestLogRetentionPolicyTest extends BaseUnitTest {
 		$this->assertSame( 1, $days[ 'standard' ] );
 	}
 
+	public function test_retention_days_filter_ignores_non_array_policy_payload() :void {
+		$this->setApplyFilters( function ( string $tag, $value ) {
+			if ( $tag === RequestLogRetentionPolicy::FILTER_REQUEST_POLICY ) {
+				return 'not-an-array';
+			}
+			return null;
+		} );
+
+		$this->assertSame( [
+			'transient' => RequestLogRetentionPolicy::RETENTION_DAYS_TRANSIENT,
+			'standard'  => RequestLogRetentionPolicy::RETENTION_DAYS_STANDARD,
+		], $this->makePolicy()->retentionDays() );
+	}
+
+	public function test_retention_days_filter_normalises_missing_and_malformed_values() :void {
+		$this->setApplyFilters( function ( string $tag, $value ) {
+			if ( $tag === RequestLogRetentionPolicy::FILTER_REQUEST_POLICY ) {
+				$value[ 'retention_days' ] = [
+					'transient' => '12',
+					'standard'  => 'abc',
+				];
+				return $value;
+			}
+			return null;
+		} );
+
+		$days = $this->makePolicy()->retentionDays();
+		$this->assertSame( 12, $days[ 'transient' ] );
+		$this->assertSame( 12, $days[ 'standard' ] );
+	}
+
+	public function test_retention_days_filter_handles_missing_retention_days_key() :void {
+		$this->setApplyFilters( function ( string $tag, $value ) {
+			if ( $tag === RequestLogRetentionPolicy::FILTER_REQUEST_POLICY ) {
+				unset( $value[ 'retention_days' ] );
+				return $value;
+			}
+			return null;
+		} );
+
+		$this->assertSame( [
+			'transient' => RequestLogRetentionPolicy::RETENTION_DAYS_TRANSIENT,
+			'standard'  => RequestLogRetentionPolicy::RETENTION_DAYS_STANDARD,
+		], $this->makePolicy()->retentionDays() );
+	}
+
 	public function test_transient_decision_matrix() :void {
 		$this->setApplyFilters();
 

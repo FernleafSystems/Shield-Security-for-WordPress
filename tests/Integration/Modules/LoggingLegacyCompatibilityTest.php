@@ -60,4 +60,48 @@ class LoggingLegacyCompatibilityTest extends ShieldIntegrationTestCase {
 		$sanitizer->specificOptChecks();
 		$this->assertSame( 'en', $sanitizer->run() );
 	}
+
+	public function test_legacy_logging_contract_remains_stable_across_store_cycles() :void {
+		$con = $this->requireController();
+
+		$activityFilter = static function ( array $policy ) :array {
+			$policy[ 'retention_seconds_by_level' ][ 'notice' ] = 52*\DAY_IN_SECONDS;
+			return $policy;
+		};
+		$requestFilter = static function ( array $policy ) :array {
+			$policy[ 'retention_days' ][ 'standard' ] = 19;
+			return $policy;
+		};
+
+		add_filter( ActivityLogRetentionPolicy::FILTER_ACTIVITY_POLICY, $activityFilter );
+		add_filter( RequestLogRetentionPolicy::FILTER_REQUEST_POLICY, $requestFilter );
+
+		try {
+			$opts = $con->opts;
+
+			for ( $i = 0; $i < 3; $i++ ) {
+				$this->assertSame( [ 'warning', 'notice', 'info' ], $opts->optGet( 'log_level_db' ) );
+				$this->assertSame( 52, $opts->optGet( 'audit_trail_auto_clean' ) );
+				$this->assertSame( 19, $opts->optGet( 'auto_clean' ) );
+				$this->assertSame( [], $opts->optGet( 'type_exclusions' ) );
+				$this->assertSame( [], $opts->optGet( 'custom_exclusions' ) );
+
+				$this->assertSame( 52, $con->comps->activity_log->getAutoCleanDays() );
+				$this->assertSame( [ 'warning', 'notice', 'info' ], $con->comps->activity_log->getLogLevelsDB() );
+				$this->assertSame( 19, $con->comps->requests_log->getAutoCleanDays() );
+
+				$opts->optSet( 'auto_clean', 900 + $i );
+				$opts->optSet( 'audit_trail_auto_clean', 900 + $i );
+				$opts->store();
+			}
+
+			$this->assertSame( [ 'warning', 'notice', 'info' ], $opts->optGet( 'log_level_db' ) );
+			$this->assertSame( 52, $opts->optGet( 'audit_trail_auto_clean' ) );
+			$this->assertSame( 19, $opts->optGet( 'auto_clean' ) );
+		}
+		finally {
+			remove_filter( ActivityLogRetentionPolicy::FILTER_ACTIVITY_POLICY, $activityFilter );
+			remove_filter( RequestLogRetentionPolicy::FILTER_REQUEST_POLICY, $requestFilter );
+		}
+	}
 }
