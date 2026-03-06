@@ -13,6 +13,8 @@ class RequestLogger {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
+	public const FILTER_BUILTIN_SUPPRESSIONS_ENABLED = 'shield/request_logs/built_in_suppressions_enabled';
+
 	/**
 	 * @var Logger
 	 */
@@ -49,7 +51,16 @@ class RequestLogger {
 	 */
 	public function isLogged() :bool {
 		$con = self::con();
-		return !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false );
+		$isLogged = false;
+
+		if ( !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false ) ) {
+			$isLogged = $this->isDependentLog()
+						|| $con->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0
+						|| !apply_filters( self::FILTER_BUILTIN_SUPPRESSIONS_ENABLED, true, $con->this_req )
+						|| !( new RequestLogSuppressor() )->shouldSuppress();
+		}
+
+		return $isLogged;
 	}
 
 	public function createDependentLog() :void {

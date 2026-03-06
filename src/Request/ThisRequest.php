@@ -93,6 +93,30 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 		return $this->ipStatus ??= new IpRuleStatus( $this->ip );
 	}
 
+	/**
+	 * @see \WP_REST_Request::from_url()
+	 */
+	public function getRestRoute() :string {
+		$currentURL = sprintf(
+			'http%s://%s/%s',
+			is_ssl() ? 's' : '',
+			$this->request->server[ 'HTTP_HOST' ] ?? '',
+			\trim( $this->path, '/' )
+		);
+
+		if ( $this->wp_is_permalinks_enabled && \str_starts_with( $currentURL, $this->rest_api_root ) ) {
+			$route = \str_replace( $this->rest_api_root, '', $currentURL );
+		}
+		elseif ( isset( $this->request->query[ 'rest_route' ] ) ) {
+			$route = $this->request->query[ 'rest_route' ];
+		}
+		else {
+			$route = '';
+		}
+
+		return \trim( (string)$route, '/' );
+	}
+
 	public function getHostname() :string {
 		return DNS::Reverse( $this->ip );
 	}
