@@ -248,11 +248,13 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 
 		$activityHref = (string)( $tables[ 'activity' ][ 'full_log_href' ] ?? '' );
 		$requestsHref = (string)( $tables[ 'requests' ][ 'full_log_href' ] ?? '' );
+		$sessionsHref = (string)( $tables[ 'sessions' ][ 'full_log_href' ] ?? '' );
 
 		$activityQuery = [];
 		$requestsQuery = [];
 		\parse_str( (string)\parse_url( $activityHref, \PHP_URL_QUERY ), $activityQuery );
 		\parse_str( (string)\parse_url( $requestsHref, \PHP_URL_QUERY ), $requestsQuery );
+		$this->assertSame( '/admin/activity/sessions', (string)\parse_url( $sessionsHref, \PHP_URL_PATH ) );
 		$this->assertSame( 'user_id:42', (string)( $activityQuery[ 'search' ] ?? '' ) );
 		$this->assertSame( 'user_id:42', (string)( $requestsQuery[ 'search' ] ?? '' ) );
 
@@ -361,6 +363,10 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 
 			public function investigateByUser( string $lookup = '' ) :string {
 				return empty( $lookup ) ? '/admin/activity/by_user' : '/admin/activity/by_user?user_lookup='.$lookup;
+			}
+
+			public function investigateUserSessions() :string {
+				return '/admin/activity/sessions';
 			}
 		};
 		$controller->svgs = new class {

@@ -74,6 +74,28 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		$this->assertArrayNotHasKey( 'dashboard_live_monitor', $comps );
 	}
 
+	public function test_sessions_table_is_localized_for_investigate_sessions_route() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_SESSIONS
+		);
+
+		$this->assertArrayHasKey( 'sessions', $comps );
+		$this->assertArrayHasKey( 'ajax', $comps[ 'sessions' ] ?? [] );
+		$this->assertArrayHasKey( 'table_action', $comps[ 'sessions' ][ 'ajax' ] ?? [] );
+	}
+
+	public function test_sessions_table_remains_localized_for_legacy_tools_sessions_route() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_TOOLS,
+			PluginNavs::SUBNAV_TOOLS_SESSIONS
+		);
+
+		$this->assertArrayHasKey( 'sessions', $comps );
+		$this->assertArrayHasKey( 'ajax', $comps[ 'sessions' ] ?? [] );
+		$this->assertArrayHasKey( 'table_action', $comps[ 'sessions' ][ 'ajax' ] ?? [] );
+	}
+
 	private function getMainLocalisedComponentsForRoute( string $nav, string $subNav ) :array {
 		Services::Request()->query = \array_merge( $this->originalQuery, [
 			PluginNavs::FIELD_NAV    => $nav,

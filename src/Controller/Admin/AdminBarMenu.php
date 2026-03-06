@@ -166,7 +166,7 @@ class AdminBarMenu {
 
 			$thisGroup = [
 				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
-				'href'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
+				'href'  => $con->plugin_urls->investigateUserSessions(),
 				'items' => $items,
 			];
 		}

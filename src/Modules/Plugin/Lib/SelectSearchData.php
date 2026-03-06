@@ -271,7 +271,7 @@ class SelectSearchData {
 						'id'     => 'tool_sessions',
 						'text'   => __( 'View User Sessions', 'wp-simple-firewall' ),
 						'link'   => [
-							'href' => $pageURLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
+							'href' => $pageURLs->investigateUserSessions(),
 						],
 						'tokens' => 'tool user users session sessions expire discard logout',
 						'icon'   => $con->svgs->iconClass( 'person-badge.svg' ),

@@ -296,6 +296,10 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ]
 		);
 		$this->assertSame(
+			PluginAdminPages\PageUserSessions::class,
+			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_SESSIONS ][ 'handler' ]
+		);
+		$this->assertSame(
 			PluginAdminPages\PageConfigureLanding::class,
 			$hierarchy[ PluginNavs::NAV_ZONES ][ 'sub_navs' ][ PluginNavs::SUBNAV_ZONES_OVERVIEW ][ 'handler' ]
 		);
@@ -341,6 +345,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'Plugin', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ) );
 		$this->assertSame( 'Theme', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) );
 		$this->assertSame( 'Core Files', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) );
+		$this->assertSame( 'User Sessions', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) );
 		$this->assertSame( 'Activity Log', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_LOGS ) );
 		$this->assertSame( '', PluginNavs::investigateSubNavCrumbLabel( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
 	}
@@ -354,6 +359,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 				PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'label' => 'Theme' ],
 				PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'label' => 'Core Files' ],
 				PluginNavs::SUBNAV_LOGS               => [ 'label' => 'Activity Log' ],
+				PluginNavs::SUBNAV_ACTIVITY_SESSIONS  => [ 'label' => 'User Sessions' ],
 			],
 			PluginNavs::investigateSubNavDefinitions()
 		);
@@ -368,6 +374,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'theme', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) );
 		$this->assertSame( 'core', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) );
 		$this->assertSame( '', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
+		$this->assertSame( '', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) );
 		$this->assertSame( '', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_LOGS ) );
 		$this->assertTrue( PluginNavs::isInvestigateLegacyContextSubNav( PluginNavs::SUBNAV_ACTIVITY_BY_IP ) );
 		$this->assertFalse( PluginNavs::isInvestigateLegacyContextSubNav( PluginNavs::SUBNAV_LOGS ) );
@@ -538,7 +545,17 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginAdminPages\PageInvestigateByPlugin::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ][ 'handler' ] );
 		$this->assertSame( PluginAdminPages\PageInvestigateByTheme::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_THEME ][ 'handler' ] );
 		$this->assertSame( PluginAdminPages\PageInvestigateByCore::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_BY_CORE ][ 'handler' ] );
+		$this->assertSame( PluginAdminPages\PageUserSessions::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_ACTIVITY_SESSIONS ][ 'handler' ] );
 		$this->assertSame( PluginAdminPages\PageActivityLogTable::class, $hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'handler' ] );
+	}
+
+	public function test_legacy_tools_sessions_route_remains_available() :void {
+		$hierarchy = PluginNavs::GetNavHierarchy();
+
+		$this->assertSame(
+			PluginAdminPages\PageUserSessions::class,
+			$hierarchy[ PluginNavs::NAV_TOOLS ][ 'sub_navs' ][ PluginNavs::SUBNAV_TOOLS_SESSIONS ][ 'handler' ]
+		);
 	}
 
 	public function test_default_subnav_for_zones_is_overview() :void {
@@ -554,6 +571,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertArrayHasKey( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN, $subNavs );
 		$this->assertArrayHasKey( PluginNavs::SUBNAV_ACTIVITY_BY_THEME, $subNavs );
 		$this->assertArrayHasKey( PluginNavs::SUBNAV_ACTIVITY_BY_CORE, $subNavs );
+		$this->assertArrayHasKey( PluginNavs::SUBNAV_ACTIVITY_SESSIONS, $subNavs );
 	}
 
 	public function test_default_subnav_for_activity_is_overview() :void {

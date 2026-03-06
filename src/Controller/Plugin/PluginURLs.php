@@ -92,6 +92,10 @@ class PluginURLs {
 		return $url;
 	}
 
+	public function investigateUserSessions() :string {
+		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS );
+	}
+
 	public function investigateByPlugin( string $slug = '' ) :string {
 		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
 		if ( !empty( $slug ) ) {

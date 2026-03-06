@@ -33,6 +33,7 @@ class PluginNavs {
 	public const SUBNAV_ACTIVITY_BY_PLUGIN = 'by_plugin';
 	public const SUBNAV_ACTIVITY_BY_THEME = 'by_theme';
 	public const SUBNAV_ACTIVITY_BY_CORE = 'by_core';
+	public const SUBNAV_ACTIVITY_SESSIONS = 'sessions';
 	public const NAV_IPS = 'ips';
 	public const SUBNAV_IPS_RULES = 'rules';
 	public const NAV_LICENSE = 'license';
@@ -126,6 +127,9 @@ class PluginNavs {
 						],
 						self::SUBNAV_ACTIVITY_BY_CORE   => [
 							'handler' => PluginAdminPages\PageInvestigateByCore::class,
+						],
+						self::SUBNAV_ACTIVITY_SESSIONS  => [
+							'handler' => PluginAdminPages\PageUserSessions::class,
 						],
 						self::SUBNAV_LOGS               => [
 							'handler' => PluginAdminPages\PageActivityLogTable::class,
@@ -562,6 +566,7 @@ class PluginNavs {
 		}
 
 		$definitions[ self::SUBNAV_LOGS ] = [ 'label' => __( 'Activity Log', 'wp-simple-firewall' ) ];
+		$definitions[ self::SUBNAV_ACTIVITY_SESSIONS ] = [ 'label' => __( 'User Sessions', 'wp-simple-firewall' ) ];
 		return $definitions;
 	}
 

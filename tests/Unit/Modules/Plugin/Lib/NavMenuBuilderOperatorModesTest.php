@@ -129,11 +129,12 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				PluginNavs::NAV_IPS.'-'.PluginNavs::SUBNAV_IPS_RULES,
 				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS,
 				PluginNavs::NAV_TRAFFIC.'-'.PluginNavs::SUBNAV_LOGS,
+				PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_ACTIVITY_SESSIONS,
 			],
 			\array_column( $toolItems, 'slug' )
 		);
 		$this->assertSame(
-			[ 'Bots & IP Rules', 'WP Activity Log', 'HTTP Request Log' ],
+			[ 'Bots & IP Rules', 'WP Activity Log', 'HTTP Request Log', 'User Sessions' ],
 			\array_column( $toolItems, 'title' )
 		);
 		$this->assertNotContains( 'Activity Logs', \array_column( $toolItems, 'title' ) );
@@ -142,12 +143,38 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				'/admin/ips/rules',
 				'/admin/activity/logs',
 				'/admin/traffic/logs',
+				'/admin/activity/sessions',
 			],
 			\array_column( $toolItems, 'href' )
 		);
 		$this->assertFalse( (bool)( $toolItems[ 0 ][ 'active' ] ?? true ) );
 		$this->assertTrue( (bool)( $toolItems[ 1 ][ 'active' ] ?? false ) );
 		$this->assertFalse( (bool)( $toolItems[ 2 ][ 'active' ] ?? true ) );
+		$this->assertFalse( (bool)( $toolItems[ 3 ][ 'active' ] ?? true ) );
+	}
+
+	public function test_investigate_sessions_route_marks_user_sessions_tool_active() :void {
+		$this->installControllerStubs();
+		$this->installRequestServiceStub( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_ACTIVITY,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_ACTIVITY_SESSIONS,
+		] );
+
+		$sidebar = ( new NavMenuBuilder() )->build();
+		$toolItems = $sidebar[ 'tool_items' ];
+
+		$this->assertSame(
+			[
+				false,
+				false,
+				false,
+				true,
+			],
+			\array_map(
+				static fn( array $item ) :bool => (bool)( $item[ 'active' ] ?? false ),
+				$toolItems
+			)
+		);
 	}
 
 	public function test_home_connect_items_are_omitted_for_whitelabel() :void {
@@ -196,6 +223,10 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 			public function wizard( string $step ) :string {
 				return '/admin/wizard/'.$step;
+			}
+
+			public function investigateUserSessions() :string {
+				return '/admin/activity/sessions';
 			}
 		};
 		$controller->svgs = new class {

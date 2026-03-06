@@ -100,6 +100,7 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 			'zones_overview'     => [ PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'Shield Security' ] ],
 			'reports_overview'   => [ PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW, [ 'Shield Security' ] ],
 			'activity_by_user'   => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER, [ 'Shield Security', 'Investigate' ] ],
+			'activity_sessions'  => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS, [ 'Shield Security', 'Investigate' ] ],
 			'activity_logs'      => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, [ 'Shield Security', 'Investigate' ] ],
 			'traffic_logs'       => [ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS, [ 'Shield Security', 'Investigate' ] ],
 			'traffic_live'       => [ PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE, [ 'Shield Security', 'Investigate' ] ],
@@ -129,6 +130,7 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ],
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_THEME ],
 			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE ],
+			[ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ],
 			[ PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ],
 		];
 	}
@@ -168,6 +170,7 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 					PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_ACTIVITY_BY_THEME  => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_ACTIVITY_BY_CORE   => [ 'handler' => 'handler' ],
+					PluginNavs::SUBNAV_ACTIVITY_SESSIONS => [ 'handler' => 'handler' ],
 					PluginNavs::SUBNAV_LOGS              => [ 'handler' => 'handler' ],
 				],
 			],

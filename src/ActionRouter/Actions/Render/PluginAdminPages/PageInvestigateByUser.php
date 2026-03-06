@@ -280,7 +280,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'status'     => 'good',
 				'table_type' => InvestigationTableContract::TABLE_TYPE_SESSIONS,
 				'builder'    => new InvestigationSessionsTableBuilder(),
-				'href'       => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ),
+				'href'       => self::con()->plugin_urls->investigateUserSessions(),
 			],
 			'activity' => [
 				'title'      => __( 'Recent Activity Logs', 'wp-simple-firewall' ),

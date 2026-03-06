@@ -564,7 +564,10 @@ class AssetsCustomizer {
 							]
 						];
 					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS ) ) {
+					elseif (
+						PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS )
+						|| PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS )
+					) {
 						$data[ 'sessions' ] = [
 							'ajax' => [
 								'table_action' => ActionData::Build( Actions\SessionsTableAction::class ),
