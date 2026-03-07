@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -17,6 +18,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
+	use HtmlDomAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -67,12 +69,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing all-clear' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing all-clear' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$allClear = \is_array( $vars[ 'all_clear' ] ?? null ) ? $vars[ 'all_clear' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
@@ -90,19 +93,36 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', (string)( $allClear[ 'title' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $allClear[ 'subtitle' ] ?? '' ) );
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $allClear[ 'zone_chips' ] ?? [], 'slug' ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="severity-strip" and contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',
+			'Actions queue all-clear shared strip root marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="severity-strip"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip__chip ")]',
+			'Actions queue all-clear shared strip chip marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-actions-queue-section="severity-strip"]//*[@role="progressbar"]',
+			0,
+			'Actions queue all-clear strip should not render a progressbar'
+		);
 	}
 
 	public function test_maintenance_items_render_tiles_and_maintenance_panel() :void {
 		$this->setPluginUpdateAvailable();
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
+		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
@@ -113,6 +133,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $maintenance[ 'is_disabled' ] ?? true ) );
 		$this->assertSame( 'maintenance', (string)( $maintenance[ 'panel_target' ] ?? '' ) );
 		$this->assertFalse( (bool)( $scans[ 'is_enabled' ] ?? true ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="severity-strip" and contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',
+			'Actions queue populated shared strip root marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-actions-queue-section="severity-strip"]//*[@role="progressbar"]',
+			0,
+			'Actions queue populated strip should not render a progressbar'
+		);
 	}
 
 	public function test_maintenance_panel_exposes_updates_href() :void {

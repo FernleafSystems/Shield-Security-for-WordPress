@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -17,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
+	use HtmlDomAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -35,12 +37,14 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_configure_landing_exposes_payload_contract_for_route_and_tiles() :void {
 		$payload = $this->renderConfigureLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$strings = \is_array( $renderData[ 'strings' ] ?? null ) ? $renderData[ 'strings' ] : [];
 		$tileDefinitions = PluginNavs::configureLandingTileDefinitions();
 		$expectedCount = \count( $tileDefinitions );
 		$renderActionData = \is_array( $vars[ 'configure_render_action' ] ?? null ) ? $vars[ 'configure_render_action' ] : [];
+		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertSame( ActionData::FIELD_SHIELD, $renderActionData[ ActionData::FIELD_ACTION ] ?? '' );
 		$this->assertSame( AjaxRender::SLUG, $renderActionData[ ActionData::FIELD_EXECUTE ] ?? '' );
 		$this->assertSame( PageConfigureLanding::SLUG, $renderActionData[ 'render_slug' ] ?? '' );
@@ -56,6 +60,21 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', (string)( $vars[ 'posture_label' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $vars[ 'posture_icon_class' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $vars[ 'posture_summary' ] ?? '' ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="hero"]/*[contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',
+			'Configure landing shared strip root marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="hero"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip__chip ")]',
+			'Configure landing shared strip chip marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="hero"]//*[@role="progressbar" and contains(concat(" ", normalize-space(@class), " "), " progress-bar ") and @aria-label="'.(string)( $strings[ 'posture_title' ] ?? '' ).'" and @aria-valuenow="'.(string)( $vars[ 'posture_percentage' ] ?? 0 ).'"]',
+			'Configure landing posture progressbar marker'
+		);
 
 		foreach ( $tileDefinitions as $tileDefinition ) {
 			$zoneKey = (string)$tileDefinition[ 'key' ];

@@ -165,6 +165,14 @@ When building a new card component that needs a status accent:
 5. Apply `$card-bg-*` variables for subtle card body background tints per status
 6. Set `overflow: hidden` on the card so the accent respects border-radius
 
+## Landing Status Strip Pattern
+
+Mode landing status strips reuse the shared card primitives and the shared
+`shield-mode-strip*` classes for the left-edge accent, chip, copy layout, and
+optional inline meter. The canonical reference implementation is the Actions
+Queue landing strip; Configure maps its posture payload into the same shared
+markup rather than owning a second strip design.
+
 ## Status Naming Conventions
 
 Different components use different status vocabulary. Map them to the shared colour variables:
@@ -218,6 +226,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
 | `security-admin.scss` | Security admin modal and PIN form |
+| `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, `.shield-mode-strip*`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)
 

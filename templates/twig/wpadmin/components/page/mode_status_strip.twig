@@ -1,0 +1,52 @@
+{# Keep this partial narrow. If additional landing pages adopt it, move repeated
+   page-specific payload mapping out of the page templates instead of widening
+   this include with lots of conditional branches. #}
+{% set strip_status = strip.status|default('good') %}
+{% set strip_chip_label = strip.chip_label|default('') %}
+{% set strip_icon_class = strip.icon_class|default('') %}
+{% set strip_eyebrow = strip.eyebrow|default('') %}
+{% set strip_summary = strip.summary|default('') %}
+{% set strip_subtext = strip.subtext|default('') %}
+{% set strip_meter = strip.meter|default({}) %}
+{% set meter_percentage = strip_meter.percentage|default(null) %}
+{% set meter_status = strip_meter.status|default(strip_status) %}
+{% set meter_aria_label = strip_meter.aria_label|default('Progress') %}
+{% set meter_aria_value_text = strip_meter.aria_value_text|default('') %}
+
+<div class="card-body shield-mode-strip__body">
+	{% if strip_chip_label is not empty %}
+		<span class="shield-mode-strip__chip status-{{ strip_status }}">
+			{% if strip_icon_class is not empty %}
+				<i class="{{ strip_icon_class }}" aria-hidden="true"></i>
+			{% endif %}
+			{{ strip_chip_label }}
+		</span>
+	{% endif %}
+	<div class="shield-mode-strip__copy">
+		{% if strip_eyebrow is not empty %}
+			<div class="shield-mode-strip__eyebrow">{{ strip_eyebrow }}</div>
+		{% endif %}
+		{% if meter_percentage is not null %}
+			<div class="shield-mode-strip__meter meter-progress-row">
+				<div class="progress">
+					<div class="progress-bar status-{{ meter_status }}"
+						 role="progressbar"
+						 aria-label="{{ meter_aria_label }}"
+						 aria-valuenow="{{ meter_percentage }}"
+						 aria-valuemin="0"
+						 aria-valuemax="100"
+						 {% if meter_aria_value_text is not empty %}
+						 aria-valuetext="{{ meter_aria_value_text }}"
+						 {% endif %}
+						 style="width: {{ meter_percentage }}%;"></div>
+				</div>
+			</div>
+		{% endif %}
+		{% if strip_summary is not empty %}
+			<div class="shield-mode-strip__summary">{{ strip_summary }}</div>
+		{% endif %}
+		{% if strip_subtext is not empty %}
+			<div class="shield-mode-strip__subtext">{{ strip_subtext }}</div>
+		{% endif %}
+	</div>
+</div>

@@ -5,21 +5,18 @@
 	{% set strip = vars.severity_strip|default({}) %}
 	<div class="actions-landing" data-actions-landing="1">
 
-		<section class="actions-landing__severity-strip shield-card mb-3 status-{{ strip.severity|default('good') }}"
+		<section class="actions-landing__severity-strip shield-mode-strip shield-card status-{{ strip.severity|default('good') }}"
 				 data-actions-queue-section="severity-strip">
-			<div class="card-body actions-landing__severity-body">
-				<span class="actions-landing__severity-chip status-{{ strip.severity|default('good') }}">
-					<i class="{{ strip.icon_class|default('') }}" aria-hidden="true"></i>
-					{{ strip.label|default(strings.status_all_clear) }}
-				</span>
-				<div class="actions-landing__severity-copy">
-					<div class="actions-landing__severity-label">{{ strings.severity_strip_label }}</div>
-					<div class="actions-landing__severity-summary">{{ strip.summary_text|default('') }}</div>
-					{% if strip.subtext|default('') is not empty %}
-						<div class="actions-landing__severity-subtext">{{ strip.subtext }}</div>
-					{% endif %}
-				</div>
-			</div>
+			{% include '/wpadmin/components/page/mode_status_strip.twig' with {
+				strip: {
+					status: strip.severity|default('good'),
+					chip_label: strip.label|default(strings.status_all_clear),
+					icon_class: strip.icon_class|default(''),
+					eyebrow: strings.severity_strip_label|default(''),
+					summary: strip.summary_text|default(''),
+					subtext: strip.subtext|default('')
+				}
+			} only %}
 		</section>
 
 		{% if not flags.queue_is_empty|default(false) %}
@@ -128,7 +125,7 @@
 								items: zone.items
 							} only %}
 							<div class="actions-landing__maintenance-actions mt-3">
-								<div class="actions-landing__severity-label mb-2">{{ strings.panel_maintenance_actions }}</div>
+								<div class="shield-mode-strip__eyebrow mb-2">{{ strings.panel_maintenance_actions }}</div>
 								<div class="d-flex flex-wrap gap-2">
 									<a href="{{ hrefs.wp_updates }}" class="btn btn-outline-secondary btn-sm">{{ strings.panel_wp_updates }}</a>
 								</div>

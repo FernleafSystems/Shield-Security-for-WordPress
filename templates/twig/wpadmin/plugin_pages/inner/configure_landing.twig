@@ -5,22 +5,22 @@
 		 data-configure-landing="1"
 		 data-configure-render-action="{{ vars.configure_render_action|default({})|json_encode|e('html_attr') }}">
 		<div data-configure-section="hero">
-			<div class="configure-landing__posture-strip" data-configure-posture-strip="1">
-				<span class="configure-landing__posture-chip status-{{ vars.posture_status }}"
-					  data-configure-posture-chip="1">
-					<i class="{{ vars.posture_icon_class }}" aria-hidden="true"></i>
-					{{ vars.posture_label }}
-				</span>
-				<div class="configure-landing__posture-info">
-					<div class="configure-landing__posture-bar-wrap">
-						<div class="configure-landing__posture-bar status-{{ vars.posture_status }}"
-							 data-configure-posture-bar="1"
-							 style="width: {{ vars.posture_percentage|default(0) }}%;"></div>
-					</div>
-					<span class="configure-landing__posture-summary" data-configure-posture-summary="1">
-						{{ vars.posture_summary|default('') }}
-					</span>
-				</div>
+			<div class="configure-landing__posture-strip shield-mode-strip shield-card status-{{ vars.posture_status|default('good') }}">
+				{% include '/wpadmin/components/page/mode_status_strip.twig' with {
+					strip: {
+						status: vars.posture_status|default('good'),
+						chip_label: vars.posture_label|default(''),
+						icon_class: vars.posture_icon_class|default(''),
+						eyebrow: strings.posture_title|default(''),
+						summary: vars.posture_summary|default(''),
+						meter: {
+							percentage: vars.posture_percentage|default(0),
+							status: vars.posture_status|default('good'),
+							aria_label: strings.posture_title|default('Configuration posture'),
+							aria_value_text: vars.posture_percentage|default(0) ~ '%'
+						}
+					}
+				} only %}
 			</div>
 		</div>
 

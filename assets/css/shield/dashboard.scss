@@ -44,6 +44,128 @@
 }
 
 // ------------------------------------
+// Reusable: .shield-mode-strip (landing status strip)
+// Keep this as the canonical top-of-page status strip styling. Future consumers
+// should extend this shared primitive rather than recreating page-local strip variants.
+// ------------------------------------
+.shield-mode-strip {
+	margin-bottom: 1rem;
+	overflow: hidden;
+	position: relative;
+
+	&::before {
+		content: '';
+		bottom: 0;
+		left: 0;
+		position: absolute;
+		top: 0;
+		width: 4px;
+	}
+
+	&.status-good::before {
+		background: $status-color-good;
+	}
+
+	&.status-warning::before {
+		background: $status-color-warning;
+	}
+
+	&.status-critical::before {
+		background: $status-color-critical;
+	}
+
+	&.status-info::before,
+	&.status-neutral::before {
+		background: $status-color-info;
+	}
+}
+
+.shield-mode-strip__body {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.95rem 1.1rem;
+	padding: 0.85rem 1.1rem;
+}
+
+.shield-mode-strip__chip {
+	align-items: center;
+	border-radius: 20px;
+	display: inline-flex;
+	flex-shrink: 0;
+	font-size: 0.84rem;
+	font-weight: 700;
+	gap: 0.35rem;
+	letter-spacing: 0.01em;
+	padding: 0.42rem 0.85rem;
+	white-space: nowrap;
+
+	&.status-good {
+		background: $badge-good-bg;
+		color: $badge-good-color;
+	}
+
+	&.status-warning {
+		background: $badge-warning-bg;
+		color: $badge-warning-color;
+	}
+
+	&.status-critical {
+		background: $badge-critical-bg;
+		color: $badge-critical-color;
+	}
+
+	&.status-info,
+	&.status-neutral {
+		background: $badge-info-bg;
+		color: $badge-info-color;
+	}
+}
+
+.shield-mode-strip__copy {
+	flex: 1;
+	min-width: 240px;
+}
+
+.shield-mode-strip__eyebrow {
+	color: #646970;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	line-height: 1.2;
+	text-transform: uppercase;
+}
+
+.shield-mode-strip__meter {
+	margin-top: 0.35rem;
+	max-width: 320px;
+}
+
+.shield-mode-strip__meter .progress {
+	width: 100%;
+}
+
+.shield-mode-strip__meter .progress-bar {
+	border-radius: 3px;
+	transition: width 0.6s ease;
+}
+
+.shield-mode-strip__summary {
+	color: #50575e;
+	font-size: 0.82rem;
+	font-weight: 600;
+	line-height: 1.35;
+	margin-top: 0.18rem;
+}
+
+.shield-mode-strip__subtext {
+	color: #8c8f94;
+	font-size: 0.72rem;
+	line-height: 1.3;
+	margin-top: 0.14rem;
+}
+
+// ------------------------------------
 // Reusable: .shield-list (clean widget list)
 // ------------------------------------
 .shield-list {
