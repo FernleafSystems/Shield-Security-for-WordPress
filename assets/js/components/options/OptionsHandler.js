@@ -30,14 +30,14 @@ export class OptionsHandler extends BaseAutoExecComponent {
 		shieldEventsHandler_Main.add_Click(
 			'form.options_form_for .option-description-expander',
 			( targetEl ) => {
-				const descriptionKey = ( targetEl.dataset.option_description_key || '' )
-				.trim()
-				.replace( /^['"]+|['"]+$/g, '' );
-				const toToggle = descriptionKey.length > 0
-					? document.getElementById( `Description-${descriptionKey}` )
+				const descriptionTarget = ( targetEl.getAttribute( 'aria-controls' ) || '' ).trim();
+				const toToggle = descriptionTarget.length > 0
+					? document.getElementById( descriptionTarget )
 					: null;
 				if ( toToggle ) {
-					toToggle.classList.toggle( 'hidden' )
+					const isHidden = toToggle.classList.toggle( 'hidden' );
+					targetEl.setAttribute( 'aria-expanded', isHidden ? 'false' : 'true' );
+					toToggle.setAttribute( 'aria-hidden', isHidden ? 'true' : 'false' );
 				}
 			},
 			false

@@ -6,6 +6,10 @@
 	<span class="svg-container {{ classes|join(' ') }}"><i class="{{ icon_class }}" aria-hidden="true"></i></span>
 {% endmacro %}
 
+{% macro renderAttributes(attributes={}) %}
+	{% for attr_name, attr_value in attributes %} {{ attr_name|e('html_attr') }}="{{ attr_value|e('html_attr') }}"{% endfor %}
+{% endmacro %}
+
 {% macro issues_wrapper(components, strings) %}
 	<div class="health-check-accordion issues">
 		{% for component in components %}
@@ -36,14 +40,23 @@
 {% endmacro %}
 
 {% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[],disabled=false) %}
+	{% set attributes = {} %}
+	{% if id is not empty %}
+		{% set attributes = attributes|merge( { id: id } ) %}
+	{% endif %}
+	{% if new_window %}
+		{% set attributes = attributes|merge( { target: '_blank' } ) %}
+	{% endif %}
+	{% if datas is not empty %}
+		{% for data_key,data_value in datas %}
+			{% set attributes = attributes|merge( { ('data-'~data_key): data_value } ) %}
+		{% endfor %}
+	{% endif %}
+	{% if disabled %}
+		{% set attributes = attributes|merge( { disabled: 'disabled' } ) %}
+	{% endif %}
 	<a href="{{ disabled ? '#' : href }}"
-	   class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"
-	   {% if id is not empty %}id="{{ id }}"{% endif %}
-			{% if new_window %}target="_blank"{% endif %}
-			{% if datas is not empty %}
-				{% for data_key,data_value in datas %}data-{{ data_key }}="{{ data_value }}"{% endfor %}
-			{% endif %}
-			{{ disabled ? 'disabled="disabled"' : '' }}
+	   class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"{{ _self.renderAttributes( attributes ) }}
 	>{{ text }}</a>
 {% endmacro %}
 

@@ -18,7 +18,10 @@
 						strings.description,
 						'',
 						['option-description-expander'],
-						{'data-option_description_key': option.key}
+						{
+							'aria-controls': 'Description-'~option.key,
+							'aria-expanded': option.is_focus ? 'true' : 'false'
+						}
 					) }}
 				{% endif %}
 
@@ -223,7 +226,9 @@
 
 	<div class="col-12 shield-option-description-col">
 		<div id="Description-{{ option.key }}"
-			 class="pt-2 option-description option-description-{{ option.key }} {{ option.is_focus ? '':'hidden' }}">
+			 class="pt-2 option-description {{ option.is_focus ? '':'hidden' }}"
+			 aria-hidden="{{ option.is_focus ? 'false' : 'true' }}"
+			 aria-labelledby="Label-{{ option.key }}">
 			{% for desc in option.description %}
 				<p>{{ desc|raw }}</p>
 			{% endfor %}
@@ -255,6 +260,7 @@
 </div>
 
 {% macro options_helper(icon_class, tooltip, href="", classes=[], attributes={}) %}
+	{% import '/common/macros.twig' as icwp_macros %}
 	{% set is_link = href is not empty %}
 	{% if is_link %}
 		<a href="{{ href }}"
@@ -262,7 +268,7 @@
 		   data-bs-toggle="tooltip"
 		   data-bs-trigger="hover"
 		   data-bs-placement="top"
-		   data-bs-title="{{ tooltip }}"{% for attr_name, attr_value in attributes %} {{ attr_name }}="{{ attr_value|e('html_attr') }}"{% endfor %}
+		   data-bs-title="{{ tooltip }}"{{ icwp_macros.renderAttributes( attributes ) }}
 		><i class="{{ icon_class }}" aria-hidden="true"></i></a>
 	{% else %}
 		<button type="button"
@@ -271,7 +277,7 @@
 				data-bs-toggle="tooltip"
 				data-bs-trigger="hover"
 				data-bs-placement="top"
-				data-bs-title="{{ tooltip }}"{% for attr_name, attr_value in attributes %} {{ attr_name }}="{{ attr_value|e('html_attr') }}"{% endfor %}
+				data-bs-title="{{ tooltip }}"{{ icwp_macros.renderAttributes( attributes ) }}
 		><i class="{{ icon_class }}" aria-hidden="true"></i></button>
 	{% endif %}
 {% endmacro %}
