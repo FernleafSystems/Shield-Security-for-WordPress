@@ -49,6 +49,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 			[],
 			[
 				'wp_is_permalinks_enabled' => true,
+				'rest_api_root'            => \home_url( '/wp-json/' ),
 			]
 		);
 		$this->assertSame( 'wp/v2/users/me', $this->requireController()->this_req->getRestRoute() );
@@ -82,6 +83,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 			[],
 			[
 				'wp_is_permalinks_enabled' => true,
+				'rest_api_root'            => \home_url( '/wp-json/' ),
 			]
 		);
 
@@ -203,11 +205,13 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 			true
 		);
 
+		$this->enablePremiumCapabilities( [ 'traffic_live_log' ] );
 		$this->requireController()->opts
 			 ->optSet( 'enable_live_log', 'Y' )
 			 ->optSet( 'live_log_started_at', \time() );
 
 		try {
+			$this->assertSame( 'Y', $this->requireController()->opts->optGet( 'enable_live_log' ) );
 			$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 		}
 		finally {

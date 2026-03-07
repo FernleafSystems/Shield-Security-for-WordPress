@@ -63,12 +63,21 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 
 		$helpButton = $this->assertXPathExists(
 			$xpath,
-			'//button[contains(concat(" ", normalize-space(@class), " "), " beacon-article ") and @data-beacon_article_id="'.(string)( $sessionIdleTimeout[ 'beacon_id' ] ?? '' ).'"]',
-			'Beacon help button'
+			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-row ") and .//*[@id="Label-session_idle_timeout_interval"]]//button[contains(concat(" ", normalize-space(@class), " "), " beacon-article ")]',
+			'Option beacon help button'
 		);
 		$this->assertInstanceOf( \DOMElement::class, $helpButton );
 		$this->assertSame( (string)( $sessionIdleTimeout[ 'beacon_id' ] ?? '' ), $helpButton->getAttribute( 'data-beacon_article_id' ) );
 		$this->assertSame( 'sidebar', $helpButton->getAttribute( 'data-beacon_article_format' ) );
+
+		$sectionHelpButton = $this->assertXPathExists(
+			$xpath,
+			'//section[.//*[@id="Label-session_idle_timeout_interval"]]//div[contains(concat(" ", normalize-space(@class), " "), " shield-options-panel-header-actions ")]//button[contains(concat(" ", normalize-space(@class), " "), " beacon-article ")]',
+			'Section beacon help button'
+		);
+		$this->assertInstanceOf( \DOMElement::class, $sectionHelpButton );
+		$this->assertSame( (string)( $sessionIdleTimeout[ 'beacon_id' ] ?? '' ), $sectionHelpButton->getAttribute( 'data-beacon_article_id' ) );
+		$this->assertSame( 'modal', $sectionHelpButton->getAttribute( 'data-beacon_article_format' ) );
 
 		$videoButton = $this->assertXPathExists(
 			$xpath,

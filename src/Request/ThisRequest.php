@@ -100,7 +100,11 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 		$route = $this->request->request( 'rest_route', false, '' );
 		if ( empty( $route ) && $this->wp_is_permalinks_enabled ) {
 			$requestPath = \trim( (string)$this->request->getPath(), '/' );
-			$restBasePath = \trim( (string)\wp_parse_url( \rest_url( '/' ), \PHP_URL_PATH ), '/' );
+			$restBaseUrl = isset( $this->rest_api_root ) ? (string)$this->rest_api_root : '';
+			if ( $restBaseUrl === '' ) {
+				$restBaseUrl = (string)\rest_url( '/' );
+			}
+			$restBasePath = \trim( (string)\wp_parse_url( $restBaseUrl, \PHP_URL_PATH ), '/' );
 
 			if ( $requestPath !== '' && $restBasePath !== '' && \str_starts_with( $requestPath, $restBasePath ) ) {
 				$route = \substr( $requestPath, \strlen( $restBasePath ) );

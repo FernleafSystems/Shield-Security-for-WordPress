@@ -95,6 +95,25 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
 	}
 
+	public function test_injected_rest_api_root_takes_precedence_over_global_rest_url() :void {
+		Functions\when( 'rest_url' )->alias( static fn( string $path = '' ) :string => 'https://example.test/?rest_route='.rawurlencode( $path ) );
+
+		$request = $this->buildRequest(
+			[
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/wp-json/wp/v2/users/me',
+			]
+		);
+
+		$thisReq = new ThisRequest( [
+			'request'                  => $request,
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/wp-json/',
+		] );
+
+		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
+	}
+
 	public function test_non_rest_request_returns_empty_string() :void {
 		$request = $this->buildRequest(
 			[
