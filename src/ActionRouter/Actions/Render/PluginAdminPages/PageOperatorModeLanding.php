@@ -32,21 +32,29 @@ class PageOperatorModeLanding extends BaseRender {
 
 		$sessionCount = $this->getInvestigateActiveSessionsCount();
 		$reportsCount = $this->getGeneratedReportsCount();
+		$actionsLane = $this->buildActionsLane( $queueSummary, $queueZoneGroups );
+		$secondaryLanes = [
+			$this->buildInvestigateLane( $sessionCount ),
+			$this->buildConfigureLane( $configPercentage, $configTraffic ),
+			$this->buildReportsLane( $reportsCount ),
+		];
 
 		return [
 			'strings' => [
-				'title'    => __( 'Shield Security', 'wp-simple-firewall' ),
+				'title'             => __( 'Actions Queue', 'wp-simple-firewall' ),
 				'subtitle' => $this->buildShieldSubtitle( $queueSummary ),
+				'actions_queue_cta' => __( 'View Actions Queue', 'wp-simple-firewall' ),
 			],
 			'vars' => [
 				'shield_status'     => $shieldStatus,
 				'shield_icon_class' => $this->buildShieldIconClass( $shieldStatus ),
 				'lanes'             => [
-					$this->buildActionsLane( $queueSummary, $queueZoneGroups ),
-					$this->buildInvestigateLane( $sessionCount ),
-					$this->buildConfigureLane( $configPercentage, $configTraffic ),
-					$this->buildReportsLane( $reportsCount ),
+					$actionsLane,
+					...$secondaryLanes,
 				],
+				'actions_lane'      => $actionsLane,
+				'secondary_lanes'   => $secondaryLanes,
+				'actions_queue_rows' => $this->buildActionsQueueRows( $queueZoneGroups ),
 				'live_monitor'      => $this->buildLiveMonitorVars(),
 			],
 		];
@@ -192,6 +200,159 @@ class PageOperatorModeLanding extends BaseRender {
 			'indicator_text'     => $indicatorText,
 			'indicator_subtext'  => $queueSummary[ 'has_items' ] ? $this->buildQueueBreakdownText( $zoneGroups ) : '',
 		];
+	}
+
+	/**
+	 * @param list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }> $zoneGroups
+	 * @return list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   count:int
+	 * }>
+	 */
+	private function buildActionsQueueRows( array $zoneGroups ) :array {
+		$scansCon = self::con()->comps->scans;
+		$counter = $scansCon->getScanResultsCount();
+		$rows = \array_values( \array_filter( [
+			$this->buildScanQueueRow(
+				'malware',
+				__( 'Malware', 'wp-simple-firewall' ),
+				'bug',
+				'critical',
+				$scansCon->AFS()->isEnabledMalwareScanPHP(),
+				$counter->countMalware()
+			),
+			$this->buildScanQueueRow(
+				'vulnerable_assets',
+				__( 'Vulnerabilities', 'wp-simple-firewall' ),
+				'shield-exclamation',
+				'critical',
+				$scansCon->WPV()->isEnabled(),
+				$counter->countVulnerableAssets()
+			),
+			$this->buildScanQueueRow(
+				'wp_files',
+				__( 'WP Files', 'wp-simple-firewall' ),
+				'wordpress',
+				'critical',
+				$scansCon->AFS()->isScanEnabledWpCore(),
+				$counter->countWPFiles()
+			),
+			$this->buildScanQueueRow(
+				'plugin_files',
+				__( 'Plugin Files', 'wp-simple-firewall' ),
+				'plug',
+				'warning',
+				$scansCon->AFS()->isScanEnabledPlugins(),
+				$counter->countPluginFiles()
+			),
+			$this->buildScanQueueRow(
+				'theme_files',
+				__( 'Theme Files', 'wp-simple-firewall' ),
+				'brush',
+				'warning',
+				$scansCon->AFS()->isScanEnabledThemes(),
+				$counter->countThemeFiles()
+			),
+			$this->buildScanQueueRow(
+				'abandoned',
+				__( 'Abandoned Assets', 'wp-simple-firewall' ),
+				'archive',
+				'warning',
+				$scansCon->APC()->isEnabled(),
+				$counter->countAbandoned()
+			),
+			$this->buildMaintenanceQueueRow( $zoneGroups ),
+		] ) );
+
+		return $rows;
+	}
+
+	private function buildScanQueueRow(
+		string $key,
+		string $label,
+		string $icon,
+		string $activeSeverity,
+		bool $isEnabled,
+		int $count
+	) :?array {
+		if ( !$isEnabled ) {
+			return null;
+		}
+
+		return [
+			'key'        => $key,
+			'label'      => $label,
+			'icon_class' => self::con()->svgs->iconClass( $icon ),
+			'severity'   => $count > 0 ? $activeSeverity : 'good',
+			'count'      => \max( 0, $count ),
+		];
+	}
+
+	/**
+	 * @param list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }> $zoneGroups
+	 * @return array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   count:int
+	 * }
+	 */
+	private function buildMaintenanceQueueRow( array $zoneGroups ) :array {
+		$maintenanceGroup = $this->findQueueZoneGroupBySlug( $zoneGroups, 'maintenance' );
+		$count = \max( 0, (int)( $maintenanceGroup[ 'total_issues' ] ?? 0 ) );
+
+		return [
+			'key'        => 'maintenance',
+			'label'      => __( 'Maintenance Items', 'wp-simple-firewall' ),
+			'icon_class' => self::con()->svgs->iconClass( 'wrench' ),
+			'severity'   => $count > 0 ? 'warning' : 'good',
+			'count'      => $count,
+		];
+	}
+
+	/**
+	 * @param list<array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }> $zoneGroups
+	 * @return array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }|array{}
+	 */
+	private function findQueueZoneGroupBySlug( array $zoneGroups, string $slug ) :array {
+		$matches = \array_values( \array_filter(
+			$zoneGroups,
+			static fn( array $zoneGroup ) :bool => ( $zoneGroup[ 'slug' ] ?? '' ) === $slug
+		) );
+
+		return $matches[ 0 ] ?? [];
 	}
 
 	/**

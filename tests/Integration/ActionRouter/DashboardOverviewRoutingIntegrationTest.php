@@ -182,6 +182,12 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return $matches[ 0 ] ?? [];
 	}
 
+	private function getActionsQueueRows( array $renderData ) :array {
+		$rows = $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [];
+		$this->assertIsArray( $rows );
+		return $rows;
+	}
+
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
@@ -325,5 +331,83 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertContains( $actionsLane[ 'indicator_severity' ] ?? '', [ 'good', 'warning', 'critical' ] );
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'render_output' ] ?? '' ) ) );
+	}
+
+	public function test_operator_mode_landing_actions_queue_rows_use_scan_counts_and_maintenance_totals() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_malware_local',
+			'scan_pluginsthemes_local',
+			'scan_vulnerabilities',
+		] );
+
+		self::con()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'enable_wpvuln_scan', 'Y' )
+			->optSet( 'enabled_scan_apc', 'Y' )
+			->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes', 'malware_php' ] )
+			->store();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_core' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_theme' );
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultMeta( $wpvId, 'is_vulnerable' );
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultMeta( $apcId, 'is_abandoned' );
+
+		$this->setPluginUpdateAvailable();
+		$this->resetScanResultCountMemoization();
+
+		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
+		$rows = $this->getActionsQueueRows( $renderData );
+
+		$this->assertSame(
+			[
+				'malware',
+				'vulnerable_assets',
+				'wp_files',
+				'plugin_files',
+				'theme_files',
+				'abandoned',
+				'maintenance',
+			],
+			\array_column( $rows, 'key' )
+		);
+		$this->assertSame( [ 1, 1, 1, 1, 1, 1, 1 ], \array_column( $rows, 'count' ) );
+		$this->assertSame( 'actions', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] ?? '' ) );
+		$this->assertSame(
+			[ 'investigate', 'configure', 'reports' ],
+			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
+		);
+	}
+
+	public function test_dashboard_overview_renders_featured_actions_card_with_inline_orb_and_three_side_cards() :void {
+		$xpath = $this->createDomXPathFromHtml( $this->renderDashboardOverviewHtml() );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(@class,"operator-mode-landing__featured")]',
+			'Featured actions queue card'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(@class,"operator-mode-landing__featured")]//*[contains(@class,"shield-orb")]',
+			'Shield orb merged into featured card header'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(@class,"operator-mode-landing__side-card")]',
+			3,
+			'Three secondary mode cards'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(@class,"dashboard-live-monitor")]',
+			'Live monitor remains rendered'
+		);
 	}
 }
