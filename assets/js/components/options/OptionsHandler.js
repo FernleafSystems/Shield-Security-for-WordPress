@@ -30,9 +30,12 @@ export class OptionsHandler extends BaseAutoExecComponent {
 		shieldEventsHandler_Main.add_Click(
 			'form.options_form_for .option-description-expander',
 			( targetEl ) => {
-				const toToggle = document.querySelector(
-					'.option-description.option-description-' + targetEl.dataset.option_description_key
-				);
+				const descriptionKey = ( targetEl.dataset.option_description_key || '' )
+				.trim()
+				.replace( /^['"]+|['"]+$/g, '' );
+				const toToggle = descriptionKey.length > 0
+					? document.getElementById( `Description-${descriptionKey}` )
+					: null;
 				if ( toToggle ) {
 					toToggle.classList.toggle( 'hidden' )
 				}

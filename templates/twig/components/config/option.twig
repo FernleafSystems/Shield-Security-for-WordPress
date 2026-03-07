@@ -18,7 +18,7 @@
 						strings.description,
 						'',
 						['option-description-expander'],
-						['data-option_description_key="'~option.key~'"']
+						{'data-option_description_key': option.key}
 					) }}
 				{% endif %}
 
@@ -28,10 +28,10 @@
 						strings.opt_info_helpdesk,
 						'',
 						['beacon-article'],
-						[
-							'data-beacon_article_format="sidebar"',
-							'data-beacon_article_id="'~option.beacon_id~'"'
-						]
+						{
+							'data-beacon_article_format': 'sidebar',
+							'data-beacon_article_id': option.beacon_id
+						}
 					) }}
 
 				{% elseif option.link_info %}
@@ -51,7 +51,7 @@
 						strings.opt_info_video,
 						'',
 						['option-video'],
-						['data-vimeoid="'~option.vimeo_id~'"']
+						{'data-vimeoid': option.vimeo_id}
 					) }}
 				{% endif %}
 
@@ -254,7 +254,7 @@
 	</div>
 </div>
 
-{% macro options_helper(icon_class, tooltip, href="", classes=[], attributes=[]) %}
+{% macro options_helper(icon_class, tooltip, href="", classes=[], attributes={}) %}
 	{% set is_link = href is not empty %}
 	{% if is_link %}
 		<a href="{{ href }}"
@@ -263,7 +263,7 @@
 		   data-bs-trigger="hover"
 		   data-bs-placement="top"
 		   data-bs-title="{{ tooltip }}"
-				{{ attributes|join(' ') }}
+				{{ attributes|xmlattr }}
 		><i class="{{ icon_class }}" aria-hidden="true"></i></a>
 	{% else %}
 		<button type="button"
@@ -273,7 +273,7 @@
 				data-bs-trigger="hover"
 				data-bs-placement="top"
 				data-bs-title="{{ tooltip }}"
-				{{ attributes|join(' ') }}
+				{{ attributes|xmlattr }}
 		><i class="{{ icon_class }}" aria-hidden="true"></i></button>
 	{% endif %}
 {% endmacro %}
