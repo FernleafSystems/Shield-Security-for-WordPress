@@ -7,23 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
-	BuildMeter,
-	Component\Base as MeterComponent,
-	Handler as MeterHandler,
-	Meter\MeterSummary
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class PageConfigureLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_configure_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/configure_landing.twig';
-	private const EXCLUDED_POSTURE_COMPONENT_SLUGS = [
-		'activity_log_enabled',
-		'traffic_log_enabled',
-	];
-	private ?MeterHandler $meterHandler = null;
-
 	/**
 	 * @var list<array{
 	 *   key:string,
@@ -100,8 +89,8 @@ class PageConfigureLanding extends PageModeLandingBase {
 
 	protected function getLandingVars() :array {
 		$zoneTiles = $this->getConfigureZoneTiles();
-		$posturePercentage = $this->getPosturePercentage();
-		$postureStatus = BuildMeter::trafficFromPercentage( $posturePercentage );
+		$posturePercentage = $this->getZonePosture()[ 'percentage' ];
+		$postureStatus = BuildZonePosture::trafficFromPercentage( $posturePercentage );
 
 		return [
 			'posture_status'          => $postureStatus,
@@ -123,48 +112,6 @@ class PageConfigureLanding extends PageModeLandingBase {
 		];
 	}
 
-	protected function getSummaryMeterData() :array {
-		return $this->getMeterHandler()->getMeter( MeterSummary::SLUG, true, MeterComponent::CHANNEL_CONFIG );
-	}
-
-	private function getPosturePercentage() :int {
-		$summaryMeter = $this->getSummaryMeterData();
-		$totalWeight = 0;
-		$totalScore = 0;
-
-		foreach ( $summaryMeter[ 'components' ] ?? [] as $component ) {
-			if ( !\is_array( $component ) ) {
-				continue;
-			}
-
-			$slug = (string)( $component[ 'slug' ] ?? '' );
-			if ( \in_array( $slug, self::EXCLUDED_POSTURE_COMPONENT_SLUGS, true ) ) {
-				continue;
-			}
-
-			$weight = (int)( $component[ 'weight' ] ?? 0 );
-			if ( $weight <= 0 ) {
-				continue;
-			}
-
-			$totalWeight += $weight;
-			$totalScore += max( 0, (int)( $component[ 'score' ] ?? 0 ) );
-		}
-
-		$percentage = $totalWeight > 0
-			? (int)\round( 100*$totalScore/$totalWeight )
-			: (int)( $summaryMeter[ 'totals' ][ 'percentage' ] ?? 0 );
-
-		return max( 0, min( 100, $percentage ) );
-	}
-
-	private function getMeterHandler() :MeterHandler {
-		if ( $this->meterHandler === null ) {
-			$this->meterHandler = new MeterHandler();
-		}
-		return $this->meterHandler;
-	}
-
 	/**
 	 * @param list<array{status:string,include_in_posture?:bool}> $zoneTiles
 	 * @return array{good:int,warning:int,critical:int}
@@ -180,7 +127,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 			if ( \array_key_exists( 'include_in_posture', $zoneTile ) && !$zoneTile[ 'include_in_posture' ] ) {
 				continue;
 			}
-			$status = $zoneTile[ 'status' ] ?? '';
+			$status = $zoneTile[ 'status' ];
 			if ( isset( $counts[ $status ] ) ) {
 				$counts[ $status ]++;
 			}
@@ -250,6 +197,20 @@ class PageConfigureLanding extends PageModeLandingBase {
 	 */
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
 		return ActionData::BuildAjaxRender( $renderAction, $auxData );
+	}
+
+	/**
+	 * @return array{
+	 *   components:list<array<string,mixed>>,
+	 *   signals:list<array<string,mixed>>,
+	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
+	 *   percentage:int,
+	 *   severity:string,
+	 *   status:string
+	 * }
+	 */
+	protected function getZonePosture() :array {
+		return ( new BuildZonePosture() )->build();
 	}
 
 	/**

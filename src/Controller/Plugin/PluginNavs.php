@@ -40,7 +40,6 @@ class PluginNavs {
 	public const SUBNAV_LICENSE_CHECK = 'check';
 	public const NAV_OPTIONS_CONFIG = 'config';
 	public const NAV_DASHBOARD = 'dashboard';
-	public const SUBNAV_DASHBOARD_GRADES = 'grades';
 	public const SUBNAV_DASHBOARD_OVERVIEW = 'overview';
 	public const NAV_RESTRICTED = 'restricted';
 	public const NAV_REPORTS = 'reports';
@@ -159,9 +158,7 @@ class PluginNavs {
 	}
 
 	public static function modeForRoute( string $nav, string $subNav ) :string {
-		return $nav === self::NAV_DASHBOARD && $subNav === self::SUBNAV_DASHBOARD_GRADES
-			? self::MODE_CONFIGURE
-			: self::modeForNav( $nav );
+		return self::modeForNav( $nav );
 	}
 
 	public static function modeLandingSubNavsByNav() :array {
@@ -691,7 +688,6 @@ class PluginNavs {
 			'name'     => __( 'Dashboard', 'wp-simple-firewall' ),
 			'sub_navs' => [
 				self::SUBNAV_DASHBOARD_OVERVIEW => self::routeDefinition( PluginAdminPages\PageDashboardOverview::class ),
-				self::SUBNAV_DASHBOARD_GRADES   => self::routeDefinition( PluginAdminPages\PageDashboardMeters::class, __( 'Security Grades', 'wp-simple-firewall' ) ),
 			],
 		];
 	}

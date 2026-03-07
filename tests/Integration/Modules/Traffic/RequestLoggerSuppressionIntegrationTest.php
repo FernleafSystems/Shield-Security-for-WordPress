@@ -49,7 +49,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 			[],
 			[
 				'wp_is_permalinks_enabled' => true,
-				'rest_api_root'            => \home_url( '/wp-json/' ),
+				'rest_api_root'            => $this->permalinkRestRoot(),
 			]
 		);
 		$this->assertSame( 'wp/v2/users/me', $this->requireController()->this_req->getRestRoute() );
@@ -83,7 +83,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 			[],
 			[
 				'wp_is_permalinks_enabled' => true,
-				'rest_api_root'            => \home_url( '/wp-json/' ),
+				'rest_api_root'            => $this->permalinkRestRoot(),
 			]
 		);
 
@@ -244,6 +244,11 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 				$this->requireController()->db_con->{$dbKey}->getTable()
 			)
 		);
+	}
+
+	private function permalinkRestRoot() :string {
+		$prefix = \function_exists( 'rest_get_url_prefix' ) ? \rest_get_url_prefix() : 'wp-json';
+		return \home_url( '/'.\trim( $prefix, '/' ).'/' );
 	}
 
 	private function withTrafficLoggingEnabled( callable $callback ) {

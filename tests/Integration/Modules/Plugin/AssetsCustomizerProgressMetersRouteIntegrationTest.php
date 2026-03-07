@@ -25,13 +25,13 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		parent::tear_down();
 	}
 
-	public function test_progress_meters_are_localized_for_actions_queue_overview() :void {
+	public function test_progress_meters_are_not_localized_for_actions_queue_overview() :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_SCANS,
 			PluginNavs::SUBNAV_SCANS_OVERVIEW
 		);
 
-		$this->assertArrayHasKey( 'progress_meters', $comps );
+		$this->assertArrayNotHasKey( 'progress_meters', $comps );
 	}
 
 	public function test_progress_meters_are_not_localized_for_scans_results() :void {
@@ -43,13 +43,13 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		$this->assertArrayNotHasKey( 'progress_meters', $comps );
 	}
 
-	public function test_progress_meters_remain_localized_for_configure_overview() :void {
+	public function test_progress_meters_are_not_localized_for_configure_overview() :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_ZONES,
 			PluginNavs::SUBNAV_ZONES_OVERVIEW
 		);
 
-		$this->assertArrayHasKey( 'progress_meters', $comps );
+		$this->assertArrayNotHasKey( 'progress_meters', $comps );
 	}
 
 	public function test_dashboard_live_monitor_is_localized_for_dashboard_overview() :void {

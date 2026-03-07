@@ -106,7 +106,6 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 	public function providerRequiredRouteMatrix() :array {
 		return [
 			'dashboard_overview' => [ PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW, [] ],
-			'dashboard_grades'   => [ PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES, [ 'Shield Security', 'Configure' ] ],
 			'scans_overview'     => [ PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW, [ 'Shield Security' ] ],
 			'activity_overview'  => [ PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW, [ 'Shield Security' ] ],
 			'zones_overview'     => [ PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'Shield Security' ] ],
@@ -163,7 +162,6 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'name'     => 'Dashboard',
 				'sub_navs' => [
 					PluginNavs::SUBNAV_DASHBOARD_OVERVIEW => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_DASHBOARD_GRADES   => [ 'handler' => 'handler', 'label' => 'Security Grades' ],
 				],
 			],
 			PluginNavs::NAV_SCANS     => [

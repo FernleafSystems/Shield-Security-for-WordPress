@@ -18,7 +18,6 @@ import { OffCanvasService } from "../components/ui/OffCanvasService";
 import { OptionsHandler } from "../components/options/OptionsHandler";
 import { Navigation } from "../components/general/Navigation";
 import { NoticeHandler } from "../components/notices/NoticeHandler";
-import { ProgressMeters } from "../components/meters/ProgressMeters";
 import { ReportingHandler } from "../components/reporting/ReportingHandler";
 import { RuleBuilder } from "../components/rules/RuleBuilder";
 import { RulesManager } from "../components/rules/RulesManager";
@@ -87,7 +86,6 @@ export class AppMain extends AppBase {
 		this.components.investigate_landing = new InvestigateLandingController();
 		this.components.configure_landing = new ConfigureLandingController();
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
-		this.components.progress_meters = ( 'progress_meters' in comps ) ? new ProgressMeters( comps.progress_meters ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;
 		this.components.rule_builder = ( 'rule_builder' in comps ) ? new RuleBuilder( comps.rule_builder ) : null;
 		this.components.rules_manager = ( 'rules_manager' in comps ) ? new RulesManager( comps.rules_manager ) : null;

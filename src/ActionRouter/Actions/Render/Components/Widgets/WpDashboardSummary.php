@@ -4,14 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
-	BuildMeter,
-	Component\Base as MeterComponent,
-	Handler,
-	Meter\MeterSummary
-};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -74,14 +69,8 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 
 	private function buildFreshVars( AttentionItemsProvider $provider ) :array {
 		$con = self::con();
-		$configProgress = ( new Handler() )->getMeter(
-			MeterSummary::SLUG,
-			false,
-			MeterComponent::CHANNEL_CONFIG
-		);
-		$configTraffic = BuildMeter::trafficFromPercentage(
-			$configProgress[ 'totals' ][ 'percentage' ]
-		);
+		$configProgress = $this->getZonePosture();
+		$configTraffic = BuildZonePosture::trafficFromPercentage( $configProgress[ 'percentage' ] );
 		$actionSummary = $provider->buildActionSummary();
 
 		$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
@@ -97,6 +86,20 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 				: '',
 		];
+	}
+
+	/**
+	 * @return array{
+	 *   components:list<array<string,mixed>>,
+	 *   signals:list<array<string,mixed>>,
+	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
+	 *   percentage:int,
+	 *   severity:string,
+	 *   status:string
+	 * }
+	 */
+	protected function getZonePosture() :array {
+		return ( new BuildZonePosture() )->build();
 	}
 
 	private function isRefreshRequested() :bool {

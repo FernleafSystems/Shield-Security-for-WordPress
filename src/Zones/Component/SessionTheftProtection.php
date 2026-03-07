@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
+use FernleafSystems\Wordpress\Services\Services;
 
 class SessionTheftProtection extends Base {
 
@@ -43,7 +44,16 @@ class SessionTheftProtection extends Base {
 		if ( $lookup->getSessionIdleInterval() === 0 ) {
 			$status[ 'exp' ][] = __( "It's good practice to limit session lifetime, particularly when left idle.", 'wp-simple-firewall' );
 		}
+		$source = Services::Request()->getIpDetector()->getPublicRequestSource();
+		if ( $source !== 'REMOTE_ADDR' && \in_array( 'ip', $con->opts->optGet( 'session_lock' ), true ) ) {
+			$status[ 'level' ] = $status[ 'level' ] === EnumEnabledStatus::BAD ? EnumEnabledStatus::BAD : EnumEnabledStatus::OKAY;
+			$status[ 'exp' ][] = sprintf( __( 'Session IP locking is enabled, but the current visitor IP source (%s) can weaken that protection.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) );
+		}
 
 		return $status;
+	}
+
+	protected function postureWeight() :int {
+		return 4;
 	}
 }

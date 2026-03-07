@@ -54,10 +54,10 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::MODE_REPORTS, PluginNavs::modeForNav( PluginNavs::NAV_REPORTS ) );
 	}
 
-	public function test_mode_for_route_applies_dashboard_grades_override_and_nav_fallback() :void {
+	public function test_mode_for_route_uses_nav_fallback() :void {
 		$this->assertSame(
-			PluginNavs::MODE_CONFIGURE,
-			PluginNavs::modeForRoute( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES )
+			'',
+			PluginNavs::modeForRoute( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW )
 		);
 		$this->assertSame(
 			PluginNavs::MODE_ACTIONS,
@@ -358,7 +358,6 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'Reporting & Alerts Configuration', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_SETTINGS ][ 'label' ] ?? '' );
 		$this->assertArrayNotHasKey( 'label', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
 
-		$this->assertSame( 'Security Grades', $hierarchy[ PluginNavs::NAV_DASHBOARD ][ 'sub_navs' ][ PluginNavs::SUBNAV_DASHBOARD_GRADES ][ 'label' ] ?? '' );
 		$this->assertSame( 'Bots & IP Rules', $hierarchy[ PluginNavs::NAV_IPS ][ 'sub_navs' ][ PluginNavs::SUBNAV_IPS_RULES ][ 'label' ] ?? '' );
 		$this->assertSame( 'Scan Results', $hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RESULTS ][ 'label' ] ?? '' );
 		$this->assertSame( 'Run Scan', $hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RUN ][ 'label' ] ?? '' );

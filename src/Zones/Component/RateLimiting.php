@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
+use FernleafSystems\Wordpress\Services\Services;
 
 class RateLimiting extends Base {
 
@@ -29,7 +30,14 @@ class RateLimiting extends Base {
 		$status = parent::status();
 
 		if ( self::con()->comps->opts_lookup->enabledTrafficLimiter() ) {
-			$status[ 'level' ] = EnumEnabledStatus::GOOD;
+			$source = Services::Request()->getIpDetector()->getPublicRequestSource();
+			if ( $source === 'REMOTE_ADDR' ) {
+				$status[ 'level' ] = EnumEnabledStatus::GOOD;
+			}
+			else {
+				$status[ 'level' ] = EnumEnabledStatus::OKAY;
+				$status[ 'exp' ][] = sprintf( __( 'Traffic rate limiting is enabled, but the current IP source (%s) is not recommended for accurate visitor tracking.', 'wp-simple-firewall' ), sprintf( '<code>%s</code>', $source ) );
+			}
 		}
 		else {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
@@ -37,5 +45,9 @@ class RateLimiting extends Base {
 		}
 
 		return $status;
+	}
+
+	protected function postureWeight() :int {
+		return 2;
 	}
 }

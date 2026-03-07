@@ -7,13 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
-	BuildMeter,
-	Component\Base as MeterComponent,
-	Handler,
-	Meter\MeterSummary
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class PageOperatorModeLanding extends BaseRender {
 
@@ -31,10 +26,9 @@ class PageOperatorModeLanding extends BaseRender {
 		$queueZoneGroups = $this->getQueueZoneGroups( $queuePayload );
 		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] ?? 'good' );
 
-		$configMeter = ( new Handler() )->getMeter( MeterSummary::SLUG, true, MeterComponent::CHANNEL_CONFIG );
-		$configPercentage = (int)( $configMeter[ 'totals' ][ 'percentage' ] ?? 0 );
+		$configPercentage = $this->getZonePosture()[ 'percentage' ];
 		$configPercentage = max( 0, min( 100, $configPercentage ) );
-		$configTraffic = BuildMeter::trafficFromPercentage( $configPercentage );
+		$configTraffic = BuildZonePosture::trafficFromPercentage( $configPercentage );
 
 		$sessionCount = $this->getInvestigateActiveSessionsCount();
 		$reportsCount = $this->getGeneratedReportsCount();
@@ -56,6 +50,20 @@ class PageOperatorModeLanding extends BaseRender {
 				'live_monitor'      => $this->buildLiveMonitorVars(),
 			],
 		];
+	}
+
+	/**
+	 * @return array{
+	 *   components:list<array<string,mixed>>,
+	 *   signals:list<array<string,mixed>>,
+	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
+	 *   percentage:int,
+	 *   severity:string,
+	 *   status:string
+	 * }
+	 */
+	protected function getZonePosture() :array {
+		return ( new BuildZonePosture() )->build();
 	}
 
 	private function buildLiveMonitorVars() :array {

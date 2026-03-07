@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
-	Handler as MeterHandler,
-	Meter\MeterOverallConfig
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
@@ -27,15 +23,10 @@ class AttentionItemsProvider {
 		'wp_themes_updates',
 		'wp_plugins_inactive',
 		'wp_themes_inactive',
-		'meter_warning',
-		'score_generic',
-	];
-	private const MAINTENANCE_COMPONENT_SLUGS = [
-		'wp_updates',
-		'wp_plugins_updates',
-		'wp_themes_updates',
-		'wp_plugins_inactive',
-		'wp_themes_inactive',
+		'system_ssl_certificate',
+		'system_php_version',
+		'wp_db_password',
+		'system_lib_openssl',
 	];
 
 	/**
@@ -65,7 +56,7 @@ class AttentionItemsProvider {
 	public function buildActionItems() :array {
 		return $this->sortItems( \array_merge(
 			$this->buildScanItems(),
-			$this->buildMaintenanceItems()
+			( new OperationalIssuesProvider() )->buildQueueItems()
 		) );
 	}
 
@@ -96,102 +87,6 @@ class AttentionItemsProvider {
 			'total'        => $total,
 			'severity'     => $severity,
 			'is_all_clear' => false,
-		];
-	}
-
-	/**
-	 * @return array{
-	 *     items: array<int, array<string, mixed>>,
-	 *     total: int,
-	 *     hidden: int
-	 * }
-	 * @deprecated        21.3.0 Legacy dashboard widget rows compatibility path.
-	 *                    Prefer buildActionItems() and buildActionSummary().
-	 *
-	 */
-	public function buildWidgetRows(
-		int $maxRows = 0,
-		array $summaryMeter = [],
-		string $traffic = 'good',
-		string $defaultHref = ''
-	) :array {
-		$items = $this->buildActionItems();
-		$summaryItems = $this->buildSummaryItems( $summaryMeter, $traffic, $defaultHref );
-		if ( !empty( $summaryItems ) ) {
-			$items = $this->sortItems( \array_merge( $items, $summaryItems ) );
-		}
-		$total = \count( $items );
-
-		if ( $maxRows > 0 ) {
-			$items = \array_slice( $items, 0, $maxRows );
-		}
-
-		return [
-			'items'  => $items,
-			'total'  => $total,
-			'hidden' => \max( 0, $total - \count( $items ) ),
-		];
-	}
-
-	/**
-	 * @return array<int, array<string, mixed>>
-	 */
-	private function buildSummaryItems( array $summaryMeter, string $traffic, string $defaultHref ) :array {
-		if ( empty( $summaryMeter ) ) {
-			return [];
-		}
-
-		$items = [];
-		$warningItem = $this->buildSummaryWarningItem( $summaryMeter, $traffic, $defaultHref );
-		if ( !empty( $warningItem ) ) {
-			$items[] = $warningItem;
-		}
-
-		if ( empty( $items ) && $traffic !== 'good' ) {
-			$items[] = $this->buildScoreFallbackItem( $traffic, $defaultHref );
-		}
-
-		return $items;
-	}
-
-	private function buildSummaryWarningItem( array $summaryMeter, string $traffic, string $defaultHref ) :array {
-		$warning = $summaryMeter[ 'warning' ] ?? null;
-		if ( !\is_array( $warning ) ) {
-			return [];
-		}
-
-		$text = $warning[ 'text' ] ?? '';
-		if ( !\is_string( $text ) || $text === '' ) {
-			return [];
-		}
-
-		$href = $warning[ 'href' ] ?? $defaultHref;
-		if ( !\is_string( $href ) || $href === '' ) {
-			$href = $defaultHref;
-		}
-
-		return [
-			'key'      => 'meter_warning',
-			'zone'     => 'summary',
-			'label'    => __( 'Security Meter', 'wp-simple-firewall' ),
-			'text'     => $text,
-			'count'    => 1,
-			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
-			'href'     => $href,
-			'action'   => __( 'View', 'wp-simple-firewall' ),
-		];
-	}
-
-	private function buildScoreFallbackItem( string $traffic, string $href ) :array {
-		return [
-			'key'      => 'score_generic',
-			'zone'     => 'summary',
-			'label'    => __( 'Security Score', 'wp-simple-firewall' ),
-			'text'     => __( 'Security score needs review.', 'wp-simple-firewall' ),
-			'count'    => 1,
-			'severity' => $traffic === 'critical' ? 'critical' : 'warning',
-			'href'     => $href,
-			'action'   => __( 'View', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -316,99 +211,6 @@ class AttentionItemsProvider {
 		] ) );
 
 		return $this->sortItems( $items );
-	}
-
-	/**
-	 * @return array<int, array<string, mixed>>
-	 */
-	private function buildMaintenanceItems() :array {
-		try {
-			$overallConfigMeter = ( new MeterHandler() )->getMeter( MeterOverallConfig::class, false );
-		}
-		catch ( \Exception $e ) {
-			return [];
-		}
-
-		$components = $overallConfigMeter[ 'components' ] ?? [];
-		if ( !\is_array( $components ) ) {
-			return [];
-		}
-
-		$items = [];
-		foreach ( $components as $component ) {
-			if ( !\is_array( $component ) ) {
-				continue;
-			}
-
-			$normalized = $this->normalizeMaintenanceComponent( $component );
-			if ( $normalized === null || !\in_array( $normalized[ 'slug' ], self::MAINTENANCE_COMPONENT_SLUGS, true ) ) {
-				continue;
-			}
-
-			if ( $normalized[ 'is_protected' ] ) {
-				continue;
-			}
-
-			$item = $this->buildItem(
-				$normalized[ 'slug' ],
-				'maintenance',
-				$normalized[ 'title' ],
-				1,
-				'warning',
-				$normalized[ 'description' ],
-				$normalized[ 'href' ],
-				$normalized[ 'action' ]
-			);
-			if ( !empty( $item ) ) {
-				$items[] = $item;
-			}
-		}
-
-		return $items;
-	}
-
-	/**
-	 * @param array<string, mixed> $component
-	 * @return array{
-	 *   slug:string,
-	 *   is_protected:bool,
-	 *   title:string,
-	 *   description:string,
-	 *   href:string,
-	 *   action:string
-	 * }|null
-	 */
-	private function normalizeMaintenanceComponent( array $component ) :?array {
-		$slug = $component[ 'slug' ] ?? '';
-		$title = !empty( $component[ 'title_unprotected' ] ) ? $component[ 'title_unprotected' ] : ( $component[ 'title' ] ?? '' );
-		$description = !empty( $component[ 'desc_unprotected' ] ) ? $component[ 'desc_unprotected' ] : ( $component[ 'description' ] ?? '' );
-		$href = $component[ 'href_full' ] ?? self::con()->plugin_urls->adminHome();
-		$action = $component[ 'fix' ] ?? __( 'Fix', 'wp-simple-firewall' );
-
-		if ( !\is_string( $slug ) || $slug === '' ) {
-			return null;
-		}
-		if ( !\is_string( $title ) || $title === '' ) {
-			return null;
-		}
-		if ( !\is_string( $description ) || $description === '' ) {
-			return null;
-		}
-		if ( !\is_string( $href ) || $href === '' ) {
-			return null;
-		}
-		if ( !\is_string( $action ) || $action === '' ) {
-			return null;
-		}
-
-		return [
-			'slug'         => $slug,
-			'is_protected' => !empty( $component[ 'is_protected' ] ),
-			'title'        => $title,
-			'description'  => $description,
-			'href'         => $href,
-			'action'       => $action,
-		];
 	}
 
 	/**

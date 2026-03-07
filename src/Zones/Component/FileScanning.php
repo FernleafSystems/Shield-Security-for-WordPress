@@ -45,4 +45,71 @@ class FileScanning extends Base {
 
 		return $status;
 	}
+
+	public function postureSignals() :array {
+		$con = self::con();
+		$areas = $con->opts->optGet( 'file_scan_areas' );
+		$repairAreas = $con->opts->optGet( 'file_repair_areas' );
+		$signals = [
+			$this->buildPostureSignal(
+				'scan_enabled_mal',
+				__( 'Malware Scanning', 'wp-simple-firewall' ),
+				4,
+				$con->comps->scans->AFS()->isEnabledMalwareScanPHP() ? 4 : 0,
+				$con->comps->scans->AFS()->isEnabledMalwareScanPHP() ? 'good' : 'critical',
+				$con->comps->scans->AFS()->isEnabledMalwareScanPHP(),
+				[
+					$con->comps->scans->AFS()->isEnabledMalwareScanPHP()
+						? __( 'PHP files are scanned for malware.', 'wp-simple-firewall' )
+						: __( 'PHP files are not scanned for malware.', 'wp-simple-firewall' ),
+				]
+			),
+		];
+
+		foreach ( [
+			'wp'        => [ 'slug' => 'scan_enabled_afs_core', 'title' => __( 'Core File Scanning', 'wp-simple-firewall' ), 'weight' => 4 ],
+			'plugins'   => [ 'slug' => 'scan_enabled_afs_plugins', 'title' => __( 'Plugin File Scanning', 'wp-simple-firewall' ), 'weight' => 4 ],
+			'themes'    => [ 'slug' => 'scan_enabled_afs_themes', 'title' => __( 'Theme File Scanning', 'wp-simple-firewall' ), 'weight' => 4 ],
+			'wpcontent' => [ 'slug' => 'scan_enabled_afs_wpcontent', 'title' => __( 'wp-content Scanning', 'wp-simple-firewall' ), 'weight' => 2 ],
+			'wproot'    => [ 'slug' => 'scan_enabled_afs_wproot', 'title' => __( 'WP Root Scanning', 'wp-simple-firewall' ), 'weight' => 2 ],
+		] as $areaKey => $definition ) {
+			$enabled = \in_array( $areaKey, $areas, true );
+			$signals[] = $this->buildPostureSignal(
+				$definition[ 'slug' ],
+				$definition[ 'title' ],
+				$definition[ 'weight' ],
+				$enabled ? $definition[ 'weight' ] : 0,
+				$enabled ? 'good' : 'critical',
+				$enabled,
+				[
+					$enabled
+						? sprintf( __( '%s is enabled.', 'wp-simple-firewall' ), $definition[ 'title' ] )
+						: sprintf( __( '%s is not enabled.', 'wp-simple-firewall' ), $definition[ 'title' ] ),
+				]
+			);
+		}
+
+		foreach ( [
+			'wp'      => [ 'slug' => 'scan_enabled_afs_autorepair_core', 'title' => __( 'Core Auto-Repair', 'wp-simple-firewall' ), 'weight' => 6 ],
+			'plugins' => [ 'slug' => 'scan_enabled_afs_autorepair_plugins', 'title' => __( 'Plugin Auto-Repair', 'wp-simple-firewall' ), 'weight' => 4 ],
+			'themes'  => [ 'slug' => 'scan_enabled_afs_autorepair_themes', 'title' => __( 'Theme Auto-Repair', 'wp-simple-firewall' ), 'weight' => 2 ],
+		] as $areaKey => $definition ) {
+			$enabled = \in_array( $areaKey, $repairAreas, true );
+			$signals[] = $this->buildPostureSignal(
+				$definition[ 'slug' ],
+				$definition[ 'title' ],
+				$definition[ 'weight' ],
+				$enabled ? $definition[ 'weight' ] : 0,
+				$enabled ? 'good' : 'warning',
+				$enabled,
+				[
+					$enabled
+						? sprintf( __( '%s is enabled.', 'wp-simple-firewall' ), $definition[ 'title' ] )
+						: sprintf( __( '%s is not enabled.', 'wp-simple-firewall' ), $definition[ 'title' ] ),
+				]
+			);
+		}
+
+		return $signals;
+	}
 }

@@ -41,4 +41,8 @@ class TwoFactorAuth extends Base {
 
 		return $status;
 	}
+
+	protected function postureWeight() :int {
+		return 5;
+	}
 }

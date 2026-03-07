@@ -24,4 +24,8 @@ class HeadersGeneral extends Base {
 		$status[ 'exp' ][] = __( "Certain headers may affect how your site functions for its visitors, so we don't offer any direct recommendations in this section.", 'wp-simple-firewall' );
 		return $status;
 	}
+
+	protected function postureWeight() :int {
+		return 1;
+	}
 }

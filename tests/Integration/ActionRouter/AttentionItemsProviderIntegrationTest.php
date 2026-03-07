@@ -3,12 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\AttentionItemsProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\BuiltMetersFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AttentionItemsProviderIntegrationTest extends ShieldIntegrationTestCase {
-
-	use BuiltMetersFixture;
 
 	public function set_up() {
 		parent::set_up();
@@ -18,27 +15,27 @@ class AttentionItemsProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_item_meta' );
 
 		$this->loginAsSecurityAdmin();
-		$this->resetBuiltMetersCache();
-		$this->setOverallConfigMeterComponents( [] );
+		\delete_site_transient( 'update_plugins' );
 	}
 
 	public function tear_down() {
-		$this->resetBuiltMetersCache();
+		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
 	}
 
-	public function test_build_action_items_includes_unprotected_maintenance_component() :void {
-		$this->setOverallConfigMeterComponents( [
-			[
-				'slug'              => 'wp_updates',
-				'is_protected'      => false,
-				'title'             => 'WordPress Version',
-				'title_unprotected' => 'WordPress Version',
-				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
-				'href_full'         => self::con()->plugin_urls->adminHome(),
-				'fix'               => 'Fix',
+	private function setPluginUpdateAvailable() :void {
+		$updates = new \stdClass();
+		$updates->response = [
+			self::con()->base_file => (object)[
+				'plugin'      => self::con()->base_file,
+				'new_version' => self::con()->cfg->version().'.1',
 			],
-		] );
+		];
+		\set_site_transient( 'update_plugins', $updates );
+	}
+
+	public function test_build_action_items_includes_operational_issue() :void {
+		$this->setPluginUpdateAvailable();
 
 		$items = ( new AttentionItemsProvider() )->buildActionItems();
 		$itemsByKey = [];
@@ -46,54 +43,13 @@ class AttentionItemsProviderIntegrationTest extends ShieldIntegrationTestCase {
 			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
 		}
 
-		$this->assertArrayHasKey( 'wp_updates', $itemsByKey );
-		$this->assertSame( 'maintenance', (string)( $itemsByKey[ 'wp_updates' ][ 'zone' ] ?? '' ) );
-	}
-
-	public function test_build_widget_rows_adds_summary_warning_item() :void {
-		$rows = ( new AttentionItemsProvider() )->buildWidgetRows(
-			10,
-			[
-				'warning' => [
-					'text' => 'Meter warning text',
-					'href' => self::con()->plugin_urls->adminHome(),
-				],
-			],
-			'warning',
-			self::con()->plugin_urls->adminHome()
-		);
-
-		$keys = \array_column( $rows[ 'items' ] ?? [], 'key' );
-		$this->assertContains( 'meter_warning', $keys );
-	}
-
-	public function test_build_widget_rows_uses_generic_score_fallback_for_non_good_traffic() :void {
-		$rows = ( new AttentionItemsProvider() )->buildWidgetRows(
-			10,
-			[
-				'warning' => [],
-			],
-			'warning',
-			self::con()->plugin_urls->adminHome()
-		);
-
-		$item = $rows[ 'items' ][ 0 ] ?? [];
-		$this->assertSame( 'score_generic', (string)( $item[ 'key' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $item[ 'severity' ] ?? '' ) );
+		$this->assertArrayHasKey( 'wp_plugins_updates', $itemsByKey );
+		$this->assertSame( 'maintenance', (string)( $itemsByKey[ 'wp_plugins_updates' ][ 'zone' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $itemsByKey[ 'wp_plugins_updates' ][ 'count' ] ?? 0 ) );
 	}
 
 	public function test_build_action_summary_reports_warning_for_maintenance_item() :void {
-		$this->setOverallConfigMeterComponents( [
-			[
-				'slug'              => 'wp_updates',
-				'is_protected'      => false,
-				'title'             => 'WordPress Version',
-				'title_unprotected' => 'WordPress Version',
-				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
-				'href_full'         => self::con()->plugin_urls->adminHome(),
-				'fix'               => 'Fix',
-			],
-		] );
+		$this->setPluginUpdateAvailable();
 
 		$summary = ( new AttentionItemsProvider() )->buildActionSummary();
 		$this->assertGreaterThanOrEqual( 1, (int)( $summary[ 'total' ] ?? 0 ) );

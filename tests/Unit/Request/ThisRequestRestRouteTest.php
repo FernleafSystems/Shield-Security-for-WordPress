@@ -114,6 +114,59 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
 	}
 
+	public function test_query_rest_route_takes_precedence_over_injected_rest_root() :void {
+		$request = $this->buildRequest(
+			[
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/custom-api/anything-else',
+			],
+			[
+				'rest_route' => '/wp/v2/users/me',
+			]
+		);
+
+		$thisReq = new ThisRequest( [
+			'request'                  => $request,
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/custom-api/',
+		] );
+
+		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
+	}
+
+	public function test_custom_rest_prefix_is_normalized_from_injected_rest_root() :void {
+		$request = $this->buildRequest(
+			[
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/custom-api/wp/v2/users/me?context=edit',
+			]
+		);
+
+		$thisReq = new ThisRequest( [
+			'request'                  => $request,
+			'wp_is_permalinks_enabled' => true,
+			'rest_api_root'            => 'https://example.test/custom-api/',
+		] );
+
+		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
+	}
+
+	public function test_global_rest_url_is_used_when_rest_api_root_is_not_injected() :void {
+		$request = $this->buildRequest(
+			[
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/wp-json/wp/v2/users/me',
+			]
+		);
+
+		$thisReq = new ThisRequest( [
+			'request'                  => $request,
+			'wp_is_permalinks_enabled' => true,
+		] );
+
+		$this->assertSame( 'wp/v2/users/me', $thisReq->getRestRoute() );
+	}
+
 	public function test_non_rest_request_returns_empty_string() :void {
 		$request = $this->buildRequest(
 			[

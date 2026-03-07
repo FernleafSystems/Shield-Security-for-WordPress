@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sync {
@@ -28,7 +28,7 @@ class Sync {
 			],
 			'options'     => [], // not necessary yet ( new ImportExport\Export() )->getFullTransferableOptionsExport(),
 			'integrity'   => \array_intersect_key(
-				( new MeterAnalysis\Handler() )->getMeter( MeterAnalysis\Meter\MeterSummary::class ),
+				( new BuildZonePosture() )->build(),
 				\array_flip( [ 'status', 'totals' ] )
 			),
 			'scan_issues' => ( new Counts() )->all(),

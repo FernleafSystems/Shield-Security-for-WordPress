@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\BuildMeter;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
 	ForIpRules,
@@ -397,26 +396,6 @@ class AssetsCustomizer {
 					'ajax' => [
 						'render_rules_manager' => ActionData::BuildAjaxRender( Components\Rules\RulesManager::class ),
 						'rules_manager_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
-					],
-				],
-			],
-			'progress_meters'  => [
-				'key'      => 'progress_meters',
-				'required' => PluginNavs::GetNav() === PluginNavs::NAV_DASHBOARD
-							  || PluginNavs::IsNavs( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW )
-							  || PluginNavs::IsNavs( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW ),
-				'handles'  => [
-					'main',
-				],
-				'data'     => fn() => [
-					'ajax'       => [
-						'render_metercard' => ActionData::BuildAjaxRender( Components\Meters\MeterCard::class ),
-						'batch_requests'   => ActionData::Build( Actions\AjaxBatchRequests::class ),
-						'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\MeterAnalysis::class ),
-					],
-					'thresholds' => [
-						'good'    => BuildMeter::THRESHOLD_GOOD,
-						'warning' => BuildMeter::THRESHOLD_WARNING,
 					],
 				],
 			],

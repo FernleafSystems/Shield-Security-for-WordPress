@@ -8,19 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\{
-	Component\Base as MeterComponent,
-	Handler,
-	Meter\MeterSummary
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\BuiltMetersFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
-
-	use BuiltMetersFixture;
 
 	private const WIDGET_CACHE_KEY = 'dashboard-widget-v3-vars';
 	private const LEGACY_WIDGET_CACHE_KEY = 'dashboard-widget-v2-vars';
@@ -50,14 +42,13 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
 		Transient::Delete( self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY ) );
-		$this->resetBuiltMetersCache();
-		$this->setOverallConfigMeterComponents( [] );
+		\delete_site_transient( 'update_plugins' );
 	}
 
 	public function tear_down() {
-		$this->resetBuiltMetersCache();
 		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
 		Transient::Delete( self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY ) );
+		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
 	}
 
@@ -71,67 +62,38 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 	}
 
-	private function setSummaryMeters( int $combinedPercentage, int $configPercentage ) :void {
-		$ref = new \ReflectionClass( Handler::class );
-		$combinedProp = $ref->getProperty( 'BuiltMeters' );
-		$combinedProp->setAccessible( true );
-		$channelProp = $ref->getProperty( 'BuiltMetersByChannel' );
-		$channelProp->setAccessible( true );
-
-		$meters = (array)$combinedProp->getValue();
-		$meters[ MeterSummary::SLUG ] = $this->meterFixture( $combinedPercentage );
-		$combinedProp->setValue( null, $meters );
-
-		$metersByChannel = (array)$channelProp->getValue();
-		$metersByChannel[ MeterSummary::SLUG ] = \array_merge(
-			$metersByChannel[ MeterSummary::SLUG ] ?? [],
-			[
-				MeterComponent::CHANNEL_CONFIG => $this->meterFixture( $configPercentage ),
-			]
-		);
-		$channelProp->setValue( null, $metersByChannel );
-	}
-
-	private function meterFixture( int $percentage ) :array {
-		$rgbs = $percentage > 80
-			? [ 16, 128, 0 ]
-			: ( $percentage > 40 ? [ 200, 150, 10 ] : [ 200, 50, 10 ] );
-		return [
-			'title'       => 'Summary',
-			'subtitle'    => 'Summary',
-			'warning'     => [],
-			'description' => [],
-			'components'  => [],
-			'totals'      => [
-				'score'        => 0,
-				'max_weight'   => 0,
-				'percentage'   => $percentage,
-				'letter_score' => 'A',
+	private function setPluginUpdateAvailable() :void {
+		$updates = new \stdClass();
+		$updates->response = [
+			self::con()->base_file => (object)[
+				'plugin'      => self::con()->base_file,
+				'new_version' => self::con()->cfg->version().'.1',
 			],
-			'status'      => 'h',
-			'rgbs'        => $rgbs,
-			'has_critical'=> false,
 		];
+		\set_site_transient( 'update_plugins', $updates );
 	}
 
 	public function test_render_returns_v2_template_and_non_empty_output() :void {
-		$this->setSummaryMeters( 90, 90 );
 		$payload = $this->renderSummary()->payload();
 
 		$this->assertSame( '/admin/admin_dashboard_widget_v2.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'render_output' ] ?? '' ) ) );
 	}
 
-	public function test_config_score_uses_config_channel_meter() :void {
-		$this->setSummaryMeters( 33, 92 );
+	public function test_config_score_uses_zone_posture_contract() :void {
 		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
 
-		$this->assertSame( 92, (int)( $vars[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
-		$this->assertSame( 'good', (string)( $vars[ 'config_traffic' ] ?? '' ) );
+		$percentage = (int)( $vars[ 'config_progress' ][ 'percentage' ] ?? -1 );
+		$this->assertGreaterThanOrEqual( 0, $percentage );
+		$this->assertLessThanOrEqual( 100, $percentage );
+		$this->assertSame( $percentage, (int)( $vars[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? -1 ) );
+		$this->assertSame(
+			$percentage > 80 ? 'good' : ( $percentage > 40 ? 'warning' : 'critical' ),
+			(string)( $vars[ 'config_traffic' ] ?? '' )
+		);
 	}
 
 	public function test_action_total_and_severity_reflect_scan_findings() :void {
-		$this->setSummaryMeters( 90, 90 );
 		$this->assertTrue( self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP() );
 		$this->assertTrue( self::con()->comps->scans->WPV()->isEnabled() );
 
@@ -147,8 +109,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'critical', (string)( $vars[ 'action_traffic' ] ?? '' ) );
 	}
 
-	public function test_all_clear_state_when_no_items_and_good_traffic() :void {
-		$this->setSummaryMeters( 95, 95 );
+	public function test_all_clear_state_when_no_action_items_exist() :void {
 		$payload = $this->renderSummary()->payload();
 		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
 
@@ -157,20 +118,8 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'good', (string)( $vars[ 'action_traffic' ] ?? '' ) );
 	}
 
-	public function test_unprotected_maintenance_component_is_included_in_attention_rows() :void {
-		$this->setSummaryMeters( 95, 95 );
-		$this->setOverallConfigMeterComponents( [
-			[
-				'slug'              => 'wp_updates',
-				'is_protected'      => false,
-				'title'             => 'WordPress Version',
-				'title_unprotected' => 'WordPress Version',
-				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
-				'href_full'         => self::con()->plugin_urls->adminHome(),
-				'fix'               => 'Fix',
-			],
-		] );
-
+	public function test_operational_issue_is_included_in_attention_rows() :void {
+		$this->setPluginUpdateAvailable();
 		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
 		$this->assertGreaterThanOrEqual( 1, (int)( $vars[ 'action_total' ] ?? 0 ) );
 		$this->assertSame( 'warning', (string)( $vars[ 'action_traffic' ] ?? '' ) );
@@ -178,7 +127,6 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_non_plugin_admin_hides_internal_links() :void {
-		$this->setSummaryMeters( 95, 95 );
 		$subscriberId = self::factory()->user->create( [
 			'role' => 'subscriber',
 		] );
@@ -198,34 +146,30 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_refresh_parameter_controls_cache_bypass() :void {
-		$this->setSummaryMeters( 95, 95 );
 		$first = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $first[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 0, (int)( $first[ 'action_total' ] ?? -1 ) );
 
-		$this->setSummaryMeters( 45, 45 );
+		$this->setPluginUpdateAvailable();
 		$cached = $this->renderSummary( false )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $cached[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 0, (int)( $cached[ 'action_total' ] ?? -1 ) );
 
 		$refreshed = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 45, (int)( $refreshed[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertGreaterThanOrEqual( 1, (int)( $refreshed[ 'action_total' ] ?? 0 ) );
 	}
 
 	public function test_refresh_false_string_does_not_bypass_cache() :void {
-		$this->setSummaryMeters( 95, 95 );
 		$first = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $first[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 0, (int)( $first[ 'action_total' ] ?? -1 ) );
 
-		$this->setSummaryMeters( 45, 45 );
+		$this->setPluginUpdateAvailable();
 		$cached = $this->renderSummary( 'false' )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 95, (int)( $cached[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertSame( 0, (int)( $cached[ 'action_total' ] ?? -1 ) );
 
 		$refreshed = $this->renderSummary( 'true' )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( 45, (int)( $refreshed[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? 0 ) );
+		$this->assertGreaterThanOrEqual( 1, (int)( $refreshed[ 'action_total' ] ?? 0 ) );
 	}
 
 	public function test_legacy_v2_transient_is_removed_during_v3_regeneration() :void {
-		$this->setSummaryMeters( 95, 95 );
-
 		$legacyKey = self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY );
 		$v3Key = self::con()->prefix( self::WIDGET_CACHE_KEY );
 

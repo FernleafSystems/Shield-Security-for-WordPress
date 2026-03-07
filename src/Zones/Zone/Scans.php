@@ -28,8 +28,7 @@ class Scans extends Base {
 			Component\FileScanning::class,
 			Component\VulnerabilityScanning::class,
 			Component\FileLocker::class,
-			Component\WordpressUpdates::class,
-			Component\ServerSoftwareStatus::class,
+			Component\ScanScheduling::class,
 		];
 	}
 

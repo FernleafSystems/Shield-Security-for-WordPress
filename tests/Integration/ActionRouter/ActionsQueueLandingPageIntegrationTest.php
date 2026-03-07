@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	BuiltMetersFixture,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -18,7 +17,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use BuiltMetersFixture;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -30,13 +28,23 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
-		$this->resetBuiltMetersCache();
-		$this->setOverallConfigMeterComponents( [] );
+		\delete_site_transient( 'update_plugins' );
 	}
 
 	public function tear_down() {
-		$this->resetBuiltMetersCache();
+		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
+	}
+
+	private function setPluginUpdateAvailable() :void {
+		$updates = new \stdClass();
+		$updates->response = [
+			self::con()->base_file => (object)[
+				'plugin'      => self::con()->base_file,
+				'new_version' => self::con()->cfg->version().'.1',
+			],
+		];
+		\set_site_transient( 'update_plugins', $updates );
 	}
 
 	private function renderActionsQueueLandingPage() :array {
@@ -85,17 +93,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_maintenance_items_render_tiles_and_maintenance_panel() :void {
-		$this->setOverallConfigMeterComponents( [
-			[
-				'slug'              => 'wp_updates',
-				'is_protected'      => false,
-				'title'             => 'WordPress Version',
-				'title_unprotected' => 'WordPress Version',
-				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
-				'href_full'         => self::con()->plugin_urls->adminHome(),
-				'fix'               => 'Fix',
-			],
-		] );
+		$this->setPluginUpdateAvailable();
 
 		$payload = $this->renderActionsQueueLandingPage();
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
@@ -117,36 +115,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $scans[ 'is_enabled' ] ?? true ) );
 	}
 
-	public function test_maintenance_panel_exposes_inactive_asset_ctas_and_updates_href() :void {
-		$this->setOverallConfigMeterComponents( [
-			[
-				'slug'              => 'wp_plugins_inactive',
-				'is_protected'      => false,
-				'title'             => 'Inactive Plugins',
-				'title_unprotected' => 'Inactive Plugins',
-				'desc_unprotected'  => 'There are plugins installed that are not active.',
-				'href_full'         => '/wp-admin/plugins.php',
-				'fix'               => 'Fix',
-			],
-			[
-				'slug'              => 'wp_themes_inactive',
-				'is_protected'      => false,
-				'title'             => 'Inactive Themes',
-				'title_unprotected' => 'Inactive Themes',
-				'desc_unprotected'  => 'There are themes installed that are not active.',
-				'href_full'         => '/wp-admin/themes.php',
-				'fix'               => 'Fix',
-			],
-			[
-				'slug'              => 'wp_updates',
-				'is_protected'      => false,
-				'title'             => 'WordPress Version',
-				'title_unprotected' => 'WordPress Version',
-				'desc_unprotected'  => 'There is an upgrade available for WordPress.',
-				'href_full'         => '/wp-admin/update-core.php',
-				'fix'               => 'Fix',
-			],
-		] );
+	public function test_maintenance_panel_exposes_updates_href() :void {
+		$this->setPluginUpdateAvailable();
 
 		$payload = $this->renderActionsQueueLandingPage();
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance ctas' );
@@ -158,11 +128,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
 		}
 
-		$this->assertArrayHasKey( 'cta', $itemsByKey[ 'wp_plugins_inactive' ] ?? [] );
-		$this->assertSame( '/wp-admin/plugins.php', (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] ?? '' ) );
-		$this->assertArrayHasKey( 'cta', $itemsByKey[ 'wp_themes_inactive' ] ?? [] );
-		$this->assertSame( '/wp-admin/themes.php', (string)( $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'href' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'cta', $itemsByKey[ 'wp_updates' ] ?? [] );
+		$this->assertArrayNotHasKey( 'cta', $itemsByKey[ 'wp_plugins_updates' ] ?? [] );
 		$this->assertSame(
 			self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			(string)( $renderData[ 'hrefs' ][ 'scan_results' ] ?? '' )

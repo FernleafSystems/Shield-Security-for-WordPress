@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	BuiltMetersFixture,
 	HtmlDomAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -19,7 +18,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
-	use BuiltMetersFixture;
 	use HtmlDomAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -34,13 +32,23 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'scan_result_item_meta' );
 
 		$this->adminUserId = $this->loginAsSecurityAdmin();
-		$this->resetBuiltMetersCache();
-		$this->setOverallConfigMeterComponents( [] );
+		\delete_site_transient( 'update_plugins' );
 	}
 
 	public function tear_down() {
-		$this->resetBuiltMetersCache();
+		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
+	}
+
+	private function setPluginUpdateAvailable() :void {
+		$updates = new \stdClass();
+		$updates->response = [
+			self::con()->base_file => (object)[
+				'plugin'      => self::con()->base_file,
+				'new_version' => self::con()->cfg->version().'.1',
+			],
+		];
+		\set_site_transient( 'update_plugins', $updates );
 	}
 
 	private function processor() :ActionProcessor {
@@ -256,25 +264,15 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 0, (int)( $renderData[ 'vars' ][ 'summary' ][ 'total_items' ] ?? -1 ) );
 	}
 
-	public function test_unprotected_maintenance_meter_component_adds_action_item() :void {
-		$this->setOverallConfigMeterComponents( [
-			[
-				'slug'            => 'wp_updates',
-				'is_protected'    => false,
-				'title'           => 'WordPress Version',
-				'title_unprotected' => 'WordPress Version',
-				'desc_unprotected'=> 'There is an upgrade available for WordPress.',
-				'href_full'       => self::con()->plugin_urls->adminHome(),
-				'fix'             => 'Fix',
-			],
-		] );
+	public function test_operational_issue_adds_action_item() :void {
+		$this->setPluginUpdateAvailable();
 
 		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
 		$zone = $this->getZoneGroupBySlug( $renderData, 'maintenance' );
 		$itemKeys = \array_column( $zone[ 'items' ] ?? [], 'key' );
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? false ) );
-		$this->assertContains( 'wp_updates', $itemKeys );
+		$this->assertContains( 'wp_plugins_updates', $itemKeys );
 	}
 
 	public function test_last_scan_subtext_omitted_when_no_completed_scan() :void {

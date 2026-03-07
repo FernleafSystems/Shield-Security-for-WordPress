@@ -59,4 +59,35 @@ class BotActions extends Base {
 
 		return $status;
 	}
+
+	public function postureSignals() :array {
+		$signals = [];
+		$weights = [
+			'track_404'           => 2,
+			'track_loginfailed'   => 5,
+			'track_logininvalid'  => 6,
+			'track_xmlrpc'        => 6,
+			'track_fakewebcrawler'=> 3,
+			'track_linkcheese'    => 2,
+			'track_invalidscript' => 2,
+		];
+		$optStrings = new StringsOptions();
+		foreach ( $weights as $optKey => $weight ) {
+			$enabled = !\in_array( self::con()->opts->optGet( $optKey ), [ 'disabled', 'log' ], true );
+			$signals[] = $this->buildPostureSignal(
+				'bot_signal_'.$optKey,
+				sprintf( __( 'Bot Signal: %s', 'wp-simple-firewall' ), $optStrings->getFor( $optKey )[ 'name' ] ),
+				$weight,
+				$enabled ? $weight : 0,
+				$enabled ? 'good' : 'critical',
+				$enabled,
+				[
+					$enabled
+						? sprintf( __( "Visitors that repeatedly trigger '%s' are penalised.", 'wp-simple-firewall' ), $optStrings->getFor( $optKey )[ 'name' ] )
+						: sprintf( __( "Visitors that repeatedly trigger '%s' aren't penalised.", 'wp-simple-firewall' ), $optStrings->getFor( $optKey )[ 'name' ] ),
+				]
+			);
+		}
+		return $signals;
+	}
 }

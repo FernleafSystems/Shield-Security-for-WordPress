@@ -38,4 +38,19 @@ class ConstantsLegacyDashboardCleanupTest extends BaseUnitTest {
 			Constants::ACTIONS
 		);
 	}
+
+	public function testLegacyMeterActionsAreNotRegistered() :void {
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageDashboardMeters',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\Components\\Meters\\ProgressMeters',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\Components\\OffCanvas\\MeterAnalysis',
+			Constants::ACTIONS
+		);
+	}
 }

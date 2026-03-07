@@ -55,4 +55,40 @@ class SilentCaptcha extends Base {
 		}
 		return $status;
 	}
+
+	public function postureSignals() :array {
+		$minimum = (int)self::con()->opts->optGet( 'antibot_minimum' );
+		$complexity = self::con()->comps->altcha->complexityLevel();
+		$thresholdProtected = $minimum > 0;
+		$complexityProtected = !\in_array( $complexity, [ 'none', 'legacy', 'low' ], true );
+
+		return [
+			$this->buildPostureSignal(
+				'ip_ade_threshold',
+				self::con()->labels->getBrandName( 'silentcaptcha' ),
+				3,
+				$thresholdProtected ? 3 : 0,
+				$thresholdProtected ? 'good' : 'critical',
+				$thresholdProtected,
+				[
+					$thresholdProtected
+						? __( 'A minimum bot-score threshold is configured.', 'wp-simple-firewall' )
+						: __( 'No minimum bot-score threshold is configured.', 'wp-simple-firewall' ),
+				]
+			),
+			$this->buildPostureSignal(
+				'silentcaptcha_complexity',
+				__( 'Bot Challenge Complexity', 'wp-simple-firewall' ),
+				2,
+				$complexityProtected ? 2 : 0,
+				$complexityProtected ? 'good' : 'critical',
+				$complexityProtected,
+				[
+					$complexityProtected
+						? __( 'Bot challenge complexity is set above the low/legacy levels.', 'wp-simple-firewall' )
+						: __( 'Bot challenge complexity is too low to be considered reliable.', 'wp-simple-firewall' ),
+				]
+			),
+		];
+	}
 }

@@ -46,7 +46,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_landing_content_is_empty_for_posture_strip_layout() :void {
 		$page = new PageConfigureLandingUnitTestDouble(
-			$this->summaryMeterFixture( 78 ),
+			$this->zonePostureFixture( 78 ),
 			$this->zoneTileFixtures()
 		);
 		$content = $this->invokeNonPublicMethod( $page, 'getLandingContent' );
@@ -57,7 +57,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_landing_vars_include_posture_strip_contract_and_zone_tiles() :void {
 		$zoneTiles = $this->zoneTileFixtures();
-		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $zoneTiles );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $zoneTiles );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->assertSame( [], $this->renderCapture->calls );
 
@@ -84,7 +84,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$expectedTileKeys = \array_column( $this->zoneTileFixtures(), 'key' );
 
@@ -108,7 +108,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_landing_vars_use_zero_issue_breakdown_when_all_zones_are_good() :void {
 		$page = new PageConfigureLandingUnitTestDouble(
-			$this->summaryMeterFixture( 96 ),
+			$this->zonePostureFixture( 96 ),
 			$this->allGoodZoneTileFixtures()
 		);
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
@@ -173,19 +173,19 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			),
 		];
 
-		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $zoneTiles );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $zoneTiles );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 78, 0, 1, 1 );
 	}
 
 	public function test_landing_hrefs_are_empty() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
 		$this->assertSame( [], $hrefs );
 	}
 
 	public function test_landing_strings_include_current_headings_only() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->summaryMeterFixture( 78 ), $this->zoneTileFixtures() );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
 		$this->assertArrayHasKey( 'posture_title', $strings );
@@ -198,64 +198,15 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		}
 	}
 
-	public function test_posture_percentage_uses_weighted_meter_components_when_available() :void {
+	public function test_posture_percentage_uses_zone_posture_contract() :void {
 		$page = new PageConfigureLandingUnitTestDouble(
-			[
-				'totals'     => [ 'percentage' => 5 ],
-				'components' => [
-					[
-						'slug'   => 'security_admin_pin',
-						'weight' => 3,
-						'score'  => 3,
-					],
-					[
-						'slug'   => 'login_2fa',
-						'weight' => 2,
-						'score'  => 1,
-					],
-					[
-						'slug'   => 'activity_log_enabled',
-						'weight' => 100,
-						'score'  => 0,
-					],
-					[
-						'slug'   => 'traffic_log_enabled',
-						'weight' => 100,
-						'score'  => 0,
-					],
-				],
-			],
+			$this->zonePostureFixture( 80 ),
 			$this->zoneTileFixtures()
 		);
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( 80, $vars[ 'posture_percentage' ] ?? null );
 		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 80, 1, 1, 1 );
-	}
-
-	public function test_posture_percentage_falls_back_to_totals_when_no_weighted_components_exist() :void {
-		$page = new PageConfigureLandingUnitTestDouble(
-			[
-				'totals'     => [ 'percentage' => 61 ],
-				'components' => [
-					[
-						'slug'   => 'security_admin_pin',
-						'weight' => 0,
-						'score'  => 10,
-					],
-					[
-						'slug'   => 'login_2fa',
-						'weight' => -5,
-						'score'  => 1,
-					],
-				],
-			],
-			$this->zoneTileFixtures()
-		);
-		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-
-		$this->assertSame( 61, $vars[ 'posture_percentage' ] ?? null );
-		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 61, 1, 1, 1 );
 	}
 
 	private function assertPostureSummaryNumbers(
@@ -459,9 +410,19 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		];
 	}
 
-	private function summaryMeterFixture( int $percentage ) :array {
+	private function zonePostureFixture( int $percentage ) :array {
 		return [
-			'totals' => [ 'percentage' => $percentage ],
+			'components' => [],
+			'signals'    => [],
+			'totals'     => [
+				'score'        => $percentage,
+				'max_weight'   => 100,
+				'percentage'   => $percentage,
+				'letter_score' => 'A',
+			],
+			'percentage' => $percentage,
+			'severity'   => $percentage > 80 ? 'good' : ( $percentage > 40 ? 'warning' : 'critical' ),
+			'status'     => 'x',
 		];
 	}
 
@@ -503,17 +464,17 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 
-	private array $summaryMeterFixture;
+	private array $zonePostureFixture;
 
 	private array $zoneTileFixtures;
 
-	public function __construct( array $summaryMeterFixture, array $zoneTileFixtures ) {
-		$this->summaryMeterFixture = $summaryMeterFixture;
+	public function __construct( array $zonePostureFixture, array $zoneTileFixtures ) {
+		$this->zonePostureFixture = $zonePostureFixture;
 		$this->zoneTileFixtures = $zoneTileFixtures;
 	}
 
-	protected function getSummaryMeterData() :array {
-		return $this->summaryMeterFixture;
+	protected function getZonePosture() :array {
+		return $this->zonePostureFixture;
 	}
 
 	protected function getConfigureZoneTiles() :array {

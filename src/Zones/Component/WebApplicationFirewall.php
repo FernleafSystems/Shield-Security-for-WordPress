@@ -57,4 +57,33 @@ class WebApplicationFirewall extends Base {
 
 		return $status;
 	}
+
+	public function postureSignals() :array {
+		$optStrings = new StringsOptions();
+		$signals = [];
+		foreach ( [
+			'block_dir_traversal'   => [ 'slug' => 'firewall_dir_traversal', 'weight' => 5 ],
+			'block_sql_queries'     => [ 'slug' => 'firewall_sql_queries', 'weight' => 5 ],
+			'block_field_truncation'=> [ 'slug' => 'firewall_field_truncation', 'weight' => 3 ],
+			'block_php_code'        => [ 'slug' => 'firewall_php_code', 'weight' => 4 ],
+			'block_aggressive'      => [ 'slug' => 'firewall_aggressive', 'weight' => 4 ],
+		] as $optKey => $definition ) {
+			$enabled = self::con()->opts->optIs( $optKey, 'Y' );
+			$name = $optStrings->getFor( $optKey )[ 'name' ];
+			$signals[] = $this->buildPostureSignal(
+				$definition[ 'slug' ],
+				sprintf( __( 'WAF Rule: %s', 'wp-simple-firewall' ), $name ),
+				$definition[ 'weight' ],
+				$enabled ? $definition[ 'weight' ] : 0,
+				$enabled ? 'good' : 'critical',
+				$enabled,
+				[
+					$enabled
+						? sprintf( __( "Requests that trigger '%s' are intercepted.", 'wp-simple-firewall' ), $name )
+						: sprintf( __( "Requests that trigger '%s' are not intercepted.", 'wp-simple-firewall' ), $name ),
+				]
+			);
+		}
+		return $signals;
+	}
 }

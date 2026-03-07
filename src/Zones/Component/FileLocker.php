@@ -43,4 +43,33 @@ class FileLocker extends Base {
 
 		return $status;
 	}
+
+	public function postureSignals() :array {
+		$toLock = self::con()->comps->file_locker->getFilesToLock();
+		$defs = [
+			'wpconfig'    => [ 'slug' => 'scan_enabled_filelocker_wpconfig', 'title' => 'wp-config.php', 'weight' => 6 ],
+			'htaccess'    => [ 'slug' => 'scan_enabled_filelocker_htaccess', 'title' => '.htaccess', 'weight' => 5 ],
+			'root_index'  => [ 'slug' => 'scan_enabled_filelocker_index', 'title' => 'index.php', 'weight' => 5 ],
+			'webconfig'   => [ 'slug' => 'scan_enabled_filelocker_webconfig', 'title' => 'web.config', 'weight' => 5 ],
+		];
+
+		$signals = [];
+		foreach ( $defs as $fileKey => $definition ) {
+			$enabled = \in_array( $fileKey, $toLock, true );
+			$signals[] = $this->buildPostureSignal(
+				$definition[ 'slug' ],
+				sprintf( __( 'Critical File Protection: %s', 'wp-simple-firewall' ), $definition[ 'title' ] ),
+				$definition[ 'weight' ],
+				$enabled ? $definition[ 'weight' ] : 0,
+				$enabled ? 'good' : 'warning',
+				$enabled,
+				[
+					$enabled
+						? sprintf( __( '%s is protected against tampering.', 'wp-simple-firewall' ), $definition[ 'title' ] )
+						: sprintf( __( '%s is not protected against tampering.', 'wp-simple-firewall' ), $definition[ 'title' ] ),
+				]
+			);
+		}
+		return $signals;
+	}
 }
