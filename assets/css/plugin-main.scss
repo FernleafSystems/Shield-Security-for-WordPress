@@ -801,8 +801,8 @@ $sidebar-transition-speed: 0.25s;
   width: $sidebar-width-expanded;
 
   .sidebar-inner {
+    // Let the admin flex row determine sidebar height; viewport min-heights create overflow below the page.
     width: $sidebar-width-expanded;
-    min-height: 100vh;
   }
 
   @include media-breakpoint-down(lg) {
