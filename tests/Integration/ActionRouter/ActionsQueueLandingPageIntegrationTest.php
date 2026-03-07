@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
+	Constants
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
@@ -36,10 +40,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderActionsQueueLandingPage() :array {
-		return $this->renderPluginAdminRoutePayload(
-			PluginNavs::NAV_SCANS,
-			PluginNavs::SUBNAV_SCANS_OVERVIEW
-		);
+		return $this->processActionPayloadWithAdminBypass( PageActionsQueueLanding::SLUG, [
+			Constants::NAV_ID     => PluginNavs::NAV_SCANS,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
+		] );
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {

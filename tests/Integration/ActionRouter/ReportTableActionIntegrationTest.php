@@ -99,7 +99,16 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function buildTableDataRequest( string $search = '' ) :array {
-		return \array_merge( ( new ForReports() )->buildRaw(), [
+		$tableData = ( new ForReports() )->buildRaw();
+		$tableData[ 'order' ] = \array_values( \array_map(
+			static fn( array $order ) :array => [
+				'column' => (int)( $order[ 0 ] ?? 0 ),
+				'dir'    => (string)( $order[ 1 ] ?? 'desc' ),
+			],
+			\is_array( $tableData[ 'order' ] ?? null ) ? $tableData[ 'order' ] : []
+		) );
+
+		return \array_merge( $tableData, [
 			'draw'   => 1,
 			'start'  => 0,
 			'length' => 25,

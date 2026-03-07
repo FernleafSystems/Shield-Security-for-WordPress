@@ -142,6 +142,28 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return $matches[ 0 ] ?? [];
 	}
 
+	private function getZoneItemKeys( array $renderData ) :array {
+		$zoneGroups = \is_array( $renderData[ 'vars' ][ 'zone_groups' ] ?? null ) ? $renderData[ 'vars' ][ 'zone_groups' ] : [];
+		$itemKeys = [];
+
+		foreach ( $zoneGroups as $zoneGroup ) {
+			if ( !\is_array( $zoneGroup ) ) {
+				continue;
+			}
+			foreach ( $zoneGroup[ 'items' ] ?? [] as $item ) {
+				if ( !\is_array( $item ) ) {
+					continue;
+				}
+				$key = (string)( $item[ 'key' ] ?? '' );
+				if ( $key !== '' ) {
+					$itemKeys[] = $key;
+				}
+			}
+		}
+
+		return $itemKeys;
+	}
+
 	private function getLaneByMode( array $renderData, string $mode ) :array {
 		$lanes = \is_array( $renderData[ 'vars' ][ 'lanes' ] ?? null ) ? $renderData[ 'vars' ][ 'lanes' ] : [];
 		$matches = \array_values( \array_filter(
@@ -210,11 +232,12 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		TestDataFactory::insertScanResultMeta( $apcId, 'is_abandoned' );
 
 		$renderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
-		$zone = $this->getZoneGroupBySlug( $renderData, 'scans' );
-		$itemKeys = \array_column( $zone[ 'items' ] ?? [], 'key' );
+		$itemKeys = $this->getZoneItemKeys( $renderData );
 		$this->assertNotContains( 'malware', $itemKeys );
 		$this->assertNotContains( 'vulnerable_assets', $itemKeys );
 		$this->assertNotContains( 'abandoned', $itemKeys );
+		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? true ) );
+		$this->assertSame( 0, (int)( $renderData[ 'vars' ][ 'total_items' ] ?? -1 ) );
 	}
 
 	public function test_all_clear_state_includes_all_8_zone_chips() :void {

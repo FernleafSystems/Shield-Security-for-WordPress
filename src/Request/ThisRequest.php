@@ -97,23 +97,15 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 	 * @see \WP_REST_Request::from_url()
 	 */
 	public function getRestRoute() :string {
-		$currentURL = sprintf(
-			'http%s://%s/%s',
-			is_ssl() ? 's' : '',
-			$this->request->server[ 'HTTP_HOST' ] ?? '',
-			\trim( $this->path, '/' )
-		);
+		$route = $this->request->request( 'rest_route', false, '' );
+		if ( empty( $route ) && $this->wp_is_permalinks_enabled ) {
+			$requestPath = \trim( (string)$this->request->getPath(), '/' );
+			$restBasePath = \trim( (string)\wp_parse_url( \rest_url( '/' ), \PHP_URL_PATH ), '/' );
 
-		if ( $this->wp_is_permalinks_enabled && \str_starts_with( $currentURL, $this->rest_api_root ) ) {
-			$route = \str_replace( $this->rest_api_root, '', $currentURL );
+			if ( $requestPath !== '' && $restBasePath !== '' && \str_starts_with( $requestPath, $restBasePath ) ) {
+				$route = \substr( $requestPath, \strlen( $restBasePath ) );
+			}
 		}
-		elseif ( isset( $this->request->query[ 'rest_route' ] ) ) {
-			$route = $this->request->query[ 'rest_route' ];
-		}
-		else {
-			$route = '';
-		}
-
 		return \trim( (string)$route, '/' );
 	}
 

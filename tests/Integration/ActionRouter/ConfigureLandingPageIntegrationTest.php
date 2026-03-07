@@ -27,10 +27,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderConfigureLandingPage() :array {
-		return $this->renderPluginAdminRoutePayload(
-			PluginNavs::NAV_ZONES,
-			PluginNavs::SUBNAV_ZONES_OVERVIEW
-		);
+		return $this->processActionPayloadWithAdminBypass( PageConfigureLanding::SLUG, [
+			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
+		] );
 	}
 
 	public function test_configure_landing_exposes_payload_contract_for_route_and_tiles() :void {

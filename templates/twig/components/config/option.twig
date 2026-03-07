@@ -262,8 +262,7 @@
 		   data-bs-toggle="tooltip"
 		   data-bs-trigger="hover"
 		   data-bs-placement="top"
-		   data-bs-title="{{ tooltip }}"
-				{{ attributes|xmlattr }}
+		   data-bs-title="{{ tooltip }}"{% for attr_name, attr_value in attributes %} {{ attr_name }}="{{ attr_value|e('html_attr') }}"{% endfor %}
 		><i class="{{ icon_class }}" aria-hidden="true"></i></a>
 	{% else %}
 		<button type="button"
@@ -272,8 +271,7 @@
 				data-bs-toggle="tooltip"
 				data-bs-trigger="hover"
 				data-bs-placement="top"
-				data-bs-title="{{ tooltip }}"
-				{{ attributes|xmlattr }}
+				data-bs-title="{{ tooltip }}"{% for attr_name, attr_value in attributes %} {{ attr_name }}="{{ attr_value|e('html_attr') }}"{% endfor %}
 		><i class="{{ icon_class }}" aria-hidden="true"></i></button>
 	{% endif %}
 {% endmacro %}

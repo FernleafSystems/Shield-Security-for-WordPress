@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\AjaxBatchRequests,
 	Actions\AjaxRender,
+	Actions\Render\PluginAdminPages\PageInvestigateLanding,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -27,10 +28,15 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderInvestigateLandingPage( array $extra = [] ) :array {
-		return $this->renderPluginAdminRoutePayload(
-			PluginNavs::NAV_ACTIVITY,
-			PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
-			$extra
+		return $this->processActionPayloadWithAdminBypass(
+			PageInvestigateLanding::SLUG,
+			\array_merge(
+				[
+					Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+					Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
+				],
+				$extra
+			)
 		);
 	}
 
