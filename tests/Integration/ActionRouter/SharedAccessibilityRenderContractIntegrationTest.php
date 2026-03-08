@@ -87,7 +87,14 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		$payload = $this->processor()->processAction( IpAnalysis::SLUG, [
 			'ip' => '198.51.100.20',
 		] )->payload();
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
+
+		$this->assertSame(
+			'replace',
+			(string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? '' ),
+			'IP analysis offcanvas history mode contract'
+		);
 
 		$this->assertXPathExists(
 			$xpath,
@@ -96,7 +103,7 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//form[@data-investigate-panel-form="1"]//select[@data-investigate-select2="1"]',
+			'//form[@data-investigate-panel-form="1" and @data-offcanvas-history-mode="replace"]//select[@data-investigate-select2="1"]',
 			'IP analysis offcanvas lookup select contract'
 		);
 		$this->assertXPathExists(

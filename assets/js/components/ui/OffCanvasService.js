@@ -9,6 +9,8 @@ export class OffCanvasService extends BaseComponent {
 	static bsCanvas;
 	static canvasTracker;
 	static offCanvasEl;
+	static HISTORY_MODE_PUSH = 'push';
+	static HISTORY_MODE_REPLACE = 'replace';
 
 	init() {
 		OffCanvasService.canvasTracker = [];
@@ -26,8 +28,9 @@ export class OffCanvasService extends BaseComponent {
 		OffCanvasService.offCanvasEl.addEventListener( 'hidden.bs.offcanvas', () => {
 			OffCanvasService.canvasTracker.pop(); // remove the one we just closed.
 			if ( OffCanvasService.canvasTracker.length > 0 ) {
-				let latest = OffCanvasService.canvasTracker.pop();
-				OffCanvasService.RenderCanvas( latest ).finally(); // re-open the latest.
+				OffCanvasService.renderRequest(
+					OffCanvasService.canvasTracker[ OffCanvasService.canvasTracker.length - 1 ]
+				).finally();
 			}
 		} );
 	}
@@ -38,11 +41,34 @@ export class OffCanvasService extends BaseComponent {
 		} ).finally();
 	};
 
-	static RenderCanvas( canvasProperties = {} ) {
+	static RenderCanvas( canvasProperties = {}, options = {} ) {
+		const request = ObjectOps.ObjClone( canvasProperties );
+		OffCanvasService.updateHistory(
+			request,
+			OffCanvasService.normalizeHistoryMode( options.historyMode )
+		);
+		return OffCanvasService.renderRequest( request );
+	};
 
-		canvasProperties = ObjectOps.ObjClone( canvasProperties );
-		OffCanvasService.canvasTracker.push( canvasProperties );
+	static normalizeHistoryMode( historyMode = '' ) {
+		return historyMode === OffCanvasService.HISTORY_MODE_REPLACE
+			? OffCanvasService.HISTORY_MODE_REPLACE
+			: OffCanvasService.HISTORY_MODE_PUSH;
+	}
 
+	static updateHistory( request, historyMode ) {
+		if (
+			historyMode === OffCanvasService.HISTORY_MODE_REPLACE
+			&& OffCanvasService.canvasTracker.length > 0
+		) {
+			OffCanvasService.canvasTracker[ OffCanvasService.canvasTracker.length - 1 ] = request;
+		}
+		else {
+			OffCanvasService.canvasTracker.push( request );
+		}
+	}
+
+	static renderRequest( request ) {
 		const spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
 		spinner.id = '';
 		spinner.classList.remove( 'd-none' );
@@ -57,10 +83,10 @@ export class OffCanvasService extends BaseComponent {
 		OffCanvasService.bsCanvas.show();
 
 		return ( new AjaxService() )
-		.send( canvasProperties, false )
+		.send( request, false )
 		.then( ( resp ) => {
 			if ( resp.success ) {
-				OffCanvasService.offCanvasEl.classList.add( canvasProperties.render_slug );
+				OffCanvasService.offCanvasEl.classList.add( request.render_slug );
 				OffCanvasService.offCanvasEl.innerHTML = resp.data.html;
 
 				BootstrapTooltips.RegisterNewTooltipsWithin( OffCanvasService.offCanvasEl );
@@ -76,7 +102,7 @@ export class OffCanvasService extends BaseComponent {
 		.catch( ( error ) => {
 			console.log( error );
 		} );
-	};
+	}
 
 	static CloseCanvas() {
 		OffCanvasService.bsCanvas.hide();

@@ -14,6 +14,7 @@ class IpAnalysis extends OffCanvasBase {
 
 	protected function buildCanvasBody() :string {
 		$renderData = ( new InvestigateByIpViewBuilder() )->build( (string)$this->action_data[ 'ip' ] );
+		$renderData[ 'vars' ][ 'offcanvas_history_mode' ] = 'replace';
 		$renderData[ 'ui' ] = [
 			'show_lookup_with_subject' => true,
 			'change_label'             => '',

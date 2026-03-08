@@ -54,12 +54,18 @@ export class IpAnalyse extends BaseAutoExecComponent {
 
 	handleInvestigateLookupSubmit( form, evt ) {
 		evt.preventDefault();
-		this.render( String( ( new FormData( form ) ).get( 'analyse_ip' ) || '' ) ).finally();
+		this.render(
+			String( ( new FormData( form ) ).get( 'analyse_ip' ) || '' ),
+			{
+				historyMode: form.dataset.offcanvasHistoryMode || '',
+			}
+		).finally();
 	}
 
-	render( ip = '' ) {
+	render( ip = '', options = {} ) {
 		return OffCanvasService.RenderCanvas(
-			ObjectOps.Merge( this._base_data.ajax.render_offcanvas, { ip: ip } )
+			ObjectOps.Merge( this._base_data.ajax.render_offcanvas, { ip: ip } ),
+			options
 		).then( () => {
 			this.lookupSelect2.initializeWithin( OffCanvasService.offCanvasEl );
 			this.inlineTabs.initializeWithin( OffCanvasService.offCanvasEl );

@@ -5,6 +5,7 @@
 {% set helper_text = helper_text|default('') %}
 {% set lookup_ajax = lookup_ajax|default({}) %}
 {% set lookup_ajax_attr = lookup_ajax is iterable ? lookup_ajax|json_encode : '' %}
+{% set offcanvas_history_mode = offcanvas_history_mode|default('') %}
 {% set selected_option_label = selected_option_label|default(input_value|default('')) %}
 
 <section class="investigate-lookup-strip">
@@ -13,6 +14,9 @@
 		  class="investigate-lookup-strip__form"
 		  {% if is_panel_form %}
 		  data-investigate-panel-form="1"
+		  {% endif %}
+		  {% if offcanvas_history_mode is not empty %}
+		  data-offcanvas-history-mode="{{ offcanvas_history_mode|e('html_attr') }}"
 		  {% endif %}>
 		{% include '/wpadmin/components/investigate/lookup_route_hidden_inputs.twig' with {
 			lookup_route: lookup_route

@@ -93,6 +93,7 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ]
 		);
+		$this->assertArrayNotHasKey( 'offcanvas_history_mode', $renderData[ 'vars' ] );
 		$this->assertSame( 'ip', $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] );
 		$this->assertSame( 'rendered-ip:203.0.113.88', $renderData[ 'content' ][ 'ip_analysis' ] );
 	}
