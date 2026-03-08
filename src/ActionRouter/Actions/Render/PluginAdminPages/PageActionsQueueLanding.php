@@ -220,10 +220,66 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 					fn( array $item ) :array => $this->normalizeZoneItemForDisplay( $item ),
 					$zoneTile[ 'items' ] ?? []
 				);
+				if ( ( $zoneTile[ 'key' ] ?? '' ) === 'maintenance' ) {
+					$zoneTile[ 'maintenance_sections' ] = $this->buildMaintenanceSections( $zoneTile );
+				}
 				return $zoneTile;
 			},
 			$this->getZoneTiles()
 		);
+	}
+
+	/**
+	 * @param array<string,mixed> $zoneTile
+	 * @return list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   kind:string,
+	 *   items:list<array<string,mixed>>
+	 * }>
+	 */
+	private function buildMaintenanceSections( array $zoneTile ) :array {
+		$issueItems = \is_array( $zoneTile[ 'items' ] ?? null ) ? \array_values( $zoneTile[ 'items' ] ) : [];
+		$assessmentRows = \is_array( $zoneTile[ 'assessment_rows' ] ?? null ) ? \array_values( $zoneTile[ 'assessment_rows' ] ) : [];
+
+		$sections = [];
+		$sectionDefinitions = [
+			[
+				'key'    => 'critical',
+				'label'  => __( 'Critical', 'wp-simple-firewall' ),
+				'kind'   => 'summary',
+				'items'  => \array_values( \array_filter(
+					$issueItems,
+					static fn( array $item ) :bool => ( $item[ 'severity' ] ?? '' ) === 'critical'
+				) ),
+			],
+			[
+				'key'    => 'warning',
+				'label'  => __( 'Warnings', 'wp-simple-firewall' ),
+				'kind'   => 'summary',
+				'items'  => \array_values( \array_filter(
+					$issueItems,
+					static fn( array $item ) :bool => ( $item[ 'severity' ] ?? '' ) === 'warning'
+				) ),
+			],
+			[
+				'key'    => 'good',
+				'label'  => __( 'Okay', 'wp-simple-firewall' ),
+				'kind'   => 'assessment',
+				'items'  => \array_values( \array_filter(
+					$assessmentRows,
+					static fn( array $row ) :bool => ( $row[ 'status' ] ?? '' ) === 'good'
+				) ),
+			],
+		];
+
+		foreach ( $sectionDefinitions as $section ) {
+			if ( !empty( $section[ 'items' ] ) ) {
+				$sections[] = $section;
+			}
+		}
+
+		return $sections;
 	}
 
 	private function getActiveZone() :string {

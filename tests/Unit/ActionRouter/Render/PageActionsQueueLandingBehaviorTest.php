@@ -290,6 +290,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$itemsByKey[ $item[ 'key' ] ?? '' ] = $item;
 		}
 
+		$this->assertNotEmpty( $maintenance[ 'assessment_rows' ] ?? [] );
 		$this->assertSame( 'Go to plugins', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'label' ] ?? '' );
 		$this->assertSame( '/admin/wp_plugins_inactive', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( 'Go to themes', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] ?? '' );
@@ -300,6 +301,45 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Review', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'label' ] ?? '' );
 		$this->assertSame( 'https://www.openssl.org/news/vulnerabilities.html', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( '_blank', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'target' ] ?? '' );
+	}
+
+	public function test_maintenance_sections_group_items_without_repeating_warnings() :void {
+		$this->capture->queuePayload = $this->buildQueuePayload(
+			true,
+			3,
+			'critical',
+			'',
+			[
+				$this->buildZoneGroup( 'scans', 'good', 0, [] ),
+				$this->buildZoneGroup( 'maintenance', 'critical', 3, [
+					$this->buildQueueItem( 'system_ssl_certificate', 'maintenance', 'SSL Certificate', 1, 'critical' ),
+					$this->buildQueueItem( 'wp_updates', 'maintenance', 'WordPress Version', 1, 'warning' ),
+				] ),
+			]
+		);
+
+		$page = $this->newPage( [
+			'scans'       => [
+				$this->buildAssessmentRow( 'wp_files', 'WordPress Core Files' ),
+			],
+			'maintenance' => [
+				$this->buildAssessmentRow( 'system_ssl_certificate', 'SSL Certificate', 'Certificate requires review', 'critical', 'Critical', 'bi bi-x-circle-fill' ),
+				$this->buildAssessmentRow( 'wp_updates', 'WordPress Version', 'Update available', 'warning', 'Warning', 'bi bi-exclamation-circle-fill' ),
+				$this->buildAssessmentRow( 'system_lib_openssl', 'OpenSSL Extension' ),
+			],
+		] );
+		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'zone_tiles' ] ?? [];
+		$maintenance = \array_values( \array_filter(
+			$zoneTiles,
+			static fn( array $tile ) :bool => ( $tile[ 'key' ] ?? '' ) === 'maintenance'
+		) )[ 0 ] ?? [];
+		$sections = $maintenance[ 'maintenance_sections' ] ?? [];
+
+		$this->assertSame( [ 'critical', 'warning', 'good' ], \array_column( $sections, 'key' ) );
+		$this->assertSame( [ 'summary', 'summary', 'assessment' ], \array_column( $sections, 'kind' ) );
+		$this->assertSame( [ 'system_ssl_certificate' ], \array_column( $sections[ 0 ][ 'items' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'wp_updates' ], \array_column( $sections[ 1 ][ 'items' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'system_lib_openssl' ], \array_column( $sections[ 2 ][ 'items' ] ?? [], 'key' ) );
 	}
 
 	public function test_missing_needs_attention_strings_fall_back_to_safe_defaults() :void {
@@ -581,15 +621,18 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	private function buildAssessmentRow(
 		string $key,
 		string $label,
-		string $description = 'All clear'
+		string $description = 'All clear',
+		string $status = 'good',
+		string $statusLabel = 'Good',
+		string $statusIconClass = 'bi bi-check-circle-fill'
 	) :array {
 		return [
 			'key'               => $key,
 			'label'             => $label,
 			'description'       => $description,
-			'status'            => 'good',
-			'status_label'      => 'Good',
-			'status_icon_class' => 'bi bi-check-circle-fill',
+			'status'            => $status,
+			'status_label'      => $statusLabel,
+			'status_icon_class' => $statusIconClass,
 		];
 	}
 
