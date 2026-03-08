@@ -1,57 +1,43 @@
 <div class="shield-ipanalyse options_form_for--modern">
+	{% set tab_id_prefix = 'tabIpInfo-' ~ unique_render_id %}
+	{% set tab_nav_prefix = 'tab-navlink-ip-' ~ unique_render_id %}
 	{% set rail_nav_items = [
 		{
-			target: '#tabIpInfoGeneral',
-			id: 'tab-navlink-ip-general',
-			controls: 'tabIpInfoGeneral',
+			target: '#' ~ tab_id_prefix ~ '-general',
+			id: tab_nav_prefix ~ '-general',
+			controls: tab_id_prefix ~ '-general',
 			label: strings.nav_general,
 			is_focus: true
 		},
 		{
-			target: '#tabIpInfoBotSignals',
-			id: 'tab-navlink-ip-signals',
-			controls: 'tabIpInfoBotSignals',
+			target: '#' ~ tab_id_prefix ~ '-signals',
+			id: tab_nav_prefix ~ '-signals',
+			controls: tab_id_prefix ~ '-signals',
 			label: strings.nav_signals,
 			is_focus: false
 		},
 		{
-			target: '#tabIpInfoSessions',
-			id: 'tab-navlink-ip-sessions',
-			controls: 'tabIpInfoSessions',
+			target: '#' ~ tab_id_prefix ~ '-sessions',
+			id: tab_nav_prefix ~ '-sessions',
+			controls: tab_id_prefix ~ '-sessions',
 			label: strings.nav_sessions,
 			is_focus: false
 		},
 		{
-			target: '#tabIpInfoAudit',
-			id: 'tab-navlink-ip-audit',
-			controls: 'tabIpInfoAudit',
+			target: '#' ~ tab_id_prefix ~ '-audit',
+			id: tab_nav_prefix ~ '-audit',
+			controls: tab_id_prefix ~ '-audit',
 			label: strings.nav_audit,
 			is_focus: false
 		},
 		{
-			target: '#tabIpInfoTraffic',
-			id: 'tab-navlink-ip-traffic',
-			controls: 'tabIpInfoTraffic',
+			target: '#' ~ tab_id_prefix ~ '-traffic',
+			id: tab_nav_prefix ~ '-traffic',
+			controls: tab_id_prefix ~ '-traffic',
 			label: strings.nav_traffic,
 			is_focus: false
 		}
 	] %}
-
-	{% if flags.render_inline_tabs %}
-		<div class="investigate-panel__tabs" role="tablist">
-			{% for item in rail_nav_items %}
-				<button type="button"
-						class="investigate-panel__tab {{ item.is_focus ? 'is-active active' : '' }}"
-						data-bs-target="{{ item.target }}"
-						data-bs-toggle="tab"
-						role="tab"
-						aria-controls="{{ item.controls }}"
-						aria-selected="{{ item.is_focus ? 'true' : 'false' }}">
-					{{ item.label }}
-				</button>
-			{% endfor %}
-		</div>
-	{% endif %}
 
 	<div class="shield-options-layout has-rail">
 		<aside class="shield-options-rail">
@@ -65,45 +51,45 @@
 		<div class="shield-options-content">
 			<div class="tab-content shield-ipanalyse-content">
 				<section class="tab-pane shield-options-panel active show"
-						 id="tabIpInfoGeneral"
+						 id="{{ tab_id_prefix }}-general"
 						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-general">
+						 aria-labelledby="{{ tab_nav_prefix }}-general">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
 						{{ content.general|default('no content')|raw }}
 					</div>
 				</section>
 				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoBotSignals"
+						 id="{{ tab_id_prefix }}-signals"
 						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-signals">
+						 aria-labelledby="{{ tab_nav_prefix }}-signals">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
 						{{ content.signals|default('no content')|raw }}
 					</div>
 				</section>
 				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoSessions"
+						 id="{{ tab_id_prefix }}-sessions"
 						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-sessions">
+						 aria-labelledby="{{ tab_nav_prefix }}-sessions">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
 						{{ content.sessions|default('no content')|raw }}
 					</div>
 				</section>
 				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoAudit"
+						 id="{{ tab_id_prefix }}-audit"
 						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-audit">
+						 aria-labelledby="{{ tab_nav_prefix }}-audit">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
 						{{ content.activity|default('no content')|raw }}
 					</div>
 				</section>
 				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoTraffic"
+						 id="{{ tab_id_prefix }}-traffic"
 						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-traffic">
+						 aria-labelledby="{{ tab_nav_prefix }}-traffic">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
 						{{ content.traffic|default('no content')|raw }}

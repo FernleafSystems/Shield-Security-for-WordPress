@@ -8,20 +8,19 @@ class ContainerRenderer {
 
 	use PluginControllerConsumer;
 
-	public function render( string $ip, bool $renderInlineTabs ) :string {
+	public function render( string $ip ) :string {
 		return self::con()->action_router->render(
 			Container::class,
-			$this->buildActionData( $ip, $renderInlineTabs )
+			$this->buildActionData( $ip )
 		);
 	}
 
 	/**
-	 * @return array{ip:string, render_inline_tabs:bool}
+	 * @return array{ip:string}
 	 */
-	private function buildActionData( string $ip, bool $renderInlineTabs ) :array {
+	private function buildActionData( string $ip ) :array {
 		return [
-			'ip'                 => $ip,
-			'render_inline_tabs' => $renderInlineTabs,
+			'ip' => $ip,
 		];
 	}
 }

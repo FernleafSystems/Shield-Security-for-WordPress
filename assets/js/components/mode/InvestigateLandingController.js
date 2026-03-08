@@ -1,9 +1,9 @@
-import { Tab } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { InvestigationTable } from "../tables/InvestigationTable";
+import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { InvestigateLookupSelect2 } from "./InvestigateLookupSelect2";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
@@ -16,6 +16,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.rootEl = document.querySelector( '[data-investigate-landing="1"]' );
 		this.modeShellEl = this.rootEl ? this.rootEl.closest( '[data-mode-shell="1"]' ) : null;
 		this.livePanelPoller = null;
+		this.inlineTabs = new InvestigateInlineTabs();
 		this.lookupSelect2 = new InvestigateLookupSelect2();
 
 		this.initializeSelect2Within( this.rootEl );
@@ -44,19 +45,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			false
 		);
 		shieldEventsHandler_Main.add_Click(
-			'[data-investigate-landing="1"] [data-investigate-panel-tab="1"]',
-			( tabButton, evt ) => this.handleInlineTabClick( tabButton, evt ),
-			false
-		);
-		shieldEventsHandler_Main.add_Click(
 			'[data-investigate-landing="1"] [data-investigate-change-subject="1"]',
 			( changeLink, evt ) => this.handleChangeSubjectClick( changeLink, evt ),
-			false
-		);
-		shieldEventsHandler_Main.addHandler(
-			'shown.bs.tab',
-			'[data-investigate-landing="1"] [data-investigate-source-tab="1"]',
-			( sourceTab ) => this.handleSourceTabShown( sourceTab ),
 			false
 		);
 
@@ -480,9 +470,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( this.rootEl === null ) {
 			return;
 		}
-		this.rootEl.querySelectorAll( '[data-investigate-panel]' ).forEach( ( panel ) => {
-			this.rebuildInlineTabs( panel );
-		} );
+		this.inlineTabs.initializeWithin( this.rootEl );
 	}
 
 	syncPanelHeadersForAllPanels() {
@@ -496,7 +484,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	syncPanelChrome( panel, clearHeaderIfMissing = false ) {
 		this.syncPanelHeader( panel, clearHeaderIfMissing );
-		this.rebuildInlineTabs( panel );
+		this.inlineTabs.initializeWithin( panel );
 	}
 
 	syncPanelHeader( panel, clearIfMissing = false ) {
@@ -531,10 +519,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return panel.querySelector( '[data-investigate-panel-header="1"]' );
 	}
 
-	getPanelTabsContainer( panel ) {
-		return panel.querySelector( '[data-investigate-panel-tabs="1"]' );
-	}
-
 	getLandingHintElement() {
 		if ( this.rootEl === null ) {
 			return null;
@@ -561,117 +545,4 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		);
 	}
 
-	clearInlineTabs( panel ) {
-		const tabsContainer = this.getPanelTabsContainer( panel );
-		if ( tabsContainer !== null ) {
-			tabsContainer.innerHTML = '';
-		}
-	}
-
-	rebuildInlineTabs( panel ) {
-		const tabsContainer = this.getPanelTabsContainer( panel );
-		if ( tabsContainer === null ) {
-			return;
-		}
-
-		const sourceTabs = this.collectSourceTabs( panel );
-		if ( sourceTabs.length < 1 ) {
-			this.clearInlineTabs( panel );
-			return;
-		}
-
-		const fragment = document.createDocumentFragment();
-		sourceTabs.forEach( ( sourceTab, index ) => {
-			if ( sourceTab.id.length < 1 ) {
-				sourceTab.id = this.buildSourceTabID( panel, index );
-			}
-
-			const targetSelector = this.getTabTargetSelector( sourceTab );
-			if ( targetSelector.length < 1 ) {
-				return;
-			}
-
-			const tabButton = document.createElement( 'button' );
-			tabButton.type = 'button';
-			tabButton.className = 'investigate-panel__tab';
-			tabButton.dataset.investigatePanelTab = '1';
-			tabButton.dataset.sourceTabId = sourceTab.id;
-			tabButton.textContent = sourceTab.textContent.trim();
-
-			if ( sourceTab.classList.contains( 'active' ) || sourceTab.getAttribute( 'aria-selected' ) === 'true' ) {
-				tabButton.classList.add( 'is-active' );
-			}
-
-			fragment.appendChild( tabButton );
-		} );
-
-		tabsContainer.innerHTML = '';
-		tabsContainer.appendChild( fragment );
-		this.syncInlineActiveTab( panel );
-	}
-
-	collectSourceTabs( panel ) {
-		const panelContent = this.getPanelContentContainer( panel );
-		if ( panelContent === null ) {
-			return [];
-		}
-
-		return Array.from( panelContent.querySelectorAll( '.shield-options-rail [data-bs-toggle="tab"]' ) ).filter( ( sourceTab ) => {
-			const targetSelector = this.getTabTargetSelector( sourceTab );
-			if ( targetSelector.length < 1 || panelContent.querySelector( targetSelector ) === null ) {
-				delete sourceTab.dataset.investigateSourceTab;
-				return false;
-			}
-
-			sourceTab.dataset.investigateSourceTab = '1';
-			return true;
-		} );
-	}
-
-	getTabTargetSelector( sourceTab ) {
-		const targetSelector = ( sourceTab.dataset.bsTarget || sourceTab.getAttribute( 'href' ) || '' ).trim();
-		return targetSelector.startsWith( '#' ) ? targetSelector : '';
-	}
-
-	buildSourceTabID( panel, index ) {
-		const panelKey = ( panel.dataset.investigatePanel || 'panel' ).toLowerCase().replace( /[^a-z0-9_-]/g, '-' );
-		return `investigate-inline-source-tab-${panelKey}-${index}`;
-	}
-
-	handleInlineTabClick( tabButton, evt ) {
-		const sourceTabID = ( tabButton.dataset.sourceTabId || '' ).trim();
-		if ( sourceTabID.length < 1 ) {
-			return;
-		}
-
-		const sourceTab = document.getElementById( sourceTabID );
-		if ( sourceTab === null ) {
-			return;
-		}
-
-		evt.preventDefault();
-		Tab.getOrCreateInstance( sourceTab ).show();
-	}
-
-	handleSourceTabShown( sourceTab ) {
-		const panel = this.findPanelFromElement( sourceTab );
-		if ( panel === null ) {
-			return;
-		}
-		this.syncInlineActiveTab( panel );
-	}
-
-	syncInlineActiveTab( panel ) {
-		const tabsContainer = this.getPanelTabsContainer( panel );
-		if ( tabsContainer === null ) {
-			return;
-		}
-
-		const activeSourceTab = panel.querySelector( '[data-investigate-source-tab="1"].active' )
-			|| panel.querySelector( '[data-investigate-source-tab="1"][aria-selected="true"]' );
-		const activeSourceTabID = activeSourceTab !== null ? activeSourceTab.id : '';
-		tabsContainer.querySelectorAll( '[data-investigate-panel-tab="1"]' ).forEach( ( inlineTab ) => {
-			inlineTab.classList.toggle( 'is-active', activeSourceTabID.length > 0 && inlineTab.dataset.sourceTabId === activeSourceTabID );
-		} );
-	}
 }

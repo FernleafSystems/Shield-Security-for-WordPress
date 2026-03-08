@@ -57,7 +57,7 @@ class InvestigateByIpViewBuilder {
 	 *   }
 	 * }
 	 */
-	public function build( string $lookup, bool $renderInlineTabs = false ) :array {
+	public function build( string $lookup ) :array {
 		$lookup = \trim( sanitize_text_field( $lookup ) );
 		$hasLookup = $lookup !== '';
 		$hasSubject = $hasLookup && Services::IP()->isValidIp( $lookup );
@@ -92,7 +92,7 @@ class InvestigateByIpViewBuilder {
 			],
 			'content' => [
 				'ip_analysis' => $hasSubject
-					? ( new ContainerRenderer() )->render( $lookup, $renderInlineTabs )
+					? ( new ContainerRenderer() )->render( $lookup )
 					: '',
 			],
 		];

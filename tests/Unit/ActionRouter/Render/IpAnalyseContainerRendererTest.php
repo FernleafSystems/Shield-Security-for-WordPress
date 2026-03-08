@@ -30,29 +30,14 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_render_passes_ip_and_true_inline_tabs_flag() :void {
-		$output = ( new ContainerRenderer() )->render( '203.0.113.88', true );
+	public function test_render_passes_ip_only() :void {
+		$output = ( new ContainerRenderer() )->render( '198.51.100.20' );
 
 		$this->assertSame( 'rendered-ipanalyse-container', $output );
 		$this->assertSame( Container::class, $this->capture->action );
 		$this->assertSame(
 			[
-				'ip'                 => '203.0.113.88',
-				'render_inline_tabs' => true,
-			],
-			$this->capture->actionData
-		);
-	}
-
-	public function test_render_passes_ip_and_false_inline_tabs_flag() :void {
-		$output = ( new ContainerRenderer() )->render( '198.51.100.20', false );
-
-		$this->assertSame( 'rendered-ipanalyse-container', $output );
-		$this->assertSame( Container::class, $this->capture->action );
-		$this->assertSame(
-			[
-				'ip'                 => '198.51.100.20',
-				'render_inline_tabs' => false,
+				'ip' => '198.51.100.20',
 			],
 			$this->capture->actionData
 		);

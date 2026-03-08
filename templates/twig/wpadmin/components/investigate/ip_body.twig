@@ -26,6 +26,9 @@
 		} only %}
 	{% endif %}
 	<div class="investigate-inline-ipanalyse">
+		{% if show_lookup_with_subject %}
+			<div class="investigate-panel__tabs" data-investigate-panel-tabs="1"></div>
+		{% endif %}
 		{{ content.ip_analysis|raw }}
 	</div>
 {% else %}

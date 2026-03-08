@@ -25,6 +25,10 @@ export class InvestigateLookupSelect2 {
 				width: '100%',
 				placeholder,
 			};
+			const overlayParent = selectEl.closest( '.offcanvas, .modal' );
+			if ( overlayParent !== null ) {
+				select2Config.dropdownParent = $( overlayParent );
+			}
 
 			if ( ajaxContract !== null ) {
 				select2Config.minimumInputLength = ajaxContract.minimumInputLength;

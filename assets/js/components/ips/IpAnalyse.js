@@ -3,6 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { PageQueryParam } from "../../util/PageQueryParam";
+import { InvestigateInlineTabs } from "../mode/InvestigateInlineTabs";
 import { InvestigateLookupSelect2 } from "../mode/InvestigateLookupSelect2";
 
 export class IpAnalyse extends BaseAutoExecComponent {
@@ -12,6 +13,7 @@ export class IpAnalyse extends BaseAutoExecComponent {
 	}
 
 	run() {
+		this.inlineTabs = new InvestigateInlineTabs();
 		this.lookupSelect2 = new InvestigateLookupSelect2();
 		this.runAnalysisOnLoad();
 
@@ -60,6 +62,7 @@ export class IpAnalyse extends BaseAutoExecComponent {
 			ObjectOps.Merge( this._base_data.ajax.render_offcanvas, { ip: ip } )
 		).then( () => {
 			this.lookupSelect2.initializeWithin( OffCanvasService.offCanvasEl );
+			this.inlineTabs.initializeWithin( OffCanvasService.offCanvasEl );
 		} );
 	};
 }

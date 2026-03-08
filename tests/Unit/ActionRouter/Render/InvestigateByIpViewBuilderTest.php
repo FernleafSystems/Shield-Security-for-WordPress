@@ -75,10 +75,10 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_valid_lookup_builds_expected_contract_and_inline_tabs_flag() :void {
+	public function test_valid_lookup_builds_expected_contract() :void {
 		$this->installServices( static fn( string $ip ) :bool => $ip === '203.0.113.88' );
 
-		$renderData = ( new InvestigateByIpViewBuilder() )->build( '203.0.113.88', true );
+		$renderData = ( new InvestigateByIpViewBuilder() )->build( '203.0.113.88' );
 
 		$this->assertTrue( $renderData[ 'flags' ][ 'has_lookup' ] );
 		$this->assertTrue( $renderData[ 'flags' ][ 'has_subject' ] );
@@ -94,7 +94,7 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 			$renderData[ 'vars' ][ 'lookup_behavior' ]
 		);
 		$this->assertSame( 'ip', $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] );
-		$this->assertSame( 'rendered-ip:203.0.113.88:tabs', $renderData[ 'content' ][ 'ip_analysis' ] );
+		$this->assertSame( 'rendered-ip:203.0.113.88', $renderData[ 'content' ][ 'ip_analysis' ] );
 	}
 
 	public function test_invalid_lookup_preserves_lookup_contract_without_ip_analysis_content() :void {
@@ -123,7 +123,7 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		};
 		$controller->action_router = new class {
 			public function render( string $action, array $actionData = [] ) :string {
-				return 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' ).':'.( !empty( $actionData[ 'render_inline_tabs' ] ) ? 'tabs' : 'plain' );
+				return 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' );
 			}
 		};
 

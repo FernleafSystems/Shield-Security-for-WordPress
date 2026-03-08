@@ -114,6 +114,41 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-ipanalyse ")]',
 			'By-ip analysis container marker in panel content'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-tabs="1"]',
+			'By-ip panel renders shared inline tabs host marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1"]',
+			0,
+			'By-ip panel does not server-render duplicate inline tab buttons'
+		);
+		$sourceTabs = $xpath->query(
+			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-options-rail ")]//*[@data-bs-toggle="tab"]'
+		);
+		$this->assertNotFalse( $sourceTabs, 'By-ip panel source tab query failed' );
+		$this->assertSame( 5, $sourceTabs->length, 'By-ip panel source tabs count contract' );
+
+		foreach ( $sourceTabs as $sourceTab ) {
+			$this->assertInstanceOf( \DOMElement::class, $sourceTab );
+			$target = \trim( $sourceTab->getAttribute( 'data-bs-target' ) );
+			$controls = \trim( $sourceTab->getAttribute( 'aria-controls' ) );
+			$tabId = \trim( $sourceTab->getAttribute( 'id' ) );
+
+			$this->assertNotSame( '', $target, 'By-ip panel source tab target contract' );
+			$this->assertStringStartsWith( '#', $target, 'By-ip panel source tab target prefix contract' );
+			$this->assertNotSame( '', $controls, 'By-ip panel source tab controls contract' );
+			$this->assertNotSame( '', $tabId, 'By-ip panel source tab id contract' );
+			$this->assertSame( '#'.$controls, $target, 'By-ip panel source tab target/controls relationship' );
+
+			$this->assertXPathExists(
+				$xpath,
+				'//section[@data-investigate-panel="ip"]//*[@id="'.\htmlspecialchars( \ltrim( $target, '#' ), \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ).'" and @aria-labelledby="'.\htmlspecialchars( $tabId, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ).'"]',
+				'By-ip panel target panel relationship for '.$tabId
+			);
+		}
 		$this->assertXPathCount(
 			$xpath,
 			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-inner-page-body-shell="1"]',
