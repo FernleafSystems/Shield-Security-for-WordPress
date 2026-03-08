@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	ActivityLogging,
@@ -488,6 +489,67 @@ class PluginNavs {
 				'slug'  => 'maintenance',
 				'label' => __( 'Maintenance', 'wp-simple-firewall' ),
 				'icon'  => 'wrench',
+			],
+		];
+	}
+
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   zone:string,
+	 *   component_class:class-string<Component\Base>,
+	 *   availability_strategy:string
+	 * }>
+	 */
+	public static function actionsLandingAssessmentDefinitions() :array {
+		return [
+			[
+				'key'                   => 'wp_files',
+				'zone'                  => 'scans',
+				'component_class'       => Component\ScanResultsWcf::class,
+				'availability_strategy' => 'scan_afs_core_enabled',
+			],
+			[
+				'key'                   => 'plugin_theme_files',
+				'zone'                  => 'scans',
+				'component_class'       => Component\ScanResultsPtg::class,
+				'availability_strategy' => 'scan_afs_plugins_and_themes_enabled',
+			],
+			[
+				'key'                   => 'malware',
+				'zone'                  => 'scans',
+				'component_class'       => Component\ScanResultsMal::class,
+				'availability_strategy' => 'scan_malware_enabled',
+			],
+			[
+				'key'                   => 'vulnerable_assets',
+				'zone'                  => 'scans',
+				'component_class'       => Component\ScanResultsWpv::class,
+				'availability_strategy' => 'scan_wpv_enabled',
+			],
+			[
+				'key'                   => 'abandoned',
+				'zone'                  => 'scans',
+				'component_class'       => Component\ScanResultsApc::class,
+				'availability_strategy' => 'scan_apc_enabled',
+			],
+			[
+				'key'                   => 'wp_updates',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\WpUpdates::class,
+				'availability_strategy' => 'always',
+			],
+			[
+				'key'                   => 'wp_plugins_updates',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\WpPluginsUpdates::class,
+				'availability_strategy' => 'always',
+			],
+			[
+				'key'                   => 'wp_themes_updates',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\WpThemesUpdates::class,
+				'availability_strategy' => 'always',
 			],
 		];
 	}

@@ -19,35 +19,53 @@
 			} only %}
 		</section>
 
-		{% if not flags.queue_is_empty|default(false) %}
-			<section class="actions-landing__selector-shell" data-actions-queue-section="tiles">
-				<div class="actions-landing__tile-grid" data-mode-tiles="1">
-					{% for zone in vars.zone_tiles|default([]) %}
-						<button type="button"
-								class="actions-landing__tile status-{{ zone.status }}{% if zone.is_disabled %} is-disabled{% endif %}{% if active_panel == zone.panel_target %} is-active{% endif %}"
-								data-actions-zone="{{ zone.key }}"
-								data-mode-tile="1"
-								data-mode-tile-key="{{ zone.key }}"
-								data-mode-panel-target="{{ zone.panel_target }}"
-								data-mode-tile-disabled="{{ zone.is_disabled ? '1' : '0' }}"
-								aria-disabled="{{ zone.is_disabled ? 'true' : 'false' }}"
-								aria-expanded="{{ active_panel == zone.panel_target ? 'true' : 'false' }}">
-							<span class="actions-landing__tile-header">
-								<span class="actions-landing__tile-icon"><i class="{{ zone.icon_class }}" aria-hidden="true"></i></span>
-								<span class="shield-badge badge-{{ zone.status }}">{{ zone.status_label }}</span>
-							</span>
-							<span class="actions-landing__tile-title">{{ zone.label }}</span>
-							<span class="actions-landing__tile-stat">{{ zone.summary_text }}</span>
-						</button>
+		{% if flags.queue_is_empty|default(false) %}
+			<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
+				<div class="shield-needs-attention__all-clear-accent"></div>
+				<div class="shield-needs-attention__all-clear-shield">
+					<i class="{{ vars.all_clear.icon_class|default(strings.all_clear_icon_class) }}" aria-hidden="true"></i>
+				</div>
+				<div class="shield-needs-attention__all-clear-title">{{ vars.all_clear.title|default(strings.all_clear_title) }}</div>
+				<div class="shield-needs-attention__all-clear-subtitle">{{ vars.all_clear.subtitle|default(strings.all_clear_subtitle) }}</div>
+				<div class="shield-needs-attention__chips">
+					{% for chip in vars.all_clear.zone_chips|default([]) %}
+						<span class="shield-needs-attention__chip is-{{ chip.severity }}">
+							<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
+						</span>
 					{% endfor %}
 				</div>
-			</section>
+			</div>
+		{% endif %}
 
-			{% for zone in vars.zone_tiles|default([]) %}
-				{% if zone.is_enabled %}
-					{% set is_open = active_panel == zone.panel_target %}
-					{% set panel_body %}
-						{% if zone.key == 'scans' %}
+		<section class="actions-landing__selector-shell" data-actions-queue-section="tiles">
+			<div class="actions-landing__tile-grid" data-mode-tiles="1">
+				{% for zone in vars.zone_tiles|default([]) %}
+					<button type="button"
+							class="actions-landing__tile status-{{ zone.status }}{% if zone.is_disabled %} is-disabled{% endif %}{% if active_panel == zone.panel_target %} is-active{% endif %}"
+							data-actions-zone="{{ zone.key }}"
+							data-mode-tile="1"
+							data-mode-tile-key="{{ zone.key }}"
+							data-mode-panel-target="{{ zone.panel_target }}"
+							data-mode-tile-disabled="{{ zone.is_disabled ? '1' : '0' }}"
+							aria-disabled="{{ zone.is_disabled ? 'true' : 'false' }}"
+							aria-expanded="{{ active_panel == zone.panel_target ? 'true' : 'false' }}">
+						<span class="actions-landing__tile-header">
+							<span class="actions-landing__tile-icon"><i class="{{ zone.icon_class }}" aria-hidden="true"></i></span>
+							<span class="shield-badge badge-{{ zone.status }}">{{ zone.status_label }}</span>
+						</span>
+						<span class="actions-landing__tile-title">{{ zone.label }}</span>
+						<span class="actions-landing__tile-stat">{{ zone.summary_text }}</span>
+					</button>
+				{% endfor %}
+			</div>
+		</section>
+
+		{% for zone in vars.zone_tiles|default([]) %}
+			{% if zone.is_enabled %}
+				{% set is_open = active_panel == zone.panel_target %}
+				{% set panel_body %}
+					{% if zone.key == 'scans' %}
+						{% if zone.has_issues %}
 							{% set vulnerabilities = vars.scans_vulnerabilities|default({}) %}
 							{% set vulnerability_status = vulnerabilities.status|default('good') %}
 							<ul class="nav nav-tabs shield_body-sub-nav actions-landing__panel-tabs" id="ActionsQueueScansTabsNav" role="tablist">
@@ -121,6 +139,12 @@
 								</div>
 							</div>
 						{% else %}
+							{% include '/wpadmin/components/actions_queue/assessment_rows.twig' with {
+								items: zone.assessment_rows
+							} only %}
+						{% endif %}
+					{% else %}
+						{% if zone.has_issues %}
 							{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
 								items: zone.items
 							} only %}
@@ -130,44 +154,32 @@
 									<a href="{{ hrefs.wp_updates }}" class="btn btn-outline-secondary btn-sm">{{ strings.panel_wp_updates }}</a>
 								</div>
 							</div>
+						{% else %}
+							{% include '/wpadmin/components/actions_queue/assessment_rows.twig' with {
+								items: zone.assessment_rows
+							} only %}
 						{% endif %}
-					{% endset %}
+					{% endif %}
+				{% endset %}
 
-					{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
-						panel: {
-							id: 'ActionsQueueModePanel-' ~ zone.key,
-							class: 'actions-landing__panel' ~ (is_open ? ' is-open' : ''),
-							is_open: is_open,
-							target: zone.panel_target,
-							target_default: zone.panel_target,
-							static_target: true,
-							status: zone.status,
-							title: zone.label,
-							body: panel_body,
-							data: {
-								'actions-panel': zone.key
-							}
-						},
-						strings: strings
-					} only %}
-				{% endif %}
-			{% endfor %}
-		{% else %}
-			<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
-				<div class="shield-needs-attention__all-clear-accent"></div>
-				<div class="shield-needs-attention__all-clear-shield">
-					<i class="{{ vars.all_clear.icon_class|default(strings.all_clear_icon_class) }}" aria-hidden="true"></i>
-				</div>
-				<div class="shield-needs-attention__all-clear-title">{{ vars.all_clear.title|default(strings.all_clear_title) }}</div>
-				<div class="shield-needs-attention__all-clear-subtitle">{{ vars.all_clear.subtitle|default(strings.all_clear_subtitle) }}</div>
-				<div class="shield-needs-attention__chips">
-					{% for chip in vars.all_clear.zone_chips|default([]) %}
-						<span class="shield-needs-attention__chip is-{{ chip.severity }}">
-							<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
-						</span>
-					{% endfor %}
-				</div>
-			</div>
-		{% endif %}
+				{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+					panel: {
+						id: 'ActionsQueueModePanel-' ~ zone.key,
+						class: 'actions-landing__panel' ~ (is_open ? ' is-open' : ''),
+						is_open: is_open,
+						target: zone.panel_target,
+						target_default: zone.panel_target,
+						static_target: true,
+						status: zone.status,
+						title: zone.label,
+						body: panel_body,
+						data: {
+							'actions-panel': zone.key
+						}
+					},
+					strings: strings
+				} only %}
+			{% endif %}
+		{% endfor %}
 	</div>
 {% endblock %}

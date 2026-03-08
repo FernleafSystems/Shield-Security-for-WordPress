@@ -27,7 +27,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 use FernleafSystems\Wordpress\Services\Core\{
 	General,
+	Plugins,
 	Request,
+	Themes,
 	Users
 };
 
@@ -49,6 +51,29 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		);
 		Functions\when( 'sanitize_text_field' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \trim( $text ) : ''
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
 		);
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installServices();
@@ -94,7 +119,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
 	}
 
-	public function test_landing_panel_only_accepts_enabled_zone_as_active_target() :void {
+	public function test_landing_panel_accepts_issue_zone_and_clear_zone_with_panel_content() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			true,
 			2,
@@ -115,8 +140,15 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$this->invokeNonPublicMethod( $pageAllowed, 'getLandingPanel' )[ 'active_target' ] ?? ''
 		);
 
+		$pageClear = new PageActionsQueueLanding();
+		$pageClear->action_data = [ 'zone' => 'maintenance' ];
+		$this->assertSame(
+			'maintenance',
+			$this->invokeNonPublicMethod( $pageClear, 'getLandingPanel' )[ 'active_target' ] ?? ''
+		);
+
 		$pageBlocked = new PageActionsQueueLanding();
-		$pageBlocked->action_data = [ 'zone' => 'maintenance' ];
+		$pageBlocked->action_data = [ 'zone' => 'unknown' ];
 		$this->assertSame(
 			'',
 			$this->invokeNonPublicMethod( $pageBlocked, 'getLandingPanel' )[ 'active_target' ] ?? 'unexpected'
@@ -347,6 +379,45 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				return 'bi bi-'.$icon;
 			}
 		};
+		$controller->comps = (object)[
+			'scans' => new class {
+				public function AFS() :object {
+					return new class {
+						public function isEnabledMalwareScanPHP() :bool {
+							return false;
+						}
+
+						public function isScanEnabledWpCore() :bool {
+							return false;
+						}
+
+						public function isScanEnabledPlugins() :bool {
+							return false;
+						}
+
+						public function isScanEnabledThemes() :bool {
+							return false;
+						}
+					};
+				}
+
+				public function WPV() :object {
+					return new class {
+						public function isEnabled() :bool {
+							return false;
+						}
+					};
+				}
+
+				public function APC() :object {
+					return new class {
+						public function isEnabled() :bool {
+							return false;
+						}
+					};
+				}
+			},
+		];
 		$controller->action_router = new class( $this->capture ) {
 			private object $capture;
 
@@ -411,12 +482,30 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					return '/admin-ajax.php';
 				}
 
+				public function hasCoreUpdate() :bool {
+					return false;
+				}
+
 				public function getAdminUrl_Updates( bool $bWpmsOnly = false ) :string {
 					return '/wp-admin/update-core.php';
 				}
 
 				public function getAdminUrl_Plugins( bool $wpmsOnly = false ) :string {
 					return '/wp-admin/plugins.php';
+				}
+
+				public function getAdminUrl_Themes( bool $wpmsOnly = false ) :string {
+					return '/wp-admin/themes.php';
+				}
+			},
+			'service_wpplugins' => new class extends Plugins {
+				public function getUpdates( $bForceUpdateCheck = false ) {
+					return [];
+				}
+			},
+			'service_wpthemes' => new class extends Themes {
+				public function getUpdates( $forceCheck = false ) {
+					return [];
 				}
 			},
 			'service_wpusers' => new class extends Users {

@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
@@ -94,6 +95,37 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 
 		$this->assertSame( 'shield-exclamation', $definitions[ 'scans' ][ 'icon' ] );
 		$this->assertSame( 'wrench', $definitions[ 'maintenance' ][ 'icon' ] );
+	}
+
+	public function test_actions_landing_assessment_definitions_match_expected_contract() :void {
+		$definitions = PluginNavs::actionsLandingAssessmentDefinitions();
+
+		$this->assertSame(
+			[
+				'wp_files',
+				'plugin_theme_files',
+				'malware',
+				'vulnerable_assets',
+				'abandoned',
+				'wp_updates',
+				'wp_plugins_updates',
+				'wp_themes_updates',
+			],
+			\array_column( $definitions, 'key' )
+		);
+
+		foreach ( $definitions as $definition ) {
+			foreach ( [ 'key', 'zone', 'component_class', 'availability_strategy' ] as $requiredKey ) {
+				$this->assertArrayHasKey( $requiredKey, $definition );
+				$this->assertIsString( $definition[ $requiredKey ] );
+				$this->assertNotSame( '', \trim( $definition[ $requiredKey ] ) );
+			}
+			$this->assertTrue( \is_subclass_of( $definition[ 'component_class' ], Component\Base::class ) );
+			$this->assertContains( $definition[ 'zone' ], [ 'scans', 'maintenance' ] );
+		}
+
+		$this->assertSame( Component\ScanResultsPtg::class, $definitions[ 1 ][ 'component_class' ] );
+		$this->assertSame( 'scan_afs_plugins_and_themes_enabled', $definitions[ 1 ][ 'availability_strategy' ] );
 	}
 
 	public function test_reports_workspace_definitions_match_expected_contract() :void {

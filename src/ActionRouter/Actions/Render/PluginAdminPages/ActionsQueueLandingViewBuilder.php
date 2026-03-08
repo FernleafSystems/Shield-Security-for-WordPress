@@ -41,6 +41,9 @@ class ActionsQueueLandingViewBuilder {
 	 *     panel_target:string,
 	 *     is_enabled:bool,
 	 *     is_disabled:bool,
+	 *     has_issues:bool,
+	 *     has_assessments:bool,
+	 *     has_panel_content:bool,
 	 *     label:string,
 	 *     icon_class:string,
 	 *     status:string,
@@ -49,7 +52,15 @@ class ActionsQueueLandingViewBuilder {
 	 *     critical_count:int,
 	 *     warning_count:int,
 	 *     summary_text:string,
-	 *     items:list<array<string,mixed>>
+	 *     items:list<array<string,mixed>>,
+	 *     assessment_rows:list<array{
+	 *       key:string,
+	 *       label:string,
+	 *       description:string,
+	 *       status:string,
+	 *       status_label:string,
+	 *       status_icon_class:string
+	 *     }>
 	 *   }>,
 	 *   severity_strip:array{
 	 *     severity:string,
@@ -74,10 +85,10 @@ class ActionsQueueLandingViewBuilder {
 	 *   }
 	 * }
 	 */
-	public function build( array $needsAttentionPayload ) :array {
+	public function build( array $needsAttentionPayload, array $assessmentRowsByZone = [] ) :array {
 		$summary = $this->extractQueueSummary( $needsAttentionPayload );
 		$zonesIndexed = $this->buildZonesIndexed( $needsAttentionPayload );
-		$zoneTiles = $this->buildZoneTiles( $zonesIndexed );
+		$zoneTiles = $this->buildZoneTiles( $zonesIndexed, $assessmentRowsByZone );
 
 		return [
 			'summary'        => $summary,
@@ -184,6 +195,9 @@ class ActionsQueueLandingViewBuilder {
 	 *   panel_target:string,
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
+	 *   has_issues:bool,
+	 *   has_assessments:bool,
+	 *   has_panel_content:bool,
 	 *   label:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -192,30 +206,47 @@ class ActionsQueueLandingViewBuilder {
 	 *   critical_count:int,
 	 *   warning_count:int,
 	 *   summary_text:string,
-	 *   items:list<array<string,mixed>>
+	 *   items:list<array<string,mixed>>,
+	 *   assessment_rows:list<array{
+	 *     key:string,
+	 *     label:string,
+	 *     description:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     status_icon_class:string
+	 *   }>
 	 * }>
 	 */
-	private function buildZoneTiles( array $zonesIndexed ) :array {
+	private function buildZoneTiles( array $zonesIndexed, array $assessmentRowsByZone ) :array {
 		return \array_map(
-			function ( array $zone ) :array {
+			function ( array $zone ) use ( $assessmentRowsByZone ) :array {
 				$countBySeverity = NeedsAttentionQueuePayload::countsFromItems( $zone[ 'items' ] );
 				$totalIssues = $zone[ 'total_issues' ];
-				$isEnabled = $totalIssues > 0;
+				$assessmentRows = \is_array( $assessmentRowsByZone[ $zone[ 'slug' ] ] ?? null )
+					? \array_values( $assessmentRowsByZone[ $zone[ 'slug' ] ] )
+					: [];
+				$hasIssues = $totalIssues > 0;
+				$hasAssessments = !empty( $assessmentRows );
+				$hasPanelContent = $hasIssues || $hasAssessments;
 
 				return [
-					'key'            => $zone[ 'slug' ],
-					'panel_target'   => $zone[ 'slug' ],
-					'is_enabled'     => $isEnabled,
-					'is_disabled'    => !$isEnabled,
-					'label'          => $zone[ 'label' ],
-					'icon_class'     => $zone[ 'icon_class' ],
-					'status'         => $zone[ 'severity' ],
-					'status_label'   => $this->statusLabel( $zone[ 'severity' ] ),
-					'total_issues'   => $totalIssues,
-					'critical_count' => $countBySeverity[ 'critical' ],
-					'warning_count'  => $countBySeverity[ 'warning' ],
-					'summary_text'   => $this->buildZoneSummaryText( $totalIssues, $countBySeverity ),
-					'items'          => $zone[ 'items' ],
+					'key'              => $zone[ 'slug' ],
+					'panel_target'     => $zone[ 'slug' ],
+					'is_enabled'       => $hasPanelContent,
+					'is_disabled'      => !$hasPanelContent,
+					'has_issues'       => $hasIssues,
+					'has_assessments'  => $hasAssessments,
+					'has_panel_content' => $hasPanelContent,
+					'label'            => $zone[ 'label' ],
+					'icon_class'       => $zone[ 'icon_class' ],
+					'status'           => $zone[ 'severity' ],
+					'status_label'     => $this->statusLabel( $zone[ 'severity' ] ),
+					'total_issues'     => $totalIssues,
+					'critical_count'   => $countBySeverity[ 'critical' ],
+					'warning_count'    => $countBySeverity[ 'warning' ],
+					'summary_text'     => $this->buildZoneSummaryText( $totalIssues, $countBySeverity ),
+					'items'            => $zone[ 'items' ],
+					'assessment_rows'  => $assessmentRows,
 				];
 			},
 			\array_values( $zonesIndexed )
@@ -228,6 +259,9 @@ class ActionsQueueLandingViewBuilder {
 	 *   panel_target:string,
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
+	 *   has_issues:bool,
+	 *   has_assessments:bool,
+	 *   has_panel_content:bool,
 	 *   label:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -236,7 +270,8 @@ class ActionsQueueLandingViewBuilder {
 	 *   critical_count:int,
 	 *   warning_count:int,
 	 *   summary_text:string,
-	 *   items:list<array<string,mixed>>
+	 *   items:list<array<string,mixed>>,
+	 *   assessment_rows:list<array<string,mixed>>
 	 * }> $zoneTiles
 	 * @return array{
 	 *   severity:string,

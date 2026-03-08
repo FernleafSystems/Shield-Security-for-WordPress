@@ -20,6 +20,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	private ?string $activeZoneCache = null;
 	private ?array $scansResultsRenderDataCache = null;
 	private ?array $scansVulnerabilitiesCache = null;
+	private ?array $assessmentRowsByZoneCache = null;
 
 	protected function getLandingTitle() :string {
 		return __( 'Actions Queue', 'wp-simple-firewall' );
@@ -183,6 +184,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 *   panel_target:string,
 	 *   is_enabled:bool,
 	 *   is_disabled:bool,
+	 *   has_issues:bool,
+	 *   has_assessments:bool,
+	 *   has_panel_content:bool,
 	 *   label:string,
 	 *   icon_class:string,
 	 *   status:string,
@@ -191,7 +195,15 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 *   critical_count:int,
 	 *   warning_count:int,
 	 *   summary_text:string,
-	 *   items:list<array<string,mixed>>
+	 *   items:list<array<string,mixed>>,
+	 *   assessment_rows:list<array{
+	 *     key:string,
+	 *     label:string,
+	 *     description:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     status_icon_class:string
+	 *   }>
 	 * }>
 	 */
 	private function getZoneTiles() :array {
@@ -378,6 +390,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 *     panel_target:string,
 	 *     is_enabled:bool,
 	 *     is_disabled:bool,
+	 *     has_issues:bool,
+	 *     has_assessments:bool,
+	 *     has_panel_content:bool,
 	 *     label:string,
 	 *     icon_class:string,
 	 *     status:string,
@@ -386,7 +401,15 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 *     critical_count:int,
 	 *     warning_count:int,
 	 *     summary_text:string,
-	 *     items:list<array<string,mixed>>
+	 *     items:list<array<string,mixed>>,
+	 *     assessment_rows:list<array{
+	 *       key:string,
+	 *       label:string,
+	 *       description:string,
+	 *       status:string,
+	 *       status_label:string,
+	 *       status_icon_class:string
+	 *     }>
 	 *   }>,
 	 *   severity_strip:array{
 	 *     severity:string,
@@ -414,9 +437,40 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	private function getLandingViewData() :array {
 		if ( $this->landingViewDataCache === null ) {
 			$this->landingViewDataCache = ( new ActionsQueueLandingViewBuilder() )
-				->build( $this->getNeedsAttentionPayload() );
+				->build( $this->getNeedsAttentionPayload(), $this->getAssessmentRowsByZone() );
 		}
 		return $this->landingViewDataCache;
+	}
+
+	/**
+	 * @return array<string,list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>>
+	 */
+	private function getAssessmentRowsByZone() :array {
+		if ( $this->assessmentRowsByZoneCache === null ) {
+			$this->assessmentRowsByZoneCache = $this->buildAssessmentRowsByZone();
+		}
+		return $this->assessmentRowsByZoneCache;
+	}
+
+	/**
+	 * @return array<string,list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>>
+	 */
+	protected function buildAssessmentRowsByZone() :array {
+		return ( new ActionsQueueLandingAssessmentBuilder() )->build();
 	}
 
 	/**

@@ -1,0 +1,18 @@
+<ul class="actions-landing__summary-list shield-stack-detail-list">
+	{% for item in items|default([]) %}
+		<li class="actions-landing__summary-row shield-stack-detail-row is-{{ item.status }}">
+			<div class="actions-landing__summary-copy shield-stack-detail-copy">
+				<div class="d-flex align-items-start justify-content-between gap-3">
+					<div>
+						<div class="actions-landing__summary-title shield-stack-detail-title">{{ item.label }}</div>
+						<div class="actions-landing__summary-desc shield-stack-detail-desc">{{ item.description }}</div>
+					</div>
+					<span class="actions-landing__summary-status-icon status-{{ item.status }}" role="img" aria-label="{{ item.status_label }}">
+						<i class="{{ item.status_icon_class|default('bi bi-check-circle-fill') }}" aria-hidden="true"></i>
+						<span class="visually-hidden">{{ item.status_label }}</span>
+					</span>
+				</div>
+			</div>
+		</li>
+	{% endfor %}
+</ul>

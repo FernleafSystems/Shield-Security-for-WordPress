@@ -30,6 +30,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp' ] );
+		$this->resetScanResultCountMemoization();
 		\delete_site_transient( 'update_plugins' );
 	}
 
@@ -65,7 +69,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $matches[ 0 ] ?? [];
 	}
 
-	public function test_all_clear_state_exposes_payload_contract_without_enabled_tiles() :void {
+	public function test_all_clear_state_exposes_payload_contract_with_interactive_clear_zones() :void {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
@@ -87,9 +91,15 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $strip[ 'warning_count' ] ?? -1 ) );
 		$this->assertCount( 2, $zoneTiles );
 		$this->assertCount(
-			0,
+			2,
 			\array_values( \array_filter( $zoneTiles, static fn( array $tile ) :bool => (bool)( $tile[ 'is_enabled' ] ?? false ) ) )
 		);
+		$this->assertSame(
+			[ false, false ],
+			\array_column( $zoneTiles, 'has_issues' )
+		);
+		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'scans' )[ 'assessment_rows' ] ?? [] );
+		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
 		$this->assertNotSame( '', (string)( $allClear[ 'title' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $allClear[ 'subtitle' ] ?? '' ) );
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $allClear[ 'zone_chips' ] ?? [], 'slug' ) );
@@ -132,7 +142,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $maintenance[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $maintenance[ 'is_disabled' ] ?? true ) );
 		$this->assertSame( 'maintenance', (string)( $maintenance[ 'panel_target' ] ?? '' ) );
-		$this->assertFalse( (bool)( $scans[ 'is_enabled' ] ?? true ) );
+		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
+		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
+		$this->assertNotEmpty( $scans[ 'assessment_rows' ] ?? [] );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-section="severity-strip" and contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',

@@ -76,6 +76,58 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_assessment_rows_keep_clear_zones_interactive_without_creating_issue_counts() :void {
+		$payload = $this->buildQueuePayload(
+			false,
+			0,
+			'good',
+			'',
+			[
+				$this->buildZoneGroup( 'scans', 'good', 0, [] ),
+				$this->buildZoneGroup( 'maintenance', 'good', 0, [] ),
+			]
+		);
+
+		$view = ( new ActionsQueueLandingViewBuilder() )->build( $payload, [
+			'scans' => [
+				[
+					'key'               => 'wp_files',
+					'label'             => 'WordPress Core Files',
+					'description'       => 'All WordPress Core files appear to be clean and unmodified.',
+					'status'            => 'good',
+					'status_label'      => 'Good',
+					'status_icon_class' => 'bi bi-check-circle-fill',
+				],
+			],
+			'maintenance' => [
+				[
+					'key'               => 'wp_updates',
+					'label'             => 'WordPress Version',
+					'description'       => 'WordPress has all available upgrades applied.',
+					'status'            => 'good',
+					'status_label'      => 'Good',
+					'status_icon_class' => 'bi bi-check-circle-fill',
+				],
+			],
+		] );
+		$zoneTiles = $view[ 'zone_tiles' ] ?? [];
+		$zonesByKey = [];
+		foreach ( $zoneTiles as $tile ) {
+			$zonesByKey[ $tile[ 'key' ] ?? '' ] = $tile;
+		}
+
+		$this->assertTrue( (bool)( $zonesByKey[ 'scans' ][ 'is_enabled' ] ?? false ) );
+		$this->assertFalse( (bool)( $zonesByKey[ 'scans' ][ 'has_issues' ] ?? true ) );
+		$this->assertTrue( (bool)( $zonesByKey[ 'scans' ][ 'has_assessments' ] ?? false ) );
+		$this->assertSame( 0, $zonesByKey[ 'scans' ][ 'total_issues' ] ?? null );
+		$this->assertSame( [ 'wp_files' ], \array_column( $zonesByKey[ 'scans' ][ 'assessment_rows' ] ?? [], 'key' ) );
+
+		$this->assertTrue( (bool)( $zonesByKey[ 'maintenance' ][ 'is_enabled' ] ?? false ) );
+		$this->assertFalse( (bool)( $zonesByKey[ 'maintenance' ][ 'has_issues' ] ?? true ) );
+		$this->assertTrue( (bool)( $zonesByKey[ 'maintenance' ][ 'has_assessments' ] ?? false ) );
+		$this->assertSame( 'All clear', $zonesByKey[ 'maintenance' ][ 'summary_text' ] ?? '' );
+	}
+
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
