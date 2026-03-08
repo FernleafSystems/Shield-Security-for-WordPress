@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
@@ -30,6 +31,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
+		$this->requireDb( 'reports' );
 
 		$this->adminUserId = $this->loginAsSecurityAdmin();
 		\delete_site_transient( 'update_plugins' );
@@ -310,6 +312,31 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'bi bi-shield',
 			(string)( $renderData[ 'vars' ][ 'shield_icon_class' ] ?? '' )
 		);
+	}
+
+	public function test_operator_mode_landing_reports_lane_exposes_count_and_latest_report_badges() :void {
+		TestDataFactory::insertReport( 'Daily Report', [
+			'type'       => ReportingConstants::REPORT_TYPE_INFO,
+			'created_at' => \time() - HOUR_IN_SECONDS,
+		] );
+		TestDataFactory::insertReport( 'Alert Report', [
+			'type'       => ReportingConstants::REPORT_TYPE_ALERT,
+			'created_at' => \time() - 2*HOUR_IN_SECONDS,
+		] );
+
+		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
+		$reportsLane = $this->getLaneByMode( $renderData, PluginNavs::MODE_REPORTS );
+		$badges = $reportsLane[ 'indicator_badges' ] ?? [];
+
+		$this->assertSame( 'status', $reportsLane[ 'indicator_type' ] ?? '' );
+		$this->assertCount( 3, $badges );
+		$this->assertSame( '2 reports', $badges[ 0 ][ 'text' ] ?? '' );
+		$this->assertStringStartsWith( 'Last report: ', $badges[ 1 ][ 'text' ] ?? '' );
+		$this->assertStringStartsWith( 'Last alert: ', $badges[ 2 ][ 'text' ] ?? '' );
+		$this->assertSame( 'info', $badges[ 0 ][ 'severity' ] ?? '' );
+		$this->assertSame( 'warning', $badges[ 2 ][ 'severity' ] ?? '' );
+		$this->assertNotSame( '', (string)( $badges[ 1 ][ 'title' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $badges[ 2 ][ 'title' ] ?? '' ) );
 	}
 
 	public function test_operator_mode_landing_exposes_live_monitor_contract() :void {

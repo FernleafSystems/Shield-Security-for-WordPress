@@ -1,5 +1,6 @@
 {% set badge_class_map = {
 	'good': 'badge-good',
+	'info': 'badge-info',
 	'warning': 'badge-warning',
 	'critical': 'badge-critical',
 	'neutral': 'badge-disabled'
@@ -75,6 +76,12 @@
 										<div class="posture-fill fill-{{ lane.posture_status }}" style="width:{{ lane.posture_percentage }}%"></div>
 									</div>
 									<div class="posture-label status-{{ lane.posture_status }}">{{ lane.posture_text }}</div>
+								</div>
+							{% elseif lane.indicator_badges|default([]) is not empty %}
+								<div class="operator-mode-landing__side-badges">
+									{% for badge in lane.indicator_badges %}
+										<span class="shield-badge {{ badge_class_map[badge.severity|default('neutral')] ?? 'badge-disabled' }}"{% if badge.title|default('') is not empty %} title="{{ badge.title }}"{% endif %}>{{ badge.text|default('') }}</span>
+									{% endfor %}
 								</div>
 							{% else %}
 								<span class="shield-badge {{ badge_class_map[lane.indicator_severity|default('neutral')] ?? 'badge-disabled' }}">{{ lane.indicator_text }}</span>

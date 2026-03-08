@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Handler as MalwareHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -277,6 +278,31 @@ class TestDataFactory {
 		self::insertScanResultItem( $scanId, [
 			$metaKey => 1,
 		] );
+	}
+
+	/**
+	 * Insert a report record and return its ID.
+	 *
+	 * @param array<string,mixed> $overrides
+	 */
+	public static function insertReport( string $title, array $overrides = [] ) :int {
+		$dbh = self::con()->db_con->reports;
+		$record = $dbh->getRecord();
+		$record->type = $overrides[ 'type' ] ?? ReportingConstants::REPORT_TYPE_INFO;
+		$record->interval_length = $overrides[ 'interval_length' ] ?? 'daily';
+		$record->unique_id = $overrides[ 'unique_id' ] ?? \wp_generate_uuid4();
+		$record->title = $title;
+		$record->content = \array_key_exists( 'content', $overrides )
+			? $overrides[ 'content' ]
+			: \gzdeflate( '<html><body>'.$title.'</body></html>' );
+		$record->protected = $overrides[ 'protected' ] ?? false;
+		$record->interval_start_at = $overrides[ 'interval_start_at' ] ?? 100;
+		$record->interval_end_at = $overrides[ 'interval_end_at' ] ?? 200;
+		$record->created_at = $overrides[ 'created_at' ] ?? Services::Request()->ts();
+
+		$dbh->getQueryInserter()->insert( $record );
+
+		return self::lastInsertId();
 	}
 
 	// MFA Records

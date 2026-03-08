@@ -444,13 +444,19 @@
 	margin-top: auto;
 }
 
+.operator-mode-landing__side-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
 .operator-mode-landing__side-subtext {
 	color: #646970;
 	font-size: 0.64rem;
 }
 
 .lane-posture {
-	width: 120px;
+	width: 100%;
 	flex-shrink: 0;
 }
 

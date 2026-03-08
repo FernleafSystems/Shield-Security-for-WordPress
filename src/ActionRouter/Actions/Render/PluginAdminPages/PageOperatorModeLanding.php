@@ -7,8 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
+use FernleafSystems\Wordpress\Services\Services;
 
 class PageOperatorModeLanding extends BaseRender {
 
@@ -30,13 +32,13 @@ class PageOperatorModeLanding extends BaseRender {
 		$configPercentage = max( 0, min( 100, $configPercentage ) );
 		$configTraffic = BuildZonePosture::trafficFromPercentage( $configPercentage );
 
-		$sessionCount = $this->getInvestigateActiveSessionsCount();
-		$reportsCount = $this->getGeneratedReportsCount();
+		$sessionSummary = $this->getInvestigateSessionSummary();
+		$reportsSummary = $this->getReportsSummary();
 		$actionsLane = $this->buildActionsLane( $queueSummary, $queueZoneGroups );
 		$secondaryLanes = [
-			$this->buildInvestigateLane( $sessionCount ),
+			$this->buildInvestigateLane( $sessionSummary ),
 			$this->buildConfigureLane( $configPercentage, $configTraffic ),
-			$this->buildReportsLane( $reportsCount ),
+			$this->buildReportsLane( $reportsSummary ),
 		];
 
 		return [
@@ -381,10 +383,26 @@ class PageOperatorModeLanding extends BaseRender {
 		return empty( $parts ) ? '' : implode( ' - ', $parts );
 	}
 
-	private function buildInvestigateLane( int $sessionCount ) :array {
-		$text = $sessionCount > 0
-			? sprintf( _n( '%s active session', '%s active sessions', $sessionCount, 'wp-simple-firewall' ), $sessionCount )
-			: __( 'Activity & Events', 'wp-simple-firewall' );
+	/**
+	 * @param array{active_count:int,recent_active_count:int} $sessionSummary
+	 */
+	private function buildInvestigateLane( array $sessionSummary ) :array {
+		$badges = [
+			$this->buildIndicatorBadge(
+				sprintf(
+					_n( '%s active session', '%s active sessions', $sessionSummary[ 'active_count' ], 'wp-simple-firewall' ),
+					$sessionSummary[ 'active_count' ]
+				),
+				'info'
+			),
+			$this->buildIndicatorBadge(
+				sprintf(
+					_n( '%s session in last 24h', '%s sessions in last 24h', $sessionSummary[ 'recent_active_count' ], 'wp-simple-firewall' ),
+					$sessionSummary[ 'recent_active_count' ]
+				),
+				'info'
+			),
+		];
 
 		return [
 			'mode'               => PluginNavs::MODE_INVESTIGATE,
@@ -395,8 +413,9 @@ class PageOperatorModeLanding extends BaseRender {
 			'edge_status'        => 'info',
 			'extra_classes'      => '',
 			'indicator_type'     => 'status',
-			'indicator_severity' => 'neutral',
-			'indicator_text'     => $text,
+			'indicator_severity' => 'info',
+			'indicator_text'     => $badges[ 0 ][ 'text' ],
+			'indicator_badges'   => $badges,
 			'indicator_subtext'  => '',
 		];
 	}
@@ -417,10 +436,22 @@ class PageOperatorModeLanding extends BaseRender {
 		];
 	}
 
-	private function buildReportsLane( int $reportsCount ) :array {
-		$text = $reportsCount > 0
-			? sprintf( _n( '%s report', '%s reports', $reportsCount, 'wp-simple-firewall' ), $reportsCount )
-			: __( 'Summaries & Alerts', 'wp-simple-firewall' );
+	/**
+	 * @param array{count:int,latest_report_at:int,latest_alert_at:int} $reportsSummary
+	 */
+	private function buildReportsLane( array $reportsSummary ) :array {
+		$badges = [
+			$this->buildIndicatorBadge(
+				sprintf( _n( '%s report', '%s reports', $reportsSummary[ 'count' ], 'wp-simple-firewall' ), $reportsSummary[ 'count' ] ),
+				'info'
+			),
+		];
+		if ( $reportsSummary[ 'latest_report_at' ] > 0 ) {
+			$badges[] = $this->buildTimestampBadge( __( 'Last report', 'wp-simple-firewall' ), $reportsSummary[ 'latest_report_at' ] );
+		}
+		if ( $reportsSummary[ 'latest_alert_at' ] > 0 ) {
+			$badges[] = $this->buildTimestampBadge( __( 'Last alert', 'wp-simple-firewall' ), $reportsSummary[ 'latest_alert_at' ], 'warning' );
+		}
 
 		return [
 			'mode'               => PluginNavs::MODE_REPORTS,
@@ -431,32 +462,118 @@ class PageOperatorModeLanding extends BaseRender {
 			'edge_status'        => 'warning',
 			'extra_classes'      => '',
 			'indicator_type'     => 'status',
-			'indicator_severity' => 'neutral',
-			'indicator_text'     => $text,
+			'indicator_severity' => 'info',
+			'indicator_text'     => $badges[ 0 ][ 'text' ],
+			'indicator_badges'   => $badges,
 			'indicator_subtext'  => '',
 		];
 	}
 
-	private function getInvestigateActiveSessionsCount() :int {
+	/**
+	 * @return array{active_count:int,recent_active_count:int}
+	 */
+	private function getInvestigateSessionSummary() :array {
+		$summary = [
+			'active_count'        => 0,
+			'recent_active_count' => 0,
+		];
+
 		try {
-			$count = \count( ( new FindSessions() )->mostRecent( 5 ) );
+			$cutoff = $this->getCurrentTimestamp() - 86400;
+			$sessions = $this->getSessionsLoader()->flat();
+			$summary[ 'active_count' ] = \count( $sessions );
+			$summary[ 'recent_active_count' ] = \count( \array_filter(
+				$sessions,
+				static function ( array $session ) use ( $cutoff ) :bool {
+					$lastActivityAt = $session[ 'shield' ][ 'last_activity_at' ] ?? $session[ 'login' ] ?? 0;
+					return \is_int( $lastActivityAt ) && $lastActivityAt >= $cutoff;
+				}
+			) );
 		}
-		catch ( \Exception $e ) {
-			$count = 0;
+		catch ( \Throwable $e ) {
 		}
-		return \max( 0, $count );
+
+		return [
+			'active_count'        => \max( 0, $summary[ 'active_count' ] ),
+			'recent_active_count' => \max( 0, $summary[ 'recent_active_count' ] ),
+		];
 	}
 
-	private function getGeneratedReportsCount() :int {
+	/**
+	 * @return array{count:int,latest_report_at:int,latest_alert_at:int}
+	 */
+	private function getReportsSummary() :array {
+		$summary = [
+			'count'            => 0,
+			'latest_report_at' => 0,
+			'latest_alert_at'  => 0,
+		];
+
 		try {
-			$count = self::con()->db_con->reports->getQuerySelector()
-							 ->addWhere( 'unique_id', '', '!=' )
-							 ->count();
+			$summary[ 'count' ] = self::con()->db_con->reports->getQuerySelector()
+									 ->addWhere( 'unique_id', '', '!=' )
+									 ->count();
+			$latestReport = $this->getLatestReportRecord();
+			$latestAlert = $this->getLatestReportRecord( ReportingConstants::REPORT_TYPE_ALERT );
+			$summary[ 'latest_report_at' ] = (int)( $latestReport->created_at ?? 0 );
+			$summary[ 'latest_alert_at' ] = (int)( $latestAlert->created_at ?? 0 );
 		}
-		catch ( \Exception $e ) {
-			$count = 0;
+		catch ( \Throwable $e ) {
 		}
-		return \max( 0, $count );
+
+		return [
+			'count'            => \max( 0, $summary[ 'count' ] ),
+			'latest_report_at' => \max( 0, $summary[ 'latest_report_at' ] ),
+			'latest_alert_at'  => \max( 0, $summary[ 'latest_alert_at' ] ),
+		];
+	}
+
+	protected function getSessionsLoader() :LoadSessions {
+		return new LoadSessions();
+	}
+
+	protected function getCurrentTimestamp() :int {
+		return Services::Request()->ts();
+	}
+
+	/**
+	 * @return object|null
+	 */
+	private function getLatestReportRecord( ?string $reportType = null ) {
+		$selector = self::con()->db_con->reports->getQuerySelector()
+						 ->addWhere( 'unique_id', '', '!=' );
+		if ( !empty( $reportType ) ) {
+			$selector->filterByType( $reportType );
+		}
+		return $selector
+			->setOrderBy( 'created_at', 'DESC', true )
+			->first();
+	}
+
+	/**
+	 * @return array{text:string,severity:string,title:string}
+	 */
+	private function buildIndicatorBadge( string $text, string $severity = 'info', string $title = '' ) :array {
+		return [
+			'text'     => $text,
+			'severity' => $severity,
+			'title'    => $title,
+		];
+	}
+
+	/**
+	 * @return array{text:string,severity:string,title:string}
+	 */
+	private function buildTimestampBadge( string $label, int $timestamp, string $severity = 'info' ) :array {
+		return $this->buildIndicatorBadge(
+			sprintf(
+				'%s: %s',
+				$label,
+				Services::Request()->carbon( true )->setTimestamp( $timestamp )->diffForHumans()
+			),
+			$severity,
+			Services::WpGeneral()->getTimeStringForDisplay( $timestamp )
+		);
 	}
 
 	private function modeHref( string $mode ) :string {

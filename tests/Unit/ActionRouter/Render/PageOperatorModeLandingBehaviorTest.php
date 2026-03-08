@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -24,7 +25,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
-	/** @var array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int} */
+	/** @var array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int,latest_report_at:int,latest_alert_at:int} */
 	private array $scanState = [];
 
 	protected function setUp() :void {
@@ -141,11 +142,20 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	public function test_investigate_configure_and_reports_lanes_use_expected_indicator_contracts() :void {
 		$page = new PageOperatorModeLanding();
 
-		$investigate = $this->invokeNonPublicMethod( $page, 'buildInvestigateLane', [ 3 ] );
+		$investigate = $this->invokeNonPublicMethod( $page, 'buildInvestigateLane', [
+			[
+				'active_count'        => 3,
+				'recent_active_count' => 2,
+			],
+		] );
 		$this->assertSame( 'status', $investigate[ 'indicator_type' ] ?? '' );
-		$this->assertSame( 'neutral', $investigate[ 'indicator_severity' ] ?? '' );
+		$this->assertSame( 'info', $investigate[ 'indicator_severity' ] ?? '' );
 		$this->assertSame( 'info', $investigate[ 'edge_status' ] ?? '' );
 		$this->assertSame( '3 active sessions', $investigate[ 'indicator_text' ] ?? '' );
+		$this->assertSame(
+			[ '3 active sessions', '2 sessions in last 24h' ],
+			\array_column( $investigate[ 'indicator_badges' ] ?? [], 'text' )
+		);
 		$this->assertSame( '/admin/activity/overview', $investigate[ 'href' ] ?? '' );
 
 		$configure = $this->invokeNonPublicMethod( $page, 'buildConfigureLane', [ 95, 'good' ] );
@@ -156,14 +166,66 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '95% configured', $configure[ 'posture_text' ] ?? '' );
 		$this->assertSame( '/admin/zones/overview', $configure[ 'href' ] ?? '' );
 
-		$reportsWithData = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [ 5 ] );
-		$this->assertSame( 'neutral', $reportsWithData[ 'indicator_severity' ] ?? '' );
+		$reportsWithData = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [
+			[
+				'count'            => 5,
+				'latest_report_at' => 0,
+				'latest_alert_at'  => 0,
+			],
+		] );
+		$this->assertSame( 'info', $reportsWithData[ 'indicator_severity' ] ?? '' );
 		$this->assertSame( 'warning', $reportsWithData[ 'edge_status' ] ?? '' );
 		$this->assertSame( '5 reports', $reportsWithData[ 'indicator_text' ] ?? '' );
+		$this->assertCount( 1, $reportsWithData[ 'indicator_badges' ] ?? [] );
+		$this->assertSame( '5 reports', $reportsWithData[ 'indicator_badges' ][ 0 ][ 'text' ] ?? '' );
 		$this->assertSame( '/admin/reports/overview', $reportsWithData[ 'href' ] ?? '' );
 
-		$reportsFallback = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [ 0 ] );
-		$this->assertSame( 'Summaries & Alerts', $reportsFallback[ 'indicator_text' ] ?? '' );
+		$reportsFallback = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [
+			[
+				'count'            => 0,
+				'latest_report_at' => 0,
+				'latest_alert_at'  => 0,
+			],
+		] );
+		$this->assertSame( '0 reports', $reportsFallback[ 'indicator_text' ] ?? '' );
+		$this->assertCount( 1, $reportsFallback[ 'indicator_badges' ] ?? [] );
+	}
+
+	public function test_investigate_session_summary_counts_active_and_recent_sessions() :void {
+		$page = new class extends PageOperatorModeLanding {
+			protected function getSessionsLoader() :LoadSessions {
+				return new class extends LoadSessions {
+					public function flat() :array {
+						return [
+							[
+								'login'  => 189200,
+								'shield' => [
+									'last_activity_at' => 196400,
+								],
+							],
+							[
+								'login'  => 27200,
+								'shield' => [
+									'last_activity_at' => 27200,
+								],
+							],
+							[
+								'login' => 198200,
+							],
+						];
+					}
+				};
+			}
+
+			protected function getCurrentTimestamp() :int {
+				return 200000;
+			}
+		};
+
+		$summary = $this->invokeNonPublicMethod( $page, 'getInvestigateSessionSummary' );
+
+		$this->assertSame( 3, $summary[ 'active_count' ] ?? null );
+		$this->assertSame( 2, $summary[ 'recent_active_count' ] ?? null );
 	}
 
 	public function test_queue_summary_is_loaded_from_render_data_contract_path() :void {
@@ -462,6 +524,18 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					'status'     => 'warning',
 				];
 			}
+
+			protected function getSessionsLoader() :LoadSessions {
+				return new class extends LoadSessions {
+					public function flat() :array {
+						return [];
+					}
+				};
+			}
+
+			protected function getCurrentTimestamp() :int {
+				return 200000;
+			}
 		};
 	}
 
@@ -482,7 +556,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		};
 		$controller->comps = (object)[
 			'scans' => new class( $this->scanState ) {
-				/** @var array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int} */
+				/** @var array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int,latest_report_at:int,latest_alert_at:int} */
 				private array $scanState;
 
 				public function __construct( array $scanState ) {
@@ -583,27 +657,50 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			},
 		];
 		$controller->db_con = (object)[
-			'reports' => new class( $this->scanState[ 'reports_count' ] ) {
+			'reports' => new class( $this->scanState[ 'reports_count' ], $this->scanState[ 'latest_report_at' ], $this->scanState[ 'latest_alert_at' ] ) {
 				private int $reportsCount;
+				private int $latestReportAt;
+				private int $latestAlertAt;
 
-				public function __construct( int $reportsCount ) {
+				public function __construct( int $reportsCount, int $latestReportAt, int $latestAlertAt ) {
 					$this->reportsCount = $reportsCount;
+					$this->latestReportAt = $latestReportAt;
+					$this->latestAlertAt = $latestAlertAt;
 				}
 
 				public function getQuerySelector() :object {
-					return new class( $this->reportsCount ) {
+					return new class( $this->reportsCount, $this->latestReportAt, $this->latestAlertAt ) {
 						private int $reportsCount;
+						private int $latestReportAt;
+						private int $latestAlertAt;
+						private ?string $type = null;
 
-						public function __construct( int $reportsCount ) {
+						public function __construct( int $reportsCount, int $latestReportAt, int $latestAlertAt ) {
 							$this->reportsCount = $reportsCount;
+							$this->latestReportAt = $latestReportAt;
+							$this->latestAlertAt = $latestAlertAt;
 						}
 
 						public function addWhere( string $column, string $value, string $operator ) :self {
 							return $this;
 						}
 
+						public function filterByType( string $type ) :self {
+							$this->type = $type;
+							return $this;
+						}
+
+						public function setOrderBy( string $column, string $direction = 'DESC', bool $replace = false ) :self {
+							return $this;
+						}
+
 						public function count() :int {
 							return $this->reportsCount;
+						}
+
+						public function first() :?object {
+							$createdAt = $this->type === 'alt' ? $this->latestAlertAt : $this->latestReportAt;
+							return $createdAt > 0 ? (object)[ 'created_at' => $createdAt ] : null;
 						}
 					};
 				}
@@ -635,7 +732,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @return array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int}
+	 * @return array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int,latest_report_at:int,latest_alert_at:int}
 	 */
 	private function defaultScanState() :array {
 		return [
@@ -655,7 +752,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'theme_files'       => 0,
 				'abandoned'         => 0,
 			],
-			'reports_count' => 0,
+			'reports_count'    => 0,
+			'latest_report_at' => 0,
+			'latest_alert_at'  => 0,
 		];
 	}
 }
