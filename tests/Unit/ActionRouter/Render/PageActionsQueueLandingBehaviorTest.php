@@ -103,7 +103,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$page = new PageActionsQueueLanding();
+		$page = $this->newPage();
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$modeShell = (array)( $renderData[ 'vars' ][ 'mode_shell' ] ?? [] );
 		$modeTiles = (array)( $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
@@ -133,22 +133,19 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$pageAllowed = new PageActionsQueueLanding();
-		$pageAllowed->action_data = [ 'zone' => 'scans' ];
+		$pageAllowed = $this->newPage( null, [ 'zone' => 'scans' ] );
 		$this->assertSame(
 			'scans',
 			$this->invokeNonPublicMethod( $pageAllowed, 'getLandingPanel' )[ 'active_target' ] ?? ''
 		);
 
-		$pageClear = new PageActionsQueueLanding();
-		$pageClear->action_data = [ 'zone' => 'maintenance' ];
+		$pageClear = $this->newPage( null, [ 'zone' => 'maintenance' ] );
 		$this->assertSame(
 			'maintenance',
 			$this->invokeNonPublicMethod( $pageClear, 'getLandingPanel' )[ 'active_target' ] ?? ''
 		);
 
-		$pageBlocked = new PageActionsQueueLanding();
-		$pageBlocked->action_data = [ 'zone' => 'unknown' ];
+		$pageBlocked = $this->newPage( null, [ 'zone' => 'unknown' ] );
 		$this->assertSame(
 			'',
 			$this->invokeNonPublicMethod( $pageBlocked, 'getLandingPanel' )[ 'active_target' ] ?? 'unexpected'
@@ -172,7 +169,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$page = new PageActionsQueueLanding();
+		$page = $this->newPage();
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$strip = (array)( $vars[ 'severity_strip' ] ?? [] );
 		$allClear = (array)( $vars[ 'all_clear' ] ?? [] );
@@ -229,7 +226,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$page = new PageActionsQueueLanding();
+		$page = $this->newPage();
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( [], $vars[ 'scans_results' ] ?? null );
@@ -243,7 +240,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_landing_hrefs_reuse_existing_scan_and_wp_admin_routes() :void {
-		$page = new PageActionsQueueLanding();
+		$page = $this->newPage();
 		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
 
 		$this->assertSame(
@@ -282,7 +279,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$page = new PageActionsQueueLanding();
+		$page = $this->newPage();
 		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'zone_tiles' ] ?? [];
 		$maintenance = \array_values( \array_filter(
 			$zoneTiles,
@@ -310,7 +307,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$payload[ 'render_data' ][ 'strings' ] = [];
 		$this->capture->queuePayload = $payload;
 
-		$page = new PageActionsQueueLanding();
+		$page = $this->newPage();
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 		$allClear = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'all_clear' ] ?? [];
 
@@ -340,7 +337,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$page = new PageActionsQueueLanding();
+		$page = $this->newPage();
 		$this->invokeNonPublicMethod( $page, 'getLandingFlags' );
 		$this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 		$this->invokeNonPublicMethod( $page, 'getLandingVars' );
@@ -472,6 +469,24 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
+	/**
+	 * @param array<string,list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>>|null $assessmentRowsByZone
+	 */
+	private function newPage( ?array $assessmentRowsByZone = null, array $actionData = [] ) :PageActionsQueueLanding {
+		$page = new PageActionsQueueLandingUnitTestDouble(
+			$assessmentRowsByZone ?? $this->buildDefaultAssessmentRowsByZone()
+		);
+		$page->action_data = $actionData;
+		return $page;
+	}
+
 	private function installServices( array $query = [] ) :void {
 		ServicesState::installItems( [
 			'service_request' => new class( $query ) extends Request {
@@ -530,6 +545,52 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				}
 			},
 		] );
+	}
+
+	/**
+	 * @return array<string,list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>>
+	 */
+	private function buildDefaultAssessmentRowsByZone() :array {
+		return [
+			'scans'       => [
+				$this->buildAssessmentRow( 'wp_files', 'WordPress Core Files' ),
+			],
+			'maintenance' => [
+				$this->buildAssessmentRow( 'wp_updates', 'WordPress Version' ),
+			],
+		];
+	}
+
+	/**
+	 * @return array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:'good',
+	 *   status_label:'Good',
+	 *   status_icon_class:'bi bi-check-circle-fill'
+	 * }
+	 */
+	private function buildAssessmentRow(
+		string $key,
+		string $label,
+		string $description = 'All clear'
+	) :array {
+		return [
+			'key'               => $key,
+			'label'             => $label,
+			'description'       => $description,
+			'status'            => 'good',
+			'status_label'      => 'Good',
+			'status_icon_class' => 'bi bi-check-circle-fill',
+		];
 	}
 
 	/**
@@ -655,5 +716,25 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			'action'      => 'open',
 			'target'      => $target,
 		];
+	}
+}
+
+class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
+
+	/**
+	 * @param array<string,list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>> $assessmentRowsByZone
+	 */
+	public function __construct( private array $assessmentRowsByZone ) {
+	}
+
+	protected function buildAssessmentRowsByZone() :array {
+		return $this->assessmentRowsByZone;
 	}
 }
