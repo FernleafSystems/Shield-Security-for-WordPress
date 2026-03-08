@@ -254,20 +254,17 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 0, (int)( $renderData[ 'vars' ][ 'total_items' ] ?? -1 ) );
 	}
 
-	public function test_all_clear_state_includes_all_8_zone_chips() :void {
+	public function test_zone_chips_always_cover_all_security_zones() :void {
 		$payload = $this->renderNeedsAttentionQueue()->payload();
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$chips = $renderData[ 'vars' ][ 'zone_chips' ] ?? [];
 		$expectedZoneSlugs = \array_keys( self::con()->comps->zones->getZones() );
 
-		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? true ) );
 		$this->assertCount( \count( $expectedZoneSlugs ), $chips );
 		$this->assertSame(
 			$expectedZoneSlugs,
 			\array_column( $chips, 'slug' )
 		);
-		$this->assertSame( 'good', (string)( $renderData[ 'vars' ][ 'summary' ][ 'severity' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $renderData[ 'vars' ][ 'summary' ][ 'total_items' ] ?? -1 ) );
 	}
 
 	public function test_operational_issue_adds_action_item() :void {

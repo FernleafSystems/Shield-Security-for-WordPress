@@ -255,10 +255,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_maintenance_items_get_explicit_row_ctas_only_for_inactive_plugins_and_themes() :void {
+	public function test_maintenance_items_get_expected_row_ctas_for_internal_and_external_actions() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			true,
-			2,
+			4,
 			'warning',
 			'',
 			[
@@ -266,7 +266,18 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				$this->buildZoneGroup( 'maintenance', 'warning', 2, [
 					$this->buildQueueItem( 'wp_plugins_inactive', 'maintenance', 'Inactive Plugins', 1, 'warning' ),
 					$this->buildQueueItem( 'wp_themes_inactive', 'maintenance', 'Inactive Themes', 1, 'warning' ),
-					$this->buildQueueItem( 'wp_updates', 'maintenance', 'WordPress Version', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_updates', 'maintenance', 'WordPress Version', 1, 'warning', '_blank' ),
+					[
+						'key'         => 'system_lib_openssl',
+						'zone'        => 'maintenance',
+						'label'       => 'OpenSSL Extension',
+						'count'       => 1,
+						'severity'    => 'warning',
+						'description' => 'OpenSSL requires review.',
+						'href'        => 'https://www.openssl.org/news/vulnerabilities.html',
+						'action'      => 'Review',
+						'target'      => '_blank',
+					],
 				] ),
 			]
 		);
@@ -286,7 +297,12 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '/admin/wp_plugins_inactive', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( 'Go to themes', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] ?? '' );
 		$this->assertSame( '/admin/wp_themes_inactive', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'href' ] ?? '' );
-		$this->assertArrayNotHasKey( 'cta', $itemsByKey[ 'wp_updates' ] ?? [] );
+		$this->assertSame( 'open', $itemsByKey[ 'wp_updates' ][ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/admin/wp_updates', $itemsByKey[ 'wp_updates' ][ 'cta' ][ 'href' ] ?? '' );
+		$this->assertSame( '_blank', $itemsByKey[ 'wp_updates' ][ 'cta' ][ 'target' ] ?? '' );
+		$this->assertSame( 'Review', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( 'https://www.openssl.org/news/vulnerabilities.html', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'href' ] ?? '' );
+		$this->assertSame( '_blank', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'target' ] ?? '' );
 	}
 
 	public function test_missing_needs_attention_strings_fall_back_to_safe_defaults() :void {
@@ -625,7 +641,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		string $zone,
 		string $label,
 		int $count,
-		string $severity
+		string $severity,
+		string $target = ''
 	) :array {
 		return [
 			'key'         => $key,
@@ -636,6 +653,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			'description' => 'Description for '.$label,
 			'href'        => '/admin/'.$key,
 			'action'      => 'open',
+			'target'      => $target,
 		];
 	}
 }

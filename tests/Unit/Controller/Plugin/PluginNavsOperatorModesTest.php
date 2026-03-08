@@ -111,6 +111,12 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 				'wp_updates',
 				'wp_plugins_updates',
 				'wp_themes_updates',
+				'wp_plugins_inactive',
+				'wp_themes_inactive',
+				'system_ssl_certificate',
+				'system_php_version',
+				'wp_db_password',
+				'system_lib_openssl',
 			],
 			\array_column( $definitions, 'key' )
 		);
@@ -129,6 +135,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'scan_afs_plugins_enabled', $definitions[ 1 ][ 'availability_strategy' ] );
 		$this->assertSame( Component\ScanResultsThemeFiles::class, $definitions[ 2 ][ 'component_class' ] );
 		$this->assertSame( 'scan_afs_themes_enabled', $definitions[ 2 ][ 'availability_strategy' ] );
+		$this->assertSame( Component\WpPluginsInactive::class, $definitions[ 9 ][ 'component_class' ] );
+		$this->assertSame( Component\SystemSslCertificate::class, $definitions[ 11 ][ 'component_class' ] );
 	}
 
 	public function test_reports_workspace_definitions_match_expected_contract() :void {

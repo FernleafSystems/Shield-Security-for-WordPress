@@ -341,18 +341,31 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			return $item;
 		}
 
+		$href = (string)( $item[ 'href' ] ?? '' );
+		$target = (string)( $item[ 'target' ] ?? '' );
+
 		switch ( $item[ 'key' ] ?? '' ) {
 			case 'wp_plugins_inactive':
 				$item[ 'cta' ] = [
-					'href'  => (string)( $item[ 'href' ] ?? '' ),
+					'href'  => $href,
 					'label' => __( 'Go to plugins', 'wp-simple-firewall' ),
 				];
 				break;
 			case 'wp_themes_inactive':
 				$item[ 'cta' ] = [
-					'href'  => (string)( $item[ 'href' ] ?? '' ),
+					'href'  => $href,
 					'label' => __( 'Go to themes', 'wp-simple-firewall' ),
 				];
+				break;
+			default:
+				$action = (string)( $item[ 'action' ] ?? '' );
+				if ( $href !== '' && $action !== '' ) {
+					$item[ 'cta' ] = [
+						'href'   => $href,
+						'label'  => $action,
+						'target' => $target,
+					];
+				}
 				break;
 		}
 

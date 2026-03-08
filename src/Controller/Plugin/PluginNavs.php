@@ -557,6 +557,42 @@ class PluginNavs {
 				'component_class'       => Component\WpThemesUpdates::class,
 				'availability_strategy' => 'always',
 			],
+			[
+				'key'                   => 'wp_plugins_inactive',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\WpPluginsInactive::class,
+				'availability_strategy' => 'always',
+			],
+			[
+				'key'                   => 'wp_themes_inactive',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\WpThemesInactive::class,
+				'availability_strategy' => 'always',
+			],
+			[
+				'key'                   => 'system_ssl_certificate',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\SystemSslCertificate::class,
+				'availability_strategy' => 'always',
+			],
+			[
+				'key'                   => 'system_php_version',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\SystemPhpVersion::class,
+				'availability_strategy' => 'always',
+			],
+			[
+				'key'                   => 'wp_db_password',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\WpDbPassword::class,
+				'availability_strategy' => 'always',
+			],
+			[
+				'key'                   => 'system_lib_openssl',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\SystemLibOpenssl::class,
+				'availability_strategy' => 'always',
+			],
 		];
 	}
 

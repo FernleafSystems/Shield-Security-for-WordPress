@@ -69,56 +69,26 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $matches[ 0 ] ?? [];
 	}
 
-	public function test_all_clear_state_exposes_payload_contract_with_interactive_clear_zones() :void {
+	public function test_actions_queue_landing_keeps_zone_tiles_interactive_without_scan_findings() :void {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing all-clear' );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
-		$allClear = \is_array( $vars[ 'all_clear' ] ?? null ) ? $vars[ 'all_clear' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
-		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
-		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
-		$this->assertSame( 'good', (string)( $strip[ 'severity' ] ?? '' ) );
 		$this->assertIsString( $strip[ 'subtext' ] ?? null );
-		$this->assertSame( 0, (int)( $strip[ 'total_items' ] ?? -1 ) );
-		$this->assertSame( 0, (int)( $strip[ 'critical_count' ] ?? -1 ) );
-		$this->assertSame( 0, (int)( $strip[ 'warning_count' ] ?? -1 ) );
 		$this->assertCount( 2, $zoneTiles );
 		$this->assertCount(
 			2,
 			\array_values( \array_filter( $zoneTiles, static fn( array $tile ) :bool => (bool)( $tile[ 'is_enabled' ] ?? false ) ) )
 		);
-		$this->assertSame(
-			[ false, false ],
-			\array_column( $zoneTiles, 'has_issues' )
-		);
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'scans' )[ 'assessment_rows' ] ?? [] );
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
-		$this->assertNotSame( '', (string)( $allClear[ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $allClear[ 'subtitle' ] ?? '' ) );
-		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $allClear[ 'zone_chips' ] ?? [], 'slug' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip" and contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',
-			'Actions queue all-clear shared strip root marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip__chip ")]',
-			'Actions queue all-clear shared strip chip marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]//*[@role="progressbar"]',
-			0,
-			'Actions queue all-clear strip should not render a progressbar'
-		);
 	}
 
 	public function test_maintenance_items_render_tiles_and_maintenance_panel() :void {
@@ -171,7 +141,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
 		}
 
-		$this->assertArrayNotHasKey( 'cta', $itemsByKey[ 'wp_plugins_updates' ] ?? [] );
+		$this->assertNotSame( '', (string)( $itemsByKey[ 'wp_plugins_updates' ][ 'cta' ][ 'href' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $itemsByKey[ 'wp_plugins_updates' ][ 'cta' ][ 'label' ] ?? '' ) );
 		$this->assertSame(
 			self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			(string)( $renderData[ 'hrefs' ][ 'scan_results' ] ?? '' )

@@ -7,6 +7,28 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class AttentionItemsProviderSummaryBehaviorTest extends BaseUnitTest {
 
+	public function test_build_queue_items_preserves_description_and_target_contract() :void {
+		$items = ( new AttentionItemsProviderSummaryTestDouble( [
+			[
+				'key'      => 'system_ssl_certificate',
+				'zone'     => 'maintenance',
+				'label'    => 'SSL Certificate',
+				'count'    => 1,
+				'severity' => 'warning',
+				'text'     => 'SSL certificate requires review.',
+				'href'     => 'https://example.com/ssl',
+				'action'   => 'Review',
+				'target'   => '_blank',
+			],
+		] ) )->buildQueueItems();
+
+		$this->assertSame( 'SSL Certificate', (string)( $items[ 0 ][ 'label' ] ?? '' ) );
+		$this->assertSame( 'SSL certificate requires review.', (string)( $items[ 0 ][ 'description' ] ?? '' ) );
+		$this->assertSame( 'https://example.com/ssl', (string)( $items[ 0 ][ 'href' ] ?? '' ) );
+		$this->assertSame( 'Review', (string)( $items[ 0 ][ 'action' ] ?? '' ) );
+		$this->assertSame( '_blank', (string)( $items[ 0 ][ 'target' ] ?? '' ) );
+	}
+
 	public function test_empty_items_are_all_clear_and_good() :void {
 		$summary = ( new AttentionItemsProviderSummaryTestDouble( [] ) )->buildActionSummary();
 

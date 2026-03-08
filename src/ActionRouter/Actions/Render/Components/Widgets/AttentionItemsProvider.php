@@ -44,6 +44,7 @@ class AttentionItemsProvider {
 					'description' => $item[ 'text' ],
 					'href'        => $item[ 'href' ],
 					'action'      => $item[ 'action' ],
+					'target'      => (string)( $item[ 'target' ] ?? '' ),
 				];
 			},
 			$this->buildActionItems()
