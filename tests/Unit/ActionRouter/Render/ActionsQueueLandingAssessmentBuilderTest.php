@@ -117,6 +117,125 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $builder->build() );
 	}
 
+	public function test_build_includes_only_plugin_files_when_only_plugin_scan_is_available() :void {
+		$builder = new ActionsQueueLandingAssessmentBuilderTestDouble(
+			[
+				[
+					'key'                   => 'plugin_files',
+					'zone'                  => 'scans',
+					'component_class'       => 'plugin-files',
+					'availability_strategy' => 'scan_afs_plugins_enabled',
+				],
+				[
+					'key'                   => 'theme_files',
+					'zone'                  => 'scans',
+					'component_class'       => 'theme-files',
+					'availability_strategy' => 'scan_afs_themes_enabled',
+				],
+			],
+			[
+				'scan_afs_plugins_enabled' => true,
+				'scan_afs_themes_enabled'  => false,
+			],
+			[
+				'plugin-files' => [
+					'title'            => 'Plugin Files',
+					'desc_protected'   => 'All plugin files appear to be valid.',
+					'desc_unprotected' => 'At least 1 plugin file appears to be modified.',
+					'is_protected'     => true,
+					'is_critical'      => true,
+					'is_applicable'    => true,
+				],
+			]
+		);
+
+		$rows = $builder->build();
+
+		$this->assertSame( [ 'plugin_files' ], \array_column( $rows[ 'scans' ] ?? [], 'key' ) );
+	}
+
+	public function test_build_includes_only_theme_files_when_only_theme_scan_is_available() :void {
+		$builder = new ActionsQueueLandingAssessmentBuilderTestDouble(
+			[
+				[
+					'key'                   => 'plugin_files',
+					'zone'                  => 'scans',
+					'component_class'       => 'plugin-files',
+					'availability_strategy' => 'scan_afs_plugins_enabled',
+				],
+				[
+					'key'                   => 'theme_files',
+					'zone'                  => 'scans',
+					'component_class'       => 'theme-files',
+					'availability_strategy' => 'scan_afs_themes_enabled',
+				],
+			],
+			[
+				'scan_afs_plugins_enabled' => false,
+				'scan_afs_themes_enabled'  => true,
+			],
+			[
+				'theme-files' => [
+					'title'            => 'Theme Files',
+					'desc_protected'   => 'All theme files appear to be valid.',
+					'desc_unprotected' => 'At least 1 theme file appears to be modified.',
+					'is_protected'     => true,
+					'is_critical'      => true,
+					'is_applicable'    => true,
+				],
+			]
+		);
+
+		$rows = $builder->build();
+
+		$this->assertSame( [ 'theme_files' ], \array_column( $rows[ 'scans' ] ?? [], 'key' ) );
+	}
+
+	public function test_build_includes_plugin_and_theme_files_when_both_scans_are_available() :void {
+		$builder = new ActionsQueueLandingAssessmentBuilderTestDouble(
+			[
+				[
+					'key'                   => 'plugin_files',
+					'zone'                  => 'scans',
+					'component_class'       => 'plugin-files',
+					'availability_strategy' => 'scan_afs_plugins_enabled',
+				],
+				[
+					'key'                   => 'theme_files',
+					'zone'                  => 'scans',
+					'component_class'       => 'theme-files',
+					'availability_strategy' => 'scan_afs_themes_enabled',
+				],
+			],
+			[
+				'scan_afs_plugins_enabled' => true,
+				'scan_afs_themes_enabled'  => true,
+			],
+			[
+				'plugin-files' => [
+					'title'            => 'Plugin Files',
+					'desc_protected'   => 'All plugin files appear to be valid.',
+					'desc_unprotected' => 'At least 1 plugin file appears to be modified.',
+					'is_protected'     => true,
+					'is_critical'      => true,
+					'is_applicable'    => true,
+				],
+				'theme-files' => [
+					'title'            => 'Theme Files',
+					'desc_protected'   => 'All theme files appear to be valid.',
+					'desc_unprotected' => 'At least 1 theme file appears to be modified.',
+					'is_protected'     => true,
+					'is_critical'      => true,
+					'is_applicable'    => true,
+				],
+			]
+		);
+
+		$rows = $builder->build();
+
+		$this->assertSame( [ 'plugin_files', 'theme_files' ], \array_column( $rows[ 'scans' ] ?? [], 'key' ) );
+	}
+
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();

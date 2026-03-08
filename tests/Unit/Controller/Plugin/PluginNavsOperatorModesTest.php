@@ -103,7 +103,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'wp_files',
-				'plugin_theme_files',
+				'plugin_files',
+				'theme_files',
 				'malware',
 				'vulnerable_assets',
 				'abandoned',
@@ -124,8 +125,10 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$this->assertContains( $definition[ 'zone' ], [ 'scans', 'maintenance' ] );
 		}
 
-		$this->assertSame( Component\ScanResultsPtg::class, $definitions[ 1 ][ 'component_class' ] );
-		$this->assertSame( 'scan_afs_plugins_and_themes_enabled', $definitions[ 1 ][ 'availability_strategy' ] );
+		$this->assertSame( Component\ScanResultsPluginFiles::class, $definitions[ 1 ][ 'component_class' ] );
+		$this->assertSame( 'scan_afs_plugins_enabled', $definitions[ 1 ][ 'availability_strategy' ] );
+		$this->assertSame( Component\ScanResultsThemeFiles::class, $definitions[ 2 ][ 'component_class' ] );
+		$this->assertSame( 'scan_afs_themes_enabled', $definitions[ 2 ][ 'availability_strategy' ] );
 	}
 
 	public function test_reports_workspace_definitions_match_expected_contract() :void {

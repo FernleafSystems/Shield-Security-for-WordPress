@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 class ConfigureZoneTilesBuilder {
 
 	use PluginControllerConsumer;
+	use StandardStatusMapping;
 
 	/**
 	 * @return list<array{
@@ -265,22 +266,7 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	private function componentStatusIconClass( string $status ) :string {
-		switch ( $status ) {
-			case 'good':
-				$icon = 'check-circle-fill';
-				break;
-			case 'warning':
-				$icon = 'exclamation-triangle-fill';
-				break;
-			case 'critical':
-				$icon = 'x-circle-fill';
-				break;
-			case 'neutral':
-			default:
-				$icon = 'info-circle-fill';
-				break;
-		}
-		return self::con()->svgs->iconClass( $icon );
+		return $this->standardStatusIconClass( $status, 'exclamation-triangle-fill' );
 	}
 
 	private function componentNote( Component\Base $component ) :string {

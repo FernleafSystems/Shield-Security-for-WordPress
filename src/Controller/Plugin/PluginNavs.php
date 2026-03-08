@@ -510,10 +510,16 @@ class PluginNavs {
 				'availability_strategy' => 'scan_afs_core_enabled',
 			],
 			[
-				'key'                   => 'plugin_theme_files',
+				'key'                   => 'plugin_files',
 				'zone'                  => 'scans',
-				'component_class'       => Component\ScanResultsPtg::class,
-				'availability_strategy' => 'scan_afs_plugins_and_themes_enabled',
+				'component_class'       => Component\ScanResultsPluginFiles::class,
+				'availability_strategy' => 'scan_afs_plugins_enabled',
+			],
+			[
+				'key'                   => 'theme_files',
+				'zone'                  => 'scans',
+				'component_class'       => Component\ScanResultsThemeFiles::class,
+				'availability_strategy' => 'scan_afs_themes_enabled',
 			],
 			[
 				'key'                   => 'malware',

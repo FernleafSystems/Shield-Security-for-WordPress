@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 class ActionsQueueLandingViewBuilder {
 
 	use PluginControllerConsumer;
+	use StandardStatusMapping;
 
 	/**
 	 * @return array{
@@ -240,7 +241,7 @@ class ActionsQueueLandingViewBuilder {
 					'label'            => $zone[ 'label' ],
 					'icon_class'       => $zone[ 'icon_class' ],
 					'status'           => $zone[ 'severity' ],
-					'status_label'     => $this->statusLabel( $zone[ 'severity' ] ),
+					'status_label'     => $this->standardStatusLabel( $zone[ 'severity' ] ),
 					'total_issues'     => $totalIssues,
 					'critical_count'   => $countBySeverity[ 'critical' ],
 					'warning_count'    => $countBySeverity[ 'warning' ],
@@ -388,17 +389,6 @@ class ActionsQueueLandingViewBuilder {
 			_n( '%1$s issue', '%1$s issues', $totalIssues, 'wp-simple-firewall' ),
 			$totalIssues
 		);
-	}
-
-	private function statusLabel( string $status ) :string {
-		switch ( $status ) {
-			case 'critical':
-				return __( 'Critical', 'wp-simple-firewall' );
-			case 'warning':
-				return __( 'Warning', 'wp-simple-firewall' );
-			default:
-				return __( 'Good', 'wp-simple-firewall' );
-		}
 	}
 
 	/**

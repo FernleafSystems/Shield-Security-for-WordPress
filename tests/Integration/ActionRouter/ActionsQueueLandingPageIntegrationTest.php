@@ -203,4 +203,58 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'good', (string)( $vulnerabilities[ 'status' ] ?? '' ) );
 		$this->assertIsArray( $vulnerabilities[ 'items' ] ?? null );
 	}
+
+	public function test_scans_assessment_rows_include_plugin_files_only_when_only_plugin_scan_area_is_enabled() :void {
+		$this->requireController()->opts->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] );
+		$this->resetScanResultCountMemoization();
+		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing plugin scan checklist' );
+		$scans = $this->findZoneTile(
+			\is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
+				? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
+				: [],
+			'scans'
+		);
+
+		$this->assertContains( 'plugin_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+		$this->assertNotContains( 'theme_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+	}
+
+	public function test_scans_assessment_rows_include_theme_files_only_when_only_theme_scan_area_is_enabled() :void {
+		$this->requireController()->opts->optSet( 'file_scan_areas', [ 'wp', 'themes' ] );
+		$this->resetScanResultCountMemoization();
+		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing theme scan checklist' );
+		$scans = $this->findZoneTile(
+			\is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
+				? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
+				: [],
+			'scans'
+		);
+
+		$this->assertContains( 'theme_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+		$this->assertNotContains( 'plugin_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+	}
+
+	public function test_scans_assessment_rows_include_plugin_and_theme_files_when_both_scan_areas_are_enabled() :void {
+		$this->requireController()->opts->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] );
+		$this->resetScanResultCountMemoization();
+		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing plugin and theme scan checklist' );
+		$scans = $this->findZoneTile(
+			\is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
+				? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
+				: [],
+			'scans'
+		);
+
+		$this->assertContains( 'plugin_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+		$this->assertContains( 'theme_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+	}
 }

@@ -22,7 +22,7 @@ class AllComponents extends Base {
 	}
 
 	protected function hrefFull() :string {
-		return self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_GRADES );
+		return self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW );
 	}
 
 	protected function hrefFullTargetBlank() :bool {

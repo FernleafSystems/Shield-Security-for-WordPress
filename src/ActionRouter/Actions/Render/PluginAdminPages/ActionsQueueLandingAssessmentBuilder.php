@@ -3,12 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Components;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponentBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class ActionsQueueLandingAssessmentBuilder {
 
 	use PluginControllerConsumer;
+	use StandardStatusMapping;
 
 	/**
 	 * @return array<string,list<array{
@@ -59,8 +60,10 @@ class ActionsQueueLandingAssessmentBuilder {
 				return true;
 			case 'scan_afs_core_enabled':
 				return $scansCon->AFS()->isScanEnabledWpCore();
-			case 'scan_afs_plugins_and_themes_enabled':
-				return $scansCon->AFS()->isScanEnabledPlugins() && $scansCon->AFS()->isScanEnabledThemes();
+			case 'scan_afs_plugins_enabled':
+				return $scansCon->AFS()->isScanEnabledPlugins();
+			case 'scan_afs_themes_enabled':
+				return $scansCon->AFS()->isScanEnabledThemes();
 			case 'scan_malware_enabled':
 				return $scansCon->AFS()->isEnabledMalwareScanPHP();
 			case 'scan_wpv_enabled':
@@ -101,8 +104,8 @@ class ActionsQueueLandingAssessmentBuilder {
 				? ( $component[ 'desc_protected' ] ?? '' )
 				: ( $component[ 'desc_unprotected' ] ?? '' ) ),
 			'status'            => $status,
-			'status_label'      => $this->statusLabel( $status ),
-			'status_icon_class' => $this->statusIconClass( $status ),
+			'status_label'      => $this->standardStatusLabel( $status ),
+			'status_icon_class' => $this->standardStatusIconClass( $status ),
 		];
 	}
 
@@ -111,35 +114,6 @@ class ActionsQueueLandingAssessmentBuilder {
 	 * @return array<string,mixed>
 	 */
 	protected function buildAssessmentComponent( string $componentClass ) :array {
-		return ( new Components() )->buildComponent(
-			$componentClass,
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base::CHANNEL_ACTION
-		);
-	}
-
-	protected function statusLabel( string $status ) :string {
-		switch ( $status ) {
-			case 'critical':
-				return __( 'Critical', 'wp-simple-firewall' );
-			case 'warning':
-				return __( 'Warning', 'wp-simple-firewall' );
-			default:
-				return __( 'Good', 'wp-simple-firewall' );
-		}
-	}
-
-	protected function statusIconClass( string $status ) :string {
-		switch ( $status ) {
-			case 'critical':
-				$icon = 'x-circle-fill';
-				break;
-			case 'warning':
-				$icon = 'exclamation-circle-fill';
-				break;
-			default:
-				$icon = 'check-circle-fill';
-				break;
-		}
-		return self::con()->svgs->iconClass( $icon );
+		return ( new $componentClass() )->build( MeterComponentBase::CHANNEL_ACTION );
 	}
 }

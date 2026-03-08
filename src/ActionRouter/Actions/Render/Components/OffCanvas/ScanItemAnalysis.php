@@ -13,6 +13,6 @@ class ScanItemAnalysis extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		return ( new ContainerRenderer() )->render( (string)$this->action_data[ 'ip' ], false );
+		return ( new ContainerRenderer() )->render( (string)$this->action_data[ 'ip' ] );
 	}
 }

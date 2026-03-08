@@ -11,6 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class PageConfigureLanding extends PageModeLandingBase {
 
+	use StandardStatusMapping;
+
 	public const SLUG = 'plugin_admin_page_configure_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/configure_landing.twig';
 	/**
@@ -153,31 +155,11 @@ class PageConfigureLanding extends PageModeLandingBase {
 	}
 
 	private function buildPostureLabel( string $postureStatus ) :string {
-		switch ( $postureStatus ) {
-			case 'critical':
-				return __( 'Critical', 'wp-simple-firewall' );
-			case 'warning':
-				return __( 'Warning', 'wp-simple-firewall' );
-			case 'good':
-			default:
-				return __( 'Good', 'wp-simple-firewall' );
-		}
+		return $this->standardStatusLabel( $postureStatus );
 	}
 
 	private function buildPostureIconClass( string $postureStatus ) :string {
-		switch ( $postureStatus ) {
-			case 'critical':
-				$icon = 'x-circle-fill';
-				break;
-			case 'warning':
-				$icon = 'exclamation-circle-fill';
-				break;
-			case 'good':
-			default:
-				$icon = 'check-circle-fill';
-				break;
-		}
-		return $this->buildLandingIconClass( $icon );
+		return $this->standardStatusIconClass( $postureStatus );
 	}
 
 	/**
