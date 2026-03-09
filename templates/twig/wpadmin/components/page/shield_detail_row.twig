@@ -73,7 +73,6 @@
 					{% set chip_icon = action.icon|default(action.type == 'update' ? 'bi bi-arrow-up-circle-fill' : 'bi bi-power') %}
 					<a href="{{ action.href|default('#') }}"
 					   class="shield-action-chip shield-action-chip--{{ action.type|default('update') }}"
-					   onclick="event.stopPropagation()"
 					   data-bs-toggle="tooltip"
 					   data-bs-title="{{ action.tooltip|default('')|e('html_attr') }}">
 						<i class="{{ chip_icon }}"></i>

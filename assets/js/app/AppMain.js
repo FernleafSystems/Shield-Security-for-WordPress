@@ -25,6 +25,7 @@ import { ScansHandler } from "../components/scans/ScansHandler";
 import { ModePanelStateController } from "../components/mode/ModePanelStateController";
 import { InvestigateLandingController } from "../components/mode/InvestigateLandingController";
 import { ConfigureLandingController } from "../components/mode/ConfigureLandingController";
+import { DetailRowExpandController } from "../components/mode/DetailRowExpandController";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
 import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
@@ -85,6 +86,7 @@ export class AppMain extends AppBase {
 		this.components.mode_panel_state = new ModePanelStateController();
 		this.components.investigate_landing = new InvestigateLandingController();
 		this.components.configure_landing = new ConfigureLandingController();
+		this.components.detail_row_expand = new DetailRowExpandController();
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;
 		this.components.rule_builder = ( 'rule_builder' in comps ) ? new RuleBuilder( comps.rule_builder ) : null;
