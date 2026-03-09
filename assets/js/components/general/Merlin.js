@@ -1,5 +1,4 @@
 import { BaseComponent } from "../BaseComponent";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { Forms } from "../../util/Forms";
@@ -119,6 +118,6 @@ export class Merlin extends BaseComponent {
 		.catch( ( error ) => {
 			console.log( error );
 		} )
-		.finally( () => ShieldOverlay.Hide() );
+		.finally();
 	};
 }

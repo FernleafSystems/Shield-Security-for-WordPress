@@ -2,7 +2,6 @@ import BigPicture from "bigpicture";
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { BootstrapModals } from "../ui/BootstrapModals";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
 
 export class MiscHooks extends BaseComponent {
 	init() {
@@ -49,7 +48,7 @@ export class MiscHooks extends BaseComponent {
 			.catch( ( error ) => {
 				console.log( error );
 			} )
-			.finally( () => ShieldOverlay.Hide() );
+			.finally();
 		}
 	}
 }

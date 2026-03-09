@@ -27,7 +27,7 @@ export class ProviderPasskeys extends ProviderBase {
 
 	runRegister() {
 		( new AjaxService() )
-		.send( ObjectOps.Merge( this._base_data.ajax.passkey_start_registration ), true, true )
+		.send( ObjectOps.Merge( this._base_data.ajax.passkey_start_registration ), false, true )
 		.then( async ( resp ) => {
 			if ( resp.success ) {
 				const challenge = resp.data.challenge;

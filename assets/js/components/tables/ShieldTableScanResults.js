@@ -10,7 +10,6 @@ import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
 import { BootstrapModals } from "../ui/BootstrapModals";
 import { ObjectOps } from "../../util/ObjectOps";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { ShieldTableBase } from "./ShieldTableBase";
 
 hljs.registerLanguage( 'bash', bash );
@@ -130,7 +129,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				.catch( ( error ) => {
 					console.log( error );
 				} )
-				.finally( () => ShieldOverlay.Hide() );
+				.finally();
 
 				return false;
 			}

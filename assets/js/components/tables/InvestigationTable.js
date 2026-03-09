@@ -8,7 +8,8 @@ export class InvestigationTable extends ShieldTableBase {
 	static hasBoundShownTabAdjustHandler = false;
 
 	init() {
-		this.els = Array.from( document.querySelectorAll( '[data-investigation-table="1"]' ) );
+		this.contextEl = this._base_data?.contextEl instanceof Element ? this._base_data.contextEl : document;
+		this.els = Array.from( this.contextEl.querySelectorAll( '[data-investigation-table="1"]' ) );
 		this.exec();
 	}
 
@@ -30,6 +31,10 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	setupInvestigationTable( tableEl ) {
+		if ( !this.isElementVisible( tableEl ) ) {
+			return;
+		}
+
 		const context = this.extractTableContext( tableEl );
 		if ( context === null ) {
 			return;
@@ -78,6 +83,8 @@ export class InvestigationTable extends ShieldTableBase {
 				if ( pane === null || pane.querySelector( '[data-investigation-table="1"]' ) === null ) {
 					return;
 				}
+
+				new InvestigationTable( { contextEl: pane } );
 				if ( !$.fn.dataTable || !$.fn.dataTable.isDataTable ) {
 					return;
 				}
@@ -114,7 +121,7 @@ export class InvestigationTable extends ShieldTableBase {
 		reqData.table_data = data;
 
 		return ( new AjaxService() )
-		.send( reqData )
+		.send( reqData, false )
 		.then( ( resp ) => {
 			const responseData = ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
 				? resp.data
@@ -159,5 +166,9 @@ export class InvestigationTable extends ShieldTableBase {
 		catch ( e ) {
 			return null;
 		}
+	}
+
+	isElementVisible( el ) {
+		return el instanceof Element && el.getClientRects().length > 0;
 	}
 }

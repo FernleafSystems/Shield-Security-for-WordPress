@@ -1,6 +1,5 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
-import { AjaxBatchService } from "../services/AjaxBatchService";
 import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { InvestigationTable } from "../tables/InvestigationTable";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
@@ -24,7 +23,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.syncPanelHeadersForAllPanels();
 		this.syncInlineTabsForAllPanels();
 		this.syncLandingHintVisibilityFromPanelState();
-		this.preloadInactivePanels();
 		this.syncLivePanelPolling();
 	}
 
@@ -118,9 +116,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return Promise.resolve();
 		}
 
+		this.renderPanelLoadingMarkup( panel );
 		this.setPanelLoadingState( panel, true );
 		return ( new AjaxService() )
-		.send( reqData, true, true )
+		.send( reqData, false, true )
 		.then( ( resp ) => {
 			const renderOutput = ( resp && resp.success && resp.data && typeof resp.data.render_output === 'string' )
 				? resp.data.render_output
@@ -141,87 +140,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	initializeSelect2Within( contextEl ) {
 		this.lookupSelect2.initializeWithin( contextEl );
-	}
-
-	preloadInactivePanels() {
-		const batchRequestData = this.parseBatchRequestData();
-		if ( batchRequestData === null ) {
-			return;
-		}
-
-		const panels = this.collectBatchLoadablePanels();
-		if ( panels.length < 1 ) {
-			return;
-		}
-
-		const batch = new AjaxBatchService( batchRequestData );
-		const queuedPanels = [];
-
-		panels.forEach( ( panel, index ) => {
-			const request = this.parsePanelRenderActionData( panel );
-			if ( request === null ) {
-				return;
-			}
-
-			queuedPanels.push( panel );
-			this.setPanelLoadingState( panel, true );
-
-			batch.add( {
-				id: this.buildPanelBatchID( panel, index ),
-				request,
-				onSuccess: ( result ) => {
-					const renderOutput = typeof result?.data?.render_output === 'string'
-						? result.data.render_output
-						: '';
-					if ( this.applyRenderOutputToPanel( panel, renderOutput ) ) {
-						this.setPanelLoadedState( panel, true );
-					}
-					else {
-						this.handlePanelLoadFailure( panel );
-					}
-				},
-				onError: () => this.handlePanelLoadFailure( panel ),
-			} );
-		} );
-
-		if ( queuedPanels.length < 1 ) {
-			return;
-		}
-
-		batch.flush()
-		.catch( () => {
-			queuedPanels.forEach( ( panel ) => this.handlePanelLoadFailure( panel ) );
-		} )
-		.finally( () => {
-			queuedPanels.forEach( ( panel ) => this.setPanelLoadingState( panel, false ) );
-		} );
-	}
-
-	collectBatchLoadablePanels() {
-		if ( this.rootEl === null ) {
-			return [];
-		}
-		return Array.from( this.rootEl.querySelectorAll( '[data-investigate-panel]' ) ).filter( ( panel ) => {
-			return !this.isPanelLoaded( panel )
-				   && !this.isLivePanel( panel )
-				   && this.parsePanelRenderActionData( panel ) !== null;
-		} );
-	}
-
-	parseBatchRequestData() {
-		if ( this.rootEl === null ) {
-			return null;
-		}
-		const rawJson = this.rootEl.dataset.investigateBatchAction || '';
-		if ( rawJson.length < 1 ) {
-			return null;
-		}
-		return this.parseJsonObject( rawJson );
-	}
-
-	buildPanelBatchID( panel, index ) {
-		const panelKey = panel.dataset.investigatePanel || `panel-${index}`;
-		return `investigate-panel-${panelKey}-${index}`;
 	}
 
 	findPanelFromElement( el ) {
@@ -270,9 +188,17 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		panelContent.innerHTML = panelBodyHtml;
 		this.initializeSelect2Within( panelContent );
-		new InvestigationTable();
+		new InvestigationTable( { contextEl: panelContent } );
 		this.syncPanelChrome( panel, true );
 		return true;
+	}
+
+	renderPanelLoadingMarkup( panel ) {
+		const panelContent = this.getPanelContentContainer( panel );
+		if ( panelContent !== null ) {
+			panelContent.innerHTML = this.buildPanelLoadingMarkup();
+		}
+		this.syncPanelChrome( panel, true );
 	}
 
 	handlePanelLoadFailure( panel ) {
@@ -464,6 +390,18 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return '<div class="alert alert-warning mb-0">'
 			   + this.escapeHtml( message )
 			   + '</div>';
+	}
+
+	buildPanelLoadingMarkup() {
+		const placeholder = document.querySelector( '.shield_loading_placeholder_investigate_panel' );
+		if ( placeholder instanceof HTMLElement ) {
+			const clone = placeholder.cloneNode( true );
+			clone.classList.remove( 'd-none' );
+			return clone.outerHTML;
+		}
+
+		const message = this.rootEl?.dataset?.investigatePanelLoading || 'Loading investigation panel...';
+		return `<div class="text-muted small">${this.escapeHtml( message )}</div>`;
 	}
 
 	syncInlineTabsForAllPanels() {

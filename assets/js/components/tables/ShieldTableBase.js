@@ -85,7 +85,7 @@ export class ShieldTableBase extends BaseComponent {
 		reqData.table_data = data;
 
 		return ( new AjaxService() )
-		.send( reqData )
+		.send( reqData, false )
 		.then( ( resp ) => {
 			if ( resp.success ) {
 				callback( resp.data.datatable_data );
@@ -104,6 +104,7 @@ export class ShieldTableBase extends BaseComponent {
 		return {
 			dom: 'PrBpftip',
 			serverSide: true,
+			processing: true,
 			searchDelay: 600,
 			ajax: ( data, callback, settings ) => this.datatablesAjaxRequest( data, callback, settings ),
 			deferRender: true,

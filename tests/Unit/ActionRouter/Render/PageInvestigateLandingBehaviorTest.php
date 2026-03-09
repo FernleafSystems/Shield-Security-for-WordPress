@@ -12,8 +12,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\AjaxBatchRequests,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateLanding;
@@ -197,10 +195,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertCount( \count( $subjectDefinitions ), $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
-		$batchRenderAction = (array)( $renderData[ 'vars' ][ 'batch_render_action' ] ?? [] );
-		$this->assertSame( ActionData::FIELD_SHIELD, $batchRenderAction[ ActionData::FIELD_ACTION ] ?? '' );
-		$this->assertSame( AjaxBatchRequests::SLUG, $batchRenderAction[ ActionData::FIELD_EXECUTE ] ?? '' );
-		$this->assertArrayHasKey( ActionData::FIELD_NONCE, $batchRenderAction );
+		$this->assertArrayNotHasKey( 'batch_render_action', $renderData[ 'vars' ] ?? [] );
 		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'landing_hint' ] ?? '' ) );
 	}
 

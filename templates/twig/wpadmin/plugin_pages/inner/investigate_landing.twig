@@ -5,7 +5,7 @@
 
 	<div class="investigate-landing"
 		 data-investigate-landing="1"
-		 data-investigate-batch-action="{{ vars.batch_render_action|default({})|json_encode|e('html_attr') }}"
+		 data-investigate-panel-loading="{{ strings.panel_loading|default('')|e('html_attr') }}"
 		 data-investigate-panel-error="{{ strings.panel_load_error|default('')|e('html_attr') }}">
 		<section class="investigate-landing__selector-shell" data-investigate-section="selector">
 			<div class="investigate-landing__subject-grid" data-mode-tiles="1">

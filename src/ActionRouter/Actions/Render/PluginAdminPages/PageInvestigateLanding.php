@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions\AjaxBatchRequests,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -124,9 +123,8 @@ class PageInvestigateLanding extends PageModeLandingBase {
 
 	protected function getLandingVars() :array {
 		return [
-			'subjects'            => $this->getSubjectsPayload(),
-			'active_subject'      => $this->getActiveSubject(),
-			'batch_render_action' => ActionData::Build( AjaxBatchRequests::class ),
+			'subjects'       => $this->getSubjectsPayload(),
+			'active_subject' => $this->getActiveSubject(),
 		];
 	}
 

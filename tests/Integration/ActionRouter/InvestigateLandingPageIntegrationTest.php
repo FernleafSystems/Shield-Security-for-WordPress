@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\AjaxBatchRequests,
 	Actions\AjaxRender,
 	Actions\Render\PluginAdminPages\PageInvestigateLanding,
 	Constants
@@ -64,9 +62,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertModeShellPayload( $vars, 'investigate', 'info', true );
 		$this->assertModePanelPayload( $vars, '', false );
-		$batchActionData = \is_array( $vars[ 'batch_render_action' ] ?? null ) ? $vars[ 'batch_render_action' ] : [];
-		$this->assertSame( ActionData::FIELD_SHIELD, $batchActionData[ ActionData::FIELD_ACTION ] ?? '' );
-		$this->assertSame( AjaxBatchRequests::SLUG, $batchActionData[ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertArrayNotHasKey( 'batch_render_action', $vars );
 		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'landing_hint' ] ?? '' ) );
 
 		foreach ( $subjectDefinitions as $subjectKey => $subjectDefinition ) {

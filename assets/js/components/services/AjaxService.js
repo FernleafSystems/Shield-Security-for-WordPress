@@ -12,7 +12,7 @@ export class AjaxService {
 		return this.send( data, false, true );
 	}
 
-	send( data, showOverlay = true, quiet = false ) {
+	send( data, showOverlay = false, quiet = false ) {
 
 		if ( showOverlay ) {
 			ShieldOverlay.Show();
