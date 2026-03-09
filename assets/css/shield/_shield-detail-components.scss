@@ -426,6 +426,11 @@
 		border-color: $border-color-neutral-subtle;
 	}
 
+	&:focus-visible {
+		outline: 2px solid #c7dfc7;
+		outline-offset: 1px;
+	}
+
 	&.is-active {
 		background: #f2f9f2;
 		border-color: #c7dfc7;

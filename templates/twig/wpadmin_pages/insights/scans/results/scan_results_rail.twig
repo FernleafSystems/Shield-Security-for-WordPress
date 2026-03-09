@@ -1,0 +1,56 @@
+{% set critical_keys = ['vulnerabilities', 'malware'] %}
+{% set rail_accent = 'good' %}
+
+{% for tab in vars.tabs|default([]) %}
+	{% if tab.key != 'summary' and tab.count|default(0) > 0 %}
+		{% set tab_status = (tab.key in critical_keys) ? 'critical' : 'warning' %}
+		{% if tab_status == 'critical' %}
+			{% set rail_accent = 'critical' %}
+		{% elseif rail_accent != 'critical' %}
+			{% set rail_accent = 'warning' %}
+		{% endif %}
+	{% endif %}
+{% endfor %}
+
+{% set rail_items = [] %}
+{% for tab in vars.tabs|default([]) %}
+	{% set item_status = 'good' %}
+	{% if tab.key == 'summary' %}
+		{% set item_status = rail_accent %}
+	{% elseif tab.count|default(0) > 0 %}
+		{% set item_status = (tab.key in critical_keys) ? 'critical' : 'warning' %}
+	{% endif %}
+	{% set rail_items = rail_items|merge([{
+		key: tab.key,
+		label: tab.label,
+		status: item_status,
+		count: tab.count|default(0),
+		badge_status: item_status,
+		is_active: tab.is_active|default(false)
+	}]) %}
+{% endfor %}
+
+{% set pane_content %}
+	{% for tab in vars.tabs|default([]) %}
+		<div data-shield-rail-pane="{{ tab.key|e('html_attr') }}"{% if not tab.is_active|default(false) %} style="display: none"{% endif %}>
+			{% include '/wpadmin_pages/insights/scans/results/scan_results_pane_body.twig' with {
+				tab: tab,
+				vars: vars,
+				content: content
+			} only %}
+		</div>
+	{% endfor %}
+{% endset %}
+
+{% set rail_html %}
+	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
+		accent_status: rail_accent,
+		id: 'ScanResultsRailSidebar',
+		items: rail_items
+	} } only %}
+{% endset %}
+
+{% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
+	rail_html: rail_html,
+	content_html: pane_content
+} } only %}

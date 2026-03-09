@@ -181,6 +181,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
 		$tabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'tabs' ] : [], 'key' );
+		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
@@ -192,8 +193,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertContains( 'summary', $tabs );
 		$this->assertContains( 'wordpress', $tabs );
 		$this->assertNotContains( 'vulnerabilities', $tabs );
-		$this->assertStringContainsString( 'id="ScanResultsTabsNav"', $html );
-		$this->assertStringNotContainsString( 'ActionsQueueScansTabsNav', $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="ScanResultsTabs"]//*[@data-shield-rail-scope="1"]',
+			'Actions queue scans shell should render the scoped rail layout'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@id="ScanResultsTabsNav"]',
+			0,
+			'Actions queue scans shell should not render the legacy bootstrap tab nav'
+		);
 	}
 
 	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {

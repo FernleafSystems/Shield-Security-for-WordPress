@@ -1,0 +1,35 @@
+{% if tab.key == 'summary' %}
+	{% if vars.summary_rows|default([]) is not empty %}
+		{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+			items: vars.summary_rows
+		} only %}
+	{% else %}
+		{% include '/wpadmin/components/actions_queue/assessment_rows.twig' with {
+			items: vars.assessment_rows|default([])
+		} only %}
+	{% endif %}
+{% elseif tab.key == 'vulnerabilities' %}
+	{% set vulnerability_sections = vars.vulnerabilities.sections|default({}) %}
+	<div class="scan-results-section mt-3">
+		{% for section in vulnerability_sections %}
+			{% if section.items|default([]) is not empty %}
+				<div class="{% if not loop.first %}mt-3{% endif %}">
+					<div class="shield-mode-strip__eyebrow mb-2">{{ section.label }}</div>
+					{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+						items: section.items
+					} only %}
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+{% elseif tab.key == 'wordpress' %}
+	{{ content.section.wordpress|default('')|raw }}
+{% elseif tab.key == 'plugins' %}
+	{{ content.section.plugins|default('')|raw }}
+{% elseif tab.key == 'themes' %}
+	{{ content.section.themes|default('')|raw }}
+{% elseif tab.key == 'malware' %}
+	{{ content.section.malware|default('')|raw }}
+{% elseif tab.key == 'file_locker' %}
+	{{ content.section.filelocker|default('')|raw }}
+{% endif %}

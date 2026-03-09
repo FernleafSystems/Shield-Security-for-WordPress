@@ -11,6 +11,8 @@
 			<li class="shield-rail-sidebar__item{% if is_active %} is-active{% endif %}"
 				data-shield-rail-key="{{ item.key|default('')|e('html_attr') }}"
 				data-shield-rail-target="{{ item.key|default('')|e('html_attr') }}"
+				role="button"
+				tabindex="0"
 				aria-current="{{ is_active ? 'true' : 'false' }}">
 				<span class="shield-rail-sidebar__pip shield-rail-sidebar__pip--{{ item_status }}"></span>
 				<span class="shield-rail-sidebar__label">{{ item.label|default('') }}</span>

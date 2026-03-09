@@ -68,7 +68,7 @@
 						{% if zone.has_issues %}
 							{% set scans_results = vars.scans_results|default({}) %}
 							<div id="ScanResultsTabs" class="actions-landing__scan-results-shell">
-								{% include '/wpadmin_pages/insights/scans/results/scan_results.twig' with {
+								{% include '/wpadmin_pages/insights/scans/results/scan_results_rail.twig' with {
 									strings: scans_results.strings|default({}),
 									vars: scans_results.vars|default({}),
 									content: scans_results.content|default({})
