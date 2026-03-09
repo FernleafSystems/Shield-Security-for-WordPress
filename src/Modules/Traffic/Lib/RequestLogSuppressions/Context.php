@@ -67,6 +67,10 @@ class Context {
 		return (string)$this->requestParam( ActionData::FIELD_ACTION );
 	}
 
+	public function screenId() :string {
+		return \sanitize_key( (string)$this->requestParam( 'screen_id' ) );
+	}
+
 	/**
 	 * @return mixed
 	 */

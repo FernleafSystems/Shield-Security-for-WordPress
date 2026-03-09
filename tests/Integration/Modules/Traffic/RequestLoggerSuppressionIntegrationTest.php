@@ -115,6 +115,49 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 	}
 
+	public function test_logged_in_admin_heartbeat_requests_are_suppressed() :void {
+		$this->loginAsAdministrator();
+		$this->applyCurrentHeartbeatRequest( [
+			'screen_id' => 'toplevel_page_icwp-wpsf-plugin',
+		] );
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_logged_in_front_heartbeat_requests_remain_loggable() :void {
+		$this->loginAsAdministrator();
+		$this->applyCurrentHeartbeatRequest( [
+			'screen_id' => 'front',
+		] );
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_logged_in_heartbeat_requests_without_screen_id_remain_loggable() :void {
+		$this->loginAsAdministrator();
+		$this->applyCurrentHeartbeatRequest();
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_logged_out_admin_heartbeat_requests_remain_loggable() :void {
+		\wp_set_current_user( 0 );
+		$this->applyCurrentHeartbeatRequest( [
+			'screen_id' => 'toplevel_page_icwp-wpsf-plugin',
+		] );
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_logged_in_get_heartbeat_requests_remain_loggable() :void {
+		$this->loginAsAdministrator();
+		$this->applyCurrentHeartbeatRequest( [
+			'screen_id' => 'toplevel_page_icwp-wpsf-plugin',
+		], 'GET' );
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
 	public function test_live_monitor_batch_requests_are_suppressed_only_when_all_nested_requests_match() :void {
 		$this->loginAsSecurityAdmin();
 
@@ -249,6 +292,26 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 	private function permalinkRestRoot() :string {
 		$prefix = \function_exists( 'rest_get_url_prefix' ) ? \rest_get_url_prefix() : 'wp-json';
 		return \home_url( '/'.\trim( $prefix, '/' ).'/' );
+	}
+
+	private function applyCurrentHeartbeatRequest( array $post = [], string $method = 'POST' ) :void {
+		$this->applyCurrentRequestState(
+			[
+				'REQUEST_METHOD' => $method,
+				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
+			],
+			[],
+			\array_merge( [
+				'action'    => 'heartbeat',
+				'interval'  => '60',
+				'_nonce'    => 'integration-test-heartbeat',
+				'has_focus' => 'true',
+			], $post ),
+			[
+				'path'       => '/wp-admin/admin-ajax.php',
+				'wp_is_ajax' => true,
+			]
+		);
 	}
 
 	private function withTrafficLoggingEnabled( callable $callback ) {
