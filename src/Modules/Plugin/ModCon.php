@@ -156,19 +156,24 @@ class ModCon {
 
 	public function storeRealInstallDate() :int {
 		$key = self::con()->prefix( 'install_date', '_' );
-		$wpDate = Services::WpGeneral()->getOption( $key );
-		if ( empty( $wpDate ) ) {
-			$wpDate = Services::Request()->ts();
+		$now = Services::Request()->ts();
+		$wpDate = (int)Services::WpGeneral()->getOption( $key );
+		if ( $wpDate === 0 ) {
+			$wpDate = $now;
 		}
 
-		$date = self::con()->comps->opts_lookup->getInstalledAt();
-		if ( $date == 0 ) {
-			$date = Services::Request()->ts();
+		$date = (int)self::con()->comps->opts_lookup->getInstalledAt();
+		if ( $date === 0 ) {
+			$date = $now;
 		}
 
 		$finalDate = (int)\min( $date, $wpDate );
-		Services::WpGeneral()->updateOption( $key, $finalDate );
-		self::con()->opts->optSet( 'installation_time', $date );
+		if ( (int)Services::WpGeneral()->getOption( $key ) !== $finalDate ) {
+			Services::WpGeneral()->updateOption( $key, $finalDate );
+		}
+		if ( (int)self::con()->opts->optGet( 'installation_time' ) !== $finalDate ) {
+			self::con()->opts->optSet( 'installation_time', $finalDate );
+		}
 
 		return $finalDate;
 	}

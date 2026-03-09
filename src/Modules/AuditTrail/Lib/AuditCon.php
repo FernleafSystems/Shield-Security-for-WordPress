@@ -35,7 +35,7 @@ class AuditCon {
 	}
 
 	protected function run() {
-		if ( Services::WpGeneral()->isCron() ) {
+		if ( self::con()->this_req->wp_is_cron ) {
 			$this->setupCronHooks();
 		}
 
@@ -44,7 +44,8 @@ class AuditCon {
 		\array_map( fn( $auditor ) => $auditor->execute(), $this->getAuditors() );
 
 		// Realtime Snapshotting
-		if ( self::con()->db_con->activity_snapshots->isReady() ) {
+		if ( self::con()->db_con->activity_snapshots->isReady()
+			 && ( self::con()->this_req->wp_is_admin || self::con()->this_req->wp_is_cron ) ) {
 			// @phpstan-ignore return.void
 			add_action( 'wp_loaded', fn() => \array_map(
 				fn( $auditor ) => $auditor->canSnapRealtime() ? $this->runSnapshotDiscovery( $auditor ) : null,

@@ -25,17 +25,15 @@ class AlertHandlerFileLocker extends AlertHandlerBase {
 		return __( 'FileLocker Changes Detected', 'wp-simple-firewall' );
 	}
 
-	protected function run() {
-		add_action( 'wp_loaded', function () {
-			$data = [];
-			foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $lock ) {
-				if ( self::con()->db_con->file_locker->getQueryUpdater()->markNotified( $lock ) ) {
-					$data[ $lock->type ] = $lock->path;
-				}
+	public function captureOutstandingAlerts() :void {
+		$data = [];
+		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $lock ) {
+			if ( self::con()->db_con->file_locker->getQueryUpdater()->markNotified( $lock ) ) {
+				$data[ $lock->type ] = $lock->path;
 			}
-			if ( !empty( $data ) ) {
-				self::con()->comps->instant_alerts->updateAlertDataFor( $this, [ 'filelocker' => $data ] );
-			}
-		} );
+		}
+		if ( !empty( $data ) ) {
+			self::con()->comps->instant_alerts->updateAlertDataFor( $this, [ 'filelocker' => $data ] );
+		}
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
@@ -27,8 +28,11 @@ class Controller {
 	}
 
 	public function onWpLoaded() {
-		$this->getQueueBuilder();
-		$this->getQueueProcessor();
+		if ( $this->hasRunningScans()
+			 || ( self::con()->isPluginAdminPageRequest() && PluginNavs::GetNav() === PluginNavs::NAV_SCANS ) ) {
+			$this->getQueueBuilder();
+			$this->getQueueProcessor();
+		}
 	}
 
 	/**

@@ -14,7 +14,9 @@ class IntegrationsCon {
 	use PluginControllerConsumer;
 
 	protected function run() {
-		$this->autoIntegrations();
+		if ( self::con()->this_req->wp_is_admin || self::con()->this_req->wp_is_cron ) {
+			$this->autoIntegrations();
+		}
 	}
 
 	private function autoIntegrations() :void {
@@ -25,11 +27,12 @@ class IntegrationsCon {
 				'profile_hash'  => '',
 			], $opts->optGet( 'auto_integrations_track' ) );
 
+			$currentHash = $this->buildCurrentProfileHash();
 			if ( Services::Request()->carbon()->subMinute()->timestamp > $trk[ 'last_check_at' ]
-				 && !\hash_equals( $trk[ 'profile_hash' ], $this->buildCurrentProfileHash() ) ) {
+				 && !\hash_equals( $trk[ 'profile_hash' ], $currentHash ) ) {
 
 				$trk[ 'last_check_at' ] = Services::Request()->carbon()->timestamp;
-				$trk[ 'profile_hash' ] = $this->buildCurrentProfileHash();
+				$trk[ 'profile_hash' ] = $currentHash;
 				$opts->optSet( 'auto_integrations_track', $trk )->store();
 
 				$ints = $this->buildIntegrationsStates();

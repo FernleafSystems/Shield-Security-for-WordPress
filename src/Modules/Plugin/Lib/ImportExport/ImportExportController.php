@@ -25,8 +25,6 @@ class ImportExportController {
 	}
 
 	private function setupHooks() {
-		$this->getImportExportSecretKey();
-
 		( new NotifyWhitelist() )->execute();
 
 		add_action( 'shield/plugin_activated', function () {
