@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpMeta\{
 	IpMetaRecord,
 	LoadIpMeta
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
@@ -62,8 +63,20 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 				}
 				break;
 
+			case 'is_ip_high_reputation':
+				if ( \is_null( $value ) ) {
+					$this->is_ip_high_reputation = $value = ( new IsHighReputationIP() )
+						->setIP( $this->ip )
+						->query();
+				}
+				break;
+
 			case 'is_ip_blocked_shield_auto':
-				$value = apply_filters( 'shield/is_ip_blocked_auto', $this->getIpStatus()->hasAutoBlock() );
+				$value = $this->getIpStatus()->hasAutoBlock();
+				if ( $value && $this->is_ip_high_reputation ) {
+					$value = false;
+				}
+				$value = apply_filters( 'shield/is_ip_blocked_auto', $value );
 				break;
 
 			case 'is_ip_blocked_crowdsec':

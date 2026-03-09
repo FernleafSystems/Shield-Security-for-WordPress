@@ -54,7 +54,6 @@ class RuleBuilderEnumerator {
 			Core\IsRateLimitExceeded::class,
 
 			Core\IpWhitelisted::class,
-			Core\HighReputationIp::class,
 			Core\IpBlockedShield::class,
 			Core\IpBlockedCrowdsec::class,
 			Core\BotTrack404::class,

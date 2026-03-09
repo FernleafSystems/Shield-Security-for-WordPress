@@ -150,6 +150,13 @@ class OptsLookup {
 		return (int)self::con()->opts->optGet( 'installation_time' );
 	}
 
+	public function getIpHighReputationMinimum() :int {
+		return (int)apply_filters(
+			'shield/high_reputation_ip_minimum',
+			self::con()->opts->optGet( 'antibot_high_reputation_minimum' )
+		);
+	}
+
 	public function getIpAutoBlockTTL() :int {
 		return (int)\constant( \strtoupper( self::con()->opts->optGet( 'auto_expire' ).'_IN_SECONDS' ) );
 	}

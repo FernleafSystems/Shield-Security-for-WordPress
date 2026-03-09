@@ -15,6 +15,6 @@ class IsHighReputationIP {
 		return ( new CalculateVisitorBotScores() )
 				   ->setIP( $this->getIP() )
 				   ->total() >
-			   apply_filters( 'shield/high_reputation_ip_minimum', self::con()->opts->optGet( 'antibot_high_reputation_minimum' ) );
+			   self::con()->comps->opts_lookup->getIpHighReputationMinimum();
 	}
 }

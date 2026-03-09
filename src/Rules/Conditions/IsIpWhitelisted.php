@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-
 class IsIpWhitelisted extends Base {
 
 	use Traits\TypeShield;
@@ -15,7 +13,7 @@ class IsIpWhitelisted extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		return ( new IpRuleStatus( $this->req->ip ) )->isBypass();
+		return $this->req->getIpStatus()->isBypass();
 	}
 
 	protected function getPreviousResult() :?bool {
