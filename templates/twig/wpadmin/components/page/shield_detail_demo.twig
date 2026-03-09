@@ -1,0 +1,103 @@
+<h3 style="margin-bottom: 0.75rem;">Detail Rows - Various States</h3>
+
+<div class="shield-detail-item">
+	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+		status: 'good',
+		title: 'WordPress Core File Integrity',
+		description: 'No modified core files detected'
+	} } only %}
+</div>
+
+<div class="shield-detail-item">
+	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+		status: 'warning',
+		title: 'Yoast SEO',
+		description: 'v22.4 - Update available',
+		actions: [
+			{ type: 'update', label: 'Update to v22.5', href: '#', tooltip: 'Go to WordPress Updates page' }
+		]
+	} } only %}
+</div>
+
+<div class="shield-detail-item">
+	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+		status: 'critical',
+		title: 'WooCommerce',
+		description: '2 modified files - v8.5.2 - Vulnerable (SQL Injection, CVSSv3: 9.1)',
+		count_badge: 2,
+		expandable: true,
+		expand_target: 'demo-expand-woo',
+		actions: [
+			{ type: 'update', label: 'Update to v8.5.3', href: '#', tooltip: 'Go to WordPress Updates page' },
+			{ type: 'deactivate', label: 'Deactivate', href: '#', tooltip: 'Go to Plugins page to deactivate' }
+		]
+	} } only %}
+	{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+		id: 'demo-expand-woo',
+		type: 'table',
+		body: '<table><thead><tr><th>Status</th><th>File Path</th><th>Size</th></tr></thead><tbody><tr><td>Modified</td><td><code>woocommerce/includes/class-wc-cart.php</code></td><td>45.2 KB</td></tr><tr><td>Modified</td><td><code>woocommerce/includes/class-wc-order.php</code></td><td>32.1 KB</td></tr></tbody></table>'
+	} } only %}
+</div>
+
+<h3 style="margin: 1.5rem 0 0.75rem;">Configure Mode - Expandable with Gear Icon</h3>
+
+<div class="shield-detail-item">
+	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+		status: 'warning',
+		title: 'Web Application Firewall',
+		description: 'WAF is active but some rules are disabled',
+		show_gear: true,
+		expandable: true,
+		expand_target: 'demo-expand-waf',
+		explanations: [
+			'Directory traversal protection is disabled',
+			'PHP code inclusion filtering is disabled'
+		]
+	} } only %}
+	{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+		id: 'demo-expand-waf',
+		type: 'options',
+		status: 'warning',
+		body: '<div style="padding: 0.8rem 0.85rem; border-bottom: 1px solid #eaeef2;"><div style="font-size: 0.84rem; font-weight: 600;">Directory Traversal Protection</div><div style="color: #5f6974; font-size: 0.78rem; margin-top: 0.2rem;">Block file system traversal requests.</div></div><div style="padding: 0.8rem 0.85rem;"><div style="font-size: 0.84rem; font-weight: 600;">PHP Code Inclusion</div><div style="color: #5f6974; font-size: 0.78rem; margin-top: 0.2rem;">Block remote PHP file inclusion attempts.</div></div>'
+	} } only %}
+</div>
+
+<div class="shield-detail-item">
+	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+		status: 'good',
+		title: 'Basic Firewall',
+		description: 'All basic protections are active',
+		show_gear: true,
+		expandable: true,
+		expand_target: 'demo-expand-basic'
+	} } only %}
+	{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+		id: 'demo-expand-basic',
+		type: 'options',
+		body: '<div style="padding: 0.8rem 0.85rem;"><div style="font-size: 0.84rem; font-weight: 600;">Block XML-RPC</div><div style="color: #5f6974; font-size: 0.78rem; margin-top: 0.2rem;">Completely disable the XML-RPC system.</div></div>'
+	} } only %}
+</div>
+
+<h3 style="margin: 1.5rem 0 0.75rem;">Rail Sidebar</h3>
+
+<div style="max-width: 260px;">
+	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
+		accent_status: 'critical',
+		items: [
+			{ key: 'summary', label: 'Summary', status: 'critical', is_active: true },
+			{ key: 'plugins', label: 'Plugins', status: 'critical', count: 3 },
+			{ key: 'wordpress', label: 'WordPress', status: 'good' },
+			{ key: 'themes', label: 'Themes', status: 'good' },
+			{ key: 'vulns', label: 'Vulnerabilities', status: 'warning', count: 2 },
+			{ key: 'malware', label: 'Malware', status: 'good' },
+			{ key: 'filelocker', label: 'File Locker', status: 'good' }
+		]
+	} } only %}
+</div>
+
+<h3 style="margin: 1.5rem 0 0.75rem;">Full Rail Layout</h3>
+
+{% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
+	rail_html: '<div class="shield-rail-sidebar"><div class="shield-rail-sidebar__accent shield-rail-sidebar__accent--good"></div><ul class="shield-rail-sidebar__nav"><li class="shield-rail-sidebar__item is-active" data-shield-rail-key="demo"><span class="shield-rail-sidebar__pip shield-rail-sidebar__pip--good"></span><span class="shield-rail-sidebar__label">Demo Pane</span></li></ul></div>',
+	content_html: '<div style="padding: 1rem; background: #fff; border: 1px solid #d9dfd9; border-radius: 10px;">Content area renders here.</div>'
+} } only %}

@@ -1,0 +1,29 @@
+{% set expansion_data = expansion|default({}) %}
+{% set exp_type = expansion_data.type|default('custom') %}
+{% set exp_status = expansion_data.status|default('good') %}
+
+<div class="shield-detail-expansion"
+	 id="{{ expansion_data.id|default('')|e('html_attr') }}"
+	 data-shield-expand-body="1"
+	 aria-hidden="true">
+
+	{% if exp_type == 'options' %}
+		<div class="shield-detail-expansion__form shield-detail-expansion__form--{{ exp_status }}">
+			{{ expansion_data.body|default('')|raw }}
+			<div class="shield-detail-expansion__footer">
+				<button type="button" class="shield-detail-expansion__btn-cancel"
+						data-shield-expand-close="1">Cancel</button>
+				<button type="button" class="shield-detail-expansion__btn-save">Save Changes</button>
+			</div>
+		</div>
+	{% elseif exp_type == 'table' %}
+		<div class="shield-detail-expansion__table">
+			{{ expansion_data.body|default('')|raw }}
+		</div>
+	{% else %}
+		<div class="shield-detail-expansion__custom">
+			{{ expansion_data.body|default('')|raw }}
+		</div>
+	{% endif %}
+
+</div>

@@ -1,0 +1,10 @@
+{% set layout_data = layout|default({}) %}
+
+<div class="shield-rail-layout">
+	<div class="shield-rail-layout__sidebar">
+		{{ layout_data.rail_html|default('')|raw }}
+	</div>
+	<div class="shield-rail-layout__content">
+		{{ layout_data.content_html|default('')|raw }}
+	</div>
+</div>

@@ -1,0 +1,90 @@
+{% set row_data = row|default({}) %}
+{% set default_icons = {
+	'good': 'bi bi-check-circle-fill',
+	'warning': 'bi bi-exclamation-triangle-fill',
+	'critical': 'bi bi-x-circle-fill',
+	'info': 'bi bi-info-circle-fill',
+	'neutral': 'bi bi-dash-circle'
+} %}
+{% set default_labels = {
+	'good': 'Good',
+	'warning': 'Warning',
+	'critical': 'Critical',
+	'info': 'Info',
+	'neutral': 'Neutral'
+} %}
+{% set status = row_data.status|default('neutral') %}
+{% set icon = row_data.status_icon|default(default_icons[status]|default('bi bi-dash-circle')) %}
+{% set status_label = row_data.status_label|default(default_labels[status]|default('Status')) %}
+{% set badge_status = row_data.badge_status|default(status == 'neutral' ? 'info' : status) %}
+{% set expandable = row_data.expandable|default(false) %}
+{% set actions = row_data.actions|default([]) %}
+{% set explanations = row_data.explanations|default([]) %}
+
+<div class="shield-detail-row shield-detail-row--{{ status }}{% if expandable %} shield-detail-row--expandable{% endif %}"
+	 {% if expandable %}
+	 data-shield-expand-trigger="1"
+	 data-shield-expand-target="{{ row_data.expand_target|default('')|e('html_attr') }}"
+	 role="button"
+	 tabindex="0"
+	 aria-expanded="false"
+	 {% endif %}>
+	<div class="shield-detail-row__icons">
+		<span class="shield-detail-row__status-icon shield-detail-row__status-icon--{{ status }}"
+			  role="img"
+			  aria-label="{{ status_label|e('html_attr') }}">
+			<i class="{{ icon }}"></i>
+		</span>
+		{% if row_data.show_gear|default(false) %}
+			<span class="shield-detail-row__gear-icon" aria-hidden="true">
+				<i class="bi bi-gear-fill"></i>
+			</span>
+		{% endif %}
+	</div>
+
+	<div class="shield-detail-row__copy">
+		<div class="shield-detail-row__heading">
+			<span class="shield-detail-row__title">{{ row_data.title|default('') }}</span>
+			{% if row_data.count_badge|default(null) is not null and row_data.count_badge > 0 %}
+				<span class="shield-badge badge-{{ badge_status }}">{{ row_data.count_badge }}</span>
+			{% endif %}
+		</div>
+
+		{% if row_data.description|default('') is not empty %}
+			<div class="shield-detail-row__desc">{{ row_data.description }}</div>
+		{% endif %}
+
+		{% if explanations is not empty and status in [ 'warning', 'critical' ] %}
+			<ul class="shield-detail-row__explanations">
+				{% for explanation in explanations %}
+					<li>
+						<span class="shield-detail-row__expl-icon" aria-hidden="true">
+							<i class="bi bi-exclamation-circle-fill"></i>
+						</span>
+						<span>{{ explanation }}</span>
+					</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+
+		{% if actions is not empty %}
+			<div class="shield-detail-row__actions">
+				{% for action in actions %}
+					{% set chip_icon = action.icon|default(action.type == 'update' ? 'bi bi-arrow-up-circle-fill' : 'bi bi-power') %}
+					<a href="{{ action.href|default('#') }}"
+					   class="shield-action-chip shield-action-chip--{{ action.type|default('update') }}"
+					   onclick="event.stopPropagation()"
+					   data-bs-toggle="tooltip"
+					   data-bs-title="{{ action.tooltip|default('')|e('html_attr') }}">
+						<i class="{{ chip_icon }}"></i>
+						{{ action.label|default('') }}
+					</a>
+				{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+
+	{% if expandable %}
+		<i class="bi bi-chevron-right shield-detail-row__chevron" aria-hidden="true"></i>
+	{% endif %}
+</div>
