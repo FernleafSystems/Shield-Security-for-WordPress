@@ -1,42 +1,7 @@
-<div class="row mt-3 nav-vertical scan-results-section" id="ScanResultsPlugins">
-
-	<div class="col-2">
-		<ul class="nav nav-tabs flex-column">
-			{% for plugin_key,plugin in vars.plugins %}
-				<li class="nav-item mb-2">
-					<a class="nav-link position-relative"
-					   href="#plugin-tab-{{ plugin.info.slug }}"
-					   data-bs-toggle="tab"
-					   data-asset_type="plugin"
-					   data-unique_id="{{ plugin.info.unique_id }}"
-					>
-						{% if plugin.vars.count_items > 0 %}
-							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-							</span>
-						{% elseif plugin.flags.has_warning %}
-							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-warning border border-light rounded-circle">
-							</span>
-						{% else %}
-							<span class="position-absolute top-0 start-100 translate-middle p-2 bg-success border border-light rounded-circle">
-							</span>
-						{% endif %}
-						{{ plugin.info.name }}
-					</a>
-				</li>
-			{% endfor %}
-		</ul>
+<div class="row mt-3 scan-results-section" id="ScanResultsPlugins">
+	<div class="col-12">
+		{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+			items: vars.plugins|default([])
+		} only %}
 	</div>
-
-	<div class="col-10">
-		<div class="tab-content">
-			{% for plugin_key,plugin in vars.plugins %}
-				<div class="tab-pane"
-					 id="plugin-tab-{{ plugin.info.slug }}"
-					 role="tabpanel"
-					 aria-labelledby="profile-tab"
-				></div>
-			{% endfor %}
-		</div>
-	</div>
-
 </div>

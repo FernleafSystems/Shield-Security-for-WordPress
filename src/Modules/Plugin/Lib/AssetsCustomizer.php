@@ -19,7 +19,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForSessions,
 	ForTraffic,
 	Scans\ForMalware,
-	Scans\ForPluginTheme,
 	Scans\ForWordpress
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -420,8 +419,6 @@ class AssetsCustomizer {
 						'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
 						'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
 
-						'render_asset_results_panel' => ActionData::Build( Components\Scans\Results\AssetResultsPanel::class ),
-
 						'form_scan_results_display_submit' => ActionData::Build( Actions\ScanResultsDisplayFormSubmit::class ),
 						'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),
 					],
@@ -457,23 +454,6 @@ class AssetsCustomizer {
 								'vars' => [
 									'table_selector'  => '#ShieldTable-ScanResultsWordpress',
 									'datatables_init' => ( new ForWordpress() )->buildRaw(),
-								],
-							],
-							'plugin_theme' => [
-								'ajax'    => [
-									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class ),
-								],
-								'strings' => [
-									'select_action'            => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
-									'are_you_sure'             => __( 'Are you sure?', 'wp-simple-firewall' ),
-									'absolutely_sure'          => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
-									'downloading_file'         => __( 'Downloading file, please wait...', 'wp-simple-firewall' ),
-									'downloading_file_problem' => __( 'There was a problem downloading the file.', 'wp-simple-firewall' ),
-								],
-								'vars'    => [
-									'table_selector'  => '.shield-section-datatable .table-for-plugintheme',
-									'datatables_init' => ( new ForPluginTheme() )->buildRaw(),
 								],
 							],
 						],

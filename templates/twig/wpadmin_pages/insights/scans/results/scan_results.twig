@@ -1,100 +1,64 @@
 <ul class="nav nav-tabs shield_body-sub-nav" id="ScanResultsTabsNav" role="tablist">
-
-	<li class="nav-item">
-		<a class="nav-link active" id="h-tabs-wordpress-tab"
-		   data-bs-toggle="tab"
-		   data-bs-target="#h-tabs-wordpress"
-		   role="tab" aria-controls="h-tabs-wordpress">
-			{{ strings.results_tab_wordpress }}
-			{% if vars.sections.wordpress.count > 0 %}
-				<span class="badge bg-danger">{{ vars.sections.wordpress.count }}</span>
-			{% else %}
-				<span class="badge bg-success">&check;</span>
-			{% endif %}
-		</a>
-	</li>
-
-	<li class="nav-item">
-		<a class="nav-link"
-		   id="h-tabs-plugins-tab"
-		   data-bs-toggle="tab"
-		   data-bs-target="#h-tabs-plugins"
-		   role="tab" aria-controls="h-tabs-plugins">
-			{{ strings.results_tab_plugins }}
-			{% if vars.sections.plugins.count > 0 %}
-				<span class="badge bg-danger ">{{ vars.sections.plugins.count }}</span>
-			{% else %}
-				<span class="badge bg-success">&check;</span>
-			{% endif %}
-		</a>
-	</li>
-
-	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-themes-tab"
-		   data-bs-toggle="tab"
-		   data-bs-target="#h-tabs-themes"
-		   role="tab"
-		   aria-controls="h-tabs-themes">
-			{{ strings.results_tab_themes }}
-			{% if vars.sections.themes.count > 0 %}
-				<span class="badge bg-danger">{{ vars.sections.themes.count }}</span>
-			{% else %}
-				<span class="badge bg-success">&check;</span>
-			{% endif %}
-		</a>
-	</li>
-
-	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-malware-tab" data-bs-toggle="tab" href="#h-tabs-malware"
-		   role="tab" aria-controls="h-tabs-malware">
-			{{ strings.results_tab_malware }}
-			{% if vars.sections.malware.count > 0 %}
-				<span class="badge bg-danger">{{ vars.sections.malware.count }}</span>
-			{% else %}
-				<span class="badge bg-success">&check;</span>
-			{% endif %}
-		</a>
-	</li>
-
-	<li class="nav-item">
-		<a class="nav-link" id="h-tabs-file_locker-tab" data-bs-toggle="tab" href="#h-tabs-file_locker"
-		   role="tab" aria-controls="h-tabs-file_locker">
-
-			{{ file_locker.strings.title }}
-			{% if file_locker.count > 0 %}
-				<span class="badge bg-danger">{{ file_locker.count }}</span>
-			{% else %}
-				<span class="badge bg-success">&check;</span>
-			{% endif %}
-		</a>
-	</li>
-
+	{% for tab in vars.tabs|default([]) %}
+		<li class="nav-item">
+			<a class="nav-link{% if tab.is_active|default(false) %} active{% endif %}"
+			   id="{{ tab.nav_id }}"
+			   data-bs-toggle="tab"
+			   data-bs-target="{{ tab.target }}"
+			   role="tab"
+			   aria-controls="{{ tab.controls }}">
+				{{ tab.label }}
+				{% if tab.count > 0 %}
+					<span class="badge bg-danger">{{ tab.count }}</span>
+				{% else %}
+					<span class="badge bg-success">&check;</span>
+				{% endif %}
+			</a>
+		</li>
+	{% endfor %}
 </ul>
 
 <div class="tab-content mb-3">
-
-	<div class="tab-pane show active" id="h-tabs-wordpress" role="tabpanel"
-		 aria-labelledby="h-tabs-wordpress-tab">
-		{{ content.section.wordpress|raw }}
-	</div>
-
-	<div class="tab-pane" id="h-tabs-plugins" role="tabpanel"
-		 aria-labelledby="h-tabs-plugins-tab">
-		{{ content.section.plugins|raw }}
-	</div>
-
-	<div class="tab-pane" id="h-tabs-themes" role="tabpanel"
-		 aria-labelledby="h-tabs-themes-tab">
-		{{ content.section.themes|raw }}
-	</div>
-
-	<div class="tab-pane" id="h-tabs-malware" role="tabpanel"
-		 aria-labelledby="h-tabs-malware-tab">
-		{{ content.section.malware|raw }}
-	</div>
-
-	<div class="tab-pane" id="h-tabs-file_locker" role="tabpanel"
-		 aria-labelledby="h-tabs-file_locker-tab">
-		{{ content.section.filelocker|raw }}
-	</div>
+	{% for tab in vars.tabs|default([]) %}
+		<div class="tab-pane{% if tab.is_active|default(false) %} show active{% endif %}"
+			 id="{{ tab.pane_id }}"
+			 role="tabpanel"
+			 aria-labelledby="{{ tab.nav_id }}">
+			{% if tab.key == 'summary' %}
+				{% if vars.summary_rows|default([]) is not empty %}
+					{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+						items: vars.summary_rows
+					} only %}
+				{% else %}
+					{% include '/wpadmin/components/actions_queue/assessment_rows.twig' with {
+						items: vars.assessment_rows|default([])
+					} only %}
+				{% endif %}
+			{% elseif tab.key == 'vulnerabilities' %}
+				{% set vulnerability_sections = vars.vulnerabilities.sections|default({}) %}
+				<div class="scan-results-section mt-3">
+					{% for section in vulnerability_sections %}
+						{% if section.items|default([]) is not empty %}
+							<div class="{% if not loop.first %}mt-3{% endif %}">
+								<div class="shield-mode-strip__eyebrow mb-2">{{ section.label }}</div>
+								{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
+									items: section.items
+								} only %}
+							</div>
+						{% endif %}
+					{% endfor %}
+				</div>
+			{% elseif tab.key == 'wordpress' %}
+				{{ content.section.wordpress|raw }}
+			{% elseif tab.key == 'plugins' %}
+				{{ content.section.plugins|raw }}
+			{% elseif tab.key == 'themes' %}
+				{{ content.section.themes|raw }}
+			{% elseif tab.key == 'malware' %}
+				{{ content.section.malware|raw }}
+			{% elseif tab.key == 'file_locker' %}
+				{{ content.section.filelocker|raw }}
+			{% endif %}
+		</div>
+	{% endfor %}
 </div>

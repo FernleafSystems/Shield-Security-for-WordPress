@@ -37,6 +37,12 @@ class PluginURLs {
 		] );
 	}
 
+	public function actionsQueueScans( string $zone = 'scans' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW );
+		$zone = sanitize_key( $zone );
+		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
+	}
+
 	/**
 	 * Build a clean redirect URL from HTTP referer, preserving only nav parameters.
 	 * Falls back to adminHome() if referer is invalid or not a Shield page.

@@ -122,7 +122,7 @@ class AttentionItemsProvider {
 	public function buildScanItems() :array {
 		$scansCon = self::con()->comps->scans;
 		$counter = $scansCon->getScanResultsCount();
-		$scansResultsLink = self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS );
+		$scansResultsLink = self::con()->plugin_urls->actionsQueueScans();
 
 		$items = \array_values( \array_filter( [
 			$this->buildItem(

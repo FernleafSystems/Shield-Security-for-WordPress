@@ -15,17 +15,17 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	public function test_build_prefers_summary_rows_and_hides_empty_asset_and_vulnerability_tabs() :void {
 		$builder = new ScansResultsViewBuilderTestDouble(
-			summaryRows: [
+			[
 				[ 'key' => 'wp_files', 'label' => 'WP Files', 'count' => 2 ],
 			],
-			assessmentRows: [
+			[
 				[ 'key' => 'assessment', 'label' => 'Assessment' ],
 			],
-			wordpressPayload: $this->buildSectionPayload( 'rendered-wordpress', 2 ),
-			pluginsPayload: $this->buildSectionPayload( 'rendered-plugins', 0 ),
-			themesPayload: $this->buildSectionPayload( 'rendered-themes', 3 ),
-			malwarePayload: $this->buildSectionPayload( 'rendered-malware', 1 ),
-			fileLockerPayload: [
+			$this->buildSectionPayload( 'rendered-wordpress', 2 ),
+			$this->buildSectionPayload( 'rendered-plugins', 0 ),
+			$this->buildSectionPayload( 'rendered-themes', 3 ),
+			$this->buildSectionPayload( 'rendered-malware', 1 ),
+			[
 				'render_output' => 'rendered-file-locker',
 				'render_data'   => [
 					'vars' => [
@@ -35,12 +35,12 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 					],
 				],
 			],
-			vulnerabilities: [
+			[
 				'count'    => 0,
 				'status'   => 'good',
 				'sections' => [],
 			],
-			wordpressEnabled: true
+			true
 		);
 
 		$renderData = $builder->build();
@@ -55,15 +55,15 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	public function test_build_uses_assessment_rows_when_summary_is_empty_and_shows_vulnerabilities() :void {
 		$builder = new ScansResultsViewBuilderTestDouble(
-			summaryRows: [],
-			assessmentRows: [
+			[],
+			[
 				[ 'key' => 'wp_files', 'label' => 'WordPress Core Files' ],
 			],
-			wordpressPayload: $this->buildSectionPayload( 'rendered-wordpress', 9 ),
-			pluginsPayload: $this->buildSectionPayload( 'rendered-plugins', 4 ),
-			themesPayload: $this->buildSectionPayload( 'rendered-themes', 0 ),
-			malwarePayload: $this->buildSectionPayload( 'rendered-malware', 0 ),
-			fileLockerPayload: [
+			$this->buildSectionPayload( 'rendered-wordpress', 9 ),
+			$this->buildSectionPayload( 'rendered-plugins', 4 ),
+			$this->buildSectionPayload( 'rendered-themes', 0 ),
+			$this->buildSectionPayload( 'rendered-malware', 0 ),
+			[
 				'render_output' => 'rendered-file-locker',
 				'render_data'   => [
 					'vars' => [
@@ -73,7 +73,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 					],
 				],
 			],
-			vulnerabilities: [
+			[
 				'count'    => 2,
 				'status'   => 'critical',
 				'sections' => [
@@ -91,7 +91,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 					],
 				],
 			],
-			wordpressEnabled: false
+			false
 		);
 
 		$renderData = $builder->build();
@@ -123,17 +123,36 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
+	private array $summaryRows;
+	private array $assessmentRows;
+	private array $wordpressPayload;
+	private array $pluginsPayload;
+	private array $themesPayload;
+	private array $malwarePayload;
+	private array $fileLockerPayload;
+	private array $vulnerabilities;
+	private bool $wordpressEnabled;
+
 	public function __construct(
-		private array $summaryRows,
-		private array $assessmentRows,
-		private array $wordpressPayload,
-		private array $pluginsPayload,
-		private array $themesPayload,
-		private array $malwarePayload,
-		private array $fileLockerPayload,
-		private array $vulnerabilities,
-		private bool $wordpressEnabled
+		array $summaryRows,
+		array $assessmentRows,
+		array $wordpressPayload,
+		array $pluginsPayload,
+		array $themesPayload,
+		array $malwarePayload,
+		array $fileLockerPayload,
+		array $vulnerabilities,
+		bool $wordpressEnabled
 	) {
+		$this->summaryRows = $summaryRows;
+		$this->assessmentRows = $assessmentRows;
+		$this->wordpressPayload = $wordpressPayload;
+		$this->pluginsPayload = $pluginsPayload;
+		$this->themesPayload = $themesPayload;
+		$this->malwarePayload = $malwarePayload;
+		$this->fileLockerPayload = $fileLockerPayload;
+		$this->vulnerabilities = $vulnerabilities;
+		$this->wordpressEnabled = $wordpressEnabled;
 	}
 
 	protected function cleanScanResultsState() :void {

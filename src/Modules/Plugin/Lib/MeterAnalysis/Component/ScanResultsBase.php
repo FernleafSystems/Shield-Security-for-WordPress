@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-
 abstract class ScanResultsBase extends Base {
 
 	public const WEIGHT = 6;
@@ -15,7 +13,7 @@ abstract class ScanResultsBase extends Base {
 	abstract protected function countResults() :int;
 
 	protected function hrefFull() :string {
-		return self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS );
+		return self::con()->plugin_urls->actionsQueueScans();
 	}
 
 	protected function isCritical() :bool {

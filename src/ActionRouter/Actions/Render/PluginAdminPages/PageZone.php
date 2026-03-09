@@ -46,7 +46,7 @@ class PageZone extends BasePluginAdminPage {
 			case Scans::Slug():
 				$hrefs[] = [
 					'title' => CommonDisplayStrings::get( 'view_scan_results_label' ),
-					'href'  => $URLs->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+					'href'  => $URLs->actionsQueueScans(),
 				];
 				break;
 

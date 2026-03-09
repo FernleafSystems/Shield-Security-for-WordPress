@@ -11,14 +11,9 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	PageActionsQueueLanding,
-	PageScansResults
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -191,25 +186,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			\array_column( (array)( $allClear[ 'zone_chips' ] ?? [] ), 'slug' )
 		);
 		$this->assertSame(
-			$this->capture->scansResultsPayload[ 'render_data' ],
+			$this->capture->scansResultsRenderData,
 			$vars[ 'scans_results' ] ?? []
 		);
-		$this->assertSame( 0, (int)( $vars[ 'scans_vulnerabilities' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'good', (string)( $vars[ 'scans_vulnerabilities' ][ 'status' ] ?? '' ) );
-
-		$scanResultsCalls = \array_values( \array_filter(
-			$this->capture->actionCalls,
-			static fn( array $call ) :bool => ( $call[ 'action' ] ?? '' ) === PageScansResults::class
-		) );
-		$this->assertCount( 1, $scanResultsCalls );
-		$this->assertSame(
-			PluginNavs::NAV_SCANS,
-			$scanResultsCalls[ 0 ][ 'action_data' ][ Constants::NAV_ID ] ?? ''
-		);
-		$this->assertSame(
-			PluginNavs::SUBNAV_SCANS_RESULTS,
-			$scanResultsCalls[ 0 ][ 'action_data' ][ Constants::NAV_SUB_ID ] ?? ''
-		);
+		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
 	public function test_scans_results_payload_is_not_loaded_when_scans_zone_has_no_items() :void {
@@ -230,13 +210,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( [], $vars[ 'scans_results' ] ?? null );
-		$this->assertSame( [], $vars[ 'scans_vulnerabilities' ][ 'items' ] ?? null );
-
-		$scanResultsCalls = \array_values( \array_filter(
-			$this->capture->actionCalls,
-			static fn( array $call ) :bool => ( $call[ 'action' ] ?? '' ) === PageScansResults::class
-		) );
-		$this->assertCount( 0, $scanResultsCalls );
+		$this->assertSame( 0, $page->getScansResultsBuildCalls() );
 	}
 
 	public function test_landing_hrefs_reuse_existing_scan_and_wp_admin_routes() :void {
@@ -245,7 +219,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame(
 			[
-				'scan_results' => '/admin/scans/results',
+				'scan_results' => '/admin/scans/overview?zone=scans',
 				'wp_updates'   => '/wp-admin/update-core.php',
 			],
 			$hrefs
@@ -387,35 +361,25 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$this->capture->actionCalls,
 			static fn( array $call ) :bool => ( $call[ 'action' ] ?? '' ) === NeedsAttentionQueue::class
 		) );
-		$scanResultsCalls = \array_values( \array_filter(
-			$this->capture->actionCalls,
-			static fn( array $call ) :bool => ( $call[ 'action' ] ?? '' ) === PageScansResults::class
-		) );
 
 		$this->assertCount( 1, $queueCalls );
 		$this->assertSame( [ 'compact_all_clear' => true ], $queueCalls[ 0 ][ 'action_data' ] ?? [] );
-		$this->assertCount( 1, $scanResultsCalls );
+		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
 	private function installControllerStub() :void {
 		$this->capture = (object)[
-			'actionCalls'        => [],
-			'queuePayload'       => $this->buildQueuePayload( false, 0, 'good', '', [] ),
-			'scansResultsPayload' => [
-				'render_data' => [
-					'strings'     => [
-						'results_tab_wordpress' => 'WordPress',
-					],
-					'vars'        => [
-						'sections' => [],
-					],
-					'content'     => [
-						'section' => [],
-					],
-					'flags'       => [],
-					'hrefs'       => [],
-					'imgs'        => [],
-					'file_locker' => [],
+			'actionCalls'           => [],
+			'queuePayload'          => $this->buildQueuePayload( false, 0, 'good', '', [] ),
+			'scansResultsRenderData' => [
+				'strings' => [
+					'results_tab_wordpress' => 'WordPress',
+				],
+				'vars'    => [
+					'tabs' => [],
+				],
+				'content' => [
+					'section' => [],
 				],
 			],
 		];
@@ -425,6 +389,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$controller->plugin_urls = new class {
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
+			}
+
+			public function actionsQueueScans( string $zone = 'scans' ) :string {
+				return '/admin/scans/overview?zone='.$zone;
 			}
 		};
 		$controller->svgs = new class {
@@ -488,9 +456,6 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				if ( $action === NeedsAttentionQueue::class ) {
 					$payload = $this->capture->queuePayload;
 				}
-				elseif ( $action === PageScansResults::class ) {
-					$payload = $this->capture->scansResultsPayload;
-				}
 
 				return new class( $payload ) {
 					private array $payload;
@@ -521,7 +486,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 */
 	private function newPage( ?array $assessmentRowsByZone = null, array $actionData = [] ) :PageActionsQueueLanding {
 		$page = new PageActionsQueueLandingUnitTestDouble(
-			$assessmentRowsByZone ?? $this->buildDefaultAssessmentRowsByZone()
+			$assessmentRowsByZone ?? $this->buildDefaultAssessmentRowsByZone(),
+			$this->capture->scansResultsRenderData
 		);
 		$page->action_data = $actionData;
 		return $page;
@@ -764,6 +730,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 
+	private int $scansResultsBuildCalls = 0;
+	private array $assessmentRowsByZone;
+	private array $scansResultsRenderData;
+
 	/**
 	 * @param array<string,list<array{
 	 *   key:string,
@@ -773,11 +743,26 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	 *   status_label:string,
 	 *   status_icon_class:string
 	 * }>> $assessmentRowsByZone
+	 * @param array<string,mixed> $scansResultsRenderData
 	 */
-	public function __construct( private array $assessmentRowsByZone ) {
+	public function __construct(
+		array $assessmentRowsByZone,
+		array $scansResultsRenderData
+	) {
+		$this->assessmentRowsByZone = $assessmentRowsByZone;
+		$this->scansResultsRenderData = $scansResultsRenderData;
 	}
 
 	protected function buildAssessmentRowsByZone() :array {
 		return $this->assessmentRowsByZone;
+	}
+
+	protected function buildScansResultsRenderData() :array {
+		++$this->scansResultsBuildCalls;
+		return $this->scansResultsRenderData;
+	}
+
+	public function getScansResultsBuildCalls() :int {
+		return $this->scansResultsBuildCalls;
 	}
 }

@@ -1,57 +1,27 @@
-import $ from 'jquery';
 import { BaseComponent } from "../BaseComponent";
-import { ScansActionAbandonedPlugins } from "./ScansActionAbandonedPlugins";
 import { ShieldTablesScanResultsHandler } from "../tables/ShieldTablesScanResultsHandler";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
-import { ShieldTableScanResults } from "../tables/ShieldTableScanResults";
 import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
 
 export class ScansResults extends BaseComponent {
 
 	init() {
-		$( '.nav-vertical a[data-bs-toggle="tab"]' ).on( 'shown.bs.tab', ( evt ) => {
-			window.scrollTo( { top: 0, behavior: 'smooth' } )
-		} );
 		this.bindModePanelOpenAdjustHandler();
 		this.exec();
 	}
 
 	run() {
-		new ScansActionAbandonedPlugins( this._base_data );
 		new ShieldTablesScanResultsHandler( this._base_data.vars.scan_results_tables );
 
-		this.handlePluginThemeTables();
+		this.handleResultsTabs();
 		this.handleScanResultsDisplayForm();
 	}
 
-	handlePluginThemeTables() {
-		this.loadedAssets = [];
-
-		shieldEventsHandler_Main.addHandler( 'shown.bs.tab', '#ScanResultsTabsNav a.nav-link[data-bs-toggle="tab"]', ( targetEl, evt ) => {
+	handleResultsTabs() {
+		shieldEventsHandler_Main.addHandler( 'shown.bs.tab', '#ScanResultsTabsNav a.nav-link[data-bs-toggle="tab"]', ( targetEl ) => {
 			this.handleScanResultsTabShown( targetEl );
-
-			if ( targetEl.id === 'h-tabs-plugins-tab' || targetEl.id === 'h-tabs-themes-tab' ) {
-				const tabPane = document.getElementById( targetEl.dataset[ 'bsTarget' ].slice( 1 ) ) || false;
-				const selectedSubTab = tabPane.querySelectorAll( '.scan-results-section ul.nav-tabs a.active' );
-				if ( selectedSubTab.length === 0 ) {
-					let first = tabPane.querySelector( '.scan-results-section ul.nav-tabs a' );
-					if ( first ) {
-						first.click();
-					}
-				}
-			}
-		} );
-		shieldEventsHandler_Main.addHandler( 'shown.bs.tab', '#ActionsQueueScansTabsNav a.nav-link[data-bs-toggle="tab"]', ( targetEl ) => {
-			this.handleScanResultsTabShown( targetEl );
-		} );
-
-		shieldEventsHandler_Main.add_Click( '.scan-results-section ul.nav-tabs a', ( targetEl ) => {
-			this.handleDisplayScanResultsForAsset( targetEl );
-		} );
-		shieldEventsHandler_Main.add_DblClick( '.scan-results-section ul.nav-tabs a', ( targetEl ) => {
-			this.handleDisplayScanResultsForAsset( targetEl, true );
 		} );
 	}
 
@@ -74,36 +44,6 @@ export class ScansResults extends BaseComponent {
 		const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
 		const paneEl = paneSelector.startsWith( '#' ) ? document.querySelector( paneSelector ) : null;
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( paneEl || document );
-	}
-
-	handleDisplayScanResultsForAsset( targetEl, forceReload = false ) {
-		const tabContent = document.getElementById( targetEl.getAttribute( 'href' ).slice( 1 ) ) || false;
-		if ( tabContent ) {
-			const key = 'asset-' + targetEl.dataset.type + targetEl.dataset.unique_id;
-			if ( forceReload || !this.loadedAssets.includes( key ) ) {
-				tabContent.innerHTML = '';
-
-				( new AjaxService() )
-				.send( ObjectOps.Merge(
-					this._base_data.ajax.render_asset_results_panel,
-					targetEl.dataset
-				) )
-				.then( ( resp ) => {
-					this.loadedAssets.push( key );
-					tabContent.innerHTML = resp.data.html;
-
-					let assetTableData = ObjectOps.ObjClone( this._base_data.vars.scan_results_tables[ 'plugin_theme' ] );
-					const tableEl = tabContent.querySelector( assetTableData.vars.table_selector );
-					if ( tableEl && tableEl.id ) {
-						assetTableData.vars.table_selector = '#' + tableEl.id;
-						assetTableData.ajax.table_action.type = tableEl.dataset.type;
-						assetTableData.ajax.table_action.file = tableEl.dataset.file;
-						new ShieldTableScanResults( assetTableData );
-					}
-				} )
-				.finally();
-			}
-		}
 	}
 
 	handleScanResultsDisplayForm() {

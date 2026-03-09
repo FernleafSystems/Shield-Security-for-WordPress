@@ -146,7 +146,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', (string)( $itemsByKey[ 'wp_plugins_updates' ][ 'cta' ][ 'href' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $itemsByKey[ 'wp_plugins_updates' ][ 'cta' ][ 'label' ] ?? '' ) );
 		$this->assertSame(
-			self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+			self::con()->plugin_urls->actionsQueueScans(),
 			(string)( $renderData[ 'hrefs' ][ 'scan_results' ] ?? '' )
 		);
 		$this->assertSame( Services::WpGeneral()->getAdminUrl_Updates(), (string)( $renderData[ 'hrefs' ][ 'wp_updates' ] ?? '' ) );
@@ -157,13 +157,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing scans state' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing scans state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
-		$vulnerabilities = \is_array( $vars[ 'scans_vulnerabilities' ] ?? null ) ? $vars[ 'scans_vulnerabilities' ] : [];
+		$tabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'tabs' ] : [], 'key' );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
@@ -172,9 +172,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'scans', (string)( $scans[ 'panel_target' ] ?? '' ) );
 		$this->assertGreaterThan( 0, (int)( $scans[ 'total_issues' ] ?? 0 ) );
 		$this->assertNotEmpty( $scansResults );
-		$this->assertSame( 0, (int)( $vulnerabilities[ 'count' ] ?? -1 ) );
-		$this->assertSame( 'good', (string)( $vulnerabilities[ 'status' ] ?? '' ) );
-		$this->assertIsArray( $vulnerabilities[ 'items' ] ?? null );
+		$this->assertContains( 'summary', $tabs );
+		$this->assertContains( 'wordpress', $tabs );
+		$this->assertNotContains( 'vulnerabilities', $tabs );
+		$this->assertStringContainsString( 'id="ScanResultsTabsNav"', $html );
+		$this->assertStringNotContainsString( 'ActionsQueueScansTabsNav', $html );
 	}
 
 	public function test_scans_assessment_rows_include_plugin_files_only_when_only_plugin_scan_area_is_enabled() :void {
@@ -229,5 +231,62 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertContains( 'plugin_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
 		$this->assertContains( 'theme_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+	}
+
+	public function test_scans_results_shell_shows_plugin_theme_and_vulnerability_tabs_only_when_findings_exist() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+			'scan_vulnerabilities',
+		] );
+
+		$this->requireController()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'enable_wpvuln_scan', 'Y' )
+			->optSet( 'enabled_scan_apc', 'Y' )
+			->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$themeSlug = \wp_get_theme()->get_stylesheet();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'     => 'theme-file.php',
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'       => $themeSlug,
+			'is_abandoned'  => 1,
+		] );
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing shared scan results tabs' );
+		$scansResults = \is_array( $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ] ?? null )
+			? $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ]
+			: [];
+		$tabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'tabs' ] : [], 'key' );
+		$vulnerabilitySections = \is_array( $scansResults[ 'vars' ][ 'vulnerabilities' ][ 'sections' ] ?? null )
+			? $scansResults[ 'vars' ][ 'vulnerabilities' ][ 'sections' ]
+			: [];
+
+		$this->assertContains( 'plugins', $tabs );
+		$this->assertContains( 'themes', $tabs );
+		$this->assertContains( 'vulnerabilities', $tabs );
+		$this->assertNotEmpty( $vulnerabilitySections[ 'vulnerable' ][ 'items' ] ?? [] );
+		$this->assertNotEmpty( $vulnerabilitySections[ 'abandoned' ][ 'items' ] ?? [] );
 	}
 }

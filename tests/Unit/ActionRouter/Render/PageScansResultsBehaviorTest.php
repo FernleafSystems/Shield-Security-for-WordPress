@@ -100,8 +100,10 @@ class PageScansResultsBehaviorTest extends BaseUnitTest {
 class PageScansResultsUnitTestDouble extends PageScansResults {
 
 	private int $buildCalls = 0;
+	private array $scansResultsRenderData;
 
-	public function __construct( private array $scansResultsRenderData ) {
+	public function __construct( array $scansResultsRenderData ) {
+		$this->scansResultsRenderData = $scansResultsRenderData;
 	}
 
 	protected function buildScansResultsRenderData() :array {

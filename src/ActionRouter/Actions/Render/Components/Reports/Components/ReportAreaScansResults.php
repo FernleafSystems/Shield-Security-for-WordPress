@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,7 +24,7 @@ class ReportAreaScansResults extends ReportAreaBase {
 				'has_results' => $totalResults > 0,
 			],
 			'hrefs'   => [
-				'view_scan_results' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'view_scan_results' => self::con()->plugin_urls->actionsQueueScans(),
 			],
 			'strings' => [
 				'view_scan_results' => __( 'View Scan Results In-Full', 'wp-simple-firewall' ),

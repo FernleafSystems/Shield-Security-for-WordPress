@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionResponse
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -75,9 +74,14 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_render_returns_v2_template_and_non_empty_output() :void {
 		$payload = $this->renderSummary()->payload();
+		$renderData = $payload[ 'render_data' ] ?? [];
 
 		$this->assertSame( '/admin/admin_dashboard_widget_v2.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'render_output' ] ?? '' ) ) );
+		$this->assertSame(
+			self::con()->plugin_urls->actionsQueueScans(),
+			(string)( $renderData[ 'hrefs' ][ 'scans' ] ?? '' )
+		);
 	}
 
 	public function test_config_score_uses_zone_posture_contract() :void {
@@ -142,7 +146,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_internal_links' ] ?? true ) );
 		$this->assertStringNotContainsString( 'href="'.self::con()->plugin_urls->adminHome().'"', $html, 'Subscriber dashboard links' );
 		$this->assertStringNotContainsString(
-			'href="'.self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ).'"',
+			'href="'.self::con()->plugin_urls->actionsQueueScans().'"',
 			$html,
 			'Subscriber scans links'
 		);

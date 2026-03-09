@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\AttentionItemsProvider;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AttentionItemsProviderIntegrationTest extends ShieldIntegrationTestCase {
@@ -55,5 +56,27 @@ class AttentionItemsProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThanOrEqual( 1, (int)( $summary[ 'total' ] ?? 0 ) );
 		$this->assertSame( 'warning', (string)( $summary[ 'severity' ] ?? '' ) );
 		$this->assertFalse( (bool)( $summary[ 'is_all_clear' ] ?? true ) );
+	}
+
+	public function test_build_scan_items_link_to_actions_queue_scans() :void {
+		self::con()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'file_scan_areas', [ 'wp' ] )
+			->store();
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
+		$this->resetScanResultCountMemoization();
+
+		$items = ( new AttentionItemsProvider() )->buildScanItems();
+		$itemsByKey = [];
+		foreach ( $items as $item ) {
+			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+		}
+
+		$this->assertSame(
+			self::con()->plugin_urls->actionsQueueScans(),
+			(string)( $itemsByKey[ 'wp_files' ][ 'href' ] ?? '' )
+		);
 	}
 }

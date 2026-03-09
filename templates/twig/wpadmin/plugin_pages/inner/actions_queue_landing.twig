@@ -66,77 +66,13 @@
 				{% set panel_body %}
 					{% if zone.key == 'scans' %}
 						{% if zone.has_issues %}
-							{% set vulnerabilities = vars.scans_vulnerabilities|default({}) %}
-							{% set vulnerability_status = vulnerabilities.status|default('good') %}
-							<ul class="nav nav-tabs shield_body-sub-nav actions-landing__panel-tabs" id="ActionsQueueScansTabsNav" role="tablist">
-								<li class="nav-item">
-									<a class="nav-link active" id="actions-queue-scans-summary-tab"
-									   data-bs-toggle="tab"
-									   href="#actions-queue-scans-summary"
-									   role="tab"
-									   aria-controls="actions-queue-scans-summary">
-										{{ strings.panel_scan_summary_tab }}
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" id="actions-queue-scans-results-tab"
-									   data-bs-toggle="tab"
-									   href="#actions-queue-scans-results"
-									   role="tab"
-									   aria-controls="actions-queue-scans-results">
-										{{ strings.panel_scan_results_tab }}
-										<span class="badge bg-danger">{{ zone.total_issues }}</span>
-									</a>
-								</li>
-								<li class="nav-item">
-									<a class="nav-link" id="actions-queue-scans-vulnerabilities-tab"
-									   data-bs-toggle="tab"
-									   href="#actions-queue-scans-vulnerabilities"
-									   role="tab"
-									   aria-controls="actions-queue-scans-vulnerabilities">
-										{{ strings.panel_scan_vulnerabilities_tab }}
-										<span class="badge {{ vulnerability_status == 'good' ? 'bg-success' : 'bg-danger' }}">{{ vulnerabilities.count|default(0) }}</span>
-									</a>
-								</li>
-							</ul>
-							<div class="tab-content">
-								<div class="tab-pane show active" id="actions-queue-scans-summary" role="tabpanel" aria-labelledby="actions-queue-scans-summary-tab">
-									{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
-										items: zone.items
-									} only %}
-									<div class="actions-landing__summary-footer d-flex flex-wrap gap-2 mt-3">
-										<button type="button"
-												class="btn btn-outline-secondary btn-sm"
-												data-bs-toggle="tab"
-												data-bs-target="#actions-queue-scans-results"
-												aria-controls="actions-queue-scans-results">{{ strings.panel_scan_results_open }}</button>
-									</div>
-								</div>
-
-								<div class="tab-pane" id="actions-queue-scans-results" role="tabpanel" aria-labelledby="actions-queue-scans-results-tab">
-									{% set scans_results = vars.scans_results|default({}) %}
-									<div id="ScanResultsTabs" class="actions-landing__scan-results-shell">
-										{% include '/wpadmin_pages/insights/scans/results/scan_results.twig' with {
-											strings: scans_results.strings|default({}),
-											vars: scans_results.vars|default({}),
-											file_locker: scans_results.file_locker|default({}),
-											content: scans_results.content|default({}),
-											flags: scans_results.flags|default({}),
-											hrefs: scans_results.hrefs|default({}),
-											imgs: scans_results.imgs|default({}),
-										} only %}
-									</div>
-								</div>
-
-								<div class="tab-pane" id="actions-queue-scans-vulnerabilities" role="tabpanel" aria-labelledby="actions-queue-scans-vulnerabilities-tab">
-									{% if vulnerabilities.items|default([]) is not empty %}
-										{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
-											items: vulnerabilities.items
-										} only %}
-									{% else %}
-										<div class="actions-landing__empty-state">{{ strings.panel_scan_vulnerabilities_empty }}</div>
-									{% endif %}
-								</div>
+							{% set scans_results = vars.scans_results|default({}) %}
+							<div id="ScanResultsTabs" class="actions-landing__scan-results-shell">
+								{% include '/wpadmin_pages/insights/scans/results/scan_results.twig' with {
+									strings: scans_results.strings|default({}),
+									vars: scans_results.vars|default({}),
+									content: scans_results.content|default({})
+								} only %}
 							</div>
 						{% else %}
 							{% include '/wpadmin/components/actions_queue/assessment_rows.twig' with {

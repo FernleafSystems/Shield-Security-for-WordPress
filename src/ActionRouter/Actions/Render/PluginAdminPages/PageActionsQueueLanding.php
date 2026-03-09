@@ -2,13 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
-	WpPluginVo,
-	WpThemeVo
-};
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageActionsQueueLanding extends PageModeLandingBase {
@@ -19,7 +14,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	private ?array $landingViewDataCache = null;
 	private ?string $activeZoneCache = null;
 	private ?array $scansResultsRenderDataCache = null;
-	private ?array $scansVulnerabilitiesCache = null;
 	private ?array $assessmentRowsByZoneCache = null;
 
 	protected function getLandingTitle() :string {
@@ -51,7 +45,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	protected function getLandingHrefs() :array {
 		$con = self::con();
 		return [
-			'scan_results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+			'scan_results' => $con->plugin_urls->actionsQueueScans(),
 			'wp_updates'   => Services::WpGeneral()->getAdminUrl_Updates(),
 		];
 	}
@@ -62,11 +56,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'status_action_required'   => __( 'Action Required', 'wp-simple-firewall' ),
 			'status_all_clear'         => __( 'All Clear', 'wp-simple-firewall' ),
 			'severity_strip_label'     => __( 'Queue Status', 'wp-simple-firewall' ),
-			'panel_scan_summary_tab'   => __( 'Summary', 'wp-simple-firewall' ),
-			'panel_scan_results_tab'   => __( 'Scan Results', 'wp-simple-firewall' ),
-			'panel_scan_results_open'  => __( 'Open Scan Results', 'wp-simple-firewall' ),
-			'panel_scan_vulnerabilities_tab' => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-			'panel_scan_vulnerabilities_empty' => __( 'No known vulnerabilities were detected in the current scan results.', 'wp-simple-firewall' ),
 			'all_clear_title'          => $this->getNeedsAttentionString( 'all_clear_title' ),
 			'all_clear_subtitle'       => $this->getNeedsAttentionString( 'all_clear_subtitle' ),
 			'all_clear_icon_class'     => $this->getNeedsAttentionString( 'all_clear_icon_class' ),
@@ -105,13 +94,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'scans_results'  => $hasScansIssues
 				? $this->getScansResultsRenderData()
 				: [],
-			'scans_vulnerabilities' => $hasScansIssues
-				? $this->getScansVulnerabilities()
-				: [
-					'count'  => 0,
-					'status' => 'good',
-					'items'  => [],
-				],
 		];
 	}
 
@@ -250,91 +232,13 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	private function getScansResultsRenderData() :array {
 		if ( $this->scansResultsRenderDataCache === null ) {
-			// TODO: Keep server-side embedding for now. Switch this to on-demand render only if this panel becomes materially heavy.
-			$this->scansResultsRenderDataCache = self::con()
-												 ->action_router
-												 ->action( PageScansResults::class, [
-													 Constants::NAV_ID     => PluginNavs::NAV_SCANS,
-													 Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_RESULTS,
-												 ] )
-												 ->payload()[ 'render_data' ] ?? [];
+			$this->scansResultsRenderDataCache = $this->buildScansResultsRenderData();
 		}
 		return $this->scansResultsRenderDataCache;
 	}
 
-	/**
-	 * @return array{
-	 *   count:int,
-	 *   status:string,
-	 *   items:list<array{
-	 *     key:string,
-	 *     label:string,
-	 *     description:string,
-	 *     count:int,
-	 *     severity:string,
-	 *     cta?:array{href:string,label:string,target:string}
-	 *   }>
-	 * }
-	 */
-	private function getScansVulnerabilities() :array {
-		if ( $this->scansVulnerabilitiesCache === null ) {
-			$adapter = new InvestigateAssetDataAdapter();
-			$items = [];
-
-			try {
-				$results = self::con()->comps->scans->WPV()->getResultsForDisplay();
-				foreach ( $results->getUniqueSlugs() as $slug ) {
-					$asset = Services::WpPlugins()->getPluginAsVo( $slug, true ) ?? Services::WpThemes()->getThemeAsVo( $slug, true );
-					if ( !( $asset instanceof WpPluginVo ) && !( $asset instanceof WpThemeVo ) ) {
-						continue;
-					}
-
-					$assetData = $asset instanceof WpPluginVo
-						? $adapter->buildPluginDataForInvestigate( $asset )
-						: $adapter->buildThemeDataForInvestigate( $asset );
-					$count = \count( $results->getItemsForSlug( $slug ) );
-					$typeLabel = $asset instanceof WpPluginVo
-						? __( 'Plugin', 'wp-simple-firewall' )
-						: __( 'Theme', 'wp-simple-firewall' );
-
-					$items[] = [
-						'key'         => 'vulnerability-'.$assetData[ 'info' ][ 'unique_id' ],
-						'label'       => (string)$assetData[ 'info' ][ 'name' ],
-						'description' => \sprintf(
-							'%s, %s %s',
-							$typeLabel,
-							__( 'version', 'wp-simple-firewall' ),
-							(string)$assetData[ 'info' ][ 'version' ]
-						),
-						'count'       => $count,
-						'severity'    => $count > 0 ? 'critical' : 'good',
-						'cta'         => [
-							'href'   => (string)( $assetData[ 'hrefs' ][ 'vul_info' ] ?? '' ),
-							'label'  => __( 'Vulnerability Lookup', 'wp-simple-firewall' ),
-							'target' => '_blank',
-						],
-					];
-				}
-
-				\usort( $items, static function ( array $a, array $b ) :int {
-					$countCmp = ( $b[ 'count' ] ?? 0 ) <=> ( $a[ 'count' ] ?? 0 );
-					return $countCmp !== 0
-						? $countCmp
-						: \strcmp( (string)( $a[ 'label' ] ?? '' ), (string)( $b[ 'label' ] ?? '' ) );
-				} );
-			}
-			catch ( \Throwable $e ) {
-				$items = [];
-			}
-
-			$this->scansVulnerabilitiesCache = [
-				'count'  => \array_sum( \array_map( static fn( array $item ) :int => (int)$item[ 'count' ], $items ) ),
-				'status' => empty( $items ) ? 'good' : 'critical',
-				'items'  => $items,
-			];
-		}
-
-		return $this->scansVulnerabilitiesCache;
+	protected function buildScansResultsRenderData() :array {
+		return ( new ScansResultsViewBuilder() )->build();
 	}
 
 	/**
