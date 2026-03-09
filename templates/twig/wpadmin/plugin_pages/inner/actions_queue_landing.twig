@@ -144,28 +144,10 @@
 							} only %}
 						{% endif %}
 					{% else %}
-						{% for section in zone.maintenance_sections|default([]) %}
-							<div class="actions-landing__maintenance-actions{% if not loop.first %} mt-3{% endif %}">
-								<div class="shield-mode-strip__eyebrow mb-2">{{ section.label }}</div>
-								{% if section.kind == 'summary' %}
-									{% include '/wpadmin/components/actions_queue/summary_rows.twig' with {
-										items: section.items
-									} only %}
-								{% else %}
-									{% include '/wpadmin/components/actions_queue/assessment_rows.twig' with {
-										items: section.items
-									} only %}
-								{% endif %}
-							</div>
-						{% endfor %}
-						{% if zone.has_issues %}
-							<div class="actions-landing__maintenance-actions mt-3">
-								<div class="shield-mode-strip__eyebrow mb-2">{{ strings.panel_maintenance_actions }}</div>
-								<div class="d-flex flex-wrap gap-2">
-									<a href="{{ hrefs.wp_updates }}" class="btn btn-outline-secondary btn-sm">{{ strings.panel_wp_updates }}</a>
-								</div>
-							</div>
-						{% endif %}
+						{% include '/wpadmin/components/page/status_detail_groups.twig' with {
+							groups: zone.maintenance_detail_groups|default([]),
+							list_class: 'actions-landing__maintenance-detail-groups'
+						} only %}
 					{% endif %}
 				{% endset %}
 

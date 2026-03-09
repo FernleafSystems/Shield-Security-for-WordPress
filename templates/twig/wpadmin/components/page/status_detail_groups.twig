@@ -1,0 +1,52 @@
+<div class="shield-stack-detail-groups{% if list_class|default('') is not empty %} {{ list_class }}{% endif %}">
+	{% for group in groups|default([]) %}
+		<div class="shield-stack-detail-group is-{{ group.status }}">
+			<ul class="shield-stack-detail-list shield-stack-detail-list--detail-rail">
+				{% for row in group.rows|default([]) %}
+					<li class="shield-stack-detail-row shield-stack-detail-row--detail-rail is-{{ row.status }}">
+						<div class="shield-stack-detail-rail">
+							<span class="shield-stack-detail-status-icon status-{{ row.status }}" role="img" aria-label="{{ row.status_label }}">
+								<i class="{{ row.status_icon_class|default('bi bi-info-circle-fill') }}" aria-hidden="true"></i>
+								<span class="visually-hidden">{{ row.status_label }}</span>
+							</span>
+							{% if row.action|default({}) is not empty %}
+								<a class="shield-stack-detail-action{% if row.action.classes|default([]) is not empty %} {{ row.action.classes|join(' ') }}{% endif %}"
+								   href="{{ row.action.href|default('javascript:{}') }}"
+								   {% if row.action.target|default('') is not empty %}target="{{ row.action.target }}"{% endif %}
+								   {% if row.action.title|default('') is not empty %}title="{{ row.action.title }}"{% endif %}
+								   {% for key, value in row.action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+								>
+								{% if row.action.icon|default('') is not empty %}<i class="{{ row.action.icon }}" aria-hidden="true"></i>{% endif %}
+								<span>{{ row.action.label }}</span>
+								</a>
+							{% else %}
+								<span class="shield-stack-detail-action-slot" aria-hidden="true"></span>
+							{% endif %}
+						</div>
+						<div class="shield-stack-detail-copy shield-stack-detail-copy--detail-rail">
+							<div class="shield-stack-detail-heading">
+								<span class="shield-stack-detail-title">{{ row.title }}</span>
+								{% if row.count_badge is not null and row.count_badge > 0 %}
+									<span class="shield-badge badge-{{ row.badge_status|default(row.status) }} shield-stack-detail-count">{{ row.count_badge }}</span>
+								{% endif %}
+							</div>
+							{% if row.summary|default('') is not empty %}
+								<div class="shield-stack-detail-desc shield-stack-detail-desc--detail-rail">{{ row.summary }}</div>
+							{% endif %}
+							{% if row.explanations|default([]) is not empty and row.status in [ 'warning', 'critical' ] %}
+								<ul class="shield-stack-detail-explanations">
+									{% for explanation in row.explanations %}
+										<li>
+											<span class="shield-stack-detail-explanation-icon" aria-hidden="true"><i class="bi bi-exclamation-circle-fill"></i></span>
+											<span>{{ explanation }}</span>
+										</li>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						</div>
+					</li>
+				{% endfor %}
+			</ul>
+		</div>
+	{% endfor %}
+</div>

@@ -193,3 +193,24 @@
 	font-size: 0.8rem;
 	padding: 0.8rem 0.9rem;
 }
+
+.actions-landing__panel[data-actions-panel="maintenance"] {
+	border: 1px solid $border-color-neutral-subtle;
+	box-shadow: $card-box-shadow;
+}
+
+.actions-landing__panel[data-actions-panel="maintenance"].status-good,
+.actions-landing__panel[data-actions-panel="maintenance"].status-warning,
+.actions-landing__panel[data-actions-panel="maintenance"].status-critical,
+.actions-landing__panel[data-actions-panel="maintenance"].status-neutral,
+.actions-landing__panel[data-actions-panel="maintenance"].status-info {
+	border: 1px solid $border-color-neutral-subtle;
+}
+
+.actions-landing__panel[data-actions-panel="maintenance"] .shield-card-accent {
+	display: none;
+}
+
+.actions-landing__maintenance-detail-groups .shield-stack-detail-group + .shield-stack-detail-group {
+	margin-top: 0.9rem;
+}

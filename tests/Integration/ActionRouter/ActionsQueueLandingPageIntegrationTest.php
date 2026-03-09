@@ -113,12 +113,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $maintenance[ 'is_disabled' ] ?? true ) );
 		$this->assertSame( 'maintenance', (string)( $maintenance[ 'panel_target' ] ?? '' ) );
 		$this->assertNotEmpty( $maintenance[ 'assessment_rows' ] ?? [] );
-		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenance[ 'maintenance_sections' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenance[ 'maintenance_detail_groups' ] ?? [], 'status' ) );
 		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
 		$this->assertNotEmpty( $scans[ 'assessment_rows' ] ?? [] );
-		$this->assertStringContainsString( 'Warnings', $html );
-		$this->assertStringContainsString( 'Okay', $html );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-section="severity-strip" and contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',

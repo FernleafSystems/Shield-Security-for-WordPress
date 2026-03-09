@@ -67,8 +67,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'panel_scan_results_open'  => __( 'Open Scan Results', 'wp-simple-firewall' ),
 			'panel_scan_vulnerabilities_tab' => __( 'Vulnerabilities', 'wp-simple-firewall' ),
 			'panel_scan_vulnerabilities_empty' => __( 'No known vulnerabilities were detected in the current scan results.', 'wp-simple-firewall' ),
-			'panel_maintenance_actions' => __( 'Maintenance Actions', 'wp-simple-firewall' ),
-			'panel_wp_updates'         => __( 'Open WordPress Updates', 'wp-simple-firewall' ),
 			'all_clear_title'          => $this->getNeedsAttentionString( 'all_clear_title' ),
 			'all_clear_subtitle'       => $this->getNeedsAttentionString( 'all_clear_subtitle' ),
 			'all_clear_icon_class'     => $this->getNeedsAttentionString( 'all_clear_icon_class' ),
@@ -203,7 +201,8 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 *     status:string,
 	 *     status_label:string,
 	 *     status_icon_class:string
-	 *   }>
+	 *   }>,
+	 *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
 	 * }>
 	 */
 	private function getZoneTiles() :array {
@@ -221,65 +220,15 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 					$zoneTile[ 'items' ] ?? []
 				);
 				if ( ( $zoneTile[ 'key' ] ?? '' ) === 'maintenance' ) {
-					$zoneTile[ 'maintenance_sections' ] = $this->buildMaintenanceSections( $zoneTile );
+					$zoneTile[ 'maintenance_detail_groups' ] = ( new StatusDetailGroupsBuilder() )->buildForMaintenance(
+						\is_array( $zoneTile[ 'items' ] ?? null ) ? \array_values( $zoneTile[ 'items' ] ) : [],
+						\is_array( $zoneTile[ 'assessment_rows' ] ?? null ) ? \array_values( $zoneTile[ 'assessment_rows' ] ) : []
+					);
 				}
 				return $zoneTile;
 			},
 			$this->getZoneTiles()
 		);
-	}
-
-	/**
-	 * @param array<string,mixed> $zoneTile
-	 * @return list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   kind:string,
-	 *   items:list<array<string,mixed>>
-	 * }>
-	 */
-	private function buildMaintenanceSections( array $zoneTile ) :array {
-		$issueItems = \is_array( $zoneTile[ 'items' ] ?? null ) ? \array_values( $zoneTile[ 'items' ] ) : [];
-		$assessmentRows = \is_array( $zoneTile[ 'assessment_rows' ] ?? null ) ? \array_values( $zoneTile[ 'assessment_rows' ] ) : [];
-
-		$sections = [];
-		$sectionDefinitions = [
-			[
-				'key'    => 'critical',
-				'label'  => __( 'Critical', 'wp-simple-firewall' ),
-				'kind'   => 'summary',
-				'items'  => \array_values( \array_filter(
-					$issueItems,
-					static fn( array $item ) :bool => ( $item[ 'severity' ] ?? '' ) === 'critical'
-				) ),
-			],
-			[
-				'key'    => 'warning',
-				'label'  => __( 'Warnings', 'wp-simple-firewall' ),
-				'kind'   => 'summary',
-				'items'  => \array_values( \array_filter(
-					$issueItems,
-					static fn( array $item ) :bool => ( $item[ 'severity' ] ?? '' ) === 'warning'
-				) ),
-			],
-			[
-				'key'    => 'good',
-				'label'  => __( 'Okay', 'wp-simple-firewall' ),
-				'kind'   => 'assessment',
-				'items'  => \array_values( \array_filter(
-					$assessmentRows,
-					static fn( array $row ) :bool => ( $row[ 'status' ] ?? '' ) === 'good'
-				) ),
-			],
-		];
-
-		foreach ( $sectionDefinitions as $section ) {
-			if ( !empty( $section[ 'items' ] ) ) {
-				$sections[] = $section;
-			}
-		}
-
-		return $sections;
 	}
 
 	private function getActiveZone() :string {

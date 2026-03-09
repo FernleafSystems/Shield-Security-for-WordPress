@@ -90,7 +90,10 @@ class PageConfigureLanding extends PageModeLandingBase {
 	}
 
 	protected function getLandingVars() :array {
-		$zoneTiles = $this->getConfigureZoneTiles();
+		$zoneTiles = \array_map(
+			fn( array $zoneTile ) :array => $this->attachDetailGroups( $zoneTile ),
+			$this->getConfigureZoneTiles()
+		);
 		$posturePercentage = $this->getZonePosture()[ 'percentage' ];
 		$postureStatus = BuildZonePosture::trafficFromPercentage( $posturePercentage );
 
@@ -106,6 +109,17 @@ class PageConfigureLanding extends PageModeLandingBase {
 			'zone_tiles'              => $zoneTiles,
 			'configure_render_action' => $this->buildConfigureRenderActionData(),
 		];
+	}
+
+	/**
+	 * @param array<string,mixed> $zoneTile
+	 * @return array<string,mixed>
+	 */
+	private function attachDetailGroups( array $zoneTile ) :array {
+		$zoneTile[ 'panel' ][ 'detail_groups' ] = ( new StatusDetailGroupsBuilder() )->buildForConfigure(
+			\is_array( $zoneTile[ 'panel' ][ 'components' ] ?? null ) ? \array_values( $zoneTile[ 'panel' ][ 'components' ] ) : []
+		);
+		return $zoneTile;
 	}
 
 	protected function getLandingStrings() :array {

@@ -303,7 +303,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '_blank', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'target' ] ?? '' );
 	}
 
-	public function test_maintenance_sections_group_items_without_repeating_warnings() :void {
+	public function test_maintenance_detail_groups_order_rows_without_repeating_problem_assessments() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			true,
 			3,
@@ -333,13 +333,13 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$zoneTiles,
 			static fn( array $tile ) :bool => ( $tile[ 'key' ] ?? '' ) === 'maintenance'
 		) )[ 0 ] ?? [];
-		$sections = $maintenance[ 'maintenance_sections' ] ?? [];
+		$groups = $maintenance[ 'maintenance_detail_groups' ] ?? [];
 
-		$this->assertSame( [ 'critical', 'warning', 'good' ], \array_column( $sections, 'key' ) );
-		$this->assertSame( [ 'summary', 'summary', 'assessment' ], \array_column( $sections, 'kind' ) );
-		$this->assertSame( [ 'system_ssl_certificate' ], \array_column( $sections[ 0 ][ 'items' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'wp_updates' ], \array_column( $sections[ 1 ][ 'items' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'system_lib_openssl' ], \array_column( $sections[ 2 ][ 'items' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'critical', 'warning', 'good' ], \array_column( $groups, 'status' ) );
+		$this->assertSame( [ 'system_ssl_certificate' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'wp_updates' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'system_lib_openssl' ], \array_column( $groups[ 2 ][ 'rows' ] ?? [], 'key' ) );
+		$this->assertSame( 'open', $groups[ 1 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 	}
 
 	public function test_missing_needs_attention_strings_fall_back_to_safe_defaults() :void {

@@ -67,7 +67,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertNotSame( '', (string)( $vars[ 'posture_label' ] ?? '' ) );
 		$this->assertStringStartsWith( 'bi bi-', (string)( $vars[ 'posture_icon_class' ] ?? '' ) );
 		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 78, 1, 1, 1 );
-		$this->assertSame( $zoneTiles, $vars[ 'zone_tiles' ] ?? [] );
+		$this->assertSame( \array_column( $zoneTiles, 'key' ), \array_column( $vars[ 'zone_tiles' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'good' ], \array_column( $vars[ 'zone_tiles' ][ 0 ][ 'panel' ][ 'detail_groups' ] ?? [], 'status' ) );
 		$this->assertIsArray( $vars[ 'configure_render_action' ] ?? null );
 		$this->assertSame(
 			PageConfigureLanding::SLUG,

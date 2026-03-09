@@ -98,6 +98,187 @@
 	margin-left: auto;
 }
 
+.shield-stack-detail-group + .shield-stack-detail-group {
+	margin-top: 0.8rem;
+}
+
+.shield-stack-detail-list--detail-rail {
+	gap: 0.65rem;
+}
+
+.shield-stack-detail-row--detail-rail {
+	align-items: flex-start;
+	gap: 0.9rem;
+	padding-right: 1rem;
+}
+
+.shield-stack-detail-rail {
+	align-items: flex-start;
+	display: flex;
+	flex: 0 0 5.75rem;
+	flex-direction: column;
+	gap: 0.55rem;
+	min-width: 5.75rem;
+}
+
+.shield-stack-detail-status-icon {
+	align-items: center;
+	border-radius: 999px;
+	display: inline-flex;
+	height: 1.6rem;
+	justify-content: center;
+	width: 1.6rem;
+}
+
+.shield-stack-detail-status-icon i {
+	font-size: 0.92rem;
+	line-height: 1;
+}
+
+.shield-stack-detail-status-icon.status-good {
+	background: $badge-good-bg;
+	color: $badge-good-color;
+}
+
+.shield-stack-detail-status-icon.status-warning {
+	background: $badge-warning-bg;
+	color: $badge-warning-color;
+}
+
+.shield-stack-detail-status-icon.status-critical {
+	background: $badge-critical-bg;
+	color: $badge-critical-color;
+}
+
+.shield-stack-detail-status-icon.status-neutral,
+.shield-stack-detail-status-icon.status-info {
+	background: $badge-info-bg;
+	color: $badge-info-color;
+}
+
+.shield-stack-detail-action,
+.shield-stack-detail-action-slot {
+	align-items: center;
+	display: inline-flex;
+	min-height: 2rem;
+}
+
+.shield-stack-detail-action {
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 999px;
+	color: #1d2327;
+	font-size: 0.74rem;
+	font-weight: 600;
+	gap: 0.3rem;
+	padding: 0.32rem 0.68rem;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.shield-stack-detail-action:hover {
+	background: #f6f7f7;
+	color: #1d2327;
+}
+
+.shield-stack-detail-row--detail-rail.is-good .shield-stack-detail-action {
+	border-color: rgba($status-color-good, 0.22);
+	color: $status-color-good;
+}
+
+.shield-stack-detail-row--detail-rail.is-good .shield-stack-detail-action:hover {
+	background: rgba($status-color-good, 0.06);
+	color: #005c00;
+}
+
+.shield-stack-detail-row--detail-rail.is-warning .shield-stack-detail-action {
+	border-color: rgba($status-color-warning, 0.32);
+	color: $badge-warning-color;
+}
+
+.shield-stack-detail-row--detail-rail.is-warning .shield-stack-detail-action:hover {
+	background: rgba($status-color-warning, 0.1);
+	color: #6d5204;
+}
+
+.shield-stack-detail-row--detail-rail.is-critical .shield-stack-detail-action {
+	border-color: rgba($status-color-critical, 0.22);
+	color: $status-color-critical;
+}
+
+.shield-stack-detail-row--detail-rail.is-critical .shield-stack-detail-action:hover {
+	background: rgba($status-color-critical, 0.06);
+	color: #a02530;
+}
+
+.shield-stack-detail-row--detail-rail.is-neutral .shield-stack-detail-action,
+.shield-stack-detail-row--detail-rail.is-info .shield-stack-detail-action {
+	border-color: rgba($status-color-info, 0.22);
+	color: $status-color-info;
+}
+
+.shield-stack-detail-row--detail-rail.is-neutral .shield-stack-detail-action:hover,
+.shield-stack-detail-row--detail-rail.is-info .shield-stack-detail-action:hover {
+	background: rgba($status-color-info, 0.06);
+	color: #0b8da6;
+}
+
+.shield-stack-detail-copy--detail-rail {
+	display: flex;
+	flex-direction: column;
+	gap: 0.2rem;
+}
+
+.shield-stack-detail-heading {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	min-width: 0;
+}
+
+.shield-stack-detail-count {
+	align-items: center;
+	display: inline-flex;
+	justify-content: center;
+	min-width: 1.9rem;
+}
+
+.shield-stack-detail-desc--detail-rail {
+	margin-top: 0;
+}
+
+.shield-stack-detail-explanations {
+	color: #646970;
+	font-size: 0.72rem;
+	line-height: 1.35;
+	list-style: none;
+	margin: 0.15rem 0 0;
+	padding-left: 0;
+}
+
+.shield-stack-detail-explanations li {
+	align-items: flex-start;
+	display: flex;
+	gap: 0.35rem;
+	margin-bottom: 0.1rem;
+}
+
+.shield-stack-detail-explanation-icon {
+	color: #7d8894;
+	display: inline-flex;
+	font-size: 0.72rem;
+	line-height: 1.2;
+	margin-top: 0.05rem;
+}
+
+.shield-stack-detail-group.is-warning .shield-stack-detail-explanation-icon {
+	color: $badge-warning-color;
+}
+
+.shield-stack-detail-group.is-critical .shield-stack-detail-explanation-icon {
+	color: $badge-critical-color;
+}
+
 @media (max-width: 640px) {
 	.shield-stack-detail-row {
 		align-items: flex-start;
@@ -108,5 +289,21 @@
 		margin-left: 0;
 		padding-left: calc(8px + 0.85rem);
 		width: 100%;
+	}
+
+	.shield-stack-detail-row--detail-rail {
+		gap: 0.75rem;
+	}
+
+	.shield-stack-detail-rail {
+		align-items: center;
+		flex: 1 1 100%;
+		flex-direction: row;
+		gap: 0.65rem;
+		min-width: 0;
+	}
+
+	.shield-stack-detail-action-slot {
+		flex: 1 1 auto;
 	}
 }
