@@ -58,6 +58,7 @@ class LoadConfig {
 		$cfg = ( new ConfigVO() )->applyFromArray( $def );
 		$cfg->hash = $specHash;
 		$cfg->rebuilt = $rebuild;
+		$cfg->persist_required = $rebuild;
 
 		if ( empty( $cfg->previous_version ) ) {
 			$cfg->previous_version = $cfg->properties[ 'version' ];

@@ -14,6 +14,8 @@ class FirewallPatternFoundInRequest extends Base {
 
 	private static $ParamsToAssess = null;
 
+	private static ?array $PatternCategories = null;
+
 	protected function execConditionCheck() :bool {
 		$matched = false;
 		foreach ( $this->getParamsToAssess() as $param => $value ) {
@@ -43,14 +45,15 @@ class FirewallPatternFoundInRequest extends Base {
 	}
 
 	private function findCategoryFromPattern( string $pattern ) :string {
-		$category = '';
-		foreach ( self::con()->cfg->configuration->def( 'firewall_patterns' ) as $cat => $group ) {
-			if ( \in_array( $pattern, $group ) ) {
-				$category = $cat;
-				break;
+		if ( self::$PatternCategories === null ) {
+			self::$PatternCategories = [];
+			foreach ( self::con()->cfg->configuration->def( 'firewall_patterns' ) as $cat => $group ) {
+				foreach ( $group as $groupPattern ) {
+					self::$PatternCategories[ $groupPattern ] = $cat;
+				}
 			}
 		}
-		return $category;
+		return self::$PatternCategories[ $pattern ] ?? '';
 	}
 
 	private function getParamsToAssess() :array {

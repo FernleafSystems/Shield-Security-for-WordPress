@@ -34,7 +34,7 @@ class ConfigVO extends DynPropertiesClass {
 
 	public bool $rebuilt = false;
 
-	public string $builtHash = '';
+	public bool $persist_required = false;
 
 	public function version() :string {
 		return $this->properties[ 'version' ];

@@ -339,7 +339,7 @@ class IpRuleStatus {
 	private function getBypasses() :array {
 		if ( self::$bypass === null ) {
 
-			$cachedBypasses = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
+			$cachedBypasses = IpRulesCache::Get( IpRulesCache::COLLECTION_BYPASS, IpRulesCache::GROUP_COLLECTIONS );
 			if ( \is_array( $cachedBypasses ) ) {
 				self::$bypass = \array_map( function ( array $record ) {
 					return ( new IpRuleRecord() )->applyFromArray( $record );

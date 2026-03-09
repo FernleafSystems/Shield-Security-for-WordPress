@@ -73,6 +73,8 @@ class Controller extends DynPropertiesClass {
 
 	public ?Plugin\ModCon $plugin = null;
 
+	private ?array $prechecks = null;
+
 	/**
 	 * @deprecated 21.1
 	 */
@@ -201,7 +203,16 @@ class Controller extends DynPropertiesClass {
 
 			case 'cache_dir_handler':
 				if ( empty( $val ) ) {
-					throw new \Exception( 'Accessing Cache Dir Handler too early.' );
+					if ( !$this->modules_loaded || !$this->plugin instanceof Plugin\ModCon ) {
+						throw new \Exception( 'Accessing Cache Dir Handler too early.' );
+					}
+					$this->cache_dir_handler = $val = $this->plugin->getCacheDirHandler();
+				}
+				break;
+
+			case 'prechecks':
+				if ( !\is_array( $val ) ) {
+					$this->prechecks = $val = $this->getPrechecks();
 				}
 				break;
 
@@ -363,7 +374,6 @@ class Controller extends DynPropertiesClass {
 			( new ResetPlugin() )->run();
 		}
 
-		$this->prechecks = ( new Checks\PreModulesBootCheck() )->run();
 		$this->db_con->execute();
 		$this->comps->execute();
 
@@ -519,9 +529,13 @@ class Controller extends DynPropertiesClass {
 
 	public function onWpShutdown() {
 		do_action( $this->prefix( 'pre_plugin_shutdown' ) );
-		$this->opts->store();
+		if ( $this->opts->hasChanges() ) {
+			$this->opts->store();
+		}
 		do_action( $this->prefix( 'plugin_shutdown' ) );
-		$this->saveCurrentPluginControllerOptions();
+		if ( $this->plugin_deleting || ( isset( $this->cfg ) && $this->cfg->persist_required ) ) {
+			$this->saveCurrentPluginControllerOptions();
+		}
 		$this->deleteFlags();
 	}
 
@@ -549,9 +563,11 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
-		$this->cfg->builtHash = \hash( 'md5', \serialize( $this->cfg->getRawData() ) );
 		$this->plugin_urls;
-		$this->saveCurrentPluginControllerOptions();
+	}
+
+	public function getPrechecks() :array {
+		return \is_array( $this->prechecks ?? null ) ? $this->prechecks : ( $this->prechecks = ( new Checks\PreModulesBootCheck() )->run() );
 	}
 
 	public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
@@ -648,21 +664,20 @@ class Controller extends DynPropertiesClass {
 			Services::WpGeneral()->deleteOption( $this->getConfigStoreKey() );
 			Transient::Delete( $this->getConfigStoreKey() );
 		}
-		elseif ( isset( $this->cfg ) ) {
+		elseif ( isset( $this->cfg ) && $this->cfg->persist_required ) {
 			$serial = \serialize( $this->cfg->getRawData() );
-			if ( empty( $this->cfg->builtHash ) || !\hash_equals( $this->cfg->builtHash, \hash( 'md5', $serial ) ) ) {
-				$data = $this->cfg->getRawData();
-				if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
-					$zip = @\gzdeflate( $serial );
-					if ( !empty( $zip ) && \gzinflate( $zip ) === $serial ) {
-						$enc = \base64_encode( $zip );
-						if ( !empty( $enc ) ) {
-							$data = $enc;
-						}
+			$data = $this->cfg->getRawData();
+			if ( \function_exists( '\gzdeflate' ) && \function_exists( '\gzinflate' ) ) {
+				$zip = @\gzdeflate( $serial );
+				if ( !empty( $zip ) && \gzinflate( $zip ) === $serial ) {
+					$enc = \base64_encode( $zip );
+					if ( !empty( $enc ) ) {
+						$data = $enc;
 					}
 				}
-				Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $data );
 			}
+			Services::WpGeneral()->updateOption( $this->getConfigStoreKey(), $data );
+			$this->cfg->persist_required = false;
 		}
 		remove_filter( $this->prefix( 'bypass_is_plugin_admin' ), '__return_true' );
 	}

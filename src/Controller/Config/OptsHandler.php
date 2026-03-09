@@ -126,6 +126,11 @@ class OptsHandler extends DynPropertiesClass {
 			add_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
 			$this->preStore();
 
+			if ( !$this->hasChanges() ) {
+				remove_filter( $con->prefix( 'bypass_is_plugin_admin' ), '__return_true', 1000 );
+				return;
+			}
+
 			Services::WpGeneral()->updateOption( $this->key( self::TYPE_ALL ), $this->mod_opts_all );
 
 			$this->postStore();
@@ -395,8 +400,7 @@ class OptsHandler extends DynPropertiesClass {
 		}
 
 		try {
-			/** Don't use optGet() */
-			$current = $this->values[ $key ] ?? null;
+			$current = $this->values()[ $key ] ?? null;
 			$newValue = ( new Opts\PreSetOptSanitize( $key, $newValue ) )->run();
 
 			// Here we try to ensure that values that are repeatedly changed properly reflect their changed

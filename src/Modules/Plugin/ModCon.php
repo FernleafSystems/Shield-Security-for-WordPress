@@ -25,6 +25,8 @@ class ModCon {
 
 	private bool $is_booted = false;
 
+	private ?CacheDirHandler $cacheDirHandler = null;
+
 	private Processor $processor;
 
 	/**
@@ -52,7 +54,6 @@ class ModCon {
 
 	protected function doPostConstruction() {
 		$this->setVisitorIpSource();
-		$this->setupCacheDir();
 		$this->declareWooHposCompat();
 		$this->storeRealInstallDate();
 	}
@@ -60,11 +61,19 @@ class ModCon {
 	public function onWpInit() {
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
+			self::con()->opts->optSet( 'transient_tracking', $this->getTracking()->getRawData() );
 		}
 		self::con()->comps->assets_customizer->execute();
 	}
 
-	protected function setupCacheDir() {
+	public function getCacheDirHandler() :CacheDirHandler {
+		if ( !isset( $this->cacheDirHandler ) ) {
+			$this->cacheDirHandler = $this->buildCacheDirHandler();
+		}
+		return $this->cacheDirHandler;
+	}
+
+	protected function buildCacheDirHandler() :CacheDirHandler {
 		$con = self::con();
 		$url = Services::WpGeneral()->getWpUrl();
 
@@ -74,10 +83,16 @@ class ModCon {
 		], \is_array( $lastKnownDirs ) ? $lastKnownDirs : [] );
 
 		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ], $con->opts->optGet( 'preferred_temp_dir' ) );
-		$lastKnownDirs[ $url ] = \dirname( $cacheDirFinder->dir() );
-		$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
-
+		$resolvedDir = $cacheDirFinder->dir();
+		if ( !empty( $resolvedDir ) ) {
+			$lastKnownDir = \dirname( $resolvedDir );
+			if ( $lastKnownDirs[ $url ] !== $lastKnownDir ) {
+				$lastKnownDirs[ $url ] = $lastKnownDir;
+				$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
+			}
+		}
 		$con->cache_dir_handler = $cacheDirFinder;
+		return $cacheDirFinder;
 	}
 
 	/**
@@ -178,11 +193,6 @@ class ModCon {
 	public function getTracking() :Lib\TrackingVO {
 		if ( !isset( $this->tracking ) ) {
 			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( self::con()->opts->optGet( 'transient_tracking' ) );
-			// @phpstan-ignore return.void
-			add_action(
-				self::con()->prefix( 'pre_options_store' ),
-				fn ()=> self::con()->opts->optSet( 'transient_tracking', $this->tracking->getRawData() )
-			);
 		}
 		return $this->tracking;
 	}

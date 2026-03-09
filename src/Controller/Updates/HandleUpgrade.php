@@ -45,6 +45,7 @@ class HandleUpgrade {
 		} );
 
 		$con->cfg->previous_version = $con->cfg->version();
+		$con->cfg->persist_required = true;
 	}
 
 	public function clearCaches() {

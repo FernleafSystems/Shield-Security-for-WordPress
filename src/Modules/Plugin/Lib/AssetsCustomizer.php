@@ -630,16 +630,8 @@ class AssetsCustomizer {
 					$now = Services::Request()->ts();
 
 					$hasSuccess = $data[ 'success_test_at' ] > 0;
-					if ( $now - $data[ 'maybe_test_at' ] > ( $hasSuccess ? \WEEK_IN_SECONDS : \DAY_IN_SECONDS ) ) {
-						$run = true;
-						$data[ 'maybe_test_at' ] = $now;
-					}
-					else {
-						$run = false;
-					}
-
-					$con->opts->optSet( 'test_rest_data', $data )
-							  ->store();
+					$lastAttemptAt = (int)\max( $data[ 'maybe_test_at' ], $data[ 'success_test_at' ] );
+					$run = ( $now - $lastAttemptAt ) > ( $hasSuccess ? \WEEK_IN_SECONDS : \DAY_IN_SECONDS );
 
 					return [
 						'ajax'  => [

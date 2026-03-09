@@ -33,11 +33,11 @@ class IpRulesCache {
 	public static function ResetGroup( string $group ) :void {
 		self::LoadCache();
 		self::$ipCache[ $group ] = [];
-		self::StoreCache();
+		self::StoreCache( $group );
 	}
 
 	public static function ResetAll() :void {
-		self::$ipCache = [];
+		self::$ipCache = Arrays::SetAllValuesTo( self::GROUPS, [] );
 		self::StoreCache();
 	}
 
@@ -47,8 +47,9 @@ class IpRulesCache {
 			'data' => $value,
 			'_at'  => Services::Request()->ts(),
 		];
+		self::$ipCache[ $group ] = self::normalizeGroupCache( self::$ipCache[ $group ], $group );
 		if ( $store ) {
-			self::StoreCache();
+			self::StoreCache( $group );
 		}
 	}
 
@@ -62,48 +63,61 @@ class IpRulesCache {
 	public static function Delete( string $key, string $group ) :void {
 		self::LoadCache();
 		unset( self::$ipCache[ $group ][ $key ] );
-		self::StoreCache();
+		self::StoreCache( $group );
 	}
 
 	public static function Has( string $key, string $group ) :bool {
 		return isset( self::LoadCache()[ $group ][ $key ] );
 	}
 
-	private static function StoreCache() {
-		Services::WpGeneral()->updateOption( self::con()->prefix( 'ip_rules_cache', '_' ), self::LoadCache() );
+	private static function StoreCache( ?string $group = null ) :void {
+		self::LoadCache();
+		if ( $group === null ) {
+			foreach ( \array_keys( self::GROUPS ) as $groupKey ) {
+				self::StoreCache( $groupKey );
+			}
+		}
+		elseif ( empty( self::$ipCache[ $group ] ) ) {
+			\delete_transient( self::buildTransientKey( $group ) );
+		}
+		else {
+			\set_transient(
+				self::buildTransientKey( $group ),
+				self::$ipCache[ $group ],
+				self::GROUPS[ $group ][ 'lifetime' ]
+			);
+		}
 	}
 
 	private static function LoadCache() :array {
 		if ( self::$ipCache === null ) {
-			$cache = Services::WpGeneral()->getOption( self::con()->prefix( 'ip_rules_cache', '_' ) );
-
-			$cache = \array_intersect_key(
-				\array_merge(
-					Arrays::SetAllValuesTo( self::GROUPS, [] ),
-					\is_array( $cache ) ? $cache : []
-				),
-				self::GROUPS
-			);
+			$cache = Arrays::SetAllValuesTo( self::GROUPS, [] );
 
 			foreach ( self::GROUPS as $groupKey => $groupSettings ) {
-
-				$group = \array_filter(
-					$cache[ $groupKey ],
-					function ( array $data ) use ( $groupSettings ) {
-						return Services::Request()->ts() - $data[ '_at' ] < $groupSettings[ 'lifetime' ];
-					}
-				);
-
-				// We want the newest item ordered earlier so that the array_slice() removes older items
-				if ( \count( $group ) > 1 ) {
-					\uasort( $group, fn( $a, $b ) => $a[ '_at' ] < $b[ '_at' ] ? 1 : ( $a[ '_at' ] > $b[ '_at' ] ? -1 : 0 ) );
-				}
-
-				$cache[ $groupKey ] = \array_slice( $group, 0, $groupSettings[ 'limit' ] );
+				$group = \get_transient( self::buildTransientKey( $groupKey ) );
+				$cache[ $groupKey ] = self::normalizeGroupCache( \is_array( $group ) ? $group : [], $groupKey );
 			}
 
 			self::$ipCache = $cache;
 		}
 		return self::$ipCache;
+	}
+
+	private static function buildTransientKey( string $group ) :string {
+		return self::con()->prefix( 'ip_rules_cache_'.$group, '_' );
+	}
+
+	private static function normalizeGroupCache( array $group, string $groupKey ) :array {
+		$groupSettings = self::GROUPS[ $groupKey ];
+		$group = \array_filter(
+			$group,
+			fn( array $data ) => Services::Request()->ts() - ( $data[ '_at' ] ?? 0 ) < $groupSettings[ 'lifetime' ]
+		);
+
+		if ( \count( $group ) > 1 ) {
+			\uasort( $group, fn( $a, $b ) => $a[ '_at' ] < $b[ '_at' ] ? 1 : ( $a[ '_at' ] > $b[ '_at' ] ? -1 : 0 ) );
+		}
+
+		return \array_slice( $group, 0, $groupSettings[ 'limit' ], true );
 	}
 }
