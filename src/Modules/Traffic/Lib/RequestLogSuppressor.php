@@ -35,6 +35,7 @@ class RequestLogSuppressor {
 			new Rules\ShieldLiveMonitorAjax(),
 			new Rules\LoggedInUsersMeRest(),
 			new Rules\LoggedInAdminHeartbeatAjax(),
+			new Rules\LoggedInSimpleShieldAdminGet(),
 		];
 	}
 }

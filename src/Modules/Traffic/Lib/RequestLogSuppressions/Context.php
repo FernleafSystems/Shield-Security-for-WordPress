@@ -3,6 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogSuppressions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\{
+	PluginNavs,
+	PluginRequest
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -43,6 +47,14 @@ class Context {
 		return $this->req->is_security_admin;
 	}
 
+	public function isAdmin() :bool {
+		return $this->req->wp_is_admin;
+	}
+
+	public function isPluginAdminPage() :bool {
+		return PluginRequest::IsPluginAdminPage();
+	}
+
 	public function isShieldTransport() :bool {
 		return $this->requestAction() === ActionData::FIELD_SHIELD;
 	}
@@ -53,6 +65,27 @@ class Context {
 
 	public function path() :string {
 		return $this->req->path;
+	}
+
+	public function scriptName() :string {
+		return $this->req->script_name;
+	}
+
+	public function nav() :string {
+		return PluginNavs::GetNav();
+	}
+
+	public function subNav() :string {
+		return PluginNavs::GetSubNav();
+	}
+
+	public function queryKeys() :array {
+		$keys = \array_map(
+			'strval',
+			\array_keys( \is_array( $this->req->request->query ) ? $this->req->request->query : [] )
+		);
+		\sort( $keys );
+		return $keys;
 	}
 
 	public function renderSlug() :string {

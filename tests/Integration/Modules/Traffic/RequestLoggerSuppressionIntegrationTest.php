@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Traffic\TrafficLiveLogs,
 	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -154,6 +155,91 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->applyCurrentHeartbeatRequest( [
 			'screen_id' => 'toplevel_page_icwp-wpsf-plugin',
 		], 'GET' );
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_simple_security_admin_dashboard_get_requests_are_suppressed() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldPluginPageRequest(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
+		);
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_simple_security_admin_non_dashboard_shield_get_requests_are_suppressed() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldPluginPageRequest(
+			PluginNavs::NAV_REPORTS,
+			PluginNavs::SUBNAV_REPORTS_OVERVIEW
+		);
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_simple_non_security_admin_shield_get_requests_remain_loggable() :void {
+		$this->loginAsAdministrator();
+		$this->applyCurrentShieldPluginPageRequest(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_shield_get_requests_with_extra_query_state_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldPluginPageRequest(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			[
+				'extra' => '1',
+			]
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_shield_get_requests_with_invalid_route_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldPluginPageRequest(
+			PluginNavs::NAV_DASHBOARD,
+			'invalid-subnav'
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_shield_like_get_requests_with_wrong_page_slug_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldPluginPageRequest(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			[
+				'page' => 'other-plugin-page',
+			]
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_shield_like_get_requests_outside_admin_context_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldPluginPageRequest(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			[],
+			[
+				'REQUEST_URI' => '/?page=icwp-wpsf-plugin&nav=dashboard&nav_sub=overview',
+			],
+			[
+				'path'         => '/',
+				'script_name'  => 'index.php',
+				'wp_is_admin'  => false,
+			]
+		);
 
 		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 	}
@@ -311,6 +397,46 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 				'path'       => '/wp-admin/admin-ajax.php',
 				'wp_is_ajax' => true,
 			]
+		);
+	}
+
+	private function applyCurrentShieldPluginPageRequest(
+		string $nav,
+		string $subNav,
+		array $extraQuery = [],
+		array $server = [],
+		array $requestOverrides = []
+	) :void {
+		$query = \array_merge( [
+			'page'    => $this->requireController()->plugin_urls->rootAdminPageSlug(),
+			PluginNavs::FIELD_NAV    => $nav,
+			PluginNavs::FIELD_SUBNAV => $subNav,
+		], $extraQuery );
+
+		$uri = '/wp-admin/admin.php?page='.$query[ 'page' ]
+			   .'&'.PluginNavs::FIELD_NAV.'='.$nav
+			   .'&'.PluginNavs::FIELD_SUBNAV.'='.$subNav;
+
+		if ( !empty( $extraQuery ) ) {
+			$uri .= '&'.\http_build_query( $extraQuery, '', '&', \PHP_QUERY_RFC3986 );
+		}
+
+		$this->applyCurrentRequestState(
+			\array_merge( [
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => $uri,
+				'SCRIPT_NAME'    => '/wp-admin/admin.php',
+				'SCRIPT_FILENAME'=> '/wp-admin/admin.php',
+				'PHP_SELF'       => '/wp-admin/admin.php',
+			], $server ),
+			$query,
+			[],
+			\array_merge( [
+				'path'             => '/wp-admin/admin.php',
+				'script_name'      => 'admin.php',
+				'wp_is_admin'      => true,
+				'wp_is_ajax'       => false,
+			], $requestOverrides )
 		);
 	}
 
