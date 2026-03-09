@@ -69,6 +69,7 @@ class ShieldBootstrapWriteSuppressionIntegrationTest extends ShieldIntegrationTe
 
 	public function test_test_rest_action_still_persists_success_timestamp() :void {
 		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
 		$con->opts->optSet( 'test_rest_data', [
 			'maybe_test_at'   => 0,
 			'success_test_at' => 0,

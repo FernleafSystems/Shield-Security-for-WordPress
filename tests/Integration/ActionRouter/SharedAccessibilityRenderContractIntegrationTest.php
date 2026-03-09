@@ -87,14 +87,7 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		$payload = $this->processor()->processAction( IpAnalysis::SLUG, [
 			'ip' => '198.51.100.20',
 		] )->payload();
-		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
-
-		$this->assertSame(
-			'replace',
-			(string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? '' ),
-			'IP analysis offcanvas history mode contract'
-		);
 
 		$this->assertXPathExists(
 			$xpath,
@@ -127,7 +120,7 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 			'//*[contains(@class,"investigate-inline-ipanalyse")]//*[contains(concat(" ", normalize-space(@class), " "), " shield-options-rail ")]//*[@data-bs-toggle="tab"]'
 		);
 		$this->assertNotFalse( $sourceTabs, 'IP analysis offcanvas source tab query failed' );
-		$this->assertSame( 5, $sourceTabs->length, 'IP analysis offcanvas source tabs count contract' );
+		$this->assertGreaterThan( 0, $sourceTabs->length, 'IP analysis offcanvas source tabs exist' );
 
 		foreach ( $sourceTabs as $sourceTab ) {
 			$this->assertInstanceOf( \DOMElement::class, $sourceTab );

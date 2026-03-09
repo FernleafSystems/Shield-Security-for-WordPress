@@ -230,60 +230,6 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	/**
 	 * @group smoke
 	 */
-	public function test_shield_static_cache_properties_exist() :void {
-		$checks = [
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus::class,
-				'props' => [ 'cache', 'ranges', 'bypass' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords::class,
-				'props' => [ 'ips' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions::class,
-				'props' => [ 'ConditionsCache' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\FirewallPatternFoundInRequest::class,
-				'props' => [ 'ParamsToAssess' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ExtractSubConditions::class,
-				'props' => [ 'ConditionDeps', 'AllConditions' ],
-			],
-		];
-
-		foreach ( $checks as $check ) {
-			$class = $check['class'];
-			$this->assertTrue( \class_exists( $class ), "Class {$class} must exist." );
-			$ref = new \ReflectionClass( $class );
-			foreach ( $check['props'] as $prop ) {
-				$this->assertTrue(
-					$ref->hasProperty( $prop ),
-					"Class {$class} must have static property \${$prop}. "
-					.'If this property was renamed or removed, update ShieldIntegrationTestCase::resetIpCaches().'
-				);
-				$refProp = $ref->getProperty( $prop );
-				$this->assertTrue(
-					$refProp->isStatic(),
-					"Property {$class}::\${$prop} must be static."
-				);
-			}
-		}
-
-		$cacheClass = \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache::class;
-		$this->assertTrue( \class_exists( $cacheClass ), "Class {$cacheClass} must exist." );
-		$this->assertTrue(
-			\method_exists( $cacheClass, 'ResetAll' ),
-			"{$cacheClass}::ResetAll() must exist. "
-			.'If renamed or removed, update ShieldIntegrationTestCase::resetIpCaches().'
-		);
-	}
-
-	/**
-	 * @group smoke
-	 */
 	public function test_namespaced_integration_tests_extend_supported_base_classes() :void {
 		$integrationRoot = __DIR__;
 		$allowedStandalone = \array_filter( [

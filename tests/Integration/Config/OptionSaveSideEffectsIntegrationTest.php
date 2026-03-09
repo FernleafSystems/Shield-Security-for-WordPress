@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -82,7 +84,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->optSet( 'enable_email_authentication', 'Y' )->store();
 
 		$this->assertCount( 1, $this->mails );
-		$this->assertContains( 'secadmin@example.com', $this->mailRecipients( $this->mails[ 0 ] ) );
+		$this->assertContains( Services::WpGeneral()->getSiteAdminEmail(), $this->mailRecipients( $this->mails[ 0 ] ) );
 		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verified_at' ) );
 	}
 
@@ -97,7 +99,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$con->opts->optSet( 'cs_block', 'disabled' )->store();
 
-		$records = $dbh->getQuerySelector()->select();
+		$records = $this->loadIpRulesByType();
 		$this->assertCount( 1, $records );
 		$this->assertSame( $dbh::T_MANUAL_BLOCK, $records[ 0 ]->type );
 	}
@@ -112,7 +114,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$con->opts->optSet( 'transgression_limit', 0 )->store();
 
-		$records = $dbh->getQuerySelector()->select();
+		$records = $this->loadIpRulesByType();
 		$this->assertCount( 1, $records );
 		$this->assertSame( $dbh::T_MANUAL_BLOCK, $records[ 0 ]->type );
 	}
@@ -147,7 +149,9 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
 
-		$records = $handler->getQuerySelector()->select();
+		$records = $handler->getQuerySelector()
+						   ->setNoOrderBy()
+						   ->queryWithResult();
 		$this->assertCount( 1, $records );
 		$this->assertSame( 'wpconfig', $records[ 0 ]->type );
 	}
@@ -191,6 +195,17 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 			$to = [ $to ];
 		}
 		return \array_values( \array_filter( \array_map( 'strval', \is_array( $to ) ? $to : [] ) ) );
+	}
+
+	private function loadIpRulesByType( string $type = '' ) :array {
+		$records = \array_values( ( new LoadIpRules() )->select() );
+		if ( $type === '' ) {
+			return $records;
+		}
+		return \array_values( \array_filter(
+			$records,
+			static fn( $record ) :bool => (string)( $record->type ?? '' ) === $type
+		) );
 	}
 
 	/**

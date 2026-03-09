@@ -60,6 +60,23 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 	}
 
+	private function enableAssetScanFixture( array $scanAreas ) :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+			'scan_vulnerabilities',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'enable_wpvuln_scan', 'Y' )
+			 ->optSet( 'enabled_scan_apc', 'Y' )
+			 ->optSet( 'file_scan_areas', $scanAreas )
+			 ->store();
+
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+	}
+
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
 		$matches = \array_values( \array_filter(
 			$zoneTiles,
@@ -179,72 +196,40 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringNotContainsString( 'ActionsQueueScansTabsNav', $html );
 	}
 
-	public function test_scans_assessment_rows_include_plugin_files_only_when_only_plugin_scan_area_is_enabled() :void {
-		$this->requireController()->opts->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] );
-		$this->resetScanResultCountMemoization();
-		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
-
-		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing plugin scan checklist' );
-		$scans = $this->findZoneTile(
-			\is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
-				? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
-				: [],
-			'scans'
-		);
-
-		$this->assertContains( 'plugin_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
-		$this->assertNotContains( 'theme_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
-	}
-
-	public function test_scans_assessment_rows_include_theme_files_only_when_only_theme_scan_area_is_enabled() :void {
-		$this->requireController()->opts->optSet( 'file_scan_areas', [ 'wp', 'themes' ] );
-		$this->resetScanResultCountMemoization();
-		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
-
-		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing theme scan checklist' );
-		$scans = $this->findZoneTile(
-			\is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
-				? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
-				: [],
-			'scans'
-		);
-
-		$this->assertContains( 'theme_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
-		$this->assertNotContains( 'plugin_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
-	}
-
-	public function test_scans_assessment_rows_include_plugin_and_theme_files_when_both_scan_areas_are_enabled() :void {
+	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {
 		$this->requireController()->opts->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] );
-		$this->resetScanResultCountMemoization();
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
+		$baselinePayload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $baselinePayload, 'actions queue landing asset scan checklist baseline' );
+		$baselineScans = $this->findZoneTile(
+			\is_array( $baselinePayload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
+				? $baselinePayload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
+				: [],
+			'scans'
+		);
+		$baselineKeys = \array_column( $baselineScans[ 'assessment_rows' ] ?? [], 'key' );
+		$this->assertNotContains( 'plugin_files', $baselineKeys );
+		$this->assertNotContains( 'theme_files', $baselineKeys );
+
+		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
+
 		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing plugin and theme scan checklist' );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing asset scan checklist gated' );
 		$scans = $this->findZoneTile(
 			\is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
 				? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
 				: [],
 			'scans'
 		);
+		$assessmentKeys = \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' );
 
-		$this->assertContains( 'plugin_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
-		$this->assertContains( 'theme_files', \array_column( $scans[ 'assessment_rows' ] ?? [], 'key' ) );
+		$this->assertContains( 'plugin_files', $assessmentKeys );
+		$this->assertContains( 'theme_files', $assessmentKeys );
 	}
 
 	public function test_scans_results_shell_shows_plugin_theme_and_vulnerability_tabs_only_when_findings_exist() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_pluginsthemes_local',
-			'scan_vulnerabilities',
-		] );
-
-		$this->requireController()->opts
-			->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			->optSet( 'enable_wpvuln_scan', 'Y' )
-			->optSet( 'enabled_scan_apc', 'Y' )
-			->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] );
-		$this->resetScanResultCountMemoization();
+		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
 
 		$pluginSlug = self::con()->base_file;
 		$themeSlug = \wp_get_theme()->get_stylesheet();

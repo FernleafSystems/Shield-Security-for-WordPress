@@ -97,7 +97,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'secadmin_target' ], $con->opts->optGet( 'sec_admin_users' ) );
 		$this->assertSame( [ 'administrator', 'editor', 'script' ], $con->opts->optGet( 'trusted_user_roles' ) );
 		$this->assertSame( [ 'administrator', 'badrole', 'editor' ], $con->opts->optGet( 'auto_idle_roles' ) );
-		$this->assertSame( [ 'domain_registered', 'syntax' ], $con->opts->optGet( 'email_checks' ) );
+		$this->assertSame( [ 'domain_registered', 'syntax' ], \array_values( $con->opts->optGet( 'email_checks' ) ) );
 		$this->assertSame( [ 'default-src self;', 'img-src https://example.com;' ], $con->opts->optGet( 'xcsp_custom' ) );
 		$this->assertSame( [ '/index.php,foo,bar' ], $con->opts->optGet( 'page_params_whitelist' ) );
 	}

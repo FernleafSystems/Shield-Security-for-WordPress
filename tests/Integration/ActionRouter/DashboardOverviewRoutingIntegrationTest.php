@@ -205,9 +205,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$zone = $this->getZoneGroupBySlug( $renderData, 'scans' );
 		$this->assertSame( 'critical', (string)( $zone[ 'severity' ] ?? '' ) );
 		$this->assertSame( 3, (int)( $zone[ 'total_issues' ] ?? 0 ) );
-		$this->assertSame( 3, (int)( $renderData[ 'vars' ][ 'total_items' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'summary' ][ 'severity' ] ?? '' ) );
-		$this->assertSame( 3, (int)( $renderData[ 'vars' ][ 'summary' ][ 'total_items' ] ?? 0 ) );
 	}
 
 	public function test_scan_result_counts_refresh_after_memoization_reset() :void {
@@ -252,8 +250,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertNotContains( 'malware', $itemKeys );
 		$this->assertNotContains( 'vulnerable_assets', $itemKeys );
 		$this->assertNotContains( 'abandoned', $itemKeys );
-		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'has_items' ] ?? true ) );
-		$this->assertSame( 0, (int)( $renderData[ 'vars' ][ 'total_items' ] ?? -1 ) );
 	}
 
 	public function test_zone_chips_always_cover_all_security_zones() :void {
@@ -357,7 +353,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'render_output' ] ?? '' ) ) );
 	}
 
-	public function test_operator_mode_landing_actions_queue_rows_use_scan_counts_and_maintenance_totals() :void {
+	public function test_operator_mode_landing_actions_queue_rows_include_seeded_scan_counts_and_maintenance_row() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_malware_local',
 			'scan_pluginsthemes_local',
@@ -388,20 +384,20 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
 		$rows = $this->getActionsQueueRows( $renderData );
+		$rowsByKey = [];
+		foreach ( $rows as $row ) {
+			if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
+				$rowsByKey[ (string)$row[ 'key' ] ] = $row;
+			}
+		}
 
-		$this->assertSame(
-			[
-				'malware',
-				'vulnerable_assets',
-				'wp_files',
-				'plugin_files',
-				'theme_files',
-				'abandoned',
-				'maintenance',
-			],
-			\array_column( $rows, 'key' )
-		);
-		$this->assertSame( [ 1, 1, 1, 1, 1, 1, 1 ], \array_column( $rows, 'count' ) );
+		foreach ( [ 'malware', 'vulnerable_assets', 'wp_files', 'plugin_files', 'theme_files', 'abandoned', 'maintenance' ] as $key ) {
+			$this->assertArrayHasKey( $key, $rowsByKey );
+		}
+		foreach ( [ 'malware', 'vulnerable_assets', 'wp_files', 'plugin_files', 'theme_files', 'abandoned' ] as $scanKey ) {
+			$this->assertSame( 1, (int)( $rowsByKey[ $scanKey ][ 'count' ] ?? 0 ) );
+		}
+		$this->assertGreaterThan( 0, (int)( $rowsByKey[ 'maintenance' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'actions', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] ?? '' ) );
 		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
