@@ -13,7 +13,6 @@ class IpRulesCache {
 	public const GROUP_NO_RULES = 'no_rules';
 	public const GROUP_COLLECTIONS = 'collections';
 	public const COLLECTION_RANGES = 'ranges';
-	public const COLLECTION_BYPASS = 'white';
 	private const GROUPS = [
 		self::GROUP_NO_RULES    => [
 			'lifetime' => 60,

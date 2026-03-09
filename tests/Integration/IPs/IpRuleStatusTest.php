@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\IPs;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -17,6 +18,14 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 	private function makeStatus( string $ip ) :IpRuleStatus {
 		$this->resetIpCaches();
 		return new IpRuleStatus( $ip );
+	}
+
+	private function loadRulesForIpByType( string $ip, string $type ) :array {
+		$loader = ( new LoadIpRules() )->setIP( $ip );
+		$loader->wheres = [
+			sprintf( "`ir`.`type`='%s'", $type )
+		];
+		return \array_values( $loader->select() );
 	}
 
 	// ── No rules ───────────────────────────────────────────────────
@@ -138,6 +147,129 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 	}
 
 	// ── Offense count ─────────────────────────────────────────────
+
+	public function test_manual_block_range_matches_member_ip() {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		TestDataFactory::insertManualBlock( '10.0.1.0', [
+			'cidr'     => 24,
+			'is_range' => true,
+		] );
+
+		$status = $this->makeStatus( '10.0.1.44' );
+		$this->assertTrue( $status->hasManualBlock() );
+		$this->assertTrue( $status->isBlockedByShield() );
+	}
+
+	public function test_bypass_range_matches_member_ip() {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		TestDataFactory::insertBypass( '10.0.2.0', [
+			'cidr'     => 24,
+			'is_range' => true,
+		] );
+
+		$status = $this->makeStatus( '10.0.2.77' );
+		$this->assertTrue( $status->isBypass() );
+		$this->assertFalse( $status->isBlocked() );
+	}
+
+	public function test_bypass_range_overrides_exact_block() {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		TestDataFactory::insertBypass( '10.0.3.0', [
+			'cidr'     => 24,
+			'is_range' => true,
+		] );
+		TestDataFactory::insertManualBlock( '10.0.3.55' );
+
+		$status = $this->makeStatus( '10.0.3.55' );
+		$this->assertTrue( $status->isBypass() );
+		$this->assertFalse( $status->isBlockedByShield() );
+		$this->assertFalse( $status->isBlocked() );
+	}
+
+	public function test_range_input_matches_covering_manual_block_range() {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		TestDataFactory::insertManualBlock( '10.0.4.0', [
+			'cidr'     => 24,
+			'is_range' => true,
+		] );
+
+		$status = $this->makeStatus( '10.0.4.128/25' );
+		$this->assertTrue( $status->hasManualBlock() );
+		$this->assertTrue( $status->isBlockedByShield() );
+	}
+
+	public function test_invalid_input_returns_safe_empty_status() {
+		$status = $this->makeStatus( 'not-an-ip' );
+
+		$this->assertFalse( $status->hasRules() );
+		$this->assertFalse( $status->isBlocked() );
+		$this->assertFalse( $status->isBypass() );
+		$this->assertSame( 0, $status->getOffenses() );
+		$this->assertSame( '', $status->getBlockType() );
+	}
+
+	public function test_manual_block_duplicate_exact_is_deleted_when_covering_range_exists() {
+		$dbh = $this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$exactId = TestDataFactory::insertManualBlock( '10.0.9.55' );
+		$rangeId = TestDataFactory::insertManualBlock( '10.0.9.0', [
+			'cidr'     => 24,
+			'is_range' => true,
+		] );
+
+		$rules = \array_values( $this->makeStatus( '10.0.9.55' )->getRulesForManualBlock() );
+
+		$this->assertCount( 1, $rules );
+		$this->assertSame( $rangeId, (int)$rules[ 0 ]->id );
+		$this->assertEmpty( $dbh->getQuerySelector()->byId( $exactId ) );
+		$this->assertNotEmpty( $dbh->getQuerySelector()->byId( $rangeId ) );
+	}
+
+	public function test_bypass_duplicate_exact_is_deleted_when_covering_range_exists() {
+		$dbh = $this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$exactId = TestDataFactory::insertBypass( '10.0.10.55' );
+		$rangeId = TestDataFactory::insertBypass( '10.0.10.0', [
+			'cidr'     => 24,
+			'is_range' => true,
+		] );
+
+		$rules = \array_values( $this->makeStatus( '10.0.10.55' )->getRulesForBypass() );
+
+		$this->assertCount( 1, $rules );
+		$this->assertSame( $rangeId, (int)$rules[ 0 ]->id );
+		$this->assertEmpty( $dbh->getQuerySelector()->byId( $exactId ) );
+		$this->assertNotEmpty( $dbh->getQuerySelector()->byId( $rangeId ) );
+	}
+
+	public function test_multiple_auto_block_rows_merge_on_read() {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$ip = '10.0.11.8';
+		TestDataFactory::insertAutoBlock( $ip, [ 'offenses' => 2 ] );
+		TestDataFactory::insertAutoBlock( $ip, [ 'offenses' => 5 ] );
+
+		$status = $this->makeStatus( $ip );
+		$rule = $status->getRuleForAutoBlock();
+		$remainingRules = $this->loadRulesForIpByType( $ip, IpRulesHandler::T_AUTO_BLOCK );
+
+		$this->assertNotNull( $rule );
+		$this->assertSame( 7, (int)$rule->offenses );
+		$this->assertTrue( $status->hasAutoBlock() );
+		$this->assertCount( 1, $remainingRules );
+		$this->assertSame( 7, (int)$remainingRules[ 0 ]->offenses );
+	}
 
 	public function test_offense_count_from_auto_block() {
 		$this->requireDb( 'ip_rules' );

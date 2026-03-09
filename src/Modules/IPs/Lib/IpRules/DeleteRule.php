@@ -24,9 +24,6 @@ class DeleteRule {
 		if ( $record->is_range ) {
 			IpRulesCache::Delete( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
 		}
-		if ( $record->type === $dbh::T_MANUAL_BYPASS ) {
-			IpRulesCache::Delete( IpRulesCache::COLLECTION_BYPASS, IpRulesCache::GROUP_COLLECTIONS );
-		}
 
 		if ( $deleted ) {
 			switch ( $record->type ) {

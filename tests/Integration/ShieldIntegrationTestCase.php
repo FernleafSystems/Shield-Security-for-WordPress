@@ -155,7 +155,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		// IpRuleStatus static caches
 		$ref = new \ReflectionClass( IpRuleStatus::class );
 
-		foreach ( [ 'cache', 'ranges', 'bypass' ] as $prop ) {
+		foreach ( [ 'cache', 'ranges', 'rangeMatchers' ] as $prop ) {
 			if ( $ref->hasProperty( $prop ) ) {
 				$p = $ref->getProperty( $prop );
 				$p->setAccessible( true );

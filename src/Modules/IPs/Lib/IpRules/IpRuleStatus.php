@@ -13,6 +13,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use IPLib\Factory;
+use IPLib\Address\AddressInterface;
+use IPLib\Range\RangeInterface;
 
 class IpRuleStatus {
 
@@ -31,9 +33,14 @@ class IpRuleStatus {
 	private static ?array $ranges = null;
 
 	/**
-	 * @var ?IpRuleRecord[]
+	 * @var ?array<int, array{record: IpRuleRecord, range: RangeInterface}>
 	 */
-	private static ?array $bypass = null;
+	private static ?array $rangeMatchers = null;
+
+	private ?AddressInterface $parsedAddress = null;
+	private bool $parsedAddressLoaded = false;
+	private ?RangeInterface $parsedRange = null;
+	private bool $parsedRangeLoaded = false;
 
 	public function __construct( string $ipOrRange ) {
 		$this->ipOrRange = $ipOrRange;
@@ -60,7 +67,9 @@ class IpRuleStatus {
 		$ip = $this->getIP();
 		if ( !isset( self::$cache[ $ip ] ) ) {
 			try {
-				self::$cache[ $ip ] = IpRulesCache::Has( $this->getIP(), IpRulesCache::GROUP_NO_RULES ) ? [] : $this->loadRecordsForIP();
+				self::$cache[ $ip ] = $this->isSingleAddressLookup() && IpRulesCache::Has( $this->getIP(), IpRulesCache::GROUP_NO_RULES )
+					? []
+					: $this->loadRecordsForIP();
 			}
 			catch ( \Exception $e ) {
 				self::$cache[ $ip ] = [];
@@ -275,35 +284,73 @@ class IpRuleStatus {
 	 * @throws \Exception
 	 */
 	private function loadRecordsForIP() :array {
-		$parsedIP = Factory::parseRangeString( $this->getIP() );
-		if ( empty( $parsedIP ) ) {
+		$parsedRange = $this->getParsedRange();
+		if ( !$parsedRange instanceof RangeInterface ) {
 			throw new \Exception( 'Not a valid IP Address or Range' );
 		}
 
+		if ( !self::con()->db_con->ip_rules->isReady() ) {
+			return [];
+		}
+
+		$parsedAddress = $this->getParsedAddress();
+
+		return ( $parsedRange->getSize() === 1 && $parsedAddress instanceof AddressInterface )
+			? $this->loadRecordsForSingleAddress( $parsedAddress )
+			: $this->loadRecordsForGenericInput();
+	}
+
+	/**
+	 * @return IpRuleRecord[]
+	 */
+	private function loadRecordsForSingleAddress( AddressInterface $address ) :array {
+		$records = $this->loadExactNonRangeRules();
+
+		foreach ( $this->getRangeMatchers() as $matcher ) {
+			if ( $address->matches( $matcher[ 'range' ] ) ) {
+				$records[] = $matcher[ 'record' ];
+			}
+		}
+
+		if ( \count( $records ) === 0 ) {
+			IpRulesCache::Add( $this->getIP(), $this->getIP(), IpRulesCache::GROUP_NO_RULES );
+		}
+
+		return $records;
+	}
+
+	/**
+	 * Preserve the current broad containment semantics for non-single inputs such as CLI/admin range lookups.
+	 * @return IpRuleRecord[]
+	 */
+	private function loadRecordsForGenericInput() :array {
 		$records = [];
 
-		if ( self::con()->db_con->ip_rules->isReady() ) {
-
-			$loader = new LoadIpRules();
-			$loader->wheres = [
-				sprintf( '%s AND `ir`.`is_range`=0', IpAddressSql::equality( '`ips`.`ip`', $this->getIP() ) )
-			];
-
-			foreach ( \array_merge( $this->getRanges(), $this->getBypasses(), $loader->select() ) as $rec ) {
-				if ( Services::IP()->IpIn( $this->getIP(), [ $rec->ipAsSubnetRange( true ) ] ) ) {
-					$records[] = $rec;
-				}
-			}
-
-			if ( \count( $records ) === 0 ) {
-				IpRulesCache::Add( $this->getIP(), $this->getIP(), IpRulesCache::GROUP_NO_RULES );
+		foreach ( \array_merge( $this->getRangeRecords(), $this->loadExactNonRangeRules() ) as $record ) {
+			if ( Services::IP()->IpIn( $this->getIP(), [ $record->ipAsSubnetRange( true ) ] ) ) {
+				$records[] = $record;
 			}
 		}
 
 		return $records;
 	}
 
-	private function getRanges() :array {
+	/**
+	 * @return IpRuleRecord[]
+	 */
+	private function loadExactNonRangeRules() :array {
+		$loader = new LoadIpRules();
+		$loader->wheres = [
+			sprintf( '%s AND `ir`.`is_range`=0', IpAddressSql::equality( '`ips`.`ip`', $this->getIP() ) )
+		];
+
+		return \array_values( $loader->select() );
+	}
+
+	/**
+	 * @return IpRuleRecord[]
+	 */
+	private function getRangeRecords() :array {
 		if ( self::$ranges === null ) {
 
 			$cachedRanges = IpRulesCache::Get( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );
@@ -333,40 +380,51 @@ class IpRuleStatus {
 				}
 			}
 		}
+
 		return self::$ranges;
 	}
 
-	private function getBypasses() :array {
-		if ( self::$bypass === null ) {
+	/**
+	 * @return array<int, array{record: IpRuleRecord, range: RangeInterface}>
+	 */
+	private function getRangeMatchers() :array {
+		if ( self::$rangeMatchers === null ) {
+			self::$rangeMatchers = [];
 
-			$cachedBypasses = IpRulesCache::Get( IpRulesCache::COLLECTION_BYPASS, IpRulesCache::GROUP_COLLECTIONS );
-			if ( \is_array( $cachedBypasses ) ) {
-				self::$bypass = \array_map( function ( array $record ) {
-					return ( new IpRuleRecord() )->applyFromArray( $record );
-				}, $cachedBypasses );
-			}
-			else {
-				self::$bypass = [];
-
-				$loader = new LoadIpRules();
-				$loader->wheres = [
-					IpAddressSql::equality( '`ips`.`ip`', $this->getIP() ),
-					sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_MANUAL_BYPASS ),
-					"`ir`.`is_range`='0'",
-				];
-				self::$bypass = \array_values( $loader->select() );
-
-				if ( \count( self::$bypass ) < 50 ) {
-					IpRulesCache::Add(
-						IpRulesCache::COLLECTION_BYPASS,
-						\array_map( function ( IpRuleRecord $record ) {
-							return $record->getRawData();
-						}, self::$bypass ),
-						IpRulesCache::GROUP_COLLECTIONS
-					);
+			foreach ( $this->getRangeRecords() as $record ) {
+				$parsedRange = Factory::parseRangeString( $record->ipAsSubnetRange( true ) );
+				if ( $parsedRange instanceof RangeInterface ) {
+					self::$rangeMatchers[] = [
+						'record' => $record,
+						'range'  => $parsedRange,
+					];
 				}
 			}
 		}
-		return self::$bypass;
+
+		return self::$rangeMatchers;
+	}
+
+	private function isSingleAddressLookup() :bool {
+		$parsedRange = $this->getParsedRange();
+		return $parsedRange instanceof RangeInterface
+			   && $parsedRange->getSize() === 1
+			   && $this->getParsedAddress() instanceof AddressInterface;
+	}
+
+	private function getParsedAddress() :?AddressInterface {
+		if ( !$this->parsedAddressLoaded ) {
+			$this->parsedAddress = Factory::parseAddressString( $this->getIP() );
+			$this->parsedAddressLoaded = true;
+		}
+		return $this->parsedAddress;
+	}
+
+	private function getParsedRange() :?RangeInterface {
+		if ( !$this->parsedRangeLoaded ) {
+			$this->parsedRange = Factory::parseRangeString( $this->getIP() );
+			$this->parsedRangeLoaded = true;
+		}
+		return $this->parsedRange;
 	}
 }
