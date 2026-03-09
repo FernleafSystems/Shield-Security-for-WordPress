@@ -23,6 +23,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'good', $normalized[ 'status' ] ?? '' );
 		$this->assertSame( 'Full Log', $normalized[ 'full_log_text' ] ?? '' );
 		$this->assertSame( 'btn btn-outline-secondary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
+		$this->assertTrue( $normalized[ 'show_header' ] ?? false );
 		$this->assertFalse( $normalized[ 'is_flat' ] ?? true );
 		$this->assertFalse( $normalized[ 'is_empty' ] ?? true );
 		$this->assertSame( 'info', $normalized[ 'empty_status' ] ?? '' );
@@ -35,6 +36,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			'status'                 => [ 'warning' ],
 			'full_log_text'          => true,
 			'full_log_button_class'  => null,
+			'show_header'            => 'yes',
 			'is_flat'                => 1,
 			'is_empty'               => 'yes',
 			'empty_status'           => false,
@@ -45,6 +47,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'info', $normalized[ 'status' ] ?? '' );
 		$this->assertSame( 'Full Log', $normalized[ 'full_log_text' ] ?? '' );
 		$this->assertSame( 'btn btn-outline-secondary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
+		$this->assertTrue( $normalized[ 'show_header' ] ?? false );
 		$this->assertFalse( $normalized[ 'is_flat' ] ?? true );
 		$this->assertFalse( $normalized[ 'is_empty' ] ?? true );
 		$this->assertSame( 'info', $normalized[ 'empty_status' ] ?? '' );

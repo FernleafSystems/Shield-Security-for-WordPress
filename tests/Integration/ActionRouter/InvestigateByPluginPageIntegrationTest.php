@@ -73,7 +73,6 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 			'Legacy by-plugin route opens plugin panel'
 		);
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-plugin file tab label marker' );
-		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-plugin file CTA label marker' );
 		$this->assertInvestigateOverviewLabel( $xpath, 'Name', 'By-plugin overview table row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-plugin back button removed marker' );
 		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-plugin summary cards removed marker' );

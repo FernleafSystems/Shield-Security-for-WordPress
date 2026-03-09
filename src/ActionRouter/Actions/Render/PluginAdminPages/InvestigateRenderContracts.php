@@ -119,6 +119,7 @@ trait InvestigateRenderContracts {
 			'full_log_button_class',
 			'btn btn-outline-secondary btn-sm'
 		);
+		$table[ 'show_header' ] = $this->normalizeContractBool( $table, 'show_header', true );
 		$table[ 'is_flat' ] = $this->normalizeContractBool( $table, 'is_flat', false );
 		$table[ 'is_empty' ] = $this->normalizeContractBool( $table, 'is_empty', false );
 		$table[ 'empty_status' ] = $this->normalizeContractString( $table, 'empty_status', 'info' );

@@ -72,7 +72,6 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 			'Legacy by-theme route opens theme panel'
 		);
 		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-theme file tab label marker' );
-		$this->assertHtmlContainsMarker( 'Full Scan Results', $html, 'By-theme file CTA label marker' );
 		$this->assertInvestigateOverviewLabel( $xpath, 'Name', 'By-theme overview table row marker' );
 		$this->assertInvestigateOverviewLabel( $xpath, 'Child Theme Status', 'By-theme child-theme row marker' );
 		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-theme back button removed marker' );

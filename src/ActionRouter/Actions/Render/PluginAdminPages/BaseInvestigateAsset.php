@@ -6,7 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\Investigation\InvestigationTableContract,
 	Actions\Investigation\InvestigationSubjectResolver,
+	Actions\Render\Components,
 	Actions\InvestigationTableAction,
+	Actions\ScanResultsTableAction,
 	Exceptions\InvalidInvestigationSubjectIdentifierException,
 	Exceptions\UnsupportedInvestigationSubjectTypeException,
 	Exceptions\UnsupportedInvestigationTableTypeException
@@ -151,6 +153,12 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		);
 		$fileTable[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
 		$fileTable[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
+		$fileTable[ 'show_header' ] = false;
+		$fileTable[ 'scan_results_action' ] = ActionData::Build( ScanResultsTableAction::class, true, [
+			'type' => $subjectType === InvestigationTableContract::SUBJECT_TYPE_CORE ? 'wordpress' : $subjectType,
+			'file' => $subjectId,
+		] );
+		$fileTable[ 'render_item_analysis' ] = ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class );
 		$fileTable[ 'is_flat' ] = true;
 		$fileTable = $this->normalizeInvestigationTableContract( $fileTable );
 

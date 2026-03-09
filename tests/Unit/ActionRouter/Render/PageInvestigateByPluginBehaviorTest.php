@@ -184,8 +184,9 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'summary', $vars );
 		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
 		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
-		$this->assertSame( 'Full Scan Results', (string)( $tables[ 'file_status' ][ 'full_log_text' ] ?? '' ) );
-		$this->assertSame( 'btn btn-primary btn-sm', (string)( $tables[ 'file_status' ][ 'full_log_button_class' ] ?? '' ) );
+		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'show_header' ] ?? true ) );
+		$this->assertArrayHasKey( 'scan_results_action', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayHasKey( 'render_item_analysis', $tables[ 'file_status' ] ?? [] );
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
 		$this->assertSame(
 			[ 'Name', 'Slug', 'Version', 'Author', 'File', 'Install Directory', 'Installed', 'Active Status', 'Update Available Status', 'Vulnerability Status' ],
@@ -386,8 +387,9 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 				'subject_id'   => $subjectId,
 				'datatables_init' => [ 'columns' => [] ],
 				'table_action' => [ 'slug' => 'investigation_table' ],
-				'full_log_text' => 'Full Scan Results',
-				'full_log_button_class' => 'btn btn-primary btn-sm',
+				'scan_results_action' => [ 'slug' => 'scan_results_action' ],
+				'render_item_analysis' => [ 'slug' => 'scan_item_analysis' ],
+				'show_header' => false,
 				'is_flat' => true,
 			],
 			'activity'    => [

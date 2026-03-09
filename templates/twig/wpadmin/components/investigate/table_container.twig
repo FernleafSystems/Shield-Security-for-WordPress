@@ -1,6 +1,8 @@
 {% set panel_status = table.status %}
 {% set datatables_init_attr = table.datatables_init is iterable ? table.datatables_init|json_encode : table.datatables_init %}
 {% set table_action_attr = table.table_action is iterable ? table.table_action|json_encode : table.table_action %}
+{% set scan_results_action_attr = table.scan_results_action is iterable ? table.scan_results_action|json_encode : table.scan_results_action|default('') %}
+{% set render_item_analysis_attr = table.render_item_analysis is iterable ? table.render_item_analysis|json_encode : table.render_item_analysis|default('') %}
 {% set full_log_button_class = table.full_log_button_class %}
 
 {% set table_markup %}
@@ -17,6 +19,8 @@
 					   data-subject-id="{{ table.subject_id }}"
 					   data-datatables-init="{{ datatables_init_attr|e('html_attr') }}"
 					   data-table-action="{{ table_action_attr|e('html_attr') }}"
+					   {% if scan_results_action_attr is not empty %}data-scan-results-action="{{ scan_results_action_attr|e('html_attr') }}"{% endif %}
+					   {% if render_item_analysis_attr is not empty %}data-render-item-analysis="{{ render_item_analysis_attr|e('html_attr') }}"{% endif %}
 				></table>
 			{% endif %}
 		</div>
@@ -25,24 +29,28 @@
 
 {% if table.is_flat %}
 	<section class="investigate-table-panel investigate-table-panel--flat mb-3 status-{{ panel_status }}">
-		<div class="d-flex justify-content-between align-items-center mb-3">
-			<h5 class="card-title mb-0">{{ table.title }}</h5>
-			{% if table.full_log_href is not empty %}
-				<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text }}</a>
-			{% endif %}
-		</div>
-		{{ table_markup }}
-	</section>
-{% else %}
-	<section class="card shield-card mb-3 status-{{ panel_status }}">
-		<div class="shield-card-accent status-{{ panel_status }}"></div>
-		<div class="card-body">
+		{% if table.show_header %}
 			<div class="d-flex justify-content-between align-items-center mb-3">
 				<h5 class="card-title mb-0">{{ table.title }}</h5>
 				{% if table.full_log_href is not empty %}
 					<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text }}</a>
 				{% endif %}
 			</div>
+		{% endif %}
+		{{ table_markup }}
+	</section>
+{% else %}
+	<section class="card shield-card mb-3 status-{{ panel_status }}">
+		<div class="shield-card-accent status-{{ panel_status }}"></div>
+		<div class="card-body">
+			{% if table.show_header %}
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h5 class="card-title mb-0">{{ table.title }}</h5>
+					{% if table.full_log_href is not empty %}
+						<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text }}</a>
+					{% endif %}
+				</div>
+			{% endif %}
 			{{ table_markup }}
 		</div>
 	</section>

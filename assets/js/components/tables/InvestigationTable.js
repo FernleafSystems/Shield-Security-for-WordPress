@@ -1,7 +1,24 @@
 import $ from 'jquery';
+import hljs from 'highlight.js/lib/core';
+import bash from 'highlight.js/lib/languages/bash';
+import css from 'highlight.js/lib/languages/css';
+import javascript from 'highlight.js/lib/languages/javascript';
+import json from 'highlight.js/lib/languages/json';
+import php from 'highlight.js/lib/languages/php';
+import sql from 'highlight.js/lib/languages/sql';
+import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
+import { BootstrapModals } from "../ui/BootstrapModals";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableBase } from "./ShieldTableBase";
+
+hljs.registerLanguage( 'bash', bash );
+hljs.registerLanguage( 'css', css );
+hljs.registerLanguage( 'javascript', javascript );
+hljs.registerLanguage( 'json', json );
+hljs.registerLanguage( 'php', php );
+hljs.registerLanguage( 'sql', sql );
+hljs.registerLanguage( 'xml', xml );
 
 export class InvestigationTable extends ShieldTableBase {
 
@@ -44,6 +61,7 @@ export class InvestigationTable extends ShieldTableBase {
 		if ( $.fn.dataTable && $.fn.dataTable.isDataTable( tableEl ) ) {
 			const datatable = $tableElement.DataTable();
 			this.ensureSearchDelay( datatable );
+			this.bindTableInteractions( $tableElement, datatable, context );
 			return;
 		}
 
@@ -58,6 +76,7 @@ export class InvestigationTable extends ShieldTableBase {
 
 		const datatable = $tableElement.DataTable( cfg );
 		this.ensureSearchDelay( datatable );
+		this.bindTableInteractions( $tableElement, datatable, context );
 	}
 
 	bindShownTabAdjustHandler() {
@@ -112,6 +131,174 @@ export class InvestigationTable extends ShieldTableBase {
 		);
 	}
 
+	bindTableInteractions( $tableElement, datatable, tableContext ) {
+		$tableElement.off( '.shieldInvestigationFileScan' );
+
+		if ( tableContext.tableType !== 'file_scan_results' ) {
+			return;
+		}
+
+		if ( tableContext.scanResultsAction !== null ) {
+			$tableElement.on(
+				'click.shieldInvestigationFileScan',
+				'td.actions > button.action.delete',
+				( evt ) => {
+					evt.preventDefault();
+					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+						this.performScanResultsAction( datatable, tableContext.scanResultsAction, 'delete', [ evt.currentTarget.dataset.rid ] );
+					}
+					return false;
+				}
+			);
+
+			$tableElement.on(
+				'click.shieldInvestigationFileScan',
+				'td.actions > button.action.ignore',
+				( evt ) => {
+					evt.preventDefault();
+					this.performScanResultsAction( datatable, tableContext.scanResultsAction, 'ignore', [ evt.currentTarget.dataset.rid ] );
+					return false;
+				}
+			);
+
+			$tableElement.on(
+				'click.shieldInvestigationFileScan',
+				'td.actions > button.action.repair',
+				( evt ) => {
+					evt.preventDefault();
+					datatable.rows().deselect();
+					this.performScanResultsAction( datatable, tableContext.scanResultsAction, 'repair', [ evt.currentTarget.dataset.rid ] );
+					return false;
+				}
+			);
+		}
+
+		if ( tableContext.renderItemAnalysis !== null ) {
+			$tableElement.on(
+				'click.shieldInvestigationFileScan',
+				'.action.view-file',
+				( evt ) => {
+					evt.preventDefault();
+					this.renderItemAnalysisModal( tableContext.renderItemAnalysis, evt.currentTarget.dataset.rid );
+					return false;
+				}
+			);
+		}
+	}
+
+	performScanResultsAction( datatable, actionData, action, rids = [] ) {
+		const filteredRids = rids.filter( ( rid ) => typeof rid === 'string' && rid.length > 0 );
+		if ( filteredRids.length < 1 ) {
+			return Promise.resolve();
+		}
+
+		const reqData = ObjectOps.ObjClone( actionData );
+		reqData.sub_action = action;
+		reqData.rids = filteredRids;
+
+		return ( new AjaxService() )
+		.send( reqData )
+		.then( ( resp ) => {
+			const responseData = ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
+				? resp.data
+				: {};
+
+			if ( resp.success ) {
+				datatable.ajax.reload( null );
+				const notificationService = shieldServices?.notification?.();
+				if ( notificationService ) {
+					notificationService.showMessage( responseData.message || '', resp.success );
+				}
+			}
+			else {
+				alert( responseData.message || 'Communications error with site.' );
+			}
+		} )
+		.catch( ( error ) => {
+			console.log( error );
+		} );
+	}
+
+	renderItemAnalysisModal( renderAction, rid ) {
+		if ( typeof rid !== 'string' || rid.length < 1 ) {
+			return Promise.resolve();
+		}
+
+		const reqData = ObjectOps.ObjClone( renderAction );
+		reqData.rid = rid;
+
+		return ( new AjaxService() )
+		.send( reqData )
+		.then( ( resp ) => {
+			const responseData = ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
+				? resp.data
+				: {};
+
+			if ( resp.success ) {
+				const modal = document.getElementById( 'ShieldModalContainer' );
+				if ( modal === null ) {
+					return;
+				}
+
+				const modalContent = modal.querySelector( '.modal-content' );
+				if ( modalContent === null ) {
+					return;
+				}
+
+				modalContent.innerHTML = responseData.html || '';
+				BootstrapModals.Show( modal );
+				this.highlightModalCodeBlocks( modal );
+			}
+			else {
+				alert( responseData.message || 'Communications error with site.' );
+			}
+		} )
+		.catch( ( error ) => {
+			console.log( error );
+		} );
+	}
+
+	highlightModalCodeBlocks( modal ) {
+		const unknownLanguageBlocks = [];
+		modal.querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
+			const languageClass = Array.from( el.classList ).find( ( cls ) => cls.startsWith( 'language-' ) ) || '';
+			const language = languageClass ? languageClass.slice( 9 ) : '';
+			if ( language.length > 0 && hljs.getLanguage( language ) ) {
+				hljs.highlightElement( el );
+			}
+			else {
+				unknownLanguageBlocks.push( el );
+			}
+		} );
+
+		if ( unknownLanguageBlocks.length < 1 ) {
+			return;
+		}
+
+		const detectedLanguage = hljs.highlightAuto(
+			unknownLanguageBlocks.map( ( el ) => el.textContent || '' ).join( "\n" )
+		).language || '';
+
+		unknownLanguageBlocks.forEach( ( el ) => {
+			if ( detectedLanguage.length > 0 && hljs.getLanguage( detectedLanguage ) ) {
+				const highlighted = hljs.highlight( el.textContent || '', {
+					language: detectedLanguage,
+					ignoreIllegals: true,
+				} );
+				el.innerHTML = highlighted.value;
+				el.classList.add( 'hljs', 'language-' + detectedLanguage );
+			}
+			else {
+				const highlighted = hljs.highlightAuto( el.textContent || '' );
+				el.innerHTML = highlighted.value;
+				el.classList.add( 'hljs' );
+				if ( highlighted.language ) {
+					el.classList.add( 'language-' + highlighted.language );
+				}
+			}
+		} );
+	}
+
 	datatablesAjaxRequest( data, callback, settings, tableContext ) {
 		let reqData = ObjectOps.ObjClone( tableContext.tableAction );
 		reqData.sub_action = 'retrieve_table_data';
@@ -145,6 +332,8 @@ export class InvestigationTable extends ShieldTableBase {
 		const subjectId = tableEl.dataset.subjectId || '';
 		const datatablesInit = this.parseJsonData( tableEl.dataset.datatablesInit || '' );
 		const tableAction = this.parseJsonData( tableEl.dataset.tableAction || '' );
+		const scanResultsAction = this.parseJsonData( tableEl.dataset.scanResultsAction || '' );
+		const renderItemAnalysis = this.parseJsonData( tableEl.dataset.renderItemAnalysis || '' );
 
 		if ( tableType.length === 0 || subjectType.length === 0 || datatablesInit === null || tableAction === null ) {
 			return null;
@@ -156,6 +345,8 @@ export class InvestigationTable extends ShieldTableBase {
 			subjectId,
 			datatablesInit,
 			tableAction,
+			scanResultsAction,
+			renderItemAnalysis,
 		};
 	}
 
