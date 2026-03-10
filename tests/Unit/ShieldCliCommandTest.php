@@ -28,6 +28,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:integration-local',
 				'test:package-targeted',
 				'test:package-full',
+				'analyze:tooling',
 				'analyze:source',
 				'analyze:package',
 			] as $commandName
@@ -95,6 +96,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'test-integration-local' => [ 'test:integration-local' ],
 			'test-package-targeted' => [ 'test:package-targeted' ],
 			'test-package-full' => [ 'test:package-full' ],
+			'analyze-tooling' => [ 'analyze:tooling' ],
 			'analyze-source' => [ 'analyze:source' ],
 			'analyze-package' => [ 'analyze:package' ],
 		];

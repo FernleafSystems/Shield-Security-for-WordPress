@@ -23,6 +23,7 @@ For Docker-runner internals and environment variables, see [tests/docker/README.
 | Source runtime (canonical) | `php bin/shield test:source` | Source-first working-tree Docker checks |
 | Package-targeted runtime (canonical) | `php bin/shield test:package-targeted` | Focused package validation lane |
 | Package-full runtime (canonical) | `php bin/shield test:package-full` | Full packaged Docker runtime lane |
+| Tooling guard (canonical) | `php bin/shield analyze:tooling` | Fail-fast syntax lint + PHPStan for tooling and test infrastructure |
 | Source static analysis (canonical) | `php bin/shield analyze:source` | Build config + PHPStan on source |
 | Packaged static analysis (canonical) | `php bin/shield analyze:package` | Packaged PHPStan via Docker |
 | Source runtime (compat) | `./bin/run-docker-tests.sh --source` | Backwards-compatible adapter |
@@ -47,6 +48,7 @@ Primary CLI supports these commands:
 | `php bin/shield test:integration-local` | Host PHP integration tests with local Docker MySQL sidecar |
 | `php bin/shield test:package-targeted` | Focused package validation checks |
 | `php bin/shield test:package-full` | Full packaged runtime checks |
+| `php bin/shield analyze:tooling` | Fail-fast syntax lint + tooling/test-platform analysis |
 | `php bin/shield analyze:source` | Source static analysis pathway |
 | `php bin/shield analyze:package` | Packaged static analysis pathway |
 
@@ -85,6 +87,7 @@ Source defaults are intentional:
 
 `php bin/shield`:
 
+1. `analyze:tooling`: fail-fast syntax lint and tooling/test-platform PHPStan.
 1. `analyze:source`: source static analysis (`build-config` + PHPStan).
 2. `analyze:package`: packaged static analysis via Docker.
 
@@ -102,10 +105,11 @@ Composer mapping:
 
 Required source-first gate: `.github/workflows/tests.yml`
 
-1. Source static analysis (`composer analyze:source`).
-2. Parallel unit tests (`composer test:unit`).
-3. Source Docker runtime checks focused on Docker/runtime/integration coverage.
-4. Package-targeted validation against built artifact.
+1. Tooling guard (`php bin/shield analyze:tooling`) on PHP 7.4 before heavier lanes fan out.
+2. Source static analysis (`composer analyze:source`).
+3. Parallel unit tests (`composer test:unit`).
+4. Source Docker runtime checks focused on Docker/runtime/integration coverage.
+5. Package-targeted validation against built artifact.
 
 Serial compatibility sentinel: `.github/workflows/unit-serial-sentinel.yml`
 

@@ -41,9 +41,31 @@ jobs:
         chmod +x .github/scripts/test-verify-admin-bundle-safety.sh
         ./.github/scripts/test-verify-admin-bundle-safety.sh
 
+  tooling-guard:
+    name: 'Tooling Guard'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Run tooling guard
+      run: php bin/shield analyze:tooling
+
   source-static-analysis:
     name: 'Source Static Analysis'
     runs-on: ubuntu-latest
+    needs: tooling-guard
 
     steps:
     - name: Checkout code
@@ -68,12 +90,14 @@ jobs:
   unit-parallel:
     name: 'Unit Parallel'
     uses: ./.github/workflows/reusable-unit-tests.yml
+    needs: tooling-guard
     with:
       run_command: composer test:unit
 
   source-docker-runtime:
     name: 'Source Docker Runtime'
     runs-on: ubuntu-latest
+    needs: tooling-guard
 
     steps:
     - name: Checkout code
@@ -110,6 +134,7 @@ jobs:
   build-package:
     name: 'Build Package'
     uses: ./.github/workflows/reusable-build-package.yml
+    needs: tooling-guard
     with:
       artifact_name: shield-package
       package_dir: shield-package

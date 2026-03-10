@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalWpTestsInstallerCommandBuilder;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\TestingEnvironmentResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalWpTestsInstallerCommandBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
 use PHPUnit\Framework\TestCase;
 
 class LocalIntegrationTestLaneTest extends TestCase {
@@ -153,53 +153,14 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		}
 	}
 
-	private function createRecordingEnvironmentResolver() :TestingEnvironmentResolver {
-		return new class() extends TestingEnvironmentResolver {
-
-			public bool $assertDockerReadyCalled = false;
-
-			public function assertDockerReady( string $rootDir ) :void {
-				$this->assertDockerReadyCalled = true;
-			}
-		};
+	private function createRecordingEnvironmentResolver() :RecordingTestingEnvironmentResolver {
+		return new RecordingTestingEnvironmentResolver();
 	}
 
-	private function createRecordingInstallerCommandBuilder( array $command ) :LocalWpTestsInstallerCommandBuilder {
-		return new class( $command ) extends LocalWpTestsInstallerCommandBuilder {
-
-			/** @var array<int,array{db_name:string,db_user:string,db_pass:string,db_host:string,wp_version:string,skip_db_create:bool}> */
-			public array $calls = [];
-
-			/** @var string[] */
-			private array $command;
-
-			/**
-			 * @param string[] $command
-			 */
-			public function __construct( array $command ) {
-				parent::__construct();
-				$this->command = $command;
-			}
-
-			public function build(
-				string $dbName,
-				string $dbUser,
-				string $dbPass,
-				string $dbHost,
-				string $wpVersion,
-				bool $skipDbCreate
-			) :array {
-				$this->calls[] = [
-					'db_name' => $dbName,
-					'db_user' => $dbUser,
-					'db_pass' => $dbPass,
-					'db_host' => $dbHost,
-					'wp_version' => $wpVersion,
-					'skip_db_create' => $skipDbCreate,
-				];
-
-				return $this->command;
-			}
-		};
+	/**
+	 * @param string[] $command
+	 */
+	private function createRecordingInstallerCommandBuilder( array $command ) :RecordingLocalWpTestsInstallerCommandBuilder {
+		return new RecordingLocalWpTestsInstallerCommandBuilder( $command );
 	}
 }

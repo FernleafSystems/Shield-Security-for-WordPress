@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceSetupCacheCoordinator;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceStaticAnalysisLane;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingSourceAnalyzeSetupCacheCoordinator;
 use PHPUnit\Framework\TestCase;
 
 class SourceStaticAnalysisLaneTest extends TestCase {
@@ -73,40 +73,7 @@ class SourceStaticAnalysisLaneTest extends TestCase {
 	private function createSetupCoordinator(
 		bool $needsBuildConfig,
 		string $fingerprint
-	) :SourceSetupCacheCoordinator {
-		return new class( $needsBuildConfig, $fingerprint ) extends SourceSetupCacheCoordinator {
-
-			private bool $needsBuildConfig;
-
-			private string $fingerprint;
-
-			/** @var array<int,array{root_dir:string,fingerprint:string}> */
-			public array $persistCalls = [];
-
-			public int $clearCalls = 0;
-
-			public function __construct( bool $needsBuildConfig, string $fingerprint ) {
-				$this->needsBuildConfig = $needsBuildConfig;
-				$this->fingerprint = $fingerprint;
-			}
-
-			public function clearState( string $rootDir ) :void {
-				$this->clearCalls++;
-			}
-
-			public function evaluateAnalyzeSetup( string $rootDir, bool $refreshSetup = false ) :array {
-				return [
-					'needs_build_config' => $this->needsBuildConfig,
-					'fingerprint' => $this->fingerprint,
-				];
-			}
-
-			public function persistBuildConfigState( string $rootDir, string $buildConfigFingerprint ) :void {
-				$this->persistCalls[] = [
-					'root_dir' => $rootDir,
-					'fingerprint' => $buildConfigFingerprint,
-				];
-			}
-		};
+	) :RecordingSourceAnalyzeSetupCacheCoordinator {
+		return new RecordingSourceAnalyzeSetupCacheCoordinator( $needsBuildConfig, $fingerprint );
 	}
 }

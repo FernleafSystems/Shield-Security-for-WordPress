@@ -3,11 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceSetupCacheCoordinator;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\TestingEnvironmentResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingSourceRuntimeSetupCacheCoordinator;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
 use PHPUnit\Framework\TestCase;
 
 class SourceRuntimeTestLaneTest extends TestCase {
@@ -207,26 +207,8 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		}
 	}
 
-	private function createEnvironmentResolver() :TestingEnvironmentResolver {
-		return new class() extends TestingEnvironmentResolver {
-
-			public bool $assertDockerReadyCalled = false;
-
-			public function assertDockerReady( string $rootDir ) :void {
-				$this->assertDockerReadyCalled = true;
-			}
-
-			public function resolvePhpVersion( string $rootDir ) :string {
-				return '8.2';
-			}
-
-			public function detectWordpressVersions( string $rootDir ) :array {
-				return [ '6.9', '6.8.3' ];
-			}
-
-			public function writeDockerEnvFile( string $dockerEnvPath, array $lines ) :void {
-			}
-		};
+	private function createEnvironmentResolver() :RecordingTestingEnvironmentResolver {
+		return new RecordingTestingEnvironmentResolver();
 	}
 
 	/**
@@ -239,47 +221,8 @@ class SourceRuntimeTestLaneTest extends TestCase {
 	 *   fingerprints:array{composer:string,build_config:string,node_deps:string,asset_inputs:string}
 	 * } $decision
 	 */
-	private function createSetupCoordinator( array $decision ) :SourceSetupCacheCoordinator {
-		return new class( $decision ) extends SourceSetupCacheCoordinator {
-
-			/** @var array{
-			 *   needs_composer_install:bool,
-			 *   needs_build_config:bool,
-			 *   needs_npm_install:bool,
-			 *   needs_npm_build:bool,
-			 *   node_modules_volume:string,
-			 *   fingerprints:array{composer:string,build_config:string,node_deps:string,asset_inputs:string}
-			 * } */
-			private array $decision;
-
-			/** @var array<int,array<string,mixed>> */
-			public array $persistCalls = [];
-
-			public int $clearCalls = 0;
-
-			public function __construct( array $decision ) {
-				$this->decision = $decision;
-			}
-
-			public function clearState( string $rootDir ) :void {
-				$this->clearCalls++;
-			}
-
-			public function evaluateRuntimeSetup( string $rootDir, string $phpVersion, bool $refreshSetup = false ) :array {
-				return $this->decision;
-			}
-
-			public function persistRuntimeSetupState( string $rootDir, array $fingerprints ) :void {
-				$this->persistCalls[] = [
-					'root_dir' => $rootDir,
-					'fingerprints' => $fingerprints,
-				];
-			}
-
-			public function getNodeModulesVolumeName( string $rootDir ) :string {
-				return $this->decision[ 'node_modules_volume' ];
-			}
-		};
+	private function createSetupCoordinator( array $decision ) :RecordingSourceRuntimeSetupCacheCoordinator {
+		return new RecordingSourceRuntimeSetupCacheCoordinator( $decision );
 	}
 
 	/**

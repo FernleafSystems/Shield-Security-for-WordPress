@@ -387,7 +387,7 @@ class SourceRuntimeTestLane {
 		?SourceRuntimeLogSink $logSink = null
 	) :int {
 		echo 'Phase: '.$label.'.'.\PHP_EOL;
-		$callback = $logSink?->callbackForPhase( $phaseKey, $label );
+		$callback = $logSink !== null ? $logSink->callbackForPhase( $phaseKey, $label ) : null;
 		$exitCode = $this->processRunner->runForExitCode(
 			$command,
 			$rootDir,
@@ -416,7 +416,7 @@ class SourceRuntimeTestLane {
 		?SourceRuntimeLogSink $logSink = null
 	) :int {
 		echo 'Phase: '.$label.'.'.\PHP_EOL;
-		$callback = $logSink?->callbackForPhase( $phaseKey, $label );
+		$callback = $logSink !== null ? $logSink->callbackForPhase( $phaseKey, $label ) : null;
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$composeFiles,
