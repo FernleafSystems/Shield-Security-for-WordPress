@@ -6,7 +6,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerComposeExecutor;
 
 class RecordingDockerComposeExecutor extends DockerComposeExecutor {
 
-	/** @var array<int,array{root_dir:string,compose_files:array,sub_command:array,env_overrides:?array}> */
+	/** @var array<int,array{root_dir:string,compose_files:array,sub_command:array,env_overrides:?array,has_output_callback:bool}> */
 	public array $calls = [];
 
 	/** @var array<int,array{root_dir:string,compose_files:array,sub_command:array,env_overrides:?array}> */
@@ -27,13 +27,15 @@ class RecordingDockerComposeExecutor extends DockerComposeExecutor {
 		string $rootDir,
 		array $composeFiles,
 		array $subCommand,
-		?array $envOverrides = null
+		?array $envOverrides = null,
+		?callable $onOutput = null
 	) :int {
 		$this->calls[] = [
 			'root_dir' => $rootDir,
 			'compose_files' => $composeFiles,
 			'sub_command' => $subCommand,
 			'env_overrides' => $envOverrides,
+			'has_output_callback' => $onOutput !== null,
 		];
 
 		return (int)( \array_shift( $this->exitCodes ) ?? 0 );

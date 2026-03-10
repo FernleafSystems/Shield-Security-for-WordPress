@@ -61,6 +61,24 @@ class DockerComposeExecutorTest extends TestCase {
 		$this->assertSame( 9, $exitCode );
 	}
 
+	public function testRunForwardsOptionalOutputCallback() :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$executor = new DockerComposeExecutor( $processRunner );
+
+		$exitCode = $executor->run(
+			$this->projectRoot,
+			[ 'tests/docker/docker-compose.yml' ],
+			[ 'build', 'test-runner-latest' ],
+			null,
+			static function () :void {
+			}
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $processRunner->calls );
+		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
+	}
+
 	public function testRunIgnoringFailureDoesNotThrowOnNonZeroExitCode() :void {
 		$processRunner = new RecordingProcessRunner( [ 5 ] );
 		$executor = new DockerComposeExecutor( $processRunner );

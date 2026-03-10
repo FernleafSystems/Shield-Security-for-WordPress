@@ -234,6 +234,48 @@ class RunDockerTestsScriptTest extends BaseUnitTest {
 		}
 	}
 
+	public function testSourceModeForwardsSkipUnitTestsFlagToDockerRunnerCommands() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$shimDir = $this->createTrackedTempDir( 'shield-docker-skip-unit-shims-' );
+		$capturePath = Path::join( $shimDir, 'captured-docker-commands.txt' );
+		$this->writeDockerShim( $shimDir );
+		$this->writeBashVersionShim( $shimDir );
+
+		$path = \getenv( 'PATH' );
+		$env = [
+			'PATH' => $shimDir.\PATH_SEPARATOR.( \is_string( $path ) ? $path : '' ),
+			'SHIELD_TEST_DOCKER_CAPTURE' => $capturePath,
+			'SHIELD_SKIP_UNIT_TESTS' => '1',
+		];
+		if ( \PHP_OS_FAMILY === 'Windows' ) {
+			$pathExt = \getenv( 'PATHEXT' );
+			$env[ 'PATHEXT' ] = '.COM;.EXE;.BAT;.CMD'.( \is_string( $pathExt ) ? ';'.$pathExt : '' );
+			$env[ 'SHIELD_BASH_BINARY' ] = Path::join( $shimDir, 'bash.cmd' );
+		}
+
+		$process = $this->runPhpScript( 'bin/run-docker-tests.php', [ '--source' ], $env );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+		$this->assertFileExists( $capturePath, 'Docker shim did not capture any commands.' );
+
+		$capturedLines = \file( $capturePath, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES );
+		$this->assertIsArray( $capturedLines );
+		$this->assertNotEmpty( $capturedLines );
+
+		$runtimeRunnerLines = \array_values( \array_filter(
+			$capturedLines,
+			static function ( string $line ) :bool {
+				return \str_contains( $line, 'run --rm' )
+					&& \str_contains( $line, 'SHIELD_SKIP_INNER_SETUP=1' )
+					&& ( \str_contains( $line, 'test-runner-latest' ) || \str_contains( $line, 'test-runner-previous' ) );
+			}
+		) );
+		$this->assertCount( 2, $runtimeRunnerLines );
+		foreach ( $runtimeRunnerLines as $line ) {
+			$this->assertStringContainsString( 'SHIELD_SKIP_UNIT_TESTS=1', $line );
+		}
+	}
+
 	private function requireBash() :void {
 		$process = new Process( [ 'bash', '--version' ], $this->getPluginRoot() );
 		$process->run();

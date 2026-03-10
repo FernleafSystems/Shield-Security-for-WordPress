@@ -12,17 +12,36 @@ DB_HOST=${4-localhost}
 WP_VERSION=${5-latest}
 SKIP_DB_CREATE=${6-false}
 
-echo "=== SHIELD DEBUG: install-wp-tests.sh starting ==="
-echo "Arguments provided:"
-echo "  DB_NAME: $1"
-echo "  DB_USER: $2" 
-echo "  DB_PASS: $3"
-echo "  DB_HOST: $4"
-echo "  WP_VERSION: $5"
-echo "  SKIP_DB_CREATE: $6"
-echo "Current directory: $(pwd)"
-echo "SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH:-not set}"
-echo "=== END DEBUG HEADER ==="
+is_truthy() {
+	case "$1" in
+		1|true|TRUE|True|yes|YES|on|ON) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+shield_is_verbose() {
+	is_truthy "${SHIELD_TEST_VERBOSE:-}" \
+		|| is_truthy "${SHIELD_DEBUG:-}" \
+		|| is_truthy "${SHIELD_DEBUG_PATHS:-}"
+}
+
+shield_debug() {
+	if shield_is_verbose; then
+		echo "$@"
+	fi
+}
+
+shield_debug "=== SHIELD DEBUG: install-wp-tests.sh starting ==="
+shield_debug "Arguments provided:"
+shield_debug "  DB_NAME: $1"
+shield_debug "  DB_USER: $2"
+shield_debug "  DB_PASS: $3"
+shield_debug "  DB_HOST: $4"
+shield_debug "  WP_VERSION: $5"
+shield_debug "  SKIP_DB_CREATE: $6"
+shield_debug "Current directory: $(pwd)"
+shield_debug "SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH:-not set}"
+shield_debug "=== END DEBUG HEADER ==="
 
 TMPDIR=${TMPDIR-/tmp}
 TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
@@ -30,22 +49,22 @@ WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
 check_svn_installed() {
-    echo "=== SHIELD DEBUG: Checking for SVN installation ==="
+    shield_debug "=== SHIELD DEBUG: Checking for SVN installation ==="
     if ! command -v svn >/dev/null 2>&1; then
-        echo "=== SHIELD DEBUG: SVN not found, attempting to install ==="
+        shield_debug "=== SHIELD DEBUG: SVN not found, attempting to install ==="
         if command -v apt-get >/dev/null 2>&1; then
-            echo "=== SHIELD DEBUG: Using apt-get to install subversion ==="
+            shield_debug "=== SHIELD DEBUG: Using apt-get to install subversion ==="
             sudo apt-get update && sudo apt-get install -y subversion
         elif command -v yum >/dev/null 2>&1; then
-            echo "=== SHIELD DEBUG: Using yum to install subversion ==="
+            shield_debug "=== SHIELD DEBUG: Using yum to install subversion ==="
             sudo yum install -y subversion
         else
             echo "=== SHIELD ERROR: No package manager found, cannot install SVN ==="
             exit 1
         fi
     else
-        echo "=== SHIELD DEBUG: SVN found at: $(which svn) ==="
-        echo "=== SHIELD DEBUG: SVN version: $(svn --version --quiet) ==="
+        shield_debug "=== SHIELD DEBUG: SVN found at: $(which svn) ==="
+        shield_debug "=== SHIELD DEBUG: SVN version: $(svn --version --quiet) ==="
     fi
 }
 
@@ -61,13 +80,13 @@ download() {
 check_svn_installed
 
 if [ -n "$SHIELD_PACKAGE_PATH" ]; then
-    echo "=== SHIELD DEBUG: Package-based testing enabled ==="
-    echo "=== SHIELD DEBUG: Package path: $SHIELD_PACKAGE_PATH ==="
+    shield_debug "=== SHIELD DEBUG: Package-based testing enabled ==="
+    shield_debug "=== SHIELD DEBUG: Package path: $SHIELD_PACKAGE_PATH ==="
     if [ ! -f "$SHIELD_PACKAGE_PATH/icwp-wpsf.php" ]; then
         echo "=== SHIELD ERROR: Plugin file not found at: $SHIELD_PACKAGE_PATH/icwp-wpsf.php ==="
         exit 1
     else
-        echo "=== SHIELD DEBUG: Plugin file verified at package path ==="
+        shield_debug "=== SHIELD DEBUG: Plugin file verified at package path ==="
     fi
 fi
 
@@ -88,11 +107,11 @@ elif [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 	WP_TESTS_TAG="trunk"
 else
 	# http serves a single offer, whereas https serves multiple. we only want one
-	echo "=== SHIELD DEBUG: Downloading latest WordPress version info ==="
+	shield_debug "=== SHIELD DEBUG: Downloading latest WordPress version info ==="
 	download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
 	if [ -f /tmp/wp-latest.json ]; then
-		echo "=== SHIELD DEBUG: wp-latest.json downloaded successfully ==="
-		echo "=== SHIELD DEBUG: wp-latest.json contents: $(head -c 200 /tmp/wp-latest.json) ==="
+		shield_debug "=== SHIELD DEBUG: wp-latest.json downloaded successfully ==="
+		shield_debug "=== SHIELD DEBUG: wp-latest.json contents: $(head -c 200 /tmp/wp-latest.json) ==="
 	else
 		echo "=== SHIELD ERROR: Failed to download wp-latest.json ==="
 		exit 1
@@ -101,14 +120,18 @@ else
 	LATEST_VERSION=$(grep -o '"version":"[^"]*' /tmp/wp-latest.json | sed 's/"version":"//')
 	if [[ -z "$LATEST_VERSION" ]]; then
 		echo "=== SHIELD ERROR: Latest WordPress version could not be found ==="
-		echo "=== SHIELD DEBUG: wp-latest.json content: $(cat /tmp/wp-latest.json) ==="
+		shield_debug "=== SHIELD DEBUG: wp-latest.json content: $(cat /tmp/wp-latest.json) ==="
 		exit 1
 	fi
-	echo "=== SHIELD DEBUG: Latest WordPress version found: $LATEST_VERSION ==="
+	shield_debug "=== SHIELD DEBUG: Latest WordPress version found: $LATEST_VERSION ==="
 	WP_TESTS_TAG="tags/$LATEST_VERSION"
-	echo "=== SHIELD DEBUG: WP_TESTS_TAG set to: $WP_TESTS_TAG ==="
+	shield_debug "=== SHIELD DEBUG: WP_TESTS_TAG set to: $WP_TESTS_TAG ==="
 fi
-set -ex
+if shield_is_verbose; then
+	set -ex
+else
+	set -e
+fi
 
 install_wp() {
 
@@ -162,36 +185,40 @@ install_test_suite() {
 
 	# set up testing suite if it doesn't yet exist
 	if [ ! -d $WP_TESTS_DIR ]; then
-		echo "=== SHIELD DEBUG: Creating WordPress test directory: $WP_TESTS_DIR ==="
+		shield_debug "=== SHIELD DEBUG: Creating WordPress test directory: $WP_TESTS_DIR ==="
 		# set up testing suite
 		mkdir -p $WP_TESTS_DIR
-		echo "=== SHIELD DEBUG: Checking out WordPress test includes from: https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ ==="
+		shield_debug "=== SHIELD DEBUG: Checking out WordPress test includes from: https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ ==="
 		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/includes/ $WP_TESTS_DIR/includes
 		if [ $? -eq 0 ]; then
-			echo "=== SHIELD DEBUG: SVN checkout for includes successful ==="
+			shield_debug "=== SHIELD DEBUG: SVN checkout for includes successful ==="
 		else
 			echo "=== SHIELD ERROR: SVN checkout for includes failed with exit code: $? ==="
 		fi
-		echo "=== SHIELD DEBUG: Checking out WordPress test data from: https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ==="
+		shield_debug "=== SHIELD DEBUG: Checking out WordPress test data from: https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ ==="
 		svn co --quiet https://develop.svn.wordpress.org/${WP_TESTS_TAG}/tests/phpunit/data/ $WP_TESTS_DIR/data
 		if [ $? -eq 0 ]; then
-			echo "=== SHIELD DEBUG: SVN checkout for data successful ==="
+			shield_debug "=== SHIELD DEBUG: SVN checkout for data successful ==="
 		else
 			echo "=== SHIELD ERROR: SVN checkout for data failed with exit code: $? ==="
 		fi
 	else
-		echo "=== SHIELD DEBUG: WordPress test directory already exists: $WP_TESTS_DIR ==="
+		shield_debug "=== SHIELD DEBUG: WordPress test directory already exists: $WP_TESTS_DIR ==="
 	fi
 	
-	echo "=== SHIELD DEBUG: Verifying WordPress test framework installation ==="
+	shield_debug "=== SHIELD DEBUG: Verifying WordPress test framework installation ==="
 	if [ -f "$WP_TESTS_DIR/includes/functions.php" ]; then
-		echo "=== SHIELD DEBUG: WordPress test functions.php found at: $WP_TESTS_DIR/includes/functions.php ==="
+		shield_debug "=== SHIELD DEBUG: WordPress test functions.php found at: $WP_TESTS_DIR/includes/functions.php ==="
 	else
 		echo "=== SHIELD ERROR: WordPress test functions.php NOT found at: $WP_TESTS_DIR/includes/functions.php ==="
-		echo "=== SHIELD DEBUG: Listing contents of $WP_TESTS_DIR: ==="
-		ls -la "$WP_TESTS_DIR" 2>/dev/null || echo "Directory does not exist"
-		echo "=== SHIELD DEBUG: Listing contents of $WP_TESTS_DIR/includes: ==="
-		ls -la "$WP_TESTS_DIR/includes" 2>/dev/null || echo "Directory does not exist"
+		shield_debug "=== SHIELD DEBUG: Listing contents of $WP_TESTS_DIR: ==="
+		if shield_is_verbose; then
+			ls -la "$WP_TESTS_DIR" 2>/dev/null || echo "Directory does not exist"
+		fi
+		shield_debug "=== SHIELD DEBUG: Listing contents of $WP_TESTS_DIR/includes: ==="
+		if shield_is_verbose; then
+			ls -la "$WP_TESTS_DIR/includes" 2>/dev/null || echo "Directory does not exist"
+		fi
 	fi
 
 	if [ ! -f "$WP_TESTS_DIR/wp-tests-config.php" ]; then

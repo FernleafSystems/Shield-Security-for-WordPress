@@ -103,8 +103,15 @@ Composer mapping:
 Required source-first gate: `.github/workflows/tests.yml`
 
 1. Source static analysis (`composer analyze:source`).
-2. Source Docker runtime checks.
-3. Package-targeted validation against built artifact.
+2. Parallel unit tests (`composer test:unit`).
+3. Source Docker runtime checks focused on Docker/runtime/integration coverage.
+4. Package-targeted validation against built artifact.
+
+Serial compatibility sentinel: `.github/workflows/unit-serial-sentinel.yml`
+
+1. Runs `composer test:unit:serial`.
+2. Triggered by `workflow_dispatch`.
+3. Runs weekly at 05:00 UTC on Monday.
 
 Scheduled/manual full packaged pathway: `.github/workflows/docker-tests.yml`
 
@@ -146,4 +153,5 @@ For GitHub authentication issues during Docker/source runs, follow the troublesh
 1. [tests/docker/README.md](tests/docker/README.md) - Docker runner specifics.
 2. [.github/workflows/tests.yml](.github/workflows/tests.yml) - Required source-first gate.
 3. [.github/workflows/docker-tests.yml](.github/workflows/docker-tests.yml) - Scheduled/manual full packaged pathway.
-4. [.github/config/matrix.conf](.github/config/matrix.conf) - PHP matrix and default PHP source of truth.
+4. [.github/workflows/unit-serial-sentinel.yml](.github/workflows/unit-serial-sentinel.yml) - Serial unit sentinel workflow.
+5. [.github/config/matrix.conf](.github/config/matrix.conf) - PHP matrix and default PHP source of truth.

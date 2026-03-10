@@ -131,6 +131,72 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		);
 	}
 
+	public function testLogSinkEnablesOutputCallbacksAndSkipUnitFlagForwarding() :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0, 0, 0, 0 ] );
+		$environmentResolver = $this->createEnvironmentResolver();
+		$setupCoordinator = $this->createSetupCoordinator( [
+			'needs_composer_install' => true,
+			'needs_build_config' => true,
+			'needs_npm_install' => true,
+			'needs_npm_build' => true,
+			'node_modules_volume' => 'shield-source-node-modules-test',
+			'fingerprints' => $this->fingerprints(),
+		] );
+
+		$lane = new SourceRuntimeTestLane(
+			$processRunner,
+			$environmentResolver,
+			$dockerComposeExecutor,
+			$setupCoordinator
+		);
+
+		$originalLogDir = \getenv( 'SHIELD_SOURCE_RUNTIME_LOG_DIR' );
+		$hadOriginalLogDir = \is_string( $originalLogDir );
+		$originalSkipUnits = \getenv( 'SHIELD_SKIP_UNIT_TESTS' );
+		$hadOriginalSkipUnits = \is_string( $originalSkipUnits );
+		\putenv( 'SHIELD_SOURCE_RUNTIME_LOG_DIR='.$this->createTrackedTempDir( 'shield-source-runtime-logs-' ) );
+		\putenv( 'SHIELD_SKIP_UNIT_TESTS=1' );
+
+		try {
+			$exitCode = $this->runLaneSilenced( $lane, false );
+			$this->assertSame( 0, $exitCode );
+		}
+		finally {
+			if ( $hadOriginalLogDir ) {
+				\putenv( 'SHIELD_SOURCE_RUNTIME_LOG_DIR='.$originalLogDir );
+			}
+			else {
+				\putenv( 'SHIELD_SOURCE_RUNTIME_LOG_DIR' );
+			}
+			if ( $hadOriginalSkipUnits ) {
+				\putenv( 'SHIELD_SKIP_UNIT_TESTS='.$originalSkipUnits );
+			}
+			else {
+				\putenv( 'SHIELD_SKIP_UNIT_TESTS' );
+			}
+		}
+
+		$this->assertTrue( $dockerComposeExecutor->calls[ 0 ][ 'has_output_callback' ] );
+		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
+
+		$runtimeCommands = \array_values( \array_filter(
+			$dockerComposeExecutor->calls,
+			static function ( array $call ) :bool {
+				return \in_array( 'run', $call[ 'sub_command' ], true )
+					&& \in_array( 'SHIELD_SKIP_INNER_SETUP=1', $call[ 'sub_command' ], true )
+					&& (
+						\in_array( 'test-runner-latest', $call[ 'sub_command' ], true )
+						|| \in_array( 'test-runner-previous', $call[ 'sub_command' ], true )
+					);
+			}
+		) );
+		$this->assertCount( 2, $runtimeCommands );
+		foreach ( $runtimeCommands as $runtimeCommand ) {
+			$this->assertContains( 'SHIELD_SKIP_UNIT_TESTS=1', $runtimeCommand[ 'sub_command' ] );
+		}
+	}
+
 	private function runLaneSilenced( SourceRuntimeTestLane $lane, bool $refreshSetup ) :int {
 		\ob_start();
 		try {

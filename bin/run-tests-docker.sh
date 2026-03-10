@@ -250,12 +250,16 @@ case "$SHIELD_UNIT_TEST_MODE_RESOLVED" in
 esac
 
 # Run Unit Tests
-echo "Running Unit Tests..."
-echo "Unit test runner mode: $SHIELD_UNIT_TEST_MODE_RESOLVED"
-if [ -n "$PHPUNIT_ENV" ]; then
-    env $PHPUNIT_ENV php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
+if is_truthy "${SHIELD_SKIP_UNIT_TESTS:-0}"; then
+    echo "Skipping Unit Tests (SHIELD_SKIP_UNIT_TESTS)"
 else
-    php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
+    echo "Running Unit Tests..."
+    echo "Unit test runner mode: $SHIELD_UNIT_TEST_MODE_RESOLVED"
+    if [ -n "$PHPUNIT_ENV" ]; then
+        env $PHPUNIT_ENV php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
+    else
+        php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
+    fi
 fi
 
 # Run Integration Tests

@@ -17,12 +17,19 @@ class DockerComposeExecutor {
 	 * @param string[] $composeFiles
 	 * @param string[] $subCommand
 	 * @param array<string,string|false>|null $envOverrides
+	 * @param callable|null $onOutput
 	 */
-	public function run( string $rootDir, array $composeFiles, array $subCommand, ?array $envOverrides = null ) :int {
+	public function run(
+		string $rootDir,
+		array $composeFiles,
+		array $subCommand,
+		?array $envOverrides = null,
+		?callable $onOutput = null
+	) :int {
 		return $this->processRunner->run(
 			$this->buildCommand( $composeFiles, $subCommand ),
 			$rootDir,
-			null,
+			$onOutput,
 			$envOverrides
 		)->getExitCode() ?? 1;
 	}

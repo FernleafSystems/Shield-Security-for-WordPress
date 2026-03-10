@@ -35,6 +35,8 @@ class SourceRuntimeTestLane {
 		$originalShieldPackagePath = \getenv( 'SHIELD_PACKAGE_PATH' );
 		$hasOriginalShieldPackagePath = \is_string( $originalShieldPackagePath );
 		\putenv( 'SHIELD_PACKAGE_PATH' );
+		$logSink = SourceRuntimeLogSink::createFromEnvironment();
+		$overallExitCode = 0;
 
 		try {
 			$this->environmentResolver->assertDockerReady( $rootDir );
@@ -53,7 +55,6 @@ class SourceRuntimeTestLane {
 				'shield-tests',
 				true
 			);
-			$overallExitCode = 0;
 			try {
 				echo 'Starting source-runtime Docker checks on working tree.'.\PHP_EOL;
 				$this->dockerComposeExecutor->runIgnoringFailure(
@@ -63,39 +64,60 @@ class SourceRuntimeTestLane {
 					$dockerProcessEnvOverrides
 				);
 
-				if ( $this->dockerComposeExecutor->run(
+				if ( $this->runComposePhase(
+					'mysql-up',
+					'Start MySQL services',
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeMysqlUpCommand(),
-					$dockerProcessEnvOverrides
+					$dockerProcessEnvOverrides,
+					$logSink
 				) !== 0 ) {
+					$overallExitCode = 1;
 					return 1;
 				}
-				if ( $this->dockerComposeExecutor->run(
+				if ( $this->runComposePhase(
+					'build-runners',
+					'Build Docker test runners',
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeBuildRunnersCommand(),
-					$dockerProcessEnvOverrides
+					$dockerProcessEnvOverrides,
+					$logSink
 				) !== 0 ) {
+					$overallExitCode = 1;
 					return 1;
 				}
-				if ( $this->runSourceSetupOnce( $rootDir, $phpVersion, $refreshSetup, $dockerProcessEnvOverrides ) !== 0 ) {
+				if ( $this->runSourceSetupOnce(
+					$rootDir,
+					$phpVersion,
+					$refreshSetup,
+					$dockerProcessEnvOverrides,
+					$logSink
+				) !== 0 ) {
+					$overallExitCode = 1;
 					return 1;
 				}
 
-				if ( $this->dockerComposeExecutor->run(
+				if ( $this->runComposePhase(
+					'runtime-latest',
+					'Run latest WordPress runtime checks',
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeRunLatestCommand(),
-					$dockerProcessEnvOverrides
+					$dockerProcessEnvOverrides,
+					$logSink
 				) !== 0 ) {
 					$overallExitCode = 1;
 				}
-				if ( $this->dockerComposeExecutor->run(
+				if ( $this->runComposePhase(
+					'runtime-previous',
+					'Run previous WordPress runtime checks',
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeRunPreviousCommand(),
-					$dockerProcessEnvOverrides
+					$dockerProcessEnvOverrides,
+					$logSink
 				) !== 0 ) {
 					$overallExitCode = 1;
 				}
@@ -111,6 +133,9 @@ class SourceRuntimeTestLane {
 				);
 				if ( \is_file( $dockerEnvPath ) ) {
 					\unlink( $dockerEnvPath );
+				}
+				if ( $logSink !== null ) {
+					$logSink->writeStepSummary( $overallExitCode );
 				}
 			}
 		}
@@ -131,7 +156,8 @@ class SourceRuntimeTestLane {
 		string $rootDir,
 		string $phpVersion,
 		bool $refreshSetup = false,
-		?array $envOverrides = null
+		?array $envOverrides = null,
+		?SourceRuntimeLogSink $logSink = null
 	) :int {
 		echo 'Preparing source mode test setup once before runtime checks.'.\PHP_EOL;
 
@@ -149,12 +175,14 @@ class SourceRuntimeTestLane {
 		$composeFiles = $this->buildComposeFiles();
 
 		if ( $setup[ 'needs_composer_install' ] ) {
-			echo 'Running source composer install setup.'.\PHP_EOL;
-			if ( $this->dockerComposeExecutor->run(
+			if ( $this->runComposePhase(
+				'setup-composer',
+				'Source composer install setup',
 				$rootDir,
 				$composeFiles,
 				$this->buildSourceComposerInstallSetupCommand(),
-				$envOverrides
+				$envOverrides,
+				$logSink
 			) !== 0 ) {
 				return 1;
 			}
@@ -164,12 +192,14 @@ class SourceRuntimeTestLane {
 		}
 
 		if ( $setup[ 'needs_build_config' ] ) {
-			echo 'Running source build-config setup.'.\PHP_EOL;
-			if ( $this->dockerComposeExecutor->run(
+			if ( $this->runComposePhase(
+				'setup-build-config',
+				'Source build-config setup',
 				$rootDir,
 				$composeFiles,
 				$this->buildSourceBuildConfigSetupCommand(),
-				$envOverrides
+				$envOverrides,
+				$logSink
 			) !== 0 ) {
 				return 1;
 			}
@@ -179,24 +209,26 @@ class SourceRuntimeTestLane {
 		}
 
 		if ( $setup[ 'needs_npm_install' ] ) {
-			echo 'Running node dependency install and asset build.'.\PHP_EOL;
-			$nodeExitCode = $this->processRunner->runForExitCode(
+			$nodeExitCode = $this->runProcessPhase(
+				'setup-assets',
+				'Node dependency install and asset build',
 				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], true ),
 				$rootDir,
-				null,
-				$envOverrides
+				$envOverrides,
+				$logSink
 			);
 			if ( $nodeExitCode !== 0 ) {
 				return $nodeExitCode;
 			}
 		}
 		elseif ( $setup[ 'needs_npm_build' ] ) {
-			echo 'Running asset build only.'.\PHP_EOL;
-			$nodeExitCode = $this->processRunner->runForExitCode(
+			$nodeExitCode = $this->runProcessPhase(
+				'setup-assets',
+				'Asset build only',
 				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], false ),
 				$rootDir,
-				null,
-				$envOverrides
+				$envOverrides,
+				$logSink
 			);
 			if ( $nodeExitCode !== 0 ) {
 				return $nodeExitCode;
@@ -244,14 +276,14 @@ class SourceRuntimeTestLane {
 	 * @return string[]
 	 */
 	private function buildComposeRunLatestCommand() :array {
-		return [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-latest' ];
+		return $this->buildComposeRunCommand( 'test-runner-latest' );
 	}
 
 	/**
 	 * @return string[]
 	 */
 	private function buildComposeRunPreviousCommand() :array {
-		return [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1', 'test-runner-previous' ];
+		return $this->buildComposeRunCommand( 'test-runner-previous' );
 	}
 
 	/**
@@ -340,5 +372,77 @@ class SourceRuntimeTestLane {
 		}
 
 		return $lines;
+	}
+
+	/**
+	 * @param string[] $command
+	 * @param array<string,string|false>|null $envOverrides
+	 */
+	private function runProcessPhase(
+		string $phaseKey,
+		string $label,
+		array $command,
+		string $rootDir,
+		?array $envOverrides = null,
+		?SourceRuntimeLogSink $logSink = null
+	) :int {
+		echo 'Phase: '.$label.'.'.\PHP_EOL;
+		$callback = $logSink?->callbackForPhase( $phaseKey, $label );
+		$exitCode = $this->processRunner->runForExitCode(
+			$command,
+			$rootDir,
+			$callback,
+			$envOverrides
+		);
+		if ( $logSink !== null ) {
+			$logSink->finishPhase( $phaseKey, $exitCode );
+		}
+		echo ( $exitCode === 0 ? 'Phase complete: ' : 'Phase failed: ' ).$label.'.'.\PHP_EOL;
+		return $exitCode;
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @param string[] $subCommand
+	 * @param array<string,string|false>|null $envOverrides
+	 */
+	private function runComposePhase(
+		string $phaseKey,
+		string $label,
+		string $rootDir,
+		array $composeFiles,
+		array $subCommand,
+		?array $envOverrides = null,
+		?SourceRuntimeLogSink $logSink = null
+	) :int {
+		echo 'Phase: '.$label.'.'.\PHP_EOL;
+		$callback = $logSink?->callbackForPhase( $phaseKey, $label );
+		$exitCode = $this->dockerComposeExecutor->run(
+			$rootDir,
+			$composeFiles,
+			$subCommand,
+			$envOverrides,
+			$callback
+		);
+		if ( $logSink !== null ) {
+			$logSink->finishPhase( $phaseKey, $exitCode );
+		}
+		echo ( $exitCode === 0 ? 'Phase complete: ' : 'Phase failed: ' ).$label.'.'.\PHP_EOL;
+		return $exitCode;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildComposeRunCommand( string $serviceName ) :array {
+		$command = [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1' ];
+		$skipUnitTests = \getenv( 'SHIELD_SKIP_UNIT_TESTS' );
+		if ( \is_string( $skipUnitTests ) && $skipUnitTests !== '' ) {
+			$command[] = '-e';
+			$command[] = 'SHIELD_SKIP_UNIT_TESTS='.$skipUnitTests;
+		}
+
+		$command[] = $serviceName;
+		return $command;
 	}
 }

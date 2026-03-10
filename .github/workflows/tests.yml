@@ -71,13 +71,6 @@ jobs:
     with:
       run_command: composer test:unit
 
-  unit-serial-sentinel:
-    name: 'Unit Serial Sentinel'
-    uses: ./.github/workflows/reusable-unit-tests.yml
-    with:
-      run_command: composer test:unit:serial
-      allow_failure: true
-
   source-docker-runtime:
     name: 'Source Docker Runtime'
     runs-on: ubuntu-latest
@@ -88,39 +81,7 @@ jobs:
 
     - name: Verify required Docker test scripts are executable
       shell: bash
-      run: |
-        set -euo pipefail
-        scripts=(
-          "bin/run-tests-docker.sh"
-          "bin/install-wp-tests.sh"
-        )
-
-        has_errors=0
-        for script in "${scripts[@]}"; do
-          if [[ ! -f "$script" ]]; then
-            echo "::error title=Missing script::Required script not found: $script"
-            has_errors=1
-            continue
-          fi
-
-          if [[ ! -x "$script" ]]; then
-            perms="$(stat -c '%A %a' "$script" 2>/dev/null || true)"
-            if [[ -z "$perms" ]]; then
-              perms="$(ls -l "$script")"
-            fi
-            echo "::error title=Script not executable::$script must be committed with executable bit (+x). Current permissions: $perms"
-            echo "::error::Fix locally with: git update-index --chmod=+x -- $script"
-            has_errors=1
-            continue
-          fi
-
-          echo "OK: $script is executable"
-        done
-
-        if [[ "$has_errors" -ne 0 ]]; then
-          echo "One or more required test scripts are not executable. Failing early before Docker runtime checks."
-          exit 1
-        fi
+      run: bash .github/scripts/verify-docker-test-scripts.sh
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -133,7 +94,18 @@ jobs:
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
     - name: Run source docker runtime checks
+      env:
+        SHIELD_SKIP_UNIT_TESTS: '1'
+        SHIELD_SOURCE_RUNTIME_LOG_DIR: ${{ runner.temp }}/shield-source-runtime-logs
       run: php bin/shield test:source
+
+    - name: Upload source docker runtime logs
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: source-docker-runtime-logs
+        path: ${{ runner.temp }}/shield-source-runtime-logs
+        if-no-files-found: ignore
 
   build-package:
     name: 'Build Package'
