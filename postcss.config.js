@@ -218,6 +218,19 @@ module.exports = {
 					// Visibility
 					/^visible/,
 					/^invisible/,
+
+					// ===================
+					// SHIELD DYNAMIC CLASSES (Twig variables resolve at runtime)
+					// ===================
+					/^shield-detail-row__status-icon--/,
+					/^shield-detail-row--/,
+					/^shield-rail-sidebar__pip--/,
+					/^shield-rail-sidebar__accent--/,
+					/^shield-detail-expansion__form--/,
+					/^shield-action-chip--/,
+					/^shield-file-status--/,
+					/^status-icon--/,
+					/^badge-/,
 				],
 
 				// Greedy patterns (matches any selector containing these)

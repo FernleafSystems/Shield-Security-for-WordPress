@@ -26,6 +26,7 @@ class ConfigureZoneTilesBuilder {
 	 *   icon_class:string,
 	 *   status:string,
 	 *   status_label:string,
+	 *   status_icon_class:string,
 	 *   stat_line:string,
 	 *   settings_href:string,
 	 *   settings_label:string,
@@ -90,6 +91,7 @@ class ConfigureZoneTilesBuilder {
 	 *   icon_class:string,
 	 *   status:string,
 	 *   status_label:string,
+	 *   status_icon_class:string,
 	 *   stat_line:string,
 	 *   settings_href:string,
 	 *   settings_label:string,
@@ -128,6 +130,7 @@ class ConfigureZoneTilesBuilder {
 			'icon_class'     => self::con()->svgs->iconClass( $definition[ 'icon' ] ),
 			'status'         => $status,
 			'status_label'   => $this->tileStatusLabel( $status ),
+			'status_icon_class' => $this->tileStatusIconClass( $status ),
 			'stat_line'      => $forceNeutral
 				? __( 'General settings', 'wp-simple-firewall' )
 				: $this->buildTileStatLine( $components ),
@@ -335,6 +338,10 @@ class ConfigureZoneTilesBuilder {
 			default:
 				return __( 'Good', 'wp-simple-firewall' );
 		}
+	}
+
+	private function tileStatusIconClass( string $status ) :string {
+		return $this->standardStatusIconClass( $status, 'exclamation-triangle-fill' );
 	}
 
 	private function componentStatusLabel( string $status ) :string {

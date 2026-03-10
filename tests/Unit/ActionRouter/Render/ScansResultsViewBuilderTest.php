@@ -445,6 +445,100 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $malwareTab[ 'status' ] ?? '' );
 	}
 
+	// ── Summary rail-switch actions (Task 6) ──
+
+	public function test_summary_items_with_known_keys_get_rail_switch_action_attributes() :void {
+		$builder = $this->createBuilder( [
+			'summaryRows' => [
+				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
+				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'theme_files', 'label' => 'Theme Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'malware', 'label' => 'Malware', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
+				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
+				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$items = $summaryTab[ 'items' ] ?? [];
+
+		$expectedMapping = [
+			'wp_files'          => 'wordpress',
+			'plugin_files'      => 'plugins',
+			'theme_files'       => 'themes',
+			'malware'           => 'malware',
+			'vulnerable_assets' => 'vulnerabilities',
+			'abandoned'         => 'vulnerabilities',
+		];
+
+		$attentionItems = \array_filter( $items, static fn( array $item ) => ( $item[ 'section_label' ] ?? '' ) === 'Needs attention' );
+		$this->assertCount( \count( $expectedMapping ), $attentionItems );
+
+		foreach ( $attentionItems as $item ) {
+			$actions = $item[ 'actions' ] ?? [];
+			$this->assertNotEmpty( $actions, 'Item "'.$item[ 'title' ].'" should have actions' );
+			$action = $actions[ 0 ];
+			$this->assertSame( 'navigate', $action[ 'type' ] ?? '' );
+			$this->assertNotEmpty( $action[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' );
+		}
+	}
+
+	public function test_summary_rail_switch_attributes_map_to_correct_tabs() :void {
+		$builder = $this->createBuilder( [
+			'summaryRows' => [
+				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
+				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
+				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$items = $summaryTab[ 'items' ] ?? [];
+
+		$targets = [];
+		foreach ( $items as $item ) {
+			$actions = $item[ 'actions' ] ?? [];
+			if ( !empty( $actions ) && isset( $actions[ 0 ][ 'attributes' ][ 'data-shield-rail-switch' ] ) ) {
+				$targets[ $item[ 'title' ] ] = $actions[ 0 ][ 'attributes' ][ 'data-shield-rail-switch' ];
+			}
+		}
+
+		$this->assertSame( 'wordpress', $targets[ 'WP Files' ] ?? '' );
+		$this->assertSame( 'plugins', $targets[ 'Plugin Files' ] ?? '' );
+		$this->assertSame( 'vulnerabilities', $targets[ 'Vulns' ] ?? '' );
+		$this->assertSame( 'vulnerabilities', $targets[ 'Abandoned' ] ?? '' );
+	}
+
+	public function test_summary_items_with_unknown_keys_fallback_to_href_actions_without_switch_attributes() :void {
+		$builder = $this->createBuilder( [
+			'summaryRows' => [
+				[
+					'key'      => 'wp_updates',
+					'label'    => 'WP Updates',
+					'text'     => 'Update available',
+					'severity' => 'warning',
+					'count'    => 1,
+					'action'   => 'Update',
+					'href'     => 'https://example.com/update',
+				],
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$items = $summaryTab[ 'items' ] ?? [];
+
+		$attentionItems = \array_filter( $items, static fn( array $item ) => ( $item[ 'section_label' ] ?? '' ) === 'Needs attention' );
+		$this->assertCount( 1, $attentionItems );
+		$action = \reset( $attentionItems )[ 'actions' ][ 0 ] ?? [];
+		$this->assertSame( 'navigate', $action[ 'type' ] ?? '' );
+		$this->assertSame( [], $action[ 'attributes' ] ?? [] );
+		$this->assertSame( 'https://example.com/update', $action[ 'href' ] ?? '' );
+	}
+
 	// ── Helpers ──
 
 	private function findTabByKey( array $tabs, string $key ) :array {

@@ -285,7 +285,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 	}
 
-	public function testRailScanResultsTemplateDerivesCriticalAccentAndHiddenPanes() :void {
+	public function testRailScanResultsTemplateDerivesCriticalAccentAndBootstrapTabContracts() :void {
 		$html = $this->twig()->render(
 			'/wpadmin_pages/insights/scans/results/scan_results_rail.twig',
 			$this->buildRenderContext()
@@ -304,8 +304,8 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-target="summary" and @role="button" and @tabindex="0" and @aria-current="true"]',
-			'Summary rail item should be keyboard focusable and active by default'
+			'//*[@data-shield-rail-target="summary" and @data-bs-toggle="tab" and @role="tab" and @aria-selected="true"]',
+			'Summary rail item should render a Bootstrap tab trigger'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -314,8 +314,18 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-pane="plugins" and contains(@style, "display: none")]',
-			'Inactive rail panes should render hidden by default'
+			'//*[@data-shield-rail-scope="1"]//ul[@role="tablist" and @aria-orientation="vertical"]',
+			'Rail scans results template should render a vertical Bootstrap tablist'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]/*[@data-shield-rail-pane="summary"]',
+			'Rail scans results panes should render inside a Bootstrap tab-content container'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="plugins" and contains(concat(" ", normalize-space(@class), " "), " tab-pane ") and not(contains(concat(" ", normalize-space(@class), " "), " active "))]',
+			'Inactive rail panes should render as Bootstrap tab panes'
 		);
 		$this->assertXPathExists(
 			$xpath,

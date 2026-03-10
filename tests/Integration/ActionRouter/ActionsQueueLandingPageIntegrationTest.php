@@ -201,6 +201,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]',
 			'Actions queue scans shell should render the scoped rail layout'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="summary" and @data-bs-toggle="tab" and @role="tab"]',
+			'Actions queue scans shell should render Bootstrap tab triggers in the rail'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]/*[@data-shield-rail-pane="summary"]',
+			'Actions queue scans shell should render the scan panes inside a Bootstrap tab-content container'
+		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@id="ScanResultsTabsNav"]',

@@ -355,3 +355,43 @@ $options-rail-width-max: 260px;
     border-top: 1px solid $options-border-subtle;
   }
 }
+
+// Embedded expansion mode: strip all chrome
+.options_form_for--modern[data-context="expansion"] {
+
+  .shield-options-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .shield-options-rail {
+    display: none;
+  }
+
+  .shield-options-panel {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .shield-options-panel-accent {
+    display: none;
+  }
+
+  .shield-options-panel-header {
+    display: none;
+  }
+
+  .shield-options-panel-body {
+    padding: 0.85rem;
+  }
+
+  .shield-options-save-row {
+    display: none;
+  }
+
+  // When rail is hidden, show all tab panes
+  .tab-pane {
+    display: block !important;
+    opacity: 1;
+  }
+}

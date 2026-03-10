@@ -92,6 +92,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$expectedCount,
 			'Configure landing rail pane count marker'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-shield-rail-pane]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and @data-configure-zone-settings]',
+			'Configure landing should render Configure CTA actions inside the rail panes'
+		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-configure-section="zones"]//*[@data-mode-tile="1"]',

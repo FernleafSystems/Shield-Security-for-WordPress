@@ -1,3 +1,4 @@
+import { Tooltip } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
@@ -103,6 +104,13 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 	}
 
 	closeExpansion( expansion ) {
+		expansion.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( el ) => {
+			const tip = Tooltip.getInstance( el );
+			if ( tip ) {
+				tip.dispose();
+			}
+		} );
+
 		expansion.classList.remove( 'is-open' );
 		expansion.setAttribute( 'aria-hidden', 'true' );
 

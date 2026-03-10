@@ -15,10 +15,13 @@
 		{% set rail_accent = 'warning' %}
 	{% endif %}
 
+	{% set mapped_status = zone_status == 'neutral' ? 'info' : zone_status %}
 	{% set rail_items = rail_items|merge( [ {
 		key: zone.key,
 		label: zone.label,
-		status: zone_status == 'neutral' ? 'info' : zone_status,
+		status: mapped_status,
+		status_label: zone.status_label|default(mapped_status|capitalize),
+		status_icon: zone.status_icon_class|default(null),
 		is_active: active_zone_key == zone.key
 	} ] ) %}
 {% endfor %}
@@ -68,9 +71,12 @@
 			{% endfor %}
 
 			{% if zone.settings_href|default('') is not empty %}
-				<div class="mt-3">
-					<a href="{{ zone.settings_href }}"
-					   class="shield-detail-row__settings-link">
+				<div class="configure-landing__panel-actions mt-3">
+					<a href="{{ zone.settings_action.href|default(zone.settings_href) }}"
+					   class="configure-landing__panel-cta status-{{ zone.panel.status|default(zone.status|default('neutral')) }} {{ zone.settings_action.classes|default([])|join( ' ' ) }}"
+					   data-configure-zone-settings="{{ zone.key }}"
+					   {% if zone.settings_action.title|default('') is not empty %}title="{{ zone.settings_action.title }}"{% endif %}
+					   {% for key, value in zone.settings_action.data|default([]) %}data-{{ key|e('html_attr') }}="{{ value|e('html_attr') }}"{% endfor %}>
 						{{ zone.settings_label|default('') }}
 					</a>
 				</div>

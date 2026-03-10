@@ -426,19 +426,22 @@
 	display: flex;
 	align-items: center;
 	gap: 0.55rem;
+	width: 100%;
 	padding: 0.5rem 0.65rem;
 	margin-bottom: 0.2rem;
+	background: none;
 	border: 1px solid transparent;
 	border-radius: $card-border-radius;
 	color: #2f3d4d;
 	font-size: 0.8rem;
 	font-weight: 600;
+	font-family: inherit;
+	line-height: inherit;
+	text-align: left;
+	text-decoration: none;
+	appearance: none;
 	cursor: pointer;
 	transition: background 0.15s, border-color 0.15s, color 0.15s;
-
-	&:last-child {
-		margin-bottom: 0;
-	}
 
 	&:hover {
 		background: #f7f9f7;
@@ -456,6 +459,10 @@
 		color: #1a7f37;
 		box-shadow: inset 2px 0 0 #9ac99a;
 	}
+}
+
+.shield-rail-sidebar__nav > li:last-child .shield-rail-sidebar__item {
+	margin-bottom: 0;
 }
 
 .shield-rail-sidebar__pip {

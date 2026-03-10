@@ -19,25 +19,45 @@
 		status: tab.status|default('good'),
 		count: tab.count|default(0),
 		badge_status: tab.status|default('good'),
-		is_active: tab.is_active|default(false)
+		is_active: tab.is_active|default(false),
+		bootstrap_tab: true,
+		use_aria_current: false,
+		attributes: {
+			id: tab.nav_id,
+			role: 'tab',
+			'data-bs-toggle': 'tab',
+			'data-bs-target': tab.target,
+			'aria-controls': tab.controls,
+			'aria-selected': tab.is_active|default(false) ? 'true' : 'false'
+		}
 	}]) %}
 {% endfor %}
 
 {% set pane_content %}
-	{% for tab in rail_tabs %}
-		<div data-shield-rail-pane="{{ tab.key|e('html_attr') }}"{% if not tab.is_active|default(false) %} style="display: none"{% endif %}>
-			{% include '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig' with {
-				tab: tab,
-				strings: strings
-			} only %}
-		</div>
-	{% endfor %}
+	<div class="tab-content mb-3">
+		{% for tab in rail_tabs %}
+			<div class="tab-pane{% if tab.is_active|default(false) %} show active{% endif %}"
+				 id="{{ tab.pane_id|e('html_attr') }}"
+				 role="tabpanel"
+				 aria-labelledby="{{ tab.nav_id|e('html_attr') }}"
+				 data-shield-rail-pane="{{ tab.key|e('html_attr') }}">
+				{% include '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig' with {
+					tab: tab,
+					strings: strings
+				} only %}
+			</div>
+		{% endfor %}
+	</div>
 {% endset %}
 
 {% set rail_html %}
 	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
 		accent_status: rail_accent,
 		id: 'ScanResultsRailSidebar',
+		nav_attributes: {
+			role: 'tablist',
+			'aria-orientation': 'vertical'
+		},
 		items: rail_items
 	} } only %}
 {% endset %}

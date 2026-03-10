@@ -28,6 +28,15 @@ class ScansResultsViewBuilder {
 
 	use PluginControllerConsumer;
 
+	private const SUMMARY_KEY_TO_RAIL_TAB = [
+		'wp_files'          => 'wordpress',
+		'plugin_files'      => 'plugins',
+		'theme_files'       => 'themes',
+		'malware'           => 'malware',
+		'vulnerable_assets' => 'vulnerabilities',
+		'abandoned'         => 'vulnerabilities',
+	];
+
 	private ?array $cachedAfsItems = null;
 
 	public function build() :array {
@@ -341,16 +350,24 @@ class ScansResultsViewBuilder {
 		if ( !empty( $summaryRows ) ) {
 			$items = \array_values( \array_map( function ( array $item ) :array {
 				$severity = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
+				$itemKey = (string)( $item[ 'key' ] ?? '' );
+				$railTab = self::SUMMARY_KEY_TO_RAIL_TAB[ $itemKey ] ?? '';
+				if ( $railTab !== '' ) {
+					$actions = [ $this->buildRailSwitchAction( __( 'View', 'wp-simple-firewall' ), $railTab ) ];
+				}
+				else {
+					$actions = $this->buildActionsForHref(
+						(string)( $item[ 'action' ] ?? '' ),
+						(string)( $item[ 'href' ] ?? '' )
+					);
+				}
 				$row = $this->buildDetailRow(
 					(string)( $item[ 'label' ] ?? '' ),
 					(string)( $item[ 'text' ] ?? '' ),
 					$severity,
 					(int)( $item[ 'count' ] ?? 0 ),
 					$severity,
-					$this->buildActionsForHref(
-						(string)( $item[ 'action' ] ?? '' ),
-						(string)( $item[ 'href' ] ?? '' )
-					)
+					$actions
 				);
 				$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
 				return $row;
@@ -786,6 +803,23 @@ class ScansResultsViewBuilder {
 				'href'    => $href,
 				'icon'    => 'bi bi-arrow-right-circle-fill',
 				'tooltip' => null,
+				'attributes' => [],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function buildRailSwitchAction( string $label, string $target ) :array {
+		return [
+			'type'       => 'navigate',
+			'label'      => $label,
+			'href'       => '#',
+			'icon'       => 'bi bi-arrow-right-circle-fill',
+			'tooltip'    => '',
+			'attributes' => [
+				'data-shield-rail-switch' => $target,
 			],
 		];
 	}

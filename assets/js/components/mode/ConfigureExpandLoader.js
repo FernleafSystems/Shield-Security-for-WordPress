@@ -86,6 +86,11 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		form.dataset.context = 'expansion';
 		form.querySelector( '.shield-options-rail-save' )?.remove();
 
+		const rail = form.querySelector( '.shield-options-rail' );
+		if ( rail ) {
+			rail.style.display = 'none';
+		}
+
 		placeholder.replaceWith( form );
 		this.setSaveButtonDisabled( expansion, false );
 		BootstrapTooltips.RegisterNewTooltipsWithin( expansion );

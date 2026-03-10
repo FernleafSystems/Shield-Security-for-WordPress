@@ -67,6 +67,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			$this->assertSame( $tile[ 'key' ], $tile[ 'panel_target' ] );
 			$this->assertSame( !$tile[ 'is_enabled' ], $tile[ 'is_disabled' ] );
 			$this->assertSame( 'bi bi-', \substr( $tile[ 'icon_class' ], 0, 6 ) );
+			$this->assertSame( 'bi bi-', \substr( $tile[ 'status_icon_class' ], 0, 6 ) );
 			$this->assertSame( $tile[ 'include_in_posture' ], $tile[ 'key' ] !== 'general' );
 		}
 
@@ -86,6 +87,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'neutral', $tilesByKey[ 'general' ][ 'status' ] );
 		$this->assertSame( 'General settings', $tilesByKey[ 'general' ][ 'stat_line' ] );
 		$this->assertSame( 'General', $tilesByKey[ 'general' ][ 'status_label' ] );
+		$this->assertSame( 'bi bi-info-circle-fill', $tilesByKey[ 'general' ][ 'status_icon_class' ] );
 		$this->assertSame( '/admin/zone_components/plugin_general', $tilesByKey[ 'general' ][ 'settings_href' ] );
 		$this->assertSame(
 			'neutral',

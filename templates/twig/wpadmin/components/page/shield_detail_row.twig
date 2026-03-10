@@ -1,3 +1,4 @@
+{% import '/common/macros.twig' as icwp_macros %}
 {% set row_data = row|default({}) %}
 {% set default_icons = {
 	'good': 'bi bi-check-circle-fill',
@@ -74,7 +75,7 @@
 					<a href="{{ action.href|default('#') }}"
 					   class="shield-action-chip shield-action-chip--{{ action.type|default('update') }}"
 					   data-bs-toggle="tooltip"
-					   data-bs-title="{{ action.tooltip|default('')|e('html_attr') }}">
+					   data-bs-title="{{ action.tooltip|default('')|e('html_attr') }}"{{ icwp_macros.renderAttributes(action.attributes|default({})) }}>
 						<i class="{{ chip_icon }}"></i>
 						{{ action.label|default('') }}
 					</a>

@@ -1,3 +1,4 @@
+import { Tab, Tooltip } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
@@ -14,14 +15,47 @@ export class RailSidebarController extends BaseAutoExecComponent {
 			( item, evt ) => this.handleRailItemClick( item, evt ),
 			false
 		);
-		shieldEventsHandler_Main.add_Keyup(
-			'[data-shield-rail-target]',
-			( item, evt ) => this.handleRailItemKeyup( item, evt ),
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.tab',
+			'[data-shield-rail-target][data-bs-toggle="tab"]',
+			( item ) => this.handleBootstrapTabShown( item ),
+			false
+		);
+
+		shieldEventsHandler_Main.add_Click(
+			'[data-shield-rail-switch]',
+			( el, evt ) => {
+				evt.preventDefault();
+				const targetKey = ( el.dataset.shieldRailSwitch || '' ).trim();
+				if ( targetKey.length < 1 ) {
+					return;
+				}
+				const scope = el.closest( '[data-shield-rail-scope="1"]' );
+				if ( !scope ) {
+					return;
+				}
+				const railItem = scope.querySelector( `[data-shield-rail-target="${targetKey}"]` );
+				if ( railItem ) {
+					if ( this.isBootstrapTab( railItem ) ) {
+						Tab.getOrCreateInstance( railItem ).show();
+						return;
+					}
+					this.switchPane( railItem, targetKey );
+				}
+			},
 			false
 		);
 	}
 
+	isBootstrapTab( item ) {
+		return item?.dataset?.bsToggle === 'tab';
+	}
+
 	handleRailItemClick( item ) {
+		if ( this.isBootstrapTab( item ) ) {
+			return;
+		}
+
 		const targetKey = ( item.dataset.shieldRailTarget || '' ).trim();
 		if ( targetKey.length < 1 ) {
 			return;
@@ -30,23 +64,34 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		this.switchPane( item, targetKey );
 	}
 
-	handleRailItemKeyup( item, evt ) {
-		if ( evt.target !== item ) {
+	handleBootstrapTabShown( item ) {
+		const scope = item.closest( '[data-shield-rail-scope="1"]' );
+		if ( scope === null ) {
 			return;
 		}
 
-		if ( evt.key !== 'Enter' && evt.key !== ' ' && evt.key !== 'Spacebar' ) {
+		const sidebar = scope.querySelector( '.shield-rail-sidebar' );
+		if ( sidebar !== null ) {
+			sidebar.querySelectorAll( '[data-shield-rail-target]' ).forEach( ( candidate ) => {
+				candidate.classList.toggle( 'is-active', candidate === item );
+			} );
+		}
+
+		const targetPane = this.findBootstrapTargetPane( item, scope );
+		if ( targetPane === null ) {
 			return;
 		}
 
-		evt.preventDefault();
+		this.activatePaneEnhancements( scope, targetPane );
+	}
 
-		const targetKey = ( item.dataset.shieldRailTarget || '' ).trim();
-		if ( targetKey.length < 1 ) {
-			return;
+	findBootstrapTargetPane( item, scope ) {
+		const targetSelector = ( item.dataset.bsTarget || item.getAttribute( 'href' ) || '' ).trim();
+		if ( targetSelector.length < 2 || !targetSelector.startsWith( '#' ) ) {
+			return null;
 		}
 
-		this.switchPane( item, targetKey );
+		return scope.querySelector( targetSelector );
 	}
 
 	switchPane( clickedItem, targetKey ) {
@@ -71,6 +116,8 @@ export class RailSidebarController extends BaseAutoExecComponent {
 			return;
 		}
 
+		this.disposeTooltipsWithin( contentArea );
+
 		contentArea.querySelectorAll( '[data-shield-rail-pane]' ).forEach( ( pane ) => {
 			pane.style.display = 'none';
 		} );
@@ -81,6 +128,23 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		}
 
 		targetPane.style.display = '';
+		this.activatePaneEnhancements( scope, targetPane );
+	}
+
+	disposeTooltipsWithin( container ) {
+		container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( el ) => {
+			const tip = Tooltip.getInstance( el );
+			if ( tip ) {
+				tip.dispose();
+			}
+		} );
+	}
+
+	activatePaneEnhancements( scope, targetPane ) {
+		const contentArea = scope.querySelector( '.shield-rail-layout__content' );
+		if ( contentArea !== null ) {
+			this.disposeTooltipsWithin( contentArea );
+		}
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( targetPane );
 		BootstrapTooltips.RegisterNewTooltipsWithin( targetPane );
 	}
