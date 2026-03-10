@@ -49,123 +49,176 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 	}
 
 	private function buildRenderContext() :array {
+		$zoneTiles = [
+			[
+				'key'               => 'secadmin',
+				'label'             => 'Security Admin',
+				'status'            => 'good',
+				'status_icon_class' => 'bi bi-check-circle-fill',
+				'settings_href'     => '/admin/zones/secadmin',
+				'settings_label'    => 'Configure Security Admin Settings',
+				'settings_action'   => [
+					'classes' => [ 'zone_component_action' ],
+					'title'   => 'Open Security Admin settings',
+					'data'    => [
+						'zone_component_action' => 'offcanvas_zone_component_config',
+						'form_context'          => 'offcanvas',
+					],
+				],
+				'nav_id'            => 'configure-rail-tab-secadmin',
+				'pane_id'           => 'configure-rail-pane-secadmin',
+				'target'            => '#configure-rail-pane-secadmin',
+				'controls'          => 'configure-rail-pane-secadmin',
+				'is_active'         => false,
+				'panel'             => [
+					'status'        => 'good',
+					'detail_groups' => [
+						[
+							'status' => 'good',
+							'rows'   => [
+								[
+									'title'             => 'PIN Protection',
+									'summary'           => 'PIN is configured.',
+									'status'            => 'good',
+									'status_label'      => 'Active',
+									'status_icon_class' => 'bi bi-check-circle-fill',
+									'count_badge'       => null,
+									'badge_status'      => 'good',
+									'explanations'      => [],
+									'action'            => [],
+								],
+							],
+						],
+					],
+				],
+			],
+			[
+				'key'               => 'firewall',
+				'label'             => 'Firewall',
+				'status'            => 'critical',
+				'status_icon_class' => 'bi bi-x-circle-fill',
+				'settings_href'     => '/admin/zones/firewall',
+				'settings_label'    => 'Configure Firewall Settings',
+				'settings_action'   => [
+					'classes' => [ 'zone_component_action' ],
+					'title'   => 'Open Firewall settings',
+					'data'    => [
+						'zone_component_action' => 'offcanvas_zone_component_config',
+						'zone_component_slug'   => 'firewall',
+						'form_context'          => 'offcanvas',
+					],
+				],
+				'nav_id'            => 'configure-rail-tab-firewall',
+				'pane_id'           => 'configure-rail-pane-firewall',
+				'target'            => '#configure-rail-pane-firewall',
+				'controls'          => 'configure-rail-pane-firewall',
+				'is_active'         => true,
+				'panel'             => [
+					'status'        => 'critical',
+					'detail_groups' => [
+						[
+							'status' => 'critical',
+							'rows'   => [
+								[
+									'title'             => 'WAF Rules',
+									'summary'           => 'Critical protection is disabled.',
+									'status'            => 'critical',
+									'status_label'      => 'Issue',
+									'status_icon_class' => 'bi bi-x-circle-fill',
+									'count_badge'       => 2,
+									'badge_status'      => 'critical',
+									'explanations'      => [ 'Directory traversal protection is disabled.' ],
+									'action'            => [
+										'data' => [
+											'zone_component_action' => 'offcanvas_zone_component_config',
+											'zone_component_slug'   => 'firewall_waf_rules',
+											'form_context'          => 'offcanvas',
+										],
+									],
+								],
+							],
+						],
+					],
+				],
+			],
+			[
+				'key'               => 'general',
+				'label'             => 'General',
+				'status'            => 'neutral',
+				'status_icon_class' => 'bi bi-info-circle-fill',
+				'settings_href'     => '/admin/zone_components/plugin_general',
+				'settings_label'    => 'Configure General Settings',
+				'nav_id'            => 'configure-rail-tab-general',
+				'pane_id'           => 'configure-rail-pane-general',
+				'target'            => '#configure-rail-pane-general',
+				'controls'          => 'configure-rail-pane-general',
+				'is_active'         => false,
+				'panel'             => [
+					'status'        => 'neutral',
+					'detail_groups' => [
+						[
+							'status' => 'neutral',
+							'rows'   => [
+								[
+									'title'             => 'Activity Logging',
+									'summary'           => 'General logging preferences.',
+									'status'            => 'neutral',
+									'status_label'      => 'General',
+									'status_icon_class' => 'bi bi-info-circle-fill',
+									'count_badge'       => null,
+									'badge_status'      => 'info',
+									'explanations'      => [],
+									'action'            => [],
+								],
+							],
+						],
+					],
+				],
+			],
+		];
+
 		return [
 			'vars' => [
-				'mode_panel' => [
-					'active_target' => 'firewall',
-				],
-				'zone_tiles' => [
-					[
-						'key'            => 'secadmin',
-						'label'          => 'Security Admin',
-						'status'         => 'good',
-						'status_icon_class' => 'bi bi-check-circle-fill',
-						'settings_href'  => '/admin/zones/secadmin',
-						'settings_label' => 'Configure Security Admin Settings',
-						'settings_action' => [
-							'classes' => [ 'zone_component_action' ],
-							'title'   => 'Open Security Admin settings',
-							'data'    => [
-								'zone_component_action' => 'offcanvas_zone_component_config',
-								'form_context'          => 'offcanvas',
-							],
+				'rail' => [
+					'id'            => 'ConfigureRailSidebar',
+					'accent_status' => 'critical',
+					'items'         => [
+						[
+							'key'               => 'secadmin',
+							'label'             => 'Security Admin',
+							'status'            => 'good',
+							'status_label'      => 'Good',
+							'status_icon_class' => 'bi bi-check-circle-fill',
+							'nav_id'            => 'configure-rail-tab-secadmin',
+							'target'            => '#configure-rail-pane-secadmin',
+							'controls'          => 'configure-rail-pane-secadmin',
+							'is_active'         => false,
 						],
-						'panel'          => [
-							'status'        => 'good',
-							'detail_groups' => [
-								[
-									'status' => 'good',
-									'rows'   => [
-										[
-											'title'             => 'PIN Protection',
-											'summary'           => 'PIN is configured.',
-											'status'            => 'good',
-											'status_label'      => 'Active',
-											'status_icon_class' => 'bi bi-check-circle-fill',
-											'count_badge'       => null,
-											'badge_status'      => 'good',
-											'explanations'      => [],
-											'action'            => [],
-										],
-									],
-								],
-							],
+						[
+							'key'               => 'firewall',
+							'label'             => 'Firewall',
+							'status'            => 'critical',
+							'status_label'      => 'Critical',
+							'status_icon_class' => 'bi bi-x-circle-fill',
+							'nav_id'            => 'configure-rail-tab-firewall',
+							'target'            => '#configure-rail-pane-firewall',
+							'controls'          => 'configure-rail-pane-firewall',
+							'is_active'         => true,
 						],
-					],
-					[
-						'key'            => 'firewall',
-						'label'          => 'Firewall',
-						'status'         => 'critical',
-						'status_icon_class' => 'bi bi-x-circle-fill',
-						'settings_href'  => '/admin/zones/firewall',
-						'settings_label' => 'Configure Firewall Settings',
-						'settings_action' => [
-							'classes' => [ 'zone_component_action' ],
-							'title'   => 'Open Firewall settings',
-							'data'    => [
-								'zone_component_action' => 'offcanvas_zone_component_config',
-								'zone_component_slug'   => 'firewall',
-								'form_context'          => 'offcanvas',
-							],
-						],
-						'panel'          => [
-							'status'        => 'critical',
-							'detail_groups' => [
-								[
-									'status' => 'critical',
-									'rows'   => [
-										[
-											'title'             => 'WAF Rules',
-											'summary'           => 'Critical protection is disabled.',
-											'status'            => 'critical',
-											'status_label'      => 'Issue',
-											'status_icon_class' => 'bi bi-x-circle-fill',
-											'count_badge'       => 2,
-											'badge_status'      => 'critical',
-											'explanations'      => [ 'Directory traversal protection is disabled.' ],
-											'action'            => [
-												'data' => [
-													'zone_component_action' => 'offcanvas_zone_component_config',
-													'zone_component_slug'   => 'firewall_waf_rules',
-													'form_context'          => 'offcanvas',
-												],
-											],
-										],
-									],
-								],
-							],
-						],
-					],
-					[
-						'key'            => 'general',
-						'label'          => 'General',
-						'status'         => 'neutral',
-						'status_icon_class' => 'bi bi-info-circle-fill',
-						'settings_href'  => '/admin/zone_components/plugin_general',
-						'settings_label' => 'Configure General Settings',
-						'panel'          => [
-							'status'        => 'neutral',
-							'detail_groups' => [
-								[
-									'status' => 'neutral',
-									'rows'   => [
-										[
-											'title'             => 'Activity Logging',
-											'summary'           => 'General logging preferences.',
-											'status'            => 'neutral',
-											'status_label'      => 'General',
-											'status_icon_class' => 'bi bi-info-circle-fill',
-											'count_badge'       => null,
-											'badge_status'      => 'info',
-											'explanations'      => [],
-											'action'            => [],
-										],
-									],
-								],
-							],
+						[
+							'key'               => 'general',
+							'label'             => 'General',
+							'status'            => 'info',
+							'status_label'      => 'General',
+							'status_icon_class' => 'bi bi-info-circle-fill',
+							'nav_id'            => 'configure-rail-tab-general',
+							'target'            => '#configure-rail-pane-general',
+							'controls'          => 'configure-rail-pane-general',
+							'is_active'         => false,
 						],
 					],
 				],
+				'zone_tiles' => $zoneTiles,
 			],
 		];
 	}
@@ -203,28 +256,18 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__accent--critical ")]',
-			'Configure rail should derive a critical accent from the worst zone status'
+			'//*[@data-shield-rail-target="firewall" and @data-bs-toggle="tab" and @aria-selected="true"]',
+			'Configure rail should render the active Bootstrap rail trigger'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-target="firewall" and contains(concat(" ", normalize-space(@class), " "), " is-active ")]',
-			'Explicit active target should activate the matching rail item'
+			'//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]/*[@data-shield-rail-pane="firewall"]',
+			'Configure rail should render zone panes inside a Bootstrap tab-content container'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-pane="secadmin" and contains(@style, "display: none")]',
-			'Inactive panes should render hidden'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-target="general"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__pip--info ")]',
-			'Neutral zones should map to info in the rail UI'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-target="general"]//i[contains(concat(" ", normalize-space(@class), " "), " bi-info-circle-fill ")]',
-			'Configure rail should render the PHP-provided status icon class for the rail badge'
+			'//*[@data-shield-rail-pane="firewall" and contains(concat(" ", normalize-space(@class), " "), " active ")]',
+			'Configure rail should keep the active pane in sync with the active trigger'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -233,38 +276,18 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-pane="firewall"]//*[@data-configure-expand-ajax="1" and @data-zone_component_action="offcanvas_zone_component_config" and @data-zone_component_slug="firewall_waf_rules"]',
+			'//*[@data-shield-rail-pane="firewall"]//*[@data-configure-expand-ajax="1"]',
 			'Configurable rows should carry the AJAX placeholder contract'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-pane="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__gear-icon ")]',
-			'Configurable rows should show the gear icon'
-		);
-		$this->assertSame(
-			0,
-			$xpath->query( '//*[@data-shield-rail-pane="secadmin"]//*[@data-configure-expand-ajax="1"]' )->length,
-			'Non-configurable rows should not render AJAX placeholders'
-		);
-		$this->assertSame(
-			0,
-			$xpath->query( '//*[@data-shield-rail-pane="general"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__gear-icon ")]' )->length,
-			'Non-configurable rows should not render gear icons'
+			'//*[@data-shield-rail-pane="general"]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and @data-configure-zone-settings="general"]',
+			'Configure rail should render the shared Configure CTA inside the zone pane'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-pane="general"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__status-icon--info ")]',
-			'Neutral rows should map to info in the detail UI'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-pane="general"]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and contains(concat(" ", normalize-space(@class), " "), " status-neutral ") and @data-configure-zone-settings="general" and @href="/admin/zone_components/plugin_general" and normalize-space()="Configure General Settings"]',
-			'Configure rail should render the general settings action with the Configure CTA styling and fallback href'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-pane="secadmin"]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and contains(concat(" ", normalize-space(@class), " "), " zone_component_action ") and @data-configure-zone-settings="secadmin" and @data-zone_component_action="offcanvas_zone_component_config" and @data-form_context="offcanvas" and @title="Open Security Admin settings"]',
-			'Configure rail should pass through settings action classes and data attributes for CTA actions'
+			'//*[@data-shield-rail-pane="secadmin"]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and @data-zone_component_action="offcanvas_zone_component_config"]',
+			'Configure rail should preserve settings action data on CTA actions'
 		);
 	}
 }

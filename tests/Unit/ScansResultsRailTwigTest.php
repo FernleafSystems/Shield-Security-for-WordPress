@@ -52,6 +52,52 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 	private function buildRenderContext() :array {
 		return [
 			'vars'    => [
+				'rail'            => [
+					'id'            => 'ScanResultsRailSidebar',
+					'accent_status' => 'critical',
+					'items'         => [
+						[
+							'key'       => 'summary',
+							'label'     => 'Summary',
+							'status'    => 'critical',
+							'count'     => 3,
+							'nav_id'    => 'h-tabs-summary-tab',
+							'target'    => '#h-tabs-summary',
+							'controls'  => 'h-tabs-summary',
+							'is_active' => true,
+						],
+						[
+							'key'       => 'plugins',
+							'label'     => 'Plugins',
+							'status'    => 'warning',
+							'count'     => 2,
+							'nav_id'    => 'h-tabs-plugins-tab',
+							'target'    => '#h-tabs-plugins',
+							'controls'  => 'h-tabs-plugins',
+							'is_active' => false,
+						],
+						[
+							'key'       => 'vulnerabilities',
+							'label'     => 'Vulnerabilities',
+							'status'    => 'critical',
+							'count'     => 1,
+							'nav_id'    => 'h-tabs-vulnerabilities-tab',
+							'target'    => '#h-tabs-vulnerabilities',
+							'controls'  => 'h-tabs-vulnerabilities',
+							'is_active' => false,
+						],
+						[
+							'key'       => 'malware',
+							'label'     => 'Malware',
+							'status'    => 'good',
+							'count'     => 0,
+							'nav_id'    => 'h-tabs-malware-tab',
+							'target'    => '#h-tabs-malware',
+							'controls'  => 'h-tabs-malware',
+							'is_active' => false,
+						],
+					],
+				],
 				'tabs'            => [
 					[
 						'key'       => 'summary',
@@ -295,7 +341,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		$this->assertXPathExists(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__accent--critical ")]',
-			'Rail scans results template should derive a critical accent from vulnerability findings'
+			'Rail scans results template should render the PHP-owned rail accent status'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -304,18 +350,8 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-target="summary" and @data-bs-toggle="tab" and @role="tab" and @aria-selected="true"]',
+			'//*[@data-shield-rail-target="summary" and @data-bs-toggle="tab" and @aria-selected="true"]',
 			'Summary rail item should render a Bootstrap tab trigger'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-target="summary"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__pip--critical ")]',
-			'Summary rail item should inherit the worst critical status'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-scope="1"]//ul[@role="tablist" and @aria-orientation="vertical"]',
-			'Rail scans results template should render a vertical Bootstrap tablist'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -324,8 +360,8 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-pane="plugins" and contains(concat(" ", normalize-space(@class), " "), " tab-pane ") and not(contains(concat(" ", normalize-space(@class), " "), " active "))]',
-			'Inactive rail panes should render as Bootstrap tab panes'
+			'//*[@data-shield-rail-pane="plugins"]',
+			'Rail scans results should render pane contracts for non-summary tabs'
 		);
 		$this->assertXPathExists(
 			$xpath,

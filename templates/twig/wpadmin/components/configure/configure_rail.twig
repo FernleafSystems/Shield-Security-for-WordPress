@@ -1,40 +1,17 @@
 {% set zone_tiles = vars.zone_tiles|default([]) %}
-{% set first_zone = zone_tiles|first %}
-{% set active_zone_key = vars.mode_panel.active_target|default('') %}
-{% if active_zone_key is empty and first_zone is not empty %}
-	{% set active_zone_key = first_zone.key|default('') %}
-{% endif %}
-
-{% set rail_accent = 'good' %}
-{% set rail_items = [] %}
-{% for zone in zone_tiles %}
-	{% set zone_status = zone.status|default('good') %}
-	{% if zone_status == 'critical' %}
-		{% set rail_accent = 'critical' %}
-	{% elseif zone_status == 'warning' and rail_accent != 'critical' %}
-		{% set rail_accent = 'warning' %}
-	{% endif %}
-
-	{% set mapped_status = zone_status == 'neutral' ? 'info' : zone_status %}
-	{% set rail_items = rail_items|merge( [ {
-		key: zone.key,
-		label: zone.label,
-		status: mapped_status,
-		status_label: zone.status_label|default(mapped_status|capitalize),
-		status_icon: zone.status_icon_class|default(null),
-		is_active: active_zone_key == zone.key
-	} ] ) %}
-{% endfor %}
 
 {% set pane_content %}
+	<div class="tab-content mb-3">
 	{% for zone in zone_tiles %}
-		<div data-shield-rail-pane="{{ zone.key|e('html_attr') }}"{% if active_zone_key != zone.key %} style="display: none"{% endif %}>
+		<div class="tab-pane{% if zone.is_active|default(false) %} show active{% endif %}"
+			 id="{{ zone.pane_id|default('')|e('html_attr') }}"
+			 role="tabpanel"
+			 aria-labelledby="{{ zone.nav_id|default('')|e('html_attr') }}"
+			 data-shield-rail-pane="{{ zone.key|e('html_attr') }}">
 			{% for group in zone.panel.detail_groups|default([]) %}
 				{% set group_index = loop.index0 %}
 				{% for row in group.rows|default([]) %}
 					{% set expand_id = 'cfg-expand-' ~ zone.key ~ '-' ~ group_index ~ '-' ~ loop.index0 %}
-					{% set row_status = row.status|default('good') %}
-					{% set mapped_row_status = row_status == 'neutral' ? 'info' : row_status %}
 					{% set action_data = row.action.data|default({}) %}
 					{% set is_expandable = action_data.zone_component_slug|default('') is not empty and action_data.zone_component_action|default('') is not empty %}
 
@@ -42,7 +19,7 @@
 						{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
 							title: row.title|default(''),
 							description: row.summary|default(''),
-							status: mapped_row_status,
+							status: row.status|default('good'),
 							status_icon: row.status_icon_class|default(null),
 							status_label: row.status_label|default(null),
 							count_badge: row.count_badge|default(null),
@@ -62,7 +39,7 @@
 							{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
 								id: expand_id,
 								type: 'options',
-								status: mapped_row_status,
+								status: row.status|default('good'),
 								body: expansion_body
 							} } only %}
 						{% endif %}
@@ -71,26 +48,19 @@
 			{% endfor %}
 
 			{% if zone.settings_href|default('') is not empty %}
-				<div class="configure-landing__panel-actions mt-3">
-					<a href="{{ zone.settings_action.href|default(zone.settings_href) }}"
-					   class="configure-landing__panel-cta status-{{ zone.panel.status|default(zone.status|default('neutral')) }} {{ zone.settings_action.classes|default([])|join( ' ' ) }}"
-					   data-configure-zone-settings="{{ zone.key }}"
-					   {% if zone.settings_action.title|default('') is not empty %}title="{{ zone.settings_action.title }}"{% endif %}
-					   {% for key, value in zone.settings_action.data|default([]) %}data-{{ key|e('html_attr') }}="{{ value|e('html_attr') }}"{% endfor %}>
-						{{ zone.settings_label|default('') }}
-					</a>
-				</div>
+				{% include '/wpadmin/components/configure/zone_settings_cta.twig' with {
+					zone: zone
+				} only %}
 			{% endif %}
 		</div>
 	{% endfor %}
+	</div>
 {% endset %}
 
 {% set rail_html %}
-	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
-		accent_status: rail_accent,
-		id: 'ConfigureRailSidebar',
-		items: rail_items
-	} } only %}
+	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with {
+		rail: vars.rail|default({})
+	} only %}
 {% endset %}
 
 {% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {

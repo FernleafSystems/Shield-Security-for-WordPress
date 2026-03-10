@@ -1,3 +1,4 @@
+import { Tab } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 
@@ -59,7 +60,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 	}
 
 	getActiveRailItemKey( configureRoot ) {
-		const activeItem = configureRoot.querySelector( '.shield-rail-sidebar__item.is-active' );
+		const activeItem = configureRoot.querySelector( '.shield-rail-sidebar__item.active, .shield-rail-sidebar__item.is-active' );
 		return activeItem !== null ? ( activeItem.dataset.shieldRailTarget || '' ).trim() : '';
 	}
 
@@ -109,7 +110,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 
 		const targetItem = root.querySelector( `[data-shield-rail-target="${activeZoneKey}"]` );
 		if ( targetItem !== null ) {
-			targetItem.click();
+			Tab.getOrCreateInstance( targetItem ).show();
 		}
 	}
 }

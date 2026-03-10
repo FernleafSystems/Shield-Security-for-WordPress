@@ -1,41 +1,29 @@
-{% import '/common/macros.twig' as icwp_macros %}
 {% set rail_data = rail|default({}) %}
 {% set items = rail_data.items|default([]) %}
 
 <div class="shield-rail-sidebar" id="{{ rail_data.id|default('ShieldRailSidebar')|e('html_attr') }}">
 	<div class="shield-rail-sidebar__accent shield-rail-sidebar__accent--{{ rail_data.accent_status|default('good') }}"></div>
-	<ul class="shield-rail-sidebar__nav"{{ icwp_macros.renderAttributes(rail_data.nav_attributes|default({})) }}>
+	<ul class="shield-rail-sidebar__nav" role="tablist" aria-orientation="vertical">
 		{% for item in items %}
 			{% set is_active = item.is_active|default(false) %}
-			{% set item_status = item.status|default('neutral') %}
-			{% set badge_status = item.badge_status|default(item_status == 'neutral' ? 'info' : item_status) %}
-			{% set item_tag = item.tag|default('button') %}
+			{% set item_status = item.status|default('good') %}
+			{% set badge_status = item_status %}
 			{% set item_classes = [ 'shield-rail-sidebar__item' ] %}
 			{% if is_active %}
-				{% set item_classes = item_classes|merge( [ 'is-active' ] ) %}
-			{% endif %}
-			{% if item.bootstrap_tab|default(false) and is_active %}
-				{% set item_classes = item_classes|merge( [ 'active' ] ) %}
-			{% endif %}
-			{% set extra_item_classes = item.classes|default([]) %}
-			{% if extra_item_classes is iterable %}
-				{% set item_classes = item_classes|merge( extra_item_classes ) %}
-			{% endif %}
-
-			{% set item_attributes = {
-				'data-shield-rail-key': item.key|default(''),
-				'data-shield-rail-target': item.key|default('')
-			} %}
-			{% if item_tag == 'button' %}
-				{% set item_attributes = item_attributes|merge( { type: 'button' } ) %}
-			{% endif %}
-			{% set item_attributes = item_attributes|merge( item.attributes|default({}) ) %}
-			{% if item.use_aria_current|default(true) %}
-				{% set item_attributes = item_attributes|merge( { 'aria-current': is_active ? 'true' : 'false' } ) %}
+				{% set item_classes = item_classes|merge( [ 'is-active', 'active' ] ) %}
 			{% endif %}
 
 			<li>
-				<{{ item_tag }} class="{{ item_classes|join(' ') }}"{{ icwp_macros.renderAttributes(item_attributes) }}>
+				<button type="button"
+						class="{{ item_classes|join(' ') }}"
+						id="{{ item.nav_id|default('')|e('html_attr') }}"
+						data-shield-rail-key="{{ item.key|default('')|e('html_attr') }}"
+						data-shield-rail-target="{{ item.key|default('')|e('html_attr') }}"
+						data-bs-toggle="tab"
+						data-bs-target="{{ item.target|default('')|e('html_attr') }}"
+						role="tab"
+						aria-controls="{{ item.controls|default('')|e('html_attr') }}"
+						aria-selected="{{ is_active ? 'true' : 'false' }}">
 					<span class="shield-rail-sidebar__pip shield-rail-sidebar__pip--{{ item_status }}"></span>
 					<span class="shield-rail-sidebar__label">{{ item.label|default('') }}</span>
 					{% if item.count|default(null) is not null %}
@@ -44,10 +32,10 @@
 						</span>
 					{% elseif item.status_label|default('') is not empty %}
 						<span class="shield-badge badge-{{ badge_status }} shield-rail-sidebar__badge shield-rail-sidebar__badge--sm">
-							<i class="{{ item.status_icon|default('') }}"></i>
+							<i class="{{ item.status_icon_class|default('') }}"></i>
 						</span>
 					{% endif %}
-				</{{ item_tag }}>
+				</button>
 			</li>
 		{% endfor %}
 	</ul>

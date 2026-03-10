@@ -327,19 +327,31 @@ class NavMenuBuilder {
 	 */
 	private function getActionsQueueSummary() :array {
 		try {
-			$summary = ( new AttentionItemsProvider() )->buildActionSummary();
+			$summary = $this->buildActionsQueueSummaryContract();
 		}
 		catch ( \Throwable $e ) {
 			$summary = [
-				'total'        => 0,
+				'total_items'  => 0,
 				'severity'     => 'good',
-				'is_all_clear' => true,
+				'has_items'    => false,
 			];
 		}
 		return [
-			'has_items'   => !(bool)$summary[ 'is_all_clear' ],
-			'total_items' => (int)$summary[ 'total' ],
+			'has_items'   => (bool)$summary[ 'has_items' ],
+			'total_items' => (int)$summary[ 'total_items' ],
 			'severity'    => (string)$summary[ 'severity' ],
+		];
+	}
+
+	/**
+	 * @return array{has_items:bool,total_items:int,severity:string}
+	 */
+	protected function buildActionsQueueSummaryContract() :array {
+		$summary = ( new AttentionItemsProvider() )->buildActionSummary();
+		return [
+			'has_items'   => !(bool)( $summary[ 'is_all_clear' ] ?? true ),
+			'total_items' => (int)( $summary[ 'total' ] ?? 0 ),
+			'severity'    => $summary[ 'severity' ],
 		];
 	}
 

@@ -18,14 +18,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
-	PluginControllerInstaller
+	PluginControllerInstaller,
+	ServicesState
 };
+use FernleafSystems\Wordpress\Services\Core\Request;
 
 class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
 	private object $renderCapture;
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -36,11 +39,17 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
+		Functions\when( 'sanitize_text_field' )->alias(
+			static fn( $text ) :string => \is_string( $text ) ? \trim( $text ) : ''
+		);
+		$this->servicesSnapshot = ServicesState::snapshot();
+		$this->installServices();
 		$this->installControllerStub();
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -69,6 +78,21 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 78, 1, 1, 1 );
 		$this->assertSame( \array_column( $zoneTiles, 'key' ), \array_column( $vars[ 'zone_tiles' ] ?? [], 'key' ) );
 		$this->assertSame( [ 'good' ], \array_column( $vars[ 'zone_tiles' ][ 0 ][ 'panel' ][ 'detail_groups' ] ?? [], 'status' ) );
+		$this->assertSame( 'ConfigureRailSidebar', (string)( $vars[ 'rail' ][ 'id' ] ?? '' ) );
+		$this->assertCount( \count( $zoneTiles ), $vars[ 'rail' ][ 'items' ] ?? [] );
+		$this->assertSame(
+			\array_column( $zoneTiles, 'key' ),
+			\array_column( $vars[ 'rail' ][ 'items' ] ?? [], 'key' )
+		);
+		$this->assertTrue( (bool)( $vars[ 'zone_tiles' ][ 0 ][ 'is_active' ] ?? false ) );
+		$this->assertSame(
+			'configure-rail-pane-secadmin',
+			(string)( $vars[ 'zone_tiles' ][ 0 ][ 'pane_id' ] ?? '' )
+		);
+		$this->assertSame(
+			'configure-rail-tab-secadmin',
+			(string)( $vars[ 'zone_tiles' ][ 0 ][ 'nav_id' ] ?? '' )
+		);
 		$this->assertIsArray( $vars[ 'configure_render_action' ] ?? null );
 		$this->assertSame(
 			PageConfigureLanding::SLUG,
@@ -82,6 +106,39 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			PluginNavs::SUBNAV_ZONES_OVERVIEW,
 			$vars[ 'configure_render_action' ][ Constants::NAV_SUB_ID ] ?? ''
 		);
+	}
+
+	public function test_active_zone_defaults_to_first_zone_when_no_zone_input_is_provided() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$panel = $this->invokeNonPublicMethod( $page, 'getLandingPanel' );
+
+		$this->assertSame( 'secadmin', (string)( $vars[ 'zone_tiles' ][ 0 ][ 'key' ] ?? '' ) );
+		$this->assertTrue( (bool)( $vars[ 'zone_tiles' ][ 0 ][ 'is_active' ] ?? false ) );
+		$this->assertSame( '', (string)( $panel[ 'active_target' ] ?? '' ) );
+	}
+
+	public function test_active_zone_uses_request_query_when_it_matches_a_zone_tile() :void {
+		$this->installServices( [ 'zone' => 'firewall' ] );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$panel = $this->invokeNonPublicMethod( $page, 'getLandingPanel' );
+
+		$this->assertSame( [ false, true, false ], \array_column( $vars[ 'zone_tiles' ] ?? [], 'is_active' ) );
+		$this->assertSame( 'firewall', (string)( $panel[ 'active_target' ] ?? '' ) );
+	}
+
+	public function test_active_zone_uses_action_data_when_request_query_is_empty() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+		$page->action_data = [ 'zone' => 'spam' ];
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$panel = $this->invokeNonPublicMethod( $page, 'getLandingPanel' );
+
+		$this->assertSame( [ false, false, true ], \array_column( $vars[ 'zone_tiles' ] ?? [], 'is_active' ) );
+		$this->assertSame( 'spam', (string)( $panel[ 'active_target' ] ?? '' ) );
 	}
 
 	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
@@ -460,6 +517,22 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			}
 		};
 		PluginControllerInstaller::install( $controller );
+	}
+
+	private function installServices( array $query = [] ) :void {
+		ServicesState::installItems( [
+			'service_request' => new class( $query ) extends Request {
+				private array $queryValues;
+
+				public function __construct( array $queryValues = [] ) {
+					$this->queryValues = $queryValues;
+				}
+
+				public function query( $key, $default = null ) {
+					return $this->queryValues[ $key ] ?? $default;
+				}
+			},
+		] );
 	}
 }
 

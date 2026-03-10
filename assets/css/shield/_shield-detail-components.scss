@@ -414,6 +414,14 @@
 	&--critical {
 		background: $status-color-critical;
 	}
+
+	&--info {
+		background: $status-color-info;
+	}
+
+	&--neutral {
+		background: #8b949e;
+	}
 }
 
 .shield-rail-sidebar__nav {
@@ -453,7 +461,8 @@
 		outline-offset: 1px;
 	}
 
-	&.is-active {
+	&.is-active,
+	&.active {
 		background: #f2f9f2;
 		border-color: #c7dfc7;
 		color: #1a7f37;

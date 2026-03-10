@@ -32,15 +32,6 @@ class ScansResultsViewBuilder {
 
 	use PluginControllerConsumer;
 
-	private const SUMMARY_KEY_TO_RAIL_TAB = [
-		'wp_files'          => 'wordpress',
-		'plugin_files'      => 'plugins',
-		'theme_files'       => 'themes',
-		'malware'           => 'malware',
-		'vulnerable_assets' => 'vulnerabilities',
-		'abandoned'         => 'vulnerabilities',
-	];
-
 	private ?array $cachedAfsItems = null;
 
 	public function build() :array {
@@ -75,6 +66,7 @@ class ScansResultsViewBuilder {
 		return [
 			'vars'    => [
 				'tabs'            => $legacyTabs,
+				'rail'            => $this->buildRailContract( $railTabs ),
 				'rail_tabs'       => $railTabs,
 				'summary_rows'    => $summaryRows,
 				'assessment_rows' => $assessmentRows,
@@ -96,10 +88,12 @@ class ScansResultsViewBuilder {
 		$summaryRows = $this->buildSummaryRows();
 		$assessmentRows = $this->buildAssessmentRows();
 		$vulnerabilities = $this->buildVulnerabilities();
+		$railTabs = $this->buildActionsQueueRailTabs( $summaryRows, $assessmentRows, $vulnerabilities );
 
 		return [
 			'vars'    => [
-				'rail_tabs'       => $this->buildActionsQueueRailTabs( $summaryRows, $assessmentRows, $vulnerabilities ),
+				'rail'            => $this->buildRailContract( $railTabs ),
+				'rail_tabs'       => $railTabs,
 				'summary_rows'    => $summaryRows,
 				'assessment_rows' => $assessmentRows,
 				'vulnerabilities' => $vulnerabilities,
@@ -209,47 +203,36 @@ class ScansResultsViewBuilder {
 		array $fileLockerPayload,
 		array $vulnerabilities
 	) :array {
-		return $this->buildTabs( [
-			[
-				'key'   => 'summary',
-				'label' => __( 'Summary', 'wp-simple-firewall' ),
-				'count' => \count( $summaryRows ),
-			],
-			[
-				'key'      => 'wordpress',
-				'label'    => __( 'WordPress', 'wp-simple-firewall' ),
-				'count'    => $this->extractSectionCount( $wordpressPayload ),
-				'is_shown' => $this->isWordpressTabEnabled(),
-			],
-			[
-				'key'      => 'plugins',
-				'label'    => __( 'Plugins', 'wp-simple-firewall' ),
-				'count'    => $this->extractSectionCount( $pluginsPayload ),
-				'is_shown' => $this->extractSectionCount( $pluginsPayload ) > 0,
-			],
-			[
-				'key'      => 'themes',
-				'label'    => __( 'Themes', 'wp-simple-firewall' ),
-				'count'    => $this->extractSectionCount( $themesPayload ),
-				'is_shown' => $this->extractSectionCount( $themesPayload ) > 0,
-			],
-			[
-				'key'      => 'vulnerabilities',
-				'label'    => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-				'count'    => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
-				'is_shown' => (int)( $vulnerabilities[ 'count' ] ?? 0 ) > 0,
-			],
-			[
-				'key'   => 'malware',
-				'label' => __( 'Malware', 'wp-simple-firewall' ),
-				'count' => $this->extractSectionCount( $malwarePayload ),
-			],
-			[
-				'key'   => 'file_locker',
-				'label' => __( 'File Locker', 'wp-simple-firewall' ),
-				'count' => $this->extractSectionCount( $fileLockerPayload ),
-			],
-		] );
+		$definitions = [];
+		$legacyCounts = [
+			'wordpress'       => $this->extractSectionCount( $wordpressPayload ),
+			'plugins'         => $this->extractSectionCount( $pluginsPayload ),
+			'themes'          => $this->extractSectionCount( $themesPayload ),
+			'vulnerabilities' => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
+			'malware'         => $this->extractSectionCount( $malwarePayload ),
+			'file_locker'     => $this->extractSectionCount( $fileLockerPayload ),
+		];
+
+		foreach ( $this->getOrderedRailTabKeys() as $key ) {
+			$tabMeta = $this->getRailTabMeta( $key );
+			$definition = [
+				'key'   => $key,
+				'label' => $tabMeta[ 'label' ],
+				'count' => $key === 'summary' ? \count( $summaryRows ) : ( $legacyCounts[ $key ] ?? 0 ),
+			];
+
+			if ( $key !== 'summary' ) {
+				$definition[ 'is_shown' ] = match ( $key ) {
+					'wordpress' => $this->isWordpressTabEnabled(),
+					'plugins', 'themes', 'vulnerabilities' => ( $legacyCounts[ $key ] ?? 0 ) > 0,
+					default => true,
+				};
+			}
+
+			$definitions[] = $definition;
+		}
+
+		return $this->buildTabs( $definitions );
 	}
 
 	/**
@@ -265,101 +248,15 @@ class ScansResultsViewBuilder {
 		array $fileLockerPayload,
 		array $vulnerabilities
 	) :array {
-		$definitions = [
-			[
-				'key'        => 'summary',
-				'label'      => __( 'Summary', 'wp-simple-firewall' ),
-				'count'      => \count( $summaryRows ),
-				'status'     => 'good',
-				'icon_class' => 'bi bi-clipboard2-pulse-fill',
-				'items'      => $this->buildSummaryRailItems( $summaryRows, $assessmentRows ),
-			],
-		];
-
-		if ( $this->isWordpressTabEnabled() ) {
-			$wpItems = $this->buildWordpressRailItems();
-			$wpIssueCount = \count( \array_filter( $wpItems, static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) !== 'good' ) );
-			$definitions[] = [
-				'key'        => 'wordpress',
-				'label'      => __( 'WordPress', 'wp-simple-firewall' ),
-				'count'      => $wpIssueCount,
-				'status'     => $wpIssueCount > 0 ? 'critical' : 'good',
-				'icon_class' => 'bi bi-wordpress',
-				'items'      => $wpItems,
-			];
-		}
-
-		if ( $this->isPluginsRailTabEnabled() ) {
-			$pluginsItems = $this->buildPluginThemeRailItemsDirect( 'plugin' );
-			$pluginsIssueCount = \count( \array_filter( $pluginsItems, static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) !== 'good' ) );
-			$definitions[] = [
-				'key'        => 'plugins',
-				'label'      => __( 'Plugins', 'wp-simple-firewall' ),
-				'count'      => $pluginsIssueCount,
-				'status'     => $pluginsIssueCount > 0 ? 'warning' : 'good',
-				'icon_class' => 'bi bi-plug-fill',
-				'items'      => $pluginsItems,
-			];
-		}
-
-		if ( $this->isThemesRailTabEnabled() ) {
-			$themesItems = $this->buildPluginThemeRailItemsDirect( 'theme' );
-			$themesIssueCount = \count( \array_filter( $themesItems, static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) !== 'good' ) );
-			$definitions[] = [
-				'key'        => 'themes',
-				'label'      => __( 'Themes', 'wp-simple-firewall' ),
-				'count'      => $themesIssueCount,
-				'status'     => $themesIssueCount > 0 ? 'warning' : 'good',
-				'icon_class' => 'bi bi-palette-fill',
-				'items'      => $themesItems,
-			];
-		}
-
-		if ( $this->isVulnerabilitiesRailTabEnabled() ) {
-			$definitions[] = [
-				'key'        => 'vulnerabilities',
-				'label'      => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-				'count'      => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
-				'status'     => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
-				'icon_class' => 'bi bi-shield-exclamation',
-				'items'      => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
-			];
-		}
-
-		if ( $this->isMalwareRailTabEnabled() ) {
-			$malwareItems = $this->buildMalwareRailItems();
-			$malwareIssueCount = \count( \array_filter( $malwareItems, static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) !== 'good' ) );
-			$definitions[] = [
-				'key'        => 'malware',
-				'label'      => __( 'Malware', 'wp-simple-firewall' ),
-				'count'      => $malwareIssueCount,
-				'status'     => $malwareIssueCount > 0 ? 'critical' : 'good',
-				'icon_class' => 'bi bi-bug-fill',
-				'items'      => $malwareItems,
-			];
-		}
-
-		$fileLockerItems = $this->buildFileLockerRailItems( $fileLockerPayload );
-		$fileLockerIssueCount = \count( \array_filter( $fileLockerItems, static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) !== 'good' ) );
-		$definitions[] = [
-			'key'        => 'file_locker',
-			'label'      => __( 'File Locker', 'wp-simple-firewall' ),
-			'count'      => $fileLockerIssueCount,
-			'status'     => $fileLockerIssueCount > 0 ? 'warning' : 'good',
-			'icon_class' => 'bi bi-file-lock2-fill',
-			'items'      => $fileLockerItems,
-		];
-
-		$nonSummaryStatuses = \array_column(
-			\array_filter(
-				$definitions,
-				static fn( array $definition ) :bool => ( $definition[ 'key' ] ?? '' ) !== 'summary'
-			),
-			'status'
+		return $this->buildTabs(
+			$this->buildResolvedRailTabDefinitions(
+				$summaryRows,
+				$assessmentRows,
+				$vulnerabilities,
+				false,
+				$fileLockerPayload
+			)
 		);
-		$definitions[ 0 ][ 'status' ] = StatusPriority::highest( $nonSummaryStatuses, 'good' );
-
-		return $this->buildTabs( $definitions );
 	}
 
 	/**
@@ -370,121 +267,348 @@ class ScansResultsViewBuilder {
 		array $assessmentRows,
 		array $vulnerabilities
 	) :array {
-		$definitions = [
-			[
-				'key'        => 'summary',
-				'label'      => __( 'Summary', 'wp-simple-firewall' ),
-				'count'      => \count( $summaryRows ),
-				'status'     => 'good',
-				'icon_class' => 'bi bi-clipboard2-pulse-fill',
-				'items'      => $this->buildSummaryRailItems( $summaryRows, $assessmentRows ),
-				'is_loaded'  => true,
+		return $this->buildTabs(
+			$this->buildResolvedRailTabDefinitions(
+				$summaryRows,
+				$assessmentRows,
+				$vulnerabilities,
+				true
+			)
+		);
+	}
+
+	/**
+	 * @return array{wordpress:int,malware:int}
+	 */
+	protected function getActionsQueueDisplayCounts() :array {
+		$displayCounts = new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
+		return [
+			'wordpress' => $displayCounts->countWPFiles(),
+			'malware'   => $displayCounts->countMalware(),
+		];
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $definitions
+	 * @return array<string,string>
+	 */
+	private function buildSummaryRailTargets( array $definitions ) :array {
+		$targets = [];
+		foreach ( \array_column( $definitions, 'key' ) as $tabKey ) {
+			foreach ( $this->getRailTabMeta( $tabKey )[ 'summary_keys' ] ?? [] as $summaryKey ) {
+				$targets[ $summaryKey ] = $tabKey;
+			}
+		}
+		return $targets;
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function getOrderedRailTabKeys( bool $includeSummary = true ) :array {
+		$keys = [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ];
+		if ( $includeSummary ) {
+			\array_unshift( $keys, 'summary' );
+		}
+		return $keys;
+	}
+
+	/**
+	 * Keep the scan tab definitions local to this slice and continue converging here.
+	 * If this is revisited, prefer shrinking this class by splitting the tab resolution
+	 * into smaller private builders and, when possible, deleting the legacy tabs path
+	 * entirely. Avoid introducing a generic shared rail builder or a second parallel
+	 * definition path just to make the structure look cleaner.
+	 *
+	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
+	 * @param array<string,mixed> $fileLockerPayload
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildResolvedRailTabDefinitions(
+		array $summaryRows,
+		array $assessmentRows,
+		array $vulnerabilities,
+		bool $forActionsQueue,
+		array $fileLockerPayload = []
+	) :array {
+		$definitions = [];
+		$displayCounts = $forActionsQueue ? $this->getActionsQueueDisplayCounts() : [];
+
+		foreach ( $this->getOrderedRailTabKeys( false ) as $tabKey ) {
+			$definition = $this->buildResolvedRailTabDefinition(
+				$tabKey,
+				$vulnerabilities,
+				$forActionsQueue,
+				$displayCounts,
+				$fileLockerPayload
+			);
+			if ( $definition !== null ) {
+				$definitions[] = $definition;
+			}
+		}
+
+		$summaryMeta = $this->getRailTabMeta( 'summary' );
+		$summaryDefinition = [
+			'key'        => 'summary',
+			'label'      => $summaryMeta[ 'label' ],
+			'count'      => \count( $summaryRows ),
+			'status'     => StatusPriority::highest( \array_column( $definitions, 'status' ), 'good' ),
+			'icon_class' => $summaryMeta[ 'icon_class' ],
+			'items'      => $this->buildSummaryRailItems(
+				$summaryRows,
+				$assessmentRows,
+				$this->buildSummaryRailTargets( $definitions )
+			),
+		];
+		if ( $forActionsQueue ) {
+			$summaryDefinition[ 'is_loaded' ] = true;
+		}
+		\array_unshift( $definitions, $summaryDefinition );
+
+		return $definitions;
+	}
+
+	/**
+	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
+	 * @param array{wordpress?:int,malware?:int} $displayCounts
+	 * @param array<string,mixed> $fileLockerPayload
+	 * @return array<string,mixed>|null
+	 */
+	private function buildResolvedRailTabDefinition(
+		string $tabKey,
+		array $vulnerabilities,
+		bool $forActionsQueue,
+		array $displayCounts,
+		array $fileLockerPayload
+	) :?array {
+		$tabMeta = $this->getRailTabMeta( $tabKey );
+		$definition = [
+			'key'        => $tabKey,
+			'label'      => $tabMeta[ 'label' ],
+			'icon_class' => $tabMeta[ 'icon_class' ],
+		];
+
+		switch ( $tabKey ) {
+			case 'wordpress':
+				if ( !$this->isWordpressTabEnabled() ) {
+					return null;
+				}
+				if ( $forActionsQueue ) {
+					$count = (int)( $displayCounts[ 'wordpress' ] ?? 0 );
+					return \array_merge( $definition, [
+						'count'         => $count,
+						'status'        => $count > 0 ? 'critical' : 'good',
+						'items'         => [],
+						'is_loaded'     => false,
+						'render_action' => $this->buildAjaxRenderActionData( Wordpress::class ),
+					] );
+				}
+				$items = $this->buildWordpressRailItems();
+				$count = $this->countNonGoodItems( $items );
+				return \array_merge( $definition, [
+					'count'  => $count,
+					'status' => $count > 0 ? 'critical' : 'good',
+					'items'  => $items,
+				] );
+
+			case 'plugins':
+				if ( !$this->isPluginsRailTabEnabled() ) {
+					return null;
+				}
+				if ( $forActionsQueue ) {
+					$count = $this->countAffectedAssetGroups( 'plugin' );
+					return \array_merge( $definition, [
+						'count'         => $count,
+						'status'        => $count > 0 ? 'warning' : 'good',
+						'items'         => [],
+						'is_loaded'     => false,
+						'render_action' => $this->buildAjaxRenderActionData( Plugins::class ),
+					] );
+				}
+				$items = $this->buildPluginThemeRailItemsDirect( 'plugin' );
+				$count = $this->countNonGoodItems( $items );
+				return \array_merge( $definition, [
+					'count'  => $count,
+					'status' => $count > 0 ? 'warning' : 'good',
+					'items'  => $items,
+				] );
+
+			case 'themes':
+				if ( !$this->isThemesRailTabEnabled() ) {
+					return null;
+				}
+				if ( $forActionsQueue ) {
+					$count = $this->countAffectedAssetGroups( 'theme' );
+					return \array_merge( $definition, [
+						'count'         => $count,
+						'status'        => $count > 0 ? 'warning' : 'good',
+						'items'         => [],
+						'is_loaded'     => false,
+						'render_action' => $this->buildAjaxRenderActionData( Themes::class ),
+					] );
+				}
+				$items = $this->buildPluginThemeRailItemsDirect( 'theme' );
+				$count = $this->countNonGoodItems( $items );
+				return \array_merge( $definition, [
+					'count'  => $count,
+					'status' => $count > 0 ? 'warning' : 'good',
+					'items'  => $items,
+				] );
+
+			case 'vulnerabilities':
+				if ( !$this->isVulnerabilitiesRailTabEnabled() ) {
+					return null;
+				}
+				return \array_merge( $definition, [
+					'count'     => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
+					'status'    => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
+					'items'     => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
+					'is_loaded' => $forActionsQueue,
+				] );
+
+			case 'malware':
+				if ( !$this->isMalwareRailTabEnabled() ) {
+					return null;
+				}
+				if ( $forActionsQueue ) {
+					$count = (int)( $displayCounts[ 'malware' ] ?? 0 );
+					return \array_merge( $definition, [
+						'count'         => $count,
+						'status'        => $count > 0 ? 'critical' : 'good',
+						'items'         => [],
+						'is_loaded'     => false,
+						'render_action' => $this->buildAjaxRenderActionData( Malware::class ),
+					] );
+				}
+				$items = $this->buildMalwareRailItems();
+				$count = $this->countNonGoodItems( $items );
+				return \array_merge( $definition, [
+					'count'  => $count,
+					'status' => $count > 0 ? 'critical' : 'good',
+					'items'  => $items,
+				] );
+
+			case 'file_locker':
+				if ( $forActionsQueue ) {
+					$count = \count( $this->getProblemFileLocks() );
+					return \array_merge( $definition, [
+						'count'         => $count,
+						'status'        => $count > 0 ? 'warning' : 'good',
+						'items'         => [],
+						'is_loaded'     => false,
+						'render_action' => $this->buildAjaxRenderActionData( FileLocker::class ),
+					] );
+				}
+				$items = $this->buildFileLockerRailItems( $fileLockerPayload );
+				$count = $this->countNonGoodItems( $items );
+				return \array_merge( $definition, [
+					'count'  => $count,
+					'status' => $count > 0 ? 'warning' : 'good',
+					'items'  => $items,
+				] );
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $items
+	 */
+	private function countNonGoodItems( array $items ) :int {
+		return \count( \array_filter( $items, static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) !== 'good' ) );
+	}
+
+	/**
+	 * @return array{label:string,icon_class:string,summary_keys:list<string>}
+	 */
+	private function getRailTabMeta( string $key ) :array {
+		$meta = [
+			'summary' => [
+				'label'        => __( 'Summary', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-clipboard2-pulse-fill',
+				'summary_keys' => [],
+			],
+			'wordpress' => [
+				'label'        => __( 'WordPress', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-wordpress',
+				'summary_keys' => [ 'wp_files' ],
+			],
+			'plugins' => [
+				'label'        => __( 'Plugins', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-plug-fill',
+				'summary_keys' => [ 'plugin_files' ],
+			],
+			'themes' => [
+				'label'        => __( 'Themes', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-palette-fill',
+				'summary_keys' => [ 'theme_files' ],
+			],
+			'vulnerabilities' => [
+				'label'        => __( 'Vulnerabilities', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-shield-exclamation',
+				'summary_keys' => [ 'vulnerable_assets', 'abandoned' ],
+			],
+			'malware' => [
+				'label'        => __( 'Malware', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-bug-fill',
+				'summary_keys' => [ 'malware' ],
+			],
+			'file_locker' => [
+				'label'        => __( 'File Locker', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-file-lock2-fill',
+				'summary_keys' => [],
 			],
 		];
-
-		$displayCounts = new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
-
-		if ( $this->isWordpressTabEnabled() ) {
-			$wpCount = $displayCounts->countWPFiles();
-			$definitions[] = [
-				'key'           => 'wordpress',
-				'label'         => __( 'WordPress', 'wp-simple-firewall' ),
-				'count'         => $wpCount,
-				'status'        => $wpCount > 0 ? 'critical' : 'good',
-				'icon_class'    => 'bi bi-wordpress',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => $this->buildAjaxRenderActionData( Wordpress::class ),
-			];
-		}
-
-		if ( $this->isPluginsRailTabEnabled() ) {
-			$pluginCount = $this->countAffectedAssetGroups( 'plugin' );
-			$definitions[] = [
-				'key'           => 'plugins',
-				'label'         => __( 'Plugins', 'wp-simple-firewall' ),
-				'count'         => $pluginCount,
-				'status'        => $pluginCount > 0 ? 'warning' : 'good',
-				'icon_class'    => 'bi bi-plug-fill',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => $this->buildAjaxRenderActionData( Plugins::class ),
-			];
-		}
-
-		if ( $this->isThemesRailTabEnabled() ) {
-			$themeCount = $this->countAffectedAssetGroups( 'theme' );
-			$definitions[] = [
-				'key'           => 'themes',
-				'label'         => __( 'Themes', 'wp-simple-firewall' ),
-				'count'         => $themeCount,
-				'status'        => $themeCount > 0 ? 'warning' : 'good',
-				'icon_class'    => 'bi bi-palette-fill',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => $this->buildAjaxRenderActionData( Themes::class ),
-			];
-		}
-
-		if ( $this->isVulnerabilitiesRailTabEnabled() ) {
-			$definitions[] = [
-				'key'        => 'vulnerabilities',
-				'label'      => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-				'count'      => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
-				'status'     => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
-				'icon_class' => 'bi bi-shield-exclamation',
-				'items'      => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
-				'is_loaded'  => true,
-			];
-		}
-
-		if ( $this->isMalwareRailTabEnabled() ) {
-			$malwareCount = $displayCounts->countMalware();
-			$definitions[] = [
-				'key'           => 'malware',
-				'label'         => __( 'Malware', 'wp-simple-firewall' ),
-				'count'         => $malwareCount,
-				'status'        => $malwareCount > 0 ? 'critical' : 'good',
-				'icon_class'    => 'bi bi-bug-fill',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => $this->buildAjaxRenderActionData( Malware::class ),
-			];
-		}
-
-		$fileLockerCount = \count( $this->getProblemFileLocks() );
-		$definitions[] = [
-			'key'           => 'file_locker',
-			'label'         => __( 'File Locker', 'wp-simple-firewall' ),
-			'count'         => $fileLockerCount,
-			'status'        => $fileLockerCount > 0 ? 'warning' : 'good',
-			'icon_class'    => 'bi bi-file-lock2-fill',
-			'items'         => [],
-			'is_loaded'     => false,
-			'render_action' => $this->buildAjaxRenderActionData( FileLocker::class ),
+		return $meta[ $key ] ?? [
+			'label'        => $key,
+			'icon_class'   => '',
+			'summary_keys' => [],
 		];
+	}
 
-		$nonSummaryStatuses = \array_column(
+	/**
+	 * @param list<array<string,mixed>> $tabs
+	 * @return array{id:string,accent_status:string,items:list<array<string,mixed>>}
+	 */
+	protected function buildRailContract( array $tabs ) :array {
+		$accentStatuses = \array_column(
 			\array_filter(
-				$definitions,
-				static fn( array $definition ) :bool => ( $definition[ 'key' ] ?? '' ) !== 'summary'
+				$tabs,
+				static fn( array $tab ) :bool => ( $tab[ 'key' ] ?? '' ) !== 'summary'
 			),
 			'status'
 		);
-		$definitions[ 0 ][ 'status' ] = StatusPriority::highest( $nonSummaryStatuses, 'good' );
 
-		return $this->buildTabs( $definitions );
+		return [
+			'id'            => 'ScanResultsRailSidebar',
+			'accent_status' => StatusPriority::highest( $accentStatuses, 'good' ),
+			'items'         => \array_values( \array_map(
+				static function ( array $tab ) :array {
+					return [
+						'key'       => $tab[ 'key' ],
+						'label'     => $tab[ 'label' ],
+						'status'    => $tab[ 'status' ] ?? 'good',
+						'count'     => $tab[ 'count' ] ?? 0,
+						'nav_id'    => $tab[ 'nav_id' ],
+						'target'    => $tab[ 'target' ],
+						'controls'  => $tab[ 'controls' ],
+						'is_active' => (bool)( $tab[ 'is_active' ] ?? false ),
+					];
+				},
+				$tabs
+			) ),
+		];
 	}
 
 	/**
 	 * @return list<array<string,mixed>>
 	 */
-	protected function buildSummaryRailItems( array $summaryRows, array $assessmentRows ) :array {
+	protected function buildSummaryRailItems( array $summaryRows, array $assessmentRows, array $summaryRailTargets = [] ) :array {
 		if ( !empty( $summaryRows ) ) {
-			$items = \array_values( \array_map( function ( array $item ) :array {
+			$items = \array_values( \array_map( function ( array $item ) use ( $summaryRailTargets ) :array {
 				$severity = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
 				$itemKey = (string)( $item[ 'key' ] ?? '' );
-				$railTab = self::SUMMARY_KEY_TO_RAIL_TAB[ $itemKey ] ?? '';
+				$railTab = $summaryRailTargets[ $itemKey ] ?? '';
 				if ( $railTab !== '' ) {
 					$actions = [ $this->buildRailSwitchAction( __( 'View', 'wp-simple-firewall' ), $railTab ) ];
 				}
@@ -893,7 +1017,7 @@ class ScansResultsViewBuilder {
 	/**
 	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction> $actionClass
 	 */
-	private function buildAjaxRenderActionData( string $actionClass ) :array {
+	protected function buildAjaxRenderActionData( string $actionClass ) :array {
 		return ActionData::BuildAjaxRender( $actionClass );
 	}
 

@@ -84,20 +84,29 @@
 	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
 		accent_status: 'critical',
 		items: [
-			{ key: 'summary', label: 'Summary', status: 'critical', is_active: true },
-			{ key: 'plugins', label: 'Plugins', status: 'critical', count: 3 },
-			{ key: 'wordpress', label: 'WordPress', status: 'good' },
-			{ key: 'themes', label: 'Themes', status: 'good' },
-			{ key: 'vulns', label: 'Vulnerabilities', status: 'warning', count: 2 },
-			{ key: 'malware', label: 'Malware', status: 'good' },
-			{ key: 'filelocker', label: 'File Locker', status: 'good' }
+			{ key: 'summary', label: 'Summary', status: 'critical', is_active: true, nav_id: 'demo-rail-summary-tab', target: '#demo-rail-summary', controls: 'demo-rail-summary' },
+			{ key: 'plugins', label: 'Plugins', status: 'critical', count: 3, nav_id: 'demo-rail-plugins-tab', target: '#demo-rail-plugins', controls: 'demo-rail-plugins' },
+			{ key: 'wordpress', label: 'WordPress', status: 'good', nav_id: 'demo-rail-wordpress-tab', target: '#demo-rail-wordpress', controls: 'demo-rail-wordpress' },
+			{ key: 'themes', label: 'Themes', status: 'good', nav_id: 'demo-rail-themes-tab', target: '#demo-rail-themes', controls: 'demo-rail-themes' },
+			{ key: 'vulns', label: 'Vulnerabilities', status: 'warning', count: 2, nav_id: 'demo-rail-vulns-tab', target: '#demo-rail-vulns', controls: 'demo-rail-vulns' },
+			{ key: 'malware', label: 'Malware', status: 'good', nav_id: 'demo-rail-malware-tab', target: '#demo-rail-malware', controls: 'demo-rail-malware' },
+			{ key: 'filelocker', label: 'File Locker', status: 'good', nav_id: 'demo-rail-filelocker-tab', target: '#demo-rail-filelocker', controls: 'demo-rail-filelocker' }
 		]
 	} } only %}
 </div>
 
 <h3 style="margin: 1.5rem 0 0.75rem;">Full Rail Layout</h3>
 
+{% set demo_full_rail_sidebar %}
+	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
+		accent_status: 'good',
+		items: [
+			{ key: 'demo', label: 'Demo Pane', status: 'good', is_active: true, nav_id: 'demo-full-rail-tab', target: '#demo-full-rail-pane', controls: 'demo-full-rail-pane' }
+		]
+	} } only %}
+{% endset %}
+
 {% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
-	rail_html: '<div class="shield-rail-sidebar"><div class="shield-rail-sidebar__accent shield-rail-sidebar__accent--good"></div><ul class="shield-rail-sidebar__nav"><li class="shield-rail-sidebar__item is-active" data-shield-rail-key="demo"><span class="shield-rail-sidebar__pip shield-rail-sidebar__pip--good"></span><span class="shield-rail-sidebar__label">Demo Pane</span></li></ul></div>',
+	rail_html: demo_full_rail_sidebar,
 	content_html: '<div style="padding: 1rem; background: #fff; border: 1px solid #d9dfd9; border-radius: 10px;">Content area renders here.</div>'
 } } only %}

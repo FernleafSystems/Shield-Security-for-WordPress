@@ -79,10 +79,12 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 		$renderData = $builder->build();
 		$tabs = $renderData[ 'vars' ][ 'tabs' ] ?? [];
+		$rail = $renderData[ 'vars' ][ 'rail' ] ?? [];
 		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 
 		$this->assertSame( [ 'summary', 'wordpress', 'themes', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) );
 		$this->assertSame( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $railTabs, 'key' ) );
+		$this->assertSame( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $rail[ 'items' ] ?? [], 'key' ) );
 		$this->assertTrue( (bool)( $tabs[ 0 ][ 'is_active' ] ?? false ) );
 		// Assessment rows now always populated
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'assessment_rows' ] );
@@ -193,6 +195,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		] );
 
 		$renderData = $builder->buildForActionsQueue();
+		$rail = $renderData[ 'vars' ][ 'rail' ] ?? [];
 		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
 		$wordpressTab = $this->findTabByKey( $railTabs, 'wordpress' );
@@ -201,6 +204,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$fileLockerTab = $this->findTabByKey( $railTabs, 'file_locker' );
 
 		$this->assertArrayNotHasKey( 'tabs', $renderData[ 'vars' ] ?? [] );
+		$this->assertSame( \array_column( $railTabs, 'key' ), \array_column( $rail[ 'items' ] ?? [], 'key' ) );
 		$this->assertNotEmpty( $summaryTab[ 'items' ] ?? [] );
 		$this->assertTrue( (bool)( $summaryTab[ 'is_loaded' ] ?? false ) );
 		$this->assertFalse( (bool)( $wordpressTab[ 'is_loaded' ] ?? true ) );
@@ -503,6 +507,53 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		], $keys );
 	}
 
+	public function test_actions_queue_and_full_rail_share_the_same_canonical_tab_order() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled'       => true,
+			'pluginsEnabled'         => true,
+			'themesEnabled'          => true,
+			'vulnerabilitiesEnabled' => true,
+			'malwareEnabled'         => true,
+			'vulnerabilities'        => [
+				'count'    => 1,
+				'status'   => 'warning',
+				'sections' => [],
+			],
+		] );
+
+		$fullRailTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$queueRailTabs = $builder->buildForActionsQueue()[ 'vars' ][ 'rail_tabs' ] ?? [];
+
+		$this->assertSame( \array_column( $fullRailTabs, 'key' ), \array_column( $queueRailTabs, 'key' ) );
+	}
+
+	public function test_legacy_tabs_follow_the_canonical_order_when_all_legacy_tabs_are_visible() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled'       => true,
+			'pluginsEnabled'         => true,
+			'themesEnabled'          => true,
+			'vulnerabilitiesEnabled' => true,
+			'malwareEnabled'         => true,
+			'wordpressPayload'       => $this->buildSectionPayload( 'rendered-wordpress', 1 ),
+			'pluginsPayload'         => $this->buildSectionPayload( 'rendered-plugins', 1 ),
+			'themesPayload'          => $this->buildSectionPayload( 'rendered-themes', 1 ),
+			'malwarePayload'         => $this->buildSectionPayload( 'rendered-malware', 1 ),
+			'fileLockerPayload'      => $this->buildFileLockerPayload( 'rendered-file-locker', true, 1 ),
+			'vulnerabilities'        => [
+				'count'    => 1,
+				'status'   => 'warning',
+				'sections' => [],
+			],
+		] );
+
+		$renderData = $builder->build();
+
+		$this->assertSame(
+			\array_column( $renderData[ 'vars' ][ 'rail_tabs' ] ?? [], 'key' ),
+			\array_column( $renderData[ 'vars' ][ 'tabs' ] ?? [], 'key' )
+		);
+	}
+
 	public function test_first_rail_tab_is_always_active() :void {
 		$builder = $this->createBuilder();
 
@@ -573,6 +624,11 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	public function test_summary_items_with_known_keys_get_rail_switch_action_attributes() :void {
 		$builder = $this->createBuilder( [
+			'wordpressEnabled'       => true,
+			'pluginsEnabled'         => true,
+			'themesEnabled'          => true,
+			'vulnerabilitiesEnabled' => true,
+			'malwareEnabled'         => true,
 			'summaryRows' => [
 				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
@@ -610,6 +666,9 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	public function test_summary_rail_switch_attributes_map_to_correct_tabs() :void {
 		$builder = $this->createBuilder( [
+			'wordpressEnabled'       => true,
+			'pluginsEnabled'         => true,
+			'vulnerabilitiesEnabled' => true,
 			'summaryRows' => [
 				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
@@ -715,7 +774,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		];
 	}
 
-	private function buildFileLockerPayload( string $renderOutput, bool $isEnabled ) :array {
+	private function buildFileLockerPayload( string $renderOutput, bool $isEnabled, int $countItems = 0 ) :array {
 		return [
 			'render_output' => $renderOutput,
 			'render_data'   => [
@@ -725,7 +784,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 				],
 				'vars' => [
 					'file_locks' => [
-						'count_items' => 0,
+						'count_items' => $countItems,
 					],
 				],
 			],
@@ -855,114 +914,21 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		return $this->themesPayload;
 	}
 
-	protected function buildActionsQueueRailTabs(
-		array $summaryRows,
-		array $assessmentRows,
-		array $vulnerabilities
-	) :array {
-		$definitions = [
-			[
-				'key'        => 'summary',
-				'label'      => 'Summary',
-				'count'      => \count( $summaryRows ),
-				'status'     => 'good',
-				'icon_class' => 'bi bi-clipboard2-pulse-fill',
-				'items'      => $this->buildSummaryRailItems( $summaryRows, $assessmentRows ),
-				'is_loaded'  => true,
-			],
-		];
-
-		if ( $this->isWordpressTabEnabled() ) {
-			$definitions[] = [
-				'key'           => 'wordpress',
-				'label'         => 'WordPress',
-				'count'         => \count( \array_filter( $this->afsDisplayItems, static fn( object $item ) :bool => !empty( $item->is_in_core ) ) ),
-				'status'        => 'good',
-				'icon_class'    => 'bi bi-wordpress',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => [ 'render_slug' => 'scanresults_wordpress' ],
-			];
-		}
-
-		if ( $this->isPluginsRailTabEnabled() ) {
-			$definitions[] = [
-				'key'           => 'plugins',
-				'label'         => 'Plugins',
-				'count'         => $this->countAffectedAssetGroups( 'plugin' ),
-				'status'        => 'good',
-				'icon_class'    => 'bi bi-plug-fill',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => [ 'render_slug' => 'scanresults_plugins' ],
-			];
-		}
-
-		if ( $this->isThemesRailTabEnabled() ) {
-			$definitions[] = [
-				'key'           => 'themes',
-				'label'         => 'Themes',
-				'count'         => $this->countAffectedAssetGroups( 'theme' ),
-				'status'        => 'good',
-				'icon_class'    => 'bi bi-palette-fill',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => [ 'render_slug' => 'scanresults_themes' ],
-			];
-		}
-
-		if ( $this->isVulnerabilitiesRailTabEnabled() ) {
-			$definitions[] = [
-				'key'        => 'vulnerabilities',
-				'label'      => 'Vulnerabilities',
-				'count'      => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
-				'status'     => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
-				'icon_class' => 'bi bi-shield-exclamation',
-				'items'      => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
-				'is_loaded'  => true,
-			];
-		}
-
-		if ( $this->isMalwareRailTabEnabled() ) {
-			$definitions[] = [
-				'key'           => 'malware',
-				'label'         => 'Malware',
-				'count'         => \count( \array_filter( $this->afsDisplayItems, static fn( object $item ) :bool => !empty( $item->malware ) ) ),
-				'status'        => 'good',
-				'icon_class'    => 'bi bi-bug-fill',
-				'items'         => [],
-				'is_loaded'     => false,
-				'render_action' => [ 'render_slug' => 'scanresults_malware' ],
-			];
-		}
-
-		$definitions[] = [
-			'key'           => 'file_locker',
-			'label'         => 'File Locker',
-			'count'         => \count( $this->problemLocks ),
-			'status'        => 'good',
-			'icon_class'    => 'bi bi-file-lock2-fill',
-			'items'         => [],
-			'is_loaded'     => false,
-			'render_action' => [ 'render_slug' => 'scanresults_filelocker' ],
-		];
-
-		$summaryStatuses = \array_column(
-			\array_filter(
-				$definitions,
-				static fn( array $definition ) :bool => ( $definition[ 'key' ] ?? '' ) !== 'summary'
-			),
-			'status'
-		);
-		$definitions[ 0 ][ 'status' ] = \in_array( 'critical', $summaryStatuses, true )
-			? 'critical'
-			: ( \in_array( 'warning', $summaryStatuses, true ) ? 'warning' : 'good' );
-
-		return $this->buildTabs( $definitions );
-	}
-
 	protected function buildMalwareSectionPayload() :array {
 		return $this->malwarePayload;
+	}
+
+	protected function getActionsQueueDisplayCounts() :array {
+		return [
+			'wordpress' => \count( \array_filter(
+				$this->afsDisplayItems,
+				static fn( object $item ) :bool => !empty( $item->is_in_core )
+			) ),
+			'malware'   => \count( \array_filter(
+				$this->afsDisplayItems,
+				static fn( object $item ) :bool => !empty( $item->is_mal ) || !empty( $item->malware )
+			) ),
+		];
 	}
 
 	protected function countAffectedAssetGroups( string $assetType ) :int {
@@ -982,6 +948,21 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 	protected function buildFileLockerSectionPayload() :array {
 		return $this->fileLockerPayload;
+	}
+
+	protected function buildAjaxRenderActionData( string $actionClass ) :array {
+		$map = [
+			'Wordpress' => 'scanresults_wordpress',
+			'Plugins'   => 'scanresults_plugins',
+			'Themes'    => 'scanresults_themes',
+			'Malware'   => 'scanresults_malware',
+			'FileLocker'=> 'scanresults_filelocker',
+		];
+		$parts = \explode( '\\', $actionClass );
+		$actionName = \end( $parts ) ?: '';
+		return [
+			'render_slug' => $map[ $actionName ] ?? '',
+		];
 	}
 
 	protected function buildVulnerabilities() :array {

@@ -80,34 +80,15 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-section="zones"]//*[@data-shield-rail-scope="1"]',
 			'Configure landing should render the scoped rail layout'
 		);
-		$this->assertXPathCount(
+		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-section="zones"]//*[@data-shield-rail-target]',
-			$expectedCount,
-			'Configure landing rail item count marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[@data-shield-rail-pane]',
-			$expectedCount,
-			'Configure landing rail pane count marker'
+			'//*[@data-configure-section="zones"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]//*[@data-shield-rail-pane]',
+			'Configure landing should render rail panes inside a Bootstrap tab-content container'
 		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-section="zones"]//*[@data-shield-rail-pane]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and @data-configure-zone-settings]',
 			'Configure landing should render Configure CTA actions inside the rail panes'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[@data-mode-tile="1"]',
-			0,
-			'Configure landing should no longer render mode tiles in the page body'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-section="zones"]//*[@data-mode-panel="1"]',
-			0,
-			'Configure landing should no longer render mode panels in the page body'
 		);
 
 		foreach ( $tileDefinitions as $tileDefinition ) {

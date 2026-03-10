@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class PageConfigureLanding extends PageModeLandingBase {
@@ -95,6 +96,8 @@ class PageConfigureLanding extends PageModeLandingBase {
 			fn( array $zoneTile ) :array => $this->attachDetailGroups( $zoneTile ),
 			$this->getConfigureZoneTiles()
 		);
+		$activeZoneKey = $this->determineActiveZoneKey( $zoneTiles );
+		$zoneTiles = $this->applyRailStateToZoneTiles( $zoneTiles, $activeZoneKey );
 		$posturePercentage = $this->getZonePosture()[ 'percentage' ];
 		$postureStatus = BuildZonePosture::trafficFromPercentage( $posturePercentage );
 
@@ -107,8 +110,15 @@ class PageConfigureLanding extends PageModeLandingBase {
 				$posturePercentage,
 				$this->getZoneStatusCounts( $zoneTiles )
 			),
+			'rail'                    => $this->buildRailContract( $zoneTiles ),
 			'zone_tiles'              => $zoneTiles,
 			'configure_render_action' => $this->buildConfigureRenderActionData(),
+		];
+	}
+
+	protected function getLandingPanel() :array {
+		return [
+			'active_target' => $this->getRequestedZoneKey(),
 		];
 	}
 
@@ -121,6 +131,91 @@ class PageConfigureLanding extends PageModeLandingBase {
 			\is_array( $zoneTile[ 'panel' ][ 'components' ] ?? null ) ? \array_values( $zoneTile[ 'panel' ][ 'components' ] ) : []
 		);
 		return $zoneTile;
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $zoneTiles
+	 */
+	private function determineActiveZoneKey( array $zoneTiles ) :string {
+		$requestedZone = $this->getRequestedZoneKey();
+		$zoneKeys = \array_column( $zoneTiles, 'key' );
+		if ( \in_array( $requestedZone, $zoneKeys, true ) ) {
+			return $requestedZone;
+		}
+		return (string)( $zoneTiles[ 0 ][ 'key' ] ?? '' );
+	}
+
+	private function getRequestedZoneKey() :string {
+		return sanitize_key( $this->getTextInputFromRequestOrActionData( 'zone' ) );
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $zoneTiles
+	 * @return list<array<string,mixed>>
+	 */
+	private function applyRailStateToZoneTiles( array $zoneTiles, string $activeZoneKey ) :array {
+		return \array_values( \array_map(
+			function ( array $zoneTile ) use ( $activeZoneKey ) :array {
+				$key = (string)( $zoneTile[ 'key' ] ?? '' );
+				$paneId = $this->buildRailPaneId( $key );
+				$zoneTile[ 'pane_id' ] = $paneId;
+				$zoneTile[ 'nav_id' ] = $this->buildRailNavId( $key );
+				$zoneTile[ 'target' ] = '#'.$paneId;
+				$zoneTile[ 'controls' ] = $paneId;
+				$zoneTile[ 'is_active' ] = $key === $activeZoneKey;
+				return $zoneTile;
+			},
+			$zoneTiles
+		) );
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $zoneTiles
+	 * @return array{
+	 *   id:string,
+	 *   accent_status:string,
+	 *   items:list<array<string,mixed>>
+	 * }
+	 */
+	private function buildRailContract( array $zoneTiles ) :array {
+		return [
+			'id'            => 'ConfigureRailSidebar',
+			'accent_status' => StatusPriority::highest(
+				\array_map(
+					fn( array $zoneTile ) :string => $this->normalizeRailStatus( (string)( $zoneTile[ 'status' ] ?? 'good' ) ),
+					$zoneTiles
+				),
+				'good'
+			),
+			'items'         => \array_values( \array_map(
+				function ( array $zoneTile ) :array {
+					return [
+						'key'               => $zoneTile[ 'key' ],
+						'label'             => $zoneTile[ 'label' ],
+						'status'            => $this->normalizeRailStatus( (string)( $zoneTile[ 'status' ] ?? 'good' ) ),
+						'status_label'      => $zoneTile[ 'status_label' ] ?? '',
+						'status_icon_class' => $zoneTile[ 'status_icon_class' ] ?? '',
+						'nav_id'            => $zoneTile[ 'nav_id' ],
+						'target'            => $zoneTile[ 'target' ],
+						'controls'          => $zoneTile[ 'controls' ],
+						'is_active'         => (bool)( $zoneTile[ 'is_active' ] ?? false ),
+					];
+				},
+				$zoneTiles
+			) ),
+		];
+	}
+
+	private function buildRailPaneId( string $zoneKey ) :string {
+		return 'configure-rail-pane-'.$zoneKey;
+	}
+
+	private function buildRailNavId( string $zoneKey ) :string {
+		return 'configure-rail-tab-'.$zoneKey;
+	}
+
+	private function normalizeRailStatus( string $status ) :string {
+		return $status === 'neutral' ? 'info' : $status;
 	}
 
 	protected function getLandingStrings() :array {

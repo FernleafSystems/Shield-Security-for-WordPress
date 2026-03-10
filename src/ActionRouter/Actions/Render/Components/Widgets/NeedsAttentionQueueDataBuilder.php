@@ -14,40 +14,57 @@ class NeedsAttentionQueueDataBuilder {
 
 	private ?ZoneRenderDataBuilder $zoneRenderDataBuilder = null;
 
+	/**
+	 * @param array{compact_all_clear?:bool} $actionData
+	 * @return array{
+	 *   flags:array{has_items:bool,compact_all_clear:bool},
+	 *   strings:array{
+	 *     status_strip_icon_class:string,
+	 *     status_strip_text:string,
+	 *     status_strip_subtext:string,
+	 *     title:string,
+	 *     issues_found:string,
+	 *     all_clear:string,
+	 *     all_clear_icon_class:string,
+	 *     all_clear_title:string,
+	 *     all_clear_subtitle:string,
+	 *     all_clear_message:string,
+	 *     last_scan_subtext:string
+	 *   },
+	 *   vars:array{
+	 *     summary:array{
+	 *       has_items:bool,
+	 *       total_items:int,
+	 *       severity:string,
+	 *       icon_class:string,
+	 *       subtext:string
+	 *     },
+	 *     overall_severity:string,
+	 *     total_items:int,
+	 *     zone_groups:list<array<string,mixed>>,
+	 *     zone_chips:list<array<string,mixed>>
+	 *   }
+	 * }
+	 */
 	public function build( array $actionData = [] ) :array {
-		$scansCon = self::con()->comps->scans;
-		$provider = new AttentionItemsProvider();
-		$items = $provider->buildQueueItems();
-		$totalItems = (int)\array_sum( \array_column( $items, 'count' ) );
+		$baseData = $this->buildBaseData();
 		$isCompactAllClear = !empty( $actionData[ 'compact_all_clear' ] );
-
-		$zoneGroups = $this->buildZoneGroups( $items );
-		$hasItems = !empty( $items );
-
-		$latestScanAt = $provider->getLatestCompletedScanTimestamp( $scansCon->getScanSlugs() );
-		$lastScanSubtext = $latestScanAt > 0
+		$statusStripText = $baseData[ 'summary' ][ 'has_items' ]
 			? sprintf(
-				__( 'Last scan: %s', 'wp-simple-firewall' ),
-				Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
-			)
-			: '';
-		$statusStripText = $hasItems
-			? sprintf(
-				_n( '%s issue needs your attention', '%s issues need your attention', $totalItems, 'wp-simple-firewall' ),
-				$totalItems
+				_n( '%s issue needs your attention', '%s issues need your attention', $baseData[ 'summary' ][ 'total_items' ], 'wp-simple-firewall' ),
+				$baseData[ 'summary' ][ 'total_items' ]
 			)
 			: __( 'Your site is secure', 'wp-simple-firewall' );
-		$summary = $this->buildQueueSummaryContract( $hasItems, $totalItems, $items, $lastScanSubtext );
 
 		return [
 			'flags'   => [
-				'has_items'         => $summary[ 'has_items' ],
+				'has_items'         => $baseData[ 'summary' ][ 'has_items' ],
 				'compact_all_clear' => $isCompactAllClear,
 			],
 			'strings' => [
-				'status_strip_icon_class' => $summary[ 'icon_class' ],
+				'status_strip_icon_class' => $baseData[ 'summary' ][ 'icon_class' ],
 				'status_strip_text'       => $statusStripText,
-				'status_strip_subtext'    => $summary[ 'subtext' ],
+				'status_strip_subtext'    => $baseData[ 'summary' ][ 'subtext' ],
 				'title'                   => __( 'Action Required', 'wp-simple-firewall' ),
 				'issues_found'            => __( 'Actions Required', 'wp-simple-firewall' ),
 				'all_clear'               => __( 'All Clear', 'wp-simple-firewall' ),
@@ -55,15 +72,52 @@ class NeedsAttentionQueueDataBuilder {
 				'all_clear_title'         => __( 'All security zones are clear', 'wp-simple-firewall' ),
 				'all_clear_subtitle'      => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
 				'all_clear_message'       => __( 'No security actions currently require your attention.', 'wp-simple-firewall' ),
-				'last_scan_subtext'       => $lastScanSubtext,
+				'last_scan_subtext'       => $baseData[ 'last_scan_subtext' ],
 			],
 			'vars'    => [
-				'summary'          => $summary,
-				'overall_severity' => $summary[ 'severity' ],
-				'total_items'      => $summary[ 'total_items' ],
-				'zone_groups'      => \array_values( $zoneGroups ),
+				'summary'          => $baseData[ 'summary' ],
+				'overall_severity' => $baseData[ 'summary' ][ 'severity' ],
+				'total_items'      => $baseData[ 'summary' ][ 'total_items' ],
+				'zone_groups'      => $baseData[ 'zone_groups' ],
 				'zone_chips'       => $this->buildAllClearZoneChips(),
 			],
+		];
+	}
+
+	/**
+	 * @return array{
+	 *   summary:array{
+	 *     has_items:bool,
+	 *     total_items:int,
+	 *     severity:string,
+	 *     icon_class:string,
+	 *     subtext:string
+	 *   },
+	 *   zone_groups:list<array<string,mixed>>,
+	 *   last_scan_subtext:string
+	 * }
+	 */
+	private function buildBaseData() :array {
+		$provider = new AttentionItemsProvider();
+		$items = $provider->buildQueueItems();
+		$totalItems = (int)\array_sum( \array_column( $items, 'count' ) );
+		$latestScanAt = $provider->getLatestCompletedScanTimestamp( self::con()->comps->scans->getScanSlugs() );
+		$lastScanSubtext = $latestScanAt > 0
+			? sprintf(
+				__( 'Last scan: %s', 'wp-simple-firewall' ),
+				Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
+			)
+			: '';
+
+		return [
+			'summary'           => $this->buildQueueSummaryContract(
+				!empty( $items ),
+				$totalItems,
+				$items,
+				$lastScanSubtext
+			),
+			'zone_groups'       => \array_values( $this->buildZoneGroups( $items ) ),
+			'last_scan_subtext' => $lastScanSubtext,
 		];
 	}
 

@@ -1,0 +1,8 @@
+<div class="configure-landing__panel-actions mt-3">
+	<a href="{{ zone.settings_action.href|default(zone.settings_href) }}"
+	   class="configure-landing__panel-cta status-{{ zone.panel.status|default(zone.status|default('neutral')) }} {{ zone.settings_action.classes|default([])|join( ' ' ) }}"
+	   data-configure-zone-settings="{{ zone.key }}"
+	   {% if zone.settings_action.title|default('') is not empty %}title="{{ zone.settings_action.title }}"{% endif %}
+	   {% for key, value in zone.settings_action.data|default([]) %}data-{{ key|e('html_attr') }}="{{ value|e('html_attr') }}"{% endfor %}
+	>{{ zone.settings_label }}</a>
+</div>

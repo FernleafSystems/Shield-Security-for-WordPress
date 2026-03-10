@@ -1,37 +1,4 @@
 {% set rail_tabs = vars.rail_tabs|default(vars.tabs|default([])) %}
-{% set rail_accent = 'good' %}
-
-{% for tab in rail_tabs %}
-	{% if tab.key != 'summary' %}
-		{% if tab.status|default('good') == 'critical' %}
-			{% set rail_accent = 'critical' %}
-		{% elseif tab.status|default('good') == 'warning' and rail_accent != 'critical' %}
-			{% set rail_accent = 'warning' %}
-		{% endif %}
-	{% endif %}
-{% endfor %}
-
-{% set rail_items = [] %}
-{% for tab in rail_tabs %}
-	{% set rail_items = rail_items|merge([{
-		key: tab.key,
-		label: tab.label,
-		status: tab.status|default('good'),
-		count: tab.count|default(0),
-		badge_status: tab.status|default('good'),
-		is_active: tab.is_active|default(false),
-		bootstrap_tab: true,
-		use_aria_current: false,
-		attributes: {
-			id: tab.nav_id,
-			role: 'tab',
-			'data-bs-toggle': 'tab',
-			'data-bs-target': tab.target,
-			'aria-controls': tab.controls,
-			'aria-selected': tab.is_active|default(false) ? 'true' : 'false'
-		}
-	}]) %}
-{% endfor %}
 
 {% set pane_content %}
 	<div class="tab-content mb-3">
@@ -55,15 +22,9 @@
 {% endset %}
 
 {% set rail_html %}
-	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
-		accent_status: rail_accent,
-		id: 'ScanResultsRailSidebar',
-		nav_attributes: {
-			role: 'tablist',
-			'aria-orientation': 'vertical'
-		},
-		items: rail_items
-	} } only %}
+	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with {
+		rail: vars.rail|default({})
+	} only %}
 {% endset %}
 
 {% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {

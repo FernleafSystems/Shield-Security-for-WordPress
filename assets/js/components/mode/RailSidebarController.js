@@ -10,11 +10,6 @@ export class RailSidebarController extends BaseAutoExecComponent {
 	}
 
 	run() {
-		shieldEventsHandler_Main.add_Click(
-			'[data-shield-rail-target]',
-			( item, evt ) => this.handleRailItemClick( item, evt ),
-			false
-		);
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
 			'[data-shield-rail-target][data-bs-toggle="tab"]',
@@ -36,32 +31,11 @@ export class RailSidebarController extends BaseAutoExecComponent {
 				}
 				const railItem = scope.querySelector( `[data-shield-rail-target="${targetKey}"]` );
 				if ( railItem ) {
-					if ( this.isBootstrapTab( railItem ) ) {
-						Tab.getOrCreateInstance( railItem ).show();
-						return;
-					}
-					this.switchPane( railItem, targetKey );
+					Tab.getOrCreateInstance( railItem ).show();
 				}
 			},
 			false
 		);
-	}
-
-	isBootstrapTab( item ) {
-		return item?.dataset?.bsToggle === 'tab';
-	}
-
-	handleRailItemClick( item ) {
-		if ( this.isBootstrapTab( item ) ) {
-			return;
-		}
-
-		const targetKey = ( item.dataset.shieldRailTarget || '' ).trim();
-		if ( targetKey.length < 1 ) {
-			return;
-		}
-
-		this.switchPane( item, targetKey );
 	}
 
 	handleBootstrapTabShown( item ) {
@@ -94,45 +68,6 @@ export class RailSidebarController extends BaseAutoExecComponent {
 
 		return scope.querySelector( targetSelector );
 	}
-
-	switchPane( clickedItem, targetKey ) {
-		const scope = clickedItem.closest( '[data-shield-rail-scope="1"]' );
-		if ( scope === null ) {
-			return;
-		}
-
-		const sidebar = scope.querySelector( '.shield-rail-sidebar' );
-		if ( sidebar !== null ) {
-			sidebar.querySelectorAll( '[data-shield-rail-target]' ).forEach( ( item ) => {
-				item.classList.remove( 'is-active' );
-				item.setAttribute( 'aria-current', 'false' );
-			} );
-		}
-
-		clickedItem.classList.add( 'is-active' );
-		clickedItem.setAttribute( 'aria-current', 'true' );
-
-		const contentArea = scope.querySelector( '.shield-rail-layout__content' );
-		if ( contentArea === null ) {
-			return;
-		}
-
-		this.disposeTooltipsWithin( contentArea );
-
-		contentArea.querySelectorAll( '[data-shield-rail-pane]' ).forEach( ( pane ) => {
-			pane.style.display = 'none';
-		} );
-
-		const targetPane = contentArea.querySelector( `[data-shield-rail-pane="${targetKey}"]` );
-		if ( targetPane === null ) {
-			return;
-		}
-
-		targetPane.style.display = '';
-		this.activatePaneEnhancements( scope, targetPane );
-		this.dispatchPaneSwitchedEvent( scope, targetKey, targetPane, clickedItem );
-	}
-
 	disposeTooltipsWithin( container ) {
 		container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( el ) => {
 			const tip = Tooltip.getInstance( el );

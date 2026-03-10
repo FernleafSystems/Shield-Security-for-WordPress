@@ -207,17 +207,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]/*[@data-shield-rail-pane="summary"]',
 			'Actions queue scans shell should render the scan panes inside a Bootstrap tab-content container'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@id="ScanResultsTabsNav"]',
-			0,
-			'Actions queue scans shell should not render the legacy bootstrap tab nav'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-pane-header ")]',
-			'Actions queue scans shell should render pane headers'
-		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',

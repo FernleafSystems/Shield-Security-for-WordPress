@@ -41,7 +41,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->installControllerStubs();
 		$this->installRequestServiceStub( [] );
 
-		$sidebar = ( new NavMenuBuilder() )->build();
+		$sidebar = $this->createBuilder()->build();
 
 		$this->assertArrayHasKey( 'back_item', $sidebar );
 		$this->assertArrayHasKey( 'mode_items', $sidebar );
@@ -78,19 +78,17 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	}
 
 	public function test_actions_mode_includes_back_item_and_actions_badge() :void {
-		$this->installControllerStubs( false, false, [
-			'has_items'   => true,
-			'total_items' => 7,
-			'severity'    => 'critical',
-			'icon_class'  => 'bi bi-exclamation-triangle-fill',
-			'subtext'     => 'Last scan: 4 minutes ago',
-		] );
+		$this->installControllerStubs();
 		$this->installRequestServiceStub( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_SCANS,
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_SCANS_RUN,
 		] );
 
-		$sidebar = ( new NavMenuBuilder() )->build();
+		$sidebar = $this->createBuilder( [
+			'has_items'   => true,
+			'total_items' => 7,
+			'severity'    => 'critical',
+		] )->build();
 
 		$this->assertSame( 'mode-selector-back', $sidebar[ 'back_item' ][ 'slug' ] ?? '' );
 		$this->assertSame( '/admin/home', $sidebar[ 'back_item' ][ 'href' ] ?? '' );
@@ -121,7 +119,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LOGS,
 		] );
 
-		$sidebar = ( new NavMenuBuilder() )->build();
+		$sidebar = $this->createBuilder()->build();
 		$toolItems = $sidebar[ 'tool_items' ];
 
 		$this->assertSame(
@@ -160,7 +158,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_ACTIVITY_SESSIONS,
 		] );
 
-		$sidebar = ( new NavMenuBuilder() )->build();
+		$sidebar = $this->createBuilder()->build();
 		$toolItems = $sidebar[ 'tool_items' ];
 
 		$this->assertSame(
@@ -184,7 +182,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_DEBUG,
 		] );
 
-		$sidebar = ( new NavMenuBuilder() )->build();
+		$sidebar = $this->createBuilder()->build();
 		$toolItems = $sidebar[ 'tool_items' ];
 
 		$this->assertSame(
@@ -237,7 +235,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_WIZARD_WELCOME,
 		] );
 
-		$toolItems = ( new NavMenuBuilder() )->build()[ 'tool_items' ];
+		$toolItems = $this->createBuilder()->build()[ 'tool_items' ];
 
 		$this->assertTrue( (bool)( $toolItems[ 4 ][ 'active' ] ?? false ) );
 		$this->assertFalse( (bool)( $toolItems[ 5 ][ 'active' ] ?? true ) );
@@ -247,7 +245,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->installControllerStubs( true );
 		$this->installRequestServiceStub( [] );
 
-		$sidebar = ( new NavMenuBuilder() )->build();
+		$sidebar = $this->createBuilder()->build();
 
 		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
 		$this->assertSame( [], $sidebar[ 'home_connect_items' ] );
@@ -255,14 +253,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 	private function installControllerStubs(
 		bool $isWhitelabelled = false,
-		bool $isPremium = false,
-		array $queueSummary = [
-			'has_items'   => false,
-			'total_items' => 0,
-			'severity'    => 'good',
-			'icon_class'  => 'bi bi-shield-check',
-			'subtext'     => '',
-		]
+		bool $isPremium = false
 	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -349,35 +340,17 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 				}
 			},
 		];
-		$controller->action_router = new class( $queueSummary ) {
-			private array $queueSummary;
-
-			public function __construct( array $queueSummary ) {
-				$this->queueSummary = $queueSummary;
-			}
-
-			public function action( string $class ) :object {
-				return new class( $this->queueSummary ) {
-					private array $queueSummary;
-
-					public function __construct( array $queueSummary ) {
-						$this->queueSummary = $queueSummary;
-					}
-
-					public function payload() :array {
-						return [
-							'render_data' => [
-								'vars' => [
-									'summary' => $this->queueSummary,
-								],
-							],
-						];
-					}
-				};
-			}
-		};
-
 		PluginControllerInstaller::install( $controller );
+	}
+
+	private function createBuilder( array $summary = [] ) :NavMenuBuilder {
+		return new NavMenuBuilderTestDouble(
+			\array_merge( [
+				'has_items'   => false,
+				'total_items' => 0,
+				'severity'    => 'good',
+			], $summary )
+		);
 	}
 
 	private function installRequestServiceStub( array $query ) :void {
@@ -386,5 +359,18 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			'service_request'          => new Request(),
 			'service_datamanipulation' => new DataManipulation(),
 		] );
+	}
+}
+
+class NavMenuBuilderTestDouble extends NavMenuBuilder {
+
+	private array $summary;
+
+	public function __construct( array $summary ) {
+		$this->summary = $summary;
+	}
+
+	protected function buildActionsQueueSummaryContract() :array {
+		return $this->summary;
 	}
 }

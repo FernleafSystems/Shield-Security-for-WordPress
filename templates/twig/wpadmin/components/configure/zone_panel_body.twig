@@ -2,11 +2,6 @@
 	groups: zone.panel.detail_groups|default([]),
 	list_class: 'configure-landing__detail-groups'
 } only %}
-<div class="configure-landing__panel-actions mt-3">
-	<a href="{{ zone.settings_action.href|default(zone.settings_href) }}"
-	   class="configure-landing__panel-cta status-{{ zone.panel.status }} {{ zone.settings_action.classes|default([])|join( ' ' ) }}"
-	   data-configure-zone-settings="{{ zone.key }}"
-	   {% if zone.settings_action.title|default('') is not empty %}title="{{ zone.settings_action.title }}"{% endif %}
-	   {% for key, value in zone.settings_action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
-	>{{ zone.settings_label }}</a>
-</div>
+{% include '/wpadmin/components/configure/zone_settings_cta.twig' with {
+	zone: zone
+} only %}
