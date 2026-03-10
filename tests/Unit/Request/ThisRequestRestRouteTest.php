@@ -11,6 +11,10 @@ use FernleafSystems\Wordpress\Services\Core\{
 	Request
 };
 use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
+use FernleafSystems\Wordpress\Services\Utilities\Net\{
+	IpID,
+	RequestIpDetect
+};
 
 class ThisRequestRestRouteTest extends BaseUnitTest {
 
@@ -255,6 +259,20 @@ class ThisRequestRestRouteTest extends BaseUnitTest {
 				return '127.0.0.1';
 			}
 		};
+		$request->setIpDetector(
+			new class extends RequestIpDetect {
+				public function getPublicRequestIPData() :array {
+					return [
+						'source'  => 'REMOTE_ADDR',
+						'ip'      => '127.0.0.1',
+						'ip_id'   => IpID::LOOPBACK,
+						'all_ips' => [
+							'REMOTE_ADDR' => [ '127.0.0.1' ],
+						],
+					];
+				}
+			}
+		);
 
 		ServicesState::mergeItems( [
 			'service_request' => $request,
