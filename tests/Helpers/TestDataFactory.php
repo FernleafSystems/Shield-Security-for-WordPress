@@ -321,6 +321,8 @@ class TestDataFactory {
 		$record->unique_id = $overrides[ 'unique_id' ] ?? \wp_generate_uuid4();
 		$record->label = $overrides[ 'label' ] ?? 'Test MFA';
 		$record->data = $data;
+		$record->passwordless = $overrides[ 'passwordless' ] ?? false;
+		$record->used_at = $overrides[ 'used_at' ] ?? 0;
 
 		$dbh->getQueryInserter()->insert( $record );
 

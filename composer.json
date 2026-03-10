@@ -106,6 +106,10 @@
       "@build:config",
       "@php bin/run-unit-tests.php --runner-mode=parallel"
     ],
+    "test:passkeys": [
+      "@build:config",
+      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/LoginGuard/Lib/TwoFactor/Passkey/WebauthnLibAdapterTest.php"
+    ],
     "test:unit:verify-power": [
       "@test:unit:serial",
       "@test:unit:parallel"

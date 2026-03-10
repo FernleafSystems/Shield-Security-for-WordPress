@@ -1,0 +1,128 @@
+{
+    "meta": {
+        "rp_id": "passkeys.test",
+        "origin": "https://passkeys.test",
+        "request_scheme": "https",
+        "user_name": "fixture-admin",
+        "user_display_name": "Fixture Admin",
+        "user_handle_raw": "0123456789abcdef0123456789abcdef"
+    },
+    "credential": {
+        "id": "KC4xBUoVFTaV_zXvhCrdrnWO-pKB7NA815HV0h_8b3c",
+        "unique_id": "KC4xBUoVFTaV/zXvhCrdrnWO+pKB7NA815HV0h/8b3c="
+    },
+    "registration": {
+        "credential": {
+            "id": "0Z1_yi9_haFl3uxr9g67WuGarcg3i_a7J5ZbFgFsXxs",
+            "unique_id": "0Z1/yi9/haFl3uxr9g67WuGarcg3i/a7J5ZbFgFsXxs="
+        },
+        "options": {
+            "rp": {
+                "name": "Shield on Test Site",
+                "id": "passkeys.test"
+            },
+            "user": {
+                "name": "fixture-admin",
+                "id": "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=",
+                "displayName": "Fixture Admin"
+            },
+            "challenge": "8GMGfVo3KRwvBb4R593dDjJ7urrYtVrcNF5kX2eHIj0",
+            "pubKeyCredParams": [
+                {
+                    "type": "public-key",
+                    "alg": -8
+                }
+            ],
+            "timeout": 60000,
+            "excludeCredentials": [],
+            "authenticatorSelection": {
+                "authenticatorAttachment": "cross-platform",
+                "requireResidentKey": false,
+                "userVerification": "preferred"
+            },
+            "attestation": "none"
+        },
+        "response": {
+            "id": "0Z1_yi9_haFl3uxr9g67WuGarcg3i_a7J5ZbFgFsXxs",
+            "rawId": "0Z1_yi9_haFl3uxr9g67WuGarcg3i_a7J5ZbFgFsXxs",
+            "type": "public-key",
+            "response": {
+                "attestationObject": "o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YViBo1Fbrjuc8UJ6FtYcKRp7gjW-y6dpw1ydT61CYyCzP4JFAAAAAQAAAAAAAAAAAAAAAAAAAAAAINGdf8ovf4WhZd7sa_YOu1rhmq3IN4v2uyeWWxYBbF8bpAEBAycgBiFYINwyLow62QCUHOoKVlXN3pfd5MYJXyeDZGMX2sB_zkS8",
+                "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiOEdNR2ZWbzNLUnd2QmI0UjU5M2REako3dXJyWXRWcmNORjVrWDJlSElqMCIsIm9yaWdpbiI6Imh0dHBzOi8vcGFzc2tleXMudGVzdCIsImNyb3NzT3JpZ2luIjpmYWxzZX0"
+            },
+            "clientExtensionResults": {},
+            "authenticatorAttachment": "platform"
+        },
+        "verified_record": {
+            "publicKeyCredentialId": "0Z1_yi9_haFl3uxr9g67WuGarcg3i_a7J5ZbFgFsXxs",
+            "type": "public-key",
+            "transports": [],
+            "attestationType": "none",
+            "trustPath": {
+                "type": "Webauthn\\TrustPath\\EmptyTrustPath"
+            },
+            "aaguid": "00000000-0000-0000-0000-000000000000",
+            "credentialPublicKey": "pAEBAycgBiFYINwyLow62QCUHOoKVlXN3pfd5MYJXyeDZGMX2sB_zkS8",
+            "userHandle": "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY",
+            "counter": 1,
+            "otherUI": null
+        }
+    },
+    "authentication": {
+        "options": {
+            "challenge": "JepPz8B5SA7wCGy4G2JxeiY6fH8A28weNa11m4WaSrs",
+            "timeout": 60000,
+            "rpId": "passkeys.test",
+            "allowCredentials": [
+                {
+                    "type": "public-key",
+                    "id": "KC4xBUoVFTaV_zXvhCrdrnWO-pKB7NA815HV0h_8b3c",
+                    "transports": [
+                        "internal"
+                    ]
+                }
+            ],
+            "userVerification": "preferred"
+        },
+        "response": {
+            "id": "KC4xBUoVFTaV_zXvhCrdrnWO-pKB7NA815HV0h_8b3c",
+            "rawId": "KC4xBUoVFTaV_zXvhCrdrnWO-pKB7NA815HV0h_8b3c",
+            "response": {
+                "authenticatorData": "o1Fbrjuc8UJ6FtYcKRp7gjW-y6dpw1ydT61CYyCzP4IFAAAAAg",
+                "clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiSmVwUHo4QjVTQTd3Q0d5NEcySnhlaVk2Zkg4QTI4d2VOYTExbTRXYVNycyIsIm9yaWdpbiI6Imh0dHBzOi8vcGFzc2tleXMudGVzdCIsImNyb3NzT3JpZ2luIjpmYWxzZX0",
+                "signature": "FICN6ticLx_FgwPvsV5nH80ElFYXTrYla80gIrpFDxFw29oiUOUIy4yX5EHae9olUTd2r10aKVhQtc_PS45fAg"
+            },
+            "type": "public-key",
+            "clientExtensionResults": {},
+            "authenticatorAttachment": "platform"
+        },
+        "verified_record": {
+            "publicKeyCredentialId": "KC4xBUoVFTaV_zXvhCrdrnWO-pKB7NA815HV0h_8b3c",
+            "type": "public-key",
+            "transports": [],
+            "attestationType": "none",
+            "trustPath": {
+                "type": "Webauthn\\TrustPath\\EmptyTrustPath"
+            },
+            "aaguid": "00000000-0000-0000-0000-000000000000",
+            "credentialPublicKey": "pAEBAycgBiFYINwyLow62QCUHOoKVlXN3pfd5MYJXyeDZGMX2sB_zkS8",
+            "userHandle": "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY",
+            "counter": 1,
+            "otherUI": null
+        }
+    },
+    "legacy_record": {
+        "publicKeyCredentialId": "KC4xBUoVFTaV_zXvhCrdrnWO-pKB7NA815HV0h_8b3c",
+        "type": "public-key",
+        "transports": [],
+        "attestationType": "none",
+        "trustPath": {
+            "type": "Webauthn\\TrustPath\\EmptyTrustPath"
+        },
+        "aaguid": "00000000-0000-0000-0000-000000000000",
+        "credentialPublicKey": "pAEBAycgBiFYINwyLow62QCUHOoKVlXN3pfd5MYJXyeDZGMX2sB_zkS8",
+        "userHandle": "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY",
+        "counter": 1,
+        "otherUI": null
+    }
+}

@@ -29,6 +29,7 @@ phpunit-*-package.xml
 /tests/Unit/bootstrap-package.php
 /tests/Integration/bootstrap-package.php
 /tests/package/
+/tests/fixtures/passkeys/fixture_ceremony.local.json
 
 # Local build packages (created by local build scripts)
 /builds/

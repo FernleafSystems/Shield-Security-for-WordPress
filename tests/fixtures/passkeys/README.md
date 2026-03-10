@@ -1,8 +1,10 @@
 # Passkey Fixture Notes
 
-`fixture_ceremony.json` is the replay fixture for the passkey integration suite.
+`fixture_ceremony.json` is the safe checked-in replay fixture for the passkey integration suite.
 
-The checked-in file is a deterministic cryptographic fixture that has already been validated against the current `web-auth/webauthn-lib` adapter. When refreshing it for migration work, prefer replacing it with a browser-captured ceremony from Shield's real passkey flow.
+If `fixture_ceremony.local.json` exists beside it, the test loader will use that private local fixture instead. That file is git-ignored, is the right place for any live-derived or otherwise sensitive ceremony data, and must never be committed.
+
+The checked-in file is a deterministic cryptographic fixture that has already been validated against the current `web-auth/webauthn-lib` adapter. When refreshing it for migration work, prefer replacing it with a browser-captured ceremony from Shield's real passkey flow or placing sensitive local-only captures in `fixture_ceremony.local.json`.
 
 ## Preferred refresh flow
 
