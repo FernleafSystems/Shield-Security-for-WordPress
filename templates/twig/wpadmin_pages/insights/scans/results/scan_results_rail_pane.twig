@@ -1,3 +1,16 @@
+{% if tab.icon_class|default('') is not empty or tab.label|default('') is not empty %}
+	<div class="shield-pane-header">
+		{% if tab.icon_class|default('') is not empty %}
+			<span class="shield-pane-header__icon status-icon--{{ tab.status|default('good') }}">
+				<i class="{{ tab.icon_class }}"></i>
+			</span>
+		{% endif %}
+		{% if tab.label|default('') is not empty %}
+			<span class="shield-pane-header__title">{{ tab.label }}</span>
+		{% endif %}
+	</div>
+{% endif %}
+
 {% if tab.items|default([]) is empty %}
 	<div class="shield-scan-pane-empty py-4 text-center text-muted">
 		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
@@ -24,11 +37,24 @@
 				count_badge: item.count_badge|default(null),
 				badge_status: item.badge_status|default(null),
 				expandable: item.expandable|default(false),
+				expand_target: item.expand_target|default(''),
 				explanations: item.explanations|default([]),
 				show_gear: item.show_gear|default(false),
 				actions: item.actions|default([])
 			}} only %}
 		</div>
+
+		{% if item.expandable|default(false) and item.files|default([]) is not empty %}
+			{% set file_table_body %}
+				{% include '/wpadmin_pages/insights/scans/results/scan_file_table.twig' with { files: item.files } only %}
+			{% endset %}
+			{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+				id: item.expand_target|default(''),
+				type: 'table',
+				status: item.status|default('warning'),
+				body: file_table_body
+			}} only %}
+		{% endif %}
 
 	{% endfor %}
 {% endif %}

@@ -11,41 +11,37 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( '_n' )->alias( static fn( string $single, string $plural, int $count ) :string => $count === 1 ? $single : $plural );
+		$GLOBALS[ 'wp_version' ] = '6.7';
 	}
 
+	protected function tearDown() :void {
+		unset( $GLOBALS[ 'wp_version' ] );
+		parent::tearDown();
+	}
+
+	// ── Existing tests (updated for behavioral changes) ──
+
 	public function test_build_prefers_summary_rows_and_hides_empty_asset_and_vulnerability_tabs() :void {
-		$builder = new ScansResultsViewBuilderTestDouble(
-			[
+		$builder = $this->createBuilder( [
+			'summaryRows'  => [
 				[ 'key' => 'wp_files', 'label' => 'WP Files', 'count' => 2 ],
 			],
-			[
-				[ 'key' => 'assessment', 'label' => 'Assessment' ],
+			'assessmentRows' => [
+				[ 'key' => 'assessment', 'label' => 'Assessment', 'status' => 'good', 'description' => 'Fine' ],
 			],
-			$this->buildSectionPayload( 'rendered-wordpress', 2 ),
-			$this->buildSectionPayload( 'rendered-plugins', 0 ),
-			$this->buildSectionPayload( 'rendered-themes', 3 ),
-			$this->buildSectionPayload( 'rendered-malware', 1 ),
-			[
-				'render_output' => 'rendered-file-locker',
-				'render_data'   => [
-					'vars' => [
-						'file_locks' => [
-							'count_items' => 0,
-						],
-					],
-				],
-			],
-			[
-				'count'    => 0,
-				'status'   => 'good',
-				'sections' => [],
-			],
-			true,
-			true,
-			true,
-			false,
-			true
-		);
+			'wordpressPayload'  => $this->buildSectionPayload( 'rendered-wordpress', 2 ),
+			'pluginsPayload'    => $this->buildSectionPayload( 'rendered-plugins', 0 ),
+			'themesPayload'     => $this->buildSectionPayload( 'rendered-themes', 3 ),
+			'malwarePayload'    => $this->buildSectionPayload( 'rendered-malware', 1 ),
+			'fileLockerPayload' => $this->buildFileLockerPayload( 'rendered-file-locker', false ),
+			'vulnerabilities'   => $this->buildEmptyVulnerabilities(),
+			'wordpressEnabled'        => true,
+			'pluginsEnabled'          => true,
+			'themesEnabled'           => true,
+			'vulnerabilitiesEnabled'  => false,
+			'malwareEnabled'          => true,
+		] );
 
 		$renderData = $builder->build();
 		$tabs = $renderData[ 'vars' ][ 'tabs' ] ?? [];
@@ -54,35 +50,23 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'summary', 'wordpress', 'themes', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) );
 		$this->assertSame( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $railTabs, 'key' ) );
 		$this->assertTrue( (bool)( $tabs[ 0 ][ 'is_active' ] ?? false ) );
-		$this->assertSame( 'critical', $railTabs[ 0 ][ 'status' ] ?? '' );
-		$this->assertSame( 'good', $railTabs[ 2 ][ 'status' ] ?? '' );
-		$this->assertSame( [], $railTabs[ 2 ][ 'items' ] ?? null );
-		$this->assertSame( [], $renderData[ 'vars' ][ 'assessment_rows' ] ?? null );
+		// Assessment rows now always populated
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'assessment_rows' ] );
 		$this->assertSame( 'rendered-wordpress', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] ?? '' );
 		$this->assertSame( 'rendered-themes', $renderData[ 'content' ][ 'section' ][ 'themes' ] ?? '' );
 	}
 
 	public function test_build_uses_assessment_rows_when_summary_is_empty_and_shows_vulnerabilities() :void {
-		$builder = new ScansResultsViewBuilderTestDouble(
-			[],
-			[
-				[ 'key' => 'wp_files', 'label' => 'WordPress Core Files' ],
+		$builder = $this->createBuilder( [
+			'assessmentRows' => [
+				[ 'key' => 'wp_files', 'label' => 'WordPress Core Files', 'status' => 'good', 'description' => 'OK' ],
 			],
-			$this->buildSectionPayload( 'rendered-wordpress', 9 ),
-			$this->buildSectionPayload( 'rendered-plugins', 4 ),
-			$this->buildSectionPayload( 'rendered-themes', 0 ),
-			$this->buildSectionPayload( 'rendered-malware', 0 ),
-			[
-				'render_output' => 'rendered-file-locker',
-				'render_data'   => [
-					'vars' => [
-						'file_locks' => [
-							'count_items' => 2,
-						],
-					],
-				],
-			],
-			[
+			'wordpressPayload'  => $this->buildSectionPayload( 'rendered-wordpress', 9 ),
+			'pluginsPayload'    => $this->buildSectionPayload( 'rendered-plugins', 4 ),
+			'themesPayload'     => $this->buildSectionPayload( 'rendered-themes', 0 ),
+			'malwarePayload'    => $this->buildSectionPayload( 'rendered-malware', 0 ),
+			'fileLockerPayload' => $this->buildFileLockerPayload( 'rendered-file-locker', false ),
+			'vulnerabilities'   => [
 				'count'    => 2,
 				'status'   => 'critical',
 				'sections' => [
@@ -90,7 +74,6 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 						'label' => 'Known Vulnerabilities',
 						'items' => [
 							[
-								'key'         => 'vuln-plugin',
 								'label'       => 'Vulnerable Plugin',
 								'description' => '1 known vulnerability needs review.',
 								'severity'    => 'critical',
@@ -98,13 +81,12 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 							],
 						],
 					],
-					'abandoned'  => [
+					'abandoned' => [
 						'label' => 'Abandoned Assets',
 						'items' => [
 							[
-								'key'         => 'abandoned-theme',
 								'label'       => 'Abandoned Theme',
-								'description' => 'This asset appears to be abandoned and should be reviewed.',
+								'description' => 'Abandoned.',
 								'severity'    => 'warning',
 								'count'       => 1,
 							],
@@ -112,12 +94,12 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 					],
 				],
 			],
-			false,
-			true,
-			true,
-			true,
-			false
-		);
+			'wordpressEnabled'       => false,
+			'pluginsEnabled'         => true,
+			'themesEnabled'          => true,
+			'vulnerabilitiesEnabled' => true,
+			'malwareEnabled'         => false,
+		] );
 
 		$renderData = $builder->build();
 		$tabs = $renderData[ 'vars' ][ 'tabs' ] ?? [];
@@ -126,17 +108,382 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'summary', 'plugins', 'vulnerabilities', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) );
 		$this->assertSame( [ 'summary', 'plugins', 'themes', 'vulnerabilities', 'file_locker' ], \array_column( $railTabs, 'key' ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'summary_rows' ] ?? null );
-		$this->assertSame(
-			[
-				[ 'key' => 'wp_files', 'label' => 'WordPress Core Files' ],
-			],
-			$renderData[ 'vars' ][ 'assessment_rows' ] ?? null
-		);
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'assessment_rows' ] );
 		$this->assertSame( 2, (int)( $tabs[ 2 ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', $railTabs[ 0 ][ 'status' ] ?? '' );
-		$this->assertSame( 'good', $railTabs[ 2 ][ 'status' ] ?? '' );
-		$this->assertSame( 'warning', $railTabs[ 4 ][ 'status' ] ?? '' );
+		// Vulnerability tab has critical status
+		$vulnTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
+		$this->assertSame( 'critical', $vulnTab[ 'status' ] ?? '' );
 		$this->assertSame( 'rendered-file-locker', $renderData[ 'content' ][ 'section' ][ 'filelocker' ] ?? '' );
+	}
+
+	// ── Tab assembly: icon_class passthrough ──
+
+	public function test_rail_tabs_include_icon_class_for_all_tabs() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled'       => true,
+			'pluginsEnabled'         => true,
+			'themesEnabled'          => true,
+			'vulnerabilitiesEnabled' => true,
+			'malwareEnabled'         => true,
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+
+		foreach ( $railTabs as $tab ) {
+			$this->assertArrayHasKey( 'icon_class', $tab, 'Tab '.$tab[ 'key' ].' should have icon_class' );
+			$this->assertNotEmpty( $tab[ 'icon_class' ], 'Tab '.$tab[ 'key' ].' icon_class should not be empty' );
+		}
+	}
+
+	// ── Tab assembly: count derivation ──
+
+	public function test_rail_tab_count_excludes_good_status_items() :void {
+		$issueItems = [
+			$this->makeDetailRow( 'Bad Plugin', 'warning', 3 ),
+		];
+		$goodItems = [
+			$this->makeDetailRow( 'Clean Plugin', 'good' ),
+			$this->makeDetailRow( 'Clean Plugin 2', 'good' ),
+		];
+
+		$builder = $this->createBuilder( [
+			'pluginsEnabled' => true,
+			'pluginRailItems' => \array_merge( $issueItems, $goodItems ),
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$pluginsTab = $this->findTabByKey( $railTabs, 'plugins' );
+
+		$this->assertSame( 1, $pluginsTab[ 'count' ] ?? -1, 'Count should only include non-good items' );
+	}
+
+	// ── Tab assembly: status cascade ──
+
+	public function test_summary_tab_status_reflects_highest_child_severity() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => true,
+			'malwareEnabled'   => true,
+			'afsDisplayItems'  => [
+				$this->makeAfsItem( 'is_in_core' ),
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+
+		$this->assertSame( 'critical', $summaryTab[ 'status' ] ?? '', 'Summary should inherit critical from WordPress tab' );
+	}
+
+	public function test_summary_tab_status_is_good_when_all_children_are_good() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => true,
+			'malwareEnabled'   => true,
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+
+		$this->assertSame( 'good', $summaryTab[ 'status' ] ?? '' );
+	}
+
+	// ── Summary pane: mixed sections ──
+
+	public function test_summary_items_show_attention_and_all_clear_sections_when_issues_exist() :void {
+		$builder = $this->createBuilder( [
+			'summaryRows' => [
+				[ 'label' => 'WordPress Files', 'text' => 'Issues found', 'severity' => 'critical', 'count' => 3 ],
+			],
+			'assessmentRows' => [
+				[ 'label' => 'Plugin Files', 'description' => 'All clear', 'status' => 'good', 'status_icon_class' => '', 'status_label' => 'Good' ],
+				[ 'label' => 'Malware', 'description' => 'Problem', 'status' => 'warning', 'status_icon_class' => '', 'status_label' => 'Warning' ],
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$items = $summaryTab[ 'items' ] ?? [];
+		$sectionLabels = \array_values( \array_unique( \array_filter( \array_column( $items, 'section_label' ) ) ) );
+
+		$this->assertCount( 2, $sectionLabels, 'Should have both section labels' );
+		$this->assertSame( 'Needs attention', $sectionLabels[ 0 ] );
+		$this->assertSame( 'All clear', $sectionLabels[ 1 ] );
+		// Only good assessments appear in "All clear" section
+		$allClearItems = \array_filter( $items, static fn( array $item ) => ( $item[ 'section_label' ] ?? '' ) === 'All clear' );
+		$this->assertCount( 1, $allClearItems, 'Only good assessments should be in All clear section' );
+	}
+
+	public function test_summary_items_show_only_assessments_when_no_issues() :void {
+		$builder = $this->createBuilder( [
+			'summaryRows' => [],
+			'assessmentRows' => [
+				[ 'label' => 'WordPress Core', 'description' => 'All clear', 'status' => 'good', 'status_icon_class' => '', 'status_label' => 'Good' ],
+				[ 'label' => 'Malware', 'description' => 'All clear', 'status' => 'good', 'status_icon_class' => '', 'status_label' => 'Good' ],
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$items = $summaryTab[ 'items' ] ?? [];
+
+		$this->assertCount( 2, $items );
+		// No section labels when all assessments (no mixed mode)
+		$withSectionLabel = \array_filter( $items, static fn( array $item ) => isset( $item[ 'section_label' ] ) );
+		$this->assertEmpty( $withSectionLabel, 'Assessment-only items should not have section labels' );
+	}
+
+	// ── WordPress pane: good fallback ──
+
+	public function test_wordpress_pane_shows_good_fallback_when_no_core_issues() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => true,
+			'afsDisplayItems'  => [],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$wpTab = $this->findTabByKey( $railTabs, 'wordpress' );
+		$items = $wpTab[ 'items' ] ?? [];
+
+		$this->assertCount( 1, $items );
+		$this->assertSame( 'good', $items[ 0 ][ 'status' ] ?? '' );
+		$this->assertStringContainsString( '6.7', $items[ 0 ][ 'title' ] ?? '' );
+	}
+
+	public function test_wordpress_pane_shows_critical_items_for_core_issues() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => true,
+			'afsDisplayItems'  => [
+				$this->makeAfsItem( 'is_in_core', [ 'is_checksumfail' => 1, 'path_fragment' => 'wp-admin/admin.php' ] ),
+				$this->makeAfsItem( 'is_in_core', [ 'is_missing' => 1, 'path_fragment' => 'wp-includes/class-wp.php' ] ),
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$wpTab = $this->findTabByKey( $railTabs, 'wordpress' );
+		$items = $wpTab[ 'items' ] ?? [];
+
+		$this->assertCount( 2, $items );
+		foreach ( $items as $item ) {
+			$this->assertSame( 'critical', $item[ 'status' ] ?? '' );
+		}
+		$this->assertSame( 2, $wpTab[ 'count' ] ?? -1, 'WordPress tab count reflects non-good items' );
+	}
+
+	// ── Malware pane: good fallback ──
+
+	public function test_malware_pane_shows_good_fallback_when_no_threats() :void {
+		$builder = $this->createBuilder( [
+			'malwareEnabled'  => true,
+			'afsDisplayItems' => [],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$malwareTab = $this->findTabByKey( $railTabs, 'malware' );
+		$items = $malwareTab[ 'items' ] ?? [];
+
+		$this->assertCount( 1, $items );
+		$this->assertSame( 'good', $items[ 0 ][ 'status' ] ?? '' );
+	}
+
+	// ── File locker pane: mixed sections ──
+
+	public function test_file_locker_shows_problem_and_good_locks_with_section_labels() :void {
+		$problemLock = (object)[ 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ];
+		$goodLock = (object)[ 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ];
+
+		$builder = $this->createBuilder( [
+			'fileLockerPayload' => $this->buildFileLockerPayload( '', true ),
+			'problemFileLocks'  => [ $problemLock ],
+			'goodFileLocks'     => [ $goodLock ],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$flTab = $this->findTabByKey( $railTabs, 'file_locker' );
+		$items = $flTab[ 'items' ] ?? [];
+
+		$this->assertCount( 2, $items );
+		$this->assertSame( 'warning', $items[ 0 ][ 'status' ] ?? '' );
+		$this->assertSame( 'Needs attention', $items[ 0 ][ 'section_label' ] ?? '' );
+		$this->assertSame( 'good', $items[ 1 ][ 'status' ] ?? '' );
+		$this->assertSame( 'All clear', $items[ 1 ][ 'section_label' ] ?? '' );
+		$this->assertSame( 1, $flTab[ 'count' ] ?? -1, 'Count should only include problem locks' );
+		$this->assertSame( 'warning', $flTab[ 'status' ] ?? '' );
+	}
+
+	public function test_file_locker_returns_empty_when_disabled() :void {
+		$builder = $this->createBuilder( [
+			'fileLockerPayload' => $this->buildFileLockerPayload( '', false ),
+			'problemFileLocks'  => [ (object)[ 'path' => '/test', 'detected_at' => 1, 'hash_current' => '' ] ],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$flTab = $this->findTabByKey( $railTabs, 'file_locker' );
+
+		$this->assertEmpty( $flTab[ 'items' ] ?? [] );
+		$this->assertSame( 'good', $flTab[ 'status' ] ?? '' );
+	}
+
+	// ── Plugin/theme items passthrough ──
+
+	public function test_plugin_rail_items_pass_through_to_tab() :void {
+		$items = [
+			$this->makeDetailRow( 'Bad Plugin', 'warning', 5 ),
+			$this->makeDetailRow( 'Good Plugin', 'good' ),
+		];
+
+		$builder = $this->createBuilder( [
+			'pluginsEnabled'   => true,
+			'pluginRailItems'  => $items,
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$pluginsTab = $this->findTabByKey( $railTabs, 'plugins' );
+
+		$this->assertCount( 2, $pluginsTab[ 'items' ] ?? [] );
+		$this->assertSame( 'warning', $pluginsTab[ 'status' ] ?? '' );
+	}
+
+	public function test_theme_rail_items_pass_through_to_tab() :void {
+		$items = [
+			$this->makeDetailRow( 'Good Theme', 'good' ),
+		];
+
+		$builder = $this->createBuilder( [
+			'themesEnabled'   => true,
+			'themeRailItems'  => $items,
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$themesTab = $this->findTabByKey( $railTabs, 'themes' );
+
+		$this->assertCount( 1, $themesTab[ 'items' ] ?? [] );
+		$this->assertSame( 'good', $themesTab[ 'status' ] ?? '' );
+		$this->assertSame( 0, $themesTab[ 'count' ] ?? -1 );
+	}
+
+	// ── Tab ordering ──
+
+	public function test_rail_tab_ordering_follows_spec() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled'       => true,
+			'pluginsEnabled'         => true,
+			'themesEnabled'          => true,
+			'vulnerabilitiesEnabled' => true,
+			'malwareEnabled'         => true,
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$keys = \array_column( $railTabs, 'key' );
+
+		$this->assertSame( [
+			'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker',
+		], $keys );
+	}
+
+	public function test_first_rail_tab_is_always_active() :void {
+		$builder = $this->createBuilder();
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+
+		$this->assertTrue( (bool)( $railTabs[ 0 ][ 'is_active' ] ?? false ) );
+		$inactiveCount = \count( \array_filter( \array_slice( $railTabs, 1 ), static fn( array $t ) => !empty( $t[ 'is_active' ] ) ) );
+		$this->assertSame( 0, $inactiveCount, 'Only the first tab should be active' );
+	}
+
+	// ── Vulnerability items ──
+
+	public function test_vulnerability_items_preserve_section_labels() :void {
+		$builder = $this->createBuilder( [
+			'vulnerabilitiesEnabled' => true,
+			'vulnerabilities' => [
+				'count'    => 2,
+				'status'   => 'critical',
+				'sections' => [
+					'vulnerable' => [
+						'label' => 'Known Vulnerabilities',
+						'items' => [
+							[ 'label' => 'Vuln 1', 'description' => 'Desc', 'severity' => 'critical', 'count' => 1 ],
+						],
+					],
+					'abandoned' => [
+						'label' => 'Abandoned',
+						'items' => [
+							[ 'label' => 'Old Plugin', 'description' => 'Desc', 'severity' => 'warning', 'count' => 1 ],
+						],
+					],
+				],
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$vulnTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
+		$items = $vulnTab[ 'items' ] ?? [];
+		$sectionLabels = \array_column( $items, 'section_label' );
+
+		$this->assertContains( 'Known Vulnerabilities', $sectionLabels );
+		$this->assertContains( 'Abandoned', $sectionLabels );
+	}
+
+	// ── AFS display items caching ──
+
+	public function test_afs_display_items_are_shared_between_wordpress_and_malware() :void {
+		$coreItem = $this->makeAfsItem( 'is_in_core', [ 'is_checksumfail' => 1, 'path_fragment' => 'wp-admin/x.php' ] );
+		$malItem = $this->makeAfsItem( 'is_mal', [ 'path_fragment' => 'evil.php' ] );
+
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => true,
+			'malwareEnabled'   => true,
+			'afsDisplayItems'  => [ $coreItem, $malItem ],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$wpTab = $this->findTabByKey( $railTabs, 'wordpress' );
+		$malwareTab = $this->findTabByKey( $railTabs, 'malware' );
+
+		$this->assertCount( 1, $wpTab[ 'items' ] ?? [] );
+		$this->assertCount( 1, $malwareTab[ 'items' ] ?? [] );
+		$this->assertSame( 'critical', $wpTab[ 'status' ] ?? '' );
+		$this->assertSame( 'critical', $malwareTab[ 'status' ] ?? '' );
+	}
+
+	// ── Helpers ──
+
+	private function findTabByKey( array $tabs, string $key ) :array {
+		foreach ( $tabs as $tab ) {
+			if ( ( $tab[ 'key' ] ?? '' ) === $key ) {
+				return $tab;
+			}
+		}
+		$this->fail( 'Tab "'.$key.'" not found in: '.\implode( ', ', \array_column( $tabs, 'key' ) ) );
+		return [];
+	}
+
+	private function makeDetailRow( string $title, string $status, ?int $countBadge = null ) :array {
+		return [
+			'title'        => $title,
+			'description'  => '',
+			'status'       => $status,
+			'status_icon'  => null,
+			'status_label' => null,
+			'count_badge'  => $countBadge,
+			'badge_status' => $countBadge !== null ? $status : null,
+			'expandable'   => false,
+			'explanations' => [],
+			'show_gear'    => false,
+			'actions'      => [],
+		];
+	}
+
+	private function makeAfsItem( string $flag, array $extra = [] ) :object {
+		$item = (object)\array_merge( [
+			'path_fragment'  => 'test/'.\uniqid( '', true ).'.php',
+			'is_in_core'     => 0,
+			'is_mal'         => 0,
+			'is_missing'     => 0,
+			'is_checksumfail' => 0,
+			'is_unrecognised' => 0,
+			'is_unidentified' => 0,
+		], $extra, [ $flag => 1 ] );
+		return $item;
 	}
 
 	private function buildSectionPayload( string $renderOutput, int $countItems ) :array {
@@ -148,6 +495,54 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 				],
 			],
 		];
+	}
+
+	private function buildFileLockerPayload( string $renderOutput, bool $isEnabled ) :array {
+		return [
+			'render_output' => $renderOutput,
+			'render_data'   => [
+				'flags' => [
+					'is_enabled'    => $isEnabled,
+					'is_restricted' => false,
+				],
+				'vars' => [
+					'file_locks' => [
+						'count_items' => 0,
+					],
+				],
+			],
+		];
+	}
+
+	private function buildEmptyVulnerabilities() :array {
+		return [
+			'count'    => 0,
+			'status'   => 'good',
+			'sections' => [],
+		];
+	}
+
+	private function createBuilder( array $overrides = [] ) :ScansResultsViewBuilderTestDouble {
+		return new ScansResultsViewBuilderTestDouble(
+			$overrides[ 'summaryRows' ] ?? [],
+			$overrides[ 'assessmentRows' ] ?? [],
+			$overrides[ 'wordpressPayload' ] ?? $this->buildSectionPayload( '', 0 ),
+			$overrides[ 'pluginsPayload' ] ?? $this->buildSectionPayload( '', 0 ),
+			$overrides[ 'themesPayload' ] ?? $this->buildSectionPayload( '', 0 ),
+			$overrides[ 'malwarePayload' ] ?? $this->buildSectionPayload( '', 0 ),
+			$overrides[ 'fileLockerPayload' ] ?? $this->buildFileLockerPayload( '', false ),
+			$overrides[ 'vulnerabilities' ] ?? $this->buildEmptyVulnerabilities(),
+			$overrides[ 'wordpressEnabled' ] ?? false,
+			$overrides[ 'pluginsEnabled' ] ?? false,
+			$overrides[ 'themesEnabled' ] ?? false,
+			$overrides[ 'vulnerabilitiesEnabled' ] ?? false,
+			$overrides[ 'malwareEnabled' ] ?? false,
+			$overrides[ 'afsDisplayItems' ] ?? [],
+			$overrides[ 'problemFileLocks' ] ?? [],
+			$overrides[ 'goodFileLocks' ] ?? [],
+			$overrides[ 'pluginRailItems' ] ?? [],
+			$overrides[ 'themeRailItems' ] ?? []
+		);
 	}
 }
 
@@ -166,6 +561,11 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	private bool $themesEnabled;
 	private bool $vulnerabilitiesEnabled;
 	private bool $malwareEnabled;
+	private array $afsDisplayItems;
+	private array $problemLocks;
+	private array $goodLocks;
+	private array $pluginRailItems;
+	private array $themeRailItems;
 
 	public function __construct(
 		array $summaryRows,
@@ -177,10 +577,15 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		array $fileLockerPayload,
 		array $vulnerabilities,
 		bool $wordpressEnabled,
-		bool $pluginsEnabled = true,
-		bool $themesEnabled = true,
-		bool $vulnerabilitiesEnabled = true,
-		bool $malwareEnabled = false
+		bool $pluginsEnabled = false,
+		bool $themesEnabled = false,
+		bool $vulnerabilitiesEnabled = false,
+		bool $malwareEnabled = false,
+		array $afsDisplayItems = [],
+		array $problemLocks = [],
+		array $goodLocks = [],
+		array $pluginRailItems = [],
+		array $themeRailItems = []
 	) {
 		$this->summaryRows = $summaryRows;
 		$this->assessmentRows = $assessmentRows;
@@ -195,6 +600,11 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		$this->themesEnabled = $themesEnabled;
 		$this->vulnerabilitiesEnabled = $vulnerabilitiesEnabled;
 		$this->malwareEnabled = $malwareEnabled;
+		$this->afsDisplayItems = $afsDisplayItems;
+		$this->problemLocks = $problemLocks;
+		$this->goodLocks = $goodLocks;
+		$this->pluginRailItems = $pluginRailItems;
+		$this->themeRailItems = $themeRailItems;
 	}
 
 	protected function cleanScanResultsState() :void {
@@ -253,10 +663,18 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	}
 
 	protected function getAfsDisplayItems() :array {
-		return [];
+		return $this->afsDisplayItems;
 	}
 
 	protected function getProblemFileLocks() :array {
-		return [];
+		return $this->problemLocks;
+	}
+
+	protected function getGoodFileLocks() :array {
+		return $this->goodLocks;
+	}
+
+	protected function buildPluginThemeRailItemsDirect( string $assetType ) :array {
+		return $assetType === 'plugin' ? $this->pluginRailItems : $this->themeRailItems;
 	}
 }

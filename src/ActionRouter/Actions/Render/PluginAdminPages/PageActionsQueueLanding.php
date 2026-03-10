@@ -85,15 +85,11 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	protected function getLandingVars() :array {
 		$viewData = $this->getLandingViewData();
 		$zoneTiles = $this->getZoneTilesForDisplay();
-		$scansZone = $this->getZonesIndexed()[ 'scans' ] ?? [ 'total_issues' => 0 ];
-		$hasScansIssues = $scansZone[ 'total_issues' ] > 0;
 		return [
 			'severity_strip' => $viewData[ 'severity_strip' ],
 			'zone_tiles'     => $zoneTiles,
 			'all_clear'      => $viewData[ 'all_clear' ],
-			'scans_results'  => $hasScansIssues
-				? $this->getScansResultsRenderData()
-				: [],
+			'scans_results'  => $this->getScansResultsRenderData(),
 		];
 	}
 

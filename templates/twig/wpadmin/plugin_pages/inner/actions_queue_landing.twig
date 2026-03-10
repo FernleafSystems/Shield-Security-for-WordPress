@@ -35,76 +35,15 @@
 					{% endfor %}
 				</div>
 			</div>
-		{% endif %}
-
-		<section class="actions-landing__selector-shell" data-actions-queue-section="tiles">
-			<div class="actions-landing__tile-grid" data-mode-tiles="1">
-				{% for zone in vars.zone_tiles|default([]) %}
-					<button type="button"
-							class="actions-landing__tile status-{{ zone.status }}{% if zone.is_disabled %} is-disabled{% endif %}{% if active_panel == zone.panel_target %} is-active{% endif %}"
-							data-actions-zone="{{ zone.key }}"
-							data-mode-tile="1"
-							data-mode-tile-key="{{ zone.key }}"
-							data-mode-panel-target="{{ zone.panel_target }}"
-							data-mode-tile-disabled="{{ zone.is_disabled ? '1' : '0' }}"
-							aria-disabled="{{ zone.is_disabled ? 'true' : 'false' }}"
-							aria-expanded="{{ active_panel == zone.panel_target ? 'true' : 'false' }}">
-						<span class="actions-landing__tile-header">
-							<span class="actions-landing__tile-icon"><i class="{{ zone.icon_class }}" aria-hidden="true"></i></span>
-							<span class="shield-badge badge-{{ zone.status }}">{{ zone.status_label }}</span>
-						</span>
-						<span class="actions-landing__tile-title">{{ zone.label }}</span>
-						<span class="actions-landing__tile-stat">{{ zone.summary_text }}</span>
-					</button>
-				{% endfor %}
-			</div>
-		</section>
-
-		{% for zone in vars.zone_tiles|default([]) %}
-			{% if zone.is_enabled %}
-				{% set is_open = active_panel == zone.panel_target %}
-				{% set panel_body %}
-					{% if zone.key == 'scans' %}
-						{% if zone.has_issues %}
-							{% set scans_results = vars.scans_results|default({}) %}
-							<div id="ScanResultsTabs" class="actions-landing__scan-results-shell">
-								{% include '/wpadmin_pages/insights/scans/results/scan_results_rail.twig' with {
-									strings: scans_results.strings|default({}),
-									vars: scans_results.vars|default({}),
-									content: scans_results.content|default({})
-								} only %}
-							</div>
-						{% else %}
-							{% include '/wpadmin/components/actions_queue/assessment_rows.twig' with {
-								items: zone.assessment_rows
-							} only %}
-						{% endif %}
-					{% else %}
-						{% include '/wpadmin/components/page/status_detail_groups.twig' with {
-							groups: zone.maintenance_detail_groups|default([]),
-							list_class: 'actions-landing__maintenance-detail-groups'
-						} only %}
-					{% endif %}
-				{% endset %}
-
-				{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
-					panel: {
-						id: 'ActionsQueueModePanel-' ~ zone.key,
-						class: 'actions-landing__panel' ~ (is_open ? ' is-open' : ''),
-						is_open: is_open,
-						target: zone.panel_target,
-						target_default: zone.panel_target,
-						static_target: true,
-						status: zone.status,
-						title: zone.label,
-						body: panel_body,
-						data: {
-							'actions-panel': zone.key
-						}
-					},
-					strings: strings
+		{% else %}
+			{% set scans_results = vars.scans_results|default({}) %}
+			<div class="mt-4">
+				{% include '/wpadmin_pages/insights/scans/results/scan_results_rail.twig' with {
+					strings: scans_results.strings|default({}),
+					vars: scans_results.vars|default({}),
+					content: scans_results.content|default({})
 				} only %}
-			{% endif %}
-		{% endfor %}
+			</div>
+		{% endif %}
 	</div>
 {% endblock %}

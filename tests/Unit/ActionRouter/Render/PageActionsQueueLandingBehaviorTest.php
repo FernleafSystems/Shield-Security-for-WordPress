@@ -192,7 +192,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
-	public function test_scans_results_payload_is_not_loaded_when_scans_zone_has_no_items() :void {
+	public function test_scans_results_payload_is_always_built_even_when_scans_zone_has_no_items() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			true,
 			1,
@@ -209,8 +209,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$page = $this->newPage();
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
-		$this->assertSame( [], $vars[ 'scans_results' ] ?? null );
-		$this->assertSame( 0, $page->getScansResultsBuildCalls() );
+		$this->assertNotEmpty( $vars[ 'scans_results' ] ?? [] );
+		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
 	public function test_landing_hrefs_reuse_existing_scan_and_wp_admin_routes() :void {

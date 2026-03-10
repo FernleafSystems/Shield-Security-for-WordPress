@@ -1,0 +1,24 @@
+<table>
+	<thead>
+		<tr>
+			<th>Status</th>
+			<th>File Path</th>
+			<th>Size</th>
+			<th>Detected</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for file in files|default([]) %}
+			<tr>
+				<td>
+					<span class="shield-file-status shield-file-status--{{ file.status|default('unknown') }}">
+						{{ file.status_label|default(file.status|default('Unknown')) }}
+					</span>
+				</td>
+				<td><code>{{ file.path|default('') }}</code></td>
+				<td>{{ file.size|default('—') }}</td>
+				<td>{{ file.detected|default('—') }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

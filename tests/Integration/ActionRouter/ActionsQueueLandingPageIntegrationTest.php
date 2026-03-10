@@ -198,7 +198,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotContains( 'vulnerabilities', $tabs );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@id="ScanResultsTabs"]//*[@data-shield-rail-scope="1"]',
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]',
 			'Actions queue scans shell should render the scoped rail layout'
 		);
 		$this->assertXPathCount(
@@ -206,6 +206,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@id="ScanResultsTabsNav"]',
 			0,
 			'Actions queue scans shell should not render the legacy bootstrap tab nav'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-pane-header ")]',
+			'Actions queue scans shell should render pane headers'
 		);
 	}
 

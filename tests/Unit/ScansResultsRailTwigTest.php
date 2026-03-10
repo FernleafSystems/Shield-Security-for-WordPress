@@ -101,9 +101,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'nav_id'    => 'h-tabs-summary-tab',
 						'label'     => 'Summary',
 						'count'     => 3,
-						'status'    => 'critical',
-						'is_active' => true,
-						'target'    => '#h-tabs-summary',
+						'status'     => 'critical',
+						'icon_class' => 'bi bi-clipboard2-pulse-fill',
+						'is_active'  => true,
+						'target'     => '#h-tabs-summary',
 						'controls'  => 'h-tabs-summary',
 						'items'     => [
 							[
@@ -128,9 +129,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'nav_id'    => 'h-tabs-plugins-tab',
 						'label'     => 'Plugins',
 						'count'     => 2,
-						'status'    => 'warning',
-						'is_active' => false,
-						'target'    => '#h-tabs-plugins',
+						'status'     => 'warning',
+						'icon_class' => 'bi bi-plug-fill',
+						'is_active'  => false,
+						'target'     => '#h-tabs-plugins',
 						'controls'  => 'h-tabs-plugins',
 						'items'     => [
 							[
@@ -155,9 +157,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'nav_id'    => 'h-tabs-vulnerabilities-tab',
 						'label'     => 'Vulnerabilities',
 						'count'     => 1,
-						'status'    => 'critical',
-						'is_active' => false,
-						'target'    => '#h-tabs-vulnerabilities',
+						'status'     => 'critical',
+						'icon_class' => 'bi bi-shield-exclamation',
+						'is_active'  => false,
+						'target'     => '#h-tabs-vulnerabilities',
 						'controls'  => 'h-tabs-vulnerabilities',
 						'items'     => [
 							[
@@ -183,9 +186,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'nav_id'    => 'h-tabs-malware-tab',
 						'label'     => 'Malware',
 						'count'     => 0,
-						'status'    => 'good',
-						'is_active' => false,
-						'target'    => '#h-tabs-malware',
+						'status'     => 'good',
+						'icon_class' => 'bi bi-bug-fill',
+						'is_active'  => false,
+						'target'     => '#h-tabs-malware',
 						'controls'  => 'h-tabs-malware',
 						'items'     => [],
 					],
@@ -241,6 +245,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			'/wpadmin_pages/insights/scans/results/scan_results_rail.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_pane_body.twig',
+			'/wpadmin_pages/insights/scans/results/scan_file_table.twig',
 		] as $templatePath ) {
 			try {
 				$template = $twig->load( $templatePath );
@@ -321,6 +326,11 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			$xpath,
 			'//*[@data-shield-rail-pane="malware"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
 			'Clean rail panes should render an empty-state message'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-pane-header ")]',
+			'Rail panes should render a pane header with icon and title'
 		);
 	}
 }
