@@ -94,6 +94,102 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'controls'  => 'h-tabs-malware',
 					],
 				],
+				'rail_tabs'       => [
+					[
+						'key'       => 'summary',
+						'pane_id'   => 'h-tabs-summary',
+						'nav_id'    => 'h-tabs-summary-tab',
+						'label'     => 'Summary',
+						'count'     => 3,
+						'status'    => 'critical',
+						'is_active' => true,
+						'target'    => '#h-tabs-summary',
+						'controls'  => 'h-tabs-summary',
+						'items'     => [
+							[
+								'title'       => 'Plugins',
+								'description' => '2 plugin files need review.',
+								'status'      => 'warning',
+								'count_badge' => 2,
+								'actions'     => [
+									[
+										'type'  => 'navigate',
+										'label' => 'Investigate',
+										'href'  => '/investigate/plugin',
+										'icon'  => 'bi bi-arrow-right-circle-fill',
+									],
+								],
+							],
+						],
+					],
+					[
+						'key'       => 'plugins',
+						'pane_id'   => 'h-tabs-plugins',
+						'nav_id'    => 'h-tabs-plugins-tab',
+						'label'     => 'Plugins',
+						'count'     => 2,
+						'status'    => 'warning',
+						'is_active' => false,
+						'target'    => '#h-tabs-plugins',
+						'controls'  => 'h-tabs-plugins',
+						'items'     => [
+							[
+								'title'       => 'Example Plugin',
+								'description' => '2 file modifications need review.',
+								'status'      => 'warning',
+								'count_badge' => 2,
+								'actions'     => [
+									[
+										'type'  => 'navigate',
+										'label' => 'Investigate',
+										'href'  => '/investigate/plugin',
+										'icon'  => 'bi bi-arrow-right-circle-fill',
+									],
+								],
+							],
+						],
+					],
+					[
+						'key'       => 'vulnerabilities',
+						'pane_id'   => 'h-tabs-vulnerabilities',
+						'nav_id'    => 'h-tabs-vulnerabilities-tab',
+						'label'     => 'Vulnerabilities',
+						'count'     => 1,
+						'status'    => 'critical',
+						'is_active' => false,
+						'target'    => '#h-tabs-vulnerabilities',
+						'controls'  => 'h-tabs-vulnerabilities',
+						'items'     => [
+							[
+								'title'         => 'Example Plugin',
+								'description'   => '1 known vulnerability needs review.',
+								'status'        => 'critical',
+								'count_badge'   => 1,
+								'section_label' => 'Known Vulnerabilities',
+								'actions'       => [
+									[
+										'type'  => 'navigate',
+										'label' => 'Investigate',
+										'href'  => '/investigate/plugin',
+										'icon'  => 'bi bi-arrow-right-circle-fill',
+									],
+								],
+							],
+						],
+					],
+					[
+						'key'       => 'malware',
+						'pane_id'   => 'h-tabs-malware',
+						'nav_id'    => 'h-tabs-malware-tab',
+						'label'     => 'Malware',
+						'count'     => 0,
+						'status'    => 'good',
+						'is_active' => false,
+						'target'    => '#h-tabs-malware',
+						'controls'  => 'h-tabs-malware',
+						'items'     => [],
+					],
+				],
 				'summary_rows'    => [
 					[
 						'severity'    => 'warning',
@@ -143,6 +239,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		foreach ( [
 			'/wpadmin_pages/insights/scans/results/scan_results.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_rail.twig',
+			'/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_pane_body.twig',
 		] as $templatePath ) {
 			try {
@@ -214,6 +311,16 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			$xpath,
 			'//*[@data-shield-rail-pane="plugins" and contains(@style, "display: none")]',
 			'Inactive rail panes should render hidden by default'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip__eyebrow ") and normalize-space()="Known Vulnerabilities"]',
+			'Rail pane should render section headers for grouped vulnerability items'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="malware"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
+			'Clean rail panes should render an empty-state message'
 		);
 	}
 }

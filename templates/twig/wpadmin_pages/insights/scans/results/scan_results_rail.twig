@@ -1,42 +1,34 @@
-{% set critical_keys = ['vulnerabilities', 'malware'] %}
+{% set rail_tabs = vars.rail_tabs|default(vars.tabs|default([])) %}
 {% set rail_accent = 'good' %}
 
-{% for tab in vars.tabs|default([]) %}
-	{% if tab.key != 'summary' and tab.count|default(0) > 0 %}
-		{% set tab_status = (tab.key in critical_keys) ? 'critical' : 'warning' %}
-		{% if tab_status == 'critical' %}
+{% for tab in rail_tabs %}
+	{% if tab.key != 'summary' %}
+		{% if tab.status|default('good') == 'critical' %}
 			{% set rail_accent = 'critical' %}
-		{% elseif rail_accent != 'critical' %}
+		{% elseif tab.status|default('good') == 'warning' and rail_accent != 'critical' %}
 			{% set rail_accent = 'warning' %}
 		{% endif %}
 	{% endif %}
 {% endfor %}
 
 {% set rail_items = [] %}
-{% for tab in vars.tabs|default([]) %}
-	{% set item_status = 'good' %}
-	{% if tab.key == 'summary' %}
-		{% set item_status = rail_accent %}
-	{% elseif tab.count|default(0) > 0 %}
-		{% set item_status = (tab.key in critical_keys) ? 'critical' : 'warning' %}
-	{% endif %}
+{% for tab in rail_tabs %}
 	{% set rail_items = rail_items|merge([{
 		key: tab.key,
 		label: tab.label,
-		status: item_status,
+		status: tab.status|default('good'),
 		count: tab.count|default(0),
-		badge_status: item_status,
+		badge_status: tab.status|default('good'),
 		is_active: tab.is_active|default(false)
 	}]) %}
 {% endfor %}
 
 {% set pane_content %}
-	{% for tab in vars.tabs|default([]) %}
+	{% for tab in rail_tabs %}
 		<div data-shield-rail-pane="{{ tab.key|e('html_attr') }}"{% if not tab.is_active|default(false) %} style="display: none"{% endif %}>
-			{% include '/wpadmin_pages/insights/scans/results/scan_results_pane_body.twig' with {
+			{% include '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig' with {
 				tab: tab,
-				vars: vars,
-				content: content
+				strings: strings
 			} only %}
 		</div>
 	{% endfor %}

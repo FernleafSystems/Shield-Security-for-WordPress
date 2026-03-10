@@ -40,14 +40,23 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 				'status'   => 'good',
 				'sections' => [],
 			],
+			true,
+			true,
+			true,
+			false,
 			true
 		);
 
 		$renderData = $builder->build();
 		$tabs = $renderData[ 'vars' ][ 'tabs' ] ?? [];
+		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 
 		$this->assertSame( [ 'summary', 'wordpress', 'themes', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) );
+		$this->assertSame( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $railTabs, 'key' ) );
 		$this->assertTrue( (bool)( $tabs[ 0 ][ 'is_active' ] ?? false ) );
+		$this->assertSame( 'critical', $railTabs[ 0 ][ 'status' ] ?? '' );
+		$this->assertSame( 'good', $railTabs[ 2 ][ 'status' ] ?? '' );
+		$this->assertSame( [], $railTabs[ 2 ][ 'items' ] ?? null );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'assessment_rows' ] ?? null );
 		$this->assertSame( 'rendered-wordpress', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] ?? '' );
 		$this->assertSame( 'rendered-themes', $renderData[ 'content' ][ 'section' ][ 'themes' ] ?? '' );
@@ -80,24 +89,42 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 					'vulnerable' => [
 						'label' => 'Known Vulnerabilities',
 						'items' => [
-							[ 'key' => 'vuln-plugin' ],
+							[
+								'key'         => 'vuln-plugin',
+								'label'       => 'Vulnerable Plugin',
+								'description' => '1 known vulnerability needs review.',
+								'severity'    => 'critical',
+								'count'       => 1,
+							],
 						],
 					],
 					'abandoned'  => [
 						'label' => 'Abandoned Assets',
 						'items' => [
-							[ 'key' => 'abandoned-theme' ],
+							[
+								'key'         => 'abandoned-theme',
+								'label'       => 'Abandoned Theme',
+								'description' => 'This asset appears to be abandoned and should be reviewed.',
+								'severity'    => 'warning',
+								'count'       => 1,
+							],
 						],
 					],
 				],
 			],
+			false,
+			true,
+			true,
+			true,
 			false
 		);
 
 		$renderData = $builder->build();
 		$tabs = $renderData[ 'vars' ][ 'tabs' ] ?? [];
+		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 
 		$this->assertSame( [ 'summary', 'plugins', 'vulnerabilities', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) );
+		$this->assertSame( [ 'summary', 'plugins', 'themes', 'vulnerabilities', 'file_locker' ], \array_column( $railTabs, 'key' ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'summary_rows' ] ?? null );
 		$this->assertSame(
 			[
@@ -106,6 +133,9 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			$renderData[ 'vars' ][ 'assessment_rows' ] ?? null
 		);
 		$this->assertSame( 2, (int)( $tabs[ 2 ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', $railTabs[ 0 ][ 'status' ] ?? '' );
+		$this->assertSame( 'good', $railTabs[ 2 ][ 'status' ] ?? '' );
+		$this->assertSame( 'warning', $railTabs[ 4 ][ 'status' ] ?? '' );
 		$this->assertSame( 'rendered-file-locker', $renderData[ 'content' ][ 'section' ][ 'filelocker' ] ?? '' );
 	}
 
@@ -132,6 +162,10 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	private array $fileLockerPayload;
 	private array $vulnerabilities;
 	private bool $wordpressEnabled;
+	private bool $pluginsEnabled;
+	private bool $themesEnabled;
+	private bool $vulnerabilitiesEnabled;
+	private bool $malwareEnabled;
 
 	public function __construct(
 		array $summaryRows,
@@ -142,7 +176,11 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		array $malwarePayload,
 		array $fileLockerPayload,
 		array $vulnerabilities,
-		bool $wordpressEnabled
+		bool $wordpressEnabled,
+		bool $pluginsEnabled = true,
+		bool $themesEnabled = true,
+		bool $vulnerabilitiesEnabled = true,
+		bool $malwareEnabled = false
 	) {
 		$this->summaryRows = $summaryRows;
 		$this->assessmentRows = $assessmentRows;
@@ -153,6 +191,10 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		$this->fileLockerPayload = $fileLockerPayload;
 		$this->vulnerabilities = $vulnerabilities;
 		$this->wordpressEnabled = $wordpressEnabled;
+		$this->pluginsEnabled = $pluginsEnabled;
+		$this->themesEnabled = $themesEnabled;
+		$this->vulnerabilitiesEnabled = $vulnerabilitiesEnabled;
+		$this->malwareEnabled = $malwareEnabled;
 	}
 
 	protected function cleanScanResultsState() :void {
@@ -192,5 +234,29 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 	protected function isWordpressTabEnabled() :bool {
 		return $this->wordpressEnabled;
+	}
+
+	protected function isPluginsRailTabEnabled() :bool {
+		return $this->pluginsEnabled;
+	}
+
+	protected function isThemesRailTabEnabled() :bool {
+		return $this->themesEnabled;
+	}
+
+	protected function isVulnerabilitiesRailTabEnabled() :bool {
+		return $this->vulnerabilitiesEnabled;
+	}
+
+	protected function isMalwareRailTabEnabled() :bool {
+		return $this->malwareEnabled;
+	}
+
+	protected function getAfsDisplayItems() :array {
+		return [];
+	}
+
+	protected function getProblemFileLocks() :array {
+		return [];
 	}
 }

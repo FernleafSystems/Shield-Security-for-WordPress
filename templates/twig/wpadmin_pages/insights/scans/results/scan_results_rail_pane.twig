@@ -1,0 +1,34 @@
+{% if tab.items|default([]) is empty %}
+	<div class="shield-scan-pane-empty py-4 text-center text-muted">
+		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
+		{{ strings.no_issues|default('No issues found in this section.') }}
+	</div>
+{% else %}
+	{% set current_section = null %}
+	{% for item in tab.items %}
+
+		{% if item.section_label|default(null) is not null and item.section_label != current_section %}
+			{% set current_section = item.section_label %}
+			<div class="shield-mode-strip__eyebrow mb-2{% if not loop.first %} mt-3{% endif %}">
+				{{ current_section }}
+			</div>
+		{% endif %}
+
+		<div class="shield-detail-item">
+			{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+				title: item.title|default(''),
+				description: item.description|default(''),
+				status: item.status|default('good'),
+				status_icon: item.status_icon|default(null),
+				status_label: item.status_label|default(null),
+				count_badge: item.count_badge|default(null),
+				badge_status: item.badge_status|default(null),
+				expandable: item.expandable|default(false),
+				explanations: item.explanations|default([]),
+				show_gear: item.show_gear|default(false),
+				actions: item.actions|default([])
+			}} only %}
+		</div>
+
+	{% endfor %}
+{% endif %}

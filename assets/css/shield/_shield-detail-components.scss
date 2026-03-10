@@ -245,6 +245,17 @@
 		}
 	}
 
+	&--navigate {
+		background: $badge-info-bg;
+		border: 1px solid rgba($status-color-info, 0.25);
+		color: $badge-info-color;
+
+		&:hover {
+			background: rgba($status-color-info, 0.14);
+			color: $status-color-info;
+		}
+	}
+
 	&--deactivate {
 		background: $badge-critical-bg;
 		border: 1px solid rgba($status-color-critical, 0.25);
@@ -254,6 +265,14 @@
 			background: #f9d0d4;
 			color: #a12530;
 		}
+	}
+}
+
+.shield-scan-pane-empty {
+	color: #6c757d;
+
+	i {
+		color: $status-color-good;
 	}
 }
 

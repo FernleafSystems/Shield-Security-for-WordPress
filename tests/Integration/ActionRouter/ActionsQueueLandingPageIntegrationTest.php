@@ -181,6 +181,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
 		$tabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'tabs' ] : [], 'key' );
+		$railTabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [], 'key' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
@@ -192,6 +193,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $scansResults );
 		$this->assertContains( 'summary', $tabs );
 		$this->assertContains( 'wordpress', $tabs );
+		$this->assertContains( 'summary', $railTabs );
+		$this->assertContains( 'wordpress', $railTabs );
 		$this->assertNotContains( 'vulnerabilities', $tabs );
 		$this->assertXPathExists(
 			$xpath,
