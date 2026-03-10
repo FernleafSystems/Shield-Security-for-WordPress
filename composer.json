@@ -10,6 +10,14 @@
     }
   ],
   "config":            {
+    "audit":         {
+      "ignore": {
+        "PKSA-n72g-8zd8-6dm2": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support remains and a long-term passkey library strategy is finalized."
+        }
+      }
+    },
     "platform":      {
       "php": "7.4"
     },
