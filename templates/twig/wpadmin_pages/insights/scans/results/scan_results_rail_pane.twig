@@ -1,16 +1,3 @@
-{% if tab.icon_class|default('') is not empty or tab.label|default('') is not empty %}
-	<div class="shield-pane-header">
-		{% if tab.icon_class|default('') is not empty %}
-			<span class="shield-pane-header__icon status-icon--{{ tab.status|default('good') }}">
-				<i class="{{ tab.icon_class }}"></i>
-			</span>
-		{% endif %}
-		{% if tab.label|default('') is not empty %}
-			<span class="shield-pane-header__title">{{ tab.label }}</span>
-		{% endif %}
-	</div>
-{% endif %}
-
 {% set is_lazy_placeholder = tab.render_action|default({}) is not empty and (tab.is_loaded|default(true) == false) %}
 
 {% if is_lazy_placeholder %}

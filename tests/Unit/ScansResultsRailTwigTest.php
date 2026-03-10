@@ -59,6 +59,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						[
 							'key'       => 'summary',
 							'label'     => 'Summary',
+							'icon_class' => 'bi bi-clipboard2-pulse-fill',
 							'status'    => 'critical',
 							'count'     => 3,
 							'nav_id'    => 'h-tabs-summary-tab',
@@ -69,6 +70,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						[
 							'key'       => 'plugins',
 							'label'     => 'Plugins',
+							'icon_class' => 'bi bi-plug-fill',
 							'status'    => 'warning',
 							'count'     => 2,
 							'nav_id'    => 'h-tabs-plugins-tab',
@@ -79,6 +81,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						[
 							'key'       => 'vulnerabilities',
 							'label'     => 'Vulnerabilities',
+							'icon_class' => 'bi bi-shield-exclamation',
 							'status'    => 'critical',
 							'count'     => 1,
 							'nav_id'    => 'h-tabs-vulnerabilities-tab',
@@ -89,6 +92,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						[
 							'key'       => 'malware',
 							'label'     => 'Malware',
+							'icon_class' => 'bi bi-bug-fill',
 							'status'    => 'good',
 							'count'     => 0,
 							'nav_id'    => 'h-tabs-malware-tab',
@@ -355,6 +359,11 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-shield-rail-target="summary"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__icon ")]/i[contains(concat(" ", normalize-space(@class), " "), " bi-clipboard2-pulse-fill ")]',
+			'Summary rail item should render its icon in the rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]/*[@data-shield-rail-pane="summary"]',
 			'Rail scans results panes should render inside a Bootstrap tab-content container'
 		);
@@ -373,10 +382,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			'//*[@data-shield-rail-pane="malware"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
 			'Clean rail panes should render an empty-state message'
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-pane-header ")]',
-			'Rail panes should render a pane header with icon and title'
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-pane-header ")]' )->length,
+			'Rail panes should not render a duplicate pane header'
 		);
 	}
 }

@@ -505,6 +505,39 @@
 	flex: 1;
 }
 
+.shield-rail-sidebar__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1rem;
+	flex-shrink: 0;
+
+	i {
+		font-size: 0.95rem;
+		line-height: 1;
+	}
+
+	&--good {
+		color: $status-color-good;
+	}
+
+	&--warning {
+		color: $status-color-warning;
+	}
+
+	&--critical {
+		color: $status-color-critical;
+	}
+
+	&--info {
+		color: $status-color-info;
+	}
+
+	&--neutral {
+		color: #8b949e;
+	}
+}
+
 .shield-rail-layout {
 	display: grid;
 	grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
@@ -537,55 +570,6 @@
 		padding: 0.35rem 0.55rem;
 		font-size: 0.75rem;
 	}
-}
-
-.shield-pane-header {
-	display: flex;
-	align-items: center;
-	gap: 0.55rem;
-	margin-bottom: 0.85rem;
-	padding-bottom: 0.55rem;
-	border-bottom: 1px solid $border-color-neutral-subtle;
-}
-
-.shield-pane-header__icon {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.8rem;
-	height: 1.8rem;
-	border-radius: 999px;
-	flex-shrink: 0;
-
-	i {
-		font-size: 0.95rem;
-	}
-
-	&.status-icon--good {
-		background: $badge-good-bg;
-		color: $badge-good-color;
-	}
-
-	&.status-icon--warning {
-		background: $badge-warning-bg;
-		color: $badge-warning-color;
-	}
-
-	&.status-icon--critical {
-		background: $badge-critical-bg;
-		color: $badge-critical-color;
-	}
-
-	&.status-icon--info {
-		background: $badge-info-bg;
-		color: $badge-info-color;
-	}
-}
-
-.shield-pane-header__title {
-	font-size: 0.95rem;
-	font-weight: 700;
-	color: #2f3d4d;
 }
 
 .shield-file-status {

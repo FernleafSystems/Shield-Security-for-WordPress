@@ -18,8 +18,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	handleRailPaneSwitched( evt ) {
-		const scope = evt?.detail?.scope || null;
-		const pane = evt?.detail?.pane || null;
+		const { scope, pane } = evt.detail;
 		if ( scope === null || pane === null || !this.rootEl.contains( scope ) ) {
 			return;
 		}
@@ -32,10 +31,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const renderAction = this.parseJsonObject( pane.dataset.actionsQueueRenderAction || '' );
-		if ( renderAction === null ) {
-			return;
-		}
+		const renderAction = JSON.parse( pane.dataset.actionsQueueRenderAction );
 
 		pane.dataset.actionsQueuePaneLoading = '1';
 		pane.innerHTML = this.buildLoadingMarkup();
@@ -43,16 +39,12 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		( new AjaxService() )
 		.send( renderAction, false, true )
 		.then( ( resp ) => {
-			const html = ( resp && resp.success && typeof resp.data?.render_output === 'string' )
-				? resp.data.render_output
-				: '';
-
-			if ( html.length < 1 ) {
+			if ( !resp.success ) {
 				this.renderLoadFailure( pane );
 				return;
 			}
 
-			pane.innerHTML = html;
+			pane.innerHTML = resp.data.html;
 			pane.dataset.actionsQueuePaneLoaded = '1';
 			this.initializeDynamicContent( pane );
 		} )
@@ -65,7 +57,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	initializeDynamicContent( pane ) {
-		const scanTables = window?.shield_vars_main?.comps?.scans?.vars?.scan_results_tables || {};
+		const scanTables = window.shield_vars_main.comps.scans.vars.scan_results_tables;
 
 		if ( pane.querySelector( '#ShieldTable-ScanResultsWordpress' ) && scanTables.wordpress ) {
 			new ShieldTableScanResults( ObjectOps.ObjClone( scanTables.wordpress ) );
@@ -81,28 +73,28 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	hydrateRailMetrics() {
-		if ( this.rootEl?.dataset?.actionsQueueMetricsLoading === '1'
-			|| this.rootEl?.dataset?.actionsQueueMetricsLoaded === '1' ) {
+		if ( this.rootEl.dataset.actionsQueueMetricsLoading === '1'
+			|| this.rootEl.dataset.actionsQueueMetricsLoaded === '1' ) {
 			return;
 		}
 
-		const scope = this.rootEl?.querySelector( '[data-shield-rail-scope="1"]' ) || null;
+		const scope = this.rootEl.querySelector( '[data-shield-rail-scope="1"]' );
 		if ( scope === null ) {
 			return;
 		}
 
-		const metricsAction = this.parseJsonObject( this.rootEl?.dataset?.actionsQueueMetricsAction || '' );
-		if ( !this.isActionData( metricsAction ) ) {
+		if ( this.rootEl.dataset.actionsQueueMetricsAction === undefined ) {
 			return;
 		}
+		const metricsAction = JSON.parse( this.rootEl.dataset.actionsQueueMetricsAction );
 
 		this.rootEl.dataset.actionsQueueMetricsLoading = '1';
 
 		( new AjaxService() )
 		.send( metricsAction, false, true )
 		.then( ( resp ) => {
-			if ( resp?.success ) {
-				this.applyRailMetrics( resp.data || {} );
+			if ( resp.success ) {
+				this.applyRailMetrics( resp.data );
 				this.rootEl.dataset.actionsQueueMetricsLoaded = '1';
 			}
 		} )
@@ -113,16 +105,14 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	applyRailMetrics( data ) {
-		const scope = this.rootEl?.querySelector( '[data-shield-rail-scope="1"]' ) || null;
+		const scope = this.rootEl.querySelector( '[data-shield-rail-scope="1"]' );
 		if ( scope === null ) {
 			return;
 		}
 
-		if ( typeof data?.rail_accent_status === 'string' && data.rail_accent_status.length > 0 ) {
-			this.updateAccent( scope, data.rail_accent_status );
-		}
+		this.updateAccent( scope, data.rail_accent_status );
 
-		Object.entries( data?.tabs || {} ).forEach( ( [ key, tabData ] ) => {
+		Object.entries( data.tabs ).forEach( ( [ key, tabData ] ) => {
 			this.updateRailItem( scope, key, tabData );
 		} );
 	}
@@ -133,27 +123,25 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const status = typeof tabData?.status === 'string' && tabData.status.length > 0
-			? tabData.status
-			: 'good';
-		this.updateRailPip( button, status );
-
-		if ( Number.isInteger( tabData?.count ) ) {
-			this.updateRailBadge( button, tabData.count, status );
-		}
+		this.updateRailMarker( button, tabData.status );
+		this.updateRailBadge( button, tabData.count, tabData.status );
 	}
 
-	updateRailPip( button, status ) {
-		const pip = button.querySelector( '.shield-rail-sidebar__pip' );
-		if ( pip === null ) {
+	updateRailMarker( button, status ) {
+		const marker = button.querySelector( '.shield-rail-sidebar__icon, .shield-rail-sidebar__pip' );
+		if ( marker === null ) {
 			return;
 		}
 
-		[ ...pip.classList ]
-		.filter( ( className ) => className.startsWith( 'shield-rail-sidebar__pip--' ) )
-		.forEach( ( className ) => pip.classList.remove( className ) );
+		const classPrefix = marker.classList.contains( 'shield-rail-sidebar__icon' )
+			? 'shield-rail-sidebar__icon--'
+			: 'shield-rail-sidebar__pip--';
 
-		pip.classList.add( `shield-rail-sidebar__pip--${status}` );
+		[ ...marker.classList ]
+		.filter( ( className ) => className.startsWith( classPrefix ) )
+		.forEach( ( className ) => marker.classList.remove( className ) );
+
+		marker.classList.add( `${classPrefix}${status}` );
 	}
 
 	updateRailBadge( button, count, status ) {
@@ -186,30 +174,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	getErrorMessage() {
-		return this.rootEl?.dataset?.actionsPaneError || 'Unable to load these scan details. Please try again.';
-	}
-
-	parseJsonObject( rawJson ) {
-		if ( rawJson.length < 1 ) {
-			return null;
-		}
-
-		try {
-			const parsed = JSON.parse( rawJson );
-			return ( parsed && typeof parsed === 'object' ) ? parsed : null;
-		}
-		catch ( e ) {
-			return null;
-		}
-	}
-
-	isActionData( actionData ) {
-		return actionData !== null
-			&& typeof actionData === 'object'
-			&& !ObjectOps.IsEmpty( actionData )
-			&& [ 'action', 'ex', 'exnonce' ].every(
-				( key ) => typeof actionData[ key ] === 'string' && actionData[ key ].length > 0
-			);
+		return this.rootEl.dataset.actionsPaneError || 'Unable to load these scan details. Please try again.';
 	}
 
 	escapeHtml( text = '' ) {

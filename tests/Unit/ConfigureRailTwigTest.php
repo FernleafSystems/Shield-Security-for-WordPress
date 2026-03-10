@@ -261,6 +261,16 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-shield-rail-target="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__pip ")]',
+			'Configure rail should keep the status pip when no explicit icon is supplied'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@data-shield-rail-target="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__icon ")]' )->length,
+			'Configure rail should not render the scan-tab icon treatment'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]/*[@data-shield-rail-pane="firewall"]',
 			'Configure rail should render zone panes inside a Bootstrap tab-content container'
 		);

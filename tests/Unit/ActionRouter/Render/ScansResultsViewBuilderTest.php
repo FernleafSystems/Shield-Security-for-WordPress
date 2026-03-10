@@ -171,6 +171,23 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		}
 	}
 
+	public function test_rail_items_include_icon_class_for_all_tabs() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled'       => true,
+			'pluginsEnabled'         => true,
+			'themesEnabled'          => true,
+			'vulnerabilitiesEnabled' => true,
+			'malwareEnabled'         => true,
+		] );
+
+		$railItems = $builder->build()[ 'vars' ][ 'rail' ][ 'items' ] ?? [];
+
+		foreach ( $railItems as $item ) {
+			$this->assertArrayHasKey( 'icon_class', $item, 'Rail item '.$item[ 'key' ].' should have icon_class' );
+			$this->assertNotEmpty( $item[ 'icon_class' ], 'Rail item '.$item[ 'key' ].' icon_class should not be empty' );
+		}
+	}
+
 	// ── Tab assembly: count derivation ──
 
 	public function test_rail_tab_count_excludes_good_status_items() :void {

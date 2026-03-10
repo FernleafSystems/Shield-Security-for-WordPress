@@ -448,8 +448,32 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $tabs
-	 * @return array{id:string,accent_status:string,items:list<array<string,mixed>>}
+	 * @param list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   nav_id:string,
+	 *   target:string,
+	 *   controls:string,
+	 *   status?:string,
+	 *   count?:int|null,
+	 *   is_active?:bool
+	 * }> $tabs
+	 * @return array{
+	 *   id:string,
+	 *   accent_status:string,
+	 *   items:list<array{
+	 *     key:string,
+	 *     label:string,
+	 *     icon_class:string,
+	 *     status:string,
+	 *     count:int|null,
+	 *     nav_id:string,
+	 *     target:string,
+	 *     controls:string,
+	 *     is_active:bool
+	 *   }>
+	 * }
 	 */
 	protected function buildRailContract( array $tabs ) :array {
 		$accentStatuses = \array_column(
@@ -468,6 +492,7 @@ class ScansResultsViewBuilder {
 					return [
 						'key'       => $tab[ 'key' ],
 						'label'     => $tab[ 'label' ],
+						'icon_class' => $tab[ 'icon_class' ],
 						'status'    => $tab[ 'status' ] ?? 'good',
 						'count'     => \array_key_exists( 'count', $tab ) ? $tab[ 'count' ] : null,
 						'nav_id'    => $tab[ 'nav_id' ],

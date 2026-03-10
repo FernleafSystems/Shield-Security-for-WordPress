@@ -14,7 +14,7 @@
 			{% endif %}
 
 			<li>
-				<button type="button"
+					<button type="button"
 						class="{{ item_classes|join(' ') }}"
 						id="{{ item.nav_id|default('')|e('html_attr') }}"
 						data-shield-rail-key="{{ item.key|default('')|e('html_attr') }}"
@@ -24,7 +24,13 @@
 						role="tab"
 						aria-controls="{{ item.controls|default('')|e('html_attr') }}"
 						aria-selected="{{ is_active ? 'true' : 'false' }}">
-					<span class="shield-rail-sidebar__pip shield-rail-sidebar__pip--{{ item_status }}"></span>
+					{% if item.icon_class|default('') is not empty %}
+						<span class="shield-rail-sidebar__icon shield-rail-sidebar__icon--{{ item_status }}" aria-hidden="true">
+							<i class="{{ item.icon_class }}"></i>
+						</span>
+					{% else %}
+						<span class="shield-rail-sidebar__pip shield-rail-sidebar__pip--{{ item_status }}"></span>
+					{% endif %}
 					<span class="shield-rail-sidebar__label">{{ item.label|default('') }}</span>
 					{% if item.count|default(null) is not null %}
 						<span class="shield-badge badge-{{ badge_status }} shield-rail-sidebar__badge">
