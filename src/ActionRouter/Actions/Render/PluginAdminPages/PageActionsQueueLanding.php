@@ -236,7 +236,10 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	protected function buildScansResultsRenderData() :array {
-		return ( new ScansResultsViewBuilder() )->buildForActionsQueue();
+		return ( new ActionsQueueScanRailBuilder() )->buildFromLandingData(
+			$this->getNeedsAttentionPayload(),
+			$this->getAssessmentRowsByZone()[ 'scans' ] ?? []
+		);
 	}
 
 	/**

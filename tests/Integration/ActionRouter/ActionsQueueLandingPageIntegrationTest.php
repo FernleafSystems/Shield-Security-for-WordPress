@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\ActionsQueueScanRailMetrics,
 	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
 	Constants
 };
@@ -90,11 +91,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
@@ -106,6 +108,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'scans' )[ 'assessment_rows' ] ?? [] );
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+		$this->assertSame( [], $vars[ 'scans_results' ] ?? [] );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-actions-landing="1"][@data-actions-queue-metrics-action]',
+			0,
+			'Actions queue all-clear page should not expose a metrics action payload'
+		);
 	}
 
 	public function test_maintenance_items_render_tiles_and_maintenance_panel() :void {
@@ -217,6 +227,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="summary" and @data-actions-queue-pane-loaded="1"]',
 			'Actions queue scans shell should keep summary pane eager'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-metrics-action) > 0]',
+			'Actions queue scans shell should expose the background metrics action'
+		);
 	}
 
 	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {
@@ -251,7 +266,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertContains( 'theme_files', $assessmentKeys );
 	}
 
-	public function test_scans_results_shell_shows_plugin_theme_and_vulnerability_tabs_only_when_findings_exist() :void {
+	public function test_scans_results_shell_starts_enabled_tabs_lazy_without_eager_badges() :void {
 		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
 
 		$pluginSlug = self::con()->base_file;
@@ -286,15 +301,104 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$scansResults = \is_array( $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ] ?? null )
 			? $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ]
 			: [];
-		$railTabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [], 'key' );
-		$vulnerabilitySections = \is_array( $scansResults[ 'vars' ][ 'vulnerabilities' ][ 'sections' ] ?? null )
-			? $scansResults[ 'vars' ][ 'vulnerabilities' ][ 'sections' ]
+		$railTabs = \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null )
+			? \array_values( $scansResults[ 'vars' ][ 'rail_tabs' ] )
 			: [];
+		$tabsByKey = [];
+		foreach ( $railTabs as $tab ) {
+			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
+		}
 
-		$this->assertContains( 'plugins', $railTabs );
-		$this->assertContains( 'themes', $railTabs );
-		$this->assertContains( 'vulnerabilities', $railTabs );
-		$this->assertNotEmpty( $vulnerabilitySections[ 'vulnerable' ][ 'items' ] ?? [] );
-		$this->assertNotEmpty( $vulnerabilitySections[ 'abandoned' ][ 'items' ] ?? [] );
+		$this->assertContains( 'plugins', \array_keys( $tabsByKey ) );
+		$this->assertContains( 'themes', \array_keys( $tabsByKey ) );
+		$this->assertContains( 'vulnerabilities', \array_keys( $tabsByKey ) );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );
+		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] );
+		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] );
+		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] );
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'plugins' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'themes' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertFalse( (bool)( $tabsByKey[ 'plugins' ][ 'is_loaded' ] ?? true ) );
+		$this->assertFalse( (bool)( $tabsByKey[ 'themes' ][ 'is_loaded' ] ?? true ) );
+		$this->assertFalse( (bool)( $tabsByKey[ 'vulnerabilities' ][ 'is_loaded' ] ?? true ) );
+		$this->assertSame(
+			ActionsQueueScanRailMetrics::SLUG,
+			(string)( $scansResults[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' )
+		);
+	}
+
+	public function test_scans_results_metrics_action_returns_exact_counts_for_enabled_tabs() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+			'scan_vulnerabilities',
+			'scan_malware_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'enable_wpvuln_scan', 'Y' )
+			 ->optSet( 'enabled_scan_apc', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes', 'malware_php' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$themeSlug = \wp_get_theme()->get_stylesheet();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'wp-admin/admin.php',
+			'is_in_core'   => 1,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file-2.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'     => 'theme-file.php',
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id' => 'infected.php',
+			'is_mal'  => 1,
+		] );
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'      => $themeSlug,
+			'is_abandoned' => 1,
+		] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
+		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+
+		$this->assertSame( 1, (int)( $tabs[ 'wordpress' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'wordpress' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $tabs[ 'plugins' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $tabs[ 'plugins' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $tabs[ 'themes' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 2, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'critical', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
 	}
 }

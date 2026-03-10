@@ -6,7 +6,10 @@
 	<div class="actions-landing"
 		 data-actions-landing="1"
 		 data-actions-pane-loading="{{ strings.pane_loading|default('Loading scan details...')|e('html_attr') }}"
-		 data-actions-pane-error="{{ strings.pane_load_error|default('Unable to load these scan details. Please try again.')|e('html_attr') }}">
+		 data-actions-pane-error="{{ strings.pane_load_error|default('Unable to load these scan details. Please try again.')|e('html_attr') }}"
+		{% if vars.scans_results.vars.metrics_action|default({}) is not empty %}
+		 data-actions-queue-metrics-action="{{ vars.scans_results.vars.metrics_action|json_encode|e('html_attr') }}"
+		{% endif %}>
 
 		<section class="actions-landing__severity-strip shield-mode-strip shield-card status-{{ strip.severity|default('good') }}"
 				 data-actions-queue-section="severity-strip">

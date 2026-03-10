@@ -16,10 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 	RetrieveBase,
 	RetrieveItems
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	Counts,
-	Retrieve\RetrieveCount
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -79,32 +75,6 @@ class ScansResultsViewBuilder {
 					'themes'     => (string)( $themesPayload[ 'render_output' ] ?? '' ),
 					'malware'    => (string)( $malwarePayload[ 'render_output' ] ?? '' ),
 					'filelocker' => (string)( $fileLockerPayload[ 'render_output' ] ?? '' ),
-				],
-			],
-		];
-	}
-
-	public function buildForActionsQueue() :array {
-		$summaryRows = $this->buildSummaryRows();
-		$assessmentRows = $this->buildAssessmentRows();
-		$vulnerabilities = $this->buildVulnerabilities();
-		$railTabs = $this->buildActionsQueueRailTabs( $summaryRows, $assessmentRows, $vulnerabilities );
-
-		return [
-			'vars'    => [
-				'rail'            => $this->buildRailContract( $railTabs ),
-				'rail_tabs'       => $railTabs,
-				'summary_rows'    => $summaryRows,
-				'assessment_rows' => $assessmentRows,
-				'vulnerabilities' => $vulnerabilities,
-			],
-			'content' => [
-				'section' => [
-					'wordpress'  => '',
-					'plugins'    => '',
-					'themes'     => '',
-					'malware'    => '',
-					'filelocker' => '',
 				],
 			],
 		];
@@ -180,7 +150,9 @@ class ScansResultsViewBuilder {
 				'pane_id'   => $paneId,
 				'nav_id'    => $paneId.'-tab',
 				'label'     => $definition[ 'label' ],
-				'count'     => (int)$definition[ 'count' ],
+				'count'     => \array_key_exists( 'count', $definition )
+					? ( $definition[ 'count' ] === null ? null : (int)$definition[ 'count' ] )
+					: null,
 				'is_active' => empty( $tabs ),
 				'target'    => '#'.$paneId,
 				'controls'  => $paneId,
@@ -253,46 +225,16 @@ class ScansResultsViewBuilder {
 				$summaryRows,
 				$assessmentRows,
 				$vulnerabilities,
-				false,
 				$fileLockerPayload
 			)
 		);
 	}
 
 	/**
-	 * @return list<array<string,mixed>>
-	 */
-	protected function buildActionsQueueRailTabs(
-		array $summaryRows,
-		array $assessmentRows,
-		array $vulnerabilities
-	) :array {
-		return $this->buildTabs(
-			$this->buildResolvedRailTabDefinitions(
-				$summaryRows,
-				$assessmentRows,
-				$vulnerabilities,
-				true
-			)
-		);
-	}
-
-	/**
-	 * @return array{wordpress:int,malware:int}
-	 */
-	protected function getActionsQueueDisplayCounts() :array {
-		$displayCounts = new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
-		return [
-			'wordpress' => $displayCounts->countWPFiles(),
-			'malware'   => $displayCounts->countMalware(),
-		];
-	}
-
-	/**
 	 * @param list<array<string,mixed>> $definitions
 	 * @return array<string,string>
 	 */
-	private function buildSummaryRailTargets( array $definitions ) :array {
+	protected function buildSummaryRailTargets( array $definitions ) :array {
 		$targets = [];
 		foreach ( \array_column( $definitions, 'key' ) as $tabKey ) {
 			foreach ( $this->getRailTabMeta( $tabKey )[ 'summary_keys' ] ?? [] as $summaryKey ) {
@@ -305,7 +247,7 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return list<string>
 	 */
-	private function getOrderedRailTabKeys( bool $includeSummary = true ) :array {
+	protected function getOrderedRailTabKeys( bool $includeSummary = true ) :array {
 		$keys = [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ];
 		if ( $includeSummary ) {
 			\array_unshift( $keys, 'summary' );
@@ -328,18 +270,14 @@ class ScansResultsViewBuilder {
 		array $summaryRows,
 		array $assessmentRows,
 		array $vulnerabilities,
-		bool $forActionsQueue,
 		array $fileLockerPayload = []
 	) :array {
 		$definitions = [];
-		$displayCounts = $forActionsQueue ? $this->getActionsQueueDisplayCounts() : [];
 
 		foreach ( $this->getOrderedRailTabKeys( false ) as $tabKey ) {
 			$definition = $this->buildResolvedRailTabDefinition(
 				$tabKey,
 				$vulnerabilities,
-				$forActionsQueue,
-				$displayCounts,
 				$fileLockerPayload
 			);
 			if ( $definition !== null ) {
@@ -360,9 +298,6 @@ class ScansResultsViewBuilder {
 				$this->buildSummaryRailTargets( $definitions )
 			),
 		];
-		if ( $forActionsQueue ) {
-			$summaryDefinition[ 'is_loaded' ] = true;
-		}
 		\array_unshift( $definitions, $summaryDefinition );
 
 		return $definitions;
@@ -370,15 +305,12 @@ class ScansResultsViewBuilder {
 
 	/**
 	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
-	 * @param array{wordpress?:int,malware?:int} $displayCounts
 	 * @param array<string,mixed> $fileLockerPayload
 	 * @return array<string,mixed>|null
 	 */
 	private function buildResolvedRailTabDefinition(
 		string $tabKey,
 		array $vulnerabilities,
-		bool $forActionsQueue,
-		array $displayCounts,
 		array $fileLockerPayload
 	) :?array {
 		$tabMeta = $this->getRailTabMeta( $tabKey );
@@ -393,16 +325,6 @@ class ScansResultsViewBuilder {
 				if ( !$this->isWordpressTabEnabled() ) {
 					return null;
 				}
-				if ( $forActionsQueue ) {
-					$count = (int)( $displayCounts[ 'wordpress' ] ?? 0 );
-					return \array_merge( $definition, [
-						'count'         => $count,
-						'status'        => $count > 0 ? 'critical' : 'good',
-						'items'         => [],
-						'is_loaded'     => false,
-						'render_action' => $this->buildAjaxRenderActionData( Wordpress::class ),
-					] );
-				}
 				$items = $this->buildWordpressRailItems();
 				$count = $this->countNonGoodItems( $items );
 				return \array_merge( $definition, [
@@ -415,16 +337,6 @@ class ScansResultsViewBuilder {
 				if ( !$this->isPluginsRailTabEnabled() ) {
 					return null;
 				}
-				if ( $forActionsQueue ) {
-					$count = $this->countAffectedAssetGroups( 'plugin' );
-					return \array_merge( $definition, [
-						'count'         => $count,
-						'status'        => $count > 0 ? 'warning' : 'good',
-						'items'         => [],
-						'is_loaded'     => false,
-						'render_action' => $this->buildAjaxRenderActionData( Plugins::class ),
-					] );
-				}
 				$items = $this->buildPluginThemeRailItemsDirect( 'plugin' );
 				$count = $this->countNonGoodItems( $items );
 				return \array_merge( $definition, [
@@ -436,16 +348,6 @@ class ScansResultsViewBuilder {
 			case 'themes':
 				if ( !$this->isThemesRailTabEnabled() ) {
 					return null;
-				}
-				if ( $forActionsQueue ) {
-					$count = $this->countAffectedAssetGroups( 'theme' );
-					return \array_merge( $definition, [
-						'count'         => $count,
-						'status'        => $count > 0 ? 'warning' : 'good',
-						'items'         => [],
-						'is_loaded'     => false,
-						'render_action' => $this->buildAjaxRenderActionData( Themes::class ),
-					] );
 				}
 				$items = $this->buildPluginThemeRailItemsDirect( 'theme' );
 				$count = $this->countNonGoodItems( $items );
@@ -460,25 +362,14 @@ class ScansResultsViewBuilder {
 					return null;
 				}
 				return \array_merge( $definition, [
-					'count'     => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
-					'status'    => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
-					'items'     => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
-					'is_loaded' => $forActionsQueue,
+					'count'  => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
+					'status' => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
+					'items'  => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
 				] );
 
 			case 'malware':
 				if ( !$this->isMalwareRailTabEnabled() ) {
 					return null;
-				}
-				if ( $forActionsQueue ) {
-					$count = (int)( $displayCounts[ 'malware' ] ?? 0 );
-					return \array_merge( $definition, [
-						'count'         => $count,
-						'status'        => $count > 0 ? 'critical' : 'good',
-						'items'         => [],
-						'is_loaded'     => false,
-						'render_action' => $this->buildAjaxRenderActionData( Malware::class ),
-					] );
 				}
 				$items = $this->buildMalwareRailItems();
 				$count = $this->countNonGoodItems( $items );
@@ -489,16 +380,6 @@ class ScansResultsViewBuilder {
 				] );
 
 			case 'file_locker':
-				if ( $forActionsQueue ) {
-					$count = \count( $this->getProblemFileLocks() );
-					return \array_merge( $definition, [
-						'count'         => $count,
-						'status'        => $count > 0 ? 'warning' : 'good',
-						'items'         => [],
-						'is_loaded'     => false,
-						'render_action' => $this->buildAjaxRenderActionData( FileLocker::class ),
-					] );
-				}
 				$items = $this->buildFileLockerRailItems( $fileLockerPayload );
 				$count = $this->countNonGoodItems( $items );
 				return \array_merge( $definition, [
@@ -521,7 +402,7 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return array{label:string,icon_class:string,summary_keys:list<string>}
 	 */
-	private function getRailTabMeta( string $key ) :array {
+	protected function getRailTabMeta( string $key ) :array {
 		$meta = [
 			'summary' => [
 				'label'        => __( 'Summary', 'wp-simple-firewall' ),
@@ -588,7 +469,7 @@ class ScansResultsViewBuilder {
 						'key'       => $tab[ 'key' ],
 						'label'     => $tab[ 'label' ],
 						'status'    => $tab[ 'status' ] ?? 'good',
-						'count'     => $tab[ 'count' ] ?? 0,
+						'count'     => \array_key_exists( 'count', $tab ) ? $tab[ 'count' ] : null,
 						'nav_id'    => $tab[ 'nav_id' ],
 						'target'    => $tab[ 'target' ],
 						'controls'  => $tab[ 'controls' ],
@@ -990,24 +871,6 @@ class ScansResultsViewBuilder {
 
 	protected function getGoodFileLocks() :array {
 		return ( new LoadFileLocks() )->withoutProblems();
-	}
-
-	protected function countAffectedAssetGroups( string $assetType ) :int {
-		$results = ( new RetrieveItems() )
-			->setScanController( self::con()->comps->scans->AFS() )
-			->addWheres( [
-				\sprintf(
-					"%s.`meta_key`='%s'",
-					RetrieveBase::ABBR_RESULTITEMMETA,
-					$assetType === 'plugin' ? 'is_in_plugin' : 'is_in_theme'
-				),
-			] )
-			->retrieveForResultsTables();
-
-		return \count( \array_unique( \array_filter( \array_map(
-			static fn( object $item ) :string => (string)( $item->ptg_slug ?? '' ),
-			$results->getItems()
-		) ) ) );
 	}
 
 	private function actionPayload( string $actionClass ) :array {
