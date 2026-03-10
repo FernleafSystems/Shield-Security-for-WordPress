@@ -180,7 +180,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
-		$tabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'tabs' ] : [], 'key' );
 		$railTabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [], 'key' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
@@ -191,11 +190,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'scans', (string)( $scans[ 'panel_target' ] ?? '' ) );
 		$this->assertGreaterThan( 0, (int)( $scans[ 'total_issues' ] ?? 0 ) );
 		$this->assertNotEmpty( $scansResults );
-		$this->assertContains( 'summary', $tabs );
-		$this->assertContains( 'wordpress', $tabs );
 		$this->assertContains( 'summary', $railTabs );
 		$this->assertContains( 'wordpress', $railTabs );
-		$this->assertNotContains( 'vulnerabilities', $tabs );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]',
@@ -221,6 +217,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-pane-header ")]',
 			'Actions queue scans shell should render pane headers'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
+			'Actions queue scans shell should expose lazy-load metadata for heavy panes'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="summary" and @data-actions-queue-pane-loaded="1"]',
+			'Actions queue scans shell should keep summary pane eager'
 		);
 	}
 
@@ -291,14 +297,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$scansResults = \is_array( $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ] ?? null )
 			? $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ]
 			: [];
-		$tabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'tabs' ] : [], 'key' );
+		$railTabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [], 'key' );
 		$vulnerabilitySections = \is_array( $scansResults[ 'vars' ][ 'vulnerabilities' ][ 'sections' ] ?? null )
 			? $scansResults[ 'vars' ][ 'vulnerabilities' ][ 'sections' ]
 			: [];
 
-		$this->assertContains( 'plugins', $tabs );
-		$this->assertContains( 'themes', $tabs );
-		$this->assertContains( 'vulnerabilities', $tabs );
+		$this->assertContains( 'plugins', $railTabs );
+		$this->assertContains( 'themes', $railTabs );
+		$this->assertContains( 'vulnerabilities', $railTabs );
 		$this->assertNotEmpty( $vulnerabilitySections[ 'vulnerable' ][ 'items' ] ?? [] );
 		$this->assertNotEmpty( $vulnerabilitySections[ 'abandoned' ][ 'items' ] ?? [] );
 	}

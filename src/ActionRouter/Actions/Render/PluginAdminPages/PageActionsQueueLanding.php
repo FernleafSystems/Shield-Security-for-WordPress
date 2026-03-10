@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueueDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -61,6 +61,8 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'all_clear_icon_class'     => $this->getNeedsAttentionString( 'all_clear_icon_class' ),
 			'zone_scans'               => (string)( $zones[ 'scans' ][ 'label' ] ?? __( 'Scans', 'wp-simple-firewall' ) ),
 			'zone_maintenance'         => (string)( $zones[ 'maintenance' ][ 'label' ] ?? __( 'Maintenance', 'wp-simple-firewall' ) ),
+			'pane_loading'             => __( 'Loading scan details...', 'wp-simple-firewall' ),
+			'pane_load_error'          => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -89,7 +91,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'severity_strip' => $viewData[ 'severity_strip' ],
 			'zone_tiles'     => $zoneTiles,
 			'all_clear'      => $viewData[ 'all_clear' ],
-			'scans_results'  => $this->getScansResultsRenderData(),
+			'scans_results'  => $this->getQueueSummary()[ 'has_items' ] ? $this->getScansResultsRenderData() : [],
 		];
 	}
 
@@ -234,7 +236,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	protected function buildScansResultsRenderData() :array {
-		return ( new ScansResultsViewBuilder() )->build();
+		return ( new ScansResultsViewBuilder() )->buildForActionsQueue();
 	}
 
 	/**
@@ -393,7 +395,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	/**
 	 * @return array{
-	 *   render_output:string,
 	 *   render_data:array{
 	 *     flags:array{has_items:bool},
 	 *     strings:array{
@@ -407,13 +408,16 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 */
 	private function getNeedsAttentionPayload() :array {
 		if ( $this->needsAttentionPayload === null ) {
-			$this->needsAttentionPayload = self::con()
-											->action_router
-											->action( NeedsAttentionQueue::class, [
-												'compact_all_clear' => true,
-											] )
-											->payload();
+			$this->needsAttentionPayload = [
+				'render_data' => $this->buildNeedsAttentionRenderData(),
+			];
 		}
 		return $this->needsAttentionPayload;
+	}
+
+	protected function buildNeedsAttentionRenderData() :array {
+		return ( new NeedsAttentionQueueDataBuilder() )->build( [
+			'compact_all_clear' => true,
+		] );
 	}
 }

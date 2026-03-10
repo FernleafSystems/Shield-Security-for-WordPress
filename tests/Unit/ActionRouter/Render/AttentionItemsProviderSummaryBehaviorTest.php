@@ -42,16 +42,16 @@ class AttentionItemsProviderSummaryBehaviorTest extends BaseUnitTest {
 			[
 				'key'      => 'critical-item',
 				'severity' => 'critical',
-				'count'    => 1,
+				'count'    => 4,
 			],
 			[
 				'key'      => 'warning-item',
 				'severity' => 'warning',
-				'count'    => 1,
+				'count'    => 2,
 			],
 		] ) )->buildActionSummary();
 
-		$this->assertSame( 2, (int)( $summary[ 'total' ] ?? 0 ) );
+		$this->assertSame( 6, (int)( $summary[ 'total' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $summary[ 'severity' ] ?? '' ) );
 		$this->assertFalse( (bool)( $summary[ 'is_all_clear' ] ?? true ) );
 	}

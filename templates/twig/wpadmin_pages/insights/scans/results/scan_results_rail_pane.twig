@@ -11,7 +11,13 @@
 	</div>
 {% endif %}
 
-{% if tab.items|default([]) is empty %}
+{% set is_lazy_placeholder = tab.render_action|default({}) is not empty and (tab.is_loaded|default(true) == false) %}
+
+{% if is_lazy_placeholder %}
+	<div class="text-muted small" data-actions-queue-pane-placeholder="1">
+		{{ strings.pane_loading|default('Loading scan details...') }}
+	</div>
+{% elseif tab.items|default([]) is empty %}
 	<div class="shield-scan-pane-empty py-4 text-center text-muted">
 		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
 		{{ strings.no_issues|default('No issues found in this section.') }}

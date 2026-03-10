@@ -2,8 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\AttentionItemsProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -327,21 +326,19 @@ class NavMenuBuilder {
 	 * @return array{has_items:bool,total_items:int,severity:string}
 	 */
 	private function getActionsQueueSummary() :array {
-		$defaults = [
-			'has_items'   => false,
-			'total_items' => 0,
-			'severity'    => 'good',
-		];
 		try {
-			$payload = self::con()->action_router->action( NeedsAttentionQueue::class )->payload();
-			$summary = NeedsAttentionQueuePayload::summary( $payload, $defaults );
+			$summary = ( new AttentionItemsProvider() )->buildActionSummary();
 		}
 		catch ( \Throwable $e ) {
-			$summary = $defaults;
+			$summary = [
+				'total'        => 0,
+				'severity'     => 'good',
+				'is_all_clear' => true,
+			];
 		}
 		return [
-			'has_items'   => (bool)$summary[ 'has_items' ],
-			'total_items' => (int)$summary[ 'total_items' ],
+			'has_items'   => !(bool)$summary[ 'is_all_clear' ],
+			'total_items' => (int)$summary[ 'total' ],
 			'severity'    => (string)$summary[ 'severity' ],
 		];
 	}

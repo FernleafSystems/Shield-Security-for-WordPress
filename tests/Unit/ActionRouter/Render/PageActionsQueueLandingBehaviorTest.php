@@ -11,7 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -192,7 +191,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
-	public function test_scans_results_payload_is_always_built_even_when_scans_zone_has_no_items() :void {
+	public function test_scans_results_payload_is_built_when_queue_has_items_even_if_scans_zone_is_clear() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			true,
 			1,
@@ -211,6 +210,25 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertNotEmpty( $vars[ 'scans_results' ] ?? [] );
 		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
+	}
+
+	public function test_scans_results_payload_is_skipped_when_queue_is_all_clear() :void {
+		$this->capture->queuePayload = $this->buildQueuePayload(
+			false,
+			0,
+			'good',
+			'',
+			[
+				$this->buildZoneGroup( 'scans', 'good', 0, [] ),
+				$this->buildZoneGroup( 'maintenance', 'good', 0, [] ),
+			]
+		);
+
+		$page = $this->newPage();
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+
+		$this->assertSame( [], $vars[ 'scans_results' ] ?? [] );
+		$this->assertSame( 0, $page->getScansResultsBuildCalls() );
 	}
 
 	public function test_landing_hrefs_reuse_existing_scan_and_wp_admin_routes() :void {
@@ -357,13 +375,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
-		$queueCalls = \array_values( \array_filter(
-			$this->capture->actionCalls,
-			static fn( array $call ) :bool => ( $call[ 'action' ] ?? '' ) === NeedsAttentionQueue::class
-		) );
-
-		$this->assertCount( 1, $queueCalls );
-		$this->assertSame( [ 'compact_all_clear' => true ], $queueCalls[ 0 ][ 'action_data' ] ?? [] );
+		$this->assertSame( 0, \count( $this->capture->actionCalls ) );
 		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
@@ -452,20 +464,9 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					'action_data' => $actionData,
 				];
 
-				$payload = [];
-				if ( $action === NeedsAttentionQueue::class ) {
-					$payload = $this->capture->queuePayload;
-				}
-
-				return new class( $payload ) {
-					private array $payload;
-
-					public function __construct( array $payload ) {
-						$this->payload = $payload;
-					}
-
+				return new class {
 					public function payload() :array {
-						return $this->payload;
+						return [];
 					}
 				};
 			}
@@ -487,7 +488,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	private function newPage( ?array $assessmentRowsByZone = null, array $actionData = [] ) :PageActionsQueueLanding {
 		$page = new PageActionsQueueLandingUnitTestDouble(
 			$assessmentRowsByZone ?? $this->buildDefaultAssessmentRowsByZone(),
-			$this->capture->scansResultsRenderData
+			$this->capture->scansResultsRenderData,
+			$this->capture->queuePayload[ 'render_data' ] ?? []
 		);
 		$page->action_data = $actionData;
 		return $page;
@@ -733,6 +735,7 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	private int $scansResultsBuildCalls = 0;
 	private array $assessmentRowsByZone;
 	private array $scansResultsRenderData;
+	private array $needsAttentionRenderData;
 
 	/**
 	 * @param array<string,list<array{
@@ -747,10 +750,12 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	 */
 	public function __construct(
 		array $assessmentRowsByZone,
-		array $scansResultsRenderData
+		array $scansResultsRenderData,
+		array $needsAttentionRenderData
 	) {
 		$this->assessmentRowsByZone = $assessmentRowsByZone;
 		$this->scansResultsRenderData = $scansResultsRenderData;
+		$this->needsAttentionRenderData = $needsAttentionRenderData;
 	}
 
 	protected function buildAssessmentRowsByZone() :array {
@@ -760,6 +765,10 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	protected function buildScansResultsRenderData() :array {
 		++$this->scansResultsBuildCalls;
 		return $this->scansResultsRenderData;
+	}
+
+	protected function buildNeedsAttentionRenderData() :array {
+		return $this->needsAttentionRenderData;
 	}
 
 	public function getScansResultsBuildCalls() :int {

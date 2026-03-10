@@ -83,6 +83,7 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		}
 
 		this.activatePaneEnhancements( scope, targetPane );
+		this.dispatchPaneSwitchedEvent( scope, ( item.dataset.shieldRailTarget || '' ).trim(), targetPane, item );
 	}
 
 	findBootstrapTargetPane( item, scope ) {
@@ -129,6 +130,7 @@ export class RailSidebarController extends BaseAutoExecComponent {
 
 		targetPane.style.display = '';
 		this.activatePaneEnhancements( scope, targetPane );
+		this.dispatchPaneSwitchedEvent( scope, targetKey, targetPane, clickedItem );
 	}
 
 	disposeTooltipsWithin( container ) {
@@ -147,5 +149,17 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		}
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( targetPane );
 		BootstrapTooltips.RegisterNewTooltipsWithin( targetPane );
+	}
+
+	dispatchPaneSwitchedEvent( scope, targetKey, pane, item ) {
+		scope.dispatchEvent( new CustomEvent( 'shield:rail-pane-switched', {
+			bubbles: true,
+			detail: {
+				scope,
+				targetKey,
+				pane,
+				item,
+			},
+		} ) );
 	}
 }

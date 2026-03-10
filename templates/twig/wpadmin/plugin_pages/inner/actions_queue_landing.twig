@@ -3,7 +3,10 @@
 {% block inner_page_body %}
 	{% set active_panel = vars.mode_panel.active_target|default('') %}
 	{% set strip = vars.severity_strip|default({}) %}
-	<div class="actions-landing" data-actions-landing="1">
+	<div class="actions-landing"
+		 data-actions-landing="1"
+		 data-actions-pane-loading="{{ strings.pane_loading|default('Loading scan details...')|e('html_attr') }}"
+		 data-actions-pane-error="{{ strings.pane_load_error|default('Unable to load these scan details. Please try again.')|e('html_attr') }}">
 
 		<section class="actions-landing__severity-strip shield-mode-strip shield-card status-{{ strip.severity|default('good') }}"
 				 data-actions-queue-section="severity-strip">

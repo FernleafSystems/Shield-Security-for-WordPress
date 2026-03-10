@@ -70,7 +70,10 @@ class AttentionItemsProvider {
 	 */
 	public function buildActionSummary() :array {
 		$items = $this->buildActionItems();
-		$total = \count( $items );
+		$total = (int)\array_sum( \array_map(
+			static fn( array $item ) :int => (int)( $item[ 'count' ] ?? 0 ),
+			$items
+		) );
 		if ( $total === 0 ) {
 			return [
 				'total'        => 0,
