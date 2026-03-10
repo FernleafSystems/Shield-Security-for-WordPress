@@ -10,12 +10,9 @@ class HttpHeadersCon {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private $pushed = false;
+	private bool $pushed = false;
 
-	/**
-	 * @var array
-	 */
-	private $headers = [];
+	private array $headers = [];
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions;

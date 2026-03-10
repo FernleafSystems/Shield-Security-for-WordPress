@@ -94,6 +94,12 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 			'//*[@id="AptoOffcanvasLabel" and contains(@class,"offcanvas-title") and normalize-space()!=""]',
 			'IP analysis offcanvas title contract'
 		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigate-subject-header="1"]',
+			0,
+			'IP analysis offcanvas does not render duplicate subject header'
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//form[@data-investigate-panel-form="1" and @data-offcanvas-history-mode="replace"]//select[@data-investigate-select2="1"]',

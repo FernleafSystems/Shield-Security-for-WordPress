@@ -1,13 +1,16 @@
 {# TODO: If this partial gains another UI mode or consumer, replace the ad hoc ui overlay with a dedicated view-model contract. #}
-{% set show_lookup_with_subject = ui.show_lookup_with_subject %}
-{% set change_label = ui.change_label %}
+{% set show_lookup_with_subject = ui.show_lookup_with_subject|default(false) %}
+{% set show_subject_header = ui.show_subject_header|default(true) %}
+{% set change_label = ui.change_label|default('') %}
 
 {% if flags.has_subject %}
-	{% include '/wpadmin/components/investigate/subject_header.twig' with {
-		title: vars.subject_header.title,
-		meta: vars.subject_header.meta,
-		change_label: change_label
-	} only %}
+	{% if show_subject_header %}
+		{% include '/wpadmin/components/investigate/subject_header.twig' with {
+			title: vars.subject_header.title,
+			meta: vars.subject_header.meta,
+			change_label: change_label
+		} only %}
+	{% endif %}
 	{% if show_lookup_with_subject %}
 		{% include '/wpadmin/components/investigate/lookup_strip.twig' with {
 			action: hrefs.by_ip,

@@ -17,6 +17,7 @@ class IpAnalysis extends OffCanvasBase {
 		$renderData[ 'vars' ][ 'offcanvas_history_mode' ] = 'replace';
 		$renderData[ 'ui' ] = [
 			'show_lookup_with_subject' => true,
+			'show_subject_header'      => false,
 			'change_label'             => '',
 		];
 
