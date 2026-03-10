@@ -1,0 +1,93 @@
+{% set zone_tiles = vars.zone_tiles|default([]) %}
+{% set first_zone = zone_tiles|first %}
+{% set active_zone_key = vars.mode_panel.active_target|default('') %}
+{% if active_zone_key is empty and first_zone is not empty %}
+	{% set active_zone_key = first_zone.key|default('') %}
+{% endif %}
+
+{% set rail_accent = 'good' %}
+{% set rail_items = [] %}
+{% for zone in zone_tiles %}
+	{% set zone_status = zone.status|default('good') %}
+	{% if zone_status == 'critical' %}
+		{% set rail_accent = 'critical' %}
+	{% elseif zone_status == 'warning' and rail_accent != 'critical' %}
+		{% set rail_accent = 'warning' %}
+	{% endif %}
+
+	{% set rail_items = rail_items|merge( [ {
+		key: zone.key,
+		label: zone.label,
+		status: zone_status == 'neutral' ? 'info' : zone_status,
+		is_active: active_zone_key == zone.key
+	} ] ) %}
+{% endfor %}
+
+{% set pane_content %}
+	{% for zone in zone_tiles %}
+		<div data-shield-rail-pane="{{ zone.key|e('html_attr') }}"{% if active_zone_key != zone.key %} style="display: none"{% endif %}>
+			{% for group in zone.panel.detail_groups|default([]) %}
+				{% set group_index = loop.index0 %}
+				{% for row in group.rows|default([]) %}
+					{% set expand_id = 'cfg-expand-' ~ zone.key ~ '-' ~ group_index ~ '-' ~ loop.index0 %}
+					{% set row_status = row.status|default('good') %}
+					{% set mapped_row_status = row_status == 'neutral' ? 'info' : row_status %}
+					{% set action_data = row.action.data|default({}) %}
+					{% set is_expandable = action_data.zone_component_slug|default('') is not empty and action_data.zone_component_action|default('') is not empty %}
+
+					<div class="shield-detail-item">
+						{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+							title: row.title|default(''),
+							description: row.summary|default(''),
+							status: mapped_row_status,
+							status_icon: row.status_icon_class|default(null),
+							status_label: row.status_label|default(null),
+							count_badge: row.count_badge|default(null),
+							badge_status: row.badge_status|default(null),
+							expandable: is_expandable,
+							expand_target: expand_id,
+							explanations: row.explanations|default([]),
+							show_gear: is_expandable
+						} } only %}
+
+						{% if is_expandable %}
+							{% set expansion_body %}
+								<div data-configure-expand-ajax="1"
+									 {% for key, value in action_data %}data-{{ key|e('html_attr') }}="{{ value|e('html_attr') }}"{% endfor %}></div>
+							{% endset %}
+
+							{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+								id: expand_id,
+								type: 'options',
+								status: mapped_row_status,
+								body: expansion_body
+							} } only %}
+						{% endif %}
+					</div>
+				{% endfor %}
+			{% endfor %}
+
+			{% if zone.settings_href|default('') is not empty %}
+				<div class="mt-3">
+					<a href="{{ zone.settings_href }}"
+					   class="shield-detail-row__settings-link">
+						{{ zone.settings_label|default('') }}
+					</a>
+				</div>
+			{% endif %}
+		</div>
+	{% endfor %}
+{% endset %}
+
+{% set rail_html %}
+	{% include '/wpadmin/components/page/shield_rail_sidebar.twig' with { rail: {
+		accent_status: rail_accent,
+		id: 'ConfigureRailSidebar',
+		items: rail_items
+	} } only %}
+{% endset %}
+
+{% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
+	rail_html: rail_html,
+	content_html: pane_content
+} } only %}

@@ -75,6 +75,35 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-section="hero"]//*[@role="progressbar" and contains(concat(" ", normalize-space(@class), " "), " progress-bar ") and @aria-label="'.(string)( $strings[ 'posture_title' ] ?? '' ).'" and @aria-valuenow="'.(string)( $vars[ 'posture_percentage' ] ?? 0 ).'"]',
 			'Configure landing posture progressbar marker'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-shield-rail-scope="1"]',
+			'Configure landing should render the scoped rail layout'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-shield-rail-target]',
+			$expectedCount,
+			'Configure landing rail item count marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-shield-rail-pane]',
+			$expectedCount,
+			'Configure landing rail pane count marker'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-mode-tile="1"]',
+			0,
+			'Configure landing should no longer render mode tiles in the page body'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-mode-panel="1"]',
+			0,
+			'Configure landing should no longer render mode panels in the page body'
+		);
 
 		foreach ( $tileDefinitions as $tileDefinition ) {
 			$zoneKey = (string)$tileDefinition[ 'key' ];

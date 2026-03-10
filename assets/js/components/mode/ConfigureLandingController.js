@@ -9,12 +9,11 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 
 	run() {
 		this.isRefreshing = false;
-		shieldEventsHandler_Main.addHandler(
-			'hidden.bs.offcanvas',
-			'.offcanvas.offcanvas_zone_component_config',
-			() => this.refreshConfigureSection(),
-			false
-		);
+		document.addEventListener( 'shield:expansion-form-saved', ( evt ) => {
+			if ( this.getConfigureRoot()?.contains( evt.target ) ) {
+				this.refreshConfigureSection();
+			}
+		} );
 	}
 
 	refreshConfigureSection() {
@@ -32,7 +31,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const activePanelTarget = this.getActivePanelTarget();
+		const activeZoneKey = this.getActiveRailItemKey( configureRoot );
 		this.isRefreshing = true;
 
 		( new AjaxService() )
@@ -42,7 +41,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 				? resp.data.render_output
 				: '';
 			if ( this.replaceConfigureRoot( renderOutput ) ) {
-				this.restoreActivePanel( activePanelTarget );
+				this.restoreActiveRailItem( activeZoneKey );
 				return;
 			}
 			window.location.reload();
@@ -59,14 +58,9 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		return document.querySelector( '[data-configure-landing="1"]' );
 	}
 
-	getConfigureModeShell() {
-		const root = this.getConfigureRoot();
-		return root ? root.closest( '[data-mode-shell="1"][data-mode="configure"]' ) : null;
-	}
-
-	getActivePanelTarget() {
-		const shell = this.getConfigureModeShell();
-		return shell ? ( shell.dataset.modeActivePanel || '' ).trim() : '';
+	getActiveRailItemKey( configureRoot ) {
+		const activeItem = configureRoot.querySelector( '.shield-rail-sidebar__item.is-active' );
+		return activeItem !== null ? ( activeItem.dataset.shieldRailTarget || '' ).trim() : '';
 	}
 
 	parseRenderActionData( rawJson ) {
@@ -103,25 +97,19 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		return true;
 	}
 
-	restoreActivePanel( activePanelTarget ) {
-		if ( typeof activePanelTarget !== 'string' || activePanelTarget.length < 1 ) {
+	restoreActiveRailItem( activeZoneKey ) {
+		if ( typeof activeZoneKey !== 'string' || activeZoneKey.length < 1 ) {
 			return;
 		}
 
-		const shell = this.getConfigureModeShell();
-		if ( shell === null ) {
+		const root = this.getConfigureRoot();
+		if ( root === null ) {
 			return;
 		}
 
-		delete shell.dataset.modeActivePanel;
-
-		const targetTile = Array.from( shell.querySelectorAll( '[data-mode-tile="1"]' ) )
-		.find( ( tile ) => {
-			return ( tile.dataset.modePanelTarget || tile.dataset.modeTileKey || '' ).trim() === activePanelTarget;
-		} );
-
-		if ( targetTile !== undefined && targetTile.dataset.modeTileDisabled !== '1' ) {
-			targetTile.click();
+		const targetItem = root.querySelector( `[data-shield-rail-target="${activeZoneKey}"]` );
+		if ( targetItem !== null ) {
+			targetItem.click();
 		}
 	}
 }

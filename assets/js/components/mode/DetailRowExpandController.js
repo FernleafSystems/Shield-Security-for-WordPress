@@ -92,6 +92,14 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 		expansion.setAttribute( 'aria-hidden', 'false' );
 
 		BootstrapTooltips.RegisterNewTooltipsWithin( expansion );
+
+		expansion.dispatchEvent( new CustomEvent( 'shield:expansion-opened', {
+			bubbles: true,
+			detail: {
+				row,
+				expansion
+			}
+		} ) );
 	}
 
 	closeExpansion( expansion ) {

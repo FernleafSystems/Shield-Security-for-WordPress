@@ -52,11 +52,16 @@ export class OptionsFormSubmit extends BaseComponent {
 		)
 		.then( ( resp ) => {
 			setTimeout( () => {
-				if ( this.form.dataset[ 'context' ] !== 'offcanvas' || resp.data.page_reload ) {
-					window.location.reload();
+				if ( this.form.dataset[ 'context' ] === 'expansion' && !resp.data.page_reload ) {
+					this.form.dispatchEvent( new CustomEvent( 'shield:expansion-form-saved', {
+						bubbles: true
+					} ) );
+				}
+				else if ( this.form.dataset[ 'context' ] === 'offcanvas' && !resp.data.page_reload ) {
+					OffCanvasService.CloseCanvas();
 				}
 				else {
-					OffCanvasService.CloseCanvas();
+					window.location.reload();
 				}
 			}, 1000 );
 		} )

@@ -27,6 +27,7 @@ import { InvestigateLandingController } from "../components/mode/InvestigateLand
 import { ConfigureLandingController } from "../components/mode/ConfigureLandingController";
 import { DetailRowExpandController } from "../components/mode/DetailRowExpandController";
 import { RailSidebarController } from "../components/mode/RailSidebarController";
+import { ConfigureExpandLoader } from "../components/mode/ConfigureExpandLoader";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
 import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
@@ -89,6 +90,7 @@ export class AppMain extends AppBase {
 		this.components.configure_landing = new ConfigureLandingController();
 		this.components.detail_row_expand = new DetailRowExpandController();
 		this.components.rail_sidebar = new RailSidebarController();
+		this.components.configure_expand_loader = ( 'zones_manager' in comps ) ? new ConfigureExpandLoader( comps.zones_manager ) : null;
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
 		this.components.reports = ( 'reports' in comps ) ? new ReportingHandler( comps.reports ) : null;
 		this.components.rule_builder = ( 'rule_builder' in comps ) ? new RuleBuilder( comps.rule_builder ) : null;
