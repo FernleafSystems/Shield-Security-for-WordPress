@@ -1,262 +1,258 @@
 {% import '/common/macros.twig' as icwp_macros %}
 
-<div class="row option_form_row shield-option-row {{ option.is_focus ? 'focus_option':'nonfocus_option' }}">
+<div class="shield-option-item {{ option.is_focus ? 'focus_option':'nonfocus_option' }}">
 
-	<div class="col-12 col-lg-5 shield-option-label-col">
-		<label for="Opt-{{ option.key }}"
-			   id="Label-{{ option.key }}"
-			   class="col-form-label pb-0">
-			<span class="option_label_name">{{ option.name }}</span>
-		</label>
+	<div class="shield-option-row">
+		<div class="shield-option-label-zone">
+			<div class="shield-option-label-row">
+				<span class="option_label_name"
+					  id="Label-{{ option.key }}">{{ option.name }}</span>
 
-		<div class="option-help-container ps-1 pt-1">
-			<div class="mt-1 text-start text-nowrap">
-
-				{% if option.description|length > 0 %}
-					{{ _self.options_helper(
-						imgs.svgs.expand,
-						strings.description,
-						'',
-						['option-description-expander'],
-						{
-							'aria-controls': 'Description-'~option.key,
-							'aria-expanded': option.is_focus ? 'true' : 'false'
-						}
-					) }}
-				{% endif %}
-
-				{% if option.beacon_id|default(false) %}
-					{{ _self.options_helper(
-						imgs.svgs.help,
-						strings.opt_info_helpdesk,
-						'',
-						['beacon-article'],
-						{
-							'data-beacon_article_format': 'sidebar',
-							'data-beacon_article_id': option.beacon_id
-						}
-					) }}
-
-				{% elseif option.link_info %}
-					<a href="{{ option.link_info }}"
-					   class="d-inline-block me-1 svg-container "
-					   target="_blank"
-					   data-bs-toggle="tooltip"
-					   data-bs-trigger="hover"
-					   data-bs-placement="top"
-					   data-bs-title="{{ strings.opt_info_helpdesk }}"
-					><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></a>
-				{% endif %}
-
-				{% if option.vimeo_id|default('') is not empty %}
-					{{ _self.options_helper(
-						imgs.svgs.video,
-						strings.opt_info_video,
-						'',
-						['option-video'],
-						{'data-vimeoid': option.vimeo_id}
-					) }}
-				{% endif %}
-
-				{% if option.link_blog %}
-					<a href="{{ option.link_blog }}" target="_blank"
-					   class="d-inline-block me-1 svg-container "
-					   data-bs-toggle="tooltip"
-					   data-bs-trigger="hover"
-					   data-bs-placement="top"
-					   data-bs-title="{{ strings.opt_info_blog }}"
-					><i class="{{ imgs.svgs.blog }}" aria-hidden="true"></i></a>
-				{% endif %}
-
-				{% if option.disabled and option.unavailable %}
-					<a href="{{ hrefs.go_pro }}" target="_blank"
-					   class="d-inline-block me-1 svg-container text-primary"
-					   data-bs-toggle="tooltip"
-					   data-bs-trigger="hover"
-					   data-bs-placement="top"
-					   data-bs-title="Upgrade to Pro to unlock"><i class="{{ imgs.svgs.upgrade }}" aria-hidden="true"></i></a>
-				{% endif %}
-				<div class="clearfix"></div>
-			</div>
-
-		</div>
-	</div>
-
-	<div class="col-12 col-lg-7 shield-option-control-col">
-
-		{% if option.type is same as('checkbox') %}
-			<div class="form-check">
-				<input type="checkbox"
-					   class="form-check-input me-0"
-					   id="Opt-{{ option.key }}"
-					   name="{{ option.key }}"
-					   {% if option.disabled %}disabled="disabled"{% endif %}
-					   aria-labelledby="Label-{{ option.key }}"
-					   value="Y"
-						{{ ( option.value is same as('Y') ) ? 'checked="checked"' : '' }}
-				/>
-				<label class="form-check-label"
-					   for="Opt-{{ option.key }}">{{ option.summary }}</label>
-			</div>
-
-		{% elseif option.type is same as('text') %}
-
-			<input type="text" name="{{ option.key }}"
-				   id="Opt-{{ option.key }}"
-				   value="{{ option.value|raw }}"
-				   placeholder="{{ option.value }}"
-					{% if option.disabled %}
-						disabled="disabled"
+				<span class="shield-option-helpers">
+					{% if option.description|length > 0 %}
+						{{ _self.options_helper(
+							imgs.svgs.expand,
+							strings.description,
+							'',
+							['option-description-expander'],
+							{
+								'aria-controls': 'Description-'~option.key,
+								'aria-expanded': option.is_focus ? 'true' : 'false'
+							}
+						) }}
 					{% endif %}
-				   class="form-control" />
 
-		{% elseif option.type is same as('password') %}
+					{% if option.beacon_id|default(false) %}
+						{{ _self.options_helper(
+							imgs.svgs.help,
+							strings.opt_info_helpdesk,
+							'',
+							['beacon-article'],
+							{
+								'data-beacon_article_format': 'sidebar',
+								'data-beacon_article_id': option.beacon_id
+							}
+						) }}
 
-			<input type="password" name="{{ option.key }}"
-				   id="Opt-{{ option.key }}"
-				   value="{{ option.value|raw }}"
-				   placeholder="{{ strings.supply_password }}"
-				   autocomplete="new-password"
-				   {% if option.disabled %}disabled="disabled"{% endif %}
-				   class="form-control mb-2" />
+					{% elseif option.link_info %}
+						<a href="{{ option.link_info }}"
+						   class="svg-container"
+						   target="_blank"
+						   data-bs-toggle="tooltip"
+						   data-bs-trigger="hover"
+						   data-bs-placement="top"
+						   data-bs-title="{{ strings.opt_info_helpdesk }}"
+						><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></a>
+					{% endif %}
 
-			<input type="password" name="{{ option.key }}_confirm"
-				   id="Opt-{{ option.key }}_confirm"
-				   value="{{ option.value|raw }}"
-				   placeholder="{{ strings.confirm_password }}"
-				   autocomplete="new-password"
-				   {% if option.disabled %}disabled="disabled"{% endif %}
-				   class="form-control" />
+					{% if option.vimeo_id|default('') is not empty %}
+						{{ _self.options_helper(
+							imgs.svgs.video,
+							strings.opt_info_video,
+							'',
+							['option-video'],
+							{'data-vimeoid': option.vimeo_id}
+						) }}
+					{% endif %}
 
-		{% elseif option.type is same as('email') %}
+					{% if option.link_blog %}
+						<a href="{{ option.link_blog }}" target="_blank"
+						   class="svg-container"
+						   data-bs-toggle="tooltip"
+						   data-bs-trigger="hover"
+						   data-bs-placement="top"
+						   data-bs-title="{{ strings.opt_info_blog }}"
+						><i class="{{ imgs.svgs.blog }}" aria-hidden="true"></i></a>
+					{% endif %}
 
-			<input type="text" name="{{ option.key }}"
-				   id="Opt-{{ option.key }}"
-				   value="{{ option.value|raw }}"
-				   placeholder="{{ option.value }}"
-				   {% if option.disabled %}disabled="disabled"{% endif %}
-				   class="form-control" />
+					{% if option.disabled and option.unavailable %}
+						<a href="{{ hrefs.go_pro }}" target="_blank"
+						   class="svg-container text-primary"
+						   data-bs-toggle="tooltip"
+						   data-bs-trigger="hover"
+						   data-bs-placement="top"
+						   data-bs-title="Upgrade to Pro to unlock"><i class="{{ imgs.svgs.upgrade }}" aria-hidden="true"></i></a>
+					{% endif %}
+				</span>
+			</div>
 
-		{% elseif option.type is same as('select') %}
+			<div class="options-summary">{{ option.summary }}</div>
+		</div>
 
-			<select name="{{ option.key }}"
-					class="form-select"
-					id="Opt-{{ option.key }}"
-					{% if option.disabled %}disabled="disabled"{% endif %}
-					aria-label="Select for: {{ option.name }}">
-				{% for option_value, option_value_settings in option.value_options %}
-					<option
-							value="{{ option_value }}"
-							{% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
-							{% if option.value matches "'^"~option_value~"$'" %}selected{% endif %}
-					>{{ option_value_settings.name|raw }}</option>
-				{% endfor %}
-			</select>
-
-		{% elseif option.type is same as('multiple_select') %}
-
-			{% for option_value, option_value_settings in option.value_options %}
-				<div class="form-check">
+		<div class="shield-option-control-col">
+			{% if option.type is same as('checkbox') %}
+				<div class="form-check form-switch">
+					<span class="shield-option-switch-state {{ ( option.value is same as('Y') ) ? 'on' : '' }}">
+						{{ ( option.value is same as('Y') ) ? 'Enabled' : 'Disabled' }}
+					</span>
 					<input type="checkbox"
 						   class="form-check-input"
-						   id="Opt-{{ option.key }}_{{ option_value }}"
-						   name="{{ option.key }}[]"
-						   value="{{ option_value }}"
-						   {% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
-							{% if option_value in option.value %}
-								checked="checked"
-							{% endif %}
-							{% if option.disabled %}disabled="disabled"{% endif %}
+						   id="Opt-{{ option.key }}"
+						   name="{{ option.key }}"
+						   role="switch"
+						   {% if option.disabled %}disabled="disabled"{% endif %}
+						   aria-labelledby="Label-{{ option.key }}"
+						   value="Y"
+							{{ ( option.value is same as('Y') ) ? 'checked="checked"' : '' }}
 					/>
-					<label class="form-check-label"
-						   for="Opt-{{ option.key }}_{{ option_value }}"
-						   {% if not option_value_settings.is_available %}title="Available with {{ strings.plugin_name }}"{% endif %}
-					>
-							{% if option_value in option.value %}
-								<strong>{{ option_value_settings.name|raw }}</strong>
-							{% else %}
-								{{ option_value_settings.name|raw }}
-							{% endif %}</label>
 				</div>
-			{% endfor %}
 
-		{% elseif option.type is same as('array') %}
+			{% elseif option.type is same as('text') %}
 
-			<textarea name="{{ option.key }}"
-					  id="Opt-{{ option.key }}"
-					  placeholder="{{ option.value|raw }}"
-					  rows="{{ option.rows }}"
-					  {% if option.disabled %}disabled="disabled"{% endif %}
-					  class="form-control">{{ option.value|raw }}</textarea>
+				<input type="text" name="{{ option.key }}"
+					   id="Opt-{{ option.key }}"
+					   value="{{ option.value|raw }}"
+					   placeholder="{{ option.value }}"
+						{% if option.disabled %}
+							disabled="disabled"
+						{% endif %}
+					   class="form-control" />
 
-		{% elseif option.type is same as('comma_separated_lists') %}
+			{% elseif option.type is same as('password') %}
 
-			<textarea name="{{ option.key }}"
-					  id="Opt-{{ option.key }}"
-					  placeholder="{{ option.value }}"
-					  rows="{{ option.rows }}"
-					  {% if option.disabled %}disabled="disabled"{% endif %}
-					  class="form-control">{{ option.value }}</textarea>
+				<input type="password" name="{{ option.key }}"
+					   id="Opt-{{ option.key }}"
+					   value="{{ option.value|raw }}"
+					   placeholder="{{ strings.supply_password }}"
+					   autocomplete="new-password"
+					   {% if option.disabled %}disabled="disabled"{% endif %}
+					   class="form-control mb-2" />
 
-		{% elseif option.type is same as('noneditable_text') %}
+				<input type="password" name="{{ option.key }}_confirm"
+					   id="Opt-{{ option.key }}_confirm"
+					   value="{{ option.value|raw }}"
+					   placeholder="{{ strings.confirm_password }}"
+					   autocomplete="new-password"
+					   {% if option.disabled %}disabled="disabled"{% endif %}
+					   class="form-control" />
 
-			<input name="{{ option.key }}" id="Opt-{{ option.key }}"
-				   type="text" readonly
-				   class="form-control"
-				   value="{{ option.value }}" />
+			{% elseif option.type is same as('email') %}
 
-		{% elseif option.type is same as('integer') %}
+				<input type="text" name="{{ option.key }}"
+					   id="Opt-{{ option.key }}"
+					   value="{{ option.value|raw }}"
+					   placeholder="{{ option.value }}"
+					   {% if option.disabled %}disabled="disabled"{% endif %}
+					   class="form-control" />
 
-			<input type="text" name="{{ option.key }}"
-				   id="Opt-{{ option.key }}"
-				   value="{{ option.value }}"
-				   placeholder="{{ option.value }}"
-				   {% if option.disabled %}disabled="disabled"{% endif %}
-				   class="form-control" />
+			{% elseif option.type is same as('select') %}
 
-		{% else %}
-			ERROR: Should never reach this point.
-		{% endif %}
+				<select name="{{ option.key }}"
+						class="form-select"
+						id="Opt-{{ option.key }}"
+						{% if option.disabled %}disabled="disabled"{% endif %}
+						aria-label="Select for: {{ option.name }}">
+					{% for option_value, option_value_settings in option.value_options %}
+						<option
+								value="{{ option_value }}"
+								{% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
+								{% if option.value matches "'^"~option_value~"$'" %}selected{% endif %}
+						>{{ option_value_settings.name|raw }}</option>
+					{% endfor %}
+				</select>
 
-		{% if option.type is not same as('checkbox') %}
-			{# checkboxes display slightly differently #}
-			<div class="options-summary my-2">{{ option.summary }}</div>
-		{% endif %}
-	</div>
+			{% elseif option.type is same as('multiple_select') %}
 
-	<div class="col-12 shield-option-description-col">
-		<div id="Description-{{ option.key }}"
-			 class="pt-2 option-description {{ option.is_focus ? '':'hidden' }}"
-			 aria-hidden="{{ option.is_focus ? 'false' : 'true' }}"
-			 aria-labelledby="Label-{{ option.key }}">
-			{% for desc in option.description %}
-				<p>{{ desc|raw }}</p>
-			{% endfor %}
-
-			{% if flags.show_transfer_switch %}
-
-				{% if option.key in vars.xferable_opts %}
-					<div class="form-check toggle-importexport-container mt-3 mb-4 p-2 border border-1 rounded d-inline-block"
-						 data-bs-toggle="tooltip"
-						 data-bs-trigger="hover"
-						 data-bs-placement="left"
-						 data-bs-title="{{ strings.toggle_importexport }}"
-					>
-						<label class="custom-control-label toggle-importexport-inclusion" for="optxfer-{{ option.key }}">
-							<input type="checkbox"
-								   id="optxfer-{{ option.key }}"
-{#								   class="form-check-input"#}
-								   aria-labelledby="Label-{{ option.key }}"
-								   data-key="{{ option.key }}"
-									{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
-							/>
-							{{ strings.is_opt_importexport }}
-						</label>
+				{% for option_value, option_value_settings in option.value_options %}
+					<div class="form-check">
+						<input type="checkbox"
+							   class="form-check-input"
+							   id="Opt-{{ option.key }}_{{ option_value }}"
+							   name="{{ option.key }}[]"
+							   value="{{ option_value }}"
+							   {% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
+								{% if option_value in option.value %}
+									checked="checked"
+								{% endif %}
+								{% if option.disabled %}disabled="disabled"{% endif %}
+						/>
+						<label class="form-check-label"
+							   for="Opt-{{ option.key }}_{{ option_value }}"
+							   {% if not option_value_settings.is_available %}title="Available with {{ strings.plugin_name }}"{% endif %}
+						>
+								{% if option_value in option.value %}
+									<strong>{{ option_value_settings.name|raw }}</strong>
+								{% else %}
+									{{ option_value_settings.name|raw }}
+								{% endif %}</label>
 					</div>
-				{% endif %}
+				{% endfor %}
+
+			{% elseif option.type is same as('array') %}
+
+				<textarea name="{{ option.key }}"
+						  id="Opt-{{ option.key }}"
+						  placeholder="{{ option.value|raw }}"
+						  rows="{{ option.rows }}"
+						  {% if option.disabled %}disabled="disabled"{% endif %}
+						  class="form-control">{{ option.value|raw }}</textarea>
+
+			{% elseif option.type is same as('comma_separated_lists') %}
+
+				<textarea name="{{ option.key }}"
+						  id="Opt-{{ option.key }}"
+						  placeholder="{{ option.value }}"
+						  rows="{{ option.rows }}"
+						  {% if option.disabled %}disabled="disabled"{% endif %}
+						  class="form-control">{{ option.value }}</textarea>
+
+			{% elseif option.type is same as('noneditable_text') %}
+
+				<input name="{{ option.key }}" id="Opt-{{ option.key }}"
+					   type="text" readonly
+					   class="form-control"
+					   value="{{ option.value }}" />
+
+			{% elseif option.type is same as('integer') %}
+
+				<input type="text" name="{{ option.key }}"
+					   id="Opt-{{ option.key }}"
+					   value="{{ option.value }}"
+					   placeholder="{{ option.value }}"
+					   {% if option.disabled %}disabled="disabled"{% endif %}
+					   class="form-control" />
+
+			{% else %}
+				ERROR: Should never reach this point.
 			{% endif %}
 		</div>
 	</div>
+
+	{% if option.description|length > 0 %}
+		<div id="Description-{{ option.key }}"
+			 class="option-description {{ option.is_focus ? '':'hidden' }}"
+			 aria-hidden="{{ option.is_focus ? 'false' : 'true' }}"
+			 aria-labelledby="Label-{{ option.key }}">
+			<div class="option-description-inner">
+				<div class="option-description-content">
+					{% for desc in option.description %}
+						<p>{{ desc|raw }}</p>
+					{% endfor %}
+				</div>
+
+				{% if flags.show_transfer_switch %}
+					{% if option.key in vars.xferable_opts %}
+						<div class="toggle-importexport-container mt-3"
+							 data-bs-toggle="tooltip"
+							 data-bs-trigger="hover"
+							 data-bs-placement="left"
+							 data-bs-title="{{ strings.toggle_importexport }}"
+						>
+							<label class="custom-control-label toggle-importexport-inclusion" for="optxfer-{{ option.key }}">
+								<input type="checkbox"
+									   id="optxfer-{{ option.key }}"
+									   aria-labelledby="Label-{{ option.key }}"
+									   data-key="{{ option.key }}"
+										{{ ( option.key not in vars.xfer_excluded_opts ) ? 'checked="checked"' : '' }}
+								/>
+								{{ strings.is_opt_importexport }}
+							</label>
+						</div>
+					{% endif %}
+				{% endif %}
+			</div>
+		</div>
+	{% endif %}
 </div>
 
 {% macro options_helper(icon_class, tooltip, href="", classes=[], attributes={}) %}
@@ -264,7 +260,7 @@
 	{% set is_link = href is not empty %}
 	{% if is_link %}
 		<a href="{{ href }}"
-		   class="d-inline-block me-1 svg-container {{ classes|join(' ') }}"
+		   class="svg-container {{ classes|join(' ') }}"
 		   data-bs-toggle="tooltip"
 		   data-bs-trigger="hover"
 		   data-bs-placement="top"
@@ -272,7 +268,7 @@
 		><i class="{{ icon_class }}" aria-hidden="true"></i></a>
 	{% else %}
 		<button type="button"
-				class="d-inline-block me-1 svg-container shield-button-link {{ classes|join(' ') }}"
+				class="svg-container shield-button-link {{ classes|join(' ') }}"
 				aria-label="{{ tooltip }}"
 				data-bs-toggle="tooltip"
 				data-bs-trigger="hover"

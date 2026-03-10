@@ -2,6 +2,7 @@ import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OptionsFormSubmit } from "./OptionsFormSubmit";
 import { AjaxService } from "../services/AjaxService";
+import { Tooltip } from 'bootstrap';
 
 export class OptionsHandler extends BaseAutoExecComponent {
 
@@ -38,6 +39,28 @@ export class OptionsHandler extends BaseAutoExecComponent {
 					const isHidden = toToggle.classList.toggle( 'hidden' );
 					targetEl.setAttribute( 'aria-expanded', isHidden ? 'false' : 'true' );
 					toToggle.setAttribute( 'aria-hidden', isHidden ? 'true' : 'false' );
+
+					const item = targetEl.closest( '.shield-option-item' );
+					if ( item ) {
+						item.classList.toggle( 'shield-option-item-expanded', !isHidden );
+					}
+
+					const tip = Tooltip.getInstance( targetEl );
+					if ( tip ) {
+						tip.hide();
+					}
+				}
+			},
+			false
+		);
+
+		shieldEventsHandler_Main.add_Change(
+			'form.options_form_for .form-switch .form-check-input',
+			( targetEl ) => {
+				const stateLabel = targetEl.closest( '.form-switch' )?.querySelector( '.shield-option-switch-state' );
+				if ( stateLabel ) {
+					stateLabel.textContent = targetEl.checked ? 'Enabled' : 'Disabled';
+					stateLabel.classList.toggle( 'on', targetEl.checked );
 				}
 			},
 			false
