@@ -32,7 +32,7 @@ class PasskeyActionsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_registration_start_action_returns_challenge_payload() :void {
-		$userId = $this->loginAsAdministrator();
+		$this->loginAsAdministrator();
 
 		$routed = $this->requireController()->action_router->action(
 			MfaPasskeyRegistrationStart::class,

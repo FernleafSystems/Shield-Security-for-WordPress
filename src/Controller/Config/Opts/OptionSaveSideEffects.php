@@ -59,7 +59,6 @@ class OptionSaveSideEffects {
 		}
 
 		if ( $opts->optChanged( 'file_locker' ) ) {
-			$con->comps->file_locker->clearLocks();
 			$lockFiles = $opts->optGet( 'file_locker' );
 			if ( \count( $lockFiles ) === 0 || !$con->comps->shieldnet->canHandshake() ) {
 				$con->comps->file_locker->purge();

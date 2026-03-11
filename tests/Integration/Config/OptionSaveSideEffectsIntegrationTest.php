@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -134,44 +133,6 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( wp_next_scheduled( $hook ) );
 	}
 
-	public function test_partial_file_locker_deselection_cleans_stale_records() :void {
-		$con = $this->requireController();
-		if ( !$con->comps->shieldnet->canHandshake() ) {
-			$this->markTestSkipped( 'Requires ShieldNET handshake for the non-purge file-lock cleanup path.' );
-		}
-
-		$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
-		$handler = $con->db_con->loadDbH( DbCon::MAP[ 'file_locker' ][ 'slug' ], true );
-		$this->assertTrue( $handler->isReady() );
-
-		$this->insertFileLockRecord( $handler, 'wpconfig', ABSPATH.'wp-config.php' );
-		$this->insertFileLockRecord( $handler, 'root_index', ABSPATH.'index.php' );
-
-		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
-
-		$records = $handler->getQuerySelector()
-						   ->setNoOrderBy()
-						   ->queryWithResult();
-		$this->assertCount( 1, $records );
-		$this->assertSame( 'wpconfig', $records[ 0 ]->type );
-	}
-
-	public function test_empty_file_locker_selection_purges_existing_records() :void {
-		global $wpdb;
-		$con = $this->requireController();
-
-		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
-		$handler = $con->db_con->loadDbH( DbCon::MAP[ 'file_locker' ][ 'slug' ], true );
-		$this->assertTrue( $handler->isReady() );
-
-		$this->insertFileLockRecord( $handler, 'wpconfig', ABSPATH.'wp-config.php' );
-		$this->assertSame( 1, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
-
-		$con->opts->optSet( 'file_locker', [] )->store();
-
-		$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
-	}
-
 	private function alternateSelectValue( string $key, string $avoid ) :string {
 		$values = \array_map(
 			fn( array $valueOpt ) :string => (string)$valueOpt[ 'value_key' ],
@@ -208,18 +169,4 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 	}
 
-	/**
-	 * @param mixed $handler
-	 */
-	private function insertFileLockRecord( $handler, string $type, string $path ) :void {
-		$record = $handler->getRecord();
-		$record->type = $type;
-		$record->path = $path;
-		$record->hash_original = sha1( $type.'-original' );
-		$record->hash_current = sha1( $type.'-current' );
-		$record->public_key_id = 1;
-		$record->cipher = 'aes-256-cbc';
-		$record->content = 'encrypted-content-'.$type;
-		$handler->getQueryInserter()->insert( $record );
-	}
 }

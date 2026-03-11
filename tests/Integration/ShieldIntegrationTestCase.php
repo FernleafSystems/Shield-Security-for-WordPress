@@ -77,6 +77,35 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 			->optSet( 'license_deactivated_at', 0 );
 	}
 
+	protected function snapshotSelectedOptions( array $keys ) :array {
+		$con = $this->requireController();
+		$snapshot = [];
+		foreach ( $keys as $key ) {
+			$snapshot[ (string)$key ] = $con->opts->optGet( (string)$key );
+		}
+		return $snapshot;
+	}
+
+	protected function restoreSelectedOptions( array $snapshot, bool $store = true ) :void {
+		$con = static::con();
+		if ( $con === null ) {
+			return;
+		}
+
+		if ( \array_key_exists( 'license_data', $snapshot ) ) {
+			$con->comps->license->updateLicenseData( \is_array( $snapshot[ 'license_data' ] ) ? $snapshot[ 'license_data' ] : [] );
+			unset( $snapshot[ 'license_data' ] );
+		}
+
+		foreach ( $snapshot as $key => $value ) {
+			$con->opts->optSet( (string)$key, $value );
+		}
+
+		if ( $store && $con->opts->hasChanges() ) {
+			$con->opts->store();
+		}
+	}
+
 	// ── Controller helpers ─────────────────────────────────────────
 
 	protected function requireController() :Controller {

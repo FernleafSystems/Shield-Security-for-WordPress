@@ -17,10 +17,18 @@ trait PasskeyTestEnvironmentTrait {
 
 	private string $passkeyOriginalSiteUrl = '';
 
+	private array $passkeyOptionSnapshot = [];
+
 	protected function setUpPasskeyEnvironment() :void {
 		$this->passkeyRequestSnapshot = $this->snapshotCurrentRequestState();
 		$this->passkeyOriginalHomeUrl = (string)\get_option( 'home' );
 		$this->passkeyOriginalSiteUrl = (string)\get_option( 'siteurl' );
+		$this->passkeyOptionSnapshot = $this->snapshotSelectedOptions( [
+			'license_data',
+			'license_activated_at',
+			'license_deactivated_at',
+			'enable_passkeys',
+		] );
 
 		$fixtureUrl = PasskeyFixtureLoader::requestScheme().'://'.PasskeyFixtureLoader::requestHost();
 		\update_option( 'home', $fixtureUrl );
@@ -40,6 +48,7 @@ trait PasskeyTestEnvironmentTrait {
 	}
 
 	protected function tearDownPasskeyEnvironment() :void {
+		$this->restoreSelectedOptions( $this->passkeyOptionSnapshot );
 		\update_option( 'home', $this->passkeyOriginalHomeUrl );
 		\update_option( 'siteurl', $this->passkeyOriginalSiteUrl );
 		$this->restoreCurrentRequestState( $this->passkeyRequestSnapshot );

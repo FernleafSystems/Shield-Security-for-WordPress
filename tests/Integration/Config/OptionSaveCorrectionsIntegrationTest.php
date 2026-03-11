@@ -99,7 +99,9 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'administrator', 'badrole', 'editor' ], $con->opts->optGet( 'auto_idle_roles' ) );
 		$this->assertSame( [ 'domain_registered', 'syntax' ], \array_values( $con->opts->optGet( 'email_checks' ) ) );
 		$this->assertSame( [ 'default-src self;', 'img-src https://example.com;' ], $con->opts->optGet( 'xcsp_custom' ) );
-		$this->assertSame( [ '/index.php,foo,bar' ], $con->opts->optGet( 'page_params_whitelist' ) );
+		$pageWhitelist = $con->comps->opts_lookup->getFirewallParametersWhitelist();
+		$this->assertArrayHasKey( '/index.php', $pageWhitelist );
+		$this->assertSame( [ 'foo', 'bar' ], \array_values( \array_unique( $pageWhitelist[ '/index.php' ] ) ) );
 	}
 
 	public function test_list_corrections_and_empty_csp_rules_are_applied_during_store() :void {
