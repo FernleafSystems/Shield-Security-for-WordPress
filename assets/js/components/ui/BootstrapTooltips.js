@@ -54,6 +54,10 @@ export class BootstrapTooltips extends BaseComponent {
 	static RegisterNewTooltipsWithin( container ) {
 		if ( container ) {
 			container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( targetEl ) => {
+				const title = targetEl.getAttribute( 'data-bs-title' ) ?? targetEl.getAttribute( 'title' );
+				if ( typeof title !== 'string' || title.trim().length < 1 ) {
+					return;
+				}
 				Tooltip.getOrCreateInstance( targetEl )
 			} );
 		}

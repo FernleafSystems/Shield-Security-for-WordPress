@@ -72,10 +72,11 @@
 			<div class="shield-detail-row__actions">
 				{% for action in actions %}
 					{% set chip_icon = action.icon|default(action.type == 'update' ? 'bi bi-arrow-up-circle-fill' : 'bi bi-power') %}
+					{% set tooltip = action.tooltip is defined and action.tooltip is not null ? action.tooltip|trim : '' %}
 					<a href="{{ action.href|default('#') }}"
-					   class="shield-action-chip shield-action-chip--{{ action.type|default('update') }}"
+					   class="shield-action-chip shield-action-chip--{{ action.type|default('update') }}"{% if tooltip is not empty %}
 					   data-bs-toggle="tooltip"
-					   data-bs-title="{{ action.tooltip|default('')|e('html_attr') }}"{{ icwp_macros.renderAttributes(action.attributes|default({})) }}>
+					   data-bs-title="{{ tooltip|e('html_attr') }}"{% endif %}{{ icwp_macros.renderAttributes(action.attributes|default({})) }}>
 						<i class="{{ chip_icon }}"></i>
 						{{ action.label|default('') }}
 					</a>

@@ -37,6 +37,23 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		];
 	}
 
+	private function createDomXPathFromHtml( string $html ) :\DOMXPath {
+		$doc = new \DOMDocument();
+		$previous = \libxml_use_internal_errors( true );
+		try {
+			$doc->loadHTML(
+				'<?xml encoding="utf-8" ?>'.$html,
+				\LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD
+			);
+		}
+		finally {
+			\libxml_clear_errors();
+			\libxml_use_internal_errors( $previous );
+		}
+
+		return new \DOMXPath( $doc );
+	}
+
 	public function testDetailComponentTemplatesCompileWithTwigParser() :void {
 		$twig = $this->twig();
 
@@ -162,5 +179,50 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		$twig->render( '/wpadmin/components/page/shield_detail_demo.twig' );
 
 		$this->addToAssertionCount( 1 );
+	}
+
+	public function testDetailRowOnlyEmitsTooltipAttributesForNonEmptyTooltips() :void {
+		$html = $this->twig()->render( '/wpadmin/components/page/shield_detail_row.twig', [
+			'row' => [
+				'status'  => 'warning',
+				'title'   => 'Tooltip Row',
+				'actions' => [
+					[
+						'type'    => 'update',
+						'label'   => 'Has tooltip',
+						'href'    => '#update',
+						'tooltip' => 'Go to updates',
+					],
+					[
+						'type'    => 'navigate',
+						'label'   => 'No tooltip',
+						'href'    => '#view',
+						'tooltip' => '',
+					],
+					[
+						'type'  => 'navigate',
+						'label' => 'Null tooltip',
+						'href'  => '#null',
+					],
+				],
+			],
+		] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame(
+			1,
+			$xpath->query( '//*[@data-bs-toggle="tooltip" and @data-bs-title="Go to updates"]' )->length,
+			'Only actions with non-empty tooltip strings should render tooltip attributes'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@href="#view" and @data-bs-toggle="tooltip"]' )->length,
+			'Blank tooltip strings should not render tooltip attributes'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@href="#null" and @data-bs-toggle="tooltip"]' )->length,
+			'Missing tooltip values should not render tooltip attributes'
+		);
 	}
 }

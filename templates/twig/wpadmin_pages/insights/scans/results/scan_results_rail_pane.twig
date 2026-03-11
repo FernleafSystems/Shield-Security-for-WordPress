@@ -1,4 +1,6 @@
-{% set is_lazy_placeholder = tab.render_action|default({}) is not empty and (tab.is_loaded|default(true) == false) %}
+{% set is_loaded = tab.is_loaded is defined ? tab.is_loaded : true %}
+{% set has_lazy_render_action = tab.render_action|default({}) is not empty %}
+{% set is_lazy_placeholder = has_lazy_render_action and not is_loaded %}
 
 {% if is_lazy_placeholder %}
 	<div class="text-muted small" data-actions-queue-pane-placeholder="1">

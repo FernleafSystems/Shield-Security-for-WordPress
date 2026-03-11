@@ -3,13 +3,14 @@
 {% set pane_content %}
 	<div class="tab-content mb-3">
 		{% for tab in rail_tabs %}
+			{% set is_loaded = tab.is_loaded is defined ? tab.is_loaded : true %}
 			<div class="tab-pane{% if tab.is_active|default(false) %} show active{% endif %}"
 				 id="{{ tab.pane_id|e('html_attr') }}"
 				 role="tabpanel"
 				 aria-labelledby="{{ tab.nav_id|e('html_attr') }}"
 				 data-shield-rail-pane="{{ tab.key|e('html_attr') }}"
 				 data-actions-queue-pane-key="{{ tab.key|e('html_attr') }}"
-				 data-actions-queue-pane-loaded="{{ tab.is_loaded|default(true) ? '1' : '0' }}"
+				 data-actions-queue-pane-loaded="{{ is_loaded ? '1' : '0' }}"
 				 data-actions-queue-render-action="{{ tab.render_action|default({})|json_encode|e('html_attr') }}">
 				{% include '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig' with {
 					tab: tab,

@@ -194,11 +194,15 @@ class ScansResultsViewBuilder {
 			];
 
 			if ( $key !== 'summary' ) {
-				$definition[ 'is_shown' ] = match ( $key ) {
-					'wordpress' => $this->isWordpressTabEnabled(),
-					'plugins', 'themes', 'vulnerabilities' => ( $legacyCounts[ $key ] ?? 0 ) > 0,
-					default => true,
-				};
+				if ( $key === 'wordpress' ) {
+					$definition[ 'is_shown' ] = $this->isWordpressTabEnabled();
+				}
+				elseif ( \in_array( $key, [ 'plugins', 'themes', 'vulnerabilities' ], true ) ) {
+					$definition[ 'is_shown' ] = ( $legacyCounts[ $key ] ?? 0 ) > 0;
+				}
+				else {
+					$definition[ 'is_shown' ] = true;
+				}
 			}
 
 			$definitions[] = $definition;
@@ -972,7 +976,6 @@ class ScansResultsViewBuilder {
 				'label'   => $label,
 				'href'    => $href,
 				'icon'    => 'bi bi-arrow-right-circle-fill',
-				'tooltip' => null,
 				'attributes' => [],
 			],
 		];
@@ -987,7 +990,6 @@ class ScansResultsViewBuilder {
 			'label'      => $label,
 			'href'       => '#',
 			'icon'       => 'bi bi-arrow-right-circle-fill',
-			'tooltip'    => '',
 			'attributes' => [
 				'data-shield-rail-switch' => $target,
 			],

@@ -224,6 +224,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress"]//*[@data-actions-queue-pane-placeholder="1"]',
+			'Actions queue scans shell should render loading placeholders for lazy panes'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
+			0,
+			'Actions queue scans shell should not render empty-state copy for lazy panes before AJAX hydration'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="summary" and @data-actions-queue-pane-loaded="1"]',
 			'Actions queue scans shell should keep summary pane eager'
 		);

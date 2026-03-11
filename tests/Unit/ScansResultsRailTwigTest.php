@@ -287,6 +287,75 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		];
 	}
 
+	private function buildLazyPaneRenderContext() :array {
+		return [
+			'vars'    => [
+				'rail'      => [
+					'id'            => 'ScanResultsRailSidebar',
+					'accent_status' => 'warning',
+					'items'         => [
+						[
+							'key'       => 'summary',
+							'label'     => 'Summary',
+							'status'    => 'good',
+							'count'     => 1,
+							'nav_id'    => 'h-tabs-summary-tab',
+							'target'    => '#h-tabs-summary',
+							'controls'  => 'h-tabs-summary',
+							'is_active' => true,
+						],
+						[
+							'key'       => 'plugins',
+							'label'     => 'Plugins',
+							'status'    => 'neutral',
+							'count'     => null,
+							'nav_id'    => 'h-tabs-plugins-tab',
+							'target'    => '#h-tabs-plugins',
+							'controls'  => 'h-tabs-plugins',
+							'is_active' => false,
+						],
+					],
+				],
+				'rail_tabs' => [
+					[
+						'key'        => 'summary',
+						'pane_id'    => 'h-tabs-summary',
+						'nav_id'     => 'h-tabs-summary-tab',
+						'label'      => 'Summary',
+						'status'     => 'good',
+						'is_active'  => true,
+						'is_loaded'  => true,
+						'items'      => [
+							[
+								'title'       => 'Plugins',
+								'description' => '1 plugin needs review.',
+								'status'      => 'warning',
+							],
+						],
+					],
+					[
+						'key'           => 'plugins',
+						'pane_id'       => 'h-tabs-plugins',
+						'nav_id'        => 'h-tabs-plugins-tab',
+						'label'         => 'Plugins',
+						'status'        => 'neutral',
+						'is_active'     => false,
+						'is_loaded'     => false,
+						'render_action' => [
+							'render_slug' => 'scanresults_plugins',
+						],
+						'items'         => [],
+					],
+				],
+			],
+			'strings' => [
+				'pane_loading' => 'Loading scan details...',
+				'no_issues'    => 'No issues found in this section.',
+			],
+			'content' => [],
+		];
+	}
+
 	public function testScanResultsTemplatesCompileWithTwigParser() :void {
 		$twig = $this->twig();
 
@@ -386,6 +455,30 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			0,
 			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-pane-header ")]' )->length,
 			'Rail panes should not render a duplicate pane header'
+		);
+	}
+
+	public function testRailScanResultsTemplateKeepsLazyPanesUnloadedUntilAjaxHydratesThem() :void {
+		$html = $this->twig()->render(
+			'/wpadmin_pages/insights/scans/results/scan_results_rail.twig',
+			$this->buildLazyPaneRenderContext()
+		);
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="plugins" and @data-actions-queue-pane-loaded="0"]',
+			'Lazy scan panes should stay marked unloaded in the initial rail shell'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="plugins"]//*[@data-actions-queue-pane-placeholder="1" and normalize-space()="Loading scan details..."]',
+			'Lazy scan panes should render the loading placeholder before AJAX hydration'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@data-shield-rail-pane="plugins"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]' )->length,
+			'Lazy scan panes should not render the empty-state before AJAX hydration'
 		);
 	}
 }

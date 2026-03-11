@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
 	Counts,
 	Retrieve\RetrieveCount
@@ -121,8 +121,9 @@ class ActionsQueueScanRailMetricsBuilder {
 		}
 
 		$dbCon = self::con()->db_con;
+		$wpdb = Services::WpDb()->loadWpdb();
 		$membershipMetaKey = $assetType === 'plugin' ? 'is_in_plugin' : 'is_in_theme';
-		$query = Services::WpDb()->prepare(
+		$query = $wpdb->prepare(
 			"SELECT COUNT(DISTINCT `slug_meta`.`meta_value`)
 			FROM `{$dbCon->scan_results->getTable()}` AS `sr`
 			INNER JOIN `{$dbCon->scan_result_items->getTable()}` AS `ri`
@@ -148,7 +149,8 @@ class ActionsQueueScanRailMetricsBuilder {
 		}
 
 		$dbCon = self::con()->db_con;
-		$query = Services::WpDb()->prepare(
+		$wpdb = Services::WpDb()->loadWpdb();
+		$query = $wpdb->prepare(
 			"SELECT COUNT(DISTINCT `ri`.`item_id`)
 			FROM `{$dbCon->scan_results->getTable()}` AS `sr`
 			INNER JOIN `{$dbCon->scan_result_items->getTable()}` AS `ri`
