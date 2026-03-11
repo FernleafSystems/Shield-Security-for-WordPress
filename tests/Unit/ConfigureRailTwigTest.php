@@ -186,6 +186,7 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 						[
 							'key'               => 'secadmin',
 							'label'             => 'Security Admin',
+							'icon_class'        => 'bi bi-shield-lock',
 							'status'            => 'good',
 							'status_label'      => 'Good',
 							'status_icon_class' => 'bi bi-check-circle-fill',
@@ -197,6 +198,7 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 						[
 							'key'               => 'firewall',
 							'label'             => 'Firewall',
+							'icon_class'        => 'bi bi-fire',
 							'status'            => 'critical',
 							'status_label'      => 'Critical',
 							'status_icon_class' => 'bi bi-x-circle-fill',
@@ -208,6 +210,7 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 						[
 							'key'               => 'general',
 							'label'             => 'General',
+							'icon_class'        => 'bi bi-sliders',
 							'status'            => 'info',
 							'status_label'      => 'General',
 							'status_icon_class' => 'bi bi-info-circle-fill',
@@ -261,13 +264,13 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-shield-rail-target="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__pip ")]',
-			'Configure rail should keep the status pip when no explicit icon is supplied'
+			'//*[@data-shield-rail-target="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__icon ")]/i[contains(concat(" ", normalize-space(@class), " "), " bi-fire ")]',
+			'Configure rail should render the zone icon inside the shared rail trigger'
 		);
 		$this->assertSame(
 			0,
-			$xpath->query( '//*[@data-shield-rail-target="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__icon ")]' )->length,
-			'Configure rail should not render the scan-tab icon treatment'
+			$xpath->query( '//*[@data-shield-rail-target="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__pip ")]' )->length,
+			'Configure rail should no longer render the fallback pip when an explicit icon is supplied'
 		);
 		$this->assertXPathExists(
 			$xpath,

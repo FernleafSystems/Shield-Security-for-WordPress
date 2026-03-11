@@ -43,8 +43,13 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$strings = \is_array( $renderData[ 'strings' ] ?? null ) ? $renderData[ 'strings' ] : [];
 		$tileDefinitions = PluginNavs::configureLandingTileDefinitions();
 		$expectedCount = \count( $tileDefinitions );
+		$tileDefinitionsByKey = [];
+		foreach ( $tileDefinitions as $tileDefinition ) {
+			$tileDefinitionsByKey[ (string)( $tileDefinition[ 'key' ] ?? '' ) ] = $tileDefinition;
+		}
 		$renderActionData = \is_array( $vars[ 'configure_render_action' ] ?? null ) ? $vars[ 'configure_render_action' ] : [];
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$secadminIcon = (string)( $tileDefinitionsByKey[ 'secadmin' ][ 'icon' ] ?? '' );
 		$this->assertSame( ActionData::FIELD_SHIELD, $renderActionData[ ActionData::FIELD_ACTION ] ?? '' );
 		$this->assertSame( AjaxRender::SLUG, $renderActionData[ ActionData::FIELD_EXECUTE ] ?? '' );
 		$this->assertSame( PageConfigureLanding::SLUG, $renderActionData[ 'render_slug' ] ?? '' );
@@ -79,6 +84,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-configure-section="zones"]//*[@data-shield-rail-scope="1"]',
 			'Configure landing should render the scoped rail layout'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-section="zones"]//*[@data-shield-rail-target="secadmin"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__icon ")]/i[contains(concat(" ", normalize-space(@class), " "), " bi-'.htmlspecialchars( $secadminIcon, \ENT_QUOTES ).' ")]',
+			'Configure landing should render the configure zone icon in the rail trigger'
 		);
 		$this->assertXPathExists(
 			$xpath,

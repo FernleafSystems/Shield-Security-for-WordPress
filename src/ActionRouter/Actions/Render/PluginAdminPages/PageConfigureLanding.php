@@ -174,7 +174,18 @@ class PageConfigureLanding extends PageModeLandingBase {
 	 * @return array{
 	 *   id:string,
 	 *   accent_status:string,
-	 *   items:list<array<string,mixed>>
+	 *   items:list<array{
+	 *     key:string,
+	 *     label:string,
+	 *     icon_class:string,
+	 *     status:string,
+	 *     status_label:string,
+	 *     status_icon_class:string,
+	 *     nav_id:string,
+	 *     target:string,
+	 *     controls:string,
+	 *     is_active:bool
+	 *   }>
 	 * }
 	 */
 	private function buildRailContract( array $zoneTiles ) :array {
@@ -192,6 +203,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 					return [
 						'key'               => $zoneTile[ 'key' ],
 						'label'             => $zoneTile[ 'label' ],
+						'icon_class'        => $zoneTile[ 'icon_class' ] ?? '',
 						'status'            => $this->normalizeRailStatus( (string)( $zoneTile[ 'status' ] ?? 'good' ) ),
 						'status_label'      => $zoneTile[ 'status_label' ] ?? '',
 						'status_icon_class' => $zoneTile[ 'status_icon_class' ] ?? '',

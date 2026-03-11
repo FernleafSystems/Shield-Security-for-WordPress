@@ -84,6 +84,10 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $zoneTiles, 'key' ),
 			\array_column( $vars[ 'rail' ][ 'items' ] ?? [], 'key' )
 		);
+		$this->assertSame(
+			\array_column( $zoneTiles, 'icon_class' ),
+			\array_column( $vars[ 'rail' ][ 'items' ] ?? [], 'icon_class' )
+		);
 		$this->assertTrue( (bool)( $vars[ 'zone_tiles' ][ 0 ][ 'is_active' ] ?? false ) );
 		$this->assertSame(
 			'configure-rail-pane-secadmin',
