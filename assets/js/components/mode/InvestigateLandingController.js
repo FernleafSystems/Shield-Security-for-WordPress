@@ -1,9 +1,8 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
-import { InvestigationTable } from "../tables/InvestigationTable";
+import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
-import { InvestigateLookupSelect2 } from "./InvestigateLookupSelect2";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
@@ -16,14 +15,14 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.modeShellEl = this.rootEl ? this.rootEl.closest( '[data-mode-shell="1"]' ) : null;
 		this.livePanelPoller = null;
 		this.inlineTabs = new InvestigateInlineTabs();
-		this.lookupSelect2 = new InvestigateLookupSelect2();
 
-		this.initializeSelect2Within( this.rootEl );
+		UiContentActivator.activateWithin( this.rootEl );
 		this.bindHandlers();
 		this.syncPanelHeadersForAllPanels();
 		this.syncInlineTabsForAllPanels();
 		this.syncLandingHintVisibilityFromPanelState();
 		this.syncLivePanelPolling();
+		this.activateOpenPanelContent();
 	}
 
 	bindHandlers() {
@@ -138,10 +137,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		} );
 	}
 
-	initializeSelect2Within( contextEl ) {
-		this.lookupSelect2.initializeWithin( contextEl );
-	}
-
 	findPanelFromElement( el ) {
 		return el.closest( '[data-investigate-panel]' );
 	}
@@ -187,9 +182,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		panelContent.innerHTML = panelBodyHtml;
-		this.initializeSelect2Within( panelContent );
-		new InvestigationTable( { contextEl: panelContent } );
 		this.syncPanelChrome( panel, true );
+		UiContentActivator.activateWithin( panelContent );
 		return true;
 	}
 
@@ -481,6 +475,18 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.setLandingHintVisible(
 			this.modeShellEl.querySelector( '[data-mode-panel="1"].is-open' ) === null
 		);
+	}
+
+	activateOpenPanelContent() {
+		const activePanel = this.modeShellEl?.querySelector( '[data-mode-panel="1"].is-open' );
+		if ( activePanel === null || !this.isPanelLoaded( activePanel ) ) {
+			return;
+		}
+
+		const panelContent = this.getPanelContentContainer( activePanel );
+		if ( panelContent !== null ) {
+			UiContentActivator.activateWithin( panelContent );
+		}
 	}
 
 }

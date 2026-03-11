@@ -1,7 +1,6 @@
 import { Tab, Tooltip } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
-import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class RailSidebarController extends BaseAutoExecComponent {
 
@@ -36,6 +35,8 @@ export class RailSidebarController extends BaseAutoExecComponent {
 			},
 			false
 		);
+
+		this.activateCurrentRailPanes();
 	}
 
 	switchRailTarget( el ) {
@@ -96,7 +97,23 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		if ( contentArea !== null ) {
 			this.disposeTooltipsWithin( contentArea );
 		}
-		DataTableVisibilityAdjuster.adjustWithinNextFrame( targetPane );
-		BootstrapTooltips.RegisterNewTooltipsWithin( targetPane );
+		UiContentActivator.activateWithin( targetPane );
+	}
+
+	activateCurrentRailPanes() {
+		document.querySelectorAll( '[data-shield-rail-scope="1"]' ).forEach( ( scope ) => {
+			const activeItem = scope.querySelector(
+				'[data-shield-rail-target][data-bs-toggle="tab"].active, '
+				+ '[data-shield-rail-target][data-bs-toggle="tab"][aria-selected="true"]'
+			);
+			if ( activeItem === null ) {
+				return;
+			}
+
+			const targetPane = this.findBootstrapTargetPane( activeItem, scope );
+			if ( targetPane !== null ) {
+				this.activatePaneEnhancements( scope, targetPane );
+			}
+		} );
 	}
 }

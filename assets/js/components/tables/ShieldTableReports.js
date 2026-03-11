@@ -1,5 +1,5 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { DataTableVisibilityAdjuster } from "./DataTableVisibilityAdjuster";
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class ShieldTableReports extends ShieldTableBase {
 
@@ -47,7 +47,7 @@ export class ShieldTableReports extends ShieldTableBase {
 			modeShell.addEventListener( 'shield:mode-panel-opened', () => {
 				const panel = modeShell.querySelector( '[data-mode-panel="1"].is-open' );
 				if ( panel !== null && panel.querySelector( this.getTableSelector() ) !== null ) {
-					DataTableVisibilityAdjuster.adjustWithinNextFrame( panel );
+					UiContentActivator.activateWithin( panel );
 				}
 			} );
 		} );

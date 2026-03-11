@@ -1,9 +1,8 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
-import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
 import { ObjectOps } from "../../util/ObjectOps";
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
@@ -19,6 +18,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			( item ) => this.handleRailTabShown( item ),
 			false
 		);
+		this.loadInitialActivePane();
 		this.hydrateRailMetrics();
 		this.preloadRailPanes();
 	}
@@ -154,8 +154,17 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		pane.dataset.actionsQueuePaneInitialized = '1';
-		DataTableVisibilityAdjuster.adjustWithinNextFrame( pane );
-		BootstrapTooltips.RegisterNewTooltipsWithin( pane );
+		UiContentActivator.activateWithin( pane );
+	}
+
+	loadInitialActivePane() {
+		const activeItem = this.rootEl?.querySelector(
+			'[data-shield-rail-target][data-bs-toggle="tab"].active, '
+			+ '[data-shield-rail-target][data-bs-toggle="tab"][aria-selected="true"]'
+		);
+		if ( activeItem !== null ) {
+			this.handleRailTabShown( activeItem );
+		}
 	}
 
 	getPreloadablePanes() {

@@ -8,7 +8,15 @@ export class InvestigateLookupSelect2 {
 			return;
 		}
 
-		contextEl.querySelectorAll( 'select[data-investigate-select2="1"]' ).forEach( ( selectEl ) => {
+		this.initializeElements( Array.from( contextEl.querySelectorAll( 'select[data-investigate-select2="1"]' ) ) );
+	}
+
+	initializeElements( selectEls ) {
+		if ( !Array.isArray( selectEls ) || !$.fn.select2 ) {
+			return;
+		}
+
+		selectEls.forEach( ( selectEl ) => {
 			const $select = $( selectEl );
 			const shouldAutoSubmit = selectEl.dataset.investigateAutoSubmit === '1';
 			if ( $select.hasClass( 'select2-hidden-accessible' ) ) {

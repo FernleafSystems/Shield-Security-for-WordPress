@@ -1,7 +1,6 @@
 import { Collapse, Tooltip } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
-import { InvestigationTable } from "../tables/InvestigationTable";
-import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class DetailRowExpandController extends BaseAutoExecComponent {
 
@@ -81,10 +80,7 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 
 		row.classList.add( 'is-expanded' );
 		row.setAttribute( 'aria-expanded', 'true' );
-		if ( expansion.querySelector( '[data-investigation-table="1"]' ) !== null ) {
-			new InvestigationTable( { contextEl: expansion } );
-		}
-		BootstrapTooltips.RegisterNewTooltipsWithin( expansion );
+		UiContentActivator.activateWithin( expansion );
 	}
 
 	handleCollapseHidden( expansion ) {

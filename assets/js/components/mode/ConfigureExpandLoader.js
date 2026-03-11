@@ -1,7 +1,7 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
-import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { ObjectOps } from "../../util/ObjectOps";
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
@@ -96,7 +96,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 		placeholder.replaceWith( form );
 		this.setSaveButtonDisabled( expansion, false );
-		BootstrapTooltips.RegisterNewTooltipsWithin( expansion );
+		UiContentActivator.activateWithin( expansion );
 	}
 
 	renderLoadFailure( placeholder, expansion, message ) {

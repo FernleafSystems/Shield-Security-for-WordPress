@@ -22,11 +22,11 @@ hljs.registerLanguage( 'xml', xml );
 
 export class InvestigationTable extends ShieldTableBase {
 
-	static hasBoundShownTabAdjustHandler = false;
-
 	init() {
 		this.contextEl = this._base_data?.contextEl instanceof Element ? this._base_data.contextEl : document;
-		this.els = Array.from( this.contextEl.querySelectorAll( '[data-investigation-table="1"]' ) );
+		this.els = Array.isArray( this._base_data?.tableEls )
+			? this._base_data.tableEls.filter( ( el ) => el instanceof Element )
+			: Array.from( this.contextEl.querySelectorAll( '[data-investigation-table="1"]' ) );
 		this.exec();
 	}
 
@@ -36,7 +36,6 @@ export class InvestigationTable extends ShieldTableBase {
 
 	run() {
 		this.els.forEach( ( el ) => this.setupInvestigationTable( el ) );
-		this.bindShownTabAdjustHandler();
 	}
 
 	getDefaultDatatableConfig() {
@@ -48,10 +47,6 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	setupInvestigationTable( tableEl ) {
-		if ( this.isInitializationDeferred( tableEl ) ) {
-			return;
-		}
-
 		const context = this.extractTableContext( tableEl );
 		if ( context === null ) {
 			return;
@@ -77,46 +72,6 @@ export class InvestigationTable extends ShieldTableBase {
 		const datatable = $tableElement.DataTable( cfg );
 		this.ensureSearchDelay( datatable );
 		this.bindTableInteractions( $tableElement, datatable, context );
-	}
-
-	bindShownTabAdjustHandler() {
-		if ( InvestigationTable.hasBoundShownTabAdjustHandler ) {
-			return;
-		}
-		InvestigationTable.hasBoundShownTabAdjustHandler = true;
-
-		shieldEventsHandler_Main.addHandler(
-			'shown.bs.tab',
-			'.shield-options-rail [data-bs-toggle="tab"]',
-			( targetEl ) => {
-				if ( targetEl === null ) {
-					return;
-				}
-
-				const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
-				if ( typeof paneSelector !== 'string' || paneSelector.length === 0 || paneSelector.charAt( 0 ) !== '#' ) {
-					return;
-				}
-
-				const pane = document.querySelector( paneSelector );
-				if ( pane === null || pane.querySelector( '[data-investigation-table="1"]' ) === null ) {
-					return;
-				}
-
-				new InvestigationTable( { contextEl: pane } );
-				if ( !$.fn.dataTable || !$.fn.dataTable.isDataTable ) {
-					return;
-				}
-
-				$( pane ).find( '[data-investigation-table="1"]' ).each( ( _, tableEl ) => {
-					if ( $.fn.dataTable.isDataTable( tableEl ) ) {
-						const datatable = $( tableEl ).DataTable();
-						datatable.columns.adjust();
-					}
-				} );
-			},
-			false
-		);
 	}
 
 	ensureSearchDelay( datatable ) {
@@ -357,23 +312,5 @@ export class InvestigationTable extends ShieldTableBase {
 		catch ( e ) {
 			return null;
 		}
-	}
-
-	isInitializationDeferred( tableEl ) {
-		if ( !( tableEl instanceof Element ) ) {
-			return true;
-		}
-
-		const hiddenCollapse = tableEl.closest( '.collapse' );
-		if ( hiddenCollapse !== null && !hiddenCollapse.classList.contains( 'show' ) ) {
-			return true;
-		}
-
-		const tabPane = tableEl.closest( '.tab-pane' );
-		if ( tabPane !== null && !( tabPane.classList.contains( 'active' ) || tabPane.classList.contains( 'show' ) ) ) {
-			return true;
-		}
-
-		return false;
 	}
 }

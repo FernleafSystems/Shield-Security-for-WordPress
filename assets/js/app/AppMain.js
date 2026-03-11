@@ -46,7 +46,6 @@ import { TestRest } from "../components/general/TestRest";
 import { ShieldTableScansHistory } from "../components/tables/ShieldTableScansHistory";
 import { DebugTools } from "../components/debug/DebugTools";
 import { ZonesManager } from "../components/zones/ZonesManager";
-import { InvestigationTable } from "../components/tables/InvestigationTable";
 
 export class AppMain extends AppBase {
 
@@ -111,8 +110,6 @@ export class AppMain extends AppBase {
 		this.components.tables_traffic = ( 'traffic' in comps.tables ) ? new ShieldTableTrafficLog( comps.tables.traffic ) : null;
 		this.components.tables_scans_history = ( 'scans_history' in comps.tables ) ? new ShieldTableScansHistory( comps.tables.scans_history ) : null;
 		this.components.tables_security_rules = ( 'security_rules' in comps.tables ) ? new ShieldTableSecurityRules( comps.tables.security_rules ) : null;
-		this.components.tables_investigation = new InvestigationTable();
-
 		this.components.navi = ( 'navi' in comps ) ? new Navigation( comps.navi ) : null;
 
 		this.components.zones_manager = ( 'zones_manager' in comps ) ? new ZonesManager( comps.zones_manager ) : null;

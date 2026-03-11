@@ -3,7 +3,7 @@ import { ShieldTablesScanResultsHandler } from "../tables/ShieldTablesScanResult
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
-import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class ScansResults extends BaseComponent {
 
@@ -17,6 +17,7 @@ export class ScansResults extends BaseComponent {
 
 		this.handleResultsTabs();
 		this.handleScanResultsDisplayForm();
+		this.activateCurrentResultsPane();
 	}
 
 	handleResultsTabs() {
@@ -30,7 +31,7 @@ export class ScansResults extends BaseComponent {
 			modeShell.addEventListener( 'shield:mode-panel-opened', () => {
 				const panel = modeShell.querySelector( '[data-mode-panel="1"].is-open' );
 				if ( panel !== null && panel.querySelector( '#ScanResultsTabs' ) !== null ) {
-					DataTableVisibilityAdjuster.adjustWithinNextFrame( panel );
+					UiContentActivator.activateWithin( panel );
 				}
 			} );
 		} );
@@ -43,7 +44,16 @@ export class ScansResults extends BaseComponent {
 
 		const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
 		const paneEl = paneSelector.startsWith( '#' ) ? document.querySelector( paneSelector ) : null;
-		DataTableVisibilityAdjuster.adjustWithinNextFrame( paneEl || document );
+		if ( paneEl !== null ) {
+			UiContentActivator.activateWithin( paneEl );
+		}
+	}
+
+	activateCurrentResultsPane() {
+		const activePane = document.querySelector( '#ScanResultsTabs .tab-pane.active, #ScanResultsTabs .tab-pane.show' );
+		if ( activePane !== null ) {
+			UiContentActivator.activateWithin( activePane );
+		}
 	}
 
 	handleScanResultsDisplayForm() {
