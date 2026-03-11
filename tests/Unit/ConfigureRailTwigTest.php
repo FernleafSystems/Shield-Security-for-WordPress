@@ -264,6 +264,11 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-shield-rail-target="firewall" and @data-shield-rail-status="critical"]',
+			'Configure rail should expose the tab status on the shared rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-shield-rail-target="firewall"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__icon ")]/i[contains(concat(" ", normalize-space(@class), " "), " bi-fire ")]',
 			'Configure rail should render the zone icon inside the shared rail trigger'
 		);

@@ -430,6 +430,40 @@
 	padding: 0.5rem;
 }
 
+@mixin shield-rail-sidebar-status-state($status-key, $background, $status-color, $text-color) {
+	&[data-shield-rail-status="#{$status-key}"] {
+		&:hover {
+			background: $background;
+			border-color: rgba($status-color, 0.24);
+			color: $text-color;
+
+			.shield-rail-sidebar__icon {
+				color: $status-color;
+			}
+
+			.shield-rail-sidebar__pip {
+				background: $status-color;
+			}
+		}
+
+		&.is-active,
+		&.active {
+			background: $background;
+			border-color: rgba($status-color, 0.36);
+			color: $text-color;
+			box-shadow: inset 2px 0 0 $status-color;
+
+			.shield-rail-sidebar__icon {
+				color: $status-color;
+			}
+
+			.shield-rail-sidebar__pip {
+				background: $status-color;
+			}
+		}
+	}
+}
+
 .shield-rail-sidebar__item {
 	display: flex;
 	align-items: center;
@@ -449,7 +483,7 @@
 	text-decoration: none;
 	appearance: none;
 	cursor: pointer;
-	transition: background 0.15s, border-color 0.15s, color 0.15s;
+	transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
 
 	&:hover {
 		background: #f7f9f7;
@@ -463,11 +497,24 @@
 
 	&.is-active,
 	&.active {
-		background: #f2f9f2;
-		border-color: #c7dfc7;
-		color: #1a7f37;
-		box-shadow: inset 2px 0 0 #9ac99a;
+		background: #f1f4f5;
+		border-color: #d5dadd;
+		color: #42505c;
+		box-shadow: inset 2px 0 0 #8b949e;
 	}
+
+	.shield-rail-sidebar__icon {
+		color: #8b949e;
+	}
+
+	.shield-rail-sidebar__pip {
+		background: #8b949e;
+	}
+
+	@include shield-rail-sidebar-status-state( 'good', $status-bg-good-light, $status-color-good, $badge-good-color );
+	@include shield-rail-sidebar-status-state( 'warning', $status-bg-warning-light, $status-color-warning, $badge-warning-color );
+	@include shield-rail-sidebar-status-state( 'critical', $status-bg-critical-light, $status-color-critical, $badge-critical-color );
+	@include shield-rail-sidebar-status-state( 'info', $status-bg-info-light, $status-color-info, $badge-info-color );
 }
 
 .shield-rail-sidebar__nav > li:last-child .shield-rail-sidebar__item {

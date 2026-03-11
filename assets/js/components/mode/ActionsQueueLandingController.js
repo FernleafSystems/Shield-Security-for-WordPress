@@ -123,8 +123,13 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
+		this.updateRailStatus( button, tabData.status );
 		this.updateRailMarker( button, tabData.status );
 		this.updateRailBadge( button, tabData.count, tabData.status );
+	}
+
+	updateRailStatus( button, status ) {
+		button.dataset.shieldRailStatus = status;
 	}
 
 	updateRailMarker( button, status ) {

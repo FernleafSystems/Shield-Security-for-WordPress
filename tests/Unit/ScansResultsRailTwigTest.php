@@ -428,6 +428,11 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-shield-rail-target="summary" and @data-shield-rail-status="critical"]',
+			'Rail scans results template should expose the summary status on the shared rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-shield-rail-target="summary"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__icon ")]/i[contains(concat(" ", normalize-space(@class), " "), " bi-clipboard2-pulse-fill ")]',
 			'Summary rail item should render its icon in the rail trigger'
 		);
@@ -469,6 +474,11 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			$xpath,
 			'//*[@data-shield-rail-pane="plugins" and @data-actions-queue-pane-loaded="0"]',
 			'Lazy scan panes should stay marked unloaded in the initial rail shell'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-target="plugins" and @data-shield-rail-status="neutral"]',
+			'Lazy scan tabs should expose their neutral pre-hydration status on the shared rail trigger'
 		);
 		$this->assertXPathExists(
 			$xpath,

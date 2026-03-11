@@ -19,6 +19,7 @@
 						id="{{ item.nav_id|default('')|e('html_attr') }}"
 						data-shield-rail-key="{{ item.key|default('')|e('html_attr') }}"
 						data-shield-rail-target="{{ item.key|default('')|e('html_attr') }}"
+						data-shield-rail-status="{{ item_status|e('html_attr') }}"
 						data-bs-toggle="tab"
 						data-bs-target="{{ item.target|default('')|e('html_attr') }}"
 						role="tab"
