@@ -80,7 +80,7 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 
 		row.classList.add( 'is-expanded' );
 		row.setAttribute( 'aria-expanded', 'true' );
-		UiContentActivator.activateInitialWithin( expansion );
+		UiContentActivator.activateWithin( expansion );
 	}
 
 	handleCollapseHidden( expansion ) {

@@ -21,21 +21,10 @@ export class UiContentActivator {
 			return;
 		}
 
-		UiContentActivator.initializeInvestigationTablesWithin( root );
-		UiContentActivator.initializeInvestigateLookupSelect2Within( root );
-		DataTableVisibilityAdjuster.adjustWithinNextFrame( root );
-		BootstrapTooltips.RegisterNewTooltipsWithin( root );
-	}
-
-	static activateInitialWithin( contextEl ) {
-		const root = UiContentActivator.normalizeContext( contextEl );
-		if ( root === null ) {
-			return;
-		}
-
+		// Activate widgets that are current within this visible subtree, including nested active owner roots.
 		UiContentActivator.activateStandaloneWithin( root );
 		UiContentActivator.collectDirectActiveOwnerRoots( root ).forEach( ( ownerRoot ) => {
-			UiContentActivator.activateInitialWithin( ownerRoot );
+			UiContentActivator.activateWithin( ownerRoot );
 		} );
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( root );
 		BootstrapTooltips.RegisterNewTooltipsWithin( root );
@@ -47,38 +36,25 @@ export class UiContentActivator {
 			: null;
 	}
 
-	static initializeInvestigationTablesWithin( contextEl ) {
-		const tableEls = UiContentActivator.collectElements( contextEl, '[data-investigation-table="1"]' );
-		if ( tableEls.length > 0 ) {
-			new InvestigationTable( { tableEls } );
-		}
-	}
-
-	static initializeInvestigateLookupSelect2Within( contextEl ) {
-		if ( UiContentActivator.investigateLookupSelect2 === null ) {
-			UiContentActivator.investigateLookupSelect2 = new InvestigateLookupSelect2();
-		}
-
-		const selectEls = UiContentActivator.collectElements( contextEl, 'select[data-investigate-select2="1"]' );
-		if ( selectEls.length > 0 ) {
-			UiContentActivator.investigateLookupSelect2.initializeElements( selectEls );
-		}
-	}
-
 	static activateStandaloneWithin( contextEl ) {
 		const tableEls = UiContentActivator.collectDirectStandaloneElements( contextEl, '[data-investigation-table="1"]' );
 		if ( tableEls.length > 0 ) {
 			new InvestigationTable( { tableEls } );
 		}
 
-		if ( UiContentActivator.investigateLookupSelect2 === null ) {
-			UiContentActivator.investigateLookupSelect2 = new InvestigateLookupSelect2();
-		}
+		const investigateLookupSelect2 = UiContentActivator.getInvestigateLookupSelect2();
 
 		const selectEls = UiContentActivator.collectDirectStandaloneElements( contextEl, 'select[data-investigate-select2="1"]' );
 		if ( selectEls.length > 0 ) {
-			UiContentActivator.investigateLookupSelect2.initializeElements( selectEls );
+			investigateLookupSelect2.initializeElements( selectEls );
 		}
+	}
+
+	static getInvestigateLookupSelect2() {
+		if ( UiContentActivator.investigateLookupSelect2 === null ) {
+			UiContentActivator.investigateLookupSelect2 = new InvestigateLookupSelect2();
+		}
+		return UiContentActivator.investigateLookupSelect2;
 	}
 
 	static collectElements( contextEl, selector ) {

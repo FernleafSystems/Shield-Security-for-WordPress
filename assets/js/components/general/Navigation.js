@@ -81,7 +81,7 @@ export class Navigation extends BaseComponent {
 		const urlHash = window.location.hash ? window.location.hash : '';
 		this.setActiveNavTab( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );
 		this.reinitializeDynamicPageComponents();
-		UiContentActivator.activateInitialWithin( pageBody );
+		UiContentActivator.activateWithin( pageBody );
 
 		window.scroll( { top: 0, left: 0, behavior: 'smooth' } );
 
@@ -119,7 +119,8 @@ export class Navigation extends BaseComponent {
 			return;
 		}
 
-		app.getComponent( 'actions_queue_landing' )?.initializeCurrentRoot?.();
-		app.getComponent( 'investigate_landing' )?.initializeCurrentRoot?.();
+		[ 'actions_queue_landing', 'investigate_landing' ].forEach( ( componentId ) => {
+			app.getComponent( componentId )?.initializeCurrentRoot?.();
+		} );
 	}
 }

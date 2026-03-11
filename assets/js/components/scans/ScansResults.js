@@ -30,7 +30,7 @@ export class ScansResults extends BaseComponent {
 		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => {
 			const panel = evt.target?.querySelector?.( '[data-mode-panel="1"].is-open' ) || null;
 			if ( panel !== null && panel.querySelector( '#ScanResultsTabs' ) !== null ) {
-				UiContentActivator.activateInitialWithin( panel );
+				UiContentActivator.activateWithin( panel );
 			}
 		} );
 	}
@@ -43,14 +43,14 @@ export class ScansResults extends BaseComponent {
 		const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
 		const paneEl = paneSelector.startsWith( '#' ) ? document.querySelector( paneSelector ) : null;
 		if ( paneEl !== null ) {
-			UiContentActivator.activateInitialWithin( paneEl );
+			UiContentActivator.activateWithin( paneEl );
 		}
 	}
 
 	activateCurrentResultsPane() {
 		const activePane = document.querySelector( '#ScanResultsTabs .tab-pane.active, #ScanResultsTabs .tab-pane.show' );
 		if ( activePane !== null ) {
-			UiContentActivator.activateInitialWithin( activePane );
+			UiContentActivator.activateWithin( activePane );
 		}
 	}
 
