@@ -494,15 +494,16 @@ class ScansResultsViewBuilder {
 			'items'         => \array_values( \array_map(
 				static function ( array $tab ) :array {
 					return [
-						'key'       => $tab[ 'key' ],
-						'label'     => $tab[ 'label' ],
-						'icon_class' => $tab[ 'icon_class' ],
-						'status'    => $tab[ 'status' ] ?? 'good',
-						'count'     => \array_key_exists( 'count', $tab ) ? $tab[ 'count' ] : null,
-						'nav_id'    => $tab[ 'nav_id' ],
-						'target'    => $tab[ 'target' ],
-						'controls'  => $tab[ 'controls' ],
-						'is_active' => (bool)( $tab[ 'is_active' ] ?? false ),
+						'key'                    => $tab[ 'key' ],
+						'label'                  => $tab[ 'label' ],
+						'icon_class'             => $tab[ 'icon_class' ],
+						'status'                 => $tab[ 'status' ] ?? 'good',
+						'count'                  => \array_key_exists( 'count', $tab ) ? $tab[ 'count' ] : null,
+						'nav_id'                 => $tab[ 'nav_id' ],
+						'target'                 => $tab[ 'target' ],
+						'controls'               => $tab[ 'controls' ],
+						'is_active'              => (bool)( $tab[ 'is_active' ] ?? false ),
+						'show_count_placeholder' => (bool)( $tab[ 'show_count_placeholder' ] ?? false ),
 					];
 				},
 				$tabs
@@ -519,23 +520,22 @@ class ScansResultsViewBuilder {
 				$severity = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
 				$itemKey = (string)( $item[ 'key' ] ?? '' );
 				$railTab = $summaryRailTargets[ $itemKey ] ?? '';
-				if ( $railTab !== '' ) {
-					$actions = [ $this->buildRailSwitchAction( __( 'View', 'wp-simple-firewall' ), $railTab ) ];
-				}
-				else {
-					$actions = $this->buildActionsForHref(
-						(string)( $item[ 'action' ] ?? '' ),
-						(string)( $item[ 'href' ] ?? '' )
-					);
-				}
 				$row = $this->buildDetailRow(
 					(string)( $item[ 'label' ] ?? '' ),
 					(string)( $item[ 'text' ] ?? '' ),
 					$severity,
 					(int)( $item[ 'count' ] ?? 0 ),
-					$severity,
-					$actions
+					$severity
 				);
+				if ( $railTab !== '' ) {
+					$row[ 'attributes' ] = $this->buildRailSwitchRowAttributes( $railTab );
+				}
+				else {
+					$row[ 'actions' ] = $this->buildActionsForHref(
+						(string)( $item[ 'action' ] ?? '' ),
+						(string)( $item[ 'href' ] ?? '' )
+					);
+				}
 				$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
 				return $row;
 			}, $summaryRows ) );
@@ -599,7 +599,6 @@ class ScansResultsViewBuilder {
 		}
 
 		$issueItems = [];
-		$issueSlugs = [];
 
 		foreach ( $groupedBySlug as $slug => $items ) {
 			if ( $assetType === 'plugin' ) {
@@ -617,7 +616,6 @@ class ScansResultsViewBuilder {
 				$assetName = (string)$asset->Name;
 			}
 
-			$issueSlugs[] = $slug;
 			$fileCount = \count( $items );
 			$expandTarget = 'scan-files-'.$assetType.'-'.\sanitize_key( $slug );
 
@@ -669,7 +667,7 @@ class ScansResultsViewBuilder {
 			$row[ 'expandable' ] = true;
 			$row[ 'expand_target' ] = $expandTarget;
 			$row[ 'files' ] = $files;
-			$row[ 'section_label' ] = __( 'Critical', 'wp-simple-firewall' );
+			$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
 			$issueItems[] = $row;
 		}
 
@@ -680,52 +678,7 @@ class ScansResultsViewBuilder {
 				: \strcmp( (string)( $a[ 'title' ] ?? '' ), (string)( $b[ 'title' ] ?? '' ) );
 		} );
 
-		$allClearItems = [];
-		if ( $assetType === 'plugin' ) {
-			$allFiles = Services::WpPlugins()->getInstalledPluginFiles();
-			foreach ( $allFiles as $file ) {
-				if ( \in_array( $file, $issueSlugs, true ) ) {
-					continue;
-				}
-				$asset = Services::WpPlugins()->getPluginAsVo( $file, true );
-				if ( !$asset instanceof WpPluginVo ) {
-					continue;
-				}
-				$row = $this->buildDetailRow(
-					(string)$asset->Title,
-					__( 'All files verified', 'wp-simple-firewall' ),
-					'good'
-				);
-				$row[ 'section_label' ] = __( 'All clear', 'wp-simple-firewall' );
-				$allClearItems[] = $row;
-			}
-		}
-		else {
-			$allStylesheets = Services::WpThemes()->getInstalledStylesheets();
-			foreach ( $allStylesheets as $stylesheet ) {
-				if ( \in_array( $stylesheet, $issueSlugs, true ) ) {
-					continue;
-				}
-				$asset = Services::WpThemes()->getThemeAsVo( $stylesheet, true );
-				if ( !$asset instanceof WpThemeVo ) {
-					continue;
-				}
-				$row = $this->buildDetailRow(
-					(string)$asset->Name,
-					__( 'All files verified', 'wp-simple-firewall' ),
-					'good'
-				);
-				$row[ 'section_label' ] = __( 'All clear', 'wp-simple-firewall' );
-				$allClearItems[] = $row;
-			}
-		}
-
-		\usort( $allClearItems, static fn( array $a, array $b ) :int => \strcmp(
-			(string)( $a[ 'title' ] ?? '' ),
-			(string)( $b[ 'title' ] ?? '' )
-		) );
-
-		return \array_merge( $issueItems, $allClearItems );
+		return $issueItems;
 	}
 
 	/**
@@ -773,7 +726,8 @@ class ScansResultsViewBuilder {
 					$severity,
 					$this->buildActionsForHref(
 						(string)( $cta[ 'label' ] ?? '' ),
-						(string)( $cta[ 'href' ] ?? '' )
+						(string)( $cta[ 'href' ] ?? '' ),
+						(string)( $cta[ 'type' ] ?? 'navigate' )
 					),
 					null,
 					null,
@@ -902,6 +856,21 @@ class ScansResultsViewBuilder {
 		return ( new LoadFileLocks() )->withoutProblems();
 	}
 
+	/**
+	 * @return array{count_items:int,status:string,items:list<array<string,mixed>>,is_loaded:bool}
+	 */
+	public function buildPluginThemePaneData( string $assetType ) :array {
+		$items = $this->buildPluginThemeRailItemsDirect( $assetType );
+		$count = $this->countNonGoodItems( $items );
+
+		return [
+			'count_items' => $count,
+			'status'      => $count > 0 ? 'warning' : 'good',
+			'items'       => $items,
+			'is_loaded'   => true,
+		];
+	}
+
 	private function actionPayload( string $actionClass ) :array {
 		return self::con()->action_router->action( $actionClass )->payload();
 	}
@@ -955,6 +924,7 @@ class ScansResultsViewBuilder {
 			'explanations' => [],
 			'show_gear'    => false,
 			'actions'      => $actions,
+			'attributes'   => [],
 		];
 		if ( $sectionLabel !== null ) {
 			$row[ 'section_label' ] = $sectionLabel;
@@ -965,34 +935,32 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return list<array<string,mixed>>
 	 */
-	private function buildActionsForHref( string $label, string $href ) :array {
+	private function buildActionsForHref( string $label, string $href, string $type = 'navigate' ) :array {
 		if ( $label === '' || $href === '' ) {
 			return [];
 		}
 
 		return [
 			[
-				'type'    => 'navigate',
+				'type'    => $type,
 				'label'   => $label,
 				'href'    => $href,
-				'icon'    => 'bi bi-arrow-right-circle-fill',
+				'icon'    => $type === 'update'
+					? 'bi bi-arrow-up-circle-fill'
+					: 'bi bi-arrow-right-circle-fill',
 				'attributes' => [],
 			],
 		];
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,string>
 	 */
-	private function buildRailSwitchAction( string $label, string $target ) :array {
+	private function buildRailSwitchRowAttributes( string $target ) :array {
 		return [
-			'type'       => 'navigate',
-			'label'      => $label,
-			'href'       => '#',
-			'icon'       => 'bi bi-arrow-right-circle-fill',
-			'attributes' => [
-				'data-shield-rail-switch' => $target,
-			],
+			'data-shield-rail-switch' => $target,
+			'role'                    => 'button',
+			'tabindex'                => '0',
 		];
 	}
 

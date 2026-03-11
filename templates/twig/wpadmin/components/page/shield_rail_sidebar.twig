@@ -8,6 +8,7 @@
 			{% set is_active = item.is_active|default(false) %}
 			{% set item_status = item.status|default('good') %}
 			{% set badge_status = item_status %}
+			{% set show_count_placeholder = item.show_count_placeholder|default(false) %}
 			{% set item_classes = [ 'shield-rail-sidebar__item' ] %}
 			{% if is_active %}
 				{% set item_classes = item_classes|merge( [ 'is-active', 'active' ] ) %}
@@ -36,6 +37,11 @@
 					{% if item.count|default(null) is not null %}
 						<span class="shield-badge badge-{{ badge_status }} shield-rail-sidebar__badge">
 							{{ item.count }}
+						</span>
+					{% elseif show_count_placeholder %}
+						<span class="shield-badge badge-disabled shield-rail-sidebar__badge shield-rail-sidebar__badge--placeholder"
+							  aria-label="{{ 'Count loading'|e('html_attr') }}">
+							-
 						</span>
 					{% elseif item.status_label|default('') is not empty %}
 						<span class="shield-badge badge-{{ badge_status }} shield-rail-sidebar__badge shield-rail-sidebar__badge--sm">

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxBatchRequests;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanRailBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
@@ -115,11 +116,17 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] ?? '' );
 		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' );
+		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' );
 		$this->assertTrue( (bool)( $summaryTab[ 'is_loaded' ] ?? false ) );
 		$this->assertNotEmpty( $summaryTab[ 'items' ] ?? [] );
+		$this->assertSame( 'wordpress', $summaryTab[ 'items' ][ 0 ][ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' );
+		$this->assertSame( 'button', $summaryTab[ 'items' ][ 0 ][ 'attributes' ][ 'role' ] ?? '' );
+		$this->assertSame( [], $summaryTab[ 'items' ][ 0 ][ 'actions' ] ?? [ 'unexpected' ] );
 		$this->assertSame( 'neutral', $pluginsTab[ 'status' ] ?? '' );
 		$this->assertArrayHasKey( 'count', $pluginsTab );
 		$this->assertNull( $pluginsTab[ 'count' ] );
+		$this->assertTrue( (bool)( $pluginsTab[ 'show_count_placeholder' ] ?? false ) );
+		$this->assertTrue( (bool)( $this->findTabByKey( $renderData[ 'vars' ][ 'rail' ][ 'items' ] ?? [], 'plugins' )[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertFalse( (bool)( $pluginsTab[ 'is_loaded' ] ?? true ) );
 		$this->assertSame( 'scanresults_vulnerabilities', $vulnerabilitiesTab[ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( '', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] ?? 'unexpected' );
@@ -175,7 +182,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 									'severity'    => 'critical',
 									'description' => '2 files need review.',
 									'href'        => '/wp-files',
-									'action'      => 'Investigate',
+									'action'      => 'Open',
 								],
 								[
 									'key'         => 'vulnerable_assets',
@@ -184,7 +191,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 									'severity'    => 'warning',
 									'description' => '1 asset needs review.',
 									'href'        => '/vulns',
-									'action'      => 'Investigate',
+									'action'      => 'Open',
 								],
 							],
 						],

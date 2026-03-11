@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
-	RetrieveBase,
-	RetrieveItems
+	RetrieveBase
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
@@ -241,76 +240,6 @@ abstract class PluginThemesBase extends Base {
 			'vars'  => [
 				'count_items' => $countGuardFiles + \count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
 			],
-		];
-	}
-
-	/**
-	 * @return array{count_items:int,items:list<array<string,mixed>>}
-	 */
-	protected function buildAffectedAssetRows( string $assetType ) :array {
-		$results = ( new RetrieveItems() )
-			->setScanController( self::con()->comps->scans->AFS() )
-			->addWheres( [
-				\sprintf( "%s.`meta_key`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $assetType === 'plugin' ? 'is_in_plugin' : 'is_in_theme' ),
-			] )
-			->retrieveForResultsTables();
-
-		$countsBySlug = [];
-		foreach ( $results->getItems() as $item ) {
-			$slug = (string)$item->ptg_slug;
-			if ( $slug === '' ) {
-				continue;
-			}
-			$countsBySlug[ $slug ] = (int)( $countsBySlug[ $slug ] ?? 0 ) + 1;
-		}
-
-		$rows = [];
-		foreach ( $countsBySlug as $slug => $count ) {
-			if ( $assetType === 'plugin' ) {
-				$asset = Services::WpPlugins()->getPluginAsVo( $slug, true );
-				if ( !$asset instanceof WpPluginVo ) {
-					continue;
-				}
-				$key = $assetType.'-files-'.$asset->unique_id;
-				$label = (string)$asset->Title;
-				$href = self::con()->plugin_urls->investigateByPlugin( $slug );
-			}
-			else {
-				$asset = Services::WpThemes()->getThemeAsVo( $slug, true );
-				if ( !$asset instanceof WpThemeVo ) {
-					continue;
-				}
-				$key = $assetType.'-files-'.$asset->unique_id;
-				$label = (string)$asset->Name;
-				$href = self::con()->plugin_urls->investigateByTheme( $slug );
-			}
-
-			$rows[] = [
-				'key'         => $key,
-				'label'       => $label,
-				'description' => \sprintf(
-					_n( '%s file modification needs review.', '%s file modifications need review.', $count, 'wp-simple-firewall' ),
-					$count
-				),
-				'count'       => $count,
-				'severity'    => 'warning',
-				'cta'         => [
-					'href'  => $href,
-					'label' => __( 'Investigate', 'wp-simple-firewall' ),
-				],
-			];
-		}
-
-		\usort( $rows, static function ( array $a, array $b ) :int {
-			$countCmp = ( $b[ 'count' ] ?? 0 ) <=> ( $a[ 'count' ] ?? 0 );
-			return $countCmp !== 0
-				? $countCmp
-				: \strcmp( (string)( $a[ 'label' ] ?? '' ), (string)( $b[ 'label' ] ?? '' ) );
-		} );
-
-		return [
-			'count_items' => \array_sum( \array_map( static fn( array $row ) :int => (int)( $row[ 'count' ] ?? 0 ), $rows ) ),
-			'items'       => \array_values( $rows ),
 		];
 	}
 }

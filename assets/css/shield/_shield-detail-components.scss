@@ -54,6 +54,19 @@
 	}
 }
 
+.shield-detail-row[data-shield-rail-switch] {
+	cursor: pointer;
+
+	&:hover {
+		background: $surface-color-neutral-raised;
+	}
+
+	&:focus-visible {
+		outline: 2px solid #c7dfc7;
+		outline-offset: 1px;
+	}
+}
+
 .shield-detail-row__icons {
 	display: flex;
 	align-items: center;
@@ -550,6 +563,16 @@
 
 .shield-rail-sidebar__label {
 	flex: 1;
+}
+
+.shield-rail-sidebar__badge {
+	min-width: 1.85rem;
+	text-align: center;
+}
+
+.shield-rail-sidebar__badge--placeholder {
+	padding-left: 0.4rem;
+	padding-right: 0.4rem;
 }
 
 .shield-rail-sidebar__icon {

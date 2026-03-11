@@ -162,13 +162,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								'description' => '2 plugin files need review.',
 								'status'      => 'warning',
 								'count_badge' => 2,
-								'actions'     => [
-									[
-										'type'  => 'navigate',
-										'label' => 'Investigate',
-										'href'  => '/investigate/plugin',
-										'icon'  => 'bi bi-arrow-right-circle-fill',
-									],
+								'attributes'  => [
+									'data-shield-rail-switch' => 'plugins',
+									'role'                    => 'button',
+									'tabindex'                => '0',
 								],
 							],
 						],
@@ -190,12 +187,24 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								'description' => '2 file modifications need review.',
 								'status'      => 'warning',
 								'count_badge' => 2,
+								'expandable'  => true,
+								'expand_target' => 'scan-files-plugin-example-plugin',
+								'files'       => [
+									[
+										'status'       => 'modified',
+										'status_label' => 'Modified',
+										'path'         => 'wp-content/plugins/example-plugin/plugin.php',
+										'size'         => '12 KB',
+										'detected'     => '2 minutes ago',
+									],
+								],
 								'actions'     => [
 									[
-										'type'  => 'navigate',
-										'label' => 'Investigate',
-										'href'  => '/investigate/plugin',
-										'icon'  => 'bi bi-arrow-right-circle-fill',
+										'type'    => 'deactivate',
+										'label'   => 'Deactivate',
+										'href'    => '/wp-admin/plugins.php',
+										'icon'    => 'bi bi-power',
+										'tooltip' => 'Go to plugins',
 									],
 								],
 							],
@@ -221,10 +230,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								'section_label' => 'Known Vulnerabilities',
 								'actions'       => [
 									[
-										'type'  => 'navigate',
-										'label' => 'Investigate',
-										'href'  => '/investigate/plugin',
-										'icon'  => 'bi bi-arrow-right-circle-fill',
+										'type'  => 'update',
+										'label' => 'Go to updates',
+										'href'  => '/wp-admin/update-core.php',
+										'icon'  => 'bi bi-arrow-up-circle-fill',
 									],
 								],
 							],
@@ -266,8 +275,9 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 									'description' => '1 known vulnerability needs review.',
 									'count'       => 1,
 									'cta'         => [
-										'href'  => '/investigate/plugin',
-										'label' => 'Investigate',
+										'href'  => '/wp-admin/update-core.php',
+										'label' => 'Go to updates',
+										'type'  => 'update',
 									],
 								],
 							],
@@ -309,6 +319,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 							'label'     => 'Plugins',
 							'status'    => 'neutral',
 							'count'     => null,
+							'show_count_placeholder' => true,
 							'nav_id'    => 'h-tabs-plugins-tab',
 							'target'    => '#h-tabs-plugins',
 							'controls'  => 'h-tabs-plugins',
@@ -453,6 +464,31 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-shield-rail-pane="summary"]//*[@data-shield-rail-switch="plugins" and @role="button" and @tabindex="0"]',
+			'Summary pane issue rows should render row-level rail switch attributes instead of a separate action chip'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@data-shield-rail-pane="summary"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-action-chip ")]' )->length,
+			'Summary pane issue rows should not render separate action chips'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="plugins"]//*[@data-shield-expand-trigger="1" and @data-shield-expand-target="scan-files-plugin-example-plugin"]',
+			'Plugin pane rows should render inline expansion triggers for changed files'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="scan-files-plugin-example-plugin"]//table//code[normalize-space()="wp-content/plugins/example-plugin/plugin.php"]',
+			'Plugin pane expansions should render the shared changed-files table'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="vulnerabilities"]//a[@href="/wp-admin/update-core.php" and contains(concat(" ", normalize-space(@class), " "), " shield-action-chip--update ")]',
+			'Vulnerability pane should render native WordPress update actions instead of Investigate links'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-shield-rail-pane="malware"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
 			'Clean rail panes should render an empty-state message'
 		);
@@ -479,6 +515,11 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			$xpath,
 			'//*[@data-shield-rail-target="plugins" and @data-shield-rail-status="neutral"]',
 			'Lazy scan tabs should expose their neutral pre-hydration status on the shared rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-target="plugins"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-rail-sidebar__badge--placeholder ") and normalize-space()="-"]',
+			'Lazy scan tabs should render a stable placeholder badge before counts hydrate'
 		);
 		$this->assertXPathExists(
 			$xpath,

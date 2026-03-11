@@ -21,21 +21,36 @@ export class RailSidebarController extends BaseAutoExecComponent {
 			'[data-shield-rail-switch]',
 			( el, evt ) => {
 				evt.preventDefault();
-				const targetKey = ( el.dataset.shieldRailSwitch || '' ).trim();
-				if ( targetKey.length < 1 ) {
-					return;
-				}
-				const scope = el.closest( '[data-shield-rail-scope="1"]' );
-				if ( !scope ) {
-					return;
-				}
-				const railItem = scope.querySelector( `[data-shield-rail-target="${targetKey}"]` );
-				if ( railItem ) {
-					Tab.getOrCreateInstance( railItem ).show();
+				this.switchRailTarget( el );
+			},
+			false
+		);
+
+		shieldEventsHandler_Main.add_Keyup(
+			'[data-shield-rail-switch]',
+			( el, evt ) => {
+				if ( evt.key === 'Enter' || evt.key === ' ' || evt.key === 'Spacebar' ) {
+					evt.preventDefault();
+					this.switchRailTarget( el );
 				}
 			},
 			false
 		);
+	}
+
+	switchRailTarget( el ) {
+		const targetKey = ( el.dataset.shieldRailSwitch || '' ).trim();
+		if ( targetKey.length < 1 ) {
+			return;
+		}
+		const scope = el.closest( '[data-shield-rail-scope="1"]' );
+		if ( !scope ) {
+			return;
+		}
+		const railItem = scope.querySelector( `[data-shield-rail-target="${targetKey}"]` );
+		if ( railItem ) {
+			Tab.getOrCreateInstance( railItem ).show();
+		}
 	}
 
 	handleBootstrapTabShown( item ) {

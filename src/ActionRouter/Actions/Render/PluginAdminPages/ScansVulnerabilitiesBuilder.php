@@ -120,12 +120,7 @@ class ScansVulnerabilitiesBuilder {
 			'description' => $description,
 			'count'       => $count,
 			'severity'    => $prefix === 'vulnerability' ? 'critical' : 'warning',
-			'cta'         => [
-				'href'  => $isPlugin
-					? self::con()->plugin_urls->investigateByPlugin( $slug )
-					: self::con()->plugin_urls->investigateByTheme( $slug ),
-				'label' => __( 'Investigate', 'wp-simple-firewall' ),
-			],
+			'cta'         => $this->buildNativeActionCta( $asset ),
 		];
 	}
 
@@ -149,5 +144,31 @@ class ScansVulnerabilitiesBuilder {
 		} );
 
 		return \array_values( $items );
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 * @return array{href:string,label:string,type:string}
+	 */
+	private function buildNativeActionCta( $asset ) :array {
+		$isPlugin = $asset instanceof WpPluginVo;
+
+		if ( $asset->hasUpdate() ) {
+			return [
+				'href'  => Services::WpGeneral()->getAdminUrl_Updates(),
+				'label' => __( 'Go to updates', 'wp-simple-firewall' ),
+				'type'  => 'update',
+			];
+		}
+
+		return [
+			'href'  => $isPlugin
+				? Services::WpGeneral()->getAdminUrl_Plugins()
+				: Services::WpGeneral()->getAdminUrl_Themes(),
+			'label' => $isPlugin
+				? __( 'Go to plugins', 'wp-simple-firewall' )
+				: __( 'Go to themes', 'wp-simple-firewall' ),
+			'type'  => 'navigate',
+		];
 	}
 }

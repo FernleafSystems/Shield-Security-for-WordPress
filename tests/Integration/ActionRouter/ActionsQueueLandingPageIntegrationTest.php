@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ActionsQueueScanRailMetrics,
+	Actions\AjaxBatchRequests,
 	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
 	Constants
 };
@@ -243,6 +244,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-metrics-action) > 0]',
 			'Actions queue scans shell should expose the background metrics action'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-preload-action) > 0]',
+			'Actions queue scans shell should expose the background preload action'
+		);
 	}
 
 	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {
@@ -339,6 +345,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			ActionsQueueScanRailMetrics::SLUG,
 			(string)( $scansResults[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' )
 		);
+		$this->assertSame(
+			AjaxBatchRequests::SLUG,
+			(string)( $scansResults[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' )
+		);
+		$this->assertTrue( (bool)( $tabsByKey[ 'plugins' ][ 'show_count_placeholder' ] ?? false ) );
+		$this->assertTrue( (bool)( $tabsByKey[ 'themes' ][ 'show_count_placeholder' ] ?? false ) );
+		$this->assertTrue( (bool)( $tabsByKey[ 'vulnerabilities' ][ 'show_count_placeholder' ] ?? false ) );
 	}
 
 	public function test_scans_results_metrics_action_returns_exact_counts_for_enabled_tabs() :void {

@@ -19,6 +19,7 @@ export class FileLocker extends BaseComponent {
 
 			const params = ObjectOps.ObjClone( this._base_data.ajax.render_diff );
 			params.rid = selected.value;
+			this.#renderBusy();
 
 			( new AjaxService() )
 			.send( params )
@@ -35,6 +36,20 @@ export class FileLocker extends BaseComponent {
 			} );
 		}
 	};
+
+	#renderBusy() {
+		const container = document.getElementById( 'FileLockerDiffContents' );
+		if ( container === null ) {
+			return;
+		}
+
+		const spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
+		spinner.id = '';
+		spinner.classList.remove( 'd-none' );
+
+		container.textContent = '';
+		container.appendChild( spinner );
+	}
 
 	#fileAction( form ) {
 		const buttonSubmit = form.querySelector( 'input[type=submit]' );

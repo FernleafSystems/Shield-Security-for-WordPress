@@ -1,5 +1,6 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
+import { AjaxBatchService } from "../services/AjaxBatchService";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
 import { ShieldTableScanResults } from "../tables/ShieldTableScanResults";
@@ -15,6 +16,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		this.rootEl = document.querySelector( '[data-actions-landing="1"]' );
 		document.addEventListener( 'shield:rail-pane-switched', ( evt ) => this.handleRailPaneSwitched( evt ) );
 		this.hydrateRailMetrics();
+		this.preloadRailPanes();
 	}
 
 	handleRailPaneSwitched( evt ) {
@@ -23,37 +25,130 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		this.ensurePaneLoaded( pane );
+		this.requestPaneLoad( pane, { showPlaceholder: true } );
+		this.initializeLoadedPane( pane );
 	}
 
-	ensurePaneLoaded( pane ) {
-		if ( pane.dataset.actionsQueuePaneLoaded === '1' || pane.dataset.actionsQueuePaneLoading === '1' ) {
+	requestPaneLoad( pane, {
+		showPlaceholder = false,
+	} = {} ) {
+		const renderAction = this.preparePaneLoad( pane, { showPlaceholder: showPlaceholder } );
+		if ( ObjectOps.IsEmpty( renderAction ) ) {
 			return;
 		}
-
-		const renderAction = JSON.parse( pane.dataset.actionsQueueRenderAction );
-
-		pane.dataset.actionsQueuePaneLoading = '1';
-		pane.innerHTML = this.buildLoadingMarkup();
 
 		( new AjaxService() )
 		.send( renderAction, false, true )
 		.then( ( resp ) => {
-			if ( !resp.success ) {
-				this.renderLoadFailure( pane );
+			if ( !resp.success || typeof resp?.data?.html !== 'string' ) {
+				this.handlePaneLoadFailure( pane );
 				return;
 			}
 
-			pane.innerHTML = resp.data.html;
-			pane.dataset.actionsQueuePaneLoaded = '1';
-			this.initializeDynamicContent( pane );
+			this.applyPaneHtml( pane, resp.data.html, this.isPaneActive( pane ) );
 		} )
-		.catch( () => this.renderLoadFailure( pane ) )
+		.catch( () => this.handlePaneLoadFailure( pane ) )
 		.finally( () => {
 			delete pane.dataset.actionsQueuePaneLoading;
-			DataTableVisibilityAdjuster.adjustWithinNextFrame( pane );
-			BootstrapTooltips.RegisterNewTooltipsWithin( pane );
 		} );
+	}
+
+	preparePaneLoad( pane, {
+		showPlaceholder = false,
+	} = {} ) {
+		if ( pane.dataset.actionsQueuePaneLoaded === '1' || pane.dataset.actionsQueuePaneLoading === '1' ) {
+			return {};
+		}
+
+		const renderAction = this.getPaneRenderAction( pane );
+		if ( ObjectOps.IsEmpty( renderAction ) ) {
+			return {};
+		}
+
+		pane.dataset.actionsQueuePaneLoading = '1';
+		if ( showPlaceholder ) {
+			pane.innerHTML = this.buildLoadingMarkup();
+		}
+
+		return renderAction;
+	}
+
+	preloadRailPanes() {
+		if ( this.rootEl.dataset.actionsQueuePreloadStarted === '1' ) {
+			return;
+		}
+
+		const preloadAction = this.parseJsonDataset( this.rootEl.dataset.actionsQueuePreloadAction );
+		if ( ObjectOps.IsEmpty( preloadAction ) ) {
+			return;
+		}
+
+		const panes = this.getPreloadablePanes();
+		if ( panes.length < 1 ) {
+			return;
+		}
+
+		this.rootEl.dataset.actionsQueuePreloadStarted = '1';
+		const batchService = new AjaxBatchService( preloadAction );
+
+		panes.forEach( ( pane ) => {
+			const renderAction = this.preparePaneLoad( pane );
+			if ( ObjectOps.IsEmpty( renderAction ) ) {
+				return;
+			}
+
+			batchService.add( {
+				id: pane.dataset.actionsQueuePaneKey || '',
+				request: renderAction,
+				onSuccess: ( result ) => {
+					if ( result?.success && typeof result?.data?.html === 'string' ) {
+						this.applyPaneHtml( pane, result.data.html, this.isPaneActive( pane ) );
+						return;
+					}
+					this.handlePaneLoadFailure( pane, true );
+				},
+				onError: () => this.handlePaneLoadFailure( pane, true ),
+			} );
+		} );
+
+		batchService.flush()
+			.finally( () => {
+				delete this.rootEl.dataset.actionsQueuePreloadStarted;
+			} );
+	}
+
+	handlePaneLoadFailure( pane, retryIfActive = false ) {
+		delete pane.dataset.actionsQueuePaneLoading;
+		if ( retryIfActive && this.isPaneActive( pane ) ) {
+			this.requestPaneLoad( pane, { showPlaceholder: true } );
+			return;
+		}
+		if ( retryIfActive ) {
+			return;
+		}
+
+		this.renderLoadFailure( pane );
+	}
+
+	applyPaneHtml( pane, html, initializeNow = false ) {
+		pane.innerHTML = html;
+		pane.dataset.actionsQueuePaneLoaded = '1';
+		delete pane.dataset.actionsQueuePaneLoading;
+
+		if ( initializeNow ) {
+			this.initializeLoadedPane( pane );
+		}
+	}
+
+	initializeLoadedPane( pane ) {
+		if ( pane.dataset.actionsQueuePaneLoaded !== '1' || pane.dataset.actionsQueuePaneInitialized === '1' ) {
+			return;
+		}
+
+		this.initializeDynamicContent( pane );
+		pane.dataset.actionsQueuePaneInitialized = '1';
+		DataTableVisibilityAdjuster.adjustWithinNextFrame( pane );
+		BootstrapTooltips.RegisterNewTooltipsWithin( pane );
 	}
 
 	initializeDynamicContent( pane ) {
@@ -68,7 +163,17 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 	}
 
+	getPreloadablePanes() {
+		return [ ...this.rootEl.querySelectorAll( '[data-actions-queue-pane-key]' ) ].filter( ( pane ) => {
+			return pane.dataset.actionsQueuePaneLoaded !== '1'
+				&& pane.dataset.actionsQueuePaneLoading !== '1'
+				&& !ObjectOps.IsEmpty( this.getPaneRenderAction( pane ) );
+		} );
+	}
+
 	renderLoadFailure( pane ) {
+		delete pane.dataset.actionsQueuePaneLoading;
+		delete pane.dataset.actionsQueuePaneInitialized;
 		pane.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
 	}
 
@@ -86,7 +191,10 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		if ( this.rootEl.dataset.actionsQueueMetricsAction === undefined ) {
 			return;
 		}
-		const metricsAction = JSON.parse( this.rootEl.dataset.actionsQueueMetricsAction );
+		const metricsAction = this.parseJsonDataset( this.rootEl.dataset.actionsQueueMetricsAction );
+		if ( ObjectOps.IsEmpty( metricsAction ) ) {
+			return;
+		}
 
 		this.rootEl.dataset.actionsQueueMetricsLoading = '1';
 
@@ -156,7 +264,14 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			button.appendChild( badge );
 		}
 
-		badge.className = `shield-badge badge-${status} shield-rail-sidebar__badge`;
+		if ( count === null || count === undefined ) {
+			badge.className = 'shield-badge badge-disabled shield-rail-sidebar__badge shield-rail-sidebar__badge--placeholder';
+			badge.textContent = '-';
+			return;
+		}
+
+		const badgeStatus = status === 'neutral' ? 'disabled' : status;
+		badge.className = `shield-badge badge-${badgeStatus} shield-rail-sidebar__badge`;
 		badge.textContent = String( count );
 	}
 
@@ -176,6 +291,23 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	buildLoadingMarkup() {
 		const message = this.rootEl?.dataset?.actionsPaneLoading || 'Loading scan details...';
 		return `<div class="text-muted small" data-actions-queue-pane-placeholder="1">${this.escapeHtml( message )}</div>`;
+	}
+
+	getPaneRenderAction( pane ) {
+		return this.parseJsonDataset( pane.dataset.actionsQueueRenderAction );
+	}
+
+	isPaneActive( pane ) {
+		return pane.classList.contains( 'active' ) || pane.classList.contains( 'show' );
+	}
+
+	parseJsonDataset( value = '{}' ) {
+		try {
+			return JSON.parse( value );
+		}
+		catch ( e ) {
+			return {};
+		}
 	}
 
 	getErrorMessage() {

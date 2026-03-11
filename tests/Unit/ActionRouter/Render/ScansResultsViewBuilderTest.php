@@ -380,7 +380,6 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 	public function test_plugin_rail_items_pass_through_to_tab() :void {
 		$items = [
 			$this->makeDetailRow( 'Bad Plugin', 'warning', 5 ),
-			$this->makeDetailRow( 'Good Plugin', 'good' ),
 		];
 
 		$builder = $this->createBuilder( [
@@ -391,7 +390,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
 		$pluginsTab = $this->findTabByKey( $railTabs, 'plugins' );
 
-		$this->assertCount( 2, $pluginsTab[ 'items' ] ?? [] );
+		$this->assertCount( 1, $pluginsTab[ 'items' ] ?? [] );
 		$this->assertSame( 'warning', $pluginsTab[ 'status' ] ?? '' );
 	}
 
@@ -503,6 +502,42 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertContains( 'Abandoned', $sectionLabels );
 	}
 
+	public function test_vulnerability_items_keep_native_actions() :void {
+		$builder = $this->createBuilder( [
+			'vulnerabilitiesEnabled' => true,
+			'vulnerabilities'        => [
+				'count'    => 1,
+				'status'   => 'critical',
+				'sections' => [
+					'vulnerable' => [
+						'label' => 'Known Vulnerabilities',
+						'items' => [
+							[
+								'label'       => 'Vuln 1',
+								'description' => 'Desc',
+								'severity'    => 'critical',
+								'count'       => 1,
+								'cta'         => [
+									'href'  => '/wp-admin/update-core.php',
+									'label' => 'Go to updates',
+									'type'  => 'update',
+								],
+							],
+						],
+					],
+				],
+			],
+		] );
+
+		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$vulnTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
+		$action = $vulnTab[ 'items' ][ 0 ][ 'actions' ][ 0 ] ?? [];
+
+		$this->assertSame( 'update', $action[ 'type' ] ?? '' );
+		$this->assertSame( 'Go to updates', $action[ 'label' ] ?? '' );
+		$this->assertSame( '/wp-admin/update-core.php', $action[ 'href' ] ?? '' );
+	}
+
 	// ── AFS display items caching ──
 
 	public function test_afs_display_items_are_shared_between_wordpress_and_malware() :void {
@@ -527,7 +562,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	// ── Summary rail-switch actions (Task 6) ──
 
-	public function test_summary_items_with_known_keys_get_rail_switch_action_attributes() :void {
+	public function test_summary_items_with_known_keys_get_row_level_rail_switch_attributes() :void {
 		$builder = $this->createBuilder( [
 			'wordpressEnabled'       => true,
 			'pluginsEnabled'         => true,
@@ -561,15 +596,13 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertCount( \count( $expectedMapping ), $attentionItems );
 
 		foreach ( $attentionItems as $item ) {
-			$actions = $item[ 'actions' ] ?? [];
-			$this->assertNotEmpty( $actions, 'Item "'.$item[ 'title' ].'" should have actions' );
-			$action = $actions[ 0 ];
-			$this->assertSame( 'navigate', $action[ 'type' ] ?? '' );
-			$this->assertNotEmpty( $action[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' );
+			$this->assertSame( [], $item[ 'actions' ] ?? [], 'Item "'.$item[ 'title' ].'" should not render an extra action chip' );
+			$this->assertNotEmpty( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' );
+			$this->assertSame( 'button', $item[ 'attributes' ][ 'role' ] ?? '' );
 		}
 	}
 
-	public function test_summary_rail_switch_attributes_map_to_correct_tabs() :void {
+	public function test_summary_row_switch_attributes_map_to_correct_tabs() :void {
 		$builder = $this->createBuilder( [
 			'wordpressEnabled'       => true,
 			'pluginsEnabled'         => true,
@@ -588,9 +621,8 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 		$targets = [];
 		foreach ( $items as $item ) {
-			$actions = $item[ 'actions' ] ?? [];
-			if ( !empty( $actions ) && isset( $actions[ 0 ][ 'attributes' ][ 'data-shield-rail-switch' ] ) ) {
-				$targets[ $item[ 'title' ] ] = $actions[ 0 ][ 'attributes' ][ 'data-shield-rail-switch' ];
+			if ( isset( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ) ) {
+				$targets[ $item[ 'title' ] ] = $item[ 'attributes' ][ 'data-shield-rail-switch' ];
 			}
 		}
 
@@ -652,6 +684,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			'explanations' => [],
 			'show_gear'    => false,
 			'actions'      => [],
+			'attributes'   => [],
 		];
 	}
 

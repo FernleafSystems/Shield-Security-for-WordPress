@@ -13,7 +13,7 @@ class Vulnerabilities extends BaseRender {
 	protected function getRenderData() :array {
 		return [
 			'strings' => [
-				'no_issues' => __( 'No issues found in this section.', 'wp-simple-firewall' ),
+				'no_issues' => __( "Previous scans didn't detect any vulnerable or abandoned assets.", 'wp-simple-firewall' ),
 			],
 			'tab'     => ( new ActionsQueueScanRailBuilder() )->buildVulnerabilitiesPane(),
 			'content' => [],

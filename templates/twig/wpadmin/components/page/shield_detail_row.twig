@@ -23,6 +23,7 @@
 {% set explanations = row_data.explanations|default([]) %}
 
 <div class="shield-detail-row shield-detail-row--{{ status }}{% if expandable %} shield-detail-row--expandable{% endif %}"
+	 {{ icwp_macros.renderAttributes(row_data.attributes|default({})) }}
 	 {% if expandable %}
 	 data-shield-expand-trigger="1"
 	 data-shield-expand-target="{{ row_data.expand_target|default('')|e('html_attr') }}"

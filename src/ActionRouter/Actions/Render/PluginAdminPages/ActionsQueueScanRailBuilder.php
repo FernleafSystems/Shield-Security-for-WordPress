@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\ActionsQueueScanRailMetrics
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	ActionsQueueScanRailMetrics,
+	AjaxBatchRequests
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
@@ -55,6 +56,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				'rail'            => $rail,
 				'rail_tabs'       => $railTabs,
 				'metrics_action'  => ActionData::Build( ActionsQueueScanRailMetrics::class ),
+				'preload_action'  => ActionData::Build( AjaxBatchRequests::class ),
 				'summary_rows'    => $summaryRows,
 				'assessment_rows' => $assessmentRows,
 			],
@@ -115,6 +117,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			'icon_class' => $meta[ 'icon_class' ],
 			'items'      => [],
 			'is_loaded'  => false,
+			'show_count_placeholder' => true,
 		];
 
 		switch ( $tabKey ) {
