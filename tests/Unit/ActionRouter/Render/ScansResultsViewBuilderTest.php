@@ -286,7 +286,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	// ── WordPress pane: good fallback ──
 
-	public function test_wordpress_pane_shows_good_fallback_when_no_core_issues() :void {
+	public function test_wordpress_pane_returns_no_items_when_no_core_issues() :void {
 		$builder = $this->createBuilder( [
 			'wordpressEnabled' => true,
 			'afsDisplayItems'  => [],
@@ -296,9 +296,9 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$wpTab = $this->findTabByKey( $railTabs, 'wordpress' );
 		$items = $wpTab[ 'items' ] ?? [];
 
-		$this->assertCount( 1, $items );
-		$this->assertSame( 'good', $items[ 0 ][ 'status' ] ?? '' );
-		$this->assertStringContainsString( '6.7', $items[ 0 ][ 'title' ] ?? '' );
+		$this->assertSame( [], $items );
+		$this->assertSame( 'good', $wpTab[ 'status' ] ?? '' );
+		$this->assertSame( 0, $wpTab[ 'count' ] ?? -1 );
 	}
 
 	public function test_wordpress_pane_shows_critical_items_for_core_issues() :void {
@@ -323,7 +323,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	// ── Malware pane: good fallback ──
 
-	public function test_malware_pane_shows_good_fallback_when_no_threats() :void {
+	public function test_malware_pane_returns_no_items_when_no_threats() :void {
 		$builder = $this->createBuilder( [
 			'malwareEnabled'  => true,
 			'afsDisplayItems' => [],
@@ -333,8 +333,95 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$malwareTab = $this->findTabByKey( $railTabs, 'malware' );
 		$items = $malwareTab[ 'items' ] ?? [];
 
-		$this->assertCount( 1, $items );
-		$this->assertSame( 'good', $items[ 0 ][ 'status' ] ?? '' );
+		$this->assertSame( [], $items );
+		$this->assertSame( 'good', $malwareTab[ 'status' ] ?? '' );
+		$this->assertSame( 0, $malwareTab[ 'count' ] ?? -1 );
+	}
+
+	public function test_plugin_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
+		$builder = $this->createBuilder( [
+			'pluginsEnabled' => false,
+			'tabAvailability' => [
+				'plugins' => [
+					'is_available' => false,
+					'show_in_actions_queue' => true,
+					'disabled_message' => 'Scanning Plugin & Theme Files is available only with the Pro version of Shield.',
+					'disabled_status' => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'plugins' );
+
+		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'neutral', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 0, $pane[ 'count_items' ] ?? -1 );
+		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
+		$this->assertSame(
+			'Scanning Plugin & Theme Files is available only with the Pro version of Shield.',
+			$pane[ 'disabled_message' ] ?? ''
+		);
+	}
+
+	public function test_theme_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
+		$builder = $this->createBuilder( [
+			'themesEnabled' => false,
+			'tabAvailability' => [
+				'themes' => [
+					'is_available' => false,
+					'show_in_actions_queue' => true,
+					'disabled_message' => 'Theme File Scanning is not enabled.',
+					'disabled_status' => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'themes' );
+
+		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'Theme File Scanning is not enabled.', $pane[ 'disabled_message' ] ?? '' );
+		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
+	}
+
+	public function test_vulnerability_pane_data_returns_disabled_state_when_scans_are_unavailable() :void {
+		$builder = $this->createBuilder( [
+			'vulnerabilitiesEnabled' => false,
+			'tabAvailability' => [
+				'vulnerabilities' => [
+					'is_available' => false,
+					'show_in_actions_queue' => true,
+					'disabled_message' => 'Vulnerability Scanning is not enabled.',
+					'disabled_status' => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'vulnerabilities' );
+
+		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'neutral', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 'Vulnerability Scanning is not enabled.', $pane[ 'disabled_message' ] ?? '' );
+		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
+	}
+
+	public function test_malware_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
+		$builder = $this->createBuilder( [
+			'malwareEnabled' => false,
+			'tabAvailability' => [
+				'malware' => [
+					'is_available' => false,
+					'show_in_actions_queue' => true,
+					'disabled_message' => 'Malware Scanning is not enabled.',
+					'disabled_status' => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'malware' );
+
+		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'Malware Scanning is not enabled.', $pane[ 'disabled_message' ] ?? '' );
+		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
 	}
 
 	// ── File locker pane: mixed sections ──
@@ -502,7 +589,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertContains( 'Abandoned', $sectionLabels );
 	}
 
-	public function test_vulnerability_items_keep_native_actions() :void {
+	public function test_vulnerability_items_keep_native_and_investigate_actions() :void {
 		$builder = $this->createBuilder( [
 			'vulnerabilitiesEnabled' => true,
 			'vulnerabilities'        => [
@@ -517,10 +604,25 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 								'description' => 'Desc',
 								'severity'    => 'critical',
 								'count'       => 1,
-								'cta'         => [
-									'href'  => '/wp-admin/update-core.php',
-									'label' => 'Go to updates',
-									'type'  => 'update',
+								'actions'     => [
+									[
+										'href'  => '/wp-admin/update-core.php',
+										'label' => 'Go to updates',
+										'type'  => 'update',
+									],
+									[
+										'href'  => '/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities',
+										'label' => 'View vulnerability results',
+										'type'  => 'navigate',
+									],
+									[
+										'href'       => 'https://lookup.example/plugin',
+										'label'      => 'Vulnerability Lookup',
+										'type'       => 'navigate',
+										'attributes' => [
+											'target' => '_blank',
+										],
+									],
 								],
 							],
 						],
@@ -530,12 +632,16 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		] );
 
 		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
-		$vulnTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
-		$action = $vulnTab[ 'items' ][ 0 ][ 'actions' ][ 0 ] ?? [];
+		$actions = $this->findTabByKey( $railTabs, 'vulnerabilities' )[ 'items' ][ 0 ][ 'actions' ] ?? [];
 
-		$this->assertSame( 'update', $action[ 'type' ] ?? '' );
-		$this->assertSame( 'Go to updates', $action[ 'label' ] ?? '' );
-		$this->assertSame( '/wp-admin/update-core.php', $action[ 'href' ] ?? '' );
+		$this->assertCount( 3, $actions );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] ?? '' );
+		$this->assertSame( '/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities', $actions[ 1 ][ 'href' ] ?? '' );
+		$this->assertStringContainsString( '#tab-navlink-plugin-vulnerabilities', $actions[ 1 ][ 'href' ] ?? '' );
+		$this->assertSame( 'navigate', $actions[ 2 ][ 'type' ] ?? '' );
+		$this->assertSame( 'https://lookup.example/plugin', $actions[ 2 ][ 'href' ] ?? '' );
+		$this->assertSame( '_blank', $actions[ 2 ][ 'attributes' ][ 'target' ] ?? '' );
 	}
 
 	// ── AFS display items caching ──
@@ -756,7 +862,8 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			$overrides[ 'problemFileLocks' ] ?? [],
 			$overrides[ 'goodFileLocks' ] ?? [],
 			$overrides[ 'pluginRailItems' ] ?? [],
-			$overrides[ 'themeRailItems' ] ?? []
+			$overrides[ 'themeRailItems' ] ?? [],
+			$overrides[ 'tabAvailability' ] ?? []
 		);
 	}
 
@@ -791,6 +898,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	private array $goodLocks;
 	private array $pluginRailItems;
 	private array $themeRailItems;
+	private array $tabAvailability;
 
 	public function __construct(
 		array $summaryRows,
@@ -810,7 +918,8 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		array $problemLocks = [],
 		array $goodLocks = [],
 		array $pluginRailItems = [],
-		array $themeRailItems = []
+		array $themeRailItems = [],
+		array $tabAvailability = []
 	) {
 		$this->summaryRows = $summaryRows;
 		$this->assessmentRows = $assessmentRows;
@@ -830,6 +939,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		$this->goodLocks = $goodLocks;
 		$this->pluginRailItems = $pluginRailItems;
 		$this->themeRailItems = $themeRailItems;
+		$this->tabAvailability = $tabAvailability;
 	}
 
 	protected function buildSummaryRows() :array {
@@ -898,5 +1008,29 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 	protected function buildPluginThemeRailItemsDirect( string $assetType ) :array {
 		return $assetType === 'plugin' ? $this->pluginRailItems : $this->themeRailItems;
+	}
+
+	protected function getRailTabAvailability( string $tabKey ) :array {
+		if ( isset( $this->tabAvailability[ $tabKey ] ) ) {
+			return $this->tabAvailability[ $tabKey ];
+		}
+
+		$isAvailable = match ( $tabKey ) {
+			'wordpress' => $this->wordpressEnabled,
+			'plugins' => $this->pluginsEnabled,
+			'themes' => $this->themesEnabled,
+			'vulnerabilities' => $this->vulnerabilitiesEnabled,
+			'malware' => $this->malwareEnabled,
+			'file_locker' => true,
+			default => false,
+		};
+
+		return [
+			'is_available' => $isAvailable,
+			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ], true )
+				|| ( $tabKey === 'wordpress' && $this->wordpressEnabled ),
+			'disabled_message' => '',
+			'disabled_status' => 'neutral',
+		];
 	}
 }

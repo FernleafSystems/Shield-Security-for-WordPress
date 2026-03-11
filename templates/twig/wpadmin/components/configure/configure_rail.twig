@@ -38,6 +38,7 @@
 
 							{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
 								id: expand_id,
+								parent_id: zone.pane_id|default(''),
 								type: 'options',
 								status: row.status|default('good'),
 								body: expansion_body

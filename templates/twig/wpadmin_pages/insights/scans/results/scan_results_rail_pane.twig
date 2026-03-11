@@ -6,6 +6,11 @@
 	<div class="text-muted small" data-actions-queue-pane-placeholder="1">
 		{{ strings.pane_loading|default('Loading scan details...') }}
 	</div>
+{% elseif tab.is_disabled|default(false) %}
+	<div class="shield-scan-pane-disabled alert alert-warning mb-0" data-shield-scan-pane-disabled="1">
+		<i class="bi bi-slash-circle me-2"></i>
+		{{ tab.disabled_message|default(strings.disabled_message|default('This feature is not enabled.')) }}
+	</div>
 {% elseif tab.items|default([]) is empty %}
 	<div class="shield-scan-pane-empty py-4 text-center text-muted">
 		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
@@ -38,19 +43,22 @@
 				actions: item.actions|default([]),
 				attributes: item.attributes|default({})
 			}} only %}
-		</div>
 
-		{% if item.expandable|default(false) and item.files|default([]) is not empty %}
-			{% set file_table_body %}
-				{% include '/wpadmin_pages/insights/scans/results/scan_file_table.twig' with { files: item.files } only %}
-			{% endset %}
-			{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
-				id: item.expand_target|default(''),
-				type: 'table',
-				status: item.status|default('warning'),
-				body: file_table_body
-			}} only %}
-		{% endif %}
+			{% if item.expandable|default(false) and item.expansion_table|default({}) is not empty %}
+				{% set file_table_body %}
+					{% include '/wpadmin/components/investigate/table_container.twig' with {
+						table: item.expansion_table
+					} only %}
+				{% endset %}
+				{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+					id: item.expand_target|default(''),
+					parent_id: tab.pane_id|default(''),
+					type: 'table',
+					status: item.status|default('warning'),
+					body: file_table_body
+				}} only %}
+			{% endif %}
+		</div>
 
 	{% endfor %}
 {% endif %}

@@ -289,14 +289,6 @@
 	}
 }
 
-.shield-detail-expansion {
-	display: none;
-
-	&.is-open {
-		display: block;
-	}
-}
-
 .shield-detail-expansion__form {
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;

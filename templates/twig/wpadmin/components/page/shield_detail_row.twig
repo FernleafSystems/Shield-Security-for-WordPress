@@ -27,6 +27,7 @@
 	 {% if expandable %}
 	 data-shield-expand-trigger="1"
 	 data-shield-expand-target="{{ row_data.expand_target|default('')|e('html_attr') }}"
+	 aria-controls="{{ row_data.expand_target|default('')|e('html_attr') }}"
 	 role="button"
 	 tabindex="0"
 	 aria-expanded="false"
@@ -72,10 +73,15 @@
 		{% if actions is not empty %}
 			<div class="shield-detail-row__actions">
 				{% for action in actions %}
-					{% set chip_icon = action.icon|default(action.type == 'update' ? 'bi bi-arrow-up-circle-fill' : 'bi bi-power') %}
+					{% set action_type = action.type|default('navigate') %}
+					{% set chip_icon = action.icon|default(
+						action_type == 'update'
+							? 'bi bi-arrow-up-circle-fill'
+							: (action_type == 'deactivate' ? 'bi bi-power' : 'bi bi-arrow-right-circle-fill')
+					) %}
 					{% set tooltip = action.tooltip is defined and action.tooltip is not null ? action.tooltip|trim : '' %}
 					<a href="{{ action.href|default('#') }}"
-					   class="shield-action-chip shield-action-chip--{{ action.type|default('update') }}"{% if tooltip is not empty %}
+					   class="shield-action-chip shield-action-chip--{{ action_type }}"{% if tooltip is not empty %}
 					   data-bs-toggle="tooltip"
 					   data-bs-title="{{ tooltip|e('html_attr') }}"{% endif %}{{ icwp_macros.renderAttributes(action.attributes|default({})) }}>
 						<i class="{{ chip_icon }}"></i>

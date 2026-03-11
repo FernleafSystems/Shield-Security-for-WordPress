@@ -6,9 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\Investigation\InvestigationTableContract,
 	Actions\Investigation\InvestigationSubjectResolver,
-	Actions\Render\Components,
 	Actions\InvestigationTableAction,
-	Actions\ScanResultsTableAction,
 	Exceptions\InvalidInvestigationSubjectIdentifierException,
 	Exceptions\UnsupportedInvestigationSubjectTypeException,
 	Exceptions\UnsupportedInvestigationTableTypeException
@@ -16,8 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\{
-	ForActivityLog as InvestigationActivityTableBuilder,
-	ForFileScanResults as InvestigationFileScanResultsTableBuilder
+	ForActivityLog as InvestigationActivityTableBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\InvestigationSubjectWheres;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
@@ -140,27 +137,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 
 	protected function buildAssetTables( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
 		$tableAction = ActionData::Build( InvestigationTableAction::class );
-
-		$fileTable = $this->buildTableContainerContract(
-			__( 'File Scan Status', 'wp-simple-firewall' ),
-			'warning',
-			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-			$subjectType,
-			$subjectId,
-			( new InvestigationFileScanResultsTableBuilder() )->setSubject( $subjectType, $subjectId )->buildRaw(),
-			$tableAction,
-			self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
-		);
-		$fileTable[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
-		$fileTable[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
-		$fileTable[ 'show_header' ] = false;
-		$fileTable[ 'scan_results_action' ] = ActionData::Build( ScanResultsTableAction::class, true, [
-			'type' => $subjectType === InvestigationTableContract::SUBJECT_TYPE_CORE ? 'wordpress' : $subjectType,
-			'file' => $subjectId,
-		] );
-		$fileTable[ 'render_item_analysis' ] = ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class );
-		$fileTable[ 'is_flat' ] = true;
-		$fileTable = $this->normalizeInvestigationTableContract( $fileTable );
+		$fileTable = $this->buildFileStatusTableContract( $subjectType, $subjectId );
 
 		$activityTable = $this->buildTableContainerContract(
 			__( 'Activity', 'wp-simple-firewall' ),
@@ -179,6 +156,13 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			'file_status' => $fileTable,
 			'activity'    => $activityTable,
 		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	protected function buildFileStatusTableContract( string $subjectType, string $subjectId ) :array {
+		return ( new InvestigationFileStatusTableContractBuilder() )->build( $subjectType, $subjectId );
 	}
 
 	protected function buildPluginScanData( $plugin ) :array {

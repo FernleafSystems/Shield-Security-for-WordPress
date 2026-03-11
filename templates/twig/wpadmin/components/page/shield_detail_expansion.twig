@@ -2,10 +2,10 @@
 {% set exp_type = expansion_data.type|default('custom') %}
 {% set exp_status = expansion_data.status|default('good') %}
 
-<div class="shield-detail-expansion"
+<div class="shield-detail-expansion collapse"
 	 id="{{ expansion_data.id|default('')|e('html_attr') }}"
-	 data-shield-expand-body="1"
-	 aria-hidden="true">
+	 data-shield-expand-body="1"{% if expansion_data.parent_id|default('') is not empty %}
+	 data-bs-parent="#{{ expansion_data.parent_id|e('html_attr') }}"{% endif %}>
 
 	{% if exp_type == 'options' %}
 		<div class="shield-detail-expansion__form shield-detail-expansion__form--{{ exp_status }}">

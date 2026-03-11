@@ -11,7 +11,7 @@ class Themes extends PluginThemesBase {
 
 	protected function getRenderData() :array {
 		$pane = ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder() )
-			->buildPluginThemePaneData( 'theme' );
+			->buildRailPaneData( 'themes' );
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [

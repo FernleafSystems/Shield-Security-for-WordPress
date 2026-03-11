@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ActionsQueueScanRailMetrics,
 	Actions\AjaxBatchRequests,
+	Actions\Render\Components\Scans\Results\Malware as MalwarePane,
+	Actions\Render\Components\Scans\Results\Plugins as PluginsPane,
 	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
 	Constants
 };
@@ -192,6 +194,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
 		$railTabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [], 'key' );
+		$tabsByKey = [];
+		foreach ( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [] as $tab ) {
+			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
+		}
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
@@ -203,6 +209,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $scansResults );
 		$this->assertContains( 'summary', $railTabs );
 		$this->assertContains( 'wordpress', $railTabs );
+		$this->assertContains( 'plugins', $railTabs );
+		$this->assertContains( 'themes', $railTabs );
+		$this->assertContains( 'vulnerabilities', $railTabs );
+		$this->assertContains( 'malware', $railTabs );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]',
@@ -222,6 +232,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
 			'Actions queue scans shell should expose lazy-load metadata for heavy panes'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="malware" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
+			'Actions queue scans shell should expose lazy-load metadata for disabled review tabs too'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -249,6 +264,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-preload-action) > 0]',
 			'Actions queue scans shell should expose the background preload action'
 		);
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'plugins' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'themes' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'malware' ][ 'status' ] ?? '' ) );
+		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] ?? -1 );
+		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] ?? -1 );
+		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] ?? -1 );
+		$this->assertNull( $tabsByKey[ 'malware' ][ 'count' ] ?? -1 );
 	}
 
 	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {
@@ -284,7 +307,20 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_scans_results_shell_starts_enabled_tabs_lazy_without_eager_badges() :void {
-		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+			'scan_vulnerabilities',
+			'scan_malware_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'enable_wpvuln_scan', 'Y' )
+			 ->optSet( 'enabled_scan_apc', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes', 'malware_php' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
 
 		$pluginSlug = self::con()->base_file;
 		$themeSlug = \wp_get_theme()->get_stylesheet();
@@ -314,10 +350,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing shared scan results tabs' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing shared scan results tabs' );
 		$scansResults = \is_array( $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ] ?? null )
 			? $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ]
 			: [];
+		$xpath = $this->createDomXPathFromHtml( $html );
 		$railTabs = \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null )
 			? \array_values( $scansResults[ 'vars' ][ 'rail_tabs' ] )
 			: [];
@@ -329,18 +366,33 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertContains( 'plugins', \array_keys( $tabsByKey ) );
 		$this->assertContains( 'themes', \array_keys( $tabsByKey ) );
 		$this->assertContains( 'vulnerabilities', \array_keys( $tabsByKey ) );
+		$this->assertContains( 'malware', \array_keys( $tabsByKey ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="malware" and @data-bs-toggle="tab" and @role="tab"]',
+			'Actions queue scans shell should render the malware rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="malware" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
+			'Actions queue scans shell should expose malware lazy-load metadata'
+		);
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'malware' ] );
 		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] );
+		$this->assertNull( $tabsByKey[ 'malware' ][ 'count' ] );
 		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'plugins' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'themes' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertFalse( (bool)( $tabsByKey[ 'plugins' ][ 'is_loaded' ] ?? true ) );
 		$this->assertFalse( (bool)( $tabsByKey[ 'themes' ][ 'is_loaded' ] ?? true ) );
 		$this->assertFalse( (bool)( $tabsByKey[ 'vulnerabilities' ][ 'is_loaded' ] ?? true ) );
+		$this->assertFalse( (bool)( $tabsByKey[ 'malware' ][ 'is_loaded' ] ?? true ) );
 		$this->assertSame(
 			ActionsQueueScanRailMetrics::SLUG,
 			(string)( $scansResults[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' )
@@ -352,6 +404,93 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $tabsByKey[ 'plugins' ][ 'show_count_placeholder' ] ?? false ) );
 		$this->assertTrue( (bool)( $tabsByKey[ 'themes' ][ 'show_count_placeholder' ] ?? false ) );
 		$this->assertTrue( (bool)( $tabsByKey[ 'vulnerabilities' ][ 'show_count_placeholder' ] ?? false ) );
+		$this->assertTrue( (bool)( $tabsByKey[ 'malware' ][ 'show_count_placeholder' ] ?? false ) );
+	}
+
+	public function test_plugin_pane_render_uses_investigation_file_status_table_contract() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( PluginsPane::SLUG );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
+			'Plugin pane render should keep the shared expandable summary row'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-expand-trigger="1"]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")][1]//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="plugin" and @data-subject-id="'.$pluginSlug.'"]',
+			'Plugin pane render should use the shared investigation file status table contract'
+		);
+	}
+
+	public function test_plugin_pane_render_uses_disabled_callout_when_plugin_scanning_is_unavailable() :void {
+		$payload = $this->processActionPayloadWithAdminBypass( PluginsPane::SLUG );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-scan-pane-disabled="1"]',
+			'Plugin pane render should show the shared disabled callout when plugin scanning is unavailable'
+		);
+		$this->assertStringContainsString(
+			\sprintf(
+				__( 'Scanning Plugin & Theme Files is available only with the Pro version of %s.', 'wp-simple-firewall' ),
+				self::con()->labels->Name
+			),
+			$html
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
+			0,
+			'Plugin pane render should not fall through to the standard empty state when disabled'
+		);
+	}
+
+	public function test_malware_pane_render_uses_disabled_callout_when_malware_scanning_is_unavailable() :void {
+		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-scan-pane-disabled="1"]',
+			'Malware pane render should show the shared disabled callout when malware scanning is unavailable'
+		);
+		$this->assertStringContainsString(
+			__( 'Malware Scanning is not enabled.', 'wp-simple-firewall' ),
+			$html
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
+			0,
+			'Malware pane render should not fall through to the standard empty state when disabled'
+		);
 	}
 
 	public function test_scans_results_metrics_action_returns_exact_counts_for_enabled_tabs() :void {
@@ -424,5 +563,29 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
+	}
+
+	public function test_scans_results_metrics_action_returns_zero_neutral_entries_for_disabled_review_tabs() :void {
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
+		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+
+		$this->assertSame( 0, (int)( $tabs[ 'wordpress' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $tabs[ 'wordpress' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $tabs[ 'plugins' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'neutral', (string)( $tabs[ 'plugins' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $tabs[ 'themes' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'neutral', (string)( $tabs[ 'themes' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'neutral', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $tabs[ 'malware' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'neutral', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
 	}
 }

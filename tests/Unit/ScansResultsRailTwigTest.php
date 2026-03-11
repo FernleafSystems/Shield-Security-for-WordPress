@@ -189,14 +189,22 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								'count_badge' => 2,
 								'expandable'  => true,
 								'expand_target' => 'scan-files-plugin-example-plugin',
-								'files'       => [
-									[
-										'status'       => 'modified',
-										'status_label' => 'Modified',
-										'path'         => 'wp-content/plugins/example-plugin/plugin.php',
-										'size'         => '12 KB',
-										'detected'     => '2 minutes ago',
-									],
+								'expansion_table' => [
+									'title'               => 'File Scan Status',
+									'status'              => 'warning',
+									'table_type'          => 'file_scan_results',
+									'subject_type'        => 'plugin',
+									'subject_id'          => 'example-plugin/example-plugin.php',
+									'datatables_init'     => '{}',
+									'table_action'        => '{}',
+									'scan_results_action' => '{}',
+									'render_item_analysis' => '{}',
+									'show_header'         => false,
+									'is_flat'             => true,
+									'is_empty'            => false,
+									'full_log_href'       => '/wp-admin/admin.php?page=shield&nav=scans&subnav=results',
+									'full_log_text'       => 'Full Scan Results',
+									'full_log_button_class' => 'btn btn-primary btn-sm',
 								],
 								'actions'     => [
 									[
@@ -234,6 +242,22 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 										'label' => 'Go to updates',
 										'href'  => '/wp-admin/update-core.php',
 										'icon'  => 'bi bi-arrow-up-circle-fill',
+									],
+									[
+										'type'  => 'navigate',
+										'label' => 'View vulnerability results',
+										'href'  => '/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities',
+										'icon'  => 'bi bi-list-ul',
+									],
+									[
+										'type'       => 'navigate',
+										'label'      => 'Vulnerability Lookup',
+										'href'       => 'https://lookup.example/plugin',
+										'icon'       => 'bi bi-box-arrow-up-right',
+										'attributes' => [
+											'target' => '_blank',
+											'rel'    => 'noopener noreferrer',
+										],
 									],
 								],
 							],
@@ -367,6 +391,23 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		];
 	}
 
+	private function buildDisabledPaneRenderContext() :array {
+		return [
+			'strings' => [
+				'no_issues' => 'No issues found in this section.',
+			],
+			'tab'     => [
+				'key'              => 'malware',
+				'pane_id'          => 'h-tabs-malware',
+				'is_loaded'        => true,
+				'is_disabled'      => true,
+				'disabled_message' => 'Malware Scanning is not enabled.',
+				'items'            => [],
+			],
+			'content' => [],
+		];
+	}
+
 	public function testScanResultsTemplatesCompileWithTwigParser() :void {
 		$twig = $this->twig();
 
@@ -375,7 +416,6 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			'/wpadmin_pages/insights/scans/results/scan_results_rail.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_pane_body.twig',
-			'/wpadmin_pages/insights/scans/results/scan_file_table.twig',
 		] as $templatePath ) {
 			try {
 				$template = $twig->load( $templatePath );
@@ -479,13 +519,33 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@id="scan-files-plugin-example-plugin"]//table//code[normalize-space()="wp-content/plugins/example-plugin/plugin.php"]',
-			'Plugin pane expansions should render the shared changed-files table'
+			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target="scan-files-plugin-example-plugin"]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")][1]//*[@id="scan-files-plugin-example-plugin"]',
+			'Plugin pane expansions should stay nested inside the shared detail item wrapper'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="scan-files-plugin-example-plugin"]//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="plugin" and @data-subject-id="example-plugin/example-plugin.php"]',
+			'Plugin pane expansions should render the shared investigation file scan table contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="scan-files-plugin-example-plugin" and contains(concat(" ", normalize-space(@class), " "), " collapse ") and @data-bs-parent="#h-tabs-plugins"]',
+			'Plugin pane expansions should render Bootstrap collapse contracts inside the pane'
 		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-shield-rail-pane="vulnerabilities"]//a[@href="/wp-admin/update-core.php" and contains(concat(" ", normalize-space(@class), " "), " shield-action-chip--update ")]',
 			'Vulnerability pane should render native WordPress update actions instead of Investigate links'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="vulnerabilities"]//a[@href="/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities" and contains(concat(" ", normalize-space(@class), " "), " shield-action-chip--navigate ")]',
+			'Vulnerability pane should render an investigate deeplink for vulnerability results'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-rail-pane="vulnerabilities"]//a[@href="https://lookup.example/plugin" and @target="_blank" and @rel="noopener noreferrer"]',
+			'Vulnerability pane should render the external vulnerability lookup action'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -530,6 +590,25 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			0,
 			$xpath->query( '//*[@data-shield-rail-pane="plugins"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]' )->length,
 			'Lazy scan panes should not render the empty-state before AJAX hydration'
+		);
+	}
+
+	public function testRailPaneTemplateRendersDisabledStateBeforeEmptyState() :void {
+		$html = $this->twig()->render(
+			'/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig',
+			$this->buildDisabledPaneRenderContext()
+		);
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-scan-pane-disabled="1" and contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-disabled ") and contains(normalize-space(), "Malware Scanning is not enabled.")]',
+			'Disabled scan panes should render the disabled-state callout'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]' )->length,
+			'Disabled scan panes should not fall through to the generic empty-state'
 		);
 	}
 }

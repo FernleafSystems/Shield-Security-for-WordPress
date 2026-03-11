@@ -15,6 +15,8 @@ class ActionsQueueScanRailMetricsBuilder {
 
 	use PluginControllerConsumer;
 
+	private ?ScansResultsRailTabAvailability $tabAvailability = null;
+
 	/**
 	 * @return array{
 	 *   tabs:array<string,array{count:int,status:string}>,
@@ -26,7 +28,8 @@ class ActionsQueueScanRailMetricsBuilder {
 		$statuses = [];
 		$displayCounts = new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
 
-		if ( $this->isWordpressTabEnabled() ) {
+		$wordpressState = $this->getTabAvailability( 'wordpress' );
+		if ( !empty( $wordpressState[ 'show_in_actions_queue' ] ) && !empty( $wordpressState[ 'is_available' ] ) ) {
 			$count = $displayCounts->countWPFiles();
 			$tabs[ 'wordpress' ] = [
 				'count'  => $count,
@@ -35,50 +38,10 @@ class ActionsQueueScanRailMetricsBuilder {
 			$statuses[] = $tabs[ 'wordpress' ][ 'status' ];
 		}
 
-		if ( $this->isPluginsTabEnabled() ) {
-			$count = $this->countDistinctAffectedAssets( 'plugin' );
-			$tabs[ 'plugins' ] = [
-				'count'  => $count,
-				'status' => $count > 0 ? 'warning' : 'good',
-			];
-			$statuses[] = $tabs[ 'plugins' ][ 'status' ];
-		}
-
-		if ( $this->isThemesTabEnabled() ) {
-			$count = $this->countDistinctAffectedAssets( 'theme' );
-			$tabs[ 'themes' ] = [
-				'count'  => $count,
-				'status' => $count > 0 ? 'warning' : 'good',
-			];
-			$statuses[] = $tabs[ 'themes' ][ 'status' ];
-		}
-
-		if ( $this->isVulnerabilitiesTabEnabled() ) {
-			$vulnerableCount = $this->countDistinctResultItemIds(
-				self::con()->comps->scans->WPV()->getSlug(),
-				'is_vulnerable'
-			);
-			$abandonedCount = $this->countDistinctResultItemIds(
-				self::con()->comps->scans->APC()->getSlug(),
-				'is_abandoned'
-			);
-			$tabs[ 'vulnerabilities' ] = [
-				'count'  => $vulnerableCount + $abandonedCount,
-				'status' => $vulnerableCount > 0
-					? 'critical'
-					: ( $abandonedCount > 0 ? 'warning' : 'good' ),
-			];
-			$statuses[] = $tabs[ 'vulnerabilities' ][ 'status' ];
-		}
-
-		if ( $this->isMalwareTabEnabled() ) {
-			$count = $displayCounts->countMalware();
-			$tabs[ 'malware' ] = [
-				'count'  => $count,
-				'status' => $count > 0 ? 'critical' : 'good',
-			];
-			$statuses[] = $tabs[ 'malware' ][ 'status' ];
-		}
+		$this->appendAssetTabMetrics( $tabs, $statuses, 'plugins', 'plugin' );
+		$this->appendAssetTabMetrics( $tabs, $statuses, 'themes', 'theme' );
+		$this->appendVulnerabilitiesMetrics( $tabs, $statuses );
+		$this->appendMalwareMetrics( $tabs, $statuses, $displayCounts );
 
 		$fileLockerCount = \count( ( new LoadFileLocks() )->withProblems() );
 		$tabs[ 'file_locker' ] = [
@@ -93,25 +56,112 @@ class ActionsQueueScanRailMetricsBuilder {
 		];
 	}
 
-	private function isWordpressTabEnabled() :bool {
-		return self::con()->comps->scans->AFS()->isScanEnabledWpCore();
+	/**
+	 * @param array<string,array{count:int,status:string}> $tabs
+	 * @param list<string> $statuses
+	 */
+	private function appendAssetTabMetrics( array &$tabs, array &$statuses, string $tabKey, string $assetType ) :void {
+		$availability = $this->getTabAvailability( $tabKey );
+		if ( empty( $availability[ 'show_in_actions_queue' ] ) ) {
+			return;
+		}
+
+		if ( empty( $availability[ 'is_available' ] ) ) {
+			$tabs[ $tabKey ] = $this->buildDisabledTabMetrics();
+			return;
+		}
+
+		$count = $this->countDistinctAffectedAssets( $assetType );
+		$tabs[ $tabKey ] = [
+			'count'  => $count,
+			'status' => $count > 0 ? 'warning' : 'good',
+		];
+		$statuses[] = $tabs[ $tabKey ][ 'status' ];
 	}
 
-	private function isPluginsTabEnabled() :bool {
-		return self::con()->comps->scans->AFS()->isScanEnabledPlugins();
+	/**
+	 * @param array<string,array{count:int,status:string}> $tabs
+	 * @param list<string> $statuses
+	 */
+	private function appendVulnerabilitiesMetrics( array &$tabs, array &$statuses ) :void {
+		$availability = $this->getTabAvailability( 'vulnerabilities' );
+		if ( empty( $availability[ 'show_in_actions_queue' ] ) ) {
+			return;
+		}
+
+		if ( empty( $availability[ 'is_available' ] ) ) {
+			$tabs[ 'vulnerabilities' ] = $this->buildDisabledTabMetrics();
+			return;
+		}
+
+		$vulnerableCount = $this->countDistinctResultItemIds(
+			self::con()->comps->scans->WPV()->getSlug(),
+			'is_vulnerable'
+		);
+		$abandonedCount = $this->countDistinctResultItemIds(
+			self::con()->comps->scans->APC()->getSlug(),
+			'is_abandoned'
+		);
+		$tabs[ 'vulnerabilities' ] = [
+			'count'  => $vulnerableCount + $abandonedCount,
+			'status' => $vulnerableCount > 0
+				? 'critical'
+				: ( $abandonedCount > 0 ? 'warning' : 'good' ),
+		];
+		$statuses[] = $tabs[ 'vulnerabilities' ][ 'status' ];
 	}
 
-	private function isThemesTabEnabled() :bool {
-		return self::con()->comps->scans->AFS()->isScanEnabledThemes();
+	/**
+	 * @param array<string,array{count:int,status:string}> $tabs
+	 * @param list<string> $statuses
+	 */
+	private function appendMalwareMetrics( array &$tabs, array &$statuses, Counts $displayCounts ) :void {
+		$availability = $this->getTabAvailability( 'malware' );
+		if ( empty( $availability[ 'show_in_actions_queue' ] ) ) {
+			return;
+		}
+
+		if ( empty( $availability[ 'is_available' ] ) ) {
+			$tabs[ 'malware' ] = $this->buildDisabledTabMetrics();
+			return;
+		}
+
+		$count = $displayCounts->countMalware();
+		$tabs[ 'malware' ] = [
+			'count'  => $count,
+			'status' => $count > 0 ? 'critical' : 'good',
+		];
+		$statuses[] = $tabs[ 'malware' ][ 'status' ];
 	}
 
-	private function isVulnerabilitiesTabEnabled() :bool {
-		$scansCon = self::con()->comps->scans;
-		return $scansCon->WPV()->isEnabled() || $scansCon->APC()->isEnabled();
+	/**
+	 * @return array{count:int,status:string}
+	 */
+	private function buildDisabledTabMetrics() :array {
+		return [
+			'count'  => 0,
+			'status' => 'neutral',
+		];
 	}
 
-	private function isMalwareTabEnabled() :bool {
-		return self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP();
+	/**
+	 * @return array{
+	 *   is_available:bool,
+	 *   show_in_actions_queue:bool,
+	 *   disabled_message:string,
+	 *   disabled_status:string
+	 * }
+	 */
+	private function getTabAvailability( string $tabKey ) :array {
+		return $this->getTabAvailabilityBuilder()->build( $tabKey );
+	}
+
+	private function getTabAvailabilityBuilder() :ScansResultsRailTabAvailability {
+		if ( $this->tabAvailability === null ) {
+			$this->tabAvailability = new ScansResultsRailTabAvailability();
+		}
+
+		return $this->tabAvailability;
 	}
 
 	private function countDistinctAffectedAssets( string $assetType ) :int {

@@ -1,11 +1,12 @@
-import { Tooltip } from 'bootstrap';
+import { Collapse, Tooltip } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
+import { InvestigationTable } from "../tables/InvestigationTable";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class DetailRowExpandController extends BaseAutoExecComponent {
 
 	canRun() {
-		return document.querySelector( '[data-shield-expand-trigger="1"]' ) !== null;
+		return true;
 	}
 
 	run() {
@@ -22,6 +23,18 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 		shieldEventsHandler_Main.add_Keyup(
 			'[data-shield-expand-trigger="1"]',
 			( row, evt ) => this.handleRowKeyup( row, evt ),
+			false
+		);
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.collapse',
+			'[data-shield-expand-body="1"]',
+			( expansion ) => this.handleCollapseShown( expansion ),
+			false
+		);
+		shieldEventsHandler_Main.addHandler(
+			'hidden.bs.collapse',
+			'[data-shield-expand-body="1"]',
+			( expansion ) => this.handleCollapseHidden( expansion ),
 			false
 		);
 	}
@@ -47,63 +60,34 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 	handleCloseClick( button ) {
 		const expansion = button.closest( '[data-shield-expand-body="1"]' );
 		if ( expansion !== null ) {
-			this.closeExpansion( expansion );
+			Collapse.getOrCreateInstance( expansion, { toggle: false } ).hide();
 		}
 	}
 
 	toggleExpand( row ) {
-		const targetId = ( row.dataset.shieldExpandTarget || '' ).trim();
-		if ( targetId.length === 0 ) {
-			return;
-		}
-
-		const expansion = document.getElementById( targetId );
+		const expansion = this.findExpansionForRow( row );
 		if ( expansion === null ) {
 			return;
 		}
 
-		if ( expansion.classList.contains( 'is-open' ) ) {
-			this.closeExpansion( expansion );
+		Collapse.getOrCreateInstance( expansion, { toggle: false } ).toggle();
+	}
+
+	handleCollapseShown( expansion ) {
+		const row = this.findRowForExpansion( expansion );
+		if ( row === null ) {
 			return;
 		}
 
-		this.closeSiblingExpansions( row, expansion );
-		this.openExpansion( row, expansion );
-	}
-
-	closeSiblingExpansions( row, currentExpansion ) {
-		const itemWrapper = row.closest( '.shield-detail-item' );
-		const container = itemWrapper !== null ? itemWrapper.parentElement : null;
-		if ( container === null ) {
-			return;
-		}
-
-		container.querySelectorAll( '[data-shield-expand-body="1"].is-open' ).forEach( ( expansion ) => {
-			if ( expansion !== currentExpansion ) {
-				this.closeExpansion( expansion );
-			}
-		} );
-	}
-
-	openExpansion( row, expansion ) {
 		row.classList.add( 'is-expanded' );
 		row.setAttribute( 'aria-expanded', 'true' );
-
-		expansion.classList.add( 'is-open' );
-		expansion.setAttribute( 'aria-hidden', 'false' );
-
+		if ( expansion.querySelector( '[data-investigation-table="1"]' ) !== null ) {
+			new InvestigationTable( { contextEl: expansion } );
+		}
 		BootstrapTooltips.RegisterNewTooltipsWithin( expansion );
-
-		expansion.dispatchEvent( new CustomEvent( 'shield:expansion-opened', {
-			bubbles: true,
-			detail: {
-				row,
-				expansion
-			}
-		} ) );
 	}
 
-	closeExpansion( expansion ) {
+	handleCollapseHidden( expansion ) {
 		expansion.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( el ) => {
 			const tip = Tooltip.getInstance( el );
 			if ( tip ) {
@@ -111,14 +95,16 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 			}
 		} );
 
-		expansion.classList.remove( 'is-open' );
-		expansion.setAttribute( 'aria-hidden', 'true' );
-
 		const row = this.findRowForExpansion( expansion );
 		if ( row !== null ) {
 			row.classList.remove( 'is-expanded' );
 			row.setAttribute( 'aria-expanded', 'false' );
 		}
+	}
+
+	findExpansionForRow( row ) {
+		const targetId = ( row.dataset.shieldExpandTarget || '' ).trim();
+		return targetId.length > 0 ? document.getElementById( targetId ) : null;
 	}
 
 	findRowForExpansion( expansion ) {

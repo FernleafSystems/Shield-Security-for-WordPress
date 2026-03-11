@@ -77,17 +77,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 * @return array<string,mixed>
 	 */
 	public function buildVulnerabilitiesPane() :array {
-		$vulnerabilities = $this->buildVulnerabilities();
-		$meta = $this->getRailTabMeta( 'vulnerabilities' );
-
-		return [
-			'key'        => 'vulnerabilities',
-			'label'      => $meta[ 'label' ],
-			'status'     => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
-			'icon_class' => $meta[ 'icon_class' ],
-			'items'      => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
-			'is_loaded'  => true,
-		];
+		return $this->buildRailPaneData( 'vulnerabilities' );
 	}
 
 	/**
@@ -108,6 +98,11 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 * @return array<string,mixed>|null
 	 */
 	private function buildLazyTabDefinition( string $tabKey ) :?array {
+		$availability = $this->getRailTabAvailability( $tabKey );
+		if ( empty( $availability[ 'show_in_actions_queue' ] ) ) {
+			return null;
+		}
+
 		$meta = $this->getRailTabMeta( $tabKey );
 		$definition = [
 			'key'        => $tabKey,
@@ -122,29 +117,19 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 		switch ( $tabKey ) {
 			case 'wordpress':
-				return $this->isWordpressTabEnabled()
-					? \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Wordpress::class ) ] )
-					: null;
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Wordpress::class ) ] );
 
 			case 'plugins':
-				return $this->isPluginsRailTabEnabled()
-					? \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Plugins::class ) ] )
-					: null;
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Plugins::class ) ] );
 
 			case 'themes':
-				return $this->isThemesRailTabEnabled()
-					? \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Themes::class ) ] )
-					: null;
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Themes::class ) ] );
 
 			case 'vulnerabilities':
-				return $this->isVulnerabilitiesRailTabEnabled()
-					? \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Vulnerabilities::class ) ] )
-					: null;
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Vulnerabilities::class ) ] );
 
 			case 'malware':
-				return $this->isMalwareRailTabEnabled()
-					? \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Malware::class ) ] )
-					: null;
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Malware::class ) ] );
 
 			case 'file_locker':
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( FileLocker::class ) ] );

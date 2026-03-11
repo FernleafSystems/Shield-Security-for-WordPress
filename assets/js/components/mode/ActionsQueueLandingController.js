@@ -3,7 +3,6 @@ import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
-import { ShieldTableScanResults } from "../tables/ShieldTableScanResults";
 import { ObjectOps } from "../../util/ObjectOps";
 
 export class ActionsQueueLandingController extends BaseAutoExecComponent {
@@ -14,14 +13,23 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	run() {
 		this.rootEl = document.querySelector( '[data-actions-landing="1"]' );
-		document.addEventListener( 'shield:rail-pane-switched', ( evt ) => this.handleRailPaneSwitched( evt ) );
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.tab',
+			'[data-shield-rail-target][data-bs-toggle="tab"]',
+			( item ) => this.handleRailTabShown( item ),
+			false
+		);
 		this.hydrateRailMetrics();
 		this.preloadRailPanes();
 	}
 
-	handleRailPaneSwitched( evt ) {
-		const { scope, pane } = evt.detail;
-		if ( scope === null || pane === null || !this.rootEl.contains( scope ) ) {
+	handleRailTabShown( item ) {
+		if ( this.rootEl === null || !this.rootEl.contains( item ) ) {
+			return;
+		}
+
+		const pane = this.findTargetPane( item );
+		if ( pane === null ) {
 			return;
 		}
 
@@ -145,22 +153,9 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		this.initializeDynamicContent( pane );
 		pane.dataset.actionsQueuePaneInitialized = '1';
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( pane );
 		BootstrapTooltips.RegisterNewTooltipsWithin( pane );
-	}
-
-	initializeDynamicContent( pane ) {
-		const scanTables = window.shield_vars_main.comps.scans.vars.scan_results_tables;
-
-		if ( pane.querySelector( '#ShieldTable-ScanResultsWordpress' ) && scanTables.wordpress ) {
-			new ShieldTableScanResults( ObjectOps.ObjClone( scanTables.wordpress ) );
-		}
-
-		if ( pane.querySelector( '#ShieldTable-ScanResultsMalware' ) && scanTables.malware ) {
-			new ShieldTableScanResults( ObjectOps.ObjClone( scanTables.malware ) );
-		}
 	}
 
 	getPreloadablePanes() {
@@ -295,6 +290,15 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	getPaneRenderAction( pane ) {
 		return this.parseJsonDataset( pane.dataset.actionsQueueRenderAction );
+	}
+
+	findTargetPane( item ) {
+		const targetSelector = ( item.dataset.bsTarget || item.getAttribute( 'href' ) || '' ).trim();
+		if ( targetSelector.length < 2 || !targetSelector.startsWith( '#' ) ) {
+			return null;
+		}
+
+		return this.rootEl.querySelector( targetSelector );
 	}
 
 	isPaneActive( pane ) {

@@ -299,6 +299,11 @@ class ConfigureRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@id="cfg-expand-firewall-0-0" and contains(concat(" ", normalize-space(@class), " "), " collapse ") and @data-bs-parent="#configure-rail-pane-firewall"]',
+			'Configure rail expansions should use Bootstrap collapse markup and stay scoped to their pane'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-shield-rail-pane="general"]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and @data-configure-zone-settings="general"]',
 			'Configure rail should render the shared Configure CTA inside the zone pane'
 		);

@@ -6,19 +6,22 @@ import { ObjectOps } from "../../util/ObjectOps";
 export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 	canRun() {
-		return document.querySelector( '[data-configure-landing="1"]' ) !== null
-			&& this._base_data?.ajax?.offcanvas_zone_component_config;
+		return !!this._base_data?.ajax?.offcanvas_zone_component_config;
 	}
 
 	run() {
 		this.ajaxBase = this._base_data.ajax.offcanvas_zone_component_config;
 
-		document.addEventListener( 'shield:expansion-opened', ( evt ) => {
-			const expansion = evt.detail?.expansion || null;
-			if ( expansion !== null && this.getConfigureRoot()?.contains( expansion ) ) {
-				this.handleExpansionOpened( expansion );
-			}
-		} );
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.collapse',
+			'[data-shield-expand-body="1"]',
+			( expansion ) => {
+				if ( this.getConfigureRoot()?.contains( expansion ) ) {
+					this.handleExpansionOpened( expansion );
+				}
+			},
+			false
+		);
 
 		shieldEventsHandler_Main.add_Click(
 			'.shield-detail-expansion__btn-save',

@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions\Investigation\InvestigationTableContract
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Malware,
@@ -29,6 +32,7 @@ class ScansResultsViewBuilder {
 	use PluginControllerConsumer;
 
 	private ?array $cachedAfsItems = null;
+	private ?ScansResultsRailTabAvailability $cachedRailTabAvailability = null;
 
 	public function build() :array {
 		$summaryRows = $this->buildSummaryRows();
@@ -131,6 +135,18 @@ class ScansResultsViewBuilder {
 
 	protected function isMalwareRailTabEnabled() :bool {
 		return self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP();
+	}
+
+	/**
+	 * @return array{
+	 *   is_available:bool,
+	 *   show_in_actions_queue:bool,
+	 *   disabled_message:string,
+	 *   disabled_status:string
+	 * }
+	 */
+	protected function getRailTabAvailability( string $tabKey ) :array {
+		return $this->getRailTabAvailabilityBuilder()->build( $tabKey );
 	}
 
 	/**
@@ -329,58 +345,55 @@ class ScansResultsViewBuilder {
 				if ( !$this->isWordpressTabEnabled() ) {
 					return null;
 				}
-				$items = $this->buildWordpressRailItems();
-				$count = $this->countNonGoodItems( $items );
+				$pane = $this->buildRailPaneData( 'wordpress' );
 				return \array_merge( $definition, [
-					'count'  => $count,
-					'status' => $count > 0 ? 'critical' : 'good',
-					'items'  => $items,
+					'count'  => $pane[ 'count_items' ],
+					'status' => $pane[ 'status' ],
+					'items'  => $pane[ 'items' ],
 				] );
 
 			case 'plugins':
 				if ( !$this->isPluginsRailTabEnabled() ) {
 					return null;
 				}
-				$items = $this->buildPluginThemeRailItemsDirect( 'plugin' );
-				$count = $this->countNonGoodItems( $items );
+				$pane = $this->buildRailPaneData( 'plugins' );
 				return \array_merge( $definition, [
-					'count'  => $count,
-					'status' => $count > 0 ? 'warning' : 'good',
-					'items'  => $items,
+					'count'  => $pane[ 'count_items' ],
+					'status' => $pane[ 'status' ],
+					'items'  => $pane[ 'items' ],
 				] );
 
 			case 'themes':
 				if ( !$this->isThemesRailTabEnabled() ) {
 					return null;
 				}
-				$items = $this->buildPluginThemeRailItemsDirect( 'theme' );
-				$count = $this->countNonGoodItems( $items );
+				$pane = $this->buildRailPaneData( 'themes' );
 				return \array_merge( $definition, [
-					'count'  => $count,
-					'status' => $count > 0 ? 'warning' : 'good',
-					'items'  => $items,
+					'count'  => $pane[ 'count_items' ],
+					'status' => $pane[ 'status' ],
+					'items'  => $pane[ 'items' ],
 				] );
 
 			case 'vulnerabilities':
 				if ( !$this->isVulnerabilitiesRailTabEnabled() ) {
 					return null;
 				}
+				$pane = $this->buildRailPaneData( 'vulnerabilities', $vulnerabilities );
 				return \array_merge( $definition, [
-					'count'  => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
-					'status' => $this->buildVulnerabilitiesRailStatus( $vulnerabilities ),
-					'items'  => $this->buildVulnerabilitiesRailItems( $vulnerabilities ),
+					'count'  => $pane[ 'count_items' ],
+					'status' => $pane[ 'status' ],
+					'items'  => $pane[ 'items' ],
 				] );
 
 			case 'malware':
 				if ( !$this->isMalwareRailTabEnabled() ) {
 					return null;
 				}
-				$items = $this->buildMalwareRailItems();
-				$count = $this->countNonGoodItems( $items );
+				$pane = $this->buildRailPaneData( 'malware' );
 				return \array_merge( $definition, [
-					'count'  => $count,
-					'status' => $count > 0 ? 'critical' : 'good',
-					'items'  => $items,
+					'count'  => $pane[ 'count_items' ],
+					'status' => $pane[ 'status' ],
+					'items'  => $pane[ 'items' ],
 				] );
 
 			case 'file_locker':
@@ -599,6 +612,7 @@ class ScansResultsViewBuilder {
 		}
 
 		$issueItems = [];
+		$tableBuilder = new InvestigationFileStatusTableContractBuilder();
 
 		foreach ( $groupedBySlug as $slug => $items ) {
 			if ( $assetType === 'plugin' ) {
@@ -607,6 +621,8 @@ class ScansResultsViewBuilder {
 					continue;
 				}
 				$assetName = (string)$asset->Title;
+				$subjectType = InvestigationTableContract::SUBJECT_TYPE_PLUGIN;
+				$subjectId = (string)$asset->file;
 			}
 			else {
 				$asset = Services::WpThemes()->getThemeAsVo( $slug, true );
@@ -614,44 +630,12 @@ class ScansResultsViewBuilder {
 					continue;
 				}
 				$assetName = (string)$asset->Name;
+				$subjectType = InvestigationTableContract::SUBJECT_TYPE_THEME;
+				$subjectId = (string)$asset->stylesheet;
 			}
 
 			$fileCount = \count( $items );
 			$expandTarget = 'scan-files-'.$assetType.'-'.\sanitize_key( $slug );
-
-			$files = [];
-			foreach ( $items as $resultItem ) {
-				$filePath = (string)$resultItem->path_fragment;
-				if ( !empty( $resultItem->is_missing ) ) {
-					$fileStatus = 'missing';
-					$fileStatusLabel = __( 'Missing', 'wp-simple-firewall' );
-				}
-				elseif ( !empty( $resultItem->is_checksumfail ) ) {
-					$fileStatus = 'modified';
-					$fileStatusLabel = __( 'Modified', 'wp-simple-firewall' );
-				}
-				elseif ( !empty( $resultItem->is_unrecognised ) ) {
-					$fileStatus = 'unrecognised';
-					$fileStatusLabel = __( 'Unrecognised', 'wp-simple-firewall' );
-				}
-				else {
-					$fileStatus = 'unknown';
-					$fileStatusLabel = __( 'Unknown', 'wp-simple-firewall' );
-				}
-
-				$fullPath = ABSPATH.$filePath;
-				$fileSize = @\filesize( $fullPath );
-
-				$files[] = [
-					'status'       => $fileStatus,
-					'status_label' => $fileStatusLabel,
-					'path'         => $filePath,
-					'size'         => $fileSize !== false ? \size_format( $fileSize ) : '—',
-					'detected'     => isset( $resultItem->VO ) && !empty( $resultItem->VO->created_at )
-						? Services::Request()->carbon()->setTimestamp( $resultItem->VO->created_at )->diffForHumans()
-						: '—',
-				];
-			}
 
 			$row = $this->buildDetailRow(
 				$assetName,
@@ -666,7 +650,7 @@ class ScansResultsViewBuilder {
 			);
 			$row[ 'expandable' ] = true;
 			$row[ 'expand_target' ] = $expandTarget;
-			$row[ 'files' ] = $files;
+			$row[ 'expansion_table' ] = $tableBuilder->build( $subjectType, $subjectId );
 			$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
 			$issueItems[] = $row;
 		}
@@ -717,18 +701,22 @@ class ScansResultsViewBuilder {
 			$sectionLabel = (string)( $section[ 'label' ] ?? '' );
 			foreach ( \is_array( $section[ 'items' ] ?? null ) ? $section[ 'items' ] : [] as $item ) {
 				$severity = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
-				$cta = \is_array( $item[ 'cta' ] ?? null ) ? $item[ 'cta' ] : [];
+				$actions = \is_array( $item[ 'actions' ] ?? null ) ? \array_values( $item[ 'actions' ] ) : [];
+				if ( empty( $actions ) ) {
+					$cta = \is_array( $item[ 'cta' ] ?? null ) ? $item[ 'cta' ] : [];
+					$actions = $this->buildActionsForHref(
+						(string)( $cta[ 'label' ] ?? '' ),
+						(string)( $cta[ 'href' ] ?? '' ),
+						(string)( $cta[ 'type' ] ?? 'navigate' )
+					);
+				}
 				$items[] = $this->buildDetailRow(
 					(string)( $item[ 'label' ] ?? '' ),
 					(string)( $item[ 'description' ] ?? '' ),
 					$severity,
 					isset( $item[ 'count' ] ) ? (int)$item[ 'count' ] : null,
 					$severity,
-					$this->buildActionsForHref(
-						(string)( $cta[ 'label' ] ?? '' ),
-						(string)( $cta[ 'href' ] ?? '' ),
-						(string)( $cta[ 'type' ] ?? 'navigate' )
-					),
+					$actions,
 					null,
 					null,
 					$sectionLabel
@@ -771,7 +759,7 @@ class ScansResultsViewBuilder {
 				'good'
 			);
 		}
-		return $items;
+		return $this->countNonGoodItems( $items ) === 0 ? [] : $items;
 	}
 
 	/**
@@ -796,7 +784,7 @@ class ScansResultsViewBuilder {
 				'good'
 			);
 		}
-		return $items;
+		return $this->countNonGoodItems( $items ) === 0 ? [] : $items;
 	}
 
 	/**
@@ -857,18 +845,100 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return array{count_items:int,status:string,items:list<array<string,mixed>>,is_loaded:bool}
+	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
+	 * @return array{
+	 *   key:string,
+	 *   label:string,
+	 *   status:string,
+	 *   icon_class:string,
+	 *   count_items:int,
+	 *   items:list<array<string,mixed>>,
+	 *   is_loaded:bool,
+	 *   is_disabled:bool,
+	 *   disabled_message:string,
+	 *   disabled_status:string
+	 * }
 	 */
-	public function buildPluginThemePaneData( string $assetType ) :array {
-		$items = $this->buildPluginThemeRailItemsDirect( $assetType );
-		$count = $this->countNonGoodItems( $items );
+	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [] ) :array {
+		$tabKey = \strtolower( \trim( $tabKey ) );
+		$meta = $this->getRailTabMeta( $tabKey );
+		$availability = $this->getRailTabAvailability( $tabKey );
+		$items = [];
+		$count = 0;
+		$status = 'good';
+		$isDisabled = false;
+		$disabledMessage = '';
+		$disabledStatus = (string)( $availability[ 'disabled_status' ] ?? 'neutral' );
+
+		if ( \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware' ], true )
+			 && empty( $availability[ 'is_available' ] ) ) {
+			$isDisabled = true;
+			$status = $disabledStatus;
+			$disabledMessage = (string)( $availability[ 'disabled_message' ] ?? '' );
+		}
+
+		if ( !$isDisabled ) {
+			switch ( $tabKey ) {
+				case 'wordpress':
+					$items = $this->buildWordpressRailItems();
+					$count = $this->countNonGoodItems( $items );
+					$status = $count > 0 ? 'critical' : 'good';
+					break;
+
+				case 'plugins':
+					$items = $this->buildPluginThemeRailItemsDirect( 'plugin' );
+					$count = $this->countNonGoodItems( $items );
+					$status = $count > 0 ? 'warning' : 'good';
+					break;
+
+				case 'themes':
+					$items = $this->buildPluginThemeRailItemsDirect( 'theme' );
+					$count = $this->countNonGoodItems( $items );
+					$status = $count > 0 ? 'warning' : 'good';
+					break;
+
+				case 'vulnerabilities':
+					$vulnerabilities = empty( $vulnerabilities ) ? $this->buildVulnerabilities() : $vulnerabilities;
+					$items = $this->buildVulnerabilitiesRailItems( $vulnerabilities );
+					$count = (int)( $vulnerabilities[ 'count' ] ?? 0 );
+					$status = $this->buildVulnerabilitiesRailStatus( $vulnerabilities );
+					break;
+
+				case 'malware':
+					$items = $this->buildMalwareRailItems();
+					$count = $this->countNonGoodItems( $items );
+					$status = $count > 0 ? 'critical' : 'good';
+					break;
+			}
+		}
 
 		return [
+			'key'         => $tabKey,
+			'label'       => $meta[ 'label' ],
+			'icon_class'  => $meta[ 'icon_class' ],
 			'count_items' => $count,
-			'status'      => $count > 0 ? 'warning' : 'good',
+			'status'      => $status,
 			'items'       => $items,
 			'is_loaded'   => true,
+			'is_disabled' => $isDisabled,
+			'disabled_message' => $disabledMessage,
+			'disabled_status'  => $disabledStatus,
 		];
+	}
+
+	/**
+	 * @return array{
+	 *   key:string,
+	 *   label:string,
+	 *   status:string,
+	 *   icon_class:string,
+	 *   count_items:int,
+	 *   items:list<array<string,mixed>>,
+	 *   is_loaded:bool
+	 * }
+	 */
+	public function buildPluginThemePaneData( string $assetType ) :array {
+		return $this->buildRailPaneData( $assetType === 'theme' ? 'themes' : 'plugins' );
 	}
 
 	private function actionPayload( string $actionClass ) :array {
@@ -996,5 +1066,13 @@ class ScansResultsViewBuilder {
 		return empty( $lock->hash_current )
 			? __( 'Locked file is missing.', 'wp-simple-firewall' )
 			: __( 'File has been modified since the lock was created.', 'wp-simple-firewall' );
+	}
+
+	private function getRailTabAvailabilityBuilder() :ScansResultsRailTabAvailability {
+		if ( $this->cachedRailTabAvailability === null ) {
+			$this->cachedRailTabAvailability = new ScansResultsRailTabAvailability();
+		}
+
+		return $this->cachedRailTabAvailability;
 	}
 }

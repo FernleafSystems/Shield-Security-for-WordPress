@@ -6,7 +6,7 @@ import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjust
 export class RailSidebarController extends BaseAutoExecComponent {
 
 	canRun() {
-		return document.querySelector( '[data-shield-rail-scope="1"]' ) !== null;
+		return true;
 	}
 
 	run() {
@@ -72,7 +72,6 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		}
 
 		this.activatePaneEnhancements( scope, targetPane );
-		this.dispatchPaneSwitchedEvent( scope, ( item.dataset.shieldRailTarget || '' ).trim(), targetPane, item );
 	}
 
 	findBootstrapTargetPane( item, scope ) {
@@ -99,17 +98,5 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		}
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( targetPane );
 		BootstrapTooltips.RegisterNewTooltipsWithin( targetPane );
-	}
-
-	dispatchPaneSwitchedEvent( scope, targetKey, pane, item ) {
-		scope.dispatchEvent( new CustomEvent( 'shield:rail-pane-switched', {
-			bubbles: true,
-			detail: {
-				scope,
-				targetKey,
-				pane,
-				item,
-			},
-		} ) );
 	}
 }

@@ -20,18 +20,6 @@ abstract class PluginThemesBase extends Base {
 
 	private static $wpOrgDataCache = false;
 
-	protected function getRenderData() :array {
-		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
-			'strings' => [
-				'ptg_name'          => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'ptg_not_available' => sprintf( __( 'Scanning Plugin & Theme Files is available only with the Pro version of %s.', 'wp-simple-firewall' ), self::con()->labels->Name ),
-			],
-			'flags'   => [
-				'ptg_is_restricted' => !self::con()->isPremiumActive(),
-			]
-		] );
-	}
-
 	protected function getVulnerabilities() :Scans\Wpv\ResultsSet {
 		try {
 			$vulnerable = self::con()->comps->scans->WPV()->getResultsForDisplay();

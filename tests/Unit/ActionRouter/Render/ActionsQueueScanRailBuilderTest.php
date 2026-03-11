@@ -113,6 +113,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
 		$pluginsTab = $this->findTabByKey( $railTabs, 'plugins' );
 		$vulnerabilitiesTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
+		$malwareTab = $this->findTabByKey( $railTabs, 'malware' );
 
 		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] ?? '' );
 		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' );
@@ -128,6 +129,10 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $pluginsTab[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertTrue( (bool)( $this->findTabByKey( $renderData[ 'vars' ][ 'rail' ][ 'items' ] ?? [], 'plugins' )[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertFalse( (bool)( $pluginsTab[ 'is_loaded' ] ?? true ) );
+		$this->assertSame( 'scanresults_malware', $malwareTab[ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertArrayHasKey( 'count', $malwareTab );
+		$this->assertNull( $malwareTab[ 'count' ] );
+		$this->assertTrue( (bool)( $malwareTab[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertSame( 'scanresults_vulnerabilities', $vulnerabilitiesTab[ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( '', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] ?? 'unexpected' );
 	}
@@ -163,6 +168,44 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $pane[ 'status' ] ?? '' );
 		$this->assertCount( 1, $pane[ 'items' ] ?? [] );
 		$this->assertSame( 'Abandoned Assets', $pane[ 'items' ][ 0 ][ 'section_label' ] ?? '' );
+	}
+
+	public function test_build_keeps_disabled_review_tabs_visible_in_lazy_shell() :void {
+		$builder = new ActionsQueueScanRailBuilderTestDouble(
+			false,
+			false,
+			false,
+			false,
+			false
+		);
+
+		$renderData = $builder->buildFromLandingData( $this->buildNeedsAttentionPayload() );
+		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$tabsByKey = [];
+		foreach ( $railTabs as $tab ) {
+			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
+		}
+
+		$this->assertSame(
+			[ 'summary', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+			\array_keys( $tabsByKey )
+		);
+		$this->assertSame( 'scanresults_plugins', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'scanresults_malware', $tabsByKey[ 'malware' ][ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'malware' ] );
+		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] );
+		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] );
+		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] );
+		$this->assertNull( $tabsByKey[ 'malware' ][ 'count' ] );
+		$this->assertSame( 'neutral', $tabsByKey[ 'plugins' ][ 'status' ] ?? '' );
+		$this->assertSame( 'neutral', $tabsByKey[ 'themes' ][ 'status' ] ?? '' );
+		$this->assertSame( 'neutral', $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' );
+		$this->assertSame( 'neutral', $tabsByKey[ 'malware' ][ 'status' ] ?? '' );
 	}
 
 	private function buildNeedsAttentionPayload() :array {
@@ -259,6 +302,26 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 
 	protected function isMalwareRailTabEnabled() :bool {
 		return $this->malwareEnabled;
+	}
+
+	protected function getRailTabAvailability( string $tabKey ) :array {
+		$isAvailable = match ( $tabKey ) {
+			'wordpress' => $this->wordpressEnabled,
+			'plugins' => $this->pluginsEnabled,
+			'themes' => $this->themesEnabled,
+			'vulnerabilities' => $this->vulnerabilitiesEnabled,
+			'malware' => $this->malwareEnabled,
+			'file_locker' => true,
+			default => false,
+		};
+
+		return [
+			'is_available' => $isAvailable,
+			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ], true )
+				|| ( $tabKey === 'wordpress' && $this->wordpressEnabled ),
+			'disabled_message' => $isAvailable ? '' : $tabKey.' disabled',
+			'disabled_status' => 'neutral',
+		];
 	}
 
 	protected function buildAjaxRenderActionData( string $actionClass ) :array {

@@ -186,6 +186,8 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 			'row' => [
 				'status'  => 'warning',
 				'title'   => 'Tooltip Row',
+				'expandable' => true,
+				'expand_target' => 'tooltip-row-expansion',
 				'actions' => [
 					[
 						'type'    => 'update',
@@ -211,7 +213,12 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 
 		$this->assertSame(
 			1,
-			$xpath->query( '//*[@data-bs-toggle="tooltip" and @data-bs-title="Go to updates"]' )->length,
+			$xpath->query( '//*[@data-shield-expand-trigger="1" and @aria-controls="tooltip-row-expansion" and @aria-expanded="false"]' )->length,
+			'Expandable rows should expose the Bootstrap collapse target through aria-controls'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//*[@href="#update" and @data-bs-toggle="tooltip"]' )->length,
 			'Only actions with non-empty tooltip strings should render tooltip attributes'
 		);
 		$this->assertSame(
@@ -223,6 +230,24 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 			0,
 			$xpath->query( '//*[@href="#null" and @data-bs-toggle="tooltip"]' )->length,
 			'Missing tooltip values should not render tooltip attributes'
+		);
+	}
+
+	public function testDetailExpansionRendersBootstrapCollapseContract() :void {
+		$html = $this->twig()->render( '/wpadmin/components/page/shield_detail_expansion.twig', [
+			'expansion' => [
+				'id'        => 'exp-bootstrap',
+				'parent_id' => 'exp-parent',
+				'type'      => 'table',
+				'body'      => '<table><tbody><tr><td>Example</td></tr></tbody></table>',
+			],
+		] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame(
+			1,
+			$xpath->query( '//*[@id="exp-bootstrap" and contains(concat(" ", normalize-space(@class), " "), " collapse ") and @data-bs-parent="#exp-parent"]' )->length,
+			'Detail expansions should render Bootstrap collapse classes and parent wiring'
 		);
 	}
 }
