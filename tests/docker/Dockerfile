@@ -54,13 +54,14 @@ ARG PHP_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-# Add PHP repository with cache mount (only cache downloaded packages, not indexes)
+# Add PHP repository.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    add-apt-repository ppa:ondrej/php && apt-get update
+    add-apt-repository ppa:ondrej/php
 
-# Install PHP and required extensions with cache mount
+# Install PHP and required extensions with a fresh package index.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt-get install -y \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update && apt-get install -y \
     php${PHP_VERSION} \
     php${PHP_VERSION}-cli \
     php${PHP_VERSION}-mysql \

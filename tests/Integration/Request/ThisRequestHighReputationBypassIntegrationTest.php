@@ -16,9 +16,11 @@ class ThisRequestHighReputationBypassIntegrationTest extends ShieldIntegrationTe
 	public function set_up() {
 		parent::set_up();
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
+		add_filter( 'shield/high_reputation_ip_minimum', [ $this, 'filterHighReputationMinimum' ] );
 	}
 
 	public function tear_down() {
+		remove_filter( 'shield/high_reputation_ip_minimum', [ $this, 'filterHighReputationMinimum' ] );
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
 		parent::tear_down();
 	}
@@ -79,6 +81,11 @@ class ThisRequestHighReputationBypassIntegrationTest extends ShieldIntegrationTe
 		finally {
 			remove_filter( 'shield/is_ip_blocked_auto', '__return_true' );
 		}
+	}
+
+
+	public function filterHighReputationMinimum() :int {
+		return 100;
 	}
 
 	private function applyRequestForIp( string $ip ) :void {

@@ -73,7 +73,8 @@ class OptionsCorrections {
 						if ( !isset( $parsed[ $page ] ) ) {
 							$parsed[ $page ] = [];
 						}
-						$parsed[ $page ] = \array_map( '\\strtolower', \array_unique( \array_merge( $parsed[ $page ], $parts ) ) );
+						$parts = \array_filter( \array_map( static fn( string $part ) :string => \strtolower( \trim( $part ) ), $parts ) );
+						$parsed[ $page ] = \array_values( \array_unique( \array_merge( $parsed[ $page ], $parts ) ) );
 					}
 				}
 			}

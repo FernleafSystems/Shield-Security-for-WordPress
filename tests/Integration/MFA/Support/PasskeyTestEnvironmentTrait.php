@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA\Support;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
@@ -25,7 +26,11 @@ trait PasskeyTestEnvironmentTrait {
 		\update_option( 'home', $fixtureUrl );
 		\update_option( 'siteurl', $fixtureUrl );
 
-		$this->requireController()->opts->optSet( 'enable_passkeys', 'Y' );
+		$this->assertPasskeyRuntimeCompatible();
+		$this->enablePremiumCapabilities( [ '2fa_webauthn' ] );
+		$this->requireController()->opts
+			 ->optSet( 'enable_passkeys', 'Y' )
+			 ->store();
 		$this->applyCurrentRequestState( [
 			'HTTP_HOST'      => PasskeyFixtureLoader::requestHost(),
 			'HTTPS'          => 'on',
@@ -42,6 +47,24 @@ trait PasskeyTestEnvironmentTrait {
 
 	protected function createPasskeyProvider( \WP_User $user ) :Passkey {
 		return new Passkey( $user );
+	}
+
+	protected function assertPasskeyProviderAvailableFor( \WP_User $user ) :Passkey {
+		$provider = new Passkey( $user );
+		$this->assertTrue(
+			$provider->isProviderAvailableToUser(),
+			'Passkey provider must be available for the seeded test user.'
+		);
+		return $provider;
+	}
+
+	protected function assertPasskeyProviderActiveFor( \WP_User $user ) :Passkey {
+		$provider = $this->assertPasskeyProviderAvailableFor( $user );
+		$this->assertTrue(
+			$provider->isProfileActive(),
+			'Passkey provider must be active for the seeded test user.'
+		);
+		return $provider;
 	}
 
 	protected function seedLegacyPasskey( \WP_User $user, string $label = 'Fixture Passkey' ) :int {
@@ -102,6 +125,15 @@ trait PasskeyTestEnvironmentTrait {
 				'label'        => $label,
 				'passwordless' => true,
 			]
+		);
+	}
+
+	protected function assertPasskeyRuntimeCompatible() :void {
+		$required = ( new PasskeyCompatibilityCheck() )->requiredExtensions();
+		$loaded = \array_values( \array_filter( $required, '\extension_loaded' ) );
+		$this->assertNotEmpty(
+			$loaded,
+			'Passkey tests require at least one loaded extension: '.\implode( ', ', $required ).'.'
 		);
 	}
 

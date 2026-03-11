@@ -342,4 +342,21 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 			'SET autocommit must execute without error. Got: '.$wpdb->last_error
 		);
 	}
+
+
+	/**
+	 * @group smoke
+	 */
+	public function test_passkey_runtime_has_required_extension() :void {
+		$required = [
+			'bcmath',
+			'gmp',
+		];
+		$loaded = \array_values( \array_filter( $required, '\extension_loaded' ) );
+
+		$this->assertNotEmpty(
+			$loaded,
+			'Passkey integration runtime must load at least one required extension: '.\implode( ', ', $required ).'.'
+		);
+	}
 }

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
 	Actions\AjaxRender,
 	Actions\Render\PluginAdminPages\PageInvestigateLanding,
 	Constants

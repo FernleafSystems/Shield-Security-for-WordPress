@@ -31,7 +31,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$user = \get_user_by( 'id', $userId );
 		$this->seedPasskeyRegistrationOptions( $user );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderAvailableFor( $user );
 		$result = $provider->verifyRegistrationResponse( PasskeyFixtureLoader::registrationResponse(), 'Desk Key' );
 
 		$this->assertTrue( $result->success );
@@ -67,7 +67,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$user = \get_user_by( 'id', $userId );
 		$this->seedPasskeyRegistrationOptions( $user );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderAvailableFor( $user );
 		$result = $provider->verifyRegistrationResponse(
 			PasskeyFixtureLoader::registrationResponse( [], [
 				'origin' => 'https://evil.example',
@@ -86,7 +86,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$user = \get_user_by( 'id', $userId );
 		$this->seedPasskeyRegistrationOptions( $user );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderAvailableFor( $user );
 		$result = $provider->verifyRegistrationResponse( '{"id":"broken"}', 'Desk Key' );
 
 		$this->assertFalse( $result->success );
@@ -101,7 +101,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$recordId = $this->seedLegacyPasskey( $user );
 		$this->seedPasskeyAuthenticationOptions( $user );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
 		$result = $provider->verifyAuthResponse( PasskeyFixtureLoader::authenticationResponse() );
 
 		$this->assertTrue( $result->success );
@@ -117,7 +117,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$recordId = $this->seedLegacyPasskey( $user );
 		$this->seedPasskeyAuthenticationOptions( $user );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
 		$result = $provider->verifyAuthResponse(
 			PasskeyFixtureLoader::authenticationResponse( [], [
 				'origin' => 'https://evil.example',
@@ -139,7 +139,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$options[ 'challenge' ] = $this->randomBase64Url();
 		$this->seedPasskeyAuthenticationOptions( $user, $options );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
 		$result = $provider->verifyAuthResponse( PasskeyFixtureLoader::authenticationResponse() );
 
 		$this->assertFalse( $result->success );
@@ -155,7 +155,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$recordId = $this->seedLegacyPasskey( $user );
 		$this->seedPasskeyAuthenticationOptions( $user );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
 		$result = $provider->verifyAuthResponse( PasskeyFixtureLoader::authenticationResponse( [
 			'id'    => $this->randomBase64Url(),
 			'rawId' => $this->randomBase64Url(),
@@ -174,7 +174,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$recordId = $this->seedLegacyPasskey( $user );
 		$this->seedPasskeyAuthenticationOptions( $user );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
 		$result = $provider->verifyAuthResponse( '{"id":"broken"}' );
 
 		$this->assertFalse( $result->success );
@@ -193,7 +193,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedPasskeyAuthenticationOptions( $user );
 		$this->seedLoginIntent( $user, 'fixture-passkey-login' );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
 		$this->setPasskeyLoginOtpRequest( $provider, PasskeyFixtureLoader::authenticationResponse() );
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
@@ -215,7 +215,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedPasskeyAuthenticationOptions( $user );
 		$this->seedLoginIntent( $user, 'fixture-passkey-login' );
 
-		$provider = $this->createPasskeyProvider( $user );
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
 		$this->setPasskeyLoginOtpRequest(
 			$provider,
 			PasskeyFixtureLoader::authenticationResponse( [], [

@@ -53,13 +53,15 @@ trait CurrentRequestFixture {
 			'service_request' => $request,
 		] );
 
+		$currentRequest = self::con()->this_req ?? null;
+
 		$thisRequest = new ThisRequest( \array_merge( [
 			'request'                  => $request,
 			'path'                     => empty( $request->getPath() ) ? '/' : $request->getPath(),
 			'wp_is_ajax'               => false,
 			'wp_is_permalinks_enabled' => true,
 			'rest_api_root'            => \rest_url(),
-			'is_security_admin'        => false,
+			'is_security_admin'        => $currentRequest instanceof ThisRequest ? (bool)$currentRequest->is_security_admin : false,
 		], $requestOverrides ) );
 		self::con()->this_req = $thisRequest;
 

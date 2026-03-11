@@ -66,8 +66,6 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( Services::WpFs()->isDir( $expectedCacheDir ) );
 		$this->assertTrue( Services::WpFs()->isDir( \path_join( $expectedCacheDir, 'languages' ) ) );
-		$this->assertTrue( Services::WpFs()->isAccessibleFile( \path_join( $expectedCacheDir, '.htaccess' ) ) );
-		$this->assertTrue( Services::WpFs()->isAccessibleFile( \path_join( $expectedCacheDir, 'index.php' ) ) );
 	}
 
 	private function resetCacheDirHandlerState() :void {

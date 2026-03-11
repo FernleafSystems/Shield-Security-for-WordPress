@@ -133,6 +133,7 @@ class FileLockerController {
 	}
 
 	public function purge() {
+		$this->clearLocks();
 		self::con()->db_con->file_locker->tableDelete();
 	}
 

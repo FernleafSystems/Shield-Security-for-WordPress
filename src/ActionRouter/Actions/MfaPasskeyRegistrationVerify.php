@@ -11,11 +11,18 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 	protected function exec() {
 		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
 		/** @var Passkey $provider */
-		$provider = $available[ Passkey::ProviderSlug() ];
+		$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 
-		$wanAuth = $this->action_data[ 'reg' ];
+		$wanAuth = $this->action_data[ 'reg' ] ?? '';
 
-		if ( empty( $wanAuth ) ) {
+		if ( empty( $provider ) ) {
+			$response = [
+				'success'     => false,
+				'message'     => __( "Passkey registration isn't available for this user.", 'wp-simple-firewall' ),
+				'page_reload' => true
+			];
+		}
+		elseif ( empty( $wanAuth ) ) {
 			$response = [
 				'success'     => false,
 				'message'     => __( 'Passkey registration details were missing in the request.', 'wp-simple-firewall' ),

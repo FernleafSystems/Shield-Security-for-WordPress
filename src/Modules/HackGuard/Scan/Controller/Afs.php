@@ -275,17 +275,7 @@ class Afs extends Base {
 	}
 
 	public function getFileScanAreas() :array {
-		$areas = self::con()->opts->optGet( 'file_scan_areas' );
-		if ( !self::con()->isPremiumActive() ) {
-			$available = [];
-			foreach ( self::con()->opts->optDef( 'file_scan_areas' )[ 'value_options' ] as $valueOption ) {
-				if ( empty( $valueOption[ 'premium' ] ) ) {
-					$available[] = $valueOption[ 'value_key' ];
-				}
-			}
-			$areas = \array_diff( $areas, $available );
-		}
-		return $areas;
+		return self::con()->opts->optGet( 'file_scan_areas' );
 	}
 
 	public function isRepairFilePlugin() :bool {
