@@ -7,22 +7,14 @@ import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	canRun() {
-		return document.querySelector( '[data-investigate-landing="1"]' ) !== null;
+		return true;
 	}
 
 	run() {
-		this.rootEl = document.querySelector( '[data-investigate-landing="1"]' );
-		this.modeShellEl = this.rootEl ? this.rootEl.closest( '[data-mode-shell="1"]' ) : null;
 		this.livePanelPoller = null;
 		this.inlineTabs = new InvestigateInlineTabs();
-
-		UiContentActivator.activateWithin( this.rootEl );
 		this.bindHandlers();
-		this.syncPanelHeadersForAllPanels();
-		this.syncInlineTabsForAllPanels();
-		this.syncLandingHintVisibilityFromPanelState();
-		this.syncLivePanelPolling();
-		this.activateOpenPanelContent();
+		this.initializeCurrentRoot();
 	}
 
 	bindHandlers() {
@@ -47,16 +39,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			false
 		);
 
-		if ( this.modeShellEl ) {
-			this.modeShellEl.addEventListener(
-				'shield:mode-panel-opened',
-				( evt ) => this.handleModePanelOpened( evt )
-			);
-			this.modeShellEl.addEventListener(
-				'shield:mode-panel-closed',
-				( evt ) => this.handleModePanelClosed( evt )
-			);
-		}
+		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => this.handleModePanelOpened( evt ) );
+		document.addEventListener( 'shield:mode-panel-closed', ( evt ) => this.handleModePanelClosed( evt ) );
 	}
 
 	handleAutoSubmitChange( input ) {
@@ -183,7 +167,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		panelContent.innerHTML = panelBodyHtml;
 		this.syncPanelChrome( panel, true );
-		UiContentActivator.activateWithin( panelContent );
+		UiContentActivator.activateInitialWithin( panelContent );
 		return true;
 	}
 
@@ -279,10 +263,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	}
 
 	findPanelByTarget( target ) {
-		if ( this.rootEl === null || typeof target !== 'string' || target.length < 1 ) {
+		const root = this.getRoot();
+		if ( root === null || typeof target !== 'string' || target.length < 1 ) {
 			return null;
 		}
-		return this.rootEl.querySelector( `[data-investigate-panel="${target}"]` );
+		return root.querySelector( `[data-investigate-panel="${target}"]` );
 	}
 
 	syncLivePanelPolling() {
@@ -477,16 +462,23 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		);
 	}
 
-	activateOpenPanelContent() {
-		const activePanel = this.modeShellEl?.querySelector( '[data-mode-panel="1"].is-open' );
-		if ( activePanel === null || !this.isPanelLoaded( activePanel ) ) {
+	initializeCurrentRoot() {
+		this.rootEl = this.getRoot();
+		this.modeShellEl = this.rootEl ? this.rootEl.closest( '[data-mode-shell="1"]' ) : null;
+		if ( this.rootEl === null ) {
+			this.stopLivePanelPoller();
 			return;
 		}
 
-		const panelContent = this.getPanelContentContainer( activePanel );
-		if ( panelContent !== null ) {
-			UiContentActivator.activateWithin( panelContent );
-		}
+		UiContentActivator.activateInitialWithin( this.rootEl );
+		this.syncPanelHeadersForAllPanels();
+		this.syncInlineTabsForAllPanels();
+		this.syncLandingHintVisibilityFromPanelState();
+		this.syncLivePanelPolling();
+	}
+
+	getRoot() {
+		return document.querySelector( '[data-investigate-landing="1"]' );
 	}
 
 }

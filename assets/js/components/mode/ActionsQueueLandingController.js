@@ -7,26 +7,25 @@ import { UiContentActivator } from "../ui/UiContentActivator";
 export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	canRun() {
-		return document.querySelector( '[data-actions-landing="1"]' ) !== null;
+		return true;
 	}
 
 	run() {
-		this.rootEl = document.querySelector( '[data-actions-landing="1"]' );
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
 			'[data-shield-rail-target][data-bs-toggle="tab"]',
 			( item ) => this.handleRailTabShown( item ),
 			false
 		);
-		this.loadInitialActivePane();
-		this.hydrateRailMetrics();
-		this.preloadRailPanes();
+		this.initializeCurrentRoot();
 	}
 
 	handleRailTabShown( item ) {
-		if ( this.rootEl === null || !this.rootEl.contains( item ) ) {
+		const root = this.getRoot();
+		if ( root === null || !root.contains( item ) ) {
 			return;
 		}
+		this.rootEl = root;
 
 		const pane = this.findTargetPane( item );
 		if ( pane === null ) {
@@ -154,7 +153,22 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		pane.dataset.actionsQueuePaneInitialized = '1';
-		UiContentActivator.activateWithin( pane );
+		UiContentActivator.activateInitialWithin( pane );
+	}
+
+	initializeCurrentRoot() {
+		this.rootEl = this.getRoot();
+		if ( this.rootEl === null ) {
+			return;
+		}
+
+		this.loadInitialActivePane();
+		this.hydrateRailMetrics();
+		this.preloadRailPanes();
+	}
+
+	getRoot() {
+		return document.querySelector( '[data-actions-landing="1"]' );
 	}
 
 	loadInitialActivePane() {

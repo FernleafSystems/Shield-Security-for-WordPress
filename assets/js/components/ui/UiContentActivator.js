@@ -6,6 +6,14 @@ import { BootstrapTooltips } from "./BootstrapTooltips";
 export class UiContentActivator {
 
 	static investigateLookupSelect2 = null;
+	static ownerSelector = '.tab-pane, [data-shield-expand-body="1"], [data-mode-panel="1"], .offcanvas';
+	static activeOwnerSelectors = [
+		'.tab-pane.active',
+		'.tab-pane.show',
+		'[data-shield-expand-body="1"].show',
+		'[data-mode-panel="1"].is-open',
+		'.offcanvas.show'
+	];
 
 	static activateWithin( contextEl ) {
 		const root = UiContentActivator.normalizeContext( contextEl );
@@ -19,6 +27,20 @@ export class UiContentActivator {
 		BootstrapTooltips.RegisterNewTooltipsWithin( root );
 	}
 
+	static activateInitialWithin( contextEl ) {
+		const root = UiContentActivator.normalizeContext( contextEl );
+		if ( root === null ) {
+			return;
+		}
+
+		UiContentActivator.activateStandaloneWithin( root );
+		UiContentActivator.collectDirectActiveOwnerRoots( root ).forEach( ( ownerRoot ) => {
+			UiContentActivator.activateInitialWithin( ownerRoot );
+		} );
+		DataTableVisibilityAdjuster.adjustWithinNextFrame( root );
+		BootstrapTooltips.RegisterNewTooltipsWithin( root );
+	}
+
 	static normalizeContext( contextEl ) {
 		return contextEl instanceof Element || contextEl instanceof Document
 			? contextEl
@@ -26,9 +48,9 @@ export class UiContentActivator {
 	}
 
 	static initializeInvestigationTablesWithin( contextEl ) {
-		const activeTableEls = UiContentActivator.collectActiveElements( contextEl, '[data-investigation-table="1"]' );
-		if ( activeTableEls.length > 0 ) {
-			new InvestigationTable( { tableEls: activeTableEls } );
+		const tableEls = UiContentActivator.collectElements( contextEl, '[data-investigation-table="1"]' );
+		if ( tableEls.length > 0 ) {
+			new InvestigationTable( { tableEls } );
 		}
 	}
 
@@ -37,13 +59,29 @@ export class UiContentActivator {
 			UiContentActivator.investigateLookupSelect2 = new InvestigateLookupSelect2();
 		}
 
-		const activeSelectEls = UiContentActivator.collectActiveElements( contextEl, 'select[data-investigate-select2="1"]' );
-		if ( activeSelectEls.length > 0 ) {
-			UiContentActivator.investigateLookupSelect2.initializeElements( activeSelectEls );
+		const selectEls = UiContentActivator.collectElements( contextEl, 'select[data-investigate-select2="1"]' );
+		if ( selectEls.length > 0 ) {
+			UiContentActivator.investigateLookupSelect2.initializeElements( selectEls );
 		}
 	}
 
-	static collectActiveElements( contextEl, selector ) {
+	static activateStandaloneWithin( contextEl ) {
+		const tableEls = UiContentActivator.collectDirectStandaloneElements( contextEl, '[data-investigation-table="1"]' );
+		if ( tableEls.length > 0 ) {
+			new InvestigationTable( { tableEls } );
+		}
+
+		if ( UiContentActivator.investigateLookupSelect2 === null ) {
+			UiContentActivator.investigateLookupSelect2 = new InvestigateLookupSelect2();
+		}
+
+		const selectEls = UiContentActivator.collectDirectStandaloneElements( contextEl, 'select[data-investigate-select2="1"]' );
+		if ( selectEls.length > 0 ) {
+			UiContentActivator.investigateLookupSelect2.initializeElements( selectEls );
+		}
+	}
+
+	static collectElements( contextEl, selector ) {
 		const elements = [];
 		const root = UiContentActivator.normalizeContext( contextEl );
 		if ( root === null ) {
@@ -60,32 +98,53 @@ export class UiContentActivator {
 			}
 		} );
 
-		return elements.filter( ( el ) => !UiContentActivator.isWithinInactiveContainer( el, root ) );
+		return elements;
 	}
 
-	static isWithinInactiveContainer( el, root ) {
-		let current = el instanceof Element ? el.parentElement : null;
-		while ( current !== null && current !== root ) {
-			if ( UiContentActivator.isInactiveContainer( current ) ) {
+	static collectDirectStandaloneElements( contextEl, selector ) {
+		const root = UiContentActivator.normalizeContext( contextEl );
+		if ( root === null ) {
+			return [];
+		}
+
+		return UiContentActivator.collectElements( root, selector ).filter( ( el ) => {
+			const nearestOwner = UiContentActivator.findNearestOwnerAncestor( el );
+			if ( nearestOwner === null ) {
 				return true;
 			}
-			current = current.parentElement;
-		}
 
-		return false;
+			return root instanceof Element && nearestOwner === root;
+		} );
 	}
 
-	static isInactiveContainer( container ) {
-		if ( container.matches( '.collapse' ) && !container.classList.contains( 'show' ) ) {
-			return true;
+	static collectDirectActiveOwnerRoots( contextEl ) {
+		const root = UiContentActivator.normalizeContext( contextEl );
+		if ( root === null ) {
+			return [];
 		}
 
-		if ( container.matches( '.tab-pane' ) && !( container.classList.contains( 'active' ) || container.classList.contains( 'show' ) ) ) {
-			return true;
-		}
+		const roots = [];
+		UiContentActivator.activeOwnerSelectors.forEach( ( selector ) => {
+			UiContentActivator.collectElements( root, selector ).forEach( ( candidate ) => {
+				if ( candidate === root ) {
+					return;
+				}
+				if ( roots.includes( candidate ) ) {
+					return;
+				}
 
-		return container.matches( '[data-mode-panel="1"]' )
-			&& !container.classList.contains( 'is-open' )
-			&& container.getAttribute( 'aria-hidden' ) === 'true';
+				const nearestOwner = UiContentActivator.findNearestOwnerAncestor( candidate );
+				if ( nearestOwner === null || ( root instanceof Element && nearestOwner === root ) ) {
+					roots.push( candidate );
+				}
+			} );
+		} );
+		return roots;
+	}
+
+	static findNearestOwnerAncestor( el ) {
+		return el instanceof Element
+			? el.parentElement?.closest( UiContentActivator.ownerSelector ) || null
+			: null;
 	}
 }

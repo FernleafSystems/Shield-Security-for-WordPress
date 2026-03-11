@@ -97,7 +97,7 @@ export class RailSidebarController extends BaseAutoExecComponent {
 		if ( contentArea !== null ) {
 			this.disposeTooltipsWithin( contentArea );
 		}
-		UiContentActivator.activateWithin( targetPane );
+		UiContentActivator.activateInitialWithin( targetPane );
 	}
 
 	activateCurrentRailPanes() {

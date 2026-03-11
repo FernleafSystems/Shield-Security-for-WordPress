@@ -62,8 +62,7 @@ export class Navigation extends BaseComponent {
 
 		( new AjaxService() )
 		.send( req, false )
-		.then( ( resp ) => this.handleDynamicLoad( resp ) )
-		.finally( () => UiContentActivator.activateWithin( document.getElementById( 'PageMainBody_Inner-Apto' ) ) );
+		.then( ( resp ) => this.handleDynamicLoad( resp ) );
 	};
 
 	setActiveNavTab( urlHash = null ) {
@@ -76,10 +75,13 @@ export class Navigation extends BaseComponent {
 	};
 
 	handleDynamicLoad( response ) {
-		document.querySelector( '#PageMainBody_Inner-Apto' ).innerHTML = response.data.html;
+		const pageBody = document.querySelector( '#PageMainBody_Inner-Apto' );
+		pageBody.innerHTML = response.data.html;
 
 		const urlHash = window.location.hash ? window.location.hash : '';
 		this.setActiveNavTab( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );
+		this.reinitializeDynamicPageComponents();
+		UiContentActivator.activateInitialWithin( pageBody );
 
 		window.scroll( { top: 0, left: 0, behavior: 'smooth' } );
 
@@ -110,4 +112,14 @@ export class Navigation extends BaseComponent {
 			parentNav.querySelector( 'li.nav-item > .nav-link' ).classList.add( 'active' );
 		}
 	};
+
+	reinitializeDynamicPageComponents() {
+		const app = global.shieldAppMain;
+		if ( !app || typeof app.getComponent !== 'function' ) {
+			return;
+		}
+
+		app.getComponent( 'actions_queue_landing' )?.initializeCurrentRoot?.();
+		app.getComponent( 'investigate_landing' )?.initializeCurrentRoot?.();
+	}
 }

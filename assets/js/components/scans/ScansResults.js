@@ -27,13 +27,11 @@ export class ScansResults extends BaseComponent {
 	}
 
 	bindModePanelOpenAdjustHandler() {
-		document.querySelectorAll( '[data-mode-shell="1"]' ).forEach( ( modeShell ) => {
-			modeShell.addEventListener( 'shield:mode-panel-opened', () => {
-				const panel = modeShell.querySelector( '[data-mode-panel="1"].is-open' );
-				if ( panel !== null && panel.querySelector( '#ScanResultsTabs' ) !== null ) {
-					UiContentActivator.activateWithin( panel );
-				}
-			} );
+		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => {
+			const panel = evt.target?.querySelector?.( '[data-mode-panel="1"].is-open' ) || null;
+			if ( panel !== null && panel.querySelector( '#ScanResultsTabs' ) !== null ) {
+				UiContentActivator.activateInitialWithin( panel );
+			}
 		} );
 	}
 
@@ -45,14 +43,14 @@ export class ScansResults extends BaseComponent {
 		const paneSelector = targetEl.dataset.bsTarget || targetEl.getAttribute( 'href' ) || '';
 		const paneEl = paneSelector.startsWith( '#' ) ? document.querySelector( paneSelector ) : null;
 		if ( paneEl !== null ) {
-			UiContentActivator.activateWithin( paneEl );
+			UiContentActivator.activateInitialWithin( paneEl );
 		}
 	}
 
 	activateCurrentResultsPane() {
 		const activePane = document.querySelector( '#ScanResultsTabs .tab-pane.active, #ScanResultsTabs .tab-pane.show' );
 		if ( activePane !== null ) {
-			UiContentActivator.activateWithin( activePane );
+			UiContentActivator.activateInitialWithin( activePane );
 		}
 	}
 

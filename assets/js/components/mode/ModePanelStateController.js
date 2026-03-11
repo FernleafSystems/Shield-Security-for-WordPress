@@ -3,7 +3,7 @@ import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 export class ModePanelStateController extends BaseAutoExecComponent {
 
 	canRun() {
-		return document.querySelector( '[data-mode-shell="1"][data-mode-interactive="1"] [data-mode-tile="1"]' ) !== null;
+		return true;
 	}
 
 	run() {

@@ -5,7 +5,7 @@ import { AjaxService } from "../services/AjaxService";
 export class ConfigureLandingController extends BaseAutoExecComponent {
 
 	canRun() {
-		return this.getConfigureRoot() !== null;
+		return true;
 	}
 
 	run() {

@@ -43,13 +43,11 @@ export class ShieldTableReports extends ShieldTableBase {
 			}
 		);
 
-		document.querySelectorAll( '[data-mode-shell="1"]' ).forEach( ( modeShell ) => {
-			modeShell.addEventListener( 'shield:mode-panel-opened', () => {
-				const panel = modeShell.querySelector( '[data-mode-panel="1"].is-open' );
-				if ( panel !== null && panel.querySelector( this.getTableSelector() ) !== null ) {
-					UiContentActivator.activateWithin( panel );
-				}
-			} );
+		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => {
+			const panel = evt.target?.querySelector?.( '[data-mode-panel="1"].is-open' ) || null;
+			if ( panel !== null && panel.querySelector( this.getTableSelector() ) !== null ) {
+				UiContentActivator.activateInitialWithin( panel );
+			}
 		} );
 	}
 

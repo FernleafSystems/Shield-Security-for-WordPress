@@ -25,6 +25,10 @@ export class OffCanvasService extends BaseComponent {
 	run() {
 		OffCanvasService.bsCanvas = new Offcanvas( OffCanvasService.offCanvasEl );
 
+		OffCanvasService.offCanvasEl.addEventListener( 'shown.bs.offcanvas', () => {
+			UiContentActivator.activateInitialWithin( OffCanvasService.offCanvasEl );
+		} );
+
 		OffCanvasService.offCanvasEl.addEventListener( 'hidden.bs.offcanvas', () => {
 			OffCanvasService.canvasTracker.pop(); // remove the one we just closed.
 			if ( OffCanvasService.canvasTracker.length > 0 ) {
@@ -88,7 +92,9 @@ export class OffCanvasService extends BaseComponent {
 			if ( resp.success ) {
 				OffCanvasService.offCanvasEl.classList.add( request.render_slug );
 				OffCanvasService.offCanvasEl.innerHTML = resp.data.html;
-				UiContentActivator.activateWithin( OffCanvasService.offCanvasEl );
+				if ( OffCanvasService.offCanvasEl.classList.contains( 'show' ) ) {
+					UiContentActivator.activateInitialWithin( OffCanvasService.offCanvasEl );
+				}
 			}
 			else if ( typeof resp.data.error !== 'undefined' ) {
 				alert( resp.data.error );
