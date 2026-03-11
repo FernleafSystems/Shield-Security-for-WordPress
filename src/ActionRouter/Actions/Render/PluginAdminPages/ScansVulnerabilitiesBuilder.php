@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 class ScansVulnerabilitiesBuilder {
 
@@ -154,13 +153,17 @@ class ScansVulnerabilitiesBuilder {
 		return [
 			$this->buildNativeAction( $asset ),
 			[
-				'href'  => $this->buildVulnerabilityResultsHref( $asset ),
+				'href'  => $asset instanceof WpPluginVo
+					? self::con()->plugin_urls->investigatePluginVulnerabilities( $asset->file )
+					: self::con()->plugin_urls->investigateThemeVulnerabilities( $asset->stylesheet ),
 				'label' => __( 'View vulnerability results', 'wp-simple-firewall' ),
 				'type'  => 'navigate',
 				'icon'  => 'bi bi-list-ul',
 			],
 			[
-				'href'       => $this->buildLookupHref( $asset ),
+				'href'       => $asset instanceof WpPluginVo
+					? self::con()->plugin_urls->vulnerabilityLookupByPlugin( $asset->slug, $asset->Version )
+					: self::con()->plugin_urls->vulnerabilityLookupByTheme( $asset->stylesheet, $asset->Version ),
 				'label'      => __( 'Vulnerability Lookup', 'wp-simple-firewall' ),
 				'type'       => 'navigate',
 				'icon'       => 'bi bi-box-arrow-up-right',
@@ -196,35 +199,5 @@ class ScansVulnerabilitiesBuilder {
 				: __( 'Go to themes', 'wp-simple-firewall' ),
 			'type'  => 'navigate',
 		];
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $asset
-	 */
-	private function buildVulnerabilityResultsHref( $asset ) :string {
-		$isPlugin = $asset instanceof WpPluginVo;
-
-		return (
-			$isPlugin
-				? self::con()->plugin_urls->investigateByPlugin( $asset->file )
-				: self::con()->plugin_urls->investigateByTheme( $asset->stylesheet )
-		).(
-			$isPlugin
-				? '#tab-navlink-plugin-vulnerabilities'
-				: '#tab-navlink-theme-vulnerabilities'
-		);
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $asset
-	 */
-	private function buildLookupHref( $asset ) :string {
-		$isPlugin = $asset instanceof WpPluginVo;
-
-		return URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
-			'type'    => $asset->asset_type,
-			'slug'    => $isPlugin ? $asset->slug : $asset->stylesheet,
-			'version' => $asset->Version,
-		] );
 	}
 }

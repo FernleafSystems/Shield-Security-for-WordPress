@@ -751,15 +751,7 @@ class ScansResultsViewBuilder {
 				'critical'
 			);
 		}
-		if ( empty( $items ) ) {
-			$wpVersion = $GLOBALS[ 'wp_version' ] ?? '';
-			$items[] = $this->buildDetailRow(
-				\sprintf( 'WordPress v%s — %s', $wpVersion, __( 'All core files verified', 'wp-simple-firewall' ) ),
-				__( 'No modified, missing, or unrecognised core files detected.', 'wp-simple-firewall' ),
-				'good'
-			);
-		}
-		return $this->countNonGoodItems( $items ) === 0 ? [] : $items;
+		return $items;
 	}
 
 	/**
@@ -777,14 +769,7 @@ class ScansResultsViewBuilder {
 				'critical'
 			);
 		}
-		if ( empty( $items ) ) {
-			$items[] = $this->buildDetailRow(
-				__( 'No threats detected', 'wp-simple-firewall' ),
-				__( 'No malware or suspicious PHP files were found.', 'wp-simple-firewall' ),
-				'good'
-			);
-		}
-		return $this->countNonGoodItems( $items ) === 0 ? [] : $items;
+		return $items;
 	}
 
 	/**
@@ -924,21 +909,6 @@ class ScansResultsViewBuilder {
 			'disabled_message' => $disabledMessage,
 			'disabled_status'  => $disabledStatus,
 		];
-	}
-
-	/**
-	 * @return array{
-	 *   key:string,
-	 *   label:string,
-	 *   status:string,
-	 *   icon_class:string,
-	 *   count_items:int,
-	 *   items:list<array<string,mixed>>,
-	 *   is_loaded:bool
-	 * }
-	 */
-	public function buildPluginThemePaneData( string $assetType ) :array {
-		return $this->buildRailPaneData( $assetType === 'theme' ? 'themes' : 'plugins' );
 	}
 
 	private function actionPayload( string $actionClass ) :array {

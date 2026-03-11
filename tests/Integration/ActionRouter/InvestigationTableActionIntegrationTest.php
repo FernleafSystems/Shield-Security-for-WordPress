@@ -19,6 +19,10 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'req_logs' );
 		$this->requireDb( 'activity_logs' );
 		$this->requireDb( 'activity_logs_meta' );
+		$this->requireDb( 'scans' );
+		$this->requireDb( 'scan_results' );
+		$this->requireDb( 'scan_result_items' );
+		$this->requireDb( 'scan_result_item_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
@@ -129,6 +133,50 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
 			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_CORE,
 			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => InvestigationTableContract::SUBJECT_TYPE_CORE,
+			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertArrayHasKey( 'datatable_data', $payload );
+		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
+	}
+
+	public function testValidFileScanResultsPluginPayloadReturnsDatatableEnvelope() :void {
+		$pluginSlug = $this->firstInstalledPluginSlug();
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+
+		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $pluginSlug,
+			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertArrayHasKey( 'datatable_data', $payload );
+		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
+	}
+
+	public function testValidFileScanResultsThemePayloadReturnsDatatableEnvelope() :void {
+		$themeSlug = $this->firstInstalledThemeSlug();
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'     => 'theme-file.php',
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+
+		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_THEME,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $themeSlug,
 			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
 		] )->payload();
 

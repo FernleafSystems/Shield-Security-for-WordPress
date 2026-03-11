@@ -48,7 +48,7 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	setupInvestigationTable( tableEl ) {
-		if ( !this.isElementVisible( tableEl ) ) {
+		if ( this.isInitializationDeferred( tableEl ) ) {
 			return;
 		}
 
@@ -359,7 +359,21 @@ export class InvestigationTable extends ShieldTableBase {
 		}
 	}
 
-	isElementVisible( el ) {
-		return el instanceof Element && el.getClientRects().length > 0;
+	isInitializationDeferred( tableEl ) {
+		if ( !( tableEl instanceof Element ) ) {
+			return true;
+		}
+
+		const hiddenCollapse = tableEl.closest( '.collapse' );
+		if ( hiddenCollapse !== null && !hiddenCollapse.classList.contains( 'show' ) ) {
+			return true;
+		}
+
+		const tabPane = tableEl.closest( '.tab-pane' );
+		if ( tabPane !== null && !( tabPane.classList.contains( 'active' ) || tabPane.classList.contains( 'show' ) ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }

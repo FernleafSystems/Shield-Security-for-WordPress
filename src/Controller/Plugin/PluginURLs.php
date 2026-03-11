@@ -118,6 +118,30 @@ class PluginURLs {
 		return $url;
 	}
 
+	public function investigatePluginVulnerabilities( string $pluginFile = '' ) :string {
+		return $this->investigateByPlugin( $pluginFile ).'#tab-navlink-plugin-vulnerabilities';
+	}
+
+	public function investigateThemeVulnerabilities( string $stylesheet = '' ) :string {
+		return $this->investigateByTheme( $stylesheet ).'#tab-navlink-theme-vulnerabilities';
+	}
+
+	public function vulnerabilityLookupByPlugin( string $pluginSlug, string $version = '' ) :string {
+		return URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
+			'type'    => 'plugin',
+			'slug'    => $pluginSlug,
+			'version' => $version,
+		] );
+	}
+
+	public function vulnerabilityLookupByTheme( string $stylesheet, string $version = '' ) :string {
+		return URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
+			'type'    => 'theme',
+			'slug'    => $stylesheet,
+			'version' => $version,
+		] );
+	}
+
 	public function investigateByCore() :string {
 		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
 	}

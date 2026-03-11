@@ -666,6 +666,32 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $malwareTab[ 'status' ] ?? '' );
 	}
 
+	public function test_clean_wordpress_pane_returns_empty_items_with_good_status() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => true,
+			'afsDisplayItems'  => [],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'wordpress' );
+
+		$this->assertSame( 'good', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 0, $pane[ 'count_items' ] ?? -1 );
+		$this->assertSame( [], $pane[ 'items' ] ?? null );
+	}
+
+	public function test_clean_malware_pane_returns_empty_items_with_good_status() :void {
+		$builder = $this->createBuilder( [
+			'malwareEnabled' => true,
+			'afsDisplayItems' => [],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'malware' );
+
+		$this->assertSame( 'good', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 0, $pane[ 'count_items' ] ?? -1 );
+		$this->assertSame( [], $pane[ 'items' ] ?? null );
+	}
+
 	// ── Summary rail-switch actions (Task 6) ──
 
 	public function test_summary_items_with_known_keys_get_row_level_rail_switch_attributes() :void {

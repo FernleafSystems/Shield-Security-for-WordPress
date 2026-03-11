@@ -14,7 +14,6 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 abstract class PluginThemesBase extends Base {
 
@@ -115,11 +114,7 @@ abstract class PluginThemesBase extends Base {
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
 			],
 			'hrefs' => [
-				'vul_info' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
-					'type'    => $plugin->asset_type,
-					'slug'    => $plugin->slug,
-					'version' => $plugin->Version,
-				] ),
+				'vul_info' => self::con()->plugin_urls->vulnerabilityLookupByPlugin( $plugin->slug, $plugin->Version ),
 			],
 			'flags' => $flags,
 			'vars'  => [
@@ -218,11 +213,7 @@ abstract class PluginThemesBase extends Base {
 				'parent_theme' => $theme->is_child ? $theme->parent_theme->Name : '',
 			],
 			'hrefs' => [
-				'vul_info' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
-					'type'    => $theme->asset_type,
-					'slug'    => $theme->stylesheet,
-					'version' => $theme->Version,
-				] ),
+				'vul_info' => self::con()->plugin_urls->vulnerabilityLookupByTheme( $theme->stylesheet, $theme->Version ),
 			],
 			'flags' => $flags,
 			'vars'  => [

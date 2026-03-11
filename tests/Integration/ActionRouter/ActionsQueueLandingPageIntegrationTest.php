@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\AjaxBatchRequests,
 	Actions\Render\Components\Scans\Results\Malware as MalwarePane,
 	Actions\Render\Components\Scans\Results\Plugins as PluginsPane,
+	Actions\Render\Components\Scans\Results\Themes as ThemesPane,
 	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
 	Constants
 };
@@ -441,6 +442,53 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-shield-expand-trigger="1"]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")][1]//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="plugin" and @data-subject-id="'.$pluginSlug.'"]',
 			'Plugin pane render should use the shared investigation file status table contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
+			'Plugin pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
+		);
+	}
+
+	public function test_theme_pane_render_uses_investigation_file_status_table_contract() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'themes' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$themeSlug = \wp_get_theme()->get_stylesheet();
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'     => 'theme-file.php',
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( ThemesPane::SLUG );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
+			'Theme pane render should keep the shared expandable summary row'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-expand-trigger="1"]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")][1]//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="theme" and @data-subject-id="'.$themeSlug.'"]',
+			'Theme pane render should use the shared investigation file status table contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
+			'Theme pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
 		);
 	}
 
