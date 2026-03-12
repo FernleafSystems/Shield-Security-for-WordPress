@@ -42,7 +42,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 	public function test_batch_rejects_request_count_above_limit() {
 		$requests = [];
-		for ( $i = 0; $i < 21; $i++ ) {
+		for ( $i = 0; $i < 51; $i++ ) {
 			$requests[] = [
 				'id'      => 'item_'.$i,
 				'request' => [],

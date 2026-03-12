@@ -119,7 +119,7 @@ export class Navigation extends BaseComponent {
 			return;
 		}
 
-		[ 'actions_queue_landing', 'investigate_landing' ].forEach( ( componentId ) => {
+		[ 'actions_queue_landing', 'investigate_landing', 'configure_landing', 'configure_expand_loader' ].forEach( ( componentId ) => {
 			app.getComponent( componentId )?.initializeCurrentRoot?.();
 		} );
 	}

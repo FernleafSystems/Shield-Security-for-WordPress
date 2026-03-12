@@ -25,7 +25,7 @@ class AjaxBatchRequests extends BaseAction {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'ajax_batch_requests';
-	private const MAX_BATCH_SIZE = 20;
+	private const MAX_BATCH_SIZE = 50;
 
 	protected function exec() {
 		$requests = $this->action_data[ 'requests' ];

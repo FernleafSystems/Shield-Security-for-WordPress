@@ -52,6 +52,18 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		$this->assertArrayNotHasKey( 'progress_meters', $comps );
 	}
 
+	public function test_configure_overview_localizes_zone_manager_batch_requests() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_ZONES,
+			PluginNavs::SUBNAV_ZONES_OVERVIEW
+		);
+
+		$this->assertArrayHasKey( 'zones_manager', $comps );
+		$this->assertArrayHasKey( 'ajax', $comps[ 'zones_manager' ] ?? [] );
+		$this->assertArrayHasKey( 'batch_requests', $comps[ 'zones_manager' ][ 'ajax' ] ?? [] );
+		$this->assertArrayHasKey( 'offcanvas_zone_component_config', $comps[ 'zones_manager' ][ 'ajax' ] ?? [] );
+	}
+
 	public function test_dashboard_live_monitor_is_localized_for_dashboard_overview() :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_DASHBOARD,

@@ -1,6 +1,7 @@
 import { Tab } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class ConfigureLandingController extends BaseAutoExecComponent {
 
@@ -9,12 +10,17 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 	}
 
 	run() {
+		this.initializeCurrentRoot();
 		this.isRefreshing = false;
 		document.addEventListener( 'shield:expansion-form-saved', ( evt ) => {
 			if ( this.getConfigureRoot()?.contains( evt.target ) ) {
 				this.refreshConfigureSection();
 			}
 		} );
+	}
+
+	initializeCurrentRoot() {
+		this.rootEl = this.getConfigureRoot();
 	}
 
 	refreshConfigureSection() {
@@ -42,7 +48,9 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 				? resp.data.render_output
 				: '';
 			if ( this.replaceConfigureRoot( renderOutput ) ) {
+				this.reinitializeConfigureComponents();
 				this.restoreActiveRailItem( activeZoneKey );
+				UiContentActivator.activateCurrentWithinRoot( this.getConfigureRoot() );
 				return;
 			}
 			window.location.reload();
@@ -112,5 +120,16 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		if ( targetItem !== null ) {
 			Tab.getOrCreateInstance( targetItem ).show();
 		}
+	}
+
+	reinitializeConfigureComponents() {
+		const app = global.shieldAppMain;
+		if ( !app || typeof app.getComponent !== 'function' ) {
+			return;
+		}
+
+		[ 'configure_landing', 'configure_expand_loader' ].forEach( ( componentId ) => {
+			app.getComponent( componentId )?.initializeCurrentRoot?.();
+		} );
 	}
 }

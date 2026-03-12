@@ -659,6 +659,7 @@ class AssetsCustomizer {
 				],
 				'data'    => [
 					'ajax' => [
+						'batch_requests' => ActionData::Build( Actions\AjaxBatchRequests::class ),
 						Components\OffCanvas\ZoneComponentConfig::SLUG => ActionData::BuildAjaxRender( Components\OffCanvas\ZoneComponentConfig::class ),
 					],
 				],

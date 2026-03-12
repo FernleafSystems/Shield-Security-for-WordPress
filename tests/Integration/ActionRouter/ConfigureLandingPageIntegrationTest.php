@@ -100,6 +100,15 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-section="zones"]//*[@data-shield-rail-pane]//a[contains(concat(" ", normalize-space(@class), " "), " configure-landing__panel-cta ") and @data-configure-zone-settings]',
 			'Configure landing should render Configure CTA actions inside the rail panes'
 		);
+		$expandPlaceholders = $xpath->query( '//*[@data-configure-expand-ajax="1"]' );
+		$this->assertNotFalse( $expandPlaceholders, 'Configure landing expansion placeholders query failed' );
+		$this->assertGreaterThan( 0, $expandPlaceholders->length, 'Configure landing should render expansion AJAX placeholders' );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-expand-ajax="1" and @data-zone_component_action="offcanvas_zone_component_config" and string-length(normalize-space(@data-zone_component_slug)) > 0]',
+			$expandPlaceholders->length,
+			'Configure landing expansion placeholders should carry zone component AJAX contract'
+		);
 
 		foreach ( $tileDefinitions as $tileDefinition ) {
 			$zoneKey = (string)$tileDefinition[ 'key' ];
