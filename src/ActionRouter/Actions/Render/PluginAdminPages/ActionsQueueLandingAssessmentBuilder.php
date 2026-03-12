@@ -25,19 +25,63 @@ class ActionsQueueLandingAssessmentBuilder {
 		$rowsByZone = [];
 
 		foreach ( $this->getDefinitions() as $definition ) {
-			if ( !$this->isAvailableForStrategy( $definition[ 'availability_strategy' ] ) ) {
-				continue;
+			foreach ( $this->buildRowsForDefinition( $definition ) as $row ) {
+				$rowsByZone[ $definition[ 'zone' ] ][] = $row;
 			}
-
-			$row = $this->buildAssessmentRow( $definition[ 'key' ], $definition[ 'component_class' ] );
-			if ( $row === null ) {
-				continue;
-			}
-
-			$rowsByZone[ $definition[ 'zone' ] ][] = $row;
 		}
 
 		return $rowsByZone;
+	}
+
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>
+	 */
+	public function buildForZone( string $zone ) :array {
+		$rows = [];
+
+		foreach ( $this->getDefinitions() as $definition ) {
+			if ( $definition[ 'zone' ] !== $zone ) {
+				continue;
+			}
+
+			foreach ( $this->buildRowsForDefinition( $definition ) as $row ) {
+				$rows[] = $row;
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * @param array{
+	 *   key:string,
+	 *   zone:string,
+	 *   component_class:class-string<\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base>,
+	 *   availability_strategy:string
+	 * } $definition
+	 * @return list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>
+	 */
+	private function buildRowsForDefinition( array $definition ) :array {
+		if ( !$this->isAvailableForStrategy( $definition[ 'availability_strategy' ] ) ) {
+			return [];
+		}
+
+		$row = $this->buildAssessmentRow( $definition[ 'key' ], $definition[ 'component_class' ] );
+		return $row === null ? [] : [ $row ];
 	}
 
 	/**

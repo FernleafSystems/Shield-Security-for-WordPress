@@ -114,6 +114,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 								'description' => '1 known vulnerability needs review.',
 								'severity'    => 'critical',
 								'count'       => 1,
+								'actions'     => [],
 							],
 						],
 					],
@@ -125,6 +126,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 								'description' => 'Abandoned.',
 								'severity'    => 'warning',
 								'count'       => 1,
+								'actions'     => [],
 							],
 						],
 					],
@@ -697,13 +699,13 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 					'vulnerable' => [
 						'label' => 'Known Vulnerabilities',
 						'items' => [
-							[ 'label' => 'Vuln 1', 'description' => 'Desc', 'severity' => 'critical', 'count' => 1 ],
+							[ 'label' => 'Vuln 1', 'description' => 'Desc', 'severity' => 'critical', 'count' => 1, 'actions' => [] ],
 						],
 					],
 					'abandoned' => [
 						'label' => 'Abandoned',
 						'items' => [
-							[ 'label' => 'Old Plugin', 'description' => 'Desc', 'severity' => 'warning', 'count' => 1 ],
+							[ 'label' => 'Old Plugin', 'description' => 'Desc', 'severity' => 'warning', 'count' => 1, 'actions' => [] ],
 						],
 					],
 				],
@@ -1152,11 +1154,26 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	}
 
 	protected function buildSummaryRows() :array {
-		return $this->normalizeSummaryRows( $this->summaryRows );
+		return \array_values( \array_map( static fn( array $row ) :array => \array_merge( [
+			'key'      => '',
+			'label'    => '',
+			'text'     => '',
+			'severity' => 'warning',
+			'count'    => 0,
+			'action'   => '',
+			'href'     => '',
+		], $row ), $this->summaryRows ) );
 	}
 
 	protected function buildAssessmentRows() :array {
-		return $this->normalizeAssessmentRows( $this->assessmentRows );
+		return \array_values( \array_map( static fn( array $row ) :array => \array_merge( [
+			'key'               => '',
+			'label'             => '',
+			'status'            => 'good',
+			'description'       => '',
+			'status_icon_class' => '',
+			'status_label'      => '',
+		], $row ), $this->assessmentRows ) );
 	}
 
 	protected function buildWordpressSectionPayload() :array {
@@ -1180,7 +1197,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	}
 
 	protected function buildVulnerabilities() :array {
-		return $this->normalizeVulnerabilities( $this->vulnerabilities );
+		return $this->vulnerabilities;
 	}
 
 	protected function isWordpressTabEnabled() :bool {

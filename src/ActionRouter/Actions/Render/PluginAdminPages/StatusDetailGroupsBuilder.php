@@ -5,15 +5,78 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
+/**
+ * @phpstan-type DetailActionData array<string,string>
+ * @phpstan-type DetailAction array{
+ *   label:string,
+ *   href:string,
+ *   title:string,
+ *   target:string,
+ *   icon:string,
+ *   classes:list<string>,
+ *   data:DetailActionData
+ * }
+ * @phpstan-type DetailActionInput array{
+ *   label?:string,
+ *   href?:string,
+ *   title?:string,
+ *   target?:string,
+ *   icon?:string,
+ *   classes?:list<string>,
+ *   data?:DetailActionData
+ * }
+ * @phpstan-type MaintenanceIssueItem array{
+ *   key:string,
+ *   label:string,
+ *   description:string,
+ *   count:int,
+ *   severity:string,
+ *   cta?:DetailActionInput
+ * }
+ * @phpstan-type AssessmentRow array{
+ *   key:string,
+ *   label:string,
+ *   description:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string
+ * }
+ * @phpstan-type ConfigureComponentRow array{
+ *   title:string,
+ *   note:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string,
+ *   explanations:list<string>,
+ *   config_action:DetailActionInput
+ * }
+ * @phpstan-type DetailGroupRow array{
+ *   key:string,
+ *   title:string,
+ *   summary:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string,
+ *   count_badge:?int,
+ *   badge_status:string,
+ *   explanations:list<string>,
+ *   action:array{}|DetailAction,
+ *   sort_index:int
+ * }
+ * @phpstan-type DetailGroup array{
+ *   status:string,
+ *   rows:list<DetailGroupRow>
+ * }
+ */
 class StatusDetailGroupsBuilder {
 
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
 
 	/**
-	 * @param list<array<string,mixed>> $issueItems
-	 * @param list<array<string,mixed>> $assessmentRows
-	 * @return list<array{status:string,rows:list<array<string,mixed>>}>
+	 * @param list<MaintenanceIssueItem> $issueItems
+	 * @param list<AssessmentRow> $assessmentRows
+	 * @return list<DetailGroup>
 	 */
 	public function buildForMaintenance( array $issueItems, array $assessmentRows ) :array {
 		$rows = [];
@@ -24,7 +87,7 @@ class StatusDetailGroupsBuilder {
 		}
 
 		foreach ( $assessmentRows as $row ) {
-			if ( ( $row[ 'status' ] ?? '' ) !== 'good' ) {
+			if ( $row[ 'status' ] !== 'good' ) {
 				continue;
 			}
 			$rows[] = $this->buildAssessmentRow( $row, $index++ );
@@ -34,8 +97,8 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $components
-	 * @return list<array{status:string,rows:list<array<string,mixed>>}>
+	 * @param list<ConfigureComponentRow> $components
+	 * @return list<DetailGroup>
 	 */
 	public function buildForConfigure( array $components ) :array {
 		$rows = [];
@@ -48,41 +111,41 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param array<string,mixed> $item
-	 * @return array<string,mixed>
+	 * @param MaintenanceIssueItem $item
+	 * @return DetailGroupRow
 	 */
 	private function buildMaintenanceIssueRow( array $item, int $sortIndex ) :array {
-		$status = $this->normalizeStatus( (string)( $item[ 'severity' ] ?? 'warning' ) );
+		$status = $this->normalizeStatus( $item[ 'severity' ] );
 
 		return [
-			'key'               => (string)( $item[ 'key' ] ?? '' ),
-			'title'             => (string)( $item[ 'label' ] ?? '' ),
-			'summary'           => (string)( $item[ 'description' ] ?? '' ),
+			'key'               => $item[ 'key' ],
+			'title'             => $item[ 'label' ],
+			'summary'           => $item[ 'description' ],
 			'status'            => $status,
 			'status_label'      => $this->standardStatusLabel( $status ),
 			'status_icon_class' => $this->standardStatusIconClass( $status ),
-			'count_badge'       => \max( 0, (int)( $item[ 'count' ] ?? 0 ) ),
+			'count_badge'       => $item[ 'count' ],
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => [],
-			'action'            => $this->normalizeAction( $item[ 'cta' ] ?? [], '' ),
+			'action'            => isset( $item[ 'cta' ] ) ? $this->normalizeAction( $item[ 'cta' ], '' ) : [],
 			'sort_index'        => $sortIndex,
 		];
 	}
 
 	/**
-	 * @param array<string,mixed> $row
-	 * @return array<string,mixed>
+	 * @param AssessmentRow $row
+	 * @return DetailGroupRow
 	 */
 	private function buildAssessmentRow( array $row, int $sortIndex ) :array {
-		$status = $this->normalizeStatus( (string)( $row[ 'status' ] ?? 'good' ) );
+		$status = $this->normalizeStatus( $row[ 'status' ] );
 
 		return [
-			'key'               => (string)( $row[ 'key' ] ?? '' ),
-			'title'             => (string)( $row[ 'label' ] ?? '' ),
-			'summary'           => (string)( $row[ 'description' ] ?? '' ),
+			'key'               => $row[ 'key' ],
+			'title'             => $row[ 'label' ],
+			'summary'           => $row[ 'description' ],
 			'status'            => $status,
-			'status_label'      => (string)( $row[ 'status_label' ] ?? $this->standardStatusLabel( $status ) ),
-			'status_icon_class' => (string)( $row[ 'status_icon_class' ] ?? $this->standardStatusIconClass( $status ) ),
+			'status_label'      => $row[ 'status_label' ],
+			'status_icon_class' => $row[ 'status_icon_class' ],
 			'count_badge'       => null,
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => [],
@@ -92,53 +155,53 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param array<string,mixed> $component
-	 * @return array<string,mixed>
+	 * @param ConfigureComponentRow $component
+	 * @return DetailGroupRow
 	 */
 	private function buildConfigureComponentRow( array $component, int $sortIndex ) :array {
-		$status = $this->normalizeStatus( (string)( $component[ 'status' ] ?? 'good' ) );
+		$status = $this->normalizeStatus( $component[ 'status' ] );
 		$explanations = \array_values( \array_filter(
 			\array_map(
 				static fn( $explanation ) :string => \trim( (string)$explanation ),
-				\is_array( $component[ 'explanations' ] ?? null ) ? $component[ 'explanations' ] : []
+				$component[ 'explanations' ]
 			),
 			static fn( string $explanation ) :bool => $explanation !== ''
 		) );
 
 		return [
-			'key'               => (string)( $component[ 'title' ] ?? 'component-'.$sortIndex ),
-			'title'             => (string)( $component[ 'title' ] ?? '' ),
-			'summary'           => (string)( $component[ 'note' ] ?? '' ),
+			'key'               => $component[ 'title' ] !== '' ? $component[ 'title' ] : 'component-'.$sortIndex,
+			'title'             => $component[ 'title' ],
+			'summary'           => $component[ 'note' ],
 			'status'            => $status,
-			'status_label'      => (string)( $component[ 'status_label' ] ?? $this->standardStatusLabel( $status ) ),
-			'status_icon_class' => (string)( $component[ 'status_icon_class' ] ?? $this->standardStatusIconClass( $status ) ),
+			'status_label'      => $component[ 'status_label' ],
+			'status_icon_class' => $component[ 'status_icon_class' ],
 			'count_badge'       => null,
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => $explanations,
-			'action'            => $this->normalizeAction( $component[ 'config_action' ] ?? [], __( 'Configure', 'wp-simple-firewall' ) ),
+			'action'            => $this->normalizeAction( $component[ 'config_action' ], __( 'Configure', 'wp-simple-firewall' ) ),
 			'sort_index'        => $sortIndex,
 		];
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $rows
-	 * @return list<array{status:string,rows:list<array<string,mixed>>}>
+	 * @param list<DetailGroupRow> $rows
+	 * @return list<DetailGroup>
 	 */
 	private function groupRows( array $rows ) :array {
 		\usort( $rows, function ( array $a, array $b ) :int {
-			$rankCmp = $this->detailStatusRank( (string)( $b[ 'status' ] ?? '' ) )
-				<=> $this->detailStatusRank( (string)( $a[ 'status' ] ?? '' ) );
+			$rankCmp = $this->detailStatusRank( $b[ 'status' ] )
+				<=> $this->detailStatusRank( $a[ 'status' ] );
 			if ( $rankCmp !== 0 ) {
 				return $rankCmp;
 			}
 
-			return (int)( $a[ 'sort_index' ] ?? 0 ) <=> (int)( $b[ 'sort_index' ] ?? 0 );
+			return $a[ 'sort_index' ] <=> $b[ 'sort_index' ];
 		} );
 
 		$groups = [];
 		foreach ( $rows as $row ) {
 			unset( $row[ 'sort_index' ] );
-			$status = (string)( $row[ 'status' ] ?? 'good' );
+			$status = $row[ 'status' ];
 			if ( empty( $groups ) || $groups[ \count( $groups ) - 1 ][ 'status' ] !== $status ) {
 				$groups[] = [
 					'status' => $status,
@@ -152,26 +215,27 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param array<string,mixed>|mixed $action
-	 * @return array<string,mixed>
+	 * @param DetailActionInput|null $action
+	 * @return array{}|DetailAction
 	 */
-	private function normalizeAction( $action, string $defaultLabel ) :array {
-		if ( !\is_array( $action ) || empty( $action ) ) {
+	private function normalizeAction( ?array $action, string $defaultLabel ) :array {
+		if ( empty( $action ) ) {
 			return [];
 		}
 
-		$data = \is_array( $action[ 'data' ] ?? null ) ? $action[ 'data' ] : [];
-		$classes = \is_array( $action[ 'classes' ] ?? null ) ? \array_values( \array_filter(
-			\array_map( static fn( $class ) :string => \trim( (string)$class ), $action[ 'classes' ] ),
+		$data = isset( $action[ 'data' ] ) ? $action[ 'data' ] : [];
+		$classesInput = isset( $action[ 'classes' ] ) ? $action[ 'classes' ] : [];
+		$classes = \array_values( \array_filter(
+			\array_map( static fn( $class ) :string => \trim( (string)$class ), $classesInput ),
 			static fn( string $class ) :bool => $class !== ''
-		) ) : [];
+		) );
 
 		return [
-			'label'   => (string)( $action[ 'label' ] ?? $defaultLabel ),
-			'href'    => (string)( $action[ 'href' ] ?? 'javascript:{}' ),
-			'title'   => (string)( $action[ 'title' ] ?? '' ),
-			'target'  => (string)( $action[ 'target' ] ?? '' ),
-			'icon'    => (string)( $action[ 'icon' ] ?? '' ),
+			'label'   => $action[ 'label' ] ?? $defaultLabel,
+			'href'    => $action[ 'href' ] ?? 'javascript:{}',
+			'title'   => $action[ 'title' ] ?? '',
+			'target'  => $action[ 'target' ] ?? '',
+			'icon'    => $action[ 'icon' ] ?? '',
 			'classes' => $classes,
 			'data'    => $data,
 		];

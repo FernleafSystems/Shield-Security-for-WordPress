@@ -7,6 +7,54 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-import-type QueueSummary from NeedsAttentionQueuePayload
+ * @phpstan-import-type QueueItem from NeedsAttentionQueuePayload
+ * @phpstan-import-type ZoneGroup from NeedsAttentionQueuePayload
+ * @phpstan-type AssessmentRow array{
+ *   key:string,
+ *   label:string,
+ *   description:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string
+ * }
+ * @phpstan-type AssessmentRowsByZone array{
+ *   scans:list<AssessmentRow>,
+ *   maintenance:list<AssessmentRow>
+ * }
+ * @phpstan-type MaintenanceItemCta array{
+ *   href:string,
+ *   label:string,
+ *   target?:string
+ * }
+ * @phpstan-type MaintenanceQueueItem QueueItem&array{cta?:MaintenanceItemCta}
+ * @phpstan-type ZoneTile array{
+ *   key:string,
+ *   panel_target:string,
+ *   is_enabled:bool,
+ *   is_disabled:bool,
+ *   has_issues:bool,
+ *   has_assessments:bool,
+ *   has_panel_content:bool,
+ *   label:string,
+ *   icon_class:string,
+ *   status:string,
+ *   status_label:string,
+ *   total_issues:int,
+ *   critical_count:int,
+ *   warning_count:int,
+ *   summary_text:string,
+ *   items:list<QueueItem>,
+ *   assessment_rows:list<AssessmentRow>,
+ *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
+ * }
+ * @phpstan-type ScansResultsContract array{
+ *   strings:array<string,string>,
+ *   vars:array<string,mixed>,
+ *   content:array<string,mixed>
+ * }
+ */
 class PageActionsQueueLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_actions_queue_landing';
@@ -93,9 +141,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'severity_strip' => $viewData[ 'severity_strip' ],
 			'zone_tiles'     => $zoneTiles,
 			'all_clear'      => $viewData[ 'all_clear' ],
-			'scans_results'  => $this->buildScansResultsContract(
-				$this->getQueueSummary()[ 'has_items' ] ? $this->getScansResultsRenderData() : []
-			),
+			'scans_results'  => $this->getQueueSummary()[ 'has_items' ]
+				? $this->getScansResultsRenderData()
+				: $this->buildEmptyScansResultsContract(),
 		];
 	}
 
@@ -111,88 +159,40 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @return array{
-	 *   has_items:bool,
-	 *   total_items:int,
-	 *   severity:string,
-	 *   icon_class:string,
-	 *   subtext:string
-	 * }
+	 * @return QueueSummary
 	 */
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
 	}
 
 	/**
-	 * @return array<string,array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   severity:string,
-	 *   total_issues:int,
-	 *   items:list<array{
-	 *     key:string,
-	 *     zone:string,
-	 *     label:string,
-	 *     count:int,
-	 *     severity:string,
-	 *     description:string,
-	 *     href:string,
-	 *     action:string
-	 *   }>
-	 * }>
+	 * @return array<string,ZoneGroup>
 	 */
 	private function getZonesIndexed() :array {
 		return $this->getLandingViewData()[ 'zones_indexed' ];
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   has_issues:bool,
-	 *   has_assessments:bool,
-	 *   has_panel_content:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   total_issues:int,
-	 *   critical_count:int,
-	 *   warning_count:int,
-	 *   summary_text:string,
-	 *   items:list<array<string,mixed>>,
-	 *   assessment_rows:list<array{
-	 *     key:string,
-	 *     label:string,
-	 *     description:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     status_icon_class:string
-	 *   }>,
-	 *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
-	 * }>
+	 * @return list<ZoneTile>
 	 */
 	private function getZoneTiles() :array {
 		return $this->getLandingViewData()[ 'zone_tiles' ];
 	}
 
 	/**
-	 * @return list<array<string,mixed>>
+	 * @return list<ZoneTile>
 	 */
 	private function getZoneTilesForDisplay() :array {
 		return \array_map(
 			function ( array $zoneTile ) :array {
 				$zoneTile[ 'items' ] = \array_map(
 					fn( array $item ) :array => $this->normalizeZoneItemForDisplay( $item ),
-					$zoneTile[ 'items' ] ?? []
+					$zoneTile[ 'items' ]
 				);
-				if ( ( $zoneTile[ 'key' ] ?? '' ) === 'maintenance' ) {
+				if ( $zoneTile[ 'key' ] === 'maintenance' ) {
 					$zoneTile[ 'maintenance_detail_groups' ] = ( new StatusDetailGroupsBuilder() )->buildForMaintenance(
-						\is_array( $zoneTile[ 'items' ] ?? null ) ? \array_values( $zoneTile[ 'items' ] ) : [],
-						\is_array( $zoneTile[ 'assessment_rows' ] ?? null ) ? \array_values( $zoneTile[ 'assessment_rows' ] ) : []
+						$zoneTile[ 'items' ],
+						$zoneTile[ 'assessment_rows' ]
 					);
 				}
 				return $zoneTile;
@@ -226,65 +226,58 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @param array<string,mixed> $renderData
-	 * @return array{
-	 *   strings:array<string,string>,
-	 *   vars:array<string,mixed>,
-	 *   content:array<string,mixed>
-	 * }
+	 * @return ScansResultsContract
 	 */
-	private function buildScansResultsContract( array $renderData ) :array {
-		$strings = \is_array( $renderData[ 'strings' ] ?? null ) ? $renderData[ 'strings' ] : [];
-		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$content = \is_array( $renderData[ 'content' ] ?? null ) ? $renderData[ 'content' ] : [];
-		$contentSection = \is_array( $content[ 'section' ] ?? null ) ? $content[ 'section' ] : [];
-
+	private function buildEmptyScansResultsContract() :array {
 		return [
-			'strings' => \array_merge( [
+			'strings' => [
 				'pane_loading' => __( 'Loading scan details...', 'wp-simple-firewall' ),
 				'no_issues'    => __( 'No issues found in this section.', 'wp-simple-firewall' ),
-			], $strings ),
-			'vars'    => \array_merge( [
+			],
+			'vars'    => [
 				'rail'            => [],
 				'rail_tabs'       => [],
 				'metrics_action'  => [],
 				'preload_action'  => [],
 				'summary_rows'    => [],
 				'assessment_rows' => [],
-			], $vars ),
-			'content' => \array_merge( $content, [
-				'section' => \array_merge( [
+			],
+			'content' => [
+				'section' => [
 					'wordpress'       => '',
 					'plugins'         => '',
 					'themes'          => '',
 					'vulnerabilities' => '',
 					'malware'         => '',
 					'filelocker'      => '',
-				], $contentSection ),
-			] ),
+				],
+			],
 		];
 	}
 
+	/**
+	 * @return ScansResultsContract
+	 */
 	protected function buildScansResultsRenderData() :array {
 		return ( new ActionsQueueScanRailBuilder() )->buildFromLandingData(
 			$this->getNeedsAttentionPayload(),
-			$this->getAssessmentRowsByZone()[ 'scans' ] ?? []
+			$this->getScansAssessmentRows()
 		);
 	}
 
 	/**
-	 * @param array<string,mixed> $item
-	 * @return array<string,mixed>
+	 * @param QueueItem $item
+	 * @return MaintenanceQueueItem|QueueItem
 	 */
 	private function normalizeZoneItemForDisplay( array $item ) :array {
-		if ( ( $item[ 'zone' ] ?? '' ) !== 'maintenance' ) {
+		if ( $item[ 'zone' ] !== 'maintenance' ) {
 			return $item;
 		}
 
-		$href = (string)( $item[ 'href' ] ?? '' );
-		$target = (string)( $item[ 'target' ] ?? '' );
+		$href = $item[ 'href' ];
+		$target = $item[ 'target' ];
 
-		switch ( $item[ 'key' ] ?? '' ) {
+		switch ( $item[ 'key' ] ) {
 			case 'wp_plugins_inactive':
 				$item[ 'cta' ] = [
 					'href'  => $href,
@@ -298,7 +291,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 				];
 				break;
 			default:
-				$action = (string)( $item[ 'action' ] ?? '' );
+				$action = $item[ 'action' ];
 				if ( $href !== '' && $action !== '' ) {
 					$item[ 'cta' ] = [
 						'href'   => $href,
@@ -314,56 +307,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	/**
 	 * @return array{
-	 *   summary:array{
-	 *     has_items:bool,
-	 *     total_items:int,
-	 *     severity:string,
-	 *     icon_class:string,
-	 *     subtext:string
-	 *   },
-	 *   zones_indexed:array<string,array{
-	 *     slug:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     severity:string,
-	 *     total_issues:int,
-	 *     items:list<array{
-	 *       key:string,
-	 *       zone:string,
-	 *       label:string,
-	 *       count:int,
-	 *       severity:string,
-	 *       description:string,
-	 *       href:string,
-	 *       action:string
-	 *     }>
-	 *   }>,
-	 *   zone_tiles:list<array{
-	 *     key:string,
-	 *     panel_target:string,
-	 *     is_enabled:bool,
-	 *     is_disabled:bool,
-	 *     has_issues:bool,
-	 *     has_assessments:bool,
-	 *     has_panel_content:bool,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     total_issues:int,
-	 *     critical_count:int,
-	 *     warning_count:int,
-	 *     summary_text:string,
-	 *     items:list<array<string,mixed>>,
-	 *     assessment_rows:list<array{
-	 *       key:string,
-	 *       label:string,
-	 *       description:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       status_icon_class:string
-	 *     }>
-	 *   }>,
+	 *   summary:QueueSummary,
+	 *   zones_indexed:array<string,ZoneGroup>,
+	 *   zone_tiles:list<ZoneTile>,
 	 *   severity_strip:array{
 	 *     severity:string,
 	 *     label:string,
@@ -396,14 +342,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @return array<string,list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   description:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string
-	 * }>>
+	 * @return AssessmentRowsByZone
 	 */
 	private function getAssessmentRowsByZone() :array {
 		if ( $this->assessmentRowsByZoneCache === null ) {
@@ -413,17 +352,22 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @return array<string,list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   description:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string
-	 * }>>
+	 * @return AssessmentRowsByZone
 	 */
 	protected function buildAssessmentRowsByZone() :array {
-		return ( new ActionsQueueLandingAssessmentBuilder() )->build();
+		$builder = new ActionsQueueLandingAssessmentBuilder();
+
+		return [
+			'scans'       => $builder->buildForZone( 'scans' ),
+			'maintenance' => $builder->buildForZone( 'maintenance' ),
+		];
+	}
+
+	/**
+	 * @return list<AssessmentRow>
+	 */
+	private function getScansAssessmentRows() :array {
+		return $this->getAssessmentRowsByZone()[ 'scans' ];
 	}
 
 	/**

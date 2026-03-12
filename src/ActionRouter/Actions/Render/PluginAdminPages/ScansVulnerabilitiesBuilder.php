@@ -9,19 +9,42 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type VulnerabilityAction array{
+ *   href:string,
+ *   label:string,
+ *   type:string,
+ *   icon?:string,
+ *   attributes?:array<string,string>
+ * }
+ * @phpstan-type VulnerabilityItem array{
+ *   key:string,
+ *   asset_key:string,
+ *   label:string,
+ *   description:string,
+ *   count:int,
+ *   severity:string,
+ *   actions:list<VulnerabilityAction>
+ * }
+ * @phpstan-type VulnerabilitySection array{
+ *   label:string,
+ *   items:list<VulnerabilityItem>
+ * }
+ * @phpstan-type VulnerabilitiesPayload array{
+ *   count:int,
+ *   status:string,
+ *   sections:array{
+ *     vulnerable:VulnerabilitySection,
+ *     abandoned:VulnerabilitySection
+ *   }
+ * }
+ */
 class ScansVulnerabilitiesBuilder {
 
 	use PluginControllerConsumer;
 
 	/**
-	 * @return array{
-	 *   count:int,
-	 *   status:string,
-	 *   sections:array{
-	 *     vulnerable:array{label:string,items:list<array<string,mixed>>},
-	 *     abandoned:array{label:string,items:list<array<string,mixed>>}
-	 *   }
-	 * }
+	 * @return VulnerabilitiesPayload
 	 */
 	public function build() :array {
 		$vulnerableItems = $this->buildVulnerableItems();
@@ -46,7 +69,7 @@ class ScansVulnerabilitiesBuilder {
 	}
 
 	/**
-	 * @return list<array<string,mixed>>
+	 * @return list<VulnerabilityItem>
 	 */
 	protected function buildVulnerableItems() :array {
 		try {
@@ -79,7 +102,7 @@ class ScansVulnerabilitiesBuilder {
 	}
 
 	/**
-	 * @return list<array<string,mixed>>
+	 * @return list<VulnerabilityItem>
 	 */
 	protected function buildAbandonedItems() :array {
 		try {
@@ -109,7 +132,7 @@ class ScansVulnerabilitiesBuilder {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $asset
-	 * @return array<string,mixed>
+	 * @return VulnerabilityItem
 	 */
 	private function buildAssetRow( string $prefix, $asset, int $count, string $description ) :array {
 		$isPlugin = $asset instanceof WpPluginVo;
@@ -134,15 +157,15 @@ class ScansVulnerabilitiesBuilder {
 	}
 
 	/**
-	 * @param array<int,array<string,mixed>> $items
-	 * @return list<array<string,mixed>>
+	 * @param list<VulnerabilityItem> $items
+	 * @return list<VulnerabilityItem>
 	 */
 	private function sortItems( array $items ) :array {
 		\usort( $items, static function ( array $a, array $b ) :int {
-			$countCmp = ( $b[ 'count' ] ?? 0 ) <=> ( $a[ 'count' ] ?? 0 );
+			$countCmp = $b[ 'count' ] <=> $a[ 'count' ];
 			return $countCmp !== 0
 				? $countCmp
-				: \strcmp( (string)( $a[ 'label' ] ?? '' ), (string)( $b[ 'label' ] ?? '' ) );
+				: \strcmp( $a[ 'label' ], $b[ 'label' ] );
 		} );
 
 		return \array_values( $items );
@@ -150,7 +173,7 @@ class ScansVulnerabilitiesBuilder {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $asset
-	 * @return list<array<string,mixed>>
+	 * @return list<VulnerabilityAction>
 	 */
 	private function buildAssetActions( $asset ) :array {
 		return [
@@ -205,16 +228,13 @@ class ScansVulnerabilitiesBuilder {
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $vulnerableItems
-	 * @param list<array<string,mixed>> $abandonedItems
+	 * @param list<VulnerabilityItem> $vulnerableItems
+	 * @param list<VulnerabilityItem> $abandonedItems
 	 */
 	private function countDistinctAffectedAssets( array $vulnerableItems, array $abandonedItems ) :int {
 		$keys = [];
 		foreach ( [ ...$vulnerableItems, ...$abandonedItems ] as $item ) {
-			$key = (string)( $item[ 'asset_key' ] ?? '' );
-			if ( $key !== '' ) {
-				$keys[ $key ] = true;
-			}
+			$keys[ $item[ 'asset_key' ] ] = true;
 		}
 
 		return \count( $keys );

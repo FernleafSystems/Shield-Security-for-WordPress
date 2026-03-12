@@ -16,33 +16,53 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
+
+/**
+ * @phpstan-import-type QueueItem from NeedsAttentionQueuePayload
+ * @phpstan-import-type ZoneGroup from NeedsAttentionQueuePayload
+ * @phpstan-type AssessmentRow array{
+ *   key:string,
+ *   label:string,
+ *   description:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string
+ * }
+ * @phpstan-type SummaryRow array{
+ *   key:string,
+ *   label:string,
+ *   text:string,
+ *   severity:string,
+ *   count:int,
+ *   action:string,
+ *   href:string
+ * }
+ * @phpstan-type RailMetrics array{
+ *   tabs:array<string,array{count:int,status:string}>,
+ *   rail_accent_status:string
+ * }
+ */
 
 class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 	/**
-	 * @param list<array<string,mixed>> $assessmentRows
+	 * @param list<AssessmentRow> $assessmentRows
 	 * @return array<string,mixed>
 	 */
 	public function buildFromLandingData( array $needsAttentionPayload, array $assessmentRows = [] ) :array {
-		$scansZoneGroup = $this->getScansZoneGroup( $needsAttentionPayload );
+		$scansZoneGroup = NeedsAttentionQueuePayload::zoneGroup( $needsAttentionPayload, 'scans' );
 		$summaryRows = $this->buildSummaryRowsFromZoneGroup( $scansZoneGroup );
 		$metrics = $this->buildInitialRailMetrics();
-		$summaryMetrics = \is_array( $metrics[ 'tabs' ][ 'summary' ] ?? null )
-			? $metrics[ 'tabs' ][ 'summary' ]
-			: [
-				'count'  => 0,
-				'status' => 'good',
-			];
+		$summaryMetrics = $metrics[ 'tabs' ][ 'summary' ];
 		$lazyDefinitions = $this->buildLazyTabDefinitions();
 		$summaryMeta = $this->getRailTabMeta( 'summary' );
 		$railTabs = $this->buildTabs( \array_merge( [
 			[
 				'key'        => 'summary',
 				'label'      => $summaryMeta[ 'label' ],
-				'count'      => (int)( $summaryMetrics[ 'count' ] ?? 0 ),
+				'count'      => $summaryMetrics[ 'count' ],
 				'is_shown'   => true,
-				'status'     => (string)( $summaryMetrics[ 'status' ] ?? 'good' ),
+				'status'     => $summaryMetrics[ 'status' ],
 				'icon_class' => $summaryMeta[ 'icon_class' ],
 				'items'      => $this->buildSummaryRailItems(
 					$summaryRows,
@@ -54,7 +74,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		], $lazyDefinitions ) );
 
 		$rail = $this->buildRailContract( $railTabs );
-		$rail[ 'accent_status' ] = (string)( $metrics[ 'rail_accent_status' ] ?? 'good' );
+		$rail[ 'accent_status' ] = $metrics[ 'rail_accent_status' ];
 
 		return [
 			'strings' => [
@@ -90,10 +110,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return array{
-	 *   tabs:array<string,array{count:int,status:string}>,
-	 *   rail_accent_status:string
-	 * }
+	 * @return RailMetrics
 	 */
 	protected function buildInitialRailMetrics() :array {
 		return ( new ActionsQueueScanRailMetricsBuilder() )->build();
@@ -118,7 +135,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 */
 	private function buildLazyTabDefinition( string $tabKey ) :?array {
 		$availability = $this->getRailTabAvailability( $tabKey );
-		if ( empty( $availability[ 'show_in_actions_queue' ] ) ) {
+		if ( !$availability[ 'show_in_actions_queue' ] ) {
 			return null;
 		}
 
@@ -170,40 +187,20 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return array{slug:string,label:string,icon_class:string,severity:string,total_issues:int,items:list<array<string,mixed>>}
-	 */
-	private function getScansZoneGroup( array $needsAttentionPayload ) :array {
-		foreach ( NeedsAttentionQueuePayload::zoneGroups( $needsAttentionPayload ) as $zoneGroup ) {
-			if ( \sanitize_key( (string)( $zoneGroup[ 'slug' ] ?? '' ) ) === 'scans' ) {
-				return $zoneGroup;
-			}
-		}
-
-		return [
-			'slug'         => 'scans',
-			'label'        => '',
-			'icon_class'   => '',
-			'severity'     => 'good',
-			'total_issues' => 0,
-			'items'        => [],
-		];
-	}
-
-	/**
-	 * @param array{items?:list<array<string,mixed>>} $scansZoneGroup
-	 * @return list<array<string,mixed>>
+	 * @param ZoneGroup $scansZoneGroup
+	 * @return list<SummaryRow>
 	 */
 	private function buildSummaryRowsFromZoneGroup( array $scansZoneGroup ) :array {
 		return \array_values( \array_map( static function ( array $item ) :array {
 			return [
-				'key'      => (string)( $item[ 'key' ] ?? '' ),
-				'label'    => (string)( $item[ 'label' ] ?? '' ),
-				'text'     => (string)( $item[ 'description' ] ?? '' ),
-				'severity' => StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' ),
-				'count'    => \max( 0, (int)( $item[ 'count' ] ?? 0 ) ),
-				'action'   => (string)( $item[ 'action' ] ?? '' ),
-				'href'     => (string)( $item[ 'href' ] ?? '' ),
+				'key'      => $item[ 'key' ],
+				'label'    => $item[ 'label' ],
+				'text'     => $item[ 'description' ],
+				'severity' => $item[ 'severity' ],
+				'count'    => $item[ 'count' ],
+				'action'   => $item[ 'action' ],
+				'href'     => $item[ 'href' ],
 			];
-		}, \is_array( $scansZoneGroup[ 'items' ] ?? null ) ? \array_values( $scansZoneGroup[ 'items' ] ) : [] ) );
+		}, $scansZoneGroup[ 'items' ] ) );
 	}
 }

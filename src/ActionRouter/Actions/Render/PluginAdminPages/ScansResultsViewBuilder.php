@@ -29,6 +29,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
+ * @phpstan-import-type ActionItem from AttentionItemsProvider
  * @phpstan-type QueueAssetAction array{
  *   type:string,
  *   label:string,
@@ -86,31 +87,10 @@ use FernleafSystems\Wordpress\Services\Services;
  *   status_icon_class:string,
  *   status_label:string
  * }
- * @phpstan-type VulnerabilityAction array{
- *   href:string,
- *   label:string,
- *   type:string,
- *   icon?:string,
- *   attributes?:array<string,string>
- * }
- * @phpstan-type VulnerabilityCta array{href:string,label:string,type:string}
- * @phpstan-type VulnerabilityItem array{
- *   label:string,
- *   description:string,
- *   severity:string,
- *   count:int|null,
- *   actions:list<VulnerabilityAction>,
- *   cta:VulnerabilityCta
- * }
- * @phpstan-type VulnerabilitySection array{
- *   label:string,
- *   items:list<VulnerabilityItem>
- * }
- * @phpstan-type VulnerabilitiesPayload array{
- *   count:int,
- *   status:string,
- *   sections:list<VulnerabilitySection>
- * }
+ * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
+ * @phpstan-import-type VulnerabilityItem from ScansVulnerabilitiesBuilder
+ * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
+ * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  * @phpstan-type QueueAssetPane array{
  *   is_disabled:bool,
  *   disabled_message:string,
@@ -197,14 +177,27 @@ class ScansResultsViewBuilder {
 	 * @return list<SummaryRow>
 	 */
 	protected function buildSummaryRows() :array {
-		return $this->normalizeSummaryRows( ( new AttentionItemsProvider() )->buildScanItems() );
+		return \array_values( \array_map(
+			static function ( array $row ) :array {
+				return [
+					'key'      => $row[ 'key' ],
+					'label'    => $row[ 'label' ],
+					'text'     => $row[ 'text' ],
+					'severity' => $row[ 'severity' ],
+					'count'    => $row[ 'count' ],
+					'action'   => $row[ 'action' ],
+					'href'     => $row[ 'href' ],
+				];
+			},
+			( new AttentionItemsProvider() )->buildScanItems()
+		) );
 	}
 
 	/**
 	 * @return list<AssessmentRow>
 	 */
 	protected function buildAssessmentRows() :array {
-		return $this->normalizeAssessmentRows( ( new ActionsQueueLandingAssessmentBuilder() )->build()[ 'scans' ] );
+		return ( new ActionsQueueLandingAssessmentBuilder() )->buildForZone( 'scans' );
 	}
 
 	protected function buildWordpressSectionPayload() :array {
@@ -231,7 +224,7 @@ class ScansResultsViewBuilder {
 	 * @return VulnerabilitiesPayload
 	 */
 	protected function buildVulnerabilities() :array {
-		return $this->normalizeVulnerabilities( ( new ScansVulnerabilitiesBuilder() )->build() );
+		return ( new ScansVulnerabilitiesBuilder() )->build();
 	}
 
 	protected function isWordpressTabEnabled() :bool {
@@ -924,22 +917,13 @@ class ScansResultsViewBuilder {
 			$sectionLabel = $section[ 'label' ];
 			foreach ( $section[ 'items' ] as $item ) {
 				$severity = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
-				$actions = $item[ 'actions' ];
-				if ( empty( $actions ) ) {
-					$cta = $item[ 'cta' ];
-					$actions = $this->buildActionsForHref(
-						$cta[ 'label' ],
-						$cta[ 'href' ],
-						$cta[ 'type' ]
-					);
-				}
 				$items[] = $this->buildDetailRow(
 					$item[ 'label' ],
 					$item[ 'description' ],
 					$severity,
 					$item[ 'count' ],
 					$severity,
-					$actions,
+					$item[ 'actions' ],
 					null,
 					null,
 					$sectionLabel
@@ -1336,80 +1320,6 @@ class ScansResultsViewBuilder {
 		}
 
 		return $this->cachedRailTabAvailability;
-	}
-
-	/**
-	 * @param array<int,array<string,mixed>> $rows
-	 * @return list<SummaryRow>
-	 */
-	protected function normalizeSummaryRows( array $rows ) :array {
-		return \array_values( \array_map(
-			static fn( array $row ) :array => [
-				'key'      => (string)( $row[ 'key' ] ?? '' ),
-				'label'    => (string)( $row[ 'label' ] ?? '' ),
-				'text'     => (string)( $row[ 'text' ] ?? ( $row[ 'description' ] ?? '' ) ),
-				'severity' => (string)( $row[ 'severity' ] ?? 'warning' ),
-				'count'    => (int)( $row[ 'count' ] ?? 0 ),
-				'action'   => (string)( $row[ 'action' ] ?? '' ),
-				'href'     => (string)( $row[ 'href' ] ?? '' ),
-			],
-			$rows
-		) );
-	}
-
-	/**
-	 * @param array<int,array<string,mixed>> $rows
-	 * @return list<AssessmentRow>
-	 */
-	protected function normalizeAssessmentRows( array $rows ) :array {
-		return \array_values( \array_map(
-			static fn( array $row ) :array => [
-				'key'               => (string)( $row[ 'key' ] ?? '' ),
-				'label'             => (string)( $row[ 'label' ] ?? '' ),
-				'status'            => (string)( $row[ 'status' ] ?? 'good' ),
-				'description'       => (string)( $row[ 'description' ] ?? '' ),
-				'status_icon_class' => (string)( $row[ 'status_icon_class' ] ?? '' ),
-				'status_label'      => (string)( $row[ 'status_label' ] ?? '' ),
-			],
-			$rows
-		) );
-	}
-
-	/**
-	 * @param array<string,mixed> $vulnerabilities
-	 * @return VulnerabilitiesPayload
-	 */
-	protected function normalizeVulnerabilities( array $vulnerabilities ) :array {
-		$sections = [];
-		foreach ( $vulnerabilities[ 'sections' ] ?? [] as $section ) {
-			$items = [];
-			foreach ( $section[ 'items' ] ?? [] as $item ) {
-				$actions = \array_values( \is_array( $item[ 'actions' ] ?? null ) ? $item[ 'actions' ] : [] );
-				$cta = \is_array( $item[ 'cta' ] ?? null ) ? $item[ 'cta' ] : [];
-				$items[] = [
-					'label'       => (string)( $item[ 'label' ] ?? '' ),
-					'description' => (string)( $item[ 'description' ] ?? '' ),
-					'severity'    => (string)( $item[ 'severity' ] ?? 'warning' ),
-					'count'       => isset( $item[ 'count' ] ) ? (int)$item[ 'count' ] : null,
-					'actions'     => $actions,
-					'cta'         => [
-						'href'  => (string)( $cta[ 'href' ] ?? '' ),
-						'label' => (string)( $cta[ 'label' ] ?? '' ),
-						'type'  => (string)( $cta[ 'type' ] ?? 'navigate' ),
-					],
-				];
-			}
-			$sections[] = [
-				'label' => (string)( $section[ 'label' ] ?? '' ),
-				'items' => $items,
-			];
-		}
-
-		return [
-			'count'    => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
-			'status'   => (string)( $vulnerabilities[ 'status' ] ?? 'good' ),
-			'sections' => $sections,
-		];
 	}
 
 	/**

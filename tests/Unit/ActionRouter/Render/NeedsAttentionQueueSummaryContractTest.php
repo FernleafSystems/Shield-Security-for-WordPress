@@ -112,7 +112,17 @@ class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 					'severity'     => 'critical',
 					'total_issues' => 4,
 					'items'        => [
-						[ 'key' => 'malware' ],
+						[
+							'key'         => 'malware',
+							'zone'        => '',
+							'label'       => '',
+							'count'       => 0,
+							'severity'    => 'good',
+							'description' => '',
+							'href'        => '',
+							'action'      => '',
+							'target'      => '',
+						],
 					],
 				],
 				[
@@ -128,12 +138,44 @@ class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_zone_group_returns_matching_group_or_normalized_empty_group() :void {
+		$payload = [
+			'render_data' => [
+				'vars' => [
+					'zone_groups' => [
+						[
+							'slug'         => 'scans',
+							'label'        => 'Scans',
+							'icon_class'   => 'bi bi-shield-exclamation',
+							'severity'     => 'critical',
+							'total_issues' => 2,
+							'items'        => [],
+						],
+					],
+				],
+			],
+		];
+
+		$this->assertSame( 'scans', NeedsAttentionQueuePayload::zoneGroup( $payload, 'scans' )[ 'slug' ] );
+		$this->assertSame(
+			[
+				'slug'         => 'maintenance',
+				'label'        => '',
+				'icon_class'   => '',
+				'severity'     => 'good',
+				'total_issues' => 0,
+				'items'        => [],
+			],
+			NeedsAttentionQueuePayload::zoneGroup( $payload, 'maintenance' )
+		);
+	}
+
 	public function test_counts_from_items_uses_item_level_severity_totals() :void {
 		$counts = NeedsAttentionQueuePayload::countsFromItems( [
-			[ 'severity' => 'critical', 'count' => 2 ],
-			[ 'severity' => 'warning', 'count' => 1 ],
-			[ 'severity' => 'warning', 'count' => 3 ],
-			[ 'severity' => 'good', 'count' => 99 ],
+			$this->buildQueueItem( 'critical', 2 ),
+			$this->buildQueueItem( 'warning', 1 ),
+			$this->buildQueueItem( 'warning', 3 ),
+			$this->buildQueueItem( 'good', 99 ),
 		] );
 
 		$this->assertSame( 2, $counts[ 'critical' ] );
@@ -143,28 +185,28 @@ class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 	public function test_counts_from_zone_groups_aggregates_item_level_counts() :void {
 		$counts = NeedsAttentionQueuePayload::countsFromZoneGroups( [
 			[
-				'slug'         => 'scans',
-				'label'        => 'Scans',
-				'icon_class'   => 'bi bi-scans',
-				'severity'     => 'critical',
-				'total_issues' => 3,
-				'items'        => [
-					[ 'severity' => 'critical', 'count' => 1 ],
-					[ 'severity' => 'warning', 'count' => 2 ],
+					'slug'         => 'scans',
+					'label'        => 'Scans',
+					'icon_class'   => 'bi bi-scans',
+					'severity'     => 'critical',
+					'total_issues' => 3,
+					'items'        => [
+						$this->buildQueueItem( 'critical', 1 ),
+						$this->buildQueueItem( 'warning', 2 ),
+					],
 				],
-			],
 			[
-				'slug'         => 'maintenance',
-				'label'        => 'Maintenance',
-				'icon_class'   => 'bi bi-maintenance',
-				'severity'     => 'warning',
-				'total_issues' => 2,
-				'items'        => [
-					[ 'severity' => 'critical', 'count' => 1 ],
-					[ 'severity' => 'warning', 'count' => 1 ],
+					'slug'         => 'maintenance',
+					'label'        => 'Maintenance',
+					'icon_class'   => 'bi bi-maintenance',
+					'severity'     => 'warning',
+					'total_issues' => 2,
+					'items'        => [
+						$this->buildQueueItem( 'critical', 1 ),
+						$this->buildQueueItem( 'warning', 1 ),
+					],
 				],
-			],
-		] );
+			] );
 
 		$this->assertSame( 2, $counts[ 'critical' ] );
 		$this->assertSame( 3, $counts[ 'warning' ] );
@@ -183,5 +225,32 @@ class NeedsAttentionQueueSummaryContractTest extends BaseUnitTest {
 		$this->assertSame( 'All security zones are clear', $strings[ 'all_clear_title' ] );
 		$this->assertSame( 'Nothing requires your action.', $strings[ 'all_clear_subtitle' ] );
 		$this->assertSame( 'bi bi-shield-check', $strings[ 'all_clear_icon_class' ] );
+	}
+
+	/**
+	 * @return array{
+	 *   key:string,
+	 *   zone:string,
+	 *   label:string,
+	 *   count:int,
+	 *   severity:string,
+	 *   description:string,
+	 *   href:string,
+	 *   action:string,
+	 *   target:string
+	 * }
+	 */
+	private function buildQueueItem( string $severity, int $count ) :array {
+		return [
+			'key'         => $severity.'-'.$count,
+			'zone'        => 'scans',
+			'label'       => 'Item',
+			'count'       => $count,
+			'severity'    => $severity,
+			'description' => '',
+			'href'        => '',
+			'action'      => '',
+			'target'      => '',
+		];
 	}
 }

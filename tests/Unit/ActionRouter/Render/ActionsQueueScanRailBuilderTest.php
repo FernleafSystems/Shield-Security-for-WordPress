@@ -164,6 +164,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 								'description' => 'This asset appears to be abandoned and should be reviewed.',
 								'severity'    => 'warning',
 								'count'       => 1,
+								'actions'     => [],
 							],
 						],
 					],
@@ -398,7 +399,7 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 	}
 
 	protected function buildVulnerabilities() :array {
-		return $this->normalizeVulnerabilities( $this->vulnerabilities );
+		return $this->vulnerabilities;
 	}
 
 	protected function buildInitialRailMetrics() :array {

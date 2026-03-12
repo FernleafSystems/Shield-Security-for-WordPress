@@ -389,17 +389,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->capture = (object)[
 			'actionCalls'           => [],
 			'queuePayload'          => $this->buildQueuePayload( false, 0, 'good', '', [] ),
-			'scansResultsRenderData' => [
-				'strings' => [
-					'results_tab_wordpress' => 'WordPress',
-				],
-				'vars'    => [
-					'tabs' => [],
-				],
-				'content' => [
-					'section' => [],
-				],
-			],
+			'scansResultsRenderData' => $this->buildScansResultsContract(),
 		];
 
 		/** @var Controller $controller */
@@ -482,14 +472,24 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @param array<string,list<array{
+	 * @param array{
+	 *   scans:list<array{
 	 *   key:string,
 	 *   label:string,
 	 *   description:string,
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
-	 * }>>|null $assessmentRowsByZone
+	 *   }>,
+	 *   maintenance:list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 *   }>
+	 * }|null $assessmentRowsByZone
 	 */
 	private function newPage( ?array $assessmentRowsByZone = null, array $actionData = [] ) :PageActionsQueueLanding {
 		$page = new PageActionsQueueLandingUnitTestDouble(
@@ -734,6 +734,61 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			'target'      => $target,
 		];
 	}
+
+	/**
+	 * @return array{
+	 *   strings:array{
+	 *     pane_loading:string,
+	 *     no_issues:string,
+	 *     results_tab_wordpress:string
+	 *   },
+	 *   vars:array{
+	 *     rail:array<string,mixed>,
+	 *     rail_tabs:list<array<string,mixed>>,
+	 *     metrics_action:array<string,mixed>,
+	 *     preload_action:array<string,mixed>,
+	 *     summary_rows:list<array<string,mixed>>,
+	 *     assessment_rows:list<array<string,mixed>>
+	 *   },
+	 *   content:array{
+	 *     section:array{
+	 *       wordpress:string,
+	 *       plugins:string,
+	 *       themes:string,
+	 *       vulnerabilities:string,
+	 *       malware:string,
+	 *       filelocker:string
+	 *     }
+	 *   }
+	 * }
+	 */
+	private function buildScansResultsContract() :array {
+		return [
+			'strings' => [
+				'pane_loading'         => 'Loading scan details...',
+				'no_issues'            => 'No issues found in this section.',
+				'results_tab_wordpress' => 'WordPress',
+			],
+			'vars'    => [
+				'rail'            => [],
+				'rail_tabs'       => [],
+				'metrics_action'  => [],
+				'preload_action'  => [],
+				'summary_rows'    => [],
+				'assessment_rows' => [],
+			],
+			'content' => [
+				'section' => [
+					'wordpress'       => '',
+					'plugins'         => '',
+					'themes'          => '',
+					'vulnerabilities' => '',
+					'malware'         => '',
+					'filelocker'      => '',
+				],
+			],
+		];
+	}
 }
 
 class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
@@ -744,14 +799,24 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	private array $needsAttentionRenderData;
 
 	/**
-	 * @param array<string,list<array{
+	 * @param array{
+	 *   scans:list<array{
 	 *   key:string,
 	 *   label:string,
 	 *   description:string,
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
-	 * }>> $assessmentRowsByZone
+	 *   }>,
+	 *   maintenance:list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 *   }>
+	 * } $assessmentRowsByZone
 	 * @param array<string,mixed> $scansResultsRenderData
 	 */
 	public function __construct(
