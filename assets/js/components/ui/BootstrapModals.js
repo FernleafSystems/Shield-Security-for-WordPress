@@ -9,6 +9,12 @@ export class BootstrapModals {
 		}
 	}
 
+	static Hide( modalEl ) {
+		if ( modalEl ) {
+			Modal.getOrCreateInstance( modalEl ).hide();
+		}
+	}
+
 	static normalizeModalAccessibility( modalEl ) {
 		modalEl.setAttribute( 'aria-modal', 'true' );
 

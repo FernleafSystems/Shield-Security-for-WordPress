@@ -1,24 +1,8 @@
 import $ from 'jquery';
-import hljs from 'highlight.js/lib/core';
-import bash from 'highlight.js/lib/languages/bash';
-import css from 'highlight.js/lib/languages/css';
-import javascript from 'highlight.js/lib/languages/javascript';
-import json from 'highlight.js/lib/languages/json';
-import php from 'highlight.js/lib/languages/php';
-import sql from 'highlight.js/lib/languages/sql';
-import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
-import { BootstrapModals } from "../ui/BootstrapModals";
+import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableBase } from "./ShieldTableBase";
-
-hljs.registerLanguage( 'bash', bash );
-hljs.registerLanguage( 'css', css );
-hljs.registerLanguage( 'javascript', javascript );
-hljs.registerLanguage( 'json', json );
-hljs.registerLanguage( 'php', php );
-hljs.registerLanguage( 'sql', sql );
-hljs.registerLanguage( 'xml', xml );
 
 export class ShieldTableScanResults extends ShieldTableBase {
 
@@ -73,63 +57,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			'.action.view-file',
 			( evt ) => {
 				evt.preventDefault();
-
-				const data = ObjectOps.ObjClone( this._base_data.ajax.render_item_analysis );
-				data[ 'rid' ] = evt.currentTarget.dataset.rid;
-
-				( new AjaxService() )
-				.send( data )
-				.then( ( resp ) => {
-					if ( resp.success ) {
-						const modal = document.getElementById( 'ShieldModalContainer' );
-						modal.querySelector( '.modal-content' ).innerHTML = resp.data.html;
-						BootstrapModals.Show( modal );
-						const unknownLanguageBlocks = [];
-						modal.querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
-							const languageClass = Array.from( el.classList ).find( ( cls ) => cls.startsWith( 'language-' ) ) || '';
-							const language = languageClass ? languageClass.slice( 9 ) : '';
-							if ( language.length > 0 && hljs.getLanguage( language ) ) {
-								hljs.highlightElement( el );
-							}
-							else {
-								unknownLanguageBlocks.push( el );
-							}
-						} );
-
-						if ( unknownLanguageBlocks.length > 0 ) {
-							const detectedLanguage = hljs.highlightAuto(
-								unknownLanguageBlocks.map( ( el ) => el.textContent || '' ).join( "\n" )
-							).language || '';
-
-							unknownLanguageBlocks.forEach( ( el ) => {
-								if ( detectedLanguage.length > 0 && hljs.getLanguage( detectedLanguage ) ) {
-									const highlighted = hljs.highlight( el.textContent || '', {
-										language: detectedLanguage,
-										ignoreIllegals: true,
-									} );
-									el.innerHTML = highlighted.value;
-									el.classList.add( 'hljs', 'language-' + detectedLanguage );
-								}
-								else {
-									const highlighted = hljs.highlightAuto( el.textContent || '' );
-									el.innerHTML = highlighted.value;
-									el.classList.add( 'hljs' );
-									if ( highlighted.language ) {
-										el.classList.add( 'language-' + highlighted.language );
-									}
-								}
-							} );
-						}
-					}
-					else {
-						alert( resp.data.message );
-						// console.log( resp );
-					}
-				} )
-				.catch( ( error ) => {
-					console.log( error );
-				} )
-				.finally();
+				ScanItemAnalysisModal.show(
+					this._base_data.ajax.render_item_analysis,
+					evt.currentTarget.dataset.rid
+				);
 
 				return false;
 			}
