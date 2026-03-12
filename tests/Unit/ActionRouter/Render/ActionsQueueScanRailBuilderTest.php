@@ -129,6 +129,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $pluginsTab[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertTrue( (bool)( $this->findTabByKey( $renderData[ 'vars' ][ 'rail' ][ 'items' ] ?? [], 'plugins' )[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertFalse( (bool)( $pluginsTab[ 'is_loaded' ] ?? true ) );
+		$this->assertSame( 'actions_queue', $pluginsTab[ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'scanresults_malware', $malwareTab[ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertArrayHasKey( 'count', $malwareTab );
 		$this->assertNull( $malwareTab[ 'count' ] );
@@ -194,6 +195,9 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'scanresults_malware', $tabsByKey[ 'malware' ][ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'actions_queue', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'display_context' ] ?? '' );
+		$this->assertSame( 'actions_queue', $tabsByKey[ 'themes' ][ 'render_action' ][ 'display_context' ] ?? '' );
+		$this->assertSame( 'actions_queue', $tabsByKey[ 'file_locker' ][ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );
@@ -324,7 +328,7 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 		];
 	}
 
-	protected function buildAjaxRenderActionData( string $actionClass ) :array {
+	protected function buildAjaxRenderActionData( string $actionClass, array $aux = [] ) :array {
 		$map = [
 			'Wordpress'       => 'scanresults_wordpress',
 			'Plugins'         => 'scanresults_plugins',
@@ -337,10 +341,10 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 		$actionName = \end( $parts ) ?: '';
 		return [
 			'render_slug' => $map[ $actionName ] ?? '',
-		];
+		] + $aux;
 	}
 
 	protected function buildVulnerabilities() :array {
-		return $this->vulnerabilities;
+		return $this->normalizeVulnerabilities( $this->vulnerabilities );
 	}
 }

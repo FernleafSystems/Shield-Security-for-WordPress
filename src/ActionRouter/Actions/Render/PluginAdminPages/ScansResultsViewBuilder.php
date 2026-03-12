@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Themes,
 	Wordpress
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\AttentionItemsProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
@@ -27,6 +28,112 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type QueueAssetAction array{
+ *   type:string,
+ *   label:string,
+ *   href:string,
+ *   icon:string,
+ *   tooltip:string,
+ *   attributes:array<string,string>
+ * }
+ * @phpstan-type QueueAssetCard array{
+ *   key:string,
+ *   panel_id:string,
+ *   panel_target:string,
+ *   expand_target:string,
+ *   status:string,
+ *   icon_class:string,
+ *   title:string,
+ *   stat_text:string,
+ *   meta_text:string,
+ *   count_badge:int,
+ *   actions:list<QueueAssetAction>,
+ *   table:array<string,mixed>,
+ *   render_action:array<string,mixed>
+ * }
+ * @phpstan-type QueueFileLockerCard array{
+ *   key:string,
+ *   panel_id:string,
+ *   panel_target:string,
+ *   status:string,
+ *   icon_class:string,
+ *   title:string,
+ *   rail_title:string,
+ *   stat_text:string,
+ *   meta_text:string,
+ *   count_badge:null,
+ *   actions:list<QueueAssetAction>,
+ *   table:array<string,mixed>,
+ *   render_action:array{render_slug:string,rid:int}
+ * }
+ * @phpstan-type SummaryRow array{
+ *   key:string,
+ *   label:string,
+ *   text:string,
+ *   severity:string,
+ *   count:int,
+ *   action:string,
+ *   href:string
+ * }
+ * @phpstan-type AssessmentRow array{
+ *   key:string,
+ *   label:string,
+ *   status:string,
+ *   description:string,
+ *   status_icon_class:string,
+ *   status_label:string
+ * }
+ * @phpstan-type VulnerabilityAction array{
+ *   href:string,
+ *   label:string,
+ *   type:string,
+ *   icon?:string,
+ *   attributes?:array<string,string>
+ * }
+ * @phpstan-type VulnerabilityCta array{href:string,label:string,type:string}
+ * @phpstan-type VulnerabilityItem array{
+ *   label:string,
+ *   description:string,
+ *   severity:string,
+ *   count:int|null,
+ *   actions:list<VulnerabilityAction>,
+ *   cta:VulnerabilityCta
+ * }
+ * @phpstan-type VulnerabilitySection array{
+ *   label:string,
+ *   items:list<VulnerabilityItem>
+ * }
+ * @phpstan-type VulnerabilitiesPayload array{
+ *   count:int,
+ *   status:string,
+ *   sections:list<VulnerabilitySection>
+ * }
+ * @phpstan-type QueueAssetPane array{
+ *   is_disabled:bool,
+ *   disabled_message:string,
+ *   cards:list<QueueAssetCard>
+ * }
+ * @phpstan-type QueueFileLockerPane array{
+ *   is_disabled:bool,
+ *   disabled_message:string,
+ *   cards:list<QueueFileLockerCard>
+ * }
+ * @phpstan-type RailTabAvailability array{
+ *   is_available:bool,
+ *   show_in_actions_queue:bool,
+ *   disabled_message:string,
+ *   disabled_status:string
+ * }
+ * @phpstan-type SectionPayload array{
+ *   render_output:string,
+ *   render_data:array{
+ *     flags?:array<string,mixed>,
+ *     vars:array<string,mixed>,
+ *     count?:int
+ *   }
+ * }
+ */
 class ScansResultsViewBuilder {
 
 	use PluginControllerConsumer;
@@ -74,22 +181,28 @@ class ScansResultsViewBuilder {
 			],
 			'content' => [
 				'section' => [
-					'wordpress'  => (string)( $wordpressPayload[ 'render_output' ] ?? '' ),
-					'plugins'    => (string)( $pluginsPayload[ 'render_output' ] ?? '' ),
-					'themes'     => (string)( $themesPayload[ 'render_output' ] ?? '' ),
-					'malware'    => (string)( $malwarePayload[ 'render_output' ] ?? '' ),
-					'filelocker' => (string)( $fileLockerPayload[ 'render_output' ] ?? '' ),
+					'wordpress'  => $wordpressPayload[ 'render_output' ],
+					'plugins'    => $pluginsPayload[ 'render_output' ],
+					'themes'     => $themesPayload[ 'render_output' ],
+					'malware'    => $malwarePayload[ 'render_output' ],
+					'filelocker' => $fileLockerPayload[ 'render_output' ],
 				],
 			],
 		];
 	}
 
+	/**
+	 * @return list<SummaryRow>
+	 */
 	protected function buildSummaryRows() :array {
-		return ( new AttentionItemsProvider() )->buildScanItems();
+		return $this->normalizeSummaryRows( ( new AttentionItemsProvider() )->buildScanItems() );
 	}
 
+	/**
+	 * @return list<AssessmentRow>
+	 */
 	protected function buildAssessmentRows() :array {
-		return ( new ActionsQueueLandingAssessmentBuilder() )->build()[ 'scans' ] ?? [];
+		return $this->normalizeAssessmentRows( ( new ActionsQueueLandingAssessmentBuilder() )->build()[ 'scans' ] );
 	}
 
 	protected function buildWordpressSectionPayload() :array {
@@ -112,8 +225,11 @@ class ScansResultsViewBuilder {
 		return $this->actionPayload( FileLocker::class );
 	}
 
+	/**
+	 * @return VulnerabilitiesPayload
+	 */
 	protected function buildVulnerabilities() :array {
-		return ( new ScansVulnerabilitiesBuilder() )->build();
+		return $this->normalizeVulnerabilities( ( new ScansVulnerabilitiesBuilder() )->build() );
 	}
 
 	protected function isWordpressTabEnabled() :bool {
@@ -138,25 +254,29 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return array{
-	 *   is_available:bool,
-	 *   show_in_actions_queue:bool,
-	 *   disabled_message:string,
-	 *   disabled_status:string
-	 * }
+	 * @return RailTabAvailability
 	 */
 	protected function getRailTabAvailability( string $tabKey ) :array {
 		return $this->getRailTabAvailabilityBuilder()->build( $tabKey );
 	}
 
 	/**
-	 * @param array<int,array{key:string,label:string,count:int,is_shown?:bool}> $definitions
+	 * @param array<int,array{
+	 *   key:string,
+	 *   label:string,
+	 *   count:int|null,
+	 *   is_shown:bool,
+	 *   icon_class?:string,
+	 *   status?:string,
+	 *   items?:list<array<string,mixed>>,
+	 *   show_count_placeholder?:bool
+	 * }> $definitions
 	 * @return list<array<string,mixed>>
 	 */
 	protected function buildTabs( array $definitions ) :array {
 		$tabs = [];
 		foreach ( $definitions as $definition ) {
-			if ( !( $definition[ 'is_shown' ] ?? true ) ) {
+			if ( !$definition[ 'is_shown' ] ) {
 				continue;
 			}
 
@@ -166,12 +286,13 @@ class ScansResultsViewBuilder {
 				'pane_id'   => $paneId,
 				'nav_id'    => $paneId.'-tab',
 				'label'     => $definition[ 'label' ],
-				'count'     => \array_key_exists( 'count', $definition )
-					? ( $definition[ 'count' ] === null ? null : (int)$definition[ 'count' ] )
-					: null,
+				'count'     => $definition[ 'count' ],
 				'is_active' => empty( $tabs ),
 				'target'    => '#'.$paneId,
 				'controls'  => $paneId,
+				'icon_class' => '',
+				'status'    => 'good',
+				'show_count_placeholder' => false,
 			];
 			unset( $definition[ 'key' ], $definition[ 'label' ], $definition[ 'count' ], $definition[ 'is_shown' ] );
 			$tabs[] = \array_merge( $baseTab, $definition );
@@ -196,7 +317,7 @@ class ScansResultsViewBuilder {
 			'wordpress'       => $this->extractSectionCount( $wordpressPayload ),
 			'plugins'         => $this->extractSectionCount( $pluginsPayload ),
 			'themes'          => $this->extractSectionCount( $themesPayload ),
-			'vulnerabilities' => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
+			'vulnerabilities' => $vulnerabilities[ 'count' ],
 			'malware'         => $this->extractSectionCount( $malwarePayload ),
 			'file_locker'     => $this->extractSectionCount( $fileLockerPayload ),
 		];
@@ -204,9 +325,10 @@ class ScansResultsViewBuilder {
 		foreach ( $this->getOrderedRailTabKeys() as $key ) {
 			$tabMeta = $this->getRailTabMeta( $key );
 			$definition = [
-				'key'   => $key,
-				'label' => $tabMeta[ 'label' ],
-				'count' => $key === 'summary' ? \count( $summaryRows ) : ( $legacyCounts[ $key ] ?? 0 ),
+				'key'      => $key,
+				'label'    => $tabMeta[ 'label' ],
+				'count'    => $key === 'summary' ? \count( $summaryRows ) : $legacyCounts[ $key ],
+				'is_shown' => true,
 			];
 
 			if ( $key !== 'summary' ) {
@@ -214,10 +336,7 @@ class ScansResultsViewBuilder {
 					$definition[ 'is_shown' ] = $this->isWordpressTabEnabled();
 				}
 				elseif ( \in_array( $key, [ 'plugins', 'themes', 'vulnerabilities' ], true ) ) {
-					$definition[ 'is_shown' ] = ( $legacyCounts[ $key ] ?? 0 ) > 0;
-				}
-				else {
-					$definition[ 'is_shown' ] = true;
+					$definition[ 'is_shown' ] = $legacyCounts[ $key ] > 0;
 				}
 			}
 
@@ -257,7 +376,7 @@ class ScansResultsViewBuilder {
 	protected function buildSummaryRailTargets( array $definitions ) :array {
 		$targets = [];
 		foreach ( \array_column( $definitions, 'key' ) as $tabKey ) {
-			foreach ( $this->getRailTabMeta( $tabKey )[ 'summary_keys' ] ?? [] as $summaryKey ) {
+			foreach ( $this->getRailTabMeta( $tabKey )[ 'summary_keys' ] as $summaryKey ) {
 				$targets[ $summaryKey ] = $tabKey;
 			}
 		}
@@ -310,6 +429,7 @@ class ScansResultsViewBuilder {
 			'key'        => 'summary',
 			'label'      => $summaryMeta[ 'label' ],
 			'count'      => \count( $summaryRows ),
+			'is_shown'   => true,
 			'status'     => StatusPriority::highest( \array_column( $definitions, 'status' ), 'good' ),
 			'icon_class' => $summaryMeta[ 'icon_class' ],
 			'items'      => $this->buildSummaryRailItems(
@@ -337,6 +457,7 @@ class ScansResultsViewBuilder {
 		$definition = [
 			'key'        => $tabKey,
 			'label'      => $tabMeta[ 'label' ],
+			'is_shown'   => true,
 			'icon_class' => $tabMeta[ 'icon_class' ],
 		];
 
@@ -413,7 +534,7 @@ class ScansResultsViewBuilder {
 	 * @param list<array<string,mixed>> $items
 	 */
 	private function countNonGoodItems( array $items ) :int {
-		return \count( \array_filter( $items, static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) !== 'good' ) );
+		return \count( \array_filter( $items, static fn( array $item ) :bool => $item[ 'status' ] !== 'good' ) );
 	}
 
 	/**
@@ -496,7 +617,7 @@ class ScansResultsViewBuilder {
 		$accentStatuses = \array_column(
 			\array_filter(
 				$tabs,
-				static fn( array $tab ) :bool => ( $tab[ 'key' ] ?? '' ) !== 'summary'
+				static fn( array $tab ) :bool => $tab[ 'key' ] !== 'summary'
 			),
 			'status'
 		);
@@ -510,13 +631,13 @@ class ScansResultsViewBuilder {
 						'key'                    => $tab[ 'key' ],
 						'label'                  => $tab[ 'label' ],
 						'icon_class'             => $tab[ 'icon_class' ],
-						'status'                 => $tab[ 'status' ] ?? 'good',
-						'count'                  => \array_key_exists( 'count', $tab ) ? $tab[ 'count' ] : null,
+						'status'                 => $tab[ 'status' ],
+						'count'                  => $tab[ 'count' ],
 						'nav_id'                 => $tab[ 'nav_id' ],
 						'target'                 => $tab[ 'target' ],
 						'controls'               => $tab[ 'controls' ],
-						'is_active'              => (bool)( $tab[ 'is_active' ] ?? false ),
-						'show_count_placeholder' => (bool)( $tab[ 'show_count_placeholder' ] ?? false ),
+						'is_active'              => $tab[ 'is_active' ],
+						'show_count_placeholder' => $tab[ 'show_count_placeholder' ],
 					];
 				},
 				$tabs
@@ -530,14 +651,14 @@ class ScansResultsViewBuilder {
 	protected function buildSummaryRailItems( array $summaryRows, array $assessmentRows, array $summaryRailTargets = [] ) :array {
 		if ( !empty( $summaryRows ) ) {
 			$items = \array_values( \array_map( function ( array $item ) use ( $summaryRailTargets ) :array {
-				$severity = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
-				$itemKey = (string)( $item[ 'key' ] ?? '' );
+				$severity = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
+				$itemKey = $item[ 'key' ];
 				$railTab = $summaryRailTargets[ $itemKey ] ?? '';
 				$row = $this->buildDetailRow(
-					(string)( $item[ 'label' ] ?? '' ),
-					(string)( $item[ 'text' ] ?? '' ),
+					$item[ 'label' ],
+					$item[ 'text' ],
 					$severity,
-					(int)( $item[ 'count' ] ?? 0 ),
+					$item[ 'count' ],
 					$severity
 				);
 				if ( $railTab !== '' ) {
@@ -545,8 +666,8 @@ class ScansResultsViewBuilder {
 				}
 				else {
 					$row[ 'actions' ] = $this->buildActionsForHref(
-						(string)( $item[ 'action' ] ?? '' ),
-						(string)( $item[ 'href' ] ?? '' )
+						$item[ 'action' ],
+						$item[ 'href' ]
 					);
 				}
 				$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
@@ -555,18 +676,18 @@ class ScansResultsViewBuilder {
 
 			$goodAssessments = \array_filter(
 				$assessmentRows,
-				static fn( array $item ) :bool => ( $item[ 'status' ] ?? '' ) === 'good'
+				static fn( array $item ) :bool => $item[ 'status' ] === 'good'
 			);
 			foreach ( $goodAssessments as $item ) {
 				$row = $this->buildDetailRow(
-					(string)( $item[ 'label' ] ?? '' ),
-					(string)( $item[ 'description' ] ?? '' ),
+					$item[ 'label' ],
+					$item[ 'description' ],
 					'good',
 					null,
 					null,
 					[],
-					(string)( $item[ 'status_icon_class' ] ?? '' ),
-					(string)( $item[ 'status_label' ] ?? '' )
+					$item[ 'status_icon_class' ],
+					$item[ 'status_label' ]
 				);
 				$row[ 'section_label' ] = __( 'All clear', 'wp-simple-firewall' );
 				$items[] = $row;
@@ -576,21 +697,85 @@ class ScansResultsViewBuilder {
 		}
 
 		return \array_values( \array_map( fn( array $item ) :array => $this->buildDetailRow(
-			(string)( $item[ 'label' ] ?? '' ),
-			(string)( $item[ 'description' ] ?? '' ),
-			StatusPriority::normalize( (string)( $item[ 'status' ] ?? 'good' ), 'good' ),
+			$item[ 'label' ],
+			$item[ 'description' ],
+			StatusPriority::normalize( $item[ 'status' ], 'good' ),
 			null,
 			null,
 			[],
-			(string)( $item[ 'status_icon_class' ] ?? '' ),
-			(string)( $item[ 'status_label' ] ?? '' )
+			$item[ 'status_icon_class' ],
+			$item[ 'status_label' ]
 		), $assessmentRows ) );
+	}
+
+	/**
+	 * @return QueueAssetPane
+	 */
+	public function buildActionsQueuePluginsPane() :array {
+		return $this->buildActionsQueuePluginThemePane( 'plugin' );
+	}
+
+	/**
+	 * @return QueueAssetPane
+	 */
+	public function buildActionsQueueThemesPane() :array {
+		return $this->buildActionsQueuePluginThemePane( 'theme' );
+	}
+
+	/**
+	 * @return QueueFileLockerPane
+	 */
+	public function buildActionsQueueFileLockerPane() :array {
+		if ( !$this->isFileLockerEnabled() ) {
+			return [
+				'is_disabled'      => true,
+				'disabled_message' => __( 'File Locker is not enabled.', 'wp-simple-firewall' ),
+				'cards'            => [],
+			];
+		}
+		if ( !$this->isPremiumActive() ) {
+			return [
+				'is_disabled'      => true,
+				'disabled_message' => __( 'File Locker is available only with the Pro version.', 'wp-simple-firewall' ),
+				'cards'            => [],
+			];
+		}
+
+		return [
+			'is_disabled'      => false,
+			'disabled_message' => '',
+			'cards'            => $this->buildFileLockerQueueRecords(),
+		];
 	}
 
 	/**
 	 * @return list<array<string,mixed>>
 	 */
 	protected function buildPluginThemeRailItemsDirect( string $assetType ) :array {
+		$issueItems = [];
+		foreach ( $this->buildPluginThemeIssueRecords( $assetType ) as $item ) {
+			$row = $this->buildDetailRow(
+				$item[ 'title' ],
+				$item[ 'stat_text' ],
+				$item[ 'status' ],
+				$item[ 'count_badge' ],
+				$item[ 'status' ],
+				$item[ 'actions' ]
+			);
+			$row[ 'expandable' ] = true;
+			$row[ 'expand_target' ] = $item[ 'expand_target' ];
+			$row[ 'expansion_table' ] = $item[ 'table' ];
+			$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
+			$issueItems[] = $row;
+		}
+
+		return $issueItems;
+	}
+
+	/**
+	 * @return list<QueueAssetCard>
+	 */
+	protected function buildPluginThemeIssueRecords( string $assetType ) :array {
 		$results = ( new RetrieveItems() )
 			->setScanController( self::con()->comps->scans->AFS() )
 			->addWheres( [
@@ -611,63 +796,85 @@ class ScansResultsViewBuilder {
 			$groupedBySlug[ $slug ][] = $item;
 		}
 
-		$issueItems = [];
 		$tableBuilder = new InvestigationFileStatusTableContractBuilder();
+		$records = [];
 
 		foreach ( $groupedBySlug as $slug => $items ) {
+			$fileCount = \count( $items );
 			if ( $assetType === 'plugin' ) {
 				$asset = Services::WpPlugins()->getPluginAsVo( $slug, true );
 				if ( !$asset instanceof WpPluginVo ) {
 					continue;
 				}
-				$assetName = (string)$asset->Title;
 				$subjectType = InvestigationTableContract::SUBJECT_TYPE_PLUGIN;
 				$subjectId = (string)$asset->file;
+				$title = (string)$asset->Title;
+				$iconClass = 'bi bi-plug-fill';
 			}
 			else {
 				$asset = Services::WpThemes()->getThemeAsVo( $slug, true );
 				if ( !$asset instanceof WpThemeVo ) {
 					continue;
 				}
-				$assetName = (string)$asset->Name;
 				$subjectType = InvestigationTableContract::SUBJECT_TYPE_THEME;
 				$subjectId = (string)$asset->stylesheet;
+				$title = (string)$asset->Name;
+				$iconClass = 'bi bi-palette-fill';
 			}
 
-			$fileCount = \count( $items );
-			$expandTarget = 'scan-files-'.$assetType.'-'.\sanitize_key( $slug );
-
-			$row = $this->buildDetailRow(
-				$assetName,
-				\sprintf(
+			$records[] = [
+				'key'          => $slug,
+				'panel_id'     => 'actions-queue-'.$assetType.'-card-'.\sanitize_key( $slug ),
+				'panel_target' => 'actions-queue-'.$assetType.'-'.\sanitize_key( $slug ),
+				'expand_target' => 'scan-files-'.$assetType.'-'.\sanitize_key( $slug ),
+				'status'       => 'warning',
+				'icon_class'   => $iconClass,
+				'title'        => $title,
+				'stat_text'    => \sprintf(
 					_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
 					$fileCount
 				),
-				'warning',
-				$fileCount,
-				'warning',
-				$this->buildAssetActions( $asset, $assetType )
-			);
-			$row[ 'expandable' ] = true;
-			$row[ 'expand_target' ] = $expandTarget;
-			$row[ 'expansion_table' ] = $tableBuilder->build( $subjectType, $subjectId );
-			$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
-			$issueItems[] = $row;
+				'meta_text'    => $subjectId,
+				'count_badge'  => $fileCount,
+				'actions'      => $this->buildAssetActions( $asset, $assetType ),
+				'table'        => $tableBuilder->build( $subjectType, $subjectId ),
+				'render_action' => [],
+			];
 		}
 
-		\usort( $issueItems, static function ( array $a, array $b ) :int {
-			$countCmp = ( $b[ 'count_badge' ] ?? 0 ) <=> ( $a[ 'count_badge' ] ?? 0 );
+		\usort( $records, static function ( array $a, array $b ) :int {
+			$countCmp = $b[ 'count_badge' ] <=> $a[ 'count_badge' ];
 			return $countCmp !== 0
 				? $countCmp
-				: \strcmp( (string)( $a[ 'title' ] ?? '' ), (string)( $b[ 'title' ] ?? '' ) );
+				: \strcmp( $a[ 'title' ], $b[ 'title' ] );
 		} );
 
-		return $issueItems;
+		return $records;
+	}
+
+	/**
+	 * @return QueueAssetPane
+	 */
+	private function buildActionsQueuePluginThemePane( string $assetType ) :array {
+		$availability = $this->getRailTabAvailability( $assetType === 'plugin' ? 'plugins' : 'themes' );
+		if ( !$availability[ 'is_available' ] ) {
+			return [
+				'is_disabled'      => true,
+				'disabled_message' => $availability[ 'disabled_message' ],
+				'cards'            => [],
+			];
+		}
+
+		return [
+			'is_disabled'      => false,
+			'disabled_message' => '',
+			'cards'            => $this->buildPluginThemeIssueRecords( $assetType ),
+		];
 	}
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $asset
-	 * @return list<array<string,mixed>>
+	 * @return list<QueueAssetAction>
 	 */
 	protected function buildAssetActions( $asset, string $assetType ) :array {
 		$actions = [];
@@ -678,6 +885,7 @@ class ScansResultsViewBuilder {
 				'href'    => \admin_url( 'update-core.php' ),
 				'icon'    => 'bi bi-arrow-up-circle-fill',
 				'tooltip' => __( 'Go to updates', 'wp-simple-firewall' ),
+				'attributes' => [],
 			];
 		}
 		if ( $assetType === 'plugin' ) {
@@ -687,6 +895,7 @@ class ScansResultsViewBuilder {
 				'href'    => \admin_url( 'plugins.php' ),
 				'icon'    => 'bi bi-power',
 				'tooltip' => __( 'Go to plugins', 'wp-simple-firewall' ),
+				'attributes' => [],
 			];
 		}
 		return $actions;
@@ -697,24 +906,24 @@ class ScansResultsViewBuilder {
 	 */
 	protected function buildVulnerabilitiesRailItems( array $vulnerabilities ) :array {
 		$items = [];
-		foreach ( \is_array( $vulnerabilities[ 'sections' ] ?? null ) ? $vulnerabilities[ 'sections' ] : [] as $section ) {
-			$sectionLabel = (string)( $section[ 'label' ] ?? '' );
-			foreach ( \is_array( $section[ 'items' ] ?? null ) ? $section[ 'items' ] : [] as $item ) {
-				$severity = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
-				$actions = \is_array( $item[ 'actions' ] ?? null ) ? \array_values( $item[ 'actions' ] ) : [];
+		foreach ( $vulnerabilities[ 'sections' ] as $section ) {
+			$sectionLabel = $section[ 'label' ];
+			foreach ( $section[ 'items' ] as $item ) {
+				$severity = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
+				$actions = $item[ 'actions' ];
 				if ( empty( $actions ) ) {
-					$cta = \is_array( $item[ 'cta' ] ?? null ) ? $item[ 'cta' ] : [];
+					$cta = $item[ 'cta' ];
 					$actions = $this->buildActionsForHref(
-						(string)( $cta[ 'label' ] ?? '' ),
-						(string)( $cta[ 'href' ] ?? '' ),
-						(string)( $cta[ 'type' ] ?? 'navigate' )
+						$cta[ 'label' ],
+						$cta[ 'href' ],
+						$cta[ 'type' ]
 					);
 				}
 				$items[] = $this->buildDetailRow(
-					(string)( $item[ 'label' ] ?? '' ),
-					(string)( $item[ 'description' ] ?? '' ),
+					$item[ 'label' ],
+					$item[ 'description' ],
 					$severity,
-					isset( $item[ 'count' ] ) ? (int)$item[ 'count' ] : null,
+					$item[ 'count' ],
 					$severity,
 					$actions,
 					null,
@@ -728,9 +937,9 @@ class ScansResultsViewBuilder {
 
 	protected function buildVulnerabilitiesRailStatus( array $vulnerabilities ) :string {
 		$statuses = [];
-		foreach ( \is_array( $vulnerabilities[ 'sections' ] ?? null ) ? $vulnerabilities[ 'sections' ] : [] as $section ) {
-			foreach ( \is_array( $section[ 'items' ] ?? null ) ? $section[ 'items' ] : [] as $item ) {
-				$statuses[] = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
+		foreach ( $vulnerabilities[ 'sections' ] as $section ) {
+			foreach ( $section[ 'items' ] as $item ) {
+				$statuses[] = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
 			}
 		}
 		return StatusPriority::highest( $statuses, 'good' );
@@ -776,34 +985,40 @@ class ScansResultsViewBuilder {
 	 * @return list<array<string,mixed>>
 	 */
 	protected function buildFileLockerRailItems( array $payload ) :array {
-		$flags = \is_array( $payload[ 'render_data' ][ 'flags' ] ?? null ) ? $payload[ 'render_data' ][ 'flags' ] : [];
-		if ( empty( $flags[ 'is_enabled' ] ) || !empty( $flags[ 'is_restricted' ] ) ) {
+		/** @var SectionPayload $payload */
+		$flags = $payload[ 'render_data' ][ 'flags' ];
+		if ( !$flags[ 'is_enabled' ] || $flags[ 'is_restricted' ] ) {
 			return [];
 		}
 
 		$items = [];
-
-		foreach ( $this->getProblemFileLocks() as $lock ) {
+		foreach ( $this->buildFileLockerQueueRecords() as $lock ) {
 			$row = $this->buildDetailRow(
-				(string)( $lock->path ?? '' ),
-				$this->describeFileLockerRecord( $lock ),
-				'warning'
+				$lock[ 'rail_title' ],
+				$lock[ 'stat_text' ],
+				$lock[ 'status' ]
 			);
-			$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
-			$items[] = $row;
-		}
-
-		foreach ( $this->getGoodFileLocks() as $lock ) {
-			$row = $this->buildDetailRow(
-				(string)( $lock->path ?? '' ),
-				__( 'File integrity verified.', 'wp-simple-firewall' ),
-				'good'
-			);
-			$row[ 'section_label' ] = __( 'All clear', 'wp-simple-firewall' );
+			$row[ 'section_label' ] = $lock[ 'status' ] === 'good'
+				? __( 'All clear', 'wp-simple-firewall' )
+				: __( 'Needs attention', 'wp-simple-firewall' );
 			$items[] = $row;
 		}
 
 		return $items;
+	}
+
+	/**
+	 * @return list<QueueFileLockerCard>
+	 */
+	protected function buildFileLockerQueueRecords() :array {
+		$records = [];
+		foreach ( $this->getProblemFileLocks() as $lock ) {
+			$records[] = $this->buildFileLockerQueueRecord( $lock, 'warning' );
+		}
+		foreach ( $this->getGoodFileLocks() as $lock ) {
+			$records[] = $this->buildFileLockerQueueRecord( $lock, 'good' );
+		}
+		return $records;
 	}
 
 	/**
@@ -827,6 +1042,14 @@ class ScansResultsViewBuilder {
 
 	protected function getGoodFileLocks() :array {
 		return ( new LoadFileLocks() )->withoutProblems();
+	}
+
+	protected function isFileLockerEnabled() :bool {
+		return self::con()->comps->file_locker->isEnabled();
+	}
+
+	protected function isPremiumActive() :bool {
+		return self::con()->isPremiumActive();
 	}
 
 	/**
@@ -853,13 +1076,13 @@ class ScansResultsViewBuilder {
 		$status = 'good';
 		$isDisabled = false;
 		$disabledMessage = '';
-		$disabledStatus = (string)( $availability[ 'disabled_status' ] ?? 'neutral' );
+		$disabledStatus = $availability[ 'disabled_status' ];
 
 		if ( \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware' ], true )
-			 && empty( $availability[ 'is_available' ] ) ) {
+			 && !$availability[ 'is_available' ] ) {
 			$isDisabled = true;
 			$status = $disabledStatus;
-			$disabledMessage = (string)( $availability[ 'disabled_message' ] ?? '' );
+			$disabledMessage = $availability[ 'disabled_message' ];
 		}
 
 		if ( !$isDisabled ) {
@@ -885,7 +1108,7 @@ class ScansResultsViewBuilder {
 				case 'vulnerabilities':
 					$vulnerabilities = empty( $vulnerabilities ) ? $this->buildVulnerabilities() : $vulnerabilities;
 					$items = $this->buildVulnerabilitiesRailItems( $vulnerabilities );
-					$count = (int)( $vulnerabilities[ 'count' ] ?? 0 );
+					$count = $vulnerabilities[ 'count' ];
 					$status = $this->buildVulnerabilitiesRailStatus( $vulnerabilities );
 					break;
 
@@ -918,13 +1141,42 @@ class ScansResultsViewBuilder {
 	/**
 	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction> $actionClass
 	 */
-	protected function buildAjaxRenderActionData( string $actionClass ) :array {
-		return ActionData::BuildAjaxRender( $actionClass );
+	protected function buildAjaxRenderActionData( string $actionClass, array $aux = [] ) :array {
+		return ActionData::BuildAjaxRender( $actionClass, $aux );
+	}
+
+	/**
+	 * @return QueueFileLockerCard
+	 */
+	private function buildFileLockerQueueRecord( object $lock, string $status ) :array {
+		$path = (string)$lock->path;
+		$rid = (int)$lock->id;
+
+		return [
+			'key'          => (string)$lock->id,
+			'panel_id'     => 'actions-queue-filelocker-card-'.$rid,
+			'panel_target' => 'actions-queue-filelocker-'.$rid,
+			'status'       => $status,
+			'icon_class'   => 'bi bi-file-lock2-fill',
+			'title'        => \basename( $path ),
+			'rail_title'   => $path,
+			'stat_text'    => $status === 'good'
+				? __( 'File integrity verified.', 'wp-simple-firewall' )
+				: $this->describeFileLockerRecord( $lock ),
+			'meta_text'    => $path,
+			'count_badge'  => null,
+			'actions'      => [],
+			'table'        => [],
+			'render_action' => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
+				'rid' => $rid,
+			] ),
+		];
 	}
 
 	private function extractSectionCount( array $payload ) :int {
-		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
-		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		/** @var SectionPayload $payload */
+		$renderData = $payload[ 'render_data' ];
+		$vars = $renderData[ 'vars' ];
 
 		if ( isset( $vars[ 'count_items' ] ) ) {
 			return (int)$vars[ 'count_items' ];
@@ -933,12 +1185,12 @@ class ScansResultsViewBuilder {
 			return (int)$renderData[ 'count' ];
 		}
 
-		return (int)( $vars[ 'file_locks' ][ 'count_items' ] ?? 0 );
+		return (int)$vars[ 'file_locks' ][ 'count_items' ];
 	}
 
 	private function extractPayloadRows( array $payload, string $key ) :array {
-		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
-		return \is_array( $vars[ $key ] ?? null ) ? \array_values( $vars[ $key ] ) : [];
+		/** @var SectionPayload $payload */
+		return \array_values( $payload[ 'render_data' ][ 'vars' ][ $key ] );
 	}
 
 	private function buildDetailRow(
@@ -1044,5 +1296,79 @@ class ScansResultsViewBuilder {
 		}
 
 		return $this->cachedRailTabAvailability;
+	}
+
+	/**
+	 * @param array<int,array<string,mixed>> $rows
+	 * @return list<SummaryRow>
+	 */
+	protected function normalizeSummaryRows( array $rows ) :array {
+		return \array_values( \array_map(
+			static fn( array $row ) :array => [
+				'key'      => (string)( $row[ 'key' ] ?? '' ),
+				'label'    => (string)( $row[ 'label' ] ?? '' ),
+				'text'     => (string)( $row[ 'text' ] ?? ( $row[ 'description' ] ?? '' ) ),
+				'severity' => (string)( $row[ 'severity' ] ?? 'warning' ),
+				'count'    => (int)( $row[ 'count' ] ?? 0 ),
+				'action'   => (string)( $row[ 'action' ] ?? '' ),
+				'href'     => (string)( $row[ 'href' ] ?? '' ),
+			],
+			$rows
+		) );
+	}
+
+	/**
+	 * @param array<int,array<string,mixed>> $rows
+	 * @return list<AssessmentRow>
+	 */
+	protected function normalizeAssessmentRows( array $rows ) :array {
+		return \array_values( \array_map(
+			static fn( array $row ) :array => [
+				'key'               => (string)( $row[ 'key' ] ?? '' ),
+				'label'             => (string)( $row[ 'label' ] ?? '' ),
+				'status'            => (string)( $row[ 'status' ] ?? 'good' ),
+				'description'       => (string)( $row[ 'description' ] ?? '' ),
+				'status_icon_class' => (string)( $row[ 'status_icon_class' ] ?? '' ),
+				'status_label'      => (string)( $row[ 'status_label' ] ?? '' ),
+			],
+			$rows
+		) );
+	}
+
+	/**
+	 * @param array<string,mixed> $vulnerabilities
+	 * @return VulnerabilitiesPayload
+	 */
+	protected function normalizeVulnerabilities( array $vulnerabilities ) :array {
+		$sections = [];
+		foreach ( $vulnerabilities[ 'sections' ] ?? [] as $section ) {
+			$items = [];
+			foreach ( $section[ 'items' ] ?? [] as $item ) {
+				$actions = \array_values( \is_array( $item[ 'actions' ] ?? null ) ? $item[ 'actions' ] : [] );
+				$cta = \is_array( $item[ 'cta' ] ?? null ) ? $item[ 'cta' ] : [];
+				$items[] = [
+					'label'       => (string)( $item[ 'label' ] ?? '' ),
+					'description' => (string)( $item[ 'description' ] ?? '' ),
+					'severity'    => (string)( $item[ 'severity' ] ?? 'warning' ),
+					'count'       => isset( $item[ 'count' ] ) ? (int)$item[ 'count' ] : null,
+					'actions'     => $actions,
+					'cta'         => [
+						'href'  => (string)( $cta[ 'href' ] ?? '' ),
+						'label' => (string)( $cta[ 'label' ] ?? '' ),
+						'type'  => (string)( $cta[ 'type' ] ?? 'navigate' ),
+					],
+				];
+			}
+			$sections[] = [
+				'label' => (string)( $section[ 'label' ] ?? '' ),
+				'items' => $items,
+			];
+		}
+
+		return [
+			'count'    => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
+			'status'   => (string)( $vulnerabilities[ 'status' ] ?? 'good' ),
+			'sections' => $sections,
+		];
 	}
 }

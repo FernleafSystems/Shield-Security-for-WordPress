@@ -34,6 +34,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				'key'        => 'summary',
 				'label'      => $summaryMeta[ 'label' ],
 				'count'      => \count( $summaryRows ),
+				'is_shown'   => true,
 				'status'     => $this->buildSummaryStatus( $summaryRows, $assessmentRows ),
 				'icon_class' => $summaryMeta[ 'icon_class' ],
 				'items'      => $this->buildSummaryRailItems(
@@ -108,6 +109,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			'key'        => $tabKey,
 			'label'      => $meta[ 'label' ],
 			'count'      => null,
+			'is_shown'   => true,
 			'status'     => 'neutral',
 			'icon_class' => $meta[ 'icon_class' ],
 			'items'      => [],
@@ -120,10 +122,14 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Wordpress::class ) ] );
 
 			case 'plugins':
-				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Plugins::class ) ] );
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Plugins::class, [
+					'display_context' => 'actions_queue',
+				] ) ] );
 
 			case 'themes':
-				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Themes::class ) ] );
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Themes::class, [
+					'display_context' => 'actions_queue',
+				] ) ] );
 
 			case 'vulnerabilities':
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Vulnerabilities::class ) ] );
@@ -132,7 +138,9 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Malware::class ) ] );
 
 			case 'file_locker':
-				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( FileLocker::class ) ] );
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( FileLocker::class, [
+					'display_context' => 'actions_queue',
+				] ) ] );
 
 			default:
 				return null;

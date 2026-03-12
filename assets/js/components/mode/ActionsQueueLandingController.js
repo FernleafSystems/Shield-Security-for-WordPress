@@ -11,6 +11,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	run() {
+		this.bindModePanelHandlers();
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
 			'[data-shield-rail-target][data-bs-toggle="tab"]',
@@ -18,6 +19,16 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			false
 		);
 		this.initializeCurrentRoot();
+	}
+
+	bindModePanelHandlers() {
+		if ( this.hasBoundModePanelHandlers ) {
+			return;
+		}
+		this.hasBoundModePanelHandlers = true;
+
+		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => this.handleModePanelOpened( evt ) );
+		document.addEventListener( 'shield:mode-panel-closed', ( evt ) => this.handleModePanelClosed( evt ) );
 	}
 
 	handleRailTabShown( item ) {
@@ -156,6 +167,93 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		UiContentActivator.activateCurrentSubtree( pane );
 	}
 
+	handleModePanelOpened( evt ) {
+		if ( !this.isQueueAssetModeEvent( evt ) ) {
+			return;
+		}
+
+		const shell = evt.target;
+		this.setAssetHintVisible( shell, false );
+
+		const panel = this.findModePanelByTarget( shell, String( evt.detail?.panel_target || '' ) );
+		if ( panel === null ) {
+			this.syncAssetHintVisibility( shell );
+			return;
+		}
+
+		if ( this.isLazyAssetPanel( panel ) ) {
+			if ( this.isLazyAssetPanelLoaded( panel ) ) {
+				UiContentActivator.activateCurrentSubtree( panel );
+				return;
+			}
+			this.loadLazyAssetPanel( panel );
+			return;
+		}
+
+		UiContentActivator.activateCurrentSubtree( panel );
+	}
+
+	handleModePanelClosed( evt ) {
+		if ( !this.isQueueAssetModeEvent( evt ) ) {
+			return;
+		}
+
+		const shell = evt.target;
+		this.syncAssetHintVisibility( shell );
+	}
+
+	loadLazyAssetPanel( panel ) {
+		if ( panel.dataset.actionsQueueAssetPanelLoading === '1'
+			|| this.isLazyAssetPanelLoaded( panel ) ) {
+			return;
+		}
+
+		const content = panel.querySelector( '[data-actions-queue-asset-panel-content="1"]' );
+		const renderAction = this.parseJsonDataset( panel.dataset.actionsQueueAssetRenderAction );
+		if ( content === null || ObjectOps.IsEmpty( renderAction ) ) {
+			panel.dataset.actionsQueueAssetPanelLoaded = '1';
+			UiContentActivator.activateCurrentSubtree( panel );
+			return;
+		}
+
+		const requestKey = `${Date.now()}-${Math.random()}`;
+		panel.dataset.actionsQueueAssetPanelLoading = '1';
+		panel.dataset.actionsQueueAssetPanelRequest = requestKey;
+		content.innerHTML = this.buildLoadingMarkup();
+
+		( new AjaxService() )
+		.send( renderAction, false, true )
+		.then( ( resp ) => {
+			if ( panel.dataset.actionsQueueAssetPanelRequest !== requestKey ) {
+				return;
+			}
+
+			if ( resp.success && typeof resp?.data?.html === 'string' ) {
+				content.innerHTML = resp.data.html;
+				panel.dataset.actionsQueueAssetPanelLoaded = '1';
+				UiContentActivator.activateCurrentSubtree( panel );
+				return;
+			}
+
+			panel.dataset.actionsQueueAssetPanelLoaded = '0';
+			content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
+		} )
+		.catch( () => {
+			if ( panel.dataset.actionsQueueAssetPanelRequest !== requestKey ) {
+				return;
+			}
+
+			panel.dataset.actionsQueueAssetPanelLoaded = '0';
+			content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
+		} )
+		.finally( () => {
+			if ( panel.dataset.actionsQueueAssetPanelRequest === requestKey ) {
+				delete panel.dataset.actionsQueueAssetPanelLoading;
+				delete panel.dataset.actionsQueueAssetPanelRequest;
+			}
+		} );
+	}
+
 	initializeCurrentRoot() {
 		this.rootEl = this.getRoot();
 		if ( this.rootEl === null ) {
@@ -193,6 +291,48 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		delete pane.dataset.actionsQueuePaneLoading;
 		delete pane.dataset.actionsQueuePaneInitialized;
 		pane.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
+	}
+
+	syncAssetHintVisibility( shell ) {
+		this.setAssetHintVisible(
+			shell,
+			shell.querySelector( '[data-mode-panel="1"].is-open' ) === null
+		);
+	}
+
+	setAssetHintVisible( shell, isVisible ) {
+		const hint = shell.querySelector( '[data-mode-landing-hint="1"]' );
+		if ( hint === null ) {
+			return;
+		}
+		hint.classList.toggle( 'd-none', !isVisible );
+		hint.setAttribute( 'aria-hidden', isVisible ? 'false' : 'true' );
+	}
+
+	findModePanelByTarget( shell, target ) {
+		return [ ...shell.querySelectorAll( '[data-mode-panel="1"]' ) ]
+		.find( ( panel ) => this.getAssetPanelTarget( panel ) === target ) || null;
+	}
+
+	getAssetPanelTarget( panel ) {
+		return ( panel.dataset.modePanelTargetDefault || panel.dataset.modePanelTarget || '' ).trim();
+	}
+
+	isQueueAssetModeEvent( evt ) {
+		const root = this.rootEl || this.getRoot();
+		const shell = evt?.target;
+		return root !== null
+			&& shell instanceof HTMLElement
+			&& shell.dataset.mode === 'actions_queue_assets'
+			&& root.contains( shell );
+	}
+
+	isLazyAssetPanel( panel ) {
+		return panel.dataset.actionsQueueAssetPanelLazy === '1';
+	}
+
+	isLazyAssetPanelLoaded( panel ) {
+		return panel.dataset.actionsQueueAssetPanelLoaded === '1';
 	}
 
 	hydrateRailMetrics() {

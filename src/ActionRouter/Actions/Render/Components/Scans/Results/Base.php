@@ -7,6 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDi
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans {
 
+	protected function getDefaults() :array {
+		return \array_merge( parent::getDefaults(), [
+			'display_context' => 'scan_results',
+		] );
+	}
+
+	protected function isActionsQueueDisplayContext() :bool {
+		return $this->action_data[ 'display_context' ] === 'actions_queue';
+	}
+
 	protected function getRenderData() :array {
 		$common = CommonDisplayStrings::pick( [ 'author_label', 'version_label', 'name_label', 'warning_label' ] );
 		return [

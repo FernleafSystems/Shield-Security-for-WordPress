@@ -1,0 +1,120 @@
+{% import '/common/macros.twig' as icwp_macros %}
+
+{% if flags.is_disabled %}
+	<div class="shield-scan-pane-disabled alert alert-warning mb-0" data-shield-scan-pane-disabled="1">
+		<i class="bi bi-slash-circle me-2"></i>
+		{{ strings.disabled_message }}
+	</div>
+{% elseif vars.asset_cards is empty %}
+	<div class="shield-scan-pane-empty py-4 text-center text-muted">
+		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
+		{{ strings.no_issues }}
+	</div>
+{% else %}
+	<div class="actions-queue-asset-cards"
+		 data-actions-queue-asset-cards="1"
+		 data-mode-shell="1"
+		 data-mode="actions_queue_assets"
+		 data-mode-interactive="1">
+		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid" data-mode-tiles="1">
+			{% for item in vars.asset_cards %}
+				<button type="button"
+						class="investigate-landing__subject-card actions-queue-asset-card status-{{ item.status }}"
+						data-mode-tile="1"
+						data-mode-tile-key="{{ item.key|e('html_attr') }}"
+						data-mode-panel-target="{{ item.panel_target|e('html_attr') }}"
+						aria-controls="{{ item.panel_id|e('html_attr') }}"
+						aria-expanded="false">
+					<span class="investigate-landing__subject-icon actions-queue-asset-card__icon" aria-hidden="true">
+						<i class="{{ item.icon_class }}"></i>
+					</span>
+					<span class="investigate-landing__subject-label">
+						{{ item.title }}
+						{% if item.count_badge is not null and item.count_badge > 0 %}
+							<span class="shield-badge badge-{{ item.status }}">{{ item.count_badge }}</span>
+						{% endif %}
+					</span>
+					<span class="investigate-landing__subject-stat">{{ item.stat_text }}</span>
+					{% if item.meta_text is not empty %}
+						<span class="actions-queue-asset-card__meta">{{ item.meta_text }}</span>
+					{% endif %}
+				</button>
+			{% endfor %}
+		</div>
+
+		<div class="actions-queue-asset-cards__hint"
+			 data-actions-queue-asset-hint="1"
+			 data-mode-landing-hint="1"
+			 aria-hidden="false">
+			<i class="bi bi-arrow-up investigate-landing__hint-icon" aria-hidden="true"></i>
+			{{ strings.select_asset_hint }}
+		</div>
+
+		<div class="actions-queue-asset-cards__panels">
+			{% for item in vars.asset_cards %}
+				{% set panel_data = {
+					'actions-queue-asset-panel-loaded': item.render_action is empty ? '1' : '0',
+					'actions-queue-asset-panel-lazy': item.render_action is empty ? '0' : '1'
+				} %}
+				{% if item.render_action is not empty %}
+					{% set panel_data = panel_data|merge( {
+						'actions-queue-asset-render-action': item.render_action|json_encode
+					} ) %}
+				{% endif %}
+				{% set panel_body %}
+					{% if item.meta_text is not empty or item.actions is not empty %}
+						<div class="investigate-subject-header actions-queue-asset-panel__summary">
+							<div class="actions-queue-asset-panel__copy">
+								{% if item.meta_text is not empty %}
+									<div class="investigate-subject-header__meta actions-queue-asset-panel__meta">{{ item.meta_text }}</div>
+								{% endif %}
+							</div>
+							{% if item.actions is not empty %}
+								<div class="actions-queue-asset-panel__actions">
+									{% for action in item.actions %}
+										{% set action_type = action.type %}
+										{% set chip_icon = action.icon ?: (
+											action_type == 'update'
+												? 'bi bi-arrow-up-circle-fill'
+												: (action_type == 'deactivate' ? 'bi bi-power' : 'bi bi-arrow-right-circle-fill')
+										) %}
+										{% set tooltip = action.tooltip|trim %}
+										<a href="{{ action.href }}"
+										   class="shield-action-chip shield-action-chip--{{ action_type }}"{% if tooltip is not empty %}
+										   data-bs-toggle="tooltip"
+										   data-bs-title="{{ tooltip|e('html_attr') }}"{% endif %}{{ icwp_macros.renderAttributes(action.attributes) }}>
+											<i class="{{ chip_icon }}"></i>
+											{{ action.label }}
+										</a>
+									{% endfor %}
+								</div>
+							{% endif %}
+						</div>
+					{% endif %}
+					<div class="actions-queue-asset-panel__body" data-actions-queue-asset-panel-content="1">
+						{% if item.table is not empty %}
+							{% include '/wpadmin/components/investigate/table_container.twig' with {
+								table: item.table
+							} only %}
+						{% endif %}
+					</div>
+				{% endset %}
+				{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
+					panel: {
+						id: item.panel_id,
+						class: 'actions-queue-asset-panel',
+						is_open: false,
+						target: item.panel_target,
+						target_default: item.panel_target,
+						static_target: true,
+						status: item.status,
+						title: item.title,
+						body: panel_body,
+						data: panel_data
+					},
+					strings: strings
+				} only %}
+			{% endfor %}
+		</div>
+	</div>
+{% endif %}

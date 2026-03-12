@@ -426,9 +426,78 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	// ── File locker pane: mixed sections ──
 
+	public function test_actions_queue_plugin_pane_reuses_shared_issue_records_for_cards_and_rail_rows() :void {
+		$records = [
+			$this->makePluginThemeIssueRecord( 'plugin', 'example-plugin', 'Example Plugin', 'example-plugin/example-plugin.php', 3 ),
+		];
+		$builder = $this->createBuilder( [
+			'pluginsEnabled'     => true,
+			'pluginIssueRecords' => $records,
+		] );
+
+		$queuePane = $builder->buildActionsQueuePluginsPane();
+		$railPane = $builder->buildRailPaneData( 'plugins' );
+
+		$this->assertFalse( $queuePane[ 'is_disabled' ] );
+		$this->assertCount( 1, $queuePane[ 'cards' ] );
+		$this->assertSame( 'example-plugin', $queuePane[ 'cards' ][ 0 ][ 'key' ] );
+		$this->assertSame( 'actions-queue-plugin-example-plugin', $queuePane[ 'cards' ][ 0 ][ 'panel_target' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'meta_text' ] );
+		$this->assertSame( 3, $queuePane[ 'cards' ][ 0 ][ 'count_badge' ] );
+		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertSame( 'plugin', $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_type' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ] );
+		$this->assertCount( 1, $railPane[ 'items' ] );
+		$this->assertSame( 'scan-files-plugin-example-plugin', $railPane[ 'items' ][ 0 ][ 'expand_target' ] );
+		$this->assertSame(
+			$queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ],
+			$railPane[ 'items' ][ 0 ][ 'expansion_table' ][ 'subject_id' ]
+		);
+	}
+
+	public function test_actions_queue_theme_pane_returns_disabled_state_when_scan_is_unavailable() :void {
+		$builder = $this->createBuilder( [
+			'themesEnabled' => false,
+			'tabAvailability' => [
+				'themes' => [
+					'is_available' => false,
+					'show_in_actions_queue' => true,
+					'disabled_message' => 'Theme File Scanning is not enabled.',
+					'disabled_status' => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildActionsQueueThemesPane();
+
+		$this->assertTrue( $pane[ 'is_disabled' ] );
+		$this->assertSame( 'Theme File Scanning is not enabled.', $pane[ 'disabled_message' ] );
+		$this->assertSame( [], $pane[ 'cards' ] );
+	}
+
+	public function test_actions_queue_file_locker_pane_uses_per_card_panels_and_orders_problem_locks_first() :void {
+		$problemLock = (object)[ 'id' => 14, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ];
+		$goodLock = (object)[ 'id' => 15, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ];
+		$builder = $this->createBuilder( [
+			'problemFileLocks' => [ $problemLock ],
+			'goodFileLocks'    => [ $goodLock ],
+		] );
+
+		$pane = $builder->buildActionsQueueFileLockerPane();
+
+		$this->assertFalse( $pane[ 'is_disabled' ] );
+		$this->assertCount( 2, $pane[ 'cards' ] );
+		$this->assertSame( 'warning', $pane[ 'cards' ][ 0 ][ 'status' ] );
+		$this->assertSame( 'good', $pane[ 'cards' ][ 1 ][ 'status' ] );
+		$this->assertSame( 'actions-queue-filelocker-card-14', $pane[ 'cards' ][ 0 ][ 'panel_id' ] );
+		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
+		$this->assertSame( 'filelocker_showdiff', $pane[ 'cards' ][ 0 ][ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 14, $pane[ 'cards' ][ 0 ][ 'render_action' ][ 'rid' ] );
+	}
+
 	public function test_file_locker_shows_problem_and_good_locks_with_section_labels() :void {
-		$problemLock = (object)[ 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ];
-		$goodLock = (object)[ 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ];
+		$problemLock = (object)[ 'id' => 21, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ];
+		$goodLock = (object)[ 'id' => 22, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ];
 
 		$builder = $this->createBuilder( [
 			'fileLockerPayload' => $this->buildFileLockerPayload( '', true ),
@@ -820,6 +889,42 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		];
 	}
 
+	private function makePluginThemeIssueRecord(
+		string $assetType,
+		string $key,
+		string $title,
+		string $subjectId,
+		int $countBadge
+	) :array {
+		return [
+			'key'           => $key,
+			'panel_id'      => 'actions-queue-'.$assetType.'-card-'.$key,
+			'panel_target'  => 'actions-queue-'.$assetType.'-'.$key,
+			'expand_target' => 'scan-files-'.$assetType.'-'.$key,
+			'status'        => 'warning',
+			'icon_class'    => $assetType === 'plugin' ? 'bi bi-plug-fill' : 'bi bi-palette-fill',
+			'title'         => $title,
+			'stat_text'     => $countBadge.' files need review',
+			'meta_text'     => $subjectId,
+			'count_badge'   => $countBadge,
+			'actions'       => [
+				[
+					'type'       => 'deactivate',
+					'label'      => 'Deactivate',
+					'href'       => '/wp-admin/plugins.php',
+					'icon'       => 'bi bi-power',
+					'tooltip'    => 'Go to plugins',
+					'attributes' => [],
+				],
+			],
+			'table'         => [
+				'subject_type' => $assetType,
+				'subject_id'   => $subjectId,
+			],
+			'render_action' => [],
+		];
+	}
+
 	private function makeAfsItem( string $flag, array $extra = [] ) :object {
 		$item = (object)\array_merge( [
 			'path_fragment'  => 'test/'.\uniqid( '', true ).'.php',
@@ -889,6 +994,8 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			$overrides[ 'goodFileLocks' ] ?? [],
 			$overrides[ 'pluginRailItems' ] ?? [],
 			$overrides[ 'themeRailItems' ] ?? [],
+			$overrides[ 'pluginIssueRecords' ] ?? [],
+			$overrides[ 'themeIssueRecords' ] ?? [],
 			$overrides[ 'tabAvailability' ] ?? []
 		);
 	}
@@ -924,6 +1031,8 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	private array $goodLocks;
 	private array $pluginRailItems;
 	private array $themeRailItems;
+	private array $pluginIssueRecords;
+	private array $themeIssueRecords;
 	private array $tabAvailability;
 
 	public function __construct(
@@ -945,6 +1054,8 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		array $goodLocks = [],
 		array $pluginRailItems = [],
 		array $themeRailItems = [],
+		array $pluginIssueRecords = [],
+		array $themeIssueRecords = [],
 		array $tabAvailability = []
 	) {
 		$this->summaryRows = $summaryRows;
@@ -965,15 +1076,17 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		$this->goodLocks = $goodLocks;
 		$this->pluginRailItems = $pluginRailItems;
 		$this->themeRailItems = $themeRailItems;
+		$this->pluginIssueRecords = $pluginIssueRecords;
+		$this->themeIssueRecords = $themeIssueRecords;
 		$this->tabAvailability = $tabAvailability;
 	}
 
 	protected function buildSummaryRows() :array {
-		return $this->summaryRows;
+		return $this->normalizeSummaryRows( $this->summaryRows );
 	}
 
 	protected function buildAssessmentRows() :array {
-		return $this->assessmentRows;
+		return $this->normalizeAssessmentRows( $this->assessmentRows );
 	}
 
 	protected function buildWordpressSectionPayload() :array {
@@ -997,7 +1110,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	}
 
 	protected function buildVulnerabilities() :array {
-		return $this->vulnerabilities;
+		return $this->normalizeVulnerabilities( $this->vulnerabilities );
 	}
 
 	protected function isWordpressTabEnabled() :bool {
@@ -1032,8 +1145,21 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		return $this->goodLocks;
 	}
 
+	protected function isFileLockerEnabled() :bool {
+		return true;
+	}
+
+	protected function isPremiumActive() :bool {
+		return true;
+	}
+
 	protected function buildPluginThemeRailItemsDirect( string $assetType ) :array {
-		return $assetType === 'plugin' ? $this->pluginRailItems : $this->themeRailItems;
+		$items = $assetType === 'plugin' ? $this->pluginRailItems : $this->themeRailItems;
+		return !empty( $items ) ? $items : parent::buildPluginThemeRailItemsDirect( $assetType );
+	}
+
+	protected function buildPluginThemeIssueRecords( string $assetType ) :array {
+		return $assetType === 'plugin' ? $this->pluginIssueRecords : $this->themeIssueRecords;
 	}
 
 	protected function getRailTabAvailability( string $tabKey ) :array {
@@ -1058,5 +1184,15 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 			'disabled_message' => '',
 			'disabled_status' => 'neutral',
 		];
+	}
+
+	protected function buildAjaxRenderActionData( string $actionClass, array $aux = [] ) :array {
+		$slug = $actionClass === \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff::class
+			? 'filelocker_showdiff'
+			: 'render_action';
+
+		return \array_merge( [
+			'render_slug' => $slug,
+		], $aux );
 	}
 }

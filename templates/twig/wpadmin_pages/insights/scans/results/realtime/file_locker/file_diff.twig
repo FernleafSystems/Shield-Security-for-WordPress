@@ -1,4 +1,6 @@
 {% if success %}
+	{% set restore_checkbox_id = 'ConfirmFileRestore-' ~ vars.rid %}
+	{% set accept_checkbox_id = 'ConfirmFileAccept-' ~ vars.rid %}
 	<h6 class="my-4 ps-3">{{ strings.reviewing_locked_file }}: <code>{{ vars.full_path }}</code></h6>
 
 	{% if flags.has_diff %}
@@ -92,12 +94,12 @@
 					<form class="filelocker_fileaction">
 						<div class="form-check">
 							<input type="checkbox" class="form-check-input me-0"
-								   id="ConfirmFileRestore"
+								   id="{{ restore_checkbox_id }}"
 								   name="ConfirmFileRestore"
 								   value="Y"
 							/>
 							<label class="form-check-label"
-								   for="ConfirmFileRestore">{{ strings.file_restore_checkbox }}</label>
+								   for="{{ restore_checkbox_id }}">{{ strings.file_restore_checkbox }}</label>
 						</div>
 						<input href="#"
 							   type="submit" value="{{ strings.butt_restore }}"
@@ -114,12 +116,12 @@
 					<form class="filelocker_fileaction">
 						<div class="form-check">
 							<input type="checkbox" class="form-check-input me-0"
-								   id="ConfirmFileAccept"
+								   id="{{ accept_checkbox_id }}"
 								   name="ConfirmFileAccept"
 								   value="Y"
 							/>
 							<label class="form-check-label"
-								   for="ConfirmFileAccept">{{ strings.file_accept_checkbox }}</label>
+								   for="{{ accept_checkbox_id }}">{{ strings.file_accept_checkbox }}</label>
 						</div>
 						<input href="#"
 							   type="submit" value="{{ strings.butt_accept }}"

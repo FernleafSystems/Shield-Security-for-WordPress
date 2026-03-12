@@ -408,6 +408,142 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		];
 	}
 
+	private function buildActionsQueuePluginCardsContext() :array {
+		return [
+			'flags'   => [
+				'is_disabled' => false,
+			],
+			'strings' => [
+				'no_issues'         => 'No issues found in this section.',
+				'select_asset_hint' => 'Select an item above to review it.',
+			],
+			'vars'    => [
+				'asset_cards' => [
+					[
+						'key'          => 'example-plugin',
+						'panel_id'     => 'actions-queue-plugin-card-example-plugin',
+						'panel_target' => 'actions-queue-plugin-example-plugin',
+						'status'       => 'warning',
+						'icon_class'   => 'bi bi-plug-fill',
+						'title'        => 'Example Plugin',
+						'stat_text'    => '2 files need review',
+						'meta_text'    => 'example-plugin/example-plugin.php',
+						'count_badge'  => 2,
+						'actions'      => [
+							[
+								'type'    => 'deactivate',
+								'label'   => 'Deactivate',
+								'href'    => '/wp-admin/plugins.php',
+								'icon'    => 'bi bi-power',
+								'tooltip' => 'Go to plugins',
+								'attributes' => [],
+							],
+						],
+						'table'       => [
+							'title'                 => 'File Scan Status',
+							'status'                => 'warning',
+							'table_type'            => 'file_scan_results',
+							'subject_type'          => 'plugin',
+							'subject_id'            => 'example-plugin/example-plugin.php',
+							'datatables_init'       => '{}',
+							'table_action'          => '{}',
+							'scan_results_action'   => '{}',
+							'render_item_analysis'  => '{}',
+							'show_header'           => false,
+							'is_flat'               => true,
+							'is_empty'              => false,
+							'full_log_href'         => '/wp-admin/admin.php?page=shield&nav=scans&subnav=results',
+							'full_log_text'         => 'Full Scan Results',
+							'full_log_button_class' => 'btn btn-primary btn-sm',
+						],
+						'render_action' => [],
+					],
+				],
+			],
+		];
+	}
+
+	private function buildActionsQueueFileLockerCardsContext() :array {
+		return [
+			'flags'   => [
+				'is_disabled' => false,
+			],
+			'strings' => [
+				'no_issues'         => 'No issues found in this section.',
+				'select_asset_hint' => 'Select an item above to review it.',
+			],
+			'vars'    => [
+				'asset_cards' => [
+					[
+						'key'           => '14',
+						'panel_id'      => 'actions-queue-filelocker-card-14',
+						'panel_target'  => 'actions-queue-filelocker-14',
+						'status'        => 'good',
+						'icon_class'    => 'bi bi-file-lock2-fill',
+						'title'         => 'wp-config.php',
+						'stat_text'     => 'File integrity verified.',
+						'meta_text'     => '/wp-config.php',
+						'count_badge'   => null,
+						'actions'       => [],
+						'table'         => [],
+						'render_action' => [
+							'render_slug' => 'filelocker_showdiff',
+							'rid'         => 14,
+						],
+					],
+				],
+			],
+		];
+	}
+
+	private function buildFileLockerDiffContext() :array {
+		return [
+			'success' => true,
+			'flags'   => [
+				'has_diff'               => true,
+				'original_file_missing'  => false,
+				'current_content_empty'  => false,
+			],
+			'strings' => [
+				'reviewing_locked_file' => 'Reviewing Locked File',
+				'file_content_original' => 'Original',
+				'file_content_current'  => 'Current',
+				'file_details'          => 'File Details',
+				'relative_path'         => 'Relative Path',
+				'locked'                => 'Locked',
+				'file_size'             => 'File Size',
+				'file_modified'         => 'File Modified',
+				'download'              => 'Download',
+				'modified_file'         => 'Modified File',
+				'change_detected_at'    => 'Change Detected At',
+				'file_restore'          => 'Restore File',
+				'file_restore_checkbox' => 'Confirm restore',
+				'butt_restore'          => 'Restore',
+				'file_accept'           => 'Accept File',
+				'file_accept_checkbox'  => 'Confirm accept',
+				'butt_accept'           => 'Accept',
+			],
+			'vars'    => [
+				'rid'                => 14,
+				'full_path'          => '/srv/www/wp-config.php',
+				'relative_path'      => 'wp-config.php',
+				'locked_at'          => '2026-03-12 08:00:00',
+				'file_size_locked'   => '2 KB',
+				'file_modified_ago'  => '2 minutes ago',
+				'file_modified_at'   => '2026-03-12 08:05:00',
+				'change_detected_at' => '2026-03-12 08:06:00',
+				'file_size_modified' => '3 KB',
+			],
+			'html'    => [
+				'diff' => '<div>Diff</div>',
+			],
+			'ajax'    => [
+				'original' => '/download/original',
+				'current'  => '/download/current',
+			],
+		];
+	}
+
 	public function testScanResultsTemplatesCompileWithTwigParser() :void {
 		$twig = $this->twig();
 
@@ -416,6 +552,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			'/wpadmin_pages/insights/scans/results/scan_results_rail.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig',
 			'/wpadmin_pages/insights/scans/results/scan_results_pane_body.twig',
+			'/wpadmin_pages/insights/scans/results/actions_queue_asset_cards.twig',
 		] as $templatePath ) {
 			try {
 				$template = $twig->load( $templatePath );
@@ -609,6 +746,81 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			0,
 			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]' )->length,
 			'Disabled scan panes should not fall through to the generic empty-state'
+		);
+	}
+
+	public function testActionsQueueAssetCardsTemplateRendersModeTilesWithInlinePluginTablesAndPerFileLockerPanels() :void {
+		$pluginHtml = $this->twig()->render(
+			'/wpadmin_pages/insights/scans/results/actions_queue_asset_cards.twig',
+			$this->buildActionsQueuePluginCardsContext()
+		);
+		$pluginXpath = $this->createDomXPathFromHtml( $pluginHtml );
+
+		$this->assertXPathExists(
+			$pluginXpath,
+			'//*[@data-actions-queue-asset-cards="1" and @data-mode-shell="1" and @data-mode="actions_queue_assets" and @data-mode-interactive="1"]',
+			'Queue asset cards template should render a nested interactive mode shell'
+		);
+		$this->assertXPathExists(
+			$pluginXpath,
+			'//*[@data-mode-tile="1" and @data-mode-panel-target="actions-queue-plugin-example-plugin"]',
+			'Queue asset cards template should render plugin mode tiles'
+		);
+		$this->assertXPathExists(
+			$pluginXpath,
+			'//*[@id="actions-queue-plugin-card-example-plugin" and @data-mode-panel="1" and @data-mode-panel-target="actions-queue-plugin-example-plugin"]//*[@data-investigation-table="1" and @data-subject-type="plugin" and @data-subject-id="example-plugin/example-plugin.php"]',
+			'Queue plugin cards should render the unchanged investigation table contract'
+		);
+
+		$fileLockerHtml = $this->twig()->render(
+			'/wpadmin_pages/insights/scans/results/actions_queue_asset_cards.twig',
+			$this->buildActionsQueueFileLockerCardsContext()
+		);
+		$fileLockerXpath = $this->createDomXPathFromHtml( $fileLockerHtml );
+
+		$this->assertXPathExists(
+			$fileLockerXpath,
+			'//*[@id="actions-queue-filelocker-card-14" and @data-mode-panel="1" and @data-mode-panel-target="actions-queue-filelocker-14" and contains(@data-actions-queue-asset-render-action, "filelocker_showdiff")]',
+			'Queue File Locker cards should render one mode panel per file with the existing diff render action'
+		);
+		$this->assertXPathExists(
+			$fileLockerXpath,
+			'//*[@id="actions-queue-filelocker-card-14"]//*[@data-actions-queue-asset-panel-content="1"]',
+			'Queue File Locker cards should render a panel-scoped lazy content target'
+		);
+	}
+
+	public function testFileLockerDiffTemplateUsesRecordScopedCheckboxIds() :void {
+		$html = '<div>'.$this->twig()->render(
+			'/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig',
+			$this->buildFileLockerDiffContext()
+		).'</div>';
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//input[@id="ConfirmFileRestore-14" and @name="ConfirmFileRestore"]',
+			'File Locker diff restore confirmation should scope its checkbox ID to the record'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//label[@for="ConfirmFileRestore-14"]',
+			'File Locker diff restore label should target the scoped restore checkbox ID'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//input[@id="ConfirmFileAccept-14" and @name="ConfirmFileAccept"]',
+			'File Locker diff accept confirmation should scope its checkbox ID to the record'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//label[@for="ConfirmFileAccept-14"]',
+			'File Locker diff accept label should target the scoped accept checkbox ID'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//input[@id="ConfirmFileRestore" or @id="ConfirmFileAccept"]' )->length,
+			'File Locker diff template should no longer render global fixed confirmation checkbox IDs'
 		);
 	}
 }

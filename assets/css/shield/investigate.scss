@@ -19,6 +19,11 @@
 }
 
 .investigate-landing__subject-card {
+	--landing-subject-accent-color: #{$status-color-info};
+	--landing-subject-active-bg: #{$status-bg-info-light};
+	--landing-subject-icon-bg: #{$status-bg-info-light};
+	--landing-subject-icon-color: #{$status-color-info};
+
 	appearance: none;
 	cursor: pointer;
 	gap: 0.35rem;
@@ -30,21 +35,21 @@
 }
 
 .investigate-landing__subject-card::before {
-	background: $status-color-info;
+	background: var(--landing-subject-accent-color);
 	opacity: 0;
 	transition: opacity 0.2s;
 }
 
 .investigate-landing__subject-card.is-active {
-	background: $status-bg-info-light;
-	border-color: $status-color-info;
+	background: var(--landing-subject-active-bg);
+	border-color: var(--landing-subject-accent-color);
 	box-shadow: $card-box-shadow-hover;
 	color: #1d2327;
 	transform: translateY(-2px);
 }
 
 .investigate-landing__subject-card:hover {
-	border-color: $status-color-info;
+	border-color: var(--landing-subject-accent-color);
 }
 
 .investigate-landing__subject-card:not(.is-disabled):hover::before,
@@ -52,11 +57,40 @@
 	opacity: 1;
 }
 
+.investigate-landing__subject-card.status-good {
+	--landing-subject-accent-color: #{$status-color-good};
+	--landing-subject-active-bg: #{$status-bg-good-light};
+	--landing-subject-icon-bg: #{$status-bg-good-light};
+	--landing-subject-icon-color: #{$status-color-good};
+}
+
+.investigate-landing__subject-card.status-warning {
+	--landing-subject-accent-color: #{$status-color-warning};
+	--landing-subject-active-bg: #{$status-bg-warning-light};
+	--landing-subject-icon-bg: #{$status-bg-warning-light};
+	--landing-subject-icon-color: #{$status-color-warning};
+}
+
+.investigate-landing__subject-card.status-critical {
+	--landing-subject-accent-color: #{$status-color-critical};
+	--landing-subject-active-bg: #{$status-bg-critical-light};
+	--landing-subject-icon-bg: #{$status-bg-critical-light};
+	--landing-subject-icon-color: #{$status-color-critical};
+}
+
+.investigate-landing__subject-card.status-neutral,
+.investigate-landing__subject-card.status-info {
+	--landing-subject-accent-color: #{$status-color-info};
+	--landing-subject-active-bg: #{$status-bg-info-light};
+	--landing-subject-icon-bg: #{$status-bg-info-light};
+	--landing-subject-icon-color: #{$status-color-info};
+}
+
 .investigate-landing__subject-icon {
 	align-items: center;
-	background: $status-bg-info-light;
+	background: var(--landing-subject-icon-bg);
 	border-radius: 12px;
-	color: $status-color-info;
+	color: var(--landing-subject-icon-color);
 	display: inline-flex;
 	height: 48px;
 	justify-content: center;
