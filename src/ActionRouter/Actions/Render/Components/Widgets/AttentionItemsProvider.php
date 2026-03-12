@@ -6,34 +6,33 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
+/**
+ * @phpstan-type ActionItem array{
+ *   key:string,
+ *   zone:string,
+ *   label:string,
+ *   count:int,
+ *   severity:string,
+ *   text:string,
+ *   href:string,
+ *   action:string,
+ *   target:string
+ * }
+ * @phpstan-type QueueItem array{
+ *   key:string,
+ *   zone:string,
+ *   label:string,
+ *   count:int,
+ *   severity:string,
+ *   description:string,
+ *   href:string,
+ *   action:string,
+ *   target:string
+ * }
+ */
 class AttentionItemsProvider {
 
 	use PluginControllerConsumer;
-
-	/**
-	 * @phpstan-type ActionItem array{
-	 *   key:string,
-	 *   zone:string,
-	 *   label:string,
-	 *   count:int,
-	 *   severity:string,
-	 *   text:string,
-	 *   href:string,
-	 *   action:string,
-	 *   target:string
-	 * }
-	 * @phpstan-type QueueItem array{
-	 *   key:string,
-	 *   zone:string,
-	 *   label:string,
-	 *   count:int,
-	 *   severity:string,
-	 *   description:string,
-	 *   href:string,
-	 *   action:string,
-	 *   target:string
-	 * }
-	 */
 
 	private const KEY_SORT = [
 		'malware',

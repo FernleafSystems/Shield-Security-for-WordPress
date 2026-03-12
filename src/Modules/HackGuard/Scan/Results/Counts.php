@@ -208,7 +208,7 @@ class Counts {
 
 		return \array_values( \array_filter( \array_map(
 			static fn( $value ) :string => (string)$value,
-			Services::WpDb()->getCol( $query )
+			Services::WpDb()->loadWpdb()->get_col( $query )
 		), static fn( string $value ) :bool => $value !== '' ) );
 	}
 
