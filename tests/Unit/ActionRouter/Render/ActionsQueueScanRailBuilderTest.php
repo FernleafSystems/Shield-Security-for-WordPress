@@ -98,19 +98,32 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$renderData = $builder->buildFromLandingData(
 			$this->buildNeedsAttentionPayload(),
 			[
-				[
-					'key'               => 'plugin_files',
-					'label'             => 'Plugin Files',
-					'description'       => 'All clear',
-					'status'            => 'good',
-					'status_label'      => 'Good',
-					'status_icon_class' => 'bi bi-check-circle-fill',
+				'scans'       => [
+					[
+						'key'               => 'plugin_files',
+						'label'             => 'Plugin Files',
+						'description'       => 'All clear',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+				],
+				'maintenance' => [
+					[
+						'key'               => 'system_php_version',
+						'label'             => 'PHP Version',
+						'description'       => 'PHP version is supported.',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
 				],
 			]
 		);
 
 		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$maintenanceTab = $this->findTabByKey( $railTabs, 'maintenance' );
 		$pluginsTab = $this->findTabByKey( $railTabs, 'plugins' );
 		$vulnerabilitiesTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
 		$malwareTab = $this->findTabByKey( $railTabs, 'malware' );
@@ -121,11 +134,22 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' );
 		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' );
 		$this->assertTrue( (bool)( $summaryTab[ 'is_loaded' ] ?? false ) );
-		$this->assertSame( 3, $summaryTab[ 'count' ] ?? -1 );
+		$this->assertSame( 5, $summaryTab[ 'count' ] ?? -1 );
 		$this->assertNotEmpty( $summaryTab[ 'items' ] ?? [] );
-		$this->assertSame( 'wordpress', $summaryTab[ 'items' ][ 0 ][ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' );
-		$this->assertSame( 'button', $summaryTab[ 'items' ][ 0 ][ 'attributes' ][ 'role' ] ?? '' );
-		$this->assertSame( [], $summaryTab[ 'items' ][ 0 ][ 'actions' ] ?? [ 'unexpected' ] );
+		$this->assertContains( 'wordpress', $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ?? [] ) );
+		$this->assertSame( 1, \count( \array_filter(
+			$summaryTab[ 'items' ] ?? [],
+			static fn( array $item ) :bool => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ) === 'maintenance'
+		) ) );
+		$this->assertContains( 'Plugin Files', $this->extractItemTitlesBySection( $summaryTab[ 'items' ] ?? [], 'All clear' ) );
+		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
+		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
+		$this->assertTrue( (bool)( $maintenanceTab[ 'is_loaded' ] ?? false ) );
+		$this->assertSame( 2, $maintenanceTab[ 'count' ] ?? -1 );
+		$this->assertSame( 'warning', $maintenanceTab[ 'status' ] ?? '' );
+		$this->assertSame( 'Maintenance', $maintenanceTab[ 'label' ] ?? '' );
+		$this->assertContains( 'WordPress Version', \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) );
+		$this->assertContains( 'PHP Version', \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) );
 		$this->assertSame( 'neutral', $pluginsTab[ 'status' ] ?? '' );
 		$this->assertArrayHasKey( 'count', $pluginsTab );
 		$this->assertNull( $pluginsTab[ 'count' ] );
@@ -196,9 +220,12 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		}
 
 		$this->assertSame(
-			[ 'summary', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+			[ 'summary', 'maintenance', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
 			\array_keys( $tabsByKey )
 		);
+		$this->assertTrue( (bool)( $tabsByKey[ 'maintenance' ][ 'is_loaded' ] ?? false ) );
+		$this->assertSame( 2, $tabsByKey[ 'maintenance' ][ 'count' ] ?? -1 );
+		$this->assertSame( 'warning', $tabsByKey[ 'maintenance' ][ 'status' ] ?? '' );
 		$this->assertSame( 'scanresults_plugins', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] ?? '' );
@@ -242,6 +269,10 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 						'count'  => 8,
 						'status' => 'warning',
 					],
+					'maintenance' => [
+						'count'  => 2,
+						'status' => 'warning',
+					],
 				],
 				'rail_accent_status' => 'warning',
 			]
@@ -253,6 +284,97 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 8, $summaryTab[ 'count' ] ?? -1 );
 		$this->assertSame( 'warning', $summaryTab[ 'status' ] ?? '' );
 		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] ?? '' );
+	}
+
+	public function test_build_supports_maintenance_only_queue_state() :void {
+		$builder = new ActionsQueueScanRailBuilderTestDouble(
+			false,
+			false,
+			false,
+			false,
+			false,
+			[
+				'count'    => 0,
+				'status'   => 'good',
+				'sections' => [],
+			],
+			[
+				'tabs' => [
+					'summary'     => [
+						'count'  => 1,
+						'status' => 'warning',
+					],
+					'maintenance' => [
+						'count'  => 1,
+						'status' => 'warning',
+					],
+				],
+				'rail_accent_status' => 'warning',
+			]
+		);
+
+		$renderData = $builder->buildFromLandingData( [
+			'render_data' => [
+				'vars' => [
+					'zone_groups' => [
+						[
+							'slug'         => 'scans',
+							'severity'     => 'good',
+							'total_issues' => 0,
+							'items'        => [],
+						],
+						[
+							'slug'         => 'maintenance',
+							'severity'     => 'warning',
+							'total_issues' => 1,
+							'items'        => [
+								[
+									'key'         => 'wp_updates',
+									'zone'        => 'maintenance',
+									'label'       => 'WordPress Version',
+									'count'       => 1,
+									'severity'    => 'warning',
+									'description' => '1 update needs review.',
+									'href'        => '/wp-updates',
+									'action'      => 'Open',
+									'target'      => '',
+								],
+							],
+						],
+					],
+				],
+			],
+		], [
+			'scans'       => [],
+			'maintenance' => [
+				[
+					'key'               => 'system_php_version',
+					'label'             => 'PHP Version',
+					'description'       => 'PHP version is supported.',
+					'status'            => 'good',
+					'status_label'      => 'Good',
+					'status_icon_class' => 'bi bi-check-circle-fill',
+				],
+			],
+		] );
+
+		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$maintenanceTab = $this->findTabByKey( $railTabs, 'maintenance' );
+
+		$this->assertSame(
+			[ 'summary', 'maintenance', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+			\array_column( $railTabs, 'key' )
+		);
+		$this->assertSame( 1, $summaryTab[ 'count' ] ?? -1 );
+		$this->assertSame( 'warning', $summaryTab[ 'status' ] ?? '' );
+		$this->assertSame( [ 'maintenance' ], $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ?? [] ) );
+		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
+		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
+		$this->assertSame( 1, $maintenanceTab[ 'count' ] ?? -1 );
+		$this->assertSame( 'warning', $maintenanceTab[ 'status' ] ?? '' );
+		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'All clear', $maintenanceTab[ 'items' ][ 1 ][ 'section_label' ] ?? '' );
 	}
 
 	private function buildNeedsAttentionPayload() :array {
@@ -285,6 +407,24 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 								],
 							],
 						],
+						[
+							'slug'         => 'maintenance',
+							'severity'     => 'warning',
+							'total_issues' => 2,
+							'items'        => [
+								[
+									'key'         => 'wp_updates',
+									'zone'        => 'maintenance',
+									'label'       => 'WordPress Version',
+									'count'       => 2,
+									'severity'    => 'warning',
+									'description' => '2 updates need review.',
+									'href'        => '/wp-updates',
+									'action'      => 'Open',
+									'target'      => '_blank',
+								],
+							],
+						],
 					],
 				],
 			],
@@ -299,6 +439,23 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		}
 		$this->fail( 'Tab "'.$key.'" not found.' );
 		return [];
+	}
+
+	private function extractRailSwitchTargets( array $items ) :array {
+		return \array_values( \array_filter( \array_map(
+			static fn( array $item ) :string => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ),
+			$items
+		) ) );
+	}
+
+	private function extractItemTitlesBySection( array $items, string $sectionLabel ) :array {
+		return \array_values( \array_map(
+			static fn( array $item ) :string => (string)( $item[ 'title' ] ?? '' ),
+			\array_filter(
+				$items,
+				static fn( array $item ) :bool => (string)( $item[ 'section_label' ] ?? '' ) === $sectionLabel
+			)
+		) );
 	}
 }
 
@@ -326,8 +483,12 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 		array $initialMetrics = [
 			'tabs' => [
 				'summary' => [
-					'count'  => 3,
+					'count'  => 5,
 					'status' => 'critical',
+				],
+				'maintenance' => [
+					'count'  => 2,
+					'status' => 'warning',
 				],
 			],
 			'rail_accent_status' => 'critical',
@@ -402,7 +563,7 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 		return $this->vulnerabilities;
 	}
 
-	protected function buildInitialRailMetrics() :array {
+	protected function buildInitialRailMetrics( array $needsAttentionPayload = [] ) :array {
 		return $this->initialMetrics;
 	}
 }

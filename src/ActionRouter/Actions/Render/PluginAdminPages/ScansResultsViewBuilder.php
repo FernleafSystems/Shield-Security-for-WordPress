@@ -1194,7 +1194,7 @@ class ScansResultsViewBuilder {
 		return \array_values( $payload[ 'render_data' ][ 'vars' ][ $key ] );
 	}
 
-	private function buildDetailRow(
+	protected function buildDetailRow(
 		string $title,
 		string $description,
 		string $status,

@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Suppo
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
@@ -95,6 +96,18 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $matches[ 0 ] ?? [];
 	}
 
+	private function findRailTab( array $scansResults, string $key ) :array {
+		$railTabs = \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null )
+			? $scansResults[ 'vars' ][ 'rail_tabs' ]
+			: [];
+		$matches = \array_values( \array_filter(
+			$railTabs,
+			static fn( array $tab ) :bool => (string)( $tab[ 'key' ] ?? '' ) === $key
+		) );
+		$this->assertCount( 1, $matches, 'Expected exactly one rail tab for '.$key );
+		return $matches[ 0 ] ?? [];
+	}
+
 	private function insertFileLockRecord( string $type, string $path, int $detectedAt = 0 ) :void {
 		$handler = $this->requireDb( 'file_locker' );
 		$record = $handler->getRecord();
@@ -107,6 +120,23 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$record->content = 'encrypted-content-'.$type;
 		$record->detected_at = $detectedAt;
 		$handler->getQueryInserter()->insert( $record );
+	}
+
+	/**
+	 * @return array{count:int,status:string}
+	 */
+	private function getMaintenanceQueueMetricsFromLanding() :array {
+		$payload = $this->renderActionsQueueLandingPage();
+		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
+		$maintenance = $this->findZoneTile(
+			\is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [],
+			'maintenance'
+		);
+
+		return [
+			'count'  => (int)( $maintenance[ 'total_issues' ] ?? 0 ),
+			'status' => (string)( $maintenance[ 'status' ] ?? 'good' ),
+		];
 	}
 
 	public function test_actions_queue_landing_keeps_zone_tiles_interactive_without_scan_findings() :void {
@@ -149,8 +179,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
+		$summaryTab = $this->findRailTab( $scansResults, 'summary' );
+		$maintenanceTab = $this->findRailTab( $scansResults, 'maintenance' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
@@ -166,6 +199,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
 		$this->assertNotEmpty( $scans[ 'assessment_rows' ] ?? [] );
+		$this->assertSame(
+			1,
+			\count( \array_filter(
+				$summaryTab[ 'items' ] ?? [],
+				static fn( array $item ) :bool => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ) === 'maintenance'
+			) )
+		);
+		$summaryTitles = \array_column( $summaryTab[ 'items' ] ?? [], 'title' );
+		foreach ( \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) as $maintenanceTitle ) {
+			$this->assertNotContains( $maintenanceTitle, $summaryTitles );
+		}
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-section="severity-strip" and contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',
@@ -176,6 +220,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-queue-section="severity-strip"]//*[@role="progressbar"]',
 			0,
 			'Actions queue populated strip should not render a progressbar'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="maintenance" and @data-bs-toggle="tab" and @role="tab"]',
+			'Actions queue maintenance state should render the maintenance rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-pane-loaded="1"]',
+			'Actions queue maintenance state should render the eager maintenance pane'
 		);
 	}
 
@@ -227,6 +281,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, (int)( $scans[ 'total_issues' ] ?? 0 ) );
 		$this->assertNotEmpty( $scansResults );
 		$this->assertContains( 'summary', $railTabs );
+		$this->assertContains( 'maintenance', $railTabs );
 		$this->assertContains( 'wordpress', $railTabs );
 		$this->assertContains( 'plugins', $railTabs );
 		$this->assertContains( 'themes', $railTabs );
@@ -272,6 +327,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="summary" and @data-actions-queue-pane-loaded="1"]',
 			'Actions queue scans shell should keep summary pane eager'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="maintenance" and @data-bs-toggle="tab" and @role="tab"]',
+			'Actions queue scans shell should render the maintenance rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-pane-loaded="1"]',
+			'Actions queue scans shell should keep the maintenance pane eager'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -382,6 +447,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
 		}
 
+		$this->assertContains( 'maintenance', \array_keys( $tabsByKey ) );
 		$this->assertContains( 'plugins', \array_keys( $tabsByKey ) );
 		$this->assertContains( 'themes', \array_keys( $tabsByKey ) );
 		$this->assertContains( 'vulnerabilities', \array_keys( $tabsByKey ) );
@@ -393,9 +459,22 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="maintenance" and @data-bs-toggle="tab" and @role="tab"]',
+			'Actions queue scans shell should render the maintenance rail trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="malware" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
 			'Actions queue scans shell should expose malware lazy-load metadata'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-pane-loaded="1"]',
+			'Actions queue scans shell should keep the maintenance pane eager'
+		);
+		$this->assertArrayHasKey( 'count', $tabsByKey[ 'maintenance' ] );
+		$this->assertNotNull( $tabsByKey[ 'maintenance' ][ 'count' ] );
+		$this->assertTrue( (bool)( $tabsByKey[ 'maintenance' ][ 'is_loaded' ] ?? false ) );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );
@@ -617,6 +696,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
 		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
 
 		$this->assertSame( 1, (int)( $tabs[ 'wordpress' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'wordpress' ][ 'status' ] ?? '' ) );
@@ -628,7 +708,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 6, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'maintenance' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 6 + $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
 	}
@@ -674,6 +756,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
 		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
 
 		$this->assertSame( 0, (int)( $tabs[ 'wordpress' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( 'good', (string)( $tabs[ 'wordpress' ][ 'status' ] ?? '' ) );
@@ -686,9 +769,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $tabs[ 'malware' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( 'neutral', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'file_locker', $tabs );
-		$this->assertSame( 0, (int)( $tabs[ 'summary' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'good', (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'good', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'maintenance' ][ 'status' ] ?? '' ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
+		$this->assertSame( $maintenance[ 'status' ], (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
 	}
 
 	public function test_disabled_historical_scan_results_do_not_surface_in_actions_queue_summary() :void {
@@ -734,9 +819,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
 		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
 
 		$this->assertArrayNotHasKey( 'file_locker', $tabs );
-		$this->assertSame( 0, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
 	}
 
 	public function test_scans_results_metrics_action_counts_file_locker_when_enabled_and_problematic() :void {
@@ -751,11 +838,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
 		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
 
 		$this->assertSame( 1, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'warning', (string)( $tabs[ 'file_locker' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'warning', (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( $maintenance[ 'count' ] + 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame(
+			StatusPriority::highest( [ 'warning', $maintenance[ 'status' ] ], 'good' ),
+			(string)( $tabs[ 'summary' ][ 'status' ] ?? '' )
+		);
 	}
 
 	public function test_scans_results_metrics_action_dedupes_same_asset_across_vulnerable_and_abandoned_sections() :void {
@@ -788,9 +880,15 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
 		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
 
 		$this->assertSame( 1, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( $maintenance[ 'count' ] + 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame(
+			StatusPriority::highest( [ 'critical', $maintenance[ 'status' ] ], 'good' ),
+			(string)( $tabs[ 'summary' ][ 'status' ] ?? '' )
+		);
 	}
 }

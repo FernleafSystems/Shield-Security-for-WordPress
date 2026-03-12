@@ -215,6 +215,66 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
+	public function test_landing_vars_keep_strip_total_aligned_with_queue_wide_rail_contract() :void {
+		$this->capture->queuePayload = $this->buildQueuePayload(
+			true,
+			5,
+			'critical',
+			'',
+			[
+				$this->buildZoneGroup( 'scans', 'critical', 3, [
+					$this->buildQueueItem( 'malware', 'scans', 'Malware', 2, 'critical' ),
+					$this->buildQueueItem( 'vulnerable_assets', 'scans', 'Vulnerabilities', 1, 'warning' ),
+				] ),
+				$this->buildZoneGroup( 'maintenance', 'warning', 2, [
+					$this->buildQueueItem( 'wp_updates', 'maintenance', 'WordPress Version', 2, 'warning' ),
+				] ),
+			]
+		);
+
+		$page = new PageActionsQueueLandingUnitTestDouble(
+			$this->buildDefaultAssessmentRowsByZone(),
+			[
+				'strings' => [
+					'pane_loading'          => 'Loading scan details...',
+					'no_issues'             => 'No issues found in this section.',
+					'results_tab_wordpress' => 'WordPress',
+				],
+				'vars'    => [
+					'rail'            => [],
+					'rail_tabs'       => [
+						[ 'key' => 'summary', 'count' => 5, 'status' => 'critical' ],
+						[ 'key' => 'maintenance', 'count' => 2, 'status' => 'warning' ],
+					],
+					'metrics_action'  => [ 'ex' => 'actions_queue_scan_rail_metrics' ],
+					'preload_action'  => [],
+					'summary_rows'    => [],
+					'assessment_rows' => [],
+				],
+				'content' => [
+					'section' => [
+						'wordpress'       => '',
+						'plugins'         => '',
+						'themes'          => '',
+						'vulnerabilities' => '',
+						'malware'         => '',
+						'filelocker'      => '',
+					],
+				],
+			],
+			$this->capture->queuePayload[ 'render_data' ] ?? []
+		);
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$strip = (array)( $vars[ 'severity_strip' ] ?? [] );
+		$railTabs = (array)( $vars[ 'scans_results' ][ 'vars' ][ 'rail_tabs' ] ?? [] );
+
+		$this->assertSame( 5, $strip[ 'total_items' ] ?? null );
+		$this->assertSame( 5, $railTabs[ 0 ][ 'count' ] ?? null );
+		$this->assertSame( 'maintenance', $railTabs[ 1 ][ 'key' ] ?? '' );
+		$this->assertSame( 2, $railTabs[ 1 ][ 'count' ] ?? null );
+	}
+
 	public function test_scans_results_payload_is_skipped_when_queue_is_all_clear() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			false,

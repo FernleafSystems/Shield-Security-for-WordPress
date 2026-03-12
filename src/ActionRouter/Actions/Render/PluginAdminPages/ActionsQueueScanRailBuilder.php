@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
  * @phpstan-import-type QueueItem from NeedsAttentionQueuePayload
@@ -46,15 +47,39 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 	/**
-	 * @param list<AssessmentRow> $assessmentRows
+	 * @param array{
+	 *   scans:list<AssessmentRow>,
+	 *   maintenance:list<AssessmentRow>
+	 * } $assessmentRowsByZone
 	 * @return array<string,mixed>
 	 */
-	public function buildFromLandingData( array $needsAttentionPayload, array $assessmentRows = [] ) :array {
+	public function buildFromLandingData( array $needsAttentionPayload, array $assessmentRowsByZone = [
+		'scans' => [],
+		'maintenance' => [],
+	] ) :array {
 		$scansZoneGroup = NeedsAttentionQueuePayload::zoneGroup( $needsAttentionPayload, 'scans' );
+		$maintenanceZoneGroup = NeedsAttentionQueuePayload::zoneGroup( $needsAttentionPayload, 'maintenance' );
+		$scansAssessmentRows = $assessmentRowsByZone[ 'scans' ] ?? [];
+		$maintenanceAssessmentRows = $assessmentRowsByZone[ 'maintenance' ] ?? [];
+		$maintenanceItems = ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll(
+			$maintenanceZoneGroup[ 'items' ] ?? []
+		);
+		$metrics = $this->buildInitialRailMetrics( $needsAttentionPayload );
+		$maintenanceMetrics = $metrics[ 'tabs' ][ 'maintenance' ];
 		$summaryRows = $this->buildSummaryRowsFromZoneGroup( $scansZoneGroup );
-		$metrics = $this->buildInitialRailMetrics();
+		if ( (int)( $maintenanceMetrics[ 'count' ] ?? 0 ) > 0 ) {
+			$summaryRows[] = $this->buildMaintenanceSummaryRow( $maintenanceMetrics );
+		}
 		$summaryMetrics = $metrics[ 'tabs' ][ 'summary' ];
 		$lazyDefinitions = $this->buildLazyTabDefinitions();
+		$maintenanceDefinition = $this->buildMaintenanceTabDefinition(
+			$maintenanceItems,
+			$maintenanceAssessmentRows,
+			$maintenanceMetrics
+		);
+		$summaryTargets = $this->buildSummaryRailTargets( \array_merge( [
+			$maintenanceDefinition,
+		], $lazyDefinitions ) );
 		$summaryMeta = $this->getRailTabMeta( 'summary' );
 		$railTabs = $this->buildTabs( \array_merge( [
 			[
@@ -66,11 +91,12 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				'icon_class' => $summaryMeta[ 'icon_class' ],
 				'items'      => $this->buildSummaryRailItems(
 					$summaryRows,
-					$assessmentRows,
-					$this->buildSummaryRailTargets( $lazyDefinitions )
+					$scansAssessmentRows,
+					$summaryTargets
 				),
 				'is_loaded'  => true,
 			],
+			$maintenanceDefinition,
 		], $lazyDefinitions ) );
 
 		$rail = $this->buildRailContract( $railTabs );
@@ -87,7 +113,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				'metrics_action'  => ActionData::Build( ActionsQueueScanRailMetrics::class ),
 				'preload_action'  => ActionData::Build( AjaxBatchRequests::class ),
 				'summary_rows'    => $summaryRows,
-				'assessment_rows' => $assessmentRows,
+				'assessment_rows' => $scansAssessmentRows,
 			],
 			'content' => [
 				'section' => [
@@ -112,8 +138,33 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	/**
 	 * @return RailMetrics
 	 */
-	protected function buildInitialRailMetrics() :array {
-		return ( new ActionsQueueScanRailMetricsBuilder() )->build();
+	protected function buildInitialRailMetrics( array $needsAttentionPayload = [] ) :array {
+		return ( new ActionsQueueScanRailMetricsBuilder() )->build( $needsAttentionPayload );
+	}
+
+	/**
+	 * @param list<QueueItem> $maintenanceItems
+	 * @param list<AssessmentRow> $maintenanceAssessmentRows
+	 * @param array{count:int,status:string} $maintenanceMetrics
+	 * @return array<string,mixed>
+	 */
+	private function buildMaintenanceTabDefinition(
+		array $maintenanceItems,
+		array $maintenanceAssessmentRows,
+		array $maintenanceMetrics
+	) :array {
+		$meta = $this->getRailTabMeta( 'maintenance' );
+
+		return [
+			'key'        => 'maintenance',
+			'label'      => $meta[ 'label' ],
+			'count'      => (int)( $maintenanceMetrics[ 'count' ] ?? 0 ),
+			'is_shown'   => true,
+			'status'     => $this->maintenanceMetricsStatus( $maintenanceMetrics ),
+			'icon_class' => $meta[ 'icon_class' ],
+			'items'      => $this->buildMaintenanceRailItems( $maintenanceItems, $maintenanceAssessmentRows ),
+			'is_loaded'  => true,
+		];
 	}
 
 	/**
@@ -202,5 +253,121 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				'href'     => $item[ 'href' ],
 			];
 		}, $scansZoneGroup[ 'items' ] ) );
+	}
+
+	/**
+	 * @param array{count:int,status:string} $maintenanceMetrics
+	 * @return SummaryRow
+	 */
+	private function buildMaintenanceSummaryRow( array $maintenanceMetrics ) :array {
+		$count = (int)( $maintenanceMetrics[ 'count' ] ?? 0 );
+
+		return [
+			'key'      => 'maintenance',
+			'label'    => __( 'Maintenance', 'wp-simple-firewall' ),
+			'text'     => \sprintf(
+				_n(
+					'%s maintenance item needs review.',
+					'%s maintenance items need review.',
+					$count,
+					'wp-simple-firewall'
+				),
+				$count
+			),
+			'severity' => $this->maintenanceMetricsStatus( $maintenanceMetrics ),
+			'count'    => $count,
+			'action'   => __( 'Open', 'wp-simple-firewall' ),
+			'href'     => '',
+		];
+	}
+
+	/**
+	 * @param list<QueueItem> $maintenanceItems
+	 * @param list<AssessmentRow> $maintenanceAssessmentRows
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildMaintenanceRailItems( array $maintenanceItems, array $maintenanceAssessmentRows ) :array {
+		$items = [];
+
+		foreach ( $maintenanceItems as $item ) {
+			$status = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
+			$items[] = $this->buildDetailRow(
+				(string)( $item[ 'label' ] ?? '' ),
+				(string)( $item[ 'description' ] ?? '' ),
+				$status,
+				(int)( $item[ 'count' ] ?? 0 ),
+				$status === 'neutral' ? 'info' : $status,
+				$this->buildMaintenanceRailActions( \is_array( $item[ 'cta' ] ?? null ) ? $item[ 'cta' ] : [] ),
+				null,
+				null,
+				__( 'Needs attention', 'wp-simple-firewall' )
+			);
+		}
+
+		foreach ( $maintenanceAssessmentRows as $row ) {
+			if ( ( $row[ 'status' ] ?? '' ) !== 'good' ) {
+				continue;
+			}
+
+			$items[] = $this->buildDetailRow(
+				(string)( $row[ 'label' ] ?? '' ),
+				(string)( $row[ 'description' ] ?? '' ),
+				'good',
+				null,
+				null,
+				[],
+				(string)( $row[ 'status_icon_class' ] ?? '' ),
+				(string)( $row[ 'status_label' ] ?? '' ),
+				__( 'All clear', 'wp-simple-firewall' )
+			);
+		}
+
+		return $items;
+	}
+	/**
+	 * @param array<string,mixed> $action
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildMaintenanceRailActions( array $action ) :array {
+		if ( empty( $action[ 'label' ] ) || empty( $action[ 'href' ] ) ) {
+			return [];
+		}
+
+		$attributes = [];
+		if ( !empty( $action[ 'target' ] ) ) {
+			$attributes[ 'target' ] = (string)$action[ 'target' ];
+		}
+
+		return [
+			[
+				'type'       => 'navigate',
+				'label'      => (string)$action[ 'label' ],
+				'href'       => (string)$action[ 'href' ],
+				'icon'       => (string)( $action[ 'icon' ] ?? 'bi bi-arrow-right-circle-fill' ),
+				'attributes' => $attributes,
+			],
+		];
+	}
+
+	/**
+	 * @param array{count:int,status:string} $maintenanceMetrics
+	 */
+	private function maintenanceMetricsStatus( array $maintenanceMetrics ) :string {
+		return StatusPriority::normalize( (string)( $maintenanceMetrics[ 'status' ] ?? 'good' ), 'good' );
+	}
+
+	/**
+	 * @return array{label:string,icon_class:string,summary_keys:list<string>}
+	 */
+	protected function getRailTabMeta( string $key ) :array {
+		if ( $key === 'maintenance' ) {
+			return [
+				'label'        => __( 'Maintenance', 'wp-simple-firewall' ),
+				'icon_class'   => 'bi bi-wrench',
+				'summary_keys' => [ 'maintenance' ],
+			];
+		}
+
+		return parent::getRailTabMeta( $key );
 	}
 }

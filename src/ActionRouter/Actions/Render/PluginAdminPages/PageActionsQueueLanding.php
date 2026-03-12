@@ -261,7 +261,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	protected function buildScansResultsRenderData() :array {
 		return ( new ActionsQueueScanRailBuilder() )->buildFromLandingData(
 			$this->getNeedsAttentionPayload(),
-			$this->getScansAssessmentRows()
+			$this->getAssessmentRowsByZone()
 		);
 	}
 
@@ -274,35 +274,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			return $item;
 		}
 
-		$href = $item[ 'href' ];
-		$target = $item[ 'target' ];
-
-		switch ( $item[ 'key' ] ) {
-			case 'wp_plugins_inactive':
-				$item[ 'cta' ] = [
-					'href'  => $href,
-					'label' => __( 'Go to plugins', 'wp-simple-firewall' ),
-				];
-				break;
-			case 'wp_themes_inactive':
-				$item[ 'cta' ] = [
-					'href'  => $href,
-					'label' => __( 'Go to themes', 'wp-simple-firewall' ),
-				];
-				break;
-			default:
-				$action = $item[ 'action' ];
-				if ( $href !== '' && $action !== '' ) {
-					$item[ 'cta' ] = [
-						'href'   => $href,
-						'label'  => $action,
-						'target' => $target,
-					];
-				}
-				break;
-		}
-
-		return $item;
+		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalize( $item );
 	}
 
 	/**
@@ -361,13 +333,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'scans'       => $builder->buildForZone( 'scans' ),
 			'maintenance' => $builder->buildForZone( 'maintenance' ),
 		];
-	}
-
-	/**
-	 * @return list<AssessmentRow>
-	 */
-	private function getScansAssessmentRows() :array {
-		return $this->getAssessmentRowsByZone()[ 'scans' ];
 	}
 
 	/**
