@@ -96,7 +96,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 		placeholder.replaceWith( form );
 		this.setSaveButtonDisabled( expansion, false );
-		UiContentActivator.activateWithin( expansion );
+		UiContentActivator.activateCurrentSubtree( expansion );
 	}
 
 	renderLoadFailure( placeholder, expansion, message ) {

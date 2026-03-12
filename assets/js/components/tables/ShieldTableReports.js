@@ -46,7 +46,7 @@ export class ShieldTableReports extends ShieldTableBase {
 		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => {
 			const panel = evt.target?.querySelector?.( '[data-mode-panel="1"].is-open' ) || null;
 			if ( panel !== null && panel.querySelector( this.getTableSelector() ) !== null ) {
-				UiContentActivator.activateWithin( panel );
+				UiContentActivator.activateCurrentSubtree( panel );
 			}
 		} );
 	}

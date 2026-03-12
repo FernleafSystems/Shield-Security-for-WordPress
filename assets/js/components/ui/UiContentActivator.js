@@ -15,16 +15,28 @@ export class UiContentActivator {
 		'.offcanvas.show'
 	];
 
-	static activateWithin( contextEl ) {
+	// Activate all supported widgets within a subtree the caller already knows is current/visible/open.
+	static activateCurrentSubtree( contextEl ) {
 		const root = UiContentActivator.normalizeContext( contextEl );
 		if ( root === null ) {
 			return;
 		}
 
-		// Activate widgets that are current within this visible subtree, including nested active owner roots.
+		UiContentActivator.activateInvestigationTablesWithin( root );
+		UiContentActivator.activateInvestigateSelect2Within( root );
+		DataTableVisibilityAdjuster.adjustWithinNextFrame( root );
+		BootstrapTooltips.RegisterNewTooltipsWithin( root );
+	}
+
+	static activateCurrentWithinRoot( contextEl ) {
+		const root = UiContentActivator.normalizeContext( contextEl );
+		if ( root === null ) {
+			return;
+		}
+
 		UiContentActivator.activateStandaloneWithin( root );
 		UiContentActivator.collectDirectActiveOwnerRoots( root ).forEach( ( ownerRoot ) => {
-			UiContentActivator.activateWithin( ownerRoot );
+			UiContentActivator.activateCurrentSubtree( ownerRoot );
 		} );
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( root );
 		BootstrapTooltips.RegisterNewTooltipsWithin( root );
@@ -38,15 +50,32 @@ export class UiContentActivator {
 
 	static activateStandaloneWithin( contextEl ) {
 		const tableEls = UiContentActivator.collectDirectStandaloneElements( contextEl, '[data-investigation-table="1"]' );
+		UiContentActivator.activateInvestigationTables( tableEls );
+		const selectEls = UiContentActivator.collectDirectStandaloneElements( contextEl, 'select[data-investigate-select2="1"]' );
+		UiContentActivator.activateInvestigateSelect2( selectEls );
+	}
+
+	static activateInvestigationTablesWithin( contextEl ) {
+		UiContentActivator.activateInvestigationTables(
+			UiContentActivator.collectElements( contextEl, '[data-investigation-table="1"]' )
+		);
+	}
+
+	static activateInvestigateSelect2Within( contextEl ) {
+		UiContentActivator.activateInvestigateSelect2(
+			UiContentActivator.collectElements( contextEl, 'select[data-investigate-select2="1"]' )
+		);
+	}
+
+	static activateInvestigationTables( tableEls ) {
 		if ( tableEls.length > 0 ) {
 			new InvestigationTable( { tableEls } );
 		}
+	}
 
-		const investigateLookupSelect2 = UiContentActivator.getInvestigateLookupSelect2();
-
-		const selectEls = UiContentActivator.collectDirectStandaloneElements( contextEl, 'select[data-investigate-select2="1"]' );
+	static activateInvestigateSelect2( selectEls ) {
 		if ( selectEls.length > 0 ) {
-			investigateLookupSelect2.initializeElements( selectEls );
+			UiContentActivator.getInvestigateLookupSelect2().initializeElements( selectEls );
 		}
 	}
 

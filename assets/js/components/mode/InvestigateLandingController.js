@@ -167,7 +167,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		panelContent.innerHTML = panelBodyHtml;
 		this.syncPanelChrome( panel, true );
-		UiContentActivator.activateWithin( panelContent );
+		UiContentActivator.activateCurrentSubtree( panelContent );
 		return true;
 	}
 
@@ -470,7 +470,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		UiContentActivator.activateWithin( this.rootEl );
+		UiContentActivator.activateCurrentWithinRoot( this.rootEl );
 		this.syncPanelHeadersForAllPanels();
 		this.syncInlineTabsForAllPanels();
 		this.syncLandingHintVisibilityFromPanelState();

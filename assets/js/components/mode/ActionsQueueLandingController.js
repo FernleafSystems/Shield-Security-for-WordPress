@@ -153,7 +153,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		pane.dataset.actionsQueuePaneInitialized = '1';
-		UiContentActivator.activateWithin( pane );
+		UiContentActivator.activateCurrentSubtree( pane );
 	}
 
 	initializeCurrentRoot() {

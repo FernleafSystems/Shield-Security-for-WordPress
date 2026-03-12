@@ -81,7 +81,7 @@ export class Navigation extends BaseComponent {
 		const urlHash = window.location.hash ? window.location.hash : '';
 		this.setActiveNavTab( '#tab-navlink-' + urlHash.split( '-' )[ 1 ] );
 		this.reinitializeDynamicPageComponents();
-		UiContentActivator.activateWithin( pageBody );
+		UiContentActivator.activateCurrentWithinRoot( pageBody );
 
 		window.scroll( { top: 0, left: 0, behavior: 'smooth' } );
 
