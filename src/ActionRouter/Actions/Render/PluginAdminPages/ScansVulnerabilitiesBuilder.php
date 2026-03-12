@@ -28,8 +28,10 @@ class ScansVulnerabilitiesBuilder {
 		$abandonedItems = $this->buildAbandonedItems();
 
 		return [
-			'count'    => \count( $vulnerableItems ) + \count( $abandonedItems ),
-			'status'   => empty( $vulnerableItems ) && empty( $abandonedItems ) ? 'good' : 'critical',
+			'count'    => $this->countDistinctAffectedAssets( $vulnerableItems, $abandonedItems ),
+			'status'   => !empty( $vulnerableItems )
+				? 'critical'
+				: ( !empty( $abandonedItems ) ? 'warning' : 'good' ),
 			'sections' => [
 				'vulnerable' => [
 					'label' => __( 'Known Vulnerabilities', 'wp-simple-firewall' ),
@@ -115,6 +117,7 @@ class ScansVulnerabilitiesBuilder {
 
 		return [
 			'key'         => $prefix.'-'.$asset->unique_id,
+			'asset_key'   => (string)$asset->unique_id,
 			'label'       => (string)$name,
 			'description' => $description,
 			'count'       => $count,
@@ -199,5 +202,21 @@ class ScansVulnerabilitiesBuilder {
 				: __( 'Go to themes', 'wp-simple-firewall' ),
 			'type'  => 'navigate',
 		];
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $vulnerableItems
+	 * @param list<array<string,mixed>> $abandonedItems
+	 */
+	private function countDistinctAffectedAssets( array $vulnerableItems, array $abandonedItems ) :int {
+		$keys = [];
+		foreach ( [ ...$vulnerableItems, ...$abandonedItems ] as $item ) {
+			$key = (string)( $item[ 'asset_key' ] ?? '' );
+			if ( $key !== '' ) {
+				$keys[ $key ] = true;
+			}
+		}
+
+		return \count( $keys );
 	}
 }

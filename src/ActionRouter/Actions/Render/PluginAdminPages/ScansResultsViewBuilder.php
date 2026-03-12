@@ -340,7 +340,7 @@ class ScansResultsViewBuilder {
 			$definition = [
 				'key'      => $key,
 				'label'    => $tabMeta[ 'label' ],
-				'count'    => $key === 'summary' ? \count( $summaryRows ) : $legacyCounts[ $key ],
+				'count'    => $key === 'summary' ? $this->countSummaryRowIssues( $summaryRows ) : $legacyCounts[ $key ],
 				'is_shown' => true,
 			];
 
@@ -441,7 +441,7 @@ class ScansResultsViewBuilder {
 		$summaryDefinition = [
 			'key'        => 'summary',
 			'label'      => $summaryMeta[ 'label' ],
-			'count'      => \count( $summaryRows ),
+			'count'      => $this->countSummaryRowIssues( $summaryRows ),
 			'is_shown'   => true,
 			'status'     => StatusPriority::highest( \array_column( $definitions, 'status' ), 'good' ),
 			'icon_class' => $summaryMeta[ 'icon_class' ],
@@ -588,7 +588,7 @@ class ScansResultsViewBuilder {
 			'file_locker' => [
 				'label'        => __( 'File Locker', 'wp-simple-firewall' ),
 				'icon_class'   => 'bi bi-file-lock2-fill',
-				'summary_keys' => [],
+				'summary_keys' => [ 'file_locker' ],
 			],
 		];
 		return $meta[ $key ] ?? [
@@ -1410,5 +1410,12 @@ class ScansResultsViewBuilder {
 			'status'   => (string)( $vulnerabilities[ 'status' ] ?? 'good' ),
 			'sections' => $sections,
 		];
+	}
+
+	/**
+	 * @param list<SummaryRow> $summaryRows
+	 */
+	protected function countSummaryRowIssues( array $summaryRows ) :int {
+		return (int)\array_sum( \array_column( $summaryRows, 'count' ) );
 	}
 }

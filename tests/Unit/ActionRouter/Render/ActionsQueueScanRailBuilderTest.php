@@ -121,6 +121,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' );
 		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' );
 		$this->assertTrue( (bool)( $summaryTab[ 'is_loaded' ] ?? false ) );
+		$this->assertSame( 3, $summaryTab[ 'count' ] ?? -1 );
 		$this->assertNotEmpty( $summaryTab[ 'items' ] ?? [] );
 		$this->assertSame( 'wordpress', $summaryTab[ 'items' ][ 0 ][ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' );
 		$this->assertSame( 'button', $summaryTab[ 'items' ][ 0 ][ 'attributes' ][ 'role' ] ?? '' );
@@ -222,6 +223,37 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'neutral', $tabsByKey[ 'malware' ][ 'status' ] ?? '' );
 	}
 
+	public function test_build_uses_canonical_initial_metrics_for_summary_and_rail_accent() :void {
+		$builder = new ActionsQueueScanRailBuilderTestDouble(
+			true,
+			true,
+			true,
+			true,
+			true,
+			[
+				'count'    => 0,
+				'status'   => 'good',
+				'sections' => [],
+			],
+			[
+				'tabs' => [
+					'summary' => [
+						'count'  => 8,
+						'status' => 'warning',
+					],
+				],
+				'rail_accent_status' => 'warning',
+			]
+		);
+
+		$renderData = $builder->buildFromLandingData( $this->buildNeedsAttentionPayload() );
+		$summaryTab = $this->findTabByKey( $renderData[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' );
+
+		$this->assertSame( 8, $summaryTab[ 'count' ] ?? -1 );
+		$this->assertSame( 'warning', $summaryTab[ 'status' ] ?? '' );
+		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] ?? '' );
+	}
+
 	private function buildNeedsAttentionPayload() :array {
 		return [
 			'render_data' => [
@@ -277,6 +309,7 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 	private bool $vulnerabilitiesEnabled;
 	private bool $malwareEnabled;
 	private array $vulnerabilities;
+	private array $initialMetrics;
 
 	public function __construct(
 		bool $wordpressEnabled,
@@ -288,6 +321,15 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 			'count'    => 0,
 			'status'   => 'good',
 			'sections' => [],
+		],
+		array $initialMetrics = [
+			'tabs' => [
+				'summary' => [
+					'count'  => 3,
+					'status' => 'critical',
+				],
+			],
+			'rail_accent_status' => 'critical',
 		]
 	) {
 		$this->wordpressEnabled = $wordpressEnabled;
@@ -296,6 +338,7 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 		$this->vulnerabilitiesEnabled = $vulnerabilitiesEnabled;
 		$this->malwareEnabled = $malwareEnabled;
 		$this->vulnerabilities = $vulnerabilities;
+		$this->initialMetrics = $initialMetrics;
 	}
 
 	protected function isWordpressTabEnabled() :bool {
@@ -356,5 +399,9 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 
 	protected function buildVulnerabilities() :array {
 		return $this->normalizeVulnerabilities( $this->vulnerabilities );
+	}
+
+	protected function buildInitialRailMetrics() :array {
+		return $this->initialMetrics;
 	}
 }

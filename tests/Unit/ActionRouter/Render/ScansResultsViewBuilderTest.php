@@ -258,6 +258,24 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $summaryTab[ 'status' ] ?? '' );
 	}
 
+	public function test_summary_tab_count_uses_sum_of_row_counts_not_number_of_rows() :void {
+		$builder = $this->createBuilder( [
+			'summaryRows' => [
+				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues found', 'severity' => 'critical', 'count' => 4 ],
+				[ 'key' => 'plugin_files', 'label' => 'Plugins', 'text' => 'Issues found', 'severity' => 'warning', 'count' => 2 ],
+			],
+			'wordpressEnabled' => true,
+			'pluginsEnabled'   => true,
+		] );
+
+		$renderData = $builder->build();
+		$legacySummary = $this->findTabByKey( $renderData[ 'vars' ][ 'tabs' ] ?? [], 'summary' );
+		$railSummary = $this->findTabByKey( $renderData[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' );
+
+		$this->assertSame( 6, $legacySummary[ 'count' ] ?? -1 );
+		$this->assertSame( 6, $railSummary[ 'count' ] ?? -1 );
+	}
+
 	// ── Summary pane: mixed sections ──
 
 	public function test_summary_items_show_attention_and_all_clear_sections_when_issues_exist() :void {
@@ -820,6 +838,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 				[ 'key' => 'malware', 'label' => 'Malware', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
 				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
 				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'file_locker', 'label' => 'File Locker', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 			],
 		] );
 
@@ -834,6 +853,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			'malware'           => 'malware',
 			'vulnerable_assets' => 'vulnerabilities',
 			'abandoned'         => 'vulnerabilities',
+			'file_locker'       => 'file_locker',
 		];
 
 		$attentionItems = \array_filter( $items, static fn( array $item ) => ( $item[ 'section_label' ] ?? '' ) === 'Needs attention' );
@@ -856,6 +876,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
 				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'file_locker', 'label' => 'File Locker', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 			],
 		] );
 
@@ -874,6 +895,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'plugins', $targets[ 'Plugin Files' ] ?? '' );
 		$this->assertSame( 'vulnerabilities', $targets[ 'Vulns' ] ?? '' );
 		$this->assertSame( 'vulnerabilities', $targets[ 'Abandoned' ] ?? '' );
+		$this->assertSame( 'file_locker', $targets[ 'File Locker' ] ?? '' );
 	}
 
 	public function test_summary_items_with_unknown_keys_fallback_to_href_actions_without_switch_attributes() :void {

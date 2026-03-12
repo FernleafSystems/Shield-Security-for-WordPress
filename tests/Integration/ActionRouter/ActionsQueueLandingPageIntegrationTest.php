@@ -33,6 +33,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
+		$this->requireDb( 'file_locker' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
 		$this->requireController()->opts
@@ -43,6 +44,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function tear_down() {
+		if ( static::con() !== null ) {
+			static::con()->comps->file_locker->clearLocks();
+		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
 	}
@@ -89,6 +93,20 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 		$this->assertCount( 1, $matches, 'Expected exactly one zone tile for '.$key );
 		return $matches[ 0 ] ?? [];
+	}
+
+	private function insertFileLockRecord( string $type, string $path, int $detectedAt = 0 ) :void {
+		$handler = $this->requireDb( 'file_locker' );
+		$record = $handler->getRecord();
+		$record->type = $type;
+		$record->path = $path;
+		$record->hash_original = \sha1( $type.'-original' );
+		$record->hash_current = \sha1( $type.'-current' );
+		$record->public_key_id = 1;
+		$record->cipher = 'aes-256-cbc';
+		$record->content = 'encrypted-content-'.$type;
+		$record->detected_at = $detectedAt;
+		$handler->getQueryInserter()->insert( $record );
 	}
 
 	public function test_actions_queue_landing_keeps_zone_tiles_interactive_without_scan_findings() :void {
@@ -610,14 +628,48 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 6, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
 	}
 
-	public function test_scans_results_metrics_action_returns_zero_neutral_entries_for_disabled_review_tabs() :void {
+	public function test_scans_results_metrics_action_returns_zero_neutral_entries_for_disabled_review_tabs_even_with_historical_results() :void {
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			 ->optSet( 'file_scan_areas', [ 'wp' ] )
 			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$themeSlug = \wp_get_theme()->get_stylesheet();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'     => 'theme-file.php',
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id' => 'infected.php',
+			'is_mal'  => 1,
+		] );
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'      => $themeSlug,
+			'is_abandoned' => 1,
+		] );
 		$this->resetScanResultCountMemoization();
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
@@ -633,7 +685,112 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'neutral', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'malware' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( 'neutral', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
+		$this->assertArrayNotHasKey( 'file_locker', $tabs );
+		$this->assertSame( 0, (int)( $tabs[ 'summary' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'good', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
+	}
+
+	public function test_disabled_historical_scan_results_do_not_surface_in_actions_queue_summary() :void {
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'N' )
+			 ->optSet( 'file_scan_areas', [] )
+			 ->store();
+
+		$pluginSlug = self::con()->base_file;
+		$themeSlug = \wp_get_theme()->get_stylesheet();
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $scanId, [
+			'item_id'    => 'wp-admin/admin.php',
+			'is_in_core' => 1,
+		] );
+		TestDataFactory::insertScanResultItem( $scanId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $scanId, [
+			'item_id'     => 'theme-file.php',
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled historical scan results' );
+
+		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+		$this->assertSame( [], $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ] ?? [] );
+	}
+
+	public function test_scans_results_metrics_action_hides_file_locker_when_premium_unavailable() :void {
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', [ 'wpconfig' ] )
+			 ->store();
+
+		$this->insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
+		self::con()->comps->file_locker->clearLocks();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
+		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+
+		$this->assertArrayNotHasKey( 'file_locker', $tabs );
+		$this->assertSame( 0, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+	}
+
+	public function test_scans_results_metrics_action_counts_file_locker_when_enabled_and_problematic() :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', [ 'wpconfig' ] )
+			 ->store();
+
+		$this->insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
+		self::con()->comps->file_locker->clearLocks();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
+		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+
+		$this->assertSame( 1, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $tabs[ 'file_locker' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
+	}
+
+	public function test_scans_results_metrics_action_dedupes_same_asset_across_vulnerable_and_abandoned_sections() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+			'scan_vulnerabilities',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_wpvuln_scan', 'Y' )
+			 ->optSet( 'enabled_scan_apc', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'plugins' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'      => $pluginSlug,
+			'is_abandoned' => 1,
+		] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
+		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
+
+		$this->assertSame( 1, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
 	}
 }

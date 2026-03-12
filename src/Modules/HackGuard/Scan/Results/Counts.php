@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Counts {
 
@@ -53,6 +54,29 @@ class Counts {
 		return $this->getCount( 'wp_files' );
 	}
 
+	public function countAffectedPluginAssets() :int {
+		return \count( $this->getDistinctAssetSlugsForAfsMeta( 'is_in_plugin' ) );
+	}
+
+	public function countAffectedThemeAssets() :int {
+		return \count( $this->getDistinctAssetSlugsForAfsMeta( 'is_in_theme' ) );
+	}
+
+	public function countDistinctVulnerableAssets() :int {
+		return \count( $this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->WPV()->getSlug(), 'is_vulnerable' ) );
+	}
+
+	public function countDistinctAbandonedAssets() :int {
+		return \count( $this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->APC()->getSlug(), 'is_abandoned' ) );
+	}
+
+	public function countDistinctVulnerabilityReviewAssets() :int {
+		return \count( \array_unique( \array_merge(
+			$this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->WPV()->getSlug(), 'is_vulnerable' ),
+			$this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->APC()->getSlug(), 'is_abandoned' )
+		) ) );
+	}
+
 	private function getCount( $resultType ) :int {
 
 		if ( !isset( $this->counts[ $resultType ] ) ) {
@@ -93,5 +117,152 @@ class Counts {
 		}
 
 		return $this->counts[ $resultType ];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function getDistinctAssetSlugsForAfsMeta( string $membershipMetaKey ) :array {
+		$cacheKey = 'distinct_asset_slug_'.$membershipMetaKey;
+		if ( !isset( $this->counts[ $cacheKey ] ) ) {
+			$scanSlug = self::con()->comps->scans->AFS()->getSlug();
+			$this->counts[ $cacheKey ] = $this->queryDistinctColumnValues(
+				$scanSlug,
+				"`slug_meta`.`meta_value`",
+				[
+					[
+						'alias' => 'membership_meta',
+						'on'    => \sprintf(
+							"`membership_meta`.`ri_ref`=`ri`.`id` AND `membership_meta`.`meta_key`='%s'",
+							$membershipMetaKey
+						),
+					],
+					[
+						'alias' => 'slug_meta',
+						'on'    => "`slug_meta`.`ri_ref`=`ri`.`id` AND `slug_meta`.`meta_key`='ptg_slug' AND `slug_meta`.`meta_value`!=''",
+					],
+				]
+			);
+		}
+
+		return $this->counts[ $cacheKey ];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function getDistinctItemIdsForScanMeta( string $scanSlug, string $metaKey ) :array {
+		$cacheKey = 'distinct_item_id_'.$scanSlug.'_'.$metaKey;
+		if ( !isset( $this->counts[ $cacheKey ] ) ) {
+			$this->counts[ $cacheKey ] = $this->queryDistinctColumnValues(
+				$scanSlug,
+				"`ri`.`item_id`",
+				[
+					[
+						'alias' => 'rim',
+						'on'    => \sprintf(
+							"`rim`.`ri_ref`=`ri`.`id` AND `rim`.`meta_key`='%s'",
+							$metaKey
+						),
+					],
+				]
+			);
+		}
+
+		return $this->counts[ $cacheKey ];
+	}
+
+	/**
+	 * @param list<array{alias:string,on:string}> $joins
+	 * @return list<string>
+	 */
+	private function queryDistinctColumnValues( string $scanSlug, string $selectColumn, array $joins ) :array {
+		$latestScanId = $this->getLatestScanId( $scanSlug );
+		if ( $latestScanId < 1 ) {
+			return [];
+		}
+
+		$dbCon = self::con()->db_con;
+		$joinSql = \implode( ' ', \array_map(
+			static fn( array $join ) :string => \sprintf(
+				"INNER JOIN `%s` AS `%s` ON %s",
+				$dbCon->scan_result_item_meta->getTable(),
+				$join[ 'alias' ],
+				$join[ 'on' ]
+			),
+			$joins
+		) );
+		$query = \sprintf(
+			"SELECT DISTINCT %s
+			FROM `%s` AS `sr`
+			INNER JOIN `%s` AS `ri`
+				ON `sr`.`resultitem_ref`=`ri`.`id`
+			%s
+			WHERE %s",
+			$selectColumn,
+			$dbCon->scan_results->getTable(),
+			$dbCon->scan_result_items->getTable(),
+			$joinSql,
+			\implode( ' AND ', $this->buildContextWheres( $latestScanId ) )
+		);
+
+		return \array_values( \array_filter( \array_map(
+			static fn( $value ) :string => (string)$value,
+			Services::WpDb()->getCol( $query )
+		), static fn( string $value ) :bool => $value !== '' ) );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function buildContextWheres( int $latestScanId ) :array {
+		$wheres = [
+			\sprintf( "`sr`.`scan_ref`=%d", $latestScanId ),
+			"`ri`.`deleted_at`=0",
+		];
+
+		switch ( $this->context ) {
+			case RetrieveCount::CONTEXT_NOT_YET_NOTIFIED:
+				$wheres = \array_merge( $wheres, [
+					"`ri`.`auto_filtered_at`=0",
+					"`ri`.`ignored_at`=0",
+					"`ri`.`item_repaired_at`=0",
+					"`ri`.`item_deleted_at`=0",
+					"`ri`.`notified_at`=0",
+				] );
+				break;
+
+			case RetrieveCount::CONTEXT_RESULTS_DISPLAY:
+				$wheres[] = "`ri`.`auto_filtered_at`=0";
+				$includes = self::con()->opts->optGet( 'scan_results_table_display' );
+				$includes = \is_array( $includes ) ? $includes : [];
+				if ( !\in_array( 'include_ignored', $includes, true ) ) {
+					$wheres[] = "`ri`.`ignored_at`=0";
+				}
+				if ( !\in_array( 'include_repaired', $includes, true ) ) {
+					$wheres[] = "`ri`.`item_repaired_at`=0";
+				}
+				if ( !\in_array( 'include_deleted', $includes, true ) ) {
+					$wheres[] = "`ri`.`item_deleted_at`=0";
+				}
+				break;
+
+			case RetrieveCount::CONTEXT_ACTIVE_PROBLEMS:
+			default:
+				$wheres = \array_merge( $wheres, [
+					"`ri`.`auto_filtered_at`=0",
+					"`ri`.`ignored_at`=0",
+					"`ri`.`item_repaired_at`=0",
+					"`ri`.`item_deleted_at`=0",
+				] );
+				break;
+		}
+
+		return $wheres;
+	}
+
+	private function getLatestScanId( string $scanSlug ) :int {
+		$latest = self::con()->db_con->scans->getQuerySelector()->getLatestForScan( $scanSlug );
+		return empty( $latest ) ? 0 : (int)$latest->id;
 	}
 }

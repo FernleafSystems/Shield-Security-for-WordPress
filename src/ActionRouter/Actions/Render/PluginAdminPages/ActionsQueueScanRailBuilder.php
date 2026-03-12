@@ -27,15 +27,22 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	public function buildFromLandingData( array $needsAttentionPayload, array $assessmentRows = [] ) :array {
 		$scansZoneGroup = $this->getScansZoneGroup( $needsAttentionPayload );
 		$summaryRows = $this->buildSummaryRowsFromZoneGroup( $scansZoneGroup );
+		$metrics = $this->buildInitialRailMetrics();
+		$summaryMetrics = \is_array( $metrics[ 'tabs' ][ 'summary' ] ?? null )
+			? $metrics[ 'tabs' ][ 'summary' ]
+			: [
+				'count'  => 0,
+				'status' => 'good',
+			];
 		$lazyDefinitions = $this->buildLazyTabDefinitions();
 		$summaryMeta = $this->getRailTabMeta( 'summary' );
 		$railTabs = $this->buildTabs( \array_merge( [
 			[
 				'key'        => 'summary',
 				'label'      => $summaryMeta[ 'label' ],
-				'count'      => \count( $summaryRows ),
+				'count'      => (int)( $summaryMetrics[ 'count' ] ?? 0 ),
 				'is_shown'   => true,
-				'status'     => $this->buildSummaryStatus( $summaryRows, $assessmentRows ),
+				'status'     => (string)( $summaryMetrics[ 'status' ] ?? 'good' ),
 				'icon_class' => $summaryMeta[ 'icon_class' ],
 				'items'      => $this->buildSummaryRailItems(
 					$summaryRows,
@@ -47,10 +54,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		], $lazyDefinitions ) );
 
 		$rail = $this->buildRailContract( $railTabs );
-		$rail[ 'accent_status' ] = StatusPriority::normalize(
-			(string)( $scansZoneGroup[ 'severity' ] ?? 'good' ),
-			'good'
-		);
+		$rail[ 'accent_status' ] = (string)( $metrics[ 'rail_accent_status' ] ?? 'good' );
 
 		return [
 			'strings' => [
@@ -83,6 +87,16 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 */
 	public function buildVulnerabilitiesPane() :array {
 		return $this->buildRailPaneData( 'vulnerabilities' );
+	}
+
+	/**
+	 * @return array{
+	 *   tabs:array<string,array{count:int,status:string}>,
+	 *   rail_accent_status:string
+	 * }
+	 */
+	protected function buildInitialRailMetrics() :array {
+		return ( new ActionsQueueScanRailMetricsBuilder() )->build();
 	}
 
 	/**
@@ -153,36 +167,6 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			default:
 				return null;
 		}
-	}
-
-	/**
-	 * @param list<array<string,mixed>> $summaryRows
-	 * @param list<array<string,mixed>> $assessmentRows
-	 */
-	private function buildSummaryStatus( array $summaryRows, array $assessmentRows ) :string {
-		if ( !empty( $summaryRows ) ) {
-			return StatusPriority::highest(
-				\array_map(
-					static fn( array $row ) :string => StatusPriority::normalize(
-						(string)( $row[ 'severity' ] ?? 'warning' ),
-						'warning'
-					),
-					$summaryRows
-				),
-				'good'
-			);
-		}
-
-		return StatusPriority::highest(
-			\array_map(
-				static fn( array $row ) :string => StatusPriority::normalize(
-					(string)( $row[ 'status' ] ?? 'good' ),
-					'good'
-				),
-				$assessmentRows
-			),
-			'good'
-		);
 	}
 
 	/**

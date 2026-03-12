@@ -222,82 +222,47 @@ class PageOperatorModeLanding extends BaseRender {
 	 * }>
 	 */
 	private function buildActionsQueueRows( array $zoneGroups ) :array {
-		$scansCon = self::con()->comps->scans;
-		$counter = $scansCon->getScanResultsCount();
-		$rows = \array_values( \array_filter( [
-			$this->buildScanQueueRow(
-				'malware',
-				__( 'Malware', 'wp-simple-firewall' ),
-				'bug',
-				'critical',
-				$scansCon->AFS()->isEnabledMalwareScanPHP(),
-				$counter->countMalware()
-			),
-			$this->buildScanQueueRow(
-				'vulnerable_assets',
-				__( 'Vulnerabilities', 'wp-simple-firewall' ),
-				'shield-exclamation',
-				'critical',
-				$scansCon->WPV()->isEnabled(),
-				$counter->countVulnerableAssets()
-			),
-			$this->buildScanQueueRow(
-				'wp_files',
-				__( 'WP Files', 'wp-simple-firewall' ),
-				'wordpress',
-				'critical',
-				$scansCon->AFS()->isScanEnabledWpCore(),
-				$counter->countWPFiles()
-			),
-			$this->buildScanQueueRow(
-				'plugin_files',
-				__( 'Plugin Files', 'wp-simple-firewall' ),
-				'plug',
-				'warning',
-				$scansCon->AFS()->isScanEnabledPlugins(),
-				$counter->countPluginFiles()
-			),
-			$this->buildScanQueueRow(
-				'theme_files',
-				__( 'Theme Files', 'wp-simple-firewall' ),
-				'brush',
-				'warning',
-				$scansCon->AFS()->isScanEnabledThemes(),
-				$counter->countThemeFiles()
-			),
-			$this->buildScanQueueRow(
-				'abandoned',
-				__( 'Abandoned Assets', 'wp-simple-firewall' ),
-				'archive',
-				'warning',
-				$scansCon->APC()->isEnabled(),
-				$counter->countAbandoned()
-			),
-			$this->buildMaintenanceQueueRow( $zoneGroups ),
-		] ) );
-
+		$scanGroup = $this->findQueueZoneGroupBySlug( $zoneGroups, 'scans' );
+		$rows = \array_values( \array_map(
+			fn( array $item ) :array => $this->buildScanQueueRowFromQueueItem( $item ),
+			\is_array( $scanGroup[ 'items' ] ?? null ) ? \array_values( $scanGroup[ 'items' ] ) : []
+		) );
+		$rows[] = $this->buildMaintenanceQueueRow( $zoneGroups );
 		return $rows;
 	}
 
-	private function buildScanQueueRow(
-		string $key,
-		string $label,
-		string $icon,
-		string $activeSeverity,
-		bool $isEnabled,
-		int $count
-	) :?array {
-		if ( !$isEnabled ) {
-			return null;
-		}
+	/**
+	 * @param array<string,mixed> $item
+	 * @return array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   count:int
+	 * }
+	 */
+	private function buildScanQueueRowFromQueueItem( array $item ) :array {
+		$key = (string)( $item[ 'key' ] ?? '' );
 
 		return [
 			'key'        => $key,
-			'label'      => $label,
-			'icon_class' => self::con()->svgs->iconClass( $icon ),
-			'severity'   => $count > 0 ? $activeSeverity : 'good',
-			'count'      => \max( 0, $count ),
+			'label'      => (string)( $item[ 'label' ] ?? '' ),
+			'icon_class' => self::con()->svgs->iconClass( $this->getScanQueueRowIcon( $key ) ),
+			'severity'   => $this->normalizeSeverity( (string)( $item[ 'severity' ] ?? 'good' ) ),
+			'count'      => \max( 0, (int)( $item[ 'count' ] ?? 0 ) ),
 		];
+	}
+
+	private function getScanQueueRowIcon( string $key ) :string {
+		return [
+			'malware'           => 'bug',
+			'vulnerable_assets' => 'shield-exclamation',
+			'wp_files'          => 'wordpress',
+			'plugin_files'      => 'plug',
+			'theme_files'       => 'brush',
+			'abandoned'         => 'archive',
+			'file_locker'       => 'file-lock2',
+		][ $key ] ?? 'list-task';
 	}
 
 	/**

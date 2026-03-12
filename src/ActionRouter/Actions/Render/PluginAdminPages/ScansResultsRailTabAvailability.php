@@ -75,8 +75,17 @@ class ScansResultsRailTabAvailability {
 				break;
 
 			case 'file_locker':
-				$state[ 'is_available' ] = true;
-				$state[ 'show_in_actions_queue' ] = true;
+				$state[ 'is_available' ] = self::con()->comps->file_locker->isEnabled()
+					&& self::con()->isPremiumActive();
+				$state[ 'show_in_actions_queue' ] = $state[ 'is_available' ];
+				if ( !$state[ 'is_available' ] ) {
+					$state[ 'disabled_message' ] = self::con()->isPremiumActive()
+						? $this->buildNotEnabledMessage( __( 'File Locker', 'wp-simple-firewall' ) )
+						: \sprintf(
+							__( 'File Locker is available only with the Pro version of %s.', 'wp-simple-firewall' ),
+							self::con()->labels->Name
+						);
+				}
 				break;
 		}
 

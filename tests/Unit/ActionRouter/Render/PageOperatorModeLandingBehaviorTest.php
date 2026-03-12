@@ -25,9 +25,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
-	/** @var array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int,latest_report_at:int,latest_alert_at:int} */
-	private array $scanState = [];
-
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
@@ -345,31 +342,25 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'expand', $vars );
 	}
 
-	public function test_actions_queue_rows_follow_risk_first_order_and_counts_contract() :void {
-		$this->installControllerStubWithQueuePayload(
-			[],
-			[
-				'enabled' => [
-					'malware'           => true,
-					'vulnerable_assets' => true,
-					'wp_files'          => true,
-					'plugin_files'      => true,
-					'theme_files'       => true,
-					'abandoned'         => true,
-				],
-				'counts' => [
-					'malware'           => 4,
-					'vulnerable_assets' => 3,
-					'wp_files'          => 2,
-					'plugin_files'      => 5,
-					'theme_files'       => 1,
-					'abandoned'         => 6,
-				],
-			]
-		);
-
+	public function test_actions_queue_rows_follow_queue_scan_item_order_and_append_maintenance() :void {
 		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
 			[
+				[
+					'slug'         => 'scans',
+					'label'        => 'Scans',
+					'icon_class'   => 'bi bi-scans',
+					'severity'     => 'critical',
+					'total_issues' => 23,
+					'items'        => [
+						[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 4 ],
+						[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'critical', 'count' => 3 ],
+						[ 'key' => 'wp_files', 'label' => 'WP Files', 'severity' => 'critical', 'count' => 2 ],
+						[ 'key' => 'plugin_files', 'label' => 'Plugins', 'severity' => 'warning', 'count' => 5 ],
+						[ 'key' => 'theme_files', 'label' => 'Themes', 'severity' => 'warning', 'count' => 1 ],
+						[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'warning', 'count' => 6 ],
+						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 2 ],
+					],
+				],
 				[
 					'slug'         => 'maintenance',
 					'label'        => 'Maintenance',
@@ -389,106 +380,98 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'plugin_files',
 				'theme_files',
 				'abandoned',
+				'file_locker',
 				'maintenance',
 			],
 			\array_column( $rows, 'key' )
 		);
-		$this->assertSame( [ 4, 3, 2, 5, 1, 6, 7 ], \array_column( $rows, 'count' ) );
+		$this->assertSame( [ 4, 3, 2, 5, 1, 6, 2, 7 ], \array_column( $rows, 'count' ) );
 		$this->assertSame(
-			[ 'critical', 'critical', 'critical', 'warning', 'warning', 'warning', 'warning' ],
+			[ 'critical', 'critical', 'critical', 'warning', 'warning', 'warning', 'warning', 'warning' ],
 			\array_column( $rows, 'severity' )
+		);
+		$this->assertSame(
+			[
+				'bi bi-bug',
+				'bi bi-shield-exclamation',
+				'bi bi-wordpress',
+				'bi bi-plug',
+				'bi bi-brush',
+				'bi bi-archive',
+				'bi bi-file-lock2',
+				'bi bi-wrench',
+			],
+			\array_column( $rows, 'icon_class' )
 		);
 	}
 
-	public function test_actions_queue_rows_hide_disabled_scanners_and_keep_enabled_zero_rows() :void {
-		$this->installControllerStubWithQueuePayload(
-			[],
-			[
-				'enabled' => [
-					'malware'           => false,
-					'vulnerable_assets' => true,
-					'wp_files'          => true,
-					'plugin_files'      => true,
-					'theme_files'       => true,
-					'abandoned'         => false,
-				],
-				'counts' => [
-					'malware'           => 5,
-					'vulnerable_assets' => 0,
-					'wp_files'          => 0,
-					'plugin_files'      => 2,
-					'theme_files'       => 0,
-					'abandoned'         => 3,
-				],
-			]
-		);
-
+	public function test_actions_queue_rows_only_include_queue_scan_items_and_maintenance() :void {
 		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
-			[],
+			[
+				[
+					'slug'         => 'scans',
+					'label'        => 'Scans',
+					'icon_class'   => 'bi bi-scans',
+					'severity'     => 'warning',
+					'total_issues' => 2,
+					'items'        => [
+						[ 'key' => 'plugin_files', 'label' => 'Plugins', 'severity' => 'warning', 'count' => 2 ],
+						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
+					],
+				],
+			],
 		] );
 
 		$this->assertSame(
-			[
-				'vulnerable_assets',
-				'wp_files',
-				'plugin_files',
-				'theme_files',
-				'maintenance',
-			],
+			[ 'plugin_files', 'file_locker', 'maintenance' ],
 			\array_column( $rows, 'key' )
 		);
 		$this->assertSame(
 			[
-				'vulnerable_assets' => 'good',
-				'wp_files'          => 'good',
-				'plugin_files'      => 'warning',
-				'theme_files'       => 'good',
-				'maintenance'       => 'good',
+				'plugin_files' => 'warning',
+				'file_locker'  => 'good',
+				'maintenance'  => 'good',
 			],
 			\array_combine( \array_column( $rows, 'key' ), \array_column( $rows, 'severity' ) )
 		);
 	}
 
 	public function test_render_data_exposes_actions_queue_title_and_secondary_lanes() :void {
-		$this->installControllerStubWithQueuePayload(
-			[
-				'render_data' => [
-					'vars' => [
-						'summary' => [
-							'has_items'   => true,
-							'total_items' => 4,
-							'severity'    => 'warning',
-							'icon_class'  => 'bi bi-shield-exclamation',
-							'subtext'     => 'Latest attention items',
-						],
-						'zone_groups' => [
-							[
-								'slug'         => 'maintenance',
-								'label'        => 'Maintenance',
-								'icon_class'   => 'bi bi-wrench',
-								'severity'     => 'warning',
-								'total_issues' => 1,
-								'items'        => [],
+		$this->installControllerStubWithQueuePayload( [
+			'render_data' => [
+				'vars' => [
+					'summary' => [
+						'has_items'   => true,
+						'total_items' => 4,
+						'severity'    => 'warning',
+						'icon_class'  => 'bi bi-shield-exclamation',
+						'subtext'     => 'Latest attention items',
+					],
+					'zone_groups' => [
+						[
+							'slug'         => 'scans',
+							'label'        => 'Scans',
+							'icon_class'   => 'bi bi-scans',
+							'severity'     => 'warning',
+							'total_issues' => 3,
+							'items'        => [
+								[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 2 ],
+								[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'good', 'count' => 0 ],
+								[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 1 ],
 							],
+						],
+						[
+							'slug'         => 'maintenance',
+							'label'        => 'Maintenance',
+							'icon_class'   => 'bi bi-wrench',
+							'severity'     => 'warning',
+							'total_issues' => 1,
+							'items'        => [],
 						],
 					],
 				],
 			],
-			[
-				'enabled' => [
-					'malware'           => true,
-					'vulnerable_assets' => true,
-					'wp_files'          => false,
-					'plugin_files'      => false,
-					'theme_files'       => false,
-					'abandoned'         => false,
-				],
-				'counts' => [
-					'malware'           => 2,
-					'vulnerable_assets' => 0,
-				],
-			]
-		);
+		] );
 
 		$renderData = $this->invokeNonPublicMethod( $this->newPage(), 'getRenderData' );
 
@@ -502,7 +485,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
 		);
 		$this->assertSame(
-			[ 'malware', 'vulnerable_assets', 'maintenance' ],
+			[ 'malware', 'vulnerable_assets', 'file_locker', 'maintenance' ],
 			\array_column( $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [], 'key' )
 		);
 	}
@@ -514,9 +497,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					'components' => [],
 					'signals'    => [],
 					'totals'     => [
-						'score'       => 72,
-						'max_weight'  => 100,
-						'percentage'  => 72,
+						'score'        => 72,
+						'max_weight'   => 100,
+						'percentage'   => 72,
 						'letter_score' => 'B',
 					],
 					'percentage' => 72,
@@ -539,8 +522,12 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		};
 	}
 
-	private function installControllerStubWithQueuePayload( array $queuePayload, array $scanState = [] ) :void {
-		$this->scanState = \array_replace_recursive( $this->defaultScanState(), $scanState );
+	private function installControllerStubWithQueuePayload( array $queuePayload, array $reportsState = [] ) :void {
+		$reportsState = \array_replace_recursive( [
+			'reports_count'    => 0,
+			'latest_report_at' => 0,
+			'latest_alert_at'  => 0,
+		], $reportsState );
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -554,110 +541,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				return 'bi bi-'.$icon;
 			}
 		};
-		$controller->comps = (object)[
-			'scans' => new class( $this->scanState ) {
-				/** @var array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int,latest_report_at:int,latest_alert_at:int} */
-				private array $scanState;
-
-				public function __construct( array $scanState ) {
-					$this->scanState = $scanState;
-				}
-
-				public function getScanResultsCount() :object {
-					return new class( $this->scanState[ 'counts' ] ) {
-						/** @var array<string,int> */
-						private array $counts;
-
-						public function __construct( array $counts ) {
-							$this->counts = $counts;
-						}
-
-						public function countMalware() :int {
-							return (int)( $this->counts[ 'malware' ] ?? 0 );
-						}
-
-						public function countVulnerableAssets() :int {
-							return (int)( $this->counts[ 'vulnerable_assets' ] ?? 0 );
-						}
-
-						public function countWPFiles() :int {
-							return (int)( $this->counts[ 'wp_files' ] ?? 0 );
-						}
-
-						public function countPluginFiles() :int {
-							return (int)( $this->counts[ 'plugin_files' ] ?? 0 );
-						}
-
-						public function countThemeFiles() :int {
-							return (int)( $this->counts[ 'theme_files' ] ?? 0 );
-						}
-
-						public function countAbandoned() :int {
-							return (int)( $this->counts[ 'abandoned' ] ?? 0 );
-						}
-					};
-				}
-
-				public function AFS() :object {
-					return new class( $this->scanState[ 'enabled' ] ) {
-						/** @var array<string,bool> */
-						private array $enabled;
-
-						public function __construct( array $enabled ) {
-							$this->enabled = $enabled;
-						}
-
-						public function isEnabledMalwareScanPHP() :bool {
-							return (bool)( $this->enabled[ 'malware' ] ?? false );
-						}
-
-						public function isScanEnabledWpCore() :bool {
-							return (bool)( $this->enabled[ 'wp_files' ] ?? false );
-						}
-
-						public function isScanEnabledPlugins() :bool {
-							return (bool)( $this->enabled[ 'plugin_files' ] ?? false );
-						}
-
-						public function isScanEnabledThemes() :bool {
-							return (bool)( $this->enabled[ 'theme_files' ] ?? false );
-						}
-					};
-				}
-
-				public function WPV() :object {
-					return new class( $this->scanState[ 'enabled' ] ) {
-						/** @var array<string,bool> */
-						private array $enabled;
-
-						public function __construct( array $enabled ) {
-							$this->enabled = $enabled;
-						}
-
-						public function isEnabled() :bool {
-							return (bool)( $this->enabled[ 'vulnerable_assets' ] ?? false );
-						}
-					};
-				}
-
-				public function APC() :object {
-					return new class( $this->scanState[ 'enabled' ] ) {
-						/** @var array<string,bool> */
-						private array $enabled;
-
-						public function __construct( array $enabled ) {
-							$this->enabled = $enabled;
-						}
-
-						public function isEnabled() :bool {
-							return (bool)( $this->enabled[ 'abandoned' ] ?? false );
-						}
-					};
-				}
-			},
-		];
+		$controller->comps = (object)[];
 		$controller->db_con = (object)[
-			'reports' => new class( $this->scanState[ 'reports_count' ], $this->scanState[ 'latest_report_at' ], $this->scanState[ 'latest_alert_at' ] ) {
+			'reports' => new class( $reportsState[ 'reports_count' ], $reportsState[ 'latest_report_at' ], $reportsState[ 'latest_alert_at' ] ) {
 				private int $reportsCount;
 				private int $latestReportAt;
 				private int $latestAlertAt;
@@ -729,32 +615,5 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		};
 
 		PluginControllerInstaller::install( $controller );
-	}
-
-	/**
-	 * @return array{enabled:array<string,bool>,counts:array<string,int>,reports_count:int,latest_report_at:int,latest_alert_at:int}
-	 */
-	private function defaultScanState() :array {
-		return [
-			'enabled' => [
-				'malware'           => false,
-				'vulnerable_assets' => false,
-				'wp_files'          => false,
-				'plugin_files'      => false,
-				'theme_files'       => false,
-				'abandoned'         => false,
-			],
-			'counts' => [
-				'malware'           => 0,
-				'vulnerable_assets' => 0,
-				'wp_files'          => 0,
-				'plugin_files'      => 0,
-				'theme_files'       => 0,
-				'abandoned'         => 0,
-			],
-			'reports_count'    => 0,
-			'latest_report_at' => 0,
-			'latest_alert_at'  => 0,
-		];
 	}
 }
