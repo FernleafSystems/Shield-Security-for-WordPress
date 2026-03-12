@@ -10,7 +10,7 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 
 	protected function exec() {
 		$available = self::con()->comps->mfa->getProvidersAvailableToUser( $this->getActiveWPUser() );
-		/** @var Passkey $provider */
+		/** @var ?Passkey $provider */
 		$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 
 		$wanAuth = $this->action_data[ 'reg' ] ?? '';

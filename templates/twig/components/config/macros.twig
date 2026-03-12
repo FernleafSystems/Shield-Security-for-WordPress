@@ -1,0 +1,24 @@
+{% macro icon_action(icon_class, tooltip, href="", classes=[], attributes={}) %}
+	{% import '/common/macros.twig' as icwp_macros %}
+	{% set base_classes = ['shield-config-icon-action']|merge(classes) %}
+	{% set is_link = href is not empty %}
+	{% if is_link %}
+		<a href="{{ href }}"
+		   class="{{ base_classes|join(' ') }}"
+		   aria-label="{{ tooltip }}"
+		   data-bs-toggle="tooltip"
+		   data-bs-trigger="hover"
+		   data-bs-placement="top"
+		   data-bs-title="{{ tooltip }}"{{ icwp_macros.renderAttributes( attributes ) }}
+		><i class="{{ icon_class }}" aria-hidden="true"></i></a>
+	{% else %}
+		<button type="button"
+				class="{{ (['shield-button-link']|merge(base_classes))|join(' ') }}"
+				aria-label="{{ tooltip }}"
+				data-bs-toggle="tooltip"
+				data-bs-trigger="hover"
+				data-bs-placement="top"
+				data-bs-title="{{ tooltip }}"{{ icwp_macros.renderAttributes( attributes ) }}
+		><i class="{{ icon_class }}" aria-hidden="true"></i></button>
+	{% endif %}
+{% endmacro %}

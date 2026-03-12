@@ -1,8 +1,5 @@
-{% import '/common/macros.twig' as icwp_macros %}
-{% set control_classes = [
-	'shield-option-control-col',
-	'shield-option-control-col--'~option.type|replace({'_':'-'})
-] %}
+{% import '/components/config/macros.twig' as config_macros %}
+{% import _self as option_macros %}
 
 <div class="shield-option-item {{ option.is_focus ? 'focus_option':'nonfocus_option' }}">
 
@@ -14,7 +11,7 @@
 
 				<span class="shield-option-helpers">
 					{% if option.description|length > 0 %}
-						{{ _self.options_helper(
+						{{ config_macros.icon_action(
 							imgs.svgs.expand,
 							strings.description,
 							'',
@@ -27,7 +24,7 @@
 					{% endif %}
 
 					{% if option.beacon_id|default(false) %}
-						{{ _self.options_helper(
+						{{ config_macros.icon_action(
 							imgs.svgs.help,
 							strings.opt_info_helpdesk,
 							'',
@@ -39,7 +36,7 @@
 						) }}
 
 					{% elseif option.link_info %}
-						{{ _self.options_helper(
+						{{ config_macros.icon_action(
 							imgs.svgs.help,
 							strings.opt_info_helpdesk,
 							option.link_info,
@@ -49,7 +46,7 @@
 					{% endif %}
 
 					{% if option.vimeo_id|default('') is not empty %}
-						{{ _self.options_helper(
+						{{ config_macros.icon_action(
 							imgs.svgs.video,
 							strings.opt_info_video,
 							'',
@@ -59,7 +56,7 @@
 					{% endif %}
 
 					{% if option.link_blog %}
-						{{ _self.options_helper(
+						{{ config_macros.icon_action(
 							imgs.svgs.blog,
 							strings.opt_info_blog,
 							option.link_blog,
@@ -69,11 +66,11 @@
 					{% endif %}
 
 					{% if option.disabled and option.unavailable %}
-						{{ _self.options_helper(
+						{{ config_macros.icon_action(
 							imgs.svgs.upgrade,
 							'Upgrade to Pro to unlock',
 							hrefs.go_pro,
-							['text-primary', 'shield-option-helper-upgrade'],
+							['shield-config-icon-action--upgrade'],
 							{'target': '_blank'}
 						) }}
 					{% endif %}
@@ -83,7 +80,7 @@
 			<div class="options-summary">{{ option.summary }}</div>
 		</div>
 
-		<div class="{{ control_classes|join(' ') }}">
+		<div class="shield-option-control-col">
 			{% if option.type is same as('checkbox') %}
 				<div class="form-check form-switch">
 					<span class="shield-option-switch-state {{ ( option.value is same as('Y') ) ? 'on' : '' }}">
@@ -113,24 +110,7 @@
 					   class="form-control" />
 
 			{% elseif option.type is same as('password') %}
-
-				<div class="shield-option-stacked-control">
-					<input type="password" name="{{ option.key }}"
-						   id="Opt-{{ option.key }}"
-						   value="{{ option.value|raw }}"
-						   placeholder="{{ strings.supply_password }}"
-						   autocomplete="new-password"
-						   {% if option.disabled %}disabled="disabled"{% endif %}
-						   class="form-control" />
-
-					<input type="password" name="{{ option.key }}_confirm"
-						   id="Opt-{{ option.key }}_confirm"
-						   value="{{ option.value|raw }}"
-						   placeholder="{{ strings.confirm_password }}"
-						   autocomplete="new-password"
-						   {% if option.disabled %}disabled="disabled"{% endif %}
-						   class="form-control" />
-				</div>
+				{{ option_macros.password_control( option, strings ) }}
 
 			{% elseif option.type is same as('email') %}
 
@@ -158,34 +138,7 @@
 				</select>
 
 			{% elseif option.type is same as('multiple_select') %}
-
-				<div class="shield-option-multiple-list">
-					{% for option_value, option_value_settings in option.value_options %}
-						<div class="form-check shield-option-multiple-item">
-							<input type="checkbox"
-								   class="form-check-input"
-								   id="Opt-{{ option.key }}_{{ option_value }}"
-								   name="{{ option.key }}[]"
-								   value="{{ option_value }}"
-								   {% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
-									{% if option_value in option.value %}
-										checked="checked"
-									{% endif %}
-									{% if option.disabled %}disabled="disabled"{% endif %}
-							/>
-							<label class="form-check-label"
-								   for="Opt-{{ option.key }}_{{ option_value }}"
-								   {% if not option_value_settings.is_available %}title="Available with {{ strings.plugin_name }}"{% endif %}
-							>
-								{% if option_value in option.value %}
-									<strong>{{ option_value_settings.name|raw }}</strong>
-								{% else %}
-									{{ option_value_settings.name|raw }}
-								{% endif %}
-							</label>
-						</div>
-					{% endfor %}
-				</div>
+				{{ option_macros.multiple_select_control( option, strings ) }}
 
 			{% elseif option.type is same as('array') %}
 
@@ -262,25 +215,52 @@
 	{% endif %}
 </div>
 
-{% macro options_helper(icon_class, tooltip, href="", classes=[], attributes={}) %}
-	{% import '/common/macros.twig' as icwp_macros %}
-	{% set is_link = href is not empty %}
-	{% if is_link %}
-		<a href="{{ href }}"
-		   class="svg-container {{ classes|join(' ') }}"
-		   data-bs-toggle="tooltip"
-		   data-bs-trigger="hover"
-		   data-bs-placement="top"
-		   data-bs-title="{{ tooltip }}"{{ icwp_macros.renderAttributes( attributes ) }}
-		><i class="{{ icon_class }}" aria-hidden="true"></i></a>
-	{% else %}
-		<button type="button"
-				class="svg-container shield-button-link {{ classes|join(' ') }}"
-				aria-label="{{ tooltip }}"
-				data-bs-toggle="tooltip"
-				data-bs-trigger="hover"
-				data-bs-placement="top"
-				data-bs-title="{{ tooltip }}"{{ icwp_macros.renderAttributes( attributes ) }}
-		><i class="{{ icon_class }}" aria-hidden="true"></i></button>
-	{% endif %}
+{% macro password_control(option, strings) %}
+	<div class="shield-option-stacked-control">
+		<input type="password" name="{{ option.key }}"
+			   id="Opt-{{ option.key }}"
+			   value="{{ option.value|raw }}"
+			   placeholder="{{ strings.supply_password }}"
+			   autocomplete="new-password"
+			   {% if option.disabled %}disabled="disabled"{% endif %}
+			   class="form-control" />
+
+		<input type="password" name="{{ option.key }}_confirm"
+			   id="Opt-{{ option.key }}_confirm"
+			   value="{{ option.value|raw }}"
+			   placeholder="{{ strings.confirm_password }}"
+			   autocomplete="new-password"
+			   {% if option.disabled %}disabled="disabled"{% endif %}
+			   class="form-control" />
+	</div>
+{% endmacro %}
+
+{% macro multiple_select_control(option, strings) %}
+	<div class="shield-option-multiple-list">
+		{% for option_value, option_value_settings in option.value_options %}
+			<div class="form-check shield-option-multiple-item">
+				<input type="checkbox"
+					   class="form-check-input"
+					   id="Opt-{{ option.key }}_{{ option_value }}"
+					   name="{{ option.key }}[]"
+					   value="{{ option_value }}"
+					   {% if not option_value_settings.is_available %}disabled="disabled"{% endif %}
+						{% if option_value in option.value %}
+							checked="checked"
+						{% endif %}
+						{% if option.disabled %}disabled="disabled"{% endif %}
+				/>
+				<label class="form-check-label"
+					   for="Opt-{{ option.key }}_{{ option_value }}"
+					   {% if not option_value_settings.is_available %}title="Available with {{ strings.plugin_name }}"{% endif %}
+				>
+					{% if option_value in option.value %}
+						<strong>{{ option_value_settings.name|raw }}</strong>
+					{% else %}
+						{{ option_value_settings.name|raw }}
+					{% endif %}
+				</label>
+			</div>
+		{% endfor %}
+	</div>
 {% endmacro %}

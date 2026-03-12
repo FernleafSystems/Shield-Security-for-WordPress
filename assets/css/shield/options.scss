@@ -215,7 +215,7 @@ $options-rail-width-max: 260px;
   gap: 0.25rem;
 }
 
-.options_form_for--modern .shield-option-helpers .svg-container {
+.options_form_for--modern .shield-config-icon-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -232,29 +232,27 @@ $options-rail-width-max: 260px;
   transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 }
 
-.options_form_for--modern .shield-option-helpers button.svg-container,
-.options_form_for--modern .shield-options-panel-header-actions button.beacon-article,
-.options_form_for--modern .shield-options-panel-header-actions button.section_title_info {
+.options_form_for--modern button.shield-config-icon-action {
   appearance: none;
   font-family: inherit;
   font-size: inherit;
   cursor: pointer;
 }
 
-.options_form_for--modern .shield-option-helpers .svg-container:hover,
-.options_form_for--modern .shield-option-helpers .svg-container:focus-visible {
+.options_form_for--modern .shield-config-icon-action:hover,
+.options_form_for--modern .shield-config-icon-action:focus-visible {
   color: $primary;
   border-color: #c1d9c1;
   background: #f2faf2;
 }
 
-.options_form_for--modern .shield-option-helpers .svg-container[aria-expanded="true"] {
+.options_form_for--modern .shield-config-icon-action[aria-expanded="true"] {
   border-color: #c9ddc9;
   background: #e8f4e4;
   color: $primary;
 }
 
-.options_form_for--modern .shield-option-helpers .svg-container > .bi {
+.options_form_for--modern .shield-config-icon-action > .bi {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -265,13 +263,13 @@ $options-rail-width-max: 260px;
   vertical-align: 0;
 }
 
-.options_form_for--modern .shield-option-helpers .svg-container > .bi::before {
+.options_form_for--modern .shield-config-icon-action > .bi::before {
   display: block;
   line-height: 1;
   vertical-align: 0;
 }
 
-.options_form_for--modern .shield-option-helpers .shield-option-helper-upgrade {
+.options_form_for--modern .shield-config-icon-action--upgrade {
   color: $primary;
 }
 
@@ -316,26 +314,12 @@ $options-rail-width-max: 260px;
 }
 
 .options_form_for--modern .shield-option-control-col textarea.form-control {
-  width: 100%;
+  width: min(100%, 440px);
 }
 
 .options_form_for--modern .shield-option-control-col .form-check-label {
   color: $options-text-strong;
   font-size: 0.84rem;
-}
-
-.options_form_for--modern .shield-option-control-col--array,
-.options_form_for--modern .shield-option-control-col--comma-separated-lists {
-  width: min(100%, 440px);
-}
-
-.options_form_for--modern .shield-option-control-col--array .form-control,
-.options_form_for--modern .shield-option-control-col--comma-separated-lists .form-control {
-  width: 100%;
-}
-
-.options_form_for--modern .shield-option-control-col--multiple-select {
-  align-items: flex-start;
 }
 
 .options_form_for--modern .shield-option-multiple-list {
@@ -460,16 +444,6 @@ $options-rail-width-max: 260px;
 
 .options_form_for--modern .shield-options-save-row-inline {
   padding-left: 0.1rem;
-}
-
-.options_form_for--modern .section_title_info .dashicons {
-  color: #5b665f;
-  transition: color 0.2s ease;
-}
-
-.options_form_for--modern .section_title_info:hover .dashicons,
-.options_form_for--modern .section_title_info:focus-visible .dashicons {
-  color: $primary;
 }
 
 @container (max-width: 600px) {

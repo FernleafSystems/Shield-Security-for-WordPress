@@ -1,3 +1,5 @@
+{% import '/components/config/macros.twig' as config_macros %}
+
 <form method="post"
 	  class="options_form_for options_form_for--modern form py-0"
 	  novalidate="novalidate"
@@ -45,20 +47,29 @@
 
 							<div class="shield-options-panel-header-actions">
 								{% if opt_section.beacon_id|default(false) %}
-									<button type="button" class="beacon-article shield-button-link"
-									   data-beacon_article_id="{{ opt_section.beacon_id }}"
-									   data-beacon_article_format="modal"
-									   aria-label="{{ strings.opt_info_helpdesk }}"
-									   title="{{ strings.opt_info_helpdesk }}">
-										<sup><i class="{{ imgs.svgs.help }}" aria-hidden="true"></i></sup>
-									</button>
+									{{ config_macros.icon_action(
+										imgs.svgs.help,
+										strings.opt_info_helpdesk,
+										'',
+										['beacon-article'],
+										{
+											'data-beacon_article_id': opt_section.beacon_id,
+											'data-beacon_article_format': 'modal'
+										}
+									) }}
 								{% elseif ( opt_section.summary is defined ) and opt_section.summary|length %}
-									<button type="button"
-											class="section_title_info shield-button-link"
-											data-bs-toggle="collapse"
-											data-bs-target="#collapse-{{ opt_section.slug }}"
-											aria-label="{{ strings.description }}"
-									><span class="dashicons dashicons-editor-help" aria-hidden="true"></span></button>
+									{{ config_macros.icon_action(
+										imgs.svgs.help,
+										strings.description,
+										'',
+										['section_title_info'],
+										{
+											'data-bs-toggle': 'collapse',
+											'data-bs-target': '#collapse-'~opt_section.slug,
+											'aria-controls': 'collapse-'~opt_section.slug,
+											'aria-expanded': 'false'
+										}
+									) }}
 								{% endif %}
 							</div>
 						</div>
