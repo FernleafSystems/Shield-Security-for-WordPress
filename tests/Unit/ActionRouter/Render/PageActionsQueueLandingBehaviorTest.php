@@ -184,10 +184,13 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			[ 'scans', 'maintenance' ],
 			\array_column( (array)( $allClear[ 'zone_chips' ] ?? [] ), 'slug' )
 		);
-		$this->assertSame(
-			$this->capture->scansResultsRenderData,
-			$vars[ 'scans_results' ] ?? []
-		);
+		$this->assertSame( 'Loading scan details...', $vars[ 'scans_results' ][ 'strings' ][ 'pane_loading' ] ?? '' );
+		$this->assertSame( 'No issues found in this section.', $vars[ 'scans_results' ][ 'strings' ][ 'no_issues' ] ?? '' );
+		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'rail_tabs' ] ?? [ 'unexpected' ] );
+		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'metrics_action' ] ?? [ 'unexpected' ] );
+		$this->assertSame( '', $vars[ 'scans_results' ][ 'content' ][ 'section' ][ 'wordpress' ] ?? 'unexpected' );
+		$this->assertSame( '', $vars[ 'scans_results' ][ 'content' ][ 'section' ][ 'filelocker' ] ?? 'unexpected' );
+		$this->assertSame( 'WordPress', $vars[ 'scans_results' ][ 'strings' ][ 'results_tab_wordpress' ] ?? '' );
 		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
@@ -227,7 +230,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$page = $this->newPage();
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
-		$this->assertSame( [], $vars[ 'scans_results' ] ?? [] );
+		$this->assertSame( 'Loading scan details...', $vars[ 'scans_results' ][ 'strings' ][ 'pane_loading' ] ?? '' );
+		$this->assertSame( 'No issues found in this section.', $vars[ 'scans_results' ][ 'strings' ][ 'no_issues' ] ?? '' );
+		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'metrics_action' ] ?? [ 'unexpected' ] );
+		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'rail_tabs' ] ?? [ 'unexpected' ] );
 		$this->assertSame( 0, $page->getScansResultsBuildCalls() );
 	}
 

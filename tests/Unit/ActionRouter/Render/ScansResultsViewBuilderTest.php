@@ -188,6 +188,25 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		}
 	}
 
+	public function test_rail_tabs_expose_complete_local_contract_fields() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => true,
+			'pluginsEnabled'   => true,
+		] );
+
+		$summaryTab = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' );
+		$pluginsTab = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'plugins' );
+
+		foreach ( [ 'items', 'is_loaded', 'is_disabled', 'disabled_message', 'disabled_status', 'render_action', 'show_count_placeholder' ] as $key ) {
+			$this->assertArrayHasKey( $key, $summaryTab, 'Summary tab should expose '.$key );
+			$this->assertArrayHasKey( $key, $pluginsTab, 'Plugins tab should expose '.$key );
+		}
+
+		$this->assertSame( [], $summaryTab[ 'render_action' ] );
+		$this->assertTrue( $summaryTab[ 'is_loaded' ] );
+		$this->assertFalse( $pluginsTab[ 'is_disabled' ] );
+	}
+
 	// ── Tab assembly: count derivation ──
 
 	public function test_rail_tab_count_excludes_good_status_items() :void {
@@ -265,6 +284,25 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertCount( 1, $allClearItems, 'Only good assessments should be in All clear section' );
 	}
 
+	public function test_detail_rows_expose_complete_local_contract_fields() :void {
+		$builder = $this->createBuilder( [
+			'summaryRows' => [
+				[ 'label' => 'WordPress Files', 'text' => 'Issues found', 'severity' => 'critical', 'count' => 3 ],
+			],
+		] );
+
+		$summaryTab = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' );
+		$row = $summaryTab[ 'items' ][ 0 ] ?? [];
+
+		foreach ( [ 'expand_target', 'expansion_table', 'section_label', 'actions', 'attributes' ] as $key ) {
+			$this->assertArrayHasKey( $key, $row, 'Detail rows should expose '.$key );
+		}
+
+		$this->assertSame( '', $row[ 'expand_target' ] );
+		$this->assertSame( [], $row[ 'expansion_table' ] );
+		$this->assertSame( 'Needs attention', $row[ 'section_label' ] );
+	}
+
 	public function test_summary_items_show_only_assessments_when_no_issues() :void {
 		$builder = $this->createBuilder( [
 			'summaryRows' => [],
@@ -279,9 +317,11 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$items = $summaryTab[ 'items' ] ?? [];
 
 		$this->assertCount( 2, $items );
-		// No section labels when all assessments (no mixed mode)
-		$withSectionLabel = \array_filter( $items, static fn( array $item ) => isset( $item[ 'section_label' ] ) );
-		$this->assertEmpty( $withSectionLabel, 'Assessment-only items should not have section labels' );
+		$this->assertSame(
+			[ '', '' ],
+			\array_column( $items, 'section_label' ),
+			'Assessment-only items should keep an empty normalized section_label'
+		);
 	}
 
 	// ── WordPress pane: good fallback ──
@@ -443,6 +483,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'example-plugin', $queuePane[ 'cards' ][ 0 ][ 'key' ] );
 		$this->assertSame( 'actions-queue-plugin-example-plugin', $queuePane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'meta_text' ] );
+		$this->assertTrue( $queuePane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( 3, $queuePane[ 'cards' ][ 0 ][ 'count_badge' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'plugin', $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_type' ] );
@@ -491,6 +532,8 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $pane[ 'cards' ][ 1 ][ 'status' ] );
 		$this->assertSame( 'actions-queue-filelocker-card-14', $pane[ 'cards' ][ 0 ][ 'panel_id' ] );
 		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
+		$this->assertSame( '/wp-config.php', $pane[ 'cards' ][ 0 ][ 'meta_text' ] );
+		$this->assertFalse( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( 'filelocker_showdiff', $pane[ 'cards' ][ 0 ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 14, $pane[ 'cards' ][ 0 ][ 'render_action' ][ 'rid' ] );
 	}
@@ -882,10 +925,13 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			'count_badge'  => $countBadge,
 			'badge_status' => $countBadge !== null ? $status : null,
 			'expandable'   => false,
+			'expand_target' => '',
+			'expansion_table' => [],
 			'explanations' => [],
 			'show_gear'    => false,
 			'actions'      => [],
 			'attributes'   => [],
+			'section_label' => '',
 		];
 	}
 
@@ -904,8 +950,10 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			'status'        => 'warning',
 			'icon_class'    => $assetType === 'plugin' ? 'bi bi-plug-fill' : 'bi bi-palette-fill',
 			'title'         => $title,
+			'rail_title'    => '',
 			'stat_text'     => $countBadge.' files need review',
 			'meta_text'     => $subjectId,
+			'show_meta_in_tile' => true,
 			'count_badge'   => $countBadge,
 			'actions'       => [
 				[

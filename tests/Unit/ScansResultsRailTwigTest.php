@@ -49,8 +49,71 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		return $nodes->item( 0 );
 	}
 
+	/**
+	 * @param list<array<string,mixed>> $tabs
+	 * @return list<array<string,mixed>>
+	 */
+	private function normalizeRailTabs( array $tabs ) :array {
+		return \array_map( fn( array $tab ) :array => $this->normalizeRailTab( $tab ), $tabs );
+	}
+
+	/**
+	 * @param array<string,mixed> $tab
+	 * @return array<string,mixed>
+	 */
+	private function normalizeRailTab( array $tab ) :array {
+		$items = \is_array( $tab[ 'items' ] ?? null ) ? \array_values( $tab[ 'items' ] ) : [];
+
+		return \array_merge( [
+			'pane_id'                => '',
+			'nav_id'                 => '',
+			'label'                  => '',
+			'count'                  => 0,
+			'is_active'              => false,
+			'target'                 => '',
+			'controls'               => '',
+			'icon_class'             => '',
+			'status'                 => 'good',
+			'items'                  => \array_map( fn( array $item ) :array => $this->normalizeDetailRow( $item ), $items ),
+			'is_loaded'              => true,
+			'is_disabled'            => false,
+			'disabled_message'       => '',
+			'disabled_status'        => 'neutral',
+			'render_action'          => [],
+			'show_count_placeholder' => false,
+		], $tab );
+	}
+
+	/**
+	 * @param array<string,mixed> $row
+	 * @return array<string,mixed>
+	 */
+	private function normalizeDetailRow( array $row ) :array {
+		return \array_merge( [
+			'title'           => '',
+			'description'     => '',
+			'status'          => 'good',
+			'status_icon'     => null,
+			'status_label'    => null,
+			'count_badge'     => null,
+			'badge_status'    => null,
+			'expandable'      => false,
+			'expand_target'   => '',
+			'expansion_table' => [],
+			'explanations'    => [],
+			'show_gear'       => false,
+			'actions'         => [],
+			'attributes'      => [],
+			'section_label'   => '',
+		], $row );
+	}
+
 	private function buildRenderContext() :array {
-		return [
+		$context = [
+			'strings' => [
+				'pane_loading' => 'Loading scan details...',
+				'no_issues'    => 'No issues found in this section.',
+			],
 			'vars'    => [
 				'rail'            => [
 					'id'            => 'ScanResultsRailSidebar',
@@ -319,10 +382,14 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 				],
 			],
 		];
+
+		$context[ 'vars' ][ 'rail_tabs' ] = $this->normalizeRailTabs( $context[ 'vars' ][ 'rail_tabs' ] );
+
+		return $context;
 	}
 
 	private function buildLazyPaneRenderContext() :array {
-		return [
+		$context = [
 			'vars'    => [
 				'rail'      => [
 					'id'            => 'ScanResultsRailSidebar',
@@ -389,21 +456,26 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			],
 			'content' => [],
 		];
+
+		$context[ 'vars' ][ 'rail_tabs' ] = $this->normalizeRailTabs( $context[ 'vars' ][ 'rail_tabs' ] );
+
+		return $context;
 	}
 
 	private function buildDisabledPaneRenderContext() :array {
 		return [
 			'strings' => [
 				'no_issues' => 'No issues found in this section.',
+				'pane_loading' => 'Loading scan details...',
 			],
-			'tab'     => [
+			'tab'     => $this->normalizeRailTab( [
 				'key'              => 'malware',
 				'pane_id'          => 'h-tabs-malware',
 				'is_loaded'        => true,
 				'is_disabled'      => true,
 				'disabled_message' => 'Malware Scanning is not enabled.',
 				'items'            => [],
-			],
+			] ),
 			'content' => [],
 		];
 	}
@@ -428,6 +500,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'title'        => 'Example Plugin',
 						'stat_text'    => '2 files need review',
 						'meta_text'    => 'example-plugin/example-plugin.php',
+						'show_meta_in_tile' => true,
 						'count_badge'  => 2,
 						'actions'      => [
 							[
@@ -483,6 +556,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'title'         => 'wp-config.php',
 						'stat_text'     => 'File integrity verified.',
 						'meta_text'     => '/wp-config.php',
+						'show_meta_in_tile' => false,
 						'count_badge'   => null,
 						'actions'       => [],
 						'table'         => [],
@@ -771,6 +845,11 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			'//*[@id="actions-queue-plugin-card-example-plugin" and @data-mode-panel="1" and @data-mode-panel-target="actions-queue-plugin-example-plugin"]//*[@data-investigation-table="1" and @data-subject-type="plugin" and @data-subject-id="example-plugin/example-plugin.php"]',
 			'Queue plugin cards should render the unchanged investigation table contract'
 		);
+		$this->assertXPathExists(
+			$pluginXpath,
+			'//*[@data-mode-tile="1" and @data-mode-panel-target="actions-queue-plugin-example-plugin"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-asset-card__meta ") and normalize-space()="example-plugin/example-plugin.php"]',
+			'Queue plugin cards should continue rendering top-tile meta text by default'
+		);
 
 		$fileLockerHtml = $this->twig()->render(
 			'/wpadmin_pages/insights/scans/results/actions_queue_asset_cards.twig',
@@ -787,6 +866,16 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			$fileLockerXpath,
 			'//*[@id="actions-queue-filelocker-card-14"]//*[@data-actions-queue-asset-panel-content="1"]',
 			'Queue File Locker cards should render a panel-scoped lazy content target'
+		);
+		$this->assertSame(
+			0,
+			$fileLockerXpath->query( '//*[@data-mode-tile="1" and @data-mode-panel-target="actions-queue-filelocker-14"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-asset-card__meta ")]' )->length,
+			'Queue File Locker cards should not render the full path on the top tile'
+		);
+		$this->assertXPathExists(
+			$fileLockerXpath,
+			'//*[@id="actions-queue-filelocker-card-14"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-asset-panel__meta ") and normalize-space()="/wp-config.php"]',
+			'Queue File Locker cards should keep the full path inside the panel summary'
 		);
 	}
 

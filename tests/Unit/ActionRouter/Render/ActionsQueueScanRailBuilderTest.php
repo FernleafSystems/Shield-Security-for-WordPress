@@ -116,6 +116,8 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$malwareTab = $this->findTabByKey( $railTabs, 'malware' );
 
 		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] ?? '' );
+		$this->assertSame( 'Loading scan details...', $renderData[ 'strings' ][ 'pane_loading' ] ?? '' );
+		$this->assertSame( 'No issues found in this section.', $renderData[ 'strings' ][ 'no_issues' ] ?? '' );
 		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' );
 		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' );
 		$this->assertTrue( (bool)( $summaryTab[ 'is_loaded' ] ?? false ) );
@@ -129,6 +131,10 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $pluginsTab[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertTrue( (bool)( $this->findTabByKey( $renderData[ 'vars' ][ 'rail' ][ 'items' ] ?? [], 'plugins' )[ 'show_count_placeholder' ] ?? false ) );
 		$this->assertFalse( (bool)( $pluginsTab[ 'is_loaded' ] ?? true ) );
+		$this->assertFalse( (bool)( $pluginsTab[ 'is_disabled' ] ?? true ) );
+		$this->assertSame( '', $pluginsTab[ 'disabled_message' ] ?? 'unexpected' );
+		$this->assertSame( 'neutral', $pluginsTab[ 'disabled_status' ] ?? '' );
+		$this->assertSame( [], $pluginsTab[ 'items' ] ?? [ 'unexpected' ] );
 		$this->assertSame( 'actions_queue', $pluginsTab[ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'scanresults_malware', $malwareTab[ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertArrayHasKey( 'count', $malwareTab );
@@ -198,6 +204,10 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'themes' ][ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'file_locker' ][ 'render_action' ][ 'display_context' ] ?? '' );
+		$this->assertTrue( (bool)( $tabsByKey[ 'plugins' ][ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'plugins disabled', $tabsByKey[ 'plugins' ][ 'disabled_message' ] ?? '' );
+		$this->assertSame( 'neutral', $tabsByKey[ 'plugins' ][ 'disabled_status' ] ?? '' );
+		$this->assertSame( [], $tabsByKey[ 'plugins' ][ 'items' ] ?? [ 'unexpected' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
 		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );

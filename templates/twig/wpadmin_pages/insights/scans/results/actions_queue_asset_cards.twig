@@ -35,7 +35,7 @@
 						{% endif %}
 					</span>
 					<span class="investigate-landing__subject-stat">{{ item.stat_text }}</span>
-					{% if item.meta_text is not empty %}
+					{% if item.meta_text is not empty and item.show_meta_in_tile %}
 						<span class="actions-queue-asset-card__meta">{{ item.meta_text }}</span>
 					{% endif %}
 				</button>

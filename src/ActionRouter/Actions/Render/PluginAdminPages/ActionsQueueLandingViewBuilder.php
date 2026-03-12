@@ -352,13 +352,16 @@ class ActionsQueueLandingViewBuilder {
 	 * }
 	 */
 	private function buildAllClearContract( array $needsAttentionPayload, array $zonesIndexed ) :array {
-		$strings = $needsAttentionPayload[ 'render_data' ][ 'strings' ] ?? [];
+		$strings = NeedsAttentionQueuePayload::strings(
+			$needsAttentionPayload,
+			$this->buildAllClearStringDefaults()
+		);
 		$chipIconClass = self::con()->svgs->iconClass( 'check-circle-fill' );
 
 		return [
-			'title'      => (string)( $strings[ 'all_clear_title' ] ?? __( 'All security zones are clear', 'wp-simple-firewall' ) ),
-			'subtitle'   => (string)( $strings[ 'all_clear_subtitle' ] ?? __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ) ),
-			'icon_class' => (string)( $strings[ 'all_clear_icon_class' ] ?? self::con()->svgs->iconClass( 'shield-check' ) ),
+			'title'      => $strings[ 'all_clear_title' ],
+			'subtitle'   => $strings[ 'all_clear_subtitle' ],
+			'icon_class' => $strings[ 'all_clear_icon_class' ],
 			'zone_chips' => \array_map(
 				static fn( array $zone ) :array => [
 					'slug'       => $zone[ 'slug' ],
@@ -368,6 +371,17 @@ class ActionsQueueLandingViewBuilder {
 				],
 				\array_values( $zonesIndexed )
 			),
+		];
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function buildAllClearStringDefaults() :array {
+		return [
+			'all_clear_title'      => __( 'All security zones are clear', 'wp-simple-firewall' ),
+			'all_clear_subtitle'   => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
+			'all_clear_icon_class' => self::con()->svgs->iconClass( 'shield-check' ),
 		];
 	}
 

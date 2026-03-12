@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueueDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
@@ -52,15 +53,16 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		$zones = $this->getZonesIndexed();
+		$needsAttentionStrings = $this->getNeedsAttentionStrings();
 		return [
 			'status_action_required'   => __( 'Action Required', 'wp-simple-firewall' ),
 			'status_all_clear'         => __( 'All Clear', 'wp-simple-firewall' ),
 			'severity_strip_label'     => __( 'Queue Status', 'wp-simple-firewall' ),
-			'all_clear_title'          => $this->getNeedsAttentionString( 'all_clear_title' ),
-			'all_clear_subtitle'       => $this->getNeedsAttentionString( 'all_clear_subtitle' ),
-			'all_clear_icon_class'     => $this->getNeedsAttentionString( 'all_clear_icon_class' ),
-			'zone_scans'               => (string)( $zones[ 'scans' ][ 'label' ] ?? __( 'Scans', 'wp-simple-firewall' ) ),
-			'zone_maintenance'         => (string)( $zones[ 'maintenance' ][ 'label' ] ?? __( 'Maintenance', 'wp-simple-firewall' ) ),
+			'all_clear_title'          => $needsAttentionStrings[ 'all_clear_title' ],
+			'all_clear_subtitle'       => $needsAttentionStrings[ 'all_clear_subtitle' ],
+			'all_clear_icon_class'     => $needsAttentionStrings[ 'all_clear_icon_class' ],
+			'zone_scans'               => $zones[ 'scans' ][ 'label' ],
+			'zone_maintenance'         => $zones[ 'maintenance' ][ 'label' ],
 			'pane_loading'             => __( 'Loading scan details...', 'wp-simple-firewall' ),
 			'pane_load_error'          => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
 		];
@@ -91,33 +93,21 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'severity_strip' => $viewData[ 'severity_strip' ],
 			'zone_tiles'     => $zoneTiles,
 			'all_clear'      => $viewData[ 'all_clear' ],
-			'scans_results'  => $this->getQueueSummary()[ 'has_items' ] ? $this->getScansResultsRenderData() : [],
+			'scans_results'  => $this->buildScansResultsContract(
+				$this->getQueueSummary()[ 'has_items' ] ? $this->getScansResultsRenderData() : []
+			),
 		];
 	}
 
 	/**
-	 * @return array{
-	 *   flags:array{has_items:bool},
-	 *   strings:array{
-	 *     all_clear_title:string,
-	 *     all_clear_subtitle:string,
-	 *     status_strip_subtext:string,
-	 *     all_clear_icon_class:string
-	 *   }
-	 * }
+	 * @return array<string,string>
 	 */
-	private function getNeedsAttentionRenderData() :array {
-		return $this->getNeedsAttentionPayload()[ 'render_data' ];
-	}
-
-	private function getNeedsAttentionString( string $key ) :string {
-		$strings = $this->getNeedsAttentionRenderData()[ 'strings' ] ?? [];
-		$defaults = [
+	private function getNeedsAttentionStrings() :array {
+		return NeedsAttentionQueuePayload::strings( $this->getNeedsAttentionPayload(), [
 			'all_clear_title'      => __( 'All security zones are clear', 'wp-simple-firewall' ),
 			'all_clear_subtitle'   => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
 			'all_clear_icon_class' => $this->buildLandingIconClass( 'shield-check' ),
-		];
-		return (string)( $strings[ $key ] ?? ( $defaults[ $key ] ?? '' ) );
+		] );
 	}
 
 	/**
@@ -233,6 +223,46 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			$this->scansResultsRenderDataCache = $this->buildScansResultsRenderData();
 		}
 		return $this->scansResultsRenderDataCache;
+	}
+
+	/**
+	 * @param array<string,mixed> $renderData
+	 * @return array{
+	 *   strings:array<string,string>,
+	 *   vars:array<string,mixed>,
+	 *   content:array<string,mixed>
+	 * }
+	 */
+	private function buildScansResultsContract( array $renderData ) :array {
+		$strings = \is_array( $renderData[ 'strings' ] ?? null ) ? $renderData[ 'strings' ] : [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$content = \is_array( $renderData[ 'content' ] ?? null ) ? $renderData[ 'content' ] : [];
+		$contentSection = \is_array( $content[ 'section' ] ?? null ) ? $content[ 'section' ] : [];
+
+		return [
+			'strings' => \array_merge( [
+				'pane_loading' => __( 'Loading scan details...', 'wp-simple-firewall' ),
+				'no_issues'    => __( 'No issues found in this section.', 'wp-simple-firewall' ),
+			], $strings ),
+			'vars'    => \array_merge( [
+				'rail'            => [],
+				'rail_tabs'       => [],
+				'metrics_action'  => [],
+				'preload_action'  => [],
+				'summary_rows'    => [],
+				'assessment_rows' => [],
+			], $vars ),
+			'content' => \array_merge( $content, [
+				'section' => \array_merge( [
+					'wordpress'       => '',
+					'plugins'         => '',
+					'themes'          => '',
+					'vulnerabilities' => '',
+					'malware'         => '',
+					'filelocker'      => '',
+				], $contentSection ),
+			] ),
+		];
 	}
 
 	protected function buildScansResultsRenderData() :array {

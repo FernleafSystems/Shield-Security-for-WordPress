@@ -53,6 +53,10 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		);
 
 		return [
+			'strings' => [
+				'pane_loading' => __( 'Loading scan details...', 'wp-simple-firewall' ),
+				'no_issues'    => __( 'No issues found in this section.', 'wp-simple-firewall' ),
+			],
 			'vars'    => [
 				'rail'            => $rail,
 				'rail_tabs'       => $railTabs,
@@ -114,6 +118,10 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			'icon_class' => $meta[ 'icon_class' ],
 			'items'      => [],
 			'is_loaded'  => false,
+			'is_disabled' => !$availability[ 'is_available' ],
+			'disabled_message' => $availability[ 'disabled_message' ],
+			'disabled_status' => $availability[ 'disabled_status' ],
+			'render_action' => [],
 			'show_count_placeholder' => true,
 		];
 

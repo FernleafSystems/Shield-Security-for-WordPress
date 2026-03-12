@@ -1,26 +1,25 @@
-{% set is_loaded = tab.is_loaded is defined ? tab.is_loaded : true %}
-{% set has_lazy_render_action = tab.render_action|default({}) is not empty %}
-{% set is_lazy_placeholder = has_lazy_render_action and not is_loaded %}
+{% set has_lazy_render_action = tab.render_action is not empty %}
+{% set is_lazy_placeholder = has_lazy_render_action and not tab.is_loaded %}
 
 {% if is_lazy_placeholder %}
 	<div class="text-muted small" data-actions-queue-pane-placeholder="1">
-		{{ strings.pane_loading|default('Loading scan details...') }}
+		{{ strings.pane_loading }}
 	</div>
-{% elseif tab.is_disabled|default(false) %}
+{% elseif tab.is_disabled %}
 	<div class="shield-scan-pane-disabled alert alert-warning mb-0" data-shield-scan-pane-disabled="1">
 		<i class="bi bi-slash-circle me-2"></i>
-		{{ tab.disabled_message|default(strings.disabled_message|default('This feature is not enabled.')) }}
+		{{ tab.disabled_message }}
 	</div>
-{% elseif tab.items|default([]) is empty %}
+{% elseif tab.items is empty %}
 	<div class="shield-scan-pane-empty py-4 text-center text-muted">
 		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
-		{{ strings.no_issues|default('No issues found in this section.') }}
+		{{ strings.no_issues }}
 	</div>
 {% else %}
 	{% set current_section = null %}
 	{% for item in tab.items %}
 
-		{% if item.section_label|default(null) is not null and item.section_label != current_section %}
+		{% if item.section_label is not empty and item.section_label != current_section %}
 			{% set current_section = item.section_label %}
 			<div class="shield-mode-strip__eyebrow mb-2{% if not loop.first %} mt-3{% endif %}">
 				{{ current_section }}
@@ -28,33 +27,19 @@
 		{% endif %}
 
 		<div class="shield-detail-item">
-			{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
-				title: item.title|default(''),
-				description: item.description|default(''),
-				status: item.status|default('good'),
-				status_icon: item.status_icon|default(null),
-				status_label: item.status_label|default(null),
-				count_badge: item.count_badge|default(null),
-				badge_status: item.badge_status|default(null),
-				expandable: item.expandable|default(false),
-				expand_target: item.expand_target|default(''),
-				explanations: item.explanations|default([]),
-				show_gear: item.show_gear|default(false),
-				actions: item.actions|default([]),
-				attributes: item.attributes|default({})
-			}} only %}
+			{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: item } only %}
 
-			{% if item.expandable|default(false) and item.expansion_table|default({}) is not empty %}
+			{% if item.expandable and item.expansion_table is not empty %}
 				{% set file_table_body %}
 					{% include '/wpadmin/components/investigate/table_container.twig' with {
 						table: item.expansion_table
 					} only %}
 				{% endset %}
 				{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
-					id: item.expand_target|default(''),
-					parent_id: tab.pane_id|default(''),
+					id: item.expand_target,
+					parent_id: tab.pane_id,
 					type: 'table',
-					status: item.status|default('warning'),
+					status: item.status,
 					body: file_table_body
 				}} only %}
 			{% endif %}

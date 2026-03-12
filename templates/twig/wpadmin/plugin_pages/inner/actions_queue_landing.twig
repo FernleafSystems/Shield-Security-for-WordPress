@@ -1,43 +1,42 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% set active_panel = vars.mode_panel.active_target|default('') %}
-	{% set strip = vars.severity_strip|default({}) %}
+	{% set strip = vars.severity_strip %}
 	<div class="actions-landing"
 		 data-actions-landing="1"
-		 data-actions-pane-loading="{{ strings.pane_loading|default('Loading scan details...')|e('html_attr') }}"
-		 data-actions-pane-error="{{ strings.pane_load_error|default('Unable to load these scan details. Please try again.')|e('html_attr') }}"
-		{% if vars.scans_results.vars.metrics_action|default({}) is not empty %}
+		 data-actions-pane-loading="{{ strings.pane_loading|e('html_attr') }}"
+		 data-actions-pane-error="{{ strings.pane_load_error|e('html_attr') }}"
+		{% if vars.scans_results.vars.metrics_action is not empty %}
 		 data-actions-queue-metrics-action="{{ vars.scans_results.vars.metrics_action|json_encode|e('html_attr') }}"
 		{% endif %}
-		{% if vars.scans_results.vars.preload_action|default({}) is not empty %}
+		{% if vars.scans_results.vars.preload_action is not empty %}
 		 data-actions-queue-preload-action="{{ vars.scans_results.vars.preload_action|json_encode|e('html_attr') }}"
 		{% endif %}>
 
-		<section class="actions-landing__severity-strip shield-mode-strip shield-card status-{{ strip.severity|default('good') }}"
+		<section class="actions-landing__severity-strip shield-mode-strip shield-card status-{{ strip.severity }}"
 				 data-actions-queue-section="severity-strip">
 			{% include '/wpadmin/components/page/mode_status_strip.twig' with {
 				strip: {
-					status: strip.severity|default('good'),
-					chip_label: strip.label|default(strings.status_all_clear),
-					icon_class: strip.icon_class|default(''),
-					eyebrow: strings.severity_strip_label|default(''),
-					summary: strip.summary_text|default(''),
-					subtext: strip.subtext|default('')
+					status: strip.severity,
+					chip_label: strip.label,
+					icon_class: strip.icon_class,
+					eyebrow: strings.severity_strip_label,
+					summary: strip.summary_text,
+					subtext: strip.subtext
 				}
 			} only %}
 		</section>
 
-		{% if flags.queue_is_empty|default(false) %}
+		{% if flags.queue_is_empty %}
 			<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
 				<div class="shield-needs-attention__all-clear-accent"></div>
 				<div class="shield-needs-attention__all-clear-shield">
-					<i class="{{ vars.all_clear.icon_class|default(strings.all_clear_icon_class) }}" aria-hidden="true"></i>
+					<i class="{{ vars.all_clear.icon_class }}" aria-hidden="true"></i>
 				</div>
-				<div class="shield-needs-attention__all-clear-title">{{ vars.all_clear.title|default(strings.all_clear_title) }}</div>
-				<div class="shield-needs-attention__all-clear-subtitle">{{ vars.all_clear.subtitle|default(strings.all_clear_subtitle) }}</div>
+				<div class="shield-needs-attention__all-clear-title">{{ vars.all_clear.title }}</div>
+				<div class="shield-needs-attention__all-clear-subtitle">{{ vars.all_clear.subtitle }}</div>
 				<div class="shield-needs-attention__chips">
-					{% for chip in vars.all_clear.zone_chips|default([]) %}
+					{% for chip in vars.all_clear.zone_chips %}
 						<span class="shield-needs-attention__chip is-{{ chip.severity }}">
 							<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
 						</span>
@@ -45,12 +44,11 @@
 				</div>
 			</div>
 		{% else %}
-			{% set scans_results = vars.scans_results|default({}) %}
 			<div class="mt-4">
 				{% include '/wpadmin_pages/insights/scans/results/scan_results_rail.twig' with {
-					strings: scans_results.strings|default({}),
-					vars: scans_results.vars|default({}),
-					content: scans_results.content|default({})
+					strings: vars.scans_results.strings,
+					vars: vars.scans_results.vars,
+					content: vars.scans_results.content
 				} only %}
 			</div>
 		{% endif %}

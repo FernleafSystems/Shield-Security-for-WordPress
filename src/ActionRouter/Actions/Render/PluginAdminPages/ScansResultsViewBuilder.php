@@ -47,6 +47,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   title:string,
  *   stat_text:string,
  *   meta_text:string,
+ *   show_meta_in_tile:bool,
  *   count_badge:int,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>,
@@ -62,6 +63,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   rail_title:string,
  *   stat_text:string,
  *   meta_text:string,
+ *   show_meta_in_tile:bool,
  *   count_badge:null,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>,
@@ -269,6 +271,11 @@ class ScansResultsViewBuilder {
 	 *   icon_class?:string,
 	 *   status?:string,
 	 *   items?:list<array<string,mixed>>,
+	 *   is_loaded?:bool,
+	 *   is_disabled?:bool,
+	 *   disabled_message?:string,
+	 *   disabled_status?:string,
+	 *   render_action?:array<string,mixed>,
 	 *   show_count_placeholder?:bool
 	 * }> $definitions
 	 * @return list<array<string,mixed>>
@@ -292,6 +299,12 @@ class ScansResultsViewBuilder {
 				'controls'  => $paneId,
 				'icon_class' => '',
 				'status'    => 'good',
+				'items'     => [],
+				'is_loaded' => true,
+				'is_disabled' => false,
+				'disabled_message' => '',
+				'disabled_status' => 'neutral',
+				'render_action' => [],
 				'show_count_placeholder' => false,
 			];
 			unset( $definition[ 'key' ], $definition[ 'label' ], $definition[ 'count' ], $definition[ 'is_shown' ] );
@@ -822,7 +835,7 @@ class ScansResultsViewBuilder {
 				$iconClass = 'bi bi-palette-fill';
 			}
 
-			$records[] = [
+			$records[] = $this->normalizeQueueAssetCard( [
 				'key'          => $slug,
 				'panel_id'     => 'actions-queue-'.$assetType.'-card-'.\sanitize_key( $slug ),
 				'panel_target' => 'actions-queue-'.$assetType.'-'.\sanitize_key( $slug ),
@@ -834,12 +847,13 @@ class ScansResultsViewBuilder {
 					_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
 					$fileCount
 				),
-				'meta_text'    => $subjectId,
-				'count_badge'  => $fileCount,
-				'actions'      => $this->buildAssetActions( $asset, $assetType ),
-				'table'        => $tableBuilder->build( $subjectType, $subjectId ),
+				'meta_text'         => $subjectId,
+				'show_meta_in_tile' => true,
+				'count_badge'       => $fileCount,
+				'actions'           => $this->buildAssetActions( $asset, $assetType ),
+				'table'             => $tableBuilder->build( $subjectType, $subjectId ),
 				'render_action' => [],
-			];
+			] );
 		}
 
 		\usort( $records, static function ( array $a, array $b ) :int {
@@ -1131,6 +1145,8 @@ class ScansResultsViewBuilder {
 			'is_disabled' => $isDisabled,
 			'disabled_message' => $disabledMessage,
 			'disabled_status'  => $disabledStatus,
+			'render_action'    => [],
+			'show_count_placeholder' => false,
 		];
 	}
 
@@ -1152,7 +1168,7 @@ class ScansResultsViewBuilder {
 		$path = (string)$lock->path;
 		$rid = (int)$lock->id;
 
-		return [
+		return $this->normalizeQueueAssetCard( [
 			'key'          => (string)$lock->id,
 			'panel_id'     => 'actions-queue-filelocker-card-'.$rid,
 			'panel_target' => 'actions-queue-filelocker-'.$rid,
@@ -1163,14 +1179,15 @@ class ScansResultsViewBuilder {
 			'stat_text'    => $status === 'good'
 				? __( 'File integrity verified.', 'wp-simple-firewall' )
 				: $this->describeFileLockerRecord( $lock ),
-			'meta_text'    => $path,
-			'count_badge'  => null,
-			'actions'      => [],
-			'table'        => [],
+			'meta_text'          => $path,
+			'show_meta_in_tile'  => false,
+			'count_badge'        => null,
+			'actions'            => [],
+			'table'              => [],
 			'render_action' => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
 				'rid' => $rid,
 			] ),
-		];
+		] );
 	}
 
 	private function extractSectionCount( array $payload ) :int {
@@ -1204,7 +1221,7 @@ class ScansResultsViewBuilder {
 		?string $statusLabel = null,
 		?string $sectionLabel = null
 	) :array {
-		$row = [
+		return [
 			'title'        => $title,
 			'description'  => $description,
 			'status'       => $status,
@@ -1213,15 +1230,38 @@ class ScansResultsViewBuilder {
 			'count_badge'  => $countBadge,
 			'badge_status' => $badgeStatus,
 			'expandable'   => false,
+			'expand_target' => '',
+			'expansion_table' => [],
 			'explanations' => [],
 			'show_gear'    => false,
 			'actions'      => $actions,
 			'attributes'   => [],
+			'section_label' => $sectionLabel ?? '',
 		];
-		if ( $sectionLabel !== null ) {
-			$row[ 'section_label' ] = $sectionLabel;
-		}
-		return $row;
+	}
+
+	/**
+	 * @param array<string,mixed> $card
+	 * @return QueueAssetCard|QueueFileLockerCard
+	 */
+	private function normalizeQueueAssetCard( array $card ) :array {
+		return \array_merge( [
+			'key'               => '',
+			'panel_id'          => '',
+			'panel_target'      => '',
+			'expand_target'     => '',
+			'status'            => 'good',
+			'icon_class'        => '',
+			'title'             => '',
+			'rail_title'        => '',
+			'stat_text'         => '',
+			'meta_text'         => '',
+			'show_meta_in_tile' => true,
+			'count_badge'       => null,
+			'actions'           => [],
+			'table'             => [],
+			'render_action'     => [],
+		], $card );
 	}
 
 	/**
