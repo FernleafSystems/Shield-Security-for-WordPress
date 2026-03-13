@@ -10,7 +10,7 @@ class ActionsQueueScanRailMetrics extends SecurityAdminBase {
 
 	protected function exec() {
 		$this->response()
-			 ->setPayload( ( new ActionsQueueScanRailMetricsBuilder() )->build() )
+			 ->setPayload( ( new ActionsQueueScanRailMetricsBuilder() )->build( self::con()->comps->site_query->attention() ) )
 			 ->setPayloadSuccess( true );
 	}
 }

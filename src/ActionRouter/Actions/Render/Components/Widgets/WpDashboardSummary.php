@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildOverview;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
@@ -67,7 +66,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	}
 
 	private function buildFreshVars() :array {
-		$overview = ( new BuildOverview() )->build();
+		$overview = self::con()->comps->site_query->overview();
 		$configProgress = $overview[ 'posture' ];
 		$configTraffic = BuildZonePosture::trafficFromPercentage( $configProgress[ 'percentage' ] );
 		$actionSummary = $overview[ 'attention_summary' ];

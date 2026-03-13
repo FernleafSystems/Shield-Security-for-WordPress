@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildScanRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 abstract class ScanBase extends Base {
@@ -10,7 +9,7 @@ abstract class ScanBase extends Base {
 	use PluginControllerConsumer;
 
 	protected function getScansStatus() :array {
-		$runtime = ( new BuildScanRuntime() )->build();
+		$runtime = self::con()->comps->site_query->scanRuntime();
 		return [
 			'enqueued_count'  => $runtime[ 'enqueued_count' ],
 			'enqueued_status' => $runtime[ 'running_states' ],

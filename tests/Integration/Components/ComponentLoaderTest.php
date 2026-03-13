@@ -68,4 +68,14 @@ class ComponentLoaderTest extends ShieldIntegrationTestCase {
 			$events
 		);
 	}
+
+	public function test_site_query_component_is_correct_type() {
+		$con = $this->requireController();
+		$siteQuery = $con->comps->site_query;
+
+		$this->assertInstanceOf(
+			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQueryCon::class,
+			$siteQuery
+		);
+	}
 }

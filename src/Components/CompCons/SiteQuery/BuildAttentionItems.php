@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
 	ActionsQueueScanStateBuilder,

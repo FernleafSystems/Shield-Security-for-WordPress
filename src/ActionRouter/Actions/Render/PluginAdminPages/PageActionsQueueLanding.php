@@ -3,10 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\{
-	BuildAttentionItems,
-	BuildOverview
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -345,11 +342,11 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 * @return AttentionQuery
 	 */
 	protected function buildAttentionQuery() :array {
-		return ( new BuildAttentionItems() )->build();
+		return self::con()->comps->site_query->attention();
 	}
 
 	protected function buildSummarySubtext() :string {
-		$latestScanAt = (int)\max( ( new BuildOverview() )->build()[ 'scans' ][ 'latest_completed_at' ] );
+		$latestScanAt = (int)\max( self::con()->comps->site_query->overview()[ 'scans' ][ 'latest_completed_at' ] );
 
 		return $latestScanAt > 0
 			? sprintf(

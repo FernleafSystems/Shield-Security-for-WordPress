@@ -3,22 +3,23 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueScanStateBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
+/**
+ * @phpstan-import-type AttentionQuery from BuildAttentionItems
+ */
 class ActionsQueueScanRailMetricsBuilder {
 
 	/**
+	 * @param AttentionQuery $attentionQuery
 	 * @return array{
 	 *   tabs:array<string,array{count:int,status:string}>,
 	 *   rail_accent_status:string
 	 * }
 	 */
-	public function build( array $attentionQuery = [] ) :array {
+	public function build( array $attentionQuery ) :array {
 		$state = ( new ActionsQueueScanStateBuilder() )->build();
-		$attentionQuery = !empty( $attentionQuery )
-			? $attentionQuery
-			: ( new BuildAttentionItems() )->build();
 		$maintenanceMetrics = $this->buildMaintenanceMetrics( $attentionQuery );
 		$tabs = $state[ 'tabs' ];
 		$tabs[ 'maintenance' ] = $maintenanceMetrics;

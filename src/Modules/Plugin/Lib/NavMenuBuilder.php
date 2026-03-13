@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	LoginHide,
@@ -347,7 +346,7 @@ class NavMenuBuilder {
 	 * @return array{has_items:bool,total_items:int,severity:string}
 	 */
 	protected function buildActionsQueueSummaryContract() :array {
-		$summary = ( new BuildAttentionItems() )->build()[ 'summary' ];
+		$summary = self::con()->comps->site_query->attention()[ 'summary' ];
 		return [
 			'has_items'   => !$summary[ 'is_all_clear' ],
 			'total_items' => $summary[ 'total' ],

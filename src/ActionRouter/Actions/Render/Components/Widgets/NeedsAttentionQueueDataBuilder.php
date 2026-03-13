@@ -4,10 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\{
-	BuildAttentionItems,
-	BuildOverview
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -101,8 +97,8 @@ class NeedsAttentionQueueDataBuilder {
 	 * }
 	 */
 	private function buildBaseData() :array {
-		$attention = ( new BuildAttentionItems() )->build();
-		$overview = ( new BuildOverview() )->build();
+		$attention = self::con()->comps->site_query->attention();
+		$overview = self::con()->comps->site_query->overview();
 		$latestScanAt = (int)\max( $overview[ 'scans' ][ 'latest_completed_at' ] );
 		$lastScanSubtext = $latestScanAt > 0
 			? sprintf(

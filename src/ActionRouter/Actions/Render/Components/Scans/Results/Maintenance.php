@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueScanRailBuilder,
 	ActionsQueueScanRailMetricsBuilder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Maintenance extends Base {
@@ -17,7 +16,7 @@ class Maintenance extends Base {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig';
 
 	protected function getRenderData() :array {
-		$attentionQuery = ( new BuildAttentionItems() )->build();
+		$attentionQuery = self::con()->comps->site_query->attention();
 		$assessmentBuilder = new ActionsQueueLandingAssessmentBuilder();
 		$landingViewData = ( new ActionsQueueLandingViewBuilder() )->build(
 			$attentionQuery,

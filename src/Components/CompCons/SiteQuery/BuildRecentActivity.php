@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Record as EventRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -38,9 +38,9 @@ class BuildRecentActivity {
 		foreach ( \array_keys( $recentEvents ) as $eventKey ) {
 			$record = $latestRecords[ $eventKey ] ?? null;
 			$items[] = [
-				'key'       => $eventKey,
-				'label'     => $eventsService->getEventName( $eventKey ),
-				'latest_at' => $record instanceof EventRecord ? (int)$record->created_at : 0,
+				'key'        => $eventKey,
+				'label'      => $eventsService->getEventName( $eventKey ),
+				'latest_at'  => $record instanceof EventRecord ? (int)$record->created_at : 0,
 				'has_record' => $record instanceof EventRecord,
 			];
 		}

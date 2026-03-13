@@ -73,6 +73,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property CompCons\RestHandler                   $rest
  * @property SecurityAdminController                $sec_admin
  * @property SessionController                      $session
+ * @property CompCons\SiteQueryCon                  $site_query
  * @property Scan\ScansController                   $scans
  * @property Scan\Queue\Controller                  $scans_queue
  * @property TranslationDownloadController          $translation_downloads
@@ -137,6 +138,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'rest'                  => CompCons\RestHandler::class,
 			'sec_admin'             => SecurityAdminController::class,
 			'session'               => SessionController::class,
+			'site_query'            => CompCons\SiteQueryCon::class,
 			'shieldnet'             => ShieldNetApiController::class,
 			'scans'                 => Scan\ScansController::class,
 			'translation_downloads' => TranslationDownloadController::class,

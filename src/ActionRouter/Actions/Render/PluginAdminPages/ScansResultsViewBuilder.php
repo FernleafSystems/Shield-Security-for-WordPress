@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 	RetrieveBase,
 	RetrieveItems
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -1385,6 +1385,6 @@ class ScansResultsViewBuilder {
 	 * @return AttentionQuery
 	 */
 	protected function buildAttentionQuery() :array {
-		return ( new BuildAttentionItems() )->build();
+		return self::con()->comps->site_query->attention();
 	}
 }

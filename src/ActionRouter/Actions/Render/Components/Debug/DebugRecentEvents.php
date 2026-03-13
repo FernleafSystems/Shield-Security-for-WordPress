@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildRecentActivity;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DebugRecentEvents extends Actions\Render\BaseRender {
@@ -27,7 +26,7 @@ class DebugRecentEvents extends Actions\Render\BaseRender {
 
 	private function getData() :array {
 		$recent = [];
-		foreach ( ( new BuildRecentActivity() )->build()[ 'items' ] as $item ) {
+		foreach ( self::con()->comps->site_query->recentActivity()[ 'items' ] as $item ) {
 			$recent[ $item[ 'key' ] ] = [
 				'name' => $item[ 'label' ],
 				'val'  => $item[ 'has_record' ]
