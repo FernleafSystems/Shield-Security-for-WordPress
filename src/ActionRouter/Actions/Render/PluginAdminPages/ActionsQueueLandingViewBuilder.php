@@ -38,8 +38,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   critical_count:int,
  *   warning_count:int,
  *   summary_text:string,
- *   items:list<QueueItem>,
- *   assessment_rows:list<AssessmentRow>
+ *   items:list<array<string,mixed>>,
+ *   assessment_rows:list<AssessmentRow>,
+ *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
  * }
  */
 class ActionsQueueLandingViewBuilder {
@@ -154,14 +155,17 @@ class ActionsQueueLandingViewBuilder {
 	private function buildZoneTiles( array $zonesIndexed, array $assessmentRowsByZone ) :array {
 		return \array_map(
 			function ( array $zone ) use ( $assessmentRowsByZone ) :array {
-				$countBySeverity = NeedsAttentionQueuePayload::countsFromItems( $zone[ 'items' ] );
+				$items = $zone[ 'slug' ] === 'maintenance'
+					? ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll( $zone[ 'items' ] )
+					: $zone[ 'items' ];
+				$countBySeverity = NeedsAttentionQueuePayload::countsFromItems( $items );
 				$totalIssues = $zone[ 'total_issues' ];
 				$assessmentRows = $assessmentRowsByZone[ $zone[ 'slug' ] ];
 				$hasIssues = $totalIssues > 0;
 				$hasAssessments = !empty( $assessmentRows );
 				$hasPanelContent = $hasIssues || $hasAssessments;
 
-				return [
+				$tile = [
 					'key'              => $zone[ 'slug' ],
 					'panel_target'     => $zone[ 'slug' ],
 					'is_enabled'       => $hasPanelContent,
@@ -177,9 +181,16 @@ class ActionsQueueLandingViewBuilder {
 					'critical_count'   => $countBySeverity[ 'critical' ],
 					'warning_count'    => $countBySeverity[ 'warning' ],
 					'summary_text'     => $this->buildZoneSummaryText( $totalIssues, $countBySeverity ),
-					'items'            => $zone[ 'items' ],
+					'items'            => $items,
 					'assessment_rows'  => $assessmentRows,
 				];
+
+				if ( $zone[ 'slug' ] === 'maintenance' ) {
+					$tile[ 'maintenance_detail_groups' ] = ( new StatusDetailGroupsBuilder() )
+						->buildForMaintenance( $items, $assessmentRows );
+				}
+
+				return $tile;
 			},
 			\array_values( $zonesIndexed )
 		);

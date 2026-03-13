@@ -15,12 +15,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Vulnerabilities,
 	Wordpress
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
- * @phpstan-import-type QueueItem from NeedsAttentionQueuePayload
- * @phpstan-import-type ZoneGroup from NeedsAttentionQueuePayload
  * @phpstan-type MaintenanceItemCta array{
  *   href:string,
  *   label:string,
@@ -28,11 +25,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * }
  * @phpstan-type MaintenanceExpansion array{
  *   id:string,
- *   type:'simple_table',
+ *   type:string,
  *   status:string,
  *   table:array<string,mixed>
  * }
- * @phpstan-type MaintenanceQueueItem QueueItem&array{
+ * @phpstan-type MaintenanceQueueItem array{
+ *   key:string,
+ *   zone:string,
+ *   label:string,
+ *   count:int,
+ *   severity:string,
+ *   description:string,
+ *   href:string,
+ *   action:string,
+ *   target:string,
  *   cta:array{}|MaintenanceItemCta,
  *   expansion:array{}|MaintenanceExpansion
  * }
@@ -63,27 +69,24 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 	/**
 	 * @param array{
-	 *   scans:list<AssessmentRow>,
-	 *   maintenance:list<AssessmentRow>
-	 * } $assessmentRowsByZone
+	 *   zone_tiles:list<array<string,mixed>>
+	 * } $landingViewData
+	 * @param RailMetrics $initialMetrics
 	 * @return array<string,mixed>
 	 */
-	public function buildFromLandingData( array $needsAttentionPayload, array $assessmentRowsByZone = [
-		'scans' => [],
-		'maintenance' => [],
-	] ) :array {
-		$scansZoneGroup = NeedsAttentionQueuePayload::zoneGroup( $needsAttentionPayload, 'scans' );
-		$maintenanceZoneGroup = NeedsAttentionQueuePayload::zoneGroup( $needsAttentionPayload, 'maintenance' );
-		$scansAssessmentRows = $assessmentRowsByZone[ 'scans' ];
-		$maintenanceAssessmentRows = $assessmentRowsByZone[ 'maintenance' ];
-		$maintenanceItems = ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll( $maintenanceZoneGroup[ 'items' ] );
-		$metrics = $this->buildInitialRailMetrics( $needsAttentionPayload );
-		$maintenanceMetrics = $metrics[ 'tabs' ][ 'maintenance' ];
-		$summaryRows = $this->buildSummaryRowsFromZoneGroup( $scansZoneGroup );
+	public function buildFromLandingViewData( array $landingViewData, array $initialMetrics ) :array {
+		$zoneTiles = $this->indexZoneTilesByKey( $landingViewData[ 'zone_tiles' ] );
+		$scansTile = $zoneTiles[ 'scans' ];
+		$maintenanceTile = $zoneTiles[ 'maintenance' ];
+		$scansAssessmentRows = $scansTile[ 'assessment_rows' ];
+		$maintenanceAssessmentRows = $maintenanceTile[ 'assessment_rows' ];
+		$maintenanceItems = $maintenanceTile[ 'items' ];
+		$maintenanceMetrics = $initialMetrics[ 'tabs' ][ 'maintenance' ];
+		$summaryRows = $this->buildSummaryRowsFromZoneTile( $scansTile );
 		if ( $maintenanceMetrics[ 'count' ] > 0 ) {
 			$summaryRows[] = $this->buildMaintenanceSummaryRow( $maintenanceMetrics );
 		}
-		$summaryMetrics = $metrics[ 'tabs' ][ 'summary' ];
+		$summaryMetrics = $initialMetrics[ 'tabs' ][ 'summary' ];
 		$lazyDefinitions = $this->buildLazyTabDefinitions();
 		$maintenanceDefinition = $this->buildMaintenanceTabDefinition(
 			$maintenanceItems,
@@ -117,7 +120,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		) );
 
 		$rail = $this->buildRailContract( $railTabs );
-		$rail[ 'accent_status' ] = $metrics[ 'rail_accent_status' ];
+		$rail[ 'accent_status' ] = $initialMetrics[ 'rail_accent_status' ];
 
 		return [
 			'strings' => [
@@ -153,14 +156,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return RailMetrics
-	 */
-	protected function buildInitialRailMetrics( array $needsAttentionPayload = [] ) :array {
-		return ( new ActionsQueueScanRailMetricsBuilder() )->build( $needsAttentionPayload );
-	}
-
-	/**
-	 * @param list<QueueItem> $maintenanceItems
+	 * @param list<MaintenanceQueueItem> $maintenanceItems
 	 * @param list<AssessmentRow> $maintenanceAssessmentRows
 	 * @param array{count:int,status:string} $maintenanceMetrics
 	 * @return array<string,mixed>
@@ -257,10 +253,10 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @param ZoneGroup $scansZoneGroup
+	 * @param array{items:list<array<string,mixed>>} $scansTile
 	 * @return list<SummaryRow>
 	 */
-	private function buildSummaryRowsFromZoneGroup( array $scansZoneGroup ) :array {
+	private function buildSummaryRowsFromZoneTile( array $scansTile ) :array {
 		return \array_values( \array_map( static function ( array $item ) :array {
 			return [
 				'key'      => $item[ 'key' ],
@@ -271,7 +267,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				'action'   => $item[ 'action' ],
 				'href'     => $item[ 'href' ],
 			];
-		}, $scansZoneGroup[ 'items' ] ) );
+		}, $scansTile[ 'items' ] ) );
 	}
 
 	/**
@@ -316,7 +312,12 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				$status,
 				$item[ 'count' ],
 				$status === 'neutral' ? 'info' : $status,
-				$this->buildMaintenanceRailActions( $item[ 'cta' ] ),
+				$this->buildActionsForHref(
+					$item[ 'cta' ][ 'label' ],
+					$item[ 'cta' ][ 'href' ],
+					'navigate',
+					$item[ 'cta' ][ 'target' ] ?? ''
+				),
 				null,
 				null,
 				__( 'Needs attention', 'wp-simple-firewall' )
@@ -347,30 +348,6 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 		return $items;
 	}
-	/**
-	 * @param array<string,mixed> $action
-	 * @return list<array<string,mixed>>
-	 */
-	private function buildMaintenanceRailActions( array $action ) :array {
-		if ( $action === [] ) {
-			return [];
-		}
-
-		$attributes = [];
-		if ( isset( $action[ 'target' ] ) && $action[ 'target' ] !== '' ) {
-			$attributes[ 'target' ] = $action[ 'target' ];
-		}
-
-		return [
-			[
-				'type'       => 'navigate',
-				'label'      => $action[ 'label' ],
-				'href'       => $action[ 'href' ],
-				'icon'       => 'bi bi-arrow-right-circle-fill',
-				'attributes' => $attributes,
-			],
-		];
-	}
 
 	/**
 	 * @param array{count:int,status:string} $maintenanceMetrics
@@ -392,5 +369,17 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		}
 
 		return parent::getRailTabMeta( $key );
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $zoneTiles
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function indexZoneTilesByKey( array $zoneTiles ) :array {
+		$indexed = [];
+		foreach ( $zoneTiles as $tile ) {
+			$indexed[ $tile[ 'key' ] ] = $tile;
+		}
+		return $indexed;
 	}
 }

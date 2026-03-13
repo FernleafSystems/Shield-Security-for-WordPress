@@ -28,7 +28,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * }
  * @phpstan-type MaintenanceItemExpansion array{
  *   id:string,
- *   type:'simple_table',
+ *   type:string,
  *   status:string,
  *   table:MaintenanceExpansionTable
  * }
@@ -154,14 +154,14 @@ class MaintenanceQueueItemDisplayNormalizer {
 			}
 
 			$rows[] = $this->buildExpansionRow(
-				$plugin->Title !== '' ? $plugin->Title : ( $plugin->Name !== '' ? $plugin->Name : $plugin->file ),
+				$this->pluginTitle( $plugin ),
 				__( 'Plugin update available', 'wp-simple-firewall' ),
 				$this->buildUpdateContext( $plugin->Version, $this->extractUpdateVersion( $updates[ $file ] ) ),
 				$plugin->file,
-				[
-					'href'  => $plugins->getUrl_Upgrade( $plugin->file ),
-					'label' => __( 'Update', 'wp-simple-firewall' ),
-				]
+				$this->buildRowAction(
+					$plugins->getUrl_Upgrade( $plugin->file ),
+					__( 'Update', 'wp-simple-firewall' )
+				)
 			);
 		}
 
@@ -188,14 +188,11 @@ class MaintenanceQueueItemDisplayNormalizer {
 			}
 
 			$rows[] = $this->buildExpansionRow(
-				$theme->Name !== '' ? $theme->Name : $theme->stylesheet,
+				$this->themeTitle( $theme ),
 				__( 'Theme update available', 'wp-simple-firewall' ),
 				$this->buildUpdateContext( $theme->Version, $this->extractUpdateVersion( $updates[ $stylesheet ] ) ),
 				$theme->stylesheet,
-				[
-					'href'  => $updatesHref,
-					'label' => __( 'Open updates', 'wp-simple-firewall' ),
-				]
+				$this->buildRowAction( $updatesHref, __( 'Open updates', 'wp-simple-firewall' ) )
 			);
 		}
 
@@ -221,14 +218,14 @@ class MaintenanceQueueItemDisplayNormalizer {
 			}
 
 			$rows[] = $this->buildExpansionRow(
-				$plugin->Title !== '' ? $plugin->Title : ( $plugin->Name !== '' ? $plugin->Name : $plugin->file ),
+				$this->pluginTitle( $plugin ),
 				__( 'Plugin is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $plugin->Version ),
 				$plugin->file,
-				[
-					'href'  => $plugins->getUrl_Activate( $plugin->file ),
-					'label' => __( 'Activate', 'wp-simple-firewall' ),
-				]
+				$this->buildRowAction(
+					$plugins->getUrl_Activate( $plugin->file ),
+					__( 'Activate', 'wp-simple-firewall' )
+				)
 			);
 		}
 
@@ -255,14 +252,11 @@ class MaintenanceQueueItemDisplayNormalizer {
 			}
 
 			$rows[] = $this->buildExpansionRow(
-				$theme->Name !== '' ? $theme->Name : $theme->stylesheet,
+				$this->themeTitle( $theme ),
 				__( 'Theme is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $theme->Version ),
 				$theme->stylesheet,
-				[
-					'href'  => $themesHref,
-					'label' => __( 'Open themes', 'wp-simple-firewall' ),
-				]
+				$this->buildRowAction( $themesHref, __( 'Open themes', 'wp-simple-firewall' ) )
 			);
 		}
 
@@ -277,7 +271,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	private function buildSimpleTableExpansion( array $item, array $rows ) :array {
 		return [
 			'id'     => 'maintenance-expand-'.sanitize_key( $item[ 'key' ] ),
-			'type'   => 'simple_table',
+			'type'   => DetailExpansionType::SIMPLE_TABLE,
 			'status' => $item[ 'severity' ],
 			'table'  => [
 				'columns'    => [
@@ -317,6 +311,28 @@ class MaintenanceQueueItemDisplayNormalizer {
 	private function sortExpansionRows( array $rows ) :array {
 		\uasort( $rows, static fn( array $a, array $b ) :int => \strnatcasecmp( $a[ 'title' ], $b[ 'title' ] ) );
 		return \array_values( $rows );
+	}
+
+	private function pluginTitle( WpPluginVo $plugin ) :string {
+		return $plugin->Title !== ''
+			? $plugin->Title
+			: ( $plugin->Name !== '' ? $plugin->Name : $plugin->file );
+	}
+
+	private function themeTitle( WpThemeVo $theme ) :string {
+		return $theme->Name !== ''
+			? $theme->Name
+			: $theme->stylesheet;
+	}
+
+	/**
+	 * @return MaintenanceItemCta
+	 */
+	private function buildRowAction( string $href, string $label ) :array {
+		return [
+			'href'  => $href,
+			'label' => $label,
+		];
 	}
 
 	private function buildUpdateContext( string $currentVersion, string $availableVersion ) :string {

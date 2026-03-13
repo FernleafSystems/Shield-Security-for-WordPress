@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxBatchRequests;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	ActionsQueueScanRailMetrics,
+	AjaxBatchRequests
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanRailBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
@@ -87,41 +89,30 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_starts_non_summary_tabs_lazy_without_eager_counts() :void {
-		$builder = new ActionsQueueScanRailBuilderTestDouble(
-			true,
-			true,
-			true,
-			true,
-			true
+		$builder = new ActionsQueueScanRailBuilderTestDouble( true, true, true, true, true );
+
+		$renderData = $builder->buildFromLandingViewData(
+			$this->buildLandingViewData(
+				$this->buildZoneTile( 'scans', 'Scans', 'critical', 3, [
+					$this->buildSummaryItem( 'wp_files', 'WordPress Files', 2, 'critical', '2 files need review.', '/wp-files', 'Open' ),
+					$this->buildSummaryItem( 'vulnerable_assets', 'Vulnerabilities', 1, 'warning', '1 asset needs review.', '/vulns', 'Open' ),
+				], [
+					$this->buildAssessmentRow( 'plugin_files', 'Plugin Files', 'All clear' ),
+				] ),
+				$this->buildZoneTile( 'maintenance', 'Maintenance', 'warning', 2, [
+					$this->buildMaintenanceIssueItem( 'wp_updates', 'WordPress Version', 2, 'warning', '2 updates need review.', [
+						'label' => 'Open',
+						'href'  => '/wp-updates',
+						'target' => '_blank',
+					] ),
+				], [
+					$this->buildAssessmentRow( 'system_php_version', 'PHP Version', 'PHP version is supported.' ),
+				] )
+			),
+			$this->buildInitialMetrics( 5, 'critical', 2, 'warning', 'critical' )
 		);
 
-		$renderData = $builder->buildFromLandingData(
-			$this->buildNeedsAttentionPayload(),
-			[
-				'scans'       => [
-					[
-						'key'               => 'plugin_files',
-						'label'             => 'Plugin Files',
-						'description'       => 'All clear',
-						'status'            => 'good',
-						'status_label'      => 'Good',
-						'status_icon_class' => 'bi bi-check-circle-fill',
-					],
-				],
-				'maintenance' => [
-					[
-						'key'               => 'system_php_version',
-						'label'             => 'PHP Version',
-						'description'       => 'PHP version is supported.',
-						'status'            => 'good',
-						'status_label'      => 'Good',
-						'status_icon_class' => 'bi bi-check-circle-fill',
-					],
-				],
-			]
-		);
-
-		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ];
 		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
 		$wordpressTab = $this->findTabByKey( $railTabs, 'wordpress' );
 		$maintenanceTab = $this->findTabByKey( $railTabs, 'maintenance' );
@@ -129,50 +120,49 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$vulnerabilitiesTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
 		$malwareTab = $this->findTabByKey( $railTabs, 'malware' );
 
-		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] ?? '' );
-		$this->assertSame( 'Loading scan details...', $renderData[ 'strings' ][ 'pane_loading' ] ?? '' );
-		$this->assertSame( 'No issues found in this section.', $renderData[ 'strings' ][ 'no_issues' ] ?? '' );
-		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' );
-		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' );
+		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] );
+		$this->assertSame( 'Loading scan details...', $renderData[ 'strings' ][ 'pane_loading' ] );
+		$this->assertSame( 'No issues found in this section.', $renderData[ 'strings' ][ 'no_issues' ] );
+		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] );
+		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] );
 		$this->assertSame(
 			[ 'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $railTabs, 'key' )
 		);
-		$this->assertTrue( (bool)( $summaryTab[ 'is_loaded' ] ?? false ) );
-		$this->assertSame( 5, $summaryTab[ 'count' ] ?? -1 );
-		$this->assertNotEmpty( $summaryTab[ 'items' ] ?? [] );
-		$this->assertContains( 'wordpress', $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ?? [] ) );
+		$this->assertTrue( (bool)$summaryTab[ 'is_loaded' ] );
+		$this->assertSame( 5, $summaryTab[ 'count' ] );
+		$this->assertContains( 'wordpress', $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ) );
 		$this->assertSame( 1, \count( \array_filter(
-			$summaryTab[ 'items' ] ?? [],
+			$summaryTab[ 'items' ],
 			static fn( array $item ) :bool => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ) === 'maintenance'
 		) ) );
-		$this->assertContains( 'Plugin Files', $this->extractItemTitlesBySection( $summaryTab[ 'items' ] ?? [], 'All clear' ) );
-		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
-		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
-		$this->assertTrue( (bool)( $maintenanceTab[ 'is_loaded' ] ?? false ) );
-		$this->assertSame( 2, $maintenanceTab[ 'count' ] ?? -1 );
-		$this->assertSame( 'warning', $maintenanceTab[ 'status' ] ?? '' );
-		$this->assertSame( 'Maintenance', $maintenanceTab[ 'label' ] ?? '' );
-		$this->assertContains( 'WordPress Version', \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) );
-		$this->assertContains( 'PHP Version', \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) );
-		$this->assertSame( 'actions_queue', $wordpressTab[ 'render_action' ][ 'display_context' ] ?? '' );
-		$this->assertSame( 'neutral', $pluginsTab[ 'status' ] ?? '' );
-		$this->assertArrayHasKey( 'count', $pluginsTab );
+		$this->assertContains( 'Plugin Files', $this->extractItemTitlesBySection( $summaryTab[ 'items' ], 'All clear' ) );
+		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
+		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
+		$this->assertTrue( (bool)$maintenanceTab[ 'is_loaded' ] );
+		$this->assertSame( 2, $maintenanceTab[ 'count' ] );
+		$this->assertSame( 'warning', $maintenanceTab[ 'status' ] );
+		$this->assertSame( 'Maintenance', $maintenanceTab[ 'label' ] );
+		$this->assertContains( 'WordPress Version', \array_column( $maintenanceTab[ 'items' ], 'title' ) );
+		$this->assertContains( 'PHP Version', \array_column( $maintenanceTab[ 'items' ], 'title' ) );
+		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( '_blank', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'attributes' ][ 'target' ] );
+		$this->assertSame( 'actions_queue', $wordpressTab[ 'render_action' ][ 'display_context' ] );
+		$this->assertSame( 'neutral', $pluginsTab[ 'status' ] );
 		$this->assertNull( $pluginsTab[ 'count' ] );
-		$this->assertTrue( (bool)( $pluginsTab[ 'show_count_placeholder' ] ?? false ) );
-		$this->assertTrue( (bool)( $this->findTabByKey( $renderData[ 'vars' ][ 'rail' ][ 'items' ] ?? [], 'plugins' )[ 'show_count_placeholder' ] ?? false ) );
-		$this->assertFalse( (bool)( $pluginsTab[ 'is_loaded' ] ?? true ) );
-		$this->assertFalse( (bool)( $pluginsTab[ 'is_disabled' ] ?? true ) );
-		$this->assertSame( '', $pluginsTab[ 'disabled_message' ] ?? 'unexpected' );
-		$this->assertSame( 'neutral', $pluginsTab[ 'disabled_status' ] ?? '' );
-		$this->assertSame( [], $pluginsTab[ 'items' ] ?? [ 'unexpected' ] );
-		$this->assertSame( 'actions_queue', $pluginsTab[ 'render_action' ][ 'display_context' ] ?? '' );
-		$this->assertSame( 'scanresults_malware', $malwareTab[ 'render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertArrayHasKey( 'count', $malwareTab );
+		$this->assertTrue( (bool)$pluginsTab[ 'show_count_placeholder' ] );
+		$this->assertTrue( (bool)$this->findTabByKey( $renderData[ 'vars' ][ 'rail' ][ 'items' ], 'plugins' )[ 'show_count_placeholder' ] );
+		$this->assertFalse( (bool)$pluginsTab[ 'is_loaded' ] );
+		$this->assertFalse( (bool)$pluginsTab[ 'is_disabled' ] );
+		$this->assertSame( '', $pluginsTab[ 'disabled_message' ] );
+		$this->assertSame( 'neutral', $pluginsTab[ 'disabled_status' ] );
+		$this->assertSame( [], $pluginsTab[ 'items' ] );
+		$this->assertSame( 'actions_queue', $pluginsTab[ 'render_action' ][ 'display_context' ] );
+		$this->assertSame( 'scanresults_malware', $malwareTab[ 'render_action' ][ 'render_slug' ] );
 		$this->assertNull( $malwareTab[ 'count' ] );
-		$this->assertTrue( (bool)( $malwareTab[ 'show_count_placeholder' ] ?? false ) );
-		$this->assertSame( 'scanresults_vulnerabilities', $vulnerabilitiesTab[ 'render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( '', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] ?? 'unexpected' );
+		$this->assertTrue( (bool)$malwareTab[ 'show_count_placeholder' ] );
+		$this->assertSame( 'scanresults_vulnerabilities', $vulnerabilitiesTab[ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( '', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] );
 	}
 
 	public function test_build_vulnerabilities_pane_builds_items_only_on_demand() :void {
@@ -204,168 +194,99 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 
 		$pane = $builder->buildVulnerabilitiesPane();
 
-		$this->assertSame( 'warning', $pane[ 'status' ] ?? '' );
-		$this->assertCount( 1, $pane[ 'items' ] ?? [] );
-		$this->assertSame( 'Abandoned Assets', $pane[ 'items' ][ 0 ][ 'section_label' ] ?? '' );
+		$this->assertSame( 'warning', $pane[ 'status' ] );
+		$this->assertCount( 1, $pane[ 'items' ] );
+		$this->assertSame( 'Abandoned Assets', $pane[ 'items' ][ 0 ][ 'section_label' ] );
 	}
 
 	public function test_build_keeps_disabled_review_tabs_visible_in_lazy_shell() :void {
-		$builder = new ActionsQueueScanRailBuilderTestDouble(
-			false,
-			false,
-			false,
-			false,
-			false
-		);
+		$builder = new ActionsQueueScanRailBuilderTestDouble( false, false, false, false, false );
 
-		$renderData = $builder->buildFromLandingData( $this->buildNeedsAttentionPayload() );
-		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$renderData = $builder->buildFromLandingViewData(
+			$this->buildLandingViewData(
+				$this->buildZoneTile( 'scans', 'Scans', 'good', 0, [], [] ),
+				$this->buildZoneTile( 'maintenance', 'Maintenance', 'warning', 2, [
+					$this->buildMaintenanceIssueItem( 'wp_updates', 'WordPress Version', 2, 'warning', '2 updates need review.', [
+						'label' => 'Open',
+						'href'  => '/wp-updates',
+					] ),
+				], [] )
+			),
+			$this->buildInitialMetrics( 2, 'warning', 2, 'warning', 'warning' )
+		);
+		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ];
 		$tabsByKey = [];
 		foreach ( $railTabs as $tab ) {
-			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
+			$tabsByKey[ $tab[ 'key' ] ] = $tab;
 		}
 
 		$this->assertSame(
 			[ 'summary', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker', 'maintenance' ],
 			\array_keys( $tabsByKey )
 		);
-		$this->assertTrue( (bool)( $tabsByKey[ 'maintenance' ][ 'is_loaded' ] ?? false ) );
-		$this->assertSame( 2, $tabsByKey[ 'maintenance' ][ 'count' ] ?? -1 );
-		$this->assertSame( 'warning', $tabsByKey[ 'maintenance' ][ 'status' ] ?? '' );
-		$this->assertSame( 'scanresults_plugins', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'scanresults_malware', $tabsByKey[ 'malware' ][ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertTrue( (bool)$tabsByKey[ 'maintenance' ][ 'is_loaded' ] );
+		$this->assertSame( 2, $tabsByKey[ 'maintenance' ][ 'count' ] );
+		$this->assertSame( 'warning', $tabsByKey[ 'maintenance' ][ 'status' ] );
+		$this->assertSame( 'scanresults_plugins', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'scanresults_malware', $tabsByKey[ 'malware' ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertArrayNotHasKey( 'wordpress', $tabsByKey );
-		$this->assertSame( 'actions_queue', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'display_context' ] ?? '' );
-		$this->assertSame( 'actions_queue', $tabsByKey[ 'themes' ][ 'render_action' ][ 'display_context' ] ?? '' );
-		$this->assertSame( 'actions_queue', $tabsByKey[ 'file_locker' ][ 'render_action' ][ 'display_context' ] ?? '' );
-		$this->assertTrue( (bool)( $tabsByKey[ 'plugins' ][ 'is_disabled' ] ?? false ) );
-		$this->assertSame( 'plugins disabled', $tabsByKey[ 'plugins' ][ 'disabled_message' ] ?? '' );
-		$this->assertSame( 'neutral', $tabsByKey[ 'plugins' ][ 'disabled_status' ] ?? '' );
-		$this->assertSame( [], $tabsByKey[ 'plugins' ][ 'items' ] ?? [ 'unexpected' ] );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'malware' ] );
+		$this->assertSame( 'actions_queue', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'display_context' ] );
+		$this->assertSame( 'actions_queue', $tabsByKey[ 'themes' ][ 'render_action' ][ 'display_context' ] );
+		$this->assertSame( 'actions_queue', $tabsByKey[ 'file_locker' ][ 'render_action' ][ 'display_context' ] );
+		$this->assertTrue( (bool)$tabsByKey[ 'plugins' ][ 'is_disabled' ] );
+		$this->assertSame( 'plugins disabled', $tabsByKey[ 'plugins' ][ 'disabled_message' ] );
+		$this->assertSame( 'neutral', $tabsByKey[ 'plugins' ][ 'disabled_status' ] );
+		$this->assertSame( [], $tabsByKey[ 'plugins' ][ 'items' ] );
 		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'malware' ][ 'count' ] );
-		$this->assertSame( 'neutral', $tabsByKey[ 'plugins' ][ 'status' ] ?? '' );
-		$this->assertSame( 'neutral', $tabsByKey[ 'themes' ][ 'status' ] ?? '' );
-		$this->assertSame( 'neutral', $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' );
-		$this->assertSame( 'neutral', $tabsByKey[ 'malware' ][ 'status' ] ?? '' );
+		$this->assertSame( 'neutral', $tabsByKey[ 'plugins' ][ 'status' ] );
+		$this->assertSame( 'neutral', $tabsByKey[ 'themes' ][ 'status' ] );
+		$this->assertSame( 'neutral', $tabsByKey[ 'vulnerabilities' ][ 'status' ] );
+		$this->assertSame( 'neutral', $tabsByKey[ 'malware' ][ 'status' ] );
 	}
 
 	public function test_build_uses_canonical_initial_metrics_for_summary_and_rail_accent() :void {
-		$builder = new ActionsQueueScanRailBuilderTestDouble(
-			true,
-			true,
-			true,
-			true,
-			true,
-			[
-				'count'    => 0,
-				'status'   => 'good',
-				'sections' => [],
-			],
-			[
-				'tabs' => [
-					'summary' => [
-						'count'  => 8,
-						'status' => 'warning',
-					],
-					'maintenance' => [
-						'count'  => 2,
-						'status' => 'warning',
-					],
-				],
-				'rail_accent_status' => 'warning',
-			]
+		$builder = new ActionsQueueScanRailBuilderTestDouble( true, true, true, true, true );
+
+		$renderData = $builder->buildFromLandingViewData(
+			$this->buildLandingViewData(
+				$this->buildZoneTile( 'scans', 'Scans', 'critical', 3, [
+					$this->buildSummaryItem( 'wp_files', 'WordPress Files', 2, 'critical', '2 files need review.', '/wp-files', 'Open' ),
+				], [] ),
+				$this->buildZoneTile( 'maintenance', 'Maintenance', 'warning', 2, [], [] )
+			),
+			$this->buildInitialMetrics( 8, 'warning', 2, 'warning', 'warning' )
 		);
+		$summaryTab = $this->findTabByKey( $renderData[ 'vars' ][ 'rail_tabs' ], 'summary' );
 
-		$renderData = $builder->buildFromLandingData( $this->buildNeedsAttentionPayload() );
-		$summaryTab = $this->findTabByKey( $renderData[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' );
-
-		$this->assertSame( 8, $summaryTab[ 'count' ] ?? -1 );
-		$this->assertSame( 'warning', $summaryTab[ 'status' ] ?? '' );
-		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] ?? '' );
+		$this->assertSame( 8, $summaryTab[ 'count' ] );
+		$this->assertSame( 'warning', $summaryTab[ 'status' ] );
+		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'rail' ][ 'accent_status' ] );
 	}
 
 	public function test_build_supports_maintenance_only_queue_state() :void {
-		$builder = new ActionsQueueScanRailBuilderTestDouble(
-			false,
-			false,
-			false,
-			false,
-			false,
-			[
-				'count'    => 0,
-				'status'   => 'good',
-				'sections' => [],
-			],
-			[
-				'tabs' => [
-					'summary'     => [
-						'count'  => 1,
-						'status' => 'warning',
-					],
-					'maintenance' => [
-						'count'  => 1,
-						'status' => 'warning',
-					],
-				],
-				'rail_accent_status' => 'warning',
-			]
+		$builder = new ActionsQueueScanRailBuilderTestDouble( false, false, false, false, false );
+
+		$renderData = $builder->buildFromLandingViewData(
+			$this->buildLandingViewData(
+				$this->buildZoneTile( 'scans', 'Scans', 'good', 0, [], [] ),
+				$this->buildZoneTile( 'maintenance', 'Maintenance', 'warning', 1, [
+					$this->buildMaintenanceIssueItem( 'wp_updates', 'WordPress Version', 1, 'warning', '1 update needs review.', [
+						'label' => 'Open',
+						'href'  => '/wp-updates',
+					] ),
+				], [
+					$this->buildAssessmentRow( 'system_php_version', 'PHP Version', 'PHP version is supported.' ),
+				] )
+			),
+			$this->buildInitialMetrics( 1, 'warning', 1, 'warning', 'warning' )
 		);
 
-		$renderData = $builder->buildFromLandingData( [
-			'render_data' => [
-				'vars' => [
-					'zone_groups' => [
-						[
-							'slug'         => 'scans',
-							'severity'     => 'good',
-							'total_issues' => 0,
-							'items'        => [],
-						],
-						[
-							'slug'         => 'maintenance',
-							'severity'     => 'warning',
-							'total_issues' => 1,
-							'items'        => [
-								[
-									'key'         => 'wp_updates',
-									'zone'        => 'maintenance',
-									'label'       => 'WordPress Version',
-									'count'       => 1,
-									'severity'    => 'warning',
-									'description' => '1 update needs review.',
-									'href'        => '/wp-updates',
-									'action'      => 'Open',
-									'target'      => '',
-								],
-							],
-						],
-					],
-				],
-			],
-		], [
-			'scans'       => [],
-			'maintenance' => [
-				[
-					'key'               => 'system_php_version',
-					'label'             => 'PHP Version',
-					'description'       => 'PHP version is supported.',
-					'status'            => 'good',
-					'status_label'      => 'Good',
-					'status_icon_class' => 'bi bi-check-circle-fill',
-				],
-			],
-		] );
-
-		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
+		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ];
 		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
 		$maintenanceTab = $this->findTabByKey( $railTabs, 'maintenance' );
 
@@ -373,68 +294,150 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 			[ 'summary', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $railTabs, 'key' )
 		);
-		$this->assertSame( 1, $summaryTab[ 'count' ] ?? -1 );
-		$this->assertSame( 'warning', $summaryTab[ 'status' ] ?? '' );
-		$this->assertSame( [ 'maintenance' ], $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ?? [] ) );
-		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
-		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ] ?? [], 'title' ) );
-		$this->assertSame( 1, $maintenanceTab[ 'count' ] ?? -1 );
-		$this->assertSame( 'warning', $maintenanceTab[ 'status' ] ?? '' );
-		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
-		$this->assertSame( 'All clear', $maintenanceTab[ 'items' ][ 1 ][ 'section_label' ] ?? '' );
+		$this->assertSame( 1, $summaryTab[ 'count' ] );
+		$this->assertSame( 'warning', $summaryTab[ 'status' ] );
+		$this->assertSame( [ 'maintenance' ], $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ) );
+		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
+		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
+		$this->assertSame( 1, $maintenanceTab[ 'count' ] );
+		$this->assertSame( 'warning', $maintenanceTab[ 'status' ] );
+		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( 'All clear', $maintenanceTab[ 'items' ][ 1 ][ 'section_label' ] );
 	}
 
-	private function buildNeedsAttentionPayload() :array {
+	/**
+	 * @return array{zone_tiles:list<array<string,mixed>>}
+	 */
+	private function buildLandingViewData( array ...$zoneTiles ) :array {
 		return [
-			'render_data' => [
-				'vars' => [
-					'zone_groups' => [
-						[
-							'slug'         => 'scans',
-							'severity'     => 'critical',
-							'total_issues' => 3,
-							'items'        => [
-								[
-									'key'         => 'wp_files',
-									'label'       => 'WordPress Files',
-									'count'       => 2,
-									'severity'    => 'critical',
-									'description' => '2 files need review.',
-									'href'        => '/wp-files',
-									'action'      => 'Open',
-								],
-								[
-									'key'         => 'vulnerable_assets',
-									'label'       => 'Vulnerabilities',
-									'count'       => 1,
-									'severity'    => 'warning',
-									'description' => '1 asset needs review.',
-									'href'        => '/vulns',
-									'action'      => 'Open',
-								],
-							],
-						],
-						[
-							'slug'         => 'maintenance',
-							'severity'     => 'warning',
-							'total_issues' => 2,
-							'items'        => [
-								[
-									'key'         => 'wp_updates',
-									'zone'        => 'maintenance',
-									'label'       => 'WordPress Version',
-									'count'       => 2,
-									'severity'    => 'warning',
-									'description' => '2 updates need review.',
-									'href'        => '/wp-updates',
-									'action'      => 'Open',
-									'target'      => '_blank',
-								],
-							],
-						],
-					],
+			'zone_tiles' => $zoneTiles,
+		];
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $items
+	 * @param list<array<string,mixed>> $assessmentRows
+	 * @return array<string,mixed>
+	 */
+	private function buildZoneTile(
+		string $key,
+		string $label,
+		string $status,
+		int $totalIssues,
+		array $items,
+		array $assessmentRows
+	) :array {
+		return [
+			'key'               => $key,
+			'panel_target'      => $key,
+			'is_enabled'        => true,
+			'is_disabled'       => false,
+			'has_issues'        => $totalIssues > 0,
+			'has_assessments'   => !empty( $assessmentRows ),
+			'has_panel_content' => $totalIssues > 0 || !empty( $assessmentRows ),
+			'label'             => $label,
+			'icon_class'        => 'bi bi-'.$key,
+			'status'            => $status,
+			'status_label'      => \ucfirst( $status ),
+			'total_issues'      => $totalIssues,
+			'critical_count'    => $status === 'critical' ? $totalIssues : 0,
+			'warning_count'     => $status === 'warning' ? $totalIssues : 0,
+			'summary_text'      => '',
+			'items'             => $items,
+			'assessment_rows'   => $assessmentRows,
+		];
+	}
+
+	/**
+	 * @return array{key:string,label:string,count:int,severity:string,description:string,action:string,href:string}
+	 */
+	private function buildSummaryItem(
+		string $key,
+		string $label,
+		int $count,
+		string $severity,
+		string $text,
+		string $href,
+		string $action
+	) :array {
+		return [
+			'key'      => $key,
+			'label'    => $label,
+			'count'    => $count,
+			'severity' => $severity,
+			'description' => $text,
+			'action'   => $action,
+			'href'     => $href,
+		];
+	}
+
+	/**
+	 * @param array<string,string> $cta
+	 * @return array<string,mixed>
+	 */
+	private function buildMaintenanceIssueItem(
+		string $key,
+		string $label,
+		int $count,
+		string $severity,
+		string $description,
+		array $cta
+	) :array {
+		return [
+			'key'         => $key,
+			'zone'        => 'maintenance',
+			'label'       => $label,
+			'count'       => $count,
+			'severity'    => $severity,
+			'description' => $description,
+			'href'        => $cta[ 'href' ] ?? '',
+			'action'      => $cta[ 'label' ] ?? '',
+			'target'      => $cta[ 'target' ] ?? '',
+			'cta'         => $cta,
+			'expansion'   => [],
+		];
+	}
+
+	private function buildAssessmentRow(
+		string $key,
+		string $label,
+		string $description
+	) :array {
+		return [
+			'key'               => $key,
+			'label'             => $label,
+			'description'       => $description,
+			'status'            => 'good',
+			'status_label'      => 'Good',
+			'status_icon_class' => 'bi bi-check-circle-fill',
+		];
+	}
+
+	/**
+	 * @return array{
+	 *   tabs:array<string,array{count:int,status:string}>,
+	 *   rail_accent_status:string
+	 * }
+	 */
+	private function buildInitialMetrics(
+		int $summaryCount,
+		string $summaryStatus,
+		int $maintenanceCount,
+		string $maintenanceStatus,
+		string $railAccentStatus
+	) :array {
+		return [
+			'tabs' => [
+				'summary' => [
+					'count'  => $summaryCount,
+					'status' => $summaryStatus,
+				],
+				'maintenance' => [
+					'count'  => $maintenanceCount,
+					'status' => $maintenanceStatus,
 				],
 			],
+			'rail_accent_status' => $railAccentStatus,
 		];
 	}
 
@@ -474,7 +477,6 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 	private bool $vulnerabilitiesEnabled;
 	private bool $malwareEnabled;
 	private array $vulnerabilities;
-	private array $initialMetrics;
 
 	public function __construct(
 		bool $wordpressEnabled,
@@ -486,19 +488,6 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 			'count'    => 0,
 			'status'   => 'good',
 			'sections' => [],
-		],
-		array $initialMetrics = [
-			'tabs' => [
-				'summary' => [
-					'count'  => 5,
-					'status' => 'critical',
-				],
-				'maintenance' => [
-					'count'  => 2,
-					'status' => 'warning',
-				],
-			],
-			'rail_accent_status' => 'critical',
 		]
 	) {
 		$this->wordpressEnabled = $wordpressEnabled;
@@ -507,7 +496,6 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 		$this->vulnerabilitiesEnabled = $vulnerabilitiesEnabled;
 		$this->malwareEnabled = $malwareEnabled;
 		$this->vulnerabilities = $vulnerabilities;
-		$this->initialMetrics = $initialMetrics;
 	}
 
 	protected function isWordpressTabEnabled() :bool {
@@ -568,9 +556,5 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 
 	protected function buildVulnerabilities() :array {
 		return $this->vulnerabilities;
-	}
-
-	protected function buildInitialRailMetrics( array $needsAttentionPayload = [] ) :array {
-		return $this->initialMetrics;
 	}
 }

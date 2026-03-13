@@ -11,12 +11,21 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingViewBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	MaintenanceAssetFixtures,
+	PluginControllerInstaller,
+	ServicesState
+};
 
 class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
+
+	use MaintenanceAssetFixtures;
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -27,10 +36,13 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( $this->buildMaintenanceAssetServiceItems() );
 		$this->installControllerStub();
 	}
 
 	protected function tearDown() :void {
+		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
@@ -126,6 +138,63 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $zonesByKey[ 'maintenance' ][ 'has_issues' ] ?? true ) );
 		$this->assertTrue( (bool)( $zonesByKey[ 'maintenance' ][ 'has_assessments' ] ?? false ) );
 		$this->assertSame( 'All clear', $zonesByKey[ 'maintenance' ][ 'summary_text' ] ?? '' );
+	}
+
+	public function test_build_normalizes_maintenance_items_once_and_builds_detail_groups_from_same_rows() :void {
+		ServicesState::installItems( $this->buildMaintenanceAssetServiceItems(
+			[
+				'plugins' => [
+					'akismet/akismet.php' => [],
+				],
+				'updates' => [
+					'akismet/akismet.php' => [ 'new_version' => '5.4.0' ],
+				],
+				'plugin_vos' => [
+					'akismet/akismet.php' => $this->buildMaintenancePluginVo( 'akismet/akismet.php', 'Akismet Anti-Spam', '5.3.0' ),
+				],
+				'upgrade_urls' => [
+					'akismet/akismet.php' => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
+				],
+			]
+		) );
+
+		$view = ( new ActionsQueueLandingViewBuilder() )->build(
+			$this->buildQueuePayload(
+				true,
+				1,
+				'warning',
+				'',
+				[
+					$this->buildZoneGroup( 'scans', 'good', 0, [] ),
+					$this->buildZoneGroup( 'maintenance', 'warning', 1, [
+						$this->buildQueueItem( 'wp_plugins_updates', 'maintenance', 'Plugins With Updates', 1, 'warning' ),
+					] ),
+				]
+			),
+			[
+				'scans' => [],
+				'maintenance' => [
+					[
+						'key'               => 'system_php_version',
+						'label'             => 'PHP Version',
+						'description'       => 'PHP is supported.',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+				],
+			]
+		);
+
+		$zoneTiles = $view[ 'zone_tiles' ];
+		$maintenance = \array_values( \array_filter(
+			$zoneTiles,
+			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
+		) )[ 0 ];
+
+		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $maintenance[ 'items' ][ 0 ][ 'expansion' ][ 'type' ] );
+		$this->assertSame( 'wp_plugins_updates', $maintenance[ 'maintenance_detail_groups' ][ 0 ][ 'rows' ][ 0 ][ 'key' ] );
+		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenance[ 'maintenance_detail_groups' ], 'status' ) );
 	}
 
 	private function installControllerStub() :void {
@@ -240,7 +309,8 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 	 *   severity:string,
 	 *   description:string,
 	 *   href:string,
-	 *   action:string
+	 *   action:string,
+	 *   target:string
 	 * }
 	 */
 	private function buildQueueItem(
@@ -259,6 +329,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			'description' => 'Description for '.$label,
 			'href'        => '/admin/'.$key,
 			'action'      => 'open',
+			'target'      => '',
 		];
 	}
 }

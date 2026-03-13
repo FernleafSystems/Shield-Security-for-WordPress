@@ -23,12 +23,6 @@ use FernleafSystems\Wordpress\Services\Services;
  *   scans:list<AssessmentRow>,
  *   maintenance:list<AssessmentRow>
  * }
- * @phpstan-type MaintenanceItemCta array{
- *   href:string,
- *   label:string,
- *   target?:string
- * }
- * @phpstan-type MaintenanceQueueItem QueueItem&array{cta?:MaintenanceItemCta}
  * @phpstan-type ZoneTile array{
  *   key:string,
  *   panel_target:string,
@@ -45,7 +39,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   critical_count:int,
  *   warning_count:int,
  *   summary_text:string,
- *   items:list<QueueItem>,
+ *   items:list<array<string,mixed>>,
  *   assessment_rows:list<AssessmentRow>,
  *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
  * }
@@ -136,10 +130,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	protected function getLandingVars() :array {
 		$viewData = $this->getLandingViewData();
-		$zoneTiles = $this->getZoneTilesForDisplay();
 		return [
 			'severity_strip' => $viewData[ 'severity_strip' ],
-			'zone_tiles'     => $zoneTiles,
+			'zone_tiles'     => $viewData[ 'zone_tiles' ],
 			'all_clear'      => $viewData[ 'all_clear' ],
 			'scans_results'  => $this->getQueueSummary()[ 'has_items' ]
 				? $this->getScansResultsRenderData()
@@ -177,28 +170,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 */
 	private function getZoneTiles() :array {
 		return $this->getLandingViewData()[ 'zone_tiles' ];
-	}
-
-	/**
-	 * @return list<ZoneTile>
-	 */
-	private function getZoneTilesForDisplay() :array {
-		return \array_map(
-			function ( array $zoneTile ) :array {
-				$zoneTile[ 'items' ] = \array_map(
-					fn( array $item ) :array => $this->normalizeZoneItemForDisplay( $item ),
-					$zoneTile[ 'items' ]
-				);
-				if ( $zoneTile[ 'key' ] === 'maintenance' ) {
-					$zoneTile[ 'maintenance_detail_groups' ] = ( new StatusDetailGroupsBuilder() )->buildForMaintenance(
-						$zoneTile[ 'items' ],
-						$zoneTile[ 'assessment_rows' ]
-					);
-				}
-				return $zoneTile;
-			},
-			$this->getZoneTiles()
-		);
 	}
 
 	private function getActiveZone() :string {
@@ -259,22 +230,10 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 * @return ScansResultsContract
 	 */
 	protected function buildScansResultsRenderData() :array {
-		return ( new ActionsQueueScanRailBuilder() )->buildFromLandingData(
-			$this->getNeedsAttentionPayload(),
-			$this->getAssessmentRowsByZone()
+		return ( new ActionsQueueScanRailBuilder() )->buildFromLandingViewData(
+			$this->getLandingViewData(),
+			( new ActionsQueueScanRailMetricsBuilder() )->build( $this->getNeedsAttentionPayload() )
 		);
-	}
-
-	/**
-	 * @param QueueItem $item
-	 * @return MaintenanceQueueItem|QueueItem
-	 */
-	private function normalizeZoneItemForDisplay( array $item ) :array {
-		if ( $item[ 'zone' ] !== 'maintenance' ) {
-			return $item;
-		}
-
-		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalize( $item );
 	}
 
 	/**

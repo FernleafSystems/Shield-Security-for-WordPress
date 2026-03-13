@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use Twig\{
 	Environment,
@@ -254,7 +255,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								'expand_target' => 'scan-files-plugin-example-plugin',
 								'expansion' => [
 									'id'     => 'scan-files-plugin-example-plugin',
-									'type'   => 'investigation_table',
+									'type'   => DetailExpansionType::INVESTIGATION_TABLE,
 									'status' => 'warning',
 									'table'  => [
 										'title'               => 'File Scan Status',
@@ -505,7 +506,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'expand_target' => 'maintenance-expand-wp_plugins_updates',
 						'expansion'     => [
 							'id'     => 'maintenance-expand-wp_plugins_updates',
-							'type'   => 'simple_table',
+							'type'   => DetailExpansionType::SIMPLE_TABLE,
 							'status' => 'warning',
 							'table'  => [
 								'columns' => [

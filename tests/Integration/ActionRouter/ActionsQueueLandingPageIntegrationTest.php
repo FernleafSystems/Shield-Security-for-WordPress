@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Scans\Results\Plugins as PluginsPane,
 	Actions\Render\Components\Scans\Results\Themes as ThemesPane,
 	Actions\Render\Components\Scans\Results\Wordpress as WordpressPane,
+	Actions\Render\PluginAdminPages\DetailExpansionType,
 	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
 	Constants
 };
@@ -237,7 +238,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$maintenanceItemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
 		}
 		$this->assertSame(
-			'simple_table',
+			DetailExpansionType::SIMPLE_TABLE,
 			(string)( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'type' ] ?? '' )
 		);
 		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );

@@ -129,7 +129,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * }
  * @phpstan-type DetailExpansion array{
  *   id:string,
- *   type:'investigation_table'|'simple_table',
+ *   type:string,
  *   status:string,
  *   table:array<string,mixed>
  * }
@@ -789,7 +789,7 @@ class ScansResultsViewBuilder {
 				),
 				$this->buildDetailExpansion(
 					$item[ 'expand_target' ],
-					'investigation_table',
+					DetailExpansionType::INVESTIGATION_TABLE,
 					$item[ 'status' ],
 					$item[ 'table' ]
 				)
@@ -1298,9 +1298,19 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return list<array<string,mixed>>
 	 */
-	private function buildActionsForHref( string $label, string $href, string $type = 'navigate' ) :array {
+	protected function buildActionsForHref(
+		string $label,
+		string $href,
+		string $type = 'navigate',
+		string $target = ''
+	) :array {
 		if ( $label === '' || $href === '' ) {
 			return [];
+		}
+
+		$attributes = [];
+		if ( $target !== '' ) {
+			$attributes[ 'target' ] = $target;
 		}
 
 		return [
@@ -1311,7 +1321,7 @@ class ScansResultsViewBuilder {
 				'icon'    => $type === 'update'
 					? 'bi bi-arrow-up-circle-fill'
 					: 'bi bi-arrow-right-circle-fill',
-				'attributes' => [],
+				'attributes' => $attributes,
 			],
 		];
 	}

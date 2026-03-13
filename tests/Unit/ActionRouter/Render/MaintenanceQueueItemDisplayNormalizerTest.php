@@ -3,20 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\MaintenanceQueueItemDisplayNormalizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
-use FernleafSystems\Wordpress\Services\Core\{
-	General,
-	Plugins,
-	Themes
-};
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
-	WpPluginVo,
-	WpThemeVo
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	MaintenanceAssetFixtures,
+	ServicesState
 };
 
 class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
+
+	use MaintenanceAssetFixtures;
 
 	private array $servicesSnapshot = [];
 
@@ -45,7 +42,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 					'akismet/akismet.php' => [ 'new_version' => '5.4.0' ],
 				],
 				'plugin_vos' => [
-					'akismet/akismet.php' => $this->buildPluginVo( 'akismet/akismet.php', 'Akismet Anti-Spam', '5.3.0' ),
+					'akismet/akismet.php' => $this->buildMaintenancePluginVo( 'akismet/akismet.php', 'Akismet Anti-Spam', '5.3.0' ),
 				],
 				'upgrade_urls' => [
 					'akismet/akismet.php' => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
@@ -67,7 +64,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 
 		$this->assertSame( 'Update', $item[ 'cta' ][ 'label' ] ?? '' );
 		$this->assertSame( 'maintenance-expand-wp_plugins_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
-		$this->assertSame( 'simple_table', $item[ 'expansion' ][ 'type' ] ?? '' );
+		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $item[ 'expansion' ][ 'type' ] ?? '' );
 		$this->assertSame( 'Akismet Anti-Spam', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'Current: 5.3.0 | Available: 5.4.0', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
 		$this->assertSame( 'akismet/akismet.php', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'identifier' ] ?? '' );
@@ -88,7 +85,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 					'twentytwentyfive' => [ 'new_version' => '1.2' ],
 				],
 				'theme_vos' => [
-					'twentytwentyfive' => $this->buildThemeVo( 'twentytwentyfive', 'Twenty Twenty-Five', '1.1' ),
+					'twentytwentyfive' => $this->buildMaintenanceThemeVo( 'twentytwentyfive', 'Twenty Twenty-Five', '1.1' ),
 				],
 			],
 		] );
@@ -123,8 +120,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 					'akismet/akismet.php',
 				],
 				'plugin_vos' => [
-					'hello-dolly/hello.php' => $this->buildPluginVo( 'hello-dolly/hello.php', 'Hello Dolly', '1.7.2' ),
-					'akismet/akismet.php'   => $this->buildPluginVo( 'akismet/akismet.php', 'Akismet Anti-Spam', '5.3.0' ),
+					'hello-dolly/hello.php' => $this->buildMaintenancePluginVo( 'hello-dolly/hello.php', 'Hello Dolly', '1.7.2' ),
+					'akismet/akismet.php'   => $this->buildMaintenancePluginVo( 'akismet/akismet.php', 'Akismet Anti-Spam', '5.3.0' ),
 				],
 				'activate_urls' => [
 					'hello-dolly/hello.php' => '/wp-admin/plugins.php?action=activate&plugin=hello-dolly/hello.php',
@@ -164,9 +161,9 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 					'inactive-theme' => [],
 				],
 				'theme_vos' => [
-					'child-theme'    => $this->buildThemeVo( 'child-theme', 'Child Theme', '1.2.0' ),
-					'parent-theme'   => $this->buildThemeVo( 'parent-theme', 'Parent Theme', '2.5.0' ),
-					'inactive-theme' => $this->buildThemeVo( 'inactive-theme', 'Inactive Theme', '3.0.1' ),
+					'child-theme'    => $this->buildMaintenanceThemeVo( 'child-theme', 'Child Theme', '1.2.0' ),
+					'parent-theme'   => $this->buildMaintenanceThemeVo( 'parent-theme', 'Parent Theme', '2.5.0' ),
+					'inactive-theme' => $this->buildMaintenanceThemeVo( 'inactive-theme', 'Inactive Theme', '3.0.1' ),
 				],
 				'current'        => 'child-theme',
 				'current_parent' => 'parent-theme',
@@ -195,146 +192,12 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 
 	private function installServices( array $fixture = [] ) :void {
 		$fixture = \array_merge( [
-			'plugins' => [
-				'updates'       => [],
-				'plugins'       => [],
-				'active'        => [],
-				'plugin_vos'    => [],
-				'activate_urls' => [],
-				'upgrade_urls'  => [],
-			],
-			'themes'  => [
-				'updates'        => [],
-				'themes'         => [],
-				'theme_vos'      => [],
-				'current'        => '',
-				'current_parent' => '',
-			],
+			'plugins' => [],
+			'themes'  => [],
 		], $fixture );
 
-		ServicesState::installItems( [
-			'service_wpgeneral' => new class extends General {
-				public function getAdminUrl_Updates( bool $bWpmsOnly = false ) :string {
-					return '/wp-admin/update-core.php';
-				}
-
-				public function getAdminUrl_Themes( bool $wpmsOnly = false ) :string {
-					return '/wp-admin/themes.php';
-				}
-			},
-			'service_wpplugins' => new class( $fixture[ 'plugins' ] ) extends Plugins {
-				private array $fixture;
-
-				public function __construct( array $fixture ) {
-					$this->fixture = $fixture;
-				}
-
-				public function getUpdates( $bForceUpdateCheck = false ) {
-					return $this->fixture[ 'updates' ];
-				}
-
-				public function getPlugins() :array {
-					return $this->fixture[ 'plugins' ];
-				}
-
-				public function getActivePlugins() :array {
-					return $this->fixture[ 'active' ];
-				}
-
-				public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
-					return $this->fixture[ 'plugin_vos' ][ $file ] ?? null;
-				}
-
-				public function getUrl_Activate( $file ) :string {
-					return (string)( $this->fixture[ 'activate_urls' ][ $file ] ?? '' );
-				}
-
-				public function getUrl_Upgrade( $file ) :string {
-					return (string)( $this->fixture[ 'upgrade_urls' ][ $file ] ?? '' );
-				}
-			},
-			'service_wpthemes' => new class( $fixture[ 'themes' ] ) extends Themes {
-				private array $fixture;
-
-				public function __construct( array $fixture ) {
-					$this->fixture = $fixture;
-				}
-
-				public function getUpdates( $forceCheck = false ) {
-					return $this->fixture[ 'updates' ];
-				}
-
-				public function getThemes() :array {
-					return $this->fixture[ 'themes' ];
-				}
-
-				public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?WpThemeVo {
-					return $this->fixture[ 'theme_vos' ][ $stylesheet ] ?? null;
-				}
-
-				public function getCurrent() {
-					return new class( (string)( $this->fixture[ 'current' ] ?? '' ) ) {
-						private string $stylesheet;
-
-						public function __construct( string $stylesheet ) {
-							$this->stylesheet = $stylesheet;
-						}
-
-						public function get_stylesheet() :string {
-							return $this->stylesheet;
-						}
-					};
-				}
-
-				public function getCurrentParent() {
-					$stylesheet = (string)( $this->fixture[ 'current_parent' ] ?? '' );
-					if ( $stylesheet === '' ) {
-						return null;
-					}
-
-					return new class( $stylesheet ) {
-						private string $stylesheet;
-
-						public function __construct( string $stylesheet ) {
-							$this->stylesheet = $stylesheet;
-						}
-
-						public function get_stylesheet() :string {
-							return $this->stylesheet;
-						}
-					};
-				}
-			},
-		] );
-	}
-
-	private function buildPluginVo( string $file, string $title, string $version ) :WpPluginVo {
-		return new class( $file, $title, $version ) extends WpPluginVo {
-			public string $file;
-			public string $Title;
-			public string $Name;
-			public string $Version;
-
-			public function __construct( string $file, string $title, string $version ) {
-				$this->file = $file;
-				$this->Title = $title;
-				$this->Name = $title;
-				$this->Version = $version;
-			}
-		};
-	}
-
-	private function buildThemeVo( string $stylesheet, string $name, string $version ) :WpThemeVo {
-		return new class( $stylesheet, $name, $version ) extends WpThemeVo {
-			public string $stylesheet;
-			public string $Name;
-			public string $Version;
-
-			public function __construct( string $stylesheet, string $name, string $version ) {
-				$this->stylesheet = $stylesheet;
-				$this->Name = $name;
-				$this->Version = $version;
-			}
-		};
+		ServicesState::installItems(
+			$this->buildMaintenanceAssetServiceItems( $fixture[ 'plugins' ], $fixture[ 'themes' ] )
+		);
 	}
 }
