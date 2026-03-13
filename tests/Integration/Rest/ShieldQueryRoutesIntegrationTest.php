@@ -60,6 +60,33 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'groups', $data );
 	}
 
+	public function test_posture_routes_report_all_clear_attention_when_no_items_need_action() :void {
+		$canonicalAttention = self::con()->comps->site_query->attention();
+		$this->assertSame( 0, $canonicalAttention[ 'summary' ][ 'total' ] );
+		$this->assertSame( 'good', $canonicalAttention[ 'summary' ][ 'severity' ] );
+		$this->assertTrue( $canonicalAttention[ 'summary' ][ 'is_all_clear' ] );
+		$this->assertSame( [], $canonicalAttention[ 'items' ] );
+
+		$attentionResponse = $this->dispatchReadRoute( '/shield/v1/posture/attention' );
+		$attentionData = $this->assertSuccessfulResponse( $attentionResponse );
+		$attentionPayload = $this->extractPayload( $attentionData );
+
+		$this->assertSame( 0, $attentionPayload[ 'summary' ][ 'total' ] );
+		$this->assertSame( 'good', $attentionPayload[ 'summary' ][ 'severity' ] );
+		$this->assertTrue( $attentionPayload[ 'summary' ][ 'is_all_clear' ] );
+		$this->assertSame( [], $attentionPayload[ 'items' ] );
+
+		$overviewResponse = $this->dispatchReadRoute( '/shield/v1/posture/overview' );
+		$overviewData = $this->assertSuccessfulResponse( $overviewResponse );
+		$overviewPayload = $this->extractPayload( $overviewData );
+
+		$this->assertSame( [
+			'total'        => 0,
+			'severity'     => 'good',
+			'is_all_clear' => true,
+		], $overviewPayload[ 'attention_summary' ] );
+	}
+
 	public function test_activity_recent_route_returns_canonical_recent_activity_payload() :void {
 		$recentEvents = \array_filter(
 			self::con()->comps->events->getEvents(),

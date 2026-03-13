@@ -4,8 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\C
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
+
+	private array $optionsSnapshot = [];
 
 	public function set_up() {
 		parent::set_up();
@@ -16,12 +19,16 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'file_locker' );
 
 		$this->loginAsSecurityAdmin();
+		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
+			'ignored_maintenance_items',
+		] );
 		\delete_site_transient( 'update_plugins' );
 	}
 
 	public function tear_down() {
 		if ( static::con() !== null ) {
 			static::con()->comps->file_locker->clearLocks();
+			$this->restoreSelectedOptions( $this->optionsSnapshot );
 		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
@@ -51,6 +58,42 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'maintenance', $itemsByKey[ 'wp_plugins_updates' ][ 'zone' ] );
 		$this->assertSame( 1, $itemsByKey[ 'wp_plugins_updates' ][ 'count' ] );
 		$this->assertGreaterThanOrEqual( 1, $query[ 'summary' ][ 'total' ] );
+		$this->assertSame( 'warning', $query[ 'summary' ][ 'severity' ] );
+		$this->assertFalse( $query[ 'summary' ][ 'is_all_clear' ] );
+	}
+
+	public function test_build_keeps_partially_ignored_maintenance_items_actionable() :void {
+		$pluginFiles = $this->requireAtLeastInstalledPlugins( 2 );
+		$this->setPluginUpdatesAvailableFor( $pluginFiles );
+
+		self::con()->opts
+			->optSet( 'ignored_maintenance_items', [
+				'wp_plugins_updates' => [ $pluginFiles[ 0 ] ],
+			] )
+			->store();
+
+		$query = self::con()->comps->site_query->attention();
+		$itemsByKey = $this->indexItemsByKey( $query[ 'items' ] );
+		$maintenanceItemsByKey = $this->indexItemsByKey( $query[ 'groups' ][ 'maintenance' ][ 'items' ] );
+
+		$this->assertArrayHasKey( 'wp_plugins_updates', $itemsByKey );
+		$this->assertArrayHasKey( 'wp_plugins_updates', $maintenanceItemsByKey );
+		$this->assertSame( 'maintenance', $itemsByKey[ 'wp_plugins_updates' ][ 'zone' ] );
+		$this->assertSame( 'maintenance', $itemsByKey[ 'wp_plugins_updates' ][ 'source' ] );
+		$this->assertSame( 1, $itemsByKey[ 'wp_plugins_updates' ][ 'count' ] );
+		$this->assertSame( 1, $itemsByKey[ 'wp_plugins_updates' ][ 'ignored_count' ] );
+		$this->assertSame( 'warning', $itemsByKey[ 'wp_plugins_updates' ][ 'severity' ] );
+		$this->assertTrue( $itemsByKey[ 'wp_plugins_updates' ][ 'supports_sub_items' ] );
+		$this->assertSame( $itemsByKey[ 'wp_plugins_updates' ], $maintenanceItemsByKey[ 'wp_plugins_updates' ] );
+		$this->assertSame(
+			$this->sumItemCounts( $query[ 'groups' ][ 'maintenance' ][ 'items' ] ),
+			$query[ 'groups' ][ 'maintenance' ][ 'total' ]
+		);
+		$this->assertSame( $this->sumItemCounts( $query[ 'items' ] ), $query[ 'summary' ][ 'total' ] );
+		$this->assertSame(
+			$query[ 'groups' ][ 'scans' ][ 'total' ] + $query[ 'groups' ][ 'maintenance' ][ 'total' ],
+			$query[ 'summary' ][ 'total' ]
+		);
 		$this->assertSame( 'warning', $query[ 'summary' ][ 'severity' ] );
 		$this->assertFalse( $query[ 'summary' ][ 'is_all_clear' ] );
 	}
@@ -147,5 +190,59 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		$record->content = 'encrypted-content-'.$type;
 		$record->detected_at = $detectedAt;
 		$handler->getQueryInserter()->insert( $record );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function requireAtLeastInstalledPlugins( int $minimum ) :array {
+		$pluginFiles = \array_values( \array_map(
+			static fn( $file ) :string => (string)$file,
+			\array_keys( Services::WpPlugins()->getPlugins() )
+		) );
+		\natsort( $pluginFiles );
+		$pluginFiles = \array_values( $pluginFiles );
+
+		if ( \count( $pluginFiles ) < $minimum ) {
+			$this->markTestSkipped( 'Not enough installed plugins are available for this integration fixture.' );
+		}
+
+		return \array_slice( $pluginFiles, 0, $minimum );
+	}
+
+	/**
+	 * @param list<string> $pluginFiles
+	 */
+	private function setPluginUpdatesAvailableFor( array $pluginFiles ) :void {
+		$updates = new \stdClass();
+		$updates->response = [];
+
+		foreach ( $pluginFiles as $index => $pluginFile ) {
+			$updates->response[ $pluginFile ] = (object)[
+				'plugin'      => $pluginFile,
+				'new_version' => self::con()->cfg->version().'.'.( $index + 1 ),
+			];
+		}
+
+		\set_site_transient( 'update_plugins', $updates );
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $items
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function indexItemsByKey( array $items ) :array {
+		$itemsByKey = [];
+		foreach ( $items as $item ) {
+			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+		}
+		return $itemsByKey;
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $items
+	 */
+	private function sumItemCounts( array $items ) :int {
+		return (int)\array_sum( \array_column( $items, 'count' ) );
 	}
 }
