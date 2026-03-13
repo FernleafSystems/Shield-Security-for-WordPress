@@ -38,6 +38,8 @@ class Constants {
 		Actions\LicenseLookup::class,
 		Actions\LicenseCheckDebug::class,
 		Actions\LicenseScheduleCheck::class,
+		Actions\MaintenanceItemIgnore::class,
+		Actions\MaintenanceItemUnignore::class,
 		Actions\MainWP\MainwpExtensionTableSites::class,
 		Actions\MainWP\ServerActions\MainwpServerClientActionHandler::class,
 		Actions\MainWP\ServerActions\SiteActionSync::class,

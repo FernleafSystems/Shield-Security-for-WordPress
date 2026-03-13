@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingAssessmentBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -52,26 +53,25 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 				],
 			],
 			[
-				'enabled' => true,
-				'always'  => true,
+				'enabled'  => true,
+				'always'   => true,
 				'disabled' => false,
 			],
 			[
 				'scan-results-core' => [
-					'title'          => 'WordPress Core Files',
-					'desc_protected' => 'All WordPress Core files appear to be clean and unmodified.',
+					'title'            => 'WordPress Core Files',
+					'desc_protected'   => 'All WordPress Core files appear to be clean and unmodified.',
 					'desc_unprotected' => 'At least 1 WordPress Core file appears to be modified or unrecognised.',
-					'is_protected'   => true,
-					'is_critical'    => true,
-					'is_applicable'  => true,
+					'is_protected'     => true,
+					'is_critical'      => true,
+					'is_applicable'    => true,
 				],
-				'wp-updates' => [
-					'title'          => 'WordPress Version',
-					'desc_protected' => 'WordPress has all available upgrades applied.',
-					'desc_unprotected' => 'There is an upgrade available for WordPress.',
-					'is_protected'   => false,
-					'is_critical'    => false,
-					'is_applicable'  => true,
+			],
+			[
+				'wp_updates' => [
+					'label'       => 'WordPress Version',
+					'description' => 'There is an upgrade available for WordPress.',
+					'severity'    => 'warning',
 				],
 			]
 		);
@@ -102,19 +102,33 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 			[
 				'always' => true,
 			],
+			[],
+			[]
+		);
+
+		$this->assertSame( [], $builder->build() );
+	}
+
+	public function test_build_marks_fully_ignored_maintenance_items_as_good() :void {
+		$builder = new ActionsQueueLandingAssessmentBuilderTestDouble(
+			[],
+			[],
+			[],
 			[
-				'wp-updates' => [
-					'title'          => 'WordPress Version',
-					'desc_protected' => 'WordPress has all available upgrades applied.',
-					'desc_unprotected' => 'There is an upgrade available for WordPress.',
-					'is_protected'   => true,
-					'is_critical'    => false,
-					'is_applicable'  => false,
+				'system_php_version' => [
+					'label'       => 'PHP Version',
+					'description' => 'This maintenance item is currently ignored.',
+					'severity'    => 'good',
 				],
 			]
 		);
 
-		$this->assertSame( [], $builder->build() );
+		$rows = $builder->build();
+
+		$this->assertSame( [ 'maintenance' ], \array_keys( $rows ) );
+		$this->assertSame( 'system_php_version', $rows[ 'maintenance' ][ 0 ][ 'key' ] ?? '' );
+		$this->assertSame( 'good', $rows[ 'maintenance' ][ 0 ][ 'status' ] ?? '' );
+		$this->assertStringContainsString( 'ignored', $rows[ 'maintenance' ][ 0 ][ 'description' ] ?? '' );
 	}
 
 	public function test_build_includes_only_plugin_files_when_only_plugin_scan_is_available() :void {
@@ -253,11 +267,18 @@ class ActionsQueueLandingAssessmentBuilderTestDouble extends ActionsQueueLanding
 	private array $definitions;
 	private array $availableStrategies;
 	private array $components;
+	private array $maintenanceStates;
 
-	public function __construct( array $definitions, array $availableStrategies, array $components ) {
+	public function __construct(
+		array $definitions,
+		array $availableStrategies,
+		array $components,
+		array $maintenanceStates = []
+	) {
 		$this->definitions = $definitions;
 		$this->availableStrategies = $availableStrategies;
 		$this->components = $components;
+		$this->maintenanceStates = $maintenanceStates;
 	}
 
 	protected function getDefinitions() :array {
@@ -270,5 +291,42 @@ class ActionsQueueLandingAssessmentBuilderTestDouble extends ActionsQueueLanding
 
 	protected function buildAssessmentComponent( string $componentClass ) :array {
 		return $this->components[ $componentClass ];
+	}
+
+	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
+		return new class( $this->maintenanceStates ) extends MaintenanceIssueStateProvider {
+			private array $states;
+
+			public function __construct( array $states ) {
+				$this->states = $states;
+			}
+
+			public function buildStates() :array {
+				return \array_map(
+					static fn( array $state, string $key ) :array => \array_merge(
+						[
+							'key'                 => $key,
+							'label'               => '',
+							'description'         => '',
+							'count'               => 0,
+							'ignored_count'       => 0,
+							'severity'            => 'good',
+							'href'                => '',
+							'action'              => '',
+							'target'              => '',
+							'supports_sub_items'  => false,
+							'active_identifiers'  => [],
+							'ignored_identifiers' => [],
+						],
+						$state,
+						[
+							'key' => $key,
+						]
+					),
+					$this->states,
+					\array_keys( $this->states )
+				);
+			}
+		};
 	}
 }

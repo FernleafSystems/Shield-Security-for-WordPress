@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponentBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -24,10 +25,14 @@ class ActionsQueueLandingAssessmentBuilder {
 	public function build() :array {
 		$rowsByZone = [];
 
-		foreach ( $this->getDefinitions() as $definition ) {
-			foreach ( $this->buildRowsForDefinition( $definition ) as $row ) {
-				$rowsByZone[ $definition[ 'zone' ] ][] = $row;
-			}
+		$scans = $this->buildForZone( 'scans' );
+		if ( !empty( $scans ) ) {
+			$rowsByZone[ 'scans' ] = $scans;
+		}
+
+		$maintenance = $this->buildForZone( 'maintenance' );
+		if ( !empty( $maintenance ) ) {
+			$rowsByZone[ 'maintenance' ] = $maintenance;
 		}
 
 		return $rowsByZone;
@@ -44,6 +49,10 @@ class ActionsQueueLandingAssessmentBuilder {
 	 * }>
 	 */
 	public function buildForZone( string $zone ) :array {
+		if ( $zone === 'maintenance' ) {
+			return $this->buildMaintenanceRows();
+		}
+
 		$rows = [];
 
 		foreach ( $this->getDefinitions() as $definition ) {
@@ -54,6 +63,33 @@ class ActionsQueueLandingAssessmentBuilder {
 			foreach ( $this->buildRowsForDefinition( $definition ) as $row ) {
 				$rows[] = $row;
 			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   label:string,
+	 *   description:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string
+	 * }>
+	 */
+	private function buildMaintenanceRows() :array {
+		$rows = [];
+
+		foreach ( $this->buildMaintenanceIssueStateProvider()->buildStates() as $state ) {
+			$rows[] = [
+				'key'               => $state[ 'key' ],
+				'label'             => $state[ 'label' ],
+				'description'       => $state[ 'description' ],
+				'status'            => $state[ 'severity' ],
+				'status_label'      => $this->standardStatusLabel( $state[ 'severity' ] ),
+				'status_icon_class' => $this->standardStatusIconClass( $state[ 'severity' ] ),
+			];
 		}
 
 		return $rows;
@@ -133,20 +169,20 @@ class ActionsQueueLandingAssessmentBuilder {
 	protected function buildAssessmentRow( string $key, string $componentClass ) :?array {
 		$component = $this->buildAssessmentComponent( $componentClass );
 
-		if ( empty( $component[ 'is_applicable' ] ) ) {
+		if ( !$component[ 'is_applicable' ] ) {
 			return null;
 		}
 
-		$status = (bool)( $component[ 'is_protected' ] ?? false )
+		$status = $component[ 'is_protected' ]
 			? 'good'
-			: ( !empty( $component[ 'is_critical' ] ) ? 'critical' : 'warning' );
+			: ( $component[ 'is_critical' ] ? 'critical' : 'warning' );
 
 		return [
 			'key'               => $key,
-			'label'             => (string)( $component[ 'title' ] ?? '' ),
-			'description'       => (string)( ( $component[ 'is_protected' ] ?? false )
-				? ( $component[ 'desc_protected' ] ?? '' )
-				: ( $component[ 'desc_unprotected' ] ?? '' ) ),
+			'label'             => $component[ 'title' ],
+			'description'       => $component[ 'is_protected' ]
+				? $component[ 'desc_protected' ]
+				: $component[ 'desc_unprotected' ],
 			'status'            => $status,
 			'status_label'      => $this->standardStatusLabel( $status ),
 			'status_icon_class' => $this->standardStatusIconClass( $status ),
@@ -159,5 +195,9 @@ class ActionsQueueLandingAssessmentBuilder {
 	 */
 	protected function buildAssessmentComponent( string $componentClass ) :array {
 		return ( new $componentClass() )->build( MeterComponentBase::CHANNEL_ACTION );
+	}
+
+	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
+		return new MaintenanceIssueStateProvider();
 	}
 }

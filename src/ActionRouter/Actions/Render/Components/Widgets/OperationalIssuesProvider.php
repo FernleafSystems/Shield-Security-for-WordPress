@@ -2,9 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Services\Services;
-
 class OperationalIssuesProvider {
 
 	/**
@@ -21,32 +18,10 @@ class OperationalIssuesProvider {
 	 * }>
 	 */
 	public function buildQueueItems() :array {
-		$items = [];
-
-		foreach ( $this->getDefinitions() as $definition ) {
-			if ( ( $definition[ 'zone' ] ?? '' ) !== 'maintenance' ) {
-				continue;
-			}
-
-			$item = $this->buildItemFromDefinition( $definition );
-			if ( $item !== null ) {
-				$items[] = $item;
-			}
-		}
-
-		return $items;
-	}
-
-	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   zone:string,
-	 *   component_class:class-string<\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base>,
-	 *   availability_strategy:string
-	 * }>
-	 */
-	protected function getDefinitions() :array {
-		return PluginNavs::actionsLandingAssessmentDefinitions();
+		return \array_values( \array_filter( \array_map(
+			fn( array $state ) :?array => $this->buildItemFromState( $state ),
+			\array_values( $this->buildMaintenanceIssueStateProvider()->buildStates() )
+		) ) );
 	}
 
 	/**
@@ -62,59 +37,25 @@ class OperationalIssuesProvider {
 	 *   target:string
 	 * }|null
 	 */
-	protected function buildItemFromDefinition( array $definition ) :?array {
-		$component = $this->buildComponent( $definition[ 'component_class' ] );
-		if ( empty( $component[ 'is_applicable' ] ) || !empty( $component[ 'is_protected' ] ) ) {
+	protected function buildItemFromState( array $state ) :?array {
+		if ( $state[ 'count' ] < 1 ) {
 			return null;
 		}
 
-		$count = $this->countForKey( (string)$definition[ 'key' ] );
-		$action = \trim( (string)( $component[ 'fix' ] ?? '' ) );
 		return $this->buildItem(
-			(string)$definition[ 'key' ],
-			(string)( $component[ 'title' ] ?? '' ),
-			$count,
-			!empty( $component[ 'is_critical' ] ) ? 'critical' : 'warning',
-			(string)( $component[ 'desc_unprotected' ] ?? '' ),
-			(string)( $component[ 'href_full' ] ?? '' ),
-			$action === '' ? __( 'Fix', 'wp-simple-firewall' ) : $action,
-			!empty( $component[ 'href_full_target_blank' ] ) ? '_blank' : ''
+			$state[ 'key' ],
+			$state[ 'label' ],
+			$state[ 'count' ],
+			$state[ 'severity' ],
+			$state[ 'description' ],
+			$state[ 'href' ],
+			$state[ 'action' ],
+			$state[ 'target' ]
 		);
 	}
 
-	/**
-	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base> $componentClass
-	 * @return array<string,mixed>
-	 */
-	protected function buildComponent( string $componentClass ) :array {
-		return ( new $componentClass() )->build();
-	}
-
-	protected function countForKey( string $key ) :int {
-		switch ( $key ) {
-			case 'wp_updates':
-				$count = Services::WpGeneral()->hasCoreUpdate() ? 1 : 0;
-				break;
-			case 'wp_plugins_updates':
-				$count = \count( Services::WpPlugins()->getUpdates() );
-				break;
-			case 'wp_themes_updates':
-				$count = \count( Services::WpThemes()->getUpdates() );
-				break;
-			case 'wp_plugins_inactive':
-				$wpPlugins = Services::WpPlugins();
-				$count = \count( $wpPlugins->getPlugins() ) - \count( $wpPlugins->getActivePlugins() );
-				break;
-			case 'wp_themes_inactive':
-				$wpThemes = Services::WpThemes();
-				$count = \count( $wpThemes->getThemes() ) - ( $wpThemes->isActiveThemeAChild() ? 2 : 1 );
-				break;
-			default:
-				$count = 1;
-				break;
-		}
-
-		return \max( 0, $count );
+	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
+		return new MaintenanceIssueStateProvider();
 	}
 
 	/**

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,6 +31,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'request_whitelist',
 		'importexport_whitelist',
 		'file_locker',
+		MaintenanceIssueStateProvider::OPT_KEY,
 	];
 
 	private array $originalOptions = [];
@@ -37,6 +39,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->enablePremiumCapabilities( self::PREMIUM_CAPABILITIES );
+		\delete_site_transient( 'update_plugins' );
 		$con = $this->requireController();
 		foreach ( self::SNAPSHOT_KEYS as $key ) {
 			$this->originalOptions[ $key ] = $con->opts->optGet( $key );
@@ -53,6 +56,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 				$con->opts->store();
 			}
 		}
+		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
 	}
 
@@ -137,5 +141,50 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->optSet( 'importexport_masterurl', $url )->store();
 
 		$this->assertSame( $url, $con->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_ignored_maintenance_items_are_normalized_during_store() :void {
+		$con = $this->requireController();
+		$pluginFiles = \array_values( \array_map(
+			static fn( $file ) :string => (string)$file,
+			\array_keys( Services::WpPlugins()->getPlugins() )
+		) );
+
+		if ( empty( $pluginFiles ) ) {
+			$this->markTestSkipped( 'No installed plugins are available for maintenance normalization.' );
+		}
+
+		$validPluginFile = $pluginFiles[ 0 ];
+		$updates = new \stdClass();
+		$updates->response = [
+			$validPluginFile => (object)[
+				'plugin'      => $validPluginFile,
+				'new_version' => $con->cfg->version().'.1',
+			],
+		];
+		\set_site_transient( 'update_plugins', $updates );
+
+		$con->opts
+			->optSet( MaintenanceIssueStateProvider::OPT_KEY, [
+				'wp_plugins_updates' => [ $validPluginFile, 'stale/plugin.php' ],
+				'system_php_version' => [ MaintenanceIssueStateProvider::SINGLETON_TOKEN, 'bad-value' ],
+				'unknown_bucket'     => [ 'ignore-me' ],
+			] )
+			->store();
+
+		$this->assertSame(
+			[
+				'wp_updates'              => [],
+				'wp_plugins_updates'      => [ $validPluginFile ],
+				'wp_themes_updates'       => [],
+				'wp_plugins_inactive'     => [],
+				'wp_themes_inactive'      => [],
+				'system_ssl_certificate'  => [],
+				'system_php_version'      => [],
+				'wp_db_password'          => [],
+				'system_lib_openssl'      => [],
+			],
+			$con->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )
+		);
 	}
 }

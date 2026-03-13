@@ -216,6 +216,30 @@ class PluginOptionsSchemaTest extends TestCase {
 		];
 	}
 
+	public function testIgnoredMaintenanceItemsOptionUsesExpectedHiddenArrayContract() :void {
+		$option = $this->options['ignored_maintenance_items'] ?? null;
+
+		$this->assertIsArray( $option );
+		$this->assertSame( 'section_hidden', $option['section'] ?? null );
+		$this->assertSame( 'array', $option['type'] ?? null );
+		$this->assertSame( false, $option['transferable'] ?? true );
+		$this->assertSame( true, $option['tracking_exclude'] ?? false );
+		$this->assertSame(
+			[
+				'wp_updates',
+				'wp_plugins_updates',
+				'wp_themes_updates',
+				'wp_plugins_inactive',
+				'wp_themes_inactive',
+				'system_ssl_certificate',
+				'system_php_version',
+				'wp_db_password',
+				'system_lib_openssl',
+			],
+			\array_keys( $option['default'] ?? [] )
+		);
+	}
+
 	public function testSecurityOptionsDefaultToEnabled() :void {
 		// Note: block_php_code is intentionally excluded - it defaults to 'N' because
 		// it can interfere with legitimate WordPress functionality (Plugin/Theme editors)
@@ -303,4 +327,3 @@ class PluginOptionsSchemaTest extends TestCase {
 		}
 	}
 }
-

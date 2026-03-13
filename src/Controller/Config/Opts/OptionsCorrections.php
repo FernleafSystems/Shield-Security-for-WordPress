@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
 use FernleafSystems\Wordpress\Services\Services;
@@ -181,6 +182,10 @@ class OptionsCorrections {
 
 		$url = Services::Data()->validateSimpleHttpUrl( $opts->optGet( 'importexport_masterurl' ) );
 		$opts->optSet( 'importexport_masterurl', $url === false ? '' : $url );
+		$opts->optSet(
+			MaintenanceIssueStateProvider::OPT_KEY,
+			( new MaintenanceIssueStateProvider() )->normalizeCurrentIgnoredItems()
+		);
 	}
 
 	private function scanners() :void {

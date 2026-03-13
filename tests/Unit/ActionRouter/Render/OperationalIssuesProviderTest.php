@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\OperationalIssuesProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
@@ -13,67 +14,42 @@ class OperationalIssuesProviderTest extends BaseUnitTest {
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 	}
 
-	public function test_build_queue_items_uses_maintenance_definitions_as_the_single_source_of_truth() :void {
-		$provider = new OperationalIssuesProviderTestDouble(
-			[
-				[
-					'key'             => 'wp_updates',
-					'zone'            => 'maintenance',
-					'component_class' => 'wp-updates',
-				],
-				[
-					'key'             => 'system_lib_openssl',
-					'zone'            => 'maintenance',
-					'component_class' => 'openssl',
-				],
-				[
-					'key'             => 'wp_db_password',
-					'zone'            => 'maintenance',
-					'component_class' => 'db-password',
-				],
-				[
-					'key'             => 'wp_files',
-					'zone'            => 'scans',
-					'component_class' => 'scan-core',
-				],
+	public function test_build_queue_items_maps_active_maintenance_states() :void {
+		$provider = new OperationalIssuesProviderTestDouble( [
+			'wp_updates' => [
+				'key'           => 'wp_updates',
+				'label'         => 'WordPress Version',
+				'description'   => 'There is an upgrade available for WordPress.',
+				'count'         => 1,
+				'ignored_count' => 0,
+				'severity'      => 'warning',
+				'href'          => '/wp-admin/update-core.php',
+				'action'        => 'Update',
+				'target'        => '_blank',
 			],
-			[
-				'wp-updates' => [
-					'title'           => 'WordPress Version',
-					'desc_unprotected'=> 'There is an upgrade available for WordPress.',
-					'is_protected'    => false,
-					'is_critical'     => false,
-					'is_applicable'   => true,
-					'href_full'       => '/wp-admin/update-core.php',
-					'href_full_target_blank' => true,
-					'fix'             => 'Update',
-				],
-				'openssl' => [
-					'title'           => 'OpenSSL Extension',
-					'desc_unprotected'=> 'OpenSSL requires review.',
-					'is_protected'    => false,
-					'is_critical'     => false,
-					'is_applicable'   => true,
-					'href_full'       => 'https://www.openssl.org/news/vulnerabilities.html',
-					'href_full_target_blank' => true,
-					'fix'             => 'Review',
-				],
-				'db-password' => [
-					'title'           => 'MySQL DB Password',
-					'desc_unprotected'=> 'Database password is weak.',
-					'is_protected'    => false,
-					'is_critical'     => false,
-					'is_applicable'   => true,
-					'href_full'       => '',
-					'fix'             => '',
-				],
+			'system_lib_openssl' => [
+				'key'           => 'system_lib_openssl',
+				'label'         => 'OpenSSL Extension',
+				'description'   => 'OpenSSL requires review.',
+				'count'         => 1,
+				'ignored_count' => 0,
+				'severity'      => 'warning',
+				'href'          => 'https://www.openssl.org/news/vulnerabilities.html',
+				'action'        => 'Review',
+				'target'        => '_blank',
 			],
-			[
-				'wp_updates'          => 1,
-				'system_lib_openssl'  => 1,
-				'wp_db_password'      => 1,
-			]
-		);
+			'wp_db_password' => [
+				'key'           => 'wp_db_password',
+				'label'         => 'MySQL DB Password',
+				'description'   => 'Database password is weak.',
+				'count'         => 1,
+				'ignored_count' => 0,
+				'severity'      => 'warning',
+				'href'          => '',
+				'action'        => 'Fix',
+				'target'        => '',
+			],
+		] );
 
 		$items = $provider->buildQueueItems();
 		$this->assertSame( [ 'wp_updates', 'system_lib_openssl', 'wp_db_password' ], \array_column( $items, 'key' ) );
@@ -84,74 +60,31 @@ class OperationalIssuesProviderTest extends BaseUnitTest {
 		$this->assertSame( '', $items[ 2 ][ 'href' ] ?? 'missing' );
 	}
 
-	public function test_build_queue_items_skips_protected_non_applicable_and_zero_count_components() :void {
-		$provider = new OperationalIssuesProviderTestDouble(
-			[
-				[
-					'key'             => 'system_php_version',
-					'zone'            => 'maintenance',
-					'component_class' => 'php-version',
-				],
-				[
-					'key'             => 'wp_db_password',
-					'zone'            => 'maintenance',
-					'component_class' => 'db-password',
-				],
-				[
-					'key'             => 'wp_plugins_updates',
-					'zone'            => 'maintenance',
-					'component_class' => 'plugin-updates',
-				],
-				[
-					'key'             => 'system_ssl_certificate',
-					'zone'            => 'maintenance',
-					'component_class' => 'ssl-certificate',
-				],
+	public function test_build_queue_items_skips_zero_count_states() :void {
+		$provider = new OperationalIssuesProviderTestDouble( [
+			'system_php_version' => [
+				'key'           => 'system_php_version',
+				'label'         => 'PHP Version',
+				'description'   => 'This maintenance item is currently ignored.',
+				'count'         => 0,
+				'ignored_count' => 1,
+				'severity'      => 'good',
+				'href'          => 'https://example.com/php',
+				'action'        => 'Review',
+				'target'        => '_blank',
 			],
-			[
-				'php-version' => [
-					'title'           => 'PHP Version',
-					'desc_unprotected'=> 'PHP is old.',
-					'is_protected'    => true,
-					'is_critical'     => false,
-					'is_applicable'   => true,
-					'href_full'       => 'https://example.com/php',
-					'fix'             => 'Review',
-				],
-				'db-password' => [
-					'title'           => 'MySQL DB Password',
-					'desc_unprotected'=> 'Database password is weak.',
-					'is_protected'    => false,
-					'is_critical'     => false,
-					'is_applicable'   => false,
-					'href_full'       => 'https://example.com/db',
-					'fix'             => 'Review',
-				],
-				'plugin-updates' => [
-					'title'           => 'Plugins With Updates',
-					'desc_unprotected'=> 'Plugins need updates.',
-					'is_protected'    => false,
-					'is_critical'     => false,
-					'is_applicable'   => true,
-					'href_full'       => '/wp-admin/plugins.php',
-					'fix'             => 'Update',
-				],
-				'ssl-certificate' => [
-					'title'           => 'SSL Certificate',
-					'desc_unprotected'=> 'SSL certificate has expired.',
-					'is_protected'    => false,
-					'is_critical'     => true,
-					'is_applicable'   => true,
-					'href_full'       => 'https://example.com/ssl',
-					'href_full_target_blank' => true,
-					'fix'             => 'Review',
-				],
+			'system_ssl_certificate' => [
+				'key'           => 'system_ssl_certificate',
+				'label'         => 'SSL Certificate',
+				'description'   => 'SSL certificate has expired.',
+				'count'         => 1,
+				'ignored_count' => 0,
+				'severity'      => 'critical',
+				'href'          => 'https://example.com/ssl',
+				'action'        => 'Review',
+				'target'        => '_blank',
 			],
-			[
-				'wp_plugins_updates'   => 0,
-				'system_ssl_certificate' => 1,
-			]
-		);
+		] );
 
 		$items = $provider->buildQueueItems();
 		$this->assertCount( 1, $items );
@@ -163,25 +96,23 @@ class OperationalIssuesProviderTest extends BaseUnitTest {
 
 class OperationalIssuesProviderTestDouble extends OperationalIssuesProvider {
 
-	private array $definitions;
-	private array $components;
-	private array $counts;
+	private array $states;
 
-	public function __construct( array $definitions, array $components, array $counts ) {
-		$this->definitions = $definitions;
-		$this->components = $components;
-		$this->counts = $counts;
+	public function __construct( array $states ) {
+		$this->states = $states;
 	}
 
-	protected function getDefinitions() :array {
-		return $this->definitions;
-	}
+	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
+		return new class( $this->states ) extends MaintenanceIssueStateProvider {
+			private array $states;
 
-	protected function buildComponent( string $componentClass ) :array {
-		return $this->components[ $componentClass ] ?? [];
-	}
+			public function __construct( array $states ) {
+				$this->states = $states;
+			}
 
-	protected function countForKey( string $key ) :int {
-		return (int)( $this->counts[ $key ] ?? 0 );
+			public function buildStates() :array {
+				return $this->states;
+			}
+		};
 	}
 }

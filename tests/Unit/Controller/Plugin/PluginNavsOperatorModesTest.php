@@ -139,6 +139,20 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( Component\SystemSslCertificate::class, $definitions[ 11 ][ 'component_class' ] );
 	}
 
+	public function test_maintenance_definition_keys_align_with_component_slugs() :void {
+		$maintenanceDefinitions = \array_values( \array_filter(
+			PluginNavs::actionsLandingAssessmentDefinitions(),
+			static fn( array $definition ) :bool => ( $definition[ 'zone' ] ?? '' ) === 'maintenance'
+		) );
+
+		foreach ( $maintenanceDefinitions as $definition ) {
+			$this->assertSame(
+				$definition[ 'key' ],
+				$definition[ 'component_class' ]::SLUG
+			);
+		}
+	}
+
 	public function test_reports_workspace_definitions_match_expected_contract() :void {
 		$definitions = PluginNavs::reportsWorkspaceDefinitions();
 		$this->assertSame(
