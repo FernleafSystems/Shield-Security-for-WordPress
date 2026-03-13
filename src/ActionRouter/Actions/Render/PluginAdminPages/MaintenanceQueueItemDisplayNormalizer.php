@@ -28,13 +28,22 @@ use FernleafSystems\Wordpress\Services\Services;
  *   target?:string,
  *   ajax_action?:array<string,mixed>
  * }
+ * @phpstan-type MaintenancePrimaryAction array{
+ *   href:string,
+ *   label:string,
+ *   target?:string,
+ *   icon?:string,
+ *   tooltip?:string,
+ *   is_icon_only?:bool
+ * }
  * @phpstan-type MaintenanceExpansionRow array{
  *   title:string,
  *   subtitle:string,
  *   context:string,
  *   identifier:string,
- *   action:MaintenanceItemCta,
+ *   action:array{}|MaintenancePrimaryAction,
  *   is_ignored:bool,
+ *   ignored_label:string,
  *   secondary_actions:list<MaintenanceUiAction>
  * }
  * @phpstan-type MaintenanceExpansionTable array{
@@ -73,7 +82,16 @@ use FernleafSystems\Wordpress\Services\Services;
  *   active_identifiers:list<string>,
  *   ignored_identifiers:list<string>
  * }
- * @phpstan-type MaintenanceQueueItem QueueItem&array{
+ * @phpstan-type MaintenanceQueueItem array{
+ *   key:string,
+ *   zone:string,
+ *   label:string,
+ *   count:int,
+ *   severity:string,
+ *   description:string,
+ *   href:string,
+ *   action:string,
+ *   target:string,
  *   cta:array{}|MaintenanceItemCta,
  *   toggle_action:array{}|MaintenanceUiAction,
  *   expansion:array{}|MaintenanceItemExpansion
@@ -308,7 +326,14 @@ class MaintenanceQueueItemDisplayNormalizer {
 				__( 'Plugin is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $plugin->Version ),
 				$plugin->file,
-				$this->buildRowAction( $this->buildPluginSearchHref( $plugin->file ), __( 'Open plugin', 'wp-simple-firewall' ) ),
+				$this->buildRowAction(
+					$this->buildPluginSearchHref( $plugin->file ),
+					__( 'Manage this plugin', 'wp-simple-firewall' ),
+					'bi bi-arrow-right-circle-fill',
+					__( 'Manage this plugin', 'wp-simple-firewall' ),
+					true,
+					'_blank'
+				),
 				\in_array( $plugin->file, $ignoredIdentifiers, true ),
 				'wp_plugins_inactive'
 			);
@@ -324,8 +349,6 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$rows = [];
 		$themes = Services::WpThemes();
 		$activeThemes = \array_fill_keys( $this->getActiveThemeStylesheets(), true );
-		$themesHref = Services::WpGeneral()->getAdminUrl_Themes();
-
 		foreach ( \array_keys( $themes->getThemes() ) as $stylesheet ) {
 			if ( isset( $activeThemes[ $stylesheet ] ) ) {
 				continue;
@@ -341,7 +364,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 				__( 'Theme is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $theme->Version ),
 				$theme->stylesheet,
-				$this->buildRowAction( $themesHref, __( 'Open themes', 'wp-simple-firewall' ) ),
+				[],
 				\in_array( $theme->stylesheet, $ignoredIdentifiers, true ),
 				'wp_themes_inactive'
 			);
@@ -391,6 +414,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 			'identifier'        => $identifier,
 			'action'            => $action,
 			'is_ignored'        => $isIgnored,
+			'ignored_label'     => $isIgnored ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
 			'secondary_actions' => [
 				$this->buildRowToggleAction( $maintenanceKey, $identifier, $isIgnored ),
 			],
@@ -442,13 +466,28 @@ class MaintenanceQueueItemDisplayNormalizer {
 	}
 
 	/**
-	 * @return MaintenanceItemCta
+	 * @return array{}|MaintenancePrimaryAction
 	 */
-	private function buildRowAction( string $href, string $label ) :array {
-		return [
-			'href'  => $href,
-			'label' => $label,
-		];
+	private function buildRowAction(
+		string $href,
+		string $label,
+		string $icon = '',
+		string $tooltip = '',
+		bool $isIconOnly = false,
+		string $target = ''
+	) :array {
+		if ( $href === '' || $label === '' ) {
+			return [];
+		}
+
+		return \array_filter( [
+			'href'         => $href,
+			'label'        => $label,
+			'icon'         => $icon,
+			'tooltip'      => $tooltip,
+			'is_icon_only' => $isIconOnly,
+			'target'       => $target,
+		], static fn( $value ) :bool => !\in_array( $value, [ '', false, null ], true ) );
 	}
 
 	/**
@@ -463,7 +502,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 */
 	private function buildUiToggleAction( string $maintenanceKey, string $identifier, bool $isIgnored ) :array {
 		$actionClass = $isIgnored ? MaintenanceItemUnignore::class : MaintenanceItemIgnore::class;
-		$label = $isIgnored ? __( 'Unignore', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' );
+		$label = $isIgnored ? __( 'Stop ignoring', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' );
 		$tooltip = $isIgnored
 			? __( 'Stop ignoring this maintenance item', 'wp-simple-firewall' )
 			: __( 'Ignore this maintenance item', 'wp-simple-firewall' );

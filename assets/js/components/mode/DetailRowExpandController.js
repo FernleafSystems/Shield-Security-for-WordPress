@@ -1,6 +1,7 @@
-import { Collapse, Tooltip } from 'bootstrap';
+import { Collapse } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { UiContentActivator } from "../ui/UiContentActivator";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class DetailRowExpandController extends BaseAutoExecComponent {
 
@@ -84,12 +85,7 @@ export class DetailRowExpandController extends BaseAutoExecComponent {
 	}
 
 	handleCollapseHidden( expansion ) {
-		expansion.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( el ) => {
-			const tip = Tooltip.getInstance( el );
-			if ( tip ) {
-				tip.dispose();
-			}
-		} );
+		BootstrapTooltips.DisposeTooltipsWithin( expansion );
 
 		const row = this.findRowForExpansion( expansion );
 		if ( row !== null ) {

@@ -3,6 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
@@ -165,6 +166,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return false;
 		}
 
+		BootstrapTooltips.DisposeTooltipsWithin( panelContent );
 		panelContent.innerHTML = panelBodyHtml;
 		this.syncPanelChrome( panel, true );
 		UiContentActivator.activateCurrentSubtree( panelContent );
@@ -174,6 +176,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	renderPanelLoadingMarkup( panel ) {
 		const panelContent = this.getPanelContentContainer( panel );
 		if ( panelContent !== null ) {
+			BootstrapTooltips.DisposeTooltipsWithin( panelContent );
 			panelContent.innerHTML = this.buildPanelLoadingMarkup();
 		}
 		this.syncPanelChrome( panel, true );
@@ -182,6 +185,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	handlePanelLoadFailure( panel ) {
 		const panelContent = this.getPanelContentContainer( panel );
 		if ( panelContent !== null ) {
+			BootstrapTooltips.DisposeTooltipsWithin( panelContent );
 			panelContent.innerHTML = this.buildInlineErrorMarkup();
 		}
 		this.syncPanelChrome( panel, true );

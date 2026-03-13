@@ -4,7 +4,7 @@
 	<div class="small text-muted">{{ table.empty_text }}</div>
 {% else %}
 	<div class="table-responsive">
-		<table class="table table-sm align-middle mb-0">
+		<table class="table table-sm align-middle mb-0 actions-landing__maintenance-table">
 			<thead>
 			<tr>
 				<th>{{ table.columns.item }}</th>
@@ -19,7 +19,14 @@
 					data-actions-queue-maintenance-ignored="1"
 				{% endif %}>
 					<td>
-						<div class="fw-semibold">{{ row.title }}</div>
+						<div class="actions-landing__maintenance-title">
+							<span class="fw-semibold">{{ row.title }}</span>
+							{% if row.ignored_label|default('') is not empty %}
+								<span class="shield-badge badge-info actions-landing__maintenance-ignored-badge">
+									{{ row.ignored_label }}
+								</span>
+							{% endif %}
+						</div>
 						{% if row.subtitle is not empty %}
 							<div class="small text-muted">{{ row.subtitle }}</div>
 						{% endif %}
@@ -34,12 +41,24 @@
 					</td>
 					<td class="text-end text-nowrap">
 						{% set has_primary_action = row.action.href is not empty and row.action.label is not empty %}
+						{% set is_icon_only_primary = has_primary_action and row.action.is_icon_only|default(false) %}
 						{% if has_primary_action %}
-							<a href="{{ row.action.href }}"
-							   class="btn btn-outline-secondary btn-sm"
-							   {% if row.action.target is defined and row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
-								{{ row.action.label }}
-							</a>
+							{% if is_icon_only_primary %}
+								<a href="{{ row.action.href }}"
+								   class="btn btn-sm btn-light action actions-landing__table-icon-action"
+								   {% if row.action.tooltip is defined and row.action.tooltip is not empty %}data-bs-toggle="tooltip"
+								   data-bs-title="{{ row.action.tooltip|e('html_attr') }}"{% endif %}
+								   {% if row.action.target is defined and row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+									<i class="{{ row.action.icon|default('bi bi-arrow-right-circle-fill') }}" aria-hidden="true"></i>
+									<span class="visually-hidden">{{ row.action.label }}</span>
+								</a>
+							{% else %}
+								<a href="{{ row.action.href }}"
+								   class="btn btn-outline-secondary btn-sm"
+								   {% if row.action.target is defined and row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+									{{ row.action.label }}
+								</a>
+							{% endif %}
 						{% endif %}
 						{% for action in row.secondary_actions|default([]) %}
 							<a href="{{ action.href|default('javascript:{}') }}"

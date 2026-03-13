@@ -52,15 +52,50 @@ export class BootstrapTooltips extends BaseComponent {
 	};
 
 	static RegisterNewTooltipsWithin( container ) {
-		if ( container ) {
-			container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( targetEl ) => {
-				const title = targetEl.getAttribute( 'data-bs-title' ) ?? targetEl.getAttribute( 'title' );
-				if ( typeof title !== 'string' || title.trim().length < 1 ) {
-					return;
-				}
-				Tooltip.getOrCreateInstance( targetEl )
-			} );
-		}
+		BootstrapTooltips.collectTooltipTargetsWithin( container ).forEach( ( targetEl ) => {
+			const title = targetEl.getAttribute( 'data-bs-title' ) ?? targetEl.getAttribute( 'title' );
+			if ( typeof title !== 'string' || title.trim().length < 1 ) {
+				return;
+			}
+			Tooltip.getOrCreateInstance( targetEl );
+		} );
 		// console.log( container );
+	}
+
+	static DisposeTooltipsWithin( container ) {
+		BootstrapTooltips.collectTooltipTargetsWithin( container )
+		.forEach( ( targetEl ) => BootstrapTooltips.HideAndDisposeTooltip( targetEl ) );
+	}
+
+	static HideAndDisposeTooltip( targetEl ) {
+		const tip = Tooltip.getInstance( targetEl );
+		if ( tip ) {
+			tip.dispose();
+		}
+		if ( targetEl instanceof Element ) {
+			targetEl.removeAttribute( 'aria-describedby' );
+		}
+	}
+
+	static collectTooltipTargetsWithin( container ) {
+		const root = container instanceof Element || container instanceof Document
+			? container
+			: null;
+		if ( root === null ) {
+			return [];
+		}
+
+		const targets = [];
+		if ( root instanceof Element && root.matches( '[data-bs-toggle="tooltip"]' ) ) {
+			targets.push( root );
+		}
+
+		root.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( targetEl ) => {
+			if ( !targets.includes( targetEl ) ) {
+				targets.push( targetEl );
+			}
+		} );
+
+		return targets;
 	}
 }

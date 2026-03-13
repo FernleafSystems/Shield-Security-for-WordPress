@@ -528,6 +528,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 											'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
 										],
 										'is_ignored'        => false,
+										'ignored_label'     => '',
 										'secondary_actions' => [
 											[
 												'label'       => 'Ignore',
@@ -550,9 +551,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 											'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=hello-dolly/hello.php',
 										],
 										'is_ignored'        => true,
+										'ignored_label'     => 'Currently ignored',
 										'secondary_actions' => [
 											[
-												'label'       => 'Unignore',
+												'label'       => 'Stop ignoring',
 												'href'        => 'javascript:{}',
 												'icon'        => 'bi bi-eye-fill',
 												'tooltip'     => 'Stop ignoring this maintenance item',
@@ -588,7 +590,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 							],
 							[
 								'type'       => 'navigate',
-								'label'      => 'Unignore',
+								'label'      => 'Stop ignoring',
 								'href'       => 'javascript:{}',
 								'icon'       => 'bi bi-eye-fill',
 								'tooltip'    => 'Stop ignoring this maintenance item',
@@ -988,7 +990,8 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row ")]'
 			.'[.//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__title ") and normalize-space()="PHP Version"]]'
-			.'//*[contains(concat(" ", normalize-space(@class), " "), " shield-action-chip ") and normalize-space()="Unignore"]',
+			.'//a[@href="javascript:{}" and contains(concat(" ", normalize-space(@class), " "), " shield-action-chip ")]'
+			.'[.//i[contains(concat(" ", normalize-space(@class), " "), " bi-eye-fill ")]]',
 			'Maintenance pane singleton rows should render maintenance unignore action chips'
 		);
 		$this->assertSame(

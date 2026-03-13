@@ -224,13 +224,71 @@
 	width: 2rem;
 }
 
+.actions-landing__maintenance-table {
+	color: #1d2327;
+}
+
+.actions-landing__maintenance-title {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+.actions-landing__maintenance-ignored-badge {
+	font-size: 0.68rem;
+	font-weight: 600;
+	background-color: #eef0f1;
+	border: 1px solid #dcdcde;
+	color: #50575e;
+}
+
+.actions-landing__maintenance-table thead th {
+	color: #50575e;
+	font-size: 0.74rem;
+	font-weight: 700;
+}
+
+.actions-landing__maintenance-table tbody td {
+	color: #1d2327;
+}
+
+.actions-landing__maintenance-table .small.text-muted,
+.actions-landing__maintenance-table code {
+	color: #646970;
+}
+
+.actions-landing__maintenance-row {
+	transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, opacity 0.15s ease-in-out;
+}
+
 .actions-landing__maintenance-row.is-ignored {
-	opacity: 0.58;
-	transition: opacity 0.15s ease-in-out;
+	background-color: #f3f4f5;
+	box-shadow: inset 3px 0 0 #c3c4c7;
+	opacity: 0.3;
+}
+
+.actions-landing__maintenance-row.is-ignored td {
+	color: #2c3338;
+}
+
+.actions-landing__maintenance-row.is-ignored .fw-semibold {
+	color: #1d2327;
+}
+
+.actions-landing__maintenance-row.is-ignored .small.text-muted,
+.actions-landing__maintenance-row.is-ignored code {
+	color: #50575e;
+}
+
+.actions-landing__maintenance-row.is-ignored .actions-landing__table-icon-action {
+	background-color: #fff;
+	color: #50575e;
 }
 
 .actions-landing__maintenance-row.is-ignored:hover,
 .actions-landing__maintenance-row.is-ignored:focus-within {
+	background-color: #eceef0;
 	opacity: 1;
 }
 

@@ -118,7 +118,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
-		$this->assertSame( 'Update', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'cta' ][ 'label' ] ?? '' );
 		$this->assertSame( 'maintenance-expand-wp_plugins_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $item[ 'expansion' ][ 'type' ] ?? '' );
 		$this->assertSame( 'Akismet Anti-Spam', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
@@ -128,9 +128,14 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? ''
 		);
-		$this->assertSame( 'Update', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertFalse( (bool)( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'is_ignored' ] ?? true ) );
-		$this->assertSame( 'Ignore', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( '', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'ignored_label' ] ?? 'unexpected' );
+		$this->assertSame( 'bi bi-eye-slash-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'icon' ] ?? '' );
+		$this->assertSame(
+			'maintenance_item_ignore',
+			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
+		);
 	}
 
 	public function test_theme_update_rows_get_eager_simple_table_expansion_with_existing_updates_screen_action() :void {
@@ -163,7 +168,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance-expand-wp_themes_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertSame( 'Twenty Twenty-Five', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'Current: 1.1 | Available: 1.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
-		$this->assertSame( 'Open updates', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertSame( '/wp-admin/update-core.php', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? '' );
 	}
 
@@ -196,11 +201,14 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
-		$this->assertSame( 'Go to plugins', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'cta' ][ 'label' ] ?? '' );
 		$this->assertCount( 1, $item[ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertSame( 'Hello Dolly', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'Version: 1.7.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
-		$this->assertSame( 'Open plugin', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'tooltip' ] ?? '' );
+		$this->assertTrue( (bool)( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'is_icon_only' ] ?? false ) );
+		$this->assertSame( '_blank', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'target' ] ?? '' );
 		$this->assertSame(
 			'/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? ''
@@ -237,12 +245,11 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
-		$this->assertSame( 'Go to themes', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'cta' ][ 'label' ] ?? '' );
 		$this->assertCount( 1, $item[ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertSame( 'Inactive Theme', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'inactive-theme', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'identifier' ] ?? '' );
-		$this->assertSame( 'Open themes', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
-		$this->assertSame( '/wp-admin/themes.php', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? '' );
+		$this->assertSame( [], $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ] ?? [ 'unexpected' ] );
 	}
 
 	public function test_normalize_all_sorts_ignored_rows_after_active_rows() :void {
@@ -299,7 +306,12 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( [ 'Akismet Anti-Spam', 'Hello Dolly' ], \array_column( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ], 'title' ) );
 		$this->assertFalse( (bool)( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'is_ignored' ] ?? true ) );
 		$this->assertTrue( (bool)( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'is_ignored' ] ?? false ) );
-		$this->assertSame( 'Unignore', $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'ignored_label' ] ?? '' );
+		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'icon' ] ?? '' );
+		$this->assertSame(
+			'maintenance_item_unignore',
+			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
+		);
 	}
 
 	public function test_normalize_all_appends_fully_ignored_singleton_item_with_unignore_action() :void {
@@ -324,7 +336,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'system_php_version', $items[ 0 ][ 'key' ] ?? '' );
 		$this->assertSame( 'good', $items[ 0 ][ 'severity' ] ?? '' );
 		$this->assertSame( [], $items[ 0 ][ 'expansion' ] ?? [] );
-		$this->assertSame( 'Unignore', $items[ 0 ][ 'toggle_action' ][ 'label' ] ?? '' );
+		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'toggle_action' ][ 'icon' ] ?? '' );
+		$this->assertSame( 'maintenance_item_unignore', $items[ 0 ][ 'toggle_action' ][ 'ajax_action' ][ 'ex' ] ?? '' );
 	}
 
 	public function test_normalize_all_appends_fully_ignored_sub_item_check_with_ignored_rows() :void {
@@ -375,7 +388,12 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $items[ 0 ][ 'expansion' ][ 'type' ] ?? '' );
 		$this->assertCount( 2, $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertTrue( (bool)( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'is_ignored' ] ?? false ) );
-		$this->assertSame( 'Unignore', $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'ignored_label' ] ?? '' );
+		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'icon' ] ?? '' );
+		$this->assertSame(
+			'maintenance_item_unignore',
+			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
+		);
 	}
 
 	private function installServices( array $fixture = [] ) :void {

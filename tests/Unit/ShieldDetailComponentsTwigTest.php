@@ -240,6 +240,74 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		);
 	}
 
+	public function testSimpleTableSupportsIconOnlyPrimaryActionsAndEmptyPrimaryActions() :void {
+		$html = $this->twig()->render( '/wpadmin/components/page/detail_expansion_simple_table.twig', [
+			'table' => [
+				'columns' => [
+					'item'    => 'Item',
+					'details' => 'Details',
+					'action'  => 'Action',
+				],
+				'rows'    => [
+					[
+						'title'      => 'Inactive Plugin',
+						'subtitle'   => 'Plugin is currently inactive',
+						'context'    => 'Version: 1.0.0',
+						'identifier' => 'inactive-plugin/inactive-plugin.php',
+						'is_ignored' => true,
+						'ignored_label' => 'Currently ignored',
+						'action'     => [
+							'href'         => '/wp-admin/plugins.php?s=inactive-plugin%2Finactive-plugin.php',
+							'label'        => 'Manage this plugin',
+							'icon'         => 'bi bi-arrow-right-circle-fill',
+							'tooltip'      => 'Manage this plugin',
+							'target'       => '_blank',
+							'is_icon_only' => true,
+						],
+						'secondary_actions' => [],
+					],
+					[
+						'title'      => 'Inactive Theme',
+						'subtitle'   => 'Theme is currently inactive',
+						'context'    => 'Version: 1.0.0',
+						'identifier' => 'inactive-theme',
+						'ignored_label' => '',
+						'action'     => [],
+						'secondary_actions' => [],
+					],
+				],
+				'empty_text' => 'No items are currently available.',
+			],
+		] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame(
+			1,
+			$xpath->query( '//table[contains(concat(" ", normalize-space(@class), " "), " actions-landing__maintenance-table ")]' )->length,
+			'Simple tables should expose the maintenance table styling hook'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//a[@href="/wp-admin/plugins.php?s=inactive-plugin%2Finactive-plugin.php" and @target="_blank" and @data-bs-title and contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ")]' )->length,
+			'Icon-only maintenance primary actions should render tooltip-enabled icon buttons'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//tr[@data-actions-queue-maintenance-ignored="1"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-landing__maintenance-ignored-badge ")]' )->length,
+			'Ignored maintenance rows should render the PHP-provided ignored label badge'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//a[@href="/wp-admin/plugins.php?s=inactive-plugin%2Finactive-plugin.php"]//*[contains(concat(" ", normalize-space(@class), " "), " visually-hidden ") and normalize-space()!=""]' )->length,
+			'Icon-only maintenance primary actions should keep an accessible text label'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//tr[td//*[normalize-space()="Inactive Theme"]]//a' )->length,
+			'Rows without a primary maintenance action should not render an empty button'
+		);
+	}
+
 	public function testDetailExpansionRendersBootstrapCollapseContract() :void {
 		$html = $this->twig()->render( '/wpadmin/components/page/shield_detail_expansion.twig', [
 			'expansion' => [

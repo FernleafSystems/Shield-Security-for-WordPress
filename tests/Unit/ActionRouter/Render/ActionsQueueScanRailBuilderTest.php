@@ -126,7 +126,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] );
 		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] );
 		$this->assertSame(
-			[ 'summary', 'wordpress', 'vulnerabilities', 'maintenance', 'plugins', 'themes', 'malware', 'file_locker' ],
+			[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $railTabs, 'key' )
 		);
 		$this->assertTrue( (bool)$summaryTab[ 'is_loaded' ] );
@@ -134,8 +134,10 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertContains( 'wordpress', $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ) );
 		$this->assertSame( 1, \count( \array_filter(
 			$summaryTab[ 'items' ],
-			static fn( array $item ) :bool => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ) === 'maintenance'
-		) ) );
+				static fn( array $item ) :bool => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ) === 'maintenance'
+			) ) );
+		$this->assertSame( [ 'WordPress Files' ], $this->extractItemTitlesBySection( $summaryTab[ 'items' ], 'Critical' ) );
+		$this->assertSame( [ 'Vulnerabilities', 'Maintenance' ], $this->extractItemTitlesBySection( $summaryTab[ 'items' ], 'Warnings' ) );
 		$this->assertContains( 'Plugin Files', $this->extractItemTitlesBySection( $summaryTab[ 'items' ], 'All clear' ) );
 		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
 		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
@@ -145,7 +147,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Maintenance', $maintenanceTab[ 'label' ] );
 		$this->assertContains( 'WordPress Version', \array_column( $maintenanceTab[ 'items' ], 'title' ) );
 		$this->assertContains( 'PHP Version', \array_column( $maintenanceTab[ 'items' ], 'title' ) );
-		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( '/wp-updates', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( '_blank', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'attributes' ][ 'target' ] );
 		$this->assertSame( 'scanresults_maintenance', $maintenanceTab[ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'actions_queue', $wordpressTab[ 'render_action' ][ 'display_context' ] );
@@ -166,7 +168,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( '', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] );
 	}
 
-	public function test_build_orders_tabs_from_summary_issue_sequence_and_deduplicates_vulnerability_rows() :void {
+	public function test_build_keeps_fixed_tab_order_and_sorts_summary_by_severity_then_tab_order() :void {
 		$builder = new ActionsQueueScanRailBuilderTestDouble( true, true, true, true, true );
 
 		$renderData = $builder->buildFromLandingViewData(
@@ -187,8 +189,16 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame(
-			[ 'summary', 'vulnerabilities', 'wordpress', 'maintenance', 'plugins', 'themes', 'malware', 'file_locker' ],
+			[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $renderData[ 'vars' ][ 'rail_tabs' ], 'key' )
+		);
+		$this->assertSame(
+			[ 'Vulnerabilities', 'WordPress Files' ],
+			$this->extractItemTitlesBySection( $renderData[ 'vars' ][ 'rail_tabs' ][ 0 ][ 'items' ], 'Critical' )
+		);
+		$this->assertSame(
+			[ 'Abandoned Assets', 'Maintenance' ],
+			$this->extractItemTitlesBySection( $renderData[ 'vars' ][ 'rail_tabs' ][ 0 ][ 'items' ], 'Warnings' )
 		);
 	}
 
@@ -248,7 +258,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		}
 
 		$this->assertSame(
-			[ 'summary', 'maintenance', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+			[ 'summary', 'vulnerabilities', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
 			\array_keys( $tabsByKey )
 		);
 		$this->assertTrue( (bool)$tabsByKey[ 'maintenance' ][ 'is_loaded' ] );
@@ -319,12 +329,13 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$maintenanceTab = $this->findTabByKey( $railTabs, 'maintenance' );
 
 		$this->assertSame(
-			[ 'summary', 'maintenance', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+			[ 'summary', 'vulnerabilities', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $railTabs, 'key' )
 		);
 		$this->assertSame( 1, $summaryTab[ 'count' ] );
 		$this->assertSame( 'warning', $summaryTab[ 'status' ] );
 		$this->assertSame( [ 'maintenance' ], $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ) );
+		$this->assertSame( [ 'Maintenance' ], $this->extractItemTitlesBySection( $summaryTab[ 'items' ], 'Warnings' ) );
 		$this->assertNotContains( 'WordPress Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
 		$this->assertNotContains( 'PHP Version', \array_column( $summaryTab[ 'items' ], 'title' ) );
 		$this->assertSame( 1, $maintenanceTab[ 'count' ] );
@@ -345,7 +356,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 						'label' => 'Open',
 						'href'  => '/wp-updates',
 					], [
-						'label'       => 'Unignore',
+						'label'       => 'Stop ignoring',
 						'href'        => 'javascript:{}',
 						'icon'        => 'bi bi-eye-fill',
 						'tooltip'     => 'Stop ignoring this maintenance item',
@@ -361,8 +372,8 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$maintenanceTab = $this->findTabByKey( $renderData[ 'vars' ][ 'rail_tabs' ], 'maintenance' );
 
 		$this->assertCount( 2, $maintenanceTab[ 'items' ] );
-		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] );
-		$this->assertSame( 'Unignore', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 1 ][ 'label' ] );
+		$this->assertSame( '/wp-updates', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertSame( 'bi bi-eye-fill', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 1 ][ 'icon' ] );
 		$this->assertSame(
 			'{"ex":"maintenance_item_unignore"}',
 			$maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 1 ][ 'attributes' ][ 'data-actions-queue-maintenance-action' ] ?? ''

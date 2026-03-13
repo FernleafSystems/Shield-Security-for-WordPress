@@ -92,7 +92,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			true,
 			6,
 			'critical',
-			'Last scan: 3 minutes ago',
 			[
 				$this->buildZoneGroup( 'scans', 'critical', 4, [
 					$this->buildQueueItem( 'malware', 'scans', 'Malware', 3, 'critical' ),
@@ -104,7 +103,10 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$view = ( new ActionsQueueLandingViewBuilder() )->build( $payload );
+		$view = ( new ActionsQueueLandingViewBuilder() )->build( $payload, [
+			'scans'       => [],
+			'maintenance' => [],
+		], 'Last scan: 3 minutes ago' );
 		$zonesIndexed = $view[ 'zones_indexed' ] ?? [];
 		$zoneTiles = $view[ 'zone_tiles' ] ?? [];
 		$strip = $view[ 'severity_strip' ] ?? [];
@@ -133,7 +135,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			false,
 			0,
 			'good',
-			'',
 			[
 				$this->buildZoneGroup( 'scans', 'good', 0, [] ),
 				$this->buildZoneGroup( 'maintenance', 'good', 0, [] ),
@@ -203,7 +204,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 				true,
 				1,
 				'warning',
-				'',
 				[
 					$this->buildZoneGroup( 'scans', 'good', 0, [] ),
 					$this->buildZoneGroup( 'maintenance', 'warning', 1, [
@@ -243,7 +243,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 				false,
 				0,
 				'good',
-				'',
 				[
 					$this->buildZoneGroup( 'scans', 'good', 0, [] ),
 					$this->buildZoneGroup( 'maintenance', 'good', 0, [
@@ -262,7 +261,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 								'href'  => '/wp-admin/update-core.php',
 							],
 							'toggle_action' => [
-								'label'       => 'Unignore',
+								'label'       => 'Stop ignoring',
 								'href'        => 'javascript:{}',
 								'icon'        => 'bi bi-eye-fill',
 								'tooltip'     => 'Stop ignoring this maintenance item',
@@ -371,32 +370,40 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		bool $hasItems,
 		int $totalItems,
 		string $severity,
-		string $subtext,
 		array $zoneGroups
 	) :array {
-		return [
-			'render_output' => 'rendered-needs-attention-queue',
-			'render_data'   => [
-				'flags'   => [
-					'has_items' => $hasItems,
-				],
-				'strings' => [
-					'all_clear_title'      => 'All security zones are clear',
-					'all_clear_subtitle'   => 'Shield is actively protecting your site. Nothing requires your action.',
-					'status_strip_subtext' => $subtext,
-					'all_clear_icon_class' => 'bi bi-shield-check',
-				],
-				'vars'    => [
-					'summary'     => [
-						'has_items'   => $hasItems,
-						'total_items' => $totalItems,
-						'severity'    => $severity,
-						'icon_class'  => 'bi bi-from-summary',
-						'subtext'     => $subtext,
-					],
-					'zone_groups' => $zoneGroups,
-				],
+		$groups = [
+			'scans' => [
+				'zone'     => 'scans',
+				'total'    => 0,
+				'severity' => 'good',
+				'items'    => [],
 			],
+			'maintenance' => [
+				'zone'     => 'maintenance',
+				'total'    => 0,
+				'severity' => 'good',
+				'items'    => [],
+			],
+		];
+		foreach ( $zoneGroups as $group ) {
+			$groups[ $group[ 'slug' ] ] = [
+				'zone'     => $group[ 'slug' ],
+				'total'    => $group[ 'total_issues' ],
+				'severity' => $group[ 'severity' ],
+				'items'    => $group[ 'items' ],
+			];
+		}
+
+		return [
+			'generated_at' => 1700000000,
+			'summary'      => [
+				'total'        => $totalItems,
+				'severity'     => $severity,
+				'is_all_clear' => !$hasItems,
+			],
+			'items'        => \array_merge( $groups[ 'scans' ][ 'items' ], $groups[ 'maintenance' ][ 'items' ] ),
+			'groups'       => $groups,
 		];
 	}
 

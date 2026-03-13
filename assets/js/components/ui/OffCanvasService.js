@@ -3,6 +3,7 @@ import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxService } from "../services/AjaxService";
 import { UiContentActivator } from "./UiContentActivator";
+import { BootstrapTooltips } from "./BootstrapTooltips";
 
 export class OffCanvasService extends BaseComponent {
 
@@ -77,6 +78,7 @@ export class OffCanvasService extends BaseComponent {
 		spinner.id = '';
 		spinner.classList.remove( 'd-none' );
 
+		BootstrapTooltips.DisposeTooltipsWithin( OffCanvasService.offCanvasEl );
 		OffCanvasService.offCanvasEl.textContent = '';
 		OffCanvasService.offCanvasEl.appendChild( spinner );
 		OffCanvasService.offCanvasEl.classList.forEach( ( cls ) => {
@@ -91,6 +93,7 @@ export class OffCanvasService extends BaseComponent {
 		.then( ( resp ) => {
 			if ( resp.success ) {
 				OffCanvasService.offCanvasEl.classList.add( request.render_slug );
+				BootstrapTooltips.DisposeTooltipsWithin( OffCanvasService.offCanvasEl );
 				OffCanvasService.offCanvasEl.innerHTML = resp.data.html;
 				if ( OffCanvasService.offCanvasEl.classList.contains( 'show' ) ) {
 					UiContentActivator.activateCurrentSubtree( OffCanvasService.offCanvasEl );

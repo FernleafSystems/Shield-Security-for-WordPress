@@ -102,7 +102,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			$maintenanceAssessmentRows,
 			$maintenanceMetrics
 		);
-		$tabDefinitions = $this->buildOrderedQueueTabDefinitions( $summaryRows, $maintenanceDefinition );
+		$tabDefinitions = $this->buildOrderedQueueTabDefinitions( $maintenanceDefinition );
 		$summaryTargets = $this->buildSummaryRailTargets( $tabDefinitions );
 		$summaryMeta = $this->getRailTabMeta( 'summary' );
 		$railTabs = $this->buildTabs( \array_merge(
@@ -190,9 +190,9 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	/**
 	 * @return list<array<string,mixed>>
 	 */
-	private function buildOrderedQueueTabDefinitions( array $summaryRows, array $maintenanceDefinition ) :array {
+	private function buildOrderedQueueTabDefinitions( array $maintenanceDefinition ) :array {
 		$definitions = [];
-		foreach ( $this->buildOrderedQueueRailTabKeys( $summaryRows ) as $tabKey ) {
+		foreach ( $this->buildOrderedQueueRailTabKeys() as $tabKey ) {
 			if ( $tabKey === 'maintenance' ) {
 				$definitions[] = $maintenanceDefinition;
 				continue;
@@ -206,25 +206,18 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @param list<SummaryRow> $summaryRows
 	 * @return list<string>
 	 */
-	private function buildOrderedQueueRailTabKeys( array $summaryRows ) :array {
-		$orderedKeys = [];
-		foreach ( $summaryRows as $row ) {
-			$tabKey = $this->findRailTabKeyForSummaryKey( (string)( $row[ 'key' ] ?? '' ) );
-			if ( $tabKey !== '' && !\in_array( $tabKey, $orderedKeys, true ) ) {
-				$orderedKeys[] = $tabKey;
-			}
-		}
-
-		foreach ( \array_merge( $this->getOrderedRailTabKeys( false ), [ 'maintenance' ] ) as $tabKey ) {
-			if ( !\in_array( $tabKey, $orderedKeys, true ) ) {
-				$orderedKeys[] = $tabKey;
-			}
-		}
-
-		return $orderedKeys;
+	private function buildOrderedQueueRailTabKeys() :array {
+		return [
+			'vulnerabilities',
+			'wordpress',
+			'plugins',
+			'themes',
+			'malware',
+			'file_locker',
+			'maintenance',
+		];
 	}
 
 	private function findRailTabKeyForSummaryKey( string $summaryKey ) :string {
@@ -232,7 +225,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			return '';
 		}
 
-		foreach ( \array_merge( $this->getOrderedRailTabKeys( false ), [ 'maintenance' ] ) as $tabKey ) {
+		foreach ( $this->buildOrderedQueueRailTabKeys() as $tabKey ) {
 			if ( \in_array( $summaryKey, $this->getRailTabMeta( $tabKey )[ 'summary_keys' ], true ) ) {
 				return $tabKey;
 			}
@@ -400,6 +393,148 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * @param list<SummaryRow> $summaryRows
+	 * @param list<AssessmentRow> $assessmentRows
+	 * @param array<string,string> $summaryRailTargets
+	 * @return list<array<string,mixed>>
+	 */
+	protected function buildSummaryRailItems( array $summaryRows, array $assessmentRows, array $summaryRailTargets = [] ) :array {
+		$items = [];
+
+		foreach ( $this->buildOrderedSummaryIssueRows( $summaryRows, $summaryRailTargets ) as $row ) {
+			$items[] = $row;
+		}
+
+		foreach ( $this->buildOrderedSummaryAssessmentRows( $assessmentRows ) as $row ) {
+			$items[] = $row;
+		}
+
+		return $items;
+	}
+
+	/**
+	 * @param list<SummaryRow> $summaryRows
+	 * @param array<string,string> $summaryRailTargets
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildOrderedSummaryIssueRows( array $summaryRows, array $summaryRailTargets ) :array {
+		$items = [];
+
+		foreach ( [
+			'critical' => __( 'Critical', 'wp-simple-firewall' ),
+			'warning'  => __( 'Warnings', 'wp-simple-firewall' ),
+		] as $severity => $sectionLabel ) {
+			foreach ( $this->filterSummaryRowsBySeverityAndTabOrder( $summaryRows, $severity ) as $item ) {
+				$railTab = $summaryRailTargets[ $item[ 'key' ] ] ?? $this->findRailTabKeyForSummaryKey( $item[ 'key' ] );
+				$row = $this->buildDetailRow(
+					$item[ 'label' ],
+					$item[ 'text' ],
+					$severity,
+					$item[ 'count' ],
+					$severity
+				);
+				if ( $railTab !== '' ) {
+					$row[ 'attributes' ] = $this->buildQueueRailSwitchRowAttributes( $railTab );
+				}
+				else {
+					$row[ 'actions' ] = $this->buildActionsForHref(
+						$item[ 'action' ],
+						$item[ 'href' ]
+					);
+				}
+				$row[ 'section_label' ] = $sectionLabel;
+				$items[] = $row;
+			}
+		}
+
+		return $items;
+	}
+
+	/**
+	 * @param list<AssessmentRow> $assessmentRows
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildOrderedSummaryAssessmentRows( array $assessmentRows ) :array {
+		$items = [];
+
+		foreach ( $this->filterAssessmentRowsByStatusAndTabOrder( $assessmentRows, 'good' ) as $item ) {
+			$row = $this->buildDetailRow(
+				$item[ 'label' ],
+				$item[ 'description' ],
+				'good',
+				null,
+				null,
+				[],
+				$item[ 'status_icon_class' ],
+				$item[ 'status_label' ]
+			);
+			$row[ 'section_label' ] = __( 'All clear', 'wp-simple-firewall' );
+			$items[] = $row;
+		}
+
+		return $items;
+	}
+
+	/**
+	 * @param list<SummaryRow> $summaryRows
+	 * @return list<SummaryRow>
+	 */
+	private function filterSummaryRowsBySeverityAndTabOrder( array $summaryRows, string $severity ) :array {
+		return $this->sortByQueueTabOrder( \array_values( \array_filter(
+			$summaryRows,
+			fn( array $item ) :bool => StatusPriority::normalize( $item[ 'severity' ], 'warning' ) === $severity
+		) ), fn( array $item ) :string => $this->findRailTabKeyForSummaryKey( $item[ 'key' ] ) );
+	}
+
+	/**
+	 * @param list<AssessmentRow> $assessmentRows
+	 * @return list<AssessmentRow>
+	 */
+	private function filterAssessmentRowsByStatusAndTabOrder( array $assessmentRows, string $status ) :array {
+		return $this->sortByQueueTabOrder( \array_values( \array_filter(
+			$assessmentRows,
+			static fn( array $item ) :bool => StatusPriority::normalize( $item[ 'status' ], 'good' ) === $status
+		) ), fn( array $item ) :string => $this->findRailTabKeyForSummaryKey( $item[ 'key' ] ) );
+	}
+
+	/**
+	 * @template T of array<string,mixed>
+	 * @param list<T> $items
+	 * @param callable(T):string $tabKeyFromItem
+	 * @return list<T>
+	 */
+	private function sortByQueueTabOrder( array $items, callable $tabKeyFromItem ) :array {
+		$sorted = [];
+
+		foreach ( $this->buildOrderedQueueRailTabKeys() as $tabKey ) {
+			foreach ( $items as $item ) {
+				if ( $tabKeyFromItem( $item ) === $tabKey ) {
+					$sorted[] = $item;
+				}
+			}
+		}
+
+		foreach ( $items as $item ) {
+			if ( !\in_array( $item, $sorted, true ) ) {
+				$sorted[] = $item;
+			}
+		}
+
+		return $sorted;
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function buildQueueRailSwitchRowAttributes( string $target ) :array {
+		return [
+			'data-shield-rail-switch' => $target,
+			'role'                    => 'button',
+			'tabindex'                => '0',
+		];
 	}
 
 	/**

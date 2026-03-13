@@ -296,8 +296,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@id="maintenance-expand-wp_plugins_inactive"]//a[@href="/wp-admin/plugins.php?s='.rawurlencode( $pluginFile ).'"]',
-			'Inactive plugin maintenance rows should link to the filtered plugins admin screen'
+			'//*[@id="maintenance-expand-wp_plugins_inactive"]//a[@href="/wp-admin/plugins.php?s='.rawurlencode( $pluginFile ).'" and @data-bs-title="Manage this plugin" and contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ")]',
+			'Inactive plugin maintenance rows should render the filtered plugins admin link as an icon action with tooltip'
 		);
 		$this->assertSame(
 			0,
@@ -332,7 +332,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, (int)( $scans[ 'total_issues' ] ?? 0 ) );
 		$this->assertNotEmpty( $scansResults );
 		$this->assertSame(
-			[ 'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'maintenance' ],
+			[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'maintenance' ],
 			$railTabs
 		);
 		$this->assertXPathExists(
@@ -497,7 +497,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertContains( 'maintenance', \array_keys( $tabsByKey ) );
 		$this->assertSame(
-			[ 'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'maintenance' ],
+			[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'maintenance' ],
 			\array_keys( $tabsByKey )
 		);
 		$this->assertXPathExists(

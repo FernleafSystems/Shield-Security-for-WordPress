@@ -1,6 +1,7 @@
-import { Tab, Tooltip } from 'bootstrap';
+import { Tab } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { UiContentActivator } from "../ui/UiContentActivator";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class RailSidebarController extends BaseAutoExecComponent {
 
@@ -83,19 +84,10 @@ export class RailSidebarController extends BaseAutoExecComponent {
 
 		return scope.querySelector( targetSelector );
 	}
-	disposeTooltipsWithin( container ) {
-		container.querySelectorAll( '[data-bs-toggle="tooltip"]' ).forEach( ( el ) => {
-			const tip = Tooltip.getInstance( el );
-			if ( tip ) {
-				tip.dispose();
-			}
-		} );
-	}
-
 	activatePaneEnhancements( scope, targetPane ) {
 		const contentArea = scope.querySelector( '.shield-rail-layout__content' );
 		if ( contentArea !== null ) {
-			this.disposeTooltipsWithin( contentArea );
+			BootstrapTooltips.DisposeTooltipsWithin( contentArea );
 		}
 		UiContentActivator.activateCurrentSubtree( targetPane );
 	}

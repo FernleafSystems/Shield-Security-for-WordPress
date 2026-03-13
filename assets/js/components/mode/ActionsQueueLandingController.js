@@ -3,6 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
@@ -118,6 +119,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 		pane.dataset.actionsQueuePaneLoading = '1';
 		if ( showPlaceholder ) {
+			BootstrapTooltips.DisposeTooltipsWithin( pane );
 			pane.innerHTML = this.buildLoadingMarkup();
 		}
 
@@ -182,6 +184,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	applyPaneHtml( pane, html, initializeNow = false ) {
+		BootstrapTooltips.DisposeTooltipsWithin( pane );
 		pane.innerHTML = html;
 		pane.dataset.actionsQueuePaneLoaded = '1';
 		delete pane.dataset.actionsQueuePaneLoading;
@@ -253,6 +256,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		const requestKey = `${Date.now()}-${Math.random()}`;
 		panel.dataset.actionsQueueAssetPanelLoading = '1';
 		panel.dataset.actionsQueueAssetPanelRequest = requestKey;
+		BootstrapTooltips.DisposeTooltipsWithin( content );
 		content.innerHTML = this.buildLoadingMarkup();
 
 		( new AjaxService() )
@@ -263,6 +267,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			}
 
 			if ( resp.success && typeof resp?.data?.html === 'string' ) {
+				BootstrapTooltips.DisposeTooltipsWithin( content );
 				content.innerHTML = resp.data.html;
 				panel.dataset.actionsQueueAssetPanelLoaded = '1';
 				UiContentActivator.activateCurrentSubtree( panel );
@@ -270,6 +275,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			}
 
 			panel.dataset.actionsQueueAssetPanelLoaded = '0';
+			BootstrapTooltips.DisposeTooltipsWithin( content );
 			content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
 		} )
 		.catch( () => {
@@ -278,6 +284,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			}
 
 			panel.dataset.actionsQueueAssetPanelLoaded = '0';
+			BootstrapTooltips.DisposeTooltipsWithin( content );
 			content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
 		} )
 		.finally( () => {
@@ -324,6 +331,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	renderLoadFailure( pane ) {
 		delete pane.dataset.actionsQueuePaneLoading;
 		delete pane.dataset.actionsQueuePaneInitialized;
+		BootstrapTooltips.DisposeTooltipsWithin( pane );
 		pane.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
 	}
 
@@ -521,6 +529,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 		evt.preventDefault();
 		this.rootEl = root;
+		BootstrapTooltips.HideAndDisposeTooltip( target );
 
 		const actionData = this.parseJsonDataset( target.dataset.actionsQueueMaintenanceAction );
 		if ( ObjectOps.IsEmpty( actionData ) ) {
