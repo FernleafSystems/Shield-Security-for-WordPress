@@ -87,16 +87,13 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			$summaryRows[] = $this->buildMaintenanceSummaryRow( $maintenanceMetrics );
 		}
 		$summaryMetrics = $initialMetrics[ 'tabs' ][ 'summary' ];
-		$lazyDefinitions = $this->buildLazyTabDefinitions();
 		$maintenanceDefinition = $this->buildMaintenanceTabDefinition(
 			$maintenanceItems,
 			$maintenanceAssessmentRows,
 			$maintenanceMetrics
 		);
-		$summaryTargets = $this->buildSummaryRailTargets( \array_merge(
-			$lazyDefinitions,
-			[ $maintenanceDefinition ]
-		) );
+		$tabDefinitions = $this->buildOrderedQueueTabDefinitions( $summaryRows, $maintenanceDefinition );
+		$summaryTargets = $this->buildSummaryRailTargets( $tabDefinitions );
 		$summaryMeta = $this->getRailTabMeta( 'summary' );
 		$railTabs = $this->buildTabs( \array_merge(
 			[
@@ -115,8 +112,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 					'is_loaded'  => true,
 				],
 			],
-			$lazyDefinitions,
-			[ $maintenanceDefinition ]
+			$tabDefinitions
 		) );
 
 		$rail = $this->buildRailContract( $railTabs );
@@ -183,15 +179,55 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	/**
 	 * @return list<array<string,mixed>>
 	 */
-	private function buildLazyTabDefinitions() :array {
+	private function buildOrderedQueueTabDefinitions( array $summaryRows, array $maintenanceDefinition ) :array {
 		$definitions = [];
-		foreach ( $this->getOrderedRailTabKeys( false ) as $tabKey ) {
+		foreach ( $this->buildOrderedQueueRailTabKeys( $summaryRows ) as $tabKey ) {
+			if ( $tabKey === 'maintenance' ) {
+				$definitions[] = $maintenanceDefinition;
+				continue;
+			}
 			$definition = $this->buildLazyTabDefinition( $tabKey );
 			if ( $definition !== null ) {
 				$definitions[] = $definition;
 			}
 		}
 		return $definitions;
+	}
+
+	/**
+	 * @param list<SummaryRow> $summaryRows
+	 * @return list<string>
+	 */
+	private function buildOrderedQueueRailTabKeys( array $summaryRows ) :array {
+		$orderedKeys = [];
+		foreach ( $summaryRows as $row ) {
+			$tabKey = $this->findRailTabKeyForSummaryKey( (string)( $row[ 'key' ] ?? '' ) );
+			if ( $tabKey !== '' && !\in_array( $tabKey, $orderedKeys, true ) ) {
+				$orderedKeys[] = $tabKey;
+			}
+		}
+
+		foreach ( \array_merge( $this->getOrderedRailTabKeys( false ), [ 'maintenance' ] ) as $tabKey ) {
+			if ( !\in_array( $tabKey, $orderedKeys, true ) ) {
+				$orderedKeys[] = $tabKey;
+			}
+		}
+
+		return $orderedKeys;
+	}
+
+	private function findRailTabKeyForSummaryKey( string $summaryKey ) :string {
+		if ( $summaryKey === '' ) {
+			return '';
+		}
+
+		foreach ( \array_merge( $this->getOrderedRailTabKeys( false ), [ 'maintenance' ] ) as $tabKey ) {
+			if ( \in_array( $summaryKey, $this->getRailTabMeta( $tabKey )[ 'summary_keys' ], true ) ) {
+				return $tabKey;
+			}
+		}
+
+		return '';
 	}
 
 	/**
