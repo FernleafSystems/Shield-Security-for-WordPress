@@ -21,6 +21,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 /**
  * @phpstan-import-type QueueItem from NeedsAttentionQueuePayload
  * @phpstan-import-type ZoneGroup from NeedsAttentionQueuePayload
+ * @phpstan-type MaintenanceItemCta array{
+ *   href:string,
+ *   label:string,
+ *   target?:string
+ * }
+ * @phpstan-type MaintenanceExpansion array{
+ *   id:string,
+ *   type:'simple_table',
+ *   status:string,
+ *   table:array<string,mixed>
+ * }
+ * @phpstan-type MaintenanceQueueItem QueueItem&array{
+ *   cta:array{}|MaintenanceItemCta,
+ *   expansion:array{}|MaintenanceExpansion
+ * }
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -59,15 +74,13 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	] ) :array {
 		$scansZoneGroup = NeedsAttentionQueuePayload::zoneGroup( $needsAttentionPayload, 'scans' );
 		$maintenanceZoneGroup = NeedsAttentionQueuePayload::zoneGroup( $needsAttentionPayload, 'maintenance' );
-		$scansAssessmentRows = $assessmentRowsByZone[ 'scans' ] ?? [];
-		$maintenanceAssessmentRows = $assessmentRowsByZone[ 'maintenance' ] ?? [];
-		$maintenanceItems = ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll(
-			$maintenanceZoneGroup[ 'items' ] ?? []
-		);
+		$scansAssessmentRows = $assessmentRowsByZone[ 'scans' ];
+		$maintenanceAssessmentRows = $assessmentRowsByZone[ 'maintenance' ];
+		$maintenanceItems = ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll( $maintenanceZoneGroup[ 'items' ] );
 		$metrics = $this->buildInitialRailMetrics( $needsAttentionPayload );
 		$maintenanceMetrics = $metrics[ 'tabs' ][ 'maintenance' ];
 		$summaryRows = $this->buildSummaryRowsFromZoneGroup( $scansZoneGroup );
-		if ( (int)( $maintenanceMetrics[ 'count' ] ?? 0 ) > 0 ) {
+		if ( $maintenanceMetrics[ 'count' ] > 0 ) {
 			$summaryRows[] = $this->buildMaintenanceSummaryRow( $maintenanceMetrics );
 		}
 		$summaryMetrics = $metrics[ 'tabs' ][ 'summary' ];
@@ -158,7 +171,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		return [
 			'key'        => 'maintenance',
 			'label'      => $meta[ 'label' ],
-			'count'      => (int)( $maintenanceMetrics[ 'count' ] ?? 0 ),
+			'count'      => $maintenanceMetrics[ 'count' ],
 			'is_shown'   => true,
 			'status'     => $this->maintenanceMetricsStatus( $maintenanceMetrics ),
 			'icon_class' => $meta[ 'icon_class' ],
@@ -260,7 +273,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 * @return SummaryRow
 	 */
 	private function buildMaintenanceSummaryRow( array $maintenanceMetrics ) :array {
-		$count = (int)( $maintenanceMetrics[ 'count' ] ?? 0 );
+		$count = $maintenanceMetrics[ 'count' ];
 
 		return [
 			'key'      => 'maintenance',
@@ -282,7 +295,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @param list<QueueItem> $maintenanceItems
+	 * @param list<MaintenanceQueueItem> $maintenanceItems
 	 * @param list<AssessmentRow> $maintenanceAssessmentRows
 	 * @return list<array<string,mixed>>
 	 */
@@ -290,34 +303,38 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		$items = [];
 
 		foreach ( $maintenanceItems as $item ) {
-			$status = StatusPriority::normalize( (string)( $item[ 'severity' ] ?? 'warning' ), 'warning' );
-			$items[] = $this->buildDetailRow(
-				(string)( $item[ 'label' ] ?? '' ),
-				(string)( $item[ 'description' ] ?? '' ),
+			$status = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
+			$row = $this->buildDetailRow(
+				$item[ 'label' ],
+				$item[ 'description' ],
 				$status,
-				(int)( $item[ 'count' ] ?? 0 ),
+				$item[ 'count' ],
 				$status === 'neutral' ? 'info' : $status,
-				$this->buildMaintenanceRailActions( \is_array( $item[ 'cta' ] ?? null ) ? $item[ 'cta' ] : [] ),
+				$this->buildMaintenanceRailActions( $item[ 'cta' ] ),
 				null,
 				null,
 				__( 'Needs attention', 'wp-simple-firewall' )
 			);
+			if ( $item[ 'expansion' ] !== [] ) {
+				$row = $this->attachExpansionToDetailRow( $row, $item[ 'expansion' ] );
+			}
+			$items[] = $row;
 		}
 
 		foreach ( $maintenanceAssessmentRows as $row ) {
-			if ( ( $row[ 'status' ] ?? '' ) !== 'good' ) {
+			if ( $row[ 'status' ] !== 'good' ) {
 				continue;
 			}
 
 			$items[] = $this->buildDetailRow(
-				(string)( $row[ 'label' ] ?? '' ),
-				(string)( $row[ 'description' ] ?? '' ),
+				$row[ 'label' ],
+				$row[ 'description' ],
 				'good',
 				null,
 				null,
 				[],
-				(string)( $row[ 'status_icon_class' ] ?? '' ),
-				(string)( $row[ 'status_label' ] ?? '' ),
+				$row[ 'status_icon_class' ],
+				$row[ 'status_label' ],
 				__( 'All clear', 'wp-simple-firewall' )
 			);
 		}
@@ -329,21 +346,21 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 * @return list<array<string,mixed>>
 	 */
 	private function buildMaintenanceRailActions( array $action ) :array {
-		if ( empty( $action[ 'label' ] ) || empty( $action[ 'href' ] ) ) {
+		if ( $action === [] ) {
 			return [];
 		}
 
 		$attributes = [];
-		if ( !empty( $action[ 'target' ] ) ) {
-			$attributes[ 'target' ] = (string)$action[ 'target' ];
+		if ( isset( $action[ 'target' ] ) && $action[ 'target' ] !== '' ) {
+			$attributes[ 'target' ] = $action[ 'target' ];
 		}
 
 		return [
 			[
 				'type'       => 'navigate',
-				'label'      => (string)$action[ 'label' ],
-				'href'       => (string)$action[ 'href' ],
-				'icon'       => (string)( $action[ 'icon' ] ?? 'bi bi-arrow-right-circle-fill' ),
+				'label'      => $action[ 'label' ],
+				'href'       => $action[ 'href' ],
+				'icon'       => 'bi bi-arrow-right-circle-fill',
 				'attributes' => $attributes,
 			],
 		];
@@ -353,7 +370,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 * @param array{count:int,status:string} $maintenanceMetrics
 	 */
 	private function maintenanceMetricsStatus( array $maintenanceMetrics ) :string {
-		return StatusPriority::normalize( (string)( $maintenanceMetrics[ 'status' ] ?? 'good' ), 'good' );
+		return StatusPriority::normalize( $maintenanceMetrics[ 'status' ], 'good' );
 	}
 
 	/**

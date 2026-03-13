@@ -361,6 +361,81 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '_blank', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'target' ] ?? '' );
 	}
 
+	public function test_maintenance_asset_rows_get_eager_expansion_contracts_in_tile_items() :void {
+		$this->installServices(
+			[],
+			[
+				'updates' => [
+					'akismet/akismet.php' => [ 'new_version' => '5.4.0' ],
+				],
+				'plugins' => [
+					'akismet/akismet.php'     => [],
+					'hello-dolly/hello.php'   => [],
+				],
+				'active' => [
+					'akismet/akismet.php',
+				],
+				'plugin_vos' => [
+					'akismet/akismet.php'   => $this->buildPluginVo( 'akismet/akismet.php', 'Akismet Anti-Spam', '5.3.0' ),
+					'hello-dolly/hello.php' => $this->buildPluginVo( 'hello-dolly/hello.php', 'Hello Dolly', '1.7.2' ),
+				],
+				'activate_urls' => [
+					'hello-dolly/hello.php' => '/wp-admin/plugins.php?action=activate&plugin=hello-dolly/hello.php',
+				],
+				'upgrade_urls' => [
+					'akismet/akismet.php' => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
+				],
+			],
+			[
+				'updates' => [
+					'twentytwentyfive' => [ 'new_version' => '1.2' ],
+				],
+				'themes' => [
+					'twentytwentyfive' => [],
+					'inactive-theme'   => [],
+				],
+				'theme_vos' => [
+					'twentytwentyfive' => $this->buildThemeVo( 'twentytwentyfive', 'Twenty Twenty-Five', '1.1' ),
+					'inactive-theme'   => $this->buildThemeVo( 'inactive-theme', 'Inactive Theme', '3.0.1' ),
+				],
+				'current' => 'twentytwentyfive',
+			]
+		);
+
+		$this->capture->queuePayload = $this->buildQueuePayload(
+			true,
+			5,
+			'warning',
+			'',
+			[
+				$this->buildZoneGroup( 'scans', 'good', 0, [] ),
+				$this->buildZoneGroup( 'maintenance', 'warning', 5, [
+					$this->buildQueueItem( 'wp_plugins_updates', 'maintenance', 'Plugins With Updates', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_themes_updates', 'maintenance', 'Themes With Updates', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_plugins_inactive', 'maintenance', 'Inactive Plugins', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_themes_inactive', 'maintenance', 'Inactive Themes', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_updates', 'maintenance', 'WordPress Version', 1, 'warning' ),
+				] ),
+			]
+		);
+
+		$vars = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingVars' );
+		$maintenanceTile = \array_values( \array_filter(
+			$vars[ 'zone_tiles' ] ?? [],
+			static fn( array $tile ) :bool => ( $tile[ 'key' ] ?? '' ) === 'maintenance'
+		) )[ 0 ] ?? [];
+		$itemsByKey = [];
+		foreach ( $maintenanceTile[ 'items' ] ?? [] as $item ) {
+			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+		}
+
+		foreach ( [ 'wp_plugins_updates', 'wp_themes_updates', 'wp_plugins_inactive', 'wp_themes_inactive' ] as $key ) {
+			$this->assertNotEmpty( $itemsByKey[ $key ][ 'expansion' ] ?? [], 'Expected expansion for '.$key );
+			$this->assertSame( 'simple_table', $itemsByKey[ $key ][ 'expansion' ][ 'type' ] ?? '' );
+		}
+		$this->assertSame( [], $itemsByKey[ 'wp_updates' ][ 'expansion' ] ?? [] );
+	}
+
 	public function test_maintenance_detail_groups_order_rows_without_repeating_problem_assessments() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			true,
@@ -506,6 +581,11 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					};
 				}
 			},
+			'license' => new class {
+				public function hasValidWorkingLicense() :bool {
+					return false;
+				}
+			},
 		];
 		$controller->action_router = new class( $this->capture ) {
 			private object $capture;
@@ -561,7 +641,23 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		return $page;
 	}
 
-	private function installServices( array $query = [] ) :void {
+	private function installServices( array $query = [], array $pluginFixture = [], array $themeFixture = [] ) :void {
+		$pluginFixture = \array_merge( [
+			'updates'    => [],
+			'plugins'    => [],
+			'active'     => [],
+			'plugin_vos' => [],
+			'activate_urls' => [],
+			'upgrade_urls'  => [],
+		], $pluginFixture );
+		$themeFixture = \array_merge( [
+			'updates'      => [],
+			'themes'       => [],
+			'theme_vos'    => [],
+			'current'      => '',
+			'current_parent' => '',
+		], $themeFixture );
+
 		ServicesState::installItems( [
 			'service_request' => new class( $query ) extends Request {
 				private array $queryValues;
@@ -603,14 +699,88 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					return '/wp-admin/themes.php';
 				}
 			},
-			'service_wpplugins' => new class extends Plugins {
+			'service_wpplugins' => new class( $pluginFixture ) extends Plugins {
+				private array $fixture;
+
+				public function __construct( array $fixture ) {
+					$this->fixture = $fixture;
+				}
+
 				public function getUpdates( $bForceUpdateCheck = false ) {
-					return [];
+					return $this->fixture[ 'updates' ];
+				}
+
+				public function getPlugins() :array {
+					return $this->fixture[ 'plugins' ];
+				}
+
+				public function getActivePlugins() :array {
+					return $this->fixture[ 'active' ];
+				}
+
+				public function getPluginAsVo( string $file, bool $reload = false ) :?\FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo {
+					return $this->fixture[ 'plugin_vos' ][ $file ] ?? null;
+				}
+
+				public function getUrl_Activate( $file ) :string {
+					return (string)( $this->fixture[ 'activate_urls' ][ $file ] ?? '/wp-admin/plugins.php?action=activate&plugin='.$file );
+				}
+
+				public function getUrl_Upgrade( $file ) :string {
+					return (string)( $this->fixture[ 'upgrade_urls' ][ $file ] ?? '/wp-admin/update.php?action=upgrade-plugin&plugin='.$file );
 				}
 			},
-			'service_wpthemes' => new class extends Themes {
+			'service_wpthemes' => new class( $themeFixture ) extends Themes {
+				private array $fixture;
+
+				public function __construct( array $fixture ) {
+					$this->fixture = $fixture;
+				}
+
 				public function getUpdates( $forceCheck = false ) {
-					return [];
+					return $this->fixture[ 'updates' ];
+				}
+
+				public function getThemes() :array {
+					return $this->fixture[ 'themes' ];
+				}
+
+				public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?\FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo {
+					return $this->fixture[ 'theme_vos' ][ $stylesheet ] ?? null;
+				}
+
+				public function getCurrent() {
+					$stylesheet = (string)( $this->fixture[ 'current' ] ?? '' );
+					return new class( $stylesheet ) {
+						private string $stylesheet;
+
+						public function __construct( string $stylesheet ) {
+							$this->stylesheet = $stylesheet;
+						}
+
+						public function get_stylesheet() :string {
+							return $this->stylesheet;
+						}
+					};
+				}
+
+				public function getCurrentParent() {
+					$stylesheet = (string)( $this->fixture[ 'current_parent' ] ?? '' );
+					if ( $stylesheet === '' ) {
+						return null;
+					}
+
+					return new class( $stylesheet ) {
+						private string $stylesheet;
+
+						public function __construct( string $stylesheet ) {
+							$this->stylesheet = $stylesheet;
+						}
+
+						public function get_stylesheet() :string {
+							return $this->stylesheet;
+						}
+					};
 				}
 			},
 			'service_wpusers' => new class extends Users {
@@ -668,6 +838,36 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			'status_label'      => $statusLabel,
 			'status_icon_class' => $statusIconClass,
 		];
+	}
+
+	private function buildPluginVo( string $file, string $title, string $version ) :\FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo {
+		return new class( $file, $title, $version ) extends \FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo {
+			public string $file;
+			public string $Title;
+			public string $Name;
+			public string $Version;
+
+			public function __construct( string $file, string $title, string $version ) {
+				$this->file = $file;
+				$this->Title = $title;
+				$this->Name = $title;
+				$this->Version = $version;
+			}
+		};
+	}
+
+	private function buildThemeVo( string $stylesheet, string $name, string $version ) :\FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo {
+		return new class( $stylesheet, $name, $version ) extends \FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo {
+			public string $stylesheet;
+			public string $Name;
+			public string $Version;
+
+			public function __construct( string $stylesheet, string $name, string $version ) {
+				$this->stylesheet = $stylesheet;
+				$this->Name = $name;
+				$this->Version = $version;
+			}
+		};
 	}
 
 	/**

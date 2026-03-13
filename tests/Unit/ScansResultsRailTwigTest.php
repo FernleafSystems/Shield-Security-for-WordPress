@@ -99,7 +99,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			'badge_status'    => null,
 			'expandable'      => false,
 			'expand_target'   => '',
-			'expansion_table' => [],
+			'expansion'       => [],
 			'explanations'    => [],
 			'show_gear'       => false,
 			'actions'         => [],
@@ -252,22 +252,27 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								'count_badge' => 2,
 								'expandable'  => true,
 								'expand_target' => 'scan-files-plugin-example-plugin',
-								'expansion_table' => [
-									'title'               => 'File Scan Status',
-									'status'              => 'warning',
-									'table_type'          => 'file_scan_results',
-									'subject_type'        => 'plugin',
-									'subject_id'          => 'example-plugin/example-plugin.php',
-									'datatables_init'     => '{}',
-									'table_action'        => '{}',
-									'scan_results_action' => '{}',
-									'render_item_analysis' => '{}',
-									'show_header'         => false,
-									'is_flat'             => true,
-									'is_empty'            => false,
-									'full_log_href'       => '/wp-admin/admin.php?page=shield&nav=scans&subnav=results',
-									'full_log_text'       => 'Full Scan Results',
-									'full_log_button_class' => 'btn btn-primary btn-sm',
+								'expansion' => [
+									'id'     => 'scan-files-plugin-example-plugin',
+									'type'   => 'investigation_table',
+									'status' => 'warning',
+									'table'  => [
+										'title'               => 'File Scan Status',
+										'status'              => 'warning',
+										'table_type'          => 'file_scan_results',
+										'subject_type'        => 'plugin',
+										'subject_id'          => 'example-plugin/example-plugin.php',
+										'datatables_init'     => '{}',
+										'table_action'        => '{}',
+										'scan_results_action' => '{}',
+										'render_item_analysis' => '{}',
+										'show_header'         => false,
+										'is_flat'             => true,
+										'is_empty'            => false,
+										'full_log_href'       => '/wp-admin/admin.php?page=shield&nav=scans&subnav=results',
+										'full_log_text'       => 'Full Scan Results',
+										'full_log_button_class' => 'btn btn-primary btn-sm',
+									],
 								],
 								'actions'     => [
 									[
@@ -475,6 +480,64 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 				'is_disabled'      => true,
 				'disabled_message' => 'Malware Scanning is not enabled.',
 				'items'            => [],
+			] ),
+			'content' => [],
+		];
+	}
+
+	private function buildMaintenancePaneRenderContext() :array {
+		return [
+			'strings' => [
+				'no_issues'    => 'No issues found in this section.',
+				'pane_loading' => 'Loading scan details...',
+			],
+			'tab'     => $this->normalizeRailTab( [
+				'key'       => 'maintenance',
+				'pane_id'   => 'h-tabs-maintenance',
+				'is_loaded' => true,
+				'items'     => [
+					[
+						'title'         => 'Plugins With Updates',
+						'description'   => '1 plugin update is available.',
+						'status'        => 'warning',
+						'count_badge'   => 1,
+						'expandable'    => true,
+						'expand_target' => 'maintenance-expand-wp_plugins_updates',
+						'expansion'     => [
+							'id'     => 'maintenance-expand-wp_plugins_updates',
+							'type'   => 'simple_table',
+							'status' => 'warning',
+							'table'  => [
+								'columns' => [
+									'item'    => 'Item',
+									'details' => 'Details',
+									'action'  => 'Action',
+								],
+								'rows' => [
+									[
+										'title'      => 'Akismet Anti-Spam',
+										'subtitle'   => 'Plugin update available',
+										'context'    => 'Current: 5.3.0 | Available: 5.4.0',
+										'identifier' => 'akismet/akismet.php',
+										'action'     => [
+											'label' => 'Update',
+											'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
+										],
+									],
+								],
+								'empty_text' => 'No items are currently available.',
+							],
+						],
+						'actions'       => [
+							[
+								'type'  => 'navigate',
+								'label' => 'Update',
+								'href'  => '/wp-admin/update-core.php',
+								'icon'  => 'bi bi-arrow-right-circle-fill',
+							],
+						],
+					],
+				],
 			] ),
 			'content' => [],
 		];
@@ -820,6 +883,40 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			0,
 			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]' )->length,
 			'Disabled scan panes should not fall through to the generic empty-state'
+		);
+	}
+
+	public function testRailPaneTemplateRendersSharedSimpleTableExpansionForMaintenanceRows() :void {
+		$html = $this->twig()->render(
+			'/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig',
+			$this->buildMaintenancePaneRenderContext()
+		);
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target="maintenance-expand-wp_plugins_updates"]',
+			'Maintenance pane rows should reuse the shared expandable detail row trigger'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="maintenance-expand-wp_plugins_updates" and contains(concat(" ", normalize-space(@class), " "), " collapse ") and @data-bs-parent="#h-tabs-maintenance"]',
+			'Maintenance pane rows should reuse the shared Bootstrap collapse shell'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="maintenance-expand-wp_plugins_updates"]//table[contains(concat(" ", normalize-space(@class), " "), " table-sm ")]//tr[td//*[normalize-space()="Akismet Anti-Spam"]]',
+			'Maintenance pane expansions should render the shared simple table partial'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="maintenance-expand-wp_plugins_updates"]//a[@href="/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php" and normalize-space()="Update"]',
+			'Maintenance pane simple tables should render per-row actions'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@id="maintenance-expand-wp_plugins_updates"]//*[@data-investigation-table="1"]' )->length,
+			'Maintenance pane simple table expansions should not render the investigation table contract'
 		);
 	}
 

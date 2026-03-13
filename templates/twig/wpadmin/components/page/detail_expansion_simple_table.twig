@@ -1,0 +1,44 @@
+{% set rows = table.rows %}
+
+{% if rows is empty %}
+	<div class="small text-muted">{{ table.empty_text }}</div>
+{% else %}
+	<div class="table-responsive">
+		<table class="table table-sm align-middle mb-0">
+			<thead>
+			<tr>
+				<th>{{ table.columns.item }}</th>
+				<th>{{ table.columns.details }}</th>
+				<th class="text-end">{{ table.columns.action }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for row in rows %}
+				<tr>
+					<td>
+						<div class="fw-semibold">{{ row.title }}</div>
+						{% if row.subtitle is not empty %}
+							<div class="small text-muted">{{ row.subtitle }}</div>
+						{% endif %}
+					</td>
+					<td>
+						{% if row.context is not empty %}
+							<div>{{ row.context }}</div>
+						{% endif %}
+						{% if row.identifier is not empty %}
+							<div class="small text-muted"><code>{{ row.identifier }}</code></div>
+						{% endif %}
+					</td>
+					<td class="text-end text-nowrap">
+						<a href="{{ row.action.href }}"
+						   class="btn btn-outline-secondary btn-sm"
+						   {% if row.action.target is defined and row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+							{{ row.action.label }}
+						</a>
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}

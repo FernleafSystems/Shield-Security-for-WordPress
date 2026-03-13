@@ -231,6 +231,31 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-pane-loaded="1"]',
 			'Actions queue maintenance state should render the eager maintenance pane'
 		);
+		$maintenanceItemsByKey = [];
+		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
+			$maintenanceItemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+		}
+		$this->assertSame(
+			'simple_table',
+			(string)( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'type' ] ?? '' )
+		);
+		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
+		$this->assertSame( [], $maintenanceTab[ 'render_action' ] ?? [ 'unexpected' ] );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-render-action="[]"]',
+			'Actions queue maintenance pane should stay eager and avoid lazy render actions'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance"]//*[@data-shield-expand-trigger="1" and @data-shield-expand-target="maintenance-expand-wp_plugins_updates"]',
+			'Actions queue maintenance pane should reuse the shared expand trigger for plugin updates'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@id="maintenance-expand-wp_plugins_updates"]//table[contains(concat(" ", normalize-space(@class), " "), " table-sm ")]',
+			'Actions queue maintenance pane should render the shared simple table expansion body'
+		);
 	}
 
 	public function test_maintenance_panel_exposes_updates_href() :void {

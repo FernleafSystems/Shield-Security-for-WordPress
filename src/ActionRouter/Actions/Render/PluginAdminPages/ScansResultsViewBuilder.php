@@ -115,6 +115,24 @@ use FernleafSystems\Wordpress\Services\Services;
  *     count?:int
  *   }
  * }
+ * @phpstan-type DetailExpansionAction array{
+ *   label:string,
+ *   href:string,
+ *   target?:string
+ * }
+ * @phpstan-type DetailExpansionSimpleTableRow array{
+ *   title:string,
+ *   subtitle:string,
+ *   context:string,
+ *   identifier:string,
+ *   action:DetailExpansionAction
+ * }
+ * @phpstan-type DetailExpansion array{
+ *   id:string,
+ *   type:'investigation_table'|'simple_table',
+ *   status:string,
+ *   table:array<string,mixed>
+ * }
  */
 class ScansResultsViewBuilder {
 
@@ -760,17 +778,22 @@ class ScansResultsViewBuilder {
 	protected function buildPluginThemeRailItemsDirect( string $assetType ) :array {
 		$issueItems = [];
 		foreach ( $this->buildPluginThemeIssueRecords( $assetType ) as $item ) {
-			$row = $this->buildDetailRow(
+			$row = $this->attachExpansionToDetailRow(
+				$this->buildDetailRow(
 				$item[ 'title' ],
 				$item[ 'stat_text' ],
 				$item[ 'status' ],
 				$item[ 'count_badge' ],
 				$item[ 'status' ],
 				$item[ 'actions' ]
+				),
+				$this->buildDetailExpansion(
+					$item[ 'expand_target' ],
+					'investigation_table',
+					$item[ 'status' ],
+					$item[ 'table' ]
+				)
 			);
-			$row[ 'expandable' ] = true;
-			$row[ 'expand_target' ] = $item[ 'expand_target' ];
-			$row[ 'expansion_table' ] = $item[ 'table' ];
 			$row[ 'section_label' ] = __( 'Needs attention', 'wp-simple-firewall' );
 			$issueItems[] = $row;
 		}
@@ -1215,12 +1238,36 @@ class ScansResultsViewBuilder {
 			'badge_status' => $badgeStatus,
 			'expandable'   => false,
 			'expand_target' => '',
-			'expansion_table' => [],
+			'expansion'    => [],
 			'explanations' => [],
 			'show_gear'    => false,
 			'actions'      => $actions,
 			'attributes'   => [],
 			'section_label' => $sectionLabel ?? '',
+		];
+	}
+
+	/**
+	 * @param DetailExpansion $expansion
+	 * @return array<string,mixed>
+	 */
+	protected function attachExpansionToDetailRow( array $row, array $expansion ) :array {
+		$row[ 'expandable' ] = true;
+		$row[ 'expand_target' ] = $expansion[ 'id' ];
+		$row[ 'expansion' ] = $expansion;
+		return $row;
+	}
+
+	/**
+	 * @param array<string,mixed> $table
+	 * @return DetailExpansion
+	 */
+	protected function buildDetailExpansion( string $id, string $type, string $status, array $table ) :array {
+		return [
+			'id'     => $id,
+			'type'   => $type,
+			'status' => $status,
+			'table'  => $table,
 		];
 	}
 

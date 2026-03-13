@@ -31,6 +31,7 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		return [
 			'/wpadmin/components/page/shield_detail_row.twig',
 			'/wpadmin/components/page/shield_detail_expansion.twig',
+			'/wpadmin/components/page/detail_expansion_simple_table.twig',
 			'/wpadmin/components/page/shield_rail_sidebar.twig',
 			'/wpadmin/components/page/shield_rail_layout.twig',
 			'/wpadmin/components/page/shield_detail_demo.twig',
@@ -91,6 +92,12 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 			'expansion' => [
 				'id'   => 'exp-minimal',
 				'body' => '<p>Body</p>',
+			],
+		] );
+
+		$twig->render( '/wpadmin/components/page/detail_expansion_simple_table.twig', [
+			'table' => [
+				'rows' => [],
 			],
 		] );
 

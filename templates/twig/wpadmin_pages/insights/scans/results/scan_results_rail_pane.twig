@@ -29,17 +29,24 @@
 		<div class="shield-detail-item">
 			{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: item } only %}
 
-			{% if item.expandable and item.expansion_table is not empty %}
+			{% if item.expandable and item.expansion is not empty %}
+				{% set expansion = item.expansion %}
 				{% set file_table_body %}
-					{% include '/wpadmin/components/investigate/table_container.twig' with {
-						table: item.expansion_table
-					} only %}
+					{% if expansion.type == 'investigation_table' %}
+						{% include '/wpadmin/components/investigate/table_container.twig' with {
+							table: expansion.table
+						} only %}
+					{% elseif expansion.type == 'simple_table' %}
+						{% include '/wpadmin/components/page/detail_expansion_simple_table.twig' with {
+							table: expansion.table
+						} only %}
+					{% endif %}
 				{% endset %}
 				{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
-					id: item.expand_target,
+					id: expansion.id,
 					parent_id: tab.pane_id,
 					type: 'table',
-					status: item.status,
+					status: expansion.status,
 					body: file_table_body
 				}} only %}
 			{% endif %}

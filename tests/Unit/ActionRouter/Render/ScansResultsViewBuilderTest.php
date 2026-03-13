@@ -314,12 +314,12 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$summaryTab = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' );
 		$row = $summaryTab[ 'items' ][ 0 ] ?? [];
 
-		foreach ( [ 'expand_target', 'expansion_table', 'section_label', 'actions', 'attributes' ] as $key ) {
+		foreach ( [ 'expand_target', 'expansion', 'section_label', 'actions', 'attributes' ] as $key ) {
 			$this->assertArrayHasKey( $key, $row, 'Detail rows should expose '.$key );
 		}
 
 		$this->assertSame( '', $row[ 'expand_target' ] );
-		$this->assertSame( [], $row[ 'expansion_table' ] );
+		$this->assertSame( [], $row[ 'expansion' ] );
 		$this->assertSame( 'Needs attention', $row[ 'section_label' ] );
 	}
 
@@ -512,7 +512,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scan-files-plugin-example-plugin', $railPane[ 'items' ][ 0 ][ 'expand_target' ] );
 		$this->assertSame(
 			$queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ],
-			$railPane[ 'items' ][ 0 ][ 'expansion_table' ][ 'subject_id' ]
+			$railPane[ 'items' ][ 0 ][ 'expansion' ][ 'table' ][ 'subject_id' ]
 		);
 	}
 
@@ -950,7 +950,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			'badge_status' => $countBadge !== null ? $status : null,
 			'expandable'   => false,
 			'expand_target' => '',
-			'expansion_table' => [],
+			'expansion'    => [],
 			'explanations' => [],
 			'show_gear'    => false,
 			'actions'      => [],
