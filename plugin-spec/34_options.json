@@ -3069,12 +3069,6 @@
         "default": []
     },
     {
-        "key": "sec_overview_prefs",
-        "section": "section_hidden",
-        "type": "array",
-        "default": []
-    },
-    {
         "key": "test_rest_data",
         "section": "section_hidden",
         "type": "array",

@@ -270,6 +270,20 @@ class PluginOptionsSchemaTest extends TestCase {
 		);
 	}
 
+	public function testSecurityOverviewPrefsOptionIsAbsentFromGeneratedConfig() :void {
+		$this->assertArrayNotHasKey( 'sec_overview_prefs', $this->options );
+	}
+
+	public function testSecurityOverviewPrefsOptionIsAbsentFromSourceOptionsSpec() :void {
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		$matches = \array_values( \array_filter(
+			$options,
+			static fn( array $option ) :bool => ( $option['key'] ?? '' ) === 'sec_overview_prefs'
+		) );
+
+		$this->assertCount( 0, $matches );
+	}
+
 	public function testSecurityOptionsDefaultToEnabled() :void {
 		// Note: block_php_code is intentionally excluded - it defaults to 'N' because
 		// it can interfere with legitimate WordPress functionality (Plugin/Theme editors)

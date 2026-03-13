@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalys
 
 class ScanResultsPluginFiles extends ScanResultsBase {
 
-	public const MINIMUM_EDITION = 'starter';
 	public const SLUG = 'scan_results_plugin_files';
 
 	protected function countResults() :int {

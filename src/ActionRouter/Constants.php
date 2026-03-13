@@ -108,7 +108,6 @@ class Constants {
 		Actions\ScansStart::class,
 		Actions\ScanResultsTableAction::class,
 		Actions\ScanResultsDisplayFormSubmit::class,
-		Actions\SecurityOverviewViewAs::class,
 		Actions\SessionsTableAction::class,
 		Actions\SetFlagShieldIntroVideoClosed::class,
 		Actions\PluginSetOpt::class,

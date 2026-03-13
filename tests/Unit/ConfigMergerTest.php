@@ -232,6 +232,22 @@ class ConfigMergerTest extends TestCase {
 	}
 
 	/**
+	 * Test that the legacy security overview prefs option is absent from merged config.
+	 */
+	public function testSecurityOverviewPrefsOptionIsAbsentFromMergedConfig() :void {
+		$merger = new ConfigMerger();
+		$config = $merger->merge( $this->specDir );
+
+		$options = $config['config_spec']['options'];
+		$matches = \array_values( \array_filter(
+			$options,
+			static fn( array $option ) :bool => $option['key'] === 'sec_overview_prefs'
+		) );
+
+		$this->assertCount( 0, $matches );
+	}
+
+	/**
 	 * Test that modules object is properly merged (object merge).
 	 */
 	public function testModulesObjectIsMerged() :void {

@@ -53,4 +53,11 @@ class ConstantsLegacyDashboardCleanupTest extends BaseUnitTest {
 			Constants::ACTIONS
 		);
 	}
+
+	public function testSecurityOverviewViewAsActionIsNotRegistered() :void {
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\SecurityOverviewViewAs',
+			Constants::ACTIONS
+		);
+	}
 }

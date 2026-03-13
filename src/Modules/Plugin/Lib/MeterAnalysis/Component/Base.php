@@ -9,13 +9,11 @@ abstract class Base {
 	use PluginControllerConsumer;
 
 	public const SLUG = '';
-	public const MINIMUM_EDITION = 'free';
 	public const WEIGHT = 3;
 	public const CHANNEL_CONFIG = 'config';
 	public const CHANNEL_ACTION = 'action';
 
 	protected ?bool $isProtected = null;
-	private ?string $meterChannel = null;
 
 	public static function normalizeChannelRaw( ?string $channel ) :string {
 		return \strtolower( \trim( (string)$channel ) );
@@ -48,7 +46,7 @@ abstract class Base {
 	}
 
 	public function build( ?string $meterChannel = null ) :array {
-		$this->meterChannel = $meterChannel;
+		self::assertValidChannel( $meterChannel );
 		return \array_merge(
 			[
 				'slug'                   => $this->slug(),
@@ -155,13 +153,5 @@ abstract class Base {
 
 	protected function weight() :int {
 		return static::WEIGHT;
-	}
-
-	protected function isViewAsFree() :bool {
-		return ( self::con()->opts->optGet( 'sec_overview_prefs' )[ 'view_as' ] ?? 'free' ) === 'free';
-	}
-
-	protected function meterChannel() :?string {
-		return $this->meterChannel;
 	}
 }
