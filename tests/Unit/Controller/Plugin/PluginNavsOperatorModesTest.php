@@ -142,7 +142,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	public function test_maintenance_definition_keys_align_with_component_slugs() :void {
 		$maintenanceDefinitions = \array_values( \array_filter(
 			PluginNavs::actionsLandingAssessmentDefinitions(),
-			static fn( array $definition ) :bool => ( $definition[ 'zone' ] ?? '' ) === 'maintenance'
+			static fn( array $definition ) :bool => $definition[ 'zone' ] === 'maintenance'
 		) );
 
 		foreach ( $maintenanceDefinitions as $definition ) {
@@ -150,6 +150,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 				$definition[ 'key' ],
 				$definition[ 'component_class' ]::SLUG
 			);
+			$this->assertTrue( \is_subclass_of( $definition[ 'component_class' ], Component\Base::class ) );
 		}
 	}
 

@@ -65,7 +65,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertSame(
 			[ $pluginFiles[ 0 ] ],
-			$this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ] ?? []
+			$this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates']
 		);
 	}
 
@@ -121,7 +121,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			(int)( $ignoredMaintenance[ 'total_issues' ] ?? 0 ) + 1,
 			(int)( $restoredMaintenance[ 'total_issues' ] ?? 0 )
 		);
-		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ] ?? [] );
+		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
 	public function test_ignore_action_rejects_missing_identifier_for_sub_item_maintenance() :void {
@@ -134,7 +134,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( (bool)( $response[ 'success' ] ?? true ) );
 		$this->assertStringContainsString( 'identifier', (string)( $response[ 'message' ] ?? '' ) );
-		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ] ?? [] );
+		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
 	private function processMaintenanceAction( string $slug, array $data ) :array {

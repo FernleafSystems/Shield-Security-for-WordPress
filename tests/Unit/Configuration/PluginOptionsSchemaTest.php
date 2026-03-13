@@ -240,6 +240,36 @@ class PluginOptionsSchemaTest extends TestCase {
 		);
 	}
 
+	public function testIgnoredMaintenanceItemsOptionExistsInSourceOptionsSpec() :void {
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		$matches = \array_values( \array_filter(
+			$options,
+			static fn( array $option ) :bool => ( $option['key'] ?? '' ) === 'ignored_maintenance_items'
+		) );
+
+		$this->assertCount( 1, $matches );
+		$option = $matches[ 0 ];
+
+		$this->assertSame( 'section_hidden', $option['section'] );
+		$this->assertSame( 'array', $option['type'] );
+		$this->assertSame( false, $option['transferable'] );
+		$this->assertSame( true, $option['tracking_exclude'] );
+		$this->assertSame(
+			[
+				'wp_updates',
+				'wp_plugins_updates',
+				'wp_themes_updates',
+				'wp_plugins_inactive',
+				'wp_themes_inactive',
+				'system_ssl_certificate',
+				'system_php_version',
+				'wp_db_password',
+				'system_lib_openssl',
+			],
+			\array_keys( $option['default'] )
+		);
+	}
+
 	public function testSecurityOptionsDefaultToEnabled() :void {
 		// Note: block_php_code is intentionally excluded - it defaults to 'N' because
 		// it can interfere with legitimate WordPress functionality (Plugin/Theme editors)

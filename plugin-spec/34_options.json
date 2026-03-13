@@ -979,6 +979,24 @@
         "default": []
     },
     {
+        "key": "ignored_maintenance_items",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
+        "type": "array",
+        "default": {
+            "wp_updates": [],
+            "wp_plugins_updates": [],
+            "wp_themes_updates": [],
+            "wp_plugins_inactive": [],
+            "wp_themes_inactive": [],
+            "system_ssl_certificate": [],
+            "system_php_version": [],
+            "wp_db_password": [],
+            "system_lib_openssl": []
+        }
+    },
+    {
         "key": "translation_config",
         "section": "section_hidden",
         "type": "array",

@@ -214,6 +214,24 @@ class ConfigMergerTest extends TestCase {
 	}
 
 	/**
+	 * Test that ignored maintenance items option is present in merged config.
+	 */
+	public function testIgnoredMaintenanceItemsOptionIsPresentInMergedConfig() :void {
+		$merger = new ConfigMerger();
+		$config = $merger->merge( $this->specDir );
+
+		$options = $config['config_spec']['options'];
+		$matches = \array_values( \array_filter(
+			$options,
+			static fn( array $option ) :bool => $option['key'] === 'ignored_maintenance_items'
+		) );
+
+		$this->assertCount( 1, $matches );
+		$this->assertSame( 'section_hidden', $matches[0]['section'] );
+		$this->assertSame( 'array', $matches[0]['type'] );
+	}
+
+	/**
 	 * Test that modules object is properly merged (object merge).
 	 */
 	public function testModulesObjectIsMerged() :void {

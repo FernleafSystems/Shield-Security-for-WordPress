@@ -30,7 +30,8 @@ class MaintenanceItemUnignore extends SecurityAdminBase {
 
 		$currentIssueIdentifiersByKey = $provider->currentIssueIdentifiersByKey();
 		$ignoredItems = $provider->normalizeIgnoredItems(
-			self::con()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )
+			self::con()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ),
+			$currentIssueIdentifiersByKey
 		);
 		$ignoredItems[ $key ] = \array_values( \array_diff( $ignoredItems[ $key ], [ $identifier ] ) );
 

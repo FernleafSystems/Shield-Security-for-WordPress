@@ -49,26 +49,6 @@ class MaintenanceIssueStateProvider {
 	}
 
 	/**
-	 * @param list<array{
-	 *   key:string,
-	 *   component:array<string,mixed>,
-	 *   issue_identifiers:list<string>,
-	 *   supports_sub_items:bool
-	 * }> $contexts
-	 * @return array<string,list<string>>
-	 */
-	private function buildValidIdentifiersByKey( array $contexts ) :array {
-		$validIdentifiersByKey = [];
-		foreach ( $this->maintenanceKeys() as $key ) {
-			$validIdentifiersByKey[ $key ] = [];
-		}
-		foreach ( $contexts as $context ) {
-			$validIdentifiersByKey[ $context[ 'key' ] ] = $context[ 'issue_identifiers' ];
-		}
-		return $validIdentifiersByKey;
-	}
-
-	/**
 	 * @return array<string,list<string>>
 	 */
 	public function currentIssueIdentifiersByKey() :array {
@@ -98,24 +78,18 @@ class MaintenanceIssueStateProvider {
 	}
 
 	/**
-	 * @param array<string,mixed> $ignoredItems
+	 * @param array<string,list<string>> $ignoredItems
 	 * @param array<string,list<string>>|null $validIdentifiersByKey
 	 * @return array<string,list<string>>
 	 */
 	public function normalizeIgnoredItems( array $ignoredItems, ?array $validIdentifiersByKey = null ) :array {
 		$normalized = $this->defaultIgnoredItems();
 
-		foreach ( $normalized as $key => $default ) {
-			$values = \is_array( $ignoredItems[ $key ] ?? null ) ? $ignoredItems[ $key ] : [];
-			$values = \array_values( \array_filter( \array_map(
-				static fn( $value ) :string => \is_scalar( $value ) ? \trim( (string)$value ) : '',
-				$values
-			) ) );
-			$values = \array_values( \array_unique( $values ) );
+		foreach ( \array_keys( $normalized ) as $key ) {
+			$values = \array_values( \array_unique( \array_filter( $ignoredItems[ $key ] ) ) );
 
 			if ( $validIdentifiersByKey !== null ) {
-				$validIdentifiers = $validIdentifiersByKey[ $key ] ?? [];
-				$values = \array_values( \array_intersect( $values, $validIdentifiers ) );
+				$values = \array_values( \array_intersect( $values, $validIdentifiersByKey[ $key ] ) );
 			}
 
 			\natsort( $values );
@@ -123,16 +97,6 @@ class MaintenanceIssueStateProvider {
 		}
 
 		return $normalized;
-	}
-
-	/**
-	 * @return array<string,list<string>>
-	 */
-	public function normalizeCurrentIgnoredItems() :array {
-		return $this->normalizeIgnoredItems(
-			$this->getStoredIgnoredItems(),
-			$this->currentIssueIdentifiersByKey()
-		);
 	}
 
 	/**
@@ -252,9 +216,9 @@ class MaintenanceIssueStateProvider {
 			'ignored_count'       => $ignoredCount,
 			'severity'            => $severity,
 			'href'                => $component[ 'href_full' ],
-			'action'             => $action === '' ? __( 'Fix', 'wp-simple-firewall' ) : $action,
+			'action'              => $action === '' ? __( 'Fix', 'wp-simple-firewall' ) : $action,
 			'target'              => $component[ 'href_full_target_blank' ] ? '_blank' : '',
-			'supports_sub_items' => $context[ 'supports_sub_items' ],
+			'supports_sub_items'  => $context[ 'supports_sub_items' ],
 			'active_identifiers'  => $activeIdentifiers,
 			'ignored_identifiers' => $ignoredIdentifiers,
 		];
@@ -284,11 +248,10 @@ class MaintenanceIssueStateProvider {
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @return array<string,list<string>>
 	 */
 	protected function getStoredIgnoredItems() :array {
-		$stored = self::con()->opts->optGet( self::OPT_KEY );
-		return \is_array( $stored ) ? $stored : [];
+		return self::con()->opts->optGet( self::OPT_KEY );
 	}
 
 	/**
@@ -322,6 +285,26 @@ class MaintenanceIssueStateProvider {
 			default:
 				return [ self::SINGLETON_TOKEN ];
 		}
+	}
+
+	/**
+	 * @param list<array{
+	 *   key:string,
+	 *   component:array<string,mixed>,
+	 *   issue_identifiers:list<string>,
+	 *   supports_sub_items:bool
+	 * }> $contexts
+	 * @return array<string,list<string>>
+	 */
+	private function buildValidIdentifiersByKey( array $contexts ) :array {
+		$validIdentifiersByKey = [];
+		foreach ( $this->maintenanceKeys() as $key ) {
+			$validIdentifiersByKey[ $key ] = [];
+		}
+		foreach ( $contexts as $context ) {
+			$validIdentifiersByKey[ $context[ 'key' ] ] = $context[ 'issue_identifiers' ];
+		}
+		return $validIdentifiersByKey;
 	}
 
 	/**
@@ -420,12 +403,12 @@ class MaintenanceIssueStateProvider {
 		$stylesheets = [];
 		$current = Services::WpThemes()->getCurrent();
 		if ( \is_object( $current ) && \method_exists( $current, 'get_stylesheet' ) ) {
-			$stylesheets[] = (string)$current->get_stylesheet();
+			$stylesheets[] = $current->get_stylesheet();
 		}
 
 		$currentParent = Services::WpThemes()->getCurrentParent();
 		if ( \is_object( $currentParent ) && \method_exists( $currentParent, 'get_stylesheet' ) ) {
-			$stylesheets[] = (string)$currentParent->get_stylesheet();
+			$stylesheets[] = $currentParent->get_stylesheet();
 		}
 
 		return \array_values( \array_unique( \array_filter( $stylesheets ) ) );

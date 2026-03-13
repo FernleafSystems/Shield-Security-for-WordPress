@@ -70,7 +70,7 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 
 		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
 		$this->assertStringContainsString( 'identifier', (string)( $action->response()->payload()[ 'message' ] ?? '' ) );
-		$this->assertSame( [], $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ] ?? [] );
+		$this->assertSame( [], $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
 	public function test_ignore_stores_requested_sub_item_identifier() :void {
@@ -92,7 +92,7 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
 		$this->assertSame(
 			[ 'plugin-two/plugin.php' ],
-			$this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ] ?? []
+			$this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates']
 		);
 	}
 
@@ -112,13 +112,21 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
 		$this->assertSame(
 			[ MaintenanceIssueStateProvider::SINGLETON_TOKEN ],
-			$this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'system_php_version' ] ?? []
+			$this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['system_php_version']
 		);
 	}
 
 	public function test_unignore_removes_identifier_and_remains_idempotent() :void {
 		$this->opts->optSet( MaintenanceIssueStateProvider::OPT_KEY, [
-			'wp_plugins_updates' => [ 'plugin-one/plugin.php' ],
+			'wp_updates'             => [],
+			'wp_plugins_updates'     => [ 'plugin-one/plugin.php' ],
+			'wp_themes_updates'      => [],
+			'wp_plugins_inactive'    => [],
+			'wp_themes_inactive'     => [],
+			'system_ssl_certificate' => [],
+			'system_php_version'     => [],
+			'wp_db_password'         => [],
+			'system_lib_openssl'     => [],
 		] );
 
 		$action = new MaintenanceItemUnignoreTestDouble(
@@ -138,7 +146,7 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 		$action->process();
 
 		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
-		$this->assertSame( [], $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ] ?? [] );
+		$this->assertSame( [], $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
 	private function installControllerStub() :void {
@@ -202,10 +210,7 @@ class MaintenanceIssueStateProviderActionTestDouble extends MaintenanceIssueStat
 	}
 
 	public function currentIssueIdentifiersByKey() :array {
-		return $this->normalizeKnownKeys(
-			$this->currentIssueIdentifiersByKey,
-			false
-		);
+		return $this->normalizeKnownKeys( $this->currentIssueIdentifiersByKey );
 	}
 
 	public function isKnownMaintenanceKey( string $key ) :bool {
@@ -213,41 +218,30 @@ class MaintenanceIssueStateProviderActionTestDouble extends MaintenanceIssueStat
 	}
 
 	public function supportsSubItems( string $key ) :bool {
-		return (bool)( $this->subItemSupportByKey[ $key ] ?? false );
-	}
-
-	public function normalizeIgnoredItems( array $ignoredItems, ?array $validIdentifiersByKey = null ) :array {
-		$normalized = $this->normalizeKnownKeys( [], true );
-
-		foreach ( \array_keys( $normalized ) as $key ) {
-			$values = \is_array( $ignoredItems[ $key ] ?? null ) ? $ignoredItems[ $key ] : [];
-			$values = \array_values( \array_unique( \array_filter( \array_map(
-				static fn( $value ) :string => \is_scalar( $value ) ? \trim( (string)$value ) : '',
-				$values
-			) ) ) );
-
-			if ( $validIdentifiersByKey !== null ) {
-				$values = \array_values( \array_intersect( $values, $validIdentifiersByKey[ $key ] ?? [] ) );
-			}
-
-			$normalized[ $key ] = $values;
-		}
-
-		return $normalized;
+		return $this->subItemSupportByKey[ $key ] ?? false;
 	}
 
 	/**
 	 * @return array<string,list<string>>
 	 */
-	private function normalizeKnownKeys( array $values, bool $forceEmpty ) :array {
-		$normalized = [];
-		foreach ( \array_keys( $this->currentIssueIdentifiersByKey ) as $key ) {
-			$normalized[ $key ] = $forceEmpty
-				? []
-				: \array_values( \array_map(
-					static fn( $identifier ) :string => (string)$identifier,
-					$values[ $key ] ?? []
-				) );
+	private function normalizeKnownKeys( array $values ) :array {
+		$normalized = \array_fill_keys( [
+			'wp_updates',
+			'wp_plugins_updates',
+			'wp_themes_updates',
+			'wp_plugins_inactive',
+			'wp_themes_inactive',
+			'system_ssl_certificate',
+			'system_php_version',
+			'wp_db_password',
+			'system_lib_openssl',
+		], [] );
+
+		foreach ( \array_keys( $normalized ) as $key ) {
+			$normalized[ $key ] = \array_values( \array_map(
+				static fn( $identifier ) :string => (string)$identifier,
+				$values[ $key ] ?? []
+			) );
 		}
 		return $normalized;
 	}
@@ -256,7 +250,17 @@ class MaintenanceIssueStateProviderActionTestDouble extends MaintenanceIssueStat
 class OptsStoreStub {
 
 	private array $values = [
-		MaintenanceIssueStateProvider::OPT_KEY => [],
+		MaintenanceIssueStateProvider::OPT_KEY => [
+			'wp_updates'             => [],
+			'wp_plugins_updates'     => [],
+			'wp_themes_updates'      => [],
+			'wp_plugins_inactive'    => [],
+			'wp_themes_inactive'     => [],
+			'system_ssl_certificate' => [],
+			'system_php_version'     => [],
+			'wp_db_password'         => [],
+			'system_lib_openssl'     => [],
+		],
 	];
 
 	public function optGet( string $key ) {

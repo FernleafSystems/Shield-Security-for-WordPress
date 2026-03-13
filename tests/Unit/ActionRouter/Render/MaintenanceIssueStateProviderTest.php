@@ -29,9 +29,8 @@ class MaintenanceIssueStateProviderTest extends BaseUnitTest {
 
 		$normalized = $provider->normalizeIgnoredItems(
 			[
-				'wp_plugins_updates' => [ 'plugin-two/plugin.php', 'plugin-one/plugin.php', 'plugin-one/plugin.php', '', false ],
+				'wp_plugins_updates' => [ 'plugin-two/plugin.php', 'plugin-one/plugin.php', 'plugin-one/plugin.php', '' ],
 				'system_php_version' => [ MaintenanceIssueStateProvider::SINGLETON_TOKEN, 'bad-value' ],
-				'unknown_key'        => [ 'ignored' ],
 			],
 			[
 				'wp_plugins_updates' => [ 'plugin-one/plugin.php', 'plugin-two/plugin.php' ],
@@ -64,26 +63,26 @@ class MaintenanceIssueStateProviderTest extends BaseUnitTest {
 			],
 			[
 				'plugin-updates' => [
-					'title'                   => 'Plugins With Updates',
-					'desc_protected'          => 'All available plugin updates have been applied.',
-					'desc_unprotected'        => 'Plugins need updates.',
-					'is_protected'            => false,
-					'is_critical'             => false,
-					'is_applicable'           => true,
-					'href_full'               => '/wp-admin/plugins.php',
-					'href_full_target_blank'  => false,
-					'fix'                     => 'Update',
+					'title'                  => 'Plugins With Updates',
+					'desc_protected'         => 'All available plugin updates have been applied.',
+					'desc_unprotected'       => 'Plugins need updates.',
+					'is_protected'           => false,
+					'is_critical'            => false,
+					'is_applicable'          => true,
+					'href_full'              => '/wp-admin/plugins.php',
+					'href_full_target_blank' => false,
+					'fix'                    => 'Update',
 				],
 				'php-version' => [
-					'title'                   => 'PHP Version',
-					'desc_protected'          => 'PHP looks healthy.',
-					'desc_unprotected'        => 'PHP is old.',
-					'is_protected'            => false,
-					'is_critical'             => false,
-					'is_applicable'           => true,
-					'href_full'               => 'https://example.com/php',
-					'href_full_target_blank'  => true,
-					'fix'                     => 'Review',
+					'title'                  => 'PHP Version',
+					'desc_protected'         => 'PHP looks healthy.',
+					'desc_unprotected'       => 'PHP is old.',
+					'is_protected'           => false,
+					'is_critical'            => false,
+					'is_applicable'          => true,
+					'href_full'              => 'https://example.com/php',
+					'href_full_target_blank' => true,
+					'fix'                    => 'Review',
 				],
 			],
 			[
@@ -134,7 +133,7 @@ class MaintenanceIssueStateProviderTestDouble extends MaintenanceIssueStateProvi
 	}
 
 	protected function buildComponent( string $componentClass ) :array {
-		return $this->components[ $componentClass ] ?? [];
+		return $this->components[ $componentClass ];
 	}
 
 	protected function getStoredIgnoredItems() :array {
@@ -142,6 +141,6 @@ class MaintenanceIssueStateProviderTestDouble extends MaintenanceIssueStateProvi
 	}
 
 	protected function issueIdentifiersForKey( string $key, array $component ) :array {
-		return $this->issueIdentifiersByKey[ $key ] ?? [];
+		return $this->issueIdentifiersByKey[ $key ];
 	}
 }
