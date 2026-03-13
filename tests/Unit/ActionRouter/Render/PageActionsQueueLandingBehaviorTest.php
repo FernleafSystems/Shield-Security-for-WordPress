@@ -276,7 +276,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					],
 				],
 			],
-			$this->capture->queuePayload[ 'render_data' ] ?? []
+			$this->capture->queuePayload
 		);
 
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
@@ -490,10 +490,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'wp_updates', 'system_lib_openssl' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'key' ) );
 	}
 
-	public function test_missing_needs_attention_strings_fall_back_to_safe_defaults() :void {
-		$payload = $this->buildQueuePayload( false, 0, 'good', '', [] );
-		$payload[ 'render_data' ][ 'strings' ] = [];
-		$this->capture->queuePayload = $payload;
+	public function test_all_clear_strings_use_local_defaults() :void {
+		$this->capture->queuePayload = $this->buildQueuePayload( false, 0, 'good', '', [] );
 
 		$page = $this->newPage();
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
@@ -667,7 +665,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$page = new PageActionsQueueLandingUnitTestDouble(
 			$assessmentRowsByZone ?? $this->buildDefaultAssessmentRowsByZone(),
 			$this->capture->scansResultsRenderData,
-			$this->capture->queuePayload[ 'render_data' ] ?? []
+			$this->capture->queuePayload
 		);
 		$page->action_data = $actionData;
 		return $page;
@@ -817,29 +815,39 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		string $subtext,
 		array $zoneGroups
 	) :array {
-		return [
-			'render_output' => 'rendered-needs-attention-queue',
-			'render_data'   => [
-				'flags'   => [
-					'has_items' => $hasItems,
-				],
-				'strings' => [
-					'all_clear_title'      => 'All security zones are clear',
-					'all_clear_subtitle'   => 'Shield is actively protecting your site. Nothing requires your action.',
-					'status_strip_subtext' => $subtext,
-					'all_clear_icon_class' => 'bi bi-shield-check',
-				],
-				'vars'    => [
-					'summary'     => [
-						'has_items'   => $hasItems,
-						'total_items' => $totalItems,
-						'severity'    => $severity,
-						'icon_class'  => 'bi bi-from-summary',
-						'subtext'     => $subtext,
-					],
-					'zone_groups' => $zoneGroups,
-				],
+		$groups = [
+			'scans' => [
+				'zone'     => 'scans',
+				'total'    => 0,
+				'severity' => 'good',
+				'items'    => [],
 			],
+			'maintenance' => [
+				'zone'     => 'maintenance',
+				'total'    => 0,
+				'severity' => 'good',
+				'items'    => [],
+			],
+		];
+		foreach ( $zoneGroups as $group ) {
+			$groups[ $group[ 'slug' ] ] = [
+				'zone'     => $group[ 'slug' ],
+				'total'    => $group[ 'total_issues' ],
+				'severity' => $group[ 'severity' ],
+				'items'    => $group[ 'items' ],
+			];
+		}
+
+		return [
+			'generated_at'    => 1700000000,
+			'summary'         => [
+				'total'        => $totalItems,
+				'severity'     => $severity,
+				'is_all_clear' => !$hasItems,
+			],
+			'items'           => \array_merge( $groups[ 'scans' ][ 'items' ], $groups[ 'maintenance' ][ 'items' ] ),
+			'groups'          => $groups,
+			'summary_subtext' => $subtext,
 		];
 	}
 
@@ -977,7 +985,7 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	private int $scansResultsBuildCalls = 0;
 	private array $assessmentRowsByZone;
 	private array $scansResultsRenderData;
-	private array $needsAttentionRenderData;
+	private array $attentionQuery;
 
 	/**
 	 * @param array{
@@ -1003,11 +1011,11 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	public function __construct(
 		array $assessmentRowsByZone,
 		array $scansResultsRenderData,
-		array $needsAttentionRenderData
+		array $attentionQuery
 	) {
 		$this->assessmentRowsByZone = $assessmentRowsByZone;
 		$this->scansResultsRenderData = $scansResultsRenderData;
-		$this->needsAttentionRenderData = $needsAttentionRenderData;
+		$this->attentionQuery = $attentionQuery;
 	}
 
 	protected function buildAssessmentRowsByZone() :array {
@@ -1019,8 +1027,12 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 		return $this->scansResultsRenderData;
 	}
 
-	protected function buildNeedsAttentionRenderData() :array {
-		return $this->needsAttentionRenderData;
+	protected function buildAttentionQuery() :array {
+		return $this->attentionQuery;
+	}
+
+	protected function buildSummarySubtext() :string {
+		return $this->attentionQuery[ 'summary_subtext' ] ?? '';
 	}
 
 	public function getScansResultsBuildCalls() :int {

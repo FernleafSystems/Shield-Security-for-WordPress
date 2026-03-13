@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * @phpstan-import-type QueueSummary from NeedsAttentionQueuePayload
- * @phpstan-import-type QueueItem from NeedsAttentionQueuePayload
- * @phpstan-import-type ZoneGroup from NeedsAttentionQueuePayload
+ * @phpstan-import-type AttentionItem from BuildAttentionItems
+ * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -21,6 +20,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  * @phpstan-type AssessmentRowsByZone array{
  *   scans:list<AssessmentRow>,
  *   maintenance:list<AssessmentRow>
+ * }
+ * @phpstan-type QueueSummary array{
+ *   has_items:bool,
+ *   total_items:int,
+ *   severity:string,
+ *   icon_class:string,
+ *   subtext:string
+ * }
+ * @phpstan-type ZoneGroup array{
+ *   slug:string,
+ *   label:string,
+ *   icon_class:string,
+ *   severity:string,
+ *   total_issues:int,
+ *   items:list<AttentionItem>
  * }
  * @phpstan-type ZoneTile array{
  *   key:string,
@@ -49,6 +63,8 @@ class ActionsQueueLandingViewBuilder {
 	use StandardStatusMapping;
 
 	/**
+	 * @param AttentionQuery $attentionQuery
+	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return array{
 	 *   summary:QueueSummary,
 	 *   zones_indexed:array<string,ZoneGroup>,
@@ -76,15 +92,12 @@ class ActionsQueueLandingViewBuilder {
 	 *   }
 	 * }
 	 */
-	/**
-	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 */
-	public function build( array $needsAttentionPayload, array $assessmentRowsByZone = [
+	public function build( array $attentionQuery, array $assessmentRowsByZone = [
 		'scans' => [],
 		'maintenance' => [],
-	] ) :array {
-		$summary = $this->extractQueueSummary( $needsAttentionPayload );
-		$zonesIndexed = $this->buildZonesIndexed( $needsAttentionPayload );
+	], string $summarySubtext = '' ) :array {
+		$summary = $this->extractQueueSummary( $attentionQuery, $summarySubtext );
+		$zonesIndexed = $this->buildZonesIndexed( $attentionQuery );
 		$zoneTiles = $this->buildZoneTiles( $zonesIndexed, $assessmentRowsByZone );
 
 		return [
@@ -92,55 +105,41 @@ class ActionsQueueLandingViewBuilder {
 			'zones_indexed'  => $zonesIndexed,
 			'zone_tiles'     => $zoneTiles,
 			'severity_strip' => $this->buildSeverityStripContract( $summary, $zoneTiles ),
-			'all_clear'      => $this->buildAllClearContract( $needsAttentionPayload, $zonesIndexed ),
+			'all_clear'      => $this->buildAllClearContract( $zonesIndexed ),
 		];
 	}
 
 	/**
+	 * @param AttentionQuery $attentionQuery
 	 * @return QueueSummary
 	 */
-	private function extractQueueSummary( array $needsAttentionPayload ) :array {
-		return NeedsAttentionQueuePayload::summary(
-			$needsAttentionPayload,
-			[
-				'has_items'   => false,
-				'total_items' => 0,
-				'severity'    => 'good',
-				'icon_class'  => self::con()->svgs->iconClass( 'shield-check' ),
-				'subtext'     => '',
-			]
-		);
+	private function extractQueueSummary( array $attentionQuery, string $summarySubtext ) :array {
+		$hasItems = !$attentionQuery[ 'summary' ][ 'is_all_clear' ];
+
+		return [
+			'has_items'   => $hasItems,
+			'total_items' => $attentionQuery[ 'summary' ][ 'total' ],
+			'severity'    => $attentionQuery[ 'summary' ][ 'severity' ],
+			'icon_class'  => self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ),
+			'subtext'     => $summarySubtext,
+		];
 	}
 
 	/**
+	 * @param AttentionQuery $attentionQuery
 	 * @return array<string,ZoneGroup>
 	 */
-	private function buildZonesIndexed( array $needsAttentionPayload ) :array {
+	private function buildZonesIndexed( array $attentionQuery ) :array {
 		$zones = [];
 		foreach ( $this->getZoneDefinitions() as $zoneDefinition ) {
-			$zones[ $zoneDefinition[ 'slug' ] ] = [
-				'slug'         => $zoneDefinition[ 'slug' ],
-				'label'        => $zoneDefinition[ 'label' ],
-				'icon_class'   => self::con()->svgs->iconClass( $zoneDefinition[ 'icon' ] ),
-				'severity'     => 'good',
-				'total_issues' => 0,
-				'items'        => [],
-			];
-		}
-
-		foreach ( NeedsAttentionQueuePayload::zoneGroups( $needsAttentionPayload ) as $zoneGroup ) {
-			$slug = sanitize_key( $zoneGroup[ 'slug' ] );
-			if ( !isset( $zones[ $slug ] ) ) {
-				continue;
-			}
-
+			$slug = $zoneDefinition[ 'slug' ];
 			$zones[ $slug ] = [
 				'slug'         => $slug,
-				'label'        => $zoneGroup[ 'label' ] !== '' ? $zoneGroup[ 'label' ] : $zones[ $slug ][ 'label' ],
-				'icon_class'   => $zoneGroup[ 'icon_class' ] !== '' ? $zoneGroup[ 'icon_class' ] : $zones[ $slug ][ 'icon_class' ],
-				'severity'     => $zoneGroup[ 'severity' ],
-				'total_issues' => $zoneGroup[ 'total_issues' ],
-				'items'        => $zoneGroup[ 'items' ],
+				'label'        => $zoneDefinition[ 'label' ],
+				'icon_class'   => self::con()->svgs->iconClass( $zoneDefinition[ 'icon' ] ),
+				'severity'     => $attentionQuery[ 'groups' ][ $slug ][ 'severity' ],
+				'total_issues' => $attentionQuery[ 'groups' ][ $slug ][ 'total' ],
+				'items'        => $attentionQuery[ 'groups' ][ $slug ][ 'items' ],
 			];
 		}
 
@@ -158,7 +157,7 @@ class ActionsQueueLandingViewBuilder {
 				$items = $zone[ 'slug' ] === 'maintenance'
 					? ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll( $zone[ 'items' ] )
 					: $zone[ 'items' ];
-				$countBySeverity = NeedsAttentionQueuePayload::countsFromItems( $items );
+				$countBySeverity = $this->countsFromItems( $items );
 				$totalIssues = $zone[ 'total_issues' ];
 				$assessmentRows = $zone[ 'slug' ] === 'maintenance'
 					? $this->filterMaintenanceAssessmentRows( $assessmentRowsByZone[ $zone[ 'slug' ] ], $items )
@@ -168,23 +167,23 @@ class ActionsQueueLandingViewBuilder {
 				$hasPanelContent = $hasIssues || $hasAssessments || !empty( $items );
 
 				$tile = [
-					'key'              => $zone[ 'slug' ],
-					'panel_target'     => $zone[ 'slug' ],
-					'is_enabled'       => $hasPanelContent,
-					'is_disabled'      => !$hasPanelContent,
-					'has_issues'       => $hasIssues,
-					'has_assessments'  => $hasAssessments,
+					'key'               => $zone[ 'slug' ],
+					'panel_target'      => $zone[ 'slug' ],
+					'is_enabled'        => $hasPanelContent,
+					'is_disabled'       => !$hasPanelContent,
+					'has_issues'        => $hasIssues,
+					'has_assessments'   => $hasAssessments,
 					'has_panel_content' => $hasPanelContent,
-					'label'            => $zone[ 'label' ],
-					'icon_class'       => $zone[ 'icon_class' ],
-					'status'           => $zone[ 'severity' ],
-					'status_label'     => $this->standardStatusLabel( $zone[ 'severity' ] ),
-					'total_issues'     => $totalIssues,
-					'critical_count'   => $countBySeverity[ 'critical' ],
-					'warning_count'    => $countBySeverity[ 'warning' ],
-					'summary_text'     => $this->buildZoneSummaryText( $totalIssues, $countBySeverity ),
-					'items'            => $items,
-					'assessment_rows'  => $assessmentRows,
+					'label'             => $zone[ 'label' ],
+					'icon_class'        => $zone[ 'icon_class' ],
+					'status'            => $zone[ 'severity' ],
+					'status_label'      => $this->standardStatusLabel( $zone[ 'severity' ] ),
+					'total_issues'      => $totalIssues,
+					'critical_count'    => $countBySeverity[ 'critical' ],
+					'warning_count'     => $countBySeverity[ 'warning' ],
+					'summary_text'      => $this->buildZoneSummaryText( $totalIssues, $countBySeverity ),
+					'items'             => $items,
+					'assessment_rows'   => $assessmentRows,
 				];
 
 				if ( $zone[ 'slug' ] === 'maintenance' ) {
@@ -204,10 +203,7 @@ class ActionsQueueLandingViewBuilder {
 	 * @return list<AssessmentRow>
 	 */
 	private function filterMaintenanceAssessmentRows( array $assessmentRows, array $items ) :array {
-		$itemKeys = \array_fill_keys( \array_map(
-			static fn( array $item ) :string => (string)( $item[ 'key' ] ?? '' ),
-			$items
-		), true );
+		$itemKeys = \array_fill_keys( \array_column( $items, 'key' ), true );
 
 		return \array_values( \array_filter(
 			$assessmentRows,
@@ -230,17 +226,14 @@ class ActionsQueueLandingViewBuilder {
 	 * }
 	 */
 	private function buildSeverityStripContract( array $summary, array $zoneTiles ) :array {
-		$severityTotals = NeedsAttentionQueuePayload::countsFromZoneGroups( \array_map(
-				static fn( array $tile ) :array => [
-					'slug'         => $tile[ 'key' ],
-					'label'        => $tile[ 'label' ],
-					'icon_class'   => $tile[ 'icon_class' ],
-					'severity'     => $tile[ 'status' ],
-					'total_issues' => $tile[ 'total_issues' ],
-					'items'        => $tile[ 'items' ],
-				],
-				$zoneTiles
-			) );
+		$severityTotals = $this->countsFromZoneGroups( \array_map(
+			static fn( array $tile ) :array => [
+				'slug'         => $tile[ 'key' ],
+				'total_issues' => $tile[ 'total_issues' ],
+				'items'        => $tile[ 'items' ],
+			],
+			$zoneTiles
+		) );
 		$criticalCount = $severityTotals[ 'critical' ];
 		$warningCount = $severityTotals[ 'warning' ];
 
@@ -258,8 +251,8 @@ class ActionsQueueLandingViewBuilder {
 					$summary[ 'total_items' ]
 				)
 				: __( 'No actions currently require your attention.', 'wp-simple-firewall' ),
-			'subtext'        => (string)$summary[ 'subtext' ],
-			'total_items'    => (int)$summary[ 'total_items' ],
+			'subtext'        => $summary[ 'subtext' ],
+			'total_items'    => $summary[ 'total_items' ],
 			'critical_count' => $criticalCount,
 			'warning_count'  => $warningCount,
 		];
@@ -279,11 +272,8 @@ class ActionsQueueLandingViewBuilder {
 	 *   }>
 	 * }
 	 */
-	private function buildAllClearContract( array $needsAttentionPayload, array $zonesIndexed ) :array {
-		$strings = NeedsAttentionQueuePayload::strings(
-			$needsAttentionPayload,
-			$this->buildAllClearStringDefaults()
-		);
+	private function buildAllClearContract( array $zonesIndexed ) :array {
+		$strings = $this->buildAllClearStringDefaults();
 		$chipIconClass = self::con()->svgs->iconClass( 'check-circle-fill' );
 
 		return [
@@ -311,6 +301,40 @@ class ActionsQueueLandingViewBuilder {
 			'all_clear_subtitle'   => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
 			'all_clear_icon_class' => self::con()->svgs->iconClass( 'shield-check' ),
 		];
+	}
+
+	/**
+	 * @param list<AttentionItem>|list<array<string,mixed>> $items
+	 * @return array{critical:int,warning:int}
+	 */
+	private function countsFromItems( array $items ) :array {
+		$counts = [
+			'critical' => 0,
+			'warning'  => 0,
+		];
+		foreach ( $items as $item ) {
+			if ( isset( $counts[ $item[ 'severity' ] ] ) ) {
+				$counts[ $item[ 'severity' ] ] += $item[ 'count' ];
+			}
+		}
+		return $counts;
+	}
+
+	/**
+	 * @param list<array{slug:string,total_issues:int,items:list<array<string,mixed>>}> $zoneGroups
+	 * @return array{critical:int,warning:int}
+	 */
+	private function countsFromZoneGroups( array $zoneGroups ) :array {
+		$totals = [
+			'critical' => 0,
+			'warning'  => 0,
+		];
+		foreach ( $zoneGroups as $group ) {
+			$counts = $this->countsFromItems( $group[ 'items' ] );
+			$totals[ 'critical' ] += $counts[ 'critical' ];
+			$totals[ 'warning' ] += $counts[ 'warning' ];
+		}
+		return $totals;
 	}
 
 	/**

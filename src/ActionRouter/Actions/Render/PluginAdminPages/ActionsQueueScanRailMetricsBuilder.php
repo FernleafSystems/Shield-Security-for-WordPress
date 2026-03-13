@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueScanStateBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueueDataBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 class ActionsQueueScanRailMetricsBuilder {
@@ -15,15 +14,18 @@ class ActionsQueueScanRailMetricsBuilder {
 	 *   rail_accent_status:string
 	 * }
 	 */
-	public function build( array $needsAttentionPayload = [] ) :array {
+	public function build( array $attentionQuery = [] ) :array {
 		$state = ( new ActionsQueueScanStateBuilder() )->build();
-		$maintenanceMetrics = $this->buildMaintenanceMetrics( $needsAttentionPayload );
+		$attentionQuery = !empty( $attentionQuery )
+			? $attentionQuery
+			: ( new BuildAttentionItems() )->build();
+		$maintenanceMetrics = $this->buildMaintenanceMetrics( $attentionQuery );
 		$tabs = $state[ 'tabs' ];
 		$tabs[ 'maintenance' ] = $maintenanceMetrics;
 		$tabs[ 'summary' ] = [
-			'count'  => (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) + $maintenanceMetrics[ 'count' ],
+			'count'  => $tabs[ 'summary' ][ 'count' ] + $maintenanceMetrics[ 'count' ],
 			'status' => StatusPriority::highest( [
-				(string)( $tabs[ 'summary' ][ 'status' ] ?? 'good' ),
+				$tabs[ 'summary' ][ 'status' ],
 				$maintenanceMetrics[ 'status' ],
 			], 'good' ),
 		];
@@ -47,28 +49,15 @@ class ActionsQueueScanRailMetricsBuilder {
 	/**
 	 * @return array{count:int,status:string}
 	 */
-	private function buildMaintenanceMetrics( array $needsAttentionPayload ) :array {
-		$maintenanceZoneGroup = NeedsAttentionQueuePayload::zoneGroup(
-			$this->resolveQueuePayload( $needsAttentionPayload ),
-			'maintenance'
-		);
-		$count = (int)( $maintenanceZoneGroup[ 'total_issues' ] ?? 0 );
+	private function buildMaintenanceMetrics( array $attentionQuery ) :array {
+		$maintenanceGroup = $attentionQuery[ 'groups' ][ 'maintenance' ];
+		$count = $maintenanceGroup[ 'total' ];
 
 		return [
 			'count'  => $count,
 			'status' => $count > 0
-				? StatusPriority::normalize( (string)( $maintenanceZoneGroup[ 'severity' ] ?? 'warning' ), 'warning' )
+				? StatusPriority::normalize( $maintenanceGroup[ 'severity' ], 'warning' )
 				: 'good',
 		];
-	}
-
-	private function resolveQueuePayload( array $needsAttentionPayload ) :array {
-		return !empty( $needsAttentionPayload )
-			? $needsAttentionPayload
-			: [
-				'render_data' => ( new NeedsAttentionQueueDataBuilder() )->build( [
-					'compact_all_clear' => true,
-				] ),
-			];
 	}
 }

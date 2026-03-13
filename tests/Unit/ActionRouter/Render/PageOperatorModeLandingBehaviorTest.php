@@ -25,6 +25,8 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
+	private array $queuePayload = [];
+
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
@@ -54,11 +56,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			],
 			[
 				[
-					'slug'         => 'scans',
-					'label'        => 'Scans',
-					'icon_class'   => 'bi bi-scans',
+					'zone'         => 'scans',
 					'severity'     => 'critical',
-					'total_issues' => 2,
+					'total'        => 2,
 					'items'        => [
 						[
 							'key'         => '',
@@ -74,11 +74,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					],
 				],
 				[
-					'slug'         => 'maintenance',
-					'label'        => 'Maintenance',
-					'icon_class'   => 'bi bi-maintenance',
+					'zone'         => 'maintenance',
 					'severity'     => 'warning',
-					'total_issues' => 1,
+					'total'        => 1,
 					'items'        => [
 						[
 							'key'         => '',
@@ -119,11 +117,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			],
 			[
 				[
-					'slug'         => 'scans',
-					'label'        => 'Scans',
-					'icon_class'   => 'bi bi-scans',
+					'zone'         => 'scans',
 					'severity'     => 'critical',
-					'total_issues' => 3,
+					'total'        => 3,
 					'items'        => [
 						[ 'severity' => 'critical', 'count' => 1 ],
 						[ 'severity' => 'warning', 'count' => 2 ],
@@ -245,85 +241,73 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 2, $summary[ 'recent_active_count' ] ?? null );
 	}
 
-	public function test_queue_summary_is_loaded_from_render_data_contract_path() :void {
-		$payload = [
-			'vars'        => [
-				'summary' => [
-					'has_items'   => false,
-					'total_items' => 0,
-					'severity'    => 'good',
-					'icon_class'  => 'wrong-path',
-					'subtext'     => 'wrong-path',
-				],
-			],
-			'render_data' => [
-				'vars' => [
-					'summary' => [
-						'has_items'   => true,
-						'total_items' => 3,
-						'severity'    => 'warning',
-						'icon_class'  => 'from-render-data',
-						'subtext'     => 'from-render-data',
-					],
-				],
-			],
-		];
-
+	public function test_queue_summary_is_derived_from_attention_query_contract() :void {
 		$page = new PageOperatorModeLanding();
-		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ $payload ] );
+		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ [
+			'generated_at' => 1700000000,
+			'summary'      => [
+				'total'        => 3,
+				'severity'     => 'warning',
+				'is_all_clear' => false,
+			],
+			'items'        => [],
+			'groups'       => [
+				'scans'       => [ 'zone' => 'scans', 'total' => 0, 'severity' => 'good', 'items' => [] ],
+				'maintenance' => [ 'zone' => 'maintenance', 'total' => 0, 'severity' => 'good', 'items' => [] ],
+			],
+		] ] );
 
-		$this->assertTrue( (bool)( $summary[ 'has_items' ] ?? false ) );
-		$this->assertSame( 3, $summary[ 'total_items' ] ?? null );
-		$this->assertSame( 'warning', $summary[ 'severity' ] ?? '' );
-		$this->assertSame( 'from-render-data', $summary[ 'icon_class' ] ?? '' );
-		$this->assertSame( 'from-render-data', $summary[ 'subtext' ] ?? '' );
+		$this->assertTrue( $summary[ 'has_items' ] );
+		$this->assertSame( 3, $summary[ 'total_items' ] );
+		$this->assertSame( 'warning', $summary[ 'severity' ] );
+		$this->assertSame( 'bi bi-shield-exclamation', $summary[ 'icon_class' ] );
+		$this->assertSame( '', $summary[ 'subtext' ] );
 	}
 
-	public function test_queue_zone_groups_are_extracted_and_normalized() :void {
+	public function test_queue_zone_groups_are_extracted_from_attention_query() :void {
 		$page = new PageOperatorModeLanding();
 		$zoneGroups = $this->invokeNonPublicMethod( $page, 'getQueueZoneGroups', [ [
-			'render_data' => [
-				'vars' => [
-					'zone_groups' => [
+			'generated_at' => 1700000000,
+			'summary'      => [
+				'total'        => 3,
+				'severity'     => 'critical',
+				'is_all_clear' => false,
+			],
+			'items'        => [],
+			'groups'       => [
+				'scans'       => [
+					'zone'     => 'scans',
+					'severity' => 'critical',
+					'total'    => 2,
+					'items'    => [
 						[
-							'slug'         => 'scans',
-							'label'        => 'Scans',
-							'icon_class'   => 'bi bi-scans',
-							'severity'     => 'critical',
-							'total_issues' => 2,
-							'items'        => [
-								[
-									'key'         => '',
-									'zone'        => '',
-									'label'       => '',
-									'count'       => 2,
-									'severity'    => 'critical',
-									'description' => '',
-									'href'        => '',
-									'action'      => '',
-									'target'      => '',
-								],
-							],
+							'key'         => '',
+							'zone'        => '',
+							'label'       => '',
+							'count'       => 2,
+							'severity'    => 'critical',
+							'description' => '',
+							'href'        => '',
+							'action'      => '',
+							'target'      => '',
 						],
+					],
+				],
+				'maintenance' => [
+					'zone'     => 'maintenance',
+					'severity' => 'warning',
+					'total'    => 1,
+					'items'    => [
 						[
-							'slug'         => 'maintenance',
-							'label'        => 'Maintenance',
-							'icon_class'   => 'bi bi-maintenance',
-							'severity'     => 'warning',
-							'total_issues' => 1,
-							'items'        => [
-								[
-									'key'         => '',
-									'zone'        => '',
-									'label'       => '',
-									'count'       => 1,
-									'severity'    => 'warning',
-									'description' => '',
-									'href'        => '',
-									'action'      => '',
-									'target'      => '',
-								],
-							],
+							'key'         => '',
+							'zone'        => '',
+							'label'       => '',
+							'count'       => 1,
+							'severity'    => 'warning',
+							'description' => '',
+							'href'        => '',
+							'action'      => '',
+							'target'      => '',
 						],
 					],
 				],
@@ -333,11 +317,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				[
-					'slug'         => 'scans',
-					'label'        => 'Scans',
-					'icon_class'   => 'bi bi-scans',
+					'zone'         => 'scans',
 					'severity'     => 'critical',
-					'total_issues' => 2,
+					'total'        => 2,
 					'items'        => [
 						[
 							'key'         => '',
@@ -353,11 +335,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					],
 				],
 				[
-					'slug'         => 'maintenance',
-					'label'        => 'Maintenance',
-					'icon_class'   => 'bi bi-maintenance',
+					'zone'         => 'maintenance',
 					'severity'     => 'warning',
-					'total_issues' => 1,
+					'total'        => 1,
 					'items'        => [
 						[
 							'key'         => '',
@@ -377,15 +357,27 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_queue_summary_falls_back_to_safe_defaults_for_missing_fields() :void {
+	public function test_queue_summary_marks_empty_attention_query_as_all_clear() :void {
 		$page = new PageOperatorModeLanding();
-		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ [] ] );
+		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ [
+			'generated_at' => 1700000000,
+			'summary'      => [
+				'total'        => 0,
+				'severity'     => 'good',
+				'is_all_clear' => true,
+			],
+			'items'        => [],
+			'groups'       => [
+				'scans'       => [ 'zone' => 'scans', 'total' => 0, 'severity' => 'good', 'items' => [] ],
+				'maintenance' => [ 'zone' => 'maintenance', 'total' => 0, 'severity' => 'good', 'items' => [] ],
+			],
+		] ] );
 
-		$this->assertFalse( (bool)( $summary[ 'has_items' ] ?? true ) );
-		$this->assertSame( 0, $summary[ 'total_items' ] ?? null );
-		$this->assertSame( 'good', $summary[ 'severity' ] ?? '' );
-		$this->assertSame( 'bi bi-shield-check', $summary[ 'icon_class' ] ?? '' );
-		$this->assertSame( '', $summary[ 'subtext' ] ?? 'not-empty' );
+		$this->assertFalse( $summary[ 'has_items' ] );
+		$this->assertSame( 0, $summary[ 'total_items' ] );
+		$this->assertSame( 'good', $summary[ 'severity' ] );
+		$this->assertSame( 'bi bi-shield-check', $summary[ 'icon_class' ] );
+		$this->assertSame( '', $summary[ 'subtext' ] );
 	}
 
 	public function test_live_monitor_vars_use_current_compact_contract() :void {
@@ -406,11 +398,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
 			[
 				[
-					'slug'         => 'scans',
-					'label'        => 'Scans',
-					'icon_class'   => 'bi bi-scans',
+					'zone'         => 'scans',
 					'severity'     => 'critical',
-					'total_issues' => 23,
+					'total'        => 23,
 					'items'        => [
 						[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 4 ],
 						[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'critical', 'count' => 3 ],
@@ -422,11 +412,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					],
 				],
 				[
-					'slug'         => 'maintenance',
-					'label'        => 'Maintenance',
-					'icon_class'   => 'bi bi-maintenance',
+					'zone'         => 'maintenance',
 					'severity'     => 'warning',
-					'total_issues' => 7,
+					'total'        => 7,
 					'items'        => [],
 				],
 			],
@@ -469,11 +457,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
 			[
 				[
-					'slug'         => 'scans',
-					'label'        => 'Scans',
-					'icon_class'   => 'bi bi-scans',
+					'zone'         => 'scans',
 					'severity'     => 'warning',
-					'total_issues' => 2,
+					'total'        => 2,
 					'items'        => [
 						[ 'key' => 'plugin_files', 'label' => 'Plugins', 'severity' => 'warning', 'count' => 2 ],
 						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
@@ -498,37 +484,29 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_render_data_exposes_actions_queue_title_and_secondary_lanes() :void {
 		$this->installControllerStubWithQueuePayload( [
-			'render_data' => [
-				'vars' => [
-					'summary' => [
-						'has_items'   => true,
-						'total_items' => 4,
-						'severity'    => 'warning',
-						'icon_class'  => 'bi bi-shield-exclamation',
-						'subtext'     => 'Latest attention items',
+			'generated_at' => 1700000000,
+			'summary'      => [
+				'total'        => 4,
+				'severity'     => 'warning',
+				'is_all_clear' => false,
+			],
+			'items'        => [],
+			'groups'       => [
+				'scans'       => [
+					'zone'     => 'scans',
+					'severity' => 'warning',
+					'total'    => 3,
+					'items'    => [
+						[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 2 ],
+						[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'good', 'count' => 0 ],
+						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 1 ],
 					],
-					'zone_groups' => [
-						[
-							'slug'         => 'scans',
-							'label'        => 'Scans',
-							'icon_class'   => 'bi bi-scans',
-							'severity'     => 'warning',
-							'total_issues' => 3,
-							'items'        => [
-								[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 2 ],
-								[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'good', 'count' => 0 ],
-								[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 1 ],
-							],
-						],
-						[
-							'slug'         => 'maintenance',
-							'label'        => 'Maintenance',
-							'icon_class'   => 'bi bi-wrench',
-							'severity'     => 'warning',
-							'total_issues' => 1,
-							'items'        => [],
-						],
-					],
+				],
+				'maintenance' => [
+					'zone'     => 'maintenance',
+					'severity' => 'warning',
+					'total'    => 1,
+					'items'    => [],
 				],
 			],
 		] );
@@ -551,7 +529,13 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function newPage() :PageOperatorModeLanding {
-		return new class extends PageOperatorModeLanding {
+		return new class( $this->queuePayload ) extends PageOperatorModeLanding {
+			private array $attentionQuery;
+
+			public function __construct( array $attentionQuery ) {
+				$this->attentionQuery = $attentionQuery;
+			}
+
 			protected function getZonePosture() :array {
 				return [
 					'components' => [],
@@ -579,10 +563,15 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			protected function getCurrentTimestamp() :int {
 				return 200000;
 			}
+
+			protected function buildAttentionQuery() :array {
+				return $this->attentionQuery;
+			}
 		};
 	}
 
 	private function installControllerStubWithQueuePayload( array $queuePayload, array $reportsState = [] ) :void {
+		$this->queuePayload = $queuePayload;
 		$reportsState = \array_replace_recursive( [
 			'reports_count'    => 0,
 			'latest_report_at' => 0,
@@ -652,28 +641,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				}
 			},
 		];
-		$controller->action_router = new class( $queuePayload ) {
-			private array $queuePayload;
-
-			public function __construct( array $queuePayload ) {
-				$this->queuePayload = $queuePayload;
-			}
-
-			public function action( string $class ) :object {
-				return new class( $this->queuePayload ) {
-					private array $queuePayload;
-
-					public function __construct( array $queuePayload ) {
-						$this->queuePayload = $queuePayload;
-					}
-
-					public function payload() :array {
-						return $this->queuePayload;
-					}
-				};
-			}
-		};
-
 		PluginControllerInstaller::install( $controller );
 	}
 }

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildOverview;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
@@ -53,29 +54,27 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 
 	private function getVars( bool $refresh ) :array {
 		$con = self::con();
-		$provider = new AttentionItemsProvider();
 		$cacheKeyV3 = $con->prefix( self::VARS_CACHE_KEY );
 		$cacheKeyV2 = $con->prefix( self::LEGACY_VARS_CACHE_KEY );
 		$vars = Transient::Get( $cacheKeyV3 );
 		if ( $refresh || empty( $vars ) ) {
 			Transient::Delete( $cacheKeyV2 );
-			$vars = $this->buildFreshVars( $provider );
+			$vars = $this->buildFreshVars();
 			Transient::Set( $cacheKeyV3, $vars, 30 );
 		}
 
 		return $vars;
 	}
 
-	private function buildFreshVars( AttentionItemsProvider $provider ) :array {
-		$con = self::con();
-		$configProgress = $this->getZonePosture();
+	private function buildFreshVars() :array {
+		$overview = ( new BuildOverview() )->build();
+		$configProgress = $overview[ 'posture' ];
 		$configTraffic = BuildZonePosture::trafficFromPercentage( $configProgress[ 'percentage' ] );
-		$actionSummary = $provider->buildActionSummary();
-
-		$latestScanAt = $provider->getLatestCompletedScanTimestamp( $con->comps->scans->getScanSlugs() );
+		$actionSummary = $overview[ 'attention_summary' ];
+		$latestScanAt = (int)\max( $overview[ 'scans' ][ 'latest_completed_at' ] );
 
 		return [
-			'generated_at'    => Services::Request()->ts(),
+			'generated_at'    => $overview[ 'generated_at' ],
 			'config_progress' => $configProgress,
 			'config_traffic'  => $configTraffic,
 			'action_total'    => $actionSummary[ 'total' ],
@@ -85,20 +84,6 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 				: '',
 		];
-	}
-
-	/**
-	 * @return array{
-	 *   components:list<array<string,mixed>>,
-	 *   signals:list<array<string,mixed>>,
-	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
-	 *   percentage:int,
-	 *   severity:string,
-	 *   status:string
-	 * }
-	 */
-	protected function getZonePosture() :array {
-		return ( new BuildZonePosture() )->build();
 	}
 
 	private function isRefreshRequested() :bool {

@@ -4,8 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\{
+	BuildAttentionItems,
+	BuildOverview
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
 class NeedsAttentionQueueDataBuilder {
@@ -98,10 +101,9 @@ class NeedsAttentionQueueDataBuilder {
 	 * }
 	 */
 	private function buildBaseData() :array {
-		$provider = new AttentionItemsProvider();
-		$items = $provider->buildQueueItems();
-		$totalItems = (int)\array_sum( \array_column( $items, 'count' ) );
-		$latestScanAt = $provider->getLatestCompletedScanTimestamp( self::con()->comps->scans->getScanSlugs() );
+		$attention = ( new BuildAttentionItems() )->build();
+		$overview = ( new BuildOverview() )->build();
+		$latestScanAt = (int)\max( $overview[ 'scans' ][ 'latest_completed_at' ] );
 		$lastScanSubtext = $latestScanAt > 0
 			? sprintf(
 				__( 'Last scan: %s', 'wp-simple-firewall' ),
@@ -111,48 +113,30 @@ class NeedsAttentionQueueDataBuilder {
 
 		return [
 			'summary'           => $this->buildQueueSummaryContract(
-				!empty( $items ),
-				$totalItems,
-				$items,
+				$attention,
 				$lastScanSubtext
 			),
-			'zone_groups'       => \array_values( $this->buildZoneGroups( $items ) ),
+			'zone_groups'       => $this->buildZoneGroups( $attention ),
 			'last_scan_subtext' => $lastScanSubtext,
 		];
 	}
 
-	private function buildZoneGroups( array $items ) :array {
-		$groups = [];
-
-		foreach ( $items as $item ) {
-			$zone = $item[ 'zone' ];
-			if ( !isset( $groups[ $zone ] ) ) {
+	private function buildZoneGroups( array $attention ) :array {
+		return \array_values( \array_map(
+			function ( string $zone, array $group ) :array {
 				$zoneData = $this->zoneDataFor( $zone );
-				$groups[ $zone ] = [
+				return [
 					'slug'         => $zone,
 					'label'        => $zoneData[ 'label' ],
 					'icon_class'   => $zoneData[ 'icon_class' ],
-					'severity'     => 'good',
-					'total_issues' => 0,
-					'items'        => [],
+					'severity'     => $group[ 'severity' ],
+					'total_issues' => $group[ 'total' ],
+					'items'        => $this->buildQueueItems( $group[ 'items' ] ),
 				];
-			}
-			$groups[ $zone ][ 'items' ][] = $item;
-			$groups[ $zone ][ 'total_issues' ] += $item[ 'count' ];
-			$groups[ $zone ][ 'severity' ] = StatusPriority::highest( [
-				$groups[ $zone ][ 'severity' ],
-				$item[ 'severity' ],
-			], 'good' );
-		}
-
-		return $groups;
-	}
-
-	private function determineOverallSeverity( array $items ) :string {
-		if ( empty( $items ) ) {
-			return 'good';
-		}
-		return StatusPriority::highest( \array_column( $items, 'severity' ), 'good' );
+			},
+			\array_keys( $attention[ 'groups' ] ),
+			\array_values( $attention[ 'groups' ] )
+		) );
 	}
 
 	/**
@@ -164,14 +148,32 @@ class NeedsAttentionQueueDataBuilder {
 	 *   subtext:string
 	 * }
 	 */
-	private function buildQueueSummaryContract( bool $hasItems, int $totalItems, array $items, string $lastScanSubtext ) :array {
+	private function buildQueueSummaryContract( array $attention, string $lastScanSubtext ) :array {
+		$hasItems = !$attention[ 'summary' ][ 'is_all_clear' ];
 		return [
 			'has_items'   => $hasItems,
-			'total_items' => $totalItems,
-			'severity'    => $this->determineOverallSeverity( $items ),
+			'total_items' => $attention[ 'summary' ][ 'total' ],
+			'severity'    => $attention[ 'summary' ][ 'severity' ],
 			'icon_class'  => self::con()->svgs->iconClass( $hasItems ? 'exclamation-triangle-fill' : 'shield-check' ),
 			'subtext'     => $lastScanSubtext,
 		];
+	}
+
+	private function buildQueueItems( array $items ) :array {
+		return \array_values( \array_map(
+			static fn( array $item ) :array => [
+				'key'         => $item[ 'key' ],
+				'zone'        => $item[ 'zone' ],
+				'label'       => $item[ 'label' ],
+				'count'       => $item[ 'count' ],
+				'severity'    => $item[ 'severity' ],
+				'description' => $item[ 'description' ],
+				'href'        => $item[ 'href' ],
+				'action'      => $item[ 'action' ],
+				'target'      => $item[ 'target' ],
+			],
+			$items
+		) );
 	}
 
 	private function buildAllClearZoneChips() :array {

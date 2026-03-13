@@ -7,6 +7,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Com
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type MaintenanceIssueState array{
+ *   key:string,
+ *   label:string,
+ *   description:string,
+ *   count:int,
+ *   ignored_count:int,
+ *   severity:string,
+ *   href:string,
+ *   action:string,
+ *   target:string,
+ *   supports_sub_items:bool,
+ *   active_identifiers:list<string>,
+ *   ignored_identifiers:list<string>
+ * }
+ */
 class MaintenanceIssueStateProvider {
 
 	use PluginControllerConsumer;

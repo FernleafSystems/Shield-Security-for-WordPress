@@ -14,12 +14,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\AttentionItemsProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
 	RetrieveBase,
 	RetrieveItems
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -29,7 +29,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-import-type ActionItem from AttentionItemsProvider
+ * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-type QueueAssetAction array{
  *   type:string,
  *   label:string,
@@ -195,19 +195,20 @@ class ScansResultsViewBuilder {
 	 * @return list<SummaryRow>
 	 */
 	protected function buildSummaryRows() :array {
+		$attentionQuery = $this->buildAttentionQuery();
 		return \array_values( \array_map(
 			static function ( array $row ) :array {
 				return [
 					'key'      => $row[ 'key' ],
 					'label'    => $row[ 'label' ],
-					'text'     => $row[ 'text' ],
+					'text'     => $row[ 'description' ],
 					'severity' => $row[ 'severity' ],
 					'count'    => $row[ 'count' ],
 					'action'   => $row[ 'action' ],
 					'href'     => $row[ 'href' ],
 				];
 			},
-			( new AttentionItemsProvider() )->buildScanItems()
+			$attentionQuery[ 'groups' ][ 'scans' ][ 'items' ]
 		) );
 	}
 
@@ -1384,5 +1385,12 @@ class ScansResultsViewBuilder {
 	 */
 	protected function countSummaryRowIssues( array $summaryRows ) :int {
 		return (int)\array_sum( \array_column( $summaryRows, 'count' ) );
+	}
+
+	/**
+	 * @return AttentionQuery
+	 */
+	protected function buildAttentionQuery() :array {
+		return ( new BuildAttentionItems() )->build();
 	}
 }

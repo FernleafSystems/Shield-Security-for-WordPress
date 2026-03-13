@@ -3,11 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueue;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
@@ -16,17 +15,20 @@ class PageOperatorModeLanding extends BaseRender {
 
 	public const SLUG = 'plugin_admin_page_operator_mode_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/operator_mode_landing.twig';
+
 	private const VALID_SEVERITIES = [
 		'good',
 		'warning',
 		'critical',
 	];
 
+	private ?array $attentionQueryCache = null;
+
 	protected function getRenderData() :array {
-		$queuePayload = $this->getQueuePayload();
-		$queueSummary = $this->getQueueSummary( $queuePayload );
-		$queueZoneGroups = $this->getQueueZoneGroups( $queuePayload );
-		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] ?? 'good' );
+		$attentionQuery = $this->getAttentionQuery();
+		$queueSummary = $this->getQueueSummary( $attentionQuery );
+		$queueZoneGroups = $this->getQueueZoneGroups( $attentionQuery );
+		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] );
 
 		$configPercentage = $this->getZonePosture()[ 'percentage' ];
 		$configPercentage = max( 0, min( 100, $configPercentage ) );
@@ -44,20 +46,20 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'strings' => [
 				'title'             => __( 'Actions Queue', 'wp-simple-firewall' ),
-				'subtitle' => $this->buildShieldSubtitle( $queueSummary ),
+				'subtitle'          => $this->buildShieldSubtitle( $queueSummary ),
 				'actions_queue_cta' => __( 'View Actions Queue', 'wp-simple-firewall' ),
 			],
-			'vars' => [
-				'shield_status'     => $shieldStatus,
-				'shield_icon_class' => $this->buildShieldIconClass( $shieldStatus ),
-				'lanes'             => [
+			'vars'    => [
+				'shield_status'      => $shieldStatus,
+				'shield_icon_class'  => $this->buildShieldIconClass( $shieldStatus ),
+				'lanes'              => [
 					$actionsLane,
 					...$secondaryLanes,
 				],
-				'actions_lane'      => $actionsLane,
-				'secondary_lanes'   => $secondaryLanes,
+				'actions_lane'       => $actionsLane,
+				'secondary_lanes'    => $secondaryLanes,
 				'actions_queue_rows' => $this->buildActionsQueueRows( $queueZoneGroups ),
-				'live_monitor'      => $this->buildLiveMonitorVars(),
+				'live_monitor'       => $this->buildLiveMonitorVars(),
 			],
 		];
 	}
@@ -93,41 +95,31 @@ class PageOperatorModeLanding extends BaseRender {
 		];
 	}
 
-	private function getQueuePayload() :array {
-		try {
-			$payload = self::con()->action_router->action( NeedsAttentionQueue::class )->payload();
-		}
-		catch ( \Throwable $e ) {
-			$payload = [];
-		}
-		return $payload;
-	}
-
 	/**
 	 * @return array{has_items:bool,total_items:int,severity:string,icon_class:string,subtext:string}
 	 */
-	private function getQueueSummary( array $payload ) :array {
-		return NeedsAttentionQueuePayload::summary( $payload, [
-			'has_items'   => false,
-			'total_items' => 0,
-			'severity'    => 'good',
-			'icon_class'  => self::con()->svgs->iconClass( 'shield-check' ),
+	private function getQueueSummary( array $attentionQuery ) :array {
+		$hasItems = !$attentionQuery[ 'summary' ][ 'is_all_clear' ];
+
+		return [
+			'has_items'   => $hasItems,
+			'total_items' => $attentionQuery[ 'summary' ][ 'total' ],
+			'severity'    => $attentionQuery[ 'summary' ][ 'severity' ],
+			'icon_class'  => self::con()->svgs->iconClass( $hasItems ? 'shield-exclamation' : 'shield-check' ),
 			'subtext'     => '',
-		] );
+		];
 	}
 
 	/**
 	 * @return list<array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
+	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
-	 *   total_issues:int,
+	 *   total:int,
 	 *   items:list<array<string,mixed>>
 	 * }>
 	 */
-	private function getQueueZoneGroups( array $payload ) :array {
-		return NeedsAttentionQueuePayload::zoneGroups( $payload );
+	private function getQueueZoneGroups( array $attentionQuery ) :array {
+		return \array_values( $attentionQuery[ 'groups' ] );
 	}
 
 	private function normalizeSeverity( string $severity ) :string {
@@ -153,22 +145,21 @@ class PageOperatorModeLanding extends BaseRender {
 			'warning'  => 'shield-exclamation',
 			'critical' => 'shield-x',
 		];
+
 		return self::con()->svgs->iconClass( $iconMap[ $shieldStatus ] ?? $iconMap[ 'good' ] );
 	}
 
 	/**
 	 * @param array{has_items:bool,total_items:int,severity:string,icon_class:string,subtext:string} $queueSummary
 	 * @param list<array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
+	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
-	 *   total_issues:int,
+	 *   total:int,
 	 *   items:list<array<string,mixed>>
 	 * }> $zoneGroups
 	 */
 	private function buildActionsLane( array $queueSummary, array $zoneGroups ) :array {
-		$severity = $this->normalizeSeverity( (string)( $queueSummary[ 'severity' ] ?? 'good' ) );
+		$severity = $this->normalizeSeverity( $queueSummary[ 'severity' ] );
 		$iconMap = [
 			'good'     => 'shield-check',
 			'warning'  => 'shield-exclamation',
@@ -206,11 +197,9 @@ class PageOperatorModeLanding extends BaseRender {
 
 	/**
 	 * @param list<array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
+	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
-	 *   total_issues:int,
+	 *   total:int,
 	 *   items:list<array<string,mixed>>
 	 * }> $zoneGroups
 	 * @return list<array{
@@ -222,12 +211,13 @@ class PageOperatorModeLanding extends BaseRender {
 	 * }>
 	 */
 	private function buildActionsQueueRows( array $zoneGroups ) :array {
-		$scanGroup = $this->findQueueZoneGroupBySlug( $zoneGroups, 'scans' );
+		$scanGroup = $this->findQueueZoneGroupByZone( $zoneGroups, 'scans' );
 		$rows = \array_values( \array_map(
 			fn( array $item ) :array => $this->buildScanQueueRowFromQueueItem( $item ),
-			\is_array( $scanGroup[ 'items' ] ?? null ) ? \array_values( $scanGroup[ 'items' ] ) : []
+			$scanGroup[ 'items' ]
 		) );
 		$rows[] = $this->buildMaintenanceQueueRow( $zoneGroups );
+
 		return $rows;
 	}
 
@@ -242,14 +232,14 @@ class PageOperatorModeLanding extends BaseRender {
 	 * }
 	 */
 	private function buildScanQueueRowFromQueueItem( array $item ) :array {
-		$key = (string)( $item[ 'key' ] ?? '' );
+		$key = (string)$item[ 'key' ];
 
 		return [
 			'key'        => $key,
-			'label'      => (string)( $item[ 'label' ] ?? '' ),
+			'label'      => $item[ 'label' ],
 			'icon_class' => self::con()->svgs->iconClass( $this->getScanQueueRowIcon( $key ) ),
-			'severity'   => $this->normalizeSeverity( (string)( $item[ 'severity' ] ?? 'good' ) ),
-			'count'      => \max( 0, (int)( $item[ 'count' ] ?? 0 ) ),
+			'severity'   => $this->normalizeSeverity( $item[ 'severity' ] ),
+			'count'      => $item[ 'count' ],
 		];
 	}
 
@@ -267,11 +257,9 @@ class PageOperatorModeLanding extends BaseRender {
 
 	/**
 	 * @param list<array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
+	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
-	 *   total_issues:int,
+	 *   total:int,
 	 *   items:list<array<string,mixed>>
 	 * }> $zoneGroups
 	 * @return array{
@@ -283,8 +271,8 @@ class PageOperatorModeLanding extends BaseRender {
 	 * }
 	 */
 	private function buildMaintenanceQueueRow( array $zoneGroups ) :array {
-		$maintenanceGroup = $this->findQueueZoneGroupBySlug( $zoneGroups, 'maintenance' );
-		$count = \max( 0, (int)( $maintenanceGroup[ 'total_issues' ] ?? 0 ) );
+		$maintenanceGroup = $this->findQueueZoneGroupByZone( $zoneGroups, 'maintenance' );
+		$count = $maintenanceGroup[ 'total' ];
 
 		return [
 			'key'        => 'maintenance',
@@ -297,52 +285,60 @@ class PageOperatorModeLanding extends BaseRender {
 
 	/**
 	 * @param list<array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
+	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
-	 *   total_issues:int,
+	 *   total:int,
 	 *   items:list<array<string,mixed>>
 	 * }> $zoneGroups
 	 * @return array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
+	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
-	 *   total_issues:int,
+	 *   total:int,
 	 *   items:list<array<string,mixed>>
-	 * }|array{}
+	 * }
 	 */
-	private function findQueueZoneGroupBySlug( array $zoneGroups, string $slug ) :array {
-		$matches = \array_values( \array_filter(
-			$zoneGroups,
-			static fn( array $zoneGroup ) :bool => ( $zoneGroup[ 'slug' ] ?? '' ) === $slug
-		) );
+	private function findQueueZoneGroupByZone( array $zoneGroups, string $zone ) :array {
+		foreach ( $zoneGroups as $zoneGroup ) {
+			if ( $zoneGroup[ 'zone' ] === $zone ) {
+				return $zoneGroup;
+			}
+		}
 
-		return $matches[ 0 ] ?? [];
+		return [
+			'zone'     => $zone,
+			'severity' => 'good',
+			'total'    => 0,
+			'items'    => [],
+		];
 	}
 
 	/**
 	 * @param list<array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
+	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
-	 *   total_issues:int,
+	 *   total:int,
 	 *   items:list<array<string,mixed>>
 	 * }> $zoneGroups
 	 */
 	private function buildQueueBreakdownText( array $zoneGroups ) :string {
-		$counts = NeedsAttentionQueuePayload::countsFromZoneGroups( $zoneGroups );
-		$critical = $counts[ 'critical' ];
-		$warning = $counts[ 'warning' ];
+		$counts = [
+			'critical' => 0,
+			'warning'  => 0,
+		];
+		foreach ( $zoneGroups as $zoneGroup ) {
+			foreach ( $zoneGroup[ 'items' ] as $item ) {
+				if ( isset( $counts[ $item[ 'severity' ] ] ) ) {
+					$counts[ $item[ 'severity' ] ] += $item[ 'count' ];
+				}
+			}
+		}
 
 		$parts = [];
-		if ( $critical > 0 ) {
-			$parts[] = sprintf( _n( '%s critical', '%s critical', $critical, 'wp-simple-firewall' ), $critical );
+		if ( $counts[ 'critical' ] > 0 ) {
+			$parts[] = sprintf( _n( '%s critical', '%s critical', $counts[ 'critical' ], 'wp-simple-firewall' ), $counts[ 'critical' ] );
 		}
-		if ( $warning > 0 ) {
-			$parts[] = sprintf( _n( '%s warning', '%s warnings', $warning, 'wp-simple-firewall' ), $warning );
+		if ( $counts[ 'warning' ] > 0 ) {
+			$parts[] = sprintf( _n( '%s warning', '%s warnings', $counts[ 'warning' ], 'wp-simple-firewall' ), $counts[ 'warning' ] );
 		}
 
 		return empty( $parts ) ? '' : implode( ' - ', $parts );
@@ -389,7 +385,7 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'mode'               => PluginNavs::MODE_CONFIGURE,
 			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_CONFIGURE ),
-			'description'        => __( 'Fine tune your WordPress security posture to exactly what you need.','wp-simple-firewall' ),
+			'description'        => __( 'Fine tune your WordPress security posture to exactly what you need.', 'wp-simple-firewall' ),
 			'href'               => $this->modeHref( PluginNavs::MODE_CONFIGURE ),
 			'icon_class'         => self::con()->svgs->iconClass( 'sliders' ),
 			'edge_status'        => 'good',
@@ -476,8 +472,8 @@ class PageOperatorModeLanding extends BaseRender {
 
 		try {
 			$summary[ 'count' ] = self::con()->db_con->reports->getQuerySelector()
-									 ->addWhere( 'unique_id', '', '!=' )
-									 ->count();
+				->addWhere( 'unique_id', '', '!=' )
+				->count();
 			$latestReport = $this->getLatestReportRecord();
 			$latestAlert = $this->getLatestReportRecord( ReportingConstants::REPORT_TYPE_ALERT );
 			$summary[ 'latest_report_at' ] = (int)( $latestReport->created_at ?? 0 );
@@ -506,10 +502,11 @@ class PageOperatorModeLanding extends BaseRender {
 	 */
 	private function getLatestReportRecord( ?string $reportType = null ) {
 		$selector = self::con()->db_con->reports->getQuerySelector()
-						 ->addWhere( 'unique_id', '', '!=' );
+			->addWhere( 'unique_id', '', '!=' );
 		if ( !empty( $reportType ) ) {
 			$selector->filterByType( $reportType );
 		}
+
 		return $selector
 			->setOrderBy( 'created_at', 'DESC', true )
 			->first();
@@ -544,5 +541,17 @@ class PageOperatorModeLanding extends BaseRender {
 	private function modeHref( string $mode ) :string {
 		$entry = PluginNavs::defaultEntryForMode( $mode );
 		return self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] );
+	}
+
+	private function getAttentionQuery() :array {
+		if ( $this->attentionQueryCache === null ) {
+			$this->attentionQueryCache = $this->buildAttentionQuery();
+		}
+
+		return $this->attentionQueryCache;
+	}
+
+	protected function buildAttentionQuery() :array {
+		return ( new BuildAttentionItems() )->build();
 	}
 }

@@ -2,15 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueuePayload;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueueDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteQuery\{
+	BuildAttentionItems,
+	BuildOverview
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-import-type QueueSummary from NeedsAttentionQueuePayload
- * @phpstan-import-type QueueItem from NeedsAttentionQueuePayload
- * @phpstan-import-type ZoneGroup from NeedsAttentionQueuePayload
+ * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -53,7 +53,8 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	public const SLUG = 'plugin_admin_page_actions_queue_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/actions_queue_landing.twig';
-	private ?array $needsAttentionPayload = null;
+
+	private ?array $attentionQueryCache = null;
 	private ?array $landingViewDataCache = null;
 	private ?string $activeZoneCache = null;
 	private ?array $scansResultsRenderDataCache = null;
@@ -95,18 +96,19 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	protected function getLandingStrings() :array {
 		$zones = $this->getZonesIndexed();
-		$needsAttentionStrings = $this->getNeedsAttentionStrings();
+		$allClear = $this->getLandingViewData()[ 'all_clear' ];
+
 		return [
-			'status_action_required'   => __( 'Action Required', 'wp-simple-firewall' ),
-			'status_all_clear'         => __( 'All Clear', 'wp-simple-firewall' ),
-			'severity_strip_label'     => __( 'Queue Status', 'wp-simple-firewall' ),
-			'all_clear_title'          => $needsAttentionStrings[ 'all_clear_title' ],
-			'all_clear_subtitle'       => $needsAttentionStrings[ 'all_clear_subtitle' ],
-			'all_clear_icon_class'     => $needsAttentionStrings[ 'all_clear_icon_class' ],
-			'zone_scans'               => $zones[ 'scans' ][ 'label' ],
-			'zone_maintenance'         => $zones[ 'maintenance' ][ 'label' ],
-			'pane_loading'             => __( 'Loading scan details...', 'wp-simple-firewall' ),
-			'pane_load_error'          => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
+			'status_action_required' => __( 'Action Required', 'wp-simple-firewall' ),
+			'status_all_clear'       => __( 'All Clear', 'wp-simple-firewall' ),
+			'severity_strip_label'   => __( 'Queue Status', 'wp-simple-firewall' ),
+			'all_clear_title'        => $allClear[ 'title' ],
+			'all_clear_subtitle'     => $allClear[ 'subtitle' ],
+			'all_clear_icon_class'   => $allClear[ 'icon_class' ],
+			'zone_scans'             => $zones[ 'scans' ][ 'label' ],
+			'zone_maintenance'       => $zones[ 'maintenance' ][ 'label' ],
+			'pane_loading'           => __( 'Loading scan details...', 'wp-simple-firewall' ),
+			'pane_load_error'        => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -130,6 +132,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	protected function getLandingVars() :array {
 		$viewData = $this->getLandingViewData();
+
 		return [
 			'severity_strip' => $viewData[ 'severity_strip' ],
 			'zone_tiles'     => $viewData[ 'zone_tiles' ],
@@ -141,18 +144,13 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @return array<string,string>
-	 */
-	private function getNeedsAttentionStrings() :array {
-		return NeedsAttentionQueuePayload::strings( $this->getNeedsAttentionPayload(), [
-			'all_clear_title'      => __( 'All security zones are clear', 'wp-simple-firewall' ),
-			'all_clear_subtitle'   => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
-			'all_clear_icon_class' => $this->buildLandingIconClass( 'shield-check' ),
-		] );
-	}
-
-	/**
-	 * @return QueueSummary
+	 * @return array{
+	 *   has_items:bool,
+	 *   total_items:int,
+	 *   severity:string,
+	 *   icon_class:string,
+	 *   subtext:string
+	 * }
 	 */
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
@@ -173,7 +171,14 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @return array<string,ZoneGroup>
+	 * @return array<string,array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon_class:string,
+	 *   severity:string,
+	 *   total_issues:int,
+	 *   items:list<array<string,mixed>>
+	 * }>
 	 */
 	private function getZonesIndexed() :array {
 		return $this->getLandingViewData()[ 'zones_indexed' ];
@@ -200,6 +205,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 				? $requestedZone
 				: '';
 		}
+
 		return $this->activeZoneCache;
 	}
 
@@ -207,6 +213,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 		if ( $this->scansResultsRenderDataCache === null ) {
 			$this->scansResultsRenderDataCache = $this->buildScansResultsRenderData();
 		}
+
 		return $this->scansResultsRenderDataCache;
 	}
 
@@ -246,14 +253,27 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	protected function buildScansResultsRenderData() :array {
 		return ( new ActionsQueueScanRailBuilder() )->buildFromLandingViewData(
 			$this->getLandingViewData(),
-			( new ActionsQueueScanRailMetricsBuilder() )->build( $this->getNeedsAttentionPayload() )
+			( new ActionsQueueScanRailMetricsBuilder() )->build( $this->getAttentionQuery() )
 		);
 	}
 
 	/**
 	 * @return array{
-	 *   summary:QueueSummary,
-	 *   zones_indexed:array<string,ZoneGroup>,
+	 *   summary:array{
+	 *     has_items:bool,
+	 *     total_items:int,
+	 *     severity:string,
+	 *     icon_class:string,
+	 *     subtext:string
+	 *   },
+	 *   zones_indexed:array<string,array{
+	 *     slug:string,
+	 *     label:string,
+	 *     icon_class:string,
+	 *     severity:string,
+	 *     total_issues:int,
+	 *     items:list<array<string,mixed>>
+	 *   }>,
 	 *   zone_tiles:list<ZoneTile>,
 	 *   severity_strip:array{
 	 *     severity:string,
@@ -281,8 +301,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	private function getLandingViewData() :array {
 		if ( $this->landingViewDataCache === null ) {
 			$this->landingViewDataCache = ( new ActionsQueueLandingViewBuilder() )
-				->build( $this->getNeedsAttentionPayload(), $this->getAssessmentRowsByZone() );
+				->build( $this->getAttentionQuery(), $this->getAssessmentRowsByZone(), $this->buildSummarySubtext() );
 		}
+
 		return $this->landingViewDataCache;
 	}
 
@@ -293,6 +314,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 		if ( $this->assessmentRowsByZoneCache === null ) {
 			$this->assessmentRowsByZoneCache = $this->buildAssessmentRowsByZone();
 		}
+
 		return $this->assessmentRowsByZoneCache;
 	}
 
@@ -309,30 +331,31 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @return array{
-	 *   render_data:array{
-	 *     flags:array{has_items:bool},
-	 *     strings:array{
-	 *       all_clear_title:string,
-	 *       all_clear_subtitle:string,
-	 *       status_strip_subtext:string,
-	 *       all_clear_icon_class:string
-	 *     }
-	 *   }
-	 * }
+	 * @return AttentionQuery
 	 */
-	private function getNeedsAttentionPayload() :array {
-		if ( $this->needsAttentionPayload === null ) {
-			$this->needsAttentionPayload = [
-				'render_data' => $this->buildNeedsAttentionRenderData(),
-			];
+	private function getAttentionQuery() :array {
+		if ( $this->attentionQueryCache === null ) {
+			$this->attentionQueryCache = $this->buildAttentionQuery();
 		}
-		return $this->needsAttentionPayload;
+
+		return $this->attentionQueryCache;
 	}
 
-	protected function buildNeedsAttentionRenderData() :array {
-		return ( new NeedsAttentionQueueDataBuilder() )->build( [
-			'compact_all_clear' => true,
-		] );
+	/**
+	 * @return AttentionQuery
+	 */
+	protected function buildAttentionQuery() :array {
+		return ( new BuildAttentionItems() )->build();
+	}
+
+	protected function buildSummarySubtext() :string {
+		$latestScanAt = (int)\max( ( new BuildOverview() )->build()[ 'scans' ][ 'latest_completed_at' ] );
+
+		return $latestScanAt > 0
+			? sprintf(
+				__( 'Last scan: %s', 'wp-simple-firewall' ),
+				Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
+			)
+			: '';
 	}
 }
