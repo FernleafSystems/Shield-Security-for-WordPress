@@ -46,4 +46,22 @@ class InvestigationFileStatusTableContractBuilder {
 
 		return $this->normalizeInvestigationTableContract( $fileTable );
 	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	public function buildWithEmptyState(
+		string $subjectType,
+		string $subjectId,
+		int $resultCount,
+		string $emptyText,
+		string $emptyStatus = 'info'
+	) :array {
+		return $this->withEmptyStateTableContract(
+			$this->build( $subjectType, $subjectId ),
+			$resultCount,
+			$emptyText,
+			$emptyStatus
+		);
+	}
 }

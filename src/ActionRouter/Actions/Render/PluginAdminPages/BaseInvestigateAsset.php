@@ -135,9 +135,30 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		return $items;
 	}
 
-	protected function buildAssetTables( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
+	/**
+	 * @return array<string,mixed>
+	 */
+	protected function buildFileStatusTableContractWithEmptyState(
+		string $subjectType,
+		string $subjectId,
+		int $fileStatusCount,
+		string $emptyText,
+		string $emptyStatus = 'info'
+	) :array {
+		return ( new InvestigationFileStatusTableContractBuilder() )->buildWithEmptyState(
+			$subjectType,
+			$subjectId,
+			$fileStatusCount,
+			$emptyText,
+			$emptyStatus
+		);
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	protected function buildActivityTableContract( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
 		$tableAction = ActionData::Build( InvestigationTableAction::class );
-		$fileTable = $this->buildFileStatusTableContract( $subjectType, $subjectId );
 
 		$activityTable = $this->buildTableContainerContract(
 			__( 'Activity', 'wp-simple-firewall' ),
@@ -150,19 +171,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			$this->buildFullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, $activitySearchToken )
 		);
 		$activityTable[ 'is_flat' ] = true;
-		$activityTable = $this->normalizeInvestigationTableContract( $activityTable );
-
-		return [
-			'file_status' => $fileTable,
-			'activity'    => $activityTable,
-		];
-	}
-
-	/**
-	 * @return array<string,mixed>
-	 */
-	protected function buildFileStatusTableContract( string $subjectType, string $subjectId ) :array {
-		return ( new InvestigationFileStatusTableContractBuilder() )->build( $subjectType, $subjectId );
+		return $this->normalizeInvestigationTableContract( $activityTable );
 	}
 
 	protected function buildPluginScanData( $plugin ) :array {

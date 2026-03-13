@@ -36,17 +36,19 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				'activity'        => $activityCount,
 			], true );
 			$railNavItems = $this->buildRailNavItemsFromTabs( $tabs );
-			$tables = $this->buildAssetTables( $subjectType, $subjectId, $subjectId );
-			$tables[ 'file_status' ] = $this->withEmptyStateTableContract(
-				$tables[ 'file_status' ],
-				$fileStatusCount,
-				$strings[ 'file_status_empty_text' ]
-			);
-			$tables[ 'activity' ] = $this->withEmptyStateTableContract(
-				$tables[ 'activity' ],
-				$activityCount,
-				$strings[ 'activity_empty_text' ]
-			);
+			$tables = [
+				'file_status' => $this->buildFileStatusTableContractWithEmptyState(
+					$subjectType,
+					$subjectId,
+					$fileStatusCount,
+					$strings[ 'file_status_empty_text' ]
+				),
+				'activity'    => $this->withEmptyStateTableContract(
+					$this->buildActivityTableContract( $subjectType, $subjectId, $subjectId ),
+					$activityCount,
+					$strings[ 'activity_empty_text' ]
+				),
+			];
 			$overviewRows = $this->buildOverviewRows( $assetData, $vulnerabilities );
 			$subjectHeader = [
 				'title' => (string)( $assetData[ 'info' ][ 'name' ] ?? '' ),

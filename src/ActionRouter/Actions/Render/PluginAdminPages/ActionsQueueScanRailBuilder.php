@@ -90,27 +90,31 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			$maintenanceAssessmentRows,
 			$maintenanceMetrics
 		);
-		$summaryTargets = $this->buildSummaryRailTargets( \array_merge( [
-			$maintenanceDefinition,
-		], $lazyDefinitions ) );
+		$summaryTargets = $this->buildSummaryRailTargets( \array_merge(
+			$lazyDefinitions,
+			[ $maintenanceDefinition ]
+		) );
 		$summaryMeta = $this->getRailTabMeta( 'summary' );
-		$railTabs = $this->buildTabs( \array_merge( [
+		$railTabs = $this->buildTabs( \array_merge(
 			[
-				'key'        => 'summary',
-				'label'      => $summaryMeta[ 'label' ],
-				'count'      => $summaryMetrics[ 'count' ],
-				'is_shown'   => true,
-				'status'     => $summaryMetrics[ 'status' ],
-				'icon_class' => $summaryMeta[ 'icon_class' ],
-				'items'      => $this->buildSummaryRailItems(
-					$summaryRows,
-					$scansAssessmentRows,
-					$summaryTargets
-				),
-				'is_loaded'  => true,
+				[
+					'key'        => 'summary',
+					'label'      => $summaryMeta[ 'label' ],
+					'count'      => $summaryMetrics[ 'count' ],
+					'is_shown'   => true,
+					'status'     => $summaryMetrics[ 'status' ],
+					'icon_class' => $summaryMeta[ 'icon_class' ],
+					'items'      => $this->buildSummaryRailItems(
+						$summaryRows,
+						$scansAssessmentRows,
+						$summaryTargets
+					),
+					'is_loaded'  => true,
+				],
 			],
-			$maintenanceDefinition,
-		], $lazyDefinitions ) );
+			$lazyDefinitions,
+			[ $maintenanceDefinition ]
+		) );
 
 		$rail = $this->buildRailContract( $railTabs );
 		$rail[ 'accent_status' ] = $metrics[ 'rail_accent_status' ];
@@ -222,7 +226,9 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 		switch ( $tabKey ) {
 			case 'wordpress':
-				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Wordpress::class ) ] );
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Wordpress::class, [
+					'display_context' => 'actions_queue',
+				] ) ] );
 
 			case 'plugins':
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Plugins::class, [

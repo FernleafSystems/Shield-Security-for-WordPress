@@ -75,6 +75,51 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			$subject->lookupBehavior( true, true, true )
 		);
 	}
+
+	public function test_with_empty_state_preserves_table_metadata_when_records_exist() :void {
+		$table = ( new InvestigateRenderContractsTestDouble() )->withEmptyState( [
+			'title'               => 'File Scan Status',
+			'table_type'          => 'file_scan_results',
+			'subject_type'        => 'core',
+			'subject_id'          => 'core',
+			'datatables_init'     => [ 'columns' => [] ],
+			'table_action'        => [ 'slug' => 'investigation_table' ],
+			'scan_results_action' => [ 'slug' => 'scan_results_table' ],
+		], 2, 'No file scan status records were found for this subject.' );
+
+		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
+		$this->assertSame( 'file_scan_results', (string)( $table[ 'table_type' ] ?? '' ) );
+		$this->assertSame( 'core', (string)( $table[ 'subject_type' ] ?? '' ) );
+		$this->assertSame( 'core', (string)( $table[ 'subject_id' ] ?? '' ) );
+		$this->assertArrayHasKey( 'datatables_init', $table );
+		$this->assertArrayHasKey( 'table_action', $table );
+		$this->assertArrayHasKey( 'scan_results_action', $table );
+	}
+
+	public function test_with_empty_state_strips_table_metadata_when_records_do_not_exist() :void {
+		$table = ( new InvestigateRenderContractsTestDouble() )->withEmptyState( [
+			'title'               => 'File Scan Status',
+			'table_type'          => 'file_scan_results',
+			'subject_type'        => 'plugin',
+			'subject_id'          => 'akismet/akismet.php',
+			'datatables_init'     => [ 'columns' => [] ],
+			'table_action'        => [ 'slug' => 'investigation_table' ],
+			'scan_results_action' => [ 'slug' => 'scan_results_table' ],
+		], 0, 'No file scan status records were found for this subject.', 'warning' );
+
+		$this->assertTrue( (bool)( $table[ 'is_empty' ] ?? false ) );
+		$this->assertSame( 'warning', (string)( $table[ 'empty_status' ] ?? '' ) );
+		$this->assertSame(
+			'No file scan status records were found for this subject.',
+			(string)( $table[ 'empty_text' ] ?? '' )
+		);
+		$this->assertArrayNotHasKey( 'table_type', $table );
+		$this->assertArrayNotHasKey( 'subject_type', $table );
+		$this->assertArrayNotHasKey( 'subject_id', $table );
+		$this->assertArrayNotHasKey( 'datatables_init', $table );
+		$this->assertArrayNotHasKey( 'table_action', $table );
+		$this->assertArrayHasKey( 'scan_results_action', $table );
+	}
 }
 
 class InvestigateRenderContractsTestDouble {
@@ -87,5 +132,9 @@ class InvestigateRenderContractsTestDouble {
 
 	public function lookupBehavior( bool $panelForm = true, bool $useSelect2 = false, bool $autoSubmit = false ) :array {
 		return $this->buildLookupBehaviorContract( $panelForm, $useSelect2, $autoSubmit );
+	}
+
+	public function withEmptyState( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
+		return $this->withEmptyStateTableContract( $table, $count, $emptyText, $emptyStatus );
 	}
 }

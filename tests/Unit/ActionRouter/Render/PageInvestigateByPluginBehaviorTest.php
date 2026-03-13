@@ -378,9 +378,15 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 		];
 	}
 
-	protected function buildAssetTables( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
-		return [
-			'file_status' => [
+	protected function buildFileStatusTableContractWithEmptyState(
+		string $subjectType,
+		string $subjectId,
+		int $fileStatusCount,
+		string $fileStatusEmptyText,
+		string $emptyStatus = 'info'
+	) :array {
+		return $fileStatusCount > 0
+			? [
 				'title'        => 'File Scan Status',
 				'table_type'   => 'file_scan_results',
 				'subject_type' => $subjectType,
@@ -391,14 +397,25 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 				'render_item_analysis' => [ 'slug' => 'scan_item_analysis' ],
 				'show_header' => false,
 				'is_flat' => true,
-			],
-			'activity'    => [
-				'table_type'   => 'activity',
-				'subject_type' => $subjectType,
-				'subject_id'   => $subjectId,
-				'datatables_init' => [ 'columns' => [] ],
-				'table_action' => [ 'slug' => 'investigation_table' ],
-			],
+				'is_empty' => false,
+			]
+			: [
+				'title'        => 'File Scan Status',
+				'show_header'  => false,
+				'is_flat'      => true,
+				'is_empty'     => true,
+				'empty_status' => 'info',
+				'empty_text'   => $fileStatusEmptyText,
+			];
+	}
+
+	protected function buildActivityTableContract( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
+		return [
+			'table_type'   => 'activity',
+			'subject_type' => $subjectType,
+			'subject_id'   => $subjectId,
+			'datatables_init' => [ 'columns' => [] ],
+			'table_action' => [ 'slug' => 'investigation_table' ],
 		];
 	}
 

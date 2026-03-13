@@ -35,21 +35,23 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 			'file_status' => $coreFileCount,
 			'activity'    => $activityCount,
 		], false );
-		$tables = $this->buildAssetTables(
-			InvestigationTableContract::SUBJECT_TYPE_CORE,
-			InvestigationTableContract::SUBJECT_TYPE_CORE,
-			'core_'
-		);
-		$tables[ 'file_status' ] = $this->withEmptyStateTableContract(
-			$tables[ 'file_status' ],
-			$coreFileCount,
-			$strings[ 'file_status_empty_text' ]
-		);
-		$tables[ 'activity' ] = $this->withEmptyStateTableContract(
-			$tables[ 'activity' ],
-			$activityCount,
-			$strings[ 'activity_empty_text' ]
-		);
+		$tables = [
+			'file_status' => $this->buildFileStatusTableContractWithEmptyState(
+				InvestigationTableContract::SUBJECT_TYPE_CORE,
+				InvestigationTableContract::SUBJECT_TYPE_CORE,
+				$coreFileCount,
+				$strings[ 'file_status_empty_text' ]
+			),
+			'activity'    => $this->withEmptyStateTableContract(
+				$this->buildActivityTableContract(
+					InvestigationTableContract::SUBJECT_TYPE_CORE,
+					InvestigationTableContract::SUBJECT_TYPE_CORE,
+					'core_'
+				),
+				$activityCount,
+				$strings[ 'activity_empty_text' ]
+			),
+		];
 
 		return [
 			'flags'   => [

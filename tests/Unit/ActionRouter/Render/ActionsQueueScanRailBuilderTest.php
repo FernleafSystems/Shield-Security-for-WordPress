@@ -123,6 +123,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 
 		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 		$summaryTab = $this->findTabByKey( $railTabs, 'summary' );
+		$wordpressTab = $this->findTabByKey( $railTabs, 'wordpress' );
 		$maintenanceTab = $this->findTabByKey( $railTabs, 'maintenance' );
 		$pluginsTab = $this->findTabByKey( $railTabs, 'plugins' );
 		$vulnerabilitiesTab = $this->findTabByKey( $railTabs, 'vulnerabilities' );
@@ -133,6 +134,10 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'No issues found in this section.', $renderData[ 'strings' ][ 'no_issues' ] ?? '' );
 		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, $renderData[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' );
 		$this->assertSame( AjaxBatchRequests::SLUG, $renderData[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' );
+		$this->assertSame(
+			[ 'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker', 'maintenance' ],
+			\array_column( $railTabs, 'key' )
+		);
 		$this->assertTrue( (bool)( $summaryTab[ 'is_loaded' ] ?? false ) );
 		$this->assertSame( 5, $summaryTab[ 'count' ] ?? -1 );
 		$this->assertNotEmpty( $summaryTab[ 'items' ] ?? [] );
@@ -150,6 +155,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Maintenance', $maintenanceTab[ 'label' ] ?? '' );
 		$this->assertContains( 'WordPress Version', \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) );
 		$this->assertContains( 'PHP Version', \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) );
+		$this->assertSame( 'actions_queue', $wordpressTab[ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'neutral', $pluginsTab[ 'status' ] ?? '' );
 		$this->assertArrayHasKey( 'count', $pluginsTab );
 		$this->assertNull( $pluginsTab[ 'count' ] );
@@ -220,7 +226,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		}
 
 		$this->assertSame(
-			[ 'summary', 'maintenance', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+			[ 'summary', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker', 'maintenance' ],
 			\array_keys( $tabsByKey )
 		);
 		$this->assertTrue( (bool)( $tabsByKey[ 'maintenance' ][ 'is_loaded' ] ?? false ) );
@@ -230,6 +236,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'scanresults_malware', $tabsByKey[ 'malware' ][ 'render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertArrayNotHasKey( 'wordpress', $tabsByKey );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'themes' ][ 'render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'file_locker' ][ 'render_action' ][ 'display_context' ] ?? '' );
@@ -363,7 +370,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$maintenanceTab = $this->findTabByKey( $railTabs, 'maintenance' );
 
 		$this->assertSame(
-			[ 'summary', 'maintenance', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+			[ 'summary', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $railTabs, 'key' )
 		);
 		$this->assertSame( 1, $summaryTab[ 'count' ] ?? -1 );

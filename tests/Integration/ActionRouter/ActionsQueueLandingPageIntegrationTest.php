@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Scans\Results\Malware as MalwarePane,
 	Actions\Render\Components\Scans\Results\Plugins as PluginsPane,
 	Actions\Render\Components\Scans\Results\Themes as ThemesPane,
+	Actions\Render\Components\Scans\Results\Wordpress as WordpressPane,
 	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
 	Constants
 };
@@ -305,13 +306,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'scans', (string)( $scans[ 'panel_target' ] ?? '' ) );
 		$this->assertGreaterThan( 0, (int)( $scans[ 'total_issues' ] ?? 0 ) );
 		$this->assertNotEmpty( $scansResults );
-		$this->assertContains( 'summary', $railTabs );
-		$this->assertContains( 'maintenance', $railTabs );
-		$this->assertContains( 'wordpress', $railTabs );
-		$this->assertContains( 'plugins', $railTabs );
-		$this->assertContains( 'themes', $railTabs );
-		$this->assertContains( 'vulnerabilities', $railTabs );
-		$this->assertContains( 'malware', $railTabs );
+		$this->assertSame(
+			[ 'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'maintenance' ],
+			$railTabs
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]',
@@ -473,10 +471,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		$this->assertContains( 'maintenance', \array_keys( $tabsByKey ) );
-		$this->assertContains( 'plugins', \array_keys( $tabsByKey ) );
-		$this->assertContains( 'themes', \array_keys( $tabsByKey ) );
-		$this->assertContains( 'vulnerabilities', \array_keys( $tabsByKey ) );
-		$this->assertContains( 'malware', \array_keys( $tabsByKey ) );
+		$this->assertSame(
+			[ 'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'maintenance' ],
+			\array_keys( $tabsByKey )
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="malware" and @data-bs-toggle="tab" and @role="tab"]',
@@ -528,6 +526,68 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $tabsByKey[ 'themes' ][ 'show_count_placeholder' ] ?? false ) );
 		$this->assertTrue( (bool)( $tabsByKey[ 'vulnerabilities' ][ 'show_count_placeholder' ] ?? false ) );
 		$this->assertTrue( (bool)( $tabsByKey[ 'malware' ][ 'show_count_placeholder' ] ?? false ) );
+	}
+
+	public function test_wordpress_pane_render_uses_core_investigation_file_status_table_contract() :void {
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'    => 'wp-admin/admin.php',
+			'is_in_core' => 1,
+		] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( WordpressPane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="core" and @data-subject-id="core"]',
+			'WordPress pane render should use the shared core investigation file status table contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
+			'WordPress pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
+		);
+	}
+
+	public function test_wordpress_pane_render_preserves_standard_no_results_message() :void {
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		TestDataFactory::insertCompletedScan( 'afs' );
+
+		$payload = $this->processActionPayloadWithAdminBypass( WordpressPane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ") and contains(normalize-space(), "Previous scans didn\'t detect any modified, missing, or unrecognised files in the WordPress core directories.")]',
+			'WordPress pane render should preserve the standard no-results message'
+		);
+		$this->assertStringNotContainsString( 'No issues found in this section.', $html );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigation-table="1"]',
+			0,
+			'WordPress pane render should not render the file status table when no core issues exist'
+		);
 	}
 
 	public function test_plugin_pane_render_uses_investigation_file_status_table_contract() :void {
