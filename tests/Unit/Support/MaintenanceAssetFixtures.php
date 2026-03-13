@@ -3,10 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 use FernleafSystems\Wordpress\Services\Core\{
+	Fs,
 	General,
 	Plugins,
 	Themes
 };
+use FernleafSystems\Wordpress\Services\Utilities\Data;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -35,7 +37,41 @@ trait MaintenanceAssetFixtures {
 		], $themeFixture );
 
 		return [
+			'service_data' => new class extends Data {
+				public function getPhpVersionIsAtLeast( string $minimumVersion ) :bool {
+					return true;
+				}
+
+				public function getPhpVersionCleaned( bool $excludeMinor = false ) :string {
+					return '8.2';
+				}
+
+				public function isWindows() :bool {
+					return false;
+				}
+			},
+			'service_wpfs' => new class extends Fs {
+				public function isAccessibleFile( string $path ) :bool {
+					return false;
+				}
+			},
 			'service_wpgeneral' => new class extends General {
+				public function getAdminUrl( string $path = '', bool $wpmsOnly = false ) :string {
+					return '/wp-admin/'.\ltrim( $path, '/' );
+				}
+
+				public function ajaxURL() :string {
+					return '/admin-ajax.php';
+				}
+
+				public function hasCoreUpdate() :bool {
+					return false;
+				}
+
+				public function getOption( $sKey, $mDefault = false, $bIgnoreWPMS = false ) {
+					return $mDefault;
+				}
+
 				public function getAdminUrl_Updates( bool $bWpmsOnly = false ) :string {
 					return '/wp-admin/update-core.php';
 				}
@@ -46,6 +82,14 @@ trait MaintenanceAssetFixtures {
 
 				public function getAdminUrl_Themes( bool $wpmsOnly = false ) :string {
 					return '/wp-admin/themes.php';
+				}
+
+				public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
+					return 'http://example.com/'.\ltrim( $path, '/' );
+				}
+
+				public function getWpUrl( string $path = '' ) :string {
+					return 'http://example.com/'.\ltrim( $path, '/' );
 				}
 			},
 			'service_wpplugins' => new class( $pluginFixture ) extends Plugins {
@@ -99,15 +143,21 @@ trait MaintenanceAssetFixtures {
 				}
 
 				public function getCurrent() {
-					return new class( $this->fixture[ 'current' ] ) {
+					return new class( $this->fixture[ 'current' ], $this->fixture[ 'current_parent' ] ) {
 						private string $stylesheet;
+						private string $template;
 
-						public function __construct( string $stylesheet ) {
+						public function __construct( string $stylesheet, string $template ) {
 							$this->stylesheet = $stylesheet;
+							$this->template = $template !== '' ? $template : $stylesheet;
 						}
 
 						public function get_stylesheet() :string {
 							return $this->stylesheet;
+						}
+
+						public function get_template() :string {
+							return $this->template;
 						}
 					};
 				}
@@ -125,6 +175,10 @@ trait MaintenanceAssetFixtures {
 						}
 
 						public function get_stylesheet() :string {
+							return $this->stylesheet;
+						}
+
+						public function get_template() :string {
 							return $this->stylesheet;
 						}
 					};

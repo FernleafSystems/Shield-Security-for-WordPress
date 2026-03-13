@@ -81,7 +81,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 
 	protected function getLandingFlags() :array {
 		return [
-			'queue_is_empty' => !$this->getQueueSummary()[ 'has_items' ],
+			'queue_is_empty' => !$this->shouldRenderScansResultsShell(),
 		];
 	}
 
@@ -134,7 +134,7 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'severity_strip' => $viewData[ 'severity_strip' ],
 			'zone_tiles'     => $viewData[ 'zone_tiles' ],
 			'all_clear'      => $viewData[ 'all_clear' ],
-			'scans_results'  => $this->getQueueSummary()[ 'has_items' ]
+			'scans_results'  => $this->shouldRenderScansResultsShell()
 				? $this->getScansResultsRenderData()
 				: $this->buildEmptyScansResultsContract(),
 		];
@@ -156,6 +156,20 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 */
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
+	}
+
+	private function shouldRenderScansResultsShell() :bool {
+		if ( $this->getQueueSummary()[ 'has_items' ] ) {
+			return true;
+		}
+
+		foreach ( $this->getZoneTiles() as $zoneTile ) {
+			if ( $zoneTile[ 'key' ] === 'maintenance' && !empty( $zoneTile[ 'items' ] ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

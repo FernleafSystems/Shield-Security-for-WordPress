@@ -147,6 +147,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertContains( 'PHP Version', \array_column( $maintenanceTab[ 'items' ], 'title' ) );
 		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] );
 		$this->assertSame( '_blank', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'attributes' ][ 'target' ] );
+		$this->assertSame( 'scanresults_maintenance', $maintenanceTab[ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'actions_queue', $wordpressTab[ 'render_action' ][ 'display_context' ] );
 		$this->assertSame( 'neutral', $pluginsTab[ 'status' ] );
 		$this->assertNull( $pluginsTab[ 'count' ] );
@@ -253,6 +254,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertTrue( (bool)$tabsByKey[ 'maintenance' ][ 'is_loaded' ] );
 		$this->assertSame( 2, $tabsByKey[ 'maintenance' ][ 'count' ] );
 		$this->assertSame( 'warning', $tabsByKey[ 'maintenance' ][ 'status' ] );
+		$this->assertSame( 'scanresults_maintenance', $tabsByKey[ 'maintenance' ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'scanresults_plugins', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] );
@@ -328,7 +330,43 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $maintenanceTab[ 'count' ] );
 		$this->assertSame( 'warning', $maintenanceTab[ 'status' ] );
 		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( 'scanresults_maintenance', $maintenanceTab[ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'All clear', $maintenanceTab[ 'items' ][ 1 ][ 'section_label' ] );
+	}
+
+	public function test_build_adds_singleton_toggle_action_to_maintenance_rows() :void {
+		$builder = new ActionsQueueScanRailBuilderTestDouble( false, false, false, false, false );
+
+		$renderData = $builder->buildFromLandingViewData(
+			$this->buildLandingViewData(
+				$this->buildZoneTile( 'scans', 'Scans', 'good', 0, [], [] ),
+				$this->buildZoneTile( 'maintenance', 'Maintenance', 'good', 0, [
+					$this->buildMaintenanceIssueItem( 'system_php_version', 'PHP Version', 0, 'good', 'This maintenance item is currently ignored.', [
+						'label' => 'Open',
+						'href'  => '/wp-updates',
+					], [
+						'label'       => 'Unignore',
+						'href'        => 'javascript:{}',
+						'icon'        => 'bi bi-eye-fill',
+						'tooltip'     => 'Stop ignoring this maintenance item',
+						'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+					] ),
+				], [
+					$this->buildAssessmentRow( 'system_php_version', 'PHP Version', 'This maintenance item is currently ignored.' ),
+				] )
+			),
+			$this->buildInitialMetrics( 0, 'good', 0, 'good', 'good' )
+		);
+
+		$maintenanceTab = $this->findTabByKey( $renderData[ 'vars' ][ 'rail_tabs' ], 'maintenance' );
+
+		$this->assertCount( 2, $maintenanceTab[ 'items' ] );
+		$this->assertSame( 'Open', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( 'Unignore', $maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 1 ][ 'label' ] );
+		$this->assertSame(
+			'{"ex":"maintenance_item_unignore"}',
+			$maintenanceTab[ 'items' ][ 0 ][ 'actions' ][ 1 ][ 'attributes' ][ 'data-actions-queue-maintenance-action' ] ?? ''
+		);
 	}
 
 	/**
@@ -407,7 +445,8 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		int $count,
 		string $severity,
 		string $description,
-		array $cta
+		array $cta,
+		array $toggleAction = []
 	) :array {
 		return [
 			'key'         => $key,
@@ -420,6 +459,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 			'action'      => $cta[ 'label' ] ?? '',
 			'target'      => $cta[ 'target' ] ?? '',
 			'cta'         => $cta,
+			'toggle_action' => $toggleAction,
 			'expansion'   => [],
 		];
 	}
@@ -566,6 +606,7 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 
 	protected function buildAjaxRenderActionData( string $actionClass, array $aux = [] ) :array {
 		$map = [
+			'Maintenance'     => 'scanresults_maintenance',
 			'Wordpress'       => 'scanresults_wordpress',
 			'Plugins'         => 'scanresults_plugins',
 			'Themes'          => 'scanresults_themes',

@@ -2,6 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	MaintenanceItemIgnore,
+	MaintenanceItemUnignore
+};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -14,12 +20,22 @@ use FernleafSystems\Wordpress\Services\Services;
  *   label:string,
  *   target?:string
  * }
+ * @phpstan-type MaintenanceUiAction array{
+ *   href:string,
+ *   label:string,
+ *   icon:string,
+ *   tooltip:string,
+ *   target?:string,
+ *   ajax_action?:array<string,mixed>
+ * }
  * @phpstan-type MaintenanceExpansionRow array{
  *   title:string,
  *   subtitle:string,
  *   context:string,
  *   identifier:string,
- *   action:MaintenanceItemCta
+ *   action:MaintenanceItemCta,
+ *   is_ignored:bool,
+ *   secondary_actions:list<MaintenanceUiAction>
  * }
  * @phpstan-type MaintenanceExpansionTable array{
  *   columns:array{item:string,details:string,action:string},
@@ -43,7 +59,25 @@ use FernleafSystems\Wordpress\Services\Services;
  *   action:string,
  *   target:string
  * }
- * @phpstan-type MaintenanceQueueItem QueueItem&array{cta:array{}|MaintenanceItemCta, expansion:array{}|MaintenanceItemExpansion}
+ * @phpstan-type MaintenanceState array{
+ *   key:string,
+ *   label:string,
+ *   description:string,
+ *   count:int,
+ *   ignored_count:int,
+ *   severity:string,
+ *   href:string,
+ *   action:string,
+ *   target:string,
+ *   supports_sub_items:bool,
+ *   active_identifiers:list<string>,
+ *   ignored_identifiers:list<string>
+ * }
+ * @phpstan-type MaintenanceQueueItem QueueItem&array{
+ *   cta:array{}|MaintenanceItemCta,
+ *   toggle_action:array{}|MaintenanceUiAction,
+ *   expansion:array{}|MaintenanceItemExpansion
+ * }
  */
 class MaintenanceQueueItemDisplayNormalizer {
 
@@ -52,10 +86,43 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return list<MaintenanceQueueItem>
 	 */
 	public function normalizeAll( array $items ) :array {
-		return \array_values( \array_map(
-			fn( array $item ) :array => $this->normalize( $item ),
-			$items
-		) );
+		$statesByKey = $this->buildMaintenanceIssueStateProvider()->buildStates();
+		$normalized = [];
+		$seenKeys = [];
+
+		foreach ( $items as $item ) {
+			$normalizedItem = $this->normalizeWithState(
+				$item,
+				$statesByKey[ $item[ 'key' ] ] ?? $this->emptyStateForItem( $item )
+			);
+			$normalized[] = $normalizedItem;
+			$seenKeys[ $normalizedItem[ 'key' ] ] = true;
+		}
+
+		foreach ( $statesByKey as $state ) {
+			if ( isset( $seenKeys[ $state[ 'key' ] ] )
+				|| $state[ 'count' ] > 0
+				|| $state[ 'ignored_count' ] < 1 ) {
+				continue;
+			}
+
+			$normalized[] = $this->normalizeWithState(
+				[
+					'key'         => $state[ 'key' ],
+					'zone'        => 'maintenance',
+					'label'       => $state[ 'label' ],
+					'count'       => 0,
+					'severity'    => $state[ 'severity' ],
+					'description' => $state[ 'description' ],
+					'href'        => $state[ 'href' ],
+					'action'      => $state[ 'action' ],
+					'target'      => $state[ 'target' ],
+				],
+				$state
+			);
+		}
+
+		return \array_values( $normalized );
 	}
 
 	/**
@@ -63,12 +130,26 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return MaintenanceQueueItem
 	 */
 	public function normalize( array $item ) :array {
+		return $this->normalizeWithState( $item, $this->emptyStateForItem( $item ) );
+	}
+
+	/**
+	 * @param QueueItem $item
+	 * @param MaintenanceState $state
+	 * @return MaintenanceQueueItem
+	 */
+	private function normalizeWithState( array $item, array $state ) :array {
 		if ( $item[ 'zone' ] !== 'maintenance' ) {
 			return $item;
 		}
 
+		$item[ 'label' ] = $state[ 'label' ] !== '' ? $state[ 'label' ] : $item[ 'label' ];
+		$item[ 'description' ] = $state[ 'description' ] !== '' ? $state[ 'description' ] : $item[ 'description' ];
+		$item[ 'count' ] = $state[ 'count' ];
+		$item[ 'severity' ] = $state[ 'severity' ] !== '' ? $state[ 'severity' ] : $item[ 'severity' ];
 		$item[ 'cta' ] = $this->buildCta( $item );
-		$item[ 'expansion' ] = $this->buildExpansion( $item );
+		$item[ 'toggle_action' ] = $this->buildToggleAction( $item, $state );
+		$item[ 'expansion' ] = $this->buildExpansion( $item, $state );
 		return $item;
 	}
 
@@ -109,24 +190,25 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @param QueueItem $item
 	 * @return array{}|MaintenanceItemExpansion
 	 */
-	private function buildExpansion( array $item ) :array {
+	private function buildExpansion( array $item, array $state ) :array {
 		$rows = [];
+		$ignoredIdentifiers = $state[ 'ignored_identifiers' ];
 
 		switch ( $item[ 'key' ] ) {
 			case 'wp_plugins_updates':
-				$rows = $this->buildPluginUpdateRows();
+				$rows = $this->buildPluginUpdateRows( $ignoredIdentifiers );
 				break;
 
 			case 'wp_themes_updates':
-				$rows = $this->buildThemeUpdateRows();
+				$rows = $this->buildThemeUpdateRows( $ignoredIdentifiers );
 				break;
 
 			case 'wp_plugins_inactive':
-				$rows = $this->buildInactivePluginRows();
+				$rows = $this->buildInactivePluginRows( $ignoredIdentifiers );
 				break;
 
 			case 'wp_themes_inactive':
-				$rows = $this->buildInactiveThemeRows();
+				$rows = $this->buildInactiveThemeRows( $ignoredIdentifiers );
 				break;
 		}
 
@@ -138,7 +220,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	/**
 	 * @return list<MaintenanceExpansionRow>
 	 */
-	private function buildPluginUpdateRows() :array {
+	private function buildPluginUpdateRows( array $ignoredIdentifiers ) :array {
 		$rows = [];
 		$plugins = Services::WpPlugins();
 		$updates = $plugins->getUpdates();
@@ -161,7 +243,9 @@ class MaintenanceQueueItemDisplayNormalizer {
 				$this->buildRowAction(
 					$plugins->getUrl_Upgrade( $plugin->file ),
 					__( 'Update', 'wp-simple-firewall' )
-				)
+				),
+				\in_array( $plugin->file, $ignoredIdentifiers, true ),
+				'wp_plugins_updates'
 			);
 		}
 
@@ -171,7 +255,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	/**
 	 * @return list<MaintenanceExpansionRow>
 	 */
-	private function buildThemeUpdateRows() :array {
+	private function buildThemeUpdateRows( array $ignoredIdentifiers ) :array {
 		$rows = [];
 		$themes = Services::WpThemes();
 		$updates = $themes->getUpdates();
@@ -192,7 +276,9 @@ class MaintenanceQueueItemDisplayNormalizer {
 				__( 'Theme update available', 'wp-simple-firewall' ),
 				$this->buildUpdateContext( $theme->Version, $this->extractUpdateVersion( $updates[ $stylesheet ] ) ),
 				$theme->stylesheet,
-				$this->buildRowAction( $updatesHref, __( 'Open updates', 'wp-simple-firewall' ) )
+				$this->buildRowAction( $updatesHref, __( 'Open updates', 'wp-simple-firewall' ) ),
+				\in_array( $theme->stylesheet, $ignoredIdentifiers, true ),
+				'wp_themes_updates'
 			);
 		}
 
@@ -202,7 +288,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	/**
 	 * @return list<MaintenanceExpansionRow>
 	 */
-	private function buildInactivePluginRows() :array {
+	private function buildInactivePluginRows( array $ignoredIdentifiers ) :array {
 		$rows = [];
 		$plugins = Services::WpPlugins();
 		$activePlugins = \array_fill_keys( $plugins->getActivePlugins(), true );
@@ -222,10 +308,9 @@ class MaintenanceQueueItemDisplayNormalizer {
 				__( 'Plugin is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $plugin->Version ),
 				$plugin->file,
-				$this->buildRowAction(
-					$plugins->getUrl_Activate( $plugin->file ),
-					__( 'Activate', 'wp-simple-firewall' )
-				)
+				$this->buildRowAction( $this->buildPluginSearchHref( $plugin->file ), __( 'Open plugin', 'wp-simple-firewall' ) ),
+				\in_array( $plugin->file, $ignoredIdentifiers, true ),
+				'wp_plugins_inactive'
 			);
 		}
 
@@ -235,7 +320,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	/**
 	 * @return list<MaintenanceExpansionRow>
 	 */
-	private function buildInactiveThemeRows() :array {
+	private function buildInactiveThemeRows( array $ignoredIdentifiers ) :array {
 		$rows = [];
 		$themes = Services::WpThemes();
 		$activeThemes = \array_fill_keys( $this->getActiveThemeStylesheets(), true );
@@ -256,7 +341,9 @@ class MaintenanceQueueItemDisplayNormalizer {
 				__( 'Theme is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $theme->Version ),
 				$theme->stylesheet,
-				$this->buildRowAction( $themesHref, __( 'Open themes', 'wp-simple-firewall' ) )
+				$this->buildRowAction( $themesHref, __( 'Open themes', 'wp-simple-firewall' ) ),
+				\in_array( $theme->stylesheet, $ignoredIdentifiers, true ),
+				'wp_themes_inactive'
 			);
 		}
 
@@ -293,14 +380,20 @@ class MaintenanceQueueItemDisplayNormalizer {
 		string $subtitle,
 		string $context,
 		string $identifier,
-		array $action
+		array $action,
+		bool $isIgnored,
+		string $maintenanceKey
 	) :array {
 		return [
-			'title'      => $title,
-			'subtitle'   => $subtitle,
-			'context'    => $context,
-			'identifier' => $identifier,
-			'action'     => $action,
+			'title'             => $title,
+			'subtitle'          => $subtitle,
+			'context'           => $context,
+			'identifier'        => $identifier,
+			'action'            => $action,
+			'is_ignored'        => $isIgnored,
+			'secondary_actions' => [
+				$this->buildRowToggleAction( $maintenanceKey, $identifier, $isIgnored ),
+			],
 		];
 	}
 
@@ -309,7 +402,13 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return list<MaintenanceExpansionRow>
 	 */
 	private function sortExpansionRows( array $rows ) :array {
-		\uasort( $rows, static fn( array $a, array $b ) :int => \strnatcasecmp( $a[ 'title' ], $b[ 'title' ] ) );
+		\uasort( $rows, static function ( array $a, array $b ) :int {
+			$ignoredCmp = (int)( $a[ 'is_ignored' ] ?? false ) <=> (int)( $b[ 'is_ignored' ] ?? false );
+			if ( $ignoredCmp !== 0 ) {
+				return $ignoredCmp;
+			}
+			return \strnatcasecmp( $a[ 'title' ], $b[ 'title' ] );
+		} );
 		return \array_values( $rows );
 	}
 
@@ -326,12 +425,59 @@ class MaintenanceQueueItemDisplayNormalizer {
 	}
 
 	/**
+	 * @param QueueItem $item
+	 * @param MaintenanceState $state
+	 * @return array{}|MaintenanceUiAction
+	 */
+	private function buildToggleAction( array $item, array $state ) :array {
+		if ( $state[ 'supports_sub_items' ] ) {
+			return [];
+		}
+
+		return $this->buildUiToggleAction(
+			$item[ 'key' ],
+			'',
+			$state[ 'ignored_count' ] > 0 && $state[ 'count' ] === 0
+		);
+	}
+
+	/**
 	 * @return MaintenanceItemCta
 	 */
 	private function buildRowAction( string $href, string $label ) :array {
 		return [
 			'href'  => $href,
 			'label' => $label,
+		];
+	}
+
+	/**
+	 * @return MaintenanceUiAction
+	 */
+	private function buildRowToggleAction( string $maintenanceKey, string $identifier, bool $isIgnored ) :array {
+		return $this->buildUiToggleAction( $maintenanceKey, $identifier, $isIgnored );
+	}
+
+	/**
+	 * @return MaintenanceUiAction
+	 */
+	private function buildUiToggleAction( string $maintenanceKey, string $identifier, bool $isIgnored ) :array {
+		$actionClass = $isIgnored ? MaintenanceItemUnignore::class : MaintenanceItemIgnore::class;
+		$label = $isIgnored ? __( 'Unignore', 'wp-simple-firewall' ) : __( 'Ignore', 'wp-simple-firewall' );
+		$tooltip = $isIgnored
+			? __( 'Stop ignoring this maintenance item', 'wp-simple-firewall' )
+			: __( 'Ignore this maintenance item', 'wp-simple-firewall' );
+		$ajaxAction = ActionData::Build( $actionClass, true, \array_filter( [
+			'maintenance_key' => $maintenanceKey,
+			'identifier'      => $identifier,
+		], static fn( string $value ) :bool => $value !== '' ) );
+
+		return [
+			'href'        => 'javascript:{}',
+			'label'       => $label,
+			'icon'        => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
+			'tooltip'     => $tooltip,
+			'ajax_action' => $ajaxAction,
 		];
 	}
 
@@ -386,5 +532,34 @@ class MaintenanceQueueItemDisplayNormalizer {
 		}
 
 		return \array_values( \array_filter( \array_unique( $active ) ) );
+	}
+
+	/**
+	 * @param QueueItem $item
+	 * @return MaintenanceState
+	 */
+	private function emptyStateForItem( array $item ) :array {
+		return [
+			'key'                 => $item[ 'key' ],
+			'label'               => $item[ 'label' ],
+			'description'         => $item[ 'description' ],
+			'count'               => $item[ 'count' ],
+			'ignored_count'       => 0,
+			'severity'            => $item[ 'severity' ],
+			'href'                => $item[ 'href' ],
+			'action'              => $item[ 'action' ],
+			'target'              => $item[ 'target' ],
+			'supports_sub_items'  => false,
+			'active_identifiers'  => [],
+			'ignored_identifiers' => [],
+		];
+	}
+
+	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
+		return new MaintenanceIssueStateProvider();
+	}
+
+	private function buildPluginSearchHref( string $pluginFile ) :string {
+		return Services::WpGeneral()->getAdminUrl_Plugins().'?s='.rawurlencode( $pluginFile );
 	}
 }

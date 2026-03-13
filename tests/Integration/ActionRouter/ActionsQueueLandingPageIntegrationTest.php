@@ -242,11 +242,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(string)( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'type' ] ?? '' )
 		);
 		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
-		$this->assertSame( [], $maintenanceTab[ 'render_action' ] ?? [ 'unexpected' ] );
+		$this->assertSame( 'scanresults_maintenance', (string)( $maintenanceTab[ 'render_action' ][ 'render_slug' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-render-action="[]"]',
-			'Actions queue maintenance pane should stay eager and avoid lazy render actions'
+			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and contains(@data-actions-queue-render-action, "scanresults_maintenance")]',
+			'Actions queue maintenance pane should stay eager while exposing a maintenance refresh render action'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -257,6 +257,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-actions-landing="1"]//*[@id="maintenance-expand-wp_plugins_updates"]//table[contains(concat(" ", normalize-space(@class), " "), " table-sm ")]',
 			'Actions queue maintenance pane should render the shared simple table expansion body'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-landing="1"]//*[@id="maintenance-expand-wp_plugins_updates"]//*[@data-actions-queue-maintenance-action and @data-bs-toggle="tooltip"]',
+			'Actions queue maintenance pane should render maintenance ignore controls with tooltips'
 		);
 	}
 
@@ -280,6 +285,25 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(string)( $renderData[ 'hrefs' ][ 'scan_results' ] ?? '' )
 		);
 		$this->assertSame( Services::WpGeneral()->getAdminUrl_Updates(), (string)( $renderData[ 'hrefs' ][ 'wp_updates' ] ?? '' ) );
+	}
+
+	public function test_maintenance_panel_inactive_plugin_rows_link_to_filtered_plugins_screen() :void {
+		$pluginFile = $this->requireAtLeastInactivePlugins( 1 )[ 0 ];
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing inactive plugin links' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="maintenance-expand-wp_plugins_inactive"]//a[@href="/wp-admin/plugins.php?s='.rawurlencode( $pluginFile ).'"]',
+			'Inactive plugin maintenance rows should link to the filtered plugins admin screen'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@id="maintenance-expand-wp_plugins_inactive"]//a[contains(@href, "action=activate")]' )->length,
+			'Inactive plugin maintenance rows should not offer activation links'
+		);
 	}
 
 	public function test_scan_result_items_enable_scans_zone_and_embedded_results_payload() :void {
@@ -976,5 +1000,46 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			StatusPriority::highest( [ 'critical', $maintenance[ 'status' ] ], 'good' ),
 			(string)( $tabs[ 'summary' ][ 'status' ] ?? '' )
 		);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function requireAtLeastInstalledPlugins( int $minimum ) :array {
+		$pluginFiles = $this->getInstalledPluginFiles();
+
+		if ( \count( $pluginFiles ) < $minimum ) {
+			$this->markTestSkipped( 'Not enough installed plugins are available for this integration fixture.' );
+		}
+
+		return \array_slice( $pluginFiles, 0, $minimum );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function getInstalledPluginFiles() :array {
+		$pluginFiles = \array_values( \array_map(
+			static fn( $file ) :string => (string)$file,
+			\array_keys( Services::WpPlugins()->getPlugins() )
+		) );
+		\natsort( $pluginFiles );
+		return \array_values( $pluginFiles );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function requireAtLeastInactivePlugins( int $minimum ) :array {
+		$inactivePlugins = \array_values( \array_diff(
+			$this->getInstalledPluginFiles(),
+			Services::WpPlugins()->getActivePlugins()
+		) );
+
+		if ( \count( $inactivePlugins ) < $minimum ) {
+			$this->markTestSkipped( 'Not enough inactive plugins are available for this integration fixture.' );
+		}
+
+		return \array_slice( $inactivePlugins, 0, $minimum );
 	}
 }

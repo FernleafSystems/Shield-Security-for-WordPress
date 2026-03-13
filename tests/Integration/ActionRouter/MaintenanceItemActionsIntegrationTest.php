@@ -89,7 +89,11 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'good', (string)( $maintenance[ 'status' ] ?? '' ) );
 		$this->assertSame( 'good', (string)( $row[ 'status' ] ?? '' ) );
 		$this->assertStringContainsString( 'ignored', (string)( $row[ 'description' ] ?? '' ) );
-		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+		$this->assertFalse( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertContains(
+			'wp_plugins_updates',
+			\array_column( $maintenance[ 'items' ] ?? [], 'key' )
+		);
 	}
 
 	public function test_unignore_action_is_idempotent_and_restores_plugin_update_count() :void {

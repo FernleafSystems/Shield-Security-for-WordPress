@@ -37,6 +37,12 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
+		if ( !\defined( 'DB_PASSWORD' ) ) {
+			\define( 'DB_PASSWORD', 'correct-horse-battery-staple' );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
@@ -46,6 +52,13 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		);
 		Functions\when( 'sanitize_text_field' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \trim( $text ) : ''
+		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
+		);
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
 		Functions\when( 'rawurlencode_deep' )->alias(
 			static function ( $value ) {
@@ -172,7 +185,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $strip[ 'severity' ] ?? '' );
 		$this->assertSame( 5, $strip[ 'total_items' ] ?? null );
 		$this->assertSame( 2, $strip[ 'critical_count' ] ?? null );
-		$this->assertSame( 3, $strip[ 'warning_count' ] ?? null );
+		$this->assertSame( 1, $strip[ 'warning_count' ] ?? null );
 		$this->assertSame( 'Last scan: 2 minutes ago', $strip[ 'subtext' ] ?? '' );
 
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] ?? [] );
@@ -349,7 +362,6 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$itemsByKey[ $item[ 'key' ] ?? '' ] = $item;
 		}
 
-		$this->assertNotEmpty( $maintenance[ 'assessment_rows' ] ?? [] );
 		$this->assertSame( 'Go to plugins', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'label' ] ?? '' );
 		$this->assertSame( '/admin/wp_plugins_inactive', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( 'Go to themes', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] ?? '' );
@@ -434,6 +446,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$this->assertNotEmpty( $itemsByKey[ $key ][ 'expansion' ] ?? [], 'Expected expansion for '.$key );
 			$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $itemsByKey[ $key ][ 'expansion' ][ 'type' ] ?? '' );
 		}
+		$this->assertSame(
+			'/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
+			$itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? ''
+		);
 		$this->assertSame( [], $itemsByKey[ 'wp_updates' ][ 'expansion' ] ?? [] );
 	}
 
@@ -469,11 +485,9 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		) )[ 0 ] ?? [];
 		$groups = $maintenance[ 'maintenance_detail_groups' ] ?? [];
 
-		$this->assertSame( [ 'critical', 'warning', 'good' ], \array_column( $groups, 'status' ) );
+		$this->assertSame( [ 'warning', 'good' ], \array_column( $groups, 'status' ) );
 		$this->assertSame( [ 'system_ssl_certificate' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'wp_updates' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'system_lib_openssl' ], \array_column( $groups[ 2 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( 'open', $groups[ 1 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
+		$this->assertSame( [ 'wp_updates', 'system_lib_openssl' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'key' ) );
 	}
 
 	public function test_missing_needs_attention_strings_fall_back_to_safe_defaults() :void {
@@ -542,6 +556,23 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$controller->svgs = new class {
 			public function iconClass( string $icon ) :string {
 				return 'bi bi-'.$icon;
+			}
+		};
+		$controller->opts = new class {
+			public function optGet( string $key ) :array {
+				return $key === 'ignored_maintenance_items'
+					? \array_fill_keys( [
+						'wp_plugins_updates',
+						'wp_themes_updates',
+						'wp_plugins_inactive',
+						'wp_themes_inactive',
+						'wp_updates',
+						'system_ssl_certificate',
+						'system_php_version',
+						'wp_db_password',
+						'system_lib_openssl',
+					], [] )
+					: [];
 			}
 		};
 		$controller->comps = (object)[
@@ -667,12 +698,20 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				}
 			},
 			'service_wpgeneral' => new class extends General {
+				public function getAdminUrl( string $path = '', bool $wpmsOnly = false ) :string {
+					return '/wp-admin/'.\ltrim( $path, '/' );
+				}
+
 				public function ajaxURL() :string {
 					return '/admin-ajax.php';
 				}
 
 				public function hasCoreUpdate() :bool {
 					return false;
+				}
+
+				public function getOption( $sKey, $mDefault = false, $bIgnoreWPMS = false ) {
+					return $mDefault;
 				}
 
 				public function getAdminUrl_Updates( bool $bWpmsOnly = false ) :string {
@@ -685,6 +724,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 				public function getAdminUrl_Themes( bool $wpmsOnly = false ) :string {
 					return '/wp-admin/themes.php';
+				}
+
+				public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
+					return 'http://example.com/'.\ltrim( $path, '/' );
+				}
+
+				public function getWpUrl( string $path = '' ) :string {
+					return 'http://example.com/'.\ltrim( $path, '/' );
 				}
 			},
 			'service_wpusers' => new class extends Users {

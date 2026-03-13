@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
+	Maintenance,
 	Malware,
 	Plugins,
 	Themes,
@@ -22,6 +23,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   href:string,
  *   label:string,
  *   target?:string
+ * }
+ * @phpstan-type MaintenanceItemAction array{
+ *   href:string,
+ *   label:string,
+ *   icon:string,
+ *   tooltip:string,
+ *   target?:string,
+ *   ajax_action?:array<string,mixed>
  * }
  * @phpstan-type MaintenanceExpansion array{
  *   id:string,
@@ -40,6 +49,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   action:string,
  *   target:string,
  *   cta:array{}|MaintenanceItemCta,
+ *   toggle_action:array{}|MaintenanceItemAction,
  *   expansion:array{}|MaintenanceExpansion
  * }
  * @phpstan-type AssessmentRow array{
@@ -157,7 +167,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 * @param array{count:int,status:string} $maintenanceMetrics
 	 * @return array<string,mixed>
 	 */
-	private function buildMaintenanceTabDefinition(
+	public function buildMaintenanceTabDefinition(
 		array $maintenanceItems,
 		array $maintenanceAssessmentRows,
 		array $maintenanceMetrics
@@ -173,6 +183,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			'icon_class' => $meta[ 'icon_class' ],
 			'items'      => $this->buildMaintenanceRailItems( $maintenanceItems, $maintenanceAssessmentRows ),
 			'is_loaded'  => true,
+			'render_action' => $this->buildAjaxRenderActionData( Maintenance::class ),
 		];
 	}
 
@@ -342,21 +353,27 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 		foreach ( $maintenanceItems as $item ) {
 			$status = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
+			$cta = $item[ 'cta' ] ?? [];
+			$toggleAction = $item[ 'toggle_action' ] ?? [];
+			$actions = $this->buildActionsForHref(
+				$cta[ 'label' ] ?? '',
+				$cta[ 'href' ] ?? '',
+				'navigate',
+				$cta[ 'target' ] ?? ''
+			);
+			if ( $toggleAction !== [] ) {
+				$actions[] = $this->buildMaintenanceToggleRailAction( $toggleAction );
+			}
 			$row = $this->buildDetailRow(
 				$item[ 'label' ],
 				$item[ 'description' ],
 				$status,
 				$item[ 'count' ],
 				$status === 'neutral' ? 'info' : $status,
-				$this->buildActionsForHref(
-					$item[ 'cta' ][ 'label' ],
-					$item[ 'cta' ][ 'href' ],
-					'navigate',
-					$item[ 'cta' ][ 'target' ] ?? ''
-				),
+				$actions,
 				null,
 				null,
-				__( 'Needs attention', 'wp-simple-firewall' )
+				$status === 'good' ? __( 'All clear', 'wp-simple-firewall' ) : __( 'Needs attention', 'wp-simple-firewall' )
 			);
 			if ( $item[ 'expansion' ] !== [] ) {
 				$row = $this->attachExpansionToDetailRow( $row, $item[ 'expansion' ] );
@@ -390,6 +407,26 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	 */
 	private function maintenanceMetricsStatus( array $maintenanceMetrics ) :string {
 		return StatusPriority::normalize( $maintenanceMetrics[ 'status' ], 'good' );
+	}
+
+	/**
+	 * @param MaintenanceItemAction $action
+	 * @return array<string,mixed>
+	 */
+	private function buildMaintenanceToggleRailAction( array $action ) :array {
+		return [
+			'type'       => 'navigate',
+			'label'      => $action[ 'label' ],
+			'href'       => $action[ 'href' ],
+			'icon'       => $action[ 'icon' ],
+			'tooltip'    => $action[ 'tooltip' ],
+			'attributes' => \array_filter( [
+				'data-actions-queue-maintenance-action' => empty( $action[ 'ajax_action' ] )
+					? ''
+					: (string)\json_encode( $action[ 'ajax_action' ] ),
+				'target' => $action[ 'target' ] ?? '',
+			], static fn( string $value ) :bool => $value !== '' ),
+		];
 	}
 
 	/**

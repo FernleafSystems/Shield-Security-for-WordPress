@@ -20,6 +20,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
+use FernleafSystems\Wordpress\Services\Core\{
+	Request,
+	Users
+};
 
 class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 
@@ -29,6 +33,12 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
+		if ( !\defined( 'DB_PASSWORD' ) ) {
+			\define( 'DB_PASSWORD', 'correct-horse-battery-staple' );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
@@ -36,8 +46,38 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
+		);
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pairs = [];
+				foreach ( $params as $key => $value ) {
+					$pairs[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pairs );
+			}
+		);
 		$this->servicesSnapshot = ServicesState::snapshot();
-		ServicesState::installItems( $this->buildMaintenanceAssetServiceItems() );
+		$this->installServices();
 		$this->installControllerStub();
 	}
 
@@ -74,7 +114,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( 6, $view[ 'summary' ][ 'total_items' ] ?? 0 );
 		$this->assertSame( 'critical', $strip[ 'severity' ] ?? '' );
 		$this->assertSame( 3, $strip[ 'critical_count' ] ?? 0 );
-		$this->assertSame( 3, $strip[ 'warning_count' ] ?? 0 );
+		$this->assertSame( 1, $strip[ 'warning_count' ] ?? 0 );
 		$this->assertSame( 'Last scan: 3 minutes ago', $strip[ 'subtext' ] ?? '' );
 
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_keys( $zonesIndexed ) );
@@ -141,7 +181,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_normalizes_maintenance_items_once_and_builds_detail_groups_from_same_rows() :void {
-		ServicesState::installItems( $this->buildMaintenanceAssetServiceItems(
+		$this->installServices(
 			[
 				'plugins' => [
 					'akismet/akismet.php' => [],
@@ -156,7 +196,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 					'akismet/akismet.php' => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
 				],
 			]
-		) );
+		);
 
 		$view = ( new ActionsQueueLandingViewBuilder() )->build(
 			$this->buildQueuePayload(
@@ -197,6 +237,67 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenance[ 'maintenance_detail_groups' ], 'status' ) );
 	}
 
+	public function test_build_filters_duplicate_good_assessment_rows_when_ignored_maintenance_item_is_rendered() :void {
+		$view = ( new ActionsQueueLandingViewBuilder() )->build(
+			$this->buildQueuePayload(
+				false,
+				0,
+				'good',
+				'',
+				[
+					$this->buildZoneGroup( 'scans', 'good', 0, [] ),
+					$this->buildZoneGroup( 'maintenance', 'good', 0, [
+						[
+							'key'           => 'system_php_version',
+							'zone'          => 'maintenance',
+							'label'         => 'PHP Version',
+							'count'         => 0,
+							'severity'      => 'good',
+							'description'   => 'This maintenance item is currently ignored.',
+							'href'          => '/wp-admin/update-core.php',
+							'action'        => 'Open',
+							'target'        => '',
+							'cta'           => [
+								'label' => 'Open',
+								'href'  => '/wp-admin/update-core.php',
+							],
+							'toggle_action' => [
+								'label'       => 'Unignore',
+								'href'        => 'javascript:{}',
+								'icon'        => 'bi bi-eye-fill',
+								'tooltip'     => 'Stop ignoring this maintenance item',
+								'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+							],
+							'expansion'     => [],
+						],
+					] ),
+				]
+			),
+			[
+				'scans'       => [],
+				'maintenance' => [
+					[
+						'key'               => 'system_php_version',
+						'label'             => 'PHP Version',
+						'description'       => 'This maintenance item is currently ignored.',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+				],
+			]
+		);
+
+		$maintenance = \array_values( \array_filter(
+			$view[ 'zone_tiles' ],
+			static fn( array $tile ) :bool => $tile[ 'key' ] === 'maintenance'
+		) )[ 0 ];
+
+		$this->assertCount( 1, $maintenance[ 'items' ] );
+		$this->assertCount( 0, $maintenance[ 'assessment_rows' ] );
+		$this->assertCount( 1, $maintenance[ 'maintenance_detail_groups' ] );
+	}
+
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -205,7 +306,46 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 				return 'bi bi-'.$icon;
 			}
 		};
+		$controller->opts = new class {
+			public function optGet( string $key ) :array {
+				return $key === 'ignored_maintenance_items'
+					? \array_fill_keys( [
+						'wp_plugins_updates',
+						'wp_themes_updates',
+						'wp_plugins_inactive',
+						'wp_themes_inactive',
+						'wp_updates',
+						'system_ssl_certificate',
+						'system_php_version',
+						'wp_db_password',
+						'system_lib_openssl',
+					], [] )
+					: [];
+			}
+		};
 		PluginControllerInstaller::install( $controller );
+	}
+
+	private function installServices( array $pluginFixture = [], array $themeFixture = [] ) :void {
+		ServicesState::installItems( \array_merge(
+			$this->buildMaintenanceAssetServiceItems( $pluginFixture, $themeFixture ),
+			[
+				'service_request' => new class extends Request {
+					public function ip() :string {
+						return '127.0.0.1';
+					}
+
+					public function ts( bool $update = true ) :int {
+						return 1700000000;
+					}
+				},
+				'service_wpusers' => new class extends Users {
+					public function getCurrentWpUserId() {
+						return 0;
+					}
+				},
+			]
+		) );
 	}
 
 	/**

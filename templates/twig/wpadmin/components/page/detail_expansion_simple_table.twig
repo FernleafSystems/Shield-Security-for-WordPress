@@ -14,7 +14,10 @@
 			</thead>
 			<tbody>
 			{% for row in rows %}
-				<tr>
+				<tr{% if row.is_ignored|default(false) %}
+					class="actions-landing__maintenance-row is-ignored"
+					data-actions-queue-maintenance-ignored="1"
+				{% endif %}>
 					<td>
 						<div class="fw-semibold">{{ row.title }}</div>
 						{% if row.subtitle is not empty %}
@@ -30,11 +33,25 @@
 						{% endif %}
 					</td>
 					<td class="text-end text-nowrap">
-						<a href="{{ row.action.href }}"
-						   class="btn btn-outline-secondary btn-sm"
-						   {% if row.action.target is defined and row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
-							{{ row.action.label }}
-						</a>
+						{% set has_primary_action = row.action.href is not empty and row.action.label is not empty %}
+						{% if has_primary_action %}
+							<a href="{{ row.action.href }}"
+							   class="btn btn-outline-secondary btn-sm"
+							   {% if row.action.target is defined and row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+								{{ row.action.label }}
+							</a>
+						{% endif %}
+						{% for action in row.secondary_actions|default([]) %}
+							<a href="{{ action.href|default('javascript:{}') }}"
+							   class="btn btn-sm btn-light action actions-landing__table-icon-action{% if has_primary_action or not loop.first %} ms-1{% endif %}"
+							   data-bs-toggle="tooltip"
+							   data-bs-title="{{ action.tooltip|default(action.label)|e('html_attr') }}"
+							   {% if action.target is defined and action.target is not empty %}target="{{ action.target }}"{% endif %}
+							   {% if action.ajax_action is defined and action.ajax_action is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action|json_encode|e('html_attr') }}"{% endif %}>
+								<i class="{{ action.icon }}" aria-hidden="true"></i>
+								<span class="visually-hidden">{{ action.label }}</span>
+							</a>
+						{% endfor %}
 					</td>
 				</tr>
 			{% endfor %}

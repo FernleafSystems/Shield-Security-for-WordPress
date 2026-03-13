@@ -496,6 +496,9 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 				'key'       => 'maintenance',
 				'pane_id'   => 'h-tabs-maintenance',
 				'is_loaded' => true,
+				'render_action' => [
+					'render_slug' => 'scanresults_maintenance',
+				],
 				'items'     => [
 					[
 						'title'         => 'Plugins With Updates',
@@ -516,13 +519,47 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								],
 								'rows' => [
 									[
-										'title'      => 'Akismet Anti-Spam',
-										'subtitle'   => 'Plugin update available',
-										'context'    => 'Current: 5.3.0 | Available: 5.4.0',
-										'identifier' => 'akismet/akismet.php',
-										'action'     => [
+										'title'             => 'Akismet Anti-Spam',
+										'subtitle'          => 'Plugin update available',
+										'context'           => 'Current: 5.3.0 | Available: 5.4.0',
+										'identifier'        => 'akismet/akismet.php',
+										'action'            => [
 											'label' => 'Update',
 											'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
+										],
+										'is_ignored'        => false,
+										'secondary_actions' => [
+											[
+												'label'       => 'Ignore',
+												'href'        => 'javascript:{}',
+												'icon'        => 'bi bi-eye-slash-fill',
+												'tooltip'     => 'Ignore this maintenance item',
+												'ajax_action' => [
+													'ex' => 'maintenance_item_ignore',
+												],
+											],
+										],
+									],
+									[
+										'title'             => 'Hello Dolly',
+										'subtitle'          => 'Plugin update available',
+										'context'           => 'Current: 1.7.2 | Available: 1.8.0',
+										'identifier'        => 'hello-dolly/hello.php',
+										'action'            => [
+											'label' => 'Update',
+											'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=hello-dolly/hello.php',
+										],
+										'is_ignored'        => true,
+										'secondary_actions' => [
+											[
+												'label'       => 'Unignore',
+												'href'        => 'javascript:{}',
+												'icon'        => 'bi bi-eye-fill',
+												'tooltip'     => 'Stop ignoring this maintenance item',
+												'ajax_action' => [
+													'ex' => 'maintenance_item_unignore',
+												],
+											],
 										],
 									],
 								],
@@ -535,6 +572,29 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 								'label' => 'Update',
 								'href'  => '/wp-admin/update-core.php',
 								'icon'  => 'bi bi-arrow-right-circle-fill',
+							],
+						],
+					],
+					[
+						'title'       => 'PHP Version',
+						'description' => 'This maintenance item is currently ignored.',
+						'status'      => 'good',
+						'actions'     => [
+							[
+								'type'  => 'navigate',
+								'label' => 'Open',
+								'href'  => '/wp-admin/update-core.php',
+								'icon'  => 'bi bi-arrow-right-circle-fill',
+							],
+							[
+								'type'       => 'navigate',
+								'label'      => 'Unignore',
+								'href'       => 'javascript:{}',
+								'icon'       => 'bi bi-eye-fill',
+								'tooltip'    => 'Stop ignoring this maintenance item',
+								'attributes' => [
+									'data-actions-queue-maintenance-action' => '{"ex":"maintenance_item_unignore"}',
+								],
 							],
 						],
 					],
@@ -913,6 +973,23 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			$xpath,
 			'//*[@id="maintenance-expand-wp_plugins_updates"]//a[@href="/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php" and normalize-space()="Update"]',
 			'Maintenance pane simple tables should render per-row actions'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="maintenance-expand-wp_plugins_updates"]//*[@data-actions-queue-maintenance-action and @data-bs-toggle="tooltip"]',
+			'Maintenance pane simple tables should render maintenance ignore toggle buttons with tooltips'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="maintenance-expand-wp_plugins_updates"]//tr[@data-actions-queue-maintenance-ignored="1"]',
+			'Maintenance pane simple tables should mark ignored rows for muted presentation'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row ")]'
+			.'[.//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__title ") and normalize-space()="PHP Version"]]'
+			.'//*[contains(concat(" ", normalize-space(@class), " "), " shield-action-chip ") and normalize-space()="Unignore"]',
+			'Maintenance pane singleton rows should render maintenance unignore action chips'
 		);
 		$this->assertSame(
 			0,

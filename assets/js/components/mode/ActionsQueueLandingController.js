@@ -12,6 +12,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	run() {
 		this.bindModePanelHandlers();
+		this.bindMaintenanceActionHandlers();
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.tab',
 			'[data-shield-rail-target][data-bs-toggle="tab"]',
@@ -29,6 +30,15 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => this.handleModePanelOpened( evt ) );
 		document.addEventListener( 'shield:mode-panel-closed', ( evt ) => this.handleModePanelClosed( evt ) );
+	}
+
+	bindMaintenanceActionHandlers() {
+		if ( this.hasBoundMaintenanceActionHandlers ) {
+			return;
+		}
+		this.hasBoundMaintenanceActionHandlers = true;
+
+		document.addEventListener( 'click', ( evt ) => this.handleMaintenanceActionClick( evt ) );
 	}
 
 	handleRailTabShown( item ) {
@@ -52,10 +62,28 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	} = {} ) {
 		const renderAction = this.preparePaneLoad( pane, { showPlaceholder: showPlaceholder } );
 		if ( ObjectOps.IsEmpty( renderAction ) ) {
-			return;
+			return Promise.resolve();
 		}
 
-		( new AjaxService() )
+		return this.requestPaneRender( pane, renderAction );
+	}
+
+	refreshPane( pane, {
+		showPlaceholder = true,
+	} = {} ) {
+		const renderAction = this.preparePaneLoad( pane, {
+			showPlaceholder: showPlaceholder,
+			forceReload: true,
+		} );
+		if ( ObjectOps.IsEmpty( renderAction ) ) {
+			return Promise.resolve();
+		}
+
+		return this.requestPaneRender( pane, renderAction );
+	}
+
+	requestPaneRender( pane, renderAction ) {
+		return ( new AjaxService() )
 		.send( renderAction, false, true )
 		.then( ( resp ) => {
 			if ( !resp.success || typeof resp?.data?.html !== 'string' ) {
@@ -73,8 +101,13 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	preparePaneLoad( pane, {
 		showPlaceholder = false,
+		forceReload = false,
 	} = {} ) {
-		if ( pane.dataset.actionsQueuePaneLoaded === '1' || pane.dataset.actionsQueuePaneLoading === '1' ) {
+		if ( pane.dataset.actionsQueuePaneLoading === '1' ) {
+			return {};
+		}
+
+		if ( !forceReload && pane.dataset.actionsQueuePaneLoaded === '1' ) {
 			return {};
 		}
 
@@ -152,6 +185,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		pane.innerHTML = html;
 		pane.dataset.actionsQueuePaneLoaded = '1';
 		delete pane.dataset.actionsQueuePaneLoading;
+		delete pane.dataset.actionsQueuePaneInitialized;
 
 		if ( initializeNow ) {
 			this.initializeLoadedPane( pane );
@@ -356,7 +390,11 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 		this.rootEl.dataset.actionsQueueMetricsLoading = '1';
 
-		( new AjaxService() )
+		return this.requestRailMetrics( metricsAction );
+	}
+
+	requestRailMetrics( metricsAction ) {
+		return ( new AjaxService() )
 		.send( metricsAction, false, true )
 		.then( ( resp ) => {
 			if ( resp.success ) {
@@ -368,6 +406,19 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		.finally( () => {
 			delete this.rootEl.dataset.actionsQueueMetricsLoading;
 		} );
+	}
+
+	refreshRailMetrics() {
+		if ( this.rootEl === null || this.rootEl.dataset.actionsQueueMetricsAction === undefined ) {
+			return Promise.resolve();
+		}
+
+		const metricsAction = this.parseJsonDataset( this.rootEl.dataset.actionsQueueMetricsAction );
+		if ( ObjectOps.IsEmpty( metricsAction ) ) {
+			return Promise.resolve();
+		}
+
+		return this.requestRailMetrics( metricsAction );
 	}
 
 	applyRailMetrics( data ) {
@@ -453,6 +504,48 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	getPaneRenderAction( pane ) {
 		return this.parseJsonDataset( pane.dataset.actionsQueueRenderAction );
+	}
+
+	handleMaintenanceActionClick( evt ) {
+		const target = evt.target instanceof Element
+			? evt.target.closest( '[data-actions-queue-maintenance-action]' )
+			: null;
+		if ( target === null ) {
+			return;
+		}
+
+		const root = this.rootEl || this.getRoot();
+		if ( root === null || !root.contains( target ) ) {
+			return;
+		}
+
+		evt.preventDefault();
+		this.rootEl = root;
+
+		const actionData = this.parseJsonDataset( target.dataset.actionsQueueMaintenanceAction );
+		if ( ObjectOps.IsEmpty( actionData ) ) {
+			return;
+		}
+
+		const pane = this.getPaneByKey( 'maintenance' );
+		if ( pane === null ) {
+			return;
+		}
+
+		( new AjaxService() )
+		.send( actionData )
+		.then( ( resp ) => {
+			if ( !resp?.success ) {
+				return;
+			}
+
+			return this.refreshPane( pane ).then( () => this.refreshRailMetrics() );
+		} )
+		.catch( () => null );
+	}
+
+	getPaneByKey( key ) {
+		return this.rootEl?.querySelector( `[data-actions-queue-pane-key="${key}"]` ) || null;
 	}
 
 	findTargetPane( item ) {

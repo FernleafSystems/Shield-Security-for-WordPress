@@ -160,10 +160,12 @@ class ActionsQueueLandingViewBuilder {
 					: $zone[ 'items' ];
 				$countBySeverity = NeedsAttentionQueuePayload::countsFromItems( $items );
 				$totalIssues = $zone[ 'total_issues' ];
-				$assessmentRows = $assessmentRowsByZone[ $zone[ 'slug' ] ];
+				$assessmentRows = $zone[ 'slug' ] === 'maintenance'
+					? $this->filterMaintenanceAssessmentRows( $assessmentRowsByZone[ $zone[ 'slug' ] ], $items )
+					: $assessmentRowsByZone[ $zone[ 'slug' ] ];
 				$hasIssues = $totalIssues > 0;
 				$hasAssessments = !empty( $assessmentRows );
-				$hasPanelContent = $hasIssues || $hasAssessments;
+				$hasPanelContent = $hasIssues || $hasAssessments || !empty( $items );
 
 				$tile = [
 					'key'              => $zone[ 'slug' ],
@@ -194,6 +196,23 @@ class ActionsQueueLandingViewBuilder {
 			},
 			\array_values( $zonesIndexed )
 		);
+	}
+
+	/**
+	 * @param list<AssessmentRow> $assessmentRows
+	 * @param list<array<string,mixed>> $items
+	 * @return list<AssessmentRow>
+	 */
+	private function filterMaintenanceAssessmentRows( array $assessmentRows, array $items ) :array {
+		$itemKeys = \array_fill_keys( \array_map(
+			static fn( array $item ) :string => (string)( $item[ 'key' ] ?? '' ),
+			$items
+		), true );
+
+		return \array_values( \array_filter(
+			$assessmentRows,
+			static fn( array $row ) :bool => $row[ 'status' ] !== 'good' || !isset( $itemKeys[ $row[ 'key' ] ] )
+		) );
 	}
 
 	/**

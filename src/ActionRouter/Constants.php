@@ -173,6 +173,7 @@ class Constants {
 		Actions\Render\Components\OffCanvas\SearchHelp::class,
 		Actions\Render\Components\Options\OptionsFormFor::class,
 		Actions\Render\Components\Widgets\NeedsAttentionQueue::class,
+		Actions\Render\Components\Scans\Results\Maintenance::class,
 		Actions\Render\Components\Reports\ReportsTable::class,
 		Actions\Render\Components\Reports\FormCreateReport::class,
 		Actions\Render\Components\Reports\PageReportsView::class,
