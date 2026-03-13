@@ -39,6 +39,7 @@ export class InvestigationTable extends ShieldTableBase {
 		const $tableElement = $( tableEl );
 		if ( $.fn.dataTable && $.fn.dataTable.isDataTable( tableEl ) ) {
 			const datatable = $tableElement.DataTable();
+			this.bindBusyStateLifecycle( datatable );
 			this.ensureSearchDelay( datatable );
 			this.bindTableInteractions( $tableElement, datatable, context );
 			return;
@@ -54,6 +55,7 @@ export class InvestigationTable extends ShieldTableBase {
 		);
 
 		const datatable = $tableElement.DataTable( cfg );
+		this.bindBusyStateLifecycle( datatable );
 		this.ensureSearchDelay( datatable );
 		this.bindTableInteractions( $tableElement, datatable, context );
 	}
@@ -135,27 +137,7 @@ export class InvestigationTable extends ShieldTableBase {
 		reqData.sub_action = action;
 		reqData.rids = filteredRids;
 
-		return ( new AjaxService() )
-		.send( reqData )
-		.then( ( resp ) => {
-			const responseData = ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
-				? resp.data
-				: {};
-
-			if ( resp.success ) {
-				datatable.ajax.reload( null );
-				const notificationService = shieldServices?.notification?.();
-				if ( notificationService ) {
-					notificationService.showMessage( responseData.message || '', resp.success );
-				}
-			}
-			else {
-				alert( responseData.message || 'Communications error with site.' );
-			}
-		} )
-		.catch( ( error ) => {
-			console.log( error );
-		} );
+		return this.sendTableActionRequest( datatable, reqData );
 	}
 
 	datatablesAjaxRequest( data, callback, settings, tableContext ) {
@@ -167,20 +149,14 @@ export class InvestigationTable extends ShieldTableBase {
 		reqData.table_data = data;
 
 		return ( new AjaxService() )
-		.send( reqData, false )
+		.send( reqData, false, true )
 		.then( ( resp ) => {
-			const responseData = ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
-				? resp.data
-				: {};
-
 			if ( resp && resp.success ) {
-				callback( responseData.datatable_data );
+				callback( this.extractResponseData( resp ).datatable_data );
 			}
 			else {
-				const msg = ( typeof responseData.message === 'string' && responseData.message.length > 0 )
-					? responseData.message
-					: 'Communications error with site.';
-				alert( msg );
+				this.clearTableBusy( settings );
+				alert( this.extractResponseMessage( resp ) );
 			}
 		} );
 	}

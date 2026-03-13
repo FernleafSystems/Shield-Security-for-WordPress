@@ -22,6 +22,20 @@
 	display: block;
 	clear: both;
 }
+.shield-section-datatable div.dt-container.shield-table-is-busy::after {
+	background: rgba(255, 255, 255, 0.65);
+	content: "";
+	inset: 0;
+	pointer-events: auto;
+	position: absolute;
+	z-index: 9;
+}
+.shield-section-datatable div.dt-container.shield-table-is-busy {
+	cursor: progress;
+}
+.shield-section-datatable div.dt-container.shield-table-is-busy div.dt-processing {
+	z-index: 10;
+}
 /** https://stackoverflow.com/questions/3215553/make-a-div-fill-an-entire-table-cell **/
 table.dataTable {
 	height: fit-content;

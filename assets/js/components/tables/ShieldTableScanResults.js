@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import { AjaxService } from "../services/AjaxService";
 import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableBase } from "./ShieldTableBase";
@@ -119,4 +118,20 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).disable();
 		}
 	};
+
+	bulkTableAction( action, RIDs = [] ) {
+		if ( RIDs.length === 0 ) {
+			RIDs = this.getSelectedRIDs();
+		}
+
+		if ( RIDs.length > 0 ) {
+			const data = ObjectOps.ObjClone( this._base_data.ajax.table_action );
+			delete data.file;
+			delete data.type;
+			data.sub_action = action;
+			data.rids = RIDs;
+
+			this.sendTableActionRequest( this.$table, data );
+		}
+	}
 }

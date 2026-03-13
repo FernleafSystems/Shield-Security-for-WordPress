@@ -10,6 +10,8 @@ import { OffCanvasService } from "../ui/OffCanvasService";
 
 export class ShieldTableBase extends BaseComponent {
 
+	#pendingBusyClearContainers = new WeakSet();
+
 	init() {
 		let selector = this.getTableSelector();
 		if ( selector.length > 0 ) {
@@ -39,6 +41,7 @@ export class ShieldTableBase extends BaseComponent {
 
 	setupDatatable() {
 		this.$table = this.$el.DataTable( this.buildDatatableConfig() );
+		this.bindBusyStateLifecycle( this.$table );
 		this.addButtons();
 		this.bindEvents();
 		this.ensureSearchDelay();
@@ -85,17 +88,14 @@ export class ShieldTableBase extends BaseComponent {
 		reqData.table_data = data;
 
 		return ( new AjaxService() )
-		.send( reqData, false )
+		.send( reqData, false, true )
 		.then( ( resp ) => {
 			if ( resp.success ) {
 				callback( resp.data.datatable_data );
 			}
 			else {
-				let msg = 'Communications error with site.';
-				if ( resp.data.message !== undefined ) {
-					msg = resp.data.message;
-				}
-				alert( msg );
+				this.clearTableBusy( settings );
+				alert( this.extractResponseMessage( resp ) );
 			}
 		} );
 	}
@@ -162,6 +162,134 @@ export class ShieldTableBase extends BaseComponent {
 	rowSelectionChanged() {
 	};
 
+	resolveDatatable( datatableOrSettings = null ) {
+		if ( datatableOrSettings && typeof datatableOrSettings.table === 'function' ) {
+			return datatableOrSettings;
+		}
+
+		const tableNode = datatableOrSettings?.nTable || null;
+		if ( tableNode && $.fn.dataTable && $.fn.dataTable.isDataTable( tableNode ) ) {
+			return $( tableNode ).DataTable();
+		}
+
+		return this.$table || null;
+	}
+
+	resolveTableContainer( datatableOrSettings = null ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		const container = datatable?.table?.().container?.() || null;
+		return container instanceof HTMLElement ? container : null;
+	}
+
+	bindBusyStateLifecycle( datatable ) {
+		const container = this.resolveTableContainer( datatable );
+		if ( container === null || container.dataset.shieldBusyLifecycleBound === '1' ) {
+			return;
+		}
+
+		container.dataset.shieldBusyLifecycleBound = '1';
+		datatable.on( 'draw.shieldBusyState', () => {
+			if ( this.#pendingBusyClearContainers.has( container ) ) {
+				this.clearTableBusy( datatable );
+			}
+		} );
+	}
+
+	setTableBusy( datatableOrSettings, isBusy ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		const container = this.resolveTableContainer( datatable );
+		if ( datatable === null || container === null ) {
+			return;
+		}
+
+		container.classList.toggle( 'shield-table-is-busy', isBusy );
+		container.setAttribute( 'aria-busy', isBusy ? 'true' : 'false' );
+		if ( typeof datatable.processing === 'function' ) {
+			datatable.processing( isBusy );
+		}
+		if ( !isBusy ) {
+			this.#pendingBusyClearContainers.delete( container );
+		}
+	}
+
+	clearTableBusy( datatableOrSettings = null ) {
+		this.setTableBusy( datatableOrSettings, false );
+	}
+
+	extractResponseData( resp ) {
+		return ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
+			? resp.data
+			: {};
+	}
+
+	extractResponseMessage( resp, fallback = 'Communications error with site.' ) {
+		const responseData = this.extractResponseData( resp );
+		return ( typeof responseData.message === 'string' && responseData.message.length > 0 )
+			? responseData.message
+			: fallback;
+	}
+
+	showResponseMessage( message, success = true ) {
+		if ( typeof message !== 'string' || message.length < 1 ) {
+			return;
+		}
+
+		const notificationService = shieldServices?.notification?.();
+		if ( notificationService ) {
+			notificationService.showMessage( message, success );
+		}
+		else {
+			alert( message );
+		}
+	}
+
+	queueBusyClearOnNextDraw( datatableOrSettings ) {
+		const container = this.resolveTableContainer( datatableOrSettings );
+		if ( container !== null ) {
+			this.#pendingBusyClearContainers.add( container );
+		}
+	}
+
+	reloadBusyTable( datatableOrSettings ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		if ( datatable === null ) {
+			return;
+		}
+
+		this.setTableBusy( datatable, true );
+		this.queueBusyClearOnNextDraw( datatable );
+		datatable.ajax.reload( null );
+	}
+
+	sendTableActionRequest( datatableOrSettings, reqData, fallbackErrorMessage = 'Communications error with site.' ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		if ( datatable === null || reqData === null || typeof reqData !== 'object' ) {
+			return Promise.resolve( null );
+		}
+
+		this.setTableBusy( datatable, true );
+
+		return ( new AjaxService() )
+		.send( reqData, false, true )
+		.then( ( resp ) => {
+			if ( resp?.success ) {
+				const responseData = this.extractResponseData( resp );
+				if ( responseData.table_reload ) {
+					this.reloadBusyTable( datatable );
+				}
+				else {
+					this.clearTableBusy( datatable );
+				}
+				this.showResponseMessage( responseData.message || '', true );
+			}
+			else {
+				this.clearTableBusy( datatable );
+				alert( this.extractResponseMessage( resp, fallbackErrorMessage ) );
+			}
+			return resp;
+		} );
+	}
+
 	bulkTableAction( action, RIDs = [] ) {
 		if ( RIDs.length === 0 ) {
 			RIDs = this.getSelectedRIDs();
@@ -183,7 +311,6 @@ export class ShieldTableBase extends BaseComponent {
 				}
 				else {
 					alert( resp.data.message );
-					// console.log( resp );
 				}
 			} )
 			.catch( ( error ) => {
