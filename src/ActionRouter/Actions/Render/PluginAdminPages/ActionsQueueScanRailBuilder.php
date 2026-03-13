@@ -225,13 +225,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			return '';
 		}
 
-		foreach ( $this->buildOrderedQueueRailTabKeys() as $tabKey ) {
-			if ( \in_array( $summaryKey, $this->getRailTabMeta( $tabKey )[ 'summary_keys' ], true ) ) {
-				return $tabKey;
-			}
-		}
-
-		return '';
+		return $this->getRailTabKeyForSummaryKey( $summaryKey );
 	}
 
 	/**

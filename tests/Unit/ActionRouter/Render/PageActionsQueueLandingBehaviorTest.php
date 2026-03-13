@@ -470,7 +470,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		$page = $this->newPage( [
 			'scans'       => [
-				$this->buildAssessmentRow( 'wp_files', 'WordPress Core Files' ),
+				$this->buildAssessmentRow( 'wp_files', 'WordPress Files' ),
 			],
 			'maintenance' => [
 				$this->buildAssessmentRow( 'system_ssl_certificate', 'SSL Certificate', 'Certificate requires review', 'critical', 'Critical', 'bi bi-x-circle-fill' ),
@@ -753,7 +753,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	private function buildDefaultAssessmentRowsByZone() :array {
 		return [
 			'scans'       => [
-				$this->buildAssessmentRow( 'wp_files', 'WordPress Core Files' ),
+				$this->buildAssessmentRow( 'wp_files', 'WordPress Files' ),
 			],
 			'maintenance' => [
 				$this->buildAssessmentRow( 'wp_updates', 'WordPress Version' ),

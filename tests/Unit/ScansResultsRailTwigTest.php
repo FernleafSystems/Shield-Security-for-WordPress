@@ -133,7 +133,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						],
 						[
 							'key'       => 'plugins',
-							'label'     => 'Plugins',
+							'label'     => 'Plugin Files',
 							'icon_class' => 'bi bi-plug-fill',
 							'status'    => 'warning',
 							'count'     => 2,
@@ -181,7 +181,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'key'       => 'plugins',
 						'pane_id'   => 'h-tabs-plugins',
 						'nav_id'    => 'h-tabs-plugins-tab',
-						'label'     => 'Plugins',
+						'label'     => 'Plugin Files',
 						'count'     => 2,
 						'is_active' => false,
 						'target'    => '#h-tabs-plugins',
@@ -222,7 +222,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'controls'  => 'h-tabs-summary',
 						'items'     => [
 							[
-								'title'       => 'Plugins',
+								'title'       => 'Plugin Files',
 								'description' => '2 plugin files need review.',
 								'status'      => 'warning',
 								'count_badge' => 2,
@@ -238,7 +238,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'key'       => 'plugins',
 						'pane_id'   => 'h-tabs-plugins',
 						'nav_id'    => 'h-tabs-plugins-tab',
-						'label'     => 'Plugins',
+						'label'     => 'Plugin Files',
 						'count'     => 2,
 						'status'     => 'warning',
 						'icon_class' => 'bi bi-plug-fill',
@@ -313,12 +313,6 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 										'icon'  => 'bi bi-arrow-up-circle-fill',
 									],
 									[
-										'type'  => 'navigate',
-										'label' => 'View vulnerability results',
-										'href'  => '/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities',
-										'icon'  => 'bi bi-list-ul',
-									],
-									[
 										'type'       => 'navigate',
 										'label'      => 'Vulnerability Lookup',
 										'href'       => 'https://lookup.example/plugin',
@@ -349,7 +343,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 				'summary_rows'    => [
 					[
 						'severity'    => 'warning',
-						'label'       => 'Plugins',
+						'label'       => 'Plugin Files',
 						'description' => '2 plugin files need review.',
 						'count'       => 2,
 					],
@@ -413,7 +407,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						],
 						[
 							'key'       => 'plugins',
-							'label'     => 'Plugins',
+							'label'     => 'Plugin Files',
 							'status'    => 'neutral',
 							'count'     => null,
 							'show_count_placeholder' => true,
@@ -435,7 +429,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'is_loaded'  => true,
 						'items'      => [
 							[
-								'title'       => 'Plugins',
+								'title'       => 'Plugin Files',
 								'description' => '1 plugin needs review.',
 								'status'      => 'warning',
 							],
@@ -445,7 +439,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 						'key'           => 'plugins',
 						'pane_id'       => 'h-tabs-plugins',
 						'nav_id'        => 'h-tabs-plugins-tab',
-						'label'         => 'Plugins',
+						'label'         => 'Plugin Files',
 						'status'        => 'neutral',
 						'is_active'     => false,
 						'is_loaded'     => false,
@@ -836,7 +830,7 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip__eyebrow ") and normalize-space()="Known Vulnerabilities"]',
+			'//*[@data-shield-rail-pane="vulnerabilities"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip__eyebrow ")]',
 			'Rail pane should render section headers for grouped vulnerability items'
 		);
 		$this->assertXPathExists(
@@ -874,10 +868,10 @@ class ScansResultsRailTwigTest extends BaseUnitTest {
 			'//*[@data-shield-rail-pane="vulnerabilities"]//a[@href="/wp-admin/update-core.php" and contains(concat(" ", normalize-space(@class), " "), " shield-action-chip--update ")]',
 			'Vulnerability pane should render native WordPress update actions instead of Investigate links'
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-rail-pane="vulnerabilities"]//a[@href="/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities" and contains(concat(" ", normalize-space(@class), " "), " shield-action-chip--navigate ")]',
-			'Vulnerability pane should render an investigate deeplink for vulnerability results'
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@data-shield-rail-pane="vulnerabilities"]//a[@href="/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities"]' )->length,
+			'Vulnerability pane should not render the removed investigate deeplink action'
 		);
 		$this->assertXPathExists(
 			$xpath,

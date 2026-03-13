@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Themes,
 	Wordpress
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
@@ -412,7 +413,7 @@ class ScansResultsViewBuilder {
 	 * @return list<string>
 	 */
 	protected function getOrderedRailTabKeys( bool $includeSummary = true ) :array {
-		$keys = [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ];
+		$keys = \array_keys( $this->getScanTabDefinitions() );
 		if ( $includeSummary ) {
 			\array_unshift( $keys, 'summary' );
 		}
@@ -420,12 +421,6 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * Keep the scan tab definitions local to this slice and continue converging here.
-	 * If this is revisited, prefer shrinking this class by splitting the tab resolution
-	 * into smaller private builders and, when possible, deleting the legacy tabs path
-	 * entirely. Avoid introducing a generic shared rail builder or a second parallel
-	 * definition path just to make the structure look cleaner.
-	 *
 	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
 	 * @param array<string,mixed> $fileLockerPayload
 	 * @return list<array<string,mixed>>
@@ -563,47 +558,46 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
+	 * @return array<string,array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   rail_icon_class:string,
+	 *   summary_keys:list<string>,
+	 *   row_icons?:array<string,string>
+	 * }>
+	 */
+	protected function getScanTabDefinitions() :array {
+		return PluginNavs::actionsLandingScanDefinitions();
+	}
+
+	protected function getRailTabKeyForSummaryKey( string $summaryKey ) :string {
+		$definition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( $summaryKey );
+		return $definition[ 'slug' ] ?? '';
+	}
+
+	/**
 	 * @return array{label:string,icon_class:string,summary_keys:list<string>}
 	 */
 	protected function getRailTabMeta( string $key ) :array {
-		$meta = [
-			'summary' => [
+		if ( $key === 'summary' ) {
+			return [
 				'label'        => __( 'Summary', 'wp-simple-firewall' ),
 				'icon_class'   => 'bi bi-clipboard2-pulse-fill',
 				'summary_keys' => [],
-			],
-			'wordpress' => [
-				'label'        => __( 'WordPress', 'wp-simple-firewall' ),
-				'icon_class'   => 'bi bi-wordpress',
-				'summary_keys' => [ 'wp_files' ],
-			],
-			'plugins' => [
-				'label'        => __( 'Plugins', 'wp-simple-firewall' ),
-				'icon_class'   => 'bi bi-plug-fill',
-				'summary_keys' => [ 'plugin_files' ],
-			],
-			'themes' => [
-				'label'        => __( 'Themes', 'wp-simple-firewall' ),
-				'icon_class'   => 'bi bi-palette-fill',
-				'summary_keys' => [ 'theme_files' ],
-			],
-			'vulnerabilities' => [
-				'label'        => __( 'Vulnerabilities', 'wp-simple-firewall' ),
-				'icon_class'   => 'bi bi-shield-exclamation',
-				'summary_keys' => [ 'vulnerable_assets', 'abandoned' ],
-			],
-			'malware' => [
-				'label'        => __( 'Malware', 'wp-simple-firewall' ),
-				'icon_class'   => 'bi bi-bug-fill',
-				'summary_keys' => [ 'malware' ],
-			],
-			'file_locker' => [
-				'label'        => __( 'File Locker', 'wp-simple-firewall' ),
-				'icon_class'   => 'bi bi-file-lock2-fill',
-				'summary_keys' => [ 'file_locker' ],
-			],
-		];
-		return $meta[ $key ] ?? [
+			];
+		}
+
+		$definition = $this->getScanTabDefinitions()[ $key ] ?? null;
+		if ( \is_array( $definition ) ) {
+			return [
+				'label'        => $definition[ 'label' ],
+				'icon_class'   => $definition[ 'rail_icon_class' ],
+				'summary_keys' => $definition[ 'summary_keys' ],
+			];
+		}
+
+		return [
 			'label'        => $key,
 			'icon_class'   => '',
 			'summary_keys' => [],

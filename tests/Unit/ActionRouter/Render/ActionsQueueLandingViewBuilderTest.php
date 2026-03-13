@@ -95,7 +95,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			[
 				$this->buildZoneGroup( 'scans', 'critical', 4, [
 					$this->buildQueueItem( 'malware', 'scans', 'Malware', 3, 'critical' ),
-					$this->buildQueueItem( 'wp_files', 'scans', 'WP Files', 1, 'warning' ),
+					$this->buildQueueItem( 'wp_files', 'scans', 'WordPress Files', 1, 'warning' ),
 				] ),
 				$this->buildZoneGroup( 'maintenance', 'warning', 2, [
 					$this->buildQueueItem( 'wp_updates', 'maintenance', 'WordPress Version', 2, 'warning' ),
@@ -145,7 +145,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 			'scans' => [
 				[
 					'key'               => 'wp_files',
-					'label'             => 'WordPress Core Files',
+					'label'             => 'WordPress Files',
 					'description'       => 'All WordPress Core files appear to be clean and unmodified.',
 					'status'            => 'good',
 					'status_label'      => 'Good',

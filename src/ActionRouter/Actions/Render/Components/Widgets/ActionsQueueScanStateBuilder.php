@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsRailTabAvailability;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
 	Counts,
@@ -99,7 +100,7 @@ class ActionsQueueScanStateBuilder {
 
 		$row = $this->buildIssueRow(
 			'wp_files',
-			__( 'WP Files', 'wp-simple-firewall' ),
+			$this->scanSectionLabel( 'wp_files', __( 'WordPress Files', 'wp-simple-firewall' ) ),
 			$count,
 			'critical',
 			\sprintf(
@@ -140,9 +141,12 @@ class ActionsQueueScanStateBuilder {
 
 		$row = $this->buildIssueRow(
 			$tabKey === 'plugins' ? 'plugin_files' : 'theme_files',
-			$tabKey === 'plugins'
-				? __( 'Plugins', 'wp-simple-firewall' )
-				: __( 'Themes', 'wp-simple-firewall' ),
+			$this->scanSectionLabel(
+				$tabKey === 'plugins' ? 'plugin_files' : 'theme_files',
+				$tabKey === 'plugins'
+					? __( 'Plugin Files', 'wp-simple-firewall' )
+					: __( 'Theme Files', 'wp-simple-firewall' )
+			),
 			$count,
 			'warning',
 			\sprintf(
@@ -245,7 +249,7 @@ class ActionsQueueScanStateBuilder {
 
 		$row = $this->buildIssueRow(
 			'malware',
-			__( 'Malware', 'wp-simple-firewall' ),
+			$this->scanSectionLabel( 'malware', __( 'Malware', 'wp-simple-firewall' ) ),
 			$count,
 			'critical',
 			\sprintf(
@@ -285,7 +289,7 @@ class ActionsQueueScanStateBuilder {
 
 		$row = $this->buildIssueRow(
 			'file_locker',
-			__( 'File Locker', 'wp-simple-firewall' ),
+			$this->scanSectionLabel( 'file_locker', __( 'File Locker', 'wp-simple-firewall' ) ),
 			$count,
 			'warning',
 			\sprintf(
@@ -358,5 +362,10 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		return $this->displayCounts;
+	}
+
+	private function scanSectionLabel( string $summaryKey, string $fallback ) :string {
+		$definition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( $summaryKey );
+		return $definition[ 'label' ] ?? $fallback;
 	}
 }

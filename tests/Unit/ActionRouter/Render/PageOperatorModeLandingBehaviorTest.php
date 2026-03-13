@@ -404,9 +404,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					'items'        => [
 						[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 4 ],
 						[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'critical', 'count' => 3 ],
-						[ 'key' => 'wp_files', 'label' => 'WP Files', 'severity' => 'critical', 'count' => 2 ],
-						[ 'key' => 'plugin_files', 'label' => 'Plugins', 'severity' => 'warning', 'count' => 5 ],
-						[ 'key' => 'theme_files', 'label' => 'Themes', 'severity' => 'warning', 'count' => 1 ],
+						[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'severity' => 'critical', 'count' => 2 ],
+						[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 5 ],
+						[ 'key' => 'theme_files', 'label' => 'Theme Files', 'severity' => 'warning', 'count' => 1 ],
 						[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'warning', 'count' => 6 ],
 						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 2 ],
 					],
@@ -461,7 +461,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					'severity'     => 'warning',
 					'total'        => 2,
 					'items'        => [
-						[ 'key' => 'plugin_files', 'label' => 'Plugins', 'severity' => 'warning', 'count' => 2 ],
+						[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 2 ],
 						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
 					],
 				],

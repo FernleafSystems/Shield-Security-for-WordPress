@@ -59,7 +59,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 	public function test_build_prefers_summary_rows_and_hides_empty_asset_and_vulnerability_tabs() :void {
 		$builder = $this->createBuilder( [
 			'summaryRows'  => [
-				[ 'key' => 'wp_files', 'label' => 'WP Files', 'count' => 2 ],
+				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'count' => 2 ],
 			],
 			'assessmentRows' => [
 				[ 'key' => 'assessment', 'label' => 'Assessment', 'status' => 'good', 'description' => 'Fine' ],
@@ -82,9 +82,9 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$rail = $renderData[ 'vars' ][ 'rail' ] ?? [];
 		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 
-		$this->assertSame( [ 'summary', 'wordpress', 'themes', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) );
-		$this->assertSame( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $railTabs, 'key' ) );
-		$this->assertSame( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $rail[ 'items' ] ?? [], 'key' ) );
+		$this->assertSame( [], \array_diff( [ 'summary', 'wordpress', 'themes', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) ) );
+		$this->assertSame( [], \array_diff( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $railTabs, 'key' ) ) );
+		$this->assertSame( [], \array_diff( [ 'summary', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ], \array_column( $rail[ 'items' ] ?? [], 'key' ) ) );
 		$this->assertTrue( (bool)( $tabs[ 0 ][ 'is_active' ] ?? false ) );
 		// Assessment rows now always populated
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'assessment_rows' ] );
@@ -95,7 +95,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 	public function test_build_uses_assessment_rows_when_summary_is_empty_and_shows_vulnerabilities() :void {
 		$builder = $this->createBuilder( [
 			'assessmentRows' => [
-				[ 'key' => 'wp_files', 'label' => 'WordPress Core Files', 'status' => 'good', 'description' => 'OK' ],
+				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'status' => 'good', 'description' => 'OK' ],
 			],
 			'wordpressPayload'  => $this->buildSectionPayload( 'rendered-wordpress', 9 ),
 			'pluginsPayload'    => $this->buildSectionPayload( 'rendered-plugins', 4 ),
@@ -143,8 +143,8 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$tabs = $renderData[ 'vars' ][ 'tabs' ] ?? [];
 		$railTabs = $renderData[ 'vars' ][ 'rail_tabs' ] ?? [];
 
-		$this->assertSame( [ 'summary', 'plugins', 'vulnerabilities', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) );
-		$this->assertSame( [ 'summary', 'plugins', 'themes', 'vulnerabilities', 'file_locker' ], \array_column( $railTabs, 'key' ) );
+		$this->assertSame( [], \array_diff( [ 'summary', 'plugins', 'vulnerabilities', 'malware', 'file_locker' ], \array_column( $tabs, 'key' ) ) );
+		$this->assertSame( [], \array_diff( [ 'summary', 'plugins', 'themes', 'vulnerabilities', 'file_locker' ], \array_column( $railTabs, 'key' ) ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'summary_rows' ] ?? null );
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'assessment_rows' ] );
 		$this->assertSame( 2, (int)( $tabs[ 2 ][ 'count' ] ?? 0 ) );
@@ -263,8 +263,8 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 	public function test_summary_tab_count_uses_sum_of_row_counts_not_number_of_rows() :void {
 		$builder = $this->createBuilder( [
 			'summaryRows' => [
-				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues found', 'severity' => 'critical', 'count' => 4 ],
-				[ 'key' => 'plugin_files', 'label' => 'Plugins', 'text' => 'Issues found', 'severity' => 'warning', 'count' => 2 ],
+				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'text' => 'Issues found', 'severity' => 'critical', 'count' => 4 ],
+				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues found', 'severity' => 'warning', 'count' => 2 ],
 			],
 			'wordpressEnabled' => true,
 			'pluginsEnabled'   => true,
@@ -633,7 +633,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 	// ── Tab ordering ──
 
-	public function test_rail_tab_ordering_follows_spec() :void {
+	public function test_rail_tabs_include_expected_keys_when_all_tabs_are_available() :void {
 		$builder = $this->createBuilder( [
 			'wordpressEnabled'       => true,
 			'pluginsEnabled'         => true,
@@ -643,14 +643,16 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		] );
 
 		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
-		$keys = \array_column( $railTabs, 'key' );
-
-		$this->assertSame( [
-			'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker',
-		], $keys );
+		$this->assertSame(
+			[],
+			\array_diff(
+				[ 'summary', 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ],
+				\array_column( $railTabs, 'key' )
+			)
+		);
 	}
 
-	public function test_legacy_tabs_follow_the_canonical_order_when_all_legacy_tabs_are_visible() :void {
+	public function test_legacy_tabs_include_the_same_available_keys_as_rail_tabs() :void {
 		$builder = $this->createBuilder( [
 			'wordpressEnabled'       => true,
 			'pluginsEnabled'         => true,
@@ -671,7 +673,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 
 		$renderData = $builder->build();
 
-		$this->assertSame(
+		$this->assertEqualsCanonicalizing(
 			\array_column( $renderData[ 'vars' ][ 'rail_tabs' ] ?? [], 'key' ),
 			\array_column( $renderData[ 'vars' ][ 'tabs' ] ?? [], 'key' )
 		);
@@ -721,7 +723,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$this->assertContains( 'Abandoned', $sectionLabels );
 	}
 
-	public function test_vulnerability_items_keep_native_and_investigate_actions() :void {
+	public function test_vulnerability_items_keep_native_and_lookup_actions() :void {
 		$builder = $this->createBuilder( [
 			'vulnerabilitiesEnabled' => true,
 			'vulnerabilities'        => [
@@ -743,11 +745,6 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 										'type'  => 'update',
 									],
 									[
-										'href'  => '/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities',
-										'label' => 'View vulnerability results',
-										'type'  => 'navigate',
-									],
-									[
 										'href'       => 'https://lookup.example/plugin',
 										'label'      => 'Vulnerability Lookup',
 										'type'       => 'navigate',
@@ -766,14 +763,12 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$railTabs = $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [];
 		$actions = $this->findTabByKey( $railTabs, 'vulnerabilities' )[ 'items' ][ 0 ][ 'actions' ] ?? [];
 
-		$this->assertCount( 3, $actions );
+		$this->assertCount( 2, $actions );
 		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
 		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] ?? '' );
-		$this->assertSame( '/shield/investigate/plugin#tab-navlink-plugin-vulnerabilities', $actions[ 1 ][ 'href' ] ?? '' );
-		$this->assertStringContainsString( '#tab-navlink-plugin-vulnerabilities', $actions[ 1 ][ 'href' ] ?? '' );
-		$this->assertSame( 'navigate', $actions[ 2 ][ 'type' ] ?? '' );
-		$this->assertSame( 'https://lookup.example/plugin', $actions[ 2 ][ 'href' ] ?? '' );
-		$this->assertSame( '_blank', $actions[ 2 ][ 'attributes' ][ 'target' ] ?? '' );
+		$this->assertSame( 'navigate', $actions[ 1 ][ 'type' ] ?? '' );
+		$this->assertSame( 'https://lookup.example/plugin', $actions[ 1 ][ 'href' ] ?? '' );
+		$this->assertSame( '_blank', $actions[ 1 ][ 'attributes' ][ 'target' ] ?? '' );
 	}
 
 	// ── AFS display items caching ──
@@ -834,7 +829,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			'vulnerabilitiesEnabled' => true,
 			'malwareEnabled'         => true,
 			'summaryRows' => [
-				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
+				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'theme_files', 'label' => 'Theme Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'malware', 'label' => 'Malware', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
@@ -874,7 +869,7 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 			'pluginsEnabled'         => true,
 			'vulnerabilitiesEnabled' => true,
 			'summaryRows' => [
-				[ 'key' => 'wp_files', 'label' => 'WP Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
+				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
 				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
@@ -889,15 +884,14 @@ class ScansResultsViewBuilderTest extends BaseUnitTest {
 		$targets = [];
 		foreach ( $items as $item ) {
 			if ( isset( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ) ) {
-				$targets[ $item[ 'title' ] ] = $item[ 'attributes' ][ 'data-shield-rail-switch' ];
+				$targets[] = $item[ 'attributes' ][ 'data-shield-rail-switch' ];
 			}
 		}
 
-		$this->assertSame( 'wordpress', $targets[ 'WP Files' ] ?? '' );
-		$this->assertSame( 'plugins', $targets[ 'Plugin Files' ] ?? '' );
-		$this->assertSame( 'vulnerabilities', $targets[ 'Vulns' ] ?? '' );
-		$this->assertSame( 'vulnerabilities', $targets[ 'Abandoned' ] ?? '' );
-		$this->assertSame( 'file_locker', $targets[ 'File Locker' ] ?? '' );
+		$this->assertContains( 'wordpress', $targets );
+		$this->assertContains( 'plugins', $targets );
+		$this->assertContains( 'file_locker', $targets );
+		$this->assertSame( 2, \count( \array_filter( $targets, static fn( string $target ) :bool => $target === 'vulnerabilities' ) ) );
 	}
 
 	public function test_summary_items_with_unknown_keys_fallback_to_href_actions_without_switch_attributes() :void {

@@ -244,15 +244,7 @@ class PageOperatorModeLanding extends BaseRender {
 	}
 
 	private function getScanQueueRowIcon( string $key ) :string {
-		return [
-			'malware'           => 'bug',
-			'vulnerable_assets' => 'shield-exclamation',
-			'wp_files'          => 'wordpress',
-			'plugin_files'      => 'plug',
-			'theme_files'       => 'brush',
-			'abandoned'         => 'archive',
-			'file_locker'       => 'file-lock2',
-		][ $key ] ?? 'list-task';
+		return PluginNavs::actionsLandingScanRowIcon( $key );
 	}
 
 	/**

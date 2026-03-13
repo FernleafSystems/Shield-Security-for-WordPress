@@ -59,7 +59,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 			],
 			[
 				'scan-results-core' => [
-					'title'            => 'WordPress Core Files',
+					'title'            => 'WordPress Files',
 					'desc_protected'   => 'All WordPress Core files appear to be clean and unmodified.',
 					'desc_unprotected' => 'At least 1 WordPress Core file appears to be modified or unrecognised.',
 					'is_protected'     => true,

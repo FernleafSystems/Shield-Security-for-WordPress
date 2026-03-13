@@ -11,7 +11,7 @@ class ScanResultsWcf extends ScanResultsBase {
 	}
 
 	public function title() :string {
-		return __( 'WordPress Core Files', 'wp-simple-firewall' );
+		return __( 'WordPress Files', 'wp-simple-firewall' );
 	}
 
 	public function descProtected() :string {

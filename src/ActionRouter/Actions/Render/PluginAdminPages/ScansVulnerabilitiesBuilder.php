@@ -179,14 +179,6 @@ class ScansVulnerabilitiesBuilder {
 		return [
 			$this->buildNativeAction( $asset ),
 			[
-				'href'  => $asset instanceof WpPluginVo
-					? self::con()->plugin_urls->investigatePluginVulnerabilities( $asset->file )
-					: self::con()->plugin_urls->investigateThemeVulnerabilities( $asset->stylesheet ),
-				'label' => __( 'View vulnerability results', 'wp-simple-firewall' ),
-				'type'  => 'navigate',
-				'icon'  => 'bi bi-list-ul',
-			],
-			[
 				'href'       => $asset instanceof WpPluginVo
 					? self::con()->plugin_urls->vulnerabilityLookupByPlugin( $asset->slug, $asset->Version )
 					: self::con()->plugin_urls->vulnerabilityLookupByTheme( $asset->stylesheet, $asset->Version ),
