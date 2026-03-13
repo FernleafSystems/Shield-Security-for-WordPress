@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons\SiteQuery;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -42,7 +41,7 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_build_includes_maintenance_item_and_summary() :void {
 		$this->setPluginUpdateAvailable();
 
-		$query = ( new BuildAttentionItems() )->build();
+		$query = self::con()->comps->site_query->attention();
 		$itemsByKey = [];
 		foreach ( $query[ 'items' ] as $item ) {
 			$itemsByKey[ $item[ 'key' ] ] = $item;
@@ -82,7 +81,7 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$this->resetScanResultCountMemoization();
 
-		$query = ( new BuildAttentionItems() )->build();
+		$query = self::con()->comps->site_query->attention();
 
 		$this->assertNotContains( 'wp_files', \array_column( $query[ 'groups' ][ 'scans' ][ 'items' ], 'key' ) );
 		$this->assertNotContains( 'plugin_files', \array_column( $query[ 'groups' ][ 'scans' ][ 'items' ], 'key' ) );
@@ -125,7 +124,7 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		self::con()->comps->file_locker->clearLocks();
 		$this->resetScanResultCountMemoization();
 
-		$query = ( new BuildAttentionItems() )->build();
+		$query = self::con()->comps->site_query->attention();
 		$itemsByKey = [];
 		foreach ( $query[ 'groups' ][ 'scans' ][ 'items' ] as $item ) {
 			$itemsByKey[ $item[ 'key' ] ] = $item;

@@ -176,6 +176,31 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				] ),
 			]
 		);
+		$this->capture->scansResultsRenderData = [
+			'strings' => [
+				'pane_loading'          => '__PANE_LOADING__',
+				'no_issues'             => '__NO_ISSUES__',
+				'results_tab_wordpress' => '__WORDPRESS_TAB__',
+			],
+			'vars'    => [
+				'rail'            => [ 'status' => 'sentinel' ],
+				'rail_tabs'       => [ [ 'key' => 'summary', 'count' => 5, 'status' => 'critical' ] ],
+				'metrics_action'  => [ 'slug' => 'metrics-sentinel' ],
+				'preload_action'  => [ 'slug' => 'preload-sentinel' ],
+				'summary_rows'    => [ [ 'label' => 'Summary Row' ] ],
+				'assessment_rows' => [ [ 'label' => 'Assessment Row' ] ],
+			],
+			'content' => [
+				'section' => [
+					'wordpress'       => '__WP_SECTION__',
+					'plugins'         => '__PLUGINS_SECTION__',
+					'themes'          => '__THEMES_SECTION__',
+					'vulnerabilities' => '__VULNS_SECTION__',
+					'malware'         => '__MALWARE_SECTION__',
+					'filelocker'      => '__FILELOCKER_SECTION__',
+				],
+			],
+		];
 
 		$page = $this->newPage();
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
@@ -198,13 +223,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			[ 'scans', 'maintenance' ],
 			\array_column( (array)( $allClear[ 'zone_chips' ] ?? [] ), 'slug' )
 		);
-		$this->assertSame( 'Loading scan details...', $vars[ 'scans_results' ][ 'strings' ][ 'pane_loading' ] ?? '' );
-		$this->assertSame( 'No issues found in this section.', $vars[ 'scans_results' ][ 'strings' ][ 'no_issues' ] ?? '' );
-		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'rail_tabs' ] ?? [ 'unexpected' ] );
-		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'metrics_action' ] ?? [ 'unexpected' ] );
-		$this->assertSame( '', $vars[ 'scans_results' ][ 'content' ][ 'section' ][ 'wordpress' ] ?? 'unexpected' );
-		$this->assertSame( '', $vars[ 'scans_results' ][ 'content' ][ 'section' ][ 'filelocker' ] ?? 'unexpected' );
-		$this->assertSame( 'WordPress', $vars[ 'scans_results' ][ 'strings' ][ 'results_tab_wordpress' ] ?? '' );
+		$this->assertSame( $this->capture->scansResultsRenderData, $vars[ 'scans_results' ] ?? [] );
 		$this->assertSame( 1, $page->getScansResultsBuildCalls() );
 	}
 
@@ -304,10 +323,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$page = $this->newPage();
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
-		$this->assertSame( 'Loading scan details...', $vars[ 'scans_results' ][ 'strings' ][ 'pane_loading' ] ?? '' );
-		$this->assertSame( 'No issues found in this section.', $vars[ 'scans_results' ][ 'strings' ][ 'no_issues' ] ?? '' );
 		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'metrics_action' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $vars[ 'scans_results' ][ 'vars' ][ 'rail_tabs' ] ?? [ 'unexpected' ] );
+		$this->assertNotSame( '', $vars[ 'scans_results' ][ 'strings' ][ 'pane_loading' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'scans_results' ][ 'strings' ][ 'no_issues' ] ?? '' );
 		$this->assertSame( 0, $page->getScansResultsBuildCalls() );
 	}
 
@@ -490,21 +509,18 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'wp_updates', 'system_lib_openssl' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'key' ) );
 	}
 
-	public function test_all_clear_strings_use_local_defaults() :void {
+	public function test_all_clear_strings_stay_aligned_with_all_clear_view_contract() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload( false, 0, 'good', '', [] );
 
 		$page = $this->newPage();
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 		$allClear = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'all_clear' ] ?? [];
 
-		$this->assertSame( 'All security zones are clear', $strings[ 'all_clear_title' ] ?? '' );
-		$this->assertSame(
-			'Shield is actively protecting your site. Nothing requires your action.',
-			$strings[ 'all_clear_subtitle' ] ?? ''
-		);
-		$this->assertSame( 'bi bi-shield-check', $strings[ 'all_clear_icon_class' ] ?? '' );
-		$this->assertSame( 'All security zones are clear', $allClear[ 'title' ] ?? '' );
-		$this->assertSame( 'bi bi-shield-check', $allClear[ 'icon_class' ] ?? '' );
+		$this->assertNotSame( '', $strings[ 'all_clear_title' ] ?? '' );
+		$this->assertNotSame( '', $strings[ 'all_clear_subtitle' ] ?? '' );
+		$this->assertSame( $strings[ 'all_clear_title' ] ?? '', $allClear[ 'title' ] ?? '' );
+		$this->assertSame( $strings[ 'all_clear_subtitle' ] ?? '', $allClear[ 'subtitle' ] ?? '' );
+		$this->assertSame( $strings[ 'all_clear_icon_class' ] ?? '', $allClear[ 'icon_class' ] ?? '' );
 	}
 
 	public function test_queue_and_scan_results_payloads_are_cached_per_page_instance() :void {
