@@ -141,6 +141,59 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
+	private function assertFlatEmptyStatePaneWithoutInvestigationTable( \DOMXPath $xpath, string $label ) :void {
+		$this->assertXPathExists(
+			$xpath,
+			'//section[contains(concat(" ", normalize-space(@class), " "), " investigate-table-panel--flat ")]//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ")]',
+			$label.' should use the shared flat empty-state alert container'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigation-table="1"]',
+			0,
+			$label.' should not emit an investigation table contract'
+		);
+	}
+
+	private function assertDisabledPaneWithoutInvestigationTable( \DOMXPath $xpath, string $label ) :void {
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-shield-scan-pane-disabled="1"]',
+			$label.' should show the shared disabled callout'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
+			0,
+			$label.' should not fall through to the standard empty state'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigation-table="1"]',
+			0,
+			$label.' should not emit an investigation table contract'
+		);
+	}
+
+	private function assertInvestigationTableContractPresent(
+		\DOMXPath $xpath,
+		string $tableType,
+		string $subjectType,
+		string $subjectId,
+		string $label
+	) :void {
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and @data-table-type="'.$tableType.'" and @data-subject-type="'.$subjectType.'" and @data-subject-id="'.$subjectId.'"]',
+			$label.' should use the shared investigation table contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
+			$label.' should include the AJAX and action metadata required by the shared investigation table bootstrap'
+		);
+	}
+
 	public function test_actions_queue_landing_keeps_zone_tiles_interactive_without_scan_findings() :void {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
@@ -573,15 +626,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
+		$this->assertInvestigationTableContractPresent(
 			$xpath,
-			'//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="core" and @data-subject-id="core"]',
-			'WordPress pane render should use the shared core investigation file status table contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
-			'WordPress pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
+			'file_scan_results',
+			'core',
+			'core',
+			'WordPress pane render'
 		);
 	}
 
@@ -601,17 +651,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//section[contains(concat(" ", normalize-space(@class), " "), " investigate-table-panel--flat ")]//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ")]',
-			'WordPress pane render should use the shared flat empty-state alert container'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigation-table="1"]',
-			0,
-			'WordPress pane render should not render the file status table when no core issues exist'
-		);
+		$this->assertFlatEmptyStatePaneWithoutInvestigationTable( $xpath, 'WordPress pane render' );
 	}
 
 	public function test_plugin_pane_render_uses_investigation_file_status_table_contract() :void {
@@ -644,15 +684,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
 			'Plugin pane render should keep the shared expandable summary row'
 		);
-		$this->assertXPathExists(
+		$this->assertInvestigationTableContractPresent(
 			$xpath,
-			'//*[@data-shield-expand-trigger="1"]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")][1]//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="plugin" and @data-subject-id="'.$pluginSlug.'"]',
-			'Plugin pane render should use the shared investigation file status table contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
-			'Plugin pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
+			'file_scan_results',
+			'plugin',
+			$pluginSlug,
+			'Plugin pane render'
 		);
 	}
 
@@ -686,15 +723,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
 			'Theme pane render should keep the shared expandable summary row'
 		);
-		$this->assertXPathExists(
+		$this->assertInvestigationTableContractPresent(
 			$xpath,
-			'//*[@data-shield-expand-trigger="1"]/ancestor::div[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")][1]//*[@data-investigation-table="1" and @data-table-type="file_scan_results" and @data-subject-type="theme" and @data-subject-id="'.$themeSlug.'"]',
-			'Theme pane render should use the shared investigation file status table contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
-			'Theme pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
+			'file_scan_results',
+			'theme',
+			$themeSlug,
+			'Theme pane render'
 		);
 	}
 
@@ -704,23 +738,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-scan-pane-disabled="1"]',
-			'Plugin pane render should show the shared disabled callout when plugin scanning is unavailable'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
-			0,
-			'Plugin pane render should not fall through to the standard empty state when disabled'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigation-table="1"]',
-			0,
-			'Plugin pane render should not emit an investigation table contract when disabled'
-		);
+		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'Plugin pane render' );
 	}
 
 	public function test_malware_pane_render_uses_disabled_callout_when_malware_scanning_is_unavailable() :void {
@@ -731,23 +749,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-scan-pane-disabled="1"]',
-			'Malware pane render should show the shared disabled callout when malware scanning is unavailable'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
-			0,
-			'Malware pane render should not fall through to the standard empty state when disabled'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigation-table="1"]',
-			0,
-			'Malware pane render should not emit an investigation table contract when disabled'
-		);
+		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'Malware pane render' );
 	}
 
 	public function test_malware_pane_render_uses_shared_investigation_table_contract_when_enabled() :void {
@@ -774,15 +776,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
+		$this->assertInvestigationTableContractPresent(
 			$xpath,
-			'//*[@data-investigation-table="1" and @data-table-type="malware_scan_results" and @data-subject-type="malware" and @data-subject-id="malware"]',
-			'Malware pane render should use the shared malware investigation table contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
-			'Malware pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
+			'malware_scan_results',
+			'malware',
+			'malware',
+			'Malware pane render'
 		);
 	}
 
@@ -805,17 +804,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//section[contains(concat(" ", normalize-space(@class), " "), " investigate-table-panel--flat ")]//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ")]',
-			'Malware pane render should use the shared flat empty-state alert container'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigation-table="1"]',
-			0,
-			'Malware pane render should not render the malware table when no malware issues exist'
-		);
+		$this->assertFlatEmptyStatePaneWithoutInvestigationTable( $xpath, 'Malware pane render' );
 	}
 
 	public function test_scans_results_metrics_action_returns_exact_counts_for_enabled_tabs() :void {

@@ -862,7 +862,7 @@ class ScansResultsViewBuilder {
 				'show_meta_in_tile' => true,
 				'count_badge'       => $fileCount,
 				'actions'           => $this->buildAssetActions( $asset, $assetType ),
-				'table'             => $tableBuilder->build( $subjectType, $subjectId ),
+				'table'             => $tableBuilder->build( $subjectType, $subjectId, self::con()->plugin_urls->actionsQueueScans() ),
 				'render_action' => [],
 			] );
 		}

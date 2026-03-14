@@ -32,7 +32,8 @@ class Wordpress extends Base {
 				InvestigationTableContract::SUBJECT_TYPE_CORE,
 				InvestigationTableContract::SUBJECT_TYPE_CORE,
 				$count,
-				$emptyText
+				$emptyText,
+				self::con()->plugin_urls->actionsQueueScans()
 			);
 
 			return [

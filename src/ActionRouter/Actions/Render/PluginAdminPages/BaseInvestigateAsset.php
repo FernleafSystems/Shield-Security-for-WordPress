@@ -150,6 +150,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			$subjectId,
 			$fileStatusCount,
 			$emptyText,
+			self::con()->plugin_urls->actionsQueueScans(),
 			$emptyStatus
 		);
 	}

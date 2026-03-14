@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions\InvestigateLookupSelect
+	Actions\InvestigateLookupSelect,
+	Actions\InvestigationTableAction,
+	Actions\Render\Components,
+	Actions\ScanResultsTableAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -91,6 +94,41 @@ trait InvestigateRenderContracts {
 			'table_action'    => $tableAction,
 			'full_log_href'   => $fullLogHref,
 		] );
+	}
+
+	/**
+	 * @param array<string,mixed> $datatablesInit
+	 * @param array<string,mixed> $scanResultsActionData
+	 * @return array<string,mixed>
+	 */
+	protected function buildFlatScanResultsTableContract(
+		string $title,
+		string $status,
+		string $tableType,
+		string $subjectType,
+		string $subjectId,
+		array $datatablesInit,
+		array $scanResultsActionData,
+		string $fullLogHref
+	) :array {
+		$table = $this->buildTableContainerContract(
+			$title,
+			$status,
+			$tableType,
+			$subjectType,
+			$subjectId,
+			$datatablesInit,
+			ActionData::Build( InvestigationTableAction::class ),
+			$fullLogHref
+		);
+		$table[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
+		$table[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
+		$table[ 'show_header' ] = false;
+		$table[ 'scan_results_action' ] = ActionData::Build( ScanResultsTableAction::class, true, $scanResultsActionData );
+		$table[ 'render_item_analysis' ] = ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class );
+		$table[ 'is_flat' ] = true;
+
+		return $this->normalizeInvestigationTableContract( $table );
 	}
 
 	protected function withEmptyStateTableContract( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
