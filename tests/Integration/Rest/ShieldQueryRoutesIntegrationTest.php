@@ -109,6 +109,30 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $expected, $this->extractPayload( $data ) );
 	}
 
+	public function test_scan_results_route_returns_canonical_scan_findings_results_subset() :void {
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => 'plugin-vulnerable',
+			'is_vulnerable' => 1,
+		] );
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'      => 'plugin-abandoned',
+			'is_abandoned' => 1,
+		] );
+
+		$request = new \WP_REST_Request( 'GET', '/shield/v1/scan_results' );
+		$request->set_param( 'scan_slugs', [ 'wpv', 'apc' ] );
+		$request->set_param( 'filter_item_state', 'is_vulnerable' );
+
+		$response = $this->resetRestServer()->dispatch( $request );
+		$data = $this->assertSuccessfulResponse( $response );
+		$expected = self::con()->comps->site_query->scanFindings( [ 'wpv', 'apc' ], [ 'is_vulnerable' ] );
+
+		$this->assertSame( $expected[ 'results' ], $this->extractPayload( $data ) );
+	}
+
 	public function test_routes_reject_unauthenticated_requests() :void {
 		\wp_set_current_user( 0 );
 		$this->setSecurityAdminContext( false );
@@ -117,6 +141,7 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 			'/shield/v1/posture/overview',
 			'/shield/v1/posture/attention',
 			'/shield/v1/activity/recent',
+			'/shield/v1/scan_results',
 		] as $routePath ) {
 			$response = $this->dispatchReadRoute( $routePath );
 			$this->assertContains( $response->get_status(), [ 401, 403 ], $routePath );

@@ -51,6 +51,7 @@ class Processor {
 				$components->whitelabel->execute();
 				$components->integrations->execute();
 				$components->translation_downloads->execute();
+				$components->mcp->execute();
 
 				new Events\StatsWriter();
 				( new Lib\AllowBetaUpgrades() )->execute();

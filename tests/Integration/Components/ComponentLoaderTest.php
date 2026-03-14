@@ -78,4 +78,14 @@ class ComponentLoaderTest extends ShieldIntegrationTestCase {
 			$siteQuery
 		);
 	}
+
+	public function test_mcp_component_is_correct_type() {
+		$con = $this->requireController();
+		$mcp = $con->comps->mcp;
+
+		$this->assertInstanceOf(
+			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\McpCon::class,
+			$mcp
+		);
+	}
 }

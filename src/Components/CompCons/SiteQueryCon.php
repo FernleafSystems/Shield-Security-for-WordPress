@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\{
 	BuildAttentionItems,
 	BuildOverview,
 	BuildRecentActivity,
+	BuildScanFindings,
 	BuildScanRuntime
 };
 
@@ -13,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\{
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type OverviewQuery from BuildOverview
  * @phpstan-import-type RecentActivityQuery from BuildRecentActivity
+ * @phpstan-import-type ScanFindingsQuery from BuildScanFindings
  * @phpstan-import-type ScanRuntime from BuildScanRuntime
  */
 class SiteQueryCon {
@@ -36,6 +38,15 @@ class SiteQueryCon {
 	 */
 	public function recentActivity() :array {
 		return ( new BuildRecentActivity() )->build();
+	}
+
+	/**
+	 * @param string[] $scanSlugs
+	 * @param string[] $statesToInclude
+	 * @return ScanFindingsQuery
+	 */
+	public function scanFindings( array $scanSlugs = [], array $statesToInclude = [] ) :array {
+		return ( new BuildScanFindings() )->build( $scanSlugs, $statesToInclude );
 	}
 
 	/**

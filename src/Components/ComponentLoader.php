@@ -62,6 +62,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property CompCons\IPsCon                        $ips_con
  * @property LicenseHandler                         $license
  * @property MainwpCon                              $mainwp
+ * @property CompCons\McpCon                        $mcp
  * @property MfaController                          $mfa
  * @property CompCons\MU\MUHandler                  $mu
  * @property NotBotHandler                          $not_bot
@@ -127,6 +128,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'ips_con'               => CompCons\IPsCon::class,
 			'license'               => LicenseHandler::class,
 			'mainwp'                => MainwpCon::class,
+			'mcp'                   => CompCons\McpCon::class,
 			'mu'                    => CompCons\MU\MUHandler::class,
 			'mfa'                   => MfaController::class,
 			'not_bot'               => NotBotHandler::class,
