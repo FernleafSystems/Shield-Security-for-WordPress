@@ -145,6 +145,12 @@ class EventStrings {
 					__( 'Login page loaded', 'wp-simple-firewall' ),
 				],
 			],
+			'mcp_ability_called'          => [
+				'name'  => __( 'MCP Ability Called', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "MCP ability '{{ability}}' was called with status '{{status}}'.", 'wp-simple-firewall' ),
+				],
+			],
 			'test_cron_run'                => [
 				'name'  => __( 'Test Cron Run', 'wp-simple-firewall' ),
 				'audit' => [

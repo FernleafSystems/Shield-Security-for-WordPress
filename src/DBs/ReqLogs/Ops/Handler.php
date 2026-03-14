@@ -9,6 +9,7 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 	public const TYPE_COMMENT = 'M';
 	public const TYPE_HTTP = 'H';
 	public const TYPE_LOGIN = 'L';
+	public const TYPE_MCP = 'P';
 	public const TYPE_2FA = '2';
 	public const TYPE_REST = 'R';
 	public const TYPE_WPCLI = 'W';
@@ -27,6 +28,9 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 				break;
 			case Handler::TYPE_LOGIN:
 				$type = 'LOGIN';
+				break;
+			case Handler::TYPE_MCP:
+				$type = 'MCP';
 				break;
 			case Handler::TYPE_2FA:
 				$type = '2FA';

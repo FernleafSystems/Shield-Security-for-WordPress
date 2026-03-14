@@ -30,19 +30,28 @@ class AbilityDefinitions {
 				self::NAME_POSTURE_OVERVIEW,
 				__( 'Shield Site Overview', 'wp-simple-firewall' ),
 				__( 'Returns the current overall security posture summary for the site.', 'wp-simple-firewall' ),
-				fn() :array => self::con()->comps->site_query->overview()
+				function ( $input = null ) :array {
+					unset( $input );
+					return self::con()->comps->site_query->overview();
+				}
 			),
 			$this->buildReadOnlyAbility(
 				self::NAME_POSTURE_ATTENTION,
 				__( 'Shield Attention Items', 'wp-simple-firewall' ),
 				__( 'Returns the current Shield attention items that need operator review.', 'wp-simple-firewall' ),
-				fn() :array => self::con()->comps->site_query->attention()
+				function ( $input = null ) :array {
+					unset( $input );
+					return self::con()->comps->site_query->attention();
+				}
 			),
 			$this->buildReadOnlyAbility(
 				self::NAME_ACTIVITY_RECENT,
 				__( 'Shield Recent Activity', 'wp-simple-firewall' ),
 				__( 'Returns the recent Shield activity summary based on the current recent-events policy.', 'wp-simple-firewall' ),
-				fn() :array => self::con()->comps->site_query->recentActivity()
+				function ( $input = null ) :array {
+					unset( $input );
+					return self::con()->comps->site_query->recentActivity();
+				}
 			),
 			$this->buildReadOnlyAbility(
 				self::NAME_SCAN_FINDINGS,
@@ -87,7 +96,7 @@ class AbilityDefinitions {
 				'label'               => $label,
 				'description'         => $description,
 				'category'            => self::CATEGORY_SLUG,
-				'execute_callback'    => $executeCallback,
+				'execute_callback'    => $this->buildAuditedExecuteCallback( $name, $executeCallback ),
 				'permission_callback' => fn( $input = null ) => ( new AbilityPermissions() )->canExecute( $input ),
 				'output_schema'       => $this->buildObjectSchema(
 					$outputDescription !== '' ? $outputDescription : $description
@@ -96,6 +105,32 @@ class AbilityDefinitions {
 				'input_schema'        => !empty( $inputSchema ) ? $inputSchema : null,
 			], static fn( $value ) :bool => $value !== null ),
 		];
+	}
+
+	private function buildAuditedExecuteCallback( string $ability, callable $executeCallback ) :callable {
+		return function ( $input = null ) use ( $ability, $executeCallback ) {
+			$result = $executeCallback( $input );
+
+			self::con()->comps->events->fireEvent( 'mcp_ability_called', [
+				'audit_params' => [
+					'ability' => $ability,
+					'status'  => $this->determineExecutionStatus( $result ),
+				],
+			] );
+
+			return $result;
+		};
+	}
+
+	/**
+	 * @param mixed $result
+	 */
+	private function determineExecutionStatus( $result ) :string {
+		if ( $result instanceof \WP_Error ) {
+			return $result->get_error_code() === 'shield_mcp_invalid_input' ? 'invalid_input' : 'error';
+		}
+
+		return 'success';
 	}
 
 	/**

@@ -49,6 +49,16 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 		Functions\when( 'rest_authorization_required_code' )->justReturn( 403 );
 
 		McpTestControllerFactory::install( [
+			'events'     => new class {
+				public array $firedEvents = [];
+
+				public function fireEvent( string $event, array $meta = [] ) :void {
+					$this->firedEvents[] = [
+						'event' => $event,
+						'meta'  => $meta,
+					];
+				}
+			},
 			'scans'      => new class {
 				public function getScanSlugs() :array {
 					return [ 'afs', 'wpv', 'apc' ];
@@ -104,10 +114,40 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 				'states'     => [ 'is_vulnerable' ],
 			],
 		], PluginControllerInstallerTestHelper::controller()->comps->site_query->scanFindingsCalls );
+		$this->assertSame( [
+			[
+				'event' => 'mcp_ability_called',
+				'meta'  => [
+					'audit_params' => [
+						'ability' => AbilityDefinitions::NAME_POSTURE_OVERVIEW,
+						'status'  => 'success',
+					],
+				],
+			],
+			[
+				'event' => 'mcp_ability_called',
+				'meta'  => [
+					'audit_params' => [
+						'ability' => AbilityDefinitions::NAME_SCAN_FINDINGS,
+						'status'  => 'success',
+					],
+				],
+			],
+		], PluginControllerInstallerTestHelper::controller()->comps->events->firedEvents );
 	}
 
 	public function test_scan_findings_callback_returns_wp_error_for_invalid_input() :void {
 		McpTestControllerFactory::install( [
+			'events'     => new class {
+				public array $firedEvents = [];
+
+				public function fireEvent( string $event, array $meta = [] ) :void {
+					$this->firedEvents[] = [
+						'event' => $event,
+						'meta'  => $meta,
+					];
+				}
+			},
 			'scans'      => new class {
 				public function getScanSlugs() :array {
 					return [ 'afs', 'wpv', 'apc' ];
@@ -140,6 +180,72 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'shield_mcp_invalid_input', $result->get_error_code() );
+		$this->assertSame( [
+			[
+				'event' => 'mcp_ability_called',
+				'meta'  => [
+					'audit_params' => [
+						'ability' => AbilityDefinitions::NAME_SCAN_FINDINGS,
+						'status'  => 'invalid_input',
+					],
+				],
+			],
+		], PluginControllerInstallerTestHelper::controller()->comps->events->firedEvents );
+	}
+
+	public function test_generic_wp_error_results_are_audited_as_error() :void {
+		McpTestControllerFactory::install( [
+			'events'     => new class {
+				public array $firedEvents = [];
+
+				public function fireEvent( string $event, array $meta = [] ) :void {
+					$this->firedEvents[] = [
+						'event' => $event,
+						'meta'  => $meta,
+					];
+				}
+			},
+			'scans'      => new class {
+				public function getScanSlugs() :array {
+					return [ 'afs', 'wpv', 'apc' ];
+				}
+			},
+			'site_query' => new class {
+				public function overview() :array {
+					return [];
+				}
+
+				public function attention() :array {
+					return [];
+				}
+
+				public function recentActivity() :array {
+					return [];
+				}
+
+				public function scanFindings( array $scanSlugs = [], array $statesToInclude = [] ) {
+					unset( $scanSlugs, $statesToInclude );
+					return new \WP_Error( 'scan_failed', 'Scan failed.' );
+				}
+			},
+		] );
+
+		$definitions = ( new AbilityDefinitions() )->build();
+		$result = $definitions[ 3 ][ 'args' ][ 'execute_callback' ]();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'scan_failed', $result->get_error_code() );
+		$this->assertSame( [
+			[
+				'event' => 'mcp_ability_called',
+				'meta'  => [
+					'audit_params' => [
+						'ability' => AbilityDefinitions::NAME_SCAN_FINDINGS,
+						'status'  => 'error',
+					],
+				],
+			],
+		], PluginControllerInstallerTestHelper::controller()->comps->events->firedEvents );
 	}
 }
 

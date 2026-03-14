@@ -19,6 +19,10 @@ class McpCon {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
+	public const SERVER_ID = 'shield-security';
+	public const ROUTE_NAMESPACE = 'shield-security';
+	public const ROUTE_SEGMENT = 'mcp';
+
 	private ?BaseIntegration $integration = null;
 
 	protected function run() {
@@ -54,9 +58,9 @@ class McpCon {
 	 */
 	public function buildServerDefinition() :array {
 		return [
-			'server_id' => 'shield-security',
-			'namespace' => 'shield-security',
-			'route'     => 'mcp',
+			'server_id' => self::SERVER_ID,
+			'namespace' => self::ROUTE_NAMESPACE,
+			'route'     => self::ROUTE_SEGMENT,
 			'version'   => self::con()->cfg->version(),
 			'abilities' => $this->enumMcpAbilityNames(),
 		];

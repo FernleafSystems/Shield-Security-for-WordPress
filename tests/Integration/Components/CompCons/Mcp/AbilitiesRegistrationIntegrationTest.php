@@ -66,6 +66,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 			'is_abandoned' => 1,
 		] );
 
+		$this->captureShieldEvents();
 		$result = $ability->execute( [
 			'scan_slugs'        => [ 'wpv', 'apc' ],
 			'filter_item_state' => [ 'is_vulnerable' ],
@@ -82,6 +83,10 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 			'states'     => [ 'is_vulnerable' ],
 			'is_ignored' => false,
 		], $result[ 'results' ][ 'wpv' ][ 'items' ][ 0 ] );
+		$captured = $this->getCapturedEventsByKey( 'mcp_ability_called' );
+		$this->assertCount( 1, $captured );
+		$this->assertSame( AbilityDefinitions::NAME_SCAN_FINDINGS, $captured[ 0 ][ 'meta' ][ 'audit_params' ][ 'ability' ] ?? '' );
+		$this->assertSame( 'success', $captured[ 0 ][ 'meta' ][ 'audit_params' ][ 'status' ] ?? '' );
 	}
 
 	public function test_ability_execution_honors_shared_rest_permission_filter() :void {

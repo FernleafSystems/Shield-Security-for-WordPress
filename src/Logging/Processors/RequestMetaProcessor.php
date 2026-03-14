@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\McpCon;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -34,7 +35,9 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			$type = Handler::TYPE_AJAX;
 		}
 		elseif ( Services::Rest()->isRest() ) {
-			$type = Handler::TYPE_REST;
+			$type = $this->isShieldMcpRoute( self::con()->this_req->getRestRoute() )
+				? Handler::TYPE_MCP
+				: Handler::TYPE_REST;
 		}
 		elseif ( $WP->isXmlrpc() ) {
 			$type = Handler::TYPE_XMLRPC;
@@ -78,5 +81,15 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		$records[ 'extra' ][ 'meta_request' ] = $data;
 
 		return $records;
+	}
+
+	private function isShieldMcpRoute( string $restRoute ) :bool {
+		$restRoute = \trim( $restRoute, '/' );
+
+		return $restRoute !== ''
+			   && \preg_match(
+				   '#(?:^|/)'.\preg_quote( McpCon::ROUTE_NAMESPACE, '#' ).'/.*/?'.\preg_quote( McpCon::ROUTE_SEGMENT, '#' ).'$#',
+				   $restRoute
+			   ) === 1;
 	}
 }

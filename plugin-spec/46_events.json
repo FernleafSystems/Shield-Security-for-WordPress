@@ -474,6 +474,15 @@
         "offense": false,
         "stat": false
     },
+    "mcp_ability_called": {
+        "audit_params": [
+            "ability",
+            "status"
+        ],
+        "level": "info",
+        "audit_multiple": true,
+        "stat": false
+    },
     "master_url_set": {
         "audit_params": [
             "site"
