@@ -40,7 +40,7 @@ export class ScansCheck extends BaseComponent {
 		.finally( () => {
 			this.scansRunning ?
 				setTimeout( () => this.check(), 3000 )
-				: setTimeout( () => window.location.href = this._base_data.hrefs.results, 1000 );
+				: setTimeout( () => window.location.href = this._base_data.hrefs.actions_queue_scans, 1000 );
 		} );
 	};
 }

@@ -25,18 +25,19 @@ class CaptureRedirects {
 
 				$nav = (string)$req->query( Constants::NAV_ID );
 				$subNav = (string)$req->query( Constants::NAV_SUB_ID );
+				$redirectTo = $urls->legacyAdminRouteRedirect( $nav, $subNav );
 
-				if ( !PluginNavs::NavExists( $nav )
+				if ( empty( $redirectTo )
+					 && ( !PluginNavs::NavExists( $nav )
 					 || empty( $subNav )
 					 || $subNav === PluginNavs::SUBNAV_INDEX
-					 || !PluginNavs::NavExists( $nav, $subNav ) ) {
+					 || !PluginNavs::NavExists( $nav, $subNav ) ) ) {
 					$mode = ( new OperatorModePreference() )->getCurrent();
 					if ( empty( $mode ) ) {
 						$redirectTo = $urls->adminHome();
 					}
 					else {
-						$entry = PluginNavs::defaultEntryForMode( $mode );
-						$redirectTo = $urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] );
+						$redirectTo = $urls->modeHome( $mode );
 					}
 				}
 			}

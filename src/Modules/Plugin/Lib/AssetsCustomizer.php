@@ -14,7 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
 	ForIpRules,
 	ForReports,
-	ForScansHistory,
 	ForSecurityRules,
 	ForSessions,
 	ForTraffic,
@@ -426,7 +425,7 @@ class AssetsCustomizer {
 						'initial_check' => $con->comps->scans_queue->hasRunningScans(),
 					],
 					'hrefs' => [
-						'results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+						'actions_queue_scans' => $con->plugin_urls->actionsQueueScans(),
 					],
 					'vars'  => [
 						'scan_results_tables' => [
@@ -543,7 +542,7 @@ class AssetsCustomizer {
 								'table_action' => ActionData::Build( Actions\RulesManagerTableAction::class ),
 							],
 							'hrefs'   => [
-								'create_new' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+								'create_new' => self::con()->plugin_urls->rulesBuild(),
 							],
 							'strings' => [
 								'no_rules_yet' => sprintf( '%s. %s', __( 'There are no custom security rules', 'wp-simple-firewall' ),
@@ -564,20 +563,6 @@ class AssetsCustomizer {
 							],
 							'vars' => [
 								'datatables_init' => ( new ForReports() )->buildRaw(),
-							]
-						];
-					}
-					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_HISTORY ) ) {
-						$data[ 'scans_history' ] = [
-							'ajax'    => [
-								'table_action' => ActionData::Build( Actions\ScansHistoryTableAction::class ),
-							],
-							'hrefs'   => [
-							],
-							'strings' => [
-							],
-							'vars'    => [
-								'datatables_init' => ( new ForScansHistory() )->buildRaw(),
 							]
 						];
 					}

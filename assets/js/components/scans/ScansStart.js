@@ -40,6 +40,6 @@ export class ScansStart extends BaseComponent {
 	};
 
 	#loadResultsPage() {
-		window.location.href = this._base_data.hrefs.results;
+		window.location.href = this._base_data.hrefs.actions_queue_scans;
 	};
 }

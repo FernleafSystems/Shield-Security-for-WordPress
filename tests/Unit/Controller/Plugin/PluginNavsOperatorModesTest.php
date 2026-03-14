@@ -417,7 +417,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'label', $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
 
 		$this->assertSame( 'Bots & IP Rules', $hierarchy[ PluginNavs::NAV_IPS ][ 'sub_navs' ][ PluginNavs::SUBNAV_IPS_RULES ][ 'label' ] ?? '' );
-		$this->assertSame( 'Scan Results', $hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RESULTS ][ 'label' ] ?? '' );
+		$this->assertArrayNotHasKey( PluginNavs::SUBNAV_SCANS_RESULTS, $hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ] );
 		$this->assertSame( 'Run Scan', $hierarchy[ PluginNavs::NAV_SCANS ][ 'sub_navs' ][ PluginNavs::SUBNAV_SCANS_RUN ][ 'label' ] ?? '' );
 		$this->assertSame( 'Debug Info', $hierarchy[ PluginNavs::NAV_TOOLS ][ 'sub_navs' ][ PluginNavs::SUBNAV_TOOLS_DEBUG ][ 'label' ] ?? '' );
 		$this->assertSame( 'HTTP Request Log', $hierarchy[ PluginNavs::NAV_TRAFFIC ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'label' ] ?? '' );

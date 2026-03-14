@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class PageRulesBase extends BasePluginAdminPage {
 
@@ -14,7 +13,7 @@ class PageRulesBase extends BasePluginAdminPage {
 				'can_custom_rules' => $con->caps->canCustomSecurityRules(),
 			],
 			'hrefs'   => [
-				'rules_builder' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+				'rules_builder' => $con->plugin_urls->rulesBuild(),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->iconClass( 'node-plus-fill' ),

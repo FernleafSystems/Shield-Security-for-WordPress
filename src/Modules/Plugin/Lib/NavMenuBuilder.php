@@ -215,7 +215,7 @@ class NavMenuBuilder {
 			'title'   => __( 'Shield Pro License', 'wp-simple-firewall' ),
 			'subtitle'=> (string)( $item[ 'subtitle' ] ?? '' ),
 			'img'     => (string)( $item[ 'img' ] ?? self::con()->svgs->iconClass( 'award' ) ),
-			'href'    => (string)( $item[ 'href' ] ?? self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK ) ),
+			'href'    => (string)( $item[ 'href' ] ?? self::con()->plugin_urls->licenseCheck() ),
 			'active'  => (bool)( $item[ 'active' ] ?? false ),
 			'classes' => [ 'sidebar-license-link' ],
 			'badge'   => [
@@ -292,7 +292,7 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'license-gopro',
 					'title'  => __( 'Check License', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
+					'href'   => $con->plugin_urls->licenseCheck(),
 					'active' => $this->inav() === PluginNavs::NAV_LICENSE
 				],
 				[
@@ -315,7 +315,7 @@ class NavMenuBuilder {
 			'title'     => $con->isPremiumActive() ? self::con()->labels->Name : __( 'Go PRO!', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Supercharged Security', 'wp-simple-firewall' ),
 			'img'       => $con->svgs->iconClass( 'award' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK ),
+			'href'      => $con->plugin_urls->licenseCheck(),
 			'sub_items' => $subItems,
 			'active'    => $this->inav() === PluginNavs::NAV_LICENSE,
 		];

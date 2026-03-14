@@ -35,14 +35,14 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 	public function test_mode_crumb_is_derived_from_nav_for_non_landing_route() :void {
 		$crumbs = ( new BuildBreadCrumbsForTest() )->parse(
 			PluginNavs::NAV_SCANS,
-			PluginNavs::SUBNAV_SCANS_RESULTS
+			PluginNavs::SUBNAV_SCANS_RUN
 		);
 
 		$this->assertCount( 2, $crumbs );
 		$this->assertSame( [ 'Shield Security', 'Actions Queue' ], \array_column( $crumbs, 'text' ) );
 		$this->assertSame( 'Actions Queue', $crumbs[ 1 ][ 'text' ] );
 		$this->assertSame( '/scans/overview', $crumbs[ 1 ][ 'href' ] );
-		$this->assertNoSelfRouteHref( $crumbs, PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS );
+		$this->assertNoSelfRouteHref( $crumbs, PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN );
 	}
 
 	/**
@@ -130,8 +130,7 @@ class BuildBreadCrumbsOperatorModesTest extends BaseUnitTest {
 
 	public function providerScansWorkspaceSubNavs() :array {
 		return [
-			'scans_results' => [ PluginNavs::SUBNAV_SCANS_RESULTS ],
-			'scans_run'     => [ PluginNavs::SUBNAV_SCANS_RUN ],
+			'scans_run' => [ PluginNavs::SUBNAV_SCANS_RUN ],
 		];
 	}
 
@@ -168,7 +167,6 @@ class BuildBreadCrumbsForTest extends BuildBreadCrumbs {
 				'name'     => 'Scans',
 				'sub_navs' => [
 					PluginNavs::SUBNAV_SCANS_OVERVIEW => [ 'handler' => 'handler' ],
-					PluginNavs::SUBNAV_SCANS_RESULTS => [ 'handler' => 'handler', 'label' => 'Scan Results' ],
 					PluginNavs::SUBNAV_SCANS_RUN => [ 'handler' => 'handler', 'label' => 'Run Scan' ],
 				],
 			],

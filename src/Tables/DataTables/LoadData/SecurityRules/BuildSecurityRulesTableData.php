@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as SecurityRulesDB,
 	RuleRecords
@@ -79,7 +78,7 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 				],
 				'hrefs'   => [
 					'edit' => URL::Build(
-						self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+						self::con()->plugin_urls->rulesBuild(),
 						[ 'edit_rule_id' => $rule->id, ]
 					),
 				],

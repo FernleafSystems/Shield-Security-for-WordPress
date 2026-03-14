@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -114,10 +113,7 @@ class TabSitesListing extends BaseSubPage {
 				$shd[ 'issues' ] = $totalIssues;
 			}
 
-			$shd[ 'href_issues' ] = $this->getJumpUrlFor(
-				(string)$site[ 'id' ],
-				self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
-			);
+			$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], self::con()->plugin_urls->actionsQueueScans() );
 			$gradeLetter = $sync->integrity[ 'totals' ][ 'letter_score' ] ?? '-';
 			$shd[ 'grades' ] = [
 				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], self::con()->plugin_urls->adminHome() ),

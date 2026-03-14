@@ -56,8 +56,11 @@ class PluginNavs {
 	public const SUBNAV_RULES_SUMMARY = 'summary';
 	public const NAV_SCANS = 'scans';
 	public const SUBNAV_SCANS_OVERVIEW = 'overview';
+	/** @deprecated 22.0. legacy redirect target only */
 	public const SUBNAV_SCANS_STATE = 'state';
+	/** @deprecated 22.0. legacy redirect target only */
 	public const SUBNAV_SCANS_HISTORY = 'history';
+	/** @deprecated 22.0. legacy redirect target only */
 	public const SUBNAV_SCANS_RESULTS = 'results';
 	public const SUBNAV_SCANS_RUN = 'run';
 	public const NAV_STATS = 'stats';
@@ -936,7 +939,6 @@ class PluginNavs {
 			'name'     => __( 'Scans', 'wp-simple-firewall' ),
 			'sub_navs' => [
 				self::SUBNAV_SCANS_OVERVIEW => self::routeDefinition( PluginAdminPages\PageActionsQueueLanding::class ),
-				self::SUBNAV_SCANS_RESULTS  => self::routeDefinition( PluginAdminPages\PageScansResults::class, __( 'Scan Results', 'wp-simple-firewall' ) ),
 				self::SUBNAV_SCANS_RUN      => self::routeDefinition( PluginAdminPages\PageScansRun::class, __( 'Run Scan', 'wp-simple-firewall' ) ),
 			],
 		];

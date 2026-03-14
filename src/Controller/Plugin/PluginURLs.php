@@ -30,6 +30,18 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW );
 	}
 
+	public function configureHome() :string {
+		return $this->adminTopNav( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW );
+	}
+
+	public function investigateHome() :string {
+		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW );
+	}
+
+	public function reportsHome() :string {
+		return $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW );
+	}
+
 	public function adminTopNav( string $nav, string $subNav = '' ) :string {
 		return URL::Build( $this->rootAdminPage(), [
 			Constants::NAV_ID     => sanitize_key( $nav ),
@@ -37,10 +49,33 @@ class PluginURLs {
 		] );
 	}
 
+	public function modeHome( string $mode ) :string {
+		switch ( sanitize_key( $mode ) ) {
+			case PluginNavs::MODE_ACTIONS:
+				return $this->actionsQueueScans();
+
+			case PluginNavs::MODE_INVESTIGATE:
+				return $this->investigateHome();
+
+			case PluginNavs::MODE_CONFIGURE:
+				return $this->configureHome();
+
+			case PluginNavs::MODE_REPORTS:
+				return $this->reportsHome();
+
+			default:
+				return $this->adminHome();
+		}
+	}
+
 	public function actionsQueueScans( string $zone = 'scans' ) :string {
 		$url = $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW );
 		$zone = sanitize_key( $zone );
 		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
+	}
+
+	public function scansRun() :string {
+		return $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN );
 	}
 
 	/**
@@ -76,6 +111,14 @@ class PluginURLs {
 
 	public function adminIpRules() :string {
 		return $this->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES );
+	}
+
+	public function debugInfo() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG );
+	}
+
+	public function lockdown() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN );
 	}
 
 	public function ipAnalysis( string $ip ) :string {
@@ -146,6 +189,14 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
 	}
 
+	public function trafficLog() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS );
+	}
+
+	public function trafficLive() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE );
+	}
+
 	public function cfgForZoneComponent( string $componentSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}
@@ -182,6 +233,34 @@ class PluginURLs {
 			Services::WpGeneral()->getAdminUrl(),
 			\array_merge( $params, [ 'download_category' => $downloadCategory ] )
 		);
+	}
+
+	public function licenseCheck() :string {
+		return $this->adminTopNav( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK );
+	}
+
+	public function rulesBuild() :string {
+		return $this->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD );
+	}
+
+	public function rulesManage() :string {
+		return $this->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE );
+	}
+
+	public function legacyAdminRouteRedirect( string $nav, string $subNav ) :?string {
+		$nav = sanitize_key( $nav );
+		$subNav = sanitize_key( $subNav );
+
+		if ( $nav === PluginNavs::NAV_SCANS ) {
+			switch ( $subNav ) {
+				case PluginNavs::SUBNAV_SCANS_RESULTS:
+				case PluginNavs::SUBNAV_SCANS_HISTORY:
+				case PluginNavs::SUBNAV_SCANS_STATE:
+					return $this->actionsQueueScans();
+			}
+		}
+
+		return null;
 	}
 
 	public function zone( string $zoneSlug ) :string {

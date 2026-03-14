@@ -34,13 +34,16 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		$this->assertArrayNotHasKey( 'progress_meters', $comps );
 	}
 
-	public function test_progress_meters_are_not_localized_for_scans_results() :void {
+	public function test_scans_run_localizes_actions_queue_redirect_href() :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_SCANS,
-			PluginNavs::SUBNAV_SCANS_RESULTS
+			PluginNavs::SUBNAV_SCANS_RUN
 		);
 
-		$this->assertArrayNotHasKey( 'progress_meters', $comps );
+		$this->assertSame(
+			$this->requireController()->plugin_urls->actionsQueueScans(),
+			$comps[ 'scans' ][ 'hrefs' ][ 'actions_queue_scans' ] ?? ''
+		);
 	}
 
 	public function test_progress_meters_are_not_localized_for_configure_overview() :void {

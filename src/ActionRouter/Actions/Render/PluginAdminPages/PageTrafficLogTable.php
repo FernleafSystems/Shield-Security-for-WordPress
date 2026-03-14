@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 
 class PageTrafficLogTable extends PageTrafficLogBase {
@@ -14,7 +13,7 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 		$hrefs = parent::getPageContextualHrefs();
 		\array_unshift( $hrefs, [
 			'title' => __( 'Switch To Live Logs', 'wp-simple-firewall' ),
-			'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+			'href'  => self::con()->plugin_urls->trafficLive(),
 		] );
 		return $hrefs;
 	}

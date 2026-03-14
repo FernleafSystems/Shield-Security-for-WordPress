@@ -105,4 +105,31 @@ class PluginURLsTest extends BaseUnitTest {
 			$urls->vulnerabilityLookupByTheme( 'twentytwentysix', '1.2' )
 		);
 	}
+
+	public function test_mode_home_and_route_helpers_build_expected_urls() :void {
+		$urls = new PluginURLs();
+
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview', $urls->configureHome() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=activity&nav_sub=overview', $urls->investigateHome() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview', $urls->reportsHome() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans', $urls->modeHome( 'actions' ) );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=run', $urls->scansRun() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=debug', $urls->debugInfo() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=blockdown', $urls->lockdown() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=traffic&nav_sub=logs', $urls->trafficLog() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=traffic&nav_sub=live', $urls->trafficLive() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=license&nav_sub=check', $urls->licenseCheck() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=build', $urls->rulesBuild() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
+	}
+
+	public function test_legacy_admin_route_redirect_maps_obsolete_scan_routes_to_actions_queue() :void {
+		$urls = new PluginURLs();
+
+		$expected = '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans';
+		$this->assertSame( $expected, $urls->legacyAdminRouteRedirect( 'scans', 'results' ) );
+		$this->assertSame( $expected, $urls->legacyAdminRouteRedirect( 'scans', 'history' ) );
+		$this->assertSame( $expected, $urls->legacyAdminRouteRedirect( 'scans', 'state' ) );
+		$this->assertNull( $urls->legacyAdminRouteRedirect( 'reports', 'list' ) );
+	}
 }

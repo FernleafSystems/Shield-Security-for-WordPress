@@ -6,8 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\Render\Components\Traffic\TrafficLiveLogs,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-
 class PageTrafficLogLive extends PageTrafficLogBase {
 
 	public const SLUG = 'page_admin_plugin_traffic_log_live';
@@ -17,7 +15,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 		$hrefs = parent::getPageContextualHrefs();
 		\array_unshift( $hrefs, [
 			'title' => __( 'Switch To Normal Logs', 'wp-simple-firewall' ),
-			'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
+			'href'  => self::con()->plugin_urls->trafficLog(),
 		] );
 		return $hrefs;
 	}

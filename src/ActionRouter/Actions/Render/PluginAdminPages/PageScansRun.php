@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 
 class PageScansRun extends PageScansBase {
@@ -15,7 +14,7 @@ class PageScansRun extends PageScansBase {
 		return [
 			[
 				'title' => CommonDisplayStrings::get( 'scan_results_label' ),
-				'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'href'  => self::con()->plugin_urls->actionsQueueScans(),
 			],
 		];
 	}
@@ -30,9 +29,6 @@ class PageScansRun extends PageScansBase {
 		return [
 			'flags'   => [
 				'can_scan' => \count( $reasonsCantScan ) === 0,
-			],
-			'hrefs'   => [
-				'scans_results' => $con->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => self::con()->svgs->iconClass( 'shield-shaded' ),
@@ -49,7 +45,6 @@ class PageScansRun extends PageScansBase {
 				'please_enable'         => __( 'Please turn on this scan in the options.', 'wp-simple-firewall' ),
 				'scan_options'          => __( 'Scan Options', 'wp-simple-firewall' ),
 				'scanselect'            => __( 'Select Scans To Run', 'wp-simple-firewall' ),
-				'select_view_results'   => CommonDisplayStrings::get( 'view_scan_results_label' ),
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),

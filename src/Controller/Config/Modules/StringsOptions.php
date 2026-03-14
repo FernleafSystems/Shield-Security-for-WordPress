@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -887,7 +886,7 @@ class StringsOptions {
 				$desc = [
 					sprintf( __( "You can keep the security plugin activated, but temporarily disable all protection it provides.", 'wp-simple-firewall' ), $pluginName ),
 					sprintf( '<a href="%s">%s</a>',
-						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
+						$con->plugin_urls->debugInfo(),
 						__( 'Launch Debug Info Page', 'wp-simple-firewall' )
 					)
 				];
@@ -1298,7 +1297,7 @@ class StringsOptions {
 					sprintf( __( 'This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' ),
 						sprintf( _n( '%s minute', '%s minutes', $max, 'wp-simple-firewall' ), $max ) ),
 					sprintf( '<a href="%s">%s &rarr;</a>',
-						$con->plugin_urls->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
+						$con->plugin_urls->trafficLive(),
 						__( 'Live Logs Viewer', 'wp-simple-firewall' )
 					),
 
