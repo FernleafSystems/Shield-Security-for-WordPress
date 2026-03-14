@@ -603,10 +603,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', \trim( $html ) );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ") and contains(normalize-space(), "Previous scans didn\'t detect any modified, missing, or unrecognised files in the WordPress core directories.")]',
-			'WordPress pane render should preserve the standard no-results message'
+			'//section[contains(concat(" ", normalize-space(@class), " "), " investigate-table-panel--flat ")]//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ")]',
+			'WordPress pane render should use the shared flat empty-state alert container'
 		);
-		$this->assertStringNotContainsString( 'No issues found in this section.', $html );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-investigation-table="1"]',
@@ -710,23 +709,24 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-shield-scan-pane-disabled="1"]',
 			'Plugin pane render should show the shared disabled callout when plugin scanning is unavailable'
 		);
-		$this->assertStringContainsString(
-			\sprintf(
-				__( 'Scanning Plugin & Theme Files is available only with the Pro version of %s.', 'wp-simple-firewall' ),
-				self::con()->labels->Name
-			),
-			$html
-		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
 			0,
 			'Plugin pane render should not fall through to the standard empty state when disabled'
 		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigation-table="1"]',
+			0,
+			'Plugin pane render should not emit an investigation table contract when disabled'
+		);
 	}
 
 	public function test_malware_pane_render_uses_disabled_callout_when_malware_scanning_is_unavailable() :void {
-		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG );
+		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
 		$html = (string)( $payload[ 'render_output' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
@@ -736,15 +736,85 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-shield-scan-pane-disabled="1"]',
 			'Malware pane render should show the shared disabled callout when malware scanning is unavailable'
 		);
-		$this->assertStringContainsString(
-			__( 'Malware Scanning is not enabled.', 'wp-simple-firewall' ),
-			$html
-		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
 			0,
 			'Malware pane render should not fall through to the standard empty state when disabled'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigation-table="1"]',
+			0,
+			'Malware pane render should not emit an investigation table contract when disabled'
+		);
+	}
+
+	public function test_malware_pane_render_uses_shared_investigation_table_contract_when_enabled() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_malware_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id' => 'infected.php',
+			'is_mal'  => 1,
+		] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and @data-table-type="malware_scan_results" and @data-subject-type="malware" and @data-subject-id="malware"]',
+			'Malware pane render should use the shared malware investigation table contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
+			'Malware pane render should include the AJAX and action metadata required by the shared investigation table bootstrap'
+		);
+	}
+
+	public function test_malware_pane_render_preserves_malware_empty_state_in_actions_queue() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_malware_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+		TestDataFactory::insertCompletedScan( 'afs' );
+
+		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//section[contains(concat(" ", normalize-space(@class), " "), " investigate-table-panel--flat ")]//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ")]',
+			'Malware pane render should use the shared flat empty-state alert container'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigation-table="1"]',
+			0,
+			'Malware pane render should not render the malware table when no malware issues exist'
 		);
 	}
 

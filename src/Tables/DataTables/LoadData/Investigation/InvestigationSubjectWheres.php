@@ -39,6 +39,13 @@ class InvestigationSubjectWheres {
 		];
 	}
 
+	public static function forMalwareResults( string $metaTableAbbr = RetrieveBase::ABBR_RESULTITEMMETA ) :array {
+		return [
+			\sprintf( "%s.`meta_key`='is_mal'", $metaTableAbbr ),
+			\sprintf( "%s.`meta_value`=1", $metaTableAbbr ),
+		];
+	}
+
 	public static function forActivitySubject( string $subjectType, string $subjectId, string $activityMetaTable ) :array {
 		$subjectType = \strtolower( \trim( $subjectType ) );
 		switch ( $subjectType ) {

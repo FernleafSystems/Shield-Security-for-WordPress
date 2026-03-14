@@ -185,6 +185,26 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
 	}
 
+	public function testValidMalwareScanResultsPayloadReturnsDatatableEnvelope() :void {
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id' => 'infected.php',
+			'is_mal'  => 1,
+		] );
+
+		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_MALWARE_SCAN_RESULTS,
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_MALWARE,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => InvestigationTableContract::SUBJECT_TYPE_MALWARE,
+			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertArrayHasKey( 'datatable_data', $payload );
+		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
+	}
+
 	public function testPluginActivityRowsIncludeInvestigatePluginLinkWhenPluginMetaPresent() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
 		$logId = TestDataFactory::insertActivityLog( 'plugin_file_edited', '203.0.113.201' );

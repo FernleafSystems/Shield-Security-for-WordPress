@@ -274,7 +274,9 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Vulnerabilities::class ) ] );
 
 			case 'malware':
-				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Malware::class ) ] );
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Malware::class, [
+					'display_context' => 'actions_queue',
+				] ) ] );
 
 			case 'file_locker':
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( FileLocker::class, [

@@ -60,6 +60,9 @@ class InvestigationSubjectResolver {
 			case InvestigationTableContract::SUBJECT_TYPE_CORE:
 				$normalizedSubjectId = InvestigationTableContract::SUBJECT_TYPE_CORE;
 				break;
+			case InvestigationTableContract::SUBJECT_TYPE_MALWARE:
+				$normalizedSubjectId = InvestigationTableContract::SUBJECT_TYPE_MALWARE;
+				break;
 			default:
 				throw new UnsupportedInvestigationSubjectTypeException( 'Invalid subject type.' );
 		}

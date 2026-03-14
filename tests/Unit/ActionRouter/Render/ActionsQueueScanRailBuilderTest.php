@@ -162,6 +162,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $pluginsTab[ 'items' ] );
 		$this->assertSame( 'actions_queue', $pluginsTab[ 'render_action' ][ 'display_context' ] );
 		$this->assertSame( 'scanresults_malware', $malwareTab[ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'actions_queue', $malwareTab[ 'render_action' ][ 'display_context' ] );
 		$this->assertNull( $malwareTab[ 'count' ] );
 		$this->assertTrue( (bool)$malwareTab[ 'show_count_placeholder' ] );
 		$this->assertSame( 'scanresults_vulnerabilities', $vulnerabilitiesTab[ 'render_action' ][ 'render_slug' ] );
@@ -238,6 +239,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'wordpress', $tabsByKey );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'display_context' ] );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'themes' ][ 'render_action' ][ 'display_context' ] );
+		$this->assertSame( 'actions_queue', $tabsByKey[ 'malware' ][ 'render_action' ][ 'display_context' ] );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'file_locker' ][ 'render_action' ][ 'display_context' ] );
 		$this->assertTrue( (bool)$tabsByKey[ 'plugins' ][ 'is_disabled' ] );
 		$this->assertSame( 'plugins disabled', $tabsByKey[ 'plugins' ][ 'disabled_message' ] );

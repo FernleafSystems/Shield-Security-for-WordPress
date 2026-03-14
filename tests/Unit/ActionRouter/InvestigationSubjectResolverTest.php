@@ -99,4 +99,13 @@ class InvestigationSubjectResolverTest extends BaseUnitTest {
 		$this->assertSame( 'core', $normalized[ 'subject_type' ] );
 		$this->assertSame( 'core', $normalized[ 'subject_id' ] );
 	}
+
+	public function testNormalizeAcceptsMalwareSubjectForMalwareScanResultsTable() :void {
+		$resolver = $this->buildResolverWithAssets();
+		$normalized = $resolver->normalize( 'malware_scan_results', 'malware', 'anything-here' );
+
+		$this->assertSame( 'malware_scan_results', $normalized[ 'table_type' ] );
+		$this->assertSame( 'malware', $normalized[ 'subject_type' ] );
+		$this->assertSame( 'malware', $normalized[ 'subject_id' ] );
+	}
 }

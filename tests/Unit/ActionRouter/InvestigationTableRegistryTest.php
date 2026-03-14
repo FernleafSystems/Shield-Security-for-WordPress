@@ -13,6 +13,7 @@ class InvestigationTableRegistryTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'traffic', $map );
 		$this->assertArrayHasKey( 'sessions', $map );
 		$this->assertArrayHasKey( 'file_scan_results', $map );
+		$this->assertArrayHasKey( 'malware_scan_results', $map );
 	}
 
 	public function testSessionsAllowsOnlyUserSubject() :void {
@@ -33,6 +34,13 @@ class InvestigationTableRegistryTest extends BaseUnitTest {
 		$this->assertSame(
 			[ 'user', 'ip' ],
 			InvestigationTableRegistry::getAllowedSubjectTypes( 'traffic' )
+		);
+	}
+
+	public function testMalwareScanResultsAllowsOnlyMalwareSubject() :void {
+		$this->assertSame(
+			[ 'malware' ],
+			InvestigationTableRegistry::getAllowedSubjectTypes( 'malware_scan_results' )
 		);
 	}
 

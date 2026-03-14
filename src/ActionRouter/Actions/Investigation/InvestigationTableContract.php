@@ -14,9 +14,11 @@ class InvestigationTableContract {
 	public const TABLE_TYPE_TRAFFIC = 'traffic';
 	public const TABLE_TYPE_SESSIONS = 'sessions';
 	public const TABLE_TYPE_FILE_SCAN_RESULTS = 'file_scan_results';
+	public const TABLE_TYPE_MALWARE_SCAN_RESULTS = 'malware_scan_results';
 	public const SUBJECT_TYPE_USER = 'user';
 	public const SUBJECT_TYPE_IP = 'ip';
 	public const SUBJECT_TYPE_PLUGIN = 'plugin';
 	public const SUBJECT_TYPE_THEME = 'theme';
 	public const SUBJECT_TYPE_CORE = 'core';
+	public const SUBJECT_TYPE_MALWARE = 'malware';
 }
