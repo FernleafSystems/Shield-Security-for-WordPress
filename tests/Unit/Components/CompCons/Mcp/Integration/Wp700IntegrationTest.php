@@ -1,25 +1,20 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
-	function shield_security_get_plugin() {
-		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Integration;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Integration\Wp700Integration;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\Compatibility;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Transport\{
 	McpTransportInterface,
 	NullTransport
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	McpTestControllerFactory,
+	PluginControllerInstaller
+};
 
 class Wp700IntegrationTest extends BaseUnitTest {
 
@@ -46,19 +41,19 @@ class Wp700IntegrationTest extends BaseUnitTest {
 
 		$this->installController( [
 			[
-				'name' => 'shield/posture/overview/get',
+				'name' => AbilityDefinitions::NAME_POSTURE_OVERVIEW,
 				'args' => [ 'label' => 'overview' ],
 			],
 			[
-				'name' => 'shield/posture/attention/get',
+				'name' => AbilityDefinitions::NAME_POSTURE_ATTENTION,
 				'args' => [ 'label' => 'attention' ],
 			],
 			[
-				'name' => 'shield/activity/recent/get',
+				'name' => AbilityDefinitions::NAME_ACTIVITY_RECENT,
 				'args' => [ 'label' => 'recent' ],
 			],
 			[
-				'name' => 'shield/scan/findings/get',
+				'name' => AbilityDefinitions::NAME_SCAN_FINDINGS,
 				'args' => [ 'label' => 'findings' ],
 			],
 		] );
@@ -77,12 +72,7 @@ class Wp700IntegrationTest extends BaseUnitTest {
 				'namespace' => 'shield-security',
 				'route'     => 'mcp',
 				'version'   => '1.2.3',
-				'abilities' => [
-					'shield/posture/overview/get',
-					'shield/posture/attention/get',
-					'shield/activity/recent/get',
-					'shield/scan/findings/get',
-				],
+				'abilities' => AbilityDefinitions::MCP_ABILITY_NAMES,
 			],
 		], $transport->registeredServers );
 	}
@@ -157,25 +147,25 @@ class Wp700IntegrationTest extends BaseUnitTest {
 		$registered = [];
 		$this->installController( [
 			[
-				'name' => 'shield/posture/overview/get',
+				'name' => AbilityDefinitions::NAME_POSTURE_OVERVIEW,
 				'args' => [ 'label' => 'overview' ],
 			],
 			[
-				'name' => 'shield/posture/attention/get',
+				'name' => AbilityDefinitions::NAME_POSTURE_ATTENTION,
 				'args' => [ 'label' => 'attention' ],
 			],
 			[
-				'name' => 'shield/activity/recent/get',
+				'name' => AbilityDefinitions::NAME_ACTIVITY_RECENT,
 				'args' => [ 'label' => 'recent' ],
 			],
 			[
-				'name' => 'shield/scan/findings/get',
+				'name' => AbilityDefinitions::NAME_SCAN_FINDINGS,
 				'args' => [ 'label' => 'findings' ],
 			],
 		] );
 
 		Functions\when( 'wp_has_ability' )->alias(
-			static fn( string $name ) :bool => $name === 'shield/posture/overview/get'
+			static fn( string $name ) :bool => $name === AbilityDefinitions::NAME_POSTURE_OVERVIEW
 		);
 		Functions\when( 'wp_register_ability' )->alias(
 			static function ( string $name, array $args ) use ( &$registered ) :bool {
@@ -188,9 +178,9 @@ class Wp700IntegrationTest extends BaseUnitTest {
 		$integration->registerAbilities();
 
 		$this->assertSame( [
-			'shield/posture/attention/get',
-			'shield/activity/recent/get',
-			'shield/scan/findings/get',
+			AbilityDefinitions::NAME_POSTURE_ATTENTION,
+			AbilityDefinitions::NAME_ACTIVITY_RECENT,
+			AbilityDefinitions::NAME_SCAN_FINDINGS,
 		], \array_column( $registered, 0 ) );
 	}
 
@@ -201,14 +191,7 @@ class Wp700IntegrationTest extends BaseUnitTest {
 	}
 
 	private function installController( array $abilityDefinitions = [] ) :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->cfg = new class {
-			public function version() :string {
-				return '1.2.3';
-			}
-		};
-		$controller->comps = (object)[
+		McpTestControllerFactory::install( [
 			'mcp' => new class( $abilityDefinitions ) {
 				private array $abilityDefinitions;
 
@@ -226,18 +209,11 @@ class Wp700IntegrationTest extends BaseUnitTest {
 						'namespace' => 'shield-security',
 						'route'     => 'mcp',
 						'version'   => '1.2.3',
-						'abilities' => [
-							'shield/posture/overview/get',
-							'shield/posture/attention/get',
-							'shield/activity/recent/get',
-							'shield/scan/findings/get',
-						],
+						'abilities' => AbilityDefinitions::MCP_ABILITY_NAMES,
 					];
 				}
 			},
-		];
-
-		PluginControllerInstaller::install( $controller );
+		] );
 	}
 }
 

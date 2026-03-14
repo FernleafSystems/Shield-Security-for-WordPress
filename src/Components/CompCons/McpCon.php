@@ -43,7 +43,7 @@ class McpCon {
 	 * @return string[]
 	 */
 	public function enumMcpAbilityNames() :array {
-		return \array_values( \array_column( $this->enumAbilityDefinitions(), 'name' ) );
+		return AbilityDefinitions::MCP_ABILITY_NAMES;
 	}
 
 	/**

@@ -26,13 +26,14 @@ class Compatibility {
 	}
 
 	public function hasAdapterRuntime() :bool {
-		$adapterClass = $this->adapterClass();
+		$contract = $this->getAdapterContract();
+		$adapterClass = $contract->adapterClass();
 		return $this->classExists( $adapterClass )
-			   && $this->methodExists( $adapterClass, 'instance' )
-			   && $this->methodExists( $adapterClass, 'create_server' )
-			   && $this->classExists( $this->httpTransportClass() )
-			   && $this->classExists( $this->errorHandlerClass() )
-			   && $this->classExists( $this->observabilityHandlerClass() );
+			   && $this->methodExists( $adapterClass, $contract->adapterBootMethod() )
+			   && $this->methodExists( $adapterClass, $contract->adapterCreateServerMethod() )
+			   && $this->classExists( $contract->httpTransportClass() )
+			   && $this->classExists( $contract->errorHandlerClass() )
+			   && $this->classExists( $contract->observabilityHandlerClass() );
 	}
 
 	protected function getWordPressVersion() :string {
@@ -57,31 +58,7 @@ class Compatibility {
 		return \method_exists( $classOrObject, $method );
 	}
 
-	/**
-	 * @return class-string
-	 */
-	protected function adapterClass() :string {
-		return '\WP\MCP\Core\McpAdapter';
-	}
-
-	/**
-	 * @return class-string
-	 */
-	protected function httpTransportClass() :string {
-		return '\WP\MCP\Transport\HttpTransport';
-	}
-
-	/**
-	 * @return class-string
-	 */
-	protected function errorHandlerClass() :string {
-		return '\WP\MCP\Handlers\WordPressErrorHandler';
-	}
-
-	/**
-	 * @return class-string
-	 */
-	protected function observabilityHandlerClass() :string {
-		return '\WP\MCP\Handlers\WordPressObservabilityHandler';
+	protected function getAdapterContract() :WpMcpAdapterContract {
+		return new WpMcpAdapterContract();
 	}
 }

@@ -1,21 +1,16 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
-	function shield_security_get_plugin() {
-		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Abilities;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	McpTestControllerFactory,
+	PluginControllerInstaller,
+	PluginStore
+};
 
 class AbilityDefinitionsTest extends BaseUnitTest {
 
@@ -25,14 +20,7 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 		Functions\when( 'current_user_can' )->justReturn( true );
 		Functions\when( 'rest_authorization_required_code' )->justReturn( 403 );
 
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->caps = new class {
-			public function canRestAPILevel2() :bool {
-				return true;
-			}
-		};
-		$controller->comps = (object)[
+		McpTestControllerFactory::install( [
 			'scans'      => new class {
 				public function getScanSlugs() :array {
 					return [ 'afs', 'wpv', 'apc' ];
@@ -61,9 +49,7 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 					return [ 'scan_findings' => true ];
 				}
 			},
-		];
-
-		PluginControllerInstaller::install( $controller );
+		] );
 	}
 
 	protected function tearDown() :void {
@@ -74,12 +60,7 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 	public function test_build_returns_expected_ability_names_and_callbacks() :void {
 		$definitions = ( new AbilityDefinitions() )->build();
 
-		$this->assertSame( [
-			'shield/posture/overview/get',
-			'shield/posture/attention/get',
-			'shield/activity/recent/get',
-			'shield/scan/findings/get',
-		], \array_column( $definitions, 'name' ) );
+		$this->assertSame( AbilityDefinitions::MCP_ABILITY_NAMES, \array_column( $definitions, 'name' ) );
 
 		$overview = $definitions[ 0 ][ 'args' ][ 'execute_callback' ];
 		$scanFindings = $definitions[ 3 ][ 'args' ][ 'execute_callback' ];

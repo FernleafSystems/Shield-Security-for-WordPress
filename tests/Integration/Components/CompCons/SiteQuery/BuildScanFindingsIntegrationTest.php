@@ -42,4 +42,20 @@ class BuildScanFindingsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'plugin-vulnerable', $query[ 'results' ][ 'wpv' ][ 'items' ][ 0 ][ 'item_id' ] );
 		$this->assertSame( 1, $query[ 'results' ][ 'wpv' ][ 'items' ][ 0 ][ 'is_vulnerable' ] );
 	}
+
+	public function test_scan_findings_does_not_duplicate_items_when_multiple_states_match() :void {
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => 'plugin-multi-state',
+			'is_vulnerable' => 1,
+			'is_abandoned'  => 1,
+		] );
+
+		$query = self::con()->comps->site_query->scanFindings( [ 'wpv' ], [ 'is_vulnerable', 'is_abandoned' ] );
+
+		$this->assertTrue( $query[ 'is_available' ] );
+		$this->assertSame( 1, $query[ 'results' ][ 'wpv' ][ 'total' ] );
+		$this->assertCount( 1, $query[ 'results' ][ 'wpv' ][ 'items' ] );
+		$this->assertSame( 'plugin-multi-state', $query[ 'results' ][ 'wpv' ][ 'items' ][ 0 ][ 'item_id' ] );
+	}
 }

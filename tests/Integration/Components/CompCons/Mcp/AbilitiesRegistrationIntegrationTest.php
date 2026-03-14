@@ -41,16 +41,11 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( \wp_has_ability_category( AbilityDefinitions::CATEGORY_SLUG ) );
 
-		foreach ( [
-			'shield/posture/overview/get',
-			'shield/posture/attention/get',
-			'shield/activity/recent/get',
-			'shield/scan/findings/get',
-		] as $abilityName ) {
+		foreach ( AbilityDefinitions::MCP_ABILITY_NAMES as $abilityName ) {
 			$this->assertTrue( \wp_has_ability( $abilityName ), $abilityName );
 		}
 
-		$ability = \wp_get_ability( 'shield/scan/findings/get' );
+		$ability = \wp_get_ability( AbilityDefinitions::NAME_SCAN_FINDINGS );
 		$this->assertInstanceOf( \WP_Ability::class, $ability );
 		$this->assertSame( AbilityDefinitions::CATEGORY_SLUG, $ability->get_category() );
 		$this->assertFalse( $ability->get_meta_item( 'show_in_rest', true ) );
@@ -87,12 +82,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function unregisterShieldAbilities() :void {
 		if ( \function_exists( '\wp_unregister_ability' ) ) {
-			foreach ( [
-				'shield/posture/overview/get',
-				'shield/posture/attention/get',
-				'shield/activity/recent/get',
-				'shield/scan/findings/get',
-			] as $abilityName ) {
+			foreach ( AbilityDefinitions::MCP_ABILITY_NAMES as $abilityName ) {
 				if ( !\function_exists( '\wp_has_ability' ) || \wp_has_ability( $abilityName ) ) {
 					\wp_unregister_ability( $abilityName );
 				}

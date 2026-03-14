@@ -1,12 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
-	function shield_security_get_plugin() {
-		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
-	}
-}
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Abilities;
 
 if ( !\class_exists( 'WP_Error' ) ) {
 	class ShieldWpErrorStub {
@@ -36,13 +30,13 @@ if ( !\class_exists( 'WP_Error' ) ) {
 	\class_alias( __NAMESPACE__.'\\ShieldWpErrorStub', 'WP_Error' );
 }
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Abilities;
-
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityPermissions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	McpTestControllerFactory,
+	PluginControllerInstaller
+};
 
 class AbilityPermissionsTest extends BaseUnitTest {
 
@@ -85,20 +79,6 @@ class AbilityPermissionsTest extends BaseUnitTest {
 	}
 
 	private function installController( bool $canRestLevel2 ) :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->caps = new class( $canRestLevel2 ) {
-			private bool $canRestLevel2;
-
-			public function __construct( bool $canRestLevel2 ) {
-				$this->canRestLevel2 = $canRestLevel2;
-			}
-
-			public function canRestAPILevel2() :bool {
-				return $this->canRestLevel2;
-			}
-		};
-
-		PluginControllerInstaller::install( $controller );
+		McpTestControllerFactory::install( [], $canRestLevel2 );
 	}
 }

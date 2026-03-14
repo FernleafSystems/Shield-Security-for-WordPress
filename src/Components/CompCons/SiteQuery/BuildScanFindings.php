@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -61,7 +62,7 @@ class BuildScanFindings {
 
 		foreach ( $scanSlugs as $scanSlug ) {
 			$items = \array_values( \array_filter(
-				\array_map( [ $this, 'normalizeResultItem' ], $this->getRawScanItems( $scanSlug ) ),
+				\array_map( [ $this, 'normalizeResultItem' ], $this->getRawScanItems( $scanSlug, $statesToInclude ) ),
 				fn( array $item ) :bool => $this->shouldIncludeItem( $item, $statesToInclude )
 			) );
 
@@ -89,14 +90,18 @@ class BuildScanFindings {
 	/**
 	 * @return list<array<string,mixed>>
 	 */
-	protected function getRawScanItems( string $scanSlug ) :array {
+	protected function getRawScanItems( string $scanSlug, array $statesToInclude = [] ) :array {
 		$scanCon = self::con()->comps->scans->getScanCon( $scanSlug );
 		if ( $scanCon === null ) {
 			return [];
 		}
 
 		$rawItems = [];
-		foreach ( $scanCon->getAllResults()->getAllItems() as $item ) {
+		$resultsSet = ( new RetrieveItems() )
+			->setScanController( $scanCon )
+			->retrieveLatestForFindings( $statesToInclude );
+
+		foreach ( $resultsSet->getAllItems() as $item ) {
 			$rawItems[] = \array_merge(
 				$item->getRawData(),
 				\array_intersect_key(

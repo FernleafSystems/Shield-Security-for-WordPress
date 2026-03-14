@@ -12,6 +12,8 @@ class BuildScanFindingsTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
 
+	private BuildScanFindingsTestDouble $builder;
+
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->returnArg();
@@ -23,6 +25,7 @@ class BuildScanFindingsTest extends BaseUnitTest {
 				}
 			},
 		] );
+		$this->builder = new BuildScanFindingsTestDouble( true );
 	}
 
 	protected function tearDown() :void {
@@ -31,7 +34,7 @@ class BuildScanFindingsTest extends BaseUnitTest {
 	}
 
 	public function test_build_filters_items_and_defaults_to_all_scan_slugs() :void {
-		$query = ( new BuildScanFindingsTestDouble( true ) )->build( [], [ 'is_vulnerable' ] );
+		$query = $this->builder->build( [], [ 'is_vulnerable' ] );
 
 		$this->assertSame( 1700000000, $query[ 'generated_at' ] );
 		$this->assertTrue( $query[ 'is_available' ] );
@@ -50,6 +53,10 @@ class BuildScanFindingsTest extends BaseUnitTest {
 			'notified_at'    => 0,
 			'slug'           => 'plugin-one/plugin.php',
 		], $query[ 'results' ][ 'wpv' ][ 'items' ][ 0 ] );
+		$this->assertSame( [
+			'afs' => [ 'is_vulnerable' ],
+			'wpv' => [ 'is_vulnerable' ],
+		], $this->builder->statesRequestedByScanSlug );
 	}
 
 	public function test_build_marks_findings_unavailable_while_scans_are_running() :void {
@@ -65,6 +72,8 @@ class BuildScanFindingsTestDouble extends BuildScanFindings {
 
 	private bool $available;
 
+	public array $statesRequestedByScanSlug = [];
+
 	public function __construct( bool $available ) {
 		$this->available = $available;
 	}
@@ -77,7 +86,8 @@ class BuildScanFindingsTestDouble extends BuildScanFindings {
 		return [ 'afs', 'wpv' ];
 	}
 
-	protected function getRawScanItems( string $scanSlug ) :array {
+	protected function getRawScanItems( string $scanSlug, array $statesToInclude = [] ) :array {
+		$this->statesRequestedByScanSlug[ $scanSlug ] = $statesToInclude;
 		return [
 			'afs' => [
 				[

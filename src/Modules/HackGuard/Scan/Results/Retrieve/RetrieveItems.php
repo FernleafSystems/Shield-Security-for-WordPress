@@ -26,26 +26,17 @@ class RetrieveItems extends RetrieveBase {
 
 		$latestID = $this->getLatestScanID();
 		if ( $latestID >= 0 ) {
-
-			$this->addWheres( [
-				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-				"`ri`.`deleted_at`=0",
-			] );
-
+			$wheresBuilder = new LatestScanResultWheresBuilder();
 			switch ( $context ) {
 
 				case self::CONTEXT_RESULTS_TABLE:
-					$includes = self::con()->opts->optGet( 'scan_results_table_display' );
-					$specificWheres = \array_keys( \array_filter( [
-						"`ri`.`auto_filtered_at`=0" => true,
-						"`ri`.`ignored_at`=0"       => !\in_array( 'include_ignored', $includes ),
-						"`ri`.`item_repaired_at`=0" => !\in_array( 'include_repaired', $includes ),
-						"`ri`.`item_deleted_at`=0"  => !\in_array( 'include_deleted', $includes ),
-					] ) );
+					$specificWheres = $wheresBuilder->forResultsDisplay( $latestID );
 					break;
 
 				case self::CONTEXT_AUTOREPAIR:
 					$specificWheres = [
+						sprintf( "`sr`.`scan_ref`=%s", $latestID ),
+						"`ri`.`deleted_at`=0",
 						"`ri`.`item_repaired_at`=0",
 						"`ri`.`item_deleted_at`=0",
 						"`ri`.`attempt_repair_at`=0",
@@ -54,27 +45,35 @@ class RetrieveItems extends RetrieveBase {
 					break;
 
 				case self::CONTEXT_NOT_YET_NOTIFIED:
-					$specificWheres = [
-						"`ri`.`auto_filtered_at`=0",
-						"`ri`.`ignored_at`=0",
-						"`ri`.`item_repaired_at`=0",
-						"`ri`.`item_deleted_at`=0",
-						"`ri`.`notified_at`=0",
-					];
+					$specificWheres = $wheresBuilder->forNotYetNotified( $latestID );
 					break;
 
 				case self::CONTEXT_LATEST:
 				default:
-					$specificWheres = [
-						"`ri`.`item_repaired_at`=0",
-						"`ri`.`item_deleted_at`=0",
-					];
+					$specificWheres = $wheresBuilder->forLatestResults( $latestID );
 					break;
 			}
 
-			$results = $this
-				->addWheres( $specificWheres )
-				->retrieve();
+			$results = $this->retrieveByWheres( $specificWheres );
+		}
+
+		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
+	}
+
+	public function retrieveLatestForFindings( array $stateMetaKeys = [] ) {
+		$results = null;
+		$stateMetaKeys = \array_values( \array_unique( \array_filter( \array_map(
+			static fn( $stateMetaKey ) :string => \preg_replace( '/[^a-z0-9_]/i', '', (string)$stateMetaKey ) ?? '',
+			$stateMetaKeys
+		) ) ) );
+
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+			$wheres = ( new LatestScanResultWheresBuilder() )->forLatestResults( $latestID );
+			if ( !empty( $stateMetaKeys ) ) {
+				$wheres[] = $this->buildStateMetaExistsWhere( $stateMetaKeys );
+			}
+			$results = $this->retrieveByWheres( $wheres );
 		}
 
 		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
@@ -161,14 +160,10 @@ class RetrieveItems extends RetrieveBase {
 	 * @return Scans\Base\ResultsSet
 	 */
 	public function retrieve() {
-		$query = $this
-			->addWheres( [
-				"`ri`.`auto_filtered_at`=0",
-				"`ri`.`deleted_at`=0"
-			] )
-			->buildQuery( $this->standardSelectFields() );
-		$raw = Services::WpDb()->selectCustom( $query );
-		return $this->convertToResultsSet( empty( $raw ) ? [] : $raw );
+		return $this->retrieveByWheres( [
+			"`ri`.`auto_filtered_at`=0",
+			"`ri`.`deleted_at`=0"
+		] );
 	}
 
 	public function buildQuery( array $selectFields = [] ) :string {
@@ -313,6 +308,30 @@ class RetrieveItems extends RetrieveBase {
 	private function getNewResultsSet() {
 		$scanCon = $this->getScanController();
 		return empty( $scanCon ) ? new ResultsSet() : $scanCon->getNewResultsSet();
+	}
+
+	private function retrieveByWheres( array $wheres ) {
+		$query = $this
+			->addWheres( $wheres, false )
+			->buildQuery( $this->standardSelectFields() );
+		$raw = Services::WpDb()->selectCustom( $query );
+		return $this->convertToResultsSet( empty( $raw ) ? [] : $raw );
+	}
+
+	private function buildStateMetaExistsWhere( array $stateMetaKeys ) :string {
+		$metaTable = self::con()->db_con->scan_result_item_meta->getTable();
+		$exists = \array_map(
+			static function ( string $stateMetaKey ) use ( $metaTable ) :string {
+				return \sprintf(
+					"EXISTS (SELECT 1 FROM `%s` AS `rim_state` WHERE `rim_state`.`ri_ref`=`ri`.`id` AND `rim_state`.`meta_key`='%s' AND `rim_state`.`meta_value`!='' AND `rim_state`.`meta_value`!='0')",
+					$metaTable,
+					$stateMetaKey
+				);
+			},
+			\array_values( \array_filter( $stateMetaKeys ) )
+		);
+
+		return \sprintf( '(%s)', \implode( ' OR ', $exists ) );
 	}
 
 	public function getSelects() :array {

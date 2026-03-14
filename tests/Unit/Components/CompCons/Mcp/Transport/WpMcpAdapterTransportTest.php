@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Transport;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\WpMcpAdapterContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Transport\WpMcpAdapterTransport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
@@ -50,16 +51,20 @@ class WpMcpAdapterTransportTest extends BaseUnitTest {
 			protected function bootAdapter() :void {
 			}
 
-			protected function httpTransportClass() :string {
-				return '\Vendor\HttpTransport';
-			}
+			protected function getContract() :WpMcpAdapterContract {
+				return new class extends WpMcpAdapterContract {
+					public function httpTransportClass() :string {
+						return '\Vendor\HttpTransport';
+					}
 
-			protected function errorHandlerClass() :string {
-				return '\Vendor\ErrorHandler';
-			}
+					public function errorHandlerClass() :string {
+						return '\Vendor\ErrorHandler';
+					}
 
-			protected function observabilityHandlerClass() :string {
-				return '\Vendor\ObservabilityHandler';
+					public function observabilityHandlerClass() :string {
+						return '\Vendor\ObservabilityHandler';
+					}
+				};
 			}
 		};
 

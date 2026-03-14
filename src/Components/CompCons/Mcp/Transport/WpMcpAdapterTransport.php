@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Transport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\Compatibility;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\WpMcpAdapterContract;
 
 class WpMcpAdapterTransport implements McpTransportInterface {
 
@@ -17,18 +18,19 @@ class WpMcpAdapterTransport implements McpTransportInterface {
 
 		\add_action( 'mcp_adapter_init', function ( $adapter = null ) use ( $serverDefinition ) :void {
 			$adapter = $this->resolveAdapter( $adapter );
-			if ( !\is_object( $adapter ) || !\method_exists( $adapter, 'create_server' ) ) {
+			if ( !\is_object( $adapter ) || !\method_exists( $adapter, $this->getContract()->adapterCreateServerMethod() ) ) {
 				return;
 			}
 
-			$adapter->create_server(
+			$method = $this->getContract()->adapterCreateServerMethod();
+			$adapter->{$method}(
 				$serverDefinition[ 'server_id' ],
 				$serverDefinition[ 'namespace' ],
 				$serverDefinition[ 'route' ],
 				$serverDefinition[ 'version' ],
-				[ $this->httpTransportClass() ],
-				$this->errorHandlerClass(),
-				$this->observabilityHandlerClass(),
+				[ $this->getContract()->httpTransportClass() ],
+				$this->getContract()->errorHandlerClass(),
+				$this->getContract()->observabilityHandlerClass(),
 				$serverDefinition[ 'abilities' ],
 				[],
 				[]
@@ -47,38 +49,30 @@ class WpMcpAdapterTransport implements McpTransportInterface {
 	 * @return mixed
 	 */
 	protected function resolveAdapter( $adapter ) {
-		if ( \is_object( $adapter ) && \method_exists( $adapter, 'create_server' ) ) {
+		$contract = $this->getContract();
+		if ( \is_object( $adapter ) && \method_exists( $adapter, $contract->adapterCreateServerMethod() ) ) {
 			return $adapter;
 		}
 
-		$adapterClass = $this->adapterClass();
-		if ( \class_exists( $adapterClass ) && \method_exists( $adapterClass, 'instance' ) ) {
-			return $adapterClass::instance();
+		$adapterClass = $contract->adapterClass();
+		$bootMethod = $contract->adapterBootMethod();
+		if ( \class_exists( $adapterClass ) && \method_exists( $adapterClass, $bootMethod ) ) {
+			return $adapterClass::{$bootMethod}();
 		}
 
 		return null;
 	}
 
 	protected function bootAdapter() :void {
-		$adapterClass = $this->adapterClass();
-		if ( \class_exists( $adapterClass ) && \method_exists( $adapterClass, 'instance' ) ) {
-			$adapterClass::instance();
+		$contract = $this->getContract();
+		$adapterClass = $contract->adapterClass();
+		$bootMethod = $contract->adapterBootMethod();
+		if ( \class_exists( $adapterClass ) && \method_exists( $adapterClass, $bootMethod ) ) {
+			$adapterClass::{$bootMethod}();
 		}
 	}
 
-	protected function adapterClass() :string {
-		return '\WP\MCP\Core\McpAdapter';
-	}
-
-	protected function httpTransportClass() :string {
-		return '\WP\MCP\Transport\HttpTransport';
-	}
-
-	protected function errorHandlerClass() :string {
-		return '\WP\MCP\Handlers\WordPressErrorHandler';
-	}
-
-	protected function observabilityHandlerClass() :string {
-		return '\WP\MCP\Handlers\WordPressObservabilityHandler';
+	protected function getContract() :WpMcpAdapterContract {
+		return new WpMcpAdapterContract();
 	}
 }

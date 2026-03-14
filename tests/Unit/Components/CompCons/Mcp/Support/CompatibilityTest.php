@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Support;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\Compatibility;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\WpMcpAdapterContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class CompatibilityTest extends BaseUnitTest {
@@ -41,14 +42,31 @@ class CompatibilityTest extends BaseUnitTest {
 				'\wp_register_ability'          => true,
 				'\wp_register_ability_category' => true,
 			] )
+			->setContract( new class extends WpMcpAdapterContract {
+				public function adapterClass() :string {
+					return '\Vendor\McpAdapter';
+				}
+
+				public function httpTransportClass() :string {
+					return '\Vendor\HttpTransport';
+				}
+
+				public function errorHandlerClass() :string {
+					return '\Vendor\ErrorHandler';
+				}
+
+				public function observabilityHandlerClass() :string {
+					return '\Vendor\ObservabilityHandler';
+				}
+			} )
 			->setClasses( [
-				'\WP\MCP\Core\McpAdapter'                      => true,
-				'\WP\MCP\Transport\HttpTransport'             => true,
-				'\WP\MCP\Handlers\WordPressErrorHandler'      => true,
-				'\WP\MCP\Handlers\WordPressObservabilityHandler' => true,
+				'\Vendor\McpAdapter' => true,
+				'\Vendor\HttpTransport' => true,
+				'\Vendor\ErrorHandler' => true,
+				'\Vendor\ObservabilityHandler' => true,
 			] )
 			->setMethods( [
-				'\WP\MCP\Core\McpAdapter' => [
+				'\Vendor\McpAdapter' => [
 					'instance'      => true,
 					'create_server' => false,
 				],
@@ -57,7 +75,7 @@ class CompatibilityTest extends BaseUnitTest {
 		$this->assertFalse( $compatibility->supportsAdapterTransport() );
 
 		$compatibility->setMethods( [
-			'\WP\MCP\Core\McpAdapter' => [
+			'\Vendor\McpAdapter' => [
 				'instance'      => true,
 				'create_server' => true,
 			],
@@ -76,6 +94,8 @@ class CompatibilityTestDouble extends Compatibility {
 	private array $classes = [];
 
 	private array $methods = [];
+
+	private ?WpMcpAdapterContract $contract = null;
 
 	public function setWordPressVersion( string $wordPressVersion ) :self {
 		$this->wordPressVersion = $wordPressVersion;
@@ -97,6 +117,11 @@ class CompatibilityTestDouble extends Compatibility {
 		return $this;
 	}
 
+	public function setContract( WpMcpAdapterContract $contract ) :self {
+		$this->contract = $contract;
+		return $this;
+	}
+
 	protected function getWordPressVersion() :string {
 		return $this->wordPressVersion;
 	}
@@ -112,5 +137,9 @@ class CompatibilityTestDouble extends Compatibility {
 	protected function methodExists( $classOrObject, string $method ) :bool {
 		$class = \is_object( $classOrObject ) ? \get_class( $classOrObject ) : (string)$classOrObject;
 		return $this->methods[ $class ][ $method ] ?? false;
+	}
+
+	protected function getAdapterContract() :WpMcpAdapterContract {
+		return $this->contract ?? new WpMcpAdapterContract();
 	}
 }

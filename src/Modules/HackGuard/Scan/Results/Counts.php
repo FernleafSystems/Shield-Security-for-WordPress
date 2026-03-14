@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\LatestScanResultWheresBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -13,6 +14,8 @@ class Counts {
 	private array $counts = [];
 
 	private int $context;
+
+	private ?LatestScanResultWheresBuilder $latestScanWheresBuilder = null;
 
 	public function __construct( int $context = RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ) {
 		$this->context = $context;
@@ -192,7 +195,7 @@ class Counts {
 			),
 			$joins
 		) );
-		$query = \sprintf(
+			$query = \sprintf(
 			"SELECT DISTINCT %s
 			FROM `%s` AS `sr`
 			INNER JOIN `%s` AS `ri`
@@ -203,7 +206,7 @@ class Counts {
 			$dbCon->scan_results->getTable(),
 			$dbCon->scan_result_items->getTable(),
 			$joinSql,
-			\implode( ' AND ', $this->buildContextWheres( $latestScanId ) )
+			\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $latestScanId, $this->context ) )
 		);
 
 		return \array_values( \array_filter( \array_map(
@@ -212,57 +215,12 @@ class Counts {
 		), static fn( string $value ) :bool => $value !== '' ) );
 	}
 
-	/**
-	 * @return list<string>
-	 */
-	private function buildContextWheres( int $latestScanId ) :array {
-		$wheres = [
-			\sprintf( "`sr`.`scan_ref`=%d", $latestScanId ),
-			"`ri`.`deleted_at`=0",
-		];
-
-		switch ( $this->context ) {
-			case RetrieveCount::CONTEXT_NOT_YET_NOTIFIED:
-				$wheres = \array_merge( $wheres, [
-					"`ri`.`auto_filtered_at`=0",
-					"`ri`.`ignored_at`=0",
-					"`ri`.`item_repaired_at`=0",
-					"`ri`.`item_deleted_at`=0",
-					"`ri`.`notified_at`=0",
-				] );
-				break;
-
-			case RetrieveCount::CONTEXT_RESULTS_DISPLAY:
-				$wheres[] = "`ri`.`auto_filtered_at`=0";
-				$includes = self::con()->opts->optGet( 'scan_results_table_display' );
-				$includes = \is_array( $includes ) ? $includes : [];
-				if ( !\in_array( 'include_ignored', $includes, true ) ) {
-					$wheres[] = "`ri`.`ignored_at`=0";
-				}
-				if ( !\in_array( 'include_repaired', $includes, true ) ) {
-					$wheres[] = "`ri`.`item_repaired_at`=0";
-				}
-				if ( !\in_array( 'include_deleted', $includes, true ) ) {
-					$wheres[] = "`ri`.`item_deleted_at`=0";
-				}
-				break;
-
-			case RetrieveCount::CONTEXT_ACTIVE_PROBLEMS:
-			default:
-				$wheres = \array_merge( $wheres, [
-					"`ri`.`auto_filtered_at`=0",
-					"`ri`.`ignored_at`=0",
-					"`ri`.`item_repaired_at`=0",
-					"`ri`.`item_deleted_at`=0",
-				] );
-				break;
-		}
-
-		return $wheres;
-	}
-
 	private function getLatestScanId( string $scanSlug ) :int {
 		$latest = self::con()->db_con->scans->getQuerySelector()->getLatestForScan( $scanSlug );
 		return empty( $latest ) ? 0 : (int)$latest->id;
+	}
+
+	private function getLatestScanWheresBuilder() :LatestScanResultWheresBuilder {
+		return $this->latestScanWheresBuilder ??= new LatestScanResultWheresBuilder();
 	}
 }

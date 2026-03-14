@@ -23,52 +23,23 @@ class RetrieveCount extends RetrieveBase {
 
 		$latestID = $this->getLatestScanID();
 		if ( $latestID >= 0 ) {
-
-			$this->addWheres( [
-				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-				"`ri`.`deleted_at`=0",
-			] );
-
+			$wheresBuilder = new LatestScanResultWheresBuilder();
 			switch ( $context ) {
-
 				case self::CONTEXT_NOT_YET_NOTIFIED:
-					$specificWheres = [
-						"`ri`.`auto_filtered_at`=0",
-						"`ri`.`ignored_at`=0",
-						"`ri`.`item_repaired_at`=0",
-						"`ri`.`item_deleted_at`=0",
-						"`ri`.`notified_at`=0",
-					];
+					$specificWheres = $wheresBuilder->forNotYetNotified( $latestID );
 					break;
 
 				case self::CONTEXT_RESULTS_DISPLAY:
-					$specificWheres = [
-						"`ri`.`auto_filtered_at`=0",
-					];
-					$includes = self::con()->opts->optGet( 'scan_results_table_display' );
-					if ( !\in_array( 'include_ignored', $includes ) ) {
-						$specificWheres[] = "`ri`.`ignored_at`=0";
-					}
-					if ( !\in_array( 'include_repaired', $includes ) ) {
-						$specificWheres[] = "`ri`.`item_repaired_at`=0";
-					}
-					if ( !\in_array( 'include_deleted', $includes ) ) {
-						$specificWheres[] = "`ri`.`item_deleted_at`=0";
-					}
+					$specificWheres = $wheresBuilder->forResultsDisplay( $latestID );
 					break;
 
 				case self::CONTEXT_ACTIVE_PROBLEMS:
 				default:
-					$specificWheres = [
-						"`ri`.`auto_filtered_at`=0",
-						"`ri`.`ignored_at`=0",
-						"`ri`.`item_repaired_at`=0",
-						"`ri`.`item_deleted_at`=0",
-					];
+					$specificWheres = $wheresBuilder->forActiveProblems( $latestID );
 					break;
 			}
 
-			$this->addWheres( $specificWheres );
+			$this->addWheres( $specificWheres, false );
 			$count = (int)Services::WpDb()->getVar( $this->buildQuery( [ 'COUNT(*)' ] ) );
 		}
 
