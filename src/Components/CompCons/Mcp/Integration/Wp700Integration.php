@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Integration;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\Compatibility;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\{
+	Compatibility,
+	QuerySurfaceAccessPolicy
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Transport\{
 	McpTransportInterface,
 	NullTransport,
@@ -19,7 +22,7 @@ class Wp700Integration extends BaseIntegration {
 	}
 
 	public function register() :void {
-		if ( !$this->isSupported() ) {
+		if ( !$this->isSupported() || !$this->getAccessPolicy()->isSiteExposureReady() ) {
 			return;
 		}
 
@@ -39,6 +42,10 @@ class Wp700Integration extends BaseIntegration {
 	}
 
 	public function registerAbilityCategory() :void {
+		if ( !$this->getAccessPolicy()->isSiteExposureReady() ) {
+			return;
+		}
+
 		$slug = AbilityDefinitions::CATEGORY_SLUG;
 		if ( \function_exists( '\wp_has_ability_category' ) && \wp_has_ability_category( $slug ) ) {
 			return;
@@ -51,6 +58,10 @@ class Wp700Integration extends BaseIntegration {
 	}
 
 	public function registerAbilities() :void {
+		if ( !$this->getAccessPolicy()->isSiteExposureReady() ) {
+			return;
+		}
+
 		foreach ( self::con()->comps->mcp->enumAbilityDefinitions() as $definition ) {
 			if ( \function_exists( '\wp_has_ability' ) && \wp_has_ability( $definition[ 'name' ] ) ) {
 				continue;
@@ -62,5 +73,9 @@ class Wp700Integration extends BaseIntegration {
 
 	protected function getCompatibility() :Compatibility {
 		return new Compatibility();
+	}
+
+	protected function getAccessPolicy() :QuerySurfaceAccessPolicy {
+		return new QuerySurfaceAccessPolicy();
 	}
 }

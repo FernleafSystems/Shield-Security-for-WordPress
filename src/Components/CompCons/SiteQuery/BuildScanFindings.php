@@ -7,9 +7,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
+ * @phpstan-type ScanFindingsItem array{
+ *   item_id:string,
+ *   states:list<string>,
+ *   is_ignored:bool,
+ *   scope?:'core'|'plugin'|'theme'|'other',
+ *   asset_slug?:string
+ * }
  * @phpstan-type ScanFindingsResult array{
  *   total:int,
- *   items:list<array<string,mixed>>
+ *   items:list<ScanFindingsItem>
  * }
  * @phpstan-type ScanFindingsQuery array{
  *   generated_at:int,
@@ -102,21 +109,13 @@ class BuildScanFindings {
 			->retrieveLatestForFindings( $statesToInclude );
 
 		foreach ( $resultsSet->getAllItems() as $item ) {
-			$rawItems[] = \array_merge(
-				$item->getRawData(),
-				\array_intersect_key(
-					$item->VO->getRawData(),
-					\array_flip( [
-						'ignored_at',
-						'notified_at',
-						'attempt_repair_at',
-						'item_repaired_at',
-						'item_deleted_at',
-						'item_id',
-						'item_type',
-					] )
-				)
-			);
+			$rawItems[] = [
+				'item_id'    => (string)( $item->VO->item_id ?? '' ),
+				'ignored_at' => (int)( $item->VO->ignored_at ?? 0 ),
+				'states'     => $this->extractSupportedStates( $item ),
+				'scope'      => $scanSlug === 'afs' ? $this->determineScope( $item ) : '',
+				'asset_slug' => $scanSlug === 'afs' ? $this->determineAssetSlug( $item ) : '',
+			];
 		}
 
 		return $rawItems;
@@ -128,8 +127,22 @@ class BuildScanFindings {
 	 */
 	private function sanitizeScanSlugs( array $scanSlugs ) :array {
 		$possible = $this->getScanSlugs();
-		$scanSlugs = \array_values( \array_intersect( $possible, $scanSlugs ) );
-		return empty( $scanSlugs ) ? \array_values( $possible ) : $scanSlugs;
+		$requested = \array_values( \array_unique( \array_filter( \array_map(
+			static fn( $slug ) :string => \trim( (string)$slug ),
+			$scanSlugs
+		), static fn( string $slug ) :bool => $slug !== '' ) ) );
+		if ( empty( $requested ) ) {
+			return \array_values( $possible );
+		}
+
+		$invalid = \array_values( \array_diff( $requested, $possible ) );
+		if ( !empty( $invalid ) ) {
+			throw new \InvalidArgumentException(
+				\sprintf( 'Invalid scan slugs provided. Please only supply: %s', \implode( ', ', $possible ) )
+			);
+		}
+
+		return \array_values( \array_intersect( $possible, $requested ) );
 	}
 
 	/**
@@ -137,16 +150,46 @@ class BuildScanFindings {
 	 * @return list<string>
 	 */
 	private function sanitizeStatesToInclude( array $statesToInclude ) :array {
-		return \array_values( \array_intersect( self::SUPPORTED_STATES, $statesToInclude ) );
+		$requested = \array_values( \array_unique( \array_filter( \array_map(
+			static fn( $state ) :string => \trim( (string)$state ),
+			$statesToInclude
+		), static fn( string $state ) :bool => $state !== '' ) ) );
+		if ( empty( $requested ) ) {
+			return [];
+		}
+
+		$invalid = \array_values( \array_diff( $requested, self::SUPPORTED_STATES ) );
+		if ( !empty( $invalid ) ) {
+			throw new \InvalidArgumentException(
+				\sprintf( 'Invalid scan item states provided. Please only supply: %s', \implode( ', ', self::SUPPORTED_STATES ) )
+			);
+		}
+
+		return \array_values( \array_intersect( self::SUPPORTED_STATES, $requested ) );
 	}
 
 	/**
 	 * @param array<string,mixed> $item
-	 * @return array<string,mixed>
+	 * @return ScanFindingsItem
 	 */
 	private function normalizeResultItem( array $item ) :array {
-		\ksort( $item );
-		return $item;
+		$normalized = [
+			'item_id'    => (string)( $item[ 'item_id' ] ?? '' ),
+			'states'     => \array_values( \array_filter( \is_array( $item[ 'states' ] ?? null ) ? $item[ 'states' ] : [] ) ),
+			'is_ignored' => !empty( $item[ 'ignored_at' ] ),
+		];
+
+		$scope = (string)( $item[ 'scope' ] ?? '' );
+		if ( \in_array( $scope, [ 'core', 'plugin', 'theme', 'other' ], true ) ) {
+			$normalized[ 'scope' ] = $scope;
+		}
+
+		$assetSlug = \trim( (string)( $item[ 'asset_slug' ] ?? '' ) );
+		if ( $assetSlug !== '' ) {
+			$normalized[ 'asset_slug' ] = $assetSlug;
+		}
+
+		return $normalized;
 	}
 
 	/**
@@ -158,12 +201,38 @@ class BuildScanFindings {
 			return true;
 		}
 
-		foreach ( $statesToInclude as $itemState ) {
-			if ( !empty( $item[ $itemState ] ) ) {
-				return true;
-			}
-		}
+		return \count( \array_intersect(
+			$statesToInclude,
+			\is_array( $item[ 'states' ] ?? null ) ? $item[ 'states' ] : []
+		) ) > 0;
+	}
 
-		return false;
+	private function determineScope( $item ) :string {
+		if ( !empty( $item->is_in_core ) ) {
+			return 'core';
+		}
+		if ( !empty( $item->is_in_plugin ) ) {
+			return 'plugin';
+		}
+		if ( !empty( $item->is_in_theme ) ) {
+			return 'theme';
+		}
+		return 'other';
+	}
+
+	private function determineAssetSlug( $item ) :string {
+		return !empty( $item->is_in_plugin ) || !empty( $item->is_in_theme )
+			? \trim( (string)( $item->ptg_slug ?? '' ) )
+			: '';
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function extractSupportedStates( $item ) :array {
+		return \array_values( \array_filter(
+			self::SUPPORTED_STATES,
+			static fn( string $state ) :bool => !empty( $item->{$state} )
+		) );
 	}
 }

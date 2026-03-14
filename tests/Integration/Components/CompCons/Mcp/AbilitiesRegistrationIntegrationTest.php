@@ -77,7 +77,32 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'is_vulnerable' ], $result[ 'filters' ][ 'states' ] );
 		$this->assertSame( 1, $result[ 'results' ][ 'wpv' ][ 'total' ] );
 		$this->assertSame( 0, $result[ 'results' ][ 'apc' ][ 'total' ] );
-		$this->assertSame( 'plugin-vulnerable', $result[ 'results' ][ 'wpv' ][ 'items' ][ 0 ][ 'item_id' ] );
+		$this->assertSame( [
+			'item_id'    => 'plugin-vulnerable',
+			'states'     => [ 'is_vulnerable' ],
+			'is_ignored' => false,
+		], $result[ 'results' ][ 'wpv' ][ 'items' ][ 0 ] );
+	}
+
+	public function test_ability_execution_honors_shared_rest_permission_filter() :void {
+		if ( !\function_exists( '\wp_register_ability' )
+			 || !\function_exists( '\wp_register_ability_category' )
+			 || !\function_exists( '\wp_has_ability' )
+			 || !\function_exists( '\wp_get_ability' ) ) {
+			$this->markTestSkipped( 'WordPress Abilities API is unavailable in this test environment.' );
+		}
+
+		self::con()->comps->mcp->execute();
+		$integration = self::con()->comps->mcp->getIntegration();
+		$integration->registerAbilityCategory();
+		$integration->registerAbilities();
+
+		\add_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10, 2 );
+		$result = \wp_get_ability( AbilityDefinitions::NAME_POSTURE_OVERVIEW )->execute();
+		\remove_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10 );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'shield_rest_denied', $result->get_error_code() );
 	}
 
 	private function unregisterShieldAbilities() :void {
@@ -93,5 +118,10 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 			 && ( !\function_exists( '\wp_has_ability_category' ) || \wp_has_ability_category( AbilityDefinitions::CATEGORY_SLUG ) ) ) {
 			\wp_unregister_ability_category( AbilityDefinitions::CATEGORY_SLUG );
 		}
+	}
+
+	public function denyRestPermissionFilter( $verify, $request ) {
+		unset( $verify, $request );
+		return new \WP_Error( 'shield_rest_denied', 'Denied by test filter.' );
 	}
 }

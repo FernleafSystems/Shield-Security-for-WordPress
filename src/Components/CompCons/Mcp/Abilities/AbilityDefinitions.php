@@ -48,12 +48,21 @@ class AbilityDefinitions {
 				self::NAME_SCAN_FINDINGS,
 				__( 'Shield Scan Findings', 'wp-simple-firewall' ),
 				__( 'Returns the latest Shield scan findings with optional scan and item-state filters.', 'wp-simple-firewall' ),
-				function ( $input = null ) :array {
+				function ( $input = null ) {
 					$input = \is_array( $input ) ? $input : [];
-					return self::con()->comps->site_query->scanFindings(
-						\array_values( \array_filter( \is_array( $input[ 'scan_slugs' ] ?? null ) ? $input[ 'scan_slugs' ] : [] ) ),
-						\array_values( \array_filter( \is_array( $input[ 'filter_item_state' ] ?? null ) ? $input[ 'filter_item_state' ] : [] ) )
-					);
+					try {
+						return self::con()->comps->site_query->scanFindings(
+							\array_values( \array_filter( \is_array( $input[ 'scan_slugs' ] ?? null ) ? $input[ 'scan_slugs' ] : [] ) ),
+							\array_values( \array_filter( \is_array( $input[ 'filter_item_state' ] ?? null ) ? $input[ 'filter_item_state' ] : [] ) )
+						);
+					}
+					catch ( \InvalidArgumentException $e ) {
+						return new \WP_Error(
+							'shield_mcp_invalid_input',
+							$e->getMessage(),
+							[ 'status' => 400 ]
+						);
+					}
 				},
 				$this->buildScanFindingsInputSchema(),
 				__( 'Latest Shield scan findings query result.', 'wp-simple-firewall' )

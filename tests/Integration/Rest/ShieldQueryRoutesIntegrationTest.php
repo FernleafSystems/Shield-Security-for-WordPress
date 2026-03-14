@@ -133,6 +133,26 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $expected[ 'results' ], $this->extractPayload( $data ) );
 	}
 
+	public function test_scan_results_route_rejects_invalid_supplied_filters() :void {
+		$request = new \WP_REST_Request( 'GET', '/shield/v1/scan_results' );
+		$request->set_param( 'scan_slugs', [ 'bad-scan' ] );
+
+		$response = $this->resetRestServer()->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertNotSame( 0, (int)( $response->get_data()[ 'error_code' ] ?? 0 ) );
+	}
+
+	public function test_routes_honor_shared_rest_permission_filter() :void {
+		\add_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10, 2 );
+
+		$response = $this->dispatchReadRoute( '/shield/v1/posture/overview' );
+
+		\remove_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10 );
+
+		$this->assertSame( 403, $response->get_status() );
+	}
+
 	public function test_routes_reject_unauthenticated_requests() :void {
 		\wp_set_current_user( 0 );
 		$this->setSecurityAdminContext( false );
@@ -189,5 +209,10 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 			],
 		];
 		\set_site_transient( 'update_plugins', $updates );
+	}
+
+	public function denyRestPermissionFilter( $verify, \WP_REST_Request $request ) {
+		unset( $verify, $request );
+		return new \WP_Error( 'shield_rest_denied', 'Denied by test filter.' );
 	}
 }

@@ -2,6 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Abilities;
 
+if ( !\class_exists( 'WP_Error' ) ) {
+	class ShieldWpErrorStub {
+		private string $code;
+		private string $message;
+		private array $data;
+
+		public function __construct( string $code = '', string $message = '', $data = [] ) {
+			$this->code = $code;
+			$this->message = $message;
+			$this->data = \is_array( $data ) ? $data : [];
+		}
+
+		public function get_error_code() :string {
+			return $this->code;
+		}
+
+		public function get_error_message() :string {
+			return $this->message;
+		}
+
+		public function get_error_data() :array {
+			return $this->data;
+		}
+	}
+
+	\class_alias( __NAMESPACE__.'\\ShieldWpErrorStub', 'WP_Error' );
+}
+
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -76,7 +104,42 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 				'states'     => [ 'is_vulnerable' ],
 			],
 		], PluginControllerInstallerTestHelper::controller()->comps->site_query->scanFindingsCalls );
-		$this->assertTrue( $definitions[ 0 ][ 'args' ][ 'permission_callback' ]() );
+	}
+
+	public function test_scan_findings_callback_returns_wp_error_for_invalid_input() :void {
+		McpTestControllerFactory::install( [
+			'scans'      => new class {
+				public function getScanSlugs() :array {
+					return [ 'afs', 'wpv', 'apc' ];
+				}
+			},
+			'site_query' => new class {
+				public function overview() :array {
+					return [];
+				}
+
+				public function attention() :array {
+					return [];
+				}
+
+				public function recentActivity() :array {
+					return [];
+				}
+
+				public function scanFindings( array $scanSlugs = [], array $statesToInclude = [] ) :array {
+					unset( $scanSlugs, $statesToInclude );
+					throw new \InvalidArgumentException( 'Invalid scan item states provided.' );
+				}
+			},
+		] );
+
+		$definitions = ( new AbilityDefinitions() )->build();
+		$result = $definitions[ 3 ][ 'args' ][ 'execute_callback' ]( [
+			'filter_item_state' => [ 'bad-state' ],
+		] );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'shield_mcp_invalid_input', $result->get_error_code() );
 	}
 }
 

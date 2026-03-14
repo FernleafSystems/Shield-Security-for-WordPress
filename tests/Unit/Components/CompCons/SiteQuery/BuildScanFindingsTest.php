@@ -46,17 +46,25 @@ class BuildScanFindingsTest extends BaseUnitTest {
 		$this->assertSame( [], $query[ 'results' ][ 'afs' ][ 'items' ] );
 		$this->assertSame( 1, $query[ 'results' ][ 'wpv' ][ 'total' ] );
 		$this->assertSame( [
-			'ignored_at'     => 0,
-			'is_vulnerable'  => 1,
 			'item_id'        => 'plugin-one',
-			'item_type'      => 'p',
-			'notified_at'    => 0,
-			'slug'           => 'plugin-one/plugin.php',
+			'states'         => [ 'is_vulnerable' ],
+			'is_ignored'     => false,
 		], $query[ 'results' ][ 'wpv' ][ 'items' ][ 0 ] );
 		$this->assertSame( [
 			'afs' => [ 'is_vulnerable' ],
 			'wpv' => [ 'is_vulnerable' ],
 		], $this->builder->statesRequestedByScanSlug );
+	}
+
+	public function test_build_normalizes_file_findings_to_minimal_contract() :void {
+		$query = $this->builder->build( [ 'afs' ], [ 'is_checksumfail' ] );
+
+		$this->assertSame( [
+			'item_id'    => 'wp-admin/admin.php',
+			'states'     => [ 'is_checksumfail' ],
+			'is_ignored' => false,
+			'scope'      => 'core',
+		], $query[ 'results' ][ 'afs' ][ 'items' ][ 0 ] );
 	}
 
 	public function test_build_marks_findings_unavailable_while_scans_are_running() :void {
@@ -65,6 +73,20 @@ class BuildScanFindingsTest extends BaseUnitTest {
 		$this->assertFalse( $query[ 'is_available' ] );
 		$this->assertSame( 'Results are unavailable while scans are currently running.', $query[ 'message' ] );
 		$this->assertSame( [], $query[ 'results' ] );
+	}
+
+	public function test_build_rejects_invalid_supplied_scan_slugs() :void {
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Invalid scan slugs provided.' );
+
+		$this->builder->build( [ 'bad-scan' ], [] );
+	}
+
+	public function test_build_rejects_invalid_supplied_states() :void {
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Invalid scan item states provided.' );
+
+		$this->builder->build( [ 'wpv' ], [ 'bad-state' ] );
 	}
 }
 
@@ -91,30 +113,22 @@ class BuildScanFindingsTestDouble extends BuildScanFindings {
 		return [
 			'afs' => [
 				[
-					'item_id'      => 'core-file',
-					'item_type'    => 'f',
-					'slug'         => 'wp-admin/admin.php',
-					'ignored_at'   => 0,
-					'notified_at'  => 0,
-					'is_mal'       => 1,
+					'item_id'    => 'wp-admin/admin.php',
+					'ignored_at' => 0,
+					'states'     => [ 'is_checksumfail' ],
+					'scope'      => 'core',
 				],
 			],
 			'wpv' => [
 				[
-					'item_type'     => 'p',
-					'item_id'       => 'plugin-one',
-					'slug'          => 'plugin-one/plugin.php',
-					'ignored_at'    => 0,
-					'notified_at'   => 0,
-					'is_vulnerable' => 1,
+					'item_id'    => 'plugin-one',
+					'ignored_at' => 0,
+					'states'     => [ 'is_vulnerable' ],
 				],
 				[
-					'item_type'     => 'p',
-					'item_id'       => 'plugin-two',
-					'slug'          => 'plugin-two/plugin.php',
-					'ignored_at'    => 0,
-					'notified_at'   => 0,
-					'is_abandoned'  => 1,
+					'item_id'    => 'plugin-two',
+					'ignored_at' => 0,
+					'states'     => [ 'is_abandoned' ],
 				],
 			],
 		][ $scanSlug ] ?? [];

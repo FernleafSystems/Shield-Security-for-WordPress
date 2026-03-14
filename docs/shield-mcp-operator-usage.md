@@ -10,7 +10,7 @@ The current Shield MCP path requires all of the following:
 
 1. WordPress `>= 7.0`
 2. WordPress Abilities API available
-3. Shield active with Shield REST API Level 2 capability available
+3. Shield active with the Shield query surface available for the site
 4. Official WordPress MCP Adapter runtime available
 5. A dedicated authenticated WordPress operator account using an Application Password over HTTPS
 
@@ -39,7 +39,7 @@ Create a dedicated WordPress user for external operations:
 
 1. Create a separate user for Shield operations only.
 2. Assign the `Administrator` role, or an equivalent custom role that satisfies Shield's current permission model.
-3. Confirm the account can pass both `manage_options` and Shield `rest_api_level_2`.
+3. Confirm the account can use the same Shield query surface that backs the authenticated REST routes.
 4. Do not reuse a personal administrator account if a dedicated operator identity is practical.
 
 ## Application Password
@@ -63,10 +63,11 @@ Shield owns the business contract and the allowlist. The MCP transport remains s
 
 Current runtime behavior:
 
-1. Shield registers the four abilities only when the WordPress 7.0+ compatibility checks pass.
+1. Shield registers the four abilities only when the WordPress 7.0+ compatibility checks pass and the Shield query surface is available for the site.
 2. Shield registers an MCP server only when the official WordPress MCP Adapter runtime is present.
 3. The current server definition uses `server_id: shield-security`, `namespace: shield-security`, and `route: mcp`.
 4. Shield does not rely on the adapter's default-server discovery behavior.
+5. Ability execution uses the same underlying Shield permission policy as the authenticated query REST routes, including any `shield/rest_api_verify_permission` hardening.
 
 The exact published MCP endpoint is transport-owned by the adapter/runtime. The Shield-owned contract is the server identity plus the four-ability allowlist above.
 
@@ -88,6 +89,22 @@ Supported `filter_item_state` values:
 5. `is_abandoned`
 6. `is_vulnerable`
 
+If these optional filters are supplied but invalid, Shield rejects the request instead of broadening the response.
+
+## Scan Findings Output
+
+`shield/scan/findings/get` and `GET /shield/v1/scan_results` expose a deliberately narrow findings contract.
+
+Each finding item includes:
+
+1. `item_id`
+2. `states`
+3. `is_ignored`
+4. `scope` for file findings when derivable
+5. `asset_slug` for plugin or theme findings when relevant
+
+Shield does not expose raw scan item internals such as absolute paths, checksums, malware record identifiers, or arbitrary result metadata through this v1 surface.
+
 ## Supported v1 Questions
 
 This MCP surface is intended to answer questions such as:
@@ -104,8 +121,10 @@ Expected operator-visible failure modes:
 1. WordPress below 7.0: no Shield MCP exposure
 2. Abilities API unavailable: no Shield MCP exposure
 3. MCP Adapter runtime unavailable: no Shield MCP server exposure
-4. Missing `manage_options` or Shield `rest_api_level_2`: permission denied
-5. Scans currently running: scan findings return unavailable state rather than implying there are no findings
+4. Site not eligible for the Shield query surface: no Shield MCP exposure
+5. Current operator request denied by Shield query policy: permission denied
+6. Invalid findings filters supplied: request rejected
+7. Scans currently running: scan findings return unavailable state rather than implying there are no findings
 
 ## REST Fallback
 

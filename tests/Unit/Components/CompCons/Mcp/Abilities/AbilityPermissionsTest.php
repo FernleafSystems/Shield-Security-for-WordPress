@@ -32,9 +32,9 @@ if ( !\class_exists( 'WP_Error' ) ) {
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityPermissions;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\QuerySurfaceAccessPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
-	McpTestControllerFactory,
 	PluginControllerInstaller
 };
 
@@ -52,33 +52,59 @@ class AbilityPermissionsTest extends BaseUnitTest {
 	}
 
 	public function test_can_execute_returns_true_for_admin_with_rest_level_two() :void {
-		Functions\when( 'current_user_can' )->justReturn( true );
-		$this->installController( true );
+		$result = ( new TestAbilityPermissions( new FixedAccessPolicy( true ) ) )->canExecute();
 
-		$this->assertTrue( ( new AbilityPermissions() )->canExecute() );
+		$this->assertTrue( $result );
 	}
 
-	public function test_can_execute_returns_wp_error_when_user_cannot_manage_options() :void {
-		Functions\when( 'current_user_can' )->justReturn( false );
-		$this->installController( true );
-
-		$result = ( new AbilityPermissions() )->canExecute();
+	public function test_can_execute_returns_wp_error_when_access_policy_denies_request() :void {
+		$result = ( new TestAbilityPermissions( new FixedAccessPolicy( new \WP_Error( 'denied', 'Denied.' ) ) ) )->canExecute();
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'shield_mcp_permission_denied', $result->get_error_code() );
+		$this->assertSame( 'denied', $result->get_error_code() );
 	}
 
-	public function test_can_execute_returns_wp_error_when_rest_level_two_is_unavailable() :void {
-		Functions\when( 'current_user_can' )->justReturn( true );
-		$this->installController( false );
-
-		$result = ( new AbilityPermissions() )->canExecute();
+	public function test_can_execute_returns_wp_error_when_surface_is_unavailable() :void {
+		$result = ( new TestAbilityPermissions( new FixedAccessPolicy( new \WP_Error( 'shield_query_surface_unavailable', 'Unavailable.' ) ) ) )->canExecute();
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'shield_mcp_capability_unavailable', $result->get_error_code() );
+		$this->assertSame( 'shield_query_surface_unavailable', $result->get_error_code() );
+	}
+}
+
+class FixedAccessPolicy extends QuerySurfaceAccessPolicy {
+
+	/**
+	 * @var true|\WP_Error
+	 */
+	private $result;
+
+	/**
+	 * @param true|\WP_Error $result
+	 */
+	public function __construct( $result ) {
+		$this->result = $result;
 	}
 
-	private function installController( bool $canRestLevel2 ) :void {
-		McpTestControllerFactory::install( [], $canRestLevel2 );
+	public function isSiteExposureReady() :bool {
+		return $this->result === true;
+	}
+
+	public function verifyCurrentRequest( ?\WP_REST_Request $request = null ) {
+		unset( $request );
+		return $this->result;
+	}
+}
+
+class TestAbilityPermissions extends AbilityPermissions {
+
+	private QuerySurfaceAccessPolicy $policy;
+
+	public function __construct( QuerySurfaceAccessPolicy $policy ) {
+		$this->policy = $policy;
+	}
+
+	protected function getAccessPolicy() :QuerySurfaceAccessPolicy {
+		return $this->policy;
 	}
 }

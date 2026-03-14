@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\{
 	Integration\UnsupportedIntegration,
 	Integration\Wp700Integration,
 	Support\Compatibility,
+	Support\QuerySurfaceAccessPolicy,
 	Transport\McpTransportInterface
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -25,11 +26,13 @@ class McpCon {
 	}
 
 	public function isAvailable() :bool {
-		return $this->getIntegration()->isSupported();
+		return $this->getIntegration()->isSupported()
+			   && $this->getAccessPolicy()->isSiteExposureReady();
 	}
 
 	public function isTransportAvailable() :bool {
-		return $this->getTransport()->isSupported();
+		return $this->isAvailable()
+			   && $this->getTransport()->isSupported();
 	}
 
 	/**
@@ -74,5 +77,9 @@ class McpCon {
 
 	protected function getCompatibility() :Compatibility {
 		return new Compatibility();
+	}
+
+	protected function getAccessPolicy() :QuerySurfaceAccessPolicy {
+		return new QuerySurfaceAccessPolicy();
 	}
 }

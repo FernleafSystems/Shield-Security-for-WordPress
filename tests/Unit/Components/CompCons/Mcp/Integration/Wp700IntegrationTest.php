@@ -6,6 +6,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Integration\Wp700Integration;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\Compatibility;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\QuerySurfaceAccessPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Transport\{
 	McpTransportInterface,
 	NullTransport
@@ -60,6 +61,7 @@ class Wp700IntegrationTest extends BaseUnitTest {
 
 		$integration = new TestWp700Integration(
 			new FixedCompatibility( true, false ),
+			new FixedIntegrationAccessPolicy( true ),
 			$transport
 		);
 		$integration->register();
@@ -92,6 +94,31 @@ class Wp700IntegrationTest extends BaseUnitTest {
 
 		$integration = new TestWp700Integration(
 			new FixedCompatibility( false, false ),
+			new FixedIntegrationAccessPolicy( true ),
+			$transport
+		);
+		$integration->register();
+
+		$this->assertSame( [], $hooks );
+		$this->assertSame( [], $transport->registeredServers );
+	}
+
+	public function test_register_returns_early_when_site_exposure_is_not_ready() :void {
+		$hooks = [];
+		$transport = new CapturingTransport();
+
+		Functions\when( 'add_action' )->alias(
+			static function ( string $hook, callable $callback ) use ( &$hooks ) :bool {
+				$hooks[ $hook ][] = $callback;
+				return true;
+			}
+		);
+
+		$this->installController();
+
+		$integration = new TestWp700Integration(
+			new FixedCompatibility( true, false ),
+			new FixedIntegrationAccessPolicy( false ),
 			$transport
 		);
 		$integration->register();
@@ -111,7 +138,7 @@ class Wp700IntegrationTest extends BaseUnitTest {
 			}
 		);
 
-		$integration = new TestWp700Integration( new FixedCompatibility( true, false ) );
+		$integration = new TestWp700Integration( new FixedCompatibility( true, false ), new FixedIntegrationAccessPolicy( true ) );
 
 		$integration->registerAbilityCategory();
 
@@ -137,7 +164,7 @@ class Wp700IntegrationTest extends BaseUnitTest {
 			}
 		);
 
-		$integration = new TestWp700Integration( new FixedCompatibility( true, false ) );
+		$integration = new TestWp700Integration( new FixedCompatibility( true, false ), new FixedIntegrationAccessPolicy( true ) );
 		$integration->registerAbilityCategory();
 
 		$this->assertSame( [], $registered );
@@ -174,7 +201,7 @@ class Wp700IntegrationTest extends BaseUnitTest {
 			}
 		);
 
-		$integration = new TestWp700Integration( new FixedCompatibility( true, false ) );
+		$integration = new TestWp700Integration( new FixedCompatibility( true, false ), new FixedIntegrationAccessPolicy( true ) );
 		$integration->registerAbilities();
 
 		$this->assertSame( [
@@ -185,7 +212,7 @@ class Wp700IntegrationTest extends BaseUnitTest {
 	}
 
 	public function test_get_transport_returns_null_transport_when_adapter_is_not_supported() :void {
-		$integration = new TestWp700Integration( new FixedCompatibility( true, false ) );
+		$integration = new TestWp700Integration( new FixedCompatibility( true, false ), new FixedIntegrationAccessPolicy( true ) );
 
 		$this->assertInstanceOf( NullTransport::class, $integration->getTransport() );
 	}
@@ -258,10 +285,17 @@ class TestWp700Integration extends Wp700Integration {
 
 	private Compatibility $compatibility;
 
+	private QuerySurfaceAccessPolicy $accessPolicy;
+
 	private ?McpTransportInterface $transportOverride;
 
-	public function __construct( Compatibility $compatibility, ?McpTransportInterface $transportOverride = null ) {
+	public function __construct(
+		Compatibility $compatibility,
+		QuerySurfaceAccessPolicy $accessPolicy,
+		?McpTransportInterface $transportOverride = null
+	) {
 		$this->compatibility = $compatibility;
+		$this->accessPolicy = $accessPolicy;
 		$this->transportOverride = $transportOverride;
 	}
 
@@ -271,5 +305,22 @@ class TestWp700Integration extends Wp700Integration {
 
 	protected function getCompatibility() :Compatibility {
 		return $this->compatibility;
+	}
+
+	protected function getAccessPolicy() :QuerySurfaceAccessPolicy {
+		return $this->accessPolicy;
+	}
+}
+
+class FixedIntegrationAccessPolicy extends QuerySurfaceAccessPolicy {
+
+	private bool $ready;
+
+	public function __construct( bool $ready ) {
+		$this->ready = $ready;
+	}
+
+	public function isSiteExposureReady() :bool {
+		return $this->ready;
 	}
 }
