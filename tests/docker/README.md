@@ -1,13 +1,6 @@
 # Docker Test Runner
 
-This document covers Docker-runner specifics only.
-
-For canonical testing commands, CI role split, and overall testing guidance, see [TESTING.md](../../TESTING.md).
-
-## Documentation Ownership
-
-1. `TESTING.md` owns canonical testing commands and workflow policy.
-2. `tests/docker/README.md` owns Docker runner behavior, environment variables, and troubleshooting.
+This document is subordinate to [TESTING.md](../../TESTING.md). Use `TESTING.md` for command selection, workflow policy, and verification flow. Use this file only for Docker-runner-specific behavior, environment variables, topology, and troubleshooting.
 
 ## Primary Entry Point
 
@@ -72,7 +65,7 @@ php bin/run-docker-tests.php --help
 
 1. Default is `0`, so Docker runtime lanes run both unit and integration stages.
 2. Set `SHIELD_SKIP_UNIT_TESTS=1` to skip only the unit stage.
-3. This is used by the source GitHub Actions runtime lane to keep Docker logs focused on runtime/integration signal.
+3. This is used by the source GitHub Actions runtime lane to keep Docker logs focused on runtime and integration signal.
 
 ## Runtime Topology
 
@@ -95,7 +88,7 @@ Local sidecar mode (`test:integration-local`):
 
 1. Uses `tests/docker/docker-compose.local-db.yml` (DB-only compose file).
 2. Uses `COMPOSE_PROJECT_NAME=shield-local-db` and port `3311` for isolation.
-3. Keeps DB container running for repeat local runs.
+3. Keeps the DB container running for repeat local runs.
 4. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
 
 ## Static Analysis Entrypoints
@@ -140,17 +133,21 @@ php bin/shield analyze:package
 
 ## Troubleshooting
 
-1. Ensure Docker is installed and daemon is running.
+1. Ensure Docker is installed and the daemon is running.
 2. Use `php bin/run-docker-tests.php --help` to verify mode flags.
 3. If a mode fails immediately, check for unknown arguments and conflicting mode flags.
 4. If Composer reports `Could not authenticate against github.com`, verify auth:
+
 ```bash
 gh auth status -h github.com
 composer diagnose
 ```
-5. Re-authenticate GH CLI, then sync Composer GitHub OAuth token:
+
+5. Re-authenticate GH CLI, then sync the Composer GitHub OAuth token:
+
 ```bash
 gh auth login -h github.com --git-protocol https --web
 composer config --global github-oauth.github.com "$(gh auth token)"
 ```
+
 6. Source runtime uses a persistent Composer cache at `tmp/.docker-composer-cache`; if cache corruption is suspected, remove that directory and rerun.

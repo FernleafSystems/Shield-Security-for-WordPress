@@ -1,16 +1,15 @@
 # Rules/Firewall Testing Roadmap
 
+This document tracks rules and firewall test-coverage work only. It is not the operational source of truth for testing commands or workflow guidance. Use [TESTING.md](../TESTING.md) for the current testing command surface and workflow roles.
+
 ## Next Action
 - `Action`: Run the new critical-path integration tests in Docker and capture baseline results/issues.
 - `Owner`: Engineering
 - `Status`: Ready
 - `Pointer`: `composer test:fast` then inspect `tests/Integration/Rules/`
 
-## Default Test Commands
-- `composer test`  
-  Full test suite (unit + integration).
-- `composer test:fast`  
-  Critical subset focused on rules, firewall, rate-limit behavior.
+## Working Entry Point
+- Start from `composer test:fast`, then inspect `tests/Integration/Rules/` for the specific rule or firewall area under review.
 
 ## Progress Board
 | Phase | Scope | Status | Next Step |

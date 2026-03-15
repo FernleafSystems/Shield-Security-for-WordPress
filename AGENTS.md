@@ -10,8 +10,7 @@ Core PHP lives in `src/`, organised by module (for example `Modules/Login_Protec
 - `npm install && npm run build` - install and compile production assets (required before packaging).
 - `npm run dev` - watch-mode compilation for UI work.
 - `composer install` - resolve dependencies.
-- `./bin/run-docker-tests.sh` - quickest path to CI-equivalent validation (PHP 7.4-8.x, latest WordPress).
-- `composer test`, `composer test:unit`, `composer test:integration` - run PHPUnit suites locally; add `--filter ClassName` when iterating.
+- `TESTING.md` - single source of truth for current testing commands, CI-equivalent validation paths, and workflow roles.
 - PHPCS is not part of the active repository tooling or verification surface.
 
 ## Coding Standards & Naming
