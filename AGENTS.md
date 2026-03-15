@@ -12,7 +12,7 @@ Core PHP lives in `src/`, organised by module (for example `Modules/Login_Protec
 - `composer install` - resolve dependencies.
 - `./bin/run-docker-tests.sh` - quickest path to CI-equivalent validation (PHP 7.4-8.x, latest WordPress).
 - `composer test`, `composer test:unit`, `composer test:integration` - run PHPUnit suites locally; add `--filter ClassName` when iterating.
-- Do not use `phpcs` or `phpcs:fix` as part of verification for this repository.
+- PHPCS is not part of the active repository tooling or verification surface.
 
 ## Coding Standards & Naming
 All PHP files declare strict types, follow PSR-4 namespaces rooted at `FernleafSystems\Wordpress\Plugin\Shield`, and use tabs for indentation. Classes are PascalCase, services lean on trait-based dependency injection (for example `PluginControllerConsumer`), and WordPress option keys/hooks stay snake_case. Twig templates in `templates/twig` must escape output; JavaScript modules under `assets/js` use ES6 modules and camelCase exports.

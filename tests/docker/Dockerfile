@@ -107,9 +107,6 @@ RUN --mount=type=cache,target=/root/.composer/cache \
             yoast/phpunit-polyfills:^4.0; \
     fi
 
-# Configure Composer plugins
-RUN composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-
 # Add composer global bin to PATH
 ENV PATH="/root/.composer/vendor/bin:${PATH}"
 
