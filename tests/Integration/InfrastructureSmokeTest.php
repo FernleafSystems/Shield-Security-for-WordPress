@@ -234,7 +234,6 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		$integrationRoot = __DIR__;
 		$allowedStandalone = \array_filter( [
 			\realpath( __FILE__ ),
-			\realpath( __DIR__.'/FilesHaveJsonFormatTest.php' ),
 			\realpath( __DIR__.'/Infrastructure/PluginPackagerStraussTest.php' ),
 		] );
 
