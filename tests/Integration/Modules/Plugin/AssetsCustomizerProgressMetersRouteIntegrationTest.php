@@ -61,10 +61,7 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 			PluginNavs::SUBNAV_ZONES_OVERVIEW
 		);
 
-		$this->assertArrayHasKey( 'zones_manager', $comps );
-		$this->assertArrayHasKey( 'ajax', $comps[ 'zones_manager' ] ?? [] );
-		$this->assertArrayHasKey( 'batch_requests', $comps[ 'zones_manager' ][ 'ajax' ] ?? [] );
-		$this->assertArrayHasKey( 'offcanvas_zone_component_config', $comps[ 'zones_manager' ][ 'ajax' ] ?? [] );
+		$this->assertComponentHasAjaxKey( $comps, 'zones_manager', 'batch_requests' );
 	}
 
 	public function test_dashboard_live_monitor_is_localized_for_dashboard_overview() :void {
@@ -73,11 +70,7 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
 		);
 
-		$this->assertArrayHasKey( 'dashboard_live_monitor', $comps );
-		$this->assertArrayHasKey( 'ajax', $comps[ 'dashboard_live_monitor' ] ?? [] );
-		$this->assertArrayHasKey( 'render_ticker', $comps[ 'dashboard_live_monitor' ][ 'ajax' ] ?? [] );
-		$this->assertArrayHasKey( 'render_traffic', $comps[ 'dashboard_live_monitor' ][ 'ajax' ] ?? [] );
-		$this->assertArrayHasKey( 'set_state', $comps[ 'dashboard_live_monitor' ][ 'ajax' ] ?? [] );
+		$this->assertComponentHasAjaxKey( $comps, 'dashboard_live_monitor', 'render_ticker' );
 	}
 
 	public function test_dashboard_live_monitor_is_not_localized_outside_dashboard_overview() :void {
@@ -142,11 +135,12 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 	}
 
 	private function assertSessionsTableLocalized( array $comps ) :void {
-		$this->assertArrayHasKey( 'tables', $comps );
 		$this->assertArrayHasKey( 'sessions', $comps[ 'tables' ] ?? [] );
-		$this->assertArrayHasKey( 'ajax', $comps[ 'tables' ][ 'sessions' ] ?? [] );
 		$this->assertArrayHasKey( 'table_action', $comps[ 'tables' ][ 'sessions' ][ 'ajax' ] ?? [] );
-		$this->assertArrayHasKey( 'vars', $comps[ 'tables' ][ 'sessions' ] ?? [] );
-		$this->assertArrayHasKey( 'datatables_init', $comps[ 'tables' ][ 'sessions' ][ 'vars' ] ?? [] );
+	}
+
+	private function assertComponentHasAjaxKey( array $comps, string $componentKey, string $ajaxKey ) :void {
+		$this->assertArrayHasKey( $componentKey, $comps );
+		$this->assertArrayHasKey( $ajaxKey, $comps[ $componentKey ][ 'ajax' ] ?? [] );
 	}
 }

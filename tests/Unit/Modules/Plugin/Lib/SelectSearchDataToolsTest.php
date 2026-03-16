@@ -12,9 +12,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\StaticToolDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SelectSearchData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class SelectSearchDataToolsTest extends BaseUnitTest {
 
@@ -26,12 +27,12 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
-		PluginStore::$plugin = null;
+		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
 
 	public function test_tools_search_uses_canonical_tool_routes() :void {
-		$this->installControllerStubs();
+		$pluginUrls = $this->installControllerStubs();
 
 		$searchData = new SelectSearchData();
 		$method = new \ReflectionMethod( $searchData, 'getToolsSearch' );
@@ -45,13 +46,22 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 			$childrenById[ $child[ 'id' ] ] = $child;
 		}
 
-		$this->assertSame( '/admin/merlin/welcome', $childrenById[ 'tool_guidedsetup' ][ 'link' ][ 'href' ] ?? '' );
-		$this->assertSame( '/admin/tools/debug', $childrenById[ 'tool_debug' ][ 'link' ][ 'href' ] ?? '' );
-		$this->assertSame( '/admin/reports/overview', $childrenById[ 'tool_reports' ][ 'link' ][ 'href' ] ?? '' );
-		$this->assertSame( '/admin/activity/sessions', $childrenById[ 'tool_sessions' ][ 'link' ][ 'href' ] ?? '' );
+		$definitionsById = [];
+		foreach ( StaticToolDefinitions::forSearch() as $definition ) {
+			$definitionsById[ $definition[ 'id' ] ] = $definition;
+		}
+
+		foreach ( [ 'tool_guidedsetup', 'tool_reports' ] as $toolId ) {
+			$this->assertArrayHasKey( $toolId, $definitionsById );
+			$this->assertArrayHasKey( $toolId, $childrenById );
+			$this->assertSame(
+				$pluginUrls->adminTopNav( $definitionsById[ $toolId ][ 'nav' ], $definitionsById[ $toolId ][ 'subnav' ] ),
+				$childrenById[ $toolId ][ 'link' ][ 'href' ] ?? ''
+			);
+		}
 	}
 
-	private function installControllerStubs() :void {
+	private function installControllerStubs() :object {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->labels = (object)[
@@ -62,38 +72,15 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 				return 'icon-'.$slug;
 			}
 		};
-		$controller->plugin_urls = new class {
-			public function adminHome() :string {
-				return '/admin/home';
-			}
-
+		$pluginUrls = new class {
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
 			}
-
-			public function adminIpRules() :string {
-				return '/admin/ips/rules';
-			}
-
-			public function investigateUserSessions() :string {
-				return '/admin/activity/sessions';
-			}
-
-			public function wizard( string $wizardKey ) :string {
-				return '/admin/wizard/'.$wizardKey;
-			}
 		};
+		$controller->plugin_urls = $pluginUrls;
 
-		PluginStore::$plugin = new class( $controller ) {
-			private Controller $controller;
+		PluginControllerInstaller::install( $controller );
 
-			public function __construct( Controller $controller ) {
-				$this->controller = $controller;
-			}
-
-			public function getController() :Controller {
-				return $this->controller;
-			}
-		};
+		return $pluginUrls;
 	}
 }

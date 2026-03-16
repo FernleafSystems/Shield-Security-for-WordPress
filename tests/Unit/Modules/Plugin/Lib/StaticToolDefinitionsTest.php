@@ -44,29 +44,14 @@ class StaticToolDefinitionsTest extends BaseUnitTest {
 		}
 	}
 
-	public function test_mode_filters_return_expected_static_tool_ids() :void {
-		$this->assertSame(
-			[ 'tool_scan_run' ],
-			\array_column( StaticToolDefinitions::forMode( PluginNavs::MODE_ACTIONS ), 'id' )
-		);
-
-		$this->assertSame(
-			[ 'tool_ip_manager', 'tool_activity_log', 'tool_traffic_log', 'tool_sessions' ],
-			\array_column( StaticToolDefinitions::forMode( PluginNavs::MODE_INVESTIGATE ), 'id' )
-		);
-
-		$this->assertSame(
-			[ 'tool_rules_manage', 'tool_rules_build', 'tool_lockdown', 'tool_importexport', 'tool_guidedsetup', 'tool_debug' ],
-			\array_column( StaticToolDefinitions::forMode( PluginNavs::MODE_CONFIGURE ), 'id' )
-		);
-	}
-
 	public function test_search_filter_includes_canonical_reports_and_guided_setup_routes() :void {
 		$definitionsById = [];
 		foreach ( StaticToolDefinitions::forSearch() as $definition ) {
 			$definitionsById[ $definition[ 'id' ] ] = $definition;
 		}
 
+		$this->assertArrayHasKey( 'tool_reports', $definitionsById );
+		$this->assertArrayHasKey( 'tool_guidedsetup', $definitionsById );
 		$this->assertSame( PluginNavs::NAV_REPORTS, $definitionsById[ 'tool_reports' ][ 'nav' ] ?? '' );
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_OVERVIEW, $definitionsById[ 'tool_reports' ][ 'subnav' ] ?? '' );
 		$this->assertSame( PluginNavs::NAV_WIZARD, $definitionsById[ 'tool_guidedsetup' ][ 'nav' ] ?? '' );

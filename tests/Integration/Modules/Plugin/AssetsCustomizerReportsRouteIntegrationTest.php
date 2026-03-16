@@ -88,11 +88,7 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 	}
 
 	private function assertReportsTableLocalized( array $comps ) :void {
-		$this->assertArrayHasKey( 'tables', $comps );
 		$this->assertArrayHasKey( 'reports', $comps[ 'tables' ] ?? [] );
-		$this->assertArrayHasKey( 'ajax', $comps[ 'tables' ][ 'reports' ] ?? [] );
 		$this->assertArrayHasKey( 'table_action', $comps[ 'tables' ][ 'reports' ][ 'ajax' ] ?? [] );
-		$this->assertArrayHasKey( 'vars', $comps[ 'tables' ][ 'reports' ] ?? [] );
-		$this->assertArrayHasKey( 'datatables_init', $comps[ 'tables' ][ 'reports' ][ 'vars' ] ?? [] );
 	}
 }

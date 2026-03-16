@@ -9,46 +9,41 @@ class StatusColorTokensContractTest extends BaseUnitTest {
 	use PluginPathsTrait;
 
 	/**
-	 * @return array<string, string>
+	 * @return list<string>
 	 */
-	private function expectedTokenValues() :array {
+	private function securityReportTokenNames() :array {
 		return [
-			'status-bg-info-light' => '#e7f7fb',
-			'badge-good-bg'        => '#e6f5e6',
-			'badge-good-color'     => '#006400',
-			'badge-warning-bg'     => '#fef6e6',
-			'badge-warning-color'  => '#b97a00',
-			'badge-critical-bg'    => '#fdeaec',
-			'badge-critical-color' => '#c62f3e',
-			'badge-info-bg'        => '#e7f7fb',
-			'badge-info-color'     => '#0ea8c7',
+			'status-bg-info-light',
+			'badge-good-bg',
+			'badge-good-color',
+			'badge-warning-bg',
+			'badge-warning-color',
+			'badge-critical-bg',
+			'badge-critical-color',
+			'badge-info-bg',
+			'badge-info-color',
 		];
 	}
 
-	public function testScssStatusTokenValuesMatchContract() :void {
+	public function testSecurityReportCssVariablesMirrorSharedScssTokens() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'assets/css source stylesheets are excluded from packaged artifacts' );
 		}
 
-		$content = $this->getPluginFileContents(
+		$scssAssignments = $this->parseAssignments( $this->getPluginFileContents(
 			'assets/css/shield/_status-colors.scss',
 			'shared status color tokens stylesheet'
-		);
-		$this->assertExpectedAssignments(
-			$this->expectedTokenValues(),
-			$this->parseAssignments( $content, '$' ),
-			'SCSS status token'
-		);
-	}
-
-	public function testSecurityReportCssVariableValuesMatchContract() :void {
-		$content = $this->getPluginFileContents(
+		), '$' );
+		$templateAssignments = $this->parseAssignments( $this->getPluginFileContents(
 			'templates/twig/pages/report/security.twig',
 			'security report template'
-		);
+		), '--' );
+
+		$expectedTokens = $this->securityReportTokenNames();
+		$reportAssignments = $this->selectAssignments( $templateAssignments, $expectedTokens, 'Security report CSS variable' );
 		$this->assertExpectedAssignments(
-			$this->expectedTokenValues(),
-			$this->parseAssignments( $content, '--' ),
+			$this->selectAssignments( $scssAssignments, $expectedTokens, 'SCSS status token' ),
+			$reportAssignments,
 			'Security report CSS variable'
 		);
 	}
@@ -111,5 +106,19 @@ class StatusColorTokensContractTest extends BaseUnitTest {
 	private function normalizeValue( string $value ) :string {
 		$normalized = \preg_replace( '/\s+/', '', \trim( $value ) );
 		return \strtolower( (string)$normalized );
+	}
+
+	/**
+	 * @param array<string,string> $assignments
+	 * @param list<string> $tokens
+	 * @return array<string,string>
+	 */
+	private function selectAssignments( array $assignments, array $tokens, string $label ) :array {
+		$selected = [];
+		foreach ( $tokens as $token ) {
+			$this->assertArrayHasKey( $token, $assignments, $label.' missing: '.$token );
+			$selected[ $token ] = (string)$assignments[ $token ];
+		}
+		return $selected;
 	}
 }

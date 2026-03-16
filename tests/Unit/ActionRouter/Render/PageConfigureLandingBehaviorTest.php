@@ -301,7 +301,15 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	 *     title:string,
 	 *     status:string,
 	 *     status_label:string,
-	 *     components:list<array{title:string,status:string,status_label:string,note:string}>
+	 *     components:list<array{
+	 *       title:string,
+	 *       status:string,
+	 *       status_label:string,
+	 *       status_icon_class:string,
+	 *       note:string,
+	 *       explanations:list<string>,
+	 *       config_action:array<string,mixed>
+	 *     }>
 	 *   }
 	 * }>
 	 */
@@ -366,7 +374,15 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	 *     title:string,
 	 *     status:string,
 	 *     status_label:string,
-	 *     components:list<array{title:string,status:string,status_label:string,note:string}>
+	 *     components:list<array{
+	 *       title:string,
+	 *       status:string,
+	 *       status_label:string,
+	 *       status_icon_class:string,
+	 *       note:string,
+	 *       explanations:list<string>,
+	 *       config_action:array<string,mixed>
+	 *     }>
 	 *   }
 	 * }>
 	 */
@@ -402,7 +418,15 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @param list<array{title:string,status:string,status_label:string,note:string}> $components
+	 * @param list<array{
+	 *   title:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string,
+	 *   note:string,
+	 *   explanations:list<string>,
+	 *   config_action:array<string,mixed>
+	 * }> $components
 	 * @return array{
 	 *   key:string,
 	 *   panel_target:string,
@@ -419,7 +443,15 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	 *     title:string,
 	 *     status:string,
 	 *     status_label:string,
-	 *     components:list<array{title:string,status:string,status_label:string,note:string}>
+	 *     components:list<array{
+	 *       title:string,
+	 *       status:string,
+	 *       status_label:string,
+	 *       status_icon_class:string,
+	 *       note:string,
+	 *       explanations:list<string>,
+	 *       config_action:array<string,mixed>
+	 *     }>
 	 *   }
 	 * }
 	 */
@@ -456,7 +488,15 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @return array{title:string,status:string,status_label:string,note:string}
+	 * @return array{
+	 *   title:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string,
+	 *   note:string,
+	 *   explanations:list<string>,
+	 *   config_action:array<string,mixed>
+	 * }
 	 */
 	private function buildZoneComponentFixture(
 		string $title,
@@ -464,11 +504,20 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		string $statusLabel,
 		string $note
 	) :array {
+		$statusIcon = match ( $status ) {
+			'critical' => 'bi bi-x-circle-fill',
+			'warning' => 'bi bi-exclamation-triangle-fill',
+			default => 'bi bi-check-circle-fill',
+		};
+
 		return [
-			'title'        => $title,
-			'status'       => $status,
-			'status_label' => $statusLabel,
-			'note'         => $note,
+			'title'             => $title,
+			'status'            => $status,
+			'status_label'      => $statusLabel,
+			'status_icon_class' => $statusIcon,
+			'note'              => $note,
+			'explanations'      => [],
+			'config_action'     => [],
 		];
 	}
 

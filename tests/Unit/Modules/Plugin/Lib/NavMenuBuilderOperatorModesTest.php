@@ -285,6 +285,10 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			public function investigateUserSessions() :string {
 				return '/admin/activity/sessions';
 			}
+
+			public function licenseCheck() :string {
+				return '/admin/license';
+			}
 		};
 		$controller->svgs = new class {
 			public function iconClass( string $slug ) :string {
