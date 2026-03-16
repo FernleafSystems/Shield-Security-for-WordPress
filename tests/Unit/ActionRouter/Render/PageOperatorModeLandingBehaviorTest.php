@@ -12,13 +12,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
-	PluginControllerInstaller
+	PluginControllerInstaller,
+	UnitTestControllerFactory,
+	UnitTestPluginUrls
 };
 
 class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
@@ -208,35 +209,27 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_investigate_session_summary_counts_active_and_recent_sessions() :void {
-		$page = new class extends PageOperatorModeLanding {
-			protected function getSessionsLoader() :LoadSessions {
-				return new class extends LoadSessions {
-					public function flat() :array {
-						return [
-							[
-								'login'  => 189200,
-								'shield' => [
-									'last_activity_at' => 196400,
-								],
-							],
-							[
-								'login'  => 27200,
-								'shield' => [
-									'last_activity_at' => 27200,
-								],
-							],
-							[
-								'login' => 198200,
-							],
-						];
-					}
-				};
-			}
-
-			protected function getCurrentTimestamp() :int {
-				return 200000;
-			}
-		};
+		$page = new PageOperatorModeLandingTestDouble(
+			[],
+			[
+				[
+					'login'  => 189200,
+					'shield' => [
+						'last_activity_at' => 196400,
+					],
+				],
+				[
+					'login'  => 27200,
+					'shield' => [
+						'last_activity_at' => 27200,
+					],
+				],
+				[
+					'login' => 198200,
+				],
+			],
+			200000
+		);
 
 		$summary = $this->invokeNonPublicMethod( $page, 'getInvestigateSessionSummary' );
 
@@ -532,45 +525,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function newPage() :PageOperatorModeLanding {
-		return new class( $this->queuePayload ) extends PageOperatorModeLanding {
-			private array $attentionQuery;
-
-			public function __construct( array $attentionQuery ) {
-				$this->attentionQuery = $attentionQuery;
-			}
-
-			protected function getZonePosture() :array {
-				return [
-					'components' => [],
-					'signals'    => [],
-					'totals'     => [
-						'score'        => 72,
-						'max_weight'   => 100,
-						'percentage'   => 72,
-						'letter_score' => 'B',
-					],
-					'percentage' => 72,
-					'severity'   => 'warning',
-					'status'     => 'warning',
-				];
-			}
-
-			protected function getSessionsLoader() :LoadSessions {
-				return new class extends LoadSessions {
-					public function flat() :array {
-						return [];
-					}
-				};
-			}
-
-			protected function getCurrentTimestamp() :int {
-				return 200000;
-			}
-
-			protected function buildAttentionQuery() :array {
-				return $this->attentionQuery;
-			}
-		};
+		return new PageOperatorModeLandingTestDouble( $this->queuePayload );
 	}
 
 	private function installControllerStubWithQueuePayload( array $queuePayload, array $reportsState = [] ) :void {
@@ -581,69 +536,119 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			'latest_alert_at'  => 0,
 		], $reportsState );
 
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		$controller->comps = (object)[];
-		$controller->db_con = (object)[
-			'reports' => new class( $reportsState[ 'reports_count' ], $reportsState[ 'latest_report_at' ], $reportsState[ 'latest_alert_at' ] ) {
-				private int $reportsCount;
-				private int $latestReportAt;
-				private int $latestAlertAt;
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			null,
+			(object)[
+				'comps'  => (object)[],
+				'db_con' => (object)[
+					'reports' => new OperatorModeReportsStore(
+						$reportsState[ 'reports_count' ],
+						$reportsState[ 'latest_report_at' ],
+						$reportsState[ 'latest_alert_at' ]
+					),
+				],
+			]
+		);
+	}
+}
 
-				public function __construct( int $reportsCount, int $latestReportAt, int $latestAlertAt ) {
-					$this->reportsCount = $reportsCount;
-					$this->latestReportAt = $latestReportAt;
-					$this->latestAlertAt = $latestAlertAt;
-				}
+class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
-				public function getQuerySelector() :object {
-					return new class( $this->reportsCount, $this->latestReportAt, $this->latestAlertAt ) {
-						private int $reportsCount;
-						private int $latestReportAt;
-						private int $latestAlertAt;
-						private ?string $type = null;
+	public function __construct(
+		private array $attentionQuery,
+		private array $sessions = [],
+		private int $currentTimestamp = 200000,
+	) {
+	}
 
-						public function __construct( int $reportsCount, int $latestReportAt, int $latestAlertAt ) {
-							$this->reportsCount = $reportsCount;
-							$this->latestReportAt = $latestReportAt;
-							$this->latestAlertAt = $latestAlertAt;
-						}
-
-						public function addWhere( string $column, string $value, string $operator ) :self {
-							return $this;
-						}
-
-						public function filterByType( string $type ) :self {
-							$this->type = $type;
-							return $this;
-						}
-
-						public function setOrderBy( string $column, string $direction = 'DESC', bool $replace = false ) :self {
-							return $this;
-						}
-
-						public function count() :int {
-							return $this->reportsCount;
-						}
-
-						public function first() :?object {
-							$createdAt = $this->type === 'alt' ? $this->latestAlertAt : $this->latestReportAt;
-							return $createdAt > 0 ? (object)[ 'created_at' => $createdAt ] : null;
-						}
-					};
-				}
-			},
+	protected function getZonePosture() :array {
+		return [
+			'components' => [],
+			'signals'    => [],
+			'totals'     => [
+				'score'        => 72,
+				'max_weight'   => 100,
+				'percentage'   => 72,
+				'letter_score' => 'B',
+			],
+			'percentage' => 72,
+			'severity'   => 'warning',
+			'status'     => 'warning',
 		];
-		PluginControllerInstaller::install( $controller );
+	}
+
+	protected function getSessionsLoader() :LoadSessions {
+		return new OperatorModeSessionsLoader( $this->sessions );
+	}
+
+	protected function getCurrentTimestamp() :int {
+		return $this->currentTimestamp;
+	}
+
+	protected function buildAttentionQuery() :array {
+		return $this->attentionQuery;
+	}
+}
+
+class OperatorModeSessionsLoader extends LoadSessions {
+
+	public function __construct( private array $sessions ) {
+	}
+
+	public function flat() :array {
+		return $this->sessions;
+	}
+}
+
+class OperatorModeReportsStore {
+
+	public function __construct(
+		private int $reportsCount,
+		private int $latestReportAt,
+		private int $latestAlertAt
+	) {
+	}
+
+	public function getQuerySelector() :OperatorModeReportsQuerySelector {
+		return new OperatorModeReportsQuerySelector(
+			$this->reportsCount,
+			$this->latestReportAt,
+			$this->latestAlertAt
+		);
+	}
+}
+
+class OperatorModeReportsQuerySelector {
+
+	private ?string $type = null;
+
+	public function __construct(
+		private int $reportsCount,
+		private int $latestReportAt,
+		private int $latestAlertAt
+	) {
+	}
+
+	public function addWhere( string $column, string $value, string $operator ) :self {
+		return $this;
+	}
+
+	public function filterByType( string $type ) :self {
+		$this->type = $type;
+		return $this;
+	}
+
+	public function setOrderBy( string $column, string $direction = 'DESC', bool $replace = false ) :self {
+		return $this;
+	}
+
+	public function count() :int {
+		return $this->reportsCount;
+	}
+
+	public function first() :?object {
+		$createdAt = $this->type === 'alt' ? $this->latestAlertAt : $this->latestReportAt;
+		return $createdAt > 0 ? (object)[ 'created_at' => $createdAt ] : null;
 	}
 }

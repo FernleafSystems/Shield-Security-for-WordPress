@@ -113,6 +113,15 @@ php bin/run-static-analysis.php --help
 composer run-script --list
 ```
 
+For a single focused unit file or a small set of unit files, run PHPUnit directly by path instead of going through the composer suite wrappers:
+
+```bash
+php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
+php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/ActionRouter/Render/ScansResultsViewBuilderSummaryRailTest.php
+```
+
+Use direct file paths for targeted unit work when you need deterministic, serial execution of a specific suite and clear per-file failure output.
+
 For GitHub authentication issues during Docker or source runs, use the troubleshooting steps in [`tests/docker/README.md`](tests/docker/README.md).
 
 ## Operational Boundaries

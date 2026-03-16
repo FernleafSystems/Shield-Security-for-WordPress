@@ -29,17 +29,18 @@ use Brain\Monkey\Functions;
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByUser;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\InvestigateUserLookupBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
-use FernleafSystems\Wordpress\Services\Core\{
-	General,
-	Request,
-	Users
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	InvokesNonPublicMethods,
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestControllerFactory,
+	UnitTestGeneral,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
@@ -378,80 +379,16 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function rootAdminPageSlug() :string {
-				return 'icwp-wpsf-plugin';
-			}
-
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-
-			public function ipAnalysis( string $ip ) :string {
-				return '/admin/'.PluginNavs::NAV_IPS.'/'.PluginNavs::SUBNAV_IPS_RULES.'?analyse_ip='.$ip;
-			}
-
-			public function investigateByIp( string $ip = '' ) :string {
-				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
-			}
-
-			public function investigateByUser( string $lookup = '' ) :string {
-				return empty( $lookup ) ? '/admin/activity/by_user' : '/admin/activity/by_user?user_lookup='.$lookup;
-			}
-
-			public function investigateUserSessions() :string {
-				return '/admin/activity/sessions';
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+		UnitTestControllerFactory::install(
+			pluginUrls: new UnitTestPluginUrls()
+		);
 	}
 
 	private function installServices( array $query = [] ) :void {
 		ServicesState::installItems( [
-			'service_request'  => new class( $query ) extends Request {
-				private array $queryValues;
-
-				public function __construct( array $queryValues = [] ) {
-					$this->queryValues = $queryValues;
-				}
-
-				public function query( $key, $default = null ) {
-					return $this->queryValues[ $key ] ?? $default;
-				}
-
-				public function ip() :string {
-					return '127.0.0.1';
-				}
-
-				public function ts( bool $update = true ) :int {
-					return 1700000000;
-				}
-
-				public function carbon( $setTimezone = false, bool $userLocale = true ) :Carbon {
-					return new Carbon( 'now', 'UTC' );
-				}
-			},
-			'service_wpgeneral' => new class extends General {
-				public function ajaxURL() :string {
-					return '/admin-ajax.php';
-				}
-
-				public function getTimeStringForDisplay( $ts = null, $bShowTime = true, $bShowDate = true ) {
-					return 'display:'.(int)$ts;
-				}
-			},
-			'service_wpusers'   => new class extends Users {
-				public function getCurrentWpUserId() {
-					return 1;
-				}
-			},
+			'service_request'   => new UnitTestRequest( $query ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers(),
 		] );
 	}
 

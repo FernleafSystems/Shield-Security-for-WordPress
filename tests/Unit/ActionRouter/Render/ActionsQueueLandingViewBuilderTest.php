@@ -13,16 +13,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingViewBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenanceAssetFixtures,
 	PluginControllerInstaller,
-	ServicesState
-};
-use FernleafSystems\Wordpress\Services\Core\{
-	Request,
-	Users
+	ServicesState,
+	UnitTestControllerFactory,
+	UnitTestOptionsComponent,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
@@ -298,17 +297,12 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		$controller->opts = new class {
-			public function optGet( string $key ) :array {
-				return $key === 'ignored_maintenance_items'
-					? \array_fill_keys( [
+		UnitTestControllerFactory::install(
+			null,
+			null,
+			(object)[
+				'opts' => new UnitTestOptionsComponent( [
+					'ignored_maintenance_items' => \array_fill_keys( [
 						'wp_plugins_updates',
 						'wp_themes_updates',
 						'wp_plugins_inactive',
@@ -318,31 +312,18 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 						'system_php_version',
 						'wp_db_password',
 						'system_lib_openssl',
-					], [] )
-					: [];
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+					], [] ),
+				] ),
+			]
+		);
 	}
 
 	private function installServices( array $pluginFixture = [], array $themeFixture = [] ) :void {
 		ServicesState::installItems( \array_merge(
 			$this->buildMaintenanceAssetServiceItems( $pluginFixture, $themeFixture ),
 			[
-				'service_request' => new class extends Request {
-					public function ip() :string {
-						return '127.0.0.1';
-					}
-
-					public function ts( bool $update = true ) :int {
-						return 1700000000;
-					}
-				},
-				'service_wpusers' => new class extends Users {
-					public function getCurrentWpUserId() {
-						return 0;
-					}
-				},
+				'service_request' => new UnitTestRequest(),
+				'service_wpusers' => new UnitTestUsers( 0 ),
 			]
 		) );
 	}

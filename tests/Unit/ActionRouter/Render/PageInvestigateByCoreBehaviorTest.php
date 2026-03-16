@@ -12,10 +12,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByCore;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	InvokesNonPublicMethods,
+	PluginControllerInstaller,
+	UnitTestControllerFactory,
+	UnitTestPluginUrls
+};
 
 class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 
@@ -104,23 +107,9 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-
-			public function investigateByCore() :string {
-				return '/admin/activity/by_core';
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+		UnitTestControllerFactory::install(
+			pluginUrls: new UnitTestPluginUrls()
+		);
 	}
 
 }

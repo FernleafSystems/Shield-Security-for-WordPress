@@ -13,18 +13,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	MaintenanceAssetFixtures,
 	PluginControllerInstaller,
-	ServicesState
-};
-use FernleafSystems\Wordpress\Services\Core\{
-	General,
-	Request,
-	Users
+	ServicesState,
+	UnitTestControllerFactory,
+	UnitTestGeneral,
+	UnitTestLicenseComponent,
+	UnitTestOptionsComponent,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestScansComponent,
+	UnitTestUsers
 };
 
 class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
@@ -555,27 +557,12 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			'queuePayload'          => $this->buildQueuePayload( false, 0, 'good', '', [] ),
 			'scansResultsRenderData' => $this->buildScansResultsContract(),
 		];
-
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-
-			public function actionsQueueScans( string $zone = 'scans' ) :string {
-				return '/admin/scans/overview?zone='.$zone;
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		$controller->opts = new class {
-			public function optGet( string $key ) :array {
-				return $key === 'ignored_maintenance_items'
-					? \array_fill_keys( [
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			null,
+			(object)[
+				'opts'          => new UnitTestOptionsComponent( [
+					'ignored_maintenance_items' => \array_fill_keys( [
 						'wp_plugins_updates',
 						'wp_themes_updates',
 						'wp_plugins_inactive',
@@ -585,76 +572,15 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 						'system_php_version',
 						'wp_db_password',
 						'system_lib_openssl',
-					], [] )
-					: [];
-			}
-		};
-		$controller->comps = (object)[
-			'scans' => new class {
-				public function AFS() :object {
-					return new class {
-						public function isEnabledMalwareScanPHP() :bool {
-							return false;
-						}
-
-						public function isScanEnabledWpCore() :bool {
-							return false;
-						}
-
-						public function isScanEnabledPlugins() :bool {
-							return false;
-						}
-
-						public function isScanEnabledThemes() :bool {
-							return false;
-						}
-					};
-				}
-
-				public function WPV() :object {
-					return new class {
-						public function isEnabled() :bool {
-							return false;
-						}
-					};
-				}
-
-				public function APC() :object {
-					return new class {
-						public function isEnabled() :bool {
-							return false;
-						}
-					};
-				}
-			},
-			'license' => new class {
-				public function hasValidWorkingLicense() :bool {
-					return false;
-				}
-			},
-		];
-		$controller->action_router = new class( $this->capture ) {
-			private object $capture;
-
-			public function __construct( object $capture ) {
-				$this->capture = $capture;
-			}
-
-			public function action( string $action, array $actionData = [] ) :object {
-				$this->capture->actionCalls[] = [
-					'action'      => $action,
-					'action_data' => $actionData,
-				];
-
-				return new class {
-					public function payload() :array {
-						return [];
-					}
-				};
-			}
-		};
-
-		PluginControllerInstaller::install( $controller );
+					], [] ),
+				] ),
+				'comps'         => (object)[
+					'scans'   => new UnitTestScansComponent(),
+					'license' => new UnitTestLicenseComponent( false ),
+				],
+				'action_router' => new PageActionsQueueActionRouter( $this->capture ),
+			]
+		);
 	}
 
 	/**
@@ -692,67 +618,9 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		unset( $assetServices[ 'service_wpgeneral' ] );
 
 		ServicesState::installItems( \array_merge( [
-			'service_request' => new class( $query ) extends Request {
-				private array $queryValues;
-
-				public function __construct( array $queryValues = [] ) {
-					$this->queryValues = $queryValues;
-				}
-
-				public function query( $key, $default = null ) {
-					return $this->queryValues[ $key ] ?? $default;
-				}
-
-				public function ip() :string {
-					return '127.0.0.1';
-				}
-
-				public function ts( bool $update = true ) :int {
-					return 1700000000;
-				}
-			},
-			'service_wpgeneral' => new class extends General {
-				public function getAdminUrl( string $path = '', bool $wpmsOnly = false ) :string {
-					return '/wp-admin/'.\ltrim( $path, '/' );
-				}
-
-				public function ajaxURL() :string {
-					return '/admin-ajax.php';
-				}
-
-				public function hasCoreUpdate() :bool {
-					return false;
-				}
-
-				public function getOption( $sKey, $mDefault = false, $bIgnoreWPMS = false ) {
-					return $mDefault;
-				}
-
-				public function getAdminUrl_Updates( bool $bWpmsOnly = false ) :string {
-					return '/wp-admin/update-core.php';
-				}
-
-				public function getAdminUrl_Plugins( bool $wpmsOnly = false ) :string {
-					return '/wp-admin/plugins.php';
-				}
-
-				public function getAdminUrl_Themes( bool $wpmsOnly = false ) :string {
-					return '/wp-admin/themes.php';
-				}
-
-				public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
-					return 'http://example.com/'.\ltrim( $path, '/' );
-				}
-
-				public function getWpUrl( string $path = '' ) :string {
-					return 'http://example.com/'.\ltrim( $path, '/' );
-				}
-			},
-			'service_wpusers' => new class extends Users {
-				public function getCurrentWpUserId() {
-					return 1;
-				}
-			},
+			'service_request'   => new UnitTestRequest( $query ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
 		], $assetServices ) );
 	}
 
@@ -993,6 +861,25 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				],
 			],
 		];
+	}
+}
+
+class PageActionsQueueActionRouter {
+
+	public function __construct( private object $capture ) {
+	}
+
+	public function action( string $action, array $actionData = [] ) :object {
+		$this->capture->actionCalls[] = [
+			'action'      => $action,
+			'action_data' => $actionData,
+		];
+
+		return new class {
+			public function payload() :array {
+				return [];
+			}
+		};
 	}
 }
 

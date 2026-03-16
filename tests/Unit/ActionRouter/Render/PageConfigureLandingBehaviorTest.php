@@ -13,15 +13,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
-	ServicesState
+	RenderCapture,
+	ServicesState,
+	UnitTestActionRouter,
+	UnitTestControllerFactory,
+	UnitTestPluginUrls,
+	UnitTestRequest
 };
-use FernleafSystems\Wordpress\Services\Core\Request;
 
 class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
@@ -538,53 +541,19 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
-		$this->renderCapture = (object)[
-			'calls' => [],
-		];
-
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		$controller->action_router = new class( $this->renderCapture ) {
-			private object $capture;
-
-			public function __construct( object $capture ) {
-				$this->capture = $capture;
-			}
-
-			public function render( string $action, array $actionData = [] ) :string {
-				$this->capture->calls[] = [
-					'action'      => $action,
-					'action_data' => $actionData,
-				];
-				return 'rendered-'.\count( $this->capture->calls );
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+		$this->renderCapture = new RenderCapture();
+		UnitTestControllerFactory::install(
+			pluginUrls: new UnitTestPluginUrls(),
+			actionRouter: new UnitTestActionRouter(
+				capture: $this->renderCapture,
+				renderer: static fn() :string => 'rendered'
+			)
+		);
 	}
 
 	private function installServices( array $query = [] ) :void {
 		ServicesState::installItems( [
-			'service_request' => new class( $query ) extends Request {
-				private array $queryValues;
-
-				public function __construct( array $queryValues = [] ) {
-					$this->queryValues = $queryValues;
-				}
-
-				public function query( $key, $default = null ) {
-					return $this->queryValues[ $key ] ?? $default;
-				}
-			},
+			'service_request' => new UnitTestRequest( $query ),
 		] );
 	}
 }

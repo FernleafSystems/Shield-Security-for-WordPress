@@ -15,18 +15,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateLanding;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
-	ServicesState
-};
-use FernleafSystems\Wordpress\Services\Core\{
-	General,
-	Request,
-	Users
+	RenderCapture,
+	ServicesState,
+	UnitTestActionRouter,
+	UnitTestControllerFactory,
+	UnitTestGeneral,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
@@ -267,74 +268,31 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
-		$this->renderCapture = (object)[
-			'calls' => [],
-		];
-
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		$controller->action_router = new class( $this->renderCapture ) {
-			private object $capture;
-
-			public function __construct( object $capture ) {
-				$this->capture = $capture;
-			}
-
-			public function render( string $action, array $actionData = [] ) :string {
-				$this->capture->calls[] = [
-					'action'      => $action,
-					'action_data' => $actionData,
-				];
-				$lookupData = '';
-				foreach ( [ 'user_lookup', 'analyse_ip', 'plugin_slug', 'theme_slug' ] as $lookupKey ) {
-					if ( isset( $actionData[ $lookupKey ] ) && $actionData[ $lookupKey ] !== '' ) {
-						$lookupData = ';'.$lookupKey.'='.$actionData[ $lookupKey ];
-						break;
+		$this->renderCapture = new RenderCapture();
+		UnitTestControllerFactory::install(
+			pluginUrls: new UnitTestPluginUrls(),
+			actionRouter: new UnitTestActionRouter(
+				capture: $this->renderCapture,
+				renderer: static function ( string $action, array $actionData ) :string {
+					$lookupData = '';
+					foreach ( [ 'user_lookup', 'analyse_ip', 'plugin_slug', 'theme_slug' ] as $lookupKey ) {
+						if ( isset( $actionData[ $lookupKey ] ) && $actionData[ $lookupKey ] !== '' ) {
+							$lookupData = ';'.$lookupKey.'='.$actionData[ $lookupKey ];
+							break;
+						}
 					}
-				}
 
-				return '<div class="inner-page-body-shell"><div>body-for:'.$action.$lookupData.'</div></div>';
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+					return '<div class="inner-page-body-shell"><div>body-for:'.$action.$lookupData.'</div></div>';
+				}
+			)
+		);
 	}
 
 	private function installServices( array $query = [] ) :void {
 		ServicesState::installItems( [
-			'service_request' => new class( $query ) extends Request {
-				private array $queryValues;
-
-				public function __construct( array $queryValues = [] ) {
-					$this->queryValues = $queryValues;
-				}
-
-				public function query( $key, $default = null ) {
-					return $this->queryValues[ $key ] ?? $default;
-				}
-
-				public function ip() :string {
-					return '127.0.0.1';
-				}
-
-				public function ts( bool $update = true ) :int {
-					return 1700000000;
-				}
-			},
-			'service_wpgeneral' => new class extends General {
-				public function ajaxURL() :string {
-					return '/admin-ajax.php';
-				}
-			},
-			'service_wpusers' => new class extends Users {
-				public function getCurrentWpUserId() {
-					return 1;
-				}
-			},
+			'service_request'   => new UnitTestRequest( $query ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers(),
 		] );
 	}
 

@@ -12,20 +12,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByIp;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
-	ServicesState
+	RenderCapture,
+	ServicesState,
+	UnitTestActionRouter,
+	UnitTestControllerFactory,
+	UnitTestGeneral,
+	UnitTestIpUtils,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestUsers
 };
-use FernleafSystems\Wordpress\Services\Core\{
-	General,
-	Request,
-	Users
-};
-use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 
@@ -35,6 +36,9 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( 'sanitize_text_field' )->alias( static fn( $text ) => \is_string( $text ) ? \trim( $text ) : '' );
 		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
@@ -156,79 +160,21 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function rootAdminPageSlug() :string {
-				return 'icwp-wpsf-plugin';
-			}
-
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-
-			public function investigateByIp( string $ip = '' ) :string {
-				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		$controller->action_router = new class {
-			public function render( string $action, array $actionData = [] ) :string {
-				return 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' );
-			}
-		};
-
-		PluginControllerInstaller::install( $controller );
+		UnitTestControllerFactory::install(
+			pluginUrls: new UnitTestPluginUrls(),
+			actionRouter: new UnitTestActionRouter(
+				capture: new RenderCapture(),
+				renderer: static fn( string $action, array $actionData ) :string => 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' )
+			)
+		);
 	}
 
 	private function installServices( array $query = [], ?\Closure $ipValidator = null ) :void {
 		ServicesState::installItems( [
-			'service_request' => new class( $query ) extends Request {
-				private array $queryValues;
-
-				public function __construct( array $queryValues = [] ) {
-					$this->queryValues = $queryValues;
-				}
-
-				public function query( $key, $default = null ) {
-					return $this->queryValues[ $key ] ?? $default;
-				}
-
-				public function ip() :string {
-					return '127.0.0.1';
-				}
-
-				public function ts( bool $update = true ) :int {
-					return 1700000000;
-				}
-			},
-			'service_wpgeneral' => new class extends General {
-				public function ajaxURL() :string {
-					return '/admin-ajax.php';
-				}
-			},
-			'service_wpusers' => new class extends Users {
-				public function getCurrentWpUserId() {
-					return 1;
-				}
-			},
-			'service_ip'      => new class( $ipValidator ) extends IpUtils {
-				private ?\Closure $validator;
-
-				public function __construct( ?\Closure $validator ) {
-					$this->validator = $validator;
-				}
-
-				public function isValidIp( $ip, $flags = null ) {
-					return $this->validator instanceof \Closure
-						? (bool)( $this->validator )( (string)$ip )
-						: \filter_var( $ip, \FILTER_VALIDATE_IP ) !== false;
-				}
-			},
+			'service_request'   => new UnitTestRequest( $query ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers(),
+			'service_ip'        => new UnitTestIpUtils( $ipValidator ),
 		] );
 	}
 

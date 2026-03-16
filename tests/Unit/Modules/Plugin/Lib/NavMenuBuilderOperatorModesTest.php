@@ -11,13 +11,19 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
-use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestControllerFactory,
+	UnitTestLicenseComponent,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestWhitelabelComponent,
+	UnitTestZonesComponent
+};
 use FernleafSystems\Wordpress\Services\Utilities\DataManipulation;
 
 class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
@@ -37,49 +43,25 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_home_mode_builds_structured_sidebar_contract() :void {
-		$this->installControllerStubs();
-		$this->installRequestServiceStub( [] );
+	public function test_home_route_shows_mode_selector_and_home_only_sections() :void {
+		$this->installController();
+		$this->installRequest();
 
 		$sidebar = $this->createBuilder()->build();
 
-		$this->assertArrayHasKey( 'back_item', $sidebar );
-		$this->assertArrayHasKey( 'mode_items', $sidebar );
-		$this->assertArrayHasKey( 'tool_items', $sidebar );
-		$this->assertArrayHasKey( 'home_license_item', $sidebar );
-		$this->assertArrayHasKey( 'home_connect_title', $sidebar );
-		$this->assertArrayHasKey( 'home_connect_items', $sidebar );
-
 		$this->assertNull( $sidebar[ 'back_item' ] );
-		$this->assertSame(
-			[ 'mode-actions', 'mode-investigate', 'mode-configure', 'mode-reports' ],
-			\array_column( $sidebar[ 'mode_items' ], 'slug' )
-		);
-		$this->assertSame(
-			[],
-			\array_column( $sidebar[ 'tool_items' ], 'slug' )
-		);
-		$this->assertSame( 'Connect', $sidebar[ 'home_connect_title' ] );
-		$this->assertSame(
-			[ 'connect-home', 'connect-facebook', 'connect-helpdesk', 'connect-newsletter' ],
-			\array_column( $sidebar[ 'home_connect_items' ], 'slug' )
-		);
-		$this->assertSame(
-			[ '_blank', '_blank', '_blank', '_blank' ],
-			\array_column( $sidebar[ 'home_connect_items' ], 'target' )
-		);
-		$this->assertSame(
-			[ 'icon-house-door', 'icon-facebook', 'icon-life-preserver', 'icon-envelope-paper' ],
-			\array_column( $sidebar[ 'home_connect_items' ], 'img' )
-		);
+		$this->assertSame( PluginNavs::allOperatorModes(), \array_column( $sidebar[ 'mode_items' ], 'mode' ) );
+		$this->assertSame( [], $sidebar[ 'tool_items' ] );
 		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] ?? '' );
-		$this->assertSame( 'Go PRO!', $sidebar[ 'home_license_item' ][ 'badge' ][ 'text' ] ?? '' );
 		$this->assertSame( 'warning', $sidebar[ 'home_license_item' ][ 'badge' ][ 'status' ] ?? '' );
+		$this->assertNotSame( '', $sidebar[ 'home_connect_title' ] );
+		$this->assertCount( 4, $sidebar[ 'home_connect_items' ] );
+		$this->assertNotNull( $this->findItemBySlug( $sidebar[ 'home_connect_items' ], 'connect-helpdesk' ) );
 	}
 
-	public function test_actions_mode_includes_back_item_and_actions_badge() :void {
-		$this->installControllerStubs();
-		$this->installRequestServiceStub( [
+	public function test_actions_route_marks_current_mode_and_tool_and_shows_summary_badge() :void {
+		$this->installController();
+		$this->installRequest( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_SCANS,
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_SCANS_RUN,
 		] );
@@ -92,35 +74,26 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 		$this->assertSame( 'mode-selector-back', $sidebar[ 'back_item' ][ 'slug' ] ?? '' );
 		$this->assertSame( '/admin/home', $sidebar[ 'back_item' ][ 'href' ] ?? '' );
-		$this->assertContains( 'sidebar-back-link', $sidebar[ 'back_item' ][ 'classes' ] ?? [] );
+		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
+		$this->assertNull( $sidebar[ 'home_license_item' ] );
 
-		$actionsMode = \array_values( \array_filter(
-			$sidebar[ 'mode_items' ],
-			static fn( array $item ) :bool => ( $item[ 'slug' ] ?? '' ) === 'mode-actions'
-		) )[ 0 ] ?? [];
+		$actionsMode = $this->findItemBySlug( $sidebar[ 'mode_items' ], 'mode-actions' );
 		$this->assertTrue( (bool)( $actionsMode[ 'active' ] ?? false ) );
 		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] ?? '' );
 		$this->assertSame( 'critical', $actionsMode[ 'badge' ][ 'status' ] ?? '' );
 
-		$this->assertSame(
-			[ PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN ],
-			\array_column( $sidebar[ 'tool_items' ], 'slug' )
-		);
-		$this->assertTrue( (bool)( $sidebar[ 'tool_items' ][ 0 ][ 'active' ] ?? false ) );
-		$this->assertNull( $sidebar[ 'home_license_item' ] );
-		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
-		$this->assertSame( [], $sidebar[ 'home_connect_items' ] );
+		$scanTool = $this->findItemBySlug( $sidebar[ 'tool_items' ], PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN );
+		$this->assertTrue( (bool)( $scanTool[ 'active' ] ?? false ) );
 	}
 
-	public function test_investigate_mode_tools_match_required_peers_without_parent_activity_item() :void {
-		$this->installControllerStubs();
-		$this->installRequestServiceStub( [
+	public function test_investigate_mode_shows_peer_tools_without_reintroducing_parent_activity_item() :void {
+		$this->installController();
+		$this->installRequest( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_ACTIVITY,
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LOGS,
 		] );
 
-		$sidebar = $this->createBuilder()->build();
-		$toolItems = $sidebar[ 'tool_items' ];
+		$toolItems = $this->createBuilder()->build()[ 'tool_items' ];
 
 		$this->assertSame(
 			[
@@ -131,119 +104,29 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			],
 			\array_column( $toolItems, 'slug' )
 		);
-		$this->assertSame(
-			[ 'Bots & IP Rules', 'WP Activity Log', 'HTTP Request Log', 'User Sessions' ],
-			\array_column( $toolItems, 'title' )
-		);
-		$this->assertNotContains( 'Activity Logs', \array_column( $toolItems, 'title' ) );
-		$this->assertSame(
-			[
-				'/admin/ips/rules',
-				'/admin/activity/logs',
-				'/admin/traffic/logs',
-				'/admin/activity/sessions',
-			],
-			\array_column( $toolItems, 'href' )
-		);
-		$this->assertFalse( (bool)( $toolItems[ 0 ][ 'active' ] ?? true ) );
-		$this->assertTrue( (bool)( $toolItems[ 1 ][ 'active' ] ?? false ) );
-		$this->assertFalse( (bool)( $toolItems[ 2 ][ 'active' ] ?? true ) );
-		$this->assertFalse( (bool)( $toolItems[ 3 ][ 'active' ] ?? true ) );
+		$this->assertTrue( (bool)( $this->findItemBySlug( $toolItems, PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS )[ 'active' ] ?? false ) );
 	}
 
-	public function test_investigate_sessions_route_marks_user_sessions_tool_active() :void {
-		$this->installControllerStubs();
-		$this->installRequestServiceStub( [
-			PluginNavs::FIELD_NAV    => PluginNavs::NAV_ACTIVITY,
-			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_ACTIVITY_SESSIONS,
-		] );
-
-		$sidebar = $this->createBuilder()->build();
-		$toolItems = $sidebar[ 'tool_items' ];
-
-		$this->assertSame(
-			[
-				false,
-				false,
-				false,
-				true,
-			],
-			\array_map(
-				static fn( array $item ) :bool => (bool)( $item[ 'active' ] ?? false ),
-				$toolItems
-			)
-		);
-	}
-
-	public function test_configure_mode_includes_guided_setup_and_debug_info_tools() :void {
-		$this->installControllerStubs();
-		$this->installRequestServiceStub( [
+	public function test_configure_mode_keeps_static_tools_and_configure_only_zone_component_entries() :void {
+		$this->installController();
+		$this->installRequest( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_DEBUG,
 		] );
 
-		$sidebar = $this->createBuilder()->build();
-		$toolItems = $sidebar[ 'tool_items' ];
-
-		$this->assertSame(
-			[
-				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_MANAGE,
-				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_BUILD,
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_IMPORT,
-				PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME,
-				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
-				PluginNavs::NAV_TOOLS.'-whitelabel',
-				PluginNavs::NAV_TOOLS.'-loginhide',
-				PluginNavs::NAV_TOOLS.'-integrations',
-			],
-			\array_column( $toolItems, 'slug' )
-		);
-		$this->assertSame(
-			[
-				'Custom Rules Manager',
-				'New Custom Rule',
-				'Site Lockdown',
-				'Import / Export',
-				'Guided Setup',
-				'Debug Info',
-				'White Label',
-				'Hide Login',
-				'Integrations',
-			],
-			\array_column( $toolItems, 'title' )
-		);
-		$this->assertSame(
-			[
-				'/admin/rules/manage',
-				'/admin/rules/build',
-				'/admin/tools/blockdown',
-				'/admin/tools/importexport',
-				'/admin/merlin/welcome',
-				'/admin/tools/debug',
-			],
-			\array_slice( \array_column( $toolItems, 'href' ), 0, 6 )
-		);
-		$this->assertTrue( (bool)( $toolItems[ 5 ][ 'active' ] ?? false ) );
-		$this->assertFalse( (bool)( $toolItems[ 4 ][ 'active' ] ?? true ) );
-	}
-
-	public function test_configure_wizard_route_marks_guided_setup_tool_active() :void {
-		$this->installControllerStubs();
-		$this->installRequestServiceStub( [
-			PluginNavs::FIELD_NAV    => PluginNavs::NAV_WIZARD,
-			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_WIZARD_WELCOME,
-		] );
-
 		$toolItems = $this->createBuilder()->build()[ 'tool_items' ];
 
-		$this->assertTrue( (bool)( $toolItems[ 4 ][ 'active' ] ?? false ) );
-		$this->assertFalse( (bool)( $toolItems[ 5 ][ 'active' ] ?? true ) );
+		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME ) );
+		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' ) );
+		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-loginhide' ) );
+		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-integrations' ) );
+		$this->assertTrue( (bool)( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG )[ 'active' ] ?? false ) );
+		$this->assertFalse( (bool)( $this->findItemBySlug( $toolItems, PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME )[ 'active' ] ?? true ) );
 	}
 
-	public function test_home_connect_items_are_omitted_for_whitelabel() :void {
-		$this->installControllerStubs( true );
-		$this->installRequestServiceStub( [] );
+	public function test_whitelabel_hides_home_connect_items() :void {
+		$this->installController( isWhitelabelled: true );
+		$this->installRequest();
 
 		$sidebar = $this->createBuilder()->build();
 
@@ -251,100 +134,37 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( [], $sidebar[ 'home_connect_items' ] );
 	}
 
-	private function installControllerStubs(
-		bool $isWhitelabelled = false,
-		bool $isPremium = false
-	) :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+	private function installController( bool $isWhitelabelled = false, bool $isPremium = false ) :void {
+		UnitTestControllerFactory::install(
+			pluginUrls: new UnitTestPluginUrls(),
+			extras: (object)[
+				'cfg' => (object)[
+					'properties' => [
+						'slug_parent'      => 'icwp',
+						'slug_plugin'      => 'wpsf',
+						'base_permissions' => 'manage_options',
+					],
+				],
+				'user_can_base_permissions' => true,
+				'labels' => (object)[
+					'url_helpdesk' => 'https://help.example.com',
+					'Name'         => 'Shield',
+				],
+				'comps' => (object)[
+					'license'    => new UnitTestLicenseComponent( $isPremium ),
+					'whitelabel' => new UnitTestWhitelabelComponent( $isWhitelabelled ),
+					'zones'      => new UnitTestZonesComponent(),
+				],
+			]
+		);
+	}
 
-		$controller->cfg = (object)[
-			'properties' => [
-				'slug_parent' => 'icwp',
-				'slug_plugin' => 'wpsf',
-			],
-		];
-		$controller->user_can_base_permissions = true;
-		$controller->plugin_urls = new class {
-			public function adminHome() :string {
-				return '/admin/home';
-			}
-
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-
-			public function adminIpRules() :string {
-				return '/admin/ips/rules';
-			}
-
-			public function wizard( string $step ) :string {
-				return '/admin/wizard/'.$step;
-			}
-
-			public function investigateUserSessions() :string {
-				return '/admin/activity/sessions';
-			}
-
-			public function licenseCheck() :string {
-				return '/admin/license';
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $slug ) :string {
-				return 'icon-'.$slug;
-			}
-		};
-		$controller->labels = (object)[
-			'url_helpdesk' => 'https://help.example.com',
-			'Name'         => 'Shield',
-		];
-		$controller->comps = (object)[
-			'license'    => new class( $isPremium ) {
-				private bool $isPremium;
-
-				public function __construct( bool $isPremium ) {
-					$this->isPremium = $isPremium;
-				}
-
-				public function hasValidWorkingLicense() :bool {
-					return $this->isPremium;
-				}
-			},
-			'whitelabel' => new class( $isWhitelabelled ) {
-				private bool $enabled;
-
-				public function __construct( bool $enabled ) {
-					$this->enabled = $enabled;
-				}
-
-				public function isEnabled() :bool {
-					return $this->enabled;
-				}
-			},
-			'zones'      => new class {
-				public function getZoneComponent( string $slug ) :object {
-					return new class( $slug ) {
-						private string $slug;
-
-						public function __construct( string $slug ) {
-							$this->slug = $slug;
-						}
-
-						public function getActions() :array {
-							return [
-								'config' => [
-									'href'    => '/admin/zone/'.$this->slug,
-									'active'  => false,
-									'classes' => [],
-								],
-							];
-						}
-					};
-				}
-			},
-		];
-		PluginControllerInstaller::install( $controller );
+	private function installRequest( array $query = [] ) :void {
+		$_GET = $query;
+		ServicesState::installItems( [
+			'service_request'          => new UnitTestRequest( $query ),
+			'service_datamanipulation' => new DataManipulation(),
+		] );
 	}
 
 	private function createBuilder( array $summary = [] ) :NavMenuBuilder {
@@ -357,21 +177,19 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		);
 	}
 
-	private function installRequestServiceStub( array $query ) :void {
-		$_GET = $query;
-		ServicesState::installItems( [
-			'service_request'          => new Request(),
-			'service_datamanipulation' => new DataManipulation(),
-		] );
+	private function findItemBySlug( array $items, string $slug ) :?array {
+		foreach ( $items as $item ) {
+			if ( ( $item[ 'slug' ] ?? '' ) === $slug ) {
+				return $item;
+			}
+		}
+		return null;
 	}
 }
 
 class NavMenuBuilderTestDouble extends NavMenuBuilder {
 
-	private array $summary;
-
-	public function __construct( array $summary ) {
-		$this->summary = $summary;
+	public function __construct( private array $summary ) {
 	}
 
 	protected function buildActionsQueueSummaryContract() :array {

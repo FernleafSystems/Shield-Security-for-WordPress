@@ -11,11 +11,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenanceAssetFixtures,
-	ServicesState
-};
-use FernleafSystems\Wordpress\Services\Core\{
-	Request,
-	Users
+	ServicesState,
+	UnitTestMaintenanceIssueStateProvider,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
@@ -66,20 +65,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installServices();
 		ServicesState::mergeItems( [
-			'service_request' => new class extends Request {
-				public function ip() :string {
-					return '127.0.0.1';
-				}
-
-				public function ts( bool $update = true ) :int {
-					return 1700000000;
-				}
-			},
-			'service_wpusers' => new class extends Users {
-				public function getCurrentWpUserId() {
-					return 0;
-				}
-			},
+			'service_request' => new UnitTestRequest(),
+			'service_wpusers' => new UnitTestUsers( 0 ),
 		] );
 	}
 
@@ -405,20 +392,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		ServicesState::installItems( \array_merge(
 			$this->buildMaintenanceAssetServiceItems( $fixture[ 'plugins' ], $fixture[ 'themes' ] ),
 			[
-				'service_request' => new class extends Request {
-					public function ip() :string {
-						return '127.0.0.1';
-					}
-
-					public function ts( bool $update = true ) :int {
-						return 1700000000;
-					}
-				},
-				'service_wpusers' => new class extends Users {
-					public function getCurrentWpUserId() {
-						return 0;
-					}
-				},
+				'service_request' => new UnitTestRequest(),
+				'service_wpusers' => new UnitTestUsers( 0 ),
 			]
 		) );
 	}
@@ -433,16 +408,6 @@ class MaintenanceQueueItemDisplayNormalizerTestDouble extends MaintenanceQueueIt
 	}
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
-		return new class( $this->states ) extends MaintenanceIssueStateProvider {
-			private array $states;
-
-			public function __construct( array $states ) {
-				$this->states = $states;
-			}
-
-			public function buildStates() :array {
-				return $this->states;
-			}
-		};
+		return new UnitTestMaintenanceIssueStateProvider( $this->states );
 	}
 }

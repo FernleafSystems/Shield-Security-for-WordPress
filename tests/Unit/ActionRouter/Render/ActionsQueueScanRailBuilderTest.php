@@ -9,11 +9,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanRailBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
-use FernleafSystems\Wordpress\Services\Core\{
-	General,
-	Request,
-	Users
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	ServicesState,
+	UnitTestGeneral,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
@@ -61,25 +61,9 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::mergeItems( [
-			'service_wpgeneral' => new class extends General {
-				public function ajaxURL() :string {
-					return '/admin-ajax.php';
-				}
-			},
-			'service_request'   => new class extends Request {
-				public function ip() :string {
-					return '127.0.0.1';
-				}
-
-				public function ts( bool $update = true ) :int {
-					return 1700000000;
-				}
-			},
-			'service_wpusers'   => new class extends Users {
-				public function getCurrentWpUserId() {
-					return 0;
-				}
-			},
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_request'   => new UnitTestRequest(),
+			'service_wpusers'   => new UnitTestUsers( 0 ),
 		] );
 	}
 

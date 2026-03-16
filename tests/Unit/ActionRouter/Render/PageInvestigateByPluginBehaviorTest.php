@@ -12,18 +12,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByPlugin;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
-	ServicesState
-};
-use FernleafSystems\Wordpress\Services\Core\{
-	General,
-	Request,
-	Users
+	ServicesState,
+	UnitTestControllerFactory,
+	UnitTestGeneral,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
@@ -272,60 +271,16 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function rootAdminPageSlug() :string {
-				return 'icwp-wpsf-plugin';
-			}
-
-			public function adminTopNav( string $nav, string $subnav = '' ) :string {
-				return '/admin/'.$nav.'/'.$subnav;
-			}
-
-			public function investigateByPlugin( string $slug = '' ) :string {
-				return empty( $slug ) ? '/admin/activity/by_plugin' : '/admin/activity/by_plugin?plugin_slug='.$slug;
-			}
-		};
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+		UnitTestControllerFactory::install(
+			pluginUrls: new UnitTestPluginUrls()
+		);
 	}
 
 	private function installServices( array $query = [] ) :void {
 		ServicesState::installItems( [
-			'service_request' => new class( $query ) extends Request {
-				private array $queryValues;
-
-				public function __construct( array $queryValues = [] ) {
-					$this->queryValues = $queryValues;
-				}
-
-				public function query( $key, $default = null ) {
-					return $this->queryValues[ $key ] ?? $default;
-				}
-
-				public function ip() :string {
-					return '127.0.0.1';
-				}
-
-				public function ts( bool $update = true ) :int {
-					return 1700000000;
-				}
-			},
-			'service_wpgeneral' => new class extends General {
-				public function ajaxURL() :string {
-					return '/admin-ajax.php';
-				}
-			},
-			'service_wpusers' => new class extends Users {
-				public function getCurrentWpUserId() {
-					return 1;
-				}
-			},
+			'service_request'   => new UnitTestRequest( $query ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers(),
 		] );
 	}
 
