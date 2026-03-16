@@ -6,7 +6,6 @@ const port = process.env.SHIELD_PLAYGROUND_PORT || '9400';
 const phpVersion = process.env.SHIELD_PLAYGROUND_PHP || '8.2';
 const wpVersion = process.env.SHIELD_PLAYGROUND_WP || 'latest';
 const baseUrl = `http://127.0.0.1:${port}/wp-admin/`;
-const isWindows = process.platform === 'win32';
 
 function requestUrl( url ) {
 	const client = url.startsWith( 'https:' ) ? https : http;
@@ -40,10 +39,8 @@ async function waitForServerReady( url, timeoutMs ) {
 
 function buildPlaywrightCommand() {
 	return {
-		command: isWindows
-			? 'node_modules\\.bin\\playwright.cmd'
-			: 'node_modules/.bin/playwright',
-		args: [ 'test', ...process.argv.slice( 2 ) ],
+		command: process.execPath,
+		args: [ require.resolve( '@playwright/test/cli' ), 'test', ...process.argv.slice( 2 ) ],
 	};
 }
 
