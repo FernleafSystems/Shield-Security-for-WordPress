@@ -2,6 +2,45 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+/**
+ * @phpstan-type DrillLayerContextInput array{
+ *   path?:list<string>,
+ *   focus?:string,
+ *   next_step?:string
+ * }
+ * @phpstan-type RawDrillLayer array{
+ *   key:non-empty-string,
+ *   label:string,
+ *   body:string,
+ *   badge?:string,
+ *   badge_status?:string,
+ *   context?:DrillLayerContextInput
+ * }
+ * @phpstan-type DrillLayerContext array{
+ *   path:list<string>,
+ *   focus:string,
+ *   next_step:string
+ * }
+ * @phpstan-type DrillLayer array{
+ *   key:non-empty-string,
+ *   label:string,
+ *   badge:string,
+ *   badge_status:string,
+ *   body:string,
+ *   context:DrillLayerContext
+ * }
+ * @phpstan-type DrillShell array{
+ *   id:string,
+ *   mode:string,
+ *   active_index:int,
+ *   layers:list<DrillLayer>
+ * }
+ * @phpstan-type DrillContextCard array{
+ *   shell_id:string,
+ *   mode:string,
+ *   initial_context:DrillLayerContext
+ * }
+ */
 abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 
 	private const VALID_BADGE_STATUSES = [
@@ -13,14 +52,7 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	];
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   label?:string,
-	 *   badge?:string,
-	 *   badge_status?:string,
-	 *   body?:string,
-	 *   context?:array{path?:array<int|string,mixed>,focus?:mixed,next_step?:mixed}
-	 * }>
+	 * @return list<RawDrillLayer>
 	 */
 	abstract protected function getLayers() :array;
 
@@ -31,7 +63,6 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		$mode = $this->getLandingMode();
 		$layers = $this->normalizeLayers( $this->getLayers() );
 		$activeIndex = $this->clampActiveLayerIndex( $this->getActiveLayerIndex(), \count( $layers ) );
-		$layers = $this->applyActiveLayer( $layers, $activeIndex );
 		$shellId = sanitize_key( $mode.'_drill_shell' );
 
 		$vars[ 'drill_shell' ] = [
@@ -52,17 +83,8 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	}
 
 	/**
-	 * @param array<int,mixed> $layers
-	 * @return list<array{
-	 *   index:int,
-	 *   key:string,
-	 *   label:string,
-	 *   badge:string,
-	 *   badge_status:string,
-	 *   body:string,
-	 *   context:array{path:list<string>,focus:string,next_step:string},
-	 *   is_active:bool
-	 * }>
+	 * @param list<RawDrillLayer> $layers
+	 * @return list<DrillLayer>
 	 */
 	private function normalizeLayers( array $layers ) :array {
 		$normalized = [];
@@ -71,24 +93,19 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 			if ( \count( $normalized ) >= 3 ) {
 				break;
 			}
-			if ( !\is_array( $layer ) ) {
-				continue;
-			}
 
-			$key = sanitize_key( $this->normalizeStringValue( $layer[ 'key' ] ?? '' ) );
+			$key = sanitize_key( $layer[ 'key' ] );
 			if ( empty( $key ) ) {
 				continue;
 			}
 
 			$normalized[] = [
-				'index'        => \count( $normalized ),
 				'key'          => $key,
-				'label'        => $this->normalizeStringValue( $layer[ 'label' ] ?? '' ),
-				'badge'        => $this->normalizeStringValue( $layer[ 'badge' ] ?? '' ),
-				'badge_status' => $this->sanitizeBadgeStatus( $this->normalizeStringValue( $layer[ 'badge_status' ] ?? '' ) ),
-				'body'         => $this->normalizeStringValue( $layer[ 'body' ] ?? '' ),
+				'label'        => $layer[ 'label' ],
+				'badge'        => $layer[ 'badge' ] ?? '',
+				'badge_status' => $this->sanitizeBadgeStatus( $layer[ 'badge_status' ] ?? '' ),
+				'body'         => $layer[ 'body' ],
 				'context'      => $this->normalizeLayerContext( $layer[ 'context' ] ?? [] ),
-				'is_active'    => false,
 			];
 		}
 
@@ -104,67 +121,21 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	}
 
 	/**
-	 * @param mixed $context
-	 * @return array{path:list<string>,focus:string,next_step:string}
+	 * @param DrillLayerContextInput $context
+	 * @return DrillLayerContext
 	 */
-	private function normalizeLayerContext( $context ) :array {
-		if ( !\is_array( $context ) ) {
-			return $this->emptyLayerContext();
-		}
-
-		$path = $context[ 'path' ] ?? [];
-		if ( !\is_array( $path ) ) {
-			$path = [];
-		}
-
+	private function normalizeLayerContext( array $context ) :array {
 		return [
 			'path'      => \array_values( \array_filter(
 				\array_map(
-					fn( $segment ) :string => $this->normalizeTrimmedString( $segment ),
-					$path
+					static fn( string $segment ) :string => \trim( $segment ),
+					$context[ 'path' ] ?? []
 				),
 				static fn( string $segment ) :bool => $segment !== ''
 			) ),
-			'focus'     => $this->normalizeTrimmedString( $context[ 'focus' ] ?? '' ),
-			'next_step' => $this->normalizeTrimmedString( $context[ 'next_step' ] ?? '' ),
+			'focus'     => \trim( $context[ 'focus' ] ?? '' ),
+			'next_step' => \trim( $context[ 'next_step' ] ?? '' ),
 		];
-	}
-
-	/**
-	 * @param list<array{
-	 *   index:int,
-	 *   key:string,
-	 *   label:string,
-	 *   badge:string,
-	 *   badge_status:string,
-	 *   body:string,
-	 *   context:array{path:list<string>,focus:string,next_step:string},
-	 *   is_active:bool
-	 * }> $layers
-	 * @return list<array{
-	 *   index:int,
-	 *   key:string,
-	 *   label:string,
-	 *   badge:string,
-	 *   badge_status:string,
-	 *   body:string,
-	 *   context:array{path:list<string>,focus:string,next_step:string},
-	 *   is_active:bool
-	 * }>
-	 */
-	private function applyActiveLayer( array $layers, int $activeIndex ) :array {
-		if ( empty( $layers ) ) {
-			return $layers;
-		}
-
-		$activeIndex = $this->clampActiveLayerIndex( $activeIndex, \count( $layers ) );
-
-		foreach ( $layers as $index => &$layer ) {
-			$layer[ 'is_active' ] = $index === $activeIndex;
-		}
-		unset( $layer );
-
-		return $layers;
 	}
 
 	private function clampActiveLayerIndex( int $activeIndex, int $layerCount ) :int {
@@ -176,25 +147,7 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	}
 
 	/**
-	 * @param mixed $value
-	 */
-	private function normalizeTrimmedString( $value ) :string {
-		return \trim( $this->normalizeStringValue( $value ) );
-	}
-
-	/**
-	 * @param mixed $value
-	 */
-	private function normalizeStringValue( $value ) :string {
-		if ( \is_scalar( $value ) || ( \is_object( $value ) && \method_exists( $value, '__toString' ) ) ) {
-			return (string)$value;
-		}
-
-		return '';
-	}
-
-	/**
-	 * @return array{path:list<string>,focus:string,next_step:string}
+	 * @return DrillLayerContext
 	 */
 	private function emptyLayerContext() :array {
 		return [

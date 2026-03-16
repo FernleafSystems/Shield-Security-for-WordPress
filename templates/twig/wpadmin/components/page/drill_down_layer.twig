@@ -1,25 +1,23 @@
-{% set layer_data = layer|default({}) %}
-{% set layer_state = layer_data.state|default('active') %}
 {% set layer_classes = ['drill-layer'] %}
-{% if layer_state == 'compact' %}
+{% if layer.state == 'compact' %}
 	{% set layer_classes = layer_classes|merge(['drill-layer--compact']) %}
-{% elseif layer_state == 'hidden' %}
+{% elseif layer.state == 'hidden' %}
 	{% set layer_classes = layer_classes|merge(['drill-layer--hidden']) %}
 {% endif %}
 
 <div class="{{ layer_classes|join(' ') }}"
-	 data-drill-layer="{{ layer_data.index|default(0)|e('html_attr') }}"
-	 data-drill-layer-key="{{ layer_data.key|default('')|e('html_attr') }}"
-	 data-drill-layer-context="{{ layer_data.context|default({})|json_encode|e('html_attr') }}">
+	 data-drill-layer="{{ layer.index|e('html_attr') }}"
+	 data-drill-layer-key="{{ layer.key|e('html_attr') }}"
+	 data-drill-layer-context="{{ layer.context|json_encode|e('html_attr') }}">
 	{% include '/wpadmin/components/page/drill_down_strip.twig' with {
 		strip: {
-			label: layer_data.label|default(''),
-			badge: layer_data.badge|default(''),
-			badge_status: layer_data.badge_status|default('info'),
-			mode: layer_data.mode|default('')
+			label: layer.label,
+			badge: layer.badge,
+			badge_status: layer.badge_status,
+			mode: layer.mode
 		}
 	} only %}
 	<div class="drill-layer__body">
-		{{ layer_data.body|default('')|raw }}
+		{{ layer.body|raw }}
 	</div>
 </div>

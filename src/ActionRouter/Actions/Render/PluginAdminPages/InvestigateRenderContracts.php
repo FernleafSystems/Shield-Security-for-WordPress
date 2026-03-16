@@ -13,16 +13,60 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
+/**
+ * @phpstan-type LookupBehaviorContract array{
+ *   panel_form:bool,
+ *   use_select2:bool,
+ *   auto_submit_on_change:bool
+ * }
+ * @phpstan-type LookupRouteContract array{
+ *   page:string,
+ *   nav:string,
+ *   nav_sub:string
+ * }
+ * @phpstan-type LookupAjaxContract array{
+ *   subject:string,
+ *   minimum_input_length:int,
+ *   delay_ms:int,
+ *   action:array<string,mixed>
+ * }
+ * @phpstan-type InvestigationTableContract array{
+ *   title:string,
+ *   status:string,
+ *   full_log_text:string,
+ *   full_log_button_class:string,
+ *   show_header:bool,
+ *   is_flat:bool,
+ *   is_empty:bool,
+ *   empty_status:string,
+ *   empty_text:string
+ * }&array<string,mixed>
+ * @phpstan-type InvestigationTableContractInput array{
+ *   title:string,
+ *   status:string,
+ *   table_type?:string,
+ *   subject_type?:string,
+ *   subject_id?:string,
+ *   datatables_init?:array<string,mixed>,
+ *   table_action?:array<string,mixed>,
+ *   full_log_href?:string,
+ *   full_log_text?:string,
+ *   full_log_button_class?:string,
+ *   show_header?:bool,
+ *   scan_results_action?:array<string,mixed>,
+ *   render_item_analysis?:array<string,mixed>,
+ *   is_flat?:bool,
+ *   is_empty?:bool,
+ *   empty_status?:string,
+ *   empty_text?:string
+ * }
+ */
 trait InvestigateRenderContracts {
 
 	use PluginControllerConsumer;
 
 	/**
-	 * @return array{
-	 *   panel_form:bool,
-	 *   use_select2:bool,
-	 *   auto_submit_on_change:bool
-	 * }
+	 * @return LookupBehaviorContract
 	 */
 	protected function buildLookupBehaviorContract(
 		bool $panelForm = true,
@@ -37,11 +81,7 @@ trait InvestigateRenderContracts {
 	}
 
 	/**
-	 * @return array{
-	 *   page:string,
-	 *   nav:string,
-	 *   nav_sub:string
-	 * }
+	 * @return LookupRouteContract
 	 */
 	protected function buildLookupRouteContract( string $subNav ) :array {
 		return [
@@ -52,12 +92,7 @@ trait InvestigateRenderContracts {
 	}
 
 	/**
-	 * @return array{
-	 *   subject:string,
-	 *   minimum_input_length:int,
-	 *   delay_ms:int,
-	 *   action:array<string,mixed>
-	 * }
+	 * @return LookupAjaxContract
 	 */
 	protected function buildLookupAjaxContract( string $subject, int $minimumInputLength = 2, int $delayMs = 700 ) :array {
 		return [
@@ -77,6 +112,11 @@ trait InvestigateRenderContracts {
 		);
 	}
 
+	/**
+	 * @param array<string,mixed> $datatablesInit
+	 * @param array<string,mixed> $tableAction
+	 * @return InvestigationTableContract
+	 */
 	protected function buildTableContainerContract(
 		string $title,
 		string $status,
@@ -102,7 +142,7 @@ trait InvestigateRenderContracts {
 	/**
 	 * @param array<string,mixed> $datatablesInit
 	 * @param array<string,mixed> $scanResultsActionData
-	 * @return array<string,mixed>
+	 * @return InvestigationTableContract
 	 */
 	protected function buildFlatScanResultsTableContract(
 		string $title,
@@ -134,6 +174,10 @@ trait InvestigateRenderContracts {
 		return $this->normalizeInvestigationTableContract( $table );
 	}
 
+	/**
+	 * @param InvestigationTableContractInput $table
+	 * @return InvestigationTableContract
+	 */
 	protected function withEmptyStateTableContract( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
 		if ( $count > 0 ) {
 			$table[ 'is_empty' ] = false;
@@ -147,34 +191,22 @@ trait InvestigateRenderContracts {
 		return $this->normalizeInvestigationTableContract( $table );
 	}
 
+	/**
+	 * @param InvestigationTableContractInput $table
+	 * @return InvestigationTableContract
+	 */
 	protected function normalizeInvestigationTableContract( array $table ) :array {
-		$table[ 'title' ] = $this->normalizeContractString( $table, 'title', '' );
-		$table[ 'status' ] = $this->normalizeContractString( $table, 'status', 'info' );
-		$table[ 'full_log_text' ] = $this->normalizeContractString(
-			$table,
-			'full_log_text',
-			__( 'Full Log', 'wp-simple-firewall' )
+		return \array_merge(
+			[
+				'full_log_text'         => __( 'Full Log', 'wp-simple-firewall' ),
+				'full_log_button_class' => 'btn btn-outline-secondary btn-sm',
+				'show_header'           => true,
+				'is_flat'               => false,
+				'is_empty'              => false,
+				'empty_status'          => 'info',
+				'empty_text'            => '',
+			],
+			$table
 		);
-		$table[ 'full_log_button_class' ] = $this->normalizeContractString(
-			$table,
-			'full_log_button_class',
-			'btn btn-outline-secondary btn-sm'
-		);
-		$table[ 'show_header' ] = $this->normalizeContractBool( $table, 'show_header', true );
-		$table[ 'is_flat' ] = $this->normalizeContractBool( $table, 'is_flat', false );
-		$table[ 'is_empty' ] = $this->normalizeContractBool( $table, 'is_empty', false );
-		$table[ 'empty_status' ] = $this->normalizeContractString( $table, 'empty_status', 'info' );
-		$table[ 'empty_text' ] = $this->normalizeContractString( $table, 'empty_text', '' );
-		return $table;
-	}
-
-	private function normalizeContractString( array $table, string $key, string $default ) :string {
-		$value = $table[ $key ] ?? $default;
-		return \is_string( $value ) ? $value : $default;
-	}
-
-	private function normalizeContractBool( array $table, string $key, bool $default ) :bool {
-		$value = $table[ $key ] ?? $default;
-		return \is_bool( $value ) ? $value : $default;
 	}
 }

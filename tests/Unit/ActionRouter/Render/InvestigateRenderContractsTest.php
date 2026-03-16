@@ -73,28 +73,28 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( '', $normalized[ 'empty_text' ] ?? 'missing' );
 	}
 
-	public function test_normalize_table_contract_does_not_coerce_wrong_types() :void {
+	public function test_normalize_table_contract_preserves_explicit_overrides() :void {
 		$normalized = ( new InvestigateRenderContractsTestDouble() )->normalizeTableContract( [
-			'title'                  => 99,
-			'status'                 => [ 'warning' ],
-			'full_log_text'          => true,
-			'full_log_button_class'  => null,
-			'show_header'            => 'yes',
-			'is_flat'                => 1,
-			'is_empty'               => 'yes',
-			'empty_status'           => false,
-			'empty_text'             => 123,
+			'title'                  => 'Recent Requests',
+			'status'                 => 'warning',
+			'full_log_text'          => 'Open Requests Log',
+			'full_log_button_class'  => 'btn btn-primary btn-sm',
+			'show_header'            => false,
+			'is_flat'                => true,
+			'is_empty'               => true,
+			'empty_status'           => 'warning',
+			'empty_text'             => 'No request logs were found.',
 		] );
 
-		$this->assertSame( '', $normalized[ 'title' ] ?? 'missing' );
-		$this->assertSame( 'info', $normalized[ 'status' ] ?? '' );
-		$this->assertSame( 'Full Log', $normalized[ 'full_log_text' ] ?? '' );
-		$this->assertSame( 'btn btn-outline-secondary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
-		$this->assertTrue( $normalized[ 'show_header' ] ?? false );
-		$this->assertFalse( $normalized[ 'is_flat' ] ?? true );
-		$this->assertFalse( $normalized[ 'is_empty' ] ?? true );
-		$this->assertSame( 'info', $normalized[ 'empty_status' ] ?? '' );
-		$this->assertSame( '', $normalized[ 'empty_text' ] ?? 'missing' );
+		$this->assertSame( 'Recent Requests', $normalized[ 'title' ] ?? '' );
+		$this->assertSame( 'warning', $normalized[ 'status' ] ?? '' );
+		$this->assertSame( 'Open Requests Log', $normalized[ 'full_log_text' ] ?? '' );
+		$this->assertSame( 'btn btn-primary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
+		$this->assertFalse( $normalized[ 'show_header' ] ?? true );
+		$this->assertTrue( $normalized[ 'is_flat' ] ?? false );
+		$this->assertTrue( $normalized[ 'is_empty' ] ?? false );
+		$this->assertSame( 'warning', $normalized[ 'empty_status' ] ?? '' );
+		$this->assertSame( 'No request logs were found.', $normalized[ 'empty_text' ] ?? '' );
 	}
 
 	public function test_lookup_behavior_contract_defaults_and_overrides() :void {
@@ -139,6 +139,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 	public function test_with_empty_state_preserves_table_metadata_when_records_exist() :void {
 		$table = ( new InvestigateRenderContractsTestDouble() )->withEmptyState( [
 			'title'               => 'File Scan Status',
+			'status'              => 'warning',
 			'table_type'          => 'file_scan_results',
 			'subject_type'        => 'core',
 			'subject_id'          => 'core',
@@ -159,6 +160,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 	public function test_with_empty_state_strips_table_metadata_when_records_do_not_exist() :void {
 		$table = ( new InvestigateRenderContractsTestDouble() )->withEmptyState( [
 			'title'               => 'File Scan Status',
+			'status'              => 'warning',
 			'table_type'          => 'file_scan_results',
 			'subject_type'        => 'plugin',
 			'subject_id'          => 'akismet/akismet.php',
