@@ -1,0 +1,31 @@
+{% set context_card_data = context_card|default({}) %}
+{% set context_card_shell_id = context_card_data.shell_id|default('')|trim %}
+{% set initial_context = context_card_data.initial_context|default({}) %}
+{% set raw_path_segments = initial_context.path is defined and initial_context.path is iterable ? initial_context.path : [] %}
+{% set path_segments = [] %}
+{% for raw_path_segment in raw_path_segments %}
+	{% set path_segment = raw_path_segment|default('')|trim %}
+	{% if path_segment is not empty %}
+		{% set path_segments = path_segments|merge([path_segment]) %}
+	{% endif %}
+{% endfor %}
+{% set focus_text = initial_context.focus|default('')|trim %}
+{% set next_step_text = initial_context.next_step|default('')|trim %}
+{% set has_renderable_context = path_segments is not empty or focus_text is not empty or next_step_text is not empty %}
+
+<div class="drill-context-card{% if not has_renderable_context %} d-none{% endif %}"
+	 role="status"
+	 aria-atomic="true"
+	 aria-live="polite"
+	 aria-label="Workflow context"
+	 data-drill-context-card="{{ context_card_shell_id|e('html_attr') }}"
+	 {% if has_renderable_context and context_card_data.mode|default('') is not empty %}
+	 data-drill-context-mode="{{ context_card_data.mode|e('html_attr') }}"{% endif %}>
+	<div class="drill-context-card__path{% if path_segments is empty %} d-none{% endif %}">
+		{% for path_segment in path_segments %}
+			<span class="drill-context-card__path-segment{% if loop.last %} is-current{% endif %}">{{ path_segment|e }}</span>
+		{% endfor %}
+	</div>
+	<div class="drill-context-card__focus{% if focus_text is empty %} d-none{% endif %}">{{ focus_text|e }}</div>
+	<div class="drill-context-card__next-step{% if next_step_text is empty %} d-none{% endif %}">{{ next_step_text|e }}</div>
+</div>

@@ -1,5 +1,6 @@
 {% set shell_data = shell|default({}) %}
 {% set shell_layers = shell_data.layers|default([]) %}
+{% set shell_id = shell_data.id|default('')|trim %}
 {% set active_index = shell_data.active_index is defined ? shell_data.active_index : null %}
 {% if active_index is null %}
 	{% for candidate_layer in shell_layers %}
@@ -14,8 +15,8 @@
 
 <div class="drill-shell"
 	 data-drill-shell="1"
-	 data-drill-shell-mode="{{ shell_data.mode|default('')|e('html_attr') }}"{% if shell_data.id|default('') is not empty %}
-	 data-drill-shell-id="{{ shell_data.id|e('html_attr') }}"{% endif %}>
+	 data-drill-shell-mode="{{ shell_data.mode|default('')|e('html_attr') }}"{% if shell_id is not empty %}
+	 data-drill-shell-id="{{ shell_id|e('html_attr') }}"{% endif %}>
 	{% for shell_layer in shell_layers %}
 		{% set layer_index = loop.index0 %}
 		{% set layer_state = 'hidden' %}

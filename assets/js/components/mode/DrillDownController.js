@@ -1,6 +1,15 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import {
+	getActiveLayerIndex,
+	getLayerForShell,
+	getLayersForShell,
+	isDrillShell,
+	normalizeDrillText,
+	normalizeLayerContextData,
+	parseLayerIndex
+} from "./DrillDownShared";
 
 export class DrillDownController extends BaseAutoExecComponent {
 
@@ -23,7 +32,7 @@ export class DrillDownController extends BaseAutoExecComponent {
 			return;
 		}
 
-		this.drillTo( shell, this.parseLayerIndex( layer.dataset.drillLayer ) );
+		this.drillTo( shell, parseLayerIndex( layer.dataset.drillLayer ) );
 	}
 
 	/**
@@ -33,17 +42,17 @@ export class DrillDownController extends BaseAutoExecComponent {
 	 * @param {number} layerIndex
 	 */
 	drillTo( shellEl, layerIndex ) {
-		if ( !this.isDrillShell( shellEl ) ) {
+		if ( !isDrillShell( shellEl ) ) {
 			return;
 		}
 
-		const layers = this.getLayersForShell( shellEl );
+		const layers = getLayersForShell( shellEl );
 		if ( layers.length < 1 ) {
 			return;
 		}
 
 		const targetIndex = this.clampLayerIndex( layerIndex, layers.length );
-		const currentActiveIndex = this.getActiveLayerIndex( layers );
+		const currentActiveIndex = getActiveLayerIndex( layers );
 		if ( targetIndex === currentActiveIndex ) {
 			return;
 		}
@@ -51,10 +60,10 @@ export class DrillDownController extends BaseAutoExecComponent {
 		const eventName = targetIndex > currentActiveIndex
 			? 'shield:drill-to'
 			: 'shield:drill-back';
-		const activeLayer = layers.find( ( layer ) => this.parseLayerIndex( layer.dataset.drillLayer ) === targetIndex ) || null;
+		const activeLayer = getLayerForShell( shellEl, targetIndex );
 
 		layers.forEach( ( layer ) => {
-			const currentLayerIndex = this.parseLayerIndex( layer.dataset.drillLayer );
+			const currentLayerIndex = parseLayerIndex( layer.dataset.drillLayer );
 			const nextState = currentLayerIndex < targetIndex
 				? 'compact'
 				: ( currentLayerIndex === targetIndex ? 'active' : 'hidden' );
@@ -90,12 +99,11 @@ export class DrillDownController extends BaseAutoExecComponent {
 	 * @param {string} statusClass
 	 */
 	updateStripBadge( shellEl, layerIndex, text, statusClass ) {
-		if ( !this.isDrillShell( shellEl ) ) {
+		if ( !isDrillShell( shellEl ) ) {
 			return;
 		}
 
-		const layer = this.getLayersForShell( shellEl )
-			.find( ( candidate ) => this.parseLayerIndex( candidate.dataset.drillLayer ) === this.parseLayerIndex( layerIndex ) );
+		const layer = getLayerForShell( shellEl, layerIndex );
 		const badge = layer?.querySelector( '[data-drill-strip="1"] .shield-badge' ) || null;
 		if ( badge === null ) {
 			return;
@@ -113,44 +121,68 @@ export class DrillDownController extends BaseAutoExecComponent {
 		badge.textContent = String( text ?? '' );
 	}
 
-	getLayersForShell( shellEl ) {
-		if ( !this.isDrillShell( shellEl ) ) {
-			return [];
+	updateStripText( shellEl, layerIndex, text ) {
+		if ( !isDrillShell( shellEl ) ) {
+			return;
 		}
 
-		return Array.from( shellEl.querySelectorAll( '[data-drill-layer]' ) )
-			.filter( ( layer ) => layer.closest( '[data-drill-shell="1"]' ) === shellEl )
-			.sort( ( a, b ) => this.parseLayerIndex( a.dataset.drillLayer ) - this.parseLayerIndex( b.dataset.drillLayer ) );
+		const layer = getLayerForShell( shellEl, layerIndex );
+		const strip = layer?.querySelector( '[data-drill-strip="1"]' ) || null;
+		const title = layer?.querySelector( '[data-drill-strip="1"] .drill-strip__title' ) || null;
+		if ( title === null ) {
+			return;
+		}
+
+		const normalizedText = normalizeDrillText( text );
+		title.textContent = normalizedText;
+
+		if ( strip instanceof HTMLElement ) {
+			const ariaPrefix = String( strip.dataset.drillStripAriaPrefix || '' ).trim();
+			strip.setAttribute(
+				'aria-label',
+				[ ariaPrefix, normalizedText ]
+					.filter( ( value ) => value.length > 0 )
+					.join( ' ' )
+			);
+		}
 	}
 
-	getActiveLayerIndex( layers ) {
-		for ( const layer of layers ) {
-			if ( !layer.classList.contains( 'drill-layer--compact' )
-				&& !layer.classList.contains( 'drill-layer--hidden' ) ) {
-				return this.parseLayerIndex( layer.dataset.drillLayer );
+	updateLayerContext( shellEl, layerIndex, contextData ) {
+		if ( !isDrillShell( shellEl ) ) {
+			return;
+		}
+
+		const layer = getLayerForShell( shellEl, layerIndex );
+		if ( layer === null ) {
+			return;
+		}
+
+		const normalizedContext = normalizeLayerContextData( contextData );
+		layer.dataset.drillLayerContext = JSON.stringify( normalizedContext );
+
+		const layers = getLayersForShell( shellEl );
+		if ( getActiveLayerIndex( layers ) !== parseLayerIndex( layerIndex ) ) {
+			return;
+		}
+
+		shellEl.dispatchEvent( new CustomEvent( 'shield:drill-context-updated', {
+			bubbles: true,
+			detail: {
+				mode: shellEl.dataset.drillShellMode || '',
+				layer_key: layer.dataset.drillLayerKey || '',
+				layer_index: parseLayerIndex( layerIndex ),
+				context: normalizedContext,
 			}
-		}
-
-		return -1;
-	}
-
-	isDrillShell( shellEl ) {
-		return shellEl instanceof HTMLElement
-			&& shellEl.dataset.drillShell === '1';
+		} ) );
 	}
 
 	clampLayerIndex( layerIndex, layerCount ) {
-		const parsedIndex = this.parseLayerIndex( layerIndex );
+		const parsedIndex = parseLayerIndex( layerIndex );
 		if ( layerCount < 1 ) {
 			return -1;
 		}
 
 		return Math.min( Math.max( parsedIndex, 0 ), layerCount - 1 );
-	}
-
-	parseLayerIndex( layerIndex ) {
-		const parsedIndex = parseInt( String( layerIndex ), 10 );
-		return Number.isNaN( parsedIndex ) ? -1 : parsedIndex;
 	}
 
 	applyLayerState( layer, state ) {
