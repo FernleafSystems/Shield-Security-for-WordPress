@@ -1,16 +1,59 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateRenderContracts;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	UnitTestControllerFactory,
+	UnitTestPluginUrls
+};
 
 class InvestigateRenderContractsTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
+		);
+		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		parent::tearDown();
 	}
 
 	public function test_normalize_table_contract_applies_defaults_for_missing_keys() :void {
@@ -76,6 +119,23 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_controller_backed_route_helpers_build_expected_contracts() :void {
+		$subject = new InvestigateRenderContractsTestDouble();
+
+		$this->assertSame(
+			[
+				'page'    => 'icwp-wpsf-plugin',
+				'nav'     => PluginNavs::NAV_ACTIVITY,
+				'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+			],
+			$subject->lookupRoute( PluginNavs::SUBNAV_ACTIVITY_BY_IP )
+		);
+		$this->assertSame(
+			'/admin/activity/logs?search=user_id%3A42',
+			$subject->fullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, 'user_id:42' )
+		);
+	}
+
 	public function test_with_empty_state_preserves_table_metadata_when_records_exist() :void {
 		$table = ( new InvestigateRenderContractsTestDouble() )->withEmptyState( [
 			'title'               => 'File Scan Status',
@@ -136,5 +196,13 @@ class InvestigateRenderContractsTestDouble {
 
 	public function withEmptyState( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
 		return $this->withEmptyStateTableContract( $table, $count, $emptyText, $emptyStatus );
+	}
+
+	public function lookupRoute( string $subNav ) :array {
+		return $this->buildLookupRouteContract( $subNav );
+	}
+
+	public function fullLogHrefWithSearch( string $nav, string $subNav, string $search ) :string {
+		return $this->buildFullLogHrefWithSearch( $nav, $subNav, $search );
 	}
 }

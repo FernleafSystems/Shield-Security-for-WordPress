@@ -10,9 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ScanResultsTableAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 trait InvestigateRenderContracts {
+
+	use PluginControllerConsumer;
 
 	/**
 	 * @return array{
