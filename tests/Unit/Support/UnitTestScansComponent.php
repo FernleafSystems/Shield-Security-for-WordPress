@@ -4,11 +4,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestScansComponent {
 
+	private ?UnitTestScansAfsComponent $afs;
+
+	private ?UnitTestScansWpvComponent $wpv;
+
+	private ?UnitTestScansApcComponent $apc;
+
 	public function __construct(
-		private ?UnitTestScansAfsComponent $afs = null,
-		private ?UnitTestScansWpvComponent $wpv = null,
-		private ?UnitTestScansApcComponent $apc = null,
+		?UnitTestScansAfsComponent $afs = null,
+		?UnitTestScansWpvComponent $wpv = null,
+		?UnitTestScansApcComponent $apc = null
 	) {
+		$this->afs = $afs;
+		$this->wpv = $wpv;
+		$this->apc = $apc;
 	}
 
 	public function AFS() :UnitTestScansAfsComponent {

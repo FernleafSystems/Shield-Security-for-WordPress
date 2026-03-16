@@ -7,11 +7,20 @@ use FernleafSystems\Wordpress\Services\Core\Request;
 
 class UnitTestRequest extends Request {
 
+	private array $queryValues;
+
+	private string $ipAddress;
+
+	private int $timestamp;
+
 	public function __construct(
-		private array $queryValues = [],
-		private string $ipAddress = '127.0.0.1',
-		private int $timestamp = 1700000000,
+		array $queryValues = [],
+		string $ipAddress = '127.0.0.1',
+		int $timestamp = 1700000000
 	) {
+		$this->queryValues = $queryValues;
+		$this->ipAddress = $ipAddress;
+		$this->timestamp = $timestamp;
 	}
 
 	public function query( $key, $default = null ) {

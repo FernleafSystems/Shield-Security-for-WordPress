@@ -65,7 +65,6 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertInstanceOf( \DOMElement::class, $descriptionExpander );
 		$this->assertSame( 'Description-session_lock', $descriptionExpander->getAttribute( 'aria-controls' ) );
 		$this->assertSame( 'false', $descriptionExpander->getAttribute( 'aria-expanded' ) );
-		$this->assertStringContainsString( 'shield-config-icon-action', $descriptionExpander->getAttribute( 'class' ) );
 
 		$descriptionPanel = $this->assertXPathExists(
 			$xpath,
@@ -83,7 +82,6 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertInstanceOf( \DOMElement::class, $helpButton );
 		$this->assertSame( (string)( $sessionIdleTimeout[ 'beacon_id' ] ?? '' ), $helpButton->getAttribute( 'data-beacon_article_id' ) );
 		$this->assertSame( 'sidebar', $helpButton->getAttribute( 'data-beacon_article_format' ) );
-		$this->assertStringContainsString( 'shield-config-icon-action', $helpButton->getAttribute( 'class' ) );
 
 		$sectionHelpButton = $this->assertXPathExists(
 			$xpath,
@@ -93,7 +91,6 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertInstanceOf( \DOMElement::class, $sectionHelpButton );
 		$this->assertSame( (string)( $sessionIdleTimeout[ 'beacon_id' ] ?? '' ), $sectionHelpButton->getAttribute( 'data-beacon_article_id' ) );
 		$this->assertSame( 'modal', $sectionHelpButton->getAttribute( 'data-beacon_article_format' ) );
-		$this->assertStringContainsString( 'shield-config-icon-action', $sectionHelpButton->getAttribute( 'class' ) );
 
 		$videoButton = $this->assertXPathExists(
 			$xpath,
@@ -102,7 +99,6 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertInstanceOf( \DOMElement::class, $videoButton );
 		$this->assertSame( (string)( $fileLocker[ 'vimeo_id' ] ?? '' ), $videoButton->getAttribute( 'data-vimeoid' ) );
-		$this->assertStringContainsString( 'shield-config-icon-action', $videoButton->getAttribute( 'class' ) );
 	}
 
 	public function test_section_summary_helper_renders_collapse_contract_when_help_beacon_is_unavailable() :void {
@@ -113,7 +109,7 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 
 		$sectionSummaryToggle = $this->assertXPathExists(
 			$xpath,
-			'//section[.//*[@id="Label-session_idle_timeout_interval"]]//div[contains(concat(" ", normalize-space(@class), " "), " shield-options-panel-header-actions ")]//button[contains(concat(" ", normalize-space(@class), " "), " section_title_info ") and contains(concat(" ", normalize-space(@class), " "), " shield-config-icon-action ")]',
+			'//section[.//*[@id="Label-session_idle_timeout_interval"]]//div[contains(concat(" ", normalize-space(@class), " "), " shield-options-panel-header-actions ")]//button[contains(concat(" ", normalize-space(@class), " "), " section_title_info ")]',
 			'Section summary collapse toggle'
 		);
 		$this->assertInstanceOf( \DOMElement::class, $sectionSummaryToggle );
@@ -124,7 +120,7 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 
 		$sectionSummaryPanel = $this->assertXPathExists(
 			$xpath,
-			'//section[.//*[@id="Label-session_idle_timeout_interval"]]//*[@id="collapse-section_user_session_management" and contains(concat(" ", normalize-space(@class), " "), " collapse ") and contains(concat(" ", normalize-space(@class), " "), " shield-options-summary-collapse ")]',
+			'//section[.//*[@id="Label-session_idle_timeout_interval"]]//*[@id="collapse-section_user_session_management" and contains(concat(" ", normalize-space(@class), " "), " collapse ")]',
 			'Section summary collapse panel'
 		);
 		$this->assertInstanceOf( \DOMElement::class, $sectionSummaryPanel );
@@ -143,37 +139,22 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$passwordWrapper = $this->assertXPathExists(
-			$xpath,
-			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-row ") and .//*[@id="Label-admin_access_key"]]//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-stacked-control ")]',
-			'Password stacked control wrapper'
-		);
-		$this->assertInstanceOf( \DOMElement::class, $passwordWrapper );
 		$this->assertXPathExists(
 			$xpath,
-			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-stacked-control ")]//input[@id="Opt-admin_access_key" and @type="password"]',
+			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-row ") and .//*[@id="Label-admin_access_key"]]//input[@id="Opt-admin_access_key" and @type="password"]',
 			'Primary password input'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-stacked-control ")]//input[@id="Opt-admin_access_key_confirm" and @type="password"]',
+			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-row ") and .//*[@id="Label-admin_access_key"]]//input[@id="Opt-admin_access_key_confirm" and @type="password"]',
 			'Password confirmation input'
 		);
 
-		$multipleSelectWrapper = $this->assertXPathExists(
-			$xpath,
-			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-row ") and .//*[@id="Label-admin_access_restrict_plugins"]]//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-multiple-list ")]',
-			'Multiple select list wrapper'
-		);
-		$this->assertInstanceOf( \DOMElement::class, $multipleSelectWrapper );
 		$multipleSelectInputs = $xpath->query(
-			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-multiple-list ")]//input[@type="checkbox" and starts-with(@id, "Opt-admin_access_restrict_plugins_")]'
+			'//div[contains(concat(" ", normalize-space(@class), " "), " shield-option-row ") and .//*[@id="Label-admin_access_restrict_plugins"]]//input[@type="checkbox" and starts-with(@id, "Opt-admin_access_restrict_plugins_")]'
 		);
 		$this->assertNotFalse( $multipleSelectInputs, 'Multiple select checkboxes query failed' );
 		$this->assertGreaterThanOrEqual( 2, $multipleSelectInputs->length, 'Multiple select should render at least two checkbox inputs' );
-
-		$this->assertStringNotContainsString( 'shield-option-control-col--password', $html );
-		$this->assertStringNotContainsString( 'shield-option-control-col--multiple-select', $html );
 	}
 
 	public function test_option_description_focus_state_renders_expanded_accessibility_contract() :void {

@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 
 class UnitTestMaintenanceIssueStateProvider extends MaintenanceIssueStateProvider {
 
-	public function __construct( private array $states ) {
+	private array $states;
+
+	public function __construct( array $states ) {
+		$this->states = $states;
 	}
 
 	public function buildStates() :array {

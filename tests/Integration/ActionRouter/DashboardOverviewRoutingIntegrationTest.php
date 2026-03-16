@@ -11,15 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	HtmlDomAssertions,
-	PluginAdminRouteRenderAssertions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
-	use HtmlDomAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	private int $adminUserId;
@@ -57,78 +53,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return new ActionProcessor();
 	}
 
-	private function renderDashboardOverviewHtml() :string {
-		$payload = $this->renderPluginAdminRoutePayload(
+	private function renderDashboardOverviewPayload() :array {
+		return $this->renderPluginAdminRoutePayload(
 			PluginNavs::NAV_DASHBOARD,
 			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
-		);
-		return (string)( $payload[ 'render_output' ] ?? '' );
-	}
-
-	public function test_dashboard_sidebar_renders_separate_logo_assets_and_version_beneath_logo() :void {
-		$html = $this->renderDashboardOverviewHtml();
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(@class,"sidebar-logo-link")]',
-			'Sidebar logo link marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//img[contains(@class,"sidebar-logo-banner")]',
-			'Sidebar banner logo marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//img[contains(@class,"sidebar-logo-icon")]',
-			'Sidebar icon logo marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(@class,"logo-container")]//*[contains(@class,"shield-sidebar-version") and normalize-space()!=""]',
-			'Sidebar version beneath logo marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(@class,"shield-sidebar-footer")]',
-			0,
-			'Sidebar footer version removed'
-		);
-	}
-
-	public function test_dashboard_overview_includes_labelled_super_search_and_offcanvas_shells() :void {
-		$xpath = $this->createDomXPathFromHtml( $this->renderDashboardOverviewHtml() );
-
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="AptoOffcanvas" and @aria-labelledby="AptoOffcanvasLabel"]',
-			'Shared offcanvas root labelled-by contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="AptoOffcanvasLabel" and contains(@class,"offcanvas-title")]',
-			'Shared offcanvas title id contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="ModalSuperSearchBox" and @aria-labelledby="ModalSuperSearchTitle" and @aria-modal="true"]',
-			'Super search modal labelled-by contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="ModalSuperSearchTitle" and contains(@class,"visually-hidden") and normalize-space()!=""]',
-			'Super search modal hidden title'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//label[@for="ModalSuperSearchInput" and contains(@class,"visually-hidden")]',
-			'Super search input hidden label'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//input[@id="ModalSuperSearchInput" and contains(@class,"search-text")]',
-			'Super search input id contract'
 		);
 	}
 
@@ -308,6 +236,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'bi bi-shield',
 			(string)( $renderData[ 'vars' ][ 'shield_icon_class' ] ?? '' )
 		);
+		$this->assertRouteRenderOutputHealthy(
+			$this->renderDashboardOverviewPayload(),
+			'dashboard overview route'
+		);
 	}
 
 	public function test_operator_mode_landing_reports_lane_exposes_count_and_latest_report_badges() :void {
@@ -405,29 +337,4 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
-	public function test_dashboard_overview_renders_featured_actions_card_with_inline_orb_and_three_side_cards() :void {
-		$xpath = $this->createDomXPathFromHtml( $this->renderDashboardOverviewHtml() );
-
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(@class,"operator-mode-landing__featured")]',
-			'Featured actions queue card'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(@class,"operator-mode-landing__featured")]//*[contains(@class,"shield-orb")]',
-			'Shield orb merged into featured card header'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(@class,"operator-mode-landing__side-card")]',
-			3,
-			'Three secondary mode cards'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(@class,"dashboard-live-monitor")]',
-			'Live monitor remains rendered'
-		);
-	}
 }

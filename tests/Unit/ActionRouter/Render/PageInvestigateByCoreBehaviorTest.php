@@ -108,7 +108,7 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 
 	private function installControllerStub() :void {
 		UnitTestControllerFactory::install(
-			pluginUrls: new UnitTestPluginUrls()
+			new UnitTestPluginUrls()
 		);
 	}
 

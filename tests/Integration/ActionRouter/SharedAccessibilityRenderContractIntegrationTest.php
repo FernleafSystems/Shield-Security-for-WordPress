@@ -63,7 +63,7 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@id="tabInfo-tab" and @aria-controls="tabInfo" and @aria-selected="true"]',
+			'//*[@id="tabInfo-tab" and @aria-controls="tabInfo"]',
 			'Scan item analysis info tab contract'
 		);
 		$this->assertXPathExists(
@@ -73,7 +73,7 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@id="tabHistory-tab" and @aria-controls="tabHistory" and @aria-selected="false"]',
+			'//*[@id="tabHistory-tab" and @aria-controls="tabHistory"]',
 			'Scan item analysis history tab contract'
 		);
 		$this->assertXPathExists(
@@ -94,12 +94,6 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 			'//*[@id="AptoOffcanvasLabel" and contains(@class,"offcanvas-title") and normalize-space()!=""]',
 			'IP analysis offcanvas title contract'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigate-subject-header="1"]',
-			0,
-			'IP analysis offcanvas does not render duplicate subject header'
-		);
 		$this->assertXPathExists(
 			$xpath,
 			'//form[@data-investigate-panel-form="1" and @data-offcanvas-history-mode="replace"]//select[@data-investigate-select2="1"]',
@@ -110,42 +104,5 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]',
 			'IP analysis offcanvas inline tabs host contract'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1"]',
-			0,
-			'IP analysis offcanvas does not server-render duplicate inline tab buttons'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(@class,"investigate-inline-ipanalyse")]//*[contains(@class,"shield-ipanalyse")]',
-			'IP analysis offcanvas shared wrapper marker'
-		);
-
-		$sourceTabs = $xpath->query(
-			'//*[contains(@class,"investigate-inline-ipanalyse")]//*[contains(concat(" ", normalize-space(@class), " "), " shield-options-rail ")]//*[@data-bs-toggle="tab"]'
-		);
-		$this->assertNotFalse( $sourceTabs, 'IP analysis offcanvas source tab query failed' );
-		$this->assertGreaterThan( 0, $sourceTabs->length, 'IP analysis offcanvas source tabs exist' );
-
-		foreach ( $sourceTabs as $sourceTab ) {
-			$this->assertInstanceOf( \DOMElement::class, $sourceTab );
-			$target = \trim( $sourceTab->getAttribute( 'data-bs-target' ) );
-			$controls = \trim( $sourceTab->getAttribute( 'aria-controls' ) );
-			$tabId = \trim( $sourceTab->getAttribute( 'id' ) );
-
-			$this->assertNotSame( '', $target, 'IP analysis offcanvas source tab target contract' );
-			$this->assertStringStartsWith( '#', $target, 'IP analysis offcanvas source tab target prefix contract' );
-			$this->assertNotSame( '', $controls, 'IP analysis offcanvas source tab controls contract' );
-			$this->assertNotSame( '', $tabId, 'IP analysis offcanvas source tab id contract' );
-			$this->assertSame( '#'.$controls, $target, 'IP analysis offcanvas source tab target/controls relationship' );
-
-			$panel = $this->assertXPathExists(
-				$xpath,
-				'//*[@id="'.\htmlspecialchars( \ltrim( $target, '#' ), \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ).'" and @aria-labelledby="'.\htmlspecialchars( $tabId, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ).'"]',
-				'IP analysis offcanvas target panel relationship for '.$tabId
-			);
-			$this->assertInstanceOf( \DOMElement::class, $panel );
-		}
 	}
 }

@@ -4,10 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class MaintenanceThemeSelection {
 
+	private string $stylesheet;
+
+	private string $template;
+
 	public function __construct(
-		private string $stylesheet,
-		private string $template
+		string $stylesheet,
+		string $template
 	) {
+		$this->stylesheet = $stylesheet;
+		$this->template = $template;
 	}
 
 	public function get_stylesheet() :string {

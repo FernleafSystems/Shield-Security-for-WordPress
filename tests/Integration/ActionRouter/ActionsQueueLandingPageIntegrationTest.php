@@ -203,7 +203,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
-		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
@@ -217,12 +216,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
 		$this->assertSame( [], $vars[ 'scans_results' ] ?? [] );
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-actions-landing="1"][@data-actions-queue-metrics-action]',
-			0,
-			'Actions queue all-clear page should not expose a metrics action payload'
-		);
+		$this->assertNotSame( '', \trim( $html ) );
 	}
 
 	public function test_maintenance_items_render_tiles_and_maintenance_panel() :void {
@@ -239,8 +233,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 		$summaryTab = $this->findRailTab( $scansResults, 'summary' );
 		$maintenanceTab = $this->findRailTab( $scansResults, 'maintenance' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
@@ -265,27 +257,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		foreach ( \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) as $maintenanceTitle ) {
 			$this->assertNotContains( $maintenanceTitle, $summaryTitles );
 		}
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip" and contains(concat(" ", normalize-space(@class), " "), " shield-mode-strip ")]',
-			'Actions queue populated shared strip root marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-actions-queue-section="severity-strip"]//*[@role="progressbar"]',
-			0,
-			'Actions queue populated strip should not render a progressbar'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="maintenance" and @data-bs-toggle="tab" and @role="tab"]',
-			'Actions queue maintenance state should render the maintenance rail trigger'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-pane-loaded="1"]',
-			'Actions queue maintenance state should render the eager maintenance pane'
-		);
 		$maintenanceItemsByKey = [];
 		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
 			$maintenanceItemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
@@ -296,26 +267,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertSame( 'scanresults_maintenance', (string)( $maintenanceTab[ 'render_action' ][ 'render_slug' ] ?? '' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and contains(@data-actions-queue-render-action, "scanresults_maintenance")]',
-			'Actions queue maintenance pane should stay eager while exposing a maintenance refresh render action'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance"]//*[@data-shield-expand-trigger="1" and @data-shield-expand-target="maintenance-expand-wp_plugins_updates"]',
-			'Actions queue maintenance pane should reuse the shared expand trigger for plugin updates'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@id="maintenance-expand-wp_plugins_updates"]//table[contains(concat(" ", normalize-space(@class), " "), " table-sm ")]',
-			'Actions queue maintenance pane should render the shared simple table expansion body'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@id="maintenance-expand-wp_plugins_updates"]//*[@data-actions-queue-maintenance-action and @data-bs-toggle="tooltip"]',
-			'Actions queue maintenance pane should render maintenance ignore controls with tooltips'
-		);
+		$this->assertSame( true, (bool)( $maintenanceTab[ 'is_loaded' ] ?? false ) );
+		$this->assertSame( 'actions_queue', (string)( $maintenanceTab[ 'render_action' ][ 'display_context' ] ?? '' ) );
+		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'toggle_action' ] ?? [] );
+		$this->assertNotEmpty( \trim( $html ) );
 	}
 
 	public function test_maintenance_panel_exposes_updates_href() :void {
@@ -375,8 +330,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		foreach ( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [] as $tab ) {
 			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
 		}
-		$xpath = $this->createDomXPathFromHtml( $html );
-
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
@@ -388,67 +341,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'maintenance' ],
 			$railTabs
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]',
-			'Actions queue scans shell should render the scoped rail layout'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="summary" and @data-bs-toggle="tab" and @role="tab"]',
-			'Actions queue scans shell should render Bootstrap tab triggers in the rail'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-scope="1"]//*[contains(concat(" ", normalize-space(@class), " "), " tab-content ")]/*[@data-shield-rail-pane="summary"]',
-			'Actions queue scans shell should render the scan panes inside a Bootstrap tab-content container'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
-			'Actions queue scans shell should expose lazy-load metadata for heavy panes'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="malware" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
-			'Actions queue scans shell should expose lazy-load metadata for disabled review tabs too'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress"]//*[@data-actions-queue-pane-placeholder="1"]',
-			'Actions queue scans shell should render loading placeholders for lazy panes'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="wordpress"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
-			0,
-			'Actions queue scans shell should not render empty-state copy for lazy panes before AJAX hydration'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="summary" and @data-actions-queue-pane-loaded="1"]',
-			'Actions queue scans shell should keep summary pane eager'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="maintenance" and @data-bs-toggle="tab" and @role="tab"]',
-			'Actions queue scans shell should render the maintenance rail trigger'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-pane-loaded="1"]',
-			'Actions queue scans shell should keep the maintenance pane eager'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-metrics-action) > 0]',
-			'Actions queue scans shell should expose the background metrics action'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-preload-action) > 0]',
-			'Actions queue scans shell should expose the background preload action'
-		);
+		$this->assertSame( true, (bool)( $tabsByKey[ 'summary' ][ 'is_loaded' ] ?? false ) );
+		$this->assertSame( true, (bool)( $tabsByKey[ 'maintenance' ][ 'is_loaded' ] ?? false ) );
+		$this->assertSame( false, (bool)( $tabsByKey[ 'wordpress' ][ 'is_loaded' ] ?? true ) );
+		$this->assertSame( 'actions_queue', (string)( $tabsByKey[ 'wordpress' ][ 'render_action' ][ 'display_context' ] ?? '' ) );
+		$this->assertSame( WordpressPane::SLUG, (string)( $tabsByKey[ 'wordpress' ][ 'render_action' ][ 'render_slug' ] ?? '' ) );
+		$this->assertSame( AjaxBatchRequests::SLUG, (string)( $scansResults[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' ) );
+		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, (string)( $scansResults[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'plugins' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'themes' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' ) );

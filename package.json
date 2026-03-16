@@ -2,9 +2,11 @@
   "name": "shieldsecurity",
   "private": true,
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@babel/core": "^7.29.0",
     "@babel/preset-env": "^7.29.0",
     "@fullhuman/postcss-purgecss": "^8.0.0",
+    "@playwright/test": "^1.54.2",
     "@simplewebauthn/browser": "^8.3.7",
     "@wp-playground/cli": "^3.1.4",
     "ajv": "^8.18.0",
@@ -56,6 +58,9 @@
     "build": "webpack --config webpack.config.js --mode production",
     "wp-build": "wp-scripts build --config webpack.config.js --mode production",
     "buildw": "webpack --config webpack.config.js --mode production --watch",
-    "dev": "webpack --config webpack.config.js --mode development --watch"
+    "dev": "webpack --config webpack.config.js --mode development --watch",
+    "playwright:install": "playwright install chromium",
+    "test:browser": "node tests/browser/support/run-playwright-with-playground.js",
+    "test:browser:headed": "node tests/browser/support/run-playwright-with-playground.js --headed"
   }
 }

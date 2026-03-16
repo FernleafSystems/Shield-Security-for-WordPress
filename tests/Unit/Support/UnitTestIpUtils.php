@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class UnitTestIpUtils extends IpUtils {
 
-	public function __construct( private ?\Closure $validator = null ) {
+	private ?\Closure $validator;
+
+	public function __construct( ?\Closure $validator = null ) {
+		$this->validator = $validator;
 	}
 
 	public function isValidIp( $ip, $flags = null ) {

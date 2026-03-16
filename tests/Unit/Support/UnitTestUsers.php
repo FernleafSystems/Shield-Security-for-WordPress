@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Services\Core\Users;
 
 class UnitTestUsers extends Users {
 
-	public function __construct( private int $currentUserId = 1 ) {
+	private int $currentUserId;
+
+	public function __construct( int $currentUserId = 1 ) {
+		$this->currentUserId = $currentUserId;
 	}
 
 	public function getCurrentWpUserId() {

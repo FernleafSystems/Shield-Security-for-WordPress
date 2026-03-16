@@ -44,6 +44,8 @@ integration-full.log
 # Local test artifacts
 /test-plugin-package/
 /test-plugin-work/
+/playwright-report/
+/test-results/
 test-plugin-*.log
 /bin/test-powershell-fixes.ps1
 /bin/test-simple.ps1

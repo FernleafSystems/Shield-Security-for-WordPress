@@ -125,7 +125,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 	}
 
 	public function test_whitelabel_hides_home_connect_items() :void {
-		$this->installController( isWhitelabelled: true );
+		$this->installController( true );
 		$this->installRequest();
 
 		$sidebar = $this->createBuilder()->build();
@@ -136,8 +136,9 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 	private function installController( bool $isWhitelabelled = false, bool $isPremium = false ) :void {
 		UnitTestControllerFactory::install(
-			pluginUrls: new UnitTestPluginUrls(),
-			extras: (object)[
+			new UnitTestPluginUrls(),
+			null,
+			(object)[
 				'cfg' => (object)[
 					'properties' => [
 						'slug_parent'      => 'icwp',
@@ -189,7 +190,10 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 class NavMenuBuilderTestDouble extends NavMenuBuilder {
 
-	public function __construct( private array $summary ) {
+	private array $summary;
+
+	public function __construct( array $summary ) {
+		$this->summary = $summary;
 	}
 
 	protected function buildActionsQueueSummaryContract() :array {

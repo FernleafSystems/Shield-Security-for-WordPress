@@ -19,6 +19,7 @@ Supporting docs:
 | Unit tests (force parallel) | `composer test:unit:parallel` | Forces ParaTest regardless of filter args |
 | Integration tests only | `composer test:integration` | Includes config generation |
 | Local integration DB sidecar | `composer test:integration:local` | Composer wrapper for `php bin/shield test:integration-local` |
+| Browser lane | `composer test:browser` | Playwright + axe against local Playground on port `9400` |
 | Source runtime | `php bin/shield test:source` | Canonical source-first Docker runtime lane |
 | Package-targeted runtime | `php bin/shield test:package-targeted` | Canonical focused package validation lane |
 | Package-full runtime | `php bin/shield test:package-full` | Canonical full packaged Docker runtime lane |
@@ -34,6 +35,7 @@ Supporting docs:
 2. Composer runtime wrappers remain available:
    - `composer test:source`
    - `composer test:integration:local`
+   - `composer test:browser`
    - `composer test:package-targeted`
    - `composer test:package-full`
 3. `composer analyze` maps to `composer analyze:source`.
@@ -79,6 +81,23 @@ Teardown is explicit and isolated to the sidecar project:
 php bin/shield test:integration-local --db-down
 ```
 
+## Local Browser Lane
+
+Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions:
+
+```bash
+npm run playwright:install
+composer test:browser
+composer test:browser -- --grep "Select2 lookup flow"
+```
+
+Operational notes:
+
+1. `composer test:browser` starts `php bin/run-playground-local.php --port=9400` before invoking Playwright, and reuses an already-running local Playground server if one is present.
+2. The browser lane expects local PHP and Composer dependencies plus `node_modules` to be installed.
+3. If the frontend slice changed and local `assets/dist` is stale, run `npm run build` before the browser lane.
+4. CI runs Chromium only; local headed debugging is available through `npm run test:browser:headed`.
+
 ## CI Workflow Role Split
 
 Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/tests.yml)
@@ -101,6 +120,13 @@ Scheduled/manual packaged pathway: [`.github/workflows/docker-tests.yml`](.githu
 2. Runs packaged static analysis.
 3. Runs package playground smoke checks.
 4. Triggered by `workflow_dispatch` and the weekday schedule `0 6 * * 1-5` (06:00 UTC Monday through Friday).
+
+Scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/workflows/browser-tests.yml)
+
+1. Installs Composer and Node dependencies.
+2. Rebuilds admin assets for the checked-out source tree.
+3. Installs Chromium and runs the ActionRouter Playwright + axe lane against local Playground.
+4. Triggered by `workflow_dispatch` and the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday).
 
 ## Local Verification Commands
 

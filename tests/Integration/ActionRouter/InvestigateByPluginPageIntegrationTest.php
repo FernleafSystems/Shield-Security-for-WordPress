@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	InvestigatePageAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -17,7 +16,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use InvestigatePageAssertions, LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -48,54 +47,52 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
 		$renderData = (array)( $this->renderByPluginInnerPage( $pluginSlug )[ 'render_data' ] ?? [] );
+		$vars = (array)( $renderData[ 'vars' ] ?? [] );
+		$tables = (array)( $vars[ 'tables' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
 		$fileStatusCount = (int)( $renderData[ 'vars' ][ 'tabs' ][ 'file_status' ][ 'count' ] ?? 0 );
 		$activityCount = (int)( $renderData[ 'vars' ][ 'tabs' ][ 'activity' ][ 'count' ] ?? 0 );
-		$expectedTableCount = ( $fileStatusCount > 0 ? 1 : 0 ) + ( $activityCount > 0 ? 1 : 0 );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
+		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
+		$this->assertSame( 'plugin', (string)( $tables[ 'file_status' ][ 'subject_type' ] ?? '' ) );
+		$this->assertSame( 'plugin', (string)( $tables[ 'activity' ][ 'subject_type' ] ?? '' ) );
+		$this->assertSame( $pluginSlug, (string)( $tables[ 'file_status' ][ 'subject_id' ] ?? '' ) );
+		$this->assertSame( $pluginSlug, (string)( $tables[ 'activity' ][ 'subject_id' ] ?? '' ) );
+		$this->assertSame( $fileStatusCount > 0, isset( $tables[ 'file_status' ][ 'table_type' ] ) );
+		$this->assertSame( $activityCount > 0, isset( $tables[ 'activity' ][ 'table_type' ] ) );
+		$this->assertArrayHasKey( 'vulnerabilities', $vars );
 
 		$payload = $this->renderByPluginPage( $pluginSlug );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->investigateDomXPath( $html );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigate-landing="1"]',
-			'Legacy by-plugin route renders investigate landing'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//button[@data-investigate-subject="plugin" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
-			'Legacy by-plugin route marks plugin tile active'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="plugin" and @aria-hidden="false"]',
-			'Legacy by-plugin route opens plugin panel'
-		);
-		$this->assertHtmlContainsMarker( 'File Scan Status', $html, 'By-plugin file tab label marker' );
-		$this->assertInvestigateOverviewLabel( $xpath, 'Name', 'By-plugin overview table row marker' );
-		$this->assertHtmlNotContainsMarker( 'Back To Investigate', $html, 'By-plugin back button removed marker' );
-		$this->assertHtmlNotContainsMarker( 'investigate-summary-grid', $html, 'By-plugin summary cards removed marker' );
+		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-plugin route' );
+		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
+		$subjects = [];
+		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
+			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
+				$subjects[ (string)$subject[ 'key' ] ] = $subject;
+			}
+		}
 
-		$this->assertInvestigateSubjectTypeByCount( $xpath, 'plugin', $expectedTableCount, 'By-plugin subject type marker' );
+		$this->assertSame( 'plugin', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
+		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
+		$this->assertTrue( (bool)( $subjects[ 'plugin' ][ 'is_loaded' ] ?? false ) );
+		$this->assertSame( $pluginSlug, (string)( $subjects[ 'plugin' ][ 'subject_title' ] ?? '' ) );
 	}
 
 	public function test_no_lookup_renders_without_investigation_tables() :void {
 		$payload = $this->renderByPluginPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->investigateDomXPath( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-plugin route without lookup' );
+		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
+		$subjects = [];
+		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
+			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
+				$subjects[ (string)$subject[ 'key' ] ] = $subject;
+			}
+		}
 
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigate-landing="1"]',
-			'Legacy by-plugin route without lookup still renders investigate landing'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//button[@data-investigate-subject="plugin" and contains(concat(" ", normalize-space(@class), " "), " is-active ") and @aria-expanded="true"]',
-			'Legacy by-plugin route without lookup keeps plugin tile active'
-		);
-		$this->assertHtmlNotContainsMarker( 'data-subject-type="plugin"', $html, 'By-plugin page without lookup should not render plugin subject tables' );
+		$this->assertSame( 'plugin', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
+		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
+		$this->assertFalse( (bool)( $subjects[ 'plugin' ][ 'is_loaded' ] ?? true ) );
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {

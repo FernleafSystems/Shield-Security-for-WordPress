@@ -4,12 +4,24 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestScansAfsComponent {
 
+	private bool $malwareEnabled;
+
+	private bool $wpCoreEnabled;
+
+	private bool $pluginsEnabled;
+
+	private bool $themesEnabled;
+
 	public function __construct(
-		private bool $malwareEnabled = false,
-		private bool $wpCoreEnabled = false,
-		private bool $pluginsEnabled = false,
-		private bool $themesEnabled = false,
+		bool $malwareEnabled = false,
+		bool $wpCoreEnabled = false,
+		bool $pluginsEnabled = false,
+		bool $themesEnabled = false
 	) {
+		$this->malwareEnabled = $malwareEnabled;
+		$this->wpCoreEnabled = $wpCoreEnabled;
+		$this->pluginsEnabled = $pluginsEnabled;
+		$this->themesEnabled = $themesEnabled;
 	}
 
 	public function isEnabledMalwareScanPHP() :bool {

@@ -555,11 +555,20 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
+	private array $attentionQuery;
+
+	private array $sessions;
+
+	private int $currentTimestamp;
+
 	public function __construct(
-		private array $attentionQuery,
-		private array $sessions = [],
-		private int $currentTimestamp = 200000,
+		array $attentionQuery,
+		array $sessions = [],
+		int $currentTimestamp = 200000
 	) {
+		$this->attentionQuery = $attentionQuery;
+		$this->sessions = $sessions;
+		$this->currentTimestamp = $currentTimestamp;
 	}
 
 	protected function getZonePosture() :array {
@@ -593,7 +602,10 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
 class OperatorModeSessionsLoader extends LoadSessions {
 
-	public function __construct( private array $sessions ) {
+	private array $sessions;
+
+	public function __construct( array $sessions ) {
+		$this->sessions = $sessions;
 	}
 
 	public function flat() :array {
@@ -603,11 +615,20 @@ class OperatorModeSessionsLoader extends LoadSessions {
 
 class OperatorModeReportsStore {
 
+	private int $reportsCount;
+
+	private int $latestReportAt;
+
+	private int $latestAlertAt;
+
 	public function __construct(
-		private int $reportsCount,
-		private int $latestReportAt,
-		private int $latestAlertAt
+		int $reportsCount,
+		int $latestReportAt,
+		int $latestAlertAt
 	) {
+		$this->reportsCount = $reportsCount;
+		$this->latestReportAt = $latestReportAt;
+		$this->latestAlertAt = $latestAlertAt;
 	}
 
 	public function getQuerySelector() :OperatorModeReportsQuerySelector {
@@ -623,11 +644,20 @@ class OperatorModeReportsQuerySelector {
 
 	private ?string $type = null;
 
+	private int $reportsCount;
+
+	private int $latestReportAt;
+
+	private int $latestAlertAt;
+
 	public function __construct(
-		private int $reportsCount,
-		private int $latestReportAt,
-		private int $latestAlertAt
+		int $reportsCount,
+		int $latestReportAt,
+		int $latestAlertAt
 	) {
+		$this->reportsCount = $reportsCount;
+		$this->latestReportAt = $latestReportAt;
+		$this->latestAlertAt = $latestAlertAt;
 	}
 
 	public function addWhere( string $column, string $value, string $operator ) :self {

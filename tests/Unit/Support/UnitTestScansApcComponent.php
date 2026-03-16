@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestScansApcComponent {
 
-	public function __construct( private bool $enabled = false ) {
+	private bool $enabled;
+
+	public function __construct( bool $enabled = false ) {
+		$this->enabled = $enabled;
 	}
 
 	public function isEnabled() :bool {

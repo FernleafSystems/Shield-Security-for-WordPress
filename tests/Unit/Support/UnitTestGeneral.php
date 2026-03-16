@@ -6,10 +6,16 @@ use FernleafSystems\Wordpress\Services\Core\General;
 
 class UnitTestGeneral extends General {
 
+	private string $ajaxUrl;
+
+	private string $displayTimePrefix;
+
 	public function __construct(
-		private string $ajaxUrl = '/admin-ajax.php',
-		private string $displayTimePrefix = 'display:',
+		string $ajaxUrl = '/admin-ajax.php',
+		string $displayTimePrefix = 'display:'
 	) {
+		$this->ajaxUrl = $ajaxUrl;
+		$this->displayTimePrefix = $displayTimePrefix;
 	}
 
 	public function ajaxURL() :string {

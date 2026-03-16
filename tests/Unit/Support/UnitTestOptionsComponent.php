@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestOptionsComponent {
 
-	public function __construct( private array $values = [] ) {
+	private array $values;
+
+	public function __construct( array $values = [] ) {
+		$this->values = $values;
 	}
 
 	public function optGet( string $key ) :array {

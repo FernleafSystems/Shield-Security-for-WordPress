@@ -4,14 +4,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestActionRouter {
 
+	private ?RenderCapture $capture;
+
+	private ?\Closure $renderer;
+
 	public function __construct(
-		private ?RenderCapture $capture = null,
-		private ?\Closure $renderer = null
+		?RenderCapture $capture = null,
+		?\Closure $renderer = null
 	) {
+		$this->capture = $capture;
+		$this->renderer = $renderer;
 	}
 
 	public function render( string $action, array $actionData = [] ) :string {
-		$this->capture?->record( $action, $actionData );
+		if ( $this->capture instanceof RenderCapture ) {
+			$this->capture->record( $action, $actionData );
+		}
 
 		if ( $this->renderer instanceof \Closure ) {
 			return (string)( $this->renderer )( $action, $actionData );

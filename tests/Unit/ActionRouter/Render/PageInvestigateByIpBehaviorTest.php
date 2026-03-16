@@ -161,10 +161,10 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 
 	private function installControllerStub() :void {
 		UnitTestControllerFactory::install(
-			pluginUrls: new UnitTestPluginUrls(),
-			actionRouter: new UnitTestActionRouter(
-				capture: new RenderCapture(),
-				renderer: static fn( string $action, array $actionData ) :string => 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' )
+			new UnitTestPluginUrls(),
+			new UnitTestActionRouter(
+				new RenderCapture(),
+				static fn( string $action, array $actionData ) :string => 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' )
 			)
 		);
 	}

@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestZoneActionComponent {
 
-	public function __construct( private string $slug ) {
+	private string $slug;
+
+	public function __construct( string $slug ) {
+		$this->slug = $slug;
 	}
 
 	public function getActions() :array {

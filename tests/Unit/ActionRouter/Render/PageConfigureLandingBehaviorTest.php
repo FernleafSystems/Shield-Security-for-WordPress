@@ -507,11 +507,17 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		string $statusLabel,
 		string $note
 	) :array {
-		$statusIcon = match ( $status ) {
-			'critical' => 'bi bi-x-circle-fill',
-			'warning' => 'bi bi-exclamation-triangle-fill',
-			default => 'bi bi-check-circle-fill',
-		};
+		switch ( $status ) {
+			case 'critical':
+				$statusIcon = 'bi bi-x-circle-fill';
+				break;
+			case 'warning':
+				$statusIcon = 'bi bi-exclamation-triangle-fill';
+				break;
+			default:
+				$statusIcon = 'bi bi-check-circle-fill';
+				break;
+		}
 
 		return [
 			'title'             => $title,
@@ -543,10 +549,10 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	private function installControllerStub() :void {
 		$this->renderCapture = new RenderCapture();
 		UnitTestControllerFactory::install(
-			pluginUrls: new UnitTestPluginUrls(),
-			actionRouter: new UnitTestActionRouter(
-				capture: $this->renderCapture,
-				renderer: static fn() :string => 'rendered'
+			new UnitTestPluginUrls(),
+			new UnitTestActionRouter(
+				$this->renderCapture,
+				static fn() :string => 'rendered'
 			)
 		);
 	}

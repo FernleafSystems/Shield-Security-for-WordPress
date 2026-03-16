@@ -4,15 +4,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestZonesComponent {
 
+	private array $zones;
+
+	private array $zoneComponents;
+
 	public function __construct(
-		private array $zones = [
+		array $zones = [
 			'secadmin' => true,
 			'firewall' => true,
 		],
-		private array $zoneComponents = [
+		array $zoneComponents = [
 			'secadmin' => true,
-		],
+		]
 	) {
+		$this->zones = $zones;
+		$this->zoneComponents = $zoneComponents;
 	}
 
 	public function enumZones() :array {

@@ -866,7 +866,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 class PageActionsQueueActionRouter {
 
-	public function __construct( private object $capture ) {
+	private object $capture;
+
+	public function __construct( object $capture ) {
+		$this->capture = $capture;
 	}
 
 	public function action( string $action, array $actionData = [] ) :object {

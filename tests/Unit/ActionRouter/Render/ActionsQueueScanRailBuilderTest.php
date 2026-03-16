@@ -548,15 +548,29 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 	}
 
 	protected function getRailTabAvailability( string $tabKey ) :array {
-		$isAvailable = match ( $tabKey ) {
-			'wordpress' => $this->wordpressEnabled,
-			'plugins' => $this->pluginsEnabled,
-			'themes' => $this->themesEnabled,
-			'vulnerabilities' => $this->vulnerabilitiesEnabled,
-			'malware' => $this->malwareEnabled,
-			'file_locker' => true,
-			default => false,
-		};
+		switch ( $tabKey ) {
+			case 'wordpress':
+				$isAvailable = $this->wordpressEnabled;
+				break;
+			case 'plugins':
+				$isAvailable = $this->pluginsEnabled;
+				break;
+			case 'themes':
+				$isAvailable = $this->themesEnabled;
+				break;
+			case 'vulnerabilities':
+				$isAvailable = $this->vulnerabilitiesEnabled;
+				break;
+			case 'malware':
+				$isAvailable = $this->malwareEnabled;
+				break;
+			case 'file_locker':
+				$isAvailable = true;
+				break;
+			default:
+				$isAvailable = false;
+				break;
+		}
 
 		return [
 			'is_available' => $isAvailable,

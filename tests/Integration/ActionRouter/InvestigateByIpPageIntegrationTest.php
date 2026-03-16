@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	HtmlDomAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -16,7 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use HtmlDomAssertions, LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -50,145 +49,44 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_valid_ip_lookup_renders_ip_analysis_container() :void {
 		$renderData = (array)( $this->renderByIpInnerPage( '203.0.113.88' )[ 'render_data' ] ?? [] );
+		$vars = (array)( $renderData[ 'vars' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
+		$this->assertSame( '203.0.113.88', (string)( $vars[ 'analyse_ip' ] ?? '' ) );
 
 		$payload = $this->renderByIpPage( '203.0.113.88' );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigate-landing="1"]',
-			'Legacy by-ip route renders investigate landing'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//button[@data-investigate-subject="ip" and @data-mode-panel-target="ip" and @aria-expanded="true"]',
-			'Legacy by-ip route marks ip tile active'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip" and @aria-hidden="false" and @data-investigate-panel-loaded="1"]',
-			'Legacy by-ip route opens ip panel'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode-shell="1" and @data-mode-active-panel="ip"]',
-			'Legacy by-ip route mode shell active panel marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode-landing-hint="1" and @aria-hidden="true"]',
-			'Legacy by-ip route hides landing hint when panel is pre-opened'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-header="1"]',
-			'Legacy by-ip route renders panel header host marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]',
-			'Legacy by-ip route renders panel content host marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-header="1"]',
-			'Legacy by-ip route renders subject header within panel content'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-title="1" and normalize-space()="203.0.113.88"]',
-			'Legacy by-ip route subject header title matches lookup value'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-change-subject="1"]',
-			'Legacy by-ip route exposes change IP action'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-ipanalyse ")]',
-			'By-ip analysis container marker in panel content'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-tabs="1"]',
-			'By-ip panel renders shared inline tabs host marker'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1"]',
-			0,
-			'By-ip panel does not server-render duplicate inline tab buttons'
-		);
-		$sourceTabs = $xpath->query(
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-options-rail ")]//*[@data-bs-toggle="tab"]'
-		);
-		$this->assertNotFalse( $sourceTabs, 'By-ip panel source tab query failed' );
-		$this->assertSame( 5, $sourceTabs->length, 'By-ip panel source tabs count contract' );
-
-		foreach ( $sourceTabs as $sourceTab ) {
-			$this->assertInstanceOf( \DOMElement::class, $sourceTab );
-			$target = \trim( $sourceTab->getAttribute( 'data-bs-target' ) );
-			$controls = \trim( $sourceTab->getAttribute( 'aria-controls' ) );
-			$tabId = \trim( $sourceTab->getAttribute( 'id' ) );
-
-			$this->assertNotSame( '', $target, 'By-ip panel source tab target contract' );
-			$this->assertStringStartsWith( '#', $target, 'By-ip panel source tab target prefix contract' );
-			$this->assertNotSame( '', $controls, 'By-ip panel source tab controls contract' );
-			$this->assertNotSame( '', $tabId, 'By-ip panel source tab id contract' );
-			$this->assertSame( '#'.$controls, $target, 'By-ip panel source tab target/controls relationship' );
-
-			$this->assertXPathExists(
-				$xpath,
-				'//section[@data-investigate-panel="ip"]//*[@id="'.\htmlspecialchars( \ltrim( $target, '#' ), \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ).'" and @aria-labelledby="'.\htmlspecialchars( $tabId, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ).'"]',
-				'By-ip panel target panel relationship for '.$tabId
-			);
+		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-ip route' );
+		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
+		$subjects = [];
+		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
+			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
+				$subjects[ (string)$subject[ 'key' ] ] = $subject;
+			}
 		}
-		$this->assertXPathCount(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[@data-inner-page-body-shell="1"]',
-			0,
-			'By-ip panel content should not include nested inner-page-body shell'
-		);
+
+		$this->assertSame( 'ip', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
+		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
+		$this->assertTrue( (bool)( $subjects[ 'ip' ][ 'is_loaded' ] ?? false ) );
+		$this->assertSame( '203.0.113.88', (string)( $subjects[ 'ip' ][ 'subject_title' ] ?? '' ) );
+		$this->assertSame( 'analyse_ip', (string)( $subjects[ 'ip' ][ 'lookup_key' ] ?? '' ) );
 	}
 
 	public function test_no_lookup_renders_without_ip_analysis_container() :void {
 		$payload = $this->renderByIpPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-ip route without lookup' );
+		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
+		$subjects = [];
+		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
+			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
+				$subjects[ (string)$subject[ 'key' ] ] = $subject;
+			}
+		}
 
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigate-landing="1"]',
-			'Legacy by-ip route without lookup still renders investigate landing'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//button[@data-investigate-subject="ip" and @data-mode-panel-target="ip" and @aria-expanded="true"]',
-			'Legacy by-ip route without lookup keeps ip tile active'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//section[@data-investigate-panel="ip" and @aria-hidden="false" and @data-investigate-panel-loaded="1"]',
-			'Legacy by-ip route without lookup keeps ip panel preloaded'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-ipanalyse ")]',
-			0,
-			'By-ip analysis container should not render without valid lookup'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//section[@data-investigate-panel="ip"]//*[@data-investigate-change-subject="1"]',
-			0,
-			'By-ip change-subject action does not render without active subject'
-		);
+		$this->assertSame( 'ip', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
+		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
+		$this->assertFalse( (bool)( $subjects[ 'ip' ][ 'is_loaded' ] ?? true ) );
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {

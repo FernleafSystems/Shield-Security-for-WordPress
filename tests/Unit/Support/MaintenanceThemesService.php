@@ -7,7 +7,10 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 
 class MaintenanceThemesService extends Themes {
 
-	public function __construct( private array $fixture ) {
+	private array $fixture;
+
+	public function __construct( array $fixture ) {
+		$this->fixture = $fixture;
 	}
 
 	public function getUpdates( $forceCheck = false ) {

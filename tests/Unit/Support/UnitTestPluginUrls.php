@@ -4,10 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestPluginUrls {
 
+	private string $rootAdminPageSlug;
+
+	private string $adminHome;
+
 	public function __construct(
-		private string $rootAdminPageSlug = 'icwp-wpsf-plugin',
-		private string $adminHome = '/admin/home',
+		string $rootAdminPageSlug = 'icwp-wpsf-plugin',
+		string $adminHome = '/admin/home'
 	) {
+		$this->rootAdminPageSlug = $rootAdminPageSlug;
+		$this->adminHome = $adminHome;
 	}
 
 	public function rootAdminPageSlug() :string {

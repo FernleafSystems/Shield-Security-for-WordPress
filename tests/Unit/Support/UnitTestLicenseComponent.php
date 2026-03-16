@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
 class UnitTestLicenseComponent {
 
-	public function __construct( private bool $isPremium = false ) {
+	private bool $isPremium;
+
+	public function __construct( bool $isPremium = false ) {
+		$this->isPremium = $isPremium;
 	}
 
 	public function hasValidWorkingLicense() :bool {

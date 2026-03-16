@@ -270,10 +270,10 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 	private function installControllerStub() :void {
 		$this->renderCapture = new RenderCapture();
 		UnitTestControllerFactory::install(
-			pluginUrls: new UnitTestPluginUrls(),
-			actionRouter: new UnitTestActionRouter(
-				capture: $this->renderCapture,
-				renderer: static function ( string $action, array $actionData ) :string {
+			new UnitTestPluginUrls(),
+			new UnitTestActionRouter(
+				$this->renderCapture,
+				static function ( string $action, array $actionData ) :string {
 					$lookupData = '';
 					foreach ( [ 'user_lookup', 'analyse_ip', 'plugin_slug', 'theme_slug' ] as $lookupKey ) {
 						if ( isset( $actionData[ $lookupKey ] ) && $actionData[ $lookupKey ] !== '' ) {
