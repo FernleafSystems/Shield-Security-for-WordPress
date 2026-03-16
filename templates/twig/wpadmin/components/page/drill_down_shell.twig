@@ -1,0 +1,35 @@
+{% set shell_data = shell|default({}) %}
+{% set shell_layers = shell_data.layers|default([]) %}
+{% set active_index = shell_data.active_index is defined ? shell_data.active_index : null %}
+{% if active_index is null %}
+	{% for candidate_layer in shell_layers %}
+		{% if active_index is null and candidate_layer.is_active|default(false) %}
+			{% set active_index = loop.index0 %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+{% if active_index is null %}
+	{% set active_index = 0 %}
+{% endif %}
+
+<div class="drill-shell"
+	 data-drill-shell="1"
+	 data-drill-shell-mode="{{ shell_data.mode|default('')|e('html_attr') }}"{% if shell_data.id|default('') is not empty %}
+	 data-drill-shell-id="{{ shell_data.id|e('html_attr') }}"{% endif %}>
+	{% for shell_layer in shell_layers %}
+		{% set layer_index = loop.index0 %}
+		{% set layer_state = 'hidden' %}
+		{% if layer_index == active_index %}
+			{% set layer_state = 'active' %}
+		{% elseif layer_index < active_index %}
+			{% set layer_state = 'compact' %}
+		{% endif %}
+		{% include '/wpadmin/components/page/drill_down_layer.twig' with {
+			layer: shell_layer|merge({
+				index: layer_index,
+				mode: shell_data.mode|default(''),
+				state: layer_state
+			})
+		} only %}
+	{% endfor %}
+</div>

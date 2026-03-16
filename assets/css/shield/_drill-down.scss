@@ -1,0 +1,115 @@
+.drill-layer {
+	overflow: hidden;
+	transition: max-height 350ms cubic-bezier(.4, 0, .2, 1),
+				opacity 350ms cubic-bezier(.4, 0, .2, 1),
+				margin-bottom 350ms cubic-bezier(.4, 0, .2, 1);
+	max-height: 2000px;
+	opacity: 1;
+}
+
+.drill-layer .drill-strip {
+	display: none;
+}
+
+.drill-layer .drill-layer__body {
+	display: block;
+}
+
+.drill-layer--compact {
+	max-height: 52px;
+	opacity: 1;
+	margin-bottom: 8px;
+}
+
+.drill-layer--compact .drill-strip {
+	display: flex;
+}
+
+.drill-layer--compact .drill-layer__body {
+	display: none;
+}
+
+.drill-layer--hidden {
+	max-height: 0;
+	opacity: 0;
+	margin-bottom: 0;
+	pointer-events: none;
+}
+
+.drill-layer--hidden .drill-strip,
+.drill-layer--hidden .drill-layer__body {
+	display: none;
+}
+
+.drill-strip {
+	-webkit-appearance: none;
+	appearance: none;
+	align-items: center;
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	color: #1d2327;
+	cursor: pointer;
+	display: flex;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	gap: 10px;
+	height: 52px;
+	line-height: inherit;
+	padding: 0 16px;
+	text-align: left;
+	text-decoration: none;
+	transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+	width: 100%;
+}
+
+.drill-strip:hover {
+	background: $surface-color-neutral-raised;
+	border-color: $border-color-neutral-strong;
+}
+
+.drill-strip:focus-visible {
+	outline: 2px solid rgba(0, 128, 0, 0.65);
+	outline-offset: 2px;
+}
+
+.drill-strip__back {
+	display: inline-flex;
+	flex-shrink: 0;
+	font-size: 16px;
+	line-height: 1;
+}
+
+.drill-strip__title {
+	flex: 1 1 auto;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.drill-strip__badge {
+	flex-shrink: 0;
+}
+
+.drill-layer__body {
+	padding: 4px 0;
+}
+
+[data-drill-shell-mode="actions"] .drill-strip__back {
+	color: $status-color-critical;
+}
+
+[data-drill-shell-mode="configure"] .drill-strip__back {
+	color: $status-color-good;
+}
+
+[data-drill-shell-mode="investigate"] .drill-strip__back {
+	color: $status-color-info;
+}
+
+[data-drill-shell-mode="review"] .drill-strip__back {
+	color: $status-color-warning;
+}
