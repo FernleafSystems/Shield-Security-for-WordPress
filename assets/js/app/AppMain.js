@@ -23,6 +23,7 @@ import { RuleBuilder } from "../components/rules/RuleBuilder";
 import { RulesManager } from "../components/rules/RulesManager";
 import { ScansHandler } from "../components/scans/ScansHandler";
 import { ModePanelStateController } from "../components/mode/ModePanelStateController";
+import { DrillDownController } from "../components/mode/DrillDownController";
 import { InvestigateLandingController } from "../components/mode/InvestigateLandingController";
 import { ConfigureLandingController } from "../components/mode/ConfigureLandingController";
 import { ActionsQueueLandingController } from "../components/mode/ActionsQueueLandingController";
@@ -86,6 +87,7 @@ export class AppMain extends AppBase {
 		this.components.misc_hooks = ( 'misc_hooks' in comps ) ? new MiscHooks( comps.misc_hooks ) : null;
 		this.components.mod_options = ( 'mod_options' in comps ) ? new OptionsHandler( comps.mod_options ) : null;
 		this.components.mode_panel_state = new ModePanelStateController();
+		this.components.drill_down = new DrillDownController();
 		this.components.investigate_landing = new InvestigateLandingController();
 		this.components.configure_landing = new ConfigureLandingController();
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
