@@ -54,6 +54,7 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	/**
 	 * @param array<int,mixed> $layers
 	 * @return list<array{
+	 *   index:int,
 	 *   key:string,
 	 *   label:string,
 	 *   badge:string,
@@ -74,17 +75,18 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 				continue;
 			}
 
-			$key = sanitize_key( (string)( $layer[ 'key' ] ?? '' ) );
+			$key = sanitize_key( $this->normalizeStringValue( $layer[ 'key' ] ?? '' ) );
 			if ( empty( $key ) ) {
 				continue;
 			}
 
 			$normalized[] = [
+				'index'        => \count( $normalized ),
 				'key'          => $key,
-				'label'        => (string)( $layer[ 'label' ] ?? '' ),
-				'badge'        => (string)( $layer[ 'badge' ] ?? '' ),
-				'badge_status' => $this->sanitizeBadgeStatus( (string)( $layer[ 'badge_status' ] ?? '' ) ),
-				'body'         => (string)( $layer[ 'body' ] ?? '' ),
+				'label'        => $this->normalizeStringValue( $layer[ 'label' ] ?? '' ),
+				'badge'        => $this->normalizeStringValue( $layer[ 'badge' ] ?? '' ),
+				'badge_status' => $this->sanitizeBadgeStatus( $this->normalizeStringValue( $layer[ 'badge_status' ] ?? '' ) ),
+				'body'         => $this->normalizeStringValue( $layer[ 'body' ] ?? '' ),
 				'context'      => $this->normalizeLayerContext( $layer[ 'context' ] ?? [] ),
 				'is_active'    => false,
 			];
@@ -118,18 +120,19 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		return [
 			'path'      => \array_values( \array_filter(
 				\array_map(
-					static fn( $segment ) :string => \trim( (string)$segment ),
+					fn( $segment ) :string => $this->normalizeTrimmedString( $segment ),
 					$path
 				),
 				static fn( string $segment ) :bool => $segment !== ''
 			) ),
-			'focus'     => \trim( (string)( $context[ 'focus' ] ?? '' ) ),
-			'next_step' => \trim( (string)( $context[ 'next_step' ] ?? '' ) ),
+			'focus'     => $this->normalizeTrimmedString( $context[ 'focus' ] ?? '' ),
+			'next_step' => $this->normalizeTrimmedString( $context[ 'next_step' ] ?? '' ),
 		];
 	}
 
 	/**
 	 * @param list<array{
+	 *   index:int,
 	 *   key:string,
 	 *   label:string,
 	 *   badge:string,
@@ -139,6 +142,7 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	 *   is_active:bool
 	 * }> $layers
 	 * @return list<array{
+	 *   index:int,
 	 *   key:string,
 	 *   label:string,
 	 *   badge:string,
@@ -169,6 +173,24 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		}
 
 		return $activeIndex;
+	}
+
+	/**
+	 * @param mixed $value
+	 */
+	private function normalizeTrimmedString( $value ) :string {
+		return \trim( $this->normalizeStringValue( $value ) );
+	}
+
+	/**
+	 * @param mixed $value
+	 */
+	private function normalizeStringValue( $value ) :string {
+		if ( \is_scalar( $value ) || ( \is_object( $value ) && \method_exists( $value, '__toString' ) ) ) {
+			return (string)$value;
+		}
+
+		return '';
 	}
 
 	/**
