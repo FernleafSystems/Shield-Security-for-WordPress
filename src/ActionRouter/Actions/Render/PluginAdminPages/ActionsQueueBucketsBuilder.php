@@ -38,6 +38,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   strip_text:string,
  *   strip_badge:string,
  *   context:LayerContext,
+ *   context_json:string,
+ *   selection_json:string,
  *   selection:BucketSelection
  * }
  */
@@ -86,6 +88,8 @@ class ActionsQueueBucketsBuilder {
 				'strip_text'   => $selection[ 'strip_text' ],
 				'strip_badge'  => $selection[ 'strip_badge' ],
 				'context'      => $context,
+				'context_json' => $selection[ 'context_json' ],
+				'selection_json' => $selection[ 'selection_json' ],
 				'selection'    => $selection,
 			];
 		}

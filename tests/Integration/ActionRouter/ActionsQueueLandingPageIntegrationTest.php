@@ -289,6 +289,21 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-groups-action) > 0 and string-length(@data-actions-queue-detail-action) > 0]',
+			'Actions queue should render PHP-prepared AJAX action JSON on the landing root'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-layer-key="buckets" and string-length(@data-drill-layer-context) > 0]',
+			'The shared drill shell should render PHP-prepared layer context JSON'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-layer-key="buckets"]//*[@data-drill-strip="1" and @data-drill-strip-aria-prefix="Back to"]',
+			'The shared drill strip should render the PHP-provided aria prefix'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-actions-queue-section="drilldown"]/div[1][@data-drill-shell="1"]',
 			'Actions queue should render the drill shell first for mobile-first stacking'
 		);
@@ -307,6 +322,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-drill-target="groups" and @data-drill-bucket-selection]',
 			3,
 			'Bucket layer should render the three triage bucket cards'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-target="groups" and string-length(@data-drill-bucket-selection) > 0]',
+			'Bucket layer should render PHP-prepared selection JSON for drill interactions'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -395,6 +415,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//button[@data-drill-target="detail" and @data-drill-bucket-selection and @data-drill-group-selection and contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
 			'Groups AJAX should render the group cards as whole-card drill targets with serialized selection payloads'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-drill-target="detail" and string-length(@data-drill-bucket-selection) > 0 and string-length(@data-drill-group-selection) > 0]',
+			'Groups AJAX should render PHP-prepared selection JSON on each drill target'
 		);
 		$this->assertXPathExists(
 			$xpath,

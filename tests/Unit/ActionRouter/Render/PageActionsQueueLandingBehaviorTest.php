@@ -130,6 +130,11 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '__BUCKETS_LAYER__', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] );
 		$this->assertSame( 'Grouped findings', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'label' ] );
 		$this->assertSame( 'Select', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'badge' ] );
+		$this->assertSame( 'Back to', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'aria_prefix' ] );
+		$this->assertSame(
+			'{"path":["Triage buckets"],"focus":"What is urgent, what can wait.","next_step":"Choose a bucket to start."}',
+			$vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'context_json' ]
+		);
 		$this->assertSame(
 			[
 				'path'      => [ 'Triage buckets' ],
@@ -138,6 +143,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ]
 		);
+		$this->assertTrue( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] );
 		$this->assertSame(
 			[
 				'header_label'       => 'Where you are',
@@ -152,6 +158,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] );
 		$this->assertSame( ActionsQueueDrillDownGroups::SLUG, $vars[ 'actions_queue_ajax' ][ 'groups_render_action' ][ 'render_slug' ] );
 		$this->assertSame( ActionsQueueDrillDownDetail::SLUG, $vars[ 'actions_queue_ajax' ][ 'detail_render_action' ][ 'render_slug' ] );
+		$this->assertSame(
+			$vars[ 'actions_queue_ajax' ][ 'groups_render_action' ],
+			\json_decode( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '', true )
+		);
+		$this->assertSame(
+			$vars[ 'actions_queue_ajax' ][ 'detail_render_action' ],
+			\json_decode( $vars[ 'actions_queue_ajax' ][ 'detail_render_action_json' ] ?? '', true )
+		);
 		$this->assertSame( 'Loading grouped findings...', $renderData[ 'strings' ][ 'groups_loading' ] );
 		$this->assertSame( 'Loading scoped results...', $renderData[ 'strings' ][ 'detail_loading' ] );
 		$this->assertArrayNotHasKey( 'scans_results', $vars );

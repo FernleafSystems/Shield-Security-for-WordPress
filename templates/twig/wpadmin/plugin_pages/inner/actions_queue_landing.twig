@@ -4,14 +4,14 @@
 	{% set strip = vars.severity_strip %}
 	<div class="actions-landing"
 		 data-actions-landing="1"
-		 data-actions-pane-loading="{{ strings.pane_loading|e('html_attr') }}"
-		 data-actions-groups-loading="{{ strings.groups_loading|e('html_attr') }}"
-		 data-actions-detail-loading="{{ strings.detail_loading|e('html_attr') }}"
-		 data-actions-pane-error="{{ strings.pane_load_error|e('html_attr') }}"
-		 data-actions-layer-error="{{ strings.layer_load_error|e('html_attr') }}"
-		 data-actions-layer-retry="{{ strings.layer_retry|e('html_attr') }}"
-		 data-actions-queue-groups-action="{{ vars.actions_queue_ajax.groups_render_action|json_encode|e('html_attr') }}"
-		 data-actions-queue-detail-action="{{ vars.actions_queue_ajax.detail_render_action|json_encode|e('html_attr') }}">
+		 data-actions-pane-loading="{{ strings.pane_loading }}"
+		 data-actions-groups-loading="{{ strings.groups_loading }}"
+		 data-actions-detail-loading="{{ strings.detail_loading }}"
+		 data-actions-pane-error="{{ strings.pane_load_error }}"
+		 data-actions-layer-error="{{ strings.layer_load_error }}"
+		 data-actions-layer-retry="{{ strings.layer_retry }}"
+		 data-actions-queue-groups-action="{{ vars.actions_queue_ajax.groups_render_action_json }}"
+		 data-actions-queue-detail-action="{{ vars.actions_queue_ajax.detail_render_action_json }}">
 
 		{% include '/wpadmin/components/actions_queue/severity_strip.twig' with {
 			strip: strip,

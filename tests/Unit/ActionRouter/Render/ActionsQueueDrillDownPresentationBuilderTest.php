@@ -24,18 +24,22 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			'next_step' => 'Choose a group to review the matching results.',
 		];
 
+		$selection = $builder->buildBucketSelection( 'critical', 'Fix now', 'critical', 2, $context );
+
+		$this->assertSame( 'critical', $selection[ 'key' ] );
+		$this->assertSame( 'Fix now', $selection[ 'label' ] );
+		$this->assertSame( 'critical', $selection[ 'status' ] );
+		$this->assertSame( 2, $selection[ 'item_count' ] );
+		$this->assertSame( 'Fix now - 2 items', $selection[ 'strip_text' ] );
+		$this->assertSame( '2 items', $selection[ 'strip_badge' ] );
+		$this->assertSame( $context, $selection[ 'context' ] );
 		$this->assertSame(
-			[
-				'key'         => 'critical',
-				'label'       => 'Fix now',
-				'status'      => 'critical',
-				'item_count'  => 2,
-				'strip_text'  => 'Fix now - 2 items',
-				'strip_badge' => '2 items',
-				'context'     => $context,
-			],
-			$builder->buildBucketSelection( 'critical', 'Fix now', 'critical', 2, $context )
+			'{"path":["Triage buckets","Fix now"],"focus":"Fix now contains 2 items that still need attention.","next_step":"Choose a group to review the matching results."}',
+			$selection[ 'context_json' ]
 		);
+		$selectionForJson = $selection;
+		unset( $selectionForJson[ 'selection_json' ] );
+		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
 		$this->assertSame( 'Fix now contains 2 items that still need attention.', $builder->buildBucketFocusText( 'Fix now', 2 ) );
 	}
 
@@ -47,18 +51,22 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
 		];
 
+		$selection = $builder->buildGroupSelection( 'maintenance', 'Maintenance Items', 'warning', 1, 'maintenance', $context );
+
+		$this->assertSame( 'maintenance', $selection[ 'key' ] );
+		$this->assertSame( 'Maintenance Items', $selection[ 'label' ] );
+		$this->assertSame( 'warning', $selection[ 'status' ] );
+		$this->assertSame( 1, $selection[ 'item_count' ] );
+		$this->assertSame( 'maintenance', $selection[ 'detail_shell' ] );
+		$this->assertSame( 'Maintenance Items - 1 item', $selection[ 'strip_text' ] );
+		$this->assertSame( '1 item', $selection[ 'strip_badge' ] );
+		$this->assertSame( $context, $selection[ 'context' ] );
 		$this->assertSame(
-			[
-				'key'          => 'maintenance',
-				'label'        => 'Maintenance Items',
-				'status'       => 'warning',
-				'item_count'   => 1,
-				'detail_shell' => 'maintenance',
-				'strip_text'   => 'Maintenance Items - 1 item',
-				'strip_badge'  => '1 item',
-				'context'      => $context,
-			],
-			$builder->buildGroupSelection( 'maintenance', 'Maintenance Items', 'warning', 1, 'maintenance', $context )
+			'{"path":["Triage buckets","Review next","Maintenance Items"],"focus":"1 maintenance item needs review.","next_step":"Review the maintenance items and address them in the next appropriate maintenance window."}',
+			$selection[ 'context_json' ]
 		);
+		$selectionForJson = $selection;
+		unset( $selectionForJson[ 'selection_json' ] );
+		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
 	}
 }

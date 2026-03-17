@@ -49,6 +49,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Fix now', $data[ 'bucket_selection' ][ 'label' ] );
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
 		$this->assertSame( 3, $data[ 'bucket_selection' ][ 'item_count' ] );
+		$bucketSelectionForJson = $data[ 'bucket_selection' ];
+		unset( $bucketSelectionForJson[ 'selection_json' ] );
+		$this->assertSame( $bucketSelectionForJson, \json_decode( $data[ 'bucket_selection_json' ], true ) );
 		$this->assertSame( 'Fix now - 3 items', $data[ 'strip_text' ] );
 		$this->assertSame( '3 items', $data[ 'strip_badge' ] );
 		$this->assertSame( [ 'malware', 'vulnerabilities' ], \array_column( $data[ 'groups' ], 'key' ) );
@@ -58,6 +61,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '2 suspected malware results need review.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
 		$this->assertSame( 'Malware Detections - 2 items', $data[ 'groups' ][ 0 ][ 'strip_text' ] );
 		$this->assertSame( '2 items', $data[ 'groups' ][ 0 ][ 'strip_badge' ] );
+		$groupSelectionForJson = $data[ 'groups' ][ 0 ][ 'selection' ];
+		unset( $groupSelectionForJson[ 'selection_json' ] );
+		$this->assertSame(
+			$groupSelectionForJson,
+			\json_decode( $data[ 'groups' ][ 0 ][ 'selection_json' ], true )
+		);
 		$this->assertSame( 'Malware Detections', $data[ 'groups' ][ 0 ][ 'selection' ][ 'label' ] );
 		$this->assertSame( 'direct_table', $data[ 'groups' ][ 0 ][ 'selection' ][ 'detail_shell' ] );
 		$this->assertSame(
@@ -112,12 +121,16 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance', $maintenanceGroup[ 'key' ] );
 		$this->assertSame( 2, $maintenanceGroup[ 'item_count' ] );
 		$this->assertSame( 'maintenance', $maintenanceGroup[ 'detail_shell' ] );
+		$this->assertSame( $maintenanceGroup[ 'context_json' ], $maintenanceGroup[ 'selection' ][ 'context_json' ] );
 		$this->assertSame( Maintenance::class, $maintenanceGroup[ 'render_action_class' ] );
 		$this->assertSame( '2 maintenance checks are currently healthy.', $maintenanceGroup[ 'narrative' ] );
 
 		$this->assertSame( 'vulnerabilities', $emptyGroup[ 'key' ] );
 		$this->assertSame( 0, $emptyGroup[ 'item_count' ] );
 		$this->assertSame( 'direct_table', $emptyGroup[ 'detail_shell' ] );
+		$emptySelectionForJson = $emptyGroup[ 'selection' ];
+		unset( $emptySelectionForJson[ 'selection_json' ] );
+		$this->assertSame( $emptySelectionForJson, \json_decode( $emptyGroup[ 'selection_json' ], true ) );
 		$this->assertSame( 'No matching items remain in this group.', $emptyGroup[ 'narrative' ] );
 		$this->assertSame(
 			'Go back to the grouped findings and pick another area to review.',

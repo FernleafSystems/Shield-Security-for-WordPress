@@ -1,16 +1,11 @@
-{% set strip_data = strip|default({}) %}
-{% set strip_label = strip_data.label|default('') %}
-{% set strip_badge = strip_data.badge|default('') %}
-{% set strip_badge_status = strip_data.badge_status|default('info') %}
-
 <button type="button"
 		class="drill-strip"
 		data-drill-strip="1"
-		data-drill-strip-aria-prefix="{{ 'Back to'|e('html_attr') }}"
-		aria-label="Back to {{ strip_label|e('html_attr') }}">
+		data-drill-strip-aria-prefix="{{ strip.aria_prefix }}"
+		aria-label="{{ strip.aria_prefix }} {{ strip.label }}">
 	<i class="bi bi-arrow-left drill-strip__back" aria-hidden="true"></i>
-	<span class="drill-strip__title">{{ strip_label }}</span>
-	{% if strip_badge is not empty %}
-		<span class="drill-strip__badge shield-badge badge-{{ strip_badge_status|e('html_attr') }}">{{ strip_badge }}</span>
+	<span class="drill-strip__title">{{ strip.label }}</span>
+	{% if strip.badge is not empty %}
+		<span class="drill-strip__badge shield-badge badge-{{ strip.badge_status }}">{{ strip.badge }}</span>
 	{% endif %}
 </button>

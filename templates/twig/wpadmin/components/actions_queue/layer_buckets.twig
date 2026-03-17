@@ -1,13 +1,13 @@
 <div class="actions-queue-buckets">
-	{% if heading is defined and heading is not empty %}
-		<div class="actions-queue-buckets__heading">{{ heading|e }}</div>
+	{% if heading is not empty %}
+		<div class="actions-queue-buckets__heading">{{ heading }}</div>
 	{% endif %}
 	<div class="actions-queue-buckets__grid">
 		{% for bucket in buckets %}
 			<button type="button"
 					class="actions-queue-bucket-card shield-card status-{{ bucket.status }}{% if bucket.item_count < 1 %} is-empty{% endif %}"
 					data-drill-target="groups"
-					data-drill-bucket-selection="{{ bucket.selection|json_encode|e('html_attr') }}"
+					data-drill-bucket-selection="{{ bucket.selection_json }}"
 					{% if bucket.item_count < 1 %}disabled{% endif %}>
 				<div class="shield-card-accent status-{{ bucket.status }}"></div>
 				<div class="actions-queue-bucket-card__header">
@@ -18,9 +18,9 @@
 				</div>
 				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>
 				<div class="actions-queue-bucket-card__summary">{{ bucket.summary_text }}</div>
-				{% if bucket.preview_text is defined and bucket.preview_text is not empty %}
+				{% if bucket.preview_text is not empty %}
 					<div class="actions-queue-bucket-card__preview">
-						<i class="bi bi-lightning-fill" aria-hidden="true"></i> {{ bucket.preview_text|e }}
+						<i class="bi bi-lightning-fill" aria-hidden="true"></i> {{ bucket.preview_text }}
 					</div>
 				{% endif %}
 			</button>

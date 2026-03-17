@@ -15,7 +15,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   item_count:int,
  *   strip_text:string,
  *   strip_badge:string,
- *   context:LayerContext
+ *   context:LayerContext,
+ *   context_json:string,
+ *   selection_json:string
  * }
  * @phpstan-type GroupSelection array{
  *   key:string,
@@ -25,7 +27,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   strip_text:string,
  *   strip_badge:string,
- *   context:LayerContext
+ *   context:LayerContext,
+ *   context_json:string,
+ *   selection_json:string
  * }
  */
 class ActionsQueueDrillDownPresentationBuilder {
@@ -69,7 +73,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 		int $itemCount,
 		array $context
 	) :array {
-		return [
+		$selection = [
 			'key'         => $key,
 			'label'       => $label,
 			'status'      => $status,
@@ -78,6 +82,11 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'strip_badge' => $this->buildItemBadge( $itemCount ),
 			'context'     => $context,
 		];
+
+		$selection[ 'context_json' ] = $this->encodeJson( $context );
+		$selection[ 'selection_json' ] = $this->encodeJson( $selection );
+
+		return $selection;
 	}
 
 	/**
@@ -92,7 +101,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $detailShell,
 		array $context
 	) :array {
-		return [
+		$selection = [
 			'key'          => $key,
 			'label'        => $label,
 			'status'       => $status,
@@ -102,5 +111,14 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'strip_badge'  => $this->buildItemBadge( $itemCount ),
 			'context'      => $context,
 		];
+
+		$selection[ 'context_json' ] = $this->encodeJson( $context );
+		$selection[ 'selection_json' ] = $this->encodeJson( $selection );
+
+		return $selection;
+	}
+
+	private function encodeJson( array $data ) :string {
+		return (string)( \json_encode( $data ) ?: '' );
 	}
 }

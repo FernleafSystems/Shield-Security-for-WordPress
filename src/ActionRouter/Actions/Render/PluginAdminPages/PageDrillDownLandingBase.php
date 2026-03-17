@@ -26,8 +26,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   label:string,
  *   badge:string,
  *   badge_status:string,
+ *   aria_prefix:string,
  *   body:string,
- *   context:DrillLayerContext
+ *   context:DrillLayerContext,
+ *   context_json:string
  * }
  * @phpstan-type DrillShell array{
  *   id:string,
@@ -39,6 +41,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   shell_id:string,
  *   mode:string,
  *   initial_context:DrillLayerContext,
+ *   has_renderable_context:bool,
  *   strings:array{
  *     header_label:string,
  *     context_aria_label:string,
@@ -83,6 +86,9 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 			'initial_context' => !empty( $layers )
 				? $layers[ $activeIndex ][ 'context' ]
 				: $this->emptyLayerContext(),
+			'has_renderable_context' => !empty( $layers )
+				? $this->hasRenderableLayerContext( $layers[ $activeIndex ][ 'context' ] )
+				: false,
 			'strings'         => [
 				'header_label'       => __( 'Where you are', 'wp-simple-firewall' ),
 				'context_aria_label' => __( 'Workflow context', 'wp-simple-firewall' ),
@@ -111,13 +117,16 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 				continue;
 			}
 
+			$context = $this->normalizeLayerContext( $layer[ 'context' ] ?? [] );
 			$normalized[] = [
 				'key'          => $key,
 				'label'        => $layer[ 'label' ],
 				'badge'        => $layer[ 'badge' ] ?? '',
 				'badge_status' => $this->sanitizeBadgeStatus( $layer[ 'badge_status' ] ?? '' ),
+				'aria_prefix'  => __( 'Back to', 'wp-simple-firewall' ),
 				'body'         => $layer[ 'body' ],
-				'context'      => $this->normalizeLayerContext( $layer[ 'context' ] ?? [] ),
+				'context'      => $context,
+				'context_json' => $this->encodeJson( $context ),
 			];
 		}
 
@@ -156,6 +165,19 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		}
 
 		return $activeIndex;
+	}
+
+	/**
+	 * @param DrillLayerContext $context
+	 */
+	private function hasRenderableLayerContext( array $context ) :bool {
+		return !empty( $context[ 'path' ] )
+			|| $context[ 'focus' ] !== ''
+			|| $context[ 'next_step' ] !== '';
+	}
+
+	private function encodeJson( array $data ) :string {
+		return (string)( \json_encode( $data ) ?: '' );
 	}
 
 	/**

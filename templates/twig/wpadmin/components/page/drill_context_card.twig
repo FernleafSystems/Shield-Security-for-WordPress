@@ -1,42 +1,28 @@
-{% set context_card_data = context_card|default({}) %}
-{% set context_card_shell_id = context_card_data.shell_id|default('')|trim %}
-{% set initial_context = context_card_data.initial_context|default({}) %}
-{% set raw_path_segments = initial_context.path is defined and initial_context.path is iterable ? initial_context.path : [] %}
-{% set path_segments = [] %}
-{% for raw_path_segment in raw_path_segments %}
-	{% set path_segment = raw_path_segment|default('')|trim %}
-	{% if path_segment is not empty %}
-		{% set path_segments = path_segments|merge([path_segment]) %}
-	{% endif %}
-{% endfor %}
-{% set focus_text = initial_context.focus|default('')|trim %}
-{% set next_step_text = initial_context.next_step|default('')|trim %}
-{% set strings = context_card_data.strings|default({}) %}
-{% set has_renderable_context = path_segments is not empty or focus_text is not empty or next_step_text is not empty %}
+{% set strings = context_card.strings %}
 
-<div class="drill-context-card{% if not has_renderable_context %} d-none{% endif %}"
+<div class="drill-context-card{% if not context_card.has_renderable_context %} d-none{% endif %}"
 	 role="status"
 	 aria-atomic="true"
 	 aria-live="polite"
-	 aria-label="{{ strings.context_aria_label|default('Workflow context')|e('html_attr') }}"
-	 data-drill-context-card="{{ context_card_shell_id|e('html_attr') }}"
-	 {% if has_renderable_context and context_card_data.mode|default('') is not empty %}
-	 data-drill-context-mode="{{ context_card_data.mode|e('html_attr') }}"{% endif %}>
+	 aria-label="{{ strings.context_aria_label }}"
+	 data-drill-context-card="{{ context_card.shell_id }}"
+	 {% if context_card.has_renderable_context and context_card.mode is not empty %}
+	 data-drill-context-mode="{{ context_card.mode }}"{% endif %}>
 	<div class="drill-context-card__header">
 		<i class="bi bi-compass drill-context-card__header-icon" aria-hidden="true"></i>
-		<span class="drill-context-card__header-label">{{ strings.header_label|default('Where you are')|e }}</span>
+		<span class="drill-context-card__header-label">{{ strings.header_label }}</span>
 	</div>
-	<div class="drill-context-card__path{% if path_segments is empty %} d-none{% endif %}">
-		{% for path_segment in path_segments %}
-			<span class="drill-context-card__path-segment{% if loop.last %} is-current{% endif %}">{{ path_segment|e }}</span>
+	<div class="drill-context-card__path{% if context_card.initial_context.path is empty %} d-none{% endif %}">
+		{% for path_segment in context_card.initial_context.path %}
+			<span class="drill-context-card__path-segment{% if loop.last %} is-current{% endif %}">{{ path_segment }}</span>
 		{% endfor %}
 	</div>
-	<div class="drill-context-card__section{% if focus_text is empty %} d-none{% endif %}">
-		<div class="drill-context-card__section-label">{{ strings.focus_label|default('Focus')|e }}</div>
-		<div class="drill-context-card__focus">{{ focus_text|e }}</div>
+	<div class="drill-context-card__section{% if context_card.initial_context.focus is empty %} d-none{% endif %}">
+		<div class="drill-context-card__section-label">{{ strings.focus_label }}</div>
+		<div class="drill-context-card__focus">{{ context_card.initial_context.focus }}</div>
 	</div>
-	<div class="drill-context-card__section{% if next_step_text is empty %} d-none{% endif %}">
-		<div class="drill-context-card__section-label">{{ strings.next_step_label|default('Next step')|e }}</div>
-		<div class="drill-context-card__next-step">{{ next_step_text|e }}</div>
+	<div class="drill-context-card__section{% if context_card.initial_context.next_step is empty %} d-none{% endif %}">
+		<div class="drill-context-card__section-label">{{ strings.next_step_label }}</div>
+		<div class="drill-context-card__next-step">{{ context_card.initial_context.next_step }}</div>
 	</div>
 </div>

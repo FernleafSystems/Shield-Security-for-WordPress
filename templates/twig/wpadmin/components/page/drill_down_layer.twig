@@ -6,15 +6,15 @@
 {% endif %}
 
 <div class="{{ layer_classes|join(' ') }}"
-	 data-drill-layer="{{ layer.index|e('html_attr') }}"
-	 data-drill-layer-key="{{ layer.key|e('html_attr') }}"
-	 data-drill-layer-context="{{ layer.context|json_encode|e('html_attr') }}">
+	 data-drill-layer="{{ layer.index }}"
+	 data-drill-layer-key="{{ layer.key }}"
+	 data-drill-layer-context="{{ layer.context_json }}">
 	{% include '/wpadmin/components/page/drill_down_strip.twig' with {
 		strip: {
 			label: layer.label,
 			badge: layer.badge,
 			badge_status: layer.badge_status,
-			mode: layer.mode
+			aria_prefix: layer.aria_prefix
 		}
 	} only %}
 	<div class="drill-layer__body">

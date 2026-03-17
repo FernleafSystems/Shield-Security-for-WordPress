@@ -15,8 +15,8 @@
 				<button type="button"
 						class="actions-queue-group-card shield-card status-{{ group.status }}"
 						data-drill-target="detail"
-						data-drill-bucket-selection="{{ bucket_selection|json_encode|e('html_attr') }}"
-						data-drill-group-selection="{{ group.selection|json_encode|e('html_attr') }}">
+						data-drill-bucket-selection="{{ bucket_selection_json }}"
+						data-drill-group-selection="{{ group.selection_json }}">
 					<div class="shield-card-accent status-{{ group.status }}"></div>
 					<div class="actions-queue-group-card__header">
 						<div class="actions-queue-group-card__title-wrap">

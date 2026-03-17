@@ -114,6 +114,11 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			\array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' )
 		);
 		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 2 ][ 'badge_status' ] ?? '' );
+		$this->assertSame( 'Back to', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'aria_prefix' ] ?? '' );
+		$this->assertSame(
+			'{"path":["Start","Queue","Bucket"],"focus":"Narrow the queue.","next_step":"Open the item."}',
+			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'context_json' ] ?? ''
+		);
 		$this->assertSame(
 			[
 				'path'      => [ 'Start', 'Queue', 'Bucket' ],
@@ -122,6 +127,7 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
 		);
+		$this->assertTrue( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] ?? false );
 		$this->assertSame(
 			[
 				'header_label'       => 'Where you are',
@@ -186,6 +192,7 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
 		);
+		$this->assertFalse( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] ?? true );
 	}
 
 	public function test_empty_layers_produce_empty_drill_contract() :void {
@@ -229,5 +236,6 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
 		);
+		$this->assertFalse( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] ?? true );
 	}
 }

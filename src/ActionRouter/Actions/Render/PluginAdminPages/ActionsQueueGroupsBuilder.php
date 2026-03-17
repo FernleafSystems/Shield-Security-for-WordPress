@@ -39,10 +39,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   strip_text:string,
  *   strip_badge:string,
  *   context:LayerContext,
+ *   context_json:string,
+ *   selection_json:string,
  *   selection:GroupSelection
  * }
  * @phpstan-type GroupsLayerData array{
  *   bucket_selection:BucketSelection,
+ *   bucket_selection_json:string,
  *   groups:list<GroupData>,
  *   context:LayerContext,
  *   strip_text:string,
@@ -140,6 +143,7 @@ class ActionsQueueGroupsBuilder {
 		return [
 			'layer'          => [
 				'bucket_selection'   => $bucketSelection,
+				'bucket_selection_json' => $bucket[ 'selection_json' ],
 				'groups'             => $groups,
 				'context'            => $bucketSelection[ 'context' ],
 				'strip_text'         => $bucketSelection[ 'strip_text' ],
@@ -273,6 +277,8 @@ class ActionsQueueGroupsBuilder {
 			'strip_text'          => $selection[ 'strip_text' ],
 			'strip_badge'         => $selection[ 'strip_badge' ],
 			'context'             => $context,
+			'context_json'        => $selection[ 'context_json' ],
+			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
 		];
 	}
@@ -316,6 +322,8 @@ class ActionsQueueGroupsBuilder {
 			'strip_text'          => $selection[ 'strip_text' ],
 			'strip_badge'         => $selection[ 'strip_badge' ],
 			'context'             => $context,
+			'context_json'        => $selection[ 'context_json' ],
+			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
 		];
 	}
