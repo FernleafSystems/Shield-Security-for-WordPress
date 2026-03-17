@@ -135,7 +135,7 @@
 .drill-context-card {
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;
-	border-left: 4px solid $border-color-neutral-subtle;
+	border-top: 3px solid $border-color-neutral-subtle;
 	border-radius: $card-border-radius;
 	box-shadow: $card-box-shadow;
 	color: #1d2327;
@@ -168,19 +168,19 @@
 }
 
 .drill-context-card[data-drill-context-mode="actions"] {
-	border-left-color: $status-color-critical;
+	border-top-color: $status-color-critical;
 }
 
 .drill-context-card[data-drill-context-mode="configure"] {
-	border-left-color: $status-color-good;
+	border-top-color: $status-color-good;
 }
 
 .drill-context-card[data-drill-context-mode="investigate"] {
-	border-left-color: $status-color-info;
+	border-top-color: $status-color-info;
 }
 
 .drill-context-card[data-drill-context-mode="review"] {
-	border-left-color: $status-color-warning;
+	border-top-color: $status-color-warning;
 }
 
 .drill-context-card__path {
@@ -194,7 +194,7 @@
 .drill-context-card__path-segment {
 	background: $surface-color-neutral-raised;
 	border: 1px solid $border-color-neutral-subtle;
-	border-radius: 999px;
+	border-radius: 4px;
 	color: #5f6974;
 	display: inline-flex;
 	font-size: 11px;
@@ -213,8 +213,15 @@
 }
 
 .drill-context-card__path-segment.is-current {
-	background: #fff;
+	background: #e8eaed;
 	color: #1d2327;
+}
+
+.actions-landing__drilldown .drill-context-card,
+.configure-landing__drilldown .drill-context-card,
+.investigate-landing__drilldown .drill-context-card {
+	position: sticky;
+	top: 48px;
 }
 
 .drill-context-card__section {

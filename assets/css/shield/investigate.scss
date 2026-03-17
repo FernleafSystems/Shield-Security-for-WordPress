@@ -2,7 +2,7 @@
 .investigate-landing__drilldown {
 	align-items: start;
 	display: grid;
-	gap: 1rem;
+	gap: 1.5rem;
 	margin-top: 1rem;
 }
 
@@ -46,12 +46,15 @@
 	--landing-subject-icon-color: #{$status-color-info};
 
 	appearance: none;
+	border: 2px solid rgba($status-color-info, 0.25);
+	box-shadow: none;
 	cursor: pointer;
 	gap: 0.35rem;
 	min-height: 132px;
 	line-height: inherit;
 	font: inherit;
 	padding: 1rem 0.85rem;
+	text-align: center;
 	text-decoration: none;
 }
 
@@ -71,6 +74,7 @@
 
 .investigate-landing__subject-card:hover {
 	border-color: var(--landing-subject-accent-color);
+	box-shadow: $card-box-shadow-hover;
 }
 
 .investigate-landing__subject-card:not(.is-disabled):hover::before,
@@ -83,6 +87,7 @@
 	--landing-subject-active-bg: #{$status-bg-good-light};
 	--landing-subject-icon-bg: #{$status-bg-good-light};
 	--landing-subject-icon-color: #{$status-color-good};
+	border-color: rgba($status-color-good, 0.25);
 }
 
 .investigate-landing__subject-card.status-warning {
@@ -90,6 +95,7 @@
 	--landing-subject-active-bg: #{$status-bg-warning-light};
 	--landing-subject-icon-bg: #{$status-bg-warning-light};
 	--landing-subject-icon-color: #{$status-color-warning};
+	border-color: rgba($status-color-warning, 0.25);
 }
 
 .investigate-landing__subject-card.status-critical {
@@ -97,6 +103,7 @@
 	--landing-subject-active-bg: #{$status-bg-critical-light};
 	--landing-subject-icon-bg: #{$status-bg-critical-light};
 	--landing-subject-icon-color: #{$status-color-critical};
+	border-color: rgba($status-color-critical, 0.25);
 }
 
 .investigate-landing__subject-card.status-neutral,
@@ -105,6 +112,7 @@
 	--landing-subject-active-bg: #{$status-bg-info-light};
 	--landing-subject-icon-bg: #{$status-bg-info-light};
 	--landing-subject-icon-color: #{$status-color-info};
+	border-color: rgba($status-color-info, 0.25);
 }
 
 .investigate-landing__subject-icon {
@@ -127,13 +135,18 @@
 	color: #6c757d;
 }
 
+.investigate-landing__subject-card.is-disabled {
+	opacity: 0.4;
+	pointer-events: none;
+}
+
 .investigate-landing__subject-label {
 	align-items: center;
 	display: inline-flex;
 	font-size: 0.88rem;
 	font-weight: 700;
 	gap: 0.35rem;
-	justify-content: flex-start;
+	justify-content: center;
 	line-height: 1.25;
 }
 

@@ -51,11 +51,13 @@ trait BuildsConfigureLandingData {
 
 	use StandardStatusMapping;
 
+	private ?array $configureZoneTilesSourceCache = null;
 	private ?array $configureLandingTilesCache = null;
 	private ?array $configureLandingTileLookupCache = null;
 	private ?array $configureZoneDiagnosesCache = null;
 	private ?array $configureZoneSectionsCache = null;
 	private ?array $configurePostureCache = null;
+	private ?array $zonePostureSourceCache = null;
 	private ?string $configurePostureStripSectionCache = null;
 	private ?string $configureZonesLayerCache = null;
 
@@ -66,6 +68,35 @@ trait BuildsConfigureLandingData {
 	protected function getValidRequestedConfigureZoneKey() :string {
 		$zoneKey = $this->getRequestedConfigureZoneKey();
 		return isset( $this->getConfigureLandingTileLookup()[ $zoneKey ] ) ? $zoneKey : '';
+	}
+
+	/**
+	 * @return list<ConfigureZoneTile>
+	 */
+	protected function getConfigureZoneTiles() :array {
+		if ( $this->configureZoneTilesSourceCache === null ) {
+			$this->configureZoneTilesSourceCache = ( new ConfigureZoneTilesBuilder() )->build();
+		}
+
+		return $this->configureZoneTilesSourceCache;
+	}
+
+	/**
+	 * @return array{
+	 *   components:list<array<string,mixed>>,
+	 *   signals:list<array<string,mixed>>,
+	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
+	 *   percentage:int,
+	 *   severity:string,
+	 *   status:string
+	 * }
+	 */
+	protected function getZonePosture() :array {
+		if ( $this->zonePostureSourceCache === null ) {
+			$this->zonePostureSourceCache = ( new BuildZonePosture() )->build();
+		}
+
+		return $this->zonePostureSourceCache;
 	}
 
 	/**

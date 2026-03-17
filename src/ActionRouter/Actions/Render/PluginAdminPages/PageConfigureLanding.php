@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class PageConfigureLanding extends PageDrillDownLandingBase {
 
@@ -15,11 +14,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 
 	public const SLUG = 'plugin_admin_page_configure_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/configure_landing.twig';
-
-	/**
-	 * @var list<array<string,mixed>>|null
-	 */
-	private ?array $configureZoneTilesCache = null;
 
 	protected function getLandingTitle() :string {
 		return __( 'Configure', 'wp-simple-firewall' );
@@ -138,27 +132,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 	 */
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
 		return ActionData::BuildAjaxRender( $renderAction, $auxData );
-	}
-
-	/**
-	 * @return array{
-	 *   components:list<array<string,mixed>>,
-	 *   signals:list<array<string,mixed>>,
-	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
-	 *   percentage:int,
-	 *   severity:string,
-	 *   status:string
-	 * }
-	 */
-	protected function getZonePosture() :array {
-		return ( new BuildZonePosture() )->build();
-	}
-
-	protected function getConfigureZoneTiles() :array {
-		if ( $this->configureZoneTilesCache === null ) {
-			$this->configureZoneTilesCache = ( new ConfigureZoneTilesBuilder() )->build();
-		}
-		return $this->configureZoneTilesCache;
 	}
 
 	private function encodeJson( array $data ) :string {

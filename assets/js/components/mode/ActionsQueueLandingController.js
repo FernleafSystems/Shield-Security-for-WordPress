@@ -31,12 +31,12 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		this.hasBoundDrillDownHandlers = true;
 
 		shieldEventsHandler_Main.add_Click(
-			'[data-drill-target]',
+			'[data-actions-landing="1"] [data-drill-target]',
 			( item ) => this.handleDrillTargetClick( item ),
 			false
 		);
 		shieldEventsHandler_Main.add_Click(
-			'[data-actions-queue-retry]',
+			'[data-actions-landing="1"] [data-actions-queue-retry]',
 			( item ) => this.handleRetryClick( item ),
 			false
 		);

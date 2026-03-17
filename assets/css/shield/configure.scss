@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .configure-landing__posture-section {
 	margin-bottom: 1rem;
 }
@@ -43,9 +45,9 @@
 
 .configure-zone-card {
 	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
+	border: 2px solid $border-color-neutral-subtle;
 	border-radius: $card-border-radius;
-	box-shadow: $card-box-shadow;
+	box-shadow: none;
 	color: #1d2327;
 	display: grid;
 	gap: 0.85rem;
@@ -58,9 +60,42 @@
 }
 
 .configure-zone-card:hover {
-	border-color: rgba($status-color-good, 0.2);
 	box-shadow: $card-box-shadow-hover;
 	transform: translateY(-2px);
+}
+
+.configure-zone-card.status-critical {
+	border-color: rgba($status-color-critical, 0.25);
+}
+
+.configure-zone-card.status-warning {
+	border-color: rgba($status-color-warning, 0.25);
+}
+
+.configure-zone-card.status-good {
+	border-color: rgba($status-color-good, 0.25);
+}
+
+.configure-zone-card.status-neutral,
+.configure-zone-card.status-info {
+	border-color: rgba($status-color-info, 0.25);
+}
+
+.configure-zone-card.status-critical:hover {
+	border-color: $status-color-critical;
+}
+
+.configure-zone-card.status-warning:hover {
+	border-color: $status-color-warning;
+}
+
+.configure-zone-card.status-good:hover {
+	border-color: $status-color-good;
+}
+
+.configure-zone-card.status-neutral:hover,
+.configure-zone-card.status-info:hover {
+	border-color: $status-color-info;
 }
 
 .configure-zone-card:disabled {
@@ -69,6 +104,16 @@
 	cursor: not-allowed;
 	opacity: 0.7;
 	transform: none;
+}
+
+.configure-zone-card.status-good,
+.configure-zone-card.status-neutral {
+	opacity: 0.7;
+}
+
+.configure-zone-card.status-good:hover,
+.configure-zone-card.status-neutral:hover {
+	opacity: 1;
 }
 
 .configure-zone-card__header,
@@ -201,6 +246,30 @@
 .configure-editor__cta:hover {
 	background: #2c3338;
 	border-color: #2c3338;
+	color: #fff;
+}
+
+.configure-diagnosis__next-move {
+	background: #f0f7ff;
+	border: 1px solid #d0e3f7;
+	border-radius: 8px;
+}
+
+.configure-diagnosis__next-move-copy {
+	color: #1e40af;
+	font-weight: 600;
+}
+
+.configure-diagnosis__cta {
+	background: $status-color-good;
+	border-color: $status-color-good;
+	border-radius: 8px;
+	color: #fff;
+}
+
+.configure-diagnosis__cta:hover {
+	background: color.adjust($status-color-good, $lightness: -8%);
+	border-color: color.adjust($status-color-good, $lightness: -8%);
 	color: #fff;
 }
 

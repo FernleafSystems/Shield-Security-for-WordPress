@@ -29,12 +29,12 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.hasBoundDrillHandlers = true;
 
 		shieldEventsHandler_Main.add_Click(
-			'[data-drill-target]',
+			'[data-configure-landing="1"] [data-drill-target]',
 			( item ) => this.handleDrillTargetClick( item ),
 			false
 		);
 		shieldEventsHandler_Main.add_Click(
-			'[data-configure-retry]',
+			'[data-configure-landing="1"] [data-configure-retry]',
 			( item ) => this.handleRetryClick( item ),
 			false
 		);

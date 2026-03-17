@@ -1,7 +1,7 @@
 .actions-landing__drilldown {
 	align-items: start;
 	display: grid;
-	gap: 1rem;
+	gap: 1.5rem;
 	margin-top: 1rem;
 }
 
@@ -28,11 +28,16 @@
 	text-transform: uppercase;
 }
 
-.actions-queue-buckets__grid,
-.actions-queue-groups__grid {
+.actions-queue-buckets__grid {
 	display: grid;
 	gap: 0.9rem;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.actions-queue-groups__grid {
+	display: grid;
+	gap: 0.9rem;
+	grid-template-columns: 1fr;
 }
 
 .actions-queue-bucket-card,
@@ -41,7 +46,7 @@
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;
 	border-radius: $card-border-radius;
-	box-shadow: $card-box-shadow;
+	box-shadow: none;
 	color: #1d2327;
 	line-height: inherit;
 	padding: 1rem;
@@ -53,6 +58,7 @@
 .actions-queue-bucket-card {
 	cursor: pointer;
 	min-height: 182px;
+	border-width: 2px;
 	transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
 }
 
@@ -66,9 +72,52 @@
 .actions-queue-bucket-card:focus-visible,
 .actions-queue-group-card:hover,
 .actions-queue-group-card:focus-visible {
-	border-color: $border-color-neutral-strong;
 	box-shadow: $card-box-shadow-hover;
 	transform: translateY(-1px);
+}
+
+.actions-queue-bucket-card:focus-visible,
+.actions-queue-group-card:focus-visible {
+	outline: none;
+}
+
+.actions-queue-bucket-card.status-critical {
+	border-color: rgba($status-color-critical, 0.25);
+}
+
+.actions-queue-bucket-card.status-warning {
+	border-color: rgba($status-color-warning, 0.25);
+}
+
+.actions-queue-bucket-card.status-good {
+	border-color: rgba($status-color-good, 0.25);
+}
+
+.actions-queue-bucket-card.status-neutral,
+.actions-queue-bucket-card.status-info {
+	border-color: rgba($status-color-info, 0.25);
+}
+
+.actions-queue-bucket-card.status-critical:hover:not(:disabled),
+.actions-queue-bucket-card.status-critical:focus-visible {
+	border-color: $status-color-critical;
+}
+
+.actions-queue-bucket-card.status-warning:hover:not(:disabled),
+.actions-queue-bucket-card.status-warning:focus-visible {
+	border-color: $status-color-warning;
+}
+
+.actions-queue-bucket-card.status-good:hover:not(:disabled),
+.actions-queue-bucket-card.status-good:focus-visible {
+	border-color: $status-color-good;
+}
+
+.actions-queue-bucket-card.status-neutral:hover:not(:disabled),
+.actions-queue-bucket-card.status-neutral:focus-visible,
+.actions-queue-bucket-card.status-info:hover:not(:disabled),
+.actions-queue-bucket-card.status-info:focus-visible {
+	border-color: $status-color-info;
 }
 
 .actions-queue-bucket-card:disabled,
