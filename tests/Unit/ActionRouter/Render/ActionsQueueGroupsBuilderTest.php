@@ -46,10 +46,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'Critical', $data[ 'bucket_label' ] );
+		$this->assertSame( 'Fix now', $data[ 'bucket_label' ] );
 		$this->assertSame( 'critical', $data[ 'bucket_status' ] );
 		$this->assertSame( 3, $data[ 'bucket_item_count' ] );
-		$this->assertSame( 'Critical - 3 items', $data[ 'strip_text' ] );
+		$this->assertSame( 'Fix now - 3 items', $data[ 'strip_text' ] );
 		$this->assertSame( '3 items', $data[ 'strip_badge' ] );
 		$this->assertSame( [ 'malware', 'vulnerabilities' ], \array_column( $data[ 'groups' ], 'key' ) );
 		$this->assertSame( [ 'direct_table', 'direct_table' ], \array_column( $data[ 'groups' ], 'detail_shell' ) );

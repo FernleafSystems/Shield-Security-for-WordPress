@@ -120,8 +120,14 @@ export class DrillContextCardController extends BaseAutoExecComponent {
 			return;
 		}
 
+		const section = el.closest( '.drill-context-card__section' );
 		el.textContent = text;
-		el.classList.toggle( 'd-none', text.length < 1 );
+		if ( section instanceof HTMLElement ) {
+			section.classList.toggle( 'd-none', text.length < 1 );
+		}
+		else {
+			el.classList.toggle( 'd-none', text.length < 1 );
+		}
 	}
 
 	buildPathHtml( pathSegments ) {

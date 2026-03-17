@@ -24,16 +24,19 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 				'items' => [
 					[
 						'key' => 'malware',
+						'label' => 'Malware',
 						'count' => 2,
 						'severity' => 'critical',
 					],
 					[
 						'key' => 'vulnerable_assets',
+						'label' => 'Vulnerabilities',
 						'count' => 1,
 						'severity' => 'warning',
 					],
 					[
 						'key' => 'wp_updates',
+						'label' => 'WordPress Version',
 						'count' => 1,
 						'severity' => 'warning',
 					],
@@ -66,10 +69,11 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			$bucketsByKey[ $bucket[ 'key' ] ] = $bucket;
 		}
 
-		$this->assertSame( 'Critical', $bucketsByKey[ 'critical' ][ 'label' ] );
+		$this->assertSame( 'Fix now', $bucketsByKey[ 'critical' ][ 'label' ] );
 		$this->assertSame( 2, $bucketsByKey[ 'critical' ][ 'item_count' ] );
 		$this->assertSame( '2 malware detections', $bucketsByKey[ 'critical' ][ 'summary_text' ] );
-		$this->assertSame( 'Critical - 2 items', $bucketsByKey[ 'critical' ][ 'strip_text' ] );
+		$this->assertSame( 'Malware', $bucketsByKey[ 'critical' ][ 'preview_text' ] );
+		$this->assertSame( 'Fix now - 2 items', $bucketsByKey[ 'critical' ][ 'strip_text' ] );
 		$this->assertSame( '2 items', $bucketsByKey[ 'critical' ][ 'strip_badge' ] );
 
 		$this->assertSame( 'warning', $bucketsByKey[ 'review' ][ 'status' ] );
@@ -77,8 +81,8 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '1 vulnerability, 1 maintenance item', $bucketsByKey[ 'review' ][ 'summary_text' ] );
 		$this->assertSame(
 			[
-				'path'      => [ 'Triage buckets', 'Review' ],
-				'focus'     => 'Review contains 2 items that still need attention.',
+				'path'      => [ 'Triage buckets', 'Review next' ],
+				'focus'     => 'Review next contains 2 items that still need attention.',
 				'next_step' => 'Choose a group to review the matching results.',
 			],
 			$bucketsByKey[ 'review' ][ 'context' ]
@@ -87,6 +91,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $bucketsByKey[ 'later' ][ 'status' ] );
 		$this->assertSame( 2, $bucketsByKey[ 'later' ][ 'item_count' ] );
 		$this->assertSame( '2 maintenance checks', $bucketsByKey[ 'later' ][ 'summary_text' ] );
+		$this->assertSame( 'PHP Version', $bucketsByKey[ 'later' ][ 'preview_text' ] );
 	}
 
 	public function test_classify_keeps_good_and_neutral_maintenance_rows_in_later_only() :void {
@@ -97,6 +102,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 				'items' => [
 					[
 						'key' => 'plugin_files',
+						'label' => 'Plugin Files',
 						'count' => 3,
 						'severity' => 'warning',
 					],

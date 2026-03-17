@@ -138,6 +138,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ]
 		);
+		$this->assertSame(
+			[
+				'header_label'    => 'Where you are',
+				'focus_label'     => 'Focus',
+				'next_step_label' => 'Next step',
+			],
+			$vars[ 'drill_context_card' ][ 'strings' ]
+		);
 		$this->assertSame( 'critical', $strip[ 'severity' ] );
 		$this->assertSame( 5, $strip[ 'total_items' ] );
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] );

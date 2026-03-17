@@ -58,6 +58,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   item_count:int,
  *   summary_text:string,
+ *   preview_text:string,
  *   icon_class:string,
  *   strip_text:string,
  *   strip_badge:string,

@@ -14,7 +14,6 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	 *   bucket_status:string,
 	 *   bucket_item_count:int,
 	 *   empty_message:string,
-	 *   cta_label:string,
 	 *   groups:list<array{
 	 *     key:string,
 	 *     label:string,
@@ -96,7 +95,6 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			'bucket_status'      => $groups[ 'bucket_status' ],
 			'bucket_item_count'  => $groups[ 'bucket_item_count' ],
 			'empty_message'      => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
-			'cta_label'          => __( 'Open results', 'wp-simple-firewall' ),
 			'groups'             => $groups[ 'groups' ],
 			'context'            => $groups[ 'context' ],
 			'strip_text'         => $groups[ 'strip_text' ],

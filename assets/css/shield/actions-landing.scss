@@ -15,8 +15,17 @@
 
 @media (min-width: 1200px) {
 	.actions-landing__drilldown {
-		grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
 	}
+}
+
+.actions-queue-buckets__heading {
+	color: #5f6974;
+	font-size: 13px;
+	font-weight: 500;
+	letter-spacing: 0.06em;
+	margin-bottom: 12px;
+	text-transform: uppercase;
 }
 
 .actions-queue-buckets__grid,
@@ -47,8 +56,16 @@
 	transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
 }
 
+.actions-queue-group-card {
+	cursor: pointer;
+	font: inherit;
+	transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
 .actions-queue-bucket-card:hover:not(:disabled),
-.actions-queue-bucket-card:focus-visible {
+.actions-queue-bucket-card:focus-visible,
+.actions-queue-group-card:hover,
+.actions-queue-group-card:focus-visible {
 	border-color: $border-color-neutral-strong;
 	box-shadow: $card-box-shadow-hover;
 	transform: translateY(-1px);
@@ -126,6 +143,19 @@
 	margin-top: 0.55rem;
 }
 
+.actions-queue-bucket-card__preview {
+	border-top: 1px solid $border-color-neutral-subtle;
+	color: #5f6974;
+	font-size: 12px;
+	margin-top: 0.75rem;
+	padding-top: 0.6rem;
+}
+
+.actions-queue-bucket-card__preview i {
+	color: inherit;
+	font-size: 11px;
+}
+
 .actions-queue-groups__intro,
 .actions-queue-detail__header {
 	margin-bottom: 1rem;
@@ -158,13 +188,26 @@
 }
 
 .actions-queue-group-card__next-move {
-	border-top: 1px solid $border-color-neutral-subtle;
+	align-items: center;
+	display: flex;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 6px;
 	margin-top: 0.95rem;
 	padding-top: 0.9rem;
 }
 
-.actions-queue-group-card__footer {
-	margin-top: 0.9rem;
+.status-critical .actions-queue-group-card__next-move {
+	color: $status-color-critical;
+}
+
+.status-warning .actions-queue-group-card__next-move {
+	color: $status-color-warning;
+}
+
+.status-good .actions-queue-group-card__next-move,
+.status-neutral .actions-queue-group-card__next-move {
+	color: $status-color-good;
 }
 
 .actions-queue-detail {

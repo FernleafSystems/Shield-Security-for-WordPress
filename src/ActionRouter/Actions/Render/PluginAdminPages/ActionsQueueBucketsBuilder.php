@@ -36,6 +36,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   item_count:int,
  *   summary_text:string,
+ *   preview_text:string,
  *   icon_class:string,
  *   strip_text:string,
  *   strip_badge:string,
@@ -63,6 +64,7 @@ class ActionsQueueBucketsBuilder {
 				'status'       => $definition[ 'status' ],
 				'item_count'   => $bucketSource[ 'item_count' ],
 				'summary_text' => $this->buildSummaryText( $bucketKey, $bucketSource ),
+				'preview_text' => $this->buildPreviewText( $bucketSource ),
 				'icon_class'   => $definition[ 'icon_class' ],
 				'strip_text'   => $this->buildStripText( $definition[ 'label' ], $bucketSource[ 'item_count' ] ),
 				'strip_badge'  => $this->buildItemBadge( $bucketSource[ 'item_count' ] ),
@@ -262,17 +264,17 @@ class ActionsQueueBucketsBuilder {
 	private function getBucketDefinitions() :array {
 		return [
 			'critical' => [
-				'label' => __( 'Critical', 'wp-simple-firewall' ),
+				'label' => __( 'Fix now', 'wp-simple-firewall' ),
 				'status' => 'critical',
 				'icon_class' => 'bi bi-exclamation-triangle-fill',
 			],
 			'review' => [
-				'label' => __( 'Review', 'wp-simple-firewall' ),
+				'label' => __( 'Review next', 'wp-simple-firewall' ),
 				'status' => 'warning',
 				'icon_class' => 'bi bi-eye-fill',
 			],
 			'later' => [
-				'label' => __( 'Later', 'wp-simple-firewall' ),
+				'label' => __( 'Schedule later', 'wp-simple-firewall' ),
 				'status' => 'good',
 				'icon_class' => 'bi bi-clock-fill',
 			],
@@ -327,5 +329,19 @@ class ActionsQueueBucketsBuilder {
 			$bucketLabel,
 			$itemCount
 		);
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 */
+	private function buildPreviewText( array $bucketSource ) :string {
+		if ( !empty( $bucketSource[ 'attention_items' ] ) ) {
+			return $bucketSource[ 'attention_items' ][ 0 ][ 'label' ] ?? '';
+		}
+		if ( !empty( $bucketSource[ 'maintenance_rows' ] ) ) {
+			return $bucketSource[ 'maintenance_rows' ][ 0 ][ 'label' ] ?? '';
+		}
+
+		return '';
 	}
 }

@@ -1,4 +1,7 @@
 <div class="actions-queue-buckets">
+	{% if heading is defined and heading is not empty %}
+		<div class="actions-queue-buckets__heading">{{ heading|e }}</div>
+	{% endif %}
 	<div class="actions-queue-buckets__grid">
 		{% for bucket in buckets %}
 			<button type="button"
@@ -21,6 +24,11 @@
 				</div>
 				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>
 				<div class="actions-queue-bucket-card__summary">{{ bucket.summary_text }}</div>
+				{% if bucket.preview_text is defined and bucket.preview_text is not empty %}
+					<div class="actions-queue-bucket-card__preview">
+						<i class="bi bi-lightning-fill" aria-hidden="true"></i> {{ bucket.preview_text|e }}
+					</div>
+				{% endif %}
 			</button>
 		{% endfor %}
 	</div>

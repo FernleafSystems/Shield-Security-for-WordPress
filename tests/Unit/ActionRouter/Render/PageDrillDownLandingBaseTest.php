@@ -122,6 +122,14 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
 		);
+		$this->assertSame(
+			[
+				'header_label'    => 'Where you are',
+				'focus_label'     => 'Focus',
+				'next_step_label' => 'Next step',
+			],
+			$vars[ 'drill_context_card' ][ 'strings' ] ?? []
+		);
 		$this->assertArrayNotHasKey( 'index', $vars[ 'drill_shell' ][ 'layers' ][ 0 ] ?? [] );
 		$this->assertArrayNotHasKey( 'is_active', $vars[ 'drill_shell' ][ 'layers' ][ 0 ] ?? [] );
 	}

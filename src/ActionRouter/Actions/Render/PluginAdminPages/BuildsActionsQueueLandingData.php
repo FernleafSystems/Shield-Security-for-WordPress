@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   status:string,
  *   item_count:int,
  *   summary_text:string,
+ *   preview_text:string,
  *   icon_class:string,
  *   strip_text:string,
  *   strip_badge:string,
@@ -161,6 +162,7 @@ trait BuildsActionsQueueLandingData {
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
 				'buckets' => $this->getBucketsData(),
+				'heading' => __( 'Choose where to start', 'wp-simple-firewall' ),
 			] )
 			->render();
 	}

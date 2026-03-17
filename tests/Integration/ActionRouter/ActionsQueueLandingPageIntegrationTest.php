@@ -269,14 +269,49 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-drill-context-card="actions_drill_shell"]//*[contains(concat(" ", normalize-space(@class), " "), " drill-context-card__header-label ") and normalize-space()="Where you are"]',
+			'Actions queue should render the shared context card header label'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-context-card="actions_drill_shell"]//*[contains(concat(" ", normalize-space(@class), " "), " drill-context-card__section-label ") and normalize-space()="Focus"]',
+			'Actions queue should label the focus section'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-context-card="actions_drill_shell"]//*[contains(concat(" ", normalize-space(@class), " "), " drill-context-card__section-label ") and normalize-space()="Next step"]',
+			'Actions queue should label the next-step section'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-drill-shell="1" and @data-drill-shell-mode="actions"]',
 			'Actions queue should render the drill-down shell when the queue has items'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="drilldown"]/div[1][@data-drill-shell="1"]',
+			'Actions queue should render the drill shell first for mobile-first stacking'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="drilldown"]/div[2][@data-drill-context-card="actions_drill_shell"]',
+			'Actions queue should render the context card second in the drilldown container'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-buckets__heading ") and normalize-space()="Choose where to start"]',
+			'Bucket layer should render the guidance heading'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-drill-target="groups" and @data-drill-bucket-key]',
 			3,
 			'Bucket layer should render the three triage bucket cards'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card__preview ")]',
+			'Bucket layer should surface at least one top-item preview'
 		);
 		$this->assertXPathCount(
 			$xpath,
@@ -337,14 +372,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertSame( 'Review - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( 'Review next - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
 		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $payload[ 'strip_badge_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
 		$this->assertSame(
 			[
-				'path'      => [ 'Triage buckets', 'Review' ],
-				'focus'     => 'Review contains 1 item that still needs attention.',
+				'path'      => [ 'Triage buckets', 'Review next' ],
+				'focus'     => 'Review next contains 1 item that still needs attention.',
 				'next_step' => 'Choose a group to review the matching results.',
 			],
 			$payload[ 'context' ] ?? []
@@ -356,8 +391,19 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-drill-target="detail" and @data-drill-group-key="maintenance"]',
-			'Groups AJAX should render the maintenance group CTA for the review bucket'
+			'//button[@data-drill-target="detail" and @data-drill-group-key="maintenance" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
+			'Groups AJAX should render the maintenance group as a whole-card drill target'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//button[@data-drill-target="detail" and @data-drill-group-key="maintenance"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card__next-move ")]/*[contains(concat(" ", normalize-space(@class), " "), " bi-arrow-right-circle ")]',
+			'Groups AJAX should render the next-move guidance with the arrow icon'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//button[@data-drill-target="detail" and @data-drill-group-key="maintenance"]//button',
+			0,
+			'Groups AJAX should not render nested CTA buttons inside the group card'
 		);
 	}
 
@@ -379,7 +425,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
 		$this->assertSame(
 			[
-				'path'      => [ 'Triage buckets', 'Review', 'Maintenance Items' ],
+				'path'      => [ 'Triage buckets', 'Review next', 'Maintenance Items' ],
 				'focus'     => '1 maintenance item needs review.',
 				'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
 			],
@@ -402,7 +448,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'maintenance', (string)( $payload[ 'render_data' ][ 'group_detail_shell' ] ?? '' ) );
 		$this->assertSame(
 			[
-				'path'      => [ 'Triage buckets', 'Review', 'Maintenance Items' ],
+				'path'      => [ 'Triage buckets', 'Review next', 'Maintenance Items' ],
 				'focus'     => '1 maintenance item needs review.',
 				'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
 			],
