@@ -29,6 +29,11 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text )
+				? ( \preg_replace( '/[^a-z0-9_-]/', '', \strtolower( \trim( $text ) ) ) ?? '' )
+				: ''
+		);
 		$this->installControllerStub();
 	}
 
@@ -76,6 +81,8 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'zone_component_action', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'classes' ][ 0 ] ?? '' );
 		$this->assertSame( 'offcanvas_zone_component_config', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'data' ][ 'zone_component_action' ] ?? '' );
 		$this->assertSame( 'offcanvas', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'data' ][ 'form_context' ] ?? '' );
+		$this->assertSame( '5', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'data' ][ 'retry-count' ] ?? '' );
+		$this->assertArrayNotHasKey( '', $tilesByKey[ 'secadmin' ][ 'settings_action' ][ 'data' ] ?? [] );
 
 		$this->assertSame( 'warning', $tilesByKey[ 'login' ][ 'status' ] );
 		$this->assertSame( '1 component needs work', $tilesByKey[ 'login' ][ 'stat_line' ] );
@@ -227,6 +234,8 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					'data'    => [
 						'zone_component_action' => 'offcanvas_zone_component_config',
 						'zone_component_slug'   => $this->moduleSlug,
+						'Retry-Count'           => 5,
+						''                      => 'drop-me',
 					],
 					'icon'    => 'bi bi-gear',
 					'classes' => [

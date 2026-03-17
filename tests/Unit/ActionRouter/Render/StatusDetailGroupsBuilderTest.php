@@ -21,6 +21,11 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text )
+				? ( \preg_replace( '/[^a-z0-9_-]/', '', \strtolower( \trim( $text ) ) ) ?? '' )
+				: ''
+		);
 		$this->installControllerStub();
 	}
 
@@ -109,6 +114,8 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 						'classes' => [ 'zone_component_action' ],
 						'data'    => [
 							'zone_component_action' => 'offcanvas_zone_component_config',
+							'Retry-Count'           => 7,
+							''                      => 'drop-me',
 						],
 					],
 				],
@@ -147,6 +154,8 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'Secondary Control', 'Another Warning' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'title' ) );
 		$this->assertSame( 'Configure', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertSame( 'offcanvas_zone_component_config', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'zone_component_action' ] ?? '' );
+		$this->assertSame( '7', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'retry-count' ] ?? '' );
+		$this->assertArrayNotHasKey( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ] ?? [] );
 		$this->assertSame( [], $groups[ 2 ][ 'rows' ][ 0 ][ 'action' ] ?? null );
 	}
 

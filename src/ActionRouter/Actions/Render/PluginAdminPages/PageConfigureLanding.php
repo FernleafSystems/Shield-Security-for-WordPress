@@ -7,45 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
-class PageConfigureLanding extends PageModeLandingBase {
+class PageConfigureLanding extends PageDrillDownLandingBase {
 
-	use StandardStatusMapping;
+	use BuildsConfigureLandingData;
 
 	public const SLUG = 'plugin_admin_page_configure_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/configure_landing.twig';
+
 	/**
-	 * @var list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   include_in_posture:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   stat_line:string,
-	 *   settings_href:string,
-	 *   settings_label:string,
-	 *   settings_action:array<string,mixed>,
-	 *   panel:array{
-	 *     title:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     components:list<array{
-	 *       title:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       note:string,
-	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
-	 *     }>
-	 *   }
-	 * }>|null
+	 * @var list<array<string,mixed>>|null
 	 */
 	private ?array $configureZoneTilesCache = null;
 
@@ -54,7 +26,7 @@ class PageConfigureLanding extends PageModeLandingBase {
 	}
 
 	protected function getLandingSubtitle() :string {
-		return __( 'Check posture and jump to core security configuration areas.', 'wp-simple-firewall' );
+		return __( 'Check posture and move from zone review into focused settings changes.', 'wp-simple-firewall' );
 	}
 
 	protected function getLandingIcon() :string {
@@ -65,233 +37,98 @@ class PageConfigureLanding extends PageModeLandingBase {
 		return PluginNavs::MODE_CONFIGURE;
 	}
 
-	protected function isLandingInteractive() :bool {
-		return true;
-	}
-
-	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool
-	 * }>
-	 */
-	protected function getLandingTiles() :array {
-		return \array_map(
-			function ( array $tile ) :array {
-				return [
-					'key'          => $tile[ 'key' ],
-					'panel_target' => $tile[ 'panel_target' ],
-					'is_enabled'   => $tile[ 'is_enabled' ],
-					'is_disabled'  => $tile[ 'is_disabled' ],
-				];
-			},
-			$this->getConfigureZoneTiles()
-		);
-	}
-
 	protected function getLandingVars() :array {
-		$zoneTiles = \array_map(
-			fn( array $zoneTile ) :array => $this->attachDetailGroups( $zoneTile ),
-			$this->getConfigureZoneTiles()
+		$diagnosisAction = $this->buildAjaxRenderActionData( ConfigureDrillDownDiagnosis::class, [
+			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
+		] );
+		$editorAction = $this->buildAjaxRenderActionData( ConfigureDrillDownEditor::class, [
+			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
+		] );
+
+		return \array_merge(
+			parent::getLandingVars(),
+			[
+				'configure_posture_strip' => $this->getConfigurePostureStrip(),
+				'configure_ajax'          => [
+					'diagnosis_render_action'      => $diagnosisAction,
+					'diagnosis_render_action_json' => $this->encodeJson( $diagnosisAction ),
+					'editor_render_action'         => $editorAction,
+					'editor_render_action_json'    => $this->encodeJson( $editorAction ),
+				],
+			]
 		);
-		$activeZoneKey = $this->determineActiveZoneKey( $zoneTiles );
-		$zoneTiles = $this->applyRailStateToZoneTiles( $zoneTiles, $activeZoneKey );
-		$posturePercentage = $this->getZonePosture()[ 'percentage' ];
-		$postureStatus = BuildZonePosture::trafficFromPercentage( $posturePercentage );
-
-		return [
-			'posture_status'          => $postureStatus,
-			'posture_percentage'      => $posturePercentage,
-			'posture_label'           => $this->buildPostureLabel( $postureStatus ),
-			'posture_icon_class'      => $this->buildPostureIconClass( $postureStatus ),
-			'posture_summary'         => $this->buildPostureSummary(
-				$posturePercentage,
-				$this->getZoneStatusCounts( $zoneTiles )
-			),
-			'rail'                    => $this->buildRailContract( $zoneTiles ),
-			'zone_tiles'              => $zoneTiles,
-			'configure_render_action' => $this->buildConfigureRenderActionData(),
-		];
-	}
-
-	protected function getLandingPanel() :array {
-		return [
-			'active_target' => $this->getRequestedZoneKey(),
-		];
-	}
-
-	/**
-	 * @param array<string,mixed> $zoneTile
-	 * @return array<string,mixed>
-	 */
-	private function attachDetailGroups( array $zoneTile ) :array {
-		$zoneTile[ 'panel' ][ 'detail_groups' ] = ( new StatusDetailGroupsBuilder() )->buildForConfigure(
-			\is_array( $zoneTile[ 'panel' ][ 'components' ] ?? null ) ? \array_values( $zoneTile[ 'panel' ][ 'components' ] ) : []
-		);
-		return $zoneTile;
-	}
-
-	/**
-	 * @param list<array<string,mixed>> $zoneTiles
-	 */
-	private function determineActiveZoneKey( array $zoneTiles ) :string {
-		$requestedZone = $this->getRequestedZoneKey();
-		$zoneKeys = \array_column( $zoneTiles, 'key' );
-		if ( \in_array( $requestedZone, $zoneKeys, true ) ) {
-			return $requestedZone;
-		}
-		return (string)( $zoneTiles[ 0 ][ 'key' ] ?? '' );
-	}
-
-	private function getRequestedZoneKey() :string {
-		return sanitize_key( $this->getTextInputFromRequestOrActionData( 'zone' ) );
-	}
-
-	/**
-	 * @param list<array<string,mixed>> $zoneTiles
-	 * @return list<array<string,mixed>>
-	 */
-	private function applyRailStateToZoneTiles( array $zoneTiles, string $activeZoneKey ) :array {
-		return \array_values( \array_map(
-			function ( array $zoneTile ) use ( $activeZoneKey ) :array {
-				$key = (string)( $zoneTile[ 'key' ] ?? '' );
-				$paneId = $this->buildRailPaneId( $key );
-				$zoneTile[ 'pane_id' ] = $paneId;
-				$zoneTile[ 'nav_id' ] = $this->buildRailNavId( $key );
-				$zoneTile[ 'target' ] = '#'.$paneId;
-				$zoneTile[ 'controls' ] = $paneId;
-				$zoneTile[ 'is_active' ] = $key === $activeZoneKey;
-				return $zoneTile;
-			},
-			$zoneTiles
-		) );
-	}
-
-	/**
-	 * @param list<array<string,mixed>> $zoneTiles
-	 * @return array{
-	 *   id:string,
-	 *   accent_status:string,
-	 *   items:list<array{
-	 *     key:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     status_icon_class:string,
-	 *     nav_id:string,
-	 *     target:string,
-	 *     controls:string,
-	 *     is_active:bool
-	 *   }>
-	 * }
-	 */
-	private function buildRailContract( array $zoneTiles ) :array {
-		return [
-			'id'            => 'ConfigureRailSidebar',
-			'accent_status' => StatusPriority::highest(
-				\array_map(
-					fn( array $zoneTile ) :string => $this->normalizeRailStatus( (string)( $zoneTile[ 'status' ] ?? 'good' ) ),
-					$zoneTiles
-				),
-				'good'
-			),
-			'items'         => \array_values( \array_map(
-				function ( array $zoneTile ) :array {
-					return [
-						'key'               => $zoneTile[ 'key' ],
-						'label'             => $zoneTile[ 'label' ],
-						'icon_class'        => $zoneTile[ 'icon_class' ] ?? '',
-						'status'            => $this->normalizeRailStatus( (string)( $zoneTile[ 'status' ] ?? 'good' ) ),
-						'status_label'      => $zoneTile[ 'status_label' ] ?? '',
-						'status_icon_class' => $zoneTile[ 'status_icon_class' ] ?? '',
-						'nav_id'            => $zoneTile[ 'nav_id' ],
-						'target'            => $zoneTile[ 'target' ],
-						'controls'          => $zoneTile[ 'controls' ],
-						'is_active'         => (bool)( $zoneTile[ 'is_active' ] ?? false ),
-					];
-				},
-				$zoneTiles
-			) ),
-		];
-	}
-
-	private function buildRailPaneId( string $zoneKey ) :string {
-		return 'configure-rail-pane-'.$zoneKey;
-	}
-
-	private function buildRailNavId( string $zoneKey ) :string {
-		return 'configure-rail-tab-'.$zoneKey;
-	}
-
-	private function normalizeRailStatus( string $status ) :string {
-		return $status === 'neutral' ? 'info' : $status;
 	}
 
 	protected function getLandingStrings() :array {
 		return [
-			'posture_title'  => __( 'Configuration Posture', 'wp-simple-firewall' ),
+			'posture_title'       => __( 'Configuration Posture', 'wp-simple-firewall' ),
+			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
+			'editor_loading'      => __( 'Loading settings...', 'wp-simple-firewall' ),
+			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
+			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),
 		];
 	}
 
-	/**
-	 * @param list<array{status:string,include_in_posture?:bool}> $zoneTiles
-	 * @return array{good:int,warning:int,critical:int}
-	 */
-	private function getZoneStatusCounts( array $zoneTiles ) :array {
-		$counts = [
-			'good'     => 0,
-			'warning'  => 0,
-			'critical' => 0,
+	protected function getLayers() :array {
+		$selectedZoneKey = $this->getValidRequestedConfigureZoneKey();
+		$selectedDiagnosis = $selectedZoneKey !== ''
+			? $this->getConfigureZoneDiagnosis( $selectedZoneKey )
+			: [];
+
+		return [
+			[
+				'key'          => 'zones',
+				'label'        => $selectedZoneKey !== ''
+					? $selectedDiagnosis[ 'strip_text' ]
+					: __( 'Choose a zone', 'wp-simple-firewall' ),
+				'badge'        => $selectedZoneKey !== ''
+					? $selectedDiagnosis[ 'strip_badge' ]
+					: '',
+				'badge_status' => $selectedZoneKey !== ''
+					? $selectedDiagnosis[ 'strip_badge_status' ]
+					: 'neutral',
+				'body'         => $this->renderConfigureZonesLayer(),
+				'context'      => [
+					'path'      => [ __( 'Configure', 'wp-simple-firewall' ) ],
+					'focus'     => __( 'Choose the security zone you want to review.', 'wp-simple-firewall' ),
+					'next_step' => __( 'Open a diagnosis before editing any settings.', 'wp-simple-firewall' ),
+				],
+			],
+			[
+				'key'          => 'diagnosis',
+				'label'        => __( 'Review findings', 'wp-simple-firewall' ),
+				'badge'        => '',
+				'badge_status' => 'neutral',
+				'body'         => $selectedZoneKey !== ''
+					? $this->renderConfigureDiagnosisLayer( $selectedZoneKey )
+					: '',
+				'context'      => $selectedZoneKey !== ''
+					? $selectedDiagnosis[ 'context' ]
+					: [
+						'path'      => [ __( 'Configure', 'wp-simple-firewall' ) ],
+						'focus'     => __( 'Review why a zone needs attention before changing the settings.', 'wp-simple-firewall' ),
+						'next_step' => __( 'Open one zone to continue.', 'wp-simple-firewall' ),
+					],
+			],
+			[
+				'key'          => 'editor',
+				'label'        => __( 'Open settings', 'wp-simple-firewall' ),
+				'badge'        => '',
+				'badge_status' => 'neutral',
+				'body'         => '',
+				'context'      => [
+					'path'      => [ __( 'Configure', 'wp-simple-firewall' ) ],
+					'focus'     => __( 'Use focused settings for one zone at a time.', 'wp-simple-firewall' ),
+					'next_step' => __( 'Save your changes when you are done.', 'wp-simple-firewall' ),
+				],
+			],
 		];
-
-		foreach ( $zoneTiles as $zoneTile ) {
-			if ( \array_key_exists( 'include_in_posture', $zoneTile ) && !$zoneTile[ 'include_in_posture' ] ) {
-				continue;
-			}
-			$status = $zoneTile[ 'status' ];
-			if ( isset( $counts[ $status ] ) ) {
-				$counts[ $status ]++;
-			}
-		}
-		return $counts;
 	}
 
-	/**
-	 * @param array{good:int,warning:int,critical:int} $zoneStatusCounts
-	 */
-	private function buildPostureSummary( int $posturePercentage, array $zoneStatusCounts ) :string {
-		$criticalCount = $zoneStatusCounts[ 'critical' ];
-		$warningCount = $zoneStatusCounts[ 'warning' ];
-		$goodCount = $zoneStatusCounts[ 'good' ];
-
-		return sprintf(
-			__( '%1$s%% - %2$s - %3$s - %4$s', 'wp-simple-firewall' ),
-			$posturePercentage,
-			sprintf( _n( '%s critical', '%s critical', $criticalCount, 'wp-simple-firewall' ), $criticalCount ),
-			sprintf( _n( '%s needs work', '%s need work', $warningCount, 'wp-simple-firewall' ), $warningCount ),
-			sprintf( _n( '%s good', '%s good', $goodCount, 'wp-simple-firewall' ), $goodCount )
-		);
-	}
-
-	private function buildPostureLabel( string $postureStatus ) :string {
-		return $this->standardStatusLabel( $postureStatus );
-	}
-
-	private function buildPostureIconClass( string $postureStatus ) :string {
-		return $this->standardStatusIconClass( $postureStatus );
-	}
-
-	/**
-	 * @return array<string,mixed>
-	 */
-	private function buildConfigureRenderActionData() :array {
-		return $this->buildAjaxRenderActionData( self::class, [
-			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
-			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
-		] );
+	protected function getActiveLayerIndex() :int {
+		return $this->getValidRequestedConfigureZoneKey() !== '' ? 1 : 0;
 	}
 
 	/**
@@ -317,41 +154,14 @@ class PageConfigureLanding extends PageModeLandingBase {
 		return ( new BuildZonePosture() )->build();
 	}
 
-	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   include_in_posture:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   stat_line:string,
-	 *   settings_href:string,
-	 *   settings_label:string,
-	 *   settings_action:array<string,mixed>,
-	 *   panel:array{
-	 *     title:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     components:list<array{
-	 *       title:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       note:string,
-	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
-	 *     }>
-	 *   }
-	 * }>
-	 */
 	protected function getConfigureZoneTiles() :array {
 		if ( $this->configureZoneTilesCache === null ) {
 			$this->configureZoneTilesCache = ( new ConfigureZoneTilesBuilder() )->build();
 		}
 		return $this->configureZoneTilesCache;
+	}
+
+	private function encodeJson( array $data ) :string {
+		return (string)( \json_encode( $data ) ?: '' );
 	}
 }

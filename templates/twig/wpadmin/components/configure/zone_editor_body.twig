@@ -1,0 +1,46 @@
+<div class="configure-editor__body"
+	 id="{{ editor.container_id }}">
+	{% for group in zone.panel.detail_groups %}
+		{% set group_index = loop.index0 %}
+		{% for row in group.rows %}
+			{% set expand_id = editor.container_id ~ '-expand-' ~ group_index ~ '-' ~ loop.index0 %}
+			{% set action_data = row.action.data %}
+			{% set is_expandable = action_data.zone_component_slug is not empty and action_data.zone_component_action is not empty %}
+
+			<div class="shield-detail-item">
+				{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: {
+					title: row.title,
+					description: row.summary,
+					status: row.status,
+					status_icon: row.status_icon_class,
+					status_label: row.status_label,
+					count_badge: row.count_badge,
+					badge_status: row.badge_status,
+					expandable: is_expandable,
+					expand_target: expand_id,
+					explanations: row.explanations,
+					show_gear: is_expandable
+				} } only %}
+
+				{% if is_expandable %}
+					{% set expansion_body %}
+						<div data-configure-expand-ajax="1"
+							 {% for key, value in action_data %}data-{{ key }}="{{ value }}"{% endfor %}></div>
+					{% endset %}
+
+					{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+						id: expand_id,
+						parent_id: editor.container_id,
+						type: 'options',
+						status: row.status,
+						body: expansion_body
+					} } only %}
+				{% endif %}
+			</div>
+		{% endfor %}
+	{% endfor %}
+
+	{% include '/wpadmin/components/configure/zone_settings_cta.twig' with {
+		zone: zone
+	} only %}
+</div>

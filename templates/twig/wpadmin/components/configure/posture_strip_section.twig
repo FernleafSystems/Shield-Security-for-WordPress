@@ -1,0 +1,8 @@
+<section class="configure-landing__posture-section"
+		 data-configure-section="posture-strip">
+	<div class="configure-landing__posture-strip shield-mode-strip shield-card status-{{ strip.status }}">
+		{% include '/wpadmin/components/page/mode_status_strip.twig' with {
+			strip: strip
+		} only %}
+	</div>
+</section>

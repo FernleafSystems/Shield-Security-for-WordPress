@@ -1,196 +1,270 @@
-.configure-landing__zone-grid {
+.configure-landing__posture-section {
+	margin-bottom: 1rem;
+}
+
+.configure-landing__drilldown {
+	align-items: start;
 	display: grid;
-	gap: 0.7rem;
-	grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+	gap: 1.5rem;
 }
 
-.configure-landing__zone-tile {
-	gap: 0.4rem;
-	min-height: 120px;
-	padding: 0.8rem 0.9rem;
+.configure-landing__drilldown .drill-shell {
+	min-width: 0;
 }
 
-.configure-landing__zone-tile.status-good::before {
-	background: $status-color-good;
+.configure-landing__drilldown .drill-context-card {
+	margin-bottom: 0;
 }
 
-.configure-landing__zone-tile.status-warning::before {
-	background: $status-color-warning;
+.configure-zones {
+	display: grid;
+	gap: 1.2rem;
 }
 
-.configure-landing__zone-tile.status-critical::before {
-	background: $status-color-critical;
+.configure-zones__section {
+	display: grid;
+	gap: 0.85rem;
 }
 
-.configure-landing__zone-tile.status-neutral::before {
-	background: $status-color-info;
+.configure-zones__section-heading {
+	color: #1d2327;
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	margin: 0;
+	text-transform: uppercase;
 }
 
-.configure-landing__zone-tile:hover {
-	border-color: #ccc;
+.configure-zones__grid {
+	display: grid;
+	gap: 0.9rem;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-.configure-landing__zone-tile.is-active {
-	box-shadow: $card-box-shadow-hover;
-	transform: translateY(-1px);
-}
-
-.configure-landing__zone-tile.status-good.is-active {
-	background: #f8fdf8;
-	border-color: $status-color-good;
-}
-
-.configure-landing__zone-tile.status-warning.is-active {
-	background: #fffdf5;
-	border-color: $status-color-warning;
-}
-
-.configure-landing__zone-tile.status-critical.is-active {
-	background: #fff8f8;
-	border-color: $status-color-critical;
-}
-
-.configure-landing__zone-tile.status-neutral.is-active {
-	background: #f4fbfd;
-	border-color: $status-color-info;
-}
-
-.configure-landing__zone-tile-header {
-	align-items: center;
-	display: flex;
-	gap: 0.5rem;
-	justify-content: space-between;
+.configure-zone-card {
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	color: #1d2327;
+	display: grid;
+	gap: 0.85rem;
+	height: 100%;
+	padding: 1rem;
+	position: relative;
+	text-align: left;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 	width: 100%;
 }
 
-.configure-landing__zone-tile-icon {
+.configure-zone-card:hover {
+	border-color: rgba($status-color-good, 0.2);
+	box-shadow: $card-box-shadow-hover;
+	transform: translateY(-2px);
+}
+
+.configure-zone-card:disabled {
+	background: $surface-color-neutral-raised;
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: 0.7;
+	transform: none;
+}
+
+.configure-zone-card__header,
+.configure-zone-card__title-wrap,
+.configure-diagnosis__headline-row {
+	align-items: start;
+	display: flex;
+	gap: 0.75rem;
+	justify-content: space-between;
+}
+
+.configure-zone-card__icon {
 	align-items: center;
-	background: none;
-	border-radius: 0;
-	color: #666;
+	background: rgba($status-color-good, 0.08);
+	border-radius: 12px;
 	display: inline-flex;
 	font-size: 1.05rem;
-	height: auto;
+	height: 2.35rem;
 	justify-content: center;
-	width: auto;
+	width: 2.35rem;
 }
 
-.configure-landing__zone-title {
-	font-size: 0.92rem;
+.configure-zone-card.status-warning .configure-zone-card__icon {
+	background: rgba($status-color-warning, 0.14);
+}
+
+.configure-zone-card.status-critical .configure-zone-card__icon {
+	background: rgba($status-color-critical, 0.1);
+}
+
+.configure-zone-card.status-neutral .configure-zone-card__icon {
+	background: rgba($status-color-info, 0.1);
+}
+
+.configure-zone-card__title,
+.configure-diagnosis__title,
+.configure-editor__title {
+	font-size: 1rem;
 	font-weight: 700;
-	line-height: 1.2;
-}
-
-.configure-landing__zone-stat {
-	color: #646970;
-	font-size: 0.78rem;
 	line-height: 1.3;
+	margin: 0;
 }
 
-.configure-landing__zone-status {
-	border-radius: 4px;
-	display: inline-flex;
-	font-size: 0.72rem;
+.configure-zone-card__stat,
+.configure-editor__summary,
+.configure-diagnosis__risk,
+.configure-diagnosis__finding-summary,
+.configure-diagnosis__next-move-copy {
+	color: #50575e;
+	font-size: 0.87rem;
+	line-height: 1.45;
+	margin: 0;
+}
+
+.configure-zone-card__preview,
+.configure-diagnosis__finding-title {
+	align-items: start;
+	display: flex;
+	gap: 0.55rem;
+}
+
+.configure-zone-card__preview i,
+.configure-diagnosis__finding-title i {
+	margin-top: 0.12rem;
+}
+
+.configure-diagnosis,
+.configure-editor {
+	display: grid;
+	gap: 1rem;
+}
+
+.configure-diagnosis__header,
+.configure-diagnosis__review-state,
+.configure-diagnosis__next-move {
+	display: grid;
+	gap: 0.75rem;
+	padding: 1rem;
+	position: relative;
+}
+
+.configure-diagnosis__eyebrow,
+.configure-editor__eyebrow {
+	color: #646970;
+	font-size: 0.76rem;
 	font-weight: 700;
-	letter-spacing: 0.02em;
-	line-height: 1.2;
-	padding: 0.2rem 0.55rem;
-	white-space: nowrap;
+	letter-spacing: 0.08em;
+	margin: 0;
+	text-transform: uppercase;
 }
 
-.configure-landing__zone-status.status-good {
-	background: $badge-good-bg;
-	color: $badge-good-color;
+.configure-diagnosis__findings,
+.configure-diagnosis__finding-list,
+.configure-editor__body {
+	display: grid;
+	gap: 0.85rem;
 }
 
-.configure-landing__zone-status.status-warning {
-	background: $badge-warning-bg;
-	color: $badge-warning-color;
+.configure-diagnosis__section-title {
+	font-size: 0.85rem;
+	font-weight: 700;
+	margin: 0;
 }
 
-.configure-landing__zone-status.status-critical {
-	background: $badge-critical-bg;
-	color: $badge-critical-color;
+.configure-diagnosis__finding {
+	display: grid;
+	gap: 0.55rem;
+	padding: 0.9rem 1rem;
+	position: relative;
 }
 
-.configure-landing__zone-status.status-neutral {
-	background: $badge-info-bg;
-	color: $badge-info-color;
-}
-
-.configure-landing__zone-panel[data-mode-panel="1"] {
-	border: 1px solid $border-color-neutral-subtle;
-	box-shadow: $card-box-shadow;
-}
-
-.configure-landing__zone-panel[data-mode-panel="1"].status-good,
-.configure-landing__zone-panel[data-mode-panel="1"].status-warning,
-.configure-landing__zone-panel[data-mode-panel="1"].status-critical,
-.configure-landing__zone-panel[data-mode-panel="1"].status-neutral,
-.configure-landing__zone-panel[data-mode-panel="1"].status-info {
-	border: 1px solid $border-color-neutral-subtle;
-}
-
-.configure-landing__zone-panel[data-mode-panel="1"] .shield-card-accent {
-	display: none;
-}
-
-.configure-landing__detail-groups .shield-stack-detail-action {
-	max-width: 100%;
-}
-
-.configure-landing__panel-actions {
-	border-top: 1px solid $border-color-neutral-subtle;
-	padding-top: 0.75rem;
-}
-
-.configure-landing__panel-cta {
+.configure-diagnosis__cta,
+.configure-editor__cta {
 	align-items: center;
-	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
+	background: #1d2327;
+	border: 1px solid #1d2327;
 	border-radius: 999px;
-	color: #1d2327;
+	color: #fff;
 	display: inline-flex;
-	font-size: 0.8rem;
-	font-weight: 600;
-	gap: 0.35rem;
-	padding: 0.4rem 0.9rem;
+	font-size: 0.82rem;
+	font-weight: 700;
+	gap: 0.45rem;
+	justify-content: center;
+	padding: 0.55rem 1rem;
 	text-decoration: none;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.configure-landing__panel-cta:hover {
-	background: #f6f7f7;
-	color: #1d2327;
+.configure-diagnosis__cta:hover,
+.configure-editor__cta:hover {
+	background: #2c3338;
+	border-color: #2c3338;
+	color: #fff;
 }
 
-.configure-landing__panel-cta.status-warning {
-	border-color: rgba($status-color-warning, 0.32);
-	color: $badge-warning-color;
+.configure-editor__header {
+	display: grid;
+	gap: 0.55rem;
 }
 
-.configure-landing__panel-cta.status-warning:hover {
-	background: rgba($status-color-warning, 0.1);
+.configure-editor__actions {
+	border-top: 1px solid $border-color-neutral-subtle;
+	margin-top: 0.25rem;
+	padding-top: 0.9rem;
+}
+
+.configure-editor__cta.status-warning {
+	background: rgba($status-color-warning, 0.08);
+	border-color: rgba($status-color-warning, 0.3);
+	color: #7c5d09;
+}
+
+.configure-editor__cta.status-warning:hover {
+	background: rgba($status-color-warning, 0.14);
+	border-color: rgba($status-color-warning, 0.38);
 	color: #6d5204;
 }
 
-.configure-landing__panel-cta.status-critical {
-	border-color: rgba($status-color-critical, 0.22);
+.configure-editor__cta.status-critical {
+	background: rgba($status-color-critical, 0.06);
+	border-color: rgba($status-color-critical, 0.24);
 	color: $status-color-critical;
 }
 
-.configure-landing__panel-cta.status-critical:hover {
-	background: rgba($status-color-critical, 0.06);
+.configure-editor__cta.status-critical:hover {
+	background: rgba($status-color-critical, 0.1);
+	border-color: rgba($status-color-critical, 0.3);
 	color: #a02530;
 }
 
-.configure-landing__panel-cta.status-neutral,
-.configure-landing__panel-cta.status-info {
-	border-color: rgba($status-color-info, 0.22);
-	color: $status-color-info;
+.configure-editor__cta.status-neutral,
+.configure-editor__cta.status-info,
+.configure-editor__cta.status-good {
+	background: #fff;
+	border-color: $border-color-neutral-subtle;
+	color: #1d2327;
 }
 
-.configure-landing__panel-cta.status-neutral:hover,
-.configure-landing__panel-cta.status-info:hover {
-	background: rgba($status-color-info, 0.06);
-	color: #0b8da6;
+.configure-editor__cta.status-neutral:hover,
+.configure-editor__cta.status-info:hover,
+.configure-editor__cta.status-good:hover {
+	background: #f6f7f7;
+	border-color: $border-color-neutral-subtle;
+	color: #1d2327;
+}
+
+.configure-landing__empty-state {
+	background: #fff;
+	border: 1px dashed $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	padding: 1rem;
+	text-align: center;
+}
+
+@media (min-width: 1200px) {
+	.configure-landing__drilldown {
+		grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
+	}
 }

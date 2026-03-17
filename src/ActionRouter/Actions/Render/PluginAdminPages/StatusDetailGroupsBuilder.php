@@ -224,6 +224,9 @@ class StatusDetailGroupsBuilder {
 		}
 
 		$data = isset( $action[ 'data' ] ) ? $action[ 'data' ] : [];
+		if ( !\is_array( $data ) ) {
+			$data = [];
+		}
 		$classesInput = isset( $action[ 'classes' ] ) ? $action[ 'classes' ] : [];
 		$classes = \array_values( \array_filter(
 			\array_map( static fn( $class ) :string => \trim( (string)$class ), $classesInput ),
@@ -237,8 +240,24 @@ class StatusDetailGroupsBuilder {
 			'target'  => $action[ 'target' ] ?? '',
 			'icon'    => $action[ 'icon' ] ?? '',
 			'classes' => $classes,
-			'data'    => $data,
+			'data'    => $this->normalizeActionDataAttributes( $data ),
 		];
+	}
+
+	/**
+	 * @param array<mixed> $data
+	 * @return DetailActionData
+	 */
+	private function normalizeActionDataAttributes( array $data ) :array {
+		$normalized = [];
+		foreach ( $data as $key => $value ) {
+			$attribute = sanitize_key( (string)$key );
+			if ( $attribute === '' ) {
+				continue;
+			}
+			$normalized[ $attribute ] = (string)$value;
+		}
+		return $normalized;
 	}
 
 	private function normalizeStatus( string $status ) :string {

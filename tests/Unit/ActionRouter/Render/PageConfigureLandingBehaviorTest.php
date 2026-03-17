@@ -12,15 +12,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ConfigureDrillDownDiagnosis,
+	ConfigureDrillDownEditor,
+	PageConfigureLanding
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
-	RenderCapture,
 	ServicesState,
-	UnitTestActionRouter,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls,
 	UnitTestRequest
@@ -30,7 +32,6 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
-	private object $renderCapture;
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
@@ -45,9 +46,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( 'sanitize_text_field' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \trim( $text ) : ''
 		);
+
 		$this->servicesSnapshot = ServicesState::snapshot();
-		$this->installServices();
-		$this->installControllerStub();
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [] ),
+		] );
+		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
 	}
 
 	protected function tearDown() :void {
@@ -56,432 +60,196 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_landing_content_is_empty_for_posture_strip_layout() :void {
-		$page = new PageConfigureLandingUnitTestDouble(
-			$this->zonePostureFixture( 78 ),
-			$this->zoneTileFixtures()
-		);
-		$content = $this->invokeNonPublicMethod( $page, 'getLandingContent' );
+	public function test_landing_vars_expose_drill_shell_and_ajax_contracts() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
-		$this->assertSame( [], $content );
-		$this->assertSame( [], $this->renderCapture->calls );
-	}
-
-	public function test_landing_vars_include_posture_strip_contract_and_zone_tiles() :void {
-		$zoneTiles = $this->zoneTileFixtures();
-		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $zoneTiles );
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$this->assertSame( [], $this->renderCapture->calls );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
-		$this->assertArrayNotHasKey( 'configure_stats', $vars );
-		$this->assertSame( 78, $vars[ 'posture_percentage' ] ?? 0 );
-		$this->assertSame( 'warning', $vars[ 'posture_status' ] ?? '' );
-		$this->assertNotSame( '', (string)( $vars[ 'posture_label' ] ?? '' ) );
-		$this->assertStringStartsWith( 'bi bi-', (string)( $vars[ 'posture_icon_class' ] ?? '' ) );
-		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 78, 1, 1, 1 );
-		$this->assertSame( \array_column( $zoneTiles, 'key' ), \array_column( $vars[ 'zone_tiles' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'good' ], \array_column( $vars[ 'zone_tiles' ][ 0 ][ 'panel' ][ 'detail_groups' ] ?? [], 'status' ) );
-		$this->assertSame( 'ConfigureRailSidebar', (string)( $vars[ 'rail' ][ 'id' ] ?? '' ) );
-		$this->assertCount( \count( $zoneTiles ), $vars[ 'rail' ][ 'items' ] ?? [] );
+		$this->assertArrayNotHasKey( 'zone_tiles', $vars );
+		$this->assertArrayNotHasKey( 'rail', $vars );
+		$this->assertArrayNotHasKey( 'configure_render_action', $vars );
+		$this->assertSame( 'configure_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
+		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
+		$this->assertSame( [ 'zones', 'diagnosis', 'editor' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
+		$this->assertSame( 'ZONES_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
+		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
+		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
+		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'mode_tiles' ] ?? [ 'unexpected' ] );
+		$this->assertSame( 78, $vars[ 'configure_posture_strip' ][ 'meter' ][ 'percentage' ] ?? 0 );
+		$this->assertStringContainsString( '78', (string)( $vars[ 'configure_posture_strip' ][ 'summary' ] ?? '' ) );
 		$this->assertSame(
-			\array_column( $zoneTiles, 'key' ),
-			\array_column( $vars[ 'rail' ][ 'items' ] ?? [], 'key' )
+			ConfigureDrillDownDiagnosis::SLUG,
+			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ 'render_slug' ] ?? ''
 		);
 		$this->assertSame(
-			\array_column( $zoneTiles, 'icon_class' ),
-			\array_column( $vars[ 'rail' ][ 'items' ] ?? [], 'icon_class' )
-		);
-		$this->assertTrue( (bool)( $vars[ 'zone_tiles' ][ 0 ][ 'is_active' ] ?? false ) );
-		$this->assertSame(
-			'configure-rail-pane-secadmin',
-			(string)( $vars[ 'zone_tiles' ][ 0 ][ 'pane_id' ] ?? '' )
-		);
-		$this->assertSame(
-			'configure-rail-tab-secadmin',
-			(string)( $vars[ 'zone_tiles' ][ 0 ][ 'nav_id' ] ?? '' )
-		);
-		$this->assertIsArray( $vars[ 'configure_render_action' ] ?? null );
-		$this->assertSame(
-			PageConfigureLanding::SLUG,
-			$vars[ 'configure_render_action' ][ 'render_slug' ] ?? ''
+			ConfigureDrillDownEditor::SLUG,
+			$vars[ 'configure_ajax' ][ 'editor_render_action' ][ 'render_slug' ] ?? ''
 		);
 		$this->assertSame(
 			PluginNavs::NAV_ZONES,
-			$vars[ 'configure_render_action' ][ Constants::NAV_ID ] ?? ''
+			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ Constants::NAV_ID ] ?? ''
 		);
 		$this->assertSame(
 			PluginNavs::SUBNAV_ZONES_OVERVIEW,
-			$vars[ 'configure_render_action' ][ Constants::NAV_SUB_ID ] ?? ''
+			$vars[ 'configure_ajax' ][ 'editor_render_action' ][ Constants::NAV_SUB_ID ] ?? ''
 		);
 	}
 
-	public function test_active_zone_defaults_to_first_zone_when_no_zone_input_is_provided() :void {
+	public function test_valid_zone_deep_link_preloads_diagnosis_layer() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [ 'zone' => 'login' ] ),
+		] );
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$panel = $this->invokeNonPublicMethod( $page, 'getLandingPanel' );
 
-		$this->assertSame( 'secadmin', (string)( $vars[ 'zone_tiles' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertTrue( (bool)( $vars[ 'zone_tiles' ][ 0 ][ 'is_active' ] ?? false ) );
-		$this->assertSame( '', (string)( $panel[ 'active_target' ] ?? '' ) );
-	}
-
-	public function test_active_zone_uses_request_query_when_it_matches_a_zone_tile() :void {
-		$this->installServices( [ 'zone' => 'firewall' ] );
-		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
-
-		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$panel = $this->invokeNonPublicMethod( $page, 'getLandingPanel' );
-
-		$this->assertSame( [ false, true, false ], \array_column( $vars[ 'zone_tiles' ] ?? [], 'is_active' ) );
-		$this->assertSame( 'firewall', (string)( $panel[ 'active_target' ] ?? '' ) );
-	}
-
-	public function test_active_zone_uses_action_data_when_request_query_is_empty() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
-		$page->action_data = [ 'zone' => 'spam' ];
-
-		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$panel = $this->invokeNonPublicMethod( $page, 'getLandingPanel' );
-
-		$this->assertSame( [ false, false, true ], \array_column( $vars[ 'zone_tiles' ] ?? [], 'is_active' ) );
-		$this->assertSame( 'spam', (string)( $panel[ 'active_target' ] ?? '' ) );
-	}
-
-	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
-		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
-		$expectedTileKeys = \array_column( $this->zoneTileFixtures(), 'key' );
-
-		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
-		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
-		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
-
-		$modeTiles = (array)( $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
-		$this->assertCount( \count( $expectedTileKeys ), $modeTiles );
-		$this->assertEqualsCanonicalizing( $expectedTileKeys, \array_column( $modeTiles, 'key' ) );
-		foreach ( $modeTiles as $modeTile ) {
-			$this->assertSame( $modeTile[ 'key' ] ?? '', $modeTile[ 'panel_target' ] ?? '' );
-			$this->assertSame( !(bool)( $modeTile[ 'is_enabled' ] ?? true ), (bool)( $modeTile[ 'is_disabled' ] ?? false ) );
-		}
-
-		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
-		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
-	}
-
-	public function test_landing_vars_use_zero_issue_breakdown_when_all_zones_are_good() :void {
-		$page = new PageConfigureLandingUnitTestDouble(
-			$this->zonePostureFixture( 96 ),
-			$this->allGoodZoneTileFixtures()
+		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
+		$this->assertSame( 'DIAGNOSIS:login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
+		$this->assertSame( '2FA', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame(
+			[
+				'path'      => [ 'Configure', 'Login' ],
+				'focus'     => '2FA requires review.',
+				'next_step' => 'Open settings for this zone.',
+			],
+			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
 		);
-		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$this->assertSame( [], $this->renderCapture->calls );
-
-		$this->assertSame( 96, $vars[ 'posture_percentage' ] ?? 0 );
-		$this->assertSame( 'good', $vars[ 'posture_status' ] ?? '' );
-		$this->assertNotSame( '', (string)( $vars[ 'posture_label' ] ?? '' ) );
-		$this->assertStringStartsWith( 'bi bi-', (string)( $vars[ 'posture_icon_class' ] ?? '' ) );
-		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 96, 0, 0, 2 );
 	}
 
-	public function test_landing_summary_ignores_tiles_excluded_from_posture() :void {
-		$zoneTiles = [
-			\array_merge(
-				$this->buildZoneTileFixture(
-					'secadmin',
-					'Security Admin',
-					'shield-lock',
-					'good',
-					'Good',
-					'All components healthy',
-					'/admin/zones/secadmin',
-					'Configure Security Admin Settings',
-					[
-						$this->buildZoneComponentFixture( 'PIN Protection', 'good', 'Active', 'PIN is configured.' ),
-					]
-				),
-				[ 'include_in_posture' => true ]
-			),
-			\array_merge(
-				$this->buildZoneTileFixture(
-					'login',
-					'Login',
-					'person-lock',
-					'warning',
-					'Needs Work',
-					'1 component needs work',
-					'/admin/zones/login',
-					'Configure Login Settings',
-					[
-						$this->buildZoneComponentFixture( '2FA', 'warning', 'Needs Work', '2FA requires review.' ),
-					]
-				),
-				[ 'include_in_posture' => true ]
-			),
-			\array_merge(
-				$this->buildZoneTileFixture(
-					'general',
-					'General',
-					'sliders',
-					'critical',
-					'Critical',
-					'1 critical component',
-					'/admin/zone_components/plugin_general',
-					'Configure General Settings',
-					[
-						$this->buildZoneComponentFixture( 'Traffic Monitoring', 'critical', 'Issue', 'Traffic monitor disabled.' ),
-					]
-				),
-				[ 'include_in_posture' => false ]
-			),
-		];
-
-		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $zoneTiles );
-		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 78, 0, 1, 1 );
-	}
-
-	public function test_landing_hrefs_are_empty() :void {
+	public function test_invalid_zone_deep_link_falls_back_to_zone_layer() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [ 'zone' => 'login_protection' ] ),
+		] );
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
-		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
-		$this->assertSame( [], $hrefs );
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+
+		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
+		$this->assertSame( 'Choose a zone', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
 	}
 
-	public function test_landing_strings_include_current_headings_only() :void {
+	public function test_zone_sections_group_attention_first_and_general_last() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
-		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
-		$this->assertArrayHasKey( 'posture_title', $strings );
-		$this->assertNotSame( '', (string)( $strings[ 'posture_title' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'zones_title', $strings );
-		$this->assertArrayNotHasKey( 'zones_subtitle', $strings );
+		$sections = $this->invokeNonPublicMethod( $page, 'getConfigureZoneSections' );
 
-		foreach ( [ 'stats_title', 'overview_title', 'quick_links_title', 'link_grades', 'link_zones', 'link_rules', 'link_tools' ] as $removedKey ) {
-			$this->assertArrayNotHasKey( $removedKey, $strings );
-		}
-	}
-
-	public function test_posture_percentage_uses_zone_posture_contract() :void {
-		$page = new PageConfigureLandingUnitTestDouble(
-			$this->zonePostureFixture( 80 ),
-			$this->zoneTileFixtures()
+		$this->assertSame(
+			[ 'secadmin', 'login' ],
+			\array_column( $sections[ 0 ][ 'cards' ] ?? [], 'key' )
 		);
-		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-
-		$this->assertSame( 80, $vars[ 'posture_percentage' ] ?? null );
-		$this->assertPostureSummaryNumbers( (string)( $vars[ 'posture_summary' ] ?? '' ), 80, 1, 1, 1 );
+		$this->assertSame(
+			[ 'firewall', 'general' ],
+			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
+		);
 	}
 
-	private function assertPostureSummaryNumbers(
-		string $summary,
-		int $expectedPercent,
-		int $expectedCritical,
-		int $expectedWarning,
-		int $expectedGood
-	) :void {
-		\preg_match_all( '/\d+/', $summary, $matches );
-		$this->assertGreaterThanOrEqual( 4, \count( $matches[ 0 ] ?? [] ), 'Posture summary should contain four numeric contract markers.' );
-		$numbers = \array_map( static fn( string $value ) :int => (int)$value, \array_slice( $matches[ 0 ], 0, 4 ) );
-		$this->assertSame( [ $expectedPercent, $expectedCritical, $expectedWarning, $expectedGood ], $numbers );
-	}
-
-	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   stat_line:string,
-	 *   settings_href:string,
-	 *   settings_label:string,
-	 *   panel:array{
-	 *     title:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     components:list<array{
-	 *       title:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       status_icon_class:string,
-	 *       note:string,
-	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
-	 *     }>
-	 *   }
-	 * }>
-	 */
 	private function zoneTileFixtures() :array {
 		return [
 			$this->buildZoneTileFixture(
 				'secadmin',
 				'Security Admin',
-				'shield-lock',
-				'good',
-				'Good',
-				'All components healthy',
-				'/admin/zones/secadmin',
-				'Configure Security Admin Settings',
+				'critical',
+				'Critical',
+				'1 critical component',
 				[
-					$this->buildZoneComponentFixture( 'PIN Protection', 'good', 'Active', 'PIN is configured.' ),
+					$this->buildZoneComponentFixture(
+						'PIN Protection',
+						'critical',
+						'Issue',
+						'PIN is not configured.',
+						[ 'Set a PIN before more admins are added.' ]
+					),
 				]
 			),
 			$this->buildZoneTileFixture(
 				'firewall',
 				'Firewall',
-				'fire',
-				'warning',
-				'Needs Work',
-				'1 component needs work',
-				'/admin/zones/firewall',
-				'Configure Firewall Settings',
-				[
-					$this->buildZoneComponentFixture( 'WAF Rules', 'warning', 'Needs Work', 'One rule requires review.' ),
-				]
-			),
-			$this->buildZoneTileFixture(
-				'spam',
-				'Comments Filter',
-				'chat-dots',
-				'critical',
-				'Critical',
-				'1 critical component',
-				'/admin/zones/spam',
-				'Configure Comments Filter Settings',
-				[
-					$this->buildZoneComponentFixture( 'Spam Filter', 'critical', 'Issue', 'Spam filter requires setup.' ),
-				]
-			),
-		];
-	}
-
-	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   stat_line:string,
-	 *   settings_href:string,
-	 *   settings_label:string,
-	 *   panel:array{
-	 *     title:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     components:list<array{
-	 *       title:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       status_icon_class:string,
-	 *       note:string,
-	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
-	 *     }>
-	 *   }
-	 * }>
-	 */
-	private function allGoodZoneTileFixtures() :array {
-		return [
-			$this->buildZoneTileFixture(
-				'secadmin',
-				'Security Admin',
-				'shield-lock',
 				'good',
 				'Good',
 				'All components healthy',
-				'/admin/zones/secadmin',
-				'Configure Security Admin Settings',
 				[
-					$this->buildZoneComponentFixture( 'PIN Protection', 'good', 'Active', 'PIN is configured.' ),
+					$this->buildZoneComponentFixture(
+						'WAF Rules',
+						'good',
+						'Active',
+						'Firewall rules are active.'
+					),
 				]
 			),
 			$this->buildZoneTileFixture(
 				'login',
-				'Login Protection',
-				'person-lock',
-				'good',
-				'Good',
-				'All components healthy',
-				'/admin/zones/login',
-				'Configure Login Protection Settings',
+				'Login',
+				'warning',
+				'Needs Work',
+				'1 component needs work',
 				[
-					$this->buildZoneComponentFixture( '2FA', 'good', 'Active', '2FA is enforced.' ),
+					$this->buildZoneComponentFixture(
+						'2FA',
+						'warning',
+						'Needs Work',
+						'2FA requires review.',
+						[ 'Require 2FA for administrators.' ]
+					),
 				]
+			),
+			$this->buildZoneTileFixture(
+				'general',
+				'General',
+				'neutral',
+				'General',
+				'General settings',
+				[
+					$this->buildZoneComponentFixture(
+						'Traffic Logging',
+						'neutral',
+						'General',
+						'General settings'
+					),
+				],
+				false
 			),
 		];
 	}
 
-	/**
-	 * @param list<array{
-	 *   title:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   note:string,
-	 *   explanations:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }> $components
-	 * @return array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   stat_line:string,
-	 *   settings_href:string,
-	 *   settings_label:string,
-	 *   panel:array{
-	 *     title:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     components:list<array{
-	 *       title:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       status_icon_class:string,
-	 *       note:string,
-	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
-	 *     }>
-	 *   }
-	 * }
-	 */
 	private function buildZoneTileFixture(
 		string $key,
 		string $label,
-		string $icon,
 		string $status,
 		string $statusLabel,
 		string $statLine,
-		string $settingsHref,
-		string $settingsLabel,
-		array $components
+		array $components,
+		bool $includeInPosture = true
 	) :array {
 		return [
-			'key'            => $key,
-			'panel_target'   => $key,
-			'is_enabled'     => true,
-			'is_disabled'    => false,
-			'label'          => $label,
-			'icon_class'     => 'bi bi-'.$icon,
-			'status'         => $status,
-			'status_label'   => $statusLabel,
-			'stat_line'      => $statLine,
-			'settings_href'  => $settingsHref,
-			'settings_label' => $settingsLabel,
-			'panel'          => [
+			'key'               => $key,
+			'panel_target'      => $key,
+			'is_enabled'        => true,
+			'is_disabled'       => false,
+			'include_in_posture' => $includeInPosture,
+			'label'             => $label,
+			'icon_class'        => 'bi bi-gear',
+			'status'            => $status,
+			'status_label'      => $statusLabel,
+			'status_icon_class' => 'bi bi-shield-check',
+			'stat_line'         => $statLine,
+			'settings_href'     => '/admin/'.$key,
+			'settings_label'    => 'Configure '.$label.' Settings',
+			'settings_action'   => [
+				'href'    => '/admin/'.$key,
+				'title'   => 'Configure '.$label,
+				'icon'    => 'bi bi-gear-fill',
+				'tooltip' => '',
+				'classes' => [ 'zone_component_action' ],
+				'data'    => [
+					'zone_component_action' => 'offcanvas_zone_component_config',
+					'zone_component_slug'   => $key.'_component',
+					'form_context'          => 'offcanvas',
+				],
+			],
+			'panel'             => [
 				'title'        => $label,
 				'status'       => $status,
 				'status_label' => $statusLabel,
@@ -490,43 +258,32 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		];
 	}
 
-	/**
-	 * @return array{
-	 *   title:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   note:string,
-	 *   explanations:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }
-	 */
 	private function buildZoneComponentFixture(
 		string $title,
 		string $status,
 		string $statusLabel,
-		string $note
+		string $note,
+		array $explanations = []
 	) :array {
-		switch ( $status ) {
-			case 'critical':
-				$statusIcon = 'bi bi-x-circle-fill';
-				break;
-			case 'warning':
-				$statusIcon = 'bi bi-exclamation-triangle-fill';
-				break;
-			default:
-				$statusIcon = 'bi bi-check-circle-fill';
-				break;
-		}
-
 		return [
 			'title'             => $title,
 			'status'            => $status,
 			'status_label'      => $statusLabel,
-			'status_icon_class' => $statusIcon,
+			'status_icon_class' => 'bi bi-exclamation-triangle-fill',
 			'note'              => $note,
-			'explanations'      => [],
-			'config_action'     => [],
+			'explanations'      => $explanations,
+			'config_action'     => [
+				'title'   => 'Configure '.$title,
+				'href'    => 'javascript:{}',
+				'icon'    => 'bi bi-gear-fill',
+				'tooltip' => '',
+				'classes' => [ 'zone_component_action' ],
+				'data'    => [
+					'zone_component_action' => 'offcanvas_zone_component_config',
+					'zone_component_slug'   => \strtolower( \str_replace( ' ', '_', $title ) ),
+					'form_context'          => 'offcanvas',
+				],
+			],
 		];
 	}
 
@@ -538,29 +295,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'score'        => $percentage,
 				'max_weight'   => 100,
 				'percentage'   => $percentage,
-				'letter_score' => 'A',
+				'letter_score' => 'B',
 			],
 			'percentage' => $percentage,
-			'severity'   => $percentage > 80 ? 'good' : ( $percentage > 40 ? 'warning' : 'critical' ),
-			'status'     => 'x',
+			'severity'   => 'warning',
+			'status'     => 'warning',
 		];
-	}
-
-	private function installControllerStub() :void {
-		$this->renderCapture = new RenderCapture();
-		UnitTestControllerFactory::install(
-			new UnitTestPluginUrls(),
-			new UnitTestActionRouter(
-				$this->renderCapture,
-				static fn() :string => 'rendered'
-			)
-		);
-	}
-
-	private function installServices( array $query = [] ) :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( $query ),
-		] );
 	}
 }
 
@@ -581,6 +321,14 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 
 	protected function getConfigureZoneTiles() :array {
 		return $this->zoneTileFixtures;
+	}
+
+	protected function renderConfigureZonesLayer() :string {
+		return 'ZONES_HTML';
+	}
+
+	protected function renderConfigureDiagnosisLayer( string $zoneKey ) :string {
+		return 'DIAGNOSIS:'.$zoneKey;
 	}
 
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {

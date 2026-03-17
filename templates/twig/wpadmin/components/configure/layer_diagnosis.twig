@@ -1,0 +1,49 @@
+<div class="configure-diagnosis"
+	 data-configure-diagnosis="1"
+	 data-configure-zone="{{ diagnosis.zone_key }}">
+	<div class="configure-diagnosis__header shield-card status-{{ diagnosis.zone_status }}">
+		<div class="shield-card-accent status-{{ diagnosis.zone_status }}"></div>
+		<div class="configure-diagnosis__eyebrow">{{ diagnosis.zone_label }}</div>
+		<div class="configure-diagnosis__headline-row">
+			<h2 class="configure-diagnosis__title">{{ diagnosis.preview_text }}</h2>
+			<span class="shield-badge badge-{{ diagnosis.strip_badge_status }}">{{ diagnosis.strip_badge }}</span>
+		</div>
+		<p class="configure-diagnosis__risk">{{ diagnosis.risk_context }}</p>
+	</div>
+
+	{% if diagnosis.findings_count > 0 %}
+		<div class="configure-diagnosis__findings">
+			<h3 class="configure-diagnosis__section-title">{{ diagnosis.strip_badge }}</h3>
+			<div class="configure-diagnosis__finding-list">
+				{% for finding in diagnosis.findings %}
+					<article class="configure-diagnosis__finding shield-card status-{{ finding.status }}">
+						<div class="shield-card-accent status-{{ finding.status }}"></div>
+						<div class="configure-diagnosis__finding-title">
+							<i class="{{ finding.status_icon_class }}" aria-hidden="true"></i>
+							<span>{{ finding.title }}</span>
+						</div>
+						<p class="configure-diagnosis__finding-summary">{{ finding.summary }}</p>
+					</article>
+				{% endfor %}
+			</div>
+		</div>
+	{% else %}
+		<div class="configure-diagnosis__review-state shield-card status-{{ diagnosis.zone_status }}">
+			<div class="shield-card-accent status-{{ diagnosis.zone_status }}"></div>
+			<div class="configure-diagnosis__section-title">{{ diagnosis.strip_badge }}</div>
+			<p class="configure-diagnosis__finding-summary">{{ diagnosis.stat_line }}</p>
+		</div>
+	{% endif %}
+
+	<div class="configure-diagnosis__next-move shield-card status-{{ diagnosis.zone_status }}">
+		<div class="shield-card-accent status-{{ diagnosis.zone_status }}"></div>
+		<div class="configure-diagnosis__section-title">{{ diagnosis.next_move_heading }}</div>
+		<p class="configure-diagnosis__next-move-copy">{{ diagnosis.next_move }}</p>
+		<button type="button"
+				class="configure-diagnosis__cta"
+				data-drill-target="editor"
+				data-drill-editor-selection="{{ diagnosis.editor_selection_json }}">
+			{{ diagnosis.settings_cta_label }}
+		</button>
+	</div>
+</div>

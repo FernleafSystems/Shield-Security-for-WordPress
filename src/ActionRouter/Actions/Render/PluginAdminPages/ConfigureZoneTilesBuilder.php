@@ -445,8 +445,24 @@ class ConfigureZoneTilesBuilder {
 			'icon'    => (string)( $action[ 'icon' ] ?? self::con()->svgs->iconClass( 'gear' ) ),
 			'tooltip' => (string)( $action[ 'tooltip' ] ?? '' ),
 			'classes' => [ 'zone_component_action' ],
-			'data'    => $data,
+			'data'    => $this->normalizeActionDataAttributes( $data ),
 		];
+	}
+
+	/**
+	 * @param array<mixed> $data
+	 * @return array<string,string>
+	 */
+	private function normalizeActionDataAttributes( array $data ) :array {
+		$normalized = [];
+		foreach ( $data as $key => $value ) {
+			$attribute = sanitize_key( (string)$key );
+			if ( $attribute === '' ) {
+				continue;
+			}
+			$normalized[ $attribute ] = (string)$value;
+		}
+		return $normalized;
 	}
 
 	private function zonesCon() :SecurityZonesCon {
