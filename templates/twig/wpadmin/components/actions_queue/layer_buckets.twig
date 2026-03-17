@@ -1,0 +1,27 @@
+<div class="actions-queue-buckets">
+	<div class="actions-queue-buckets__grid">
+		{% for bucket in buckets %}
+			<button type="button"
+					class="actions-queue-bucket-card shield-card status-{{ bucket.status }}{% if bucket.item_count < 1 %} is-empty{% endif %}"
+					data-drill-target="groups"
+					data-drill-bucket-key="{{ bucket.key|e('html_attr') }}"
+					data-drill-bucket-label="{{ bucket.label|e('html_attr') }}"
+					data-drill-bucket-status="{{ bucket.status|e('html_attr') }}"
+					data-drill-bucket-count="{{ bucket.item_count|e('html_attr') }}"
+					data-drill-strip-text="{{ bucket.strip_text|e('html_attr') }}"
+					data-drill-strip-badge="{{ bucket.strip_badge|e('html_attr') }}"
+					data-drill-context="{{ bucket.context|json_encode|e('html_attr') }}"
+					{% if bucket.item_count < 1 %}disabled{% endif %}>
+				<div class="shield-card-accent status-{{ bucket.status }}"></div>
+				<div class="actions-queue-bucket-card__header">
+					<div class="actions-queue-bucket-card__icon">
+						<i class="{{ bucket.icon_class }}" aria-hidden="true"></i>
+					</div>
+					<span class="shield-badge badge-{{ bucket.status }}">{{ bucket.item_count }}</span>
+				</div>
+				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>
+				<div class="actions-queue-bucket-card__summary">{{ bucket.summary_text }}</div>
+			</button>
+		{% endfor %}
+	</div>
+</div>

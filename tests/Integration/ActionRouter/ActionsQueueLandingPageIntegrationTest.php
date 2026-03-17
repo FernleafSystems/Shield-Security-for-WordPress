@@ -2,17 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Actions\ActionsQueueScanRailMetrics,
-	Actions\AjaxBatchRequests,
-	Actions\Render\Components\Scans\Results\Malware as MalwarePane,
-	Actions\Render\Components\Scans\Results\Plugins as PluginsPane,
-	Actions\Render\Components\Scans\Results\Themes as ThemesPane,
-	Actions\Render\Components\Scans\Results\Wordpress as WordpressPane,
-	Actions\Render\PluginAdminPages\DetailExpansionType,
-	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Malware as MalwarePane;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Plugins as PluginsPane;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Themes as ThemesPane;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Wordpress as WordpressPane;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownDetail;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
@@ -95,18 +94,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === $key
 		) );
 		$this->assertCount( 1, $matches, 'Expected exactly one zone tile for '.$key );
-		return $matches[ 0 ] ?? [];
-	}
-
-	private function findRailTab( array $scansResults, string $key ) :array {
-		$railTabs = \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null )
-			? $scansResults[ 'vars' ][ 'rail_tabs' ]
-			: [];
-		$matches = \array_values( \array_filter(
-			$railTabs,
-			static fn( array $tab ) :bool => (string)( $tab[ 'key' ] ?? '' ) === $key
-		) );
-		$this->assertCount( 1, $matches, 'Expected exactly one rail tab for '.$key );
 		return $matches[ 0 ] ?? [];
 	}
 
@@ -194,7 +181,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_actions_queue_landing_keeps_zone_tiles_interactive_without_scan_findings() :void {
+	public function test_actions_queue_landing_renders_all_clear_without_drill_shell_when_queue_is_empty() :void {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
@@ -204,7 +191,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 
-		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
+		$this->assertModeShellPayload( $vars, 'actions', 'critical', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertIsString( $strip[ 'subtext' ] ?? null );
 		$this->assertCount( 2, $zoneTiles );
@@ -215,11 +202,29 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'scans' )[ 'assessment_rows' ] ?? [] );
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
-		$this->assertSame( [], $vars[ 'scans_results' ] ?? [] );
+		$this->assertNotEmpty( $vars[ 'actions_queue_ajax' ] ?? [] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-section="all-clear-context"]',
+			'Empty actions queue should render the existing all-clear card'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-drill-shell="1"]',
+			0,
+			'Empty actions queue should not render the drill-down shell'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-drill-context-card]',
+			0,
+			'Empty actions queue should not render the drill context card'
+		);
 		$this->assertNotSame( '', \trim( $html ) );
 	}
 
-	public function test_maintenance_items_render_tiles_and_maintenance_panel() :void {
+	public function test_actions_queue_landing_renders_drill_shell_and_bucket_cards_when_queue_has_items() :void {
 		$this->setPluginUpdateAvailable();
 
 		$payload = $this->renderActionsQueueLandingPage();
@@ -228,12 +233,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
-		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
-		$summaryTab = $this->findRailTab( $scansResults, 'summary' );
-		$maintenanceTab = $this->findRailTab( $scansResults, 'maintenance' );
-		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertModeShellPayload( $vars, 'actions', 'critical', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertSame( '', (string)( $strip[ 'subtext' ] ?? '' ) );
@@ -246,17 +250,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
 		$this->assertNotEmpty( $scans[ 'assessment_rows' ] ?? [] );
-		$this->assertSame(
-			1,
-			\count( \array_filter(
-				$summaryTab[ 'items' ] ?? [],
-				static fn( array $item ) :bool => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ) === 'maintenance'
-			) )
-		);
-		$summaryTitles = \array_column( $summaryTab[ 'items' ] ?? [], 'title' );
-		foreach ( \array_column( $maintenanceTab[ 'items' ] ?? [], 'title' ) as $maintenanceTitle ) {
-			$this->assertNotContains( $maintenanceTitle, $summaryTitles );
-		}
 		$maintenanceItemsByKey = [];
 		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
 			$maintenanceItemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
@@ -266,10 +259,31 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(string)( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'type' ] ?? '' )
 		);
 		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
-		$this->assertSame( 'scanresults_maintenance', (string)( $maintenanceTab[ 'render_action' ][ 'render_slug' ] ?? '' ) );
-		$this->assertSame( true, (bool)( $maintenanceTab[ 'is_loaded' ] ?? false ) );
-		$this->assertSame( 'actions_queue', (string)( $maintenanceTab[ 'render_action' ][ 'display_context' ] ?? '' ) );
 		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'toggle_action' ] ?? [] );
+		$this->assertSame( ActionsQueueDrillDownGroups::SLUG, (string)( $vars[ 'actions_queue_ajax' ][ 'groups_render_action' ][ 'render_slug' ] ?? '' ) );
+		$this->assertSame( ActionsQueueDrillDownDetail::SLUG, (string)( $vars[ 'actions_queue_ajax' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-context-card="actions_drill_shell"]',
+			'Actions queue should render the drill context card beside the shell'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-shell="1" and @data-drill-shell-mode="actions"]',
+			'Actions queue should render the drill-down shell when the queue has items'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-drill-target="groups" and @data-drill-bucket-key]',
+			3,
+			'Bucket layer should render the three triage bucket cards'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-shield-rail-target]',
+			0,
+			'The migrated landing should not render the old scan-results rail sidebar'
+		);
 		$this->assertNotEmpty( \trim( $html ) );
 	}
 
@@ -314,48 +328,141 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_scan_result_items_enable_scans_zone_and_embedded_results_payload() :void {
-		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
+	public function test_groups_ajax_returns_bucket_groups_and_context() :void {
+		$this->setPluginUpdateAvailable();
 
-		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing scans state' );
-		$renderData = $payload[ 'render_data' ] ?? [];
-		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
-		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
-		$scansResults = \is_array( $vars[ 'scans_results' ] ?? null ) ? $vars[ 'scans_results' ] : [];
-		$railTabs = \array_column( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [], 'key' );
-		$tabsByKey = [];
-		foreach ( \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null ) ? $scansResults[ 'vars' ][ 'rail_tabs' ] : [] as $tab ) {
-			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
-		}
-		$this->assertModeShellPayload( $vars, 'actions', 'critical', true );
-		$this->assertModePanelPayload( $vars, '', false );
-		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
-		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
-		$this->assertSame( 'scans', (string)( $scans[ 'panel_target' ] ?? '' ) );
-		$this->assertGreaterThan( 0, (int)( $scans[ 'total_issues' ] ?? 0 ) );
-		$this->assertNotEmpty( $scansResults );
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'review',
+		] );
+		$html = (string)( $payload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame( 'Review - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
+		$this->assertSame( 'warning', (string)( $payload[ 'strip_badge_status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
 		$this->assertSame(
-			[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'maintenance' ],
-			$railTabs
+			[
+				'path'      => [ 'Triage buckets', 'Review' ],
+				'focus'     => 'Review contains 1 item that still needs attention.',
+				'next_step' => 'Choose a group to review the matching results.',
+			],
+			$payload[ 'context' ] ?? []
 		);
-		$this->assertSame( true, (bool)( $tabsByKey[ 'summary' ][ 'is_loaded' ] ?? false ) );
-		$this->assertSame( true, (bool)( $tabsByKey[ 'maintenance' ][ 'is_loaded' ] ?? false ) );
-		$this->assertSame( false, (bool)( $tabsByKey[ 'wordpress' ][ 'is_loaded' ] ?? true ) );
-		$this->assertSame( 'actions_queue', (string)( $tabsByKey[ 'wordpress' ][ 'render_action' ][ 'display_context' ] ?? '' ) );
-		$this->assertSame( WordpressPane::SLUG, (string)( $tabsByKey[ 'wordpress' ][ 'render_action' ][ 'render_slug' ] ?? '' ) );
-		$this->assertSame( AjaxBatchRequests::SLUG, (string)( $scansResults[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' ) );
-		$this->assertSame( ActionsQueueScanRailMetrics::SLUG, (string)( $scansResults[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'plugins' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'themes' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'malware' ][ 'status' ] ?? '' ) );
-		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] ?? -1 );
-		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] ?? -1 );
-		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] ?? -1 );
-		$this->assertNull( $tabsByKey[ 'malware' ][ 'count' ] ?? -1 );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-groups="1" and @data-actions-queue-bucket-key="review"]',
+			'Groups AJAX should render the selected bucket wrapper'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-target="detail" and @data-drill-group-key="maintenance"]',
+			'Groups AJAX should render the maintenance group CTA for the review bucket'
+		);
+	}
+
+	public function test_groups_ajax_can_refresh_the_current_selected_group_summary() :void {
+		$this->setPluginUpdateAvailable();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket'                  => 'review',
+			'group'                   => 'maintenance',
+			'include_landing_refresh' => 1,
+		] );
+
+		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame( 'Maintenance Items - 1 item', (string)( $payload[ 'selected_group' ][ 'strip_text' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'strip_badge' ] ?? '' ) );
+		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'severity_strip_html' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'path'      => [ 'Triage buckets', 'Review', 'Maintenance Items' ],
+				'focus'     => '1 maintenance item needs review.',
+				'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
+			],
+			$payload[ 'selected_group' ][ 'context' ] ?? []
+		);
+	}
+
+	public function test_detail_ajax_wraps_existing_group_renderer_without_rail_sidebar() :void {
+		$this->setPluginUpdateAvailable();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
+			'bucket' => 'review',
+			'group'  => 'maintenance',
+		] );
+		$html = (string)( $payload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame( 'Maintenance Items - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
+		$this->assertSame( 'maintenance', (string)( $payload[ 'render_data' ][ 'group_detail_shell' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'path'      => [ 'Triage buckets', 'Review', 'Maintenance Items' ],
+				'focus'     => '1 maintenance item needs review.',
+				'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
+			],
+			$payload[ 'context' ] ?? []
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-actions-queue-detail="1" and @data-actions-queue-group-key="maintenance"]',
+			'Detail AJAX should wrap the selected group renderer in the drill-down detail container'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@id="maintenance-expand-wp_plugins_updates"]',
+			'Detail AJAX should preserve the existing maintenance pane content inside the wrapper'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-shield-rail-target]',
+			0,
+			'Detail AJAX should not re-render the removed rail sidebar'
+		);
+	}
+
+	public function test_plugin_detail_render_in_actions_queue_context_uses_asset_cards_shell() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( PluginsPane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
+			'Plugin pane render in Actions Queue context should use the asset-card shell'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode-tiles="1" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-asset-cards__grid ")]',
+			'Plugin pane render in Actions Queue context should render the asset-card grid'
+		);
 	}
 
 	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {
@@ -390,120 +497,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertContains( 'theme_files', $assessmentKeys );
 	}
 
-	public function test_scans_results_shell_starts_enabled_tabs_lazy_without_eager_badges() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_pluginsthemes_local',
-			'scan_vulnerabilities',
-			'scan_malware_local',
-		] );
-
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'enable_wpvuln_scan', 'Y' )
-			 ->optSet( 'enabled_scan_apc', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes', 'malware_php' ] )
-			 ->store();
-		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
-		$this->resetScanResultCountMemoization();
-
-		$pluginSlug = self::con()->base_file;
-		$themeSlug = \wp_get_theme()->get_stylesheet();
-
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'      => 'plugin-file.php',
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'     => 'theme-file.php',
-			'is_in_theme' => 1,
-			'ptg_slug'    => $themeSlug,
-		] );
-
-		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
-		TestDataFactory::insertScanResultItem( $wpvId, [
-			'item_id'       => $pluginSlug,
-			'is_vulnerable' => 1,
-		] );
-
-		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
-		TestDataFactory::insertScanResultItem( $apcId, [
-			'item_id'       => $themeSlug,
-			'is_abandoned'  => 1,
-		] );
-
-		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing shared scan results tabs' );
-		$scansResults = \is_array( $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ] ?? null )
-			? $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ]
-			: [];
-		$xpath = $this->createDomXPathFromHtml( $html );
-		$railTabs = \is_array( $scansResults[ 'vars' ][ 'rail_tabs' ] ?? null )
-			? \array_values( $scansResults[ 'vars' ][ 'rail_tabs' ] )
-			: [];
-		$tabsByKey = [];
-		foreach ( $railTabs as $tab ) {
-			$tabsByKey[ (string)( $tab[ 'key' ] ?? '' ) ] = $tab;
-		}
-
-		$this->assertContains( 'maintenance', \array_keys( $tabsByKey ) );
-		$this->assertSame(
-			[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'maintenance' ],
-			\array_keys( $tabsByKey )
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="malware" and @data-bs-toggle="tab" and @role="tab"]',
-			'Actions queue scans shell should render the malware rail trigger'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-target="maintenance" and @data-bs-toggle="tab" and @role="tab"]',
-			'Actions queue scans shell should render the maintenance rail trigger'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="malware" and @data-actions-queue-pane-loaded="0" and string-length(@data-actions-queue-render-action) > 0]',
-			'Actions queue scans shell should expose malware lazy-load metadata'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1"]//*[@data-shield-rail-pane="maintenance" and @data-actions-queue-pane-loaded="1"]',
-			'Actions queue scans shell should keep the maintenance pane eager'
-		);
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'maintenance' ] );
-		$this->assertNotNull( $tabsByKey[ 'maintenance' ][ 'count' ] );
-		$this->assertTrue( (bool)( $tabsByKey[ 'maintenance' ][ 'is_loaded' ] ?? false ) );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'plugins' ] );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'themes' ] );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'vulnerabilities' ] );
-		$this->assertArrayHasKey( 'count', $tabsByKey[ 'malware' ] );
-		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] );
-		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] );
-		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] );
-		$this->assertNull( $tabsByKey[ 'malware' ][ 'count' ] );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'plugins' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'themes' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $tabsByKey[ 'malware' ][ 'status' ] ?? '' ) );
-		$this->assertFalse( (bool)( $tabsByKey[ 'plugins' ][ 'is_loaded' ] ?? true ) );
-		$this->assertFalse( (bool)( $tabsByKey[ 'themes' ][ 'is_loaded' ] ?? true ) );
-		$this->assertFalse( (bool)( $tabsByKey[ 'vulnerabilities' ][ 'is_loaded' ] ?? true ) );
-		$this->assertFalse( (bool)( $tabsByKey[ 'malware' ][ 'is_loaded' ] ?? true ) );
-		$this->assertSame(
-			ActionsQueueScanRailMetrics::SLUG,
-			(string)( $scansResults[ 'vars' ][ 'metrics_action' ][ 'ex' ] ?? '' )
-		);
-		$this->assertSame(
-			AjaxBatchRequests::SLUG,
-			(string)( $scansResults[ 'vars' ][ 'preload_action' ][ 'ex' ] ?? '' )
-		);
-		$this->assertTrue( (bool)( $tabsByKey[ 'plugins' ][ 'show_count_placeholder' ] ?? false ) );
-		$this->assertTrue( (bool)( $tabsByKey[ 'themes' ][ 'show_count_placeholder' ] ?? false ) );
-		$this->assertTrue( (bool)( $tabsByKey[ 'vulnerabilities' ][ 'show_count_placeholder' ] ?? false ) );
-		$this->assertTrue( (bool)( $tabsByKey[ 'malware' ][ 'show_count_placeholder' ] ?? false ) );
-	}
 
 	public function test_wordpress_pane_render_uses_core_investigation_file_status_table_contract() :void {
 		$this->requireController()->opts
@@ -871,10 +864,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled historical scan results' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled historical scan results' );
+		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? false ) );
-		$this->assertSame( [], $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ] ?? [] );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-drill-shell="1"]',
+			0,
+			'Historical results from disabled scans should not force the drill-down shell to render'
+		);
 	}
 
 	public function test_scans_results_metrics_action_hides_file_locker_when_premium_unavailable() :void {

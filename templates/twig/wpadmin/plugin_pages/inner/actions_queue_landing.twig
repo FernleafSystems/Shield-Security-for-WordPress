@@ -5,50 +5,30 @@
 	<div class="actions-landing"
 		 data-actions-landing="1"
 		 data-actions-pane-loading="{{ strings.pane_loading|e('html_attr') }}"
+		 data-actions-groups-loading="{{ strings.groups_loading|e('html_attr') }}"
+		 data-actions-detail-loading="{{ strings.detail_loading|e('html_attr') }}"
 		 data-actions-pane-error="{{ strings.pane_load_error|e('html_attr') }}"
-		{% if vars.scans_results.vars.metrics_action is not empty %}
-		 data-actions-queue-metrics-action="{{ vars.scans_results.vars.metrics_action|json_encode|e('html_attr') }}"
-		{% endif %}
-		{% if vars.scans_results.vars.preload_action is not empty %}
-		 data-actions-queue-preload-action="{{ vars.scans_results.vars.preload_action|json_encode|e('html_attr') }}"
-		{% endif %}>
+		 data-actions-layer-error="{{ strings.layer_load_error|e('html_attr') }}"
+		 data-actions-layer-retry="{{ strings.layer_retry|e('html_attr') }}"
+		 data-actions-queue-groups-action="{{ vars.actions_queue_ajax.groups_render_action|json_encode|e('html_attr') }}"
+		 data-actions-queue-detail-action="{{ vars.actions_queue_ajax.detail_render_action|json_encode|e('html_attr') }}">
 
-		<section class="actions-landing__severity-strip shield-mode-strip shield-card status-{{ strip.severity }}"
-				 data-actions-queue-section="severity-strip">
-			{% include '/wpadmin/components/page/mode_status_strip.twig' with {
-				strip: {
-					status: strip.severity,
-					chip_label: strip.label,
-					icon_class: strip.icon_class,
-					eyebrow: strings.severity_strip_label,
-					summary: strip.summary_text,
-					subtext: strip.subtext
-				}
-			} only %}
-		</section>
+		{% include '/wpadmin/components/actions_queue/severity_strip.twig' with {
+			strip: strip,
+			severity_strip_label: strings.severity_strip_label
+		} only %}
 
 		{% if flags.queue_is_empty %}
-			<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
-				<div class="shield-needs-attention__all-clear-accent"></div>
-				<div class="shield-needs-attention__all-clear-shield">
-					<i class="{{ vars.all_clear.icon_class }}" aria-hidden="true"></i>
-				</div>
-				<div class="shield-needs-attention__all-clear-title">{{ vars.all_clear.title }}</div>
-				<div class="shield-needs-attention__all-clear-subtitle">{{ vars.all_clear.subtitle }}</div>
-				<div class="shield-needs-attention__chips">
-					{% for chip in vars.all_clear.zone_chips %}
-						<span class="shield-needs-attention__chip is-{{ chip.severity }}">
-							<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
-						</span>
-					{% endfor %}
-				</div>
-			</div>
+			{% include '/wpadmin/components/actions_queue/all_clear.twig' with {
+				all_clear: vars.all_clear
+			} only %}
 		{% else %}
-			<div class="mt-4">
-				{% include '/wpadmin_pages/insights/scans/results/scan_results_rail.twig' with {
-					strings: vars.scans_results.strings,
-					vars: vars.scans_results.vars,
-					content: vars.scans_results.content
+			<div class="actions-landing__drilldown mt-4" data-actions-queue-section="drilldown">
+				{% include '/wpadmin/components/page/drill_context_card.twig' with {
+					context_card: vars.drill_context_card
+				} only %}
+				{% include '/wpadmin/components/page/drill_down_shell.twig' with {
+					shell: vars.drill_shell
 				} only %}
 			</div>
 		{% endif %}

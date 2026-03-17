@@ -261,6 +261,21 @@ export class ShieldTableBase extends BaseComponent {
 		datatable.ajax.reload( null );
 	}
 
+	dispatchTableActionSuccess( datatableOrSettings, reqData, responseData ) {
+		const container = this.resolveTableContainer( datatableOrSettings );
+		if ( container === null ) {
+			return;
+		}
+
+		container.dispatchEvent( new CustomEvent( 'shield:table-action-success', {
+			bubbles: true,
+			detail: {
+				request_data: reqData,
+				response_data: responseData,
+			}
+		} ) );
+	}
+
 	sendTableActionRequest( datatableOrSettings, reqData, fallbackErrorMessage = 'Communications error with site.' ) {
 		const datatable = this.resolveDatatable( datatableOrSettings );
 		if ( datatable === null || reqData === null || typeof reqData !== 'object' ) {
@@ -281,6 +296,7 @@ export class ShieldTableBase extends BaseComponent {
 					this.clearTableBusy( datatable );
 				}
 				this.showResponseMessage( responseData.message || '', true );
+				this.dispatchTableActionSuccess( datatable, reqData, responseData );
 			}
 			else {
 				this.clearTableBusy( datatable );

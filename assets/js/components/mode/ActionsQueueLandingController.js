@@ -1,9 +1,9 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
-import { AjaxBatchService } from "../services/AjaxBatchService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { getLayersForShell } from "./DrillDownShared";
 
 export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
@@ -12,15 +12,35 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	run() {
+		this.layerRequests = {};
+		this.selectedBucket = null;
+		this.selectedGroup = null;
+		this.defaultLayerState = {};
+
 		this.bindModePanelHandlers();
 		this.bindMaintenanceActionHandlers();
-		shieldEventsHandler_Main.addHandler(
-			'shown.bs.tab',
-			'[data-shield-rail-target][data-bs-toggle="tab"]',
-			( item ) => this.handleRailTabShown( item ),
+		this.bindTableActionHandlers();
+		this.bindDrillDownHandlers();
+		this.initializeCurrentRoot();
+	}
+
+	bindDrillDownHandlers() {
+		if ( this.hasBoundDrillDownHandlers ) {
+			return;
+		}
+		this.hasBoundDrillDownHandlers = true;
+
+		shieldEventsHandler_Main.add_Click(
+			'[data-drill-target]',
+			( item ) => this.handleDrillTargetClick( item ),
 			false
 		);
-		this.initializeCurrentRoot();
+		shieldEventsHandler_Main.add_Click(
+			'[data-actions-queue-retry]',
+			( item ) => this.handleRetryClick( item ),
+			false
+		);
+		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
 	}
 
 	bindModePanelHandlers() {
@@ -42,166 +62,384 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		document.addEventListener( 'click', ( evt ) => this.handleMaintenanceActionClick( evt ) );
 	}
 
-	handleRailTabShown( item ) {
-		const root = this.getRoot();
+	bindTableActionHandlers() {
+		if ( this.hasBoundTableActionHandlers ) {
+			return;
+		}
+		this.hasBoundTableActionHandlers = true;
+
+		document.addEventListener( 'shield:table-action-success', ( evt ) => this.handleTableActionSuccess( evt ) );
+	}
+
+	initializeCurrentRoot() {
+		this.rootEl = this.getRoot();
+		this.shellEl = this.getShell( this.rootEl );
+		this.defaultLayerState = this.captureDefaultLayerState( this.shellEl );
+	}
+
+	getRoot() {
+		return document.querySelector( '[data-actions-landing="1"]' );
+	}
+
+	getShell( root = this.rootEl ) {
+		return root?.querySelector( '[data-drill-shell="1"]' ) || null;
+	}
+
+	handleDrillTargetClick( item ) {
+		const root = this.rootEl || this.getRoot();
 		if ( root === null || !root.contains( item ) ) {
 			return;
 		}
+
+		const shell = this.getShell( root );
+		if ( shell === null ) {
+			return;
+		}
+
 		this.rootEl = root;
+		this.shellEl = shell;
 
-		const pane = this.findTargetPane( item );
-		if ( pane === null ) {
+		switch ( String( item.dataset.drillTarget || '' ).trim() ) {
+			case 'groups':
+				this.handleBucketSelection( item, shell );
+				break;
+
+			case 'detail':
+				this.handleGroupSelection( item, shell );
+				break;
+		}
+	}
+
+	handleBucketSelection( item, shell ) {
+		const bucket = this.readBucketSelection( item );
+		if ( bucket.key.length < 1 ) {
 			return;
 		}
 
-		this.requestPaneLoad( pane, { showPlaceholder: true } );
-		this.initializeLoadedPane( pane );
+		const layerIndex = this.getLayerIndexByKey( shell, 'groups' );
+		const drillCtrl = this.getDrillDownController();
+		if ( layerIndex < 0 || drillCtrl === null ) {
+			return;
+		}
+
+		this.selectedBucket = bucket;
+		this.selectedGroup = null;
+		this.resetGroupsLayerStrip( shell );
+		this.resetDetailLayer( shell );
+		drillCtrl.updateStripText( shell, 0, bucket.stripText );
+		drillCtrl.updateStripBadge( shell, 0, bucket.stripBadge, bucket.status );
+		drillCtrl.drillTo( shell, layerIndex );
+		drillCtrl.updateLayerContext(
+			shell,
+			1,
+			this.buildLoadingContext( bucket.context, this.getGroupsLoadingText() )
+		);
+
+		this.loadGroupsLayer();
 	}
 
-	requestPaneLoad( pane, {
-		showPlaceholder = false,
-	} = {} ) {
-		const renderAction = this.preparePaneLoad( pane, { showPlaceholder: showPlaceholder } );
-		if ( ObjectOps.IsEmpty( renderAction ) ) {
-			return Promise.resolve();
+	handleGroupSelection( item, shell ) {
+		const group = this.readGroupSelection( item );
+		if ( group.key.length < 1 ) {
+			return;
 		}
 
-		return this.requestPaneRender( pane, renderAction );
+		const bucket = this.readBucketSelection( item );
+		if ( bucket.key.length > 0 ) {
+			this.selectedBucket = {
+				...( this.selectedBucket || {} ),
+				key: bucket.key,
+				label: bucket.label,
+				status: bucket.status,
+				count: bucket.count,
+			};
+		}
+
+		const layerIndex = this.getLayerIndexByKey( shell, 'detail' );
+		const drillCtrl = this.getDrillDownController();
+		if ( layerIndex < 0 || drillCtrl === null || this.selectedBucket === null ) {
+			return;
+		}
+
+		this.selectedGroup = group;
+		drillCtrl.updateStripText( shell, 1, group.stripText );
+		drillCtrl.updateStripBadge( shell, 1, group.stripBadge, group.status );
+		drillCtrl.drillTo( shell, layerIndex );
+		drillCtrl.updateLayerContext(
+			shell,
+			2,
+			this.buildLoadingContext( group.context, this.getDetailLoadingText() )
+		);
+
+		this.loadDetailLayer();
 	}
 
-	refreshPane( pane, {
-		showPlaceholder = true,
-	} = {} ) {
-		const renderAction = this.preparePaneLoad( pane, {
-			showPlaceholder: showPlaceholder,
-			forceReload: true,
-		} );
-		if ( ObjectOps.IsEmpty( renderAction ) ) {
-			return Promise.resolve();
+	loadGroupsLayer( { showPlaceholder = true, includeSelectedGroup = false, includeLandingRefresh = false } = {} ) {
+		if ( this.selectedBucket === null ) {
+			return Promise.resolve( null );
 		}
 
-		return this.requestPaneRender( pane, renderAction );
+		const extraData = {
+			bucket: this.selectedBucket.key,
+		};
+		if ( includeSelectedGroup && this.selectedGroup !== null ) {
+			extraData.group = this.selectedGroup.key;
+		}
+		if ( includeLandingRefresh ) {
+			extraData.include_landing_refresh = 1;
+		}
+
+		return this.loadLayerContent(
+			'groups',
+			this.buildRenderAction( this.rootEl?.dataset.actionsQueueGroupsAction, extraData ),
+			showPlaceholder,
+			this.getGroupsLoadingText(),
+			( data ) => this.applyGroupsLayerResponse( data )
+		);
 	}
 
-	requestPaneRender( pane, renderAction ) {
-		return ( new AjaxService() )
-		.send( renderAction, false, true )
-		.then( ( resp ) => {
-			if ( !resp.success || typeof resp?.data?.html !== 'string' ) {
-				this.handlePaneLoadFailure( pane );
-				return;
-			}
+	loadDetailLayer( showPlaceholder = true ) {
+		if ( this.selectedBucket === null || this.selectedGroup === null ) {
+			return Promise.resolve( null );
+		}
 
-			this.applyPaneHtml( pane, resp.data.html, this.isPaneActive( pane ) );
-		} )
-		.catch( () => this.handlePaneLoadFailure( pane ) )
-		.finally( () => {
-			delete pane.dataset.actionsQueuePaneLoading;
-		} );
+		return this.loadLayerContent(
+			'detail',
+			this.buildRenderAction( this.rootEl?.dataset.actionsQueueDetailAction, {
+				bucket: this.selectedBucket.key,
+				group: this.selectedGroup.key,
+			} ),
+			showPlaceholder,
+			this.getDetailLoadingText(),
+			( data ) => this.applyDetailLayerResponse( data )
+		);
 	}
 
-	preparePaneLoad( pane, {
-		showPlaceholder = false,
-		forceReload = false,
-	} = {} ) {
-		if ( pane.dataset.actionsQueuePaneLoading === '1' ) {
-			return {};
+	loadLayerContent( layerKey, renderAction, showPlaceholder, loadingText, onSuccess ) {
+		if ( this.shellEl === null || ObjectOps.IsEmpty( renderAction ) ) {
+			return Promise.resolve( null );
 		}
 
-		if ( !forceReload && pane.dataset.actionsQueuePaneLoaded === '1' ) {
-			return {};
+		const layer = this.getLayerByKey( this.shellEl, layerKey );
+		const body = layer?.querySelector( '.drill-layer__body' ) || null;
+		if ( layer === null || body === null ) {
+			return Promise.resolve( null );
 		}
 
-		const renderAction = this.getPaneRenderAction( pane );
-		if ( ObjectOps.IsEmpty( renderAction ) ) {
-			return {};
-		}
+		const requestKey = `${Date.now()}-${Math.random()}`;
+		this.layerRequests[ layerKey ] = requestKey;
 
-		pane.dataset.actionsQueuePaneLoading = '1';
 		if ( showPlaceholder ) {
-			BootstrapTooltips.DisposeTooltipsWithin( pane );
-			pane.innerHTML = this.buildLoadingMarkup();
+			BootstrapTooltips.DisposeTooltipsWithin( body );
+			body.innerHTML = this.buildLoadingMarkup( loadingText );
 		}
 
-		return renderAction;
-	}
+		return ( new AjaxService() )
+			.send( renderAction, false, true )
+			.then( ( resp ) => {
+				if ( this.layerRequests[ layerKey ] !== requestKey ) {
+					return null;
+				}
 
-	preloadRailPanes() {
-		if ( this.rootEl.dataset.actionsQueuePreloadStarted === '1' ) {
-			return;
-		}
+				if ( !resp.success || typeof resp?.data?.html !== 'string' ) {
+					this.renderLayerFailure( body, layerKey );
+					return null;
+				}
 
-		const preloadAction = this.parseJsonDataset( this.rootEl.dataset.actionsQueuePreloadAction );
-		if ( ObjectOps.IsEmpty( preloadAction ) ) {
-			return;
-		}
-
-		const panes = this.getPreloadablePanes();
-		if ( panes.length < 1 ) {
-			return;
-		}
-
-		this.rootEl.dataset.actionsQueuePreloadStarted = '1';
-		const batchService = new AjaxBatchService( preloadAction );
-
-		panes.forEach( ( pane ) => {
-			const renderAction = this.preparePaneLoad( pane );
-			if ( ObjectOps.IsEmpty( renderAction ) ) {
-				return;
-			}
-
-			batchService.add( {
-				id: pane.dataset.actionsQueuePaneKey || '',
-				request: renderAction,
-				onSuccess: ( result ) => {
-					if ( result?.success && typeof result?.data?.html === 'string' ) {
-						this.applyPaneHtml( pane, result.data.html, this.isPaneActive( pane ) );
-						return;
-					}
-					this.handlePaneLoadFailure( pane, true );
-				},
-				onError: () => this.handlePaneLoadFailure( pane, true ),
-			} );
-		} );
-
-		batchService.flush()
+				this.applyLayerHtml( body, resp.data.html );
+				onSuccess( resp.data );
+				return resp.data;
+			} )
+			.catch( () => {
+				if ( this.layerRequests[ layerKey ] === requestKey ) {
+					this.renderLayerFailure( body, layerKey );
+				}
+				return null;
+			} )
 			.finally( () => {
-				delete this.rootEl.dataset.actionsQueuePreloadStarted;
+				if ( this.layerRequests[ layerKey ] === requestKey ) {
+					delete this.layerRequests[ layerKey ];
+				}
 			} );
 	}
 
-	handlePaneLoadFailure( pane, retryIfActive = false ) {
-		delete pane.dataset.actionsQueuePaneLoading;
-		if ( retryIfActive && this.isPaneActive( pane ) ) {
-			this.requestPaneLoad( pane, { showPlaceholder: true } );
-			return;
-		}
-		if ( retryIfActive ) {
+	applyGroupsLayerResponse( data ) {
+		const queueIsEmpty = this.applyLandingRefresh( data.landing_refresh || null );
+		if ( queueIsEmpty ) {
 			return;
 		}
 
-		this.renderLoadFailure( pane );
+		const drillCtrl = this.getDrillDownController();
+		if ( this.shellEl === null || drillCtrl === null ) {
+			return;
+		}
+
+		const renderData = data.render_data || {};
+		this.selectedBucket = {
+			...( this.selectedBucket || {} ),
+			key: String( renderData.bucket_key || this.selectedBucket?.key || '' ).trim(),
+			label: String( renderData.bucket_label || this.selectedBucket?.label || '' ).trim(),
+			status: String( renderData.bucket_status || this.selectedBucket?.status || 'neutral' ).trim(),
+			count: this.parseInteger( renderData.bucket_item_count ?? this.selectedBucket?.count ?? 0 ),
+			stripText: String( data.strip_text || this.selectedBucket?.stripText || '' ),
+			stripBadge: String( data.strip_badge || this.selectedBucket?.stripBadge || '' ),
+			context: data.context || this.selectedBucket?.context || {},
+		};
+		drillCtrl.updateStripText( this.shellEl, 0, this.selectedBucket.stripText );
+		drillCtrl.updateStripBadge(
+			this.shellEl,
+			0,
+			this.selectedBucket.stripBadge,
+			String( data.strip_badge_status || this.selectedBucket.status || 'neutral' )
+		);
+		drillCtrl.updateLayerContext( this.shellEl, 1, this.selectedBucket.context );
+
+		if ( !ObjectOps.IsEmpty( data.selected_group || {} ) ) {
+			this.applySelectedGroupRefresh( data.selected_group );
+		}
 	}
 
-	applyPaneHtml( pane, html, initializeNow = false ) {
-		BootstrapTooltips.DisposeTooltipsWithin( pane );
-		pane.innerHTML = html;
-		pane.dataset.actionsQueuePaneLoaded = '1';
-		delete pane.dataset.actionsQueuePaneLoading;
-		delete pane.dataset.actionsQueuePaneInitialized;
-
-		if ( initializeNow ) {
-			this.initializeLoadedPane( pane );
-		}
-	}
-
-	initializeLoadedPane( pane ) {
-		if ( pane.dataset.actionsQueuePaneLoaded !== '1' || pane.dataset.actionsQueuePaneInitialized === '1' ) {
+	applyDetailLayerResponse( data ) {
+		const drillCtrl = this.getDrillDownController();
+		if ( this.shellEl === null || drillCtrl === null ) {
 			return;
 		}
 
-		pane.dataset.actionsQueuePaneInitialized = '1';
-		UiContentActivator.activateCurrentSubtree( pane );
+		const renderData = data.render_data || {};
+		this.selectedGroup = {
+			...( this.selectedGroup || {} ),
+			key: String( renderData.group_key || this.selectedGroup?.key || '' ).trim(),
+			label: String( renderData.group_label || this.selectedGroup?.label || '' ).trim(),
+			status: String( renderData.group_status || this.selectedGroup?.status || 'neutral' ).trim(),
+			count: this.parseInteger( renderData.group_item_count ?? this.selectedGroup?.count ?? 0 ),
+			detailShell: String( renderData.group_detail_shell || this.selectedGroup?.detailShell || 'direct_table' ).trim(),
+			stripText: String( data.strip_text || this.selectedGroup?.stripText || '' ),
+			stripBadge: String( data.strip_badge || this.selectedGroup?.stripBadge || '' ),
+			context: data.context || this.selectedGroup?.context || {},
+		};
+		drillCtrl.updateStripText( this.shellEl, 1, this.selectedGroup.stripText );
+		drillCtrl.updateStripBadge(
+			this.shellEl,
+			1,
+			this.selectedGroup.stripBadge,
+			String( data.strip_badge_status || this.selectedGroup.status || 'neutral' )
+		);
+		drillCtrl.updateLayerContext( this.shellEl, 2, this.selectedGroup.context );
+	}
+
+	applySelectedGroupRefresh( selectedGroup ) {
+		const drillCtrl = this.getDrillDownController();
+		if ( this.shellEl === null || drillCtrl === null ) {
+			return;
+		}
+
+		this.selectedGroup = {
+			...( this.selectedGroup || {} ),
+			key: String( selectedGroup.key || this.selectedGroup?.key || '' ).trim(),
+			label: String( selectedGroup.label || this.selectedGroup?.label || '' ).trim(),
+			status: String( selectedGroup.status || this.selectedGroup?.status || 'neutral' ).trim(),
+			count: this.parseInteger( selectedGroup.item_count ?? this.selectedGroup?.count ?? 0 ),
+			detailShell: String( selectedGroup.detail_shell || this.selectedGroup?.detailShell || 'direct_table' ).trim(),
+			stripText: String( selectedGroup.strip_text || this.selectedGroup?.stripText || '' ),
+			stripBadge: String( selectedGroup.strip_badge || this.selectedGroup?.stripBadge || '' ),
+			context: selectedGroup.context || this.selectedGroup?.context || {},
+		};
+		drillCtrl.updateStripText( this.shellEl, 1, this.selectedGroup.stripText );
+		drillCtrl.updateStripBadge( this.shellEl, 1, this.selectedGroup.stripBadge, this.selectedGroup.status );
+		drillCtrl.updateLayerContext( this.shellEl, 2, this.selectedGroup.context );
+	}
+
+	applyLandingRefresh( landingRefresh ) {
+		if ( ObjectOps.IsEmpty( landingRefresh || {} ) || this.rootEl === null ) {
+			return false;
+		}
+
+		const severityStrip = this.rootEl.querySelector( '[data-actions-queue-section="severity-strip"]' );
+		if ( severityStrip !== null && typeof landingRefresh.severity_strip_html === 'string' ) {
+			severityStrip.outerHTML = landingRefresh.severity_strip_html;
+		}
+
+		if ( landingRefresh.queue_is_empty ) {
+			const drilldown = this.rootEl.querySelector( '[data-actions-queue-section="drilldown"]' );
+			if ( drilldown !== null && typeof landingRefresh.all_clear_html === 'string' ) {
+				drilldown.outerHTML = landingRefresh.all_clear_html;
+			}
+			this.selectedBucket = null;
+			this.selectedGroup = null;
+			this.cancelLayerRequest( 'groups' );
+			this.cancelLayerRequest( 'detail' );
+			this.initializeCurrentRoot();
+			return true;
+		}
+
+		if ( this.shellEl !== null && typeof landingRefresh.buckets_html === 'string' ) {
+			const bucketsLayer = this.getLayerByKey( this.shellEl, 'buckets' );
+			const bucketsBody = bucketsLayer?.querySelector( '.drill-layer__body' ) || null;
+			if ( bucketsBody !== null ) {
+				this.applyLayerHtml( bucketsBody, landingRefresh.buckets_html );
+			}
+		}
+
+		return false;
+	}
+
+	handleRetryClick( item ) {
+		const root = this.rootEl || this.getRoot();
+		if ( root === null || !root.contains( item ) ) {
+			return;
+		}
+
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+
+		switch ( String( item.dataset.actionsQueueRetry || '' ).trim() ) {
+			case 'groups':
+				this.loadGroupsLayer();
+				break;
+
+			case 'detail':
+				this.loadDetailLayer();
+				break;
+		}
+	}
+
+	handleDrillBack( evt ) {
+		const root = this.rootEl || this.getRoot();
+		const shell = evt.target;
+		if ( root === null || !( shell instanceof HTMLElement ) || !root.contains( shell ) ) {
+			return;
+		}
+
+		const layerIndex = parseInt( String( evt.detail?.layer_index ?? -1 ), 10 );
+		if ( layerIndex <= 0 ) {
+			this.selectedBucket = null;
+			this.selectedGroup = null;
+			this.cancelLayerRequest( 'groups' );
+			this.cancelLayerRequest( 'detail' );
+			return;
+		}
+
+		if ( layerIndex === 1 ) {
+			this.selectedGroup = null;
+			this.cancelLayerRequest( 'detail' );
+		}
+	}
+
+	handleTableActionSuccess( evt ) {
+		const root = this.rootEl || this.getRoot();
+		const eventTarget = evt.target instanceof HTMLElement ? evt.target : null;
+		if ( root === null || eventTarget === null || this.selectedBucket === null || !root.contains( eventTarget ) ) {
+			return;
+		}
+
+		const detailContainer = eventTarget.closest( '[data-actions-queue-detail="1"]' );
+		if ( detailContainer === null ) {
+			return;
+		}
+
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		this.refreshAfterNestedAction( this.selectedGroup?.detailShell === 'asset_cards' );
 	}
 
 	handleModePanelOpened( evt ) {
@@ -235,8 +473,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const shell = evt.target;
-		this.syncAssetHintVisibility( shell );
+		this.syncAssetHintVisibility( evt.target );
 	}
 
 	loadLazyAssetPanel( panel ) {
@@ -257,82 +494,42 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		panel.dataset.actionsQueueAssetPanelLoading = '1';
 		panel.dataset.actionsQueueAssetPanelRequest = requestKey;
 		BootstrapTooltips.DisposeTooltipsWithin( content );
-		content.innerHTML = this.buildLoadingMarkup();
+		content.innerHTML = this.buildLoadingMarkup( this.rootEl?.dataset.actionsPaneLoading || '' );
 
 		( new AjaxService() )
-		.send( renderAction, false, true )
-		.then( ( resp ) => {
-			if ( panel.dataset.actionsQueueAssetPanelRequest !== requestKey ) {
-				return;
-			}
+			.send( renderAction, false, true )
+			.then( ( resp ) => {
+				if ( panel.dataset.actionsQueueAssetPanelRequest !== requestKey ) {
+					return;
+				}
 
-			if ( resp.success && typeof resp?.data?.html === 'string' ) {
+				if ( resp.success && typeof resp?.data?.html === 'string' ) {
+					BootstrapTooltips.DisposeTooltipsWithin( content );
+					content.innerHTML = resp.data.html;
+					panel.dataset.actionsQueueAssetPanelLoaded = '1';
+					UiContentActivator.activateCurrentSubtree( panel );
+					return;
+				}
+
+				panel.dataset.actionsQueueAssetPanelLoaded = '0';
 				BootstrapTooltips.DisposeTooltipsWithin( content );
-				content.innerHTML = resp.data.html;
-				panel.dataset.actionsQueueAssetPanelLoaded = '1';
-				UiContentActivator.activateCurrentSubtree( panel );
-				return;
-			}
+				content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
+			} )
+			.catch( () => {
+				if ( panel.dataset.actionsQueueAssetPanelRequest !== requestKey ) {
+					return;
+				}
 
-			panel.dataset.actionsQueueAssetPanelLoaded = '0';
-			BootstrapTooltips.DisposeTooltipsWithin( content );
-			content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
-		} )
-		.catch( () => {
-			if ( panel.dataset.actionsQueueAssetPanelRequest !== requestKey ) {
-				return;
-			}
-
-			panel.dataset.actionsQueueAssetPanelLoaded = '0';
-			BootstrapTooltips.DisposeTooltipsWithin( content );
-			content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
-		} )
-		.finally( () => {
-			if ( panel.dataset.actionsQueueAssetPanelRequest === requestKey ) {
-				delete panel.dataset.actionsQueueAssetPanelLoading;
-				delete panel.dataset.actionsQueueAssetPanelRequest;
-			}
-		} );
-	}
-
-	initializeCurrentRoot() {
-		this.rootEl = this.getRoot();
-		if ( this.rootEl === null ) {
-			return;
-		}
-
-		this.loadInitialActivePane();
-		this.hydrateRailMetrics();
-		this.preloadRailPanes();
-	}
-
-	getRoot() {
-		return document.querySelector( '[data-actions-landing="1"]' );
-	}
-
-	loadInitialActivePane() {
-		const activeItem = this.rootEl?.querySelector(
-			'[data-shield-rail-target][data-bs-toggle="tab"].active, '
-			+ '[data-shield-rail-target][data-bs-toggle="tab"][aria-selected="true"]'
-		);
-		if ( activeItem !== null ) {
-			this.handleRailTabShown( activeItem );
-		}
-	}
-
-	getPreloadablePanes() {
-		return [ ...this.rootEl.querySelectorAll( '[data-actions-queue-pane-key]' ) ].filter( ( pane ) => {
-			return pane.dataset.actionsQueuePaneLoaded !== '1'
-				&& pane.dataset.actionsQueuePaneLoading !== '1'
-				&& !ObjectOps.IsEmpty( this.getPaneRenderAction( pane ) );
-		} );
-	}
-
-	renderLoadFailure( pane ) {
-		delete pane.dataset.actionsQueuePaneLoading;
-		delete pane.dataset.actionsQueuePaneInitialized;
-		BootstrapTooltips.DisposeTooltipsWithin( pane );
-		pane.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
+				panel.dataset.actionsQueueAssetPanelLoaded = '0';
+				BootstrapTooltips.DisposeTooltipsWithin( content );
+				content.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>`;
+			} )
+			.finally( () => {
+				if ( panel.dataset.actionsQueueAssetPanelRequest === requestKey ) {
+					delete panel.dataset.actionsQueueAssetPanelLoading;
+					delete panel.dataset.actionsQueueAssetPanelRequest;
+				}
+			} );
 	}
 
 	syncAssetHintVisibility( shell ) {
@@ -353,7 +550,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	findModePanelByTarget( shell, target ) {
 		return [ ...shell.querySelectorAll( '[data-mode-panel="1"]' ) ]
-		.find( ( panel ) => this.getAssetPanelTarget( panel ) === target ) || null;
+			.find( ( panel ) => this.getAssetPanelTarget( panel ) === target ) || null;
 	}
 
 	getAssetPanelTarget( panel ) {
@@ -377,143 +574,6 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		return panel.dataset.actionsQueueAssetPanelLoaded === '1';
 	}
 
-	hydrateRailMetrics() {
-		if ( this.rootEl.dataset.actionsQueueMetricsLoading === '1'
-			|| this.rootEl.dataset.actionsQueueMetricsLoaded === '1' ) {
-			return;
-		}
-
-		const scope = this.rootEl.querySelector( '[data-shield-rail-scope="1"]' );
-		if ( scope === null ) {
-			return;
-		}
-
-		if ( this.rootEl.dataset.actionsQueueMetricsAction === undefined ) {
-			return;
-		}
-		const metricsAction = this.parseJsonDataset( this.rootEl.dataset.actionsQueueMetricsAction );
-		if ( ObjectOps.IsEmpty( metricsAction ) ) {
-			return;
-		}
-
-		this.rootEl.dataset.actionsQueueMetricsLoading = '1';
-
-		return this.requestRailMetrics( metricsAction );
-	}
-
-	requestRailMetrics( metricsAction ) {
-		return ( new AjaxService() )
-		.send( metricsAction, false, true )
-		.then( ( resp ) => {
-			if ( resp.success ) {
-				this.applyRailMetrics( resp.data );
-				this.rootEl.dataset.actionsQueueMetricsLoaded = '1';
-			}
-		} )
-		.catch( () => null )
-		.finally( () => {
-			delete this.rootEl.dataset.actionsQueueMetricsLoading;
-		} );
-	}
-
-	refreshRailMetrics() {
-		if ( this.rootEl === null || this.rootEl.dataset.actionsQueueMetricsAction === undefined ) {
-			return Promise.resolve();
-		}
-
-		const metricsAction = this.parseJsonDataset( this.rootEl.dataset.actionsQueueMetricsAction );
-		if ( ObjectOps.IsEmpty( metricsAction ) ) {
-			return Promise.resolve();
-		}
-
-		return this.requestRailMetrics( metricsAction );
-	}
-
-	applyRailMetrics( data ) {
-		const scope = this.rootEl.querySelector( '[data-shield-rail-scope="1"]' );
-		if ( scope === null ) {
-			return;
-		}
-
-		this.updateAccent( scope, data.rail_accent_status );
-
-		Object.entries( data.tabs ).forEach( ( [ key, tabData ] ) => {
-			this.updateRailItem( scope, key, tabData );
-		} );
-	}
-
-	updateRailItem( scope, key, tabData ) {
-		const button = scope.querySelector( `[data-shield-rail-key="${key}"]` );
-		if ( button === null ) {
-			return;
-		}
-
-		this.updateRailStatus( button, tabData.status );
-		this.updateRailMarker( button, tabData.status );
-		this.updateRailBadge( button, tabData.count, tabData.status );
-	}
-
-	updateRailStatus( button, status ) {
-		button.dataset.shieldRailStatus = status;
-	}
-
-	updateRailMarker( button, status ) {
-		const marker = button.querySelector( '.shield-rail-sidebar__icon, .shield-rail-sidebar__pip' );
-		if ( marker === null ) {
-			return;
-		}
-
-		const classPrefix = marker.classList.contains( 'shield-rail-sidebar__icon' )
-			? 'shield-rail-sidebar__icon--'
-			: 'shield-rail-sidebar__pip--';
-
-		[ ...marker.classList ]
-		.filter( ( className ) => className.startsWith( classPrefix ) )
-		.forEach( ( className ) => marker.classList.remove( className ) );
-
-		marker.classList.add( `${classPrefix}${status}` );
-	}
-
-	updateRailBadge( button, count, status ) {
-		let badge = button.querySelector( '.shield-rail-sidebar__badge' );
-		if ( badge === null ) {
-			badge = document.createElement( 'span' );
-			button.appendChild( badge );
-		}
-
-		if ( count === null || count === undefined ) {
-			badge.className = 'shield-badge badge-disabled shield-rail-sidebar__badge shield-rail-sidebar__badge--placeholder';
-			badge.textContent = '-';
-			return;
-		}
-
-		const badgeStatus = status === 'neutral' ? 'disabled' : status;
-		badge.className = `shield-badge badge-${badgeStatus} shield-rail-sidebar__badge`;
-		badge.textContent = String( count );
-	}
-
-	updateAccent( scope, status ) {
-		const accent = scope.querySelector( '.shield-rail-sidebar__accent' );
-		if ( accent === null ) {
-			return;
-		}
-
-		[ ...accent.classList ]
-		.filter( ( className ) => className.startsWith( 'shield-rail-sidebar__accent--' ) )
-		.forEach( ( className ) => accent.classList.remove( className ) );
-
-		accent.classList.add( `shield-rail-sidebar__accent--${status}` );
-	}
-
-	buildLoadingMarkup() {
-		const message = this.rootEl?.dataset?.actionsPaneLoading || 'Loading scan details...';
-		return `<div class="text-muted small" data-actions-queue-pane-placeholder="1">${this.escapeHtml( message )}</div>`;
-	}
-
-	getPaneRenderAction( pane ) {
-		return this.parseJsonDataset( pane.dataset.actionsQueueRenderAction );
-	}
-
 	handleMaintenanceActionClick( evt ) {
 		const target = evt.target instanceof Element
 			? evt.target.closest( '[data-actions-queue-maintenance-action]' )
@@ -529,6 +589,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 		evt.preventDefault();
 		this.rootEl = root;
+		this.shellEl = this.getShell( root );
 		BootstrapTooltips.HideAndDisposeTooltip( target );
 
 		const actionData = this.parseJsonDataset( target.dataset.actionsQueueMaintenanceAction );
@@ -536,38 +597,217 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const pane = this.getPaneByKey( 'maintenance' );
-		if ( pane === null ) {
+		( new AjaxService() )
+			.send( actionData )
+			.then( ( resp ) => {
+				if ( !resp?.success ) {
+					return;
+				}
+
+				return this.refreshAfterNestedAction( true );
+			} )
+			.catch( () => null );
+	}
+
+	refreshAfterNestedAction( reloadDetail ) {
+		const openAssetPanelTarget = reloadDetail
+			? this.getOpenAssetPanelTarget()
+			: '';
+
+		return this.loadGroupsLayer( {
+			showPlaceholder: false,
+			includeSelectedGroup: this.selectedGroup !== null,
+			includeLandingRefresh: true,
+		} ).then( ( data ) => {
+			if ( data === null || data?.landing_refresh?.queue_is_empty || !reloadDetail || this.selectedGroup === null ) {
+				return data;
+			}
+
+			return this.loadDetailLayer( false ).then( ( detailData ) => {
+				if ( openAssetPanelTarget.length > 0 ) {
+					this.restoreOpenAssetPanel( openAssetPanelTarget );
+				}
+				return detailData || data;
+			} );
+		} );
+	}
+
+	getOpenAssetPanelTarget() {
+		const assetShell = this.rootEl?.querySelector( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) || null;
+		const openPanel = assetShell?.querySelector( '[data-mode-panel="1"].is-open' ) || null;
+		return openPanel instanceof HTMLElement
+			? this.getAssetPanelTarget( openPanel )
+			: '';
+	}
+
+	restoreOpenAssetPanel( panelTarget ) {
+		if ( panelTarget.length < 1 ) {
 			return;
 		}
 
-		( new AjaxService() )
-		.send( actionData )
-		.then( ( resp ) => {
-			if ( !resp?.success ) {
-				return;
-			}
-
-			return this.refreshPane( pane ).then( () => this.refreshRailMetrics() );
-		} )
-		.catch( () => null );
+		const trigger = [ ...( this.rootEl?.querySelectorAll( '[data-mode-tile="1"]' ) || [] ) ]
+			.find( ( item ) => String( item.dataset.modePanelTarget || '' ).trim() === panelTarget ) || null;
+		if ( trigger instanceof HTMLElement ) {
+			trigger.click();
+		}
 	}
 
-	getPaneByKey( key ) {
-		return this.rootEl?.querySelector( `[data-actions-queue-pane-key="${key}"]` ) || null;
+	cancelLayerRequest( layerKey ) {
+		if ( this.layerRequests[ layerKey ] !== undefined ) {
+			this.layerRequests[ layerKey ] = `cancelled-${Date.now()}`;
+		}
 	}
 
-	findTargetPane( item ) {
-		const targetSelector = ( item.dataset.bsTarget || item.getAttribute( 'href' ) || '' ).trim();
-		if ( targetSelector.length < 2 || !targetSelector.startsWith( '#' ) ) {
-			return null;
+	resetGroupsLayerStrip( shell ) {
+		const defaultState = this.defaultLayerState.groups;
+		const drillCtrl = this.getDrillDownController();
+		if ( defaultState === undefined || drillCtrl === null ) {
+			return;
 		}
 
-		return this.rootEl.querySelector( targetSelector );
+		drillCtrl.updateStripText( shell, 1, defaultState.text );
+		drillCtrl.updateStripBadge( shell, 1, defaultState.badge, defaultState.status );
+		drillCtrl.updateLayerContext( shell, 1, defaultState.context );
 	}
 
-	isPaneActive( pane ) {
-		return pane.classList.contains( 'active' ) || pane.classList.contains( 'show' );
+	resetDetailLayer( shell ) {
+		const defaultState = this.defaultLayerState.detail;
+		const drillCtrl = this.getDrillDownController();
+		if ( defaultState === undefined || drillCtrl === null ) {
+			return;
+		}
+
+		const detailLayer = this.getLayerByKey( shell, 'detail' );
+		const detailBody = detailLayer?.querySelector( '.drill-layer__body' ) || null;
+		if ( detailBody !== null ) {
+			BootstrapTooltips.DisposeTooltipsWithin( detailBody );
+			detailBody.innerHTML = '';
+		}
+
+		drillCtrl.updateStripText( shell, 2, defaultState.text );
+		drillCtrl.updateStripBadge( shell, 2, defaultState.badge, defaultState.status );
+		drillCtrl.updateLayerContext( shell, 2, defaultState.context );
+	}
+
+	captureDefaultLayerState( shell ) {
+		if ( shell === null ) {
+			return {};
+		}
+
+		return {
+			groups: this.readLayerState( shell, 'groups' ),
+			detail: this.readLayerState( shell, 'detail' ),
+		};
+	}
+
+	readLayerState( shell, layerKey ) {
+		const layer = this.getLayerByKey( shell, layerKey );
+		const strip = layer?.querySelector( '[data-drill-strip="1"]' ) || null;
+		const title = strip?.querySelector( '.drill-strip__title' ) || null;
+		const badge = strip?.querySelector( '.shield-badge' ) || null;
+
+		return {
+			text: title?.textContent || '',
+			badge: badge?.textContent || '',
+			status: this.readBadgeStatus( badge ),
+			context: this.parseJsonDataset( layer?.dataset.drillLayerContext || '{}' ),
+		};
+	}
+
+	readBadgeStatus( badge ) {
+		if ( !( badge instanceof HTMLElement ) ) {
+			return 'neutral';
+		}
+
+		const statusClass = [ ...badge.classList ]
+			.find( ( className ) => className.startsWith( 'badge-' ) );
+
+		return statusClass ? statusClass.replace( 'badge-', '' ) : 'neutral';
+	}
+
+	readBucketSelection( item ) {
+		return {
+			key: String( item.dataset.drillBucketKey || '' ).trim(),
+			label: String( item.dataset.drillBucketLabel || '' ).trim(),
+			status: String( item.dataset.drillBucketStatus || 'neutral' ).trim(),
+			count: this.parseInteger( item.dataset.drillBucketCount ),
+			stripText: String( item.dataset.drillStripText || '' ).trim(),
+			stripBadge: String( item.dataset.drillStripBadge || '' ).trim(),
+			context: this.parseJsonDataset( item.dataset.drillContext ),
+		};
+	}
+
+	readGroupSelection( item ) {
+		return {
+			key: String( item.dataset.drillGroupKey || '' ).trim(),
+			label: String( item.dataset.drillGroupLabel || '' ).trim(),
+			status: String( item.dataset.drillGroupStatus || 'neutral' ).trim(),
+			count: this.parseInteger( item.dataset.drillGroupCount ),
+			detailShell: String( item.dataset.drillDetailShell || 'direct_table' ).trim(),
+			stripText: String( item.dataset.drillStripText || '' ).trim(),
+			stripBadge: String( item.dataset.drillStripBadge || '' ).trim(),
+			context: this.parseJsonDataset( item.dataset.drillContext ),
+		};
+	}
+
+	buildLoadingContext( context, loadingText ) {
+		return {
+			path: Array.isArray( context.path ) ? context.path : [],
+			focus: String( context.focus || '' ).trim(),
+			next_step: loadingText,
+		};
+	}
+
+	getGroupsLoadingText() {
+		return this.rootEl?.dataset.actionsGroupsLoading || '';
+	}
+
+	getDetailLoadingText() {
+		return this.rootEl?.dataset.actionsDetailLoading || '';
+	}
+
+	getLayerByKey( shell, layerKey ) {
+		return getLayersForShell( shell )
+			.find( ( layer ) => String( layer.dataset.drillLayerKey || '' ).trim() === layerKey ) || null;
+	}
+
+	getLayerIndexByKey( shell, layerKey ) {
+		const layer = this.getLayerByKey( shell, layerKey );
+		return layer === null ? -1 : this.parseInteger( layer.dataset.drillLayer );
+	}
+
+	getDrillDownController() {
+		return window.shieldAppMain?.components?.drill_down || null;
+	}
+
+	buildRenderAction( source, extraData ) {
+		const action = this.parseJsonDataset( source );
+		if ( ObjectOps.IsEmpty( action ) ) {
+			return {};
+		}
+
+		return {
+			...action,
+			...extraData,
+		};
+	}
+
+	applyLayerHtml( body, html ) {
+		BootstrapTooltips.DisposeTooltipsWithin( body );
+		body.innerHTML = html;
+		UiContentActivator.activateCurrentSubtree( body );
+	}
+
+	renderLayerFailure( body, layerKey ) {
+		const message = this.rootEl?.dataset.actionsLayerError || '';
+		const retry = this.rootEl?.dataset.actionsLayerRetry || '';
+
+		BootstrapTooltips.DisposeTooltipsWithin( body );
+		body.innerHTML = `<div class="actions-landing__empty-state"><div>${this.escapeHtml( message )}</div><button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-actions-queue-retry="${this.escapeHtml( layerKey )}">${this.escapeHtml( retry )}</button></div>`;
+	}
+
+	buildLoadingMarkup( message ) {
+		return `<div class="text-muted small" data-actions-queue-pane-placeholder="1">${this.escapeHtml( message )}</div>`;
 	}
 
 	parseJsonDataset( value = '{}' ) {
@@ -579,16 +819,21 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 	}
 
+	parseInteger( value ) {
+		const parsed = parseInt( String( value ?? '0' ), 10 );
+		return Number.isNaN( parsed ) ? 0 : parsed;
+	}
+
 	getErrorMessage() {
-		return this.rootEl.dataset.actionsPaneError || 'Unable to load these scan details. Please try again.';
+		return this.rootEl?.dataset.actionsPaneError || '';
 	}
 
 	escapeHtml( text = '' ) {
 		return String( text )
-		.replace( /&/g, '&amp;' )
-		.replace( /</g, '&lt;' )
-		.replace( />/g, '&gt;' )
-		.replace( /"/g, '&quot;' )
-		.replace( /'/g, '&#39;' );
+			.replace( /&/g, '&amp;' )
+			.replace( /</g, '&lt;' )
+			.replace( />/g, '&gt;' )
+			.replace( /"/g, '&quot;' )
+			.replace( /'/g, '&#39;' );
 	}
 }

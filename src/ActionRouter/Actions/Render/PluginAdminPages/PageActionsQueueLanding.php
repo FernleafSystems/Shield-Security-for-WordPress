@@ -2,12 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -40,22 +39,14 @@ use FernleafSystems\Wordpress\Services\Services;
  *   assessment_rows:list<AssessmentRow>,
  *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
  * }
- * @phpstan-type ScansResultsContract array{
- *   strings:array<string,string>,
- *   vars:array<string,mixed>,
- *   content:array<string,mixed>
- * }
+ * @phpstan-import-type RawDrillLayer from PageDrillDownLandingBase
  */
-class PageActionsQueueLanding extends PageModeLandingBase {
+class PageActionsQueueLanding extends PageDrillDownLandingBase {
+
+	use BuildsActionsQueueLandingData;
 
 	public const SLUG = 'plugin_admin_page_actions_queue_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/actions_queue_landing.twig';
-
-	private ?array $attentionQueryCache = null;
-	private ?array $landingViewDataCache = null;
-	private ?string $activeZoneCache = null;
-	private ?array $scansResultsRenderDataCache = null;
-	private ?array $assessmentRowsByZoneCache = null;
 
 	protected function getLandingTitle() :string {
 		return __( 'Actions Queue', 'wp-simple-firewall' );
@@ -73,13 +64,9 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 		return PluginNavs::MODE_ACTIONS;
 	}
 
-	protected function isLandingInteractive() :bool {
-		return true;
-	}
-
 	protected function getLandingFlags() :array {
 		return [
-			'queue_is_empty' => !$this->shouldRenderScansResultsShell(),
+			'queue_is_empty' => !$this->getQueueSummary()[ 'has_items' ],
 		];
 	}
 
@@ -105,39 +92,76 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 			'zone_scans'             => $zones[ 'scans' ][ 'label' ],
 			'zone_maintenance'       => $zones[ 'maintenance' ][ 'label' ],
 			'pane_loading'           => __( 'Loading scan details...', 'wp-simple-firewall' ),
+			'groups_loading'         => __( 'Loading grouped findings...', 'wp-simple-firewall' ),
+			'detail_loading'         => __( 'Loading scoped results...', 'wp-simple-firewall' ),
 			'pane_load_error'        => __( 'Unable to load these scan details. Please try again.', 'wp-simple-firewall' ),
-		];
-	}
-
-	protected function getLandingTiles() :array {
-		return \array_map(
-			static fn( array $zoneTile ) :array => [
-				'key'          => $zoneTile[ 'key' ],
-				'panel_target' => $zoneTile[ 'panel_target' ],
-				'is_enabled'   => $zoneTile[ 'is_enabled' ],
-				'is_disabled'  => $zoneTile[ 'is_disabled' ],
-			],
-			$this->getZoneTiles()
-		);
-	}
-
-	protected function getLandingPanel() :array {
-		return [
-			'active_target' => $this->getActiveZone(),
+			'layer_load_error'       => __( 'Unable to load this step. Please try again.', 'wp-simple-firewall' ),
+			'layer_retry'            => __( 'Retry', 'wp-simple-firewall' ),
 		];
 	}
 
 	protected function getLandingVars() :array {
 		$viewData = $this->getLandingViewData();
 
+		return \array_merge( parent::getLandingVars(), [
+			'severity_strip'     => $viewData[ 'severity_strip' ],
+			'zone_tiles'         => $viewData[ 'zone_tiles' ],
+			'all_clear'          => $viewData[ 'all_clear' ],
+			'actions_queue_ajax' => [
+				'groups_render_action' => ActionData::BuildAjaxRender( ActionsQueueDrillDownGroups::class ),
+				'detail_render_action' => ActionData::BuildAjaxRender( ActionsQueueDrillDownDetail::class ),
+			],
+		] );
+	}
+
+	/**
+	 * @return list<RawDrillLayer>
+	 */
+	protected function getLayers() :array {
+		$summary = $this->getQueueSummary();
+
 		return [
-			'severity_strip' => $viewData[ 'severity_strip' ],
-			'zone_tiles'     => $viewData[ 'zone_tiles' ],
-			'all_clear'      => $viewData[ 'all_clear' ],
-			'scans_results'  => $this->shouldRenderScansResultsShell()
-				? $this->getScansResultsRenderData()
-				: $this->buildEmptyScansResultsContract(),
+			[
+				'key'          => 'buckets',
+				'label'        => __( 'Triage buckets', 'wp-simple-firewall' ),
+				'badge'        => $this->buildItemBadge( $summary[ 'total_items' ] ),
+				'badge_status' => $summary[ 'severity' ],
+				'body'         => $this->renderBucketsLayer(),
+				'context'      => [
+					'path'      => [ __( 'Triage buckets', 'wp-simple-firewall' ) ],
+					'focus'     => __( 'What is urgent, what can wait.', 'wp-simple-firewall' ),
+					'next_step' => __( 'Choose a bucket to start.', 'wp-simple-firewall' ),
+				],
+			],
+			[
+				'key'          => 'groups',
+				'label'        => __( 'Grouped findings', 'wp-simple-firewall' ),
+				'badge'        => __( 'Select', 'wp-simple-firewall' ),
+				'badge_status' => 'neutral',
+				'body'         => '',
+				'context'      => [
+					'path'      => [],
+					'focus'     => '',
+					'next_step' => '',
+				],
+			],
+			[
+				'key'          => 'detail',
+				'label'        => __( 'Scoped results', 'wp-simple-firewall' ),
+				'badge'        => __( 'Select', 'wp-simple-firewall' ),
+				'badge_status' => 'neutral',
+				'body'         => '',
+				'context'      => [
+					'path'      => [],
+					'focus'     => '',
+					'next_step' => '',
+				],
+			],
 		];
+	}
+
+	protected function getActiveLayerIndex() :int {
+		return 0;
 	}
 
 	/**
@@ -151,20 +175,6 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 	 */
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
-	}
-
-	private function shouldRenderScansResultsShell() :bool {
-		if ( $this->getQueueSummary()[ 'has_items' ] ) {
-			return true;
-		}
-
-		foreach ( $this->getZoneTiles() as $zoneTile ) {
-			if ( $zoneTile[ 'key' ] === 'maintenance' && !empty( $zoneTile[ 'items' ] ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -181,178 +191,10 @@ class PageActionsQueueLanding extends PageModeLandingBase {
 		return $this->getLandingViewData()[ 'zones_indexed' ];
 	}
 
-	/**
-	 * @return list<ZoneTile>
-	 */
-	private function getZoneTiles() :array {
-		return $this->getLandingViewData()[ 'zone_tiles' ];
-	}
-
-	private function getActiveZone() :string {
-		if ( $this->activeZoneCache === null ) {
-			$requestedZone = sanitize_key( $this->getTextInputFromRequestOrActionData( 'zone' ) );
-			$enabledZones = \array_column(
-				\array_filter(
-					$this->getZoneTiles(),
-					static fn( array $zoneTile ) :bool => $zoneTile[ 'is_enabled' ]
-				),
-				'key'
-			);
-			$this->activeZoneCache = \in_array( $requestedZone, $enabledZones, true )
-				? $requestedZone
-				: '';
-		}
-
-		return $this->activeZoneCache;
-	}
-
-	private function getScansResultsRenderData() :array {
-		if ( $this->scansResultsRenderDataCache === null ) {
-			$this->scansResultsRenderDataCache = $this->buildScansResultsRenderData();
-		}
-
-		return $this->scansResultsRenderDataCache;
-	}
-
-	/**
-	 * @return ScansResultsContract
-	 */
-	private function buildEmptyScansResultsContract() :array {
-		return [
-			'strings' => [
-				'pane_loading' => __( 'Loading scan details...', 'wp-simple-firewall' ),
-				'no_issues'    => __( 'No issues found in this section.', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'rail'            => [],
-				'rail_tabs'       => [],
-				'metrics_action'  => [],
-				'preload_action'  => [],
-				'summary_rows'    => [],
-				'assessment_rows' => [],
-			],
-			'content' => [
-				'section' => [
-					'wordpress'       => '',
-					'plugins'         => '',
-					'themes'          => '',
-					'vulnerabilities' => '',
-					'malware'         => '',
-					'filelocker'      => '',
-				],
-			],
-		];
-	}
-
-	/**
-	 * @return ScansResultsContract
-	 */
-	protected function buildScansResultsRenderData() :array {
-		return ( new ActionsQueueScanRailBuilder() )->buildFromLandingViewData(
-			$this->getLandingViewData(),
-			( new ActionsQueueScanRailMetricsBuilder() )->build( $this->getAttentionQuery() )
+	private function buildItemBadge( int $itemCount ) :string {
+		return \sprintf(
+			_n( '%s item', '%s items', $itemCount, 'wp-simple-firewall' ),
+			$itemCount
 		);
-	}
-
-	/**
-	 * @return array{
-	 *   summary:array{
-	 *     has_items:bool,
-	 *     total_items:int,
-	 *     severity:string,
-	 *     icon_class:string,
-	 *     subtext:string
-	 *   },
-	 *   zones_indexed:array<string,array{
-	 *     slug:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     severity:string,
-	 *     total_issues:int,
-	 *     items:list<array<string,mixed>>
-	 *   }>,
-	 *   zone_tiles:list<ZoneTile>,
-	 *   severity_strip:array{
-	 *     severity:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     summary_text:string,
-	 *     subtext:string,
-	 *     total_items:int,
-	 *     critical_count:int,
-	 *     warning_count:int
-	 *   },
-	 *   all_clear:array{
-	 *     title:string,
-	 *     subtitle:string,
-	 *     icon_class:string,
-	 *     zone_chips:list<array{
-	 *       slug:string,
-	 *       label:string,
-	 *       icon_class:string,
-	 *       severity:string
-	 *     }>
-	 *   }
-	 * }
-	 */
-	private function getLandingViewData() :array {
-		if ( $this->landingViewDataCache === null ) {
-			$this->landingViewDataCache = ( new ActionsQueueLandingViewBuilder() )
-				->build( $this->getAttentionQuery(), $this->getAssessmentRowsByZone(), $this->buildSummarySubtext() );
-		}
-
-		return $this->landingViewDataCache;
-	}
-
-	/**
-	 * @return AssessmentRowsByZone
-	 */
-	private function getAssessmentRowsByZone() :array {
-		if ( $this->assessmentRowsByZoneCache === null ) {
-			$this->assessmentRowsByZoneCache = $this->buildAssessmentRowsByZone();
-		}
-
-		return $this->assessmentRowsByZoneCache;
-	}
-
-	/**
-	 * @return AssessmentRowsByZone
-	 */
-	protected function buildAssessmentRowsByZone() :array {
-		$builder = new ActionsQueueLandingAssessmentBuilder();
-
-		return [
-			'scans'       => $builder->buildForZone( 'scans' ),
-			'maintenance' => $builder->buildForZone( 'maintenance' ),
-		];
-	}
-
-	/**
-	 * @return AttentionQuery
-	 */
-	private function getAttentionQuery() :array {
-		if ( $this->attentionQueryCache === null ) {
-			$this->attentionQueryCache = $this->buildAttentionQuery();
-		}
-
-		return $this->attentionQueryCache;
-	}
-
-	/**
-	 * @return AttentionQuery
-	 */
-	protected function buildAttentionQuery() :array {
-		return self::con()->comps->site_query->attention();
-	}
-
-	protected function buildSummarySubtext() :string {
-		$latestScanAt = (int)\max( self::con()->comps->site_query->overview()[ 'scans' ][ 'latest_completed_at' ] );
-
-		return $latestScanAt > 0
-			? sprintf(
-				__( 'Last scan: %s', 'wp-simple-firewall' ),
-				Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
-			)
-			: '';
 	}
 }

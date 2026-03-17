@@ -1,0 +1,57 @@
+<div class="actions-queue-groups"
+	 data-actions-queue-groups="1"
+	 data-actions-queue-bucket-key="{{ bucket_key|e('html_attr') }}"
+	 data-actions-queue-bucket-label="{{ bucket_label|e('html_attr') }}"
+	 data-actions-queue-bucket-status="{{ bucket_status|e('html_attr') }}"
+	 data-actions-queue-bucket-count="{{ bucket_item_count|e('html_attr') }}">
+	<div class="actions-queue-groups__intro">
+		<div class="actions-queue-groups__eyebrow">{{ bucket_label }}</div>
+		<div class="actions-queue-groups__summary">{{ strip_text }}</div>
+	</div>
+
+	{% if groups is empty %}
+		<div class="actions-landing__empty-state">
+			{{ empty_message }}
+		</div>
+	{% else %}
+		<div class="actions-queue-groups__grid">
+			{% for group in groups %}
+				<article class="actions-queue-group-card shield-card status-{{ group.status }}">
+					<div class="shield-card-accent status-{{ group.status }}"></div>
+					<div class="actions-queue-group-card__header">
+						<div class="actions-queue-group-card__title-wrap">
+							<div class="actions-queue-group-card__icon">
+								<i class="{{ group.icon_class }}" aria-hidden="true"></i>
+							</div>
+							<div>
+								<div class="actions-queue-group-card__title">{{ group.label }}</div>
+								<div class="actions-queue-group-card__narrative">{{ group.narrative }}</div>
+							</div>
+						</div>
+						<span class="shield-badge badge-{{ group.status }}">{{ group.item_count }}</span>
+					</div>
+					<div class="actions-queue-group-card__next-move">{{ group.next_move }}</div>
+					<div class="actions-queue-group-card__footer">
+						<button type="button"
+								class="btn btn-sm btn-outline-secondary"
+								data-drill-target="detail"
+								data-drill-bucket-key="{{ bucket_key|e('html_attr') }}"
+								data-drill-bucket-label="{{ bucket_label|e('html_attr') }}"
+								data-drill-bucket-status="{{ bucket_status|e('html_attr') }}"
+								data-drill-bucket-count="{{ bucket_item_count|e('html_attr') }}"
+								data-drill-group-key="{{ group.key|e('html_attr') }}"
+								data-drill-group-label="{{ group.label|e('html_attr') }}"
+								data-drill-group-status="{{ group.status|e('html_attr') }}"
+								data-drill-group-count="{{ group.item_count|e('html_attr') }}"
+								data-drill-detail-shell="{{ group.detail_shell|e('html_attr') }}"
+								data-drill-strip-text="{{ group.strip_text|e('html_attr') }}"
+								data-drill-strip-badge="{{ group.strip_badge|e('html_attr') }}"
+								data-drill-context="{{ group.context|json_encode|e('html_attr') }}">
+							{{ cta_label }}
+						</button>
+					</div>
+				</article>
+			{% endfor %}
+		</div>
+	{% endif %}
+</div>

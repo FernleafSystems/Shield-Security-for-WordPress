@@ -1,0 +1,15 @@
+<div class="shield-needs-attention__all-clear-card mb-3" data-actions-queue-section="all-clear-context">
+	<div class="shield-needs-attention__all-clear-accent"></div>
+	<div class="shield-needs-attention__all-clear-shield">
+		<i class="{{ all_clear.icon_class }}" aria-hidden="true"></i>
+	</div>
+	<div class="shield-needs-attention__all-clear-title">{{ all_clear.title }}</div>
+	<div class="shield-needs-attention__all-clear-subtitle">{{ all_clear.subtitle }}</div>
+	<div class="shield-needs-attention__chips">
+		{% for chip in all_clear.zone_chips %}
+			<span class="shield-needs-attention__chip is-{{ chip.severity }}">
+				<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
+			</span>
+		{% endfor %}
+	</div>
+</div>
