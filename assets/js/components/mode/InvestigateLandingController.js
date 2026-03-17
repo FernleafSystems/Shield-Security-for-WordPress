@@ -1,9 +1,11 @@
+import { Tab } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { getActiveLayerIndex, getLayersForShell } from "./DrillDownShared";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
@@ -14,6 +16,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	run() {
 		this.livePanelPoller = null;
 		this.inlineTabs = new InvestigateInlineTabs();
+		this.subjectTiles = new Map();
+		this.idleState = this.buildEmptyIdleState();
+		this.panelRequestKey = '';
+
 		this.bindHandlers();
 		this.initializeCurrentRoot();
 	}
@@ -24,6 +30,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 		this.hasBoundHandlers = true;
 
+		shieldEventsHandler_Main.add_Click(
+			'[data-investigate-landing="1"] [data-drill-target="panel"]',
+			( subjectTile, evt ) => this.handleSubjectSelectionClick( subjectTile, evt ),
+			false
+		);
 		shieldEventsHandler_Main.add_Submit(
 			'[data-investigate-landing="1"] form[data-investigate-panel-form="1"]',
 			( form, evt ) => this.handlePanelFormSubmit( form, evt ),
@@ -40,8 +51,57 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			false
 		);
 
-		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => this.handleModePanelOpened( evt ) );
-		document.addEventListener( 'shield:mode-panel-closed', ( evt ) => this.handleModePanelClosed( evt ) );
+		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
+		document.addEventListener( 'click', ( evt ) => this.handlePivotClick( evt ) );
+	}
+
+	initializeCurrentRoot() {
+		this.rootEl = this.getRoot();
+		this.shellEl = this.getShell( this.rootEl );
+		this.panelEl = this.getPanel( this.rootEl );
+		this.subjectTiles = this.collectSubjectTiles( this.rootEl );
+		this.idleState = this.collectIdleState( this.rootEl );
+
+		if ( this.rootEl === null || this.shellEl === null || this.panelEl === null ) {
+			this.stopLivePanelPoller();
+			return;
+		}
+
+		UiContentActivator.activateCurrentWithinRoot( this.rootEl );
+
+		if ( this.isPanelLoaded( this.panelEl ) ) {
+			this.syncPanelChrome( this.panelEl, true );
+			this.syncLivePanelPolling();
+			this.activatePanelHash( window.location.hash );
+			return;
+		}
+
+		this.stopLivePanelPoller();
+	}
+
+	handleSubjectSelectionClick( subjectTile, evt ) {
+		const root = this.rootEl || this.getRoot();
+		if ( root === null || !root.contains( subjectTile ) ) {
+			return;
+		}
+
+		const selection = this.readSubjectSelection( subjectTile );
+		if ( selection.key.length < 1 ) {
+			return;
+		}
+
+		evt.preventDefault();
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		this.panelEl = this.getPanel( root );
+
+		this.openSubjectSelection( selection, {
+			requestData: {
+				...selection.render_action,
+			},
+			historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
+			hash: '',
+		} ).finally();
 	}
 
 	handleAutoSubmitChange( input ) {
@@ -65,13 +125,23 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const renderActionData = this.parsePanelRenderActionData( panel );
-		if ( renderActionData === null ) {
+		const selection = this.getCurrentSelection( panel );
+		if ( selection === null ) {
 			return;
 		}
 
 		evt.preventDefault();
-		this.loadPanelBodyFromRenderAction( panel, renderActionData ).finally();
+		this.loadPanelBodyFromRenderAction(
+			panel,
+			{
+				...selection.render_action,
+			},
+			{
+				selection,
+				historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
+				hash: '',
+			}
+		).finally();
 	}
 
 	handlePanelFormSubmit( form, evt ) {
@@ -80,68 +150,484 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const renderActionData = this.parsePanelRenderActionData( panel );
-		if ( renderActionData === null ) {
+		const selection = this.getCurrentSelection( panel );
+		if ( selection === null ) {
 			return;
 		}
 
 		evt.preventDefault();
 
-		const reqData = { ...renderActionData };
+		const reqData = {
+			...selection.render_action,
+		};
 		( new FormData( form ) ).forEach( ( value, key ) => {
 			reqData[ key ] = typeof value === 'string' ? value : '';
 		} );
 
-		this.loadPanelBodyFromRenderAction( panel, reqData ).finally();
+		this.loadPanelBodyFromRenderAction(
+			panel,
+			reqData,
+			{
+				selection,
+				historyUrl: this.buildLandingUrlForSelection( selection, reqData ),
+				hash: window.location.hash,
+			}
+		).finally();
 	}
 
-	loadPanelBodyFromRenderAction( panel, reqData ) {
+	handlePivotClick( evt ) {
+		if ( evt.defaultPrevented
+			|| evt.button !== 0
+			|| evt.metaKey
+			|| evt.ctrlKey
+			|| evt.shiftKey
+			|| evt.altKey ) {
+			return;
+		}
+
+		const link = evt.target instanceof Element
+			? evt.target.closest( 'a[href]' )
+			: null;
+		if ( link === null
+			|| link.target === '_blank'
+			|| link.hasAttribute( 'download' ) ) {
+			return;
+		}
+
+		const root = this.rootEl || this.getRoot();
+		const panel = this.panelEl || this.getPanel( root );
+		if ( root === null || panel === null || !panel.contains( link ) ) {
+			return;
+		}
+
+		const pivot = this.resolvePivotSelection( link.href );
+		if ( pivot === null ) {
+			return;
+		}
+
+		evt.preventDefault();
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		this.panelEl = panel;
+
+		this.openSubjectSelection( pivot.selection, {
+			requestData: pivot.requestData,
+			historyUrl: pivot.historyUrl,
+			hash: pivot.hash,
+		} ).finally();
+	}
+
+	handleDrillBack( evt ) {
+		const root = this.rootEl || this.getRoot();
+		const shell = evt.target;
+		if ( root === null || !( shell instanceof HTMLElement ) || !root.contains( shell ) ) {
+			return;
+		}
+
+		const layerIndex = parseInt( String( evt.detail?.layer_index ?? -1 ), 10 );
+		if ( layerIndex > 0 ) {
+			return;
+		}
+
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		this.panelEl = this.getPanel( root );
+		this.cancelPanelRequest();
+		this.stopLivePanelPoller();
+		this.resetLandingToIdle();
+	}
+
+	openSubjectSelection( selection, { requestData, historyUrl, hash = '' } = {} ) {
+		if ( this.shellEl === null || this.panelEl === null ) {
+			return Promise.resolve();
+		}
+
+		const drillCtrl = this.getDrillDownController();
+		const panelLayerIndex = this.getLayerIndexByKey( this.shellEl, 'panel' );
+		if ( drillCtrl === null || panelLayerIndex < 0 ) {
+			return Promise.resolve();
+		}
+
+		this.stopLivePanelPoller();
+		this.applySelectionToPanel( this.panelEl, selection );
+		drillCtrl.updateStripText( this.shellEl, 0, selection.strip_text );
+		drillCtrl.updateStripBadge(
+			this.shellEl,
+			0,
+			selection.strip_badge,
+			selection.badge_status
+		);
+		drillCtrl.updateLayerContext(
+			this.shellEl,
+			1,
+			this.buildLoadingContext( selection.context, this.getPanelLoadingText() )
+		);
+		drillCtrl.drillTo( this.shellEl, panelLayerIndex );
+
+		return this.loadPanelBodyFromRenderAction(
+			this.panelEl,
+			requestData,
+			{
+				selection,
+				historyUrl,
+				hash,
+			}
+		);
+	}
+
+	loadPanelBodyFromRenderAction( panel, reqData, { selection = null, historyUrl = '', hash = '' } = {} ) {
 		if ( !reqData || typeof reqData !== 'object' || Object.keys( reqData ).length < 1 ) {
 			return Promise.resolve();
 		}
 
+		const nextSelection = selection || this.getCurrentSelection( panel );
+		const requestKey = `${Date.now()}-${Math.random()}`;
+		this.panelRequestKey = requestKey;
+
 		this.renderPanelLoadingMarkup( panel );
 		this.setPanelLoadingState( panel, true );
+
 		return ( new AjaxService() )
-		.send( reqData, false, true )
-		.then( ( resp ) => {
-			const renderOutput = ( resp && resp.success && resp.data && typeof resp.data.render_output === 'string' )
-				? resp.data.render_output
-				: '';
-			if ( this.applyRenderOutputToPanel( panel, renderOutput ) ) {
-				this.setPanelLoadedState( panel, true );
-				return;
-			}
-			this.handlePanelLoadFailure( panel );
-		} )
-		.catch( () => {
-			this.handlePanelLoadFailure( panel );
-		} )
-		.finally( () => {
-			this.setPanelLoadingState( panel, false );
-		} );
+			.send( reqData, false, true )
+			.then( ( resp ) => {
+				if ( this.panelRequestKey !== requestKey ) {
+					return;
+				}
+
+				const renderOutput = ( resp && resp.success && resp.data && typeof resp.data.render_output === 'string' )
+					? resp.data.render_output
+					: '';
+				if ( this.applyRenderOutputToPanel( panel, renderOutput ) ) {
+					this.setPanelLoadedState( panel, true );
+					this.syncPanelLivePolling( panel );
+					this.finalizePanelRequestState( nextSelection, historyUrl, true );
+					this.activatePanelHash( hash );
+					return;
+				}
+
+				this.handlePanelLoadFailure( panel, nextSelection, historyUrl );
+			} )
+			.catch( () => {
+				if ( this.panelRequestKey === requestKey ) {
+					this.handlePanelLoadFailure( panel, nextSelection, historyUrl );
+				}
+			} )
+			.finally( () => {
+				if ( this.panelRequestKey === requestKey ) {
+					this.setPanelLoadingState( panel, false );
+					this.panelRequestKey = '';
+				}
+			} );
 	}
 
 	findPanelFromElement( el ) {
-		return el.closest( '[data-investigate-panel]' );
+		return el.closest( '[data-investigate-panel="1"]' );
 	}
 
-	parsePanelRenderActionData( panel ) {
-		const rawJson = panel.dataset.investigateRenderAction || '';
-		if ( rawJson.length === 0 ) {
+	getCurrentSelection( panel = this.panelEl ) {
+		if ( !( panel instanceof HTMLElement ) ) {
 			return null;
 		}
-		return this.parseJsonObject( rawJson );
+
+		const subjectKey = String( panel.dataset.investigatePanelSubject || '' ).trim();
+		return this.subjectTiles.get( subjectKey ) || null;
 	}
 
-	parseJsonObject( rawJson ) {
+	applySelectionToPanel( panel, selection ) {
+		panel.dataset.investigatePanelSubject = selection.key;
+		panel.dataset.investigatePanelLive = selection.is_live ? '1' : '0';
+		panel.dataset.investigatePanelLoaded = '0';
+		panel.dataset.investigateRenderAction = JSON.stringify( selection.render_action );
+		this.clearPanelChrome( panel );
+	}
+
+	resetLandingToIdle() {
+		if ( this.shellEl === null || this.panelEl === null ) {
+			return;
+		}
+
+		const drillCtrl = this.getDrillDownController();
+		if ( drillCtrl !== null ) {
+			drillCtrl.updateStripText( this.shellEl, 0, this.idleState.strip_text );
+			drillCtrl.updateStripBadge(
+				this.shellEl,
+				0,
+				this.idleState.strip_badge,
+				this.idleState.badge_status
+			);
+			drillCtrl.updateLayerContext( this.shellEl, 0, this.idleState.context );
+			drillCtrl.updateLayerContext( this.shellEl, 1, this.buildEmptyContext() );
+		}
+
+		this.panelEl.dataset.investigatePanelSubject = '';
+		this.panelEl.dataset.investigatePanelLive = '0';
+		this.panelEl.dataset.investigatePanelLoaded = '0';
+		delete this.panelEl.dataset.investigateRenderAction;
+		this.clearPanelChrome( this.panelEl );
+		this.replaceHistoryUrl( this.buildLandingUrlForSelection( null, {} ) );
+	}
+
+	clearPanelChrome( panel ) {
+		const panelHeader = this.getPanelHeaderContainer( panel );
+		const panelTabs = panel.querySelector( '[data-investigate-panel-tabs="1"]' );
+		const panelContent = this.getPanelContentContainer( panel );
+
+		if ( panelHeader !== null ) {
+			panelHeader.innerHTML = '';
+		}
+		if ( panelTabs !== null ) {
+			panelTabs.innerHTML = '';
+		}
+		if ( panelContent !== null ) {
+			BootstrapTooltips.DisposeTooltipsWithin( panelContent );
+			panelContent.innerHTML = '';
+		}
+	}
+
+	cancelPanelRequest() {
+		if ( this.panelRequestKey.length > 0 ) {
+			this.panelRequestKey = `cancelled-${Date.now()}`;
+		}
+	}
+
+	readSubjectSelection( subjectTile ) {
+		const context = JSON.parse( subjectTile.dataset.investigateContext );
+		const renderAction = JSON.parse( subjectTile.dataset.investigateRenderAction );
+
+		return {
+			key: String( subjectTile.dataset.investigateSubject || '' ).trim(),
+			strip_text: String( subjectTile.dataset.investigateStripText || '' ).trim(),
+			strip_badge: String( subjectTile.dataset.investigateStripBadge || '' ).trim(),
+			badge_status: String( subjectTile.dataset.investigateStripBadgeStatus ).trim(),
+			context,
+			render_action: renderAction,
+			lookup_key: String( subjectTile.dataset.investigateLookupKey || '' ).trim(),
+			is_live: subjectTile.dataset.investigateIsLive === '1',
+		};
+	}
+
+	resolvePivotSelection( href ) {
+		let url;
 		try {
-			const parsed = JSON.parse( rawJson );
-			return ( parsed && typeof parsed === 'object' ) ? parsed : null;
+			url = new URL( href, window.location.href );
 		}
 		catch ( e ) {
 			return null;
 		}
+
+		if ( url.origin !== window.location.origin || !url.searchParams.has( 'page' ) ) {
+			return null;
+		}
+
+		const currentUrl = new URL( window.location.href );
+		const page = String( url.searchParams.get( 'page' ) || '' ).trim();
+		const currentPage = String( currentUrl.searchParams.get( 'page' ) || '' ).trim();
+		const nav = String( url.searchParams.get( 'nav' ) || '' ).trim();
+		const subnav = String( url.searchParams.get( 'nav_sub' ) || '' ).trim();
+		if ( page.length < 1
+			|| currentPage.length < 1
+			|| page !== currentPage
+			|| nav.length < 1
+			|| subnav.length < 1 ) {
+			return null;
+		}
+
+		const selection = [ ...this.subjectTiles.values() ]
+			.find( ( candidate ) => {
+				const route = this.getSelectionRoute( candidate );
+				return route.nav === nav && route.subnav === subnav;
+			} ) || null;
+		if ( selection === null ) {
+			return null;
+		}
+
+		const requestData = {
+			...selection.render_action,
+		};
+		if ( selection.lookup_key.length > 0 ) {
+			const lookupValue = String( url.searchParams.get( selection.lookup_key ) || '' ).trim();
+			if ( lookupValue.length > 0 ) {
+				requestData[ selection.lookup_key ] = lookupValue;
+			}
+		}
+
+		return {
+			selection,
+			requestData,
+			historyUrl: this.buildLandingUrlForSelection( selection, requestData, url.hash ),
+			hash: url.hash,
+		};
+	}
+
+	collectSubjectTiles( root ) {
+		const tiles = new Map();
+		if ( root === null ) {
+			return tiles;
+		}
+
+		root.querySelectorAll( '[data-investigate-subject][data-investigate-render-action]' ).forEach( ( item ) => {
+			const selection = this.readSubjectSelection( item );
+			if ( selection.key.length > 0 ) {
+				tiles.set( selection.key, selection );
+			}
+		} );
+
+		return tiles;
+	}
+
+	collectIdleState( root ) {
+		if ( root === null ) {
+			return this.buildEmptyIdleState();
+		}
+
+		return {
+			strip_text: String( root.dataset.investigateIdleStripText || '' ).trim(),
+			strip_badge: String( root.dataset.investigateIdleStripBadge || '' ).trim(),
+			badge_status: String( root.dataset.investigateIdleStripBadgeStatus ).trim(),
+			context: JSON.parse( root.dataset.investigateIdleContext ),
+		};
+	}
+
+	buildEmptyIdleState() {
+		return {
+			strip_text: '',
+			strip_badge: '',
+			badge_status: 'neutral',
+			context: this.buildEmptyContext(),
+		};
+	}
+
+	buildEmptyContext() {
+		return {
+			path: [],
+			focus: '',
+			next_step: '',
+		};
+	}
+
+	buildLoadingContext( context, loadingText ) {
+		return {
+			path: context.path,
+			focus: context.focus,
+			next_step: loadingText,
+		};
+	}
+
+	buildFailureContext( context ) {
+		return {
+			path: context.path,
+			focus: context.focus,
+			next_step: this.getPanelErrorText(),
+		};
+	}
+
+	getRoot() {
+		return document.querySelector( '[data-investigate-landing="1"]' );
+	}
+
+	getShell( root = this.rootEl ) {
+		return root?.querySelector( '[data-drill-shell="1"]' ) || null;
+	}
+
+	getPanel( root = this.rootEl ) {
+		return root?.querySelector( '[data-investigate-panel="1"]' ) || null;
+	}
+
+	getLayerByKey( shell, layerKey ) {
+		return getLayersForShell( shell )
+			.find( ( layer ) => String( layer.dataset.drillLayerKey || '' ).trim() === layerKey ) || null;
+	}
+
+	getLayerIndexByKey( shell, layerKey ) {
+		const layer = this.getLayerByKey( shell, layerKey );
+		if ( layer === null ) {
+			return -1;
+		}
+
+		const parsed = parseInt( String( layer.dataset.drillLayer || '-1' ), 10 );
+		return Number.isNaN( parsed ) ? -1 : parsed;
+	}
+
+	getDrillDownController() {
+		return window.shieldAppMain?.components?.drill_down || null;
+	}
+
+	getPanelLoadingText() {
+		return String( this.rootEl?.dataset?.investigatePanelLoading ?? '' ).trim();
+	}
+
+	updatePanelLayerContext( context ) {
+		const drillCtrl = this.getDrillDownController();
+		if ( this.shellEl === null || drillCtrl === null ) {
+			return;
+		}
+		drillCtrl.updateLayerContext( this.shellEl, 1, context );
+	}
+
+	finalizePanelRequestState( selection, historyUrl, isSuccess ) {
+		if ( selection === null ) {
+			return;
+		}
+
+		if ( historyUrl.length > 0 ) {
+			this.replaceHistoryUrl( historyUrl );
+		}
+
+		this.updatePanelLayerContext(
+			isSuccess
+				? selection.context
+				: this.buildFailureContext( selection.context )
+		);
+	}
+
+	replaceHistoryUrl( nextUrl ) {
+		if ( typeof nextUrl !== 'string' || nextUrl.length < 1 ) {
+			return;
+		}
+		window.history.replaceState( window.history.state || {}, '', nextUrl );
+	}
+
+	buildLandingUrlForSelection( selection, reqData = {}, hash = '' ) {
+		const url = new URL( window.location.href );
+		this.collectKnownLookupKeys().forEach( ( lookupKey ) => {
+			url.searchParams.delete( lookupKey );
+		} );
+		url.searchParams.set( 'nav', 'activity' );
+		url.searchParams.set( 'nav_sub', 'overview' );
+
+		if ( selection !== null && selection.key.length > 0 ) {
+			url.searchParams.set( 'subject', selection.key );
+			if ( selection.lookup_key.length > 0 ) {
+				const lookupValue = String( reqData?.[ selection.lookup_key ] || '' ).trim();
+				if ( lookupValue.length > 0 ) {
+					url.searchParams.set( selection.lookup_key, lookupValue );
+				}
+				else {
+					url.searchParams.delete( selection.lookup_key );
+				}
+			}
+		}
+		else {
+			url.searchParams.delete( 'subject' );
+		}
+
+		url.hash = typeof hash === 'string' ? hash : '';
+		return url.toString();
+	}
+
+	collectKnownLookupKeys() {
+		return Array.from( new Set(
+			[ ...this.subjectTiles.values() ]
+				.map( ( selection ) => selection.lookup_key )
+				.filter( ( lookupKey ) => lookupKey.length > 0 )
+		) );
+	}
+
+	getSelectionRoute( selection ) {
+		return {
+			nav: String( selection?.render_action?.nav || '' ).trim(),
+			subnav: String( selection?.render_action?.nav_sub || '' ).trim(),
+		};
 	}
 
 	extractInnerPageBodyHtml( renderOutput ) {
@@ -182,7 +668,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.syncPanelChrome( panel, true );
 	}
 
-	handlePanelLoadFailure( panel ) {
+	handlePanelLoadFailure( panel, selection = null, historyUrl = '' ) {
 		const panelContent = this.getPanelContentContainer( panel );
 		if ( panelContent !== null ) {
 			BootstrapTooltips.DisposeTooltipsWithin( panelContent );
@@ -190,6 +676,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 		this.syncPanelChrome( panel, true );
 		this.setPanelLoadedState( panel, false );
+		this.stopLivePanelPoller();
+		this.finalizePanelRequestState( selection, historyUrl, false );
 	}
 
 	setPanelLoadingState( panel, isLoading ) {
@@ -211,87 +699,28 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return panel.dataset.investigatePanelLive === '1';
 	}
 
-	handleModePanelOpened( evt ) {
-		if ( !this.isInvestigateModeEvent( evt ) ) {
-			return;
-		}
-
-		this.setLandingHintVisible( false );
-
-		const panel = this.findPanelByTarget( evt.detail?.panel_target || '' );
-		if ( panel === null ) {
-			this.syncLandingHintVisibilityFromPanelState();
+	syncLivePanelPolling() {
+		if ( this.panelEl === null || this.shellEl === null ) {
 			this.stopLivePanelPoller();
 			return;
 		}
-		if ( !this.isLivePanel( panel ) ) {
-			this.stopLivePanelPoller();
-		}
 
-		const afterLoad = () => {
-			if ( this.isLivePanel( panel ) ) {
-				this.startLivePanelPoller( panel );
-			}
-			else {
-				this.stopLivePanelPoller();
-			}
-		};
-
-		if ( this.isPanelLoaded( panel ) ) {
-			this.syncPanelChrome( panel );
-			afterLoad();
+		if ( this.isLivePanel( this.panelEl )
+			&& this.isPanelLoaded( this.panelEl )
+			&& getActiveLayerIndex( getLayersForShell( this.shellEl ) ) === 1 ) {
+			this.startLivePanelPoller( this.panelEl );
 			return;
 		}
 
-		const renderActionData = this.parsePanelRenderActionData( panel );
-		if ( renderActionData === null ) {
-			this.handlePanelLoadFailure( panel );
-			afterLoad();
-			return;
-		}
-
-		this.loadPanelBodyFromRenderAction( panel, renderActionData )
-		.finally( () => afterLoad() );
-	}
-
-	handleModePanelClosed( evt ) {
-		if ( !this.isInvestigateModeEvent( evt ) ) {
-			return;
-		}
-		this.syncLandingHintVisibilityFromPanelState();
 		this.stopLivePanelPoller();
 	}
 
-	isInvestigateModeEvent( evt ) {
-		return evt?.detail?.mode === 'investigate';
-	}
-
-	findPanelByTarget( target ) {
-		const root = this.getRoot();
-		if ( root === null || typeof target !== 'string' || target.length < 1 ) {
-			return null;
+	syncPanelLivePolling( panel ) {
+		if ( this.isLivePanel( panel ) && this.isPanelLoaded( panel ) ) {
+			this.startLivePanelPoller( panel );
+			return;
 		}
-		return root.querySelector( `[data-investigate-panel="${target}"]` );
-	}
-
-	syncLivePanelPolling() {
-		const activePanel = this.modeShellEl
-			? this.modeShellEl.querySelector( '[data-mode-panel="1"].is-open' )
-			: null;
-
-		if ( activePanel && this.isLivePanel( activePanel ) ) {
-			const renderActionData = this.parsePanelRenderActionData( activePanel );
-			if ( !this.isPanelLoaded( activePanel ) && renderActionData !== null ) {
-				this.loadPanelBodyFromRenderAction( activePanel, renderActionData )
-				.finally( () => this.startLivePanelPoller( activePanel ) );
-			}
-			else {
-				this.startLivePanelPoller( activePanel );
-			}
-		}
-		else {
-			this.stopLivePanelPoller();
-		}
+		this.stopLivePanelPoller();
 	}
 
 	startLivePanelPoller( panel ) {
@@ -359,20 +788,15 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 	}
 
-	escapeHtml( text = '' ) {
-		return String( text )
-		.replace( /&/g, '&amp;' )
-		.replace( /</g, '&lt;' )
-		.replace( />/g, '&gt;' )
-		.replace( /"/g, '&quot;' )
-		.replace( /'/g, '&#39;' );
-	}
-
 	buildInlineErrorMarkup() {
-		const message = this.rootEl?.dataset?.investigatePanelError || 'Unable to load this investigation panel. Please try again.';
+		const message = this.getPanelErrorText();
 		return '<div class="alert alert-warning mb-0">'
 			   + this.escapeHtml( message )
 			   + '</div>';
+	}
+
+	getPanelErrorText() {
+		return String( this.rootEl?.dataset?.investigatePanelError ?? '' ).trim();
 	}
 
 	buildPanelLoadingMarkup() {
@@ -383,24 +807,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return clone.outerHTML;
 		}
 
-		const message = this.rootEl?.dataset?.investigatePanelLoading || 'Loading investigation panel...';
-		return `<div class="text-muted small">${this.escapeHtml( message )}</div>`;
-	}
-
-	syncInlineTabsForAllPanels() {
-		if ( this.rootEl === null ) {
-			return;
-		}
-		this.inlineTabs.initializeWithin( this.rootEl );
-	}
-
-	syncPanelHeadersForAllPanels() {
-		if ( this.rootEl === null ) {
-			return;
-		}
-		this.rootEl.querySelectorAll( '[data-investigate-panel]' ).forEach( ( panel ) => {
-			this.syncPanelHeader( panel, true );
-		} );
+		return `<div class="text-muted small">${this.escapeHtml( this.getPanelLoadingText() )}</div>`;
 	}
 
 	syncPanelChrome( panel, clearHeaderIfMissing = false ) {
@@ -432,57 +839,31 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	}
 
 	getPanelContentContainer( panel ) {
-		return panel.querySelector( '[data-investigate-panel-content="1"]' )
-			|| panel.querySelector( '[data-mode-panel-body]' );
+		return panel.querySelector( '[data-investigate-panel-content="1"]' ) || null;
 	}
 
 	getPanelHeaderContainer( panel ) {
 		return panel.querySelector( '[data-investigate-panel-header="1"]' );
 	}
 
-	getLandingHintElement() {
-		if ( this.rootEl === null ) {
-			return null;
-		}
-		return this.rootEl.querySelector( '[data-mode-landing-hint="1"]' );
-	}
-
-	setLandingHintVisible( isVisible ) {
-		const hint = this.getLandingHintElement();
-		if ( hint === null ) {
+	activatePanelHash( hash ) {
+		if ( this.panelEl === null || typeof hash !== 'string' || hash.length < 2 ) {
 			return;
 		}
 
-		hint.classList.toggle( 'd-none', !isVisible );
-		hint.setAttribute( 'aria-hidden', isVisible ? 'false' : 'true' );
-	}
-
-	syncLandingHintVisibilityFromPanelState() {
-		if ( this.modeShellEl === null ) {
-			return;
+		const hashTarget = this.panelEl.querySelector( hash );
+		if ( hashTarget instanceof HTMLElement
+			&& ( hashTarget.dataset.bsToggle === 'tab' || hashTarget.classList.contains( 'nav-link' ) ) ) {
+			Tab.getOrCreateInstance( hashTarget ).show();
 		}
-		this.setLandingHintVisible(
-			this.modeShellEl.querySelector( '[data-mode-panel="1"].is-open' ) === null
-		);
 	}
 
-	initializeCurrentRoot() {
-		this.rootEl = this.getRoot();
-		this.modeShellEl = this.rootEl ? this.rootEl.closest( '[data-mode-shell="1"]' ) : null;
-		if ( this.rootEl === null ) {
-			this.stopLivePanelPoller();
-			return;
-		}
-
-		UiContentActivator.activateCurrentWithinRoot( this.rootEl );
-		this.syncPanelHeadersForAllPanels();
-		this.syncInlineTabsForAllPanels();
-		this.syncLandingHintVisibilityFromPanelState();
-		this.syncLivePanelPolling();
+	escapeHtml( text = '' ) {
+		return String( text )
+			.replace( /&/g, '&amp;' )
+			.replace( /</g, '&lt;' )
+			.replace( />/g, '&gt;' )
+			.replace( /"/g, '&quot;' )
+			.replace( /'/g, '&#39;' );
 	}
-
-	getRoot() {
-		return document.querySelector( '[data-investigate-landing="1"]' );
-	}
-
 }

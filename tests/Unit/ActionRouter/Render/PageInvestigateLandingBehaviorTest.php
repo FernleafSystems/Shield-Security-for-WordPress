@@ -11,9 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -88,119 +86,109 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_landing_vars_include_canonical_investigate_subject_contract() :void {
+	public function test_subject_tiles_expose_drill_selection_contract() :void {
 		$page = new PageInvestigateLandingUnitTestDouble();
-		$vars = $this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$subjects = $vars[ 'subjects' ] ?? [];
+		$tiles = $this->invokeNonPublicMethod( $page, 'getSubjectTiles' );
 		$subjectDefinitions = PluginNavs::investigateLandingSubjectDefinitions();
-		$enabledSubjectDefinitions = \array_filter(
-			$subjectDefinitions,
-			static fn( array $subject ) :bool => (bool)( $subject[ 'is_enabled' ] ?? false )
-		);
 
-		$this->assertSame( '', $vars[ 'active_subject' ] ?? null );
-		$this->assertCount( \count( $subjectDefinitions ), $subjects );
+		$this->assertCount( \count( $subjectDefinitions ), $tiles );
 		$this->assertSame(
 			\array_keys( $subjectDefinitions ),
-			\array_values( \array_map( fn( array $subject ) :string => $subject[ 'key' ], $subjects ) )
+			\array_values( \array_map( static fn( array $tile ) :string => $tile[ 'key' ], $tiles ) )
 		);
 
-		$subjectsByKey = [];
-		foreach ( $subjects as $subject ) {
-			$subjectsByKey[ $subject[ 'key' ] ] = $subject;
+		$tilesByKey = [];
+		foreach ( $tiles as $tile ) {
+			$tilesByKey[ $tile[ 'key' ] ] = $tile;
 			foreach ( [
 				'key',
-				'panel_target',
 				'is_enabled',
 				'is_disabled',
 				'is_pro',
-				'is_loaded',
 				'is_live',
+				'is_live_attr',
 				'title',
 				'icon_class',
 				'status',
 				'stat_text',
 				'lookup_key',
-				'subject_title',
-				'subject_icon',
-				'subject_meta',
-				'panel_title',
-				'panel_status',
-				'panel_body',
 				'render_action',
+				'render_action_json',
+				'strip_text',
+				'strip_badge',
+				'strip_badge_status',
+				'context',
+				'context_json',
 			] as $requiredKey ) {
-				$this->assertArrayHasKey( $requiredKey, $subject );
+				$this->assertArrayHasKey( $requiredKey, $tile );
 			}
 
-			$this->assertSame( $subject[ 'key' ], $subject[ 'panel_target' ] );
-			$this->assertSame( !(bool)$subject[ 'is_enabled' ], (bool)$subject[ 'is_disabled' ] );
+			$this->assertArrayNotHasKey( 'panel_target', $tile );
+			$this->assertArrayNotHasKey( 'panel_body', $tile );
+			$this->assertArrayNotHasKey( 'subject_title', $tile );
+			$this->assertArrayNotHasKey( 'render_subnav', $tile );
+			$this->assertSame( !(bool)$tile[ 'is_enabled' ], (bool)$tile[ 'is_disabled' ] );
 		}
 
-		foreach ( \array_keys( $enabledSubjectDefinitions ) as $enabledKey ) {
-			$subjectDefinition = $subjectDefinitions[ $enabledKey ];
-			$this->assertTrue( $subjectsByKey[ $enabledKey ][ 'is_enabled' ] );
-			$this->assertFalse( $subjectsByKey[ $enabledKey ][ 'is_loaded' ] );
-			$this->assertNotSame( [], $subjectsByKey[ $enabledKey ][ 'render_action' ] );
-			$this->assertStringContainsString( 'data-investigate-panel-placeholder="1"', $subjectsByKey[ $enabledKey ][ 'panel_body' ] ?? '' );
-			$this->assertSame( '', $subjectsByKey[ $enabledKey ][ 'subject_title' ] );
-			$this->assertSame(
-				(string)( $subjectDefinition[ 'lookup_key' ] ?? '' ),
-				$subjectsByKey[ $enabledKey ][ 'lookup_key' ] ?? ''
-			);
-			$this->assertSame(
-				$subjectDefinition[ 'render_action' ]::SLUG,
-				$subjectsByKey[ $enabledKey ][ 'render_action' ][ 'render_slug' ] ?? ''
-			);
-			$this->assertSame(
-				$subjectDefinition[ 'render_nav' ],
-				$subjectsByKey[ $enabledKey ][ 'render_action' ][ Constants::NAV_ID ] ?? ''
-			);
-			$this->assertSame(
-				$subjectDefinition[ 'render_subnav' ],
-				$subjectsByKey[ $enabledKey ][ 'render_action' ][ Constants::NAV_SUB_ID ] ?? ''
-			);
-		}
-
-		foreach ( $subjectDefinitions as $subjectKey => $subjectDefinition ) {
-			$this->assertSame(
-				$subjectKey === 'live_traffic',
-				(bool)( $subjectsByKey[ $subjectKey ][ 'is_live' ] ?? false )
-			);
-			$this->assertSame(
-				(string)( $subjectDefinition[ 'icon_class' ] ?? '' ),
-				$subjectsByKey[ $subjectKey ][ 'subject_icon' ] ?? ''
-			);
-			$this->assertSame(
-				(string)( $subjectDefinition[ 'stat_text' ] ?? '' ),
-				$subjectsByKey[ $subjectKey ][ 'subject_meta' ] ?? ''
-			);
-		}
-
-		$this->assertFalse( $subjectsByKey[ 'premium_integrations' ][ 'is_enabled' ] );
-		$this->assertTrue( $subjectsByKey[ 'premium_integrations' ][ 'is_disabled' ] );
-		$this->assertFalse( $subjectsByKey[ 'premium_integrations' ][ 'is_loaded' ] );
-		$this->assertSame( [], $subjectsByKey[ 'premium_integrations' ][ 'render_action' ] );
-		$this->assertSame( '', $subjectsByKey[ 'premium_integrations' ][ 'panel_body' ] );
+		$this->assertSame( '1', $tilesByKey[ 'live_traffic' ][ 'is_live_attr' ] ?? '0' );
+		$this->assertTrue( (bool)( $tilesByKey[ 'live_traffic' ][ 'is_live' ] ?? false ) );
+		$this->assertFalse( $tilesByKey[ 'premium_integrations' ][ 'is_enabled' ] );
+		$this->assertTrue( $tilesByKey[ 'premium_integrations' ][ 'is_disabled' ] );
+		$this->assertSame( [], $tilesByKey[ 'premium_integrations' ][ 'render_action' ] );
+		$this->assertSame( '[]', $tilesByKey[ 'premium_integrations' ][ 'render_action_json' ] );
+		$this->assertSame( PluginNavs::NAV_ACTIVITY, $tilesByKey[ 'ip' ][ 'render_action' ][ Constants::NAV_ID ] ?? '' );
+		$this->assertSame(
+			PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+			$tilesByKey[ 'ip' ][ 'render_action' ][ Constants::NAV_SUB_ID ] ?? ''
+		);
+		$this->assertSame( 'info', $tilesByKey[ 'ip' ][ 'strip_badge_status' ] ?? '' );
+		$this->assertSame(
+			[
+				'path'      => [ 'Investigate', 'IP Address' ],
+				'focus'     => 'Investigating IP Address.',
+				'next_step' => 'Use the panel below to look up and explore.',
+			],
+			$tilesByKey[ 'ip' ][ 'context' ] ?? []
+		);
+		$this->assertSame(
+			'{"path":["Investigate","IP Address"],"focus":"Investigating IP Address.","next_step":"Use the panel below to look up and explore."}',
+			$tilesByKey[ 'ip' ][ 'context_json' ] ?? ''
+		);
 	}
 
-	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
+	public function test_landing_vars_expose_noninteractive_mode_shell_drill_shell_and_idle_defaults() :void {
 		$page = new PageInvestigateLandingUnitTestDouble();
-		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
-		$subjectDefinitions = PluginNavs::investigateLandingSubjectDefinitions();
 
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$idlePanel = $this->invokeNonPublicMethod( $page, 'buildPanelLayerData', [ '' ] );
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertArrayNotHasKey( 'subjects', $vars );
+		$this->assertArrayNotHasKey( 'active_subject', $vars );
+		$this->assertSame( 'investigate_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
+		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
+		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
+		$this->assertSame( 'SUBJECTS_LAYER_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
+		$this->assertSame( 'PANEL_LAYER:', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
+		$this->assertSame( 'Subjects', $vars[ 'investigate_defaults' ][ 'idle_strip_text' ] ?? '' );
+		$this->assertSame( '6', $vars[ 'investigate_defaults' ][ 'idle_strip_badge' ] ?? '' );
+		$this->assertSame(
+			[
+				'path'      => [ 'Investigate' ],
+				'focus'     => 'Choose a subject to investigate.',
+				'next_step' => 'Select a subject from the grid.',
+			],
+			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
+		);
+		$this->assertSame( '', $idlePanel[ 'render_action_json' ] ?? 'missing' );
 		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
-		$this->assertSame( 'info', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
-
-		$this->assertCount( \count( $subjectDefinitions ), $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
+		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'mode_tiles' ] ?? [ 'unexpected' ] );
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
-		$this->assertArrayNotHasKey( 'batch_render_action', $renderData[ 'vars' ] ?? [] );
-		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'landing_hint' ] ?? '' ) );
 	}
 
-	public function test_active_panel_context_is_derived_from_subject_and_lookup_action_data() :void {
+	public function test_valid_deep_link_preloads_panel_layer_and_uses_lookup_action_data() :void {
 		$page = new PageInvestigateLandingUnitTestDouble();
 		$page->action_data = [
 			'subject'    => 'ip',
@@ -208,23 +196,15 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		];
 		$ipDefinition = PluginNavs::investigateLandingSubjectDefinitions()[ 'ip' ];
 
-		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
-		$this->assertSame( 'ip', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$panel = $this->invokeNonPublicMethod( $page, 'buildPanelLayerData', [ 'ip' ] );
 
-		$subjects = $renderData[ 'vars' ][ 'subjects' ] ?? [];
-		$subjectsByKey = [];
-		foreach ( $subjects as $subject ) {
-			$subjectsByKey[ $subject[ 'key' ] ] = $subject;
-		}
-
-		$this->assertTrue( $subjectsByKey[ 'ip' ][ 'is_loaded' ] ?? false );
-		$this->assertSame( '203.0.113.99', $subjectsByKey[ 'ip' ][ 'subject_title' ] ?? '' );
-		$this->assertSame( (string)$ipDefinition[ 'icon_class' ], $subjectsByKey[ 'ip' ][ 'subject_icon' ] ?? '' );
-		$this->assertSame( (string)$ipDefinition[ 'stat_text' ], $subjectsByKey[ 'ip' ][ 'subject_meta' ] ?? '' );
-		$this->assertNotSame( '', \trim( (string)( $subjectsByKey[ 'ip' ][ 'panel_body' ] ?? '' ) ) );
-		foreach ( [ 'user', 'plugin', 'theme', 'core', 'live_traffic' ] as $key ) {
-			$this->assertFalse( $subjectsByKey[ $key ][ 'is_loaded' ] ?? true );
-		}
+		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
+		$this->assertSame( 'IP Address', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'ip', $panel[ 'subject_key' ] ?? '' );
+		$this->assertSame( '1', $panel[ 'is_loaded' ] ?? '0' );
+		$this->assertSame( '0', $panel[ 'is_live' ] ?? '1' );
+		$this->assertNotSame( '', \trim( (string)( $panel[ 'body' ] ?? '' ) ) );
 		$this->assertCount( 1, $this->renderCapture->calls );
 		$this->assertSame( $ipDefinition[ 'render_action' ], $this->renderCapture->calls[ 0 ][ 'action' ] ?? '' );
 		$this->assertSame( $ipDefinition[ 'render_nav' ], $this->renderCapture->calls[ 0 ][ 'action_data' ][ Constants::NAV_ID ] ?? '' );
@@ -232,37 +212,29 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '203.0.113.99', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'analyse_ip' ] ?? '' );
 	}
 
-	public function test_active_subject_falls_back_to_lookup_when_subject_key_is_invalid() :void {
+	public function test_invalid_subject_falls_back_to_lookup_subject() :void {
 		$page = new PageInvestigateLandingUnitTestDouble();
 		$page->action_data = [
-			'subject'      => 'invalid',
-			'plugin_slug'  => 'hello-dolly/hello.php',
+			'subject'     => 'invalid',
+			'plugin_slug' => 'hello-dolly/hello.php',
 		];
-		$pluginDefinition = PluginNavs::investigateLandingSubjectDefinitions()[ 'plugin' ];
 
-		$renderData = $this->invokeProtectedMethod( $page, 'getRenderData' );
-		$this->assertSame( 'plugin', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$panel = $this->invokeNonPublicMethod( $page, 'buildPanelLayerData', [ 'plugin' ] );
 
-		$subjects = [];
-		foreach ( (array)( $renderData[ 'vars' ][ 'subjects' ] ?? [] ) as $subject ) {
-			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
-				$subjects[ $subject[ 'key' ] ] = $subject;
-			}
-		}
-		$this->assertTrue( (bool)( $subjects[ 'plugin' ][ 'is_loaded' ] ?? false ) );
-		$this->assertSame( 'hello-dolly/hello.php', $subjects[ 'plugin' ][ 'subject_title' ] ?? '' );
+		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
+		$this->assertSame( 'Plugin', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'plugin', $panel[ 'subject_key' ] ?? '' );
 		$this->assertCount( 1, $this->renderCapture->calls );
-		$this->assertSame( $pluginDefinition[ 'render_action' ], $this->renderCapture->calls[ 0 ][ 'action' ] ?? '' );
-		$this->assertSame( $pluginDefinition[ 'render_nav' ], $this->renderCapture->calls[ 0 ][ 'action_data' ][ Constants::NAV_ID ] ?? '' );
-		$this->assertSame( $pluginDefinition[ 'render_subnav' ], $this->renderCapture->calls[ 0 ][ 'action_data' ][ Constants::NAV_SUB_ID ] ?? '' );
 		$this->assertSame( 'hello-dolly/hello.php', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'plugin_slug' ] ?? '' );
 	}
 
-	public function test_subject_panel_payload_is_cached_per_instance() :void {
+	public function test_subject_tile_payload_is_cached_per_instance() :void {
 		$page = new PageInvestigateLandingUnitTestDouble();
-		$this->invokeProtectedMethod( $page, 'getLandingVars' );
-		$this->invokeProtectedMethod( $page, 'getLandingTiles' );
-		$this->invokeProtectedMethod( $page, 'getLandingVars' );
+
+		$this->invokeNonPublicMethod( $page, 'getSubjectTiles' );
+		$this->invokeNonPublicMethod( $page, 'getSubjectTiles' );
+		$this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertCount( 0, $this->renderCapture->calls );
 	}
@@ -295,13 +267,17 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			'service_wpusers'   => new UnitTestUsers(),
 		] );
 	}
-
-	private function invokeProtectedMethod( object $subject, string $methodName ) :array {
-		return $this->invokeNonPublicMethod( $subject, $methodName );
-	}
 }
 
 class PageInvestigateLandingUnitTestDouble extends PageInvestigateLanding {
+
+	protected function renderSubjectsLayer() :string {
+		return 'SUBJECTS_LAYER_HTML';
+	}
+
+	protected function renderPanelLayer( string $activeSubject ) :string {
+		return 'PANEL_LAYER:'.$activeSubject;
+	}
 
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
 		return \array_merge( [

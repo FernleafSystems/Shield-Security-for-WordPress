@@ -1,6 +1,23 @@
 /* Landing */
-.investigate-landing__selector-shell {
-	margin-bottom: 1rem;
+.investigate-landing__drilldown {
+	align-items: start;
+	display: grid;
+	gap: 1rem;
+	margin-top: 1rem;
+}
+
+.investigate-landing__drilldown .drill-shell {
+	min-width: 0;
+}
+
+.investigate-landing__drilldown .drill-context-card {
+	margin-bottom: 0;
+}
+
+@media (min-width: 1200px) {
+	.investigate-landing__drilldown {
+		grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
+	}
 }
 
 .investigate-landing__section-label {
@@ -10,6 +27,10 @@
 	letter-spacing: 0.04em;
 	margin-bottom: 0.6rem;
 	text-transform: uppercase;
+}
+
+.investigate-landing__heading {
+	margin-bottom: 0.8rem;
 }
 
 .investigate-landing__subject-grid {
@@ -125,12 +146,7 @@
 .investigate-landing__hint {
 	color: #888;
 	font-size: 0.85rem;
-	padding: 0.5rem 0;
-}
-
-.investigate-landing__hint-icon {
-	font-size: 0.9rem;
-	margin-right: 0.25rem;
+	padding: 0.2rem 0 0;
 }
 
 .investigate-landing__subject-panel .investigate-panel-is-loading {

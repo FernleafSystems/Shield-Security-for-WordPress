@@ -8,56 +8,92 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-class PageInvestigateLanding extends PageModeLandingBase {
+/**
+ * @phpstan-type SubjectDefinition array{
+ *   key:string,
+ *   label:string,
+ *   icon_class:string,
+ *   status:string,
+ *   stat_text:string,
+ *   subnav_hint:string|null,
+ *   panel_title:string,
+ *   panel_status:string,
+ *   render_action:string,
+ *   render_nav:string,
+ *   render_subnav:string,
+ *   lookup_key:string|null,
+ *   is_enabled:bool,
+ *   is_pro:bool
+ * }
+ * @phpstan-type SubjectTile array{
+ *   key:string,
+ *   is_enabled:bool,
+ *   is_disabled:bool,
+ *   is_pro:bool,
+ *   is_live:bool,
+ *   is_live_attr:string,
+ *   title:string,
+ *   icon_class:string,
+ *   status:string,
+ *   stat_text:string,
+ *   lookup_key:string,
+ *   render_action:array<string,mixed>,
+ *   render_action_json:string,
+ *   strip_text:string,
+ *   strip_badge:string,
+ *   strip_badge_status:string,
+ *   context:array{
+ *     path:list<string>,
+ *     focus:string,
+ *     next_step:string
+ *   },
+ *   context_json:string
+ * }
+ * @phpstan-type PanelLayerData array{
+ *   subject_key:string,
+ *   is_loaded:string,
+ *   is_live:string,
+ *   render_action_json:string,
+ *   body:string
+ * }
+ * @phpstan-type InvestigateDefaults array{
+ *   idle_strip_text:string,
+ *   idle_strip_badge:string,
+ *   idle_strip_badge_status:string,
+ *   idle_context:array{
+ *     path:list<string>,
+ *     focus:string,
+ *     next_step:string
+ *   },
+ *   idle_context_json:string
+ * }
+ * @phpstan-import-type RawDrillLayer from PageDrillDownLandingBase
+ */
+class PageInvestigateLanding extends PageDrillDownLandingBase {
 
 	public const SLUG = 'plugin_admin_page_investigate_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_landing.twig';
 	private const SUBJECT_LIVE_TRAFFIC = 'live_traffic';
 
 	/**
-	 * @var array<string,array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * }>|null
+	 * @var array<string,SubjectDefinition>|null
 	 */
 	private ?array $subjectDefinitionsCache = null;
 
 	/**
-	 * @var list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   is_pro:bool,
-	 *   is_loaded:bool,
-	 *   is_live:bool,
-	 *   title:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   lookup_key:string,
-	 *   subject_title:string,
-	 *   subject_icon:string,
-	 *   subject_meta:string,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   panel_body:string,
-	 *   render_action:array<string,mixed>
-	 * }>|null
+	 * @var list<SubjectTile>|null
 	 */
-	private ?array $subjectsPayloadCache = null;
+	private ?array $subjectTilesCache = null;
+
+	/**
+	 * @var array<string,SubjectTile>|null
+	 */
+	private ?array $subjectTileLookupCache = null;
+
+	/**
+	 * @var InvestigateDefaults|null
+	 */
+	private ?array $investigateDefaultsCache = null;
 
 	private ?string $activeSubjectCache = null;
 
@@ -82,233 +118,73 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		return PluginNavs::MODE_INVESTIGATE;
 	}
 
-	protected function isLandingInteractive() :bool {
-		return true;
-	}
-
-	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool
-	 * }>
-	 */
-	protected function getLandingTiles() :array {
-		return \array_map(
-			fn( array $subject ) :array => [
-				'key'          => $subject[ 'key' ],
-				'panel_target' => $subject[ 'panel_target' ],
-				'is_enabled'   => $subject[ 'is_enabled' ],
-				'is_disabled'  => $subject[ 'is_disabled' ],
-			],
-			$this->getSubjectsPayload()
-		);
-	}
-
-	protected function getLandingPanel() :array {
-		return [
-			'active_target' => $this->getActiveSubject(),
-		];
-	}
-
 	protected function getLandingStrings() :array {
 		return [
 			'label_pro'        => __( 'PRO', 'wp-simple-firewall' ),
 			'panel_loading'    => $this->getPanelLoadingMessage(),
 			'panel_load_error' => $this->getPanelLoadErrorMessage(),
 			'landing_hint'     => __( 'Select a subject above to begin investigating.', 'wp-simple-firewall' ),
+			'subjects_heading' => __( 'Choose a subject to investigate', 'wp-simple-firewall' ),
 		];
 	}
 
 	protected function getLandingVars() :array {
-		return [
-			'subjects'       => $this->getSubjectsPayload(),
-			'active_subject' => $this->getActiveSubject(),
-		];
+		return \array_merge(
+			parent::getLandingVars(),
+			[
+				'investigate_defaults' => $this->getInvestigateDefaults(),
+			]
+		);
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   is_pro:bool,
-	 *   is_loaded:bool,
-	 *   is_live:bool,
-	 *   title:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   lookup_key:string,
-	 *   subject_title:string,
-	 *   subject_icon:string,
-	 *   subject_meta:string,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   panel_body:string,
-	 *   render_action:array<string,mixed>
-	 * }>
+	 * @return list<RawDrillLayer>
 	 */
-	private function getSubjectsPayload() :array {
-		if ( $this->subjectsPayloadCache === null ) {
-			$this->subjectsPayloadCache = $this->buildSubjectsPayload();
-		}
-		return $this->subjectsPayloadCache;
-	}
-
-	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   is_pro:bool,
-	 *   is_loaded:bool,
-	 *   is_live:bool,
-	 *   title:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   lookup_key:string,
-	 *   subject_title:string,
-	 *   subject_icon:string,
-	 *   subject_meta:string,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   panel_body:string,
-	 *   render_action:array<string,mixed>
-	 * }>
-	 */
-	private function buildSubjectsPayload() :array {
+	protected function getLayers() :array {
 		$activeSubject = $this->getActiveSubject();
-		$lookupValues = $this->getLookupValues();
-		$subjects = [];
-		foreach ( $this->getSubjectDefinitions() as $subject ) {
-			$isEnabled = $subject[ 'is_enabled' ];
-			$isLoaded = $this->shouldPreloadSubjectPanel( $subject, $activeSubject );
-			$banner = $this->buildSubjectBannerData( $subject, $isLoaded, $activeSubject, $lookupValues );
-			$subjects[] = [
-				'key'          => $subject[ 'key' ],
-				'panel_target' => $subject[ 'key' ],
-				'is_enabled'   => $isEnabled,
-				'is_disabled'  => !$isEnabled,
-				'is_pro'       => $subject[ 'is_pro' ],
-				'is_loaded'    => $isLoaded,
-				'is_live'      => $this->isLiveTrafficSubject( $subject ),
-				'title'        => $subject[ 'label' ],
-				'icon_class'   => $subject[ 'icon_class' ],
-				'status'       => $subject[ 'status' ],
-				'stat_text'    => $subject[ 'stat_text' ],
-				'lookup_key'   => $banner[ 'lookup_key' ],
-				'subject_title' => $banner[ 'subject_title' ],
-				'subject_icon'  => $banner[ 'subject_icon' ],
-				'subject_meta'  => $banner[ 'subject_meta' ],
-				'panel_title'  => $subject[ 'panel_title' ],
-				'panel_status' => $subject[ 'panel_status' ],
-				'panel_body'   => $isLoaded
-					? $this->buildSubjectPanelBody( $subject, $activeSubject )
-					: $this->buildSubjectUnloadedPanelBody( $subject ),
-				'render_action' => $isEnabled ? $this->buildPanelRenderActionData( $subject ) : [],
-			];
-		}
-		return $subjects;
-	}
-
-	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * } $subject
-	 * @param array<string,string> $lookupValues
-	 * @return array{
-	 *   lookup_key:string,
-	 *   subject_title:string,
-	 *   subject_icon:string,
-	 *   subject_meta:string
-	 * }
-	 */
-	private function buildSubjectBannerData( array $subject, bool $isLoaded, string $activeSubject, array $lookupValues ) :array {
-		$lookupKey = \is_string( $subject[ 'lookup_key' ] ) ? $subject[ 'lookup_key' ] : '';
-		$lookupValue = '';
-		if ( $isLoaded && $subject[ 'key' ] === $activeSubject && !empty( $lookupKey ) ) {
-			$lookupValue = \trim( (string)( $lookupValues[ $lookupKey ] ?? '' ) );
-		}
+		$activeTile = $this->getActiveSubjectTile();
+		$idleDefaults = $this->getInvestigateDefaults();
 
 		return [
-			'lookup_key'   => $lookupKey,
-			'subject_title' => $lookupValue,
-			'subject_icon'  => (string)$subject[ 'icon_class' ],
-			'subject_meta'  => (string)$subject[ 'stat_text' ],
+			[
+				'key'          => 'subjects',
+				'label'        => $activeTile === null
+					? $idleDefaults[ 'idle_strip_text' ]
+					: $activeTile[ 'strip_text' ],
+				'badge'        => $activeTile === null
+					? $idleDefaults[ 'idle_strip_badge' ]
+					: '',
+				'badge_status' => $activeTile === null
+					? $idleDefaults[ 'idle_strip_badge_status' ]
+					: 'info',
+				'body'         => $this->renderSubjectsLayer(),
+				'context'      => $activeTile === null
+					? $idleDefaults[ 'idle_context' ]
+					: [
+						'path'      => [ __( 'Investigate', 'wp-simple-firewall' ), $activeTile[ 'strip_text' ] ],
+						'focus'     => \sprintf( __( 'Investigating %s.', 'wp-simple-firewall' ), $activeTile[ 'strip_text' ] ),
+						'next_step' => __( 'Use the panel below to look up and explore.', 'wp-simple-firewall' ),
+					],
+			],
+			[
+				'key'          => 'panel',
+				'label'        => __( 'Investigation', 'wp-simple-firewall' ),
+				'badge'        => '',
+				'badge_status' => 'neutral',
+				'body'         => $this->renderPanelLayer( $activeSubject ),
+				'context'      => $activeTile === null
+					? [
+						'path'      => [],
+						'focus'     => '',
+						'next_step' => '',
+					]
+					: $activeTile[ 'context' ],
+			],
 		];
 	}
 
-	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * } $subject
-	 */
-	private function shouldPreloadSubjectPanel( array $subject, string $activeSubject ) :bool {
-		return $subject[ 'is_enabled' ]
-			   && !empty( $subject[ 'render_action' ] )
-			   && $subject[ 'key' ] === $activeSubject;
-	}
-
-	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * } $subject
-	 * @return array<string,mixed>
-	 */
-	private function buildPanelRenderActionData( array $subject ) :array {
-		$renderAction = $subject[ 'render_action' ];
-		if ( empty( $renderAction ) ) {
-			return [];
-		}
-
-		return $this->buildAjaxRenderActionData( $renderAction, [
-			Constants::NAV_ID     => $subject[ 'render_nav' ],
-			Constants::NAV_SUB_ID => $subject[ 'render_subnav' ],
-		] );
+	protected function getActiveLayerIndex() :int {
+		return $this->getActiveSubject() === '' ? 0 : 1;
 	}
 
 	/**
@@ -320,31 +196,187 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		return ActionData::BuildAjaxRender( $renderAction, $auxData );
 	}
 
+	protected function renderSubjectsLayer() :string {
+		return self::con()->comps->render
+			->setTemplate( '/wpadmin/components/investigate/layer_subjects.twig' )
+			->setData( [
+				'subjects' => $this->getSubjectTiles(),
+				'strings'  => $this->getLandingStrings(),
+			] )
+			->render();
+	}
+
+	protected function renderPanelLayer( string $activeSubject ) :string {
+		return self::con()->comps->render
+			->setTemplate( '/wpadmin/components/investigate/layer_panel.twig' )
+			->setData( [
+				'panel' => $this->buildPanelLayerData( $activeSubject ),
+			] )
+			->render();
+	}
+
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * } $subject
+	 * @return list<SubjectTile>
 	 */
-	private function buildSubjectPanelBody( array $subject, string $activeSubject ) :string {
-		if ( !$subject[ 'is_enabled' ] ) {
-			return '';
+	protected function getSubjectTiles() :array {
+		if ( $this->subjectTilesCache === null ) {
+			$this->subjectTilesCache = [];
+			foreach ( $this->getSubjectDefinitions() as $subject ) {
+				$lookupKey = \is_string( $subject[ 'lookup_key' ] ) ? $subject[ 'lookup_key' ] : '';
+				$renderAction = $subject[ 'is_enabled' ]
+					? $this->buildPanelRenderActionData( $subject )
+					: [];
+				$context = $this->buildSubjectContext( $subject, $lookupKey );
+				$this->subjectTilesCache[] = [
+					'key'               => $subject[ 'key' ],
+					'is_enabled'        => $subject[ 'is_enabled' ],
+					'is_disabled'       => !$subject[ 'is_enabled' ],
+					'is_pro'            => $subject[ 'is_pro' ],
+					'is_live'           => $this->isLiveTrafficSubject( $subject ),
+					'is_live_attr'      => $this->isLiveTrafficSubject( $subject ) ? '1' : '0',
+					'title'             => $subject[ 'label' ],
+					'icon_class'        => $subject[ 'icon_class' ],
+					'status'            => $subject[ 'status' ],
+					'stat_text'         => $subject[ 'stat_text' ],
+					'lookup_key'        => $lookupKey,
+					'render_action'     => $renderAction,
+					'render_action_json'=> $this->encodeJson( $renderAction ),
+					'strip_text'        => $subject[ 'label' ],
+					'strip_badge'       => $subject[ 'stat_text' ],
+					'strip_badge_status'=> $subject[ 'status' ],
+					'context'           => $context,
+					'context_json'      => $this->encodeJson( $context ),
+				];
+			}
 		}
 
-		$renderAction = $subject[ 'render_action' ];
-		if ( empty( $renderAction ) ) {
+		return $this->subjectTilesCache;
+	}
+
+	/**
+	 * @return array<string,SubjectTile>
+	 */
+	protected function getSubjectTileLookup() :array {
+		if ( $this->subjectTileLookupCache === null ) {
+			$this->subjectTileLookupCache = [];
+			foreach ( $this->getSubjectTiles() as $subjectTile ) {
+				$this->subjectTileLookupCache[ $subjectTile[ 'key' ] ] = $subjectTile;
+			}
+		}
+
+		return $this->subjectTileLookupCache;
+	}
+
+	protected function getActiveSubjectTile() :?array {
+		$activeSubject = $this->getActiveSubject();
+		return $activeSubject === '' ? null : $this->getSubjectTileLookup()[ $activeSubject ];
+	}
+
+	/**
+	 * @return InvestigateDefaults
+	 */
+	protected function getInvestigateDefaults() :array {
+		if ( $this->investigateDefaultsCache === null ) {
+			$idleContext = [
+				'path'      => [ __( 'Investigate', 'wp-simple-firewall' ) ],
+				'focus'     => __( 'Choose a subject to investigate.', 'wp-simple-firewall' ),
+				'next_step' => __( 'Select a subject from the grid.', 'wp-simple-firewall' ),
+			];
+			$this->investigateDefaultsCache = [
+				'idle_strip_text'         => __( 'Subjects', 'wp-simple-firewall' ),
+				'idle_strip_badge'        => $this->buildSubjectCountBadge(),
+				'idle_strip_badge_status' => 'info',
+				'idle_context'            => $idleContext,
+				'idle_context_json'       => $this->encodeJson( $idleContext ),
+			];
+		}
+
+		return $this->investigateDefaultsCache;
+	}
+
+	/**
+	 * @return PanelLayerData
+	 */
+	protected function buildPanelLayerData( string $activeSubject ) :array {
+		if ( $activeSubject === '' ) {
+			return $this->buildEmptyPanelLayerData();
+		}
+
+		$subjectTile = $this->getSubjectTileLookup()[ $activeSubject ] ?? null;
+		$subjectDefinition = $this->getSubjectDefinitions()[ $activeSubject ] ?? null;
+		if ( $subjectTile === null || $subjectDefinition === null ) {
+			return $this->buildEmptyPanelLayerData();
+		}
+
+		return [
+			'subject_key'       => $subjectTile[ 'key' ],
+			'is_loaded'         => '1',
+			'is_live'           => $subjectTile[ 'is_live_attr' ],
+			'render_action_json'=> $subjectTile[ 'render_action_json' ],
+			'body'              => $this->buildSubjectPanelBody( $subjectDefinition, $activeSubject ),
+		];
+	}
+
+	/**
+	 * @return PanelLayerData
+	 */
+	private function buildEmptyPanelLayerData() :array {
+		return [
+			'subject_key'       => '',
+			'is_loaded'         => '0',
+			'is_live'           => '0',
+			'render_action_json'=> '',
+			'body'              => '',
+		];
+	}
+
+	private function buildSubjectCountBadge() :string {
+		return (string)\count( \array_filter(
+			$this->getSubjectDefinitions(),
+			static fn( array $subject ) :bool => $subject[ 'is_enabled' ]
+		) );
+	}
+
+	/**
+	 * @param SubjectDefinition $subject
+	 * @return array{
+	 *   path:list<string>,
+	 *   focus:string,
+	 *   next_step:string
+	 * }
+	 */
+	private function buildSubjectContext( array $subject, string $lookupKey ) :array {
+		$nextStep = $lookupKey === ''
+			? __( 'Review tabs for activity details. Use actions to respond.', 'wp-simple-firewall' )
+			: __( 'Use the panel below to look up and explore.', 'wp-simple-firewall' );
+
+		return [
+			'path'      => [ __( 'Investigate', 'wp-simple-firewall' ), $subject[ 'label' ] ],
+			'focus'     => \sprintf( __( 'Investigating %s.', 'wp-simple-firewall' ), $subject[ 'label' ] ),
+			'next_step' => $nextStep,
+		];
+	}
+
+	/**
+	 * @param SubjectDefinition $subject
+	 * @return array<string,mixed>
+	 */
+	private function buildPanelRenderActionData( array $subject ) :array {
+		if ( empty( $subject[ 'render_action' ] ) ) {
+			return [];
+		}
+
+		return $this->buildAjaxRenderActionData( $subject[ 'render_action' ], [
+			Constants::NAV_ID     => $subject[ 'render_nav' ],
+			Constants::NAV_SUB_ID => $subject[ 'render_subnav' ],
+		] );
+	}
+
+	/**
+	 * @param SubjectDefinition $subject
+	 */
+	private function buildSubjectPanelBody( array $subject, string $activeSubject ) :string {
+		if ( !$subject[ 'is_enabled' ] || empty( $subject[ 'render_action' ] ) ) {
 			return '';
 		}
 
@@ -354,18 +386,17 @@ class PageInvestigateLanding extends PageModeLandingBase {
 		];
 
 		$lookupKey = $subject[ 'lookup_key' ];
-		if ( \is_string( $lookupKey ) && !empty( $lookupKey ) && $subject[ 'key' ] === $activeSubject ) {
-			$lookupValues = $this->getLookupValues();
-			$lookupValue = $lookupValues[ $lookupKey ] ?? '';
-			if ( !empty( $lookupValue ) ) {
+		if ( \is_string( $lookupKey ) && $lookupKey !== '' && $subject[ 'key' ] === $activeSubject ) {
+			$lookupValue = $this->getLookupValues()[ $lookupKey ] ?? '';
+			if ( $lookupValue !== '' ) {
 				$actionData[ $lookupKey ] = $lookupValue;
 			}
 		}
 
-		$renderOutput = self::con()->action_router->render( $renderAction, $actionData );
+		$renderOutput = self::con()->action_router->render( $subject[ 'render_action' ], $actionData );
 		$panelBody = $this->extractInnerPageBodyHtml( $renderOutput );
 
-		if ( empty( \trim( $panelBody ) ) ) {
+		if ( \trim( $panelBody ) === '' ) {
 			$panelBody = '<div class="alert alert-warning mb-0">'
 						 .$this->getPanelLoadErrorMessage()
 						 .'</div>';
@@ -375,49 +406,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * } $subject
-	 */
-	private function buildSubjectUnloadedPanelBody( array $subject ) :string {
-		if ( !$subject[ 'is_enabled' ] || empty( $subject[ 'render_action' ] ) ) {
-			return '';
-		}
-		return '<div class="text-muted small" data-investigate-panel-placeholder="1">'
-			   .$this->getPanelLoadingMessage()
-			   .'</div>';
-	}
-
-	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * } $subject
+	 * @param SubjectDefinition $subject
 	 */
 	private function isLiveTrafficSubject( array $subject ) :bool {
 		return $subject[ 'key' ] === self::SUBJECT_LIVE_TRAFFIC;
@@ -440,11 +429,11 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				$subject = '';
 			}
 
-			if ( empty( $subject ) ) {
+			if ( $subject === '' ) {
 				$lookupValues = $this->getLookupValues();
 				foreach ( $definitions as $key => $definition ) {
 					$lookupKey = $definition[ 'lookup_key' ];
-					if ( \is_string( $lookupKey ) && !empty( $lookupKey ) && !empty( $lookupValues[ $lookupKey ] ?? '' ) ) {
+					if ( \is_string( $lookupKey ) && $lookupKey !== '' && ( $lookupValues[ $lookupKey ] ?? '' ) !== '' ) {
 						$subject = $key;
 						break;
 					}
@@ -462,21 +451,21 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	 */
 	private function getLookupValues() :array {
 		if ( $this->lookupValuesCache === null ) {
-			$values = [];
+			$this->lookupValuesCache = [];
 			foreach ( $this->getSubjectDefinitions() as $definition ) {
 				$lookupKey = $definition[ 'lookup_key' ];
-				if ( !\is_string( $lookupKey ) || empty( $lookupKey ) ) {
+				if ( !\is_string( $lookupKey ) || $lookupKey === '' ) {
 					continue;
 				}
-				$values[ $lookupKey ] = $this->getTextInputFromRequestOrActionData( $lookupKey );
+				$this->lookupValuesCache[ $lookupKey ] = $this->getTextInputFromRequestOrActionData( $lookupKey );
 			}
-			$this->lookupValuesCache = $values;
 		}
+
 		return $this->lookupValuesCache;
 	}
 
 	private function extractInnerPageBodyHtml( string $renderOutput ) :string {
-		if ( empty( \trim( $renderOutput ) ) ) {
+		if ( \trim( $renderOutput ) === '' ) {
 			return '';
 		}
 
@@ -519,22 +508,7 @@ class PageInvestigateLanding extends PageModeLandingBase {
 	}
 
 	/**
-	 * @return array<string,array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   stat_text:string,
-	 *   subnav_hint:string|null,
-	 *   panel_title:string,
-	 *   panel_status:string,
-	 *   render_action:string,
-	 *   render_nav:string,
-	 *   render_subnav:string,
-	 *   lookup_key:string|null,
-	 *   is_enabled:bool,
-	 *   is_pro:bool
-	 * }>
+	 * @return array<string,SubjectDefinition>
 	 */
 	protected function getSubjectDefinitions() :array {
 		if ( $this->subjectDefinitionsCache === null ) {
@@ -544,6 +518,14 @@ class PageInvestigateLanding extends PageModeLandingBase {
 				$this->subjectDefinitionsCache[ $subjectKey ] = $subject;
 			}
 		}
+
 		return $this->subjectDefinitionsCache;
+	}
+
+	/**
+	 * @param array<string,mixed> $data
+	 */
+	private function encodeJson( array $data ) :string {
+		return (string)( \json_encode( $data ) ?: '' );
 	}
 }

@@ -1,99 +1,21 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% set active_subject = vars.active_subject|default('') %}
-
 	<div class="investigate-landing"
 		 data-investigate-landing="1"
-		 data-investigate-panel-loading="{{ strings.panel_loading|default('')|e('html_attr') }}"
-		 data-investigate-panel-error="{{ strings.panel_load_error|default('')|e('html_attr') }}">
-		<section class="investigate-landing__selector-shell" data-investigate-section="selector">
-			<div class="investigate-landing__subject-grid" data-mode-tiles="1">
-				{% for subject in vars.subjects %}
-					{% set is_active = subject.is_enabled and active_subject == subject.key %}
-					{% if subject.is_enabled %}
-						<button type="button"
-								class="investigate-landing__subject-card status-{{ subject.status }}{% if is_active %} is-active{% endif %}"
-								data-investigate-subject="{{ subject.key }}"
-								data-mode-tile="1"
-								data-mode-tile-key="{{ subject.key }}"
-								data-mode-panel-target="{{ subject.panel_target }}"
-								aria-expanded="{{ is_active ? 'true' : 'false' }}">
-							<span class="investigate-landing__subject-icon" aria-hidden="true">
-								<i class="{{ subject.icon_class }}"></i>
-							</span>
-							<span class="investigate-landing__subject-label">
-								{{ subject.title }}
-								{% if subject.is_pro %}
-									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
-								{% endif %}
-							</span>
-							<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
-						</button>
-					{% else %}
-						<div class="investigate-landing__subject-card is-disabled status-{{ subject.status }}"
-							 data-investigate-subject="{{ subject.key }}"
-							 data-mode-tile="1"
-							 data-mode-tile-key="{{ subject.key }}"
-							 data-mode-panel-target="{{ subject.panel_target }}"
-							 data-mode-tile-disabled="1"
-							 aria-disabled="true">
-							<span class="investigate-landing__subject-icon" aria-hidden="true">
-								<i class="{{ subject.icon_class }}"></i>
-							</span>
-							<span class="investigate-landing__subject-label">
-								{{ subject.title }}
-								{% if subject.is_pro %}
-									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
-								{% endif %}
-							</span>
-							<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
-						</div>
-					{% endif %}
-				{% endfor %}
-			</div>
-		</section>
-		<div class="investigate-landing__hint{% if active_subject is not empty %} d-none{% endif %}"
-			 data-mode-landing-hint="1"
-			 aria-hidden="{{ active_subject is not empty ? 'true' : 'false' }}">
-			<i class="bi bi-arrow-up investigate-landing__hint-icon" aria-hidden="true"></i>
-			{{ strings.landing_hint|default('Select a subject above to begin investigating.') }}
+		 data-investigate-panel-loading="{{ strings.panel_loading }}"
+		 data-investigate-panel-error="{{ strings.panel_load_error }}"
+		 data-investigate-idle-strip-text="{{ vars.investigate_defaults.idle_strip_text }}"
+		 data-investigate-idle-strip-badge="{{ vars.investigate_defaults.idle_strip_badge }}"
+		 data-investigate-idle-strip-badge-status="{{ vars.investigate_defaults.idle_strip_badge_status }}"
+		 data-investigate-idle-context="{{ vars.investigate_defaults.idle_context_json }}">
+		<div class="investigate-landing__drilldown" data-investigate-section="drilldown">
+			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
+				shell: vars.drill_shell
+			} only %}
+			{% include '/wpadmin/components/page/drill_context_card.twig' with {
+				context_card: vars.drill_context_card
+			} only %}
 		</div>
-
-		{% for subject in vars.subjects %}
-			{% if subject.is_enabled %}
-				{% set is_open = active_subject == subject.key %}
-				{% set panel_body %}
-					<div data-investigate-panel-header="1"></div>
-					<div class="investigate-panel__tabs" data-investigate-panel-tabs="1"></div>
-					<div data-investigate-panel-content="1">
-						{{ subject.panel_body|raw }}
-					</div>
-				{% endset %}
-				{% include '/wpadmin/components/page/mode_panel_shell.twig' with {
-					panel: {
-						id: 'InvestigateModePanel-' ~ subject.key,
-						class: 'investigate-landing__subject-panel' ~ (is_open ? ' is-open' : ''),
-						is_open: is_open,
-						target: subject.panel_target,
-						target_default: subject.panel_target,
-						static_target: true,
-						status: subject.panel_status,
-						title: subject.panel_title,
-						body: panel_body,
-						data: {
-							'investigate-panel': subject.key,
-							'investigate-panel-loaded': subject.is_loaded ? '1' : '0',
-							'investigate-panel-live': subject.is_live ? '1' : '0',
-							'investigate-lookup-key': subject.lookup_key|default(''),
-							'investigate-subject-icon': subject.subject_icon|default(subject.icon_class),
-							'investigate-subject-meta': subject.subject_meta|default(subject.stat_text),
-							'investigate-render-action': subject.render_action|default({})|json_encode
-						}
-					},
-					strings: strings
-				} only %}
-			{% endif %}
-		{% endfor %}
 	</div>
 {% endblock %}

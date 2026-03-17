@@ -3,13 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\AjaxRender,
 	Actions\Render\PluginAdminPages\PageInvestigateLanding,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -17,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
+	use HtmlDomAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -39,108 +39,113 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_landing_exposes_subject_payload_and_disabled_premium_integrations_contract() :void {
+	public function test_landing_renders_drill_shell_context_card_tiles_and_single_panel_wrapper() :void {
 		$payload = $this->renderInvestigateLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'investigate landing' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'investigate landing' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$subjects = \is_array( $vars[ 'subjects' ] ?? null ) ? $vars[ 'subjects' ] : [];
-		$subjectDefinitions = PluginNavs::investigateLandingSubjectDefinitions();
-		$enabledSubjectDefinitions = \array_filter(
-			$subjectDefinitions,
-			static fn( array $subject ) :bool => (bool)( $subject[ 'is_enabled' ] ?? false )
-		);
-		$expectedTileCount = \count( $subjectDefinitions );
-		$expectedPanelCount = \count( $enabledSubjectDefinitions );
-		$expectedLivePanelCount = \count( \array_filter(
-			\array_keys( $enabledSubjectDefinitions ),
-			static fn( string $subjectKey ) :bool => $subjectKey === 'live_traffic'
-		) );
-		$this->assertArrayHasKey( 'premium_integrations', $subjectDefinitions );
-		$this->assertFalse(
-			(bool)( $subjectDefinitions[ 'premium_integrations' ][ 'is_enabled' ] ?? true ),
-			'Premium integrations subject must remain disabled.'
-		);
-		$this->assertModeShellPayload( $vars, 'investigate', 'info', true );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertModeShellPayload( $vars, 'investigate', 'info', false );
 		$this->assertModePanelPayload( $vars, '', false );
-		$this->assertArrayNotHasKey( 'batch_render_action', $vars );
-		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'landing_hint' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'subjects', $vars );
+		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
+		$this->assertSame( 0, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
+		$this->assertSame( 'Subjects', (string)( $vars[ 'investigate_defaults' ][ 'idle_strip_text' ] ?? '' ) );
+		$this->assertSame( '6', (string)( $vars[ 'investigate_defaults' ][ 'idle_strip_badge' ] ?? '' ) );
 
-		foreach ( $subjectDefinitions as $subjectKey => $subjectDefinition ) {
-			$matches = \array_values( \array_filter(
-				$subjects,
-				static fn( array $subject ) :bool => (string)( $subject[ 'key' ] ?? '' ) === $subjectKey
-			) );
-			$this->assertCount( 1, $matches, 'Landing subject payload for '.$subjectKey );
-			$subject = $matches[ 0 ] ?? [];
-
-			if ( (bool)( $subjectDefinition[ 'is_enabled' ] ?? false ) ) {
-				$this->assertTrue( (bool)( $subject[ 'is_enabled' ] ?? false ) );
-				$this->assertFalse( (bool)( $subject[ 'is_loaded' ] ?? true ) );
-				$this->assertSame( $subjectKey, (string)( $subject[ 'panel_target' ] ?? '' ) );
-			}
-			else {
-				$this->assertFalse( (bool)( $subject[ 'is_enabled' ] ?? true ) );
-				$this->assertTrue( (bool)( $subject[ 'is_disabled' ] ?? false ) );
-			}
-			$this->assertSame( (string)( $subjectDefinition[ 'lookup_key' ] ?? '' ), (string)( $subject[ 'lookup_key' ] ?? '' ) );
-			$this->assertSame( $subjectKey === 'live_traffic', (bool)( $subject[ 'is_live' ] ?? false ) );
-			$renderActionData = \is_array( $subject[ 'render_action' ] ?? null ) ? $subject[ 'render_action' ] : [];
-			if ( (bool)( $subjectDefinition[ 'is_enabled' ] ?? false ) ) {
-				$this->assertSame( ActionData::FIELD_SHIELD, $renderActionData[ ActionData::FIELD_ACTION ] ?? '' );
-				$this->assertSame( AjaxRender::SLUG, $renderActionData[ ActionData::FIELD_EXECUTE ] ?? '' );
-				$this->assertSame( ( $subjectDefinition[ 'render_action' ] )::SLUG, $renderActionData[ 'render_slug' ] ?? '' );
-				$this->assertSame( $subjectDefinition[ 'render_nav' ], $renderActionData[ Constants::NAV_ID ] ?? '' );
-				$this->assertSame( $subjectDefinition[ 'render_subnav' ], $renderActionData[ Constants::NAV_SUB_ID ] ?? '' );
-			}
-			else {
-				$this->assertSame( [], $renderActionData );
-			}
-		}
-
-		$this->assertCount( $expectedTileCount, $vars[ 'mode_tiles' ] ?? [] );
-		$this->assertCount( \count( $subjectDefinitions ), $subjects );
-		$this->assertSame( $expectedPanelCount, \count( \array_values( \array_filter(
-			$subjects,
-			static fn( array $subject ) :bool => (bool)( $subject[ 'is_enabled' ] ?? false )
-		) ) ) );
-		$this->assertSame( $expectedPanelCount, \count( \array_values( \array_filter(
-			$subjects,
-			static fn( array $subject ) :bool => !(bool)( $subject[ 'is_loaded' ] ?? true ) && (bool)( $subject[ 'is_enabled' ] ?? false )
-		) ) ) );
-		$this->assertSame( $expectedLivePanelCount, \count( \array_values( \array_filter(
-			$subjects,
-			static fn( array $subject ) :bool => (bool)( $subject[ 'is_live' ] ?? false ) && (bool)( $subject[ 'is_enabled' ] ?? false )
-		) ) ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-landing="1" and string-length(@data-investigate-idle-context) > 0]',
+			'Investigate landing should render the root idle drill state contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-section="drilldown"]/div[1][@data-drill-shell="1" and @data-drill-shell-mode="investigate"]',
+			'Investigate landing should render the drill shell first'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-section="drilldown"]/div[2][@data-drill-context-card="investigate_drill_shell"]',
+			'Investigate landing should render the context card second'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-layer-key="subjects" and string-length(@data-drill-layer-context) > 0]',
+			'Investigate landing should render producer-owned layer context JSON'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-layer-key="subjects"]//*[@data-drill-strip="1" and @data-drill-strip-aria-prefix="Back to"]',
+			'Investigate landing should render the shared drill strip contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__section-label ") and normalize-space()="Choose a subject to investigate"]',
+			'Investigate landing should render the heading inside the subjects layer'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__subject-card ")]',
+			7,
+			'Investigate landing should render the seven canonical subject tiles'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-drill-target="panel" and @data-investigate-render-action and @data-investigate-context]',
+			6,
+			'Investigate landing should render six enabled drill target buttons'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-subject="premium_integrations" and @aria-disabled="true" and contains(concat(" ", normalize-space(@class), " "), " is-disabled ")]',
+			'Investigate landing should keep premium integrations disabled'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-panel="1" and @data-investigate-panel-loaded="0" and @data-investigate-panel-subject="" and @data-investigate-render-action=""]',
+			'Investigate landing should render one unloaded panel wrapper in layer 2'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-investigate-panel="1"]',
+			1,
+			'Investigate landing should use one panel wrapper only'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-tile or @data-mode-panel-target or @data-mode-panel="1"]',
+			0,
+			'Investigate landing should not render legacy mode-panel markup'
+		);
 	}
 
-	public function test_lookup_preload_sets_active_subject_and_loaded_panel_payload() :void {
-		$enabledSubjectCount = \count( \array_filter(
-			PluginNavs::investigateLandingSubjectDefinitions(),
-			static fn( array $subject ) :bool => (bool)( $subject[ 'is_enabled' ] ?? false )
-		) );
-
+	public function test_valid_deep_link_compacts_subject_layer_and_preloads_the_single_panel_wrapper() :void {
 		$payload = $this->renderInvestigateLandingPage( [
 			'subject'    => 'ip',
 			'analyse_ip' => '203.0.113.88',
 		] );
-		$this->assertRouteRenderOutputHealthy( $payload, 'investigate landing preload' );
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'investigate landing deep link' );
 		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
-		$subjects = \is_array( $vars[ 'subjects' ] ?? null ) ? $vars[ 'subjects' ] : [];
-		$subjectsByKey = [];
-		foreach ( $subjects as $subject ) {
-			$subjectsByKey[ (string)( $subject[ 'key' ] ?? '' ) ] = $subject;
-		}
+		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertModePanelPayload( $vars, 'ip', true );
-		$this->assertCount( $enabledSubjectCount - 1, \array_values( \array_filter(
-			$subjects,
-			static fn( array $subject ) :bool => !(bool)( $subject[ 'is_loaded' ] ?? true ) && (bool)( $subject[ 'is_enabled' ] ?? false )
-		) ) );
-		$this->assertTrue( (bool)( $subjectsByKey[ 'ip' ][ 'is_loaded' ] ?? false ) );
-		$this->assertSame( '203.0.113.88', (string)( $subjectsByKey[ 'ip' ][ 'subject_title' ] ?? '' ) );
-		$this->assertSame( 'analyse_ip', (string)( $subjectsByKey[ 'ip' ][ 'lookup_key' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $subjectsByKey[ 'ip' ][ 'panel_body' ] ?? '' ) ) );
+		$this->assertSame( 1, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
+		$this->assertSame( 'IP Address', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' ) ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-drill-context-card="investigate_drill_shell"]//*[contains(concat(" ", normalize-space(@class), " "), " drill-context-card__path-segment is-current ") and normalize-space()="IP Address"]',
+			'Deep-linked Investigate landing should preload the IP path context'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-panel="1" and @data-investigate-panel-loaded="1" and @data-investigate-panel-subject="ip"]',
+			'Deep-linked Investigate landing should preload the single active panel wrapper'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-investigate-panel="1"]//*[@data-investigate-subject-header="1"]',
+			'Deep-linked Investigate landing should preload the rendered subject header'
+		);
 	}
-
 }
