@@ -121,7 +121,7 @@
     ],
     "test:browser": [
       "Composer\\Config::disableProcessTimeout",
-      "@node tests/browser/support/run-playwright-with-playground.js"
+      "node tests/browser/support/run-playwright-with-playground.js"
     ],
     "test:package-targeted": [
       "Composer\\Config::disableProcessTimeout",

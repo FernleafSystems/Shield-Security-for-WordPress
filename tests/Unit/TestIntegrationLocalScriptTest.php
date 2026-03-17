@@ -17,4 +17,15 @@ class TestIntegrationLocalScriptTest extends BaseUnitTest {
 		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $commands );
 		$this->assertContains( '@php bin/shield test:integration-local', $commands );
 	}
+
+	public function testComposerBrowserScriptUsesDirectNodeCommand() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
+		}
+
+		$commands = $this->getComposerScriptCommands( 'test:browser' );
+		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $commands );
+		$this->assertContains( 'node tests/browser/support/run-playwright-with-playground.js', $commands );
+		$this->assertNotContains( '@node tests/browser/support/run-playwright-with-playground.js', $commands );
+	}
 }

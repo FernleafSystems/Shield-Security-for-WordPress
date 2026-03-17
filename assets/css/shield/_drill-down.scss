@@ -142,7 +142,7 @@
 	font-size: 13px;
 	line-height: 1.5;
 	margin-bottom: 16px;
-	padding: 12px 16px;
+	padding: 16px;
 }
 
 .drill-context-card__header {
@@ -221,7 +221,15 @@
 .configure-landing__drilldown .drill-context-card,
 .investigate-landing__drilldown .drill-context-card {
 	position: sticky;
-	top: 48px;
+	top: 46px;
+}
+
+@media (min-width: 783px) {
+	.actions-landing__drilldown .drill-context-card,
+	.configure-landing__drilldown .drill-context-card,
+	.investigate-landing__drilldown .drill-context-card {
+		top: 32px;
+	}
 }
 
 .drill-context-card__section {

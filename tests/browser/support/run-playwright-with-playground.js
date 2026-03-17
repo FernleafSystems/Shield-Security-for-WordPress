@@ -44,6 +44,23 @@ function buildPlaywrightCommand() {
 	};
 }
 
+function stopProcessTree( childProcess ) {
+	if ( !childProcess || childProcess.exitCode !== null ) {
+		return;
+	}
+
+	if ( process.platform === 'win32' && childProcess.pid ) {
+		const killer = spawn( 'taskkill', [ '/pid', String( childProcess.pid ), '/T', '/F' ], {
+			stdio: 'ignore',
+			shell: false,
+		} );
+		killer.on( 'error', () => {} );
+		return;
+	}
+
+	childProcess.kill( 'SIGTERM' );
+}
+
 async function main() {
 	let playgroundProcess = null;
 	let startedHere = false;
@@ -66,9 +83,7 @@ async function main() {
 
 		const ready = await waitForServerReady( baseUrl, 180_000 );
 		if ( !ready ) {
-			if ( playgroundProcess.exitCode === null ) {
-				playgroundProcess.kill( 'SIGTERM' );
-			}
+			stopProcessTree( playgroundProcess );
 			console.error( `Playground server did not become ready at ${baseUrl} within 180 seconds.` );
 			process.exit( 1 );
 		}
@@ -82,8 +97,8 @@ async function main() {
 	} );
 
 	const shutdown = () => {
-		if ( startedHere && playgroundProcess && playgroundProcess.exitCode === null ) {
-			playgroundProcess.kill( 'SIGTERM' );
+		if ( startedHere && playgroundProcess ) {
+			stopProcessTree( playgroundProcess );
 		}
 	};
 

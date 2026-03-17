@@ -3,6 +3,7 @@
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 /**
  * Run WordPress Playground against the current Git working copy under the real plugin slug.
@@ -707,51 +708,39 @@ function buildPreferredVersions( string $phpVersion, string $wpVersion ) :array 
 }
 
 function runPassthruCommand( array $command ) :int {
-	$commandString = implode(
-		' ',
-		array_map(
-			static fn( string $arg ) :string => escapeshellarg( $arg ),
-			$command
-		)
-	);
-	passthru( $commandString, $exitCode );
-	return (int)$exitCode;
+	$process = new Process( $command );
+	$process->setTimeout( null );
+	$process->run( static function ( string $type, string $buffer ) :void {
+		if ( $type === Process::ERR ) {
+			fwrite( STDERR, $buffer );
+		}
+		else {
+			echo $buffer;
+		}
+	} );
+
+	return $process->getExitCode() ?? 1;
 }
 
 function runCommandCapture( array $command ) :array {
-	$descriptorSpec = [
-		0 => [ 'pipe', 'r' ],
-		1 => [ 'pipe', 'w' ],
-		2 => [ 'pipe', 'w' ],
-	];
-	$commandString = implode(
-		' ',
-		array_map(
-			static fn( string $arg ) :string => escapeshellarg( $arg ),
-			$command
-		)
-	);
-	$process = proc_open( $commandString, $descriptorSpec, $pipes );
-	if ( !is_resource( $process ) ) {
+	$process = new Process( $command );
+	$process->setTimeout( null );
+
+	try {
+		$process->run();
+	}
+	catch ( Throwable $e ) {
 		return [
 			'exit_code' => 1,
 			'stdout' => '',
-			'stderr' => 'Failed to start process.',
+			'stderr' => $e->getMessage(),
 		];
 	}
 
-	fclose( $pipes[0] );
-	$stdout = stream_get_contents( $pipes[1] );
-	$stderr = stream_get_contents( $pipes[2] );
-	fclose( $pipes[1] );
-	fclose( $pipes[2] );
-
-	$exitCode = proc_close( $process );
-
 	return [
-		'exit_code' => (int)$exitCode,
-		'stdout' => is_string( $stdout ) ? $stdout : '',
-		'stderr' => is_string( $stderr ) ? $stderr : '',
+		'exit_code' => $process->getExitCode() ?? 1,
+		'stdout' => $process->getOutput(),
+		'stderr' => $process->getErrorOutput(),
 	];
 }
 
@@ -1311,7 +1300,7 @@ Examples:
   composer playground:local:check -- --plugin-root=./shield-package
 
 Notes:
-  Local local-run workflows require node_modules/.bin/wp-playground-cli.
+  Local local-run workflows require the repo-local @wp-playground/cli package.
   Install once: npm install --save-dev @wp-playground/cli
 TXT;
 }
