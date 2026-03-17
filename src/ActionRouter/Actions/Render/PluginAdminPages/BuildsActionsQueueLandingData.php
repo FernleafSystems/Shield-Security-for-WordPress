@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
+ * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -18,22 +19,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-type AssessmentRowsByZone array{
  *   scans:list<AssessmentRow>,
  *   maintenance:list<AssessmentRow>
- * }
- * @phpstan-type BucketCard array{
- *   key:string,
- *   label:string,
- *   status:string,
- *   item_count:int,
- *   summary_text:string,
- *   preview_text:string,
- *   icon_class:string,
- *   strip_text:string,
- *   strip_badge:string,
- *   context:array{
- *     path:list<string>,
- *     focus:string,
- *     next_step:string
- *   }
  * }
  */
 trait BuildsActionsQueueLandingData {
@@ -146,7 +131,7 @@ trait BuildsActionsQueueLandingData {
 	}
 
 	/**
-	 * @return list<BucketCard>
+	 * @return list<BucketData>
 	 */
 	protected function getBucketsData() :array {
 		if ( $this->actionsQueueBucketsCache === null ) {

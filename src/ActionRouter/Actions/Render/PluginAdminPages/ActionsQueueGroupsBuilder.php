@@ -9,6 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
+ * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
+ * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type LayerContext from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -20,11 +24,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type AssessmentRowsByZone array{
  *   scans:list<AssessmentRow>,
  *   maintenance:list<AssessmentRow>
- * }
- * @phpstan-type LayerContext array{
- *   path:list<string>,
- *   focus:string,
- *   next_step:string
  * }
  * @phpstan-type GroupData array{
  *   key:string,
@@ -39,30 +38,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   render_action_data:array<string,string>,
  *   strip_text:string,
  *   strip_badge:string,
- *   context:LayerContext
+ *   context:LayerContext,
+ *   selection:GroupSelection
  * }
  * @phpstan-type GroupsLayerData array{
- *   bucket_key:string,
- *   bucket_label:string,
- *   bucket_status:string,
- *   bucket_item_count:int,
+ *   bucket_selection:BucketSelection,
  *   groups:list<GroupData>,
  *   context:LayerContext,
  *   strip_text:string,
  *   strip_badge:string,
  *   strip_badge_status:string
- * }
- * @phpstan-type BucketData array{
- *   key:string,
- *   label:string,
- *   status:string,
- *   item_count:int,
- *   summary_text:string,
- *   preview_text:string,
- *   icon_class:string,
- *   strip_text:string,
- *   strip_badge:string,
- *   context:LayerContext
  * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
@@ -95,6 +80,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 class ActionsQueueGroupsBuilder {
 
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
+	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -116,7 +102,7 @@ class ActionsQueueGroupsBuilder {
 			return $computed[ 'groups_indexed' ][ $groupKey ];
 		}
 
-		return $this->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_label' ] );
+		return $this->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_selection' ][ 'label' ] );
 	}
 
 	/**
@@ -133,7 +119,7 @@ class ActionsQueueGroupsBuilder {
 		return [
 			'layer'          => $computed[ 'layer' ],
 			'selected_group' => $computed[ 'groups_indexed' ][ $groupKey ]
-				?? $this->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_label' ] ),
+				?? $this->buildEmptyGroup( $groupKey, $computed[ 'layer' ][ 'bucket_selection' ][ 'label' ] ),
 		];
 	}
 
@@ -149,27 +135,16 @@ class ActionsQueueGroupsBuilder {
 		$bucket = $buckets[ $bucketKey ];
 		$groupsIndexed = $this->buildGroupsIndexedForBucket( $bucket[ 'label' ], $bucketSources[ $bucketKey ] );
 		$groups = \array_values( $groupsIndexed );
+		$bucketSelection = $bucket[ 'selection' ];
 
 		return [
 			'layer'          => [
-				'bucket_key'        => $bucketKey,
-				'bucket_label'      => $bucket[ 'label' ],
-				'bucket_status'     => $bucket[ 'status' ],
-				'bucket_item_count' => $bucket[ 'item_count' ],
-				'groups'            => $groups,
-				'context'           => [
-					'path'      => [
-						__( 'Triage buckets', 'wp-simple-firewall' ),
-						$bucket[ 'label' ],
-					],
-					'focus'     => $this->buildBucketFocusText( $bucket[ 'label' ], $bucket[ 'item_count' ] ),
-					'next_step' => empty( $groups )
-						? __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' )
-						: __( 'Choose a group to review the matching results.', 'wp-simple-firewall' ),
-				],
-				'strip_text'        => $bucket[ 'strip_text' ],
-				'strip_badge'       => $bucket[ 'strip_badge' ],
-				'strip_badge_status' => $bucket[ 'status' ],
+				'bucket_selection'   => $bucketSelection,
+				'groups'             => $groups,
+				'context'            => $bucketSelection[ 'context' ],
+				'strip_text'         => $bucketSelection[ 'strip_text' ],
+				'strip_badge'        => $bucketSelection[ 'strip_badge' ],
+				'strip_badge_status' => $bucketSelection[ 'status' ],
 			],
 			'groups_indexed' => $groupsIndexed,
 		];
@@ -266,6 +241,23 @@ class ActionsQueueGroupsBuilder {
 			$group[ 'item_count' ]
 		);
 		$nextMove = $this->buildNextMove( $group[ 'key' ] );
+		$context = [
+			'path'      => [
+				__( 'Triage buckets', 'wp-simple-firewall' ),
+				$bucketLabel,
+				$group[ 'label' ],
+			],
+			'focus'     => $narrative,
+			'next_step' => $nextMove,
+		];
+		$selection = $this->presentation()->buildGroupSelection(
+			$group[ 'key' ],
+			$group[ 'label' ],
+			$group[ 'status' ],
+			$group[ 'item_count' ],
+			$definition[ 'detail_shell' ],
+			$context
+		);
 
 		return [
 			'key'                 => $group[ 'key' ],
@@ -278,17 +270,10 @@ class ActionsQueueGroupsBuilder {
 			'next_move'           => $nextMove,
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
-			'strip_text'          => $this->buildStripText( $group[ 'label' ], $group[ 'item_count' ] ),
-			'strip_badge'         => $this->buildItemBadge( $group[ 'item_count' ] ),
-			'context'             => [
-				'path'      => [
-					__( 'Triage buckets', 'wp-simple-firewall' ),
-					$bucketLabel,
-					$group[ 'label' ],
-				],
-				'focus'     => $narrative,
-				'next_step' => $nextMove,
-			],
+			'strip_text'          => $selection[ 'strip_text' ],
+			'strip_badge'         => $selection[ 'strip_badge' ],
+			'context'             => $context,
+			'selection'           => $selection,
 		];
 	}
 
@@ -299,6 +284,23 @@ class ActionsQueueGroupsBuilder {
 		$definition = $this->getGroupDefinition( $groupKey );
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
 		$nextMove = __( 'Go back to the grouped findings and pick another area to review.', 'wp-simple-firewall' );
+		$context = [
+			'path'      => [
+				__( 'Triage buckets', 'wp-simple-firewall' ),
+				$bucketLabel,
+				$definition[ 'label' ],
+			],
+			'focus'     => $narrative,
+			'next_step' => $nextMove,
+		];
+		$selection = $this->presentation()->buildGroupSelection(
+			$groupKey,
+			$definition[ 'label' ],
+			'good',
+			0,
+			$definition[ 'detail_shell' ],
+			$context
+		);
 
 		return [
 			'key'                 => $groupKey,
@@ -311,46 +313,11 @@ class ActionsQueueGroupsBuilder {
 			'next_move'           => $nextMove,
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
-			'strip_text'          => $this->buildStripText( $definition[ 'label' ], 0 ),
-			'strip_badge'         => $this->buildItemBadge( 0 ),
-			'context'             => [
-				'path'      => [
-					__( 'Triage buckets', 'wp-simple-firewall' ),
-					$bucketLabel,
-					$definition[ 'label' ],
-				],
-				'focus'     => $narrative,
-				'next_step' => $nextMove,
-			],
+			'strip_text'          => $selection[ 'strip_text' ],
+			'strip_badge'         => $selection[ 'strip_badge' ],
+			'context'             => $context,
+			'selection'           => $selection,
 		];
-	}
-
-	private function buildBucketFocusText( string $bucketLabel, int $itemCount ) :string {
-		return \sprintf(
-			_n(
-				'%1$s contains %2$s item that still needs attention.',
-				'%1$s contains %2$s items that still need attention.',
-				$itemCount,
-				'wp-simple-firewall'
-			),
-			$bucketLabel,
-			$itemCount
-		);
-	}
-
-	private function buildStripText( string $label, int $itemCount ) :string {
-		return \sprintf(
-			_n( '%1$s - %2$s item', '%1$s - %2$s items', $itemCount, 'wp-simple-firewall' ),
-			$label,
-			$itemCount
-		);
-	}
-
-	private function buildItemBadge( int $itemCount ) :string {
-		return \sprintf(
-			_n( '%s item', '%s items', $itemCount, 'wp-simple-firewall' ),
-			$itemCount
-		);
 	}
 
 	/**
@@ -476,5 +443,13 @@ class ActionsQueueGroupsBuilder {
 		}
 
 		return $this->groupDefinitions;
+	}
+
+	private function presentation() :ActionsQueueDrillDownPresentationBuilder {
+		if ( $this->presentation === null ) {
+			$this->presentation = new ActionsQueueDrillDownPresentationBuilder();
+		}
+
+		return $this->presentation;
 	}
 }

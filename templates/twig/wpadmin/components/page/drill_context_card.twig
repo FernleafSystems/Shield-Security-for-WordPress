@@ -18,7 +18,7 @@
 	 role="status"
 	 aria-atomic="true"
 	 aria-live="polite"
-	 aria-label="Workflow context"
+	 aria-label="{{ strings.context_aria_label|default('Workflow context')|e('html_attr') }}"
 	 data-drill-context-card="{{ context_card_shell_id|e('html_attr') }}"
 	 {% if has_renderable_context and context_card_data.mode|default('') is not empty %}
 	 data-drill-context-mode="{{ context_card_data.mode|e('html_attr') }}"{% endif %}>

@@ -20,6 +20,12 @@ abstract class ActionsQueueDrillDownRenderBase extends BaseRender {
 		$payload[ 'strip_text' ] = $payload[ 'render_data' ][ 'strip_text' ];
 		$payload[ 'strip_badge' ] = $payload[ 'render_data' ][ 'strip_badge' ];
 		$payload[ 'strip_badge_status' ] = $payload[ 'render_data' ][ 'strip_badge_status' ];
+		if ( isset( $payload[ 'render_data' ][ 'bucket_selection' ] ) ) {
+			$payload[ 'bucket_selection' ] = $payload[ 'render_data' ][ 'bucket_selection' ];
+		}
+		if ( isset( $payload[ 'render_data' ][ 'group_selection' ] ) ) {
+			$payload[ 'group_selection' ] = $payload[ 'render_data' ][ 'group_selection' ];
+		}
 		if ( isset( $payload[ 'render_data' ][ 'selected_group' ] ) ) {
 			$payload[ 'selected_group' ] = $payload[ 'render_data' ][ 'selected_group' ];
 		}

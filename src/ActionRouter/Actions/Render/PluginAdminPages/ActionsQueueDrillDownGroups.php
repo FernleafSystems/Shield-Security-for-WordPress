@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+/**
+ * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type GroupData from ActionsQueueGroupsBuilder
+ * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
+ */
 class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 
 	public const SLUG = 'actions_queue_drill_down_groups';
@@ -9,30 +14,9 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 
 	/**
 	 * @return array{
-	 *   bucket_key:string,
-	 *   bucket_label:string,
-	 *   bucket_status:string,
-	 *   bucket_item_count:int,
+	 *   bucket_selection:BucketSelection,
 	 *   empty_message:string,
-	 *   groups:list<array{
-	 *     key:string,
-	 *     label:string,
-	 *     item_count:int,
-	 *     status:string,
-	 *     icon_class:string,
-	 *     detail_shell:'asset_cards'|'direct_table'|'maintenance',
-	 *     narrative:string,
-	 *     next_move:string,
-	 *     render_action_class:string,
-	 *     render_action_data:array<string,string>,
-	 *     strip_text:string,
-	 *     strip_badge:string,
-	 *     context:array{
-	 *       path:list<string>,
-	 *       focus:string,
-	 *       next_step:string
-	 *     }
-	 *   }>,
+	 *   groups:list<GroupData>,
 	 *   context:array{
 	 *     path:list<string>,
 	 *     focus:string,
@@ -41,25 +25,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	 *   strip_text:string,
 	 *   strip_badge:string,
 	 *   strip_badge_status:string,
-	 *   selected_group?:array{
-	 *     key:string,
-	 *     label:string,
-	 *     item_count:int,
-	 *     status:string,
-	 *     icon_class:string,
-	 *     detail_shell:'asset_cards'|'direct_table'|'maintenance',
-	 *     narrative:string,
-	 *     next_move:string,
-	 *     render_action_class:string,
-	 *     render_action_data:array<string,string>,
-	 *     strip_text:string,
-	 *     strip_badge:string,
-	 *     context:array{
-	 *       path:list<string>,
-	 *       focus:string,
-	 *       next_step:string
-	 *     }
-	 *   },
+	 *   selected_group?:GroupSelection,
 	 *   landing_refresh?:array{
 	 *     queue_is_empty:bool,
 	 *     severity_strip_html:string,
@@ -90,10 +56,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 		$groups = $renderPayload[ 'layer' ];
 
 		$data = [
-			'bucket_key'         => $groups[ 'bucket_key' ],
-			'bucket_label'       => $groups[ 'bucket_label' ],
-			'bucket_status'      => $groups[ 'bucket_status' ],
-			'bucket_item_count'  => $groups[ 'bucket_item_count' ],
+			'bucket_selection'   => $groups[ 'bucket_selection' ],
 			'empty_message'      => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
 			'groups'             => $groups[ 'groups' ],
 			'context'            => $groups[ 'context' ],
@@ -114,7 +77,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			];
 		}
 		if ( isset( $renderPayload[ 'selected_group' ] ) ) {
-			$data[ 'selected_group' ] = $renderPayload[ 'selected_group' ];
+			$data[ 'selected_group' ] = $renderPayload[ 'selected_group' ][ 'selection' ];
 		}
 
 		return $data;

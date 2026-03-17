@@ -140,9 +140,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		);
 		$this->assertSame(
 			[
-				'header_label'    => 'Where you are',
-				'focus_label'     => 'Focus',
-				'next_step_label' => 'Next step',
+				'header_label'       => 'Where you are',
+				'context_aria_label' => 'Workflow context',
+				'focus_label'        => 'Focus',
+				'next_step_label'    => 'Next step',
 			],
 			$vars[ 'drill_context_card' ][ 'strings' ]
 		);

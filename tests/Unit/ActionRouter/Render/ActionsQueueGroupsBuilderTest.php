@@ -46,9 +46,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'Fix now', $data[ 'bucket_label' ] );
-		$this->assertSame( 'critical', $data[ 'bucket_status' ] );
-		$this->assertSame( 3, $data[ 'bucket_item_count' ] );
+		$this->assertSame( 'Fix now', $data[ 'bucket_selection' ][ 'label' ] );
+		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
+		$this->assertSame( 3, $data[ 'bucket_selection' ][ 'item_count' ] );
 		$this->assertSame( 'Fix now - 3 items', $data[ 'strip_text' ] );
 		$this->assertSame( '3 items', $data[ 'strip_badge' ] );
 		$this->assertSame( [ 'malware', 'vulnerabilities' ], \array_column( $data[ 'groups' ], 'key' ) );
@@ -58,6 +58,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '2 suspected malware results need review.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
 		$this->assertSame( 'Malware Detections - 2 items', $data[ 'groups' ][ 0 ][ 'strip_text' ] );
 		$this->assertSame( '2 items', $data[ 'groups' ][ 0 ][ 'strip_badge' ] );
+		$this->assertSame( 'Malware Detections', $data[ 'groups' ][ 0 ][ 'selection' ][ 'label' ] );
+		$this->assertSame( 'direct_table', $data[ 'groups' ][ 0 ][ 'selection' ][ 'detail_shell' ] );
 		$this->assertSame(
 			'Review the flagged files and quarantine or delete them if they are confirmed malware.',
 			$data[ 'groups' ][ 0 ][ 'next_move' ]

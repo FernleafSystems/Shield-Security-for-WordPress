@@ -75,6 +75,22 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Malware', $bucketsByKey[ 'critical' ][ 'preview_text' ] );
 		$this->assertSame( 'Fix now - 2 items', $bucketsByKey[ 'critical' ][ 'strip_text' ] );
 		$this->assertSame( '2 items', $bucketsByKey[ 'critical' ][ 'strip_badge' ] );
+		$this->assertSame(
+			[
+				'key'        => 'critical',
+				'label'      => 'Fix now',
+				'status'     => 'critical',
+				'item_count' => 2,
+				'strip_text' => 'Fix now - 2 items',
+				'strip_badge' => '2 items',
+				'context'    => [
+					'path'      => [ 'Triage buckets', 'Fix now' ],
+					'focus'     => 'Fix now contains 2 items that still need attention.',
+					'next_step' => 'Choose a group to review the matching results.',
+				],
+			],
+			$bucketsByKey[ 'critical' ][ 'selection' ]
+		);
 
 		$this->assertSame( 'warning', $bucketsByKey[ 'review' ][ 'status' ] );
 		$this->assertSame( 2, $bucketsByKey[ 'review' ][ 'item_count' ] );
@@ -92,6 +108,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $bucketsByKey[ 'later' ][ 'item_count' ] );
 		$this->assertSame( '2 maintenance checks', $bucketsByKey[ 'later' ][ 'summary_text' ] );
 		$this->assertSame( 'PHP Version', $bucketsByKey[ 'later' ][ 'preview_text' ] );
+		$this->assertSame( $bucketsByKey[ 'later' ][ 'strip_text' ], $bucketsByKey[ 'later' ][ 'selection' ][ 'strip_text' ] );
 	}
 
 	public function test_classify_keeps_good_and_neutral_maintenance_rows_in_later_only() :void {

@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
+ * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type LayerContext from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -19,11 +21,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type AssessmentRowsByZone array{
  *   scans:list<AssessmentRow>,
  *   maintenance:list<AssessmentRow>
- * }
- * @phpstan-type LayerContext array{
- *   path:list<string>,
- *   focus:string,
- *   next_step:string
  * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
@@ -40,12 +37,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   icon_class:string,
  *   strip_text:string,
  *   strip_badge:string,
- *   context:LayerContext
+ *   context:LayerContext,
+ *   selection:BucketSelection
  * }
  */
 class ActionsQueueBucketsBuilder {
 
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
+	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -55,9 +54,27 @@ class ActionsQueueBucketsBuilder {
 	public function build( array $attentionQuery, array $assessmentRowsByZone ) :array {
 		$sources = $this->classify( $attentionQuery, $assessmentRowsByZone );
 		$buckets = [];
+		$presentation = $this->presentation();
 
 		foreach ( $this->getBucketDefinitions() as $bucketKey => $definition ) {
 			$bucketSource = $sources[ $bucketKey ];
+			$context = [
+				'path'      => [
+					__( 'Triage buckets', 'wp-simple-firewall' ),
+					$definition[ 'label' ],
+				],
+				'focus'     => $presentation->buildBucketFocusText( $definition[ 'label' ], $bucketSource[ 'item_count' ] ),
+				'next_step' => empty( $bucketSource[ 'attention_items' ] ) && empty( $bucketSource[ 'maintenance_rows' ] )
+					? __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' )
+					: __( 'Choose a group to review the matching results.', 'wp-simple-firewall' ),
+			];
+			$selection = $presentation->buildBucketSelection(
+				$bucketKey,
+				$definition[ 'label' ],
+				$definition[ 'status' ],
+				$bucketSource[ 'item_count' ],
+				$context
+			);
 			$buckets[] = [
 				'key'          => $bucketKey,
 				'label'        => $definition[ 'label' ],
@@ -66,18 +83,10 @@ class ActionsQueueBucketsBuilder {
 				'summary_text' => $this->buildSummaryText( $bucketKey, $bucketSource ),
 				'preview_text' => $this->buildPreviewText( $bucketSource ),
 				'icon_class'   => $definition[ 'icon_class' ],
-				'strip_text'   => $this->buildStripText( $definition[ 'label' ], $bucketSource[ 'item_count' ] ),
-				'strip_badge'  => $this->buildItemBadge( $bucketSource[ 'item_count' ] ),
-				'context'      => [
-					'path'      => [
-						__( 'Triage buckets', 'wp-simple-firewall' ),
-						$definition[ 'label' ],
-					],
-					'focus'     => $this->buildBucketFocusText( $definition[ 'label' ], $bucketSource[ 'item_count' ] ),
-					'next_step' => empty( $bucketSource[ 'attention_items' ] ) && empty( $bucketSource[ 'maintenance_rows' ] )
-						? __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' )
-						: __( 'Choose a group to review the matching results.', 'wp-simple-firewall' ),
-				],
+				'strip_text'   => $selection[ 'strip_text' ],
+				'strip_badge'  => $selection[ 'strip_badge' ],
+				'context'      => $context,
+				'selection'    => $selection,
 			];
 		}
 
@@ -303,34 +312,6 @@ class ActionsQueueBucketsBuilder {
 		return $this->groupDefinitions;
 	}
 
-	private function buildStripText( string $label, int $itemCount ) :string {
-		return \sprintf(
-			_n( '%1$s - %2$s item', '%1$s - %2$s items', $itemCount, 'wp-simple-firewall' ),
-			$label,
-			$itemCount
-		);
-	}
-
-	private function buildItemBadge( int $itemCount ) :string {
-		return \sprintf(
-			_n( '%s item', '%s items', $itemCount, 'wp-simple-firewall' ),
-			$itemCount
-		);
-	}
-
-	private function buildBucketFocusText( string $bucketLabel, int $itemCount ) :string {
-		return \sprintf(
-			_n(
-				'%1$s contains %2$s item that still needs attention.',
-				'%1$s contains %2$s items that still need attention.',
-				$itemCount,
-				'wp-simple-firewall'
-			),
-			$bucketLabel,
-			$itemCount
-		);
-	}
-
 	/**
 	 * @param BucketSource $bucketSource
 	 */
@@ -343,5 +324,13 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return '';
+	}
+
+	private function presentation() :ActionsQueueDrillDownPresentationBuilder {
+		if ( $this->presentation === null ) {
+			$this->presentation = new ActionsQueueDrillDownPresentationBuilder();
+		}
+
+		return $this->presentation;
 	}
 }

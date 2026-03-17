@@ -41,6 +41,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   initial_context:DrillLayerContext,
  *   strings:array{
  *     header_label:string,
+ *     context_aria_label:string,
  *     focus_label:string,
  *     next_step_label:string
  *   }
@@ -83,9 +84,10 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 				? $layers[ $activeIndex ][ 'context' ]
 				: $this->emptyLayerContext(),
 			'strings'         => [
-				'header_label'    => __( 'Where you are', 'wp-simple-firewall' ),
-				'focus_label'     => __( 'Focus', 'wp-simple-firewall' ),
-				'next_step_label' => __( 'Next step', 'wp-simple-firewall' ),
+				'header_label'       => __( 'Where you are', 'wp-simple-firewall' ),
+				'context_aria_label' => __( 'Workflow context', 'wp-simple-firewall' ),
+				'focus_label'        => __( 'Focus', 'wp-simple-firewall' ),
+				'next_step_label'    => __( 'Next step', 'wp-simple-firewall' ),
 			],
 		];
 

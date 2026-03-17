@@ -45,6 +45,8 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 	use BuildsActionsQueueLandingData;
 
+	private ?ActionsQueueDrillDownPresentationBuilder $drillDownPresentation = null;
+
 	public const SLUG = 'plugin_admin_page_actions_queue_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/actions_queue_landing.twig';
 
@@ -124,7 +126,7 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 			[
 				'key'          => 'buckets',
 				'label'        => __( 'Triage buckets', 'wp-simple-firewall' ),
-				'badge'        => $this->buildItemBadge( $summary[ 'total_items' ] ),
+				'badge'        => $this->drillDownPresentation()->buildItemBadge( $summary[ 'total_items' ] ),
 				'badge_status' => $summary[ 'severity' ],
 				'body'         => $this->renderBucketsLayer(),
 				'context'      => [
@@ -191,10 +193,11 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 		return $this->getLandingViewData()[ 'zones_indexed' ];
 	}
 
-	private function buildItemBadge( int $itemCount ) :string {
-		return \sprintf(
-			_n( '%s item', '%s items', $itemCount, 'wp-simple-firewall' ),
-			$itemCount
-		);
+	private function drillDownPresentation() :ActionsQueueDrillDownPresentationBuilder {
+		if ( $this->drillDownPresentation === null ) {
+			$this->drillDownPresentation = new ActionsQueueDrillDownPresentationBuilder();
+		}
+
+		return $this->drillDownPresentation;
 	}
 }

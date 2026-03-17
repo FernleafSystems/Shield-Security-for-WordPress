@@ -304,7 +304,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-drill-target="groups" and @data-drill-bucket-key]',
+			'//*[@data-drill-target="groups" and @data-drill-bucket-selection]',
 			3,
 			'Bucket layer should render the three triage bucket cards'
 		);
@@ -376,6 +376,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $payload[ 'strip_badge_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
+		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'Review next', (string)( $payload[ 'bucket_selection' ][ 'label' ] ?? '' ) );
 		$this->assertSame(
 			[
 				'path'      => [ 'Triage buckets', 'Review next' ],
@@ -386,22 +388,22 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-actions-queue-groups="1" and @data-actions-queue-bucket-key="review"]',
+			'//*[@data-actions-queue-groups="1"]',
 			'Groups AJAX should render the selected bucket wrapper'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//button[@data-drill-target="detail" and @data-drill-group-key="maintenance" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
-			'Groups AJAX should render the maintenance group as a whole-card drill target'
+			'//button[@data-drill-target="detail" and @data-drill-bucket-selection and @data-drill-group-selection and contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
+			'Groups AJAX should render the group cards as whole-card drill targets with serialized selection payloads'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//button[@data-drill-target="detail" and @data-drill-group-key="maintenance"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card__next-move ")]/*[contains(concat(" ", normalize-space(@class), " "), " bi-arrow-right-circle ")]',
+			'//button[@data-drill-target="detail" and @data-drill-group-selection]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card__next-move ")]/*[contains(concat(" ", normalize-space(@class), " "), " bi-arrow-right-circle ")]',
 			'Groups AJAX should render the next-move guidance with the arrow icon'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//button[@data-drill-target="detail" and @data-drill-group-key="maintenance"]//button',
+			'//button[@data-drill-target="detail" and @data-drill-group-selection]//button',
 			0,
 			'Groups AJAX should not render nested CTA buttons inside the group card'
 		);
@@ -423,6 +425,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'severity_strip_html' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
+		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame(
 			[
 				'path'      => [ 'Triage buckets', 'Review next', 'Maintenance Items' ],
@@ -445,7 +448,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'Maintenance Items - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
 		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
-		$this->assertSame( 'maintenance', (string)( $payload[ 'render_data' ][ 'group_detail_shell' ] ?? '' ) );
+		$this->assertSame( 'maintenance', (string)( $payload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(
 			[
 				'path'      => [ 'Triage buckets', 'Review next', 'Maintenance Items' ],
@@ -456,7 +459,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-actions-queue-detail="1" and @data-actions-queue-group-key="maintenance"]',
+			'//*[@data-actions-queue-detail="1"]',
 			'Detail AJAX should wrap the selected group renderer in the drill-down detail container'
 		);
 		$this->assertXPathExists(

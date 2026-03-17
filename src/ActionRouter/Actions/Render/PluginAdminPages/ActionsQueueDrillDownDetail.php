@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+/**
+ * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
+ */
 class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 
 	public const SLUG = 'actions_queue_drill_down_detail';
@@ -9,12 +12,7 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 
 	/**
 	 * @return array{
-	 *   bucket_key:string,
-	 *   group_key:string,
-	 *   group_label:string,
-	 *   group_status:string,
-	 *   group_item_count:int,
-	 *   group_detail_shell:'asset_cards'|'direct_table'|'maintenance',
+	 *   group_selection:GroupSelection,
 	 *   detail_html:string,
 	 *   context:array{
 	 *     path:list<string>,
@@ -39,12 +37,7 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 		)->payload();
 
 		return [
-			'bucket_key'         => $this->action_data[ 'bucket' ],
-			'group_key'          => $group[ 'key' ],
-			'group_label'        => $group[ 'label' ],
-			'group_status'       => $group[ 'status' ],
-			'group_item_count'   => $group[ 'item_count' ],
-			'group_detail_shell' => $group[ 'detail_shell' ],
+			'group_selection'    => $group[ 'selection' ],
 			'detail_html'        => $payload[ 'html' ],
 			'context'            => $group[ 'context' ],
 			'strip_text'         => $group[ 'strip_text' ],

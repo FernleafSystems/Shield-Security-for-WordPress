@@ -7,13 +7,7 @@
 			<button type="button"
 					class="actions-queue-bucket-card shield-card status-{{ bucket.status }}{% if bucket.item_count < 1 %} is-empty{% endif %}"
 					data-drill-target="groups"
-					data-drill-bucket-key="{{ bucket.key|e('html_attr') }}"
-					data-drill-bucket-label="{{ bucket.label|e('html_attr') }}"
-					data-drill-bucket-status="{{ bucket.status|e('html_attr') }}"
-					data-drill-bucket-count="{{ bucket.item_count|e('html_attr') }}"
-					data-drill-strip-text="{{ bucket.strip_text|e('html_attr') }}"
-					data-drill-strip-badge="{{ bucket.strip_badge|e('html_attr') }}"
-					data-drill-context="{{ bucket.context|json_encode|e('html_attr') }}"
+					data-drill-bucket-selection="{{ bucket.selection|json_encode|e('html_attr') }}"
 					{% if bucket.item_count < 1 %}disabled{% endif %}>
 				<div class="shield-card-accent status-{{ bucket.status }}"></div>
 				<div class="actions-queue-bucket-card__header">
