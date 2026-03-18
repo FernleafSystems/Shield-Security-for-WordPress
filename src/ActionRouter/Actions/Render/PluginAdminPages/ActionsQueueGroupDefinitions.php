@@ -20,6 +20,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   label:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
+ *   card_type:'expandable'|'linked'|'category',
+ *   drill_hint_single:string,
+ *   drill_hint_plural:string,
  *   summary_keys:list<string>,
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,string>
@@ -48,6 +51,9 @@ class ActionsQueueGroupDefinitions {
 				'label'               => $this->groupLabel( $key, $scanDefinition[ 'label' ] ),
 				'icon_class'          => $scanDefinition[ 'rail_icon_class' ],
 				'detail_shell'        => $this->detailShell( $key ),
+				'card_type'           => $this->cardType( $key ),
+				'drill_hint_single'   => $this->drillHintSingle( $key ),
+				'drill_hint_plural'   => $this->drillHintPlural( $key ),
 				'summary_keys'        => $scanDefinition[ 'summary_keys' ],
 				'render_action_class' => $this->renderActionClass( $key ),
 				'render_action_data'  => $this->renderActionData( $key ),
@@ -59,6 +65,9 @@ class ActionsQueueGroupDefinitions {
 			'label'               => __( 'Maintenance Items', 'wp-simple-firewall' ),
 			'icon_class'          => 'bi bi-wrench',
 			'detail_shell'        => 'maintenance',
+			'card_type'           => 'category',
+			'drill_hint_single'   => '',
+			'drill_hint_plural'   => '',
 			'summary_keys'        => [],
 			'render_action_class' => Maintenance::class,
 			'render_action_data'  => [],
@@ -148,6 +157,56 @@ class ActionsQueueGroupDefinitions {
 
 			default:
 				return 'direct_table';
+		}
+	}
+
+	private function drillHintSingle( string $groupKey ) :string {
+		switch ( $groupKey ) {
+			case 'plugins':
+				return __( 'View %s plugin', 'wp-simple-firewall' );
+
+			case 'themes':
+				return __( 'View %s theme', 'wp-simple-firewall' );
+
+			case 'wordpress':
+			case 'malware':
+			case 'file_locker':
+				return __( 'View %s file', 'wp-simple-firewall' );
+
+			default:
+				return '';
+		}
+	}
+
+	private function drillHintPlural( string $groupKey ) :string {
+		switch ( $groupKey ) {
+			case 'plugins':
+				return __( 'View %s plugins', 'wp-simple-firewall' );
+
+			case 'themes':
+				return __( 'View %s themes', 'wp-simple-firewall' );
+
+			case 'wordpress':
+			case 'malware':
+			case 'file_locker':
+				return __( 'View %s files', 'wp-simple-firewall' );
+
+			default:
+				return '';
+		}
+	}
+
+	/**
+	 * @return 'expandable'|'linked'|'category'
+	 */
+	private function cardType( string $groupKey ) :string {
+		switch ( $groupKey ) {
+			case 'vulnerabilities':
+				return 'linked';
+			case 'maintenance':
+				return 'category';
+			default:
+				return 'expandable';
 		}
 	}
 }

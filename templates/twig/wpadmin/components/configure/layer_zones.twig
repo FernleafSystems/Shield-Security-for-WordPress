@@ -1,36 +1,65 @@
+{% macro zone_card(zone) %}
+	<button type="button"
+			class="configure-zone-card shield-card status-{{ zone.status }}"
+			data-drill-target="diagnosis"
+			data-drill-zone-selection="{{ zone.selection_json }}"
+			{% if zone.is_disabled %}disabled{% endif %}>
+		<div class="shield-card-accent status-{{ zone.status }}"></div>
+		<div class="configure-zone-card__header">
+			<div class="configure-zone-card__title-wrap">
+				<div class="configure-zone-card__icon">
+					<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
+				</div>
+				<div>
+					<div class="configure-zone-card__title">{{ zone.label }}</div>
+					<div class="configure-zone-card__stat">{{ zone.stat_line }}</div>
+				</div>
+			</div>
+			<span class="shield-badge badge-{{ zone.status }}">{{ zone.status_label }}</span>
+		</div>
+		<div class="configure-zone-card__preview">
+			<i class="{{ zone.status_icon_class }}" aria-hidden="true"></i>
+			<span>{{ zone.preview_text }}</span>
+		</div>
+	</button>
+{% endmacro %}
+
+{% from _self import zone_card %}
+
 <div class="configure-zones">
 	{% for section in sections %}
 		{% if section.cards is not empty %}
-			<section class="configure-zones__section">
-				<h2 class="configure-zones__section-heading">{{ section.heading }}</h2>
-				<div class="configure-zones__grid">
-					{% for zone in section.cards %}
-						<button type="button"
-								class="configure-zone-card shield-card status-{{ zone.status }}"
-								data-drill-target="diagnosis"
-								data-drill-zone-selection="{{ zone.selection_json }}"
-								{% if zone.is_disabled %}disabled{% endif %}>
-							<div class="shield-card-accent status-{{ zone.status }}"></div>
-							<div class="configure-zone-card__header">
-								<div class="configure-zone-card__title-wrap">
-									<div class="configure-zone-card__icon">
-										<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
-									</div>
-									<div>
-										<div class="configure-zone-card__title">{{ zone.label }}</div>
-										<div class="configure-zone-card__stat">{{ zone.stat_line }}</div>
-									</div>
-								</div>
-								<span class="shield-badge badge-{{ zone.status }}">{{ zone.status_label }}</span>
-							</div>
-							<div class="configure-zone-card__preview">
-								<i class="{{ zone.status_icon_class }}" aria-hidden="true"></i>
-								<span>{{ zone.preview_text }}</span>
-							</div>
-						</button>
-					{% endfor %}
+			{% if section.collapsible %}
+				<div class="configure-zones__healthy-collapse"
+					 data-configure-healthy-toggle="1">
+					<span class="configure-zones__healthy-icon">
+						<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+					</span>
+					<span class="configure-zones__healthy-label">
+						{{ section.cards|length }} {{ section.heading|lower }}
+					</span>
+					<span class="configure-zones__healthy-chevron">
+						<i class="bi bi-chevron-right" aria-hidden="true"></i>
+					</span>
 				</div>
-			</section>
+				<div class="configure-zones__healthy-cards"
+					 data-configure-healthy-body="1">
+					<div class="configure-zones__grid">
+						{% for zone in section.cards %}
+							{{ zone_card(zone) }}
+						{% endfor %}
+					</div>
+				</div>
+			{% else %}
+				<section class="configure-zones__section">
+					<h2 class="configure-zones__section-heading">{{ section.heading }}</h2>
+					<div class="configure-zones__grid">
+						{% for zone in section.cards %}
+							{{ zone_card(zone) }}
+						{% endfor %}
+					</div>
+				</section>
+			{% endif %}
 		{% endif %}
 	{% endfor %}
 </div>

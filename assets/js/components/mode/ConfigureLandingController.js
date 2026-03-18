@@ -20,6 +20,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.bindDrillDownHandlers();
 		this.bindSaveHandlers();
 		this.initializeCurrentRoot();
+		this.bindHealthyZoneToggle();
 	}
 
 	bindDrillDownHandlers() {
@@ -48,6 +49,34 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.hasBoundSaveHandlers = true;
 
 		document.addEventListener( 'shield:expansion-form-saved', ( evt ) => this.handleSettingsSaved( evt ) );
+	}
+
+	bindHealthyZoneToggle() {
+		if ( this.hasBoundHealthyToggle ) {
+			return;
+		}
+		this.hasBoundHealthyToggle = true;
+
+		document.addEventListener( 'click', ( evt ) => {
+			// Shared collapse contract: toggle + immediately-following content panel.
+			const toggle = evt.target instanceof Element
+				? evt.target.closest( '[data-configure-healthy-toggle="1"], [data-configure-healthy-settings-toggle="1"]' )
+				: null;
+			if ( toggle === null ) {
+				return;
+			}
+
+			const root = this.rootEl || this.getConfigureRoot();
+			if ( root === null || !root.contains( toggle ) ) {
+				return;
+			}
+
+			toggle.classList.toggle( 'is-open' );
+			const body = toggle.nextElementSibling;
+			if ( body !== null ) {
+				body.classList.toggle( 'is-open' );
+			}
+		} );
 	}
 
 	initializeCurrentRoot() {
@@ -252,6 +281,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		drillCtrl.updateStripBadge( this.shellEl, 0, zoneSelection.strip_badge, zoneSelection.status );
 		drillCtrl.updateLayerContext( this.shellEl, 1, data.context || zoneSelection.context );
 		this.applyLandingRefresh( data.landing_refresh || null );
+		this.reinitializeExpandLoader();
 	}
 
 	applyEditorLayerResponse( data ) {

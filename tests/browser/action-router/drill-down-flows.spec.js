@@ -29,11 +29,20 @@ test( 'actions queue drills into groups and details, then drills back out', asyn
 	await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
 });
 
-test( 'configure drills into diagnosis and editor, then drills back out', async ( { page } ) => {
+test( 'configure toggles healthy zones, drills into diagnosis, and drills back out', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'zones',
 		nav_sub: 'overview',
 	} );
+
+	const healthyToggle = page.locator( '[data-configure-healthy-toggle="1"]' );
+	const healthyZone = page.locator( '[data-configure-healthy-body="1"] [data-drill-target="diagnosis"]' ).first();
+	await expect( healthyToggle ).toBeVisible();
+	await expect( healthyZone ).toBeHidden();
+
+	await healthyToggle.click();
+	await expect( healthyToggle ).toHaveClass( /is-open/ );
+	await expect( healthyZone ).toBeVisible();
 
 	const zone = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' )
 		.filter( { hasText: /Security Admin/i } )
@@ -43,13 +52,26 @@ test( 'configure drills into diagnosis and editor, then drills back out', async 
 	await zone.click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
+	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ).first() ).toBeAttached();
+	await expect( page.locator( '[data-configure-diagnosis="1"] [data-configure-expand-ajax="1"]' ) ).toHaveCount( 0 );
+	const diagnosisHealthyToggle = page.locator( '[data-configure-diagnosis="1"] [data-configure-healthy-settings-toggle="1"]' );
+	const diagnosisHealthyBody = page.locator( '[data-configure-diagnosis="1"] [data-configure-healthy-settings-body="1"]' );
+	if ( await diagnosisHealthyToggle.count() > 0 ) {
+		await expect( diagnosisHealthyToggle ).toBeVisible();
+		await expect( diagnosisHealthyBody ).not.toHaveClass( /is-open/ );
+		const diagnosisHealthyCards = diagnosisHealthyBody.locator( '.setting-card' );
+		expect( await diagnosisHealthyCards.count() ).toBeGreaterThan( 0 );
 
-	const cta = page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' );
-	await expect( cta ).toBeVisible();
+		await diagnosisHealthyToggle.click();
+		await expect( diagnosisHealthyToggle ).toHaveClass( /is-open/ );
+		await expect( diagnosisHealthyBody ).toHaveClass( /is-open/ );
+		await expect( diagnosisHealthyCards.first() ).toBeVisible();
 
-	await cta.click();
-	await expect( page.locator( '[data-configure-editor="1"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
+		await diagnosisHealthyToggle.click();
+		await expect( diagnosisHealthyToggle ).not.toHaveClass( /is-open/ );
+		await expect( diagnosisHealthyBody ).not.toHaveClass( /is-open/ );
+	}
 
 	await page.locator( '[data-drill-layer="1"] [data-drill-strip="1"]' ).click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();

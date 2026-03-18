@@ -112,7 +112,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			[
 				'path'      => [ 'Configure', 'Login' ],
 				'focus'     => '2FA requires review.',
-				'next_step' => 'Open settings for this zone.',
+				'next_step' => 'Review the inline settings below and save any needed changes.',
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
 		);
@@ -140,10 +140,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			[ 'secadmin', 'login' ],
 			\array_column( $sections[ 0 ][ 'cards' ] ?? [], 'key' )
 		);
+		$this->assertFalse( (bool)( $sections[ 0 ][ 'collapsible' ] ?? true ) );
 		$this->assertSame(
 			[ 'firewall', 'general' ],
 			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
 		);
+		$this->assertTrue( (bool)( $sections[ 1 ][ 'collapsible' ] ?? false ) );
 	}
 
 	private function zoneTileFixtures() :array {

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
-	Maintenance,
 	Malware,
 	Vulnerabilities
 };
@@ -19,6 +18,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		Functions\when( 'number_format_i18n' )->alias( static fn( int $number ) :string => (string)$number );
 	}
 
 	public function test_build_groups_bucket_into_pane_aligned_cards() :void {
@@ -56,9 +56,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '3 items', $data[ 'strip_badge' ] );
 		$this->assertSame( [ 'malware', 'vulnerabilities' ], \array_column( $data[ 'groups' ], 'key' ) );
 		$this->assertSame( [ 'direct_table', 'direct_table' ], \array_column( $data[ 'groups' ], 'detail_shell' ) );
+		$this->assertSame( [ 'expandable', 'linked' ], \array_column( $data[ 'groups' ], 'card_type' ) );
 		$this->assertSame( Malware::class, $data[ 'groups' ][ 0 ][ 'render_action_class' ] );
 		$this->assertSame( Vulnerabilities::class, $data[ 'groups' ][ 1 ][ 'render_action_class' ] );
 		$this->assertSame( '2 suspected malware results need review.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
+		$this->assertSame( 'View 2 files', $data[ 'groups' ][ 0 ][ 'drill_hint' ] );
+		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'maintenance_items' ] );
 		$this->assertSame( 'Malware Detections - 2 items', $data[ 'groups' ][ 0 ][ 'strip_text' ] );
 		$this->assertSame( '2 items', $data[ 'groups' ][ 0 ][ 'strip_badge' ] );
 		$groupSelectionForJson = $data[ 'groups' ][ 0 ][ 'selection' ];
@@ -75,37 +78,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_build_group_returns_maintenance_group_and_zero_state_fallback() :void {
+	public function test_build_group_returns_zero_state_fallback() :void {
 		$builder = new ActionsQueueGroupsBuilder();
 
-		$maintenanceGroup = $builder->buildGroup(
-			'later',
-			'maintenance',
-			[
-				'items' => [],
-			],
-			[
-				'scans' => [],
-				'maintenance' => [
-					[
-						'key' => 'system_php_version',
-						'label' => 'PHP Version',
-						'description' => 'Healthy',
-						'status' => 'good',
-						'status_label' => 'Good',
-						'status_icon_class' => 'bi bi-check-circle-fill',
-					],
-					[
-						'key' => 'system_ssl_certificate',
-						'label' => 'SSL Certificate',
-						'description' => 'Healthy',
-						'status' => 'neutral',
-						'status_label' => 'Neutral',
-						'status_icon_class' => 'bi bi-info-circle-fill',
-					],
-				],
-			]
-		);
 		$emptyGroup = $builder->buildGroup(
 			'critical',
 			'vulnerabilities',
@@ -118,16 +93,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'maintenance', $maintenanceGroup[ 'key' ] );
-		$this->assertSame( 2, $maintenanceGroup[ 'item_count' ] );
-		$this->assertSame( 'maintenance', $maintenanceGroup[ 'detail_shell' ] );
-		$this->assertSame( $maintenanceGroup[ 'context_json' ], $maintenanceGroup[ 'selection' ][ 'context_json' ] );
-		$this->assertSame( Maintenance::class, $maintenanceGroup[ 'render_action_class' ] );
-		$this->assertSame( '2 maintenance checks are currently healthy.', $maintenanceGroup[ 'narrative' ] );
-
 		$this->assertSame( 'vulnerabilities', $emptyGroup[ 'key' ] );
 		$this->assertSame( 0, $emptyGroup[ 'item_count' ] );
 		$this->assertSame( 'direct_table', $emptyGroup[ 'detail_shell' ] );
+		$this->assertSame( 'linked', $emptyGroup[ 'card_type' ] );
+		$this->assertSame( '', $emptyGroup[ 'drill_hint' ] );
+		$this->assertSame( [], $emptyGroup[ 'maintenance_items' ] );
 		$emptySelectionForJson = $emptyGroup[ 'selection' ];
 		unset( $emptySelectionForJson[ 'selection_json' ] );
 		$this->assertSame( $emptySelectionForJson, \json_decode( $emptyGroup[ 'selection_json' ], true ) );
@@ -161,5 +132,79 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'plugins', $pluginsGroup[ 'key' ] );
 		$this->assertSame( 'asset_cards', $pluginsGroup[ 'detail_shell' ] );
+		$this->assertSame( 'expandable', $pluginsGroup[ 'card_type' ] );
+		$this->assertSame( 'View 1 plugin', $pluginsGroup[ 'drill_hint' ] );
+	}
+
+	public function test_build_group_marks_theme_asset_card_hint_as_themes() :void {
+		$builder = new ActionsQueueGroupsBuilder();
+
+		$themesGroup = $builder->buildGroup(
+			'critical',
+			'themes',
+			[
+				'items' => [
+					[
+						'key'      => 'theme_files',
+						'count'    => 3,
+						'severity' => 'critical',
+					],
+				],
+			],
+			[
+				'scans' => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( 'themes', $themesGroup[ 'key' ] );
+		$this->assertSame( 'asset_cards', $themesGroup[ 'detail_shell' ] );
+		$this->assertSame( 'expandable', $themesGroup[ 'card_type' ] );
+		$this->assertSame( 'View 3 themes', $themesGroup[ 'drill_hint' ] );
+	}
+
+	public function test_build_group_populates_maintenance_items_for_category_cards() :void {
+		$builder = new ActionsQueueGroupsBuilder();
+
+		$maintenanceGroup = $builder->buildGroup(
+			'review',
+			'maintenance',
+			[
+				'items' => [
+					[
+						'key'      => 'wp_updates',
+						'count'    => 1,
+						'severity' => 'warning',
+					],
+				],
+			],
+			[
+				'scans' => [],
+				'maintenance' => [
+					[
+						'key'               => 'wp_updates',
+						'label'             => 'WordPress Version',
+						'description'       => 'There is an upgrade available for WordPress.',
+						'status'            => 'warning',
+						'status_label'      => 'Warning',
+						'status_icon_class' => 'bi bi-exclamation-circle-fill',
+					],
+				],
+			]
+		);
+
+		$this->assertSame( 'maintenance', $maintenanceGroup[ 'key' ] );
+		$this->assertSame( 'category', $maintenanceGroup[ 'card_type' ] );
+		$this->assertSame( '', $maintenanceGroup[ 'drill_hint' ] );
+		$this->assertSame(
+			[
+				[
+					'icon_class' => 'bi bi-exclamation-circle-fill',
+					'title'      => 'WordPress Version',
+					'summary'    => 'There is an upgrade available for WordPress.',
+				],
+			],
+			$maintenanceGroup[ 'maintenance_items' ]
+		);
 	}
 }

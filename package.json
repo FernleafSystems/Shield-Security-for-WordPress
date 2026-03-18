@@ -1,6 +1,9 @@
 {
   "name": "shieldsecurity",
   "private": true,
+  "engines": {
+    "node": ">=20.10.0 <23"
+  },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
     "@babel/core": "^7.29.0",

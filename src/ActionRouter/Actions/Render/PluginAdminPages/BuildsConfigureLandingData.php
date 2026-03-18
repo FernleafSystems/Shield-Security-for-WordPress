@@ -44,7 +44,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
  * }
  * @phpstan-type ZoneSection array{
  *   heading:string,
- *   cards:list<ZoneCard>
+ *   cards:list<ZoneCard>,
+ *   collapsible:bool
  * }
  */
 trait BuildsConfigureLandingData {
@@ -156,12 +157,14 @@ trait BuildsConfigureLandingData {
 		if ( $this->configureZoneSectionsCache === null ) {
 			$sections = [
 				[
-					'heading' => __( 'Zones that need attention', 'wp-simple-firewall' ),
-					'cards'   => [],
+					'heading'     => __( 'Zones that need attention', 'wp-simple-firewall' ),
+					'cards'       => [],
+					'collapsible' => false,
 				],
 				[
-					'heading' => __( 'Healthy zones and general controls', 'wp-simple-firewall' ),
-					'cards'   => [],
+					'heading'     => __( 'Healthy zones and general controls', 'wp-simple-firewall' ),
+					'cards'       => [],
+					'collapsible' => true,
 				],
 			];
 			$cardsByBand = [
@@ -214,10 +217,25 @@ trait BuildsConfigureLandingData {
 	protected function renderConfigureDiagnosisLayer( string $zoneKey ) :string {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/configure/layer_diagnosis.twig' )
-			->setData( [
-				'diagnosis' => $this->getConfigureZoneDiagnosis( $zoneKey ),
-			] )
+			->setData( $this->buildConfigureDiagnosisRenderData( $zoneKey ) )
 			->render();
+	}
+
+	protected function buildConfigureDiagnosisRenderData( string $zoneKey ) :array {
+		$diagnosis = $this->getConfigureZoneDiagnosis( $zoneKey );
+
+		return [
+			'diagnosis' => $diagnosis,
+			'editor'    => [
+				'container_id' => 'configure-inline-editor-'.$zoneKey,
+			],
+			'context'            => $diagnosis[ 'context' ],
+			'strip_text'         => $diagnosis[ 'strip_text' ],
+			'strip_badge'        => $diagnosis[ 'strip_badge' ],
+			'strip_badge_status' => $diagnosis[ 'strip_badge_status' ],
+			'zone_selection'     => $diagnosis[ 'zone_selection' ],
+			'editor_selection'   => $diagnosis[ 'editor_selection' ],
+		];
 	}
 
 	/**

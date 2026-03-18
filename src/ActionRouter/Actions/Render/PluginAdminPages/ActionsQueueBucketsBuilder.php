@@ -10,21 +10,26 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type LayerContext from ActionsQueueDrillDownPresentationBuilder
- * @phpstan-type AssessmentRow array{
- *   key:string,
- *   label:string,
- *   description:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string
- * }
  * @phpstan-type AssessmentRowsByZone array{
- *   scans:list<AssessmentRow>,
- *   maintenance:list<AssessmentRow>
+ *   scans:list<array{
+ *     key:string,
+ *     label:string,
+ *     description:string,
+ *     status:string,
+ *     status_label:string,
+ *     status_icon_class:string
+ *   }>,
+ *   maintenance:list<array{
+ *     key:string,
+ *     label:string,
+ *     description:string,
+ *     status:string,
+ *     status_label:string,
+ *     status_icon_class:string
+ *   }>
  * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
- *   maintenance_rows:list<AssessmentRow>,
  *   item_count:int
  * }
  * @phpstan-type BucketData array{
@@ -54,7 +59,7 @@ class ActionsQueueBucketsBuilder {
 	 * @return list<BucketData>
 	 */
 	public function build( array $attentionQuery, array $assessmentRowsByZone ) :array {
-		$sources = $this->classify( $attentionQuery, $assessmentRowsByZone );
+		$sources = $this->classify( $attentionQuery );
 		$buckets = [];
 		$presentation = $this->presentation();
 
@@ -66,7 +71,7 @@ class ActionsQueueBucketsBuilder {
 					$definition[ 'label' ],
 				],
 				'focus'     => $presentation->buildBucketFocusText( $definition[ 'label' ], $bucketSource[ 'item_count' ] ),
-				'next_step' => empty( $bucketSource[ 'attention_items' ] ) && empty( $bucketSource[ 'maintenance_rows' ] )
+				'next_step' => empty( $bucketSource[ 'attention_items' ] )
 					? __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' )
 					: __( 'Choose a group to review the matching results.', 'wp-simple-firewall' ),
 			];
@@ -82,7 +87,7 @@ class ActionsQueueBucketsBuilder {
 				'label'        => $definition[ 'label' ],
 				'status'       => $definition[ 'status' ],
 				'item_count'   => $bucketSource[ 'item_count' ],
-				'summary_text' => $this->buildSummaryText( $bucketKey, $bucketSource ),
+				'summary_text' => $this->buildSummaryText( $bucketSource ),
 				'preview_text' => $this->buildPreviewText( $bucketSource ),
 				'icon_class'   => $definition[ 'icon_class' ],
 				'strip_text'   => $selection[ 'strip_text' ],
@@ -98,43 +103,64 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
-	 * @param AttentionQuery $attentionQuery
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
+	 * @return array{
+	 *   heading:string,
+	 *   items:list<array{icon_class:string, title:string, summary:string}>
+	 * }
+	 */
+	public function buildLookingGood( array $assessmentRowsByZone ) :array {
+		$items = [];
+
+		foreach ( $assessmentRowsByZone[ 'scans' ] as $row ) {
+			if ( $row[ 'status' ] === 'good' ) {
+				$items[] = [
+					'icon_class' => $row[ 'status_icon_class' ],
+					'title'      => $row[ 'label' ],
+					'summary'    => $row[ 'description' ],
+				];
+			}
+		}
+
+		foreach ( $assessmentRowsByZone[ 'maintenance' ] as $row ) {
+			if ( $row[ 'status' ] === 'good' ) {
+				$items[] = [
+					'icon_class' => $row[ 'status_icon_class' ],
+					'title'      => $row[ 'label' ],
+					'summary'    => $row[ 'description' ],
+				];
+			}
+		}
+
+		return [
+			'heading' => __( 'Looking good', 'wp-simple-firewall' ),
+			'items'   => $items,
+		];
+	}
+
+	/**
+	 * @param AttentionQuery $attentionQuery
 	 * @return array<string,BucketSource>
 	 */
-	public function classify( array $attentionQuery, array $assessmentRowsByZone ) :array {
+	public function classify( array $attentionQuery ) :array {
 		$sources = [
 			'critical' => [
 				'attention_items' => [],
-				'maintenance_rows' => [],
 				'item_count' => 0,
 			],
 			'review' => [
 				'attention_items' => [],
-				'maintenance_rows' => [],
-				'item_count' => 0,
-			],
-			'later' => [
-				'attention_items' => [],
-				'maintenance_rows' => [],
 				'item_count' => 0,
 			],
 		];
 
 		foreach ( $attentionQuery[ 'items' ] as $item ) {
 			$bucketKey = $this->bucketKeyForStatus( $item[ 'severity' ] );
-			$sources[ $bucketKey ][ 'attention_items' ][] = $item;
-			$sources[ $bucketKey ][ 'item_count' ] += $item[ 'count' ];
-		}
-
-		foreach ( $assessmentRowsByZone[ 'maintenance' ] as $row ) {
-			$bucketKey = $this->bucketKeyForStatus( $row[ 'status' ] );
-			if ( $bucketKey !== 'later' ) {
+			if ( !isset( $sources[ $bucketKey ] ) ) {
 				continue;
 			}
-
-			$sources[ 'later' ][ 'maintenance_rows' ][] = $row;
-			++$sources[ 'later' ][ 'item_count' ];
+			$sources[ $bucketKey ][ 'attention_items' ][] = $item;
+			$sources[ $bucketKey ][ 'item_count' ] += $item[ 'count' ];
 		}
 
 		return $sources;
@@ -156,10 +182,8 @@ class ActionsQueueBucketsBuilder {
 	/**
 	 * @param BucketSource $bucketSource
 	 */
-	private function buildSummaryText( string $bucketKey, array $bucketSource ) :string {
-		$summaryParts = $bucketKey === 'later'
-			? $this->buildLaterSummaryParts( $bucketSource )
-			: $this->buildAttentionSummaryParts( $bucketSource[ 'attention_items' ] );
+	private function buildSummaryText( array $bucketSource ) :string {
+		$summaryParts = $this->buildAttentionSummaryParts( $bucketSource[ 'attention_items' ] );
 
 		if ( empty( $summaryParts ) ) {
 			return __( 'No items in this bucket.', 'wp-simple-firewall' );
@@ -181,18 +205,6 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return $this->buildOrderedSummaryParts( $counts, false );
-	}
-
-	/**
-	 * @param BucketSource $bucketSource
-	 * @return list<string>
-	 */
-	private function buildLaterSummaryParts( array $bucketSource ) :array {
-		$counts = [
-			'maintenance' => \count( $bucketSource[ 'maintenance_rows' ] ),
-		];
-
-		return $this->buildOrderedSummaryParts( $counts, true );
 	}
 
 	/**
@@ -286,11 +298,6 @@ class ActionsQueueBucketsBuilder {
 				'status' => 'warning',
 				'icon_class' => 'bi bi-eye-fill',
 			],
-			'later' => [
-				'label' => __( 'Schedule later', 'wp-simple-firewall' ),
-				'status' => 'good',
-				'icon_class' => 'bi bi-clock-fill',
-			],
 		];
 	}
 
@@ -322,9 +329,6 @@ class ActionsQueueBucketsBuilder {
 	private function buildPreviewText( array $bucketSource ) :string {
 		if ( !empty( $bucketSource[ 'attention_items' ] ) ) {
 			return $bucketSource[ 'attention_items' ][ 0 ][ 'label' ] ?? '';
-		}
-		if ( !empty( $bucketSource[ 'maintenance_rows' ] ) ) {
-			return $bucketSource[ 'maintenance_rows' ][ 0 ][ 'label' ] ?? '';
 		}
 
 		return '';

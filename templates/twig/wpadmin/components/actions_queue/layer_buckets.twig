@@ -26,4 +26,22 @@
 			</button>
 		{% endfor %}
 	</div>
+	{% if looking_good is defined and looking_good.items is not empty %}
+		<div class="item-box item-box--good is-dimmed-healthy" style="margin-top: 1rem;">
+			<div class="item-box__header">
+				<span class="item-box__header-icon"><i class="bi bi-patch-check-fill" aria-hidden="true"></i></span>
+				<span class="item-box__header-title">{{ looking_good.heading }}</span>
+			</div>
+			<div class="item-box__grid">
+				{% for item in looking_good.items %}
+					<div class="item-box__row">
+						<span class="item-box__row-icon"><i class="{{ item.icon_class }}" aria-hidden="true"></i></span>
+						<span class="item-box__row-text">
+							<strong>{{ item.title }}</strong>{{ item.summary }}
+						</span>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	{% endif %}
 </div>

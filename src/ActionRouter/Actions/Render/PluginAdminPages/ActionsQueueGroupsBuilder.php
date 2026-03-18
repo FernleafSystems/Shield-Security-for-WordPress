@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type LayerContext from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
  * @phpstan-type AssessmentRow array{
  *   key:string,
  *   label:string,
@@ -32,10 +33,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
+ *   card_type:'expandable'|'linked'|'category',
  *   narrative:string,
  *   next_move:string,
+ *   drill_hint:string,
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,string>,
+ *   maintenance_items:list<array{icon_class:string, title:string, summary:string}>,
  *   strip_text:string,
  *   strip_badge:string,
  *   context:LayerContext,
@@ -54,17 +58,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
- *   maintenance_rows:list<AssessmentRow>,
  *   item_count:int
- * }
- * @phpstan-type GroupDefinition array{
- *   key:string,
- *   label:string,
- *   icon_class:string,
- *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   summary_keys:list<string>,
- *   render_action_class:class-string<BaseAction>,
- *   render_action_data:array<string,string>
  * }
  * @phpstan-type ResolvedGroup array{
  *   key:string,
@@ -134,9 +128,13 @@ class ActionsQueueGroupsBuilder {
 	private function compute( string $bucketKey, array $attentionQuery, array $assessmentRowsByZone ) :array {
 		$bucketsBuilder = new ActionsQueueBucketsBuilder();
 		$buckets = $this->indexBucketsByKey( $bucketsBuilder->build( $attentionQuery, $assessmentRowsByZone ) );
-		$bucketSources = $bucketsBuilder->classify( $attentionQuery, $assessmentRowsByZone );
+		$bucketSources = $bucketsBuilder->classify( $attentionQuery );
 		$bucket = $buckets[ $bucketKey ];
-		$groupsIndexed = $this->buildGroupsIndexedForBucket( $bucket[ 'label' ], $bucketSources[ $bucketKey ] );
+		$groupsIndexed = $this->buildGroupsIndexedForBucket(
+			$bucket[ 'label' ],
+			$bucketSources[ $bucketKey ],
+			$assessmentRowsByZone[ 'maintenance' ]
+		);
 		$groups = \array_values( $groupsIndexed );
 		$bucketSelection = $bucket[ 'selection' ];
 
@@ -168,22 +166,28 @@ class ActionsQueueGroupsBuilder {
 
 	/**
 	 * @param BucketSource $bucketSource
+	 * @param list<AssessmentRow> $maintenanceRows
 	 * @return array<string,GroupData>
 	 */
-	private function buildGroupsIndexedForBucket( string $bucketLabel, array $bucketSource ) :array {
+	private function buildGroupsIndexedForBucket( string $bucketLabel, array $bucketSource, array $maintenanceRows ) :array {
 		$groups = [];
+		$maintenanceRowsByKey = [];
+
+		foreach ( $maintenanceRows as $row ) {
+			$maintenanceRowsByKey[ $row[ 'key' ] ] = $row;
+		}
 
 		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
 			$groupKey = $this->groupDefinitions()->groupKeyForSummaryKey( $item[ 'key' ] );
 			if ( !isset( $groups[ $groupKey ] ) ) {
 				$definition = $this->getGroupDefinition( $groupKey );
 				$groups[ $groupKey ] = [
-					'key'              => $groupKey,
-					'label'            => $definition[ 'label' ],
-					'item_count'       => 0,
-					'status'           => 'good',
-					'icon_class'       => $definition[ 'icon_class' ],
-					'attention_items'  => [],
+					'key'             => $groupKey,
+					'label'           => $definition[ 'label' ],
+					'item_count'      => 0,
+					'status'          => 'good',
+					'icon_class'      => $definition[ 'icon_class' ],
+					'attention_items' => [],
 					'maintenance_rows' => [],
 				];
 			}
@@ -196,17 +200,12 @@ class ActionsQueueGroupsBuilder {
 			$groups[ $groupKey ][ 'attention_items' ][] = $item;
 		}
 
-		if ( !empty( $bucketSource[ 'maintenance_rows' ] ) ) {
-			$definition = $this->getGroupDefinition( 'maintenance' );
-			$groups[ 'maintenance' ] = [
-				'key'              => 'maintenance',
-				'label'            => $definition[ 'label' ],
-				'item_count'       => \count( $bucketSource[ 'maintenance_rows' ] ),
-				'status'           => StatusPriority::highest( \array_column( $bucketSource[ 'maintenance_rows' ], 'status' ), 'good' ),
-				'icon_class'       => $definition[ 'icon_class' ],
-				'attention_items'  => [],
-				'maintenance_rows' => $bucketSource[ 'maintenance_rows' ],
-			];
+		if ( isset( $groups[ 'maintenance' ] ) ) {
+			foreach ( $groups[ 'maintenance' ][ 'attention_items' ] as $item ) {
+				if ( isset( $maintenanceRowsByKey[ $item[ 'key' ] ] ) ) {
+					$groups[ 'maintenance' ][ 'maintenance_rows' ][] = $maintenanceRowsByKey[ $item[ 'key' ] ];
+				}
+			}
 		}
 
 		\uasort( $groups, static function ( array $left, array $right ) :int {
@@ -241,7 +240,6 @@ class ActionsQueueGroupsBuilder {
 		$narrative = $this->buildNarrative(
 			$group[ 'key' ],
 			$group[ 'attention_items' ],
-			$group[ 'maintenance_rows' ],
 			$group[ 'item_count' ]
 		);
 		$nextMove = $this->buildNextMove( $group[ 'key' ] );
@@ -270,10 +268,13 @@ class ActionsQueueGroupsBuilder {
 			'status'              => $group[ 'status' ],
 			'icon_class'          => $group[ 'icon_class' ],
 			'detail_shell'        => $definition[ 'detail_shell' ],
+			'card_type'           => $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'next_move'           => $nextMove,
+			'drill_hint'          => $this->buildDrillHint( $definition, $group[ 'item_count' ] ),
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
+			'maintenance_items'   => $this->buildMaintenanceItems( $group[ 'maintenance_rows' ] ),
 			'strip_text'          => $selection[ 'strip_text' ],
 			'strip_badge'         => $selection[ 'strip_badge' ],
 			'context'             => $context,
@@ -315,10 +316,13 @@ class ActionsQueueGroupsBuilder {
 			'status'              => 'good',
 			'icon_class'          => $definition[ 'icon_class' ],
 			'detail_shell'        => $definition[ 'detail_shell' ],
+			'card_type'           => $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'next_move'           => $nextMove,
+			'drill_hint'          => $this->buildDrillHint( $definition, 0 ),
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
+			'maintenance_items'   => [],
 			'strip_text'          => $selection[ 'strip_text' ],
 			'strip_badge'         => $selection[ 'strip_badge' ],
 			'context'             => $context,
@@ -330,9 +334,8 @@ class ActionsQueueGroupsBuilder {
 
 	/**
 	 * @param list<AttentionItem> $attentionItems
-	 * @param list<AssessmentRow> $maintenanceRows
 	 */
-	private function buildNarrative( string $groupKey, array $attentionItems, array $maintenanceRows, int $itemCount ) :string {
+	private function buildNarrative( string $groupKey, array $attentionItems, int $itemCount ) :string {
 		switch ( $groupKey ) {
 			case 'vulnerabilities':
 				$vulnerableCount = $this->countAttentionItemsByKey( $attentionItems, 'vulnerable_assets' );
@@ -386,12 +389,6 @@ class ActionsQueueGroupsBuilder {
 				);
 
 			case 'maintenance':
-				if ( !empty( $maintenanceRows ) ) {
-					return \sprintf(
-						_n( '%s maintenance check is currently healthy.', '%s maintenance checks are currently healthy.', $itemCount, 'wp-simple-firewall' ),
-						$itemCount
-					);
-				}
 				return \sprintf(
 					_n( '%s maintenance item needs review.', '%s maintenance items need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
@@ -423,6 +420,37 @@ class ActionsQueueGroupsBuilder {
 			default:
 				return __( 'Open this group to review the matching results.', 'wp-simple-firewall' );
 		}
+	}
+
+	private function buildDrillHint( array $definition, int $itemCount ) :string {
+		if ( $itemCount < 1 || $definition[ 'drill_hint_single' ] === '' || $definition[ 'drill_hint_plural' ] === '' ) {
+			return '';
+		}
+
+		$pattern = _n(
+			$definition[ 'drill_hint_single' ],
+			$definition[ 'drill_hint_plural' ],
+			$itemCount,
+			'wp-simple-firewall'
+		);
+
+		return \sprintf( $pattern, number_format_i18n( $itemCount ) );
+	}
+
+	/**
+	 * @param list<AssessmentRow> $maintenanceRows
+	 * @return list<array{icon_class:string, title:string, summary:string}>
+	 */
+	private function buildMaintenanceItems( array $maintenanceRows ) :array {
+		$items = [];
+		foreach ( $maintenanceRows as $row ) {
+			$items[] = [
+				'icon_class' => $row[ 'status_icon_class' ],
+				'title'      => $row[ 'label' ],
+				'summary'    => $row[ 'description' ],
+			];
+		}
+		return $items;
 	}
 
 	/**

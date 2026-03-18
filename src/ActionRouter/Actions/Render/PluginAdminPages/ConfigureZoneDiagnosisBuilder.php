@@ -42,6 +42,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   summary:string,
  *   status:string,
  *   status_label:string,
+ *   status_icon_class:string,
+ *   explanations:list<string>
+ * }
+ * @phpstan-type DiagnosisHealthyFinding array{
+ *   title:string,
+ *   status:string,
+ *   status_label:string,
  *   status_icon_class:string
  * }
  * @phpstan-type DiagnosisContract array{
@@ -56,6 +63,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   next_move_heading:string,
  *   next_move:string,
  *   findings:list<DiagnosisFinding>,
+ *   problem_rows:list<DiagnosisFinding>,
+ *   healthy_rows:list<DiagnosisHealthyFinding>,
  *   findings_count:int,
  *   context:array{
  *     path:list<string>,
@@ -76,8 +85,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   zone_selection:DrillSelection,
  *   zone_selection_json:string,
  *   editor_selection:DrillSelection,
- *   editor_selection_json:string,
- *   settings_cta_label:string,
  *   is_review_state:bool
  * }
  */
@@ -103,9 +110,11 @@ class ConfigureZoneDiagnosisBuilder {
 		$zoneKey = $zoneTile[ 'key' ];
 		$zoneLabel = $zoneTile[ 'label' ];
 		$detailGroups = $zoneTile[ 'panel' ][ 'detail_groups' ];
-		$issueRows = $this->issueRows( $detailGroups );
-		$firstIssue = $issueRows[ 0 ] ?? null;
-		$isReviewState = $zoneKey === 'general' || \count( $issueRows ) < 1;
+		$separatedRows = $this->splitRowsBySeverity( $detailGroups );
+		$problemRows = $separatedRows[ 'problem' ];
+		$healthyRows = $separatedRows[ 'healthy' ];
+		$firstIssue = $problemRows[ 0 ] ?? null;
+		$isReviewState = $zoneKey === 'general' || \count( $problemRows ) < 1;
 
 		$previewText = $isReviewState
 			? $this->buildReviewPreviewText( $zoneTile )
@@ -114,9 +123,13 @@ class ConfigureZoneDiagnosisBuilder {
 			? $this->buildReviewNextMove( $zoneTile )
 			: $this->buildIssueNextMove( $firstIssue, $zoneLabel );
 		$riskContext = $this->buildRiskContext( $zoneTile, $previewText, $isReviewState );
-		$findings = \array_values( \array_map(
+		$problemFindings = \array_values( \array_map(
 			fn( array $row ) :array => $this->buildFinding( $row ),
-			$issueRows
+			$problemRows
+		) );
+		$healthyFindings = \array_values( \array_map(
+			fn( array $row ) :array => $this->buildHealthyFinding( $row ),
+			$healthyRows
 		) );
 		$context = [
 			'path'      => [
@@ -124,7 +137,7 @@ class ConfigureZoneDiagnosisBuilder {
 				$zoneLabel,
 			],
 			'focus'     => $previewText,
-			'next_step' => __( 'Open settings for this zone.', 'wp-simple-firewall' ),
+			'next_step' => __( 'Review the inline settings below and save any needed changes.', 'wp-simple-firewall' ),
 		];
 		$editorContext = [
 			'path'      => [
@@ -143,7 +156,7 @@ class ConfigureZoneDiagnosisBuilder {
 			);
 		$stripBadge = $isReviewState
 			? $this->buildReviewBadge( $zoneTile )
-			: $this->buildFindingsBadge( \count( $findings ) );
+			: $this->buildFindingsBadge( \count( $problemFindings ) );
 
 		$zoneSelection = [
 			'key'         => $zoneKey,
@@ -175,8 +188,10 @@ class ConfigureZoneDiagnosisBuilder {
 			'risk_context'              => $riskContext,
 			'next_move_heading'         => __( 'Next move', 'wp-simple-firewall' ),
 			'next_move'                 => $nextMove,
-			'findings'                  => $findings,
-			'findings_count'            => \count( $findings ),
+			'findings'                  => $problemFindings,
+			'problem_rows'              => $problemFindings,
+			'healthy_rows'              => $healthyFindings,
+			'findings_count'            => \count( $problemFindings ),
 			'context'                   => $context,
 			'strip_text'                => $stripText,
 			'strip_badge'               => $stripBadge,
@@ -188,27 +203,33 @@ class ConfigureZoneDiagnosisBuilder {
 			'zone_selection'            => $zoneSelection,
 			'zone_selection_json'       => $this->encodeJson( $zoneSelection ),
 			'editor_selection'          => $editorSelection,
-			'editor_selection_json'     => $this->encodeJson( $editorSelection ),
-			'settings_cta_label'        => __( 'Open settings', 'wp-simple-firewall' ),
 			'is_review_state'           => $isReviewState,
 		];
 	}
 
 	/**
 	 * @param list<DetailGroup> $detailGroups
-	 * @return list<DetailGroupRow>
+	 * @return array{problem:list<DetailGroupRow>,healthy:list<DetailGroupRow>}
 	 */
-	private function issueRows( array $detailGroups ) :array {
-		$rows = [];
+	private function splitRowsBySeverity( array $detailGroups ) :array {
+		$issueRows = [];
+		$healthyRows = [];
 		foreach ( $detailGroups as $group ) {
-			if ( !\in_array( $group[ 'status' ], [ 'critical', 'warning' ], true ) ) {
-				continue;
+			if ( \in_array( $group[ 'status' ], [ 'critical', 'warning' ], true ) ) {
+				foreach ( $group[ 'rows' ] as $row ) {
+					$issueRows[] = $row;
+				}
 			}
-			foreach ( $group[ 'rows' ] as $row ) {
-				$rows[] = $row;
+			else {
+				foreach ( $group[ 'rows' ] as $row ) {
+					$healthyRows[] = $row;
+				}
 			}
 		}
-		return $rows;
+		return [
+			'problem' => $issueRows,
+			'healthy' => $healthyRows,
+		];
 	}
 
 	/**
@@ -219,6 +240,20 @@ class ConfigureZoneDiagnosisBuilder {
 		return [
 			'title'             => $row[ 'title' ],
 			'summary'           => $this->primarySummary( $row ),
+			'status'            => $row[ 'status' ],
+			'status_label'      => $row[ 'status_label' ],
+			'status_icon_class' => $row[ 'status_icon_class' ],
+			'explanations'      => $row[ 'explanations' ] ?? [],
+		];
+	}
+
+	/**
+	 * @param DetailGroupRow $row
+	 * @return DiagnosisHealthyFinding
+	 */
+	private function buildHealthyFinding( array $row ) :array {
+		return [
+			'title'             => $row[ 'title' ],
 			'status'            => $row[ 'status' ],
 			'status_label'      => $row[ 'status_label' ],
 			'status_icon_class' => $row[ 'status_icon_class' ],
@@ -244,11 +279,14 @@ class ConfigureZoneDiagnosisBuilder {
 	 */
 	private function buildIssueNextMove( ?array $row, string $zoneLabel ) :string {
 		if ( $row === null ) {
-			return sprintf( __( 'Open %s settings and review the current configuration.', 'wp-simple-firewall' ), $zoneLabel );
+			return sprintf(
+				__( 'Review the settings below and confirm the current %s configuration.', 'wp-simple-firewall' ),
+				$zoneLabel
+			);
 		}
 
 		return sprintf(
-			__( 'Open %1$s settings and review %2$s first.', 'wp-simple-firewall' ),
+			__( 'Review %2$s in the settings below and update %1$s as needed.', 'wp-simple-firewall' ),
 			$zoneLabel,
 			$row[ 'title' ]
 		);
@@ -273,11 +311,11 @@ class ConfigureZoneDiagnosisBuilder {
 	 */
 	private function buildReviewNextMove( array $zoneTile ) :string {
 		if ( $zoneTile[ 'key' ] === 'general' ) {
-			return __( 'Open these settings and confirm the general controls still match how the site should operate.', 'wp-simple-firewall' );
+			return __( 'Review these settings below and confirm the general controls still match how the site should operate.', 'wp-simple-firewall' );
 		}
 
 		return sprintf(
-			__( 'Open %s settings to confirm this zone still matches the site.', 'wp-simple-firewall' ),
+			__( 'Review the settings below to confirm %s still matches the site.', 'wp-simple-firewall' ),
 			$zoneTile[ 'label' ]
 		);
 	}

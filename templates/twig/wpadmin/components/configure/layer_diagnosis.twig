@@ -1,48 +1,76 @@
 <div class="configure-diagnosis"
 	 data-configure-diagnosis="1"
 	 data-configure-zone="{{ diagnosis.zone_key }}">
-	<div class="configure-diagnosis__header shield-card status-{{ diagnosis.zone_status }}">
-		<div class="shield-card-accent status-{{ diagnosis.zone_status }}"></div>
-		<div class="configure-diagnosis__eyebrow">{{ diagnosis.zone_label }}</div>
-		<div class="configure-diagnosis__headline-row">
-			<h2 class="configure-diagnosis__title">{{ diagnosis.preview_text }}</h2>
-			<span class="shield-badge badge-{{ diagnosis.strip_badge_status }}">{{ diagnosis.strip_badge }}</span>
+	<div class="zone-summary-header status-{{ diagnosis.zone_status }}">
+		<span class="zone-summary-header__icon">
+			<i class="{{ diagnosis.zone_icon_class }}" aria-hidden="true"></i>
+		</span>
+		<div class="zone-summary-header__body">
+			<h3 class="zone-summary-header__title">{{ diagnosis.zone_label }}</h3>
+			<div class="zone-summary-header__status status-{{ diagnosis.zone_status }}">{{ diagnosis.zone_status_label }}</div>
+			<p class="zone-summary-header__context">{{ diagnosis.risk_context }}</p>
 		</div>
-		<p class="configure-diagnosis__risk">{{ diagnosis.risk_context }}</p>
+		<span class="shield-badge badge-{{ diagnosis.strip_badge_status }}">{{ diagnosis.strip_badge }}</span>
 	</div>
 
-	{% if diagnosis.findings_count > 0 %}
-		<div class="configure-diagnosis__findings">
-			<h3 class="configure-diagnosis__section-title">{{ diagnosis.strip_badge }}</h3>
-			<div class="configure-diagnosis__finding-list">
-				{% for finding in diagnosis.findings %}
-					<article class="configure-diagnosis__finding shield-card status-{{ finding.status }}">
-						<div class="shield-card-accent status-{{ finding.status }}"></div>
-						<div class="configure-diagnosis__finding-title">
-							<i class="{{ finding.status_icon_class }}" aria-hidden="true"></i>
-							<span>{{ finding.title }}</span>
+	{% if diagnosis.problem_rows is not empty %}
+		<div class="configure-diagnosis__settings">
+			{% for row in diagnosis.problem_rows %}
+				<div class="setting-card severity-{{ row.status }}">
+					<div class="setting-card__title">{{ row.title }}</div>
+					<div class="setting-card__finding">{{ row.summary }}</div>
+					{% if row.explanations is not empty %}
+						<div class="setting-card__finding">
+							{% for explanation in row.explanations %}
+								<span class="setting-card__explanation">{{ explanation }}</span>
+							{% endfor %}
 						</div>
-						<p class="configure-diagnosis__finding-summary">{{ finding.summary }}</p>
-					</article>
-				{% endfor %}
-			</div>
+					{% endif %}
+					<div class="setting-card__control-row">
+						<span class="setting-card__control-label">Current setting</span>
+						<span class="setting-card__control-placeholder">
+							<i class="{{ row.status_icon_class }}" aria-hidden="true"></i>
+						</span>
+					</div>
+				</div>
+			{% endfor %}
 		</div>
-	{% else %}
-		<div class="configure-diagnosis__review-state shield-card status-{{ diagnosis.zone_status }}">
-			<div class="shield-card-accent status-{{ diagnosis.zone_status }}"></div>
-			<div class="configure-diagnosis__section-title">{{ diagnosis.strip_badge }}</div>
-			<p class="configure-diagnosis__finding-summary">{{ diagnosis.stat_line }}</p>
+	{% elseif diagnosis.is_review_state %}
+		<div class="setting-card severity-good">
+			<div class="setting-card__title">{{ diagnosis.strip_badge }}</div>
+			<div class="setting-card__finding">{{ diagnosis.stat_line }}</div>
+		</div>
+	{% endif %}
+
+	{% if diagnosis.healthy_rows is not empty %}
+		<div class="healthy-settings-header" data-configure-healthy-settings-toggle="1">
+			<span class="healthy-settings-header__icon">
+				<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+			</span>
+			<span class="healthy-settings-header__label">
+				Looking good &mdash; {{ diagnosis.healthy_rows|length }}
+				{{ diagnosis.healthy_rows|length == 1 ? 'setting configured correctly' : 'settings configured correctly' }}
+			</span>
+			<span class="healthy-settings-header__chevron">
+				<i class="bi bi-chevron-right" aria-hidden="true"></i>
+			</span>
+		</div>
+		<div class="healthy-settings-body" data-configure-healthy-settings-body="1">
+			{% for row in diagnosis.healthy_rows %}
+				<div class="setting-card setting-card--healthy severity-good">
+					<div class="setting-card__title">
+						<span>{{ row.title }}</span>
+						<span class="setting-card__healthy-check">
+							<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+						</span>
+					</div>
+				</div>
+			{% endfor %}
 		</div>
 	{% endif %}
 
 	<div class="configure-diagnosis__next-move">
 		<div class="configure-diagnosis__section-title">{{ diagnosis.next_move_heading }}</div>
 		<p class="configure-diagnosis__next-move-copy">{{ diagnosis.next_move }}</p>
-		<button type="button"
-				class="configure-diagnosis__cta"
-				data-drill-target="editor"
-				data-drill-editor-selection="{{ diagnosis.editor_selection_json }}">
-			{{ diagnosis.settings_cta_label }}
-		</button>
 	</div>
 </div>

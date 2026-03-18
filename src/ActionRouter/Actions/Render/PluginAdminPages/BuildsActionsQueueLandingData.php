@@ -146,8 +146,9 @@ trait BuildsActionsQueueLandingData {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
-				'buckets' => $this->getBucketsData(),
-				'heading' => __( 'Choose where to start', 'wp-simple-firewall' ),
+				'buckets'      => $this->getBucketsData(),
+				'heading'      => __( 'Choose where to start', 'wp-simple-firewall' ),
+				'looking_good' => ( new ActionsQueueBucketsBuilder() )->buildLookingGood( $this->getAssessmentRowsByZone() ),
 			] )
 			->render();
 	}

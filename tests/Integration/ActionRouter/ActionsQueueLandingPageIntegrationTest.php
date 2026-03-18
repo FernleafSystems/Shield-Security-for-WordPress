@@ -88,6 +88,32 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 	}
 
+	private function seedCriticalAssetAndVulnerabilityQueue() :void {
+		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
+
+		$pluginSlug = self::con()->base_file;
+		$themeSlug = \wp_get_theme()->get_stylesheet();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'     => 'theme-file.php',
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
+		$this->resetScanResultCountMemoization();
+	}
+
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
 		$matches = \array_values( \array_filter(
 			$zoneTiles,
@@ -320,8 +346,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-drill-target="groups" and @data-drill-bucket-selection]',
-			3,
-			'Bucket layer should render the three triage bucket cards'
+			2,
+			'Bucket layer should render the two triage bucket cards'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -332,6 +358,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card__preview ")]',
 			'Bucket layer should surface at least one top-item preview'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
+			'Bucket layer should render the looking-good item box when healthy assessment rows exist'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__header-title ") and normalize-space()="Looking good"]',
+			'Bucket layer should label the healthy summary section'
 		);
 		$this->assertXPathCount(
 			$xpath,
@@ -413,24 +449,25 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//button[@data-drill-target="detail" and @data-drill-bucket-selection and @data-drill-group-selection and contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
-			'Groups AJAX should render the group cards as whole-card drill targets with serialized selection payloads'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//button[@data-drill-target="detail" and string-length(@data-drill-bucket-selection) > 0 and string-length(@data-drill-group-selection) > 0]',
-			'Groups AJAX should render PHP-prepared selection JSON on each drill target'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//button[@data-drill-target="detail" and @data-drill-group-selection]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card__next-move ")]/*[contains(concat(" ", normalize-space(@class), " "), " bi-arrow-right-circle ")]',
-			'Groups AJAX should render the next-move guidance with the arrow icon'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box__header-title ") and normalize-space()="Maintenance Items"]',
+			'Groups AJAX should render maintenance groups as category item-box cards'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//button[@data-drill-target="detail" and @data-drill-group-selection]//button',
+			'//button[@data-drill-target="detail" and @data-drill-group-selection]',
 			0,
-			'Groups AJAX should not render nested CTA buttons inside the group card'
+			'Groups AJAX should not render a detail drill target for category cards'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row ")]',
+			'Groups AJAX should render maintenance category rows inside the item-box'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " bi-arrow-right-circle ")]',
+			0,
+			'Groups AJAX should not render the legacy next-move arrow icon for category cards'
 		);
 	}
 
@@ -458,6 +495,48 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
 			],
 			$payload[ 'selected_group' ][ 'context' ] ?? []
+		);
+	}
+
+	public function test_groups_ajax_renders_finding_cards_for_critical_bucket_groups() :void {
+		$this->seedCriticalAssetAndVulnerabilityQueue();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'critical',
+		] );
+		$html = (string)( $payload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame( 'Fix now - 3 items', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( '3 items', (string)( $payload[ 'strip_badge' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $payload[ 'strip_badge_status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
+		$this->assertSame( [ 'plugins', 'themes', 'vulnerabilities' ], \array_column( $payload[ 'groups' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'expandable', 'expandable', 'linked' ], \array_column( $payload[ 'groups' ] ?? [], 'card_type' ) );
+		$this->assertSame( [ 'View 1 plugin', 'View 1 theme', '' ], \array_column( $payload[ 'groups' ] ?? [], 'drill_hint' ) );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ")]',
+			3,
+			'Critical groups AJAX should render one heading per finding group'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-card ")]',
+			3,
+			'Critical groups AJAX should render finding-card containers for all non-category groups'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//button[contains(concat(" ", normalize-space(@class), " "), " finding-card--expandable ") and @data-drill-target="detail" and @data-drill-group-selection]',
+			2,
+			'Only expandable finding cards should emit detail drill attributes'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
+			0,
+			'Critical groups AJAX should not render the legacy group-card markup'
 		);
 	}
 
@@ -836,8 +915,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $tabs[ 'wordpress' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'wordpress' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $tabs[ 'plugins' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'warning', (string)( $tabs[ 'plugins' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'plugins' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $tabs[ 'themes' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'themes' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 2, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );

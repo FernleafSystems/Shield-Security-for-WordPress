@@ -40,7 +40,9 @@
 		{% endfor %}
 	{% endfor %}
 
-	{% include '/wpadmin/components/configure/zone_settings_cta.twig' with {
-		zone: zone
-	} only %}
+	{% if not (hide_settings_cta ?? false) %}
+		{% include '/wpadmin/components/configure/zone_settings_cta.twig' with {
+			zone: zone
+		} only %}
+	{% endif %}
 </div>

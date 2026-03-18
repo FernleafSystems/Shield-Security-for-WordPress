@@ -2,21 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\AjaxRender,
-	Actions\Render\PluginAdminPages\{
-		ConfigureDrillDownDiagnosis,
-		ConfigureDrillDownEditor,
-		PageConfigureLanding
-	},
-	Constants
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureDrillDownEditor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	ModeLandingAssertions,
-	PluginAdminRouteRenderAssertions
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ModeLandingAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
@@ -89,11 +83,49 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_valid_deep_link_starts_on_diagnosis_and_invalid_key_falls_back() :void {
 		$validPayload = $this->renderConfigureLandingPage( [ 'zone' => 'login' ] );
 		$invalidPayload = $this->renderConfigureLandingPage( [ 'zone' => 'login_protection' ] );
+		$validHtml = $this->assertRouteRenderOutputHealthy( $validPayload, 'configure landing deep link' );
+		$validXpath = $this->createDomXPathFromHtml( $validHtml );
 
 		$this->assertSame( 1, (int)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 		$this->assertNotSame(
 			'',
 			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' )
+		);
+		$this->assertXPathExists(
+			$validXpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " zone-summary-header ")]',
+			'Deep-linked diagnosis should include the new zone summary header'
+		);
+		$this->assertXPathExists(
+			$validXpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__next-move ")]',
+			'Deep-linked diagnosis should render the next move guidance block'
+		);
+		if ( $validXpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-healthy-settings-toggle="1"]' )->length > 0 ) {
+			$this->assertXPathExists(
+				$validXpath,
+				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-header ")]',
+				'Deep-linked diagnosis should render healthy settings toggle when healthy rows exist'
+			);
+			$this->assertXPathExists(
+				$validXpath,
+				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-body ")]',
+				'Deep-linked diagnosis should render healthy settings body when healthy rows exist'
+			);
+			$healthySettingRows = $validXpath->query(
+				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), "healthy-settings-body")]//*[contains(concat(" ", normalize-space(@class), " "), "setting-card ")]'
+			);
+			$this->assertGreaterThan( 0, $healthySettingRows->length, 'Deep-linked diagnosis should include healthy setting cards when healthy rows exist' );
+		}
+		$this->assertXPathNotExists(
+			$validXpath,
+			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"]',
+			'Deep-linked diagnosis should no longer render legacy inline settings placeholders'
+		);
+		$this->assertXPathNotExists(
+			$validXpath,
+			'//*[@data-configure-diagnosis="1"]//button[@data-drill-target="editor"]',
+			'Deep-linked diagnosis should not render the removed editor CTA'
 		);
 		$this->assertSame( 0, (int)( $invalidPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 	}
@@ -122,8 +154,35 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//button[@data-drill-target="editor" and @data-drill-editor-selection]',
-			'Diagnosis AJAX should render the editor drill CTA'
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " zone-summary-header ")]',
+			'Diagnosis AJAX should render the new zone summary header'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__next-move ")]',
+			'Diagnosis AJAX should render the next move block'
+		);
+		if ( $xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-healthy-settings-toggle="1"]' )->length > 0 ) {
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-header ")]',
+				'Diagnosis AJAX should render healthy settings toggle when healthy rows exist'
+			);
+			$this->assertXPathExists(
+				$xpath,
+				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-body ")]',
+				'Diagnosis AJAX should render healthy settings body when healthy rows exist'
+			);
+		}
+		$this->assertXPathNotExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"]',
+			'Diagnosis AJAX should not render the removed inline settings placeholders'
+		);
+		$this->assertXPathNotExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//button[@data-drill-target="editor"]',
+			'Diagnosis AJAX should not render the removed editor drill CTA'
 		);
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'posture_strip_html' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
@@ -148,6 +207,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-configure-editor="1"]//*[@data-configure-expand-ajax="1"]',
 			'Editor AJAX should preserve the expandable row placeholders'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-editor="1"]//*[@data-configure-zone-settings]',
+			'Editor AJAX should still render the zone settings CTA when not hidden inline'
 		);
 		$this->assertXPathNotExists(
 			$xpath,

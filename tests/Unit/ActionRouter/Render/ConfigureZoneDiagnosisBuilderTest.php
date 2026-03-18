@@ -31,16 +31,25 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 						$this->buildDetailRow( 'CAPTCHA', 'warning', 'Needs Work', 'CAPTCHA is disabled.' ),
 					],
 				],
+				[
+					'status' => 'good',
+					'rows'   => [
+						$this->buildDetailRow( 'Password reset', 'good', 'Good', 'Password reset is enabled.' ),
+					],
+				],
 			] )
 		);
 
 		$this->assertFalse( $diagnosis[ 'is_review_state' ] );
 		$this->assertSame( 2, $diagnosis[ 'findings_count' ] );
+		$this->assertSame( 2, \count( $diagnosis[ 'findings' ] ) );
+		$this->assertSame( 2, \count( $diagnosis[ 'problem_rows' ] ) );
+		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertSame( '2FA', $diagnosis[ 'strip_text' ] );
 		$this->assertSame( '2 findings', $diagnosis[ 'strip_badge' ] );
 		$this->assertSame( 'Next move', $diagnosis[ 'next_move_heading' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
-		$this->assertStringContainsString( 'review 2FA first', $diagnosis[ 'next_move' ] );
+		$this->assertStringContainsString( 'Review 2FA', $diagnosis[ 'next_move' ] );
 	}
 
 	public function test_all_good_zone_enters_review_state_without_findings() :void {
@@ -57,6 +66,8 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 		$this->assertTrue( $diagnosis[ 'is_review_state' ] );
 		$this->assertSame( [], $diagnosis[ 'findings' ] );
+		$this->assertSame( [], $diagnosis[ 'problem_rows' ] );
+		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertSame( 'Good', $diagnosis[ 'strip_badge' ] );
 		$this->assertStringContainsString( 'no active findings', $diagnosis[ 'preview_text' ] );
 	}
@@ -74,6 +85,8 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertTrue( $diagnosis[ 'is_review_state' ] );
+		$this->assertSame( [], $diagnosis[ 'problem_rows' ] );
+		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertSame( 'Review', $diagnosis[ 'strip_badge' ] );
 		$this->assertStringContainsString( 'General controls', $diagnosis[ 'risk_context' ] );
 		$this->assertStringContainsString( 'site-wide controls', $diagnosis[ 'preview_text' ] );

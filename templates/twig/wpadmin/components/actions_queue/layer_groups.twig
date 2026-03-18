@@ -12,29 +12,79 @@
 	{% else %}
 		<div class="actions-queue-groups__grid">
 			{% for group in groups %}
-				<button type="button"
-						class="actions-queue-group-card shield-card status-{{ group.status }}"
-						data-drill-target="detail"
-						data-drill-bucket-selection="{{ bucket_selection_json }}"
-						data-drill-group-selection="{{ group.selection_json }}">
-					<div class="shield-card-accent status-{{ group.status }}"></div>
-					<div class="actions-queue-group-card__header">
-						<div class="actions-queue-group-card__title-wrap">
-							<div class="actions-queue-group-card__icon">
-								<i class="{{ group.icon_class }}" aria-hidden="true"></i>
+				{# Linked card: narrative + next-move, no drill-down #}
+				{% if group.card_type == 'linked' %}
+					<div class="actions-queue-group-card actions-queue-group-card--linked shield-card status-{{ group.status }}">
+						<div class="shield-card-accent status-{{ group.status }}"></div>
+						<div class="actions-queue-group-card__header">
+							<div class="actions-queue-group-card__title-wrap">
+								<div class="actions-queue-group-card__icon">
+									<i class="{{ group.icon_class }}" aria-hidden="true"></i>
+								</div>
+								<div>
+									<div class="actions-queue-group-card__title">{{ group.label }}</div>
+									<div class="actions-queue-group-card__narrative">{{ group.narrative }}</div>
+								</div>
 							</div>
-							<div>
-								<div class="actions-queue-group-card__title">{{ group.label }}</div>
-								<div class="actions-queue-group-card__narrative">{{ group.narrative }}</div>
-							</div>
+							<span class="shield-badge badge-{{ group.status }}">{{ group.item_count }}</span>
 						</div>
-						<span class="shield-badge badge-{{ group.status }}">{{ group.item_count }}</span>
+						<div class="actions-queue-group-card__next-move">
+							{{ group.next_move }}
+						</div>
 					</div>
-					<div class="actions-queue-group-card__next-move">
-						<i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
-						{{ group.next_move }}
+				{# Category card: compact item-box for maintenance/review items #}
+				{% elseif group.card_type == 'category' %}
+					<div class="item-box">
+						<div class="item-box__header">
+							<span class="item-box__header-icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+							<span class="item-box__header-title">{{ group.label }}</span>
+						</div>
+						<div class="item-box__grid">
+							{% if group.maintenance_items is not empty %}
+								{% for item in group.maintenance_items %}
+									<div class="item-box__row">
+										<span class="item-box__row-icon"><i class="{{ item.icon_class }}" aria-hidden="true"></i></span>
+										<span class="item-box__row-text">
+											<strong>{{ item.title }}</strong>{{ item.summary }}
+										</span>
+									</div>
+								{% endfor %}
+							{% else %}
+								<div class="item-box__row">
+									<span class="item-box__row-icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+									<span class="item-box__row-text">
+										<strong>{{ group.narrative }}</strong>{{ group.next_move }}
+									</span>
+								</div>
+							{% endif %}
+						</div>
 					</div>
-				</button>
+				{% else %}
+					{# Expandable card (default): drills to detail layer #}
+					<button type="button"
+							class="actions-queue-group-card actions-queue-group-card--expandable shield-card status-{{ group.status }}"
+							data-drill-target="detail"
+							data-drill-bucket-selection="{{ bucket_selection_json }}"
+							data-drill-group-selection="{{ group.selection_json }}">
+						<div class="shield-card-accent status-{{ group.status }}"></div>
+						<div class="actions-queue-group-card__header">
+							<div class="actions-queue-group-card__title-wrap">
+								<div class="actions-queue-group-card__icon">
+									<i class="{{ group.icon_class }}" aria-hidden="true"></i>
+								</div>
+								<div>
+									<div class="actions-queue-group-card__title">{{ group.label }}</div>
+									<div class="actions-queue-group-card__narrative">{{ group.narrative }}</div>
+								</div>
+							</div>
+							<span class="shield-badge badge-{{ group.status }}">{{ group.item_count }}</span>
+						</div>
+						<div class="actions-queue-group-card__drill-hint">
+							<span>{{ group.next_move }}</span>
+							<i class="bi bi-chevron-right" aria-hidden="true"></i>
+						</div>
+					</button>
+				{% endif %}
 			{% endfor %}
 		</div>
 	{% endif %}

@@ -16,7 +16,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_build_classifies_attention_items_and_later_maintenance_rows() :void {
+	public function test_build_returns_only_critical_and_review_buckets() :void {
 		$builder = new ActionsQueueBucketsBuilder();
 
 		$buckets = $builder->build(
@@ -69,6 +69,8 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			$bucketsByKey[ $bucket[ 'key' ] ] = $bucket;
 		}
 
+		$this->assertCount( 2, $buckets );
+		$this->assertSame( [ 'critical', 'review' ], \array_keys( $bucketsByKey ) );
 		$this->assertSame( 'Fix now', $bucketsByKey[ 'critical' ][ 'label' ] );
 		$this->assertSame( 2, $bucketsByKey[ 'critical' ][ 'item_count' ] );
 		$this->assertSame( '2 malware detections', $bucketsByKey[ 'critical' ][ 'summary_text' ] );
@@ -102,16 +104,71 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			],
 			$bucketsByKey[ 'review' ][ 'context' ]
 		);
-
-		$this->assertSame( 'good', $bucketsByKey[ 'later' ][ 'status' ] );
-		$this->assertSame( 2, $bucketsByKey[ 'later' ][ 'item_count' ] );
-		$this->assertSame( '2 maintenance checks', $bucketsByKey[ 'later' ][ 'summary_text' ] );
-		$this->assertSame( 'PHP Version', $bucketsByKey[ 'later' ][ 'preview_text' ] );
-		$this->assertSame( $bucketsByKey[ 'later' ][ 'strip_text' ], $bucketsByKey[ 'later' ][ 'selection' ][ 'strip_text' ] );
-		$this->assertSame( $bucketsByKey[ 'later' ][ 'selection_json' ], $bucketsByKey[ 'later' ][ 'selection' ][ 'selection_json' ] );
 	}
 
-	public function test_classify_keeps_good_and_neutral_maintenance_rows_in_later_only() :void {
+	public function test_build_looking_good_collects_only_good_assessment_rows() :void {
+		$builder = new ActionsQueueBucketsBuilder();
+
+		$lookingGood = $builder->buildLookingGood(
+			[
+				'scans' => [
+					[
+						'key' => 'malware',
+						'label' => 'Malware Scan',
+						'description' => 'No malware found.',
+						'status' => 'good',
+						'status_label' => 'Good',
+						'status_icon_class' => 'bi bi-shield-check',
+					],
+					[
+						'key' => 'themes',
+						'label' => 'Themes',
+						'description' => 'Needs review.',
+						'status' => 'warning',
+						'status_label' => 'Warning',
+						'status_icon_class' => 'bi bi-exclamation-circle-fill',
+					],
+				],
+				'maintenance' => [
+					[
+						'key' => 'system_php_version',
+						'label' => 'PHP Version',
+						'description' => 'Healthy.',
+						'status' => 'good',
+						'status_label' => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+					[
+						'key' => 'system_ssl_certificate',
+						'label' => 'SSL Certificate',
+						'description' => 'Informational.',
+						'status' => 'neutral',
+						'status_label' => 'Neutral',
+						'status_icon_class' => 'bi bi-info-circle-fill',
+					],
+				],
+			]
+		);
+
+		$this->assertSame( 'Looking good', $lookingGood[ 'heading' ] );
+		$this->assertSame(
+			[
+				[
+					'icon_class' => 'bi bi-shield-check',
+					'title'      => 'Malware Scan',
+					'summary'    => 'No malware found.',
+				],
+				[
+					'icon_class' => 'bi bi-check-circle-fill',
+					'title'      => 'PHP Version',
+					'summary'    => 'Healthy.',
+				],
+			],
+			$lookingGood[ 'items' ]
+		);
+	}
+
+	public function test_classify_skips_attention_items_without_supported_bucket_sources() :void {
 		$builder = new ActionsQueueBucketsBuilder();
 
 		$classified = $builder->classify(
@@ -123,35 +180,18 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'count' => 3,
 						'severity' => 'warning',
 					],
-				],
-			],
-			[
-				'scans' => [],
-				'maintenance' => [
 					[
-						'key' => 'system_php_version',
-						'label' => 'PHP Version',
-						'description' => 'Healthy',
-						'status' => 'good',
-						'status_label' => 'Good',
-						'status_icon_class' => 'bi bi-check-circle-fill',
-					],
-					[
-						'key' => 'system_ssl_certificate',
-						'label' => 'SSL Certificate',
-						'description' => 'Needs review',
-						'status' => 'warning',
-						'status_label' => 'Warning',
-						'status_icon_class' => 'bi bi-exclamation-circle-fill',
+						'key' => 'wp_updates',
+						'label' => 'WordPress Version',
+						'count' => 8,
+						'severity' => 'good',
 					],
 				],
 			]
 		);
 
-		$this->assertCount( 0, $classified[ 'critical' ][ 'maintenance_rows' ] );
-		$this->assertCount( 0, $classified[ 'review' ][ 'maintenance_rows' ] );
-		$this->assertCount( 1, $classified[ 'later' ][ 'maintenance_rows' ] );
+		$this->assertSame( [ 'critical', 'review' ], \array_keys( $classified ) );
 		$this->assertSame( 3, $classified[ 'review' ][ 'item_count' ] );
-		$this->assertSame( 1, $classified[ 'later' ][ 'item_count' ] );
+		$this->assertSame( 0, $classified[ 'critical' ][ 'item_count' ] );
 	}
 }
