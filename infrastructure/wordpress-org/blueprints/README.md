@@ -60,13 +60,13 @@ Purpose in plain English:
 - `playground:local:check` = run a smoke check and print explicit PASS/FAIL output.
 - `playground:local:clean` = remove old local Playground runtime artifacts created by this helper.
 
-For deterministic local runs (no `npx` network fetch), install a local Playground CLI once:
+For deterministic local runs (no `npx` network fetch), install the isolated local Playground tools once:
 
 ```bash
-npm install --save-dev @wp-playground/cli
+npm install --prefix tools/playground --no-audit --no-fund
 ```
 
-`playground:local` and `playground:local:check` require this local binary and fail fast if it is missing.
+`playground:local` and `playground:local:check` look in `tools/playground` first and only fall back to the root `node_modules` bin for legacy setups.
 
 Start interactive local Playground:
 

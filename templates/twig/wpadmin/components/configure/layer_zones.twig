@@ -1,25 +1,16 @@
 {% macro zone_card(zone) %}
 	<button type="button"
-			class="configure-zone-card shield-card status-{{ zone.status }}"
+			class="configure-zone-card status-{{ zone.status }}"
 			data-drill-target="diagnosis"
 			data-drill-zone-selection="{{ zone.selection_json }}"
 			{% if zone.is_disabled %}disabled{% endif %}>
-		<div class="shield-card-accent status-{{ zone.status }}"></div>
-		<div class="configure-zone-card__header">
-			<div class="configure-zone-card__title-wrap">
-				<div class="configure-zone-card__icon">
-					<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
-				</div>
-				<div>
-					<div class="configure-zone-card__title">{{ zone.label }}</div>
-					<div class="configure-zone-card__stat">{{ zone.stat_line }}</div>
-				</div>
-			</div>
-			<span class="shield-badge badge-{{ zone.status }}">{{ zone.status_label }}</span>
-		</div>
-		<div class="configure-zone-card__preview">
-			<i class="{{ zone.status_icon_class }}" aria-hidden="true"></i>
-			<span>{{ zone.preview_text }}</span>
+		<span class="configure-zone-card__icon">
+			<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
+		</span>
+		<div class="configure-zone-card__body">
+			<h4 class="configure-zone-card__title">{{ zone.label }}</h4>
+			<div class="configure-zone-card__status">{{ zone.status_label }}</div>
+			<p class="configure-zone-card__oneliner">{{ zone.preview_text }}</p>
 		</div>
 	</button>
 {% endmacro %}

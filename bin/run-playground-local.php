@@ -119,7 +119,7 @@ function runInteractiveServer(
 ) :int {
 	if ( $localPlaygroundBinary === null ) {
 		fwrite( STDERR, "Local @wp-playground/cli binary not found.\n" );
-		fwrite( STDERR, "Install it with: npm install --save-dev @wp-playground/cli\n" );
+		fwrite( STDERR, "Install it with: ".getPlaygroundInstallCommand()."\n" );
 		return EXIT_ENV;
 	}
 
@@ -304,7 +304,7 @@ function runSmokeCheck(
 	elseif ( $localPlaygroundBinary === null ) {
 		$environmentFailure = true;
 		$summary['errors'][] = 'Local @wp-playground/cli binary not found.';
-		$summary['errors'][] = 'Install it with: npm install --save-dev @wp-playground/cli';
+		$summary['errors'][] = 'Install it with: '.getPlaygroundInstallCommand();
 	}
 	else {
 		$command = buildPlaygroundCommand(
@@ -1074,11 +1074,17 @@ function buildPlaygroundCommand( string $localPlaygroundBinary, string $subcomma
 
 function findLocalPlaygroundBinary( string $projectRoot ) :?string {
 	$candidates = \PHP_OS_FAMILY === 'Windows' ? [
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground-cli.cmd' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground-cli' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground.cmd' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli.cmd' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground.cmd' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground' ),
 	] : [
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground-cli' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground' ),
 	];
@@ -1089,6 +1095,10 @@ function findLocalPlaygroundBinary( string $projectRoot ) :?string {
 		}
 	}
 	return null;
+}
+
+function getPlaygroundInstallCommand() :string {
+	return 'npm install --prefix tools/playground --no-audit --no-fund';
 }
 
 function probeRuntimeEnvironment(
@@ -1300,7 +1310,7 @@ Examples:
   composer playground:local:check -- --plugin-root=./shield-package
 
 Notes:
-  Local local-run workflows require the repo-local @wp-playground/cli package.
-  Install once: npm install --save-dev @wp-playground/cli
+  Local Playground workflows use the isolated tools/playground install first and fall back to the root node_modules bin only for legacy setups.
+  Install once: npm install --prefix tools/playground --no-audit --no-fund
 TXT;
 }

@@ -4,7 +4,7 @@
 /node_modules/.cache
 /plugin.json
 /node_modules
-/package-lock.json
+/tools/playground/node_modules/
 /_gsdata_
 /forceoff
 /vendor

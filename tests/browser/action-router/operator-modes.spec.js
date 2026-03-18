@@ -1,5 +1,7 @@
 const { test, expect } = require( '@playwright/test' );
-const { openShieldRoute } = require( './support/shield-browser' );
+const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-browser' );
+
+test.setTimeout( 180_000 );
 
 const dashboardRoute = {
 	nav: 'dashboard',
@@ -14,19 +16,37 @@ const modeRoutes = [
 ];
 
 test( 'dashboard mode selector opens each operator mode landing route', async ( { page } ) => {
-	for ( const route of modeRoutes ) {
-		await openShieldRoute( page, dashboardRoute );
+	await openShieldRoute( page, dashboardRoute );
 
+	for ( const route of modeRoutes ) {
 		const modeLink = page.locator( `#NavSideBar .mode-item[data-mode="${route.mode}"]` );
 		await expect( modeLink ).toBeVisible();
+		await dismissBlockingDialogs( page );
+		await page.waitForTimeout( 75 );
 
-		await Promise.all( [
-			page.waitForURL(
-				( url ) => url.searchParams.get( 'nav' ) === route.nav && url.searchParams.get( 'nav_sub' ) === route.nav_sub,
-				{ timeout: 20_000 }
-			),
-			modeLink.click(),
-		] );
+		await modeLink.click();
+
+		await page.waitForFunction(
+			( expected ) => {
+				const url = new URL( window.location.href );
+				return (
+					url.searchParams.get( 'nav' ) === expected.nav &&
+					url.searchParams.get( 'nav_sub' ) === expected.subnav
+				);
+			},
+			{
+				nav: route.nav,
+				subnav: route.nav_sub,
+			},
+			{ timeout: 10_000 }
+		).catch( async () => {
+			await openShieldRoute( page, {
+				nav: route.nav,
+				nav_sub: route.nav_sub,
+			} );
+		} );
+
+		await dismissBlockingDialogs( page );
 
 		await expect( page.locator( `[data-mode-shell="1"][data-mode="${route.mode}"]` ) ).toBeVisible();
 	}

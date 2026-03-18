@@ -135,7 +135,7 @@ class ActionsQueueScanStateBuilder {
 			: $this->getDisplayCounts()->countAffectedThemeAssets();
 		$tabs[ $tabKey ] = [
 			'count'  => $count,
-			'status' => $count > 0 ? 'warning' : 'good',
+			'status' => $count > 0 ? 'critical' : 'good',
 		];
 		$accentStatuses[] = $tabs[ $tabKey ][ 'status' ];
 
@@ -148,7 +148,7 @@ class ActionsQueueScanStateBuilder {
 					: __( 'Theme Files', 'wp-simple-firewall' )
 			),
 			$count,
-			'warning',
+			'critical',
 			\sprintf(
 				_n(
 					$tabKey === 'plugins' ? '%s plugin needs review.' : '%s theme needs review.',

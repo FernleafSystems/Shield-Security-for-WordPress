@@ -1,4 +1,4 @@
-.configure-landing__posture-section {
+﻿.configure-landing__posture-section {
 	margin-bottom: 1rem;
 }
 
@@ -42,36 +42,38 @@
 }
 
 .configure-zone-card {
+	align-items: start;
+	appearance: none;
 	background: #fff;
 	border: 2px solid $border-color-neutral-subtle;
 	border-radius: $card-border-radius;
-	box-shadow: none;
 	color: #1d2327;
-	display: grid;
-	gap: 0.85rem;
-	height: 100%;
-	padding: 1rem;
-	position: relative;
-	text-align: left;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+	cursor: pointer;
+	display: flex;
+	font: inherit;
+	gap: 0.875rem;
+	line-height: inherit;
 	width: 100%;
+	padding: 1rem 1.125rem;
+	text-align: left;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.3s ease;
 }
 
 .configure-zone-card:hover {
 	box-shadow: $card-box-shadow-hover;
-	transform: translateY(-2px);
+	transform: translateY(-1px);
 }
 
 .configure-zone-card.status-critical {
-	border-color: rgba($status-color-critical, 0.25);
+	border-color: #e8c4c4;
 }
 
 .configure-zone-card.status-warning {
-	border-color: rgba($status-color-warning, 0.25);
+	border-color: #e8dcc4;
 }
 
 .configure-zone-card.status-good {
-	border-color: rgba($status-color-good, 0.25);
+	border-color: #c4e8cf;
 }
 
 .configure-zone-card.status-neutral,
@@ -117,8 +119,8 @@
 // Healthy zones collapse toggle
 .configure-zones__healthy-collapse {
 	align-items: center;
-	background: rgba($status-color-good, 0.08);
-	border: 1px solid rgba($status-color-good, 0.2);
+	background: #e6f4ea;
+	border: 1px solid #c4e8cf;
 	border-radius: $card-border-radius;
 	cursor: pointer;
 	display: flex;
@@ -130,7 +132,7 @@
 }
 
 .configure-zones__healthy-collapse:hover {
-	background: rgba($status-color-good, 0.14);
+	background: #d4edda;
 }
 
 .configure-zones__healthy-icon {
@@ -160,8 +162,8 @@
 	opacity: 0;
 	overflow: hidden;
 	transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-				opacity 0.3s ease,
-				margin-top 0.3s ease;
+		opacity 0.3s ease,
+		margin-top 0.3s ease;
 }
 
 .configure-zones__healthy-cards.is-open {
@@ -227,6 +229,60 @@
 	margin-top: 0.12rem;
 }
 
+// Overrides the old __icon rule (lines 182-191), which gives a colored circle background.
+// The old rule is not deleted because other rules near it are shared with diagnosis/editor.
+// We reset every circle property here so the icon renders as a bare glyph.
+.configure-zone-card__icon {
+	background: none;
+	border-radius: 0;
+	color: #5f6974;
+	display: inline;
+	flex-shrink: 0;
+	font-size: 1.375rem;
+	height: auto;
+	margin-top: 0.125rem;
+	width: auto;
+}
+
+.configure-zone-card__body {
+	flex: 1;
+	min-width: 0;
+}
+
+.configure-zone-card__title {
+	font-size: 0.875rem;
+	font-weight: 600;
+	margin: 0 0 0.125rem;
+}
+
+.configure-zone-card__status {
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-bottom: 0.25rem;
+}
+
+.status-critical .configure-zone-card__status {
+	color: $status-color-critical;
+}
+
+.status-warning .configure-zone-card__status {
+	color: $status-color-warning;
+}
+
+.status-good .configure-zone-card__status {
+	color: $status-color-good;
+}
+
+.status-neutral .configure-zone-card__status,
+.status-info .configure-zone-card__status {
+	color: $status-color-info;
+}
+
+.configure-zone-card__oneliner {
+	color: #5f6974;
+	font-size: 0.75rem;
+	margin: 0;
+}
 .configure-diagnosis,
 .configure-editor {
 	display: grid;

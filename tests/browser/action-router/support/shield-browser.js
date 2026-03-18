@@ -12,8 +12,63 @@ function buildShieldUrl( params = {} ) {
 }
 
 async function waitForShieldPage( page ) {
+	await dismissBlockingDialogs( page );
 	await expect( page.locator( '#PageContainer-Apto' ) ).toBeVisible();
 	await expect( page.locator( '#PageMain-Shield' ) ).toBeVisible();
+}
+
+async function clearIntroJsLayers( page ) {
+	await page.evaluate( () => {
+		const selectors = [
+			'.introjs-overlay',
+			'.introjs-helperLayer',
+			'.introjs-tooltipReferenceLayer',
+			'.introjs-disableInteraction',
+			'.introjs-tooltip',
+			'.introjs-hints',
+			'.modal-backdrop',
+			'.modal.show',
+		];
+
+		for ( const selector of selectors ) {
+			document.querySelectorAll( selector ).forEach( ( node ) => {
+				node.remove();
+			} );
+		}
+	} ).catch( () => {} );
+}
+
+async function dismissBlockingDialogs( page ) {
+	if ( page.isClosed() ) {
+		return;
+	}
+
+	const closeButtons = [
+		'.modal.show .btn-close',
+		'.modal.show [data-bs-dismiss="modal"]',
+		'.introjs-skipbutton',
+		'.introjs-donebutton',
+	];
+
+	for ( const selector of closeButtons ) {
+		const button = await page.$( selector );
+		if ( button ) {
+			await button.click( { timeout: 250 } ).catch( () => {} );
+			await page.waitForTimeout( 150 );
+		}
+	}
+
+	const hasOverlay = (
+		( await page.$( '.modal.show' ) ) ||
+		( await page.$( '.introjs-overlay' ) ) ||
+		( await page.$( '.modal-backdrop' ) )
+	) !== null;
+	if ( hasOverlay ) {
+		await page.keyboard.press( 'Escape' ).catch( () => {} );
+		await page.waitForTimeout( 250 );
+	}
+
+	await clearIntroJsLayers( page );
 }
 
 async function loginIfNeeded( page ) {
@@ -74,6 +129,7 @@ async function selectSelect2Option( page, selectName, searchTerm, optionMatcher,
 
 module.exports = {
 	buildShieldUrl,
+	dismissBlockingDialogs,
 	openShieldRoute,
 	selectSelect2Option,
 	waitForShieldPage,

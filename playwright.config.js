@@ -1,10 +1,15 @@
 const { defineConfig } = require( '@playwright/test' );
 
-const port = Number.parseInt( process.env.SHIELD_PLAYGROUND_PORT || '9400', 10 );
+const baseUrl = process.env.SHIELD_BROWSER_BASE_URL;
+
+if ( !baseUrl ) {
+	throw new Error( 'SHIELD_BROWSER_BASE_URL must be set. Use composer test:browser or php bin/shield test:browser.' );
+}
 
 module.exports = defineConfig( {
 	testDir: './tests/browser',
 	timeout: 60_000,
+	outputDir: './test-results/playwright',
 	expect: {
 		timeout: 10_000,
 	},
@@ -14,10 +19,10 @@ module.exports = defineConfig( {
 	workers: process.env.CI ? 1 : undefined,
 	reporter: process.env.CI ? [ [ 'github' ], [ 'html', { open: 'never' } ] ] : 'list',
 	use: {
-		baseURL: `http://127.0.0.1:${port}`,
+		baseURL: baseUrl,
 		headless: true,
-		trace: 'retain-on-failure',
+		trace: process.env.CI ? 'retain-on-failure' : 'on-first-retry',
 		screenshot: 'only-on-failure',
-		video: 'retain-on-failure',
+		video: process.env.CI ? 'retain-on-failure' : 'off',
 	},
 } );

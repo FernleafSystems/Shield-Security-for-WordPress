@@ -5,11 +5,18 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Cli;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzePackageCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeToolingCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteDownCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteResetCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteStatusCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteUpCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteManager;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackagePathResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageStaticAnalysisLane;
@@ -43,8 +50,24 @@ class ShieldCliApplication {
 	private function buildCommandFactories( string $projectRoot ) :array {
 		$environmentResolver = new TestingEnvironmentResolver();
 		$packagePathResolver = new PackagePathResolver();
+		$localDevSiteManager = new LocalDevSiteManager( null, $environmentResolver );
 
 		return [
+			'dev:site:up' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
+				return new DevSiteUpCommand( $projectRoot, $localDevSiteManager );
+			},
+			'dev:site:down' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
+				return new DevSiteDownCommand( $projectRoot, $localDevSiteManager );
+			},
+			'dev:site:reset' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
+				return new DevSiteResetCommand( $projectRoot, $localDevSiteManager );
+			},
+			'dev:site:status' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
+				return new DevSiteStatusCommand( $projectRoot, $localDevSiteManager );
+			},
+			'test:browser' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
+				return new TestBrowserCommand( $projectRoot, new BrowserTestLane( null, $localDevSiteManager ) );
+			},
 			'test:source' => static function () use ( $projectRoot, $environmentResolver ) :Command {
 				return new TestSourceCommand(
 					$projectRoot,

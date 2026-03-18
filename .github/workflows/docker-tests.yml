@@ -324,6 +324,7 @@ jobs:
       run: |
         composer install --no-interaction --prefer-dist --optimize-autoloader
         npm ci --no-audit --no-fund
+        npm install --prefix tools/playground --no-audit --no-fund
 
     - name: Download package artifact
       uses: actions/download-artifact@v4

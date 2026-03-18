@@ -24,6 +24,11 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$output = $this->processOutput( $process );
 		foreach (
 			[
+				'dev:site:up',
+				'dev:site:down',
+				'dev:site:reset',
+				'dev:site:status',
+				'test:browser',
 				'test:source',
 				'test:integration-local',
 				'test:package-targeted',
@@ -79,6 +84,17 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( '--refresh-setup', $this->processOutput( $process ) );
 	}
 
+	public function testBrowserCommandHelpIncludesPlaywrightForwardingHint() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/shield', [ 'test:browser', '--help' ] );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+
+		$output = $this->processOutput( $process );
+		$this->assertStringContainsString( 'test:browser', $output );
+		$this->assertStringContainsString( 'composer: -- -- --headed', $output );
+	}
+
 	public function testAnalyzeSourceHelpIncludesRefreshSetupOption() :void {
 		$this->skipIfPackageScriptUnavailable();
 
@@ -93,7 +109,12 @@ class ShieldCliCommandTest extends BaseUnitTest {
 	public function providerCommandNames() :array {
 		return [
 			'test-source' => [ 'test:source' ],
+			'test-browser' => [ 'test:browser' ],
 			'test-integration-local' => [ 'test:integration-local' ],
+			'dev-site-up' => [ 'dev:site:up' ],
+			'dev-site-down' => [ 'dev:site:down' ],
+			'dev-site-reset' => [ 'dev:site:reset' ],
+			'dev-site-status' => [ 'dev:site:status' ],
 			'test-package-targeted' => [ 'test:package-targeted' ],
 			'test-package-full' => [ 'test:package-full' ],
 			'analyze-tooling' => [ 'analyze:tooling' ],
