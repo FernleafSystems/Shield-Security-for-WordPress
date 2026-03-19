@@ -43,25 +43,11 @@
 
 .configure-zone-card {
 	align-items: start;
-	appearance: none;
-	background: #fff;
-	border: 2px solid $border-color-neutral-subtle;
-	border-radius: $card-border-radius;
-	color: #1d2327;
 	cursor: pointer;
-	display: flex;
-	font: inherit;
 	gap: 0.875rem;
-	line-height: inherit;
 	width: 100%;
 	padding: 1rem 1.125rem;
-	text-align: left;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.3s ease;
-}
-
-.configure-zone-card:hover {
-	box-shadow: $card-box-shadow-hover;
-	transform: translateY(-1px);
 }
 
 .configure-zone-card.status-critical {
@@ -81,29 +67,26 @@
 	border-color: rgba($status-color-info, 0.25);
 }
 
-.configure-zone-card.status-critical:hover {
+.configure-zone-card.status-critical:hover:not(:disabled),
+.configure-zone-card.status-critical:focus-visible {
 	border-color: $status-color-critical;
 }
 
-.configure-zone-card.status-warning:hover {
+.configure-zone-card.status-warning:hover:not(:disabled),
+.configure-zone-card.status-warning:focus-visible {
 	border-color: $status-color-warning;
 }
 
-.configure-zone-card.status-good:hover {
+.configure-zone-card.status-good:hover:not(:disabled),
+.configure-zone-card.status-good:focus-visible {
 	border-color: $status-color-good;
 }
 
-.configure-zone-card.status-neutral:hover,
-.configure-zone-card.status-info:hover {
+.configure-zone-card.status-neutral:hover:not(:disabled),
+.configure-zone-card.status-neutral:focus-visible,
+.configure-zone-card.status-info:hover:not(:disabled),
+.configure-zone-card.status-info:focus-visible {
 	border-color: $status-color-info;
-}
-
-.configure-zone-card:disabled {
-	background: $surface-color-neutral-raised;
-	box-shadow: none;
-	cursor: not-allowed;
-	opacity: 0.7;
-	transform: none;
 }
 
 .configure-zone-card.status-good,
@@ -111,8 +94,10 @@
 	opacity: 0.55;
 }
 
-.configure-zone-card.status-good:hover,
-.configure-zone-card.status-neutral:hover {
+.configure-zone-card.status-good:hover:not(:disabled),
+.configure-zone-card.status-good:focus-visible,
+.configure-zone-card.status-neutral:hover:not(:disabled),
+.configure-zone-card.status-neutral:focus-visible {
 	opacity: 1;
 }
 

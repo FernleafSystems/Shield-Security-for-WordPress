@@ -3,9 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultsSet as AfsResultsSet;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -13,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 use FernleafSystems\Wordpress\Services\Core\Db;
 
-class RetrieveItemsFindingsQueryTest extends BaseUnitTest {
+class RetrieveCountQueryTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
 
@@ -28,53 +26,23 @@ class RetrieveItemsFindingsQueryTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_retrieve_latest_for_findings_omits_state_exists_filter_when_none_are_requested() :void {
+	public function test_count_preserves_existing_wheres_without_accumulating_duplicates() :void {
 		$queries = [];
 		$this->installControllerAndDb( $queries );
 
-		$results = ( new RetrieveItems() )
+		$retriever = ( new RetrieveCount() )
 			->setScanController( $this->newScanController() )
-			->retrieveLatestForFindings();
-
-		$this->assertInstanceOf( ResultsSet::class, $results );
-		$this->assertCount( 1, $queries );
-		$this->assertStringContainsString( "`sr`.`scan_ref`=55", $queries[ 0 ] );
-		$this->assertStringContainsString( "`ri`.`item_repaired_at`=0", $queries[ 0 ] );
-		$this->assertStringContainsString( "`ri`.`item_deleted_at`=0", $queries[ 0 ] );
-		$this->assertStringNotContainsString( 'EXISTS (SELECT 1', $queries[ 0 ] );
-	}
-
-	public function test_retrieve_latest_for_findings_builds_exists_filters_for_unique_requested_states() :void {
-		$queries = [];
-		$this->installControllerAndDb( $queries );
-
-		( new RetrieveItems() )
-			->setScanController( $this->newScanController() )
-			->retrieveLatestForFindings( [ 'is_vulnerable', 'is_abandoned', 'is_vulnerable', '', 'is-bad' ] );
-
-		$this->assertCount( 1, $queries );
-		$this->assertStringContainsString( 'EXISTS (SELECT 1', $queries[ 0 ] );
-		$this->assertSame( 1, \substr_count( $queries[ 0 ], "meta_key`='is_vulnerable'" ) );
-		$this->assertSame( 1, \substr_count( $queries[ 0 ], "meta_key`='is_abandoned'" ) );
-		$this->assertSame( 1, \substr_count( $queries[ 0 ], "meta_key`='isbad'" ) );
-	}
-
-	public function test_retrieve_for_results_tables_preserves_existing_wheres_without_accumulating_duplicates() :void {
-		$queries = [];
-		$this->installControllerAndDb( $queries );
-
-		$retriever = ( new RetrieveItems() )
-			->setScanController( $this->newAfsScanController() )
 			->addWheres( [
 				"`rim`.`meta_key`='ptg_slug'",
 				"`rim`.`meta_value`='shield/shield.php'",
 			] );
 
-		$retriever->retrieveForResultsTables();
-		$retriever->retrieveForResultsTables();
+		$this->assertSame( 3, $retriever->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY ) );
+		$this->assertSame( 3, $retriever->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY ) );
 
 		$this->assertCount( 2, $queries );
 		foreach ( $queries as $query ) {
+			$this->assertStringContainsString( 'COUNT(*)', $query );
 			$this->assertStringContainsString( "`sr`.`scan_ref`=55", $query );
 			$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $query );
 			$this->assertStringContainsString( "`ri`.`ignored_at`=0", $query );
@@ -96,10 +64,10 @@ class RetrieveItemsFindingsQueryTest extends BaseUnitTest {
 					$this->queries = &$queries;
 				}
 
-				public function selectCustom( $query, $format = null ) {
-					unset( $format );
+				public function getVar( $query, $x = 0, $y = 0 ) {
+					unset( $x, $y );
 					$this->queries[] = $query;
-					return [];
+					return 3;
 				}
 			},
 		] );
@@ -150,23 +118,7 @@ class RetrieveItemsFindingsQueryTest extends BaseUnitTest {
 	private function newScanController() {
 		return new class {
 			public function getSlug() :string {
-				return 'wpv';
-			}
-
-			public function getNewResultsSet() :ResultsSet {
-				return new ResultsSet();
-			}
-		};
-	}
-
-	private function newAfsScanController() {
-		return new class {
-			public function getSlug() :string {
 				return 'afs';
-			}
-
-			public function getNewResultsSet() :AfsResultsSet {
-				return new AfsResultsSet();
 			}
 		};
 	}

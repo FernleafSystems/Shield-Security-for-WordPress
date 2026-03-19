@@ -180,28 +180,43 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$target = $item[ 'target' ];
 
 		switch ( $item[ 'key' ] ) {
-			case 'wp_plugins_inactive':
-				return [
-					'href'  => $href,
-					'label' => __( 'Go to plugins', 'wp-simple-firewall' ),
-				];
+			case 'wp_updates':
+				return $this->buildMappedCta( $href, __( 'Dashboard -> Updates', 'wp-simple-firewall' ), $target );
 
+			case 'wp_plugins_updates':
+			case 'wp_plugins_inactive':
+				return $this->buildMappedCta( $href, __( 'Manage Plugins', 'wp-simple-firewall' ), $target );
+
+			case 'wp_themes_updates':
 			case 'wp_themes_inactive':
-				return [
-					'href'  => $href,
-					'label' => __( 'Go to themes', 'wp-simple-firewall' ),
-				];
+				return $this->buildMappedCta( $href, __( 'Manage Themes', 'wp-simple-firewall' ), $target );
+
+			case 'system_ssl_certificate':
+				return $this->buildMappedCta( $href, __( 'Review SSL', 'wp-simple-firewall' ), $target );
+
+			case 'system_php_version':
+			case 'system_lib_openssl':
+			case 'wp_db_password':
+				return [];
 
 			default:
-				$action = $item[ 'action' ];
-				return ( $href !== '' && $action !== '' )
-					? [
-						'href'   => $href,
-						'label'  => $action,
-						'target' => $target,
-					]
-					: [];
+				return [];
 		}
+	}
+
+	/**
+	 * @return array{}|MaintenanceItemCta
+	 */
+	private function buildMappedCta( string $href, string $label, string $target = '' ) :array {
+		if ( $href === '' || $label === '' ) {
+			return [];
+		}
+
+		return \array_filter( [
+			'href'   => $href,
+			'label'  => $label,
+			'target' => $target,
+		], static fn( $value ) :bool => !\in_array( $value, [ '', null ], true ) );
 	}
 
 	/**

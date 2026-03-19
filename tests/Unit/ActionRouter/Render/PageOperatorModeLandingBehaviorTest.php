@@ -403,7 +403,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 						[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'severity' => 'critical', 'count' => 2 ],
 						[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 5 ],
 						[ 'key' => 'theme_files', 'label' => 'Theme Files', 'severity' => 'warning', 'count' => 1 ],
-						[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'warning', 'count' => 6 ],
+						[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'critical', 'count' => 6 ],
 						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 2 ],
 					],
 				],
@@ -431,7 +431,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		);
 		$this->assertSame( [ 4, 3, 2, 5, 1, 6, 2, 7 ], \array_column( $rows, 'count' ) );
 		$this->assertSame(
-			[ 'critical', 'critical', 'critical', 'warning', 'warning', 'warning', 'warning', 'warning' ],
+			[ 'critical', 'critical', 'critical', 'warning', 'warning', 'critical', 'warning', 'warning' ],
 			\array_column( $rows, 'severity' )
 		);
 		$this->assertSame(

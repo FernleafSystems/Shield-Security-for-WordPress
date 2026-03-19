@@ -71,7 +71,7 @@ class ScansResultsViewBuilderSummaryRailTest extends ScansResultsViewBuilderTest
 							[
 								'label'       => 'Abandoned Theme',
 								'description' => 'Abandoned.',
-								'severity'    => 'warning',
+								'severity'    => 'critical',
 								'count'       => 1,
 								'actions'     => [],
 							],

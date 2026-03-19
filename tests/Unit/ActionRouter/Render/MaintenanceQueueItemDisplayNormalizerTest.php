@@ -105,7 +105,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
-		$this->assertNotEmpty( $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( 'Manage Plugins', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/wp-admin/update-core.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( 'maintenance-expand-wp_plugins_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $item[ 'expansion' ][ 'type' ] ?? '' );
 		$this->assertSame( 'Akismet Anti-Spam', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
@@ -152,6 +153,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
+		$this->assertSame( 'Manage Themes', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/wp-admin/update-core.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( 'maintenance-expand-wp_themes_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertSame( 'Twenty Twenty-Five', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'Current: 1.1 | Available: 1.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
@@ -188,7 +191,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
-		$this->assertNotEmpty( $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( 'Manage Plugins', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/wp-admin/plugins.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertCount( 1, $item[ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertSame( 'Hello Dolly', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'Version: 1.7.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
@@ -232,7 +236,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
-		$this->assertNotEmpty( $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( 'Manage Themes', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/wp-admin/themes.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertCount( 1, $item[ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertSame( 'Inactive Theme', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'inactive-theme', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'identifier' ] ?? '' );
@@ -322,9 +327,53 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertCount( 1, $items );
 		$this->assertSame( 'system_php_version', $items[ 0 ][ 'key' ] ?? '' );
 		$this->assertSame( 'good', $items[ 0 ][ 'severity' ] ?? '' );
+		$this->assertSame( [], $items[ 0 ][ 'cta' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $items[ 0 ][ 'expansion' ] ?? [] );
 		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'toggle_action' ][ 'icon' ] ?? '' );
 		$this->assertSame( 'maintenance_item_unignore', $items[ 0 ][ 'toggle_action' ][ 'ajax_action' ][ 'ex' ] ?? '' );
+	}
+
+	public function test_normalize_uses_explicit_cta_mapping_and_suppresses_informational_links() :void {
+		$normalizer = new MaintenanceQueueItemDisplayNormalizer();
+
+		$wpUpdates = $normalizer->normalize( [
+			'key'         => 'wp_updates',
+			'zone'        => 'maintenance',
+			'label'       => 'WordPress Version',
+			'count'       => 1,
+			'severity'    => 'warning',
+			'description' => 'Core updates available.',
+			'href'        => '/wp-admin/update-core.php',
+			'action'      => 'open',
+			'target'      => '_blank',
+		] );
+		$openssl = $normalizer->normalize( [
+			'key'         => 'system_lib_openssl',
+			'zone'        => 'maintenance',
+			'label'       => 'OpenSSL Extension',
+			'count'       => 1,
+			'severity'    => 'warning',
+			'description' => 'OpenSSL requires review.',
+			'href'        => 'https://www.openssl.org/news/vulnerabilities.html',
+			'action'      => 'Review',
+			'target'      => '_blank',
+		] );
+		$ssl = $normalizer->normalize( [
+			'key'         => 'system_ssl_certificate',
+			'zone'        => 'maintenance',
+			'label'       => 'SSL Certificate',
+			'count'       => 1,
+			'severity'    => 'critical',
+			'description' => 'SSL needs review.',
+			'href'        => '/wp-admin/site-health.php?page=ssl',
+			'action'      => 'Review',
+			'target'      => '',
+		] );
+
+		$this->assertSame( 'Dashboard -> Updates', $wpUpdates[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '_blank', $wpUpdates[ 'cta' ][ 'target' ] ?? '' );
+		$this->assertSame( [], $openssl[ 'cta' ] ?? [ 'unexpected' ] );
+		$this->assertSame( 'Review SSL', $ssl[ 'cta' ][ 'label' ] ?? '' );
 	}
 
 	public function test_normalize_all_appends_fully_ignored_sub_item_check_with_ignored_rows() :void {

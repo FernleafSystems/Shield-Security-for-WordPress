@@ -33,7 +33,7 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 					'label'       => 'Plugin One',
 					'description' => 'This asset appears to be abandoned.',
 					'count'       => 1,
-					'severity'    => 'warning',
+					'severity'    => 'critical',
 					'actions'     => [],
 				],
 				[
@@ -42,7 +42,7 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 					'label'       => 'Theme Two',
 					'description' => 'This asset appears to be abandoned.',
 					'count'       => 1,
-					'severity'    => 'warning',
+					'severity'    => 'critical',
 					'actions'     => [],
 				],
 			]
@@ -56,7 +56,7 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 		$this->assertCount( 2, $payload[ 'sections' ][ 'abandoned' ][ 'items' ] );
 	}
 
-	public function test_build_uses_warning_status_when_only_abandoned_assets_exist() :void {
+	public function test_build_uses_critical_status_when_only_abandoned_assets_exist() :void {
 		$builder = new ScansVulnerabilitiesBuilderTestDouble(
 			[],
 			[
@@ -66,7 +66,7 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 					'label'       => 'Plugin One',
 					'description' => 'This asset appears to be abandoned.',
 					'count'       => 1,
-					'severity'    => 'warning',
+					'severity'    => 'critical',
 					'actions'     => [],
 				],
 			]
@@ -75,7 +75,8 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 		$payload = $builder->build();
 
 		$this->assertSame( 1, $payload[ 'count' ] );
-		$this->assertSame( 'warning', $payload[ 'status' ] );
+		$this->assertSame( 'critical', $payload[ 'status' ] );
+		$this->assertSame( 'critical', $payload[ 'sections' ][ 'abandoned' ][ 'items' ][ 0 ][ 'severity' ] );
 		$this->assertSame( [], $payload[ 'sections' ][ 'vulnerable' ][ 'items' ] );
 		$this->assertCount( 1, $payload[ 'sections' ][ 'abandoned' ][ 'items' ] );
 	}

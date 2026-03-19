@@ -45,23 +45,15 @@
 	--landing-subject-icon-bg: #{$status-bg-info-light};
 	--landing-subject-icon-color: #{$status-color-info};
 
-	appearance: none;
+	align-items: center;
 	border: 2px solid rgba($status-color-info, 0.25);
-	box-shadow: none;
 	cursor: pointer;
+	flex-direction: column;
 	gap: 0.35rem;
-	min-height: 132px;
-	line-height: inherit;
-	font: inherit;
 	padding: 1rem 0.85rem;
+	min-height: 132px;
 	text-align: center;
 	text-decoration: none;
-}
-
-.investigate-landing__subject-card::before {
-	background: var(--landing-subject-accent-color);
-	opacity: 0;
-	transition: opacity 0.2s;
 }
 
 .investigate-landing__subject-card.is-active {
@@ -69,17 +61,12 @@
 	border-color: var(--landing-subject-accent-color);
 	box-shadow: $card-box-shadow-hover;
 	color: #1d2327;
-	transform: translateY(-2px);
+	transform: translateY(-1px);
 }
 
-.investigate-landing__subject-card:hover {
+.investigate-landing__subject-card:hover,
+.investigate-landing__subject-card:focus-visible {
 	border-color: var(--landing-subject-accent-color);
-	box-shadow: $card-box-shadow-hover;
-}
-
-.investigate-landing__subject-card:not(.is-disabled):hover::before,
-.investigate-landing__subject-card.is-active::before {
-	opacity: 1;
 }
 
 .investigate-landing__subject-card.status-good {

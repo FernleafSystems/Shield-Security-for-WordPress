@@ -54,7 +54,7 @@ class ScansVulnerabilitiesBuilder {
 			'count'    => $this->countDistinctAffectedAssets( $vulnerableItems, $abandonedItems ),
 			'status'   => !empty( $vulnerableItems )
 				? 'critical'
-				: ( !empty( $abandonedItems ) ? 'warning' : 'good' ),
+				: ( !empty( $abandonedItems ) ? 'critical' : 'good' ),
 			'sections' => [
 				'vulnerable' => [
 					'label' => __( 'Known Vulnerabilities', 'wp-simple-firewall' ),
@@ -144,7 +144,7 @@ class ScansVulnerabilitiesBuilder {
 			'label'       => (string)$name,
 			'description' => $description,
 			'count'       => $count,
-			'severity'    => $prefix === 'vulnerability' ? 'critical' : 'warning',
+			'severity'    => 'critical',
 			'actions'     => $this->buildAssetActions( $asset ),
 		];
 	}

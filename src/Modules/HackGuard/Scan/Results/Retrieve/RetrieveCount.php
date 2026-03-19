@@ -39,8 +39,10 @@ class RetrieveCount extends RetrieveBase {
 					break;
 			}
 
-			$this->addWheres( $specificWheres, false );
-			$count = (int)Services::WpDb()->getVar( $this->buildQuery( [ 'COUNT(*)' ] ) );
+			$count = (int)$this->withMergedWheres(
+				$specificWheres,
+				fn() :int => (int)Services::WpDb()->getVar( $this->buildQuery( [ 'COUNT(*)' ] ) )
+			);
 		}
 
 		return $count;

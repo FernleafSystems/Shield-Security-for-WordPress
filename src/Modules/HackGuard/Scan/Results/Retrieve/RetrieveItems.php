@@ -311,11 +311,11 @@ class RetrieveItems extends RetrieveBase {
 	}
 
 	private function retrieveByWheres( array $wheres ) {
-		$query = $this
-			->addWheres( $wheres, false )
-			->buildQuery( $this->standardSelectFields() );
-		$raw = Services::WpDb()->selectCustom( $query );
-		return $this->convertToResultsSet( empty( $raw ) ? [] : $raw );
+		return $this->withMergedWheres( $wheres, function () {
+			$query = $this->buildQuery( $this->standardSelectFields() );
+			$raw = Services::WpDb()->selectCustom( $query );
+			return $this->convertToResultsSet( empty( $raw ) ? [] : $raw );
+		} );
 	}
 
 	private function buildStateMetaExistsWhere( array $stateMetaKeys ) :string {

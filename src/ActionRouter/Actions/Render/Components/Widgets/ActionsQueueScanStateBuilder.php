@@ -188,7 +188,7 @@ class ActionsQueueScanStateBuilder {
 			'count'  => $displayCounts->countDistinctVulnerabilityReviewAssets(),
 			'status' => $vulnerableAssetsCount > 0
 				? 'critical'
-				: ( $abandonedAssetsCount > 0 ? 'warning' : 'good' ),
+				: ( $abandonedAssetsCount > 0 ? 'critical' : 'good' ),
 		];
 		$accentStatuses[] = $tabs[ 'vulnerabilities' ][ 'status' ];
 
@@ -211,7 +211,7 @@ class ActionsQueueScanStateBuilder {
 			'abandoned',
 			__( 'Abandoned Assets', 'wp-simple-firewall' ),
 			$abandonedAssetsCount,
-			'warning',
+			'critical',
 			\sprintf(
 				_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $abandonedAssetsCount, 'wp-simple-firewall' ),
 				$abandonedAssetsCount

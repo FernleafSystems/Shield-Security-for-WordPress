@@ -9,20 +9,46 @@
 }
 
 .reports-landing__tile {
+	align-items: flex-start;
+	background: #fff;
+	border: 2px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	color: #1d2327;
+	display: flex;
+	flex-direction: column;
 	gap: 0.3rem;
+	height: 100%;
 	min-height: 122px;
+	overflow: hidden;
 	padding: 0.85rem 0.95rem;
+	position: relative;
+	text-align: left;
 	text-decoration: none;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+	width: 100%;
 }
 
 .reports-landing__tile::before {
+	content: '';
 	background: $status-color-warning;
+	border-top-left-radius: $card-border-radius;
+	border-top-right-radius: $card-border-radius;
+	height: 3px;
+	left: 0;
 	opacity: 0;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	top: 0;
 	transition: opacity 0.2s;
 }
 
 .reports-landing__tile:hover {
+	box-shadow: $card-box-shadow-hover;
 	border-color: #ccc;
+	color: #1d2327;
+	transform: translateY(-2px);
 }
 
 .reports-landing__tile:hover::before,

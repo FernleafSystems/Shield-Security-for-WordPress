@@ -47,7 +47,29 @@ abstract class RetrieveBase extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function addWheres( array $wheres, bool $merge = true ) {
+		$wheres = $this->sanitizeWheres( $wheres );
 		$this->wheres = $merge ? \array_merge( $this->getWheres(), $wheres ) : $wheres;
 		return $this;
+	}
+
+	/**
+	 * @template T
+	 * @param callable():T $callback
+	 * @return T
+	 */
+	protected function withMergedWheres( array $wheres, callable $callback ) {
+		$originalWheres = $this->getWheres();
+		$this->wheres = \array_merge( $originalWheres, $this->sanitizeWheres( $wheres ) );
+
+		try {
+			return $callback();
+		}
+		finally {
+			$this->wheres = $originalWheres;
+		}
+	}
+
+	private function sanitizeWheres( array $wheres ) :array {
+		return \array_filter( \array_map( '\trim', $wheres ) );
 	}
 }

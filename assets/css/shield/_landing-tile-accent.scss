@@ -1,53 +1,47 @@
-/* Shared landing tile frame + accent geometry */
-.investigate-landing__subject-card,
-.reports-landing__tile,
-.actions-landing__tile {
-	align-items: flex-start;
+/* Shared operator-mode landing card shell */
+.actions-queue-bucket-card,
+.configure-zone-card,
+.investigate-landing__subject-card {
+	appearance: none;
 	background: #fff;
 	border: 2px solid $border-color-neutral-subtle;
 	border-radius: $card-border-radius;
+	box-shadow: none;
 	color: #1d2327;
+	cursor: pointer;
 	display: flex;
-	flex-direction: column;
+	font: inherit;
 	height: 100%;
-	overflow: hidden;
-	position: relative;
+	line-height: inherit;
 	text-align: left;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
 	width: 100%;
 }
 
-.reports-landing__tile,
-.actions-landing__tile {
-	box-shadow: $card-box-shadow;
-}
-
-.investigate-landing__subject-card::before,
-.reports-landing__tile::before,
-.actions-landing__tile::before {
-	content: '';
-	height: 3px;
-	left: 0;
-	pointer-events: none;
-	position: absolute;
-	right: 0;
-	top: 0;
-	border-top-left-radius: $card-border-radius;
-	border-top-right-radius: $card-border-radius;
-}
-
-.investigate-landing__subject-card:hover,
-.reports-landing__tile:hover,
-.actions-landing__tile:hover {
+.actions-queue-bucket-card:hover:not(:disabled),
+.actions-queue-bucket-card:focus-visible,
+.configure-zone-card:hover:not(:disabled),
+.configure-zone-card:focus-visible,
+.investigate-landing__subject-card:hover:not(.is-disabled),
+.investigate-landing__subject-card:focus-visible {
 	box-shadow: $card-box-shadow-hover;
 	color: #1d2327;
-	transform: translateY(-2px);
+	transform: translateY(-1px);
 }
 
+.actions-queue-bucket-card:focus-visible,
+.configure-zone-card:focus-visible,
+.investigate-landing__subject-card:focus-visible {
+	outline: 2px solid rgba(0, 128, 0, 0.65);
+	outline-offset: 2px;
+}
+
+.actions-queue-bucket-card:disabled,
+.actions-queue-bucket-card.is-empty,
+.configure-zone-card:disabled,
 .investigate-landing__subject-card.is-disabled,
 .investigate-landing__subject-card.is-disabled:hover,
-.actions-landing__tile.is-disabled,
-.actions-landing__tile.is-disabled:hover {
+.investigate-landing__subject-card.is-disabled:focus-visible {
 	background: $surface-color-neutral-raised;
 	border-color: $border-color-neutral-subtle;
 	box-shadow: none;

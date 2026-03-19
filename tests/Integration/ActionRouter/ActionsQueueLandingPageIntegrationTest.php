@@ -462,6 +462,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row ")]',
 			'Groups AJAX should render maintenance category rows inside the item-box'
 		);
+		$this->assertNotEmpty( $payload[ 'groups' ][ 0 ][ 'maintenance_rows' ] ?? [] );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-summary ") and contains(normalize-space(), "Current:") and contains(normalize-space(), "Available:")]',
+			'Groups AJAX should enumerate the normalized maintenance row context instead of the old assessment summary row'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//a[contains(concat(" ", normalize-space(@class), " "), " item-box__row-action ") and string-length(@data-actions-queue-maintenance-action) > 0]',
+			'Groups AJAX should render the existing inline maintenance ignore action payload on category rows'
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__header-link ")]',
@@ -579,6 +590,29 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			0,
 			'Critical groups AJAX should not render the legacy group-card markup'
 		);
+	}
+
+	public function test_groups_ajax_routes_abandoned_only_findings_to_fix_now() :void {
+		$this->enableAssetScanFixture( [ 'plugins' ] );
+
+		$pluginSlug = self::con()->base_file;
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'      => $pluginSlug,
+			'is_abandoned' => 1,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'critical',
+		] );
+
+		$this->assertSame( 'Fix now - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
+		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
+		$this->assertSame( 'Abandoned Assets', (string)( $payload[ 'groups' ][ 0 ][ 'heading_label' ] ?? '' ) );
+		$this->assertStringStartsWith( 'vulnerabilities:abandoned-', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $payload[ 'groups' ][ 0 ][ 'status' ] ?? '' ) );
 	}
 
 	public function test_detail_ajax_renders_selected_plugin_group_as_direct_investigation_table() :void {

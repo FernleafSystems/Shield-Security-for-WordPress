@@ -17,18 +17,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
+ * @phpstan-import-type MaintenanceExpansionRow from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-type AssessmentRow array{
- *   key:string,
- *   label:string,
- *   description:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string
- * }
  * @phpstan-type AssessmentRowsByZone array{
- *   scans:list<AssessmentRow>,
- *   maintenance:list<AssessmentRow>
+ *   scans:list<array{
+ *     key:string,
+ *     label:string,
+ *     description:string,
+ *     status:string,
+ *     status_label:string,
+ *     status_icon_class:string
+ *   }>,
+ *   maintenance:list<array{
+ *     key:string,
+ *     label:string,
+ *     description:string,
+ *     status:string,
+ *     status_label:string,
+ *     status_icon_class:string
+ *   }>
  * }
  * @phpstan-type GroupLink array{
  *   label:string,
@@ -61,7 +68,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   detail_table:array<string,mixed>,
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,string>,
- *   maintenance_items:list<array{icon_class:string, title:string, summary:string}>,
+ *   maintenance_rows:list<MaintenanceExpansionRow>,
  *   strip_text:string,
  *   strip_badge:string,
  *   context:LayerContext,
@@ -96,7 +103,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   management_link:array{}|GroupManagementLink,
  *   detail_table:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
- *   maintenance_rows:list<AssessmentRow>
+ *   maintenance_rows:list<MaintenanceExpansionRow>
  * }
  * @phpstan-type ComputedGroups array{
  *   layer:GroupsLayerData,
@@ -174,8 +181,7 @@ class ActionsQueueGroupsBuilder {
 		$bucket = $buckets[ $bucketKey ];
 		$groupsIndexed = $this->buildGroupsIndexedForBucket(
 			$bucket[ 'label' ],
-			$bucketSources[ $bucketKey ],
-			$assessmentRowsByZone[ 'maintenance' ]
+			$bucketSources[ $bucketKey ]
 		);
 		$bucketSelection = $bucket[ 'selection' ];
 
@@ -207,12 +213,10 @@ class ActionsQueueGroupsBuilder {
 
 	/**
 	 * @param BucketSource $bucketSource
-	 * @param list<AssessmentRow> $maintenanceRows
 	 * @return array<string,GroupData>
 	 */
-	private function buildGroupsIndexedForBucket( string $bucketLabel, array $bucketSource, array $maintenanceRows ) :array {
+	private function buildGroupsIndexedForBucket( string $bucketLabel, array $bucketSource ) :array {
 		$seeds = [];
-		$maintenanceRowsByKey = $this->indexMaintenanceRowsByKey( $maintenanceRows );
 		$vulnerabilitiesPayload = null;
 		$maintenanceItemsByKey = null;
 		$pluginsExpanded = false;
@@ -268,10 +272,7 @@ class ActionsQueueGroupsBuilder {
 						);
 					}
 					if ( isset( $maintenanceItemsByKey[ $item[ 'key' ] ] ) ) {
-						$seeds[] = $this->buildMaintenanceSeed(
-							$maintenanceItemsByKey[ $item[ 'key' ] ],
-							$maintenanceRowsByKey[ $item[ 'key' ] ] ?? null
-						);
+						$seeds[] = $this->buildMaintenanceSeed( $maintenanceItemsByKey[ $item[ 'key' ] ] );
 					}
 					continue 2;
 			}
@@ -386,7 +387,7 @@ class ActionsQueueGroupsBuilder {
 			'detail_table'        => $seed[ 'detail_table' ],
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
-			'maintenance_items'   => $this->buildMaintenanceItems( $seed[ 'maintenance_rows' ] ),
+			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
 			'strip_text'          => $selection[ 'strip_text' ],
 			'strip_badge'         => $selection[ 'strip_badge' ],
 			'context'             => $context,
@@ -439,7 +440,7 @@ class ActionsQueueGroupsBuilder {
 			'detail_table'        => [],
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
-			'maintenance_items'   => [],
+			'maintenance_rows'    => [],
 			'strip_text'          => $selection[ 'strip_text' ],
 			'strip_badge'         => $selection[ 'strip_badge' ],
 			'context'             => $context,
@@ -522,12 +523,7 @@ class ActionsQueueGroupsBuilder {
 	/**
 	 * @return GroupSeed
 	 */
-	private function buildMaintenanceSeed( array $maintenanceItem, ?array $maintenanceRow ) :array {
-		$rows = [];
-		if ( $maintenanceRow !== null ) {
-			$rows[] = $maintenanceRow;
-		}
-
+	private function buildMaintenanceSeed( array $maintenanceItem ) :array {
 		return [
 			'key'              => $maintenanceItem[ 'key' ],
 			'definition_key'   => 'maintenance',
@@ -542,7 +538,7 @@ class ActionsQueueGroupsBuilder {
 			'management_link'  => $this->buildManagementLink( $maintenanceItem ),
 			'detail_table'     => [],
 			'attention_items'  => [],
-			'maintenance_rows' => $rows,
+			'maintenance_rows' => $this->extractMaintenanceRows( $maintenanceItem ),
 		];
 	}
 
@@ -591,22 +587,6 @@ class ActionsQueueGroupsBuilder {
 			'rel'        => $target === '_blank' ? 'noopener noreferrer' : '',
 			'icon_class' => $target === '_blank' ? 'bi-box-arrow-up-right' : 'bi-arrow-right',
 		];
-	}
-
-	/**
-	 * @param list<AssessmentRow> $maintenanceRows
-	 * @return list<array{icon_class:string, title:string, summary:string}>
-	 */
-	private function buildMaintenanceItems( array $maintenanceRows ) :array {
-		$items = [];
-		foreach ( $maintenanceRows as $row ) {
-			$items[] = [
-				'icon_class' => $row[ 'status_icon_class' ],
-				'title'      => $row[ 'label' ],
-				'summary'    => $row[ 'description' ],
-			];
-		}
-		return $items;
 	}
 
 	/**
@@ -736,18 +716,6 @@ class ActionsQueueGroupsBuilder {
 	}
 
 	/**
-	 * @param list<AssessmentRow> $maintenanceRows
-	 * @return array<string,AssessmentRow>
-	 */
-	private function indexMaintenanceRowsByKey( array $maintenanceRows ) :array {
-		$indexed = [];
-		foreach ( $maintenanceRows as $row ) {
-			$indexed[ $row[ 'key' ] ] = $row;
-		}
-		return $indexed;
-	}
-
-	/**
 	 * @param list<MaintenanceQueueItem> $maintenanceItems
 	 * @return array<string,MaintenanceQueueItem>
 	 */
@@ -830,6 +798,15 @@ class ActionsQueueGroupsBuilder {
 	 */
 	protected function normalizeMaintenanceQueueItems( array $items ) :array {
 		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll( $items );
+	}
+
+	/**
+	 * @param MaintenanceQueueItem $maintenanceItem
+	 * @return list<MaintenanceExpansionRow>
+	 */
+	private function extractMaintenanceRows( array $maintenanceItem ) :array {
+		$rows = $maintenanceItem[ 'expansion' ][ 'table' ][ 'rows' ] ?? null;
+		return \is_array( $rows ) ? $rows : [];
 	}
 
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {

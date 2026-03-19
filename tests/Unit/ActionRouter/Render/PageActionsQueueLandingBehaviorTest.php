@@ -245,16 +245,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			$itemsByKey[ $item[ 'key' ] ] = $item;
 		}
 
-		$this->assertSame( 'Go to plugins', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'label' ] );
+		$this->assertSame( 'Manage Plugins', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'label' ] );
 		$this->assertSame( '/admin/wp_plugins_inactive', $itemsByKey[ 'wp_plugins_inactive' ][ 'cta' ][ 'href' ] );
-		$this->assertSame( 'Go to themes', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] );
+		$this->assertSame( 'Manage Themes', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'label' ] );
 		$this->assertSame( '/admin/wp_themes_inactive', $itemsByKey[ 'wp_themes_inactive' ][ 'cta' ][ 'href' ] );
-		$this->assertSame( 'open', $itemsByKey[ 'wp_updates' ][ 'cta' ][ 'label' ] );
+		$this->assertSame( 'Dashboard -> Updates', $itemsByKey[ 'wp_updates' ][ 'cta' ][ 'label' ] );
 		$this->assertSame( '/admin/wp_updates', $itemsByKey[ 'wp_updates' ][ 'cta' ][ 'href' ] );
 		$this->assertSame( '_blank', $itemsByKey[ 'wp_updates' ][ 'cta' ][ 'target' ] );
-		$this->assertSame( 'Review', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'label' ] );
-		$this->assertSame( 'https://www.openssl.org/news/vulnerabilities.html', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'href' ] );
-		$this->assertSame( '_blank', $itemsByKey[ 'system_lib_openssl' ][ 'cta' ][ 'target' ] );
+		$this->assertSame( [], $itemsByKey[ 'system_lib_openssl' ][ 'cta' ] );
 	}
 
 	public function test_maintenance_asset_rows_get_eager_expansion_contracts_in_tile_items() :void {

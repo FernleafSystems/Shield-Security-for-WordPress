@@ -202,10 +202,36 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'target'        => '',
 					'cta'           => [
 						'href'  => '/wp-admin/update-core.php',
-						'label' => 'Update now',
+						'label' => 'Manage Plugins',
 					],
 					'toggle_action' => [],
-					'expansion'     => [],
+					'expansion'     => [
+						'table' => [
+							'rows' => [
+								[
+									'title'             => 'Akismet Anti-Spam',
+									'subtitle'          => 'Plugin update available',
+									'context'           => 'Current: 5.3.0 | Available: 5.4.0',
+									'identifier'        => 'akismet/akismet.php',
+									'action'            => [
+										'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
+										'label' => 'Update',
+									],
+									'is_ignored'        => false,
+									'ignored_label'     => '',
+									'secondary_actions' => [
+										[
+											'label'       => 'Ignore',
+											'href'        => 'javascript:{}',
+											'icon'        => 'bi bi-eye-slash-fill',
+											'tooltip'     => 'Ignore this maintenance item',
+											'ajax_action' => [ 'ex' => 'maintenance_item_ignore' ],
+										],
+									],
+								],
+							],
+						],
+					],
 				],
 				[
 					'key'           => 'wp_plugins_inactive',
@@ -219,10 +245,40 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'target'        => '',
 					'cta'           => [
 						'href'  => '/wp-admin/plugins.php',
-						'label' => 'Go to plugins',
+						'label' => 'Manage Plugins',
 					],
 					'toggle_action' => [],
-					'expansion'     => [],
+					'expansion'     => [
+						'table' => [
+							'rows' => [
+								[
+									'title'             => 'Hello Dolly',
+									'subtitle'          => 'Plugin is currently inactive',
+									'context'           => 'Version: 1.7.2',
+									'identifier'        => 'hello-dolly/hello.php',
+									'action'            => [
+										'href'         => '/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
+										'label'        => 'Manage this plugin',
+										'icon'         => 'bi bi-arrow-right-circle-fill',
+										'tooltip'      => 'Manage this plugin',
+										'is_icon_only' => true,
+										'target'       => '_blank',
+									],
+									'is_ignored'        => true,
+									'ignored_label'     => 'Currently ignored',
+									'secondary_actions' => [
+										[
+											'label'       => 'Stop ignoring',
+											'href'        => 'javascript:{}',
+											'icon'        => 'bi bi-eye-fill',
+											'tooltip'     => 'Stop ignoring this maintenance item',
+											'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+										],
+									],
+								],
+							],
+						],
+					],
 				],
 			]
 		);
@@ -273,7 +329,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'category', 'category' ], \array_column( $data[ 'groups' ], 'card_type' ) );
 		$this->assertSame(
 			[
-				'label'      => 'Go to plugins',
+				'label'      => 'Manage Plugins',
 				'href'       => '/wp-admin/plugins.php',
 				'target'     => '',
 				'rel'        => '',
@@ -284,16 +340,36 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				[
-					'icon_class' => 'bi bi-exclamation-circle-fill',
-					'title'      => 'Inactive Plugins',
-					'summary'    => 'Unused plugins should be reviewed.',
+					'title'             => 'Hello Dolly',
+					'subtitle'          => 'Plugin is currently inactive',
+					'context'           => 'Version: 1.7.2',
+					'identifier'        => 'hello-dolly/hello.php',
+					'action'            => [
+						'href'         => '/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
+						'label'        => 'Manage this plugin',
+						'icon'         => 'bi bi-arrow-right-circle-fill',
+						'tooltip'      => 'Manage this plugin',
+						'is_icon_only' => true,
+						'target'       => '_blank',
+					],
+					'is_ignored'        => true,
+					'ignored_label'     => 'Currently ignored',
+					'secondary_actions' => [
+						[
+							'label'       => 'Stop ignoring',
+							'href'        => 'javascript:{}',
+							'icon'        => 'bi bi-eye-fill',
+							'tooltip'     => 'Stop ignoring this maintenance item',
+							'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+						],
+					],
 				],
 			],
-			$data[ 'groups' ][ 0 ][ 'maintenance_items' ]
+			$data[ 'groups' ][ 0 ][ 'maintenance_rows' ]
 		);
 		$this->assertSame(
 			[
-				'label'      => 'Update now',
+				'label'      => 'Manage Plugins',
 				'href'       => '/wp-admin/update-core.php',
 				'target'     => '',
 				'rel'        => '',
@@ -301,8 +377,60 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			],
 			$data[ 'groups' ][ 1 ][ 'management_link' ]
 		);
+		$this->assertSame( 'Akismet Anti-Spam', $data[ 'groups' ][ 1 ][ 'maintenance_rows' ][ 0 ][ 'title' ] );
+		$this->assertSame(
+			'maintenance_item_ignore',
+			$data[ 'groups' ][ 1 ][ 'maintenance_rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+		);
 		$this->assertSame( '', $data[ 'groups' ][ 0 ][ 'drill_hint' ] );
 		$this->assertSame( 'maintenance', $data[ 'groups' ][ 0 ][ 'detail_shell' ] );
+	}
+
+	public function test_build_review_bucket_keeps_singleton_maintenance_groups_on_fallback_row_when_no_sub_items_exist() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[
+				[
+					'key'           => 'system_php_version',
+					'zone'          => 'maintenance',
+					'label'         => 'PHP Version',
+					'count'         => 1,
+					'severity'      => 'warning',
+					'description'   => 'PHP should be reviewed.',
+					'href'          => '/wp-admin/site-health.php',
+					'action'        => 'Open',
+					'target'        => '',
+					'cta'           => [],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
+			]
+		);
+
+		$data = $builder->build(
+			'review',
+			[
+				'items' => [
+					[
+						'key'      => 'system_php_version',
+						'count'    => 1,
+						'severity' => 'warning',
+						'zone'     => 'maintenance',
+					],
+				],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( 'system_php_version', $data[ 'groups' ][ 0 ][ 'key' ] );
+		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'maintenance_rows' ] );
+		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'management_link' ] );
+		$this->assertSame( 'PHP should be reviewed.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
 	}
 
 	public function test_build_reads_vulnerabilities_payload_once_when_expanding_both_sections() :void {
@@ -336,7 +464,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 								'label'       => 'Example Theme',
 								'description' => 'This asset appears to be abandoned and should be reviewed.',
 								'count'       => 1,
-								'severity'    => 'warning',
+								'severity'    => 'critical',
 								'actions'     => [],
 							],
 						],

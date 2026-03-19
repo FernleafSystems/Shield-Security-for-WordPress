@@ -79,7 +79,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 			$this->buildLandingViewData(
 				$this->buildZoneTile( 'scans', 'Scans', 'critical', 3, [
 					$this->buildSummaryItem( 'wp_files', 'WordPress Files', 2, 'critical', '2 files need review.', '/wp-files', 'Open' ),
-					$this->buildSummaryItem( 'vulnerable_assets', 'Vulnerabilities', 1, 'warning', '1 asset needs review.', '/vulns', 'Open' ),
+					$this->buildSummaryItem( 'vulnerable_assets', 'Vulnerabilities', 1, 'critical', '1 asset needs review.', '/vulns', 'Open' ),
 				], [
 					$this->buildAssessmentRow( 'plugin_files', 'Plugin Files', 'All clear' ),
 				] ),
@@ -170,7 +170,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 							[
 								'label'       => 'Old Theme',
 								'description' => 'This asset appears to be abandoned and should be reviewed.',
-								'severity'    => 'warning',
+								'severity'    => 'critical',
 								'count'       => 1,
 								'actions'     => [],
 							],
@@ -182,7 +182,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 
 		$pane = $builder->buildVulnerabilitiesPane();
 
-		$this->assertSame( 'warning', $pane[ 'status' ] );
+		$this->assertSame( 'critical', $pane[ 'status' ] );
 		$this->assertCount( 1, $pane[ 'items' ] );
 		$this->assertSame( 'Abandoned Assets', $pane[ 'items' ][ 0 ][ 'section_label' ] );
 	}

@@ -118,7 +118,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 					'abandoned' => [
 						'label' => $abandonedLabel,
 						'items' => [
-							[ 'label' => 'Old Plugin', 'description' => 'Desc', 'severity' => 'warning', 'count' => 1, 'actions' => [] ],
+							[ 'label' => 'Old Plugin', 'description' => 'Desc', 'severity' => 'critical', 'count' => 1, 'actions' => [] ],
 						],
 					],
 				],
@@ -192,7 +192,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 				[ 'key' => 'theme_files', 'label' => 'Theme Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'malware', 'label' => 'Malware', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
 				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
-				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
 				[ 'key' => 'file_locker', 'label' => 'File Locker', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 			],
 		] );
@@ -217,7 +217,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
-				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
 				[ 'key' => 'file_locker', 'label' => 'File Locker', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
 			],
 		] );
