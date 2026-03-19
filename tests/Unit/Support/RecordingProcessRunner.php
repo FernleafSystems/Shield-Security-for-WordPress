@@ -34,6 +34,10 @@ class RecordingProcessRunner extends ProcessRunner {
 			'has_output_callback' => $onOutput !== null,
 		];
 
+		return $this->buildProcessFromQueue();
+	}
+
+	private function buildProcessFromQueue() :Process {
 		$exitCode = \array_shift( $this->exitCodes );
 		$process = new Process(
 			[

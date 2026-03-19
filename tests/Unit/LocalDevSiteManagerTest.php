@@ -101,6 +101,44 @@ class LocalDevSiteManagerTest extends TestCase {
 		$this->assertCount( 1, $processRunner->calls );
 	}
 
+	public function testWpEnsuresReadyThenRunsWpCliPassthrough() :void {
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
+		$probe = new RecordingLocalDevSiteProbe( [ true, true ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ 'wordpress-container' ] );
+
+		$manager = new LocalDevSiteManager(
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$exitCode = $manager->wp( $this->projectRoot, [ 'plugin', 'list' ] );
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
+		$this->assertCount( 2, $processRunner->calls );
+		$this->assertSame(
+			[
+				'docker',
+				'compose',
+				'-f',
+				'tests/docker/docker-compose.local-site.yml',
+				'run',
+				'--rm',
+				'-T',
+				'wp-cli',
+				'wp',
+				'plugin',
+				'list',
+				'--allow-root',
+			],
+			$processRunner->calls[ 1 ][ 'command' ]
+		);
+	}
+
 	public function testEnsureReadyFailsFastWhenReusedSiteIsUnhealthyBeforeRefresh() :void {
 		$this->expectExceptionMessage( 'Shield local site is already running but unhealthy before browser runtime refresh.' );
 

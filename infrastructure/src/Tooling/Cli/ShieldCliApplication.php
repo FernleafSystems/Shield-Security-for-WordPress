@@ -9,6 +9,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteDownCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteResetCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteStatusCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteUpCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\DevSiteWpCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
@@ -64,6 +65,9 @@ class ShieldCliApplication {
 			},
 			'dev:site:status' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
 				return new DevSiteStatusCommand( $projectRoot, $localDevSiteManager );
+			},
+			'dev:site:wp' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
+				return new DevSiteWpCommand( $projectRoot, $localDevSiteManager );
 			},
 			'test:browser' => static function () use ( $projectRoot, $localDevSiteManager ) :Command {
 				return new TestBrowserCommand( $projectRoot, new BrowserTestLane( null, $localDevSiteManager ) );

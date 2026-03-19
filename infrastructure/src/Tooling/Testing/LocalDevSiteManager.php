@@ -57,6 +57,20 @@ class LocalDevSiteManager {
 		);
 	}
 
+	/**
+	 * @param string[] $wpCliArgs
+	 */
+	public function wp( string $rootDir, array $wpCliArgs ) :int {
+		$this->ensureReady( $rootDir, false );
+
+		return $this->processRunner->runForExitCode(
+			$this->buildWpCliCommand( $wpCliArgs ),
+			$rootDir,
+			null,
+			$this->buildEnvOverrides( $rootDir )
+		);
+	}
+
 	public function reset( string $rootDir ) :int {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
@@ -208,6 +222,31 @@ class LocalDevSiteManager {
 			'sh',
 			'/app/tests/docker/provision-local-site.sh',
 		] );
+
+		return $command;
+	}
+
+	/**
+	 * @param string[] $wpCliArgs
+	 * @return string[]
+	 */
+	private function buildWpCliCommand( array $wpCliArgs ) :array {
+		$command = [
+			'docker',
+			'compose',
+			'-f',
+			self::COMPOSE_FILE,
+			'run',
+			'--rm',
+			'-T',
+			self::WPCLI_SERVICE_NAME,
+			'wp',
+		];
+		$command = \array_merge( $command, $wpCliArgs );
+
+		if ( !\in_array( '--allow-root', $wpCliArgs, true ) ) {
+			$command[] = '--allow-root';
+		}
 
 		return $command;
 	}
