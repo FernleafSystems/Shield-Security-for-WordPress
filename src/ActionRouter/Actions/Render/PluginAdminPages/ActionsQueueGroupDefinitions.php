@@ -163,10 +163,8 @@ class ActionsQueueGroupDefinitions {
 	private function drillHintSingle( string $groupKey ) :string {
 		switch ( $groupKey ) {
 			case 'plugins':
-				return __( 'View %s plugin', 'wp-simple-firewall' );
-
 			case 'themes':
-				return __( 'View %s theme', 'wp-simple-firewall' );
+				return __( 'View %s file', 'wp-simple-firewall' );
 
 			case 'wordpress':
 			case 'malware':
@@ -181,10 +179,8 @@ class ActionsQueueGroupDefinitions {
 	private function drillHintPlural( string $groupKey ) :string {
 		switch ( $groupKey ) {
 			case 'plugins':
-				return __( 'View %s plugins', 'wp-simple-firewall' );
-
 			case 'themes':
-				return __( 'View %s themes', 'wp-simple-firewall' );
+				return __( 'View %s files', 'wp-simple-firewall' );
 
 			case 'wordpress':
 			case 'malware':

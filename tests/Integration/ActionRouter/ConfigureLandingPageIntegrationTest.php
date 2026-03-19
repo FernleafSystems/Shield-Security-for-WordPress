@@ -65,6 +65,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-configure-landing="1"][@data-configure-inline-save-action]',
+			'Configure landing should expose the inline save action on the root wrapper'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-configure-section="drilldown"]//*[@data-drill-shell="1"]',
 			'Configure landing should render the shared drill-down shell'
 		);
@@ -101,6 +106,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__next-move ")]',
 			'Deep-linked diagnosis should render the next move guidance block'
 		);
+		$this->assertXPathExists(
+			$validXpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__settings-link ")]',
+			'Deep-linked diagnosis should render the settings page link in the next move block'
+		);
 		if ( $validXpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-healthy-settings-toggle="1"]' )->length > 0 ) {
 			$this->assertXPathExists(
 				$validXpath,
@@ -117,10 +127,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			);
 			$this->assertGreaterThan( 0, $healthySettingRows->length, 'Deep-linked diagnosis should include healthy setting cards when healthy rows exist' );
 		}
-		$this->assertXPathNotExists(
+		$this->assertXPathExists(
 			$validXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"]',
-			'Deep-linked diagnosis should no longer render legacy inline settings placeholders'
+			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"][@data-zone_component_slug][@data-zone_component_action]',
+			'Deep-linked diagnosis should render reusable expansion placeholders with component action data'
 		);
 		$this->assertXPathNotExists(
 			$validXpath,
@@ -143,7 +153,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'login', (string)( $payload[ 'editor_selection' ][ 'key' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( 'Login', (string)( $payload[ 'strip_text' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'strip_badge' ] ?? '' ) );
 		$this->assertNotEmpty( $payload[ 'context' ] ?? [] );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
@@ -162,6 +172,16 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__next-move ")]',
 			'Diagnosis AJAX should render the next move block'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__settings-link ")]',
+			'Diagnosis AJAX should render the next move settings link'
+		);
+		$this->assertGreaterThan(
+			0,
+			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-inline-toggle="1"] | //*[@data-configure-diagnosis="1"]//*[@data-configure-inline-select="1"]' )->length,
+			'Diagnosis AJAX should render inline toggle or select controls for configurable findings'
+		);
 		if ( $xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-healthy-settings-toggle="1"]' )->length > 0 ) {
 			$this->assertXPathExists(
 				$xpath,
@@ -174,10 +194,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'Diagnosis AJAX should render healthy settings body when healthy rows exist'
 			);
 		}
-		$this->assertXPathNotExists(
+		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"]',
-			'Diagnosis AJAX should not render the removed inline settings placeholders'
+			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"][@data-zone_component_slug][@data-zone_component_action]',
+			'Diagnosis AJAX should render reusable expansion placeholders with component action data'
 		);
 		$this->assertXPathNotExists(
 			$xpath,
@@ -186,6 +206,41 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'posture_strip_html' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
+	}
+
+	public function test_general_diagnosis_ajax_renders_review_rows_without_healthy_state() :void {
+		$payload = $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, [
+			'zone' => 'general',
+		] );
+		$html = (string)( $payload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame( 'general', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__review ")]',
+			'General diagnosis should render the dedicated review section'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__review ")]//*[contains(concat(" ", normalize-space(@class), " "), " setting-card__control-row ")]',
+			'General diagnosis review rows should preserve the inline control contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__review ")]//*[@data-configure-expand-ajax="1"][@data-zone_component_slug][@data-zone_component_action]',
+			'General diagnosis review rows should render expansion placeholders with component action data'
+		);
+		$this->assertXPathNotExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-header ")]',
+			'General diagnosis should not render the healthy settings heading for review-only rows'
+		);
+		$this->assertXPathNotExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " setting-card--healthy ")]',
+			'General diagnosis should not render healthy setting cards for review-only rows'
+		);
 	}
 
 	public function test_editor_ajax_wraps_real_zone_editor_without_rail_markup() :void {

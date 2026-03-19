@@ -31,14 +31,16 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 			$this->getAttentionQuery(),
 			$this->getAssessmentRowsByZone()
 		);
-		$payload = self::con()->action_router->action(
-			$group[ 'render_action_class' ],
-			$group[ 'render_action_data' ]
-		)->payload();
+		$detailHtml = !empty( $group[ 'detail_table' ] )
+			? $this->renderDetailTable( $group[ 'detail_table' ] )
+			: self::con()->action_router->action(
+				$group[ 'render_action_class' ],
+				$group[ 'render_action_data' ]
+			)->payload()[ 'html' ];
 
 		return [
 			'group_selection'    => $group[ 'selection' ],
-			'detail_html'        => $payload[ 'html' ],
+			'detail_html'        => $detailHtml,
 			'context'            => $group[ 'context' ],
 			'strip_text'         => $group[ 'strip_text' ],
 			'strip_badge'        => $group[ 'strip_badge' ],
@@ -51,5 +53,20 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 			'bucket',
 			'group',
 		];
+	}
+
+	/**
+	 * @param array<string,mixed> $table
+	 */
+	private function renderDetailTable( array $table ) :string {
+		return self::con()
+			->comps
+			->render
+			->setTemplate( '/wpadmin/components/investigate/table_container.twig' )
+			->setData( [
+				'table' => $table,
+			] )
+			->setEnvironmentVars( $this->getTwigEnvironmentVars() )
+			->render();
 	}
 }

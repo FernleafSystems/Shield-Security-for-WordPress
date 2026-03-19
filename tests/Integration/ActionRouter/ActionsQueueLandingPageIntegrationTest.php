@@ -447,11 +447,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-queue-groups="1"]',
 			'Groups AJAX should render the selected bucket wrapper'
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box__header-title ") and normalize-space()="Maintenance Items"]',
-			'Groups AJAX should render maintenance groups as category item-box cards'
-		);
+		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
+		$this->assertSame( 'category', (string)( $payload[ 'groups' ][ 0 ][ 'card_type' ] ?? '' ) );
+		$this->assertNotSame( 'maintenance', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
+		$this->assertNotEmpty( $payload[ 'groups' ][ 0 ][ 'management_link' ] ?? [] );
 		$this->assertXPathCount(
 			$xpath,
 			'//button[@data-drill-target="detail" and @data-drill-group-selection]',
@@ -463,6 +462,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row ")]',
 			'Groups AJAX should render maintenance category rows inside the item-box'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__header-link ")]',
+			'Groups AJAX should render the maintenance management link in the category header'
+		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " bi-arrow-right-circle ")]',
@@ -473,28 +477,38 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_groups_ajax_can_refresh_the_current_selected_group_summary() :void {
 		$this->setPluginUpdateAvailable();
+		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'review',
+		] );
+		$selectedGroupKey = (string)( $initialPayload[ 'groups' ][ 0 ][ 'key' ] ?? '' );
+		$this->assertNotSame( '', $selectedGroupKey );
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
 			'bucket'                  => 'review',
-			'group'                   => 'maintenance',
+			'group'                   => $selectedGroupKey,
 			'include_landing_refresh' => 1,
 		] );
 
-		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertSame( 'Maintenance Items - 1 item', (string)( $payload[ 'selected_group' ][ 'strip_text' ] ?? '' ) );
+		$this->assertSame(
+			\sprintf( '%s - 1 item', (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) ),
+			(string)( $payload[ 'selected_group' ][ 'strip_text' ] ?? '' )
+		);
 		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'strip_badge' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? 0 ) );
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'severity_strip_html' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame(
-			[
-				'path'      => [ 'Triage buckets', 'Review next', 'Maintenance Items' ],
-				'focus'     => '1 maintenance item needs review.',
-				'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
-			],
-			$payload[ 'selected_group' ][ 'context' ] ?? []
+			[ 'Triage buckets', 'Review next', (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) ],
+			$payload[ 'selected_group' ][ 'context' ][ 'path' ] ?? []
+		);
+		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'context' ][ 'focus' ] ?? '' ) );
+		$this->assertSame(
+			'Review the maintenance item and address it in the next appropriate maintenance window.',
+			(string)( $payload[ 'selected_group' ][ 'context' ][ 'next_step' ] ?? '' )
 		);
 	}
 
@@ -511,9 +525,20 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '3 items', (string)( $payload[ 'strip_badge' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'strip_badge_status' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		$this->assertSame( [ 'plugins', 'themes', 'vulnerabilities' ], \array_column( $payload[ 'groups' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'expandable', 'expandable', 'linked' ], \array_column( $payload[ 'groups' ] ?? [], 'card_type' ) );
-		$this->assertSame( [ 'View 1 plugin', 'View 1 theme', '' ], \array_column( $payload[ 'groups' ] ?? [], 'drill_hint' ) );
+		$this->assertCount( 3, $payload[ 'groups' ] ?? [] );
+		$this->assertSame( [ 'linked', 'expandable', 'expandable' ], \array_column( $payload[ 'groups' ] ?? [], 'card_type' ) );
+		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files' ], \array_column( $payload[ 'groups' ] ?? [], 'heading_label' ) );
+		$this->assertSame( [ '', 'View 1 files', 'View 1 files' ], \array_column( $payload[ 'groups' ] ?? [], 'drill_hint' ) );
+		$this->assertStringStartsWith( 'vulnerabilities:', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'plugins:'.self::con()->base_file, (string)( $payload[ 'groups' ][ 1 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'themes:'.\wp_get_theme()->get_stylesheet(), (string)( $payload[ 'groups' ][ 2 ][ 'key' ] ?? '' ) );
+		$this->assertCount( 2, $payload[ 'groups' ][ 0 ][ 'links' ] ?? [] );
+		$this->assertSame( '/wp-admin/plugins.php', (string)( $payload[ 'groups' ][ 0 ][ 'links' ][ 0 ][ 'href' ] ?? '' ) );
+		$this->assertSame(
+			'https://clk.shldscrty.com/shieldvulnerabilitylookup?type=plugin&slug='.self::con()->base_file.'&version='.self::con()->cfg->version(),
+			(string)( $payload[ 'groups' ][ 0 ][ 'links' ][ 1 ][ 'href' ] ?? '' )
+		);
+		$this->assertSame( '_blank', (string)( $payload[ 'groups' ][ 0 ][ 'links' ][ 1 ][ 'target' ] ?? '' ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ")]',
@@ -534,30 +559,48 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
+			'//a[contains(concat(" ", normalize-space(@class), " "), " finding-card__link ")]',
+			2,
+			'Linked vulnerability cards should render the native action links inline'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//a[contains(concat(" ", normalize-space(@class), " "), " finding-card__link ") and @href="/wp-admin/plugins.php" and not(@target)]',
+			'Linked vulnerability cards should render the native plugin-management link inline'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//a[contains(concat(" ", normalize-space(@class), " "), " finding-card__link ") and @href="https://clk.shldscrty.com/shieldvulnerabilitylookup?type=plugin&amp;slug='.self::con()->base_file.'&amp;version='.self::con()->cfg->version().'" and @target="_blank" and @rel="noopener noreferrer"]',
+			'Linked vulnerability cards should render the external lookup link with the expected attributes'
+		);
+		$this->assertXPathCount(
+			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
 			0,
 			'Critical groups AJAX should not render the legacy group-card markup'
 		);
 	}
 
-	public function test_detail_ajax_wraps_existing_group_renderer_without_rail_sidebar() :void {
-		$this->setPluginUpdateAvailable();
+	public function test_detail_ajax_renders_selected_plugin_group_as_direct_investigation_table() :void {
+		$this->seedCriticalAssetAndVulnerabilityQueue();
+		$pluginSlug = self::con()->base_file;
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => 'review',
-			'group'  => 'maintenance',
+			'bucket' => 'critical',
+			'group'  => 'plugins:'.$pluginSlug,
 		] );
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertSame( 'Maintenance Items - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertStringEndsWith( ' - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
 		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
-		$this->assertSame( 'maintenance', (string)( $payload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $payload[ 'group_selection' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $payload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(
 			[
-				'path'      => [ 'Triage buckets', 'Review next', 'Maintenance Items' ],
-				'focus'     => '1 maintenance item needs review.',
-				'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
+				'path'      => [ 'Triage buckets', 'Fix now', 'Plugin Files', (string)( $payload[ 'group_selection' ][ 'label' ] ?? '' ) ],
+				'focus'     => (string)( $payload[ 'context' ][ 'focus' ] ?? '' ),
+				'next_step' => 'Review the selected asset table for the fastest next action.',
 			],
 			$payload[ 'context' ] ?? []
 		);
@@ -566,10 +609,18 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-queue-detail="1"]',
 			'Detail AJAX should wrap the selected group renderer in the drill-down detail container'
 		);
-		$this->assertXPathExists(
+		$this->assertInvestigationTableContractPresent(
 			$xpath,
-			'//*[@id="maintenance-expand-wp_plugins_updates"]',
-			'Detail AJAX should preserve the existing maintenance pane content inside the wrapper'
+			'file_scan_results',
+			'plugin',
+			$pluginSlug,
+			'Detail AJAX plugin drill'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
+			0,
+			'Detail AJAX should render the shared flat table directly instead of reopening the asset-card chooser'
 		);
 		$this->assertXPathCount(
 			$xpath,

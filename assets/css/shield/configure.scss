@@ -172,38 +172,6 @@
 	opacity: 1;
 }
 
-.configure-zone-card__header,
-.configure-zone-card__title-wrap {
-	align-items: start;
-	display: flex;
-	gap: 0.75rem;
-	justify-content: space-between;
-}
-
-.configure-zone-card__icon {
-	align-items: center;
-	background: rgba($status-color-good, 0.08);
-	border-radius: 12px;
-	display: inline-flex;
-	font-size: 1.05rem;
-	height: 2.35rem;
-	justify-content: center;
-	width: 2.35rem;
-}
-
-.configure-zone-card.status-warning .configure-zone-card__icon {
-	background: rgba($status-color-warning, 0.14);
-}
-
-.configure-zone-card.status-critical .configure-zone-card__icon {
-	background: rgba($status-color-critical, 0.1);
-}
-
-.configure-zone-card.status-neutral .configure-zone-card__icon {
-	background: rgba($status-color-info, 0.1);
-}
-
-.configure-zone-card__title,
 .configure-editor__title {
 	font-size: 1rem;
 	font-weight: 700;
@@ -211,7 +179,6 @@
 	margin: 0;
 }
 
-.configure-zone-card__stat,
 .configure-editor__summary {
 	color: #50575e;
 	font-size: 0.87rem;
@@ -219,19 +186,6 @@
 	margin: 0;
 }
 
-.configure-zone-card__preview {
-	align-items: start;
-	display: flex;
-	gap: 0.55rem;
-}
-
-.configure-zone-card__preview i {
-	margin-top: 0.12rem;
-}
-
-// Overrides the old __icon rule (lines 182-191), which gives a colored circle background.
-// The old rule is not deleted because other rules near it are shared with diagnosis/editor.
-// We reset every circle property here so the icon renders as a bare glyph.
 .configure-zone-card__icon {
 	background: none;
 	border-radius: 0;
@@ -355,19 +309,30 @@
 	border-left-color: $status-color-warning;
 }
 
-.zone-summary-header.status-good .zone-summary-header__icon,
-.zone-summary-header.status-neutral .zone-summary-header__icon,
-.zone-summary-header.status-info .zone-summary-header__icon {
+.zone-summary-header.status-good .zone-summary-header__icon {
 	color: $status-color-good;
 }
 
-.zone-summary-header.status-good,
-.zone-summary-header.status-neutral,
-.zone-summary-header.status-info {
+.zone-summary-header.status-good {
 	border-left-color: $status-color-good;
 }
 
+.zone-summary-header.status-neutral .zone-summary-header__icon,
+.zone-summary-header.status-info .zone-summary-header__icon {
+	color: $status-color-info;
+}
+
+.zone-summary-header.status-neutral,
+.zone-summary-header.status-info {
+	border-left-color: $status-color-info;
+}
+
 .configure-diagnosis__settings {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.configure-diagnosis__review {
 	display: grid;
 	gap: 0.75rem;
 }
@@ -429,9 +394,93 @@
 	justify-content: space-between;
 }
 
-.setting-card__control-placeholder {
+.setting-card__toggle {
+	appearance: none;
+	background: #ccc;
+	border: 0;
+	border-radius: 11px;
+	cursor: pointer;
+	display: inline-flex;
+	flex-shrink: 0;
+	height: 22px;
+	padding: 0;
+	position: relative;
+	transition: background-color 0.2s ease, opacity 0.2s ease;
+	width: 40px;
+}
+
+.setting-card__toggle.is-on {
+	background: $status-color-good;
+}
+
+.setting-card__toggle::after {
+	background: #fff;
+	border-radius: 50%;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+	content: '';
+	height: 18px;
+	left: 2px;
+	position: absolute;
+	top: 2px;
+	transition: transform 0.2s ease;
+	width: 18px;
+}
+
+.setting-card__toggle.is-on::after {
+	transform: translateX(18px);
+}
+
+.setting-card__toggle-label {
+	clip: rect(0, 0, 0, 0);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	width: 1px;
+}
+
+.setting-card__toggle:focus-visible {
+	box-shadow: 0 0 0 2px rgba($status-color-good, 0.3);
+	outline: none;
+}
+
+.setting-card__toggle.is-disabled,
+.setting-card__toggle:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+.setting-card__toggle.is-saving {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.setting-card__select {
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 6px;
 	color: #1d2327;
-	font-size: 0.85rem;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 0.8125rem;
+	max-width: 100%;
+	min-width: 9rem;
+	outline: none;
+	padding: 0.375rem 0.75rem;
+}
+
+.setting-card__select:focus {
+	border-color: $status-color-good;
+	box-shadow: 0 0 0 2px rgba($status-color-good, 0.15);
+}
+
+.setting-card__select:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+.setting-card__select.is-saving {
+	opacity: 0.5;
+	pointer-events: none;
 }
 
 .setting-card--healthy .setting-card__title {
@@ -498,13 +547,11 @@
 }
 
 .configure-diagnosis__next-move {
-	background: #f0f7ff;
-	border: 1px solid #d0e3f7;
-	border-radius: 8px;
+	border-top: 1px solid $border-color-neutral-subtle;
 	display: grid;
-	gap: 0.75rem;
-	padding: 1rem;
-	position: relative;
+	gap: 0.5rem;
+	margin-top: 1rem;
+	padding: 1rem 0 0;
 }
 
 .configure-editor__body {
@@ -513,10 +560,70 @@
 }
 
 .configure-diagnosis__next-move-copy {
-	color: #1e40af;
-	font-size: 0.87rem;
-	font-weight: 600;
+	color: #5f6974;
+	font-size: 0.8125rem;
+	font-weight: 400;
 	line-height: 1.45;
+}
+
+.configure-diagnosis__settings-link {
+	align-items: center;
+	color: $status-color-good;
+	display: inline-flex;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	gap: 0.25rem;
+	text-decoration: none;
+}
+
+.configure-diagnosis__settings-link:hover {
+	text-decoration: underline;
+}
+
+.setting-card__expand {
+	border-top: 1px solid $border-color-neutral-subtle;
+	margin-top: 0.75rem;
+	padding-top: 0.75rem;
+}
+
+.setting-card__expand-btn {
+	align-items: center;
+	appearance: none;
+	background: none;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 6px;
+	color: #5f6974;
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	font-size: 0.75rem;
+	font-weight: 600;
+	gap: 0.375rem;
+	padding: 0.35rem 0.65rem;
+	transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.setting-card__expand-btn:hover {
+	border-color: $status-color-good;
+	color: $status-color-good;
+}
+
+.setting-card__expand-btn:focus-visible {
+	box-shadow: 0 0 0 2px rgba($status-color-good, 0.15);
+	outline: none;
+}
+
+.setting-card__expand-btn i {
+	font-size: 0.8125rem;
+}
+
+.setting-card__expand .shield-detail-expansion {
+	margin-top: 0.75rem;
+}
+
+.setting-card--healthy .setting-card__expand {
+	margin-top: 0.5rem;
+	padding-top: 0.5rem;
 }
 
 .configure-editor__header {

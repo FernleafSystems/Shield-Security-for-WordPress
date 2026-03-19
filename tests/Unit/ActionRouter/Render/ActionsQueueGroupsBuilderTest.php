@@ -21,106 +21,81 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		Functions\when( 'number_format_i18n' )->alias( static fn( int $number ) :string => (string)$number );
 	}
 
-	public function test_build_groups_bucket_into_pane_aligned_cards() :void {
-		$builder = new ActionsQueueGroupsBuilder();
+	public function test_build_expands_scan_bucket_into_per_asset_and_linked_groups() :void {
+		$builder = $this->createBuilder(
+			[
+				$this->makeQueueAssetCard( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
+			],
+			[
+				$this->makeQueueAssetCard( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
+			],
+			[
+				'count'    => 1,
+				'status'   => 'critical',
+				'sections' => [
+					'vulnerable' => [
+						'label' => 'Known Vulnerabilities',
+						'items' => [
+							[
+								'key'         => 'vulnerability-example-plugin',
+								'asset_key'   => 'example-plugin',
+								'label'       => 'Example Plugin',
+								'description' => '1 known vulnerability needs review.',
+								'count'       => 1,
+								'severity'    => 'critical',
+								'actions'     => [
+									[
+										'href'  => '/wp-admin/update-core.php',
+										'label' => 'Go to updates',
+										'type'  => 'update',
+									],
+									[
+										'href'       => 'https://lookup.example/plugin',
+										'label'      => 'Vulnerability Lookup',
+										'type'       => 'navigate',
+										'attributes' => [
+											'target' => '_blank',
+										],
+									],
+								],
+							],
+						],
+					],
+					'abandoned'  => [
+						'label' => 'Abandoned Assets',
+						'items' => [],
+					],
+				],
+			]
+		);
 
 		$data = $builder->build(
 			'critical',
 			[
 				'items' => [
 					[
-						'key' => 'malware',
-						'count' => 2,
-						'severity' => 'critical',
-					],
-					[
-						'key' => 'vulnerable_assets',
-						'count' => 1,
-						'severity' => 'critical',
-					],
-				],
-			],
-			[
-				'scans' => [],
-				'maintenance' => [],
-			]
-		);
-
-		$this->assertSame( 'Fix now', $data[ 'bucket_selection' ][ 'label' ] );
-		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
-		$this->assertSame( 3, $data[ 'bucket_selection' ][ 'item_count' ] );
-		$bucketSelectionForJson = $data[ 'bucket_selection' ];
-		unset( $bucketSelectionForJson[ 'selection_json' ] );
-		$this->assertSame( $bucketSelectionForJson, \json_decode( $data[ 'bucket_selection_json' ], true ) );
-		$this->assertSame( 'Fix now - 3 items', $data[ 'strip_text' ] );
-		$this->assertSame( '3 items', $data[ 'strip_badge' ] );
-		$this->assertSame( [ 'malware', 'vulnerabilities' ], \array_column( $data[ 'groups' ], 'key' ) );
-		$this->assertSame( [ 'direct_table', 'direct_table' ], \array_column( $data[ 'groups' ], 'detail_shell' ) );
-		$this->assertSame( [ 'expandable', 'linked' ], \array_column( $data[ 'groups' ], 'card_type' ) );
-		$this->assertSame( Malware::class, $data[ 'groups' ][ 0 ][ 'render_action_class' ] );
-		$this->assertSame( Vulnerabilities::class, $data[ 'groups' ][ 1 ][ 'render_action_class' ] );
-		$this->assertSame( '2 suspected malware results need review.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
-		$this->assertSame( 'View 2 files', $data[ 'groups' ][ 0 ][ 'drill_hint' ] );
-		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'maintenance_items' ] );
-		$this->assertSame( 'Malware Detections - 2 items', $data[ 'groups' ][ 0 ][ 'strip_text' ] );
-		$this->assertSame( '2 items', $data[ 'groups' ][ 0 ][ 'strip_badge' ] );
-		$groupSelectionForJson = $data[ 'groups' ][ 0 ][ 'selection' ];
-		unset( $groupSelectionForJson[ 'selection_json' ] );
-		$this->assertSame(
-			$groupSelectionForJson,
-			\json_decode( $data[ 'groups' ][ 0 ][ 'selection_json' ], true )
-		);
-		$this->assertSame( 'Malware Detections', $data[ 'groups' ][ 0 ][ 'selection' ][ 'label' ] );
-		$this->assertSame( 'direct_table', $data[ 'groups' ][ 0 ][ 'selection' ][ 'detail_shell' ] );
-		$this->assertSame(
-			'Review the flagged files and quarantine or delete them if they are confirmed malware.',
-			$data[ 'groups' ][ 0 ][ 'next_move' ]
-		);
-	}
-
-	public function test_build_group_returns_zero_state_fallback() :void {
-		$builder = new ActionsQueueGroupsBuilder();
-
-		$emptyGroup = $builder->buildGroup(
-			'critical',
-			'vulnerabilities',
-			[
-				'items' => [],
-			],
-			[
-				'scans' => [],
-				'maintenance' => [],
-			]
-		);
-
-		$this->assertSame( 'vulnerabilities', $emptyGroup[ 'key' ] );
-		$this->assertSame( 0, $emptyGroup[ 'item_count' ] );
-		$this->assertSame( 'direct_table', $emptyGroup[ 'detail_shell' ] );
-		$this->assertSame( 'linked', $emptyGroup[ 'card_type' ] );
-		$this->assertSame( '', $emptyGroup[ 'drill_hint' ] );
-		$this->assertSame( [], $emptyGroup[ 'maintenance_items' ] );
-		$emptySelectionForJson = $emptyGroup[ 'selection' ];
-		unset( $emptySelectionForJson[ 'selection_json' ] );
-		$this->assertSame( $emptySelectionForJson, \json_decode( $emptyGroup[ 'selection_json' ], true ) );
-		$this->assertSame( 'No matching items remain in this group.', $emptyGroup[ 'narrative' ] );
-		$this->assertSame(
-			'Go back to the grouped findings and pick another area to review.',
-			$emptyGroup[ 'next_move' ]
-		);
-	}
-
-	public function test_build_group_marks_asset_card_backed_groups() :void {
-		$builder = new ActionsQueueGroupsBuilder();
-
-		$pluginsGroup = $builder->buildGroup(
-			'critical',
-			'plugins',
-			[
-				'items' => [
-					[
 						'key'      => 'plugin_files',
+						'count'    => 3,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+					[
+						'key'      => 'theme_files',
 						'count'    => 1,
 						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+					[
+						'key'      => 'vulnerable_assets',
+						'count'    => 1,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+					[
+						'key'      => 'malware',
+						'count'    => 2,
+						'severity' => 'critical',
+						'zone'     => 'scans',
 					],
 				],
 			],
@@ -130,61 +105,161 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'plugins', $pluginsGroup[ 'key' ] );
-		$this->assertSame( 'asset_cards', $pluginsGroup[ 'detail_shell' ] );
-		$this->assertSame( 'expandable', $pluginsGroup[ 'card_type' ] );
-		$this->assertSame( 'View 1 plugin', $pluginsGroup[ 'drill_hint' ] );
+		$this->assertSame( 'Fix now', $data[ 'bucket_selection' ][ 'label' ] );
+		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
+		$this->assertSame( 7, $data[ 'bucket_selection' ][ 'item_count' ] );
+		$this->assertSame(
+			[ 'vulnerabilities:vulnerability-example-plugin', 'plugins:example-plugin', 'themes:example-theme', 'malware' ],
+			\array_column( $data[ 'groups' ], 'key' )
+		);
+		$this->assertSame( [ 'linked', 'expandable', 'expandable', 'expandable' ], \array_column( $data[ 'groups' ], 'card_type' ) );
+		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', 'Malware Detections' ], \array_column( $data[ 'groups' ], 'heading_label' ) );
+		$this->assertSame( Vulnerabilities::class, $data[ 'groups' ][ 0 ][ 'render_action_class' ] );
+		$this->assertSame( Malware::class, $data[ 'groups' ][ 3 ][ 'render_action_class' ] );
+		$this->assertSame(
+			[
+				[
+					'label'      => 'Go to updates',
+					'href'       => '/wp-admin/update-core.php',
+					'target'     => '',
+					'rel'        => '',
+					'icon_class' => '',
+				],
+				[
+					'label'      => 'Vulnerability Lookup',
+					'href'       => 'https://lookup.example/plugin',
+					'target'     => '_blank',
+					'rel'        => 'noopener noreferrer',
+					'icon_class' => 'bi-box-arrow-up-right',
+				],
+			],
+			$data[ 'groups' ][ 0 ][ 'links' ]
+		);
+		$this->assertSame( 'direct_table', $data[ 'groups' ][ 1 ][ 'detail_shell' ] );
+		$this->assertSame( 'file_scan_results', $data[ 'groups' ][ 1 ][ 'detail_table' ][ 'table_type' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $data[ 'groups' ][ 1 ][ 'detail_table' ][ 'subject_id' ] );
+		$this->assertSame( 'View 3 files', $data[ 'groups' ][ 1 ][ 'drill_hint' ] );
+		$this->assertSame( '2 suspected malware results need review.', $data[ 'groups' ][ 3 ][ 'narrative' ] );
+		$this->assertSame( 'View 2 files', $data[ 'groups' ][ 3 ][ 'drill_hint' ] );
 	}
 
-	public function test_build_group_marks_theme_asset_card_hint_as_themes() :void {
-		$builder = new ActionsQueueGroupsBuilder();
+	public function test_build_group_returns_selected_plugin_asset_with_direct_table_detail() :void {
+		$builder = $this->createBuilder(
+			[
+				$this->makeQueueAssetCard( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
+			]
+		);
 
-		$themesGroup = $builder->buildGroup(
+		$group = $builder->buildGroup(
 			'critical',
-			'themes',
+			'plugins:example-plugin',
 			[
 				'items' => [
 					[
-						'key'      => 'theme_files',
+						'key'      => 'plugin_files',
 						'count'    => 3,
 						'severity' => 'critical',
+						'zone'     => 'scans',
 					],
 				],
 			],
 			[
-				'scans' => [],
+				'scans'       => [],
 				'maintenance' => [],
 			]
 		);
 
-		$this->assertSame( 'themes', $themesGroup[ 'key' ] );
-		$this->assertSame( 'asset_cards', $themesGroup[ 'detail_shell' ] );
-		$this->assertSame( 'expandable', $themesGroup[ 'card_type' ] );
-		$this->assertSame( 'View 3 themes', $themesGroup[ 'drill_hint' ] );
+		$this->assertSame( 'plugins:example-plugin', $group[ 'key' ] );
+		$this->assertSame( 'Plugin Files', $group[ 'heading_label' ] );
+		$this->assertSame( 'Example Plugin', $group[ 'label' ] );
+		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
+		$this->assertSame( 'expandable', $group[ 'card_type' ] );
+		$this->assertSame( 'View 3 files', $group[ 'drill_hint' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'detail_table' ][ 'subject_id' ] );
+		$this->assertSame(
+			[ 'Triage buckets', 'Fix now', 'Plugin Files', 'Example Plugin' ],
+			$group[ 'context' ][ 'path' ]
+		);
+		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
+		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
 	}
 
-	public function test_build_group_populates_maintenance_items_for_category_cards() :void {
-		$builder = new ActionsQueueGroupsBuilder();
+	public function test_build_review_bucket_splits_maintenance_into_per_key_category_cards() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[
+				[
+					'key'           => 'wp_plugins_updates',
+					'zone'          => 'maintenance',
+					'label'         => 'Plugin Updates',
+					'count'         => 1,
+					'severity'      => 'warning',
+					'description'   => 'There is 1 plugin update waiting to be applied.',
+					'href'          => '/wp-admin/update-core.php',
+					'action'        => 'Update now',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/update-core.php',
+						'label' => 'Update now',
+					],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
+				[
+					'key'           => 'wp_plugins_inactive',
+					'zone'          => 'maintenance',
+					'label'         => 'Inactive Plugins',
+					'count'         => 1,
+					'severity'      => 'warning',
+					'description'   => 'There is 1 unused plugin that should be uninstalled.',
+					'href'          => '/wp-admin/plugins.php',
+					'action'        => 'Go to plugins',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/plugins.php',
+						'label' => 'Go to plugins',
+					],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
+			]
+		);
 
-		$maintenanceGroup = $builder->buildGroup(
+		$data = $builder->build(
 			'review',
-			'maintenance',
 			[
 				'items' => [
 					[
-						'key'      => 'wp_updates',
+						'key'      => 'wp_plugins_updates',
 						'count'    => 1,
 						'severity' => 'warning',
+						'zone'     => 'maintenance',
+					],
+					[
+						'key'      => 'wp_plugins_inactive',
+						'count'    => 1,
+						'severity' => 'warning',
+						'zone'     => 'maintenance',
 					],
 				],
 			],
 			[
-				'scans' => [],
+				'scans'       => [],
 				'maintenance' => [
 					[
-						'key'               => 'wp_updates',
-						'label'             => 'WordPress Version',
-						'description'       => 'There is an upgrade available for WordPress.',
+						'key'               => 'wp_plugins_updates',
+						'label'             => 'Plugin Updates',
+						'description'       => 'There is an upgrade available for a plugin.',
+						'status'            => 'warning',
+						'status_label'      => 'Warning',
+						'status_icon_class' => 'bi bi-exclamation-circle-fill',
+					],
+					[
+						'key'               => 'wp_plugins_inactive',
+						'label'             => 'Inactive Plugins',
+						'description'       => 'Unused plugins should be reviewed.',
 						'status'            => 'warning',
 						'status_label'      => 'Warning',
 						'status_icon_class' => 'bi bi-exclamation-circle-fill',
@@ -193,18 +268,201 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'maintenance', $maintenanceGroup[ 'key' ] );
-		$this->assertSame( 'category', $maintenanceGroup[ 'card_type' ] );
-		$this->assertSame( '', $maintenanceGroup[ 'drill_hint' ] );
+		$this->assertSame( [ 'wp_plugins_inactive', 'wp_plugins_updates' ], \array_column( $data[ 'groups' ], 'key' ) );
+		$this->assertNotContains( 'maintenance', \array_column( $data[ 'groups' ], 'key' ) );
+		$this->assertSame( [ 'category', 'category' ], \array_column( $data[ 'groups' ], 'card_type' ) );
+		$this->assertSame(
+			[
+				'label'      => 'Go to plugins',
+				'href'       => '/wp-admin/plugins.php',
+				'target'     => '',
+				'rel'        => '',
+				'icon_class' => 'bi-arrow-right',
+			],
+			$data[ 'groups' ][ 0 ][ 'management_link' ]
+		);
 		$this->assertSame(
 			[
 				[
 					'icon_class' => 'bi bi-exclamation-circle-fill',
-					'title'      => 'WordPress Version',
-					'summary'    => 'There is an upgrade available for WordPress.',
+					'title'      => 'Inactive Plugins',
+					'summary'    => 'Unused plugins should be reviewed.',
 				],
 			],
-			$maintenanceGroup[ 'maintenance_items' ]
+			$data[ 'groups' ][ 0 ][ 'maintenance_items' ]
 		);
+		$this->assertSame(
+			[
+				'label'      => 'Update now',
+				'href'       => '/wp-admin/update-core.php',
+				'target'     => '',
+				'rel'        => '',
+				'icon_class' => 'bi-arrow-right',
+			],
+			$data[ 'groups' ][ 1 ][ 'management_link' ]
+		);
+		$this->assertSame( '', $data[ 'groups' ][ 0 ][ 'drill_hint' ] );
+		$this->assertSame( 'maintenance', $data[ 'groups' ][ 0 ][ 'detail_shell' ] );
+	}
+
+	public function test_build_reads_vulnerabilities_payload_once_when_expanding_both_sections() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[
+				'count'    => 2,
+				'status'   => 'critical',
+				'sections' => [
+					'vulnerable' => [
+						'label' => 'Known Vulnerabilities',
+						'items' => [
+							[
+								'key'         => 'vulnerability-example-plugin',
+								'asset_key'   => 'example-plugin',
+								'label'       => 'Example Plugin',
+								'description' => '1 known vulnerability needs review.',
+								'count'       => 1,
+								'severity'    => 'critical',
+								'actions'     => [],
+							],
+						],
+					],
+					'abandoned'  => [
+						'label' => 'Abandoned Assets',
+						'items' => [
+							[
+								'key'         => 'abandoned-example-theme',
+								'asset_key'   => 'example-theme',
+								'label'       => 'Example Theme',
+								'description' => 'This asset appears to be abandoned and should be reviewed.',
+								'count'       => 1,
+								'severity'    => 'warning',
+								'actions'     => [],
+							],
+						],
+					],
+				],
+			]
+		);
+
+		$data = $builder->build(
+			'critical',
+			[
+				'items' => [
+					[
+						'key'      => 'vulnerable_assets',
+						'count'    => 1,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+					[
+						'key'      => 'abandoned',
+						'count'    => 1,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+				],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame(
+			[ 'vulnerabilities:abandoned-example-theme', 'vulnerabilities:vulnerability-example-plugin' ],
+			\array_column( $data[ 'groups' ], 'key' )
+		);
+		$this->assertSame( 1, $builder->getVulnerabilitiesPayloadCalls() );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function makeQueueAssetCard( string $key, string $title, int $count, string $subjectType, string $subjectId ) :array {
+		return [
+			'key'               => $key,
+			'panel_id'          => 'actions-queue-'.$subjectType.'-card-'.$key,
+			'panel_target'      => 'actions-queue-'.$subjectType.'-'.$key,
+			'expand_target'     => 'scan-files-'.$subjectType.'-'.$key,
+			'status'            => 'warning',
+			'icon_class'        => $subjectType === 'plugin' ? 'bi bi-plug-fill' : 'bi bi-palette-fill',
+			'title'             => $title,
+			'stat_text'         => \sprintf( $count === 1 ? '%s file needs review' : '%s files need review', $count ),
+			'meta_text'         => $subjectId,
+			'show_meta_in_tile' => true,
+			'count_badge'       => $count,
+			'actions'           => [],
+			'table'             => [
+				'table_type'  => 'file_scan_results',
+				'subject_type' => $subjectType,
+				'subject_id'  => $subjectId,
+			],
+			'render_action'     => [],
+		];
+	}
+
+	private function createBuilder(
+		array $pluginCards = [],
+		array $themeCards = [],
+		array $vulnerabilities = [],
+		array $maintenanceItems = []
+	) :ActionsQueueGroupsBuilder {
+		return new class( $pluginCards, $themeCards, $vulnerabilities, $maintenanceItems ) extends ActionsQueueGroupsBuilder {
+
+			private int $vulnerabilitiesPayloadCalls = 0;
+
+			public function __construct(
+				private array $pluginCards,
+				private array $themeCards,
+				private array $vulnerabilities,
+				private array $maintenanceItems
+			) {
+			}
+
+			protected function buildActionsQueuePluginsPane() :array {
+				return [
+					'is_disabled'      => false,
+					'disabled_message' => '',
+					'cards'            => $this->pluginCards,
+				];
+			}
+
+			protected function buildActionsQueueThemesPane() :array {
+				return [
+					'is_disabled'      => false,
+					'disabled_message' => '',
+					'cards'            => $this->themeCards,
+				];
+			}
+
+			protected function buildVulnerabilitiesPayload() :array {
+				$this->vulnerabilitiesPayloadCalls++;
+				return $this->vulnerabilities !== []
+					? $this->vulnerabilities
+					: [
+						'count'    => 0,
+						'status'   => 'good',
+						'sections' => [
+							'vulnerable' => [
+								'label' => 'Known Vulnerabilities',
+								'items' => [],
+							],
+							'abandoned'  => [
+								'label' => 'Abandoned Assets',
+								'items' => [],
+							],
+						],
+					];
+			}
+
+			public function getVulnerabilitiesPayloadCalls() :int {
+				return $this->vulnerabilitiesPayloadCalls;
+			}
+
+			protected function normalizeMaintenanceQueueItems( array $items ) :array {
+				return $this->maintenanceItems;
+			}
+		};
 	}
 }

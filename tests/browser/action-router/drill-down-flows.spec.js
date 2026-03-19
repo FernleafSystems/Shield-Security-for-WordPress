@@ -54,7 +54,11 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ).first() ).toBeAttached();
-	await expect( page.locator( '[data-configure-diagnosis="1"] [data-configure-expand-ajax="1"]' ) ).toHaveCount( 0 );
+	const expandButton = page.locator( '[data-configure-diagnosis="1"] .setting-card__expand-btn' ).first();
+	await expect( expandButton ).toBeVisible();
+	await expandButton.click();
+	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show' ).first() ).toBeVisible();
+	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show form.options_form_for' ).first() ).toBeVisible();
 	const diagnosisHealthyToggle = page.locator( '[data-configure-diagnosis="1"] [data-configure-healthy-settings-toggle="1"]' );
 	const diagnosisHealthyBody = page.locator( '[data-configure-diagnosis="1"] [data-configure-healthy-settings-body="1"]' );
 	if ( await diagnosisHealthyToggle.count() > 0 ) {

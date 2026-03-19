@@ -4,16 +4,33 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\BuildOptionsForDisplay;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 
+/**
+ * @phpstan-type InlineControlOption array{
+ *   key:string,
+ *   label:string,
+ *   is_disabled:bool
+ * }
+ * @phpstan-type InlineControl array{
+ *   type:'toggle'|'select'|'none',
+ *   option_key:string,
+ *   value:bool|string|null,
+ *   is_disabled:bool,
+ *   options:list<InlineControlOption>
+ * }
+ */
 class ConfigureZoneTilesBuilder {
 
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
+
+	private ?array $displayedOptionCache = null;
 
 	/**
 	 * @return list<array{
@@ -42,7 +59,8 @@ class ConfigureZoneTilesBuilder {
 	 *       status_icon_class:string,
 	 *       note:string,
 	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
+	 *       config_action:array<string,mixed>,
+	 *       inline_control:InlineControl
 	 *     }>
 	 *   }
 	 * }>
@@ -107,7 +125,8 @@ class ConfigureZoneTilesBuilder {
 	 *       status_icon_class:string,
 	 *       note:string,
 	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
+	 *       config_action:array<string,mixed>,
+	 *       inline_control:InlineControl
 	 *     }>
 	 *   }
 	 * }
@@ -226,7 +245,8 @@ class ConfigureZoneTilesBuilder {
 	 *   status_icon_class:string,
 	 *   note:string,
 	 *   explanations:list<string>,
-	 *   config_action:array<string,mixed>
+	 *   config_action:array<string,mixed>,
+	 *   inline_control:InlineControl
 	 * }>
 	 */
 	private function buildComponentContracts( array $definition, bool $forceNeutral ) :array {
@@ -244,7 +264,8 @@ class ConfigureZoneTilesBuilder {
 	 *   status_icon_class:string,
 	 *   note:string,
 	 *   explanations:list<string>,
-	 *   config_action:array<string,mixed>
+	 *   config_action:array<string,mixed>,
+	 *   inline_control:InlineControl
 	 * }
 	 */
 	private function buildSingleComponentContract( Component\Base $component, bool $forceNeutral = false ) :array {
@@ -258,13 +279,14 @@ class ConfigureZoneTilesBuilder {
 		) );
 
 		return [
-			'title'        => $component->title(),
-			'status'       => $status,
-			'status_label' => $this->componentStatusLabel( $status ),
+			'title'             => $component->title(),
+			'status'            => $status,
+			'status_label'      => $this->componentStatusLabel( $status ),
 			'status_icon_class' => $this->componentStatusIconClass( $status ),
-			'note'         => $this->componentNote( $component ),
-			'explanations' => $explanations,
-			'config_action' => $this->normalizeActionContract( $component->getActions()[ 'config' ] ?? null ),
+			'note'              => $this->componentNote( $component ),
+			'explanations'      => $explanations,
+			'config_action'     => $this->normalizeActionContract( $component->getActions()[ 'config' ] ?? null ),
+			'inline_control'    => $this->buildInlineControl( $component ),
 		];
 	}
 
@@ -280,6 +302,107 @@ class ConfigureZoneTilesBuilder {
 		$explanations = $component->explanation();
 		$first = \is_array( $explanations ) ? \trim( (string)\current( $explanations ) ) : '';
 		return $first;
+	}
+
+	/**
+	 * @return InlineControl
+	 */
+	private function buildInlineControl( Component\Base $component ) :array {
+		$fallback = null;
+
+		foreach ( $component->getOptions() as $optionKey ) {
+			$displayedOption = $this->getDisplayedOption( $optionKey );
+			if ( !\is_array( $displayedOption ) || !\in_array( $displayedOption[ 'type' ] ?? '', [ 'checkbox', 'select' ], true ) ) {
+				continue;
+			}
+
+			$control = $this->displayedOptionToInlineControl( $displayedOption );
+			if ( !$control[ 'is_disabled' ] ) {
+				return $control;
+			}
+			$fallback ??= $control;
+		}
+
+		return $fallback ?? $this->emptyInlineControl();
+	}
+
+	private function getDisplayedOption( string $optionKey ) :?array {
+		$this->displayedOptionCache ??= [];
+		if ( \array_key_exists( $optionKey, $this->displayedOptionCache ) ) {
+			return $this->displayedOptionCache[ $optionKey ];
+		}
+
+		$optionDef = self::con()->cfg->configuration->options[ $optionKey ] ?? null;
+		$displayedOption = null;
+		if ( \is_array( $optionDef ) && !empty( $optionDef[ 'section' ] ) ) {
+			$builder = new class( [ $optionKey ], [] ) extends BuildOptionsForDisplay {
+				public function buildDisplayedOptionsForSection( string $section ) :array {
+					return $this->buildOptionsForSection( $section );
+				}
+			};
+
+			foreach ( $builder->buildDisplayedOptionsForSection( (string)$optionDef[ 'section' ] ) as $option ) {
+				if ( ( $option[ 'key' ] ?? '' ) === $optionKey ) {
+					$displayedOption = $option;
+					break;
+				}
+			}
+		}
+
+		$this->displayedOptionCache[ $optionKey ] = \is_array( $displayedOption ) ? $displayedOption : null;
+		return $this->displayedOptionCache[ $optionKey ];
+	}
+
+	/**
+	 * @param array<string,mixed> $option
+	 * @return InlineControl
+	 */
+	private function displayedOptionToInlineControl( array $option ) :array {
+		$type = $option[ 'type' ] === 'checkbox' ? 'toggle' : 'select';
+		$options = [];
+
+		if ( $type === 'select' ) {
+			foreach ( $option[ 'value_options' ] ?? [] as $key => $settings ) {
+				$options[] = [
+					'key'         => (string)$key,
+					'label'       => $this->plainTextLabel( (string)( $settings[ 'name' ] ?? '' ) ),
+					'is_disabled' => empty( $settings[ 'is_available' ] ),
+				];
+			}
+		}
+
+		$isDisabled = !empty( $option[ 'disabled' ] );
+		if ( $type === 'select' && !$isDisabled && !empty( $options ) ) {
+			$isDisabled = \count( \array_filter(
+				$options,
+				static fn( array $valueOption ) :bool => !$valueOption[ 'is_disabled' ]
+			) ) === 0;
+		}
+
+		return [
+			'type'        => $type,
+			'option_key'  => (string)( $option[ 'key' ] ?? '' ),
+			'value'       => $type === 'toggle' ? ( $option[ 'value' ] === 'Y' ) : (string)( $option[ 'value' ] ?? '' ),
+			'is_disabled' => $isDisabled,
+			'options'     => $options,
+		];
+	}
+
+	private function plainTextLabel( string $label ) :string {
+		return \trim( \html_entity_decode( \strip_tags( $label ), \ENT_QUOTES ) );
+	}
+
+	/**
+	 * @return InlineControl
+	 */
+	private function emptyInlineControl() :array {
+		return [
+			'type'        => 'none',
+			'option_key'  => '',
+			'value'       => null,
+			'is_disabled' => true,
+			'options'     => [],
+		];
 	}
 
 	/**

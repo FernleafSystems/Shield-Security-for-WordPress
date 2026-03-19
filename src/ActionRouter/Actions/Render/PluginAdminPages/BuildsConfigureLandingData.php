@@ -36,8 +36,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
  *   icon_class:string,
  *   status:string,
  *   status_label:string,
- *   status_icon_class:string,
- *   stat_line:string,
  *   preview_text:string,
  *   selection_json:string,
  *   is_disabled:bool
@@ -226,9 +224,6 @@ trait BuildsConfigureLandingData {
 
 		return [
 			'diagnosis' => $diagnosis,
-			'editor'    => [
-				'container_id' => 'configure-inline-editor-'.$zoneKey,
-			],
 			'context'            => $diagnosis[ 'context' ],
 			'strip_text'         => $diagnosis[ 'strip_text' ],
 			'strip_badge'        => $diagnosis[ 'strip_badge' ],
@@ -312,8 +307,6 @@ trait BuildsConfigureLandingData {
 			'icon_class'        => $zoneTile[ 'icon_class' ],
 			'status'            => $zoneTile[ 'status' ],
 			'status_label'      => $zoneTile[ 'status_label' ],
-			'status_icon_class' => $zoneTile[ 'status_icon_class' ],
-			'stat_line'         => $zoneTile[ 'stat_line' ],
 			'preview_text'      => $diagnosis[ 'preview_text' ],
 			'selection_json'    => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'       => $zoneTile[ 'is_disabled' ],

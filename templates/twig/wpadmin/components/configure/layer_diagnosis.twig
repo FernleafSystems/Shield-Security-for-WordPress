@@ -1,6 +1,89 @@
+{% macro expansion_panel(row, parent_id, section_key, row_index) %}
+	{% set expand_action = row.expand_action %}
+	{% if expand_action.is_expandable %}
+		{% set expand_id = parent_id ~ '-' ~ section_key ~ '-expand-' ~ row_index %}
+		<div class="setting-card__expand">
+			<button type="button"
+					class="setting-card__expand-btn"
+					data-bs-toggle="collapse"
+					data-bs-target="#{{ expand_id }}"
+					aria-expanded="false"
+					aria-controls="{{ expand_id }}"
+					{% if expand_action.title is not empty %}title="{{ expand_action.title }}"{% endif %}>
+				<i class="bi bi-gear" aria-hidden="true"></i>
+				<span class="setting-card__expand-label">{{ expand_action.label }}</span>
+			</button>
+
+			{% set expansion_body %}
+				<div data-configure-expand-ajax="1"
+					 {% for key, value in expand_action.data_attributes %}data-{{ key }}="{{ value }}"{% endfor %}></div>
+			{% endset %}
+			{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+				id: expand_id,
+				parent_id: parent_id,
+				type: 'options',
+				status: row.status,
+				body: expansion_body
+			} } only %}
+		</div>
+	{% endif %}
+{% endmacro %}
+
+{% macro editable_rows(rows, current_setting_label, parent_id, section_key) %}
+	{% for row in rows %}
+		<div class="setting-card severity-{{ row.status }}">
+			<div class="setting-card__title">{{ row.title }}</div>
+			<div class="setting-card__finding">{{ row.summary }}</div>
+			{% if row.explanations is not empty %}
+				<div class="setting-card__finding">
+					{% for explanation in row.explanations %}
+						<span class="setting-card__explanation">{{ explanation }}</span>
+					{% endfor %}
+				</div>
+			{% endif %}
+			{% if row.inline_control.type == 'toggle' %}
+				<div class="setting-card__control-row">
+					<span class="setting-card__control-label">{{ current_setting_label }}</span>
+					<button type="button"
+							class="setting-card__toggle {{ row.inline_control.value ? 'is-on' : 'is-off' }}{{ row.inline_control.is_disabled ? ' is-disabled' : '' }}"
+							data-configure-inline-toggle="1"
+							data-option-key="{{ row.inline_control.option_key }}"
+							role="switch"
+							aria-checked="{{ row.inline_control.value ? 'true' : 'false' }}"
+							{% if row.inline_control.is_disabled %}disabled="disabled" aria-disabled="true"{% endif %}>
+						<span class="setting-card__toggle-label">{{ row.inline_control.value ? 'Enabled' : 'Disabled' }}</span>
+					</button>
+				</div>
+			{% elseif row.inline_control.type == 'select' %}
+				<div class="setting-card__control-row">
+					<span class="setting-card__control-label">{{ current_setting_label }}</span>
+					<select class="setting-card__select"
+							data-configure-inline-select="1"
+							data-option-key="{{ row.inline_control.option_key }}"
+							{% if row.inline_control.is_disabled %}disabled="disabled"{% endif %}>
+						{% for opt in row.inline_control.options %}
+							<option value="{{ opt.key }}"
+									{% if opt.key == row.inline_control.value %}selected{% endif %}
+									{% if opt.is_disabled %}disabled="disabled"{% endif %}>
+								{{ opt.label }}
+							</option>
+						{% endfor %}
+					</select>
+				</div>
+			{% endif %}
+			{{ _self.expansion_panel(row, parent_id, section_key, loop.index0) }}
+		</div>
+	{% endfor %}
+{% endmacro %}
+
+{% from _self import editable_rows, expansion_panel %}
+
+{% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
+
 <div class="configure-diagnosis"
 	 data-configure-diagnosis="1"
-	 data-configure-zone="{{ diagnosis.zone_key }}">
+	 data-configure-zone="{{ diagnosis.zone_key }}"
+	 id="{{ diagnosis_id }}">
 	<div class="zone-summary-header status-{{ diagnosis.zone_status }}">
 		<span class="zone-summary-header__icon">
 			<i class="{{ diagnosis.zone_icon_class }}" aria-hidden="true"></i>
@@ -15,30 +98,21 @@
 
 	{% if diagnosis.problem_rows is not empty %}
 		<div class="configure-diagnosis__settings">
-			{% for row in diagnosis.problem_rows %}
-				<div class="setting-card severity-{{ row.status }}">
-					<div class="setting-card__title">{{ row.title }}</div>
-					<div class="setting-card__finding">{{ row.summary }}</div>
-					{% if row.explanations is not empty %}
-						<div class="setting-card__finding">
-							{% for explanation in row.explanations %}
-								<span class="setting-card__explanation">{{ explanation }}</span>
-							{% endfor %}
-						</div>
-					{% endif %}
-					<div class="setting-card__control-row">
-						<span class="setting-card__control-label">Current setting</span>
-						<span class="setting-card__control-placeholder">
-							<i class="{{ row.status_icon_class }}" aria-hidden="true"></i>
-						</span>
-					</div>
-				</div>
-			{% endfor %}
+			{{ editable_rows(diagnosis.problem_rows, diagnosis.current_setting_label, diagnosis_id, 'problem') }}
 		</div>
-	{% elseif diagnosis.is_review_state %}
-		<div class="setting-card severity-good">
-			<div class="setting-card__title">{{ diagnosis.strip_badge }}</div>
-			<div class="setting-card__finding">{{ diagnosis.stat_line }}</div>
+	{% endif %}
+
+	{% if diagnosis.review_rows is not empty %}
+		<div class="configure-diagnosis__review">
+			<div class="configure-diagnosis__section-title">{{ diagnosis.review_rows_heading }}</div>
+			<div class="configure-diagnosis__settings">
+				{{ editable_rows(diagnosis.review_rows, diagnosis.current_setting_label, diagnosis_id, 'review') }}
+			</div>
+		</div>
+	{% elseif diagnosis.review_fallback_card is not empty %}
+		<div class="setting-card severity-{{ diagnosis.review_fallback_card.status }}">
+			<div class="setting-card__title">{{ diagnosis.review_fallback_card.title }}</div>
+			<div class="setting-card__finding">{{ diagnosis.review_fallback_card.summary }}</div>
 		</div>
 	{% endif %}
 
@@ -48,8 +122,7 @@
 				<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
 			</span>
 			<span class="healthy-settings-header__label">
-				Looking good &mdash; {{ diagnosis.healthy_rows|length }}
-				{{ diagnosis.healthy_rows|length == 1 ? 'setting configured correctly' : 'settings configured correctly' }}
+				{{ diagnosis.healthy_rows_heading }}
 			</span>
 			<span class="healthy-settings-header__chevron">
 				<i class="bi bi-chevron-right" aria-hidden="true"></i>
@@ -64,6 +137,7 @@
 							<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
 						</span>
 					</div>
+					{{ expansion_panel(row, diagnosis_id, 'healthy', loop.index0) }}
 				</div>
 			{% endfor %}
 		</div>
@@ -72,5 +146,10 @@
 	<div class="configure-diagnosis__next-move">
 		<div class="configure-diagnosis__section-title">{{ diagnosis.next_move_heading }}</div>
 		<p class="configure-diagnosis__next-move-copy">{{ diagnosis.next_move }}</p>
+		{% if diagnosis.settings_href is not empty %}
+			<a href="{{ diagnosis.settings_href }}" class="configure-diagnosis__settings-link">
+				{{ diagnosis.settings_label }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
+			</a>
+		{% endif %}
 	</div>
 </div>

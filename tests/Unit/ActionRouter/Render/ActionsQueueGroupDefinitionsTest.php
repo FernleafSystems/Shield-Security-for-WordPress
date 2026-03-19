@@ -46,10 +46,10 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 	public function test_drill_hint_patterns_are_group_specific() :void {
 		$definitions = ( new ActionsQueueGroupDefinitions() )->all();
 
-		$this->assertSame( 'View %s plugin', $definitions[ 'plugins' ][ 'drill_hint_single' ] );
-		$this->assertSame( 'View %s plugins', $definitions[ 'plugins' ][ 'drill_hint_plural' ] );
-		$this->assertSame( 'View %s theme', $definitions[ 'themes' ][ 'drill_hint_single' ] );
-		$this->assertSame( 'View %s themes', $definitions[ 'themes' ][ 'drill_hint_plural' ] );
+		$this->assertSame( 'View %s file', $definitions[ 'plugins' ][ 'drill_hint_single' ] );
+		$this->assertSame( 'View %s files', $definitions[ 'plugins' ][ 'drill_hint_plural' ] );
+		$this->assertSame( 'View %s file', $definitions[ 'themes' ][ 'drill_hint_single' ] );
+		$this->assertSame( 'View %s files', $definitions[ 'themes' ][ 'drill_hint_plural' ] );
 		$this->assertSame( 'View %s file', $definitions[ 'wordpress' ][ 'drill_hint_single' ] );
 		$this->assertSame( 'View %s files', $definitions[ 'wordpress' ][ 'drill_hint_plural' ] );
 		$this->assertSame( 'View %s file', $definitions[ 'malware' ][ 'drill_hint_single' ] );

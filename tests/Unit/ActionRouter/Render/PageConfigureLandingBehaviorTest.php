@@ -8,6 +8,14 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 	}
 }
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
+
+if ( !\function_exists( __NAMESPACE__.'\\wp_hash' ) ) {
+	function wp_hash( $data, $scheme = 'auth', $algo = 'md5' ) {
+		return \md5( (string)$data.'|'.$scheme.'|'.$algo );
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
@@ -24,8 +32,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
 	UnitTestControllerFactory,
+	UnitTestGeneral,
 	UnitTestPluginUrls,
-	UnitTestRequest
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class PageConfigureLandingBehaviorTest extends BaseUnitTest {
@@ -36,6 +46,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
@@ -46,10 +59,39 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( 'sanitize_text_field' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \trim( $text ) : ''
 		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
+		);
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [] ),
+			'service_request'   => new UnitTestRequest( [] ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
 		] );
 		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
 	}
@@ -99,7 +141,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_valid_zone_deep_link_preloads_diagnosis_layer() :void {
 		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [ 'zone' => 'login' ] ),
+			'service_request'   => new UnitTestRequest( [ 'zone' => 'login' ] ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
 		] );
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
@@ -107,7 +151,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
 		$this->assertSame( 'DIAGNOSIS:login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertSame( '2FA', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
 		$this->assertSame(
 			[
 				'path'      => [ 'Configure', 'Login' ],
@@ -120,7 +164,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	public function test_invalid_zone_deep_link_falls_back_to_zone_layer() :void {
 		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [ 'zone' => 'login_protection' ] ),
+			'service_request'   => new UnitTestRequest( [ 'zone' => 'login_protection' ] ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
 		] );
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
@@ -274,6 +320,13 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			'status_icon_class' => 'bi bi-exclamation-triangle-fill',
 			'note'              => $note,
 			'explanations'      => $explanations,
+			'inline_control'    => [
+				'type'        => 'none',
+				'option_key'  => '',
+				'value'       => null,
+				'is_disabled' => true,
+				'options'     => [],
+			],
 			'config_action'     => [
 				'title'   => 'Configure '.$title,
 				'href'    => 'javascript:{}',

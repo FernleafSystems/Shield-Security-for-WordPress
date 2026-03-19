@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
+	Actions,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -40,6 +41,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
 		] );
+		$inlineSaveAction = ActionData::Build( Actions\ModuleOptionsSave::class );
 
 		return \array_merge(
 			parent::getLandingVars(),
@@ -50,6 +52,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 					'diagnosis_render_action_json' => $this->encodeJson( $diagnosisAction ),
 					'editor_render_action'         => $editorAction,
 					'editor_render_action_json'    => $this->encodeJson( $editorAction ),
+					'inline_save_action_json'      => $this->encodeJson( $inlineSaveAction ),
 				],
 			]
 		);

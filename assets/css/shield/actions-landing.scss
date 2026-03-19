@@ -35,13 +35,17 @@
 }
 
 .finding-card {
+	align-items: flex-start;
 	appearance: none;
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;
 	border-radius: 10px;
 	color: #1d2327;
+	display: flex;
 	font: inherit;
+	gap: 0.875rem;
 	line-height: inherit;
+	margin-bottom: 0.5rem;
 	padding: 1rem 1.25rem;
 	text-align: left;
 	width: 100%;
@@ -235,13 +239,6 @@
 	margin-top: 0;
 }
 
-.finding-card {
-	align-items: flex-start;
-	display: flex;
-	gap: 0.875rem;
-	margin-bottom: 0.5rem;
-}
-
 .finding-card__icon {
 	flex-shrink: 0;
 	font-size: 1.125rem;
@@ -281,6 +278,36 @@
 	font-size: 0.8125rem;
 	line-height: 1.45;
 	margin-bottom: 0.625rem;
+}
+
+.finding-card__links {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+	gap: 0.35rem;
+	margin-left: auto;
+	padding-left: 0.75rem;
+}
+
+.finding-card__link {
+	align-items: center;
+	color: $status-color-critical;
+	display: inline-flex;
+	font-size: 0.75rem;
+	font-weight: 600;
+	gap: 0.25rem;
+	justify-content: flex-end;
+	text-decoration: none;
+}
+
+.finding-card__link:hover {
+	text-decoration: underline;
+}
+
+@media (max-width: 767px) {
+	.finding-card__links {
+		padding-left: 0.5rem;
+	}
 }
 
 .finding-card__drill-hint {

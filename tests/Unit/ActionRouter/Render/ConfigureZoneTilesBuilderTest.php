@@ -29,6 +29,8 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		Functions\when( 'esc_attr' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text )
 				? ( \preg_replace( '/[^a-z0-9_-]/', '', \strtolower( \trim( $text ) ) ) ?? '' )
@@ -102,6 +104,33 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotEmpty( $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ] );
 		$this->assertSame( 'offcanvas', $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ][ 'data' ][ 'form_context' ] ?? '' );
+		$this->assertSame( 'toggle', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'type' ] );
+		$this->assertSame( 'pin_toggle', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'option_key' ] );
+		$this->assertTrue( $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'value' ] );
+		$this->assertSame( 'select', $tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'type' ] );
+		$this->assertSame( 'login_action', $tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'option_key' ] );
+		$this->assertSame(
+			[
+				[
+					'key'         => 'log',
+					'label'       => 'Log Only',
+					'is_disabled' => false,
+				],
+				[
+					'key'         => 'block',
+					'label'       => 'Block',
+					'is_disabled' => false,
+				],
+			],
+			$tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'options' ]
+		);
+		$this->assertSame(
+			'request_log_enabled',
+			$tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 2 ][ 'inline_control' ][ 'option_key' ]
+		);
+		$this->assertSame( 'toggle', $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 2 ][ 'inline_control' ][ 'type' ] );
+		$this->assertSame( 'select', $tilesByKey[ 'headers' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'type' ] );
+		$this->assertTrue( $tilesByKey[ 'headers' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'is_disabled' ] );
 	}
 
 	private function installControllerStub() :void {
@@ -128,7 +157,9 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			],
 			[
 				\spl_object_id( $secadminZone ) => [
-					$this->newComponent( 'PIN Protection', EnumEnabledStatus::GOOD, 'PIN subtitle', [ 'PIN is active.' ] ),
+					$this->newComponent( 'PIN Protection', EnumEnabledStatus::GOOD, 'PIN subtitle', [ 'PIN is active.' ], [
+						'pin_toggle',
+					] ),
 				],
 				\spl_object_id( $firewallZone ) => [
 					$this->newComponent( 'WAF Rules', EnumEnabledStatus::NEUTRAL, 'WAF subtitle', [ 'WAF rules need review.' ] ),
@@ -140,7 +171,9 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					$this->newComponent( 'Scan Schedule', EnumEnabledStatus::NEUTRAL_ENABLED, 'Scan subtitle', [ 'Scans are active.' ] ),
 				],
 				\spl_object_id( $loginZone )    => [
-					$this->newComponent( '2FA Enforcement', EnumEnabledStatus::OKAY, '2FA subtitle', [ '2FA is not enforced.' ] ),
+					$this->newComponent( '2FA Enforcement', EnumEnabledStatus::OKAY, '2FA subtitle', [ '2FA is not enforced.' ], [
+						'login_action',
+					] ),
 				],
 				\spl_object_id( $usersZone )    => [
 					$this->newComponent( 'Inactive Users', EnumEnabledStatus::OKAY, 'Inactive user policy', [ 'Suspension policy needs review.' ] ),
@@ -150,7 +183,9 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					$this->newComponent( 'Human SPAM Filtering', EnumEnabledStatus::OKAY, 'Human subtitle', [ 'Human SPAM filtering needs setup.' ] ),
 				],
 				\spl_object_id( $headersZone )  => [
-					$this->newComponent( 'CSP Headers', EnumEnabledStatus::GOOD, 'CSP subtitle', [ 'CSP is active.' ] ),
+					$this->newComponent( 'CSP Headers', EnumEnabledStatus::GOOD, 'CSP subtitle', [ 'CSP is active.' ], [
+						'headers_policy_mode',
+					] ),
 				],
 			],
 			[
@@ -170,7 +205,11 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					'Request Logging',
 					EnumEnabledStatus::OKAY,
 					'Request logging note from subtitle.',
-					[]
+					[],
+					[
+						'request_log_paths',
+						'request_log_enabled',
+					]
 				),
 			]
 		) extends SecurityZonesCon {
@@ -213,8 +252,134 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				return 'bi bi-'.$icon;
 			}
 		};
+		$controller->labels = new class {
+			public bool $is_whitelabelled = false;
+			public string $Name = 'Shield';
+
+			public function getBrandName( string $brand ) :string {
+				return $brand;
+			}
+		};
+		$controller->caps = new class {
+			public function hasCap( string $cap ) :bool {
+				return true;
+			}
+		};
+		$controller->cfg = (object)[
+			'configuration' => new class {
+				public array $options;
+				public array $sections;
+
+				public function __construct() {
+					$this->options = [
+						'pin_toggle' => [
+							'key'     => 'pin_toggle',
+							'section' => 'section_security_admin_settings',
+							'type'    => 'checkbox',
+							'default' => 'N',
+						],
+						'login_action' => [
+							'key'           => 'login_action',
+							'section'       => 'section_brute_force_login_protection',
+							'type'          => 'select',
+							'default'       => 'log',
+							'value_options' => [
+								[
+									'value_key' => 'log',
+									'text'      => 'Log Only',
+								],
+								[
+									'value_key' => 'block',
+									'text'      => 'Block',
+								],
+							],
+						],
+						'request_log_paths' => [
+							'key'     => 'request_log_paths',
+							'section' => 'section_log_requests',
+							'type'    => 'array',
+							'default' => [],
+						],
+						'request_log_enabled' => [
+							'key'     => 'request_log_enabled',
+							'section' => 'section_log_requests',
+							'type'    => 'checkbox',
+							'default' => 'N',
+						],
+						'headers_policy_mode' => [
+							'key'           => 'headers_policy_mode',
+							'section'       => 'section_security_headers',
+							'type'          => 'select',
+							'default'       => 'report',
+							'premium'       => true,
+							'value_options' => [
+								[
+									'value_key' => 'report',
+									'text'      => 'Report Only',
+								],
+								[
+									'value_key' => 'enforce',
+									'text'      => 'Enforce',
+								],
+							],
+						],
+					];
+					$this->sections = [
+						[ 'slug' => 'section_security_admin_settings' ],
+						[ 'slug' => 'section_brute_force_login_protection' ],
+						[ 'slug' => 'section_log_requests' ],
+						[ 'slug' => 'section_security_headers' ],
+					];
+				}
+
+				public function optsForSection( string $section ) :array {
+					return \array_values( \array_filter(
+						$this->options,
+						fn( array $opt ) :bool => $opt[ 'section' ] === $section
+					) );
+				}
+			},
+		];
+		$controller->opts = new class {
+			private array $values = [
+				'pin_toggle'          => 'Y',
+				'login_action'        => 'log',
+				'request_log_paths'   => [],
+				'request_log_enabled' => 'Y',
+				'headers_policy_mode' => 'report',
+			];
+			private array $defs = [
+				'pin_toggle'          => [ 'section' => 'section_security_admin_settings', 'type' => 'checkbox' ],
+				'login_action'        => [ 'section' => 'section_brute_force_login_protection', 'type' => 'select' ],
+				'request_log_paths'   => [ 'section' => 'section_log_requests', 'type' => 'array' ],
+				'request_log_enabled' => [ 'section' => 'section_log_requests', 'type' => 'checkbox' ],
+				'headers_policy_mode' => [ 'section' => 'section_security_headers', 'type' => 'select' ],
+			];
+
+			public function optGet( string $key ) {
+				return $this->values[ $key ] ?? null;
+			}
+
+			public function optHasAccess( string $key ) :bool {
+				return $key !== 'headers_policy_mode';
+			}
+
+			public function optDef( string $key ) :array {
+				return $this->defs[ $key ] ?? [];
+			}
+		};
 		$controller->comps = (object)[
-			'zones' => $zonesCon,
+			'zones'       => $zonesCon,
+			'opts_lookup' => new class {
+				public function getFirewallParametersWhitelist() :array {
+					return [];
+				}
+			},
+			'license'     => new class {
+				public function hasValidWorkingLicense() :bool {
+					return false;
+				}
+			},
 		];
 
 		PluginControllerInstaller::install( $controller );
@@ -251,19 +416,22 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		string $title,
 		string $enabledStatus,
 		string $subtitle,
-		array $explanation
+		array $explanation,
+		array $options = []
 	) :Component\Base {
-		return new class( $title, $enabledStatus, $subtitle, $explanation ) extends Component\Base {
+		return new class( $title, $enabledStatus, $subtitle, $explanation, $options ) extends Component\Base {
 			private string $localTitle;
 			private string $localEnabledStatus;
 			private string $localSubtitle;
 			private array $localExplanation;
+			private array $localOptions;
 
-			public function __construct( string $title, string $enabledStatus, string $subtitle, array $explanation ) {
+			public function __construct( string $title, string $enabledStatus, string $subtitle, array $explanation, array $options ) {
 				$this->localTitle = $title;
 				$this->localEnabledStatus = $enabledStatus;
 				$this->localSubtitle = $subtitle;
 				$this->localExplanation = $explanation;
+				$this->localOptions = $options;
 			}
 
 			public function title() :string {
@@ -280,6 +448,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 
 			public function explanation() :array {
 				return $this->localExplanation;
+			}
+
+			public function getOptions() :array {
+				return $this->localOptions;
 			}
 		};
 	}
