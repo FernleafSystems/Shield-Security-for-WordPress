@@ -1,11 +1,6 @@
 <div class="configure-editor"
 	 data-configure-editor="1"
 	 data-configure-zone="{{ zone.key }}">
-	<div class="configure-editor__header">
-		<div class="configure-editor__eyebrow">{{ zone.label }}</div>
-		<h2 class="configure-editor__title">{{ diagnosis.editor_strip_text }}</h2>
-		<p class="configure-editor__summary">{{ diagnosis.next_move }}</p>
-	</div>
 	{% include '/wpadmin/components/configure/zone_editor_body.twig' with {
 		zone: zone,
 		editor: editor

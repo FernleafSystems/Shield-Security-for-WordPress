@@ -1,23 +1,10 @@
 /* Landing */
 .investigate-landing__drilldown {
-	align-items: start;
-	display: grid;
-	gap: 1.5rem;
 	margin-top: 1rem;
 }
 
 .investigate-landing__drilldown .drill-shell {
 	min-width: 0;
-}
-
-.investigate-landing__drilldown .drill-context-card {
-	margin-bottom: 0;
-}
-
-@media (min-width: 1200px) {
-	.investigate-landing__drilldown {
-		grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
-	}
 }
 
 .investigate-landing__section-label {

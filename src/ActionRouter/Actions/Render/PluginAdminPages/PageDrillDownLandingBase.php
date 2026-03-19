@@ -3,51 +3,42 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-type DrillLayerContextInput array{
- *   path?:list<string>,
- *   focus?:string,
- *   next_step?:string
+ * @phpstan-type DrillLayerHeaderInput array{
+ *   compact_back_label?:string,
+ *   active_back_label?:string,
+ *   title?:string,
+ *   meta?:string,
+ *   summary?:string,
+ *   icon_class?:string,
+ *   badge?:string,
+ *   badge_status?:string
  * }
  * @phpstan-type RawDrillLayer array{
  *   key:non-empty-string,
- *   label:string,
  *   body:string,
- *   badge?:string,
- *   badge_status?:string,
- *   context?:DrillLayerContextInput
+ *   header?:DrillLayerHeaderInput
  * }
- * @phpstan-type DrillLayerContext array{
- *   path:list<string>,
- *   focus:string,
- *   next_step:string
+ * @phpstan-type DrillLayerHeader array{
+ *   compact_back_label:string,
+ *   active_back_label:string,
+ *   title:string,
+ *   meta:string,
+ *   summary:string,
+ *   icon_class:string,
+ *   badge:string,
+ *   badge_status:string
  * }
  * @phpstan-type DrillLayer array{
  *   key:non-empty-string,
- *   label:string,
- *   badge:string,
- *   badge_status:string,
- *   aria_prefix:string,
  *   body:string,
- *   context:DrillLayerContext,
- *   context_json:string
+ *   header:DrillLayerHeader,
+ *   header_json:string
  * }
  * @phpstan-type DrillShell array{
  *   id:string,
  *   mode:string,
  *   active_index:int,
  *   layers:list<DrillLayer>
- * }
- * @phpstan-type DrillContextCard array{
- *   shell_id:string,
- *   mode:string,
- *   initial_context:DrillLayerContext,
- *   has_renderable_context:bool,
- *   strings:array{
- *     header_label:string,
- *     context_aria_label:string,
- *     focus_label:string,
- *     next_step_label:string
- *   }
  * }
  */
 abstract class PageDrillDownLandingBase extends PageModeLandingBase {
@@ -72,29 +63,12 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		$mode = $this->getLandingMode();
 		$layers = $this->normalizeLayers( $this->getLayers() );
 		$activeIndex = $this->clampActiveLayerIndex( $this->getActiveLayerIndex(), \count( $layers ) );
-		$shellId = sanitize_key( $mode.'_drill_shell' );
 
 		$vars[ 'drill_shell' ] = [
-			'id'           => $shellId,
+			'id'           => sanitize_key( $mode.'_drill_shell' ),
 			'mode'         => $mode,
 			'active_index' => $activeIndex,
 			'layers'       => $layers,
-		];
-		$vars[ 'drill_context_card' ] = [
-			'shell_id'        => $shellId,
-			'mode'            => $mode,
-			'initial_context' => !empty( $layers )
-				? $layers[ $activeIndex ][ 'context' ]
-				: $this->emptyLayerContext(),
-			'has_renderable_context' => !empty( $layers )
-				? $this->hasRenderableLayerContext( $layers[ $activeIndex ][ 'context' ] )
-				: false,
-			'strings'         => [
-				'header_label'       => __( 'Where you are', 'wp-simple-firewall' ),
-				'context_aria_label' => __( 'Workflow context', 'wp-simple-firewall' ),
-				'focus_label'        => __( 'Focus', 'wp-simple-firewall' ),
-				'next_step_label'    => __( 'Next step', 'wp-simple-firewall' ),
-			],
 		];
 
 		return $vars;
@@ -117,16 +91,12 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 				continue;
 			}
 
-			$context = $this->normalizeLayerContext( $layer[ 'context' ] ?? [] );
+			$header = $this->normalizeLayerHeader( $layer[ 'header' ] ?? [] );
 			$normalized[] = [
-				'key'          => $key,
-				'label'        => $layer[ 'label' ],
-				'badge'        => $layer[ 'badge' ] ?? '',
-				'badge_status' => $this->sanitizeBadgeStatus( $layer[ 'badge_status' ] ?? '' ),
-				'aria_prefix'  => __( 'Back to', 'wp-simple-firewall' ),
-				'body'         => $layer[ 'body' ],
-				'context'      => $context,
-				'context_json' => $this->encodeJson( $context ),
+				'key'         => $key,
+				'body'        => $layer[ 'body' ],
+				'header'      => $header,
+				'header_json' => $this->encodeJson( $header ),
 			];
 		}
 
@@ -142,20 +112,19 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	}
 
 	/**
-	 * @param DrillLayerContextInput $context
-	 * @return DrillLayerContext
+	 * @param DrillLayerHeaderInput $header
+	 * @return DrillLayerHeader
 	 */
-	private function normalizeLayerContext( array $context ) :array {
+	private function normalizeLayerHeader( array $header ) :array {
 		return [
-			'path'      => \array_values( \array_filter(
-				\array_map(
-					static fn( string $segment ) :string => \trim( $segment ),
-					$context[ 'path' ] ?? []
-				),
-				static fn( string $segment ) :bool => $segment !== ''
-			) ),
-			'focus'     => \trim( $context[ 'focus' ] ?? '' ),
-			'next_step' => \trim( $context[ 'next_step' ] ?? '' ),
+			'compact_back_label' => \trim( $header[ 'compact_back_label' ] ?? '' ),
+			'active_back_label'  => \trim( $header[ 'active_back_label' ] ?? '' ),
+			'title'              => \trim( $header[ 'title' ] ?? '' ),
+			'meta'               => \trim( $header[ 'meta' ] ?? '' ),
+			'summary'            => \trim( $header[ 'summary' ] ?? '' ),
+			'icon_class'         => \trim( $header[ 'icon_class' ] ?? '' ),
+			'badge'              => \trim( $header[ 'badge' ] ?? '' ),
+			'badge_status'       => $this->sanitizeBadgeStatus( $header[ 'badge_status' ] ?? '' ),
 		];
 	}
 
@@ -167,27 +136,7 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		return $activeIndex;
 	}
 
-	/**
-	 * @param DrillLayerContext $context
-	 */
-	private function hasRenderableLayerContext( array $context ) :bool {
-		return !empty( $context[ 'path' ] )
-			|| $context[ 'focus' ] !== ''
-			|| $context[ 'next_step' ] !== '';
-	}
-
 	private function encodeJson( array $data ) :string {
 		return (string)( \json_encode( $data ) ?: '' );
-	}
-
-	/**
-	 * @return DrillLayerContext
-	 */
-	private function emptyLayerContext() :array {
-		return [
-			'path'      => [],
-			'focus'     => '',
-			'next_step' => '',
-		];
 	}
 }

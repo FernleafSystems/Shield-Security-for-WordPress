@@ -135,13 +135,11 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.cancelLayerRequest( 'diagnosis' );
 		this.cancelLayerRequest( 'editor' );
 		this.resetEditorLayer( shell );
-		drillCtrl.updateStripText( shell, 0, zone.strip_text );
-		drillCtrl.updateStripBadge( shell, 0, zone.strip_badge, zone.status );
 		drillCtrl.drillTo( shell, diagnosisIndex );
-		drillCtrl.updateLayerContext(
+		drillCtrl.updateLayerHeader(
 			shell,
 			1,
-			this.buildLoadingContext( zone.context, this.getDiagnosisLoadingText() )
+			this.buildLoadingHeader( zone.header, this.getDiagnosisLoadingText() )
 		);
 
 		this.loadDiagnosisLayer();
@@ -167,13 +165,11 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			editor_selection: editorSelection,
 		};
 		this.cancelLayerRequest( 'editor' );
-		drillCtrl.updateStripText( shell, 1, editorSelection.strip_text );
-		drillCtrl.updateStripBadge( shell, 1, editorSelection.strip_badge, editorSelection.status );
 		drillCtrl.drillTo( shell, editorIndex );
-		drillCtrl.updateLayerContext(
+		drillCtrl.updateLayerHeader(
 			shell,
 			2,
-			this.buildLoadingContext( editorSelection.context, this.getEditorLoadingText() )
+			this.buildLoadingHeader( editorSelection.header, this.getEditorLoadingText() )
 		);
 
 		this.loadEditorLayer();
@@ -277,9 +273,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			...zoneSelection,
 			editor_selection: editorSelection,
 		};
-		drillCtrl.updateStripText( this.shellEl, 0, zoneSelection.strip_text );
-		drillCtrl.updateStripBadge( this.shellEl, 0, zoneSelection.strip_badge, zoneSelection.status );
-		drillCtrl.updateLayerContext( this.shellEl, 1, data.context || zoneSelection.context );
+		drillCtrl.updateLayerHeader( this.shellEl, 1, data.header || zoneSelection.header );
 		this.applyLandingRefresh( data.landing_refresh || null );
 		this.reinitializeExpandLoader();
 	}
@@ -297,14 +291,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 				editor_selection: editorSelection,
 			};
 		}
-		drillCtrl.updateStripText( this.shellEl, 1, data.strip_text || editorSelection.strip_text );
-		drillCtrl.updateStripBadge(
-			this.shellEl,
-			1,
-			data.strip_badge || editorSelection.strip_badge,
-			data.strip_badge_status || editorSelection.status
-		);
-		drillCtrl.updateLayerContext( this.shellEl, 2, data.context || editorSelection.context );
+		drillCtrl.updateLayerHeader( this.shellEl, 2, data.header || editorSelection.header );
 		this.reinitializeExpandLoader();
 	}
 
@@ -423,9 +410,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			editorBody.innerHTML = '';
 		}
 
-		drillCtrl.updateStripText( shell, 2, defaultState.text );
-		drillCtrl.updateStripBadge( shell, 2, defaultState.badge, defaultState.status );
-		drillCtrl.updateLayerContext( shell, 2, defaultState.context );
+		drillCtrl.updateLayerHeader( shell, 2, defaultState.header );
 	}
 
 	captureDefaultLayerState( shell ) {
@@ -441,27 +426,9 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 
 	readLayerState( shell, layerKey ) {
 		const layer = this.getLayerByKey( shell, layerKey );
-		const strip = layer?.querySelector( '[data-drill-strip="1"]' ) || null;
-		const title = strip?.querySelector( '.drill-strip__title' ) || null;
-		const badge = strip?.querySelector( '.shield-badge' ) || null;
-
 		return {
-			text: title?.textContent || '',
-			badge: badge?.textContent || '',
-			status: this.readBadgeStatus( badge ),
-			context: this.parseJsonDataset( layer?.dataset.drillLayerContext || '{}' ),
+			header: this.parseJsonDataset( layer?.dataset.drillLayerHeader || '{}' ),
 		};
-	}
-
-	readBadgeStatus( badge ) {
-		if ( !( badge instanceof HTMLElement ) ) {
-			return 'neutral';
-		}
-
-		const statusClass = [ ...badge.classList ]
-			.find( ( className ) => className.startsWith( 'badge-' ) );
-
-		return statusClass ? statusClass.replace( 'badge-', '' ) : 'neutral';
 	}
 
 	readZoneSelection( item ) {
@@ -477,17 +444,15 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			key: String( selection?.key || '' ).trim(),
 			label: String( selection?.label || '' ).trim(),
 			status: String( selection?.status || 'neutral' ).trim(),
-			strip_text: String( selection?.strip_text || '' ).trim(),
-			strip_badge: String( selection?.strip_badge || '' ).trim(),
-			context: selection?.context || {},
+			icon_class: String( selection?.icon_class || '' ).trim(),
+			header: selection?.header || {},
 		};
 	}
 
-	buildLoadingContext( context, loadingText ) {
+	buildLoadingHeader( header, loadingText ) {
 		return {
-			path: Array.isArray( context?.path ) ? context.path : [],
-			focus: String( context?.focus || '' ).trim(),
-			next_step: loadingText,
+			...( header && typeof header === 'object' ? header : {} ),
+			summary: String( loadingText || '' ).trim(),
 		};
 	}
 

@@ -224,10 +224,7 @@ trait BuildsConfigureLandingData {
 
 		return [
 			'diagnosis' => $diagnosis,
-			'context'            => $diagnosis[ 'context' ],
-			'strip_text'         => $diagnosis[ 'strip_text' ],
-			'strip_badge'        => $diagnosis[ 'strip_badge' ],
-			'strip_badge_status' => $diagnosis[ 'strip_badge_status' ],
+			'header'             => $diagnosis[ 'header' ],
 			'zone_selection'     => $diagnosis[ 'zone_selection' ],
 			'editor_selection'   => $diagnosis[ 'editor_selection' ],
 		];

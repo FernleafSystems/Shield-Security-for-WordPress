@@ -117,42 +117,40 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	 */
 	protected function getLayers() :array {
 		$summary = $this->getQueueSummary();
+		$presentation = $this->drillDownPresentation();
 
 		return [
 			[
-				'key'          => 'buckets',
-				'label'        => __( 'Triage buckets', 'wp-simple-firewall' ),
-				'badge'        => $this->drillDownPresentation()->buildItemBadge( $summary[ 'total_items' ] ),
-				'badge_status' => $summary[ 'severity' ],
-				'body'         => $this->renderBucketsLayer(),
-				'context'      => [
-					'path'      => [ __( 'Triage buckets', 'wp-simple-firewall' ) ],
-					'focus'     => __( 'What is urgent, what can wait.', 'wp-simple-firewall' ),
-					'next_step' => __( 'Choose a bucket to start.', 'wp-simple-firewall' ),
+				'key'    => 'buckets',
+				'body'   => $this->renderBucketsLayer(),
+				'header' => [
+					'compact_back_label' => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 				],
 			],
 			[
-				'key'          => 'groups',
-				'label'        => __( 'Grouped findings', 'wp-simple-firewall' ),
-				'badge'        => __( 'Select', 'wp-simple-firewall' ),
-				'badge_status' => 'neutral',
-				'body'         => '',
-				'context'      => [
-					'path'      => [],
-					'focus'     => '',
-					'next_step' => '',
+				'key'    => 'groups',
+				'body'   => '',
+				'header' => [
+					'compact_back_label' => $presentation->buildBackLabel( __( 'Grouped Findings', 'wp-simple-firewall' ) ),
+					'active_back_label'  => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
+					'title'              => __( 'Grouped findings', 'wp-simple-firewall' ),
+					'summary'            => __( 'Choose a bucket to start.', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-list-ul',
+					'badge'              => __( 'Select', 'wp-simple-firewall' ),
+					'badge_status'       => 'neutral',
 				],
 			],
 			[
-				'key'          => 'detail',
-				'label'        => __( 'Scoped results', 'wp-simple-firewall' ),
-				'badge'        => __( 'Select', 'wp-simple-firewall' ),
-				'badge_status' => 'neutral',
-				'body'         => '',
-				'context'      => [
-					'path'      => [],
-					'focus'     => '',
-					'next_step' => '',
+				'key'    => 'detail',
+				'body'   => '',
+				'header' => [
+					'compact_back_label' => $presentation->buildBackLabel( __( 'Scoped Results', 'wp-simple-firewall' ) ),
+					'active_back_label'  => $presentation->buildBackLabel( __( 'Grouped Findings', 'wp-simple-firewall' ) ),
+					'title'              => __( 'Scoped results', 'wp-simple-firewall' ),
+					'summary'            => __( 'Choose a group to review the matching results.', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-list-nested',
+					'badge'              => __( 'Select', 'wp-simple-firewall' ),
+					'badge_status'       => 'neutral',
 				],
 			],
 		];

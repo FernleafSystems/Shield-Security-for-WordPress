@@ -4,18 +4,6 @@
 	 data-configure-diagnosis="1"
 	 data-configure-zone="{{ diagnosis.zone_key }}"
 	 id="{{ diagnosis_id }}">
-	<div class="zone-summary-header status-{{ diagnosis.zone_status }}">
-		<span class="zone-summary-header__icon">
-			<i class="{{ diagnosis.zone_icon_class }}" aria-hidden="true"></i>
-		</span>
-		<div class="zone-summary-header__body">
-			<h3 class="zone-summary-header__title">{{ diagnosis.zone_label }}</h3>
-			<div class="zone-summary-header__status status-{{ diagnosis.zone_status }}">{{ diagnosis.zone_status_label }}</div>
-			<p class="zone-summary-header__context">{{ diagnosis.risk_context }}</p>
-		</div>
-		<span class="shield-badge badge-{{ diagnosis.strip_badge_status }}">{{ diagnosis.strip_badge }}</span>
-	</div>
-
 	{% if diagnosis.problem_rows is not empty %}
 		<div class="configure-diagnosis__settings">
 			{% for row in diagnosis.problem_rows %}

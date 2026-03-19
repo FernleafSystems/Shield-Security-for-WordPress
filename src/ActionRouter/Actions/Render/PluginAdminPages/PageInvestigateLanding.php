@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 /**
+ * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
  * @phpstan-type SubjectDefinition array{
  *   key:string,
  *   label:string,
@@ -39,15 +40,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   lookup_key:string,
  *   render_action:array<string,mixed>,
  *   render_action_json:string,
- *   strip_text:string,
- *   strip_badge:string,
- *   strip_badge_status:string,
- *   context:array{
- *     path:list<string>,
- *     focus:string,
- *     next_step:string
- *   },
- *   context_json:string
+ *   header:DrillLayerHeaderInput,
+ *   header_json:string
  * }
  * @phpstan-type PanelLayerData array{
  *   subject_key:string,
@@ -55,17 +49,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   is_live:string,
  *   render_action_json:string,
  *   body:string
- * }
- * @phpstan-type InvestigateDefaults array{
- *   idle_strip_text:string,
- *   idle_strip_badge:string,
- *   idle_strip_badge_status:string,
- *   idle_context:array{
- *     path:list<string>,
- *     focus:string,
- *     next_step:string
- *   },
- *   idle_context_json:string
  * }
  * @phpstan-import-type RawDrillLayer from PageDrillDownLandingBase
  */
@@ -89,11 +72,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	 * @var array<string,SubjectTile>|null
 	 */
 	private ?array $subjectTileLookupCache = null;
-
-	/**
-	 * @var InvestigateDefaults|null
-	 */
-	private ?array $investigateDefaultsCache = null;
 
 	private ?string $activeSubjectCache = null;
 
@@ -128,57 +106,27 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		];
 	}
 
-	protected function getLandingVars() :array {
-		return \array_merge(
-			parent::getLandingVars(),
-			[
-				'investigate_defaults' => $this->getInvestigateDefaults(),
-			]
-		);
-	}
-
 	/**
 	 * @return list<RawDrillLayer>
 	 */
 	protected function getLayers() :array {
 		$activeSubject = $this->getActiveSubject();
 		$activeTile = $this->getActiveSubjectTile();
-		$idleDefaults = $this->getInvestigateDefaults();
 
 		return [
 			[
-				'key'          => 'subjects',
-				'label'        => $activeTile === null
-					? $idleDefaults[ 'idle_strip_text' ]
-					: $activeTile[ 'strip_text' ],
-				'badge'        => $activeTile === null
-					? $idleDefaults[ 'idle_strip_badge' ]
-					: '',
-				'badge_status' => $activeTile === null
-					? $idleDefaults[ 'idle_strip_badge_status' ]
-					: 'info',
-				'body'         => $this->renderSubjectsLayer(),
-				'context'      => $activeTile === null
-					? $idleDefaults[ 'idle_context' ]
-					: [
-						'path'      => [ __( 'Investigate', 'wp-simple-firewall' ), $activeTile[ 'strip_text' ] ],
-						'focus'     => \sprintf( __( 'Investigating %s.', 'wp-simple-firewall' ), $activeTile[ 'strip_text' ] ),
-						'next_step' => __( 'Use the panel below to look up and explore.', 'wp-simple-firewall' ),
-					],
+				'key'    => 'subjects',
+				'body'   => $this->renderSubjectsLayer(),
+				'header' => [
+					'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
+				],
 			],
 			[
-				'key'          => 'panel',
-				'label'        => __( 'Investigation', 'wp-simple-firewall' ),
-				'badge'        => '',
-				'badge_status' => 'neutral',
-				'body'         => $this->renderPanelLayer( $activeSubject ),
-				'context'      => $activeTile === null
-					? [
-						'path'      => [],
-						'focus'     => '',
-						'next_step' => '',
-					]
-					: $activeTile[ 'context' ],
+				'key'    => 'panel',
+				'body'   => $this->renderPanelLayer( $activeSubject ),
+				'header' => $activeTile === null
+					? $this->buildIdlePanelHeader()
+					: $activeTile[ 'header' ],
 			],
 		];
 	}
@@ -207,10 +155,12 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function renderPanelLayer( string $activeSubject ) :string {
+		$panel = $this->buildPanelLayerData( $activeSubject );
+
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/investigate/layer_panel.twig' )
 			->setData( [
-				'panel' => $this->buildPanelLayerData( $activeSubject ),
+				'panel' => $panel,
 			] )
 			->render();
 	}
@@ -226,7 +176,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 				$renderAction = $subject[ 'is_enabled' ]
 					? $this->buildPanelRenderActionData( $subject )
 					: [];
-				$context = $this->buildSubjectContext( $subject, $lookupKey );
+				$header = $this->buildSubjectHeader( $subject, $lookupKey );
 				$this->subjectTilesCache[] = [
 					'key'               => $subject[ 'key' ],
 					'is_enabled'        => $subject[ 'is_enabled' ],
@@ -241,11 +191,8 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 					'lookup_key'        => $lookupKey,
 					'render_action'     => $renderAction,
 					'render_action_json'=> $this->encodeJson( $renderAction ),
-					'strip_text'        => $subject[ 'label' ],
-					'strip_badge'       => $subject[ 'stat_text' ],
-					'strip_badge_status'=> $subject[ 'status' ],
-					'context'           => $context,
-					'context_json'      => $this->encodeJson( $context ),
+					'header'            => $header,
+					'header_json'       => $this->encodeJson( $header ),
 				];
 			}
 		}
@@ -270,28 +217,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	protected function getActiveSubjectTile() :?array {
 		$activeSubject = $this->getActiveSubject();
 		return $activeSubject === '' ? null : $this->getSubjectTileLookup()[ $activeSubject ];
-	}
-
-	/**
-	 * @return InvestigateDefaults
-	 */
-	protected function getInvestigateDefaults() :array {
-		if ( $this->investigateDefaultsCache === null ) {
-			$idleContext = [
-				'path'      => [ __( 'Investigate', 'wp-simple-firewall' ) ],
-				'focus'     => __( 'Choose a subject to investigate.', 'wp-simple-firewall' ),
-				'next_step' => __( 'Select a subject from the grid.', 'wp-simple-firewall' ),
-			];
-			$this->investigateDefaultsCache = [
-				'idle_strip_text'         => __( 'Subjects', 'wp-simple-firewall' ),
-				'idle_strip_badge'        => $this->buildSubjectCountBadge(),
-				'idle_strip_badge_status' => 'info',
-				'idle_context'            => $idleContext,
-				'idle_context_json'       => $this->encodeJson( $idleContext ),
-			];
-		}
-
-		return $this->investigateDefaultsCache;
 	}
 
 	/**
@@ -330,30 +255,37 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		];
 	}
 
-	private function buildSubjectCountBadge() :string {
-		return (string)\count( \array_filter(
-			$this->getSubjectDefinitions(),
-			static fn( array $subject ) :bool => $subject[ 'is_enabled' ]
-		) );
-	}
-
 	/**
 	 * @param SubjectDefinition $subject
-	 * @return array{
-	 *   path:list<string>,
-	 *   focus:string,
-	 *   next_step:string
-	 * }
+	 * @return DrillLayerHeaderInput
 	 */
-	private function buildSubjectContext( array $subject, string $lookupKey ) :array {
+	private function buildSubjectHeader( array $subject, string $lookupKey ) :array {
 		$nextStep = $lookupKey === ''
 			? __( 'Review tabs for activity details. Use actions to respond.', 'wp-simple-firewall' )
 			: __( 'Use the panel below to look up and explore.', 'wp-simple-firewall' );
 
 		return [
-			'path'      => [ __( 'Investigate', 'wp-simple-firewall' ), $subject[ 'label' ] ],
-			'focus'     => \sprintf( __( 'Investigating %s.', 'wp-simple-firewall' ), $subject[ 'label' ] ),
-			'next_step' => $nextStep,
+			'compact_back_label' => $this->buildBackLabel( $subject[ 'label' ] ),
+			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
+			'title'              => $subject[ 'label' ],
+			'summary'            => $nextStep,
+			'icon_class'         => $subject[ 'icon_class' ],
+			'badge'              => $subject[ 'stat_text' ],
+			'badge_status'       => $subject[ 'status' ],
+		];
+	}
+
+	/**
+	 * @return DrillLayerHeaderInput
+	 */
+	private function buildIdlePanelHeader() :array {
+		return [
+			'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
+			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
+			'title'              => __( 'Investigation', 'wp-simple-firewall' ),
+			'summary'            => __( 'Select a subject from the grid.', 'wp-simple-firewall' ),
+			'icon_class'         => 'bi bi-search',
+			'badge_status'       => 'info',
 		];
 	}
 
@@ -420,6 +352,13 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return __( 'Unable to load this investigation panel. Please try again.', 'wp-simple-firewall' );
 	}
 
+	private function buildBackLabel( string $label ) :string {
+		return sprintf(
+			__( 'Back to %s', 'wp-simple-firewall' ),
+			$label
+		);
+	}
+
 	private function getActiveSubject() :string {
 		if ( $this->activeSubjectCache === null ) {
 			$subject = sanitize_key( $this->getTextInputFromRequestOrActionData( 'subject' ) );
@@ -472,7 +411,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		$prev = libxml_use_internal_errors( true );
 		$dom = new \DOMDocument();
 		$loaded = $dom->loadHTML(
-			'<?xml encoding="utf-8" ?>'.$renderOutput,
+			'<?xml encoding="utf-8" ?><div>'.$renderOutput.'</div>',
 			\LIBXML_HTML_NODEFDTD | \LIBXML_HTML_NOIMPLIED
 		);
 		libxml_clear_errors();
@@ -486,9 +425,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		$nodes = $xpath->query( '//*[@data-inner-page-body-shell="1"]' );
 		if ( !( $nodes instanceof \DOMNodeList ) || $nodes->length < 1 ) {
 			$nodes = $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-body-shell ")]' );
-		}
-		if ( !( $nodes instanceof \DOMNodeList ) || $nodes->length < 1 ) {
-			return $renderOutput;
 		}
 
 		$container = $nodes->item( 0 );

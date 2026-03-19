@@ -18,25 +18,35 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 
 	public function test_build_bucket_selection_reuses_shared_copy_contract() :void {
 		$builder = new ActionsQueueDrillDownPresentationBuilder();
-		$context = [
-			'path'      => [ 'Triage buckets', 'Fix now' ],
-			'focus'     => 'Fix now contains 2 items that still need attention.',
-			'next_step' => 'Choose a group to review the matching results.',
-		];
 
-		$selection = $builder->buildBucketSelection( 'critical', 'Fix now', 'critical', 2, $context );
+		$selection = $builder->buildBucketSelection(
+			'critical',
+			'Fix now',
+			'critical',
+			'bi bi-exclamation-triangle-fill',
+			2,
+			'Fix now contains 2 items that still need attention.'
+		);
 
 		$this->assertSame( 'critical', $selection[ 'key' ] );
 		$this->assertSame( 'Fix now', $selection[ 'label' ] );
 		$this->assertSame( 'critical', $selection[ 'status' ] );
+		$this->assertSame( 'bi bi-exclamation-triangle-fill', $selection[ 'icon_class' ] );
 		$this->assertSame( 2, $selection[ 'item_count' ] );
-		$this->assertSame( 'Fix now - 2 items', $selection[ 'strip_text' ] );
-		$this->assertSame( '2 items', $selection[ 'strip_badge' ] );
-		$this->assertSame( $context, $selection[ 'context' ] );
 		$this->assertSame(
-			'{"path":["Triage buckets","Fix now"],"focus":"Fix now contains 2 items that still need attention.","next_step":"Choose a group to review the matching results."}',
-			$selection[ 'context_json' ]
+			[
+				'compact_back_label' => 'Back to Fix now',
+				'active_back_label'  => 'Back to Actions Queue',
+				'title'              => 'Fix now',
+				'meta'               => 'Critical queue',
+				'summary'            => 'Fix now contains 2 items that still need attention.',
+				'icon_class'         => 'bi bi-exclamation-triangle-fill',
+				'badge'              => '2 items',
+				'badge_status'       => 'critical',
+			],
+			$selection[ 'header' ]
 		);
+		$this->assertSame( 'Back to Fix now', $builder->buildBackLabel( 'Fix now' ) );
 		$selectionForJson = $selection;
 		unset( $selectionForJson[ 'selection_json' ] );
 		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
@@ -45,25 +55,35 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 
 	public function test_build_group_selection_includes_detail_shell() :void {
 		$builder = new ActionsQueueDrillDownPresentationBuilder();
-		$context = [
-			'path'      => [ 'Triage buckets', 'Review next', 'Maintenance Items' ],
-			'focus'     => '1 maintenance item needs review.',
-			'next_step' => 'Review the maintenance items and address them in the next appropriate maintenance window.',
-		];
 
-		$selection = $builder->buildGroupSelection( 'maintenance', 'Maintenance Items', 'warning', 1, 'maintenance', $context );
+		$selection = $builder->buildGroupSelection(
+			'Review next',
+			'maintenance',
+			'Maintenance Items',
+			'warning',
+			'bi bi-tools',
+			1,
+			'maintenance',
+			'1 maintenance item needs review.'
+		);
 
 		$this->assertSame( 'maintenance', $selection[ 'key' ] );
 		$this->assertSame( 'Maintenance Items', $selection[ 'label' ] );
 		$this->assertSame( 'warning', $selection[ 'status' ] );
+		$this->assertSame( 'bi bi-tools', $selection[ 'icon_class' ] );
 		$this->assertSame( 1, $selection[ 'item_count' ] );
 		$this->assertSame( 'maintenance', $selection[ 'detail_shell' ] );
-		$this->assertSame( 'Maintenance Items - 1 item', $selection[ 'strip_text' ] );
-		$this->assertSame( '1 item', $selection[ 'strip_badge' ] );
-		$this->assertSame( $context, $selection[ 'context' ] );
 		$this->assertSame(
-			'{"path":["Triage buckets","Review next","Maintenance Items"],"focus":"1 maintenance item needs review.","next_step":"Review the maintenance items and address them in the next appropriate maintenance window."}',
-			$selection[ 'context_json' ]
+			[
+				'compact_back_label' => 'Back to Maintenance Items',
+				'active_back_label'  => 'Back to Review next',
+				'title'              => 'Maintenance Items',
+				'summary'            => '1 maintenance item needs review.',
+				'icon_class'         => 'bi bi-tools',
+				'badge'              => '1 item',
+				'badge_status'       => 'warning',
+			],
+			$selection[ 'header' ]
 		);
 		$selectionForJson = $selection;
 		unset( $selectionForJson[ 'selection_json' ] );

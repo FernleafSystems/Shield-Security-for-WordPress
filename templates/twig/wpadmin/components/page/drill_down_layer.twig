@@ -8,15 +8,47 @@
 <div class="{{ layer_classes|join(' ') }}"
 	 data-drill-layer="{{ layer.index }}"
 	 data-drill-layer-key="{{ layer.key }}"
-	 data-drill-layer-context="{{ layer.context_json }}">
-	{% include '/wpadmin/components/page/drill_down_strip.twig' with {
-		strip: {
-			label: layer.label,
-			badge: layer.badge,
-			badge_status: layer.badge_status,
-			aria_prefix: layer.aria_prefix
-		}
-	} only %}
+	 data-drill-layer-is-root="{% if layer.index == 0 %}1{% else %}0{% endif %}"
+	 data-drill-layer-header="{{ layer.header_json|e('html_attr') }}">
+	<div class="drill-layer__compact-control">
+		{% include '/wpadmin/components/page/drill_down_strip.twig' with {
+			strip: {
+				label: layer.header.compact_back_label,
+				data_attribute: 'data-drill-layer-compact-back'
+			}
+		} only %}
+	</div>
+	<div class="drill-layer__active-header">
+		{% include '/wpadmin/components/page/drill_down_strip.twig' with {
+			strip: {
+				label: layer.header.active_back_label,
+				classes: 'drill-strip--inline',
+				data_attribute: 'data-drill-layer-active-back'
+			}
+		} only %}
+		<span class="drill-layer-header__separator" aria-hidden="true"></span>
+		<div class="drill-layer-header__scope status-{{ layer.header.badge_status }}"
+			 data-drill-layer-header-scope="1">
+			<span class="drill-layer-header__icon{% if layer.header.icon_class is empty %} d-none{% endif %}"
+				  data-drill-layer-header-icon-wrap="1">
+				<i class="{{ layer.header.icon_class }}"
+				   aria-hidden="true"
+				   data-drill-layer-header-icon="1"></i>
+			</span>
+			<div class="drill-layer-header__body">
+				<div class="drill-layer-header__meta{% if layer.header.meta is empty %} d-none{% endif %}"
+					 data-drill-layer-header-meta="1">{{ layer.header.meta }}</div>
+				<div class="drill-layer-header__title-row">
+					<div class="drill-layer-header__title"
+						 data-drill-layer-header-title="1">{{ layer.header.title }}</div>
+					<span class="shield-badge badge-{{ layer.header.badge_status }}{% if layer.header.badge is empty %} d-none{% endif %}"
+						  data-drill-layer-header-badge="1">{{ layer.header.badge }}</span>
+				</div>
+				<div class="drill-layer-header__summary{% if layer.header.summary is empty %} d-none{% endif %}"
+					 data-drill-layer-header-summary="1">{{ layer.header.summary }}</div>
+			</div>
+		</div>
+	</div>
 	<div class="drill-layer__body">
 		{{ layer.body|raw }}
 	</div>

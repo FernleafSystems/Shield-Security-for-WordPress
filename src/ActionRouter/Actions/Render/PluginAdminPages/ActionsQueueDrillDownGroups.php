@@ -19,14 +19,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	 *   empty_message:string,
 	 *   healthy_heading:string,
 	 *   groups:list<GroupData>,
-	 *   context:array{
-	 *     path:list<string>,
-	 *     focus:string,
-	 *     next_step:string
-	 *   },
-	 *   strip_text:string,
-	 *   strip_badge:string,
-	 *   strip_badge_status:string,
+	 *   header:array<string,string>,
 	 *   selected_group?:GroupSelection,
 	 *   landing_refresh?:array{
 	 *     queue_is_empty:bool,
@@ -63,10 +56,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			'empty_message'      => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
 			'healthy_heading'    => __( 'Looking good', 'wp-simple-firewall' ),
 			'groups'             => $groups[ 'groups' ],
-			'context'            => $groups[ 'context' ],
-			'strip_text'         => $groups[ 'strip_text' ],
-			'strip_badge'        => $groups[ 'strip_badge' ],
-			'strip_badge_status' => $groups[ 'strip_badge_status' ],
+			'header'             => $groups[ 'header' ],
 		];
 		if ( !empty( $this->action_data[ 'include_landing_refresh' ] ) ) {
 			$landingView = $this->getLandingViewData();

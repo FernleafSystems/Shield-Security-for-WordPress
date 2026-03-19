@@ -3,7 +3,7 @@
 		 data-investigate-panel-subject="{{ panel.subject_key }}"
 		 data-investigate-panel-loaded="{{ panel.is_loaded }}"
 		 data-investigate-panel-live="{{ panel.is_live }}"
-		 data-investigate-render-action="{{ panel.render_action_json }}">
+		 data-investigate-render-action="{{ panel.render_action_json|e('html_attr') }}">
 	<div class="shield-card-accent status-info"></div>
 	<div class="card-body">
 		<div data-investigate-panel-header="1"></div>

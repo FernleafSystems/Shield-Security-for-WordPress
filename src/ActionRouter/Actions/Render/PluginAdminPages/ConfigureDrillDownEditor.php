@@ -12,16 +12,13 @@ class ConfigureDrillDownEditor extends ConfigureDrillDownRenderBase {
 		$diagnosis = $this->getConfigureZoneDiagnosis( $zoneKey );
 
 		return [
-			'zone'               => $this->getConfigureLandingTileLookup()[ $zoneKey ],
-			'diagnosis'          => $diagnosis,
-			'editor'             => [
+			'zone'             => $this->getConfigureLandingTileLookup()[ $zoneKey ],
+			'diagnosis'        => $diagnosis,
+			'editor'           => [
 				'container_id' => 'configure-editor-'.$zoneKey,
 			],
-			'context'            => $diagnosis[ 'editor_context' ],
-			'strip_text'         => $diagnosis[ 'editor_strip_text' ],
-			'strip_badge'        => $diagnosis[ 'editor_strip_badge' ],
-			'strip_badge_status' => $diagnosis[ 'editor_strip_badge_status' ],
-			'editor_selection'   => $diagnosis[ 'editor_selection' ],
+			'header'           => $diagnosis[ 'editor_header' ],
+			'editor_selection' => $diagnosis[ 'editor_selection' ],
 		];
 	}
 

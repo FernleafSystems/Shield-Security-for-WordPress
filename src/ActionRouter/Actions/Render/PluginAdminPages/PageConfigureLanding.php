@@ -72,49 +72,40 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 
 		return [
 			[
-				'key'          => 'zones',
-				'label'        => $selectedZoneKey !== ''
-					? $selectedDiagnosis[ 'strip_text' ]
-					: __( 'Choose a zone', 'wp-simple-firewall' ),
-				'badge'        => $selectedZoneKey !== ''
-					? $selectedDiagnosis[ 'strip_badge' ]
-					: '',
-				'badge_status' => $selectedZoneKey !== ''
-					? $selectedDiagnosis[ 'strip_badge_status' ]
-					: 'neutral',
-				'body'         => $this->renderConfigureZonesLayer(),
-				'context'      => [
-					'path'      => [ __( 'Configure', 'wp-simple-firewall' ) ],
-					'focus'     => __( 'Choose the security zone you want to review.', 'wp-simple-firewall' ),
-					'next_step' => __( 'Open a diagnosis before editing any settings.', 'wp-simple-firewall' ),
+				'key'    => 'zones',
+				'body'   => $this->renderConfigureZonesLayer(),
+				'header' => [
+					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
 				],
 			],
 			[
-				'key'          => 'diagnosis',
-				'label'        => __( 'Review findings', 'wp-simple-firewall' ),
-				'badge'        => '',
-				'badge_status' => 'neutral',
-				'body'         => $selectedZoneKey !== ''
+				'key'    => 'diagnosis',
+				'body'   => $selectedZoneKey !== ''
 					? $this->renderConfigureDiagnosisLayer( $selectedZoneKey )
 					: '',
-				'context'      => $selectedZoneKey !== ''
-					? $selectedDiagnosis[ 'context' ]
+				'header' => $selectedZoneKey !== ''
+					? $selectedDiagnosis[ 'header' ]
 					: [
-						'path'      => [ __( 'Configure', 'wp-simple-firewall' ) ],
-						'focus'     => __( 'Review why a zone needs attention before changing the settings.', 'wp-simple-firewall' ),
-						'next_step' => __( 'Open one zone to continue.', 'wp-simple-firewall' ),
+						'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Review Findings', 'wp-simple-firewall' ) ),
+						'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
+						'title'              => __( 'Review findings', 'wp-simple-firewall' ),
+						'summary'            => __( 'Open one zone to continue.', 'wp-simple-firewall' ),
+						'icon_class'         => 'bi bi-sliders',
+						'badge'              => __( 'Select', 'wp-simple-firewall' ),
+						'badge_status'       => 'neutral',
 					],
 			],
 			[
-				'key'          => 'editor',
-				'label'        => __( 'Open settings', 'wp-simple-firewall' ),
-				'badge'        => '',
-				'badge_status' => 'neutral',
-				'body'         => '',
-				'context'      => [
-					'path'      => [ __( 'Configure', 'wp-simple-firewall' ) ],
-					'focus'     => __( 'Use focused settings for one zone at a time.', 'wp-simple-firewall' ),
-					'next_step' => __( 'Save your changes when you are done.', 'wp-simple-firewall' ),
+				'key'    => 'editor',
+				'body'   => '',
+				'header' => [
+					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Settings', 'wp-simple-firewall' ) ),
+					'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Review findings', 'wp-simple-firewall' ) ),
+					'title'              => __( 'Open settings', 'wp-simple-firewall' ),
+					'summary'            => __( 'Save your changes when you are done.', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-sliders',
+					'badge'              => __( 'Select', 'wp-simple-firewall' ),
+					'badge_status'       => 'neutral',
 				],
 			],
 		];

@@ -6,8 +6,9 @@ import {
 	getLayerForShell,
 	getLayersForShell,
 	isDrillShell,
+	normalizeDrillStatus,
 	normalizeDrillText,
-	normalizeLayerContextData,
+	normalizeLayerHeaderData,
 	parseLayerIndex
 } from "./DrillDownShared";
 
@@ -90,64 +91,7 @@ export class DrillDownController extends BaseAutoExecComponent {
 		} ) );
 	}
 
-	/**
-	 * Update the strip badge for a shell layer.
-	 *
-	 * @param {HTMLElement|null} shellEl
-	 * @param {number} layerIndex
-	 * @param {string|number} text
-	 * @param {string} statusClass
-	 */
-	updateStripBadge( shellEl, layerIndex, text, statusClass ) {
-		if ( !isDrillShell( shellEl ) ) {
-			return;
-		}
-
-		const layer = getLayerForShell( shellEl, layerIndex );
-		const badge = layer?.querySelector( '[data-drill-strip="1"] .shield-badge' ) || null;
-		if ( badge === null ) {
-			return;
-		}
-
-		[ ...badge.classList ]
-			.filter( ( className ) => className.startsWith( 'badge-' ) )
-			.forEach( ( className ) => badge.classList.remove( className ) );
-
-		const nextStatusClass = String( statusClass || '' ).trim();
-		if ( nextStatusClass.length > 0 ) {
-			badge.classList.add( `badge-${nextStatusClass}` );
-		}
-
-		badge.textContent = String( text ?? '' );
-	}
-
-	updateStripText( shellEl, layerIndex, text ) {
-		if ( !isDrillShell( shellEl ) ) {
-			return;
-		}
-
-		const layer = getLayerForShell( shellEl, layerIndex );
-		const strip = layer?.querySelector( '[data-drill-strip="1"]' ) || null;
-		const title = layer?.querySelector( '[data-drill-strip="1"] .drill-strip__title' ) || null;
-		if ( title === null ) {
-			return;
-		}
-
-		const normalizedText = normalizeDrillText( text );
-		title.textContent = normalizedText;
-
-		if ( strip instanceof HTMLElement ) {
-			const ariaPrefix = String( strip.dataset.drillStripAriaPrefix || '' ).trim();
-			strip.setAttribute(
-				'aria-label',
-				[ ariaPrefix, normalizedText ]
-					.filter( ( value ) => value.length > 0 )
-					.join( ' ' )
-			);
-		}
-	}
-
-	updateLayerContext( shellEl, layerIndex, contextData ) {
+	updateLayerHeader( shellEl, layerIndex, headerData ) {
 		if ( !isDrillShell( shellEl ) ) {
 			return;
 		}
@@ -157,23 +101,9 @@ export class DrillDownController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const normalizedContext = normalizeLayerContextData( contextData );
-		layer.dataset.drillLayerContext = JSON.stringify( normalizedContext );
-
-		const layers = getLayersForShell( shellEl );
-		if ( getActiveLayerIndex( layers ) !== parseLayerIndex( layerIndex ) ) {
-			return;
-		}
-
-		shellEl.dispatchEvent( new CustomEvent( 'shield:drill-context-updated', {
-			bubbles: true,
-			detail: {
-				mode: shellEl.dataset.drillShellMode || '',
-				layer_key: layer.dataset.drillLayerKey || '',
-				layer_index: parseLayerIndex( layerIndex ),
-				context: normalizedContext,
-			}
-		} ) );
+		const header = normalizeLayerHeaderData( headerData );
+		layer.dataset.drillLayerHeader = JSON.stringify( header );
+		this.applyLayerHeader( layer, header );
 	}
 
 	clampLayerIndex( layerIndex, layerCount ) {
@@ -195,5 +125,90 @@ export class DrillDownController extends BaseAutoExecComponent {
 		else if ( state === 'hidden' ) {
 			layer.classList.add( 'drill-layer--hidden' );
 		}
+	}
+
+	applyLayerHeader( layer, headerData ) {
+		if ( !( layer instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const header = normalizeLayerHeaderData( headerData );
+		const compactBack = layer.querySelector( '[data-drill-layer-compact-back="1"]' );
+		const activeBack = layer.querySelector( '[data-drill-layer-active-back="1"]' );
+		const scope = layer.querySelector( '[data-drill-layer-header-scope="1"]' );
+		const iconWrap = layer.querySelector( '[data-drill-layer-header-icon-wrap="1"]' );
+		const icon = layer.querySelector( '[data-drill-layer-header-icon="1"]' );
+		const meta = layer.querySelector( '[data-drill-layer-header-meta="1"]' );
+		const title = layer.querySelector( '[data-drill-layer-header-title="1"]' );
+		const summary = layer.querySelector( '[data-drill-layer-header-summary="1"]' );
+		const badge = layer.querySelector( '[data-drill-layer-header-badge="1"]' );
+
+		this.updateBackButton( compactBack, header.compact_back_label );
+		this.updateBackButton( activeBack, header.active_back_label );
+		this.updateTextBlock( meta, header.meta );
+		this.updateTextBlock( title, header.title );
+		this.updateTextBlock( summary, header.summary );
+		this.updateHeaderBadge( badge, header.badge, header.badge_status );
+		this.updateHeaderIcon( iconWrap, icon, header.icon_class );
+		this.updateScopeStatus( scope, header.badge_status );
+	}
+
+	updateBackButton( button, label ) {
+		if ( !( button instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const normalizedLabel = normalizeDrillText( label );
+		const title = button.querySelector( '.drill-strip__title' );
+		if ( title instanceof HTMLElement ) {
+			title.textContent = normalizedLabel;
+		}
+		button.setAttribute( 'aria-label', normalizedLabel );
+	}
+
+	updateTextBlock( el, text ) {
+		if ( !( el instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const normalizedText = normalizeDrillText( text );
+		el.textContent = normalizedText;
+		el.classList.toggle( 'd-none', normalizedText.length < 1 );
+	}
+
+	updateHeaderBadge( badge, text, status ) {
+		if ( !( badge instanceof HTMLElement ) ) {
+			return;
+		}
+
+		[ ...badge.classList ]
+			.filter( ( className ) => className.startsWith( 'badge-' ) )
+			.forEach( ( className ) => badge.classList.remove( className ) );
+
+		badge.classList.add( `badge-${normalizeDrillStatus( status )}` );
+		const normalizedText = normalizeDrillText( text );
+		badge.textContent = normalizedText;
+		badge.classList.toggle( 'd-none', normalizedText.length < 1 );
+	}
+
+	updateHeaderIcon( iconWrap, icon, iconClass ) {
+		if ( !( iconWrap instanceof HTMLElement ) || !( icon instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const normalizedIconClass = normalizeDrillText( iconClass );
+		icon.className = normalizedIconClass;
+		iconWrap.classList.toggle( 'd-none', normalizedIconClass.length < 1 );
+	}
+
+	updateScopeStatus( scope, status ) {
+		if ( !( scope instanceof HTMLElement ) ) {
+			return;
+		}
+
+		[ ...scope.classList ]
+			.filter( ( className ) => className.startsWith( 'status-' ) )
+			.forEach( ( className ) => scope.classList.remove( className ) );
+		scope.classList.add( `status-${normalizeDrillStatus( status )}` );
 	}
 }

@@ -243,12 +243,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			0,
 			'Empty actions queue should not render the drill-down shell'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-drill-context-card]',
-			0,
-			'Empty actions queue should not render the drill context card'
-		);
 		$this->assertNotSame( '', \trim( $html ) );
 	}
 
@@ -292,26 +286,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( ActionsQueueDrillDownDetail::SLUG, (string)( $vars[ 'actions_queue_ajax' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-drill-context-card="actions_drill_shell"]',
-			'Actions queue should render the drill context card beside the shell'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-context-card="actions_drill_shell"]//*[contains(concat(" ", normalize-space(@class), " "), " drill-context-card__header-label ") and normalize-space()="Where you are"]',
-			'Actions queue should render the shared context card header label'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-context-card="actions_drill_shell"]//*[contains(concat(" ", normalize-space(@class), " "), " drill-context-card__section-label ") and normalize-space()="Focus"]',
-			'Actions queue should label the focus section'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-context-card="actions_drill_shell"]//*[contains(concat(" ", normalize-space(@class), " "), " drill-context-card__section-label ") and normalize-space()="Next step"]',
-			'Actions queue should label the next-step section'
-		);
-		$this->assertXPathExists(
-			$xpath,
 			'//*[@data-drill-shell="1" and @data-drill-shell-mode="actions"]',
 			'Actions queue should render the drill-down shell when the queue has items'
 		);
@@ -322,23 +296,18 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-drill-layer-key="buckets" and string-length(@data-drill-layer-context) > 0]',
-			'The shared drill shell should render PHP-prepared layer context JSON'
+			'//*[@data-drill-layer-key="buckets" and string-length(@data-drill-layer-header) > 0]',
+			'The shared drill shell should render PHP-prepared layer header JSON'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-drill-layer-key="buckets"]//*[@data-drill-strip="1" and @data-drill-strip-aria-prefix="Back to"]',
-			'The shared drill strip should render the PHP-provided aria prefix'
+			'//*[@data-drill-layer-key="buckets"]//*[@data-drill-layer-compact-back="1"]',
+			'The shared drill shell should render the compact back control'
 		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-section="drilldown"]/div[1][@data-drill-shell="1"]',
 			'Actions queue should render the drill shell first for mobile-first stacking'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="drilldown"]/div[2][@data-drill-context-card="actions_drill_shell"]',
-			'Actions queue should render the context card second in the drilldown container'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -431,20 +400,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertSame( 'Review next - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
-		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $payload[ 'strip_badge_status' ] ?? '' ) );
+		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( 'warning', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Review next', (string)( $payload[ 'bucket_selection' ][ 'label' ] ?? '' ) );
-		$this->assertSame(
-			[
-				'path'      => [ 'Triage buckets', 'Review next' ],
-				'focus'     => 'Review next contains 1 item that still needs attention.',
-				'next_step' => 'Choose a group to review the matching results.',
-			],
-			$payload[ 'context' ] ?? []
-		);
+		$this->assertSame( 'Back to Actions Queue', (string)( $payload[ 'header' ][ 'active_back_label' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-groups="1"]',
@@ -504,8 +466,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertSame( 'Review next - 0 items', (string)( $payload[ 'strip_text' ] ?? '' ) );
-		$this->assertSame( '0 items', (string)( $payload[ 'strip_badge' ] ?? '' ) );
+		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertSame( '0 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
 		$this->assertSame( 'wp_plugins_updates', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'healthy', (string)( $payload[ 'groups' ][ 0 ][ 'display_section' ] ?? '' ) );
@@ -549,24 +511,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(
-			\sprintf( '%s - 1 item', (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) ),
-			(string)( $payload[ 'selected_group' ][ 'strip_text' ] ?? '' )
+			(string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ),
+			(string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' )
 		);
-		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'strip_badge' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? 0 ) );
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'severity_strip_html' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame(
-			[ 'Triage buckets', 'Review next', (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) ],
-			$payload[ 'selected_group' ][ 'context' ][ 'path' ] ?? []
-		);
-		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'context' ][ 'focus' ] ?? '' ) );
-		$this->assertSame(
-			'Review the maintenance item and address it in the next appropriate maintenance window.',
-			(string)( $payload[ 'selected_group' ][ 'context' ][ 'next_step' ] ?? '' )
-		);
+		$this->assertSame( 'Back to Review next', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 	}
 
 	public function test_groups_ajax_keeps_healthy_vulnerabilities_group_drillable_and_detail_renderable() :void {
@@ -625,9 +580,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertSame( 'Fix now - 3 items', (string)( $payload[ 'strip_text' ] ?? '' ) );
-		$this->assertSame( '3 items', (string)( $payload[ 'strip_badge' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $payload[ 'strip_badge_status' ] ?? '' ) );
+		$this->assertSame( 'Fix now', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertSame( '3 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
 		$this->assertCount( 3, $payload[ 'groups' ] ?? [] );
 		$this->assertSame( [ 'linked', 'expandable', 'expandable' ], \array_column( $payload[ 'groups' ] ?? [], 'card_type' ) );
@@ -700,7 +655,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'bucket' => 'critical',
 		] );
 
-		$this->assertSame( 'Fix now - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( 'Fix now', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
 		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
 		$this->assertSame( 'Abandoned Assets', (string)( $payload[ 'groups' ][ 0 ][ 'heading_label' ] ?? '' ) );
@@ -719,18 +674,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertStringEndsWith( ' - 1 item', (string)( $payload[ 'strip_text' ] ?? '' ) );
-		$this->assertSame( '1 item', (string)( $payload[ 'strip_badge' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $payload[ 'group_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $payload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertSame(
-			[
-				'path'      => [ 'Triage buckets', 'Fix now', 'Plugin Files', (string)( $payload[ 'group_selection' ][ 'label' ] ?? '' ) ],
-				'focus'     => (string)( $payload[ 'context' ][ 'focus' ] ?? '' ),
-				'next_step' => 'Review the selected asset table for the fastest next action.',
-			],
-			$payload[ 'context' ] ?? []
-		);
+		$this->assertSame( (string)( $payload[ 'group_selection' ][ 'label' ] ?? '' ), (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-detail="1"]',

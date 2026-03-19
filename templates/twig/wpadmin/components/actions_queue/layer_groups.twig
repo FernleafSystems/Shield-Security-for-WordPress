@@ -1,10 +1,5 @@
 <div class="actions-queue-groups"
 	 data-actions-queue-groups="1">
-	<div class="actions-queue-groups__intro">
-		<div class="actions-queue-groups__eyebrow">{{ bucket_selection.label }}</div>
-		<div class="actions-queue-groups__summary">{{ strip_text }}</div>
-	</div>
-
 	{% if groups is empty %}
 		<div class="actions-landing__empty-state">
 			{{ empty_message }}

@@ -14,14 +14,7 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 	 * @return array{
 	 *   group_selection:GroupSelection,
 	 *   detail_html:string,
-	 *   context:array{
-	 *     path:list<string>,
-	 *     focus:string,
-	 *     next_step:string
-	 *   },
-	 *   strip_text:string,
-	 *   strip_badge:string,
-	 *   strip_badge_status:string
+	 *   header:array<string,string>
 	 * }
 	 */
 	protected function getRenderData() :array {
@@ -39,12 +32,9 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 			)->payload()[ 'html' ];
 
 		return [
-			'group_selection'    => $group[ 'selection' ],
-			'detail_html'        => $detailHtml,
-			'context'            => $group[ 'context' ],
-			'strip_text'         => $group[ 'strip_text' ],
-			'strip_badge'        => $group[ 'strip_badge' ],
-			'strip_badge_status' => $group[ 'status' ],
+			'group_selection' => $group[ 'selection' ],
+			'detail_html'     => $detailHtml,
+			'header'          => $group[ 'header' ],
 		];
 	}
 

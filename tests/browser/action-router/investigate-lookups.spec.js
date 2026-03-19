@@ -23,7 +23,8 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 	const panel = page.locator( '[data-investigate-panel="1"]' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'user' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
-	await expect( page.locator( '[data-investigate-subject-header="1"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-active-back="1"] .drill-strip__title' ) ).toHaveText( 'Back to Investigate' );
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-header-title="1"]' ) ).toHaveText( /User/i );
 
 	await selectSelect2Option(
 		page,
@@ -38,7 +39,7 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'user' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
-	await expect( page.locator( '#tab-navlink-user-overview.active' ) ).toBeVisible();
+	await expect( page.locator( '[data-investigate-panel-tab="1"].is-active' ) ).toHaveText( /Overview/i );
 	await expect( page.locator( '#tabInvestigateUserOverview.active.show' ) ).toBeVisible();
 
 	await Promise.all( [
@@ -49,7 +50,7 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 				&& !url.searchParams.get( 'user_lookup' ),
 			{ timeout: 20_000 }
 		),
-		page.locator( '[data-drill-layer="0"] [data-drill-strip="1"]' ).click(),
+		page.locator( '[data-drill-layer="0"] [data-drill-layer-compact-back="1"]' ).click(),
 	] );
 
 	await expect( page.locator( '[data-drill-target="panel"][data-investigate-subject="user"]' ) ).toBeVisible();
@@ -65,9 +66,29 @@ test( 'investigate landing deep link opens the IP panel immediately', async ( { 
 		analyse_ip: '203.0.113.88',
 	} );
 
-	const panel = page.locator( '[data-investigate-panel="1"]' );
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-active-back="1"] .drill-strip__title' ) ).toHaveText( 'Back to Investigate' );
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-header-title="1"]' ) ).toHaveText( /IP Address/i );
+	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+	const panel = page.locator( '[data-drill-layer="1"] [data-investigate-panel="1"]' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'ip' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
-	await expect( page.locator( '[data-investigate-subject-header="1"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
+	await expect( panel.locator( '[data-investigate-panel-content="1"]' ) ).toBeVisible();
+	await expect( panel.locator( '[data-investigate-panel-content="1"] .investigate-inline-ipanalyse' ) ).toBeVisible();
+	await expect( page.locator( '#AptoOffcanvas.show' ) ).toHaveCount( 0 );
+
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& !url.searchParams.get( 'subject' )
+				&& !url.searchParams.get( 'analyse_ip' ),
+			{ timeout: 20_000 }
+		),
+		page.locator( '[data-drill-layer="0"] [data-drill-layer-compact-back="1"]' ).click(),
+	] );
+
+	await expect( page.locator( '[data-drill-target="panel"][data-investigate-subject="ip"]' ) ).toBeVisible();
+	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', '' );
+	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '0' );
 } );

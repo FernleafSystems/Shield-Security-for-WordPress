@@ -3,17 +3,11 @@
 }
 
 .configure-landing__drilldown {
-	align-items: start;
-	display: grid;
-	gap: 1.5rem;
+	margin-top: 1rem;
 }
 
 .configure-landing__drilldown .drill-shell {
 	min-width: 0;
-}
-
-.configure-landing__drilldown .drill-context-card {
-	margin-bottom: 0;
 }
 
 .configure-zones {
@@ -157,20 +151,6 @@
 	opacity: 1;
 }
 
-.configure-editor__title {
-	font-size: 1rem;
-	font-weight: 700;
-	line-height: 1.3;
-	margin: 0;
-}
-
-.configure-editor__summary {
-	color: #50575e;
-	font-size: 0.87rem;
-	line-height: 1.45;
-	margin: 0;
-}
-
 .configure-zone-card__icon {
 	background: none;
 	border-radius: 0;
@@ -232,84 +212,6 @@
 	font-size: 0.85rem;
 	font-weight: 700;
 	margin: 0;
-}
-
-// Diagnose layer: zone summary
-.zone-summary-header {
-	align-items: start;
-	border: 1px solid $border-color-neutral-subtle;
-	border-left: 4px solid rgba($status-color-good, 0.1);
-	border-radius: $card-border-radius;
-	display: grid;
-	gap: 0.6rem;
-	grid-template-columns: auto 1fr auto;
-	padding: 0.9rem 1rem;
-}
-
-.zone-summary-header__icon {
-	align-items: center;
-	display: inline-flex;
-	font-size: 1.1rem;
-	height: 2rem;
-	justify-content: center;
-	width: 2rem;
-}
-
-.zone-summary-header__body {
-	min-width: 0;
-}
-
-.zone-summary-header__title {
-	font-size: 1rem;
-	margin: 0;
-}
-
-.zone-summary-header__status {
-	color: #1d2327;
-	font-size: 0.76rem;
-	font-weight: 700;
-	letter-spacing: 0.06em;
-	text-transform: uppercase;
-}
-
-.zone-summary-header__context {
-	color: #646970;
-	font-size: 0.84rem;
-	margin: 0.12rem 0 0;
-}
-
-.zone-summary-header.status-critical .zone-summary-header__icon {
-	color: $status-color-critical;
-}
-
-.zone-summary-header.status-critical {
-	border-left-color: $status-color-critical;
-}
-
-.zone-summary-header.status-warning .zone-summary-header__icon {
-	color: $status-color-warning;
-}
-
-.zone-summary-header.status-warning {
-	border-left-color: $status-color-warning;
-}
-
-.zone-summary-header.status-good .zone-summary-header__icon {
-	color: $status-color-good;
-}
-
-.zone-summary-header.status-good {
-	border-left-color: $status-color-good;
-}
-
-.zone-summary-header.status-neutral .zone-summary-header__icon,
-.zone-summary-header.status-info .zone-summary-header__icon {
-	color: $status-color-info;
-}
-
-.zone-summary-header.status-neutral,
-.zone-summary-header.status-info {
-	border-left-color: $status-color-info;
 }
 
 .configure-diagnosis__settings {
@@ -417,11 +319,6 @@
 	margin-bottom: 0;
 }
 
-.configure-editor__header {
-	display: grid;
-	gap: 0.55rem;
-}
-
 .configure-editor__cta {
 	align-items: center;
 	background: #1d2327;
@@ -496,10 +393,4 @@
 	border-radius: $card-border-radius;
 	padding: 1rem;
 	text-align: center;
-}
-
-@media (min-width: 1200px) {
-	.configure-landing__drilldown {
-		grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
-	}
 }

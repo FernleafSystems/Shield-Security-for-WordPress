@@ -169,12 +169,12 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(
-			\sprintf( 'Plugin Updates - %s items', \count( $pluginFiles ) ),
-			(string)( $payload[ 'selected_group' ][ 'strip_text' ] ?? '' )
+			'Plugin Updates',
+			(string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' )
 		);
 		$this->assertSame(
 			\sprintf( '%s items', \count( $pluginFiles ) ),
-			(string)( $payload[ 'selected_group' ][ 'strip_badge' ] ?? '' )
+			(string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' )
 		);
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );

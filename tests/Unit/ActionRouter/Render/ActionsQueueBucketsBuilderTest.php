@@ -75,17 +75,12 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $bucketsByKey[ 'critical' ][ 'item_count' ] );
 		$this->assertSame( '2 malware detections', $bucketsByKey[ 'critical' ][ 'summary_text' ] );
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'critical' ] );
-		$this->assertSame( 'Fix now - 2 items', $bucketsByKey[ 'critical' ][ 'strip_text' ] );
-		$this->assertSame( '2 items', $bucketsByKey[ 'critical' ][ 'strip_badge' ] );
 		$this->assertSame(
-			'{"path":["Triage buckets","Fix now"],"focus":"Fix now contains 2 items that still need attention.","next_step":"Choose a group to review the matching results."}',
-			$bucketsByKey[ 'critical' ][ 'context_json' ]
+			'Fix now contains 2 items that still need attention.',
+			$bucketsByKey[ 'critical' ][ 'header' ][ 'summary' ] ?? ''
 		);
 		$this->assertSame( 'critical', $bucketsByKey[ 'critical' ][ 'selection' ][ 'key' ] );
-		$this->assertSame(
-			'{"path":["Triage buckets","Fix now"],"focus":"Fix now contains 2 items that still need attention.","next_step":"Choose a group to review the matching results."}',
-			$bucketsByKey[ 'critical' ][ 'selection' ][ 'context_json' ]
-		);
+		$this->assertSame( 'Back to Actions Queue', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'active_back_label' ] ?? '' );
 		$criticalSelectionForJson = $bucketsByKey[ 'critical' ][ 'selection' ];
 		unset( $criticalSelectionForJson[ 'selection_json' ] );
 		$this->assertSame(
@@ -97,14 +92,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $bucketsByKey[ 'review' ][ 'item_count' ] );
 		$this->assertSame( '1 vulnerability, 1 maintenance item', $bucketsByKey[ 'review' ][ 'summary_text' ] );
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'review' ] );
-		$this->assertSame(
-			[
-				'path'      => [ 'Triage buckets', 'Review next' ],
-				'focus'     => 'Review next contains 2 items that still need attention.',
-				'next_step' => 'Choose a group to review the matching results.',
-			],
-			$bucketsByKey[ 'review' ][ 'context' ]
-		);
+		$this->assertSame( 'Review queue', $bucketsByKey[ 'review' ][ 'header' ][ 'meta' ] ?? '' );
 	}
 
 	public function test_build_looking_good_collects_only_good_assessment_rows() :void {

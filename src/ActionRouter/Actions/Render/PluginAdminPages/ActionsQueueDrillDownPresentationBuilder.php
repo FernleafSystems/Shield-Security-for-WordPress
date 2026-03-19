@@ -3,32 +3,26 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-type LayerContext array{
- *   path:list<string>,
- *   focus:string,
- *   next_step:string
- * }
+ * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
  * @phpstan-type BucketSelection array{
  *   key:string,
  *   label:string,
  *   status:string,
+ *   icon_class:string,
  *   item_count:int,
- *   strip_text:string,
- *   strip_badge:string,
- *   context:LayerContext,
- *   context_json:string,
+ *   header:DrillLayerHeaderInput,
+ *   header_json:string,
  *   selection_json:string
  * }
  * @phpstan-type GroupSelection array{
  *   key:string,
  *   label:string,
  *   status:string,
+ *   icon_class:string,
  *   item_count:int,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   strip_text:string,
- *   strip_badge:string,
- *   context:LayerContext,
- *   context_json:string,
+ *   header:DrillLayerHeaderInput,
+ *   header_json:string,
  *   selection_json:string
  * }
  */
@@ -41,11 +35,10 @@ class ActionsQueueDrillDownPresentationBuilder {
 		);
 	}
 
-	public function buildStripText( string $label, int $itemCount ) :string {
+	public function buildBackLabel( string $label ) :string {
 		return \sprintf(
-			_n( '%1$s - %2$s item', '%1$s - %2$s items', $itemCount, 'wp-simple-firewall' ),
-			$label,
-			$itemCount
+			__( 'Back to %s', 'wp-simple-firewall' ),
+			$label
 		);
 	}
 
@@ -63,59 +56,119 @@ class ActionsQueueDrillDownPresentationBuilder {
 	}
 
 	/**
-	 * @param LayerContext $context
 	 * @return BucketSelection
 	 */
 	public function buildBucketSelection(
 		string $key,
 		string $label,
 		string $status,
+		string $iconClass,
 		int $itemCount,
-		array $context
+		string $summary
 	) :array {
+		$header = $this->buildBucketHeader(
+			$label,
+			$status,
+			$iconClass,
+			$itemCount,
+			$summary
+		);
 		$selection = [
-			'key'         => $key,
-			'label'       => $label,
-			'status'      => $status,
-			'item_count'  => $itemCount,
-			'strip_text'  => $this->buildStripText( $label, $itemCount ),
-			'strip_badge' => $this->buildItemBadge( $itemCount ),
-			'context'     => $context,
+			'key'           => $key,
+			'label'         => $label,
+			'status'        => $status,
+			'icon_class'    => $iconClass,
+			'item_count'    => $itemCount,
+			'header'        => $header,
 		];
 
-		$selection[ 'context_json' ] = $this->encodeJson( $context );
+		$selection[ 'header_json' ] = $this->encodeJson( $header );
 		$selection[ 'selection_json' ] = $this->encodeJson( $selection );
 
 		return $selection;
 	}
 
 	/**
-	 * @param LayerContext $context
-	 * @return GroupSelection
+	 * @return BucketSelection
 	 */
 	public function buildGroupSelection(
+		string $bucketLabel,
 		string $key,
 		string $label,
 		string $status,
+		string $iconClass,
 		int $itemCount,
 		string $detailShell,
-		array $context
+		string $summary
 	) :array {
+		$header = $this->buildGroupHeader(
+			$bucketLabel,
+			$label,
+			$status,
+			$iconClass,
+			$itemCount,
+			$summary
+		);
 		$selection = [
 			'key'          => $key,
 			'label'        => $label,
 			'status'       => $status,
+			'icon_class'   => $iconClass,
 			'item_count'   => $itemCount,
 			'detail_shell' => $detailShell,
-			'strip_text'   => $this->buildStripText( $label, $itemCount ),
-			'strip_badge'  => $this->buildItemBadge( $itemCount ),
-			'context'      => $context,
+			'header'       => $header,
 		];
 
-		$selection[ 'context_json' ] = $this->encodeJson( $context );
+		$selection[ 'header_json' ] = $this->encodeJson( $header );
 		$selection[ 'selection_json' ] = $this->encodeJson( $selection );
 
 		return $selection;
+	}
+
+	/**
+	 * @return DrillLayerHeaderInput
+	 */
+	public function buildBucketHeader(
+		string $label,
+		string $status,
+		string $iconClass,
+		int $itemCount,
+		string $summary
+	) :array {
+		return [
+			'compact_back_label' => $this->buildBackLabel( $label ),
+			'active_back_label'  => $this->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
+			'title'              => $label,
+			'meta'               => $status === 'critical'
+				? __( 'Critical queue', 'wp-simple-firewall' )
+				: __( 'Review queue', 'wp-simple-firewall' ),
+			'summary'            => $summary,
+			'icon_class'         => $iconClass,
+			'badge'              => $this->buildItemBadge( $itemCount ),
+			'badge_status'       => $status,
+		];
+	}
+
+	/**
+	 * @return DrillLayerHeaderInput
+	 */
+	public function buildGroupHeader(
+		string $bucketLabel,
+		string $label,
+		string $status,
+		string $iconClass,
+		int $itemCount,
+		string $summary
+	) :array {
+		return [
+			'compact_back_label' => $this->buildBackLabel( $label ),
+			'active_back_label'  => $this->buildBackLabel( $bucketLabel ),
+			'title'              => $label,
+			'summary'            => $summary,
+			'icon_class'         => $iconClass,
+			'badge'              => $this->buildItemBadge( $itemCount ),
+			'badge_status'       => $status,
+		];
 	}
 
 	private function encodeJson( array $data ) :string {

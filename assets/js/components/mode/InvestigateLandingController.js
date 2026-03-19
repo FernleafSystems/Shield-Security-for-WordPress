@@ -17,7 +17,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.livePanelPoller = null;
 		this.inlineTabs = new InvestigateInlineTabs();
 		this.subjectTiles = new Map();
-		this.idleState = this.buildEmptyIdleState();
+		this.defaultPanelHeader = this.buildEmptyHeader();
 		this.panelRequestKey = '';
 
 		this.bindHandlers();
@@ -60,7 +60,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.shellEl = this.getShell( this.rootEl );
 		this.panelEl = this.getPanel( this.rootEl );
 		this.subjectTiles = this.collectSubjectTiles( this.rootEl );
-		this.idleState = this.collectIdleState( this.rootEl );
+		this.defaultPanelHeader = this.readLayerHeader( this.shellEl, 'panel' );
 
 		if ( this.rootEl === null || this.shellEl === null || this.panelEl === null ) {
 			this.stopLivePanelPoller();
@@ -250,17 +250,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		this.stopLivePanelPoller();
 		this.applySelectionToPanel( this.panelEl, selection );
-		drillCtrl.updateStripText( this.shellEl, 0, selection.strip_text );
-		drillCtrl.updateStripBadge(
-			this.shellEl,
-			0,
-			selection.strip_badge,
-			selection.badge_status
-		);
-		drillCtrl.updateLayerContext(
+		drillCtrl.updateLayerHeader(
 			this.shellEl,
 			1,
-			this.buildLoadingContext( selection.context, this.getPanelLoadingText() )
+			this.buildLoadingHeader( selection.header, this.getPanelLoadingText() )
 		);
 		drillCtrl.drillTo( this.shellEl, panelLayerIndex );
 
@@ -348,15 +341,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		const drillCtrl = this.getDrillDownController();
 		if ( drillCtrl !== null ) {
-			drillCtrl.updateStripText( this.shellEl, 0, this.idleState.strip_text );
-			drillCtrl.updateStripBadge(
-				this.shellEl,
-				0,
-				this.idleState.strip_badge,
-				this.idleState.badge_status
-			);
-			drillCtrl.updateLayerContext( this.shellEl, 0, this.idleState.context );
-			drillCtrl.updateLayerContext( this.shellEl, 1, this.buildEmptyContext() );
+			drillCtrl.updateLayerHeader( this.shellEl, 1, this.defaultPanelHeader );
 		}
 
 		this.panelEl.dataset.investigatePanelSubject = '';
@@ -391,15 +376,12 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	}
 
 	readSubjectSelection( subjectTile ) {
-		const context = JSON.parse( subjectTile.dataset.investigateContext );
+		const header = JSON.parse( subjectTile.dataset.investigateHeader );
 		const renderAction = JSON.parse( subjectTile.dataset.investigateRenderAction );
 
 		return {
 			key: String( subjectTile.dataset.investigateSubject || '' ).trim(),
-			strip_text: String( subjectTile.dataset.investigateStripText || '' ).trim(),
-			strip_badge: String( subjectTile.dataset.investigateStripBadge || '' ).trim(),
-			badge_status: String( subjectTile.dataset.investigateStripBadgeStatus ).trim(),
-			context,
+			header,
 			render_action: renderAction,
 			lookup_key: String( subjectTile.dataset.investigateLookupKey || '' ).trim(),
 			is_live: subjectTile.dataset.investigateIsLive === '1',
@@ -475,49 +457,30 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return tiles;
 	}
 
-	collectIdleState( root ) {
-		if ( root === null ) {
-			return this.buildEmptyIdleState();
-		}
-
+	buildEmptyHeader() {
 		return {
-			strip_text: String( root.dataset.investigateIdleStripText || '' ).trim(),
-			strip_badge: String( root.dataset.investigateIdleStripBadge || '' ).trim(),
-			badge_status: String( root.dataset.investigateIdleStripBadgeStatus ).trim(),
-			context: JSON.parse( root.dataset.investigateIdleContext ),
-		};
-	}
-
-	buildEmptyIdleState() {
-		return {
-			strip_text: '',
-			strip_badge: '',
+			compact_back_label: '',
+			active_back_label: '',
+			title: '',
+			meta: '',
+			summary: '',
+			icon_class: '',
+			badge: '',
 			badge_status: 'neutral',
-			context: this.buildEmptyContext(),
 		};
 	}
 
-	buildEmptyContext() {
+	buildLoadingHeader( header, loadingText ) {
 		return {
-			path: [],
-			focus: '',
-			next_step: '',
+			...( header && typeof header === 'object' ? header : {} ),
+			summary: String( loadingText || '' ).trim(),
 		};
 	}
 
-	buildLoadingContext( context, loadingText ) {
+	buildFailureHeader( header ) {
 		return {
-			path: context.path,
-			focus: context.focus,
-			next_step: loadingText,
-		};
-	}
-
-	buildFailureContext( context ) {
-		return {
-			path: context.path,
-			focus: context.focus,
-			next_step: this.getPanelErrorText(),
+			...( header && typeof header === 'object' ? header : {} ),
+			summary: this.getPanelErrorText(),
 		};
 	}
 
@@ -556,12 +519,26 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return String( this.rootEl?.dataset?.investigatePanelLoading ?? '' ).trim();
 	}
 
-	updatePanelLayerContext( context ) {
+	readLayerHeader( shell, layerKey ) {
+		const layer = this.getLayerByKey( shell, layerKey );
+		if ( !( layer instanceof HTMLElement ) ) {
+			return this.buildEmptyHeader();
+		}
+
+		try {
+			return JSON.parse( layer.dataset.drillLayerHeader || '{}' );
+		}
+		catch ( e ) {
+			return this.buildEmptyHeader();
+		}
+	}
+
+	updatePanelLayerHeader( header ) {
 		const drillCtrl = this.getDrillDownController();
 		if ( this.shellEl === null || drillCtrl === null ) {
 			return;
 		}
-		drillCtrl.updateLayerContext( this.shellEl, 1, context );
+		drillCtrl.updateLayerHeader( this.shellEl, 1, header );
 	}
 
 	finalizePanelRequestState( selection, historyUrl, isSuccess ) {
@@ -573,10 +550,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			this.replaceHistoryUrl( historyUrl );
 		}
 
-		this.updatePanelLayerContext(
+		this.updatePanelLayerHeader(
 			isSuccess
-				? selection.context
-				: this.buildFailureContext( selection.context )
+				? selection.header
+				: this.buildFailureHeader( selection.header )
 		);
 	}
 

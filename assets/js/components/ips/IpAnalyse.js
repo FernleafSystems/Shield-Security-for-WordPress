@@ -40,16 +40,22 @@ export class IpAnalyse extends BaseAutoExecComponent {
 	}
 
 	runAnalysisOnLoad() {
-		const nav = PageQueryParam.Retrieve( 'nav' );
-		const subNav = PageQueryParam.Retrieve( 'nav_sub' );
-		if ( nav === 'activity' && subNav === 'by_ip' ) {
+		const theIP = String( PageQueryParam.Retrieve( 'analyse_ip' ) || '' ).trim();
+		if ( theIP.length < 1 ) {
 			return;
 		}
 
-		let theIP = PageQueryParam.Retrieve( 'analyse_ip' );
-		if ( theIP ) {
-			this.render( theIP ).finally();
+		const nav = PageQueryParam.Retrieve( 'nav' );
+		const subNav = PageQueryParam.Retrieve( 'nav_sub' );
+		const subject = PageQueryParam.Retrieve( 'subject' );
+		if (
+			( nav === 'activity' && subNav === 'by_ip' )
+			|| ( nav === 'activity' && subNav === 'overview' && subject === 'ip' )
+		) {
+			return;
 		}
+
+		this.render( theIP ).finally();
 	};
 
 	handleInvestigateLookupSubmit( form, evt ) {

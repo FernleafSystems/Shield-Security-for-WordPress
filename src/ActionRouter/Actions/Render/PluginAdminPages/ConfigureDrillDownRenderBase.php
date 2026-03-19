@@ -16,10 +16,7 @@ abstract class ConfigureDrillDownRenderBase extends BaseRender {
 		$payload[ 'render_data' ] = $this->buildRenderData();
 		$payload[ 'render_output' ] = $this->buildRenderOutput( $payload[ 'render_data' ] );
 		$payload[ 'html' ] = $payload[ 'render_output' ];
-		$payload[ 'context' ] = $payload[ 'render_data' ][ 'context' ];
-		$payload[ 'strip_text' ] = $payload[ 'render_data' ][ 'strip_text' ];
-		$payload[ 'strip_badge' ] = $payload[ 'render_data' ][ 'strip_badge' ];
-		$payload[ 'strip_badge_status' ] = $payload[ 'render_data' ][ 'strip_badge_status' ];
+		$payload[ 'header' ] = $payload[ 'render_data' ][ 'header' ];
 		if ( isset( $payload[ 'render_data' ][ 'zone_selection' ] ) ) {
 			$payload[ 'zone_selection' ] = $payload[ 'render_data' ][ 'zone_selection' ];
 		}

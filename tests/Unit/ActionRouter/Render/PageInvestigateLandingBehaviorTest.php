@@ -114,11 +114,8 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'lookup_key',
 				'render_action',
 				'render_action_json',
-				'strip_text',
-				'strip_badge',
-				'strip_badge_status',
-				'context',
-				'context_json',
+				'header',
+				'header_json',
 			] as $requiredKey ) {
 				$this->assertArrayHasKey( $requiredKey, $tile );
 			}
@@ -141,22 +138,22 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			PluginNavs::SUBNAV_ACTIVITY_BY_IP,
 			$tilesByKey[ 'ip' ][ 'render_action' ][ Constants::NAV_SUB_ID ] ?? ''
 		);
-		$this->assertSame( 'info', $tilesByKey[ 'ip' ][ 'strip_badge_status' ] ?? '' );
+		$this->assertSame( 'info', $tilesByKey[ 'ip' ][ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame(
 			[
-				'path'      => [ 'Investigate', 'IP Address' ],
-				'focus'     => 'Investigating IP Address.',
-				'next_step' => 'Use the panel below to look up and explore.',
+				'compact_back_label' => 'Back to IP Address',
+				'active_back_label'  => 'Back to Investigate',
+				'title'              => 'IP Address',
+				'summary'            => 'Use the panel below to look up and explore.',
+				'icon_class'         => $tilesByKey[ 'ip' ][ 'icon_class' ],
+				'badge'              => $tilesByKey[ 'ip' ][ 'stat_text' ],
+				'badge_status'       => 'info',
 			],
-			$tilesByKey[ 'ip' ][ 'context' ] ?? []
-		);
-		$this->assertSame(
-			'{"path":["Investigate","IP Address"],"focus":"Investigating IP Address.","next_step":"Use the panel below to look up and explore."}',
-			$tilesByKey[ 'ip' ][ 'context_json' ] ?? ''
+			$tilesByKey[ 'ip' ][ 'header' ] ?? []
 		);
 	}
 
-	public function test_landing_vars_expose_noninteractive_mode_shell_drill_shell_and_idle_defaults() :void {
+	public function test_landing_vars_expose_noninteractive_mode_shell_and_drill_shell() :void {
 		$page = new PageInvestigateLandingUnitTestDouble();
 
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
@@ -170,16 +167,8 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
 		$this->assertSame( 'SUBJECTS_LAYER_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( 'PANEL_LAYER:', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertSame( 'Subjects', $vars[ 'investigate_defaults' ][ 'idle_strip_text' ] ?? '' );
-		$this->assertSame( '6', $vars[ 'investigate_defaults' ][ 'idle_strip_badge' ] ?? '' );
-		$this->assertSame(
-			[
-				'path'      => [ 'Investigate' ],
-				'focus'     => 'Choose a subject to investigate.',
-				'next_step' => 'Select a subject from the grid.',
-			],
-			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
-		);
+		$this->assertSame( 'Back to Investigate', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
+		$this->assertSame( 'Investigation', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( '', $idlePanel[ 'render_action_json' ] ?? 'missing' );
 		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
@@ -200,7 +189,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$panel = $this->invokeNonPublicMethod( $page, 'buildPanelLayerData', [ 'ip' ] );
 
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( 'IP Address', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'IP Address', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'ip', $panel[ 'subject_key' ] ?? '' );
 		$this->assertSame( '1', $panel[ 'is_loaded' ] ?? '0' );
 		$this->assertSame( '0', $panel[ 'is_live' ] ?? '1' );
@@ -223,7 +212,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$panel = $this->invokeNonPublicMethod( $page, 'buildPanelLayerData', [ 'plugin' ] );
 
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( 'Plugin', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'Plugin', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'plugin', $panel[ 'subject_key' ] ?? '' );
 		$this->assertCount( 1, $this->renderCapture->calls );
 		$this->assertSame( 'hello-dolly/hello.php', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'plugin_slug' ] ?? '' );
@@ -237,6 +226,27 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertCount( 0, $this->renderCapture->calls );
+	}
+
+	public function test_render_panel_layer_keeps_the_shared_panel_template_after_nested_render_work() :void {
+		$fakeRender = new PageInvestigateLandingFakeRenderService();
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			new UnitTestActionRouter(),
+			(object)[
+				'comps' => (object)[
+					'render' => $fakeRender,
+				],
+			]
+		);
+
+		$page = new PageInvestigateLandingRenderPanelOrderUnitTestDouble();
+		$html = $this->invokeNonPublicMethod( $page, 'renderPanelLayer', [ 'ip' ] );
+
+		$this->assertSame(
+			'rendered:/wpadmin/components/investigate/layer_panel.twig:ip',
+			$html
+		);
 	}
 
 	private function installControllerStub() :void {
@@ -283,5 +293,45 @@ class PageInvestigateLandingUnitTestDouble extends PageInvestigateLanding {
 		return \array_merge( [
 			'render_slug' => $renderAction::SLUG,
 		], $auxData );
+	}
+}
+
+class PageInvestigateLandingRenderPanelOrderUnitTestDouble extends PageInvestigateLanding {
+
+	protected function buildPanelLayerData( string $activeSubject ) :array {
+		self::con()->comps->render->setTemplate( '/nested/template.twig' );
+
+		return [
+			'subject_key'        => $activeSubject,
+			'is_loaded'          => '1',
+			'is_live'            => '0',
+			'render_action_json' => '{}',
+			'body'               => '<div data-inner-page-body-shell="1"></div>',
+		];
+	}
+}
+
+class PageInvestigateLandingFakeRenderService {
+
+	private string $template = '';
+
+	private array $renderVars = [];
+
+	public function setTemplate( string $template ) :self {
+		$this->template = $template;
+		return $this;
+	}
+
+	public function setData( array $vars ) :self {
+		$this->renderVars = $vars;
+		return $this;
+	}
+
+	public function render() :string {
+		return sprintf(
+			'rendered:%s:%s',
+			$this->template,
+			(string)( $this->renderVars[ 'panel' ][ 'subject_key' ] ?? '' )
+		);
 	}
 }

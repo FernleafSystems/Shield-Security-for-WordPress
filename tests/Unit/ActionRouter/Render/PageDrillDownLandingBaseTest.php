@@ -42,51 +42,44 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			protected function getLayers() :array {
 				return [
 					[
-						'key'          => 'Layer One',
-						'label'        => 'Overview',
-						'badge'        => '3 items',
-						'badge_status' => 'critical',
-						'body'         => '<div>Layer 1</div>',
-						'context'      => [
-							'path'      => [ ' Start ', '', 'Queue ' ],
-							'focus'     => '  Focus on the queue.  ',
-							'next_step' => '  Pick a bucket.  ',
+						'key'    => 'Layer One',
+						'body'   => '<div>Layer 1</div>',
+						'header' => [
+							'compact_back_label' => '  Back to Overview  ',
+							'title'              => ' Overview ',
+							'badge'              => ' 3 items ',
+							'badge_status'       => 'critical',
 						],
 					],
 					[
-						'key'          => 'bucket_detail',
-						'label'        => 'Bucket Detail',
-						'badge'        => 'Review',
-						'badge_status' => 'warning',
-						'body'         => '<div>Layer 2</div>',
-						'context'      => [
-							'path'      => [ 'Start', 'Queue', ' Bucket ' ],
-							'focus'     => '  Narrow the queue.  ',
-							'next_step' => '  Open the item.  ',
+						'key'    => 'bucket_detail',
+						'body'   => '<div>Layer 2</div>',
+						'header' => [
+							'compact_back_label' => ' Back to Bucket Detail ',
+							'active_back_label'  => ' Back to Queue ',
+							'title'              => ' Bucket Detail ',
+							'meta'               => ' Warning ',
+							'summary'            => ' Narrow the queue. ',
+							'icon_class'         => ' bi bi-eye ',
+							'badge'              => ' Review ',
+							'badge_status'       => 'warning',
 						],
 					],
 					[
-						'key'          => 'Final Detail',
-						'label'        => 'Item Detail',
-						'badge'        => 'Ready',
-						'badge_status' => 'unknown-status',
-						'body'         => '<div>Layer 3</div>',
-						'context'      => [
-							'path'      => [ 'Start', 'Queue', 'Bucket', ' Item ' ],
-							'focus'     => '  Review the item.  ',
-							'next_step' => '  Take the action.  ',
+						'key'    => 'Final Detail',
+						'body'   => '<div>Layer 3</div>',
+						'header' => [
+							'active_back_label' => 'Back to Bucket Detail',
+							'title'             => 'Item Detail',
+							'badge'             => 'Ready',
+							'badge_status'      => 'unknown-status',
 						],
 					],
 					[
-						'key'          => 'fourth_layer',
-						'label'        => 'Dropped Layer',
-						'badge'        => 'Skip',
-						'badge_status' => 'good',
-						'body'         => '<div>Layer 4</div>',
-						'context'      => [
-							'path'      => [ 'Dropped' ],
-							'focus'     => 'Should not render.',
-							'next_step' => 'Should not render.',
+						'key'    => 'fourth_layer',
+						'body'   => '<div>Layer 4</div>',
+						'header' => [
+							'title' => 'Dropped Layer',
 						],
 					],
 				];
@@ -113,30 +106,25 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			[ 'layerone', 'bucket_detail', 'finaldetail' ],
 			\array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' )
 		);
-		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 2 ][ 'badge_status' ] ?? '' );
-		$this->assertSame( 'Back to', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'aria_prefix' ] ?? '' );
-		$this->assertSame(
-			'{"path":["Start","Queue","Bucket"],"focus":"Narrow the queue.","next_step":"Open the item."}',
-			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'context_json' ] ?? ''
-		);
+		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 2 ][ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame(
 			[
-				'path'      => [ 'Start', 'Queue', 'Bucket' ],
-				'focus'     => 'Narrow the queue.',
-				'next_step' => 'Open the item.',
+				'compact_back_label' => 'Back to Bucket Detail',
+				'active_back_label'  => 'Back to Queue',
+				'title'              => 'Bucket Detail',
+				'meta'               => 'Warning',
+				'summary'            => 'Narrow the queue.',
+				'icon_class'         => 'bi bi-eye',
+				'badge'              => 'Review',
+				'badge_status'       => 'warning',
 			],
-			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
+			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? []
 		);
-		$this->assertTrue( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] ?? false );
 		$this->assertSame(
-			[
-				'header_label'       => 'Where you are',
-				'context_aria_label' => 'Workflow context',
-				'focus_label'        => 'Focus',
-				'next_step_label'    => 'Next step',
-			],
-			$vars[ 'drill_context_card' ][ 'strings' ] ?? []
+			'{"compact_back_label":"Back to Bucket Detail","active_back_label":"Back to Queue","title":"Bucket Detail","meta":"Warning","summary":"Narrow the queue.","icon_class":"bi bi-eye","badge":"Review","badge_status":"warning"}',
+			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header_json' ] ?? ''
 		);
+		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 		$this->assertArrayNotHasKey( 'index', $vars[ 'drill_shell' ][ 'layers' ][ 0 ] ?? [] );
 		$this->assertArrayNotHasKey( 'is_active', $vars[ 'drill_shell' ][ 'layers' ][ 0 ] ?? [] );
 	}
@@ -164,14 +152,18 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			protected function getLayers() :array {
 				return [
 					[
-						'key'   => 'overview',
-						'label' => 'Overview',
-						'body'  => '<div>Overview</div>',
+						'key'    => 'overview',
+						'body'   => '<div>Overview</div>',
+						'header' => [
+							'title' => 'Overview',
+						],
 					],
 					[
-						'key'   => 'details',
-						'label' => 'Details',
-						'body'  => '<div>Details</div>',
+						'key'    => 'details',
+						'body'   => '<div>Details</div>',
+						'header' => [
+							'title' => 'Details',
+						],
 					],
 				];
 			}
@@ -184,15 +176,7 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame(
-			[
-				'path'      => [],
-				'focus'     => '',
-				'next_step' => '',
-			],
-			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
-		);
-		$this->assertFalse( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] ?? true );
+		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 	}
 
 	public function test_empty_layers_produce_empty_drill_contract() :void {
@@ -228,14 +212,6 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 
 		$this->assertSame( [], $vars[ 'drill_shell' ][ 'layers' ] ?? [ 'unexpected' ] );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame(
-			[
-				'path'      => [],
-				'focus'     => '',
-				'next_step' => '',
-			],
-			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
-		);
-		$this->assertFalse( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] ?? true );
+		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 	}
 }

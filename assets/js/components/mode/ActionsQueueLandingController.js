@@ -124,15 +124,13 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 		this.selectedBucket = bucket;
 		this.selectedGroup = null;
-		this.resetGroupsLayerStrip( shell );
+		this.resetGroupsLayerHeader( shell );
 		this.resetDetailLayer( shell );
-		drillCtrl.updateStripText( shell, 0, bucket.strip_text );
-		drillCtrl.updateStripBadge( shell, 0, bucket.strip_badge, bucket.status );
 		drillCtrl.drillTo( shell, layerIndex );
-		drillCtrl.updateLayerContext(
+		drillCtrl.updateLayerHeader(
 			shell,
 			1,
-			this.buildLoadingContext( bucket.context, this.getGroupsLoadingText() )
+			this.buildLoadingHeader( bucket.header, this.getGroupsLoadingText() )
 		);
 
 		this.loadGroupsLayer();
@@ -156,13 +154,11 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		this.selectedGroup = group;
-		drillCtrl.updateStripText( shell, 1, group.strip_text );
-		drillCtrl.updateStripBadge( shell, 1, group.strip_badge, group.status );
 		drillCtrl.drillTo( shell, layerIndex );
-		drillCtrl.updateLayerContext(
+		drillCtrl.updateLayerHeader(
 			shell,
 			2,
-			this.buildLoadingContext( group.context, this.getDetailLoadingText() )
+			this.buildLoadingHeader( group.header, this.getDetailLoadingText() )
 		);
 
 		this.loadDetailLayer();
@@ -269,14 +265,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		this.selectedBucket = this.readBucketSelectionPayload( data.render_data?.bucket_selection );
-		drillCtrl.updateStripText( this.shellEl, 0, this.selectedBucket.strip_text );
-		drillCtrl.updateStripBadge(
-			this.shellEl,
-			0,
-			this.selectedBucket.strip_badge,
-			this.selectedBucket.status
-		);
-		drillCtrl.updateLayerContext( this.shellEl, 1, this.selectedBucket.context );
+		drillCtrl.updateLayerHeader( this.shellEl, 1, data.header || this.selectedBucket.header );
 
 		if ( !ObjectOps.IsEmpty( data.selected_group || {} ) ) {
 			this.applySelectedGroupRefresh( data.selected_group );
@@ -290,14 +279,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		this.selectedGroup = this.readGroupSelectionPayload( data.render_data?.group_selection );
-		drillCtrl.updateStripText( this.shellEl, 1, this.selectedGroup.strip_text );
-		drillCtrl.updateStripBadge(
-			this.shellEl,
-			1,
-			this.selectedGroup.strip_badge,
-			this.selectedGroup.status
-		);
-		drillCtrl.updateLayerContext( this.shellEl, 2, this.selectedGroup.context );
+		drillCtrl.updateLayerHeader( this.shellEl, 2, data.header || this.selectedGroup.header );
 	}
 
 	applySelectedGroupRefresh( selectedGroup ) {
@@ -307,9 +289,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		this.selectedGroup = this.readGroupSelectionPayload( selectedGroup );
-		drillCtrl.updateStripText( this.shellEl, 1, this.selectedGroup.strip_text );
-		drillCtrl.updateStripBadge( this.shellEl, 1, this.selectedGroup.strip_badge, this.selectedGroup.status );
-		drillCtrl.updateLayerContext( this.shellEl, 2, this.selectedGroup.context );
+		drillCtrl.updateLayerHeader( this.shellEl, 2, this.selectedGroup.header );
 	}
 
 	applyLandingRefresh( landingRefresh ) {
@@ -621,16 +601,14 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 	}
 
-	resetGroupsLayerStrip( shell ) {
+	resetGroupsLayerHeader( shell ) {
 		const defaultState = this.defaultLayerState.groups;
 		const drillCtrl = this.getDrillDownController();
 		if ( defaultState === undefined || drillCtrl === null ) {
 			return;
 		}
 
-		drillCtrl.updateStripText( shell, 1, defaultState.text );
-		drillCtrl.updateStripBadge( shell, 1, defaultState.badge, defaultState.status );
-		drillCtrl.updateLayerContext( shell, 1, defaultState.context );
+		drillCtrl.updateLayerHeader( shell, 1, defaultState.header );
 	}
 
 	resetDetailLayer( shell ) {
@@ -647,9 +625,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			detailBody.innerHTML = '';
 		}
 
-		drillCtrl.updateStripText( shell, 2, defaultState.text );
-		drillCtrl.updateStripBadge( shell, 2, defaultState.badge, defaultState.status );
-		drillCtrl.updateLayerContext( shell, 2, defaultState.context );
+		drillCtrl.updateLayerHeader( shell, 2, defaultState.header );
 	}
 
 	captureDefaultLayerState( shell ) {
@@ -665,27 +641,9 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
 	readLayerState( shell, layerKey ) {
 		const layer = this.getLayerByKey( shell, layerKey );
-		const strip = layer?.querySelector( '[data-drill-strip="1"]' ) || null;
-		const title = strip?.querySelector( '.drill-strip__title' ) || null;
-		const badge = strip?.querySelector( '.shield-badge' ) || null;
-
 		return {
-			text: title?.textContent || '',
-			badge: badge?.textContent || '',
-			status: this.readBadgeStatus( badge ),
-			context: this.parseJsonDataset( layer?.dataset.drillLayerContext || '{}' ),
+			header: this.parseJsonDataset( layer?.dataset.drillLayerHeader || '{}' ),
 		};
-	}
-
-	readBadgeStatus( badge ) {
-		if ( !( badge instanceof HTMLElement ) ) {
-			return 'neutral';
-		}
-
-		const statusClass = [ ...badge.classList ]
-			.find( ( className ) => className.startsWith( 'badge-' ) );
-
-		return statusClass ? statusClass.replace( 'badge-', '' ) : 'neutral';
 	}
 
 	readBucketSelection( item ) {
@@ -696,11 +654,10 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		return this.readGroupSelectionPayload( this.parseJsonDataset( item.dataset.drillGroupSelection ) );
 	}
 
-	buildLoadingContext( context, loadingText ) {
+	buildLoadingHeader( header, loadingText ) {
 		return {
-			path: Array.isArray( context.path ) ? context.path : [],
-			focus: String( context.focus || '' ).trim(),
-			next_step: loadingText,
+			...( header && typeof header === 'object' ? header : {} ),
+			summary: String( loadingText || '' ).trim(),
 		};
 	}
 
@@ -770,10 +727,9 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			key: String( selection?.key || '' ).trim(),
 			label: String( selection?.label || '' ).trim(),
 			status: String( selection?.status || 'neutral' ).trim(),
+			icon_class: String( selection?.icon_class || '' ).trim(),
 			item_count: this.parseInteger( selection?.item_count ?? 0 ),
-			strip_text: String( selection?.strip_text || '' ).trim(),
-			strip_badge: String( selection?.strip_badge || '' ).trim(),
-			context: selection?.context || {},
+			header: selection?.header || {},
 		};
 	}
 
@@ -782,11 +738,10 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			key: String( selection?.key || '' ).trim(),
 			label: String( selection?.label || '' ).trim(),
 			status: String( selection?.status || 'neutral' ).trim(),
+			icon_class: String( selection?.icon_class || '' ).trim(),
 			item_count: this.parseInteger( selection?.item_count ?? 0 ),
 			detail_shell: String( selection?.detail_shell || 'direct_table' ).trim(),
-			strip_text: String( selection?.strip_text || '' ).trim(),
-			strip_badge: String( selection?.strip_badge || '' ).trim(),
-			context: selection?.context || {},
+			header: selection?.header || {},
 		};
 	}
 

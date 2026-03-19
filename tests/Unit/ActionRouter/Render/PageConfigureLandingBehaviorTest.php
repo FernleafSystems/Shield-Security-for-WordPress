@@ -116,6 +116,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'zones', 'diagnosis', 'editor' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
 		$this->assertSame( 'ZONES_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
+		$this->assertSame( 'Back to Configure', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
+		$this->assertSame( 'Review findings', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'mode_tiles' ] ?? [ 'unexpected' ] );
@@ -151,15 +153,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
 		$this->assertSame( 'DIAGNOSIS:login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
-		$this->assertSame(
-			[
-				'path'      => [ 'Configure', 'Login' ],
-				'focus'     => '2FA requires review.',
-				'next_step' => 'Review the settings below and open the one you need to change.',
-			],
-			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
-		);
+		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
+		$this->assertSame( 'Back to Configure', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'active_back_label' ] ?? '' );
 	}
 
 	public function test_invalid_zone_deep_link_falls_back_to_zone_layer() :void {
@@ -173,7 +168,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( 'Choose a zone', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'Back to Configure', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
 	}
 

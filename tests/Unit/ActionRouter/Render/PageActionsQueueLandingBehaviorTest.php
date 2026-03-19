@@ -128,31 +128,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] );
 		$this->assertSame( [ 'buckets', 'groups', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
 		$this->assertSame( '__BUCKETS_LAYER__', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] );
-		$this->assertSame( 'Grouped findings', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'label' ] );
-		$this->assertSame( 'Select', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'badge' ] );
-		$this->assertSame( 'Back to', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'aria_prefix' ] );
+		$this->assertSame( 'Grouped findings', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] );
+		$this->assertSame( 'Select', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'badge' ] );
+		$this->assertSame( 'Back to Actions Queue', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] );
 		$this->assertSame(
-			'{"path":["Triage buckets"],"focus":"What is urgent, what can wait.","next_step":"Choose a bucket to start."}',
-			$vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'context_json' ]
+			'Choose a bucket to start.',
+			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'summary' ]
 		);
-		$this->assertSame(
-			[
-				'path'      => [ 'Triage buckets' ],
-				'focus'     => 'What is urgent, what can wait.',
-				'next_step' => 'Choose a bucket to start.',
-			],
-			$vars[ 'drill_context_card' ][ 'initial_context' ]
-		);
-		$this->assertTrue( $vars[ 'drill_context_card' ][ 'has_renderable_context' ] );
-		$this->assertSame(
-			[
-				'header_label'       => 'Where you are',
-				'context_aria_label' => 'Workflow context',
-				'focus_label'        => 'Focus',
-				'next_step_label'    => 'Next step',
-			],
-			$vars[ 'drill_context_card' ][ 'strings' ]
-		);
+		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 		$this->assertSame( 'critical', $strip[ 'severity' ] );
 		$this->assertSame( 5, $strip[ 'total_items' ] );
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] );

@@ -14,7 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
- * @phpstan-import-type LayerContext from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
  * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
  * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
@@ -54,10 +54,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,string>,
  *   maintenance_rows:list<MaintenanceExpansionRow>,
- *   strip_text:string,
- *   strip_badge:string,
- *   context:LayerContext,
- *   context_json:string,
+ *   header:DrillLayerHeaderInput,
+ *   header_json:string,
  *   selection_json:string,
  *   selection:GroupSelection
  * }
@@ -65,10 +63,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   bucket_selection:BucketSelection,
  *   bucket_selection_json:string,
  *   groups:list<GroupData>,
- *   context:LayerContext,
- *   strip_text:string,
- *   strip_badge:string,
- *   strip_badge_status:string
+ *   header:DrillLayerHeaderInput
  * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
@@ -179,10 +174,7 @@ class ActionsQueueGroupsBuilder {
 				'bucket_selection'      => $bucketSelection,
 				'bucket_selection_json' => $bucket[ 'selection_json' ],
 				'groups'                => \array_values( $groupsIndexed ),
-				'context'               => $bucketSelection[ 'context' ],
-				'strip_text'            => $bucketSelection[ 'strip_text' ],
-				'strip_badge'           => $bucketSelection[ 'strip_badge' ],
-				'strip_badge_status'    => $bucketSelection[ 'status' ],
+				'header'                => $bucketSelection[ 'header' ],
 			],
 			'groups_indexed' => $groupsIndexed,
 		];
@@ -370,21 +362,15 @@ class ActionsQueueGroupsBuilder {
 		$nextMove = $isHealthy
 			? $this->buildHealthyNextMove( $seed[ 'definition_key' ] )
 			: $this->buildNextMove( $seed[ 'definition_key' ] );
-		$context = [
-			'path'      => \array_merge(
-				[ __( 'Triage buckets', 'wp-simple-firewall' ), $bucketLabel ],
-				$seed[ 'path_segments' ]
-			),
-			'focus'     => $narrative,
-			'next_step' => $nextMove,
-		];
 		$selection = $this->presentation()->buildGroupSelection(
+			$bucketLabel,
 			$seed[ 'key' ],
 			$seed[ 'label' ],
 			$seed[ 'status' ],
+			$definition[ 'icon_class' ],
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
-			$context
+			$narrative
 		);
 
 		return [
@@ -411,10 +397,8 @@ class ActionsQueueGroupsBuilder {
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
-			'strip_text'          => $selection[ 'strip_text' ],
-			'strip_badge'         => $selection[ 'strip_badge' ],
-			'context'             => $context,
-			'context_json'        => $selection[ 'context_json' ],
+			'header'              => $selection[ 'header' ],
+			'header_json'         => $selection[ 'header_json' ],
 			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
 		];
@@ -428,22 +412,15 @@ class ActionsQueueGroupsBuilder {
 		$definition = $this->getGroupDefinition( $definitionKey );
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
 		$nextMove = __( 'Go back to the grouped findings and pick another area to review.', 'wp-simple-firewall' );
-		$context = [
-			'path'      => [
-				__( 'Triage buckets', 'wp-simple-firewall' ),
-				$bucketLabel,
-				$definition[ 'label' ],
-			],
-			'focus'     => $narrative,
-			'next_step' => $nextMove,
-		];
 		$selection = $this->presentation()->buildGroupSelection(
+			$bucketLabel,
 			$groupKey,
 			$definition[ 'label' ],
 			'good',
+			$definition[ 'icon_class' ],
 			0,
 			$definition[ 'detail_shell' ],
-			$context
+			$narrative
 		);
 
 		return [
@@ -465,10 +442,8 @@ class ActionsQueueGroupsBuilder {
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
 			'maintenance_rows'    => [],
-			'strip_text'          => $selection[ 'strip_text' ],
-			'strip_badge'         => $selection[ 'strip_badge' ],
-			'context'             => $context,
-			'context_json'        => $selection[ 'context_json' ],
+			'header'              => $selection[ 'header' ],
+			'header_json'         => $selection[ 'header_json' ],
 			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
 		];

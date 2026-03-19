@@ -4,17 +4,10 @@
 	<div class="investigate-landing"
 		 data-investigate-landing="1"
 		 data-investigate-panel-loading="{{ strings.panel_loading }}"
-		 data-investigate-panel-error="{{ strings.panel_load_error }}"
-		 data-investigate-idle-strip-text="{{ vars.investigate_defaults.idle_strip_text }}"
-		 data-investigate-idle-strip-badge="{{ vars.investigate_defaults.idle_strip_badge }}"
-		 data-investigate-idle-strip-badge-status="{{ vars.investigate_defaults.idle_strip_badge_status }}"
-		 data-investigate-idle-context="{{ vars.investigate_defaults.idle_context_json }}">
+		 data-investigate-panel-error="{{ strings.panel_load_error }}">
 		<div class="investigate-landing__drilldown" data-investigate-section="drilldown">
 			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
 				shell: vars.drill_shell
-			} only %}
-			{% include '/wpadmin/components/page/drill_context_card.twig' with {
-				context_card: vars.drill_context_card
 			} only %}
 		</div>
 	</div>

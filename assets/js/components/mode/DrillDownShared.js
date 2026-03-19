@@ -38,30 +38,24 @@ export function normalizeDrillText( text = '' ) {
 	return String( text ?? '' ).trim();
 }
 
-export function normalizeDrillPathSegments( path ) {
-	if ( !Array.isArray( path ) ) {
-		return [];
-	}
-
-	return path
-		.map( ( segment ) => normalizeDrillText( segment ) )
-		.filter( ( segment ) => segment.length > 0 );
+export function normalizeDrillStatus( status = '' ) {
+	const normalized = normalizeDrillText( status );
+	return [ 'critical', 'warning', 'good', 'info', 'neutral' ].includes( normalized )
+		? normalized
+		: 'neutral';
 }
 
-export function normalizeLayerContextData( contextData ) {
-	const source = contextData && typeof contextData === 'object' ? contextData : {};
+export function normalizeLayerHeaderData( headerData ) {
+	const source = headerData && typeof headerData === 'object' ? headerData : {};
 
 	return {
-		path: normalizeDrillPathSegments( source.path ),
-		focus: normalizeDrillText( source.focus ),
-		next_step: normalizeDrillText( source.next_step ),
+		compact_back_label: normalizeDrillText( source.compact_back_label ),
+		active_back_label: normalizeDrillText( source.active_back_label ),
+		title: normalizeDrillText( source.title ),
+		meta: normalizeDrillText( source.meta ),
+		summary: normalizeDrillText( source.summary ),
+		icon_class: normalizeDrillText( source.icon_class ),
+		badge: normalizeDrillText( source.badge ),
+		badge_status: normalizeDrillStatus( source.badge_status ),
 	};
-}
-
-export function hasRenderableLayerContext( contextData ) {
-	const context = normalizeLayerContextData( contextData );
-
-	return context.path.length > 0
-		|| context.focus.length > 0
-		|| context.next_step.length > 0;
 }

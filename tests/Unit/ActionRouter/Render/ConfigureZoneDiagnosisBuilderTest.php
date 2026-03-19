@@ -54,9 +54,9 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'review_rows' ] );
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertSame( [], $diagnosis[ 'review_fallback_card' ] );
-		$this->assertSame( 'Login', $diagnosis[ 'strip_text' ] );
-		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'strip_text' ] );
-		$this->assertSame( '2 findings', $diagnosis[ 'strip_badge' ] );
+		$this->assertSame( 'Login', $diagnosis[ 'header' ][ 'title' ] );
+		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'label' ] );
+		$this->assertSame( '2 findings', $diagnosis[ 'header' ][ 'badge' ] );
 		$this->assertSame( '/admin/login', $diagnosis[ 'settings_href' ] );
 		$this->assertSame( 'Configure Login Settings', $diagnosis[ 'settings_label' ] );
 		$this->assertSame( 'Looking good - 1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
@@ -86,7 +86,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'review_rows' ] );
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertSame( [], $diagnosis[ 'review_fallback_card' ] );
-		$this->assertSame( 'Good', $diagnosis[ 'strip_badge' ] );
+		$this->assertSame( 'Good', $diagnosis[ 'header' ][ 'badge' ] );
 		$this->assertStringContainsString( 'no active findings', $diagnosis[ 'preview_text' ] );
 		$this->assertSame( 'Looking good - 1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
 	}
@@ -112,7 +112,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, \count( $diagnosis[ 'review_rows' ] ) );
 		$this->assertSame( [], $diagnosis[ 'healthy_rows' ] );
 		$this->assertSame( [], $diagnosis[ 'review_fallback_card' ] );
-		$this->assertSame( 'Review', $diagnosis[ 'strip_badge' ] );
+		$this->assertSame( 'Review', $diagnosis[ 'header' ][ 'badge' ] );
 		$this->assertSame( 'Review these settings', $diagnosis[ 'review_rows_heading' ] );
 		$this->assertStringContainsString( 'General controls', $diagnosis[ 'risk_context' ] );
 		$this->assertStringContainsString( 'site-wide controls', $diagnosis[ 'preview_text' ] );

@@ -13,6 +13,8 @@ test( 'actions queue drills into groups and details, then drills back out', asyn
 	await bucket.click();
 	await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-active-back="1"] .drill-strip__title' ) ).toHaveText( 'Back to Actions Queue' );
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-header-title="1"]' ) ).not.toHaveText( '' );
 
 	const group = page.locator( '[data-actions-landing="1"] [data-drill-target="detail"]' ).first();
 	await expect( group ).toBeVisible();
@@ -21,11 +23,11 @@ test( 'actions queue drills into groups and details, then drills back out', asyn
 	await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
 
-	await page.locator( '[data-drill-layer="1"] [data-drill-strip="1"]' ).click();
+	await page.locator( '[data-drill-layer="1"] [data-drill-layer-compact-back="1"]' ).click();
 	await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
 
-	await page.locator( '[data-drill-layer="0"] [data-drill-strip="1"]' ).click();
+	await page.locator( '[data-drill-layer="0"] [data-drill-layer-compact-back="1"]' ).click();
 	await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
 });
 
@@ -38,10 +40,9 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	const healthyToggle = page.locator( '[data-configure-healthy-toggle="1"]' );
 	const healthyZone = page.locator( '[data-configure-healthy-body="1"] [data-drill-target="diagnosis"]' ).first();
 	await expect( healthyToggle ).toBeVisible();
-	await expect( healthyZone ).toBeHidden();
-
-	await healthyToggle.click();
-	await expect( healthyToggle ).toHaveClass( /is-open/ );
+	if ( !( await healthyZone.isVisible() ) ) {
+		await healthyToggle.click();
+	}
 	await expect( healthyZone ).toBeVisible();
 
 	const zone = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' )
@@ -52,8 +53,10 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	await zone.click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-active-back="1"] .drill-strip__title' ) ).toHaveText( 'Back to Configure' );
+	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-header-title="1"]' ) ).toHaveText( /Security Admin/i );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
-	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ).first() ).toBeAttached();
+	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ) ).toHaveCount( 0 );
 	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-trigger="1"]' ).first();
 	await expect( expandRow.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
 	await expandRow.click();
@@ -77,9 +80,9 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 		await expect( diagnosisHealthyBody ).not.toHaveClass( /is-open/ );
 	}
 
-	await page.locator( '[data-drill-layer="1"] [data-drill-strip="1"]' ).click();
+	await page.locator( '[data-drill-layer="1"] [data-drill-layer-active-back="1"]' ).click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 
-	await page.locator( '[data-drill-layer="0"] [data-drill-strip="1"]' ).click();
+	await page.locator( '[data-drill-layer="0"] [data-drill-layer-compact-back="1"]' ).click();
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
 });

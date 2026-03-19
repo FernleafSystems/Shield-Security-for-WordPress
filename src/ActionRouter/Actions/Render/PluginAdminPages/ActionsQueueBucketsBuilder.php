@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
- * @phpstan-import-type LayerContext from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int
@@ -22,10 +22,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   item_count:int,
  *   summary_text:string,
  *   icon_class:string,
- *   strip_text:string,
- *   strip_badge:string,
- *   context:LayerContext,
- *   context_json:string,
+ *   header:DrillLayerHeaderInput,
+ *   header_json:string,
  *   selection_json:string,
  *   selection:BucketSelection
  * }
@@ -47,36 +45,28 @@ class ActionsQueueBucketsBuilder {
 
 		foreach ( $this->getBucketDefinitions() as $bucketKey => $definition ) {
 			$bucketSource = $sources[ $bucketKey ];
-			$context = [
-				'path'      => [
-					__( 'Triage buckets', 'wp-simple-firewall' ),
-					$definition[ 'label' ],
-				],
-				'focus'     => $presentation->buildBucketFocusText( $definition[ 'label' ], $bucketSource[ 'item_count' ] ),
-				'next_step' => empty( $bucketSource[ 'attention_items' ] )
-					? __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' )
-					: __( 'Choose a group to review the matching results.', 'wp-simple-firewall' ),
-			];
+			$summary = empty( $bucketSource[ 'attention_items' ] )
+				? __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' )
+				: $presentation->buildBucketFocusText( $definition[ 'label' ], $bucketSource[ 'item_count' ] );
 			$selection = $presentation->buildBucketSelection(
 				$bucketKey,
 				$definition[ 'label' ],
 				$definition[ 'status' ],
+				$definition[ 'icon_class' ],
 				$bucketSource[ 'item_count' ],
-				$context
+				$summary
 			);
 			$buckets[] = [
-				'key'          => $bucketKey,
-				'label'        => $definition[ 'label' ],
-				'status'       => $definition[ 'status' ],
-				'item_count'   => $bucketSource[ 'item_count' ],
-				'summary_text' => $this->buildSummaryText( $bucketSource ),
-				'icon_class'   => $definition[ 'icon_class' ],
-				'strip_text'   => $selection[ 'strip_text' ],
-				'strip_badge'  => $selection[ 'strip_badge' ],
-				'context'      => $context,
-				'context_json' => $selection[ 'context_json' ],
+				'key'            => $bucketKey,
+				'label'          => $definition[ 'label' ],
+				'status'         => $definition[ 'status' ],
+				'item_count'     => $bucketSource[ 'item_count' ],
+				'summary_text'   => $this->buildSummaryText( $bucketSource ),
+				'icon_class'     => $definition[ 'icon_class' ],
+				'header'         => $selection[ 'header' ],
+				'header_json'    => $selection[ 'header_json' ],
 				'selection_json' => $selection[ 'selection_json' ],
-				'selection'    => $selection,
+				'selection'      => $selection,
 			];
 		}
 

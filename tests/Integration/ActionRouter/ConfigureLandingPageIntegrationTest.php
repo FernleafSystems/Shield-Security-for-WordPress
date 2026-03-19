@@ -31,7 +31,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		], $params ) );
 	}
 
-	public function test_landing_renders_posture_strip_drill_shell_and_context_card() :void {
+	public function test_landing_renders_posture_strip_and_shared_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$xpath = $this->createDomXPathFromHtml( $html );
@@ -75,8 +75,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-drill-context-card="configure_drill_shell"]',
-			'Configure landing should render the shared drill context card'
+			'//*[@data-drill-layer-key="zones" and string-length(@data-drill-layer-header) > 0]',
+			'Configure landing should render producer-owned layer header JSON for the zones layer'
 		);
 		$this->assertXPathNotExists(
 			$xpath,
@@ -98,8 +98,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$validXpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " zone-summary-header ")]',
-			'Deep-linked diagnosis should include the new zone summary header'
+			'//*[@data-drill-layer="1"]//*[@data-drill-layer-header-title="1" and normalize-space()="Login"]',
+			'Deep-linked diagnosis should include the shared lane header'
 		);
 		$this->assertXPathExists(
 			$validXpath,
@@ -158,9 +158,9 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'login', (string)( $payload[ 'editor_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'Login', (string)( $payload[ 'strip_text' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $payload[ 'strip_badge' ] ?? '' ) );
-		$this->assertNotEmpty( $payload[ 'context' ] ?? [] );
+		$this->assertSame( 'Login', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertNotEmpty( $payload[ 'header' ] ?? [] );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
 		$this->assertXPathExists(
 			$xpath,
@@ -169,8 +169,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " zone-summary-header ")]',
-			'Diagnosis AJAX should render the new zone summary header'
+			'//*[@data-drill-layer="1"]//*[@data-drill-layer-header-title="1" and normalize-space()="Login"]',
+			'Diagnosis AJAX should render the shared lane header'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -271,8 +271,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertSame( 'login', (string)( $payload[ 'editor_selection' ][ 'key' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $payload[ 'strip_text' ] ?? '' ) );
-		$this->assertNotEmpty( $payload[ 'context' ] ?? [] );
+		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertNotEmpty( $payload[ 'header' ] ?? [] );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-editor="1"]',
