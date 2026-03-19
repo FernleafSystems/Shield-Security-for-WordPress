@@ -124,6 +124,9 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'maintenance_item_ignore',
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
 		);
+		$this->assertNotEmpty(
+			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
+		);
 	}
 
 	public function test_theme_update_rows_get_eager_simple_table_expansion_with_existing_updates_screen_action() :void {
@@ -430,6 +433,32 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'maintenance_item_unignore',
 			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
 		);
+	}
+
+	public function test_normalize_for_review_appends_healthy_review_state_without_toggle_for_clean_singleton_item() :void {
+		$items = ( new MaintenanceQueueItemDisplayNormalizerTestDouble( [
+			'system_php_version' => [
+				'key'                 => 'system_php_version',
+				'label'               => 'PHP Version',
+				'description'         => 'PHP looks healthy.',
+				'count'               => 0,
+				'ignored_count'       => 0,
+				'drill_bucket'        => 'review',
+				'severity'            => 'good',
+				'href'                => '/wp-admin/site-health.php',
+				'action'              => 'Review',
+				'target'              => '',
+				'supports_sub_items'  => false,
+				'active_identifiers'  => [],
+				'ignored_identifiers' => [],
+			],
+		] ) )->normalizeForReview( [] );
+
+		$this->assertCount( 1, $items );
+		$this->assertSame( 'system_php_version', $items[ 0 ][ 'key' ] ?? '' );
+		$this->assertSame( 'review', $items[ 0 ][ 'drill_bucket' ] ?? '' );
+		$this->assertSame( 'good', $items[ 0 ][ 'severity' ] ?? '' );
+		$this->assertSame( [], $items[ 0 ][ 'toggle_action' ] ?? [ 'unexpected' ] );
 	}
 
 	private function installServices( array $fixture = [] ) :void {

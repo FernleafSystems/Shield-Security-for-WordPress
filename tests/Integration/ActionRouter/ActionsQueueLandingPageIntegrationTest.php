@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Malware as MalwarePane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Plugins as PluginsPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Themes as ThemesPane;
@@ -354,10 +356,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-drill-target="groups" and string-length(@data-drill-bucket-selection) > 0]',
 			'Bucket layer should render PHP-prepared selection JSON for drill interactions'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card__preview ")]',
-			'Bucket layer should surface at least one top-item preview'
+			0,
+			'Bucket layer should not render the removed bucket preview row'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -486,6 +489,49 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_groups_ajax_keeps_fully_ignored_review_group_visible_in_looking_good_section() :void {
+		$this->setPluginUpdateAvailable();
+
+		$response = $this->processMaintenanceAction( MaintenanceItemIgnore::SLUG, [
+			'maintenance_key' => 'wp_plugins_updates',
+			'identifier'      => self::con()->base_file,
+		] );
+		$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'review',
+		] );
+		$html = (string)( $payload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame( 'Review next - 0 items', (string)( $payload[ 'strip_text' ] ?? '' ) );
+		$this->assertSame( '0 items', (string)( $payload[ 'strip_badge' ] ?? '' ) );
+		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
+		$this->assertSame( 'wp_plugins_updates', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'healthy', (string)( $payload[ 'groups' ][ 0 ][ 'display_section' ] ?? '' ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Looking good"]',
+			'Review groups AJAX should render the healthy section heading when only healthy review groups remain'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
+			'Review groups AJAX should render healthy maintenance groups with the shared looking-good item-box styling'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//a[contains(concat(" ", normalize-space(@class), " "), " item-box__row-action ") and contains(@data-actions-queue-maintenance-action, "maintenance_item_unignore")]',
+			'Review groups AJAX should keep the unignore action available on healthy ignored maintenance rows'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-landing__empty-state ")]',
+			0,
+			'Healthy review groups should render instead of the generic empty-state message'
+		);
+	}
+
 	public function test_groups_ajax_can_refresh_the_current_selected_group_summary() :void {
 		$this->setPluginUpdateAvailable();
 		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
@@ -520,6 +566,53 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame(
 			'Review the maintenance item and address it in the next appropriate maintenance window.',
 			(string)( $payload[ 'selected_group' ][ 'context' ][ 'next_step' ] ?? '' )
+		);
+	}
+
+	public function test_groups_ajax_keeps_healthy_vulnerabilities_group_drillable_and_detail_renderable() :void {
+		$this->enableAssetScanFixture( [ 'plugins' ] );
+
+		TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertCompletedScan( 'apc' );
+		$this->resetScanResultCountMemoization();
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'review',
+		] );
+		$html = (string)( $payload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$groups = \is_array( $payload[ 'groups' ] ?? null ) ? $payload[ 'groups' ] : [];
+		$vulnerabilities = \array_values( \array_filter(
+			$groups,
+			static fn( array $group ) :bool => (string)( $group[ 'key' ] ?? '' ) === 'vulnerabilities'
+		) );
+
+		$this->assertCount( 1, $vulnerabilities );
+		$this->assertSame( 'healthy', (string)( $vulnerabilities[ 0 ][ 'display_section' ] ?? '' ) );
+		$this->assertSame( 'expandable', (string)( $vulnerabilities[ 0 ][ 'card_type' ] ?? '' ) );
+		$this->assertXPathExists(
+			$xpath,
+			"//button[contains(concat(\" \", normalize-space(@class), \" \"), \" finding-card--expandable \") and @data-drill-target=\"detail\" and contains(@data-drill-group-selection, '\"key\":\"vulnerabilities\"')]",
+			'Healthy vulnerabilities review card should stay drillable from the Looking good section'
+		);
+
+		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
+			'bucket' => 'review',
+			'group'  => 'vulnerabilities',
+		] );
+		$detailHtml = (string)( $detailPayload[ 'html' ] ?? '' );
+		$detailXPath = $this->createDomXPathFromHtml( $detailHtml );
+
+		$this->assertSame( 'vulnerabilities', (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertXPathExists(
+			$detailXPath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
+			'Healthy vulnerabilities detail should reuse the shared empty pane state'
+		);
+		$this->assertStringContainsString(
+			"Previous scans didn't detect any vulnerable or abandoned assets.",
+			$detailHtml
 		);
 	}
 
@@ -1209,6 +1302,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		return \array_slice( $pluginFiles, 0, $minimum );
+	}
+
+	private function processMaintenanceAction( string $slug, array $data ) :array {
+		return ( new ActionProcessor() )->processAction( $slug, $data )->payload();
 	}
 
 	/**

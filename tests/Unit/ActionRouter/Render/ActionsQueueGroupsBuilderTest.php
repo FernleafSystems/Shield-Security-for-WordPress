@@ -504,6 +504,223 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $builder->getVulnerabilitiesPayloadCalls() );
 	}
 
+	public function test_build_review_bucket_appends_healthy_groups_after_active_groups_and_keeps_selected_healthy_group_resolvable() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[
+				[
+					'key'           => 'wp_plugins_updates',
+					'zone'          => 'maintenance',
+					'label'         => 'Plugin Updates',
+					'count'         => 1,
+					'severity'      => 'warning',
+					'drill_bucket'  => 'review',
+					'description'   => 'There is 1 plugin update waiting to be applied.',
+					'href'          => '/wp-admin/update-core.php',
+					'action'        => 'Update now',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/update-core.php',
+						'label' => 'Manage Plugins',
+					],
+					'toggle_action' => [],
+					'expansion'     => [
+						'table' => [
+							'rows' => [
+								[
+									'title'             => 'Akismet Anti-Spam',
+									'subtitle'          => 'Plugin update available',
+									'context'           => 'Current: 5.3.0 | Available: 5.4.0',
+									'identifier'        => 'akismet/akismet.php',
+									'action'            => [
+										'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
+										'label' => 'Update',
+									],
+									'is_ignored'        => false,
+									'ignored_label'     => '',
+									'secondary_actions' => [
+										[
+											'label'       => 'Ignore',
+											'href'        => 'javascript:{}',
+											'icon'        => 'bi bi-eye-slash-fill',
+											'tooltip'     => 'Ignore this maintenance item',
+											'ajax_action' => [ 'ex' => 'maintenance_item_ignore' ],
+										],
+									],
+								],
+							],
+						],
+					],
+				],
+				[
+					'key'           => 'wp_plugins_inactive',
+					'zone'          => 'maintenance',
+					'label'         => 'Inactive Plugins',
+					'count'         => 0,
+					'severity'      => 'good',
+					'drill_bucket'  => 'review',
+					'description'   => '1 item is currently ignored.',
+					'href'          => '/wp-admin/plugins.php',
+					'action'        => 'Go to plugins',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/plugins.php',
+						'label' => 'Manage Plugins',
+					],
+					'toggle_action' => [],
+					'expansion'     => [
+						'table' => [
+							'rows' => [
+								[
+									'title'             => 'Hello Dolly',
+									'subtitle'          => 'Plugin is currently inactive',
+									'context'           => 'Version: 1.7.2',
+									'identifier'        => 'hello-dolly/hello.php',
+									'action'            => [
+										'href'         => '/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
+										'label'        => 'Manage this plugin',
+										'icon'         => 'bi bi-arrow-right-circle-fill',
+										'tooltip'      => 'Manage this plugin',
+										'is_icon_only' => true,
+										'target'       => '_blank',
+									],
+									'is_ignored'        => true,
+									'ignored_label'     => 'Currently ignored',
+									'secondary_actions' => [
+										[
+											'label'       => 'Stop ignoring',
+											'href'        => 'javascript:{}',
+											'icon'        => 'bi bi-eye-fill',
+											'tooltip'     => 'Stop ignoring this maintenance item',
+											'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+										],
+									],
+								],
+							],
+						],
+					],
+				],
+			]
+		);
+
+		$payload = $builder->buildWithSelectedGroup(
+			'review',
+			'wp_plugins_inactive',
+			[
+				'items' => [
+					[
+						'key'      => 'wp_plugins_updates',
+						'count'    => 1,
+						'severity' => 'warning',
+						'zone'     => 'maintenance',
+					],
+				],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'plugin_files',
+						'label'             => 'Plugin Files',
+						'description'       => 'All plugin files appear to be valid.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [
+					[
+						'key'               => 'wp_plugins_updates',
+						'label'             => 'Plugin Updates',
+						'description'       => 'There is an upgrade available for a plugin.',
+						'drill_bucket'      => 'review',
+						'status'            => 'warning',
+						'status_label'      => 'Warning',
+						'status_icon_class' => 'bi bi-exclamation-circle-fill',
+					],
+					[
+						'key'               => 'wp_plugins_inactive',
+						'label'             => 'Inactive Plugins',
+						'description'       => 'This maintenance item is currently ignored.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+			]
+		);
+
+		$this->assertSame(
+			[ 'wp_plugins_updates', 'plugins', 'wp_plugins_inactive' ],
+			\array_column( $payload[ 'layer' ][ 'groups' ], 'key' )
+		);
+		$this->assertSame(
+			[ 'active', 'healthy', 'healthy' ],
+			\array_column( $payload[ 'layer' ][ 'groups' ], 'display_section' )
+		);
+		$this->assertSame( 'good', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'status' ] );
+		$this->assertSame( '', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'drill_hint' ] );
+		$this->assertSame(
+			'This maintenance group is currently looking good. Open it here any time to review or stop ignoring items.',
+			$payload[ 'selected_group' ][ 'next_move' ]
+		);
+		$this->assertSame( 1, $payload[ 'selected_group' ][ 'item_count' ] );
+		$this->assertSame(
+			'maintenance_item_unignore',
+			$payload[ 'selected_group' ][ 'maintenance_rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+		);
+	}
+
+	public function test_build_review_bucket_makes_healthy_vulnerabilities_group_drillable_without_changing_canonical_definition() :void {
+		$builder = $this->createBuilder();
+
+		$payload = $builder->buildWithSelectedGroup(
+			'review',
+			'vulnerabilities',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'vulnerable_assets',
+						'label'             => 'Known Vulnerabilities',
+						'description'       => 'Previous scans did not detect any vulnerable assets.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+					[
+						'key'               => 'abandoned',
+						'label'             => 'Abandoned Assets',
+						'description'       => 'Previous scans did not detect any abandoned assets.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ 'vulnerabilities' ], \array_column( $payload[ 'layer' ][ 'groups' ], 'key' ) );
+		$this->assertSame( 'healthy', $payload[ 'layer' ][ 'groups' ][ 0 ][ 'display_section' ] );
+		$this->assertSame( 'expandable', $payload[ 'layer' ][ 'groups' ][ 0 ][ 'card_type' ] );
+		$this->assertSame( [], $payload[ 'layer' ][ 'groups' ][ 0 ][ 'links' ] );
+		$this->assertSame(
+			\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Vulnerabilities::class,
+			$payload[ 'layer' ][ 'groups' ][ 0 ][ 'render_action_class' ]
+		);
+		$this->assertSame( 'vulnerabilities', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'expandable', $payload[ 'selected_group' ][ 'card_type' ] );
+		$this->assertSame( '', $payload[ 'selected_group' ][ 'drill_hint' ] );
+	}
+
 	/**
 	 * @return array<string,mixed>
 	 */
@@ -589,6 +806,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			}
 
 			protected function normalizeMaintenanceQueueItems( array $items ) :array {
+				return $this->maintenanceItems;
+			}
+
+			protected function normalizeReviewMaintenanceQueueItems( array $items ) :array {
 				return $this->maintenanceItems;
 			}
 		};

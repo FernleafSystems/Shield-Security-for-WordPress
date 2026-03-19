@@ -92,6 +92,44 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		);
 	}
 
+	public function testDetailRowRendersNonWarningExplanationsWithoutWarningIcon() :void {
+		$html = $this->twig()->render( '/wpadmin/components/page/shield_detail_row.twig', [
+			'row' => [
+				'status'       => 'good',
+				'title'        => 'Healthy Row',
+				'description'  => 'Everything is configured.',
+				'explanations' => [
+					'This setting still needs a short explanation.',
+					'The explanation should render without a warning icon.',
+				],
+			],
+		] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame(
+			1,
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__explanations ")]' )->length,
+			'Rows should render explanation lists whenever explanations are supplied'
+		);
+		$this->assertSame(
+			2,
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__explanations ")]/li' )->length,
+			'Rows should render each supplied explanation as its own list item'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__expl-icon ")]' )->length,
+			'Non-warning rows should not render the warning-style explanation icon'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query(
+				'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__explanations ")]/li[normalize-space()="This setting still needs a short explanation."]'
+			)->length,
+			'Non-warning rows should still render the explanation text'
+		);
+	}
+
 	public function testSimpleTableSupportsIconOnlyPrimaryActionsAndEmptyPrimaryActions() :void {
 		$html = $this->twig()->render( '/wpadmin/components/page/detail_expansion_simple_table.twig', [
 			'table' => [
@@ -116,7 +154,17 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 							'target'       => '_blank',
 							'is_icon_only' => true,
 						],
-						'secondary_actions' => [],
+						'secondary_actions' => [
+							[
+								'href'             => 'javascript:{}',
+								'label'            => 'Ignore',
+								'icon'             => 'bi bi-eye-slash-fill',
+								'tooltip'          => 'Ignore this maintenance item',
+								'target'           => '',
+								'ajax_action'      => [ 'ex' => 'maintenance_item_ignore' ],
+								'ajax_action_json' => '{"ex":"maintenance_item_ignore"}',
+							],
+						],
 					],
 					[
 						'title'      => 'Inactive Theme',
@@ -142,6 +190,11 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 			1,
 			$xpath->query( '//a[@href="/wp-admin/plugins.php?s=inactive-plugin%2Finactive-plugin.php" and @target="_blank" and @data-bs-title and contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ")]' )->length,
 			'Icon-only maintenance primary actions should render tooltip-enabled icon buttons'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//a[contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ") and contains(@data-actions-queue-maintenance-action, "maintenance_item_ignore")]' )->length,
+			'Simple tables should render the PHP-provided maintenance AJAX action attribute directly'
 		);
 		$this->assertSame(
 			1,

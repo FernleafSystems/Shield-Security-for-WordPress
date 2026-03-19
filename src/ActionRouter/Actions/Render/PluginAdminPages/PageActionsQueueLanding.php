@@ -7,18 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-type AssessmentRow array{
- *   key:string,
- *   label:string,
- *   description:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string
- * }
- * @phpstan-type AssessmentRowsByZone array{
- *   scans:list<AssessmentRow>,
- *   maintenance:list<AssessmentRow>
- * }
+ * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
+ * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-type ZoneTile array{
  *   key:string,
  *   panel_target:string,

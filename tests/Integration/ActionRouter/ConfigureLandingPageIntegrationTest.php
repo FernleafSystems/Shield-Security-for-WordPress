@@ -63,10 +63,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-section="posture-strip"]',
 			'Configure landing should render the posture strip above the drill-down shell'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathNotExists(
 			$xpath,
 			'//*[@data-configure-landing="1"][@data-configure-inline-save-action]',
-			'Configure landing should expose the inline save action on the root wrapper'
+			'Configure landing should not expose the removed inline save action on the root wrapper'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -123,14 +123,19 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'Deep-linked diagnosis should render healthy settings body when healthy rows exist'
 			);
 			$healthySettingRows = $validXpath->query(
-				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), "healthy-settings-body")]//*[contains(concat(" ", normalize-space(@class), " "), "setting-card ")]'
+				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), "healthy-settings-body")]//*[contains(concat(" ", normalize-space(@class), " "), "shield-detail-row ")]'
 			);
-			$this->assertGreaterThan( 0, $healthySettingRows->length, 'Deep-linked diagnosis should include healthy setting cards when healthy rows exist' );
+			$this->assertGreaterThan( 0, $healthySettingRows->length, 'Deep-linked diagnosis should include healthy detail rows when healthy rows exist' );
 		}
 		$this->assertXPathExists(
 			$validXpath,
 			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"][@data-zone_component_slug][@data-zone_component_action]',
 			'Deep-linked diagnosis should render reusable expansion placeholders with component action data'
+		);
+		$this->assertXPathExists(
+			$validXpath,
+			'//*[@data-configure-diagnosis="1"]//*[@data-shield-expand-trigger="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__expand-cta ")]',
+			'Deep-linked diagnosis should render the visible Configure affordance inside expandable rows'
 		);
 		$this->assertXPathNotExists(
 			$validXpath,
@@ -177,10 +182,15 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__settings-link ")]',
 			'Diagnosis AJAX should render the next move settings link'
 		);
-		$this->assertGreaterThan(
+		$this->assertSame(
 			0,
 			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-inline-toggle="1"] | //*[@data-configure-diagnosis="1"]//*[@data-configure-inline-select="1"]' )->length,
-			'Diagnosis AJAX should render inline toggle or select controls for configurable findings'
+			'Diagnosis AJAX should not render inline toggle or select controls for configurable findings'
+		);
+		$this->assertGreaterThan(
+			0,
+			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-shield-expand-trigger="1"]' )->length,
+			'Diagnosis AJAX should render shared expandable detail rows for configurable findings'
 		);
 		if ( $xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-healthy-settings-toggle="1"]' )->length > 0 ) {
 			$this->assertXPathExists(
@@ -198,6 +208,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"][@data-zone_component_slug][@data-zone_component_action]',
 			'Diagnosis AJAX should render reusable expansion placeholders with component action data'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[@data-shield-expand-trigger="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__expand-cta ")]',
+			'Diagnosis AJAX should render the visible Configure affordance inside expandable rows'
 		);
 		$this->assertXPathNotExists(
 			$xpath,
@@ -221,15 +236,20 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__review ")]',
 			'General diagnosis should render the dedicated review section'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathNotExists(
 			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__review ")]//*[contains(concat(" ", normalize-space(@class), " "), " setting-card__control-row ")]',
-			'General diagnosis review rows should preserve the inline control contract'
+			'//*[@data-configure-diagnosis="1"]//*[@data-configure-inline-toggle="1"] | //*[@data-configure-diagnosis="1"]//*[@data-configure-inline-select="1"]',
+			'General diagnosis review rows should not render inline controls'
 		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__review ")]//*[@data-configure-expand-ajax="1"][@data-zone_component_slug][@data-zone_component_action]',
 			'General diagnosis review rows should render expansion placeholders with component action data'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__review ")]//*[@data-shield-expand-trigger="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__expand-cta ")]',
+			'General diagnosis review rows should render the right-aligned Configure affordance'
 		);
 		$this->assertXPathNotExists(
 			$xpath,
@@ -238,8 +258,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathNotExists(
 			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " setting-card--healthy ")]',
-			'General diagnosis should not render healthy setting cards for review-only rows'
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-body ")]',
+			'General diagnosis should not render healthy settings rows for review-only rows'
 		);
 	}
 

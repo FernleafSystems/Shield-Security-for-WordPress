@@ -422,7 +422,19 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 			'action'      => $cta[ 'label' ] ?? '',
 			'target'      => $cta[ 'target' ] ?? '',
 			'cta'         => $cta,
-			'toggle_action' => $toggleAction,
+			'toggle_action' => $toggleAction === []
+				? []
+				: [
+					'href'             => $toggleAction[ 'href' ] ?? 'javascript:{}',
+					'label'            => $toggleAction[ 'label' ] ?? '',
+					'icon'             => $toggleAction[ 'icon' ] ?? '',
+					'tooltip'          => $toggleAction[ 'tooltip' ] ?? '',
+					'target'           => $toggleAction[ 'target' ] ?? '',
+					'ajax_action'      => $toggleAction[ 'ajax_action' ] ?? [],
+					'ajax_action_json' => isset( $toggleAction[ 'ajax_action' ] )
+						? (string)\json_encode( $toggleAction[ 'ajax_action' ] )
+						: '',
+				],
 			'expansion'   => [],
 		];
 	}
@@ -436,6 +448,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 			'key'               => $key,
 			'label'             => $label,
 			'description'       => $description,
+			'drill_bucket'      => 'review',
 			'status'            => 'good',
 			'status_label'      => 'Good',
 			'status_icon_class' => 'bi bi-check-circle-fill',

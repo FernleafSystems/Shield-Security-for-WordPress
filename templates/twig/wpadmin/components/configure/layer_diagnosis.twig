@@ -1,83 +1,3 @@
-{% macro expansion_panel(row, parent_id, section_key, row_index) %}
-	{% set expand_action = row.expand_action %}
-	{% if expand_action.is_expandable %}
-		{% set expand_id = parent_id ~ '-' ~ section_key ~ '-expand-' ~ row_index %}
-		<div class="setting-card__expand">
-			<button type="button"
-					class="setting-card__expand-btn"
-					data-bs-toggle="collapse"
-					data-bs-target="#{{ expand_id }}"
-					aria-expanded="false"
-					aria-controls="{{ expand_id }}"
-					{% if expand_action.title is not empty %}title="{{ expand_action.title }}"{% endif %}>
-				<i class="bi bi-gear" aria-hidden="true"></i>
-				<span class="setting-card__expand-label">{{ expand_action.label }}</span>
-			</button>
-
-			{% set expansion_body %}
-				<div data-configure-expand-ajax="1"
-					 {% for key, value in expand_action.data_attributes %}data-{{ key }}="{{ value }}"{% endfor %}></div>
-			{% endset %}
-			{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
-				id: expand_id,
-				parent_id: parent_id,
-				type: 'options',
-				status: row.status,
-				body: expansion_body
-			} } only %}
-		</div>
-	{% endif %}
-{% endmacro %}
-
-{% macro editable_rows(rows, current_setting_label, parent_id, section_key) %}
-	{% for row in rows %}
-		<div class="setting-card severity-{{ row.status }}">
-			<div class="setting-card__title">{{ row.title }}</div>
-			<div class="setting-card__finding">{{ row.summary }}</div>
-			{% if row.explanations is not empty %}
-				<div class="setting-card__finding">
-					{% for explanation in row.explanations %}
-						<span class="setting-card__explanation">{{ explanation }}</span>
-					{% endfor %}
-				</div>
-			{% endif %}
-			{% if row.inline_control.type == 'toggle' %}
-				<div class="setting-card__control-row">
-					<span class="setting-card__control-label">{{ current_setting_label }}</span>
-					<button type="button"
-							class="setting-card__toggle {{ row.inline_control.value ? 'is-on' : 'is-off' }}{{ row.inline_control.is_disabled ? ' is-disabled' : '' }}"
-							data-configure-inline-toggle="1"
-							data-option-key="{{ row.inline_control.option_key }}"
-							role="switch"
-							aria-checked="{{ row.inline_control.value ? 'true' : 'false' }}"
-							{% if row.inline_control.is_disabled %}disabled="disabled" aria-disabled="true"{% endif %}>
-						<span class="setting-card__toggle-label">{{ row.inline_control.value ? 'Enabled' : 'Disabled' }}</span>
-					</button>
-				</div>
-			{% elseif row.inline_control.type == 'select' %}
-				<div class="setting-card__control-row">
-					<span class="setting-card__control-label">{{ current_setting_label }}</span>
-					<select class="setting-card__select"
-							data-configure-inline-select="1"
-							data-option-key="{{ row.inline_control.option_key }}"
-							{% if row.inline_control.is_disabled %}disabled="disabled"{% endif %}>
-						{% for opt in row.inline_control.options %}
-							<option value="{{ opt.key }}"
-									{% if opt.key == row.inline_control.value %}selected{% endif %}
-									{% if opt.is_disabled %}disabled="disabled"{% endif %}>
-								{{ opt.label }}
-							</option>
-						{% endfor %}
-					</select>
-				</div>
-			{% endif %}
-			{{ _self.expansion_panel(row, parent_id, section_key, loop.index0) }}
-		</div>
-	{% endfor %}
-{% endmacro %}
-
-{% from _self import editable_rows, expansion_panel %}
-
 {% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
 
 <div class="configure-diagnosis"
@@ -98,21 +18,68 @@
 
 	{% if diagnosis.problem_rows is not empty %}
 		<div class="configure-diagnosis__settings">
-			{{ editable_rows(diagnosis.problem_rows, diagnosis.current_setting_label, diagnosis_id, 'problem') }}
+			{% for row in diagnosis.problem_rows %}
+				{% set expand_id = diagnosis_id ~ '-problem-expand-' ~ loop.index0 %}
+				{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
+					row: {
+						title: row.title,
+						description: row.summary,
+						status: row.status,
+						status_icon: row.status_icon_class,
+						status_label: row.status_label,
+						explanations: row.explanations
+					},
+					expand: {
+						id: expand_id,
+						parent_id: diagnosis_id,
+						is_expandable: row.expand_action.is_expandable,
+						label: row.expand_action.label,
+						title: row.expand_action.title,
+						data_attributes: row.expand_action.data_attributes
+					}
+				} } only %}
+			{% endfor %}
 		</div>
 	{% endif %}
 
-	{% if diagnosis.review_rows is not empty %}
+	{% if diagnosis.review_rows is not empty or diagnosis.review_fallback_card is not empty %}
 		<div class="configure-diagnosis__review">
 			<div class="configure-diagnosis__section-title">{{ diagnosis.review_rows_heading }}</div>
 			<div class="configure-diagnosis__settings">
-				{{ editable_rows(diagnosis.review_rows, diagnosis.current_setting_label, diagnosis_id, 'review') }}
+				{% for row in diagnosis.review_rows %}
+					{% set expand_id = diagnosis_id ~ '-review-expand-' ~ loop.index0 %}
+					{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
+						row: {
+							title: row.title,
+							description: row.summary,
+							status: row.status,
+							status_icon: row.status_icon_class,
+							status_label: row.status_label,
+							explanations: row.explanations
+						},
+						expand: {
+							id: expand_id,
+							parent_id: diagnosis_id,
+							is_expandable: row.expand_action.is_expandable,
+							label: row.expand_action.label,
+							title: row.expand_action.title,
+							data_attributes: row.expand_action.data_attributes
+						}
+					} } only %}
+				{% endfor %}
+
+				{% if diagnosis.review_fallback_card is not empty %}
+					{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
+						row: {
+							title: diagnosis.review_fallback_card.title,
+							description: diagnosis.review_fallback_card.summary,
+							status: diagnosis.review_fallback_card.status,
+							status_icon: diagnosis.review_fallback_card.status_icon_class,
+							status_label: diagnosis.review_fallback_card.status_label
+						}
+					} } only %}
+				{% endif %}
 			</div>
-		</div>
-	{% elseif diagnosis.review_fallback_card is not empty %}
-		<div class="setting-card severity-{{ diagnosis.review_fallback_card.status }}">
-			<div class="setting-card__title">{{ diagnosis.review_fallback_card.title }}</div>
-			<div class="setting-card__finding">{{ diagnosis.review_fallback_card.summary }}</div>
 		</div>
 	{% endif %}
 
@@ -130,15 +97,25 @@
 		</div>
 		<div class="healthy-settings-body" data-configure-healthy-settings-body="1">
 			{% for row in diagnosis.healthy_rows %}
-				<div class="setting-card setting-card--healthy severity-good">
-					<div class="setting-card__title">
-						<span>{{ row.title }}</span>
-						<span class="setting-card__healthy-check">
-							<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-						</span>
-					</div>
-					{{ expansion_panel(row, diagnosis_id, 'healthy', loop.index0) }}
-				</div>
+				{% set expand_id = diagnosis_id ~ '-healthy-expand-' ~ loop.index0 %}
+				{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
+					row: {
+						title: row.title,
+						description: row.summary,
+						status: row.status,
+						status_icon: row.status_icon_class,
+						status_label: row.status_label,
+						explanations: row.explanations
+					},
+					expand: {
+						id: expand_id,
+						parent_id: diagnosis_id,
+						is_expandable: row.expand_action.is_expandable,
+						label: row.expand_action.label,
+						title: row.expand_action.title,
+						data_attributes: row.expand_action.data_attributes
+					}
+				} } only %}
 			{% endfor %}
 		</div>
 	{% endif %}

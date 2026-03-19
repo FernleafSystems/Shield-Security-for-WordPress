@@ -26,15 +26,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 							'2FA',
 							'critical',
 							'Issue',
-							'2FA is not enforced.',
-							[],
-							[
-								'type'        => 'toggle',
-								'option_key'  => '2fa_enabled',
-								'value'       => false,
-								'is_disabled' => false,
-								'options'     => [],
-							]
+							'2FA is not enforced.'
 						),
 					],
 				],
@@ -45,21 +37,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 							'CAPTCHA',
 							'warning',
 							'Needs Work',
-							'CAPTCHA is disabled.',
-							[],
-							[
-								'type'        => 'select',
-								'option_key'  => 'captcha_mode',
-								'value'       => 'log',
-								'is_disabled' => false,
-								'options'     => [
-									[
-										'key'         => 'log',
-										'label'       => 'Log',
-										'is_disabled' => false,
-									],
-								],
-							]
+							'CAPTCHA is disabled.'
 						),
 					],
 				],
@@ -79,18 +57,17 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Login', $diagnosis[ 'strip_text' ] );
 		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'strip_text' ] );
 		$this->assertSame( '2 findings', $diagnosis[ 'strip_badge' ] );
-		$this->assertSame( 'Current setting', $diagnosis[ 'current_setting_label' ] );
 		$this->assertSame( '/admin/login', $diagnosis[ 'settings_href' ] );
 		$this->assertSame( 'Configure Login Settings', $diagnosis[ 'settings_label' ] );
 		$this->assertSame( 'Looking good - 1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
 		$this->assertSame( 'Next move', $diagnosis[ 'next_move_heading' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
 		$this->assertStringContainsString( 'Review 2FA', $diagnosis[ 'next_move' ] );
-		$this->assertSame( 'toggle', $diagnosis[ 'problem_rows' ][ 0 ][ 'inline_control' ][ 'type' ] );
-		$this->assertSame( '2fa_enabled', $diagnosis[ 'problem_rows' ][ 0 ][ 'inline_control' ][ 'option_key' ] );
+		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'problem_rows' ][ 0 ] );
 		$this->assertTrue( $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
 		$this->assertSame( '2fa', $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'password_reset', $diagnosis[ 'healthy_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame( 'Password reset is enabled.', $diagnosis[ 'healthy_rows' ][ 0 ][ 'summary' ] );
 	}
 
 	public function test_all_good_zone_enters_review_state_without_findings() :void {
@@ -124,15 +101,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 							'Traffic Logging',
 							'neutral',
 							'General',
-							'General settings',
-							[],
-							[
-								'type'        => 'toggle',
-								'option_key'  => 'traffic_logging',
-								'value'       => true,
-								'is_disabled' => false,
-								'options'     => [],
-							]
+							'General settings'
 						),
 					],
 				],
@@ -147,8 +116,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Review these settings', $diagnosis[ 'review_rows_heading' ] );
 		$this->assertStringContainsString( 'General controls', $diagnosis[ 'risk_context' ] );
 		$this->assertStringContainsString( 'site-wide controls', $diagnosis[ 'preview_text' ] );
-		$this->assertSame( 'toggle', $diagnosis[ 'review_rows' ][ 0 ][ 'inline_control' ][ 'type' ] );
-		$this->assertSame( 'traffic_logging', $diagnosis[ 'review_rows' ][ 0 ][ 'inline_control' ][ 'option_key' ] );
+		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'review_rows' ][ 0 ] );
 		$this->assertTrue( $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
 		$this->assertSame( 'traffic_logging', $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
 	}
@@ -163,9 +131,11 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'healthy_rows' ] );
 		$this->assertSame(
 			[
-				'title'   => 'Good',
-				'summary' => 'All components healthy',
-				'status'  => 'neutral',
+				'title'             => 'Good',
+				'summary'           => 'All components healthy',
+				'status'            => 'neutral',
+				'status_label'      => 'Review',
+				'status_icon_class' => 'bi bi-info-circle-fill',
 			],
 			$diagnosis[ 'review_fallback_card' ]
 		);
@@ -229,7 +199,6 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		string $statusLabel,
 		string $summary,
 		array $explanations = [],
-		array $inlineControl = [],
 		?array $action = null
 	) :array {
 		return [
@@ -255,13 +224,6 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 					'form_context'          => 'offcanvas',
 				],
 			],
-			'inline_control'    => empty( $inlineControl ) ? [
-				'type'        => 'none',
-				'option_key'  => '',
-				'value'       => null,
-				'is_disabled' => true,
-				'options'     => [],
-			] : $inlineControl,
 		];
 	}
 }

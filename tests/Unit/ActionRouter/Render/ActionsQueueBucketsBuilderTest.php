@@ -74,7 +74,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Fix now', $bucketsByKey[ 'critical' ][ 'label' ] );
 		$this->assertSame( 2, $bucketsByKey[ 'critical' ][ 'item_count' ] );
 		$this->assertSame( '2 malware detections', $bucketsByKey[ 'critical' ][ 'summary_text' ] );
-		$this->assertSame( 'Malware', $bucketsByKey[ 'critical' ][ 'preview_text' ] );
+		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'critical' ] );
 		$this->assertSame( 'Fix now - 2 items', $bucketsByKey[ 'critical' ][ 'strip_text' ] );
 		$this->assertSame( '2 items', $bucketsByKey[ 'critical' ][ 'strip_badge' ] );
 		$this->assertSame(
@@ -96,6 +96,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $bucketsByKey[ 'review' ][ 'status' ] );
 		$this->assertSame( 2, $bucketsByKey[ 'review' ][ 'item_count' ] );
 		$this->assertSame( '1 vulnerability, 1 maintenance item', $bucketsByKey[ 'review' ][ 'summary_text' ] );
+		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'review' ] );
 		$this->assertSame(
 			[
 				'path'      => [ 'Triage buckets', 'Review next' ],

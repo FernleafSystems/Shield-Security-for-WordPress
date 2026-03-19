@@ -8,26 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
+ * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type LayerContext from ActionsQueueDrillDownPresentationBuilder
- * @phpstan-type AssessmentRowsByZone array{
- *   scans:list<array{
- *     key:string,
- *     label:string,
- *     description:string,
- *     status:string,
- *     status_label:string,
- *     status_icon_class:string
- *   }>,
- *   maintenance:list<array{
- *     key:string,
- *     label:string,
- *     description:string,
- *     status:string,
- *     status_label:string,
- *     status_icon_class:string
- *   }>
- * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int
@@ -38,7 +21,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   item_count:int,
  *   summary_text:string,
- *   preview_text:string,
  *   icon_class:string,
  *   strip_text:string,
  *   strip_badge:string,
@@ -88,7 +70,6 @@ class ActionsQueueBucketsBuilder {
 				'status'       => $definition[ 'status' ],
 				'item_count'   => $bucketSource[ 'item_count' ],
 				'summary_text' => $this->buildSummaryText( $bucketSource ),
-				'preview_text' => $this->buildPreviewText( $bucketSource ),
 				'icon_class'   => $definition[ 'icon_class' ],
 				'strip_text'   => $selection[ 'strip_text' ],
 				'strip_badge'  => $selection[ 'strip_badge' ],
@@ -321,17 +302,6 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return $this->groupDefinitions;
-	}
-
-	/**
-	 * @param BucketSource $bucketSource
-	 */
-	private function buildPreviewText( array $bucketSource ) :string {
-		if ( !empty( $bucketSource[ 'attention_items' ] ) ) {
-			return $bucketSource[ 'attention_items' ][ 0 ][ 'label' ] ?? '';
-		}
-
-		return '';
 	}
 
 	private function presentation() :ActionsQueueDrillDownPresentationBuilder {

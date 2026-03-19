@@ -13,6 +13,16 @@ class UnitTestMaintenanceIssueStateProvider extends MaintenanceIssueStateProvide
 	}
 
 	public function buildStates() :array {
-		return $this->states;
+		return \array_map(
+			static function ( array $state ) :array {
+				if ( !isset( $state[ 'drill_bucket' ] ) ) {
+					$state[ 'drill_bucket' ] = ( $state[ 'severity' ] ?? 'good' ) === 'critical'
+						? 'critical'
+						: 'review';
+				}
+				return $state;
+			},
+			$this->states
+		);
 	}
 }

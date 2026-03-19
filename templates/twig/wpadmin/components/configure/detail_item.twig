@@ -1,0 +1,35 @@
+{% set detail_item = item|default({}) %}
+{% set row = detail_item.row|default({}) %}
+{% set expand = detail_item.expand|default({}) %}
+{% set expand_id = expand.id|default('') %}
+{% set is_expandable = expand.is_expandable|default(false) and expand_id is not empty %}
+{% set row_attributes = row.attributes|default({}) %}
+{% if is_expandable and expand.title|default('') is not empty %}
+	{% set row_attributes = row_attributes|merge({
+		title: expand.title
+	}) %}
+{% endif %}
+
+<div class="shield-detail-item">
+	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: row|merge( {
+		expandable: is_expandable,
+		expand_target: expand_id,
+		expand_cta_label: is_expandable ? expand.label|default( '' ) : '',
+		attributes: row_attributes
+	} ) } only %}
+
+	{% if is_expandable %}
+		{% set expansion_body %}
+			<div data-configure-expand-ajax="1"
+				 {% for key, value in expand.data_attributes|default({}) %}data-{{ key }}="{{ value }}"{% endfor %}></div>
+		{% endset %}
+
+		{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+			id: expand_id,
+			parent_id: expand.parent_id|default(''),
+			type: 'options',
+			status: row.status|default('good'),
+			body: expansion_body
+		} } only %}
+	{% endif %}
+</div>

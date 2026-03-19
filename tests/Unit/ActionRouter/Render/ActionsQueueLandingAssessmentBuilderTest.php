@@ -83,6 +83,8 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_keys( $rows ) );
 		$this->assertSame( [ 'wp_files' ], \array_column( $rows[ 'scans' ], 'key' ) );
 		$this->assertSame( [ 'wp_updates' ], \array_column( $rows[ 'maintenance' ], 'key' ) );
+		$this->assertSame( 'critical', $rows[ 'scans' ][ 0 ][ 'drill_bucket' ] ?? '' );
+		$this->assertSame( 'review', $rows[ 'maintenance' ][ 0 ][ 'drill_bucket' ] ?? '' );
 		$this->assertSame( 'good', $rows[ 'scans' ][ 0 ][ 'status' ] ?? '' );
 		$this->assertSame( 'warning', $rows[ 'maintenance' ][ 0 ][ 'status' ] ?? '' );
 		$this->assertNotEmpty( $rows[ 'scans' ][ 0 ][ 'status_label' ] ?? '' );
@@ -108,7 +110,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 			[]
 		);
 
-		$this->assertSame( [], $builder->build() );
+		$this->assertSame( [ 'scans' => [], 'maintenance' => [] ], $builder->build() );
 	}
 
 	public function test_build_marks_fully_ignored_maintenance_items_as_good() :void {
@@ -129,6 +131,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'maintenance' ], \array_keys( $rows ) );
 		$this->assertSame( 'system_php_version', $rows[ 'maintenance' ][ 0 ][ 'key' ] ?? '' );
+		$this->assertSame( 'review', $rows[ 'maintenance' ][ 0 ][ 'drill_bucket' ] ?? '' );
 		$this->assertSame( 'good', $rows[ 'maintenance' ][ 0 ][ 'status' ] ?? '' );
 		$this->assertStringContainsString( 'ignored', $rows[ 'maintenance' ][ 0 ][ 'description' ] ?? '' );
 	}
@@ -298,6 +301,7 @@ class ActionsQueueLandingAssessmentBuilderTestDouble extends ActionsQueueLanding
 						'description'         => '',
 						'count'               => 0,
 						'ignored_count'       => 0,
+						'drill_bucket'        => 'review',
 						'severity'            => 'good',
 						'href'                => '',
 						'action'              => '',

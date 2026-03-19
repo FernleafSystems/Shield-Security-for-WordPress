@@ -99,11 +99,13 @@ class MaintenanceIssueStateProviderTest extends BaseUnitTest {
 
 		$this->assertSame( 2, $states['wp_plugins_updates']['count'] );
 		$this->assertSame( 1, $states['wp_plugins_updates']['ignored_count'] );
+		$this->assertSame( 'review', $states['wp_plugins_updates']['drill_bucket'] );
 		$this->assertSame( 'warning', $states['wp_plugins_updates']['severity'] );
 		$this->assertStringContainsString( '2 plugin updates', $states['wp_plugins_updates']['description'] );
 		$this->assertStringContainsString( 'ignored', $states['wp_plugins_updates']['description'] );
 		$this->assertSame( 0, $states['system_php_version']['count'] );
 		$this->assertSame( 1, $states['system_php_version']['ignored_count'] );
+		$this->assertSame( 'review', $states['system_php_version']['drill_bucket'] );
 		$this->assertSame( 'good', $states['system_php_version']['severity'] );
 		$this->assertStringContainsString( 'ignored', $states['system_php_version']['description'] );
 	}

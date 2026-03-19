@@ -21,6 +21,7 @@
 {% set expandable = row_data.expandable|default(false) %}
 {% set actions = row_data.actions|default([]) %}
 {% set explanations = row_data.explanations|default([]) %}
+{% set expand_cta_label = row_data.expand_cta_label|default('') %}
 
 <div class="shield-detail-row shield-detail-row--{{ status }}{% if expandable %} shield-detail-row--expandable{% endif %}"
 	 {{ icwp_macros.renderAttributes(row_data.attributes|default({})) }}
@@ -57,13 +58,15 @@
 			<div class="shield-detail-row__desc">{{ row_data.description }}</div>
 		{% endif %}
 
-		{% if explanations is not empty and status in [ 'warning', 'critical' ] %}
+		{% if explanations is not empty %}
 			<ul class="shield-detail-row__explanations">
 				{% for explanation in explanations %}
 					<li>
-						<span class="shield-detail-row__expl-icon" aria-hidden="true">
-							<i class="bi bi-exclamation-circle-fill"></i>
-						</span>
+						{% if status in [ 'warning', 'critical' ] %}
+							<span class="shield-detail-row__expl-icon" aria-hidden="true">
+								<i class="bi bi-exclamation-circle-fill"></i>
+							</span>
+						{% endif %}
 						<span>{{ explanation }}</span>
 					</li>
 				{% endfor %}
@@ -93,6 +96,11 @@
 	</div>
 
 	{% if expandable %}
-		<i class="bi bi-chevron-right shield-detail-row__chevron" aria-hidden="true"></i>
+		<div class="shield-detail-row__end" aria-hidden="true">
+			{% if expand_cta_label is not empty %}
+				<span class="shield-detail-row__expand-cta">{{ expand_cta_label }}</span>
+			{% endif %}
+			<i class="bi bi-chevron-right shield-detail-row__chevron" aria-hidden="true"></i>
+		</div>
 	{% endif %}
 </div>

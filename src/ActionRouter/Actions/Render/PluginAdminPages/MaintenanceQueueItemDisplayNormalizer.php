@@ -25,16 +25,17 @@ use FernleafSystems\Wordpress\Services\Services;
  *   label:string,
  *   icon:string,
  *   tooltip:string,
- *   target?:string,
+ *   target:string,
  *   ajax_action?:array<string,mixed>
+ *   ajax_action_json:string
  * }
  * @phpstan-type MaintenancePrimaryAction array{
  *   href:string,
  *   label:string,
- *   target?:string,
- *   icon?:string,
- *   tooltip?:string,
- *   is_icon_only?:bool
+ *   target:string,
+ *   icon:string,
+ *   tooltip:string,
+ *   is_icon_only:bool
  * }
  * @phpstan-type MaintenanceExpansionRow array{
  *   title:string,
@@ -63,6 +64,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   label:string,
  *   count:int,
  *   severity:string,
+ *   drill_bucket?:'critical'|'review',
  *   description:string,
  *   href:string,
  *   action:string,
@@ -74,6 +76,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   description:string,
  *   count:int,
  *   ignored_count:int,
+ *   drill_bucket:'critical'|'review',
  *   severity:string,
  *   href:string,
  *   action:string,
@@ -88,6 +91,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   label:string,
  *   count:int,
  *   severity:string,
+ *   drill_bucket:'critical'|'review',
  *   description:string,
  *   href:string,
  *   action:string,
@@ -104,6 +108,22 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return list<MaintenanceQueueItem>
 	 */
 	public function normalizeAll( array $items ) :array {
+		return $this->normalizeItems( $items, false );
+	}
+
+	/**
+	 * @param list<QueueItem> $items
+	 * @return list<MaintenanceQueueItem>
+	 */
+	public function normalizeForReview( array $items ) :array {
+		return $this->normalizeItems( $items, true );
+	}
+
+	/**
+	 * @param list<QueueItem> $items
+	 * @return list<MaintenanceQueueItem>
+	 */
+	private function normalizeItems( array $items, bool $appendHealthyReviewStates ) :array {
 		$statesByKey = $this->buildMaintenanceIssueStateProvider()->buildStates();
 		$normalized = [];
 		$seenKeys = [];
@@ -120,7 +140,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		foreach ( $statesByKey as $state ) {
 			if ( isset( $seenKeys[ $state[ 'key' ] ] )
 				|| $state[ 'count' ] > 0
-				|| $state[ 'ignored_count' ] < 1 ) {
+				|| !$this->shouldAppendState( $state, $appendHealthyReviewStates ) ) {
 				continue;
 			}
 
@@ -164,6 +184,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$item[ 'label' ] = $state[ 'label' ] !== '' ? $state[ 'label' ] : $item[ 'label' ];
 		$item[ 'description' ] = $state[ 'description' ] !== '' ? $state[ 'description' ] : $item[ 'description' ];
 		$item[ 'count' ] = $state[ 'count' ];
+		$item[ 'drill_bucket' ] = $state[ 'drill_bucket' ];
 		$item[ 'severity' ] = $state[ 'severity' ] !== '' ? $state[ 'severity' ] : $item[ 'severity' ];
 		$item[ 'cta' ] = $this->buildCta( $item );
 		$item[ 'toggle_action' ] = $this->buildToggleAction( $item, $state );
@@ -442,7 +463,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 */
 	private function sortExpansionRows( array $rows ) :array {
 		\uasort( $rows, static function ( array $a, array $b ) :int {
-			$ignoredCmp = (int)( $a[ 'is_ignored' ] ?? false ) <=> (int)( $b[ 'is_ignored' ] ?? false );
+			$ignoredCmp = (int)$a[ 'is_ignored' ] <=> (int)$b[ 'is_ignored' ];
 			if ( $ignoredCmp !== 0 ) {
 				return $ignoredCmp;
 			}
@@ -469,7 +490,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return array{}|MaintenanceUiAction
 	 */
 	private function buildToggleAction( array $item, array $state ) :array {
-		if ( $state[ 'supports_sub_items' ] ) {
+		if ( $state[ 'supports_sub_items' ]
+			|| ( $state[ 'count' ] === 0 && $state[ 'ignored_count' ] === 0 ) ) {
 			return [];
 		}
 
@@ -495,14 +517,14 @@ class MaintenanceQueueItemDisplayNormalizer {
 			return [];
 		}
 
-		return \array_filter( [
+		return [
 			'href'         => $href,
 			'label'        => $label,
 			'icon'         => $icon,
 			'tooltip'      => $tooltip,
 			'is_icon_only' => $isIconOnly,
 			'target'       => $target,
-		], static fn( $value ) :bool => !\in_array( $value, [ '', false, null ], true ) );
+		];
 	}
 
 	/**
@@ -527,12 +549,21 @@ class MaintenanceQueueItemDisplayNormalizer {
 		], static fn( string $value ) :bool => $value !== '' ) );
 
 		return [
-			'href'        => 'javascript:{}',
-			'label'       => $label,
-			'icon'        => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
-			'tooltip'     => $tooltip,
-			'ajax_action' => $ajaxAction,
+			'href'             => 'javascript:{}',
+			'label'            => $label,
+			'icon'             => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
+			'tooltip'          => $tooltip,
+			'target'           => '',
+			'ajax_action'      => $ajaxAction,
+			'ajax_action_json' => $this->encodeActionData( $ajaxAction ),
 		];
+	}
+
+	/**
+	 * @param array<string,mixed> $actionData
+	 */
+	private function encodeActionData( array $actionData ) :string {
+		return (string)( \json_encode( $actionData ) ?: '' );
 	}
 
 	private function buildUpdateContext( string $currentVersion, string $availableVersion ) :string {
@@ -599,6 +630,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 			'description'         => $item[ 'description' ],
 			'count'               => $item[ 'count' ],
 			'ignored_count'       => 0,
+			'drill_bucket'        => $this->deriveBucketFromItem( $item ),
 			'severity'            => $item[ 'severity' ],
 			'href'                => $item[ 'href' ],
 			'action'              => $item[ 'action' ],
@@ -615,5 +647,31 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 	private function buildPluginSearchHref( string $pluginFile ) :string {
 		return Services::WpGeneral()->getAdminUrl_Plugins().'?s='.rawurlencode( $pluginFile );
+	}
+
+	/**
+	 * @param MaintenanceState $state
+	 */
+	private function shouldAppendState( array $state, bool $appendHealthyReviewStates ) :bool {
+		if ( $state[ 'severity' ] !== 'good' ) {
+			return false;
+		}
+
+		if ( !$appendHealthyReviewStates ) {
+			return $state[ 'ignored_count' ] > 0;
+		}
+
+		return $state[ 'drill_bucket' ] === 'review';
+	}
+
+	/**
+	 * @param QueueItem $item
+	 * @return 'critical'|'review'
+	 */
+	private function deriveBucketFromItem( array $item ) :string {
+		return ( $item[ 'drill_bucket' ] ?? '' ) === 'critical'
+			|| $item[ 'severity' ] === 'critical'
+			? 'critical'
+			: 'review';
 	}
 }

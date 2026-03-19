@@ -54,9 +54,9 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ).first() ).toBeAttached();
-	const expandButton = page.locator( '[data-configure-diagnosis="1"] .setting-card__expand-btn' ).first();
-	await expect( expandButton ).toBeVisible();
-	await expandButton.click();
+	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-trigger="1"]' ).first();
+	await expect( expandRow.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
+	await expandRow.click();
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show' ).first() ).toBeVisible();
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show form.options_form_for' ).first() ).toBeVisible();
 	const diagnosisHealthyToggle = page.locator( '[data-configure-diagnosis="1"] [data-configure-healthy-settings-toggle="1"]' );
@@ -64,13 +64,13 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	if ( await diagnosisHealthyToggle.count() > 0 ) {
 		await expect( diagnosisHealthyToggle ).toBeVisible();
 		await expect( diagnosisHealthyBody ).not.toHaveClass( /is-open/ );
-		const diagnosisHealthyCards = diagnosisHealthyBody.locator( '.setting-card' );
-		expect( await diagnosisHealthyCards.count() ).toBeGreaterThan( 0 );
+		const diagnosisHealthyRows = diagnosisHealthyBody.locator( '.shield-detail-row' );
+		expect( await diagnosisHealthyRows.count() ).toBeGreaterThan( 0 );
 
 		await diagnosisHealthyToggle.click();
 		await expect( diagnosisHealthyToggle ).toHaveClass( /is-open/ );
 		await expect( diagnosisHealthyBody ).toHaveClass( /is-open/ );
-		await expect( diagnosisHealthyCards.first() ).toBeVisible();
+		await expect( diagnosisHealthyRows.first() ).toBeVisible();
 
 		await diagnosisHealthyToggle.click();
 		await expect( diagnosisHealthyToggle ).not.toHaveClass( /is-open/ );

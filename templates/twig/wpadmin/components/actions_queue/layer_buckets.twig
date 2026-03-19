@@ -15,12 +15,6 @@
 				</div>
 				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>
 				<div class="actions-queue-bucket-card__summary">{{ bucket.summary_text }}</div>
-				{% if bucket.preview_text is not empty %}
-					<div class="actions-queue-bucket-card__preview">
-						<i class="{% if bucket.status == 'warning' %}bi bi-eye-fill{% else %}bi bi-lightning-fill{% endif %}" aria-hidden="true"></i>
-						<span>{{ bucket.preview_text }}</span>
-					</div>
-				{% endif %}
 			</button>
 		{% endfor %}
 	</div>

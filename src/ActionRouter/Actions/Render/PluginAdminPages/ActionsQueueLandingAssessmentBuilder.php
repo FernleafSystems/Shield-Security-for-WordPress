@@ -13,40 +13,30 @@ class ActionsQueueLandingAssessmentBuilder {
 	use StandardStatusMapping;
 
 	/**
-	 * @return array<string,list<array{
+	 * @phpstan-type AssessmentRow array{
 	 *   key:string,
 	 *   label:string,
 	 *   description:string,
+	 *   drill_bucket:'critical'|'review',
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
-	 * }>>
+	 * }
+	 * @phpstan-type AssessmentRowsByZone array{
+	 *   scans:list<AssessmentRow>,
+	 *   maintenance:list<AssessmentRow>
+	 * }
+	 * @return AssessmentRowsByZone
 	 */
 	public function build() :array {
-		$rowsByZone = [];
-
-		$scans = $this->buildForZone( 'scans' );
-		if ( !empty( $scans ) ) {
-			$rowsByZone[ 'scans' ] = $scans;
-		}
-
-		$maintenance = $this->buildForZone( 'maintenance' );
-		if ( !empty( $maintenance ) ) {
-			$rowsByZone[ 'maintenance' ] = $maintenance;
-		}
-
-		return $rowsByZone;
+		return [
+			'scans'       => $this->buildForZone( 'scans' ),
+			'maintenance' => $this->buildForZone( 'maintenance' ),
+		];
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   description:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string
-	 * }>
+	 * @return list<AssessmentRow>
 	 */
 	public function buildForZone( string $zone ) :array {
 		if ( $zone === 'maintenance' ) {
@@ -69,14 +59,7 @@ class ActionsQueueLandingAssessmentBuilder {
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   description:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string
-	 * }>
+	 * @return list<AssessmentRow>
 	 */
 	private function buildMaintenanceRows() :array {
 		$rows = [];
@@ -86,6 +69,7 @@ class ActionsQueueLandingAssessmentBuilder {
 				'key'               => $state[ 'key' ],
 				'label'             => $state[ 'label' ],
 				'description'       => $state[ 'description' ],
+				'drill_bucket'      => $state[ 'drill_bucket' ],
 				'status'            => $state[ 'severity' ],
 				'status_label'      => $this->standardStatusLabel( $state[ 'severity' ] ),
 				'status_icon_class' => $this->standardStatusIconClass( $state[ 'severity' ] ),
@@ -102,14 +86,7 @@ class ActionsQueueLandingAssessmentBuilder {
 	 *   component_class:class-string<\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base>,
 	 *   availability_strategy:string
 	 * } $definition
-	 * @return list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   description:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string
-	 * }>
+	 * @return list<AssessmentRow>
 	 */
 	private function buildRowsForDefinition( array $definition ) :array {
 		if ( !$this->isAvailableForStrategy( $definition[ 'availability_strategy' ] ) ) {
@@ -161,6 +138,7 @@ class ActionsQueueLandingAssessmentBuilder {
 	 *   key:string,
 	 *   label:string,
 	 *   description:string,
+	 *   drill_bucket:'critical'|'review',
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
@@ -173,9 +151,10 @@ class ActionsQueueLandingAssessmentBuilder {
 			return null;
 		}
 
+		$drillBucket = $component[ 'is_critical' ] ? 'critical' : 'review';
 		$status = $component[ 'is_protected' ]
 			? 'good'
-			: ( $component[ 'is_critical' ] ? 'critical' : 'warning' );
+			: ( $drillBucket === 'critical' ? 'critical' : 'warning' );
 
 		return [
 			'key'               => $key,
@@ -183,6 +162,7 @@ class ActionsQueueLandingAssessmentBuilder {
 			'description'       => $component[ 'is_protected' ]
 				? $component[ 'desc_protected' ]
 				: $component[ 'desc_unprotected' ],
+			'drill_bucket'      => $drillBucket,
 			'status'            => $status,
 			'status_label'      => $this->standardStatusLabel( $status ),
 			'status_icon_class' => $this->standardStatusIconClass( $status ),

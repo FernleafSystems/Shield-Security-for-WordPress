@@ -9,6 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
+ * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
+ * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
@@ -19,24 +21,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  * @phpstan-import-type MaintenanceExpansionRow from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-type AssessmentRowsByZone array{
- *   scans:list<array{
- *     key:string,
- *     label:string,
- *     description:string,
- *     status:string,
- *     status_label:string,
- *     status_icon_class:string
- *   }>,
- *   maintenance:list<array{
- *     key:string,
- *     label:string,
- *     description:string,
- *     status:string,
- *     status_label:string,
- *     status_icon_class:string
- *   }>
- * }
  * @phpstan-type GroupLink array{
  *   label:string,
  *   href:string,
@@ -53,6 +37,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * }
  * @phpstan-type GroupData array{
  *   key:string,
+ *   display_section:'active'|'healthy',
  *   heading_label:string,
  *   label:string,
  *   item_count:int,
@@ -91,6 +76,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * }
  * @phpstan-type GroupSeed array{
  *   key:string,
+ *   display_section:'active'|'healthy',
  *   definition_key:string,
  *   heading_label:string,
  *   label:string,
@@ -98,6 +84,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   narrative:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
+ *   card_type_override?:'expandable'|'linked'|'category',
  *   path_segments:list<string>,
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
@@ -180,8 +167,10 @@ class ActionsQueueGroupsBuilder {
 		$bucketSources = $bucketsBuilder->classify( $attentionQuery );
 		$bucket = $buckets[ $bucketKey ];
 		$groupsIndexed = $this->buildGroupsIndexedForBucket(
+			$bucketKey,
 			$bucket[ 'label' ],
-			$bucketSources[ $bucketKey ]
+			$bucketSources[ $bucketKey ],
+			$assessmentRowsByZone
 		);
 		$bucketSelection = $bucket[ 'selection' ];
 
@@ -213,9 +202,15 @@ class ActionsQueueGroupsBuilder {
 
 	/**
 	 * @param BucketSource $bucketSource
+	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return array<string,GroupData>
 	 */
-	private function buildGroupsIndexedForBucket( string $bucketLabel, array $bucketSource ) :array {
+	private function buildGroupsIndexedForBucket(
+		string $bucketKey,
+		string $bucketLabel,
+		array $bucketSource,
+		array $assessmentRowsByZone
+	) :array {
 		$seeds = [];
 		$vulnerabilitiesPayload = null;
 		$maintenanceItemsByKey = null;
@@ -282,6 +277,7 @@ class ActionsQueueGroupsBuilder {
 				$definition = $this->getGroupDefinition( $definitionKey );
 				$seeds[ $seedKey ] = [
 					'key'              => $definitionKey,
+					'display_section'  => 'active',
 					'definition_key'   => $definitionKey,
 					'heading_label'    => $definition[ 'label' ],
 					'label'            => $definition[ 'label' ],
@@ -311,7 +307,25 @@ class ActionsQueueGroupsBuilder {
 			\array_values( \array_filter( $seeds, static fn( array $seed ) :bool => $seed[ 'label' ] !== '' ) )
 		) );
 
+		if ( $bucketKey === 'review' ) {
+			$resolved = \array_merge(
+				$resolved,
+				$this->buildHealthyReviewGroups(
+					$bucketLabel,
+					$bucketSource,
+					$assessmentRowsByZone,
+					\array_fill_keys( \array_column( $resolved, 'key' ), true )
+				)
+			);
+		}
+
 		\usort( $resolved, function ( array $left, array $right ) :int {
+			$sectionCmp = $this->displaySectionOrder( $left[ 'display_section' ] ?? 'active' )
+				<=> $this->displaySectionOrder( $right[ 'display_section' ] ?? 'active' );
+			if ( $sectionCmp !== 0 ) {
+				return $sectionCmp;
+			}
+
 			$orderCmp = $this->sectionOrderForGroup( $left ) <=> $this->sectionOrderForGroup( $right );
 			if ( $orderCmp !== 0 ) {
 				return $orderCmp;
@@ -349,10 +363,13 @@ class ActionsQueueGroupsBuilder {
 	 */
 	private function resolveSeed( string $bucketLabel, array $seed ) :array {
 		$definition = $this->getGroupDefinition( $seed[ 'definition_key' ] );
+		$isHealthy = ( $seed[ 'display_section' ] ?? 'active' ) === 'healthy';
 		$narrative = $seed[ 'narrative' ] !== ''
 			? $seed[ 'narrative' ]
 			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'attention_items' ], $seed[ 'item_count' ] );
-		$nextMove = $this->buildNextMove( $seed[ 'definition_key' ] );
+		$nextMove = $isHealthy
+			? $this->buildHealthyNextMove( $seed[ 'definition_key' ] )
+			: $this->buildNextMove( $seed[ 'definition_key' ] );
 		$context = [
 			'path'      => \array_merge(
 				[ __( 'Triage buckets', 'wp-simple-firewall' ), $bucketLabel ],
@@ -372,16 +389,22 @@ class ActionsQueueGroupsBuilder {
 
 		return [
 			'key'                 => $seed[ 'key' ],
+			'display_section'     => $seed[ 'display_section' ] ?? 'active',
 			'heading_label'       => $seed[ 'heading_label' ],
 			'label'               => $seed[ 'label' ],
 			'item_count'          => $seed[ 'item_count' ],
 			'status'              => $seed[ 'status' ],
 			'icon_class'          => $definition[ 'icon_class' ],
 			'detail_shell'        => $seed[ 'detail_shell' ],
-			'card_type'           => $definition[ 'card_type' ],
+			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'next_move'           => $nextMove,
-			'drill_hint'          => $this->buildDrillHint( $definition, $seed[ 'item_count' ], $seed[ 'detail_shell' ] ),
+			'drill_hint'          => $this->buildDrillHint(
+				$definition,
+				$seed[ 'item_count' ],
+				$seed[ 'detail_shell' ],
+				$seed[ 'status' ]
+			),
 			'links'               => $seed[ 'links' ],
 			'management_link'     => $seed[ 'management_link' ],
 			'detail_table'        => $seed[ 'detail_table' ],
@@ -425,6 +448,7 @@ class ActionsQueueGroupsBuilder {
 
 		return [
 			'key'                 => $groupKey,
+			'display_section'     => 'active',
 			'heading_label'       => $definition[ 'label' ],
 			'label'               => $definition[ 'label' ],
 			'item_count'          => 0,
@@ -469,6 +493,7 @@ class ActionsQueueGroupsBuilder {
 
 			$seeds[] = [
 				'key'              => $definitionKey.':'.$card[ 'key' ],
+				'display_section'  => 'active',
 				'definition_key'   => $definitionKey,
 				'heading_label'    => $definition[ 'label' ],
 				'label'            => $card[ 'title' ],
@@ -501,6 +526,7 @@ class ActionsQueueGroupsBuilder {
 		foreach ( $section[ 'items' ] as $vulnerabilityItem ) {
 			$seeds[] = [
 				'key'              => 'vulnerabilities:'.$vulnerabilityItem[ 'key' ],
+				'display_section'  => 'active',
 				'definition_key'   => 'vulnerabilities',
 				'heading_label'    => $section[ 'label' ],
 				'label'            => $vulnerabilityItem[ 'label' ],
@@ -523,13 +549,16 @@ class ActionsQueueGroupsBuilder {
 	/**
 	 * @return GroupSeed
 	 */
-	private function buildMaintenanceSeed( array $maintenanceItem ) :array {
+	private function buildMaintenanceSeed( array $maintenanceItem, string $displaySection = 'active' ) :array {
 		return [
 			'key'              => $maintenanceItem[ 'key' ],
+			'display_section'  => $displaySection,
 			'definition_key'   => 'maintenance',
 			'heading_label'    => '',
 			'label'            => $maintenanceItem[ 'label' ],
-			'item_count'       => (int)$maintenanceItem[ 'count' ],
+			'item_count'       => $displaySection === 'healthy'
+				? $this->maintenanceVisibleCount( $maintenanceItem )
+				: (int)$maintenanceItem[ 'count' ],
 			'status'           => StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'warning' ),
 			'narrative'        => $maintenanceItem[ 'description' ],
 			'detail_shell'     => 'maintenance',
@@ -587,6 +616,108 @@ class ActionsQueueGroupsBuilder {
 			'rel'        => $target === '_blank' ? 'noopener noreferrer' : '',
 			'icon_class' => $target === '_blank' ? 'bi-box-arrow-up-right' : 'bi-arrow-right',
 		];
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 * @param AssessmentRowsByZone $assessmentRowsByZone
+	 * @param array<string,true> $existingGroupKeys
+	 * @return list<GroupData>
+	 */
+	private function buildHealthyReviewGroups(
+		string $bucketLabel,
+		array $bucketSource,
+		array $assessmentRowsByZone,
+		array $existingGroupKeys
+	) :array {
+		$resolved = [];
+
+		foreach ( $this->buildHealthyReviewScanSeeds( $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
+				continue;
+			}
+			$resolved[] = $this->resolveSeed( $bucketLabel, $seed );
+		}
+
+		foreach ( $this->normalizeReviewMaintenanceQueueItems( \array_values( \array_filter(
+			$bucketSource[ 'attention_items' ],
+			static fn( array $item ) :bool => ( $item[ 'zone' ] ?? '' ) === 'maintenance'
+		) ) ) as $maintenanceItem ) {
+			if ( ( $maintenanceItem[ 'severity' ] ?? '' ) !== 'good'
+				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== 'review'
+				|| isset( $existingGroupKeys[ $maintenanceItem[ 'key' ] ] ) ) {
+				continue;
+			}
+
+			$resolved[] = $this->resolveSeed(
+				$bucketLabel,
+				$this->buildMaintenanceSeed( $maintenanceItem, 'healthy' )
+			);
+			$existingGroupKeys[ $maintenanceItem[ 'key' ] ] = true;
+		}
+
+		return $resolved;
+	}
+
+	/**
+	 * @param list<AssessmentRow> $assessmentRows
+	 * @return list<GroupSeed>
+	 */
+	private function buildHealthyReviewScanSeeds( array $assessmentRows ) :array {
+		$rowsByDefinitionKey = [];
+
+		foreach ( $assessmentRows as $row ) {
+			if ( $row[ 'status' ] !== 'good' || $row[ 'drill_bucket' ] !== 'review' ) {
+				continue;
+			}
+
+			$definitionKey = $this->groupDefinitions()->groupKeyForSummaryKey( $row[ 'key' ] );
+			if ( $definitionKey === 'maintenance' ) {
+				continue;
+			}
+
+			$rowsByDefinitionKey[ $definitionKey ][] = $row;
+		}
+
+		$seeds = [];
+		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
+			$definition = $this->getGroupDefinition( $definitionKey );
+			$seed = [
+				'key'              => $definitionKey,
+				'display_section'  => 'healthy',
+				'definition_key'   => $definitionKey,
+				'heading_label'    => $definition[ 'label' ],
+				'label'            => $definition[ 'label' ],
+				'item_count'       => \count( $rows ),
+				'status'           => 'good',
+				'narrative'        => $this->combineHealthyAssessmentNarratives( $rows ),
+				'detail_shell'     => $definition[ 'detail_shell' ],
+				'path_segments'    => [ $definition[ 'label' ] ],
+				'links'            => [],
+				'management_link'  => [],
+				'detail_table'     => [],
+				'attention_items'  => [],
+				'maintenance_rows' => [],
+			];
+			if ( $definition[ 'card_type' ] === 'linked' ) {
+				$seed[ 'card_type_override' ] = 'expandable';
+			}
+			$seeds[] = $seed;
+		}
+
+		return $seeds;
+	}
+
+	/**
+	 * @param list<AssessmentRow> $rows
+	 */
+	private function combineHealthyAssessmentNarratives( array $rows ) :string {
+		return \implode( ' ', \array_values( \array_unique( \array_filter(
+			\array_map(
+				static fn( array $row ) :string => \trim( $row[ 'description' ] ),
+				$rows
+			)
+		) ) ) );
 	}
 
 	/**
@@ -679,8 +810,14 @@ class ActionsQueueGroupsBuilder {
 		}
 	}
 
-	private function buildDrillHint( array $definition, int $itemCount, string $detailShell ) :string {
-		if ( $itemCount < 1 || $detailShell === 'maintenance' ) {
+	private function buildHealthyNextMove( string $definitionKey ) :string {
+		return $definitionKey === 'maintenance'
+			? __( 'This maintenance group is currently looking good. Open it here any time to review or stop ignoring items.', 'wp-simple-firewall' )
+			: __( 'This group is currently looking good. Open it here any time to review the current status again.', 'wp-simple-firewall' );
+	}
+
+	private function buildDrillHint( array $definition, int $itemCount, string $detailShell, string $status ) :string {
+		if ( $itemCount < 1 || $detailShell === 'maintenance' || $status === 'good' ) {
 			return '';
 		}
 		if ( $definition[ 'drill_hint_single' ] === '' || $definition[ 'drill_hint_plural' ] === '' ) {
@@ -713,6 +850,10 @@ class ActionsQueueGroupsBuilder {
 	private function sectionOrderForGroup( array $group ) :int {
 		$definitionKey = $this->definitionKeyForGroupKey( $group[ 'key' ] );
 		return self::SECTION_ORDER[ $definitionKey ] ?? 999;
+	}
+
+	private function displaySectionOrder( string $displaySection ) :int {
+		return $displaySection === 'healthy' ? 1 : 0;
 	}
 
 	/**
@@ -801,12 +942,37 @@ class ActionsQueueGroupsBuilder {
 	}
 
 	/**
-	 * @param MaintenanceQueueItem $maintenanceItem
+	 * @param list<AttentionItem> $items
+	 * @return list<MaintenanceQueueItem>
+	 */
+	protected function normalizeReviewMaintenanceQueueItems( array $items ) :array {
+		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeForReview( $items );
+	}
+
+	/**
+	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
 	 * @return list<MaintenanceExpansionRow>
 	 */
 	private function extractMaintenanceRows( array $maintenanceItem ) :array {
 		$rows = $maintenanceItem[ 'expansion' ][ 'table' ][ 'rows' ] ?? null;
 		return \is_array( $rows ) ? $rows : [];
+	}
+
+	/**
+	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
+	 */
+	private function maintenanceVisibleCount( array $maintenanceItem ) :int {
+		$activeCount = (int)( $maintenanceItem[ 'count' ] ?? 0 );
+		if ( $activeCount > 0 ) {
+			return $activeCount;
+		}
+
+		$rowCount = \count( $this->extractMaintenanceRows( $maintenanceItem ) );
+		if ( $rowCount > 0 ) {
+			return $rowCount;
+		}
+
+		return empty( $maintenanceItem[ 'toggle_action' ] ) ? 0 : 1;
 	}
 
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {

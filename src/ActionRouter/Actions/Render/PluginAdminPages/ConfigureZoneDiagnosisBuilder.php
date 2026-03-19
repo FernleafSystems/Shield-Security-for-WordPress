@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type InlineControl from ConfigureZoneTilesBuilder
  * @phpstan-import-type DetailAction from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailActionData from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
@@ -53,20 +52,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   status_label:string,
  *   status_icon_class:string,
  *   explanations:list<string>,
- *   inline_control:InlineControl,
- *   expand_action:DiagnosisExpandAction
- * }
- * @phpstan-type DiagnosisHealthyFinding array{
- *   title:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string,
  *   expand_action:DiagnosisExpandAction
  * }
  * @phpstan-type DiagnosisReviewFallbackCard array{
  *   title:string,
  *   summary:string,
- *   status:string
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string
  * }
  * @phpstan-type DiagnosisContract array{
  *   zone_key:string,
@@ -80,9 +73,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   next_move:string,
  *   problem_rows:list<DiagnosisFinding>,
  *   review_rows:list<DiagnosisFinding>,
- *   healthy_rows:list<DiagnosisHealthyFinding>,
+ *   healthy_rows:list<DiagnosisFinding>,
  *   review_fallback_card:array{}|DiagnosisReviewFallbackCard,
- *   current_setting_label:string,
  *   settings_href:string,
  *   settings_label:string,
  *   review_rows_heading:string,
@@ -153,7 +145,7 @@ class ConfigureZoneDiagnosisBuilder {
 			$reviewRows
 		) );
 		$healthyFindings = \array_values( \array_map(
-			fn( array $row ) :array => $this->buildHealthyFinding( $row ),
+			fn( array $row ) :array => $this->buildFinding( $row ),
 			$healthyRows
 		) );
 		$healthyFindingsCount = \count( $healthyFindings );
@@ -163,7 +155,7 @@ class ConfigureZoneDiagnosisBuilder {
 				$zoneLabel,
 			],
 			'focus'     => $previewText,
-			'next_step' => __( 'Review the inline settings below and save any needed changes.', 'wp-simple-firewall' ),
+			'next_step' => __( 'Review the settings below and open the one you need to change.', 'wp-simple-firewall' ),
 		];
 		$editorContext = [
 			'path'      => [
@@ -219,7 +211,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'review_rows'               => $reviewFindings,
 			'healthy_rows'              => $healthyFindings,
 			'review_fallback_card'      => $reviewFallbackCard,
-			'current_setting_label'     => __( 'Current setting', 'wp-simple-firewall' ),
 			'settings_href'             => $zoneTile[ 'settings_href' ],
 			'settings_label'            => $zoneTile[ 'settings_label' ],
 			'review_rows_heading'       => __( 'Review these settings', 'wp-simple-firewall' ),
@@ -290,7 +281,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'status_label'      => $row[ 'status_label' ],
 			'status_icon_class' => $row[ 'status_icon_class' ],
 			'explanations'      => $row[ 'explanations' ],
-			'inline_control'    => $row[ 'inline_control' ],
 			'expand_action'     => $this->buildExpandAction( $row[ 'action' ] ),
 		];
 	}
@@ -298,7 +288,7 @@ class ConfigureZoneDiagnosisBuilder {
 	/**
 	 * @param list<DiagnosisFinding> $problemFindings
 	 * @param list<DiagnosisFinding> $reviewFindings
-	 * @param list<DiagnosisHealthyFinding> $healthyFindings
+	 * @param list<DiagnosisFinding> $healthyFindings
 	 * @return array{}|DiagnosisReviewFallbackCard
 	 */
 	private function buildReviewFallbackCard(
@@ -310,25 +300,13 @@ class ConfigureZoneDiagnosisBuilder {
 	) :array {
 		return ( \count( $problemFindings ) === 0 && \count( $reviewFindings ) === 0 && \count( $healthyFindings ) === 0 )
 			? [
-				'title'   => $title,
-				'summary' => $summary,
-				'status'  => 'neutral',
+				'title'             => $title,
+				'summary'           => $summary,
+				'status'            => 'neutral',
+				'status_label'      => __( 'Review', 'wp-simple-firewall' ),
+				'status_icon_class' => 'bi bi-info-circle-fill',
 			]
 			: [];
-	}
-
-	/**
-	 * @param DetailGroupRow $row
-	 * @return DiagnosisHealthyFinding
-	 */
-	private function buildHealthyFinding( array $row ) :array {
-		return [
-			'title'             => $row[ 'title' ],
-			'status'            => $row[ 'status' ],
-			'status_label'      => $row[ 'status_label' ],
-			'status_icon_class' => $row[ 'status_icon_class' ],
-			'expand_action'     => $this->buildExpandAction( $row[ 'action' ] ),
-		];
 	}
 
 	/**

@@ -157,6 +157,30 @@
 	min-width: 0;
 }
 
+.shield-detail-row__end {
+	display: flex;
+	align-items: center;
+	align-self: center;
+	gap: 0.5rem;
+	margin-left: auto;
+	padding-left: 0.75rem;
+	flex-shrink: 0;
+}
+
+.shield-detail-row__expand-cta {
+	align-items: center;
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 999px;
+	color: #1d2327;
+	display: inline-flex;
+	font-size: 0.72rem;
+	font-weight: 700;
+	line-height: 1;
+	padding: 0.38rem 0.75rem;
+	transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
 .shield-detail-row__heading {
 	display: flex;
 	align-items: center;
@@ -214,11 +238,15 @@
 
 .shield-detail-row__chevron {
 	flex-shrink: 0;
-	margin-left: auto;
-	align-self: center;
 	color: #c0c6cc;
 	font-size: 0.72rem;
 	transition: transform 0.2s, color 0.15s;
+}
+
+.shield-detail-row--expandable:hover .shield-detail-row__expand-cta {
+	background: #f6f7f7;
+	border-color: $border-color-neutral-strong;
+	color: #1d2327;
 }
 
 .shield-detail-row--expandable:hover .shield-detail-row__chevron {

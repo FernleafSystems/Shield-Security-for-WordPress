@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   description:string,
  *   count:int,
  *   ignored_count:int,
+ *   drill_bucket:'critical'|'review',
  *   severity:string,
  *   href:string,
  *   action:string,
@@ -37,6 +38,7 @@ class MaintenanceIssueStateProvider {
 	 *   description:string,
 	 *   count:int,
 	 *   ignored_count:int,
+	 *   drill_bucket:'critical'|'review',
 	 *   severity:string,
 	 *   href:string,
 	 *   action:string,
@@ -186,6 +188,7 @@ class MaintenanceIssueStateProvider {
 	 *   description:string,
 	 *   count:int,
 	 *   ignored_count:int,
+	 *   drill_bucket:'critical'|'review',
 	 *   severity:string,
 	 *   href:string,
 	 *   action:string,
@@ -200,6 +203,7 @@ class MaintenanceIssueStateProvider {
 		$activeIdentifiers = \array_values( \array_diff( $context[ 'issue_identifiers' ], $ignoredIdentifiers ) );
 		$activeCount = \count( $activeIdentifiers );
 		$ignoredCount = \count( $ignoredIdentifiers );
+		$drillBucket = $component[ 'is_critical' ] ? 'critical' : 'review';
 		$severity = $component[ 'is_critical' ] ? 'critical' : 'warning';
 
 		if ( $activeCount > 0 ) {
@@ -230,6 +234,7 @@ class MaintenanceIssueStateProvider {
 			'description'         => $description,
 			'count'               => $activeCount,
 			'ignored_count'       => $ignoredCount,
+			'drill_bucket'        => $drillBucket,
 			'severity'            => $severity,
 			'href'                => $component[ 'href_full' ],
 			'action'              => $action === '' ? __( 'Fix', 'wp-simple-firewall' ) : $action,

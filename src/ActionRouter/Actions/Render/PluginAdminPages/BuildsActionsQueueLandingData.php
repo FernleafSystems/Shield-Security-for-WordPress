@@ -7,19 +7,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
+ * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
- * @phpstan-type AssessmentRow array{
- *   key:string,
- *   label:string,
- *   description:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string
- * }
- * @phpstan-type AssessmentRowsByZone array{
- *   scans:list<AssessmentRow>,
- *   maintenance:list<AssessmentRow>
- * }
  */
 trait BuildsActionsQueueLandingData {
 

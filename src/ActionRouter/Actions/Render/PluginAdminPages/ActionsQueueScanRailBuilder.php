@@ -19,47 +19,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
- * @phpstan-type MaintenanceItemCta array{
- *   href:string,
- *   label:string,
- *   target?:string
- * }
- * @phpstan-type MaintenanceItemAction array{
- *   href:string,
- *   label:string,
- *   icon:string,
- *   tooltip:string,
- *   target?:string,
- *   ajax_action?:array<string,mixed>
- * }
- * @phpstan-type MaintenanceExpansion array{
- *   id:string,
- *   type:string,
- *   status:string,
- *   table:array<string,mixed>
- * }
- * @phpstan-type MaintenanceQueueItem array{
- *   key:string,
- *   zone:string,
- *   label:string,
- *   count:int,
- *   severity:string,
- *   description:string,
- *   href:string,
- *   action:string,
- *   target:string,
- *   cta:array{}|MaintenanceItemCta,
- *   toggle_action:array{}|MaintenanceItemAction,
- *   expansion:array{}|MaintenanceExpansion
- * }
- * @phpstan-type AssessmentRow array{
- *   key:string,
- *   label:string,
- *   description:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string
- * }
+ * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
+ * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-type SummaryRow array{
  *   key:string,
  *   label:string,
@@ -552,10 +513,8 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 			'icon'       => $action[ 'icon' ],
 			'tooltip'    => $action[ 'tooltip' ],
 			'attributes' => \array_filter( [
-				'data-actions-queue-maintenance-action' => empty( $action[ 'ajax_action' ] )
-					? ''
-					: (string)\json_encode( $action[ 'ajax_action' ] ),
-				'target' => $action[ 'target' ] ?? '',
+				'data-actions-queue-maintenance-action' => $action[ 'ajax_action_json' ],
+				'target' => $action[ 'target' ],
 			], static fn( string $value ) :bool => $value !== '' ),
 		];
 	}

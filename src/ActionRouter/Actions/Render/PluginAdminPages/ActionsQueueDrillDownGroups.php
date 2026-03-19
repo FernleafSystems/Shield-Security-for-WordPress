@@ -17,6 +17,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	 *   bucket_selection:BucketSelection,
 	 *   bucket_selection_json:string,
 	 *   empty_message:string,
+	 *   healthy_heading:string,
 	 *   groups:list<GroupData>,
 	 *   context:array{
 	 *     path:list<string>,
@@ -60,6 +61,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			'bucket_selection'   => $groups[ 'bucket_selection' ],
 			'bucket_selection_json' => $groups[ 'bucket_selection_json' ],
 			'empty_message'      => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
+			'healthy_heading'    => __( 'Looking good', 'wp-simple-firewall' ),
 			'groups'             => $groups[ 'groups' ],
 			'context'            => $groups[ 'context' ],
 			'strip_text'         => $groups[ 'strip_text' ],

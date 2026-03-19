@@ -156,7 +156,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			[
 				'path'      => [ 'Configure', 'Login' ],
 				'focus'     => '2FA requires review.',
-				'next_step' => 'Review the inline settings below and save any needed changes.',
+				'next_step' => 'Review the settings below and open the one you need to change.',
 			],
 			$vars[ 'drill_context_card' ][ 'initial_context' ] ?? []
 		);
@@ -320,13 +320,6 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			'status_icon_class' => 'bi bi-exclamation-triangle-fill',
 			'note'              => $note,
 			'explanations'      => $explanations,
-			'inline_control'    => [
-				'type'        => 'none',
-				'option_key'  => '',
-				'value'       => null,
-				'is_disabled' => true,
-				'options'     => [],
-			],
 			'config_action'     => [
 				'title'   => 'Configure '.$title,
 				'href'    => 'javascript:{}',

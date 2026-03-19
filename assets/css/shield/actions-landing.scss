@@ -51,6 +51,11 @@
 	width: 100%;
 }
 
+.finding-card.status-good {
+	background: linear-gradient(135deg, #f6faf7 0%, #edf5ef 100%);
+	border-color: rgba($status-color-good, 0.25);
+}
+
 .actions-queue-bucket-card {
 	align-items: flex-start;
 	cursor: pointer;
@@ -189,27 +194,6 @@
 	margin: 0;
 }
 
-.actions-queue-bucket-card__preview {
-	align-items: center;
-	border-top: 1px solid $border-color-neutral-subtle;
-	display: flex;
-	gap: 0.4rem;
-	color: #5f6974;
-	font-size: 12px;
-	margin-top: auto;
-	padding-top: 0.6rem;
-}
-
-.actions-queue-bucket-card__preview i {
-	color: inherit;
-	font-size: 11px;
-}
-
-.actions-queue-bucket-card__preview span {
-	display: inline-block;
-	line-height: 1.45;
-}
-
 .actions-queue-groups__intro,
 .actions-queue-detail__header {
 	margin-bottom: 1rem;
@@ -286,11 +270,19 @@
 	margin-bottom: 0.25rem;
 }
 
+.finding-card.status-good .finding-card__title {
+	color: $status-color-good;
+}
+
 .finding-card__desc {
 	color: #5f6974;
 	font-size: 0.8125rem;
 	line-height: 1.45;
 	margin-bottom: 0.625rem;
+}
+
+.finding-card.status-good .finding-card__desc {
+	color: #49604f;
 }
 
 .finding-card__links {
@@ -315,6 +307,10 @@
 
 .finding-card__link:hover {
 	text-decoration: underline;
+}
+
+.finding-card.status-good .finding-card__link {
+	color: $status-color-good;
 }
 
 @media (max-width: 767px) {
@@ -361,12 +357,21 @@
 	outline: none;
 }
 
+.finding-card--expandable.status-good:hover,
+.finding-card--expandable.status-good:focus-visible {
+	border-color: rgba($status-color-good, 0.45);
+}
+
 .finding-card__chevron {
 	align-self: center;
 	color: #5f6974;
 	flex-shrink: 0;
 	font-size: 1rem;
 	margin-left: auto;
+}
+
+.finding-card.status-good .finding-card__chevron {
+	color: $status-color-good;
 }
 
 .actions-queue-detail {

@@ -104,33 +104,20 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotEmpty( $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ] );
 		$this->assertSame( 'offcanvas', $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ][ 'data' ][ 'form_context' ] ?? '' );
-		$this->assertSame( 'toggle', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'type' ] );
-		$this->assertSame( 'pin_toggle', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'option_key' ] );
-		$this->assertTrue( $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'value' ] );
-		$this->assertSame( 'select', $tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'type' ] );
-		$this->assertSame( 'login_action', $tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'option_key' ] );
-		$this->assertSame(
-			[
-				[
-					'key'         => 'log',
-					'label'       => 'Log Only',
-					'is_disabled' => false,
-				],
-				[
-					'key'         => 'block',
-					'label'       => 'Block',
-					'is_disabled' => false,
-				],
-			],
-			$tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'options' ]
+		$this->assertArrayNotHasKey( 'inline_control', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ] );
+		$this->assertArrayNotHasKey( 'inline_control', $tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ] );
+		$this->assertNotSame(
+			'',
+			$tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ][ 'data' ][ 'zone_component_slug' ] ?? ''
 		);
-		$this->assertSame(
-			'request_log_enabled',
-			$tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 2 ][ 'inline_control' ][ 'option_key' ]
+		$this->assertNotSame(
+			'',
+			$tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 2 ][ 'config_action' ][ 'data' ][ 'zone_component_slug' ] ?? ''
 		);
-		$this->assertSame( 'toggle', $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 2 ][ 'inline_control' ][ 'type' ] );
-		$this->assertSame( 'select', $tilesByKey[ 'headers' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'type' ] );
-		$this->assertTrue( $tilesByKey[ 'headers' ][ 'panel' ][ 'components' ][ 0 ][ 'inline_control' ][ 'is_disabled' ] );
+		$this->assertNotSame(
+			'',
+			$tilesByKey[ 'headers' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ][ 'data' ][ 'zone_component_slug' ] ?? ''
+		);
 	}
 
 	private function installControllerStub() :void {

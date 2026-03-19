@@ -9,18 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
- * @phpstan-type AssessmentRow array{
- *   key:string,
- *   label:string,
- *   description:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string
- * }
- * @phpstan-type AssessmentRowsByZone array{
- *   scans:list<AssessmentRow>,
- *   maintenance:list<AssessmentRow>
- * }
+ * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
+ * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-type QueueSummary array{
  *   has_items:bool,
  *   total_items:int,

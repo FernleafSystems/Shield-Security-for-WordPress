@@ -100,7 +100,6 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_icon_class' => 'bi bi-check-circle-fill',
 					'explanations'      => [],
 					'config_action'     => [],
-					'inline_control'    => $this->emptyInlineControl(),
 				],
 				[
 					'title'             => 'Primary Control',
@@ -119,13 +118,6 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 							''                      => 'drop-me',
 						],
 					],
-					'inline_control'    => [
-						'type'        => 'toggle',
-						'option_key'  => 'primary_control',
-						'value'       => false,
-						'is_disabled' => false,
-						'options'     => [],
-					],
 				],
 				[
 					'title'             => 'Secondary Control',
@@ -135,19 +127,6 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_icon_class' => 'bi bi-exclamation-circle-fill',
 					'explanations'      => [ 'Warning explanation' ],
 					'config_action'     => [],
-					'inline_control'    => [
-						'type'        => 'select',
-						'option_key'  => 'secondary_control',
-						'value'       => 'log',
-						'is_disabled' => false,
-						'options'     => [
-							[
-								'key'         => 'log',
-								'label'       => 'Log',
-								'is_disabled' => false,
-							],
-						],
-					],
 				],
 				[
 					'title'             => 'General Settings',
@@ -157,7 +136,6 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_icon_class' => 'bi bi-info-circle-fill',
 					'explanations'      => [],
 					'config_action'     => [],
-					'inline_control'    => $this->emptyInlineControl(),
 				],
 				[
 					'title'             => 'Another Warning',
@@ -167,7 +145,6 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_icon_class' => 'bi bi-exclamation-circle-fill',
 					'explanations'      => [],
 					'config_action'     => [],
-					'inline_control'    => $this->emptyInlineControl(),
 				],
 			]
 		);
@@ -178,20 +155,10 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Configure', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertSame( 'offcanvas_zone_component_config', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'zone_component_action' ] ?? '' );
 		$this->assertSame( '7', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'retry-count' ] ?? '' );
-		$this->assertSame( 'toggle', $groups[ 0 ][ 'rows' ][ 0 ][ 'inline_control' ][ 'type' ] ?? '' );
-		$this->assertSame( 'secondary_control', $groups[ 1 ][ 'rows' ][ 0 ][ 'inline_control' ][ 'option_key' ] ?? '' );
+		$this->assertArrayNotHasKey( 'inline_control', $groups[ 0 ][ 'rows' ][ 0 ] ?? [] );
+		$this->assertArrayNotHasKey( 'inline_control', $groups[ 1 ][ 'rows' ][ 0 ] ?? [] );
 		$this->assertArrayNotHasKey( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ] ?? [] );
 		$this->assertSame( [], $groups[ 2 ][ 'rows' ][ 0 ][ 'action' ] ?? null );
-	}
-
-	private function emptyInlineControl() :array {
-		return [
-			'type'        => 'none',
-			'option_key'  => '',
-			'value'       => null,
-			'is_disabled' => true,
-			'options'     => [],
-		];
 	}
 
 	private function installControllerStub() :void {

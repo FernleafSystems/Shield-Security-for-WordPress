@@ -4,7 +4,6 @@ import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { getLayersForShell } from "./DrillDownShared";
-import { sendEncodedOptionsSave } from "../options/OptionsSaveRequest";
 
 export class ConfigureLandingController extends BaseAutoExecComponent {
 
@@ -22,7 +21,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.bindSaveHandlers();
 		this.initializeCurrentRoot();
 		this.bindHealthyZoneToggle();
-		this.bindInlineControlHandlers();
 	}
 
 	bindDrillDownHandlers() {
@@ -81,24 +79,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		} );
 	}
 
-	bindInlineControlHandlers() {
-		if ( this.hasBoundInlineControls ) {
-			return;
-		}
-		this.hasBoundInlineControls = true;
-
-		shieldEventsHandler_Main.add_Click(
-			'[data-configure-landing="1"] [data-configure-inline-toggle="1"]',
-			( toggle ) => this.handleInlineToggleClick( toggle ),
-			false
-		);
-		shieldEventsHandler_Main.add_Change(
-			'[data-configure-landing="1"] [data-configure-inline-select="1"]',
-			( select ) => this.handleInlineSelectChange( select ),
-			false
-		);
-	}
-
 	initializeCurrentRoot() {
 		this.rootEl = this.getConfigureRoot();
 		this.shellEl = this.getShell( this.rootEl );
@@ -111,25 +91,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 
 	getShell( root = this.rootEl ) {
 		return root?.querySelector( '[data-drill-shell="1"]' ) || null;
-	}
-
-	handleInlineToggleClick( toggle ) {
-		const root = this.rootEl || this.getConfigureRoot();
-		if ( root === null || !root.contains( toggle ) || toggle.disabled ) {
-			return;
-		}
-
-		const isOn = toggle.classList.contains( 'is-on' );
-		this.saveInlineOption( toggle, toggle.dataset.optionKey, isOn ? 'N' : 'Y' );
-	}
-
-	handleInlineSelectChange( select ) {
-		const root = this.rootEl || this.getConfigureRoot();
-		if ( root === null || !root.contains( select ) || select.disabled ) {
-			return;
-		}
-
-		this.saveInlineOption( select, select.dataset.optionKey, select.value );
 	}
 
 	handleDrillTargetClick( item ) {
@@ -442,48 +403,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		} );
 	}
 
-	saveInlineOption( controlEl, optionKey, newValue ) {
-		if ( !optionKey || controlEl.classList.contains( 'is-saving' ) ) {
-			return Promise.resolve( null );
-		}
-
-		const saveAction = this.getInlineSaveAction();
-		if ( ObjectOps.IsEmpty( saveAction ) ) {
-			return Promise.resolve( null );
-		}
-
-		controlEl.classList.add( 'is-saving' );
-
-		const formData = {
-			all_opts_keys: optionKey,
-		};
-		formData[ optionKey ] = newValue;
-
-		return sendEncodedOptionsSave( saveAction, formData )
-			.then( ( resp ) => {
-				if ( !resp?.success ) {
-					return null;
-				}
-
-				this.diagnosisStale = true;
-				return this.loadDiagnosisLayer( {
-					showPlaceholder: false,
-					includeLandingRefresh: true,
-				} );
-			} )
-			.then( ( data ) => {
-				this.diagnosisStale = data === null;
-				return data;
-			} )
-			.catch( () => {
-				this.diagnosisStale = true;
-				return null;
-			} )
-			.finally( () => {
-				controlEl.classList.remove( 'is-saving' );
-			} );
-	}
-
 	cancelLayerRequest( layerKey ) {
 		if ( this.layerRequests[ layerKey ] !== undefined ) {
 			this.layerRequests[ layerKey ] = `cancelled-${Date.now()}`;
@@ -604,16 +523,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			...action,
 			...extraData,
 		};
-	}
-
-	getInlineSaveAction() {
-		const root = this.rootEl || this.getConfigureRoot();
-		if ( root === null ) {
-			return {};
-		}
-
-		this.rootEl = root;
-		return this.parseJsonDataset( root.dataset.configureInlineSaveAction || '{}' );
 	}
 
 	applyLayerHtml( body, html ) {

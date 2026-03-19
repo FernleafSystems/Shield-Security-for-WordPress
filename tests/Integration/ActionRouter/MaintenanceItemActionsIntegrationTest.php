@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MaintenanceItemIgnore,
 	Actions\MaintenanceItemUnignore,
 	Actions\Render\Components\Widgets\MaintenanceIssueStateProvider,
+	Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups,
 	Actions\Render\PluginAdminPages\PageActionsQueueLanding,
 	Constants
 };
@@ -139,6 +140,48 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $response[ 'success' ] ?? true ) );
 		$this->assertStringContainsString( 'identifier', (string)( $response[ 'message' ] ?? '' ) );
 		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
+	}
+
+	public function test_groups_refresh_keeps_selected_review_group_resolvable_after_it_becomes_healthy() :void {
+		$pluginFiles = $this->requireAtLeastInstalledPlugins( 2 );
+		$this->setPluginUpdatesAvailable( $pluginFiles );
+
+		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'review',
+		] );
+		$selectedGroupKey = (string)( $initialPayload[ 'groups' ][ 0 ][ 'key' ] ?? '' );
+		$this->assertSame( 'wp_plugins_updates', $selectedGroupKey );
+
+		foreach ( $pluginFiles as $pluginFile ) {
+			$response = $this->processMaintenanceAction( MaintenanceItemIgnore::SLUG, [
+				'maintenance_key' => 'wp_plugins_updates',
+				'identifier'      => $pluginFile,
+			] );
+			$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
+		}
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket'                  => 'review',
+			'group'                   => $selectedGroupKey,
+			'include_landing_refresh' => 1,
+		] );
+
+		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame(
+			\sprintf( 'Plugin Updates - %s items', \count( $pluginFiles ) ),
+			(string)( $payload[ 'selected_group' ][ 'strip_text' ] ?? '' )
+		);
+		$this->assertSame(
+			\sprintf( '%s items', \count( $pluginFiles ) ),
+			(string)( $payload[ 'selected_group' ][ 'strip_badge' ] ?? '' )
+		);
+		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
+		$this->assertContains(
+			$selectedGroupKey,
+			\array_column( $payload[ 'groups' ] ?? [], 'key' )
+		);
 	}
 
 	private function processMaintenanceAction( string $slug, array $data ) :array {

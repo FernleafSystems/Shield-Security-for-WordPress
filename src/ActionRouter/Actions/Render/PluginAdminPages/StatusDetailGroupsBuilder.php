@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
- * @phpstan-import-type InlineControl from ConfigureZoneTilesBuilder
+ * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
  * @phpstan-type DetailActionData array<string,string>
  * @phpstan-type DetailAction array{
  *   label:string,
@@ -34,14 +34,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   severity:string,
  *   cta?:DetailActionInput
  * }
- * @phpstan-type AssessmentRow array{
- *   key:string,
- *   label:string,
- *   description:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string
- * }
  * @phpstan-type ConfigureComponentRow array{
  *   title:string,
  *   note:string,
@@ -49,8 +41,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status_label:string,
  *   status_icon_class:string,
  *   explanations:list<string>,
- *   config_action:DetailActionInput,
- *   inline_control:InlineControl
+ *   config_action:DetailActionInput
  * }
  * @phpstan-type DetailGroupRow array{
  *   key:string,
@@ -63,7 +54,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   badge_status:string,
  *   explanations:list<string>,
  *   action:array{}|DetailAction,
- *   inline_control:InlineControl,
  *   sort_index:int
  * }
  * @phpstan-type DetailGroup array{
@@ -131,7 +121,6 @@ class StatusDetailGroupsBuilder {
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => [],
 			'action'            => isset( $item[ 'cta' ] ) ? $this->normalizeAction( $item[ 'cta' ], '' ) : [],
-			'inline_control'    => $this->emptyInlineControl(),
 			'sort_index'        => $sortIndex,
 		];
 	}
@@ -154,7 +143,6 @@ class StatusDetailGroupsBuilder {
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => [],
 			'action'            => [],
-			'inline_control'    => $this->emptyInlineControl(),
 			'sort_index'        => $sortIndex,
 		];
 	}
@@ -184,21 +172,7 @@ class StatusDetailGroupsBuilder {
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => $explanations,
 			'action'            => $this->normalizeAction( $component[ 'config_action' ], __( 'Configure', 'wp-simple-firewall' ) ),
-			'inline_control'    => $component[ 'inline_control' ],
 			'sort_index'        => $sortIndex,
-		];
-	}
-
-	/**
-	 * @return InlineControl
-	 */
-	private function emptyInlineControl() :array {
-		return [
-			'type'        => 'none',
-			'option_key'  => '',
-			'value'       => null,
-			'is_disabled' => true,
-			'options'     => [],
 		];
 	}
 
