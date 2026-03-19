@@ -28,7 +28,8 @@ services:
       - "8888:80"
     volumes:
       - shield-local-site-wp:/var/www/html
-      - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - shield-local-site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-local-browser-runtime.ini:ro
 
   wp-cli:
     image: wordpress:cli-php${PHP_VERSION:-8.2}
@@ -42,9 +43,11 @@ services:
       WORDPRESS_DB_NAME: shield_local_site
     volumes:
       - shield-local-site-wp:/var/www/html
-      - ../../:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - shield-local-site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
       - ../../:/app
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-local-browser-runtime.ini:ro
 
 volumes:
   shield-local-site-db:
   shield-local-site-wp:
+  shield-local-site-plugin:

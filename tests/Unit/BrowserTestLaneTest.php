@@ -7,6 +7,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalDevSiteProbe;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalDevSiteRuntimeRefresher;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
 use PHPUnit\Framework\TestCase;
@@ -26,7 +27,8 @@ class BrowserTestLaneTest extends TestCase {
 			$siteProcessRunner,
 			new RecordingTestingEnvironmentResolver(),
 			new RecordingDockerComposeExecutor( [ 0 ] ),
-			new RecordingLocalDevSiteProbe( [ false ], [ true ], [ false ] )
+			new RecordingLocalDevSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalDevSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
 		);
 
 		$lane = new BrowserTestLane( $playwrightRunner, $siteManager );

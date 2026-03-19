@@ -13,7 +13,7 @@ PLUGIN_SLUG="wp-simple-firewall"
 PLUGIN_MAIN="wp-simple-firewall/icwp-wpsf.php"
 
 if [ ! -f "wp-content/plugins/${PLUGIN_MAIN}" ]; then
-	echo "Shield plugin source mount was not found at wp-content/plugins/${PLUGIN_MAIN}." >&2
+	echo "Shield plugin runtime was not found at wp-content/plugins/${PLUGIN_MAIN}." >&2
 	exit 1
 fi
 

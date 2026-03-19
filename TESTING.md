@@ -83,7 +83,7 @@ php bin/shield test:integration-local --db-down
 
 ## Local Browser Lane
 
-Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions. The browser lane runs against the same local Docker WordPress site used for normal source-based manual plugin development.
+Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions. The browser lane runs against the same local Docker WordPress site used for normal source-based manual plugin development, but serves Shield from a refreshed source runtime in the local plugin volume rather than a live host bind mount.
 
 ```bash
 npm run playwright:install
@@ -94,12 +94,13 @@ composer test:browser -- --grep "Select2 lookup flow"
 
 Operational notes:
 
-1. `php bin/shield dev:site:up` starts or reuses the local Docker WordPress site, mounts this repo as the live Shield plugin source, and reports the local URL plus `admin/password`.
+1. `php bin/shield dev:site:up` starts or reuses the local Docker WordPress site, refreshes the current source runtime into the local Shield plugin volume, and reports the local URL plus `admin/password`.
 2. `composer test:browser` reuses that same local site when it is already healthy and only starts it if needed.
 3. `php bin/shield dev:site:reset` destroys the local site state and reprovisions a fresh site; `php bin/shield dev:site:down` stops the site while preserving state.
 4. The local site fails fast if required source prerequisites are missing. At minimum, keep Composer dependencies, `plugin.json`, and built assets current before starting the site or running Playwright.
-5. Local browser work requires Docker plus a supported Node 20 binary for Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node.
-6. CI runs Chromium only. Headed debugging is still available by forwarding Playwright flags through the browser command, for example: `composer test:browser -- --headed`.
+5. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to `test:package-targeted` and `test:package-full`.
+6. Local browser work requires Docker plus a supported Node 20 binary for Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node.
+7. CI runs Chromium only. Headed debugging is still available by forwarding Playwright flags through the browser command, for example: `composer test:browser -- --headed`.
 
 ### Optional Playground Tooling
 

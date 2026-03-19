@@ -27,16 +27,20 @@ class LocalDevSiteManager {
 
 	private LocalDevSiteProbe $probe;
 
+	private LocalDevSiteRuntimeRefresher $runtimeRefresher;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?TestingEnvironmentResolver $environmentResolver = null,
 		?DockerComposeExecutor $dockerComposeExecutor = null,
-		?LocalDevSiteProbe $probe = null
+		?LocalDevSiteProbe $probe = null,
+		?LocalDevSiteRuntimeRefresher $runtimeRefresher = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->environmentResolver = $environmentResolver ?? new TestingEnvironmentResolver( $this->processRunner );
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
 		$this->probe = $probe ?? new LocalDevSiteProbe();
+		$this->runtimeRefresher = $runtimeRefresher ?? new LocalDevSiteRuntimeRefresher( $this->processRunner );
 	}
 
 	public function up( string $rootDir ) :int {
@@ -83,8 +87,16 @@ class LocalDevSiteManager {
 
 	public function ensureReady( string $rootDir, bool $requirePlaywright, bool $isBrowserTest = false ) :void {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
+		$envOverrides = $this->buildEnvOverrides( $rootDir );
+		$composeFiles = $this->buildComposeFiles();
+		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
+			$rootDir,
+			$composeFiles,
+			self::WORDPRESS_SERVICE_NAME,
+			$envOverrides
+		);
 
-		if ( !$this->isSiteHealthy() ) {
+		if ( $containerId === '' ) {
 			if ( $this->probe->isTcpPortOpen( self::SITE_HOST, self::SITE_PORT ) ) {
 				throw new \RuntimeException(
 					sprintf(
@@ -97,14 +109,14 @@ class LocalDevSiteManager {
 
 			$exitCode = $this->dockerComposeExecutor->run(
 				$rootDir,
-				$this->buildComposeFiles(),
+				$composeFiles,
 				[
 					'up',
 					'-d',
 					self::DB_SERVICE_NAME,
 					self::WORDPRESS_SERVICE_NAME,
 				],
-				$this->buildEnvOverrides( $rootDir )
+				$envOverrides
 			);
 			if ( $exitCode !== 0 ) {
 				throw new \RuntimeException( 'Failed to start the Shield local site Docker services.' );
@@ -113,15 +125,37 @@ class LocalDevSiteManager {
 			if ( !$this->probe->waitForHttpReady( self::SITE_URL.'/wp-login.php', 90 ) ) {
 				throw new \RuntimeException( 'Local WordPress site did not become ready in time.' );
 			}
+
+			$containerId = $this->runtimeRefresher->resolveServiceContainerId(
+				$rootDir,
+				$composeFiles,
+				self::WORDPRESS_SERVICE_NAME,
+				$envOverrides
+			);
+			if ( $containerId === '' ) {
+				throw new \RuntimeException( 'Shield local site WordPress container did not resolve after startup.' );
+			}
+		}
+		elseif ( !$this->isSiteHealthy() ) {
+			throw new \RuntimeException( 'Shield local site is already running but unhealthy before browser runtime refresh.' );
+		}
+
+		$this->runtimeRefresher->refresh( $rootDir, $containerId );
+		if ( !$this->probe->waitForHttpReady( self::SITE_URL.'/wp-login.php', 30 ) ) {
+			throw new \RuntimeException( 'Shield local site is unhealthy after browser runtime refresh.' );
 		}
 
 		if ( $this->processRunner->runForExitCode(
 			$this->buildProvisionCommand( $isBrowserTest ),
 			$rootDir,
 			null,
-			$this->buildEnvOverrides( $rootDir )
+			$envOverrides
 		) !== 0 ) {
 			throw new \RuntimeException( 'Failed to provision the Shield local site baseline.' );
+		}
+
+		if ( !$this->isSiteHealthy() ) {
+			throw new \RuntimeException( 'Shield local site is unhealthy after provisioning.' );
 		}
 	}
 
