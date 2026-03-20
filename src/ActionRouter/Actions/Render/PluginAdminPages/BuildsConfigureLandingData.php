@@ -241,7 +241,7 @@ trait BuildsConfigureLandingData {
 			'icon_class'       => self::con()->svgs->iconClass( 'gear' ),
 			'badge'            => sprintf( '%s%%', $posture[ 'meter' ][ 'percentage' ] ),
 			'badge_status'     => $posture[ 'status' ],
-			'color_key'        => $posture[ 'status' ],
+			'color_key'        => 'configure',
 		];
 	}
 

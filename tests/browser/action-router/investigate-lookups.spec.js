@@ -23,6 +23,9 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 	const panel = page.locator( '[data-investigate-panel="1"]' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'user' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
+	const investigateTabs = page.locator( '[data-operator-step-tab="1"]' );
+	await expect( investigateTabs ).toHaveCount( 3 );
+	await expect( investigateTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Investigate/i );
 	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /User/i );
 
@@ -41,6 +44,10 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
 	await expect( page.locator( '[data-investigate-panel-tab="1"].is-active' ) ).toHaveText( /Overview/i );
 	await expect( page.locator( '#tabInvestigateUserOverview.active.show' ) ).toBeVisible();
+	const resolvedUserBreadcrumb = await page.locator( '[data-investigate-subject-header="1"]' )
+		.getAttribute( 'data-investigate-breadcrumb-label' );
+	await expect( page.locator( '[data-operator-step-tab="1"][aria-current="step"]' ) )
+		.toHaveText( new RegExp( resolvedUserBreadcrumb || 'User', 'i' ) );
 
 	await Promise.all( [
 		page.waitForURL(
@@ -66,6 +73,9 @@ test( 'investigate landing deep link opens the IP panel immediately', async ( { 
 		analyse_ip: '203.0.113.88',
 	} );
 
+	const ipTabs = page.locator( '[data-operator-step-tab="1"]' );
+	await expect( ipTabs ).toHaveCount( 3 );
+	await expect( ipTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Investigate/i );
 	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /IP Address/i );
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );

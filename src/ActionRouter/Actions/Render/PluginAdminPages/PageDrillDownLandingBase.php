@@ -139,7 +139,7 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 				'icon_class'       => $header[ 'icon_class' ] ?? '',
 				'badge'            => $header[ 'badge' ] ?? '',
 				'badge_status'     => $this->sanitizeBadgeStatus( $header[ 'badge_status' ] ?? '' ),
-				'color_key'        => $this->sanitizeBadgeStatus( $header[ 'color_key' ] ?? ( $header[ 'badge_status' ] ?? '' ) ),
+				'color_key'        => $header[ 'color_key' ] ?? ( $header[ 'badge_status' ] ?? '' ),
 			] )
 		);
 	}

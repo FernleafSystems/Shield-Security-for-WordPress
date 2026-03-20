@@ -188,7 +188,7 @@ class PageReportsLanding extends PageModeLandingBase {
 			'icon_class'       => $iconClass,
 			'badge'            => $badge,
 			'badge_status'     => $status,
-			'color_key'        => $status,
+			'color_key'        => 'reports',
 		] );
 	}
 }

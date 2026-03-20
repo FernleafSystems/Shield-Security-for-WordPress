@@ -1,11 +1,22 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageModeLandingBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\UnitTestControllerFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\UnitTestPluginUrls;
 
 class PageModeLandingBaseTest extends BaseUnitTest {
 
@@ -17,6 +28,12 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
+		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		parent::tearDown();
 	}
 
 	public function test_render_data_contains_shared_and_extended_sections() :void {
@@ -95,14 +112,15 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertSame( 'configure', $data[ 'vars' ][ 'mode_shell' ][ 'mode' ] );
 		$this->assertSame( 'good', $data[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] );
 		$this->assertSame( 'compact', $data[ 'vars' ][ 'mode_shell' ][ 'header_density' ] );
+		$this->assertSame( '/admin/home', $data[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] );
 		$this->assertFalse( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] );
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] );
 		$this->assertSame( 'Landing Title', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertSame( 'Landing Subtitle', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'summary' ] ?? '' );
-		$this->assertSame( 'good', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
+		$this->assertSame( 'configure', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame(
-			'{"breadcrumb_label":"Landing Title","title":"Landing Title","summary":"Landing Subtitle","focus":"","next_step":"","icon_class":"icon-gear","badge":"","badge_status":"good","color_key":"good"}',
+			'{"breadcrumb_label":"Landing Title","title":"Landing Title","summary":"Landing Subtitle","focus":"","next_step":"","icon_class":"icon-gear","badge":"","badge_status":"good","color_key":"configure"}',
 			$data[ 'vars' ][ 'mode_shell' ][ 'root_step_json' ] ?? ''
 		);
 		$this->assertSame( 'zone_one', $data[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'key' ] );

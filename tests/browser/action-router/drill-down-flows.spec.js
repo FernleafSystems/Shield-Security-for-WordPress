@@ -13,6 +13,9 @@ test( 'actions queue drills into groups and details, then drills back out', asyn
 	await bucket.click();
 	await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+	const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
+	await expect( actionTabs ).toHaveCount( 2 );
+	await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Actions Queue/i );
 	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).not.toHaveText( '' );
 
@@ -53,6 +56,9 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	await zone.click();
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+	const configureTabs = page.locator( '[data-operator-step-tab="1"]' );
+	await expect( configureTabs ).toHaveCount( 3 );
+	await expect( configureTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Configure/i );
 	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /Security Admin/i );
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );

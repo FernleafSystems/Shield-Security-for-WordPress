@@ -124,9 +124,11 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'mode' ] );
 		$this->assertFalse( $vars[ 'mode_shell' ][ 'is_interactive' ] );
 		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( '/admin/home', $vars[ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertSame( 'Actions Queue', $vars[ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
 		$this->assertSame( '5 items', $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' );
 		$this->assertSame( 'Last scan: 2 minutes ago', $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' );
+		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame( 'actions_drill_shell', $vars[ 'drill_shell' ][ 'id' ] );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] );
 		$this->assertSame( [ 'buckets', 'groups', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
@@ -204,7 +206,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Actions Queue', $rootStep[ 'title' ] ?? '' );
 		$this->assertSame( '3 items', $rootStep[ 'badge' ] ?? '' );
 		$this->assertSame( 'Last scan: 5 minutes ago', $rootStep[ 'focus' ] ?? '' );
-		$this->assertSame( 'warning', $rootStep[ 'color_key' ] ?? '' );
+		$this->assertSame( 'actions', $rootStep[ 'color_key' ] ?? '' );
 	}
 
 	public function test_landing_hrefs_reuse_existing_scan_and_wp_admin_routes() :void {

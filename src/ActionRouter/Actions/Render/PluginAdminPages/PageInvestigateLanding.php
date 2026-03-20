@@ -285,7 +285,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			'icon_class'         => $subject[ 'icon_class' ],
 			'badge'              => $subject[ 'stat_text' ],
 			'badge_status'       => $subject[ 'status' ],
-			'color_key'          => $subject[ 'status' ],
+			'color_key'          => 'investigate',
 		];
 	}
 
@@ -302,7 +302,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			'next_step'          => __( 'Choose a subject to load the investigation panel.', 'wp-simple-firewall' ),
 			'icon_class'         => 'bi bi-search',
 			'badge_status'       => 'info',
-			'color_key'          => 'info',
+			'color_key'          => 'investigate',
 		];
 	}
 

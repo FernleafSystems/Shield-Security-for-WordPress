@@ -1,18 +1,4 @@
-$mode-actions: $danger;
-$mode-actions-light: #fdeaec;
-$mode-actions-border: #f5c6cb;
-
-$mode-investigate: $info;
-$mode-investigate-light: #e0f4f8;
-$mode-investigate-border: #b6e3ed;
-
-$mode-configure: $primary;
-$mode-configure-light: #e8f5e8;
-$mode-configure-border: #c7dfc7;
-
-$mode-reports: #d4880f;
-$mode-reports-light: #fef6e6;
-$mode-reports-border: #f0ddb8;
+@import '../mode-palette';
 
 #NavSideBar {
 	display: flex;

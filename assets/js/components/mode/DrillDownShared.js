@@ -45,6 +45,24 @@ export function normalizeDrillStatus( status = '' ) {
 		: 'neutral';
 }
 
+export function normalizeDrillColorKey( colorKey = '' ) {
+	const normalized = normalizeDrillText( colorKey );
+	return [
+		'home',
+		'actions',
+		'configure',
+		'investigate',
+		'reports',
+		'critical',
+		'warning',
+		'good',
+		'info',
+		'neutral',
+	].includes( normalized )
+		? normalized
+		: 'neutral';
+}
+
 export function normalizeLayerHeaderData( headerData ) {
 	const source = headerData && typeof headerData === 'object' ? headerData : {};
 
@@ -60,7 +78,7 @@ export function normalizeLayerHeaderData( headerData ) {
 		icon_class: normalizeDrillText( source.icon_class ),
 		badge: normalizeDrillText( source.badge ),
 		badge_status: normalizeDrillStatus( source.badge_status ),
-		color_key: normalizeDrillStatus( source.color_key || source.badge_status ),
+		color_key: normalizeDrillColorKey( source.color_key || source.badge_status ),
 	};
 }
 

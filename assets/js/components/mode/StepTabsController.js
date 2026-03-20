@@ -89,27 +89,43 @@ export class StepTabsController extends BaseAutoExecComponent {
 
 	buildPath( shell ) {
 		const rootStep = this.readStepData( shell.dataset.operatorRootStep );
+		const mode = String( shell.dataset.mode || '' ).trim();
+		const homeHref = String( shell.dataset.operatorHomeHref || '' ).trim();
+		if ( mode === 'dashboard' ) {
+			const dashboardStep = this.buildHomeStep( rootStep, null, true, true );
+			return {
+				steps: [ dashboardStep ],
+				currentStep: dashboardStep,
+			};
+		}
+
 		const drillShell = this.getTopLevelDrillShell( shell );
 		if ( drillShell !== null ) {
-			return this.buildDrillPath( rootStep, drillShell );
+			return this.buildDrillPath( rootStep, drillShell, homeHref );
 		}
 
 		if ( shell.dataset.modeInteractive === '1' ) {
-			return this.buildModePanelPath( rootStep, shell );
+			return this.buildModePanelPath( rootStep, shell, homeHref );
 		}
 
 		const rootVisual = this.buildVisualStep( rootStep, null, true );
 		return {
-			steps: [ rootVisual ],
+			steps: [ this.buildHomeStep( rootStep, homeHref, false ), rootVisual ],
 			currentStep: rootVisual,
 		};
 	}
 
-	buildDrillPath( rootStep, drillShell ) {
+	buildDrillPath( rootStep, drillShell, homeHref ) {
 		const layers = getLayersForShell( drillShell );
 		const activeIndex = getActiveLayerIndex( layers );
+		const rootVisual = this.buildVisualStep(
+			rootStep,
+			activeIndex > 0 ? { kind: 'drill', value: 0 } : null,
+			activeIndex <= 0
+		);
 		const steps = [
-			this.buildVisualStep( rootStep, activeIndex > 0 ? { kind: 'drill', value: 0 } : null, activeIndex <= 0 )
+			this.buildHomeStep( rootStep, homeHref, false ),
+			rootVisual,
 		];
 
 		layers.forEach( ( layer ) => {
@@ -132,22 +148,21 @@ export class StepTabsController extends BaseAutoExecComponent {
 		};
 	}
 
-	buildModePanelPath( rootStep, shell ) {
+	buildModePanelPath( rootStep, shell, homeHref ) {
 		const activeTile = this.getActiveTopLevelTile( shell );
+		const rootVisual = this.buildVisualStep( rootStep, activeTile === null ? null : { kind: 'panel-close', value: '' }, activeTile === null );
 		if ( activeTile === null ) {
-			const rootVisual = this.buildVisualStep( rootStep, null, true );
 			return {
-				steps: [ rootVisual ],
+				steps: [ this.buildHomeStep( rootStep, homeHref, false ), rootVisual ],
 				currentStep: rootVisual,
 			};
 		}
 
 		const tileStep = this.readStepData( activeTile.dataset.modeTileStep );
-		const rootVisual = this.buildVisualStep( rootStep, { kind: 'panel-close', value: '' }, false );
 		const panelVisual = this.buildVisualStep( tileStep, null, true );
 
 		return {
-			steps: [ rootVisual, panelVisual ],
+			steps: [ this.buildHomeStep( rootStep, homeHref, false ), rootVisual, panelVisual ],
 			currentStep: panelVisual,
 		};
 	}
@@ -160,17 +175,7 @@ export class StepTabsController extends BaseAutoExecComponent {
 
 		listEl.replaceChildren();
 
-		steps.forEach( ( step, index ) => {
-			if ( index > 0 ) {
-				const separator = document.createElement( 'span' );
-				separator.className = 'operator-step-tabs__separator';
-				separator.setAttribute( 'aria-hidden', 'true' );
-				separator.textContent = '>';
-				listEl.appendChild( separator );
-			}
-
-			listEl.appendChild( this.buildTabButton( step ) );
-		} );
+		steps.forEach( ( step ) => listEl.appendChild( this.buildTabElement( step ) ) );
 	}
 
 	renderContextRail( shell, step ) {
@@ -180,7 +185,7 @@ export class StepTabsController extends BaseAutoExecComponent {
 			return;
 		}
 
-		this.replacePrefixedClass( rail, 'status-', step.colorKey );
+		rail.dataset.contextMode = this.normalizeContextMode( shell );
 
 		const fragment = document.createDocumentFragment();
 		const header = document.createElement( 'div' );
@@ -253,42 +258,49 @@ export class StepTabsController extends BaseAutoExecComponent {
 		railBody.replaceChildren( fragment );
 	}
 
-	buildTabButton( step ) {
-		const button = document.createElement( 'button' );
-		button.type = 'button';
-		button.className = `operator-step-tabs__tab status-${step.colorKey}`;
-		button.dataset.operatorStepTab = '1';
+	buildTabElement( step ) {
+		const el = step.target?.kind === 'href'
+			? document.createElement( 'a' )
+			: document.createElement( 'button' );
+
+		if ( el instanceof HTMLButtonElement ) {
+			el.type = 'button';
+		}
+		else {
+			el.href = String( step.target?.value || '#' );
+		}
+
+		el.className = 'operator-step-tabs__tab';
+		el.dataset.operatorStepTab = '1';
+		el.dataset.colorKey = step.colorKey;
 
 		if ( step.isCurrent ) {
-			button.classList.add( 'is-active' );
-			button.setAttribute( 'aria-current', 'step' );
-			button.disabled = true;
+			el.classList.add( 'is-active' );
+			el.setAttribute( 'aria-current', 'step' );
+			if ( el instanceof HTMLButtonElement ) {
+				el.disabled = true;
+			}
 		}
 		else if ( step.target?.kind === 'drill' ) {
-			button.dataset.stepTabDrillIndex = String( step.target.value );
+			el.dataset.stepTabDrillIndex = String( step.target.value );
 		}
 		else if ( step.target?.kind === 'panel-close' ) {
-			button.dataset.stepTabClosePanel = '1';
+			el.dataset.stepTabClosePanel = '1';
 		}
 
-		const pip = document.createElement( 'span' );
-		pip.className = `operator-step-tabs__tab-pip status-${step.colorKey}`;
-		pip.setAttribute( 'aria-hidden', 'true' );
-		button.appendChild( pip );
+		if ( step.tabIconClass.length > 0 ) {
+			const icon = document.createElement( 'i' );
+			icon.className = `operator-step-tabs__tab-icon ${step.tabIconClass}`;
+			icon.setAttribute( 'aria-hidden', 'true' );
+			el.appendChild( icon );
+		}
 
 		const label = document.createElement( 'span' );
-		label.className = 'operator-step-tabs__tab-label';
+		label.className = `operator-step-tabs__tab-label${step.showLabel ? '' : ' screen-reader-text'}`;
 		label.textContent = step.label;
-		button.appendChild( label );
+		el.appendChild( label );
 
-		if ( step.badge.length > 0 ) {
-			const badge = document.createElement( 'span' );
-			badge.className = `shield-badge badge-${step.badgeStatus}`;
-			badge.textContent = step.badge;
-			button.appendChild( badge );
-		}
-
-		return button;
+		return el;
 	}
 
 	buildVisualStep( stepData, target, isCurrent ) {
@@ -299,11 +311,33 @@ export class StepTabsController extends BaseAutoExecComponent {
 			focus: stepData.focus,
 			nextStep: stepData.next_step,
 			iconClass: stepData.icon_class,
+			tabIconClass: '',
 			badge: stepData.badge,
 			badgeStatus: stepData.badge_status,
-			colorKey: stepData.color_key || stepData.badge_status,
+			colorKey: stepData.color_key,
 			target,
 			isCurrent,
+			showLabel: true,
+		};
+	}
+
+	buildHomeStep( rootStep, homeHref, isCurrent, showLabel = false ) {
+		const homeLabel = 'Dashboard';
+
+		return {
+			label: homeLabel,
+			title: homeLabel,
+			summary: isCurrent ? rootStep.summary : '',
+			focus: isCurrent ? rootStep.focus : '',
+			nextStep: isCurrent ? rootStep.next_step : '',
+			iconClass: isCurrent ? rootStep.icon_class : '',
+			tabIconClass: 'bi bi-house-fill',
+			badge: '',
+			badgeStatus: 'neutral',
+			colorKey: 'home',
+			target: isCurrent ? null : { kind: 'href', value: homeHref },
+			isCurrent,
+			showLabel,
 		};
 	}
 
@@ -349,10 +383,8 @@ export class StepTabsController extends BaseAutoExecComponent {
 		};
 	}
 
-	replacePrefixedClass( el, prefix, suffix ) {
-		[ ...el.classList ]
-			.filter( ( className ) => className.startsWith( prefix ) )
-			.forEach( ( className ) => el.classList.remove( className ) );
-		el.classList.add( `${prefix}${suffix}` );
+	normalizeContextMode( shell ) {
+		const mode = String( shell.dataset.mode || '' ).trim();
+		return mode === 'reports' ? 'review' : mode;
 	}
 }

@@ -2,7 +2,9 @@
 {% set header_meta = meta|default('') %}
 {% set change_label = change_label|default('') %}
 
-<div class="investigate-subject-header" data-investigate-subject-header="1">
+<div class="investigate-subject-header"
+	 data-investigate-subject-header="1"
+	 data-investigate-breadcrumb-label="{{ header_title|e('html_attr') }}">
 	<div class="d-flex align-items-start flex-wrap gap-2">
 		<div>
 			<div class="investigate-subject-header__title" data-investigate-subject-title="1">{{ header_title }}</div>

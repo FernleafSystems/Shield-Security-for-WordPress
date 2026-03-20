@@ -179,7 +179,7 @@ trait BuildsActionsQueueLandingData {
 				)
 				: __( 'All Clear', 'wp-simple-firewall' ),
 			'badge_status'     => $summary[ 'severity' ],
-			'color_key'        => $summary[ 'severity' ],
+			'color_key'        => 'actions',
 		];
 	}
 

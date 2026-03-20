@@ -13,6 +13,18 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		'info',
 		'neutral',
 	];
+	private const VALID_OPERATOR_CHROME_COLOR_KEYS = [
+		'home',
+		'actions',
+		'configure',
+		'investigate',
+		'reports',
+		'critical',
+		'warning',
+		'good',
+		'info',
+		'neutral',
+	];
 	private const VALID_HEADER_DENSITIES = [
 		'compact',
 		'default',
@@ -109,8 +121,32 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 			'icon_class'       => $this->buildLandingIconClass( $this->getLandingIcon() ),
 			'badge'            => '',
 			'badge_status'     => $status,
-			'color_key'        => $status,
+			'color_key'        => $this->getLandingChromeColorKey(),
 		];
+	}
+
+	protected function getLandingChromeColorKey() :string {
+		switch ( $this->getLandingMode() ) {
+			case PluginNavs::NAV_DASHBOARD:
+				$colorKey = 'home';
+				break;
+			case PluginNavs::MODE_ACTIONS:
+				$colorKey = 'actions';
+				break;
+			case PluginNavs::MODE_CONFIGURE:
+				$colorKey = 'configure';
+				break;
+			case PluginNavs::MODE_INVESTIGATE:
+				$colorKey = 'investigate';
+				break;
+			case PluginNavs::MODE_REPORTS:
+				$colorKey = 'reports';
+				break;
+			default:
+				$colorKey = 'neutral';
+				break;
+		}
+		return $colorKey;
 	}
 
 	protected function getLandingFlags() :array {
@@ -194,12 +230,13 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		}
 		return [
 			'mode_shell' => $this->normalizeLandingModeShell( [
-				'mode'               => $this->getLandingMode(),
-				'accent_status'      => $this->getLandingAccentStatus(),
-				'header_density'     => $this->getLandingHeaderDensity(),
-				'is_interactive'     => $this->isLandingInteractive(),
+				'mode'                => $this->getLandingMode(),
+				'accent_status'       => $this->getLandingAccentStatus(),
+				'header_density'      => $this->getLandingHeaderDensity(),
+				'home_href'           => self::con()->plugin_urls->adminHome(),
+				'is_interactive'      => $this->isLandingInteractive(),
 				'use_operator_chrome' => $this->usesOperatorChrome(),
-				'root_step'          => $this->getOperatorRootStep(),
+				'root_step'           => $this->getOperatorRootStep(),
 			] ),
 			'mode_tiles' => $this->normalizeLandingTiles( $this->getLandingTiles() ),
 			'mode_panel' => $this->normalizeLandingPanel( $this->getLandingPanel() ),
@@ -219,14 +256,15 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		$rootStep = $this->normalizeOperatorChromeStep( \is_array( $modeShell[ 'root_step' ] ?? null ) ? $modeShell[ 'root_step' ] : [] );
 
 		return [
-			'mode'               => sanitize_key( (string)( $modeShell[ 'mode' ] ?? '' ) ),
-			'accent_status'      => $this->sanitizeModeAccentStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
-			'header_density'     => $headerDensity,
-			'is_mode_landing'    => true,
-			'is_interactive'     => (bool)( $modeShell[ 'is_interactive' ] ?? false ),
+			'mode'                => sanitize_key( (string)( $modeShell[ 'mode' ] ?? '' ) ),
+			'accent_status'       => $this->sanitizeModeAccentStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
+			'header_density'      => $headerDensity,
+			'home_href'           => (string)( $modeShell[ 'home_href' ] ?? '' ),
+			'is_mode_landing'     => true,
+			'is_interactive'      => (bool)( $modeShell[ 'is_interactive' ] ?? false ),
 			'use_operator_chrome' => (bool)( $modeShell[ 'use_operator_chrome' ] ?? false ),
-			'root_step'          => $rootStep,
-			'root_step_json'     => $this->encodeJson( $rootStep ),
+			'root_step'           => $rootStep,
+			'root_step_json'      => $this->encodeJson( $rootStep ),
 		];
 	}
 
@@ -236,7 +274,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 	 */
 	protected function normalizeOperatorChromeStep( array $step ) :array {
 		$badgeStatus = $this->sanitizeModeAccentStatus( (string)( $step[ 'badge_status' ] ?? '' ) );
-		$colorKey = $this->sanitizeModeAccentStatus( (string)( $step[ 'color_key' ] ?? $badgeStatus ) );
+		$colorKey = $this->sanitizeOperatorChromeColorKey( (string)( $step[ 'color_key' ] ?? $badgeStatus ) );
 
 		return [
 			'breadcrumb_label' => \trim( (string)( $step[ 'breadcrumb_label' ] ?? '' ) ),
@@ -298,6 +336,14 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 			$status = 'neutral';
 		}
 		return $status;
+	}
+
+	private function sanitizeOperatorChromeColorKey( string $colorKey ) :string {
+		$colorKey = sanitize_key( $colorKey );
+		if ( !\in_array( $colorKey, self::VALID_OPERATOR_CHROME_COLOR_KEYS, true ) ) {
+			$colorKey = 'neutral';
+		}
+		return $colorKey;
 	}
 
 	protected function encodeJson( array $data ) :string {

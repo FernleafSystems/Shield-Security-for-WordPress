@@ -121,8 +121,10 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( '/admin/home', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertSame( 'Configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
 		$this->assertSame( '78%', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' );
+		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'mode_tiles' ] ?? [ 'unexpected' ] );
 		$this->assertArrayNotHasKey( 'configure_posture_strip', $vars );
 		$this->assertSame(
@@ -201,6 +203,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Configure', $rootStep[ 'title' ] ?? '' );
 		$this->assertSame( '78%', $rootStep[ 'badge' ] ?? '' );
 		$this->assertSame( 'warning', $rootStep[ 'badge_status' ] ?? '' );
+		$this->assertSame( 'configure', $rootStep[ 'color_key' ] ?? '' );
 		$this->assertSame(
 			'Open a zone to review findings and move into focused settings changes.',
 			$rootStep[ 'next_step' ] ?? ''

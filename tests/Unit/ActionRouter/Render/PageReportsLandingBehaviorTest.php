@@ -73,7 +73,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'config_form', $tiles[ 1 ][ 'panel_variant' ] ?? '' );
 		$this->assertSame( 'rendered-2', $tiles[ 1 ][ 'panel_content' ] ?? '' );
 		$this->assertSame( 'Security Reports', $tiles[ 0 ][ 'step' ][ 'breadcrumb_label' ] ?? '' );
-		$this->assertSame( 'warning', $tiles[ 0 ][ 'step' ][ 'color_key' ] ?? '' );
+		$this->assertSame( 'reports', $tiles[ 0 ][ 'step' ][ 'color_key' ] ?? '' );
 		$this->assertNotSame( '', $tiles[ 0 ][ 'step_json' ] ?? '' );
 	}
 
@@ -113,11 +113,12 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
+		$this->assertSame( '/admin/home', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
 		$this->assertSame( 'Reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
-		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
+		$this->assertSame( 'reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertCount( 2, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? false ) );
@@ -131,6 +132,10 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new class {
+			public function adminHome() :string {
+				return '/admin/home';
+			}
+
 			public function adminTopNav( string $nav, string $subnav = '' ) :string {
 				return '/admin/'.$nav.'/'.$subnav;
 			}

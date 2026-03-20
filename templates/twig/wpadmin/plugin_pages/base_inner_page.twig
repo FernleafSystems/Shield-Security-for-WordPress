@@ -82,11 +82,13 @@
 
 {% endblock %}
 
-{% block inner_page_body %}
-	{% for element in content|default([]) %}
-		{{ element|raw }}
-	{% endfor %}
-{% endblock %}
+{% if false %}
+	{% block inner_page_body %}
+		{% for element in content|default([]) %}
+			{{ element|raw }}
+		{% endfor %}
+	{% endblock %}
+{% endif %}
 
 {% block inner_page_body_shell %}
 	<div class="inner-page-body-shell{% if is_mode_landing %} is-mode-landing{% endif %}"
@@ -100,6 +102,7 @@
 		 {% endif %}
 		 {% if use_operator_chrome %}
 		 data-operator-chrome="1"
+		 data-operator-home-href="{{ mode_shell.home_href|e('html_attr') }}"
 		 data-operator-root-step="{{ mode_shell.root_step_json|e('html_attr') }}"
 		 data-operator-context-title="{{ strings.operator_context_title|e('html_attr') }}"
 		 data-operator-context-focus="{{ strings.operator_context_focus|e('html_attr') }}"
@@ -112,7 +115,8 @@
 			{% endset %}
 			{% set operator_rail_html %}
 				{% include '/wpadmin/components/page/context_rail.twig' with {
-					step: mode_shell.root_step
+					step: mode_shell.root_step,
+					mode: mode_shell.mode
 				} only %}
 			{% endset %}
 			{% include '/wpadmin/components/page/step_tabs.twig' with {

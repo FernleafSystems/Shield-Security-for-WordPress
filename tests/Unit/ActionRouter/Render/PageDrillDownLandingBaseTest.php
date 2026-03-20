@@ -1,11 +1,22 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageDrillDownLandingBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\UnitTestControllerFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\UnitTestPluginUrls;
 
 class PageDrillDownLandingBaseTest extends BaseUnitTest {
 
@@ -17,6 +28,12 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? ( \preg_replace( '/[^a-z0-9_]/', '', \strtolower( \trim( $text ) ) ) ?? '' ) : ''
 		);
+		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		parent::tearDown();
 	}
 
 	public function test_render_data_contains_mode_shell_and_normalized_drill_shell() :void {

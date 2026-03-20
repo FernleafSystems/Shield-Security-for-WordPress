@@ -71,6 +71,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		if ( this.isPanelLoaded( this.panelEl ) ) {
 			this.syncPanelChrome( this.panelEl, true );
+			this.finalizePanelRequestState(
+				this.buildResolvedSelectionHeader( this.panelEl, this.getCurrentSelection( this.panelEl ) ),
+				''
+			);
 			this.syncLivePanelPolling();
 			this.activatePanelHash( window.location.hash );
 			return;
@@ -293,7 +297,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 				if ( this.applyRenderOutputToPanel( panel, renderOutput ) ) {
 					this.setPanelLoadedState( panel, true );
 					this.syncPanelLivePolling( panel );
-					this.finalizePanelRequestState( nextSelection, historyUrl, true );
+					this.finalizePanelRequestState(
+						this.buildResolvedSelectionHeader( panel, nextSelection ),
+						historyUrl
+					);
 					this.activatePanelHash( hash );
 					return;
 				}
@@ -461,12 +468,14 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return {
 			compact_back_label: '',
 			active_back_label: '',
+			breadcrumb_label: '',
 			title: '',
 			meta: '',
 			summary: '',
 			icon_class: '',
 			badge: '',
 			badge_status: 'neutral',
+			color_key: 'investigate',
 		};
 	}
 
@@ -481,6 +490,29 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return {
 			...( header && typeof header === 'object' ? header : {} ),
 			summary: this.getPanelErrorText(),
+		};
+	}
+
+	buildResolvedSelectionHeader( panel, selection ) {
+		if ( !( panel instanceof HTMLElement ) || selection === null ) {
+			return null;
+		}
+
+		const baseHeader = selection.header && typeof selection.header === 'object'
+			? selection.header
+			: {};
+		const subjectHeader = panel.querySelector( '[data-investigate-subject-header="1"]' );
+		const breadcrumbLabel = subjectHeader instanceof HTMLElement
+			? String( subjectHeader.dataset.investigateBreadcrumbLabel || '' ).trim()
+			: '';
+		if ( breadcrumbLabel.length < 1 ) {
+			return baseHeader;
+		}
+
+		return {
+			...baseHeader,
+			breadcrumb_label: breadcrumbLabel,
+			title: breadcrumbLabel,
 		};
 	}
 
@@ -541,8 +573,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		drillCtrl.updateLayerHeader( this.shellEl, 1, header );
 	}
 
-	finalizePanelRequestState( selection, historyUrl, isSuccess ) {
-		if ( selection === null ) {
+	finalizePanelRequestState( header, historyUrl ) {
+		if ( header === null || typeof header !== 'object' ) {
 			return;
 		}
 
@@ -550,11 +582,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			this.replaceHistoryUrl( historyUrl );
 		}
 
-		this.updatePanelLayerHeader(
-			isSuccess
-				? selection.header
-				: this.buildFailureHeader( selection.header )
-		);
+		this.updatePanelLayerHeader( header );
 	}
 
 	replaceHistoryUrl( nextUrl ) {
@@ -654,7 +682,12 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.syncPanelChrome( panel, true );
 		this.setPanelLoadedState( panel, false );
 		this.stopLivePanelPoller();
-		this.finalizePanelRequestState( selection, historyUrl, false );
+		this.finalizePanelRequestState(
+			selection === null
+				? null
+				: this.buildFailureHeader( selection.header ),
+			historyUrl
+		);
 	}
 
 	setPanelLoadingState( panel, isLoading ) {

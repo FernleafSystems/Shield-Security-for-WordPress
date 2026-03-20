@@ -57,6 +57,7 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? 'missing' );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
+		$this->assertSame( '/admin/home', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
@@ -65,7 +66,7 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 			'Use the cards below to move directly into actions, investigation, configuration, or reports.',
 			$renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? ''
 		);
-		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
+		$this->assertSame( 'home', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 	}
 
 	private function installControllerStub() :void {
@@ -76,6 +77,11 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->plugin_urls = new class {
+			public function adminHome() :string {
+				return '/admin/home';
+			}
+		};
 		$controller->svgs = new class {
 			public function iconClass( string $icon ) :string {
 				return 'bi bi-'.$icon;
