@@ -54,6 +54,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   badge_status:string,
  *   explanations:list<string>,
  *   action:array{}|DetailAction,
+ *   is_expandable:bool,
  *   sort_index:int
  * }
  * @phpstan-type DetailGroup array{
@@ -109,6 +110,7 @@ class StatusDetailGroupsBuilder {
 	 */
 	private function buildMaintenanceIssueRow( array $item, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $item[ 'severity' ] );
+		$action = isset( $item[ 'cta' ] ) ? $this->normalizeAction( $item[ 'cta' ], '' ) : [];
 
 		return [
 			'key'               => $item[ 'key' ],
@@ -120,7 +122,8 @@ class StatusDetailGroupsBuilder {
 			'count_badge'       => $item[ 'count' ],
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => [],
-			'action'            => isset( $item[ 'cta' ] ) ? $this->normalizeAction( $item[ 'cta' ], '' ) : [],
+			'action'            => $action,
+			'is_expandable'     => $this->isExpandableAction( $action ),
 			'sort_index'        => $sortIndex,
 		];
 	}
@@ -143,6 +146,7 @@ class StatusDetailGroupsBuilder {
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => [],
 			'action'            => [],
+			'is_expandable'     => false,
 			'sort_index'        => $sortIndex,
 		];
 	}
@@ -153,6 +157,7 @@ class StatusDetailGroupsBuilder {
 	 */
 	private function buildConfigureComponentRow( array $component, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $component[ 'status' ] );
+		$action = $this->normalizeAction( $component[ 'config_action' ], __( 'Configure', 'wp-simple-firewall' ) );
 		$explanations = \array_values( \array_filter(
 			\array_map(
 				static fn( $explanation ) :string => \trim( (string)$explanation ),
@@ -171,7 +176,8 @@ class StatusDetailGroupsBuilder {
 			'count_badge'       => null,
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => $explanations,
-			'action'            => $this->normalizeAction( $component[ 'config_action' ], __( 'Configure', 'wp-simple-firewall' ) ),
+			'action'            => $action,
+			'is_expandable'     => $this->isExpandableAction( $action ),
 			'sort_index'        => $sortIndex,
 		];
 	}
@@ -251,6 +257,14 @@ class StatusDetailGroupsBuilder {
 			$normalized[ $attribute ] = (string)$value;
 		}
 		return $normalized;
+	}
+
+	/**
+	 * @param array{}|DetailAction $action
+	 */
+	private function isExpandableAction( array $action ) :bool {
+		return !empty( $action[ 'data' ][ 'zone_component_slug' ] )
+			&& !empty( $action[ 'data' ][ 'zone_component_action' ] );
 	}
 
 	private function normalizeStatus( string $status ) :string {

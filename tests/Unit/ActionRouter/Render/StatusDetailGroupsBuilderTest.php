@@ -87,6 +87,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'system_lib_openssl' ], \array_column( $groups[ 2 ][ 'rows' ] ?? [], 'key' ) );
 		$this->assertSame( '_blank', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'target' ] ?? '' );
 		$this->assertSame( 1, $groups[ 0 ][ 'rows' ][ 0 ][ 'count_badge' ] ?? 0 );
+		$this->assertFalse( $groups[ 0 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );
 	}
 
 	public function test_build_for_configure_orders_by_severity_and_preserves_action_contract() :void {
@@ -114,6 +115,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 						'classes' => [ 'zone_component_action' ],
 						'data'    => [
 							'zone_component_action' => 'offcanvas_zone_component_config',
+							'zone_component_slug'   => 'primary_control',
 							'Retry-Count'           => 7,
 							''                      => 'drop-me',
 						],
@@ -155,10 +157,13 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Configure', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertSame( 'offcanvas_zone_component_config', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'zone_component_action' ] ?? '' );
 		$this->assertSame( '7', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'retry-count' ] ?? '' );
+		$this->assertFalse( $groups[ 1 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );
+		$this->assertTrue( $groups[ 0 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? false );
 		$this->assertArrayNotHasKey( 'inline_control', $groups[ 0 ][ 'rows' ][ 0 ] ?? [] );
 		$this->assertArrayNotHasKey( 'inline_control', $groups[ 1 ][ 'rows' ][ 0 ] ?? [] );
 		$this->assertArrayNotHasKey( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ] ?? [] );
 		$this->assertSame( [], $groups[ 2 ][ 'rows' ][ 0 ][ 'action' ] ?? null );
+		$this->assertFalse( $groups[ 2 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );
 	}
 
 	private function installControllerStub() :void {

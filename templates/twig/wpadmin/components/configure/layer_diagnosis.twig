@@ -1,4 +1,12 @@
 {% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
+{% set empty_expand = {
+	id: '',
+	parent_id: '',
+	is_expandable: false,
+	label: '',
+	title: '',
+	data_attributes: {}
+} %}
 
 <div class="configure-diagnosis"
 	 data-configure-diagnosis="1"
@@ -15,7 +23,8 @@
 						status: row.status,
 						status_icon: row.status_icon_class,
 						status_label: row.status_label,
-						explanations: row.explanations
+						explanations: row.explanations,
+						attributes: {}
 					},
 					expand: {
 						id: expand_id,
@@ -43,7 +52,8 @@
 							status: row.status,
 							status_icon: row.status_icon_class,
 							status_label: row.status_label,
-							explanations: row.explanations
+							explanations: row.explanations,
+							attributes: {}
 						},
 						expand: {
 							id: expand_id,
@@ -63,8 +73,10 @@
 							description: diagnosis.review_fallback_card.summary,
 							status: diagnosis.review_fallback_card.status,
 							status_icon: diagnosis.review_fallback_card.status_icon_class,
-							status_label: diagnosis.review_fallback_card.status_label
-						}
+							status_label: diagnosis.review_fallback_card.status_label,
+							attributes: {}
+						},
+						expand: empty_expand
 					} } only %}
 				{% endif %}
 			</div>
@@ -93,7 +105,8 @@
 						status: row.status,
 						status_icon: row.status_icon_class,
 						status_label: row.status_label,
-						explanations: row.explanations
+						explanations: row.explanations,
+						attributes: {}
 					},
 					expand: {
 						id: expand_id,

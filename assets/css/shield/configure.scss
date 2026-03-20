@@ -319,6 +319,29 @@
 	margin-bottom: 0;
 }
 
+.shield-detail-item--configure {
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	overflow: hidden;
+}
+
+.shield-detail-item--configure > .shield-detail-row,
+.shield-detail-item--configure > .shield-detail-expansion > .shield-detail-expansion__form {
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.shield-detail-item--configure > .shield-detail-expansion > .shield-detail-expansion__form {
+	margin-top: 0;
+}
+
+.shield-detail-item--configure .shield-detail-expansion__footer {
+	border-radius: 0;
+}
+
 .configure-editor__cta {
 	align-items: center;
 	background: #1d2327;

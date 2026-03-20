@@ -4,8 +4,6 @@
 		{% set group_index = loop.index0 %}
 		{% for row in group.rows %}
 			{% set expand_id = editor.container_id ~ '-expand-' ~ group_index ~ '-' ~ loop.index0 %}
-			{% set action_data = row.action.data %}
-			{% set is_expandable = action_data.zone_component_slug is not empty and action_data.zone_component_action is not empty %}
 
 			{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
 				row: {
@@ -16,15 +14,16 @@
 					status_label: row.status_label,
 					count_badge: row.count_badge,
 					badge_status: row.badge_status,
-					explanations: row.explanations
+					explanations: row.explanations,
+					attributes: {}
 				},
 				expand: {
 					id: expand_id,
 					parent_id: editor.container_id,
-					is_expandable: is_expandable,
-					label: row.action.label|default(''),
-					title: row.action.title|default(''),
-					data_attributes: action_data
+					is_expandable: row.is_expandable,
+					label: row.action.label,
+					title: row.action.title,
+					data_attributes: row.action.data
 				}
 			} } only %}
 		{% endfor %}
