@@ -83,74 +83,6 @@
 	border-color: $status-color-info;
 }
 
-.configure-zone-card.status-good,
-.configure-zone-card.status-neutral {
-	opacity: 0.55;
-}
-
-.configure-zone-card.status-good:hover:not(:disabled),
-.configure-zone-card.status-good:focus-visible,
-.configure-zone-card.status-neutral:hover:not(:disabled),
-.configure-zone-card.status-neutral:focus-visible {
-	opacity: 1;
-}
-
-// Healthy zones collapse toggle
-.configure-zones__healthy-collapse {
-	align-items: center;
-	background: #e6f4ea;
-	border: 1px solid #c4e8cf;
-	border-radius: $card-border-radius;
-	cursor: pointer;
-	display: flex;
-	gap: 0.625rem;
-	margin-top: 1rem;
-	padding: 0.75rem 1rem;
-	transition: background-color 0.15s ease;
-	user-select: none;
-}
-
-.configure-zones__healthy-collapse:hover {
-	background: #d4edda;
-}
-
-.configure-zones__healthy-icon {
-	color: $status-color-good;
-	font-size: 1rem;
-}
-
-.configure-zones__healthy-label {
-	color: $status-color-good;
-	flex: 1;
-	font-size: 0.8125rem;
-	font-weight: 600;
-}
-
-.configure-zones__healthy-chevron {
-	color: $status-color-good;
-	font-size: 0.875rem;
-	transition: transform 0.25s ease;
-}
-
-.configure-zones__healthy-collapse.is-open .configure-zones__healthy-chevron {
-	transform: rotate(90deg);
-}
-
-.configure-zones__healthy-cards {
-	max-height: 0;
-	opacity: 0;
-	overflow: hidden;
-	transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-		opacity 0.3s ease,
-		margin-top 0.3s ease;
-}
-
-.configure-zones__healthy-cards.is-open {
-	margin-top: 0.75rem;
-	max-height: 600px;
-	opacity: 1;
-}
-
 .configure-zone-card__icon {
 	background: none;
 	border-radius: 0;
@@ -224,61 +156,6 @@
 	gap: 0.6rem;
 }
 
-.healthy-settings-header {
-	align-items: center;
-	background: rgba($status-color-good, 0.08);
-	border: 1px solid rgba($status-color-good, 0.2);
-	border-radius: $card-border-radius;
-	cursor: pointer;
-	display: flex;
-	gap: 0.65rem;
-	margin-top: 1rem;
-	padding: 0.75rem 0.95rem;
-	position: relative;
-	user-select: none;
-}
-
-.healthy-settings-header__icon,
-.healthy-settings-header__label {
-	color: $status-color-good;
-}
-
-.healthy-settings-header__icon {
-	font-size: 1rem;
-}
-
-.healthy-settings-header__label {
-	flex: 1;
-	font-size: 0.81rem;
-	font-weight: 700;
-}
-
-.healthy-settings-header__chevron {
-	color: $status-color-good;
-	transition: transform 0.25s ease;
-}
-
-.healthy-settings-header.is-open .healthy-settings-header__chevron {
-	transform: rotate(90deg);
-}
-
-.healthy-settings-body {
-	display: grid;
-	gap: 0.6rem;
-	max-height: 0;
-	opacity: 0;
-	overflow: hidden;
-	transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-				opacity 0.3s ease,
-				margin-top 0.3s ease;
-}
-
-.healthy-settings-body.is-open {
-	max-height: 1000px;
-	opacity: 1;
-	margin-top: 0.75rem;
-}
-
 .configure-diagnosis__next-move {
 	border-top: 1px solid $border-color-neutral-subtle;
 	display: grid;
@@ -315,7 +192,7 @@
 
 .configure-diagnosis .shield-detail-item,
 .configure-editor__body .shield-detail-item,
-.healthy-settings-body .shield-detail-item {
+.healthy-disclosure__body .shield-detail-item {
 	margin-bottom: 0;
 }
 

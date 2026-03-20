@@ -207,8 +207,8 @@ class ConfigureZoneDiagnosisBuilder {
 			'review_rows_heading'       => __( 'Review these settings', 'wp-simple-firewall' ),
 			'healthy_rows_heading'      => sprintf(
 				_n(
-					'Looking good - %s setting configured correctly',
-					'Looking good - %s settings configured correctly',
+					'%s setting configured correctly',
+					'%s settings configured correctly',
 					$healthyFindingsCount,
 					'wp-simple-firewall'
 				),

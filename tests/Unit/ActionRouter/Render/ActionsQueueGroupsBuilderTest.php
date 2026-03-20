@@ -351,17 +351,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[
 				[
 					'title'             => 'Hello Dolly',
-					'subtitle'          => 'Plugin is currently inactive',
-					'context'           => 'Version: 1.7.2',
-					'identifier'        => 'hello-dolly/hello.php',
-					'action'            => [
-						'href'         => '/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
-						'label'        => 'Manage this plugin',
-						'icon'         => 'bi bi-arrow-right-circle-fill',
-						'tooltip'      => 'Manage this plugin',
-						'is_icon_only' => true,
-						'target'       => '_blank',
-					],
+					'action'            => [],
 					'is_ignored'        => true,
 					'ignored_label'     => 'Currently ignored',
 					'secondary_actions' => [
@@ -442,8 +432,81 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'system_php_version', $data[ 'groups' ][ 0 ][ 'key' ] );
 		$this->assertSame( 'bi bi-code-slash', $data[ 'groups' ][ 0 ][ 'icon_class' ] );
 		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'maintenance_rows' ] );
+		$this->assertSame(
+			[
+				'icon_class'  => 'bi bi-code-slash',
+				'title'       => '',
+				'summary'     => 'PHP should be reviewed.',
+				'badge_label' => '',
+				'is_ignored'  => false,
+				'actions'     => [],
+			],
+			$data[ 'groups' ][ 0 ][ 'summary_row' ]
+		);
 		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'management_link' ] );
 		$this->assertSame( 'PHP should be reviewed.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
+	}
+
+	public function test_build_review_bucket_keeps_ignored_singleton_maintenance_toggle_in_summary_row() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[
+				[
+					'key'           => 'system_php_version',
+					'zone'          => 'maintenance',
+					'label'         => 'PHP Version',
+					'icon_class'    => 'bi bi-code-slash',
+					'count'         => 0,
+					'severity'      => 'good',
+					'drill_bucket'  => 'review',
+					'description'   => 'This maintenance item is currently ignored.',
+					'href'          => '/wp-admin/site-health.php',
+					'action'        => 'Open',
+					'target'        => '',
+					'cta'           => [],
+					'toggle_action' => [
+						'label'       => 'Stop ignoring',
+						'href'        => 'javascript:{}',
+						'icon'        => 'bi bi-eye-fill',
+						'tooltip'     => 'Stop ignoring this maintenance item',
+						'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+					],
+					'expansion'     => [],
+				],
+			]
+		);
+
+		$data = $builder->build(
+			'review',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [
+					[
+						'key'               => 'system_php_version',
+						'label'             => 'PHP Version',
+						'description'       => 'This maintenance item is currently ignored.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+				],
+			]
+		);
+
+		$this->assertCount( 1, $data[ 'groups' ] );
+		$this->assertSame( 'healthy', $data[ 'groups' ][ 0 ][ 'display_section' ] );
+		$this->assertSame( 'Currently ignored', $data[ 'groups' ][ 0 ][ 'summary_row' ][ 'badge_label' ] );
+		$this->assertTrue( $data[ 'groups' ][ 0 ][ 'summary_row' ][ 'is_ignored' ] );
+		$this->assertSame(
+			'maintenance_item_unignore',
+			$data[ 'groups' ][ 0 ][ 'summary_row' ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+		);
 	}
 
 	public function test_build_reads_vulnerabilities_payload_once_when_expanding_both_sections() :void {
@@ -676,12 +739,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[ 'active', 'healthy' ],
 			\array_column( $payload[ 'layer' ][ 'groups' ], 'display_section' )
 		);
+		$this->assertSame( 'No action required', $payload[ 'layer' ][ 'healthy_heading_label' ] );
 		$this->assertSame( 'good', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'status' ] );
 		$this->assertSame( '', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'drill_hint' ] );
-		$this->assertSame(
-			'This maintenance group is currently looking good.',
-			$payload[ 'selected_group' ][ 'next_move' ]
-		);
+		$this->assertArrayNotHasKey( 'next_move', $payload[ 'selected_group' ] );
 		$this->assertSame( 1, $payload[ 'selected_group' ][ 'item_count' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',

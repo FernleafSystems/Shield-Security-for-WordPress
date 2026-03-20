@@ -8,125 +8,41 @@
 		<div class="actions-queue-groups__findings">
 			{% set previous_heading = '' %}
 			{% for group in groups %}
-				{% set is_healthy = group.display_section == 'healthy' %}
-				{% if group.card_type == 'category' %}
-					<div class="item-box{% if is_healthy %} item-box--good is-dimmed-healthy{% endif %}">
-						<div class="item-box__header">
-							<span class="item-box__header-icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
-							<span class="item-box__header-title">{{ group.label }}</span>
-							{% if group.management_link is not empty %}
-								<a class="item-box__header-link"
-								   href="{{ group.management_link.href }}"
-								   {% if group.management_link.target is not empty %}target="{{ group.management_link.target }}"{% endif %}
-								   {% if group.management_link.rel is not empty %}rel="{{ group.management_link.rel }}"{% endif %}>
-									{{ group.management_link.label }} <i class="bi {{ group.management_link.icon_class }}" aria-hidden="true"></i>
-								</a>
-							{% endif %}
-						</div>
-						<div class="item-box__grid">
-							{% if group.maintenance_rows is not empty %}
-								{% for row in group.maintenance_rows %}
-									<div class="item-box__row{% if row.is_ignored %} is-ignored{% endif %}"
-										 {% if row.is_ignored %}data-actions-queue-maintenance-ignored="1"{% endif %}>
-										<span class="item-box__row-text item-box__row-text--stacked">
-											<span class="item-box__row-title">
-												<strong>{{ row.title }}</strong>
-												{% if row.ignored_label is not empty %}
-													<span class="shield-badge badge-info item-box__row-badge">{{ row.ignored_label }}</span>
-												{% endif %}
-											</span>
-											{% if row.subtitle is not empty %}
-												<span class="item-box__row-subtitle">{{ row.subtitle }}</span>
-											{% endif %}
-											{% if row.context is not empty %}
-												<span class="item-box__row-summary">{{ row.context }}</span>
-											{% endif %}
-											{% if row.identifier is not empty %}
-												<span class="item-box__row-meta"><code>{{ row.identifier }}</code></span>
-											{% endif %}
-										</span>
-										<span class="item-box__row-actions">
-											{% include '/wpadmin/components/actions_queue/maintenance_row_actions.twig' with {
-												row: row,
-												primary_button_class: 'btn btn-outline-secondary btn-sm item-box__row-primary-action',
-												primary_icon_button_class: 'btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action',
-												secondary_button_class: 'btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action',
-												secondary_spacing_class: ''
-											} only %}
-										</span>
-									</div>
-								{% endfor %}
-							{% else %}
-								<div class="item-box__body-copy">{{ group.narrative }}</div>
-								{% if group.next_move is not empty %}
-									<div class="item-box__body-note">{{ group.next_move }}</div>
-								{% endif %}
-							{% endif %}
-						</div>
-					</div>
-				{% else %}
+				{% if group.display_section != 'healthy' %}
 					{% if group.show_heading and group.heading_label != previous_heading %}
 						<div class="finding-group__heading">{{ group.heading_label }}</div>
 						{% set previous_heading = group.heading_label %}
 					{% endif %}
-
-					{% if group.card_type == 'linked' %}
-						<div class="finding-card status-{{ group.status }}{% if is_healthy %} is-dimmed-healthy{% endif %}">
-							<span class="finding-card__icon status-{{ group.status }}">
-								<i class="{{ group.icon_class }}" aria-hidden="true"></i>
-							</span>
-							<div class="finding-card__body">
-								<div class="finding-card__title">{{ group.label }}</div>
-								<div class="finding-card__desc">{{ group.narrative }}</div>
-							</div>
-							{% if group.links is not empty %}
-								<div class="finding-card__links">
-									{% for link in group.links %}
-										<a class="finding-card__link"
-										   href="{{ link.href }}"
-										   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
-										   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>
-											{{ link.label }}{% if link.icon_class is not empty %} <i class="bi {{ link.icon_class }}" aria-hidden="true"></i>{% endif %}
-										</a>
-									{% endfor %}
-								</div>
-							{% endif %}
-						</div>
-					{% elseif group.is_interactive %}
-						<button type="button"
-								class="finding-card finding-card--expandable status-{{ group.status }}{% if is_healthy %} is-dimmed-healthy{% endif %}"
-								data-drill-target="detail"
-								data-drill-bucket-selection="{{ bucket_selection.selection_json }}"
-								data-drill-group-selection="{{ group.selection_json }}">
-							<span class="finding-card__icon status-{{ group.status }}">
-								<i class="{{ group.icon_class }}" aria-hidden="true"></i>
-							</span>
-							<div class="finding-card__body">
-								<div class="finding-card__title">{{ group.label }}</div>
-								<div class="finding-card__desc">{{ group.narrative }}</div>
-								{% if group.drill_hint is not empty %}
-									<div class="finding-card__drill-hint">
-										{{ group.drill_hint }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
-									</div>
-								{% endif %}
-							</div>
-							<span class="finding-card__chevron">
-								<i class="bi bi-chevron-right" aria-hidden="true"></i>
-							</span>
-						</button>
-					{% else %}
-						<div class="finding-card status-{{ group.status }}{% if is_healthy %} is-dimmed-healthy{% endif %}">
-							<span class="finding-card__icon status-{{ group.status }}">
-								<i class="{{ group.icon_class }}" aria-hidden="true"></i>
-							</span>
-							<div class="finding-card__body">
-								<div class="finding-card__title">{{ group.label }}</div>
-								<div class="finding-card__desc">{{ group.narrative }}</div>
-							</div>
-						</div>
-					{% endif %}
+					{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+						group: group,
+						bucket_selection: bucket_selection
+					} only %}
 				{% endif %}
 			{% endfor %}
+
+			{% set healthy_body_html %}
+				{% set previous_heading = '' %}
+				{% for group in groups %}
+					{% if group.display_section == 'healthy' %}
+						{% if group.show_heading and group.heading_label != previous_heading %}
+							<div class="finding-group__heading">{{ group.heading_label }}</div>
+							{% set previous_heading = group.heading_label %}
+						{% endif %}
+						{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+							group: group,
+							bucket_selection: bucket_selection
+						} only %}
+					{% endif %}
+				{% endfor %}
+			{% endset %}
+
+			{% if healthy_body_html|trim != '' %}
+				{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
+					label: healthy_heading_label,
+					body_html: healthy_body_html,
+					body_class: 'actions-queue-groups__healthy-body'
+				} only %}
+			{% endif %}
 		</div>
 	{% endif %}
 </div>

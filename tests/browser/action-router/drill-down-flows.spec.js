@@ -40,8 +40,8 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 		nav_sub: 'overview',
 	} );
 
-	const healthyToggle = page.locator( '[data-configure-healthy-toggle="1"]' );
-	const healthyZone = page.locator( '[data-configure-healthy-body="1"] [data-drill-target="diagnosis"]' ).first();
+	const healthyToggle = page.locator( '[data-healthy-disclosure-toggle="1"]' ).first();
+	const healthyZone = page.locator( '[data-healthy-disclosure-body="1"] [data-drill-target="diagnosis"]' ).first();
 	await expect( healthyToggle ).toBeVisible();
 	if ( !( await healthyZone.isVisible() ) ) {
 		await healthyToggle.click();
@@ -68,8 +68,8 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	await expandRow.click();
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show' ).first() ).toBeVisible();
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show form.options_form_for' ).first() ).toBeVisible();
-	const diagnosisHealthyToggle = page.locator( '[data-configure-diagnosis="1"] [data-configure-healthy-settings-toggle="1"]' );
-	const diagnosisHealthyBody = page.locator( '[data-configure-diagnosis="1"] [data-configure-healthy-settings-body="1"]' );
+	const diagnosisHealthyToggle = page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-toggle="1"]' );
+	const diagnosisHealthyBody = page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-body="1"]' );
 	if ( await diagnosisHealthyToggle.count() > 0 ) {
 		await expect( diagnosisHealthyToggle ).toBeVisible();
 		await expect( diagnosisHealthyBody ).not.toHaveClass( /is-open/ );

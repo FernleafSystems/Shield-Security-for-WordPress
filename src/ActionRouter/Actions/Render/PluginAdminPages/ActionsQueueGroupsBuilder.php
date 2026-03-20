@@ -22,7 +22,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  * @phpstan-import-type MaintenanceExpansionRow from MaintenanceQueueItemDisplayNormalizer
+ * @phpstan-import-type MaintenanceUiAction from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
+ * @phpstan-type CompactMaintenanceRow array{
+ *   title:string,
+ *   action:array{},
+ *   is_ignored:bool,
+ *   ignored_label:string,
+ *   secondary_actions:list<MaintenanceUiAction>
+ * }
+ * @phpstan-type SummaryRow array{
+ *   icon_class:string,
+ *   title:string,
+ *   summary:string,
+ *   badge_label:string,
+ *   is_ignored:bool,
+ *   actions:list<MaintenanceUiAction>
+ * }
  * @phpstan-type GroupLink array{
  *   label:string,
  *   href:string,
@@ -49,7 +65,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',
  *   narrative:string,
- *   next_move:string,
  *   drill_hint:string,
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
@@ -57,13 +72,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   detail_table:array<string,mixed>,
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,mixed>,
- *   maintenance_rows:list<MaintenanceExpansionRow>,
+ *   maintenance_rows:list<CompactMaintenanceRow>,
+ *   summary_row:array{}|SummaryRow,
  *   header:DrillLayerHeaderInput,
  *   selection_json:string,
  *   selection:GroupSelection
  * }
  * @phpstan-type GroupsLayerData array{
  *   bucket_selection:BucketSelection,
+ *   healthy_heading_label:string,
  *   groups:list<GroupData>,
  *   header:DrillLayerHeaderInput
  * }
@@ -89,7 +106,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   detail_table:array<string,mixed>,
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
- *   maintenance_rows:list<MaintenanceExpansionRow>
+ *   maintenance_rows:list<CompactMaintenanceRow>,
+ *   summary_row:array{}|SummaryRow
  * }
  * @phpstan-type ComputedGroups array{
  *   layer:GroupsLayerData,
@@ -178,9 +196,10 @@ class ActionsQueueGroupsBuilder {
 
 		return [
 			'layer'          => [
-				'bucket_selection' => $bucketSelection,
-				'groups'           => \array_values( $groupsIndexed ),
-				'header'           => $bucketSelection[ 'header' ],
+				'bucket_selection'      => $bucketSelection,
+				'healthy_heading_label' => $this->healthySectionHeadingLabel(),
+				'groups'                => \array_values( $groupsIndexed ),
+				'header'                => $bucketSelection[ 'header' ],
 			],
 			'groups_indexed' => $groupsIndexed,
 		];
@@ -288,6 +307,7 @@ class ActionsQueueGroupsBuilder {
 					'detail_table'     => [],
 					'attention_items'  => [],
 					'maintenance_rows' => [],
+					'summary_row'      => [],
 				];
 			}
 
@@ -360,15 +380,11 @@ class ActionsQueueGroupsBuilder {
 	private function resolveSeed( string $bucketLabel, array $seed ) :array {
 		$definition = $this->getGroupDefinition( $seed[ 'definition_key' ] );
 		$iconClass = $seed[ 'icon_class_override' ] ?? $definition[ 'icon_class' ];
-		$isHealthy = ( $seed[ 'display_section' ] ?? 'active' ) === 'healthy';
 		$narrative = $seed[ 'narrative' ] !== ''
 			? $seed[ 'narrative' ]
 			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'attention_items' ], $seed[ 'item_count' ] );
 		$isInteractive = $seed[ 'is_interactive_override' ]
 			?? $this->determineInteractivity( $seed );
-		$nextMove = $isHealthy
-			? $this->buildHealthyNextMove( $seed[ 'definition_key' ], $isInteractive )
-			: $this->buildNextMove( $seed[ 'definition_key' ] );
 		$selection = $this->presentation()->buildGroupSelection(
 			$bucketLabel,
 			$seed[ 'key' ],
@@ -393,7 +409,6 @@ class ActionsQueueGroupsBuilder {
 			'detail_shell'        => $seed[ 'detail_shell' ],
 			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],
 			'narrative'           => $narrative,
-			'next_move'           => $nextMove,
 			'drill_hint'          => $this->buildDrillHint(
 				$definition,
 				$seed[ 'item_count' ],
@@ -408,6 +423,7 @@ class ActionsQueueGroupsBuilder {
 			'render_action_data'  => $seed[ 'render_action_data_override' ]
 				?? $definition[ 'render_action_data' ],
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
+			'summary_row'         => $seed[ 'summary_row' ],
 			'header'              => $selection[ 'header' ],
 			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
@@ -421,7 +437,6 @@ class ActionsQueueGroupsBuilder {
 		$definitionKey = $this->definitionKeyForGroupKey( $groupKey );
 		$definition = $this->getGroupDefinition( $definitionKey );
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
-		$nextMove = __( 'Go back to the grouped findings and pick another area to review.', 'wp-simple-firewall' );
 		$selection = $this->presentation()->buildGroupSelection(
 			$bucketLabel,
 			$groupKey,
@@ -445,7 +460,6 @@ class ActionsQueueGroupsBuilder {
 			'detail_shell'        => $definition[ 'detail_shell' ],
 			'card_type'           => $definition[ 'card_type' ],
 			'narrative'           => $narrative,
-			'next_move'           => $nextMove,
 			'drill_hint'          => '',
 			'links'               => [],
 			'management_link'     => [],
@@ -454,6 +468,7 @@ class ActionsQueueGroupsBuilder {
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
 			'maintenance_rows'    => [],
+			'summary_row'         => [],
 			'header'              => $selection[ 'header' ],
 			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
@@ -492,6 +507,7 @@ class ActionsQueueGroupsBuilder {
 				'detail_table'     => $card[ 'table' ],
 				'attention_items'  => [ $item ],
 				'maintenance_rows' => [],
+				'summary_row'      => [],
 			];
 		}
 
@@ -524,6 +540,7 @@ class ActionsQueueGroupsBuilder {
 				'detail_table'     => [],
 				'attention_items'  => [ $item ],
 				'maintenance_rows' => [],
+				'summary_row'      => [],
 			];
 		}
 
@@ -534,24 +551,29 @@ class ActionsQueueGroupsBuilder {
 	 * @return GroupSeed
 	 */
 	private function buildMaintenanceSeed( array $maintenanceItem, string $displaySection = 'active' ) :array {
+		$maintenanceRows = $this->projectMaintenanceRows( $maintenanceItem );
+
 		return [
-			'key'              => $maintenanceItem[ 'key' ],
-			'display_section'  => $displaySection,
-			'definition_key'   => 'maintenance',
-			'heading_label'    => '',
-			'label'            => $maintenanceItem[ 'label' ],
-			'item_count'       => $displaySection === 'healthy'
+			'key'                 => $maintenanceItem[ 'key' ],
+			'display_section'     => $displaySection,
+			'definition_key'      => 'maintenance',
+			'heading_label'       => '',
+			'label'               => $maintenanceItem[ 'label' ],
+			'item_count'          => $displaySection === 'healthy'
 				? $this->maintenanceVisibleCount( $maintenanceItem )
 				: (int)$maintenanceItem[ 'count' ],
-			'status'           => StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'warning' ),
-			'narrative'        => $maintenanceItem[ 'description' ],
-			'detail_shell'     => 'maintenance',
+			'status'              => StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'warning' ),
+			'narrative'           => $maintenanceItem[ 'description' ],
+			'detail_shell'        => 'maintenance',
 			'icon_class_override' => $maintenanceItem[ 'icon_class' ] ?? null,
-			'links'            => [],
-			'management_link'  => $this->buildManagementLink( $maintenanceItem ),
-			'detail_table'     => [],
-			'attention_items'  => [],
-			'maintenance_rows' => $this->extractMaintenanceRows( $maintenanceItem ),
+			'links'               => [],
+			'management_link'     => $this->buildManagementLink( $maintenanceItem ),
+			'detail_table'        => [],
+			'attention_items'     => [],
+			'maintenance_rows'    => $maintenanceRows,
+			'summary_row'         => empty( $maintenanceRows )
+				? $this->buildMaintenanceSummaryRow( $maintenanceItem )
+				: [],
 		];
 	}
 
@@ -687,6 +709,7 @@ class ActionsQueueGroupsBuilder {
 				'render_action_data_override' => $interaction[ 'render_action_data' ],
 				'attention_items'  => [],
 				'maintenance_rows' => [],
+				'summary_row'      => [],
 			];
 			$seeds[] = $seed;
 		}
@@ -776,36 +799,8 @@ class ActionsQueueGroupsBuilder {
 		}
 	}
 
-	private function buildNextMove( string $definitionKey ) :string {
-		switch ( $definitionKey ) {
-			case 'vulnerabilities':
-				return __( 'Review the vulnerable assets first, then remove or replace anything abandoned.', 'wp-simple-firewall' );
-			case 'wordpress':
-				return __( 'Inspect the changed core files and repair them if they are not expected.', 'wp-simple-firewall' );
-			case 'plugins':
-			case 'themes':
-				return __( 'Review the selected asset table for the fastest next action.', 'wp-simple-firewall' );
-			case 'malware':
-				return __( 'Review the flagged files and quarantine or delete them if they are confirmed malware.', 'wp-simple-firewall' );
-			case 'file_locker':
-				return __( 'Review the changed files and restore the locked originals if needed.', 'wp-simple-firewall' );
-			case 'maintenance':
-				return __( 'Review the maintenance item and address it in the next appropriate maintenance window.', 'wp-simple-firewall' );
-			default:
-				return __( 'Open this group to review the matching results.', 'wp-simple-firewall' );
-		}
-	}
-
-	private function buildHealthyNextMove( string $definitionKey, bool $isInteractive ) :string {
-		if ( $definitionKey === 'maintenance' ) {
-			return $isInteractive
-				? __( 'This maintenance group is currently looking good. Review or stop ignoring items here any time.', 'wp-simple-firewall' )
-				: __( 'This maintenance group is currently looking good.', 'wp-simple-firewall' );
-		}
-
-		return $isInteractive
-			? __( 'This group is currently looking good. Ignored scan results are still available here if you need to review them.', 'wp-simple-firewall' )
-			: __( 'This group is currently looking good.', 'wp-simple-firewall' );
+	private function healthySectionHeadingLabel() :string {
+		return __( 'No action required', 'wp-simple-firewall' );
 	}
 
 	private function buildDrillHint( array $definition, int $itemCount, string $detailShell, string $status ) :string {
@@ -974,6 +969,46 @@ class ActionsQueueGroupsBuilder {
 
 	/**
 	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
+	 * @return list<CompactMaintenanceRow>
+	 */
+	private function projectMaintenanceRows( array $maintenanceItem ) :array {
+		return \array_values( \array_map(
+			static fn( array $row ) :array => [
+				'title'             => (string)( $row[ 'title' ] ?? '' ),
+				'action'            => [],
+				'is_ignored'        => (bool)( $row[ 'is_ignored' ] ?? false ),
+				'ignored_label'     => (string)( $row[ 'ignored_label' ] ?? '' ),
+				'secondary_actions' => \is_array( $row[ 'secondary_actions' ] ?? null )
+					? $row[ 'secondary_actions' ]
+					: [],
+			],
+			$this->extractMaintenanceRows( $maintenanceItem )
+		) );
+	}
+
+	/**
+	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
+	 * @return array{}|SummaryRow
+	 */
+	private function buildMaintenanceSummaryRow( array $maintenanceItem ) :array {
+		$toggleAction = \is_array( $maintenanceItem[ 'toggle_action' ] ?? null ) ? $maintenanceItem[ 'toggle_action' ] : [];
+		if ( \trim( (string)( $maintenanceItem[ 'description' ] ?? '' ) ) === '' && empty( $toggleAction ) ) {
+			return [];
+		}
+
+		$isIgnored = \trim( (string)( $toggleAction[ 'label' ] ?? '' ) ) === __( 'Stop ignoring', 'wp-simple-firewall' );
+		return [
+			'icon_class'  => (string)( $maintenanceItem[ 'icon_class' ] ?? '' ),
+			'title'       => '',
+			'summary'     => (string)( $maintenanceItem[ 'description' ] ?? '' ),
+			'badge_label' => $isIgnored ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
+			'is_ignored'  => $isIgnored,
+			'actions'     => empty( $toggleAction ) ? [] : [ $toggleAction ],
+		];
+	}
+
+	/**
+	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
 	 */
 	private function maintenanceVisibleCount( array $maintenanceItem ) :int {
 		$activeCount = (int)( $maintenanceItem[ 'count' ] ?? 0 );
@@ -981,12 +1016,12 @@ class ActionsQueueGroupsBuilder {
 			return $activeCount;
 		}
 
-		$rowCount = \count( $this->extractMaintenanceRows( $maintenanceItem ) );
+		$rowCount = \count( $this->projectMaintenanceRows( $maintenanceItem ) );
 		if ( $rowCount > 0 ) {
 			return $rowCount;
 		}
 
-		return empty( $maintenanceItem[ 'toggle_action' ] ) ? 0 : 1;
+		return empty( $this->buildMaintenanceSummaryRow( $maintenanceItem ) ) ? 0 : 1;
 	}
 
 	/**

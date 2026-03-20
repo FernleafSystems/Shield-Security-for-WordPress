@@ -1,0 +1,74 @@
+.healthy-disclosure {
+	display: grid;
+	gap: 0;
+	margin-top: 1rem;
+}
+
+.healthy-disclosure__toggle {
+	align-items: center;
+	appearance: none;
+	background: #e6f4ea;
+	border: 1px solid #c4e8cf;
+	border-radius: $card-border-radius;
+	color: $status-color-good;
+	cursor: pointer;
+	display: flex;
+	gap: 0.625rem;
+	padding: 0.75rem 1rem;
+	text-align: left;
+	transition: background-color 0.15s ease, border-color 0.15s ease;
+	user-select: none;
+	width: 100%;
+}
+
+.healthy-disclosure__toggle:hover,
+.healthy-disclosure__toggle:focus-visible {
+	background: #d4edda;
+	border-color: rgba($status-color-good, 0.35);
+	outline: none;
+}
+
+.healthy-disclosure__icon,
+.healthy-disclosure__label,
+.healthy-disclosure__chevron {
+	color: $status-color-good;
+}
+
+.healthy-disclosure__icon {
+	font-size: 1rem;
+}
+
+.healthy-disclosure__label {
+	flex: 1;
+	font-size: 0.8125rem;
+	font-weight: 700;
+}
+
+.healthy-disclosure__chevron {
+	font-size: 0.875rem;
+	transition: transform 0.25s ease;
+}
+
+.healthy-disclosure__toggle.is-open .healthy-disclosure__chevron {
+	transform: rotate(90deg);
+}
+
+.healthy-disclosure__body {
+	max-height: 0;
+	opacity: 0;
+	overflow: hidden;
+	transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+		opacity 0.3s ease,
+		margin-top 0.3s ease;
+}
+
+.healthy-disclosure__body.is-open {
+	margin-top: 0.75rem;
+	max-height: 2400px;
+	opacity: 1;
+}
+
+.healthy-disclosure__body > :last-child,
+.healthy-disclosure__body .finding-card:last-child {
+	margin-bottom: 0;
+}

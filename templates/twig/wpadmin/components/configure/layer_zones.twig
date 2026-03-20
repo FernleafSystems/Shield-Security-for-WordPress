@@ -21,26 +21,17 @@
 	{% for section in sections %}
 		{% if section.cards is not empty %}
 			{% if section.collapsible %}
-				<div class="configure-zones__healthy-collapse"
-					 data-configure-healthy-toggle="1">
-					<span class="configure-zones__healthy-icon">
-						<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-					</span>
-					<span class="configure-zones__healthy-label">
-						{{ section.cards|length }} {{ section.heading|lower }}
-					</span>
-					<span class="configure-zones__healthy-chevron">
-						<i class="bi bi-chevron-right" aria-hidden="true"></i>
-					</span>
-				</div>
-				<div class="configure-zones__healthy-cards"
-					 data-configure-healthy-body="1">
+				{% set body_html %}
 					<div class="configure-zones__grid">
 						{% for zone in section.cards %}
 							{{ zone_card(zone) }}
 						{% endfor %}
 					</div>
-				</div>
+				{% endset %}
+				{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
+					label: section.cards|length ~ ' ' ~ section.heading|lower,
+					body_html: body_html
+				} only %}
 			{% else %}
 				<section class="configure-zones__section">
 					<div class="configure-zones__grid">

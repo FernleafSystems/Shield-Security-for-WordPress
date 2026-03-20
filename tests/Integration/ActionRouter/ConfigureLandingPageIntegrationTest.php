@@ -101,19 +101,19 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__settings-link ")]',
 			'Deep-linked diagnosis should render the settings page link in the next move block'
 		);
-		if ( $validXpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-healthy-settings-toggle="1"]' )->length > 0 ) {
+		if ( $validXpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-toggle="1"]' )->length > 0 ) {
 			$this->assertXPathExists(
 				$validXpath,
-				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-header ")]',
+				'//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-toggle="1"]',
 				'Deep-linked diagnosis should render healthy settings toggle when healthy rows exist'
 			);
 			$this->assertXPathExists(
 				$validXpath,
-				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-body ")]',
+				'//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-body="1"]',
 				'Deep-linked diagnosis should render healthy settings body when healthy rows exist'
 			);
 			$healthySettingRows = $validXpath->query(
-				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), "healthy-settings-body")]//*[contains(concat(" ", normalize-space(@class), " "), "shield-detail-row ")]'
+				'//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), "shield-detail-row ")]'
 			);
 			$this->assertGreaterThan( 0, $healthySettingRows->length, 'Deep-linked diagnosis should include healthy detail rows when healthy rows exist' );
 		}
@@ -182,15 +182,15 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-shield-expand-trigger="1"]' )->length,
 			'Diagnosis AJAX should render shared expandable detail rows for configurable findings'
 		);
-		if ( $xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-configure-healthy-settings-toggle="1"]' )->length > 0 ) {
+		if ( $xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-toggle="1"]' )->length > 0 ) {
 			$this->assertXPathExists(
 				$xpath,
-				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-header ")]',
+				'//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-toggle="1"]',
 				'Diagnosis AJAX should render healthy settings toggle when healthy rows exist'
 			);
 			$this->assertXPathExists(
 				$xpath,
-				'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-body ")]',
+				'//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-body="1"]',
 				'Diagnosis AJAX should render healthy settings body when healthy rows exist'
 			);
 		}
@@ -243,12 +243,12 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathNotExists(
 			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-header ")]',
+			'//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-toggle="1"]',
 			'General diagnosis should not render the healthy settings heading for review-only rows'
 		);
 		$this->assertXPathNotExists(
 			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " healthy-settings-body ")]',
+			'//*[@data-configure-diagnosis="1"]//*[@data-healthy-disclosure-body="1"]',
 			'General diagnosis should not render healthy settings rows for review-only rows'
 		);
 	}

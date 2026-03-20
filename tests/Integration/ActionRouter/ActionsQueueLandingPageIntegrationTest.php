@@ -330,13 +330,18 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
-			'Bucket layer should render the looking-good item box when healthy assessment rows exist'
+			'//*[@data-healthy-disclosure-toggle="1"]',
+			'Bucket layer should render the shared healthy disclosure toggle when healthy assessment rows exist'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__header-title ") and normalize-space()="Looking good"]',
+			'//*[@data-healthy-disclosure-toggle="1"][contains(normalize-space(), "No action required")]',
 			'Bucket layer should label the healthy summary section'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
+			'Bucket layer should render the healthy summary content inside the disclosure body'
 		);
 		$this->assertXPathCount(
 			$xpath,
@@ -425,10 +430,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'Groups AJAX should render maintenance category rows inside the item-box'
 		);
 		$this->assertNotEmpty( $payload[ 'groups' ][ 0 ][ 'maintenance_rows' ] ?? [] );
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-summary ") and contains(normalize-space(), "Current:") and contains(normalize-space(), "Available:")]',
-			'Groups AJAX should enumerate the normalized maintenance row context instead of the old assessment summary row'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-summary ")]',
+			0,
+			'Groups AJAX should remove the grouped maintenance row context clutter'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -468,6 +474,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
 		$this->assertSame( 'wp_plugins_updates', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'healthy', (string)( $payload[ 'groups' ][ 0 ][ 'display_section' ] ?? '' ) );
+		$this->assertSame( 'No action required', (string)( $payload[ 'healthy_heading_label' ] ?? '' ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Looking good"]',
@@ -476,8 +483,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
-			'Review groups AJAX should render healthy maintenance groups with the shared looking-good item-box styling'
+			'//*[@data-healthy-disclosure-toggle="1"][contains(normalize-space(), "No action required")]',
+			'Review groups AJAX should render the shared healthy disclosure toggle'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
+			'Review groups AJAX should render healthy maintenance groups inside the disclosure body'
 		);
 		$this->assertXPathExists(
 			$xpath,

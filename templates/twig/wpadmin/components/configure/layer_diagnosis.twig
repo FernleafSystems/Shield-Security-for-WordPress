@@ -84,18 +84,7 @@
 	{% endif %}
 
 	{% if diagnosis.healthy_rows is not empty %}
-		<div class="healthy-settings-header" data-configure-healthy-settings-toggle="1">
-			<span class="healthy-settings-header__icon">
-				<i class="bi bi-check-circle-fill" aria-hidden="true"></i>
-			</span>
-			<span class="healthy-settings-header__label">
-				{{ diagnosis.healthy_rows_heading }}
-			</span>
-			<span class="healthy-settings-header__chevron">
-				<i class="bi bi-chevron-right" aria-hidden="true"></i>
-			</span>
-		</div>
-		<div class="healthy-settings-body" data-configure-healthy-settings-body="1">
+		{% set body_html %}
 			{% for row in diagnosis.healthy_rows %}
 				{% set expand_id = diagnosis_id ~ '-healthy-expand-' ~ loop.index0 %}
 				{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
@@ -118,7 +107,11 @@
 					}
 				} } only %}
 			{% endfor %}
-		</div>
+		{% endset %}
+		{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
+			label: diagnosis.healthy_rows_heading,
+			body_html: body_html
+		} only %}
 	{% endif %}
 
 	<div class="configure-diagnosis__next-move">

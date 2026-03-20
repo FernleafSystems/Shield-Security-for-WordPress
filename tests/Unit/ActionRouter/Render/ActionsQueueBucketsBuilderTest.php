@@ -155,10 +155,10 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $bucketsByKey[ 'review' ][ 'is_interactive' ] ?? false ) );
 	}
 
-	public function test_build_looking_good_collects_only_good_assessment_rows() :void {
+	public function test_build_healthy_disclosure_collects_only_good_assessment_rows() :void {
 		$builder = new ActionsQueueBucketsBuilder();
 
-		$lookingGood = $builder->buildLookingGood(
+		$healthyDisclosure = $builder->buildHealthyDisclosure(
 			[
 				'scans' => [
 					[
@@ -203,7 +203,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'Looking good', $lookingGood[ 'heading' ] );
+		$this->assertSame( 'No action required', $healthyDisclosure[ 'label' ] );
 		$this->assertSame(
 			[
 				[
@@ -217,7 +217,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 					'summary'    => 'Healthy.',
 				],
 			],
-			$lookingGood[ 'items' ]
+			$healthyDisclosure[ 'items' ]
 		);
 	}
 

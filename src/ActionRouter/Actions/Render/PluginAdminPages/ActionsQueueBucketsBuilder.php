@@ -81,11 +81,11 @@ class ActionsQueueBucketsBuilder {
 	/**
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return array{
-	 *   heading:string,
+	 *   label:string,
 	 *   items:list<array{icon_class:string, title:string, summary:string}>
 	 * }
 	 */
-	public function buildLookingGood( array $assessmentRowsByZone ) :array {
+	public function buildHealthyDisclosure( array $assessmentRowsByZone ) :array {
 		$items = [];
 
 		foreach ( $assessmentRowsByZone[ 'scans' ] as $row ) {
@@ -109,8 +109,8 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return [
-			'heading' => __( 'Looking good', 'wp-simple-firewall' ),
-			'items'   => $items,
+			'label' => __( 'No action required', 'wp-simple-firewall' ),
+			'items' => $items,
 		];
 	}
 

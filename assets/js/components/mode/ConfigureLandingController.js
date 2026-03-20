@@ -3,6 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { HealthyDisclosureToggle } from "../ui/HealthyDisclosureToggle";
 import { getLayersForShell, updateOperatorRootStep } from "./DrillDownShared";
 
 export class ConfigureLandingController extends BaseAutoExecComponent {
@@ -20,7 +21,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.bindDrillDownHandlers();
 		this.bindSaveHandlers();
 		this.initializeCurrentRoot();
-		this.bindHealthyZoneToggle();
+		this.bindHealthyDisclosureToggle();
 	}
 
 	bindDrillDownHandlers() {
@@ -51,32 +52,12 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		document.addEventListener( 'shield:expansion-form-saved', ( evt ) => this.handleSettingsSaved( evt ) );
 	}
 
-	bindHealthyZoneToggle() {
+	bindHealthyDisclosureToggle() {
 		if ( this.hasBoundHealthyToggle ) {
 			return;
 		}
 		this.hasBoundHealthyToggle = true;
-
-		document.addEventListener( 'click', ( evt ) => {
-			// Shared collapse contract: toggle + immediately-following content panel.
-			const toggle = evt.target instanceof Element
-				? evt.target.closest( '[data-configure-healthy-toggle="1"], [data-configure-healthy-settings-toggle="1"]' )
-				: null;
-			if ( toggle === null ) {
-				return;
-			}
-
-			const root = this.rootEl || this.getConfigureRoot();
-			if ( root === null || !root.contains( toggle ) ) {
-				return;
-			}
-
-			toggle.classList.toggle( 'is-open' );
-			const body = toggle.nextElementSibling;
-			if ( body !== null ) {
-				body.classList.toggle( 'is-open' );
-			}
-		} );
+		( new HealthyDisclosureToggle( () => this.rootEl || this.getConfigureRoot() ) ).bind();
 	}
 
 	initializeCurrentRoot() {

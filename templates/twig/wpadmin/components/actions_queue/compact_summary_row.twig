@@ -1,0 +1,35 @@
+<div class="item-box__row{% if row.is_ignored|default(false) %} is-ignored{% endif %}">
+	{% if row.icon_class|default('') is not empty %}
+		<span class="item-box__row-icon"><i class="{{ row.icon_class }}" aria-hidden="true"></i></span>
+	{% endif %}
+	<span class="item-box__row-text{% if row.title|default('') is not empty or row.badge_label|default('') is not empty %} item-box__row-text--stacked{% endif %}">
+		{% if row.title|default('') is not empty or row.badge_label|default('') is not empty %}
+			<span class="item-box__row-title">
+				{% if row.title|default('') is not empty %}
+					<strong>{{ row.title }}</strong>
+				{% endif %}
+				{% if row.badge_label|default('') is not empty %}
+					<span class="shield-badge badge-info item-box__row-badge">{{ row.badge_label }}</span>
+				{% endif %}
+			</span>
+		{% endif %}
+		{% if row.summary|default('') is not empty %}
+			<span class="item-box__row-summary">{{ row.summary }}</span>
+		{% endif %}
+	</span>
+	{% if row.actions|default([]) is not empty %}
+		<span class="item-box__row-actions">
+			{% for action in row.actions %}
+				<a href="{{ action.href }}"
+				   class="btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action"
+				   {% if action.tooltip is not empty %}data-bs-toggle="tooltip"
+				   data-bs-title="{{ action.tooltip|e('html_attr') }}"{% endif %}
+				   {% if action.target is not empty %}target="{{ action.target }}"{% endif %}
+				   {% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+					<i class="{{ action.icon }}" aria-hidden="true"></i>
+					<span class="visually-hidden">{{ action.label }}</span>
+				</a>
+			{% endfor %}
+		</span>
+	{% endif %}
+</div>

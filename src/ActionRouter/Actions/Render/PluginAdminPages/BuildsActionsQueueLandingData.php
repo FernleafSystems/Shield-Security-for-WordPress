@@ -142,8 +142,8 @@ trait BuildsActionsQueueLandingData {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
-				'buckets'      => $this->getBucketsData(),
-				'looking_good' => ( new ActionsQueueBucketsBuilder() )->buildLookingGood( $this->getAssessmentRowsByZone() ),
+				'buckets'            => $this->getBucketsData(),
+				'healthy_disclosure' => ( new ActionsQueueBucketsBuilder() )->buildHealthyDisclosure( $this->getAssessmentRowsByZone() ),
 			] )
 			->render();
 	}

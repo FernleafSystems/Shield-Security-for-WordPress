@@ -59,7 +59,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( '2 findings', $diagnosis[ 'header' ][ 'badge' ] );
 		$this->assertSame( '/admin/login', $diagnosis[ 'settings_href' ] );
 		$this->assertSame( 'Configure Login Settings', $diagnosis[ 'settings_label' ] );
-		$this->assertSame( 'Looking good - 1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
+		$this->assertSame( '1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
 		$this->assertSame( 'Next move', $diagnosis[ 'next_move_heading' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
 		$this->assertStringContainsString( 'Review 2FA', $diagnosis[ 'next_move' ] );
@@ -88,7 +88,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'review_fallback_card' ] );
 		$this->assertSame( 'Good', $diagnosis[ 'header' ][ 'badge' ] );
 		$this->assertStringContainsString( 'no active findings', $diagnosis[ 'preview_text' ] );
-		$this->assertSame( 'Looking good - 1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
+		$this->assertSame( '1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
 	}
 
 	public function test_general_zone_uses_neutral_review_state() :void {

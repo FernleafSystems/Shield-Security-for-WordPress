@@ -15,6 +15,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	/**
 	 * @return array{
 	 *   bucket_selection:BucketSelection,
+	 *   healthy_heading_label:string,
 	 *   empty_message:string,
 	 *   groups:list<GroupData>,
 	 *   header:array<string,string>,
@@ -50,10 +51,11 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 		$groups = $renderPayload[ 'layer' ];
 
 		$data = [
-			'bucket_selection' => $groups[ 'bucket_selection' ],
-			'empty_message'    => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
-			'groups'           => $groups[ 'groups' ],
-			'header'           => $groups[ 'header' ],
+			'bucket_selection'      => $groups[ 'bucket_selection' ],
+			'healthy_heading_label' => $groups[ 'healthy_heading_label' ],
+			'empty_message'         => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
+			'groups'                => $groups[ 'groups' ],
+			'header'                => $groups[ 'header' ],
 		];
 		if ( !empty( $this->action_data[ 'include_landing_refresh' ] ) ) {
 			$landingView = $this->getLandingViewData();
