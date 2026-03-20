@@ -84,7 +84,8 @@ class ActionsQueueLandingAssessmentBuilder {
 	 *   key:string,
 	 *   zone:string,
 	 *   component_class:class-string<\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base>,
-	 *   availability_strategy:string
+	 *   availability_strategy:string,
+	 *   drill_bucket:'critical'|'review'
 	 * } $definition
 	 * @return list<AssessmentRow>
 	 */
@@ -93,7 +94,11 @@ class ActionsQueueLandingAssessmentBuilder {
 			return [];
 		}
 
-		$row = $this->buildAssessmentRow( $definition[ 'key' ], $definition[ 'component_class' ] );
+		$row = $this->buildAssessmentRow(
+			$definition[ 'key' ],
+			$definition[ 'component_class' ],
+			$definition[ 'drill_bucket' ]
+		);
 		return $row === null ? [] : [ $row ];
 	}
 
@@ -102,7 +107,8 @@ class ActionsQueueLandingAssessmentBuilder {
 	 *   key:string,
 	 *   zone:string,
 	 *   component_class:class-string<\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base>,
-	 *   availability_strategy:string
+	 *   availability_strategy:string,
+	 *   drill_bucket:'critical'|'review'
 	 * }>
 	 */
 	protected function getDefinitions() :array {
@@ -144,14 +150,13 @@ class ActionsQueueLandingAssessmentBuilder {
 	 *   status_icon_class:string
 	 * }|null
 	 */
-	protected function buildAssessmentRow( string $key, string $componentClass ) :?array {
+	protected function buildAssessmentRow( string $key, string $componentClass, string $drillBucket ) :?array {
 		$component = $this->buildAssessmentComponent( $componentClass );
 
 		if ( !$component[ 'is_applicable' ] ) {
 			return null;
 		}
 
-		$drillBucket = $component[ 'is_critical' ] ? 'critical' : 'review';
 		$status = $component[ 'is_protected' ]
 			? 'good'
 			: ( $drillBucket === 'critical' ? 'critical' : 'warning' );

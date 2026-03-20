@@ -299,17 +299,16 @@ class ActionsQueueGroupsBuilder {
 			\array_values( \array_filter( $seeds, static fn( array $seed ) :bool => $seed[ 'label' ] !== '' ) )
 		) );
 
-		if ( $bucketKey === 'review' ) {
-			$resolved = \array_merge(
-				$resolved,
-				$this->buildHealthyReviewGroups(
-					$bucketLabel,
-					$bucketSource,
-					$assessmentRowsByZone,
-					\array_fill_keys( \array_column( $resolved, 'key' ), true )
-				)
-			);
-		}
+		$resolved = \array_merge(
+			$resolved,
+			$this->buildHealthyBucketGroups(
+				$bucketKey,
+				$bucketLabel,
+				$bucketSource,
+				$assessmentRowsByZone,
+				\array_fill_keys( \array_column( $resolved, 'key' ), true )
+			)
+		);
 
 		\usort( $resolved, function ( array $left, array $right ) :int {
 			$sectionCmp = $this->displaySectionOrder( $left[ 'display_section' ] ?? 'active' )
@@ -599,7 +598,8 @@ class ActionsQueueGroupsBuilder {
 	 * @param array<string,true> $existingGroupKeys
 	 * @return list<GroupData>
 	 */
-	private function buildHealthyReviewGroups(
+	private function buildHealthyBucketGroups(
+		string $bucketKey,
 		string $bucketLabel,
 		array $bucketSource,
 		array $assessmentRowsByZone,
@@ -607,19 +607,19 @@ class ActionsQueueGroupsBuilder {
 	) :array {
 		$resolved = [];
 
-		foreach ( $this->buildHealthyReviewScanSeeds( $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
 			$resolved[] = $this->resolveSeed( $bucketLabel, $seed );
 		}
 
-		foreach ( $this->normalizeReviewMaintenanceQueueItems( \array_values( \array_filter(
+		foreach ( $this->normalizeBucketMaintenanceQueueItems( \array_values( \array_filter(
 			$bucketSource[ 'attention_items' ],
 			static fn( array $item ) :bool => ( $item[ 'zone' ] ?? '' ) === 'maintenance'
-		) ) ) as $maintenanceItem ) {
+		) ), $bucketKey ) as $maintenanceItem ) {
 			if ( ( $maintenanceItem[ 'severity' ] ?? '' ) !== 'good'
-				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== 'review'
+				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== $bucketKey
 				|| isset( $existingGroupKeys[ $maintenanceItem[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -638,11 +638,11 @@ class ActionsQueueGroupsBuilder {
 	 * @param list<AssessmentRow> $assessmentRows
 	 * @return list<GroupSeed>
 	 */
-	private function buildHealthyReviewScanSeeds( array $assessmentRows ) :array {
+	private function buildHealthyScanSeedsForBucket( string $bucketKey, array $assessmentRows ) :array {
 		$rowsByDefinitionKey = [];
 
 		foreach ( $assessmentRows as $row ) {
-			if ( $row[ 'status' ] !== 'good' || $row[ 'drill_bucket' ] !== 'review' ) {
+			if ( $row[ 'status' ] !== 'good' || $row[ 'drill_bucket' ] !== $bucketKey ) {
 				continue;
 			}
 
@@ -920,8 +920,8 @@ class ActionsQueueGroupsBuilder {
 	 * @param list<AttentionItem> $items
 	 * @return list<MaintenanceQueueItem>
 	 */
-	protected function normalizeReviewMaintenanceQueueItems( array $items ) :array {
-		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeForReview( $items );
+	protected function normalizeBucketMaintenanceQueueItems( array $items, string $bucketKey ) :array {
+		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeForBucket( $items, $bucketKey );
 	}
 
 	/**

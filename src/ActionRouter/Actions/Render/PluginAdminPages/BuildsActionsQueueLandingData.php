@@ -131,6 +131,13 @@ trait BuildsActionsQueueLandingData {
 		return $this->actionsQueueBucketsCache;
 	}
 
+	protected function hasDrilldownContent() :bool {
+		return !empty( \array_filter(
+			$this->getBucketsData(),
+			static fn( array $bucket ) :bool => $bucket[ 'is_interactive' ]
+		) );
+	}
+
 	protected function renderBucketsLayer() :string {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )

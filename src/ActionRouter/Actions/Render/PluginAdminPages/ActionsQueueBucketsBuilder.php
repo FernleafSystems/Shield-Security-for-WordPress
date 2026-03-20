@@ -13,13 +13,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
- *   item_count:int
+ *   item_count:int,
+ *   healthy_item_count:int
  * }
  * @phpstan-type BucketData array{
  *   key:string,
  *   label:string,
  *   status:string,
+ *   state_label:string,
  *   item_count:int,
+ *   is_interactive:bool,
  *   summary_text:string,
  *   icon_class:string,
  *   header:DrillLayerHeaderInput,
@@ -39,19 +42,19 @@ class ActionsQueueBucketsBuilder {
 	 * @return list<BucketData>
 	 */
 	public function build( array $attentionQuery, array $assessmentRowsByZone ) :array {
-		$sources = $this->classify( $attentionQuery );
+		$sources = $this->classify( $attentionQuery, $assessmentRowsByZone );
 		$buckets = [];
 		$presentation = $this->presentation();
 
 		foreach ( $this->getBucketDefinitions() as $bucketKey => $definition ) {
 			$bucketSource = $sources[ $bucketKey ];
-			$summary = empty( $bucketSource[ 'attention_items' ] )
-				? __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' )
-				: $presentation->buildBucketFocusText( $definition[ 'label' ], $bucketSource[ 'item_count' ] );
+			$status = $this->bucketStatus( $bucketSource );
+			$summary = $this->buildBucketHeaderSummary( $definition[ 'label' ], $bucketSource );
 			$selection = $presentation->buildBucketSelection(
 				$bucketKey,
 				$definition[ 'label' ],
-				$definition[ 'status' ],
+				$definition[ 'meta' ],
+				$status,
 				$definition[ 'icon_class' ],
 				$bucketSource[ 'item_count' ],
 				$summary
@@ -59,8 +62,10 @@ class ActionsQueueBucketsBuilder {
 			$buckets[] = [
 				'key'            => $bucketKey,
 				'label'          => $definition[ 'label' ],
-				'status'         => $definition[ 'status' ],
+				'status'         => $status,
+				'state_label'    => $this->buildBucketStateLabel( $status ),
 				'item_count'     => $bucketSource[ 'item_count' ],
+				'is_interactive' => $bucketSource[ 'item_count' ] > 0 || $bucketSource[ 'healthy_item_count' ] > 0,
 				'summary_text'   => $this->buildSummaryText( $bucketSource ),
 				'icon_class'     => $definition[ 'icon_class' ],
 				'header'         => $selection[ 'header' ],
@@ -113,15 +118,17 @@ class ActionsQueueBucketsBuilder {
 	 * @param AttentionQuery $attentionQuery
 	 * @return array<string,BucketSource>
 	 */
-	public function classify( array $attentionQuery ) :array {
+	public function classify( array $attentionQuery, array $assessmentRowsByZone = [ 'scans' => [], 'maintenance' => [] ] ) :array {
 		$sources = [
 			'critical' => [
 				'attention_items' => [],
 				'item_count' => 0,
+				'healthy_item_count' => 0,
 			],
 			'review' => [
 				'attention_items' => [],
 				'item_count' => 0,
+				'healthy_item_count' => 0,
 			],
 		];
 
@@ -132,6 +139,19 @@ class ActionsQueueBucketsBuilder {
 			}
 			$sources[ $bucketKey ][ 'attention_items' ][] = $item;
 			$sources[ $bucketKey ][ 'item_count' ] += $item[ 'count' ];
+		}
+
+		foreach ( [ 'scans', 'maintenance' ] as $zone ) {
+			foreach ( $assessmentRowsByZone[ $zone ] ?? [] as $row ) {
+				if ( ( $row[ 'status' ] ?? '' ) !== 'good' ) {
+					continue;
+				}
+
+				$bucketKey = \trim( (string)( $row[ 'drill_bucket' ] ?? '' ) );
+				if ( isset( $sources[ $bucketKey ] ) ) {
+					$sources[ $bucketKey ][ 'healthy_item_count' ]++;
+				}
+			}
 		}
 
 		return $sources;
@@ -157,7 +177,9 @@ class ActionsQueueBucketsBuilder {
 		$summaryParts = $this->buildAttentionSummaryParts( $bucketSource[ 'attention_items' ] );
 
 		if ( empty( $summaryParts ) ) {
-			return __( 'No items in this bucket.', 'wp-simple-firewall' );
+			return $bucketSource[ 'healthy_item_count' ] > 0
+				? __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' )
+				: __( 'No items in this bucket.', 'wp-simple-firewall' );
 		}
 
 		return \implode( ', ', \array_slice( $summaryParts, 0, 2 ) );
@@ -253,7 +275,7 @@ class ActionsQueueBucketsBuilder {
 	/**
 	 * @return array<string,array{
 	 *   label:string,
-	 *   status:string,
+	 *   meta:string,
 	 *   icon_class:string
 	 * }>
 	 */
@@ -261,15 +283,54 @@ class ActionsQueueBucketsBuilder {
 		return [
 			'critical' => [
 				'label' => __( 'Fix now', 'wp-simple-firewall' ),
-				'status' => 'critical',
+				'meta' => __( 'Critical queue', 'wp-simple-firewall' ),
 				'icon_class' => 'bi bi-exclamation-triangle-fill',
 			],
 			'review' => [
 				'label' => __( 'Review next', 'wp-simple-firewall' ),
-				'status' => 'warning',
+				'meta' => __( 'Review queue', 'wp-simple-firewall' ),
 				'icon_class' => 'bi bi-eye-fill',
 			],
 		];
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 */
+	private function bucketStatus( array $bucketSource ) :string {
+		if ( $bucketSource[ 'item_count' ] > 0 ) {
+			return empty( $bucketSource[ 'attention_items' ] )
+				? 'warning'
+				: StatusPriority::highest( \array_column( $bucketSource[ 'attention_items' ], 'severity' ), 'warning' );
+		}
+
+		return $bucketSource[ 'healthy_item_count' ] > 0 ? 'good' : 'neutral';
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 */
+	private function buildBucketHeaderSummary( string $bucketLabel, array $bucketSource ) :string {
+		if ( $bucketSource[ 'item_count' ] > 0 ) {
+			return $this->presentation()->buildBucketFocusText( $bucketLabel, $bucketSource[ 'item_count' ] );
+		}
+
+		return $bucketSource[ 'healthy_item_count' ] > 0
+			? __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' )
+			: __( 'There is nothing to review in this bucket right now.', 'wp-simple-firewall' );
+	}
+
+	private function buildBucketStateLabel( string $status ) :string {
+		switch ( $status ) {
+			case 'critical':
+				return __( 'Critical', 'wp-simple-firewall' );
+			case 'warning':
+				return __( 'Review', 'wp-simple-firewall' );
+			case 'good':
+				return __( 'Looking good', 'wp-simple-firewall' );
+			default:
+				return __( 'Unavailable', 'wp-simple-firewall' );
+		}
 	}
 
 	/**

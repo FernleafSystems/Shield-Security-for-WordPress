@@ -19,8 +19,8 @@ class MaintenanceIssueStateProviderTest extends BaseUnitTest {
 	public function test_normalize_ignored_items_enforces_known_buckets_and_valid_identifiers() :void {
 		$provider = new MaintenanceIssueStateProviderTestDouble(
 			[
-				[ 'key' => 'wp_plugins_updates', 'zone' => 'maintenance', 'component_class' => 'plugin-updates', 'availability_strategy' => 'always' ],
-				[ 'key' => 'system_php_version', 'zone' => 'maintenance', 'component_class' => 'php-version', 'availability_strategy' => 'always' ],
+				[ 'key' => 'wp_plugins_updates', 'zone' => 'maintenance', 'component_class' => 'plugin-updates', 'availability_strategy' => 'always', 'drill_bucket' => 'review' ],
+				[ 'key' => 'system_php_version', 'zone' => 'maintenance', 'component_class' => 'php-version', 'availability_strategy' => 'always', 'drill_bucket' => 'review' ],
 			],
 			[],
 			[],
@@ -58,8 +58,8 @@ class MaintenanceIssueStateProviderTest extends BaseUnitTest {
 	public function test_build_states_applies_partial_and_full_ignore_rules() :void {
 		$provider = new MaintenanceIssueStateProviderTestDouble(
 			[
-				[ 'key' => 'wp_plugins_updates', 'zone' => 'maintenance', 'component_class' => 'plugin-updates', 'availability_strategy' => 'always' ],
-				[ 'key' => 'system_php_version', 'zone' => 'maintenance', 'component_class' => 'php-version', 'availability_strategy' => 'always' ],
+				[ 'key' => 'wp_plugins_updates', 'zone' => 'maintenance', 'component_class' => 'plugin-updates', 'availability_strategy' => 'always', 'drill_bucket' => 'review' ],
+				[ 'key' => 'system_php_version', 'zone' => 'maintenance', 'component_class' => 'php-version', 'availability_strategy' => 'always', 'drill_bucket' => 'review' ],
 			],
 			[
 				'plugin-updates' => [

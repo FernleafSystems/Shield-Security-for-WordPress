@@ -40,18 +40,21 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 					'zone'                  => 'scans',
 					'component_class'       => 'scan-results-core',
 					'availability_strategy' => 'enabled',
+					'drill_bucket'          => 'critical',
 				],
 				[
 					'key'                   => 'wp_updates',
 					'zone'                  => 'maintenance',
 					'component_class'       => 'wp-updates',
 					'availability_strategy' => 'always',
+					'drill_bucket'          => 'review',
 				],
 				[
 					'key'                   => 'abandoned',
 					'zone'                  => 'scans',
 					'component_class'       => 'scan-results-apc',
 					'availability_strategy' => 'disabled',
+					'drill_bucket'          => 'critical',
 				],
 			],
 			[
@@ -101,6 +104,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 					'zone'                  => 'maintenance',
 					'component_class'       => 'wp-updates',
 					'availability_strategy' => 'always',
+					'drill_bucket'          => 'review',
 				],
 			],
 			[
@@ -129,7 +133,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 
 		$rows = $builder->build();
 
-		$this->assertSame( [ 'maintenance' ], \array_keys( $rows ) );
+		$this->assertSame( [ 'scans', 'maintenance' ], \array_keys( $rows ) );
 		$this->assertSame( 'system_php_version', $rows[ 'maintenance' ][ 0 ][ 'key' ] ?? '' );
 		$this->assertSame( 'review', $rows[ 'maintenance' ][ 0 ][ 'drill_bucket' ] ?? '' );
 		$this->assertSame( 'good', $rows[ 'maintenance' ][ 0 ][ 'status' ] ?? '' );
@@ -144,12 +148,14 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 					'zone'                  => 'scans',
 					'component_class'       => 'plugin-files',
 					'availability_strategy' => 'scan_afs_plugins_enabled',
+					'drill_bucket'          => 'critical',
 				],
 				[
 					'key'                   => 'theme_files',
 					'zone'                  => 'scans',
 					'component_class'       => 'theme-files',
 					'availability_strategy' => 'scan_afs_themes_enabled',
+					'drill_bucket'          => 'critical',
 				],
 			],
 			[
@@ -181,12 +187,14 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 					'zone'                  => 'scans',
 					'component_class'       => 'plugin-files',
 					'availability_strategy' => 'scan_afs_plugins_enabled',
+					'drill_bucket'          => 'critical',
 				],
 				[
 					'key'                   => 'theme_files',
 					'zone'                  => 'scans',
 					'component_class'       => 'theme-files',
 					'availability_strategy' => 'scan_afs_themes_enabled',
+					'drill_bucket'          => 'critical',
 				],
 			],
 			[
@@ -218,12 +226,14 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 					'zone'                  => 'scans',
 					'component_class'       => 'plugin-files',
 					'availability_strategy' => 'scan_afs_plugins_enabled',
+					'drill_bucket'          => 'critical',
 				],
 				[
 					'key'                   => 'theme_files',
 					'zone'                  => 'scans',
 					'component_class'       => 'theme-files',
 					'availability_strategy' => 'scan_afs_themes_enabled',
+					'drill_bucket'          => 'critical',
 				],
 			],
 			[
@@ -253,6 +263,38 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$rows = $builder->build();
 
 		$this->assertSame( [ 'plugin_files', 'theme_files' ], \array_column( $rows[ 'scans' ] ?? [], 'key' ) );
+	}
+
+	public function test_build_keeps_healthy_scan_rows_in_their_owned_bucket() :void {
+		$builder = new ActionsQueueLandingAssessmentBuilderTestDouble(
+			[
+				[
+					'key'                   => 'vulnerable_assets',
+					'zone'                  => 'scans',
+					'component_class'       => 'scan-results-wpv',
+					'availability_strategy' => 'enabled',
+					'drill_bucket'          => 'critical',
+				],
+			],
+			[
+				'enabled' => true,
+			],
+			[
+				'scan-results-wpv' => [
+					'title'            => 'Known Vulnerabilities',
+					'desc_protected'   => 'Previous scans did not detect any vulnerable assets.',
+					'desc_unprotected' => 'Vulnerable assets require review.',
+					'is_protected'     => true,
+					'is_critical'      => false,
+					'is_applicable'    => true,
+				],
+			]
+		);
+
+		$rows = $builder->build();
+
+		$this->assertSame( 'critical', $rows[ 'scans' ][ 0 ][ 'drill_bucket' ] ?? '' );
+		$this->assertSame( 'good', $rows[ 'scans' ][ 0 ][ 'status' ] ?? '' );
 	}
 
 	private function installControllerStub() :void {

@@ -92,8 +92,7 @@
 	border-color: $status-color-info;
 }
 
-.actions-queue-bucket-card:disabled,
-.actions-queue-bucket-card.is-empty {
+.actions-queue-bucket-card:disabled {
 	cursor: default;
 	opacity: 0.55;
 }

@@ -58,7 +58,8 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingFlags() :array {
 		return [
-			'queue_is_empty' => !$this->getQueueSummary()[ 'has_items' ],
+			'queue_is_empty'        => !$this->getQueueSummary()[ 'has_items' ],
+			'has_drilldown_content' => $this->hasDrilldownContent(),
 		];
 	}
 

@@ -22,6 +22,7 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		$selection = $builder->buildBucketSelection(
 			'critical',
 			'Fix now',
+			'Critical queue',
 			'critical',
 			'bi bi-exclamation-triangle-fill',
 			2,
@@ -51,6 +52,23 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		unset( $selectionForJson[ 'selection_json' ] );
 		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
 		$this->assertSame( 'Fix now contains 2 items that still need attention.', $builder->buildBucketFocusText( 'Fix now', 2 ) );
+	}
+
+	public function test_build_bucket_selection_keeps_bucket_meta_when_bucket_is_good() :void {
+		$builder = new ActionsQueueDrillDownPresentationBuilder();
+
+		$selection = $builder->buildBucketSelection(
+			'critical',
+			'Fix now',
+			'Critical queue',
+			'good',
+			'bi bi-exclamation-triangle-fill',
+			0,
+			'Everything in this bucket is currently looking good.'
+		);
+
+		$this->assertSame( 'Critical queue', $selection[ 'header' ][ 'meta' ] ?? '' );
+		$this->assertSame( 'good', $selection[ 'header' ][ 'badge_status' ] ?? '' );
 	}
 
 	public function test_build_group_selection_includes_detail_shell() :void {

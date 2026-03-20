@@ -209,7 +209,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_actions_queue_landing_renders_all_clear_without_drill_shell_when_queue_is_empty() :void {
+	public function test_actions_queue_landing_renders_all_clear_with_drill_shell_when_queue_is_empty() :void {
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
 		$payload = $this->renderActionsQueueLandingPage();
@@ -230,6 +230,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'scans' )[ 'assessment_rows' ] ?? [] );
 		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotEmpty( $vars[ 'actions_queue_ajax' ] ?? [] );
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathExists(
@@ -240,8 +241,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-drill-shell="1"]',
-			0,
-			'Empty actions queue should not render the drill-down shell'
+			1,
+			'Empty actions queue should keep the drill-down shell when healthy bucket content exists'
 		);
 		$this->assertNotSame( '', \trim( $html ) );
 	}
@@ -517,6 +518,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? 0 ) );
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'severity_strip_html' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
@@ -524,7 +526,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 	}
 
-	public function test_groups_ajax_keeps_healthy_vulnerabilities_group_drillable_and_detail_renderable() :void {
+	public function test_groups_ajax_keeps_healthy_vulnerabilities_group_drillable_and_detail_renderable_in_critical_bucket() :void {
 		$this->enableAssetScanFixture( [ 'plugins' ] );
 
 		TestDataFactory::insertCompletedScan( 'wpv' );
@@ -532,7 +534,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'review',
+			'bucket' => 'critical',
 		] );
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
@@ -548,11 +550,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertXPathExists(
 			$xpath,
 			"//button[contains(concat(\" \", normalize-space(@class), \" \"), \" finding-card--expandable \") and @data-drill-target=\"detail\" and contains(@data-drill-group-selection, '\"key\":\"vulnerabilities\"')]",
-			'Healthy vulnerabilities review card should stay drillable from the Looking good section'
+			'Healthy vulnerabilities critical card should stay drillable from the Looking good section'
 		);
 
 		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => 'review',
+			'bucket' => 'critical',
 			'group'  => 'vulnerabilities',
 		] );
 		$detailHtml = (string)( $detailPayload[ 'html' ] ?? '' );
@@ -1148,11 +1150,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-drill-shell="1"]',
-			0,
-			'Historical results from disabled scans should not force the drill-down shell to render'
+			1,
+			'Historical results from disabled scans should still allow the healthy drill-down shell to render'
 		);
 	}
 

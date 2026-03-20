@@ -254,8 +254,8 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 	}
 
 	applyGroupsLayerResponse( data ) {
-		const queueIsEmpty = this.applyLandingRefresh( data.landing_refresh || null );
-		if ( queueIsEmpty ) {
+		const shouldAbortLayerRefresh = this.applyLandingRefresh( data.landing_refresh || null );
+		if ( shouldAbortLayerRefresh ) {
 			return;
 		}
 
@@ -302,10 +302,15 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			severityStrip.outerHTML = landingRefresh.severity_strip_html;
 		}
 
-		if ( landingRefresh.queue_is_empty ) {
+		this.syncAllClearSection(
+			Boolean( landingRefresh.queue_is_empty ),
+			typeof landingRefresh.all_clear_html === 'string' ? landingRefresh.all_clear_html : ''
+		);
+
+		if ( landingRefresh.has_drilldown_content === false ) {
 			const drilldown = this.rootEl.querySelector( '[data-actions-queue-section="drilldown"]' );
-			if ( drilldown !== null && typeof landingRefresh.all_clear_html === 'string' ) {
-				drilldown.outerHTML = landingRefresh.all_clear_html;
+			if ( drilldown !== null ) {
+				drilldown.remove();
 			}
 			this.selectedBucket = null;
 			this.selectedGroup = null;
@@ -324,6 +329,41 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		}
 
 		return false;
+	}
+
+	syncAllClearSection( shouldShow, html ) {
+		if ( this.rootEl === null ) {
+			return;
+		}
+
+		const existing = this.rootEl.querySelector( '[data-actions-queue-section="all-clear-context"]' );
+		if ( !shouldShow ) {
+			existing?.remove();
+			return;
+		}
+
+		if ( html.length < 1 ) {
+			return;
+		}
+
+		if ( existing !== null ) {
+			existing.outerHTML = html;
+			return;
+		}
+
+		const drilldown = this.rootEl.querySelector( '[data-actions-queue-section="drilldown"]' );
+		if ( drilldown !== null ) {
+			drilldown.insertAdjacentHTML( 'beforebegin', html );
+			return;
+		}
+
+		const severityStrip = this.rootEl.querySelector( '[data-actions-queue-section="severity-strip"]' );
+		if ( severityStrip !== null ) {
+			severityStrip.insertAdjacentHTML( 'afterend', html );
+			return;
+		}
+
+		this.rootEl.insertAdjacentHTML( 'beforeend', html );
 	}
 
 	handleRetryClick( item ) {
@@ -562,7 +602,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			includeSelectedGroup: this.selectedGroup !== null,
 			includeLandingRefresh: true,
 		} ).then( ( data ) => {
-			if ( data === null || data?.landing_refresh?.queue_is_empty || !reloadDetail || this.selectedGroup === null ) {
+			if ( data === null || data?.landing_refresh?.has_drilldown_content === false || !reloadDetail || this.selectedGroup === null ) {
 				return data;
 			}
 

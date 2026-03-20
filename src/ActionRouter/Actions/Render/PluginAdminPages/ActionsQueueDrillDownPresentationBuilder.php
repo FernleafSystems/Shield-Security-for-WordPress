@@ -61,6 +61,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 	public function buildBucketSelection(
 		string $key,
 		string $label,
+		string $meta,
 		string $status,
 		string $iconClass,
 		int $itemCount,
@@ -68,6 +69,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 	) :array {
 		$header = $this->buildBucketHeader(
 			$label,
+			$meta,
 			$status,
 			$iconClass,
 			$itemCount,
@@ -130,6 +132,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 	 */
 	public function buildBucketHeader(
 		string $label,
+		string $meta,
 		string $status,
 		string $iconClass,
 		int $itemCount,
@@ -139,9 +142,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'compact_back_label' => $this->buildBackLabel( $label ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 			'title'              => $label,
-			'meta'               => $status === 'critical'
-				? __( 'Critical queue', 'wp-simple-firewall' )
-				: __( 'Review queue', 'wp-simple-firewall' ),
+			'meta'               => $meta,
 			'summary'            => $summary,
 			'icon_class'         => $iconClass,
 			'badge'              => $this->buildItemBadge( $itemCount ),

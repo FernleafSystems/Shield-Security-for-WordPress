@@ -22,7 +22,9 @@
 			{% include '/wpadmin/components/actions_queue/all_clear.twig' with {
 				all_clear: vars.all_clear
 			} only %}
-		{% else %}
+		{% endif %}
+
+		{% if flags.has_drilldown_content %}
 			<div class="actions-landing__drilldown mt-4" data-actions-queue-section="drilldown">
 				{% include '/wpadmin/components/page/drill_down_shell.twig' with {
 					shell: vars.drill_shell

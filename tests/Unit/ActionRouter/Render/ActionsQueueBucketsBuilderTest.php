@@ -49,6 +49,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'key' => 'system_php_version',
 						'label' => 'PHP Version',
 						'description' => 'Healthy',
+						'drill_bucket' => 'review',
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
@@ -57,6 +58,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'key' => 'system_lib_openssl',
 						'label' => 'OpenSSL',
 						'description' => 'Informational',
+						'drill_bucket' => 'review',
 						'status' => 'neutral',
 						'status_label' => 'Neutral',
 						'status_icon_class' => 'bi bi-info-circle-fill',
@@ -72,6 +74,8 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertCount( 2, $buckets );
 		$this->assertSame( [ 'critical', 'review' ], \array_keys( $bucketsByKey ) );
 		$this->assertSame( 'Fix now', $bucketsByKey[ 'critical' ][ 'label' ] );
+		$this->assertSame( 'Critical', $bucketsByKey[ 'critical' ][ 'state_label' ] );
+		$this->assertTrue( (bool)( $bucketsByKey[ 'critical' ][ 'is_interactive' ] ?? false ) );
 		$this->assertSame( 2, $bucketsByKey[ 'critical' ][ 'item_count' ] );
 		$this->assertSame( '2 malware detections', $bucketsByKey[ 'critical' ][ 'summary_text' ] );
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'critical' ] );
@@ -89,10 +93,66 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 'warning', $bucketsByKey[ 'review' ][ 'status' ] );
+		$this->assertSame( 'Review', $bucketsByKey[ 'review' ][ 'state_label' ] );
+		$this->assertTrue( (bool)( $bucketsByKey[ 'review' ][ 'is_interactive' ] ?? false ) );
 		$this->assertSame( 2, $bucketsByKey[ 'review' ][ 'item_count' ] );
 		$this->assertSame( '1 vulnerability, 1 maintenance item', $bucketsByKey[ 'review' ][ 'summary_text' ] );
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'review' ] );
 		$this->assertSame( 'Review queue', $bucketsByKey[ 'review' ][ 'header' ][ 'meta' ] ?? '' );
+	}
+
+	public function test_build_keeps_healthy_only_bucket_interactive_and_good() :void {
+		$builder = new ActionsQueueBucketsBuilder();
+
+		$buckets = $builder->build(
+			[
+				'items' => [],
+			],
+			[
+				'scans' => [
+					[
+						'key' => 'vulnerable_assets',
+						'label' => 'Known Vulnerabilities',
+						'description' => 'Previous scans did not detect any vulnerable assets.',
+						'drill_bucket' => 'critical',
+						'status' => 'good',
+						'status_label' => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [
+					[
+						'key' => 'system_php_version',
+						'label' => 'PHP Version',
+						'description' => 'Healthy.',
+						'drill_bucket' => 'review',
+						'status' => 'good',
+						'status_label' => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+				],
+			]
+		);
+		$bucketsByKey = [];
+		foreach ( $buckets as $bucket ) {
+			$bucketsByKey[ $bucket[ 'key' ] ] = $bucket;
+		}
+
+		$this->assertSame( 'good', $bucketsByKey[ 'critical' ][ 'status' ] );
+		$this->assertSame( 'Looking good', $bucketsByKey[ 'critical' ][ 'state_label' ] );
+		$this->assertSame( 0, $bucketsByKey[ 'critical' ][ 'item_count' ] );
+		$this->assertTrue( (bool)( $bucketsByKey[ 'critical' ][ 'is_interactive' ] ?? false ) );
+		$this->assertSame(
+			'Everything in this bucket is currently looking good.',
+			$bucketsByKey[ 'critical' ][ 'summary_text' ]
+		);
+		$this->assertSame( 'Critical queue', $bucketsByKey[ 'critical' ][ 'header' ][ 'meta' ] ?? '' );
+		$this->assertSame(
+			'Everything in this bucket is currently looking good.',
+			$bucketsByKey[ 'critical' ][ 'header' ][ 'summary' ] ?? ''
+		);
+		$this->assertSame( 'good', $bucketsByKey[ 'review' ][ 'status' ] );
+		$this->assertTrue( (bool)( $bucketsByKey[ 'review' ][ 'is_interactive' ] ?? false ) );
 	}
 
 	public function test_build_looking_good_collects_only_good_assessment_rows() :void {
@@ -105,6 +165,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'key' => 'malware',
 						'label' => 'Malware Scan',
 						'description' => 'No malware found.',
+						'drill_bucket' => 'critical',
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-shield-check',
@@ -113,6 +174,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'key' => 'themes',
 						'label' => 'Themes',
 						'description' => 'Needs review.',
+						'drill_bucket' => 'critical',
 						'status' => 'warning',
 						'status_label' => 'Warning',
 						'status_icon_class' => 'bi bi-exclamation-circle-fill',
@@ -123,6 +185,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'key' => 'system_php_version',
 						'label' => 'PHP Version',
 						'description' => 'Healthy.',
+						'drill_bucket' => 'review',
 						'status' => 'good',
 						'status_label' => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
@@ -131,6 +194,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'key' => 'system_ssl_certificate',
 						'label' => 'SSL Certificate',
 						'description' => 'Informational.',
+						'drill_bucket' => 'review',
 						'status' => 'neutral',
 						'status_label' => 'Neutral',
 						'status_icon_class' => 'bi bi-info-circle-fill',

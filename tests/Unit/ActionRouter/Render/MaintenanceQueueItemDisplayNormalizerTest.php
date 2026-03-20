@@ -435,7 +435,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_normalize_for_review_appends_healthy_review_state_without_toggle_for_clean_singleton_item() :void {
+	public function test_normalize_for_bucket_appends_healthy_review_state_without_toggle_for_clean_singleton_item() :void {
 		$items = ( new MaintenanceQueueItemDisplayNormalizerTestDouble( [
 			'system_php_version' => [
 				'key'                 => 'system_php_version',
@@ -452,7 +452,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 				'active_identifiers'  => [],
 				'ignored_identifiers' => [],
 			],
-		] ) )->normalizeForReview( [] );
+		] ) )->normalizeForBucket( [], 'review' );
 
 		$this->assertCount( 1, $items );
 		$this->assertSame( 'system_php_version', $items[ 0 ][ 'key' ] ?? '' );

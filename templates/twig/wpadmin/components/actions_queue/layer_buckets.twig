@@ -5,12 +5,12 @@
 	<div class="actions-queue-buckets__grid">
 		{% for bucket in buckets %}
 			<button type="button"
-					class="actions-queue-bucket-card status-{{ bucket.status }}{% if bucket.item_count < 1 %} is-empty{% endif %}"
+					class="actions-queue-bucket-card status-{{ bucket.status }}"
 					data-drill-target="groups"
 					data-drill-bucket-selection="{{ bucket.selection_json }}"
-					{% if bucket.item_count < 1 %}disabled{% endif %}>
+					{% if not bucket.is_interactive %}disabled{% endif %}>
 				<div class="actions-queue-bucket-card__severity">
-					<span class="actions-queue-bucket-card__severity-label">{{ bucket.status == 'warning' ? 'Review' : bucket.status|capitalize }}</span>
+					<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>
 					<span class="actions-queue-bucket-card__count">{{ bucket.item_count }}</span>
 				</div>
 				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>

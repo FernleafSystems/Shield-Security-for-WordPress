@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MaintenanceItemUnignore
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -108,22 +109,22 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return list<MaintenanceQueueItem>
 	 */
 	public function normalizeAll( array $items ) :array {
-		return $this->normalizeItems( $items, false );
+		return $this->normalizeItems( $items, null );
 	}
 
 	/**
 	 * @param list<QueueItem> $items
 	 * @return list<MaintenanceQueueItem>
 	 */
-	public function normalizeForReview( array $items ) :array {
-		return $this->normalizeItems( $items, true );
+	public function normalizeForBucket( array $items, string $bucketKey ) :array {
+		return $this->normalizeItems( $items, $bucketKey );
 	}
 
 	/**
 	 * @param list<QueueItem> $items
 	 * @return list<MaintenanceQueueItem>
 	 */
-	private function normalizeItems( array $items, bool $appendHealthyReviewStates ) :array {
+	private function normalizeItems( array $items, ?string $healthyBucketKey ) :array {
 		$statesByKey = $this->buildMaintenanceIssueStateProvider()->buildStates();
 		$normalized = [];
 		$seenKeys = [];
@@ -140,7 +141,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		foreach ( $statesByKey as $state ) {
 			if ( isset( $seenKeys[ $state[ 'key' ] ] )
 				|| $state[ 'count' ] > 0
-				|| !$this->shouldAppendState( $state, $appendHealthyReviewStates ) ) {
+				|| !$this->shouldAppendState( $state, $healthyBucketKey ) ) {
 				continue;
 			}
 
@@ -652,16 +653,16 @@ class MaintenanceQueueItemDisplayNormalizer {
 	/**
 	 * @param MaintenanceState $state
 	 */
-	private function shouldAppendState( array $state, bool $appendHealthyReviewStates ) :bool {
+	private function shouldAppendState( array $state, ?string $healthyBucketKey ) :bool {
 		if ( $state[ 'severity' ] !== 'good' ) {
 			return false;
 		}
 
-		if ( !$appendHealthyReviewStates ) {
+		if ( $healthyBucketKey === null ) {
 			return $state[ 'ignored_count' ] > 0;
 		}
 
-		return $state[ 'drill_bucket' ] === 'review';
+		return $state[ 'drill_bucket' ] === $healthyBucketKey;
 	}
 
 	/**
@@ -669,9 +670,17 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return 'critical'|'review'
 	 */
 	private function deriveBucketFromItem( array $item ) :string {
-		return ( $item[ 'drill_bucket' ] ?? '' ) === 'critical'
-			|| $item[ 'severity' ] === 'critical'
-			? 'critical'
-			: 'review';
+		$drillBucket = \trim( (string)( $item[ 'drill_bucket' ] ?? '' ) );
+		if ( \in_array( $drillBucket, [ 'critical', 'review' ], true ) ) {
+			return $drillBucket;
+		}
+
+		foreach ( PluginNavs::actionsLandingAssessmentDefinitions() as $definition ) {
+			if ( $definition[ 'zone' ] === 'maintenance' && $definition[ 'key' ] === $item[ 'key' ] ) {
+				return $definition[ 'drill_bucket' ];
+			}
+		}
+
+		return 'review';
 	}
 }

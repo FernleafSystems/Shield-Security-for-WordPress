@@ -23,6 +23,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	 *   selected_group?:GroupSelection,
 	 *   landing_refresh?:array{
 	 *     queue_is_empty:bool,
+	 *     has_drilldown_content:bool,
 	 *     severity_strip_html:string,
 	 *     buckets_html:string,
 	 *     all_clear_html:string
@@ -61,11 +62,13 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 		if ( !empty( $this->action_data[ 'include_landing_refresh' ] ) ) {
 			$landingView = $this->getLandingViewData();
 			$isQueueEmpty = !$landingView[ 'summary' ][ 'has_items' ];
+			$hasDrilldownContent = $this->hasDrilldownContent();
 			$data[ 'landing_refresh' ] = [
-				'queue_is_empty'      => $isQueueEmpty,
-				'severity_strip_html' => $this->renderSeverityStripSection(),
-				'buckets_html'        => $this->renderBucketsLayer(),
-				'all_clear_html'      => $isQueueEmpty
+				'queue_is_empty'         => $isQueueEmpty,
+				'has_drilldown_content'  => $hasDrilldownContent,
+				'severity_strip_html'    => $this->renderSeverityStripSection(),
+				'buckets_html'           => $hasDrilldownContent ? $this->renderBucketsLayer() : '',
+				'all_clear_html'         => $isQueueEmpty
 					? $this->renderAllClearCard()
 					: '',
 			];

@@ -129,6 +129,7 @@ class MaintenanceIssueStateProvider {
 	 *   key:string,
 	 *   component:array<string,mixed>,
 	 *   issue_identifiers:list<string>,
+	 *   drill_bucket:'critical'|'review',
 	 *   supports_sub_items:bool
 	 * }>
 	 */
@@ -150,12 +151,14 @@ class MaintenanceIssueStateProvider {
 	 *   key:string,
 	 *   zone:string,
 	 *   component_class:class-string<MeterComponentBase>,
-	 *   availability_strategy:string
+	 *   availability_strategy:string,
+	 *   drill_bucket:'critical'|'review'
 	 * } $definition
 	 * @return array{
 	 *   key:string,
 	 *   component:array<string,mixed>,
 	 *   issue_identifiers:list<string>,
+	 *   drill_bucket:'critical'|'review',
 	 *   supports_sub_items:bool
 	 * }|null
 	 */
@@ -170,6 +173,7 @@ class MaintenanceIssueStateProvider {
 			'key'                => $key,
 			'component'          => $component,
 			'issue_identifiers'  => $this->issueIdentifiersForKey( $key, $component ),
+			'drill_bucket'       => $definition[ 'drill_bucket' ],
 			'supports_sub_items' => $this->supportsSubItems( $key ),
 		];
 	}
@@ -179,6 +183,7 @@ class MaintenanceIssueStateProvider {
 	 *   key:string,
 	 *   component:array<string,mixed>,
 	 *   issue_identifiers:list<string>,
+	 *   drill_bucket:'critical'|'review',
 	 *   supports_sub_items:bool
 	 * } $context
 	 * @param list<string> $ignoredIdentifiers
@@ -203,8 +208,8 @@ class MaintenanceIssueStateProvider {
 		$activeIdentifiers = \array_values( \array_diff( $context[ 'issue_identifiers' ], $ignoredIdentifiers ) );
 		$activeCount = \count( $activeIdentifiers );
 		$ignoredCount = \count( $ignoredIdentifiers );
-		$drillBucket = $component[ 'is_critical' ] ? 'critical' : 'review';
-		$severity = $component[ 'is_critical' ] ? 'critical' : 'warning';
+		$drillBucket = $context[ 'drill_bucket' ];
+		$severity = $drillBucket === 'critical' ? 'critical' : 'warning';
 
 		if ( $activeCount > 0 ) {
 			$description = $this->buildActiveDescription(
@@ -258,7 +263,8 @@ class MaintenanceIssueStateProvider {
 	 *   key:string,
 	 *   zone:string,
 	 *   component_class:class-string<MeterComponentBase>,
-	 *   availability_strategy:string
+	 *   availability_strategy:string,
+	 *   drill_bucket:'critical'|'review'
 	 * }>
 	 */
 	protected function getDefinitions() :array {

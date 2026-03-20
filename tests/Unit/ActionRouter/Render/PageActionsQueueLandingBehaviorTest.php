@@ -153,6 +153,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Loading scoped results...', $renderData[ 'strings' ][ 'detail_loading' ] );
 		$this->assertArrayNotHasKey( 'scans_results', $vars );
 		$this->assertFalse( $renderData[ 'flags' ][ 'queue_is_empty' ] );
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 	}
 
 	public function test_all_clear_flag_follows_attention_summary_and_strings_stay_aligned() :void {
@@ -173,6 +174,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$strings = $renderData[ 'strings' ];
 
 		$this->assertTrue( $renderData[ 'flags' ][ 'queue_is_empty' ] );
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertSame( $strings[ 'all_clear_title' ], $vars[ 'all_clear' ][ 'title' ] );
 		$this->assertSame( $strings[ 'all_clear_subtitle' ], $vars[ 'all_clear' ][ 'subtitle' ] );
 		$this->assertSame( $strings[ 'all_clear_icon_class' ], $vars[ 'all_clear' ][ 'icon_class' ] );
@@ -334,12 +336,12 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		$page = $this->newPage( [
 			'scans'       => [
-				$this->buildAssessmentRow( 'wp_files', 'WordPress Files' ),
+				$this->buildAssessmentRow( 'wp_files', 'WordPress Files', 'All clear', 'good', 'Good', 'bi bi-check-circle-fill', 'critical' ),
 			],
 			'maintenance' => [
-				$this->buildAssessmentRow( 'system_ssl_certificate', 'SSL Certificate', 'Certificate requires review', 'critical', 'Critical', 'bi bi-x-circle-fill' ),
-				$this->buildAssessmentRow( 'wp_updates', 'WordPress Version', 'Update available', 'warning', 'Warning', 'bi bi-exclamation-circle-fill' ),
-				$this->buildAssessmentRow( 'system_lib_openssl', 'OpenSSL Extension' ),
+				$this->buildAssessmentRow( 'system_ssl_certificate', 'SSL Certificate', 'Certificate requires review', 'critical', 'Critical', 'bi bi-x-circle-fill', 'review' ),
+				$this->buildAssessmentRow( 'wp_updates', 'WordPress Version', 'Update available', 'warning', 'Warning', 'bi bi-exclamation-circle-fill', 'review' ),
+				$this->buildAssessmentRow( 'system_lib_openssl', 'OpenSSL Extension', 'All clear', 'good', 'Good', 'bi bi-check-circle-fill', 'review' ),
 			],
 		] );
 		$zoneTiles = $this->invokeNonPublicMethod( $page, 'getLandingVars' )[ 'zone_tiles' ];
@@ -416,6 +418,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *     key:string,
 	 *     label:string,
 	 *     description:string,
+	 *     drill_bucket:'critical'|'review',
 	 *     status:string,
 	 *     status_label:string,
 	 *     status_icon_class:string
@@ -424,6 +427,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *     key:string,
 	 *     label:string,
 	 *     description:string,
+	 *     drill_bucket:'critical'|'review',
 	 *     status:string,
 	 *     status_label:string,
 	 *     status_icon_class:string
@@ -455,6 +459,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *   key:string,
 	 *   label:string,
 	 *   description:string,
+	 *   drill_bucket:'critical'|'review',
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
@@ -463,10 +468,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	private function buildDefaultAssessmentRowsByZone() :array {
 		return [
 			'scans'       => [
-				$this->buildAssessmentRow( 'wp_files', 'WordPress Files' ),
+				$this->buildAssessmentRow( 'wp_files', 'WordPress Files', 'All clear', 'good', 'Good', 'bi bi-check-circle-fill', 'critical' ),
 			],
 			'maintenance' => [
-				$this->buildAssessmentRow( 'wp_updates', 'WordPress Version' ),
+				$this->buildAssessmentRow( 'wp_updates', 'WordPress Version', 'All clear', 'good', 'Good', 'bi bi-check-circle-fill', 'review' ),
 			],
 		];
 	}
@@ -476,6 +481,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *   key:string,
 	 *   label:string,
 	 *   description:string,
+	 *   drill_bucket:'critical'|'review',
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
@@ -487,12 +493,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		string $description = 'All clear',
 		string $status = 'good',
 		string $statusLabel = 'Good',
-		string $statusIconClass = 'bi bi-check-circle-fill'
+		string $statusIconClass = 'bi bi-check-circle-fill',
+		string $drillBucket = 'review'
 	) :array {
 		return [
 			'key'               => $key,
 			'label'             => $label,
 			'description'       => $description,
+			'drill_bucket'      => $drillBucket,
 			'status'            => $status,
 			'status_label'      => $statusLabel,
 			'status_icon_class' => $statusIconClass,

@@ -176,10 +176,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'expandable', $group[ 'card_type' ] );
 		$this->assertSame( 'View 3 files', $group[ 'drill_hint' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'detail_table' ][ 'subject_id' ] );
-		$this->assertSame(
-			[ 'Triage buckets', 'Fix now', 'Plugin Files', 'Example Plugin' ],
-			$group[ 'context' ][ 'path' ]
-		);
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
 	}
@@ -624,7 +620,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'key'               => 'plugin_files',
 						'label'             => 'Plugin Files',
 						'description'       => 'All plugin files appear to be valid.',
-						'drill_bucket'      => 'review',
+						'drill_bucket'      => 'critical',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
@@ -654,11 +650,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame(
-			[ 'wp_plugins_updates', 'plugins', 'wp_plugins_inactive' ],
+			[ 'wp_plugins_updates', 'wp_plugins_inactive' ],
 			\array_column( $payload[ 'layer' ][ 'groups' ], 'key' )
 		);
 		$this->assertSame(
-			[ 'active', 'healthy', 'healthy' ],
+			[ 'active', 'healthy' ],
 			\array_column( $payload[ 'layer' ][ 'groups' ], 'display_section' )
 		);
 		$this->assertSame( 'good', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'status' ] );
@@ -674,11 +670,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_build_review_bucket_makes_healthy_vulnerabilities_group_drillable_without_changing_canonical_definition() :void {
+	public function test_build_critical_bucket_makes_healthy_vulnerabilities_group_drillable_without_changing_canonical_definition() :void {
 		$builder = $this->createBuilder();
 
 		$payload = $builder->buildWithSelectedGroup(
-			'review',
+			'critical',
 			'vulnerabilities',
 			[
 				'items' => [],
@@ -689,7 +685,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'key'               => 'vulnerable_assets',
 						'label'             => 'Known Vulnerabilities',
 						'description'       => 'Previous scans did not detect any vulnerable assets.',
-						'drill_bucket'      => 'review',
+						'drill_bucket'      => 'critical',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
@@ -698,7 +694,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'key'               => 'abandoned',
 						'label'             => 'Abandoned Assets',
 						'description'       => 'Previous scans did not detect any abandoned assets.',
-						'drill_bucket'      => 'review',
+						'drill_bucket'      => 'critical',
 						'status'            => 'good',
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-patch-check-fill',
@@ -809,7 +805,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				return $this->maintenanceItems;
 			}
 
-			protected function normalizeReviewMaintenanceQueueItems( array $items ) :array {
+			protected function normalizeBucketMaintenanceQueueItems( array $items, string $bucketKey ) :array {
 				return $this->maintenanceItems;
 			}
 		};

@@ -138,6 +138,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$this->assertTrue( \is_subclass_of( $definition[ 'component_class' ], Component\Base::class ) );
 			$this->assertContains( $definition[ 'zone' ], [ 'scans', 'maintenance' ] );
 			$this->assertNotSame( '', \trim( $definition[ 'availability_strategy' ] ) );
+			$this->assertContains( $definition[ 'drill_bucket' ], [ 'critical', 'review' ] );
 		}
 
 		foreach ( $maintenance as $definition ) {
