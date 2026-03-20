@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-type MaintenanceIssueState array{
  *   key:string,
  *   label:string,
+ *   icon_class:string,
  *   description:string,
  *   count:int,
  *   ignored_count:int,
@@ -35,6 +36,7 @@ class MaintenanceIssueStateProvider {
 	 * @return array<string,array{
 	 *   key:string,
 	 *   label:string,
+	 *   icon_class:string,
 	 *   description:string,
 	 *   count:int,
 	 *   ignored_count:int,
@@ -190,6 +192,7 @@ class MaintenanceIssueStateProvider {
 	 * @return array{
 	 *   key:string,
 	 *   label:string,
+	 *   icon_class:string,
 	 *   description:string,
 	 *   count:int,
 	 *   ignored_count:int,
@@ -236,6 +239,7 @@ class MaintenanceIssueStateProvider {
 		return [
 			'key'                 => $context[ 'key' ],
 			'label'               => $component[ 'title' ],
+			'icon_class'          => $this->iconClassForKey( $context[ 'key' ] ),
 			'description'         => $description,
 			'count'               => $activeCount,
 			'ignored_count'       => $ignoredCount,
@@ -439,5 +443,20 @@ class MaintenanceIssueStateProvider {
 		}
 
 		return \array_values( \array_unique( \array_filter( $stylesheets ) ) );
+	}
+
+	public function iconClassForKey( string $key ) :string {
+		return match ( $key ) {
+			'wp_updates' => 'bi bi-wordpress',
+			'wp_plugins_updates',
+			'wp_plugins_inactive' => 'bi bi-plug-fill',
+			'wp_themes_updates',
+			'wp_themes_inactive' => 'bi bi-palette-fill',
+			'system_ssl_certificate' => 'bi bi-shield-lock-fill',
+			'system_php_version' => 'bi bi-code-slash',
+			'system_lib_openssl' => 'bi bi-key-fill',
+			'wp_db_password' => 'bi bi-database-fill-lock',
+			default => 'bi bi-wrench',
+		};
 	}
 }

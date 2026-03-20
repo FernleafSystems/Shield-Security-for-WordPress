@@ -145,8 +145,23 @@ class RetrieveItems extends RetrieveBase {
 		return $this->retrieveResults( self::CONTEXT_AUTOREPAIR );
 	}
 
-	public function retrieveForResultsTables() :Scans\Afs\ResultsSet {
-		return $this->retrieveResults( self::CONTEXT_RESULTS_TABLE );
+	/**
+	 * @param array<string,mixed>|null $options
+	 */
+	public function retrieveForResultsTables( ?array $options = null ) :Scans\Afs\ResultsSet {
+		if ( $options === null ) {
+			return $this->retrieveResults( self::CONTEXT_RESULTS_TABLE );
+		}
+
+		$results = null;
+		$latestID = $this->getLatestScanID();
+		if ( $latestID >= 0 ) {
+			$results = $this->retrieveByWheres(
+				( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $latestID, $options )
+			);
+		}
+
+		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
 	}
 
 	/**

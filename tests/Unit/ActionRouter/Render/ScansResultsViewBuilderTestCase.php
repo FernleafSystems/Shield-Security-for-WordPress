@@ -363,7 +363,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		return !empty( $items ) ? $items : parent::buildPluginThemeRailItemsDirect( $assetType );
 	}
 
-	protected function buildPluginThemeIssueRecords( string $assetType ) :array {
+	protected function buildPluginThemeIssueRecords( string $assetType, ?array $resultsDisplayOptions = null ) :array {
 		return $assetType === 'plugin' ? $this->pluginIssueRecords : $this->themeIssueRecords;
 	}
 

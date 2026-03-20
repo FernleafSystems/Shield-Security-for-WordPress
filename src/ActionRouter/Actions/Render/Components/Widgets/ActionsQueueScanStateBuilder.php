@@ -6,8 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	Counts,
-	Retrieve\RetrieveCount
+	Counts
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
@@ -358,7 +357,7 @@ class ActionsQueueScanStateBuilder {
 
 	private function getDisplayCounts() :Counts {
 		if ( $this->displayCounts === null ) {
-			$this->displayCounts = new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
+			$this->displayCounts = new Counts();
 		}
 
 		return $this->displayCounts;

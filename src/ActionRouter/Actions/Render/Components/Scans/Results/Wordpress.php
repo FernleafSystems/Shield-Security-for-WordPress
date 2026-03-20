@@ -7,10 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	InvestigationFileStatusTableContractBuilder,
 	ScansResultsViewBuilder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
-	Counts,
-	Retrieve\RetrieveCount
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Wordpress extends Base {
@@ -27,13 +25,22 @@ class Wordpress extends Base {
 	protected function getRenderData() :array {
 		if ( $this->isActionsQueueDisplayContext() ) {
 			$emptyText = __( "Previous scans didn't detect any modified, missing, or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' );
-			$count = ( new Counts( RetrieveCount::CONTEXT_RESULTS_DISPLAY ) )->countWPFiles();
+			$resultsDisplayOptions = $this->getActionsQueueResultsDisplayOptions();
+			$loader = new LoadFileScanResultsTableData();
+			$loader->custom_record_retriever_wheres = [
+				\sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
+				\sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
+			];
+			$loader->results_display_options = $resultsDisplayOptions;
+			$count = $loader->countAll();
 			$table = ( new InvestigationFileStatusTableContractBuilder() )->buildWithEmptyState(
 				InvestigationTableContract::SUBJECT_TYPE_CORE,
 				InvestigationTableContract::SUBJECT_TYPE_CORE,
 				$count,
 				$emptyText,
-				self::con()->plugin_urls->actionsQueueScans()
+				self::con()->plugin_urls->actionsQueueScans(),
+				'info',
+				$resultsDisplayOptions
 			);
 
 			return [

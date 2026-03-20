@@ -216,12 +216,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', false );
 		$this->assertModePanelPayload( $vars, '', false );
-		$this->assertIsString( $strip[ 'subtext' ] ?? null );
+		$this->assertSame( 'All Clear', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) );
+		$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
 		$this->assertCount( 2, $zoneTiles );
 		$this->assertCount(
 			2,
@@ -233,6 +233,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotEmpty( $vars[ 'actions_queue_ajax' ] ?? [] );
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-operator-step-tabs="1"]',
+			'Actions queue should render the shared operator step tabs chrome'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-operator-context-rail="1"]',
+			'Actions queue should render the shared operator context rail'
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-section="all-clear-context"]',
@@ -254,7 +264,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$strip = \is_array( $vars[ 'severity_strip' ] ?? null ) ? $vars[ 'severity_strip' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
@@ -263,7 +272,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertModeShellPayload( $vars, 'actions', 'critical', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
-		$this->assertSame( '', (string)( $strip[ 'subtext' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( '', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' ) );
 		$this->assertCount( 2, $zoneTiles );
 		$this->assertTrue( (bool)( $maintenance[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $maintenance[ 'is_disabled' ] ?? true ) );
@@ -300,15 +310,26 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-drill-layer-key="buckets" and string-length(@data-drill-layer-header) > 0]',
 			'The shared drill shell should render PHP-prepared layer header JSON'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-drill-layer-key="buckets"]//*[@data-drill-layer-compact-back="1"]',
-			'The shared drill shell should render the compact back control'
+			0,
+			'The migrated drill shell should remove the old compact back control markup'
 		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-section="drilldown"]/div[1][@data-drill-shell="1"]',
 			'Actions queue should render the drill shell first for mobile-first stacking'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-operator-step-tabs="1"]',
+			'Actions queue should render the shared operator step tabs chrome'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-operator-context-rail="1"]',
+			'Actions queue should render the shared operator context rail'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -472,10 +493,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
 		$this->assertSame( 'wp_plugins_updates', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'healthy', (string)( $payload[ 'groups' ][ 0 ][ 'display_section' ] ?? '' ) );
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Looking good"]',
-			'Review groups AJAX should render the healthy section heading when only healthy review groups remain'
+			0,
+			'Review groups AJAX should not render the removed healthy section heading'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -519,7 +541,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? 0 ) );
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
-		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'severity_strip_html' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Back to Review next', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
@@ -546,30 +568,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertCount( 1, $vulnerabilities );
 		$this->assertSame( 'healthy', (string)( $vulnerabilities[ 0 ][ 'display_section' ] ?? '' ) );
-		$this->assertSame( 'expandable', (string)( $vulnerabilities[ 0 ][ 'card_type' ] ?? '' ) );
-		$this->assertXPathExists(
+		$this->assertSame( 'linked', (string)( $vulnerabilities[ 0 ][ 'card_type' ] ?? '' ) );
+		$this->assertFalse( (bool)( $vulnerabilities[ 0 ][ 'is_interactive' ] ?? true ) );
+		$this->assertXPathCount(
 			$xpath,
 			"//button[contains(concat(\" \", normalize-space(@class), \" \"), \" finding-card--expandable \") and @data-drill-target=\"detail\" and contains(@data-drill-group-selection, '\"key\":\"vulnerabilities\"')]",
-			'Healthy vulnerabilities critical card should stay drillable from the Looking good section'
-		);
-
-		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => 'critical',
-			'group'  => 'vulnerabilities',
-		] );
-		$detailHtml = (string)( $detailPayload[ 'html' ] ?? '' );
-		$detailXPath = $this->createDomXPathFromHtml( $detailHtml );
-
-		$this->assertSame( 'vulnerabilities', (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertXPathExists(
-			$detailXPath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
-			'Healthy vulnerabilities detail should reuse the shared empty pane state'
-		);
-		$this->assertStringContainsString(
-			"Previous scans didn't detect any vulnerable or abandoned assets.",
-			$detailHtml
+			0,
+			'Healthy vulnerabilities critical card should no longer be drillable when there are no results to show'
 		);
 	}
 

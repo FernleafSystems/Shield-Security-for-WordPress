@@ -23,13 +23,15 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
  * @property string   $order_dir
  * @property string   $search_text
  * @property array    $custom_record_retriever_wheres
+ * @property array<string,mixed>|null $results_display_options
  */
 class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 
 	public function run() :array {
-		$results = $this->getRecordRetriever()->retrieveForResultsTables();
+		$resultsDisplayOptions = $this->getResultsDisplayOptions();
+		$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 
 		/**
 		 * Bulk update the malai statuses
@@ -48,7 +50,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$changed = $AFS->cleanStaleResultItem( $item ) || $changed;
 		}
 		if ( $changed ) {
-			$results = $this->getRecordRetriever()->retrieveForResultsTables();
+			$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 		}
 
 		try {
@@ -92,7 +94,10 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	public function countAll() :int {
-		return $this->getRecordCounter()->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
+		$options = $this->getResultsDisplayOptions();
+		return \is_array( $options )
+			? $this->getRecordCounter()->countForResultsDisplay( $options )
+			: $this->getRecordCounter()->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
 	}
 
 	protected function getRecordCounter() :RetrieveCount {
@@ -344,5 +349,14 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$item->VO->scanresult_id,
 			esc_html( $item->path_fragment )
 		);
+	}
+
+	/**
+	 * @return array<string,mixed>|null
+	 */
+	private function getResultsDisplayOptions() :?array {
+		return \is_array( $this->results_display_options )
+			? $this->results_display_options
+			: null;
 	}
 }

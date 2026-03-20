@@ -18,7 +18,7 @@ class Themes extends PluginThemesBase {
 	protected function getRenderData() :array {
 		if ( $this->isActionsQueueDisplayContext() ) {
 			$pane = ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder() )
-				->buildActionsQueueThemesPane();
+				->buildActionsQueueThemesPane( $this->getActionsQueueResultsDisplayOptions() );
 
 			return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 				'flags'   => [

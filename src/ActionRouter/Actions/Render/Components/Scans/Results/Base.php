@@ -17,6 +17,16 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 		return $this->action_data[ 'display_context' ] === 'actions_queue';
 	}
 
+	/**
+	 * @return array{include_ignored:bool,ignored_only:bool}
+	 */
+	protected function getActionsQueueResultsDisplayOptions() :array {
+		return [
+			'include_ignored' => !empty( $this->action_data[ 'include_ignored' ] ),
+			'ignored_only'    => !empty( $this->action_data[ 'ignored_only' ] ),
+		];
+	}
+
 	protected function getRenderData() :array {
 		$common = CommonDisplayStrings::pick( [ 'author_label', 'version_label', 'name_label', 'warning_label' ] );
 		return [

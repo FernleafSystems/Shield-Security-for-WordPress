@@ -63,6 +63,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   key:string,
  *   zone:string,
  *   label:string,
+ *   icon_class?:string,
  *   count:int,
  *   severity:string,
  *   drill_bucket?:'critical'|'review',
@@ -74,6 +75,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-type MaintenanceState array{
  *   key:string,
  *   label:string,
+ *   icon_class:string,
  *   description:string,
  *   count:int,
  *   ignored_count:int,
@@ -90,6 +92,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   key:string,
  *   zone:string,
  *   label:string,
+ *   icon_class:string,
  *   count:int,
  *   severity:string,
  *   drill_bucket:'critical'|'review',
@@ -183,6 +186,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 		}
 
 		$item[ 'label' ] = $state[ 'label' ] !== '' ? $state[ 'label' ] : $item[ 'label' ];
+		$item[ 'icon_class' ] = $state[ 'icon_class' ]
+			?? $this->buildMaintenanceIssueStateProvider()->iconClassForKey( $item[ 'key' ] );
 		$item[ 'description' ] = $state[ 'description' ] !== '' ? $state[ 'description' ] : $item[ 'description' ];
 		$item[ 'count' ] = $state[ 'count' ];
 		$item[ 'drill_bucket' ] = $state[ 'drill_bucket' ];
@@ -628,6 +633,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 		return [
 			'key'                 => $item[ 'key' ],
 			'label'               => $item[ 'label' ],
+			'icon_class'          => $item[ 'icon_class' ]
+				?? $this->buildMaintenanceIssueStateProvider()->iconClassForKey( $item[ 'key' ] ),
 			'description'         => $item[ 'description' ],
 			'count'               => $item[ 'count' ],
 			'ignored_count'       => 0,

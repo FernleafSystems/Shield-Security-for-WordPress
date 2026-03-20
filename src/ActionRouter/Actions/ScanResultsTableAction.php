@@ -131,6 +131,12 @@ class ScanResultsTableAction extends ScansBase {
 		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 		$builder->type = $this->action_data[ 'type' ] ?? '';
 		$builder->file = $this->action_data[ 'file' ] ?? '';
+		if ( \array_key_exists( 'include_ignored', $this->action_data ) ) {
+			$builder->include_ignored = !empty( $this->action_data[ 'include_ignored' ] );
+		}
+		if ( \array_key_exists( 'ignored_only', $this->action_data ) ) {
+			$builder->ignored_only = !empty( $this->action_data[ 'ignored_only' ] );
+		}
 		return [
 			'success'        => true,
 			'datatable_data' => $builder->build(),

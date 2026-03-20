@@ -39,13 +39,22 @@ class RetrieveCount extends RetrieveBase {
 					break;
 			}
 
-			$count = (int)$this->withMergedWheres(
-				$specificWheres,
-				fn() :int => (int)Services::WpDb()->getVar( $this->buildQuery( [ 'COUNT(*)' ] ) )
-			);
+			$count = $this->countForSpecificWheres( $specificWheres );
 		}
 
 		return $count;
+	}
+
+	/**
+	 * @param array<string,mixed> $options
+	 */
+	public function countForResultsDisplay( array $options = [] ) :int {
+		$latestID = $this->getLatestScanID();
+		return $latestID >= 0
+			? $this->countForSpecificWheres(
+				( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $latestID, $options )
+			)
+			: 0;
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
@@ -65,6 +74,16 @@ class RetrieveCount extends RetrieveBase {
 			$dbCon->scan_result_item_meta->getTable(),
 			self::ABBR_RESULTITEMMETA,
 			self::ABBR_RESULTITEMMETA
+		);
+	}
+
+	/**
+	 * @param list<string> $specificWheres
+	 */
+	private function countForSpecificWheres( array $specificWheres ) :int {
+		return (int)$this->withMergedWheres(
+			$specificWheres,
+			fn() :int => (int)Services::WpDb()->getVar( $this->buildQuery( [ 'COUNT(*)' ] ) )
 		);
 	}
 }

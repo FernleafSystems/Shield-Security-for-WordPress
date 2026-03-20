@@ -12,7 +12,12 @@ class InvestigationFileStatusTableContractBuilder {
 	/**
 	 * @return array<string,mixed>
 	 */
-	public function build( string $subjectType, string $subjectId, string $fullLogHref ) :array {
+	public function build(
+		string $subjectType,
+		string $subjectId,
+		string $fullLogHref,
+		array $scanResultsActionData = []
+	) :array {
 		return $this->buildFlatScanResultsTableContract(
 			__( 'File Scan Status', 'wp-simple-firewall' ),
 			'warning',
@@ -20,10 +25,10 @@ class InvestigationFileStatusTableContractBuilder {
 			$subjectType,
 			$subjectId,
 			( new InvestigationFileScanResultsTableBuilder() )->setSubject( $subjectType, $subjectId )->buildRaw(),
-			[
+			\array_merge( [
 				'type' => $subjectType === InvestigationTableContract::SUBJECT_TYPE_CORE ? 'wordpress' : $subjectType,
 				'file' => $subjectId,
-			],
+			], $scanResultsActionData ),
 			$fullLogHref
 		);
 	}
@@ -37,10 +42,11 @@ class InvestigationFileStatusTableContractBuilder {
 		int $resultCount,
 		string $emptyText,
 		string $fullLogHref,
-		string $emptyStatus = 'info'
+		string $emptyStatus = 'info',
+		array $scanResultsActionData = []
 	) :array {
 		return $this->withEmptyStateTableContract(
-			$this->build( $subjectType, $subjectId, $fullLogHref ),
+			$this->build( $subjectType, $subjectId, $fullLogHref, $scanResultsActionData ),
 			$resultCount,
 			$emptyText,
 			$emptyStatus

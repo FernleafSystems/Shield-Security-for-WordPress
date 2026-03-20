@@ -730,15 +730,15 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return QueueAssetPane
 	 */
-	public function buildActionsQueuePluginsPane() :array {
-		return $this->buildActionsQueuePluginThemePane( 'plugin' );
+	public function buildActionsQueuePluginsPane( array $resultsDisplayOptions = [] ) :array {
+		return $this->buildActionsQueuePluginThemePane( 'plugin', $resultsDisplayOptions );
 	}
 
 	/**
 	 * @return QueueAssetPane
 	 */
-	public function buildActionsQueueThemesPane() :array {
-		return $this->buildActionsQueuePluginThemePane( 'theme' );
+	public function buildActionsQueueThemesPane( array $resultsDisplayOptions = [] ) :array {
+		return $this->buildActionsQueuePluginThemePane( 'theme', $resultsDisplayOptions );
 	}
 
 	/**
@@ -799,7 +799,7 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return list<QueueAssetCard>
 	 */
-	protected function buildPluginThemeIssueRecords( string $assetType ) :array {
+	protected function buildPluginThemeIssueRecords( string $assetType, ?array $resultsDisplayOptions = null ) :array {
 		$results = ( new RetrieveItems() )
 			->setScanController( self::con()->comps->scans->AFS() )
 			->addWheres( [
@@ -809,7 +809,7 @@ class ScansResultsViewBuilder {
 					$assetType === 'plugin' ? 'is_in_plugin' : 'is_in_theme'
 				),
 			] )
-			->retrieveForResultsTables();
+			->retrieveForResultsTables( $resultsDisplayOptions );
 
 		$groupedBySlug = [];
 		foreach ( $results->getItems() as $item ) {
@@ -854,15 +854,17 @@ class ScansResultsViewBuilder {
 				'status'       => 'warning',
 				'icon_class'   => $iconClass,
 				'title'        => $title,
-				'stat_text'    => \sprintf(
-					_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
-					$fileCount
-				),
+				'stat_text'    => $this->buildQueueAssetStatText( $fileCount, $resultsDisplayOptions ),
 				'meta_text'         => $subjectId,
 				'show_meta_in_tile' => true,
 				'count_badge'       => $fileCount,
 				'actions'           => $this->buildAssetActions( $asset, $assetType ),
-				'table'             => $tableBuilder->build( $subjectType, $subjectId, self::con()->plugin_urls->actionsQueueScans() ),
+				'table'             => $tableBuilder->build(
+					$subjectType,
+					$subjectId,
+					self::con()->plugin_urls->actionsQueueScans(),
+					$this->normalizeQueueResultsDisplayOptions( $resultsDisplayOptions )
+				),
 				'render_action' => [],
 			] );
 		}
@@ -880,7 +882,7 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return QueueAssetPane
 	 */
-	private function buildActionsQueuePluginThemePane( string $assetType ) :array {
+	private function buildActionsQueuePluginThemePane( string $assetType, array $resultsDisplayOptions = [] ) :array {
 		$availability = $this->getRailTabAvailability( $assetType === 'plugin' ? 'plugins' : 'themes' );
 		if ( !$availability[ 'is_available' ] ) {
 			return [
@@ -893,7 +895,10 @@ class ScansResultsViewBuilder {
 		return [
 			'is_disabled'      => false,
 			'disabled_message' => '',
-			'cards'            => $this->buildPluginThemeIssueRecords( $assetType ),
+			'cards'            => $this->buildPluginThemeIssueRecords(
+				$assetType,
+				$this->normalizeQueueResultsDisplayOptions( $resultsDisplayOptions )
+			),
 		];
 	}
 
@@ -1386,5 +1391,34 @@ class ScansResultsViewBuilder {
 	 */
 	protected function buildAttentionQuery() :array {
 		return self::con()->comps->site_query->attention();
+	}
+
+	/**
+	 * @param array<string,mixed>|null $resultsDisplayOptions
+	 */
+	private function buildQueueAssetStatText( int $fileCount, ?array $resultsDisplayOptions ) :string {
+		$resultsDisplayOptions = $this->normalizeQueueResultsDisplayOptions( $resultsDisplayOptions );
+		if ( $resultsDisplayOptions[ 'ignored_only' ] ) {
+			return \sprintf(
+				_n( '%s ignored file is available for review', '%s ignored files are available for review', $fileCount, 'wp-simple-firewall' ),
+				$fileCount
+			);
+		}
+
+		return \sprintf(
+			_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
+			$fileCount
+		);
+	}
+
+	/**
+	 * @param array<string,mixed>|null $resultsDisplayOptions
+	 * @return array{include_ignored:bool,ignored_only:bool}
+	 */
+	private function normalizeQueueResultsDisplayOptions( ?array $resultsDisplayOptions ) :array {
+		return [
+			'include_ignored' => !empty( $resultsDisplayOptions[ 'include_ignored' ] ),
+			'ignored_only'    => !empty( $resultsDisplayOptions[ 'ignored_only' ] ),
+		];
 	}
 }

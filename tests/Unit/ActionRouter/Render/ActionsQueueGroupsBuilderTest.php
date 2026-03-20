@@ -114,8 +114,17 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( [ 'linked', 'expandable', 'expandable', 'expandable' ], \array_column( $data[ 'groups' ], 'card_type' ) );
 		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', 'Malware Detections' ], \array_column( $data[ 'groups' ], 'heading_label' ) );
+		$this->assertSame( [ true, true, true, false ], \array_column( $data[ 'groups' ], 'show_heading' ) );
 		$this->assertSame( Vulnerabilities::class, $data[ 'groups' ][ 0 ][ 'render_action_class' ] );
 		$this->assertSame( Malware::class, $data[ 'groups' ][ 3 ][ 'render_action_class' ] );
+		$this->assertSame(
+			[
+				'display_context' => 'actions_queue',
+				'include_ignored' => 0,
+				'ignored_only'    => 0,
+			],
+			$data[ 'groups' ][ 3 ][ 'render_action_data' ]
+		);
 		$this->assertSame(
 			[
 				[
@@ -190,6 +199,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'key'           => 'wp_plugins_updates',
 					'zone'          => 'maintenance',
 					'label'         => 'Plugin Updates',
+					'icon_class'    => 'bi bi-plug-fill',
 					'count'         => 1,
 					'severity'      => 'warning',
 					'description'   => 'There is 1 plugin update waiting to be applied.',
@@ -233,6 +243,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'key'           => 'wp_plugins_inactive',
 					'zone'          => 'maintenance',
 					'label'         => 'Inactive Plugins',
+					'icon_class'    => 'bi bi-plug-fill',
 					'count'         => 1,
 					'severity'      => 'warning',
 					'description'   => 'There is 1 unused plugin that should be uninstalled.',
@@ -333,6 +344,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			],
 			$data[ 'groups' ][ 0 ][ 'management_link' ]
 		);
+		$this->assertSame( 'bi bi-plug-fill', $data[ 'groups' ][ 0 ][ 'icon_class' ] );
 		$this->assertSame(
 			[
 				[
@@ -374,6 +386,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$data[ 'groups' ][ 1 ][ 'management_link' ]
 		);
 		$this->assertSame( 'Akismet Anti-Spam', $data[ 'groups' ][ 1 ][ 'maintenance_rows' ][ 0 ][ 'title' ] );
+		$this->assertSame( 'bi bi-plug-fill', $data[ 'groups' ][ 1 ][ 'icon_class' ] );
 		$this->assertSame(
 			'maintenance_item_ignore',
 			$data[ 'groups' ][ 1 ][ 'maintenance_rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
@@ -382,7 +395,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance', $data[ 'groups' ][ 0 ][ 'detail_shell' ] );
 	}
 
-	public function test_build_review_bucket_keeps_singleton_maintenance_groups_on_fallback_row_when_no_sub_items_exist() :void {
+	public function test_build_review_bucket_keeps_singleton_maintenance_groups_as_header_and_copy_when_no_sub_items_exist() :void {
 		$builder = $this->createBuilder(
 			[],
 			[],
@@ -392,6 +405,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'key'           => 'system_php_version',
 					'zone'          => 'maintenance',
 					'label'         => 'PHP Version',
+					'icon_class'    => 'bi bi-code-slash',
 					'count'         => 1,
 					'severity'      => 'warning',
 					'description'   => 'PHP should be reviewed.',
@@ -424,6 +438,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 'system_php_version', $data[ 'groups' ][ 0 ][ 'key' ] );
+		$this->assertSame( 'bi bi-code-slash', $data[ 'groups' ][ 0 ][ 'icon_class' ] );
 		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'maintenance_rows' ] );
 		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'management_link' ] );
 		$this->assertSame( 'PHP should be reviewed.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
@@ -510,6 +525,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'key'           => 'wp_plugins_updates',
 					'zone'          => 'maintenance',
 					'label'         => 'Plugin Updates',
+					'icon_class'    => 'bi bi-plug-fill',
 					'count'         => 1,
 					'severity'      => 'warning',
 					'drill_bucket'  => 'review',
@@ -554,6 +570,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'key'           => 'wp_plugins_inactive',
 					'zone'          => 'maintenance',
 					'label'         => 'Inactive Plugins',
+					'icon_class'    => 'bi bi-plug-fill',
 					'count'         => 0,
 					'severity'      => 'good',
 					'drill_bucket'  => 'review',
@@ -660,7 +677,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'status' ] );
 		$this->assertSame( '', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'drill_hint' ] );
 		$this->assertSame(
-			'This maintenance group is currently looking good. Open it here any time to review or stop ignoring items.',
+			'This maintenance group is currently looking good.',
 			$payload[ 'selected_group' ][ 'next_move' ]
 		);
 		$this->assertSame( 1, $payload[ 'selected_group' ][ 'item_count' ] );
@@ -670,7 +687,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_build_critical_bucket_makes_healthy_vulnerabilities_group_drillable_without_changing_canonical_definition() :void {
+	public function test_build_critical_bucket_keeps_healthy_vulnerabilities_static() :void {
 		$builder = $this->createBuilder();
 
 		$payload = $builder->buildWithSelectedGroup(
@@ -706,15 +723,90 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'vulnerabilities' ], \array_column( $payload[ 'layer' ][ 'groups' ], 'key' ) );
 		$this->assertSame( 'healthy', $payload[ 'layer' ][ 'groups' ][ 0 ][ 'display_section' ] );
-		$this->assertSame( 'expandable', $payload[ 'layer' ][ 'groups' ][ 0 ][ 'card_type' ] );
+		$this->assertSame( 'linked', $payload[ 'layer' ][ 'groups' ][ 0 ][ 'card_type' ] );
 		$this->assertSame( [], $payload[ 'layer' ][ 'groups' ][ 0 ][ 'links' ] );
-		$this->assertSame(
-			\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Vulnerabilities::class,
-			$payload[ 'layer' ][ 'groups' ][ 0 ][ 'render_action_class' ]
-		);
+		$this->assertFalse( $payload[ 'layer' ][ 'groups' ][ 0 ][ 'is_interactive' ] );
+		$this->assertSame( [], $payload[ 'layer' ][ 'groups' ][ 0 ][ 'render_action_data' ] );
 		$this->assertSame( 'vulnerabilities', $payload[ 'selected_group' ][ 'key' ] );
-		$this->assertSame( 'expandable', $payload[ 'selected_group' ][ 'card_type' ] );
+		$this->assertSame( 'linked', $payload[ 'selected_group' ][ 'card_type' ] );
+		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
 		$this->assertSame( '', $payload[ 'selected_group' ][ 'drill_hint' ] );
+	}
+
+	public function test_build_critical_bucket_only_makes_healthy_scan_groups_clickable_when_ignored_results_exist() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[],
+			[
+				$this->makeQueueAssetCard( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
+			],
+			[],
+			3
+		);
+
+		$data = $builder->build(
+			'critical',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'wp_files',
+						'label'             => 'WordPress Files',
+						'description'       => 'All WordPress core files appear to be valid.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+					[
+						'key'               => 'plugin_files',
+						'label'             => 'Plugin Files',
+						'description'       => 'All plugin files appear to be valid.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+					[
+						'key'               => 'theme_files',
+						'label'             => 'Theme Files',
+						'description'       => 'All theme files appear to be valid.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$groups = [];
+		foreach ( $data[ 'groups' ] as $group ) {
+			$groups[ $group[ 'key' ] ] = $group;
+		}
+
+		$this->assertTrue( $groups[ 'wordpress' ][ 'is_interactive' ] );
+		$this->assertSame(
+			[
+				'display_context' => 'actions_queue',
+				'include_ignored' => 1,
+				'ignored_only'    => 1,
+			],
+			$groups[ 'wordpress' ][ 'render_action_data' ]
+		);
+		$this->assertSame( 3, $groups[ 'wordpress' ][ 'item_count' ] );
+		$this->assertTrue( $groups[ 'plugins' ][ 'is_interactive' ] );
+		$this->assertSame( 2, $groups[ 'plugins' ][ 'item_count' ] );
+		$this->assertFalse( $groups[ 'themes' ][ 'is_interactive' ] );
+		$this->assertSame( [], $groups[ 'themes' ][ 'render_action_data' ] );
+		$this->assertFalse( $groups[ 'wordpress' ][ 'show_heading' ] );
+		$this->assertFalse( $groups[ 'plugins' ][ 'show_heading' ] );
+		$this->assertFalse( $groups[ 'themes' ][ 'show_heading' ] );
 	}
 
 	/**
@@ -747,9 +839,20 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		array $pluginCards = [],
 		array $themeCards = [],
 		array $vulnerabilities = [],
-		array $maintenanceItems = []
+		array $maintenanceItems = [],
+		array $ignoredPluginCards = [],
+		array $ignoredThemeCards = [],
+		int $ignoredWordpressCount = 0
 	) :ActionsQueueGroupsBuilder {
-		return new class( $pluginCards, $themeCards, $vulnerabilities, $maintenanceItems ) extends ActionsQueueGroupsBuilder {
+		return new class(
+			$pluginCards,
+			$themeCards,
+			$vulnerabilities,
+			$maintenanceItems,
+			$ignoredPluginCards,
+			$ignoredThemeCards,
+			$ignoredWordpressCount
+		) extends ActionsQueueGroupsBuilder {
 
 			private int $vulnerabilitiesPayloadCalls = 0;
 
@@ -757,23 +860,30 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				private array $pluginCards,
 				private array $themeCards,
 				private array $vulnerabilities,
-				private array $maintenanceItems
+				private array $maintenanceItems,
+				private array $ignoredPluginCards,
+				private array $ignoredThemeCards,
+				private int $ignoredWordpressCount
 			) {
 			}
 
-			protected function buildActionsQueuePluginsPane() :array {
+			protected function buildActionsQueuePluginsPane( array $resultsDisplayOptions = [] ) :array {
 				return [
 					'is_disabled'      => false,
 					'disabled_message' => '',
-					'cards'            => $this->pluginCards,
+					'cards'            => !empty( $resultsDisplayOptions[ 'ignored_only' ] )
+						? $this->ignoredPluginCards
+						: $this->pluginCards,
 				];
 			}
 
-			protected function buildActionsQueueThemesPane() :array {
+			protected function buildActionsQueueThemesPane( array $resultsDisplayOptions = [] ) :array {
 				return [
 					'is_disabled'      => false,
 					'disabled_message' => '',
-					'cards'            => $this->themeCards,
+					'cards'            => !empty( $resultsDisplayOptions[ 'ignored_only' ] )
+						? $this->ignoredThemeCards
+						: $this->themeCards,
 				];
 			}
 
@@ -807,6 +917,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 			protected function normalizeBucketMaintenanceQueueItems( array $items, string $bucketKey ) :array {
 				return $this->maintenanceItems;
+			}
+
+			protected function getIgnoredWordpressCount() :int {
+				return $this->ignoredWordpressCount;
 			}
 		};
 	}

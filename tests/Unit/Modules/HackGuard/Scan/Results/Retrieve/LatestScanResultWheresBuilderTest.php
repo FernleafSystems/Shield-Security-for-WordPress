@@ -43,4 +43,29 @@ class LatestScanResultWheresBuilderTest extends BaseUnitTest {
 			"`ri`.`item_deleted_at`=0",
 		], $builder->forLatestResults( 99 ) );
 	}
+
+	public function test_for_results_display_with_options_supports_queue_owned_ignored_only_filters() :void {
+		$builder = new LatestScanResultWheresBuilder();
+
+		$this->assertSame( [
+			"`sr`.`scan_ref`=99",
+			"`ri`.`deleted_at`=0",
+			"`ri`.`auto_filtered_at`=0",
+			"`ri`.`ignored_at`=0",
+			"`ri`.`item_repaired_at`=0",
+			"`ri`.`item_deleted_at`=0",
+		], $builder->forResultsDisplayWithOptions( 99 ) );
+
+		$this->assertSame( [
+			"`sr`.`scan_ref`=99",
+			"`ri`.`deleted_at`=0",
+			"`ri`.`auto_filtered_at`=0",
+			"`ri`.`ignored_at`>0",
+			"`ri`.`item_repaired_at`=0",
+			"`ri`.`item_deleted_at`=0",
+		], $builder->forResultsDisplayWithOptions( 99, [
+			'include_ignored' => true,
+			'ignored_only'    => true,
+		] ) );
+	}
 }

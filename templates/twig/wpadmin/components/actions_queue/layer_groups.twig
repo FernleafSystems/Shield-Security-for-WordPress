@@ -7,14 +7,8 @@
 	{% else %}
 		<div class="actions-queue-groups__findings">
 			{% set previous_heading = '' %}
-			{% set healthy_heading_rendered = false %}
 			{% for group in groups %}
 				{% set is_healthy = group.display_section == 'healthy' %}
-				{% if is_healthy and not healthy_heading_rendered %}
-					<div class="finding-group__heading">{{ healthy_heading }}</div>
-					{% set healthy_heading_rendered = true %}
-					{% set previous_heading = '' %}
-				{% endif %}
 				{% if group.card_type == 'category' %}
 					<div class="item-box{% if is_healthy %} item-box--good is-dimmed-healthy{% endif %}">
 						<div class="item-box__header">
@@ -32,8 +26,6 @@
 						<div class="item-box__grid">
 							{% if group.maintenance_rows is not empty %}
 								{% for row in group.maintenance_rows %}
-									{% set row_action = row.secondary_actions|first %}
-									{% set row_meta = row.context is not empty ? row.context : row.subtitle %}
 									<div class="item-box__row{% if row.is_ignored %} is-ignored{% endif %}"
 										 {% if row.is_ignored %}data-actions-queue-maintenance-ignored="1"{% endif %}>
 										<span class="item-box__row-text item-box__row-text--stacked">
@@ -43,35 +35,61 @@
 													<span class="shield-badge badge-info item-box__row-badge">{{ row.ignored_label }}</span>
 												{% endif %}
 											</span>
-											{% if row_meta is not empty %}
-												<span class="item-box__row-summary">{{ row_meta }}</span>
+											{% if row.subtitle is not empty %}
+												<span class="item-box__row-subtitle">{{ row.subtitle }}</span>
+											{% endif %}
+											{% if row.context is not empty %}
+												<span class="item-box__row-summary">{{ row.context }}</span>
+											{% endif %}
+											{% if row.identifier is not empty %}
+												<span class="item-box__row-meta"><code>{{ row.identifier }}</code></span>
 											{% endif %}
 										</span>
-										{% if row_action is not empty %}
-											<a href="{{ row_action.href }}"
-											   class="btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action"
-											   data-bs-toggle="tooltip"
-											   data-bs-title="{{ row_action.tooltip|e('html_attr') }}"
-											   {% if row_action.target is not empty %}target="{{ row_action.target }}"{% endif %}
-											   {% if row_action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ row_action.ajax_action_json|e('html_attr') }}"{% endif %}>
-												<i class="{{ row_action.icon }}" aria-hidden="true"></i>
-												<span class="visually-hidden">{{ row_action.label }}</span>
-											</a>
-										{% endif %}
+										<span class="item-box__row-actions">
+											{% set has_primary_action = row.action.href is not empty and row.action.label is not empty %}
+											{% set primary_is_icon_only = has_primary_action and row.action.is_icon_only %}
+											{% if has_primary_action %}
+												{% if primary_is_icon_only %}
+													<a href="{{ row.action.href }}"
+													   class="btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action"
+													   {% if row.action.tooltip is not empty %}data-bs-toggle="tooltip"
+													   data-bs-title="{{ row.action.tooltip|e('html_attr') }}"{% endif %}
+													   {% if row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+														<i class="{{ row.action.icon }}" aria-hidden="true"></i>
+														<span class="visually-hidden">{{ row.action.label }}</span>
+													</a>
+												{% else %}
+													<a href="{{ row.action.href }}"
+													   class="btn btn-outline-secondary btn-sm item-box__row-primary-action"
+													   {% if row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+														{{ row.action.label }}
+													</a>
+												{% endif %}
+											{% endif %}
+											{% for action in row.secondary_actions %}
+												<a href="{{ action.href }}"
+												   class="btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action"
+												   data-bs-toggle="tooltip"
+												   data-bs-title="{{ action.tooltip|e('html_attr') }}"
+												   {% if action.target is not empty %}target="{{ action.target }}"{% endif %}
+												   {% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+													<i class="{{ action.icon }}" aria-hidden="true"></i>
+													<span class="visually-hidden">{{ action.label }}</span>
+												</a>
+											{% endfor %}
+										</span>
 									</div>
 								{% endfor %}
 							{% else %}
-								<div class="item-box__row">
-									<span class="item-box__row-icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
-									<span class="item-box__row-text">
-										<strong>{{ group.narrative }}</strong>{{ group.next_move }}
-									</span>
-								</div>
+								<div class="item-box__body-copy">{{ group.narrative }}</div>
+								{% if group.next_move is not empty %}
+									<div class="item-box__body-note">{{ group.next_move }}</div>
+								{% endif %}
 							{% endif %}
 						</div>
 					</div>
 				{% else %}
-					{% if group.heading_label is not empty and group.heading_label != previous_heading %}
+					{% if group.show_heading and group.heading_label != previous_heading %}
 						<div class="finding-group__heading">{{ group.heading_label }}</div>
 						{% set previous_heading = group.heading_label %}
 					{% endif %}
@@ -98,7 +116,7 @@
 								</div>
 							{% endif %}
 						</div>
-					{% else %}
+					{% elseif group.is_interactive %}
 						<button type="button"
 								class="finding-card finding-card--expandable status-{{ group.status }}{% if is_healthy %} is-dimmed-healthy{% endif %}"
 								data-drill-target="detail"
@@ -120,6 +138,16 @@
 								<i class="bi bi-chevron-right" aria-hidden="true"></i>
 							</span>
 						</button>
+					{% else %}
+						<div class="finding-card status-{{ group.status }}{% if is_healthy %} is-dimmed-healthy{% endif %}">
+							<span class="finding-card__icon status-{{ group.status }}">
+								<i class="{{ group.icon_class }}" aria-hidden="true"></i>
+							</span>
+							<div class="finding-card__body">
+								<div class="finding-card__title">{{ group.label }}</div>
+								<div class="finding-card__desc">{{ group.narrative }}</div>
+							</div>
+						</div>
 					{% endif %}
 				{% endif %}
 			{% endfor %}

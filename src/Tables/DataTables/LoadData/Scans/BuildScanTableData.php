@@ -11,6 +11,8 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @property string $type
  * @property string $file
+ * @property bool   $include_ignored
+ * @property bool   $ignored_only
  */
 class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
@@ -118,9 +120,28 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 				break;
 		}
 
+		$explicitResultsDisplayOptions = $this->getExplicitResultsDisplayOptions();
+		if ( $explicitResultsDisplayOptions !== null ) {
+			$loader->results_display_options = $explicitResultsDisplayOptions;
+		}
+
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->order_by;
 		$loader->search_text = \preg_replace( '#[^/a-z\d_-]#i', '', (string)$this->table_data[ 'search' ][ 'value' ] ?? '' );
 		return $loader;
+	}
+
+	/**
+	 * @return array<string,bool>|null
+	 */
+	private function getExplicitResultsDisplayOptions() :?array {
+		if ( !isset( $this->include_ignored ) && !isset( $this->ignored_only ) ) {
+			return null;
+		}
+
+		return [
+			'include_ignored' => !empty( $this->include_ignored ),
+			'ignored_only'    => !empty( $this->ignored_only ),
+		];
 	}
 }

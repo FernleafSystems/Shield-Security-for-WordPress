@@ -106,6 +106,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( 'Manage Plugins', $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( 'bi bi-plug-fill', $item[ 'icon_class' ] ?? '' );
 		$this->assertSame( '/wp-admin/update-core.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( 'maintenance-expand-wp_plugins_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $item[ 'expansion' ][ 'type' ] ?? '' );
@@ -329,6 +330,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 
 		$this->assertCount( 1, $items );
 		$this->assertSame( 'system_php_version', $items[ 0 ][ 'key' ] ?? '' );
+		$this->assertSame( 'bi bi-code-slash', $items[ 0 ][ 'icon_class' ] ?? '' );
 		$this->assertSame( 'good', $items[ 0 ][ 'severity' ] ?? '' );
 		$this->assertSame( [], $items[ 0 ][ 'cta' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $items[ 0 ][ 'expansion' ] ?? [] );

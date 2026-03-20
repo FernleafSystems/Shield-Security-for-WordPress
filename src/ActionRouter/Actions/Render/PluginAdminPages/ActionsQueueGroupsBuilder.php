@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
@@ -38,6 +40,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type GroupData array{
  *   key:string,
  *   display_section:'active'|'healthy',
+ *   show_heading:bool,
  *   heading_label:string,
  *   label:string,
  *   item_count:int,
@@ -50,9 +53,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   drill_hint:string,
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
+ *   is_interactive:bool,
  *   detail_table:array<string,mixed>,
  *   render_action_class:class-string<BaseAction>,
- *   render_action_data:array<string,string>,
+ *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<MaintenanceExpansionRow>,
  *   header:DrillLayerHeaderInput,
  *   header_json:string,
@@ -80,10 +84,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   narrative:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type_override?:'expandable'|'linked'|'category',
+ *   icon_class_override?:string,
  *   path_segments:list<string>,
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
+ *   is_interactive_override?:bool,
  *   detail_table:array<string,mixed>,
+ *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
  *   maintenance_rows:list<MaintenanceExpansionRow>
  * }
@@ -107,8 +114,11 @@ class ActionsQueueGroupsBuilder {
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
 	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
 	private ?array $pluginsPane = null;
+	private ?array $ignoredPluginsPane = null;
 	private ?array $themesPane = null;
+	private ?array $ignoredThemesPane = null;
 	private ?array $vulnerabilitiesPayload = null;
+	private ?int $ignoredWordpressCount = null;
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -354,19 +364,22 @@ class ActionsQueueGroupsBuilder {
 	 */
 	private function resolveSeed( string $bucketLabel, array $seed ) :array {
 		$definition = $this->getGroupDefinition( $seed[ 'definition_key' ] );
+		$iconClass = $seed[ 'icon_class_override' ] ?? $definition[ 'icon_class' ];
 		$isHealthy = ( $seed[ 'display_section' ] ?? 'active' ) === 'healthy';
 		$narrative = $seed[ 'narrative' ] !== ''
 			? $seed[ 'narrative' ]
 			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'attention_items' ], $seed[ 'item_count' ] );
+		$isInteractive = $seed[ 'is_interactive_override' ]
+			?? $this->determineInteractivity( $seed );
 		$nextMove = $isHealthy
-			? $this->buildHealthyNextMove( $seed[ 'definition_key' ] )
+			? $this->buildHealthyNextMove( $seed[ 'definition_key' ], $isInteractive )
 			: $this->buildNextMove( $seed[ 'definition_key' ] );
 		$selection = $this->presentation()->buildGroupSelection(
 			$bucketLabel,
 			$seed[ 'key' ],
 			$seed[ 'label' ],
 			$seed[ 'status' ],
-			$definition[ 'icon_class' ],
+			$iconClass,
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
 			$narrative
@@ -375,11 +388,13 @@ class ActionsQueueGroupsBuilder {
 		return [
 			'key'                 => $seed[ 'key' ],
 			'display_section'     => $seed[ 'display_section' ] ?? 'active',
+			'show_heading'        => $seed[ 'heading_label' ] !== ''
+				&& $seed[ 'heading_label' ] !== $seed[ 'label' ],
 			'heading_label'       => $seed[ 'heading_label' ],
 			'label'               => $seed[ 'label' ],
 			'item_count'          => $seed[ 'item_count' ],
 			'status'              => $seed[ 'status' ],
-			'icon_class'          => $definition[ 'icon_class' ],
+			'icon_class'          => $iconClass,
 			'detail_shell'        => $seed[ 'detail_shell' ],
 			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],
 			'narrative'           => $narrative,
@@ -392,9 +407,11 @@ class ActionsQueueGroupsBuilder {
 			),
 			'links'               => $seed[ 'links' ],
 			'management_link'     => $seed[ 'management_link' ],
+			'is_interactive'      => $isInteractive,
 			'detail_table'        => $seed[ 'detail_table' ],
 			'render_action_class' => $definition[ 'render_action_class' ],
-			'render_action_data'  => $definition[ 'render_action_data' ],
+			'render_action_data'  => $seed[ 'render_action_data_override' ]
+				?? $definition[ 'render_action_data' ],
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
 			'header'              => $selection[ 'header' ],
 			'header_json'         => $selection[ 'header_json' ],
@@ -425,6 +442,7 @@ class ActionsQueueGroupsBuilder {
 		return [
 			'key'                 => $groupKey,
 			'display_section'     => 'active',
+			'show_heading'        => false,
 			'heading_label'       => $definition[ 'label' ],
 			'label'               => $definition[ 'label' ],
 			'item_count'          => 0,
@@ -437,6 +455,7 @@ class ActionsQueueGroupsBuilder {
 			'drill_hint'          => '',
 			'links'               => [],
 			'management_link'     => [],
+			'is_interactive'      => false,
 			'detail_table'        => [],
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
@@ -536,6 +555,7 @@ class ActionsQueueGroupsBuilder {
 			'status'           => StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'warning' ),
 			'narrative'        => $maintenanceItem[ 'description' ],
 			'detail_shell'     => 'maintenance',
+			'icon_class_override' => $maintenanceItem[ 'icon_class' ] ?? null,
 			'path_segments'    => [ $maintenanceItem[ 'label' ] ],
 			'links'            => [],
 			'management_link'  => $this->buildManagementLink( $maintenanceItem ),
@@ -657,26 +677,28 @@ class ActionsQueueGroupsBuilder {
 		$seeds = [];
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
 			$definition = $this->getGroupDefinition( $definitionKey );
+			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seed = [
 				'key'              => $definitionKey,
 				'display_section'  => 'healthy',
 				'definition_key'   => $definitionKey,
 				'heading_label'    => $definition[ 'label' ],
 				'label'            => $definition[ 'label' ],
-				'item_count'       => \count( $rows ),
+				'item_count'       => $interaction[ 'item_count' ] > 0
+					? $interaction[ 'item_count' ]
+					: \count( $rows ),
 				'status'           => 'good',
 				'narrative'        => $this->combineHealthyAssessmentNarratives( $rows ),
 				'detail_shell'     => $definition[ 'detail_shell' ],
 				'path_segments'    => [ $definition[ 'label' ] ],
 				'links'            => [],
 				'management_link'  => [],
+				'is_interactive_override' => $interaction[ 'is_interactive' ],
 				'detail_table'     => [],
+				'render_action_data_override' => $interaction[ 'render_action_data' ],
 				'attention_items'  => [],
 				'maintenance_rows' => [],
 			];
-			if ( $definition[ 'card_type' ] === 'linked' ) {
-				$seed[ 'card_type_override' ] = 'expandable';
-			}
 			$seeds[] = $seed;
 		}
 
@@ -785,10 +807,16 @@ class ActionsQueueGroupsBuilder {
 		}
 	}
 
-	private function buildHealthyNextMove( string $definitionKey ) :string {
-		return $definitionKey === 'maintenance'
-			? __( 'This maintenance group is currently looking good. Open it here any time to review or stop ignoring items.', 'wp-simple-firewall' )
-			: __( 'This group is currently looking good. Open it here any time to review the current status again.', 'wp-simple-firewall' );
+	private function buildHealthyNextMove( string $definitionKey, bool $isInteractive ) :string {
+		if ( $definitionKey === 'maintenance' ) {
+			return $isInteractive
+				? __( 'This maintenance group is currently looking good. Review or stop ignoring items here any time.', 'wp-simple-firewall' )
+				: __( 'This maintenance group is currently looking good.', 'wp-simple-firewall' );
+		}
+
+		return $isInteractive
+			? __( 'This group is currently looking good. Ignored scan results are still available here if you need to review them.', 'wp-simple-firewall' )
+			: __( 'This group is currently looking good.', 'wp-simple-firewall' );
 	}
 
 	private function buildDrillHint( array $definition, int $itemCount, string $detailShell, string $status ) :string {
@@ -868,7 +896,7 @@ class ActionsQueueGroupsBuilder {
 	 */
 	private function pluginsPane() :array {
 		if ( $this->pluginsPane === null ) {
-			$this->pluginsPane = $this->buildActionsQueuePluginsPane();
+			$this->pluginsPane = $this->buildActionsQueuePluginsPane( $this->buildActiveOnlyQueueResultsDisplayOptions() );
 		}
 
 		return $this->pluginsPane;
@@ -877,12 +905,34 @@ class ActionsQueueGroupsBuilder {
 	/**
 	 * @return QueueAssetPane
 	 */
+	private function ignoredPluginsPane() :array {
+		if ( $this->ignoredPluginsPane === null ) {
+			$this->ignoredPluginsPane = $this->buildActionsQueuePluginsPane( $this->buildIgnoredOnlyQueueResultsDisplayOptions() );
+		}
+
+		return $this->ignoredPluginsPane;
+	}
+
+	/**
+	 * @return QueueAssetPane
+	 */
 	private function themesPane() :array {
 		if ( $this->themesPane === null ) {
-			$this->themesPane = $this->buildActionsQueueThemesPane();
+			$this->themesPane = $this->buildActionsQueueThemesPane( $this->buildActiveOnlyQueueResultsDisplayOptions() );
 		}
 
 		return $this->themesPane;
+	}
+
+	/**
+	 * @return QueueAssetPane
+	 */
+	private function ignoredThemesPane() :array {
+		if ( $this->ignoredThemesPane === null ) {
+			$this->ignoredThemesPane = $this->buildActionsQueueThemesPane( $this->buildIgnoredOnlyQueueResultsDisplayOptions() );
+		}
+
+		return $this->ignoredThemesPane;
 	}
 
 	/**
@@ -896,12 +946,12 @@ class ActionsQueueGroupsBuilder {
 		return $this->vulnerabilitiesPayload;
 	}
 
-	protected function buildActionsQueuePluginsPane() :array {
-		return ( new ScansResultsViewBuilder() )->buildActionsQueuePluginsPane();
+	protected function buildActionsQueuePluginsPane( array $resultsDisplayOptions = [] ) :array {
+		return ( new ScansResultsViewBuilder() )->buildActionsQueuePluginsPane( $resultsDisplayOptions );
 	}
 
-	protected function buildActionsQueueThemesPane() :array {
-		return ( new ScansResultsViewBuilder() )->buildActionsQueueThemesPane();
+	protected function buildActionsQueueThemesPane( array $resultsDisplayOptions = [] ) :array {
+		return ( new ScansResultsViewBuilder() )->buildActionsQueueThemesPane( $resultsDisplayOptions );
 	}
 
 	protected function buildVulnerabilitiesPayload() :array {
@@ -948,6 +998,95 @@ class ActionsQueueGroupsBuilder {
 		}
 
 		return empty( $maintenanceItem[ 'toggle_action' ] ) ? 0 : 1;
+	}
+
+	/**
+	 * @param GroupSeed $seed
+	 */
+	private function determineInteractivity( array $seed ) :bool {
+		return ( $seed[ 'detail_shell' ] ?? '' ) !== 'maintenance'
+			&& ( $seed[ 'card_type_override' ] ?? '' ) !== 'linked'
+			&& (
+				!empty( $seed[ 'detail_table' ] )
+				|| !empty( $seed[ 'render_action_data_override' ] )
+				|| ( $seed[ 'item_count' ] ?? 0 ) > 0
+			);
+	}
+
+	/**
+	 * @return array{
+	 *   is_interactive:bool,
+	 *   item_count:int,
+	 *   render_action_data:array<string,mixed>
+	 * }
+	 */
+	private function buildHealthyScanInteraction( string $definitionKey ) :array {
+		switch ( $definitionKey ) {
+			case 'wordpress':
+				$ignoredCount = $this->getIgnoredWordpressCount();
+				break;
+			case 'plugins':
+				$ignoredCount = $this->countQueueAssetPaneResults( $this->ignoredPluginsPane() );
+				break;
+			case 'themes':
+				$ignoredCount = $this->countQueueAssetPaneResults( $this->ignoredThemesPane() );
+				break;
+			default:
+				$ignoredCount = 0;
+				break;
+		}
+
+		return [
+			'is_interactive'    => $ignoredCount > 0,
+			'item_count'        => $ignoredCount,
+			'render_action_data' => $ignoredCount > 0
+				? \array_merge(
+					$this->getGroupDefinition( $definitionKey )[ 'render_action_data' ],
+					$this->buildIgnoredOnlyQueueResultsDisplayOptions()
+				)
+				: [],
+		];
+	}
+
+	protected function getIgnoredWordpressCount() :int {
+		if ( $this->ignoredWordpressCount === null ) {
+			$loader = new LoadFileScanResultsTableData();
+			$loader->custom_record_retriever_wheres = [
+				\sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
+				\sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
+			];
+			$loader->results_display_options = $this->buildIgnoredOnlyQueueResultsDisplayOptions();
+			$this->ignoredWordpressCount = $loader->countAll();
+		}
+
+		return $this->ignoredWordpressCount;
+	}
+
+	private function countQueueAssetPaneResults( array $pane ) :int {
+		return (int)\array_sum( \array_map(
+			static fn( array $card ) :int => (int)( $card[ 'count_badge' ] ?? 0 ),
+			$pane[ 'cards' ] ?? []
+		) );
+	}
+
+	/**
+	 * @return array{include_ignored:int,ignored_only:int}
+	 */
+	private function buildActiveOnlyQueueResultsDisplayOptions() :array {
+		return [
+			'include_ignored' => 0,
+			'ignored_only'    => 0,
+		];
+	}
+
+	/**
+	 * @return array{include_ignored:int,ignored_only:int}
+	 */
+	private function buildIgnoredOnlyQueueResultsDisplayOptions() :array {
+		return [
+			'include_ignored' => 1,
+			'ignored_only'    => 1,
+		];
 	}
 
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {

@@ -52,19 +52,34 @@ class LatestScanResultWheresBuilder {
 	 * @return list<string>
 	 */
 	public function forResultsDisplay( int $latestScanId ) :array {
+		$includes = self::con()->opts->optGet( 'scan_results_table_display' );
+		return $this->forResultsDisplayWithOptions( $latestScanId, [
+			'include_ignored'  => \is_array( $includes ) && \in_array( 'include_ignored', $includes, true ),
+			'include_repaired' => \is_array( $includes ) && \in_array( 'include_repaired', $includes, true ),
+			'include_deleted'  => \is_array( $includes ) && \in_array( 'include_deleted', $includes, true ),
+		] );
+	}
+
+	/**
+	 * @param array<string,mixed> $options
+	 * @return list<string>
+	 */
+	public function forResultsDisplayWithOptions( int $latestScanId, array $options = [] ) :array {
+		$options = $this->normalizeResultsDisplayOptions( $options );
 		$wheres = \array_merge( $this->buildBase( $latestScanId ), [
 			"`ri`.`auto_filtered_at`=0",
 		] );
 
-		$includes = self::con()->opts->optGet( 'scan_results_table_display' );
-		$includes = \is_array( $includes ) ? $includes : [];
-		if ( !\in_array( 'include_ignored', $includes, true ) ) {
+		if ( $options[ 'ignored_only' ] ) {
+			$wheres[] = "`ri`.`ignored_at`>0";
+		}
+		elseif ( !$options[ 'include_ignored' ] ) {
 			$wheres[] = "`ri`.`ignored_at`=0";
 		}
-		if ( !\in_array( 'include_repaired', $includes, true ) ) {
+		if ( !$options[ 'include_repaired' ] ) {
 			$wheres[] = "`ri`.`item_repaired_at`=0";
 		}
-		if ( !\in_array( 'include_deleted', $includes, true ) ) {
+		if ( !$options[ 'include_deleted' ] ) {
 			$wheres[] = "`ri`.`item_deleted_at`=0";
 		}
 
@@ -88,6 +103,24 @@ class LatestScanResultWheresBuilder {
 		return [
 			\sprintf( "`sr`.`scan_ref`=%d", $latestScanId ),
 			"`ri`.`deleted_at`=0",
+		];
+	}
+
+	/**
+	 * @param array<string,mixed> $options
+	 * @return array{
+	 *   include_ignored:bool,
+	 *   include_repaired:bool,
+	 *   include_deleted:bool,
+	 *   ignored_only:bool
+	 * }
+	 */
+	private function normalizeResultsDisplayOptions( array $options ) :array {
+		return [
+			'include_ignored'  => !empty( $options[ 'include_ignored' ] ),
+			'include_repaired' => !empty( $options[ 'include_repaired' ] ),
+			'include_deleted'  => !empty( $options[ 'include_deleted' ] ),
+			'ignored_only'     => !empty( $options[ 'ignored_only' ] ),
 		];
 	}
 }

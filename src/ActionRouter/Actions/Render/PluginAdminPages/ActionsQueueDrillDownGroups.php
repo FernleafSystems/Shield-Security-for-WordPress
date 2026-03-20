@@ -17,17 +17,16 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	 *   bucket_selection:BucketSelection,
 	 *   bucket_selection_json:string,
 	 *   empty_message:string,
-	 *   healthy_heading:string,
 	 *   groups:list<GroupData>,
 	 *   header:array<string,string>,
-	 *   selected_group?:GroupSelection,
-	 *   landing_refresh?:array{
-	 *     queue_is_empty:bool,
-	 *     has_drilldown_content:bool,
-	 *     severity_strip_html:string,
-	 *     buckets_html:string,
-	 *     all_clear_html:string
-	 *   }
+ *   selected_group?:GroupSelection,
+ *   landing_refresh?:array{
+ *     queue_is_empty:bool,
+ *     has_drilldown_content:bool,
+ *     root_step_json:string,
+ *     buckets_html:string,
+ *     all_clear_html:string
+ *   }
 	 * }
 	 */
 	protected function getRenderData() :array {
@@ -55,7 +54,6 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			'bucket_selection'   => $groups[ 'bucket_selection' ],
 			'bucket_selection_json' => $groups[ 'bucket_selection_json' ],
 			'empty_message'      => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
-			'healthy_heading'    => __( 'Looking good', 'wp-simple-firewall' ),
 			'groups'             => $groups[ 'groups' ],
 			'header'             => $groups[ 'header' ],
 		];
@@ -66,7 +64,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			$data[ 'landing_refresh' ] = [
 				'queue_is_empty'         => $isQueueEmpty,
 				'has_drilldown_content'  => $hasDrilldownContent,
-				'severity_strip_html'    => $this->renderSeverityStripSection(),
+				'root_step_json'         => (string)( \json_encode( $this->buildActionsQueueOperatorRootStep() ) ?: '' ),
 				'buckets_html'           => $hasDrilldownContent ? $this->renderBucketsLayer() : '',
 				'all_clear_html'         => $isQueueEmpty
 					? $this->renderAllClearCard()

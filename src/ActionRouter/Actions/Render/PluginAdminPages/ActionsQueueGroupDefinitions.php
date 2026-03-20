@@ -25,7 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   drill_hint_plural:string,
  *   summary_keys:list<string>,
  *   render_action_class:class-string<BaseAction>,
- *   render_action_data:array<string,string>
+ *   render_action_data:array<string,mixed>
  * }
  */
 class ActionsQueueGroupDefinitions {
@@ -126,7 +126,7 @@ class ActionsQueueGroupDefinitions {
 	}
 
 	/**
-	 * @return array<string,string>
+	 * @return array<string,mixed>
 	 */
 	private function renderActionData( string $groupKey ) :array {
 		return \in_array( $groupKey, [
@@ -138,6 +138,8 @@ class ActionsQueueGroupDefinitions {
 		], true )
 			? [
 				'display_context' => 'actions_queue',
+				'include_ignored' => 0,
+				'ignored_only'    => 0,
 			]
 			: [];
 	}
