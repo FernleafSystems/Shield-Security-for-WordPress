@@ -21,10 +21,8 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 	 * @return array{include_ignored:bool,ignored_only:bool}
 	 */
 	protected function getActionsQueueResultsDisplayOptions() :array {
-		return [
-			'include_ignored' => !empty( $this->action_data[ 'include_ignored' ] ),
-			'ignored_only'    => !empty( $this->action_data[ 'ignored_only' ] ),
-		];
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions() )
+			->fromActionData( $this->action_data );
 	}
 
 	protected function getRenderData() :array {

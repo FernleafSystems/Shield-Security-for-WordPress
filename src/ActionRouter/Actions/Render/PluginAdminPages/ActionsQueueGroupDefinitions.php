@@ -136,11 +136,7 @@ class ActionsQueueGroupDefinitions {
 			'malware',
 			'file_locker',
 		], true )
-			? [
-				'display_context' => 'actions_queue',
-				'include_ignored' => 0,
-				'ignored_only'    => 0,
-			]
+			? ( new ActionsQueueScanResultsOptions() )->buildActionData()
 			: [];
 	}
 

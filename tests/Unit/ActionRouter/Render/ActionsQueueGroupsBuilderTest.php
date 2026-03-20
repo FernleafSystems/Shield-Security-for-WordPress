@@ -119,9 +119,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( Malware::class, $data[ 'groups' ][ 3 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'display_context' => 'actions_queue',
-				'include_ignored' => 0,
-				'ignored_only'    => 0,
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored' => false,
+					'ignored_only'    => false,
+				],
 			],
 			$data[ 'groups' ][ 3 ][ 'render_action_data' ]
 		);
@@ -793,9 +795,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertTrue( $groups[ 'wordpress' ][ 'is_interactive' ] );
 		$this->assertSame(
 			[
-				'display_context' => 'actions_queue',
-				'include_ignored' => 1,
-				'ignored_only'    => 1,
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored' => true,
+					'ignored_only'    => true,
+				],
 			],
 			$groups[ 'wordpress' ][ 'render_action_data' ]
 		);

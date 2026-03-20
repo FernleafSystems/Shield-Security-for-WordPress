@@ -2,7 +2,91 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanAssetCardsBuilder,
+	ScansResultsViewBuilder
+};
+
 class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBuilderTestCase {
+
+	public function test_actions_queue_plugin_pane_preserves_ignored_only_contract_in_real_asset_card_tables() :void {
+		$assetCardsBuilder = new class extends ActionsQueueScanAssetCardsBuilder {
+
+			private array $seenOptions = [];
+
+			protected function retrieveAssetResultItems( string $assetType, array $resultsDisplayOptions ) :array {
+				$this->seenOptions[] = $resultsDisplayOptions;
+				return [
+					(object)[ 'ptg_slug' => 'example-plugin' ],
+					(object)[ 'ptg_slug' => 'example-plugin' ],
+				];
+			}
+
+			protected function resolveAssetMetadata( string $assetType, string $slug ) :?array {
+				return [
+					'subject_type' => 'plugin',
+					'subject_id'   => 'example-plugin/example-plugin.php',
+					'title'        => 'Example Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
+				];
+			}
+
+			protected function buildFullLogHref() :string {
+				return '/queue/scans';
+			}
+
+			public function getSeenOptions() :array {
+				return $this->seenOptions;
+			}
+		};
+
+		$builder = new class( $assetCardsBuilder ) extends ScansResultsViewBuilder {
+
+			public function __construct( private ActionsQueueScanAssetCardsBuilder $assetCardsBuilder ) {
+			}
+
+			protected function getRailTabAvailability( string $tabKey ) :array {
+				return [
+					'is_available'          => true,
+					'show_in_actions_queue' => true,
+					'disabled_message'      => '',
+					'disabled_status'       => 'neutral',
+				];
+			}
+
+			protected function buildActionsQueueAssetCardsBuilder() :ActionsQueueScanAssetCardsBuilder {
+				return $this->assetCardsBuilder;
+			}
+		};
+
+		$pane = $builder->buildActionsQueuePluginsPane( [
+			'include_ignored' => true,
+			'ignored_only'    => true,
+		] );
+
+		$this->assertFalse( $pane[ 'is_disabled' ] );
+		$this->assertSame(
+			[
+				[
+					'include_ignored' => true,
+					'ignored_only'    => true,
+				],
+			],
+			$assetCardsBuilder->getSeenOptions()
+		);
+		$this->assertSame( '2 ignored files are available for review', $pane[ 'cards' ][ 0 ][ 'stat_text' ] );
+		$this->assertSame( 'plugin', $pane[ 'cards' ][ 0 ][ 'table' ][ 'subject_type' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $pane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ] );
+		$this->assertSame( 'actions_queue', $pane[ 'cards' ][ 0 ][ 'table' ][ 'scan_results_action' ][ 'display_context' ] ?? '' );
+		$this->assertSame(
+			[
+				'include_ignored' => true,
+				'ignored_only'    => true,
+			],
+			$pane[ 'cards' ][ 0 ][ 'table' ][ 'scan_results_action' ][ 'results_display_options' ] ?? []
+		);
+	}
 
 	public function test_actions_queue_plugin_pane_reuses_shared_issue_records_for_cards_and_rail_rows() :void {
 		$builder = $this->createBuilder( [

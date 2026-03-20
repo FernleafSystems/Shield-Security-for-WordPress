@@ -9,6 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestGeneral
 };
+use FernleafSystems\Wordpress\Services\Core\{
+	Request,
+	Users
+};
 
 abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 
@@ -18,7 +22,12 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias( static fn( string $single, string $plural, int $count ) :string => $count === 1 ? $single : $plural );
+		Functions\when( 'sanitize_key' )->alias( static fn( string $value ) :string => \strtolower( \preg_replace( '/[^a-z0-9_]/', '', $value ) ?? '' ) );
+		Functions\when( 'admin_url' )->alias( static fn( string $path = '' ) :string => '/wp-admin/'.\ltrim( $path, '/' ) );
 		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
+		);
 		Functions\when( 'get_rest_url' )->alias(
 			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
@@ -40,7 +49,7 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 				}
 				$pieces = [];
 				foreach ( $params as $key => $value ) {
-					$pieces[] = $key.'='.$value;
+					$pieces[] = $key.'='.( \is_array( $value ) ? \rawurlencode( (string)\json_encode( $value ) ) : $value );
 				}
 				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
 			}
@@ -49,6 +58,20 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::installItems( [
 			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_request'   => new class extends Request {
+				public function ip() :string {
+					return '127.0.0.1';
+				}
+
+				public function ts( bool $update = true ) :int {
+					return 1700000000;
+				}
+			},
+			'service_wpusers'   => new class extends Users {
+				public function getCurrentWpUserId() {
+					return 0;
+				}
+			},
 		] );
 	}
 

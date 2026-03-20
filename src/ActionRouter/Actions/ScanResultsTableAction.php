@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
 
@@ -128,14 +129,12 @@ class ScanResultsTableAction extends ScansBase {
 	 */
 	private function retrieveTableData() :array {
 		$builder = new BuildScanTableData();
+		$options = new ActionsQueueScanResultsOptions();
 		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 		$builder->type = $this->action_data[ 'type' ] ?? '';
 		$builder->file = $this->action_data[ 'file' ] ?? '';
-		if ( \array_key_exists( 'include_ignored', $this->action_data ) ) {
-			$builder->include_ignored = !empty( $this->action_data[ 'include_ignored' ] );
-		}
-		if ( \array_key_exists( 'ignored_only', $this->action_data ) ) {
-			$builder->ignored_only = !empty( $this->action_data[ 'ignored_only' ] );
+		if ( $options->hasExplicitActionOptions( $this->action_data ) ) {
+			$builder->results_display_options = $options->fromActionData( $this->action_data );
 		}
 		return [
 			'success'        => true,

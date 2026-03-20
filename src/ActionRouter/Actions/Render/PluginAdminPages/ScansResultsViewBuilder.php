@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
-	Actions\Investigation\InvestigationTableContract
+	ActionData
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
@@ -16,17 +15,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
-	RetrieveBase,
-	RetrieveItems
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
-	WpPluginVo,
-	WpThemeVo
-};
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -800,83 +791,10 @@ class ScansResultsViewBuilder {
 	 * @return list<QueueAssetCard>
 	 */
 	protected function buildPluginThemeIssueRecords( string $assetType, ?array $resultsDisplayOptions = null ) :array {
-		$results = ( new RetrieveItems() )
-			->setScanController( self::con()->comps->scans->AFS() )
-			->addWheres( [
-				\sprintf(
-					"%s.`meta_key`='%s'",
-					RetrieveBase::ABBR_RESULTITEMMETA,
-					$assetType === 'plugin' ? 'is_in_plugin' : 'is_in_theme'
-				),
-			] )
-			->retrieveForResultsTables( $resultsDisplayOptions );
-
-		$groupedBySlug = [];
-		foreach ( $results->getItems() as $item ) {
-			$slug = (string)$item->ptg_slug;
-			if ( $slug === '' ) {
-				continue;
-			}
-			$groupedBySlug[ $slug ][] = $item;
-		}
-
-		$tableBuilder = new InvestigationFileStatusTableContractBuilder();
-		$records = [];
-
-		foreach ( $groupedBySlug as $slug => $items ) {
-			$fileCount = \count( $items );
-			if ( $assetType === 'plugin' ) {
-				$asset = Services::WpPlugins()->getPluginAsVo( $slug, true );
-				if ( !$asset instanceof WpPluginVo ) {
-					continue;
-				}
-				$subjectType = InvestigationTableContract::SUBJECT_TYPE_PLUGIN;
-				$subjectId = (string)$asset->file;
-				$title = (string)$asset->Title;
-				$iconClass = 'bi bi-plug-fill';
-			}
-			else {
-				$asset = Services::WpThemes()->getThemeAsVo( $slug, true );
-				if ( !$asset instanceof WpThemeVo ) {
-					continue;
-				}
-				$subjectType = InvestigationTableContract::SUBJECT_TYPE_THEME;
-				$subjectId = (string)$asset->stylesheet;
-				$title = (string)$asset->Name;
-				$iconClass = 'bi bi-palette-fill';
-			}
-
-			$records[] = $this->normalizeQueueAssetCard( [
-				'key'          => $slug,
-				'panel_id'     => 'actions-queue-'.$assetType.'-card-'.\sanitize_key( $slug ),
-				'panel_target' => 'actions-queue-'.$assetType.'-'.\sanitize_key( $slug ),
-				'expand_target' => 'scan-files-'.$assetType.'-'.\sanitize_key( $slug ),
-				'status'       => 'warning',
-				'icon_class'   => $iconClass,
-				'title'        => $title,
-				'stat_text'    => $this->buildQueueAssetStatText( $fileCount, $resultsDisplayOptions ),
-				'meta_text'         => $subjectId,
-				'show_meta_in_tile' => true,
-				'count_badge'       => $fileCount,
-				'actions'           => $this->buildAssetActions( $asset, $assetType ),
-				'table'             => $tableBuilder->build(
-					$subjectType,
-					$subjectId,
-					self::con()->plugin_urls->actionsQueueScans(),
-					$this->normalizeQueueResultsDisplayOptions( $resultsDisplayOptions )
-				),
-				'render_action' => [],
-			] );
-		}
-
-		\usort( $records, static function ( array $a, array $b ) :int {
-			$countCmp = $b[ 'count_badge' ] <=> $a[ 'count_badge' ];
-			return $countCmp !== 0
-				? $countCmp
-				: \strcmp( $a[ 'title' ], $b[ 'title' ] );
-		} );
-
-		return $records;
+		return $this->buildActionsQueueAssetCardsBuilder()->buildIssueRecords(
+			$assetType,
+			$this->queueScanResultsOptions()->normalize( $resultsDisplayOptions )
+		);
 	}
 
 	/**
@@ -897,38 +815,9 @@ class ScansResultsViewBuilder {
 			'disabled_message' => '',
 			'cards'            => $this->buildPluginThemeIssueRecords(
 				$assetType,
-				$this->normalizeQueueResultsDisplayOptions( $resultsDisplayOptions )
+				$this->queueScanResultsOptions()->normalize( $resultsDisplayOptions )
 			),
 		];
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $asset
-	 * @return list<QueueAssetAction>
-	 */
-	protected function buildAssetActions( $asset, string $assetType ) :array {
-		$actions = [];
-		if ( $asset->hasUpdate() ) {
-			$actions[] = [
-				'type'    => 'update',
-				'label'   => __( 'Update', 'wp-simple-firewall' ),
-				'href'    => \admin_url( 'update-core.php' ),
-				'icon'    => 'bi bi-arrow-up-circle-fill',
-				'tooltip' => __( 'Go to updates', 'wp-simple-firewall' ),
-				'attributes' => [],
-			];
-		}
-		if ( $assetType === 'plugin' ) {
-			$actions[] = [
-				'type'    => 'deactivate',
-				'label'   => __( 'Deactivate', 'wp-simple-firewall' ),
-				'href'    => \admin_url( 'plugins.php' ),
-				'icon'    => 'bi bi-power',
-				'tooltip' => __( 'Go to plugins', 'wp-simple-firewall' ),
-				'attributes' => [],
-			];
-		}
-		return $actions;
 	}
 
 	/**
@@ -1393,32 +1282,11 @@ class ScansResultsViewBuilder {
 		return self::con()->comps->site_query->attention();
 	}
 
-	/**
-	 * @param array<string,mixed>|null $resultsDisplayOptions
-	 */
-	private function buildQueueAssetStatText( int $fileCount, ?array $resultsDisplayOptions ) :string {
-		$resultsDisplayOptions = $this->normalizeQueueResultsDisplayOptions( $resultsDisplayOptions );
-		if ( $resultsDisplayOptions[ 'ignored_only' ] ) {
-			return \sprintf(
-				_n( '%s ignored file is available for review', '%s ignored files are available for review', $fileCount, 'wp-simple-firewall' ),
-				$fileCount
-			);
-		}
-
-		return \sprintf(
-			_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
-			$fileCount
-		);
+	protected function buildActionsQueueAssetCardsBuilder() :ActionsQueueScanAssetCardsBuilder {
+		return new ActionsQueueScanAssetCardsBuilder();
 	}
 
-	/**
-	 * @param array<string,mixed>|null $resultsDisplayOptions
-	 * @return array{include_ignored:bool,ignored_only:bool}
-	 */
-	private function normalizeQueueResultsDisplayOptions( ?array $resultsDisplayOptions ) :array {
-		return [
-			'include_ignored' => !empty( $resultsDisplayOptions[ 'include_ignored' ] ),
-			'ignored_only'    => !empty( $resultsDisplayOptions[ 'ignored_only' ] ),
-		];
+	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
+		return new ActionsQueueScanResultsOptions();
 	}
 }

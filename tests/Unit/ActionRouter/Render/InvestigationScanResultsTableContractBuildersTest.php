@@ -51,7 +51,7 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 				}
 				$pieces = [];
 				foreach ( $params as $key => $value ) {
-					$pieces[] = $key.'='.$value;
+					$pieces[] = $key.'='.( \is_array( $value ) ? \rawurlencode( (string)\json_encode( $value ) ) : $value );
 				}
 				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
 			}
@@ -91,7 +91,14 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$table = ( new InvestigationFileStatusTableContractBuilder() )->build(
 			'plugin',
 			'akismet/akismet.php',
-			$href
+			$href,
+			[
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored' => true,
+					'ignored_only'    => true,
+				],
+			]
 		);
 
 		$this->assertSame( 'File Scan Status', $table[ 'title' ] ?? '' );
@@ -104,6 +111,14 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
 		$this->assertSame( 'plugin', $table[ 'scan_results_action' ][ 'type' ] ?? '' );
 		$this->assertSame( 'akismet/akismet.php', $table[ 'scan_results_action' ][ 'file' ] ?? '' );
+		$this->assertSame( 'actions_queue', $table[ 'scan_results_action' ][ 'display_context' ] ?? '' );
+		$this->assertSame(
+			[
+				'include_ignored' => true,
+				'ignored_only'    => true,
+			],
+			$table[ 'scan_results_action' ][ 'results_display_options' ] ?? []
+		);
 		$this->assertNotSame( '', (string)( $table[ 'table_action' ][ 'ex' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $table[ 'render_item_analysis' ][ 'render_slug' ] ?? '' ) );
 	}

@@ -11,8 +11,7 @@ use FernleafSystems\Wordpress\Services\Services;
 /**
  * @property string $type
  * @property string $file
- * @property bool   $include_ignored
- * @property bool   $ignored_only
+ * @property array<string,mixed>|null $results_display_options
  */
 class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
@@ -135,13 +134,11 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 	 * @return array<string,bool>|null
 	 */
 	private function getExplicitResultsDisplayOptions() :?array {
-		if ( !isset( $this->include_ignored ) && !isset( $this->ignored_only ) ) {
+		if ( !\is_array( $this->results_display_options ) ) {
 			return null;
 		}
 
-		return [
-			'include_ignored' => !empty( $this->include_ignored ),
-			'ignored_only'    => !empty( $this->ignored_only ),
-		];
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions() )
+			->normalize( $this->results_display_options );
 	}
 }
