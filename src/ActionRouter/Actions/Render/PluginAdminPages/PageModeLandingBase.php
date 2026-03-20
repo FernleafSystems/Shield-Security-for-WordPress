@@ -52,6 +52,18 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 	 *   badge_status:string,
 	 *   color_key:string
 	 * }
+	 * @phpstan-type ModeShell array{
+	 *   mode:string,
+	 *   accent_status:string,
+	 *   header_density:string,
+	 *   home_href:string,
+	 *   home_label:string,
+	 *   is_mode_landing:bool,
+	 *   is_interactive:bool,
+	 *   use_operator_chrome:bool,
+	 *   root_step:OperatorChromeStep,
+	 *   root_step_json:string
+	 * }
 	 */
 
 	abstract protected function getLandingTitle() :string;
@@ -149,6 +161,10 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		return $colorKey;
 	}
 
+	protected function getOperatorHomeLabel() :string {
+		return __( 'Dashboard', 'wp-simple-firewall' );
+	}
+
 	protected function getLandingFlags() :array {
 		return [];
 	}
@@ -234,6 +250,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 				'accent_status'       => $this->getLandingAccentStatus(),
 				'header_density'      => $this->getLandingHeaderDensity(),
 				'home_href'           => self::con()->plugin_urls->adminHome(),
+				'home_label'          => $this->getOperatorHomeLabel(),
 				'is_interactive'      => $this->isLandingInteractive(),
 				'use_operator_chrome' => $this->usesOperatorChrome(),
 				'root_step'           => $this->getOperatorRootStep(),
@@ -252,6 +269,10 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		if ( !\in_array( $headerDensity, self::VALID_HEADER_DENSITIES, true ) ) {
 			$headerDensity = 'compact';
 		}
+		$homeLabel = \trim( (string)( $modeShell[ 'home_label' ] ?? '' ) );
+		if ( $homeLabel === '' ) {
+			$homeLabel = $this->getOperatorHomeLabel();
+		}
 
 		$rootStep = $this->normalizeOperatorChromeStep( \is_array( $modeShell[ 'root_step' ] ?? null ) ? $modeShell[ 'root_step' ] : [] );
 
@@ -260,6 +281,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 			'accent_status'       => $this->sanitizeModeAccentStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
 			'header_density'      => $headerDensity,
 			'home_href'           => (string)( $modeShell[ 'home_href' ] ?? '' ),
+			'home_label'          => $homeLabel,
 			'is_mode_landing'     => true,
 			'is_interactive'      => (bool)( $modeShell[ 'is_interactive' ] ?? false ),
 			'use_operator_chrome' => (bool)( $modeShell[ 'use_operator_chrome' ] ?? false ),

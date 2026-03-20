@@ -82,14 +82,6 @@
 
 {% endblock %}
 
-{% if false %}
-	{% block inner_page_body %}
-		{% for element in content|default([]) %}
-			{{ element|raw }}
-		{% endfor %}
-	{% endblock %}
-{% endif %}
-
 {% block inner_page_body_shell %}
 	<div class="inner-page-body-shell{% if is_mode_landing %} is-mode-landing{% endif %}"
 		 data-inner-page-body-shell="1"
@@ -103,15 +95,23 @@
 		 {% if use_operator_chrome %}
 		 data-operator-chrome="1"
 		 data-operator-home-href="{{ mode_shell.home_href|e('html_attr') }}"
+		 data-operator-home-label="{{ mode_shell.home_label|e('html_attr') }}"
 		 data-operator-root-step="{{ mode_shell.root_step_json|e('html_attr') }}"
 		 data-operator-context-title="{{ strings.operator_context_title|e('html_attr') }}"
 		 data-operator-context-focus="{{ strings.operator_context_focus|e('html_attr') }}"
 		 data-operator-context-next="{{ strings.operator_context_next|e('html_attr') }}"
 		 {% endif %}
 		 {% endif %}>
+		{% set inner_page_body_html %}
+			{% block inner_page_body %}
+				{% for element in content|default([]) %}
+					{{ element|raw }}
+				{% endfor %}
+			{% endblock %}
+		{% endset %}
 		{% if use_operator_chrome %}
 			{% set operator_body_html %}
-				{{ block('inner_page_body') }}
+				{{ inner_page_body_html }}
 			{% endset %}
 			{% set operator_rail_html %}
 				{% include '/wpadmin/components/page/context_rail.twig' with {
@@ -130,7 +130,7 @@
 				rail_html: operator_rail_html
 			} } only %}
 		{% else %}
-			{{ block('inner_page_body') }}
+			{{ inner_page_body_html }}
 		{% endif %}
 	</div>
 {% endblock %}

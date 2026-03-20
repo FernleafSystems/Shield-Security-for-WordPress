@@ -72,7 +72,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( this.isPanelLoaded( this.panelEl ) ) {
 			this.syncPanelChrome( this.panelEl, true );
 			this.finalizePanelRequestState(
-				this.buildResolvedSelectionHeader( this.panelEl, this.getCurrentSelection( this.panelEl ) ),
+				this.buildSelectionHeader( this.getCurrentSelection( this.panelEl ) ),
 				''
 			);
 			this.syncLivePanelPolling();
@@ -135,17 +135,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		evt.preventDefault();
-		this.loadPanelBodyFromRenderAction(
-			panel,
-			{
-				...selection.render_action,
-			},
-			{
-				selection,
-				historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
-				hash: '',
-			}
-		).finally();
+		this.reloadGenericSelectionPanel( panel, selection ).finally();
 	}
 
 	handlePanelFormSubmit( form, evt ) {
@@ -298,7 +288,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 					this.setPanelLoadedState( panel, true );
 					this.syncPanelLivePolling( panel );
 					this.finalizePanelRequestState(
-						this.buildResolvedSelectionHeader( panel, nextSelection ),
+						this.buildSelectionHeader( nextSelection ),
 						historyUrl
 					);
 					this.activatePanelHash( hash );
@@ -493,31 +483,25 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		};
 	}
 
-	buildResolvedSelectionHeader( panel, selection ) {
-		if ( !( panel instanceof HTMLElement ) || selection === null ) {
+	buildSelectionHeader( selection ) {
+		if ( selection === null ) {
 			return null;
 		}
 
-		const baseHeader = selection.header && typeof selection.header === 'object'
+		return selection.header && typeof selection.header === 'object'
 			? selection.header
-			: {};
-		const subjectHeader = panel.querySelector( '[data-investigate-subject-header="1"]' );
-		const breadcrumbLabel = subjectHeader instanceof HTMLElement
-			? String( subjectHeader.dataset.investigateBreadcrumbLabel || '' ).trim()
-			: '';
-		if ( breadcrumbLabel.length < 1 ) {
-			return baseHeader;
-		}
-
-		return {
-			...baseHeader,
-			breadcrumb_label: breadcrumbLabel,
-			title: breadcrumbLabel,
-		};
+			: null;
 	}
 
 	getRoot() {
 		return document.querySelector( '[data-investigate-landing="1"]' );
+	}
+
+	resolveRootContext( contextEl = null ) {
+		if ( contextEl instanceof Element ) {
+			return contextEl.closest( '[data-investigate-landing="1"]' );
+		}
+		return this.rootEl || this.getRoot();
 	}
 
 	getShell( root = this.rootEl ) {
@@ -583,6 +567,41 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		this.updatePanelLayerHeader( header );
+	}
+
+	reloadGenericSelectionPanel( panel, selection ) {
+		return this.loadPanelBodyFromRenderAction(
+			panel,
+			{
+				...selection.render_action,
+			},
+			{
+				selection,
+				historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
+				hash: '',
+			}
+		);
+	}
+
+	resetCurrentSelection( contextEl = null ) {
+		const root = this.resolveRootContext( contextEl );
+		if ( root === null ) {
+			return Promise.resolve();
+		}
+
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		this.panelEl = this.getPanel( root );
+		if ( this.panelEl === null ) {
+			return Promise.resolve();
+		}
+
+		const selection = this.getCurrentSelection( this.panelEl );
+		if ( selection === null || selection.lookup_key.length < 1 ) {
+			return Promise.resolve();
+		}
+
+		return this.reloadGenericSelectionPanel( this.panelEl, selection );
 	}
 
 	replaceHistoryUrl( nextUrl ) {

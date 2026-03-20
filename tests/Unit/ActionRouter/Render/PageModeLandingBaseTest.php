@@ -113,6 +113,7 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertSame( 'good', $data[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] );
 		$this->assertSame( 'compact', $data[ 'vars' ][ 'mode_shell' ][ 'header_density' ] );
 		$this->assertSame( '/admin/home', $data[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
+		$this->assertSame( 'Dashboard', $data[ 'vars' ][ 'mode_shell' ][ 'home_label' ] ?? '' );
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] );
 		$this->assertFalse( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] );
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] );

@@ -78,7 +78,7 @@ export function normalizeLayerHeaderData( headerData ) {
 		icon_class: normalizeDrillText( source.icon_class ),
 		badge: normalizeDrillText( source.badge ),
 		badge_status: normalizeDrillStatus( source.badge_status ),
-		color_key: normalizeDrillColorKey( source.color_key || source.badge_status ),
+		color_key: normalizeDrillColorKey( source.color_key ),
 	};
 }
 
