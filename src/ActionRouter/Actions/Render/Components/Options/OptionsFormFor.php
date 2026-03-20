@@ -12,6 +12,17 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 	protected function getRenderData() :array {
 		$con = self::con();
 		$options = $this->action_data[ 'options' ];
+		$configItem = (string)( $this->action_data[ 'config_item' ] ?? '' );
+		$optionsBuilder = empty( $options ) ? null : ( new BuildOptionsForDisplay( $options, [] ) )
+			->setFocusOption( $configItem );
+
+		if ( $optionsBuilder instanceof BuildOptionsForDisplay ) {
+			$configItemDef = $con->cfg->configuration->options[ $configItem ] ?? [];
+			if ( !empty( $configItemDef[ 'section' ] ) ) {
+				$optionsBuilder->setFocusSection( (string)$configItemDef[ 'section' ] );
+			}
+		}
+
 		return [
 			'strings' => [
 				'inner_page_title'    => __( 'Edit Settings', 'wp-simple-firewall' ),
@@ -30,9 +41,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'vars'    => [
 				'all_opts_keys'      => $options,
-				'all_options'        => empty( $options ) ? [] : ( new BuildOptionsForDisplay( $options, [] ) )
-					->setFocusOption( $this->action_data[ 'config_item' ] ?? '' )
-					->standard(),
+				'all_options'        => $optionsBuilder instanceof BuildOptionsForDisplay ? $optionsBuilder->standard() : [],
 				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',
 				'xferable_opts'      => \array_keys( $con->cfg->configuration->transferableOptions() ),
 				'xfer_excluded_opts' => $con->comps->opts_lookup->getXferExcluded(),

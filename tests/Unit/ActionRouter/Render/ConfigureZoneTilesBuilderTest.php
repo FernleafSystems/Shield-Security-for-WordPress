@@ -98,12 +98,14 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'General', $tilesByKey[ 'general' ][ 'status_label' ] );
 		$this->assertSame( 'bi bi-info-circle-fill', $tilesByKey[ 'general' ][ 'status_icon_class' ] );
 		$this->assertSame( '/admin/zone_components/plugin_general', $tilesByKey[ 'general' ][ 'settings_href' ] );
+		$this->assertCount( 2, $tilesByKey[ 'general' ][ 'panel' ][ 'components' ] );
 		$this->assertSame(
 			'neutral',
 			$tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'status' ]
 		);
 		$this->assertNotEmpty( $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ] );
 		$this->assertSame( 'offcanvas', $tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ][ 'data' ][ 'form_context' ] ?? '' );
+		$this->assertSame( [], $tilesByKey[ 'users' ][ 'panel' ][ 'components' ][ 0 ][ 'config_action' ] );
 		$this->assertArrayNotHasKey( 'inline_control', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ] );
 		$this->assertArrayNotHasKey( 'inline_control', $tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 0 ] );
 		$this->assertNotSame(
@@ -112,7 +114,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotSame(
 			'',
-			$tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 2 ][ 'config_action' ][ 'data' ][ 'zone_component_slug' ] ?? ''
+			$tilesByKey[ 'general' ][ 'panel' ][ 'components' ][ 1 ][ 'config_action' ][ 'data' ][ 'zone_component_slug' ] ?? ''
 		);
 		$this->assertNotSame(
 			'',
@@ -180,13 +182,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					'General Plugin Configuration',
 					EnumEnabledStatus::GOOD,
 					'General plugin settings.',
-					[ 'General configuration is active.' ]
-				),
-				Component\ActivityLogging::Slug() => $this->newComponent(
-					'WordPress Activity Logging',
-					EnumEnabledStatus::GOOD,
-					'Activity logging subtitle',
-					[ 'Activity logging is enabled.' ]
+					[ 'General configuration is active.' ],
+					[
+						'ipdetect_source',
+					]
 				),
 				Component\RequestLogging::Slug()  => $this->newComponent(
 					'Request Logging',

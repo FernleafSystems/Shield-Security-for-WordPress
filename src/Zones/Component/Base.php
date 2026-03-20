@@ -37,13 +37,19 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	public function getActions() :array {
 		$actions = [];
 		if ( $this->hasConfigAction() ) {
+			$configData = [
+				'zone_component_action' => ZoneComponentConfig::SLUG,
+				'zone_component_slug'   => \implode( ',', $this->configZoneComponentSlugs() ),
+			];
+			$configItem = $this->configItem();
+			if ( $configItem !== '' ) {
+				$configData[ 'config_item' ] = $configItem;
+			}
+
 			$actions[ 'config' ] = [
 				'title'   => __( 'Edit Settings', 'wp-simple-firewall' ),
 				'data'    => \array_merge(
-					[
-						'zone_component_action' => ZoneComponentConfig::SLUG,
-						'zone_component_slug'   => static::Slug(),
-					],
+					$configData,
 					empty( $this->tooltip() ) ? [] : [
 						'bs-toggle'    => 'tooltip',
 						'bs-trigger'   => 'hover',
@@ -61,9 +67,13 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	public function getOptions() :array {
+		$ownerSlugs = $this->configZoneComponentSlugs();
 		return \array_keys( \array_filter(
 			self::con()->cfg->configuration->options,
-			fn( array $option ) => \in_array( static::Slug(), $option[ 'zone_comp_slugs' ] ?? [] )
+			static fn( array $option ) :bool => \count( \array_intersect(
+				$ownerSlugs,
+				\array_filter( $option[ 'zone_comp_slugs' ] ?? [], 'is_string' )
+			) ) > 0
 		) );
 	}
 
@@ -104,7 +114,22 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	protected function hasConfigAction() :bool {
-		return true;
+		return \count( $this->getOptions() ) > 0;
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	protected function configZoneComponentSlugs() :array {
+		$slugs = \array_values( \array_unique( \array_filter(
+			[ static::Slug() ],
+			static fn( $slug ) :bool => \is_string( $slug ) && $slug !== ''
+		) ) );
+		return empty( $slugs ) ? [ static::Slug() ] : $slugs;
+	}
+
+	protected function configItem() :string {
+		return '';
 	}
 
 	/**

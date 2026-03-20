@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
-	ActivityLogging,
 	InstantAlerts,
 	PluginGeneral,
 	Reporting,
@@ -465,7 +464,6 @@ class PluginNavs {
 				'icon'               => 'sliders',
 				'component_slugs'    => [
 					PluginGeneral::Slug(),
-					ActivityLogging::Slug(),
 					RequestLogging::Slug(),
 				],
 				'include_in_posture' => false,
@@ -591,7 +589,8 @@ class PluginNavs {
 	 *   key:string,
 	 *   zone:string,
 	 *   component_class:class-string<Component\Base>,
-	 *   availability_strategy:string
+	 *   availability_strategy:string,
+	 *   drill_bucket:'critical'|'review'
 	 * }>
 	 */
 	public static function actionsLandingAssessmentDefinitions() :array {
@@ -601,90 +600,105 @@ class PluginNavs {
 				'zone'                  => 'scans',
 				'component_class'       => Component\ScanResultsWcf::class,
 				'availability_strategy' => 'scan_afs_core_enabled',
+				'drill_bucket'          => 'critical',
 			],
 			[
 				'key'                   => 'plugin_files',
 				'zone'                  => 'scans',
 				'component_class'       => Component\ScanResultsPluginFiles::class,
 				'availability_strategy' => 'scan_afs_plugins_enabled',
+				'drill_bucket'          => 'critical',
 			],
 			[
 				'key'                   => 'theme_files',
 				'zone'                  => 'scans',
 				'component_class'       => Component\ScanResultsThemeFiles::class,
 				'availability_strategy' => 'scan_afs_themes_enabled',
+				'drill_bucket'          => 'critical',
 			],
 			[
 				'key'                   => 'malware',
 				'zone'                  => 'scans',
 				'component_class'       => Component\ScanResultsMal::class,
 				'availability_strategy' => 'scan_malware_enabled',
+				'drill_bucket'          => 'critical',
 			],
 			[
 				'key'                   => 'vulnerable_assets',
 				'zone'                  => 'scans',
 				'component_class'       => Component\ScanResultsWpv::class,
 				'availability_strategy' => 'scan_wpv_enabled',
+				'drill_bucket'          => 'critical',
 			],
 			[
 				'key'                   => 'abandoned',
 				'zone'                  => 'scans',
 				'component_class'       => Component\ScanResultsApc::class,
 				'availability_strategy' => 'scan_apc_enabled',
+				'drill_bucket'          => 'critical',
 			],
 			[
 				'key'                   => 'wp_updates',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpUpdates::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'wp_plugins_updates',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpPluginsUpdates::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'wp_themes_updates',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpThemesUpdates::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'wp_plugins_inactive',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpPluginsInactive::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'wp_themes_inactive',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpThemesInactive::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'system_ssl_certificate',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\SystemSslCertificate::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'system_php_version',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\SystemPhpVersion::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'wp_db_password',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpDbPassword::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 			[
 				'key'                   => 'system_lib_openssl',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\SystemLibOpenssl::class,
 				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
 			],
 		];
 	}

@@ -14,6 +14,16 @@ class ScanScheduling extends Base {
 		return __( 'Run automatic scans frequently enough to catch problems early.', 'wp-simple-firewall' );
 	}
 
+	protected function configZoneComponentSlugs() :array {
+		return [
+			Modules\ModuleScans::Slug(),
+		];
+	}
+
+	protected function configItem() :string {
+		return 'scan_frequency';
+	}
+
 	protected function postureWeight() :int {
 		return 2;
 	}

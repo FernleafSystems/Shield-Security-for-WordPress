@@ -14,6 +14,16 @@ class TrustedCommenters extends Base {
 		return __( 'Require a commenter to earn trust before comments are auto-approved.', 'wp-simple-firewall' );
 	}
 
+	protected function configZoneComponentSlugs() :array {
+		return [
+			Modules\ModuleSpam::Slug(),
+		];
+	}
+
+	protected function configItem() :string {
+		return 'trusted_commenter_minimum';
+	}
+
 	protected function postureWeight() :int {
 		return 1;
 	}

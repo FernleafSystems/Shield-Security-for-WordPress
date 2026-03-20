@@ -8,7 +8,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Suppo
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\PluginGeneral;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	PluginGeneral
+};
 
 class ZoneComponentConfigRenderIntegrationTest extends ShieldIntegrationTestCase {
 

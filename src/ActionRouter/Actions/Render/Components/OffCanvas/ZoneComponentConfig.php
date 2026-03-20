@@ -24,7 +24,7 @@ class ZoneComponentConfig extends OffCanvasBase {
 	protected function buildCanvasBody() :string {
 		return self::con()->action_router->render( OptionsFormFor::class, [
 			'options'      => ( new GetOptionsForZoneComponents() )->run( $this->getZoneComponentSlugs() ),
-			'focus_option' => $this->action_data[ 'config_item' ] ?? '',
+			'config_item'  => $this->action_data[ 'config_item' ] ?? '',
 			'form_context' => (string)( $this->action_data[ 'form_context' ] ?? 'offcanvas' ),
 		] );
 	}
