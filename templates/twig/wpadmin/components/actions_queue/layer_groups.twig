@@ -1,42 +1,40 @@
 <div class="actions-queue-groups"
 	 data-actions-queue-groups="1">
-	{% if groups is empty %}
+	{% if active_sections is empty and healthy_sections is empty %}
 		<div class="actions-landing__empty-state">
 			{{ empty_message }}
 		</div>
 	{% else %}
 		<div class="actions-queue-groups__findings">
-			{% set previous_heading = '' %}
-			{% for group in groups %}
-				{% if group.display_section != 'healthy' %}
-					{% if group.show_heading and group.heading_label != previous_heading %}
-						<div class="finding-group__heading">{{ group.heading_label }}</div>
-						{% set previous_heading = group.heading_label %}
-					{% endif %}
+			{% for section in active_sections %}
+				{% if section.heading_label is not empty %}
+					<div class="finding-group__heading">{{ section.heading_label }}</div>
+				{% endif %}
+				{% for group in section.groups %}
 					{% include '/wpadmin/components/actions_queue/group_card.twig' with {
 						group: group,
-						bucket_selection: bucket_selection
+						bucket_selection: bucket_selection,
+						is_healthy: false
 					} only %}
-				{% endif %}
+				{% endfor %}
 			{% endfor %}
 
 			{% set healthy_body_html %}
-				{% set previous_heading = '' %}
-				{% for group in groups %}
-					{% if group.display_section == 'healthy' %}
-						{% if group.show_heading and group.heading_label != previous_heading %}
-							<div class="finding-group__heading">{{ group.heading_label }}</div>
-							{% set previous_heading = group.heading_label %}
-						{% endif %}
+				{% for section in healthy_sections %}
+					{% if section.heading_label is not empty %}
+						<div class="finding-group__heading">{{ section.heading_label }}</div>
+					{% endif %}
+					{% for group in section.groups %}
 						{% include '/wpadmin/components/actions_queue/group_card.twig' with {
 							group: group,
-							bucket_selection: bucket_selection
+							bucket_selection: bucket_selection,
+							is_healthy: true
 						} only %}
-					{% endif %}
+					{% endfor %}
 				{% endfor %}
 			{% endset %}
 
-			{% if healthy_body_html|trim != '' %}
+			{% if healthy_sections is not empty %}
 				{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
 					label: healthy_heading_label,
 					body_html: healthy_body_html,

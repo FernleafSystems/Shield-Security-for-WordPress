@@ -149,7 +149,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
 			'bucket' => 'review',
 		] );
-		$selectedGroupKey = (string)( $initialPayload[ 'groups' ][ 0 ][ 'key' ] ?? '' );
+		$selectedGroupKey = (string)( $this->flattenGroupsPayload( $initialPayload )[ 0 ][ 'key' ] ?? '' );
 		$this->assertSame( 'wp_plugins_updates', $selectedGroupKey );
 
 		foreach ( $pluginFiles as $pluginFile ) {
@@ -180,7 +180,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertContains(
 			$selectedGroupKey,
-			\array_column( $payload[ 'groups' ] ?? [], 'key' )
+			\array_column( $this->flattenGroupsPayload( $payload ), 'key' )
 		);
 	}
 
@@ -228,6 +228,27 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 		$this->assertCount( 1, $matches );
 		return $matches[ 0 ] ?? [];
+	}
+
+	/**
+	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
+	 * @return list<array<string,mixed>>
+	 */
+	private function flattenGroupsSections( array $sections ) :array {
+		return \array_values( \array_merge( [], ...\array_map(
+			static fn( array $section ) :array => \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [],
+			$sections
+		) ) );
+	}
+
+	/**
+	 * @return list<array<string,mixed>>
+	 */
+	private function flattenGroupsPayload( array $payload ) :array {
+		return \array_merge(
+			$this->flattenGroupsSections( \is_array( $payload[ 'active_sections' ] ?? null ) ? $payload[ 'active_sections' ] : [] ),
+			$this->flattenGroupsSections( \is_array( $payload[ 'healthy_sections' ] ?? null ) ? $payload[ 'healthy_sections' ] : [] )
+		);
 	}
 
 	/**

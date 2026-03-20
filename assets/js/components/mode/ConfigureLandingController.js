@@ -3,7 +3,6 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { HealthyDisclosureToggle } from "../ui/HealthyDisclosureToggle";
 import { getLayersForShell, updateOperatorRootStep } from "./DrillDownShared";
 
 export class ConfigureLandingController extends BaseAutoExecComponent {
@@ -15,13 +14,10 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 	run() {
 		this.layerRequests = {};
 		this.selectedZone = null;
-		this.defaultLayerState = {};
-		this.diagnosisStale = false;
 
 		this.bindDrillDownHandlers();
 		this.bindSaveHandlers();
 		this.initializeCurrentRoot();
-		this.bindHealthyDisclosureToggle();
 	}
 
 	bindDrillDownHandlers() {
@@ -31,8 +27,8 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.hasBoundDrillHandlers = true;
 
 		shieldEventsHandler_Main.add_Click(
-			'[data-configure-landing="1"] [data-drill-target]',
-			( item ) => this.handleDrillTargetClick( item ),
+			'[data-configure-landing="1"] [data-drill-target="diagnosis"]',
+			( item ) => this.handleZoneSelectionClick( item ),
 			false
 		);
 		shieldEventsHandler_Main.add_Click(
@@ -40,7 +36,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			( item ) => this.handleRetryClick( item ),
 			false
 		);
-		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
 	}
 
 	bindSaveHandlers() {
@@ -52,18 +47,9 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		document.addEventListener( 'shield:expansion-form-saved', ( evt ) => this.handleSettingsSaved( evt ) );
 	}
 
-	bindHealthyDisclosureToggle() {
-		if ( this.hasBoundHealthyToggle ) {
-			return;
-		}
-		this.hasBoundHealthyToggle = true;
-		( new HealthyDisclosureToggle( () => this.rootEl || this.getConfigureRoot() ) ).bind();
-	}
-
 	initializeCurrentRoot() {
 		this.rootEl = this.getConfigureRoot();
 		this.shellEl = this.getShell( this.rootEl );
-		this.defaultLayerState = this.captureDefaultLayerState( this.shellEl );
 	}
 
 	getConfigureRoot() {
@@ -74,7 +60,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		return root?.querySelector( '[data-drill-shell="1"]' ) || null;
 	}
 
-	handleDrillTargetClick( item ) {
+	handleZoneSelectionClick( item ) {
 		const root = this.rootEl || this.getConfigureRoot();
 		if ( root === null || !root.contains( item ) ) {
 			return;
@@ -85,21 +71,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		this.rootEl = root;
-		this.shellEl = shell;
-
-		switch ( String( item.dataset.drillTarget || '' ).trim() ) {
-			case 'diagnosis':
-				this.handleZoneSelection( item, shell );
-				break;
-
-			case 'editor':
-				this.handleEditorSelection( item, shell );
-				break;
-		}
-	}
-
-	handleZoneSelection( item, shell ) {
 		const zone = this.readZoneSelection( item );
 		if ( zone.key.length < 1 ) {
 			return;
@@ -111,49 +82,19 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
+		this.rootEl = root;
+		this.shellEl = shell;
 		this.selectedZone = zone;
-		this.diagnosisStale = false;
 		this.cancelLayerRequest( 'diagnosis' );
-		this.cancelLayerRequest( 'editor' );
-		this.resetEditorLayer( shell );
+
 		drillCtrl.drillTo( shell, diagnosisIndex );
 		drillCtrl.updateLayerHeader(
 			shell,
-			1,
+			diagnosisIndex,
 			this.buildLoadingHeader( zone.header, this.getDiagnosisLoadingText() )
 		);
 
 		this.loadDiagnosisLayer();
-	}
-
-	handleEditorSelection( item, shell ) {
-		const editorSelection = this.readEditorSelection( item );
-		if ( editorSelection.key.length < 1 ) {
-			return;
-		}
-
-		const editorIndex = this.getLayerIndexByKey( shell, 'editor' );
-		const drillCtrl = this.getDrillDownController();
-		if ( editorIndex < 0 || drillCtrl === null ) {
-			return;
-		}
-
-		this.selectedZone = {
-			...( this.selectedZone || {} ),
-			key: editorSelection.key,
-			label: editorSelection.label,
-			status: editorSelection.status,
-			editor_selection: editorSelection,
-		};
-		this.cancelLayerRequest( 'editor' );
-		drillCtrl.drillTo( shell, editorIndex );
-		drillCtrl.updateLayerHeader(
-			shell,
-			2,
-			this.buildLoadingHeader( editorSelection.header, this.getEditorLoadingText() )
-		);
-
-		this.loadEditorLayer();
 	}
 
 	loadDiagnosisLayer( { showPlaceholder = true, includeLandingRefresh = false } = {} ) {
@@ -174,22 +115,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			showPlaceholder,
 			this.getDiagnosisLoadingText(),
 			( data ) => this.applyDiagnosisLayerResponse( data )
-		);
-	}
-
-	loadEditorLayer( showPlaceholder = true ) {
-		if ( this.selectedZone === null ) {
-			return Promise.resolve( null );
-		}
-
-		return this.loadLayerContent(
-			'editor',
-			this.buildRenderAction( this.rootEl?.dataset.configureEditorAction, {
-				zone: this.selectedZone.key,
-			} ),
-			showPlaceholder,
-			this.getEditorLoadingText(),
-			( data ) => this.applyEditorLayerResponse( data )
 		);
 	}
 
@@ -248,31 +173,12 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		}
 
 		const zoneSelection = this.readSelectionPayload( data.zone_selection );
-		const editorSelection = this.readSelectionPayload( data.editor_selection );
 		this.selectedZone = {
 			...( this.selectedZone || {} ),
 			...zoneSelection,
-			editor_selection: editorSelection,
 		};
 		drillCtrl.updateLayerHeader( this.shellEl, 1, data.header || zoneSelection.header );
 		this.applyLandingRefresh( data.landing_refresh || null );
-		this.reinitializeExpandLoader();
-	}
-
-	applyEditorLayerResponse( data ) {
-		const drillCtrl = this.getDrillDownController();
-		if ( this.shellEl === null || drillCtrl === null ) {
-			return;
-		}
-
-		const editorSelection = this.readSelectionPayload( data.editor_selection );
-		if ( editorSelection.key.length > 0 ) {
-			this.selectedZone = {
-				...( this.selectedZone || {} ),
-				editor_selection: editorSelection,
-			};
-		}
-		drillCtrl.updateLayerHeader( this.shellEl, 2, data.header || editorSelection.header );
 		this.reinitializeExpandLoader();
 	}
 
@@ -305,50 +211,8 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
 
-		switch ( String( item.dataset.configureRetry || '' ).trim() ) {
-			case 'diagnosis':
-				this.loadDiagnosisLayer();
-				break;
-
-			case 'editor':
-				this.loadEditorLayer();
-				break;
-		}
-	}
-
-	handleDrillBack( evt ) {
-		const root = this.rootEl || this.getConfigureRoot();
-		const shell = evt.target;
-		if ( root === null || !( shell instanceof HTMLElement ) || !root.contains( shell ) ) {
-			return;
-		}
-
-		const layerIndex = this.parseInteger( evt.detail?.layer_index );
-		if ( layerIndex <= 0 ) {
-			this.cancelLayerRequest( 'editor' );
-			this.resetEditorLayer( shell );
-			if ( this.diagnosisStale && this.selectedZone !== null ) {
-				this.loadDiagnosisLayer( {
-					showPlaceholder: false,
-					includeLandingRefresh: true,
-				} ).then( ( data ) => {
-					if ( data !== null ) {
-						this.diagnosisStale = false;
-					}
-				} );
-			}
-			return;
-		}
-
-		if ( layerIndex === 1 ) {
-			this.cancelLayerRequest( 'editor' );
-			if ( this.diagnosisStale ) {
-				this.loadDiagnosisLayer( { showPlaceholder: false } ).then( ( data ) => {
-					if ( data !== null ) {
-						this.diagnosisStale = false;
-					}
-				} );
-			}
+		if ( String( item.dataset.configureRetry || '' ).trim() === 'diagnosis' ) {
+			this.loadDiagnosisLayer();
 		}
 	}
 
@@ -361,14 +225,9 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
-		this.diagnosisStale = true;
 		this.loadDiagnosisLayer( {
 			showPlaceholder: false,
 			includeLandingRefresh: true,
-		} ).then( ( data ) => {
-			if ( data !== null ) {
-				this.diagnosisStale = false;
-			}
 		} );
 	}
 
@@ -378,47 +237,8 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 		}
 	}
 
-	resetEditorLayer( shell ) {
-		const defaultState = this.defaultLayerState.editor;
-		const drillCtrl = this.getDrillDownController();
-		if ( defaultState === undefined || drillCtrl === null ) {
-			return;
-		}
-
-		const editorLayer = this.getLayerByKey( shell, 'editor' );
-		const editorBody = editorLayer?.querySelector( '.drill-layer__body' ) || null;
-		if ( editorBody !== null ) {
-			BootstrapTooltips.DisposeTooltipsWithin( editorBody );
-			editorBody.innerHTML = '';
-		}
-
-		drillCtrl.updateLayerHeader( shell, 2, defaultState.header );
-	}
-
-	captureDefaultLayerState( shell ) {
-		if ( shell === null ) {
-			return {};
-		}
-
-		return {
-			diagnosis: this.readLayerState( shell, 'diagnosis' ),
-			editor: this.readLayerState( shell, 'editor' ),
-		};
-	}
-
-	readLayerState( shell, layerKey ) {
-		const layer = this.getLayerByKey( shell, layerKey );
-		return {
-			header: this.parseJsonDataset( layer?.dataset.drillLayerHeader || '{}' ),
-		};
-	}
-
 	readZoneSelection( item ) {
 		return this.readSelectionPayload( this.parseJsonDataset( item.dataset.drillZoneSelection ) );
-	}
-
-	readEditorSelection( item ) {
-		return this.readSelectionPayload( this.parseJsonDataset( item.dataset.drillEditorSelection ) );
 	}
 
 	readSelectionPayload( selection ) {
@@ -440,10 +260,6 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 
 	getDiagnosisLoadingText() {
 		return this.rootEl?.dataset.configureDiagnosisLoading || '';
-	}
-
-	getEditorLoadingText() {
-		return this.rootEl?.dataset.configureEditorLoading || '';
 	}
 
 	getLayerByKey( shell, layerKey ) {

@@ -125,6 +125,10 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'maintenance_item_ignore',
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
 		);
+		$this->assertSame(
+			'ignore',
+			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'kind' ] ?? ''
+		);
 		$this->assertNotEmpty(
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
 		);
@@ -308,6 +312,10 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'maintenance_item_unignore',
 			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
 		);
+		$this->assertSame(
+			'unignore',
+			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 1 ][ 'secondary_actions' ][ 0 ][ 'kind' ] ?? ''
+		);
 	}
 
 	public function test_normalize_all_appends_fully_ignored_singleton_item_with_unignore_action() :void {
@@ -336,6 +344,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( [], $items[ 0 ][ 'expansion' ] ?? [] );
 		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'toggle_action' ][ 'icon' ] ?? '' );
 		$this->assertSame( 'maintenance_item_unignore', $items[ 0 ][ 'toggle_action' ][ 'ajax_action' ][ 'ex' ] ?? '' );
+		$this->assertSame( 'unignore', $items[ 0 ][ 'toggle_action' ][ 'kind' ] ?? '' );
 	}
 
 	public function test_normalize_uses_explicit_cta_mapping_and_suppresses_informational_links() :void {
@@ -434,6 +443,10 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame(
 			'maintenance_item_unignore',
 			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ] ?? ''
+		);
+		$this->assertSame(
+			'unignore',
+			$items[ 0 ][ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'kind' ] ?? ''
 		);
 	}
 

@@ -1,23 +1,23 @@
-<div class="item-box__row{% if row.is_ignored|default(false) %} is-ignored{% endif %}">
-	{% if row.icon_class|default('') is not empty %}
+<div class="item-box__row{% if row.is_ignored %} is-ignored{% endif %}">
+	{% if row.icon_class is not empty %}
 		<span class="item-box__row-icon"><i class="{{ row.icon_class }}" aria-hidden="true"></i></span>
 	{% endif %}
-	<span class="item-box__row-text{% if row.title|default('') is not empty or row.badge_label|default('') is not empty %} item-box__row-text--stacked{% endif %}">
-		{% if row.title|default('') is not empty or row.badge_label|default('') is not empty %}
+	<span class="item-box__row-text{% if row.title is not empty or row.badge_label is not empty %} item-box__row-text--stacked{% endif %}">
+		{% if row.title is not empty or row.badge_label is not empty %}
 			<span class="item-box__row-title">
-				{% if row.title|default('') is not empty %}
+				{% if row.title is not empty %}
 					<strong>{{ row.title }}</strong>
 				{% endif %}
-				{% if row.badge_label|default('') is not empty %}
+				{% if row.badge_label is not empty %}
 					<span class="shield-badge badge-info item-box__row-badge">{{ row.badge_label }}</span>
 				{% endif %}
 			</span>
 		{% endif %}
-		{% if row.summary|default('') is not empty %}
+		{% if row.summary is not empty %}
 			<span class="item-box__row-summary">{{ row.summary }}</span>
 		{% endif %}
 	</span>
-	{% if row.actions|default([]) is not empty %}
+	{% if row.actions is not empty %}
 		<span class="item-box__row-actions">
 			{% for action in row.actions %}
 				<a href="{{ action.href }}"

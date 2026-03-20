@@ -207,17 +207,23 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				[
-					'icon_class' => 'bi bi-shield-check',
-					'title'      => 'Malware Scan',
-					'summary'    => 'No malware found.',
+					'icon_class'  => 'bi bi-shield-check',
+					'title'       => 'Malware Scan',
+					'summary'     => 'No malware found.',
+					'badge_label' => '',
+					'is_ignored'  => false,
+					'actions'     => [],
 				],
 				[
-					'icon_class' => 'bi bi-check-circle-fill',
-					'title'      => 'PHP Version',
-					'summary'    => 'Healthy.',
+					'icon_class'  => 'bi bi-check-circle-fill',
+					'title'       => 'PHP Version',
+					'summary'     => 'Healthy.',
+					'badge_label' => '',
+					'is_ignored'  => false,
+					'actions'     => [],
 				],
 			],
-			$healthyDisclosure[ 'items' ]
+			$healthyDisclosure[ 'rows' ]
 		);
 	}
 

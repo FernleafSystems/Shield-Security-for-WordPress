@@ -3,7 +3,6 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { HealthyDisclosureToggle } from "../ui/HealthyDisclosureToggle";
 import { getLayersForShell, updateOperatorRootStep } from "./DrillDownShared";
 
 export class ActionsQueueLandingController extends BaseAutoExecComponent {
@@ -21,17 +20,8 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 		this.bindModePanelHandlers();
 		this.bindMaintenanceActionHandlers();
 		this.bindTableActionHandlers();
-		this.bindHealthyDisclosureToggle();
 		this.bindDrillDownHandlers();
 		this.initializeCurrentRoot();
-	}
-
-	bindHealthyDisclosureToggle() {
-		if ( this.hasBoundHealthyDisclosureToggle ) {
-			return;
-		}
-		this.hasBoundHealthyDisclosureToggle = true;
-		( new HealthyDisclosureToggle( () => this.rootEl || this.getRoot() ) ).bind();
 	}
 
 	bindDrillDownHandlers() {

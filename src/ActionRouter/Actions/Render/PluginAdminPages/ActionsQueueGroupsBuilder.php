@@ -55,9 +55,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * }
  * @phpstan-type GroupData array{
  *   key:string,
- *   display_section:'active'|'healthy',
- *   show_heading:bool,
- *   heading_label:string,
  *   label:string,
  *   item_count:int,
  *   status:string,
@@ -78,10 +75,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   selection_json:string,
  *   selection:GroupSelection
  * }
+ * @phpstan-type GroupSectionData array{
+ *   heading_label:string,
+ *   groups:list<GroupData>
+ * }
  * @phpstan-type GroupsLayerData array{
  *   bucket_selection:BucketSelection,
  *   healthy_heading_label:string,
- *   groups:list<GroupData>,
+ *   active_sections:list<GroupSectionData>,
+ *   healthy_sections:list<GroupSectionData>,
  *   header:DrillLayerHeaderInput
  * }
  * @phpstan-type BucketSource array{
@@ -90,7 +92,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * }
  * @phpstan-type GroupSeed array{
  *   key:string,
- *   display_section:'active'|'healthy',
+ *   is_healthy:bool,
  *   definition_key:string,
  *   heading_label:string,
  *   label:string,
@@ -112,6 +114,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type ComputedGroups array{
  *   layer:GroupsLayerData,
  *   groups_indexed:array<string,GroupData>
+ * }
+ * @phpstan-type ResolvedGroups array{
+ *   groups_indexed:array<string,GroupData>,
+ *   active_sections:list<GroupSectionData>,
+ *   healthy_sections:list<GroupSectionData>
  * }
  */
 class ActionsQueueGroupsBuilder {
@@ -186,7 +193,7 @@ class ActionsQueueGroupsBuilder {
 		$buckets = $this->indexBucketsByKey( $bucketsBuilder->build( $attentionQuery, $assessmentRowsByZone ) );
 		$bucketSources = $bucketsBuilder->classify( $attentionQuery );
 		$bucket = $buckets[ $bucketKey ];
-		$groupsIndexed = $this->buildGroupsIndexedForBucket(
+		$resolvedGroups = $this->buildGroupsForBucket(
 			$bucketKey,
 			$bucket[ 'label' ],
 			$bucketSources[ $bucketKey ],
@@ -198,10 +205,11 @@ class ActionsQueueGroupsBuilder {
 			'layer'          => [
 				'bucket_selection'      => $bucketSelection,
 				'healthy_heading_label' => $this->healthySectionHeadingLabel(),
-				'groups'                => \array_values( $groupsIndexed ),
+				'active_sections'       => $resolvedGroups[ 'active_sections' ],
+				'healthy_sections'      => $resolvedGroups[ 'healthy_sections' ],
 				'header'                => $bucketSelection[ 'header' ],
 			],
-			'groups_indexed' => $groupsIndexed,
+			'groups_indexed' => $resolvedGroups[ 'groups_indexed' ],
 		];
 	}
 
@@ -220,9 +228,9 @@ class ActionsQueueGroupsBuilder {
 	/**
 	 * @param BucketSource $bucketSource
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 * @return array<string,GroupData>
+	 * @return ResolvedGroups
 	 */
-	private function buildGroupsIndexedForBucket(
+	private function buildGroupsForBucket(
 		string $bucketKey,
 		string $bucketLabel,
 		array $bucketSource,
@@ -294,7 +302,7 @@ class ActionsQueueGroupsBuilder {
 				$definition = $this->getGroupDefinition( $definitionKey );
 				$seeds[ $seedKey ] = [
 					'key'              => $definitionKey,
-					'display_section'  => 'active',
+					'is_healthy'       => false,
 					'definition_key'   => $definitionKey,
 					'heading_label'    => $definition[ 'label' ],
 					'label'            => $definition[ 'label' ],
@@ -319,30 +327,25 @@ class ActionsQueueGroupsBuilder {
 			$seeds[ $seedKey ][ 'attention_items' ][] = $item;
 		}
 
-		$resolved = \array_values( \array_map(
-			fn( array $seed ) :array => $this->resolveSeed( $bucketLabel, $seed ),
-			\array_values( \array_filter( $seeds, static fn( array $seed ) :bool => $seed[ 'label' ] !== '' ) )
-		) );
+		$resolvedSeeds = \array_values( \array_filter( $seeds, static fn( array $seed ) :bool => $seed[ 'label' ] !== '' ) );
 
-		$resolved = \array_merge(
-			$resolved,
-			$this->buildHealthyBucketGroups(
+		$resolvedSeeds = \array_merge(
+			$resolvedSeeds,
+			$this->buildHealthyBucketSeeds(
 				$bucketKey,
-				$bucketLabel,
 				$bucketSource,
 				$assessmentRowsByZone,
-				\array_fill_keys( \array_column( $resolved, 'key' ), true )
+				\array_fill_keys( \array_column( $resolvedSeeds, 'key' ), true )
 			)
 		);
 
-		\usort( $resolved, function ( array $left, array $right ) :int {
-			$sectionCmp = $this->displaySectionOrder( $left[ 'display_section' ] ?? 'active' )
-				<=> $this->displaySectionOrder( $right[ 'display_section' ] ?? 'active' );
+		\usort( $resolvedSeeds, function ( array $left, array $right ) :int {
+			$sectionCmp = $this->sectionOrderForSeed( $left ) <=> $this->sectionOrderForSeed( $right );
 			if ( $sectionCmp !== 0 ) {
 				return $sectionCmp;
 			}
 
-			$orderCmp = $this->sectionOrderForGroup( $left ) <=> $this->sectionOrderForGroup( $right );
+			$orderCmp = $this->definitionOrderForSeed( $left ) <=> $this->definitionOrderForSeed( $right );
 			if ( $orderCmp !== 0 ) {
 				return $orderCmp;
 			}
@@ -366,11 +369,30 @@ class ActionsQueueGroupsBuilder {
 		} );
 
 		$indexed = [];
-		foreach ( $resolved as $group ) {
+		$activeEntries = [];
+		$healthyEntries = [];
+		foreach ( $resolvedSeeds as $seed ) {
+			$group = $this->resolveSeed( $bucketLabel, $seed );
 			$indexed[ $group[ 'key' ] ] = $group;
+			if ( $seed[ 'is_healthy' ] ) {
+				$healthyEntries[] = [
+					'heading_label' => $seed[ 'heading_label' ],
+					'group'         => $group,
+				];
+			}
+			else {
+				$activeEntries[] = [
+					'heading_label' => $seed[ 'heading_label' ],
+					'group'         => $group,
+				];
+			}
 		}
 
-		return $indexed;
+		return [
+			'groups_indexed'  => $indexed,
+			'active_sections' => $this->buildSectionsFromEntries( $activeEntries ),
+			'healthy_sections' => $this->buildSectionsFromEntries( $healthyEntries ),
+		];
 	}
 
 	/**
@@ -398,10 +420,6 @@ class ActionsQueueGroupsBuilder {
 
 		return [
 			'key'                 => $seed[ 'key' ],
-			'display_section'     => $seed[ 'display_section' ] ?? 'active',
-			'show_heading'        => $seed[ 'heading_label' ] !== ''
-				&& $seed[ 'heading_label' ] !== $seed[ 'label' ],
-			'heading_label'       => $seed[ 'heading_label' ],
 			'label'               => $seed[ 'label' ],
 			'item_count'          => $seed[ 'item_count' ],
 			'status'              => $seed[ 'status' ],
@@ -450,9 +468,6 @@ class ActionsQueueGroupsBuilder {
 
 		return [
 			'key'                 => $groupKey,
-			'display_section'     => 'active',
-			'show_heading'        => false,
-			'heading_label'       => $definition[ 'label' ],
 			'label'               => $definition[ 'label' ],
 			'item_count'          => 0,
 			'status'              => 'good',
@@ -494,7 +509,7 @@ class ActionsQueueGroupsBuilder {
 
 			$seeds[] = [
 				'key'              => $definitionKey.':'.$card[ 'key' ],
-				'display_section'  => 'active',
+				'is_healthy'       => false,
 				'definition_key'   => $definitionKey,
 				'heading_label'    => $definition[ 'label' ],
 				'label'            => $card[ 'title' ],
@@ -527,7 +542,7 @@ class ActionsQueueGroupsBuilder {
 		foreach ( $section[ 'items' ] as $vulnerabilityItem ) {
 			$seeds[] = [
 				'key'              => 'vulnerabilities:'.$vulnerabilityItem[ 'key' ],
-				'display_section'  => 'active',
+				'is_healthy'       => false,
 				'definition_key'   => 'vulnerabilities',
 				'heading_label'    => $section[ 'label' ],
 				'label'            => $vulnerabilityItem[ 'label' ],
@@ -550,16 +565,16 @@ class ActionsQueueGroupsBuilder {
 	/**
 	 * @return GroupSeed
 	 */
-	private function buildMaintenanceSeed( array $maintenanceItem, string $displaySection = 'active' ) :array {
+	private function buildMaintenanceSeed( array $maintenanceItem, bool $isHealthy = false ) :array {
 		$maintenanceRows = $this->projectMaintenanceRows( $maintenanceItem );
 
 		return [
 			'key'                 => $maintenanceItem[ 'key' ],
-			'display_section'     => $displaySection,
+			'is_healthy'          => $isHealthy,
 			'definition_key'      => 'maintenance',
 			'heading_label'       => '',
 			'label'               => $maintenanceItem[ 'label' ],
-			'item_count'          => $displaySection === 'healthy'
+			'item_count'          => $isHealthy
 				? $this->maintenanceVisibleCount( $maintenanceItem )
 				: (int)$maintenanceItem[ 'count' ],
 			'status'              => StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'warning' ),
@@ -628,22 +643,22 @@ class ActionsQueueGroupsBuilder {
 	 * @param BucketSource $bucketSource
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @param array<string,true> $existingGroupKeys
-	 * @return list<GroupData>
+	 * @return list<GroupSeed>
 	 */
-	private function buildHealthyBucketGroups(
+	private function buildHealthyBucketSeeds(
 		string $bucketKey,
-		string $bucketLabel,
 		array $bucketSource,
 		array $assessmentRowsByZone,
 		array $existingGroupKeys
 	) :array {
-		$resolved = [];
+		$seeds = [];
 
 		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
-			$resolved[] = $this->resolveSeed( $bucketLabel, $seed );
+			$seeds[] = $seed;
+			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
 		foreach ( $this->normalizeBucketMaintenanceQueueItems( \array_values( \array_filter(
@@ -656,14 +671,11 @@ class ActionsQueueGroupsBuilder {
 				continue;
 			}
 
-			$resolved[] = $this->resolveSeed(
-				$bucketLabel,
-				$this->buildMaintenanceSeed( $maintenanceItem, 'healthy' )
-			);
+			$seeds[] = $this->buildMaintenanceSeed( $maintenanceItem, true );
 			$existingGroupKeys[ $maintenanceItem[ 'key' ] ] = true;
 		}
 
-		return $resolved;
+		return $seeds;
 	}
 
 	/**
@@ -692,7 +704,7 @@ class ActionsQueueGroupsBuilder {
 			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seed = [
 				'key'              => $definitionKey,
-				'display_section'  => 'healthy',
+				'is_healthy'       => true,
 				'definition_key'   => $definitionKey,
 				'heading_label'    => $definition[ 'label' ],
 				'label'            => $definition[ 'label' ],
@@ -834,13 +846,48 @@ class ActionsQueueGroupsBuilder {
 		return $count;
 	}
 
-	private function sectionOrderForGroup( array $group ) :int {
-		$definitionKey = $this->definitionKeyForGroupKey( $group[ 'key' ] );
-		return self::SECTION_ORDER[ $definitionKey ] ?? 999;
+	/**
+	 * @param GroupSeed $seed
+	 */
+	private function definitionOrderForSeed( array $seed ) :int {
+		return self::SECTION_ORDER[ $seed[ 'definition_key' ] ] ?? 999;
 	}
 
-	private function displaySectionOrder( string $displaySection ) :int {
-		return $displaySection === 'healthy' ? 1 : 0;
+	/**
+	 * @param GroupSeed $seed
+	 */
+	private function sectionOrderForSeed( array $seed ) :int {
+		return $seed[ 'is_healthy' ] ? 1 : 0;
+	}
+
+	/**
+	 * @param list<array{heading_label:string,group:GroupData}> $entries
+	 * @return list<GroupSectionData>
+	 */
+	private function buildSectionsFromEntries( array $entries ) :array {
+		$sections = [];
+		foreach ( $entries as $entry ) {
+			$headingLabel = $entry[ 'heading_label' ];
+			$shouldStartNew = empty( $sections )
+				|| $sections[ \array_key_last( $sections ) ][ 'heading_label' ] !== $headingLabel;
+			if ( $shouldStartNew ) {
+				$sections[] = [
+					'heading_label' => $headingLabel,
+					'groups'        => [],
+				];
+			}
+			$sections[ \array_key_last( $sections ) ][ 'groups' ][] = $entry[ 'group' ];
+		}
+
+		foreach ( $sections as &$section ) {
+			if ( \count( $section[ 'groups' ] ) === 1
+				&& $section[ 'heading_label' ] === $section[ 'groups' ][ 0 ][ 'label' ] ) {
+				$section[ 'heading_label' ] = '';
+			}
+		}
+		unset( $section );
+
+		return $sections;
 	}
 
 	/**
@@ -996,7 +1043,7 @@ class ActionsQueueGroupsBuilder {
 			return [];
 		}
 
-		$isIgnored = \trim( (string)( $toggleAction[ 'label' ] ?? '' ) ) === __( 'Stop ignoring', 'wp-simple-firewall' );
+		$isIgnored = ( $toggleAction[ 'kind' ] ?? '' ) === 'unignore';
 		return [
 			'icon_class'  => (string)( $maintenanceItem[ 'icon_class' ] ?? '' ),
 			'title'       => '',

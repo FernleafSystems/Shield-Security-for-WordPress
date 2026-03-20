@@ -125,6 +125,27 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $matches[ 0 ] ?? [];
 	}
 
+	/**
+	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
+	 * @return list<array<string,mixed>>
+	 */
+	private function flattenGroupsSections( array $sections ) :array {
+		return \array_values( \array_merge( [], ...\array_map(
+			static fn( array $section ) :array => \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [],
+			$sections
+		) ) );
+	}
+
+	/**
+	 * @return list<array<string,mixed>>
+	 */
+	private function flattenGroupsPayload( array $payload ) :array {
+		return \array_merge(
+			$this->flattenGroupsSections( \is_array( $payload[ 'active_sections' ] ?? null ) ? $payload[ 'active_sections' ] : [] ),
+			$this->flattenGroupsSections( \is_array( $payload[ 'healthy_sections' ] ?? null ) ? $payload[ 'healthy_sections' ] : [] )
+		);
+	}
+
 	private function insertFileLockRecord( string $type, string $path, int $detectedAt = 0 ) :void {
 		$handler = $this->requireDb( 'file_locker' );
 		$record = $handler->getRecord();
@@ -414,10 +435,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-queue-groups="1"]',
 			'Groups AJAX should render the selected bucket wrapper'
 		);
-		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
-		$this->assertSame( 'category', (string)( $payload[ 'groups' ][ 0 ][ 'card_type' ] ?? '' ) );
-		$this->assertNotSame( 'maintenance', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertNotEmpty( $payload[ 'groups' ][ 0 ][ 'management_link' ] ?? [] );
+		$activeGroups = $this->flattenGroupsSections( $payload[ 'active_sections' ] ?? [] );
+		$this->assertCount( 1, $activeGroups );
+		$this->assertSame( 'category', (string)( $activeGroups[ 0 ][ 'card_type' ] ?? '' ) );
+		$this->assertNotSame( 'maintenance', (string)( $activeGroups[ 0 ][ 'key' ] ?? '' ) );
+		$this->assertNotEmpty( $activeGroups[ 0 ][ 'management_link' ] ?? [] );
 		$this->assertXPathCount(
 			$xpath,
 			'//button[@data-drill-target="detail" and @data-drill-group-selection]',
@@ -429,7 +451,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row ")]',
 			'Groups AJAX should render maintenance category rows inside the item-box'
 		);
-		$this->assertNotEmpty( $payload[ 'groups' ][ 0 ][ 'maintenance_rows' ] ?? [] );
+		$this->assertNotEmpty( $activeGroups[ 0 ][ 'maintenance_rows' ] ?? [] );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-summary ")]',
@@ -471,9 +493,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( '0 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
-		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
-		$this->assertSame( 'wp_plugins_updates', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'healthy', (string)( $payload[ 'groups' ][ 0 ][ 'display_section' ] ?? '' ) );
+		$healthyGroups = $this->flattenGroupsSections( $payload[ 'healthy_sections' ] ?? [] );
+		$this->assertCount( 1, $healthyGroups );
+		$this->assertSame( 'wp_plugins_updates', (string)( $healthyGroups[ 0 ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'No action required', (string)( $payload[ 'healthy_heading_label' ] ?? '' ) );
 		$this->assertXPathCount(
 			$xpath,
@@ -509,7 +531,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
 			'bucket' => 'review',
 		] );
-		$selectedGroupKey = (string)( $initialPayload[ 'groups' ][ 0 ][ 'key' ] ?? '' );
+		$selectedGroupKey = (string)( $this->flattenGroupsPayload( $initialPayload )[ 0 ][ 'key' ] ?? '' );
 		$this->assertNotSame( '', $selectedGroupKey );
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
@@ -547,14 +569,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
-		$groups = \is_array( $payload[ 'groups' ] ?? null ) ? $payload[ 'groups' ] : [];
+		$groups = $this->flattenGroupsPayload( $payload );
 		$vulnerabilities = \array_values( \array_filter(
 			$groups,
 			static fn( array $group ) :bool => (string)( $group[ 'key' ] ?? '' ) === 'vulnerabilities'
 		) );
 
 		$this->assertCount( 1, $vulnerabilities );
-		$this->assertSame( 'healthy', (string)( $vulnerabilities[ 0 ][ 'display_section' ] ?? '' ) );
 		$this->assertSame( 'linked', (string)( $vulnerabilities[ 0 ][ 'card_type' ] ?? '' ) );
 		$this->assertFalse( (bool)( $vulnerabilities[ 0 ][ 'is_interactive' ] ?? true ) );
 		$this->assertXPathCount(
@@ -578,20 +599,21 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '3 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		$this->assertCount( 3, $payload[ 'groups' ] ?? [] );
-		$this->assertSame( [ 'linked', 'expandable', 'expandable' ], \array_column( $payload[ 'groups' ] ?? [], 'card_type' ) );
-		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files' ], \array_column( $payload[ 'groups' ] ?? [], 'heading_label' ) );
-		$this->assertSame( [ '', 'View 1 files', 'View 1 files' ], \array_column( $payload[ 'groups' ] ?? [], 'drill_hint' ) );
-		$this->assertStringStartsWith( 'vulnerabilities:', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'plugins:'.self::con()->base_file, (string)( $payload[ 'groups' ][ 1 ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'themes:'.\wp_get_theme()->get_stylesheet(), (string)( $payload[ 'groups' ][ 2 ][ 'key' ] ?? '' ) );
-		$this->assertCount( 2, $payload[ 'groups' ][ 0 ][ 'links' ] ?? [] );
-		$this->assertSame( '/wp-admin/plugins.php', (string)( $payload[ 'groups' ][ 0 ][ 'links' ][ 0 ][ 'href' ] ?? '' ) );
+		$groups = $this->flattenGroupsPayload( $payload );
+		$this->assertCount( 3, $groups );
+		$this->assertSame( [ 'linked', 'expandable', 'expandable' ], \array_column( $groups, 'card_type' ) );
+		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files' ], \array_column( $payload[ 'active_sections' ] ?? [], 'heading_label' ) );
+		$this->assertSame( [ '', 'View 1 files', 'View 1 files' ], \array_column( $groups, 'drill_hint' ) );
+		$this->assertStringStartsWith( 'vulnerabilities:', (string)( $groups[ 0 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'plugins:'.self::con()->base_file, (string)( $groups[ 1 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'themes:'.\wp_get_theme()->get_stylesheet(), (string)( $groups[ 2 ][ 'key' ] ?? '' ) );
+		$this->assertCount( 2, $groups[ 0 ][ 'links' ] ?? [] );
+		$this->assertSame( '/wp-admin/plugins.php', (string)( $groups[ 0 ][ 'links' ][ 0 ][ 'href' ] ?? '' ) );
 		$this->assertSame(
 			'https://clk.shldscrty.com/shieldvulnerabilitylookup?type=plugin&slug='.self::con()->base_file.'&version='.self::con()->cfg->version(),
-			(string)( $payload[ 'groups' ][ 0 ][ 'links' ][ 1 ][ 'href' ] ?? '' )
+			(string)( $groups[ 0 ][ 'links' ][ 1 ][ 'href' ] ?? '' )
 		);
-		$this->assertSame( '_blank', (string)( $payload[ 'groups' ][ 0 ][ 'links' ][ 1 ][ 'target' ] ?? '' ) );
+		$this->assertSame( '_blank', (string)( $groups[ 0 ][ 'links' ][ 1 ][ 'target' ] ?? '' ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ")]',
@@ -651,10 +673,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'Fix now', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		$this->assertCount( 1, $payload[ 'groups' ] ?? [] );
-		$this->assertSame( 'Abandoned Assets', (string)( $payload[ 'groups' ][ 0 ][ 'heading_label' ] ?? '' ) );
-		$this->assertStringStartsWith( 'vulnerabilities:abandoned-', (string)( $payload[ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $payload[ 'groups' ][ 0 ][ 'status' ] ?? '' ) );
+		$groups = $this->flattenGroupsPayload( $payload );
+		$this->assertCount( 1, $groups );
+		$this->assertSame( 'Abandoned Assets', (string)( $payload[ 'active_sections' ][ 0 ][ 'heading_label' ] ?? '' ) );
+		$this->assertStringStartsWith( 'vulnerabilities:abandoned-', (string)( $groups[ 0 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $groups[ 0 ][ 'status' ] ?? '' ) );
 	}
 
 	public function test_detail_ajax_renders_selected_plugin_group_as_direct_investigation_table() :void {

@@ -15,20 +15,13 @@
 			</button>
 		{% endfor %}
 	</div>
-	{% if healthy_disclosure is defined and healthy_disclosure.items is not empty %}
+	{% if healthy_disclosure.rows is not empty %}
 		{% set body_html %}
 			<div class="item-box item-box--good">
 				<div class="item-box__grid">
-					{% for item in healthy_disclosure.items %}
+					{% for row in healthy_disclosure.rows %}
 						{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
-							row: {
-								icon_class: item.icon_class,
-								title: item.title,
-								summary: item.summary,
-								badge_label: '',
-								is_ignored: false,
-								actions: []
-							}
+							row: row
 						} only %}
 					{% endfor %}
 				</div>

@@ -19,9 +19,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
  *   status_label:string,
  *   status_icon_class:string,
  *   stat_line:string,
- *   settings_href:string,
- *   settings_label:string,
- *   settings_action:array<string,mixed>,
  *   panel:array{
  *     title:string,
  *     status:string,
@@ -43,7 +40,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
  * @phpstan-type ZoneSection array{
  *   heading:string,
  *   cards:list<ZoneCard>,
- *   collapsible:bool
+ *   collapsible:bool,
+ *   disclosure_label:string
  * }
  */
 trait BuildsConfigureLandingData {
@@ -154,14 +152,16 @@ trait BuildsConfigureLandingData {
 		if ( $this->configureZoneSectionsCache === null ) {
 			$sections = [
 				[
-					'heading'     => __( 'Zones that need attention', 'wp-simple-firewall' ),
-					'cards'       => [],
-					'collapsible' => false,
+					'heading'          => __( 'Zones that need attention', 'wp-simple-firewall' ),
+					'cards'            => [],
+					'collapsible'      => false,
+					'disclosure_label' => '',
 				],
 				[
-					'heading'     => __( 'Healthy zones and general controls', 'wp-simple-firewall' ),
-					'cards'       => [],
-					'collapsible' => true,
+					'heading'          => __( 'Healthy zones and general controls', 'wp-simple-firewall' ),
+					'cards'            => [],
+					'collapsible'      => true,
+					'disclosure_label' => '',
 				],
 			];
 			$cardsByBand = [
@@ -179,10 +179,25 @@ trait BuildsConfigureLandingData {
 			$sections[ 1 ][ 'cards' ] = $this->generalLast(
 				\array_merge( $cardsByBand[ 'good' ], $cardsByBand[ 'neutral' ] )
 			);
+			$sections[ 1 ][ 'disclosure_label' ] = $this->buildHealthyZoneDisclosureLabel(
+				\count( $sections[ 1 ][ 'cards' ] )
+			);
 			$this->configureZoneSectionsCache = $sections;
 		}
 
 		return $this->configureZoneSectionsCache;
+	}
+
+	private function buildHealthyZoneDisclosureLabel( int $count ) :string {
+		return \sprintf(
+			_n(
+				'%s healthy zone and general control',
+				'%s healthy zones and general controls',
+				$count,
+				'wp-simple-firewall'
+			),
+			$count
+		);
 	}
 
 	protected function renderConfigureZonesLayer() :string {
@@ -212,7 +227,6 @@ trait BuildsConfigureLandingData {
 			'diagnosis' => $diagnosis,
 			'header'             => $diagnosis[ 'header' ],
 			'zone_selection'     => $diagnosis[ 'zone_selection' ],
-			'editor_selection'   => $diagnosis[ 'editor_selection' ],
 		];
 	}
 

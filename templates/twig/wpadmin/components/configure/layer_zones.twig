@@ -29,7 +29,7 @@
 					</div>
 				{% endset %}
 				{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
-					label: section.cards|length ~ ' ' ~ section.heading|lower,
+					label: section.disclosure_label,
 					body_html: body_html
 				} only %}
 			{% else %}

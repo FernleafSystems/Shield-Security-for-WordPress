@@ -30,6 +30,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   selection_json:string,
  *   selection:BucketSelection
  * }
+ * @phpstan-type HealthyDisclosureRow array{
+ *   icon_class:string,
+ *   title:string,
+ *   summary:string,
+ *   badge_label:string,
+ *   is_ignored:bool,
+ *   actions:list<array<string,mixed>>
+ * }
  */
 class ActionsQueueBucketsBuilder {
 
@@ -82,35 +90,46 @@ class ActionsQueueBucketsBuilder {
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return array{
 	 *   label:string,
-	 *   items:list<array{icon_class:string, title:string, summary:string}>
+	 *   rows:list<HealthyDisclosureRow>
 	 * }
 	 */
 	public function buildHealthyDisclosure( array $assessmentRowsByZone ) :array {
-		$items = [];
+		$rows = [];
 
 		foreach ( $assessmentRowsByZone[ 'scans' ] as $row ) {
 			if ( $row[ 'status' ] === 'good' ) {
-				$items[] = [
-					'icon_class' => $row[ 'status_icon_class' ],
-					'title'      => $row[ 'label' ],
-					'summary'    => $row[ 'description' ],
-				];
+				$rows[] = $this->buildHealthyDisclosureRow( $row );
 			}
 		}
 
 		foreach ( $assessmentRowsByZone[ 'maintenance' ] as $row ) {
 			if ( $row[ 'status' ] === 'good' ) {
-				$items[] = [
-					'icon_class' => $row[ 'status_icon_class' ],
-					'title'      => $row[ 'label' ],
-					'summary'    => $row[ 'description' ],
-				];
+				$rows[] = $this->buildHealthyDisclosureRow( $row );
 			}
 		}
 
 		return [
 			'label' => __( 'No action required', 'wp-simple-firewall' ),
-			'items' => $items,
+			'rows'  => $rows,
+		];
+	}
+
+	/**
+	 * @phpstan-param array{
+	 *   status_icon_class:string,
+	 *   label:string,
+	 *   description:string
+	 * } $row
+	 * @return HealthyDisclosureRow
+	 */
+	private function buildHealthyDisclosureRow( array $row ) :array {
+		return [
+			'icon_class'  => $row[ 'status_icon_class' ],
+			'title'       => $row[ 'label' ],
+			'summary'     => $row[ 'description' ],
+			'badge_label' => '',
+			'is_ignored'  => false,
+			'actions'     => [],
 		];
 	}
 

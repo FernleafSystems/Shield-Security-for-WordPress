@@ -105,18 +105,19 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
+		$groups = $this->flattenLayerGroups( $data );
+
 		$this->assertSame( 'Fix now', $data[ 'bucket_selection' ][ 'label' ] );
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
 		$this->assertSame( 7, $data[ 'bucket_selection' ][ 'item_count' ] );
 		$this->assertSame(
 			[ 'vulnerabilities:vulnerability-example-plugin', 'plugins:example-plugin', 'themes:example-theme', 'malware' ],
-			\array_column( $data[ 'groups' ], 'key' )
+			\array_column( $groups, 'key' )
 		);
-		$this->assertSame( [ 'linked', 'expandable', 'expandable', 'expandable' ], \array_column( $data[ 'groups' ], 'card_type' ) );
-		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', 'Malware Detections' ], \array_column( $data[ 'groups' ], 'heading_label' ) );
-		$this->assertSame( [ true, true, true, false ], \array_column( $data[ 'groups' ], 'show_heading' ) );
-		$this->assertSame( Vulnerabilities::class, $data[ 'groups' ][ 0 ][ 'render_action_class' ] );
-		$this->assertSame( Malware::class, $data[ 'groups' ][ 3 ][ 'render_action_class' ] );
+		$this->assertSame( [ 'linked', 'expandable', 'expandable', 'expandable' ], \array_column( $groups, 'card_type' ) );
+		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', '' ], \array_column( $data[ 'active_sections' ], 'heading_label' ) );
+		$this->assertSame( Vulnerabilities::class, $groups[ 0 ][ 'render_action_class' ] );
+		$this->assertSame( Malware::class, $groups[ 3 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',
@@ -125,7 +126,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'ignored_only'    => false,
 				],
 			],
-			$data[ 'groups' ][ 3 ][ 'render_action_data' ]
+			$groups[ 3 ][ 'render_action_data' ]
 		);
 		$this->assertSame(
 			[
@@ -144,14 +145,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'icon_class' => 'bi-box-arrow-up-right',
 				],
 			],
-			$data[ 'groups' ][ 0 ][ 'links' ]
+			$groups[ 0 ][ 'links' ]
 		);
-		$this->assertSame( 'direct_table', $data[ 'groups' ][ 1 ][ 'detail_shell' ] );
-		$this->assertSame( 'file_scan_results', $data[ 'groups' ][ 1 ][ 'detail_table' ][ 'table_type' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $data[ 'groups' ][ 1 ][ 'detail_table' ][ 'subject_id' ] );
-		$this->assertSame( 'View 3 files', $data[ 'groups' ][ 1 ][ 'drill_hint' ] );
-		$this->assertSame( '2 suspected malware results need review.', $data[ 'groups' ][ 3 ][ 'narrative' ] );
-		$this->assertSame( 'View 2 files', $data[ 'groups' ][ 3 ][ 'drill_hint' ] );
+		$this->assertSame( 'direct_table', $groups[ 1 ][ 'detail_shell' ] );
+		$this->assertSame( 'file_scan_results', $groups[ 1 ][ 'detail_table' ][ 'table_type' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $groups[ 1 ][ 'detail_table' ][ 'subject_id' ] );
+		$this->assertSame( 'View 3 files', $groups[ 1 ][ 'drill_hint' ] );
+		$this->assertSame( '2 suspected malware results need review.', $groups[ 3 ][ 'narrative' ] );
+		$this->assertSame( 'View 2 files', $groups[ 3 ][ 'drill_hint' ] );
 	}
 
 	public function test_build_group_returns_selected_plugin_asset_with_direct_table_detail() :void {
@@ -181,7 +182,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 'plugins:example-plugin', $group[ 'key' ] );
-		$this->assertSame( 'Plugin Files', $group[ 'heading_label' ] );
 		$this->assertSame( 'Example Plugin', $group[ 'label' ] );
 		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $group[ 'card_type' ] );
@@ -333,9 +333,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( [ 'wp_plugins_inactive', 'wp_plugins_updates' ], \array_column( $data[ 'groups' ], 'key' ) );
-		$this->assertNotContains( 'maintenance', \array_column( $data[ 'groups' ], 'key' ) );
-		$this->assertSame( [ 'category', 'category' ], \array_column( $data[ 'groups' ], 'card_type' ) );
+		$groups = $this->flattenLayerGroups( $data );
+
+		$this->assertSame( [ 'wp_plugins_inactive', 'wp_plugins_updates' ], \array_column( $groups, 'key' ) );
+		$this->assertNotContains( 'maintenance', \array_column( $groups, 'key' ) );
+		$this->assertSame( [ 'category', 'category' ], \array_column( $groups, 'card_type' ) );
 		$this->assertSame(
 			[
 				'label'      => 'Manage Plugins',
@@ -344,9 +346,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'rel'        => '',
 				'icon_class' => 'bi-arrow-right',
 			],
-			$data[ 'groups' ][ 0 ][ 'management_link' ]
+			$groups[ 0 ][ 'management_link' ]
 		);
-		$this->assertSame( 'bi bi-plug-fill', $data[ 'groups' ][ 0 ][ 'icon_class' ] );
+		$this->assertSame( 'bi bi-plug-fill', $groups[ 0 ][ 'icon_class' ] );
 		$this->assertSame(
 			[
 				[
@@ -365,7 +367,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 				],
 			],
-			$data[ 'groups' ][ 0 ][ 'maintenance_rows' ]
+			$groups[ 0 ][ 'maintenance_rows' ]
 		);
 		$this->assertSame(
 			[
@@ -375,16 +377,16 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'rel'        => '',
 				'icon_class' => 'bi-arrow-right',
 			],
-			$data[ 'groups' ][ 1 ][ 'management_link' ]
+			$groups[ 1 ][ 'management_link' ]
 		);
-		$this->assertSame( 'Akismet Anti-Spam', $data[ 'groups' ][ 1 ][ 'maintenance_rows' ][ 0 ][ 'title' ] );
-		$this->assertSame( 'bi bi-plug-fill', $data[ 'groups' ][ 1 ][ 'icon_class' ] );
+		$this->assertSame( 'Akismet Anti-Spam', $groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'title' ] );
+		$this->assertSame( 'bi bi-plug-fill', $groups[ 1 ][ 'icon_class' ] );
 		$this->assertSame(
 			'maintenance_item_ignore',
-			$data[ 'groups' ][ 1 ][ 'maintenance_rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+			$groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
 		);
-		$this->assertSame( '', $data[ 'groups' ][ 0 ][ 'drill_hint' ] );
-		$this->assertSame( 'maintenance', $data[ 'groups' ][ 0 ][ 'detail_shell' ] );
+		$this->assertSame( '', $groups[ 0 ][ 'drill_hint' ] );
+		$this->assertSame( 'maintenance', $groups[ 0 ][ 'detail_shell' ] );
 	}
 
 	public function test_build_review_bucket_keeps_singleton_maintenance_groups_as_header_and_copy_when_no_sub_items_exist() :void {
@@ -429,9 +431,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'system_php_version', $data[ 'groups' ][ 0 ][ 'key' ] );
-		$this->assertSame( 'bi bi-code-slash', $data[ 'groups' ][ 0 ][ 'icon_class' ] );
-		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'maintenance_rows' ] );
+		$groups = $this->flattenLayerGroups( $data );
+
+		$this->assertSame( 'system_php_version', $groups[ 0 ][ 'key' ] );
+		$this->assertSame( 'bi bi-code-slash', $groups[ 0 ][ 'icon_class' ] );
+		$this->assertSame( [], $groups[ 0 ][ 'maintenance_rows' ] );
 		$this->assertSame(
 			[
 				'icon_class'  => 'bi bi-code-slash',
@@ -441,10 +445,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'is_ignored'  => false,
 				'actions'     => [],
 			],
-			$data[ 'groups' ][ 0 ][ 'summary_row' ]
+			$groups[ 0 ][ 'summary_row' ]
 		);
-		$this->assertSame( [], $data[ 'groups' ][ 0 ][ 'management_link' ] );
-		$this->assertSame( 'PHP should be reviewed.', $data[ 'groups' ][ 0 ][ 'narrative' ] );
+		$this->assertSame( [], $groups[ 0 ][ 'management_link' ] );
+		$this->assertSame( 'PHP should be reviewed.', $groups[ 0 ][ 'narrative' ] );
 	}
 
 	public function test_build_review_bucket_keeps_ignored_singleton_maintenance_toggle_in_summary_row() :void {
@@ -467,6 +471,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'target'        => '',
 					'cta'           => [],
 					'toggle_action' => [
+						'kind'        => 'unignore',
 						'label'       => 'Stop ignoring',
 						'href'        => 'javascript:{}',
 						'icon'        => 'bi bi-eye-fill',
@@ -499,14 +504,16 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertCount( 1, $data[ 'groups' ] );
-		$this->assertSame( 'healthy', $data[ 'groups' ][ 0 ][ 'display_section' ] );
-		$this->assertSame( 'Currently ignored', $data[ 'groups' ][ 0 ][ 'summary_row' ][ 'badge_label' ] );
-		$this->assertTrue( $data[ 'groups' ][ 0 ][ 'summary_row' ][ 'is_ignored' ] );
+		$healthyGroups = $this->flattenSections( $data[ 'healthy_sections' ] );
+
+		$this->assertCount( 1, $healthyGroups );
+		$this->assertSame( 'Currently ignored', $healthyGroups[ 0 ][ 'summary_row' ][ 'badge_label' ] );
+		$this->assertTrue( $healthyGroups[ 0 ][ 'summary_row' ][ 'is_ignored' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$data[ 'groups' ][ 0 ][ 'summary_row' ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+			$healthyGroups[ 0 ][ 'summary_row' ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
 		);
+		$this->assertSame( 'unignore', $healthyGroups[ 0 ][ 'summary_row' ][ 'actions' ][ 0 ][ 'kind' ] );
 	}
 
 	public function test_build_reads_vulnerabilities_payload_once_when_expanding_both_sections() :void {
@@ -575,7 +582,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame(
 			[ 'vulnerabilities:abandoned-example-theme', 'vulnerabilities:vulnerability-example-plugin' ],
-			\array_column( $data[ 'groups' ], 'key' )
+			\array_column( $this->flattenLayerGroups( $data ), 'key' )
 		);
 		$this->assertSame( 1, $builder->getVulnerabilitiesPayloadCalls() );
 	}
@@ -732,16 +739,16 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame(
-			[ 'wp_plugins_updates', 'wp_plugins_inactive' ],
-			\array_column( $payload[ 'layer' ][ 'groups' ], 'key' )
+			[ 'wp_plugins_updates' ],
+			\array_column( $this->flattenSections( $payload[ 'layer' ][ 'active_sections' ] ), 'key' )
 		);
 		$this->assertSame(
-			[ 'active', 'healthy' ],
-			\array_column( $payload[ 'layer' ][ 'groups' ], 'display_section' )
+			[ 'wp_plugins_inactive' ],
+			\array_column( $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] ), 'key' )
 		);
 		$this->assertSame( 'No action required', $payload[ 'layer' ][ 'healthy_heading_label' ] );
-		$this->assertSame( 'good', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'status' ] );
-		$this->assertSame( '', $payload[ 'layer' ][ 'groups' ][ 1 ][ 'drill_hint' ] );
+		$this->assertSame( 'good', $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] )[ 0 ][ 'status' ] );
+		$this->assertSame( '', $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] )[ 0 ][ 'drill_hint' ] );
 		$this->assertArrayNotHasKey( 'next_move', $payload[ 'selected_group' ] );
 		$this->assertSame( 1, $payload[ 'selected_group' ][ 'item_count' ] );
 		$this->assertSame(
@@ -784,12 +791,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( [ 'vulnerabilities' ], \array_column( $payload[ 'layer' ][ 'groups' ], 'key' ) );
-		$this->assertSame( 'healthy', $payload[ 'layer' ][ 'groups' ][ 0 ][ 'display_section' ] );
-		$this->assertSame( 'linked', $payload[ 'layer' ][ 'groups' ][ 0 ][ 'card_type' ] );
-		$this->assertSame( [], $payload[ 'layer' ][ 'groups' ][ 0 ][ 'links' ] );
-		$this->assertFalse( $payload[ 'layer' ][ 'groups' ][ 0 ][ 'is_interactive' ] );
-		$this->assertSame( [], $payload[ 'layer' ][ 'groups' ][ 0 ][ 'render_action_data' ] );
+		$healthyGroups = $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] );
+		$this->assertSame( [ 'vulnerabilities' ], \array_column( $healthyGroups, 'key' ) );
+		$this->assertSame( 'linked', $healthyGroups[ 0 ][ 'card_type' ] );
+		$this->assertSame( [], $healthyGroups[ 0 ][ 'links' ] );
+		$this->assertFalse( $healthyGroups[ 0 ][ 'is_interactive' ] );
+		$this->assertSame( [], $healthyGroups[ 0 ][ 'render_action_data' ] );
 		$this->assertSame( 'vulnerabilities', $payload[ 'selected_group' ][ 'key' ] );
 		$this->assertSame( 'linked', $payload[ 'selected_group' ][ 'card_type' ] );
 		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
@@ -849,7 +856,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$groups = [];
-		foreach ( $data[ 'groups' ] as $group ) {
+		foreach ( $this->flattenSections( $data[ 'healthy_sections' ] ) as $group ) {
 			$groups[ $group[ 'key' ] ] = $group;
 		}
 
@@ -869,9 +876,29 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $groups[ 'plugins' ][ 'item_count' ] );
 		$this->assertFalse( $groups[ 'themes' ][ 'is_interactive' ] );
 		$this->assertSame( [], $groups[ 'themes' ][ 'render_action_data' ] );
-		$this->assertFalse( $groups[ 'wordpress' ][ 'show_heading' ] );
-		$this->assertFalse( $groups[ 'plugins' ][ 'show_heading' ] );
-		$this->assertFalse( $groups[ 'themes' ][ 'show_heading' ] );
+		$this->assertSame( [ '', '', '' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
+	}
+
+	/**
+	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
+	 * @return list<array<string,mixed>>
+	 */
+	private function flattenSections( array $sections ) :array {
+		return \array_merge( [], ...\array_map(
+			static fn( array $section ) :array => $section[ 'groups' ],
+			$sections
+		) );
+	}
+
+	/**
+	 * @param array{active_sections:list<array{heading_label:string,groups:list<array<string,mixed>>}>,healthy_sections:list<array{heading_label:string,groups:list<array<string,mixed>>}>} $layer
+	 * @return list<array<string,mixed>>
+	 */
+	private function flattenLayerGroups( array $layer ) :array {
+		return \array_merge(
+			$this->flattenSections( $layer[ 'active_sections' ] ),
+			$this->flattenSections( $layer[ 'healthy_sections' ] )
+		);
 	}
 
 	/**

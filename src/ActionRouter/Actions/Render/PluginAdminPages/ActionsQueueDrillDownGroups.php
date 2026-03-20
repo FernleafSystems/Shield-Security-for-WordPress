@@ -17,16 +17,17 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	 *   bucket_selection:BucketSelection,
 	 *   healthy_heading_label:string,
 	 *   empty_message:string,
-	 *   groups:list<GroupData>,
+	 *   active_sections:list<array{heading_label:string,groups:list<GroupData>}>,
+	 *   healthy_sections:list<array{heading_label:string,groups:list<GroupData>}>,
 	 *   header:array<string,string>,
- *   selected_group?:GroupSelection,
- *   landing_refresh?:array{
- *     queue_is_empty:bool,
- *     has_drilldown_content:bool,
- *     root_step_json:string,
- *     buckets_html:string,
- *     all_clear_html:string
- *   }
+	 *   selected_group?:GroupSelection,
+	 *   landing_refresh?:array{
+	 *     queue_is_empty:bool,
+	 *     has_drilldown_content:bool,
+	 *     root_step_json:string,
+	 *     buckets_html:string,
+	 *     all_clear_html:string
+	 *   }
 	 * }
 	 */
 	protected function getRenderData() :array {
@@ -54,7 +55,8 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			'bucket_selection'      => $groups[ 'bucket_selection' ],
 			'healthy_heading_label' => $groups[ 'healthy_heading_label' ],
 			'empty_message'         => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
-			'groups'                => $groups[ 'groups' ],
+			'active_sections'       => $groups[ 'active_sections' ],
+			'healthy_sections'      => $groups[ 'healthy_sections' ],
 			'header'                => $groups[ 'header' ],
 		];
 		if ( !empty( $this->action_data[ 'include_landing_refresh' ] ) ) {
