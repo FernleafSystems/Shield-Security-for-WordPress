@@ -446,17 +446,35 @@ class MaintenanceIssueStateProvider {
 	}
 
 	public function iconClassForKey( string $key ) :string {
-		return match ( $key ) {
-			'wp_updates' => 'bi bi-wordpress',
-			'wp_plugins_updates',
-			'wp_plugins_inactive' => 'bi bi-plug-fill',
-			'wp_themes_updates',
-			'wp_themes_inactive' => 'bi bi-palette-fill',
-			'system_ssl_certificate' => 'bi bi-shield-lock-fill',
-			'system_php_version' => 'bi bi-code-slash',
-			'system_lib_openssl' => 'bi bi-key-fill',
-			'wp_db_password' => 'bi bi-database-fill-lock',
-			default => 'bi bi-wrench',
-		};
+		switch ( $key ) {
+			case 'wp_updates':
+				$iconClass = 'bi bi-wordpress';
+				break;
+			case 'wp_plugins_updates':
+			case 'wp_plugins_inactive':
+				$iconClass = 'bi bi-plug-fill';
+				break;
+			case 'wp_themes_updates':
+			case 'wp_themes_inactive':
+				$iconClass = 'bi bi-palette-fill';
+				break;
+			case 'system_ssl_certificate':
+				$iconClass = 'bi bi-shield-lock-fill';
+				break;
+			case 'system_php_version':
+				$iconClass = 'bi bi-code-slash';
+				break;
+			case 'system_lib_openssl':
+				$iconClass = 'bi bi-key-fill';
+				break;
+			case 'wp_db_password':
+				$iconClass = 'bi bi-database-fill-lock';
+				break;
+			default:
+				$iconClass = 'bi bi-wrench';
+				break;
+		}
+
+		return $iconClass;
 	}
 }

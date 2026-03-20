@@ -37,6 +37,7 @@
         "key": "sec_admin_users",
         "section": "section_security_admin_settings",
         "zone_comp_slugs": [
+            "secadmin_enabled",
             "module_secadmin"
         ],
         "sensitive": true,
@@ -54,6 +55,7 @@
         "key": "allow_email_override",
         "section": "section_security_admin_settings",
         "zone_comp_slugs": [
+            "secadmin_enabled",
             "module_secadmin"
         ],
         "default": "Y",
@@ -342,6 +344,7 @@
         "key": "update_delay",
         "section": "section_scan_wpv",
         "zone_comp_slugs": [
+            "vulnerability_scanning",
             "module_scans"
         ],
         "premium": true,
@@ -455,6 +458,7 @@
         "key": "trusted_commenter_minimum",
         "section": "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
+            "trusted_commenters",
             "module_spam"
         ],
         "type": "integer",
@@ -471,6 +475,7 @@
         "key": "trusted_user_roles",
         "section": "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
+            "trusted_commenters",
             "module_spam"
         ],
         "premium": true,
@@ -763,6 +768,7 @@
         "key": "scan_path_exclusions",
         "section": "section_file_guard",
         "zone_comp_slugs": [
+            "file_scanning",
             "module_scans"
         ],
         "premium": true,
@@ -841,6 +847,7 @@
         "key": "scan_frequency",
         "section": "section_scan_options",
         "zone_comp_slugs": [
+            "scan_scheduling",
             "module_scans"
         ],
         "premium": true,
@@ -899,6 +906,7 @@
         "key": "optimise_scan_speed",
         "section": "section_scan_options",
         "zone_comp_slugs": [
+            "file_scanning",
             "module_scans"
         ],
         "premium": false,
@@ -1807,6 +1815,7 @@
         "key": "mfa_verify_page",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "default": "wp_login",
@@ -1832,6 +1841,7 @@
         "key": "mfa_user_setup_pages",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "type": "multiple_select",
@@ -1859,6 +1869,7 @@
         "key": "mfa_skip",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,
@@ -1877,6 +1888,7 @@
         "key": "allow_backupcodes",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,
@@ -1976,6 +1988,7 @@
         "key": "enable_email_auto_login",
         "section": "section_2fa_email",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,
@@ -1993,6 +2006,7 @@
         "key": "two_factor_auth_user_roles",
         "section": "section_2fa_email",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "type": "array",
@@ -2013,6 +2027,7 @@
         "key": "email_any_user_set",
         "section": "section_2fa_email",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,

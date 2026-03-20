@@ -23,7 +23,7 @@ class ZoneComponentConfig extends OffCanvasBase {
 
 	protected function buildCanvasBody() :string {
 		return self::con()->action_router->render( OptionsFormFor::class, [
-			'options'      => ( new GetOptionsForZoneComponents() )->run( $this->getZoneComponentSlugs() ),
+			'options'      => ( new GetOptionsForZoneComponents() )->run( $this->getZoneComponentSlugs(), $this->getOptionKeys() ),
 			'config_item'  => $this->action_data[ 'config_item' ] ?? '',
 			'form_context' => (string)( $this->action_data[ 'form_context' ] ?? 'offcanvas' ),
 		] );
@@ -31,5 +31,13 @@ class ZoneComponentConfig extends OffCanvasBase {
 
 	protected function getZoneComponentSlugs() :array {
 		return \explode( ',', $this->action_data[ 'zone_component_slug' ] );
+	}
+
+	protected function getOptionKeys() :array {
+		$keys = \array_filter( \array_map(
+			static fn( string $key ) :string => \trim( $key ),
+			\explode( ',', (string)( $this->action_data[ 'option_keys' ] ?? '' ) )
+		) );
+		return \array_values( $keys );
 	}
 }

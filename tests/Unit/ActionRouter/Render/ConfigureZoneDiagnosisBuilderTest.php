@@ -57,12 +57,10 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Login', $diagnosis[ 'header' ][ 'title' ] );
 		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'label' ] );
 		$this->assertSame( '2 findings', $diagnosis[ 'header' ][ 'badge' ] );
-		$this->assertSame( '/admin/login', $diagnosis[ 'settings_href' ] );
-		$this->assertSame( 'Configure Login Settings', $diagnosis[ 'settings_label' ] );
 		$this->assertSame( '1 setting configured correctly', $diagnosis[ 'healthy_rows_heading' ] );
 		$this->assertSame( 'Next move', $diagnosis[ 'next_move_heading' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
-		$this->assertStringContainsString( 'Review 2FA', $diagnosis[ 'next_move' ] );
+		$this->assertSame( 'Review 2FA below next.', $diagnosis[ 'next_move' ] );
 		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'problem_rows' ][ 0 ] );
 		$this->assertTrue( $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
 		$this->assertSame( '2fa', $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
@@ -180,9 +178,6 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 			'status_label'      => $statusLabel,
 			'status_icon_class' => 'bi bi-shield-check',
 			'stat_line'         => $statLine,
-			'settings_href'     => '/admin/'.$key,
-			'settings_label'    => 'Configure '.$label.' Settings',
-			'settings_action'   => [],
 			'panel'             => [
 				'title'         => $label,
 				'status'        => $status,

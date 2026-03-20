@@ -17,9 +17,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   status_label:string,
  *   status_icon_class:string,
  *   stat_line:string,
- *   settings_href:string,
- *   settings_label:string,
- *   settings_action:array<string,mixed>,
  *   panel:array{
  *     title:string,
  *     status:string,
@@ -71,15 +68,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   review_rows:list<DiagnosisFinding>,
  *   healthy_rows:list<DiagnosisFinding>,
  *   review_fallback_card:array{}|DiagnosisReviewFallbackCard,
- *   settings_href:string,
- *   settings_label:string,
  *   review_rows_heading:string,
  *   healthy_rows_heading:string,
  *   header:DrillLayerHeaderInput,
- *   editor_header:DrillLayerHeaderInput,
  *   zone_selection:DrillSelection,
- *   zone_selection_json:string,
- *   editor_selection:DrillSelection
+ *   zone_selection_json:string
  * }
  */
 class ConfigureZoneDiagnosisBuilder {
@@ -148,23 +141,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'badge_status'       => $zoneTile[ 'status' ],
 			'color_key'          => $zoneTile[ 'status' ],
 		];
-		$editorBadge = $zoneTile[ 'key' ] === 'general'
-			? __( 'Review', 'wp-simple-firewall' )
-			: $zoneTile[ 'status_label' ];
-		$editorHeader = [
-			'compact_back_label' => $this->buildBackLabel( sprintf( __( '%s Settings', 'wp-simple-firewall' ), $zoneLabel ) ),
-			'active_back_label'  => $this->buildBackLabel( $zoneLabel ),
-			'breadcrumb_label'   => sprintf( __( '%s Settings', 'wp-simple-firewall' ), $zoneLabel ),
-			'title'              => sprintf( __( 'Edit %s Settings', 'wp-simple-firewall' ), $zoneLabel ),
-			'meta'               => __( 'Settings', 'wp-simple-firewall' ),
-			'summary'            => $nextMove,
-			'focus'              => $previewText,
-			'next_step'          => __( 'Update the settings below and save when you are ready.', 'wp-simple-firewall' ),
-			'icon_class'         => $zoneTile[ 'icon_class' ],
-			'badge'              => $editorBadge,
-			'badge_status'       => $zoneTile[ 'status' ],
-			'color_key'          => $zoneTile[ 'status' ],
-		];
 		$reviewFallbackCard = $this->buildReviewFallbackCard(
 			$zoneBadge,
 			$zoneTile[ 'stat_line' ],
@@ -179,13 +155,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'status'     => $zoneTile[ 'status' ],
 			'icon_class' => $zoneTile[ 'icon_class' ],
 			'header'     => $header,
-		];
-		$editorSelection = [
-			'key'        => $zoneKey,
-			'label'      => $zoneLabel,
-			'status'     => $zoneTile[ 'status' ],
-			'icon_class' => $zoneTile[ 'icon_class' ],
-			'header'     => $editorHeader,
 		];
 
 		return [
@@ -202,8 +171,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'review_rows'               => $reviewFindings,
 			'healthy_rows'              => $healthyFindings,
 			'review_fallback_card'      => $reviewFallbackCard,
-			'settings_href'             => $zoneTile[ 'settings_href' ],
-			'settings_label'            => $zoneTile[ 'settings_label' ],
 			'review_rows_heading'       => __( 'Review these settings', 'wp-simple-firewall' ),
 			'healthy_rows_heading'      => sprintf(
 				_n(
@@ -215,10 +182,8 @@ class ConfigureZoneDiagnosisBuilder {
 				$healthyFindingsCount
 			),
 			'header'                    => $header,
-			'editor_header'             => $editorHeader,
 			'zone_selection'            => $zoneSelection,
 			'zone_selection_json'       => $this->encodeJson( $zoneSelection ),
-			'editor_selection'          => $editorSelection,
 		];
 	}
 
@@ -342,8 +307,7 @@ class ConfigureZoneDiagnosisBuilder {
 		}
 
 		return sprintf(
-			__( 'Review %2$s in the settings below and update %1$s as needed.', 'wp-simple-firewall' ),
-			$zoneLabel,
+			__( 'Review %s below next.', 'wp-simple-firewall' ),
 			$row[ 'title' ]
 		);
 	}

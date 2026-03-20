@@ -1,9 +1,0 @@
-<div class="configure-editor__actions">
-	<a href="{{ zone.settings_action.href }}"
-	   class="configure-editor__cta status-{{ zone.panel.status }} {{ zone.settings_action.classes|join( ' ' ) }}"
-	   data-configure-zone-settings="{{ zone.key }}"
-	   {% if zone.settings_action.title is not empty %}title="{{ zone.settings_action.title }}"{% endif %}
-	   {% for key, value in zone.settings_action.data %}data-{{ key }}="{{ value }}"{% endfor %}>
-		{{ zone.settings_label }}
-	</a>
-</div>

@@ -54,6 +54,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 			[
 				'scan_frequency',
 				'file_scan_areas',
+				'ptg_reinstall_links',
 				'trusted_commenter_minimum',
 			],
 			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
@@ -61,6 +62,23 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'scan_frequency', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'config_item' ] ?? '' );
 		$this->assertSame( 'expansion', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'form_context' ] ?? '' );
 		$this->assertArrayNotHasKey( 'focus_option', $this->renderCapture->calls[ 0 ][ 'action_data' ] ?? [] );
+	}
+
+	public function test_build_canvas_body_filters_options_when_option_keys_are_provided() :void {
+		$action = new ZoneComponentConfig( [
+			'zone_component_slug' => ModuleScans::Slug(),
+			'option_keys'         => 'ptg_reinstall_links',
+		] );
+
+		$body = $this->invokeNonPublicMethod( $action, 'buildCanvasBody' );
+
+		$this->assertSame( 'rendered-1', $body );
+		$this->assertSame(
+			[
+				'ptg_reinstall_links',
+			],
+			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
+		);
 	}
 
 	private function installControllerStub() :void {
@@ -94,6 +112,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 								return [
 									'scan_frequency',
 									'file_scan_areas',
+									'ptg_reinstall_links',
 								];
 							}
 						},

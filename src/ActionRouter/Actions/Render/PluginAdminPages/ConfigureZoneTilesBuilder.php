@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 
@@ -28,9 +29,6 @@ class ConfigureZoneTilesBuilder {
 	 *   status_label:string,
 	 *   status_icon_class:string,
 	 *   stat_line:string,
-	 *   settings_href:string,
-	 *   settings_label:string,
-	 *   settings_action:array<string,mixed>,
 	 *   panel:array{
 	 *     title:string,
 	 *     status:string,
@@ -93,9 +91,6 @@ class ConfigureZoneTilesBuilder {
 	 *   status_label:string,
 	 *   status_icon_class:string,
 	 *   stat_line:string,
-	 *   settings_href:string,
-	 *   settings_label:string,
-	 *   settings_action:array<string,mixed>,
 	 *   panel:array{
 	 *     title:string,
 	 *     status:string,
@@ -116,96 +111,30 @@ class ConfigureZoneTilesBuilder {
 		$forceNeutral = !empty( $definition[ 'force_neutral' ] );
 		$components = $this->buildComponentContracts( $definition, $forceNeutral );
 		$status = $forceNeutral ? 'neutral' : $this->aggregateTileStatus( $components );
-		$settingsAction = $this->buildSettingsActionFromDefinition( $definition );
 		$includeInPosture = !\array_key_exists( 'include_in_posture', $definition )
 			|| (bool)$definition[ 'include_in_posture' ];
 
 		return [
-			'key'            => $definition[ 'key' ],
-			'panel_target'   => $definition[ 'key' ],
-			'is_enabled'     => true,
-			'is_disabled'    => false,
+			'key'               => $definition[ 'key' ],
+			'panel_target'      => $definition[ 'key' ],
+			'is_enabled'        => true,
+			'is_disabled'       => false,
 			'include_in_posture' => $includeInPosture,
-			'label'          => $definition[ 'label' ],
-			'icon_class'     => self::con()->svgs->iconClass( $definition[ 'icon' ] ),
-			'status'         => $status,
-			'status_label'   => $this->tileStatusLabel( $status ),
+			'label'             => $definition[ 'label' ],
+			'icon_class'        => self::con()->svgs->iconClass( $definition[ 'icon' ] ),
+			'status'            => $status,
+			'status_label'      => $this->tileStatusLabel( $status ),
 			'status_icon_class' => $this->tileStatusIconClass( $status ),
-			'stat_line'      => $forceNeutral
+			'stat_line'         => $forceNeutral
 				? __( 'General settings', 'wp-simple-firewall' )
 				: $this->buildTileStatLine( $components ),
-			'settings_href'  => $this->buildSettingsHref( $definition ),
-			'settings_label' => sprintf( __( 'Configure %s Settings', 'wp-simple-firewall' ), $definition[ 'label' ] ),
-			'settings_action' => $settingsAction,
-			'panel'          => [
+			'panel'             => [
 				'title'        => $definition[ 'label' ],
 				'status'       => $status,
 				'status_label' => $this->tileStatusLabel( $status ),
 				'components'   => $components,
 			],
 		];
-	}
-
-	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
-	 */
-	private function buildSettingsHref( array $definition ) :string {
-		if ( !empty( $definition[ 'zone_slug' ] ) ) {
-			return self::con()->plugin_urls->zone( $definition[ 'zone_slug' ] );
-		}
-		if ( !empty( $definition[ 'component_slug' ] ) ) {
-			return self::con()->plugin_urls->cfgForZoneComponent( $definition[ 'component_slug' ] );
-		}
-		$componentSlugs = $this->definitionComponentSlugs( $definition );
-		return empty( $componentSlugs ) ? 'javascript:{}' : self::con()->plugin_urls->cfgForZoneComponent( $componentSlugs[ 0 ] );
-	}
-
-	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
-	 * @return array<string,mixed>
-	 */
-	private function buildSettingsActionFromDefinition( array $definition ) :array {
-		$action = null;
-		if ( !empty( $definition[ 'zone_slug' ] ) ) {
-			$zone = $this->zonesCon()->getZone( $definition[ 'zone_slug' ] );
-			$action = $zone->getAction_Config();
-		}
-		elseif ( !empty( $definition[ 'component_slug' ] ) ) {
-			$component = $this->zonesCon()->getZoneComponent( $definition[ 'component_slug' ] );
-			$action = $component->getActions()[ 'config' ] ?? null;
-		}
-		else {
-			$componentSlugs = $this->definitionComponentSlugs( $definition );
-			if ( !empty( $componentSlugs ) ) {
-				$action = [
-					'title' => sprintf( __( 'Configure %s Settings', 'wp-simple-firewall' ), $definition[ 'label' ] ),
-					'icon'  => self::con()->svgs->iconClass( 'gear' ),
-					'data'  => [
-						'zone_component_action' => ZoneComponentConfig::SLUG,
-						'zone_component_slug'   => \implode( ',', $componentSlugs ),
-					],
-				];
-			}
-		}
-		return $this->normalizeActionContract( $action );
 	}
 
 	/**
@@ -230,10 +159,19 @@ class ConfigureZoneTilesBuilder {
 	 * }>
 	 */
 	private function buildComponentContracts( array $definition, bool $forceNeutral ) :array {
-		return \array_map(
+		$components = \array_map(
 			fn( Component\Base $component ) :array => $this->buildSingleComponentContract( $component, $forceNeutral ),
 			$this->componentsForDefinition( $definition )
 		);
+
+		if ( !$forceNeutral ) {
+			$generalSettings = $this->buildGeneralSettingsComponentContract( $definition );
+			if ( !empty( $generalSettings ) ) {
+				$components[] = $generalSettings;
+			}
+		}
+
+		return $components;
 	}
 
 	/**
@@ -265,6 +203,67 @@ class ConfigureZoneTilesBuilder {
 			'note'              => $this->componentNote( $component ),
 			'explanations'      => $explanations,
 			'config_action'     => $this->normalizeActionContract( $component->getActions()[ 'config' ] ?? null ),
+		];
+	}
+
+	/**
+	 * @param array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   zone_slug?:string,
+	 *   component_slug?:string,
+	 *   component_slugs?:list<string>,
+	 *   include_in_posture?:bool,
+	 *   force_neutral?:bool
+	 * } $definition
+	 * @return array{
+	 *   title:string,
+	 *   status:string,
+	 *   status_label:string,
+	 *   status_icon_class:string,
+	 *   note:string,
+	 *   explanations:list<string>,
+	 *   config_action:array<string,mixed>
+	 * }
+	 */
+	private function buildGeneralSettingsComponentContract( array $definition ) :array {
+		$moduleSlugs = $this->zoneActionComponentSlugs( $definition );
+		if ( empty( $moduleSlugs ) ) {
+			return [];
+		}
+
+		$visibleOptionKeys = [];
+		foreach ( $this->componentsForDefinition( $definition ) as $component ) {
+			$visibleOptionKeys = \array_merge( $visibleOptionKeys, $component->getOptions() );
+		}
+		$visibleOptionKeys = \array_values( \array_unique( $visibleOptionKeys ) );
+
+		$moduleOptionKeys = ( new GetOptionsForZoneComponents() )->run( $moduleSlugs );
+		$leftoverOptionKeys = \array_values( \array_filter(
+			$moduleOptionKeys,
+			static fn( string $optionKey ) :bool => !\in_array( $optionKey, $visibleOptionKeys, true )
+		) );
+		if ( empty( $leftoverOptionKeys ) ) {
+			return [];
+		}
+
+		return [
+			'title'             => __( 'General settings', 'wp-simple-firewall' ),
+			'status'            => 'neutral',
+			'status_label'      => $this->componentStatusLabel( 'neutral' ),
+			'status_icon_class' => $this->componentStatusIconClass( 'neutral' ),
+			'note'              => __( 'Additional settings in this zone that are not covered by a dedicated callout.', 'wp-simple-firewall' ),
+			'explanations'      => [],
+			'config_action'     => $this->normalizeActionContract( [
+				'title' => __( 'Edit Settings', 'wp-simple-firewall' ),
+				'icon'  => self::con()->svgs->iconClass( 'gear' ),
+				'data'  => [
+					'zone_component_action' => ZoneComponentConfig::SLUG,
+					'zone_component_slug'   => \implode( ',', $moduleSlugs ),
+					'option_keys'           => \implode( ',', $leftoverOptionKeys ),
+				],
+			] ),
 		];
 	}
 
@@ -411,13 +410,37 @@ class ConfigureZoneTilesBuilder {
 			return [];
 		}
 
-		return \array_values( \array_filter(
-			\array_map(
-				fn( $slug ) :string => \trim( (string)$slug ),
-				$slugs
-			),
-			fn( string $slug ) :bool => $slug !== ''
-		) );
+		return \array_values( \array_filter( \array_map(
+			fn( $slug ) :string => \trim( (string)$slug ),
+			$slugs
+		) ) );
+	}
+
+	/**
+	 * @param array{
+	 *   key:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   zone_slug?:string,
+	 *   component_slug?:string,
+	 *   component_slugs?:list<string>,
+	 *   include_in_posture?:bool,
+	 *   force_neutral?:bool
+	 * } $definition
+	 * @return list<string>
+	 */
+	private function zoneActionComponentSlugs( array $definition ) :array {
+		if ( empty( $definition[ 'zone_slug' ] ) ) {
+			return [];
+		}
+
+		$action = $this->zonesCon()->getZone( $definition[ 'zone_slug' ] )->getAction_Config();
+		$componentSlug = (string)( $action[ 'data' ][ 'zone_component_slug' ] ?? '' );
+
+		return \array_values( \array_filter( \array_map(
+			static fn( string $slug ) :string => \trim( $slug ),
+			\explode( ',', $componentSlug )
+		) ) );
 	}
 
 	/**

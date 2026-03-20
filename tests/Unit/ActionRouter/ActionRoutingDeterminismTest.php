@@ -7,8 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueDrillDownDetail,
 	ActionsQueueDrillDownGroups,
-	ConfigureDrillDownDiagnosis,
-	ConfigureDrillDownEditor
+	ConfigureDrillDownDiagnosis
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ActionsMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -37,6 +36,5 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueDrillDownGroups::class, ActionsMap::ActionFromSlug( ActionsQueueDrillDownGroups::SLUG ) );
 		$this->assertSame( ActionsQueueDrillDownDetail::class, ActionsMap::ActionFromSlug( ActionsQueueDrillDownDetail::SLUG ) );
 		$this->assertSame( ConfigureDrillDownDiagnosis::class, ActionsMap::ActionFromSlug( ConfigureDrillDownDiagnosis::SLUG ) );
-		$this->assertSame( ConfigureDrillDownEditor::class, ActionsMap::ActionFromSlug( ConfigureDrillDownEditor::SLUG ) );
 	}
 }

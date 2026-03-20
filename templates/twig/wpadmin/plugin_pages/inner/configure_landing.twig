@@ -4,11 +4,9 @@
 	<div class="configure-landing"
 		 data-configure-landing="1"
 		 data-configure-diagnosis-loading="{{ strings.diagnosis_loading }}"
-		 data-configure-editor-loading="{{ strings.editor_loading }}"
 		 data-configure-layer-error="{{ strings.layer_load_error }}"
 		 data-configure-layer-retry="{{ strings.layer_retry }}"
-		 data-configure-diagnosis-action="{{ vars.configure_ajax.diagnosis_render_action_json }}"
-		 data-configure-editor-action="{{ vars.configure_ajax.editor_render_action_json }}">
+		 data-configure-diagnosis-action="{{ vars.configure_ajax.diagnosis_render_action_json }}">
 		<div class="configure-landing__drilldown"
 			 data-configure-section="drilldown">
 			{% include '/wpadmin/components/page/drill_down_shell.twig' with {

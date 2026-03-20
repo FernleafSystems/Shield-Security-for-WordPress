@@ -36,18 +36,12 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
 		] );
-		$editorAction = $this->buildAjaxRenderActionData( ConfigureDrillDownEditor::class, [
-			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
-			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
-		] );
 		return \array_merge(
 			parent::getLandingVars(),
 			[
 				'configure_ajax'          => [
 					'diagnosis_render_action'      => $diagnosisAction,
 					'diagnosis_render_action_json' => $this->encodeJson( $diagnosisAction ),
-					'editor_render_action'         => $editorAction,
-					'editor_render_action_json'    => $this->encodeJson( $editorAction ),
 				],
 			]
 		);
@@ -57,7 +51,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 		return [
 			'posture_title'       => __( 'Configuration Posture', 'wp-simple-firewall' ),
 			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
-			'editor_loading'      => __( 'Loading settings...', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
 			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),
 		];
@@ -110,22 +103,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 						'badge_status'       => 'neutral',
 						'color_key'          => 'neutral',
 					],
-			],
-			[
-				'key'    => 'editor',
-				'body'   => '',
-				'header' => [
-					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Settings', 'wp-simple-firewall' ) ),
-					'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Review findings', 'wp-simple-firewall' ) ),
-					'breadcrumb_label'   => __( 'Settings', 'wp-simple-firewall' ),
-					'title'              => __( 'Open settings', 'wp-simple-firewall' ),
-					'summary'            => __( 'Save your changes when you are done.', 'wp-simple-firewall' ),
-					'next_step'          => __( 'Review the form and save the settings update.', 'wp-simple-firewall' ),
-					'icon_class'         => 'bi bi-sliders',
-					'badge'              => __( 'Select', 'wp-simple-firewall' ),
-					'badge_status'       => 'neutral',
-					'color_key'          => 'neutral',
-				],
 			],
 		];
 	}

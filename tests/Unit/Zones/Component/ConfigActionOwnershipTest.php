@@ -19,10 +19,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	ScanScheduling,
 	TrustedCommenters
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\{
-	ModuleScans,
-	ModuleSpam
-};
 
 class ConfigActionOwnershipTest extends BaseUnitTest {
 
@@ -39,11 +35,11 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 
 	public function test_components_route_config_actions_to_real_owner_forms() :void {
 		$scanSchedulingAction = ( new ScanScheduling() )->getActions()[ 'config' ] ?? [];
-		$this->assertSame( ModuleScans::Slug(), $scanSchedulingAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame( ScanScheduling::Slug(), $scanSchedulingAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'scan_frequency', $scanSchedulingAction[ 'data' ][ 'config_item' ] ?? '' );
 
 		$trustedCommentersAction = ( new TrustedCommenters() )->getActions()[ 'config' ] ?? [];
-		$this->assertSame( ModuleSpam::Slug(), $trustedCommentersAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame( TrustedCommenters::Slug(), $trustedCommentersAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'trusted_commenter_minimum', $trustedCommentersAction[ 'data' ][ 'config_item' ] ?? '' );
 
 		$this->assertArrayNotHasKey( 'config', ( new DefaultAdminUser() )->getActions() );
@@ -57,12 +53,14 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 				'options' => [
 					'scan_frequency' => [
 						'zone_comp_slugs' => [
-							ModuleScans::Slug(),
+							ScanScheduling::Slug(),
+							'module_scans',
 						],
 					],
 					'trusted_commenter_minimum' => [
 						'zone_comp_slugs' => [
-							ModuleSpam::Slug(),
+							TrustedCommenters::Slug(),
+							'module_spam',
 						],
 					],
 				],

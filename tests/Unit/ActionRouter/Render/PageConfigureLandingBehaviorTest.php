@@ -22,7 +22,6 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ConfigureDrillDownDiagnosis,
-	ConfigureDrillDownEditor,
 	PageConfigureLanding
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -113,7 +112,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'configure_render_action', $vars );
 		$this->assertSame( 'configure_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( [ 'zones', 'diagnosis', 'editor' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'zones', 'diagnosis' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
 		$this->assertSame( 'ZONES_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
 		$this->assertSame( 'Back to Configure', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
@@ -132,16 +131,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ 'render_slug' ] ?? ''
 		);
 		$this->assertSame(
-			ConfigureDrillDownEditor::SLUG,
-			$vars[ 'configure_ajax' ][ 'editor_render_action' ][ 'render_slug' ] ?? ''
-		);
-		$this->assertSame(
 			PluginNavs::NAV_ZONES,
 			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ Constants::NAV_ID ] ?? ''
-		);
-		$this->assertSame(
-			PluginNavs::SUBNAV_ZONES_OVERVIEW,
-			$vars[ 'configure_ajax' ][ 'editor_render_action' ][ Constants::NAV_SUB_ID ] ?? ''
 		);
 	}
 
@@ -299,20 +290,6 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			'status_label'      => $statusLabel,
 			'status_icon_class' => 'bi bi-shield-check',
 			'stat_line'         => $statLine,
-			'settings_href'     => '/admin/'.$key,
-			'settings_label'    => 'Configure '.$label.' Settings',
-			'settings_action'   => [
-				'href'    => '/admin/'.$key,
-				'title'   => 'Configure '.$label,
-				'icon'    => 'bi bi-gear-fill',
-				'tooltip' => '',
-				'classes' => [ 'zone_component_action' ],
-				'data'    => [
-					'zone_component_action' => 'offcanvas_zone_component_config',
-					'zone_component_slug'   => $key.'_component',
-					'form_context'          => 'offcanvas',
-				],
-			],
 			'panel'             => [
 				'title'        => $label,
 				'status'       => $status,

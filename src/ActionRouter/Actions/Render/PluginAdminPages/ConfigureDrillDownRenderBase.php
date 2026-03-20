@@ -20,9 +20,6 @@ abstract class ConfigureDrillDownRenderBase extends BaseRender {
 		if ( isset( $payload[ 'render_data' ][ 'zone_selection' ] ) ) {
 			$payload[ 'zone_selection' ] = $payload[ 'render_data' ][ 'zone_selection' ];
 		}
-		if ( isset( $payload[ 'render_data' ][ 'editor_selection' ] ) ) {
-			$payload[ 'editor_selection' ] = $payload[ 'render_data' ][ 'editor_selection' ];
-		}
 		if ( isset( $payload[ 'render_data' ][ 'landing_refresh' ] ) ) {
 			$payload[ 'landing_refresh' ] = $payload[ 'render_data' ][ 'landing_refresh' ];
 		}

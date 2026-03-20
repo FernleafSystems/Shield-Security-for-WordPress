@@ -117,10 +117,5 @@
 	<div class="configure-diagnosis__next-move">
 		<div class="configure-diagnosis__section-title">{{ diagnosis.next_move_heading }}</div>
 		<p class="configure-diagnosis__next-move-copy">{{ diagnosis.next_move }}</p>
-		{% if diagnosis.settings_href is not empty %}
-			<a href="{{ diagnosis.settings_href }}" class="configure-diagnosis__settings-link">
-				{{ diagnosis.settings_label }} <i class="bi bi-arrow-right" aria-hidden="true"></i>
-			</a>
-		{% endif %}
 	</div>
 </div>

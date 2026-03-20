@@ -251,7 +251,6 @@ class Constants {
 		Actions\Render\PluginAdminPages\ActionsQueueDrillDownDetail::class,
 		Actions\Render\PluginAdminPages\PageConfigureLanding::class,
 		Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis::class,
-		Actions\Render\PluginAdminPages\ConfigureDrillDownEditor::class,
 		Actions\Render\PluginAdminPages\PageReportsLanding::class,
 		Actions\Render\PluginAdminPages\PageInvestigateLanding::class,
 		Actions\Render\PluginAdminPages\PageInvestigateByUser::class,
