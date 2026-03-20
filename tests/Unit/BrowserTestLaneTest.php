@@ -3,11 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteManager;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalDevSiteProbe;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalDevSiteRuntimeRefresher;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteProbe;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteRuntimeRefresher;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
 use PHPUnit\Framework\TestCase;
@@ -23,12 +24,14 @@ class BrowserTestLaneTest extends TestCase {
 
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteProcessRunner = new RecordingProcessRunner( [ 0 ] );
-		$siteManager = new LocalDevSiteManager(
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
+		$siteManager = new LocalSiteManager(
+			LocalSiteDefinitions::test(),
 			$siteProcessRunner,
 			new RecordingTestingEnvironmentResolver(),
-			new RecordingDockerComposeExecutor( [ 0 ] ),
-			new RecordingLocalDevSiteProbe( [ true ], [ true, true ], [ false ] ),
-			new RecordingLocalDevSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
+			$dockerComposeExecutor,
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
 		);
 
 		$lane = new BrowserTestLane( $playwrightRunner, $siteManager );
@@ -53,9 +56,12 @@ class BrowserTestLaneTest extends TestCase {
 			$playwrightRunner->calls[ 0 ][ 'command' ]
 		);
 		$this->assertSame(
-			LocalDevSiteManager::SITE_URL,
+			LocalSiteDefinitions::test()->siteUrl(),
 			$playwrightRunner->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_BASE_URL' ]
 		);
+		$this->assertCount( 2, $dockerComposeExecutor->calls );
+		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
 	}
 
 	private function seedRequiredFiles( string $rootDir ) :void {

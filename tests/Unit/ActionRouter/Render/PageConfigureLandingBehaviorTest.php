@@ -183,6 +183,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
 		);
 		$this->assertTrue( (bool)( $sections[ 1 ][ 'collapsible' ] ?? false ) );
+		$this->assertSame( '2 healthy zones and general controls', $sections[ 1 ][ 'disclosure_label' ] ?? '' );
 	}
 
 	public function test_landing_refresh_reuses_the_configure_root_step_contract() :void {

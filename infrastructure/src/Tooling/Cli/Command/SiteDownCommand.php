@@ -2,27 +2,33 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Cli\Command;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteManager;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DevSiteDownCommand extends Command {
+class SiteDownCommand extends Command {
 
-	protected static $defaultName = 'dev:site:down';
+	private string $descriptionText;
 
 	private string $projectRoot;
 
-	private LocalDevSiteManager $siteManager;
+	private LocalSiteManager $siteManager;
 
-	public function __construct( string $projectRoot, LocalDevSiteManager $siteManager ) {
-		parent::__construct();
+	public function __construct(
+		string $name,
+		string $descriptionText,
+		string $projectRoot,
+		LocalSiteManager $siteManager
+	) {
+		$this->descriptionText = $descriptionText;
 		$this->projectRoot = $projectRoot;
 		$this->siteManager = $siteManager;
+		parent::__construct( $name );
 	}
 
 	protected function configure() :void {
-		$this->setDescription( 'Stop the local Docker WordPress site while preserving its persistent state.' );
+		$this->setDescription( $this->descriptionText );
 	}
 
 	protected function execute( InputInterface $input, OutputInterface $output ) :int {

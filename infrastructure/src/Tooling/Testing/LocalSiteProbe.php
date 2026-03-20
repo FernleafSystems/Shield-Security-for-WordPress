@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
-class LocalDevSiteProbe {
+class LocalSiteProbe {
 
 	public function isHttpReady( string $url ) :bool {
 		$curl = \curl_init( $url );

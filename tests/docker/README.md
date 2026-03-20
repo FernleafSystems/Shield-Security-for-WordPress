@@ -91,6 +91,13 @@ Local sidecar mode (`test:integration-local`):
 3. Keeps the DB container running for repeat local runs.
 4. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
 
+Local site mode (`dev:site:*` / `test:site:*`):
+
+1. Both site families use `tests/docker/docker-compose.local-site.yml`.
+2. `dev:site:*` uses project `shield-local-site`, DB `shield_local_site`, and port `8888`.
+3. `test:site:*` uses project `shield-test-site`, DB `shield_test_site`, and port `8889`.
+4. `test:browser` hard-resets the `test:site` family on each run.
+
 ## Static Analysis Entrypoints
 
 Use the direct static-analysis runner when Docker routing is not required:

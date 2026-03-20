@@ -2,33 +2,44 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Cli\Command;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteManager;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DevSiteWpCommand extends Command {
+class SiteWpCommand extends Command {
 
-	protected static $defaultName = 'dev:site:wp';
+	private string $descriptionText;
 
 	private string $projectRoot;
 
-	private LocalDevSiteManager $siteManager;
+	private LocalSiteManager $siteManager;
 
-	public function __construct( string $projectRoot, LocalDevSiteManager $siteManager ) {
-		parent::__construct();
+	public function __construct(
+		string $name,
+		string $descriptionText,
+		string $projectRoot,
+		LocalSiteManager $siteManager
+	) {
+		$this->descriptionText = $descriptionText;
 		$this->projectRoot = $projectRoot;
 		$this->siteManager = $siteManager;
+		parent::__construct( $name );
 	}
 
 	protected function configure() :void {
+		$commandName = (string)$this->getName();
+
 		$this
-			->setDescription( 'Run a WP-CLI command against the local Shield dev site after ensuring it is ready.' )
+			->setDescription( $this->descriptionText )
 			->addArgument(
 				'wp_cli_args',
 				InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-				'WP-CLI args to pass through (direct: dev:site:wp plugin list; composer: -- dev:site:wp plugin list).'
+				sprintf(
+					'WP-CLI args to pass through (direct: %1$s plugin list; composer: -- %1$s plugin list).',
+					$commandName
+				)
 			);
 	}
 

@@ -19,7 +19,7 @@ Supporting docs:
 | Unit tests (force parallel) | `composer test:unit:parallel` | Forces ParaTest regardless of filter args |
 | Integration tests only | `composer test:integration` | Includes config generation |
 | Local integration DB sidecar | `composer test:integration:local` | Composer wrapper for `php bin/shield test:integration-local` |
-| Browser lane | `composer test:browser` | Playwright + axe against the local Docker WordPress dev site on port `8888` |
+| Browser lane | `composer test:browser` | Playwright + axe against the isolated local Docker WordPress test site on port `8889` |
 | Source runtime | `php bin/shield test:source` | Canonical source-first Docker runtime lane |
 | Package-targeted runtime | `php bin/shield test:package-targeted` | Canonical focused package validation lane |
 | Package-full runtime | `php bin/shield test:package-full` | Canonical full packaged Docker runtime lane |
@@ -83,25 +83,27 @@ php bin/shield test:integration-local --db-down
 
 ## Local Browser Lane
 
-Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions. The browser lane runs against the same local Docker WordPress site used for normal source-based manual plugin development, but serves Shield from a refreshed source runtime in the local plugin volume rather than a live host bind mount.
+Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions. The browser lane runs against a dedicated isolated local Docker WordPress test site, while `dev:site:*` continues to manage the persistent manual development site.
 
 ```bash
 npm run playwright:install
 php bin/shield dev:site:up
+php bin/shield test:site:up
 composer test:browser
 composer test:browser -- --grep "Select2 lookup flow"
 ```
 
 Operational notes:
 
-1. `php bin/shield dev:site:up` starts or reuses the local Docker WordPress site, refreshes the current source runtime into the local Shield plugin volume, and reports the local URL plus `admin/password`.
-2. `composer test:browser` reuses that same local site when it is already healthy and only starts it if needed.
-3. `php bin/shield dev:site:reset` destroys the local site state and reprovisions a fresh site; `php bin/shield dev:site:down` stops the site while preserving state.
-4. `php bin/shield dev:site:wp plugin list` runs WP-CLI against the local `wp-cli` container after ensuring the site is ready, so you do not need to remember the full Docker Compose invocation. The command appends `--allow-root` automatically when it is not already present.
-5. The local site fails fast if required source prerequisites are missing. At minimum, keep Composer dependencies, `plugin.json`, and built assets current before starting the site or running Playwright.
-6. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to `test:package-targeted` and `test:package-full`.
-7. Local browser work requires Docker plus a supported Node 20 binary for Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node.
-8. CI runs Chromium only. Headed debugging is still available by forwarding Playwright flags through the browser command, for example: `composer test:browser -- --headed`.
+1. `php bin/shield dev:site:up` starts or reuses the persistent local Docker WordPress dev site at `http://127.0.0.1:8888` for normal manual development.
+2. `php bin/shield test:site:up` starts or reuses the isolated local Docker WordPress test site at `http://127.0.0.1:8889`.
+3. `composer test:browser` hard-resets the isolated test site on every run before launching Playwright, so browser fixtures do not contaminate the persistent dev site or later runs.
+4. `php bin/shield dev:site:reset` and `php bin/shield test:site:reset` destroy and reprovision their respective sites; `dev:site:down` and `test:site:down` stop them while preserving state.
+5. `php bin/shield dev:site:wp plugin list` and `php bin/shield test:site:wp plugin list` run WP-CLI against the appropriate local `wp-cli` container after ensuring the site is ready. The command appends `--allow-root` automatically when it is not already present.
+6. Both local sites fail fast if required source prerequisites are missing. At minimum, keep Composer dependencies, `plugin.json`, and built assets current before starting either site or running Playwright.
+7. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to `test:package-targeted` and `test:package-full`.
+8. Local browser work requires Docker plus a supported Node 20 binary for Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node.
+9. CI runs Chromium only. Headed debugging is still available by forwarding Playwright flags through the browser command, for example: `composer test:browser -- --headed`.
 
 ### Optional Playground Tooling
 

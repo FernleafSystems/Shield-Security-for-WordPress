@@ -8,7 +8,7 @@ SITE_TITLE="${SHIELD_LOCAL_SITE_TITLE:-Shield Local Site}"
 ADMIN_USER="${SHIELD_LOCAL_SITE_ADMIN_USER:-admin}"
 ADMIN_PASSWORD="${SHIELD_LOCAL_SITE_ADMIN_PASSWORD:-password}"
 ADMIN_EMAIL="${SHIELD_LOCAL_SITE_ADMIN_EMAIL:-devnull@example.com}"
-SHIELD_BROWSER_TEST="${SHIELD_BROWSER_TEST_INTRO:-0}"
+SITE_PROFILE="${SHIELD_LOCAL_SITE_PROFILE:-dev}"
 PLUGIN_SLUG="wp-simple-firewall"
 PLUGIN_MAIN="wp-simple-firewall/icwp-wpsf.php"
 
@@ -47,7 +47,7 @@ fi
 
 wp plugin activate "${PLUGIN_SLUG}" --allow-root
 
-if [ "${SHIELD_BROWSER_TEST}" = "1" ]; then
+if [ "${SITE_PROFILE}" = "test" ]; then
 	wp eval '
 		$optionName = "icwp_wpsf_opts_all";
 		$all = get_option( $optionName, [] );

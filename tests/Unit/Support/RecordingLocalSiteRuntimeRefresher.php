@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteRuntimeRefresher;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteRuntimeRefresher;
 
-class RecordingLocalDevSiteRuntimeRefresher extends LocalDevSiteRuntimeRefresher {
+class RecordingLocalSiteRuntimeRefresher extends LocalSiteRuntimeRefresher {
 
 	/** @var array<int,array{root_dir:string,compose_files:array,service_name:string,env_overrides:array}> */
 	public array $resolveCalls = [];

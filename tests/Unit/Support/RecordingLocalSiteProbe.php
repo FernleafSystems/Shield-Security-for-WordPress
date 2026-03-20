@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteProbe;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteProbe;
 
-class RecordingLocalDevSiteProbe extends LocalDevSiteProbe {
+class RecordingLocalSiteProbe extends LocalSiteProbe {
 
 	/** @var bool[] */
 	private array $httpReadyResponses;

@@ -2,17 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteManager;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalDevSiteProbe;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalDevSiteRuntimeRefresher;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteProbe;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteRuntimeRefresher;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
 
-class LocalDevSiteManagerTest extends TestCase {
+class LocalSiteManagerTest extends TestCase {
 
 	use TempDirLifecycleTrait;
 
@@ -32,10 +33,11 @@ class LocalDevSiteManagerTest extends TestCase {
 	public function testEnsureReadyStartsAndProvisionsWhenSiteIsNotRunning() :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
-		$probe = new RecordingLocalDevSiteProbe( [ true ], [ true, true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -64,10 +66,11 @@ class LocalDevSiteManagerTest extends TestCase {
 	public function testEnsureReadyUsesBrowserIntroFlagWhenRequested() :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
-		$probe = new RecordingLocalDevSiteProbe( [ true ], [ true, true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::test(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -75,18 +78,20 @@ class LocalDevSiteManagerTest extends TestCase {
 			$runtimeRefresher
 		);
 
-		$manager->ensureReady( $this->projectRoot, true, true );
+		$manager->ensureReady( $this->projectRoot, true );
 
-		$this->assertContains( 'SHIELD_BROWSER_TEST_INTRO=1', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_PROFILE=test', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_TITLE=Shield Local Test Site', $processRunner->calls[ 0 ][ 'command' ] );
 	}
 
 	public function testEnsureReadyReusesHealthySiteAndOnlyRunsProvisioning() :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
-		$probe = new RecordingLocalDevSiteProbe( [ true, true ], [ true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -104,10 +109,11 @@ class LocalDevSiteManagerTest extends TestCase {
 	public function testWpEnsuresReadyThenRunsWpCliPassthrough() :void {
 		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
-		$probe = new RecordingLocalDevSiteProbe( [ true, true ], [ true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -140,14 +146,15 @@ class LocalDevSiteManagerTest extends TestCase {
 	}
 
 	public function testEnsureReadyFailsFastWhenReusedSiteIsUnhealthyBeforeRefresh() :void {
-		$this->expectExceptionMessage( 'Shield local site is already running but unhealthy before browser runtime refresh.' );
+		$this->expectExceptionMessage( 'Local dev site is already running but unhealthy before browser runtime refresh.' );
 
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
-		$probe = new RecordingLocalDevSiteProbe( [ false ], [ true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ false ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -166,14 +173,15 @@ class LocalDevSiteManagerTest extends TestCase {
 	}
 
 	public function testEnsureReadyFailsFastWhenSiteIsUnhealthyAfterRefresh() :void {
-		$this->expectExceptionMessage( 'Shield local site is unhealthy after browser runtime refresh.' );
+		$this->expectExceptionMessage( 'Local dev site is unhealthy after browser runtime refresh.' );
 
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
-		$probe = new RecordingLocalDevSiteProbe( [ true ], [ false ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ true ], [ false ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -193,12 +201,13 @@ class LocalDevSiteManagerTest extends TestCase {
 	public function testEnsureReadyFailsFastOnPortConflict() :void {
 		$this->expectExceptionMessage( 'Port 8888 is already in use' );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			new RecordingProcessRunner(),
 			new RecordingTestingEnvironmentResolver(),
 			new RecordingDockerComposeExecutor(),
-			new RecordingLocalDevSiteProbe( [ false ], [ true ], [ true ] ),
-			new RecordingLocalDevSiteRuntimeRefresher( [ '' ] )
+			new RecordingLocalSiteProbe( [ false ], [ true ], [ true ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '' ] )
 		);
 
 		$manager->ensureReady( $this->projectRoot, false );
@@ -213,26 +222,28 @@ class LocalDevSiteManagerTest extends TestCase {
 		\file_put_contents( Path::join( $this->projectRoot, 'plugin.json' ), '{}' );
 		\file_put_contents( Path::join( $this->projectRoot, 'icwp-wpsf.php' ), '<?php' );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			new RecordingProcessRunner(),
 			new RecordingTestingEnvironmentResolver(),
 			new RecordingDockerComposeExecutor(),
-			new RecordingLocalDevSiteProbe(),
-			new RecordingLocalDevSiteRuntimeRefresher( [ '' ] )
+			new RecordingLocalSiteProbe(),
+			new RecordingLocalSiteRuntimeRefresher( [ '' ] )
 		);
 
 		$manager->ensureReady( $this->projectRoot, false );
 	}
 
 	public function testEnsureReadyFailsFastWhenSiteIsUnhealthyAfterProvisioning() :void {
-		$this->expectExceptionMessage( 'Shield local site is unhealthy after provisioning.' );
+		$this->expectExceptionMessage( 'Local dev site is unhealthy after provisioning.' );
 
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
-		$probe = new RecordingLocalDevSiteProbe( [ true, false ], [ true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ true, false ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -252,10 +263,11 @@ class LocalDevSiteManagerTest extends TestCase {
 	public function testResetDestroysStateAndReprovisions() :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
-		$probe = new RecordingLocalDevSiteProbe( [ true ], [ true, true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalDevSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
+		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
 
-		$manager = new LocalDevSiteManager(
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
 			$processRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -269,6 +281,28 @@ class LocalDevSiteManagerTest extends TestCase {
 		$this->assertCount( 2, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
+	}
+
+	public function testTestSiteUsesDistinctProjectNamePortAndDbName() :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::test(),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$manager->ensureReady( $this->projectRoot, false );
+
+		$this->assertSame( 'shield-test-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
+		$this->assertSame( '8889', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_PORT' ] );
+		$this->assertSame( 'shield_test_site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_NAME' ] );
 	}
 
 	private function seedRequiredFiles( string $rootDir ) :void {

@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
  * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
  * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
+ * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  * @phpstan-import-type MaintenanceExpansionRow from MaintenanceQueueItemDisplayNormalizer
@@ -30,14 +31,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   is_ignored:bool,
  *   ignored_label:string,
  *   secondary_actions:list<MaintenanceUiAction>
- * }
- * @phpstan-type SummaryRow array{
- *   icon_class:string,
- *   title:string,
- *   summary:string,
- *   badge_label:string,
- *   is_ignored:bool,
- *   actions:list<MaintenanceUiAction>
  * }
  * @phpstan-type GroupLink array{
  *   label:string,
@@ -70,7 +63,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactMaintenanceRow>,
- *   summary_row:array{}|SummaryRow,
+ *   summary_row:array{}|CompactSummaryRow,
  *   header:DrillLayerHeaderInput,
  *   selection_json:string,
  *   selection:GroupSelection
@@ -109,7 +102,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
  *   maintenance_rows:list<CompactMaintenanceRow>,
- *   summary_row:array{}|SummaryRow
+ *   summary_row:array{}|CompactSummaryRow
  * }
  * @phpstan-type ComputedGroups array{
  *   layer:GroupsLayerData,
@@ -141,6 +134,7 @@ class ActionsQueueGroupsBuilder {
 	private ?array $ignoredThemesPane = null;
 	private ?array $vulnerabilitiesPayload = null;
 	private ?int $ignoredWordpressCount = null;
+	private ?ActionsQueueCompactSummaryRowBuilder $summaryRowBuilder = null;
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -236,6 +230,32 @@ class ActionsQueueGroupsBuilder {
 		array $bucketSource,
 		array $assessmentRowsByZone
 	) :array {
+		$resolvedSeeds = $this->collectBucketSeeds( $bucketSource );
+		$resolvedSeeds = \array_merge(
+			$resolvedSeeds,
+			$this->buildHealthyBucketSeeds(
+				$bucketKey,
+				$bucketSource,
+				$assessmentRowsByZone,
+				\array_fill_keys( \array_column( $resolvedSeeds, 'key' ), true )
+			)
+		);
+
+		$this->sortSeeds( $resolvedSeeds );
+		$partitionedGroups = $this->partitionResolvedGroups( $bucketLabel, $resolvedSeeds );
+
+		return [
+			'groups_indexed'   => $partitionedGroups[ 'groups_indexed' ],
+			'active_sections'  => $this->buildSectionsFromEntries( $partitionedGroups[ 'active_entries' ] ),
+			'healthy_sections' => $this->buildSectionsFromEntries( $partitionedGroups[ 'healthy_entries' ] ),
+		];
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 * @return list<GroupSeed>
+	 */
+	private function collectBucketSeeds( array $bucketSource ) :array {
 		$seeds = [];
 		$vulnerabilitiesPayload = null;
 		$maintenanceItemsByKey = null;
@@ -297,48 +317,51 @@ class ActionsQueueGroupsBuilder {
 					continue 2;
 			}
 
-			$seedKey = $definitionKey;
-			if ( !isset( $seeds[ $seedKey ] ) ) {
-				$definition = $this->getGroupDefinition( $definitionKey );
-				$seeds[ $seedKey ] = [
-					'key'              => $definitionKey,
-					'is_healthy'       => false,
-					'definition_key'   => $definitionKey,
-					'heading_label'    => $definition[ 'label' ],
-					'label'            => $definition[ 'label' ],
-					'item_count'       => 0,
-					'status'           => 'good',
-					'narrative'        => '',
-					'detail_shell'     => $definition[ 'detail_shell' ],
-					'links'            => [],
-					'management_link'  => [],
-					'detail_table'     => [],
-					'attention_items'  => [],
-					'maintenance_rows' => [],
-					'summary_row'      => [],
-				];
-			}
-
-			$seeds[ $seedKey ][ 'item_count' ] += $item[ 'count' ];
-			$seeds[ $seedKey ][ 'status' ] = StatusPriority::highest( [
-				$seeds[ $seedKey ][ 'status' ],
-				$item[ 'severity' ],
-			], 'good' );
-			$seeds[ $seedKey ][ 'attention_items' ][] = $item;
+			$this->mergeAttentionSeed( $seeds, $definitionKey, $item );
 		}
 
-		$resolvedSeeds = \array_values( \array_filter( $seeds, static fn( array $seed ) :bool => $seed[ 'label' ] !== '' ) );
+		return \array_values( \array_filter( $seeds, static fn( array $seed ) :bool => $seed[ 'label' ] !== '' ) );
+	}
 
-		$resolvedSeeds = \array_merge(
-			$resolvedSeeds,
-			$this->buildHealthyBucketSeeds(
-				$bucketKey,
-				$bucketSource,
-				$assessmentRowsByZone,
-				\array_fill_keys( \array_column( $resolvedSeeds, 'key' ), true )
-			)
-		);
+	/**
+	 * @param array<int|string,GroupSeed> $seeds
+	 * @param AttentionItem $item
+	 */
+	private function mergeAttentionSeed( array &$seeds, string $definitionKey, array $item ) :void {
+		$seedKey = $definitionKey;
+		if ( !isset( $seeds[ $seedKey ] ) ) {
+			$definition = $this->getGroupDefinition( $definitionKey );
+			$seeds[ $seedKey ] = [
+				'key'              => $definitionKey,
+				'is_healthy'       => false,
+				'definition_key'   => $definitionKey,
+				'heading_label'    => $definition[ 'label' ],
+				'label'            => $definition[ 'label' ],
+				'item_count'       => 0,
+				'status'           => 'good',
+				'narrative'        => '',
+				'detail_shell'     => $definition[ 'detail_shell' ],
+				'links'            => [],
+				'management_link'  => [],
+				'detail_table'     => [],
+				'attention_items'  => [],
+				'maintenance_rows' => [],
+				'summary_row'      => [],
+			];
+		}
 
+		$seeds[ $seedKey ][ 'item_count' ] += $item[ 'count' ];
+		$seeds[ $seedKey ][ 'status' ] = StatusPriority::highest( [
+			$seeds[ $seedKey ][ 'status' ],
+			$item[ 'severity' ],
+		], 'good' );
+		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
+	}
+
+	/**
+	 * @param list<GroupSeed> $resolvedSeeds
+	 */
+	private function sortSeeds( array &$resolvedSeeds ) :void {
 		\usort( $resolvedSeeds, function ( array $left, array $right ) :int {
 			$sectionCmp = $this->sectionOrderForSeed( $left ) <=> $this->sectionOrderForSeed( $right );
 			if ( $sectionCmp !== 0 ) {
@@ -367,31 +390,40 @@ class ActionsQueueGroupsBuilder {
 
 			return \strcmp( $left[ 'label' ], $right[ 'label' ] );
 		} );
+	}
 
+	/**
+	 * @param list<GroupSeed> $resolvedSeeds
+	 * @return array{
+	 *   groups_indexed:array<string,GroupData>,
+	 *   active_entries:list<array{heading_label:string,group:GroupData}>,
+	 *   healthy_entries:list<array{heading_label:string,group:GroupData}>
+	 * }
+	 */
+	private function partitionResolvedGroups( string $bucketLabel, array $resolvedSeeds ) :array {
 		$indexed = [];
 		$activeEntries = [];
 		$healthyEntries = [];
+
 		foreach ( $resolvedSeeds as $seed ) {
 			$group = $this->resolveSeed( $bucketLabel, $seed );
 			$indexed[ $group[ 'key' ] ] = $group;
+			$entry = [
+				'heading_label' => $seed[ 'heading_label' ],
+				'group'         => $group,
+			];
 			if ( $seed[ 'is_healthy' ] ) {
-				$healthyEntries[] = [
-					'heading_label' => $seed[ 'heading_label' ],
-					'group'         => $group,
-				];
+				$healthyEntries[] = $entry;
 			}
 			else {
-				$activeEntries[] = [
-					'heading_label' => $seed[ 'heading_label' ],
-					'group'         => $group,
-				];
+				$activeEntries[] = $entry;
 			}
 		}
 
 		return [
-			'groups_indexed'  => $indexed,
-			'active_sections' => $this->buildSectionsFromEntries( $activeEntries ),
-			'healthy_sections' => $this->buildSectionsFromEntries( $healthyEntries ),
+			'groups_indexed' => $indexed,
+			'active_entries' => $activeEntries,
+			'healthy_entries' => $healthyEntries,
 		];
 	}
 
@@ -1035,7 +1067,7 @@ class ActionsQueueGroupsBuilder {
 
 	/**
 	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
-	 * @return array{}|SummaryRow
+	 * @return array{}|CompactSummaryRow
 	 */
 	private function buildMaintenanceSummaryRow( array $maintenanceItem ) :array {
 		$toggleAction = \is_array( $maintenanceItem[ 'toggle_action' ] ?? null ) ? $maintenanceItem[ 'toggle_action' ] : [];
@@ -1044,14 +1076,14 @@ class ActionsQueueGroupsBuilder {
 		}
 
 		$isIgnored = ( $toggleAction[ 'kind' ] ?? '' ) === 'unignore';
-		return [
-			'icon_class'  => (string)( $maintenanceItem[ 'icon_class' ] ?? '' ),
-			'title'       => '',
-			'summary'     => (string)( $maintenanceItem[ 'description' ] ?? '' ),
-			'badge_label' => $isIgnored ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
-			'is_ignored'  => $isIgnored,
-			'actions'     => empty( $toggleAction ) ? [] : [ $toggleAction ],
-		];
+		return $this->summaryRowBuilder()->build(
+			(string)( $maintenanceItem[ 'icon_class' ] ?? '' ),
+			'',
+			(string)( $maintenanceItem[ 'description' ] ?? '' ),
+			$isIgnored ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
+			$isIgnored,
+			empty( $toggleAction ) ? [] : [ $toggleAction ]
+		);
 	}
 
 	/**
@@ -1157,5 +1189,13 @@ class ActionsQueueGroupsBuilder {
 
 	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
 		return new ActionsQueueScanResultsOptions();
+	}
+
+	private function summaryRowBuilder() :ActionsQueueCompactSummaryRowBuilder {
+		if ( $this->summaryRowBuilder === null ) {
+			$this->summaryRowBuilder = new ActionsQueueCompactSummaryRowBuilder();
+		}
+
+		return $this->summaryRowBuilder;
 	}
 }

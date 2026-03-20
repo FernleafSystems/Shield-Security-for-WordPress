@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
@@ -30,19 +31,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   selection_json:string,
  *   selection:BucketSelection
  * }
- * @phpstan-type HealthyDisclosureRow array{
- *   icon_class:string,
- *   title:string,
- *   summary:string,
- *   badge_label:string,
- *   is_ignored:bool,
- *   actions:list<array<string,mixed>>
- * }
  */
 class ActionsQueueBucketsBuilder {
 
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
 	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
+	private ?ActionsQueueCompactSummaryRowBuilder $summaryRowBuilder = null;
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -90,7 +84,7 @@ class ActionsQueueBucketsBuilder {
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
 	 * @return array{
 	 *   label:string,
-	 *   rows:list<HealthyDisclosureRow>
+	 *   rows:list<CompactSummaryRow>
 	 * }
 	 */
 	public function buildHealthyDisclosure( array $assessmentRowsByZone ) :array {
@@ -120,17 +114,14 @@ class ActionsQueueBucketsBuilder {
 	 *   label:string,
 	 *   description:string
 	 * } $row
-	 * @return HealthyDisclosureRow
+	 * @return CompactSummaryRow
 	 */
 	private function buildHealthyDisclosureRow( array $row ) :array {
-		return [
-			'icon_class'  => $row[ 'status_icon_class' ],
-			'title'       => $row[ 'label' ],
-			'summary'     => $row[ 'description' ],
-			'badge_label' => '',
-			'is_ignored'  => false,
-			'actions'     => [],
-		];
+		return $this->summaryRowBuilder()->build(
+			(string)$row[ 'status_icon_class' ],
+			(string)$row[ 'label' ],
+			(string)$row[ 'description' ]
+		);
 	}
 
 	/**
@@ -380,5 +371,13 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return $this->presentation;
+	}
+
+	private function summaryRowBuilder() :ActionsQueueCompactSummaryRowBuilder {
+		if ( $this->summaryRowBuilder === null ) {
+			$this->summaryRowBuilder = new ActionsQueueCompactSummaryRowBuilder();
+		}
+
+		return $this->summaryRowBuilder;
 	}
 }

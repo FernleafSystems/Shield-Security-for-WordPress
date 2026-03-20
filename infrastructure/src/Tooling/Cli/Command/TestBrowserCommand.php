@@ -24,7 +24,7 @@ class TestBrowserCommand extends Command {
 
 	protected function configure() :void {
 		$this
-			->setDescription( 'Run Playwright against the local Docker WordPress site for Shield source development.' )
+			->setDescription( 'Run Playwright against the isolated local Docker WordPress test site for Shield source development.' )
 			->addArgument(
 				'playwright_args',
 				InputArgument::IS_ARRAY,

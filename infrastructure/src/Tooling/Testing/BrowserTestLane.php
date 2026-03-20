@@ -8,11 +8,11 @@ class BrowserTestLane {
 
 	private ProcessRunner $processRunner;
 
-	private LocalDevSiteManager $siteManager;
+	private LocalSiteManager $siteManager;
 
-	public function __construct( ?ProcessRunner $processRunner = null, ?LocalDevSiteManager $siteManager = null ) {
+	public function __construct( ?ProcessRunner $processRunner = null, ?LocalSiteManager $siteManager = null ) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
-		$this->siteManager = $siteManager ?? new LocalDevSiteManager();
+		$this->siteManager = $siteManager ?? new LocalSiteManager( LocalSiteDefinitions::test() );
 	}
 
 	/**
@@ -21,10 +21,12 @@ class BrowserTestLane {
 	public function run( string $rootDir, array $playwrightArgs = [] ) :int {
 		echo 'Mode: browser'.\PHP_EOL;
 
-		$this->siteManager->ensureReady( $rootDir, true, true );
+		if ( $this->siteManager->reset( $rootDir ) !== 0 ) {
+			return 1;
+		}
 
 		$envOverrides = [
-			'SHIELD_BROWSER_BASE_URL' => LocalDevSiteManager::SITE_URL,
+			'SHIELD_BROWSER_BASE_URL' => $this->siteManager->definition()->siteUrl(),
 		];
 
 		return $this->processRunner->runForExitCode(

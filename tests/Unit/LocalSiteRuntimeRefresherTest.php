@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteRuntimeRefresher;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteRuntimeRefresher;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptedProcessRunner;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
 
-class LocalDevSiteRuntimeRefresherTest extends TestCase {
+class LocalSiteRuntimeRefresherTest extends TestCase {
 
 	use TempDirLifecycleTrait;
 
@@ -47,7 +47,7 @@ class LocalDevSiteRuntimeRefresherTest extends TestCase {
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 		] );
-		$refresher = new LocalDevSiteRuntimeRefresher( $runner );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
 
 		\ob_start();
 		try {
@@ -91,7 +91,7 @@ class LocalDevSiteRuntimeRefresherTest extends TestCase {
 				'stdout' => \json_encode( $manifest, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ) ?: '',
 			],
 		] );
-		$refresher = new LocalDevSiteRuntimeRefresher( $runner );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
 
 		\ob_start();
 		try {
@@ -120,7 +120,7 @@ class LocalDevSiteRuntimeRefresherTest extends TestCase {
 				], \JSON_UNESCAPED_SLASHES ) ?: '',
 			],
 		] );
-		$refresher = new LocalDevSiteRuntimeRefresher( $runner );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
 
 		$this->expectExceptionMessage( 'Local browser plugin runtime is inconsistent' );
 		\ob_start();
@@ -166,7 +166,7 @@ class LocalDevSiteRuntimeRefresherTest extends TestCase {
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 		] );
-		$refresher = new LocalDevSiteRuntimeRefresher( $runner );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
 
 		\ob_start();
 		try {
@@ -216,7 +216,7 @@ class LocalDevSiteRuntimeRefresherTest extends TestCase {
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 1, 'stderr' => 'failed to remove file: /var/www/html/wp-content/plugins/wp-simple-firewall/flags/obsolete.flag' ],
 		] );
-		$refresher = new LocalDevSiteRuntimeRefresher( $runner );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
 
 		$this->expectExceptionMessage( 'Local browser runtime refresh phase delete failed' );
 		\ob_start();

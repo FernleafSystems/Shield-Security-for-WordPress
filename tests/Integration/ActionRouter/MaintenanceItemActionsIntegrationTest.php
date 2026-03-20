@@ -149,7 +149,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
 			'bucket' => 'review',
 		] );
-		$selectedGroupKey = (string)( $this->flattenGroupsPayload( $initialPayload )[ 0 ][ 'key' ] ?? '' );
+		$selectedGroupKey = (string)( $this->sectionGroupKeys( $initialPayload[ 'active_sections' ] ?? [] )[ 0 ] ?? '' );
 		$this->assertSame( 'wp_plugins_updates', $selectedGroupKey );
 
 		foreach ( $pluginFiles as $pluginFile ) {
@@ -180,7 +180,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertContains(
 			$selectedGroupKey,
-			\array_column( $this->flattenGroupsPayload( $payload ), 'key' )
+			$this->sectionGroupKeys( \is_array( $payload[ 'healthy_sections' ] ?? null ) ? $payload[ 'healthy_sections' ] : [] )
 		);
 	}
 
@@ -232,23 +232,17 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
-	 * @return list<array<string,mixed>>
+	 * @return list<string>
 	 */
-	private function flattenGroupsSections( array $sections ) :array {
-		return \array_values( \array_merge( [], ...\array_map(
-			static fn( array $section ) :array => \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [],
-			$sections
-		) ) );
-	}
+	private function sectionGroupKeys( array $sections ) :array {
+		$keys = [];
+		foreach ( $sections as $section ) {
+			foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
+				$keys[] = (string)( $group[ 'key' ] ?? '' );
+			}
+		}
 
-	/**
-	 * @return list<array<string,mixed>>
-	 */
-	private function flattenGroupsPayload( array $payload ) :array {
-		return \array_merge(
-			$this->flattenGroupsSections( \is_array( $payload[ 'active_sections' ] ?? null ) ? $payload[ 'active_sections' ] : [] ),
-			$this->flattenGroupsSections( \is_array( $payload[ 'healthy_sections' ] ?? null ) ? $payload[ 'healthy_sections' ] : [] )
-		);
+		return $keys;
 	}
 
 	/**

@@ -1,47 +1,55 @@
 const { test, expect } = require( '@playwright/test' );
-const { openShieldRoute } = require( './support/shield-browser' );
+const {
+	cleanupActionsQueueDetailFixture,
+	openShieldRoute,
+	seedActionsQueueDetailFixture,
+} = require( './support/shield-browser' );
 
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
-	await openShieldRoute( page, {
-		nav: 'scans',
-		nav_sub: 'overview',
-	} );
+	seedActionsQueueDetailFixture();
 
-	const preferredBucket = page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]:not(:disabled)' )
-		.filter( { hasText: /Review next/i } )
-		.first();
-	const bucket = await preferredBucket.count() > 0
-		? preferredBucket
-		: page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]:not(:disabled)' ).first();
-	await expect( bucket ).toBeVisible();
+	try {
+		await openShieldRoute( page, {
+			nav: 'scans',
+			nav_sub: 'overview',
+		} );
 
-	const healthyToggle = page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-toggle="1"]' ).first();
-	const healthyBody = page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-body="1"]' ).first();
-	if ( await healthyToggle.count() > 0 ) {
-		await expect( healthyToggle ).toBeVisible();
-		await expect( healthyBody ).not.toHaveClass( /is-open/ );
+		const bucket = page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]:not(:disabled)' )
+			.filter( { hasText: /Fix now/i } )
+			.first();
+		await expect( bucket ).toBeVisible();
 
-		await healthyToggle.click();
-		await expect( healthyToggle ).toHaveClass( /is-open/ );
-		await expect( healthyBody ).toHaveClass( /is-open/ );
+		const healthyToggle = page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-toggle="1"]' ).first();
+		const healthyBody = page.locator( '[data-actions-landing="1"] [data-healthy-disclosure-body="1"]' ).first();
+		if ( await healthyToggle.count() > 0 ) {
+			await expect( healthyToggle ).toBeVisible();
+			await expect( healthyBody ).not.toHaveClass( /is-open/ );
+			await expect( healthyToggle ).toHaveAttribute( 'aria-expanded', 'false' );
+			await expect( healthyBody ).toHaveAttribute( 'aria-hidden', 'true' );
 
-		await healthyToggle.click();
-		await expect( healthyToggle ).not.toHaveClass( /is-open/ );
-		await expect( healthyBody ).not.toHaveClass( /is-open/ );
-	}
+			await healthyToggle.click();
+			await expect( healthyToggle ).toHaveClass( /is-open/ );
+			await expect( healthyBody ).toHaveClass( /is-open/ );
+			await expect( healthyToggle ).toHaveAttribute( 'aria-expanded', 'true' );
+			await expect( healthyBody ).toHaveAttribute( 'aria-hidden', 'false' );
 
-	await bucket.click();
-	await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
-	const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
-	await expect( actionTabs ).toHaveCount( 3 );
-	await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
-	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Actions Queue/i );
-	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).not.toHaveText( '' );
+			await healthyToggle.click();
+			await expect( healthyToggle ).not.toHaveClass( /is-open/ );
+			await expect( healthyBody ).not.toHaveClass( /is-open/ );
+			await expect( healthyToggle ).toHaveAttribute( 'aria-expanded', 'false' );
+			await expect( healthyBody ).toHaveAttribute( 'aria-hidden', 'true' );
+		}
 
-	const detailButtons = page.locator( '[data-actions-landing="1"] [data-drill-target="detail"]' );
-	if ( await detailButtons.count() > 0 ) {
-		const group = detailButtons.first();
+		await bucket.click();
+		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
+		await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
+		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
+		await expect( actionTabs ).toHaveCount( 3 );
+		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
+		await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Actions Queue/i );
+		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).not.toHaveText( '' );
+
+		const group = page.locator( '[data-actions-landing="1"] [data-drill-target="detail"]' ).first();
 		await expect( group ).toBeVisible();
 
 		await group.click();
@@ -51,11 +59,14 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
 		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 		await expect( page.locator( '[data-drill-layer="2"]' ) ).toHaveClass( /drill-layer--hidden/ );
-	}
 
-	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
-	await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
-});
+		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
+	}
+	finally {
+		cleanupActionsQueueDetailFixture();
+	}
+} );
 
 test( 'configure toggles healthy zones, drills into diagnosis, and drills back out', async ( { page } ) => {
 	await openShieldRoute( page, {
@@ -64,11 +75,14 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	} );
 
 	const healthyToggle = page.locator( '[data-healthy-disclosure-toggle="1"]' ).first();
+	const healthyBody = page.locator( '[data-healthy-disclosure-body="1"]' ).first();
 	const healthyZone = page.locator( '[data-healthy-disclosure-body="1"] [data-drill-target="diagnosis"]' ).first();
 	await expect( healthyToggle ).toBeVisible();
-	if ( !( await healthyZone.isVisible() ) ) {
-		await healthyToggle.click();
-	}
+	await expect( healthyToggle ).toHaveAttribute( 'aria-expanded', 'false' );
+	await expect( healthyBody ).toHaveAttribute( 'aria-hidden', 'true' );
+	await healthyToggle.click();
+	await expect( healthyToggle ).toHaveAttribute( 'aria-expanded', 'true' );
+	await expect( healthyBody ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( healthyZone ).toBeVisible();
 
 	const zone = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' )
@@ -96,19 +110,25 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	if ( await diagnosisHealthyToggle.count() > 0 ) {
 		await expect( diagnosisHealthyToggle ).toBeVisible();
 		await expect( diagnosisHealthyBody ).not.toHaveClass( /is-open/ );
+		await expect( diagnosisHealthyToggle ).toHaveAttribute( 'aria-expanded', 'false' );
+		await expect( diagnosisHealthyBody ).toHaveAttribute( 'aria-hidden', 'true' );
 		const diagnosisHealthyRows = diagnosisHealthyBody.locator( '.shield-detail-row' );
 		expect( await diagnosisHealthyRows.count() ).toBeGreaterThan( 0 );
 
 		await diagnosisHealthyToggle.click();
 		await expect( diagnosisHealthyToggle ).toHaveClass( /is-open/ );
 		await expect( diagnosisHealthyBody ).toHaveClass( /is-open/ );
+		await expect( diagnosisHealthyToggle ).toHaveAttribute( 'aria-expanded', 'true' );
+		await expect( diagnosisHealthyBody ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect( diagnosisHealthyRows.first() ).toBeVisible();
 
 		await diagnosisHealthyToggle.click();
 		await expect( diagnosisHealthyToggle ).not.toHaveClass( /is-open/ );
 		await expect( diagnosisHealthyBody ).not.toHaveClass( /is-open/ );
+		await expect( diagnosisHealthyToggle ).toHaveAttribute( 'aria-expanded', 'false' );
+		await expect( diagnosisHealthyBody ).toHaveAttribute( 'aria-hidden', 'true' );
 	}
 
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
-});
+} );

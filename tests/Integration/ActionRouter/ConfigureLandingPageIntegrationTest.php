@@ -63,6 +63,16 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-drill-layer-key="zones" and string-length(@data-drill-layer-header) > 0]',
 			'Configure landing should render producer-owned layer header JSON for the zones layer'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-healthy-disclosure-toggle="1" and @aria-expanded="false"]',
+			'Configure landing should render the shared healthy disclosure toggle with the closed accessibility state'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-healthy-disclosure-body="1" and @aria-hidden="true"]',
+			'Configure landing should render the shared healthy disclosure body with the closed accessibility state'
+		);
 	}
 
 	public function test_valid_deep_link_starts_on_diagnosis_and_invalid_key_falls_back() :void {

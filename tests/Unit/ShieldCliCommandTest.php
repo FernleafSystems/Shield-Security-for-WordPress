@@ -29,6 +29,11 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'dev:site:wp',
 				'dev:site:reset',
 				'dev:site:status',
+				'test:site:up',
+				'test:site:down',
+				'test:site:wp',
+				'test:site:reset',
+				'test:site:status',
 				'test:browser',
 				'test:source',
 				'test:integration-local',
@@ -107,6 +112,17 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'plugin list', $output );
 	}
 
+	public function testTestSiteWpHelpIncludesWpCliForwardingHint() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/shield', [ 'test:site:wp', '--help' ] );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+
+		$output = $this->processOutput( $process );
+		$this->assertStringContainsString( 'test:site:wp', $output );
+		$this->assertStringContainsString( 'plugin list', $output );
+	}
+
 	public function testAnalyzeSourceHelpIncludesRefreshSetupOption() :void {
 		$this->skipIfPackageScriptUnavailable();
 
@@ -128,6 +144,11 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'dev-site-wp' => [ 'dev:site:wp' ],
 			'dev-site-reset' => [ 'dev:site:reset' ],
 			'dev-site-status' => [ 'dev:site:status' ],
+			'test-site-up' => [ 'test:site:up' ],
+			'test-site-down' => [ 'test:site:down' ],
+			'test-site-wp' => [ 'test:site:wp' ],
+			'test-site-reset' => [ 'test:site:reset' ],
+			'test-site-status' => [ 'test:site:status' ],
 			'test-package-targeted' => [ 'test:package-targeted' ],
 			'test-package-full' => [ 'test:package-full' ],
 			'analyze-tooling' => [ 'analyze:tooling' ],

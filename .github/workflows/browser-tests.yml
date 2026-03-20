@@ -46,9 +46,9 @@ jobs:
     - name: Run ActionRouter browser lane
       run: composer test:browser -- --workers=1
 
-    - name: Stop local Docker site
+    - name: Stop isolated browser test site
       if: always()
-      run: php bin/shield dev:site:down
+      run: php bin/shield test:site:down
 
     - name: Upload Playwright artifacts
       if: failure()

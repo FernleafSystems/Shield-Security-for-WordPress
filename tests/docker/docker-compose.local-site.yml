@@ -3,10 +3,10 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: testpass
-      MYSQL_DATABASE: shield_local_site
+      MYSQL_DATABASE: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_local_site}
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     volumes:
-      - shield-local-site-db:/var/lib/mysql
+      - site-db:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
       interval: 2s
@@ -23,12 +23,12 @@ services:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: root
       WORDPRESS_DB_PASSWORD: testpass
-      WORDPRESS_DB_NAME: shield_local_site
+      WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_local_site}
     ports:
-      - "8888:80"
+      - "${SHIELD_LOCAL_SITE_PORT:-8888}:80"
     volumes:
-      - shield-local-site-wp:/var/www/html
-      - shield-local-site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - site-wp:/var/www/html
+      - site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
       - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-local-browser-runtime.ini:ro
 
   wp-cli:
@@ -40,14 +40,14 @@ services:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: root
       WORDPRESS_DB_PASSWORD: testpass
-      WORDPRESS_DB_NAME: shield_local_site
+      WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_local_site}
     volumes:
-      - shield-local-site-wp:/var/www/html
-      - shield-local-site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - site-wp:/var/www/html
+      - site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
       - ../../:/app
       - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-local-browser-runtime.ini:ro
 
 volumes:
-  shield-local-site-db:
-  shield-local-site-wp:
-  shield-local-site-plugin:
+  site-db:
+  site-wp:
+  site-plugin:

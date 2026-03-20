@@ -5,7 +5,8 @@
 <div class="healthy-disclosure{% if wrapper_class is not empty %} {{ wrapper_class }}{% endif %}">
 	<button type="button"
 			class="healthy-disclosure__toggle"
-			data-healthy-disclosure-toggle="1">
+			data-healthy-disclosure-toggle="1"
+			aria-expanded="false">
 		<span class="healthy-disclosure__icon">
 			<i class="{{ icon_class }}" aria-hidden="true"></i>
 		</span>
@@ -15,7 +16,8 @@
 		</span>
 	</button>
 	<div class="healthy-disclosure__body{% if body_class is not empty %} {{ body_class }}{% endif %}"
-		 data-healthy-disclosure-body="1">
+		 data-healthy-disclosure-body="1"
+		 aria-hidden="true">
 		{{ body_html|raw }}
 	</div>
 </div>

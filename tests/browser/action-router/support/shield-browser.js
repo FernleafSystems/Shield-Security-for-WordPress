@@ -1,6 +1,10 @@
 const { expect } = require( '@playwright/test' );
+const { execFileSync } = require( 'child_process' );
+const path = require( 'path' );
 
 const SHIELD_PAGE = 'icwp-wpsf-plugin';
+const PROJECT_ROOT = path.resolve( __dirname, '..', '..', '..', '..' );
+const ACTIONS_QUEUE_DETAIL_FIXTURE = '/app/tests/browser/action-router/support/actions-queue-detail-fixture.php';
 
 function buildShieldUrl( params = {} ) {
 	const search = new URLSearchParams( {
@@ -127,10 +131,41 @@ async function selectSelect2Option( page, selectName, searchTerm, optionMatcher,
 	await waitForShieldPage( page );
 }
 
+function runTestSiteWpCli( args = [] ) {
+	execFileSync( 'php', [
+		'bin/shield',
+		'test:site:wp',
+		...args,
+	], {
+		cwd: PROJECT_ROOT,
+		stdio: 'pipe',
+	} );
+}
+
+function seedActionsQueueDetailFixture() {
+	runTestSiteWpCli( [
+		'eval-file',
+		ACTIONS_QUEUE_DETAIL_FIXTURE,
+		'--',
+		'seed',
+	] );
+}
+
+function cleanupActionsQueueDetailFixture() {
+	runTestSiteWpCli( [
+		'eval-file',
+		ACTIONS_QUEUE_DETAIL_FIXTURE,
+		'--',
+		'cleanup',
+	] );
+}
+
 module.exports = {
 	buildShieldUrl,
+	cleanupActionsQueueDetailFixture,
 	dismissBlockingDialogs,
 	openShieldRoute,
+	seedActionsQueueDetailFixture,
 	selectSelect2Option,
 	waitForShieldPage,
 };

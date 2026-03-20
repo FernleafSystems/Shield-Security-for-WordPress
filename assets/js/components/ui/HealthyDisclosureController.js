@@ -33,6 +33,8 @@ export class HealthyDisclosureController extends BaseAutoExecComponent {
 		const shouldOpen = !toggle.classList.contains( 'is-open' );
 		toggle.classList.toggle( 'is-open', shouldOpen );
 		body.classList.toggle( 'is-open', shouldOpen );
+		toggle.setAttribute( 'aria-expanded', shouldOpen ? 'true' : 'false' );
+		body.setAttribute( 'aria-hidden', shouldOpen ? 'false' : 'true' );
 		if ( shouldOpen ) {
 			UiContentActivator.activateCurrentSubtree( body );
 		}

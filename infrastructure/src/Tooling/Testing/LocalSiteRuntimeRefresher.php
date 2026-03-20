@@ -5,7 +5,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
 
-class LocalDevSiteRuntimeRefresher {
+class LocalSiteRuntimeRefresher {
 
 	private const STATE_SCHEMA_VERSION = 1;
 	private const PLUGIN_ROOT = '/var/www/html/wp-content/plugins/wp-simple-firewall';

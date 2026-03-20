@@ -5,16 +5,9 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
 
-class LocalDevSiteManager {
-
-	public const SITE_URL = 'http://127.0.0.1:8888';
-	public const SITE_HOST = '127.0.0.1';
-	public const SITE_PORT = 8888;
-	public const ADMIN_USER = 'admin';
-	public const ADMIN_PASSWORD = 'password';
+class LocalSiteManager {
 
 	private const COMPOSE_FILE = 'tests/docker/docker-compose.local-site.yml';
-	private const COMPOSE_PROJECT_NAME = 'shield-local-site';
 	private const DB_SERVICE_NAME = 'db';
 	private const WORDPRESS_SERVICE_NAME = 'wordpress';
 	private const WPCLI_SERVICE_NAME = 'wp-cli';
@@ -25,22 +18,30 @@ class LocalDevSiteManager {
 
 	private DockerComposeExecutor $dockerComposeExecutor;
 
-	private LocalDevSiteProbe $probe;
+	private LocalSiteProbe $probe;
 
-	private LocalDevSiteRuntimeRefresher $runtimeRefresher;
+	private LocalSiteRuntimeRefresher $runtimeRefresher;
+
+	private LocalSiteDefinition $definition;
 
 	public function __construct(
+		LocalSiteDefinition $definition,
 		?ProcessRunner $processRunner = null,
 		?TestingEnvironmentResolver $environmentResolver = null,
 		?DockerComposeExecutor $dockerComposeExecutor = null,
-		?LocalDevSiteProbe $probe = null,
-		?LocalDevSiteRuntimeRefresher $runtimeRefresher = null
+		?LocalSiteProbe $probe = null,
+		?LocalSiteRuntimeRefresher $runtimeRefresher = null
 	) {
+		$this->definition = $definition;
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->environmentResolver = $environmentResolver ?? new TestingEnvironmentResolver( $this->processRunner );
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
-		$this->probe = $probe ?? new LocalDevSiteProbe();
-		$this->runtimeRefresher = $runtimeRefresher ?? new LocalDevSiteRuntimeRefresher( $this->processRunner );
+		$this->probe = $probe ?? new LocalSiteProbe();
+		$this->runtimeRefresher = $runtimeRefresher ?? new LocalSiteRuntimeRefresher( $this->processRunner );
+	}
+
+	public function definition() :LocalSiteDefinition {
+		return $this->definition;
 	}
 
 	public function up( string $rootDir ) :int {
@@ -92,14 +93,14 @@ class LocalDevSiteManager {
 		$this->environmentResolver->assertDockerReady( $rootDir );
 
 		return [
-			'site_url' => self::SITE_URL,
+			'site_url' => $this->definition->siteUrl(),
 			'site_healthy' => $this->isSiteHealthy(),
-			'port_open' => $this->probe->isTcpPortOpen( self::SITE_HOST, self::SITE_PORT ),
-			'admin_user' => self::ADMIN_USER,
+			'port_open' => $this->probe->isTcpPortOpen( $this->definition->siteHost(), $this->definition->sitePort() ),
+			'admin_user' => $this->definition->adminUser(),
 		];
 	}
 
-	public function ensureReady( string $rootDir, bool $requirePlaywright, bool $isBrowserTest = false ) :void {
+	public function ensureReady( string $rootDir, bool $requirePlaywright ) :void {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
 		$envOverrides = $this->buildEnvOverrides( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
@@ -111,12 +112,13 @@ class LocalDevSiteManager {
 		);
 
 		if ( $containerId === '' ) {
-			if ( $this->probe->isTcpPortOpen( self::SITE_HOST, self::SITE_PORT ) ) {
+			if ( $this->probe->isTcpPortOpen( $this->definition->siteHost(), $this->definition->sitePort() ) ) {
 				throw new \RuntimeException(
 					sprintf(
-						'Port %d is already in use, but the Shield local site is not responding at %s.',
-						self::SITE_PORT,
-						self::SITE_URL
+						'Port %d is already in use, but %s is not responding at %s.',
+						$this->definition->sitePort(),
+						$this->definition->label(),
+						$this->definition->siteUrl()
 					)
 				);
 			}
@@ -133,10 +135,10 @@ class LocalDevSiteManager {
 				$envOverrides
 			);
 			if ( $exitCode !== 0 ) {
-				throw new \RuntimeException( 'Failed to start the Shield local site Docker services.' );
+				throw new \RuntimeException( 'Failed to start the '.$this->definition->label().' Docker services.' );
 			}
 
-			if ( !$this->probe->waitForHttpReady( self::SITE_URL.'/wp-login.php', 90 ) ) {
+			if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 90 ) ) {
 				throw new \RuntimeException( 'Local WordPress site did not become ready in time.' );
 			}
 
@@ -147,29 +149,29 @@ class LocalDevSiteManager {
 				$envOverrides
 			);
 			if ( $containerId === '' ) {
-				throw new \RuntimeException( 'Shield local site WordPress container did not resolve after startup.' );
+				throw new \RuntimeException( $this->definition->label().' WordPress container did not resolve after startup.' );
 			}
 		}
 		elseif ( !$this->isSiteHealthy() ) {
-			throw new \RuntimeException( 'Shield local site is already running but unhealthy before browser runtime refresh.' );
+			throw new \RuntimeException( $this->definition->label().' is already running but unhealthy before browser runtime refresh.' );
 		}
 
 		$this->runtimeRefresher->refresh( $rootDir, $containerId );
-		if ( !$this->probe->waitForHttpReady( self::SITE_URL.'/wp-login.php', 30 ) ) {
-			throw new \RuntimeException( 'Shield local site is unhealthy after browser runtime refresh.' );
+		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 30 ) ) {
+			throw new \RuntimeException( $this->definition->label().' is unhealthy after browser runtime refresh.' );
 		}
 
 		if ( $this->processRunner->runForExitCode(
-			$this->buildProvisionCommand( $isBrowserTest ),
+			$this->buildProvisionCommand(),
 			$rootDir,
 			null,
 			$envOverrides
 		) !== 0 ) {
-			throw new \RuntimeException( 'Failed to provision the Shield local site baseline.' );
+			throw new \RuntimeException( 'Failed to provision the '.$this->definition->label().' baseline.' );
 		}
 
 		if ( !$this->isSiteHealthy() ) {
-			throw new \RuntimeException( 'Shield local site is unhealthy after provisioning.' );
+			throw new \RuntimeException( $this->definition->label().' is unhealthy after provisioning.' );
 		}
 	}
 
@@ -178,10 +180,13 @@ class LocalDevSiteManager {
 	 */
 	private function buildEnvOverrides( string $rootDir ) :array {
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
-			self::COMPOSE_PROJECT_NAME,
+			$this->definition->composeProjectName(),
 			true
 		);
 		$envOverrides['PHP_VERSION'] = $this->environmentResolver->resolvePhpVersion( $rootDir );
+		$envOverrides['SHIELD_LOCAL_SITE_DB_NAME'] = $this->definition->dbName();
+		$envOverrides['SHIELD_LOCAL_SITE_PORT'] = (string)$this->definition->sitePort();
+		$envOverrides['SHIELD_LOCAL_SITE_PROFILE'] = $this->definition->key();
 		return $envOverrides;
 	}
 
@@ -197,7 +202,7 @@ class LocalDevSiteManager {
 	/**
 	 * @return string[]
 	 */
-	private function buildProvisionCommand( bool $isBrowserTest = false ) :array {
+	private function buildProvisionCommand() :array {
 		$command = [
 			'docker',
 			'compose',
@@ -207,16 +212,18 @@ class LocalDevSiteManager {
 			'--rm',
 			'-T',
 			'-e',
-			'SHIELD_LOCAL_SITE_URL='.self::SITE_URL,
+			'SHIELD_LOCAL_SITE_URL='.$this->definition->siteUrl(),
 			'-e',
-			'SHIELD_LOCAL_SITE_ADMIN_USER='.self::ADMIN_USER,
+			'SHIELD_LOCAL_SITE_TITLE='.$this->definition->siteTitle(),
 			'-e',
-			'SHIELD_LOCAL_SITE_ADMIN_PASSWORD='.self::ADMIN_PASSWORD,
+			'SHIELD_LOCAL_SITE_PROFILE='.$this->definition->key(),
+			'-e',
+			'SHIELD_LOCAL_SITE_ADMIN_USER='.$this->definition->adminUser(),
+			'-e',
+			'SHIELD_LOCAL_SITE_ADMIN_PASSWORD='.$this->definition->adminPassword(),
+			'-e',
+			'SHIELD_LOCAL_SITE_ADMIN_EMAIL='.$this->definition->adminEmail(),
 		];
-		if ( $isBrowserTest ) {
-			$command[] = '-e';
-			$command[] = 'SHIELD_BROWSER_TEST_INTRO=1';
-		}
 		$command = \array_merge( $command, [
 			self::WPCLI_SERVICE_NAME,
 			'sh',
@@ -278,6 +285,6 @@ class LocalDevSiteManager {
 	}
 
 	private function isSiteHealthy() :bool {
-		return $this->probe->isHttpReady( self::SITE_URL.'/wp-admin/' );
+		return $this->probe->isHttpReady( $this->definition->siteUrl().'/wp-admin/' );
 	}
 }

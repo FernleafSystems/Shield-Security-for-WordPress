@@ -2,34 +2,41 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Cli\Command;
 
-use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalDevSiteManager;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DevSiteUpCommand extends Command {
+class SiteUpCommand extends Command {
 
-	protected static $defaultName = 'dev:site:up';
+	private string $descriptionText;
 
 	private string $projectRoot;
 
-	private LocalDevSiteManager $siteManager;
+	private LocalSiteManager $siteManager;
 
-	public function __construct( string $projectRoot, LocalDevSiteManager $siteManager ) {
-		parent::__construct();
+	public function __construct(
+		string $name,
+		string $descriptionText,
+		string $projectRoot,
+		LocalSiteManager $siteManager
+	) {
+		$this->descriptionText = $descriptionText;
 		$this->projectRoot = $projectRoot;
 		$this->siteManager = $siteManager;
+		parent::__construct( $name );
 	}
 
 	protected function configure() :void {
-		$this->setDescription( 'Start or reuse the local Docker WordPress site for Shield source development.' );
+		$this->setDescription( $this->descriptionText );
 	}
 
 	protected function execute( InputInterface $input, OutputInterface $output ) :int {
 		try {
 			$exitCode = $this->siteManager->up( $this->projectRoot );
-			$output->writeln( sprintf( 'Local site ready at %s', LocalDevSiteManager::SITE_URL ) );
-			$output->writeln( sprintf( 'Admin login: %s / %s', LocalDevSiteManager::ADMIN_USER, LocalDevSiteManager::ADMIN_PASSWORD ) );
+			$definition = $this->siteManager->definition();
+			$output->writeln( sprintf( '%s ready at %s', $definition->label(), $definition->siteUrl() ) );
+			$output->writeln( sprintf( 'Admin login: %s / %s', $definition->adminUser(), $definition->adminPassword() ) );
 			return $exitCode;
 		}
 		catch ( \Throwable $throwable ) {
