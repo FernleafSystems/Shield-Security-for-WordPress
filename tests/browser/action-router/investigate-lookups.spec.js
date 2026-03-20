@@ -23,8 +23,8 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 	const panel = page.locator( '[data-investigate-panel="1"]' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'user' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
-	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-active-back="1"] .drill-strip__title' ) ).toHaveText( 'Back to Investigate' );
-	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-header-title="1"]' ) ).toHaveText( /User/i );
+	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Investigate/i );
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /User/i );
 
 	await selectSelect2Option(
 		page,
@@ -50,7 +50,7 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 				&& !url.searchParams.get( 'user_lookup' ),
 			{ timeout: 20_000 }
 		),
-		page.locator( '[data-drill-layer="0"] [data-drill-layer-compact-back="1"]' ).click(),
+		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
 	] );
 
 	await expect( page.locator( '[data-drill-target="panel"][data-investigate-subject="user"]' ) ).toBeVisible();
@@ -66,8 +66,8 @@ test( 'investigate landing deep link opens the IP panel immediately', async ( { 
 		analyse_ip: '203.0.113.88',
 	} );
 
-	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-active-back="1"] .drill-strip__title' ) ).toHaveText( 'Back to Investigate' );
-	await expect( page.locator( '[data-drill-layer="1"] [data-drill-layer-header-title="1"]' ) ).toHaveText( /IP Address/i );
+	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Investigate/i );
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /IP Address/i );
 	await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
 	const panel = page.locator( '[data-drill-layer="1"] [data-investigate-panel="1"]' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'ip' );
@@ -85,7 +85,7 @@ test( 'investigate landing deep link opens the IP panel immediately', async ( { 
 				&& !url.searchParams.get( 'analyse_ip' ),
 			{ timeout: 20_000 }
 		),
-		page.locator( '[data-drill-layer="0"] [data-drill-layer-compact-back="1"]' ).click(),
+		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
 	] );
 
 	await expect( page.locator( '[data-drill-target="panel"][data-investigate-subject="ip"]' ) ).toBeVisible();

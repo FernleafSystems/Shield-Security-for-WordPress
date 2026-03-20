@@ -1,9 +1,4 @@
 <div class="investigate-landing__subjects">
-	<div class="investigate-landing__heading">
-		<div class="investigate-landing__section-label">{{ strings.subjects_heading }}</div>
-		<div class="investigate-landing__hint">{{ strings.landing_hint }}</div>
-	</div>
-
 	<div class="investigate-landing__subject-grid">
 		{% for subject in subjects %}
 			{% if subject.is_enabled %}

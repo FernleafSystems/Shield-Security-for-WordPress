@@ -3,7 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { getLayersForShell } from "./DrillDownShared";
+import { getLayersForShell, updateOperatorRootStep } from "./DrillDownShared";
 
 export class ActionsQueueLandingController extends BaseAutoExecComponent {
 
@@ -297,10 +297,7 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return false;
 		}
 
-		const severityStrip = this.rootEl.querySelector( '[data-actions-queue-section="severity-strip"]' );
-		if ( severityStrip !== null && typeof landingRefresh.severity_strip_html === 'string' ) {
-			severityStrip.outerHTML = landingRefresh.severity_strip_html;
-		}
+		this.updateOperatorRootStep( landingRefresh.root_step_json || '' );
 
 		this.syncAllClearSection(
 			Boolean( landingRefresh.queue_is_empty ),
@@ -357,13 +354,11 @@ export class ActionsQueueLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const severityStrip = this.rootEl.querySelector( '[data-actions-queue-section="severity-strip"]' );
-		if ( severityStrip !== null ) {
-			severityStrip.insertAdjacentHTML( 'afterend', html );
-			return;
-		}
-
 		this.rootEl.insertAdjacentHTML( 'beforeend', html );
+	}
+
+	updateOperatorRootStep( rootStepJson ) {
+		updateOperatorRootStep( this.rootEl, rootStepJson );
 	}
 
 	handleRetryClick( item ) {

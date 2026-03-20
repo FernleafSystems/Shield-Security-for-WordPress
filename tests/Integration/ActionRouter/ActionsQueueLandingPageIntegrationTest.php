@@ -235,16 +235,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-operator-step-tabs="1"]',
-			'Actions queue should render the shared operator step tabs chrome'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-operator-context-rail="1"]',
-			'Actions queue should render the shared operator context rail'
-		);
-		$this->assertXPathExists(
-			$xpath,
 			'//*[@data-actions-queue-section="all-clear-context"]',
 			'Empty actions queue should render the existing all-clear card'
 		);
@@ -320,21 +310,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-actions-queue-section="drilldown"]/div[1][@data-drill-shell="1"]',
 			'Actions queue should render the drill shell first for mobile-first stacking'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-operator-step-tabs="1"]',
-			'Actions queue should render the shared operator step tabs chrome'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-operator-context-rail="1"]',
-			'Actions queue should render the shared operator context rail'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-buckets__heading ") and normalize-space()="Choose where to start"]',
-			'Bucket layer should render the guidance heading'
 		);
 		$this->assertXPathCount(
 			$xpath,

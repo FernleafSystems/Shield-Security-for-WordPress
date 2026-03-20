@@ -87,7 +87,7 @@ trait BuildsActionsQueueLandingData {
 	 *     items:list<array<string,mixed>>
 	 *   }>,
 	 *   zone_tiles:list<array<string,mixed>>,
-	 *   severity_strip:array{
+	 *   status_overview:array{
 	 *     severity:string,
 	 *     label:string,
 	 *     icon_class:string,
@@ -143,18 +143,7 @@ trait BuildsActionsQueueLandingData {
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
 				'buckets'      => $this->getBucketsData(),
-				'heading'      => __( 'Choose where to start', 'wp-simple-firewall' ),
 				'looking_good' => ( new ActionsQueueBucketsBuilder() )->buildLookingGood( $this->getAssessmentRowsByZone() ),
-			] )
-			->render();
-	}
-
-	protected function renderSeverityStripSection() :string {
-		return self::con()->comps->render
-			->setTemplate( '/wpadmin/components/actions_queue/severity_strip.twig' )
-			->setData( [
-				'strip'                => $this->getLandingViewData()[ 'severity_strip' ],
-				'severity_strip_label' => __( 'Queue Status', 'wp-simple-firewall' ),
 			] )
 			->render();
 	}
@@ -166,5 +155,35 @@ trait BuildsActionsQueueLandingData {
 				'all_clear' => $this->getLandingViewData()[ 'all_clear' ],
 			] )
 			->render();
+	}
+
+	protected function buildActionsQueueOperatorRootStep() :array {
+		$viewData = $this->getLandingViewData();
+		$summary = $viewData[ 'summary' ];
+		$statusOverview = $viewData[ 'status_overview' ];
+		$totalItems = (int)( $summary[ 'total_items' ] ?? 0 );
+
+		return [
+			'breadcrumb_label' => __( 'Actions Queue', 'wp-simple-firewall' ),
+			'title'            => __( 'Actions Queue', 'wp-simple-firewall' ),
+			'summary'          => $statusOverview[ 'summary_text' ],
+			'focus'            => $statusOverview[ 'subtext' ],
+			'next_step'        => $this->hasDrilldownContent()
+				? __( 'Open a bucket to review grouped findings and run the next action.', 'wp-simple-firewall' )
+				: __( 'Nothing requires your action right now.', 'wp-simple-firewall' ),
+			'icon_class'       => $summary[ 'icon_class' ],
+			'badge'            => $summary[ 'has_items' ]
+				? \sprintf(
+					_n( '%s item', '%s items', $totalItems, 'wp-simple-firewall' ),
+					$totalItems
+				)
+				: __( 'All Clear', 'wp-simple-firewall' ),
+			'badge_status'     => $summary[ 'severity' ],
+			'color_key'        => $summary[ 'severity' ],
+		];
+	}
+
+	protected function buildActionsQueueOperatorRootStepJson() :string {
+		return (string)( \json_encode( $this->buildActionsQueueOperatorRootStep() ) ?: '' );
 	}
 }

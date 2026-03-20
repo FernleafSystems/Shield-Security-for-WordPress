@@ -62,7 +62,7 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 			$data[ 'landing_refresh' ] = [
 				'queue_is_empty'         => $isQueueEmpty,
 				'has_drilldown_content'  => $hasDrilldownContent,
-				'root_step_json'         => (string)( \json_encode( $this->buildActionsQueueOperatorRootStep() ) ?: '' ),
+				'root_step_json'         => $this->buildActionsQueueOperatorRootStepJson(),
 				'buckets_html'           => $hasDrilldownContent ? $this->renderBucketsLayer() : '',
 				'all_clear_html'         => $isQueueEmpty
 					? $this->renderAllClearCard()

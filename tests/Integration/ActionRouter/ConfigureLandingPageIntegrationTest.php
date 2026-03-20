@@ -31,7 +31,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		], $params ) );
 	}
 
-	public function test_landing_renders_posture_strip_and_shared_drill_shell() :void {
+	public function test_landing_renders_shared_operator_chrome_and_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$xpath = $this->createDomXPathFromHtml( $html );
@@ -57,11 +57,6 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame(
 			ConfigureDrillDownEditor::SLUG,
 			$vars[ 'configure_ajax' ][ 'editor_render_action' ][ 'render_slug' ] ?? ''
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-section="posture-strip"]',
-			'Configure landing should render the posture strip above the drill-down shell'
 		);
 		$this->assertXPathNotExists(
 			$xpath,
@@ -95,11 +90,6 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame(
 			'',
 			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' )
-		);
-		$this->assertXPathExists(
-			$validXpath,
-			'//*[@data-drill-layer="1"]//*[@data-drill-layer-header-title="1" and normalize-space()="Login"]',
-			'Deep-linked diagnosis should include the shared lane header'
 		);
 		$this->assertXPathExists(
 			$validXpath,
@@ -169,8 +159,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-drill-layer="1"]//*[@data-drill-layer-header-title="1" and normalize-space()="Login"]',
-			'Diagnosis AJAX should render the shared lane header'
+			'//*[@data-configure-diagnosis="1"]',
+			'Diagnosis AJAX should keep the diagnosis wrapper available for the shared operator chrome'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -219,7 +209,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-diagnosis="1"]//button[@data-drill-target="editor"]',
 			'Diagnosis AJAX should not render the removed editor drill CTA'
 		);
-		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'posture_strip_html' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
 	}
 

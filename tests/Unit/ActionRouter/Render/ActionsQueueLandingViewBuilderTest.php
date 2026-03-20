@@ -108,15 +108,15 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		], 'Last scan: 3 minutes ago' );
 		$zonesIndexed = $view[ 'zones_indexed' ] ?? [];
 		$zoneTiles = $view[ 'zone_tiles' ] ?? [];
-		$strip = $view[ 'severity_strip' ] ?? [];
+		$statusOverview = $view[ 'status_overview' ] ?? [];
 		$allClear = $view[ 'all_clear' ] ?? [];
 
 		$this->assertSame( true, $view[ 'summary' ][ 'has_items' ] ?? false );
 		$this->assertSame( 6, $view[ 'summary' ][ 'total_items' ] ?? 0 );
-		$this->assertSame( 'critical', $strip[ 'severity' ] ?? '' );
-		$this->assertSame( 3, $strip[ 'critical_count' ] ?? 0 );
-		$this->assertSame( 1, $strip[ 'warning_count' ] ?? 0 );
-		$this->assertSame( 'Last scan: 3 minutes ago', $strip[ 'subtext' ] ?? '' );
+		$this->assertSame( 'critical', $statusOverview[ 'severity' ] ?? '' );
+		$this->assertSame( 3, $statusOverview[ 'critical_count' ] ?? 0 );
+		$this->assertSame( 1, $statusOverview[ 'warning_count' ] ?? 0 );
+		$this->assertSame( 'Last scan: 3 minutes ago', $statusOverview[ 'subtext' ] ?? '' );
 
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_keys( $zonesIndexed ) );
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $zoneTiles, 'key' ) );

@@ -3,7 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { getLayersForShell } from "./DrillDownShared";
+import { getLayersForShell, updateOperatorRootStep } from "./DrillDownShared";
 
 export class ConfigureLandingController extends BaseAutoExecComponent {
 
@@ -300,10 +300,7 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const postureStrip = this.rootEl.querySelector( '[data-configure-section="posture-strip"]' );
-		if ( postureStrip !== null && typeof landingRefresh.posture_strip_html === 'string' ) {
-			postureStrip.outerHTML = landingRefresh.posture_strip_html;
-		}
+		this.updateOperatorRootStep( landingRefresh.root_step_json || '' );
 
 		if ( this.shellEl !== null && typeof landingRefresh.zones_html === 'string' ) {
 			const zonesLayer = this.getLayerByKey( this.shellEl, 'zones' );
@@ -312,6 +309,10 @@ export class ConfigureLandingController extends BaseAutoExecComponent {
 				this.applyLayerHtml( zonesBody, landingRefresh.zones_html );
 			}
 		}
+	}
+
+	updateOperatorRootStep( rootStepJson ) {
+		updateOperatorRootStep( this.rootEl, rootStepJson );
 	}
 
 	handleRetryClick( item ) {

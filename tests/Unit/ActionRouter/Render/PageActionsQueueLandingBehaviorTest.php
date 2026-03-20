@@ -120,10 +120,13 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$page = $this->newPage();
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ];
-		$strip = $vars[ 'severity_strip' ];
 
 		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'mode' ] );
 		$this->assertFalse( $vars[ 'mode_shell' ][ 'is_interactive' ] );
+		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( 'Actions Queue', $vars[ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertSame( '5 items', $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' );
+		$this->assertSame( 'Last scan: 2 minutes ago', $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' );
 		$this->assertSame( 'actions_drill_shell', $vars[ 'drill_shell' ][ 'id' ] );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] );
 		$this->assertSame( [ 'buckets', 'groups', 'detail' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ], 'key' ) );
@@ -135,9 +138,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			'Choose a bucket to start.',
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'summary' ]
 		);
+		$this->assertSame( 'Grouped findings', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
-		$this->assertSame( 'critical', $strip[ 'severity' ] );
-		$this->assertSame( 5, $strip[ 'total_items' ] );
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] );
 		$this->assertSame( ActionsQueueDrillDownGroups::SLUG, $vars[ 'actions_queue_ajax' ][ 'groups_render_action' ][ 'render_slug' ] );
 		$this->assertSame( ActionsQueueDrillDownDetail::SLUG, $vars[ 'actions_queue_ajax' ][ 'detail_render_action' ][ 'render_slug' ] );
@@ -175,9 +177,34 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 		$this->assertTrue( $renderData[ 'flags' ][ 'queue_is_empty' ] );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
+		$this->assertSame( 'All Clear', $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' );
 		$this->assertSame( $strings[ 'all_clear_title' ], $vars[ 'all_clear' ][ 'title' ] );
 		$this->assertSame( $strings[ 'all_clear_subtitle' ], $vars[ 'all_clear' ][ 'subtitle' ] );
 		$this->assertSame( $strings[ 'all_clear_icon_class' ], $vars[ 'all_clear' ][ 'icon_class' ] );
+	}
+
+	public function test_root_step_json_helper_reuses_the_landing_root_step_contract() :void {
+		$this->capture->queuePayload = $this->buildQueuePayload(
+			true,
+			3,
+			'warning',
+			'Last scan: 5 minutes ago',
+			[
+				$this->buildZoneGroup( 'scans', 'warning', 3, [
+					$this->buildQueueItem( 'malware', 'scans', 'Malware', 3, 'warning' ),
+				] ),
+				$this->buildZoneGroup( 'maintenance', 'good', 0, [] ),
+			]
+		);
+
+		$page = $this->newPage();
+		$rootStepJson = $this->invokeNonPublicMethod( $page, 'buildActionsQueueOperatorRootStepJson' );
+		$rootStep = \json_decode( $rootStepJson, true );
+
+		$this->assertSame( 'Actions Queue', $rootStep[ 'title' ] ?? '' );
+		$this->assertSame( '3 items', $rootStep[ 'badge' ] ?? '' );
+		$this->assertSame( 'Last scan: 5 minutes ago', $rootStep[ 'focus' ] ?? '' );
+		$this->assertSame( 'warning', $rootStep[ 'color_key' ] ?? '' );
 	}
 
 	public function test_landing_hrefs_reuse_existing_scan_and_wp_admin_routes() :void {

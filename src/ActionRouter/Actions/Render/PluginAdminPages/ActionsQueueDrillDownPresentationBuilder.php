@@ -141,12 +141,16 @@ class ActionsQueueDrillDownPresentationBuilder {
 		return [
 			'compact_back_label' => $this->buildBackLabel( $label ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
+			'breadcrumb_label'   => $label,
 			'title'              => $label,
 			'meta'               => $meta,
 			'summary'            => $summary,
+			'focus'              => $meta,
+			'next_step'          => __( 'Choose one grouped finding to review the matching results.', 'wp-simple-firewall' ),
 			'icon_class'         => $iconClass,
 			'badge'              => $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $status,
+			'color_key'          => $status,
 		];
 	}
 
@@ -164,11 +168,15 @@ class ActionsQueueDrillDownPresentationBuilder {
 		return [
 			'compact_back_label' => $this->buildBackLabel( $label ),
 			'active_back_label'  => $this->buildBackLabel( $bucketLabel ),
+			'breadcrumb_label'   => $label,
 			'title'              => $label,
 			'summary'            => $summary,
+			'focus'              => $this->buildItemBadge( $itemCount ),
+			'next_step'          => __( 'Review the scoped results and complete the next action.', 'wp-simple-firewall' ),
 			'icon_class'         => $iconClass,
 			'badge'              => $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $status,
+			'color_key'          => $status,
 		];
 	}
 

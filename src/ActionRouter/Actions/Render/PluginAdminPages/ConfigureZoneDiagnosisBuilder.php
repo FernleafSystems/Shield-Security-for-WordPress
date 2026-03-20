@@ -137,12 +137,16 @@ class ConfigureZoneDiagnosisBuilder {
 		$header = [
 			'compact_back_label' => $this->buildBackLabel( $zoneLabel ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Configure', 'wp-simple-firewall' ) ),
+			'breadcrumb_label'   => $zoneLabel,
 			'title'              => $zoneLabel,
 			'meta'               => $zoneTile[ 'status_label' ],
 			'summary'            => $riskContext,
+			'focus'              => $previewText,
+			'next_step'          => $nextMove,
 			'icon_class'         => $zoneTile[ 'icon_class' ],
 			'badge'              => $zoneBadge,
 			'badge_status'       => $zoneTile[ 'status' ],
+			'color_key'          => $zoneTile[ 'status' ],
 		];
 		$editorBadge = $zoneTile[ 'key' ] === 'general'
 			? __( 'Review', 'wp-simple-firewall' )
@@ -150,12 +154,16 @@ class ConfigureZoneDiagnosisBuilder {
 		$editorHeader = [
 			'compact_back_label' => $this->buildBackLabel( sprintf( __( '%s Settings', 'wp-simple-firewall' ), $zoneLabel ) ),
 			'active_back_label'  => $this->buildBackLabel( $zoneLabel ),
+			'breadcrumb_label'   => sprintf( __( '%s Settings', 'wp-simple-firewall' ), $zoneLabel ),
 			'title'              => sprintf( __( 'Edit %s Settings', 'wp-simple-firewall' ), $zoneLabel ),
 			'meta'               => __( 'Settings', 'wp-simple-firewall' ),
 			'summary'            => $nextMove,
+			'focus'              => $previewText,
+			'next_step'          => __( 'Update the settings below and save when you are ready.', 'wp-simple-firewall' ),
 			'icon_class'         => $zoneTile[ 'icon_class' ],
 			'badge'              => $editorBadge,
 			'badge_status'       => $zoneTile[ 'status' ],
+			'color_key'          => $zoneTile[ 'status' ],
 		];
 		$reviewFallbackCard = $this->buildReviewFallbackCard(
 			$zoneBadge,

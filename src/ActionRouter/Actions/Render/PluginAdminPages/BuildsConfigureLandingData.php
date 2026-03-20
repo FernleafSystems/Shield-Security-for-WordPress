@@ -55,9 +55,8 @@ trait BuildsConfigureLandingData {
 	private ?array $configureLandingTileLookupCache = null;
 	private ?array $configureZoneDiagnosesCache = null;
 	private ?array $configureZoneSectionsCache = null;
-	private ?array $configurePostureCache = null;
+	private ?array $configurePostureSummaryCache = null;
 	private ?array $zonePostureSourceCache = null;
-	private ?string $configurePostureStripSectionCache = null;
 	private ?string $configureZonesLayerCache = null;
 
 	protected function getRequestedConfigureZoneKey() :string {
@@ -186,19 +185,6 @@ trait BuildsConfigureLandingData {
 		return $this->configureZoneSectionsCache;
 	}
 
-	protected function renderConfigurePostureStripSection() :string {
-		if ( $this->configurePostureStripSectionCache === null ) {
-			$this->configurePostureStripSectionCache = self::con()->comps->render
-				->setTemplate( '/wpadmin/components/configure/posture_strip_section.twig' )
-				->setData( [
-					'strip' => $this->getConfigurePostureStrip(),
-				] )
-				->render();
-		}
-
-		return $this->configurePostureStripSectionCache;
-	}
-
 	protected function renderConfigureZonesLayer() :string {
 		if ( $this->configureZonesLayerCache === null ) {
 			$this->configureZonesLayerCache = self::con()->comps->render
@@ -232,15 +218,35 @@ trait BuildsConfigureLandingData {
 
 	/**
 	 * @return array{
-	 *   posture_strip_html:string,
+	 *   root_step_json:string,
 	 *   zones_html:string
 	 * }
 	 */
 	protected function buildConfigureLandingRefresh() :array {
 		return [
-			'posture_strip_html' => $this->renderConfigurePostureStripSection(),
-			'zones_html'         => $this->renderConfigureZonesLayer(),
+			'root_step_json' => $this->buildConfigureOperatorRootStepJson(),
+			'zones_html'     => $this->renderConfigureZonesLayer(),
 		];
+	}
+
+	protected function buildConfigureOperatorRootStep() :array {
+		$posture = $this->getConfigurePostureSummary();
+
+		return [
+			'breadcrumb_label' => __( 'Configure', 'wp-simple-firewall' ),
+			'title'            => __( 'Configure', 'wp-simple-firewall' ),
+			'summary'          => $posture[ 'summary' ],
+			'focus'            => $posture[ 'chip_label' ],
+			'next_step'        => __( 'Open a zone to review findings and move into focused settings changes.', 'wp-simple-firewall' ),
+			'icon_class'       => self::con()->svgs->iconClass( 'gear' ),
+			'badge'            => sprintf( '%s%%', $posture[ 'meter' ][ 'percentage' ] ),
+			'badge_status'     => $posture[ 'status' ],
+			'color_key'        => $posture[ 'status' ],
+		];
+	}
+
+	protected function buildConfigureOperatorRootStepJson() :string {
+		return (string)( \json_encode( $this->buildConfigureOperatorRootStep() ) ?: '' );
 	}
 
 	/**
@@ -258,11 +264,11 @@ trait BuildsConfigureLandingData {
 	 *   }
 	 * }
 	 */
-	protected function getConfigurePostureStrip() :array {
-		if ( $this->configurePostureCache === null ) {
+	protected function getConfigurePostureSummary() :array {
+		if ( $this->configurePostureSummaryCache === null ) {
 			$posturePercentage = $this->getZonePosture()[ 'percentage' ];
 			$postureStatus = BuildZonePosture::trafficFromPercentage( $posturePercentage );
-			$this->configurePostureCache = [
+			$this->configurePostureSummaryCache = [
 				'status'     => $postureStatus,
 				'chip_label' => $this->standardStatusLabel( $postureStatus ),
 				'icon_class' => $this->standardStatusIconClass( $postureStatus ),
@@ -277,7 +283,7 @@ trait BuildsConfigureLandingData {
 			];
 		}
 
-		return $this->configurePostureCache;
+		return $this->configurePostureSummaryCache;
 	}
 
 	/**

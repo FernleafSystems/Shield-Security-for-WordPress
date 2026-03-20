@@ -29,6 +29,9 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias(
+			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
+		);
 		$this->installControllerStub();
 	}
 
@@ -46,13 +49,23 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'operator_mode_landing' ], \array_keys( $renderData[ 'content' ] ?? [] ) );
 		$this->assertSame( 'rendered-operator-mode-landing', $renderData[ 'content' ][ 'operator_mode_landing' ] ?? '' );
 		$this->assertSame( 'bi bi-speedometer', $renderData[ 'imgs' ][ 'inner_page_title_icon' ] ?? '' );
-		$this->assertSame( '', $renderData[ 'strings' ][ 'inner_page_title' ] ?? 'missing' );
-		$this->assertSame( '', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? 'missing' );
-		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? 'missing' );
+		$this->assertSame( 'Dashboard', $renderData[ 'strings' ][ 'inner_page_title' ] ?? 'missing' );
+		$this->assertSame(
+			'Review the current security picture and jump into the next operator mode.',
+			$renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? 'missing'
+		);
+		$this->assertSame( 'dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? 'missing' );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( 'Dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertSame(
+			'Use the cards below to move directly into actions, investigation, configuration, or reports.',
+			$renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? ''
+		);
+		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 	}
 
 	private function installControllerStub() :void {

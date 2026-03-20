@@ -38,12 +38,16 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			[
 				'compact_back_label' => 'Back to Fix now',
 				'active_back_label'  => 'Back to Actions Queue',
+				'breadcrumb_label'   => 'Fix now',
 				'title'              => 'Fix now',
 				'meta'               => 'Critical queue',
 				'summary'            => 'Fix now contains 2 items that still need attention.',
+				'focus'              => 'Critical queue',
+				'next_step'          => 'Choose one grouped finding to review the matching results.',
 				'icon_class'         => 'bi bi-exclamation-triangle-fill',
 				'badge'              => '2 items',
 				'badge_status'       => 'critical',
+				'color_key'          => 'critical',
 			],
 			$selection[ 'header' ]
 		);
@@ -95,11 +99,15 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			[
 				'compact_back_label' => 'Back to Maintenance Items',
 				'active_back_label'  => 'Back to Review next',
+				'breadcrumb_label'   => 'Maintenance Items',
 				'title'              => 'Maintenance Items',
 				'summary'            => '1 maintenance item needs review.',
+				'focus'              => '1 item',
+				'next_step'          => 'Review the scoped results and complete the next action.',
 				'icon_class'         => 'bi bi-tools',
 				'badge'              => '1 item',
 				'badge_status'       => 'warning',
+				'color_key'          => 'warning',
 			],
 			$selection[ 'header' ]
 		);

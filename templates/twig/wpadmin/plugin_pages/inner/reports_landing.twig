@@ -11,6 +11,7 @@
 							data-mode-tile="1"
 							data-mode-tile-key="{{ tile.key }}"
 							data-mode-panel-target="{{ tile.panel_target }}"
+							data-mode-tile-step="{{ tile.step_json|e('html_attr') }}"
 							data-mode-tile-disabled="{{ tile.is_disabled ? '1' : '0' }}"
 							aria-disabled="{{ tile.is_disabled ? 'true' : 'false' }}"
 							aria-expanded="{{ vars.mode_panel.active_target|default('') == tile.panel_target ? 'true' : 'false' }}">
@@ -25,13 +26,6 @@
 				   This remains intentionally excluded from current landing UI until charts-in-panel scope is approved. #}
 			</div>
 		</section>
-
-		<div class="reports-landing__hint{% if vars.mode_panel.active_target|default('') is not empty %} d-none{% endif %}"
-			 data-mode-landing-hint="1"
-			 aria-hidden="{{ vars.mode_panel.active_target|default('') is not empty ? 'true' : 'false' }}">
-			<i class="bi bi-arrow-up reports-landing__hint-icon" aria-hidden="true"></i>
-			{{ strings.landing_hint|default('Select a reports area above to view details.') }}
-		</div>
 
 		{% for tile in vars.report_tiles %}
 			{% set panel_body %}

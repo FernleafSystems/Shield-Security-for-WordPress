@@ -120,9 +120,11 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Review findings', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( 'Configure', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertSame( '78%', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'mode_tiles' ] ?? [ 'unexpected' ] );
-		$this->assertSame( 78, $vars[ 'configure_posture_strip' ][ 'meter' ][ 'percentage' ] ?? 0 );
-		$this->assertStringContainsString( '78', (string)( $vars[ 'configure_posture_strip' ][ 'summary' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'configure_posture_strip', $vars );
 		$this->assertSame(
 			ConfigureDrillDownDiagnosis::SLUG,
 			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ 'render_slug' ] ?? ''
@@ -154,6 +156,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
 		$this->assertSame( 'DIAGNOSIS:login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
 		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
+		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertSame( 'Back to Configure', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'active_back_label' ] ?? '' );
 	}
 
@@ -187,6 +190,21 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
 		);
 		$this->assertTrue( (bool)( $sections[ 1 ][ 'collapsible' ] ?? false ) );
+	}
+
+	public function test_landing_refresh_reuses_the_configure_root_step_contract() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$refresh = $this->invokeNonPublicMethod( $page, 'buildConfigureLandingRefresh' );
+		$rootStep = \json_decode( $refresh[ 'root_step_json' ] ?? '', true );
+
+		$this->assertSame( 'Configure', $rootStep[ 'title' ] ?? '' );
+		$this->assertSame( '78%', $rootStep[ 'badge' ] ?? '' );
+		$this->assertSame( 'warning', $rootStep[ 'badge_status' ] ?? '' );
+		$this->assertSame(
+			'Open a zone to review findings and move into focused settings changes.',
+			$rootStep[ 'next_step' ] ?? ''
+		);
 	}
 
 	private function zoneTileFixtures() :array {

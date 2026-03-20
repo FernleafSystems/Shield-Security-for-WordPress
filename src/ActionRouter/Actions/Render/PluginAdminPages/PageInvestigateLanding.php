@@ -106,6 +106,16 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		];
 	}
 
+	protected function getOperatorRootStep() :array {
+		return \array_replace(
+			parent::getOperatorRootStep(),
+			[
+				'focus'     => __( 'Users, IPs, assets, and live traffic stay available from the same drill path.', 'wp-simple-firewall' ),
+				'next_step' => __( 'Choose the subject you need to investigate next.', 'wp-simple-firewall' ),
+			]
+		);
+	}
+
 	/**
 	 * @return list<RawDrillLayer>
 	 */
@@ -267,11 +277,15 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return [
 			'compact_back_label' => $this->buildBackLabel( $subject[ 'label' ] ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
+			'breadcrumb_label'   => $subject[ 'label' ],
 			'title'              => $subject[ 'label' ],
 			'summary'            => $nextStep,
+			'focus'              => $subject[ 'stat_text' ],
+			'next_step'          => __( 'Use the panel tabs and actions to continue the investigation.', 'wp-simple-firewall' ),
 			'icon_class'         => $subject[ 'icon_class' ],
 			'badge'              => $subject[ 'stat_text' ],
 			'badge_status'       => $subject[ 'status' ],
+			'color_key'          => $subject[ 'status' ],
 		];
 	}
 
@@ -282,10 +296,13 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return [
 			'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
+			'breadcrumb_label'   => __( 'Investigation', 'wp-simple-firewall' ),
 			'title'              => __( 'Investigation', 'wp-simple-firewall' ),
 			'summary'            => __( 'Select a subject from the grid.', 'wp-simple-firewall' ),
+			'next_step'          => __( 'Choose a subject to load the investigation panel.', 'wp-simple-firewall' ),
 			'icon_class'         => 'bi bi-search',
 			'badge_status'       => 'info',
+			'color_key'          => 'info',
 		];
 	}
 
@@ -458,10 +475,4 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return $this->subjectDefinitionsCache;
 	}
 
-	/**
-	 * @param array<string,mixed> $data
-	 */
-	private function encodeJson( array $data ) :string {
-		return (string)( \json_encode( $data ) ?: '' );
-	}
 }

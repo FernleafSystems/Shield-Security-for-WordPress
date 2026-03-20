@@ -59,7 +59,7 @@ class ActionsQueueLandingViewBuilder {
 	 *   summary:QueueSummary,
 	 *   zones_indexed:array<string,ZoneGroup>,
 	 *   zone_tiles:list<ZoneTile>,
-	 *   severity_strip:array{
+	 *   status_overview:array{
 	 *     severity:string,
 	 *     label:string,
 	 *     icon_class:string,
@@ -94,7 +94,7 @@ class ActionsQueueLandingViewBuilder {
 			'summary'        => $summary,
 			'zones_indexed'  => $zonesIndexed,
 			'zone_tiles'     => $zoneTiles,
-			'severity_strip' => $this->buildSeverityStripContract( $summary, $zoneTiles ),
+			'status_overview' => $this->buildStatusOverviewContract( $summary, $zoneTiles ),
 			'all_clear'      => $this->buildAllClearContract( $zonesIndexed ),
 		];
 	}
@@ -215,7 +215,7 @@ class ActionsQueueLandingViewBuilder {
 	 *   warning_count:int
 	 * }
 	 */
-	private function buildSeverityStripContract( array $summary, array $zoneTiles ) :array {
+	private function buildStatusOverviewContract( array $summary, array $zoneTiles ) :array {
 		$severityTotals = $this->countsFromZoneGroups( \array_map(
 			static fn( array $tile ) :array => [
 				'slug'         => $tile[ 'key' ],

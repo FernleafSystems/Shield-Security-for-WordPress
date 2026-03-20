@@ -9,11 +9,7 @@
 		 data-configure-layer-retry="{{ strings.layer_retry }}"
 		 data-configure-diagnosis-action="{{ vars.configure_ajax.diagnosis_render_action_json }}"
 		 data-configure-editor-action="{{ vars.configure_ajax.editor_render_action_json }}">
-		{% include '/wpadmin/components/configure/posture_strip_section.twig' with {
-			strip: vars.configure_posture_strip
-		} only %}
-
-		<div class="configure-landing__drilldown mt-4"
+		<div class="configure-landing__drilldown"
 			 data-configure-section="drilldown">
 			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
 				shell: vars.drill_shell

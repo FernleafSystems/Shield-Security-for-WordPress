@@ -17,6 +17,30 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		'compact',
 		'default',
 	];
+	/**
+	 * @phpstan-type OperatorChromeStepInput array{
+	 *   breadcrumb_label?:string,
+	 *   title?:string,
+	 *   summary?:string,
+	 *   focus?:string,
+	 *   next_step?:string,
+	 *   icon_class?:string,
+	 *   badge?:string,
+	 *   badge_status?:string,
+	 *   color_key?:string
+	 * }
+	 * @phpstan-type OperatorChromeStep array{
+	 *   breadcrumb_label:string,
+	 *   title:string,
+	 *   summary:string,
+	 *   focus:string,
+	 *   next_step:string,
+	 *   icon_class:string,
+	 *   badge:string,
+	 *   badge_status:string,
+	 *   color_key:string
+	 * }
+	 */
 
 	abstract protected function getLandingTitle() :string;
 
@@ -69,6 +93,26 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		return [];
 	}
 
+	/**
+	 * @return OperatorChromeStepInput
+	 */
+	protected function getOperatorRootStep() :array {
+		$title = $this->getLandingTitle();
+		$status = $this->getLandingAccentStatus();
+
+		return [
+			'breadcrumb_label' => $title,
+			'title'            => $title,
+			'summary'          => $this->getLandingSubtitle(),
+			'focus'            => '',
+			'next_step'        => '',
+			'icon_class'       => $this->buildLandingIconClass( $this->getLandingIcon() ),
+			'badge'            => '',
+			'badge_status'     => $status,
+			'color_key'        => $status,
+		];
+	}
+
 	protected function getLandingFlags() :array {
 		return [];
 	}
@@ -85,6 +129,10 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		return [];
 	}
 
+	protected function usesOperatorChrome() :bool {
+		return $this->isModeLandingPage();
+	}
+
 	protected function getRenderData() :array {
 		$strings = [
 			'inner_page_title'    => $this->getLandingTitle(),
@@ -94,8 +142,11 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 			$strings = \array_merge(
 				$strings,
 				[
-					'mode_panel_title' => __( 'Details', 'wp-simple-firewall' ),
-					'mode_panel_close' => __( 'Close', 'wp-simple-firewall' ),
+					'mode_panel_title'         => __( 'Details', 'wp-simple-firewall' ),
+					'mode_panel_close'         => __( 'Close', 'wp-simple-firewall' ),
+					'operator_context_title'   => __( 'Current Context', 'wp-simple-firewall' ),
+					'operator_context_focus'   => __( 'Focus', 'wp-simple-firewall' ),
+					'operator_context_next'    => __( 'Next Step', 'wp-simple-firewall' ),
 				]
 			);
 		}
@@ -143,17 +194,19 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		}
 		return [
 			'mode_shell' => $this->normalizeLandingModeShell( [
-				'mode'           => $this->getLandingMode(),
-				'accent_status'  => $this->getLandingAccentStatus(),
-				'header_density' => $this->getLandingHeaderDensity(),
-				'is_interactive' => $this->isLandingInteractive(),
+				'mode'               => $this->getLandingMode(),
+				'accent_status'      => $this->getLandingAccentStatus(),
+				'header_density'     => $this->getLandingHeaderDensity(),
+				'is_interactive'     => $this->isLandingInteractive(),
+				'use_operator_chrome' => $this->usesOperatorChrome(),
+				'root_step'          => $this->getOperatorRootStep(),
 			] ),
 			'mode_tiles' => $this->normalizeLandingTiles( $this->getLandingTiles() ),
 			'mode_panel' => $this->normalizeLandingPanel( $this->getLandingPanel() ),
 		];
 	}
 
-	private function isModeLandingPage() :bool {
+	protected function isModeLandingPage() :bool {
 		return !empty( $this->getLandingMode() );
 	}
 
@@ -163,12 +216,38 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 			$headerDensity = 'compact';
 		}
 
+		$rootStep = $this->normalizeOperatorChromeStep( \is_array( $modeShell[ 'root_step' ] ?? null ) ? $modeShell[ 'root_step' ] : [] );
+
 		return [
-			'mode'           => sanitize_key( (string)( $modeShell[ 'mode' ] ?? '' ) ),
-			'accent_status'  => $this->sanitizeModeAccentStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
-			'header_density' => $headerDensity,
-			'is_mode_landing' => true,
-			'is_interactive' => (bool)( $modeShell[ 'is_interactive' ] ?? false ),
+			'mode'               => sanitize_key( (string)( $modeShell[ 'mode' ] ?? '' ) ),
+			'accent_status'      => $this->sanitizeModeAccentStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
+			'header_density'     => $headerDensity,
+			'is_mode_landing'    => true,
+			'is_interactive'     => (bool)( $modeShell[ 'is_interactive' ] ?? false ),
+			'use_operator_chrome' => (bool)( $modeShell[ 'use_operator_chrome' ] ?? false ),
+			'root_step'          => $rootStep,
+			'root_step_json'     => $this->encodeJson( $rootStep ),
+		];
+	}
+
+	/**
+	 * @param OperatorChromeStepInput $step
+	 * @return OperatorChromeStep
+	 */
+	protected function normalizeOperatorChromeStep( array $step ) :array {
+		$badgeStatus = $this->sanitizeModeAccentStatus( (string)( $step[ 'badge_status' ] ?? '' ) );
+		$colorKey = $this->sanitizeModeAccentStatus( (string)( $step[ 'color_key' ] ?? $badgeStatus ) );
+
+		return [
+			'breadcrumb_label' => \trim( (string)( $step[ 'breadcrumb_label' ] ?? '' ) ),
+			'title'            => \trim( (string)( $step[ 'title' ] ?? '' ) ),
+			'summary'          => \trim( (string)( $step[ 'summary' ] ?? '' ) ),
+			'focus'            => \trim( (string)( $step[ 'focus' ] ?? '' ) ),
+			'next_step'        => \trim( (string)( $step[ 'next_step' ] ?? '' ) ),
+			'icon_class'       => \trim( (string)( $step[ 'icon_class' ] ?? '' ) ),
+			'badge'            => \trim( (string)( $step[ 'badge' ] ?? '' ) ),
+			'badge_status'     => $badgeStatus,
+			'color_key'        => $colorKey,
 		];
 	}
 
@@ -219,6 +298,10 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 			$status = 'neutral';
 		}
 		return $status;
+	}
+
+	protected function encodeJson( array $data ) :string {
+		return (string)( \json_encode( $data ) ?: '' );
 	}
 
 	protected function buildLandingIconClass( string $icon ) :string {

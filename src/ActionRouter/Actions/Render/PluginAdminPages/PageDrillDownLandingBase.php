@@ -6,12 +6,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-type DrillLayerHeaderInput array{
  *   compact_back_label?:string,
  *   active_back_label?:string,
+ *   breadcrumb_label?:string,
  *   title?:string,
  *   meta?:string,
  *   summary?:string,
+ *   focus?:string,
+ *   next_step?:string,
  *   icon_class?:string,
  *   badge?:string,
- *   badge_status?:string
+ *   badge_status?:string,
+ *   color_key?:string
  * }
  * @phpstan-type RawDrillLayer array{
  *   key:non-empty-string,
@@ -21,12 +25,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-type DrillLayerHeader array{
  *   compact_back_label:string,
  *   active_back_label:string,
+ *   breadcrumb_label:string,
  *   title:string,
  *   meta:string,
  *   summary:string,
+ *   focus:string,
+ *   next_step:string,
  *   icon_class:string,
  *   badge:string,
- *   badge_status:string
+ *   badge_status:string,
+ *   color_key:string
  * }
  * @phpstan-type DrillLayer array{
  *   key:non-empty-string,
@@ -116,16 +124,24 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	 * @return DrillLayerHeader
 	 */
 	private function normalizeLayerHeader( array $header ) :array {
-		return [
+		return \array_merge(
+			[
 			'compact_back_label' => \trim( $header[ 'compact_back_label' ] ?? '' ),
 			'active_back_label'  => \trim( $header[ 'active_back_label' ] ?? '' ),
-			'title'              => \trim( $header[ 'title' ] ?? '' ),
 			'meta'               => \trim( $header[ 'meta' ] ?? '' ),
-			'summary'            => \trim( $header[ 'summary' ] ?? '' ),
-			'icon_class'         => \trim( $header[ 'icon_class' ] ?? '' ),
-			'badge'              => \trim( $header[ 'badge' ] ?? '' ),
-			'badge_status'       => $this->sanitizeBadgeStatus( $header[ 'badge_status' ] ?? '' ),
-		];
+			],
+			$this->normalizeOperatorChromeStep( [
+				'breadcrumb_label' => $header[ 'breadcrumb_label' ] ?? '',
+				'title'            => $header[ 'title' ] ?? '',
+				'summary'          => $header[ 'summary' ] ?? '',
+				'focus'            => $header[ 'focus' ] ?? '',
+				'next_step'        => $header[ 'next_step' ] ?? '',
+				'icon_class'       => $header[ 'icon_class' ] ?? '',
+				'badge'            => $header[ 'badge' ] ?? '',
+				'badge_status'     => $this->sanitizeBadgeStatus( $header[ 'badge_status' ] ?? '' ),
+				'color_key'        => $this->sanitizeBadgeStatus( $header[ 'color_key' ] ?? ( $header[ 'badge_status' ] ?? '' ) ),
+			] )
+		);
 	}
 
 	private function clampActiveLayerIndex( int $activeIndex, int $layerCount ) :int {
@@ -136,7 +152,4 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		return $activeIndex;
 	}
 
-	private function encodeJson( array $data ) :string {
-		return (string)( \json_encode( $data ) ?: '' );
-	}
 }

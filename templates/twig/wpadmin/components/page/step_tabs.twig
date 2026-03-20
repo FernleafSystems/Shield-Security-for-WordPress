@@ -1,0 +1,34 @@
+{% import "/common/macros.twig" as icwp_macros %}
+
+<div class="operator-step-tabs" data-operator-step-tabs="1">
+	<div class="operator-step-tabs__list" data-operator-step-tabs-list="1"></div>
+
+	{% if hrefs.inner_page_contextual_hrefs|default([]) is not empty %}
+		<div class="operator-step-tabs__actions">
+			<div class="btn-group dropstart tour-navigation_v1"
+				 data-introtitle="Action Menu"
+				 data-introposition="left"
+				 data-intro="Certain pages have their own specific actions. Use this menu for shortcuts to useful tools and options.">
+				<button type="button"
+						class="btn btn-link dropdown-toggle page-action-menu-toggle"
+						data-bs-toggle="dropdown"
+						aria-expanded="false"><i class="{{ imgs.svgs.menu }}" aria-hidden="true"></i></button>
+				<ul class="dropdown-menu">
+					{% for item in hrefs.inner_page_contextual_hrefs %}
+						<li>
+							{{ icwp_macros.tagAnchor(
+								item.href,
+								item.title,
+								item.id|default(''),
+								item.classes|default([])|merge(['dropdown-item']),
+								item.new_window|default(false),
+								item.data|default([]),
+								item.disabled|default(false)
+							) }}
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	{% endif %}
+</div>

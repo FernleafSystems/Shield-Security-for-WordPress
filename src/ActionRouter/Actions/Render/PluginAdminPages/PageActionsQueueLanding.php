@@ -76,9 +76,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 		$allClear = $this->getLandingViewData()[ 'all_clear' ];
 
 		return [
-			'status_action_required' => __( 'Action Required', 'wp-simple-firewall' ),
-			'status_all_clear'       => __( 'All Clear', 'wp-simple-firewall' ),
-			'severity_strip_label'   => __( 'Queue Status', 'wp-simple-firewall' ),
 			'all_clear_title'        => $allClear[ 'title' ],
 			'all_clear_subtitle'     => $allClear[ 'subtitle' ],
 			'all_clear_icon_class'   => $allClear[ 'icon_class' ],
@@ -93,11 +90,17 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 		];
 	}
 
+	protected function getOperatorRootStep() :array {
+		return \array_replace(
+			parent::getOperatorRootStep(),
+			$this->buildActionsQueueOperatorRootStep()
+		);
+	}
+
 	protected function getLandingVars() :array {
 		$viewData = $this->getLandingViewData();
 
 		return \array_merge( parent::getLandingVars(), [
-			'severity_strip'     => $viewData[ 'severity_strip' ],
 			'zone_tiles'         => $viewData[ 'zone_tiles' ],
 			'all_clear'          => $viewData[ 'all_clear' ],
 			'actions_queue_ajax' => [
@@ -126,6 +129,13 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 				'body'   => $this->renderBucketsLayer(),
 				'header' => [
 					'compact_back_label' => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
+					'breadcrumb_label'   => __( 'Buckets', 'wp-simple-firewall' ),
+					'title'              => __( 'Buckets', 'wp-simple-firewall' ),
+					'summary'            => __( 'Choose the queue area that needs attention first.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Open a bucket to continue into grouped findings.', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-inboxes',
+					'badge_status'       => $summary[ 'severity' ],
+					'color_key'          => $summary[ 'severity' ],
 				],
 			],
 			[
@@ -134,11 +144,14 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 				'header' => [
 					'compact_back_label' => $presentation->buildBackLabel( __( 'Grouped Findings', 'wp-simple-firewall' ) ),
 					'active_back_label'  => $presentation->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
+					'breadcrumb_label'   => __( 'Grouped findings', 'wp-simple-firewall' ),
 					'title'              => __( 'Grouped findings', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose a bucket to start.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Choose one group to review the matching results.', 'wp-simple-firewall' ),
 					'icon_class'         => 'bi bi-list-ul',
 					'badge'              => __( 'Select', 'wp-simple-firewall' ),
 					'badge_status'       => 'neutral',
+					'color_key'          => 'neutral',
 				],
 			],
 			[
@@ -147,11 +160,14 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 				'header' => [
 					'compact_back_label' => $presentation->buildBackLabel( __( 'Scoped Results', 'wp-simple-firewall' ) ),
 					'active_back_label'  => $presentation->buildBackLabel( __( 'Grouped Findings', 'wp-simple-firewall' ) ),
+					'breadcrumb_label'   => __( 'Scoped results', 'wp-simple-firewall' ),
 					'title'              => __( 'Scoped results', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose a group to review the matching results.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Review the scoped results and complete the next action.', 'wp-simple-firewall' ),
 					'icon_class'         => 'bi bi-list-nested',
 					'badge'              => __( 'Select', 'wp-simple-firewall' ),
 					'badge_status'       => 'neutral',
+					'color_key'          => 'neutral',
 				],
 			],
 		];
@@ -196,7 +212,4 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 		return $this->drillDownPresentation;
 	}
 
-	private function encodeJson( array $data ) :string {
-		return (string)( \json_encode( $data ) ?: '' );
-	}
 }

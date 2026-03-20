@@ -62,16 +62,6 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-drill-layer-key="subjects" and string-length(@data-drill-layer-header) > 0]',
 			'Investigate landing should render producer-owned layer header JSON'
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer-key="subjects"]//*[@data-drill-layer-compact-back="1"]',
-			'Investigate landing should render the shared drill back control'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__section-label ") and normalize-space()="Choose a subject to investigate"]',
-			'Investigate landing should render the heading inside the subjects layer'
-		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__subject-card ")]',
@@ -120,11 +110,6 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 		$this->assertSame( 'IP Address', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( (string)( $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' ) ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer="1"]//*[@data-drill-layer-header-title="1" and normalize-space()="IP Address"]',
-			'Deep-linked Investigate landing should preload the IP lane header'
-		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-drill-layer="1"]//*[@data-investigate-panel="1" and @data-investigate-panel-subject="ip" and @data-investigate-panel-loaded="1"]',

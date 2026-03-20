@@ -10,6 +10,9 @@ trait ModeLandingAssertions {
 		$this->assertSame( $accentStatus, (string)( $modeShell[ 'accent_status' ] ?? '' ), 'Mode shell payload accent contract' );
 		$this->assertTrue( (bool)( $modeShell[ 'is_mode_landing' ] ?? false ), 'Mode shell payload landing contract' );
 		$this->assertSame( $isInteractive, (bool)( $modeShell[ 'is_interactive' ] ?? !$isInteractive ), 'Mode shell payload interactive contract' );
+		$this->assertTrue( (bool)( $modeShell[ 'use_operator_chrome' ] ?? false ), 'Mode shell payload operator chrome contract' );
+		$this->assertNotSame( '', (string)( $modeShell[ 'root_step' ][ 'title' ] ?? '' ), 'Mode shell payload root step title contract' );
+		$this->assertNotSame( '', (string)( $modeShell[ 'root_step_json' ] ?? '' ), 'Mode shell payload root step JSON contract' );
 	}
 
 	private function assertModePanelPayload( array $vars, string $activeTarget, bool $isOpen ) :void {

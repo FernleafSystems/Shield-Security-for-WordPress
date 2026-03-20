@@ -1,8 +1,0 @@
-<button type="button"
-		class="drill-strip{% if strip.classes is not empty %} {{ strip.classes }}{% endif %}"
-		data-drill-strip="1"
-		aria-label="{{ strip.label }}"
-		{% if strip.data_attribute is not empty %}{{ strip.data_attribute }}="1"{% endif %}>
-	<i class="bi bi-arrow-left drill-strip__back" aria-hidden="true"></i>
-	<span class="drill-strip__title">{{ strip.label }}</span>
-</button>

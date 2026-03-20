@@ -51,11 +51,46 @@ export function normalizeLayerHeaderData( headerData ) {
 	return {
 		compact_back_label: normalizeDrillText( source.compact_back_label ),
 		active_back_label: normalizeDrillText( source.active_back_label ),
+		breadcrumb_label: normalizeDrillText( source.breadcrumb_label ),
 		title: normalizeDrillText( source.title ),
 		meta: normalizeDrillText( source.meta ),
 		summary: normalizeDrillText( source.summary ),
+		focus: normalizeDrillText( source.focus ),
+		next_step: normalizeDrillText( source.next_step ),
 		icon_class: normalizeDrillText( source.icon_class ),
 		badge: normalizeDrillText( source.badge ),
 		badge_status: normalizeDrillStatus( source.badge_status ),
+		color_key: normalizeDrillStatus( source.color_key || source.badge_status ),
 	};
+}
+
+export function parseJsonAttribute( rawValue, fallback = {} ) {
+	if ( typeof rawValue !== 'string' || rawValue.trim().length < 1 ) {
+		return fallback;
+	}
+
+	try {
+		const parsed = JSON.parse( rawValue );
+		return parsed && typeof parsed === 'object' ? parsed : fallback;
+	}
+	catch {
+		return fallback;
+	}
+}
+
+export function updateOperatorRootStep( rootEl, rootStepJson ) {
+	if ( !( rootEl instanceof Element ) || typeof rootStepJson !== 'string' || rootStepJson.length < 1 ) {
+		return;
+	}
+
+	const operatorShell = rootEl.closest( '[data-mode-shell="1"][data-operator-chrome="1"]' );
+	if ( !( operatorShell instanceof HTMLElement ) ) {
+		return;
+	}
+
+	operatorShell.dataset.operatorRootStep = rootStepJson;
+	const stepTabs = shieldAppMain?.components?.step_tabs || null;
+	if ( stepTabs !== null && typeof stepTabs.renderShell === 'function' ) {
+		stepTabs.renderShell( operatorShell );
+	}
 }

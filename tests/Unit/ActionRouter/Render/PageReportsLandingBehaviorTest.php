@@ -72,6 +72,9 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'rendered-1', $tiles[ 0 ][ 'panel_content' ] ?? '' );
 		$this->assertSame( 'config_form', $tiles[ 1 ][ 'panel_variant' ] ?? '' );
 		$this->assertSame( 'rendered-2', $tiles[ 1 ][ 'panel_content' ] ?? '' );
+		$this->assertSame( 'Security Reports', $tiles[ 0 ][ 'step' ][ 'breadcrumb_label' ] ?? '' );
+		$this->assertSame( 'warning', $tiles[ 0 ][ 'step' ][ 'color_key' ] ?? '' );
+		$this->assertNotSame( '', $tiles[ 0 ][ 'step_json' ] ?? '' );
 	}
 
 	public function test_landing_hrefs_include_canonical_and_legacy_workspace_routes() :void {
@@ -112,6 +115,9 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( 'Reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertCount( 2, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? false ) );

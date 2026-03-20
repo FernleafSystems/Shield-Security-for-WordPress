@@ -43,7 +43,6 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 		return \array_merge(
 			parent::getLandingVars(),
 			[
-				'configure_posture_strip' => $this->getConfigurePostureStrip(),
 				'configure_ajax'          => [
 					'diagnosis_render_action'      => $diagnosisAction,
 					'diagnosis_render_action_json' => $this->encodeJson( $diagnosisAction ),
@@ -64,6 +63,13 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 		];
 	}
 
+	protected function getOperatorRootStep() :array {
+		return \array_replace(
+			parent::getOperatorRootStep(),
+			$this->buildConfigureOperatorRootStep()
+		);
+	}
+
 	protected function getLayers() :array {
 		$selectedZoneKey = $this->getValidRequestedConfigureZoneKey();
 		$selectedDiagnosis = $selectedZoneKey !== ''
@@ -76,6 +82,13 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				'body'   => $this->renderConfigureZonesLayer(),
 				'header' => [
 					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
+					'breadcrumb_label'   => __( 'Zones', 'wp-simple-firewall' ),
+					'title'              => __( 'Zones', 'wp-simple-firewall' ),
+					'summary'            => __( 'Review posture by zone and choose where to focus next.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Open one zone to continue.', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-grid-1x2',
+					'badge_status'       => 'good',
+					'color_key'          => 'good',
 				],
 			],
 			[
@@ -88,11 +101,14 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 					: [
 						'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Review Findings', 'wp-simple-firewall' ) ),
 						'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Configure', 'wp-simple-firewall' ) ),
+						'breadcrumb_label'   => __( 'Review findings', 'wp-simple-firewall' ),
 						'title'              => __( 'Review findings', 'wp-simple-firewall' ),
 						'summary'            => __( 'Open one zone to continue.', 'wp-simple-firewall' ),
+						'next_step'          => __( 'Choose the zone that needs the next settings change.', 'wp-simple-firewall' ),
 						'icon_class'         => 'bi bi-sliders',
 						'badge'              => __( 'Select', 'wp-simple-firewall' ),
 						'badge_status'       => 'neutral',
+						'color_key'          => 'neutral',
 					],
 			],
 			[
@@ -101,11 +117,14 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 				'header' => [
 					'compact_back_label' => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Settings', 'wp-simple-firewall' ) ),
 					'active_back_label'  => sprintf( __( 'Back to %s', 'wp-simple-firewall' ), __( 'Review findings', 'wp-simple-firewall' ) ),
+					'breadcrumb_label'   => __( 'Settings', 'wp-simple-firewall' ),
 					'title'              => __( 'Open settings', 'wp-simple-firewall' ),
 					'summary'            => __( 'Save your changes when you are done.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Review the form and save the settings update.', 'wp-simple-firewall' ),
 					'icon_class'         => 'bi bi-sliders',
 					'badge'              => __( 'Select', 'wp-simple-firewall' ),
 					'badge_status'       => 'neutral',
+					'color_key'          => 'neutral',
 				],
 			],
 		];
@@ -122,9 +141,5 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 	 */
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
 		return ActionData::BuildAjaxRender( $renderAction, $auxData );
-	}
-
-	private function encodeJson( array $data ) :string {
-		return (string)( \json_encode( $data ) ?: '' );
 	}
 }

@@ -98,6 +98,8 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 		$vars = $data[ 'vars' ] ?? [];
 
 		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'mode' ] ?? '' );
+		$this->assertSame( 'Drill Title', $vars[ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertSame( 'Drill Subtitle', $vars[ 'mode_shell' ][ 'root_step' ][ 'summary' ] ?? '' );
 		$this->assertSame( 'actions_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
 		$this->assertSame( 'actions', $vars[ 'drill_shell' ][ 'mode' ] ?? '' );
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
@@ -111,17 +113,21 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 			[
 				'compact_back_label' => 'Back to Bucket Detail',
 				'active_back_label'  => 'Back to Queue',
-				'title'              => 'Bucket Detail',
 				'meta'               => 'Warning',
+				'breadcrumb_label'   => '',
+				'title'              => 'Bucket Detail',
 				'summary'            => 'Narrow the queue.',
+				'focus'              => '',
+				'next_step'          => '',
 				'icon_class'         => 'bi bi-eye',
 				'badge'              => 'Review',
 				'badge_status'       => 'warning',
+				'color_key'          => 'warning',
 			],
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? []
 		);
 		$this->assertSame(
-			'{"compact_back_label":"Back to Bucket Detail","active_back_label":"Back to Queue","title":"Bucket Detail","meta":"Warning","summary":"Narrow the queue.","icon_class":"bi bi-eye","badge":"Review","badge_status":"warning"}',
+			'{"compact_back_label":"Back to Bucket Detail","active_back_label":"Back to Queue","meta":"Warning","breadcrumb_label":"","title":"Bucket Detail","summary":"Narrow the queue.","focus":"","next_step":"","icon_class":"bi bi-eye","badge":"Review","badge_status":"warning","color_key":"warning"}',
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header_json' ] ?? ''
 		);
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );

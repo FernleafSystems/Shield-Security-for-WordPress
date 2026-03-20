@@ -2,11 +2,12 @@
 {% set mode_shell = vars.mode_shell|default({}) %}
 {% set mode_panel = vars.mode_panel|default({}) %}
 {% set is_mode_landing = mode_shell.is_mode_landing|default(false) %}
+{% set use_operator_chrome = is_mode_landing and mode_shell.use_operator_chrome|default(false) %}
 {% set mode_active_panel = mode_panel.active_target|default('') %}
 
 {% block inner_page_header %}
 
-	{% if strings.inner_page_title|default('') is not empty %}
+	{% if not use_operator_chrome and strings.inner_page_title|default('') is not empty %}
 		{% if is_mode_landing %}
 			<div class="mode-landing-accent-bar status-{{ mode_shell.accent_status|default('neutral') }}"
 				 data-mode-accent="1"
@@ -81,21 +82,51 @@
 
 {% endblock %}
 
+{% block inner_page_body %}
+	{% for element in content|default([]) %}
+		{{ element|raw }}
+	{% endfor %}
+{% endblock %}
+
 {% block inner_page_body_shell %}
 	<div class="inner-page-body-shell{% if is_mode_landing %} is-mode-landing{% endif %}"
 		 data-inner-page-body-shell="1"
 		 {% if is_mode_landing %}
 		 data-mode-shell="1"
-		 data-mode="{{ mode_shell.mode|default('') }}"
-		 data-mode-interactive="{{ mode_shell.is_interactive|default(false) ? '1' : '0' }}"
+		 data-mode="{{ mode_shell.mode }}"
+		 data-mode-interactive="{{ mode_shell.is_interactive ? '1' : '0' }}"
 		 {% if mode_active_panel is not empty %}
 		 data-mode-active-panel="{{ mode_active_panel }}"
 		 {% endif %}
+		 {% if use_operator_chrome %}
+		 data-operator-chrome="1"
+		 data-operator-root-step="{{ mode_shell.root_step_json|e('html_attr') }}"
+		 data-operator-context-title="{{ strings.operator_context_title|e('html_attr') }}"
+		 data-operator-context-focus="{{ strings.operator_context_focus|e('html_attr') }}"
+		 data-operator-context-next="{{ strings.operator_context_next|e('html_attr') }}"
+		 {% endif %}
 		 {% endif %}>
-		{% block inner_page_body %}
-			{% for element in content|default([]) %}
-				{{ element|raw }}
-			{% endfor %}
-		{% endblock %}
+		{% if use_operator_chrome %}
+			{% set operator_body_html %}
+				{{ block('inner_page_body') }}
+			{% endset %}
+			{% set operator_rail_html %}
+				{% include '/wpadmin/components/page/context_rail.twig' with {
+					step: mode_shell.root_step
+				} only %}
+			{% endset %}
+			{% include '/wpadmin/components/page/step_tabs.twig' with {
+				hrefs: hrefs,
+				imgs: imgs
+			} only %}
+			{% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
+				class: 'shield-rail-layout--context-end',
+				content_first: true,
+				content_html: operator_body_html,
+				rail_html: operator_rail_html
+			} } only %}
+		{% else %}
+			{{ block('inner_page_body') }}
+		{% endif %}
 	</div>
 {% endblock %}

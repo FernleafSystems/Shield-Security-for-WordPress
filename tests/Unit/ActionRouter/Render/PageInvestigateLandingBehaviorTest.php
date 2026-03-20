@@ -143,11 +143,15 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			[
 				'compact_back_label' => 'Back to IP Address',
 				'active_back_label'  => 'Back to Investigate',
+				'breadcrumb_label'   => 'IP Address',
 				'title'              => 'IP Address',
 				'summary'            => 'Use the panel below to look up and explore.',
+				'focus'              => $tilesByKey[ 'ip' ][ 'stat_text' ],
+				'next_step'          => 'Use the panel tabs and actions to continue the investigation.',
 				'icon_class'         => $tilesByKey[ 'ip' ][ 'icon_class' ],
 				'badge'              => $tilesByKey[ 'ip' ][ 'stat_text' ],
 				'badge_status'       => 'info',
+				'color_key'          => 'info',
 			],
 			$tilesByKey[ 'ip' ][ 'header' ] ?? []
 		);
@@ -172,6 +176,8 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $idlePanel[ 'render_action_json' ] ?? 'missing' );
 		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( 'Investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'mode_tiles' ] ?? [ 'unexpected' ] );
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? true ) );
