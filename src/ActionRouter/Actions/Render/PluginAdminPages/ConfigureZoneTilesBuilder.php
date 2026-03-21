@@ -7,9 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
 class ConfigureZoneTilesBuilder {
 
@@ -109,7 +109,9 @@ class ConfigureZoneTilesBuilder {
 	 */
 	private function buildTileFromDefinition( array $definition ) :array {
 		$forceNeutral = !empty( $definition[ 'force_neutral' ] );
-		$components = $this->buildComponentContracts( $definition, $forceNeutral );
+		$zone = $this->zoneForDefinition( $definition );
+		$visibleComponents = $this->componentsForDefinition( $definition, $zone );
+		$components = $this->buildComponentContracts( $zone, $visibleComponents, $forceNeutral );
 		$status = $forceNeutral ? 'neutral' : $this->aggregateTileStatus( $components );
 		$includeInPosture = !\array_key_exists( 'include_in_posture', $definition )
 			|| (bool)$definition[ 'include_in_posture' ];
@@ -158,14 +160,14 @@ class ConfigureZoneTilesBuilder {
 	 *   config_action:array<string,mixed>
 	 * }>
 	 */
-	private function buildComponentContracts( array $definition, bool $forceNeutral ) :array {
+	private function buildComponentContracts( ?Zone\Base $zone, array $visibleComponents, bool $forceNeutral ) :array {
 		$components = \array_map(
 			fn( Component\Base $component ) :array => $this->buildSingleComponentContract( $component, $forceNeutral ),
-			$this->componentsForDefinition( $definition )
+			$visibleComponents
 		);
 
 		if ( !$forceNeutral ) {
-			$generalSettings = $this->buildGeneralSettingsComponentContract( $definition );
+			$generalSettings = $this->buildGeneralSettingsComponentContract( $zone, $visibleComponents );
 			if ( !empty( $generalSettings ) ) {
 				$components[] = $generalSettings;
 			}
@@ -227,24 +229,9 @@ class ConfigureZoneTilesBuilder {
 	 *   config_action:array<string,mixed>
 	 * }
 	 */
-	private function buildGeneralSettingsComponentContract( array $definition ) :array {
-		$moduleSlugs = $this->zoneActionComponentSlugs( $definition );
-		if ( empty( $moduleSlugs ) ) {
-			return [];
-		}
-
-		$visibleOptionKeys = [];
-		foreach ( $this->componentsForDefinition( $definition ) as $component ) {
-			$visibleOptionKeys = \array_merge( $visibleOptionKeys, $component->getOptions() );
-		}
-		$visibleOptionKeys = \array_values( \array_unique( $visibleOptionKeys ) );
-
-		$moduleOptionKeys = ( new GetOptionsForZoneComponents() )->run( $moduleSlugs );
-		$leftoverOptionKeys = \array_values( \array_filter(
-			$moduleOptionKeys,
-			static fn( string $optionKey ) :bool => !\in_array( $optionKey, $visibleOptionKeys, true )
-		) );
-		if ( empty( $leftoverOptionKeys ) ) {
+	private function buildGeneralSettingsComponentContract( ?Zone\Base $zone, array $visibleComponents ) :array {
+		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve( $zone, $visibleComponents );
+		if ( empty( $scope ) ) {
 			return [];
 		}
 
@@ -260,8 +247,8 @@ class ConfigureZoneTilesBuilder {
 				'icon'  => self::con()->svgs->iconClass( 'gear' ),
 				'data'  => [
 					'zone_component_action' => ZoneComponentConfig::SLUG,
-					'zone_component_slug'   => \implode( ',', $moduleSlugs ),
-					'option_keys'           => \implode( ',', $leftoverOptionKeys ),
+					'zone_component_slug'   => \implode( ',', $scope[ 'zone_component_slugs' ] ),
+					'option_keys'           => \implode( ',', $scope[ 'option_keys' ] ),
 				],
 			] ),
 		];
@@ -374,9 +361,8 @@ class ConfigureZoneTilesBuilder {
 	 * } $definition
 	 * @return Component\Base[]
 	 */
-	private function componentsForDefinition( array $definition ) :array {
-		if ( !empty( $definition[ 'zone_slug' ] ) ) {
-			$zone = $this->zonesCon()->getZone( $definition[ 'zone_slug' ] );
+	private function componentsForDefinition( array $definition, ?Zone\Base $zone = null ) :array {
+		if ( $zone !== null ) {
 			return $this->zonesCon()->getComponentsForZone( $zone );
 		}
 
@@ -427,20 +413,14 @@ class ConfigureZoneTilesBuilder {
 	 *   include_in_posture?:bool,
 	 *   force_neutral?:bool
 	 * } $definition
-	 * @return list<string>
+	 * @return ?Zone\Base
 	 */
-	private function zoneActionComponentSlugs( array $definition ) :array {
+	private function zoneForDefinition( array $definition ) :?Zone\Base {
 		if ( empty( $definition[ 'zone_slug' ] ) ) {
-			return [];
+			return null;
 		}
 
-		$action = $this->zonesCon()->getZone( $definition[ 'zone_slug' ] )->getAction_Config();
-		$componentSlug = (string)( $action[ 'data' ][ 'zone_component_slug' ] ?? '' );
-
-		return \array_values( \array_filter( \array_map(
-			static fn( string $slug ) :string => \trim( $slug ),
-			\explode( ',', $componentSlug )
-		) ) );
+		return $this->zonesCon()->getZone( $definition[ 'zone_slug' ] );
 	}
 
 	/**

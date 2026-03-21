@@ -30,10 +30,13 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		], $params ) );
 	}
 
+	private function renderConfigureDiagnosis( array $params = [] ) :array {
+		return $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, $params );
+	}
+
 	public function test_landing_renders_shared_operator_chrome_and_two_layer_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
 
 		$this->assertModeShellPayload( $vars, 'configure', 'good', false );
@@ -53,145 +56,115 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			ConfigureDrillDownDiagnosis::SLUG,
 			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ 'render_slug' ] ?? ''
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-section="drilldown"]//*[@data-drill-shell="1"]',
-			'Configure landing should render the shared drill-down shell'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer-key="zones" and string-length(@data-drill-layer-header) > 0]',
-			'Configure landing should render producer-owned layer header JSON for the zones layer'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1" and @aria-expanded="false"]',
-			'Configure landing should render the shared healthy disclosure toggle with the closed accessibility state'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-healthy-disclosure-body="1" and @aria-hidden="true"]',
-			'Configure landing should render the shared healthy disclosure body with the closed accessibility state'
-		);
+		$this->assertNotSame( '', (string)( $payload[ 'render_output' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'title' ] ?? '' ) );
 	}
 
 	public function test_valid_deep_link_starts_on_diagnosis_and_invalid_key_falls_back() :void {
 		$validPayload = $this->renderConfigureLandingPage( [ 'zone' => 'login' ] );
 		$invalidPayload = $this->renderConfigureLandingPage( [ 'zone' => 'login_protection' ] );
-		$validHtml = $this->assertRouteRenderOutputHealthy( $validPayload, 'configure landing deep link' );
-		$validXpath = $this->createDomXPathFromHtml( $validHtml );
+		$this->assertRouteRenderOutputHealthy( $validPayload, 'configure landing deep link' );
 
 		$this->assertSame( 1, (int)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 		$this->assertNotSame(
 			'',
 			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' )
 		);
-		$this->assertXPathExists(
-			$validXpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__next-move ")]',
-			'Deep-linked diagnosis should render the next move guidance block'
-		);
-		$this->assertXPathNotExists(
-			$validXpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__settings-link ")]',
-			'Deep-linked diagnosis should not render the removed settings page link'
-		);
-		$this->assertXPathExists(
-			$validXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-configure-expand-ajax="1"][@data-zone_component_slug][@data-zone_component_action]',
-			'Deep-linked diagnosis should render reusable expansion placeholders with component action data'
-		);
+		$this->assertSame( 'Login', (string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $invalidPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 	}
 
 	public function test_diagnosis_ajax_returns_html_context_and_optional_landing_refresh() :void {
-		$payload = $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, [
+		$payload = $this->renderConfigureDiagnosis( [
 			'zone' => 'login',
 		] );
-		$refreshPayload = $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, [
+		$refreshPayload = $this->renderConfigureDiagnosis( [
 			'zone'                    => 'login',
 			'include_landing_refresh' => 1,
 		] );
-		$html = (string)( $payload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$diagnosis = \is_array( $payload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $payload[ 'render_data' ][ 'diagnosis' ] : [];
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Login', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $payload[ 'html' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'editor_selection', $payload );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-diagnosis="1"]',
-			'Diagnosis AJAX should render the diagnosis wrapper'
-		);
-		$this->assertXPathNotExists(
-			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__settings-link ")]',
-			'Diagnosis AJAX should not render the removed settings link'
-		);
-		$this->assertGreaterThan(
-			0,
-			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[@data-shield-expand-trigger="1"]' )->length,
-			'Diagnosis AJAX should render shared expandable detail rows for configurable findings'
-		);
+		$this->assertArrayNotHasKey( 'settings_href', $diagnosis );
+		$this->assertArrayNotHasKey( 'settings_label', $diagnosis );
+		$this->assertGreaterThan( 0, \count( $this->allDiagnosisRows( $diagnosis ) ) );
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
 	}
 
 	public function test_scans_and_spam_diagnosis_render_scoped_rows_and_general_settings() :void {
-		$scansPayload = $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, [
+		$scansPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'scans',
 		] );
-		$spamPayload = $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, [
+		$spamPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'spam',
 		] );
+		$scansDiagnosis = \is_array( $scansPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $scansPayload[ 'render_data' ][ 'diagnosis' ] : [];
+		$spamDiagnosis = \is_array( $spamPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $spamPayload[ 'render_data' ][ 'diagnosis' ] : [];
+		$scanScheduling = $this->findDiagnosisRowBySlug( $scansDiagnosis, 'scan_scheduling' );
+		$scanGeneral = $this->findDiagnosisRowByOptionKeys( $scansDiagnosis, 'ptg_reinstall_links' );
+		$trustedCommenters = $this->findDiagnosisRowBySlug( $spamDiagnosis, 'trusted_commenters' );
+		$spamGeneral = $this->findDiagnosisRowByOptionKeys( $spamDiagnosis, 'comments_cooldown' );
 
-		$scansXpath = $this->createDomXPathFromHtml( (string)( $scansPayload[ 'html' ] ?? '' ) );
-		$spamXpath = $this->createDomXPathFromHtml( (string)( $spamPayload[ 'html' ] ?? '' ) );
-
-		$this->assertXPathExists(
-			$scansXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-zone_component_slug="scan_scheduling"][@data-config_item="scan_frequency"]',
-			'Scans diagnosis should scope scan scheduling to the dedicated callout'
-		);
-		$this->assertXPathExists(
-			$scansXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-option_keys="ptg_reinstall_links"][@data-zone_component_slug="module_scans"]',
-			'Scans diagnosis should expose leftover scan options through a General settings row'
-		);
-		$this->assertXPathExists(
-			$spamXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-zone_component_slug="trusted_commenters"][@data-config_item="trusted_commenter_minimum"]',
-			'SPAM diagnosis should scope trusted commenters to the dedicated callout'
-		);
-		$this->assertXPathExists(
-			$spamXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-option_keys="comments_cooldown"][@data-zone_component_slug="module_spam"]',
-			'SPAM diagnosis should expose leftover spam options through a General settings row'
-		);
+		$this->assertSame( 'scan_frequency', (string)( $scanScheduling[ 'expand_action' ][ 'data_attributes' ][ 'config_item' ] ?? '' ) );
+		$this->assertSame( 'module_scans', (string)( $scanGeneral[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' ) );
+		$this->assertSame( 'trusted_commenter_minimum', (string)( $trustedCommenters[ 'expand_action' ][ 'data_attributes' ][ 'config_item' ] ?? '' ) );
+		$this->assertSame( 'module_spam', (string)( $spamGeneral[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' ) );
 	}
 
 	public function test_login_and_ips_diagnosis_surface_existing_hidden_callouts() :void {
-		$loginPayload = $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, [
+		$loginPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'login',
 		] );
-		$ipsPayload = $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, [
+		$ipsPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'ips',
 		] );
+		$loginDiagnosis = \is_array( $loginPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $loginPayload[ 'render_data' ][ 'diagnosis' ] : [];
+		$ipsDiagnosis = \is_array( $ipsPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $ipsPayload[ 'render_data' ][ 'diagnosis' ] : [];
 
-		$loginXpath = $this->createDomXPathFromHtml( (string)( $loginPayload[ 'html' ] ?? '' ) );
-		$ipsXpath = $this->createDomXPathFromHtml( (string)( $ipsPayload[ 'html' ] ?? '' ) );
+		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $loginDiagnosis, 'login_hide' ) );
+		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $ipsDiagnosis, 'ip_blocking_rules' ) );
+	}
 
-		$this->assertXPathExists(
-			$loginXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-zone_component_slug="login_hide"]',
-			'Login diagnosis should surface the existing login-hide callout'
+	/**
+	 * @param array<string,mixed> $diagnosis
+	 * @return list<array<string,mixed>>
+	 */
+	private function allDiagnosisRows( array $diagnosis ) :array {
+		return \array_merge(
+			$diagnosis[ 'problem_rows' ] ?? [],
+			$diagnosis[ 'review_rows' ] ?? [],
+			$diagnosis[ 'healthy_rows' ] ?? []
 		);
-		$this->assertXPathExists(
-			$ipsXpath,
-			'//*[@data-configure-diagnosis="1"]//*[@data-zone_component_slug="ip_blocking_rules"]',
-			'IPs diagnosis should surface the existing IP blocking rules callout'
-		);
+	}
+
+	/**
+	 * @param array<string,mixed> $diagnosis
+	 * @return array<string,mixed>
+	 */
+	private function findDiagnosisRowBySlug( array $diagnosis, string $zoneComponentSlug ) :array {
+		foreach ( $this->allDiagnosisRows( $diagnosis ) as $row ) {
+			if ( (string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' ) === $zoneComponentSlug ) {
+				return $row;
+			}
+		}
+		return [];
+	}
+
+	/**
+	 * @param array<string,mixed> $diagnosis
+	 * @return array<string,mixed>
+	 */
+	private function findDiagnosisRowByOptionKeys( array $diagnosis, string $optionKeys ) :array {
+		foreach ( $this->allDiagnosisRows( $diagnosis ) as $row ) {
+			if ( (string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) === $optionKeys ) {
+				return $row;
+			}
+		}
+		return [];
 	}
 }

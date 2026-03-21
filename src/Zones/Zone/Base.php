@@ -36,13 +36,13 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	}
 
 	public function getAction_Config() :?array {
-		$moduleZone = $this->getUnderlyingModuleZone();
-		return empty( $moduleZone ) ? null : [
+		$zoneComponentSlugs = $this->getConfigZoneComponentSlugs();
+		return empty( $zoneComponentSlugs ) ? null : [
 			'title'   => sprintf( __( "Configure All '%s' Options", 'wp-simple-firewall' ), $this->title() ),
 			'data'    => \array_merge(
 				[
 					'zone_component_action' => ZoneComponentConfig::SLUG,
-					'zone_component_slug'   => $moduleZone::Slug(),
+					'zone_component_slug'   => \implode( ',', $zoneComponentSlugs ),
 				],
 				empty( $this->tooltip() ) ? [] : [
 					'bs-toggle'    => 'tooltip',
@@ -57,6 +57,14 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 				'zone_component_action',
 			],
 		];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	public function getConfigZoneComponentSlugs() :array {
+		$moduleZone = $this->getUnderlyingModuleZone();
+		return empty( $moduleZone ) ? [] : [ $moduleZone::Slug() ];
 	}
 
 	/**

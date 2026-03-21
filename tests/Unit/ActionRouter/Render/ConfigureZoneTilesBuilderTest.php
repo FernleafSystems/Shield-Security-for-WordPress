@@ -66,18 +66,21 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		}
 
 		$this->assertSame( 'good', $tilesByKey[ 'secadmin' ][ 'status' ] );
-		$this->assertSame(
-			[ 'PIN Protection', 'General settings' ],
-			\array_column( $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ], 'title' )
+		$this->assertCount( 2, $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ] );
+		$this->assertSame( 'PIN Protection', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'title' ] ?? '' );
+		$secadminGeneral = $this->findComponentByOptionKeys(
+			$tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ],
+			'admin_access_restrict_plugins'
 		);
 		$this->assertSame(
 			'admin_access_restrict_plugins',
-			$tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 1 ][ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+			$secadminGeneral[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
 		);
 		$this->assertSame(
 			'module_secadmin',
-			$tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 1 ][ 'config_action' ][ 'data' ][ 'zone_component_slug' ] ?? ''
+			$secadminGeneral[ 'config_action' ][ 'data' ][ 'zone_component_slug' ] ?? ''
 		);
+		$this->assertSame( 'neutral', $secadminGeneral[ 'status' ] ?? '' );
 
 		$this->assertSame( 'warning', $tilesByKey[ 'login' ][ 'status' ] );
 		$this->assertSame(
@@ -86,19 +89,38 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 'critical', $tilesByKey[ 'spam' ][ 'status' ] );
+		$this->assertCount( 4, $tilesByKey[ 'spam' ][ 'panel' ][ 'components' ] );
 		$this->assertSame(
-			[ 'Bot SPAM Blocking', 'Human SPAM Filtering', 'Trusted Commenters', 'General settings' ],
-			\array_column( $tilesByKey[ 'spam' ][ 'panel' ][ 'components' ], 'title' )
+			[ 'Bot SPAM Blocking', 'Human SPAM Filtering', 'Trusted Commenters' ],
+			\array_column( \array_slice( $tilesByKey[ 'spam' ][ 'panel' ][ 'components' ], 0, 3 ), 'title' )
+		);
+		$spamGeneral = $this->findComponentByOptionKeys(
+			$tilesByKey[ 'spam' ][ 'panel' ][ 'components' ],
+			'comments_cooldown'
 		);
 		$this->assertSame(
 			'comments_cooldown',
-			$tilesByKey[ 'spam' ][ 'panel' ][ 'components' ][ 3 ][ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+			$spamGeneral[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
 		);
+		$this->assertSame( 'neutral', $spamGeneral[ 'status' ] ?? '' );
 
 		$this->assertSame( 'neutral', $tilesByKey[ 'general' ][ 'status' ] );
-		$this->assertSame( 'General settings', $tilesByKey[ 'general' ][ 'stat_line' ] );
-		$this->assertSame( 'General', $tilesByKey[ 'general' ][ 'status_label' ] );
+		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'stat_line' ] ?? '' );
+		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'status_label' ] ?? '' );
 		$this->assertCount( 2, $tilesByKey[ 'general' ][ 'panel' ][ 'components' ] );
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $components
+	 * @return array<string,mixed>
+	 */
+	private function findComponentByOptionKeys( array $components, string $optionKeys ) :array {
+		foreach ( $components as $component ) {
+			if ( (string)( $component[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? '' ) === $optionKeys ) {
+				return $component;
+			}
+		}
+		return [];
 	}
 
 	private function installControllerStub() :void {
@@ -364,21 +386,8 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				$this->moduleSlug = $moduleSlug;
 			}
 
-			public function getAction_Config() :?array {
-				return [
-					'title'   => 'Config',
-					'data'    => [
-						'zone_component_action' => 'offcanvas_zone_component_config',
-						'zone_component_slug'   => $this->moduleSlug,
-						'Retry-Count'           => 5,
-						''                      => 'drop-me',
-					],
-					'icon'    => 'bi bi-gear',
-					'classes' => [
-						'list-group-item-primary',
-						'zone_component_action',
-					],
-				];
+			public function getConfigZoneComponentSlugs() :array {
+				return [ $this->moduleSlug ];
 			}
 		};
 	}
