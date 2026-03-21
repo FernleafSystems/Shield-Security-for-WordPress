@@ -249,7 +249,7 @@ class LocalSiteManager {
 		if ( $containerId !== '' ) {
 			if ( !$this->isSiteHealthy() ) {
 				throw new \RuntimeException(
-					$this->definition->label().' is already running but unhealthy before browser runtime refresh.'
+					$this->definition->label().' is already running but unhealthy before runtime refresh.'
 				);
 			}
 
@@ -316,7 +316,7 @@ class LocalSiteManager {
 	private function refreshRuntimeAndAssertHealthy( string $rootDir, string $containerId ) :void {
 		$this->runtimeRefresher->refresh( $rootDir, $containerId );
 		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 30 ) ) {
-			throw new \RuntimeException( $this->definition->label().' is unhealthy after browser runtime refresh.' );
+			throw new \RuntimeException( $this->definition->label().' is unhealthy after runtime refresh.' );
 		}
 	}
 

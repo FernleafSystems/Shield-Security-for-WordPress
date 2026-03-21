@@ -146,7 +146,7 @@ class LocalSiteManagerTest extends TestCase {
 	}
 
 	public function testEnsureReadyFailsFastWhenReusedSiteIsUnhealthyBeforeRefresh() :void {
-		$this->expectExceptionMessage( 'Local dev site is already running but unhealthy before browser runtime refresh.' );
+		$this->expectExceptionMessage( 'Local dev site is already running but unhealthy before runtime refresh.' );
 
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
@@ -173,7 +173,7 @@ class LocalSiteManagerTest extends TestCase {
 	}
 
 	public function testEnsureReadyFailsFastWhenSiteIsUnhealthyAfterRefresh() :void {
-		$this->expectExceptionMessage( 'Local dev site is unhealthy after browser runtime refresh.' );
+		$this->expectExceptionMessage( 'Local dev site is unhealthy after runtime refresh.' );
 
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();

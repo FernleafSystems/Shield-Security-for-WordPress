@@ -112,7 +112,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 
 	/**
 	 * @param list<array<string,mixed>> $components
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|array{}
 	 */
 	private function findComponentByOptionKeys( array $components, string $optionKeys ) :array {
 		foreach ( $components as $component ) {

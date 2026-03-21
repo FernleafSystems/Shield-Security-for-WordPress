@@ -227,7 +227,7 @@ class ConfigureZoneTilesBuilder {
 	 *   note:string,
 	 *   explanations:list<string>,
 	 *   config_action:array<string,mixed>
-	 * }
+	 * }|array{}
 	 */
 	private function buildGeneralSettingsComponentContract( ?Zone\Base $zone, array $visibleComponents ) :array {
 		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve( $zone, $visibleComponents );

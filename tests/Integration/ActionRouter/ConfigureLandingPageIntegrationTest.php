@@ -37,7 +37,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_landing_renders_shared_operator_chrome_and_two_layer_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
 		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
-		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
+		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] ?? null );
+		$vars = $payload[ 'render_data' ][ 'vars' ];
 
 		$this->assertModeShellPayload( $vars, 'configure', 'good', false );
 		$this->assertArrayNotHasKey( 'zone_tiles', $vars );
@@ -82,7 +83,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'zone'                    => 'login',
 			'include_landing_refresh' => 1,
 		] );
-		$diagnosis = \is_array( $payload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $payload[ 'render_data' ][ 'diagnosis' ] : [];
+		$this->assertIsArray( $payload[ 'render_data' ][ 'diagnosis' ] ?? null );
+		$diagnosis = $payload[ 'render_data' ][ 'diagnosis' ];
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Login', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
@@ -103,8 +105,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$spamPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'spam',
 		] );
-		$scansDiagnosis = \is_array( $scansPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $scansPayload[ 'render_data' ][ 'diagnosis' ] : [];
-		$spamDiagnosis = \is_array( $spamPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $spamPayload[ 'render_data' ][ 'diagnosis' ] : [];
+		$this->assertIsArray( $scansPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
+		$this->assertIsArray( $spamPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
+		$scansDiagnosis = $scansPayload[ 'render_data' ][ 'diagnosis' ];
+		$spamDiagnosis = $spamPayload[ 'render_data' ][ 'diagnosis' ];
 		$scanScheduling = $this->findDiagnosisRowBySlug( $scansDiagnosis, 'scan_scheduling' );
 		$scanGeneral = $this->findDiagnosisRowByOptionKeys( $scansDiagnosis, 'ptg_reinstall_links' );
 		$trustedCommenters = $this->findDiagnosisRowBySlug( $spamDiagnosis, 'trusted_commenters' );
@@ -123,8 +127,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$ipsPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'ips',
 		] );
-		$loginDiagnosis = \is_array( $loginPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $loginPayload[ 'render_data' ][ 'diagnosis' ] : [];
-		$ipsDiagnosis = \is_array( $ipsPayload[ 'render_data' ][ 'diagnosis' ] ?? null ) ? $ipsPayload[ 'render_data' ][ 'diagnosis' ] : [];
+		$this->assertIsArray( $loginPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
+		$this->assertIsArray( $ipsPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
+		$loginDiagnosis = $loginPayload[ 'render_data' ][ 'diagnosis' ];
+		$ipsDiagnosis = $ipsPayload[ 'render_data' ][ 'diagnosis' ];
 
 		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $loginDiagnosis, 'login_hide' ) );
 		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $ipsDiagnosis, 'ip_blocking_rules' ) );
@@ -144,7 +150,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * @param array<string,mixed> $diagnosis
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|array{}
 	 */
 	private function findDiagnosisRowBySlug( array $diagnosis, string $zoneComponentSlug ) :array {
 		foreach ( $this->allDiagnosisRows( $diagnosis ) as $row ) {
@@ -157,7 +163,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * @param array<string,mixed> $diagnosis
-	 * @return array<string,mixed>
+	 * @return array<string,mixed>|array{}
 	 */
 	private function findDiagnosisRowByOptionKeys( array $diagnosis, string $optionKeys ) :array {
 		foreach ( $this->allDiagnosisRows( $diagnosis ) as $row ) {
