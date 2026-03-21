@@ -16,6 +16,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestUsers
 };
 
+/**
+ * @phpstan-import-type LandingViewData from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingViewBuilder
+ * @phpstan-import-type ZoneTile from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingViewBuilder
+ */
 class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
@@ -333,18 +337,42 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @return array{zone_tiles:list<array<string,mixed>>}
+	 * @return LandingViewData
 	 */
 	private function buildLandingViewData( array ...$zoneTiles ) :array {
 		return [
+			'summary' => [
+				'has_items'   => false,
+				'total_items' => 0,
+				'severity'    => 'good',
+				'icon_class'  => '',
+				'subtext'     => '',
+			],
+			'zones_indexed' => [],
 			'zone_tiles' => $zoneTiles,
+			'status_overview' => [
+				'severity'       => 'good',
+				'label'          => '',
+				'icon_class'     => '',
+				'summary_text'   => '',
+				'subtext'        => '',
+				'total_items'    => 0,
+				'critical_count' => 0,
+				'warning_count'  => 0,
+			],
+			'all_clear' => [
+				'title'      => '',
+				'subtitle'   => '',
+				'icon_class' => '',
+				'zone_chips' => [],
+			],
 		];
 	}
 
 	/**
 	 * @param list<array<string,mixed>> $items
 	 * @param list<array<string,mixed>> $assessmentRows
-	 * @return array<string,mixed>
+	 * @return ZoneTile
 	 */
 	private function buildZoneTile(
 		string $key,

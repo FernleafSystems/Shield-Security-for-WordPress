@@ -7,25 +7,27 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponentBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
+/**
+ * @phpstan-type AssessmentRow array{
+ *   key:string,
+ *   label:string,
+ *   description:string,
+ *   drill_bucket:'critical'|'review',
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string
+ * }
+ * @phpstan-type AssessmentRowsByZone array{
+ *   scans:list<AssessmentRow>,
+ *   maintenance:list<AssessmentRow>
+ * }
+ */
 class ActionsQueueLandingAssessmentBuilder {
 
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
 
 	/**
-	 * @phpstan-type AssessmentRow array{
-	 *   key:string,
-	 *   label:string,
-	 *   description:string,
-	 *   drill_bucket:'critical'|'review',
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string
-	 * }
-	 * @phpstan-type AssessmentRowsByZone array{
-	 *   scans:list<AssessmentRow>,
-	 *   maintenance:list<AssessmentRow>
-	 * }
 	 * @return AssessmentRowsByZone
 	 */
 	public function build() :array {

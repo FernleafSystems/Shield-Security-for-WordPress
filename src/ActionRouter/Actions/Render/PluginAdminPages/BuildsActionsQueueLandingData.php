@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
+ * @phpstan-import-type LandingViewData from ActionsQueueLandingViewBuilder
  */
 trait BuildsActionsQueueLandingData {
 
@@ -50,12 +51,7 @@ trait BuildsActionsQueueLandingData {
 	 * @return AssessmentRowsByZone
 	 */
 	protected function buildAssessmentRowsByZone() :array {
-		$builder = new ActionsQueueLandingAssessmentBuilder();
-
-		return [
-			'scans'       => $builder->buildForZone( 'scans' ),
-			'maintenance' => $builder->buildForZone( 'maintenance' ),
-		];
+		return ( new ActionsQueueLandingAssessmentBuilder() )->build();
 	}
 
 	protected function buildSummarySubtext() :string {
@@ -70,45 +66,7 @@ trait BuildsActionsQueueLandingData {
 	}
 
 	/**
-	 * @return array{
-	 *   summary:array{
-	 *     has_items:bool,
-	 *     total_items:int,
-	 *     severity:string,
-	 *     icon_class:string,
-	 *     subtext:string
-	 *   },
-	 *   zones_indexed:array<string,array{
-	 *     slug:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     severity:string,
-	 *     total_issues:int,
-	 *     items:list<array<string,mixed>>
-	 *   }>,
-	 *   zone_tiles:list<array<string,mixed>>,
-	 *   status_overview:array{
-	 *     severity:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     summary_text:string,
-	 *     subtext:string,
-	 *     total_items:int,
-	 *     critical_count:int,
-	 *     warning_count:int
-	 *   },
-	 *   all_clear:array{
-	 *     title:string,
-	 *     subtitle:string,
-	 *     icon_class:string,
-	 *     zone_chips:list<array{
-	 *       slug:string,
-	 *       label:string,
-	 *       icon_class:string,
-	 *       severity:string
-	 *     }>
-	 *   }
-	 * }
+	 * @return LandingViewData
 	 */
 	protected function getLandingViewData() :array {
 		if ( $this->actionsQueueLandingViewDataCache === null ) {

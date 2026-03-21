@@ -28,7 +28,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   icon:string,
  *   tooltip:string,
  *   target:string,
- *   ajax_action?:array<string,mixed>
+ *   ajax_action?:array<string,mixed>,
  *   ajax_action_json:string
  * }
  * @phpstan-type MaintenancePrimaryAction array{

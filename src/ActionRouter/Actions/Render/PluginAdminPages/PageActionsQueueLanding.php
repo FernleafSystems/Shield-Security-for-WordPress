@@ -7,29 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
- * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
- * @phpstan-type ZoneTile array{
- *   key:string,
- *   panel_target:string,
- *   is_enabled:bool,
- *   is_disabled:bool,
- *   has_issues:bool,
- *   has_assessments:bool,
- *   has_panel_content:bool,
- *   label:string,
- *   icon_class:string,
- *   status:string,
- *   status_label:string,
- *   total_issues:int,
- *   critical_count:int,
- *   warning_count:int,
- *   summary_text:string,
- *   items:list<array<string,mixed>>,
- *   assessment_rows:list<AssessmentRow>,
- *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
- * }
  * @phpstan-import-type RawDrillLayer from PageDrillDownLandingBase
+ * @phpstan-import-type QueueSummary from ActionsQueueLandingViewBuilder
+ * @phpstan-import-type ZoneGroup from ActionsQueueLandingViewBuilder
  */
 class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
@@ -178,27 +158,14 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 	}
 
 	/**
-	 * @return array{
-	 *   has_items:bool,
-	 *   total_items:int,
-	 *   severity:string,
-	 *   icon_class:string,
-	 *   subtext:string
-	 * }
+	 * @return QueueSummary
 	 */
 	private function getQueueSummary() :array {
 		return $this->getLandingViewData()[ 'summary' ];
 	}
 
 	/**
-	 * @return array<string,array{
-	 *   slug:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   severity:string,
-	 *   total_issues:int,
-	 *   items:list<array<string,mixed>>
-	 * }>
+	 * @return array<string,ZoneGroup>
 	 */
 	private function getZonesIndexed() :array {
 		return $this->getLandingViewData()[ 'zones_indexed' ];

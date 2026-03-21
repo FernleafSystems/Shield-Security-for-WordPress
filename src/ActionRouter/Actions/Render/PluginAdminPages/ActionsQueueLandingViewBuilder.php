@@ -46,6 +46,32 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   assessment_rows:list<AssessmentRow>,
  *   maintenance_detail_groups?:list<array{status:string,rows:list<array<string,mixed>>}>
  * }
+ * @phpstan-type LandingViewData array{
+ *   summary:QueueSummary,
+ *   zones_indexed:array<string,ZoneGroup>,
+ *   zone_tiles:list<ZoneTile>,
+ *   status_overview:array{
+ *     severity:string,
+ *     label:string,
+ *     icon_class:string,
+ *     summary_text:string,
+ *     subtext:string,
+ *     total_items:int,
+ *     critical_count:int,
+ *     warning_count:int
+ *   },
+ *   all_clear:array{
+ *     title:string,
+ *     subtitle:string,
+ *     icon_class:string,
+ *     zone_chips:list<array{
+ *       slug:string,
+ *       label:string,
+ *       icon_class:string,
+ *       severity:string
+ *     }>
+ *   }
+ * }
  */
 class ActionsQueueLandingViewBuilder {
 
@@ -55,32 +81,7 @@ class ActionsQueueLandingViewBuilder {
 	/**
 	 * @param AttentionQuery $attentionQuery
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 * @return array{
-	 *   summary:QueueSummary,
-	 *   zones_indexed:array<string,ZoneGroup>,
-	 *   zone_tiles:list<ZoneTile>,
-	 *   status_overview:array{
-	 *     severity:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     summary_text:string,
-	 *     subtext:string,
-	 *     total_items:int,
-	 *     critical_count:int,
-	 *     warning_count:int
-	 *   },
-	 *   all_clear:array{
-	 *     title:string,
-	 *     subtitle:string,
-	 *     icon_class:string,
-	 *     zone_chips:list<array{
-	 *       slug:string,
-	 *       label:string,
-	 *       icon_class:string,
-	 *       severity:string
-	 *     }>
-	 *   }
-	 * }
+	 * @return LandingViewData
 	 */
 	public function build( array $attentionQuery, array $assessmentRowsByZone = [
 		'scans' => [],

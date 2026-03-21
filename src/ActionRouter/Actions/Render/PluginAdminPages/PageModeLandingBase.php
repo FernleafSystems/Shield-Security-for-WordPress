@@ -4,6 +4,42 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
+/**
+ * @phpstan-type OperatorChromeStepInput array{
+ *   breadcrumb_label?:string,
+ *   title?:string,
+ *   summary?:string,
+ *   focus?:string,
+ *   next_step?:string,
+ *   icon_class?:string,
+ *   badge?:string,
+ *   badge_status?:string,
+ *   color_key?:string
+ * }
+ * @phpstan-type OperatorChromeStep array{
+ *   breadcrumb_label:string,
+ *   title:string,
+ *   summary:string,
+ *   focus:string,
+ *   next_step:string,
+ *   icon_class:string,
+ *   badge:string,
+ *   badge_status:string,
+ *   color_key:string
+ * }
+ * @phpstan-type ModeShell array{
+ *   mode:string,
+ *   accent_status:string,
+ *   header_density:string,
+ *   home_href:string,
+ *   home_label:string,
+ *   is_mode_landing:bool,
+ *   is_interactive:bool,
+ *   use_operator_chrome:bool,
+ *   root_step:OperatorChromeStep,
+ *   root_step_json:string
+ * }
+ */
 abstract class PageModeLandingBase extends BasePluginAdminPage {
 
 	private const VALID_ACCENT_STATUSES = [
@@ -29,42 +65,6 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		'compact',
 		'default',
 	];
-	/**
-	 * @phpstan-type OperatorChromeStepInput array{
-	 *   breadcrumb_label?:string,
-	 *   title?:string,
-	 *   summary?:string,
-	 *   focus?:string,
-	 *   next_step?:string,
-	 *   icon_class?:string,
-	 *   badge?:string,
-	 *   badge_status?:string,
-	 *   color_key?:string
-	 * }
-	 * @phpstan-type OperatorChromeStep array{
-	 *   breadcrumb_label:string,
-	 *   title:string,
-	 *   summary:string,
-	 *   focus:string,
-	 *   next_step:string,
-	 *   icon_class:string,
-	 *   badge:string,
-	 *   badge_status:string,
-	 *   color_key:string
-	 * }
-	 * @phpstan-type ModeShell array{
-	 *   mode:string,
-	 *   accent_status:string,
-	 *   header_density:string,
-	 *   home_href:string,
-	 *   home_label:string,
-	 *   is_mode_landing:bool,
-	 *   is_interactive:bool,
-	 *   use_operator_chrome:bool,
-	 *   root_step:OperatorChromeStep,
-	 *   root_step_json:string
-	 * }
-	 */
 
 	abstract protected function getLandingTitle() :string;
 

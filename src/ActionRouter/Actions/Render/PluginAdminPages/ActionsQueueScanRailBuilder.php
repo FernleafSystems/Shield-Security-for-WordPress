@@ -20,7 +20,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
+ * @phpstan-import-type LandingViewData from ActionsQueueLandingViewBuilder
+ * @phpstan-import-type ZoneTile from ActionsQueueLandingViewBuilder
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
+ * @phpstan-import-type MaintenanceUiAction from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-type SummaryRow array{
  *   key:string,
  *   label:string,
@@ -39,9 +42,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 
 	/**
-	 * @param array{
-	 *   zone_tiles:list<array<string,mixed>>
-	 * } $landingViewData
+	 * @param LandingViewData $landingViewData
 	 * @param RailMetrics $initialMetrics
 	 * @return array<string,mixed>
 	 */
@@ -502,7 +503,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @param MaintenanceItemAction $action
+	 * @param MaintenanceUiAction $action
 	 * @return array<string,mixed>
 	 */
 	private function buildMaintenanceToggleRailAction( array $action ) :array {
@@ -535,8 +536,8 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $zoneTiles
-	 * @return array<string,array<string,mixed>>
+	 * @param list<ZoneTile> $zoneTiles
+	 * @return array<string,ZoneTile>
 	 */
 	private function indexZoneTilesByKey( array $zoneTiles ) :array {
 		$indexed = [];

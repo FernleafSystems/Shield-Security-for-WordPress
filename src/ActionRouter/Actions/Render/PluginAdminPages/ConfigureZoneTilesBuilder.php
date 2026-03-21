@@ -11,39 +11,53 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
+/**
+ * @phpstan-type TileDefinition array{
+ *   key:string,
+ *   label:string,
+ *   icon:string,
+ *   zone_slug?:string,
+ *   component_slug?:string,
+ *   component_slugs?:list<string>,
+ *   include_in_posture?:bool,
+ *   force_neutral?:bool
+ * }
+ * @phpstan-type ConfigureComponentContract array{
+ *   title:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string,
+ *   note:string,
+ *   explanations:list<string>,
+ *   config_action:array<string,mixed>
+ * }
+ * @phpstan-type ConfigureZoneTileContract array{
+ *   key:string,
+ *   panel_target:string,
+ *   is_enabled:bool,
+ *   is_disabled:bool,
+ *   include_in_posture:bool,
+ *   label:string,
+ *   icon_class:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string,
+ *   stat_line:string,
+ *   panel:array{
+ *     title:string,
+ *     status:string,
+ *     status_label:string,
+ *     components:list<ConfigureComponentContract>
+ *   }
+ * }
+ */
 class ConfigureZoneTilesBuilder {
 
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   include_in_posture:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   stat_line:string,
-	 *   panel:array{
-	 *     title:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     components:list<array{
-	 *       title:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       status_icon_class:string,
-	 *       note:string,
-	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
-	 *     }>
-	 *   }
-	 * }>
+	 * @return list<ConfigureZoneTileContract>
 	 */
 	public function build() :array {
 		return \array_map(
@@ -53,59 +67,15 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * }>
+	 * @return list<TileDefinition>
 	 */
 	private function getTileDefinitions() :array {
 		return PluginNavs::configureLandingTileDefinitions();
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
-	 * @return array{
-	 *   key:string,
-	 *   panel_target:string,
-	 *   is_enabled:bool,
-	 *   is_disabled:bool,
-	 *   include_in_posture:bool,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   stat_line:string,
-	 *   panel:array{
-	 *     title:string,
-	 *     status:string,
-	 *     status_label:string,
-	 *     components:list<array{
-	 *       title:string,
-	 *       status:string,
-	 *       status_label:string,
-	 *       status_icon_class:string,
-	 *       note:string,
-	 *       explanations:list<string>,
-	 *       config_action:array<string,mixed>
-	 *     }>
-	 *   }
-	 * }
+	 * @param TileDefinition $definition
+	 * @return ConfigureZoneTileContract
 	 */
 	private function buildTileFromDefinition( array $definition ) :array {
 		$forceNeutral = !empty( $definition[ 'force_neutral' ] );
@@ -140,25 +110,8 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
-	 * @return list<array{
-	 *   title:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   note:string,
-	 *   explanations:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }>
+	 * @param list<Component\Base> $visibleComponents
+	 * @return list<ConfigureComponentContract>
 	 */
 	private function buildComponentContracts( ?Zone\Base $zone, array $visibleComponents, bool $forceNeutral ) :array {
 		$components = \array_map(
@@ -168,7 +121,7 @@ class ConfigureZoneTilesBuilder {
 
 		if ( !$forceNeutral ) {
 			$generalSettings = $this->buildGeneralSettingsComponentContract( $zone, $visibleComponents );
-			if ( !empty( $generalSettings ) ) {
+			if ( $generalSettings !== [] ) {
 				$components[] = $generalSettings;
 			}
 		}
@@ -177,15 +130,7 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @return array{
-	 *   title:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   note:string,
-	 *   explanations:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }
+	 * @return ConfigureComponentContract
 	 */
 	private function buildSingleComponentContract( Component\Base $component, bool $forceNeutral = false ) :array {
 		$status = $forceNeutral ? 'neutral' : $this->componentStatusToSeverity( $component->enabledStatus() );
@@ -209,25 +154,8 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
-	 * @return array{
-	 *   title:string,
-	 *   status:string,
-	 *   status_label:string,
-	 *   status_icon_class:string,
-	 *   note:string,
-	 *   explanations:list<string>,
-	 *   config_action:array<string,mixed>
-	 * }|array{}
+	 * @param list<Component\Base> $visibleComponents
+	 * @return array{}|ConfigureComponentContract
 	 */
 	private function buildGeneralSettingsComponentContract( ?Zone\Base $zone, array $visibleComponents ) :array {
 		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve( $zone, $visibleComponents );
@@ -349,16 +277,7 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
+	 * @param TileDefinition $definition
 	 * @return Component\Base[]
 	 */
 	private function componentsForDefinition( array $definition, ?Zone\Base $zone = null ) :array {
@@ -374,16 +293,7 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
+	 * @param TileDefinition $definition
 	 * @return list<string>
 	 */
 	private function definitionComponentSlugs( array $definition ) :array {
@@ -403,16 +313,7 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * } $definition
+	 * @param TileDefinition $definition
 	 * @return ?Zone\Base
 	 */
 	private function zoneForDefinition( array $definition ) :?Zone\Base {
