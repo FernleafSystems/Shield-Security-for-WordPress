@@ -260,7 +260,9 @@ trait BuildsConfigureLandingData {
 	}
 
 	protected function buildConfigureOperatorRootStepJson() :string {
-		return (string)( \json_encode( $this->buildConfigureOperatorRootStep() ) ?: '' );
+		return OperatorChromeContract::encodeJson(
+			OperatorChromeContract::normalizeStep( $this->buildConfigureOperatorRootStep() )
+		);
 	}
 
 	/**

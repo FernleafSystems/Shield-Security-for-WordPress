@@ -3,38 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-type DrillLayerHeaderInput array{
- *   compact_back_label?:string,
- *   active_back_label?:string,
- *   breadcrumb_label?:string,
- *   title?:string,
- *   meta?:string,
- *   summary?:string,
- *   focus?:string,
- *   next_step?:string,
- *   icon_class?:string,
- *   badge?:string,
- *   badge_status?:string,
- *   color_key?:string
- * }
+ * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
+ * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-type RawDrillLayer array{
  *   key:non-empty-string,
  *   body:string,
  *   header?:DrillLayerHeaderInput
- * }
- * @phpstan-type DrillLayerHeader array{
- *   compact_back_label:string,
- *   active_back_label:string,
- *   breadcrumb_label:string,
- *   title:string,
- *   meta:string,
- *   summary:string,
- *   focus:string,
- *   next_step:string,
- *   icon_class:string,
- *   badge:string,
- *   badge_status:string,
- *   color_key:string
  * }
  * @phpstan-type DrillLayer array{
  *   key:non-empty-string,
@@ -50,14 +24,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * }
  */
 abstract class PageDrillDownLandingBase extends PageModeLandingBase {
-
-	private const VALID_BADGE_STATUSES = [
-		'critical',
-		'warning',
-		'good',
-		'info',
-		'neutral',
-	];
 
 	/**
 	 * @return list<RawDrillLayer>
@@ -99,49 +65,16 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 				continue;
 			}
 
-			$header = $this->normalizeLayerHeader( $layer[ 'header' ] ?? [] );
+			$header = OperatorChromeContract::normalizeHeader( $layer[ 'header' ] ?? [] );
 			$normalized[] = [
 				'key'         => $key,
 				'body'        => $layer[ 'body' ],
 				'header'      => $header,
-				'header_json' => $this->encodeJson( $header ),
+				'header_json' => OperatorChromeContract::encodeJson( $header ),
 			];
 		}
 
 		return $normalized;
-	}
-
-	private function sanitizeBadgeStatus( string $status ) :string {
-		$status = sanitize_key( $status );
-		if ( !\in_array( $status, self::VALID_BADGE_STATUSES, true ) ) {
-			$status = 'neutral';
-		}
-		return $status;
-	}
-
-	/**
-	 * @param DrillLayerHeaderInput $header
-	 * @return DrillLayerHeader
-	 */
-	private function normalizeLayerHeader( array $header ) :array {
-		return \array_merge(
-			[
-			'compact_back_label' => \trim( $header[ 'compact_back_label' ] ?? '' ),
-			'active_back_label'  => \trim( $header[ 'active_back_label' ] ?? '' ),
-			'meta'               => \trim( $header[ 'meta' ] ?? '' ),
-			],
-			$this->normalizeOperatorChromeStep( [
-				'breadcrumb_label' => $header[ 'breadcrumb_label' ] ?? '',
-				'title'            => $header[ 'title' ] ?? '',
-				'summary'          => $header[ 'summary' ] ?? '',
-				'focus'            => $header[ 'focus' ] ?? '',
-				'next_step'        => $header[ 'next_step' ] ?? '',
-				'icon_class'       => $header[ 'icon_class' ] ?? '',
-				'badge'            => $header[ 'badge' ] ?? '',
-				'badge_status'     => $this->sanitizeBadgeStatus( $header[ 'badge_status' ] ?? '' ),
-				'color_key'        => $header[ 'color_key' ] ?? ( $header[ 'badge_status' ] ?? '' ),
-			] )
-		);
 	}
 
 	private function clampActiveLayerIndex( int $activeIndex, int $layerCount ) :int {

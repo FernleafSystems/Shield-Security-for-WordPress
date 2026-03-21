@@ -38,9 +38,9 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			[
 				'compact_back_label' => 'Back to Fix now',
 				'active_back_label'  => 'Back to Actions Queue',
+				'meta'               => 'Critical queue',
 				'breadcrumb_label'   => 'Fix now',
 				'title'              => 'Fix now',
-				'meta'               => 'Critical queue',
 				'summary'            => 'Fix now contains 2 items that still need attention.',
 				'focus'              => 'Critical queue',
 				'next_step'          => 'Choose one grouped finding to review the matching results.',
@@ -99,6 +99,7 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			[
 				'compact_back_label' => 'Back to Maintenance Items',
 				'active_back_label'  => 'Back to Review next',
+				'meta'               => '',
 				'breadcrumb_label'   => 'Maintenance Items',
 				'title'              => 'Maintenance Items',
 				'summary'            => '1 maintenance item needs review.',

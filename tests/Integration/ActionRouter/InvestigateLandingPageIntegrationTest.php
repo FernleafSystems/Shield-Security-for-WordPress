@@ -74,6 +74,31 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			6,
 			'Investigate landing should render six enabled drill target buttons'
 		);
+		$panelButtons = $xpath->query( '//*[@data-drill-target="panel" and @data-investigate-header]' );
+		$this->assertInstanceOf( \DOMNodeList::class, $panelButtons );
+		$firstPanelButton = $panelButtons->item( 0 );
+		$this->assertInstanceOf( \DOMElement::class, $firstPanelButton );
+		$header = \json_decode(
+			\html_entity_decode( $firstPanelButton->getAttribute( 'data-investigate-header' ), \ENT_QUOTES ),
+			true
+		);
+		$this->assertIsArray( $header );
+		$this->assertSame( [
+			'compact_back_label',
+			'active_back_label',
+			'meta',
+			'breadcrumb_label',
+			'title',
+			'summary',
+			'focus',
+			'next_step',
+			'icon_class',
+			'badge',
+			'badge_status',
+			'color_key',
+		], \array_keys( $header ) );
+		$this->assertSame( '', (string)( $header[ 'meta' ] ?? 'missing' ) );
+		$this->assertSame( 'investigate', (string)( $header[ 'color_key' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-investigate-subject="premium_integrations" and @aria-disabled="true" and contains(concat(" ", normalize-space(@class), " "), " is-disabled ")]',

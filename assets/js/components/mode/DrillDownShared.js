@@ -34,54 +34,6 @@ export function getActiveLayerIndex( layers ) {
 	return -1;
 }
 
-export function normalizeDrillText( text = '' ) {
-	return String( text ?? '' ).trim();
-}
-
-export function normalizeDrillStatus( status = '' ) {
-	const normalized = normalizeDrillText( status );
-	return [ 'critical', 'warning', 'good', 'info', 'neutral' ].includes( normalized )
-		? normalized
-		: 'neutral';
-}
-
-export function normalizeDrillColorKey( colorKey = '' ) {
-	const normalized = normalizeDrillText( colorKey );
-	return [
-		'home',
-		'actions',
-		'configure',
-		'investigate',
-		'reports',
-		'critical',
-		'warning',
-		'good',
-		'info',
-		'neutral',
-	].includes( normalized )
-		? normalized
-		: 'neutral';
-}
-
-export function normalizeLayerHeaderData( headerData ) {
-	const source = headerData && typeof headerData === 'object' ? headerData : {};
-
-	return {
-		compact_back_label: normalizeDrillText( source.compact_back_label ),
-		active_back_label: normalizeDrillText( source.active_back_label ),
-		breadcrumb_label: normalizeDrillText( source.breadcrumb_label ),
-		title: normalizeDrillText( source.title ),
-		meta: normalizeDrillText( source.meta ),
-		summary: normalizeDrillText( source.summary ),
-		focus: normalizeDrillText( source.focus ),
-		next_step: normalizeDrillText( source.next_step ),
-		icon_class: normalizeDrillText( source.icon_class ),
-		badge: normalizeDrillText( source.badge ),
-		badge_status: normalizeDrillStatus( source.badge_status ),
-		color_key: normalizeDrillColorKey( source.color_key ),
-	};
-}
-
 export function parseJsonAttribute( rawValue, fallback = {} ) {
 	if ( typeof rawValue !== 'string' || rawValue.trim().length < 1 ) {
 		return fallback;

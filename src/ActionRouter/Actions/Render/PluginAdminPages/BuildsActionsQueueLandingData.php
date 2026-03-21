@@ -142,6 +142,8 @@ trait BuildsActionsQueueLandingData {
 	}
 
 	protected function buildActionsQueueOperatorRootStepJson() :string {
-		return (string)( \json_encode( $this->buildActionsQueueOperatorRootStep() ) ?: '' );
+		return OperatorChromeContract::encodeJson(
+			OperatorChromeContract::normalizeStep( $this->buildActionsQueueOperatorRootStep() )
+		);
 	}
 }

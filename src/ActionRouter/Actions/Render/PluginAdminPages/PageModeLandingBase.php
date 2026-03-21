@@ -5,28 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 /**
- * @phpstan-type OperatorChromeStepInput array{
- *   breadcrumb_label?:string,
- *   title?:string,
- *   summary?:string,
- *   focus?:string,
- *   next_step?:string,
- *   icon_class?:string,
- *   badge?:string,
- *   badge_status?:string,
- *   color_key?:string
- * }
- * @phpstan-type OperatorChromeStep array{
- *   breadcrumb_label:string,
- *   title:string,
- *   summary:string,
- *   focus:string,
- *   next_step:string,
- *   icon_class:string,
- *   badge:string,
- *   badge_status:string,
- *   color_key:string
- * }
+ * @phpstan-import-type OperatorChromeStepInput from OperatorChromeContract
+ * @phpstan-import-type OperatorChromeStep from OperatorChromeContract
  * @phpstan-type ModeShell array{
  *   mode:string,
  *   accent_status:string,
@@ -42,25 +22,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  */
 abstract class PageModeLandingBase extends BasePluginAdminPage {
 
-	private const VALID_ACCENT_STATUSES = [
-		'good',
-		'warning',
-		'critical',
-		'info',
-		'neutral',
-	];
-	private const VALID_OPERATOR_CHROME_COLOR_KEYS = [
-		'home',
-		'actions',
-		'configure',
-		'investigate',
-		'reports',
-		'critical',
-		'warning',
-		'good',
-		'info',
-		'neutral',
-	];
 	private const VALID_HEADER_DENSITIES = [
 		'compact',
 		'default',
@@ -278,7 +239,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 
 		return [
 			'mode'                => sanitize_key( (string)( $modeShell[ 'mode' ] ?? '' ) ),
-			'accent_status'       => $this->sanitizeModeAccentStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
+			'accent_status'       => OperatorChromeContract::sanitizeStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
 			'header_density'      => $headerDensity,
 			'home_href'           => (string)( $modeShell[ 'home_href' ] ?? '' ),
 			'home_label'          => $homeLabel,
@@ -286,7 +247,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 			'is_interactive'      => (bool)( $modeShell[ 'is_interactive' ] ?? false ),
 			'use_operator_chrome' => (bool)( $modeShell[ 'use_operator_chrome' ] ?? false ),
 			'root_step'           => $rootStep,
-			'root_step_json'      => $this->encodeJson( $rootStep ),
+			'root_step_json'      => OperatorChromeContract::encodeJson( $rootStep ),
 		];
 	}
 
@@ -295,20 +256,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 	 * @return OperatorChromeStep
 	 */
 	protected function normalizeOperatorChromeStep( array $step ) :array {
-		$badgeStatus = $this->sanitizeModeAccentStatus( (string)( $step[ 'badge_status' ] ?? '' ) );
-		$colorKey = $this->sanitizeOperatorChromeColorKey( (string)( $step[ 'color_key' ] ?? $badgeStatus ) );
-
-		return [
-			'breadcrumb_label' => \trim( (string)( $step[ 'breadcrumb_label' ] ?? '' ) ),
-			'title'            => \trim( (string)( $step[ 'title' ] ?? '' ) ),
-			'summary'          => \trim( (string)( $step[ 'summary' ] ?? '' ) ),
-			'focus'            => \trim( (string)( $step[ 'focus' ] ?? '' ) ),
-			'next_step'        => \trim( (string)( $step[ 'next_step' ] ?? '' ) ),
-			'icon_class'       => \trim( (string)( $step[ 'icon_class' ] ?? '' ) ),
-			'badge'            => \trim( (string)( $step[ 'badge' ] ?? '' ) ),
-			'badge_status'     => $badgeStatus,
-			'color_key'        => $colorKey,
-		];
+		return OperatorChromeContract::normalizeStep( $step );
 	}
 
 	private function normalizeLandingTiles( array $tiles ) :array {
@@ -350,22 +298,6 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		}
 		$panel[ 'close_label' ] = $closeLabel;
 		return $panel;
-	}
-
-	private function sanitizeModeAccentStatus( string $status ) :string {
-		$status = sanitize_key( $status );
-		if ( !\in_array( $status, self::VALID_ACCENT_STATUSES, true ) ) {
-			$status = 'neutral';
-		}
-		return $status;
-	}
-
-	private function sanitizeOperatorChromeColorKey( string $colorKey ) :string {
-		$colorKey = sanitize_key( $colorKey );
-		if ( !\in_array( $colorKey, self::VALID_OPERATOR_CHROME_COLOR_KEYS, true ) ) {
-			$colorKey = 'neutral';
-		}
-		return $colorKey;
 	}
 
 	protected function encodeJson( array $data ) :string {

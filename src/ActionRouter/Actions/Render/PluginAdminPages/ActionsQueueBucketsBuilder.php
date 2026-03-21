@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
+ * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int,

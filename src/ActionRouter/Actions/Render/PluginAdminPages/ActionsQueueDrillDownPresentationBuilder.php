@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
+ * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
  * @phpstan-type BucketSelection array{
  *   key:string,
  *   label:string,
@@ -84,8 +84,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'header'        => $header,
 		];
 
-		$selection[ 'header_json' ] = $this->encodeJson( $header );
-		$selection[ 'selection_json' ] = $this->encodeJson( $selection );
+		$selection[ 'header_json' ] = OperatorChromeContract::encodeJson( $header );
+		$selection[ 'selection_json' ] = OperatorChromeContract::encodeJson( $selection );
 
 		return $selection;
 	}
@@ -121,8 +121,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'header'       => $header,
 		];
 
-		$selection[ 'header_json' ] = $this->encodeJson( $header );
-		$selection[ 'selection_json' ] = $this->encodeJson( $selection );
+		$selection[ 'header_json' ] = OperatorChromeContract::encodeJson( $header );
+		$selection[ 'selection_json' ] = OperatorChromeContract::encodeJson( $selection );
 
 		return $selection;
 	}
@@ -138,7 +138,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 		int $itemCount,
 		string $summary
 	) :array {
-		return [
+		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $label ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Actions Queue', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $label,
@@ -151,7 +151,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $status,
 			'color_key'          => $status,
-		];
+		] );
 	}
 
 	/**
@@ -165,7 +165,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 		int $itemCount,
 		string $summary
 	) :array {
-		return [
+		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $label ),
 			'active_back_label'  => $this->buildBackLabel( $bucketLabel ),
 			'breadcrumb_label'   => $label,
@@ -177,10 +177,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $status,
 			'color_key'          => $status,
-		];
-	}
-
-	private function encodeJson( array $data ) :string {
-		return (string)( \json_encode( $data ) ?: '' );
+		] );
 	}
 }

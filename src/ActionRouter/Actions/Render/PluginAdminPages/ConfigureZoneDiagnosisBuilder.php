@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
+ * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
  * @phpstan-import-type DetailAction from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailActionData from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
@@ -127,7 +127,7 @@ class ConfigureZoneDiagnosisBuilder {
 		$zoneBadge = $isReviewState
 			? $this->buildReviewBadge( $zoneTile )
 			: $this->buildFindingsBadge( \count( $problemFindings ) );
-		$header = [
+		$header = OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $zoneLabel ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Configure', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $zoneLabel,
@@ -140,7 +140,7 @@ class ConfigureZoneDiagnosisBuilder {
 			'badge'              => $zoneBadge,
 			'badge_status'       => $zoneTile[ 'status' ],
 			'color_key'          => $zoneTile[ 'status' ],
-		];
+		] );
 		$reviewFallbackCard = $this->buildReviewFallbackCard(
 			$zoneBadge,
 			$zoneTile[ 'stat_line' ],
@@ -183,7 +183,7 @@ class ConfigureZoneDiagnosisBuilder {
 			),
 			'header'                    => $header,
 			'zone_selection'            => $zoneSelection,
-			'zone_selection_json'       => $this->encodeJson( $zoneSelection ),
+			'zone_selection_json'       => OperatorChromeContract::encodeJson( $zoneSelection ),
 		];
 	}
 
@@ -392,7 +392,4 @@ class ConfigureZoneDiagnosisBuilder {
 		return '';
 	}
 
-	private function encodeJson( array $data ) :string {
-		return (string)( \json_encode( $data ) ?: '' );
-	}
 }

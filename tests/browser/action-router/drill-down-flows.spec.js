@@ -98,7 +98,20 @@ test( 'configure toggles healthy zones, drills into diagnosis, and drills back o
 	await expect( expandRow.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
 	await expandRow.click();
 	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show' ).first() ).toBeVisible();
-	await expect( page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show form.options_form_for' ).first() ).toBeVisible();
+	const visibleExpandedForms = page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show form.options_form_for' );
+	await expect( visibleExpandedForms.first() ).toBeVisible();
+	await page.locator( '[data-configure-diagnosis="1"] .shield-detail-expansion.show .shield-detail-expansion__btn-save' )
+		.first()
+		.click();
+	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
+	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
+	await expect( configureTabs ).toHaveCount( 3 );
+	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Configure/i );
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /Security Admin/i );
+	const refreshedExpandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-trigger="1"]' ).first();
+	await expect( refreshedExpandRow.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
+	await refreshedExpandRow.click();
+	await expect( visibleExpandedForms.first() ).toBeVisible();
 	const diagnosisHealthyToggle = page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-toggle="1"]' );
 	const diagnosisHealthyBody = page.locator( '[data-configure-diagnosis="1"] [data-healthy-disclosure-body="1"]' );
 	if ( await diagnosisHealthyToggle.count() > 0 ) {

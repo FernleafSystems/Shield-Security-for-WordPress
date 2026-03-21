@@ -6,7 +6,6 @@ import {
 	getLayerForShell,
 	getLayersForShell,
 	isDrillShell,
-	normalizeLayerHeaderData,
 	parseLayerIndex
 } from "./DrillDownShared";
 
@@ -83,7 +82,9 @@ export class DrillDownController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const header = normalizeLayerHeaderData( headerData );
+		const header = headerData && typeof headerData === 'object'
+			? headerData
+			: {};
 		layer.dataset.drillLayerHeader = JSON.stringify( header );
 		shellEl.dispatchEvent( new CustomEvent( 'shield:drill-header-updated', {
 			bubbles: true,

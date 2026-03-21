@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 /**
- * @phpstan-import-type DrillLayerHeaderInput from PageDrillDownLandingBase
+ * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-type SubjectDefinition array{
  *   key:string,
  *   label:string,
@@ -40,7 +40,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   lookup_key:string,
  *   render_action:array<string,mixed>,
  *   render_action_json:string,
- *   header:DrillLayerHeaderInput,
+ *   header:DrillLayerHeader,
  *   header_json:string
  * }
  * @phpstan-type PanelLayerData array{
@@ -202,7 +202,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 					'render_action'     => $renderAction,
 					'render_action_json'=> $this->encodeJson( $renderAction ),
 					'header'            => $header,
-					'header_json'       => $this->encodeJson( $header ),
+					'header_json'       => OperatorChromeContract::encodeJson( $header ),
 				];
 			}
 		}
@@ -267,14 +267,14 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 
 	/**
 	 * @param SubjectDefinition $subject
-	 * @return DrillLayerHeaderInput
+	 * @return DrillLayerHeader
 	 */
 	private function buildSubjectHeader( array $subject, string $lookupKey ) :array {
 		$nextStep = $lookupKey === ''
 			? __( 'Review tabs for activity details. Use actions to respond.', 'wp-simple-firewall' )
 			: __( 'Use the panel below to look up and explore.', 'wp-simple-firewall' );
 
-		return [
+		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $subject[ 'label' ] ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $subject[ 'label' ],
@@ -286,14 +286,14 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			'badge'              => $subject[ 'stat_text' ],
 			'badge_status'       => $subject[ 'status' ],
 			'color_key'          => 'investigate',
-		];
+		] );
 	}
 
 	/**
-	 * @return DrillLayerHeaderInput
+	 * @return DrillLayerHeader
 	 */
 	private function buildIdlePanelHeader() :array {
-		return [
+		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => __( 'Investigation', 'wp-simple-firewall' ),
@@ -303,7 +303,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			'icon_class'         => 'bi bi-search',
 			'badge_status'       => 'info',
 			'color_key'          => 'investigate',
-		];
+		] );
 	}
 
 	/**

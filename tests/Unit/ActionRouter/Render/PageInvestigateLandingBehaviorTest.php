@@ -143,6 +143,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			[
 				'compact_back_label' => 'Back to IP Address',
 				'active_back_label'  => 'Back to Investigate',
+				'meta'               => '',
 				'breadcrumb_label'   => 'IP Address',
 				'title'              => 'IP Address',
 				'summary'            => 'Use the panel below to look up and explore.',
@@ -154,6 +155,10 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'color_key'          => 'investigate',
 			],
 			$tilesByKey[ 'ip' ][ 'header' ] ?? []
+		);
+		$this->assertSame(
+			$tilesByKey[ 'ip' ][ 'header' ] ?? [],
+			\json_decode( (string)( $tilesByKey[ 'ip' ][ 'header_json' ] ?? '' ), true )
 		);
 	}
 

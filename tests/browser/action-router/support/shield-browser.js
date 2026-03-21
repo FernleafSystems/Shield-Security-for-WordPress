@@ -142,7 +142,7 @@ function runTestSiteWpCli( args = [] ) {
 	} );
 }
 
-function runActionsQueueDetailFixture( action ) {
+function runActionsQueueBrowserFixture( action, mode = 'direct_table' ) {
 	runTestSiteWpCli( [
 		'eval-file',
 		ACTIONS_QUEUE_DETAIL_FIXTURE,
@@ -155,7 +155,7 @@ async function withActionsQueueDetailFixture( runScenario ) {
 	let scenarioError = null;
 
 	try {
-		runActionsQueueDetailFixture( 'seed' );
+		runActionsQueueBrowserFixture( 'seed' );
 		return await runScenario();
 	}
 	catch ( error ) {
@@ -164,7 +164,7 @@ async function withActionsQueueDetailFixture( runScenario ) {
 	}
 	finally {
 		try {
-			runActionsQueueDetailFixture( 'cleanup' );
+			runActionsQueueBrowserFixture( 'cleanup' );
 		}
 		catch ( cleanupError ) {
 			if ( scenarioError === null ) {

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Malware as MalwarePane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Plugins as PluginsPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Themes as ThemesPane;
@@ -789,6 +790,35 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-mode-tiles="1" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-asset-cards__grid ")]',
 			'Plugin pane render in Actions Queue context should render the asset-card grid'
+		);
+	}
+
+	public function test_file_locker_detail_render_in_actions_queue_context_marks_lazy_asset_panels() :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', [ 'wpconfig' ] )
+			 ->store();
+
+		$this->insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
+		self::con()->comps->file_locker->clearLocks();
+
+		$payload = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
+			'File Locker pane render in Actions Queue context should use the asset-card shell'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode-panel="1" and @data-actions-queue-asset-panel-lazy="1" and @data-actions-queue-asset-panel-loaded="0" and string-length(@data-actions-queue-asset-render-action) > 0]',
+			'File Locker pane render in Actions Queue context should expose the lazy render-action contract on its asset panel'
 		);
 	}
 

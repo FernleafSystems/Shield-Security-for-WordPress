@@ -2,7 +2,6 @@ import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import {
 	getActiveLayerIndex,
 	getLayersForShell,
-	normalizeLayerHeaderData,
 	parseJsonAttribute
 } from "./DrillDownShared";
 
@@ -332,17 +331,20 @@ export class StepTabsController extends BaseAutoExecComponent {
 	}
 
 	buildVisualStep( stepData, target, isCurrent ) {
+		const breadcrumbLabel = this.readText( stepData?.breadcrumb_label );
+		const title = this.readText( stepData?.title );
+
 		return {
-			label: stepData.breadcrumb_label || stepData.title,
-			title: stepData.title || stepData.breadcrumb_label,
-			summary: stepData.summary,
-			focus: stepData.focus,
-			nextStep: stepData.next_step,
-			iconClass: stepData.icon_class,
+			label: breadcrumbLabel || title,
+			title: title || breadcrumbLabel,
+			summary: this.readText( stepData?.summary ),
+			focus: this.readText( stepData?.focus ),
+			nextStep: this.readText( stepData?.next_step ),
+			iconClass: this.readText( stepData?.icon_class ),
 			tabIconClass: '',
-			badge: stepData.badge,
-			badgeStatus: stepData.badge_status,
-			colorKey: stepData.color_key,
+			badge: this.readText( stepData?.badge ),
+			badgeStatus: this.readText( stepData?.badge_status ) || 'neutral',
+			colorKey: this.readText( stepData?.color_key ) || 'neutral',
 			target,
 			isCurrent,
 			showLabel: true,
@@ -353,10 +355,10 @@ export class StepTabsController extends BaseAutoExecComponent {
 		return {
 			label: homeLabel,
 			title: homeLabel,
-			summary: isCurrent ? rootStep.summary : '',
-			focus: isCurrent ? rootStep.focus : '',
-			nextStep: isCurrent ? rootStep.next_step : '',
-			iconClass: isCurrent ? rootStep.icon_class : '',
+			summary: isCurrent ? this.readText( rootStep?.summary ) : '',
+			focus: isCurrent ? this.readText( rootStep?.focus ) : '',
+			nextStep: isCurrent ? this.readText( rootStep?.next_step ) : '',
+			iconClass: isCurrent ? this.readText( rootStep?.icon_class ) : '',
 			tabIconClass: 'bi bi-house-fill',
 			badge: '',
 			badgeStatus: 'neutral',
@@ -394,7 +396,11 @@ export class StepTabsController extends BaseAutoExecComponent {
 	}
 
 	readStepData( rawValue ) {
-		return normalizeLayerHeaderData( parseJsonAttribute( rawValue, {} ) );
+		return parseJsonAttribute( rawValue, {} );
+	}
+
+	readText( value ) {
+		return String( value ?? '' ).trim();
 	}
 
 	readTopLevelDescendants( shell, selector ) {
