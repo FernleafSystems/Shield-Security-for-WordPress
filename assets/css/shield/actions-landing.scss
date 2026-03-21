@@ -406,12 +406,11 @@
 }
 
 .actions-landing__maintenance-row {
-	transition: background-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, opacity 0.15s ease-in-out;
+	transition: background-color 0.15s ease-in-out, opacity 0.15s ease-in-out;
 }
 
 .actions-landing__maintenance-row.is-ignored {
 	background-color: #f3f4f5;
-	box-shadow: inset 3px 0 0 #c3c4c7;
 	opacity: 0.3;
 }
 

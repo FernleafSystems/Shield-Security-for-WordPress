@@ -41,6 +41,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * }
  * @phpstan-type MaintenanceExpansionRow array{
  *   title:string,
+ *   icon_class:string,
+ *   inline_meta:string,
  *   subtitle:string,
  *   context:string,
  *   identifier:string,
@@ -285,6 +287,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$rows = [];
 		$plugins = Services::WpPlugins();
 		$updates = $plugins->getUpdates();
+		$iconClass = $this->buildMaintenanceIssueStateProvider()->iconClassForKey( 'wp_plugins_updates' );
 
 		foreach ( \array_keys( $plugins->getPlugins() ) as $file ) {
 			if ( !isset( $updates[ $file ] ) ) {
@@ -298,6 +301,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 			$rows[] = $this->buildExpansionRow(
 				$this->pluginTitle( $plugin ),
+				$iconClass,
+				$this->buildInlineVersionMeta( $plugin->Version ),
 				__( 'Plugin update available', 'wp-simple-firewall' ),
 				$this->buildUpdateContext( $plugin->Version, $this->extractUpdateVersion( $updates[ $file ] ) ),
 				$plugin->file,
@@ -321,6 +326,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$themes = Services::WpThemes();
 		$updates = $themes->getUpdates();
 		$updatesHref = Services::WpGeneral()->getAdminUrl_Updates();
+		$iconClass = $this->buildMaintenanceIssueStateProvider()->iconClassForKey( 'wp_themes_updates' );
 
 		foreach ( \array_keys( $themes->getThemes() ) as $stylesheet ) {
 			if ( !isset( $updates[ $stylesheet ] ) ) {
@@ -334,6 +340,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 			$rows[] = $this->buildExpansionRow(
 				$this->themeTitle( $theme ),
+				$iconClass,
+				$this->buildInlineVersionMeta( $theme->Version ),
 				__( 'Theme update available', 'wp-simple-firewall' ),
 				$this->buildUpdateContext( $theme->Version, $this->extractUpdateVersion( $updates[ $stylesheet ] ) ),
 				$theme->stylesheet,
@@ -353,6 +361,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$rows = [];
 		$plugins = Services::WpPlugins();
 		$activePlugins = \array_fill_keys( $plugins->getActivePlugins(), true );
+		$iconClass = $this->buildMaintenanceIssueStateProvider()->iconClassForKey( 'wp_plugins_inactive' );
 
 		foreach ( \array_keys( $plugins->getPlugins() ) as $file ) {
 			if ( isset( $activePlugins[ $file ] ) ) {
@@ -366,6 +375,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 			$rows[] = $this->buildExpansionRow(
 				$this->pluginTitle( $plugin ),
+				$iconClass,
+				$this->buildInlineVersionMeta( $plugin->Version ),
 				__( 'Plugin is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $plugin->Version ),
 				$plugin->file,
@@ -392,6 +403,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$rows = [];
 		$themes = Services::WpThemes();
 		$activeThemes = \array_fill_keys( $this->getActiveThemeStylesheets(), true );
+		$iconClass = $this->buildMaintenanceIssueStateProvider()->iconClassForKey( 'wp_themes_inactive' );
 		foreach ( \array_keys( $themes->getThemes() ) as $stylesheet ) {
 			if ( isset( $activeThemes[ $stylesheet ] ) ) {
 				continue;
@@ -404,6 +416,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 
 			$rows[] = $this->buildExpansionRow(
 				$this->themeTitle( $theme ),
+				$iconClass,
+				$this->buildInlineVersionMeta( $theme->Version ),
 				__( 'Theme is currently inactive', 'wp-simple-firewall' ),
 				$this->buildVersionContext( $theme->Version ),
 				$theme->stylesheet,
@@ -443,6 +457,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 */
 	private function buildExpansionRow(
 		string $title,
+		string $iconClass,
+		string $inlineMeta,
 		string $subtitle,
 		string $context,
 		string $identifier,
@@ -452,6 +468,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 	) :array {
 		return [
 			'title'             => $title,
+			'icon_class'        => $iconClass,
+			'inline_meta'       => $inlineMeta,
 			'subtitle'          => $subtitle,
 			'context'           => $context,
 			'identifier'        => $identifier,
@@ -592,6 +610,12 @@ class MaintenanceQueueItemDisplayNormalizer {
 		return $version !== ''
 			? \sprintf( __( 'Version: %s', 'wp-simple-firewall' ), $version )
 			: __( 'Version unavailable', 'wp-simple-firewall' );
+	}
+
+	private function buildInlineVersionMeta( string $version ) :string {
+		return $version !== ''
+			? \sprintf( __( 'Version %s', 'wp-simple-firewall' ), $version )
+			: '';
 	}
 
 	/**

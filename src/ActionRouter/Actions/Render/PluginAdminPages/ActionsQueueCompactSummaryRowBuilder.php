@@ -7,6 +7,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-type CompactSummaryRow array{
  *   icon_class:string,
  *   title:string,
+ *   inline_meta:string,
  *   summary:string,
  *   badge_label:string,
  *   is_ignored:bool,
@@ -25,11 +26,13 @@ class ActionsQueueCompactSummaryRowBuilder {
 		string $summary,
 		string $badgeLabel = '',
 		bool $isIgnored = false,
-		array $actions = []
+		array $actions = [],
+		string $inlineMeta = ''
 	) :array {
 		return [
 			'icon_class'  => $iconClass,
 			'title'       => $title,
+			'inline_meta' => $inlineMeta,
 			'summary'     => $summary,
 			'badge_label' => $badgeLabel,
 			'is_ignored'  => $isIgnored,

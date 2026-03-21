@@ -111,6 +111,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance-expand-wp_plugins_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, $item[ 'expansion' ][ 'type' ] ?? '' );
 		$this->assertSame( 'Akismet Anti-Spam', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
+		$this->assertSame( 'bi bi-plug-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'Version 5.3.0', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'inline_meta' ] ?? '' );
 		$this->assertSame( 'Current: 5.3.0 | Available: 5.4.0', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
 		$this->assertSame( 'akismet/akismet.php', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'identifier' ] ?? '' );
 		$this->assertSame(
@@ -165,6 +167,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( '/wp-admin/update-core.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertSame( 'maintenance-expand-wp_themes_updates', $item[ 'expansion' ][ 'id' ] ?? '' );
 		$this->assertSame( 'Twenty Twenty-Five', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
+		$this->assertSame( 'bi bi-palette-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'Version 1.1', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'inline_meta' ] ?? '' );
 		$this->assertSame( 'Current: 1.1 | Available: 1.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
 		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertSame( '/wp-admin/update-core.php', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? '' );
@@ -203,6 +207,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( '/wp-admin/plugins.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertCount( 1, $item[ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertSame( 'Hello Dolly', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
+		$this->assertSame( 'bi bi-plug-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'Version 1.7.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'inline_meta' ] ?? '' );
 		$this->assertSame( 'Version: 1.7.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
 		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'tooltip' ] ?? '' );
@@ -248,6 +254,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( '/wp-admin/themes.php', $item[ 'cta' ][ 'href' ] ?? '' );
 		$this->assertCount( 1, $item[ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertSame( 'Inactive Theme', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
+		$this->assertSame( 'bi bi-palette-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'Version 3.0.1', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'inline_meta' ] ?? '' );
 		$this->assertSame( 'inactive-theme', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'identifier' ] ?? '' );
 		$this->assertSame( [], $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ] ?? [ 'unexpected' ] );
 	}

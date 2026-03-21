@@ -23,15 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  * @phpstan-import-type MaintenanceExpansionRow from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-import-type MaintenanceUiAction from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-type CompactMaintenanceRow array{
- *   title:string,
- *   action:array{},
- *   is_ignored:bool,
- *   ignored_label:string,
- *   secondary_actions:list<MaintenanceUiAction>
- * }
  * @phpstan-type GroupLink array{
  *   label:string,
  *   href:string,
@@ -62,7 +54,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   detail_table:array<string,mixed>,
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,mixed>,
- *   maintenance_rows:list<CompactMaintenanceRow>,
+ *   maintenance_rows:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow,
  *   header:DrillLayerHeaderInput,
  *   selection_json:string,
@@ -101,7 +93,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   detail_table:array<string,mixed>,
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
- *   maintenance_rows:list<CompactMaintenanceRow>,
+ *   maintenance_rows:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow
  * }
  * @phpstan-type ComputedGroups array{
@@ -612,7 +604,7 @@ class ActionsQueueGroupsBuilder {
 			'status'              => StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'warning' ),
 			'narrative'           => $maintenanceItem[ 'description' ],
 			'detail_shell'        => 'maintenance',
-			'icon_class_override' => $maintenanceItem[ 'icon_class' ] ?? null,
+			'icon_class_override' => $maintenanceItem[ 'icon_class' ],
 			'links'               => [],
 			'management_link'     => $this->buildManagementLink( $maintenanceItem ),
 			'detail_table'        => [],
@@ -654,9 +646,13 @@ class ActionsQueueGroupsBuilder {
 	 * @return array{}|GroupManagementLink
 	 */
 	private function buildManagementLink( array $maintenanceItem ) :array {
-		$cta = \is_array( $maintenanceItem[ 'cta' ] ?? null ) ? $maintenanceItem[ 'cta' ] : [];
-		$label = \trim( (string)( $cta[ 'label' ] ?? '' ) );
-		$href = \trim( (string)( $cta[ 'href' ] ?? '' ) );
+		if ( empty( $maintenanceItem[ 'cta' ] ) ) {
+			return [];
+		}
+
+		$cta = $maintenanceItem[ 'cta' ];
+		$label = $cta[ 'label' ];
+		$href = $cta[ 'href' ];
 		$target = \trim( (string)( $cta[ 'target' ] ?? '' ) );
 		if ( $label === '' || $href === '' ) {
 			return [];
@@ -1042,25 +1038,26 @@ class ActionsQueueGroupsBuilder {
 	 * @return list<MaintenanceExpansionRow>
 	 */
 	private function extractMaintenanceRows( array $maintenanceItem ) :array {
-		$rows = $maintenanceItem[ 'expansion' ][ 'table' ][ 'rows' ] ?? null;
-		return \is_array( $rows ) ? $rows : [];
+		return empty( $maintenanceItem[ 'expansion' ] )
+			? []
+			: $maintenanceItem[ 'expansion' ][ 'table' ][ 'rows' ];
 	}
 
 	/**
 	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
-	 * @return list<CompactMaintenanceRow>
+	 * @return list<CompactSummaryRow>
 	 */
 	private function projectMaintenanceRows( array $maintenanceItem ) :array {
 		return \array_values( \array_map(
-			static fn( array $row ) :array => [
-				'title'             => (string)( $row[ 'title' ] ?? '' ),
-				'action'            => [],
-				'is_ignored'        => (bool)( $row[ 'is_ignored' ] ?? false ),
-				'ignored_label'     => (string)( $row[ 'ignored_label' ] ?? '' ),
-				'secondary_actions' => \is_array( $row[ 'secondary_actions' ] ?? null )
-					? $row[ 'secondary_actions' ]
-					: [],
-			],
+			fn( array $row ) :array => $this->summaryRowBuilder()->build(
+				$row[ 'icon_class' ],
+				$row[ 'title' ],
+				'',
+				$row[ 'ignored_label' ],
+				$row[ 'is_ignored' ],
+				$row[ 'secondary_actions' ],
+				$row[ 'inline_meta' ]
+			),
 			$this->extractMaintenanceRows( $maintenanceItem )
 		) );
 	}
@@ -1070,16 +1067,16 @@ class ActionsQueueGroupsBuilder {
 	 * @return array{}|CompactSummaryRow
 	 */
 	private function buildMaintenanceSummaryRow( array $maintenanceItem ) :array {
-		$toggleAction = \is_array( $maintenanceItem[ 'toggle_action' ] ?? null ) ? $maintenanceItem[ 'toggle_action' ] : [];
-		if ( \trim( (string)( $maintenanceItem[ 'description' ] ?? '' ) ) === '' && empty( $toggleAction ) ) {
+		$toggleAction = $maintenanceItem[ 'toggle_action' ];
+		if ( $maintenanceItem[ 'description' ] === '' && empty( $toggleAction ) ) {
 			return [];
 		}
 
-		$isIgnored = ( $toggleAction[ 'kind' ] ?? '' ) === 'unignore';
+		$isIgnored = !empty( $toggleAction ) && $toggleAction[ 'kind' ] === 'unignore';
 		return $this->summaryRowBuilder()->build(
-			(string)( $maintenanceItem[ 'icon_class' ] ?? '' ),
+			$maintenanceItem[ 'icon_class' ],
 			'',
-			(string)( $maintenanceItem[ 'description' ] ?? '' ),
+			$maintenanceItem[ 'description' ],
 			$isIgnored ? __( 'Currently ignored', 'wp-simple-firewall' ) : '',
 			$isIgnored,
 			empty( $toggleAction ) ? [] : [ $toggleAction ]

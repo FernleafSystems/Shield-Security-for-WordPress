@@ -456,6 +456,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$activeGroup = $this->findGroupInSections( $payload[ 'active_sections' ] ?? [], 'wp_plugins_updates' );
 		$this->assertSame( 'category', (string)( $activeGroup[ 'card_type' ] ?? '' ) );
 		$this->assertNotEmpty( $activeGroup[ 'management_link' ] ?? [] );
+		$this->assertSame( 'bi bi-plug-fill', (string)( $activeGroup[ 'maintenance_rows' ][ 0 ][ 'icon_class' ] ?? '' ) );
+		$this->assertSame( 'Version '.self::con()->cfg->version(), (string)( $activeGroup[ 'maintenance_rows' ][ 0 ][ 'inline_meta' ] ?? '' ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//button[@data-drill-target="detail" and @data-drill-group-selection]',
@@ -466,6 +468,21 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row ")]',
 			'Groups AJAX should render maintenance category rows inside the item-box'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box--warning ")]',
+			'Groups AJAX should render active review maintenance cards with the warning item-box treatment'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-icon ")]',
+			'Groups AJAX should render the shared row icon element on populated maintenance rows'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-inline-meta ")]',
+			'Groups AJAX should render inline version meta on populated maintenance rows'
 		);
 		$this->assertNotEmpty( $activeGroup[ 'maintenance_rows' ] ?? [] );
 		$this->assertXPathCount(

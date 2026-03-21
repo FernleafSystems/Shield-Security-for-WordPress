@@ -217,6 +217,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'table' => [
 							'rows' => [
 								[
+									'icon_class'        => 'bi bi-plug-fill',
+									'inline_meta'       => 'Version 5.3.0',
 									'title'             => 'Akismet Anti-Spam',
 									'subtitle'          => 'Plugin update available',
 									'context'           => 'Current: 5.3.0 | Available: 5.4.0',
@@ -261,6 +263,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'table' => [
 							'rows' => [
 								[
+									'icon_class'        => 'bi bi-plug-fill',
+									'inline_meta'       => 'Version 1.7.2',
 									'title'             => 'Hello Dolly',
 									'subtitle'          => 'Plugin is currently inactive',
 									'context'           => 'Version: 1.7.2',
@@ -352,11 +356,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				[
-					'title'             => 'Hello Dolly',
-					'action'            => [],
-					'is_ignored'        => true,
-					'ignored_label'     => 'Currently ignored',
-					'secondary_actions' => [
+					'icon_class'  => 'bi bi-plug-fill',
+					'title'       => 'Hello Dolly',
+					'inline_meta' => 'Version 1.7.2',
+					'summary'     => '',
+					'badge_label' => 'Currently ignored',
+					'is_ignored'  => true,
+					'actions'     => [
 						[
 							'label'       => 'Stop ignoring',
 							'href'        => 'javascript:{}',
@@ -381,9 +387,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'Akismet Anti-Spam', $groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'title' ] );
 		$this->assertSame( 'bi bi-plug-fill', $groups[ 1 ][ 'icon_class' ] );
+		$this->assertSame( 'Version 5.3.0', $groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'inline_meta' ] );
 		$this->assertSame(
 			'maintenance_item_ignore',
-			$groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+			$groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
 		);
 		$this->assertSame( '', $groups[ 0 ][ 'drill_hint' ] );
 		$this->assertSame( 'maintenance', $groups[ 0 ][ 'detail_shell' ] );
@@ -440,6 +447,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[
 				'icon_class'  => 'bi bi-code-slash',
 				'title'       => '',
+				'inline_meta' => '',
 				'summary'     => 'PHP should be reviewed.',
 				'badge_label' => '',
 				'is_ignored'  => false,
@@ -614,6 +622,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'table' => [
 							'rows' => [
 								[
+									'icon_class'        => 'bi bi-plug-fill',
+									'inline_meta'       => 'Version 5.3.0',
 									'title'             => 'Akismet Anti-Spam',
 									'subtitle'          => 'Plugin update available',
 									'context'           => 'Current: 5.3.0 | Available: 5.4.0',
@@ -659,6 +669,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'table' => [
 							'rows' => [
 								[
+									'icon_class'        => 'bi bi-plug-fill',
+									'inline_meta'       => 'Version 1.7.2',
 									'title'             => 'Hello Dolly',
 									'subtitle'          => 'Plugin is currently inactive',
 									'context'           => 'Version: 1.7.2',
@@ -753,7 +765,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $payload[ 'selected_group' ][ 'item_count' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$payload[ 'selected_group' ][ 'maintenance_rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+			$payload[ 'selected_group' ][ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
 		);
 	}
 

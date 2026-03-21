@@ -1,4 +1,5 @@
-<div class="item-box__row{% if row.is_ignored %} is-ignored{% endif %}">
+<div class="item-box__row{% if row.is_ignored %} is-ignored{% endif %}"
+	 {% if row.is_ignored %}data-actions-queue-maintenance-ignored="1"{% endif %}>
 	{% if row.icon_class is not empty %}
 		<span class="item-box__row-icon"><i class="{{ row.icon_class }}" aria-hidden="true"></i></span>
 	{% endif %}
@@ -7,6 +8,9 @@
 			<span class="item-box__row-title">
 				{% if row.title is not empty %}
 					<strong>{{ row.title }}</strong>
+				{% endif %}
+				{% if row.inline_meta is not empty %}
+					<span class="item-box__row-inline-meta">{{ row.inline_meta }}</span>
 				{% endif %}
 				{% if row.badge_label is not empty %}
 					<span class="shield-badge badge-info item-box__row-badge">{{ row.badge_label }}</span>

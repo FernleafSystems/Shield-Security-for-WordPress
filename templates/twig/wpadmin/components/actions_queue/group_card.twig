@@ -1,5 +1,5 @@
 {% if group.card_type == 'category' %}
-	<div class="item-box{% if is_healthy %} item-box--good{% endif %}">
+	<div class="item-box{% if is_healthy %} item-box--good{% elseif bucket_selection.key == 'review' and group.status == 'warning' %} item-box--warning{% endif %}">
 		<div class="item-box__header">
 			<span class="item-box__header-icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
 			<span class="item-box__header-title">{{ group.label }}</span>
@@ -15,26 +15,9 @@
 		<div class="item-box__grid">
 			{% if group.maintenance_rows is not empty %}
 				{% for row in group.maintenance_rows %}
-					<div class="item-box__row{% if row.is_ignored %} is-ignored{% endif %}"
-						 {% if row.is_ignored %}data-actions-queue-maintenance-ignored="1"{% endif %}>
-						<span class="item-box__row-text item-box__row-text--stacked">
-							<span class="item-box__row-title">
-								<strong>{{ row.title }}</strong>
-								{% if row.ignored_label is not empty %}
-									<span class="shield-badge badge-info item-box__row-badge">{{ row.ignored_label }}</span>
-								{% endif %}
-							</span>
-						</span>
-						<span class="item-box__row-actions">
-							{% include '/wpadmin/components/actions_queue/maintenance_row_actions.twig' with {
-								row: row,
-								primary_button_class: 'btn btn-outline-secondary btn-sm item-box__row-primary-action',
-								primary_icon_button_class: 'btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action',
-								secondary_button_class: 'btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action',
-								secondary_spacing_class: ''
-							} only %}
-						</span>
-					</div>
+					{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
+						row: row
+					} only %}
 				{% endfor %}
 			{% elseif group.summary_row is not empty %}
 				{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
