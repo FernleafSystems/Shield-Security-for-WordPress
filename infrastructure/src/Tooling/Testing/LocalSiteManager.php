@@ -54,7 +54,7 @@ class LocalSiteManager {
 			$rootDir,
 			$this->buildComposeFiles(),
 			[ 'down', '--remove-orphans' ],
-			$this->buildEnvOverrides( $rootDir )
+			$this->buildRuntimeEnvOverrides( $rootDir )
 		);
 	}
 
@@ -68,21 +68,23 @@ class LocalSiteManager {
 			$this->buildWpCliCommand( $wpCliArgs ),
 			$rootDir,
 			null,
-			$this->buildEnvOverrides( $rootDir )
+			$this->buildRuntimeEnvOverrides( $rootDir )
 		);
 	}
 
-	public function reset( string $rootDir ) :int {
+	public function reset( string $rootDir, bool $requirePlaywright = false ) :int {
+		$this->runPreflightChecks( $rootDir, $requirePlaywright );
+
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$this->buildComposeFiles(),
 			[ 'down', '-v', '--remove-orphans' ],
-			$this->buildEnvOverrides( $rootDir )
+			$this->buildRuntimeEnvOverrides( $rootDir )
 		);
 		if ( $exitCode !== 0 ) {
 			return $exitCode;
 		}
-		$this->ensureReady( $rootDir, false );
+		$this->ensureReadyAfterPreflight( $rootDir );
 		return 0;
 	}
 
@@ -102,83 +104,22 @@ class LocalSiteManager {
 
 	public function ensureReady( string $rootDir, bool $requirePlaywright ) :void {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
-		$envOverrides = $this->buildEnvOverrides( $rootDir );
+		$this->ensureReadyAfterPreflight( $rootDir );
+	}
+
+	private function ensureReadyAfterPreflight( string $rootDir ) :void {
+		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
-		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
-			$rootDir,
-			$composeFiles,
-			self::WORDPRESS_SERVICE_NAME,
-			$envOverrides
-		);
+		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides );
 
-		if ( $containerId === '' ) {
-			if ( $this->probe->isTcpPortOpen( $this->definition->siteHost(), $this->definition->sitePort() ) ) {
-				throw new \RuntimeException(
-					sprintf(
-						'Port %d is already in use, but %s is not responding at %s.',
-						$this->definition->sitePort(),
-						$this->definition->label(),
-						$this->definition->siteUrl()
-					)
-				);
-			}
-
-			$exitCode = $this->dockerComposeExecutor->run(
-				$rootDir,
-				$composeFiles,
-				[
-					'up',
-					'-d',
-					self::DB_SERVICE_NAME,
-					self::WORDPRESS_SERVICE_NAME,
-				],
-				$envOverrides
-			);
-			if ( $exitCode !== 0 ) {
-				throw new \RuntimeException( 'Failed to start the '.$this->definition->label().' Docker services.' );
-			}
-
-			if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 90 ) ) {
-				throw new \RuntimeException( 'Local WordPress site did not become ready in time.' );
-			}
-
-			$containerId = $this->runtimeRefresher->resolveServiceContainerId(
-				$rootDir,
-				$composeFiles,
-				self::WORDPRESS_SERVICE_NAME,
-				$envOverrides
-			);
-			if ( $containerId === '' ) {
-				throw new \RuntimeException( $this->definition->label().' WordPress container did not resolve after startup.' );
-			}
-		}
-		elseif ( !$this->isSiteHealthy() ) {
-			throw new \RuntimeException( $this->definition->label().' is already running but unhealthy before browser runtime refresh.' );
-		}
-
-		$this->runtimeRefresher->refresh( $rootDir, $containerId );
-		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 30 ) ) {
-			throw new \RuntimeException( $this->definition->label().' is unhealthy after browser runtime refresh.' );
-		}
-
-		if ( $this->processRunner->runForExitCode(
-			$this->buildProvisionCommand(),
-			$rootDir,
-			null,
-			$envOverrides
-		) !== 0 ) {
-			throw new \RuntimeException( 'Failed to provision the '.$this->definition->label().' baseline.' );
-		}
-
-		if ( !$this->isSiteHealthy() ) {
-			throw new \RuntimeException( $this->definition->label().' is unhealthy after provisioning.' );
-		}
+		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId );
+		$this->provisionBaselineAndAssertHealthy( $rootDir, $envOverrides );
 	}
 
 	/**
 	 * @return array<string,string|false>
 	 */
-	private function buildEnvOverrides( string $rootDir ) :array {
+	private function buildRuntimeEnvOverrides( string $rootDir ) :array {
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
 			$this->definition->composeProjectName(),
 			true
@@ -211,19 +152,11 @@ class LocalSiteManager {
 			'run',
 			'--rm',
 			'-T',
-			'-e',
-			'SHIELD_LOCAL_SITE_URL='.$this->definition->siteUrl(),
-			'-e',
-			'SHIELD_LOCAL_SITE_TITLE='.$this->definition->siteTitle(),
-			'-e',
-			'SHIELD_LOCAL_SITE_PROFILE='.$this->definition->key(),
-			'-e',
-			'SHIELD_LOCAL_SITE_ADMIN_USER='.$this->definition->adminUser(),
-			'-e',
-			'SHIELD_LOCAL_SITE_ADMIN_PASSWORD='.$this->definition->adminPassword(),
-			'-e',
-			'SHIELD_LOCAL_SITE_ADMIN_EMAIL='.$this->definition->adminEmail(),
 		];
+		foreach ( $this->buildProvisionEnvironmentVariables() as $name => $value ) {
+			$command[] = '-e';
+			$command[] = $name.'='.$value;
+		}
 		$command = \array_merge( $command, [
 			self::WPCLI_SERVICE_NAME,
 			'sh',
@@ -231,6 +164,20 @@ class LocalSiteManager {
 		] );
 
 		return $command;
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function buildProvisionEnvironmentVariables() :array {
+		return [
+			'SHIELD_LOCAL_SITE_URL' => $this->definition->siteUrl(),
+			'SHIELD_LOCAL_SITE_TITLE' => $this->definition->siteTitle(),
+			'SHIELD_LOCAL_SITE_PROFILE' => $this->definition->key(),
+			'SHIELD_LOCAL_SITE_ADMIN_USER' => $this->definition->adminUser(),
+			'SHIELD_LOCAL_SITE_ADMIN_PASSWORD' => $this->definition->adminPassword(),
+			'SHIELD_LOCAL_SITE_ADMIN_EMAIL' => $this->definition->adminEmail(),
+		];
 	}
 
 	/**
@@ -286,5 +233,108 @@ class LocalSiteManager {
 
 	private function isSiteHealthy() :bool {
 		return $this->probe->isHttpReady( $this->definition->siteUrl().'/wp-admin/' );
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @param array<string,string|false> $envOverrides
+	 */
+	private function resolveOrStartWordpressContainer( string $rootDir, array $composeFiles, array $envOverrides ) :string {
+		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
+			$rootDir,
+			$composeFiles,
+			self::WORDPRESS_SERVICE_NAME,
+			$envOverrides
+		);
+		if ( $containerId !== '' ) {
+			if ( !$this->isSiteHealthy() ) {
+				throw new \RuntimeException(
+					$this->definition->label().' is already running but unhealthy before browser runtime refresh.'
+				);
+			}
+
+			return $containerId;
+		}
+
+		$this->assertSitePortIsAvailable();
+		$this->startDockerServices( $rootDir, $composeFiles, $envOverrides );
+		$this->waitForWordpressStartup();
+
+		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
+			$rootDir,
+			$composeFiles,
+			self::WORDPRESS_SERVICE_NAME,
+			$envOverrides
+		);
+		if ( $containerId === '' ) {
+			throw new \RuntimeException( $this->definition->label().' WordPress container did not resolve after startup.' );
+		}
+
+		return $containerId;
+	}
+
+	private function assertSitePortIsAvailable() :void {
+		if ( $this->probe->isTcpPortOpen( $this->definition->siteHost(), $this->definition->sitePort() ) ) {
+			throw new \RuntimeException(
+				sprintf(
+					'Port %d is already in use, but %s is not responding at %s.',
+					$this->definition->sitePort(),
+					$this->definition->label(),
+					$this->definition->siteUrl()
+				)
+			);
+		}
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @param array<string,string|false> $envOverrides
+	 */
+	private function startDockerServices( string $rootDir, array $composeFiles, array $envOverrides ) :void {
+		$exitCode = $this->dockerComposeExecutor->run(
+			$rootDir,
+			$composeFiles,
+			[
+				'up',
+				'-d',
+				self::DB_SERVICE_NAME,
+				self::WORDPRESS_SERVICE_NAME,
+			],
+			$envOverrides
+		);
+		if ( $exitCode !== 0 ) {
+			throw new \RuntimeException( 'Failed to start the '.$this->definition->label().' Docker services.' );
+		}
+	}
+
+	private function waitForWordpressStartup() :void {
+		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 90 ) ) {
+			throw new \RuntimeException( 'Local WordPress site did not become ready in time.' );
+		}
+	}
+
+	private function refreshRuntimeAndAssertHealthy( string $rootDir, string $containerId ) :void {
+		$this->runtimeRefresher->refresh( $rootDir, $containerId );
+		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 30 ) ) {
+			throw new \RuntimeException( $this->definition->label().' is unhealthy after browser runtime refresh.' );
+		}
+	}
+
+	/**
+	 * @param array<string,string|false> $envOverrides
+	 */
+	private function provisionBaselineAndAssertHealthy( string $rootDir, array $envOverrides ) :void {
+		if ( $this->processRunner->runForExitCode(
+			$this->buildProvisionCommand(),
+			$rootDir,
+			null,
+			$envOverrides
+		) !== 0 ) {
+			throw new \RuntimeException( 'Failed to provision the '.$this->definition->label().' baseline.' );
+		}
+
+		if ( !$this->isSiteHealthy() ) {
+			throw new \RuntimeException( $this->definition->label().' is unhealthy after provisioning.' );
+		}
 	}
 }

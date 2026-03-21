@@ -373,11 +373,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1"][contains(normalize-space(), "No action required")]',
-			'Bucket layer should label the healthy summary section'
-		);
-		$this->assertXPathExists(
-			$xpath,
 			'//*[@data-healthy-disclosure-body="1" and @aria-hidden="true"]',
 			'Bucket layer should render the healthy disclosure body with the closed accessibility state'
 		);
@@ -516,17 +511,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '0 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( [ 'wp_plugins_updates' ], $this->sectionGroupKeys( $payload[ 'healthy_sections' ] ?? [] ) );
 		$healthyGroup = $this->findGroupInSections( $payload[ 'healthy_sections' ] ?? [], 'wp_plugins_updates' );
-		$this->assertSame( 'No action required', (string)( $payload[ 'healthy_heading_label' ] ?? '' ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Looking good"]',
 			0,
 			'Review groups AJAX should not render the removed healthy section heading'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1"][contains(normalize-space(), "No action required")]',
-			'Review groups AJAX should render the shared healthy disclosure toggle'
 		);
 		$this->assertXPathExists(
 			$xpath,

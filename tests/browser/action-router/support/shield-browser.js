@@ -142,30 +142,43 @@ function runTestSiteWpCli( args = [] ) {
 	} );
 }
 
-function seedActionsQueueDetailFixture() {
+function runActionsQueueDetailFixture( action ) {
 	runTestSiteWpCli( [
 		'eval-file',
 		ACTIONS_QUEUE_DETAIL_FIXTURE,
 		'--',
-		'seed',
+		action,
 	] );
 }
 
-function cleanupActionsQueueDetailFixture() {
-	runTestSiteWpCli( [
-		'eval-file',
-		ACTIONS_QUEUE_DETAIL_FIXTURE,
-		'--',
-		'cleanup',
-	] );
+async function withActionsQueueDetailFixture( runScenario ) {
+	let scenarioError = null;
+
+	try {
+		runActionsQueueDetailFixture( 'seed' );
+		return await runScenario();
+	}
+	catch ( error ) {
+		scenarioError = error;
+		throw error;
+	}
+	finally {
+		try {
+			runActionsQueueDetailFixture( 'cleanup' );
+		}
+		catch ( cleanupError ) {
+			if ( scenarioError === null ) {
+				throw cleanupError;
+			}
+		}
+	}
 }
 
 module.exports = {
 	buildShieldUrl,
-	cleanupActionsQueueDetailFixture,
 	dismissBlockingDialogs,
 	openShieldRoute,
-	seedActionsQueueDetailFixture,
 	selectSelect2Option,
 	waitForShieldPage,
+	withActionsQueueDetailFixture,
 };

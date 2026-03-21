@@ -64,6 +64,37 @@ class BrowserTestLaneTest extends TestCase {
 		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
 	}
 
+	public function testRunFailsBeforeResetWhenPlaywrightIsMissing() :void {
+		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-missing-playwright-' );
+		\mkdir( Path::join( $projectRoot, 'vendor' ), 0777, true );
+		\mkdir( Path::join( $projectRoot, 'assets', 'dist' ), 0777, true );
+		\file_put_contents( Path::join( $projectRoot, 'vendor', 'autoload.php' ), '<?php' );
+		\file_put_contents( Path::join( $projectRoot, 'plugin.json' ), '{}' );
+		\file_put_contents( Path::join( $projectRoot, 'icwp-wpsf.php' ), '<?php' );
+
+		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
+		$siteManager = new LocalSiteManager(
+			LocalSiteDefinitions::test(),
+			new RecordingProcessRunner( [ 0 ] ),
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
+		);
+		$lane = new BrowserTestLane( $playwrightRunner, $siteManager );
+
+		$this->expectExceptionMessage( 'Playwright is not installed' );
+
+		try {
+			$lane->run( $projectRoot );
+		}
+		finally {
+			$this->assertCount( 0, $dockerComposeExecutor->calls );
+			$this->assertCount( 0, $playwrightRunner->calls );
+		}
+	}
+
 	private function seedRequiredFiles( string $rootDir ) :void {
 		\mkdir( Path::join( $rootDir, 'vendor' ), 0777, true );
 		\mkdir( Path::join( $rootDir, 'assets', 'dist' ), 0777, true );

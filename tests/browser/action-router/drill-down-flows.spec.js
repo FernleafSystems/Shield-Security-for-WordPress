@@ -1,14 +1,11 @@
 const { test, expect } = require( '@playwright/test' );
 const {
-	cleanupActionsQueueDetailFixture,
 	openShieldRoute,
-	seedActionsQueueDetailFixture,
+	withActionsQueueDetailFixture,
 } = require( './support/shield-browser' );
 
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
-	seedActionsQueueDetailFixture();
-
-	try {
+	await withActionsQueueDetailFixture( async () => {
 		await openShieldRoute( page, {
 			nav: 'scans',
 			nav_sub: 'overview',
@@ -62,10 +59,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
-	}
-	finally {
-		cleanupActionsQueueDetailFixture();
-	}
+	} );
 } );
 
 test( 'configure toggles healthy zones, drills into diagnosis, and drills back out', async ( { page } ) => {

@@ -143,7 +143,7 @@ Scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/w
 
 1. Installs Composer and Node dependencies.
 2. Rebuilds admin assets for the checked-out source tree.
-3. Installs Chromium and runs the ActionRouter Playwright + axe lane against the local Docker WordPress dev site.
+3. Installs Chromium and runs the ActionRouter Playwright + axe lane against the isolated local Docker WordPress test site.
 4. Triggered by `workflow_dispatch` and the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday).
 
 ## Local Verification Commands

@@ -63,7 +63,7 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertContains( 'wp-cli', $processRunner->calls[ 0 ][ 'command' ] );
 	}
 
-	public function testEnsureReadyUsesBrowserIntroFlagWhenRequested() :void {
+	public function testEnsureReadyPassesTestProfileProvisioningMetadata() :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
@@ -281,6 +281,34 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertCount( 2, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
+	}
+
+	public function testResetFailsFastWhenBrowserPrerequisitesAreMissing() :void {
+		$this->expectExceptionMessage( 'Playwright is not installed' );
+		$this->cleanupTrackedTempDirs();
+		$this->projectRoot = $this->createTrackedTempDir( 'shield-local-site-browser-missing-' );
+		\mkdir( Path::join( $this->projectRoot, 'vendor' ), 0777, true );
+		\mkdir( Path::join( $this->projectRoot, 'assets', 'dist' ), 0777, true );
+		\file_put_contents( Path::join( $this->projectRoot, 'vendor', 'autoload.php' ), '<?php' );
+		\file_put_contents( Path::join( $this->projectRoot, 'plugin.json' ), '{}' );
+		\file_put_contents( Path::join( $this->projectRoot, 'icwp-wpsf.php' ), '<?php' );
+
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::test(),
+			new RecordingProcessRunner( [ 0 ] ),
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
+		);
+
+		try {
+			$manager->reset( $this->projectRoot, true );
+		}
+		finally {
+			$this->assertCount( 0, $dockerComposeExecutor->calls );
+		}
 	}
 
 	public function testTestSiteUsesDistinctProjectNamePortAndDbName() :void {

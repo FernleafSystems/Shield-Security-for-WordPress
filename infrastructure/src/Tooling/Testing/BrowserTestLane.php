@@ -21,7 +21,7 @@ class BrowserTestLane {
 	public function run( string $rootDir, array $playwrightArgs = [] ) :int {
 		echo 'Mode: browser'.\PHP_EOL;
 
-		if ( $this->siteManager->reset( $rootDir ) !== 0 ) {
+		if ( $this->siteManager->reset( $rootDir, true ) !== 0 ) {
 			return 1;
 		}
 

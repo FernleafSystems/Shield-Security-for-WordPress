@@ -52,24 +52,24 @@ class ShieldCliApplication {
 	private function buildCommandFactories( string $projectRoot ) :array {
 		$environmentResolver = new TestingEnvironmentResolver();
 		$packagePathResolver = new PackagePathResolver();
-		$devSiteManager = new LocalSiteManager( LocalSiteDefinitions::dev(), null, $environmentResolver );
-		$testSiteManager = new LocalSiteManager( LocalSiteDefinitions::test(), null, $environmentResolver );
+		$siteProfiles = $this->buildSiteProfiles( $environmentResolver );
+		$testSiteManager = $siteProfiles[ 'test:site' ][ 'manager' ];
+		$siteFactories = [];
+
+		foreach ( $siteProfiles as $profile ) {
+			$siteFactories = \array_merge(
+				$siteFactories,
+				$this->buildSiteCommandFactories(
+					$projectRoot,
+					$profile[ 'prefix' ],
+					$profile[ 'manager' ],
+					$this->buildSiteCommandDescriptions( $profile )
+				)
+			);
+		}
 
 		return \array_merge(
-			$this->buildSiteCommandFactories( $projectRoot, 'dev:site', $devSiteManager, [
-				'up' => 'Start or reuse the local Docker WordPress dev site for Shield source development.',
-				'down' => 'Stop the local Docker WordPress dev site while preserving its persistent state.',
-				'reset' => 'Destroy the persistent dev-site state and reprovision a fresh local Docker WordPress dev site.',
-				'status' => 'Report whether the local Docker WordPress dev site is reachable and ready for Shield development.',
-				'wp' => 'Run a WP-CLI command against the local Shield dev site after ensuring it is ready.',
-			] ),
-			$this->buildSiteCommandFactories( $projectRoot, 'test:site', $testSiteManager, [
-				'up' => 'Start or reuse the isolated local Docker WordPress test site for Shield browser testing.',
-				'down' => 'Stop the isolated local Docker WordPress test site while preserving its persistent state.',
-				'reset' => 'Destroy the isolated test-site state and reprovision a fresh local Docker WordPress test site.',
-				'status' => 'Report whether the isolated local Docker WordPress test site is reachable and ready for Shield browser testing.',
-				'wp' => 'Run a WP-CLI command against the isolated Shield test site after ensuring it is ready.',
-			] ),
+			$siteFactories,
 			[
 				'test:browser' => static function () use ( $projectRoot, $testSiteManager ) :Command {
 					return new TestBrowserCommand( $projectRoot, new BrowserTestLane( null, $testSiteManager ) );
@@ -124,6 +124,67 @@ class ShieldCliApplication {
 				},
 			]
 		);
+	}
+
+	/**
+	 * @return array<string,array{
+	 *   prefix:string,
+	 *   manager:LocalSiteManager,
+	 *   site_label:string,
+	 *   shield_label:string,
+	 *   usage:string,
+	 *   reset_scope:string
+	 * }>
+	 */
+	private function buildSiteProfiles( TestingEnvironmentResolver $environmentResolver ) :array {
+		return [
+			'dev:site' => [
+				'prefix' => 'dev:site',
+				'manager' => new LocalSiteManager( LocalSiteDefinitions::dev(), null, $environmentResolver ),
+				'site_label' => 'local Docker WordPress dev site',
+				'shield_label' => 'local Shield dev site',
+				'usage' => 'Shield source development',
+				'reset_scope' => 'persistent dev-site state',
+			],
+			'test:site' => [
+				'prefix' => 'test:site',
+				'manager' => new LocalSiteManager( LocalSiteDefinitions::test(), null, $environmentResolver ),
+				'site_label' => 'isolated local Docker WordPress test site',
+				'shield_label' => 'isolated Shield test site',
+				'usage' => 'Shield browser testing',
+				'reset_scope' => 'isolated test-site state',
+			],
+		];
+	}
+
+	/**
+	 * @param array{
+	 *   site_label:string,
+	 *   shield_label:string,
+	 *   usage:string,
+	 *   reset_scope:string
+	 * } $profile
+	 * @return array{up:string,down:string,reset:string,status:string,wp:string}
+	 */
+	private function buildSiteCommandDescriptions( array $profile ) :array {
+		return [
+			'up' => sprintf( 'Start or reuse the %s for %s.', $profile[ 'site_label' ], $profile[ 'usage' ] ),
+			'down' => sprintf( 'Stop the %s while preserving its persistent state.', $profile[ 'site_label' ] ),
+			'reset' => sprintf(
+				'Destroy the %s and reprovision a fresh %s.',
+				$profile[ 'reset_scope' ],
+				$profile[ 'site_label' ]
+			),
+			'status' => sprintf(
+				'Report whether the %s is reachable and ready for %s.',
+				$profile[ 'site_label' ],
+				$profile[ 'usage' ]
+			),
+			'wp' => sprintf(
+				'Run a WP-CLI command against the %s after ensuring it is ready.',
+				$profile[ 'shield_label' ]
+			),
+		];
 	}
 
 	/**

@@ -94,9 +94,10 @@ Local sidecar mode (`test:integration-local`):
 Local site mode (`dev:site:*` / `test:site:*`):
 
 1. Both site families use `tests/docker/docker-compose.local-site.yml`.
-2. `dev:site:*` uses project `shield-local-site`, DB `shield_local_site`, and port `8888`.
-3. `test:site:*` uses project `shield-test-site`, DB `shield_test_site`, and port `8889`.
-4. `test:browser` hard-resets the `test:site` family on each run.
+2. `TESTING.md` owns command behavior, reset semantics, and workflow guidance for these site families.
+3. Docker-specific identifiers remain:
+   `dev:site:*` -> project `shield-local-site`, DB `shield_local_site`, port `8888`
+   `test:site:*` -> project `shield-test-site`, DB `shield_test_site`, port `8889`
 
 ## Static Analysis Entrypoints
 
