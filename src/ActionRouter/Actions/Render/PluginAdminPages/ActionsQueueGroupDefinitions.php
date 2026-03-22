@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  * @phpstan-type GroupDefinition array{
  *   key:string,
  *   label:string,
+ *   sort_order:int,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',
@@ -49,6 +50,7 @@ class ActionsQueueGroupDefinitions {
 			$definitions[ $key ] = [
 				'key'                 => $key,
 				'label'               => $this->groupLabel( $key, $scanDefinition[ 'label' ] ),
+				'sort_order'          => $this->sortOrder( $key ),
 				'icon_class'          => $scanDefinition[ 'rail_icon_class' ],
 				'detail_shell'        => $this->detailShell( $key ),
 				'card_type'           => $this->cardType( $key ),
@@ -63,6 +65,7 @@ class ActionsQueueGroupDefinitions {
 		$definitions[ 'maintenance' ] = [
 			'key'                 => 'maintenance',
 			'label'               => __( 'Maintenance Items', 'wp-simple-firewall' ),
+			'sort_order'          => $this->sortOrder( 'maintenance' ),
 			'icon_class'          => 'bi bi-wrench',
 			'detail_shell'        => 'maintenance',
 			'card_type'           => 'category',
@@ -82,6 +85,30 @@ class ActionsQueueGroupDefinitions {
 		return $definition === null
 			? 'maintenance'
 			: $definition[ 'slug' ];
+	}
+
+	public function groupKeyForGroupKey( string $groupKey ) :string {
+		if ( \strpos( $groupKey, ':' ) !== false ) {
+			$definitionKey = \strstr( $groupKey, ':', true );
+			if ( \is_string( $definitionKey ) && isset( $this->all()[ $definitionKey ] ) ) {
+				return $definitionKey;
+			}
+		}
+
+		return isset( $this->all()[ $groupKey ] )
+			? $groupKey
+			: 'maintenance';
+	}
+
+	/**
+	 * @return GroupDefinition
+	 */
+	public function definitionForGroupKey( string $groupKey ) :array {
+		return $this->all()[ $this->groupKeyForGroupKey( $groupKey ) ];
+	}
+
+	public function sortOrderForGroupKey( string $groupKey ) :int {
+		return $this->definitionForGroupKey( $groupKey )[ 'sort_order' ];
 	}
 
 	private function groupLabel( string $groupKey, string $defaultLabel ) :string {
@@ -201,6 +228,27 @@ class ActionsQueueGroupDefinitions {
 				return 'category';
 			default:
 				return 'expandable';
+		}
+	}
+
+	private function sortOrder( string $groupKey ) :int {
+		switch ( $groupKey ) {
+			case 'vulnerabilities':
+				return 0;
+			case 'wordpress':
+				return 1;
+			case 'plugins':
+				return 2;
+			case 'themes':
+				return 3;
+			case 'malware':
+				return 4;
+			case 'file_locker':
+				return 5;
+			case 'maintenance':
+				return 6;
+			default:
+				return 999;
 		}
 	}
 }

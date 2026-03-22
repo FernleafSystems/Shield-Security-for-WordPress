@@ -88,7 +88,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 	}
 
 	/**
-	 * @return BucketSelection
+	 * @return GroupSelection
 	 */
 	public function buildGroupSelection(
 		string $bucketLabel,
