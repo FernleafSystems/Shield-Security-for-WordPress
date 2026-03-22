@@ -131,21 +131,24 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 			'meta_text'         => $subjectId,
 			'show_meta_in_tile' => true,
 			'count_badge'       => $countBadge,
+			'panel_data'        => [
+				'actions-queue-asset-panel-loaded' => '1',
+				'actions-queue-asset-panel-lazy'   => '0',
+			],
 			'actions'           => [
 				[
-					'type'       => 'deactivate',
-					'label'      => 'Deactivate',
-					'href'       => '/wp-admin/plugins.php',
-					'icon'       => 'bi bi-power',
-					'tooltip'    => 'Go to plugins',
-					'attributes' => [],
+					'type'         => 'deactivate',
+					'label'        => 'Deactivate',
+					'href'         => '/wp-admin/plugins.php',
+					'icon_class'   => 'bi bi-power',
+					'tooltip_attr' => 'Go to plugins',
+					'attributes'   => [],
 				],
 			],
 			'table'             => [
 				'subject_type' => $assetType,
 				'subject_id'   => $subjectId,
 			],
-			'render_action'     => [],
 		];
 	}
 

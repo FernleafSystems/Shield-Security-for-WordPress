@@ -142,7 +142,7 @@ function runTestSiteWpCli( args = [] ) {
 	} );
 }
 
-function runActionsQueueBrowserFixture( action, mode = 'direct_table' ) {
+function runActionsQueueBrowserFixture( action ) {
 	runTestSiteWpCli( [
 		'eval-file',
 		ACTIONS_QUEUE_DETAIL_FIXTURE,

@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
+ * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type DetailAction from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailActionData from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
@@ -30,7 +30,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   label:string,
  *   status:string,
  *   icon_class:string,
- *   header:DrillLayerHeaderInput
+ *   header:DrillLayerHeader
  * }
  * @phpstan-type DiagnosisExpandAction array{
  *   is_expandable:bool,
@@ -70,7 +70,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   review_fallback_card:array{}|DiagnosisReviewFallbackCard,
  *   review_rows_heading:string,
  *   healthy_rows_heading:string,
- *   header:DrillLayerHeaderInput,
+ *   header:DrillLayerHeader,
  *   zone_selection:DrillSelection,
  *   zone_selection_json:string
  * }

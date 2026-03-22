@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int,
@@ -26,9 +25,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   is_interactive:bool,
  *   summary_text:string,
  *   icon_class:string,
- *   header:DrillLayerHeaderInput,
- *   header_json:string,
- *   selection_json:string,
  *   selection:BucketSelection
  * }
  */
@@ -70,9 +66,6 @@ class ActionsQueueBucketsBuilder {
 				'is_interactive' => $bucketSource[ 'item_count' ] > 0 || $bucketSource[ 'healthy_item_count' ] > 0,
 				'summary_text'   => $this->buildSummaryText( $bucketSource ),
 				'icon_class'     => $definition[ 'icon_class' ],
-				'header'         => $selection[ 'header' ],
-				'header_json'    => $selection[ 'header_json' ],
-				'selection_json' => $selection[ 'selection_json' ],
 				'selection'      => $selection,
 			];
 		}

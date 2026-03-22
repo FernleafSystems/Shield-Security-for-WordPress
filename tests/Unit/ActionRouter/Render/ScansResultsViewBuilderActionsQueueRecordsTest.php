@@ -107,6 +107,10 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertTrue( $queuePane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( 3, $queuePane[ 'cards' ][ 0 ][ 'count_badge' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertSame( 'bi bi-power', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
+		$this->assertSame( 'Go to plugins', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
+		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
+		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
 		$this->assertSame( 'plugin', $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_type' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ] );
 		$this->assertCount( 1, $railPane[ 'items' ] );
@@ -149,8 +153,15 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( '/wp-config.php', $pane[ 'cards' ][ 0 ][ 'meta_text' ] );
 		$this->assertFalse( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
-		$this->assertSame( 'filelocker_showdiff', $pane[ 'cards' ][ 0 ][ 'render_action' ][ 'render_slug' ] );
-		$this->assertSame( 14, $pane[ 'cards' ][ 0 ][ 'render_action' ][ 'rid' ] );
+		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
+		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
+		$this->assertSame(
+			[
+				'render_slug' => 'filelocker_showdiff',
+				'rid'         => 14,
+			],
+			\json_decode( (string)( $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '' ), true )
+		);
 	}
 
 	public function test_file_locker_groups_problem_and_good_locks_into_distinct_sections() :void {

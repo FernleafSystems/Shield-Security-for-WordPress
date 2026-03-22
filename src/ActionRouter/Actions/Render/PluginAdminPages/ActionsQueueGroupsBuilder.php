@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
- * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
+ * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
  * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
@@ -56,8 +56,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow,
- *   header:DrillLayerHeaderInput,
- *   selection_json:string,
  *   selection:GroupSelection
  * }
  * @phpstan-type GroupSectionData array{
@@ -69,7 +67,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   healthy_heading_label:string,
  *   active_sections:list<GroupSectionData>,
  *   healthy_sections:list<GroupSectionData>,
- *   header:DrillLayerHeaderInput
+ *   header:DrillLayerHeader
  * }
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
@@ -466,8 +464,6 @@ class ActionsQueueGroupsBuilder {
 				?? $definition[ 'render_action_data' ],
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
 			'summary_row'         => $seed[ 'summary_row' ],
-			'header'              => $selection[ 'header' ],
-			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
 		];
 	}
@@ -508,8 +504,6 @@ class ActionsQueueGroupsBuilder {
 			'render_action_data'  => $definition[ 'render_action_data' ],
 			'maintenance_rows'    => [],
 			'summary_row'         => [],
-			'header'              => $selection[ 'header' ],
-			'selection_json'      => $selection[ 'selection_json' ],
 			'selection'           => $selection,
 		];
 	}

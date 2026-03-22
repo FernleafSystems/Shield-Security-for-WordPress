@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 /**
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
+ * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  */
 class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 
@@ -14,7 +15,7 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 	 * @return array{
 	 *   group_selection:GroupSelection,
 	 *   detail_html:string,
-	 *   header:array<string,string>
+	 *   header:DrillLayerHeader
 	 * }
 	 */
 	protected function getRenderData() :array {
@@ -34,7 +35,7 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 		return [
 			'group_selection' => $group[ 'selection' ],
 			'detail_html'     => $detailHtml,
-			'header'          => $group[ 'header' ],
+			'header'          => $group[ 'selection' ][ 'header' ],
 		];
 	}
 

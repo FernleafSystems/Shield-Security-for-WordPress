@@ -4,7 +4,7 @@
 			<button type="button"
 					class="actions-queue-bucket-card status-{{ bucket.status }}"
 					data-drill-target="groups"
-					data-drill-bucket-selection="{{ bucket.selection_json }}"
+					data-drill-bucket-selection="{{ bucket.selection.selection_json }}"
 					{% if not bucket.is_interactive %}disabled{% endif %}>
 				<div class="actions-queue-bucket-card__severity">
 					<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>

@@ -3,15 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
+ * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-type BucketSelection array{
  *   key:string,
  *   label:string,
  *   status:string,
  *   icon_class:string,
  *   item_count:int,
- *   header:DrillLayerHeaderInput,
- *   header_json:string,
+ *   header:DrillLayerHeader,
  *   selection_json:string
  * }
  * @phpstan-type GroupSelection array{
@@ -21,8 +20,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string,
  *   item_count:int,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
- *   header:DrillLayerHeaderInput,
- *   header_json:string,
+ *   header:DrillLayerHeader,
  *   selection_json:string
  * }
  */
@@ -84,7 +82,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'header'        => $header,
 		];
 
-		$selection[ 'header_json' ] = OperatorChromeContract::encodeJson( $header );
 		$selection[ 'selection_json' ] = OperatorChromeContract::encodeJson( $selection );
 
 		return $selection;
@@ -121,14 +118,13 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'header'       => $header,
 		];
 
-		$selection[ 'header_json' ] = OperatorChromeContract::encodeJson( $header );
 		$selection[ 'selection_json' ] = OperatorChromeContract::encodeJson( $selection );
 
 		return $selection;
 	}
 
 	/**
-	 * @return DrillLayerHeaderInput
+	 * @return DrillLayerHeader
 	 */
 	public function buildBucketHeader(
 		string $label,
@@ -155,7 +151,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 	}
 
 	/**
-	 * @return DrillLayerHeaderInput
+	 * @return DrillLayerHeader
 	 */
 	public function buildGroupHeader(
 		string $bucketLabel,

@@ -26,10 +26,11 @@ use FernleafSystems\Wordpress\Services\Services;
  *   type:string,
  *   label:string,
  *   href:string,
- *   icon:string,
- *   tooltip:string,
+ *   icon_class:string,
+ *   tooltip_attr:string,
  *   attributes:array<string,string>
  * }
+ * @phpstan-type QueueAssetPanelData array<string,string>
  * @phpstan-type QueueAssetCard array{
  *   key:string,
  *   panel_id:string,
@@ -42,9 +43,9 @@ use FernleafSystems\Wordpress\Services\Services;
  *   meta_text:string,
  *   show_meta_in_tile:bool,
  *   count_badge:int,
+ *   panel_data:QueueAssetPanelData,
  *   actions:list<QueueAssetAction>,
- *   table:array<string,mixed>,
- *   render_action:array<string,mixed>
+ *   table:array<string,mixed>
  * }
  * @phpstan-type QueueFileLockerCard array{
  *   key:string,
@@ -58,9 +59,9 @@ use FernleafSystems\Wordpress\Services\Services;
  *   meta_text:string,
  *   show_meta_in_tile:bool,
  *   count_badge:null,
+ *   panel_data:QueueAssetPanelData,
  *   actions:list<QueueAssetAction>,
- *   table:array<string,mixed>,
- *   render_action:array{render_slug:string,rid:int}
+ *   table:array<string,mixed>
  * }
  * @phpstan-type SummaryRow array{
  *   key:string,
@@ -1165,7 +1166,7 @@ class ScansResultsViewBuilder {
 	 * @return QueueAssetCard|QueueFileLockerCard
 	 */
 	private function normalizeQueueAssetCard( array $card ) :array {
-		return \array_merge( [
+		$card = \array_merge( [
 			'key'               => '',
 			'panel_id'          => '',
 			'panel_target'      => '',
@@ -1178,10 +1179,54 @@ class ScansResultsViewBuilder {
 			'meta_text'         => '',
 			'show_meta_in_tile' => true,
 			'count_badge'       => null,
+			'panel_data'        => [],
 			'actions'           => [],
 			'table'             => [],
 			'render_action'     => [],
 		], $card );
+
+		$renderAction = \is_array( $card[ 'render_action' ] ?? null )
+			? $card[ 'render_action' ]
+			: [];
+		$panelData = [
+			'actions-queue-asset-panel-loaded' => empty( $renderAction ) ? '1' : '0',
+			'actions-queue-asset-panel-lazy'   => empty( $renderAction ) ? '0' : '1',
+		];
+		if ( !empty( $renderAction ) ) {
+			$panelData[ 'actions-queue-asset-render-action' ] = OperatorChromeContract::encodeJson( $renderAction );
+		}
+
+		$card[ 'panel_data' ] = $panelData;
+		$card[ 'actions' ] = \array_values( \array_map(
+			fn( array $action ) :array => $this->normalizeQueueAssetAction( $action ),
+			\is_array( $card[ 'actions' ] ?? null ) ? $card[ 'actions' ] : []
+		) );
+		unset( $card[ 'render_action' ] );
+
+		return $card;
+	}
+
+	/**
+	 * @param array<string,mixed> $action
+	 * @return QueueAssetAction
+	 */
+	private function normalizeQueueAssetAction( array $action ) :array {
+		$type = \trim( (string)( $action[ 'type' ] ?? '' ) );
+		$iconClass = \trim( (string)( $action[ 'icon' ] ?? '' ) );
+		if ( $iconClass === '' ) {
+			$iconClass = $type === 'update'
+				? 'bi bi-arrow-up-circle-fill'
+				: ( $type === 'deactivate' ? 'bi bi-power' : 'bi bi-arrow-right-circle-fill' );
+		}
+
+		return [
+			'type'         => $type,
+			'label'        => (string)( $action[ 'label' ] ?? '' ),
+			'href'         => (string)( $action[ 'href' ] ?? '' ),
+			'icon_class'   => $iconClass,
+			'tooltip_attr' => \trim( (string)( $action[ 'tooltip' ] ?? '' ) ),
+			'attributes'   => \is_array( $action[ 'attributes' ] ?? null ) ? $action[ 'attributes' ] : [],
+		];
 	}
 
 	/**

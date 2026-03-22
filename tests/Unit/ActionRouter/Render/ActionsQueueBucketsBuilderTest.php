@@ -81,7 +81,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'critical' ] );
 		$this->assertSame(
 			'Fix now contains 2 items that still need attention.',
-			$bucketsByKey[ 'critical' ][ 'header' ][ 'summary' ] ?? ''
+			$bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'summary' ] ?? ''
 		);
 		$this->assertSame( 'critical', $bucketsByKey[ 'critical' ][ 'selection' ][ 'key' ] );
 		$this->assertSame( 'Back to Actions Queue', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'active_back_label' ] ?? '' );
@@ -89,7 +89,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		unset( $criticalSelectionForJson[ 'selection_json' ] );
 		$this->assertSame(
 			$criticalSelectionForJson,
-			\json_decode( $bucketsByKey[ 'critical' ][ 'selection_json' ], true )
+			\json_decode( $bucketsByKey[ 'critical' ][ 'selection' ][ 'selection_json' ], true )
 		);
 
 		$this->assertSame( 'warning', $bucketsByKey[ 'review' ][ 'status' ] );
@@ -98,7 +98,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $bucketsByKey[ 'review' ][ 'item_count' ] );
 		$this->assertSame( '1 vulnerability, 1 maintenance item', $bucketsByKey[ 'review' ][ 'summary_text' ] );
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'review' ] );
-		$this->assertSame( 'Review queue', $bucketsByKey[ 'review' ][ 'header' ][ 'meta' ] ?? '' );
+		$this->assertSame( 'Review queue', $bucketsByKey[ 'review' ][ 'selection' ][ 'header' ][ 'meta' ] ?? '' );
 	}
 
 	public function test_build_keeps_healthy_only_bucket_interactive_and_good() :void {
@@ -146,10 +146,10 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 			'Everything in this bucket is currently looking good.',
 			$bucketsByKey[ 'critical' ][ 'summary_text' ]
 		);
-		$this->assertSame( 'Critical queue', $bucketsByKey[ 'critical' ][ 'header' ][ 'meta' ] ?? '' );
+		$this->assertSame( 'Critical queue', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'meta' ] ?? '' );
 		$this->assertSame(
 			'Everything in this bucket is currently looking good.',
-			$bucketsByKey[ 'critical' ][ 'header' ][ 'summary' ] ?? ''
+			$bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'summary' ] ?? ''
 		);
 		$this->assertSame( 'good', $bucketsByKey[ 'review' ][ 'status' ] );
 		$this->assertTrue( (bool)( $bucketsByKey[ 'review' ][ 'is_interactive' ] ?? false ) );
@@ -209,6 +209,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 				[
 					'icon_class'  => 'bi bi-shield-check',
 					'title'       => 'Malware Scan',
+					'inline_meta' => '',
 					'summary'     => 'No malware found.',
 					'badge_label' => '',
 					'is_ignored'  => false,
@@ -217,6 +218,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 				[
 					'icon_class'  => 'bi bi-check-circle-fill',
 					'title'       => 'PHP Version',
+					'inline_meta' => '',
 					'summary'     => 'Healthy.',
 					'badge_label' => '',
 					'is_ignored'  => false,
