@@ -242,7 +242,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertCount( 0, $this->renderCapture->calls );
 	}
 
-	public function test_render_panel_layer_keeps_the_shared_panel_template_after_nested_render_work() :void {
+	public function test_render_panel_layer_keeps_the_shared_panel_template_after_panel_body_rendering() :void {
 		$fakeRender = new PageInvestigateLandingFakeRenderService();
 		UnitTestControllerFactory::install(
 			new UnitTestPluginUrls(),
@@ -278,7 +278,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 						}
 					}
 
-					return '<div class="inner-page-body-shell"><div>body-for:'.$action.$lookupData.'</div></div>';
+					return '<div>body-for:'.$action.$lookupData.'</div>';
 				}
 			)
 		);
@@ -320,7 +320,7 @@ class PageInvestigateLandingRenderPanelOrderUnitTestDouble extends PageInvestiga
 			'is_loaded'          => '1',
 			'is_live'            => '0',
 			'render_action_json' => '{}',
-			'body'               => '<div data-inner-page-body-shell="1"></div>',
+			'body'               => '<div></div>',
 		];
 	}
 }

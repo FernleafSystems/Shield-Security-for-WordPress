@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Render\PluginAdminPages\InvestigateByIpPanelBody,
 	Actions\Render\PluginAdminPages\PageInvestigateByIp,
 	Constants
 };
@@ -45,6 +46,17 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 			$params[ 'analyse_ip' ] = $ip;
 		}
 		return $this->processActionPayloadWithAdminBypass( PageInvestigateByIp::SLUG, $params );
+	}
+
+	private function renderByIpPanelBody( string $ip = '' ) :array {
+		$params = [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+		];
+		if ( $ip !== '' ) {
+			$params[ 'analyse_ip' ] = $ip;
+		}
+		return $this->processActionPayloadWithAdminBypass( InvestigateByIpPanelBody::SLUG, $params );
 	}
 
 	public function test_valid_ip_lookup_renders_ip_analysis_container() :void {
@@ -95,5 +107,22 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
+	}
+
+	public function test_full_page_and_panel_body_actions_share_the_same_ip_markup_contract() :void {
+		$fullHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByIpInnerPage( '203.0.113.88' ),
+			'investigate by-ip full page action'
+		);
+		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
+
+		$panelHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByIpPanelBody( '203.0.113.88' ),
+			'investigate by-ip panel body action'
+		);
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
+		$this->assertStringContainsString( 'investigate-inline-ipanalyse', $panelHtml );
+		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
 	}
 }

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Render\PluginAdminPages\InvestigateByUserPanelBody,
 	Actions\Render\PluginAdminPages\PageInvestigateByUser,
 	Constants
 };
@@ -46,6 +47,17 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 			$params[ 'user_lookup' ] = $lookup;
 		}
 		return $this->processActionPayloadWithAdminBypass( PageInvestigateByUser::SLUG, $params );
+	}
+
+	private function renderByUserPanelBody( string $lookup = '' ) :array {
+		$params = [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+		];
+		if ( $lookup !== '' ) {
+			$params[ 'user_lookup' ] = $lookup;
+		}
+		return $this->processActionPayloadWithAdminBypass( InvestigateByUserPanelBody::SLUG, $params );
 	}
 
 	private function seedRequestLogForUser( int $userId, string $ip = '198.51.100.24' ) :void {
@@ -179,5 +191,26 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
+	}
+
+	public function test_full_page_and_panel_body_actions_share_the_same_user_markup_contract() :void {
+		$userId = \get_current_user_id();
+		$this->assertGreaterThan( 0, $userId );
+		$this->seedRequestLogForUser( $userId );
+
+		$fullHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByUserInnerPage( (string)$userId ),
+			'investigate by-user full page action'
+		);
+		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
+
+		$panelHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByUserPanelBody( (string)$userId ),
+			'investigate by-user panel body action'
+		);
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
+		$this->assertStringContainsString( 'ShieldInvestigateByUserTabsNav', $panelHtml );
+		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
 	}
 }

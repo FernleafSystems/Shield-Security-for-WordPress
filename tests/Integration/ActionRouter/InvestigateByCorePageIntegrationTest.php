@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Render\PluginAdminPages\InvestigateByCorePanelBody,
 	Actions\Render\PluginAdminPages\PageInvestigateByCore,
 	Constants
 };
@@ -29,6 +30,13 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function renderByCoreInnerPage() :array {
 		return $this->processActionPayloadWithAdminBypass( PageInvestigateByCore::SLUG, [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
+		] );
+	}
+
+	private function renderByCorePanelBody() :array {
+		return $this->processActionPayloadWithAdminBypass( InvestigateByCorePanelBody::SLUG, [
 			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
 		] );
@@ -63,5 +71,22 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
 		$this->assertTrue( (bool)( $subjects[ 'core' ][ 'is_loaded' ] ?? false ) );
 		$this->assertSame( '', (string)( $subjects[ 'core' ][ 'lookup_key' ] ?? '' ) );
+	}
+
+	public function test_full_page_and_panel_body_actions_share_the_same_core_markup_contract() :void {
+		$fullHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByCoreInnerPage(),
+			'investigate by-core full page action'
+		);
+		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
+
+		$panelHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByCorePanelBody(),
+			'investigate by-core panel body action'
+		);
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
+		$this->assertStringContainsString( 'ShieldInvestigateByCoreTabsNav', $panelHtml );
+		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
 	}
 }

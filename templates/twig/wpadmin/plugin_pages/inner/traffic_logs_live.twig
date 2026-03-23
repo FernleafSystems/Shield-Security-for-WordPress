@@ -1,33 +1,10 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div id="SectionTrafficLiveLogs">
-		<div class="row">
-			<div class="col">
-				{% if not flags.is_enabled %}
-					<div class="alert alert-secondary d-inline-block">
-						{{ strings.not_enabled }}
-						<a href="javascript:{}"
-						   class="zone_component_action"
-						   data-zone_component_action="offcanvas_zone_component_config"
-						   data-zone_component_slug="request_live_logging"
-						   title="{{ strings.toggle_live_log }}"
-						>{{ strings.toggle_live_log }}</a>
-					</div>
-				{% endif %}
-				<div class="text-start">
-					<div class="text-muted small">{{ strings.live_view_status|default('Viewing the latest request entries as they arrive.') }}</div>
-				</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col">
-				<div class="live_logs">
-					<div class="output w-100 shield-live-logs--light">
-						<div class="text-muted small">{{ strings.waiting_live_logs|default('Waiting for live updates...') }}</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	{% include '/wpadmin/components/investigate/live_traffic_body.twig' with {
+		flags: flags,
+		hrefs: hrefs,
+		strings: strings,
+		vars: vars
+	} only %}
 {% endblock %}

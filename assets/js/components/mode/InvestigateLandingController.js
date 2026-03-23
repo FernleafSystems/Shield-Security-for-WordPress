@@ -281,10 +281,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 					return;
 				}
 
-				const renderOutput = ( resp && resp.success && resp.data && typeof resp.data.render_output === 'string' )
+				const panelBodyHtml = ( resp && resp.success && resp.data && typeof resp.data.render_output === 'string' )
 					? resp.data.render_output
 					: '';
-				if ( this.applyRenderOutputToPanel( panel, renderOutput ) ) {
+				if ( this.applyPanelBodyToPanel( panel, panelBodyHtml ) ) {
 					this.setPanelLoadedState( panel, true );
 					this.syncPanelLivePolling( panel );
 					this.finalizePanelRequestState(
@@ -654,24 +654,12 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		};
 	}
 
-	extractInnerPageBodyHtml( renderOutput ) {
-		if ( typeof renderOutput !== 'string' || renderOutput.length === 0 ) {
-			return '';
-		}
-
-		const parsed = ( new DOMParser() ).parseFromString( renderOutput, 'text/html' );
-		const innerShell = parsed.querySelector( '[data-inner-page-body-shell="1"]' )
-			|| parsed.querySelector( '.inner-page-body-shell' );
-		return innerShell ? innerShell.innerHTML : '';
-	}
-
-	applyRenderOutputToPanel( panel, renderOutput ) {
+	applyPanelBodyToPanel( panel, panelBodyHtml ) {
 		const panelContent = this.getPanelContentContainer( panel );
 		if ( panelContent === null ) {
 			return false;
 		}
 
-		const panelBodyHtml = this.extractInnerPageBodyHtml( renderOutput );
 		if ( panelBodyHtml.length < 1 ) {
 			return false;
 		}

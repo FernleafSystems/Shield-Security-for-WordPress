@@ -1,44 +1,10 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	{% include '/wpadmin/components/investigate/subject_header.twig' with {
-		title: vars.subject_header.title|default(strings.inner_page_title|default('WordPress Core')),
-		meta: vars.subject_header.meta|default('')
-	} only %}
-	{% set panes = [
-		{
-			id: vars.tabs.overview.pane_id,
-			nav_id: vars.tabs.overview.nav_id,
-			is_active: true,
-			body_include: '/wpadmin/components/investigate/overview_table.twig',
-			body_vars: {
-				title: strings.overview_title,
-				rows: vars.overview_rows
-			}
-		},
-		{
-			id: vars.tabs.file_status.pane_id,
-			nav_id: vars.tabs.file_status.nav_id,
-			is_active: false,
-			body_include: '/wpadmin/components/investigate/table_container.twig',
-			body_vars: {
-				table: vars.tables.file_status
-			}
-		},
-		{
-			id: vars.tabs.activity.pane_id,
-			nav_id: vars.tabs.activity.nav_id,
-			is_active: false,
-			body_include: '/wpadmin/components/investigate/table_container.twig',
-			body_vars: {
-				table: vars.tables.activity
-			}
-		}
-	] %}
-	{% include '/wpadmin/components/investigate/page_shell.twig' with {
-		nav_id: 'ShieldInvestigateByCoreTabsNav',
-		nav_items: vars.rail_nav_items,
-		panes: panes,
-		is_flat: true
+	{% include '/wpadmin/components/investigate/core_body.twig' with {
+		flags: flags,
+		hrefs: hrefs,
+		strings: strings,
+		vars: vars
 	} only %}
 {% endblock %}

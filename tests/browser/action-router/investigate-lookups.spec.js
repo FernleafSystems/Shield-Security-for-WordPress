@@ -51,6 +51,9 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 	const currentBreadcrumb = page.locator( '[data-operator-step-tab="1"][aria-current="step"]' );
 	await expect( currentBreadcrumb ).toHaveText( new RegExp( resolvedUserBreadcrumb || 'User', 'i' ) );
 
+	const changeSubjectLink = page.locator( '[data-investigate-change-subject="1"]' );
+	await expect( changeSubjectLink ).toHaveCount( 1 );
+
 	await Promise.all( [
 		page.waitForURL(
 			( url ) => url.searchParams.get( 'nav' ) === 'activity'
@@ -59,7 +62,7 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 				&& !url.searchParams.get( 'user_lookup' ),
 			{ timeout: 20_000 }
 		),
-		genericSubjectCrumb.click(),
+		changeSubjectLink.click(),
 	] );
 
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'user' );
@@ -81,6 +84,55 @@ test( 'investigate landing drills into a subject, supports lookup, and drills ba
 	await expect( page.locator( '[data-drill-target="panel"][data-investigate-subject="user"]' ) ).toBeVisible();
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', '' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '0' );
+} );
+
+test( 'investigate landing loads each enabled subject tile into the shared panel', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const panel = page.locator( '[data-investigate-panel="1"]' );
+	const subjectExpectations = [
+		{ subject: 'user', content: 'select[name="user_lookup"]' },
+		{ subject: 'ip', content: 'input[name="analyse_ip"]' },
+		{ subject: 'plugin', content: 'select[name="plugin_slug"]' },
+		{ subject: 'theme', content: 'select[name="theme_slug"]' },
+		{ subject: 'core', content: '#ShieldInvestigateByCoreTabsNav' },
+		{ subject: 'live_traffic', content: '#SectionTrafficLiveLogs' },
+	];
+
+	for ( const { subject, content } of subjectExpectations ) {
+		const tile = page.locator( `[data-drill-target="panel"][data-investigate-subject="${subject}"]` );
+		await expect( tile ).toBeVisible();
+
+		await Promise.all( [
+			page.waitForURL(
+				( url ) => url.searchParams.get( 'nav' ) === 'activity'
+					&& url.searchParams.get( 'nav_sub' ) === 'overview'
+					&& url.searchParams.get( 'subject' ) === subject,
+				{ timeout: 20_000 }
+			),
+			tile.click(),
+		] );
+
+		await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', subject );
+		await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '1' );
+		await expect( panel.locator( '[data-investigate-panel-content="1"]' ).locator( content ) ).toBeVisible();
+
+		await Promise.all( [
+			page.waitForURL(
+				( url ) => url.searchParams.get( 'nav' ) === 'activity'
+					&& url.searchParams.get( 'nav_sub' ) === 'overview'
+					&& !url.searchParams.get( 'subject' ),
+				{ timeout: 20_000 }
+			),
+			page.locator( '[data-step-tab-drill-index="0"]' ).click(),
+		] );
+
+		await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', '' );
+		await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '0' );
+	}
 } );
 
 test( 'investigate landing deep link opens the IP panel immediately', async ( { page } ) => {
@@ -135,4 +187,77 @@ test( 'investigate landing deep link opens the IP panel immediately', async ( { 
 	await expect( page.locator( '[data-drill-target="panel"][data-investigate-subject="ip"]' ) ).toBeVisible();
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', '' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '0' );
+} );
+
+test( 'investigate landing starts and stops live traffic polling with the live panel', async ( { page } ) => {
+	// LiveTrafficPoller fetches immediately, then waits 5000ms between polls.
+	const livePollWindowMs = 5_500;
+	let livePollCount = 0;
+	const isLiveTrafficPollRequest = ( request ) => {
+		const postData = request.postData() || '';
+		return request.url().includes( '/admin-ajax.php' )
+			&& postData.includes( 'render_traffic_live_logs' );
+	};
+
+	await page.route( '**/admin-ajax.php**', async ( route ) => {
+		if ( isLiveTrafficPollRequest( route.request() ) ) {
+			livePollCount++;
+			await route.fulfill( {
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify( {
+					success: true,
+					data: {
+						message: '',
+						page_reload: false,
+						html: `<div class="live-poll-marker">poll-${livePollCount}</div>`,
+					},
+				} ),
+			} );
+			return;
+		}
+		await route.continue();
+	} );
+
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const panel = page.locator( '[data-investigate-panel="1"]' );
+	const liveTile = page.locator( '[data-drill-target="panel"][data-investigate-subject="live_traffic"]' );
+	await expect( liveTile ).toBeVisible();
+
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& url.searchParams.get( 'subject' ) === 'live_traffic',
+			{ timeout: 20_000 }
+		),
+		liveTile.click(),
+	] );
+
+	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', 'live_traffic' );
+	await expect( panel.locator( '.live-poll-marker' ) ).toHaveText( 'poll-1' );
+
+	const unexpectedLivePollRequest = page.waitForRequest(
+		( request ) => isLiveTrafficPollRequest( request ),
+		{ timeout: livePollWindowMs }
+	).then( () => true )
+		.catch( () => false );
+
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& !url.searchParams.get( 'subject' ),
+			{ timeout: 20_000 }
+		),
+		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
+	] );
+
+	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', '' );
+	expect( await unexpectedLivePollRequest ).toBe( false );
+	expect( livePollCount ).toBe( 1 );
 } );

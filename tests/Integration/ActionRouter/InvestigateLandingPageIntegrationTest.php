@@ -142,13 +142,19 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-header="1"]//*[@data-investigate-subject-header="1"]',
-			'Deep-linked Investigate landing should preload the subject header inside the shared panel chrome'
+			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-header="1"]',
+			'Deep-linked Investigate landing should preload the subject header marker inside the shared panel content'
 		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]',
 			'Deep-linked Investigate landing should preload the routed panel content inside the shared panel wrapper'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[@data-inner-page-body-shell="1"]',
+			0,
+			'Deep-linked Investigate landing should not embed a nested inner-page shell inside the shared panel content'
 		);
 	}
 }

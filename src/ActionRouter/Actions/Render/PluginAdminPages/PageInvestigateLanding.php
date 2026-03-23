@@ -342,8 +342,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			}
 		}
 
-		$renderOutput = self::con()->action_router->render( $subject[ 'render_action' ], $actionData );
-		$panelBody = $this->extractInnerPageBodyHtml( $renderOutput );
+		$panelBody = self::con()->action_router->render( $subject[ 'render_action' ], $actionData );
 
 		if ( \trim( $panelBody ) === '' ) {
 			$panelBody = '<div class="alert alert-warning mb-0">'
@@ -418,46 +417,6 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		}
 
 		return $this->lookupValuesCache;
-	}
-
-	private function extractInnerPageBodyHtml( string $renderOutput ) :string {
-		if ( \trim( $renderOutput ) === '' ) {
-			return '';
-		}
-
-		$prev = libxml_use_internal_errors( true );
-		$dom = new \DOMDocument();
-		$loaded = $dom->loadHTML(
-			'<?xml encoding="utf-8" ?><div>'.$renderOutput.'</div>',
-			\LIBXML_HTML_NODEFDTD | \LIBXML_HTML_NOIMPLIED
-		);
-		libxml_clear_errors();
-		libxml_use_internal_errors( $prev );
-
-		if ( !$loaded ) {
-			return $renderOutput;
-		}
-
-		$xpath = new \DOMXPath( $dom );
-		$nodes = $xpath->query( '//*[@data-inner-page-body-shell="1"]' );
-		if ( !( $nodes instanceof \DOMNodeList ) || $nodes->length < 1 ) {
-			$nodes = $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " inner-page-body-shell ")]' );
-		}
-
-		$container = $nodes->item( 0 );
-		if ( !( $container instanceof \DOMNode ) ) {
-			return $renderOutput;
-		}
-
-		return $this->renderChildNodesHtml( $container );
-	}
-
-	private function renderChildNodesHtml( \DOMNode $container ) :string {
-		$html = '';
-		foreach ( $container->childNodes as $childNode ) {
-			$html .= (string)$container->ownerDocument->saveHTML( $childNode );
-		}
-		return $html;
 	}
 
 	/**

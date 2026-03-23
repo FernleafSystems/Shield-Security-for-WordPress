@@ -1,0 +1,29 @@
+<div id="SectionTrafficLiveLogs">
+	<div class="row">
+		<div class="col">
+			{% if not flags.is_enabled %}
+				<div class="alert alert-secondary d-inline-block">
+					{{ strings.not_enabled }}
+					<a href="javascript:{}"
+					   class="zone_component_action"
+					   data-zone_component_action="offcanvas_zone_component_config"
+					   data-zone_component_slug="request_live_logging"
+					   title="{{ strings.toggle_live_log }}"
+					>{{ strings.toggle_live_log }}</a>
+				</div>
+			{% endif %}
+			<div class="text-start">
+				<div class="text-muted small">{{ strings.live_view_status }}</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col">
+			<div class="live_logs">
+				<div class="output w-100 shield-live-logs--light">
+					<div class="text-muted small">{{ strings.waiting_live_logs }}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

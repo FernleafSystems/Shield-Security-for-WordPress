@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Render\PluginAdminPages\InvestigateByPluginPanelBody,
 	Actions\Render\PluginAdminPages\PageInvestigateByPlugin,
 	Constants
 };
@@ -42,6 +43,17 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 			$params[ 'plugin_slug' ] = $pluginSlug;
 		}
 		return $this->processActionPayloadWithAdminBypass( PageInvestigateByPlugin::SLUG, $params );
+	}
+
+	private function renderByPluginPanelBody( string $pluginSlug = '' ) :array {
+		$params = [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+		];
+		if ( $pluginSlug !== '' ) {
+			$params[ 'plugin_slug' ] = $pluginSlug;
+		}
+		return $this->processActionPayloadWithAdminBypass( InvestigateByPluginPanelBody::SLUG, $params );
 	}
 
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {
@@ -101,6 +113,25 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+	}
+
+	public function test_full_page_and_panel_body_actions_share_the_same_plugin_markup_contract() :void {
+		$pluginSlug = $this->firstInstalledPluginSlug();
+
+		$fullHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByPluginInnerPage( $pluginSlug ),
+			'investigate by-plugin full page action'
+		);
+		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
+
+		$panelHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByPluginPanelBody( $pluginSlug ),
+			'investigate by-plugin panel body action'
+		);
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
+		$this->assertStringContainsString( 'ShieldInvestigateByPluginTabsNav', $panelHtml );
+		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
 	}
 
 	private function firstInstalledPluginSlug() :string {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Render\PluginAdminPages\InvestigateByThemePanelBody,
 	Actions\Render\PluginAdminPages\PageInvestigateByTheme,
 	Constants
 };
@@ -41,6 +42,17 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 			$params[ 'theme_slug' ] = $themeSlug;
 		}
 		return $this->processActionPayloadWithAdminBypass( PageInvestigateByTheme::SLUG, $params );
+	}
+
+	private function renderByThemePanelBody( string $themeSlug = '' ) :array {
+		$params = [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
+		];
+		if ( $themeSlug !== '' ) {
+			$params[ 'theme_slug' ] = $themeSlug;
+		}
+		return $this->processActionPayloadWithAdminBypass( InvestigateByThemePanelBody::SLUG, $params );
 	}
 
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {
@@ -100,6 +112,25 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
+	}
+
+	public function test_full_page_and_panel_body_actions_share_the_same_theme_markup_contract() :void {
+		$themeSlug = $this->firstInstalledThemeSlug();
+
+		$fullHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByThemeInnerPage( $themeSlug ),
+			'investigate by-theme full page action'
+		);
+		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
+
+		$panelHtml = $this->assertRouteRenderOutputHealthy(
+			$this->renderByThemePanelBody( $themeSlug ),
+			'investigate by-theme panel body action'
+		);
+		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
+		$this->assertStringContainsString( 'ShieldInvestigateByThemeTabsNav', $panelHtml );
+		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
 	}
 
 	private function firstInstalledThemeSlug() :string {

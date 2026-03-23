@@ -65,6 +65,10 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 			],
 			'strings' => $strings,
 			'vars'    => [
+				'subject_header' => [
+					'title' => $strings[ 'inner_page_title' ],
+					'meta'  => '',
+				],
 				'tabs'           => $tabs,
 				'rail_nav_items' => $this->buildRailNavItemsFromTabs( $tabs ),
 				'tables'         => $tables,
