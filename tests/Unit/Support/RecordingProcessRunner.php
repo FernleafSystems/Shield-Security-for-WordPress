@@ -10,11 +10,13 @@ class RecordingProcessRunner extends ProcessRunner {
 	/** @var array<int,array{command:array,working_dir:string,env_overrides:?array,has_output_callback:bool}> */
 	public array $calls = [];
 
-	/** @var int[] */
+	/**
+	 * @var array<int,int|array{exit_code:int,stdout?:string,stderr?:string}>
+	 */
 	private array $exitCodes;
 
 	/**
-	 * @param int[] $exitCodes
+	 * @param array<int,int|array{exit_code:int,stdout?:string,stderr?:string}> $exitCodes
 	 */
 	public function __construct( array $exitCodes = [ 0 ] ) {
 		parent::__construct();
@@ -34,20 +36,34 @@ class RecordingProcessRunner extends ProcessRunner {
 			'has_output_callback' => $onOutput !== null,
 		];
 
-		return $this->buildProcessFromQueue();
+		return $this->buildProcessFromQueue( $onOutput );
 	}
 
-	private function buildProcessFromQueue() :Process {
-		$exitCode = \array_shift( $this->exitCodes );
+	private function buildProcessFromQueue( ?callable $onOutput = null ) :Process {
+		$queueEntry = \array_shift( $this->exitCodes );
+		$exitCode = \is_array( $queueEntry ) ? (int)( $queueEntry[ 'exit_code' ] ?? 0 ) : (int)( $queueEntry ?? 0 );
+		$stdout = \is_array( $queueEntry ) ? (string)( $queueEntry[ 'stdout' ] ?? '' ) : '';
+		$stderr = \is_array( $queueEntry ) ? (string)( $queueEntry[ 'stderr' ] ?? '' ) : '';
+		$script = 'fwrite(STDOUT, '.\var_export( $stdout, true ).');'
+			.'fwrite(STDERR, '.\var_export( $stderr, true ).');'
+			.'exit('.$exitCode.');';
 		$process = new Process(
 			[
 				\PHP_BINARY,
 				'-r',
-				'exit('.(int)( $exitCode ?? 0 ).');',
+				$script,
 			]
 		);
 		$process->run( static function () :void {
 		} );
+		if ( $onOutput !== null ) {
+			if ( $stdout !== '' ) {
+				$onOutput( Process::OUT, $stdout );
+			}
+			if ( $stderr !== '' ) {
+				$onOutput( Process::ERR, $stderr );
+			}
+		}
 
 		return $process;
 	}

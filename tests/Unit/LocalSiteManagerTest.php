@@ -145,6 +145,41 @@ class LocalSiteManagerTest extends TestCase {
 		);
 	}
 
+	public function testWpCaptureReturnsCommandStdoutAndRoutesSetupNoiseToStderr() :void {
+		$processRunner = new RecordingProcessRunner( [
+			[
+				'exit_code' => 0,
+				'stdout' => "provisioning\n",
+			],
+			[
+				'exit_code' => 0,
+				'stdout' => "{\"ok\":true}\n",
+				'stderr' => "fixture-warning\n",
+			],
+		] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
+		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$captured = $manager->wpCapture( $this->projectRoot, [ 'eval', 'return wp_json_encode(["ok" => true]);' ] );
+
+		$this->assertSame( "{\"ok\":true}\n", $captured[ 'stdout' ] );
+		$this->assertStringContainsString( 'provisioning', $captured[ 'stderr' ] );
+		$this->assertStringContainsString( 'fixture-warning', $captured[ 'stderr' ] );
+		$this->assertCount( 2, $processRunner->calls );
+		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
+		$this->assertTrue( $processRunner->calls[ 1 ][ 'has_output_callback' ] );
+	}
+
 	public function testEnsureReadyFailsFastWhenReusedSiteIsUnhealthyBeforeRefresh() :void {
 		$this->expectExceptionMessage( 'Local dev site is already running but unhealthy before runtime refresh.' );
 

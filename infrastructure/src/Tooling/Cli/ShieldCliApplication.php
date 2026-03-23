@@ -6,6 +6,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzePackageCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeToolingCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteDownCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteFixtureCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteResetCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteStatusCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteUpCommand;
@@ -164,10 +165,10 @@ class ShieldCliApplication {
 	 *   usage:string,
 	 *   reset_scope:string
 	 * } $profile
-	 * @return array{up:string,down:string,reset:string,status:string,wp:string}
+	 * @return array{up:string,down:string,reset:string,status:string,wp:string,fixture?:string}
 	 */
 	private function buildSiteCommandDescriptions( array $profile ) :array {
-		return [
+		$descriptions = [
 			'up' => sprintf( 'Start or reuse the %s for %s.', $profile[ 'site_label' ], $profile[ 'usage' ] ),
 			'down' => sprintf( 'Stop the %s while preserving its persistent state.', $profile[ 'site_label' ] ),
 			'reset' => sprintf(
@@ -185,10 +186,19 @@ class ShieldCliApplication {
 				$profile[ 'shield_label' ]
 			),
 		];
+
+		if ( $profile[ 'prefix' ] === 'test:site' ) {
+			$descriptions[ 'fixture' ] = sprintf(
+				'Run a registered runtime fixture against the %s and return its JSON contract.',
+				$profile[ 'shield_label' ]
+			);
+		}
+
+		return $descriptions;
 	}
 
 	/**
-	 * @param array{up:string,down:string,reset:string,status:string,wp:string} $descriptions
+	 * @param array{up:string,down:string,reset:string,status:string,wp:string,fixture?:string} $descriptions
 	 * @return array<string,callable():Command>
 	 */
 	private function buildSiteCommandFactories(
@@ -197,7 +207,7 @@ class ShieldCliApplication {
 		LocalSiteManager $siteManager,
 		array $descriptions
 	) :array {
-		return [
+		$factories = [
 			$commandPrefix.':up' => static function () use ( $commandPrefix, $descriptions, $projectRoot, $siteManager ) :Command {
 				return new SiteUpCommand( $commandPrefix.':up', $descriptions['up'], $projectRoot, $siteManager );
 			},
@@ -214,6 +224,14 @@ class ShieldCliApplication {
 				return new SiteWpCommand( $commandPrefix.':wp', $descriptions['wp'], $projectRoot, $siteManager );
 			},
 		];
+
+		if ( isset( $descriptions[ 'fixture' ] ) ) {
+			$factories[ $commandPrefix.':fixture' ] = static function () use ( $commandPrefix, $descriptions, $projectRoot, $siteManager ) :Command {
+				return new SiteFixtureCommand( $commandPrefix.':fixture', $descriptions['fixture'], $projectRoot, $siteManager );
+			};
+		}
+
+		return $factories;
 	}
 
 	public function run() :int {

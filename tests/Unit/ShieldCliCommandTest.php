@@ -32,6 +32,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:site:up',
 				'test:site:down',
 				'test:site:wp',
+				'test:site:fixture',
 				'test:site:reset',
 				'test:site:status',
 				'test:browser',
@@ -123,6 +124,17 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'plugin list', $output );
 	}
 
+	public function testTestSiteFixtureHelpIncludesFixtureForwardingHint() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$process = $this->runPhpScript( 'bin/shield', [ 'test:site:fixture', '--help' ] );
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+
+		$output = $this->processOutput( $process );
+		$this->assertStringContainsString( 'test:site:fixture', $output );
+		$this->assertStringContainsString( 'actions-queue seed direct_table', $output );
+	}
+
 	public function testAnalyzeSourceHelpIncludesRefreshSetupOption() :void {
 		$this->skipIfPackageScriptUnavailable();
 
@@ -147,6 +159,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'test-site-up' => [ 'test:site:up' ],
 			'test-site-down' => [ 'test:site:down' ],
 			'test-site-wp' => [ 'test:site:wp' ],
+			'test-site-fixture' => [ 'test:site:fixture' ],
 			'test-site-reset' => [ 'test:site:reset' ],
 			'test-site-status' => [ 'test:site:status' ],
 			'test-package-targeted' => [ 'test:package-targeted' ],

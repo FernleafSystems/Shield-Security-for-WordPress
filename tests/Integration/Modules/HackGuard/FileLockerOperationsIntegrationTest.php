@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
@@ -29,8 +30,8 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$handler = $this->requireDb( 'file_locker' );
 
 		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
-		$this->insertFileLockRecord( $handler, 'wpconfig', ABSPATH.'wp-config.php' );
-		$this->insertFileLockRecord( $handler, 'root_index', ABSPATH.'index.php' );
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+		TestDataFactory::insertFileLockRecord( 'root_index', ABSPATH.'index.php' );
 		$con->comps->file_locker->clearLocks();
 
 		( new CleanLockRecords() )->run();
@@ -48,26 +49,11 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$handler = $this->requireDb( 'file_locker' );
 
 		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
-		$this->insertFileLockRecord( $handler, 'wpconfig', ABSPATH.'wp-config.php' );
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
 		$this->assertSame( 1, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
 
 		$con->comps->file_locker->purge();
 
 		$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
-	}
-
-	/**
-	 * @param mixed $handler
-	 */
-	private function insertFileLockRecord( $handler, string $type, string $path ) :void {
-		$record = $handler->getRecord();
-		$record->type = $type;
-		$record->path = $path;
-		$record->hash_original = sha1( $type.'-original' );
-		$record->hash_current = sha1( $type.'-current' );
-		$record->public_key_id = 1;
-		$record->cipher = 'aes-256-cbc';
-		$record->content = 'encrypted-content-'.$type;
-		$handler->getQueryInserter()->insert( $record );
 	}
 }

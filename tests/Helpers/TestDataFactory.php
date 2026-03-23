@@ -241,6 +241,16 @@ class TestDataFactory {
 	 * @param array<string,mixed> $meta
 	 */
 	public static function insertScanResultItem( int $scanId, array $meta = [] ) :int {
+		return self::insertScanResultItemTracked( $scanId, $meta )[ 'scan_result_id' ];
+	}
+
+	/**
+	 * Insert a scan result item with tracked row IDs for later cleanup.
+	 *
+	 * @param array<string,mixed> $meta
+	 * @return array{scan_result_id:int,result_item_id:int,meta_ids:list<int>}
+	 */
+	public static function insertScanResultItemTracked( int $scanId, array $meta = [] ) :array {
 		$resultItemsDb = self::con()->db_con->scan_result_items;
 		$item = $resultItemsDb->getRecord();
 		$item->item_type = 'f';
@@ -256,6 +266,7 @@ class TestDataFactory {
 		$scanResultId = self::lastInsertId();
 
 		$metaDb = self::con()->db_con->scan_result_item_meta;
+		$metaIds = [];
 		foreach ( $meta as $metaKey => $metaValue ) {
 			if ( $metaKey === 'item_id' ) {
 				continue;
@@ -266,9 +277,22 @@ class TestDataFactory {
 			$metaRecord->meta_key = (string)$metaKey;
 			$metaRecord->meta_value = $metaValue;
 			$metaDb->getQueryInserter()->insert( $metaRecord );
+			$metaIds[] = self::lastInsertId();
 		}
 
-		return $scanResultId;
+		return [
+			'scan_result_id' => $scanResultId,
+			'result_item_id' => $resultItemId,
+			'meta_ids'       => $metaIds,
+		];
+	}
+
+	public static function markScanResultItemIgnored( int $resultItemId, int $ignoredAt = 0 ) :void {
+		self::con()->db_con->scan_result_items
+			->getQueryUpdater()
+			->updateById( $resultItemId, [
+				'ignored_at' => $ignoredAt > 0 ? $ignoredAt : \time(),
+			] );
 	}
 
 	/**
@@ -278,6 +302,24 @@ class TestDataFactory {
 		self::insertScanResultItem( $scanId, [
 			$metaKey => 1,
 		] );
+	}
+
+	/**
+	 * Insert a file-lock record and return its ID.
+	 */
+	public static function insertFileLockRecord( string $type, string $path, int $detectedAt = 0 ) :int {
+		$dbh = self::con()->db_con->file_locker;
+		$record = $dbh->getRecord();
+		$record->type = $type;
+		$record->path = $path;
+		$record->hash_original = \sha1( $type.'-original' );
+		$record->hash_current = \sha1( $type.'-current' );
+		$record->public_key_id = 1;
+		$record->cipher = 'aes-256-cbc';
+		$record->content = 'encrypted-content-'.$type;
+		$record->detected_at = $detectedAt;
+		$dbh->getQueryInserter()->insert( $record );
+		return self::lastInsertId();
 	}
 
 	/**

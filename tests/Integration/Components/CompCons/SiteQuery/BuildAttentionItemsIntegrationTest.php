@@ -163,7 +163,7 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 			'ptg_slug'    => $themeSlug,
 		] );
 
-		$this->insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
 		$this->resetScanResultCountMemoization();
 
@@ -176,20 +176,6 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, $itemsByKey[ 'plugin_files' ][ 'count' ] );
 		$this->assertSame( 1, $itemsByKey[ 'theme_files' ][ 'count' ] );
 		$this->assertSame( 1, $itemsByKey[ 'file_locker' ][ 'count' ] );
-	}
-
-	private function insertFileLockRecord( string $type, string $path, int $detectedAt = 0 ) :void {
-		$handler = $this->requireDb( 'file_locker' );
-		$record = $handler->getRecord();
-		$record->type = $type;
-		$record->path = $path;
-		$record->hash_original = \sha1( $type.'-original' );
-		$record->hash_current = \sha1( $type.'-current' );
-		$record->public_key_id = 1;
-		$record->cipher = 'aes-256-cbc';
-		$record->content = 'encrypted-content-'.$type;
-		$record->detected_at = $detectedAt;
-		$handler->getQueryInserter()->insert( $record );
 	}
 
 	/**

@@ -4,6 +4,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 class LocalSiteRuntimeRefresher {
 
@@ -77,24 +78,29 @@ class LocalSiteRuntimeRefresher {
 		return \trim( $process->getOutput() );
 	}
 
-	public function refresh( string $rootDir, string $containerId ) :void {
-		echo "Refreshing local browser plugin runtime".\PHP_EOL;
+	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	public function refresh( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
+		$this->writeProgress( "Refreshing local browser plugin runtime", $onOutput );
 
 		$scanStartedAt = \microtime( true );
 		$hostManifest = $this->runPhase(
 			'scan',
 			fn() => $this->buildHostManifest( $rootDir )
 		);
-		echo 'Runtime refresh scan: '
-			 .\count( $hostManifest[ 'files' ] )
-			 .' managed files in '
-			 .$this->formatDuration( \microtime( true ) - $scanStartedAt )
-			 .\PHP_EOL;
+		$this->writeProgress(
+			'Runtime refresh scan: '
+			.\count( $hostManifest[ 'files' ] )
+			.' managed files in '
+			.$this->formatDuration( \microtime( true ) - $scanStartedAt ),
+			$onOutput
+		);
 
 		$state = $this->readContainerState( $rootDir, $containerId );
 
 		if ( !$state[ 'manifest_exists' ] && !$state[ 'has_any_required_sentinel' ] ) {
-			$this->runSeedRefresh( $rootDir, $containerId, $hostManifest );
+			$this->runSeedRefresh( $rootDir, $containerId, $hostManifest, $onOutput );
 			return;
 		}
 
@@ -122,21 +128,23 @@ class LocalSiteRuntimeRefresher {
 			'diff',
 			fn() => $this->computeDiff( $hostManifest, $deployedManifest )
 		);
-		echo 'Runtime refresh diff: '
-			 .\count( $diff[ 'changed_or_new' ] )
-			 .' changed/new, '
-			 .\count( $diff[ 'deleted' ] )
-			 .' deleted in '
-			 .$this->formatDuration( \microtime( true ) - $diffStartedAt )
-			 .\PHP_EOL;
+			$this->writeProgress(
+				'Runtime refresh diff: '
+				.\count( $diff[ 'changed_or_new' ] )
+				.' changed/new, '
+				.\count( $diff[ 'deleted' ] )
+				.' deleted in '
+				.$this->formatDuration( \microtime( true ) - $diffStartedAt ),
+				$onOutput
+			);
 
 		if ( empty( $diff[ 'changed_or_new' ] ) && empty( $diff[ 'deleted' ] ) ) {
-			echo "Runtime refresh mode: skip".\PHP_EOL;
-			echo "Runtime refresh: up to date".\PHP_EOL;
+			$this->writeProgress( 'Runtime refresh mode: skip', $onOutput );
+			$this->writeProgress( 'Runtime refresh: up to date', $onOutput );
 			return;
 		}
 
-		$this->runPatchRefresh( $rootDir, $containerId, $hostManifest, $diff[ 'changed_or_new' ], $diff[ 'deleted' ] );
+		$this->runPatchRefresh( $rootDir, $containerId, $hostManifest, $diff[ 'changed_or_new' ], $diff[ 'deleted' ], $onOutput );
 	}
 
 	/**
@@ -338,14 +346,20 @@ PHP;
 	/**
 	 * @param array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>} $hostManifest
 	 */
-	private function runSeedRefresh( string $rootDir, string $containerId, array $hostManifest ) :void {
-		echo "Runtime refresh mode: seed".\PHP_EOL;
+	private function runSeedRefresh(
+		string $rootDir,
+		string $containerId,
+		array $hostManifest,
+		?callable $onOutput = null
+	) :void {
+		$this->writeProgress( 'Runtime refresh mode: seed', $onOutput );
 		$this->applyArchiveRefresh(
 			$rootDir,
 			$containerId,
 			\array_keys( $hostManifest[ 'files' ] ),
 			[],
-			$hostManifest
+			$hostManifest,
+			$onOutput
 		);
 	}
 
@@ -359,13 +373,14 @@ PHP;
 		string $containerId,
 		array $hostManifest,
 		array $changedOrNew,
-		array $deleted
+		array $deleted,
+		?callable $onOutput = null
 	) :void {
-		echo "Runtime refresh mode: patch".\PHP_EOL;
-		echo 'Changed/new managed files: '.\count( $changedOrNew ).\PHP_EOL;
-		echo 'Deleted managed files: '.\count( $deleted ).\PHP_EOL;
+		$this->writeProgress( 'Runtime refresh mode: patch', $onOutput );
+		$this->writeProgress( 'Changed/new managed files: '.\count( $changedOrNew ), $onOutput );
+		$this->writeProgress( 'Deleted managed files: '.\count( $deleted ), $onOutput );
 
-		$this->applyArchiveRefresh( $rootDir, $containerId, $changedOrNew, $deleted, $hostManifest );
+		$this->applyArchiveRefresh( $rootDir, $containerId, $changedOrNew, $deleted, $hostManifest, $onOutput );
 	}
 
 	/**
@@ -378,7 +393,8 @@ PHP;
 		string $containerId,
 		array $archivePaths,
 		array $deletedPaths,
-		array $hostManifest
+		array $hostManifest,
+		?callable $onOutput = null
 	) :void {
 		$workspace = Path::join( $rootDir, self::TEMP_DIR );
 		if ( !\is_dir( $workspace ) && !\mkdir( $workspace, 0777, true ) && !\is_dir( $workspace ) ) {
@@ -419,13 +435,15 @@ PHP;
 				}
 				return (int)$size;
 			} );
-			echo 'Runtime refresh build: '
-				 .\count( $archivePaths )
-				 .' files, '
-				 .$this->formatBytes( $archiveBytes )
-				 .' in '
-				 .$this->formatDuration( $buildDuration )
-				 .\PHP_EOL;
+			$this->writeProgress(
+				'Runtime refresh build: '
+				.\count( $archivePaths )
+				.' files, '
+				.$this->formatBytes( $archiveBytes )
+				.' in '
+				.$this->formatDuration( $buildDuration ),
+				$onOutput
+			);
 
 			$copyStartedAt = \microtime( true );
 			$this->runPhase(
@@ -461,11 +479,13 @@ PHP;
 				'delete',
 				fn() => $this->deleteManagedPaths( $rootDir, $containerId )
 			);
-			echo 'Runtime refresh delete: '
-				 .\count( $deletedPaths )
-				 .' paths in '
-				 .$this->formatDuration( \microtime( true ) - $deleteStartedAt )
-				 .\PHP_EOL;
+			$this->writeProgress(
+				'Runtime refresh delete: '
+				.\count( $deletedPaths )
+				.' paths in '
+				.$this->formatDuration( \microtime( true ) - $deleteStartedAt ),
+				$onOutput
+			);
 		}
 
 		if ( !empty( $archivePaths ) ) {
@@ -477,6 +497,7 @@ PHP;
 						'exec',
 						$containerId,
 						'tar',
+						'--overwrite',
 						'-xf',
 						self::CONTAINER_ARCHIVE_PATH,
 						'-C',
@@ -485,9 +506,11 @@ PHP;
 					$rootDir
 				);
 			} );
-			echo 'Runtime refresh extract: '
-				 .$this->formatDuration( \microtime( true ) - $extractStartedAt )
-				 .\PHP_EOL;
+			$this->writeProgress(
+				'Runtime refresh extract: '
+				.$this->formatDuration( \microtime( true ) - $extractStartedAt ),
+				$onOutput
+			);
 		}
 
 		$verifyStartedAt = \microtime( true );
@@ -495,7 +518,10 @@ PHP;
 			'verify',
 			fn() => $this->verifyRequiredSentinels( $rootDir, $containerId )
 		);
-		echo 'Runtime refresh verify: '.$this->formatDuration( \microtime( true ) - $verifyStartedAt ).\PHP_EOL;
+		$this->writeProgress(
+			'Runtime refresh verify: '.$this->formatDuration( \microtime( true ) - $verifyStartedAt ),
+			$onOutput
+		);
 
 		$manifestStartedAt = \microtime( true );
 		$this->runPhase( 'manifest write', function () use ( $containerId, $hostManifest, $manifestPath, $rootDir, &$copyDuration ) :void {
@@ -521,11 +547,12 @@ PHP;
 				$rootDir
 			);
 		} );
-		echo 'Runtime refresh manifest write: '
-			 .$this->formatDuration( \microtime( true ) - $manifestStartedAt )
-			 .\PHP_EOL;
+		$this->writeProgress(
+			'Runtime refresh manifest write: '.$this->formatDuration( \microtime( true ) - $manifestStartedAt ),
+			$onOutput
+		);
 		if ( $copyDuration > 0 ) {
-			echo 'Runtime refresh copy total: '.$this->formatDuration( $copyDuration ).\PHP_EOL;
+			$this->writeProgress( 'Runtime refresh copy total: '.$this->formatDuration( $copyDuration ), $onOutput );
 		}
 	}
 
@@ -693,6 +720,18 @@ PHP;
 			return \sprintf( '%.2f KB', $bytes/1024 );
 		}
 		return $bytes.' B';
+	}
+
+	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function writeProgress( string $message, ?callable $onOutput = null ) :void {
+		if ( $onOutput !== null ) {
+			$onOutput( Process::OUT, $message.\PHP_EOL );
+			return;
+		}
+
+		echo $message.\PHP_EOL;
 	}
 
 	/**

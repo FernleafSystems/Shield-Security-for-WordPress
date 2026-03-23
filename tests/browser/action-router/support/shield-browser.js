@@ -4,7 +4,6 @@ const path = require( 'path' );
 
 const SHIELD_PAGE = 'icwp-wpsf-plugin';
 const PROJECT_ROOT = path.resolve( __dirname, '..', '..', '..', '..' );
-const ACTIONS_QUEUE_DETAIL_FIXTURE = '/app/tests/browser/action-router/support/actions-queue-detail-fixture.php';
 
 function buildShieldUrl( params = {} ) {
 	const search = new URLSearchParams( {
@@ -92,10 +91,10 @@ async function loginIfNeeded( page ) {
 async function openShieldRoute( page, params = {} ) {
 	const url = buildShieldUrl( params );
 
-	await page.goto( url, { waitUntil: 'domcontentloaded' } );
+	await page.goto( url, { waitUntil: 'load' } );
 	await loginIfNeeded( page );
 	if ( !page.url().includes( 'page=' + SHIELD_PAGE ) ) {
-		await page.goto( url, { waitUntil: 'domcontentloaded' } );
+		await page.goto( url, { waitUntil: 'load' } );
 	}
 
 	await waitForShieldPage( page );
@@ -121,7 +120,7 @@ async function selectSelect2Option( page, selectName, searchTerm, optionMatcher,
 
 	const navigationWaiter = waitForUrlMatcher
 		? page.waitForURL( waitForUrlMatcher, { timeout: 20_000 } )
-		: page.waitForNavigation( { waitUntil: 'domcontentloaded', timeout: 20_000 } );
+		: page.waitForNavigation( { waitUntil: 'load', timeout: 20_000 } );
 
 	await Promise.all( [
 		navigationWaiter,
@@ -131,32 +130,37 @@ async function selectSelect2Option( page, selectName, searchTerm, optionMatcher,
 	await waitForShieldPage( page );
 }
 
-function runTestSiteWpCli( args = [] ) {
-	execFileSync( 'php', [
+function runShieldCli( args = [] ) {
+	return execFileSync( 'php', [
 		'bin/shield',
-		'test:site:wp',
 		...args,
 	], {
 		cwd: PROJECT_ROOT,
 		stdio: 'pipe',
-	} );
+	} ).toString( 'utf8' ).trim();
 }
 
-function runActionsQueueBrowserFixture( action ) {
-	runTestSiteWpCli( [
-		'eval-file',
-		ACTIONS_QUEUE_DETAIL_FIXTURE,
-		'--',
-		action,
+function runWpFixture( fixtureKey, args = [] ) {
+	const output = runShieldCli( [
+		'test:site:fixture',
+		fixtureKey,
+		...args,
 	] );
+
+	if ( output.length < 1 ) {
+		return null;
+	}
+
+	return JSON.parse( output );
 }
 
-async function withActionsQueueDetailFixture( runScenario ) {
+async function withWpFixture( fixtureKey, seedArgs, runScenario ) {
 	let scenarioError = null;
+	let fixtureContract = null;
 
 	try {
-		runActionsQueueBrowserFixture( 'seed' );
-		return await runScenario();
+		fixtureContract = runWpFixture( fixtureKey, seedArgs );
+		return await runScenario( fixtureContract );
 	}
 	catch ( error ) {
 		scenarioError = error;
@@ -164,7 +168,7 @@ async function withActionsQueueDetailFixture( runScenario ) {
 	}
 	finally {
 		try {
-			runActionsQueueBrowserFixture( 'cleanup' );
+			runWpFixture( fixtureKey, [ 'cleanup' ] );
 		}
 		catch ( cleanupError ) {
 			if ( scenarioError === null ) {
@@ -174,11 +178,21 @@ async function withActionsQueueDetailFixture( runScenario ) {
 	}
 }
 
+async function withActionsQueueFixture( scenario, runScenario ) {
+	return withWpFixture(
+		'actions-queue',
+		[ 'seed', scenario ],
+		runScenario
+	);
+}
+
 module.exports = {
 	buildShieldUrl,
 	dismissBlockingDialogs,
 	openShieldRoute,
+	runWpFixture,
 	selectSelect2Option,
 	waitForShieldPage,
-	withActionsQueueDetailFixture,
+	withActionsQueueFixture,
+	withWpFixture,
 };

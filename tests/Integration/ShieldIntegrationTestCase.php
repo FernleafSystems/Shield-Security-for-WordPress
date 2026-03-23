@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 
 /**
  * Enhanced base test case for Shield security-logic integration tests.
@@ -44,69 +45,33 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	 * Enable premium mode for integration tests with only the requested capabilities.
 	 */
 	protected function enablePremiumCapabilities( array $capabilities = [] ) :void {
-		$con = $this->requireController();
-		$ts = \time();
-
-		$con->comps->license->updateLicenseData( [
-			'checksum'         => 'integration-test-license',
-			'success'          => true,
-			'license'          => 'valid',
-			'expires'          => 'lifetime',
-			'last_request_at'  => $ts,
-			'last_verified_at' => $ts,
-			'capabilities'     => \array_values( \array_unique( \array_filter(
-				$capabilities,
-				fn( $cap ) => \is_string( $cap ) && $cap !== ''
-			) ) ),
-			'lic_version'      => 1,
-		] );
-
-		$con->opts
-			->optSet( 'license_activated_at', $ts )
-			->optSet( 'license_deactivated_at', 0 );
+		$this->requireController();
+		RuntimeTestState::applyPremiumCapabilities( $capabilities );
 	}
 
 	protected function disablePremiumCapabilities() :void {
-		$con = static::con();
-		if ( $con === null ) {
+		if ( static::con() === null ) {
 			return;
 		}
-		$con->comps->license->updateLicenseData( [] );
-		$con->opts
-			->optSet( 'license_activated_at', 0 )
-			->optSet( 'license_deactivated_at', 0 );
+		RuntimeTestState::disablePremiumCapabilities();
 	}
 
 	protected function snapshotSelectedOptions( array $keys ) :array {
-		$con = $this->requireController();
-		$snapshot = [];
-		foreach ( $keys as $key ) {
-			$snapshot[ (string)$key ] = $con->opts->optGet( (string)$key );
-		}
-		return $snapshot;
+		$this->requireController();
+		return RuntimeTestState::snapshotOptions( \array_map(
+			static fn( $key ) :string => (string)$key,
+			$keys
+		) );
 	}
 
 	protected function restoreSelectedOptions( array $snapshot, bool $store = true ) :void {
-		$con = static::con();
-		if ( $con === null ) {
+		if ( static::con() === null ) {
 			return;
 		}
-
-		if ( \array_key_exists( 'license_data', $snapshot ) ) {
-			$con->comps->license->updateLicenseData( \is_array( $snapshot[ 'license_data' ] ) ? $snapshot[ 'license_data' ] : [] );
-			unset( $snapshot[ 'license_data' ] );
-		}
-
-		foreach ( $snapshot as $key => $value ) {
-			$con->opts->optSet( (string)$key, $value );
-		}
-
-		if ( $store && $con->opts->hasChanges() ) {
-			$con->opts->store();
-		}
+		RuntimeTestState::restoreOptions( $snapshot, $store );
 	}
 
-	// ── Controller helpers ─────────────────────────────────────────
+	// Controller helpers.
 
 	protected function requireController() :Controller {
 		$con = static::con();
@@ -139,9 +104,9 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	 * @return \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler|mixed
 	 */
 	protected function requireDb( string $dbKey ) {
-		$con = $this->requireController();
 		try {
-			$handler = $con->db_con->load( $dbKey );
+			$this->requireController();
+			$handler = RuntimeTestState::requireDbHandler( $dbKey );
 		}
 		catch ( \Exception $e ) {
 			$this->markTestSkipped( "DB handler '{$dbKey}' could not be loaded: ".$e->getMessage() );
@@ -173,12 +138,16 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	}
 
 	protected function loginAsSecurityAdmin( array $userData = [] ) :int {
+		if ( $userData === [] ) {
+			return RuntimeTestState::loginAsSecurityAdmin();
+		}
+
 		$userId = $this->loginAsAdministrator( $userData );
 		$this->setSecurityAdminContext( true );
 		return $userId;
 	}
 
-	// ── Cache resets ───────────────────────────────────────────────
+	// Cache resets.
 
 	protected function resetIpCaches() :void {
 		// IpRuleStatus static caches
@@ -245,13 +214,11 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	}
 
 	protected function resetScanResultCountMemoization() :void {
-		$this->requireController()
-			 ->comps
-			 ->scans
-			 ->resetScanResultsCountMemoization();
+		$this->requireController();
+		RuntimeTestState::resetScanResultCountMemoization();
 	}
 
-	// ── Event capture ──────────────────────────────────────────────
+	// Event capture.
 
 	/**
 	 * Begin capturing shield/event firings. Call early in a test method.
@@ -286,7 +253,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		) );
 	}
 
-	// ── Table cleanup ──────────────────────────────────────────────
+	// Table cleanup.
 
 	/**
 	 * Truncate all Shield custom tables so every test starts clean.

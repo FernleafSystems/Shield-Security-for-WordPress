@@ -4,6 +4,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 class LocalSiteManager {
 
@@ -62,7 +63,7 @@ class LocalSiteManager {
 	 * @param string[] $wpCliArgs
 	 */
 	public function wp( string $rootDir, array $wpCliArgs ) :int {
-		$this->ensureReady( $rootDir, false );
+		$this->ensureReadyAfterPreflight( $rootDir, null );
 
 		return $this->processRunner->runForExitCode(
 			$this->buildWpCliCommand( $wpCliArgs ),
@@ -70,6 +71,51 @@ class LocalSiteManager {
 			null,
 			$this->buildRuntimeEnvOverrides( $rootDir )
 		);
+	}
+
+	/**
+	 * @param string[] $wpCliArgs
+	 * @return array{stdout:string,stderr:string}
+	 */
+	public function wpCapture( string $rootDir, array $wpCliArgs ) :array {
+		$this->runPreflightChecks( $rootDir, false );
+
+		$stdout = '';
+		$stderr = '';
+		$preflightCollector = static function ( string $type, string $buffer ) use ( &$stderr ) :void {
+			$stderr .= $buffer;
+		};
+		$collector = static function ( string $type, string $buffer ) use ( &$stdout, &$stderr ) :void {
+			if ( $type === Process::ERR ) {
+				$stderr .= $buffer;
+			}
+			else {
+				$stdout .= $buffer;
+			}
+		};
+
+		$this->ensureReadyAfterPreflight( $rootDir, $preflightCollector );
+
+		$process = $this->processRunner->run(
+			$this->buildWpCliCommand( $wpCliArgs ),
+			$rootDir,
+			$collector,
+			$this->buildRuntimeEnvOverrides( $rootDir )
+		);
+		$exitCode = $process->getExitCode() ?? 1;
+		if ( $exitCode !== 0 ) {
+			$message = \sprintf( 'WP-CLI command failed with exit code %d.', $exitCode );
+			$errorOutput = \trim( $stderr );
+			if ( $errorOutput !== '' ) {
+				$message .= ' '.$errorOutput;
+			}
+			throw new \RuntimeException( $message );
+		}
+
+		return [
+			'stdout' => $stdout,
+			'stderr' => $stderr,
+		];
 	}
 
 	public function reset( string $rootDir, bool $requirePlaywright = false ) :int {
@@ -107,13 +153,16 @@ class LocalSiteManager {
 		$this->ensureReadyAfterPreflight( $rootDir );
 	}
 
-	private function ensureReadyAfterPreflight( string $rootDir ) :void {
+	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function ensureReadyAfterPreflight( string $rootDir, ?callable $onOutput = null ) :void {
 		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
-		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides );
+		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
 
-		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId );
-		$this->provisionBaselineAndAssertHealthy( $rootDir, $envOverrides );
+		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId, $onOutput );
+		$this->provisionBaselineAndAssertHealthy( $rootDir, $envOverrides, $onOutput );
 	}
 
 	/**
@@ -239,7 +288,12 @@ class LocalSiteManager {
 	 * @param string[] $composeFiles
 	 * @param array<string,string|false> $envOverrides
 	 */
-	private function resolveOrStartWordpressContainer( string $rootDir, array $composeFiles, array $envOverrides ) :string {
+	private function resolveOrStartWordpressContainer(
+		string $rootDir,
+		array $composeFiles,
+		array $envOverrides,
+		?callable $onOutput = null
+	) :string {
 		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
 			$rootDir,
 			$composeFiles,
@@ -257,7 +311,7 @@ class LocalSiteManager {
 		}
 
 		$this->assertSitePortIsAvailable();
-		$this->startDockerServices( $rootDir, $composeFiles, $envOverrides );
+		$this->startDockerServices( $rootDir, $composeFiles, $envOverrides, $onOutput );
 		$this->waitForWordpressStartup();
 
 		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
@@ -290,7 +344,12 @@ class LocalSiteManager {
 	 * @param string[] $composeFiles
 	 * @param array<string,string|false> $envOverrides
 	 */
-	private function startDockerServices( string $rootDir, array $composeFiles, array $envOverrides ) :void {
+	private function startDockerServices(
+		string $rootDir,
+		array $composeFiles,
+		array $envOverrides,
+		?callable $onOutput = null
+	) :void {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$composeFiles,
@@ -300,7 +359,8 @@ class LocalSiteManager {
 				self::DB_SERVICE_NAME,
 				self::WORDPRESS_SERVICE_NAME,
 			],
-			$envOverrides
+			$envOverrides,
+			$onOutput
 		);
 		if ( $exitCode !== 0 ) {
 			throw new \RuntimeException( 'Failed to start the '.$this->definition->label().' Docker services.' );
@@ -313,8 +373,12 @@ class LocalSiteManager {
 		}
 	}
 
-	private function refreshRuntimeAndAssertHealthy( string $rootDir, string $containerId ) :void {
-		$this->runtimeRefresher->refresh( $rootDir, $containerId );
+	private function refreshRuntimeAndAssertHealthy(
+		string $rootDir,
+		string $containerId,
+		?callable $onOutput = null
+	) :void {
+		$this->runtimeRefresher->refresh( $rootDir, $containerId, $onOutput );
 		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 30 ) ) {
 			throw new \RuntimeException( $this->definition->label().' is unhealthy after runtime refresh.' );
 		}
@@ -323,11 +387,15 @@ class LocalSiteManager {
 	/**
 	 * @param array<string,string|false> $envOverrides
 	 */
-	private function provisionBaselineAndAssertHealthy( string $rootDir, array $envOverrides ) :void {
+	private function provisionBaselineAndAssertHealthy(
+		string $rootDir,
+		array $envOverrides,
+		?callable $onOutput = null
+	) :void {
 		if ( $this->processRunner->runForExitCode(
 			$this->buildProvisionCommand(),
 			$rootDir,
-			null,
+			$onOutput,
 			$envOverrides
 		) !== 0 ) {
 			throw new \RuntimeException( 'Failed to provision the '.$this->definition->label().' baseline.' );

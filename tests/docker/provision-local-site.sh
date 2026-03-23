@@ -86,5 +86,7 @@ if [ "${SITE_PROFILE}" = "test" ]; then
 				update_user_meta( (int)$adminUser->ID, $metaKey, $userMeta );
 			}
 		}
+
+		shield_security_get_plugin()->getController()->db_con->loadAll();
 	' --allow-root
 fi

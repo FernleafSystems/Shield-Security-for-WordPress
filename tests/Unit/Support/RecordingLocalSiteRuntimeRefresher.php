@@ -39,7 +39,7 @@ class RecordingLocalSiteRuntimeRefresher extends LocalSiteRuntimeRefresher {
 		return (string)( \array_shift( $this->containerIds ) ?? '' );
 	}
 
-	public function refresh( string $rootDir, string $containerId ) :void {
+	public function refresh( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
 		$this->refreshCalls[] = [
 			'root_dir' => $rootDir,
 			'container_id' => $containerId,
