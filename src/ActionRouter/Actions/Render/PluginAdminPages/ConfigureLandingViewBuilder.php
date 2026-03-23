@@ -7,68 +7,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 /**
  * @phpstan-import-type ConfigureZoneTileContract from ConfigureZoneTilesBuilder
- * @phpstan-import-type ConfigureComponentContract from ConfigureZoneTilesBuilder
- * @phpstan-import-type DiagnosisContract from ConfigureZoneDiagnosisBuilder
- * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
+ * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
+ * @phpstan-import-type ConfigureLandingViewData from ConfigureLandingRenderContracts
+ * @phpstan-import-type ConfigurePostureSummary from ConfigureLandingRenderContracts
+ * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
+ * @phpstan-import-type ZoneCard from ConfigureLandingRenderContracts
+ * @phpstan-import-type ZoneSection from ConfigureLandingRenderContracts
  * @phpstan-import-type OperatorChromeStep from OperatorChromeContract
- * @phpstan-type ConfigureLandingTile array{
- *   key:string,
- *   panel_target:string,
- *   is_enabled:bool,
- *   is_disabled:bool,
- *   include_in_posture:bool,
- *   label:string,
- *   icon_class:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string,
- *   stat_line:string,
- *   panel:array{
- *     title:string,
- *     status:string,
- *     status_label:string,
- *     components:list<ConfigureComponentContract>,
- *     detail_groups:list<DetailGroup>
- *   }
- * }
- * @phpstan-type ZoneCard array{
- *   key:string,
- *   label:string,
- *   icon_class:string,
- *   status:string,
- *   status_label:string,
- *   preview_text:string,
- *   selection_json:string,
- *   is_disabled:bool
- * }
- * @phpstan-type ZoneSection array{
- *   heading:string,
- *   cards:list<ZoneCard>,
- *   collapsible:bool,
- *   disclosure_label:string
- * }
- * @phpstan-type ConfigurePostureSummary array{
- *   status:string,
- *   chip_label:string,
- *   icon_class:string,
- *   eyebrow:string,
- *   summary:string,
- *   meter:array{
- *     percentage:int,
- *     status:string,
- *     aria_label:string,
- *     aria_value_text:string
- *   }
- * }
- * @phpstan-type ConfigureLandingViewData array{
- *   tiles:list<ConfigureLandingTile>,
- *   tile_lookup:array<string,ConfigureLandingTile>,
- *   diagnoses:array<string,DiagnosisContract>,
- *   sections:list<ZoneSection>,
- *   posture_summary:ConfigurePostureSummary,
- *   root_step:OperatorChromeStep,
- *   root_step_json:string
- * }
  */
 class ConfigureLandingViewBuilder {
 

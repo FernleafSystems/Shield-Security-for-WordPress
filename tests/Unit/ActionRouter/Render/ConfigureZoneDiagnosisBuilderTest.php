@@ -53,7 +53,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, \count( $diagnosis[ 'problem_rows' ] ) );
 		$this->assertSame( [], $diagnosis[ 'review_rows' ] );
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
-		$this->assertSame( [], $diagnosis[ 'review_fallback_card' ] );
+		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertSame( 'Login', $diagnosis[ 'header' ][ 'title' ] );
 		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'label' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
@@ -85,7 +85,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'problem_rows' ] );
 		$this->assertSame( [], $diagnosis[ 'review_rows' ] );
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
-		$this->assertSame( [], $diagnosis[ 'review_fallback_card' ] );
+		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'preview_text' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'healthy_rows_heading' ] ?? '' );
@@ -112,7 +112,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'problem_rows' ] );
 		$this->assertSame( 1, \count( $diagnosis[ 'review_rows' ] ) );
 		$this->assertSame( [], $diagnosis[ 'healthy_rows' ] );
-		$this->assertSame( [], $diagnosis[ 'review_fallback_card' ] );
+		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'review_rows_heading' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'risk_context' ] ?? '' );
@@ -122,14 +122,15 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'traffic_logging', $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
 	}
 
-	public function test_empty_review_state_exposes_producer_owned_fallback_card() :void {
+	public function test_empty_review_state_exposes_producer_owned_fallback_review_row() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
 			$this->buildZoneTile( 'firewall', 'Firewall', 'good', 'Good', 'All components healthy', [] )
 		);
 
 		$this->assertSame( [], $diagnosis[ 'problem_rows' ] );
-		$this->assertSame( [], $diagnosis[ 'review_rows' ] );
+		$this->assertCount( 1, $diagnosis[ 'review_rows' ] );
 		$this->assertSame( [], $diagnosis[ 'healthy_rows' ] );
+		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertSame(
 			[
 				'title'             => 'Good',
@@ -137,16 +138,15 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 				'status'            => 'neutral',
 				'status_label'      => 'Review',
 				'status_icon_class' => 'bi bi-info-circle-fill',
-				'expand'            => [
-					'id'             => '',
-					'parent_id'      => '',
-					'is_expandable'  => false,
-					'label'          => '',
-					'title'          => '',
+				'explanations'      => [],
+				'expand_action'     => [
+					'is_expandable'   => false,
+					'label'           => '',
+					'title'           => '',
 					'data_attributes' => [],
 				],
 			],
-			$diagnosis[ 'review_fallback_card' ]
+			$diagnosis[ 'review_rows' ][ 0 ]
 		);
 	}
 

@@ -30,7 +30,7 @@
 		</div>
 	{% endif %}
 
-	{% if diagnosis.review_rows is not empty or diagnosis.review_fallback_card is not empty %}
+	{% if diagnosis.review_rows is not empty %}
 		<div class="configure-diagnosis__review">
 			<div class="configure-diagnosis__section-title">{{ diagnosis.review_rows_heading }}</div>
 			<div class="configure-diagnosis__settings">
@@ -56,20 +56,6 @@
 						}
 					} } only %}
 				{% endfor %}
-
-				{% if diagnosis.review_fallback_card is not empty %}
-					{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
-						row: {
-							title: diagnosis.review_fallback_card.title,
-							description: diagnosis.review_fallback_card.summary,
-							status: diagnosis.review_fallback_card.status,
-							status_icon: diagnosis.review_fallback_card.status_icon_class,
-							status_label: diagnosis.review_fallback_card.status_label,
-							attributes: {}
-						},
-						expand: diagnosis.review_fallback_card.expand
-					} } only %}
-				{% endif %}
 			</div>
 		</div>
 	{% endif %}

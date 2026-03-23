@@ -3,69 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
- * @phpstan-import-type ConfigureLandingTile from ConfigureLandingViewBuilder
+ * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
+ * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
+ * @phpstan-import-type DiagnosisExpandAction from ConfigureLandingRenderContracts
+ * @phpstan-import-type DiagnosisFinding from ConfigureLandingRenderContracts
  * @phpstan-import-type DetailAction from StatusDetailGroupsBuilder
- * @phpstan-import-type DetailActionData from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroupRow from StatusDetailGroupsBuilder
- * @phpstan-type DrillSelection array{
- *   key:string,
- *   label:string,
- *   status:string,
- *   icon_class:string,
- *   header:DrillLayerHeader
- * }
- * @phpstan-type DiagnosisExpandAction array{
- *   is_expandable:bool,
- *   label:string,
- *   title:string,
- *   data_attributes:DetailActionData
- * }
- * @phpstan-type DiagnosisFinding array{
- *   title:string,
- *   summary:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string,
- *   explanations:list<string>,
- *   expand_action:DiagnosisExpandAction
- * }
- * @phpstan-type DiagnosisReviewFallbackCard array{
- *   title:string,
- *   summary:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string,
- *   expand:array{
- *     id:string,
- *     parent_id:string,
- *     is_expandable:false,
- *     label:string,
- *     title:string,
- *     data_attributes:DetailActionData
- *   }
- * }
- * @phpstan-type DiagnosisContract array{
- *   zone_key:string,
- *   zone_label:string,
- *   zone_icon_class:string,
- *   zone_status:string,
- *   zone_status_label:string,
- *   preview_text:string,
- *   risk_context:string,
- *   next_move_heading:string,
- *   next_move:string,
- *   problem_rows:list<DiagnosisFinding>,
- *   review_rows:list<DiagnosisFinding>,
- *   healthy_rows:list<DiagnosisFinding>,
- *   review_fallback_card:array{}|DiagnosisReviewFallbackCard,
- *   review_rows_heading:string,
- *   healthy_rows_heading:string,
- *   header:DrillLayerHeader,
- *   zone_selection:DrillSelection,
- *   zone_selection_json:string
- * }
  */
 class ConfigureZoneDiagnosisBuilder {
 
@@ -119,6 +63,11 @@ class ConfigureZoneDiagnosisBuilder {
 		$zoneBadge = $isReviewState
 			? $this->buildReviewBadge( $zoneTile )
 			: $this->buildFindingsBadge( \count( $problemFindings ) );
+		if ( \count( $problemFindings ) === 0
+			&& \count( $reviewFindings ) === 0
+			&& \count( $healthyFindings ) === 0 ) {
+			$reviewFindings[] = $this->buildFallbackReviewFinding( $zoneBadge, $zoneTile[ 'stat_line' ] );
+		}
 		$header = OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $zoneLabel ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Configure', 'wp-simple-firewall' ) ),
@@ -133,13 +82,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'badge_status'       => $zoneTile[ 'status' ],
 			'color_key'          => $zoneTile[ 'status' ],
 		] );
-		$reviewFallbackCard = $this->buildReviewFallbackCard(
-			$zoneBadge,
-			$zoneTile[ 'stat_line' ],
-			$problemFindings,
-			$reviewFindings,
-			$healthyFindings
-		);
 
 		$zoneSelection = [
 			'key'        => $zoneKey,
@@ -162,7 +104,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'problem_rows'              => $problemFindings,
 			'review_rows'               => $reviewFindings,
 			'healthy_rows'              => $healthyFindings,
-			'review_fallback_card'      => $reviewFallbackCard,
 			'review_rows_heading'       => __( 'Review these settings', 'wp-simple-firewall' ),
 			'healthy_rows_heading'      => sprintf(
 				_n(
@@ -228,35 +169,21 @@ class ConfigureZoneDiagnosisBuilder {
 	}
 
 	/**
-	 * @param list<DiagnosisFinding> $problemFindings
-	 * @param list<DiagnosisFinding> $reviewFindings
-	 * @param list<DiagnosisFinding> $healthyFindings
-	 * @return array{}|DiagnosisReviewFallbackCard
+	 * @return DiagnosisFinding
 	 */
-	private function buildReviewFallbackCard(
+	private function buildFallbackReviewFinding(
 		string $title,
-		string $summary,
-		array $problemFindings,
-		array $reviewFindings,
-		array $healthyFindings
+		string $summary
 	) :array {
-		return ( \count( $problemFindings ) === 0 && \count( $reviewFindings ) === 0 && \count( $healthyFindings ) === 0 )
-			? [
-				'title'             => $title,
-				'summary'           => $summary,
-				'status'            => 'neutral',
-				'status_label'      => __( 'Review', 'wp-simple-firewall' ),
-				'status_icon_class' => 'bi bi-info-circle-fill',
-				'expand'            => [
-					'id'            => '',
-					'parent_id'     => '',
-					'is_expandable' => false,
-					'label'         => '',
-					'title'         => '',
-					'data_attributes' => [],
-				],
-			]
-			: [];
+		return [
+			'title'             => $title,
+			'summary'           => $summary,
+			'status'            => 'neutral',
+			'status_label'      => __( 'Review', 'wp-simple-firewall' ),
+			'status_icon_class' => 'bi bi-info-circle-fill',
+			'explanations'      => [],
+			'expand_action'     => $this->buildCollapsedExpandAction(),
+		];
 	}
 
 	/**
@@ -278,6 +205,18 @@ class ConfigureZoneDiagnosisBuilder {
 			'label'           => (string)( $action[ 'label' ] ?? __( 'Configure', 'wp-simple-firewall' ) ),
 			'title'           => (string)( $action[ 'title' ] ?? '' ),
 			'data_attributes' => $dataAttributes,
+		];
+	}
+
+	/**
+	 * @return DiagnosisExpandAction
+	 */
+	private function buildCollapsedExpandAction() :array {
+		return [
+			'is_expandable'   => false,
+			'label'           => '',
+			'title'           => '',
+			'data_attributes' => [],
 		];
 	}
 

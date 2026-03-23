@@ -3,10 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type ConfigureLandingTile from ConfigureLandingViewBuilder
- * @phpstan-import-type ConfigureLandingViewData from ConfigureLandingViewBuilder
- * @phpstan-import-type ZoneSection from ConfigureLandingViewBuilder
- * @phpstan-import-type DiagnosisContract from ConfigureZoneDiagnosisBuilder
+ * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
+ * @phpstan-import-type ConfigureLandingViewData from ConfigureLandingRenderContracts
+ * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
+ * @phpstan-import-type ZoneSection from ConfigureLandingRenderContracts
  * @phpstan-import-type OperatorChromeStep from OperatorChromeContract
  */
 trait BuildsConfigureLandingData {
