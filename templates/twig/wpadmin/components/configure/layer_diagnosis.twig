@@ -1,13 +1,4 @@
 {% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
-{% set empty_expand = {
-	id: '',
-	parent_id: '',
-	is_expandable: false,
-	label: '',
-	title: '',
-	data_attributes: {}
-} %}
-
 <div class="configure-diagnosis"
 	 data-configure-diagnosis="1"
 	 data-configure-zone="{{ diagnosis.zone_key }}"
@@ -76,7 +67,7 @@
 							status_label: diagnosis.review_fallback_card.status_label,
 							attributes: {}
 						},
-						expand: empty_expand
+						expand: diagnosis.review_fallback_card.expand
 					} } only %}
 				{% endif %}
 			</div>

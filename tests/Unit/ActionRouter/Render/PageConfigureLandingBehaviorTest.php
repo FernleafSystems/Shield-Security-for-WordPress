@@ -21,8 +21,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ConfigureZoneDiagnosisBuilder,
 	ConfigureDrillDownDiagnosis,
-	PageConfigureLanding
+	OperatorChromeContract,
+	PageConfigureLanding,
+	StatusDetailGroupsBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -293,6 +296,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'status'       => $status,
 				'status_label' => $statusLabel,
 				'components'   => $components,
+				'detail_groups' => ( new StatusDetailGroupsBuilder() )
+					->buildForConfigure( $components ),
 			],
 		];
 	}
@@ -345,21 +350,14 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 
-	private array $zonePostureFixture;
-
-	private array $zoneTileFixtures;
+	private array $configureLandingViewData;
 
 	public function __construct( array $zonePostureFixture, array $zoneTileFixtures ) {
-		$this->zonePostureFixture = $zonePostureFixture;
-		$this->zoneTileFixtures = $zoneTileFixtures;
+		$this->configureLandingViewData = $this->buildLandingViewDataFixture( $zonePostureFixture, $zoneTileFixtures );
 	}
 
-	protected function getZonePosture() :array {
-		return $this->zonePostureFixture;
-	}
-
-	protected function getConfigureZoneTiles() :array {
-		return $this->zoneTileFixtures;
+	protected function buildConfigureLandingViewData() :array {
+		return $this->configureLandingViewData;
 	}
 
 	protected function renderConfigureZonesLayer() :string {
@@ -379,5 +377,84 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			],
 			$auxData
 		);
+	}
+
+	private function buildLandingViewDataFixture( array $zonePostureFixture, array $zoneTileFixtures ) :array {
+		$diagnosisBuilder = new ConfigureZoneDiagnosisBuilder();
+		$tileLookup = [];
+		$diagnoses = [];
+		$percentage = (int)( $zonePostureFixture[ 'percentage' ] ?? 0 );
+		$postureSummary = sprintf( '%d%% - 1 critical - 1 needs work - 1 good', $percentage );
+
+		foreach ( $zoneTileFixtures as $zoneTile ) {
+			$tileLookup[ $zoneTile[ 'key' ] ] = $zoneTile;
+			$diagnoses[ $zoneTile[ 'key' ] ] = $diagnosisBuilder->build( $zoneTile );
+		}
+
+		$rootStep = OperatorChromeContract::normalizeStep( [
+			'breadcrumb_label' => 'Configure',
+			'title'            => 'Configure',
+			'summary'          => $postureSummary,
+			'focus'            => 'Warning',
+			'next_step'        => 'Open a zone to review findings and move into focused settings changes.',
+			'icon_class'       => 'bi bi-gear',
+			'badge'            => sprintf( '%d%%', $percentage ),
+			'badge_status'     => 'warning',
+			'color_key'        => 'configure',
+		] );
+
+		return [
+			'tiles'           => $zoneTileFixtures,
+			'tile_lookup'     => $tileLookup,
+			'diagnoses'       => $diagnoses,
+			'sections'        => [
+				[
+					'heading'          => 'Zones that need attention',
+					'cards'            => [
+						$this->buildZoneCardFixture( $zoneTileFixtures[ 0 ], $diagnoses[ 'secadmin' ] ),
+						$this->buildZoneCardFixture( $zoneTileFixtures[ 2 ], $diagnoses[ 'login' ] ),
+					],
+					'collapsible'      => false,
+					'disclosure_label' => '',
+				],
+				[
+					'heading'          => 'Healthy zones and general controls',
+					'cards'            => [
+						$this->buildZoneCardFixture( $zoneTileFixtures[ 1 ], $diagnoses[ 'firewall' ] ),
+						$this->buildZoneCardFixture( $zoneTileFixtures[ 3 ], $diagnoses[ 'general' ] ),
+					],
+					'collapsible'      => true,
+					'disclosure_label' => '2 healthy zones and general controls',
+				],
+			],
+			'posture_summary' => [
+				'status'     => 'warning',
+				'chip_label' => 'Warning',
+				'icon_class' => 'bi bi-exclamation-circle-fill',
+				'eyebrow'    => 'Configuration Posture',
+				'summary'    => $postureSummary,
+				'meter'      => [
+					'percentage'      => $percentage,
+					'status'          => 'warning',
+					'aria_label'      => 'Configuration Posture',
+					'aria_value_text' => sprintf( '%d%%', $percentage ),
+				],
+			],
+			'root_step'       => $rootStep,
+			'root_step_json'  => OperatorChromeContract::encodeJson( $rootStep ),
+		];
+	}
+
+	private function buildZoneCardFixture( array $zoneTile, array $diagnosis ) :array {
+		return [
+			'key'            => $zoneTile[ 'key' ],
+			'label'          => $zoneTile[ 'label' ],
+			'icon_class'     => $zoneTile[ 'icon_class' ],
+			'status'         => $zoneTile[ 'status' ],
+			'status_label'   => $zoneTile[ 'status_label' ],
+			'preview_text'   => $diagnosis[ 'preview_text' ],
+			'selection_json' => $diagnosis[ 'zone_selection_json' ],
+			'is_disabled'    => $zoneTile[ 'is_disabled' ],
+		];
 	}
 }

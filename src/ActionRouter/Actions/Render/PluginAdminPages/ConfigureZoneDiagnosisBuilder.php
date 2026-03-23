@@ -4,27 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
+ * @phpstan-import-type ConfigureLandingTile from ConfigureLandingViewBuilder
  * @phpstan-import-type DetailAction from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailActionData from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroupRow from StatusDetailGroupsBuilder
- * @phpstan-type ConfigureZoneTile array{
- *   key:string,
- *   include_in_posture:bool,
- *   label:string,
- *   icon_class:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string,
- *   stat_line:string,
- *   panel:array{
- *     title:string,
- *     status:string,
- *     status_label:string,
- *     components:list<array<string,mixed>>,
- *     detail_groups:list<DetailGroup>
- *   }
- * }
  * @phpstan-type DrillSelection array{
  *   key:string,
  *   label:string,
@@ -52,7 +36,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   summary:string,
  *   status:string,
  *   status_label:string,
- *   status_icon_class:string
+ *   status_icon_class:string,
+ *   expand:array{
+ *     id:string,
+ *     parent_id:string,
+ *     is_expandable:false,
+ *     label:string,
+ *     title:string,
+ *     data_attributes:DetailActionData
+ *   }
  * }
  * @phpstan-type DiagnosisContract array{
  *   zone_key:string,
@@ -90,7 +82,7 @@ class ConfigureZoneDiagnosisBuilder {
 	];
 
 	/**
-	 * @param ConfigureZoneTile $zoneTile
+	 * @param ConfigureLandingTile $zoneTile
 	 * @return DiagnosisContract
 	 */
 	public function build( array $zoneTile ) :array {
@@ -255,6 +247,14 @@ class ConfigureZoneDiagnosisBuilder {
 				'status'            => 'neutral',
 				'status_label'      => __( 'Review', 'wp-simple-firewall' ),
 				'status_icon_class' => 'bi bi-info-circle-fill',
+				'expand'            => [
+					'id'            => '',
+					'parent_id'     => '',
+					'is_expandable' => false,
+					'label'         => '',
+					'title'         => '',
+					'data_attributes' => [],
+				],
 			]
 			: [];
 	}
@@ -313,7 +313,7 @@ class ConfigureZoneDiagnosisBuilder {
 	}
 
 	/**
-	 * @param ConfigureZoneTile $zoneTile
+	 * @param ConfigureLandingTile $zoneTile
 	 */
 	private function buildReviewPreviewText( array $zoneTile ) :string {
 		if ( $zoneTile[ 'key' ] === 'general' ) {
@@ -327,7 +327,7 @@ class ConfigureZoneDiagnosisBuilder {
 	}
 
 	/**
-	 * @param ConfigureZoneTile $zoneTile
+	 * @param ConfigureLandingTile $zoneTile
 	 */
 	private function buildReviewNextMove( array $zoneTile ) :string {
 		if ( $zoneTile[ 'key' ] === 'general' ) {
@@ -341,7 +341,7 @@ class ConfigureZoneDiagnosisBuilder {
 	}
 
 	/**
-	 * @param ConfigureZoneTile $zoneTile
+	 * @param ConfigureLandingTile $zoneTile
 	 */
 	private function buildRiskContext( array $zoneTile, string $previewText, bool $isReviewState ) :string {
 		$impact = self::IMPACT_MAP[ $zoneTile[ 'key' ] ] ?? '';
@@ -349,7 +349,7 @@ class ConfigureZoneDiagnosisBuilder {
 	}
 
 	/**
-	 * @param ConfigureZoneTile $zoneTile
+	 * @param ConfigureLandingTile $zoneTile
 	 */
 	private function buildReviewBadge( array $zoneTile ) :string {
 		return $zoneTile[ 'key' ] === 'general'

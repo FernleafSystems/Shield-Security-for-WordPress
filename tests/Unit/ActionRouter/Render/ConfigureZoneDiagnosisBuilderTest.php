@@ -137,6 +137,14 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 				'status'            => 'neutral',
 				'status_label'      => 'Review',
 				'status_icon_class' => 'bi bi-info-circle-fill',
+				'expand'            => [
+					'id'             => '',
+					'parent_id'      => '',
+					'is_expandable'  => false,
+					'label'          => '',
+					'title'          => '',
+					'data_attributes' => [],
+				],
 			],
 			$diagnosis[ 'review_fallback_card' ]
 		);
