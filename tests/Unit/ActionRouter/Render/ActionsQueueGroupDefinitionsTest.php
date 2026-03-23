@@ -27,7 +27,16 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'direct_table', $definitions[ 'wordpress' ][ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $definitions[ 'wordpress' ][ 'card_type' ] );
 		$this->assertSame( Wordpress::class, $definitions[ 'wordpress' ][ 'render_action_class' ] );
-		$this->assertSame( [ 'display_context' => 'actions_queue' ], $definitions[ 'wordpress' ][ 'render_action_data' ] );
+		$this->assertSame(
+			[
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored' => false,
+					'ignored_only'    => false,
+				],
+			],
+			$definitions[ 'wordpress' ][ 'render_action_data' ]
+		);
 		$this->assertSame( 'Malware Detections', $definitions[ 'malware' ][ 'label' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'malware' ][ 'detail_shell' ] );
 		$this->assertSame( 'linked', $definitions[ 'vulnerabilities' ][ 'card_type' ] );
@@ -73,5 +82,38 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'malware', $definitions->groupKeyForSummaryKey( 'malware' ) );
 		$this->assertSame( 'file_locker', $definitions->groupKeyForSummaryKey( 'file_locker' ) );
 		$this->assertSame( 'maintenance', $definitions->groupKeyForSummaryKey( 'wp_updates' ) );
+	}
+
+	public function test_summary_behaviour_and_healthy_ignored_metadata_are_centralized() :void {
+		$definitions = new ActionsQueueGroupDefinitions();
+
+		$this->assertSame(
+			[
+				'definition_key' => 'plugins',
+				'seed_strategy'  => 'asset_cards',
+				'asset_source'   => 'plugins',
+			],
+			$definitions->summaryBehaviourForKey( 'plugin_files' )
+		);
+		$this->assertSame(
+			[
+				'definition_key'        => 'vulnerabilities',
+				'seed_strategy'         => 'vulnerability_section',
+				'vulnerability_section' => 'abandoned',
+			],
+			$definitions->summaryBehaviourForKey( 'abandoned' )
+		);
+		$this->assertSame( 'themes', $definitions->healthyIgnoredSourceForGroupKey( 'themes' ) );
+		$this->assertSame(
+			[
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored' => true,
+					'ignored_only'    => true,
+				],
+			],
+			$definitions->ignoredRenderActionDataForGroupKey( 'plugins', 2 )
+		);
+		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'vulnerabilities', 2 ) );
 	}
 }

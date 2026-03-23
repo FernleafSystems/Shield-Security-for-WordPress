@@ -13,8 +13,8 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 	public function __construct(
 		private ActionsQueueGroupDefinitions $groupDefinitions,
 		private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
-		private ActionsQueueScanResultsOptions $queueScanResultsOptions,
-		private ActionsQueueGroupSeedDataSource $dataSource
+		private ActionsQueueGroupScanSource $scanSource,
+		private ActionsQueueGroupMaintenanceSource $maintenanceSource
 	) {
 	}
 
@@ -40,7 +40,7 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
-		foreach ( $this->dataSource->healthyMaintenanceItems( $bucketSource, $bucketKey ) as $maintenanceItem ) {
+		foreach ( $this->maintenanceSource->healthyItems( $bucketSource, $bucketKey ) as $maintenanceItem ) {
 			if ( ( $maintenanceItem[ 'severity' ] ?? '' ) !== 'good'
 				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== $bucketKey
 				|| isset( $existingGroupKeys[ $maintenanceItem[ 'key' ] ] ) ) {
@@ -124,27 +124,14 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 	 * }
 	 */
 	private function buildHealthyScanInteraction( string $definitionKey ) :array {
-		switch ( $definitionKey ) {
-			case 'wordpress':
-				$ignoredCount = $this->dataSource->ignoredWordpressCount();
-				break;
-			case 'plugins':
-				$ignoredCount = $this->dataSource->ignoredPluginsCount();
-				break;
-			case 'themes':
-				$ignoredCount = $this->dataSource->ignoredThemesCount();
-				break;
-			default:
-				$ignoredCount = 0;
-				break;
-		}
+		$ignoredCount = $this->scanSource->ignoredCountForSource(
+			$this->groupDefinitions->healthyIgnoredSourceForGroupKey( $definitionKey )
+		);
 
 		return [
 			'is_interactive'    => $ignoredCount > 0,
 			'item_count'        => $ignoredCount,
-			'render_action_data' => $ignoredCount > 0
-				? $this->queueScanResultsOptions->buildActionData( $this->queueScanResultsOptions->ignoredOnly() )
-				: [],
+			'render_action_data' => $this->groupDefinitions->ignoredRenderActionDataForGroupKey( $definitionKey, $ignoredCount ),
 		];
 	}
 }

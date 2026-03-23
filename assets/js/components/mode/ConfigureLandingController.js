@@ -170,16 +170,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		return this.readSelectionPayload( this.parseJsonDataset( item.dataset.drillZoneSelection ) );
 	}
 
-	readSelectionPayload( selection ) {
-		return {
-			key: String( selection?.key || '' ).trim(),
-			label: String( selection?.label || '' ).trim(),
-			status: String( selection?.status || 'neutral' ).trim(),
-			icon_class: String( selection?.icon_class || '' ).trim(),
-			header: selection?.header || {},
-		};
-	}
-
 	getDiagnosisLoadingText() {
 		return this.rootEl?.dataset.configureDiagnosisLoading || '';
 	}

@@ -127,6 +127,23 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 		return parseJsonAttribute( value, {} );
 	}
 
+	readSelectionPayload( selection ) {
+		return {
+			key: String( selection?.key || '' ).trim(),
+			label: String( selection?.label || '' ).trim(),
+			status: String( selection?.status || 'neutral' ).trim(),
+			icon_class: String( selection?.icon_class || '' ).trim(),
+			header: selection?.header && typeof selection.header === 'object' ? selection.header : {},
+		};
+	}
+
+	readCountedSelectionPayload( selection ) {
+		return {
+			...this.readSelectionPayload( selection ),
+			item_count: this.parseInteger( selection?.item_count ?? 0 ),
+		};
+	}
+
 	parseInteger( value ) {
 		const parsed = parseInt( String( value ?? '0' ), 10 );
 		return Number.isNaN( parsed ) ? 0 : parsed;

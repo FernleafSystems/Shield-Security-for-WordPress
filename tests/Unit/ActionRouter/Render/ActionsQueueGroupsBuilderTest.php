@@ -7,7 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Malware,
 	Vulnerabilities
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueGroupsBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueGroupMaintenanceSource,
+	ActionsQueueGroupScanSource,
+	ActionsQueueGroupsBuilder
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
@@ -1035,9 +1039,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$ignoredWordpressCount
 		) extends ActionsQueueGroupsBuilder {
 
-			private int $vulnerabilitiesPayloadCalls = 0;
-			private array $pluginPaneCalls = [];
-			private array $themePaneCalls = [];
+			private ?ActionsQueueGroupScanSource $scanSource = null;
+			private ?ActionsQueueGroupMaintenanceSource $maintenanceSource = null;
 
 			public function __construct(
 				private array $pluginCards,
@@ -1050,70 +1053,146 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			) {
 			}
 
-			protected function buildActionsQueuePluginsPane( array $resultsDisplayOptions = [] ) :array {
-				$this->pluginPaneCalls[] = $resultsDisplayOptions;
-				return [
-					'is_disabled'      => false,
-					'disabled_message' => '',
-					'cards'            => !empty( $resultsDisplayOptions[ 'ignored_only' ] )
-						? $this->ignoredPluginCards
-						: $this->pluginCards,
-				];
+			protected function buildGroupScanSource() :ActionsQueueGroupScanSource {
+				if ( $this->scanSource === null ) {
+					$this->scanSource = new class(
+						$this->pluginCards,
+						$this->themeCards,
+						$this->vulnerabilities,
+						$this->ignoredPluginCards,
+						$this->ignoredThemeCards,
+						$this->ignoredWordpressCount
+					) extends ActionsQueueGroupScanSource {
+
+						private int $vulnerabilitiesPayloadCalls = 0;
+						private array $pluginPaneCalls = [];
+						private array $themePaneCalls = [];
+						private ?array $vulnerabilitiesPayload = null;
+
+						public function __construct(
+							private array $pluginCards,
+							private array $themeCards,
+							private array $vulnerabilities,
+							private array $ignoredPluginCards,
+							private array $ignoredThemeCards,
+							private int $ignoredWordpressCount
+						) {
+						}
+
+						public function activeCardsForSource( string $assetSource ) :array {
+							if ( $assetSource === 'plugins' ) {
+								$this->pluginPaneCalls[] = [
+									'include_ignored' => false,
+									'ignored_only'    => false,
+								];
+								return $this->pluginCards;
+							}
+
+							if ( $assetSource === 'themes' ) {
+								$this->themePaneCalls[] = [
+									'include_ignored' => false,
+									'ignored_only'    => false,
+								];
+								return $this->themeCards;
+							}
+
+							return [];
+						}
+
+						public function ignoredCountForSource( string $ignoredSource ) :int {
+							if ( $ignoredSource === 'wordpress' ) {
+								return $this->ignoredWordpressCount;
+							}
+
+							if ( $ignoredSource === 'plugins' ) {
+								$this->pluginPaneCalls[] = [
+									'include_ignored' => true,
+									'ignored_only'    => true,
+								];
+								return (int)\array_sum( \array_column( $this->ignoredPluginCards, 'count_badge' ) );
+							}
+
+							if ( $ignoredSource === 'themes' ) {
+								$this->themePaneCalls[] = [
+									'include_ignored' => true,
+									'ignored_only'    => true,
+								];
+								return (int)\array_sum( \array_column( $this->ignoredThemeCards, 'count_badge' ) );
+							}
+
+							return 0;
+						}
+
+						public function vulnerabilitySection( string $sectionKey ) :array {
+							if ( $this->vulnerabilitiesPayload === null ) {
+								$this->vulnerabilitiesPayloadCalls++;
+								$this->vulnerabilitiesPayload = $this->vulnerabilities !== []
+									? $this->vulnerabilities
+									: [
+										'count'    => 0,
+										'status'   => 'good',
+										'sections' => [
+											'vulnerable' => [
+												'label' => 'Known Vulnerabilities',
+												'items' => [],
+											],
+											'abandoned'  => [
+												'label' => 'Abandoned Assets',
+												'items' => [],
+											],
+										],
+									];
+							}
+							return $this->vulnerabilitiesPayload[ 'sections' ][ $sectionKey ] ?? [];
+						}
+
+						public function getVulnerabilitiesPayloadCalls() :int {
+							return $this->vulnerabilitiesPayloadCalls;
+						}
+
+						public function getPluginPaneCalls() :array {
+							return $this->pluginPaneCalls;
+						}
+
+						public function getThemePaneCalls() :array {
+							return $this->themePaneCalls;
+						}
+					};
+				}
+
+				return $this->scanSource;
 			}
 
-			protected function buildActionsQueueThemesPane( array $resultsDisplayOptions = [] ) :array {
-				$this->themePaneCalls[] = $resultsDisplayOptions;
-				return [
-					'is_disabled'      => false,
-					'disabled_message' => '',
-					'cards'            => !empty( $resultsDisplayOptions[ 'ignored_only' ] )
-						? $this->ignoredThemeCards
-						: $this->themeCards,
-				];
-			}
+			protected function buildGroupMaintenanceSource() :ActionsQueueGroupMaintenanceSource {
+				if ( $this->maintenanceSource === null ) {
+					$this->maintenanceSource = new class( $this->maintenanceItems ) extends ActionsQueueGroupMaintenanceSource {
 
-			protected function buildVulnerabilitiesPayload() :array {
-				$this->vulnerabilitiesPayloadCalls++;
-				return $this->vulnerabilities !== []
-					? $this->vulnerabilities
-					: [
-						'count'    => 0,
-						'status'   => 'good',
-						'sections' => [
-							'vulnerable' => [
-								'label' => 'Known Vulnerabilities',
-								'items' => [],
-							],
-							'abandoned'  => [
-								'label' => 'Abandoned Assets',
-								'items' => [],
-							],
-						],
-					];
+						public function __construct( private array $maintenanceItems ) {
+						}
+
+						public function activeItems( array $bucketSource ) :array {
+							return $this->maintenanceItems;
+						}
+
+						public function healthyItems( array $bucketSource, string $bucketKey ) :array {
+							return $this->maintenanceItems;
+						}
+					};
+				}
+
+				return $this->maintenanceSource;
 			}
 
 			public function getVulnerabilitiesPayloadCalls() :int {
-				return $this->vulnerabilitiesPayloadCalls;
+				return $this->buildGroupScanSource()->getVulnerabilitiesPayloadCalls();
 			}
 
 			public function getPluginPaneCalls() :array {
-				return $this->pluginPaneCalls;
+				return $this->buildGroupScanSource()->getPluginPaneCalls();
 			}
 
 			public function getThemePaneCalls() :array {
-				return $this->themePaneCalls;
-			}
-
-			protected function normalizeMaintenanceQueueItems( array $items ) :array {
-				return $this->maintenanceItems;
-			}
-
-			protected function normalizeBucketMaintenanceQueueItems( array $items, string $bucketKey ) :array {
-				return $this->maintenanceItems;
-			}
-
-			protected function getIgnoredWordpressCount() :int {
-				return $this->ignoredWordpressCount;
+				return $this->buildGroupScanSource()->getThemePaneCalls();
 			}
 		};
 	}

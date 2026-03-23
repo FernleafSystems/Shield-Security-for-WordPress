@@ -166,6 +166,8 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			'include_landing_refresh' => 1,
 		] );
 
+		$this->assertArrayNotHasKey( 'render_data', $payload );
+		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(

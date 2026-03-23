@@ -17,7 +17,8 @@ class ActionsQueueGroupSeedCollector {
 	public function __construct(
 		private ActionsQueueGroupDefinitions $groupDefinitions,
 		private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
-		private ActionsQueueGroupSeedDataSource $dataSource
+		private ActionsQueueGroupScanSource $scanSource,
+		private ActionsQueueGroupMaintenanceSource $maintenanceSource
 	) {
 	}
 
@@ -34,36 +35,46 @@ class ActionsQueueGroupSeedCollector {
 		$abandonedExpanded = false;
 
 		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
-			$definitionKey = $this->groupDefinitions->groupKeyForSummaryKey( $item[ 'key' ] );
+			$summaryBehaviour = $this->groupDefinitions->summaryBehaviourForKey( $item[ 'key' ] );
+			$definitionKey = $summaryBehaviour[ 'definition_key' ];
 
-			switch ( $definitionKey ) {
-				case 'plugins':
-					if ( !$pluginsExpanded ) {
+			switch ( $summaryBehaviour[ 'seed_strategy' ] ) {
+				case 'asset_cards':
+					if ( $summaryBehaviour[ 'asset_source' ] === 'plugins' && !$pluginsExpanded ) {
 						$pluginsExpanded = true;
-						$seeds = \array_merge( $seeds, $this->buildPluginThemeSeeds( 'plugins', $item ) );
+						$seeds = \array_merge(
+							$seeds,
+							$this->buildAssetSeeds( 'plugins', $summaryBehaviour[ 'asset_source' ], $item )
+						);
 					}
-					continue 2;
-
-				case 'themes':
-					if ( !$themesExpanded ) {
+					elseif ( $summaryBehaviour[ 'asset_source' ] === 'themes' && !$themesExpanded ) {
 						$themesExpanded = true;
-						$seeds = \array_merge( $seeds, $this->buildPluginThemeSeeds( 'themes', $item ) );
+						$seeds = \array_merge(
+							$seeds,
+							$this->buildAssetSeeds( 'themes', $summaryBehaviour[ 'asset_source' ], $item )
+						);
 					}
 					continue 2;
 
-				case 'vulnerabilities':
-					if ( $item[ 'key' ] === 'vulnerable_assets' && !$vulnerableExpanded ) {
+				case 'vulnerability_section':
+					if ( $summaryBehaviour[ 'vulnerability_section' ] === 'vulnerable' && !$vulnerableExpanded ) {
 						$vulnerableExpanded = true;
 						$seeds = \array_merge(
 							$seeds,
-							$this->buildVulnerabilitySeeds( $this->dataSource->vulnerabilitiesPayload()[ 'sections' ][ 'vulnerable' ] ?? null, $item )
+							$this->buildVulnerabilitySeeds(
+								$this->scanSource->vulnerabilitySection( $summaryBehaviour[ 'vulnerability_section' ] ),
+								$item
+							)
 						);
 					}
-					elseif ( $item[ 'key' ] === 'abandoned' && !$abandonedExpanded ) {
+					elseif ( $summaryBehaviour[ 'vulnerability_section' ] === 'abandoned' && !$abandonedExpanded ) {
 						$abandonedExpanded = true;
 						$seeds = \array_merge(
 							$seeds,
-							$this->buildVulnerabilitySeeds( $this->dataSource->vulnerabilitiesPayload()[ 'sections' ][ 'abandoned' ] ?? null, $item )
+							$this->buildVulnerabilitySeeds(
+								$this->scanSource->vulnerabilitySection( $summaryBehaviour[ 'vulnerability_section' ] ),
+								$item
+							)
 						);
 					}
 					continue 2;
@@ -71,7 +82,7 @@ class ActionsQueueGroupSeedCollector {
 				case 'maintenance':
 					if ( $maintenanceItemsByKey === null ) {
 						$maintenanceItemsByKey = $this->indexMaintenanceItemsByKey(
-							$this->dataSource->activeMaintenanceItems( $bucketSource )
+							$this->maintenanceSource->activeItems( $bucketSource )
 						);
 					}
 					if ( isset( $maintenanceItemsByKey[ $item[ 'key' ] ] ) ) {
@@ -125,11 +136,9 @@ class ActionsQueueGroupSeedCollector {
 	 * @phpstan-param AttentionItem $item
 	 * @return list<GroupSeed>
 	 */
-	private function buildPluginThemeSeeds( string $definitionKey, array $item ) :array {
+	private function buildAssetSeeds( string $definitionKey, string $assetSource, array $item ) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
-		$cards = $definitionKey === 'plugins'
-			? $this->dataSource->activePluginCards()
-			: $this->dataSource->activeThemeCards();
+		$cards = $this->scanSource->activeCardsForSource( $assetSource );
 		$seeds = [];
 
 		foreach ( $cards as $card ) {
@@ -164,8 +173,8 @@ class ActionsQueueGroupSeedCollector {
 	 * @phpstan-param AttentionItem $item
 	 * @return list<GroupSeed>
 	 */
-	private function buildVulnerabilitySeeds( ?array $section, array $item ) :array {
-		if ( !\is_array( $section ) ) {
+	private function buildVulnerabilitySeeds( array $section, array $item ) :array {
+		if ( $section === [] ) {
 			return [];
 		}
 

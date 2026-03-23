@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
@@ -17,10 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\Loa
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
- * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
- * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-type GroupLink array{
  *   label:string,
  *   href:string,
@@ -77,7 +72,8 @@ class ActionsQueueGroupsBuilder {
 	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
 	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
 	private ?ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder = null;
-	private ?ActionsQueueGroupSeedDataSource $seedDataSource = null;
+	private ?ActionsQueueGroupScanSource $groupScanSource = null;
+	private ?ActionsQueueGroupMaintenanceSource $groupMaintenanceSource = null;
 	private ?ActionsQueueGroupSeedCollector $seedCollector = null;
 	private ?ActionsQueueHealthyGroupSeedSupplementer $healthySeedSupplementer = null;
 	private ?ActionsQueueGroupContractBuilder $contractBuilder = null;
@@ -191,56 +187,23 @@ class ActionsQueueGroupsBuilder {
 		return __( 'No action required', 'wp-simple-firewall' );
 	}
 
-	/**
-	 * @return QueueAssetPane
-	 */
-	protected function buildActionsQueuePluginsPane( array $resultsDisplayOptions = [] ) :array {
-		return ( new ScansResultsViewBuilder() )->buildActionsQueuePluginsPane( $resultsDisplayOptions );
+	protected function buildGroupScanSource() :ActionsQueueGroupScanSource {
+		return new ActionsQueueGroupScanSource(
+			new ScansResultsViewBuilder(),
+			new ScansVulnerabilitiesBuilder(),
+			$this->queueScanResultsOptions()
+		);
 	}
 
-	/**
-	 * @return QueueAssetPane
-	 */
-	protected function buildActionsQueueThemesPane( array $resultsDisplayOptions = [] ) :array {
-		return ( new ScansResultsViewBuilder() )->buildActionsQueueThemesPane( $resultsDisplayOptions );
-	}
-
-	/**
-	 * @return VulnerabilitiesPayload
-	 */
-	protected function buildVulnerabilitiesPayload() :array {
-		return ( new ScansVulnerabilitiesBuilder() )->build();
-	}
-
-	/**
-	 * @param list<AttentionItem> $items
-	 * @return list<MaintenanceQueueItem>
-	 */
-	protected function normalizeMaintenanceQueueItems( array $items ) :array {
-		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeAll( $items );
-	}
-
-	/**
-	 * @param list<AttentionItem> $items
-	 * @return list<MaintenanceQueueItem>
-	 */
-	protected function normalizeBucketMaintenanceQueueItems( array $items, string $bucketKey ) :array {
-		return ( new MaintenanceQueueItemDisplayNormalizer() )->normalizeForBucket( $items, $bucketKey );
-	}
-
-	protected function getIgnoredWordpressCount() :int {
-		$loader = new LoadFileScanResultsTableData();
-		$loader->custom_record_retriever_wheres = [
-			\sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
-			\sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
-		];
-		$loader->results_display_options = $this->queueScanResultsOptions()->ignoredOnly();
-		return $loader->countAll();
+	protected function buildGroupMaintenanceSource() :ActionsQueueGroupMaintenanceSource {
+		return new ActionsQueueGroupMaintenanceSource(
+			new MaintenanceQueueItemDisplayNormalizer()
+		);
 	}
 
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {
 		if ( $this->groupDefinitions === null ) {
-			$this->groupDefinitions = new ActionsQueueGroupDefinitions();
+			$this->groupDefinitions = new ActionsQueueGroupDefinitions( $this->queueScanResultsOptions() );
 		}
 
 		return $this->groupDefinitions;
@@ -277,7 +240,8 @@ class ActionsQueueGroupsBuilder {
 			$this->seedCollector = new ActionsQueueGroupSeedCollector(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
-				$this->seedDataSource()
+				$this->groupScanSource(),
+				$this->groupMaintenanceSource()
 			);
 		}
 
@@ -289,28 +253,28 @@ class ActionsQueueGroupsBuilder {
 			$this->healthySeedSupplementer = new ActionsQueueHealthyGroupSeedSupplementer(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
-				$this->queueScanResultsOptions(),
-				$this->seedDataSource()
+				$this->groupScanSource(),
+				$this->groupMaintenanceSource()
 			);
 		}
 
 		return $this->healthySeedSupplementer;
 	}
 
-	private function seedDataSource() :ActionsQueueGroupSeedDataSource {
-		if ( $this->seedDataSource === null ) {
-			$this->seedDataSource = new ActionsQueueGroupSeedDataSource(
-				$this->queueScanResultsOptions(),
-				\Closure::fromCallable( [ $this, 'buildActionsQueuePluginsPane' ] ),
-				\Closure::fromCallable( [ $this, 'buildActionsQueueThemesPane' ] ),
-				\Closure::fromCallable( [ $this, 'buildVulnerabilitiesPayload' ] ),
-				\Closure::fromCallable( [ $this, 'normalizeMaintenanceQueueItems' ] ),
-				\Closure::fromCallable( [ $this, 'normalizeBucketMaintenanceQueueItems' ] ),
-				\Closure::fromCallable( [ $this, 'getIgnoredWordpressCount' ] )
-			);
+	private function groupScanSource() :ActionsQueueGroupScanSource {
+		if ( $this->groupScanSource === null ) {
+			$this->groupScanSource = $this->buildGroupScanSource();
 		}
 
-		return $this->seedDataSource;
+		return $this->groupScanSource;
+	}
+
+	private function groupMaintenanceSource() :ActionsQueueGroupMaintenanceSource {
+		if ( $this->groupMaintenanceSource === null ) {
+			$this->groupMaintenanceSource = $this->buildGroupMaintenanceSource();
+		}
+
+		return $this->groupMaintenanceSource;
 	}
 
 	private function contractBuilder() :ActionsQueueGroupContractBuilder {

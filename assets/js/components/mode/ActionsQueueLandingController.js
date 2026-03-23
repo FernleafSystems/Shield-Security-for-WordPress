@@ -210,7 +210,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
-		this.selectedBucket = this.readBucketSelectionPayload( data.render_data?.bucket_selection );
+		this.selectedBucket = this.readBucketSelectionPayload( data.bucket_selection );
 		drillCtrl.updateLayerHeader( this.shellEl, 1, data.header || this.selectedBucket.header );
 
 		if ( !ObjectOps.IsEmpty( data.selected_group || {} ) ) {
@@ -224,7 +224,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
-		this.selectedGroup = this.readGroupSelectionPayload( data.render_data?.group_selection );
+		this.selectedGroup = this.readGroupSelectionPayload( data.group_selection );
 		drillCtrl.updateLayerHeader( this.shellEl, 2, data.header || this.selectedGroup.header );
 	}
 
@@ -645,24 +645,14 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	readBucketSelectionPayload( selection ) {
 		return {
-			key: String( selection?.key || '' ).trim(),
-			label: String( selection?.label || '' ).trim(),
-			status: String( selection?.status || 'neutral' ).trim(),
-			icon_class: String( selection?.icon_class || '' ).trim(),
-			item_count: this.parseInteger( selection?.item_count ?? 0 ),
-			header: selection?.header || {},
+			...this.readCountedSelectionPayload( selection ),
 		};
 	}
 
 	readGroupSelectionPayload( selection ) {
 		return {
-			key: String( selection?.key || '' ).trim(),
-			label: String( selection?.label || '' ).trim(),
-			status: String( selection?.status || 'neutral' ).trim(),
-			icon_class: String( selection?.icon_class || '' ).trim(),
-			item_count: this.parseInteger( selection?.item_count ?? 0 ),
+			...this.readCountedSelectionPayload( selection ),
 			detail_shell: String( selection?.detail_shell || 'direct_table' ).trim(),
-			header: selection?.header || {},
 		};
 	}
 

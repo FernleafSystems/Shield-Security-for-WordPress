@@ -445,6 +445,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '1 item', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
+		$this->assertArrayNotHasKey( 'render_data', $payload );
+		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Review next', (string)( $payload[ 'bucket_selection' ][ 'label' ] ?? '' ) );
 		$this->assertSame( 'Back to Actions Queue', (string)( $payload[ 'header' ][ 'active_back_label' ] ?? '' ) );
@@ -727,6 +729,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $payload[ 'group_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $payload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame( (string)( $payload[ 'group_selection' ][ 'label' ] ?? '' ), (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'render_data', $payload );
+		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,

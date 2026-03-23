@@ -2,32 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 
-abstract class ConfigureDrillDownRenderBase extends BaseRender {
+abstract class ConfigureDrillDownRenderBase extends DrillDownAjaxRenderBase {
 
 	use BuildsConfigureLandingData;
-
-	protected function exec() {
-		$response = $this->response();
-		$payload = $response->payload();
-		$payload[ 'render_template' ] = $this->getRenderTemplate();
-		$payload[ 'render_data' ] = $this->buildRenderData();
-		$payload[ 'render_output' ] = $this->buildRenderOutput( $payload[ 'render_data' ] );
-		$payload[ 'html' ] = $payload[ 'render_output' ];
-		$payload[ 'header' ] = $payload[ 'render_data' ][ 'header' ];
-		if ( isset( $payload[ 'render_data' ][ 'zone_selection' ] ) ) {
-			$payload[ 'zone_selection' ] = $payload[ 'render_data' ][ 'zone_selection' ];
-		}
-		if ( isset( $payload[ 'render_data' ][ 'landing_refresh' ] ) ) {
-			$payload[ 'landing_refresh' ] = $payload[ 'render_data' ][ 'landing_refresh' ];
-		}
-
-		$response
-			->setPayload( $payload )
-			->setPayloadSuccess( true );
-	}
 
 	/**
 	 * @throws ActionException
@@ -40,13 +19,11 @@ abstract class ConfigureDrillDownRenderBase extends BaseRender {
 		return $zoneKey;
 	}
 
-	/**
-	 * @throws ActionException
-	 */
-	protected function getAllRenderDataArrays() :array {
+	protected function promotedRenderDataKeys() :array {
 		return [
-			0 => $this->action_data,
-			10 => $this->getRenderData(),
+			'diagnosis',
+			'zone_selection',
+			'landing_refresh',
 		];
 	}
 }

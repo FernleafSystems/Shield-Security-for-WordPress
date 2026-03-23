@@ -83,12 +83,14 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'zone'                    => 'login',
 			'include_landing_refresh' => 1,
 		] );
-		$this->assertIsArray( $payload[ 'render_data' ][ 'diagnosis' ] ?? null );
-		$diagnosis = $payload[ 'render_data' ][ 'diagnosis' ];
+		$this->assertIsArray( $payload[ 'diagnosis' ] ?? null );
+		$diagnosis = $payload[ 'diagnosis' ];
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Login', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'render_data', $payload );
+		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertArrayNotHasKey( 'editor_selection', $payload );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
 		$this->assertArrayNotHasKey( 'settings_href', $diagnosis );
@@ -105,10 +107,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$spamPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'spam',
 		] );
-		$this->assertIsArray( $scansPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
-		$this->assertIsArray( $spamPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
-		$scansDiagnosis = $scansPayload[ 'render_data' ][ 'diagnosis' ];
-		$spamDiagnosis = $spamPayload[ 'render_data' ][ 'diagnosis' ];
+		$this->assertIsArray( $scansPayload[ 'diagnosis' ] ?? null );
+		$this->assertIsArray( $spamPayload[ 'diagnosis' ] ?? null );
+		$scansDiagnosis = $scansPayload[ 'diagnosis' ];
+		$spamDiagnosis = $spamPayload[ 'diagnosis' ];
 		$scanScheduling = $this->findDiagnosisRowBySlug( $scansDiagnosis, 'scan_scheduling' );
 		$scanGeneral = $this->findDiagnosisRowByOptionKeys( $scansDiagnosis, 'ptg_reinstall_links' );
 		$trustedCommenters = $this->findDiagnosisRowBySlug( $spamDiagnosis, 'trusted_commenters' );
@@ -127,10 +129,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$ipsPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'ips',
 		] );
-		$this->assertIsArray( $loginPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
-		$this->assertIsArray( $ipsPayload[ 'render_data' ][ 'diagnosis' ] ?? null );
-		$loginDiagnosis = $loginPayload[ 'render_data' ][ 'diagnosis' ];
-		$ipsDiagnosis = $ipsPayload[ 'render_data' ][ 'diagnosis' ];
+		$this->assertIsArray( $loginPayload[ 'diagnosis' ] ?? null );
+		$this->assertIsArray( $ipsPayload[ 'diagnosis' ] ?? null );
+		$loginDiagnosis = $loginPayload[ 'diagnosis' ];
+		$ipsDiagnosis = $ipsPayload[ 'diagnosis' ];
 
 		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $loginDiagnosis, 'login_hide' ) );
 		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $ipsDiagnosis, 'ip_blocking_rules' ) );
