@@ -9,9 +9,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  */
 class ActionsQueueGroupMaintenanceSource {
 
+	private MaintenanceQueueItemDisplayNormalizer $maintenanceQueueItemDisplayNormalizer;
+
 	public function __construct(
-		private MaintenanceQueueItemDisplayNormalizer $maintenanceQueueItemDisplayNormalizer
+		MaintenanceQueueItemDisplayNormalizer $maintenanceQueueItemDisplayNormalizer
 	) {
+		$this->maintenanceQueueItemDisplayNormalizer = $maintenanceQueueItemDisplayNormalizer;
 	}
 
 	/**

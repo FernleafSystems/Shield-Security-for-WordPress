@@ -10,12 +10,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  */
 class ActionsQueueHealthyGroupSeedSupplementer {
 
+	private ActionsQueueGroupDefinitions $groupDefinitions;
+	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
+	private ActionsQueueGroupScanSource $scanSource;
+	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
+
 	public function __construct(
-		private ActionsQueueGroupDefinitions $groupDefinitions,
-		private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
-		private ActionsQueueGroupScanSource $scanSource,
-		private ActionsQueueGroupMaintenanceSource $maintenanceSource
+		ActionsQueueGroupDefinitions $groupDefinitions,
+		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
+		ActionsQueueGroupScanSource $scanSource,
+		ActionsQueueGroupMaintenanceSource $maintenanceSource
 	) {
+		$this->groupDefinitions = $groupDefinitions;
+		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
+		$this->scanSource = $scanSource;
+		$this->maintenanceSource = $maintenanceSource;
 	}
 
 	/**

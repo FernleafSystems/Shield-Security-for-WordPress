@@ -8,10 +8,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\Loa
 /**
  * @phpstan-import-type QueueAssetCard from ScansResultsViewBuilder
  * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
+ * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupScanSource {
 
+	private ScansResultsViewBuilder $scansResultsViewBuilder;
+	private ScansVulnerabilitiesBuilder $scansVulnerabilitiesBuilder;
+	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
 	private ?array $activePluginsPane = null;
 	private ?array $activeThemesPane = null;
 	private ?array $ignoredPluginsPane = null;
@@ -20,35 +24,49 @@ class ActionsQueueGroupScanSource {
 	private ?int $ignoredWordpressCount = null;
 
 	public function __construct(
-		private ScansResultsViewBuilder $scansResultsViewBuilder,
-		private ScansVulnerabilitiesBuilder $scansVulnerabilitiesBuilder,
-		private ActionsQueueScanResultsOptions $queueScanResultsOptions
+		ScansResultsViewBuilder $scansResultsViewBuilder,
+		ScansVulnerabilitiesBuilder $scansVulnerabilitiesBuilder,
+		ActionsQueueScanResultsOptions $queueScanResultsOptions
 	) {
+		$this->scansResultsViewBuilder = $scansResultsViewBuilder;
+		$this->scansVulnerabilitiesBuilder = $scansVulnerabilitiesBuilder;
+		$this->queueScanResultsOptions = $queueScanResultsOptions;
 	}
 
 	/**
 	 * @return list<QueueAssetCard>
 	 */
 	public function activeCardsForSource( string $assetSource ) :array {
-		return match ( $assetSource ) {
-			'plugins' => $this->activePluginsPane()[ 'cards' ] ?? [],
-			'themes' => $this->activeThemesPane()[ 'cards' ] ?? [],
-			default => [],
-		};
+		if ( $assetSource === 'plugins' ) {
+			return $this->activePluginsPane()[ 'cards' ];
+		}
+		if ( $assetSource === 'themes' ) {
+			return $this->activeThemesPane()[ 'cards' ];
+		}
+
+		return [];
 	}
 
 	public function ignoredCountForSource( string $ignoredSource ) :int {
-		return match ( $ignoredSource ) {
-			'wordpress' => $this->ignoredWordpressCount(),
-			'plugins' => $this->countQueueAssetPaneResults( $this->ignoredPluginsPane() ),
-			'themes' => $this->countQueueAssetPaneResults( $this->ignoredThemesPane() ),
-			default => 0,
-		};
+		if ( $ignoredSource === 'wordpress' ) {
+			return $this->ignoredWordpressCount();
+		}
+		if ( $ignoredSource === 'plugins' ) {
+			return $this->countQueueAssetPaneResults( $this->ignoredPluginsPane() );
+		}
+		if ( $ignoredSource === 'themes' ) {
+			return $this->countQueueAssetPaneResults( $this->ignoredThemesPane() );
+		}
+
+		return 0;
 	}
 
+	/**
+	 * @phpstan-param 'vulnerable'|'abandoned' $sectionKey
+	 * @return VulnerabilitySection
+	 */
 	public function vulnerabilitySection( string $sectionKey ) :array {
-		$section = $this->vulnerabilitiesPayload()[ 'sections' ][ $sectionKey ] ?? null;
-		return \is_array( $section ) ? $section : [];
+		return $this->vulnerabilitiesPayload()[ 'sections' ][ $sectionKey ];
 	}
 
 	/**
@@ -128,10 +146,13 @@ class ActionsQueueGroupScanSource {
 		return $this->ignoredWordpressCount;
 	}
 
+	/**
+	 * @param QueueAssetPane $pane
+	 */
 	private function countQueueAssetPaneResults( array $pane ) :int {
 		return (int)\array_sum( \array_map(
 			static fn( array $card ) :int => (int)( $card[ 'count_badge' ] ?? 0 ),
-			$pane[ 'cards' ] ?? []
+			$pane[ 'cards' ]
 		) );
 	}
 }

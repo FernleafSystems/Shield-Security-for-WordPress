@@ -1041,16 +1041,30 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 			private ?ActionsQueueGroupScanSource $scanSource = null;
 			private ?ActionsQueueGroupMaintenanceSource $maintenanceSource = null;
+			private array $pluginCards;
+			private array $themeCards;
+			private array $vulnerabilities;
+			private array $maintenanceItems;
+			private array $ignoredPluginCards;
+			private array $ignoredThemeCards;
+			private int $ignoredWordpressCount;
 
 			public function __construct(
-				private array $pluginCards,
-				private array $themeCards,
-				private array $vulnerabilities,
-				private array $maintenanceItems,
-				private array $ignoredPluginCards,
-				private array $ignoredThemeCards,
-				private int $ignoredWordpressCount
+				array $pluginCards,
+				array $themeCards,
+				array $vulnerabilities,
+				array $maintenanceItems,
+				array $ignoredPluginCards,
+				array $ignoredThemeCards,
+				int $ignoredWordpressCount
 			) {
+				$this->pluginCards = $pluginCards;
+				$this->themeCards = $themeCards;
+				$this->vulnerabilities = $vulnerabilities;
+				$this->maintenanceItems = $maintenanceItems;
+				$this->ignoredPluginCards = $ignoredPluginCards;
+				$this->ignoredThemeCards = $ignoredThemeCards;
+				$this->ignoredWordpressCount = $ignoredWordpressCount;
 			}
 
 			protected function buildGroupScanSource() :ActionsQueueGroupScanSource {
@@ -1068,15 +1082,27 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						private array $pluginPaneCalls = [];
 						private array $themePaneCalls = [];
 						private ?array $vulnerabilitiesPayload = null;
+						private array $pluginCards;
+						private array $themeCards;
+						private array $vulnerabilities;
+						private array $ignoredPluginCards;
+						private array $ignoredThemeCards;
+						private int $ignoredWordpressCount;
 
 						public function __construct(
-							private array $pluginCards,
-							private array $themeCards,
-							private array $vulnerabilities,
-							private array $ignoredPluginCards,
-							private array $ignoredThemeCards,
-							private int $ignoredWordpressCount
+							array $pluginCards,
+							array $themeCards,
+							array $vulnerabilities,
+							array $ignoredPluginCards,
+							array $ignoredThemeCards,
+							int $ignoredWordpressCount
 						) {
+							$this->pluginCards = $pluginCards;
+							$this->themeCards = $themeCards;
+							$this->vulnerabilities = $vulnerabilities;
+							$this->ignoredPluginCards = $ignoredPluginCards;
+							$this->ignoredThemeCards = $ignoredThemeCards;
+							$this->ignoredWordpressCount = $ignoredWordpressCount;
 						}
 
 						public function activeCardsForSource( string $assetSource ) :array {
@@ -1143,7 +1169,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 										],
 									];
 							}
-							return $this->vulnerabilitiesPayload[ 'sections' ][ $sectionKey ] ?? [];
+							return $this->vulnerabilitiesPayload[ 'sections' ][ $sectionKey ];
 						}
 
 						public function getVulnerabilitiesPayloadCalls() :int {
@@ -1167,7 +1193,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				if ( $this->maintenanceSource === null ) {
 					$this->maintenanceSource = new class( $this->maintenanceItems ) extends ActionsQueueGroupMaintenanceSource {
 
-						public function __construct( private array $maintenanceItems ) {
+						private array $maintenanceItems;
+
+						public function __construct( array $maintenanceItems ) {
+							$this->maintenanceItems = $maintenanceItems;
 						}
 
 						public function activeItems( array $bucketSource ) :array {

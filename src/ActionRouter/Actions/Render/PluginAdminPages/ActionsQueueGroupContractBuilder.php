@@ -41,10 +41,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  */
 class ActionsQueueGroupContractBuilder {
 
+	private ActionsQueueGroupDefinitions $groupDefinitions;
+	private ActionsQueueDrillDownPresentationBuilder $presentation;
+
 	public function __construct(
-		private ActionsQueueGroupDefinitions $groupDefinitions,
-		private ActionsQueueDrillDownPresentationBuilder $presentation
+		ActionsQueueGroupDefinitions $groupDefinitions,
+		ActionsQueueDrillDownPresentationBuilder $presentation
 	) {
+		$this->groupDefinitions = $groupDefinitions;
+		$this->presentation = $presentation;
 	}
 
 	/**

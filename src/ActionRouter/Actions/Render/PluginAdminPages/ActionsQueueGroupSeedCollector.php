@@ -14,12 +14,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  */
 class ActionsQueueGroupSeedCollector {
 
+	private ActionsQueueGroupDefinitions $groupDefinitions;
+	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
+	private ActionsQueueGroupScanSource $scanSource;
+	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
+
 	public function __construct(
-		private ActionsQueueGroupDefinitions $groupDefinitions,
-		private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
-		private ActionsQueueGroupScanSource $scanSource,
-		private ActionsQueueGroupMaintenanceSource $maintenanceSource
+		ActionsQueueGroupDefinitions $groupDefinitions,
+		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
+		ActionsQueueGroupScanSource $scanSource,
+		ActionsQueueGroupMaintenanceSource $maintenanceSource
 	) {
+		$this->groupDefinitions = $groupDefinitions;
+		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
+		$this->scanSource = $scanSource;
+		$this->maintenanceSource = $maintenanceSource;
 	}
 
 	/**
