@@ -145,11 +145,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_groups_refresh_keeps_selected_review_group_resolvable_after_it_becomes_healthy() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 2 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
-
-		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'review',
-		] );
-		$selectedGroupKey = (string)( $this->sectionGroupKeys( $initialPayload[ 'active_sections' ] ?? [] )[ 0 ] ?? '' );
+		$selectedGroupKey = 'wp_plugins_updates';
 		$this->assertSame( 'wp_plugins_updates', $selectedGroupKey );
 
 		foreach ( $pluginFiles as $pluginFile ) {
@@ -180,9 +176,11 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$this->assertContains(
-			$selectedGroupKey,
-			$this->sectionGroupKeys( \is_array( $payload[ 'healthy_sections' ] ?? null ) ? $payload[ 'healthy_sections' ] : [] )
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " item-box item-box--good ")]',
+			'Groups refresh should re-render the selected maintenance group inside the healthy disclosure body'
 		);
 	}
 
@@ -230,21 +228,6 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 		$this->assertCount( 1, $matches );
 		return $matches[ 0 ] ?? [];
-	}
-
-	/**
-	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
-	 * @return list<string>
-	 */
-	private function sectionGroupKeys( array $sections ) :array {
-		$keys = [];
-		foreach ( $sections as $section ) {
-			foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
-				$keys[] = (string)( $group[ 'key' ] ?? '' );
-			}
-		}
-
-		return $keys;
 	}
 
 	/**

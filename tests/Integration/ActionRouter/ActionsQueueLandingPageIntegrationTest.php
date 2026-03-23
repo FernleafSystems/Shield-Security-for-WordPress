@@ -127,53 +127,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
-	 * @return list<string>
-	 */
-	private function sectionGroupKeys( array $sections ) :array {
-		$keys = [];
-		foreach ( $sections as $section ) {
-			foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
-				$keys[] = (string)( $group[ 'key' ] ?? '' );
-			}
-		}
-
-		return $keys;
-	}
-
-	/**
-	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
-	 * @return array<string,mixed>
-	 */
-	private function findGroupInSections( array $sections, string $groupKey ) :array {
-		$matches = [];
-		foreach ( $sections as $section ) {
-			foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
-				if ( (string)( $group[ 'key' ] ?? '' ) === $groupKey ) {
-					$matches[] = $group;
-				}
-			}
-		}
-
-		$this->assertCount( 1, $matches, 'Expected exactly one group for '.$groupKey );
-		return $matches[ 0 ] ?? [];
-	}
-
-	private function insertFileLockRecord( string $type, string $path, int $detectedAt = 0 ) :void {
-		$handler = $this->requireDb( 'file_locker' );
-		$record = $handler->getRecord();
-		$record->type = $type;
-		$record->path = $path;
-		$record->hash_original = \sha1( $type.'-original' );
-		$record->hash_current = \sha1( $type.'-current' );
-		$record->public_key_id = 1;
-		$record->cipher = 'aes-256-cbc';
-		$record->content = 'encrypted-content-'.$type;
-		$record->detected_at = $detectedAt;
-		$handler->getQueryInserter()->insert( $record );
-	}
-
-	/**
 	 * @return array{count:int,status:string}
 	 */
 	private function getMaintenanceQueueMetricsFromLanding() :array {
@@ -444,6 +397,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( '1 item', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 'warning', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'active_sections', $payload );
+		$this->assertArrayNotHasKey( 'healthy_sections', $payload );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
 		$this->assertArrayNotHasKey( 'render_data', $payload );
 		$this->assertArrayNotHasKey( 'render_output', $payload );
@@ -455,12 +410,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-actions-queue-groups="1"]',
 			'Groups AJAX should render the selected bucket wrapper'
 		);
-		$this->assertSame( [ 'wp_plugins_updates' ], $this->sectionGroupKeys( $payload[ 'active_sections' ] ?? [] ) );
-		$activeGroup = $this->findGroupInSections( $payload[ 'active_sections' ] ?? [], 'wp_plugins_updates' );
-		$this->assertSame( 'category', (string)( $activeGroup[ 'card_type' ] ?? '' ) );
-		$this->assertNotEmpty( $activeGroup[ 'management_link' ] ?? [] );
-		$this->assertSame( 'bi bi-plug-fill', (string)( $activeGroup[ 'maintenance_rows' ][ 0 ][ 'icon_class' ] ?? '' ) );
-		$this->assertSame( 'Version '.self::con()->cfg->version(), (string)( $activeGroup[ 'maintenance_rows' ][ 0 ][ 'inline_meta' ] ?? '' ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//button[@data-drill-target="detail" and @data-drill-group-selection]',
@@ -529,8 +478,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( '0 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
-		$this->assertSame( [ 'wp_plugins_updates' ], $this->sectionGroupKeys( $payload[ 'healthy_sections' ] ?? [] ) );
-		$healthyGroup = $this->findGroupInSections( $payload[ 'healthy_sections' ] ?? [], 'wp_plugins_updates' );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Looking good"]',
@@ -563,16 +510,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			0,
 			'Healthy review groups should render instead of the generic empty-state message'
 		);
-		$this->assertSame( 'category', (string)( $healthyGroup[ 'card_type' ] ?? '' ) );
 	}
 
 	public function test_groups_ajax_can_refresh_the_current_selected_group_summary() :void {
 		$this->setPluginUpdateAvailable();
-		$initialPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'review',
-		] );
-		$selectedGroupKey = (string)( $this->sectionGroupKeys( $initialPayload[ 'active_sections' ] ?? [] )[ 0 ] ?? '' );
-		$this->assertNotSame( '', $selectedGroupKey );
+		$selectedGroupKey = 'wp_plugins_updates';
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
 			'bucket'                  => 'review',
@@ -609,9 +551,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
-		$vulnerabilities = $this->findGroupInSections( $payload[ 'healthy_sections' ] ?? [], 'vulnerabilities' );
-		$this->assertSame( 'linked', (string)( $vulnerabilities[ 'card_type' ] ?? '' ) );
-		$this->assertFalse( (bool)( $vulnerabilities[ 'is_interactive' ] ?? true ) );
 		$this->assertXPathCount(
 			$xpath,
 			"//button[contains(concat(\" \", normalize-space(@class), \" \"), \" finding-card--expandable \") and @data-drill-target=\"detail\" and contains(@data-drill-group-selection, '\"key\":\"vulnerabilities\"')]",
@@ -633,23 +572,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '3 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files' ], \array_column( $payload[ 'active_sections' ] ?? [], 'heading_label' ) );
-		$this->assertStringStartsWith( 'vulnerabilities:', (string)( $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'linked', (string)( $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'card_type' ] ?? '' ) );
-		$this->assertSame( '', (string)( $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'drill_hint' ] ?? '' ) );
-		$this->assertSame( 'plugins:'.self::con()->base_file, (string)( $payload[ 'active_sections' ][ 1 ][ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'expandable', (string)( $payload[ 'active_sections' ][ 1 ][ 'groups' ][ 0 ][ 'card_type' ] ?? '' ) );
-		$this->assertSame( 'View 1 files', (string)( $payload[ 'active_sections' ][ 1 ][ 'groups' ][ 0 ][ 'drill_hint' ] ?? '' ) );
-		$this->assertSame( 'themes:'.\wp_get_theme()->get_stylesheet(), (string)( $payload[ 'active_sections' ][ 2 ][ 'groups' ][ 0 ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'expandable', (string)( $payload[ 'active_sections' ][ 2 ][ 'groups' ][ 0 ][ 'card_type' ] ?? '' ) );
-		$this->assertSame( 'View 1 files', (string)( $payload[ 'active_sections' ][ 2 ][ 'groups' ][ 0 ][ 'drill_hint' ] ?? '' ) );
-		$this->assertCount( 2, $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'links' ] ?? [] );
-		$this->assertSame( '/wp-admin/plugins.php', (string)( $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'links' ][ 0 ][ 'href' ] ?? '' ) );
-		$this->assertSame(
-			'https://clk.shldscrty.com/shieldvulnerabilitylookup?type=plugin&slug='.self::con()->base_file.'&version='.self::con()->cfg->version(),
-			(string)( $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'links' ][ 1 ][ 'href' ] ?? '' )
-		);
-		$this->assertSame( '_blank', (string)( $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'links' ][ 1 ][ 'target' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'active_sections', $payload );
+		$this->assertArrayNotHasKey( 'healthy_sections', $payload );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ")]',
@@ -709,9 +633,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'Fix now', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		$this->assertSame( [ 'vulnerabilities:abandoned-'.$pluginSlug ], $this->sectionGroupKeys( $payload[ 'active_sections' ] ?? [] ) );
-		$this->assertSame( 'Abandoned Assets', (string)( $payload[ 'active_sections' ][ 0 ][ 'heading_label' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $payload[ 'active_sections' ][ 0 ][ 'groups' ][ 0 ][ 'status' ] ?? '' ) );
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Abandoned Assets"]',
+			'Abandoned-only findings should render under the abandoned assets heading'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-card status-critical ")]',
+			'Abandoned-only findings should render as critical cards in the groups layer'
+		);
 	}
 
 	public function test_detail_ajax_renders_selected_plugin_group_as_direct_investigation_table() :void {
@@ -729,6 +661,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $payload[ 'group_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $payload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame( (string)( $payload[ 'group_selection' ][ 'label' ] ?? '' ), (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'detail_html', $payload );
 		$this->assertArrayNotHasKey( 'render_data', $payload );
 		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'summary' ] ?? '' ) );
@@ -804,7 +737,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			 ->optSet( 'file_locker', [ 'wpconfig' ] )
 			 ->store();
 
-		$this->insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
 
 		$payload = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [
@@ -1244,7 +1177,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			 ->optSet( 'file_locker', [ 'wpconfig' ] )
 			 ->store();
 
-		$this->insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
@@ -1263,7 +1196,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			 ->optSet( 'file_locker', [ 'wpconfig' ] )
 			 ->store();
 
-		$this->insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );

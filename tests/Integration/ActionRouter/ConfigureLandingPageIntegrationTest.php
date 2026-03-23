@@ -83,19 +83,25 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'zone'                    => 'login',
 			'include_landing_refresh' => 1,
 		] );
-		$this->assertIsArray( $payload[ 'diagnosis' ] ?? null );
-		$diagnosis = $payload[ 'diagnosis' ];
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Login', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'diagnosis', $payload );
 		$this->assertArrayNotHasKey( 'render_data', $payload );
 		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertArrayNotHasKey( 'editor_selection', $payload );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
-		$this->assertArrayNotHasKey( 'settings_href', $diagnosis );
-		$this->assertArrayNotHasKey( 'settings_label', $diagnosis );
-		$this->assertGreaterThan( 0, \count( $this->allDiagnosisRows( $diagnosis ) ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-diagnosis="1" and @data-configure-zone="login"]',
+			'Diagnosis AJAX should render the selected configure diagnosis container'
+		);
+		$this->assertGreaterThan(
+			0,
+			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")]' )->length
+		);
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
 	}
@@ -107,19 +113,29 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$spamPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'spam',
 		] );
-		$this->assertIsArray( $scansPayload[ 'diagnosis' ] ?? null );
-		$this->assertIsArray( $spamPayload[ 'diagnosis' ] ?? null );
-		$scansDiagnosis = $scansPayload[ 'diagnosis' ];
-		$spamDiagnosis = $spamPayload[ 'diagnosis' ];
-		$scanScheduling = $this->findDiagnosisRowBySlug( $scansDiagnosis, 'scan_scheduling' );
-		$scanGeneral = $this->findDiagnosisRowByOptionKeys( $scansDiagnosis, 'ptg_reinstall_links' );
-		$trustedCommenters = $this->findDiagnosisRowBySlug( $spamDiagnosis, 'trusted_commenters' );
-		$spamGeneral = $this->findDiagnosisRowByOptionKeys( $spamDiagnosis, 'comments_cooldown' );
+		$scansXpath = $this->createDomXPathFromHtml( (string)( $scansPayload[ 'html' ] ?? '' ) );
+		$spamXpath = $this->createDomXPathFromHtml( (string)( $spamPayload[ 'html' ] ?? '' ) );
 
-		$this->assertSame( 'scan_frequency', (string)( $scanScheduling[ 'expand_action' ][ 'data_attributes' ][ 'config_item' ] ?? '' ) );
-		$this->assertSame( 'module_scans', (string)( $scanGeneral[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' ) );
-		$this->assertSame( 'trusted_commenter_minimum', (string)( $trustedCommenters[ 'expand_action' ][ 'data_attributes' ][ 'config_item' ] ?? '' ) );
-		$this->assertSame( 'module_spam', (string)( $spamGeneral[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' ) );
+		$this->assertXPathExists(
+			$scansXpath,
+			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="scan_scheduling" and @data-config_item="scan_frequency"]',
+			'Scans diagnosis should expose the scan scheduling config expansion contract'
+		);
+		$this->assertXPathExists(
+			$scansXpath,
+			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_scans" and @data-option_keys="ptg_reinstall_links"]',
+			'Scans diagnosis should expose the general scans settings expansion contract'
+		);
+		$this->assertXPathExists(
+			$spamXpath,
+			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="trusted_commenters" and @data-config_item="trusted_commenter_minimum"]',
+			'Spam diagnosis should expose the trusted commenters config expansion contract'
+		);
+		$this->assertXPathExists(
+			$spamXpath,
+			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_spam" and @data-option_keys="comments_cooldown"]',
+			'Spam diagnosis should expose the general spam settings expansion contract'
+		);
 	}
 
 	public function test_login_and_ips_diagnosis_surface_existing_hidden_callouts() :void {
@@ -129,50 +145,18 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$ipsPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'ips',
 		] );
-		$this->assertIsArray( $loginPayload[ 'diagnosis' ] ?? null );
-		$this->assertIsArray( $ipsPayload[ 'diagnosis' ] ?? null );
-		$loginDiagnosis = $loginPayload[ 'diagnosis' ];
-		$ipsDiagnosis = $ipsPayload[ 'diagnosis' ];
+		$loginXpath = $this->createDomXPathFromHtml( (string)( $loginPayload[ 'html' ] ?? '' ) );
+		$ipsXpath = $this->createDomXPathFromHtml( (string)( $ipsPayload[ 'html' ] ?? '' ) );
 
-		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $loginDiagnosis, 'login_hide' ) );
-		$this->assertNotEmpty( $this->findDiagnosisRowBySlug( $ipsDiagnosis, 'ip_blocking_rules' ) );
-	}
-
-	/**
-	 * @param array<string,mixed> $diagnosis
-	 * @return list<array<string,mixed>>
-	 */
-	private function allDiagnosisRows( array $diagnosis ) :array {
-		return \array_merge(
-			$diagnosis[ 'problem_rows' ] ?? [],
-			$diagnosis[ 'review_rows' ] ?? [],
-			$diagnosis[ 'healthy_rows' ] ?? []
+		$this->assertXPathExists(
+			$loginXpath,
+			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="login_hide"]',
+			'Login diagnosis should still surface the login-hide expansion row'
 		);
-	}
-
-	/**
-	 * @param array<string,mixed> $diagnosis
-	 * @return array<string,mixed>|array{}
-	 */
-	private function findDiagnosisRowBySlug( array $diagnosis, string $zoneComponentSlug ) :array {
-		foreach ( $this->allDiagnosisRows( $diagnosis ) as $row ) {
-			if ( (string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' ) === $zoneComponentSlug ) {
-				return $row;
-			}
-		}
-		return [];
-	}
-
-	/**
-	 * @param array<string,mixed> $diagnosis
-	 * @return array<string,mixed>|array{}
-	 */
-	private function findDiagnosisRowByOptionKeys( array $diagnosis, string $optionKeys ) :array {
-		foreach ( $this->allDiagnosisRows( $diagnosis ) as $row ) {
-			if ( (string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) === $optionKeys ) {
-				return $row;
-			}
-		}
-		return [];
+		$this->assertXPathExists(
+			$ipsXpath,
+			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="ip_blocking_rules"]',
+			'IPs diagnosis should still surface the IP blocking rules expansion row'
+		);
 	}
 }

@@ -8,7 +8,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-import-type GroupData from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  */
-class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
+class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
+
+	use BuildsActionsQueueLandingData;
 
 	public const SLUG = 'actions_queue_drill_down_groups';
 	public const TEMPLATE = '/wpadmin/components/actions_queue/layer_groups.twig';
@@ -84,6 +86,14 @@ class ActionsQueueDrillDownGroups extends ActionsQueueDrillDownRenderBase {
 	protected function getRequiredDataKeys() :array {
 		return [
 			'bucket',
+		];
+	}
+
+	protected function promotedRenderDataKeys() :array {
+		return [
+			'bucket_selection',
+			'selected_group',
+			'landing_refresh',
 		];
 	}
 }

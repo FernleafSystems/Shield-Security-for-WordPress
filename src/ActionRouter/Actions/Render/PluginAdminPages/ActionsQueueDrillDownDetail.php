@@ -6,7 +6,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  */
-class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
+class ActionsQueueDrillDownDetail extends DrillDownAjaxRenderBase {
+
+	use BuildsActionsQueueLandingData;
 
 	public const SLUG = 'actions_queue_drill_down_detail';
 	public const TEMPLATE = '/wpadmin/components/actions_queue/layer_detail.twig';
@@ -43,6 +45,12 @@ class ActionsQueueDrillDownDetail extends ActionsQueueDrillDownRenderBase {
 		return [
 			'bucket',
 			'group',
+		];
+	}
+
+	protected function promotedRenderDataKeys() :array {
+		return [
+			'group_selection',
 		];
 	}
 

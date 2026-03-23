@@ -21,4 +21,11 @@ class ConfigureDrillDownDiagnosis extends ConfigureDrillDownRenderBase {
 			'zone',
 		];
 	}
+
+	protected function promotedRenderDataKeys() :array {
+		return [
+			'zone_selection',
+			'landing_refresh',
+		];
+	}
 }

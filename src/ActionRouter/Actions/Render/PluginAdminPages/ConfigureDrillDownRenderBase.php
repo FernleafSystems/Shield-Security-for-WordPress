@@ -18,12 +18,4 @@ abstract class ConfigureDrillDownRenderBase extends DrillDownAjaxRenderBase {
 		}
 		return $zoneKey;
 	}
-
-	protected function promotedRenderDataKeys() :array {
-		return [
-			'diagnosis',
-			'zone_selection',
-			'landing_refresh',
-		];
-	}
 }
