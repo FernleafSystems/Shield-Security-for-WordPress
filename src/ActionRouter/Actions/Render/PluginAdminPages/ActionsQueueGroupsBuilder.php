@@ -75,7 +75,9 @@ class ActionsQueueGroupsBuilder {
 
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
 	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
+	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
 	private ?ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder = null;
+	private ?ActionsQueueGroupSeedDataSource $seedDataSource = null;
 	private ?ActionsQueueGroupSeedCollector $seedCollector = null;
 	private ?ActionsQueueHealthyGroupSeedSupplementer $healthySeedSupplementer = null;
 	private ?ActionsQueueGroupContractBuilder $contractBuilder = null;
@@ -253,7 +255,11 @@ class ActionsQueueGroupsBuilder {
 	}
 
 	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
-		return new ActionsQueueScanResultsOptions();
+		if ( $this->queueScanResultsOptions === null ) {
+			$this->queueScanResultsOptions = new ActionsQueueScanResultsOptions();
+		}
+
+		return $this->queueScanResultsOptions;
 	}
 
 	private function maintenanceSeedBuilder() :ActionsQueueMaintenanceGroupSeedBuilder {
@@ -271,10 +277,7 @@ class ActionsQueueGroupsBuilder {
 			$this->seedCollector = new ActionsQueueGroupSeedCollector(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
-				\Closure::fromCallable( [ $this, 'buildActionsQueuePluginsPane' ] ),
-				\Closure::fromCallable( [ $this, 'buildActionsQueueThemesPane' ] ),
-				\Closure::fromCallable( [ $this, 'buildVulnerabilitiesPayload' ] ),
-				\Closure::fromCallable( [ $this, 'normalizeMaintenanceQueueItems' ] )
+				$this->seedDataSource()
 			);
 		}
 
@@ -287,14 +290,27 @@ class ActionsQueueGroupsBuilder {
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
 				$this->queueScanResultsOptions(),
+				$this->seedDataSource()
+			);
+		}
+
+		return $this->healthySeedSupplementer;
+	}
+
+	private function seedDataSource() :ActionsQueueGroupSeedDataSource {
+		if ( $this->seedDataSource === null ) {
+			$this->seedDataSource = new ActionsQueueGroupSeedDataSource(
+				$this->queueScanResultsOptions(),
 				\Closure::fromCallable( [ $this, 'buildActionsQueuePluginsPane' ] ),
 				\Closure::fromCallable( [ $this, 'buildActionsQueueThemesPane' ] ),
+				\Closure::fromCallable( [ $this, 'buildVulnerabilitiesPayload' ] ),
+				\Closure::fromCallable( [ $this, 'normalizeMaintenanceQueueItems' ] ),
 				\Closure::fromCallable( [ $this, 'normalizeBucketMaintenanceQueueItems' ] ),
 				\Closure::fromCallable( [ $this, 'getIgnoredWordpressCount' ] )
 			);
 		}
 
-		return $this->healthySeedSupplementer;
+		return $this->seedDataSource;
 	}
 
 	private function contractBuilder() :ActionsQueueGroupContractBuilder {

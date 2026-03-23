@@ -10,33 +10,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
- * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupSeedCollector {
-
-	private ?array $pluginsPane = null;
-	private ?array $themesPane = null;
-	private ?array $vulnerabilitiesPayload = null;
-
-	private \Closure $buildPluginsPane;
-	private \Closure $buildThemesPane;
-	private \Closure $buildVulnerabilitiesPayload;
-	private \Closure $normalizeMaintenanceQueueItems;
 
 	public function __construct(
 		private ActionsQueueGroupDefinitions $groupDefinitions,
 		private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
-		\Closure $buildPluginsPane,
-		\Closure $buildThemesPane,
-		\Closure $buildVulnerabilitiesPayload,
-		\Closure $normalizeMaintenanceQueueItems
+		private ActionsQueueGroupSeedDataSource $dataSource
 	) {
-		$this->buildPluginsPane = $buildPluginsPane;
-		$this->buildThemesPane = $buildThemesPane;
-		$this->buildVulnerabilitiesPayload = $buildVulnerabilitiesPayload;
-		$this->normalizeMaintenanceQueueItems = $normalizeMaintenanceQueueItems;
 	}
 
 	/**
@@ -74,14 +56,14 @@ class ActionsQueueGroupSeedCollector {
 						$vulnerableExpanded = true;
 						$seeds = \array_merge(
 							$seeds,
-							$this->buildVulnerabilitySeeds( $this->vulnerabilitiesPayload()[ 'sections' ][ 'vulnerable' ] ?? null, $item )
+							$this->buildVulnerabilitySeeds( $this->dataSource->vulnerabilitiesPayload()[ 'sections' ][ 'vulnerable' ] ?? null, $item )
 						);
 					}
 					elseif ( $item[ 'key' ] === 'abandoned' && !$abandonedExpanded ) {
 						$abandonedExpanded = true;
 						$seeds = \array_merge(
 							$seeds,
-							$this->buildVulnerabilitySeeds( $this->vulnerabilitiesPayload()[ 'sections' ][ 'abandoned' ] ?? null, $item )
+							$this->buildVulnerabilitySeeds( $this->dataSource->vulnerabilitiesPayload()[ 'sections' ][ 'abandoned' ] ?? null, $item )
 						);
 					}
 					continue 2;
@@ -89,10 +71,7 @@ class ActionsQueueGroupSeedCollector {
 				case 'maintenance':
 					if ( $maintenanceItemsByKey === null ) {
 						$maintenanceItemsByKey = $this->indexMaintenanceItemsByKey(
-							$this->normalizeMaintenanceQueueItems( \array_values( \array_filter(
-								$bucketSource[ 'attention_items' ],
-								static fn( array $maintenanceItem ) :bool => ( $maintenanceItem[ 'zone' ] ?? '' ) === 'maintenance'
-							) ) )
+							$this->dataSource->activeMaintenanceItems( $bucketSource )
 						);
 					}
 					if ( isset( $maintenanceItemsByKey[ $item[ 'key' ] ] ) ) {
@@ -149,8 +128,8 @@ class ActionsQueueGroupSeedCollector {
 	private function buildPluginThemeSeeds( string $definitionKey, array $item ) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 		$cards = $definitionKey === 'plugins'
-			? $this->pluginsPane()[ 'cards' ]
-			: $this->themesPane()[ 'cards' ];
+			? $this->dataSource->activePluginCards()
+			: $this->dataSource->activeThemeCards();
 		$seeds = [];
 
 		foreach ( $cards as $card ) {
@@ -250,46 +229,5 @@ class ActionsQueueGroupSeedCollector {
 			$indexed[ $item[ 'key' ] ] = $item;
 		}
 		return $indexed;
-	}
-
-	/**
-	 * @return QueueAssetPane
-	 */
-	private function pluginsPane() :array {
-		if ( $this->pluginsPane === null ) {
-			$this->pluginsPane = ( $this->buildPluginsPane )( [ 'include_ignored' => false, 'ignored_only' => false ] );
-		}
-
-		return $this->pluginsPane;
-	}
-
-	/**
-	 * @return QueueAssetPane
-	 */
-	private function themesPane() :array {
-		if ( $this->themesPane === null ) {
-			$this->themesPane = ( $this->buildThemesPane )( [ 'include_ignored' => false, 'ignored_only' => false ] );
-		}
-
-		return $this->themesPane;
-	}
-
-	/**
-	 * @return VulnerabilitiesPayload
-	 */
-	private function vulnerabilitiesPayload() :array {
-		if ( $this->vulnerabilitiesPayload === null ) {
-			$this->vulnerabilitiesPayload = ( $this->buildVulnerabilitiesPayload )();
-		}
-
-		return $this->vulnerabilitiesPayload;
-	}
-
-	/**
-	 * @phpstan-param list<AttentionItem> $items
-	 * @return list<MaintenanceQueueItem>
-	 */
-	private function normalizeMaintenanceQueueItems( array $items ) :array {
-		return ( $this->normalizeMaintenanceQueueItems )( $items );
 	}
 }

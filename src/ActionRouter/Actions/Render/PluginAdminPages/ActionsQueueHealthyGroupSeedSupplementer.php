@@ -7,33 +7,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
- * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
- * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
  */
 class ActionsQueueHealthyGroupSeedSupplementer {
-
-	private ?array $ignoredPluginsPane = null;
-	private ?array $ignoredThemesPane = null;
-	private ?int $ignoredWordpressCount = null;
-
-	private \Closure $buildPluginsPane;
-	private \Closure $buildThemesPane;
-	private \Closure $normalizeBucketMaintenanceQueueItems;
-	private \Closure $getIgnoredWordpressCount;
 
 	public function __construct(
 		private ActionsQueueGroupDefinitions $groupDefinitions,
 		private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
 		private ActionsQueueScanResultsOptions $queueScanResultsOptions,
-		\Closure $buildPluginsPane,
-		\Closure $buildThemesPane,
-		\Closure $normalizeBucketMaintenanceQueueItems,
-		\Closure $getIgnoredWordpressCount
+		private ActionsQueueGroupSeedDataSource $dataSource
 	) {
-		$this->buildPluginsPane = $buildPluginsPane;
-		$this->buildThemesPane = $buildThemesPane;
-		$this->normalizeBucketMaintenanceQueueItems = $normalizeBucketMaintenanceQueueItems;
-		$this->getIgnoredWordpressCount = $getIgnoredWordpressCount;
 	}
 
 	/**
@@ -58,10 +40,7 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
-		foreach ( $this->normalizeBucketMaintenanceQueueItems( \array_values( \array_filter(
-			$bucketSource[ 'attention_items' ],
-			static fn( array $item ) :bool => ( $item[ 'zone' ] ?? '' ) === 'maintenance'
-		) ), $bucketKey ) as $maintenanceItem ) {
+		foreach ( $this->dataSource->healthyMaintenanceItems( $bucketSource, $bucketKey ) as $maintenanceItem ) {
 			if ( ( $maintenanceItem[ 'severity' ] ?? '' ) !== 'good'
 				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== $bucketKey
 				|| isset( $existingGroupKeys[ $maintenanceItem[ 'key' ] ] ) ) {
@@ -147,13 +126,13 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 	private function buildHealthyScanInteraction( string $definitionKey ) :array {
 		switch ( $definitionKey ) {
 			case 'wordpress':
-				$ignoredCount = $this->ignoredWordpressCount();
+				$ignoredCount = $this->dataSource->ignoredWordpressCount();
 				break;
 			case 'plugins':
-				$ignoredCount = $this->countQueueAssetPaneResults( $this->ignoredPluginsPane() );
+				$ignoredCount = $this->dataSource->ignoredPluginsCount();
 				break;
 			case 'themes':
-				$ignoredCount = $this->countQueueAssetPaneResults( $this->ignoredThemesPane() );
+				$ignoredCount = $this->dataSource->ignoredThemesCount();
 				break;
 			default:
 				$ignoredCount = 0;
@@ -167,50 +146,5 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 				? $this->queueScanResultsOptions->buildActionData( $this->queueScanResultsOptions->ignoredOnly() )
 				: [],
 		];
-	}
-
-	/**
-	 * @return QueueAssetPane
-	 */
-	private function ignoredPluginsPane() :array {
-		if ( $this->ignoredPluginsPane === null ) {
-			$this->ignoredPluginsPane = ( $this->buildPluginsPane )( $this->queueScanResultsOptions->ignoredOnly() );
-		}
-
-		return $this->ignoredPluginsPane;
-	}
-
-	/**
-	 * @return QueueAssetPane
-	 */
-	private function ignoredThemesPane() :array {
-		if ( $this->ignoredThemesPane === null ) {
-			$this->ignoredThemesPane = ( $this->buildThemesPane )( $this->queueScanResultsOptions->ignoredOnly() );
-		}
-
-		return $this->ignoredThemesPane;
-	}
-
-	private function ignoredWordpressCount() :int {
-		if ( $this->ignoredWordpressCount === null ) {
-			$this->ignoredWordpressCount = ( $this->getIgnoredWordpressCount )();
-		}
-
-		return $this->ignoredWordpressCount;
-	}
-
-	private function countQueueAssetPaneResults( array $pane ) :int {
-		return (int)\array_sum( \array_map(
-			static fn( array $card ) :int => (int)( $card[ 'count_badge' ] ?? 0 ),
-			$pane[ 'cards' ] ?? []
-		) );
-	}
-
-	/**
-	 * @param list<array<string,mixed>> $items
-	 * @return list<MaintenanceQueueItem>
-	 */
-	private function normalizeBucketMaintenanceQueueItems( array $items, string $bucketKey ) :array {
-		return ( $this->normalizeBucketMaintenanceQueueItems )( $items, $bucketKey );
 	}
 }

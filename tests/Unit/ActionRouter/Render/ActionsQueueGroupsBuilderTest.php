@@ -891,6 +891,83 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ '', '', '' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
 	}
 
+	public function test_build_reuses_shared_active_and_ignored_pane_options_for_scan_groups() :void {
+		$builder = $this->createBuilder(
+			[
+				$this->makeQueueAssetCard( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
+			],
+			[
+				$this->makeQueueAssetCard( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
+			],
+			[],
+			[],
+			[
+				$this->makeQueueAssetCard( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
+			],
+			[
+				$this->makeQueueAssetCard( 'ignored-theme', 'Ignored Theme', 4, 'theme', 'ignored-theme' ),
+			]
+		);
+
+		$builder->build(
+			'critical',
+			[
+				'items' => [
+					[
+						'key'      => 'plugin_files',
+						'count'    => 3,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+					[
+						'key'      => 'theme_files',
+						'count'    => 1,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+				],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'plugin_files',
+						'label'             => 'Plugin Files',
+						'description'       => 'All plugin files appear to be valid.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+					[
+						'key'               => 'theme_files',
+						'label'             => 'Theme Files',
+						'description'       => 'All theme files appear to be valid.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame(
+			[
+				[ 'include_ignored' => false, 'ignored_only' => false ],
+				[ 'include_ignored' => true, 'ignored_only' => true ],
+			],
+			$builder->getPluginPaneCalls()
+		);
+		$this->assertSame(
+			[
+				[ 'include_ignored' => false, 'ignored_only' => false ],
+				[ 'include_ignored' => true, 'ignored_only' => true ],
+			],
+			$builder->getThemePaneCalls()
+		);
+	}
+
 	/**
 	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
 	 * @return list<array<string,mixed>>
@@ -959,6 +1036,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		) extends ActionsQueueGroupsBuilder {
 
 			private int $vulnerabilitiesPayloadCalls = 0;
+			private array $pluginPaneCalls = [];
+			private array $themePaneCalls = [];
 
 			public function __construct(
 				private array $pluginCards,
@@ -972,6 +1051,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			}
 
 			protected function buildActionsQueuePluginsPane( array $resultsDisplayOptions = [] ) :array {
+				$this->pluginPaneCalls[] = $resultsDisplayOptions;
 				return [
 					'is_disabled'      => false,
 					'disabled_message' => '',
@@ -982,6 +1062,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			}
 
 			protected function buildActionsQueueThemesPane( array $resultsDisplayOptions = [] ) :array {
+				$this->themePaneCalls[] = $resultsDisplayOptions;
 				return [
 					'is_disabled'      => false,
 					'disabled_message' => '',
@@ -1013,6 +1094,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 			public function getVulnerabilitiesPayloadCalls() :int {
 				return $this->vulnerabilitiesPayloadCalls;
+			}
+
+			public function getPluginPaneCalls() :array {
+				return $this->pluginPaneCalls;
+			}
+
+			public function getThemePaneCalls() :array {
+				return $this->themePaneCalls;
 			}
 
 			protected function normalizeMaintenanceQueueItems( array $items ) :array {
