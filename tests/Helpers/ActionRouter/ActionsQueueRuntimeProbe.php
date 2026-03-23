@@ -67,50 +67,25 @@ class ActionsQueueRuntimeProbe {
 	) {
 	}
 
+	private ?array $landingPayload = null;
+	private ?array $metricsPayload = null;
 	private ?array $attentionQuery = null;
 	private ?array $assessmentRowsByZone = null;
 	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
+	private ?ScansResultsViewBuilder $viewBuilder = null;
+	private ?array $paneCounts = null;
+	private ?array $fileLockerState = null;
+	private ?array $railTabs = null;
+	private array $groupsByBucket = [];
+	private array $detailSummaries = [];
 
 	/**
 	 * @return RuntimeDiagnostics
 	 */
 	public function inspect() :array {
-		$landingPayload = $this->routeRuntime()
-			->processActionPayloadWithAdminBypass( PageActionsQueueLanding::SLUG, [
-				Constants::NAV_ID     => PluginNavs::NAV_SCANS,
-				Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
-			] );
-		$landingHtml = (string)( $landingPayload[ 'render_output' ] ?? '' );
-		$renderData = \is_array( $landingPayload[ 'render_data' ] ?? null )
-			? $landingPayload[ 'render_data' ]
-			: [];
-		$flags = \is_array( $renderData[ 'flags' ] ?? null )
-			? $renderData[ 'flags' ]
-			: [];
-		$attentionItems = \is_array( $this->attentionQuery()[ 'groups' ][ 'scans' ][ 'items' ] ?? null )
-			? $this->attentionQuery()[ 'groups' ][ 'scans' ][ 'items' ]
-			: [];
-		$viewBuilder = new ScansResultsViewBuilder();
-		$scanResultsOptions = $this->queueScanResultsOptions();
-		$controller = RuntimeTestState::controller();
-		$fileLockerController = RuntimeTestState::controller()->comps->file_locker;
-		$shieldNetState = $controller->opts->optGet( 'snapi_data' );
-		$shieldNetState = \is_array( $shieldNetState ) ? $shieldNetState : [];
-		$shieldNetHandshake = (int)( $shieldNetState[ 'last_handshake_at' ] ?? 0 ) > 0;
-		$fileLockerEnabled = \count( $fileLockerController->getFilesToLock() ) > 0
-			&& $controller->db_con->file_locker->isReady()
-			&& $shieldNetHandshake;
-		$fileLockerCards = $fileLockerEnabled
-			? ( $viewBuilder->buildActionsQueueFileLockerPane()[ 'cards' ] ?? [] )
-			: [];
-		$metricsPayload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		$railTabs = [];
-		foreach ( \is_array( $metricsPayload[ 'tabs' ] ?? null ) ? $metricsPayload[ 'tabs' ] : [] as $key => $tab ) {
-			$railTabs[ (string)$key ] = [
-				'count'  => (int)( $tab[ 'count' ] ?? 0 ),
-				'status' => (string)( $tab[ 'status' ] ?? '' ),
-			];
-		}
+		$landingHtml = (string)( $this->landingPayload()[ 'render_output' ] ?? '' );
+		$flags = $this->landingFlags();
+		$attentionItems = $this->attentionItems();
 
 		$buckets = [];
 		foreach ( self::BUCKET_KEYS as $bucketKey ) {
@@ -135,29 +110,9 @@ class ActionsQueueRuntimeProbe {
 				],
 				$attentionItems
 			) ),
-			'pane_counts'       => [
-				'active_plugins'  => \count( $viewBuilder->buildActionsQueuePluginsPane()[ 'cards' ] ?? [] ),
-				'ignored_plugins' => \count( $viewBuilder->buildActionsQueuePluginsPane(
-					$scanResultsOptions->ignoredOnly()
-				)[ 'cards' ] ?? [] ),
-				'active_themes'   => \count( $viewBuilder->buildActionsQueueThemesPane()[ 'cards' ] ?? [] ),
-				'ignored_themes'  => \count( $viewBuilder->buildActionsQueueThemesPane(
-					$scanResultsOptions->ignoredOnly()
-				)[ 'cards' ] ?? [] ),
-				'file_locker'     => \count( $fileLockerCards ),
-			],
-			'file_locker_state' => [
-				'premium_active'      => $controller->isPremiumActive(),
-				'shieldnet_handshake' => $shieldNetHandshake,
-				'file_locker_enabled' => $fileLockerEnabled,
-				'files_to_lock'       => \array_values( \array_map(
-					static fn( $fileKey ) :string => (string)$fileKey,
-					$fileLockerController->getFilesToLock()
-				) ),
-				'lock_count'          => \count( $fileLockerController->getLocks() ),
-				'problem_lock_count'  => \count( $fileLockerCards ),
-			],
-			'rail_tabs'         => $railTabs,
+			'pane_counts'       => $this->paneCounts(),
+			'file_locker_state' => $this->fileLockerState(),
+			'rail_tabs'         => $this->railTabs(),
 			'buckets'           => $buckets,
 		];
 	}
@@ -193,27 +148,31 @@ class ActionsQueueRuntimeProbe {
 	 * @return DetailSummary
 	 */
 	public function inspectDetail( array $groupContext ) :array {
-		$detailPayload = $this->routeRuntime()
-			->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-				'bucket' => $groupContext[ 'bucket_key' ],
-				'group'  => $groupContext[ 'group_key' ],
-			] );
-		$groupSelection = \is_array( $detailPayload[ 'group_selection' ] ?? null )
-			? $detailPayload[ 'group_selection' ]
-			: [];
-		$detailShell = (string)( $groupSelection[ 'detail_shell' ] ?? '' );
-		$detailHtml = (string)( $detailPayload[ 'html' ] ?? '' );
-		$detailDom = $this->createDomXPath( $detailHtml );
+		$cacheKey = $this->detailCacheKey( $groupContext[ 'bucket_key' ], $groupContext[ 'group_key' ] );
+		if ( !isset( $this->detailSummaries[ $cacheKey ] ) ) {
+			$detailPayload = $this->routeRuntime()
+				->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
+					'bucket' => $groupContext[ 'bucket_key' ],
+					'group'  => $groupContext[ 'group_key' ],
+				] );
+			$groupSelection = \is_array( $detailPayload[ 'group_selection' ] ?? null )
+				? $detailPayload[ 'group_selection' ]
+				: [];
+			$detailShell = (string)( $groupSelection[ 'detail_shell' ] ?? '' );
+			$detailDom = $this->createDomXPath( (string)( $detailPayload[ 'html' ] ?? '' ) );
 
-		return [
-			'detail_shell'            => $detailShell,
-			'panel_target'            => $detailShell === 'asset_cards'
-				? $this->extractPanelTarget( $detailDom )
-				: '',
-			'is_lazy_panel'           => $detailShell === 'asset_cards'
-				&& $this->extractLazyPanelFlag( $detailDom ),
-			'has_investigation_table' => $this->hasInvestigationTableContract( $detailDom ),
-		];
+			$this->detailSummaries[ $cacheKey ] = [
+				'detail_shell'            => $detailShell,
+				'panel_target'            => $detailShell === 'asset_cards'
+					? $this->extractPanelTarget( $detailDom )
+					: '',
+				'is_lazy_panel'           => $detailShell === 'asset_cards'
+					&& $this->extractLazyPanelFlag( $detailDom ),
+				'has_investigation_table' => $this->hasInvestigationTableContract( $detailDom ),
+			];
+		}
+
+		return $this->detailSummaries[ $cacheKey ];
 	}
 
 	private function routeRuntime() :PluginAdminRouteRuntime {
@@ -222,6 +181,40 @@ class ActionsQueueRuntimeProbe {
 		}
 
 		return $this->routeRuntime;
+	}
+
+	private function landingPayload() :array {
+		if ( $this->landingPayload === null ) {
+			$this->landingPayload = $this->routeRuntime()
+				->processActionPayloadWithAdminBypass( PageActionsQueueLanding::SLUG, [
+					Constants::NAV_ID     => PluginNavs::NAV_SCANS,
+					Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
+				] );
+		}
+
+		return $this->landingPayload;
+	}
+
+	private function landingFlags() :array {
+		$renderData = $this->landingRenderData();
+
+		return \is_array( $renderData[ 'flags' ] ?? null )
+			? $renderData[ 'flags' ]
+			: [];
+	}
+
+	private function landingRenderData() :array {
+		$renderData = $this->landingPayload()[ 'render_data' ] ?? null;
+		return \is_array( $renderData )
+			? $renderData
+			: [];
+	}
+
+	private function attentionItems() :array {
+		$items = $this->attentionQuery()[ 'groups' ][ 'scans' ][ 'items' ] ?? null;
+		return \is_array( $items )
+			? $items
+			: [];
 	}
 
 	private function attentionQuery() :array {
@@ -248,12 +241,101 @@ class ActionsQueueRuntimeProbe {
 		return $this->queueScanResultsOptions;
 	}
 
+	private function viewBuilder() :ScansResultsViewBuilder {
+		if ( $this->viewBuilder === null ) {
+			$this->viewBuilder = new ScansResultsViewBuilder();
+		}
+
+		return $this->viewBuilder;
+	}
+
+	private function paneCounts() :array {
+		if ( $this->paneCounts === null ) {
+			$scanResultsOptions = $this->queueScanResultsOptions();
+			$viewBuilder = $this->viewBuilder();
+			$this->paneCounts = [
+				'active_plugins'  => \count( $viewBuilder->buildActionsQueuePluginsPane()[ 'cards' ] ?? [] ),
+				'ignored_plugins' => \count( $viewBuilder->buildActionsQueuePluginsPane(
+					$scanResultsOptions->ignoredOnly()
+				)[ 'cards' ] ?? [] ),
+				'active_themes'   => \count( $viewBuilder->buildActionsQueueThemesPane()[ 'cards' ] ?? [] ),
+				'ignored_themes'  => \count( $viewBuilder->buildActionsQueueThemesPane(
+					$scanResultsOptions->ignoredOnly()
+				)[ 'cards' ] ?? [] ),
+				'file_locker'     => $this->fileLockerState()[ 'problem_lock_count' ],
+			];
+		}
+
+		return $this->paneCounts;
+	}
+
+	private function fileLockerState() :array {
+		if ( $this->fileLockerState === null ) {
+			$controller = RuntimeTestState::controller();
+			$fileLockerController = $controller->comps->file_locker;
+			$shieldNetState = $controller->opts->optGet( 'snapi_data' );
+			$shieldNetState = \is_array( $shieldNetState ) ? $shieldNetState : [];
+			$shieldNetHandshake = (int)( $shieldNetState[ 'last_handshake_at' ] ?? 0 ) > 0;
+			$filesToLock = \array_values( \array_map(
+				static fn( $fileKey ) :string => (string)$fileKey,
+				$fileLockerController->getFilesToLock()
+			) );
+			$fileLockerEnabled = \count( $filesToLock ) > 0
+				&& $controller->db_con->file_locker->isReady()
+				&& $shieldNetHandshake;
+			$fileLockerCards = $fileLockerEnabled
+				? ( $this->viewBuilder()->buildActionsQueueFileLockerPane()[ 'cards' ] ?? [] )
+				: [];
+
+			$this->fileLockerState = [
+				'premium_active'      => $controller->isPremiumActive(),
+				'shieldnet_handshake' => $shieldNetHandshake,
+				'file_locker_enabled' => $fileLockerEnabled,
+				'files_to_lock'       => $filesToLock,
+				'lock_count'          => \count( $fileLockerController->getLocks() ),
+				'problem_lock_count'  => \count( $fileLockerCards ),
+			];
+		}
+
+		return $this->fileLockerState;
+	}
+
+	private function metricsPayload() :array {
+		if ( $this->metricsPayload === null ) {
+			$this->metricsPayload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
+		}
+
+		return $this->metricsPayload;
+	}
+
+	private function railTabs() :array {
+		if ( $this->railTabs === null ) {
+			$tabs = $this->metricsPayload()[ 'tabs' ] ?? null;
+			$tabs = \is_array( $tabs )
+				? $tabs
+				: [];
+			$this->railTabs = [];
+			foreach ( $tabs as $key => $tab ) {
+				$this->railTabs[ (string)$key ] = [
+					'count'  => (int)( $tab[ 'count' ] ?? 0 ),
+					'status' => (string)( $tab[ 'status' ] ?? '' ),
+				];
+			}
+		}
+
+		return $this->railTabs;
+	}
+
 	private function groupsLayerForBucket( string $bucketKey ) :array {
-		return ( new ActionsQueueGroupsBuilder() )->build(
-			$bucketKey,
-			$this->attentionQuery(),
-			$this->assessmentRowsByZone()
-		);
+		if ( !isset( $this->groupsByBucket[ $bucketKey ] ) ) {
+			$this->groupsByBucket[ $bucketKey ] = ( new ActionsQueueGroupsBuilder() )->build(
+				$bucketKey,
+				$this->attentionQuery(),
+				$this->assessmentRowsByZone()
+			);
+		}
+
+		return $this->groupsByBucket[ $bucketKey ];
 	}
 
 	/**
@@ -312,5 +394,9 @@ class ActionsQueueRuntimeProbe {
 		return $xpath->query(
 			'//*[@data-investigation-table="1" and string-length(@data-scan-results-action) > 0]'
 		)->length > 0;
+	}
+
+	private function detailCacheKey( string $bucketKey, string $groupKey ) :string {
+		return $bucketKey.'|'.$groupKey;
 	}
 }

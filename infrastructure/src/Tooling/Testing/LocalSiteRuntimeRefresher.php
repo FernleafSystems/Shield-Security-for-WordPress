@@ -6,6 +6,32 @@ use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
+/**
+ * @phpstan-type RuntimeManifest array{
+ *   schema_version:int,
+ *   generated_at_unix:int,
+ *   files:array<string,array{sha256:string,size:int}>
+ * }
+ * @phpstan-type RuntimeState array{
+ *   manifest_exists:bool,
+ *   sentinels:array<string,bool>,
+ *   all_required_sentinels_present:bool,
+ *   has_any_required_sentinel:bool
+ * }
+ * @phpstan-type RefreshPlan array{
+ *   mode:'seed'|'patch'|'skip',
+ *   archive_paths:list<string>,
+ *   deleted_paths:list<string>,
+ *   host_manifest:RuntimeManifest
+ * }
+ * @phpstan-type WorkspacePaths array{
+ *   workspace:string,
+ *   archive_path:string,
+ *   list_path:string,
+ *   delete_list_path:string,
+ *   manifest_path:string
+ * }
+ */
 class LocalSiteRuntimeRefresher {
 
 	private const STATE_SCHEMA_VERSION = 1;
@@ -83,68 +109,19 @@ class LocalSiteRuntimeRefresher {
 	 */
 	public function refresh( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
 		$this->writeProgress( "Refreshing local browser plugin runtime", $onOutput );
+		$hostManifest = $this->scanHostManifest( $rootDir, $onOutput );
+		$refreshPlan = $this->buildRefreshPlan( $rootDir, $containerId, $hostManifest, $onOutput );
+		if ( $refreshPlan[ 'mode' ] === 'skip' ) {
+			return;
+		}
 
-		$scanStartedAt = \microtime( true );
-		$hostManifest = $this->runPhase(
-			'scan',
-			fn() => $this->buildHostManifest( $rootDir )
-		);
-		$this->writeProgress(
-			'Runtime refresh scan: '
-			.\count( $hostManifest[ 'files' ] )
-			.' managed files in '
-			.$this->formatDuration( \microtime( true ) - $scanStartedAt ),
+		$this->applyRefreshPlan(
+			$rootDir,
+			$containerId,
+			$refreshPlan,
+			$this->workspacePaths( $rootDir ),
 			$onOutput
 		);
-
-		$state = $this->readContainerState( $rootDir, $containerId );
-
-		if ( !$state[ 'manifest_exists' ] && !$state[ 'has_any_required_sentinel' ] ) {
-			$this->runSeedRefresh( $rootDir, $containerId, $hostManifest, $onOutput );
-			return;
-		}
-
-		if ( !$state[ 'manifest_exists' ] || !$state[ 'all_required_sentinels_present' ] ) {
-			throw new \RuntimeException(
-				'Local browser plugin runtime is inconsistent: '
-				.'manifest_exists='.( $state[ 'manifest_exists' ] ? 'yes' : 'no' )
-				.', required_sentinels='.\implode(
-					',',
-					\array_map(
-						static fn( string $path, bool $exists ) :string => $path.'='.( $exists ? 'yes' : 'no' ),
-						\array_keys( $state[ 'sentinels' ] ),
-						\array_values( $state[ 'sentinels' ] )
-					)
-				)
-			);
-		}
-
-		$deployedManifest = $this->runPhase(
-			'read deployed manifest',
-			fn() => $this->readDeployedManifest( $rootDir, $containerId )
-		);
-		$diffStartedAt = \microtime( true );
-		$diff = $this->runPhase(
-			'diff',
-			fn() => $this->computeDiff( $hostManifest, $deployedManifest )
-		);
-			$this->writeProgress(
-				'Runtime refresh diff: '
-				.\count( $diff[ 'changed_or_new' ] )
-				.' changed/new, '
-				.\count( $diff[ 'deleted' ] )
-				.' deleted in '
-				.$this->formatDuration( \microtime( true ) - $diffStartedAt ),
-				$onOutput
-			);
-
-		if ( empty( $diff[ 'changed_or_new' ] ) && empty( $diff[ 'deleted' ] ) ) {
-			$this->writeProgress( 'Runtime refresh mode: skip', $onOutput );
-			$this->writeProgress( 'Runtime refresh: up to date', $onOutput );
-			return;
-		}
-
-		$this->runPatchRefresh( $rootDir, $containerId, $hostManifest, $diff[ 'changed_or_new' ], $diff[ 'deleted' ], $onOutput );
 	}
 
 	/**
@@ -162,11 +139,7 @@ class LocalSiteRuntimeRefresher {
 	}
 
 	/**
-	 * @return array{
-	 *   schema_version:int,
-	 *   generated_at_unix:int,
-	 *   files:array<string,array{sha256:string,size:int}>
-	 * }
+	 * @return RuntimeManifest
 	 */
 	private function buildHostManifest( string $rootDir ) :array {
 		$files = [];
@@ -209,7 +182,7 @@ class LocalSiteRuntimeRefresher {
 	}
 
 	/**
-	 * @return array{manifest_exists:bool,sentinels:array<string,bool>,all_required_sentinels_present:bool,has_any_required_sentinel:bool}
+	 * @return RuntimeState
 	 */
 	private function readContainerState( string $rootDir, string $containerId ) :array {
 		$script = <<<'PHP'
@@ -265,12 +238,12 @@ PHP;
 			throw new \RuntimeException( 'Failed to decode local browser plugin runtime state JSON.' );
 		}
 
-		/** @var array{manifest_exists:bool,sentinels:array<string,bool>,all_required_sentinels_present:bool,has_any_required_sentinel:bool} $decoded */
+		/** @var RuntimeState $decoded */
 		return $decoded;
 	}
 
 	/**
-	 * @return array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>}
+	 * @return RuntimeManifest
 	 */
 	private function readDeployedManifest( string $rootDir, string $containerId ) :array {
 		$process = $this->processRunner->run(
@@ -306,13 +279,13 @@ PHP;
 			throw new \RuntimeException( 'Deployed local browser runtime manifest has no files map.' );
 		}
 
-		/** @var array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>} $decoded */
+		/** @var RuntimeManifest $decoded */
 		return $decoded;
 	}
 
 	/**
-	 * @param array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>} $hostManifest
-	 * @param array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>} $deployedManifest
+	 * @param RuntimeManifest $hostManifest
+	 * @param RuntimeManifest $deployedManifest
 	 * @return array{changed_or_new:string[],deleted:string[]}
 	 */
 	private function computeDiff( array $hostManifest, array $deployedManifest ) :array {
@@ -344,175 +317,322 @@ PHP;
 	}
 
 	/**
-	 * @param array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>} $hostManifest
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 * @return RuntimeManifest
 	 */
-	private function runSeedRefresh(
-		string $rootDir,
-		string $containerId,
-		array $hostManifest,
-		?callable $onOutput = null
-	) :void {
-		$this->writeProgress( 'Runtime refresh mode: seed', $onOutput );
-		$this->applyArchiveRefresh(
-			$rootDir,
-			$containerId,
-			\array_keys( $hostManifest[ 'files' ] ),
-			[],
-			$hostManifest,
+	private function scanHostManifest( string $rootDir, ?callable $onOutput = null ) :array {
+		$scanStartedAt = \microtime( true );
+		$hostManifest = $this->runPhase(
+			'scan',
+			fn() => $this->buildHostManifest( $rootDir )
+		);
+		$this->writeProgress(
+			'Runtime refresh scan: '
+			.\count( $hostManifest[ 'files' ] )
+			.' managed files in '
+			.$this->formatDuration( \microtime( true ) - $scanStartedAt ),
 			$onOutput
 		);
+
+		return $hostManifest;
 	}
 
 	/**
-	 * @param array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>} $hostManifest
-	 * @param string[] $changedOrNew
-	 * @param string[] $deleted
+	 * @param RuntimeManifest $hostManifest
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 * @return RefreshPlan
 	 */
-	private function runPatchRefresh(
+	private function buildRefreshPlan(
 		string $rootDir,
 		string $containerId,
 		array $hostManifest,
-		array $changedOrNew,
-		array $deleted,
 		?callable $onOutput = null
-	) :void {
-		$this->writeProgress( 'Runtime refresh mode: patch', $onOutput );
-		$this->writeProgress( 'Changed/new managed files: '.\count( $changedOrNew ), $onOutput );
-		$this->writeProgress( 'Deleted managed files: '.\count( $deleted ), $onOutput );
+	) :array {
+		$state = $this->readContainerState( $rootDir, $containerId );
 
-		$this->applyArchiveRefresh( $rootDir, $containerId, $changedOrNew, $deleted, $hostManifest, $onOutput );
+		if ( !$state[ 'manifest_exists' ] && !$state[ 'has_any_required_sentinel' ] ) {
+			return [
+				'mode'         => 'seed',
+				'archive_paths'=> \array_keys( $hostManifest[ 'files' ] ),
+				'deleted_paths'=> [],
+				'host_manifest'=> $hostManifest,
+			];
+		}
+
+		if ( !$state[ 'manifest_exists' ] || !$state[ 'all_required_sentinels_present' ] ) {
+			throw new \RuntimeException(
+				'Local browser plugin runtime is inconsistent: '
+				.'manifest_exists='.( $state[ 'manifest_exists' ] ? 'yes' : 'no' )
+				.', required_sentinels='.\implode(
+					',',
+					\array_map(
+						static fn( string $path, bool $exists ) :string => $path.'='.( $exists ? 'yes' : 'no' ),
+						\array_keys( $state[ 'sentinels' ] ),
+						\array_values( $state[ 'sentinels' ] )
+					)
+				)
+			);
+		}
+
+		$deployedManifest = $this->runPhase(
+			'read deployed manifest',
+			fn() => $this->readDeployedManifest( $rootDir, $containerId )
+		);
+		$diffStartedAt = \microtime( true );
+		$diff = $this->runPhase(
+			'diff',
+			fn() => $this->computeDiff( $hostManifest, $deployedManifest )
+		);
+		$this->writeProgress(
+			'Runtime refresh diff: '
+			.\count( $diff[ 'changed_or_new' ] )
+			.' changed/new, '
+			.\count( $diff[ 'deleted' ] )
+			.' deleted in '
+			.$this->formatDuration( \microtime( true ) - $diffStartedAt ),
+			$onOutput
+		);
+
+		if ( $diff[ 'changed_or_new' ] === [] && $diff[ 'deleted' ] === [] ) {
+			$this->writeProgress( 'Runtime refresh mode: skip', $onOutput );
+			$this->writeProgress( 'Runtime refresh: up to date', $onOutput );
+			return [
+				'mode'         => 'skip',
+				'archive_paths'=> [],
+				'deleted_paths'=> [],
+				'host_manifest'=> $hostManifest,
+			];
+		}
+
+		return [
+			'mode'         => 'patch',
+			'archive_paths'=> $diff[ 'changed_or_new' ],
+			'deleted_paths'=> $diff[ 'deleted' ],
+			'host_manifest'=> $hostManifest,
+		];
 	}
 
 	/**
-	 * @param string[] $archivePaths
-	 * @param string[] $deletedPaths
-	 * @param array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>} $hostManifest
+	 * @return WorkspacePaths
 	 */
-	private function applyArchiveRefresh(
-		string $rootDir,
-		string $containerId,
-		array $archivePaths,
-		array $deletedPaths,
-		array $hostManifest,
-		?callable $onOutput = null
-	) :void {
+	private function workspacePaths( string $rootDir ) :array {
 		$workspace = Path::join( $rootDir, self::TEMP_DIR );
 		if ( !\is_dir( $workspace ) && !\mkdir( $workspace, 0777, true ) && !\is_dir( $workspace ) ) {
 			throw new \RuntimeException( 'Failed to create local browser runtime refresh workspace: '.$workspace );
 		}
 
-		$archivePath = Path::join( $workspace, self::ARCHIVE_FILE );
-		$listPath = Path::join( $workspace, self::FILE_LIST_FILE );
-		$deleteListPath = Path::join( $workspace, self::DELETE_LIST_FILE );
-		$manifestPath = Path::join( $workspace, self::MANIFEST_EXPORT_FILE );
+		return [
+			'workspace'        => $workspace,
+			'archive_path'     => Path::join( $workspace, self::ARCHIVE_FILE ),
+			'list_path'        => Path::join( $workspace, self::FILE_LIST_FILE ),
+			'delete_list_path' => Path::join( $workspace, self::DELETE_LIST_FILE ),
+			'manifest_path'    => Path::join( $workspace, self::MANIFEST_EXPORT_FILE ),
+		];
+	}
+
+	/**
+	 * @param RefreshPlan $refreshPlan
+	 * @param WorkspacePaths $workspacePaths
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function applyRefreshPlan(
+		string $rootDir,
+		string $containerId,
+		array $refreshPlan,
+		array $workspacePaths,
+		?callable $onOutput = null
+	) :void {
+		$this->writeProgress( 'Runtime refresh mode: '.$refreshPlan[ 'mode' ], $onOutput );
+		if ( $refreshPlan[ 'mode' ] === 'patch' ) {
+			$this->writeProgress( 'Changed/new managed files: '.\count( $refreshPlan[ 'archive_paths' ] ), $onOutput );
+			$this->writeProgress( 'Deleted managed files: '.\count( $refreshPlan[ 'deleted_paths' ] ), $onOutput );
+		}
+
 		$copyDuration = 0.0;
 
-		if ( !empty( $archivePaths ) ) {
-			$buildStartedAt = \microtime( true );
-			$this->runPhase( 'build', function () use ( $archivePath, $archivePaths, $listPath, $rootDir ) :void {
-				if ( \file_put_contents( $listPath, \implode( "\n", $archivePaths )."\n" ) === false ) {
-					throw new \RuntimeException( 'Failed to write local browser runtime archive file list: '.$listPath );
-				}
-				$this->processRunner->runOrThrow(
-					[
-						'tar',
-						'-cf',
-						Path::makeRelative( $archivePath, $rootDir ),
-						'-T',
-						Path::makeRelative( $listPath, $rootDir ),
-					],
-					$rootDir
-				);
-			} );
-			$buildDuration = \microtime( true ) - $buildStartedAt;
-			$archiveBytes = $this->runPhase( 'build output', function () use ( $archivePath ) :int {
-				if ( !\is_file( $archivePath ) ) {
-					throw new \RuntimeException( 'Runtime archive was not created: '.$archivePath );
-				}
-				$size = \filesize( $archivePath );
-				if ( $size === false ) {
-					throw new \RuntimeException( 'Failed to read runtime archive size: '.$archivePath );
-				}
-				return (int)$size;
-			} );
-			$this->writeProgress(
-				'Runtime refresh build: '
-				.\count( $archivePaths )
-				.' files, '
-				.$this->formatBytes( $archiveBytes )
-				.' in '
-				.$this->formatDuration( $buildDuration ),
-				$onOutput
-			);
-
-			$copyStartedAt = \microtime( true );
-			$this->runPhase(
-				'copy archive',
-				fn() => $this->copyFileToContainer( $rootDir, $containerId, $archivePath, self::CONTAINER_ARCHIVE_PATH )
-			);
-			$copyDuration += \microtime( true ) - $copyStartedAt;
-		}
-
-		if ( !empty( $deletedPaths ) ) {
-			$this->runPhase(
-				'prepare delete list',
-				function () use ( $deleteListPath, $deletedPaths ) :void {
-					$this->assertManagedPathsAreSafe( $deletedPaths );
-					$json = \json_encode( \array_values( $deletedPaths ), \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES );
-					if ( !\is_string( $json ) ) {
-						throw new \RuntimeException( 'Failed to encode local browser runtime delete list.' );
-					}
-					if ( \file_put_contents( $deleteListPath, $json."\n" ) === false ) {
-						throw new \RuntimeException( 'Failed to write local browser runtime delete list: '.$deleteListPath );
-					}
-				}
-			);
-			$copyStartedAt = \microtime( true );
-			$this->runPhase(
-				'copy delete list',
-				fn() => $this->copyFileToContainer( $rootDir, $containerId, $deleteListPath, self::CONTAINER_DELETE_LIST_PATH )
-			);
-			$copyDuration += \microtime( true ) - $copyStartedAt;
-
-			$deleteStartedAt = \microtime( true );
-			$this->runPhase(
-				'delete',
-				fn() => $this->deleteManagedPaths( $rootDir, $containerId )
-			);
-			$this->writeProgress(
-				'Runtime refresh delete: '
-				.\count( $deletedPaths )
-				.' paths in '
-				.$this->formatDuration( \microtime( true ) - $deleteStartedAt ),
+		if ( $refreshPlan[ 'archive_paths' ] !== [] ) {
+			$copyDuration += $this->buildAndCopyArchive(
+				$rootDir,
+				$containerId,
+				$refreshPlan[ 'archive_paths' ],
+				$workspacePaths,
 				$onOutput
 			);
 		}
 
-		if ( !empty( $archivePaths ) ) {
-			$extractStartedAt = \microtime( true );
-			$this->runPhase( 'extract', function () use ( $containerId, $rootDir ) :void {
-				$this->processRunner->runOrThrow(
-					[
-						'docker',
-						'exec',
-						$containerId,
-						'tar',
-						'--overwrite',
-						'-xf',
-						self::CONTAINER_ARCHIVE_PATH,
-						'-C',
-						self::PLUGIN_ROOT,
-					],
-					$rootDir
-				);
-			} );
-			$this->writeProgress(
-				'Runtime refresh extract: '
-				.$this->formatDuration( \microtime( true ) - $extractStartedAt ),
-				$onOutput
+		if ( $refreshPlan[ 'deleted_paths' ] !== [] ) {
+			$copyDuration += $this->prepareAndCopyDeleteList(
+				$rootDir,
+				$containerId,
+				$refreshPlan[ 'deleted_paths' ],
+				$workspacePaths
 			);
+			$this->deletePathsWithProgress( $rootDir, $containerId, \count( $refreshPlan[ 'deleted_paths' ] ), $onOutput );
 		}
 
+		if ( $refreshPlan[ 'archive_paths' ] !== [] ) {
+			$this->extractArchiveWithProgress( $rootDir, $containerId, $onOutput );
+		}
+
+		$this->verifyRequiredSentinelsWithProgress( $rootDir, $containerId, $onOutput );
+		$copyDuration += $this->writeDeployedManifest(
+			$rootDir,
+			$containerId,
+			$refreshPlan[ 'host_manifest' ],
+			$workspacePaths,
+			$onOutput
+		);
+		if ( $copyDuration > 0 ) {
+			$this->writeProgress( 'Runtime refresh copy total: '.$this->formatDuration( $copyDuration ), $onOutput );
+		}
+	}
+
+	/**
+	 * @param list<string> $archivePaths
+	 * @param WorkspacePaths $workspacePaths
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function buildAndCopyArchive(
+		string $rootDir,
+		string $containerId,
+		array $archivePaths,
+		array $workspacePaths,
+		?callable $onOutput = null
+	) :float {
+		$buildStartedAt = \microtime( true );
+		$this->runPhase( 'build', function () use ( $workspacePaths, $archivePaths, $rootDir ) :void {
+			if ( \file_put_contents( $workspacePaths[ 'list_path' ], \implode( "\n", $archivePaths )."\n" ) === false ) {
+				throw new \RuntimeException( 'Failed to write local browser runtime archive file list: '.$workspacePaths[ 'list_path' ] );
+			}
+			$this->processRunner->runOrThrow(
+				[
+					'tar',
+					'-cf',
+					Path::makeRelative( $workspacePaths[ 'archive_path' ], $rootDir ),
+					'-T',
+					Path::makeRelative( $workspacePaths[ 'list_path' ], $rootDir ),
+				],
+				$rootDir
+			);
+		} );
+		$buildDuration = \microtime( true ) - $buildStartedAt;
+		$archiveBytes = $this->runPhase( 'build output', function () use ( $workspacePaths ) :int {
+			if ( !\is_file( $workspacePaths[ 'archive_path' ] ) ) {
+				throw new \RuntimeException( 'Runtime archive was not created: '.$workspacePaths[ 'archive_path' ] );
+			}
+			$size = \filesize( $workspacePaths[ 'archive_path' ] );
+			if ( $size === false ) {
+				throw new \RuntimeException( 'Failed to read runtime archive size: '.$workspacePaths[ 'archive_path' ] );
+			}
+			return (int)$size;
+		} );
+		$this->writeProgress(
+			'Runtime refresh build: '
+			.\count( $archivePaths )
+			.' files, '
+			.$this->formatBytes( $archiveBytes )
+			.' in '
+			.$this->formatDuration( $buildDuration ),
+			$onOutput
+		);
+
+		$copyStartedAt = \microtime( true );
+		$this->runPhase(
+			'copy archive',
+			fn() => $this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'archive_path' ], self::CONTAINER_ARCHIVE_PATH )
+		);
+
+		return \microtime( true ) - $copyStartedAt;
+	}
+
+	/**
+	 * @param list<string> $deletedPaths
+	 * @param WorkspacePaths $workspacePaths
+	 */
+	private function prepareAndCopyDeleteList(
+		string $rootDir,
+		string $containerId,
+		array $deletedPaths,
+		array $workspacePaths
+	) :float {
+		$this->runPhase(
+			'prepare delete list',
+			function () use ( $deletedPaths, $workspacePaths ) :void {
+				$this->assertManagedPathsAreSafe( $deletedPaths );
+				$json = \json_encode( \array_values( $deletedPaths ), \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES );
+				if ( !\is_string( $json ) ) {
+					throw new \RuntimeException( 'Failed to encode local browser runtime delete list.' );
+				}
+				if ( \file_put_contents( $workspacePaths[ 'delete_list_path' ], $json."\n" ) === false ) {
+					throw new \RuntimeException( 'Failed to write local browser runtime delete list: '.$workspacePaths[ 'delete_list_path' ] );
+				}
+			}
+		);
+
+		$copyStartedAt = \microtime( true );
+		$this->runPhase(
+			'copy delete list',
+			fn() => $this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'delete_list_path' ], self::CONTAINER_DELETE_LIST_PATH )
+		);
+
+		return \microtime( true ) - $copyStartedAt;
+	}
+
+	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function deletePathsWithProgress(
+		string $rootDir,
+		string $containerId,
+		int $deletedPathCount,
+		?callable $onOutput = null
+	) :void {
+		$deleteStartedAt = \microtime( true );
+		$this->runPhase(
+			'delete',
+			fn() => $this->deleteManagedPaths( $rootDir, $containerId )
+		);
+		$this->writeProgress(
+			'Runtime refresh delete: '
+			.$deletedPathCount
+			.' paths in '
+			.$this->formatDuration( \microtime( true ) - $deleteStartedAt ),
+			$onOutput
+		);
+	}
+
+	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function extractArchiveWithProgress( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
+		$extractStartedAt = \microtime( true );
+		$this->runPhase( 'extract', function () use ( $containerId, $rootDir ) :void {
+			$this->processRunner->runOrThrow(
+				[
+					'docker',
+					'exec',
+					$containerId,
+					'tar',
+					'--overwrite',
+					'-xf',
+					self::CONTAINER_ARCHIVE_PATH,
+					'-C',
+					self::PLUGIN_ROOT,
+				],
+				$rootDir
+			);
+		} );
+		$this->writeProgress(
+			'Runtime refresh extract: '
+			.$this->formatDuration( \microtime( true ) - $extractStartedAt ),
+			$onOutput
+		);
+	}
+
+	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function verifyRequiredSentinelsWithProgress( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
 		$verifyStartedAt = \microtime( true );
 		$this->runPhase(
 			'verify',
@@ -522,18 +642,32 @@ PHP;
 			'Runtime refresh verify: '.$this->formatDuration( \microtime( true ) - $verifyStartedAt ),
 			$onOutput
 		);
+	}
 
+	/**
+	 * @param RuntimeManifest $hostManifest
+	 * @param WorkspacePaths $workspacePaths
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function writeDeployedManifest(
+		string $rootDir,
+		string $containerId,
+		array $hostManifest,
+		array $workspacePaths,
+		?callable $onOutput = null
+	) :float {
+		$copyDuration = 0.0;
 		$manifestStartedAt = \microtime( true );
-		$this->runPhase( 'manifest write', function () use ( $containerId, $hostManifest, $manifestPath, $rootDir, &$copyDuration ) :void {
+		$this->runPhase( 'manifest write', function () use ( $containerId, $hostManifest, $workspacePaths, $rootDir, &$copyDuration ) :void {
 			$manifestJson = \json_encode( $hostManifest, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES );
 			if ( !\is_string( $manifestJson ) ) {
 				throw new \RuntimeException( 'Failed to encode local browser runtime manifest.' );
 			}
-			if ( \file_put_contents( $manifestPath, $manifestJson."\n" ) === false ) {
-				throw new \RuntimeException( 'Failed to write local browser runtime manifest export: '.$manifestPath );
+			if ( \file_put_contents( $workspacePaths[ 'manifest_path' ], $manifestJson."\n" ) === false ) {
+				throw new \RuntimeException( 'Failed to write local browser runtime manifest export: '.$workspacePaths[ 'manifest_path' ] );
 			}
 			$copyStartedAt = \microtime( true );
-			$this->copyFileToContainer( $rootDir, $containerId, $manifestPath, self::CONTAINER_MANIFEST_PATH );
+			$this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'manifest_path' ], self::CONTAINER_MANIFEST_PATH );
 			$copyDuration += \microtime( true ) - $copyStartedAt;
 			$this->processRunner->runOrThrow(
 				[
@@ -551,9 +685,8 @@ PHP;
 			'Runtime refresh manifest write: '.$this->formatDuration( \microtime( true ) - $manifestStartedAt ),
 			$onOutput
 		);
-		if ( $copyDuration > 0 ) {
-			$this->writeProgress( 'Runtime refresh copy total: '.$this->formatDuration( $copyDuration ), $onOutput );
-		}
+
+		return $copyDuration;
 	}
 
 	private function copyFileToContainer( string $rootDir, string $containerId, string $sourcePath, string $targetPath ) :void {
