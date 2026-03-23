@@ -3,16 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\{
-	Abilities\AbilityDefinitions,
-	Integration\BaseIntegration,
-	Integration\UnsupportedIntegration,
-	Integration\Wp700Integration,
-	Support\Compatibility,
-	Support\QuerySurfaceAccessPolicy,
-	Transport\McpTransportInterface
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\QuerySurfaceAccessPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Utilities\Mcp\ServerRegistrar;
+use FernleafSystems\Wordpress\Services\Utilities\Mcp\Transport\McpTransportInterface;
 
 class McpCon {
 
@@ -23,15 +18,14 @@ class McpCon {
 	public const ROUTE_NAMESPACE = 'shield-security';
 	public const ROUTE_SEGMENT = 'mcp';
 
-	private ?BaseIntegration $integration = null;
+	private ?ServerRegistrar $registrar = null;
 
 	protected function run() {
-		$this->getIntegration()->register();
+		$this->getRegistrar()->register();
 	}
 
 	public function isAvailable() :bool {
-		return $this->getIntegration()->isSupported()
-			   && $this->getAccessPolicy()->isSiteExposureReady();
+		return $this->getRegistrar()->isAvailable();
 	}
 
 	public function isTransportAvailable() :bool {
@@ -39,48 +33,29 @@ class McpCon {
 			   && $this->getTransport()->isSupported();
 	}
 
-	/**
-	 * @return list<array{name:string,args:array<string,mixed>}>
-	 */
-	public function enumAbilityDefinitions() :array {
-		return ( new AbilityDefinitions() )->build();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function enumMcpAbilityNames() :array {
-		return AbilityDefinitions::MCP_ABILITY_NAMES;
-	}
-
-	/**
-	 * @return array{server_id:string,namespace:string,route:string,version:string,abilities:string[]}
-	 */
-	public function buildServerDefinition() :array {
-		return [
-			'server_id' => self::SERVER_ID,
-			'namespace' => self::ROUTE_NAMESPACE,
-			'route'     => self::ROUTE_SEGMENT,
-			'version'   => self::con()->cfg->version(),
-			'abilities' => $this->enumMcpAbilityNames(),
-		];
-	}
-
 	public function getTransport() :McpTransportInterface {
-		return $this->getIntegration()->getTransport();
+		return $this->getRegistrar()->getTransport();
 	}
 
-	public function getIntegration() :BaseIntegration {
-		if ( $this->integration === null ) {
-			$this->integration = $this->getCompatibility()->supportsAbilitiesIntegration()
-				? new Wp700Integration()
-				: new UnsupportedIntegration();
-		}
-		return $this->integration;
+	protected function getRegistrar() :ServerRegistrar {
+		return $this->registrar ??= $this->buildRegistrar();
 	}
 
-	protected function getCompatibility() :Compatibility {
-		return new Compatibility();
+	protected function buildRegistrar() :ServerRegistrar {
+		return ( new ServerRegistrar() )
+			->setServerDefinition( [
+				'server_id' => self::SERVER_ID,
+				'namespace' => self::ROUTE_NAMESPACE,
+				'route'     => self::ROUTE_SEGMENT,
+				'version'   => self::con()->cfg->version(),
+			] )
+			->setCategoryDefinition( [
+				'slug'        => AbilityDefinitions::CATEGORY_SLUG,
+				'label'       => __( 'Shield Security', 'wp-simple-firewall' ),
+				'description' => __( 'Read-only security posture and activity abilities for Shield Security.', 'wp-simple-firewall' ),
+			] )
+			->setAbilityDefinitions( ( new AbilityDefinitions() )->build() )
+			->setAvailabilityCallback( fn() :bool => $this->getAccessPolicy()->isSiteExposureReady() );
 	}
 
 	protected function getAccessPolicy() :QuerySurfaceAccessPolicy {

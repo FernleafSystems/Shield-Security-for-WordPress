@@ -6,11 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\Ab
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildScanFindings;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Utilities\Mcp\Support\RuntimeRegistry;
 
 class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		RuntimeRegistry::Reset();
 		$this->requireDb( 'scans' );
 		$this->requireDb( 'scan_items' );
 		$this->requireDb( 'scan_results' );
@@ -23,6 +25,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function tear_down() {
 		$this->unregisterShieldAbilities();
+		RuntimeRegistry::Reset();
 		parent::tear_down();
 	}
 
@@ -34,10 +37,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 			$this->markTestSkipped( 'WordPress Abilities API is unavailable in this test environment.' );
 		}
 
-		self::con()->comps->mcp->execute();
-		$integration = self::con()->comps->mcp->getIntegration();
-		$integration->registerAbilityCategory();
-		$integration->registerAbilities();
+		$this->registerShieldAbilities();
 
 		$this->assertTrue( \wp_has_ability_category( AbilityDefinitions::CATEGORY_SLUG ) );
 
@@ -97,10 +97,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 			$this->markTestSkipped( 'WordPress Abilities API is unavailable in this test environment.' );
 		}
 
-		self::con()->comps->mcp->execute();
-		$integration = self::con()->comps->mcp->getIntegration();
-		$integration->registerAbilityCategory();
-		$integration->registerAbilities();
+		$this->registerShieldAbilities();
 
 		\add_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10, 2 );
 		$result = \wp_get_ability( AbilityDefinitions::NAME_POSTURE_OVERVIEW )->execute();
@@ -123,6 +120,12 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 			 && ( !\function_exists( '\wp_has_ability_category' ) || \wp_has_ability_category( AbilityDefinitions::CATEGORY_SLUG ) ) ) {
 			\wp_unregister_ability_category( AbilityDefinitions::CATEGORY_SLUG );
 		}
+	}
+
+	private function registerShieldAbilities() :void {
+		self::con()->comps->mcp->resetExecution()->execute();
+		\do_action( 'wp_abilities_api_categories_init' );
+		\do_action( 'wp_abilities_api_init' );
 	}
 
 	public function denyRestPermissionFilter( $verify, $request ) {

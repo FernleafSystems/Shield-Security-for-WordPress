@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildScanFindings;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\QuerySurfaceAccessPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class AbilityDefinitions {
@@ -97,7 +98,7 @@ class AbilityDefinitions {
 				'description'         => $description,
 				'category'            => self::CATEGORY_SLUG,
 				'execute_callback'    => $this->buildAuditedExecuteCallback( $name, $executeCallback ),
-				'permission_callback' => fn( $input = null ) => ( new AbilityPermissions() )->canExecute( $input ),
+				'permission_callback' => fn( $input = null ) => ( new QuerySurfaceAccessPolicy() )->verifyCurrentRequest(),
 				'output_schema'       => $this->buildObjectSchema(
 					$outputDescription !== '' ? $outputDescription : $description
 				),

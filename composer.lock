@@ -574,16 +574,16 @@
         },
         {
             "name": "fernleafsystems/wordpress-services",
-            "version": "3.14.5",
+            "version": "3.15.0",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services.git",
-                "reference": "f84831626835527342204b99b56b11a463eaef43"
+                "reference": "d192b2f5b82d3905807169216ff726bfe6fb759e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=f84831626835527342204b99b56b11a463eaef43",
-                "reference": "f84831626835527342204b99b56b11a463eaef43",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=d192b2f5b82d3905807169216ff726bfe6fb759e",
+                "reference": "d192b2f5b82d3905807169216ff726bfe6fb759e",
                 "shasum": ""
             },
             "require": {
@@ -621,9 +621,9 @@
             "description": "Base WordPress Services provider for all AptoWeb WordPress plugins",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.14.5"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.15.0"
             },
-            "time": "2026-03-09T16:11:34+00:00"
+            "time": "2026-03-23T10:41:04+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",
@@ -4570,11 +4570,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.40",
+            "version": "2.1.42",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
-                "reference": "9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/1279e1ce86ba768f0780c9d889852b4e02ff40d0",
+                "reference": "1279e1ce86ba768f0780c9d889852b4e02ff40d0",
                 "shasum": ""
             },
             "require": {
@@ -4619,7 +4619,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-23T15:04:35+00:00"
+            "time": "2026-03-17T14:58:32+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
