@@ -2,10 +2,6 @@
 	margin-bottom: 1rem;
 }
 
-.configure-landing__drilldown {
-	margin-top: 1rem;
-}
-
 .configure-landing__drilldown .drill-shell {
 	min-width: 0;
 }
@@ -130,6 +126,29 @@
 	font-size: 0.75rem;
 	margin: 0;
 }
+
+.configure-zone-card__footer {
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	display: grid;
+	gap: 0.35rem;
+	margin-top: 0.75rem;
+	padding-top: 0.75rem;
+}
+
+.configure-zone-card__footer-link {
+	align-items: center;
+	color: #1d2327;
+	display: inline-flex;
+	font-size: 0.75rem;
+	font-weight: 600;
+	gap: 0.25rem;
+	text-decoration: none;
+}
+
+.configure-zone-card__footer-link:hover {
+	text-decoration: underline;
+}
+
 .configure-diagnosis {
 	display: grid;
 	gap: 1rem;

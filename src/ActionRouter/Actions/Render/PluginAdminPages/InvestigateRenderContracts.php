@@ -30,6 +30,18 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   delay_ms:int,
  *   action:array<string,mixed>
  * }
+ * @phpstan-type LookupShortcutContract array{
+ *   key:string,
+ *   href:string,
+ *   label:string,
+ *   action_type:string,
+ *   icon_class:string
+ * }
+ * @phpstan-type LookupDisplayContract array{
+ *   show_subject_header:bool,
+ *   show_lookup_with_subject:bool,
+ *   change_label:string
+ * }
  * @phpstan-type InvestigationTableContract array{
  *   title:string,
  *   status:string,
@@ -101,6 +113,48 @@ trait InvestigateRenderContracts {
 			'delay_ms'             => \max( 0, $delayMs ),
 			'action'               => ActionData::Build( InvestigateLookupSelect::class ),
 		];
+	}
+
+	protected function buildLookupAjaxAttrValue( array $lookupAjax ) :string {
+		if ( empty( $lookupAjax ) ) {
+			return '';
+		}
+
+		return \is_string( $encoded = \json_encode( $lookupAjax ) ) ? $encoded : '';
+	}
+
+	/**
+	 * @return LookupShortcutContract
+	 */
+	protected function buildLookupShortcutContract(
+		string $key,
+		string $href,
+		string $label,
+		string $actionType = 'navigate',
+		string $iconClass = ''
+	) :array {
+		return [
+			'key'         => sanitize_key( $key ),
+			'href'        => $href,
+			'label'       => $label,
+			'action_type' => sanitize_key( $actionType ),
+			'icon_class'  => \trim( $iconClass ),
+		];
+	}
+
+	/**
+	 * @param array<string,mixed> $display
+	 * @return LookupDisplayContract
+	 */
+	protected function normalizeLookupDisplayContract( array $display = [] ) :array {
+		return \array_merge(
+			[
+				'show_subject_header'      => true,
+				'show_lookup_with_subject' => false,
+				'change_label'             => '',
+			],
+			$display
+		);
 	}
 
 	protected function buildFullLogHrefWithSearch( string $nav, string $subNav, string $search ) :string {

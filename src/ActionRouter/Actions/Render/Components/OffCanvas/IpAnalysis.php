@@ -13,13 +13,11 @@ class IpAnalysis extends OffCanvasBase {
 	}
 
 	protected function buildCanvasBody() :string {
-		$renderData = ( new InvestigateByIpViewBuilder() )->build( (string)$this->action_data[ 'ip' ] );
-		$renderData[ 'vars' ][ 'offcanvas_history_mode' ] = 'replace';
-		$renderData[ 'ui' ] = [
+		$renderData = ( new InvestigateByIpViewBuilder() )->build( (string)$this->action_data[ 'ip' ], [
 			'show_lookup_with_subject' => true,
 			'show_subject_header'      => false,
-			'change_label'             => '',
-		];
+		] );
+		$renderData[ 'vars' ][ 'offcanvas_history_mode' ] = 'replace';
 
 		return self::con()
 				   ->comps

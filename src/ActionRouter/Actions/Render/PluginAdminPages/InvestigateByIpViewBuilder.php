@@ -45,20 +45,35 @@ class InvestigateByIpViewBuilder {
 	 *       delay_ms:int,
 	 *       action:array<string,mixed>
 	 *     },
+	 *     lookup_ajax_attr:string,
+	 *     lookup_shortcuts:list<array{
+	 *       key:string,
+	 *       href:string,
+	 *       label:string,
+	 *       action_type:string,
+	 *       icon_class:string
+	 *     }>,
+	 *     offcanvas_history_mode:string,
 	 *     subject_header:array{}|array{
 	 *       title:string,
 	 *       meta:string
-	 *     }
+	 *     },
+	 *   },
+	 *   display:array{
+	 *     show_subject_header:bool,
+	 *     show_lookup_with_subject:bool,
+	 *     change_label:string
 	 *   },
 	 *   content:array{
 	 *     ip_analysis:string
 	 *   }
 	 * }
 	 */
-	public function build( string $lookup ) :array {
+	public function build( string $lookup, array $display = [] ) :array {
 		$lookup = \trim( sanitize_text_field( $lookup ) );
 		$hasLookup = $lookup !== '';
 		$hasSubject = $hasLookup && Services::IP()->isValidIp( $lookup );
+		$lookupAjax = $this->buildLookupAjaxContract( 'ip', 3 );
 
 		return [
 			'flags'   => [
@@ -80,7 +95,10 @@ class InvestigateByIpViewBuilder {
 				'analyse_ip'      => $lookup,
 				'lookup_route'    => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
 				'lookup_behavior' => $this->buildLookupBehaviorContract( true, true, true ),
-				'lookup_ajax'     => $this->buildLookupAjaxContract( 'ip', 3 ),
+				'lookup_ajax'     => $lookupAjax,
+				'lookup_ajax_attr'=> $this->buildLookupAjaxAttrValue( $lookupAjax ),
+				'lookup_shortcuts'=> $this->buildLookupShortcuts(),
+				'offcanvas_history_mode' => '',
 				'subject_header'  => $hasSubject
 					? [
 						'title' => $lookup,
@@ -88,11 +106,32 @@ class InvestigateByIpViewBuilder {
 					]
 					: [],
 			],
+			'display' => $this->normalizeLookupDisplayContract( $display ),
 			'content' => [
 				'ip_analysis' => $hasSubject
 					? ( new ContainerRenderer() )->render( $lookup )
 					: '',
 			],
+		];
+	}
+
+	/**
+	 * @return list<array<string,string>>
+	 */
+	private function buildLookupShortcuts() :array {
+		$currentIp = \trim( (string)self::con()->this_req->ip );
+		if ( $currentIp === '' || !Services::IP()->isValidIp( $currentIp ) ) {
+			return [];
+		}
+
+		return [
+			$this->buildLookupShortcutContract(
+				'self',
+				self::con()->plugin_urls->investigateByIp( $currentIp ),
+				__( 'Look up yourself', 'wp-simple-firewall' ),
+				'navigate',
+				'bi bi-globe2'
+			),
 		];
 	}
 }

@@ -218,6 +218,18 @@ class AssetsCustomizer {
 					],
 				],
 			],
+			'investigate_landing' => [
+				'key'      => 'investigate_landing',
+				'required' => PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
+				'handles'  => [
+					'main',
+				],
+				'data'     => fn() => [
+					'ajax' => [
+						'batch_requests' => ActionData::Build( Actions\AjaxBatchRequests::class ),
+					],
+				],
+			],
 			'ip_analyse'       => [
 				'key'     => 'ip_analyse',
 				'handles' => [

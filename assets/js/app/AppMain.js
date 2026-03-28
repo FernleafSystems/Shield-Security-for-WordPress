@@ -92,7 +92,9 @@ export class AppMain extends AppBase {
 		this.components.drill_down = new DrillDownController();
 		this.components.step_tabs = new StepTabsController();
 		this.components.healthy_disclosure = new HealthyDisclosureController();
-		this.components.investigate_landing = new InvestigateLandingController();
+		this.components.investigate_landing = new InvestigateLandingController(
+			'investigate_landing' in comps ? comps.investigate_landing : {}
+		);
 		this.components.configure_landing = new ConfigureLandingController();
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
 		this.components.detail_row_expand = new DetailRowExpandController();

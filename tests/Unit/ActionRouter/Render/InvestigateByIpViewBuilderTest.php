@@ -85,6 +85,14 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( '/admin/activity/by_ip', $renderData[ 'hrefs' ][ 'by_ip' ] );
 		$this->assertSame( '203.0.113.88', $renderData[ 'vars' ][ 'analyse_ip' ] );
 		$this->assertSame( '203.0.113.88', $renderData[ 'vars' ][ 'subject_header' ][ 'title' ] );
+		$this->assertNotSame( '', $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' );
+		$this->assertSame( '', $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' );
+		$shortcut = $renderData[ 'vars' ][ 'lookup_shortcuts' ][ 0 ] ?? [];
+		$this->assertSame( 'self', $shortcut[ 'key' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_ip?analyse_ip=127.0.0.1', $shortcut[ 'href' ] ?? '' );
+		$this->assertSame( 'navigate', $shortcut[ 'action_type' ] ?? '' );
+		$this->assertSame( 'bi bi-globe2', $shortcut[ 'icon_class' ] ?? '' );
+		$this->assertNotSame( '', $shortcut[ 'label' ] ?? '' );
 		$this->assertSame(
 			[
 				'panel_form'            => true,
@@ -94,6 +102,14 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 			$renderData[ 'vars' ][ 'lookup_behavior' ]
 		);
 		$this->assertArrayNotHasKey( 'offcanvas_history_mode', $renderData[ 'vars' ] );
+		$this->assertSame(
+			[
+				'show_subject_header'      => true,
+				'show_lookup_with_subject' => false,
+				'change_label'             => '',
+			],
+			$renderData[ 'display' ] ?? []
+		);
 		$this->assertSame( 'ip', $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] );
 		$this->assertSame( 'rendered-ip:203.0.113.88', $renderData[ 'content' ][ 'ip_analysis' ] );
 	}
@@ -106,6 +122,8 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		$this->assertTrue( $renderData[ 'flags' ][ 'has_lookup' ] );
 		$this->assertFalse( $renderData[ 'flags' ][ 'has_subject' ] );
 		$this->assertSame( 'not-an-ip', $renderData[ 'vars' ][ 'analyse_ip' ] );
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_shortcuts' ] ?? [] );
+		$this->assertNotSame( '', $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' );
 		$this->assertSame( '', $renderData[ 'content' ][ 'ip_analysis' ] );
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_ajax' ] );
 	}

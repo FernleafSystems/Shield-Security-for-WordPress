@@ -25,6 +25,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
 		Functions\when( 'rawurlencode_deep' )->alias(
 			static function ( $value ) {
 				if ( \is_array( $value ) ) {
@@ -119,6 +120,62 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_lookup_shortcut_contract_is_normalized() :void {
+		$subject = new InvestigateRenderContractsTestDouble();
+		$shortcut = $subject->lookupShortcut(
+			'self',
+			'/admin/activity/by_ip?analyse_ip=203.0.113.8',
+			'Look up yourself',
+			'navigate',
+			'bi bi-globe2'
+		);
+
+		$this->assertSame( 'self', $shortcut[ 'key' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_ip?analyse_ip=203.0.113.8', $shortcut[ 'href' ] ?? '' );
+		$this->assertSame( 'navigate', $shortcut[ 'action_type' ] ?? '' );
+		$this->assertSame( 'bi bi-globe2', $shortcut[ 'icon_class' ] ?? '' );
+		$this->assertNotSame( '', $shortcut[ 'label' ] ?? '' );
+	}
+
+	public function test_lookup_ajax_attr_value_is_producer_encoded() :void {
+		$subject = new InvestigateRenderContractsTestDouble();
+		$ajax = [
+			'subject'              => 'user',
+			'minimum_input_length' => 1,
+			'delay_ms'             => 700,
+			'action'               => [ 'slug' => 'investigate_lookup_select' ],
+		];
+
+		$this->assertSame( '', $subject->lookupAjaxAttr( [] ) );
+		$this->assertSame( $ajax, \json_decode( $subject->lookupAjaxAttr( $ajax ), true, 512, \JSON_THROW_ON_ERROR ) );
+	}
+
+	public function test_lookup_display_contract_defaults_and_overrides() :void {
+		$subject = new InvestigateRenderContractsTestDouble();
+
+		$this->assertSame(
+			[
+				'show_subject_header'      => true,
+				'show_lookup_with_subject' => false,
+				'change_label'             => '',
+			],
+			$subject->lookupDisplay()
+		);
+
+		$this->assertSame(
+			[
+				'show_subject_header'      => false,
+				'show_lookup_with_subject' => true,
+				'change_label'             => 'Change IP address',
+			],
+			$subject->lookupDisplay( [
+				'show_subject_header'      => false,
+				'show_lookup_with_subject' => true,
+				'change_label'             => 'Change IP address',
+			] )
+		);
+	}
+
 	public function test_controller_backed_route_helpers_build_expected_contracts() :void {
 		$subject = new InvestigateRenderContractsTestDouble();
 
@@ -194,6 +251,24 @@ class InvestigateRenderContractsTestDouble {
 
 	public function lookupBehavior( bool $panelForm = true, bool $useSelect2 = false, bool $autoSubmit = false ) :array {
 		return $this->buildLookupBehaviorContract( $panelForm, $useSelect2, $autoSubmit );
+	}
+
+	public function lookupShortcut(
+		string $key,
+		string $href,
+		string $label,
+		string $actionType = 'navigate',
+		string $iconClass = ''
+	) :array {
+		return $this->buildLookupShortcutContract( $key, $href, $label, $actionType, $iconClass );
+	}
+
+	public function lookupDisplay( array $display = [] ) :array {
+		return $this->normalizeLookupDisplayContract( $display );
+	}
+
+	public function lookupAjaxAttr( array $lookupAjax ) :string {
+		return $this->buildLookupAjaxAttrValue( $lookupAjax );
 	}
 
 	public function withEmptyState( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {

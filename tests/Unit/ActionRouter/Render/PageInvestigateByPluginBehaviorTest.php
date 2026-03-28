@@ -105,6 +105,9 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_ajax' ] ?? null );
+		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? 'missing' ) );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_shortcuts' ] ?? null );
+		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' ) );
 		$this->assertSame(
 			[
 				[

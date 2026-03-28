@@ -128,6 +128,14 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'minimum_input_length' ] ?? 0 ) );
 		$this->assertSame( 700, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'delay_ms' ] ?? 0 ) );
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'action' ] ?? [] );
+		$this->assertNotSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' ) );
+		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' ) );
+		$shortcut = $renderData[ 'vars' ][ 'lookup_shortcuts' ][ 0 ] ?? [];
+		$this->assertSame( 'self', $shortcut[ 'key' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_user?user_lookup=1', $shortcut[ 'href' ] ?? '' );
+		$this->assertSame( 'navigate', $shortcut[ 'action_type' ] ?? '' );
+		$this->assertSame( 'bi bi-person-fill', $shortcut[ 'icon_class' ] ?? '' );
+		$this->assertNotSame( '', $shortcut[ 'label' ] ?? '' );
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {
@@ -367,6 +375,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_ajax' ] ?? null );
+		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? 'missing' ) );
 		$this->assertSame(
 			[
 				[

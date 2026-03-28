@@ -9,6 +9,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 		$strings = $this->getPageStrings();
 		$lookup = $this->getLookupValue( $this->getLookupQueryKey() );
 		$subject = $this->resolveSubject( $lookup );
+		$lookupAjax = $this->buildLookupAjaxPayload();
 
 		$hasLookup = !empty( $lookup );
 		$hasSubject = !empty( $subject );
@@ -74,7 +75,10 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				$this->getLookupOptionsVarKey() => $this->buildLookupOptionsPayload(),
 				'lookup_route'                  => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
 				'lookup_behavior'               => $this->buildLookupBehaviorContract( true, true, true ),
-				'lookup_ajax'                   => $this->buildLookupAjaxPayload(),
+				'lookup_ajax'                   => $lookupAjax,
+				'lookup_ajax_attr'              => $this->buildLookupAjaxAttrValue( $lookupAjax ),
+				'lookup_shortcuts'              => [],
+				'offcanvas_history_mode'        => '',
 				'subject_header'                => $subjectHeader,
 				'tabs'                          => $tabs,
 				'rail_nav_items'                => $railNavItems,

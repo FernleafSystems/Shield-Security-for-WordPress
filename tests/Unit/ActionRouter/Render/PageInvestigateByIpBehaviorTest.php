@@ -113,6 +113,17 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 3, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'minimum_input_length' ] ?? 0 ) );
 		$this->assertSame( 700, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'delay_ms' ] ?? 0 ) );
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'action' ] ?? [] );
+		$this->assertNotSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' ) );
+		$shortcut = $renderData[ 'vars' ][ 'lookup_shortcuts' ][ 0 ] ?? [];
+		$this->assertSame( 'self', $shortcut[ 'key' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_ip?analyse_ip=127.0.0.1', $shortcut[ 'href' ] ?? '' );
+		$this->assertSame( 'navigate', $shortcut[ 'action_type' ] ?? '' );
+		$this->assertSame( 'bi bi-globe2', $shortcut[ 'icon_class' ] ?? '' );
+		$this->assertNotSame( '', $shortcut[ 'label' ] ?? '' );
+		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' ) );
+		$this->assertTrue( (bool)( $renderData[ 'display' ][ 'show_subject_header' ] ?? false ) );
+		$this->assertFalse( (bool)( $renderData[ 'display' ][ 'show_lookup_with_subject' ] ?? true ) );
+		$this->assertNotSame( '', (string)( $renderData[ 'display' ][ 'change_label' ] ?? '' ) );
 	}
 
 	public function test_invalid_lookup_sets_has_lookup_without_subject() :void {

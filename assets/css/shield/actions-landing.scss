@@ -1,7 +1,3 @@
-.actions-landing__drilldown {
-	margin-top: 1rem;
-}
-
 .actions-landing__drilldown .drill-shell {
 	min-width: 0;
 }
@@ -19,28 +15,6 @@
 	display: grid;
 	gap: 0.9rem;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.finding-card {
-	align-items: flex-start;
-	appearance: none;
-	background: #fff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: 10px;
-	color: #1d2327;
-	display: flex;
-	font: inherit;
-	gap: 0.875rem;
-	line-height: inherit;
-	margin-bottom: 0.5rem;
-	padding: 1rem 1.25rem;
-	text-align: left;
-	width: 100%;
-}
-
-.finding-card.status-good {
-	background: linear-gradient(135deg, #f6faf7 0%, #edf5ef 100%);
-	border-color: rgba($status-color-good, 0.25);
 }
 
 .actions-queue-bucket-card {
@@ -180,8 +154,8 @@
 }
 
 .actions-queue-groups__findings {
-	display: flex;
-	flex-direction: column;
+	display: grid;
+	gap: 1.2rem;
 }
 
 .finding-group__heading {
@@ -199,142 +173,20 @@
 	margin-top: 0;
 }
 
-.finding-card__icon {
-	flex-shrink: 0;
-	font-size: 1.125rem;
-	margin-top: 0.125rem;
+.actions-queue-groups__healthy-body .configure-zone-card.status-good {
+	background: linear-gradient(135deg, #f6faf7 0%, #edf5ef 100%);
+	border-color: rgba($status-color-good, 0.25);
 }
 
-.finding-card__icon.status-critical {
-	color: $status-color-critical;
-}
-
-.finding-card__icon.status-warning {
-	color: $status-color-warning;
-}
-
-.finding-card__icon.status-good {
+.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__icon,
+.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__title,
+.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__status,
+.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__footer-link {
 	color: $status-color-good;
 }
 
-.finding-card__icon.status-neutral,
-.finding-card__icon.status-info {
-	color: $status-color-info;
-}
-
-.finding-card__body {
-	flex: 1;
-	min-width: 0;
-}
-
-.finding-card__title {
-	font-size: 0.875rem;
-	font-weight: 600;
-	margin-bottom: 0.25rem;
-}
-
-.finding-card.status-good .finding-card__title {
-	color: $status-color-good;
-}
-
-.finding-card__desc {
-	color: #5f6974;
-	font-size: 0.8125rem;
-	line-height: 1.45;
-	margin-bottom: 0.625rem;
-}
-
-.finding-card.status-good .finding-card__desc {
+.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__oneliner {
 	color: #49604f;
-}
-
-.finding-card__links {
-	display: flex;
-	flex-direction: column;
-	flex-shrink: 0;
-	gap: 0.35rem;
-	margin-left: auto;
-	padding-left: 0.75rem;
-}
-
-.finding-card__link {
-	align-items: center;
-	color: $status-color-critical;
-	display: inline-flex;
-	font-size: 0.75rem;
-	font-weight: 600;
-	gap: 0.25rem;
-	justify-content: flex-end;
-	text-decoration: none;
-}
-
-.finding-card__link:hover {
-	text-decoration: underline;
-}
-
-.finding-card.status-good .finding-card__link {
-	color: $status-color-good;
-}
-
-@media (max-width: 767px) {
-	.finding-card__links {
-		padding-left: 0.5rem;
-	}
-}
-
-.finding-card__drill-hint {
-	align-items: center;
-	display: flex;
-	font-size: 0.75rem;
-	font-weight: 600;
-	gap: 0.25rem;
-	margin-top: 0.25rem;
-}
-
-.finding-card.status-critical .finding-card__drill-hint {
-	color: $status-color-critical;
-}
-
-.finding-card.status-warning .finding-card__drill-hint {
-	color: $status-color-warning;
-}
-
-.finding-card.status-good .finding-card__drill-hint {
-	color: $status-color-good;
-}
-
-.finding-card.status-neutral .finding-card__drill-hint,
-.finding-card.status-info .finding-card__drill-hint {
-	color: $status-color-info;
-}
-
-.finding-card--expandable {
-	cursor: pointer;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.finding-card--expandable:hover,
-.finding-card--expandable:focus-visible {
-	border-color: $border-color-neutral-strong;
-	box-shadow: 0 2px 8px rgba( 0, 0, 0, 0.06 );
-	outline: none;
-}
-
-.finding-card--expandable.status-good:hover,
-.finding-card--expandable.status-good:focus-visible {
-	border-color: rgba($status-color-good, 0.45);
-}
-
-.finding-card__chevron {
-	align-self: center;
-	color: #5f6974;
-	flex-shrink: 0;
-	font-size: 1rem;
-	margin-left: auto;
-}
-
-.finding-card.status-good .finding-card__chevron {
-	color: $status-color-good;
 }
 
 .actions-queue-detail {

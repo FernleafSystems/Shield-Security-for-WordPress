@@ -1,7 +1,6 @@
-{# TODO: If this partial gains another UI mode or consumer, replace the ad hoc ui overlay with a dedicated view-model contract. #}
-{% set show_lookup_with_subject = ui.show_lookup_with_subject|default(false) %}
-{% set show_subject_header = ui.show_subject_header is defined ? ui.show_subject_header : true %}
-{% set change_label = ui.change_label|default('') %}
+{% set show_lookup_with_subject = display.show_lookup_with_subject %}
+{% set show_subject_header = display.show_subject_header %}
+{% set change_label = display.change_label %}
 
 {% if flags.has_subject %}
 	{% if show_subject_header %}
@@ -16,13 +15,14 @@
 			action: hrefs.by_ip,
 			lookup_route: vars.lookup_route,
 			lookup_behavior: vars.lookup_behavior,
-			lookup_ajax: vars.lookup_ajax,
-			offcanvas_history_mode: vars.offcanvas_history_mode|default(''),
+			lookup_ajax_attr: vars.lookup_ajax_attr,
+			offcanvas_history_mode: vars.offcanvas_history_mode,
 			label: strings.lookup_label,
 			input_name: 'analyse_ip',
 			input_type: 'select',
 			input_value: vars.analyse_ip,
 			selected_option_label: vars.analyse_ip,
+			shortcuts: [],
 			options: [],
 			placeholder: strings.lookup_placeholder,
 			submit_text: strings.lookup_submit,
@@ -40,13 +40,14 @@
 		action: hrefs.by_ip,
 		lookup_route: vars.lookup_route,
 		lookup_behavior: vars.lookup_behavior,
-		lookup_ajax: vars.lookup_ajax,
-		offcanvas_history_mode: vars.offcanvas_history_mode|default(''),
+		lookup_ajax_attr: vars.lookup_ajax_attr,
+		offcanvas_history_mode: vars.offcanvas_history_mode,
 		label: strings.lookup_label,
 		input_name: 'analyse_ip',
 		input_type: 'select',
 		input_value: vars.analyse_ip,
 		selected_option_label: vars.analyse_ip,
+		shortcuts: vars.lookup_shortcuts,
 		options: [],
 		placeholder: strings.lookup_placeholder,
 		submit_text: strings.lookup_submit,

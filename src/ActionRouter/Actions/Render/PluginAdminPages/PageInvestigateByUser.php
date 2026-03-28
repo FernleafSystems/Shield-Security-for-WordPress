@@ -28,6 +28,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigatio
 	ForTraffic as InvestigationTrafficTableBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
+use FernleafSystems\Wordpress\Services\Services;
+
 class PageInvestigateByUser extends BasePluginAdminPage {
 
 	use InvestigateRenderContracts;
@@ -47,6 +49,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$hasSubject = $subject instanceof \WP_User;
 		$subjectNotFound = $hasLookup && !$hasSubject;
 		$useStaticLookup = $userLookupBuilder->shouldUseStaticSelect();
+		$lookupAjax = $useStaticLookup ? [] : $this->buildLookupAjaxContract( 'user', 1 );
 
 		$summaryStats = [];
 		$overviewRows = [];
@@ -108,7 +111,10 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'user_lookup_label'=> $hasSubject ? $userLookupBuilder->formatLabel( $subject ) : $lookup,
 				'lookup_route'     => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
 				'lookup_behavior'  => $this->buildLookupBehaviorContract( true, true, true ),
-				'lookup_ajax'      => $useStaticLookup ? [] : $this->buildLookupAjaxContract( 'user', 1 ),
+				'lookup_ajax'      => $lookupAjax,
+				'lookup_ajax_attr' => $this->buildLookupAjaxAttrValue( $lookupAjax ),
+				'lookup_shortcuts' => $this->buildLookupShortcuts(),
+				'offcanvas_history_mode' => '',
 				'subject_header'   => $subjectHeader,
 				'overview_rows'    => $overviewRows,
 				'rail_nav_items'   => $railNavItems,
@@ -424,5 +430,25 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	protected function getUserLookupBuilder() :InvestigateUserLookupBuilder {
 		return new InvestigateUserLookupBuilder();
+	}
+
+	/**
+	 * @return list<array<string,string>>
+	 */
+	private function buildLookupShortcuts() :array {
+		$currentUserId = (int)Services::WpUsers()->getCurrentWpUserId();
+		if ( $currentUserId < 1 ) {
+			return [];
+		}
+
+		return [
+			$this->buildLookupShortcutContract(
+				'self',
+				self::con()->plugin_urls->investigateByUser( (string)$currentUserId ),
+				__( 'Look up yourself', 'wp-simple-firewall' ),
+				'navigate',
+				'bi bi-person-fill'
+			),
+		];
 	}
 }

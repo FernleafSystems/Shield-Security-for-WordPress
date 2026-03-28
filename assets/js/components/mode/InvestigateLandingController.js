@@ -1,6 +1,7 @@
 import { Tab } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
+import { AjaxBatchService } from "../services/AjaxBatchService";
 import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
@@ -19,6 +20,12 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.subjectTiles = new Map();
 		this.defaultPanelHeader = this.buildEmptyHeader();
 		this.panelRequestKey = '';
+		this.batchRequestData = this._base_data?.ajax?.batch_requests || {};
+		this.genericPanelCache = new Map();
+		this.genericPanelPending = new Map();
+		this.preloadedRoots = new WeakSet();
+		this.preloadingRoots = new WeakSet();
+		this.lastInvestigateRoot = null;
 
 		this.bindHandlers();
 		this.initializeCurrentRoot();
@@ -57,6 +64,11 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	initializeCurrentRoot() {
 		this.rootEl = this.getRoot();
+		if ( this.rootEl !== this.lastInvestigateRoot ) {
+			this.genericPanelCache = new Map();
+			this.genericPanelPending = new Map();
+			this.lastInvestigateRoot = this.rootEl;
+		}
 		this.shellEl = this.getShell( this.rootEl );
 		this.panelEl = this.getPanel( this.rootEl );
 		this.subjectTiles = this.collectSubjectTiles( this.rootEl );
@@ -68,6 +80,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		UiContentActivator.activateCurrentWithinRoot( this.rootEl );
+		this.seedGenericPanelCacheFromPanel( this.panelEl );
+		this.preloadGenericPanels();
 
 		if ( this.isPanelLoaded( this.panelEl ) ) {
 			this.syncPanelChrome( this.panelEl, true );
@@ -124,18 +138,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	}
 
 	handleChangeSubjectClick( changeLink, evt ) {
-		const panel = this.findPanelFromElement( changeLink );
-		if ( panel === null ) {
-			return;
-		}
-
-		const selection = this.getCurrentSelection( panel );
-		if ( selection === null ) {
-			return;
-		}
-
 		evt.preventDefault();
-		this.reloadGenericSelectionPanel( panel, selection ).finally();
+		this.resetCurrentSelection( changeLink ).finally();
 	}
 
 	handlePanelFormSubmit( form, evt ) {
@@ -268,6 +272,23 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		const nextSelection = selection || this.getCurrentSelection( panel );
+		if ( nextSelection !== null && this.canReuseGenericPanel( nextSelection, reqData ) ) {
+			return this.loadGenericPanelBody( panel, nextSelection, { historyUrl, hash } );
+		}
+
+		return this.sendPanelRequest(
+			panel,
+			reqData,
+			nextSelection,
+			{
+				historyUrl,
+				hash,
+				cacheGenericSelection: nextSelection !== null && this.canCacheGenericPanel( nextSelection, reqData ),
+			}
+		);
+	}
+
+	sendPanelRequest( panel, reqData, nextSelection, { historyUrl = '', hash = '', cacheGenericSelection = false } = {} ) {
 		const requestKey = `${Date.now()}-${Math.random()}`;
 		this.panelRequestKey = requestKey;
 
@@ -284,14 +305,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 				const panelBodyHtml = ( resp && resp.success && resp.data && typeof resp.data.render_output === 'string' )
 					? resp.data.render_output
 					: '';
-				if ( this.applyPanelBodyToPanel( panel, panelBodyHtml ) ) {
-					this.setPanelLoadedState( panel, true );
-					this.syncPanelLivePolling( panel );
-					this.finalizePanelRequestState(
-						this.buildSelectionHeader( nextSelection ),
-						historyUrl
-					);
-					this.activatePanelHash( hash );
+				if ( cacheGenericSelection ) {
+					this.cacheGenericPanelHtml( nextSelection?.key || '', panelBodyHtml );
+				}
+				if ( this.finalizeSuccessfulPanelLoad( panel, panelBodyHtml, nextSelection, historyUrl, hash ) ) {
 					return;
 				}
 
@@ -308,6 +325,76 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 					this.panelRequestKey = '';
 				}
 			} );
+	}
+
+	loadGenericPanelBody( panel, selection, { historyUrl = '', hash = '' } = {} ) {
+		const cachedHtml = this.readCachedGenericPanelHtml( selection.key );
+		if ( cachedHtml.length > 0 ) {
+			this.cancelPanelRequest();
+			this.setPanelLoadingState( panel, false );
+			this.finalizeSuccessfulPanelLoad( panel, cachedHtml, selection, historyUrl, hash );
+			return Promise.resolve();
+		}
+
+		const pending = this.genericPanelPending.get( selection.key ) || null;
+		if ( pending instanceof Promise ) {
+			const requestKey = `${Date.now()}-${Math.random()}`;
+			this.panelRequestKey = requestKey;
+			this.renderPanelLoadingMarkup( panel );
+			this.setPanelLoadingState( panel, true );
+
+			return pending
+				.then( ( panelBodyHtml ) => {
+					if ( this.panelRequestKey !== requestKey ) {
+						return;
+					}
+
+					if ( this.finalizeSuccessfulPanelLoad( panel, panelBodyHtml, selection, historyUrl, hash ) ) {
+						return;
+					}
+
+					this.handlePanelLoadFailure( panel, selection, historyUrl );
+				} )
+				.catch( () => {
+					if ( this.panelRequestKey !== requestKey ) {
+						return;
+					}
+
+					this.setPanelLoadingState( panel, false );
+					this.panelRequestKey = '';
+					return this.sendPanelRequest(
+						panel,
+						{
+							...selection.render_action,
+						},
+						selection,
+						{
+							historyUrl,
+							hash,
+							cacheGenericSelection: true,
+						}
+					);
+				} )
+				.finally( () => {
+					if ( this.panelRequestKey === requestKey ) {
+						this.setPanelLoadingState( panel, false );
+						this.panelRequestKey = '';
+					}
+				} );
+		}
+
+		return this.sendPanelRequest(
+			panel,
+			{
+				...selection.render_action,
+			},
+			selection,
+			{
+				historyUrl,
+				hash,
+				cacheGenericSelection: true,
+			}
+		);
 	}
 
 	findPanelFromElement( el ) {
@@ -499,6 +586,15 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	resolveRootContext( contextEl = null ) {
 		if ( contextEl instanceof Element ) {
+			if ( contextEl.matches( '[data-investigate-landing="1"]' ) ) {
+				return contextEl;
+			}
+
+			const nestedRoot = contextEl.querySelector?.( '[data-investigate-landing="1"]' ) || null;
+			if ( nestedRoot instanceof HTMLElement ) {
+				return nestedRoot;
+			}
+
 			return contextEl.closest( '[data-investigate-landing="1"]' );
 		}
 		return this.rootEl || this.getRoot();
@@ -569,20 +665,6 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.updatePanelLayerHeader( header );
 	}
 
-	reloadGenericSelectionPanel( panel, selection ) {
-		return this.loadPanelBodyFromRenderAction(
-			panel,
-			{
-				...selection.render_action,
-			},
-			{
-				selection,
-				historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
-				hash: '',
-			}
-		);
-	}
-
 	resetCurrentSelection( contextEl = null ) {
 		const root = this.resolveRootContext( contextEl );
 		if ( root === null ) {
@@ -601,7 +683,17 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return Promise.resolve();
 		}
 
-		return this.reloadGenericSelectionPanel( this.panelEl, selection );
+		return this.loadPanelBodyFromRenderAction(
+			this.panelEl,
+			{
+				...selection.render_action,
+			},
+			{
+				selection,
+				historyUrl: this.buildLandingUrlForSelection( selection, selection.render_action ),
+				hash: '',
+			}
+		);
 	}
 
 	replaceHistoryUrl( nextUrl ) {
@@ -668,6 +760,21 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		panelContent.innerHTML = panelBodyHtml;
 		this.syncPanelChrome( panel, true );
 		UiContentActivator.activateCurrentSubtree( panelContent );
+		return true;
+	}
+
+	finalizeSuccessfulPanelLoad( panel, panelBodyHtml, nextSelection, historyUrl, hash ) {
+		if ( !this.applyPanelBodyToPanel( panel, panelBodyHtml ) ) {
+			return false;
+		}
+
+		this.setPanelLoadedState( panel, true );
+		this.syncPanelLivePolling( panel );
+		this.finalizePanelRequestState(
+			this.buildSelectionHeader( nextSelection ),
+			historyUrl
+		);
+		this.activatePanelHash( hash );
 		return true;
 	}
 
@@ -861,6 +968,175 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	getPanelHeaderContainer( panel ) {
 		return panel.querySelector( '[data-investigate-panel-header="1"]' );
+	}
+
+	preloadGenericPanels() {
+		const root = this.rootEl;
+		if ( root === null
+			|| Object.keys( this.batchRequestData || {} ).length < 1
+			|| this.preloadingRoots.has( root )
+			|| this.preloadedRoots.has( root ) ) {
+			return;
+		}
+
+		const preloadableSelections = [ ...this.subjectTiles.values() ].filter(
+			( selection ) => this.canPreloadSelection( selection )
+				&& !this.genericPanelCache.has( selection.key )
+				&& !this.genericPanelPending.has( selection.key )
+		);
+		if ( preloadableSelections.length < 1 ) {
+			this.preloadedRoots.add( root );
+			return;
+		}
+
+		const batch = new AjaxBatchService( this.batchRequestData );
+		let queuedRequests = 0;
+
+		preloadableSelections.forEach( ( selection ) => {
+			const trackedPromise = new Promise( ( resolve, reject ) => {
+				batch.add( {
+					id: this.buildGenericBatchId( selection.key ),
+					request: {
+						...selection.render_action,
+					},
+					onSuccess: ( result ) => {
+						if ( this.lastInvestigateRoot !== root ) {
+							reject( new Error( 'Investigate preload root changed.' ) );
+							return;
+						}
+
+						const panelBodyHtml = this.extractBatchPanelHtml( result );
+						if ( panelBodyHtml.length < 1 ) {
+							reject( new Error( 'Investigate preload returned no panel HTML.' ) );
+							return;
+						}
+
+						this.cacheGenericPanelHtml( selection.key, panelBodyHtml );
+						resolve( panelBodyHtml );
+					},
+					onError: ( result ) => {
+						reject( new Error( String( result?.error || result?.data?.message || 'Investigate preload failed.' ) ) );
+					},
+				} );
+			} ).finally( () => {
+				if ( this.genericPanelPending.get( selection.key ) === trackedPromise ) {
+					this.genericPanelPending.delete( selection.key );
+				}
+			} );
+
+			this.genericPanelPending.set( selection.key, trackedPromise );
+			queuedRequests++;
+		} );
+
+		if ( queuedRequests < 1 ) {
+			this.preloadedRoots.add( root );
+			return;
+		}
+
+		this.preloadingRoots.add( root );
+		batch.flush()
+			.finally( () => {
+				this.preloadingRoots.delete( root );
+				this.preloadedRoots.add( root );
+			} );
+	}
+
+	canPreloadSelection( selection ) {
+		return selection !== null
+			&& selection.key.length > 0
+			&& !selection.is_live
+			&& selection.render_action
+			&& typeof selection.render_action === 'object'
+			&& Object.keys( selection.render_action ).length > 0;
+	}
+
+	canReuseGenericPanel( selection, reqData ) {
+		return this.canCacheGenericPanel( selection, reqData );
+	}
+
+	canCacheGenericPanel( selection, reqData ) {
+		return selection !== null
+			&& selection.key.length > 0
+			&& !selection.is_live
+			&& selection.render_action
+			&& typeof reqData === 'object'
+			&& !this.selectionHasLookupValue( selection, reqData );
+	}
+
+	selectionHasLookupValue( selection, reqData ) {
+		if ( selection.lookup_key.length < 1 ) {
+			return false;
+		}
+
+		return String( reqData?.[ selection.lookup_key ] || '' ).trim().length > 0;
+	}
+
+	seedGenericPanelCacheFromPanel( panel ) {
+		if ( !( panel instanceof HTMLElement ) || !this.isPanelLoaded( panel ) ) {
+			return;
+		}
+
+		const selection = this.getCurrentSelection( panel );
+		if ( selection === null || !this.canCacheGenericPanel( selection, this.buildRequestDataFromCurrentUrl( selection ) ) ) {
+			return;
+		}
+
+		const panelContent = this.getPanelContentContainer( panel );
+		const panelBodyHtml = typeof panelContent?.innerHTML === 'string'
+			? panelContent.innerHTML.trim()
+			: '';
+		if ( panelBodyHtml.length > 0 ) {
+			this.cacheGenericPanelHtml( selection.key, panelBodyHtml );
+		}
+	}
+
+	buildRequestDataFromCurrentUrl( selection ) {
+		const requestData = {
+			...selection.render_action,
+		};
+		if ( selection.lookup_key.length < 1 ) {
+			return requestData;
+		}
+
+		let currentUrl;
+		try {
+			currentUrl = new URL( window.location.href );
+		}
+		catch ( e ) {
+			return requestData;
+		}
+
+		const lookupValue = String( currentUrl.searchParams.get( selection.lookup_key ) || '' ).trim();
+		if ( lookupValue.length > 0 ) {
+			requestData[ selection.lookup_key ] = lookupValue;
+		}
+		return requestData;
+	}
+
+	buildGenericBatchId( subjectKey ) {
+		return `investigate-generic-${subjectKey}`;
+	}
+
+	extractBatchPanelHtml( result ) {
+		return typeof result?.data?.render_output === 'string'
+			? result.data.render_output
+			: '';
+	}
+
+	cacheGenericPanelHtml( subjectKey, panelBodyHtml ) {
+		if ( typeof subjectKey !== 'string' || subjectKey.trim().length < 1 ) {
+			return;
+		}
+
+		const normalizedHtml = typeof panelBodyHtml === 'string' ? panelBodyHtml.trim() : '';
+		if ( normalizedHtml.length > 0 ) {
+			this.genericPanelCache.set( subjectKey.trim(), normalizedHtml );
+		}
+	}
+
+	readCachedGenericPanelHtml( subjectKey ) {
+		const cachedHtml = this.genericPanelCache.get( String( subjectKey || '' ).trim() ) || '';
+		return typeof cachedHtml === 'string' ? cachedHtml : '';
 	}
 
 	activatePanelHash( hash ) {

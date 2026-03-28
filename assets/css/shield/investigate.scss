@@ -1,8 +1,4 @@
 /* Landing */
-.investigate-landing__drilldown {
-	margin-top: 1rem;
-}
-
 .investigate-landing__drilldown .drill-shell {
 	min-width: 0;
 }
@@ -243,6 +239,25 @@
 
 .investigate-lookup-strip__field {
 	flex: 1;
+}
+
+.investigate-lookup-strip__label-row {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	justify-content: flex-start;
+	margin-bottom: 0.3rem;
+}
+
+.investigate-lookup-strip__label-row .form-label {
+	margin-bottom: 0;
+}
+
+.investigate-lookup-strip__shortcuts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
 }
 
 .investigate-lookup-strip__field .form-control,

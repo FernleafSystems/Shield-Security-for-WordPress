@@ -10,7 +10,9 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 	protected function getRenderData() :array {
 		$con = self::con();
 		$lookup = $this->getTextInputFromRequestOrActionData( 'analyse_ip' );
-		$shared = ( new InvestigateByIpViewBuilder() )->build( $lookup );
+		$shared = ( new InvestigateByIpViewBuilder() )->build( $lookup, [
+			'change_label' => __( 'Change IP address', 'wp-simple-firewall' ),
+		] );
 
 		return [
 			'flags'   => $shared[ 'flags' ],
@@ -25,10 +27,10 @@ class PageInvestigateByIp extends BasePluginAdminPage {
 				[
 				'inner_page_title'    => __( 'Investigate By IP', 'wp-simple-firewall' ),
 				'inner_page_subtitle' => __( 'Inspect sessions, activity, and request behavior for a specific IP address.', 'wp-simple-firewall' ),
-				'change_subject'      => __( 'Change IP address', 'wp-simple-firewall' ),
 				]
 			),
 			'vars'    => $shared[ 'vars' ],
+			'display' => $shared[ 'display' ],
 			'content' => $shared[ 'content' ],
 		];
 	}

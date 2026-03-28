@@ -2,9 +2,10 @@
 {% set panel_status = panel.status|default('neutral') %}
 {% set panel_class = panel.class|default('') %}
 {% set panel_is_open = panel.is_open|default(false) %}
+{% set panel_spacing_top = panel.spacing_top|default('md') %}
 
 <section id="{{ panel_id }}"
-		 class="card shield-card mt-3 status-{{ panel_status }}{% if not panel_is_open %} d-none{% endif %}{% if panel_class is not empty %} {{ panel_class }}{% endif %}"
+		 class="card shield-card{% if panel_spacing_top != 'none' %} mt-3{% endif %} status-{{ panel_status }}{% if not panel_is_open %} d-none{% endif %}{% if panel_class is not empty %} {{ panel_class }}{% endif %}"
 		 data-mode-panel="1"
 		 data-mode-panel-target="{{ panel.target|default('') }}"
 		 {% if panel.target_default|default('') is not empty %}
