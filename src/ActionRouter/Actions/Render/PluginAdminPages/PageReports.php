@@ -87,7 +87,6 @@ class PageReports extends BasePluginAdminPage {
 	/**
 	 * @return array{
 	 *   menu_title:string,
-	 *   landing_cta:string,
 	 *   page_title:string,
 	 *   page_subtitle:string,
 	 *   content_key:string,

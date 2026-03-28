@@ -40,10 +40,10 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_landing_vars_include_two_tiles_and_inline_settings_panel() :void {
+	public function test_workspace_contracts_include_two_cards_and_inline_settings_panel() :void {
 		$page = new PageReportsLanding();
-		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
-		$tiles = $vars[ 'report_tiles' ] ?? [];
+		$cards = $this->invokeNonPublicMethod( $page, 'getWorkspaceCards' );
+		$panels = $this->invokeNonPublicMethod( $page, 'getWorkspacePanels' );
 
 		$this->assertSame(
 			ReportsTable::class,
@@ -60,73 +60,75 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertCount( 2, $tiles );
+		$this->assertCount( 2, $cards );
+		$this->assertCount( 2, $panels );
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_REPORTS_LIST,
 				PluginNavs::SUBNAV_REPORTS_SETTINGS,
 			],
-			\array_column( $tiles, 'key' )
+			\array_column( $cards, 'key' )
 		);
-		$this->assertSame( 'reports_table', $tiles[ 0 ][ 'panel_variant' ] ?? '' );
-		$this->assertSame( 'rendered-1', $tiles[ 0 ][ 'panel_content' ] ?? '' );
-		$this->assertSame( 'config_form', $tiles[ 1 ][ 'panel_variant' ] ?? '' );
-		$this->assertSame( 'rendered-2', $tiles[ 1 ][ 'panel_content' ] ?? '' );
-		$this->assertSame( 'Security Reports', $tiles[ 0 ][ 'step' ][ 'breadcrumb_label' ] ?? '' );
-		$this->assertSame( 'reports', $tiles[ 0 ][ 'step' ][ 'color_key' ] ?? '' );
-		$this->assertNotSame( '', $tiles[ 0 ][ 'step_json' ] ?? '' );
-	}
-
-	public function test_landing_hrefs_include_canonical_and_legacy_workspace_routes() :void {
-		$page = new PageReportsLanding();
-		$hrefs = $this->invokeNonPublicMethod( $page, 'getLandingHrefs' );
-
+		$this->assertSame( 'button', $cards[ 0 ][ 'tile' ][ 'tag' ] ?? '' );
+		$this->assertSame( 'workspace', $cards[ 0 ][ 'tile' ][ 'data_drill_target' ] ?? '' );
+		$this->assertSame( 'rendered-1', $panels[ 0 ][ 'body' ] ?? '' );
+		$this->assertSame( 'rendered-2', $panels[ 1 ][ 'body' ] ?? '' );
+		$this->assertTrue( (bool)( $panels[ 0 ][ 'is_default' ] ?? false ) );
+		$this->assertFalse( (bool)( $panels[ 1 ][ 'is_default' ] ?? true ) );
+		$this->assertNotSame( '', $panels[ 0 ][ 'data_reports_workspace_selection' ] ?? '' );
 		$this->assertSame(
-			[
-				'reports_list'     => '/admin/reports/list',
-				'reports_alerts'   => '/admin/reports/alerts',
-				'reports_reporting' => '/admin/reports/reporting',
-				'reports_charts'   => '/admin/reports/charts',
-				'reports_settings' => '/admin/reports/settings',
-			],
-			$hrefs
+			'Manage instant alerts and report delivery settings together.',
+			$panels[ 1 ][ 'description' ] ?? ''
 		);
+
+		$listSelection = \json_decode(
+			(string)( $cards[ 0 ][ 'tile' ][ 'data_reports_workspace_selection' ] ?? '' ),
+			true
+		);
+		$this->assertIsArray( $listSelection );
+		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $listSelection[ 'key' ] ?? '' );
+		$this->assertSame( 'Security Reports', $listSelection[ 'label' ] ?? '' );
+		$this->assertSame( 'Security Reports', $listSelection[ 'header' ][ 'title' ] ?? '' );
+		$this->assertSame( 'reports', $listSelection[ 'header' ][ 'color_key' ] ?? '' );
 	}
 
-	public function test_landing_panel_defaults_to_security_reports_subnav() :void {
-		$page = new PageReportsLanding();
-		$panel = $this->invokeNonPublicMethod( $page, 'getLandingPanel' );
-
-		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $panel[ 'active_target' ] ?? '' );
-	}
-
-	public function test_landing_strings_include_hint_message() :void {
-		$page = new PageReportsLanding();
-		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
-		$this->assertSame( 'Select a reports area above to view details.', $strings[ 'landing_hint' ] ?? '' );
-	}
-
-	public function test_mode_shell_contract_is_exposed_in_render_data() :void {
+	public function test_render_data_exposes_drill_shell_and_clears_legacy_mode_panel_contract() :void {
 		$page = new PageReportsLanding();
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$vars = $renderData[ 'vars' ] ?? [];
 
-		$this->assertSame( 'reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
-		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
-		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
-		$this->assertSame( '/admin/home', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? false ) );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
-		$this->assertSame( 'Reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
-		$this->assertSame( 'reports', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
-		$this->assertCount( 2, $renderData[ 'vars' ][ 'mode_tiles' ] ?? [] );
-		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? '' );
-		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_panel' ][ 'is_open' ] ?? false ) );
+		$this->assertSame( 'reports', $vars[ 'mode_shell' ][ 'mode' ] ?? '' );
+		$this->assertSame( 'warning', $vars[ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertSame( 'compact', $vars[ 'mode_shell' ][ 'header_density' ] ?? '' );
+		$this->assertSame( '/admin/home', $vars[ 'mode_shell' ][ 'home_href' ] ?? '' );
+		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
+		$this->assertFalse( (bool)( $vars[ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
+		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
+		$this->assertSame( 'Reports', $vars[ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertSame( 'reports', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
+		$this->assertSame( [], $vars[ 'mode_tiles' ] ?? [ 'unexpected' ] );
+		$this->assertSame( '', $vars[ 'mode_panel' ][ 'active_target' ] ?? 'unexpected' );
+		$this->assertFalse( (bool)( $vars[ 'mode_panel' ][ 'is_open' ] ?? true ) );
+		$this->assertSame( 'reports_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
+		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
+		$this->assertSame( [ 'workspaces', 'workspace' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
+		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspaces.twig', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
+		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspace.twig', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
+		$this->assertSame( 'Workspace', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
+		$this->assertSame( 'Select', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'badge' ] ?? '' );
+		$this->assertSame(
+			[
+				'/wpadmin/components/reports/layer_workspaces.twig',
+				'/wpadmin/components/reports/layer_workspace.twig',
+			],
+			\array_column( $this->renderCapture->template_calls ?? [], 'template' )
+		);
 	}
 
 	private function installControllerStub() :void {
 		$this->renderCapture = (object)[
-			'calls' => [],
+			'calls'          => [],
+			'template_calls' => [],
 		];
 
 		/** @var Controller $controller */
@@ -172,6 +174,35 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 							];
 						}
 					};
+				}
+			},
+			'render' => new class( $this->renderCapture ) {
+				private object $capture;
+
+				private string $template = '';
+
+				private array $vars = [];
+
+				public function __construct( object $capture ) {
+					$this->capture = $capture;
+				}
+
+				public function setTemplate( string $template ) :self {
+					$this->template = $template;
+					return $this;
+				}
+
+				public function setData( array $vars ) :self {
+					$this->vars = $vars;
+					return $this;
+				}
+
+				public function render() :string {
+					$this->capture->template_calls[] = [
+						'template' => $this->template,
+						'vars'     => $this->vars,
+					];
+					return 'rendered-template:'.$this->template;
 				}
 			},
 		];

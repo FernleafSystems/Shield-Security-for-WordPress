@@ -1,5 +1,4 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class ShieldTableReports extends ShieldTableBase {
 
@@ -42,13 +41,6 @@ export class ShieldTableReports extends ShieldTableBase {
 				return false;
 			}
 		);
-
-		document.addEventListener( 'shield:mode-panel-opened', ( evt ) => {
-			const panel = evt.target?.querySelector?.( '[data-mode-panel="1"].is-open' ) || null;
-			if ( panel !== null && panel.querySelector( this.getTableSelector() ) !== null ) {
-				UiContentActivator.activateCurrentSubtree( panel );
-			}
-		} );
 	}
 
 	rowSelectionChanged() {

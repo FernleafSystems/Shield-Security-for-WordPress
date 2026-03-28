@@ -28,6 +28,7 @@ import { StepTabsController } from "../components/mode/StepTabsController";
 import { InvestigateLandingController } from "../components/mode/InvestigateLandingController";
 import { ConfigureLandingController } from "../components/mode/ConfigureLandingController";
 import { ActionsQueueLandingController } from "../components/mode/ActionsQueueLandingController";
+import { ReportsLandingController } from "../components/mode/ReportsLandingController";
 import { DetailRowExpandController } from "../components/mode/DetailRowExpandController";
 import { RailSidebarController } from "../components/mode/RailSidebarController";
 import { ConfigureExpandLoader } from "../components/mode/ConfigureExpandLoader";
@@ -97,6 +98,7 @@ export class AppMain extends AppBase {
 		);
 		this.components.configure_landing = new ConfigureLandingController();
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
+		this.components.reports_landing = new ReportsLandingController();
 		this.components.detail_row_expand = new DetailRowExpandController();
 		this.components.rail_sidebar = new RailSidebarController();
 		this.components.configure_expand_loader = ( 'zones_manager' in comps ) ? new ConfigureExpandLoader( comps.zones_manager ) : null;

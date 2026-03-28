@@ -122,5 +122,7 @@ export class Navigation extends BaseComponent {
 		[ 'actions_queue_landing', 'investigate_landing', 'configure_landing', 'configure_expand_loader' ].forEach( ( componentId ) => {
 			app.getComponent( componentId )?.initializeCurrentRoot?.();
 		} );
+		app.getComponent( 'reports_landing' )?.initializeCurrentRoot?.();
+		app.getComponent( 'step_tabs' )?.initializeCurrentRoot?.();
 	}
 }

@@ -35,6 +35,10 @@ export class StepTabsController extends BaseAutoExecComponent {
 		this.renderAllShells();
 	}
 
+	initializeCurrentRoot() {
+		this.renderAllShells();
+	}
+
 	renderAllShells() {
 		document.querySelectorAll( '[data-mode-shell="1"][data-operator-chrome="1"]' )
 			.forEach( ( shell ) => this.renderShell( shell ) );

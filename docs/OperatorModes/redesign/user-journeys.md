@@ -15,8 +15,8 @@ Global context:
 
 1. Shield runs inside WordPress admin.
 2. Breadcrumb starts with `Shield Security` and returns to mode selector.
-3. In Configure, Investigate, and Reports landings, tile clicks open an inline panel and do not navigate.
-4. Exactly one panel is open at a time.
+3. In Configure, Investigate, and Reports landings, tile clicks drill into the next in-page layer and do not navigate.
+4. Exactly one drill-down layer is active at a time.
 
 Canonical Investigate subject keys used in implementation and tests:
 
@@ -177,14 +177,16 @@ Detailed state assertions:
 ## Journey 6 - "Monthly reporting check"
 
 **Mode:** Reports  
-**Intent:** review trends and jump to investigation
+**Intent:** review reports and adjust reporting settings without leaving the landing
 
 1. User enters Reports mode from selector.
-2. Reports landing shows 3 tiles: `Security Reports`, `Alert Settings`, `Reporting Configuration`.
-3. Security Reports panel is open by default and shows the current reports table content.
-4. Alert Settings and Reporting Configuration panels provide explicit CTA navigation to their full configuration pages.
-5. Shared shell styling is consistent with other modes.
-6. User identifies spike and pivots to Investigate for deeper analysis.
+2. Reports landing shows 2 tiles: `Security Reports` and `Reporting & Alerts Configuration`.
+3. The landing starts on the tile layer. No workspace is open by default.
+4. Selecting `Security Reports` drills into layer 2 and shows the current reports table content inline.
+5. Selecting `Reporting & Alerts Configuration` drills into layer 2 and shows the shared settings form inline.
+6. Breadcrumbs and context rail update as the user drills in and back out.
+7. Shared shell styling is consistent with other modes.
+8. Dedicated routes such as `Charts & Trends` remain available directly but stay off the landing.
 
 Rule:
 
@@ -192,8 +194,8 @@ Rule:
 
 Detailed state assertions:
 
-1. Reports landing uses the shared mode tile/panel contract (`data-mode-tile`, `data-mode-panel`).
-2. Reports default-open panel target is `list` (Security Reports).
+1. Reports landing uses the shared drill-down contract (`data-drill-shell`, `data-drill-layer`).
+2. Reports overview starts on layer 1 and drills into `list` or `settings` at layer 2.
 3. Shared shell/spacing/accent standards still apply.
 
 ---
@@ -266,7 +268,7 @@ Treat these as hard implementation assertions:
 3. `Premium Integrations` is disabled and opens no panel.
 4. Activity Log and Sessions are sidebar pages, not Investigate tiles.
 5. Plugin panel does not include WooCommerce-specific modeling in this wave.
-6. Reports uses tile-panel landing with Security Reports default-open in this wave.
+6. Reports uses the shared 2-layer drill-down landing in this wave.
 7. Actions Queue stays on current IA in this wave.
 
 ---

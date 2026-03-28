@@ -28,29 +28,37 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		return $payload;
 	}
 
-	public function test_reports_overview_renders_interactive_tile_panel_with_default_reports_table() :void {
+	public function test_reports_overview_renders_shared_drilldown_with_two_landing_workspaces() :void {
 		$landingWorkspaceDefinitions = PluginNavs::reportsLandingWorkspaceDefinitions();
 		$landingSubNavs = \array_keys( $landingWorkspaceDefinitions );
 		$expectedLandingCount = \count( $landingSubNavs );
 		$payload = $this->renderReportsSubNavPayload( PluginNavs::SUBNAV_REPORTS_OVERVIEW );
 		$vars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
+		$output = (string)( $payload[ 'render_output' ] ?? '' );
 
-		$this->assertModeShellPayload( $vars, 'reports', 'warning', true );
-		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, (string)( $vars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
-		$this->assertTrue( (bool)( $vars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
-		$this->assertCount( $expectedLandingCount, $vars[ 'mode_tiles' ] ?? [] );
+		$this->assertModeShellPayload( $vars, 'reports', 'warning', false );
+		$this->assertModePanelPayload( $vars, '', false );
+		$this->assertSame( [], $vars[ 'mode_tiles' ] ?? [ 'unexpected' ] );
+		$this->assertSame( 0, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
+		$this->assertSame(
+			[ 'workspaces', 'workspace' ],
+			\array_column( (array)( $vars[ 'drill_shell' ][ 'layers' ] ?? [] ), 'key' )
+		);
 
 		foreach ( $landingSubNavs as $subNav ) {
-			$tileMatches = \array_values( \array_filter(
-				(array)( $vars[ 'mode_tiles' ] ?? [] ),
-				static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === $subNav
-			) );
-			$this->assertCount( 1, $tileMatches, 'Reports tile target contract for '.$subNav );
+			$this->assertStringContainsString(
+				'data-reports-workspace="'.$subNav.'"',
+				$output,
+				'Reports workspace marker contract for '.$subNav
+			);
 		}
-		$this->assertSame( [], \array_values( \array_filter(
-			(array)( $vars[ 'mode_tiles' ] ?? [] ),
-			static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === PluginNavs::SUBNAV_REPORTS_CHARTS
-		) ) );
+		$this->assertSame( $expectedLandingCount, \count( $landingSubNavs ) );
+		$this->assertStringContainsString( 'data-drill-shell="1"', $output );
+		$this->assertStringContainsString( 'data-drill-shell-mode="reports"', $output );
+		$this->assertStringContainsString( 'data-reports-workspace-selection=', $output );
+		$this->assertStringNotContainsString( 'data-mode-panel="1"', $output );
+		$this->assertStringNotContainsString( 'data-mode-tile="1"', $output );
+		$this->assertStringNotContainsString( 'data-reports-workspace="'.PluginNavs::SUBNAV_REPORTS_CHARTS.'"', $output );
 	}
 
 	public function test_reports_workspace_routes_render_expected_structural_markers_including_legacy_routes() :void {

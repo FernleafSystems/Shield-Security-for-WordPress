@@ -698,7 +698,6 @@ class PluginNavs {
 	/**
 	 * @return array<string,array{
 	 *   menu_title:string,
-	 *   landing_cta:string,
 	 *   page_title:string,
 	 *   page_subtitle:string,
 	 *   content_key:string,
@@ -713,7 +712,6 @@ class PluginNavs {
 		return [
 			self::SUBNAV_REPORTS_LIST     => [
 				'menu_title'         => __( 'Security Reports', 'wp-simple-firewall' ),
-				'landing_cta'        => __( 'Open Reports List', 'wp-simple-firewall' ),
 				'page_title'         => __( 'View & Create', 'wp-simple-firewall' ),
 				'page_subtitle'      => __( 'View and create new security reports.', 'wp-simple-firewall' ),
 				'content_key'        => 'create_report',
@@ -725,7 +723,6 @@ class PluginNavs {
 			],
 			self::SUBNAV_REPORTS_ALERTS   => [
 				'menu_title'         => __( 'Alert Settings', 'wp-simple-firewall' ),
-				'landing_cta'        => __( 'Open Alert Settings', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Alert Settings', 'wp-simple-firewall' ),
 				'page_subtitle'      => __( 'Manage instant alerts for important security events.', 'wp-simple-firewall' ),
 				'content_key'        => 'alerts_settings',
@@ -737,7 +734,6 @@ class PluginNavs {
 			],
 			self::SUBNAV_REPORTS_REPORTING => [
 				'menu_title'         => __( 'Reporting Configuration', 'wp-simple-firewall' ),
-				'landing_cta'        => __( 'Open Reporting Configuration', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Reporting Configuration', 'wp-simple-firewall' ),
 				'page_subtitle'      => __( 'Manage report generation and delivery preferences.', 'wp-simple-firewall' ),
 				'content_key'        => 'reporting_configuration',
@@ -749,7 +745,6 @@ class PluginNavs {
 			],
 			self::SUBNAV_REPORTS_CHARTS   => [
 				'menu_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
-				'landing_cta'        => __( 'Open Charts & Trends', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
 				'page_subtitle'      => __( 'Review recent security trend metrics.', 'wp-simple-firewall' ),
 				'content_key'        => 'summary_charts',
@@ -761,7 +756,6 @@ class PluginNavs {
 			],
 			self::SUBNAV_REPORTS_SETTINGS => [
 				'menu_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
-				'landing_cta'        => __( 'Open Reporting & Alerts Configuration', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
 				'page_subtitle'      => __( 'Manage instant alerts and report delivery settings together.', 'wp-simple-firewall' ),
 				'content_key'        => 'reporting_alerts_configuration',
@@ -777,7 +771,6 @@ class PluginNavs {
 	/**
 	 * @return array<string,array{
 	 *   menu_title:string,
-	 *   landing_cta:string,
 	 *   page_title:string,
 	 *   page_subtitle:string,
 	 *   content_key:string,
@@ -798,7 +791,6 @@ class PluginNavs {
 	/**
 	 * @return array<string,array{
 	 *   menu_title:string,
-	 *   landing_cta:string,
 	 *   page_title:string,
 	 *   page_subtitle:string,
 	 *   content_key:string,

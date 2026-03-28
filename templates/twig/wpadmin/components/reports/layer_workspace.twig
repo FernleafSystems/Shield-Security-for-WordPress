@@ -1,0 +1,12 @@
+<div data-reports-workspace-layer="1">
+	{% for workspace in workspaces %}
+		<section{% if not workspace.is_default %} class="d-none"{% endif %}
+				 data-reports-workspace="{{ workspace.key }}"
+				 data-reports-workspace-selection="{{ workspace.data_reports_workspace_selection|e('html_attr') }}">
+			{% if workspace.description is not empty %}
+				<p class="mb-3">{{ workspace.description }}</p>
+			{% endif %}
+			{{ workspace.body|raw }}
+		</section>
+	{% endfor %}
+</div>
