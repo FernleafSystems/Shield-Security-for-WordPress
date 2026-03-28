@@ -74,13 +74,26 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'secadmin', 'firewall', 'login', 'general' ], \array_keys( $view[ 'diagnoses' ] ) );
 		$this->assertNotEmpty( $view[ 'tiles' ][ 0 ][ 'panel' ][ 'detail_groups' ] ?? [] );
 		$this->assertSame(
-			[ 'secadmin', 'login' ],
+			[ 'critical', 'warning', 'general', 'healthy' ],
+			\array_column( $view[ 'sections' ], 'key' )
+		);
+		$this->assertSame(
+			[ 'secadmin' ],
 			\array_column( $view[ 'sections' ][ 0 ][ 'cards' ] ?? [], 'key' )
 		);
 		$this->assertSame(
-			[ 'firewall', 'general' ],
+			[ 'login' ],
 			\array_column( $view[ 'sections' ][ 1 ][ 'cards' ] ?? [], 'key' )
 		);
+		$this->assertSame(
+			[ 'general' ],
+			\array_column( $view[ 'sections' ][ 2 ][ 'cards' ] ?? [], 'key' )
+		);
+		$this->assertSame(
+			[ 'firewall' ],
+			\array_column( $view[ 'sections' ][ 3 ][ 'cards' ] ?? [], 'key' )
+		);
+		$this->assertSame( '1 healthy zone', $view[ 'sections' ][ 3 ][ 'disclosure_label' ] ?? '' );
 		$this->assertSame(
 			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ] ?? '',
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'preview_text' ] ?? ''

@@ -39,7 +39,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   is_disabled:bool
  * }
  * @phpstan-type ZoneSection array{
- *   heading:string,
+ *   key:'critical'|'warning'|'general'|'healthy',
  *   cards:list<ZoneCard>,
  *   collapsible:bool,
  *   disclosure_label:string
@@ -92,7 +92,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   problem_rows:list<DiagnosisFinding>,
  *   review_rows:list<DiagnosisFinding>,
  *   healthy_rows:list<DiagnosisFinding>,
- *   review_rows_heading:string,
  *   healthy_rows_heading:string,
  *   header:DrillLayerHeader,
  *   zone_selection:DrillSelection,

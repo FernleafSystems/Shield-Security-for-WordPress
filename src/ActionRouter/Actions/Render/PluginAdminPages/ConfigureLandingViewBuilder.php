@@ -91,20 +91,6 @@ class ConfigureLandingViewBuilder {
 	 * @return list<ZoneSection>
 	 */
 	private function buildZoneSections( array $tiles, array $diagnoses ) :array {
-		$sections = [
-			[
-				'heading'          => __( 'Zones that need attention', 'wp-simple-firewall' ),
-				'cards'            => [],
-				'collapsible'      => false,
-				'disclosure_label' => '',
-			],
-			[
-				'heading'          => __( 'Healthy zones and general controls', 'wp-simple-firewall' ),
-				'cards'            => [],
-				'collapsible'      => true,
-				'disclosure_label' => '',
-			],
-		];
 		$cardsByBand = [
 			'critical' => [],
 			'warning'  => [],
@@ -119,15 +105,37 @@ class ConfigureLandingViewBuilder {
 			);
 		}
 
-		$sections[ 0 ][ 'cards' ] = \array_merge( $cardsByBand[ 'critical' ], $cardsByBand[ 'warning' ] );
-		$sections[ 1 ][ 'cards' ] = $this->generalLast(
-			\array_merge( $cardsByBand[ 'good' ], $cardsByBand[ 'neutral' ] )
-		);
-		$sections[ 1 ][ 'disclosure_label' ] = $this->buildHealthyZoneDisclosureLabel(
-			\count( $sections[ 1 ][ 'cards' ] )
-		);
+		$sections = [
+			[
+				'key'              => 'critical',
+				'cards'            => $cardsByBand[ 'critical' ],
+				'collapsible'      => false,
+				'disclosure_label' => '',
+			],
+			[
+				'key'              => 'warning',
+				'cards'            => $cardsByBand[ 'warning' ],
+				'collapsible'      => false,
+				'disclosure_label' => '',
+			],
+			[
+				'key'              => 'general',
+				'cards'            => $cardsByBand[ 'neutral' ],
+				'collapsible'      => false,
+				'disclosure_label' => '',
+			],
+			[
+				'key'              => 'healthy',
+				'cards'            => $cardsByBand[ 'good' ],
+				'collapsible'      => true,
+				'disclosure_label' => $this->buildHealthyZoneDisclosureLabel( \count( $cardsByBand[ 'good' ] ) ),
+			],
+		];
 
-		return $sections;
+		return \array_values( \array_filter(
+			$sections,
+			static fn( array $section ) :bool => !empty( $section[ 'cards' ] )
+		) );
 	}
 
 	/**
@@ -151,8 +159,8 @@ class ConfigureLandingViewBuilder {
 	private function buildHealthyZoneDisclosureLabel( int $count ) :string {
 		return \sprintf(
 			_n(
-				'%s healthy zone and general control',
-				'%s healthy zones and general controls',
+				'%s healthy zone',
+				'%s healthy zones',
 				$count,
 				'wp-simple-firewall'
 			),
@@ -164,24 +172,6 @@ class ConfigureLandingViewBuilder {
 		return \in_array( $status, [ 'critical', 'warning', 'good', 'neutral' ], true )
 			? $status
 			: 'good';
-	}
-
-	/**
-	 * @param list<ZoneCard> $cards
-	 * @return list<ZoneCard>
-	 */
-	private function generalLast( array $cards ) :array {
-		$general = [];
-		$others = [];
-		foreach ( $cards as $card ) {
-			if ( $card[ 'key' ] === 'general' ) {
-				$general[] = $card;
-			}
-			else {
-				$others[] = $card;
-			}
-		}
-		return \array_merge( $others, $general );
 	}
 
 	/**

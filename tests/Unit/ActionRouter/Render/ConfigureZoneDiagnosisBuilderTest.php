@@ -54,6 +54,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'review_rows' ] );
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
+		$this->assertArrayNotHasKey( 'review_rows_heading', $diagnosis );
 		$this->assertSame( 'Login', $diagnosis[ 'header' ][ 'title' ] );
 		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'label' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
@@ -114,7 +115,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $diagnosis[ 'healthy_rows' ] );
 		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
-		$this->assertNotSame( '', $diagnosis[ 'review_rows_heading' ] ?? '' );
+		$this->assertArrayNotHasKey( 'review_rows_heading', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'risk_context' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'preview_text' ] ?? '' );
 		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'review_rows' ][ 0 ] );

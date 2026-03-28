@@ -20,13 +20,9 @@
 	gap: 0.85rem;
 }
 
-.configure-zones__section-heading {
-	color: #1d2327;
-	font-size: 0.78rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	margin: 0;
-	text-transform: uppercase;
+.configure-zones .healthy-disclosure,
+.configure-diagnosis .healthy-disclosure {
+	margin-top: 0;
 }
 
 .configure-zones__grid {
@@ -150,11 +146,6 @@
 	gap: 0.6rem;
 }
 
-.configure-diagnosis__review {
-	display: grid;
-	gap: 0.6rem;
-}
-
 .configure-diagnosis__next-move {
 	border-top: 1px solid $border-color-neutral-subtle;
 	display: grid;
@@ -170,8 +161,7 @@
 	line-height: 1.45;
 }
 
-.configure-diagnosis .shield-detail-item,
-.healthy-disclosure__body .shield-detail-item {
+.configure-diagnosis .shield-detail-item {
 	margin-bottom: 0;
 }
 

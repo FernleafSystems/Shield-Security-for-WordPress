@@ -171,22 +171,36 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
 	}
 
-	public function test_zone_sections_group_attention_first_and_general_last() :void {
+	public function test_zone_sections_split_critical_warning_general_and_healthy() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
 		$sections = $this->invokeNonPublicMethod( $page, 'getConfigureZoneSections' );
 
 		$this->assertSame(
-			[ 'secadmin', 'login' ],
+			[ 'critical', 'warning', 'general', 'healthy' ],
+			\array_column( $sections, 'key' )
+		);
+		$this->assertSame(
+			[ 'secadmin' ],
 			\array_column( $sections[ 0 ][ 'cards' ] ?? [], 'key' )
 		);
 		$this->assertFalse( (bool)( $sections[ 0 ][ 'collapsible' ] ?? true ) );
 		$this->assertSame(
-			[ 'firewall', 'general' ],
+			[ 'login' ],
 			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
 		);
-		$this->assertTrue( (bool)( $sections[ 1 ][ 'collapsible' ] ?? false ) );
-		$this->assertNotSame( '', $sections[ 1 ][ 'disclosure_label' ] ?? '' );
+		$this->assertFalse( (bool)( $sections[ 1 ][ 'collapsible' ] ?? true ) );
+		$this->assertSame(
+			[ 'general' ],
+			\array_column( $sections[ 2 ][ 'cards' ] ?? [], 'key' )
+		);
+		$this->assertFalse( (bool)( $sections[ 2 ][ 'collapsible' ] ?? true ) );
+		$this->assertSame(
+			[ 'firewall' ],
+			\array_column( $sections[ 3 ][ 'cards' ] ?? [], 'key' )
+		);
+		$this->assertTrue( (bool)( $sections[ 3 ][ 'collapsible' ] ?? false ) );
+		$this->assertSame( '1 healthy zone', $sections[ 3 ][ 'disclosure_label' ] ?? '' );
 	}
 
 	public function test_landing_refresh_reuses_the_configure_root_step_contract() :void {
@@ -409,22 +423,36 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			'diagnoses'       => $diagnoses,
 			'sections'        => [
 				[
-					'heading'          => 'Zones that need attention',
+					'key'              => 'critical',
 					'cards'            => [
 						$this->buildZoneCardFixture( $zoneTileFixtures[ 0 ], $diagnoses[ 'secadmin' ] ),
+					],
+					'collapsible'      => false,
+					'disclosure_label' => '',
+				],
+				[
+					'key'              => 'warning',
+					'cards'            => [
 						$this->buildZoneCardFixture( $zoneTileFixtures[ 2 ], $diagnoses[ 'login' ] ),
 					],
 					'collapsible'      => false,
 					'disclosure_label' => '',
 				],
 				[
-					'heading'          => 'Healthy zones and general controls',
+					'key'              => 'general',
 					'cards'            => [
-						$this->buildZoneCardFixture( $zoneTileFixtures[ 1 ], $diagnoses[ 'firewall' ] ),
 						$this->buildZoneCardFixture( $zoneTileFixtures[ 3 ], $diagnoses[ 'general' ] ),
 					],
+					'collapsible'      => false,
+					'disclosure_label' => '',
+				],
+				[
+					'key'              => 'healthy',
+					'cards'            => [
+						$this->buildZoneCardFixture( $zoneTileFixtures[ 1 ], $diagnoses[ 'firewall' ] ),
+					],
 					'collapsible'      => true,
-					'disclosure_label' => '2 healthy zones and general controls',
+					'disclosure_label' => '1 healthy zone',
 				],
 			],
 			'posture_summary' => [

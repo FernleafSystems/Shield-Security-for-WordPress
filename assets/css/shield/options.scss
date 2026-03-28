@@ -165,14 +165,6 @@ $options-rail-width-max: 260px;
   border-bottom: 0;
 }
 
-.options_form_for--modern .shield-option-item.focus_option {
-  border-radius: 8px;
-  border: 1px solid #c9ddc9;
-  background: #f4faf4;
-  box-shadow: none;
-  margin-bottom: 0.35rem;
-}
-
 .options_form_for--modern .shield-option-item.shield-option-item-expanded {
   background: $options-surface-1;
 }
