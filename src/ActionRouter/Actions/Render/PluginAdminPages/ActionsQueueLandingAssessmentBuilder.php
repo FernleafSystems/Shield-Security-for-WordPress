@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponentBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -13,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   label:string,
  *   description:string,
  *   drill_bucket:'critical'|'review',
+ *   item_icon_class:string,
  *   status:string,
  *   status_label:string,
  *   status_icon_class:string
@@ -26,6 +28,8 @@ class ActionsQueueLandingAssessmentBuilder {
 
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
+
+	private ?ActionsQueueItemIcons $itemIcons = null;
 
 	/**
 	 * @return AssessmentRowsByZone
@@ -72,6 +76,7 @@ class ActionsQueueLandingAssessmentBuilder {
 				'label'             => $state[ 'label' ],
 				'description'       => $state[ 'description' ],
 				'drill_bucket'      => $state[ 'drill_bucket' ],
+				'item_icon_class'   => $this->itemIcons()->iconClassForKey( $state[ 'key' ] ),
 				'status'            => $state[ 'severity' ],
 				'status_label'      => $this->standardStatusLabel( $state[ 'severity' ] ),
 				'status_icon_class' => $this->standardStatusIconClass( $state[ 'severity' ] ),
@@ -147,6 +152,7 @@ class ActionsQueueLandingAssessmentBuilder {
 	 *   label:string,
 	 *   description:string,
 	 *   drill_bucket:'critical'|'review',
+	 *   item_icon_class:string,
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
@@ -170,6 +176,7 @@ class ActionsQueueLandingAssessmentBuilder {
 				? $component[ 'desc_protected' ]
 				: $component[ 'desc_unprotected' ],
 			'drill_bucket'      => $drillBucket,
+			'item_icon_class'   => $this->itemIcons()->iconClassForKey( $key ),
 			'status'            => $status,
 			'status_label'      => $this->standardStatusLabel( $status ),
 			'status_icon_class' => $this->standardStatusIconClass( $status ),
@@ -186,5 +193,13 @@ class ActionsQueueLandingAssessmentBuilder {
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
 		return new MaintenanceIssueStateProvider();
+	}
+
+	private function itemIcons() :ActionsQueueItemIcons {
+		if ( $this->itemIcons === null ) {
+			$this->itemIcons = new ActionsQueueItemIcons();
+		}
+
+		return $this->itemIcons;
 	}
 }

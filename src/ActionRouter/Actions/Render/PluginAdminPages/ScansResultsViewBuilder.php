@@ -554,9 +554,7 @@ class ScansResultsViewBuilder {
 	 *   slug:string,
 	 *   label:string,
 	 *   icon:string,
-	 *   rail_icon_class:string,
-	 *   summary_keys:list<string>,
-	 *   row_icons?:array<string,string>
+	 *   summary_keys:list<string>
 	 * }>
 	 */
 	protected function getScanTabDefinitions() :array {
@@ -584,7 +582,7 @@ class ScansResultsViewBuilder {
 		if ( \is_array( $definition ) ) {
 			return [
 				'label'        => $definition[ 'label' ],
-				'icon_class'   => $definition[ 'rail_icon_class' ],
+				'icon_class'   => PluginNavs::actionsLandingScanRailIconClass( $key ),
 				'summary_keys' => $definition[ 'summary_keys' ],
 			];
 		}

@@ -567,13 +567,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 		$this->assertXPathCount(
 			$xpath,
-			"//button[contains(concat(\" \", normalize-space(@class), \" \"), \" finding-card--expandable \") and @data-drill-target=\"detail\" and contains(@data-drill-group-selection, '\"key\":\"vulnerabilities\"')]",
+			"//button[contains(concat(\" \", normalize-space(@class), \" \"), \" configure-zone-card \") and @data-drill-target=\"detail\" and contains(@data-drill-group-selection, '\"key\":\"vulnerabilities\"')]",
 			0,
 			'Healthy vulnerabilities critical card should no longer be drillable when there are no results to show'
 		);
 	}
 
-	public function test_groups_ajax_renders_finding_cards_for_critical_bucket_groups() :void {
+	public function test_groups_ajax_renders_shared_configure_cards_for_critical_bucket_groups() :void {
 		$this->seedCriticalAssetAndVulnerabilityQueue();
 
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
@@ -596,30 +596,30 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-card ")]',
+			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ")]',
 			3,
-			'Critical groups AJAX should render finding-card containers for all non-category groups'
+			'Critical groups AJAX should render shared Configure-style cards for all non-category groups'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//button[contains(concat(" ", normalize-space(@class), " "), " finding-card--expandable ") and @data-drill-target="detail" and @data-drill-group-selection]',
+			'//button[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and @data-drill-target="detail" and @data-drill-group-selection]',
 			2,
-			'Only expandable finding cards should emit detail drill attributes'
+			'Only expandable shared cards should emit detail drill attributes'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " finding-card__link ")]',
+			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ")]',
 			2,
-			'Linked vulnerability cards should render the native action links inline'
+			'Linked vulnerability cards should render the native action links in the shared card footer'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " finding-card__link ") and @href="/wp-admin/plugins.php" and not(@target)]',
-			'Linked vulnerability cards should render the native plugin-management link inline'
+			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and @href="/wp-admin/plugins.php" and not(@target)]',
+			'Linked vulnerability cards should render the native plugin-management link in the shared card footer'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " finding-card__link ") and @href="https://clk.shldscrty.com/shieldvulnerabilitylookup?type=plugin&amp;slug='.self::con()->base_file.'&amp;version='.self::con()->cfg->version().'" and @target="_blank" and @rel="noopener noreferrer"]',
+			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and @href="https://clk.shldscrty.com/shieldvulnerabilitylookup?type=plugin&amp;slug='.self::con()->base_file.'&amp;version='.self::con()->cfg->version().'" and @target="_blank" and @rel="noopener noreferrer"]',
 			'Linked vulnerability cards should render the external lookup link with the expected attributes'
 		);
 		$this->assertXPathCount(
@@ -655,8 +655,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-card status-critical ")]',
-			'Abandoned-only findings should render as critical cards in the groups layer'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card status-critical ")]',
+			'Abandoned-only findings should render as critical shared cards in the groups layer'
 		);
 	}
 

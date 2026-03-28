@@ -27,8 +27,21 @@
 		</div>
 	</div>
 {% else %}
-	{% include '/wpadmin/components/actions_queue/finding_card.twig' with {
-		group: group,
-		bucket_selection: bucket_selection
+	{% include '/wpadmin/components/operator/tile_card.twig' with {
+		tile: {
+			tag: group.card_type == 'linked' or not group.is_interactive ? 'div' : 'button',
+			status: group.status,
+			icon_class: group.icon_class,
+			title: group.label,
+			status_label: group.status_label,
+			oneliner: group.narrative,
+			data_drill_target: group.card_type == 'linked' or not group.is_interactive ? '' : 'detail',
+			data_drill_zone_selection: '',
+			data_drill_bucket_selection: group.card_type == 'linked' or not group.is_interactive ? '' : bucket_selection.selection_json,
+			data_drill_group_selection: group.card_type == 'linked' or not group.is_interactive ? '' : group.selection.selection_json,
+			is_disabled: false,
+			class_name: '',
+			footer_links: group.card_type == 'linked' ? group.links : []
+		}
 	} only %}
 {% endif %}

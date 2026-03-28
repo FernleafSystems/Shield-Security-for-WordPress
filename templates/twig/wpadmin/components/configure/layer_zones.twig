@@ -1,22 +1,3 @@
-{% macro zone_card(zone) %}
-	<button type="button"
-			class="configure-zone-card status-{{ zone.status }}"
-			data-drill-target="diagnosis"
-			data-drill-zone-selection="{{ zone.selection_json }}"
-			{% if zone.is_disabled %}disabled{% endif %}>
-		<span class="configure-zone-card__icon">
-			<i class="{{ zone.icon_class }}" aria-hidden="true"></i>
-		</span>
-		<div class="configure-zone-card__body">
-			<h4 class="configure-zone-card__title">{{ zone.label }}</h4>
-			<div class="configure-zone-card__status">{{ zone.status_label }}</div>
-			<p class="configure-zone-card__oneliner">{{ zone.preview_text }}</p>
-		</div>
-	</button>
-{% endmacro %}
-
-{% from _self import zone_card %}
-
 <div class="configure-zones">
 	{% for section in sections %}
 		{% if section.cards is not empty %}
@@ -24,7 +5,23 @@
 				{% set body_html %}
 					<div class="configure-zones__grid">
 						{% for zone in section.cards %}
-							{{ zone_card(zone) }}
+							{% include '/wpadmin/components/operator/tile_card.twig' with {
+								tile: {
+									tag: 'button',
+									status: zone.status,
+									icon_class: zone.icon_class,
+									title: zone.label,
+									status_label: zone.status_label,
+									oneliner: zone.preview_text,
+									data_drill_target: 'diagnosis',
+									data_drill_zone_selection: zone.selection_json,
+									data_drill_bucket_selection: '',
+									data_drill_group_selection: '',
+									is_disabled: zone.is_disabled,
+									class_name: '',
+									footer_links: []
+								}
+							} only %}
 						{% endfor %}
 					</div>
 				{% endset %}
@@ -36,7 +33,23 @@
 				<section class="configure-zones__section">
 					<div class="configure-zones__grid">
 						{% for zone in section.cards %}
-							{{ zone_card(zone) }}
+							{% include '/wpadmin/components/operator/tile_card.twig' with {
+								tile: {
+									tag: 'button',
+									status: zone.status,
+									icon_class: zone.icon_class,
+									title: zone.label,
+									status_label: zone.status_label,
+									oneliner: zone.preview_text,
+									data_drill_target: 'diagnosis',
+									data_drill_zone_selection: zone.selection_json,
+									data_drill_bucket_selection: '',
+									data_drill_group_selection: '',
+									is_disabled: zone.is_disabled,
+									class_name: '',
+									footer_links: []
+								}
+							} only %}
 						{% endfor %}
 					</div>
 				</section>

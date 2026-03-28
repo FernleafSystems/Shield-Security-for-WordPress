@@ -103,7 +103,7 @@ class ActionsQueueBucketsBuilder {
 
 	/**
 	 * @phpstan-param array{
-	 *   status_icon_class:string,
+	 *   item_icon_class:string,
 	 *   label:string,
 	 *   description:string
 	 * } $row
@@ -111,7 +111,7 @@ class ActionsQueueBucketsBuilder {
 	 */
 	private function buildHealthyDisclosureRow( array $row ) :array {
 		return $this->summaryRowBuilder()->build(
-			(string)$row[ 'status_icon_class' ],
+			(string)$row[ 'item_icon_class' ],
 			(string)$row[ 'label' ],
 			(string)$row[ 'description' ]
 		);

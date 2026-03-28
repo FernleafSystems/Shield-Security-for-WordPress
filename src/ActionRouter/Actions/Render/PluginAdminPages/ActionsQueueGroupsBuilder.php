@@ -35,6 +35,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildA
  *   label:string,
  *   item_count:int,
  *   status:string,
+ *   status_label:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',

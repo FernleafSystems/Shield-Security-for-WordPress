@@ -499,9 +499,7 @@ class PluginNavs {
 	 *   slug:string,
 	 *   label:string,
 	 *   icon:string,
-	 *   rail_icon_class:string,
-	 *   summary_keys:list<string>,
-	 *   row_icons?:array<string,string>
+	 *   summary_keys:list<string>
 	 * }>
 	 */
 	public static function actionsLandingScanDefinitions() :array {
@@ -510,46 +508,36 @@ class PluginNavs {
 				'slug'            => 'wordpress',
 				'label'           => __( 'WordPress Files', 'wp-simple-firewall' ),
 				'icon'            => 'wordpress',
-				'rail_icon_class' => 'bi bi-wordpress',
 				'summary_keys'    => [ 'wp_files' ],
 			],
 			'plugins'         => [
 				'slug'            => 'plugins',
 				'label'           => __( 'Plugin Files', 'wp-simple-firewall' ),
 				'icon'            => 'plug',
-				'rail_icon_class' => 'bi bi-plug-fill',
 				'summary_keys'    => [ 'plugin_files' ],
 			],
 			'themes'          => [
 				'slug'            => 'themes',
 				'label'           => __( 'Theme Files', 'wp-simple-firewall' ),
 				'icon'            => 'brush',
-				'rail_icon_class' => 'bi bi-palette-fill',
 				'summary_keys'    => [ 'theme_files' ],
 			],
 			'vulnerabilities' => [
 				'slug'            => 'vulnerabilities',
 				'label'           => __( 'Vulnerabilities', 'wp-simple-firewall' ),
 				'icon'            => 'shield-exclamation',
-				'rail_icon_class' => 'bi bi-shield-exclamation',
 				'summary_keys'    => [ 'vulnerable_assets', 'abandoned' ],
-				'row_icons'       => [
-					'vulnerable_assets' => 'shield-exclamation',
-					'abandoned'         => 'archive',
-				],
 			],
 			'malware'         => [
 				'slug'            => 'malware',
 				'label'           => __( 'Malware', 'wp-simple-firewall' ),
 				'icon'            => 'bug',
-				'rail_icon_class' => 'bi bi-bug-fill',
 				'summary_keys'    => [ 'malware' ],
 			],
 			'file_locker'     => [
 				'slug'            => 'file_locker',
 				'label'           => __( 'File Locker', 'wp-simple-firewall' ),
 				'icon'            => 'file-lock2',
-				'rail_icon_class' => 'bi bi-file-lock2-fill',
 				'summary_keys'    => [ 'file_locker' ],
 			],
 		];
@@ -560,9 +548,7 @@ class PluginNavs {
 	 *   slug:string,
 	 *   label:string,
 	 *   icon:string,
-	 *   rail_icon_class:string,
-	 *   summary_keys:list<string>,
-	 *   row_icons?:array<string,string>
+	 *   summary_keys:list<string>
 	 * }|null
 	 */
 	public static function actionsLandingScanDefinitionForSummaryKey( string $summaryKey ) :?array {
@@ -576,12 +562,11 @@ class PluginNavs {
 	}
 
 	public static function actionsLandingScanRowIcon( string $summaryKey ) :string {
-		$definition = self::actionsLandingScanDefinitionForSummaryKey( $summaryKey );
-		if ( $definition === null ) {
-			return 'list-task';
-		}
+		return ( new ActionsQueueItemIcons() )->iconForKey( $summaryKey );
+	}
 
-		return $definition[ 'row_icons' ][ $summaryKey ] ?? $definition[ 'icon' ];
+	public static function actionsLandingScanRailIconClass( string $scanKey ) :string {
+		return ( new ActionsQueueItemIcons() )->iconClassForScanKey( $scanKey );
 	}
 
 	/**

@@ -41,6 +41,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  */
 class ActionsQueueGroupContractBuilder {
 
+	use StandardStatusMapping;
+
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueDrillDownPresentationBuilder $presentation;
 
@@ -89,6 +91,7 @@ class ActionsQueueGroupContractBuilder {
 			'label'               => $definition[ 'label' ],
 			'item_count'          => 0,
 			'status'              => 'good',
+			'status_label'        => $this->standardStatusLabel( 'good' ),
 			'icon_class'          => $definition[ 'icon_class' ],
 			'detail_shell'        => $definition[ 'detail_shell' ],
 			'card_type'           => $definition[ 'card_type' ],
@@ -203,6 +206,7 @@ class ActionsQueueGroupContractBuilder {
 			'label'               => $seed[ 'label' ],
 			'item_count'          => $seed[ 'item_count' ],
 			'status'              => $seed[ 'status' ],
+			'status_label'        => $this->standardStatusLabel( $seed[ 'status' ] ),
 			'icon_class'          => $iconClass,
 			'detail_shell'        => $seed[ 'detail_shell' ],
 			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],

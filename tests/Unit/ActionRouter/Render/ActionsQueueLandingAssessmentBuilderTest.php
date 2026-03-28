@@ -90,6 +90,8 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'review', $rows[ 'maintenance' ][ 0 ][ 'drill_bucket' ] ?? '' );
 		$this->assertSame( 'good', $rows[ 'scans' ][ 0 ][ 'status' ] ?? '' );
 		$this->assertSame( 'warning', $rows[ 'maintenance' ][ 0 ][ 'status' ] ?? '' );
+		$this->assertSame( 'bi bi-wordpress', $rows[ 'scans' ][ 0 ][ 'item_icon_class' ] ?? '' );
+		$this->assertSame( 'bi bi-wordpress', $rows[ 'maintenance' ][ 0 ][ 'item_icon_class' ] ?? '' );
 		$this->assertNotEmpty( $rows[ 'scans' ][ 0 ][ 'status_label' ] ?? '' );
 		$this->assertNotEmpty( $rows[ 'scans' ][ 0 ][ 'status_icon_class' ] ?? '' );
 		$this->assertNotEmpty( $rows[ 'maintenance' ][ 0 ][ 'status_label' ] ?? '' );

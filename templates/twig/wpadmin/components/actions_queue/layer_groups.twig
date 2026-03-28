@@ -7,30 +7,38 @@
 	{% else %}
 		<div class="actions-queue-groups__findings">
 			{% for section in active_sections %}
-				{% if section.heading_label is not empty %}
-					<div class="finding-group__heading">{{ section.heading_label }}</div>
-				{% endif %}
-				{% for group in section.groups %}
-					{% include '/wpadmin/components/actions_queue/group_card.twig' with {
-						group: group,
-						bucket_selection: bucket_selection,
-						is_healthy: false
-					} only %}
-				{% endfor %}
+				<section class="configure-zones__section">
+					{% if section.heading_label is not empty %}
+						<div class="finding-group__heading">{{ section.heading_label }}</div>
+					{% endif %}
+					<div class="configure-zones__grid">
+						{% for group in section.groups %}
+							{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+								group: group,
+								bucket_selection: bucket_selection,
+								is_healthy: false
+							} only %}
+						{% endfor %}
+					</div>
+				</section>
 			{% endfor %}
 
 			{% set healthy_body_html %}
 				{% for section in healthy_sections %}
-					{% if section.heading_label is not empty %}
-						<div class="finding-group__heading">{{ section.heading_label }}</div>
-					{% endif %}
-					{% for group in section.groups %}
-						{% include '/wpadmin/components/actions_queue/group_card.twig' with {
-							group: group,
-							bucket_selection: bucket_selection,
-							is_healthy: true
-						} only %}
-					{% endfor %}
+					<section class="configure-zones__section">
+						{% if section.heading_label is not empty %}
+							<div class="finding-group__heading">{{ section.heading_label }}</div>
+						{% endif %}
+						<div class="configure-zones__grid">
+							{% for group in section.groups %}
+								{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+									group: group,
+									bucket_selection: bucket_selection,
+									is_healthy: true
+								} only %}
+							{% endfor %}
+						</div>
+					</section>
 				{% endfor %}
 			{% endset %}
 

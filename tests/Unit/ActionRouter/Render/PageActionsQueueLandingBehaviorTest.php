@@ -449,6 +449,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *     label:string,
 	 *     description:string,
 	 *     drill_bucket:'critical'|'review',
+	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
 	 *     status_icon_class:string
@@ -458,6 +459,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *     label:string,
 	 *     description:string,
 	 *     drill_bucket:'critical'|'review',
+	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
 	 *     status_icon_class:string
@@ -490,6 +492,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *   label:string,
 	 *   description:string,
 	 *   drill_bucket:'critical'|'review',
+	 *   item_icon_class:string,
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
@@ -512,6 +515,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	 *   label:string,
 	 *   description:string,
 	 *   drill_bucket:'critical'|'review',
+	 *   item_icon_class:string,
 	 *   status:string,
 	 *   status_label:string,
 	 *   status_icon_class:string
@@ -524,13 +528,15 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		string $status = 'good',
 		string $statusLabel = 'Good',
 		string $statusIconClass = 'bi bi-check-circle-fill',
-		string $drillBucket = 'review'
+		string $drillBucket = 'review',
+		string $itemIconClass = 'bi bi-check-circle-fill'
 	) :array {
 		return [
 			'key'               => $key,
 			'label'             => $label,
 			'description'       => $description,
 			'drill_bucket'      => $drillBucket,
+			'item_icon_class'   => $itemIconClass,
 			'status'            => $status,
 			'status_label'      => $statusLabel,
 			'status_icon_class' => $statusIconClass,
@@ -710,6 +716,7 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	 *     key:string,
 	 *     label:string,
 	 *     description:string,
+	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
 	 *     status_icon_class:string
@@ -718,6 +725,7 @@ class PageActionsQueueLandingUnitTestDouble extends PageActionsQueueLanding {
 	 *     key:string,
 	 *     label:string,
 	 *     description:string,
+	 *     item_icon_class:string,
 	 *     status:string,
 	 *     status_label:string,
 	 *     status_icon_class:string

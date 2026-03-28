@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component\Base as MeterComponentBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -462,38 +463,6 @@ class MaintenanceIssueStateProvider {
 	}
 
 	public function iconClassForKey( string $key ) :string {
-		switch ( $key ) {
-			case 'wp_updates':
-				$iconClass = 'bi bi-wordpress';
-				break;
-			case 'default_admin_user':
-				$iconClass = 'bi bi-person-fill-exclamation';
-				break;
-			case 'wp_plugins_updates':
-			case 'wp_plugins_inactive':
-				$iconClass = 'bi bi-plug-fill';
-				break;
-			case 'wp_themes_updates':
-			case 'wp_themes_inactive':
-				$iconClass = 'bi bi-palette-fill';
-				break;
-			case 'system_ssl_certificate':
-				$iconClass = 'bi bi-shield-lock-fill';
-				break;
-			case 'system_php_version':
-				$iconClass = 'bi bi-code-slash';
-				break;
-			case 'system_lib_openssl':
-				$iconClass = 'bi bi-key-fill';
-				break;
-			case 'wp_db_password':
-				$iconClass = 'bi bi-database-fill-lock';
-				break;
-			default:
-				$iconClass = 'bi bi-wrench';
-				break;
-		}
-
-		return $iconClass;
+		return ( new ActionsQueueItemIcons() )->iconClassForKey( $key );
 	}
 }

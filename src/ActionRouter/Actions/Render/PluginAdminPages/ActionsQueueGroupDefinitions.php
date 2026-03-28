@@ -166,7 +166,7 @@ class ActionsQueueGroupDefinitions {
 				'key'                 => $key,
 				'label'               => __( $metadata[ 'label_override' ] ?? $scanDefinition[ 'label' ], 'wp-simple-firewall' ),
 				'sort_order'          => $metadata[ 'sort_order' ],
-				'icon_class'          => $metadata[ 'icon_class' ] ?? $scanDefinition[ 'rail_icon_class' ],
+				'icon_class'          => $metadata[ 'icon_class' ] ?? PluginNavs::actionsLandingScanRailIconClass( $key ),
 				'detail_shell'        => $metadata[ 'detail_shell' ],
 				'card_type'           => $metadata[ 'card_type' ],
 				'drill_hint_single'   => __( $metadata[ 'drill_hint_single' ], 'wp-simple-firewall' ),
