@@ -1,21 +1,11 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
-	function shield_security_get_plugin() {
-		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingAssessmentBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
-	PluginControllerInstaller,
-	UnitTestControllerFactory,
 	UnitTestMaintenanceIssueStateProvider
 };
 
@@ -24,12 +14,6 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
-		$this->installControllerStub();
-	}
-
-	protected function tearDown() :void {
-		PluginControllerInstaller::reset();
-		parent::tearDown();
 	}
 
 	public function test_build_groups_rows_by_zone_and_filters_unavailable_definitions() :void {
@@ -297,10 +281,6 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'critical', $rows[ 'scans' ][ 0 ][ 'drill_bucket' ] ?? '' );
 		$this->assertSame( 'good', $rows[ 'scans' ][ 0 ][ 'status' ] ?? '' );
-	}
-
-	private function installControllerStub() :void {
-		UnitTestControllerFactory::install();
 	}
 }
 

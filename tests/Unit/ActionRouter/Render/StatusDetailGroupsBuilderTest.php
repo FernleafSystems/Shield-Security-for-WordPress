@@ -1,20 +1,10 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
-
-if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
-	function shield_security_get_plugin() {
-		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\StatusDetailGroupsBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 
 class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 
@@ -26,12 +16,6 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 				? ( \preg_replace( '/[^a-z0-9_-]/', '', \strtolower( \trim( $text ) ) ) ?? '' )
 				: ''
 		);
-		$this->installControllerStub();
-	}
-
-	protected function tearDown() :void {
-		PluginControllerInstaller::reset();
-		parent::tearDown();
 	}
 
 	public function test_build_for_maintenance_merges_issues_with_good_assessments_only() :void {
@@ -164,16 +148,5 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ] ?? [] );
 		$this->assertSame( [], $groups[ 2 ][ 'rows' ][ 0 ][ 'action' ] ?? null );
 		$this->assertFalse( $groups[ 2 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );
-	}
-
-	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->svgs = new class {
-			public function iconClass( string $icon ) :string {
-				return 'bi bi-'.$icon;
-			}
-		};
-		PluginControllerInstaller::install( $controller );
 	}
 }

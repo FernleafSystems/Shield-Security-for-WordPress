@@ -34,6 +34,6 @@ trait StandardStatusMapping {
 				$icon = 'check-circle-fill';
 				break;
 		}
-		return self::con()->svgs->iconClass( $icon );
+		return 'bi bi-'.\pathinfo( \trim( $icon, " /" ), \PATHINFO_FILENAME );
 	}
 }
