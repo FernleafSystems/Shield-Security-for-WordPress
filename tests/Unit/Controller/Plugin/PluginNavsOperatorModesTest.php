@@ -134,6 +134,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 	public function test_actions_assessment_definitions_keep_runtime_component_invariants() :void {
 		$definitions = PluginNavs::actionsLandingAssessmentDefinitions();
 		$maintenance = \array_filter( $definitions, static fn( array $definition ) :bool => $definition[ 'zone' ] === 'maintenance' );
+		$maintenanceKeys = \array_column( $maintenance, 'key' );
 
 		foreach ( $definitions as $definition ) {
 			$this->assertTrue( \is_subclass_of( $definition[ 'component_class' ], Component\Base::class ) );
@@ -145,6 +146,8 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		foreach ( $maintenance as $definition ) {
 			$this->assertSame( $definition[ 'key' ], $definition[ 'component_class' ]::SLUG );
 		}
+
+		$this->assertContains( 'default_admin_user', $maintenanceKeys );
 	}
 
 	public function test_configure_tile_definitions_keep_exclusive_target_contract() :void {

@@ -421,6 +421,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			(object)[
 				'opts'          => new UnitTestOptionsComponent( [
 					'ignored_maintenance_items' => \array_fill_keys( [
+						'default_admin_user',
 						'wp_plugins_updates',
 						'wp_themes_updates',
 						'wp_plugins_inactive',

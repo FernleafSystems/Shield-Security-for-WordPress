@@ -226,6 +226,7 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertSame( true, $option['tracking_exclude'] ?? false );
 		$this->assertSame(
 			[
+				'default_admin_user',
 				'wp_updates',
 				'wp_plugins_updates',
 				'wp_themes_updates',
@@ -256,6 +257,7 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertSame( true, $option['tracking_exclude'] );
 		$this->assertSame(
 			[
+				'default_admin_user',
 				'wp_updates',
 				'wp_plugins_updates',
 				'wp_themes_updates',

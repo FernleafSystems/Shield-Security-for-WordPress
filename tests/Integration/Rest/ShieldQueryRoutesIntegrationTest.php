@@ -2,10 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
+
+	private array $optionsSnapshot = [];
 
 	public function set_up() {
 		parent::set_up();
@@ -15,12 +18,26 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->requireDb( 'events' );
 
+		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
+			MaintenanceIssueStateProvider::OPT_KEY,
+		] );
 		$this->enablePremiumCapabilities( [ 'rest_api_level_2' ] );
 		$this->loginAsAdministrator();
+		$this->requireController()->opts
+			 ->optSet( MaintenanceIssueStateProvider::OPT_KEY, \array_merge(
+				 $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) ?? [],
+				 [
+					 'default_admin_user' => [ MaintenanceIssueStateProvider::SINGLETON_TOKEN ],
+				 ]
+			 ) )
+			 ->store();
 		\delete_site_transient( 'update_plugins' );
 	}
 
 	public function tear_down() {
+		if ( static::con() !== null ) {
+			$this->restoreSelectedOptions( $this->optionsSnapshot );
+		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
 	}

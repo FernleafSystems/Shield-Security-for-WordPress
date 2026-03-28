@@ -12,7 +12,6 @@ class Users extends Base {
 
 	public function components() :array {
 		return [
-			Component\DefaultAdminUser::class,
 			Component\PasswordPolicies::class,
 			Component\PwnedPasswords::class,
 			Component\PasswordStrength::class,

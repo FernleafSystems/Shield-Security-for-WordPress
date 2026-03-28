@@ -15,7 +15,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
-	DefaultAdminUser,
 	ScanScheduling,
 	TrustedCommenters
 };
@@ -41,8 +40,6 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 		$trustedCommentersAction = ( new TrustedCommenters() )->getActions()[ 'config' ] ?? [];
 		$this->assertSame( TrustedCommenters::Slug(), $trustedCommentersAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'trusted_commenter_minimum', $trustedCommentersAction[ 'data' ][ 'config_item' ] ?? '' );
-
-		$this->assertArrayNotHasKey( 'config', ( new DefaultAdminUser() )->getActions() );
 	}
 
 	private function installControllerStub() :void {

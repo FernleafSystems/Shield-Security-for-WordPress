@@ -358,6 +358,17 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 	public function test_normalize_uses_explicit_cta_mapping_and_suppresses_informational_links() :void {
 		$normalizer = new MaintenanceQueueItemDisplayNormalizer();
 
+		$defaultAdminUser = $normalizer->normalize( [
+			'key'         => 'default_admin_user',
+			'zone'        => 'maintenance',
+			'label'       => 'Default Admin User',
+			'count'       => 1,
+			'severity'    => 'warning',
+			'description' => 'The default admin user should be renamed or removed.',
+			'href'        => '/wp-admin/users.php?s=admin',
+			'action'      => 'Manage Users',
+			'target'      => '_blank',
+		] );
 		$wpUpdates = $normalizer->normalize( [
 			'key'         => 'wp_updates',
 			'zone'        => 'maintenance',
@@ -392,6 +403,11 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
+		$this->assertSame( 'Manage Users', $defaultAdminUser[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( '/wp-admin/users.php?s=admin', $defaultAdminUser[ 'cta' ][ 'href' ] ?? '' );
+		$this->assertSame( '_blank', $defaultAdminUser[ 'cta' ][ 'target' ] ?? '' );
+		$this->assertSame( 'bi bi-person-fill-exclamation', $defaultAdminUser[ 'icon_class' ] ?? '' );
+		$this->assertSame( [], $defaultAdminUser[ 'expansion' ] ?? [ 'unexpected' ] );
 		$this->assertSame( 'Dashboard -> Updates', $wpUpdates[ 'cta' ][ 'label' ] ?? '' );
 		$this->assertSame( '_blank', $wpUpdates[ 'cta' ][ 'target' ] ?? '' );
 		$this->assertSame( [], $openssl[ 'cta' ] ?? [ 'unexpected' ] );

@@ -210,6 +210,9 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$target = $item[ 'target' ];
 
 		switch ( $item[ 'key' ] ) {
+			case 'default_admin_user':
+				return $this->buildMappedCta( $href, $item[ 'action' ], $target );
+
 			case 'wp_updates':
 				return $this->buildMappedCta( $href, __( 'Dashboard -> Updates', 'wp-simple-firewall' ), $target );
 

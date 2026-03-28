@@ -62,6 +62,25 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $query[ 'summary' ][ 'is_all_clear' ] );
 	}
 
+	public function test_build_surfaces_default_admin_user_as_maintenance_review_item() :void {
+		$query = self::con()->comps->site_query->attention();
+		$itemsByKey = $this->indexItemsByKey( $query[ 'items' ] );
+
+		$this->assertArrayHasKey( 'default_admin_user', $itemsByKey );
+		$this->assertSame( 'maintenance', $itemsByKey[ 'default_admin_user' ][ 'zone' ] );
+		$this->assertSame( 'maintenance', $itemsByKey[ 'default_admin_user' ][ 'source' ] );
+		$this->assertSame( 1, $itemsByKey[ 'default_admin_user' ][ 'count' ] );
+		$this->assertSame( 0, $itemsByKey[ 'default_admin_user' ][ 'ignored_count' ] );
+		$this->assertSame( 'warning', $itemsByKey[ 'default_admin_user' ][ 'severity' ] );
+		$this->assertSame( 'Manage Users', $itemsByKey[ 'default_admin_user' ][ 'action' ] );
+		$this->assertSame(
+			Services::WpGeneral()->getAdminUrl( 'users.php' ).'?s=admin',
+			$itemsByKey[ 'default_admin_user' ][ 'href' ]
+		);
+		$this->assertSame( '_blank', $itemsByKey[ 'default_admin_user' ][ 'target' ] );
+		$this->assertFalse( $itemsByKey[ 'default_admin_user' ][ 'supports_sub_items' ] );
+	}
+
 	public function test_build_keeps_partially_ignored_maintenance_items_actionable() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 2 );
 		$this->setPluginUpdatesAvailableFor( $pluginFiles );

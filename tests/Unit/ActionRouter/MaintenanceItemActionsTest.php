@@ -118,6 +118,7 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 
 	public function test_unignore_removes_identifier_and_remains_idempotent() :void {
 		$this->opts->optSet( MaintenanceIssueStateProvider::OPT_KEY, [
+			'default_admin_user'     => [],
 			'wp_updates'             => [],
 			'wp_plugins_updates'     => [ 'plugin-one/plugin.php' ],
 			'wp_themes_updates'      => [],
@@ -226,6 +227,7 @@ class MaintenanceIssueStateProviderActionTestDouble extends MaintenanceIssueStat
 	 */
 	private function normalizeKnownKeys( array $values ) :array {
 		$normalized = \array_fill_keys( [
+			'default_admin_user',
 			'wp_updates',
 			'wp_plugins_updates',
 			'wp_themes_updates',
@@ -251,6 +253,7 @@ class OptsStoreStub {
 
 	private array $values = [
 		MaintenanceIssueStateProvider::OPT_KEY => [
+			'default_admin_user'     => [],
 			'wp_updates'             => [],
 			'wp_plugins_updates'     => [],
 			'wp_themes_updates'      => [],

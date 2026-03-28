@@ -59,6 +59,7 @@ class BuildAttentionItems {
 		'theme_files',
 		'file_locker',
 		'abandoned',
+		'default_admin_user',
 		'wp_updates',
 		'wp_plugins_updates',
 		'wp_themes_updates',

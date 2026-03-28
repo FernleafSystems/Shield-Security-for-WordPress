@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -158,5 +159,21 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="ip_blocking_rules"]',
 			'IPs diagnosis should still surface the IP blocking rules expansion row'
 		);
+	}
+
+	public function test_users_tile_builder_data_no_longer_surfaces_default_admin_user() :void {
+		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
+		$usersTiles = \array_values( \array_filter(
+			$tiles,
+			static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === 'users'
+		) );
+
+		$this->assertCount( 1, $usersTiles );
+		$components = $usersTiles[ 0 ][ 'panel' ][ 'components' ] ?? [];
+
+		$this->assertNotContains( 'Default Admin User', \array_column( $components, 'title' ) );
+		foreach ( $components as $component ) {
+			$this->assertNotSame( [], $component[ 'config_action' ] ?? [] );
+		}
 	}
 }

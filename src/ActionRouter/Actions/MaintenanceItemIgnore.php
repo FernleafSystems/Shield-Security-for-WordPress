@@ -39,10 +39,7 @@ class MaintenanceItemIgnore extends SecurityAdminBase {
 			}
 		}
 
-		$ignoredItems = $provider->normalizeIgnoredItems(
-			self::con()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ),
-			$currentIssueIdentifiersByKey
-		);
+		$ignoredItems = $provider->getNormalizedStoredIgnoredItems( $currentIssueIdentifiersByKey );
 		$ignoredItems[ $key ][] = $identifier;
 
 		self::con()->opts->optSet(

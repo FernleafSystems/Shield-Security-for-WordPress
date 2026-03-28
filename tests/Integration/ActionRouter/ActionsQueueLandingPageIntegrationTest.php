@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Malware as MalwarePane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Plugins as PluginsPane;
@@ -32,6 +33,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
+	private array $optionsSnapshot = [];
+
 	public function set_up() {
 		parent::set_up();
 		$this->requireDb( 'scans' );
@@ -39,11 +42,21 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->requireDb( 'file_locker' );
+		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
+			MaintenanceIssueStateProvider::OPT_KEY,
+		] );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp' ] );
+			 ->optSet( 'file_scan_areas', [ 'wp' ] )
+			 ->optSet( MaintenanceIssueStateProvider::OPT_KEY, \array_merge(
+				 $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) ?? [],
+				 [
+					 'default_admin_user' => [ MaintenanceIssueStateProvider::SINGLETON_TOKEN ],
+				 ]
+			 ) )
+			 ->store();
 		$this->resetScanResultCountMemoization();
 		\delete_site_transient( 'update_plugins' );
 	}
@@ -51,6 +64,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function tear_down() {
 		if ( static::con() !== null ) {
 			static::con()->comps->file_locker->clearLocks();
+			$this->restoreSelectedOptions( $this->optionsSnapshot );
 		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();

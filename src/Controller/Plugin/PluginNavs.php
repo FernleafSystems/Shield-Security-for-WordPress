@@ -638,6 +638,13 @@ class PluginNavs {
 				'drill_bucket'          => 'critical',
 			],
 			[
+				'key'                   => 'default_admin_user',
+				'zone'                  => 'maintenance',
+				'component_class'       => Component\DefaultAdminUser::class,
+				'availability_strategy' => 'always',
+				'drill_bucket'          => 'review',
+			],
+			[
 				'key'                   => 'wp_updates',
 				'zone'                  => 'maintenance',
 				'component_class'       => Component\WpUpdates::class,

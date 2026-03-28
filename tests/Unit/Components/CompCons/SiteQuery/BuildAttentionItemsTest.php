@@ -101,12 +101,26 @@ class BuildAttentionItemsTest extends BaseUnitTest {
 			],
 			[
 				[
+					'key'                => 'default_admin_user',
+					'zone'               => 'maintenance',
+					'source'             => 'maintenance',
+					'label'              => 'Default Admin User',
+					'description'        => 'The default admin user should be renamed or removed.',
+					'count'              => 1,
+					'ignored_count'      => 0,
+					'severity'           => 'warning',
+					'href'               => '/users',
+					'action'             => 'Manage Users',
+					'target'             => '_blank',
+					'supports_sub_items' => false,
+				],
+				[
 					'key'                => 'wp_updates',
 					'zone'               => 'maintenance',
 					'source'             => 'maintenance',
 					'label'              => 'WordPress Version',
 					'description'        => 'Updates available.',
-					'count'              => 6,
+					'count'              => 1,
 					'ignored_count'      => 0,
 					'severity'           => 'warning',
 					'href'               => '/updates',
@@ -117,9 +131,9 @@ class BuildAttentionItemsTest extends BaseUnitTest {
 			]
 		) )->build();
 
-		$this->assertSame( [ 'malware', 'wp_updates', 'plugin_files' ], \array_column( $query[ 'items' ], 'key' ) );
+		$this->assertSame( [ 'malware', 'plugin_files', 'default_admin_user', 'wp_updates' ], \array_column( $query[ 'items' ], 'key' ) );
 		$this->assertSame( 'critical', $query[ 'summary' ][ 'severity' ] );
-		$this->assertSame( 11, $query[ 'summary' ][ 'total' ] );
+		$this->assertSame( 7, $query[ 'summary' ][ 'total' ] );
 	}
 }
 

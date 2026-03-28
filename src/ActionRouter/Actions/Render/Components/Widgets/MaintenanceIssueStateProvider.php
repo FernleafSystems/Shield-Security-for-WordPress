@@ -53,8 +53,7 @@ class MaintenanceIssueStateProvider {
 	public function buildStates() :array {
 		$states = [];
 		$contexts = $this->buildContexts();
-		$ignoredByKey = $this->normalizeIgnoredItems(
-			$this->getStoredIgnoredItems(),
+		$ignoredByKey = $this->getNormalizedStoredIgnoredItems(
 			$this->buildValidIdentifiersByKey( $contexts )
 		);
 
@@ -106,10 +105,15 @@ class MaintenanceIssueStateProvider {
 		$normalized = $this->defaultIgnoredItems();
 
 		foreach ( \array_keys( $normalized ) as $key ) {
-			$values = \array_values( \array_unique( \array_filter( $ignoredItems[ $key ] ) ) );
+			$values = $ignoredItems[ $key ] ?? [];
+			if ( !\is_array( $values ) ) {
+				$values = [];
+			}
+
+			$values = \array_values( \array_unique( \array_filter( $values ) ) );
 
 			if ( $validIdentifiersByKey !== null ) {
-				$values = \array_values( \array_intersect( $values, $validIdentifiersByKey[ $key ] ) );
+				$values = \array_values( \array_intersect( $values, $validIdentifiersByKey[ $key ] ?? [] ) );
 			}
 
 			\natsort( $values );
@@ -124,6 +128,17 @@ class MaintenanceIssueStateProvider {
 	 */
 	public function defaultIgnoredItems() :array {
 		return \array_fill_keys( $this->maintenanceKeys(), [] );
+	}
+
+	/**
+	 * @param array<string,list<string>>|null $validIdentifiersByKey
+	 * @return array<string,list<string>>
+	 */
+	public function getNormalizedStoredIgnoredItems( ?array $validIdentifiersByKey = null ) :array {
+		return $this->normalizeIgnoredItems(
+			$this->getStoredIgnoredItems(),
+			$validIdentifiersByKey
+		);
 	}
 
 	/**
@@ -282,7 +297,8 @@ class MaintenanceIssueStateProvider {
 	 * @return array<string,list<string>>
 	 */
 	protected function getStoredIgnoredItems() :array {
-		return self::con()->opts->optGet( self::OPT_KEY );
+		$stored = self::con()->opts->optGet( self::OPT_KEY );
+		return \is_array( $stored ) ? $stored : [];
 	}
 
 	/**
@@ -449,6 +465,9 @@ class MaintenanceIssueStateProvider {
 		switch ( $key ) {
 			case 'wp_updates':
 				$iconClass = 'bi bi-wordpress';
+				break;
+			case 'default_admin_user':
+				$iconClass = 'bi bi-person-fill-exclamation';
 				break;
 			case 'wp_plugins_updates':
 			case 'wp_plugins_inactive':

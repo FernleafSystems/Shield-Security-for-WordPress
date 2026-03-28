@@ -993,6 +993,7 @@
         "transferable": false,
         "type": "array",
         "default": {
+            "default_admin_user": [],
             "wp_updates": [],
             "wp_plugins_updates": [],
             "wp_themes_updates": [],
