@@ -22,7 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   render_action:string,
  *   render_nav:string,
  *   render_subnav:string,
- *   lookup_key:string|null,
+ *   lookup_key:string,
  *   is_enabled:bool,
  *   is_pro:bool
  * }
@@ -182,7 +182,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		if ( $this->subjectTilesCache === null ) {
 			$this->subjectTilesCache = [];
 			foreach ( $this->getSubjectDefinitions() as $subject ) {
-				$lookupKey = \is_string( $subject[ 'lookup_key' ] ) ? $subject[ 'lookup_key' ] : '';
+				$lookupKey = $subject[ 'lookup_key' ];
 				$renderAction = $subject[ 'is_enabled' ]
 					? $this->buildPanelRenderActionData( $subject )
 					: [];
@@ -335,7 +335,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		];
 
 		$lookupKey = $subject[ 'lookup_key' ];
-		if ( \is_string( $lookupKey ) && $lookupKey !== '' && $subject[ 'key' ] === $activeSubject ) {
+		if ( $lookupKey !== '' && $subject[ 'key' ] === $activeSubject ) {
 			$lookupValue = $this->getLookupValues()[ $lookupKey ] ?? '';
 			if ( $lookupValue !== '' ) {
 				$actionData[ $lookupKey ] = $lookupValue;
@@ -388,7 +388,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 				$lookupValues = $this->getLookupValues();
 				foreach ( $definitions as $key => $definition ) {
 					$lookupKey = $definition[ 'lookup_key' ];
-					if ( \is_string( $lookupKey ) && $lookupKey !== '' && ( $lookupValues[ $lookupKey ] ?? '' ) !== '' ) {
+					if ( $lookupKey !== '' && ( $lookupValues[ $lookupKey ] ?? '' ) !== '' ) {
 						$subject = $key;
 						break;
 					}
@@ -409,7 +409,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			$this->lookupValuesCache = [];
 			foreach ( $this->getSubjectDefinitions() as $definition ) {
 				$lookupKey = $definition[ 'lookup_key' ];
-				if ( !\is_string( $lookupKey ) || $lookupKey === '' ) {
+				if ( $lookupKey === '' ) {
 					continue;
 				}
 				$this->lookupValuesCache[ $lookupKey ] = $this->getTextInputFromRequestOrActionData( $lookupKey );

@@ -13,6 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateLanding;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ActionsMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -125,6 +126,13 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			$this->assertArrayNotHasKey( 'subject_title', $tile );
 			$this->assertArrayNotHasKey( 'render_subnav', $tile );
 			$this->assertSame( !(bool)$tile[ 'is_enabled' ], (bool)$tile[ 'is_disabled' ] );
+			if ( (bool)$tile[ 'is_enabled' ] ) {
+				$expectedAction = $subjectDefinitions[ $tile[ 'key' ] ][ 'render_action' ] ?? '';
+				$this->assertSame(
+					$expectedAction,
+					ActionsMap::ActionFromSlug( (string)( $tile[ 'render_action' ][ 'render_slug' ] ?? '' ) )
+				);
+			}
 		}
 
 		$this->assertSame( '1', $tilesByKey[ 'live_traffic' ][ 'is_live_attr' ] ?? '0' );
