@@ -16,6 +16,12 @@
 	margin-bottom: 0.8rem;
 }
 
+.investigate-landing__subject-grid {
+	display: grid;
+	gap: 0.7rem;
+	grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+}
+
 .investigate-landing__subject-card {
 	--landing-subject-accent-color: #{$status-color-info};
 	--landing-subject-active-bg: #{$status-bg-info-light};

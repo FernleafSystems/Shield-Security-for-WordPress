@@ -1,0 +1,39 @@
+$operator-root-tile-grid-selectors:
+	'.configure-landing [data-drill-layer-key="zones"][data-drill-layer-is-root="1"] .configure-zones__grid,' +
+	'.reports-landing [data-drill-layer-key="workspaces"][data-drill-layer-is-root="1"] .configure-zones__grid,' +
+	'.actions-landing [data-drill-layer-key="buckets"][data-drill-layer-is-root="1"] .actions-queue-buckets__grid,' +
+	'.investigate-landing [data-drill-layer-key="subjects"][data-drill-layer-is-root="1"] .investigate-landing__subject-grid';
+
+@mixin operator-root-tile-columns( $columns ) {
+	#{$operator-root-tile-grid-selectors} {
+		grid-template-columns: repeat($columns, minmax(0, 1fr));
+	}
+}
+
+@include operator-root-tile-columns(1);
+
+@include media-breakpoint-up(sm) {
+	@include operator-root-tile-columns(2);
+}
+
+@include media-breakpoint-up(md) {
+	@include operator-root-tile-columns(3);
+}
+
+// Above 992px the operator context rail docks and narrows the content pane,
+// so hold the root grids at 2 columns until there is enough real pane width.
+@media (min-width: 992px) and (max-width: 1249.98px) {
+	@include operator-root-tile-columns(2);
+}
+
+@media (min-width: 1450px) {
+	@include operator-root-tile-columns(4);
+}
+
+@media (min-width: 1700px) {
+	@include operator-root-tile-columns(5);
+}
+
+@media (min-width: 1900px) {
+	@include operator-root-tile-columns(6);
+}
