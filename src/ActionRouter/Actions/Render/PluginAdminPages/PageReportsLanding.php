@@ -23,6 +23,9 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	 *       status_label:string,
 	 *       oneliner:string,
 	 *       data_drill_target:string,
+	 *       data_drill_zone_selection:string,
+	 *       data_drill_bucket_selection:string,
+	 *       data_drill_group_selection:string,
 	 *       data_reports_workspace_selection:string,
 	 *       is_disabled:bool,
 	 *       class_name:string,
@@ -96,19 +99,23 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function renderWorkspacesLayer() :string {
+		$workspaces = $this->getWorkspaceCards();
+
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/reports/layer_workspaces.twig' )
 			->setData( [
-				'workspaces' => $this->getWorkspaceCards(),
+				'workspaces' => $workspaces,
 			] )
 			->render();
 	}
 
 	protected function renderWorkspaceLayer() :string {
+		$workspaces = $this->getWorkspacePanels();
+
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/reports/layer_workspace.twig' )
 			->setData( [
-				'workspaces' => $this->getWorkspacePanels(),
+				'workspaces' => $workspaces,
 			] )
 			->render();
 	}
@@ -124,6 +131,9 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	 *     status_label:string,
 	 *     oneliner:string,
 	 *     data_drill_target:string,
+	 *     data_drill_zone_selection:string,
+	 *     data_drill_bucket_selection:string,
+	 *     data_drill_group_selection:string,
 	 *     data_reports_workspace_selection:string,
 	 *     is_disabled:bool,
 	 *     class_name:string,
@@ -160,6 +170,9 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	 *       status_label:string,
 	 *       oneliner:string,
 	 *       data_drill_target:string,
+	 *       data_drill_zone_selection:string,
+	 *       data_drill_bucket_selection:string,
+	 *       data_drill_group_selection:string,
 	 *       data_reports_workspace_selection:string,
 	 *       is_disabled:bool,
 	 *       class_name:string,
@@ -247,6 +260,9 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 					'status_label'      => $workspaceCopy[ $workspaceKey ][ 'status_label' ],
 					'oneliner'          => $workspaceCopy[ $workspaceKey ][ 'oneliner' ],
 					'data_drill_target' => 'workspace',
+					'data_drill_zone_selection' => '',
+					'data_drill_bucket_selection' => '',
+					'data_drill_group_selection' => '',
 					'data_reports_workspace_selection' => $selectionJson,
 					'is_disabled'       => false,
 					'class_name'        => '',
