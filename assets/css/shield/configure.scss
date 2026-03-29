@@ -9,22 +9,18 @@
 .configure-zones {
 	display: grid;
 	gap: 1.2rem;
+	min-width: 0;
 }
 
 .configure-zones__section {
 	display: grid;
 	gap: 0.85rem;
+	min-width: 0;
 }
 
 .configure-zones .healthy-disclosure,
 .configure-diagnosis .healthy-disclosure {
 	margin-top: 0;
-}
-
-.configure-zones__grid {
-	display: grid;
-	gap: 0.9rem;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .configure-zone-card {

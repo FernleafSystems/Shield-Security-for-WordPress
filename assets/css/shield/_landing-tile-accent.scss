@@ -1,3 +1,30 @@
+$landing-tile-grid-min-width: 11rem;
+$landing-tile-grid-gap: 0.9rem;
+$landing-tile-grid-max-columns: 6;
+$landing-tile-grid-max-gaps: $landing-tile-grid-max-columns - 1;
+$landing-tile-grid-max-width: calc(
+	(#{$landing-tile-grid-min-width} * #{$landing-tile-grid-max-columns}) +
+	(#{$landing-tile-grid-gap} * #{$landing-tile-grid-max-gaps})
+);
+
+.configure-zones__grid,
+.actions-queue-buckets__grid,
+.investigate-landing__subject-grid {
+	display: grid;
+	gap: $landing-tile-grid-gap;
+	grid-template-columns: 1fr;
+	min-width: 0;
+	width: min(100%, #{$landing-tile-grid-max-width});
+}
+
+@include media-breakpoint-up(sm) {
+	.configure-zones__grid,
+	.actions-queue-buckets__grid,
+	.investigate-landing__subject-grid {
+		grid-template-columns: repeat(auto-fill, minmax($landing-tile-grid-min-width, 1fr));
+	}
+}
+
 /* Shared operator-mode landing card shell */
 .actions-queue-bucket-card,
 .configure-zone-card,
