@@ -1,4 +1,4 @@
-<div class="actions-queue-groups"
+<div class="actions-queue-groups{% if bucket_selection.key == 'review' %} actions-queue-groups--review{% endif %}"
 	 data-actions-queue-groups="1">
 	{% if active_sections is empty and healthy_sections is empty %}
 		<div class="actions-landing__empty-state">

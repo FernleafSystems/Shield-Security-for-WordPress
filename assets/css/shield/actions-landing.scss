@@ -158,6 +158,14 @@
 	gap: 1.2rem;
 }
 
+.actions-queue-groups--review .configure-zones__grid {
+	grid-template-columns: 1fr;
+}
+
+.actions-queue-groups--review .configure-zones__grid > .item-box {
+	border-left-width: 1px;
+}
+
 .finding-group__heading {
 	border-bottom: 1px solid $border-color-neutral-subtle;
 	color: #5f6974;
