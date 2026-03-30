@@ -60,13 +60,13 @@ class ActionsQueueScanStateBuilder {
 		$this->appendWordpressState( $rows, $tabs, $accentStatuses );
 		$this->appendAssetState( $rows, $tabs, $accentStatuses, 'plugins' );
 		$this->appendAssetState( $rows, $tabs, $accentStatuses, 'themes' );
-		$this->appendVulnerabilitiesState( $rows, $tabs, $accentStatuses );
+		$vulnerabilityReviewCount = $this->appendVulnerabilityStates( $rows, $tabs, $accentStatuses );
 		$this->appendMalwareState( $rows, $tabs, $accentStatuses );
 		$this->appendFileLockerState( $rows, $tabs, $accentStatuses );
 
 		$tabs = \array_merge( [
 			'summary' => [
-				'count'  => (int)\array_sum( \array_column( $tabs, 'count' ) ),
+				'count'  => $this->buildSummaryCount( $tabs, $vulnerabilityReviewCount ),
 				'status' => StatusPriority::highest( \array_column( $tabs, 'status' ), 'good' ),
 			],
 		], $tabs );
@@ -169,27 +169,44 @@ class ActionsQueueScanStateBuilder {
 	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
 	 * @param list<string> $accentStatuses
 	 */
-	private function appendVulnerabilitiesState( array &$rows, array &$tabs, array &$accentStatuses ) :void {
-		$availability = $this->getTabAvailability( 'vulnerabilities' );
-		if ( !$availability[ 'show_in_actions_queue' ] ) {
-			return;
-		}
+	private function appendVulnerabilityStates( array &$rows, array &$tabs, array &$accentStatuses ) :int {
+		$vulnerabilitiesAvailability = $this->getTabAvailability( 'vulnerabilities' );
+		$abandonedAvailability = $this->getTabAvailability( 'abandoned' );
 
-		if ( !$availability[ 'is_available' ] ) {
-			$tabs[ 'vulnerabilities' ] = $this->buildDisabledTabMetrics();
-			return;
+		if ( !$vulnerabilitiesAvailability[ 'show_in_actions_queue' ]
+			 && !$abandonedAvailability[ 'show_in_actions_queue' ] ) {
+			return 0;
 		}
 
 		$displayCounts = $this->getDisplayCounts();
 		$vulnerableAssetsCount = $displayCounts->countDistinctVulnerableAssets();
 		$abandonedAssetsCount = $displayCounts->countDistinctAbandonedAssets();
-		$tabs[ 'vulnerabilities' ] = [
-			'count'  => $displayCounts->countDistinctVulnerabilityReviewAssets(),
-			'status' => $vulnerableAssetsCount > 0
-				? 'critical'
-				: ( $abandonedAssetsCount > 0 ? 'critical' : 'good' ),
-		];
-		$accentStatuses[] = $tabs[ 'vulnerabilities' ][ 'status' ];
+
+		if ( $vulnerabilitiesAvailability[ 'show_in_actions_queue' ] ) {
+			if ( !$vulnerabilitiesAvailability[ 'is_available' ] ) {
+				$tabs[ 'vulnerabilities' ] = $this->buildDisabledTabMetrics();
+			}
+			else {
+				$tabs[ 'vulnerabilities' ] = [
+					'count'  => $vulnerableAssetsCount,
+					'status' => $vulnerableAssetsCount > 0 ? 'critical' : 'good',
+				];
+				$accentStatuses[] = $tabs[ 'vulnerabilities' ][ 'status' ];
+			}
+		}
+
+		if ( $abandonedAvailability[ 'show_in_actions_queue' ] ) {
+			if ( !$abandonedAvailability[ 'is_available' ] ) {
+				$tabs[ 'abandoned' ] = $this->buildDisabledTabMetrics();
+			}
+			else {
+				$tabs[ 'abandoned' ] = [
+					'count'  => $abandonedAssetsCount,
+					'status' => $abandonedAssetsCount > 0 ? 'critical' : 'good',
+				];
+				$accentStatuses[] = $tabs[ 'abandoned' ][ 'status' ];
+			}
+		}
 
 		$vulnerableRow = $this->buildIssueRow(
 			'vulnerable_assets',
@@ -220,6 +237,10 @@ class ActionsQueueScanStateBuilder {
 		if ( $abandonedRow !== null ) {
 			$rows[] = $abandonedRow;
 		}
+
+		return ( $vulnerabilitiesAvailability[ 'is_available' ] || $abandonedAvailability[ 'is_available' ] )
+			? $displayCounts->countDistinctVulnerabilityReviewAssets()
+			: 0;
 	}
 
 	/**
@@ -364,7 +385,23 @@ class ActionsQueueScanStateBuilder {
 	}
 
 	private function scanSectionLabel( string $summaryKey, string $fallback ) :string {
-		$definition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( $summaryKey );
+		$definition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( $summaryKey );
 		return $definition[ 'label' ] ?? $fallback;
+	}
+
+	/**
+	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
+	 */
+	private function buildSummaryCount( array $tabs, int $vulnerabilityReviewCount ) :int {
+		$count = $vulnerabilityReviewCount;
+
+		foreach ( $tabs as $tabKey => $tab ) {
+			if ( \in_array( $tabKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
+				continue;
+			}
+			$count += (int)( $tab[ 'count' ] ?? 0 );
+		}
+
+		return $count;
 	}
 }

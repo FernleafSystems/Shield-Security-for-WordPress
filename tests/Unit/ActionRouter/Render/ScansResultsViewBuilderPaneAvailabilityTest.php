@@ -108,6 +108,47 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
 	}
 
+	public function test_combined_vulnerability_pane_stays_available_when_only_abandoned_results_are_enabled() :void {
+		$builder = $this->createBuilder( [
+			'vulnerabilitiesEnabled' => true,
+			'vulnerabilities'        => [
+				'count'    => 1,
+				'status'   => 'critical',
+				'sections' => [
+					'abandoned' => [
+						'label'  => 'Abandoned Assets',
+						'count'  => 1,
+						'status' => 'critical',
+						'items'  => [
+							[
+								'label'       => 'Abandoned Theme',
+								'description' => 'This asset appears to be abandoned and should be reviewed.',
+								'severity'    => 'critical',
+								'count'       => 1,
+								'actions'     => [],
+							],
+						],
+					],
+				],
+			],
+			'tabAvailability'        => [
+				'vulnerabilities' => [
+					'is_available'          => false,
+					'show_in_actions_queue' => true,
+					'disabled_message'      => 'vulnerabilities-unavailable-sentinel',
+					'disabled_status'       => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'vulnerabilities' );
+		$this->assertFalse( (bool)( $pane[ 'is_disabled' ] ?? true ) );
+		$this->assertSame( '', $pane[ 'disabled_message' ] ?? 'unexpected' );
+		$this->assertSame( 'critical', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 1, $pane[ 'count_items' ] ?? -1 );
+		$this->assertSame( 'Abandoned Assets', $pane[ 'items' ][ 0 ][ 'section_label' ] ?? '' );
+	}
+
 	public function test_malware_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
 		$message = 'malware-unavailable-sentinel';
 		$builder = $this->createBuilder( [

@@ -20,10 +20,12 @@ class ActionsQueueItemIconsTest extends BaseUnitTest {
 		$icons = new ActionsQueueItemIcons();
 
 		$this->assertSame( 'shield-exclamation', $icons->iconForScanKey( 'vulnerabilities' ) );
+		$this->assertSame( 'archive', $icons->iconForScanKey( 'abandoned' ) );
 		$this->assertSame( 'archive', $icons->iconForKey( 'abandoned' ) );
+		$this->assertSame( 'archive', PluginNavs::actionsLandingScanRowIcon( 'abandoned' ) );
 		$this->assertSame( 'bi bi-plug-fill', $icons->iconClassForScanKey( 'plugins' ) );
+		$this->assertSame( 'bi bi-archive-fill', $icons->iconClassForScanKey( 'abandoned' ) );
 		$this->assertSame( 'bi bi-code-slash', $icons->iconClassForKey( 'system_php_version' ) );
-		$this->assertSame( $icons->iconForKey( 'abandoned' ), PluginNavs::actionsLandingScanRowIcon( 'abandoned' ) );
 		$this->assertSame( $icons->iconClassForScanKey( 'plugins' ), PluginNavs::actionsLandingScanRailIconClass( 'plugins' ) );
 	}
 }

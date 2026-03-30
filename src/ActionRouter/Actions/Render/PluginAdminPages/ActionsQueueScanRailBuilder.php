@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Vulnerabilities,
 	Wordpress
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
@@ -109,6 +110,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 					'plugins'         => '',
 					'themes'          => '',
 					'vulnerabilities' => '',
+					'abandoned'       => '',
 					'malware'         => '',
 					'filelocker'      => '',
 				],
@@ -119,8 +121,12 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	/**
 	 * @return array<string,mixed>
 	 */
-	public function buildVulnerabilitiesPane() :array {
-		return $this->buildRailPaneData( 'vulnerabilities' );
+	public function buildVulnerabilitiesPane( string $section = 'vulnerable' ) :array {
+		return $this->buildRailPaneData(
+			$section === 'abandoned' ? 'abandoned' : 'vulnerabilities',
+			[],
+			$section === 'abandoned' ? 'abandoned' : 'vulnerable'
+		);
 	}
 
 	/**
@@ -173,6 +179,7 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 	private function buildOrderedQueueRailTabKeys() :array {
 		return [
 			'vulnerabilities',
+			'abandoned',
 			'wordpress',
 			'plugins',
 			'themes',
@@ -233,7 +240,14 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 				] ) ] );
 
 			case 'vulnerabilities':
-				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Vulnerabilities::class ) ] );
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Vulnerabilities::class, [
+					'section' => 'vulnerable',
+				] ) ] );
+
+			case 'abandoned':
+				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Vulnerabilities::class, [
+					'section' => 'abandoned',
+				] ) ] );
 
 			case 'malware':
 				return \array_merge( $definition, [ 'render_action' => $this->buildAjaxRenderActionData( Malware::class, [
@@ -533,6 +547,28 @@ class ActionsQueueScanRailBuilder extends ScansResultsViewBuilder {
 		}
 
 		return parent::getRailTabMeta( $key );
+	}
+
+	/**
+	 * @return array<string,array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   summary_keys:list<string>
+	 * }>
+	 */
+	protected function getScanTabDefinitions() :array {
+		return \array_merge(
+			PluginNavs::actionsQueueScanDefinitions(),
+			[
+				'maintenance' => [
+					'slug'         => 'maintenance',
+					'label'        => __( 'Maintenance', 'wp-simple-firewall' ),
+					'icon'         => 'wrench',
+					'summary_keys' => [ 'maintenance' ],
+				],
+			]
+		);
 	}
 
 	/**

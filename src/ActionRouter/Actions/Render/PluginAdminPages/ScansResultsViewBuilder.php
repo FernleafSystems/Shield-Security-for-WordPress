@@ -256,6 +256,10 @@ class ScansResultsViewBuilder {
 		return $scansCon->WPV()->isEnabled() || $scansCon->APC()->isEnabled();
 	}
 
+	protected function isAbandonedRailTabEnabled() :bool {
+		return self::con()->comps->scans->APC()->isEnabled();
+	}
+
 	protected function isMalwareRailTabEnabled() :bool {
 		return self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP();
 	}
@@ -518,6 +522,17 @@ class ScansResultsViewBuilder {
 					'items'  => $pane[ 'items' ],
 				] );
 
+			case 'abandoned':
+				if ( !$this->isAbandonedRailTabEnabled() ) {
+					return null;
+				}
+				$pane = $this->buildRailPaneData( 'abandoned', $vulnerabilities, 'abandoned' );
+				return \array_merge( $definition, [
+					'count'  => $pane[ 'count_items' ],
+					'status' => $pane[ 'status' ],
+					'items'  => $pane[ 'items' ],
+				] );
+
 			case 'malware':
 				if ( !$this->isMalwareRailTabEnabled() ) {
 					return null;
@@ -562,8 +577,26 @@ class ScansResultsViewBuilder {
 	}
 
 	protected function getRailTabKeyForSummaryKey( string $summaryKey ) :string {
-		$definition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( $summaryKey );
+		$definition = $this->scanDefinitionForSummaryKey( $summaryKey );
 		return $definition[ 'slug' ] ?? '';
+	}
+
+	/**
+	 * @return array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   summary_keys:list<string>
+	 * }|null
+	 */
+	protected function scanDefinitionForSummaryKey( string $summaryKey ) :?array {
+		foreach ( $this->getScanTabDefinitions() as $definition ) {
+			if ( \in_array( $summaryKey, $definition[ 'summary_keys' ], true ) ) {
+				return $definition;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -824,7 +857,7 @@ class ScansResultsViewBuilder {
 	 */
 	protected function buildVulnerabilitiesRailItems( array $vulnerabilities ) :array {
 		$items = [];
-		foreach ( $vulnerabilities[ 'sections' ] as $section ) {
+		foreach ( $this->normalizedVulnerabilitySections( $vulnerabilities ) as $section ) {
 			$sectionLabel = $section[ 'label' ];
 			foreach ( $section[ 'items' ] as $item ) {
 				$severity = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
@@ -846,7 +879,8 @@ class ScansResultsViewBuilder {
 
 	protected function buildVulnerabilitiesRailStatus( array $vulnerabilities ) :string {
 		$statuses = [];
-		foreach ( $vulnerabilities[ 'sections' ] as $section ) {
+		foreach ( $this->normalizedVulnerabilitySections( $vulnerabilities ) as $section ) {
+			$statuses[] = StatusPriority::normalize( (string)( $section[ 'status' ] ?? 'good' ), 'good' );
 			foreach ( $section[ 'items' ] as $item ) {
 				$statuses[] = StatusPriority::normalize( $item[ 'severity' ], 'warning' );
 			}
@@ -976,10 +1010,14 @@ class ScansResultsViewBuilder {
 	 *   disabled_status:string
 	 * }
 	 */
-	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [] ) :array {
+	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
 		$meta = $this->getRailTabMeta( $tabKey );
-		$availability = $this->getRailTabAvailability( $tabKey );
+		$availability = $this->normalizedRailPaneAvailability(
+			$tabKey,
+			$this->getRailTabAvailability( $tabKey ),
+			$vulnerabilitySection
+		);
 		$items = [];
 		$count = 0;
 		$status = 'good';
@@ -987,7 +1025,7 @@ class ScansResultsViewBuilder {
 		$disabledMessage = '';
 		$disabledStatus = $availability[ 'disabled_status' ];
 
-		if ( \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware' ], true )
+		if ( \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware' ], true )
 			 && !$availability[ 'is_available' ] ) {
 			$isDisabled = true;
 			$status = $disabledStatus;
@@ -1016,9 +1054,18 @@ class ScansResultsViewBuilder {
 
 				case 'vulnerabilities':
 					$vulnerabilities = empty( $vulnerabilities ) ? $this->buildVulnerabilities() : $vulnerabilities;
-					$items = $this->buildVulnerabilitiesRailItems( $vulnerabilities );
-					$count = $vulnerabilities[ 'count' ];
-					$status = $this->buildVulnerabilitiesRailStatus( $vulnerabilities );
+					$sectionPayload = $this->vulnerabilityPanePayload( $vulnerabilities, $vulnerabilitySection );
+					$items = $this->buildVulnerabilitiesRailItems( $sectionPayload );
+					$count = $sectionPayload[ 'count' ];
+					$status = $sectionPayload[ 'status' ];
+					break;
+
+				case 'abandoned':
+					$vulnerabilities = empty( $vulnerabilities ) ? $this->buildVulnerabilities() : $vulnerabilities;
+					$sectionPayload = $this->vulnerabilityPanePayload( $vulnerabilities, 'abandoned' );
+					$items = $this->buildVulnerabilitiesRailItems( $sectionPayload );
+					$count = $sectionPayload[ 'count' ];
+					$status = $sectionPayload[ 'status' ];
 					break;
 
 				case 'malware':
@@ -1042,6 +1089,98 @@ class ScansResultsViewBuilder {
 			'disabled_status'  => $disabledStatus,
 			'render_action'    => [],
 			'show_count_placeholder' => false,
+		];
+	}
+
+	/**
+	 * @return array{
+	 *   is_available:bool,
+	 *   show_in_actions_queue:bool,
+	 *   disabled_message:string,
+	 *   disabled_status:string
+	 * }
+	 */
+	private function normalizedRailPaneAvailability(
+		string $tabKey,
+		array $availability,
+		?string $vulnerabilitySection
+	) :array {
+		if ( $tabKey === 'vulnerabilities'
+			 && $vulnerabilitySection === null
+			 && $this->isVulnerabilitiesRailTabEnabled() ) {
+			$availability[ 'is_available' ] = true;
+			$availability[ 'disabled_message' ] = '';
+			$availability[ 'disabled_status' ] = 'neutral';
+		}
+
+		return $availability;
+	}
+
+	/**
+	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
+	 * @return array{count:int,status:string,sections:array<string,mixed>}
+	 */
+	private function vulnerabilityPanePayload( array $vulnerabilities, ?string $sectionKey ) :array {
+		if ( $sectionKey === null ) {
+			return [
+				'count'    => (int)( $vulnerabilities[ 'count' ] ?? 0 ),
+				'status'   => (string)( $vulnerabilities[ 'status' ] ?? $this->buildVulnerabilitiesRailStatus( $vulnerabilities ) ),
+				'sections' => $this->normalizedVulnerabilitySections( $vulnerabilities ),
+			];
+		}
+
+		$sections = $this->normalizedVulnerabilitySections( $vulnerabilities );
+		$section = $sections[ $sectionKey ] ?? $this->emptyVulnerabilitySection( $sectionKey );
+
+		return [
+			'count'    => $section[ 'count' ],
+			'status'   => $section[ 'status' ],
+			'sections' => [
+				$sectionKey => $section,
+			],
+		];
+	}
+
+	/**
+	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
+	 * @return array<string,array{
+	 *   label:string,
+	 *   count:int,
+	 *   status:string,
+	 *   items:list<array<string,mixed>>
+	 * }>
+	 */
+	private function normalizedVulnerabilitySections( array $vulnerabilities ) :array {
+		$sections = [];
+		foreach ( \is_array( $vulnerabilities[ 'sections' ] ?? null ) ? $vulnerabilities[ 'sections' ] : [] as $key => $section ) {
+			$items = \is_array( $section[ 'items' ] ?? null ) ? \array_values( $section[ 'items' ] ) : [];
+			$sections[ $key ] = [
+				'label'  => (string)( $section[ 'label' ] ?? '' ),
+				'count'  => (int)( $section[ 'count' ] ?? \count( $items ) ),
+				'status' => (string)( $section[ 'status' ] ?? ( empty( $items ) ? 'good' : 'critical' ) ),
+				'items'  => $items,
+			];
+		}
+
+		return $sections;
+	}
+
+	/**
+	 * @return array{
+	 *   label:string,
+	 *   count:int,
+	 *   status:string,
+	 *   items:list<array<string,mixed>>
+	 * }
+	 */
+	private function emptyVulnerabilitySection( string $sectionKey ) :array {
+		return [
+			'label'  => $sectionKey === 'abandoned'
+				? __( 'Abandoned Assets', 'wp-simple-firewall' )
+				: __( 'Known Vulnerabilities', 'wp-simple-firewall' ),
+			'count'  => 0,
+			'status' => 'good',
+			'items'  => [],
 		];
 	}
 

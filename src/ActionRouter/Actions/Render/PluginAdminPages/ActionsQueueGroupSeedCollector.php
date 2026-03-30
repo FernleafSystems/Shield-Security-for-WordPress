@@ -72,6 +72,7 @@ class ActionsQueueGroupSeedCollector {
 						$seeds = \array_merge(
 							$seeds,
 							$this->buildVulnerabilitySeeds(
+								$summaryBehaviour[ 'definition_key' ],
 								$this->scanSource->vulnerabilitySection( $summaryBehaviour[ 'vulnerability_section' ] ),
 								$item
 							)
@@ -82,6 +83,7 @@ class ActionsQueueGroupSeedCollector {
 						$seeds = \array_merge(
 							$seeds,
 							$this->buildVulnerabilitySeeds(
+								$summaryBehaviour[ 'definition_key' ],
 								$this->scanSource->vulnerabilitySection( $summaryBehaviour[ 'vulnerability_section' ] ),
 								$item
 							)
@@ -191,7 +193,7 @@ class ActionsQueueGroupSeedCollector {
 	 * @phpstan-param AttentionItem $item
 	 * @return list<GroupSeed>
 	 */
-	private function buildVulnerabilitySeeds( array $section, array $item ) :array {
+	private function buildVulnerabilitySeeds( string $definitionKey, array $section, array $item ) :array {
 		if ( $section === [] ) {
 			return [];
 		}
@@ -199,9 +201,9 @@ class ActionsQueueGroupSeedCollector {
 		$seeds = [];
 		foreach ( $section[ 'items' ] as $vulnerabilityItem ) {
 			$seeds[] = [
-				'key'              => 'vulnerabilities:'.$vulnerabilityItem[ 'key' ],
+				'key'              => $definitionKey.':'.$vulnerabilityItem[ 'key' ],
 				'is_healthy'       => false,
-				'definition_key'   => 'vulnerabilities',
+				'definition_key'   => $definitionKey,
 				'heading_label'    => $section[ 'label' ],
 				'label'            => $vulnerabilityItem[ 'label' ],
 				'item_count'       => $vulnerabilityItem[ 'count' ],

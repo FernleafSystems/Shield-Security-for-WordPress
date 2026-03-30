@@ -121,6 +121,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'linked', 'expandable', 'expandable', 'expandable' ], \array_column( $groups, 'card_type' ) );
 		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', '' ], \array_column( $data[ 'active_sections' ], 'heading_label' ) );
 		$this->assertSame( Vulnerabilities::class, $groups[ 0 ][ 'render_action_class' ] );
+		$this->assertSame( [ 'section' => 'vulnerable' ], $groups[ 0 ][ 'render_action_data' ] );
 		$this->assertSame( Malware::class, $groups[ 3 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
@@ -516,7 +517,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame(
-			[ 'vulnerabilities:abandoned-example-theme', 'vulnerabilities:vulnerability-example-plugin' ],
+			[ 'vulnerabilities:vulnerability-example-plugin', 'abandoned:abandoned-example-theme' ],
 			\array_column( $this->flattenLayerGroups( $data ), 'key' )
 		);
 		$this->assertSame( 1, $builder->getVulnerabilitiesPayloadCalls() );
@@ -634,7 +635,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Manage Updates', $selectedRows[ 'WordPress Version' ][ 'actions' ][ 0 ][ 'label' ] );
 	}
 
-	public function test_build_critical_bucket_keeps_healthy_vulnerabilities_static() :void {
+	public function test_build_critical_bucket_keeps_healthy_vulnerability_and_abandoned_groups_separate() :void {
 		$builder = $this->createBuilder();
 
 		$payload = $builder->buildWithSelectedGroup(
@@ -669,15 +670,60 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$healthyGroups = $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] );
-		$this->assertSame( [ 'vulnerabilities' ], \array_column( $healthyGroups, 'key' ) );
+		$this->assertSame( [ 'vulnerabilities', 'abandoned' ], \array_column( $healthyGroups, 'key' ) );
 		$this->assertSame( 'linked', $healthyGroups[ 0 ][ 'card_type' ] );
+		$this->assertSame( 'linked', $healthyGroups[ 1 ][ 'card_type' ] );
 		$this->assertSame( [], $healthyGroups[ 0 ][ 'links' ] );
+		$this->assertSame( [], $healthyGroups[ 1 ][ 'links' ] );
 		$this->assertFalse( $healthyGroups[ 0 ][ 'is_interactive' ] );
+		$this->assertFalse( $healthyGroups[ 1 ][ 'is_interactive' ] );
 		$this->assertSame( [], $healthyGroups[ 0 ][ 'render_action_data' ] );
+		$this->assertSame( [], $healthyGroups[ 1 ][ 'render_action_data' ] );
 		$this->assertSame( 'vulnerabilities', $payload[ 'selected_group' ][ 'key' ] );
 		$this->assertSame( 'linked', $payload[ 'selected_group' ][ 'card_type' ] );
 		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
 		$this->assertSame( '', $payload[ 'selected_group' ][ 'drill_hint' ] );
+	}
+
+	public function test_build_with_selected_group_resolves_healthy_abandoned_group_without_falling_back_to_vulnerabilities() :void {
+		$builder = $this->createBuilder();
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'abandoned',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'vulnerable_assets',
+						'label'             => 'Known Vulnerabilities',
+						'description'       => 'Previous scans did not detect any vulnerable assets.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+					[
+						'key'               => 'abandoned',
+						'label'             => 'Abandoned Assets',
+						'description'       => 'Previous scans did not detect any abandoned assets.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( 'abandoned', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'Abandoned Assets', $payload[ 'selected_group' ][ 'label' ] );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
+		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
 	}
 
 	public function test_build_critical_bucket_only_makes_healthy_scan_groups_clickable_when_ignored_results_exist() :void {

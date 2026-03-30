@@ -170,4 +170,16 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$this->assertNotSame( '', \trim( $definition[ 'icon' ] ) );
 		}
 	}
+
+	public function test_actions_queue_scan_definitions_split_abandoned_from_vulnerabilities() :void {
+		$landingDefinitions = PluginNavs::actionsLandingScanDefinitions();
+		$queueDefinitions = PluginNavs::actionsQueueScanDefinitions();
+
+		$this->assertSame( [ 'vulnerable_assets', 'abandoned' ], $landingDefinitions[ 'vulnerabilities' ][ 'summary_keys' ] );
+		$this->assertSame( [ 'vulnerable_assets' ], $queueDefinitions[ 'vulnerabilities' ][ 'summary_keys' ] );
+		$this->assertSame( [ 'abandoned' ], $queueDefinitions[ 'abandoned' ][ 'summary_keys' ] );
+		$this->assertSame( 'vulnerabilities', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'vulnerable_assets' )[ 'slug' ] ?? '' );
+		$this->assertSame( 'abandoned', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
+		$this->assertSame( 'vulnerabilities', PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
+	}
 }

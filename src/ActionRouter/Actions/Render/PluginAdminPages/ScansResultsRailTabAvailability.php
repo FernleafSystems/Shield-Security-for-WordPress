@@ -55,11 +55,21 @@ class ScansResultsRailTabAvailability {
 				break;
 
 			case 'vulnerabilities':
-				$state[ 'is_available' ] = $scansCon->WPV()->isEnabled() || $scansCon->APC()->isEnabled();
+				$state[ 'is_available' ] = $scansCon->WPV()->isEnabled();
 				$state[ 'show_in_actions_queue' ] = true;
 				if ( !$state[ 'is_available' ] ) {
 					$state[ 'disabled_message' ] = $this->buildNotEnabledMessage(
 						__( 'Vulnerability Scanning', 'wp-simple-firewall' )
+					);
+				}
+				break;
+
+			case 'abandoned':
+				$state[ 'is_available' ] = $scansCon->APC()->isEnabled();
+				$state[ 'show_in_actions_queue' ] = true;
+				if ( !$state[ 'is_available' ] ) {
+					$state[ 'disabled_message' ] = $this->buildNotEnabledMessage(
+						__( 'Abandoned Asset Scanning', 'wp-simple-firewall' )
 					);
 				}
 				break;

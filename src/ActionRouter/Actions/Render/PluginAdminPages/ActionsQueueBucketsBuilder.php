@@ -229,6 +229,12 @@ class ActionsQueueBucketsBuilder {
 					$count
 				);
 
+			case 'abandoned':
+				return \sprintf(
+					_n( '%s abandoned asset', '%s abandoned assets', $count, 'wp-simple-firewall' ),
+					$count
+				);
+
 			case 'wordpress':
 				return \sprintf(
 					_n( '%s WordPress file issue', '%s WordPress file issues', $count, 'wp-simple-firewall' ),

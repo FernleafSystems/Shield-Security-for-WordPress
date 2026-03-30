@@ -41,7 +41,7 @@ class ActionsQueueGroupDefinitions {
 
 	private const GROUP_METADATA = [
 		'wordpress' => [
-			'sort_order'            => 1,
+			'sort_order'            => 2,
 			'detail_shell'          => 'direct_table',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -51,7 +51,7 @@ class ActionsQueueGroupDefinitions {
 			'render_action_data'    => 'scan_results',
 		],
 		'plugins' => [
-			'sort_order'            => 2,
+			'sort_order'            => 3,
 			'detail_shell'          => 'asset_cards',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -61,7 +61,7 @@ class ActionsQueueGroupDefinitions {
 			'render_action_data'    => 'scan_results',
 		],
 		'themes' => [
-			'sort_order'            => 3,
+			'sort_order'            => 4,
 			'detail_shell'          => 'asset_cards',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -78,11 +78,25 @@ class ActionsQueueGroupDefinitions {
 			'drill_hint_plural'     => '',
 			'healthy_ignored_source' => '',
 			'render_action_class'   => Vulnerabilities::class,
-			'render_action_data'    => 'none',
+			'render_action_data'    => [
+				'section' => 'vulnerable',
+			],
+		],
+		'abandoned' => [
+			'sort_order'            => 1,
+			'detail_shell'          => 'direct_table',
+			'card_type'             => 'linked',
+			'drill_hint_single'     => '',
+			'drill_hint_plural'     => '',
+			'healthy_ignored_source' => '',
+			'render_action_class'   => Vulnerabilities::class,
+			'render_action_data'    => [
+				'section' => 'abandoned',
+			],
 		],
 		'malware' => [
 			'label_override'        => 'Malware Detections',
-			'sort_order'            => 4,
+			'sort_order'            => 5,
 			'detail_shell'          => 'direct_table',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -93,7 +107,7 @@ class ActionsQueueGroupDefinitions {
 		],
 		'file_locker' => [
 			'label_override'        => 'File Changes',
-			'sort_order'            => 5,
+			'sort_order'            => 6,
 			'detail_shell'          => 'asset_cards',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -104,7 +118,7 @@ class ActionsQueueGroupDefinitions {
 		],
 		'maintenance' => [
 			'label_override'        => 'Maintenance Items',
-			'sort_order'            => 6,
+			'sort_order'            => 7,
 			'icon_class'            => 'bi bi-wrench',
 			'detail_shell'          => 'maintenance',
 			'card_type'             => 'category',
@@ -134,7 +148,7 @@ class ActionsQueueGroupDefinitions {
 			'vulnerability_section' => 'vulnerable',
 		],
 		'abandoned' => [
-			'definition_key'        => 'vulnerabilities',
+			'definition_key'        => 'abandoned',
 			'seed_strategy'         => 'vulnerability_section',
 			'vulnerability_section' => 'abandoned',
 		],
@@ -182,7 +196,7 @@ class ActionsQueueGroupDefinitions {
 
 		$definitions = [];
 
-		foreach ( PluginNavs::actionsLandingScanDefinitions() as $key => $scanDefinition ) {
+		foreach ( PluginNavs::actionsQueueScanDefinitions() as $key => $scanDefinition ) {
 			$metadata = self::GROUP_METADATA[ $key ];
 			$definitions[ $key ] = [
 				'key'                 => $key,
@@ -274,7 +288,7 @@ class ActionsQueueGroupDefinitions {
 			return self::SUMMARY_BEHAVIOUR_OVERRIDES[ $summaryKey ];
 		}
 
-		$definition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( $summaryKey );
+		$definition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( $summaryKey );
 		if ( $definition !== null ) {
 			return [
 				'definition_key' => $definition[ 'slug' ],
@@ -318,7 +332,11 @@ class ActionsQueueGroupDefinitions {
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function renderActionDataForMode( string $mode ) :array {
+	private function renderActionDataForMode( $mode ) :array {
+		if ( \is_array( $mode ) ) {
+			return $mode;
+		}
+
 		return $mode === 'scan_results'
 			? $this->queueScanResultsOptions->buildActionData()
 			: [];

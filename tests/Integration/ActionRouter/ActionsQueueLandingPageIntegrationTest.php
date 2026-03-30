@@ -553,10 +553,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 	}
 
-	public function test_groups_ajax_keeps_healthy_vulnerabilities_group_drillable_and_detail_renderable_in_critical_bucket() :void {
+	public function test_groups_ajax_keeps_active_vulnerabilities_separate_from_healthy_abandoned_assets_in_critical_bucket() :void {
 		$this->enableAssetScanFixture( [ 'plugins' ] );
 
-		TestDataFactory::insertCompletedScan( 'wpv' );
+		$pluginSlug = self::con()->base_file;
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
 		TestDataFactory::insertCompletedScan( 'apc' );
 		$this->resetScanResultCountMemoization();
 
@@ -565,11 +571,21 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Known Vulnerabilities"]',
+			'Active vulnerable findings should stay in the vulnerabilities group'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Abandoned Assets"]',
+			'Healthy abandoned assets should render in the healthy disclosure body'
+		);
 		$this->assertXPathCount(
 			$xpath,
-			"//button[contains(concat(\" \", normalize-space(@class), \" \"), \" configure-zone-card \") and @data-drill-target=\"detail\" and contains(@data-drill-group-selection, '\"key\":\"vulnerabilities\"')]",
+			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Vulnerabilities"]',
 			0,
-			'Healthy vulnerabilities critical card should no longer be drillable when there are no results to show'
+			'Healthy abandoned assets should no longer fall back to a healthy vulnerabilities card'
 		);
 	}
 
@@ -1073,8 +1089,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'critical', (string)( $tabs[ 'plugins' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $tabs[ 'themes' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'themes' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 2, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 1, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $tabs[ 'abandoned' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'abandoned' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
@@ -1136,6 +1154,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'neutral', (string)( $tabs[ 'themes' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( 'neutral', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $tabs[ 'abandoned' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'neutral', (string)( $tabs[ 'abandoned' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'malware' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( 'neutral', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'file_locker', $tabs );
@@ -1261,6 +1281,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 1, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $tabs[ 'abandoned' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $tabs[ 'abandoned' ][ 'status' ] ?? '' ) );
 		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( $maintenance[ 'count' ] + 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
 		$this->assertSame(

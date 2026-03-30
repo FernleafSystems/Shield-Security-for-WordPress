@@ -84,6 +84,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 				$this->buildZoneTile( 'scans', 'Scans', 'critical', 3, [
 					$this->buildSummaryItem( 'wp_files', 'WordPress Files', 2, 'critical', '2 files need review.', '/wp-files', 'Open' ),
 					$this->buildSummaryItem( 'vulnerable_assets', 'Vulnerabilities', 1, 'critical', '1 asset needs review.', '/vulns', 'Open' ),
+					$this->buildSummaryItem( 'abandoned', 'Abandoned Assets', 1, 'critical', '1 asset needs review.', '/abandoned', 'Open' ),
 				], [
 					$this->buildAssessmentRow( 'plugin_files', 'Plugin Files', 'All clear' ),
 				] ),
@@ -116,7 +117,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[],
 			\array_diff(
-				[ 'summary', 'vulnerabilities', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
+				[ 'summary', 'vulnerabilities', 'abandoned', 'wordpress', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
 				\array_column( $railTabs, 'key' )
 			)
 		);
@@ -128,6 +129,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 				static fn( array $item ) :bool => (string)( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' ) === 'maintenance'
 			) ) );
 		$this->assertContains( 'wordpress', $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ) );
+		$this->assertContains( 'abandoned', $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ) );
 		$this->assertContains( 'maintenance', $this->extractRailSwitchTargets( $summaryTab[ 'items' ] ) );
 		$this->assertTrue( (bool)$maintenanceTab[ 'is_loaded' ] );
 		$this->assertSame( 2, $maintenanceTab[ 'count' ] );
@@ -154,6 +156,9 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertNull( $malwareTab[ 'count' ] );
 		$this->assertTrue( (bool)$malwareTab[ 'show_count_placeholder' ] );
 		$this->assertSame( 'scanresults_vulnerabilities', $vulnerabilitiesTab[ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'vulnerable', $vulnerabilitiesTab[ 'render_action' ][ 'section' ] );
+		$this->assertSame( 'scanresults_vulnerabilities', $this->findTabByKey( $railTabs, 'abandoned' )[ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'abandoned', $this->findTabByKey( $railTabs, 'abandoned' )[ 'render_action' ][ 'section' ] );
 		$this->assertSame( '', $renderData[ 'content' ][ 'section' ][ 'wordpress' ] );
 	}
 
@@ -184,7 +189,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$pane = $builder->buildVulnerabilitiesPane();
+		$pane = $builder->buildVulnerabilitiesPane( 'abandoned' );
 
 		$this->assertSame( 'critical', $pane[ 'status' ] );
 		$this->assertCount( 1, $pane[ 'items' ] );
@@ -213,7 +218,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		}
 
 		$this->assertSame(
-			[ 'summary', 'vulnerabilities', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
+			[ 'summary', 'vulnerabilities', 'abandoned', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
 			\array_keys( $tabsByKey )
 		);
 		$this->assertTrue( (bool)$tabsByKey[ 'maintenance' ][ 'is_loaded' ] );
@@ -223,6 +228,9 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scanresults_plugins', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'scanresults_themes', $tabsByKey[ 'themes' ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'vulnerable', $tabsByKey[ 'vulnerabilities' ][ 'render_action' ][ 'section' ] );
+		$this->assertSame( 'scanresults_vulnerabilities', $tabsByKey[ 'abandoned' ][ 'render_action' ][ 'render_slug' ] );
+		$this->assertSame( 'abandoned', $tabsByKey[ 'abandoned' ][ 'render_action' ][ 'section' ] );
 		$this->assertSame( 'scanresults_malware', $tabsByKey[ 'malware' ][ 'render_action' ][ 'render_slug' ] );
 		$this->assertArrayNotHasKey( 'wordpress', $tabsByKey );
 		$this->assertSame( 'actions_queue', $tabsByKey[ 'plugins' ][ 'render_action' ][ 'display_context' ] );
@@ -236,10 +244,12 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertNull( $tabsByKey[ 'plugins' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'themes' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'vulnerabilities' ][ 'count' ] );
+		$this->assertNull( $tabsByKey[ 'abandoned' ][ 'count' ] );
 		$this->assertNull( $tabsByKey[ 'malware' ][ 'count' ] );
 		$this->assertSame( 'neutral', $tabsByKey[ 'plugins' ][ 'status' ] );
 		$this->assertSame( 'neutral', $tabsByKey[ 'themes' ][ 'status' ] );
 		$this->assertSame( 'neutral', $tabsByKey[ 'vulnerabilities' ][ 'status' ] );
+		$this->assertSame( 'neutral', $tabsByKey[ 'abandoned' ][ 'status' ] );
 		$this->assertSame( 'neutral', $tabsByKey[ 'malware' ][ 'status' ] );
 	}
 
@@ -287,7 +297,7 @@ class ActionsQueueScanRailBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[],
 			\array_diff(
-				[ 'summary', 'vulnerabilities', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
+				[ 'summary', 'vulnerabilities', 'abandoned', 'plugins', 'themes', 'malware', 'file_locker', 'maintenance' ],
 				\array_column( $railTabs, 'key' )
 			)
 		);
@@ -602,6 +612,9 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 			case 'vulnerabilities':
 				$isAvailable = $this->vulnerabilitiesEnabled;
 				break;
+			case 'abandoned':
+				$isAvailable = $this->vulnerabilitiesEnabled;
+				break;
 			case 'malware':
 				$isAvailable = $this->malwareEnabled;
 				break;
@@ -615,7 +628,7 @@ class ActionsQueueScanRailBuilderTestDouble extends ActionsQueueScanRailBuilder 
 
 		return [
 			'is_available' => $isAvailable,
-			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ], true )
+			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true )
 				|| ( $tabKey === 'wordpress' && $this->wordpressEnabled ),
 			'disabled_message' => $isAvailable ? '' : $tabKey.' disabled',
 			'disabled_status' => 'neutral',

@@ -168,13 +168,12 @@ class ActionsQueueLandingAssessmentBuilder {
 		$status = $component[ 'is_protected' ]
 			? 'good'
 			: ( $drillBucket === 'critical' ? 'critical' : 'warning' );
+		$text = $this->normalizedAssessmentText( $key, $component );
 
 		return [
 			'key'               => $key,
-			'label'             => $component[ 'title' ],
-			'description'       => $component[ 'is_protected' ]
-				? $component[ 'desc_protected' ]
-				: $component[ 'desc_unprotected' ],
+			'label'             => $text[ 'label' ],
+			'description'       => $text[ 'description' ],
 			'drill_bucket'      => $drillBucket,
 			'item_icon_class'   => $this->itemIcons()->iconClassForKey( $key ),
 			'status'            => $status,
@@ -189,6 +188,30 @@ class ActionsQueueLandingAssessmentBuilder {
 	 */
 	protected function buildAssessmentComponent( string $componentClass ) :array {
 		return ( new $componentClass() )->build( MeterComponentBase::CHANNEL_ACTION );
+	}
+
+	/**
+	 * @param array<string,mixed> $component
+	 * @return array{label:string,description:string}
+	 */
+	private function normalizedAssessmentText( string $key, array $component ) :array {
+		if ( $key === 'abandoned' ) {
+			return [
+				'label'       => __( 'Abandoned Assets', 'wp-simple-firewall' ),
+				'description' => (bool)( $component[ 'is_protected' ] ?? false )
+					? __( "There doesn't appear to be any abandoned assets on your site.", 'wp-simple-firewall' )
+					: __( 'There appear to be abandoned assets installed on your site.', 'wp-simple-firewall' ),
+			];
+		}
+
+		return [
+			'label'       => (string)( $component[ 'title' ] ?? '' ),
+			'description' => (string)(
+				( $component[ 'is_protected' ] ?? false )
+					? ( $component[ 'desc_protected' ] ?? '' )
+					: ( $component[ 'desc_unprotected' ] ?? '' )
+			),
+		];
 	}
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {

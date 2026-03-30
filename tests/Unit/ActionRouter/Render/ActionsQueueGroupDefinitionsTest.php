@@ -40,10 +40,15 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'Malware Detections', $definitions[ 'malware' ][ 'label' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'malware' ][ 'detail_shell' ] );
 		$this->assertSame( 'linked', $definitions[ 'vulnerabilities' ][ 'card_type' ] );
+		$this->assertSame( 'Abandoned Assets', $definitions[ 'abandoned' ][ 'label' ] );
+		$this->assertSame( 'linked', $definitions[ 'abandoned' ][ 'card_type' ] );
 		$this->assertSame( Malware::class, $definitions[ 'malware' ][ 'render_action_class' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'themes' ][ 'detail_shell' ] );
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'vulnerabilities' ][ 'render_action_class' ] );
+		$this->assertSame( [ 'section' => 'vulnerable' ], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
+		$this->assertSame( Vulnerabilities::class, $definitions[ 'abandoned' ][ 'render_action_class' ] );
+		$this->assertSame( [ 'section' => 'abandoned' ], $definitions[ 'abandoned' ][ 'render_action_data' ] );
 		$this->assertSame( 'File Changes', $definitions[ 'file_locker' ][ 'label' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'file_locker' ][ 'detail_shell' ] );
 		$this->assertSame( FileLocker::class, $definitions[ 'file_locker' ][ 'render_action_class' ] );
@@ -88,7 +93,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'plugins', $definitions->groupKeyForSummaryKey( 'plugin_files' ) );
 		$this->assertSame( 'themes', $definitions->groupKeyForSummaryKey( 'theme_files' ) );
 		$this->assertSame( 'vulnerabilities', $definitions->groupKeyForSummaryKey( 'vulnerable_assets' ) );
-		$this->assertSame( 'vulnerabilities', $definitions->groupKeyForSummaryKey( 'abandoned' ) );
+		$this->assertSame( 'abandoned', $definitions->groupKeyForSummaryKey( 'abandoned' ) );
 		$this->assertSame( 'malware', $definitions->groupKeyForSummaryKey( 'malware' ) );
 		$this->assertSame( 'file_locker', $definitions->groupKeyForSummaryKey( 'file_locker' ) );
 		$this->assertSame( 'maintenance', $definitions->groupKeyForSummaryKey( 'wp_updates' ) );
@@ -122,7 +127,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertSame(
 			[
-				'definition_key'        => 'vulnerabilities',
+				'definition_key'        => 'abandoned',
 				'seed_strategy'         => 'vulnerability_section',
 				'vulnerability_section' => 'abandoned',
 			],
@@ -140,5 +145,6 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 			$definitions->ignoredRenderActionDataForGroupKey( 'plugins', 2 )
 		);
 		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'vulnerabilities', 2 ) );
+		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'abandoned', 2 ) );
 	}
 }

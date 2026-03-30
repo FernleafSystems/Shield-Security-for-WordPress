@@ -52,6 +52,10 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 2, $payload[ 'count' ] );
 		$this->assertSame( 'critical', $payload[ 'status' ] );
+		$this->assertSame( 1, $payload[ 'sections' ][ 'vulnerable' ][ 'count' ] );
+		$this->assertSame( 'critical', $payload[ 'sections' ][ 'vulnerable' ][ 'status' ] );
+		$this->assertSame( 2, $payload[ 'sections' ][ 'abandoned' ][ 'count' ] );
+		$this->assertSame( 'critical', $payload[ 'sections' ][ 'abandoned' ][ 'status' ] );
 		$this->assertCount( 1, $payload[ 'sections' ][ 'vulnerable' ][ 'items' ] );
 		$this->assertCount( 2, $payload[ 'sections' ][ 'abandoned' ][ 'items' ] );
 	}
@@ -76,6 +80,10 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 1, $payload[ 'count' ] );
 		$this->assertSame( 'critical', $payload[ 'status' ] );
+		$this->assertSame( 0, $payload[ 'sections' ][ 'vulnerable' ][ 'count' ] );
+		$this->assertSame( 'good', $payload[ 'sections' ][ 'vulnerable' ][ 'status' ] );
+		$this->assertSame( 1, $payload[ 'sections' ][ 'abandoned' ][ 'count' ] );
+		$this->assertSame( 'critical', $payload[ 'sections' ][ 'abandoned' ][ 'status' ] );
 		$this->assertSame( 'critical', $payload[ 'sections' ][ 'abandoned' ][ 'items' ][ 0 ][ 'severity' ] );
 		$this->assertSame( [], $payload[ 'sections' ][ 'vulnerable' ][ 'items' ] );
 		$this->assertCount( 1, $payload[ 'sections' ][ 'abandoned' ][ 'items' ] );

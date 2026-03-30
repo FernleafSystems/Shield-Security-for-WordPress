@@ -28,6 +28,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * }
  * @phpstan-type VulnerabilitySection array{
  *   label:string,
+ *   count:int,
+ *   status:string,
  *   items:list<VulnerabilityItem>
  * }
  * @phpstan-type VulnerabilitiesPayload array{
@@ -56,14 +58,14 @@ class ScansVulnerabilitiesBuilder {
 				? 'critical'
 				: ( !empty( $abandonedItems ) ? 'critical' : 'good' ),
 			'sections' => [
-				'vulnerable' => [
-					'label' => __( 'Known Vulnerabilities', 'wp-simple-firewall' ),
-					'items' => $vulnerableItems,
-				],
-				'abandoned'  => [
-					'label' => __( 'Abandoned Assets', 'wp-simple-firewall' ),
-					'items' => $abandonedItems,
-				],
+				'vulnerable' => $this->buildSection(
+					__( 'Known Vulnerabilities', 'wp-simple-firewall' ),
+					$vulnerableItems
+				),
+				'abandoned'  => $this->buildSection(
+					__( 'Abandoned Assets', 'wp-simple-firewall' ),
+					$abandonedItems
+				),
 			],
 		];
 	}
@@ -91,6 +93,7 @@ class ScansVulnerabilitiesBuilder {
 				'vulnerability',
 				$asset,
 				$count,
+				$this->buildVulnerableAssetActions( $asset ),
 				\sprintf(
 					_n( '%s known vulnerability needs review.', '%s known vulnerabilities need review.', $count, 'wp-simple-firewall' ),
 					$count
@@ -123,6 +126,7 @@ class ScansVulnerabilitiesBuilder {
 				'abandoned',
 				$asset,
 				1,
+				$this->buildAbandonedAssetActions( $asset ),
 				__( 'This asset appears to be abandoned and should be reviewed.', 'wp-simple-firewall' )
 			);
 		}
@@ -134,7 +138,7 @@ class ScansVulnerabilitiesBuilder {
 	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return VulnerabilityItem
 	 */
-	private function buildAssetRow( string $prefix, $asset, int $count, string $description ) :array {
+	private function buildAssetRow( string $prefix, $asset, int $count, array $actions, string $description ) :array {
 		$isPlugin = $asset instanceof WpPluginVo;
 		$name = $isPlugin ? $asset->Title : $asset->Name;
 
@@ -145,7 +149,20 @@ class ScansVulnerabilitiesBuilder {
 			'description' => $description,
 			'count'       => $count,
 			'severity'    => 'critical',
-			'actions'     => $this->buildAssetActions( $asset ),
+			'actions'     => $actions,
+		];
+	}
+
+	/**
+	 * @param list<VulnerabilityItem> $items
+	 * @return VulnerabilitySection
+	 */
+	private function buildSection( string $label, array $items ) :array {
+		return [
+			'label'  => $label,
+			'count'  => \count( $items ),
+			'status' => empty( $items ) ? 'good' : 'critical',
+			'items'  => $items,
 		];
 	}
 
@@ -175,7 +192,7 @@ class ScansVulnerabilitiesBuilder {
 	 * @param WpPluginVo|WpThemeVo $asset
 	 * @return list<VulnerabilityAction>
 	 */
-	private function buildAssetActions( $asset ) :array {
+	private function buildVulnerableAssetActions( $asset ) :array {
 		return [
 			$this->buildNativeAction( $asset ),
 			[
@@ -190,6 +207,16 @@ class ScansVulnerabilitiesBuilder {
 					'rel'    => 'noopener noreferrer',
 				],
 			],
+		];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 * @return list<VulnerabilityAction>
+	 */
+	private function buildAbandonedAssetActions( $asset ) :array {
+		return [
+			$this->buildNativeAction( $asset ),
 		];
 	}
 

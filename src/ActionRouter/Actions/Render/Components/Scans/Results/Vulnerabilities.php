@@ -11,11 +11,16 @@ class Vulnerabilities extends BaseRender {
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig';
 
 	protected function getRenderData() :array {
-		$pane = ( new ScansResultsViewBuilder() )->buildRailPaneData( 'vulnerabilities' );
+		$section = $this->normalizeSection( $this->getTextInputFromRequestOrActionData( 'section' ) );
+		$pane = ( new ScansResultsViewBuilder() )->buildRailPaneData(
+			$section === 'abandoned' ? 'abandoned' : 'vulnerabilities',
+			[],
+			$section
+		);
 
 		return [
 			'strings' => [
-				'no_issues' => __( "Previous scans didn't detect any vulnerable or abandoned assets.", 'wp-simple-firewall' ),
+				'no_issues' => $this->noIssuesTextForSection( $section ),
 			],
 			'vars'    => [
 				'count_items' => $pane[ 'count_items' ],
@@ -23,5 +28,20 @@ class Vulnerabilities extends BaseRender {
 			'tab'     => $pane,
 			'content' => [],
 		];
+	}
+
+	private function normalizeSection( string $section ) :?string {
+		return \in_array( $section, [ 'vulnerable', 'abandoned' ], true ) ? $section : null;
+	}
+
+	private function noIssuesTextForSection( ?string $section ) :string {
+		switch ( $section ) {
+			case 'vulnerable':
+				return __( "Previous scans didn't detect any vulnerable assets.", 'wp-simple-firewall' );
+			case 'abandoned':
+				return __( "Previous scans didn't detect any abandoned assets.", 'wp-simple-firewall' );
+			default:
+				return __( "Previous scans didn't detect any vulnerable or abandoned assets.", 'wp-simple-firewall' );
+		}
 	}
 }

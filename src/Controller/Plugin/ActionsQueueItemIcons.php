@@ -25,6 +25,7 @@ class ActionsQueueItemIcons {
 		'plugins'         => 'plug',
 		'themes'          => 'brush',
 		'vulnerabilities' => 'shield-exclamation',
+		'abandoned'       => 'archive',
 		'malware'         => 'bug',
 		'file_locker'     => 'file-lock2',
 	];
@@ -60,7 +61,7 @@ class ActionsQueueItemIcons {
 			return $this->iconForScanKey( $key );
 		}
 
-		$scanDefinition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( $key );
+		$scanDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( $key );
 		if ( $scanDefinition !== null ) {
 			return self::SCAN_ROW_ICON_OVERRIDES[ $key ] ?? $this->iconForScanKey( $scanDefinition[ 'slug' ] );
 		}

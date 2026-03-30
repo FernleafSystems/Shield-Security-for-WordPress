@@ -1,5 +1,13 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
@@ -29,7 +37,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_routes_abandoned_assets_to_critical_vulnerabilities_state() :void {
+	public function test_build_routes_abandoned_assets_to_separate_abandoned_tab_and_deduped_summary() :void {
 		$counts = $this->getMockBuilder( Counts::class )
 					   ->disableOriginalConstructor()
 					   ->onlyMethods( [
@@ -44,7 +52,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$availability = new class extends ScansResultsRailTabAvailability {
 			public function build( string $tabKey ) :array {
-				return $tabKey === 'vulnerabilities'
+				return \in_array( $tabKey, [ 'vulnerabilities', 'abandoned' ], true )
 					? [
 						'is_available'          => true,
 						'show_in_actions_queue' => true,
@@ -66,13 +74,59 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$state = $builder->build();
 
-		$this->assertSame( 2, $state[ 'tabs' ][ 'vulnerabilities' ][ 'count' ] );
-		$this->assertSame( 'critical', $state[ 'tabs' ][ 'vulnerabilities' ][ 'status' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'vulnerabilities' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'vulnerabilities' ][ 'status' ] );
+		$this->assertSame( 2, $state[ 'tabs' ][ 'abandoned' ][ 'count' ] );
+		$this->assertSame( 'critical', $state[ 'tabs' ][ 'abandoned' ][ 'status' ] );
+		$this->assertSame( 2, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
 		$this->assertSame( 'critical', $state[ 'tabs' ][ 'summary' ][ 'status' ] );
 		$this->assertSame( 'critical', $state[ 'rail_accent_status' ] );
 		$this->assertSame( [ 'abandoned' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( 'critical', $state[ 'rows' ][ 0 ][ 'severity' ] );
 		$this->assertSame( '/admin/scans/overview?zone=scans', $state[ 'rows' ][ 0 ][ 'href' ] );
+	}
+
+	public function test_build_keeps_summary_vulnerability_count_deduped_when_same_asset_is_vulnerable_and_abandoned() :void {
+		$counts = $this->getMockBuilder( Counts::class )
+					   ->disableOriginalConstructor()
+					   ->onlyMethods( [
+						   'countDistinctVulnerableAssets',
+						   'countDistinctAbandonedAssets',
+						   'countDistinctVulnerabilityReviewAssets',
+					   ] )
+					   ->getMock();
+		$counts->method( 'countDistinctVulnerableAssets' )->willReturn( 1 );
+		$counts->method( 'countDistinctAbandonedAssets' )->willReturn( 1 );
+		$counts->method( 'countDistinctVulnerabilityReviewAssets' )->willReturn( 1 );
+
+		$availability = new class extends ScansResultsRailTabAvailability {
+			public function build( string $tabKey ) :array {
+				return \in_array( $tabKey, [ 'vulnerabilities', 'abandoned' ], true )
+					? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					]
+					: [
+						'is_available'          => false,
+						'show_in_actions_queue' => false,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					];
+			}
+		};
+
+		$builder = new ActionsQueueScanStateBuilder();
+		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+
+		$state = $builder->build();
+
+		$this->assertSame( 1, $state[ 'tabs' ][ 'vulnerabilities' ][ 'count' ] );
+		$this->assertSame( 1, $state[ 'tabs' ][ 'abandoned' ][ 'count' ] );
+		$this->assertSame( 1, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( [ 'vulnerable_assets', 'abandoned' ], \array_column( $state[ 'rows' ], 'key' ) );
 	}
 
 	private function setPrivateProperty( object $subject, string $property, $value ) :void {

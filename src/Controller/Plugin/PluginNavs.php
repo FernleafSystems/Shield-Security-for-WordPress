@@ -544,6 +544,35 @@ class PluginNavs {
 	}
 
 	/**
+	 * Queue-local scan definitions split abandoned assets from vulnerabilities while
+	 * preserving the classic landing definitions for non-queue consumers.
+	 *
+	 * @return array<string,array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   summary_keys:list<string>
+	 * }>
+	 */
+	public static function actionsQueueScanDefinitions() :array {
+		$definitions = self::actionsLandingScanDefinitions();
+		$definitions[ 'vulnerabilities' ][ 'summary_keys' ] = [ 'vulnerable_assets' ];
+
+		return \array_merge(
+			\array_slice( $definitions, 0, 4, true ),
+			[
+				'abandoned' => [
+					'slug'         => 'abandoned',
+					'label'        => __( 'Abandoned Assets', 'wp-simple-firewall' ),
+					'icon'         => 'archive',
+					'summary_keys' => [ 'abandoned' ],
+				],
+			],
+			\array_slice( $definitions, 4, null, true )
+		);
+	}
+
+	/**
 	 * @return array{
 	 *   slug:string,
 	 *   label:string,
@@ -552,7 +581,37 @@ class PluginNavs {
 	 * }|null
 	 */
 	public static function actionsLandingScanDefinitionForSummaryKey( string $summaryKey ) :?array {
-		foreach ( self::actionsLandingScanDefinitions() as $definition ) {
+		return self::scanDefinitionForSummaryKey( self::actionsLandingScanDefinitions(), $summaryKey );
+	}
+
+	/**
+	 * @return array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   summary_keys:list<string>
+	 * }|null
+	 */
+	public static function actionsQueueScanDefinitionForSummaryKey( string $summaryKey ) :?array {
+		return self::scanDefinitionForSummaryKey( self::actionsQueueScanDefinitions(), $summaryKey );
+	}
+
+	/**
+	 * @param array<string,array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   summary_keys:list<string>
+	 * }> $definitions
+	 * @return array{
+	 *   slug:string,
+	 *   label:string,
+	 *   icon:string,
+	 *   summary_keys:list<string>
+	 * }|null
+	 */
+	private static function scanDefinitionForSummaryKey( array $definitions, string $summaryKey ) :?array {
+		foreach ( $definitions as $definition ) {
 			if ( \in_array( $summaryKey, $definition[ 'summary_keys' ], true ) ) {
 				return $definition;
 			}

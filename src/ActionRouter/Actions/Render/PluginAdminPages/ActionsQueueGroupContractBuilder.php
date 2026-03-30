@@ -236,21 +236,14 @@ class ActionsQueueGroupContractBuilder {
 	private function buildNarrative( string $definitionKey, array $attentionItems, int $itemCount ) :string {
 		switch ( $definitionKey ) {
 			case 'vulnerabilities':
-				$vulnerableCount = $this->countAttentionItemsByKey( $attentionItems, 'vulnerable_assets' );
-				$abandonedCount = $this->countAttentionItemsByKey( $attentionItems, 'abandoned' );
-				if ( $vulnerableCount > 0 && $abandonedCount > 0 ) {
-					return \sprintf(
-						__( '%1$s vulnerable assets and %2$s abandoned assets need review.', 'wp-simple-firewall' ),
-						$vulnerableCount,
-						$abandonedCount
-					);
-				}
-				if ( $vulnerableCount > 0 ) {
-					return \sprintf(
-						_n( '%s vulnerable asset needs review.', '%s vulnerable assets need review.', $vulnerableCount, 'wp-simple-firewall' ),
-						$vulnerableCount
-					);
-				}
+				$vulnerableCount = \max( $itemCount, $this->countAttentionItemsByKey( $attentionItems, 'vulnerable_assets' ) );
+				return \sprintf(
+					_n( '%s vulnerable asset needs review.', '%s vulnerable assets need review.', $vulnerableCount, 'wp-simple-firewall' ),
+					$vulnerableCount
+				);
+
+			case 'abandoned':
+				$abandonedCount = \max( $itemCount, $this->countAttentionItemsByKey( $attentionItems, 'abandoned' ) );
 				return \sprintf(
 					_n( '%s abandoned asset needs review.', '%s abandoned assets need review.', $abandonedCount, 'wp-simple-firewall' ),
 					$abandonedCount
