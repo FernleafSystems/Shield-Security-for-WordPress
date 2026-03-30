@@ -50,6 +50,16 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance' ][ 'card_type' ] );
 		$this->assertSame( Maintenance::class, $definitions[ 'maintenance' ][ 'render_action_class' ] );
+		$this->assertSame( 'System', $definitions[ 'maintenance_system' ][ 'label' ] );
+		$this->assertSame( 'bi bi-shield-lock-fill', $definitions[ 'maintenance_system' ][ 'icon_class' ] );
+		$this->assertSame( 'maintenance', $definitions[ 'maintenance_system' ][ 'detail_shell' ] );
+		$this->assertSame( 'category', $definitions[ 'maintenance_system' ][ 'card_type' ] );
+		$this->assertSame( Maintenance::class, $definitions[ 'maintenance_system' ][ 'render_action_class' ] );
+		$this->assertSame( 'WordPress', $definitions[ 'maintenance_wordpress' ][ 'label' ] );
+		$this->assertSame( 'bi bi-wordpress', $definitions[ 'maintenance_wordpress' ][ 'icon_class' ] );
+		$this->assertSame( 'maintenance', $definitions[ 'maintenance_wordpress' ][ 'detail_shell' ] );
+		$this->assertSame( 'category', $definitions[ 'maintenance_wordpress' ][ 'card_type' ] );
+		$this->assertSame( Maintenance::class, $definitions[ 'maintenance_wordpress' ][ 'render_action_class' ] );
 	}
 
 	public function test_drill_hint_patterns_are_group_specific() :void {
@@ -82,6 +92,21 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'malware', $definitions->groupKeyForSummaryKey( 'malware' ) );
 		$this->assertSame( 'file_locker', $definitions->groupKeyForSummaryKey( 'file_locker' ) );
 		$this->assertSame( 'maintenance', $definitions->groupKeyForSummaryKey( 'wp_updates' ) );
+	}
+
+	public function test_review_maintenance_mapping_is_scoped_to_review_grouping_only() :void {
+		$definitions = new ActionsQueueGroupDefinitions();
+
+		$this->assertSame( 'maintenance_system', $definitions->reviewMaintenanceGroupKeyForItemKey( 'system_lib_openssl' ) );
+		$this->assertSame( 'maintenance_system', $definitions->reviewMaintenanceGroupKeyForItemKey( 'system_ssl_certificate' ) );
+		$this->assertSame( 'maintenance_system', $definitions->reviewMaintenanceGroupKeyForItemKey( 'system_php_version' ) );
+		$this->assertSame( 'maintenance_wordpress', $definitions->reviewMaintenanceGroupKeyForItemKey( 'wp_updates' ) );
+		$this->assertSame( 'maintenance_wordpress', $definitions->reviewMaintenanceGroupKeyForItemKey( 'wp_db_password' ) );
+		$this->assertSame( 'maintenance_wordpress', $definitions->reviewMaintenanceGroupKeyForItemKey( 'default_admin_user' ) );
+		$this->assertSame( 'wp_plugins_updates', $definitions->reviewMaintenanceGroupKeyForItemKey( 'wp_plugins_updates' ) );
+		$this->assertTrue( $definitions->isReviewMaintenanceAggregateGroupKey( 'maintenance_system' ) );
+		$this->assertTrue( $definitions->isReviewMaintenanceAggregateGroupKey( 'maintenance_wordpress' ) );
+		$this->assertFalse( $definitions->isReviewMaintenanceAggregateGroupKey( 'maintenance' ) );
 	}
 
 	public function test_summary_behaviour_and_healthy_ignored_metadata_are_centralized() :void {

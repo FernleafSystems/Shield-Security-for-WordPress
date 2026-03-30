@@ -49,15 +49,16 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
-		foreach ( $this->maintenanceSource->healthyItems( $bucketSource, $bucketKey ) as $maintenanceItem ) {
-			if ( ( $maintenanceItem[ 'severity' ] ?? '' ) !== 'good'
-				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== $bucketKey
-				|| isset( $existingGroupKeys[ $maintenanceItem[ 'key' ] ] ) ) {
+		foreach ( $this->groupHealthyMaintenanceItemsByGroupKey(
+			$this->maintenanceSource->itemsForBucket( $bucketSource, $bucketKey ),
+			$bucketKey
+		) as $groupKey => $maintenanceItems ) {
+			if ( isset( $existingGroupKeys[ $groupKey ] ) ) {
 				continue;
 			}
 
-			$seeds[] = $this->maintenanceSeedBuilder->build( $maintenanceItem, true );
-			$existingGroupKeys[ $maintenanceItem[ 'key' ] ] = true;
+			$seeds[] = $this->maintenanceSeedBuilder->build( $groupKey, $maintenanceItems, true );
+			$existingGroupKeys[ $groupKey ] = true;
 		}
 
 		return $seeds;
@@ -142,5 +143,26 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 			'item_count'        => $ignoredCount,
 			'render_action_data' => $this->groupDefinitions->ignoredRenderActionDataForGroupKey( $definitionKey, $ignoredCount ),
 		];
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $maintenanceItems
+	 * @return array<string,list<array<string,mixed>>>
+	 */
+	private function groupHealthyMaintenanceItemsByGroupKey( array $maintenanceItems, string $bucketKey ) :array {
+		$grouped = [];
+
+		foreach ( $maintenanceItems as $maintenanceItem ) {
+			if ( ( $maintenanceItem[ 'severity' ] ?? '' ) !== 'good'
+				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== $bucketKey ) {
+				continue;
+			}
+
+			$grouped[ $this->groupDefinitions->reviewMaintenanceGroupKeyForItemKey(
+				(string)$maintenanceItem[ 'key' ]
+			) ][] = $maintenanceItem;
+		}
+
+		return $grouped;
 	}
 }

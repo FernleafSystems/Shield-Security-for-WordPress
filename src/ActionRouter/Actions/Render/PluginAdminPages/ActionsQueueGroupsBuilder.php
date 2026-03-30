@@ -170,7 +170,7 @@ class ActionsQueueGroupsBuilder {
 		array $bucketSource,
 		array $assessmentRowsByZone
 	) :array {
-		$activeSeeds = $this->seedCollector()->collect( $bucketSource );
+		$activeSeeds = $this->seedCollector()->collect( $bucketKey, $bucketSource );
 		$resolvedSeeds = \array_merge(
 			$activeSeeds,
 			$this->healthySeedSupplementer()->supplement(
@@ -229,6 +229,7 @@ class ActionsQueueGroupsBuilder {
 	private function maintenanceSeedBuilder() :ActionsQueueMaintenanceGroupSeedBuilder {
 		if ( $this->maintenanceSeedBuilder === null ) {
 			$this->maintenanceSeedBuilder = new ActionsQueueMaintenanceGroupSeedBuilder(
+				$this->groupDefinitions(),
 				new ActionsQueueCompactSummaryRowBuilder()
 			);
 		}

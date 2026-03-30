@@ -35,9 +35,10 @@ class ActionsQueueGroupSeedCollector {
 	 * @phpstan-param BucketSource $bucketSource
 	 * @return list<GroupSeed>
 	 */
-	public function collect( array $bucketSource ) :array {
+	public function collect( string $bucketKey, array $bucketSource ) :array {
 		$seeds = [];
-		$maintenanceItemsByKey = null;
+		$maintenanceItemsByGroupKey = null;
+		$maintenanceGroupsBuilt = [];
 		$pluginsExpanded = false;
 		$themesExpanded = false;
 		$vulnerableExpanded = false;
@@ -89,13 +90,21 @@ class ActionsQueueGroupSeedCollector {
 					continue 2;
 
 				case 'maintenance':
-					if ( $maintenanceItemsByKey === null ) {
-						$maintenanceItemsByKey = $this->indexMaintenanceItemsByKey(
-							$this->maintenanceSource->activeItems( $bucketSource )
+					if ( $maintenanceItemsByGroupKey === null ) {
+						$maintenanceItemsByGroupKey = $this->groupMaintenanceItemsByGroupKey(
+							$this->maintenanceSource->itemsForBucket( $bucketSource, $bucketKey )
 						);
 					}
-					if ( isset( $maintenanceItemsByKey[ $item[ 'key' ] ] ) ) {
-						$seeds[] = $this->maintenanceSeedBuilder->build( $maintenanceItemsByKey[ $item[ 'key' ] ] );
+					$groupKey = $this->groupDefinitions->reviewMaintenanceGroupKeyForItemKey( $item[ 'key' ] );
+					if ( isset( $maintenanceGroupsBuilt[ $groupKey ] ) ) {
+						continue 2;
+					}
+					if ( isset( $maintenanceItemsByGroupKey[ $groupKey ] ) ) {
+						$seeds[] = $this->maintenanceSeedBuilder->build(
+							$groupKey,
+							$maintenanceItemsByGroupKey[ $groupKey ]
+						);
+						$maintenanceGroupsBuilt[ $groupKey ] = true;
 					}
 					continue 2;
 			}
@@ -239,13 +248,15 @@ class ActionsQueueGroupSeedCollector {
 
 	/**
 	 * @param list<MaintenanceQueueItem> $maintenanceItems
-	 * @return array<string,MaintenanceQueueItem>
+	 * @return array<string,list<MaintenanceQueueItem>>
 	 */
-	private function indexMaintenanceItemsByKey( array $maintenanceItems ) :array {
-		$indexed = [];
+	private function groupMaintenanceItemsByGroupKey( array $maintenanceItems ) :array {
+		$grouped = [];
+
 		foreach ( $maintenanceItems as $item ) {
-			$indexed[ $item[ 'key' ] ] = $item;
+			$grouped[ $this->groupDefinitions->reviewMaintenanceGroupKeyForItemKey( $item[ 'key' ] ) ][] = $item;
 		}
-		return $indexed;
+
+		return $grouped;
 	}
 }

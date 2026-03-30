@@ -195,12 +195,90 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
 	}
 
-	public function test_build_review_bucket_splits_maintenance_into_per_key_category_cards() :void {
+	public function test_build_review_bucket_groups_requested_system_and_wordpress_items_without_changing_plugin_maintenance_cards() :void {
 		$builder = $this->createBuilder(
 			[],
 			[],
 			[],
 			[
+				[
+					'key'           => 'system_ssl_certificate',
+					'zone'          => 'maintenance',
+					'label'         => 'SSL Certificate',
+					'icon_class'    => 'bi bi-shield-lock-fill',
+					'count'         => 1,
+					'severity'      => 'warning',
+					'drill_bucket'  => 'review',
+					'description'   => 'The SSL certificate should be reviewed.',
+					'href'          => '/wp-admin/site-health.php',
+					'action'        => 'Open Site Health',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/site-health.php',
+						'label' => 'Open Site Health',
+					],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
+				[
+					'key'           => 'system_php_version',
+					'zone'          => 'maintenance',
+					'label'         => 'PHP Version',
+					'icon_class'    => 'bi bi-code-slash',
+					'count'         => 0,
+					'severity'      => 'good',
+					'drill_bucket'  => 'review',
+					'description'   => 'This maintenance item is currently ignored.',
+					'href'          => '/wp-admin/site-health.php',
+					'action'        => 'Open Site Health',
+					'target'        => '',
+					'cta'           => [],
+					'toggle_action' => [
+						'kind'             => 'unignore',
+						'label'            => 'Stop ignoring',
+						'href'             => 'javascript:{}',
+						'icon'             => 'bi bi-eye-fill',
+						'tooltip'          => 'Stop ignoring this maintenance item',
+						'target'           => '',
+						'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
+					],
+					'expansion'     => [],
+				],
+				[
+					'key'           => 'wp_updates',
+					'zone'          => 'maintenance',
+					'label'         => 'WordPress Version',
+					'icon_class'    => 'bi bi-wordpress',
+					'count'         => 1,
+					'severity'      => 'warning',
+					'drill_bucket'  => 'review',
+					'description'   => 'A WordPress update is available.',
+					'href'          => '/wp-admin/update-core.php',
+					'action'        => 'Manage Updates',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/update-core.php',
+						'label' => 'Manage Updates',
+					],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
+				[
+					'key'           => 'wp_db_password',
+					'zone'          => 'maintenance',
+					'label'         => 'MySQL DB Password',
+					'icon_class'    => 'bi bi-database-fill-lock',
+					'count'         => 0,
+					'severity'      => 'good',
+					'drill_bucket'  => 'review',
+					'description'   => 'The database password is strong.',
+					'href'          => '',
+					'action'        => '',
+					'target'        => '',
+					'cta'           => [],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
 				[
 					'key'           => 'wp_plugins_updates',
 					'zone'          => 'maintenance',
@@ -208,6 +286,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'icon_class'    => 'bi bi-plug-fill',
 					'count'         => 1,
 					'severity'      => 'warning',
+					'drill_bucket'  => 'review',
 					'description'   => 'There is 1 plugin update waiting to be applied.',
 					'href'          => '/wp-admin/update-core.php',
 					'action'        => 'Update now',
@@ -235,61 +314,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 									'ignored_label'     => '',
 									'secondary_actions' => [
 										[
-											'label'       => 'Ignore',
-											'href'        => 'javascript:{}',
-											'icon'        => 'bi bi-eye-slash-fill',
-											'tooltip'     => 'Ignore this maintenance item',
-											'ajax_action' => [ 'ex' => 'maintenance_item_ignore' ],
-										],
-									],
-								],
-							],
-						],
-					],
-				],
-				[
-					'key'           => 'wp_plugins_inactive',
-					'zone'          => 'maintenance',
-					'label'         => 'Inactive Plugins',
-					'icon_class'    => 'bi bi-plug-fill',
-					'count'         => 1,
-					'severity'      => 'warning',
-					'description'   => 'There is 1 unused plugin that should be uninstalled.',
-					'href'          => '/wp-admin/plugins.php',
-					'action'        => 'Go to plugins',
-					'target'        => '',
-					'cta'           => [
-						'href'  => '/wp-admin/plugins.php',
-						'label' => 'Manage Plugins',
-					],
-					'toggle_action' => [],
-					'expansion'     => [
-						'table' => [
-							'rows' => [
-								[
-									'icon_class'        => 'bi bi-plug-fill',
-									'inline_meta'       => 'Version 1.7.2',
-									'title'             => 'Hello Dolly',
-									'subtitle'          => 'Plugin is currently inactive',
-									'context'           => 'Version: 1.7.2',
-									'identifier'        => 'hello-dolly/hello.php',
-									'action'            => [
-										'href'         => '/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
-										'label'        => 'Manage this plugin',
-										'icon'         => 'bi bi-arrow-right-circle-fill',
-										'tooltip'      => 'Manage this plugin',
-										'is_icon_only' => true,
-										'target'       => '_blank',
-									],
-									'is_ignored'        => true,
-									'ignored_label'     => 'Currently ignored',
-									'secondary_actions' => [
-										[
-											'label'       => 'Stop ignoring',
-											'href'        => 'javascript:{}',
-											'icon'        => 'bi bi-eye-fill',
-											'tooltip'     => 'Stop ignoring this maintenance item',
-											'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
+											'kind'             => 'ignore',
+											'label'            => 'Ignore',
+											'href'             => 'javascript:{}',
+											'icon'             => 'bi bi-eye-slash-fill',
+											'tooltip'          => 'Ignore this maintenance item',
+											'target'           => '',
+											'ajax_action_json' => '{"ex":"maintenance_item_ignore"}',
 										],
 									],
 								],
@@ -304,201 +335,25 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'review',
 			[
 				'items' => [
+					[
+						'key'      => 'system_ssl_certificate',
+						'count'    => 1,
+						'severity' => 'warning',
+						'zone'     => 'maintenance',
+					],
+					[
+						'key'      => 'wp_updates',
+						'count'    => 1,
+						'severity' => 'warning',
+						'zone'     => 'maintenance',
+					],
 					[
 						'key'      => 'wp_plugins_updates',
 						'count'    => 1,
 						'severity' => 'warning',
 						'zone'     => 'maintenance',
 					],
-					[
-						'key'      => 'wp_plugins_inactive',
-						'count'    => 1,
-						'severity' => 'warning',
-						'zone'     => 'maintenance',
-					],
 				],
-			],
-			[
-				'scans'       => [],
-				'maintenance' => [
-					[
-						'key'               => 'wp_plugins_updates',
-						'label'             => 'Plugin Updates',
-						'description'       => 'There is an upgrade available for a plugin.',
-						'status'            => 'warning',
-						'status_label'      => 'Warning',
-						'status_icon_class' => 'bi bi-exclamation-circle-fill',
-					],
-					[
-						'key'               => 'wp_plugins_inactive',
-						'label'             => 'Inactive Plugins',
-						'description'       => 'Unused plugins should be reviewed.',
-						'status'            => 'warning',
-						'status_label'      => 'Warning',
-						'status_icon_class' => 'bi bi-exclamation-circle-fill',
-					],
-				],
-			]
-		);
-
-		$groups = $this->flattenLayerGroups( $data );
-
-		$this->assertSame( [ 'wp_plugins_inactive', 'wp_plugins_updates' ], \array_column( $groups, 'key' ) );
-		$this->assertNotContains( 'maintenance', \array_column( $groups, 'key' ) );
-		$this->assertSame( [ 'category', 'category' ], \array_column( $groups, 'card_type' ) );
-		$this->assertSame(
-			[
-				'label'      => 'Manage Plugins',
-				'href'       => '/wp-admin/plugins.php',
-				'target'     => '',
-				'rel'        => '',
-				'icon_class' => 'bi-arrow-right',
-			],
-			$groups[ 0 ][ 'management_link' ]
-		);
-		$this->assertSame( 'bi bi-plug-fill', $groups[ 0 ][ 'icon_class' ] );
-		$this->assertSame(
-			[
-				[
-					'icon_class'  => 'bi bi-plug-fill',
-					'title'       => 'Hello Dolly',
-					'inline_meta' => 'Version 1.7.2',
-					'summary'     => '',
-					'badge_label' => 'Currently ignored',
-					'is_ignored'  => true,
-					'actions'     => [
-						[
-							'label'       => 'Stop ignoring',
-							'href'        => 'javascript:{}',
-							'icon'        => 'bi bi-eye-fill',
-							'tooltip'     => 'Stop ignoring this maintenance item',
-							'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
-						],
-					],
-				],
-			],
-			$groups[ 0 ][ 'maintenance_rows' ]
-		);
-		$this->assertSame(
-			[
-				'label'      => 'Manage Plugins',
-				'href'       => '/wp-admin/update-core.php',
-				'target'     => '',
-				'rel'        => '',
-				'icon_class' => 'bi-arrow-right',
-			],
-			$groups[ 1 ][ 'management_link' ]
-		);
-		$this->assertSame( 'Akismet Anti-Spam', $groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'title' ] );
-		$this->assertSame( 'bi bi-plug-fill', $groups[ 1 ][ 'icon_class' ] );
-		$this->assertSame( 'Version 5.3.0', $groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'inline_meta' ] );
-		$this->assertSame(
-			'maintenance_item_ignore',
-			$groups[ 1 ][ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
-		);
-		$this->assertSame( '', $groups[ 0 ][ 'drill_hint' ] );
-		$this->assertSame( 'maintenance', $groups[ 0 ][ 'detail_shell' ] );
-	}
-
-	public function test_build_review_bucket_keeps_singleton_maintenance_groups_as_header_and_copy_when_no_sub_items_exist() :void {
-		$builder = $this->createBuilder(
-			[],
-			[],
-			[],
-			[
-				[
-					'key'           => 'system_php_version',
-					'zone'          => 'maintenance',
-					'label'         => 'PHP Version',
-					'icon_class'    => 'bi bi-code-slash',
-					'count'         => 1,
-					'severity'      => 'warning',
-					'description'   => 'PHP should be reviewed.',
-					'href'          => '/wp-admin/site-health.php',
-					'action'        => 'Open',
-					'target'        => '',
-					'cta'           => [],
-					'toggle_action' => [],
-					'expansion'     => [],
-				],
-			]
-		);
-
-		$data = $builder->build(
-			'review',
-			[
-				'items' => [
-					[
-						'key'      => 'system_php_version',
-						'count'    => 1,
-						'severity' => 'warning',
-						'zone'     => 'maintenance',
-					],
-				],
-			],
-			[
-				'scans'       => [],
-				'maintenance' => [],
-			]
-		);
-
-		$groups = $this->flattenLayerGroups( $data );
-
-		$this->assertSame( 'system_php_version', $groups[ 0 ][ 'key' ] );
-		$this->assertSame( 'bi bi-code-slash', $groups[ 0 ][ 'icon_class' ] );
-		$this->assertSame( [], $groups[ 0 ][ 'maintenance_rows' ] );
-		$this->assertSame(
-			[
-				'icon_class'  => 'bi bi-code-slash',
-				'title'       => '',
-				'inline_meta' => '',
-				'summary'     => 'PHP should be reviewed.',
-				'badge_label' => '',
-				'is_ignored'  => false,
-				'actions'     => [],
-			],
-			$groups[ 0 ][ 'summary_row' ]
-		);
-		$this->assertSame( [], $groups[ 0 ][ 'management_link' ] );
-		$this->assertSame( 'PHP should be reviewed.', $groups[ 0 ][ 'narrative' ] );
-	}
-
-	public function test_build_review_bucket_keeps_ignored_singleton_maintenance_toggle_in_summary_row() :void {
-		$builder = $this->createBuilder(
-			[],
-			[],
-			[],
-			[
-				[
-					'key'           => 'system_php_version',
-					'zone'          => 'maintenance',
-					'label'         => 'PHP Version',
-					'icon_class'    => 'bi bi-code-slash',
-					'count'         => 0,
-					'severity'      => 'good',
-					'drill_bucket'  => 'review',
-					'description'   => 'This maintenance item is currently ignored.',
-					'href'          => '/wp-admin/site-health.php',
-					'action'        => 'Open',
-					'target'        => '',
-					'cta'           => [],
-					'toggle_action' => [
-						'kind'        => 'unignore',
-						'label'       => 'Stop ignoring',
-						'href'        => 'javascript:{}',
-						'icon'        => 'bi bi-eye-fill',
-						'tooltip'     => 'Stop ignoring this maintenance item',
-						'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
-					],
-					'expansion'     => [],
-				],
-			]
-		);
-
-		$data = $builder->build(
-			'review',
-			[
-				'items' => [],
 			],
 			[
 				'scans'       => [],
@@ -512,20 +367,88 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'status_label'      => 'Good',
 						'status_icon_class' => 'bi bi-check-circle-fill',
 					],
+					[
+						'key'               => 'wp_db_password',
+						'label'             => 'MySQL DB Password',
+						'description'       => 'The database password is strong.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
 				],
 			]
 		);
 
-		$healthyGroups = $this->flattenSections( $data[ 'healthy_sections' ] );
+		$activeGroups = [];
+		foreach ( $this->flattenSections( $data[ 'active_sections' ] ) as $group ) {
+			$activeGroups[ $group[ 'key' ] ] = $group;
+		}
+		$healthyGroupKeys = \array_column( $this->flattenSections( $data[ 'healthy_sections' ] ), 'key' );
 
-		$this->assertCount( 1, $healthyGroups );
-		$this->assertSame( 'Currently ignored', $healthyGroups[ 0 ][ 'summary_row' ][ 'badge_label' ] );
-		$this->assertTrue( $healthyGroups[ 0 ][ 'summary_row' ][ 'is_ignored' ] );
+		$activeGroupKeys = \array_keys( $activeGroups );
+		\sort( $activeGroupKeys );
+		$this->assertSame(
+			[ 'maintenance_system', 'maintenance_wordpress', 'wp_plugins_updates' ],
+			$activeGroupKeys
+		);
+		$this->assertNotContains( 'maintenance', \array_keys( $activeGroups ) );
+		$this->assertNotContains( 'maintenance_system', $healthyGroupKeys );
+		$this->assertNotContains( 'maintenance_wordpress', $healthyGroupKeys );
+
+		$systemGroup = $activeGroups[ 'maintenance_system' ];
+		$this->assertSame( 'System', $systemGroup[ 'label' ] );
+		$this->assertSame( 'bi bi-shield-lock-fill', $systemGroup[ 'icon_class' ] );
+		$this->assertSame( [], $systemGroup[ 'management_link' ] );
+		$this->assertSame( 1, $systemGroup[ 'item_count' ] );
+		$systemRows = [];
+		foreach ( $systemGroup[ 'maintenance_rows' ] as $row ) {
+			$systemRows[ $row[ 'title' ] ] = $row;
+		}
+		$this->assertCount( 2, $systemRows );
+		$this->assertArrayHasKey( 'SSL Certificate', $systemRows );
+		$this->assertArrayHasKey( 'PHP Version', $systemRows );
+		$this->assertSame( 'Open Site Health', $systemRows[ 'SSL Certificate' ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( '', $systemRows[ 'SSL Certificate' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] );
+		$this->assertSame( 'Currently ignored', $systemRows[ 'PHP Version' ][ 'badge_label' ] );
+		$this->assertTrue( $systemRows[ 'PHP Version' ][ 'is_ignored' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$healthyGroups[ 0 ][ 'summary_row' ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+			$this->decodeAjaxAction( $systemRows[ 'PHP Version' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
 		);
-		$this->assertSame( 'unignore', $healthyGroups[ 0 ][ 'summary_row' ][ 'actions' ][ 0 ][ 'kind' ] );
+
+		$wordpressGroup = $activeGroups[ 'maintenance_wordpress' ];
+		$this->assertSame( 'WordPress', $wordpressGroup[ 'label' ] );
+		$this->assertSame( [], $wordpressGroup[ 'management_link' ] );
+		$this->assertSame( 1, $wordpressGroup[ 'item_count' ] );
+		$wordpressRows = [];
+		foreach ( $wordpressGroup[ 'maintenance_rows' ] as $row ) {
+			$wordpressRows[ $row[ 'title' ] ] = $row;
+		}
+		$this->assertCount( 2, $wordpressRows );
+		$this->assertArrayHasKey( 'WordPress Version', $wordpressRows );
+		$this->assertArrayHasKey( 'MySQL DB Password', $wordpressRows );
+		$this->assertSame( 'Manage Updates', $wordpressRows[ 'WordPress Version' ][ 'actions' ][ 0 ][ 'label' ] );
+
+		$pluginUpdatesGroup = $activeGroups[ 'wp_plugins_updates' ];
+		$this->assertSame(
+			[
+				'label'      => 'Manage Plugins',
+				'href'       => '/wp-admin/update-core.php',
+				'target'     => '',
+				'rel'        => '',
+				'icon_class' => 'bi-arrow-right',
+			],
+			$pluginUpdatesGroup[ 'management_link' ]
+		);
+		$this->assertSame( 'Akismet Anti-Spam', $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'title' ] );
+		$this->assertSame( 'Version 5.3.0', $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'inline_meta' ] );
+		$this->assertSame(
+			'maintenance_item_ignore',
+			$this->decodeAjaxAction( $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
+		);
+		$this->assertSame( '', $pluginUpdatesGroup[ 'drill_hint' ] );
+		$this->assertSame( 'maintenance', $pluginUpdatesGroup[ 'detail_shell' ] );
 	}
 
 	public function test_build_reads_vulnerabilities_payload_once_when_expanding_both_sections() :void {
@@ -599,151 +522,83 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $builder->getVulnerabilitiesPayloadCalls() );
 	}
 
-	public function test_build_review_bucket_appends_healthy_groups_after_active_groups_and_keeps_selected_healthy_group_resolvable() :void {
+	public function test_build_review_bucket_keeps_grouped_healthy_maintenance_groups_resolvable() :void {
 		$builder = $this->createBuilder(
 			[],
 			[],
 			[],
 			[
 				[
-					'key'           => 'wp_plugins_updates',
+					'key'           => 'wp_updates',
 					'zone'          => 'maintenance',
-					'label'         => 'Plugin Updates',
-					'icon_class'    => 'bi bi-plug-fill',
-					'count'         => 1,
-					'severity'      => 'warning',
-					'drill_bucket'  => 'review',
-					'description'   => 'There is 1 plugin update waiting to be applied.',
-					'href'          => '/wp-admin/update-core.php',
-					'action'        => 'Update now',
-					'target'        => '',
-					'cta'           => [
-						'href'  => '/wp-admin/update-core.php',
-						'label' => 'Manage Plugins',
-					],
-					'toggle_action' => [],
-					'expansion'     => [
-						'table' => [
-							'rows' => [
-								[
-									'icon_class'        => 'bi bi-plug-fill',
-									'inline_meta'       => 'Version 5.3.0',
-									'title'             => 'Akismet Anti-Spam',
-									'subtitle'          => 'Plugin update available',
-									'context'           => 'Current: 5.3.0 | Available: 5.4.0',
-									'identifier'        => 'akismet/akismet.php',
-									'action'            => [
-										'href'  => '/wp-admin/update.php?action=upgrade-plugin&plugin=akismet/akismet.php',
-										'label' => 'Update',
-									],
-									'is_ignored'        => false,
-									'ignored_label'     => '',
-									'secondary_actions' => [
-										[
-											'label'       => 'Ignore',
-											'href'        => 'javascript:{}',
-											'icon'        => 'bi bi-eye-slash-fill',
-											'tooltip'     => 'Ignore this maintenance item',
-											'ajax_action' => [ 'ex' => 'maintenance_item_ignore' ],
-										],
-									],
-								],
-							],
-						],
-					],
-				],
-				[
-					'key'           => 'wp_plugins_inactive',
-					'zone'          => 'maintenance',
-					'label'         => 'Inactive Plugins',
-					'icon_class'    => 'bi bi-plug-fill',
+					'label'         => 'WordPress Version',
+					'icon_class'    => 'bi bi-wordpress',
 					'count'         => 0,
 					'severity'      => 'good',
 					'drill_bucket'  => 'review',
-					'description'   => '1 item is currently ignored.',
-					'href'          => '/wp-admin/plugins.php',
-					'action'        => 'Go to plugins',
+					'description'   => 'WordPress is up to date.',
+					'href'          => '/wp-admin/update-core.php',
+					'action'        => 'Manage Updates',
 					'target'        => '',
 					'cta'           => [
-						'href'  => '/wp-admin/plugins.php',
-						'label' => 'Manage Plugins',
+						'href'  => '/wp-admin/update-core.php',
+						'label' => 'Manage Updates',
 					],
 					'toggle_action' => [],
-					'expansion'     => [
-						'table' => [
-							'rows' => [
-								[
-									'icon_class'        => 'bi bi-plug-fill',
-									'inline_meta'       => 'Version 1.7.2',
-									'title'             => 'Hello Dolly',
-									'subtitle'          => 'Plugin is currently inactive',
-									'context'           => 'Version: 1.7.2',
-									'identifier'        => 'hello-dolly/hello.php',
-									'action'            => [
-										'href'         => '/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
-										'label'        => 'Manage this plugin',
-										'icon'         => 'bi bi-arrow-right-circle-fill',
-										'tooltip'      => 'Manage this plugin',
-										'is_icon_only' => true,
-										'target'       => '_blank',
-									],
-									'is_ignored'        => true,
-									'ignored_label'     => 'Currently ignored',
-									'secondary_actions' => [
-										[
-											'label'       => 'Stop ignoring',
-											'href'        => 'javascript:{}',
-											'icon'        => 'bi bi-eye-fill',
-											'tooltip'     => 'Stop ignoring this maintenance item',
-											'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],
-										],
-									],
-								],
-							],
-						],
+					'expansion'     => [],
+				],
+				[
+					'key'           => 'default_admin_user',
+					'zone'          => 'maintenance',
+					'label'         => 'Default Admin User',
+					'icon_class'    => 'bi bi-person-fill-lock',
+					'count'         => 0,
+					'severity'      => 'good',
+					'drill_bucket'  => 'review',
+					'description'   => 'This maintenance item is currently ignored.',
+					'href'          => '/wp-admin/users.php',
+					'action'        => 'Manage Users',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/users.php',
+						'label' => 'Manage Users',
 					],
+					'toggle_action' => [
+						'kind'             => 'unignore',
+						'label'            => 'Stop ignoring',
+						'href'             => 'javascript:{}',
+						'icon'             => 'bi bi-eye-fill',
+						'tooltip'          => 'Stop ignoring this maintenance item',
+						'target'           => '',
+						'ajax_action_json' => '{"ex":"maintenance_item_unignore"}',
+					],
+					'expansion'     => [],
 				],
 			]
 		);
 
 		$payload = $builder->buildWithSelectedGroup(
 			'review',
-			'wp_plugins_inactive',
+			'maintenance_wordpress',
 			[
 				'items' => [
-					[
-						'key'      => 'wp_plugins_updates',
-						'count'    => 1,
-						'severity' => 'warning',
-						'zone'     => 'maintenance',
-					],
 				],
 			],
 			[
-				'scans'       => [
-					[
-						'key'               => 'plugin_files',
-						'label'             => 'Plugin Files',
-						'description'       => 'All plugin files appear to be valid.',
-						'drill_bucket'      => 'critical',
-						'status'            => 'good',
-						'status_label'      => 'Good',
-						'status_icon_class' => 'bi bi-patch-check-fill',
-					],
-				],
+				'scans'       => [],
 				'maintenance' => [
 					[
-						'key'               => 'wp_plugins_updates',
-						'label'             => 'Plugin Updates',
-						'description'       => 'There is an upgrade available for a plugin.',
+						'key'               => 'wp_updates',
+						'label'             => 'WordPress Version',
+						'description'       => 'WordPress is up to date.',
 						'drill_bucket'      => 'review',
-						'status'            => 'warning',
-						'status_label'      => 'Warning',
-						'status_icon_class' => 'bi bi-exclamation-circle-fill',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
 					],
 					[
-						'key'               => 'wp_plugins_inactive',
-						'label'             => 'Inactive Plugins',
+						'key'               => 'default_admin_user',
+						'label'             => 'Default Admin User',
 						'description'       => 'This maintenance item is currently ignored.',
 						'drill_bucket'      => 'review',
 						'status'            => 'good',
@@ -754,23 +609,29 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame(
-			[ 'wp_plugins_updates' ],
-			\array_column( $this->flattenSections( $payload[ 'layer' ][ 'active_sections' ] ), 'key' )
-		);
-		$this->assertSame(
-			[ 'wp_plugins_inactive' ],
-			\array_column( $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] ), 'key' )
-		);
+		$this->assertSame( [], $this->flattenSections( $payload[ 'layer' ][ 'active_sections' ] ) );
+		$this->assertSame( [ 'maintenance_wordpress' ], \array_column( $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] ), 'key' ) );
 		$this->assertSame( 'No action required', $payload[ 'layer' ][ 'healthy_heading_label' ] );
 		$this->assertSame( 'good', $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] )[ 0 ][ 'status' ] );
 		$this->assertSame( '', $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] )[ 0 ][ 'drill_hint' ] );
 		$this->assertArrayNotHasKey( 'next_move', $payload[ 'selected_group' ] );
-		$this->assertSame( 1, $payload[ 'selected_group' ][ 'item_count' ] );
+		$this->assertSame( 'maintenance_wordpress', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'WordPress', $payload[ 'selected_group' ][ 'label' ] );
+		$this->assertSame( 2, $payload[ 'selected_group' ][ 'item_count' ] );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'management_link' ] );
+		$selectedRows = [];
+		foreach ( $payload[ 'selected_group' ][ 'maintenance_rows' ] as $row ) {
+			$selectedRows[ $row[ 'title' ] ] = $row;
+		}
+		$this->assertCount( 2, $selectedRows );
+		$this->assertArrayHasKey( 'WordPress Version', $selectedRows );
+		$this->assertArrayHasKey( 'Default Admin User', $selectedRows );
+		$this->assertSame( 'Manage Users', $selectedRows[ 'Default Admin User' ][ 'actions' ][ 0 ][ 'label' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$payload[ 'selected_group' ][ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action' ][ 'ex' ]
+			$this->decodeAjaxAction( $selectedRows[ 'Default Admin User' ][ 'actions' ][ 1 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
 		);
+		$this->assertSame( 'Manage Updates', $selectedRows[ 'WordPress Version' ][ 'actions' ][ 0 ][ 'label' ] );
 	}
 
 	public function test_build_critical_bucket_keeps_healthy_vulnerabilities_static() :void {
@@ -997,6 +858,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	/**
 	 * @return array<string,mixed>
 	 */
+	private function decodeAjaxAction( string $ajaxActionJson ) :array {
+		$decoded = \json_decode( $ajaxActionJson, true );
+		return \is_array( $decoded ) ? $decoded : [];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
 	private function makeQueueAssetCard( string $key, string $title, int $count, string $subjectType, string $subjectId ) :array {
 		return [
 			'key'               => $key,
@@ -1199,11 +1068,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 							$this->maintenanceItems = $maintenanceItems;
 						}
 
-						public function activeItems( array $bucketSource ) :array {
-							return $this->maintenanceItems;
-						}
-
-						public function healthyItems( array $bucketSource, string $bucketKey ) :array {
+						public function itemsForBucket( array $bucketSource, string $bucketKey ) :array {
 							return $this->maintenanceItems;
 						}
 					};

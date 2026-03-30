@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Vulnerabilities,
 	Wordpress
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 /**
@@ -139,6 +140,27 @@ class ActionsQueueGroupDefinitions {
 		],
 	];
 
+	private const REVIEW_MAINTENANCE_GROUPS = [
+		'maintenance_system' => [
+			'label'      => 'System',
+			'icon_key'   => 'system_ssl_certificate',
+			'item_keys'  => [
+				'system_lib_openssl',
+				'system_ssl_certificate',
+				'system_php_version',
+			],
+		],
+		'maintenance_wordpress' => [
+			'label'      => 'WordPress',
+			'icon_key'   => 'wp_updates',
+			'item_keys'  => [
+				'wp_updates',
+				'wp_db_password',
+				'default_admin_user',
+			],
+		],
+	];
+
 	/**
 	 * @var array<string,GroupDefinition>|null
 	 */
@@ -193,6 +215,24 @@ class ActionsQueueGroupDefinitions {
 			'render_action_class' => $maintenance[ 'render_action_class' ],
 			'render_action_data'  => [],
 		];
+
+		$itemIcons = new ActionsQueueItemIcons();
+		foreach ( self::REVIEW_MAINTENANCE_GROUPS as $groupKey => $group ) {
+			$definitions[ $groupKey ] = [
+				'key'                 => $groupKey,
+				'label'               => __( $group[ 'label' ], 'wp-simple-firewall' ),
+				'sort_order'          => $maintenance[ 'sort_order' ],
+				'icon_class'          => $itemIcons->iconClassForKey( $group[ 'icon_key' ] ),
+				'detail_shell'        => $maintenance[ 'detail_shell' ],
+				'card_type'           => $maintenance[ 'card_type' ],
+				'drill_hint_single'   => '',
+				'drill_hint_plural'   => '',
+				'summary_keys'        => [],
+				'healthy_ignored_source' => '',
+				'render_action_class' => $maintenance[ 'render_action_class' ],
+				'render_action_data'  => [],
+			];
+		}
 
 		$this->definitions = $definitions;
 		return $this->definitions;
@@ -259,6 +299,20 @@ class ActionsQueueGroupDefinitions {
 		return $ignoredCount > 0 && $this->healthyIgnoredSourceForGroupKey( $groupKey ) !== ''
 			? $this->queueScanResultsOptions->buildActionData( $this->queueScanResultsOptions->ignoredOnly() )
 			: [];
+	}
+
+	public function reviewMaintenanceGroupKeyForItemKey( string $itemKey ) :string {
+		foreach ( self::REVIEW_MAINTENANCE_GROUPS as $groupKey => $group ) {
+			if ( \in_array( $itemKey, $group[ 'item_keys' ], true ) ) {
+				return $groupKey;
+			}
+		}
+
+		return $itemKey;
+	}
+
+	public function isReviewMaintenanceAggregateGroupKey( string $groupKey ) :bool {
+		return isset( self::REVIEW_MAINTENANCE_GROUPS[ $groupKey ] );
 	}
 
 	/**

@@ -3,7 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type MaintenanceUiAction from MaintenanceQueueItemDisplayNormalizer
+ * @phpstan-type CompactSummaryAction array{
+ *   href:string,
+ *   label:string,
+ *   icon:string,
+ *   tooltip:string,
+ *   target:string,
+ *   ajax_action_json:string
+ * }
  * @phpstan-type CompactSummaryRow array{
  *   icon_class:string,
  *   title:string,
@@ -11,13 +18,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   summary:string,
  *   badge_label:string,
  *   is_ignored:bool,
- *   actions:list<MaintenanceUiAction>
+ *   actions:list<CompactSummaryAction>
  * }
  */
 class ActionsQueueCompactSummaryRowBuilder {
 
 	/**
-	 * @param list<MaintenanceUiAction> $actions
+	 * @param list<CompactSummaryAction> $actions
 	 * @return CompactSummaryRow
 	 */
 	public function build(

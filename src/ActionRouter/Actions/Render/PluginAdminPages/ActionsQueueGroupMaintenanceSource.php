@@ -21,17 +21,7 @@ class ActionsQueueGroupMaintenanceSource {
 	 * @phpstan-param BucketSource $bucketSource
 	 * @return list<MaintenanceQueueItem>
 	 */
-	public function activeItems( array $bucketSource ) :array {
-		return $this->maintenanceQueueItemDisplayNormalizer->normalizeAll(
-			$this->maintenanceAttentionItems( $bucketSource )
-		);
-	}
-
-	/**
-	 * @phpstan-param BucketSource $bucketSource
-	 * @return list<MaintenanceQueueItem>
-	 */
-	public function healthyItems( array $bucketSource, string $bucketKey ) :array {
+	public function itemsForBucket( array $bucketSource, string $bucketKey ) :array {
 		return $this->maintenanceQueueItemDisplayNormalizer->normalizeForBucket(
 			$this->maintenanceAttentionItems( $bucketSource ),
 			$bucketKey
