@@ -80,6 +80,18 @@ class PostStraussCleanupTest extends TestCase {
 		$this->assertDirectoryDoesNotExist( $binDir );
 	}
 
+	public function testCleanPackageFilesRemovesTemporarySafePackageSource() :void {
+		$safePackageDir = $this->tempPath( 'packages/thecodingmachine-safe' );
+		$this->fs->mkdir( $safePackageDir );
+		$this->fs->dumpFile( Path::join( $safePackageDir, 'composer.json' ), '{}' );
+
+		$cleanup = $this->createCleanup();
+		$cleanup->cleanPackageFiles( $this->tempDir );
+
+		$this->assertDirectoryDoesNotExist( $safePackageDir );
+		$this->assertDirectoryDoesNotExist( $this->tempPath( 'packages' ) );
+	}
+
 	public function testCleanPackageFilesRemovesAutoloadFilesPhp() :void {
 		// Setup: Create vendor_prefixed/autoload-files.php
 		$this->fs->mkdir( $this->tempPath( 'vendor_prefixed' ) );
@@ -193,4 +205,3 @@ PHP;
 		}
 	}
 }
-

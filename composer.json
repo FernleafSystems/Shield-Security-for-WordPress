@@ -24,6 +24,15 @@
   },
   "minimum-stability": "stable",
   "prefer-stable":     true,
+  "repositories":      [
+    {
+      "type":    "path",
+      "url":     "packages/thecodingmachine-safe",
+      "options": {
+        "symlink": false
+      }
+    }
+  ],
   "require":           {
     "php":                                   ">=7.4",
     "crowdsec/capi-client":                  "v3.5",
@@ -161,9 +170,14 @@
       "packages":                       [
         "monolog/monolog",
         "twig/twig",
-        "crowdsec/capi-client"
+        "crowdsec/capi-client",
+        "thecodingmachine/safe"
       ],
-      "update_call_sites":              true,
+      "update_call_sites":              [
+        "src",
+        "vendor/web-auth/webauthn-lib/src",
+        "vendor/web-auth/metadata-service/src"
+      ],
       "optimize_autoloader":            false,
       "override_autoload":              {},
       "exclude_from_copy":              {

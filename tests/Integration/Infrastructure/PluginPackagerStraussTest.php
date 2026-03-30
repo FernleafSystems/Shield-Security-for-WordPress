@@ -18,6 +18,18 @@ class PluginPackagerStraussTest extends TestCase {
 		return Path::join( $this->packagePath, ...$parts );
 	}
 
+	/**
+	 * @return string[]
+	 */
+	private function getRequiredPrefixedPackages() :array {
+		return [
+			'monolog/monolog',
+			'twig/twig',
+			'crowdsec/capi-client',
+			'thecodingmachine/safe',
+		];
+	}
+
 	protected function setUp() :void {
 		parent::setUp();
 
@@ -48,11 +60,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$overlap = array_values( array_intersect( $vendorPackages, $prefixedPackages ) );
 		$this->assertSame( [], $overlap, 'Packages duplicated between vendor and vendor_prefixed: '.implode( ', ', $overlap ) );
 
-		$requiredPrefixedOnly = [
-			'monolog/monolog',
-			'twig/twig',
-			'crowdsec/capi-client',
-		];
+		$requiredPrefixedOnly = $this->getRequiredPrefixedPackages();
 
 		foreach ( $requiredPrefixedOnly as $package ) {
 			$this->assertContains(
@@ -70,11 +78,7 @@ class PluginPackagerStraussTest extends TestCase {
 
 	/** @group package-targeted */
 	public function testRequiredPrefixedPackageDirectoriesAreNonEmpty() :void {
-		$requiredPrefixedOnly = [
-			'monolog/monolog',
-			'twig/twig',
-			'crowdsec/capi-client',
-		];
+		$requiredPrefixedOnly = $this->getRequiredPrefixedPackages();
 
 		foreach ( $requiredPrefixedOnly as $package ) {
 			$packageDir = Path::join( $this->packagePath, 'vendor_prefixed', $package );
@@ -89,7 +93,7 @@ class PluginPackagerStraussTest extends TestCase {
 	/** @group package-targeted */
 	public function testPrefixedLibrariesPresent() :void {
 		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
-		foreach ( [ 'monolog', 'twig', 'crowdsec' ] as $dir ) {
+		foreach ( [ 'monolog', 'twig', 'crowdsec', 'thecodingmachine' ] as $dir ) {
 			$this->assertDirectoryExists(
 				Path::join( $prefixed, $dir ),
 				"Prefixed directory missing: {$dir}"
@@ -106,6 +110,10 @@ class PluginPackagerStraussTest extends TestCase {
 				"Unprefixed directory should be removed: {$dir}"
 			);
 		}
+		$this->assertDirectoryDoesNotExist(
+			$this->packagePathJoin( 'vendor/thecodingmachine/safe' ),
+			'Unprefixed Safe package should be removed from vendor'
+		);
 	}
 
 	/** @group package-targeted */
@@ -147,6 +155,11 @@ class PluginPackagerStraussTest extends TestCase {
 				'/twig/twig/',
 				(string)$content,
 				"Autoload file should not contain twig references: {$file}"
+			);
+			$this->assertStringNotContainsString(
+				'/thecodingmachine/safe/',
+				(string)$content,
+				"Autoload file should not contain Safe references: {$file}"
 			);
 		}
 	}
@@ -196,7 +209,7 @@ class PluginPackagerStraussTest extends TestCase {
 
 		// Note: We search for double-backslashes because the autoload files are PHP source
 		// where namespace backslashes are escaped (e.g., 'AptowebDeps\\Monolog\\').
-		foreach ( [ 'AptowebDeps\\\\Monolog\\\\', 'AptowebDeps\\\\Twig\\\\', 'AptowebDeps\\\\CrowdSec\\\\' ] as $namespace ) {
+		foreach ( [ 'AptowebDeps\\\\Monolog\\\\', 'AptowebDeps\\\\Twig\\\\', 'AptowebDeps\\\\CrowdSec\\\\', 'AptowebDeps\\\\Safe\\\\' ] as $namespace ) {
 			$found = false;
 			foreach ( $autoloadContents as $content ) {
 				if ( strpos( $content, $namespace ) !== false ) {
@@ -253,6 +266,12 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 
 		$this->assertTrue( class_exists( $crowdSecClass ) );
+
+		$this->assertTrue( \function_exists( 'AptowebDeps\\Safe\\json_encode' ) );
+		$this->assertSame( '{"ok":true}', \AptowebDeps\Safe\json_encode( [ 'ok' => true ] ) );
+
+		$dateTime = new \AptowebDeps\Safe\DateTimeImmutable( 'now' );
+		$this->assertInstanceOf( \AptowebDeps\Safe\DateTimeImmutable::class, $dateTime->setTimestamp( 123 ) );
 	}
 
 	public function testPackageRuntimeCallSitesArePrefixed() :void {
@@ -273,6 +292,28 @@ class PluginPackagerStraussTest extends TestCase {
 				'use '.$sourceNamespace.';',
 				$content,
 				"Unprefixed source namespace should not remain as a use-import in package output: {$relativePath}"
+			);
+		}
+	}
+
+	public function testPackageVendorSafeCallSitesArePrefixed() :void {
+		$checks = [
+			'vendor/web-auth/webauthn-lib/src/StringStream.php'                                    => [ 'use function AptowebDeps\\Safe\\fopen;', 'use function Safe\\fopen;' ],
+			'vendor/web-auth/webauthn-lib/src/AttestationStatement/TPMAttestationStatementSupport.php' => [ 'use AptowebDeps\\Safe\\DateTimeImmutable;', 'use Safe\\DateTimeImmutable;' ],
+			'vendor/web-auth/metadata-service/src/MetadataService.php'                             => [ 'use function AptowebDeps\\Safe\\json_decode;', 'use function Safe\\json_decode;' ],
+		];
+
+		foreach ( $checks as $relativePath => [ $prefixedImport, $sourceImport ] ) {
+			$content = $this->getPluginFileContents( $relativePath, "Packaged vendor file: {$relativePath}" );
+			$this->assertStringContainsString(
+				$prefixedImport,
+				$content,
+				"Expected rewritten prefixed Safe import in package output: {$relativePath}"
+			);
+			$this->assertStringNotContainsString(
+				$sourceImport,
+				$content,
+				"Unprefixed Safe import should not remain in package output: {$relativePath}"
 			);
 		}
 	}

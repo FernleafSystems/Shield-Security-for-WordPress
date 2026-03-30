@@ -47,6 +47,8 @@ class PluginPackageValidationTest extends TestCase {
 			'vendor/bin',
 			'vendor/monolog',
 			'vendor/twig',
+			'vendor/thecodingmachine/safe',
+			'packages/thecodingmachine-safe',
 			'vendor_prefixed/autoload-files.php',
 		];
 

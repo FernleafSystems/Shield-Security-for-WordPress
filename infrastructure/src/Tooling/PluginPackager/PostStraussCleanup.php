@@ -48,7 +48,7 @@ class PostStraussCleanup {
 			$this->log( 'Skipping Strauss fork cleanup (Docker /tmp is ephemeral)' );
 		}
 
-		// Directories to remove (duplicates after Strauss prefixing)
+		// Remove duplicate vendor libraries after Strauss prefixing.
 		$this->log( 'Removing duplicate libraries from main vendor...' );
 		$directoriesToRemove = [
 			Path::join( $targetDir, 'vendor', 'twig' ),
@@ -64,6 +64,36 @@ class PostStraussCleanup {
 				catch ( \Exception $e ) {
 					// Log but don't fail - these are cleanup operations
 					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $dir, $e->getMessage() ) );
+				}
+			}
+		}
+
+		// Remove temporary build inputs that must not ship in the final package.
+		$temporaryDirectoriesToRemove = [
+			Path::join( $targetDir, 'packages', 'thecodingmachine-safe' ),
+		];
+
+		foreach ( $temporaryDirectoriesToRemove as $dir ) {
+			if ( is_dir( $dir ) ) {
+				try {
+					$this->directoryRemover->removeSubdirectoryOf( $dir, $targetDir );
+				}
+				catch ( \Exception $e ) {
+					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $dir, $e->getMessage() ) );
+				}
+			}
+		}
+
+		$packagesDir = Path::join( $targetDir, 'packages' );
+		if ( \is_dir( $packagesDir ) ) {
+			$entries = \scandir( $packagesDir ) ?: [];
+			$entries = \array_values( \array_diff( $entries, [ '.', '..' ] ) );
+			if ( $entries === [] ) {
+				try {
+					$this->directoryRemover->removeSubdirectoryOf( $packagesDir, $targetDir );
+				}
+				catch ( \Exception $e ) {
+					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $packagesDir, $e->getMessage() ) );
 				}
 			}
 		}
