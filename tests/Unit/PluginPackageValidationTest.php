@@ -40,7 +40,13 @@ class PluginPackageValidationTest extends TestCase {
 		$excludedItems = [
 			'.github',
 			'tests',
+			'test-results',
 			'bin/install-wp-tests.sh',
+			'playwright.config.js',
+			'phpstan-baseline.neon',
+			'phpstan.neon.dist',
+			'phpstan.package.neon.dist',
+			'phpstan.tooling.neon.dist',
 			'phpunit.xml',
 			'composer.json',
 			'composer.lock',

@@ -3,51 +3,78 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginFileCopier;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit tests for PluginFileCopier.
- * Focus: Test pattern matching logic that could break packages if wrong.
+ * Focus: Test pattern matching and package copy behavior that could break release artifacts.
  */
 class PluginFileCopierTest extends TestCase {
 
 	private string $projectRoot;
 
+	private Filesystem $filesystem;
+
+	/** @var string[] */
+	private array $tempDirs = [];
+
 	protected function setUp() :void {
 		parent::setUp();
 		$this->projectRoot = dirname( dirname( __DIR__ ) );
+		$this->filesystem = new Filesystem();
 	}
 
-	private function createFileCopier() :PluginFileCopier {
-		return new PluginFileCopier( $this->projectRoot, function ( string $message ) {} );
+	protected function tearDown() :void {
+		parent::tearDown();
+
+		foreach ( $this->tempDirs as $tempDir ) {
+			if ( is_dir( $tempDir ) ) {
+				$this->filesystem->remove( $tempDir );
+			}
+		}
+	}
+
+	private function createFileCopier(
+		?string $projectRoot = null,
+		?RecordingProcessRunner $processRunner = null,
+		?callable $logger = null
+	) :PluginFileCopier {
+		return new PluginFileCopier(
+			$projectRoot ?? $this->projectRoot,
+			$logger ?? static function () :void {
+			},
+			$processRunner
+		);
+	}
+
+	private function createTempDir( string $suffix ) :string {
+		$path = Path::join( sys_get_temp_dir(), 'shield-plugin-file-copier-'.$suffix.'-'.bin2hex( random_bytes( 6 ) ) );
+		$this->filesystem->mkdir( $path );
+		$this->tempDirs[] = $path;
+
+		return $path;
 	}
 
 	// =========================================================================
 	// shouldExcludePath() - Pattern matching logic
-	// These tests verify the matching algorithm works correctly
 	// =========================================================================
 
-	/**
-	 * Directory pattern must exclude all contents but not similar names
-	 */
 	public function testDirectoryPatternMatching() :void {
 		$copier = $this->createFileCopier();
 		$patterns = [ 'tests' ];
 
-		// Must match: files inside directory
 		$this->assertTrue(
 			$copier->shouldExcludePath( 'tests/Unit/Test.php', $patterns )
 		);
 		$this->assertTrue(
 			$copier->shouldExcludePath( 'tests/Deep/Nested/Test.php', $patterns )
 		);
-
-		// Must match: the directory itself
 		$this->assertTrue(
 			$copier->shouldExcludePath( 'tests', $patterns )
 		);
-
-		// Must NOT match: similar prefixes (this bug would include test files in package)
 		$this->assertFalse(
 			$copier->shouldExcludePath( 'testing/file.php', $patterns ),
 			'Similar prefix "testing" must not match pattern "tests"'
@@ -58,9 +85,6 @@ class PluginFileCopierTest extends TestCase {
 		);
 	}
 
-	/**
-	 * Exact file pattern must match only that file
-	 */
 	public function testExactFilePatternMatching() :void {
 		$copier = $this->createFileCopier();
 		$patterns = [ 'README.md' ];
@@ -78,34 +102,23 @@ class PluginFileCopierTest extends TestCase {
 		);
 	}
 
-	/**
-	 * Glob patterns must work correctly for selective exclusion
-	 */
 	public function testGlobPatternMatching() :void {
 		$copier = $this->createFileCopier();
 		$patterns = [ 'languages/*.po' ];
 
-		// Must match files in directory with extension
 		$this->assertTrue(
 			$copier->shouldExcludePath( 'languages/en_US.po', $patterns )
 		);
-
-		// Must NOT match: wrong extension (would break compiled translations)
 		$this->assertFalse(
 			$copier->shouldExcludePath( 'languages/en_US.mo', $patterns ),
 			'Glob *.po must not match .mo files'
 		);
-
-		// Must NOT match: subdirectories (glob * doesn't cross directories)
 		$this->assertFalse(
 			$copier->shouldExcludePath( 'languages/sub/file.po', $patterns ),
 			'Glob * must not cross directory boundaries'
 		);
 	}
 
-	/**
-	 * Windows paths must be normalized
-	 */
 	public function testWindowsPathNormalization() :void {
 		$copier = $this->createFileCopier();
 
@@ -116,13 +129,8 @@ class PluginFileCopierTest extends TestCase {
 
 	// =========================================================================
 	// .gitattributes export-ignore - Critical path handling
-	// Verify export-ignore patterns correctly include/exclude critical paths
 	// =========================================================================
 
-	/**
-	 * CRITICAL: Built assets must NOT be ignored
-	 * If someone accidentally adds assets/dist to ignore list, packages break
-	 */
 	public function testBuiltAssetsNotIgnored() :void {
 		$copier = $this->createFileCopier();
 		$patterns = $copier->getExportIgnorePatterns();
@@ -136,19 +144,13 @@ class PluginFileCopierTest extends TestCase {
 		);
 	}
 
-	/**
-	 * Vendor directories must be ignored (dev deps, not production)
-	 */
 	public function testVendorDirectoriesIgnored() :void {
 		$copier = $this->createFileCopier();
 		$patterns = $copier->getExportIgnorePatterns();
 
-		// Root vendor/ contains dev dependencies
 		$this->assertTrue(
 			$copier->shouldExcludePath( 'vendor/phpunit/phpunit.php', $patterns )
 		);
-
-		// But vendor_custom/ (if it existed) should not match
 		$this->assertFalse(
 			$copier->shouldExcludePath( 'vendor_custom/file.php', $patterns ),
 			'Prefix match must not catch similar directory names'
@@ -157,12 +159,8 @@ class PluginFileCopierTest extends TestCase {
 
 	// =========================================================================
 	// getExportIgnorePatterns() - Parser logic
-	// Test the parsing, not the file contents
 	// =========================================================================
 
-	/**
-	 * Leading slashes must be stripped from patterns
-	 */
 	public function testExportIgnorePatternsNormalized() :void {
 		$copier = $this->createFileCopier();
 		$patterns = $copier->getExportIgnorePatterns();
@@ -172,17 +170,19 @@ class PluginFileCopierTest extends TestCase {
 		}
 	}
 
-	/**
-	 * Integration: verify actual .gitattributes patterns exclude expected paths
-	 */
 	public function testGitattributesPatternsExcludeExpectedPaths() :void {
 		$copier = $this->createFileCopier();
 		$patterns = $copier->getExportIgnorePatterns();
 
-		// These paths should be excluded based on typical .gitattributes
 		$shouldExclude = [
 			'tests/Unit/SomeTest.php',
 			'.github/workflows/test.yml',
+			'test-results/junit.xml',
+			'playwright.config.js',
+			'phpstan-baseline.neon',
+			'phpstan.neon.dist',
+			'phpstan.package.neon.dist',
+			'phpstan.tooling.neon.dist',
 		];
 
 		foreach ( $shouldExclude as $path ) {
@@ -192,11 +192,10 @@ class PluginFileCopierTest extends TestCase {
 			);
 		}
 
-		// These paths must NOT be excluded
 		$mustInclude = [
 			'src/Controller/Controller.php',
 			'icwp-wpsf.php',
-			// Note: plugin.json is export-ignored because it's regenerated during build
+			'cl.json',
 		];
 
 		foreach ( $mustInclude as $path ) {
@@ -205,5 +204,92 @@ class PluginFileCopierTest extends TestCase {
 				"Path '$path' must NOT be excluded - required in package"
 			);
 		}
+	}
+
+	// =========================================================================
+	// copy() - Production-path behavior
+	// =========================================================================
+
+	public function testCopyExcludesIgnoredLocalArtifactsButKeepsAllowlistedAssets() :void {
+		$projectRoot = $this->createTempDir( 'project' );
+		$targetDir = $this->createTempDir( 'target' );
+		$processRunner = new RecordingProcessRunner( [
+			[
+				'exit_code' => 0,
+				'stdout' => "assets/dist/\0playwright-report/\0",
+			],
+		] );
+
+		$this->filesystem->dumpFile( Path::join( $projectRoot, '.gitattributes' ), '' );
+		$this->filesystem->dumpFile( Path::join( $projectRoot, 'icwp-wpsf.php' ), '<?php' );
+		$this->filesystem->dumpFile( Path::join( $projectRoot, 'src', 'Controller.php' ), '<?php' );
+		$this->filesystem->dumpFile( Path::join( $projectRoot, 'assets', 'dist', 'bundle.js' ), 'console.log("ok");' );
+		$this->filesystem->dumpFile( Path::join( $projectRoot, 'playwright-report', 'index.html' ), '<html></html>' );
+		$this->filesystem->mkdir( Path::join( $projectRoot, '.git' ) );
+
+		$copier = $this->createFileCopier( $projectRoot, $processRunner );
+		$stats = $copier->copy( $targetDir );
+
+		$this->assertGreaterThan( 0, $stats[ 'files' ] );
+		$this->assertFileExists( Path::join( $targetDir, 'icwp-wpsf.php' ) );
+		$this->assertFileExists( Path::join( $targetDir, 'src', 'Controller.php' ) );
+		$this->assertFileExists( Path::join( $targetDir, 'assets', 'dist', 'bundle.js' ) );
+		$this->assertFileDoesNotExist( Path::join( $targetDir, 'playwright-report', 'index.html' ) );
+		$this->assertSame(
+			[
+				'git',
+				'ls-files',
+				'--others',
+				'--ignored',
+				'--exclude-standard',
+				'--directory',
+				'-z',
+			],
+			$processRunner->calls[ 0 ][ 'command' ]
+		);
+	}
+
+	public function testCopyFallsBackWhenIgnoredPathDiscoveryFails() :void {
+		$projectRoot = $this->createTempDir( 'project' );
+		$targetDir = $this->createTempDir( 'target' );
+		$processRunner = new RecordingProcessRunner( [
+			[
+				'exit_code' => 1,
+				'stderr' => 'fatal: not a git repository',
+			],
+		] );
+		$logs = [];
+
+		$this->filesystem->dumpFile( Path::join( $projectRoot, '.gitattributes' ), '' );
+		$this->filesystem->dumpFile( Path::join( $projectRoot, 'icwp-wpsf.php' ), '<?php' );
+		$this->filesystem->mkdir( Path::join( $projectRoot, '.git' ) );
+
+		$copier = $this->createFileCopier(
+			$projectRoot,
+			$processRunner,
+			static function ( string $message ) use ( &$logs ) :void {
+				$logs[] = $message;
+			}
+		);
+
+		$copier->copy( $targetDir );
+
+		$this->assertFileExists( Path::join( $targetDir, 'icwp-wpsf.php' ) );
+		$this->assertTrue(
+			$this->logsContain( $logs, 'Warning: git ignored-path inspection failed with exit code 1' )
+		);
+	}
+
+	/**
+	 * @param string[] $logs
+	 */
+	private function logsContain( array $logs, string $needle ) :bool {
+		foreach ( $logs as $line ) {
+			if ( strpos( $line, $needle ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
