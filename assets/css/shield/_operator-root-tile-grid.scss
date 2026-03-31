@@ -29,11 +29,3 @@ $operator-root-tile-grid-selectors:
 @media (min-width: 1450px) {
 	@include operator-root-tile-columns(4);
 }
-
-@media (min-width: 1700px) {
-	@include operator-root-tile-columns(5);
-}
-
-@media (min-width: 1900px) {
-	@include operator-root-tile-columns(6);
-}
