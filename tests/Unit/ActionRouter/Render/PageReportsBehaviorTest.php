@@ -133,7 +133,7 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $contextualHrefs );
 	}
 
-	public function test_charts_subnav_remains_available_as_hidden_legacy_route() :void {
+	public function test_charts_subnav_renders_trends_workspace() :void {
 		$page = new PageReports( [
 			'nav_sub' => PluginNavs::SUBNAV_REPORTS_CHARTS,
 		] );
@@ -144,15 +144,15 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				[
-					'action'     => Reports\ChartsSummary::class,
+					'action'     => Reports\ChartsTrends::class,
 					'action_data' => [],
 				],
 			],
 			$this->renderCapture->calls
 		);
-		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'summary_charts' ] ?? '' );
+		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'charts_trends' ] ?? '' );
 		$this->assertSame( 'Charts & Trends', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
-		$this->assertSame( 'Review recent security trend metrics.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertSame( '', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
 		$this->assertSame( [], $contextualHrefs );
 	}
 

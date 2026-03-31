@@ -28,7 +28,7 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		return $payload;
 	}
 
-	public function test_reports_overview_renders_shared_drilldown_with_two_landing_workspaces() :void {
+	public function test_reports_overview_renders_shared_drilldown_with_three_landing_workspaces() :void {
 		$landingWorkspaceDefinitions = PluginNavs::reportsLandingWorkspaceDefinitions();
 		$landingSubNavs = \array_keys( $landingWorkspaceDefinitions );
 		$expectedLandingCount = \count( $landingSubNavs );
@@ -58,17 +58,18 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringContainsString( 'data-reports-workspace-selection=', $output );
 		$this->assertStringNotContainsString( 'data-mode-panel="1"', $output );
 		$this->assertStringNotContainsString( 'data-mode-tile="1"', $output );
-		$this->assertStringNotContainsString( 'data-reports-workspace="'.PluginNavs::SUBNAV_REPORTS_CHARTS.'"', $output );
 	}
 
-	public function test_reports_workspace_routes_render_expected_structural_markers_including_legacy_routes() :void {
+	public function test_reports_workspace_routes_render_expected_structural_markers() :void {
 		foreach ( \array_keys( PluginNavs::reportsWorkspaceDefinitions() ) as $subNav ) {
 			$payload = $this->renderReportsSubNavPayload( $subNav );
 			if ( $subNav === PluginNavs::SUBNAV_REPORTS_LIST ) {
 				$this->assertStringContainsString( 'ShieldTable-Reports', (string)( $payload[ 'render_output' ] ?? '' ) );
 			}
 			elseif ( $subNav === PluginNavs::SUBNAV_REPORTS_CHARTS ) {
-				$this->assertStringContainsString( 'SectionStats', (string)( $payload[ 'render_output' ] ?? '' ) );
+				$this->assertStringContainsString( 'data-reports-trends="1"', (string)( $payload[ 'render_output' ] ?? '' ) );
+				$this->assertStringContainsString( 'data-reports-trends-form="1"', (string)( $payload[ 'render_output' ] ?? '' ) );
+				$this->assertStringContainsString( 'data-reports-chart-output="1"', (string)( $payload[ 'render_output' ] ?? '' ) );
 			}
 			else {
 				$this->assertStringContainsString( '<form', (string)( $payload[ 'render_output' ] ?? '' ) );

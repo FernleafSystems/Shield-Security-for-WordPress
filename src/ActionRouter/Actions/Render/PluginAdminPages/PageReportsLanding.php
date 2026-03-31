@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\ReportsTable;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\{
+	ChartsTrends,
+	ReportsTable
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class PageReportsLanding extends PageDrillDownLandingBase {
@@ -48,7 +51,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function getLandingSubtitle() :string {
-		return __( 'Review security reports and manage reporting and alert settings.', 'wp-simple-firewall' );
+		return __( 'Review security reports, manage delivery settings, and chart security trends.', 'wp-simple-firewall' );
 	}
 
 	protected function getLandingIcon() :string {
@@ -69,7 +72,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 					'breadcrumb_label'   => __( 'Workspaces', 'wp-simple-firewall' ),
 					'title'              => __( 'Workspaces', 'wp-simple-firewall' ),
 					'summary'            => __( 'Choose the reports workspace you want to open.', 'wp-simple-firewall' ),
-					'next_step'          => __( 'Open the reports list or the shared reporting settings workspace.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Open reports, adjust reporting settings, or chart recent trends.', 'wp-simple-firewall' ),
 					'icon_class'         => 'bi bi-grid-1x2',
 					'badge'              => __( 'Choose', 'wp-simple-firewall' ),
 					'badge_status'       => 'neutral',
@@ -92,8 +95,8 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 		return \array_replace(
 			parent::getOperatorRootStep(),
 			[
-				'focus'     => __( 'Security reports and reporting settings stay in the same in-page workspace.', 'wp-simple-firewall' ),
-				'next_step' => __( 'Choose a reports area to review or update.', 'wp-simple-firewall' ),
+				'focus'     => __( 'Security reports, delivery settings, and charts stay in the same in-page workspace.', 'wp-simple-firewall' ),
+				'next_step' => __( 'Choose a reports area to review, configure, or chart.', 'wp-simple-firewall' ),
 			]
 		);
 	}
@@ -201,6 +204,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 				OptionsFormFor::class,
 				( new ReportsSettingsActionDataBuilder() )->build( $settingsDefinition[ 'config_zone_component_slugs' ] )
 			),
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => self::con()->action_router->render( ChartsTrends::class ),
 		];
 		$workspaceCopy = [
 			PluginNavs::SUBNAV_REPORTS_LIST     => [
@@ -229,6 +233,20 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 					__( 'Adjust reporting and alert settings inline, then save your changes.', 'wp-simple-firewall' ),
 					'bi bi-sliders',
 					__( 'Settings', 'wp-simple-firewall' )
+				),
+			],
+			PluginNavs::SUBNAV_REPORTS_CHARTS   => [
+				'icon_class'   => 'bi bi-graph-up-arrow',
+				'status'       => 'neutral',
+				'status_label' => __( 'Chart', 'wp-simple-firewall' ),
+				'oneliner'     => __( 'Compare key security events over fixed reporting periods in one chart.', 'wp-simple-firewall' ),
+				'description'  => '',
+				'header'       => $this->buildWorkspaceHeader(
+					$workspaceDefinitions[ PluginNavs::SUBNAV_REPORTS_CHARTS ][ 'menu_title' ],
+					'',
+					__( 'Select the events and period you want to compare, then update the chart.', 'wp-simple-firewall' ),
+					'bi bi-graph-up-arrow',
+					__( 'Trends', 'wp-simple-firewall' )
 				),
 			],
 		];
@@ -294,7 +312,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 			'breadcrumb_label'   => __( 'Workspace', 'wp-simple-firewall' ),
 			'title'              => __( 'Workspace', 'wp-simple-firewall' ),
 			'summary'            => __( 'Choose a reports workspace to continue.', 'wp-simple-firewall' ),
-			'next_step'          => __( 'Open the reports list or the shared reporting settings workspace.', 'wp-simple-firewall' ),
+			'next_step'          => __( 'Open reports, shared settings, or charts and trends.', 'wp-simple-firewall' ),
 			'icon_class'         => 'bi bi-layout-text-window-reverse',
 			'badge'              => __( 'Select', 'wp-simple-firewall' ),
 			'badge_status'       => 'neutral',

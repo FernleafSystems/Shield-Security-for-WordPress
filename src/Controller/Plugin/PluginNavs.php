@@ -802,17 +802,6 @@ class PluginNavs {
 				'show_on_landing'    => false,
 				'config_zone_component_slugs' => self::reportsReportingConfigurationZoneComponentSlugs(),
 			],
-			self::SUBNAV_REPORTS_CHARTS   => [
-				'menu_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
-				'page_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
-				'page_subtitle'      => __( 'Review recent security trend metrics.', 'wp-simple-firewall' ),
-				'content_key'        => 'summary_charts',
-				'render_action'      => Reports\ChartsSummary::class,
-				'show_create_action' => false,
-				'show_in_sidebar'    => false,
-				'show_on_landing'    => false,
-				'config_zone_component_slugs' => [],
-			],
 			self::SUBNAV_REPORTS_SETTINGS => [
 				'menu_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
@@ -823,6 +812,17 @@ class PluginNavs {
 				'show_in_sidebar'    => true,
 				'show_on_landing'    => true,
 				'config_zone_component_slugs' => self::reportsSettingsZoneComponentSlugs(),
+			],
+			self::SUBNAV_REPORTS_CHARTS   => [
+				'menu_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
+				'page_title'         => __( 'Charts & Trends', 'wp-simple-firewall' ),
+				'page_subtitle'      => '',
+				'content_key'        => 'charts_trends',
+				'render_action'      => Reports\ChartsTrends::class,
+				'show_create_action' => false,
+				'show_in_sidebar'    => false,
+				'show_on_landing'    => true,
+				'config_zone_component_slugs' => [],
 			],
 		];
 	}

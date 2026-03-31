@@ -78,7 +78,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$this->assertContains( $definition[ 'render_action' ], [
 				OptionsFormFor::class,
 				Reports\PageReportsView::class,
-				Reports\ChartsSummary::class,
+				Reports\ChartsTrends::class,
 			] );
 		}
 	}

@@ -46,7 +46,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_workspace_contracts_include_two_cards_and_inline_settings_panel() :void {
+	public function test_workspace_contracts_include_three_cards_and_inline_settings_panel() :void {
 		$page = new PageReportsLanding();
 		$cards = $this->invokeNonPublicMethod( $page, 'getWorkspaceCards' );
 		$panels = $this->invokeNonPublicMethod( $page, 'getWorkspacePanels' );
@@ -65,13 +65,15 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 				$this->renderCapture->calls[ 1 ][ 'action_data' ][ 'options' ][ 2 ] ?? '',
 			]
 		);
+		$this->assertCount( 3, $this->renderCapture->calls );
 
-		$this->assertCount( 2, $cards );
-		$this->assertCount( 2, $panels );
+		$this->assertCount( 3, $cards );
+		$this->assertCount( 3, $panels );
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_REPORTS_LIST,
 				PluginNavs::SUBNAV_REPORTS_SETTINGS,
+				PluginNavs::SUBNAV_REPORTS_CHARTS,
 			],
 			\array_column( $cards, 'key' )
 		);
@@ -84,24 +86,37 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_group_selection' ] ?? null );
 		$this->assertSame( 'rendered-1', $panels[ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( 'rendered-2', $panels[ 1 ][ 'body' ] ?? '' );
+		$this->assertSame( 'rendered-3', $panels[ 2 ][ 'body' ] ?? '' );
 		$this->assertTrue( (bool)( $panels[ 0 ][ 'is_default' ] ?? false ) );
 		$this->assertFalse( (bool)( $panels[ 1 ][ 'is_default' ] ?? true ) );
+		$this->assertFalse( (bool)( $panels[ 2 ][ 'is_default' ] ?? true ) );
 		$this->assertNotSame( '', $panels[ 0 ][ 'data_reports_workspace_selection' ] ?? '' );
 		$this->assertSame(
 			'Manage instant alerts and report delivery settings together.',
 			$panels[ 1 ][ 'description' ] ?? ''
 		);
+		$this->assertSame( '', $panels[ 2 ][ 'description' ] ?? '' );
 
 		$listSelection = \json_decode(
 			(string)( $cards[ 0 ][ 'tile' ][ 'data_reports_workspace_selection' ] ?? '' ),
 			true
 		);
+		$chartsSelection = \json_decode(
+			(string)( $cards[ 2 ][ 'tile' ][ 'data_reports_workspace_selection' ] ?? '' ),
+			true
+		);
 		$this->assertIsArray( $listSelection );
+		$this->assertIsArray( $chartsSelection );
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $listSelection[ 'key' ] ?? '' );
 		$this->assertSame( 'Security Reports', $listSelection[ 'label' ] ?? '' );
 		$this->assertSame( 'Security Reports', $listSelection[ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'neutral', $listSelection[ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( 'reports', $listSelection[ 'header' ][ 'color_key' ] ?? '' );
+		$this->assertSame( '', $chartsSelection[ 'header' ][ 'summary' ] ?? '' );
+		$this->assertSame(
+			'Select the events and period you want to compare, then update the chart.',
+			$chartsSelection[ 'header' ][ 'next_step' ] ?? ''
+		);
 	}
 
 	public function test_workspace_cards_render_through_strict_twig_layer_template() :void {
@@ -112,7 +127,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertSame(
-			2,
+			3,
 			$xpath->query( '//button[@data-drill-target="workspace" and @data-reports-workspace-selection]' )->length,
 			'Reports workspaces should render as shared drill-down buttons with explicit workspace selection payloads'
 		);
@@ -125,6 +140,11 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 			1,
 			$xpath->query( '//button[.//h4[normalize-space()="Reporting & Alerts Configuration"]]' )->length,
 			'The Reporting & Alerts Configuration workspace card should render through the strict Twig layer template'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//button[.//h4[normalize-space()="Charts & Trends"]]' )->length,
+			'The Charts & Trends workspace card should render through the strict Twig layer template'
 		);
 	}
 

@@ -32,6 +32,7 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 		);
 
 		$this->assertReportsTableLocalized( $comps );
+		$this->assertReportsTrendsLocalized( $comps );
 	}
 
 	public function test_reports_table_is_localized_for_reports_list() :void {
@@ -41,6 +42,7 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 		);
 
 		$this->assertReportsTableLocalized( $comps );
+		$this->assertReportsTrendsLocalized( $comps );
 	}
 
 	public function test_reports_table_is_not_localized_for_reports_settings() :void {
@@ -51,6 +53,25 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 
 		$this->assertArrayHasKey( 'tables', $comps );
 		$this->assertArrayNotHasKey( 'reports', $comps[ 'tables' ] ?? [] );
+		$this->assertReportsTrendsLocalized( $comps );
+	}
+
+	public function test_reports_trends_is_localized_for_reports_charts() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_REPORTS,
+			PluginNavs::SUBNAV_REPORTS_CHARTS
+		);
+
+		$this->assertReportsTrendsLocalized( $comps );
+	}
+
+	public function test_reports_trends_is_localized_for_dashboard_overview_to_support_later_reports_navigation() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
+		);
+
+		$this->assertReportsTrendsLocalized( $comps );
 	}
 
 	private function getMainLocalisedComponentsForRoute( string $nav, string $subNav ) :array {
@@ -90,5 +111,14 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 	private function assertReportsTableLocalized( array $comps ) :void {
 		$this->assertArrayHasKey( 'reports', $comps[ 'tables' ] ?? [] );
 		$this->assertArrayHasKey( 'table_action', $comps[ 'tables' ][ 'reports' ][ 'ajax' ] ?? [] );
+	}
+
+	private function assertReportsTrendsLocalized( array $comps ) :void {
+		$this->assertArrayHasKey( 'reports_trends', $comps );
+		$this->assertArrayHasKey( 'render_chart', $comps[ 'reports_trends' ][ 'ajax' ] ?? [] );
+		$this->assertArrayHasKey( 'selection_none', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
+		$this->assertArrayHasKey( 'selection_one', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
+		$this->assertArrayHasKey( 'selection_many', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
+		$this->assertArrayHasKey( 'select_events_error', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
 	}
 }

@@ -10,3 +10,285 @@
 .stat.card .shield-chart {
   min-height: 120px;
 }
+
+.shield-reports-trends {
+  min-width: 0;
+}
+
+.shield-reports-trends__card {
+  border: 1px solid $border-color-neutral-subtle;
+  border-radius: $card-border-radius;
+  box-shadow: $card-box-shadow;
+  overflow: hidden;
+}
+
+.shield-reports-trends__card-header {
+  background: linear-gradient(180deg, #ffffff 0%, $surface-color-neutral-raised 100%);
+  border-bottom: 1px solid $border-color-neutral-subtle;
+  padding: 1rem 1.25rem 1.1rem;
+  position: relative;
+
+  &::before {
+    background: $mode-reports;
+    content: '';
+    height: 3px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+}
+
+.shield-reports-trends__toolbar {
+  display: grid;
+  gap: 1rem;
+}
+
+.shield-reports-trends__toolbar-main {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1rem;
+  justify-content: space-between;
+}
+
+.shield-reports-trends__period-field {
+  flex: 0 0 220px;
+  max-width: 220px;
+}
+
+.shield-reports-trends__field-label {
+  color: #4b5563;
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+
+.shield-reports-trends__actions {
+  align-items: center;
+  display: flex;
+  flex: 1 1 280px;
+  flex-wrap: wrap;
+  gap: 0.7rem 1rem;
+  justify-content: flex-end;
+}
+
+.shield-reports-trends__selection-note {
+  color: #6b7280;
+  font-size: 0.82rem;
+}
+
+.shield-reports-trends__events-block {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.shield-reports-trends__event-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.65rem;
+}
+
+.shield-reports-trends__event-chip {
+  max-width: 100%;
+  min-width: 0;
+  position: relative;
+}
+
+.shield-reports-trends__event-input {
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 1px;
+}
+
+.shield-reports-trends__event-label {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d7dde3;
+  border-radius: 999px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  color: #334155;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.84rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  line-height: 1.2;
+  margin: 0;
+  max-width: 100%;
+  padding: 0.55rem 0.9rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease, transform 0.15s ease;
+
+  &::before {
+    background: transparent;
+    border: 1.5px solid #9aa4af;
+    border-radius: 999px;
+    content: '';
+    flex: 0 0 0.72rem;
+    height: 0.72rem;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    width: 0.72rem;
+  }
+
+  &:hover {
+    background: #fff8fb;
+    border-color: rgba($mode-reports, 0.35);
+    color: #1f2937;
+  }
+}
+
+.shield-reports-trends__event-input:checked + .shield-reports-trends__event-label {
+  background: $mode-reports-light;
+  border-color: $mode-reports-border;
+  box-shadow: inset 0 0 0 1px rgba($mode-reports, 0.06), 0 1px 2px rgba(15, 23, 42, 0.06);
+  color: #7f2450;
+}
+
+.shield-reports-trends__event-input:checked + .shield-reports-trends__event-label::before {
+  background: $mode-reports;
+  border-color: $mode-reports;
+  box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+.shield-reports-trends__event-input:focus-visible + .shield-reports-trends__event-label {
+  box-shadow: 0 0 0 3px rgba($mode-reports, 0.18);
+  outline: 0;
+}
+
+.shield-reports-trends__card-body {
+  background: #ffffff;
+  padding: 1.15rem 1.25rem 1.35rem;
+}
+
+.shield-reports-trends__chart-placeholder {
+  align-items: center;
+  color: #667085;
+  display: flex;
+  font-size: 0.95rem;
+  justify-content: center;
+  min-height: 260px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.shield-reports-trends__results {
+  min-width: 0;
+}
+
+.shield-reports-trends__chart-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  justify-content: space-between;
+}
+
+.shield-reports-trends__legend-wrap {
+  min-width: 0;
+}
+
+.shield-reports-trends__legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.55rem;
+}
+
+.shield-reports-trends-legend-item {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid $border-color-neutral-subtle;
+  border-radius: 999px;
+  color: #334155;
+  display: inline-flex;
+  font-size: 0.79rem;
+  font-weight: 600;
+  gap: 0.45rem;
+  line-height: 1.2;
+  padding: 0.36rem 0.75rem;
+}
+
+.shield-reports-trends-legend-swatch {
+  background: currentColor;
+  border-radius: 999px;
+  display: inline-block;
+  flex: 0 0 0.75rem;
+  height: 0.75rem;
+  width: 0.75rem;
+}
+
+.shield-reports-trends__period-pill {
+  background: $mode-reports-light;
+  border: 1px solid $mode-reports-border;
+  border-radius: 999px;
+  color: #8a2d58;
+  display: inline-flex;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.38rem 0.68rem;
+  white-space: nowrap;
+}
+
+.shield-reports-trends-chart {
+  height: clamp(420px, 52vh, 640px);
+  min-height: 0;
+}
+
+.shield-reports-trends-chart > canvas {
+  display: block;
+  height: 100% !important;
+  width: 100% !important;
+}
+
+@media (max-width: 991.98px) {
+  .shield-reports-trends__card-header,
+  .shield-reports-trends__card-body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .shield-reports-trends__actions {
+    justify-content: flex-start;
+  }
+
+  .shield-reports-trends-chart {
+    height: clamp(320px, 44vh, 460px);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .shield-reports-trends__toolbar-main {
+    align-items: stretch;
+  }
+
+  .shield-reports-trends__period-field {
+    flex-basis: 100%;
+    max-width: none;
+  }
+
+  .shield-reports-trends__actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .shield-reports-trends__event-chips {
+    gap: 0.45rem 0.5rem;
+  }
+
+  .shield-reports-trends__event-label {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.78rem;
+  }
+
+  .shield-reports-trends__chart-meta {
+    align-items: flex-start;
+    flex-direction: column-reverse;
+  }
+}

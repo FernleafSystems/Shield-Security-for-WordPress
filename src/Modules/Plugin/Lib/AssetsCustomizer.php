@@ -99,49 +99,16 @@ class AssetsCustomizer {
 					],
 				],
 			],
-			'charts'           => [
-				'key'     => 'charts',
+			'reports_trends'   => [
+				'key'      => 'reports_trends',
 				'handles' => [
 					'main',
 				],
 				'data'    => fn() => [
-					'summary_charts' => [
-						'ajax'   => [
-							'render_summary_chart' => ActionData::Build( Actions\ReportingChartSummary::class ),
-							'batch_requests'       => ActionData::Build( Actions\AjaxBatchRequests::class ),
-						],
-						'charts' => \array_map(
-							fn( string $event ) => [
-								'event_id'      => $event,
-								'init_render'   => true,
-								'show_title'    => false,
-								'req_params'    => [
-									'interval'       => 'daily',
-									'ticks'          => 30,
-									'events'         => [ $event ],
-									'combine_events' => true
-								],
-								'chart_options' => [
-									'axisX' => [
-										'showLabel' => false,
-									]
-								],
-							],
-							[
-								'login_block',
-								'bot_blocks',
-								'ip_offense',
-								'conn_kill',
-								'ip_blocked',
-								'comment_block',
-							]
-						),
+					'ajax'    => [
+						'render_chart' => ActionData::Build( Actions\ReportingChartTrends::class ),
 					],
-					'custom_charts'  => [
-						'ajax' => [
-							'render_custom_chart' => ActionData::Build( Actions\ReportingChartCustom::class ),
-						],
-					],
+					'strings' => Components\Reports\ChartsTrends::clientStrings(),
 				],
 			],
 			'dashboard_widget' => [
@@ -221,6 +188,18 @@ class AssetsCustomizer {
 			'investigate_landing' => [
 				'key'      => 'investigate_landing',
 				'required' => PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
+				'handles'  => [
+					'main',
+				],
+				'data'     => fn() => [
+					'ajax' => [
+						'batch_requests' => ActionData::Build( Actions\AjaxBatchRequests::class ),
+					],
+				],
+			],
+			'actions_queue_landing' => [
+				'key'      => 'actions_queue_landing',
+				'required' => PluginNavs::IsNavs( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW ),
 				'handles'  => [
 					'main',
 				],
