@@ -187,6 +187,8 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
 		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'show_header' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayHasKey( 'scan_results_action', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayHasKey( 'render_item_analysis', $tables[ 'file_status' ] ?? [] );
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
@@ -260,7 +262,9 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'subject_type', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'activity' ] ?? [] );
-		$this->assertSame( 'No Known Vulnerabilities', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? '' ) );
+		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? 'missing' ) );
+		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'lookup_href' ] ?? 'missing' ) );
+		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'lookup_text' ] ?? 'missing' ) );
 	}
 
 	public function test_render_data_includes_lookup_helper_string() :void {
@@ -326,13 +330,14 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 	}
 
 	protected function buildVulnerabilityData( string $subjectId, string $lookupHref ) :array {
+		$hasVulnerabilities = $this->vulnerabilityCount > 0;
 		return [
 			'count'       => $this->vulnerabilityCount,
-			'status'      => $this->vulnerabilityCount > 0 ? 'critical' : 'good',
-			'title'       => $this->vulnerabilityCount > 0 ? 'Known Vulnerabilities' : 'No Known Vulnerabilities',
+			'status'      => $hasVulnerabilities ? 'critical' : 'good',
+			'title'       => $hasVulnerabilities ? 'Known Vulnerabilities' : '',
 			'summary'     => 'Summary',
-			'lookup_href' => $lookupHref,
-			'lookup_text' => 'Lookup',
+			'lookup_href' => $hasVulnerabilities ? $lookupHref : '',
+			'lookup_text' => $hasVulnerabilities ? 'Lookup' : '',
 		];
 	}
 
@@ -367,13 +372,15 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 			];
 	}
 
-	protected function buildActivityTableContract( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
+	protected function buildActivityTableContract( string $subjectType, string $subjectId ) :array {
 		return [
+			'title'        => 'Activity',
 			'table_type'   => 'activity',
 			'subject_type' => $subjectType,
 			'subject_id'   => $subjectId,
 			'datatables_init' => [ 'columns' => [] ],
 			'table_action' => [ 'slug' => 'investigation_table' ],
+			'show_header'  => false,
 		];
 	}
 

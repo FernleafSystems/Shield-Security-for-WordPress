@@ -1,11 +1,13 @@
 <section class="investigate-flat-section">
 	<div class="d-flex justify-content-between align-items-start gap-2">
 		<div>
-			<h5 class="mb-2 investigate-section-title">{{ vulnerabilities.title|default('') }}</h5>
-			<p class="mb-0">{{ vulnerabilities.summary|default('') }}</p>
+			{% if vulnerabilities.title is not empty %}
+				<h5 class="mb-2 investigate-section-title">{{ vulnerabilities.title }}</h5>
+			{% endif %}
+			<p class="mb-0">{{ vulnerabilities.summary }}</p>
 		</div>
-		{% if vulnerabilities.lookup_href|default('') is not empty %}
-			<a href="{{ vulnerabilities.lookup_href }}" target="_blank" class="btn btn-outline-secondary btn-sm">{{ vulnerabilities.lookup_text|default('Lookup') }}</a>
+		{% if vulnerabilities.lookup_href is not empty %}
+			<a href="{{ vulnerabilities.lookup_href }}" target="_blank" class="btn btn-outline-secondary btn-sm">{{ vulnerabilities.lookup_text }}</a>
 		{% endif %}
 	</div>
 </section>

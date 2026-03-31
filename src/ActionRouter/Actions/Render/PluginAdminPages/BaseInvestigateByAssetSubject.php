@@ -19,7 +19,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 		$railNavItems = [];
 		$tables = [];
 		$overviewRows = [];
-		$vulnerabilities = [];
+		$vulnerabilities = $this->normalizeVulnerabilityPanelContract();
 		$subjectHeader = [];
 
 		if ( $hasSubject ) {
@@ -45,7 +45,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 					$strings[ 'file_status_empty_text' ]
 				),
 				'activity'    => $this->withEmptyStateTableContract(
-					$this->buildActivityTableContract( $subjectType, $subjectId, $subjectId ),
+					$this->buildActivityTableContract( $subjectType, $subjectId ),
 					$activityCount,
 					$strings[ 'activity_empty_text' ]
 				),

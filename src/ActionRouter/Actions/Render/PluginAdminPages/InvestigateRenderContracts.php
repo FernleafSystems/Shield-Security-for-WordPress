@@ -45,6 +45,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-type InvestigationTableContract array{
  *   title:string,
  *   status:string,
+ *   full_log_href?:string,
  *   full_log_text:string,
  *   full_log_button_class:string,
  *   show_header:bool,
@@ -179,9 +180,9 @@ trait InvestigateRenderContracts {
 		string $subjectId,
 		array $datatablesInit,
 		array $tableAction,
-		string $fullLogHref
+		string $fullLogHref = ''
 	) :array {
-		return $this->normalizeInvestigationTableContract( [
+		$table = [
 			'title'           => $title,
 			'status'          => $status,
 			'table_type'      => $tableType,
@@ -189,8 +190,12 @@ trait InvestigateRenderContracts {
 			'subject_id'      => $subjectId,
 			'datatables_init' => $datatablesInit,
 			'table_action'    => $tableAction,
-			'full_log_href'   => $fullLogHref,
-		] );
+		];
+		if ( $fullLogHref !== '' ) {
+			$table[ 'full_log_href' ] = $fullLogHref;
+		}
+
+		return $this->normalizeInvestigationTableContract( $table );
 	}
 
 	/**

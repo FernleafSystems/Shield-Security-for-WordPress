@@ -23,9 +23,7 @@ class InvestigateByIpViewBuilder {
 	 *     lookup_label:string,
 	 *     lookup_placeholder:string,
 	 *     lookup_submit:string,
-	 *     lookup_helper:string,
-	 *     no_subject_title:string,
-	 *     no_subject_text:string
+	 *     lookup_helper:string
 	 *   },
 	 *   vars:array{
 	 *     analyse_ip:string,
@@ -88,16 +86,14 @@ class InvestigateByIpViewBuilder {
 				'lookup_placeholder' => __( 'Search for an IP address...', 'wp-simple-firewall' ),
 				'lookup_submit'      => __( 'Load IP Context', 'wp-simple-firewall' ),
 				'lookup_helper'      => __( 'Type at least 3 characters to find matching IP addresses.', 'wp-simple-firewall' ),
-				'no_subject_title'   => __( 'No IP Selected', 'wp-simple-firewall' ),
-				'no_subject_text'    => __( 'Use the lookup above to load investigate context for an IP address.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'analyse_ip'      => $lookup,
 				'lookup_route'    => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
 				'lookup_behavior' => $this->buildLookupBehaviorContract( true, true, true ),
 				'lookup_ajax'     => $lookupAjax,
-				'lookup_ajax_attr'=> $this->buildLookupAjaxAttrValue( $lookupAjax ),
-				'lookup_shortcuts'=> $this->buildLookupShortcuts(),
+				'lookup_ajax_attr' => $this->buildLookupAjaxAttrValue( $lookupAjax ),
+				'lookup_shortcuts' => $this->buildLookupShortcuts(),
 				'offcanvas_history_mode' => '',
 				'subject_header'  => $hasSubject
 					? [

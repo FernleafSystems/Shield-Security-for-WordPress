@@ -79,8 +79,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		UiContentActivator.activateCurrentWithinRoot( this.rootEl );
 		this.seedGenericPanelCacheFromPanel( this.panelEl );
+		UiContentActivator.activateCurrentWithinRoot( this.rootEl );
 		this.preloadGenericPanels();
 
 		if ( this.isPanelLoaded( this.panelEl ) ) {
@@ -423,17 +423,17 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const drillCtrl = this.getDrillDownController();
-		if ( drillCtrl !== null ) {
-			drillCtrl.updateLayerHeader( this.shellEl, 1, this.defaultPanelHeader );
-		}
-
 		this.panelEl.dataset.investigatePanelSubject = '';
 		this.panelEl.dataset.investigatePanelLive = '0';
 		this.panelEl.dataset.investigatePanelLoaded = '0';
 		delete this.panelEl.dataset.investigateRenderAction;
 		this.clearPanelChrome( this.panelEl );
 		this.replaceHistoryUrl( this.buildLandingUrlForSelection( null, {} ) );
+
+		const drillCtrl = this.getDrillDownController();
+		if ( drillCtrl !== null ) {
+			drillCtrl.updateLayerHeader( this.shellEl, 1, this.defaultPanelHeader );
+		}
 	}
 
 	clearPanelChrome( panel ) {

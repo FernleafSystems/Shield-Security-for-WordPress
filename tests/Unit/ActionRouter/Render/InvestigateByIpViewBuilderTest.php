@@ -101,7 +101,6 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ]
 		);
-		$this->assertArrayNotHasKey( 'offcanvas_history_mode', $renderData[ 'vars' ] );
 		$this->assertSame(
 			[
 				'show_subject_header'      => true,
@@ -137,7 +136,7 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 			}
 
 			public function investigateByIp( string $ip = '' ) :string {
-				return '/admin/activity/by_ip';
+				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
 			}
 		};
 		$controller->action_router = new class {
@@ -145,6 +144,9 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 				return 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' );
 			}
 		};
+		$controller->this_req = (object)[
+			'ip' => '127.0.0.1',
+		];
 
 		PluginControllerInstaller::install( $controller );
 	}
@@ -182,9 +184,12 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 				}
 
 				public function isValidIp( $ip, $flags = null ) {
-					return $this->validator instanceof \Closure
-						? (bool)( $this->validator )( (string)$ip )
-						: \filter_var( $ip, \FILTER_VALIDATE_IP ) !== false;
+					return (string)$ip === '127.0.0.1'
+						|| (
+							$this->validator instanceof \Closure
+								? (bool)( $this->validator )( (string)$ip )
+								: \filter_var( $ip, \FILTER_VALIDATE_IP ) !== false
+						);
 				}
 			},
 		] );

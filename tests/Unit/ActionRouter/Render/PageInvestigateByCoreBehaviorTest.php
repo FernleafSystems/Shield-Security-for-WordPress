@@ -58,6 +58,8 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
 		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'show_header' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
 
 		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
@@ -178,13 +180,15 @@ class PageInvestigateByCoreUnitTestDouble extends PageInvestigateByCore {
 			];
 	}
 
-	protected function buildActivityTableContract( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
+	protected function buildActivityTableContract( string $subjectType, string $subjectId ) :array {
 		return [
+			'title'        => 'Activity',
 			'table_type'   => 'activity',
 			'subject_type' => $subjectType,
 			'subject_id'   => $subjectId,
 			'datatables_init' => [ 'columns' => [] ],
 			'table_action' => [ 'slug' => 'investigation_table' ],
+			'show_header'  => false,
 		];
 	}
 }

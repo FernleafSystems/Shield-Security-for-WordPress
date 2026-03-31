@@ -45,8 +45,7 @@ class PageInvestigateByCore extends BaseInvestigateAsset {
 			'activity'    => $this->withEmptyStateTableContract(
 				$this->buildActivityTableContract(
 					InvestigationTableContract::SUBJECT_TYPE_CORE,
-					InvestigationTableContract::SUBJECT_TYPE_CORE,
-					'core_'
+					InvestigationTableContract::SUBJECT_TYPE_CORE
 				),
 				$activityCount,
 				$strings[ 'activity_empty_text' ]

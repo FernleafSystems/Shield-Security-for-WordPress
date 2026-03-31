@@ -98,8 +98,6 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'lookup_helper'       => __( 'Type at least 1 character to search by username, display name, email, or user ID.', 'wp-simple-firewall' ),
 				'change_subject'      => __( 'Change user', 'wp-simple-firewall' ),
 				'overview_title'      => __( 'User Overview', 'wp-simple-firewall' ),
-				'no_subject_title'    => __( 'No User Selected', 'wp-simple-firewall' ),
-				'no_subject_text'     => __( 'Use the lookup above to load user-scoped investigate data.', 'wp-simple-firewall' ),
 				'not_found_title'     => __( 'No Matching User Found', 'wp-simple-firewall' ),
 				'not_found_text'      => __( 'No WordPress user matched your lookup value. Try a different search term.', 'wp-simple-firewall' ),
 				'related_ips_title'   => __( 'Related IP Addresses', 'wp-simple-firewall' ),

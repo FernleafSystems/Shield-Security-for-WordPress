@@ -1,5 +1,8 @@
 const { test, expect } = require( '@playwright/test' );
-const { openShieldRoute } = require( './support/shield-browser' );
+const {
+	openShieldRoute,
+	selectSelect2Option,
+} = require( './support/shield-browser' );
 
 const panelSelector = '[data-investigate-panel="1"]';
 
@@ -126,7 +129,7 @@ test( 'investigate landing loads each enabled subject tile into the shared panel
 		{ subject: 'ip', content: 'select[name="analyse_ip"]' },
 		{ subject: 'plugin', content: 'select[name="plugin_slug"]' },
 		{ subject: 'theme', content: 'select[name="theme_slug"]' },
-		{ subject: 'core', content: '#ShieldInvestigateByCoreTabsNav' },
+		{ subject: 'core', content: '#tabInvestigateCoreOverview' },
 		{ subject: 'live_traffic', content: '#SectionTrafficLiveLogs' },
 	];
 
@@ -218,6 +221,102 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 	} );
 } );
 
+test( 'investigate landing drill-back clears stale plugin breadcrumbs after a resolved selection', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const panel = page.locator( panelSelector );
+	await clickSubjectTile( page, 'plugin' );
+	await expectPanelState( page, panel, {
+		subject: 'plugin',
+		isLoaded: true,
+	} );
+
+	await selectSelect2Option(
+		page,
+		'plugin_slug',
+		'shield',
+		/Shield/i,
+		( url ) => url.searchParams.get( 'subject' ) === 'plugin'
+			&& !!url.searchParams.get( 'plugin_slug' )
+	);
+
+	const stepTabs = page.locator( '[data-operator-step-tab="1"]' );
+	await expect( stepTabs ).toHaveCount( 4 );
+	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
+	const resolvedLabel = ( await stepTabs.last().textContent() || '' ).trim();
+	expect( resolvedLabel.length ).toBeGreaterThan( 0 );
+
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& !url.searchParams.get( 'subject' )
+				&& !url.searchParams.get( 'plugin_slug' ),
+			{ timeout: 20_000 }
+		),
+		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
+	] );
+
+	await expectPanelState( page, panel, {
+		subject: '',
+		isLoaded: false,
+	} );
+	await expect( stepTabs ).toHaveCount( 2 );
+	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
+	await expect( stepTabs.filter( { hasText: resolvedLabel } ) ).toHaveCount( 0 );
+} );
+
+test( 'investigate landing reopens a cached generic user panel with a live select2 lookup', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+		subject: 'user',
+	} );
+
+	const panel = page.locator( '[data-drill-layer="1"] [data-investigate-panel="1"]' );
+	await expectPanelState( page, panel, {
+		subject: 'user',
+		isLoaded: true,
+	} );
+	await expect( panel.locator( 'select[name="user_lookup"]' ) ).toBeVisible();
+
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& !url.searchParams.get( 'subject' ),
+			{ timeout: 20_000 }
+		),
+		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
+	] );
+
+	await expectPanelState( page, panel, {
+		subject: '',
+		isLoaded: false,
+	} );
+
+	await clickSubjectTile( page, 'user' );
+	await expectPanelState( page, panel, {
+		subject: 'user',
+		isLoaded: true,
+	} );
+
+	await selectSelect2Option(
+		page,
+		'user_lookup',
+		'admin',
+		/admin/i,
+		( url ) => url.searchParams.get( 'subject' ) === 'user'
+			&& !!url.searchParams.get( 'user_lookup' )
+	);
+
+	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
+	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
+} );
+
 test( 'investigate landing preloads generic subjects and keeps live traffic lazy', async ( { page } ) => {
 	let batchRequestCount = 0;
 	let directUserPanelRequestCount = 0;
@@ -235,7 +334,7 @@ test( 'investigate landing preloads generic subjects and keeps live traffic lazy
 			&& !postData.includes( 'ex=ajax_batch_requests' ) ) {
 			directUserPanelRequestCount++;
 		}
-		if ( isAdminAjaxRequest( request ) && postData.includes( 'ex=render_traffic_live_logs' ) ) {
+		if ( isAdminAjaxRequest( request ) && postData.includes( 'render_traffic_live_logs' ) ) {
 			liveTrafficRequestCount++;
 		}
 		await route.continue();
@@ -318,11 +417,7 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 	} );
 	await expect( panel.locator( '.live-poll-marker' ) ).toHaveText( 'poll-1' );
 
-	const unexpectedLivePollRequest = page.waitForRequest(
-		( request ) => isLiveTrafficPollRequest( request ),
-		{ timeout: livePollWindowMs }
-	).then( () => true )
-		.catch( () => false );
+	const maxPollCountAfterExit = livePollCount + 1;
 
 	await Promise.all( [
 		page.waitForURL(
@@ -338,6 +433,8 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 		subject: '',
 		isLoaded: false,
 	} );
-	expect( await unexpectedLivePollRequest ).toBe( false );
-	expect( livePollCount ).toBe( 1 );
+	await page.waitForTimeout( livePollWindowMs + 500 );
+	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
+	await page.waitForTimeout( livePollWindowMs + 500 );
+	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
 } );

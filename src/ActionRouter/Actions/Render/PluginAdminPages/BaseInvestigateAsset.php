@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\UnsupportedInvestigationSubjectTypeException,
 	Exceptions\UnsupportedInvestigationTableTypeException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\{
 	ForActivityLog as InvestigationActivityTableBuilder
@@ -26,6 +25,17 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	use InvestigateCountCache;
 	use InvestigateRenderContracts;
 	use InvestigateStatusMapping;
+
+	/**
+	 * @phpstan-type VulnerabilityPanelContract array{
+	 *   count:int,
+	 *   status:string,
+	 *   title:string,
+	 *   summary:string,
+	 *   lookup_href:string,
+	 *   lookup_text:string
+	 * }
+	 */
 
 	private ?InvestigateAssetDataAdapter $assetDataAdapter = null;
 
@@ -158,7 +168,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	/**
 	 * @return array<string,mixed>
 	 */
-	protected function buildActivityTableContract( string $subjectType, string $subjectId, string $activitySearchToken ) :array {
+	protected function buildActivityTableContract( string $subjectType, string $subjectId ) :array {
 		$tableAction = ActionData::Build( InvestigationTableAction::class );
 
 		$activityTable = $this->buildTableContainerContract(
@@ -168,10 +178,10 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			$subjectType,
 			$subjectId,
 			( new InvestigationActivityTableBuilder() )->setSubject( $subjectType, $subjectId )->buildRaw(),
-			$tableAction,
-			$this->buildFullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, $activitySearchToken )
+			$tableAction
 		);
 		$activityTable[ 'is_flat' ] = true;
+		$activityTable[ 'show_header' ] = false;
 		return $this->normalizeInvestigationTableContract( $activityTable );
 	}
 
@@ -183,6 +193,9 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		return $this->getAssetDataAdapter()->buildThemeDataForInvestigate( $theme );
 	}
 
+	/**
+	 * @return VulnerabilityPanelContract
+	 */
 	protected function buildVulnerabilityData( string $subjectId, string $lookupHref ) :array {
 		try {
 			$items = self::con()->comps->scans->WPV()->getResultsForDisplay()->getItemsForSlug( $subjectId );
@@ -191,19 +204,20 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			$items = [];
 		}
 		$count = \count( $items );
+		$hasVulnerabilities = $count > 0;
 
-		return [
+		return $this->normalizeVulnerabilityPanelContract( [
 			'count'       => $count,
-			'status'      => $count > 0 ? 'critical' : 'good',
-			'title'       => $count > 0
+			'status'      => $hasVulnerabilities ? 'critical' : 'good',
+			'title'       => $hasVulnerabilities
 				? __( 'Known Vulnerabilities', 'wp-simple-firewall' )
-				: __( 'No Known Vulnerabilities', 'wp-simple-firewall' ),
-			'summary'     => $count > 0
+				: '',
+			'summary'     => $hasVulnerabilities
 				? \sprintf( _n( '%d vulnerability detected for this asset.', '%d vulnerabilities detected for this asset.', $count, 'wp-simple-firewall' ), $count )
 				: __( 'No known vulnerabilities were detected for this asset in the current scan results.', 'wp-simple-firewall' ),
-			'lookup_href' => $lookupHref,
-			'lookup_text' => __( 'Vulnerability Lookup', 'wp-simple-firewall' ),
-		];
+			'lookup_href' => $hasVulnerabilities ? $lookupHref : '',
+			'lookup_text' => $hasVulnerabilities ? __( 'Vulnerability Lookup', 'wp-simple-firewall' ) : '',
+		] );
 	}
 
 	protected function countFileScanResultsForSubject( string $subjectType, string $subjectId ) :int {
@@ -256,6 +270,24 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 			$this->assetDataAdapter = new InvestigateAssetDataAdapter();
 		}
 		return $this->assetDataAdapter;
+	}
+
+	/**
+	 * @param array<string,mixed> $contract
+	 * @return VulnerabilityPanelContract
+	 */
+	protected function normalizeVulnerabilityPanelContract( array $contract = [] ) :array {
+		return \array_merge(
+			[
+				'count'       => 0,
+				'status'      => 'good',
+				'title'       => '',
+				'summary'     => '',
+				'lookup_href' => '',
+				'lookup_text' => '',
+			],
+			$contract
+		);
 	}
 
 	private function normalizeAssetLookup( string $subjectType, string $lookup ) :string {

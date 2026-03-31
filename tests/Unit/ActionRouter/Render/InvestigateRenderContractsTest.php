@@ -239,6 +239,21 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'table_action', $table );
 		$this->assertArrayHasKey( 'scan_results_action', $table );
 	}
+
+	public function test_table_container_contract_omits_empty_full_log_href() :void {
+		$table = ( new InvestigateRenderContractsTestDouble() )->tableContainerContract(
+			'Recent Activity Logs',
+			'warning',
+			'activity',
+			'plugin',
+			'akismet/akismet.php',
+			[ 'columns' => [] ],
+			[ 'slug' => 'investigation_table' ]
+		);
+
+		$this->assertSame( 'Recent Activity Logs', (string)( $table[ 'title' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'full_log_href', $table );
+	}
 }
 
 class InvestigateRenderContractsTestDouble {
@@ -281,5 +296,27 @@ class InvestigateRenderContractsTestDouble {
 
 	public function fullLogHrefWithSearch( string $nav, string $subNav, string $search ) :string {
 		return $this->buildFullLogHrefWithSearch( $nav, $subNav, $search );
+	}
+
+	public function tableContainerContract(
+		string $title,
+		string $status,
+		string $tableType,
+		string $subjectType,
+		string $subjectId,
+		array $datatablesInit,
+		array $tableAction,
+		string $fullLogHref = ''
+	) :array {
+		return $this->buildTableContainerContract(
+			$title,
+			$status,
+			$tableType,
+			$subjectType,
+			$subjectId,
+			$datatablesInit,
+			$tableAction,
+			$fullLogHref
+		);
 	}
 }
