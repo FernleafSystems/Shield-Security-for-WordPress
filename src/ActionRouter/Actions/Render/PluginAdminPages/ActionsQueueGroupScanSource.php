@@ -2,46 +2,44 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 
 /**
- * @phpstan-import-type QueueAssetCard from ScansResultsViewBuilder
- * @phpstan-import-type QueueAssetPane from ScansResultsViewBuilder
+ * @phpstan-import-type QueueAssetSummaryRecord from ActionsQueueScanAssetCardsBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupScanSource {
 
-	private ScansResultsViewBuilder $scansResultsViewBuilder;
+	private ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder;
 	private ScansVulnerabilitiesBuilder $scansVulnerabilitiesBuilder;
 	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
-	private ?array $activePluginsPane = null;
-	private ?array $activeThemesPane = null;
-	private ?array $ignoredPluginsPane = null;
-	private ?array $ignoredThemesPane = null;
+	private ?array $activePluginSummaries = null;
+	private ?array $activeThemeSummaries = null;
+	private ?array $ignoredPluginSummaries = null;
+	private ?array $ignoredThemeSummaries = null;
 	private ?array $vulnerabilitiesPayload = null;
 	private ?int $ignoredWordpressCount = null;
 
 	public function __construct(
-		ScansResultsViewBuilder $scansResultsViewBuilder,
+		ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder,
 		ScansVulnerabilitiesBuilder $scansVulnerabilitiesBuilder,
 		ActionsQueueScanResultsOptions $queueScanResultsOptions
 	) {
-		$this->scansResultsViewBuilder = $scansResultsViewBuilder;
+		$this->scanAssetCardsBuilder = $scanAssetCardsBuilder;
 		$this->scansVulnerabilitiesBuilder = $scansVulnerabilitiesBuilder;
 		$this->queueScanResultsOptions = $queueScanResultsOptions;
 	}
 
 	/**
-	 * @return list<QueueAssetCard>
+	 * @return list<QueueAssetSummaryRecord>
 	 */
-	public function activeCardsForSource( string $assetSource ) :array {
+	public function activeAssetSummariesForSource( string $assetSource ) :array {
 		if ( $assetSource === 'plugins' ) {
-			return $this->activePluginsPane()[ 'cards' ];
+			return $this->activePluginSummaries();
 		}
 		if ( $assetSource === 'themes' ) {
-			return $this->activeThemesPane()[ 'cards' ];
+			return $this->activeThemeSummaries();
 		}
 
 		return [];
@@ -52,10 +50,10 @@ class ActionsQueueGroupScanSource {
 			return $this->ignoredWordpressCount();
 		}
 		if ( $ignoredSource === 'plugins' ) {
-			return $this->countQueueAssetPaneResults( $this->ignoredPluginsPane() );
+			return $this->countQueueAssetSummaryResults( $this->ignoredPluginSummaries() );
 		}
 		if ( $ignoredSource === 'themes' ) {
-			return $this->countQueueAssetPaneResults( $this->ignoredThemesPane() );
+			return $this->countQueueAssetSummaryResults( $this->ignoredThemeSummaries() );
 		}
 
 		return 0;
@@ -81,63 +79,67 @@ class ActionsQueueGroupScanSource {
 	}
 
 	/**
-	 * @return QueueAssetPane
+	 * @return list<QueueAssetSummaryRecord>
 	 */
-	private function activePluginsPane() :array {
-		if ( $this->activePluginsPane === null ) {
-			$this->activePluginsPane = $this->scansResultsViewBuilder->buildActionsQueuePluginsPane(
+	private function activePluginSummaries() :array {
+		if ( $this->activePluginSummaries === null ) {
+			$this->activePluginSummaries = $this->scanAssetCardsBuilder->buildSummaryRecords(
+				'plugin',
 				$this->queueScanResultsOptions->activeOnly()
 			);
 		}
 
-		return $this->activePluginsPane;
+		return $this->activePluginSummaries;
 	}
 
 	/**
-	 * @return QueueAssetPane
+	 * @return list<QueueAssetSummaryRecord>
 	 */
-	private function activeThemesPane() :array {
-		if ( $this->activeThemesPane === null ) {
-			$this->activeThemesPane = $this->scansResultsViewBuilder->buildActionsQueueThemesPane(
+	private function activeThemeSummaries() :array {
+		if ( $this->activeThemeSummaries === null ) {
+			$this->activeThemeSummaries = $this->scanAssetCardsBuilder->buildSummaryRecords(
+				'theme',
 				$this->queueScanResultsOptions->activeOnly()
 			);
 		}
 
-		return $this->activeThemesPane;
+		return $this->activeThemeSummaries;
 	}
 
 	/**
-	 * @return QueueAssetPane
+	 * @return list<QueueAssetSummaryRecord>
 	 */
-	private function ignoredPluginsPane() :array {
-		if ( $this->ignoredPluginsPane === null ) {
-			$this->ignoredPluginsPane = $this->scansResultsViewBuilder->buildActionsQueuePluginsPane(
+	private function ignoredPluginSummaries() :array {
+		if ( $this->ignoredPluginSummaries === null ) {
+			$this->ignoredPluginSummaries = $this->scanAssetCardsBuilder->buildSummaryRecords(
+				'plugin',
 				$this->queueScanResultsOptions->ignoredOnly()
 			);
 		}
 
-		return $this->ignoredPluginsPane;
+		return $this->ignoredPluginSummaries;
 	}
 
 	/**
-	 * @return QueueAssetPane
+	 * @return list<QueueAssetSummaryRecord>
 	 */
-	private function ignoredThemesPane() :array {
-		if ( $this->ignoredThemesPane === null ) {
-			$this->ignoredThemesPane = $this->scansResultsViewBuilder->buildActionsQueueThemesPane(
+	private function ignoredThemeSummaries() :array {
+		if ( $this->ignoredThemeSummaries === null ) {
+			$this->ignoredThemeSummaries = $this->scanAssetCardsBuilder->buildSummaryRecords(
+				'theme',
 				$this->queueScanResultsOptions->ignoredOnly()
 			);
 		}
 
-		return $this->ignoredThemesPane;
+		return $this->ignoredThemeSummaries;
 	}
 
 	private function ignoredWordpressCount() :int {
 		if ( $this->ignoredWordpressCount === null ) {
 			$loader = new LoadFileScanResultsTableData();
 			$loader->custom_record_retriever_wheres = [
-				\sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
-				\sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
+				"`rim`.`meta_key`='is_in_core'",
+				"`rim`.`meta_value`=1",
 			];
 			$loader->results_display_options = $this->queueScanResultsOptions->ignoredOnly();
 			$this->ignoredWordpressCount = $loader->countAll();
@@ -147,12 +149,12 @@ class ActionsQueueGroupScanSource {
 	}
 
 	/**
-	 * @param QueueAssetPane $pane
+	 * @param list<QueueAssetSummaryRecord> $summaries
 	 */
-	private function countQueueAssetPaneResults( array $pane ) :int {
+	private function countQueueAssetSummaryResults( array $summaries ) :int {
 		return (int)\array_sum( \array_map(
-			static fn( array $card ) :int => (int)( $card[ 'count_badge' ] ?? 0 ),
-			$pane[ 'cards' ]
+			static fn( array $summary ) :int => (int)( $summary[ 'count_badge' ] ?? 0 ),
+			$summaries
 		) );
 	}
 }

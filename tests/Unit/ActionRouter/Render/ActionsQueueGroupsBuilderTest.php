@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Vulnerabilities
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueGroupMaintenanceSource,
 	ActionsQueueGroupScanSource,
 	ActionsQueueGroupsBuilder
@@ -28,10 +29,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_expands_scan_bucket_into_per_asset_and_linked_groups() :void {
 		$builder = $this->createBuilder(
 			[
-				$this->makeQueueAssetCard( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
+				$this->makeQueueAssetSummary( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
 			],
 			[
-				$this->makeQueueAssetCard( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
+				$this->makeQueueAssetSummary( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
 			],
 			[
 				'count'    => 1,
@@ -153,17 +154,28 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$groups[ 0 ][ 'links' ]
 		);
 		$this->assertSame( 'direct_table', $groups[ 1 ][ 'detail_shell' ] );
-		$this->assertSame( 'file_scan_results', $groups[ 1 ][ 'detail_table' ][ 'table_type' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $groups[ 1 ][ 'detail_table' ][ 'subject_id' ] );
+		$this->assertSame( [], $groups[ 1 ][ 'detail_table' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 1 ][ 'render_action_class' ] );
+		$this->assertSame(
+			[
+				'subject_type'            => 'plugin',
+				'subject_id'              => 'example-plugin/example-plugin.php',
+				'results_display_options' => [
+					'include_ignored' => false,
+					'ignored_only'    => false,
+				],
+			],
+			$groups[ 1 ][ 'render_action_data' ]
+		);
 		$this->assertSame( 'View 3 files', $groups[ 1 ][ 'drill_hint' ] );
 		$this->assertSame( '2 suspected malware results need review.', $groups[ 3 ][ 'narrative' ] );
 		$this->assertSame( 'View 2 files', $groups[ 3 ][ 'drill_hint' ] );
 	}
 
-	public function test_build_group_returns_selected_plugin_asset_with_direct_table_detail() :void {
+	public function test_build_group_returns_selected_plugin_asset_with_lazy_direct_table_detail() :void {
 		$builder = $this->createBuilder(
 			[
-				$this->makeQueueAssetCard( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
+				$this->makeQueueAssetSummary( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
 			]
 		);
 
@@ -191,7 +203,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $group[ 'card_type' ] );
 		$this->assertSame( 'View 3 files', $group[ 'drill_hint' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'detail_table' ][ 'subject_id' ] );
+		$this->assertSame( [], $group[ 'detail_table' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $group[ 'render_action_class' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
 	}
@@ -733,7 +747,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[],
 			[],
 			[
-				$this->makeQueueAssetCard( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
+				$this->makeQueueAssetSummary( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
 			],
 			[],
 			3
@@ -805,18 +819,18 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	public function test_build_reuses_shared_active_and_ignored_pane_options_for_scan_groups() :void {
 		$builder = $this->createBuilder(
 			[
-				$this->makeQueueAssetCard( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
+				$this->makeQueueAssetSummary( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
 			],
 			[
-				$this->makeQueueAssetCard( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
+				$this->makeQueueAssetSummary( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
 			],
 			[],
 			[],
 			[
-				$this->makeQueueAssetCard( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
+				$this->makeQueueAssetSummary( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
 			],
 			[
-				$this->makeQueueAssetCard( 'ignored-theme', 'Ignored Theme', 4, 'theme', 'ignored-theme' ),
+				$this->makeQueueAssetSummary( 'ignored-theme', 'Ignored Theme', 4, 'theme', 'ignored-theme' ),
 			]
 		);
 
@@ -912,26 +926,18 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function makeQueueAssetCard( string $key, string $title, int $count, string $subjectType, string $subjectId ) :array {
+	private function makeQueueAssetSummary( string $key, string $title, int $count, string $subjectType, string $subjectId ) :array {
 		return [
-			'key'               => $key,
-			'panel_id'          => 'actions-queue-'.$subjectType.'-card-'.$key,
-			'panel_target'      => 'actions-queue-'.$subjectType.'-'.$key,
-			'expand_target'     => 'scan-files-'.$subjectType.'-'.$key,
-			'status'            => 'warning',
-			'icon_class'        => $subjectType === 'plugin' ? 'bi bi-plug-fill' : 'bi bi-palette-fill',
-			'title'             => $title,
-			'stat_text'         => \sprintf( $count === 1 ? '%s file needs review' : '%s files need review', $count ),
-			'meta_text'         => $subjectId,
-			'show_meta_in_tile' => true,
-			'count_badge'       => $count,
-			'actions'           => [],
-			'table'             => [
-				'table_type'  => 'file_scan_results',
-				'subject_type' => $subjectType,
-				'subject_id'  => $subjectId,
-			],
-			'render_action'     => [],
+			'key'          => $key,
+			'status'       => 'warning',
+			'icon_class'   => $subjectType === 'plugin' ? 'bi bi-plug-fill' : 'bi bi-palette-fill',
+			'title'        => $title,
+			'stat_text'    => \sprintf( $count === 1 ? '%s file needs review' : '%s files need review', $count ),
+			'meta_text'    => $subjectId,
+			'count_badge'  => $count,
+			'subject_type' => $subjectType,
+			'subject_id'   => $subjectId,
+			'has_update'   => false,
 		];
 	}
 
@@ -1020,7 +1026,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 							$this->ignoredWordpressCount = $ignoredWordpressCount;
 						}
 
-						public function activeCardsForSource( string $assetSource ) :array {
+						public function activeAssetSummariesForSource( string $assetSource ) :array {
 							if ( $assetSource === 'plugins' ) {
 								$this->pluginPaneCalls[] = [
 									'include_ignored' => false,

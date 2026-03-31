@@ -55,7 +55,7 @@ trait BuildsActionsQueueLandingData {
 	}
 
 	protected function buildSummarySubtext() :string {
-		$latestScanAt = (int)\max( self::con()->comps->site_query->overview()[ 'scans' ][ 'latest_completed_at' ] );
+		$latestScanAt = (int)\max( self::con()->comps->site_query->latestCompletedScanTimestamps() );
 
 		return $latestScanAt > 0
 			? \sprintf(

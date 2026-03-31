@@ -28,6 +28,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive_override?:bool,
  *   detail_table:array<string,mixed>,
+ *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction>,
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
  *   maintenance_rows:list<CompactSummaryRow>,
@@ -45,13 +46,19 @@ class ActionsQueueGroupContractBuilder {
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueDrillDownPresentationBuilder $presentation;
+	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
+	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
-		ActionsQueueDrillDownPresentationBuilder $presentation
+		ActionsQueueDrillDownPresentationBuilder $presentation,
+		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
+		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->presentation = $presentation;
+		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
+		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
 	}
 
 	/**
@@ -73,6 +80,18 @@ class ActionsQueueGroupContractBuilder {
 	 * @return GroupData
 	 */
 	public function buildEmptyGroup( string $groupKey, string $bucketLabel ) :array {
+		$assetGroup = $this->buildEmptyScopedAssetGroup( $groupKey, $bucketLabel );
+		if ( $assetGroup !== null ) {
+			return $assetGroup;
+		}
+
+		return $this->buildDefinitionEmptyGroup( $groupKey, $bucketLabel );
+	}
+
+	/**
+	 * @return GroupData
+	 */
+	private function buildDefinitionEmptyGroup( string $groupKey, string $bucketLabel ) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $groupKey );
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
 		$selection = $this->presentation->buildGroupSelection(
@@ -103,6 +122,60 @@ class ActionsQueueGroupContractBuilder {
 			'detail_table'        => [],
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $definition[ 'render_action_data' ],
+			'maintenance_rows'    => [],
+			'summary_row'         => [],
+			'selection'           => $selection,
+		];
+	}
+
+	/**
+	 * @return GroupData|null
+	 */
+	private function buildEmptyScopedAssetGroup( string $groupKey, string $bucketLabel ) :?array {
+		[ 'definition_key' => $definitionKey, 'asset_key' => $assetKey ] = $this->parseScopedAssetGroupKey( $groupKey );
+		if ( $definitionKey === '' || $assetKey === '' ) {
+			return null;
+		}
+
+		$assetType = $definitionKey === 'plugins' ? 'plugin' : 'theme';
+		$metadata = $this->assetMetadataResolver->resolve( $assetType, $assetKey );
+		if ( $metadata === null ) {
+			return null;
+		}
+
+		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
+		$selection = $this->presentation->buildGroupSelection(
+			$bucketLabel,
+			$groupKey,
+			$metadata[ 'title' ],
+			'good',
+			$metadata[ 'icon_class' ],
+			0,
+			'direct_table',
+			$narrative
+		);
+
+		return [
+			'key'                 => $groupKey,
+			'label'               => $metadata[ 'title' ],
+			'item_count'          => 0,
+			'status'              => 'good',
+			'status_label'        => $this->standardStatusLabel( 'good' ),
+			'icon_class'          => $metadata[ 'icon_class' ],
+			'detail_shell'        => 'direct_table',
+			'card_type'           => 'expandable',
+			'narrative'           => $narrative,
+			'drill_hint'          => '',
+			'links'               => [],
+			'management_link'     => [],
+			'is_interactive'      => false,
+			'detail_table'        => [],
+			'render_action_class' => ActionsQueueAssetFileStatusDetail::class,
+			'render_action_data'  => [
+				'subject_type'            => $metadata[ 'subject_type' ],
+				'subject_id'              => $metadata[ 'subject_id' ],
+				'results_display_options' => $this->queueScanResultsOptions->activeOnly(),
+			],
 			'maintenance_rows'    => [],
 			'summary_row'         => [],
 			'selection'           => $selection,
@@ -221,7 +294,8 @@ class ActionsQueueGroupContractBuilder {
 			'management_link'     => $seed[ 'management_link' ],
 			'is_interactive'      => $isInteractive,
 			'detail_table'        => $seed[ 'detail_table' ],
-			'render_action_class' => $definition[ 'render_action_class' ],
+			'render_action_class' => $seed[ 'render_action_class_override' ]
+				?? $definition[ 'render_action_class' ],
 			'render_action_data'  => $seed[ 'render_action_data_override' ]
 				?? $definition[ 'render_action_data' ],
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
@@ -374,8 +448,28 @@ class ActionsQueueGroupContractBuilder {
 			&& ( $seed[ 'card_type_override' ] ?? '' ) !== 'linked'
 			&& (
 				!empty( $seed[ 'detail_table' ] )
+				|| !empty( $seed[ 'render_action_class_override' ] )
 				|| !empty( $seed[ 'render_action_data_override' ] )
 				|| ( $seed[ 'item_count' ] ?? 0 ) > 0
 			);
 	}
+
+	/**
+	 * @return array{definition_key:string,asset_key:string}
+	 */
+	private function parseScopedAssetGroupKey( string $groupKey ) :array {
+		$definitionKey = \strstr( $groupKey, ':', true );
+		if ( !\is_string( $definitionKey ) || !\in_array( $definitionKey, [ 'plugins', 'themes' ], true ) ) {
+			return [
+				'definition_key' => '',
+				'asset_key'      => '',
+			];
+		}
+
+		return [
+			'definition_key' => $definitionKey,
+			'asset_key'      => \ltrim( (string)\substr( $groupKey, \strlen( $definitionKey ) + 1 ), ':' ),
+		];
+	}
+
 }

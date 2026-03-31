@@ -186,6 +186,15 @@
 	border-color: rgba($status-color-good, 0.25);
 }
 
+.actions-queue-groups__healthy-stack {
+	display: grid;
+	gap: 1rem;
+}
+
+.actions-queue-groups__healthy-stack > .configure-zones__section {
+	margin: 0;
+}
+
 .actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__icon,
 .actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__title,
 .actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__status,

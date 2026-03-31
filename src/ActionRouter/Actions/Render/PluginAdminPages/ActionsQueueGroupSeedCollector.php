@@ -15,17 +15,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 class ActionsQueueGroupSeedCollector {
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
+	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupScanSource $scanSource;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
+		ActionsQueueScanResultsOptions $queueScanResultsOptions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
 		ActionsQueueGroupScanSource $scanSource,
 		ActionsQueueGroupMaintenanceSource $maintenanceSource
 	) {
 		$this->groupDefinitions = $groupDefinitions;
+		$this->queueScanResultsOptions = $queueScanResultsOptions;
 		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
 		$this->scanSource = $scanSource;
 		$this->maintenanceSource = $maintenanceSource;
@@ -158,28 +161,34 @@ class ActionsQueueGroupSeedCollector {
 	 */
 	private function buildAssetSeeds( string $definitionKey, string $assetSource, array $item ) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
-		$cards = $this->scanSource->activeCardsForSource( $assetSource );
+		$summaries = $this->scanSource->activeAssetSummariesForSource( $assetSource );
 		$seeds = [];
 
-		foreach ( $cards as $card ) {
-			$fileCount = \max( 0, (int)( $card[ 'count_badge' ] ?? 0 ) );
+		foreach ( $summaries as $summary ) {
+			$fileCount = \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) );
 			if ( $fileCount < 1 ) {
 				continue;
 			}
 
 			$seeds[] = [
-				'key'              => $definitionKey.':'.$card[ 'key' ],
+				'key'              => $definitionKey.':'.$summary[ 'key' ],
 				'is_healthy'       => false,
 				'definition_key'   => $definitionKey,
 				'heading_label'    => $definition[ 'label' ],
-				'label'            => $card[ 'title' ],
+				'label'            => $summary[ 'title' ],
 				'item_count'       => $fileCount,
 				'status'           => StatusPriority::normalize( $item[ 'severity' ], 'warning' ),
-				'narrative'        => $card[ 'stat_text' ],
+				'narrative'        => $summary[ 'stat_text' ],
 				'detail_shell'     => 'direct_table',
 				'links'            => [],
 				'management_link'  => [],
-				'detail_table'     => $card[ 'table' ],
+				'detail_table'     => [],
+				'render_action_class_override' => ActionsQueueAssetFileStatusDetail::class,
+				'render_action_data_override'  => [
+					'subject_type'            => $summary[ 'subject_type' ],
+					'subject_id'              => $summary[ 'subject_id' ],
+					'results_display_options' => $this->queueScanResultsOptions->activeOnly(),
+				],
 				'attention_items'  => [ $item ],
 				'maintenance_rows' => [],
 				'summary_row'      => [],

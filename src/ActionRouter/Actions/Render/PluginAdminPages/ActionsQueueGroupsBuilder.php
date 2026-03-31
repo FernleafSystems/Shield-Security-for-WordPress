@@ -72,6 +72,7 @@ class ActionsQueueGroupsBuilder {
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
 	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
 	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
+	private ?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null;
 	private ?ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder = null;
 	private ?ActionsQueueGroupScanSource $groupScanSource = null;
 	private ?ActionsQueueGroupMaintenanceSource $groupMaintenanceSource = null;
@@ -190,7 +191,10 @@ class ActionsQueueGroupsBuilder {
 
 	protected function buildGroupScanSource() :ActionsQueueGroupScanSource {
 		return new ActionsQueueGroupScanSource(
-			new ScansResultsViewBuilder(),
+			new ActionsQueueScanAssetCardsBuilder(
+				$this->assetMetadataResolver(),
+				$this->queueScanResultsOptions()
+			),
 			new ScansVulnerabilitiesBuilder(),
 			$this->queueScanResultsOptions()
 		);
@@ -226,6 +230,14 @@ class ActionsQueueGroupsBuilder {
 		return $this->queueScanResultsOptions;
 	}
 
+	private function assetMetadataResolver() :ActionsQueueAssetMetadataResolver {
+		if ( $this->assetMetadataResolver === null ) {
+			$this->assetMetadataResolver = new ActionsQueueAssetMetadataResolver();
+		}
+
+		return $this->assetMetadataResolver;
+	}
+
 	private function maintenanceSeedBuilder() :ActionsQueueMaintenanceGroupSeedBuilder {
 		if ( $this->maintenanceSeedBuilder === null ) {
 			$this->maintenanceSeedBuilder = new ActionsQueueMaintenanceGroupSeedBuilder(
@@ -241,6 +253,7 @@ class ActionsQueueGroupsBuilder {
 		if ( $this->seedCollector === null ) {
 			$this->seedCollector = new ActionsQueueGroupSeedCollector(
 				$this->groupDefinitions(),
+				$this->queueScanResultsOptions(),
 				$this->maintenanceSeedBuilder(),
 				$this->groupScanSource(),
 				$this->groupMaintenanceSource()
@@ -283,7 +296,9 @@ class ActionsQueueGroupsBuilder {
 		if ( $this->contractBuilder === null ) {
 			$this->contractBuilder = new ActionsQueueGroupContractBuilder(
 				$this->groupDefinitions(),
-				$this->presentation()
+				$this->presentation(),
+				$this->assetMetadataResolver(),
+				$this->queueScanResultsOptions()
 			);
 		}
 

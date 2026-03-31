@@ -94,12 +94,15 @@ class BuildOverviewTestDouble extends BuildOverview {
 		];
 	}
 
-	protected function getLatestCompletedScanTimestamp( string $scanSlug ) :int {
+	protected function buildLatestCompletedScanTimestamps() :array {
 		return [
-			'afs' => 111,
-			'wpv' => 222,
-			'apc' => 333,
-		][ $scanSlug ];
+			'malware'         => 111,
+			'vulnerabilities' => 222,
+			'abandoned'       => 333,
+			'core_files'      => 111,
+			'plugin_files'    => 111,
+			'theme_files'     => 111,
+		];
 	}
 
 	protected function buildSite() :array {

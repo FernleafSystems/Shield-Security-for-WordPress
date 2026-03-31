@@ -515,6 +515,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]',
+			'Review groups AJAX should wrap healthy disclosure sections in the Actions Queue-only spacing container'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//a[contains(concat(" ", normalize-space(@class), " "), " item-box__row-action ") and contains(@data-actions-queue-maintenance-action, "maintenance_item_unignore")]',
 			'Review groups AJAX should keep the unignore action available on healthy ignored maintenance rows'
 		);
@@ -551,6 +556,73 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Back to Review next', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
+	}
+
+	public function test_groups_ajax_keeps_missing_selected_plugin_asset_group_scoped_to_direct_table_detail() :void {
+		$this->enableAssetScanFixture( [ 'plugins' ] );
+
+		$pluginSlug = self::con()->base_file;
+		$plugin = Services::WpPlugins()->getPluginAsVo( $pluginSlug, true );
+		$pluginTitle = $plugin === null ? '' : (string)$plugin->Title;
+		$this->assertNotSame( '', $pluginTitle );
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = TestDataFactory::insertScanResultItemTracked( $afsId, [
+			'item_id'      => 'plugin-file.php',
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+
+		TestDataFactory::markScanResultItemIgnored( $tracked[ 'result_item_id' ] );
+		$this->resetScanResultCountMemoization();
+
+		$selectedGroupKey = 'plugins:'.$pluginSlug;
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket'                  => 'critical',
+			'group'                   => $selectedGroupKey,
+			'include_landing_refresh' => 1,
+		] );
+
+		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
+		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) );
+		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertSame( '0 items', (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( 'Back to Fix now', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
+		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
+		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'include_ignored' => false,
+				'ignored_only'    => false,
+			],
+			(array)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
+		);
+
+		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
+			'bucket' => 'critical',
+			'group'  => $selectedGroupKey,
+		] );
+		$xpath = $this->createDomXPathFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
+
+		$this->assertSame( $selectedGroupKey, (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame( $pluginTitle, (string)( $detailPayload[ 'group_selection' ][ 'label' ] ?? '' ) );
+		$this->assertInvestigationTableContractPresent(
+			$xpath,
+			'file_scan_results',
+			'plugin',
+			$pluginSlug,
+			'Missing selected plugin detail AJAX'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
+			0,
+			'Missing selected plugin detail AJAX should keep the direct table instead of reopening the asset chooser'
+		);
 	}
 
 	public function test_groups_ajax_keeps_active_vulnerabilities_separate_from_healthy_abandoned_assets_in_critical_bucket() :void {

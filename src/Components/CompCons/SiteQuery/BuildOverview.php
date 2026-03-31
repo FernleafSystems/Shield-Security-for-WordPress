@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
@@ -67,33 +66,13 @@ class BuildOverview {
 			'scans'             => [
 				'is_running'         => $runtime[ 'is_running' ],
 				'enqueued_count'     => $runtime[ 'enqueued_count' ],
-				'latest_completed_at' => [
-					'malware'         => $this->getLatestCompletedScanTimestamp( 'afs' ),
-					'vulnerabilities' => $this->getLatestCompletedScanTimestamp( 'wpv' ),
-					'abandoned'       => $this->getLatestCompletedScanTimestamp( 'apc' ),
-					'core_files'      => $this->getLatestCompletedScanTimestamp( 'afs' ),
-					'plugin_files'    => $this->getLatestCompletedScanTimestamp( 'afs' ),
-					'theme_files'     => $this->getLatestCompletedScanTimestamp( 'afs' ),
-				],
+				'latest_completed_at' => $this->buildLatestCompletedScanTimestamps(),
 			],
 		];
 	}
 
-	protected function getLatestCompletedScanTimestamp( string $scanSlug ) :int {
-		try {
-			$record = self::con()
-				->db_con
-				->scans
-				->getQuerySelector()
-				->filterByScan( $scanSlug )
-				->filterByFinished()
-				->setOrderBy( 'id', 'DESC', true )
-				->first();
-			return $record instanceof ScanRecord ? (int)$record->finished_at : 0;
-		}
-		catch ( \Exception $e ) {
-			return 0;
-		}
+	protected function buildLatestCompletedScanTimestamps() :array {
+		return ( new BuildLatestCompletedScanTimestamps() )->build();
 	}
 
 	protected function buildAttentionQuery() :array {

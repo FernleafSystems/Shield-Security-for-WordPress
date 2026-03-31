@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueAssetMetadataResolver,
 	ActionsQueueScanAssetCardsBuilder,
 	ScansResultsViewBuilder
 };
@@ -10,25 +11,31 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBuilderTestCase {
 
 	public function test_actions_queue_plugin_pane_preserves_ignored_only_contract_in_real_asset_card_tables() :void {
-		$assetCardsBuilder = new class extends ActionsQueueScanAssetCardsBuilder {
+		$assetMetadataResolver = new class extends ActionsQueueAssetMetadataResolver {
 
-			private array $seenOptions = [];
-
-			protected function retrieveAssetResultItems( string $assetType, array $resultsDisplayOptions ) :array {
-				$this->seenOptions[] = $resultsDisplayOptions;
-				return [
-					(object)[ 'ptg_slug' => 'example-plugin' ],
-					(object)[ 'ptg_slug' => 'example-plugin' ],
-				];
-			}
-
-			protected function resolveAssetMetadata( string $assetType, string $slug ) :?array {
+			public function resolve( string $assetType, string $assetKey ) :?array {
 				return [
 					'subject_type' => 'plugin',
 					'subject_id'   => 'example-plugin/example-plugin.php',
 					'title'        => 'Example Plugin',
 					'icon_class'   => 'bi bi-plug-fill',
 					'has_update'   => false,
+				];
+			}
+		};
+
+		$assetCardsBuilder = new class( $assetMetadataResolver ) extends ActionsQueueScanAssetCardsBuilder {
+
+			private array $seenOptions = [];
+
+			public function __construct( ActionsQueueAssetMetadataResolver $assetMetadataResolver ) {
+				parent::__construct( $assetMetadataResolver );
+			}
+
+			protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
+				$this->seenOptions[] = $resultsDisplayOptions;
+				return [
+					[ 'slug' => 'example-plugin', 'file_count' => 2 ],
 				];
 			}
 

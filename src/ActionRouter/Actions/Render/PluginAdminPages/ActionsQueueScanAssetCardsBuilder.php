@@ -2,24 +2,22 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
-	RetrieveBase,
-	RetrieveItems
+	RetrieveGroupedAssetSummaries
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
-	WpPluginVo,
-	WpThemeVo
-};
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-type QueueAssetMetadata array{
+ * @phpstan-type QueueAssetSummaryRecord array{
+ *   key:string,
+ *   status:string,
+ *   icon_class:string,
+ *   title:string,
+ *   stat_text:string,
+ *   meta_text:string,
+ *   count_badge:int,
  *   subject_type:string,
  *   subject_id:string,
- *   title:string,
- *   icon_class:string,
  *   has_update:bool
  * }
  */
@@ -27,48 +25,46 @@ class ActionsQueueScanAssetCardsBuilder {
 
 	use PluginControllerConsumer;
 
+	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
+	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+
+	public function __construct(
+		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
+		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null
+	) {
+		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
+		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
+	}
+
 	/**
-	 * @return list<array<string,mixed>>
+	 * @return list<QueueAssetSummaryRecord>
 	 */
-	public function buildIssueRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
-		$options = $this->options()->normalize( $resultsDisplayOptions );
-		$groupedBySlug = [];
-
-		foreach ( $this->retrieveAssetResultItems( $assetType, $options ) as $item ) {
-			$slug = (string)( $item->ptg_slug ?? '' );
-			if ( $slug === '' ) {
-				continue;
-			}
-			$groupedBySlug[ $slug ][] = $item;
-		}
-
+	public function buildSummaryRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
+		$options = $this->queueScanResultsOptions->normalize( $resultsDisplayOptions );
 		$records = [];
-		foreach ( $groupedBySlug as $slug => $items ) {
-			$metadata = $this->resolveAssetMetadata( $assetType, $slug );
+
+		foreach ( $this->retrieveGroupedAssetSummaries( $assetType, $options ) as $summary ) {
+			$metadata = $this->assetMetadataResolver->resolve( $assetType, $summary[ 'slug' ] );
 			if ( $metadata === null ) {
 				continue;
 			}
 
-			$fileCount = \count( $items );
+			$fileCount = \max( 0, (int)( $summary[ 'file_count' ] ?? 0 ) );
+			if ( $fileCount < 1 ) {
+				continue;
+			}
+
 			$records[] = [
-				'key'               => $slug,
-				'panel_id'          => 'actions-queue-'.$assetType.'-card-'.\sanitize_key( $slug ),
-				'panel_target'      => 'actions-queue-'.$assetType.'-'.\sanitize_key( $slug ),
-				'expand_target'     => 'scan-files-'.$assetType.'-'.\sanitize_key( $slug ),
-				'status'            => 'warning',
-				'icon_class'        => $metadata[ 'icon_class' ],
-				'title'             => $metadata[ 'title' ],
-				'stat_text'         => $this->buildQueueAssetStatText( $fileCount, $options ),
-				'meta_text'         => $metadata[ 'subject_id' ],
-				'show_meta_in_tile' => true,
-				'count_badge'       => $fileCount,
-				'actions'           => $this->buildAssetActions( $metadata, $assetType ),
-				'table'             => $this->buildFileStatusTable(
-					$metadata[ 'subject_type' ],
-					$metadata[ 'subject_id' ],
-					$options
-				),
-				'render_action'     => [],
+				'key'         => $summary[ 'slug' ],
+				'status'      => 'warning',
+				'icon_class'  => $metadata[ 'icon_class' ],
+				'title'       => $metadata[ 'title' ],
+				'stat_text'   => $this->buildQueueAssetStatText( $fileCount, $options ),
+				'meta_text'   => $metadata[ 'subject_id' ],
+				'count_badge' => $fileCount,
+				'subject_type' => $metadata[ 'subject_type' ],
+				'subject_id'  => $metadata[ 'subject_id' ],
+				'has_update'  => $metadata[ 'has_update' ],
 			];
 		}
 
@@ -83,63 +79,54 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
-	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
-	 * @return list<object>
+	 * @return list<array<string,mixed>>
 	 */
-	protected function retrieveAssetResultItems( string $assetType, array $resultsDisplayOptions ) :array {
-		return ( new RetrieveItems() )
-			->setScanController( self::con()->comps->scans->AFS() )
-			->addWheres( [
-				\sprintf(
-					"%s.`meta_key`='%s'",
-					RetrieveBase::ABBR_RESULTITEMMETA,
-					$assetType === 'plugin' ? 'is_in_plugin' : 'is_in_theme'
+	public function buildIssueRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
+		$options = $this->queueScanResultsOptions->normalize( $resultsDisplayOptions );
+		$records = [];
+		foreach ( $this->buildSummaryRecords( $assetType, $options ) as $summary ) {
+			$subjectType = $summary[ 'subject_type' ];
+			$subjectId = $summary[ 'subject_id' ];
+			$records[] = [
+				'key'               => $summary[ 'key' ],
+				'panel_id'          => 'actions-queue-'.$assetType.'-card-'.\sanitize_key( $summary[ 'key' ] ),
+				'panel_target'      => 'actions-queue-'.$assetType.'-'.\sanitize_key( $summary[ 'key' ] ),
+				'expand_target'     => 'scan-files-'.$assetType.'-'.\sanitize_key( $summary[ 'key' ] ),
+				'status'            => $summary[ 'status' ],
+				'icon_class'        => $summary[ 'icon_class' ],
+				'title'             => $summary[ 'title' ],
+				'stat_text'         => $summary[ 'stat_text' ],
+				'meta_text'         => $summary[ 'meta_text' ],
+				'show_meta_in_tile' => true,
+				'count_badge'       => $summary[ 'count_badge' ],
+				'actions'           => $this->buildAssetActions( $summary, $assetType ),
+				'table'             => $this->buildFileStatusTable(
+					$subjectType,
+					$subjectId,
+					$options
 				),
-			] )
-			->retrieveForResultsTables( $resultsDisplayOptions )
-			->getItems();
-	}
-
-	/**
-	 * @return QueueAssetMetadata|null
-	 */
-	protected function resolveAssetMetadata( string $assetType, string $slug ) :?array {
-		if ( $assetType === 'plugin' ) {
-			$asset = Services::WpPlugins()->getPluginAsVo( $slug, true );
-			if ( !$asset instanceof WpPluginVo ) {
-				return null;
-			}
-
-			return [
-				'subject_type' => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-				'subject_id'   => (string)$asset->file,
-				'title'        => (string)$asset->Title,
-				'icon_class'   => 'bi bi-plug-fill',
-				'has_update'   => $asset->hasUpdate(),
+				'render_action'     => [],
 			];
 		}
 
-		$asset = Services::WpThemes()->getThemeAsVo( $slug, true );
-		if ( !$asset instanceof WpThemeVo ) {
-			return null;
-		}
-
-		return [
-			'subject_type' => InvestigationTableContract::SUBJECT_TYPE_THEME,
-			'subject_id'   => (string)$asset->stylesheet,
-			'title'        => (string)$asset->Name,
-			'icon_class'   => 'bi bi-palette-fill',
-			'has_update'   => $asset->hasUpdate(),
-		];
+		return $records;
 	}
 
 	/**
-	 * @param QueueAssetMetadata $metadata
+	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
+	 * @return list<array{slug:string,file_count:int}>
+	 */
+	protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
+		return ( new RetrieveGroupedAssetSummaries() )->retrieve( $assetType, $resultsDisplayOptions );
+	}
+
+	/**
+	 * @param QueueAssetSummaryRecord $summary
 	 * @return list<array<string,mixed>>
 	 */
-	protected function buildAssetActions( array $metadata, string $assetType ) :array {
+	protected function buildAssetActions( array $summary, string $assetType ) :array {
 		$actions = [];
-		if ( $metadata[ 'has_update' ] ) {
+		if ( $summary[ 'has_update' ] ) {
 			$actions[] = [
 				'type'       => 'update',
 				'label'      => __( 'Update', 'wp-simple-firewall' ),
@@ -171,7 +158,7 @@ class ActionsQueueScanAssetCardsBuilder {
 			$subjectType,
 			$subjectId,
 			$this->buildFullLogHref(),
-			$this->options()->buildActionData( $resultsDisplayOptions )
+			$this->queueScanResultsOptions->buildActionData( $resultsDisplayOptions )
 		);
 	}
 
@@ -196,7 +183,4 @@ class ActionsQueueScanAssetCardsBuilder {
 		);
 	}
 
-	private function options() :ActionsQueueScanResultsOptions {
-		return new ActionsQueueScanResultsOptions();
-	}
 }

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\{
 	BuildAttentionItems,
+	BuildLatestCompletedScanTimestamps,
 	BuildOverview,
 	BuildRecentActivity,
 	BuildScanFindings,
@@ -31,6 +32,20 @@ class SiteQueryCon {
 	 */
 	public function overview() :array {
 		return ( new BuildOverview() )->build();
+	}
+
+	/**
+	 * @return array{
+	 *   malware:int,
+	 *   vulnerabilities:int,
+	 *   abandoned:int,
+	 *   core_files:int,
+	 *   plugin_files:int,
+	 *   theme_files:int
+	 * }
+	 */
+	public function latestCompletedScanTimestamps() :array {
+		return ( new BuildLatestCompletedScanTimestamps() )->build();
 	}
 
 	/**
