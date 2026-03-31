@@ -14,6 +14,7 @@ $code-color: $secondary;
 @import '~select2/dist/css/select2.css';
 @import '~highlight.js/styles/github.css';
 @import '~bootstrap-icons/font/bootstrap-icons.css';
+@import './mode-palette';
 @import './shield/status-colors';
 @import "./plugin-wpadmin.scss";
 @import './shield/datatables.css';
@@ -938,23 +939,43 @@ $sidebar-transition-speed: 0.25s;
   height: 4px;
   margin-bottom: 1rem;
 
-  &.status-good {
+  &.mode-landing-accent-bar--home {
+    background: #444444;
+  }
+
+  &.mode-landing-accent-bar--actions {
+    background: $mode-actions;
+  }
+
+  &.mode-landing-accent-bar--configure {
+    background: $mode-configure;
+  }
+
+  &.mode-landing-accent-bar--investigate {
+    background: $mode-investigate;
+  }
+
+  &.mode-landing-accent-bar--reports {
+    background: $mode-reports;
+  }
+
+  &.mode-landing-accent-bar--good {
     background: $status-color-good;
   }
 
-  &.status-warning {
+  &.mode-landing-accent-bar--warning {
     background: $status-color-warning;
   }
 
-  &.status-critical {
+  &.mode-landing-accent-bar--critical {
     background: $status-color-critical;
   }
 
-  &.status-info {
+  &.mode-landing-accent-bar--info {
     background: $status-color-info;
   }
 
-  &.status-neutral {
+  &.mode-landing-accent-bar--neutral {
     background: $accent-color-salt-green;
   }
 }

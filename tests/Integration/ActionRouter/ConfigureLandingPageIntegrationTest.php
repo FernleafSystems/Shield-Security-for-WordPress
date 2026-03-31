@@ -41,7 +41,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] ?? null );
 		$vars = $payload[ 'render_data' ][ 'vars' ];
 
-		$this->assertModeShellPayload( $vars, 'configure', 'good', false );
+		$this->assertModeShellPayload( $vars, 'configure', 'configure', false );
 		$this->assertArrayNotHasKey( 'zone_tiles', $vars );
 		$this->assertArrayNotHasKey( 'configure_render_action', $vars );
 		$this->assertSame( 2, \count( $vars[ 'drill_shell' ][ 'layers' ] ?? [] ) );

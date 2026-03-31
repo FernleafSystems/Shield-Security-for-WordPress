@@ -46,7 +46,7 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertModeShellPayload( $vars, 'investigate', 'info', false );
+		$this->assertModeShellPayload( $vars, 'investigate', 'investigate', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertArrayNotHasKey( 'subjects', $vars );
 		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );

@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  * @phpstan-import-type OperatorChromeStep from OperatorChromeContract
  * @phpstan-type ModeShell array{
  *   mode:string,
- *   accent_status:string,
  *   header_density:string,
  *   home_href:string,
  *   home_label:string,
@@ -37,7 +36,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		return '';
 	}
 
-	protected function getLandingAccentStatus() :string {
+	protected function getLandingBadgeStatus() :string {
 		switch ( $this->getLandingMode() ) {
 			case PluginNavs::MODE_CONFIGURE:
 				$status = 'good';
@@ -83,7 +82,7 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 	 */
 	protected function getOperatorRootStep() :array {
 		$title = $this->getLandingTitle();
-		$status = $this->getLandingAccentStatus();
+		$status = $this->getLandingBadgeStatus();
 
 		return [
 			'breadcrumb_label' => $title,
@@ -208,7 +207,6 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		return [
 			'mode_shell' => $this->normalizeLandingModeShell( [
 				'mode'                => $this->getLandingMode(),
-				'accent_status'       => $this->getLandingAccentStatus(),
 				'header_density'      => $this->getLandingHeaderDensity(),
 				'home_href'           => self::con()->plugin_urls->adminHome(),
 				'home_label'          => $this->getOperatorHomeLabel(),
@@ -239,7 +237,6 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 
 		return [
 			'mode'                => sanitize_key( (string)( $modeShell[ 'mode' ] ?? '' ) ),
-			'accent_status'       => OperatorChromeContract::sanitizeStatus( (string)( $modeShell[ 'accent_status' ] ?? '' ) ),
 			'header_density'      => $headerDensity,
 			'home_href'           => (string)( $modeShell[ 'home_href' ] ?? '' ),
 			'home_label'          => $homeLabel,

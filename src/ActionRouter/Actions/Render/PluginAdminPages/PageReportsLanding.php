@@ -72,7 +72,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 					'next_step'          => __( 'Open the reports list or the shared reporting settings workspace.', 'wp-simple-firewall' ),
 					'icon_class'         => 'bi bi-grid-1x2',
 					'badge'              => __( 'Choose', 'wp-simple-firewall' ),
-					'badge_status'       => 'warning',
+					'badge_status'       => 'neutral',
 					'color_key'          => 'reports',
 				],
 			],
@@ -205,7 +205,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 		$workspaceCopy = [
 			PluginNavs::SUBNAV_REPORTS_LIST     => [
 				'icon_class'   => 'bi bi-file-text',
-				'status'       => 'warning',
+				'status'       => 'neutral',
 				'status_label' => __( 'Review', 'wp-simple-firewall' ),
 				'oneliner'     => __( 'Inspect report history and open the report details you need next.', 'wp-simple-firewall' ),
 				'description'  => '',
@@ -219,7 +219,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 			],
 			PluginNavs::SUBNAV_REPORTS_SETTINGS => [
 				'icon_class'   => 'bi bi-sliders',
-				'status'       => 'warning',
+				'status'       => 'neutral',
 				'status_label' => __( 'Configure', 'wp-simple-firewall' ),
 				'oneliner'     => __( 'Adjust reporting and alert settings inline without leaving the landing view.', 'wp-simple-firewall' ),
 				'description'  => $settingsDefinition[ 'page_subtitle' ],
@@ -265,7 +265,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 					'data_drill_group_selection' => '',
 					'data_reports_workspace_selection' => $selectionJson,
 					'is_disabled'       => false,
-					'class_name'        => '',
+					'class_name'        => 'operator-tile-card--reports',
 					'footer_links'      => [],
 				],
 			];
@@ -318,7 +318,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 			'next_step'          => \trim( $nextStep ),
 			'icon_class'         => $iconClass,
 			'badge'              => $badge,
-			'badge_status'       => 'warning',
+			'badge_status'       => 'neutral',
 			'color_key'          => 'reports',
 		] );
 	}

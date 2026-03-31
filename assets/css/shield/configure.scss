@@ -6,6 +6,8 @@
 	min-width: 0;
 }
 
+@import '../mode-palette';
+
 .configure-zones {
 	display: grid;
 	gap: 1.2rem;
@@ -119,6 +121,27 @@
 .status-neutral .configure-zone-card__status,
 .status-info .configure-zone-card__status {
 	color: $status-color-info;
+}
+
+.reports-landing .configure-zone-card.operator-tile-card--reports {
+	border-color: $mode-reports-border;
+}
+
+.reports-landing .configure-zone-card.operator-tile-card--reports:hover:not(:disabled),
+.reports-landing .configure-zone-card.operator-tile-card--reports:focus-visible {
+	border-color: $mode-reports;
+}
+
+.reports-landing .configure-zone-card.operator-tile-card--reports:focus-visible {
+	outline-color: rgba($mode-reports, 0.65);
+}
+
+.reports-landing .operator-tile-card--reports .configure-zone-card__status {
+	color: $mode-reports;
+}
+
+.reports-landing .operator-tile-card--reports .configure-zone-card__icon {
+	color: $mode-reports;
 }
 
 .configure-zone-card__oneliner {

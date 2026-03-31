@@ -1,3 +1,5 @@
+@import '../mode-palette';
+
 // ============================================================
 // Dashboard — reusable base classes + dashboard-specific pieces
 // ============================================================
@@ -414,13 +416,21 @@
 }
 
 .operator-mode-landing__side-card[data-mode="configure"] .operator-mode-landing__side-icon {
-	background: $badge-good-bg;
-	color: $status-color-good;
+	background: $mode-configure-light;
+	color: $mode-configure;
 }
 
 .operator-mode-landing__side-card[data-mode="reports"] .operator-mode-landing__side-icon {
-	background: $badge-warning-bg;
-	color: $status-color-warning;
+	background: $mode-reports-light;
+	color: $mode-reports;
+}
+
+.operator-mode-landing__side-card[data-mode="configure"] .shield-card-accent {
+	background: $mode-configure;
+}
+
+.operator-mode-landing__side-card[data-mode="reports"] .shield-card-accent {
+	background: $mode-reports;
 }
 
 .operator-mode-landing__side-title {

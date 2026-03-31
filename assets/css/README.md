@@ -65,6 +65,16 @@ When adding a new shield component file, import it in the shield section (after 
 
 All status-related colours are defined in `shield/_status-colors.scss`. Use these variables instead of hardcoding hex values.
 
+## Operator Mode Palette (_mode-palette.scss)
+
+Operator-mode identity colours live separately in `assets/css/_mode-palette.scss`.
+Use these tokens for mode chrome only: sidebar mode items, operator step tabs,
+context rails, and other explicit mode accents.
+
+Do not use the mode palette for traffic-light semantics. Keep genuine
+`good`/`warning`/`critical`/`info` UI states on the shared status tokens in
+`shield/_status-colors.scss`.
+
 ### Status Accent Colours
 
 Use for top accent bars, progress bar fills, and primary status indicators:

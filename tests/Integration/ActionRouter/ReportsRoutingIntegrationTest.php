@@ -36,7 +36,7 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$vars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
 		$output = (string)( $payload[ 'render_output' ] ?? '' );
 
-		$this->assertModeShellPayload( $vars, 'reports', 'warning', false );
+		$this->assertModeShellPayload( $vars, 'reports', 'reports', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertSame( [], $vars[ 'mode_tiles' ] ?? [ 'unexpected' ] );
 		$this->assertSame( 0, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );

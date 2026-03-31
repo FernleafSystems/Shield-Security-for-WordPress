@@ -55,7 +55,7 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 			$renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? 'missing'
 		);
 		$this->assertSame( 'dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? 'missing' );
-		$this->assertSame( 'good', $renderData[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertArrayNotHasKey( 'accent_status', $renderData[ 'vars' ][ 'mode_shell' ] ?? [] );
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertSame( '/admin/home', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertSame( 'Dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_label' ] ?? '' );

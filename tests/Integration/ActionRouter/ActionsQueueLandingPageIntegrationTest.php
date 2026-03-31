@@ -219,7 +219,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 
-		$this->assertModeShellPayload( $vars, 'actions', 'critical', false );
+		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertSame( 'All Clear', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) );
 		$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
@@ -260,7 +260,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertModeShellPayload( $vars, 'actions', 'critical', false );
+		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertSame( '1 item', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) );

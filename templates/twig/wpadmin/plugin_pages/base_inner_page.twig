@@ -9,9 +9,7 @@
 
 	{% if not use_operator_chrome and strings.inner_page_title|default('') is not empty %}
 		{% if is_mode_landing %}
-			<div class="mode-landing-accent-bar status-{{ mode_shell.accent_status|default('neutral') }}"
-				 data-mode-accent="1"
-				 data-mode-accent-status="{{ mode_shell.accent_status|default('neutral') }}"></div>
+			<div class="mode-landing-accent-bar mode-landing-accent-bar--{{ mode_shell.root_step.color_key }}"></div>
 		{% endif %}
 		<div class="row border-bottom mb-2 inner-page-header{% if is_mode_landing and mode_shell.header_density|default('default') == 'compact' %} inner-page-header-compact{% endif %}"
 			 data-mode-header-density="{{ is_mode_landing ? mode_shell.header_density|default('default') : 'default' }}">

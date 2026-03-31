@@ -25,7 +25,7 @@ class PageDashboardOverview extends PageModeLandingBase {
 		return PluginNavs::NAV_DASHBOARD;
 	}
 
-	protected function getLandingAccentStatus() :string {
+	protected function getLandingBadgeStatus() :string {
 		return 'good';
 	}
 

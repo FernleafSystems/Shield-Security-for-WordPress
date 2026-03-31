@@ -76,6 +76,8 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $cards, 'key' )
 		);
 		$this->assertSame( 'button', $cards[ 0 ][ 'tile' ][ 'tag' ] ?? '' );
+		$this->assertSame( 'neutral', $cards[ 0 ][ 'tile' ][ 'status' ] ?? '' );
+		$this->assertSame( 'operator-tile-card--reports', $cards[ 0 ][ 'tile' ][ 'class_name' ] ?? '' );
 		$this->assertSame( 'workspace', $cards[ 0 ][ 'tile' ][ 'data_drill_target' ] ?? '' );
 		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_zone_selection' ] ?? null );
 		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_bucket_selection' ] ?? null );
@@ -98,6 +100,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $listSelection[ 'key' ] ?? '' );
 		$this->assertSame( 'Security Reports', $listSelection[ 'label' ] ?? '' );
 		$this->assertSame( 'Security Reports', $listSelection[ 'header' ][ 'title' ] ?? '' );
+		$this->assertSame( 'neutral', $listSelection[ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( 'reports', $listSelection[ 'header' ][ 'color_key' ] ?? '' );
 	}
 
@@ -144,7 +147,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$vars = $renderData[ 'vars' ] ?? [];
 
 		$this->assertSame( 'reports', $vars[ 'mode_shell' ][ 'mode' ] ?? '' );
-		$this->assertSame( 'warning', $vars[ 'mode_shell' ][ 'accent_status' ] ?? '' );
+		$this->assertArrayNotHasKey( 'accent_status', $vars[ 'mode_shell' ] ?? [] );
 		$this->assertSame( 'compact', $vars[ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertSame( '/admin/home', $vars[ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
@@ -162,6 +165,8 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspace.twig', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
 		$this->assertSame( 'Workspace', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'Select', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'badge' ] ?? '' );
+		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'badge_status' ] ?? '' );
+		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame(
 			[
 				'/wpadmin/components/reports/layer_workspaces.twig',

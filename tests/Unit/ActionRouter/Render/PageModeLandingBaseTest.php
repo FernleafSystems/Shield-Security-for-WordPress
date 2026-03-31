@@ -110,7 +110,7 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertSame( [ 'home' => '/home' ], $data[ 'hrefs' ] );
 		$this->assertSame( 3, $data[ 'vars' ][ 'count' ] );
 		$this->assertSame( 'configure', $data[ 'vars' ][ 'mode_shell' ][ 'mode' ] );
-		$this->assertSame( 'good', $data[ 'vars' ][ 'mode_shell' ][ 'accent_status' ] );
+		$this->assertArrayNotHasKey( 'accent_status', $data[ 'vars' ][ 'mode_shell' ] );
 		$this->assertSame( 'compact', $data[ 'vars' ][ 'mode_shell' ][ 'header_density' ] );
 		$this->assertSame( '/admin/home', $data[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
 		$this->assertSame( 'Dashboard', $data[ 'vars' ][ 'mode_shell' ][ 'home_label' ] ?? '' );
