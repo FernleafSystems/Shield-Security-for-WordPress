@@ -1,7 +1,10 @@
-import $ from 'jquery';
-import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableBase } from "./ShieldTableBase";
+import {
+	bindScanResultsRowActions,
+	buildScanResultsButtons,
+	syncScanResultsSelectionButtons
+} from "./ScanResultsTableBehavior";
 
 export class ShieldTableScanResults extends ShieldTableBase {
 
@@ -17,107 +20,27 @@ export class ShieldTableScanResults extends ShieldTableBase {
 
 	bindEvents() {
 		super.bindEvents();
-
-		this.$el.on(
-			'click',
-			'td.actions > button.action.delete',
-			( evt ) => {
-				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					this.bulkTableAction.call( this, 'delete', [ evt.currentTarget.dataset.rid ] );
-				}
-				return false;
-			}
-		);
-
-		this.$el.on(
-			'click',
-			'td.actions > button.action.ignore',
-			( evt ) => {
-				evt.preventDefault();
-				this.bulkTableAction.call( this, 'ignore', ( 'rid' in evt.currentTarget.dataset ) ? [ evt.currentTarget.dataset.rid ] : [] );
-				return false;
-			}
-		);
-
-		this.$el.on(
-			'click',
-			'td.actions > button.action.repair',
-			( evt ) => {
-				evt.preventDefault();
-				this.$table.rows().deselect();
-				this.bulkTableAction.call( this, 'repair', [ evt.currentTarget.dataset.rid ] );
-				return false;
-			}
-		);
-
-		this.$el.on(
-			'click',
-			'.action.view-file',
-			( evt ) => {
-				evt.preventDefault();
-				ScanItemAnalysisModal.show(
-					this._base_data.ajax.render_item_analysis,
-					evt.currentTarget.dataset.rid
-				);
-
-				return false;
-			}
-		);
+		bindScanResultsRowActions( {
+			$tableElement: this.$el,
+			datatable: this.$table,
+			scanResultsAction: this._base_data.ajax.table_action,
+			renderItemAnalysis: this._base_data.ajax.render_item_analysis,
+			onAction: ( action, rids = [] ) => this.bulkTableAction.call( this, action, rids ),
+			namespace: 'shieldScanResults',
+		} );
 	}
 
 	getButtons() {
-		let buttons = super.getButtons();
-		buttons.push(
-			{
-				text: 'De/Select All',
-				name: 'all-select',
-				className: 'select-all action btn-outline-secondary mb-2',
-				action: ( e, dt, node, config ) => {
-					let total = dt.rows().count()
-					if ( dt.rows( { selected: true } ).count() < total ) {
-						dt.rows().select();
-					}
-					else {
-						dt.rows().deselect();
-					}
-				}
-			},
-			{
-				text: 'Ignore Selected',
-				name: 'selected-ignore',
-				className: 'action selected-action ignore btn-outline-secondary mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-						this.bulkTableAction.call( this, 'ignore' );
-					}
-				}
-			},
-			{
-				text: 'Delete/Repair Selected',
-				name: 'selected-repair',
-				className: 'action selected-action repair btn-outline-secondary mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( dt.rows( { selected: true } ).count() > 20 ) {
-						alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." )
-					}
-					else if ( confirm( shieldStrings.string( 'absolutely_sure' ) ) ) {
-						this.bulkTableAction.call( this, 'repair-delete' );
-					}
-				}
-			}
+		return super.getButtons().concat(
+			buildScanResultsButtons( {
+				onBulkAction: ( action ) => this.bulkTableAction.call( this, action ),
+			} )
 		);
-		return buttons;
 	}
 
 	rowSelectionChanged() {
-		if ( this.$table.rows( { selected: true } ).count() > 0 ) {
-			this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).enable();
-		}
-		else {
-			this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).disable();
-		}
-	};
+		syncScanResultsSelectionButtons( this.$table );
+	}
 
 	bulkTableAction( action, RIDs = [] ) {
 		if ( RIDs.length === 0 ) {

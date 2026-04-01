@@ -17,6 +17,7 @@
 					   data-table-type="{{ table.table_type }}"
 					   data-subject-type="{{ table.subject_type }}"
 					   data-subject-id="{{ table.subject_id }}"
+					   data-table-behavior="{{ table.table_behavior }}"
 					   data-datatables-init="{{ datatables_init_attr|e('html_attr') }}"
 					   data-table-action="{{ table_action_attr|e('html_attr') }}"
 					   {% if scan_results_action_attr is not empty %}data-scan-results-action="{{ scan_results_action_attr|e('html_attr') }}"{% endif %}

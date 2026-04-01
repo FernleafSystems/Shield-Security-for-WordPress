@@ -45,6 +45,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-type InvestigationTableContract array{
  *   title:string,
  *   status:string,
+ *   table_behavior:string,
  *   full_log_href?:string,
  *   full_log_text:string,
  *   full_log_button_class:string,
@@ -66,6 +67,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   full_log_text?:string,
  *   full_log_button_class?:string,
  *   show_header?:bool,
+ *   table_behavior?:string,
  *   scan_results_action?:array<string,mixed>,
  *   render_item_analysis?:array<string,mixed>,
  *   is_flat?:bool,
@@ -220,12 +222,18 @@ trait InvestigateRenderContracts {
 			$subjectType,
 			$subjectId,
 			$datatablesInit,
-			ActionData::Build( InvestigationTableAction::class ),
+			\array_merge(
+				ActionData::Build( InvestigationTableAction::class ),
+				isset( $scanResultsActionData[ 'results_display_options' ] )
+					? [ 'results_display_options' => $scanResultsActionData[ 'results_display_options' ] ]
+					: []
+			),
 			$fullLogHref
 		);
 		$table[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
 		$table[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
 		$table[ 'show_header' ] = false;
+		$table[ 'table_behavior' ] = 'scan_results_flat';
 		$table[ 'scan_results_action' ] = ActionData::Build( ScanResultsTableAction::class, true, $scanResultsActionData );
 		$table[ 'render_item_analysis' ] = ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class );
 		$table[ 'is_flat' ] = true;
@@ -257,6 +265,7 @@ trait InvestigateRenderContracts {
 	protected function normalizeInvestigationTableContract( array $table ) :array {
 		return \array_merge(
 			[
+				'table_behavior'        => 'default',
 				'full_log_text'         => __( 'Full Log', 'wp-simple-firewall' ),
 				'full_log_button_class' => 'btn btn-outline-secondary btn-sm',
 				'show_header'           => true,

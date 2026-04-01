@@ -67,6 +67,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'good', $normalized[ 'status' ] ?? '' );
 		$this->assertSame( 'Full Log', $normalized[ 'full_log_text' ] ?? '' );
 		$this->assertSame( 'btn btn-outline-secondary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
+		$this->assertSame( 'default', $normalized[ 'table_behavior' ] ?? '' );
 		$this->assertTrue( $normalized[ 'show_header' ] ?? false );
 		$this->assertFalse( $normalized[ 'is_flat' ] ?? true );
 		$this->assertFalse( $normalized[ 'is_empty' ] ?? true );
@@ -81,6 +82,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			'full_log_text'          => 'Open Requests Log',
 			'full_log_button_class'  => 'btn btn-primary btn-sm',
 			'show_header'            => false,
+			'table_behavior'         => 'scan_results_flat',
 			'is_flat'                => true,
 			'is_empty'               => true,
 			'empty_status'           => 'warning',
@@ -91,6 +93,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $normalized[ 'status' ] ?? '' );
 		$this->assertSame( 'Open Requests Log', $normalized[ 'full_log_text' ] ?? '' );
 		$this->assertSame( 'btn btn-primary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
+		$this->assertSame( 'scan_results_flat', $normalized[ 'table_behavior' ] ?? '' );
 		$this->assertFalse( $normalized[ 'show_header' ] ?? true );
 		$this->assertTrue( $normalized[ 'is_flat' ] ?? false );
 		$this->assertTrue( $normalized[ 'is_empty' ] ?? false );
@@ -254,6 +257,33 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'Recent Activity Logs', (string)( $table[ 'title' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'full_log_href', $table );
 	}
+
+	public function test_flat_scan_results_contract_carries_results_display_options_into_table_action() :void {
+		$table = ( new InvestigateRenderContractsTestDouble() )->flatScanResultsTableContract(
+			'File Scan Status',
+			'warning',
+			'file_scan_results',
+			'plugin',
+			'akismet/akismet.php',
+			[ 'columns' => [] ],
+			[
+				'results_display_options' => [
+					'include_ignored' => true,
+					'ignored_only'    => true,
+				],
+			],
+			'/admin/scans'
+		);
+
+		$this->assertSame( 'scan_results_flat', (string)( $table[ 'table_behavior' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'include_ignored' => true,
+				'ignored_only'    => true,
+			],
+			$table[ 'table_action' ][ 'results_display_options' ] ?? null
+		);
+	}
 }
 
 class InvestigateRenderContractsTestDouble {
@@ -316,6 +346,28 @@ class InvestigateRenderContractsTestDouble {
 			$subjectId,
 			$datatablesInit,
 			$tableAction,
+			$fullLogHref
+		);
+	}
+
+	public function flatScanResultsTableContract(
+		string $title,
+		string $status,
+		string $tableType,
+		string $subjectType,
+		string $subjectId,
+		array $datatablesInit,
+		array $scanResultsActionData,
+		string $fullLogHref
+	) :array {
+		return $this->buildFlatScanResultsTableContract(
+			$title,
+			$status,
+			$tableType,
+			$subjectType,
+			$subjectId,
+			$datatablesInit,
+			$scanResultsActionData,
 			$fullLogHref
 		);
 	}

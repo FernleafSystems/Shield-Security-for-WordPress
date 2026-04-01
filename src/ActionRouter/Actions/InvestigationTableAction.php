@@ -70,6 +70,10 @@ class InvestigationTableAction extends TableActionBase {
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_TYPE ],
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ]
 		);
+		if ( \method_exists( $builder, 'setResultsDisplayOptions' )
+			&& \is_array( $this->action_data[ 'results_display_options' ] ?? null ) ) {
+			$builder->setResultsDisplayOptions( $this->action_data[ 'results_display_options' ] );
+		}
 		return $this->buildRetrieveTableDataResponse( $builder, InvestigationTableContract::REQ_KEY_TABLE_DATA );
 	}
 

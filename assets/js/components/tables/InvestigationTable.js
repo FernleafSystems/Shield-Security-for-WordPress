@@ -1,8 +1,12 @@
 import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
-import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableBase } from "./ShieldTableBase";
+import {
+	bindScanResultsRowActions,
+	bindScanResultsSelectionButtons,
+	buildScanResultsButtons
+} from "./ScanResultsTableBehavior";
 
 export class InvestigationTable extends ShieldTableBase {
 
@@ -53,9 +57,11 @@ export class InvestigationTable extends ShieldTableBase {
 				ajax: ( data, callback, settings ) => this.datatablesAjaxRequest( data, callback, settings, context )
 			}
 		);
+		this.applyBehaviorDatatableConfig( cfg, context );
 
 		const datatable = $tableElement.DataTable( cfg );
 		this.bindBusyStateLifecycle( datatable );
+		this.addBehaviorButtons( datatable, context );
 		this.ensureSearchDelay( datatable );
 		this.bindTableInteractions( $tableElement, datatable, context );
 	}
@@ -73,58 +79,20 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	bindTableInteractions( $tableElement, datatable, tableContext ) {
-		$tableElement.off( '.shieldInvestigationFileScan' );
-
-		if ( tableContext.tableType !== 'file_scan_results' ) {
+		if ( tableContext.tableBehavior !== 'scan_results_flat' ) {
+			$tableElement.off( '.shieldInvestigationFileScan' );
 			return;
 		}
 
-		if ( tableContext.scanResultsAction !== null ) {
-			$tableElement.on(
-				'click.shieldInvestigationFileScan',
-				'td.actions > button.action.delete',
-				( evt ) => {
-					evt.preventDefault();
-					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-						this.performScanResultsAction( datatable, tableContext.scanResultsAction, 'delete', [ evt.currentTarget.dataset.rid ] );
-					}
-					return false;
-				}
-			);
-
-			$tableElement.on(
-				'click.shieldInvestigationFileScan',
-				'td.actions > button.action.ignore',
-				( evt ) => {
-					evt.preventDefault();
-					this.performScanResultsAction( datatable, tableContext.scanResultsAction, 'ignore', [ evt.currentTarget.dataset.rid ] );
-					return false;
-				}
-			);
-
-			$tableElement.on(
-				'click.shieldInvestigationFileScan',
-				'td.actions > button.action.repair',
-				( evt ) => {
-					evt.preventDefault();
-					datatable.rows().deselect();
-					this.performScanResultsAction( datatable, tableContext.scanResultsAction, 'repair', [ evt.currentTarget.dataset.rid ] );
-					return false;
-				}
-			);
-		}
-
-		if ( tableContext.renderItemAnalysis !== null ) {
-			$tableElement.on(
-				'click.shieldInvestigationFileScan',
-				'.action.view-file',
-				( evt ) => {
-					evt.preventDefault();
-					ScanItemAnalysisModal.show( tableContext.renderItemAnalysis, evt.currentTarget.dataset.rid );
-					return false;
-				}
-			);
-		}
+		bindScanResultsRowActions( {
+			$tableElement,
+			datatable,
+			scanResultsAction: tableContext.scanResultsAction,
+			renderItemAnalysis: tableContext.renderItemAnalysis,
+			onAction: ( action, rids = [] ) => this.performScanResultsAction( datatable, tableContext.scanResultsAction, action, rids ),
+			namespace: 'shieldInvestigationFileScan',
+		} );
+		bindScanResultsSelectionButtons( datatable, 'shieldInvestigationScanResultsButtons' );
 	}
 
 	performScanResultsAction( datatable, actionData, action, rids = [] ) {
@@ -165,6 +133,7 @@ export class InvestigationTable extends ShieldTableBase {
 		const tableType = tableEl.dataset.tableType || '';
 		const subjectType = tableEl.dataset.subjectType || '';
 		const subjectId = tableEl.dataset.subjectId || '';
+		const tableBehavior = String( tableEl.dataset.tableBehavior || 'default' ).trim();
 		const datatablesInit = this.parseJsonData( tableEl.dataset.datatablesInit || '' );
 		const tableAction = this.parseJsonData( tableEl.dataset.tableAction || '' );
 		const scanResultsAction = this.parseJsonData( tableEl.dataset.scanResultsAction || '' );
@@ -178,11 +147,52 @@ export class InvestigationTable extends ShieldTableBase {
 			tableType,
 			subjectType,
 			subjectId,
+			tableBehavior,
 			datatablesInit,
 			tableAction,
 			scanResultsAction,
 			renderItemAnalysis,
 		};
+	}
+
+	applyBehaviorDatatableConfig( cfg, tableContext ) {
+		if ( tableContext.tableBehavior !== 'scan_results_flat' ) {
+			return;
+		}
+
+		cfg.dom = 'Brpftip';
+		cfg.pageLength = 15;
+		cfg.select = {
+			style: 'multi',
+			items: 'row'
+		};
+	}
+
+	addBehaviorButtons( datatable, tableContext ) {
+		if ( tableContext.tableBehavior !== 'scan_results_flat' ) {
+			return;
+		}
+
+		buildScanResultsButtons( {
+			includeReload: true,
+			onReload: () => this.reloadBusyTable( datatable ),
+			onBulkAction: ( action ) => this.performScanResultsAction(
+				datatable,
+				tableContext.scanResultsAction,
+				action,
+				this.getSelectedRids( datatable )
+			),
+		} ).forEach( ( button, index ) => {
+			datatable.button().add( index, button );
+		} );
+	}
+
+	getSelectedRids( datatable ) {
+		const rids = [];
+		datatable.rows( { selected: true } ).every( function () {
+			rids.push( this.data().rid );
+		} );
+		return rids;
 	}
 
 	parseJsonData( rawData ) {

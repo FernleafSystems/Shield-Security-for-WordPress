@@ -107,6 +107,7 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$this->assertSame( 'akismet/akismet.php', $table[ 'subject_id' ] ?? '' );
 		$this->assertSame( $href, $table[ 'full_log_href' ] ?? '' );
 		$this->assertFalse( (bool)( $table[ 'show_header' ] ?? true ) );
+		$this->assertSame( 'scan_results_flat', $table[ 'table_behavior' ] ?? '' );
 		$this->assertTrue( (bool)( $table[ 'is_flat' ] ?? false ) );
 		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
 		$this->assertSame( 'plugin', $table[ 'scan_results_action' ][ 'type' ] ?? '' );
@@ -152,6 +153,7 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$this->assertSame( 'malware', $table[ 'subject_id' ] ?? '' );
 		$this->assertSame( $href, $table[ 'full_log_href' ] ?? '' );
 		$this->assertFalse( (bool)( $table[ 'show_header' ] ?? true ) );
+		$this->assertSame( 'scan_results_flat', $table[ 'table_behavior' ] ?? '' );
 		$this->assertTrue( (bool)( $table[ 'is_flat' ] ?? false ) );
 		$this->assertSame( 'malware', $table[ 'scan_results_action' ][ 'type' ] ?? '' );
 		$this->assertSame( 'malware', $table[ 'scan_results_action' ][ 'file' ] ?? '' );
