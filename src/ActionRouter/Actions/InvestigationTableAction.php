@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\{
 	InvestigationSubjectResolver,
 	InvestigationTableRegistry
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidInvestigationSubjectIdentifierException,
 	MissingTableActionDataException,
@@ -74,11 +73,9 @@ class InvestigationTableAction extends TableActionBase {
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_TYPE ],
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ]
 		);
-		if ( $builder instanceof BaseScanResultsInvestigationData ) {
-			$options = new ActionsQueueScanResultsOptions();
-			if ( $options->hasExplicitActionOptions( $this->action_data ) ) {
-				$builder->setResultsDisplayOptions( $options->fromActionData( $this->action_data ) );
-			}
+		if ( $builder instanceof BaseScanResultsInvestigationData
+			&& \is_array( $this->action_data[ 'results_display_options' ] ?? null ) ) {
+			$builder->setResultsDisplayOptions( $this->action_data[ 'results_display_options' ] );
 		}
 		return $this->buildRetrieveTableDataResponse( $builder, InvestigationTableContract::REQ_KEY_TABLE_DATA );
 	}

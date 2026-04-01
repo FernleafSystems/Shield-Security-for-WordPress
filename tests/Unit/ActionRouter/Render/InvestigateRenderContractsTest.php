@@ -30,6 +30,9 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
 		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
@@ -337,6 +340,32 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			$this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) )[ 'results_display_options' ] ?? null
 		);
 		$this->assertNotSame( '', (string)( $table[ 'render_item_analysis_attr' ] ?? '' ) );
+	}
+
+	public function test_flat_scan_results_contract_does_not_inject_results_display_options_without_explicit_input() :void {
+		$table = ( new InvestigateRenderContractsTestDouble() )->flatScanResultsTableContract(
+			'File Scan Status',
+			'warning',
+			'file_scan_results',
+			'plugin',
+			'akismet/akismet.php',
+			[ 'columns' => [] ],
+			[
+				'type'            => 'plugin',
+				'file'            => 'akismet/akismet.php',
+				'display_context' => 'investigate',
+			],
+			'/admin/scans'
+		);
+
+		$this->assertArrayNotHasKey(
+			'results_display_options',
+			$this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) )
+		);
+		$this->assertArrayNotHasKey(
+			'results_display_options',
+			$this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) )
+		);
 	}
 
 	private function decodeJsonAttr( string $json ) :array {

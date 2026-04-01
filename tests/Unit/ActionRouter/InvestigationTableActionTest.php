@@ -187,15 +187,19 @@ class InvestigationTableActionTest extends BaseUnitTest {
 			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
 			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => 'akismet/akismet.php',
 			'results_display_options'                        => [
-				'include_ignored' => true,
-				'ignored_only'    => true,
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => true,
+				'ignored_only'     => true,
 			],
 		], $builder ) )->runExecForTest();
 
 		$this->assertSame(
 			[
-				'include_ignored' => true,
-				'ignored_only'    => true,
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => true,
+				'ignored_only'     => true,
 			],
 			$builder->receivedResultsDisplayOptions
 		);

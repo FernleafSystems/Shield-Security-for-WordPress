@@ -191,6 +191,14 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
 		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'scan_results_action_attr' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'render_item_analysis_attr' ] ?? '' ) );
+		$this->assertArrayNotHasKey(
+			'results_display_options',
+			$this->decodeJsonAttr( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ) )
+		);
+		$this->assertArrayNotHasKey(
+			'results_display_options',
+			$this->decodeJsonAttr( (string)( $tables[ 'file_status' ][ 'scan_results_action_attr' ] ?? '' ) )
+		);
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
 		$this->assertSame(
 			[ 'Name', 'Slug', 'Version', 'Author', 'File', 'Install Directory', 'Installed', 'Active Status', 'Update Available Status', 'Vulnerability Status' ],
@@ -291,6 +299,10 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers(),
 		] );
+	}
+
+	private function decodeJsonAttr( string $json ) :array {
+		return $json === '' ? [] : \json_decode( $json, true, 512, \JSON_THROW_ON_ERROR );
 	}
 
 }

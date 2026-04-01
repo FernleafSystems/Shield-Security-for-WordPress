@@ -220,13 +220,10 @@ trait InvestigateRenderContracts {
 		array $scanResultsActionData,
 		string $fullLogHref
 	) :array {
-		$scanResultsOptions = new ActionsQueueScanResultsOptions();
-		$scanResultsActionData = \array_merge(
-			$scanResultsActionData,
-			[
-				'results_display_options' => $scanResultsOptions->fromActionData( $scanResultsActionData ),
-			]
-		);
+		$tableAction = ActionData::Build( InvestigationTableAction::class );
+		if ( \is_array( $scanResultsActionData[ 'results_display_options' ] ?? null ) ) {
+			$tableAction[ 'results_display_options' ] = $scanResultsActionData[ 'results_display_options' ];
+		}
 		$table = $this->buildTableContainerContract(
 			$title,
 			$status,
@@ -234,9 +231,7 @@ trait InvestigateRenderContracts {
 			$subjectType,
 			$subjectId,
 			$datatablesInit,
-			\array_merge( ActionData::Build( InvestigationTableAction::class ), [
-				'results_display_options' => $scanResultsActionData[ 'results_display_options' ],
-			] ),
+			$tableAction,
 			$fullLogHref
 		);
 		$table[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );

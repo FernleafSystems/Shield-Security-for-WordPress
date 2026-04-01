@@ -8,12 +8,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\Loa
 abstract class BaseScanResultsInvestigationData extends BaseInvestigationData {
 
 	/**
-	 * @var array{include_ignored:bool,ignored_only:bool}|null
+	 * @var array{
+	 *   include_ignored?:bool,
+	 *   include_repaired?:bool,
+	 *   include_deleted?:bool,
+	 *   ignored_only?:bool
+	 * }|null
 	 */
 	protected ?array $resultsDisplayOptions = null;
 
 	/**
-	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
+	 * @param array{
+	 *   include_ignored?:bool,
+	 *   include_repaired?:bool,
+	 *   include_deleted?:bool,
+	 *   ignored_only?:bool
+	 * } $resultsDisplayOptions
 	 */
 	public function setResultsDisplayOptions( array $resultsDisplayOptions ) :self {
 		$this->resultsDisplayOptions = $resultsDisplayOptions;
