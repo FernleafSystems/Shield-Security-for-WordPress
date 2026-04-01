@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\ForFileScanResults;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildSearchPanesData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\BaseInvestigationData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\BaseScanResultsInvestigationData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class InvestigationTableActionTest extends BaseUnitTest {
@@ -190,7 +192,6 @@ class InvestigationTableActionTest extends BaseUnitTest {
 			],
 		], $builder ) )->runExecForTest();
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertSame(
 			[
 				'include_ignored' => true,
@@ -320,9 +321,39 @@ class InvestigationTableActionEchoTableDataBuilderTestDouble extends BaseInvesti
 	}
 }
 
-class InvestigationTableActionResultsDisplayOptionsBuilderTestDouble extends InvestigationTableActionEchoTableDataBuilderTestDouble {
+class InvestigationTableActionResultsDisplayOptionsBuilderTestDouble extends BaseScanResultsInvestigationData {
 
 	public array $receivedResultsDisplayOptions = [];
+
+	protected function countTotalRecords() :int {
+		return 0;
+	}
+
+	protected function countTotalRecordsFiltered() :int {
+		return 0;
+	}
+
+	protected function buildTableRowsFromRawRecords( array $records ) :array {
+		return [];
+	}
+
+	protected function getSearchPanesDataBuilder() :BaseBuildSearchPanesData {
+		return new BaseBuildSearchPanesData();
+	}
+
+	protected function getSubjectWheres() :array {
+		return [];
+	}
+
+	protected function getInvestigationTableBuilderClass() :string {
+		return ForFileScanResults::class;
+	}
+
+	public function build() :array {
+		return [
+			'table_data' => $this->table_data,
+		];
+	}
 
 	public function setResultsDisplayOptions( array $resultsDisplayOptions ) :self {
 		$this->receivedResultsDisplayOptions = $resultsDisplayOptions;

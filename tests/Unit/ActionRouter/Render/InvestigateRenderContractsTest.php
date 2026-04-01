@@ -16,16 +16,29 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
+	ServicesState,
 	UnitTestControllerFactory,
-	UnitTestPluginUrls
+	UnitTestGeneral,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class InvestigateRenderContractsTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
+		);
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
 		Functions\when( 'rawurlencode_deep' )->alias(
 			static function ( $value ) {
 				if ( \is_array( $value ) ) {
@@ -44,16 +57,23 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 				}
 				$pieces = [];
 				foreach ( $params as $key => $value ) {
-					$pieces[] = $key.'='.$value;
+					$pieces[] = $key.'='.( \is_array( $value ) ? \rawurlencode( (string)\json_encode( $value ) ) : $value );
 				}
 				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
 			}
 		);
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( [
+			'service_request'   => new UnitTestRequest(),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers(),
+		] );
 		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -67,7 +87,6 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'good', $normalized[ 'status' ] ?? '' );
 		$this->assertSame( 'Full Log', $normalized[ 'full_log_text' ] ?? '' );
 		$this->assertSame( 'btn btn-outline-secondary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
-		$this->assertSame( 'default', $normalized[ 'table_behavior' ] ?? '' );
 		$this->assertTrue( $normalized[ 'show_header' ] ?? false );
 		$this->assertFalse( $normalized[ 'is_flat' ] ?? true );
 		$this->assertFalse( $normalized[ 'is_empty' ] ?? true );
@@ -82,7 +101,6 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			'full_log_text'          => 'Open Requests Log',
 			'full_log_button_class'  => 'btn btn-primary btn-sm',
 			'show_header'            => false,
-			'table_behavior'         => 'scan_results_flat',
 			'is_flat'                => true,
 			'is_empty'               => true,
 			'empty_status'           => 'warning',
@@ -93,7 +111,6 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $normalized[ 'status' ] ?? '' );
 		$this->assertSame( 'Open Requests Log', $normalized[ 'full_log_text' ] ?? '' );
 		$this->assertSame( 'btn btn-primary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
-		$this->assertSame( 'scan_results_flat', $normalized[ 'table_behavior' ] ?? '' );
 		$this->assertFalse( $normalized[ 'show_header' ] ?? true );
 		$this->assertTrue( $normalized[ 'is_flat' ] ?? false );
 		$this->assertTrue( $normalized[ 'is_empty' ] ?? false );
@@ -197,37 +214,64 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 	}
 
 	public function test_with_empty_state_preserves_table_metadata_when_records_exist() :void {
-		$table = ( new InvestigateRenderContractsTestDouble() )->withEmptyState( [
-			'title'               => 'File Scan Status',
-			'status'              => 'warning',
-			'table_type'          => 'file_scan_results',
-			'subject_type'        => 'core',
-			'subject_id'          => 'core',
-			'datatables_init'     => [ 'columns' => [] ],
-			'table_action'        => [ 'slug' => 'investigation_table' ],
-			'scan_results_action' => [ 'slug' => 'scan_results_table' ],
-		], 2, 'No file scan status records were found for this subject.' );
+		$subject = new InvestigateRenderContractsTestDouble();
+		$table = $subject->withEmptyState(
+			$subject->flatScanResultsTableContract(
+				'File Scan Status',
+				'warning',
+				'file_scan_results',
+				'core',
+				'core',
+				[ 'columns' => [] ],
+				[
+					'type'                 => 'core',
+					'file'                 => 'core',
+					'display_context'      => 'actions_queue',
+					'results_display_options' => [
+						'include_ignored' => true,
+						'ignored_only'    => false,
+					],
+				],
+				'/admin/scans'
+			),
+			2,
+			'No file scan status records were found for this subject.'
+		);
 
 		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
 		$this->assertSame( 'file_scan_results', (string)( $table[ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'core', (string)( $table[ 'subject_type' ] ?? '' ) );
 		$this->assertSame( 'core', (string)( $table[ 'subject_id' ] ?? '' ) );
-		$this->assertArrayHasKey( 'datatables_init', $table );
-		$this->assertArrayHasKey( 'table_action', $table );
-		$this->assertArrayHasKey( 'scan_results_action', $table );
+		$this->assertNotSame( '', (string)( $table[ 'datatables_init_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $table[ 'table_action_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $table[ 'scan_results_action_attr' ] ?? '' ) );
 	}
 
 	public function test_with_empty_state_strips_table_metadata_when_records_do_not_exist() :void {
-		$table = ( new InvestigateRenderContractsTestDouble() )->withEmptyState( [
-			'title'               => 'File Scan Status',
-			'status'              => 'warning',
-			'table_type'          => 'file_scan_results',
-			'subject_type'        => 'plugin',
-			'subject_id'          => 'akismet/akismet.php',
-			'datatables_init'     => [ 'columns' => [] ],
-			'table_action'        => [ 'slug' => 'investigation_table' ],
-			'scan_results_action' => [ 'slug' => 'scan_results_table' ],
-		], 0, 'No file scan status records were found for this subject.', 'warning' );
+		$subject = new InvestigateRenderContractsTestDouble();
+		$table = $subject->withEmptyState(
+			$subject->flatScanResultsTableContract(
+				'File Scan Status',
+				'warning',
+				'file_scan_results',
+				'plugin',
+				'akismet/akismet.php',
+				[ 'columns' => [] ],
+				[
+					'type'                 => 'plugin',
+					'file'                 => 'akismet/akismet.php',
+					'display_context'      => 'actions_queue',
+					'results_display_options' => [
+						'include_ignored' => true,
+						'ignored_only'    => true,
+					],
+				],
+				'/admin/scans'
+			),
+			0,
+			'No file scan status records were found for this subject.',
+			'warning'
+		);
 
 		$this->assertTrue( (bool)( $table[ 'is_empty' ] ?? false ) );
 		$this->assertSame( 'warning', (string)( $table[ 'empty_status' ] ?? '' ) );
@@ -238,9 +282,10 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'table_type', $table );
 		$this->assertArrayNotHasKey( 'subject_type', $table );
 		$this->assertArrayNotHasKey( 'subject_id', $table );
-		$this->assertArrayNotHasKey( 'datatables_init', $table );
-		$this->assertArrayNotHasKey( 'table_action', $table );
-		$this->assertArrayHasKey( 'scan_results_action', $table );
+		$this->assertArrayNotHasKey( 'datatables_init_attr', $table );
+		$this->assertArrayNotHasKey( 'table_action_attr', $table );
+		$this->assertArrayNotHasKey( 'scan_results_action_attr', $table );
+		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $table );
 	}
 
 	public function test_table_container_contract_omits_empty_full_log_href() :void {
@@ -256,6 +301,8 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 
 		$this->assertSame( 'Recent Activity Logs', (string)( $table[ 'title' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'full_log_href', $table );
+		$this->assertSame( [ 'columns' => [] ], $this->decodeJsonAttr( (string)( $table[ 'datatables_init_attr' ] ?? '' ) ) );
+		$this->assertSame( [ 'slug' => 'investigation_table' ], $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) ) );
 	}
 
 	public function test_flat_scan_results_contract_carries_results_display_options_into_table_action() :void {
@@ -275,14 +322,25 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			'/admin/scans'
 		);
 
-		$this->assertSame( 'scan_results_flat', (string)( $table[ 'table_behavior' ] ?? '' ) );
 		$this->assertSame(
 			[
 				'include_ignored' => true,
 				'ignored_only'    => true,
 			],
-			$table[ 'table_action' ][ 'results_display_options' ] ?? null
+			$this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) )[ 'results_display_options' ] ?? null
 		);
+		$this->assertSame(
+			[
+				'include_ignored' => true,
+				'ignored_only'    => true,
+			],
+			$this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) )[ 'results_display_options' ] ?? null
+		);
+		$this->assertNotSame( '', (string)( $table[ 'render_item_analysis_attr' ] ?? '' ) );
+	}
+
+	private function decodeJsonAttr( string $json ) :array {
+		return $json === '' ? [] : \json_decode( $json, true, 512, \JSON_THROW_ON_ERROR );
 	}
 }
 

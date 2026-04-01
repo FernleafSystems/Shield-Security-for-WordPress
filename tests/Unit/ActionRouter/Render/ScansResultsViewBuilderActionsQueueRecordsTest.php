@@ -85,13 +85,19 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( '2 ignored files are available for review', $pane[ 'cards' ][ 0 ][ 'stat_text' ] );
 		$this->assertSame( 'plugin', $pane[ 'cards' ][ 0 ][ 'table' ][ 'subject_type' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $pane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ] );
-		$this->assertSame( 'actions_queue', $pane[ 'cards' ][ 0 ][ 'table' ][ 'scan_results_action' ][ 'display_context' ] ?? '' );
+		$scanResultsAction = \json_decode(
+			(string)( $pane[ 'cards' ][ 0 ][ 'table' ][ 'scan_results_action_attr' ] ?? '' ),
+			true,
+			512,
+			\JSON_THROW_ON_ERROR
+		);
+		$this->assertSame( 'actions_queue', $scanResultsAction[ 'display_context' ] ?? '' );
 		$this->assertSame(
 			[
 				'include_ignored' => true,
 				'ignored_only'    => true,
 			],
-			$pane[ 'cards' ][ 0 ][ 'table' ][ 'scan_results_action' ][ 'results_display_options' ] ?? []
+			$scanResultsAction[ 'results_display_options' ] ?? []
 		);
 	}
 

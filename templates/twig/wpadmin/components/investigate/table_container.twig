@@ -1,8 +1,4 @@
 {% set panel_status = table.status %}
-{% set datatables_init_attr = table.datatables_init is iterable ? table.datatables_init|json_encode : table.datatables_init %}
-{% set table_action_attr = table.table_action is iterable ? table.table_action|json_encode : table.table_action %}
-{% set scan_results_action_attr = table.scan_results_action is iterable ? table.scan_results_action|json_encode : table.scan_results_action|default('') %}
-{% set render_item_analysis_attr = table.render_item_analysis is iterable ? table.render_item_analysis|json_encode : table.render_item_analysis|default('') %}
 {% set full_log_button_class = table.full_log_button_class %}
 
 {% set table_markup %}
@@ -17,11 +13,10 @@
 					   data-table-type="{{ table.table_type }}"
 					   data-subject-type="{{ table.subject_type }}"
 					   data-subject-id="{{ table.subject_id }}"
-					   data-table-behavior="{{ table.table_behavior }}"
-					   data-datatables-init="{{ datatables_init_attr|e('html_attr') }}"
-					   data-table-action="{{ table_action_attr|e('html_attr') }}"
-					   {% if scan_results_action_attr is not empty %}data-scan-results-action="{{ scan_results_action_attr|e('html_attr') }}"{% endif %}
-					   {% if render_item_analysis_attr is not empty %}data-render-item-analysis="{{ render_item_analysis_attr|e('html_attr') }}"{% endif %}
+					   data-datatables-init="{{ table.datatables_init_attr|e('html_attr') }}"
+					   data-table-action="{{ table.table_action_attr|e('html_attr') }}"
+					   {% if table.scan_results_action_attr is not empty %}data-scan-results-action="{{ table.scan_results_action_attr|e('html_attr') }}"{% endif %}
+					   {% if table.render_item_analysis_attr is not empty %}data-render-item-analysis="{{ table.render_item_analysis_attr|e('html_attr') }}"{% endif %}
 				></table>
 			{% endif %}
 		</div>

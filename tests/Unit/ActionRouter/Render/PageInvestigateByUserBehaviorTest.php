@@ -80,7 +80,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 				}
 				$pieces = [];
 				foreach ( $params as $key => $value ) {
-					$pieces[] = $key.'='.$value;
+					$pieces[] = $key.'='.( \is_array( $value ) ? \rawurlencode( (string)\json_encode( $value ) ) : $value );
 				}
 				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
 			}
@@ -233,6 +233,18 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_SESSIONS, $tables[ 'sessions' ][ 'table_type' ] ?? '' );
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_ACTIVITY, $tables[ 'activity' ][ 'table_type' ] ?? '' );
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_TRAFFIC, $tables[ 'requests' ][ 'table_type' ] ?? '' );
+		$this->assertNotSame( '', (string)( $tables[ 'sessions' ][ 'datatables_init_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'datatables_init_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'requests' ][ 'datatables_init_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'sessions' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'requests' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'sessions' ] ?? [] );
+		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'requests' ] ?? [] );
+		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'sessions' ] ?? [] );
+		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'requests' ] ?? [] );
 		$this->assertSame( 'Full Log', (string)( $tables[ 'sessions' ][ 'full_log_text' ] ?? '' ) );
 		$this->assertSame( 'btn btn-outline-secondary btn-sm', (string)( $tables[ 'sessions' ][ 'full_log_button_class' ] ?? '' ) );
 		$this->assertTrue( (bool)( $tables[ 'sessions' ][ 'is_flat' ] ?? false ) );

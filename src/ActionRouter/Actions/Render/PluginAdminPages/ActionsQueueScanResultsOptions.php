@@ -55,9 +55,7 @@ class ActionsQueueScanResultsOptions {
 	 * @param array<string,mixed> $actionData
 	 */
 	public function hasExplicitActionOptions( array $actionData ) :bool {
-		return \is_array( $actionData[ 'results_display_options' ] ?? null )
-			|| \array_key_exists( 'include_ignored', $actionData )
-			|| \array_key_exists( 'ignored_only', $actionData );
+		return \is_array( $actionData[ 'results_display_options' ] ?? null );
 	}
 
 	/**
@@ -65,13 +63,10 @@ class ActionsQueueScanResultsOptions {
 	 * @return array{include_ignored:bool,ignored_only:bool}
 	 */
 	public function fromActionData( array $actionData ) :array {
-		$options = \is_array( $actionData[ 'results_display_options' ] ?? null )
-			? $actionData[ 'results_display_options' ]
-			: [
-				'include_ignored' => $actionData[ 'include_ignored' ] ?? false,
-				'ignored_only'    => $actionData[ 'ignored_only' ] ?? false,
-			];
-
-		return $this->normalize( $options );
+		return $this->normalize(
+			\is_array( $actionData[ 'results_display_options' ] ?? null )
+				? $actionData[ 'results_display_options' ]
+				: null
+		);
 	}
 }

@@ -79,7 +79,7 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	bindTableInteractions( $tableElement, datatable, tableContext ) {
-		if ( tableContext.tableBehavior !== 'scan_results_flat' ) {
+		if ( tableContext.scanResultsAction === null ) {
 			$tableElement.off( '.shieldInvestigationFileScan' );
 			return;
 		}
@@ -133,11 +133,10 @@ export class InvestigationTable extends ShieldTableBase {
 		const tableType = tableEl.dataset.tableType || '';
 		const subjectType = tableEl.dataset.subjectType || '';
 		const subjectId = tableEl.dataset.subjectId || '';
-		const tableBehavior = String( tableEl.dataset.tableBehavior || 'default' ).trim();
-		const datatablesInit = this.parseJsonData( tableEl.dataset.datatablesInit || '' );
-		const tableAction = this.parseJsonData( tableEl.dataset.tableAction || '' );
-		const scanResultsAction = this.parseJsonData( tableEl.dataset.scanResultsAction || '' );
-		const renderItemAnalysis = this.parseJsonData( tableEl.dataset.renderItemAnalysis || '' );
+		const datatablesInit = this.parseJsonObject( tableEl.dataset.datatablesInit || '' );
+		const tableAction = this.parseJsonObject( tableEl.dataset.tableAction || '' );
+		const scanResultsAction = this.parseJsonObject( tableEl.dataset.scanResultsAction || '' );
+		const renderItemAnalysis = this.parseJsonObject( tableEl.dataset.renderItemAnalysis || '' );
 
 		if ( tableType.length === 0 || subjectType.length === 0 || datatablesInit === null || tableAction === null ) {
 			return null;
@@ -147,7 +146,6 @@ export class InvestigationTable extends ShieldTableBase {
 			tableType,
 			subjectType,
 			subjectId,
-			tableBehavior,
 			datatablesInit,
 			tableAction,
 			scanResultsAction,
@@ -156,7 +154,7 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	applyBehaviorDatatableConfig( cfg, tableContext ) {
-		if ( tableContext.tableBehavior !== 'scan_results_flat' ) {
+		if ( tableContext.scanResultsAction === null ) {
 			return;
 		}
 
@@ -169,7 +167,7 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	addBehaviorButtons( datatable, tableContext ) {
-		if ( tableContext.tableBehavior !== 'scan_results_flat' ) {
+		if ( tableContext.scanResultsAction === null ) {
 			return;
 		}
 
@@ -195,9 +193,14 @@ export class InvestigationTable extends ShieldTableBase {
 		return rids;
 	}
 
-	parseJsonData( rawData ) {
+	parseJsonObject( rawData ) {
+		if ( typeof rawData !== 'string' || rawData.trim().length < 1 ) {
+			return null;
+		}
+
 		try {
-			return JSON.parse( rawData );
+			const parsed = JSON.parse( rawData );
+			return parsed && typeof parsed === 'object' ? parsed : null;
 		}
 		catch ( e ) {
 			return null;

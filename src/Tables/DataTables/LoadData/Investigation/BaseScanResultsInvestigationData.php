@@ -7,8 +7,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\Loa
 
 abstract class BaseScanResultsInvestigationData extends BaseInvestigationData {
 
+	/**
+	 * @var array{include_ignored:bool,ignored_only:bool}|null
+	 */
 	protected ?array $resultsDisplayOptions = null;
 
+	/**
+	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
+	 */
 	public function setResultsDisplayOptions( array $resultsDisplayOptions ) :self {
 		$this->resultsDisplayOptions = $resultsDisplayOptions;
 		return $this;
@@ -55,7 +61,7 @@ abstract class BaseScanResultsInvestigationData extends BaseInvestigationData {
 		$loader->order_by = $this->getOrderBy();
 		$loader->search_text = \preg_replace( '#[^/a-z\d_-]#i', '', (string)( $this->table_data[ 'search' ][ 'value' ] ?? '' ) );
 		$loader->custom_record_retriever_wheres = $wheres;
-		if ( \is_array( $this->resultsDisplayOptions ) ) {
+		if ( $this->resultsDisplayOptions !== null ) {
 			$loader->results_display_options = $this->resultsDisplayOptions;
 		}
 		return $loader;

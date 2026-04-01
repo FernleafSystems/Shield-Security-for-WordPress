@@ -45,7 +45,13 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-type InvestigationTableContract array{
  *   title:string,
  *   status:string,
- *   table_behavior:string,
+ *   table_type?:string,
+ *   subject_type?:string,
+ *   subject_id?:string,
+ *   datatables_init_attr?:string,
+ *   table_action_attr?:string,
+ *   scan_results_action_attr?:string,
+ *   render_item_analysis_attr?:string,
  *   full_log_href?:string,
  *   full_log_text:string,
  *   full_log_button_class:string,
@@ -54,7 +60,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   is_empty:bool,
  *   empty_status:string,
  *   empty_text:string
- * }&array<string,mixed>
+ * }
  * @phpstan-type InvestigationTableContractInput array{
  *   title:string,
  *   status:string,
@@ -63,13 +69,16 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   subject_id?:string,
  *   datatables_init?:array<string,mixed>,
  *   table_action?:array<string,mixed>,
+ *   datatables_init_attr?:string,
+ *   table_action_attr?:string,
  *   full_log_href?:string,
  *   full_log_text?:string,
  *   full_log_button_class?:string,
  *   show_header?:bool,
- *   table_behavior?:string,
  *   scan_results_action?:array<string,mixed>,
  *   render_item_analysis?:array<string,mixed>,
+ *   scan_results_action_attr?:string,
+ *   render_item_analysis_attr?:string,
  *   is_flat?:bool,
  *   is_empty?:bool,
  *   empty_status?:string,
@@ -119,11 +128,7 @@ trait InvestigateRenderContracts {
 	}
 
 	protected function buildLookupAjaxAttrValue( array $lookupAjax ) :string {
-		if ( empty( $lookupAjax ) ) {
-			return '';
-		}
-
-		return \is_string( $encoded = \json_encode( $lookupAjax ) ) ? $encoded : '';
+		return $this->buildJsonAttrValue( $lookupAjax );
 	}
 
 	/**
@@ -185,13 +190,13 @@ trait InvestigateRenderContracts {
 		string $fullLogHref = ''
 	) :array {
 		$table = [
-			'title'           => $title,
-			'status'          => $status,
-			'table_type'      => $tableType,
-			'subject_type'    => $subjectType,
-			'subject_id'      => $subjectId,
-			'datatables_init' => $datatablesInit,
-			'table_action'    => $tableAction,
+			'title'               => $title,
+			'status'              => $status,
+			'table_type'          => $tableType,
+			'subject_type'        => $subjectType,
+			'subject_id'          => $subjectId,
+			'datatables_init_attr' => $this->buildJsonAttrValue( $datatablesInit ),
+			'table_action_attr'   => $this->buildJsonAttrValue( $tableAction ),
 		];
 		if ( $fullLogHref !== '' ) {
 			$table[ 'full_log_href' ] = $fullLogHref;
@@ -215,6 +220,13 @@ trait InvestigateRenderContracts {
 		array $scanResultsActionData,
 		string $fullLogHref
 	) :array {
+		$scanResultsOptions = new ActionsQueueScanResultsOptions();
+		$scanResultsActionData = \array_merge(
+			$scanResultsActionData,
+			[
+				'results_display_options' => $scanResultsOptions->fromActionData( $scanResultsActionData ),
+			]
+		);
 		$table = $this->buildTableContainerContract(
 			$title,
 			$status,
@@ -222,20 +234,20 @@ trait InvestigateRenderContracts {
 			$subjectType,
 			$subjectId,
 			$datatablesInit,
-			\array_merge(
-				ActionData::Build( InvestigationTableAction::class ),
-				isset( $scanResultsActionData[ 'results_display_options' ] )
-					? [ 'results_display_options' => $scanResultsActionData[ 'results_display_options' ] ]
-					: []
-			),
+			\array_merge( ActionData::Build( InvestigationTableAction::class ), [
+				'results_display_options' => $scanResultsActionData[ 'results_display_options' ],
+			] ),
 			$fullLogHref
 		);
 		$table[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
 		$table[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
 		$table[ 'show_header' ] = false;
-		$table[ 'table_behavior' ] = 'scan_results_flat';
-		$table[ 'scan_results_action' ] = ActionData::Build( ScanResultsTableAction::class, true, $scanResultsActionData );
-		$table[ 'render_item_analysis' ] = ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class );
+		$table[ 'scan_results_action_attr' ] = $this->buildJsonAttrValue(
+			ActionData::Build( ScanResultsTableAction::class, true, $scanResultsActionData )
+		);
+		$table[ 'render_item_analysis_attr' ] = $this->buildJsonAttrValue(
+			ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class )
+		);
 		$table[ 'is_flat' ] = true;
 
 		return $this->normalizeInvestigationTableContract( $table );
@@ -254,7 +266,19 @@ trait InvestigateRenderContracts {
 		$table[ 'is_empty' ] = true;
 		$table[ 'empty_status' ] = $emptyStatus;
 		$table[ 'empty_text' ] = $emptyText;
-		unset( $table[ 'datatables_init' ], $table[ 'table_action' ], $table[ 'table_type' ], $table[ 'subject_type' ], $table[ 'subject_id' ] );
+		unset(
+			$table[ 'datatables_init' ],
+			$table[ 'table_action' ],
+			$table[ 'table_type' ],
+			$table[ 'subject_type' ],
+			$table[ 'subject_id' ],
+			$table[ 'datatables_init_attr' ],
+			$table[ 'table_action_attr' ],
+			$table[ 'scan_results_action' ],
+			$table[ 'render_item_analysis' ],
+			$table[ 'scan_results_action_attr' ],
+			$table[ 'render_item_analysis_attr' ]
+		);
 		return $this->normalizeInvestigationTableContract( $table );
 	}
 
@@ -265,7 +289,6 @@ trait InvestigateRenderContracts {
 	protected function normalizeInvestigationTableContract( array $table ) :array {
 		return \array_merge(
 			[
-				'table_behavior'        => 'default',
 				'full_log_text'         => __( 'Full Log', 'wp-simple-firewall' ),
 				'full_log_button_class' => 'btn btn-outline-secondary btn-sm',
 				'show_header'           => true,
@@ -276,5 +299,12 @@ trait InvestigateRenderContracts {
 			],
 			$table
 		);
+	}
+
+	/**
+	 * @param array<string,mixed> $data
+	 */
+	private function buildJsonAttrValue( array $data ) :string {
+		return empty( $data ) ? '' : ( \is_string( $encoded = \json_encode( $data ) ) ? $encoded : '' );
 	}
 }

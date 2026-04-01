@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\{
 	InvestigationSubjectResolver,
 	InvestigationTableRegistry
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidInvestigationSubjectIdentifierException,
 	MissingTableActionDataException,
@@ -15,7 +16,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UnsupportedInvestigationTableTypeException,
 	UnsupportedTableSubActionException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\BaseInvestigationData;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\{
+	BaseInvestigationData,
+	BaseScanResultsInvestigationData
+};
 
 class InvestigationTableAction extends TableActionBase {
 
@@ -70,9 +74,11 @@ class InvestigationTableAction extends TableActionBase {
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_TYPE ],
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ]
 		);
-		if ( \method_exists( $builder, 'setResultsDisplayOptions' )
-			&& \is_array( $this->action_data[ 'results_display_options' ] ?? null ) ) {
-			$builder->setResultsDisplayOptions( $this->action_data[ 'results_display_options' ] );
+		if ( $builder instanceof BaseScanResultsInvestigationData ) {
+			$options = new ActionsQueueScanResultsOptions();
+			if ( $options->hasExplicitActionOptions( $this->action_data ) ) {
+				$builder->setResultsDisplayOptions( $options->fromActionData( $this->action_data ) );
+			}
 		}
 		return $this->buildRetrieveTableDataResponse( $builder, InvestigationTableContract::REQ_KEY_TABLE_DATA );
 	}

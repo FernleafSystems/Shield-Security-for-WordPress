@@ -107,21 +107,30 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$this->assertSame( 'akismet/akismet.php', $table[ 'subject_id' ] ?? '' );
 		$this->assertSame( $href, $table[ 'full_log_href' ] ?? '' );
 		$this->assertFalse( (bool)( $table[ 'show_header' ] ?? true ) );
-		$this->assertSame( 'scan_results_flat', $table[ 'table_behavior' ] ?? '' );
 		$this->assertTrue( (bool)( $table[ 'is_flat' ] ?? false ) );
 		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
-		$this->assertSame( 'plugin', $table[ 'scan_results_action' ][ 'type' ] ?? '' );
-		$this->assertSame( 'akismet/akismet.php', $table[ 'scan_results_action' ][ 'file' ] ?? '' );
-		$this->assertSame( 'actions_queue', $table[ 'scan_results_action' ][ 'display_context' ] ?? '' );
+		$scanResultsAction = $this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) );
+		$tableAction = $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) );
+		$renderItemAnalysis = $this->decodeJsonAttr( (string)( $table[ 'render_item_analysis_attr' ] ?? '' ) );
+		$this->assertSame( 'plugin', $scanResultsAction[ 'type' ] ?? '' );
+		$this->assertSame( 'akismet/akismet.php', $scanResultsAction[ 'file' ] ?? '' );
+		$this->assertSame( 'actions_queue', $scanResultsAction[ 'display_context' ] ?? '' );
 		$this->assertSame(
 			[
 				'include_ignored' => true,
 				'ignored_only'    => true,
 			],
-			$table[ 'scan_results_action' ][ 'results_display_options' ] ?? []
+			$scanResultsAction[ 'results_display_options' ] ?? []
 		);
-		$this->assertNotSame( '', (string)( $table[ 'table_action' ][ 'ex' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $table[ 'render_item_analysis' ][ 'render_slug' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'include_ignored' => true,
+				'ignored_only'    => true,
+			],
+			$tableAction[ 'results_display_options' ] ?? []
+		);
+		$this->assertNotSame( '', (string)( $tableAction[ 'ex' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $renderItemAnalysis[ 'render_slug' ] ?? '' ) );
 	}
 
 	public function testFileStatusBuilderEmptyStatePreservesExplicitFullLogHref() :void {
@@ -138,8 +147,10 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$this->assertSame( 'No issues here.', $table[ 'empty_text' ] ?? '' );
 		$this->assertSame( $href, $table[ 'full_log_href' ] ?? '' );
 		$this->assertArrayNotHasKey( 'table_type', $table );
-		$this->assertArrayNotHasKey( 'datatables_init', $table );
-		$this->assertArrayNotHasKey( 'table_action', $table );
+		$this->assertArrayNotHasKey( 'datatables_init_attr', $table );
+		$this->assertArrayNotHasKey( 'table_action_attr', $table );
+		$this->assertArrayNotHasKey( 'scan_results_action_attr', $table );
+		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $table );
 		$this->assertArrayNotHasKey( 'subject_type', $table );
 	}
 
@@ -153,9 +164,13 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$this->assertSame( 'malware', $table[ 'subject_id' ] ?? '' );
 		$this->assertSame( $href, $table[ 'full_log_href' ] ?? '' );
 		$this->assertFalse( (bool)( $table[ 'show_header' ] ?? true ) );
-		$this->assertSame( 'scan_results_flat', $table[ 'table_behavior' ] ?? '' );
 		$this->assertTrue( (bool)( $table[ 'is_flat' ] ?? false ) );
-		$this->assertSame( 'malware', $table[ 'scan_results_action' ][ 'type' ] ?? '' );
-		$this->assertSame( 'malware', $table[ 'scan_results_action' ][ 'file' ] ?? '' );
+		$scanResultsAction = $this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) );
+		$this->assertSame( 'malware', $scanResultsAction[ 'type' ] ?? '' );
+		$this->assertSame( 'malware', $scanResultsAction[ 'file' ] ?? '' );
+	}
+
+	private function decodeJsonAttr( string $json ) :array {
+		return $json === '' ? [] : \json_decode( $json, true, 512, \JSON_THROW_ON_ERROR );
 	}
 }

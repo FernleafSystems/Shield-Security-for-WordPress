@@ -16,13 +16,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
+	ServicesState,
 	UnitTestControllerFactory,
-	UnitTestPluginUrls
+	UnitTestGeneral,
+	UnitTestPluginUrls,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -30,12 +36,45 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 			\define( 'ABSPATH', '/var/www/html/' );
 		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
+		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
 		Functions\when( 'wp_normalize_path' )->alias( static fn( string $path ) :string => $path );
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.( \is_array( $value ) ? \rawurlencode( (string)\json_encode( $value ) ) : $value );
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
+		);
+		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installControllerStub();
+		$this->installServices();
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -64,12 +103,12 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
-		$this->assertArrayHasKey( 'datatables_init', $tables[ 'file_status' ] ?? [] );
-		$this->assertArrayHasKey( 'datatables_init', $tables[ 'activity' ] ?? [] );
-		$this->assertArrayHasKey( 'table_action', $tables[ 'file_status' ] ?? [] );
-		$this->assertArrayHasKey( 'table_action', $tables[ 'activity' ] ?? [] );
-		$this->assertArrayHasKey( 'scan_results_action', $tables[ 'file_status' ] ?? [] );
-		$this->assertArrayHasKey( 'render_item_analysis', $tables[ 'file_status' ] ?? [] );
+		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'datatables_init_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'datatables_init_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'scan_results_action_attr' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'render_item_analysis_attr' ] ?? '' ) );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'is_empty' ] ?? true ) );
 		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'is_empty' ] ?? true ) );
 		$this->assertSame( 'core', (string)( $tables[ 'file_status' ][ 'subject_type' ] ?? '' ) );
@@ -98,10 +137,12 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'info', (string)( $tables[ 'activity' ][ 'empty_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'table_type', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'table_type', $tables[ 'activity' ] ?? [] );
-		$this->assertArrayNotHasKey( 'datatables_init', $tables[ 'file_status' ] ?? [] );
-		$this->assertArrayNotHasKey( 'datatables_init', $tables[ 'activity' ] ?? [] );
-		$this->assertArrayNotHasKey( 'table_action', $tables[ 'file_status' ] ?? [] );
-		$this->assertArrayNotHasKey( 'table_action', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'datatables_init_attr', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'datatables_init_attr', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'table_action_attr', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'table_action_attr', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'file_status' ] ?? [] );
+		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject_type', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject_type', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'file_status' ] ?? [] );
@@ -112,6 +153,14 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		UnitTestControllerFactory::install(
 			new UnitTestPluginUrls()
 		);
+	}
+
+	private function installServices( array $query = [] ) :void {
+		ServicesState::installItems( [
+			'service_request'   => new UnitTestRequest( $query ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers(),
+		] );
 	}
 
 }
@@ -147,48 +196,5 @@ class PageInvestigateByCoreUnitTestDouble extends PageInvestigateByCore {
 
 	protected function countActivityForSubject( string $subjectType, string $subjectId ) :int {
 		return $this->activityCount;
-	}
-
-	protected function buildFileStatusTableContractWithEmptyState(
-		string $subjectType,
-		string $subjectId,
-		int $fileStatusCount,
-		string $fileStatusEmptyText,
-		string $emptyStatus = 'info'
-	) :array {
-		return $fileStatusCount > 0
-			? [
-				'title'        => 'File Scan Status',
-				'table_type'   => 'file_scan_results',
-				'subject_type' => $subjectType,
-				'subject_id'   => $subjectId,
-				'datatables_init' => [ 'columns' => [] ],
-				'table_action' => [ 'slug' => 'investigation_table' ],
-				'scan_results_action' => [ 'slug' => 'scan_results_action' ],
-				'render_item_analysis' => [ 'slug' => 'scan_item_analysis' ],
-				'show_header' => false,
-				'is_flat' => true,
-				'is_empty' => false,
-			]
-			: [
-				'title'        => 'File Scan Status',
-				'show_header'  => false,
-				'is_flat'      => true,
-				'is_empty'     => true,
-				'empty_status' => 'info',
-				'empty_text'   => $fileStatusEmptyText,
-			];
-	}
-
-	protected function buildActivityTableContract( string $subjectType, string $subjectId ) :array {
-		return [
-			'title'        => 'Activity',
-			'table_type'   => 'activity',
-			'subject_type' => $subjectType,
-			'subject_id'   => $subjectId,
-			'datatables_init' => [ 'columns' => [] ],
-			'table_action' => [ 'slug' => 'investigation_table' ],
-			'show_header'  => false,
-		];
 	}
 }
