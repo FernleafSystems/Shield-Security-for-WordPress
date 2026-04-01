@@ -150,8 +150,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	 */
 	private function seedPluginScanResult( string $pluginSlug ) :array {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
-		return TestDataFactory::insertScanResultItemTracked( $scanId, [
-			'item_id'      => 'plugin-file.php',
+		return TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
