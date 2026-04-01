@@ -38,6 +38,12 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_counts_plugin_tab_from_queue_visible_asset_summaries() :void {
+		$counts = $this->getMockBuilder( Counts::class )
+					   ->disableOriginalConstructor()
+					   ->onlyMethods( [ 'countAffectedPluginAssets' ] )
+					   ->getMock();
+		$counts->method( 'countAffectedPluginAssets' )->willReturn( 4 );
+
 		$availability = new class extends ScansResultsRailTabAvailability {
 			public function build( string $tabKey ) :array {
 				return $tabKey === 'plugins'
@@ -58,18 +64,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
-		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', new class extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanAssetCardsBuilder {
-			public function buildSummaryRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
-				return $assetType === 'plugin'
-					? [
-						[ 'key' => 'one', 'count_badge' => 3, 'title' => 'One', 'status' => 'warning', 'icon_class' => '', 'stat_text' => '', 'meta_text' => '', 'subject_type' => 'plugin', 'subject_id' => 'one', 'has_update' => false ],
-						[ 'key' => 'two', 'count_badge' => 1, 'title' => 'Two', 'status' => 'warning', 'icon_class' => '', 'stat_text' => '', 'meta_text' => '', 'subject_type' => 'plugin', 'subject_id' => 'two', 'has_update' => false ],
-						[ 'key' => 'three', 'count_badge' => 2, 'title' => 'Three', 'status' => 'warning', 'icon_class' => '', 'stat_text' => '', 'meta_text' => '', 'subject_type' => 'plugin', 'subject_id' => 'three', 'has_update' => false ],
-						[ 'key' => 'four', 'count_badge' => 4, 'title' => 'Four', 'status' => 'warning', 'icon_class' => '', 'stat_text' => '', 'meta_text' => '', 'subject_type' => 'plugin', 'subject_id' => 'four', 'has_update' => false ],
-					]
-					: [];
-			}
-		} );
+		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
 
 		$state = $builder->build();
 

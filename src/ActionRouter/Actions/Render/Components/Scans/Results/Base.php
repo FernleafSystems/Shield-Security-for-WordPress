@@ -18,11 +18,11 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 	}
 
 	/**
-	 * @return array{include_ignored:bool,ignored_only:bool}
+	 * @return array{include_ignored:bool,ignored_only:bool}|null
 	 */
-	protected function getActionsQueueResultsDisplayOptions() :array {
+	protected function getActionsQueueExplicitResultsDisplayOptions() :?array {
 		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions() )
-			->fromActionData( $this->action_data );
+			->explicitOptionsFromActionData( $this->action_data );
 	}
 
 	protected function getRenderData() :array {

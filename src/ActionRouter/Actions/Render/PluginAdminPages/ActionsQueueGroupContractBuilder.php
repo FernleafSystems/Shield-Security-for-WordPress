@@ -171,11 +171,15 @@ class ActionsQueueGroupContractBuilder {
 			'is_interactive'      => false,
 			'detail_table'        => [],
 			'render_action_class' => ActionsQueueAssetFileStatusDetail::class,
-			'render_action_data'  => [
-				'subject_type'            => $metadata[ 'subject_type' ],
-				'subject_id'              => $metadata[ 'subject_id' ],
-				'results_display_options' => $this->queueScanResultsOptions->activeOnly(),
-			],
+			'render_action_data'  => \array_merge(
+				$this->queueScanResultsOptions->buildExplicitActionData(
+					$this->queueScanResultsOptions->activeOnly()
+				),
+				[
+					'subject_type' => $metadata[ 'subject_type' ],
+					'subject_id'   => $metadata[ 'subject_id' ],
+				]
+			),
 			'maintenance_rows'    => [],
 			'summary_row'         => [],
 			'selection'           => $selection,

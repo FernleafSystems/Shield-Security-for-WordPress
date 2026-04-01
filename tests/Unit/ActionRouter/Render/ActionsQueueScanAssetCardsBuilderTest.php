@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueAfsAssetSummaryProvider,
 	ActionsQueueAssetMetadataResolver,
 	ActionsQueueScanAssetCardsBuilder
 };
@@ -105,27 +104,17 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			}
 		};
 
-		$provider = new class( $groupedRows ) extends ActionsQueueAfsAssetSummaryProvider {
-
+		return new class( $resolver, $groupedRows ) extends ActionsQueueScanAssetCardsBuilder {
+			private int $tableBuildCalls = 0;
 			private array $groupedRows;
 
-			public function __construct( array $groupedRows ) {
+			public function __construct( ActionsQueueAssetMetadataResolver $resolver, array $groupedRows ) {
+				parent::__construct( $resolver );
 				$this->groupedRows = $groupedRows;
 			}
 
-			public function retrieve( string $assetType, ?array $resultsDisplayOptions = null ) :array {
+			protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
 				return $this->groupedRows;
-			}
-		};
-
-		return new class( $resolver, $provider ) extends ActionsQueueScanAssetCardsBuilder {
-			private int $tableBuildCalls = 0;
-
-			public function __construct(
-				ActionsQueueAssetMetadataResolver $resolver,
-				ActionsQueueAfsAssetSummaryProvider $provider
-			) {
-				parent::__construct( $resolver, $provider );
 			}
 
 			protected function buildFileStatusTable( string $subjectType, string $subjectId, array $resultsDisplayOptions ) :array {

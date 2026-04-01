@@ -136,11 +136,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( Malware::class, $groups[ 3 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'display_context'         => 'actions_queue',
-				'results_display_options' => [
-					'include_ignored' => false,
-					'ignored_only'    => false,
-				],
+				'display_context' => 'actions_queue',
 			],
 			$groups[ 3 ][ 'render_action_data' ]
 		);
@@ -168,12 +164,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 1 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'subject_type'            => 'plugin',
-				'subject_id'              => 'example-plugin/example-plugin.php',
-				'results_display_options' => [
-					'include_ignored' => false,
-					'ignored_only'    => false,
-				],
+				'display_context' => 'actions_queue',
+				'subject_type'    => 'plugin',
+				'subject_id'      => 'example-plugin/example-plugin.php',
 			],
 			$groups[ 1 ][ 'render_action_data' ]
 		);

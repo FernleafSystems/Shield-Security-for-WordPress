@@ -133,6 +133,24 @@ class InvestigationScanResultsTableContractBuildersTest extends BaseUnitTest {
 		$this->assertNotSame( '', (string)( $renderItemAnalysis[ 'render_slug' ] ?? '' ) );
 	}
 
+	public function testFileStatusBuilderPreservesQueueDisplayContextWithoutInjectingExplicitFilters() :void {
+		$table = ( new InvestigationFileStatusTableContractBuilder() )->build(
+			'plugin',
+			'akismet/akismet.php',
+			'/queue/scans',
+			[
+				'display_context' => 'actions_queue',
+			]
+		);
+
+		$scanResultsAction = $this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) );
+		$tableAction = $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) );
+
+		$this->assertSame( 'actions_queue', $scanResultsAction[ 'display_context' ] ?? '' );
+		$this->assertArrayNotHasKey( 'results_display_options', $scanResultsAction );
+		$this->assertArrayNotHasKey( 'results_display_options', $tableAction );
+	}
+
 	public function testFileStatusBuilderEmptyStatePreservesExplicitFullLogHref() :void {
 		$href = '/scans/full-log';
 		$table = ( new InvestigationFileStatusTableContractBuilder() )->buildWithEmptyState(

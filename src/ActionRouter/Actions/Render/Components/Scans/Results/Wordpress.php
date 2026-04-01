@@ -25,14 +25,21 @@ class Wordpress extends Base {
 	protected function getRenderData() :array {
 		if ( $this->isActionsQueueDisplayContext() ) {
 			$emptyText = __( "Previous scans didn't detect any modified, missing, or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' );
-			$resultsDisplayOptions = $this->getActionsQueueResultsDisplayOptions();
+			$queueScanResultsOptions = new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions();
+			$resultsDisplayOptions = $this->getActionsQueueExplicitResultsDisplayOptions();
 			$loader = new LoadFileScanResultsTableData();
 			$loader->custom_record_retriever_wheres = [
 				\sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
 				\sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
 			];
-			$loader->results_display_options = $resultsDisplayOptions;
+			if ( $resultsDisplayOptions !== null ) {
+				$loader->results_display_options = $resultsDisplayOptions;
+			}
 			$count = $loader->countAll();
+			$scanResultsActionData = $queueScanResultsOptions->buildDisplayContextActionData();
+			if ( $resultsDisplayOptions !== null ) {
+				$scanResultsActionData = $queueScanResultsOptions->buildExplicitActionData( $resultsDisplayOptions );
+			}
 			$table = ( new InvestigationFileStatusTableContractBuilder() )->buildWithEmptyState(
 				InvestigationTableContract::SUBJECT_TYPE_CORE,
 				InvestigationTableContract::SUBJECT_TYPE_CORE,
@@ -40,7 +47,7 @@ class Wordpress extends Base {
 				$emptyText,
 				self::con()->plugin_urls->actionsQueueScans(),
 				'info',
-				$resultsDisplayOptions
+				$scanResultsActionData
 			);
 
 			return [

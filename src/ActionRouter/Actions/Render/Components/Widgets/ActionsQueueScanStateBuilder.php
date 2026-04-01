@@ -3,8 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueScanAssetCardsBuilder,
-	ActionsQueueScanResultsOptions,
 	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -48,8 +46,6 @@ class ActionsQueueScanStateBuilder {
 	use PluginControllerConsumer;
 
 	private ?ScansResultsRailTabAvailability $tabAvailability = null;
-	private ?ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder = null;
-	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
 	private ?Counts $displayCounts = null;
 
 	/**
@@ -135,10 +131,9 @@ class ActionsQueueScanStateBuilder {
 			return;
 		}
 
-		$count = \count( $this->scanAssetCardsBuilder()->buildSummaryRecords(
-			$tabKey === 'plugins' ? 'plugin' : 'theme',
-			$this->queueScanResultsOptions()->activeOnly()
-		) );
+		$count = $tabKey === 'plugins'
+			? $this->getDisplayCounts()->countAffectedPluginAssets()
+			: $this->getDisplayCounts()->countAffectedThemeAssets();
 		$tabs[ $tabKey ] = [
 			'count'  => $count,
 			'status' => $count > 0 ? 'critical' : 'good',
@@ -389,22 +384,6 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		return $this->displayCounts;
-	}
-
-	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
-		if ( $this->queueScanResultsOptions === null ) {
-			$this->queueScanResultsOptions = new ActionsQueueScanResultsOptions();
-		}
-
-		return $this->queueScanResultsOptions;
-	}
-
-	private function scanAssetCardsBuilder() :ActionsQueueScanAssetCardsBuilder {
-		if ( $this->scanAssetCardsBuilder === null ) {
-			$this->scanAssetCardsBuilder = new ActionsQueueScanAssetCardsBuilder();
-		}
-
-		return $this->scanAssetCardsBuilder;
 	}
 
 	private function scanSectionLabel( string $summaryKey, string $fallback ) :string {

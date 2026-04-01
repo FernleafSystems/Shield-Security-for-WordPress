@@ -127,7 +127,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			'file'       => $pluginSlug,
 			...(
 				new ActionsQueueScanResultsOptions()
-			)->buildActionData( $resultsDisplayOptions ),
+			)->buildExplicitActionData( $resultsDisplayOptions ),
 		] )->payload();
 	}
 

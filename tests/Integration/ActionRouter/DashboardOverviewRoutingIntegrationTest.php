@@ -202,7 +202,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'table_data' => $this->scanTableDataFixture(),
 			'type'       => 'plugin',
 			'file'       => $pluginSlug,
-			...( new ActionsQueueScanResultsOptions() )->buildActionData( ( new ActionsQueueScanResultsOptions() )->activeOnly() ),
+			...( new ActionsQueueScanResultsOptions() )->buildExplicitActionData( ( new ActionsQueueScanResultsOptions() )->activeOnly() ),
 		] )->payload();
 
 		$this->assertTrue( $tablePayload[ 'success' ] ?? false );

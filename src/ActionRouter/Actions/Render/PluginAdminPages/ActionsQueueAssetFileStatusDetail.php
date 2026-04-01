@@ -18,15 +18,27 @@ class ActionsQueueAssetFileStatusDetail extends BaseRender {
 
 	protected function getRenderData() :array {
 		$options = new ActionsQueueScanResultsOptions();
+		$scanResultsActionData = \array_merge(
+			$options->buildDisplayContextActionData(),
+			[
+				'subject_type' => (string)$this->action_data[ 'subject_type' ],
+				'subject_id'   => (string)$this->action_data[ 'subject_id' ],
+			]
+		);
+		$explicitOptions = $options->explicitOptionsFromActionData( $this->action_data );
+		if ( $explicitOptions !== null ) {
+			$scanResultsActionData = \array_merge(
+				$scanResultsActionData,
+				$options->buildExplicitActionData( $explicitOptions )
+			);
+		}
 
 		return [
 			'table' => ( new InvestigationFileStatusTableContractBuilder() )->build(
 				(string)$this->action_data[ 'subject_type' ],
 				(string)$this->action_data[ 'subject_id' ],
 				self::con()->plugin_urls->actionsQueueScans(),
-				$options->buildActionData(
-					$options->fromActionData( $this->action_data )
-				)
+				$scanResultsActionData
 			),
 		];
 	}

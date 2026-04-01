@@ -38,35 +38,47 @@ class ActionsQueueScanResultsOptions {
 	}
 
 	/**
-	 * @param array<string,mixed>|null $options
+	 * @return array{display_context:string}
+	 */
+	public function buildDisplayContextActionData() :array {
+		return [
+			'display_context' => self::DISPLAY_CONTEXT,
+		];
+	}
+
+	/**
+	 * @param array<string,mixed> $options
 	 * @return array{
 	 *   display_context:string,
 	 *   results_display_options:array{include_ignored:bool,ignored_only:bool}
 	 * }
 	 */
-	public function buildActionData( ?array $options = null ) :array {
-		return [
-			'display_context'        => self::DISPLAY_CONTEXT,
-			'results_display_options' => $this->normalize( $options ),
-		];
-	}
-
-	/**
-	 * @param array<string,mixed> $actionData
-	 */
-	public function hasExplicitActionOptions( array $actionData ) :bool {
-		return \is_array( $actionData[ 'results_display_options' ] ?? null );
-	}
-
-	/**
-	 * @param array<string,mixed> $actionData
-	 * @return array{include_ignored:bool,ignored_only:bool}
-	 */
-	public function fromActionData( array $actionData ) :array {
-		return $this->normalize(
-			\is_array( $actionData[ 'results_display_options' ] ?? null )
-				? $actionData[ 'results_display_options' ]
-				: null
+	public function buildExplicitActionData( array $options ) :array {
+		return \array_merge(
+			$this->buildDisplayContextActionData(),
+			[
+				'results_display_options' => $this->normalize( $options ),
+			]
 		);
+	}
+
+	/**
+	 * @return array{
+	 *   display_context:string,
+	 *   results_display_options:array{include_ignored:bool,ignored_only:bool}
+	 * }
+	 */
+	public function buildIgnoredOnlyActionData() :array {
+		return $this->buildExplicitActionData( $this->ignoredOnly() );
+	}
+
+	/**
+	 * @param array<string,mixed> $actionData
+	 * @return array{include_ignored:bool,ignored_only:bool}|null
+	 */
+	public function explicitOptionsFromActionData( array $actionData ) :?array {
+		return \is_array( $actionData[ 'results_display_options' ] ?? null )
+			? $this->normalize( $actionData[ 'results_display_options' ] )
+			: null;
 	}
 }

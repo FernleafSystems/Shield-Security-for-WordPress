@@ -311,7 +311,7 @@ class ActionsQueueGroupDefinitions {
 	 */
 	public function ignoredRenderActionDataForGroupKey( string $groupKey, int $ignoredCount ) :array {
 		return $ignoredCount > 0 && $this->healthyIgnoredSourceForGroupKey( $groupKey ) !== ''
-			? $this->queueScanResultsOptions->buildActionData( $this->queueScanResultsOptions->ignoredOnly() )
+			? $this->queueScanResultsOptions->buildIgnoredOnlyActionData()
 			: [];
 	}
 
@@ -338,7 +338,7 @@ class ActionsQueueGroupDefinitions {
 		}
 
 		return $mode === 'scan_results'
-			? $this->queueScanResultsOptions->buildActionData()
+			? $this->queueScanResultsOptions->buildDisplayContextActionData()
 			: [];
 	}
 }

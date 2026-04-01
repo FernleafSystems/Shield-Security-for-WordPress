@@ -753,14 +753,14 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return QueueAssetPane
 	 */
-	public function buildActionsQueuePluginsPane( array $resultsDisplayOptions = [] ) :array {
+	public function buildActionsQueuePluginsPane( ?array $resultsDisplayOptions = null ) :array {
 		return $this->buildActionsQueuePluginThemePane( 'plugin', $resultsDisplayOptions );
 	}
 
 	/**
 	 * @return QueueAssetPane
 	 */
-	public function buildActionsQueueThemesPane( array $resultsDisplayOptions = [] ) :array {
+	public function buildActionsQueueThemesPane( ?array $resultsDisplayOptions = null ) :array {
 		return $this->buildActionsQueuePluginThemePane( 'theme', $resultsDisplayOptions );
 	}
 
@@ -832,7 +832,7 @@ class ScansResultsViewBuilder {
 	/**
 	 * @return QueueAssetPane
 	 */
-	private function buildActionsQueuePluginThemePane( string $assetType, array $resultsDisplayOptions = [] ) :array {
+	private function buildActionsQueuePluginThemePane( string $assetType, ?array $resultsDisplayOptions = null ) :array {
 		$availability = $this->getRailTabAvailability( $assetType === 'plugin' ? 'plugins' : 'themes' );
 		if ( !$availability[ 'is_available' ] ) {
 			return [

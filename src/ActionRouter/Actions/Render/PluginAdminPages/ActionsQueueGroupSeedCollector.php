@@ -184,11 +184,13 @@ class ActionsQueueGroupSeedCollector {
 				'management_link'  => [],
 				'detail_table'     => [],
 				'render_action_class_override' => ActionsQueueAssetFileStatusDetail::class,
-				'render_action_data_override'  => [
-					'subject_type'            => $summary[ 'subject_type' ],
-					'subject_id'              => $summary[ 'subject_id' ],
-					'results_display_options' => $this->queueScanResultsOptions->activeOnly(),
-				],
+				'render_action_data_override'  => \array_merge(
+					$this->queueScanResultsOptions->buildDisplayContextActionData(),
+					[
+						'subject_type' => $summary[ 'subject_type' ],
+						'subject_id'   => $summary[ 'subject_id' ],
+					]
+				),
 				'attention_items'  => [ $item ],
 				'maintenance_rows' => [],
 				'summary_row'      => [],

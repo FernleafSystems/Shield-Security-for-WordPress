@@ -639,6 +639,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
+		$this->assertSame( 'actions_queue', (string)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 		$this->assertSame(
 			[
 				'include_ignored' => false,

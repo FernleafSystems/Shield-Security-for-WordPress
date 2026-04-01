@@ -133,8 +133,9 @@ class ScanResultsTableAction extends ScansBase {
 		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 		$builder->type = $this->action_data[ 'type' ] ?? '';
 		$builder->file = $this->action_data[ 'file' ] ?? '';
-		if ( $options->hasExplicitActionOptions( $this->action_data ) ) {
-			$builder->results_display_options = $options->fromActionData( $this->action_data );
+		$explicitOptions = $options->explicitOptionsFromActionData( $this->action_data );
+		if ( $explicitOptions !== null ) {
+			$builder->results_display_options = $explicitOptions;
 		}
 		return [
 			'success'        => true,

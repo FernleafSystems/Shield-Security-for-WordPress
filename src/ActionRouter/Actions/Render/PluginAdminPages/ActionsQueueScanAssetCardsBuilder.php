@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveGroupedAssetSummaries;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * @phpstan-import-type AssetType from ActionsQueueAfsAssetSummaryProvider
+ * @phpstan-type AssetType 'plugin'|'theme'
  * @phpstan-type QueueAssetAction array{
  *   type:string,
  *   label:string,
@@ -48,16 +49,13 @@ class ActionsQueueScanAssetCardsBuilder {
 	use PluginControllerConsumer;
 
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
-	private ActionsQueueAfsAssetSummaryProvider $afsAssetSummaryProvider;
 	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
 
 	public function __construct(
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
-		?ActionsQueueAfsAssetSummaryProvider $afsAssetSummaryProvider = null,
 		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null
 	) {
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
-		$this->afsAssetSummaryProvider = $afsAssetSummaryProvider ?? new ActionsQueueAfsAssetSummaryProvider();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
 	}
 
@@ -145,7 +143,7 @@ class ActionsQueueScanAssetCardsBuilder {
 	 * @return list<array{slug:string,file_count:int}>
 	 */
 	protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
-		return $this->afsAssetSummaryProvider->retrieve( $assetType, $resultsDisplayOptions );
+		return ( new RetrieveGroupedAssetSummaries() )->retrieve( $assetType, $resultsDisplayOptions );
 	}
 
 	/**
@@ -192,11 +190,16 @@ class ActionsQueueScanAssetCardsBuilder {
 	 * @return array<string,mixed>
 	 */
 	protected function buildFileStatusTable( string $subjectType, string $subjectId, array $resultsDisplayOptions ) :array {
+		$scanResultsActionData = $this->queueScanResultsOptions->buildDisplayContextActionData();
+		if ( $resultsDisplayOptions[ 'include_ignored' ] || $resultsDisplayOptions[ 'ignored_only' ] ) {
+			$scanResultsActionData = $this->queueScanResultsOptions->buildExplicitActionData( $resultsDisplayOptions );
+		}
+
 		return ( new InvestigationFileStatusTableContractBuilder() )->build(
 			$subjectType,
 			$subjectId,
 			$this->buildFullLogHref(),
-			$this->queueScanResultsOptions->buildActionData( $resultsDisplayOptions )
+			$scanResultsActionData
 		);
 	}
 
