@@ -37,6 +37,63 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
+	public function test_build_uses_shared_scan_results_count_when_no_override_is_set() :void {
+		$counts = $this->getMockBuilder( Counts::class )
+					   ->disableOriginalConstructor()
+					   ->onlyMethods( [ 'countAffectedPluginAssets' ] )
+					   ->getMock();
+		$counts->expects( $this->once() )
+			   ->method( 'countAffectedPluginAssets' )
+			   ->willReturn( 4 );
+
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			null,
+			(object)[
+				'comps' => (object)[
+					'scans' => new class( $counts ) {
+						private Counts $counts;
+
+						public function __construct( Counts $counts ) {
+							$this->counts = $counts;
+						}
+
+						public function getScanResultsCount() :Counts {
+							return $this->counts;
+						}
+					},
+				],
+			]
+		);
+
+		$availability = new class extends ScansResultsRailTabAvailability {
+			public function build( string $tabKey ) :array {
+				return $tabKey === 'plugins'
+					? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					]
+					: [
+						'is_available'          => false,
+						'show_in_actions_queue' => false,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					];
+			}
+		};
+
+		$builder = new ActionsQueueScanStateBuilder();
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+
+		$state = $builder->build();
+
+		$this->assertSame( 4, $state[ 'tabs' ][ 'plugins' ][ 'count' ] );
+		$this->assertSame( 4, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( [ 'plugin_files' ], \array_column( $state[ 'rows' ], 'key' ) );
+	}
+
 	public function test_build_routes_abandoned_assets_to_separate_abandoned_tab_and_deduped_summary() :void {
 		$counts = $this->getMockBuilder( Counts::class )
 					   ->disableOriginalConstructor()

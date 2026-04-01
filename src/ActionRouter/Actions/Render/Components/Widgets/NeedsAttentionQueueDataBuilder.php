@@ -98,8 +98,7 @@ class NeedsAttentionQueueDataBuilder {
 	 */
 	private function buildBaseData() :array {
 		$attention = self::con()->comps->site_query->attention();
-		$overview = self::con()->comps->site_query->overview();
-		$latestScanAt = (int)\max( $overview[ 'scans' ][ 'latest_completed_at' ] );
+		$latestScanAt = (int)\max( self::con()->comps->site_query->latestCompletedScanTimestamps() );
 		$lastScanSubtext = $latestScanAt > 0
 			? sprintf(
 				__( 'Last scan: %s', 'wp-simple-firewall' ),

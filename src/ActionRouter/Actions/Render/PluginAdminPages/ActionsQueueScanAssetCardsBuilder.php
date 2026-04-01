@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
+ * @phpstan-import-type GroupedAssetType from RetrieveGroupedAssetSummaries
  * @phpstan-type QueueAssetSummaryRecord array{
  *   key:string,
  *   status:string,
@@ -37,6 +38,7 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
+	 * @phpstan-param GroupedAssetType $assetType
 	 * @return list<QueueAssetSummaryRecord>
 	 */
 	public function buildSummaryRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
@@ -79,6 +81,7 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
+	 * @phpstan-param GroupedAssetType $assetType
 	 * @return list<array<string,mixed>>
 	 */
 	public function buildIssueRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
@@ -113,6 +116,7 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
+	 * @phpstan-param GroupedAssetType $assetType
 	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
 	 * @return list<array{slug:string,file_count:int}>
 	 */

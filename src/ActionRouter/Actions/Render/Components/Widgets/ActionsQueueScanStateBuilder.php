@@ -378,7 +378,7 @@ class ActionsQueueScanStateBuilder {
 
 	private function getDisplayCounts() :Counts {
 		if ( $this->displayCounts === null ) {
-			$this->displayCounts = new Counts();
+			$this->displayCounts = self::con()->comps->scans->getScanResultsCount();
 		}
 
 		return $this->displayCounts;

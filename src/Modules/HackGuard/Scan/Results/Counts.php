@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\LatestScanResultWheresBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveGroupedAssetSummaries;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,6 +15,8 @@ class Counts {
 	private array $counts = [];
 
 	private int $context;
+
+	private ?RetrieveGroupedAssetSummaries $groupedAssetSummaries = null;
 
 	private ?LatestScanResultWheresBuilder $latestScanWheresBuilder = null;
 
@@ -58,29 +61,58 @@ class Counts {
 	}
 
 	public function countAffectedPluginAssets() :int {
-		return \count( $this->getDistinctAssetSlugsForAfsMeta( 'is_in_plugin' ) );
+		$cacheKey = 'count_affected_plugin_assets';
+		if ( !isset( $this->counts[ $cacheKey ] ) ) {
+			$this->counts[ $cacheKey ] = $this->groupedAssetSummaries()
+				->countForContext( 'plugin', $this->context );
+		}
+
+		return (int)$this->counts[ $cacheKey ];
 	}
 
 	public function countAffectedThemeAssets() :int {
-		return \count( $this->getDistinctAssetSlugsForAfsMeta( 'is_in_theme' ) );
+		$cacheKey = 'count_affected_theme_assets';
+		if ( !isset( $this->counts[ $cacheKey ] ) ) {
+			$this->counts[ $cacheKey ] = $this->groupedAssetSummaries()
+				->countForContext( 'theme', $this->context );
+		}
+
+		return (int)$this->counts[ $cacheKey ];
 	}
 
 	public function countDistinctVulnerableAssets() :int {
-		return \count( $this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->WPV()->getSlug(), 'is_vulnerable' ) );
+		return $this->countDistinctItemIdsForScanMeta(
+			self::con()->comps->scans->WPV()->getSlug(),
+			'is_vulnerable'
+		);
 	}
 
 	public function countDistinctAbandonedAssets() :int {
-		return \count( $this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->APC()->getSlug(), 'is_abandoned' ) );
+		return $this->countDistinctItemIdsForScanMeta(
+			self::con()->comps->scans->APC()->getSlug(),
+			'is_abandoned'
+		);
 	}
 
 	public function countDistinctVulnerabilityReviewAssets() :int {
-		return \count( \array_unique( \array_merge(
-			$this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->WPV()->getSlug(), 'is_vulnerable' ),
-			$this->getDistinctItemIdsForScanMeta( self::con()->comps->scans->APC()->getSlug(), 'is_abandoned' )
-		) ) );
+		$cacheKey = 'count_distinct_vulnerability_review_assets';
+		if ( !isset( $this->counts[ $cacheKey ] ) ) {
+			$this->counts[ $cacheKey ] = $this->countDistinctItemIdsAcrossScanMetaFilters( [
+				[
+					'scan_slug' => self::con()->comps->scans->WPV()->getSlug(),
+					'meta_key'  => 'is_vulnerable',
+				],
+				[
+					'scan_slug' => self::con()->comps->scans->APC()->getSlug(),
+					'meta_key'  => 'is_abandoned',
+				],
+			] );
+		}
+
+		return (int)$this->counts[ $cacheKey ];
 	}
 
-	private function getCount( $resultType ) :int {
+	private function getCount( string $resultType ) :int {
 
 		if ( !isset( $this->counts[ $resultType ] ) ) {
 			$scansCon = self::con()->comps->scans;
@@ -122,42 +154,10 @@ class Counts {
 		return $this->counts[ $resultType ];
 	}
 
-	/**
-	 * @return list<string>
-	 */
-	private function getDistinctAssetSlugsForAfsMeta( string $membershipMetaKey ) :array {
-		$cacheKey = 'distinct_asset_slug_'.$membershipMetaKey;
+	private function countDistinctItemIdsForScanMeta( string $scanSlug, string $metaKey ) :int {
+		$cacheKey = 'count_distinct_item_id_'.$scanSlug.'_'.$metaKey;
 		if ( !isset( $this->counts[ $cacheKey ] ) ) {
-			$scanSlug = self::con()->comps->scans->AFS()->getSlug();
-			$this->counts[ $cacheKey ] = $this->queryDistinctColumnValues(
-				$scanSlug,
-				"`slug_meta`.`meta_value`",
-				[
-					[
-						'alias' => 'membership_meta',
-						'on'    => \sprintf(
-							"`membership_meta`.`ri_ref`=`ri`.`id` AND `membership_meta`.`meta_key`='%s'",
-							$membershipMetaKey
-						),
-					],
-					[
-						'alias' => 'slug_meta',
-						'on'    => "`slug_meta`.`ri_ref`=`ri`.`id` AND `slug_meta`.`meta_key`='ptg_slug' AND `slug_meta`.`meta_value`!=''",
-					],
-				]
-			);
-		}
-
-		return $this->counts[ $cacheKey ];
-	}
-
-	/**
-	 * @return list<string>
-	 */
-	private function getDistinctItemIdsForScanMeta( string $scanSlug, string $metaKey ) :array {
-		$cacheKey = 'distinct_item_id_'.$scanSlug.'_'.$metaKey;
-		if ( !isset( $this->counts[ $cacheKey ] ) ) {
-			$this->counts[ $cacheKey ] = $this->queryDistinctColumnValues(
+			$this->counts[ $cacheKey ] = $this->countDistinctColumnValues(
 				$scanSlug,
 				"`ri`.`item_id`",
 				[
@@ -172,17 +172,16 @@ class Counts {
 			);
 		}
 
-		return $this->counts[ $cacheKey ];
+		return (int)$this->counts[ $cacheKey ];
 	}
 
 	/**
 	 * @param list<array{alias:string,on:string}> $joins
-	 * @return list<string>
 	 */
-	private function queryDistinctColumnValues( string $scanSlug, string $selectColumn, array $joins ) :array {
+	private function countDistinctColumnValues( string $scanSlug, string $selectColumn, array $joins ) :int {
 		$latestScanId = $this->getLatestScanId( $scanSlug );
 		if ( $latestScanId < 1 ) {
-			return [];
+			return 0;
 		}
 
 		$dbCon = self::con()->db_con;
@@ -195,8 +194,8 @@ class Counts {
 			),
 			$joins
 		) );
-			$query = \sprintf(
-			"SELECT DISTINCT %s
+		$query = \sprintf(
+			"SELECT COUNT(DISTINCT %s)
 			FROM `%s` AS `sr`
 			INNER JOIN `%s` AS `ri`
 				ON `sr`.`resultitem_ref`=`ri`.`id`
@@ -209,10 +208,48 @@ class Counts {
 			\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $latestScanId, $this->context ) )
 		);
 
-		return \array_values( \array_filter( \array_map(
-			static fn( $value ) :string => (string)$value,
-			Services::WpDb()->loadWpdb()->get_col( $query )
-		), static fn( string $value ) :bool => $value !== '' ) );
+		return (int)Services::WpDb()->getVar( $query );
+	}
+
+	/**
+	 * @param list<array{scan_slug:string,meta_key:string}> $filters
+	 */
+	private function countDistinctItemIdsAcrossScanMetaFilters( array $filters ) :int {
+		$queries = [];
+		$dbCon = self::con()->db_con;
+
+		foreach ( $filters as $filter ) {
+			$latestScanId = $this->getLatestScanId( $filter[ 'scan_slug' ] );
+			if ( $latestScanId < 1 ) {
+				continue;
+			}
+
+			$queries[] = \sprintf(
+				"SELECT DISTINCT `ri`.`item_id`
+				FROM `%s` AS `sr`
+				INNER JOIN `%s` AS `ri`
+					ON `sr`.`resultitem_ref`=`ri`.`id`
+				INNER JOIN `%s` AS `rim`
+					ON `rim`.`ri_ref`=`ri`.`id`
+				WHERE %s AND `rim`.`meta_key`='%s'",
+				$dbCon->scan_results->getTable(),
+				$dbCon->scan_result_items->getTable(),
+				$dbCon->scan_result_item_meta->getTable(),
+				\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $latestScanId, $this->context ) ),
+				$filter[ 'meta_key' ]
+			);
+		}
+
+		if ( empty( $queries ) ) {
+			return 0;
+		}
+
+		return (int)Services::WpDb()->getVar(
+			\sprintf(
+				'SELECT COUNT(*) FROM (%s) AS `combined_items`',
+				\implode( ' UNION ', $queries )
+			)
+		);
 	}
 
 	private function getLatestScanId( string $scanSlug ) :int {
@@ -222,5 +259,9 @@ class Counts {
 
 	private function getLatestScanWheresBuilder() :LatestScanResultWheresBuilder {
 		return $this->latestScanWheresBuilder ??= new LatestScanResultWheresBuilder();
+	}
+
+	private function groupedAssetSummaries() :RetrieveGroupedAssetSummaries {
+		return $this->groupedAssetSummaries ??= new RetrieveGroupedAssetSummaries();
 	}
 }
