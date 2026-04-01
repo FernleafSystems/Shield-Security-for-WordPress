@@ -514,7 +514,6 @@
         "key": "block_send_email",
         "section": "section_firewall_blocking_options",
         "zone_comp_slugs": [
-            "web_application_firewall",
             "module_firewall"
         ],
         "default": "N",
