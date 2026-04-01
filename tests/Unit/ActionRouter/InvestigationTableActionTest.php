@@ -91,8 +91,8 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$payload = $this->runAction( [
 			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
 			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_SESSIONS,
-			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_IP,
-			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => '1.2.3.4',
+			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => 'akismet/akismet.php',
 			InvestigationTableContract::REQ_KEY_TABLE_DATA   => [],
 		] );
 

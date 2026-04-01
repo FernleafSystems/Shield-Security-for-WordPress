@@ -19,6 +19,8 @@ class Afs extends Base {
 
 	public const SCAN_SLUG = 'afs';
 
+	private bool $resultsPreparedForDisplay = false;
+
 	protected function run() {
 		parent::run();
 		$this->setupCronHooks();
@@ -114,6 +116,18 @@ class Afs extends Base {
 		( new StoreAction\TouchAll() )->execute();
 	}
 
+	public function prepareResultsForDisplay() :void {
+		if ( !$this->resultsPreparedForDisplay ) {
+			$this->cleanStalesResults();
+		}
+	}
+
+	public function cleanStalesResults() :bool {
+		$changed = parent::cleanStalesResults();
+		$this->resultsPreparedForDisplay = true;
+		return $changed;
+	}
+
 	public function actionPluginReinstall( string $file ) :bool {
 		$success = false;
 		$WPP = Services::WpPlugins();
@@ -199,6 +213,11 @@ class Afs extends Base {
 		}
 
 		return $changed;
+	}
+
+	protected function handleResultsChanged() :void {
+		unset( $this->latestResults );
+		self::con()->comps->scans->resetScanResultsCountMemoization();
 	}
 
 	public function getQueueGroupSize() :int {

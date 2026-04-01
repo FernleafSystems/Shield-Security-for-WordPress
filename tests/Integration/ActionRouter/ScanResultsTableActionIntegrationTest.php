@@ -80,6 +80,38 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_active_plugin_results_prepare_stale_rows_before_later_page_and_count_queries() :void {
+		$pluginSlug = self::con()->base_file;
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin'   => 1,
+			'ptg_slug'       => $pluginSlug,
+			'is_checksumfail' => 1,
+		] );
+
+		for ( $i = 0; $i < 10; $i++ ) {
+			TestDataFactory::insertAfsFileScanResult( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
+				'is_in_plugin' => 1,
+				'ptg_slug'     => $pluginSlug,
+			] );
+		}
+
+		$payload = $this->retrievePluginRows(
+			$pluginSlug,
+			( new ActionsQueueScanResultsOptions() )->activeOnly(),
+			$this->tableDataFixture( 10, 10 )
+		);
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertSame( 10, (int)( $payload[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+		$this->assertSame( 10, (int)( $payload[ 'datatable_data' ][ 'recordsFiltered' ] ?? -1 ) );
+		$this->assertCount( 0, $payload[ 'datatable_data' ][ 'data' ] ?? [] );
+
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
+		$this->assertNotEmpty( $item );
+		$this->assertGreaterThan( 0, (int)( $item->item_repaired_at ?? 0 ) );
+	}
+
 	private function processor() :ActionProcessor {
 		return new ActionProcessor();
 	}
@@ -87,10 +119,10 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function retrievePluginRows( string $pluginSlug, array $resultsDisplayOptions ) :array {
+	private function retrievePluginRows( string $pluginSlug, array $resultsDisplayOptions, ?array $tableData = null ) :array {
 		return $this->processor()->processAction( ScanResultsTableAction::SLUG, [
 			'sub_action' => 'retrieve_table_data',
-			'table_data' => $this->tableDataFixture(),
+			'table_data' => $tableData ?? $this->tableDataFixture(),
 			'type'       => 'plugin',
 			'file'       => $pluginSlug,
 			...(
@@ -99,14 +131,18 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		] )->payload();
 	}
 
-	private function tableDataFixture() :array {
+	private function tableDataFixture( int $start = 0, int $length = 10 ) :array {
 		return [
 			'search'  => [ 'value' => '' ],
-			'start'   => 0,
-			'length'  => 10,
+			'start'   => $start,
+			'length'  => $length,
 			'order'   => [],
 			'columns' => [],
 		];
+	}
+
+	private function pluginMainPathFragment( string $pluginSlug ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
 	}
 
 	/**

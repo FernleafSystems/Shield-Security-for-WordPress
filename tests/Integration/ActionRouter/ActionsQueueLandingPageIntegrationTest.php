@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
@@ -112,13 +113,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$themeSlug = \wp_get_theme()->get_stylesheet();
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'      => 'plugin-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'     => 'theme-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
 			'is_in_theme' => 1,
 			'ptg_slug'    => $themeSlug,
 		] );
@@ -129,6 +128,54 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'is_vulnerable' => 1,
 		] );
 		$this->resetScanResultCountMemoization();
+	}
+
+	private function pluginMainPathFragment( ?string $pluginSlug = null ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath(
+			WP_PLUGIN_DIR.'/'.( $pluginSlug ?? self::con()->base_file )
+		);
+	}
+
+	private function themeMainPathFragment( ?string $themeSlug = null ) :string {
+		$themeSlug = $themeSlug ?? \wp_get_theme()->get_stylesheet();
+		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$themeSlug.'/style.css' );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function executeInvestigationTableFromHtml( string $html ) :array {
+		$xpath = $this->createDomXPathFromHtml( $html );
+		$table = $xpath->query( '//*[@data-investigation-table="1"]' )->item( 0 );
+		$this->assertInstanceOf( \DOMElement::class, $table );
+
+		$tableAction = \json_decode(
+			\html_entity_decode( $table->getAttribute( 'data-table-action' ), \ENT_QUOTES ),
+			true
+		);
+		$this->assertIsArray( $tableAction );
+
+		$payload = $this->processActionPayloadWithAdminBypass( InvestigationTableAction::SLUG, \array_merge(
+			$tableAction,
+			[
+				'sub_action'   => 'retrieve_table_data',
+				'table_type'   => (string)$table->getAttribute( 'data-table-type' ),
+				'subject_type' => (string)$table->getAttribute( 'data-subject-type' ),
+				'subject_id'   => (string)$table->getAttribute( 'data-subject-id' ),
+				'table_data'   => [
+					'search'  => [ 'value' => '' ],
+					'start'   => 0,
+					'length'  => 10,
+					'order'   => [],
+					'columns' => [],
+				],
+			]
+		) );
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertIsArray( $payload[ 'datatable_data' ] ?? null );
+
+		return $payload[ 'datatable_data' ];
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
@@ -567,8 +614,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', $pluginTitle );
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		$tracked = TestDataFactory::insertScanResultItemTracked( $afsId, [
-			'item_id'      => 'plugin-file.php',
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
@@ -793,6 +839,25 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_detail_ajax_selected_plugin_group_returns_populated_investigation_rows() :void {
+		$this->seedCriticalAssetAndVulnerabilityQueue();
+		$pluginSlug = self::con()->base_file;
+
+		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
+			'bucket' => 'critical',
+			'group'  => 'plugins:'.$pluginSlug,
+		] );
+
+		$datatable = $this->executeInvestigationTableFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
+
+		$this->assertSame( 1, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
+		$this->assertSame( 1, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
+		$this->assertSame(
+			[ $this->pluginMainPathFragment( $pluginSlug ) ],
+			\array_column( $datatable[ 'data' ] ?? [], 'file' )
+		);
+	}
+
 	public function test_plugin_detail_render_in_actions_queue_context_uses_asset_cards_shell() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_pluginsthemes_local',
@@ -807,8 +872,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$pluginSlug = self::con()->base_file;
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'      => 'plugin-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
@@ -956,8 +1020,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$pluginSlug = self::con()->base_file;
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'      => 'plugin-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
@@ -995,8 +1058,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$themeSlug = \wp_get_theme()->get_stylesheet();
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'     => 'theme-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
 			'is_in_theme' => 1,
 			'ptg_slug'    => $themeSlug,
 		] );
@@ -1119,18 +1181,15 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'item_id'      => 'wp-admin/admin.php',
 			'is_in_core'   => 1,
 		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'      => 'plugin-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'      => 'plugin-file-2.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'     => 'theme-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
 			'is_in_theme' => 1,
 			'ptg_slug'    => $themeSlug,
 		] );
@@ -1186,13 +1245,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$themeSlug = \wp_get_theme()->get_stylesheet();
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'      => 'plugin-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'     => 'theme-file.php',
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
 			'is_in_theme' => 1,
 			'ptg_slug'    => $themeSlug,
 		] );
@@ -1252,13 +1309,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'item_id'    => 'wp-admin/admin.php',
 			'is_in_core' => 1,
 		] );
-		TestDataFactory::insertScanResultItem( $scanId, [
-			'item_id'      => 'plugin-file.php',
+		TestDataFactory::insertAfsFileScanResult( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
-		TestDataFactory::insertScanResultItem( $scanId, [
-			'item_id'     => 'theme-file.php',
+		TestDataFactory::insertAfsFileScanResult( $scanId, $this->themeMainPathFragment( $themeSlug ), [
 			'is_in_theme' => 1,
 			'ptg_slug'    => $themeSlug,
 		] );

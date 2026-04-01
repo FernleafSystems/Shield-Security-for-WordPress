@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsRailTabAvailability;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanAssetCardsBuilder,
+	ActionsQueueScanResultsOptions,
+	ScansResultsRailTabAvailability
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
@@ -44,6 +48,8 @@ class ActionsQueueScanStateBuilder {
 	use PluginControllerConsumer;
 
 	private ?ScansResultsRailTabAvailability $tabAvailability = null;
+	private ?ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder = null;
+	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
 	private ?Counts $displayCounts = null;
 
 	/**
@@ -129,9 +135,10 @@ class ActionsQueueScanStateBuilder {
 			return;
 		}
 
-		$count = $tabKey === 'plugins'
-			? $this->getDisplayCounts()->countAffectedPluginAssets()
-			: $this->getDisplayCounts()->countAffectedThemeAssets();
+		$count = \count( $this->scanAssetCardsBuilder()->buildSummaryRecords(
+			$tabKey === 'plugins' ? 'plugin' : 'theme',
+			$this->queueScanResultsOptions()->activeOnly()
+		) );
 		$tabs[ $tabKey ] = [
 			'count'  => $count,
 			'status' => $count > 0 ? 'critical' : 'good',
@@ -382,6 +389,22 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		return $this->displayCounts;
+	}
+
+	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
+		if ( $this->queueScanResultsOptions === null ) {
+			$this->queueScanResultsOptions = new ActionsQueueScanResultsOptions();
+		}
+
+		return $this->queueScanResultsOptions;
+	}
+
+	private function scanAssetCardsBuilder() :ActionsQueueScanAssetCardsBuilder {
+		if ( $this->scanAssetCardsBuilder === null ) {
+			$this->scanAssetCardsBuilder = new ActionsQueueScanAssetCardsBuilder();
+		}
+
+		return $this->scanAssetCardsBuilder;
 	}
 
 	private function scanSectionLabel( string $summaryKey, string $fallback ) :string {

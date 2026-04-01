@@ -51,10 +51,15 @@ abstract class Base {
 		return 1;
 	}
 
-	public function cleanStalesResults() {
+	public function cleanStalesResults() :bool {
+		$changed = false;
 		foreach ( $this->getAllResults()->getItems() as $item ) {
-			$this->cleanStaleResultItem( $item );
+			$changed = $this->cleanStaleResultItem( $item ) || $changed;
 		}
+		if ( $changed ) {
+			$this->handleResultsChanged();
+		}
+		return $changed;
 	}
 
 	/**
@@ -62,6 +67,9 @@ abstract class Base {
 	 */
 	public function cleanStaleResultItem( $item ) :bool {
 		return false;
+	}
+
+	protected function handleResultsChanged() :void {
 	}
 
 	/**

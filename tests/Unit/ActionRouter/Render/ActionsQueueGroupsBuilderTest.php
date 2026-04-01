@@ -26,6 +26,16 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		Functions\when( 'number_format_i18n' )->alias( static fn( int $number ) :string => (string)$number );
 	}
 
+	public function test_build_group_scan_source_constructs_with_real_scan_asset_cards_builder_wiring() :void {
+		$builder = new class extends ActionsQueueGroupsBuilder {
+			public function exposeBuildGroupScanSource() :ActionsQueueGroupScanSource {
+				return $this->buildGroupScanSource();
+			}
+		};
+
+		$this->assertInstanceOf( ActionsQueueGroupScanSource::class, $builder->exposeBuildGroupScanSource() );
+	}
+
 	public function test_build_expands_scan_bucket_into_per_asset_and_linked_groups() :void {
 		$builder = $this->createBuilder(
 			[

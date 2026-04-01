@@ -2,13 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
-	RetrieveGroupedAssetSummaries
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * @phpstan-import-type GroupedAssetType from RetrieveGroupedAssetSummaries
+ * @phpstan-import-type AssetType from ActionsQueueAfsAssetSummaryProvider
+ * @phpstan-type QueueAssetAction array{
+ *   type:string,
+ *   label:string,
+ *   href:string,
+ *   icon_class:string,
+ *   tooltip_attr:string,
+ *   attributes:array<string,string>
+ * }
  * @phpstan-type QueueAssetSummaryRecord array{
  *   key:string,
  *   status:string,
@@ -21,24 +26,43 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   subject_id:string,
  *   has_update:bool
  * }
+ * @phpstan-type QueueAssetIssueRecord array{
+ *   key:string,
+ *   panel_id:string,
+ *   panel_target:string,
+ *   expand_target:string,
+ *   status:string,
+ *   icon_class:string,
+ *   title:string,
+ *   stat_text:string,
+ *   meta_text:string,
+ *   show_meta_in_tile:bool,
+ *   count_badge:int,
+ *   panel_data:array<string,string>,
+ *   actions:list<QueueAssetAction>,
+ *   table:array<string,mixed>
+ * }
  */
 class ActionsQueueScanAssetCardsBuilder {
 
 	use PluginControllerConsumer;
 
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
+	private ActionsQueueAfsAssetSummaryProvider $afsAssetSummaryProvider;
 	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
 
 	public function __construct(
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
+		?ActionsQueueAfsAssetSummaryProvider $afsAssetSummaryProvider = null,
 		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null
 	) {
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
+		$this->afsAssetSummaryProvider = $afsAssetSummaryProvider ?? new ActionsQueueAfsAssetSummaryProvider();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
 	}
 
 	/**
-	 * @phpstan-param GroupedAssetType $assetType
+	 * @phpstan-param AssetType $assetType
 	 * @return list<QueueAssetSummaryRecord>
 	 */
 	public function buildSummaryRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
@@ -81,8 +105,8 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
-	 * @phpstan-param GroupedAssetType $assetType
-	 * @return list<array<string,mixed>>
+	 * @phpstan-param AssetType $assetType
+	 * @return list<QueueAssetIssueRecord>
 	 */
 	public function buildIssueRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
 		$options = $this->queueScanResultsOptions->normalize( $resultsDisplayOptions );
@@ -102,13 +126,13 @@ class ActionsQueueScanAssetCardsBuilder {
 				'meta_text'         => $summary[ 'meta_text' ],
 				'show_meta_in_tile' => true,
 				'count_badge'       => $summary[ 'count_badge' ],
+				'panel_data'        => $this->buildImmediatePanelData(),
 				'actions'           => $this->buildAssetActions( $summary, $assetType ),
 				'table'             => $this->buildFileStatusTable(
 					$subjectType,
 					$subjectId,
 					$options
 				),
-				'render_action'     => [],
 			];
 		}
 
@@ -116,41 +140,51 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
-	 * @phpstan-param GroupedAssetType $assetType
+	 * @phpstan-param AssetType $assetType
 	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
 	 * @return list<array{slug:string,file_count:int}>
 	 */
 	protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
-		return ( new RetrieveGroupedAssetSummaries() )->retrieve( $assetType, $resultsDisplayOptions );
+		return $this->afsAssetSummaryProvider->retrieve( $assetType, $resultsDisplayOptions );
 	}
 
 	/**
 	 * @param QueueAssetSummaryRecord $summary
-	 * @return list<array<string,mixed>>
+	 * @return list<QueueAssetAction>
 	 */
 	protected function buildAssetActions( array $summary, string $assetType ) :array {
 		$actions = [];
 		if ( $summary[ 'has_update' ] ) {
 			$actions[] = [
-				'type'       => 'update',
-				'label'      => __( 'Update', 'wp-simple-firewall' ),
-				'href'       => \admin_url( 'update-core.php' ),
-				'icon'       => 'bi bi-arrow-up-circle-fill',
-				'tooltip'    => __( 'Go to updates', 'wp-simple-firewall' ),
-				'attributes' => [],
+				'type'         => 'update',
+				'label'        => __( 'Update', 'wp-simple-firewall' ),
+				'href'         => \admin_url( 'update-core.php' ),
+				'icon_class'   => 'bi bi-arrow-up-circle-fill',
+				'tooltip_attr' => __( 'Go to updates', 'wp-simple-firewall' ),
+				'attributes'   => [],
 			];
 		}
 		if ( $assetType === 'plugin' ) {
 			$actions[] = [
-				'type'       => 'deactivate',
-				'label'      => __( 'Deactivate', 'wp-simple-firewall' ),
-				'href'       => \admin_url( 'plugins.php' ),
-				'icon'       => 'bi bi-power',
-				'tooltip'    => __( 'Go to plugins', 'wp-simple-firewall' ),
-				'attributes' => [],
+				'type'         => 'deactivate',
+				'label'        => __( 'Deactivate', 'wp-simple-firewall' ),
+				'href'         => \admin_url( 'plugins.php' ),
+				'icon_class'   => 'bi bi-power',
+				'tooltip_attr' => __( 'Go to plugins', 'wp-simple-firewall' ),
+				'attributes'   => [],
 			];
 		}
 		return $actions;
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	protected function buildImmediatePanelData() :array {
+		return [
+			'actions-queue-asset-panel-loaded' => '1',
+			'actions-queue-asset-panel-lazy'   => '0',
+		];
 	}
 
 	/**

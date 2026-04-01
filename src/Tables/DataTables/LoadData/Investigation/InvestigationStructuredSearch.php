@@ -14,6 +14,12 @@ class InvestigationStructuredSearch {
 			|| !empty( $parsedSearch[ SearchTextParser::USER_EMAIL ] );
 	}
 
+	public function hasUserFilters( array $parsedSearch ) :bool {
+		return !empty( $parsedSearch[ SearchTextParser::USER_ID ] )
+			|| !empty( $parsedSearch[ SearchTextParser::USER_NAME ] )
+			|| !empty( $parsedSearch[ SearchTextParser::USER_EMAIL ] );
+	}
+
 	public function filterRecordsForIpToken( array $records, array $parsedSearch ) :array {
 		if ( empty( $parsedSearch[ 'ip' ] ) ) {
 			return $records;
@@ -29,13 +35,13 @@ class InvestigationStructuredSearch {
 	/**
 	 * @param callable(string):int $resolveUsernameToUid
 	 * @param callable(string):int $resolveEmailToUid
+	 * @return list<int>
 	 */
-	public function passesUserSubject(
+	public function resolveRequestedUserIds(
 		array $parsedSearch,
-		int $subjectUserId,
 		callable $resolveUsernameToUid,
 		callable $resolveEmailToUid
-	) :bool {
+	) :array {
 		$ids = [];
 
 		if ( !empty( $parsedSearch[ SearchTextParser::USER_ID ] ) ) {
@@ -48,12 +54,25 @@ class InvestigationStructuredSearch {
 			$ids[] = (int)$resolveEmailToUid( (string)$parsedSearch[ SearchTextParser::USER_EMAIL ] );
 		}
 
-		$ids = \array_values( \array_unique( \array_filter( $ids, fn( int $uid ) :bool => $uid > 0 ) ) );
+		return \array_values( \array_unique( \array_filter( $ids, fn( int $uid ) :bool => $uid > 0 ) ) );
+	}
+
+	/**
+	 * @param callable(string):int $resolveUsernameToUid
+	 * @param callable(string):int $resolveEmailToUid
+	 */
+	public function passesUserSubject(
+		array $parsedSearch,
+		int $subjectUserId,
+		callable $resolveUsernameToUid,
+		callable $resolveEmailToUid
+	) :bool {
+		$ids = $this->resolveRequestedUserIds( $parsedSearch, $resolveUsernameToUid, $resolveEmailToUid );
 		if ( empty( $ids ) ) {
-			return empty( $parsedSearch[ SearchTextParser::USER_NAME ] )
-				&& empty( $parsedSearch[ SearchTextParser::USER_EMAIL ] )
-				&& ( empty( $parsedSearch[ SearchTextParser::USER_ID ] )
-					|| (int)$parsedSearch[ SearchTextParser::USER_ID ] > 0 );
+			return !$this->hasUserFilters( $parsedSearch )
+				|| ( empty( $parsedSearch[ SearchTextParser::USER_ID ] )
+					&& empty( $parsedSearch[ SearchTextParser::USER_NAME ] )
+					&& empty( $parsedSearch[ SearchTextParser::USER_EMAIL ] ) );
 		}
 
 		return \count( $ids ) === 1 && (int)\current( $ids ) === $subjectUserId;

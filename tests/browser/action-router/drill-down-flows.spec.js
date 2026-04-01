@@ -5,6 +5,17 @@ const {
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
+async function waitForInvestigationTableRows( table ) {
+	await expect( table ).toBeVisible();
+	await expect.poll( async () => {
+		if ( await table.locator( 'tbody td.dataTables_empty' ).count() > 0 ) {
+			return 0;
+		}
+		return await table.locator( 'tbody tr' ).count();
+	}, { timeout: 20_000 } ).toBeGreaterThan( 0 );
+	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
+}
+
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
 	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -53,6 +64,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await actionsQueuePage.clickElement( group );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
+		await waitForInvestigationTableRows( page.locator( '[data-investigation-table="1"]' ).first() );
 
 		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
 		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
@@ -155,6 +167,7 @@ test( 'actions queue restores the same ignored-plugin asset panel after the shar
 		const panel = await actionsQueuePage.openAssetPanel( fixture.panel_target );
 		const investigationTable = panel.locator( '[data-investigation-table="1"]' );
 		await expect( investigationTable ).toBeVisible();
+		await waitForInvestigationTableRows( investigationTable );
 		await investigationTable.evaluate( ( table ) => {
 			table.dispatchEvent( new CustomEvent( 'shield:table-action-success', {
 				bubbles: true,

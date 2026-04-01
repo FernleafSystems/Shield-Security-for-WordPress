@@ -31,7 +31,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   target_group_key:string,
  *   expected_detail_shell:string,
  *   expected_lazy_panel:bool,
- *   require_investigation_table:bool
+ *   require_investigation_table:bool,
+ *   require_populated_investigation_table:bool
  * }
  */
 class ActionsQueueFixtureBuilder {
@@ -202,11 +203,14 @@ class ActionsQueueFixtureBuilder {
 		$pluginSlug = RuntimeTestState::controller()->base_file;
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$this->trackId( $state, 'scan_ids', $scanId );
-		$this->trackScanResult( $state, TestDataFactory::insertScanResultItemTracked( $scanId, [
-			'item_id'      => 'plugin-file.php',
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] ) );
+		$this->trackScanResult( $state, TestDataFactory::insertAfsFileScanResultTracked(
+			$scanId,
+			$this->pluginMainPathFragment( $pluginSlug ),
+			[
+				'is_in_plugin' => 1,
+				'ptg_slug'     => $pluginSlug,
+			]
+		) );
 		$vulnerabilityScanId = TestDataFactory::insertCompletedScan( 'wpv' );
 		$this->trackId( $state, 'scan_ids', $vulnerabilityScanId );
 		$this->trackScanResult( $state, TestDataFactory::insertScanResultItemTracked( $vulnerabilityScanId, [
@@ -220,6 +224,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_investigation_table' => true,
+			'require_populated_investigation_table' => true,
 		];
 	}
 
@@ -249,12 +254,15 @@ class ActionsQueueFixtureBuilder {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$this->trackId( $state, 'scan_ids', $scanId );
 
-		foreach ( [ $pluginSlug, $pluginSlug ] as $itemId ) {
-			$tracked = TestDataFactory::insertScanResultItemTracked( $scanId, [
-				'item_id'      => $itemId,
-				'is_in_plugin' => 1,
-				'ptg_slug'     => $pluginSlug,
-			] );
+		foreach ( [ 1, 2 ] as $_ ) {
+			$tracked = TestDataFactory::insertAfsFileScanResultTracked(
+				$scanId,
+				$this->pluginMainPathFragment( $pluginSlug ),
+				[
+					'is_in_plugin' => 1,
+					'ptg_slug'     => $pluginSlug,
+				]
+			);
 			$this->trackScanResult( $state, $tracked );
 			TestDataFactory::markScanResultItemIgnored( (int)$tracked[ 'result_item_id' ] );
 		}
@@ -265,6 +273,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'asset_cards',
 			'expected_lazy_panel'         => false,
 			'require_investigation_table' => true,
+			'require_populated_investigation_table' => true,
 		];
 	}
 
@@ -320,6 +329,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'asset_cards',
 			'expected_lazy_panel'         => true,
 			'require_investigation_table' => false,
+			'require_populated_investigation_table' => false,
 		];
 	}
 
@@ -434,6 +444,16 @@ class ActionsQueueFixtureBuilder {
 				$detail
 			) );
 		}
+		if ( $definition[ 'require_populated_investigation_table' ]
+			 && (int)( $detail[ 'datatable_row_count' ] ?? 0 ) < 1 ) {
+			throw new \RuntimeException( $this->buildScenarioFailureMessage(
+				$definition[ 'scenario' ],
+				'Detail investigation table did not return any rows.',
+				$diagnostics,
+				$groupContext,
+				$detail
+			) );
+		}
 
 		return [
 			'scenario'      => $definition[ 'scenario' ],
@@ -478,5 +498,9 @@ class ActionsQueueFixtureBuilder {
 		}
 
 		return $this->runtimeProbe;
+	}
+
+	private function pluginMainPathFragment( string $pluginSlug ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
 	}
 }

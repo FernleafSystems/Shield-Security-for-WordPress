@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	PageActionsQueueLanding,
 	ScansResultsViewBuilder
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -52,7 +53,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  *   detail_shell:string,
  *   panel_target:string,
  *   is_lazy_panel:bool,
- *   has_investigation_table:bool
+ *   has_investigation_table:bool,
+ *   datatable_records_total:int,
+ *   datatable_records_filtered:int,
+ *   datatable_row_count:int
  * }
  */
 class ActionsQueueRuntimeProbe {
@@ -169,7 +173,18 @@ class ActionsQueueRuntimeProbe {
 				'is_lazy_panel'           => $detailShell === 'asset_cards'
 					&& $this->extractLazyPanelFlag( $detailDom ),
 				'has_investigation_table' => $this->hasInvestigationTableContract( $detailDom ),
+				'datatable_records_total' => 0,
+				'datatable_records_filtered' => 0,
+				'datatable_row_count'     => 0,
 			];
+			$tableData = $this->executeInvestigationTableAction( $detailDom );
+			if ( $tableData !== [] ) {
+				$this->detailSummaries[ $cacheKey ][ 'datatable_records_total' ] = (int)( $tableData[ 'recordsTotal' ] ?? 0 );
+				$this->detailSummaries[ $cacheKey ][ 'datatable_records_filtered' ] = (int)( $tableData[ 'recordsFiltered' ] ?? 0 );
+				$this->detailSummaries[ $cacheKey ][ 'datatable_row_count' ] = \count(
+					\is_array( $tableData[ 'data' ] ?? null ) ? $tableData[ 'data' ] : []
+				);
+			}
 		}
 
 		return $this->detailSummaries[ $cacheKey ];
@@ -394,6 +409,60 @@ class ActionsQueueRuntimeProbe {
 		return $xpath->query(
 			'//*[@data-investigation-table="1" and string-length(@data-scan-results-action) > 0]'
 		)->length > 0;
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function executeInvestigationTableAction( \DOMXPath $xpath ) :array {
+		$table = $xpath->query( '//*[@data-investigation-table="1"]' )->item( 0 );
+		if ( !$table instanceof \DOMElement ) {
+			return [];
+		}
+
+		$tableAction = $this->decodeJsonAttr( $table->getAttribute( 'data-table-action' ) );
+		if ( $tableAction === [] ) {
+			return [];
+		}
+
+		$payload = $this->routeRuntime()->processActionPayloadWithAdminBypass(
+			InvestigationTableAction::SLUG,
+			\array_merge( $tableAction, [
+				'sub_action'   => 'retrieve_table_data',
+				'table_type'   => (string)$table->getAttribute( 'data-table-type' ),
+				'subject_type' => (string)$table->getAttribute( 'data-subject-type' ),
+				'subject_id'   => (string)$table->getAttribute( 'data-subject-id' ),
+				'table_data'   => $this->datatablePayloadFixture(),
+			] )
+		);
+
+		$datatableData = $payload[ 'datatable_data' ] ?? null;
+		return \is_array( $datatableData ) ? $datatableData : [];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function datatablePayloadFixture() :array {
+		return [
+			'search'  => [ 'value' => '' ],
+			'start'   => 0,
+			'length'  => 10,
+			'order'   => [],
+			'columns' => [],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function decodeJsonAttr( string $attr ) :array {
+		if ( \trim( $attr ) === '' ) {
+			return [];
+		}
+
+		$decoded = \json_decode( \html_entity_decode( $attr, \ENT_QUOTES ), true );
+		return \is_array( $decoded ) ? $decoded : [];
 	}
 
 	private function detailCacheKey( string $bucketKey, string $groupKey ) :string {

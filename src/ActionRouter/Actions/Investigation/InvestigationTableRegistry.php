@@ -41,7 +41,10 @@ class InvestigationTableRegistry {
 			],
 			InvestigationTableContract::TABLE_TYPE_SESSIONS          => [
 				'builder'  => BuildSessionsData::class,
-				'subjects' => [ InvestigationTableContract::SUBJECT_TYPE_USER ],
+				'subjects' => [
+					InvestigationTableContract::SUBJECT_TYPE_USER,
+					InvestigationTableContract::SUBJECT_TYPE_IP,
+				],
 			],
 			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS => [
 				'builder'  => BuildFileScanResultsData::class,

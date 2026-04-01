@@ -193,6 +193,7 @@ class ActionsQueueGroupsBuilder {
 		return new ActionsQueueGroupScanSource(
 			new ActionsQueueScanAssetCardsBuilder(
 				$this->assetMetadataResolver(),
+				null,
 				$this->queueScanResultsOptions()
 			),
 			new ScansVulnerabilitiesBuilder(),

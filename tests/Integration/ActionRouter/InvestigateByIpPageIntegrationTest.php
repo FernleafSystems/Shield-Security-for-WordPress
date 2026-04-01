@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -16,7 +17,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use HtmlDomAssertions;
+	use LookupRouteFormAssertions;
+	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -116,6 +119,7 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
 		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
+		$this->assertIpInvestigationTablesMarkup( $fullHtml, '203.0.113.88', 'investigate by-ip full page action' );
 
 		$panelHtml = $this->assertRouteRenderOutputHealthy(
 			$this->renderByIpPanelBody( '203.0.113.88' ),
@@ -124,5 +128,44 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
 		$this->assertStringContainsString( 'investigate-inline-ipanalyse', $panelHtml );
 		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
+		$this->assertIpInvestigationTablesMarkup( $panelHtml, '203.0.113.88', 'investigate by-ip panel body action' );
+	}
+
+	private function assertIpInvestigationTablesMarkup( string $html, string $ip, string $label ) :void {
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathCount(
+			$xpath,
+			\sprintf(
+				'//*[@data-investigation-table="1" and @data-subject-type="ip" and @data-subject-id="%s"]',
+				$ip
+			),
+			3,
+			$label.' shared IP investigation tables'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			\sprintf(
+				'//*[@data-investigation-table="1" and @data-table-type="sessions" and @data-subject-type="ip" and @data-subject-id="%s"]',
+				$ip
+			),
+			$label.' sessions table marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			\sprintf(
+				'//*[@data-investigation-table="1" and @data-table-type="activity" and @data-subject-type="ip" and @data-subject-id="%s"]',
+				$ip
+			),
+			$label.' activity table marker'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			\sprintf(
+				'//*[@data-investigation-table="1" and @data-table-type="traffic" and @data-subject-type="ip" and @data-subject-id="%s"]',
+				$ip
+			),
+			$label.' traffic table marker'
+		);
 	}
 }

@@ -5,9 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	ActionResponse,
+	Actions\ScanResultsTableAction,
 	Actions\Render\Components\Widgets\NeedsAttentionQueue,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -118,6 +120,20 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return $rows;
 	}
 
+	private function pluginMainPathFragment( string $pluginSlug ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
+	}
+
+	private function scanTableDataFixture( int $start = 0, int $length = 10 ) :array {
+		return [
+			'search'  => [ 'value' => '' ],
+			'start'   => $start,
+			'length'  => $length,
+			'order'   => [],
+			'columns' => [],
+		];
+	}
+
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
@@ -155,6 +171,50 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$refreshedRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
 		$refreshedZone = $this->getZoneGroupBySlug( $refreshedRenderData, 'scans' );
 		$this->assertSame( 2, (int)( $refreshedZone[ 'total_issues' ] ?? 0 ) );
+	}
+
+	public function test_scan_result_counts_refresh_in_same_request_after_display_preparation_repairs_stale_afs_rows() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_file_areas',
+			'scan_pluginsthemes_local',
+		] );
+		self::con()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'file_scan_areas', [ 'plugins' ] )
+			->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin'   => 1,
+			'ptg_slug'       => $pluginSlug,
+			'is_checksumfail' => 1,
+		] );
+
+		$initialRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
+		$initialZone = $this->getZoneGroupBySlug( $initialRenderData, 'scans' );
+		$this->assertSame( 1, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
+
+		$tablePayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+			'sub_action' => 'retrieve_table_data',
+			'table_data' => $this->scanTableDataFixture(),
+			'type'       => 'plugin',
+			'file'       => $pluginSlug,
+			...( new ActionsQueueScanResultsOptions() )->buildActionData( ( new ActionsQueueScanResultsOptions() )->activeOnly() ),
+		] )->payload();
+
+		$this->assertTrue( $tablePayload[ 'success' ] ?? false );
+		$this->assertSame( 0, (int)( $tablePayload[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+		$refreshedRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
+		$refreshedZone = $this->getZoneGroupBySlug( $refreshedRenderData, 'scans' );
+		$this->assertSame( 0, (int)( $refreshedZone[ 'total_issues' ] ?? -1 ) );
+
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
+		$this->assertNotEmpty( $item );
+		$this->assertGreaterThan( 0, (int)( $item->item_repaired_at ?? 0 ) );
 	}
 
 	public function test_disabled_malware_wpv_apc_do_not_inject_rows() :void {

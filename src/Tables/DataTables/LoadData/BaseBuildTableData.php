@@ -40,7 +40,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			return [
 				'data'            => $data,
 				'recordsTotal'    => $totalCount,
-				'recordsFiltered' => empty( $this->buildWheresFromSearchParams() )
+				'recordsFiltered' => !$this->hasActiveFiltersForFilteredCount()
 					? $totalCount
 					: $this->countTotalRecordsFiltered(),
 				'searchPanes'     => $this->getSearchPanesData(),
@@ -94,9 +94,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function loadRecordsWithDirectQuery() :array {
-		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
-		}
+		$this->sanitizeTableSearchPanes();
 
 		return $this->buildTableRowsFromRawRecords(
 			$this->getRecords(
@@ -112,9 +110,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		$length = (int)$this->table_data[ 'length' ];
 		$search = $this->parseSearchText()[ 'remaining' ];
 
-		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
-		}
+		$this->sanitizeTableSearchPanes();
 
 		$wheres = $this->buildWheresFromSearchParams();
 
@@ -267,6 +263,18 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function buildWheresFromSearchParams() :array {
 		return [];
+	}
+
+	protected function hasActiveFiltersForFilteredCount() :bool {
+		return !empty( $this->buildWheresFromSearchParams() );
+	}
+
+	protected function sanitizeTableSearchPanes() :void {
+		$tableData = \is_array( $this->table_data ?? null ) ? $this->table_data : [];
+		if ( \is_array( $tableData[ 'searchPanes' ] ?? null ) && !empty( $tableData[ 'searchPanes' ] ) ) {
+			$tableData[ 'searchPanes' ] = $this->validateSearchPanes( $tableData[ 'searchPanes' ] );
+			$this->table_data = $tableData;
+		}
 	}
 
 	protected function getOrderBy() :string {

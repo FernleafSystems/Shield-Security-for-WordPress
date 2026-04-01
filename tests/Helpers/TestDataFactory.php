@@ -287,6 +287,38 @@ class TestDataFactory {
 		];
 	}
 
+	/**
+	 * Insert an AFS file scan result using a real ABSPATH-relative file path for both
+	 * the persisted item identifier and the path fragment meta used by runtime cleanup.
+	 *
+	 * @param array<string,mixed> $meta
+	 * @return array{scan_result_id:int,result_item_id:int,meta_ids:list<int>}
+	 */
+	public static function insertAfsFileScanResultTracked( int $scanId, string $pathFragment, array $meta = [] ) :array {
+		$pathFragment = \ltrim( \wp_normalize_path( $pathFragment ), '/' );
+
+		return self::insertScanResultItemTracked( $scanId, \array_merge( [
+			'item_id'       => $pathFragment,
+			'path_fragment' => $pathFragment,
+		], $meta ) );
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 */
+	public static function insertAfsFileScanResult( int $scanId, string $pathFragment, array $meta = [] ) :int {
+		return self::insertAfsFileScanResultTracked( $scanId, $pathFragment, $meta )[ 'scan_result_id' ];
+	}
+
+	public static function pathFragmentFromAbsolutePath( string $absolutePath ) :string {
+		$absolutePath = \wp_normalize_path( $absolutePath );
+		$root = \trailingslashit( \wp_normalize_path( ABSPATH ) );
+
+		return \ltrim( \str_starts_with( $absolutePath, $root )
+			? \substr( $absolutePath, \strlen( $root ) )
+			: $absolutePath, '/' );
+	}
+
 	public static function markScanResultItemIgnored( int $resultItemId, int $ignoredAt = 0 ) :void {
 		self::con()->db_con->scan_result_items
 			->getQueryUpdater()

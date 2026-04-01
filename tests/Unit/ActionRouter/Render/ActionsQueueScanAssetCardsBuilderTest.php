@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueAfsAssetSummaryProvider,
 	ActionsQueueAssetMetadataResolver,
 	ActionsQueueScanAssetCardsBuilder
 };
@@ -56,7 +57,7 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 0, $builder->tableBuildCalls() );
 	}
 
-	public function test_build_issue_records_adds_actions_and_tables_to_summary_records() :void {
+	public function test_build_issue_records_adds_actions_tables_and_panel_contract() :void {
 		$builder = $this->newBuilder(
 			[
 				[ 'slug' => 'example-plugin/example-plugin.php', 'file_count' => 2 ],
@@ -79,6 +80,10 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $records[ 0 ][ 'count_badge' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'table' ][ 'subject_id' ] );
 		$this->assertSame( [ 'update', 'deactivate' ], \array_column( $records[ 0 ][ 'actions' ], 'type' ) );
+		$this->assertSame( 'bi bi-arrow-up-circle-fill', $records[ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
+		$this->assertSame( 'Go to updates', $records[ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
+		$this->assertSame( '1', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
+		$this->assertSame( '0', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
 		$this->assertSame( 1, $builder->tableBuildCalls() );
 	}
 
@@ -100,18 +105,27 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			}
 		};
 
-		return new class( $groupedRows, $resolver ) extends ActionsQueueScanAssetCardsBuilder {
+		$provider = new class( $groupedRows ) extends ActionsQueueAfsAssetSummaryProvider {
 
 			private array $groupedRows;
-			private int $tableBuildCalls = 0;
 
-			public function __construct( array $groupedRows, ActionsQueueAssetMetadataResolver $resolver ) {
-				parent::__construct( $resolver );
+			public function __construct( array $groupedRows ) {
 				$this->groupedRows = $groupedRows;
 			}
 
-			protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
+			public function retrieve( string $assetType, ?array $resultsDisplayOptions = null ) :array {
 				return $this->groupedRows;
+			}
+		};
+
+		return new class( $resolver, $provider ) extends ActionsQueueScanAssetCardsBuilder {
+			private int $tableBuildCalls = 0;
+
+			public function __construct(
+				ActionsQueueAssetMetadataResolver $resolver,
+				ActionsQueueAfsAssetSummaryProvider $provider
+			) {
+				parent::__construct( $resolver, $provider );
 			}
 
 			protected function buildFileStatusTable( string $subjectType, string $subjectId, array $resultsDisplayOptions ) :array {
