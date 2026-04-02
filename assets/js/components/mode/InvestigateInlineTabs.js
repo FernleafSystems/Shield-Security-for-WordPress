@@ -1,4 +1,5 @@
 import { Tab } from 'bootstrap';
+import { UiContentActivator } from "../ui/UiContentActivator";
 
 export class InvestigateInlineTabs {
 
@@ -186,7 +187,25 @@ export class InvestigateInlineTabs {
 		if ( scopeEl === null ) {
 			return;
 		}
+		this.activateShownSourcePane( scopeEl, sourceTab );
 		this.syncInlineActiveTab( scopeEl );
+	}
+
+	activateShownSourcePane( scopeEl, sourceTab ) {
+		const contentContainer = this.getScopeContentContainer( scopeEl );
+		if ( contentContainer === null ) {
+			return;
+		}
+
+		const targetSelector = this.getTabTargetSelector( sourceTab );
+		if ( targetSelector.length < 1 ) {
+			return;
+		}
+
+		const targetPane = contentContainer.querySelector( targetSelector );
+		if ( targetPane !== null ) {
+			UiContentActivator.activateCurrentSubtree( targetPane );
+		}
 	}
 
 	syncInlineActiveTab( scopeEl ) {

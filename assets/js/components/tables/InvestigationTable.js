@@ -51,7 +51,6 @@ export class InvestigationTable extends ShieldTableBase {
 				ajax: ( data, callback, settings ) => this.datatablesAjaxRequest( data, callback, settings, context )
 			}
 		);
-		this.applyBehaviorDatatableConfig( cfg, context );
 
 		const datatable = $tableElement.DataTable( cfg );
 		this.bindBusyStateLifecycle( datatable );
