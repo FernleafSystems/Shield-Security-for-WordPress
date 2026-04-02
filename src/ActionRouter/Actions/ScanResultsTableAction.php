@@ -47,26 +47,26 @@ class ScanResultsTableAction extends ScansBase {
 	 */
 	private function doAction( string $action ) :array {
 		$items = $this->getItemIDs();
+		$itemCount = \count( $items );
 
-		$scanSlugs = [];
-		$successfulItems = [];
+		$successfulItemCount = 0;
 		foreach ( $items as $itemID ) {
 			try {
 				$item = ( new RetrieveItems() )->byID( $itemID );
-				$scanSlugs[] = $item->VO->scan;
 				if ( self::con()->comps->scans->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
-					$successfulItems[] = $item->VO->scanresult_id;
+					$successfulItemCount++;
 				}
 			}
 			catch ( \Exception $e ) {
 			}
 		}
 
-		foreach ( \array_unique( $scanSlugs ) as $slug ) {
-			self::con()->comps->scans->getScanCon( $slug )->cleanStalesResults();
+		if ( $successfulItemCount > 0 ) {
+			// Interactive actions invalidate cached counts only; stale cleanup stays on displayed rows and background maintenance.
+			self::con()->comps->scans->resetScanResultsCountMemoization();
 		}
 
-		if ( \count( $successfulItems ) === \count( $items ) ) {
+		if ( $successfulItemCount === $itemCount ) {
 			$success = true;
 			switch ( $action ) {
 				case 'delete':
@@ -85,7 +85,6 @@ class ScanResultsTableAction extends ScansBase {
 					$msg = __( 'Success', 'wp-simple-firewall' );
 					break;
 			}
-			$itemCount = \count( $items );
 			$msg = sprintf( '%s: %s', $msg,
 				sprintf( _n( '%s item processed', '%s items processed', $itemCount, 'wp-simple-firewall' ), $itemCount ) );
 		}
@@ -98,7 +97,7 @@ class ScanResultsTableAction extends ScansBase {
 		return [
 			'success'      => $success,
 			'page_reload'  => false,
-			'table_reload' => \in_array( $action, [ 'ignore', 'repair', 'delete', 'repair-delete' ] ),
+			'table_reload' => true,
 			'message'      => $msg,
 		];
 	}

@@ -80,6 +80,34 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_ignore_sub_action_does_not_clean_unrelated_stale_rows_in_same_scan() :void {
+		$pluginSlug = self::con()->base_file;
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$active = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
+		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin'    => 1,
+			'ptg_slug'        => $pluginSlug,
+			'is_checksumfail' => 1,
+		] );
+
+		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+			'sub_action' => 'ignore',
+			'rids'       => [ (int)$active[ 'scan_result_id' ] ],
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
+
+		$activeItem = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$active[ 'result_item_id' ] );
+		$this->assertNotEmpty( $activeItem );
+		$this->assertGreaterThan( 0, (int)( $activeItem->ignored_at ?? 0 ) );
+
+		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
+		$this->assertNotEmpty( $staleItem );
+		$this->assertSame( 0, (int)( $staleItem->item_repaired_at ?? 0 ) );
+	}
+
 	public function test_active_plugin_results_do_not_prepare_stale_rows_outside_the_loaded_page() :void {
 		$pluginSlug = self::con()->base_file;
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
@@ -182,6 +210,13 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	 */
 	private function seedPluginScanResult( string $pluginSlug ) :array {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		return $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function seedPluginScanResultForScan( int $scanId, string $pluginSlug ) :array {
 		return TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
