@@ -76,6 +76,34 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   empty_status?:string,
  *   empty_text?:string
  * }
+ * @phpstan-type InvestigationRenderableTableContract array{
+ *   title:string,
+ *   status:string,
+ *   table_type:string,
+ *   subject_type:string,
+ *   subject_id:string,
+ *   datatables_init_attr:string,
+ *   table_action_attr:string,
+ *   full_log_href?:string,
+ *   full_log_text:string,
+ *   full_log_button_class:string,
+ *   show_header:bool,
+ *   is_flat:bool,
+ *   is_empty:false,
+ *   empty_status:string,
+ *   empty_text:string
+ * }|array{
+ *   title:string,
+ *   status:string,
+ *   full_log_href?:string,
+ *   full_log_text:string,
+ *   full_log_button_class:string,
+ *   show_header:bool,
+ *   is_flat:bool,
+ *   is_empty:true,
+ *   empty_status:string,
+ *   empty_text:string
+ * }
  */
 trait InvestigateRenderContracts {
 
@@ -169,7 +197,7 @@ trait InvestigateRenderContracts {
 	/**
 	 * @param array<string,mixed> $datatablesInit
 	 * @param array<string,mixed> $tableAction
-	 * @return InvestigationTableContract
+	 * @return InvestigationRenderableTableContract
 	 */
 	protected function buildTableContainerContract(
 		string $title,
@@ -199,7 +227,7 @@ trait InvestigateRenderContracts {
 
 	/**
 	 * @param InvestigationTableContractInput $table
-	 * @return InvestigationTableContract
+	 * @return InvestigationRenderableTableContract
 	 */
 	protected function withEmptyStateTableContract( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
 		if ( $count > 0 ) {

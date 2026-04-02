@@ -259,6 +259,9 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 'Recent Activity Logs', (string)( $table[ 'title' ] ?? '' ) );
+		$this->assertSame( 'activity', (string)( $table[ 'table_type' ] ?? '' ) );
+		$this->assertSame( 'plugin', (string)( $table[ 'subject_type' ] ?? '' ) );
+		$this->assertSame( 'akismet/akismet.php', (string)( $table[ 'subject_id' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'full_log_href', $table );
 		$this->assertSame( [ 'columns' => [] ], $this->decodeJsonAttr( (string)( $table[ 'datatables_init_attr' ] ?? '' ) ) );
 		$this->assertSame( [ 'slug' => 'investigation_table' ], $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) ) );

@@ -22,6 +22,7 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	getDefaultDatatableConfig() {
+		/** @type {Record<string, any>} */
 		let cfg = super.getDefaultDatatableConfig();
 		cfg.dom = 'frtip';
 		cfg.pageLength = 15;
@@ -91,13 +92,21 @@ export class InvestigationTable extends ShieldTableBase {
 	}
 
 	extractTableContext( tableEl ) {
-		const tableType = tableEl.dataset.tableType || '';
-		const subjectType = tableEl.dataset.subjectType || '';
-		const subjectId = tableEl.dataset.subjectId || '';
-		const datatablesInit = this.parseJsonObject( tableEl.dataset.datatablesInit || '' );
-		const tableAction = this.parseJsonObject( tableEl.dataset.tableAction || '' );
+		const { tableType, subjectType, subjectId, datatablesInit: datatablesInitRaw, tableAction: tableActionRaw } = tableEl.dataset;
+		if (
+			typeof tableType !== 'string' || tableType.length === 0
+			|| typeof subjectType !== 'string' || subjectType.length === 0
+			|| typeof subjectId !== 'string' || subjectId.length === 0
+			|| typeof datatablesInitRaw !== 'string'
+			|| typeof tableActionRaw !== 'string'
+		) {
+			return null;
+		}
 
-		if ( tableType.length === 0 || subjectType.length === 0 || datatablesInit === null || tableAction === null ) {
+		const datatablesInit = this.parseJsonObject( datatablesInitRaw );
+		const tableAction = this.parseJsonObject( tableActionRaw );
+
+		if ( datatablesInit === null || tableAction === null ) {
 			return null;
 		}
 
@@ -119,7 +128,7 @@ export class InvestigationTable extends ShieldTableBase {
 			const parsed = JSON.parse( rawData );
 			return parsed && typeof parsed === 'object' ? parsed : null;
 		}
-		catch ( e ) {
+		catch {
 			return null;
 		}
 	}

@@ -65,7 +65,8 @@ export class ShieldTableBase extends BaseComponent {
 	}
 
 	buildDelayedCallback( callback, ms ) {
-		let timer = 0;
+		/** @type {ReturnType<typeof globalThis.setTimeout>|undefined} */
+		let timer;
 		return function () {
 			let context = this, args = arguments;
 			clearTimeout( timer );
@@ -100,6 +101,7 @@ export class ShieldTableBase extends BaseComponent {
 		} );
 	}
 
+	/** @returns {Record<string, any>} */
 	getDefaultDatatableConfig() {
 		return {
 			dom: 'PrBpftip',
@@ -131,7 +133,7 @@ export class ShieldTableBase extends BaseComponent {
 
 	addButtons() {
 		this.getButtons().forEach( ( button, idx ) => {
-			this.$table.button().add( idx, button );
+			this.$table.button().add( idx, /** @type {any} */ ( button ) );
 		} );
 	}
 
