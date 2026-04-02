@@ -1,7 +1,5 @@
 # Frontend Tooling: Investigation Table Slice
 
-This document lives at the repo root because `/docs` is gitignored in this repository.
-
 ## Objective
 
 Add the smallest viable ESLint + TypeScript `checkJs` setup for the shared investigation table bootstrap without widening enforcement across the whole frontend.
@@ -18,12 +16,13 @@ Checked JS files:
 Support files added for this slice:
 
 - `eslint.config.js`
-- `tsconfig.json`
+- `tsconfig.checkjs.json`
 - `assets/js/components/BaseComponent.d.ts`
 - `assets/js/components/services/AjaxService.d.ts`
 - `assets/js/components/ui/OffCanvasService.d.ts`
 - `assets/js/util/ObjectOps.d.ts`
 - `assets/js/components/tables/investigation-tables.globals.d.ts`
+- `tools/check-js-policy.cjs`
 
 ## Tooling Added
 
@@ -40,13 +39,17 @@ Packages added:
 
 `package.json` commands:
 
+- `npm run check:js-policy`
+- `npm run lint:js`
+- `npm run typecheck:js`
 - `npm run test:js`
 
 Recommended command:
 
 - `npm run test:js`
 
-`npm run test:js` is the single "is this JavaScript slice valid?" command for this first pass. It runs linting, TypeScript `checkJs`, the existing webpack build, and the targeted browser regression test for the same slice.
+`npm run test:js` is the single "is this JavaScript slice valid?" command for this first pass. It runs the checker-only policy guard, linting, TypeScript `checkJs`, and the existing webpack build for the same slice.
+The policy guard also fails if `test:js` is widened to include browser/runtime execution or if someone starts introducing compiled TypeScript behavior into `assets/js`.
 
 ## Why This Slice First
 
@@ -59,7 +62,7 @@ Why not rely on tests alone?
 
 - The missing-method regression that motivated this pass is exactly the kind of issue that can survive a normal bundle build and non-browser tests.
 - TypeScript `checkJs` catches that class of missing-method problem earlier and more directly than a browser test.
-- The browser test is still useful for integration coverage, so the single `npm run test:js` command runs both static checks and the targeted runtime check.
+- Browser/runtime coverage is still useful, but it stays a separate verification lane. `npm run test:js` is deliberately static-only so it remains fast, local, and checker-focused.
 
 ## Regression Coverage
 
@@ -82,7 +85,7 @@ That is the exact missing-method failure that previously reached the browser run
 - It does not lint or type-check `DataTableVisibilityAdjuster.js`.
 - It does not cover scan-results table behavior, page controllers, or the wider dynamic activation path.
 - It does not compile TypeScript into the webpack build. This slice uses `tsc --noEmit` only.
-- `npm run test:js` does not mean whole-frontend coverage yet. In this first slice it still validates only the investigation-table seam defined in `eslint.config.js`, `tsconfig.json`, and the targeted IP-analysis browser test.
+- `npm run test:js` does not mean whole-frontend coverage yet. In this first slice it validates only the investigation-table seam defined in `eslint.config.js`, `tsconfig.checkjs.json`, and the checker-only policy script.
 
 ## How To Extend Safely
 
@@ -104,3 +107,5 @@ Recommended next slice:
 - Do not replace the existing webpack/Babel pipeline.
 - Do not widen ESLint or TypeScript enforcement across `assets/js` without a deliberate follow-up slice.
 - Do not use broad fallback declarations that silently turn the whole frontend into `any`.
+- Do not treat `tsconfig.checkjs.json` as a build config. It exists only for `checkJs` validation.
+- Do not add `.ts` or `.tsx` sources under `assets/js` without explicitly changing the policy script and build strategy on purpose.

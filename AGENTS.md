@@ -16,6 +16,11 @@ Core PHP lives in `src/`, organised by module (for example `Modules/Login_Protec
 ## Coding Standards & Naming
 All PHP files declare strict types, follow PSR-4 namespaces rooted at `FernleafSystems\Wordpress\Plugin\Shield`, and use tabs for indentation. Classes are PascalCase, services lean on trait-based dependency injection (for example `PluginControllerConsumer`), and WordPress option keys/hooks stay snake_case. Twig templates in `templates/twig` must escape output; JavaScript modules under `assets/js` use ES6 modules and camelCase exports.
 
+## JavaScript Tooling
+- For JavaScript changes, TypeScript is currently checker-only via `checkJs` and `noEmit`; it is not part of the webpack build output.
+- Do not add `.ts` or `.tsx` source files under `assets/js`, do not add TypeScript build integration, and do not widen JS lint/type coverage unless explicitly asked.
+- When touching the checked JS slice or its companion declarations, run `npm run test:js`. This command is static-only and must stay separate from browser/runtime verification.
+
 ## Workflow Guardrails
 - Inspect surrounding and impacted code before planning or implementing changes.
 - Reuse existing code, services, and patterns wherever possible instead of recreating equivalent logic.

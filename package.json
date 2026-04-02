@@ -69,6 +69,9 @@
     "buildw": "webpack --config webpack.config.js --mode production --watch",
     "dev": "webpack --config webpack.config.js --mode development --watch",
     "playwright:install": "php bin/run-node-tool.php playwright install chromium",
-    "test:js": "eslint assets/js/components/tables/InvestigationTable.js assets/js/components/tables/ShieldTableBase.js && tsc && npm run build"
+    "check:js-policy": "node tools/check-js-policy.cjs",
+    "lint:js": "eslint assets/js/components/tables/InvestigationTable.js assets/js/components/tables/ShieldTableBase.js",
+    "typecheck:js": "tsc -p tsconfig.checkjs.json --pretty false",
+    "test:js": "npm run check:js-policy && npm run lint:js && npm run typecheck:js && npm run build"
   }
 }
