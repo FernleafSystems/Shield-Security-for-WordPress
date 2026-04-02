@@ -8,8 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidInvestigationSubjectIdentifierException,
-	UnsupportedInvestigationSubjectTypeException,
-	UnsupportedInvestigationTableTypeException
+	UnsupportedInvestigationSubjectTypeException
 };
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -73,13 +72,9 @@ class ActionsQueueAssetMetadataResolver {
 
 	private function normalizeAssetSubjectId( string $assetType, string $assetKey ) :string {
 		try {
-			return (string)( new InvestigationSubjectResolver() )->normalize(
-				InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-				$assetType,
-				$assetKey
-			)[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ];
+			return ( new InvestigationSubjectResolver() )->normalizeAssetSubjectId( $assetType, $assetKey );
 		}
-		catch ( InvalidInvestigationSubjectIdentifierException|UnsupportedInvestigationSubjectTypeException|UnsupportedInvestigationTableTypeException $e ) {
+		catch ( InvalidInvestigationSubjectIdentifierException|UnsupportedInvestigationSubjectTypeException $e ) {
 			return '';
 		}
 	}

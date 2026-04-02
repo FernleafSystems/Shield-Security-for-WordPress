@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 class ActionsQueueAssetFileStatusDetail extends BaseRender {
 
 	public const SLUG = 'actions_queue_asset_file_status_detail';
-	public const TEMPLATE = '/wpadmin/components/investigate/table_container.twig';
+	public const TEMPLATE = '/wpadmin/components/scans/scan_results_table.twig';
 
 	protected function getRequiredDataKeys() :array {
 		return [
@@ -18,13 +18,7 @@ class ActionsQueueAssetFileStatusDetail extends BaseRender {
 
 	protected function getRenderData() :array {
 		$options = new ActionsQueueScanResultsOptions();
-		$scanResultsActionData = \array_merge(
-			$options->buildDisplayContextActionData(),
-			[
-				'subject_type' => (string)$this->action_data[ 'subject_type' ],
-				'subject_id'   => (string)$this->action_data[ 'subject_id' ],
-			]
-		);
+		$scanResultsActionData = $options->buildDisplayContextActionData();
 		$explicitOptions = $options->explicitOptionsFromActionData( $this->action_data );
 		if ( $explicitOptions !== null ) {
 			$scanResultsActionData = \array_merge(
@@ -34,7 +28,7 @@ class ActionsQueueAssetFileStatusDetail extends BaseRender {
 		}
 
 		return [
-			'table' => ( new InvestigationFileStatusTableContractBuilder() )->build(
+			'table' => ( new ScanResultsTableContractBuilder() )->buildFileStatus(
 				(string)$this->action_data[ 'subject_type' ],
 				(string)$this->action_data[ 'subject_id' ],
 				self::con()->plugin_urls->actionsQueueScans(),

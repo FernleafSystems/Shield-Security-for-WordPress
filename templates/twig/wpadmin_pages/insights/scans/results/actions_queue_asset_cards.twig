@@ -77,7 +77,7 @@
 					{% endif %}
 					<div class="actions-queue-asset-panel__body" data-actions-queue-asset-panel-content="1">
 						{% if item.table is not empty %}
-							{% include '/wpadmin/components/investigate/table_container.twig' with {
+							{% include '/wpadmin/components/scans/scan_results_table.twig' with {
 								table: item.table
 							} only %}
 						{% endif %}

@@ -15,10 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	UnsupportedInvestigationTableTypeException,
 	UnsupportedTableSubActionException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\{
-	BaseInvestigationData,
-	BaseScanResultsInvestigationData
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\BaseInvestigationData;
 
 class InvestigationTableAction extends TableActionBase {
 
@@ -73,10 +70,6 @@ class InvestigationTableAction extends TableActionBase {
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_TYPE ],
 			$subjectContext[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ]
 		);
-		if ( $builder instanceof BaseScanResultsInvestigationData
-			&& \is_array( $this->action_data[ 'results_display_options' ] ?? null ) ) {
-			$builder->setResultsDisplayOptions( $this->action_data[ 'results_display_options' ] );
-		}
 		return $this->buildRetrieveTableDataResponse( $builder, InvestigationTableContract::REQ_KEY_TABLE_DATA );
 	}
 

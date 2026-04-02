@@ -8,8 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Investigation\InvestigationSubjectResolver,
 	Actions\InvestigationTableAction,
 	Exceptions\InvalidInvestigationSubjectIdentifierException,
-	Exceptions\UnsupportedInvestigationSubjectTypeException,
-	Exceptions\UnsupportedInvestigationTableTypeException
+	Exceptions\UnsupportedInvestigationSubjectTypeException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LoadLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\{
@@ -155,7 +154,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		string $emptyText,
 		string $emptyStatus = 'info'
 	) :array {
-		return ( new InvestigationFileStatusTableContractBuilder() )->buildWithEmptyState(
+		return ( new ScanResultsTableContractBuilder() )->buildFileStatusWithEmptyState(
 			$subjectType,
 			$subjectId,
 			$fileStatusCount,
@@ -292,13 +291,9 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 
 	private function normalizeAssetLookup( string $subjectType, string $lookup ) :string {
 		try {
-			return ( new InvestigationSubjectResolver() )->normalize(
-				InvestigationTableContract::TABLE_TYPE_ACTIVITY,
-				$subjectType,
-				$lookup
-			)[ InvestigationTableContract::REQ_KEY_SUBJECT_ID ];
+			return ( new InvestigationSubjectResolver() )->normalizeAssetSubjectId( $subjectType, $lookup );
 		}
-		catch ( InvalidInvestigationSubjectIdentifierException|UnsupportedInvestigationSubjectTypeException|UnsupportedInvestigationTableTypeException $e ) {
+		catch ( InvalidInvestigationSubjectIdentifierException|UnsupportedInvestigationSubjectTypeException $e ) {
 			return '';
 		}
 	}

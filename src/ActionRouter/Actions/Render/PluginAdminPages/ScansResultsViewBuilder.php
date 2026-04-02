@@ -807,7 +807,7 @@ class ScansResultsViewBuilder {
 				),
 				$this->buildDetailExpansion(
 					$item[ 'expand_target' ],
-					DetailExpansionType::INVESTIGATION_TABLE,
+					DetailExpansionType::SCAN_RESULTS_TABLE,
 					$item[ 'status' ],
 					$item[ 'table' ]
 				)

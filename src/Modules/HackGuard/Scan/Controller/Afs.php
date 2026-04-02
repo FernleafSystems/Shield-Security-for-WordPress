@@ -19,8 +19,6 @@ class Afs extends Base {
 
 	public const SCAN_SLUG = 'afs';
 
-	private bool $resultsPreparedForDisplay = false;
-
 	protected function run() {
 		parent::run();
 		$this->setupCronHooks();
@@ -114,18 +112,6 @@ class Afs extends Base {
 	public function runHourlyCron() {
 		( new StoreAction\CleanStale() )->execute();
 		( new StoreAction\TouchAll() )->execute();
-	}
-
-	public function prepareResultsForDisplay() :void {
-		if ( !$this->resultsPreparedForDisplay ) {
-			$this->cleanStalesResults();
-		}
-	}
-
-	public function cleanStalesResults() :bool {
-		$changed = parent::cleanStalesResults();
-		$this->resultsPreparedForDisplay = true;
-		return $changed;
 	}
 
 	public function actionPluginReinstall( string $file ) :bool {

@@ -5,10 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigation\ForFileScanResults;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildSearchPanesData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\BaseInvestigationData;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\BaseScanResultsInvestigationData;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class InvestigationTableActionTest extends BaseUnitTest {
@@ -179,31 +177,6 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$this->assertSame( 'unsupported_sub_action', $payload[ 'error_code' ] ?? '' );
 	}
 
-	public function testRetrieveTableDataPassesResultsDisplayOptionsToSupportingBuilders() :void {
-		$builder = new InvestigationTableActionResultsDisplayOptionsBuilderTestDouble();
-		$payload = ( new InvestigationTableActionResultsDisplayOptionsUnitTestDouble( [
-			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
-			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => 'akismet/akismet.php',
-			'results_display_options'                        => [
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-				'ignored_only'     => true,
-			],
-		], $builder ) )->runExecForTest();
-
-		$this->assertSame(
-			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-				'ignored_only'     => true,
-			],
-			$builder->receivedResultsDisplayOptions
-		);
-	}
 }
 
 class InvestigationTableActionUnitTestDouble extends InvestigationTableAction {
@@ -274,28 +247,6 @@ class InvestigationTableActionActivityRetrieveSuccessUnitTestDouble extends Inve
 	}
 }
 
-class InvestigationTableActionResultsDisplayOptionsUnitTestDouble extends InvestigationTableActionUnitTestDouble {
-
-	private BaseInvestigationData $builder;
-
-	public function __construct( array $actionData, BaseInvestigationData $builder ) {
-		parent::__construct( $actionData );
-		$this->builder = $builder;
-	}
-
-	protected function normalizeSubjectContext( string $tableType, string $subjectType, $subjectId ) :array {
-		return [
-			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => 'akismet/akismet.php',
-		];
-	}
-
-	protected function createBuilderForTableType( string $tableType ) :BaseInvestigationData {
-		return $this->builder;
-	}
-}
-
 class InvestigationTableActionEchoTableDataBuilderTestDouble extends BaseInvestigationData {
 
 	protected function countTotalRecords() :int {
@@ -322,45 +273,5 @@ class InvestigationTableActionEchoTableDataBuilderTestDouble extends BaseInvesti
 		return [
 			'table_data' => $this->table_data,
 		];
-	}
-}
-
-class InvestigationTableActionResultsDisplayOptionsBuilderTestDouble extends BaseScanResultsInvestigationData {
-
-	public array $receivedResultsDisplayOptions = [];
-
-	protected function countTotalRecords() :int {
-		return 0;
-	}
-
-	protected function countTotalRecordsFiltered() :int {
-		return 0;
-	}
-
-	protected function buildTableRowsFromRawRecords( array $records ) :array {
-		return [];
-	}
-
-	protected function getSearchPanesDataBuilder() :BaseBuildSearchPanesData {
-		return new BaseBuildSearchPanesData();
-	}
-
-	protected function getSubjectWheres() :array {
-		return [];
-	}
-
-	protected function getInvestigationTableBuilderClass() :string {
-		return ForFileScanResults::class;
-	}
-
-	public function build() :array {
-		return [
-			'table_data' => $this->table_data,
-		];
-	}
-
-	public function setResultsDisplayOptions( array $resultsDisplayOptions ) :self {
-		$this->receivedResultsDisplayOptions = $resultsDisplayOptions;
-		return $this;
 	}
 }

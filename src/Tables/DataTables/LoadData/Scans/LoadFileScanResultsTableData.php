@@ -30,7 +30,6 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	use PluginControllerConsumer;
 
 	public function run() :array {
-		$this->prepareResultsForDisplay();
 		$resultsDisplayOptions = $this->getResultsDisplayOptions();
 		$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 
@@ -40,6 +39,16 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		( new RetrieveMalwareMalaiStatus() )->updateRecords(
 			\array_map( fn( ResultItem $item ) => $item->getMalwareRecord(), $results->getMalware()->getItems() )
 		);
+
+		$changed = false;
+		$AFS = self::con()->comps->scans->AFS();
+		/** @var ResultItem $item */
+		foreach ( $results->getItems() as $item ) {
+			$changed = $AFS->cleanStaleResultItem( $item ) || $changed;
+		}
+		if ( $changed ) {
+			$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
+		}
 
 		try {
 			$files = \array_map( fn( ResultItem $item ) => $this->getDataFromItem( $item ), $results->getItems() );
@@ -82,7 +91,6 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	public function countAll() :int {
-		$this->prepareResultsForDisplay();
 		$options = $this->getResultsDisplayOptions();
 		return \is_array( $options )
 			? $this->getRecordCounter()->countForResultsDisplay( $options )
@@ -347,9 +355,5 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return \is_array( $this->results_display_options )
 			? $this->results_display_options
 			: null;
-	}
-
-	private function prepareResultsForDisplay() :void {
-		self::con()->comps->scans->AFS()->prepareResultsForDisplay();
 	}
 }

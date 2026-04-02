@@ -39,6 +39,22 @@ class InvestigationSubjectResolver {
 	 * @throws InvalidInvestigationSubjectIdentifierException
 	 * @throws UnsupportedInvestigationSubjectTypeException
 	 */
+	public function normalizeAssetSubjectId( string $subjectType, $subjectId ) :string {
+		$subjectType = \strtolower( \trim( $subjectType ) );
+		if ( !\in_array( $subjectType, [
+			InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+			InvestigationTableContract::SUBJECT_TYPE_THEME,
+		], true ) ) {
+			throw new UnsupportedInvestigationSubjectTypeException( 'Invalid subject type.' );
+		}
+
+		return $this->normalizeAssetSubjectIdentifier( $subjectType, $subjectId );
+	}
+
+	/**
+	 * @throws InvalidInvestigationSubjectIdentifierException
+	 * @throws UnsupportedInvestigationSubjectTypeException
+	 */
 	private function normalizeSubjectId( string $subjectType, $subjectId ) {
 		switch ( $subjectType ) {
 			case InvestigationTableContract::SUBJECT_TYPE_USER:

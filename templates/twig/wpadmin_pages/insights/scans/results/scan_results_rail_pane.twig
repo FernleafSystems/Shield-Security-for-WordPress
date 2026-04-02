@@ -32,7 +32,11 @@
 			{% if item.expandable and item.expansion is not empty %}
 				{% set expansion = item.expansion %}
 				{% set file_table_body %}
-					{% if expansion.type == 'investigation_table' %}
+					{% if expansion.type == 'scan_results_table' %}
+						{% include '/wpadmin/components/scans/scan_results_table.twig' with {
+							table: expansion.table
+						} only %}
+					{% elseif expansion.type == 'investigation_table' %}
 						{% include '/wpadmin/components/investigate/table_container.twig' with {
 							table: expansion.table
 						} only %}

@@ -80,7 +80,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_active_plugin_results_prepare_stale_rows_before_later_page_and_count_queries() :void {
+	public function test_active_plugin_results_do_not_prepare_stale_rows_outside_the_loaded_page() :void {
 		$pluginSlug = self::con()->base_file;
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
@@ -103,13 +103,45 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertSame( 10, (int)( $payload[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
-		$this->assertSame( 10, (int)( $payload[ 'datatable_data' ][ 'recordsFiltered' ] ?? -1 ) );
-		$this->assertCount( 0, $payload[ 'datatable_data' ][ 'data' ] ?? [] );
+		$this->assertSame( 11, (int)( $payload[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+		$this->assertSame( 11, (int)( $payload[ 'datatable_data' ][ 'recordsFiltered' ] ?? -1 ) );
+		$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] ?? [] );
 
 		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
 		$this->assertNotEmpty( $item );
-		$this->assertGreaterThan( 0, (int)( $item->item_repaired_at ?? 0 ) );
+		$this->assertSame( 0, (int)( $item->item_repaired_at ?? 0 ) );
+	}
+
+	public function test_retrieve_table_data_normalizes_explicit_results_display_options() :void {
+		$pluginSlug = self::con()->base_file;
+		$active = $this->seedPluginScanResult( $pluginSlug );
+		$ignored = $this->seedPluginScanResult( $pluginSlug );
+		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
+
+		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+			'sub_action'              => 'retrieve_table_data',
+			'table_data'              => $this->tableDataFixture(),
+			'type'                    => 'plugin',
+			'file'                    => $pluginSlug,
+			'display_context'         => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+			'results_display_options' => [
+				'include_ignored' => '1',
+				'ignored_only'    => 1,
+				'unexpected'      => 'discard-me',
+			],
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertSame( 1, (int)( $payload[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+		$this->assertSame( 1, (int)( $payload[ 'datatable_data' ][ 'recordsFiltered' ] ?? -1 ) );
+		$this->assertSame(
+			[ (int)$ignored[ 'scan_result_id' ] ],
+			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+		);
+		$this->assertNotContains(
+			(int)$active[ 'scan_result_id' ],
+			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+		);
 	}
 
 	private function processor() :ActionProcessor {

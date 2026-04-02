@@ -195,7 +195,7 @@ class ActionsQueueScanAssetCardsBuilder {
 			$scanResultsActionData = $this->queueScanResultsOptions->buildExplicitActionData( $resultsDisplayOptions );
 		}
 
-		return ( new InvestigationFileStatusTableContractBuilder() )->build(
+		return ( new ScanResultsTableContractBuilder() )->buildFileStatus(
 			$subjectType,
 			$subjectId,
 			$this->buildFullLogHref(),

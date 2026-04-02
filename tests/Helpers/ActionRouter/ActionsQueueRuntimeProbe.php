@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	PageActionsQueueLanding,
 	ScansResultsViewBuilder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -53,7 +53,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  *   detail_shell:string,
  *   panel_target:string,
  *   is_lazy_panel:bool,
- *   has_investigation_table:bool,
+ *   has_scan_results_table:bool,
  *   datatable_records_total:int,
  *   datatable_records_filtered:int,
  *   datatable_row_count:int
@@ -172,12 +172,12 @@ class ActionsQueueRuntimeProbe {
 					: '',
 				'is_lazy_panel'           => $detailShell === 'asset_cards'
 					&& $this->extractLazyPanelFlag( $detailDom ),
-				'has_investigation_table' => $this->hasInvestigationTableContract( $detailDom ),
+				'has_scan_results_table'  => $this->hasScanResultsTableContract( $detailDom ),
 				'datatable_records_total' => 0,
 				'datatable_records_filtered' => 0,
 				'datatable_row_count'     => 0,
 			];
-			$tableData = $this->executeInvestigationTableAction( $detailDom );
+			$tableData = $this->executeScanResultsTableAction( $detailDom );
 			if ( $tableData !== [] ) {
 				$this->detailSummaries[ $cacheKey ][ 'datatable_records_total' ] = (int)( $tableData[ 'recordsTotal' ] ?? 0 );
 				$this->detailSummaries[ $cacheKey ][ 'datatable_records_filtered' ] = (int)( $tableData[ 'recordsFiltered' ] ?? 0 );
@@ -405,17 +405,15 @@ class ActionsQueueRuntimeProbe {
 			&& $panel->getAttribute( 'data-actions-queue-asset-panel-lazy' ) === '1';
 	}
 
-	private function hasInvestigationTableContract( \DOMXPath $xpath ) :bool {
-		return $xpath->query(
-			'//*[@data-investigation-table="1" and string-length(@data-scan-results-action) > 0]'
-		)->length > 0;
+	private function hasScanResultsTableContract( \DOMXPath $xpath ) :bool {
+		return $xpath->query( '//*[@data-scan-results-table="1"]' )->length > 0;
 	}
 
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function executeInvestigationTableAction( \DOMXPath $xpath ) :array {
-		$table = $xpath->query( '//*[@data-investigation-table="1"]' )->item( 0 );
+	private function executeScanResultsTableAction( \DOMXPath $xpath ) :array {
+		$table = $xpath->query( '//*[@data-scan-results-table="1"]' )->item( 0 );
 		if ( !$table instanceof \DOMElement ) {
 			return [];
 		}
@@ -426,12 +424,9 @@ class ActionsQueueRuntimeProbe {
 		}
 
 		$payload = $this->routeRuntime()->processActionPayloadWithAdminBypass(
-			InvestigationTableAction::SLUG,
+			ScanResultsTableAction::SLUG,
 			\array_merge( $tableAction, [
 				'sub_action'   => 'retrieve_table_data',
-				'table_type'   => (string)$table->getAttribute( 'data-table-type' ),
-				'subject_type' => (string)$table->getAttribute( 'data-subject-type' ),
-				'subject_id'   => (string)$table->getAttribute( 'data-subject-id' ),
 				'table_data'   => $this->datatablePayloadFixture(),
 			] )
 		);

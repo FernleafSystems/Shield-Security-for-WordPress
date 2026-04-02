@@ -168,12 +168,10 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$tables = $vars[ 'tables' ] ?? [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
-		$this->assertSame( 'plugin', (string)( $tables[ 'file_status' ][ 'subject_type' ] ?? '' ) );
 		$this->assertSame( 'plugin', (string)( $tables[ 'activity' ][ 'subject_type' ] ?? '' ) );
-		$this->assertSame( 'akismet/akismet.php', (string)( $tables[ 'file_status' ][ 'subject_id' ] ?? '' ) );
 		$this->assertSame( 'akismet/akismet.php', (string)( $tables[ 'activity' ][ 'subject_id' ] ?? '' ) );
-		$this->assertSame( 'file_scan_results', (string)( $tables[ 'file_status' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'table_id' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'datatables_init_attr' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'datatables_init_attr' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ) );
@@ -189,15 +187,13 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'show_header' ] ?? true ) );
 		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
-		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'scan_results_action_attr' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $tables[ 'file_status' ][ 'render_item_analysis_attr' ] ?? '' ) );
+		$fileStatusAction = $this->decodeJsonAttr( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertSame( 'plugin', $fileStatusAction[ 'type' ] ?? '' );
+		$this->assertSame( 'akismet/akismet.php', $fileStatusAction[ 'file' ] ?? '' );
 		$this->assertArrayNotHasKey(
 			'results_display_options',
-			$this->decodeJsonAttr( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ) )
-		);
-		$this->assertArrayNotHasKey(
-			'results_display_options',
-			$this->decodeJsonAttr( (string)( $tables[ 'file_status' ][ 'scan_results_action_attr' ] ?? '' ) )
+			$fileStatusAction
 		);
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
 		$this->assertSame(
@@ -262,15 +258,13 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'info', (string)( $tables[ 'activity' ][ 'empty_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'table_type', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'table_type', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'table_id', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'datatables_init_attr', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'datatables_init_attr', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'table_action_attr', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'table_action_attr', $tables[ 'activity' ] ?? [] );
-		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'file_status' ] ?? [] );
-		$this->assertArrayNotHasKey( 'subject_type', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject_type', $tables[ 'activity' ] ?? [] );
-		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'file_status' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject_id', $tables[ 'activity' ] ?? [] );
 		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? 'missing' ) );
 		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'lookup_href' ] ?? 'missing' ) );

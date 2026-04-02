@@ -19,10 +19,6 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'req_logs' );
 		$this->requireDb( 'activity_logs' );
 		$this->requireDb( 'activity_logs_meta' );
-		$this->requireDb( 'scans' );
-		$this->requireDb( 'scan_results' );
-		$this->requireDb( 'scan_result_items' );
-		$this->requireDb( 'scan_result_item_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
 	}
@@ -39,14 +35,6 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 			'order'   => [],
 			'columns' => [],
 		], $overrides );
-	}
-
-	private function pluginMainPathFragment( string $pluginSlug ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
-	}
-
-	private function themeMainPathFragment( string $themeSlug ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$themeSlug.'/style.css' );
 	}
 
 	public function testValidSessionsPayloadReturnsDatatableEnvelope() {
@@ -277,193 +265,6 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
 	}
 
-	public function testValidFileScanResultsCorePayloadReturnsOnlyCoreRowsAndScopedCounts() :void {
-		$pluginSlug = $this->firstInstalledPluginSlug();
-		$themeSlug = $this->firstInstalledThemeSlug();
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'    => 'wp-admin/admin.php',
-			'is_in_core' => 1,
-		] );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
-			'is_in_theme' => 1,
-			'ptg_slug'    => $themeSlug,
-		] );
-
-		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
-			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-			InvestigationTableContract::SUBJECT_TYPE_CORE,
-			InvestigationTableContract::SUBJECT_TYPE_CORE
-		) );
-
-		$this->assertSame( [ 'wp-admin/admin.php' ], $this->extractFilesFromRows( $datatable[ 'data' ] ?? [] ) );
-		$this->assertSame( 1, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
-		$this->assertSame( 1, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
-	}
-
-	public function testValidFileScanResultsPluginPayloadReturnsOnlyPluginRowsAndScopedCounts() :void {
-		$pluginSlug = $this->firstInstalledPluginSlug();
-		$otherPluginSlug = $this->secondInstalledPluginSlug( $pluginSlug );
-		$themeSlug = $this->firstInstalledThemeSlug();
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'    => 'wp-admin/admin.php',
-			'is_in_core' => 1,
-		] );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
-			'is_in_theme' => 1,
-			'ptg_slug'    => $themeSlug,
-		] );
-		if ( !empty( $otherPluginSlug ) ) {
-			TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $otherPluginSlug ), [
-				'is_in_plugin' => 1,
-				'ptg_slug'     => $otherPluginSlug,
-			] );
-		}
-
-		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
-			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-			InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-			$pluginSlug
-		) );
-		$files = $this->extractFilesFromRows( $datatable[ 'data' ] ?? [] );
-
-		$this->assertSame( 2, \count( $files ) );
-		$this->assertSame(
-			[ $this->pluginMainPathFragment( $pluginSlug ), $this->pluginMainPathFragment( $pluginSlug ) ],
-			$files
-		);
-		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
-		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
-		$this->assertFalse( \in_array( 'wp-admin/admin.php', $files, true ) );
-		$this->assertFalse( \in_array( $this->themeMainPathFragment( $themeSlug ), $files, true ) );
-		$this->assertFalse( !empty( $otherPluginSlug ) && \in_array( $this->pluginMainPathFragment( $otherPluginSlug ), $files, true ) );
-	}
-
-	public function testValidFileScanResultsPluginPayloadPreparesStaleRowsBeforeLaterPageAndCountQueries() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_file_areas',
-			'scan_pluginsthemes_local',
-		] );
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'plugins' ] )
-			 ->store();
-		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
-		$this->resetScanResultCountMemoization();
-
-		$pluginSlug = $this->firstInstalledPluginSlug();
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		$stale = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin'   => 1,
-			'ptg_slug'       => $pluginSlug,
-			'is_checksumfail' => 1,
-		] );
-
-		for ( $i = 0; $i < 10; $i++ ) {
-			TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-				'is_in_plugin' => 1,
-				'ptg_slug'     => $pluginSlug,
-			] );
-		}
-
-		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
-			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-			InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-			$pluginSlug,
-			$this->tableDataFixture( [
-				'start'  => 10,
-				'length' => 10,
-			] )
-		) );
-
-		$this->assertSame( 10, (int)( $datatable[ 'recordsTotal' ] ?? -1 ) );
-		$this->assertSame( 10, (int)( $datatable[ 'recordsFiltered' ] ?? -1 ) );
-		$this->assertCount( 0, $datatable[ 'data' ] ?? [] );
-
-		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
-		$this->assertNotEmpty( $item );
-		$this->assertGreaterThan( 0, (int)( $item->item_repaired_at ?? 0 ) );
-	}
-
-	public function testValidFileScanResultsThemePayloadReturnsOnlyThemeRowsAndScopedCounts() :void {
-		$pluginSlug = $this->firstInstalledPluginSlug();
-		$themeSlug = $this->firstInstalledThemeSlug();
-		$otherThemeSlug = $this->secondInstalledThemeSlug( $themeSlug );
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
-			'is_in_theme' => 1,
-			'ptg_slug'    => $themeSlug,
-		] );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
-			'is_in_theme' => 1,
-			'ptg_slug'    => $themeSlug,
-		] );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'    => 'wp-admin/admin.php',
-			'is_in_core' => 1,
-		] );
-		if ( !empty( $otherThemeSlug ) ) {
-			TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $otherThemeSlug ), [
-				'is_in_theme' => 1,
-				'ptg_slug'    => $otherThemeSlug,
-			] );
-		}
-
-		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
-			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS,
-			InvestigationTableContract::SUBJECT_TYPE_THEME,
-			$themeSlug
-		) );
-		$files = $this->extractFilesFromRows( $datatable[ 'data' ] ?? [] );
-
-		$this->assertSame(
-			[ $this->themeMainPathFragment( $themeSlug ), $this->themeMainPathFragment( $themeSlug ) ],
-			$files
-		);
-		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
-		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
-		$this->assertFalse( \in_array( $this->pluginMainPathFragment( $pluginSlug ), $files, true ) );
-		$this->assertFalse( \in_array( 'wp-admin/admin.php', $files, true ) );
-		$this->assertFalse( !empty( $otherThemeSlug ) && \in_array( $this->themeMainPathFragment( $otherThemeSlug ), $files, true ) );
-	}
-
-	public function testValidMalwareScanResultsPayloadReturnsDatatableEnvelope() :void {
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id' => 'infected.php',
-			'is_mal'  => 1,
-		] );
-
-		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
-			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
-			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_MALWARE_SCAN_RESULTS,
-			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_MALWARE,
-			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => InvestigationTableContract::SUBJECT_TYPE_MALWARE,
-			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
-		] )->payload();
-
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertArrayHasKey( 'datatable_data', $payload );
-		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
-	}
-
 	public function testPluginActivityRowsIncludeInvestigatePluginLinkWhenPluginMetaPresent() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
 		$logId = TestDataFactory::insertActivityLog( 'plugin_file_edited', '203.0.113.201' );
@@ -543,13 +344,6 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		return $payload[ 'datatable_data' ];
 	}
 
-	private function extractFilesFromRows( array $rows ) :array {
-		return \array_values( \array_map(
-			static fn( array $row ) :string => (string)( $row[ 'file' ] ?? '' ),
-			$rows
-		) );
-	}
-
 	private function firstInstalledPluginSlug() :string {
 		$plugins = Services::WpPlugins()->getInstalledPluginFiles();
 		if ( empty( $plugins ) ) {
@@ -558,28 +352,12 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		return (string)\array_values( $plugins )[ 0 ];
 	}
 
-	private function secondInstalledPluginSlug( string $exclude ) :?string {
-		$plugins = \array_values( \array_filter(
-			Services::WpPlugins()->getInstalledPluginFiles(),
-			static fn( string $plugin ) :bool => $plugin !== $exclude
-		) );
-		return empty( $plugins ) ? null : (string)$plugins[ 0 ];
-	}
-
 	private function firstInstalledThemeSlug() :string {
 		$themes = Services::WpThemes()->getInstalledStylesheets();
 		if ( empty( $themes ) ) {
 			$this->markTestSkipped( 'No installed themes were available for activity table integration test.' );
 		}
 		return (string)\array_values( $themes )[ 0 ];
-	}
-
-	private function secondInstalledThemeSlug( string $exclude ) :?string {
-		$themes = \array_values( \array_filter(
-			Services::WpThemes()->getInstalledStylesheets(),
-			static fn( string $theme ) :bool => $theme !== $exclude
-		) );
-		return empty( $themes ) ? null : (string)$themes[ 0 ];
 	}
 
 	private function createActiveSessionForIp( int $userId, string $ip, int $loginAt, int $lastActivityAt ) :void {

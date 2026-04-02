@@ -5,9 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\InvestigateLookupSelect,
-	Actions\InvestigationTableAction,
-	Actions\Render\Components,
-	Actions\ScanResultsTableAction
+	Actions\InvestigationTableAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -50,8 +48,6 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   subject_id?:string,
  *   datatables_init_attr?:string,
  *   table_action_attr?:string,
- *   scan_results_action_attr?:string,
- *   render_item_analysis_attr?:string,
  *   full_log_href?:string,
  *   full_log_text:string,
  *   full_log_button_class:string,
@@ -75,10 +71,6 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   full_log_text?:string,
  *   full_log_button_class?:string,
  *   show_header?:bool,
- *   scan_results_action?:array<string,mixed>,
- *   render_item_analysis?:array<string,mixed>,
- *   scan_results_action_attr?:string,
- *   render_item_analysis_attr?:string,
  *   is_flat?:bool,
  *   is_empty?:bool,
  *   empty_status?:string,
@@ -206,49 +198,6 @@ trait InvestigateRenderContracts {
 	}
 
 	/**
-	 * @param array<string,mixed> $datatablesInit
-	 * @param array<string,mixed> $scanResultsActionData
-	 * @return InvestigationTableContract
-	 */
-	protected function buildFlatScanResultsTableContract(
-		string $title,
-		string $status,
-		string $tableType,
-		string $subjectType,
-		string $subjectId,
-		array $datatablesInit,
-		array $scanResultsActionData,
-		string $fullLogHref
-	) :array {
-		$tableAction = ActionData::Build( InvestigationTableAction::class );
-		if ( \is_array( $scanResultsActionData[ 'results_display_options' ] ?? null ) ) {
-			$tableAction[ 'results_display_options' ] = $scanResultsActionData[ 'results_display_options' ];
-		}
-		$table = $this->buildTableContainerContract(
-			$title,
-			$status,
-			$tableType,
-			$subjectType,
-			$subjectId,
-			$datatablesInit,
-			$tableAction,
-			$fullLogHref
-		);
-		$table[ 'full_log_text' ] = __( 'Full Scan Results', 'wp-simple-firewall' );
-		$table[ 'full_log_button_class' ] = 'btn btn-primary btn-sm';
-		$table[ 'show_header' ] = false;
-		$table[ 'scan_results_action_attr' ] = $this->buildJsonAttrValue(
-			ActionData::Build( ScanResultsTableAction::class, true, $scanResultsActionData )
-		);
-		$table[ 'render_item_analysis_attr' ] = $this->buildJsonAttrValue(
-			ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class )
-		);
-		$table[ 'is_flat' ] = true;
-
-		return $this->normalizeInvestigationTableContract( $table );
-	}
-
-	/**
 	 * @param InvestigationTableContractInput $table
 	 * @return InvestigationTableContract
 	 */
@@ -269,10 +218,6 @@ trait InvestigateRenderContracts {
 			$table[ 'subject_id' ],
 			$table[ 'datatables_init_attr' ],
 			$table[ 'table_action_attr' ],
-			$table[ 'scan_results_action' ],
-			$table[ 'render_item_analysis' ],
-			$table[ 'scan_results_action_attr' ],
-			$table[ 'render_item_analysis_attr' ]
 		);
 		return $this->normalizeInvestigationTableContract( $table );
 	}

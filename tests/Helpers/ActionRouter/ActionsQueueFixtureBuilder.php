@@ -31,8 +31,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   target_group_key:string,
  *   expected_detail_shell:string,
  *   expected_lazy_panel:bool,
- *   require_investigation_table:bool,
- *   require_populated_investigation_table:bool
+ *   require_scan_results_table:bool,
+ *   require_populated_scan_results_table:bool
  * }
  */
 class ActionsQueueFixtureBuilder {
@@ -223,8 +223,8 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'plugins:'.$pluginSlug,
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
-			'require_investigation_table' => true,
-			'require_populated_investigation_table' => true,
+			'require_scan_results_table'  => true,
+			'require_populated_scan_results_table' => true,
 		];
 	}
 
@@ -272,8 +272,8 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'plugins',
 			'expected_detail_shell'       => 'asset_cards',
 			'expected_lazy_panel'         => false,
-			'require_investigation_table' => true,
-			'require_populated_investigation_table' => true,
+			'require_scan_results_table'  => true,
+			'require_populated_scan_results_table' => true,
 		];
 	}
 
@@ -328,8 +328,8 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'file_locker',
 			'expected_detail_shell'       => 'asset_cards',
 			'expected_lazy_panel'         => true,
-			'require_investigation_table' => false,
-			'require_populated_investigation_table' => false,
+			'require_scan_results_table'  => false,
+			'require_populated_scan_results_table' => false,
 		];
 	}
 
@@ -435,20 +435,20 @@ class ActionsQueueFixtureBuilder {
 				$detail
 			) );
 		}
-		if ( $definition[ 'require_investigation_table' ] && !$detail[ 'has_investigation_table' ] ) {
+		if ( $definition[ 'require_scan_results_table' ] && !$detail[ 'has_scan_results_table' ] ) {
 			throw new \RuntimeException( $this->buildScenarioFailureMessage(
 				$definition[ 'scenario' ],
-				'Detail did not expose the investigation table contract.',
+				'Detail did not expose the scan results table contract.',
 				$diagnostics,
 				$groupContext,
 				$detail
 			) );
 		}
-		if ( $definition[ 'require_populated_investigation_table' ]
+		if ( $definition[ 'require_populated_scan_results_table' ]
 			 && (int)( $detail[ 'datatable_row_count' ] ?? 0 ) < 1 ) {
 			throw new \RuntimeException( $this->buildScenarioFailureMessage(
 				$definition[ 'scenario' ],
-				'Detail investigation table did not return any rows.',
+				'Detail scan results table did not return any rows.',
 				$diagnostics,
 				$groupContext,
 				$detail

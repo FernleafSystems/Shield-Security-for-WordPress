@@ -2,11 +2,6 @@ import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableBase } from "./ShieldTableBase";
-import {
-	bindScanResultsRowActions,
-	bindScanResultsSelectionButtons,
-	buildScanResultsButtons
-} from "./ScanResultsTableBehavior";
 
 export class InvestigationTable extends ShieldTableBase {
 
@@ -45,7 +40,6 @@ export class InvestigationTable extends ShieldTableBase {
 			const datatable = $tableElement.DataTable();
 			this.bindBusyStateLifecycle( datatable );
 			this.ensureSearchDelay( datatable );
-			this.bindTableInteractions( $tableElement, datatable, context );
 			return;
 		}
 
@@ -61,9 +55,7 @@ export class InvestigationTable extends ShieldTableBase {
 
 		const datatable = $tableElement.DataTable( cfg );
 		this.bindBusyStateLifecycle( datatable );
-		this.addBehaviorButtons( datatable, context );
 		this.ensureSearchDelay( datatable );
-		this.bindTableInteractions( $tableElement, datatable, context );
 	}
 
 	ensureSearchDelay( datatable ) {
@@ -76,36 +68,6 @@ export class InvestigationTable extends ShieldTableBase {
 				datatable.search( e.currentTarget.value ).draw();
 			}, 800 ) )
 		);
-	}
-
-	bindTableInteractions( $tableElement, datatable, tableContext ) {
-		if ( tableContext.scanResultsAction === null ) {
-			$tableElement.off( '.shieldInvestigationFileScan' );
-			return;
-		}
-
-		bindScanResultsRowActions( {
-			$tableElement,
-			datatable,
-			scanResultsAction: tableContext.scanResultsAction,
-			renderItemAnalysis: tableContext.renderItemAnalysis,
-			onAction: ( action, rids = [] ) => this.performScanResultsAction( datatable, tableContext.scanResultsAction, action, rids ),
-			namespace: 'shieldInvestigationFileScan',
-		} );
-		bindScanResultsSelectionButtons( datatable, 'shieldInvestigationScanResultsButtons' );
-	}
-
-	performScanResultsAction( datatable, actionData, action, rids = [] ) {
-		const filteredRids = rids.filter( ( rid ) => typeof rid === 'string' && rid.length > 0 );
-		if ( filteredRids.length < 1 ) {
-			return Promise.resolve();
-		}
-
-		const reqData = ObjectOps.ObjClone( actionData );
-		reqData.sub_action = action;
-		reqData.rids = filteredRids;
-
-		return this.sendTableActionRequest( datatable, reqData );
 	}
 
 	datatablesAjaxRequest( data, callback, settings, tableContext ) {
@@ -135,8 +97,6 @@ export class InvestigationTable extends ShieldTableBase {
 		const subjectId = tableEl.dataset.subjectId || '';
 		const datatablesInit = this.parseJsonObject( tableEl.dataset.datatablesInit || '' );
 		const tableAction = this.parseJsonObject( tableEl.dataset.tableAction || '' );
-		const scanResultsAction = this.parseJsonObject( tableEl.dataset.scanResultsAction || '' );
-		const renderItemAnalysis = this.parseJsonObject( tableEl.dataset.renderItemAnalysis || '' );
 
 		if ( tableType.length === 0 || subjectType.length === 0 || datatablesInit === null || tableAction === null ) {
 			return null;
@@ -148,49 +108,7 @@ export class InvestigationTable extends ShieldTableBase {
 			subjectId,
 			datatablesInit,
 			tableAction,
-			scanResultsAction,
-			renderItemAnalysis,
 		};
-	}
-
-	applyBehaviorDatatableConfig( cfg, tableContext ) {
-		if ( tableContext.scanResultsAction === null ) {
-			return;
-		}
-
-		cfg.dom = 'Brpftip';
-		cfg.pageLength = 15;
-		cfg.select = {
-			style: 'multi',
-			items: 'row'
-		};
-	}
-
-	addBehaviorButtons( datatable, tableContext ) {
-		if ( tableContext.scanResultsAction === null ) {
-			return;
-		}
-
-		buildScanResultsButtons( {
-			includeReload: true,
-			onReload: () => this.reloadBusyTable( datatable ),
-			onBulkAction: ( action ) => this.performScanResultsAction(
-				datatable,
-				tableContext.scanResultsAction,
-				action,
-				this.getSelectedRids( datatable )
-			),
-		} ).forEach( ( button, index ) => {
-			datatable.button().add( index, button );
-		} );
-	}
-
-	getSelectedRids( datatable ) {
-		const rids = [];
-		datatable.rows( { selected: true } ).every( function () {
-			rids.push( this.data().rid );
-		} );
-		return rids;
 	}
 
 	parseJsonObject( rawData ) {

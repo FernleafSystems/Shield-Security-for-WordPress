@@ -66,12 +66,15 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		$activityCount = (int)( $renderData[ 'vars' ][ 'tabs' ][ 'activity' ][ 'count' ] ?? 0 );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
-		$this->assertSame( 'theme', (string)( $tables[ 'file_status' ][ 'subject_type' ] ?? '' ) );
 		$this->assertSame( 'theme', (string)( $tables[ 'activity' ][ 'subject_type' ] ?? '' ) );
-		$this->assertSame( $themeSlug, (string)( $tables[ 'file_status' ][ 'subject_id' ] ?? '' ) );
 		$this->assertSame( $themeSlug, (string)( $tables[ 'activity' ][ 'subject_id' ] ?? '' ) );
-		$this->assertSame( $fileStatusCount > 0, isset( $tables[ 'file_status' ][ 'table_type' ] ) );
+		$this->assertSame( $fileStatusCount > 0, isset( $tables[ 'file_status' ][ 'table_id' ] ) );
 		$this->assertSame( $activityCount > 0, isset( $tables[ 'activity' ][ 'table_type' ] ) );
+		if ( $fileStatusCount > 0 ) {
+			$tableAction = \json_decode( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ), true, 512, \JSON_THROW_ON_ERROR );
+			$this->assertSame( 'theme', $tableAction[ 'type' ] ?? '' );
+			$this->assertSame( $themeSlug, $tableAction[ 'file' ] ?? '' );
+		}
 		$this->assertArrayHasKey( 'vulnerabilities', $vars );
 
 		$payload = $this->renderByThemePage( $themeSlug );

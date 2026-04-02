@@ -83,21 +83,16 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			$assetCardsBuilder->getSeenOptions()
 		);
 		$this->assertSame( '2 ignored files are available for review', $pane[ 'cards' ][ 0 ][ 'stat_text' ] );
-		$this->assertSame( 'plugin', $pane[ 'cards' ][ 0 ][ 'table' ][ 'subject_type' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $pane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ] );
-		$scanResultsAction = \json_decode(
-			(string)( $pane[ 'cards' ][ 0 ][ 'table' ][ 'scan_results_action_attr' ] ?? '' ),
-			true,
-			512,
-			\JSON_THROW_ON_ERROR
-		);
-		$this->assertSame( 'actions_queue', $scanResultsAction[ 'display_context' ] ?? '' );
+		$tableAction = $this->decodeJsonAttr( (string)( $pane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertSame( 'plugin', $tableAction[ 'type' ] ?? '' );
+		$this->assertSame( 'example-plugin/example-plugin.php', $tableAction[ 'file' ] ?? '' );
+		$this->assertSame( 'actions_queue', $tableAction[ 'display_context' ] ?? '' );
 		$this->assertSame(
 			[
 				'include_ignored' => true,
 				'ignored_only'    => true,
 			],
-			$scanResultsAction[ 'results_display_options' ] ?? []
+			$tableAction[ 'results_display_options' ] ?? []
 		);
 	}
 
@@ -124,11 +119,17 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'Go to plugins', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
 		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
-		$this->assertSame( 'plugin', $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_type' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ] );
+		$queueTableAction = $this->decodeJsonAttr( (string)( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
+		$railTableAction = $this->decodeJsonAttr( (string)( $railPane[ 'items' ][ 0 ][ 'expansion' ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
+		$this->assertSame( 'plugin', $queueTableAction[ 'type' ] ?? '' );
+		$this->assertSame( 'example-plugin/example-plugin.php', $queueTableAction[ 'file' ] ?? '' );
 		$this->assertCount( 1, $railPane[ 'items' ] );
 		$this->assertSame( 'scan-files-plugin-example-plugin', $railPane[ 'items' ][ 0 ][ 'expand_target' ] );
-		$this->assertSame( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'subject_id' ], $railPane[ 'items' ][ 0 ][ 'expansion' ][ 'table' ][ 'subject_id' ] );
+		$this->assertSame( $queueTableAction[ 'file' ] ?? '', $railTableAction[ 'file' ] ?? '' );
+	}
+
+	private function decodeJsonAttr( string $json ) :array {
+		return $json === '' ? [] : \json_decode( $json, true, 512, \JSON_THROW_ON_ERROR );
 	}
 
 	public function test_actions_queue_theme_pane_returns_disabled_state_when_scan_is_unavailable() :void {

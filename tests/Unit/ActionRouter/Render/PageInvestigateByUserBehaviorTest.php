@@ -239,9 +239,6 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertNotSame( '', (string)( $tables[ 'sessions' ][ 'table_action_attr' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'table_action_attr' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $tables[ 'requests' ][ 'table_action_attr' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'sessions' ] ?? [] );
-		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'activity' ] ?? [] );
-		$this->assertArrayNotHasKey( 'scan_results_action_attr', $tables[ 'requests' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'sessions' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'requests' ] ?? [] );

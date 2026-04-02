@@ -216,70 +216,28 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_with_empty_state_preserves_table_metadata_when_records_exist() :void {
-		$subject = new InvestigateRenderContractsTestDouble();
-		$table = $subject->withEmptyState(
-			$subject->flatScanResultsTableContract(
-				'File Scan Status',
-				'warning',
-				'file_scan_results',
-				'core',
-				'core',
-				[ 'columns' => [] ],
-				[
-					'type'                 => 'core',
-					'file'                 => 'core',
-					'display_context'      => 'actions_queue',
-					'results_display_options' => [
-						'include_ignored' => true,
-						'ignored_only'    => false,
-					],
-				],
-				'/admin/scans'
-			),
-			2,
-			'No file scan status records were found for this subject.'
-		);
-
-		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
-		$this->assertSame( 'file_scan_results', (string)( $table[ 'table_type' ] ?? '' ) );
-		$this->assertSame( 'core', (string)( $table[ 'subject_type' ] ?? '' ) );
-		$this->assertSame( 'core', (string)( $table[ 'subject_id' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $table[ 'datatables_init_attr' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $table[ 'table_action_attr' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $table[ 'scan_results_action_attr' ] ?? '' ) );
-	}
-
 	public function test_with_empty_state_strips_table_metadata_when_records_do_not_exist() :void {
 		$subject = new InvestigateRenderContractsTestDouble();
 		$table = $subject->withEmptyState(
-			$subject->flatScanResultsTableContract(
-				'File Scan Status',
+			$subject->tableContainerContract(
+				'Recent Activity Logs',
 				'warning',
-				'file_scan_results',
-				'plugin',
-				'akismet/akismet.php',
+				'activity',
+				'user',
+				'42',
 				[ 'columns' => [] ],
-				[
-					'type'                 => 'plugin',
-					'file'                 => 'akismet/akismet.php',
-					'display_context'      => 'actions_queue',
-					'results_display_options' => [
-						'include_ignored' => true,
-						'ignored_only'    => true,
-					],
-				],
-				'/admin/scans'
+				[ 'slug' => 'investigation_table' ],
+				'/admin/activity/logs'
 			),
 			0,
-			'No file scan status records were found for this subject.',
+			'No activity records were found for this subject.',
 			'warning'
 		);
 
 		$this->assertTrue( (bool)( $table[ 'is_empty' ] ?? false ) );
 		$this->assertSame( 'warning', (string)( $table[ 'empty_status' ] ?? '' ) );
 		$this->assertSame(
-			'No file scan status records were found for this subject.',
+			'No activity records were found for this subject.',
 			(string)( $table[ 'empty_text' ] ?? '' )
 		);
 		$this->assertArrayNotHasKey( 'table_type', $table );
@@ -287,8 +245,6 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'subject_id', $table );
 		$this->assertArrayNotHasKey( 'datatables_init_attr', $table );
 		$this->assertArrayNotHasKey( 'table_action_attr', $table );
-		$this->assertArrayNotHasKey( 'scan_results_action_attr', $table );
-		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $table );
 	}
 
 	public function test_table_container_contract_omits_empty_full_log_href() :void {
@@ -306,66 +262,6 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'full_log_href', $table );
 		$this->assertSame( [ 'columns' => [] ], $this->decodeJsonAttr( (string)( $table[ 'datatables_init_attr' ] ?? '' ) ) );
 		$this->assertSame( [ 'slug' => 'investigation_table' ], $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) ) );
-	}
-
-	public function test_flat_scan_results_contract_carries_results_display_options_into_table_action() :void {
-		$table = ( new InvestigateRenderContractsTestDouble() )->flatScanResultsTableContract(
-			'File Scan Status',
-			'warning',
-			'file_scan_results',
-			'plugin',
-			'akismet/akismet.php',
-			[ 'columns' => [] ],
-			[
-				'results_display_options' => [
-					'include_ignored' => true,
-					'ignored_only'    => true,
-				],
-			],
-			'/admin/scans'
-		);
-
-		$this->assertSame(
-			[
-				'include_ignored' => true,
-				'ignored_only'    => true,
-			],
-			$this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) )[ 'results_display_options' ] ?? null
-		);
-		$this->assertSame(
-			[
-				'include_ignored' => true,
-				'ignored_only'    => true,
-			],
-			$this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) )[ 'results_display_options' ] ?? null
-		);
-		$this->assertNotSame( '', (string)( $table[ 'render_item_analysis_attr' ] ?? '' ) );
-	}
-
-	public function test_flat_scan_results_contract_does_not_inject_results_display_options_without_explicit_input() :void {
-		$table = ( new InvestigateRenderContractsTestDouble() )->flatScanResultsTableContract(
-			'File Scan Status',
-			'warning',
-			'file_scan_results',
-			'plugin',
-			'akismet/akismet.php',
-			[ 'columns' => [] ],
-			[
-				'type'            => 'plugin',
-				'file'            => 'akismet/akismet.php',
-				'display_context' => 'investigate',
-			],
-			'/admin/scans'
-		);
-
-		$this->assertArrayNotHasKey(
-			'results_display_options',
-			$this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) )
-		);
-		$this->assertArrayNotHasKey(
-			'results_display_options',
-			$this->decodeJsonAttr( (string)( $table[ 'scan_results_action_attr' ] ?? '' ) )
-		);
 	}
 
 	private function decodeJsonAttr( string $json ) :array {
@@ -437,25 +333,4 @@ class InvestigateRenderContractsTestDouble {
 		);
 	}
 
-	public function flatScanResultsTableContract(
-		string $title,
-		string $status,
-		string $tableType,
-		string $subjectType,
-		string $subjectId,
-		array $datatablesInit,
-		array $scanResultsActionData,
-		string $fullLogHref
-	) :array {
-		return $this->buildFlatScanResultsTableContract(
-			$title,
-			$status,
-			$tableType,
-			$subjectType,
-			$subjectId,
-			$datatablesInit,
-			$scanResultsActionData,
-			$fullLogHref
-		);
-	}
 }

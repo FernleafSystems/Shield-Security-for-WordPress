@@ -52,10 +52,14 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertSame( true, $tables[ 'file_status' ][ 'is_flat' ] ?? null );
 		$this->assertSame( true, $tables[ 'activity' ][ 'is_flat' ] ?? null );
-		$this->assertSame( 'core', (string)( $tables[ 'file_status' ][ 'subject_type' ] ?? '' ) );
 		$this->assertSame( 'core', (string)( $tables[ 'activity' ][ 'subject_type' ] ?? '' ) );
-		$this->assertSame( $fileStatusCount > 0, isset( $tables[ 'file_status' ][ 'table_type' ] ) );
+		$this->assertSame( $fileStatusCount > 0, isset( $tables[ 'file_status' ][ 'table_id' ] ) );
 		$this->assertSame( $activityCount > 0, isset( $tables[ 'activity' ][ 'table_type' ] ) );
+		if ( $fileStatusCount > 0 ) {
+			$tableAction = \json_decode( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ), true, 512, \JSON_THROW_ON_ERROR );
+			$this->assertSame( 'wordpress', $tableAction[ 'type' ] ?? '' );
+			$this->assertSame( 'wordpress', $tableAction[ 'file' ] ?? '' );
+		}
 
 		$payload = $this->renderByCorePage();
 		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-core route' );

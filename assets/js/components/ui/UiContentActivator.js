@@ -1,5 +1,6 @@
 import { InvestigateLookupSelect2 } from "../mode/InvestigateLookupSelect2";
 import { InvestigationTable } from "../tables/InvestigationTable";
+import { ShieldTableScanResults } from "../tables/ShieldTableScanResults";
 import { DataTableVisibilityAdjuster } from "../tables/DataTableVisibilityAdjuster";
 import { BootstrapTooltips } from "./BootstrapTooltips";
 
@@ -22,24 +23,16 @@ export class UiContentActivator {
 			return;
 		}
 
-		UiContentActivator.activateInvestigationTablesWithin( root );
-		UiContentActivator.activateInvestigateSelect2Within( root );
-		DataTableVisibilityAdjuster.adjustWithinNextFrame( root );
-		BootstrapTooltips.RegisterNewTooltipsWithin( root );
-	}
-
-	static activateCurrentWithinRoot( contextEl ) {
-		const root = UiContentActivator.normalizeContext( contextEl );
-		if ( root === null ) {
-			return;
-		}
-
 		UiContentActivator.activateStandaloneWithin( root );
 		UiContentActivator.collectDirectActiveOwnerRoots( root ).forEach( ( ownerRoot ) => {
 			UiContentActivator.activateCurrentSubtree( ownerRoot );
 		} );
 		DataTableVisibilityAdjuster.adjustWithinNextFrame( root );
 		BootstrapTooltips.RegisterNewTooltipsWithin( root );
+	}
+
+	static activateCurrentWithinRoot( contextEl ) {
+		UiContentActivator.activateCurrentSubtree( contextEl );
 	}
 
 	static normalizeContext( contextEl ) {
@@ -51,6 +44,8 @@ export class UiContentActivator {
 	static activateStandaloneWithin( contextEl ) {
 		const tableEls = UiContentActivator.collectDirectStandaloneElements( contextEl, '[data-investigation-table="1"]' );
 		UiContentActivator.activateInvestigationTables( tableEls );
+		const scanResultsTableEls = UiContentActivator.collectDirectStandaloneElements( contextEl, '[data-scan-results-table="1"]' );
+		UiContentActivator.activateScanResultsTables( scanResultsTableEls );
 		const selectEls = UiContentActivator.collectDirectStandaloneElements( contextEl, 'select[data-investigate-select2="1"]' );
 		UiContentActivator.activateInvestigateSelect2( selectEls );
 	}
@@ -73,6 +68,33 @@ export class UiContentActivator {
 		}
 	}
 
+	static activateScanResultsTables( tableEls ) {
+		tableEls.forEach( ( tableEl ) => {
+			if ( !( tableEl instanceof HTMLTableElement ) || tableEl.dataset.shieldScanResultsInitialized === '1' || !tableEl.id ) {
+				return;
+			}
+
+			const datatablesInit = UiContentActivator.parseJsonObject( tableEl.dataset.datatablesInit || '' );
+			const tableAction = UiContentActivator.parseJsonObject( tableEl.dataset.tableAction || '' );
+			if ( datatablesInit === null || tableAction === null ) {
+				return;
+			}
+
+			const renderItemAnalysis = UiContentActivator.parseJsonObject( tableEl.dataset.renderItemAnalysis || '' ) || {};
+			new ShieldTableScanResults( {
+				ajax: {
+					table_action: tableAction,
+					render_item_analysis: renderItemAnalysis,
+				},
+				vars: {
+					table_selector: '#'+tableEl.id,
+					datatables_init: datatablesInit,
+				},
+			} );
+			tableEl.dataset.shieldScanResultsInitialized = '1';
+		} );
+	}
+
 	static activateInvestigateSelect2( selectEls ) {
 		if ( selectEls.length > 0 ) {
 			UiContentActivator.getInvestigateLookupSelect2().initializeElements( selectEls );
@@ -84,6 +106,20 @@ export class UiContentActivator {
 			UiContentActivator.investigateLookupSelect2 = new InvestigateLookupSelect2();
 		}
 		return UiContentActivator.investigateLookupSelect2;
+	}
+
+	static parseJsonObject( rawData ) {
+		if ( typeof rawData !== 'string' || rawData.trim().length < 1 ) {
+			return null;
+		}
+
+		try {
+			const parsed = JSON.parse( rawData );
+			return parsed && typeof parsed === 'object' ? parsed : null;
+		}
+		catch ( e ) {
+			return null;
+		}
 	}
 
 	static collectElements( contextEl, selector ) {

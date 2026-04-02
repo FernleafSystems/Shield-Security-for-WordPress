@@ -4,8 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investiga
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\{
 	BuildActivityLogData,
-	BuildFileScanResultsData,
-	BuildMalwareScanResultsData,
 	BuildSessionsData,
 	BuildTrafficData
 };
@@ -44,20 +42,6 @@ class InvestigationTableRegistry {
 				'subjects' => [
 					InvestigationTableContract::SUBJECT_TYPE_USER,
 					InvestigationTableContract::SUBJECT_TYPE_IP,
-				],
-			],
-			InvestigationTableContract::TABLE_TYPE_FILE_SCAN_RESULTS => [
-				'builder'  => BuildFileScanResultsData::class,
-				'subjects' => [
-					InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-					InvestigationTableContract::SUBJECT_TYPE_THEME,
-					InvestigationTableContract::SUBJECT_TYPE_CORE,
-				],
-			],
-			InvestigationTableContract::TABLE_TYPE_MALWARE_SCAN_RESULTS => [
-				'builder'  => BuildMalwareScanResultsData::class,
-				'subjects' => [
-					InvestigationTableContract::SUBJECT_TYPE_MALWARE,
 				],
 			],
 		];
