@@ -5,6 +5,24 @@ const {
 } = require( './support/shield-browser' );
 
 const panelSelector = '[data-investigate-panel="1"]';
+const investigationTabLabels = {
+	sessions: 'User Sessions',
+	activity: 'Activity Log',
+	traffic: 'Recent Traffic',
+};
+
+const investigationTableRequestMatcher = ( tableType ) => ( response ) => {
+	if ( !response.url().includes( '/admin-ajax.php' ) ) {
+		return false;
+	}
+
+	const request = response.request();
+	const postData = request.postData() || '';
+
+	return request.method() === 'POST'
+		&& postData.includes( 'sub_action=retrieve_table_data' )
+		&& postData.includes( `table_type=${tableType}` );
+};
 
 const expectPanelState = async ( page, panel, { subject, isLoaded, lookupKey = '' } ) => {
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', subject );
@@ -27,6 +45,29 @@ const clickSubjectTile = async ( page, subject ) => {
 		),
 		page.locator( `[data-drill-target="panel"][data-investigate-subject="${subject}"]` ).click(),
 	] );
+};
+
+const getInvestigationInlineTabs = async ( panel ) => {
+	const inlineTabs = panel.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' );
+	await expect( inlineTabs ).toHaveCount( 5 );
+	return inlineTabs;
+};
+
+const getInvestigationTab = ( inlineTabs, tableType ) => inlineTabs.filter( {
+	hasText: investigationTabLabels[ tableType ],
+} ).first();
+
+const expectInvestigationTableInitialized = async ( panel, tableType ) => {
+	const table = panel.locator( `.tab-pane.active.show table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
+	await expect( table ).toBeVisible();
+	await expect.poll(
+		async () => table.evaluate( ( el ) => {
+			return !!globalThis.jQuery?.fn?.dataTable?.isDataTable?.( el );
+		} ),
+		{
+			message: `Expected ${tableType} investigation table to be initialized by DataTables.`,
+		}
+	).toBe( true );
 };
 
 test( 'investigate user reset uses the shared generic panel path and self shortcut', async ( { page } ) => {
@@ -219,6 +260,45 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 		subject: '',
 		isLoaded: false,
 	} );
+} );
+
+test( 'investigate landing IP analysis loads investigation tables without runtime errors', async ( { page } ) => {
+	const pageErrors = [];
+	page.on( 'pageerror', ( error ) => {
+		pageErrors.push( error.message );
+	} );
+
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+		subject: 'ip',
+		analyse_ip: '203.0.113.88',
+	} );
+
+	const panel = page.locator( '[data-drill-layer="1"] [data-investigate-panel="1"]' );
+	await expectPanelState( page, panel, {
+		subject: 'ip',
+		isLoaded: true,
+	} );
+
+	const inlineTabs = await getInvestigationInlineTabs( panel );
+
+	for ( const tableType of [ 'sessions', 'activity', 'traffic' ] ) {
+		const targetTab = getInvestigationTab( inlineTabs, tableType );
+
+		await Promise.all( [
+			page.waitForResponse( investigationTableRequestMatcher( tableType ) ),
+			targetTab.click(),
+		] );
+
+		await expect( targetTab ).toHaveClass( /is-active/ );
+		await expectInvestigationTableInitialized( panel, tableType );
+	}
+
+	await expect.poll(
+		() => pageErrors,
+		{ message: `Expected no browser runtime errors while loading drill-down IP analysis investigation tables: ${pageErrors.join( '; ' )}` }
+	).toEqual( [] );
 } );
 
 test( 'investigate landing drill-back clears stale plugin breadcrumbs after a resolved selection', async ( { page } ) => {
