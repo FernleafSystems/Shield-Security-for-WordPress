@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueDrillDownDetail,
+	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueDrillDownGroups,
 	ConfigureDrillDownDiagnosis
 };
@@ -33,8 +33,8 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 	}
 
 	public function testActionFromDrillDownSlugsResolveExpectedClasses() :void {
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, ActionsMap::ActionFromSlug( ActionsQueueAssetFileStatusDetail::SLUG ) );
 		$this->assertSame( ActionsQueueDrillDownGroups::class, ActionsMap::ActionFromSlug( ActionsQueueDrillDownGroups::SLUG ) );
-		$this->assertSame( ActionsQueueDrillDownDetail::class, ActionsMap::ActionFromSlug( ActionsQueueDrillDownDetail::SLUG ) );
 		$this->assertSame( ConfigureDrillDownDiagnosis::class, ActionsMap::ActionFromSlug( ConfigureDrillDownDiagnosis::SLUG ) );
 	}
 }

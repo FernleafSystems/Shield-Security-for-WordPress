@@ -203,20 +203,55 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	loadDetailLayer( showPlaceholder = true ) {
-		if ( this.selectedBucket === null || this.selectedGroup === null ) {
+		if ( this.selectedGroup === null || this.shellEl === null ) {
 			return Promise.resolve( null );
 		}
 
-		return this.loadLayerContent(
-			'detail',
-			this.buildRenderAction( this.rootEl?.dataset.actionsQueueDetailAction, {
-				bucket: this.selectedBucket.key,
-				group: this.selectedGroup.key,
-			} ),
-			showPlaceholder,
-			this.getDetailLoadingText(),
-			( data ) => this.applyDetailLayerResponse( data )
-		);
+		const renderAction = this.selectedGroup.detail_render_action;
+		if ( ObjectOps.IsEmpty( renderAction ) ) {
+			return Promise.resolve( null );
+		}
+
+		const layer = this.getLayerByKey( this.shellEl, 'detail' );
+		const body = layer?.querySelector( '.drill-layer__body' ) || null;
+		if ( layer === null || body === null ) {
+			return Promise.resolve( null );
+		}
+
+		const requestKey = `${Date.now()}-${Math.random()}`;
+		this.layerRequests.detail = requestKey;
+
+		if ( showPlaceholder ) {
+			this.replaceLayerBodyHtml( body, this.buildLoadingMarkup( this.getDetailLoadingText() ) );
+		}
+
+		return ( new AjaxService() )
+			.send( renderAction, false, true )
+			.then( ( resp ) => {
+				if ( this.layerRequests.detail !== requestKey ) {
+					return null;
+				}
+
+				if ( !resp?.success || typeof resp?.data?.html !== 'string' ) {
+					this.renderLayerFailure( body, 'detail' );
+					return null;
+				}
+
+				this.applyLayerHtml( body, this.buildDetailLayerHtml( resp.data.html ) );
+				this.applyDetailLayerResponse();
+				return resp.data;
+			} )
+			.catch( () => {
+				if ( this.layerRequests.detail === requestKey ) {
+					this.renderLayerFailure( body, 'detail' );
+				}
+				return null;
+			} )
+			.finally( () => {
+				if ( this.layerRequests.detail === requestKey ) {
+					delete this.layerRequests.detail;
+				}
+			} );
 	}
 
 	applyGroupsLayerResponse( data ) {
@@ -238,14 +273,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 	}
 
-	applyDetailLayerResponse( data ) {
+	applyDetailLayerResponse() {
 		const drillCtrl = this.getDrillDownController();
-		if ( this.shellEl === null || drillCtrl === null ) {
+		if ( this.shellEl === null || drillCtrl === null || this.selectedGroup === null ) {
 			return;
 		}
 
-		this.selectedGroup = this.readGroupSelectionPayload( data.group_selection );
-		drillCtrl.updateLayerHeader( this.shellEl, 2, data.header || this.selectedGroup.header );
+		drillCtrl.updateLayerHeader( this.shellEl, 2, this.selectedGroup.header );
 	}
 
 	applySelectedGroupRefresh( selectedGroup ) {
@@ -553,8 +587,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
-		const root = this.rootEl || this.getRoot();
-		if ( root === null || !root.contains( target ) ) {
+		const root = this.resolveOperatorContextRoot( target );
+		if ( root === null ) {
 			return;
 		}
 
@@ -593,8 +627,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
-		const root = this.rootEl || this.getRoot();
-		if ( root === null || !root.contains( input ) || this.selectedBucket === null || this.selectedGroup === null ) {
+		const root = this.resolveOperatorContextRoot( input );
+		if ( root === null || this.selectedBucket === null || this.selectedGroup === null ) {
 			return;
 		}
 
@@ -659,11 +693,21 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			? this.getOpenAssetPanelTarget()
 			: '';
 
-		return this.loadDetailLayer( false ).then( ( detailData ) => {
-			if ( openAssetPanelTarget.length > 0 ) {
-				this.restoreOpenAssetPanel( openAssetPanelTarget );
+		return this.loadGroupsLayer( {
+			showPlaceholder: false,
+			includeSelectedGroup: this.selectedGroup !== null,
+			includeLandingRefresh: false,
+		} ).then( ( data ) => {
+			if ( data === null || this.selectedGroup === null ) {
+				return data;
 			}
-			return detailData;
+
+			return this.loadDetailLayer( false ).then( ( detailData ) => {
+				if ( openAssetPanelTarget.length > 0 ) {
+					this.restoreOpenAssetPanel( openAssetPanelTarget );
+				}
+				return detailData || data;
+			} );
 		} );
 	}
 
@@ -695,6 +739,21 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			}
 		} );
 		return formData;
+	}
+
+	resolveOperatorContextRoot( target ) {
+		const root = this.rootEl || this.getRoot();
+		const operatorShell = this.getOperatorShellForRoot( root );
+		return root !== null && operatorShell !== null && operatorShell.contains( target )
+			? root
+			: null;
+	}
+
+	getOperatorShellForRoot( root = this.rootEl || this.getRoot() ) {
+		const operatorShell = root?.closest( '[data-mode-shell="1"][data-operator-chrome="1"]' ) || null;
+		return operatorShell instanceof HTMLElement
+			? operatorShell
+			: null;
 	}
 
 	resetGroupsLayerHeader( shell ) {
@@ -781,8 +840,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	readGroupSelectionPayload( selection ) {
 		return {
 			...this.readCountedSelectionPayload( selection ),
-			detail_shell: String( selection?.detail_shell || 'direct_table' ).trim(),
+			detail_shell: selection.detail_shell.trim(),
+			detail_render_action: selection.detail_render_action,
 		};
+	}
+
+	buildDetailLayerHtml( detailHtml ) {
+		return `<div class="actions-queue-detail" data-actions-queue-detail="1"><div class="actions-queue-detail__body">${detailHtml}</div></div>`;
 	}
 
 	getErrorMessage() {

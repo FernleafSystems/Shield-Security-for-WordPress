@@ -79,19 +79,13 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingVars() :array {
 		$viewData = $this->getLandingViewData();
+		$groupsRenderAction = ActionData::BuildAjaxRender( ActionsQueueDrillDownGroups::class );
 
 		return \array_merge( parent::getLandingVars(), [
 			'zone_tiles'         => $viewData[ 'zone_tiles' ],
 			'all_clear'          => $viewData[ 'all_clear' ],
 			'actions_queue_ajax' => [
-				'groups_render_action' => ActionData::BuildAjaxRender( ActionsQueueDrillDownGroups::class ),
-				'groups_render_action_json' => $this->encodeJson(
-					ActionData::BuildAjaxRender( ActionsQueueDrillDownGroups::class )
-				),
-				'detail_render_action' => ActionData::BuildAjaxRender( ActionsQueueDrillDownDetail::class ),
-				'detail_render_action_json' => $this->encodeJson(
-					ActionData::BuildAjaxRender( ActionsQueueDrillDownDetail::class )
-				),
+				'groups_render_action_json' => $this->encodeJson( $groupsRenderAction ),
 			],
 		] );
 	}

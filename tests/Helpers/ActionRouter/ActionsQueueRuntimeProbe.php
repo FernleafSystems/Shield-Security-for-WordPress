@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueDrillDownDetail,
 	ActionsQueueGroupsBuilder,
 	ActionsQueueLandingAssessmentBuilder,
 	ActionsQueueScanResultsOptions,
@@ -154,15 +154,10 @@ class ActionsQueueRuntimeProbe {
 	public function inspectDetail( array $groupContext ) :array {
 		$cacheKey = $this->detailCacheKey( $groupContext[ 'bucket_key' ], $groupContext[ 'group_key' ] );
 		if ( !isset( $this->detailSummaries[ $cacheKey ] ) ) {
+			$groupSelection = $this->findGroupSelection( $groupContext[ 'bucket_key' ], $groupContext[ 'group_key' ] );
 			$detailPayload = $this->routeRuntime()
-				->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-					'bucket' => $groupContext[ 'bucket_key' ],
-					'group'  => $groupContext[ 'group_key' ],
-				] );
-			$groupSelection = \is_array( $detailPayload[ 'group_selection' ] ?? null )
-				? $detailPayload[ 'group_selection' ]
-				: [];
-			$detailShell = (string)( $groupSelection[ 'detail_shell' ] ?? '' );
+				->processActionPayloadWithAdminBypass( AjaxRender::SLUG, $groupSelection[ 'detail_render_action' ] );
+			$detailShell = $groupSelection[ 'detail_shell' ];
 			$detailDom = $this->createDomXPath( (string)( $detailPayload[ 'html' ] ?? '' ) );
 
 			$this->detailSummaries[ $cacheKey ] = [
@@ -351,6 +346,43 @@ class ActionsQueueRuntimeProbe {
 		}
 
 		return $this->groupsByBucket[ $bucketKey ];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function findGroupPayload( string $bucketKey, string $groupKey ) :array {
+		foreach ( [
+			'active_sections',
+			'healthy_sections',
+		] as $sectionKey ) {
+			foreach ( $this->extractSectionGroups( $this->groupsLayerForBucket( $bucketKey ), $sectionKey ) as $group ) {
+				if ( (string)( $group[ 'key' ] ?? '' ) === $groupKey ) {
+					return $group;
+				}
+			}
+		}
+
+		return [];
+	}
+
+	/**
+	 * @return array{detail_shell:string,detail_render_action:array<string,mixed>}
+	 */
+	private function findGroupSelection( string $bucketKey, string $groupKey ) :array {
+		$selection = $this->findGroupPayload( $bucketKey, $groupKey )[ 'selection' ] ?? null;
+		if ( !\is_array( $selection ) || !\is_string( $selection[ 'detail_shell' ] ?? null ) || !\is_array( $selection[ 'detail_render_action' ] ?? null ) ) {
+			throw new \RuntimeException( \sprintf(
+				'Actions Queue group "%s" in bucket "%s" did not expose the expected detail contract.',
+				$groupKey,
+				$bucketKey
+			) );
+		}
+
+		return [
+			'detail_shell'         => $selection[ 'detail_shell' ],
+			'detail_render_action' => $selection[ 'detail_render_action' ],
+		];
 	}
 
 	/**

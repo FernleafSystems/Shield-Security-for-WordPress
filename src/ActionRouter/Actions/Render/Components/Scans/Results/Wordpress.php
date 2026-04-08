@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanResultsOptions,
 	ScanResultsTableContractBuilder,
 	ScansResultsViewBuilder
 };
@@ -70,16 +71,18 @@ class Wordpress extends Base {
 	}
 
 	private function getActionsQueueCount( ?array $resultsDisplayOptions ) :int {
-		if ( $resultsDisplayOptions === null ) {
-			return (int)( $this->getActionsQueuePane()[ 'count_items' ] ?? 0 );
-		}
+		$loader = $this->buildActionsQueueLoader( $resultsDisplayOptions );
+		return $loader->countAll();
+	}
 
+	private function buildActionsQueueLoader( ?array $resultsDisplayOptions ) :LoadFileScanResultsTableData {
 		$loader = new LoadFileScanResultsTableData();
 		$loader->custom_record_retriever_wheres = [
 			\sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
 			\sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
 		];
-		$loader->results_display_options = $resultsDisplayOptions;
-		return $loader->countAll();
+		$loader->results_display_options = $resultsDisplayOptions
+			?? ( new ActionsQueueScanResultsOptions() )->storedOptions();
+		return $loader;
 	}
 }

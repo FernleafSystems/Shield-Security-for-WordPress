@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
@@ -112,6 +113,10 @@ class ActionsQueueGroupContractBuilder {
 			$definition[ 'icon_class' ],
 			0,
 			$definition[ 'detail_shell' ],
+			$this->buildDetailRenderAction(
+				$definition[ 'render_action_class' ],
+				$renderActionData
+			),
 			$narrative,
 			[],
 			$this->contextDisplayOptionsBuilder->buildForGroup(
@@ -175,6 +180,10 @@ class ActionsQueueGroupContractBuilder {
 			$metadata[ 'icon_class' ],
 			0,
 			'direct_table',
+			$this->buildDetailRenderAction(
+				ActionsQueueAssetFileStatusDetail::class,
+				$renderActionData
+			),
 			$narrative,
 			[],
 			$this->contextDisplayOptionsBuilder->buildForGroup(
@@ -310,6 +319,11 @@ class ActionsQueueGroupContractBuilder {
 			$iconClass,
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
+			$this->buildDetailRenderAction(
+				$seed[ 'render_action_class_override' ]
+					?? $definition[ 'render_action_class' ],
+				$renderActionData
+			),
 			$narrative,
 			$contextActions,
 			$displayOptions
@@ -510,6 +524,15 @@ class ActionsQueueGroupContractBuilder {
 			'definition_key' => $definitionKey,
 			'asset_key'      => \ltrim( (string)\substr( $groupKey, \strlen( $definitionKey ) + 1 ), ':' ),
 		];
+	}
+
+	/**
+	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction> $renderActionClass
+	 * @param array<string,mixed> $renderActionData
+	 * @return array<string,mixed>
+	 */
+	private function buildDetailRenderAction( string $renderActionClass, array $renderActionData ) :array {
+		return ActionData::BuildAjaxRender( $renderActionClass, $renderActionData );
 	}
 
 }

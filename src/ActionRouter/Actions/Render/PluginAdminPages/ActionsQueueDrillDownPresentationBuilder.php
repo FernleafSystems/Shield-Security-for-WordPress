@@ -22,6 +22,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string,
  *   item_count:int,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
+ *   detail_render_action:array<string,mixed>,
  *   header:DrillLayerHeader,
  *   selection_json:string
  * }
@@ -102,6 +103,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $detailShell,
+		array $detailRenderAction,
 		string $summary,
 		array $actions = [],
 		array $displayOptions = []
@@ -123,6 +125,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'icon_class'   => $iconClass,
 			'item_count'   => $itemCount,
 			'detail_shell' => $detailShell,
+			'detail_render_action' => $detailRenderAction,
 			'header'       => $header,
 		];
 

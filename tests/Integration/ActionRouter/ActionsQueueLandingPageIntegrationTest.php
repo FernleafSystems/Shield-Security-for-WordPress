@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
@@ -13,7 +14,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Plugins as PluginsPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Themes as ThemesPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Wordpress as WordpressPane;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownDetail;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
@@ -89,6 +89,23 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			Constants::NAV_ID     => PluginNavs::NAV_SCANS,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
 		] );
+	}
+
+	private function loadSelectedGroupPayload( string $bucket, string $groupKey ) :array {
+		return $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => $bucket,
+			'group'  => $groupKey,
+		] );
+	}
+
+	private function renderSelectedGroupDetail( string $bucket, string $groupKey ) :array {
+		$groupsPayload = $this->loadSelectedGroupPayload( $bucket, $groupKey );
+		$detailRenderAction = $groupsPayload[ 'selected_group' ][ 'detail_render_action' ] ?? null;
+
+		$this->assertIsArray( $detailRenderAction, 'Expected selected group to expose a direct detail render action array.' );
+		$this->assertNotEmpty( $detailRenderAction, 'Expected selected group to expose a direct detail render action.' );
+
+		return $this->processActionPayloadWithAdminBypass( AjaxRender::SLUG, $detailRenderAction );
 	}
 
 	private function enableAssetScanFixture( array $scanAreas ) :void {
@@ -231,10 +248,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		string $groupKey,
 		array $expectedScope
 	) :void {
-		$groupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => $bucket,
-			'group'  => $groupKey,
-		] );
+		$groupsPayload = $this->loadSelectedGroupPayload( $bucket, $groupKey );
 		$this->assertSame( $groupKey, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ), $expectedScope );
@@ -246,22 +260,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'include_deleted'  => false,
 			]
 		);
+		$this->assertSame( 'ajax_render', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'ex' ] ?? '' ) );
 
-		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => $bucket,
-			'group'  => $groupKey,
-		] );
-		$this->assertSame( $groupKey, (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertIgnoreAllHeaderAction( (array)( $detailPayload[ 'header' ] ?? [] ), $expectedScope );
-		$this->assertDisplayOptionsHeader(
-			(array)( $detailPayload[ 'header' ] ?? [] ),
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-			]
-		);
+		$detailPayload = $this->renderSelectedGroupDetail( $bucket, $groupKey );
+		$this->assertNotSame( '', (string)( $detailPayload[ 'html' ] ?? '' ) );
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
@@ -417,8 +419,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
 		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'toggle_action' ] ?? [] );
-		$this->assertSame( ActionsQueueDrillDownGroups::SLUG, (string)( $vars[ 'actions_queue_ajax' ][ 'groups_render_action' ][ 'render_slug' ] ?? '' ) );
-		$this->assertSame( ActionsQueueDrillDownDetail::SLUG, (string)( $vars[ 'actions_queue_ajax' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'groups_render_action', $vars[ 'actions_queue_ajax' ] );
+		$this->assertSame(
+			ActionsQueueDrillDownGroups::SLUG,
+			(string)( \json_decode( (string)( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '' ), true )[ 'render_slug' ] ?? '' )
+		);
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-drill-shell="1" and @data-drill-shell-mode="actions"]',
@@ -426,8 +431,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-groups-action) > 0 and string-length(@data-actions-queue-detail-action) > 0]',
-			'Actions queue should render PHP-prepared AJAX action JSON on the landing root'
+			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-groups-action) > 0 and string-length(@data-actions-queue-detail-action) = 0]',
+			'Actions queue should render only the groups AJAX action on the landing root'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -738,25 +743,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertSame( 'actions_queue', (string)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'results_display_options', (array)( $payload[ 'selected_group' ][ 'render_action_data' ] ?? [] ) );
+		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $payload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
 
-		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => 'critical',
-			'group'  => $selectedGroupKey,
-		] );
+		$detailPayload = $this->renderSelectedGroupDetail( 'critical', $selectedGroupKey );
 		$xpath = $this->createDomXPathFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
 
-		$this->assertSame( $selectedGroupKey, (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertSame( $pluginTitle, (string)( $detailPayload[ 'group_selection' ][ 'label' ] ?? '' ) );
-		$this->assertSame( [], $detailPayload[ 'header' ][ 'actions' ] ?? null );
-		$this->assertDisplayOptionsHeader(
-			(array)( $detailPayload[ 'header' ] ?? [] ),
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-			]
-		);
 		$this->assertInvestigationTableContractPresent(
 			$xpath,
 			'file_scan_results',
@@ -899,31 +890,24 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedCriticalAssetAndVulnerabilityQueue();
 		$pluginSlug = self::con()->base_file;
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => 'critical',
-			'group'  => 'plugins:'.$pluginSlug,
-		] );
+		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'plugins:'.$pluginSlug );
+		$payload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
 		$html = (string)( $payload[ 'html' ] ?? '' );
 		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertSame( '1 item', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
-		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $payload[ 'group_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'direct_table', (string)( $payload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertSame( (string)( $payload[ 'group_selection' ][ 'label' ] ?? '' ), (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'detail_html', $payload );
-		$this->assertArrayNotHasKey( 'render_data', $payload );
-		$this->assertArrayNotHasKey( 'render_output', $payload );
-		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'summary' ] ?? '' ) );
-		$this->assertSame( 'Ignore All Results', (string)( $payload[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame(
+			(string)( $groupsPayload[ 'selected_group' ][ 'label' ] ?? '' ),
+			(string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' )
+		);
+		$this->assertNotSame( '', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
+		$this->assertSame( 'Ignore All Results', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' ) );
 		$this->assertSame( 'ignore_all', (string)( \json_decode(
-			(string)( $payload[ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ),
+			(string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ),
 			true
 		)[ 'sub_action' ] ?? '' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-detail="1"]',
-			'Detail AJAX should wrap the selected group renderer in the drill-down detail container'
-		);
 		$this->assertInvestigationTableContractPresent(
 			$xpath,
 			'file_scan_results',
@@ -949,10 +933,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedCriticalAssetAndVulnerabilityQueue();
 		$pluginSlug = self::con()->base_file;
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => 'critical',
-			'group'  => 'plugins:'.$pluginSlug,
-		] );
+		$payload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
 
 		$datatable = $this->executeInvestigationTableFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
 
@@ -1123,22 +1104,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			],
 			(array)( $groupsPayload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
 		);
-
-		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
-			'bucket' => 'critical',
-			'group'  => 'plugins',
-		] );
-		$this->assertSame( 'plugins', (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'asset_cards', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertDisplayOptionsHeader(
-			(array)( $detailPayload[ 'header' ] ?? [] ),
-			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-			],
-			true
-		);
+		$this->assertSame( 'scanresults_plugins', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'plugins' );
+		$this->assertNotSame( '', \trim( (string)( $detailPayload[ 'html' ] ?? '' ) ) );
 	}
 
 	public function test_file_locker_detail_render_in_actions_queue_context_marks_lazy_asset_panels() :void {

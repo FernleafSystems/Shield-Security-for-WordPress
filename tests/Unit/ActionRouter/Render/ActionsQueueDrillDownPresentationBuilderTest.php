@@ -94,6 +94,9 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			'bi bi-tools',
 			1,
 			'maintenance',
+			[
+				'render_slug' => 'maintenance_render',
+			],
 			'1 maintenance item needs review.'
 		);
 
@@ -103,6 +106,7 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'bi bi-tools', $selection[ 'icon_class' ] );
 		$this->assertSame( 1, $selection[ 'item_count' ] );
 		$this->assertSame( 'maintenance', $selection[ 'detail_shell' ] );
+		$this->assertSame( [ 'render_slug' => 'maintenance_render' ], $selection[ 'detail_render_action' ] );
 		$this->assertSame(
 			[
 				'compact_back_label' => 'Back to Maintenance Items',
@@ -142,6 +146,9 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			'bi bi-plug-fill',
 			3,
 			'direct_table',
+			[
+				'render_slug' => 'actions_queue_asset_file_status_detail',
+			],
 			'3 files need review.',
 			[
 				[
@@ -174,6 +181,9 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			'bi bi-wordpress',
 			2,
 			'direct_table',
+			[
+				'render_slug' => 'scanresults_wordpress',
+			],
 			'2 WordPress core files need review.',
 			[],
 			[

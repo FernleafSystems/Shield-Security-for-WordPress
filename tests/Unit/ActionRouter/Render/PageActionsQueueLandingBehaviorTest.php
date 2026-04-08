@@ -12,7 +12,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueDrillDownDetail,
 	ActionsQueueDrillDownGroups,
 	DetailExpansionType,
 	PageActionsQueueLanding
@@ -143,15 +142,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Grouped findings', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] );
-		$this->assertSame( ActionsQueueDrillDownGroups::SLUG, $vars[ 'actions_queue_ajax' ][ 'groups_render_action' ][ 'render_slug' ] );
-		$this->assertSame( ActionsQueueDrillDownDetail::SLUG, $vars[ 'actions_queue_ajax' ][ 'detail_render_action' ][ 'render_slug' ] );
+		$this->assertArrayNotHasKey( 'groups_render_action', $vars[ 'actions_queue_ajax' ] );
 		$this->assertSame(
-			$vars[ 'actions_queue_ajax' ][ 'groups_render_action' ],
-			\json_decode( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '', true )
-		);
-		$this->assertSame(
-			$vars[ 'actions_queue_ajax' ][ 'detail_render_action' ],
-			\json_decode( $vars[ 'actions_queue_ajax' ][ 'detail_render_action_json' ] ?? '', true )
+			ActionsQueueDrillDownGroups::SLUG,
+			\json_decode( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '', true )[ 'render_slug' ] ?? ''
 		);
 		$this->assertSame( 'Loading grouped findings...', $renderData[ 'strings' ][ 'groups_loading' ] );
 		$this->assertSame( 'Loading scoped results...', $renderData[ 'strings' ][ 'detail_loading' ] );

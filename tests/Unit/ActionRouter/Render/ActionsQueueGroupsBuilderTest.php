@@ -239,9 +239,18 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			],
 			$groups[ 1 ][ 'render_action_data' ]
 		);
+		$this->assertSame( 'ajax_render', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'ex' ] ?? '' );
+		$this->assertSame( 'actions_queue_asset_file_status_detail', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'plugin', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'subject_type' ] ?? '' );
+		$this->assertSame(
+			'example-plugin/example-plugin.php',
+			$groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'subject_id' ] ?? ''
+		);
+		$this->assertSame( 'actions_queue', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
 		$this->assertSame( 'View 3 files', $groups[ 1 ][ 'drill_hint' ] );
 		$this->assertSame( '2 suspected malware results need review.', $groups[ 3 ][ 'narrative' ] );
 		$this->assertSame( 'View 2 files', $groups[ 3 ][ 'drill_hint' ] );
+		$this->assertSame( 'scanresults_malware', $groups[ 3 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 	}
 
 	public function test_build_group_returns_selected_plugin_asset_with_lazy_direct_table_detail() :void {
@@ -280,6 +289,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
+		$this->assertSame( 'actions_queue_asset_file_status_detail', $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'Ignore All Results', $group[ 'selection' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'ignore_all', $this->decodeAjaxAction(
 			$group[ 'selection' ][ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
@@ -888,9 +898,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 3, $groups[ 'wordpress' ][ 'item_count' ] );
 		$this->assertSame( [], $groups[ 'wordpress' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( 'scanresults_wordpress', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'actions_queue', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
 		$this->assertTrue( $groups[ 'plugins' ][ 'is_interactive' ] );
 		$this->assertSame( 2, $groups[ 'plugins' ][ 'item_count' ] );
 		$this->assertSame( [], $groups[ 'plugins' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( 'scanresults_plugins', $groups[ 'plugins' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'actions_queue', $groups[ 'plugins' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
 		$this->assertFalse( $groups[ 'themes' ][ 'is_interactive' ] );
 		$this->assertSame( [], $groups[ 'themes' ][ 'render_action_data' ] );
 		$this->assertSame( [ '', '', '' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
