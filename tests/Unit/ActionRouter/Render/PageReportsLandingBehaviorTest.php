@@ -91,10 +91,6 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $panels[ 1 ][ 'is_default' ] ?? true ) );
 		$this->assertFalse( (bool)( $panels[ 2 ][ 'is_default' ] ?? true ) );
 		$this->assertNotSame( '', $panels[ 0 ][ 'data_reports_workspace_selection' ] ?? '' );
-		$this->assertSame(
-			'Manage instant alerts and report delivery settings together.',
-			$panels[ 1 ][ 'description' ] ?? ''
-		);
 		$this->assertSame( '', $panels[ 2 ][ 'description' ] ?? '' );
 
 		$listSelection = \json_decode(

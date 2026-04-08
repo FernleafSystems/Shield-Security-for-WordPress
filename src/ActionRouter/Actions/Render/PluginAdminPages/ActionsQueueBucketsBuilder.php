@@ -75,30 +75,24 @@ class ActionsQueueBucketsBuilder {
 
 	/**
 	 * @param AssessmentRowsByZone $assessmentRowsByZone
-	 * @return array{
-	 *   label:string,
-	 *   rows:list<CompactSummaryRow>
-	 * }
+	 * @return list<CompactSummaryRow>
 	 */
-	public function buildHealthyDisclosure( array $assessmentRowsByZone ) :array {
+	public function buildHealthyRows( array $assessmentRowsByZone ) :array {
 		$rows = [];
 
 		foreach ( $assessmentRowsByZone[ 'scans' ] as $row ) {
 			if ( $row[ 'status' ] === 'good' ) {
-				$rows[] = $this->buildHealthyDisclosureRow( $row );
+				$rows[] = $this->buildHealthyRow( $row );
 			}
 		}
 
 		foreach ( $assessmentRowsByZone[ 'maintenance' ] as $row ) {
 			if ( $row[ 'status' ] === 'good' ) {
-				$rows[] = $this->buildHealthyDisclosureRow( $row );
+				$rows[] = $this->buildHealthyRow( $row );
 			}
 		}
 
-		return [
-			'label' => __( 'No action required', 'wp-simple-firewall' ),
-			'rows'  => $rows,
-		];
+		return $rows;
 	}
 
 	/**
@@ -109,7 +103,7 @@ class ActionsQueueBucketsBuilder {
 	 * } $row
 	 * @return CompactSummaryRow
 	 */
-	private function buildHealthyDisclosureRow( array $row ) :array {
+	private function buildHealthyRow( array $row ) :array {
 		return $this->summaryRowBuilder()->build(
 			(string)$row[ 'item_icon_class' ],
 			(string)$row[ 'label' ],

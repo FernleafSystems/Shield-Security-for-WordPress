@@ -712,7 +712,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [], $this->flattenSections( $payload[ 'layer' ][ 'active_sections' ] ) );
 		$this->assertSame( [ 'maintenance_wordpress' ], \array_column( $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] ), 'key' ) );
-		$this->assertSame( 'No action required', $payload[ 'layer' ][ 'healthy_heading_label' ] );
 		$this->assertSame( 'good', $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] )[ 0 ][ 'status' ] );
 		$this->assertSame( '', $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] )[ 0 ][ 'drill_hint' ] );
 		$this->assertArrayNotHasKey( 'next_move', $payload[ 'selected_group' ] );

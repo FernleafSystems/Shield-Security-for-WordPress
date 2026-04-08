@@ -40,6 +40,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] ?? null );
 		$vars = $payload[ 'render_data' ][ 'vars' ];
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
 		$this->assertModeShellPayload( $vars, 'configure', 'configure', false );
 		$this->assertArrayNotHasKey( 'zone_tiles', $vars );
@@ -60,6 +61,17 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertNotSame( '', (string)( $payload[ 'render_output' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
+			0,
+			'Configure landing should not render the shared healthy disclosure wrapper'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-landing="1"]//*[@data-drill-target="diagnosis"]',
+			'Configure landing should render zone diagnosis buttons directly in the landing grid'
+		);
 	}
 
 	public function test_valid_deep_link_starts_on_diagnosis_and_invalid_key_falls_back() :void {
@@ -88,6 +100,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Login', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'next_step' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'html' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'diagnosis', $payload );
 		$this->assertArrayNotHasKey( 'render_data', $payload );
@@ -103,8 +116,21 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			0,
 			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")]' )->length
 		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
+			0,
+			'Configure diagnosis should not render the shared healthy disclosure wrapper'
+		);
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
+		$refreshXpath = $this->createDomXPathFromHtml( (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
+		$this->assertXPathCount(
+			$refreshXpath,
+			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
+			0,
+			'Configure landing refresh should not reintroduce the shared healthy disclosure wrapper'
+		);
 	}
 
 	public function test_scans_and_spam_diagnosis_render_scoped_rows_and_general_settings() :void {

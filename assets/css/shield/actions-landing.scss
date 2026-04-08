@@ -181,7 +181,7 @@
 	margin-top: 0;
 }
 
-.actions-queue-groups__healthy-body .configure-zone-card.status-good {
+.actions-queue-groups__healthy-stack .configure-zone-card.status-good {
 	background: linear-gradient(135deg, #f6faf7 0%, #edf5ef 100%);
 	border-color: rgba($status-color-good, 0.25);
 }
@@ -195,14 +195,14 @@
 	margin: 0;
 }
 
-.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__icon,
-.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__title,
-.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__status,
-.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__footer-link {
+.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__icon,
+.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__title,
+.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__status,
+.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__footer-link {
 	color: $status-color-good;
 }
 
-.actions-queue-groups__healthy-body .configure-zone-card.status-good .configure-zone-card__oneliner {
+.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__oneliner {
 	color: #49604f;
 }
 

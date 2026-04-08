@@ -107,28 +107,20 @@ class ConfigureLandingViewBuilder {
 
 		$sections = [
 			[
-				'key'              => 'critical',
-				'cards'            => $cardsByBand[ 'critical' ],
-				'collapsible'      => false,
-				'disclosure_label' => '',
+				'key'   => 'critical',
+				'cards' => $cardsByBand[ 'critical' ],
 			],
 			[
-				'key'              => 'warning',
-				'cards'            => $cardsByBand[ 'warning' ],
-				'collapsible'      => false,
-				'disclosure_label' => '',
+				'key'   => 'warning',
+				'cards' => $cardsByBand[ 'warning' ],
 			],
 			[
-				'key'              => 'general',
-				'cards'            => $cardsByBand[ 'neutral' ],
-				'collapsible'      => false,
-				'disclosure_label' => '',
+				'key'   => 'general',
+				'cards' => $cardsByBand[ 'neutral' ],
 			],
 			[
-				'key'              => 'healthy',
-				'cards'            => $cardsByBand[ 'good' ],
-				'collapsible'      => true,
-				'disclosure_label' => $this->buildHealthyZoneDisclosureLabel( \count( $cardsByBand[ 'good' ] ) ),
+				'key'   => 'healthy',
+				'cards' => $cardsByBand[ 'good' ],
 			],
 		];
 
@@ -154,18 +146,6 @@ class ConfigureLandingViewBuilder {
 			'selection_json' => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];
-	}
-
-	private function buildHealthyZoneDisclosureLabel( int $count ) :string {
-		return \sprintf(
-			_n(
-				'%s healthy zone',
-				'%s healthy zones',
-				$count,
-				'wp-simple-firewall'
-			),
-			$count
-		);
 	}
 
 	private function normalizeZoneBand( string $status ) :string {

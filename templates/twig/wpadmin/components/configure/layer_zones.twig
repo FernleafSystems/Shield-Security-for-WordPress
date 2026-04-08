@@ -1,61 +1,30 @@
 <div class="configure-zones">
 	{% for section in sections %}
 		{% if section.cards is not empty %}
-			{% if section.collapsible %}
-				{% set body_html %}
-					<div class="configure-zones__grid">
-						{% for zone in section.cards %}
-							{% include '/wpadmin/components/operator/tile_card.twig' with {
-								tile: {
-									tag: 'button',
-									status: zone.status,
-									icon_class: zone.icon_class,
-									title: zone.label,
-									status_label: zone.status_label,
-									oneliner: zone.preview_text,
-									data_drill_target: 'diagnosis',
-									data_drill_zone_selection: zone.selection_json,
-									data_drill_bucket_selection: '',
-									data_drill_group_selection: '',
-									data_reports_workspace_selection: '',
-									is_disabled: zone.is_disabled,
-									class_name: '',
-									footer_links: []
-								}
-							} only %}
-						{% endfor %}
-					</div>
-				{% endset %}
-				{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
-					label: section.disclosure_label,
-					body_html: body_html
-				} only %}
-			{% else %}
-				<section class="configure-zones__section">
-					<div class="configure-zones__grid">
-						{% for zone in section.cards %}
-							{% include '/wpadmin/components/operator/tile_card.twig' with {
-								tile: {
-									tag: 'button',
-									status: zone.status,
-									icon_class: zone.icon_class,
-									title: zone.label,
-									status_label: zone.status_label,
-									oneliner: zone.preview_text,
-									data_drill_target: 'diagnosis',
-									data_drill_zone_selection: zone.selection_json,
-									data_drill_bucket_selection: '',
-									data_drill_group_selection: '',
-									data_reports_workspace_selection: '',
-									is_disabled: zone.is_disabled,
-									class_name: '',
-									footer_links: []
-								}
-							} only %}
-						{% endfor %}
-					</div>
-				</section>
-			{% endif %}
+			<section class="configure-zones__section">
+				<div class="configure-zones__grid">
+					{% for zone in section.cards %}
+						{% include '/wpadmin/components/operator/tile_card.twig' with {
+							tile: {
+								tag: 'button',
+								status: zone.status,
+								icon_class: zone.icon_class,
+								title: zone.label,
+								status_label: zone.status_label,
+								oneliner: zone.preview_text,
+								data_drill_target: 'diagnosis',
+								data_drill_zone_selection: zone.selection_json,
+								data_drill_bucket_selection: '',
+								data_drill_group_selection: '',
+								data_reports_workspace_selection: '',
+								is_disabled: zone.is_disabled,
+								class_name: '',
+								footer_links: []
+							}
+						} only %}
+					{% endfor %}
+				</div>
+			</section>
 		{% endif %}
 	{% endfor %}
 </div>

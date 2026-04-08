@@ -805,7 +805,7 @@ class PluginNavs {
 			self::SUBNAV_REPORTS_SETTINGS => [
 				'menu_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
 				'page_title'         => __( 'Reporting & Alerts Configuration', 'wp-simple-firewall' ),
-				'page_subtitle'      => __( 'Manage instant alerts and report delivery settings together.', 'wp-simple-firewall' ),
+				'page_subtitle'      => '',
 				'content_key'        => 'reporting_alerts_configuration',
 				'render_action'      => OptionsFormFor::class,
 				'show_create_action' => false,

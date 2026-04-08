@@ -469,23 +469,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1"]',
-			'Bucket layer should render the shared healthy disclosure toggle when healthy assessment rows exist'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-buckets ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
+			'Bucket layer should render the healthy summary content directly in the bucket layer'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1" and @aria-expanded="false"]',
-			'Bucket layer should render the healthy disclosure toggle with the closed accessibility state'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-healthy-disclosure-body="1" and @aria-hidden="true"]',
-			'Bucket layer should render the healthy disclosure body with the closed accessibility state'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
-			'Bucket layer should render the healthy summary content inside the disclosure body'
+			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
+			0,
+			'Bucket layer should not render the shared healthy disclosure wrapper'
 		);
 		$this->assertXPathCount(
 			$xpath,
@@ -638,23 +629,19 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1" and @aria-expanded="false"]',
-			'Review groups AJAX should render the healthy disclosure toggle with the closed accessibility state'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
+			'Review groups AJAX should render healthy maintenance groups directly in the healthy stack'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-healthy-disclosure-body="1" and @aria-hidden="true"]',
-			'Review groups AJAX should render the healthy disclosure body with the closed accessibility state'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]',
+			'Review groups AJAX should keep the Actions Queue healthy stack spacing container'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
-			'Review groups AJAX should render healthy maintenance groups inside the disclosure body'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]',
-			'Review groups AJAX should wrap healthy disclosure sections in the Actions Queue-only spacing container'
+			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
+			0,
+			'Review groups AJAX should not render the shared healthy disclosure wrapper'
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -788,12 +775,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Abandoned Assets"]',
-			'Healthy abandoned assets should render in the healthy disclosure body'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Abandoned Assets"]',
+			'Healthy abandoned assets should render in the visible healthy stack'
 		);
 		$this->assertXPathCount(
 			$xpath,
-			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Vulnerabilities"]',
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Vulnerabilities"]',
 			0,
 			'Healthy abandoned assets should no longer fall back to a healthy vulnerabilities card'
 		);

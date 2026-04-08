@@ -40,9 +40,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * }
  * @phpstan-type ZoneSection array{
  *   key:'critical'|'warning'|'general'|'healthy',
- *   cards:list<ZoneCard>,
- *   collapsible:bool,
- *   disclosure_label:string
+ *   cards:list<ZoneCard>
  * }
  * @phpstan-type ConfigurePostureSummary array{
  *   status:string,
@@ -92,7 +90,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   problem_rows:list<DiagnosisFinding>,
  *   review_rows:list<DiagnosisFinding>,
  *   healthy_rows:list<DiagnosisFinding>,
- *   healthy_rows_heading:string,
  *   header:DrillLayerHeader,
  *   zone_selection:DrillSelection,
  *   zone_selection_json:string

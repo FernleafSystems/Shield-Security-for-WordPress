@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketData from ActionsQueueBucketsBuilder
+ * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type LandingViewData from ActionsQueueLandingViewBuilder
  */
 trait BuildsActionsQueueLandingData {
@@ -17,6 +18,7 @@ trait BuildsActionsQueueLandingData {
 	private ?array $actionsQueueAssessmentRowsByZoneCache = null;
 	private ?array $actionsQueueLandingViewDataCache = null;
 	private ?array $actionsQueueBucketsCache = null;
+	private ?array $actionsQueueHealthyRowsCache = null;
 
 	/**
 	 * @return AttentionQuery
@@ -89,6 +91,18 @@ trait BuildsActionsQueueLandingData {
 		return $this->actionsQueueBucketsCache;
 	}
 
+	/**
+	 * @return list<CompactSummaryRow>
+	 */
+	protected function getHealthyRowsData() :array {
+		if ( $this->actionsQueueHealthyRowsCache === null ) {
+			$this->actionsQueueHealthyRowsCache = ( new ActionsQueueBucketsBuilder() )
+				->buildHealthyRows( $this->getAssessmentRowsByZone() );
+		}
+
+		return $this->actionsQueueHealthyRowsCache;
+	}
+
 	protected function hasDrilldownContent() :bool {
 		return !empty( \array_filter(
 			$this->getBucketsData(),
@@ -100,8 +114,8 @@ trait BuildsActionsQueueLandingData {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/actions_queue/layer_buckets.twig' )
 			->setData( [
-				'buckets'            => $this->getBucketsData(),
-				'healthy_disclosure' => ( new ActionsQueueBucketsBuilder() )->buildHealthyDisclosure( $this->getAssessmentRowsByZone() ),
+				'buckets'      => $this->getBucketsData(),
+				'healthy_rows' => $this->getHealthyRowsData(),
 			] )
 			->render();
 	}

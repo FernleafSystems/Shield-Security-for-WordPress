@@ -1090,7 +1090,6 @@ class StringsOptions {
 				$name = __( 'Admin Accounts', 'wp-simple-firewall' );
 				$summary = __( 'Be alerted to important changes on any admin account', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Be alerted to any important change on any admin account.', 'wp-simple-firewall' ),
 					sprintf( __( "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
@@ -1104,9 +1103,8 @@ class StringsOptions {
 				break;
 			case 'instant_alert_vulnerabilities':
 				$name = __( 'Vulnerabilities', 'wp-simple-firewall' );
-				$summary = __( 'Be alerted to discovery of any vulnerable plugin/theme', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted to vulnerable plugins/themes when vulnerability scanning is enabled', 'wp-simple-firewall' );
 				$desc = [
-					__( "Be alerted to discovery of any vulnerable plugin/theme.", 'wp-simple-firewall' ),
 					__( "Vulnerability scanning must be active to enable this option.", 'wp-simple-firewall' ),
 				];
 				break;
@@ -1114,7 +1112,6 @@ class StringsOptions {
 				$name = __( 'FileLocker Changes', 'wp-simple-firewall' );
 				$summary = __( 'Be alerted to any changes to FileLocker items', 'wp-simple-firewall' );
 				$desc = [
-					__( "Be alerted to any changes to FileLocker items.", 'wp-simple-firewall' ),
 					__( "FileLocker must be active to enable this option.", 'wp-simple-firewall' ),
 				];
 				break;

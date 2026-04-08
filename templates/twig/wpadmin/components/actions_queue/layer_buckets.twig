@@ -15,21 +15,15 @@
 			</button>
 		{% endfor %}
 	</div>
-	{% if healthy_disclosure.rows is not empty %}
-		{% set body_html %}
-			<div class="item-box item-box--good">
-				<div class="item-box__grid">
-					{% for row in healthy_disclosure.rows %}
-						{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
-							row: row
-						} only %}
-					{% endfor %}
-				</div>
+	{% if healthy_rows is not empty %}
+		<div class="item-box item-box--good">
+			<div class="item-box__grid">
+				{% for row in healthy_rows %}
+					{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
+						row: row
+					} only %}
+				{% endfor %}
 			</div>
-		{% endset %}
-		{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
-			label: healthy_disclosure.label,
-			body_html: body_html
-		} only %}
+		</div>
 	{% endif %}
 </div>

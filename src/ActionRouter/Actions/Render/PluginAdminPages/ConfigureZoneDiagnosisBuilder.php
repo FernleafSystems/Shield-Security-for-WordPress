@@ -69,7 +69,6 @@ class ConfigureZoneDiagnosisBuilder {
 			fn( array $row ) :array => $this->buildFinding( $row ),
 			$healthyRows
 		) );
-		$healthyFindingsCount = \count( $healthyFindings );
 		$zoneBadge = $isReviewState
 			? $this->buildReviewBadge( $zoneTile )
 			: $this->buildFindingsBadge( \count( $problemFindings ) );
@@ -115,15 +114,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'problem_rows'              => $problemFindings,
 			'review_rows'               => $reviewFindings,
 			'healthy_rows'              => $healthyFindings,
-			'healthy_rows_heading'      => sprintf(
-				_n(
-					'%s setting configured correctly',
-					'%s settings configured correctly',
-					$healthyFindingsCount,
-					'wp-simple-firewall'
-				),
-				$healthyFindingsCount
-			),
 			'header'                    => $header,
 			'zone_selection'            => $zoneSelection,
 			'zone_selection_json'       => OperatorChromeContract::encodeJson( $zoneSelection ),

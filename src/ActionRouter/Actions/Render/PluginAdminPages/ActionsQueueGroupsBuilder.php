@@ -57,7 +57,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildA
  * }
  * @phpstan-type GroupsLayerData array{
  *   bucket_selection:BucketSelection,
- *   healthy_heading_label:string,
  *   active_sections:list<GroupSectionData>,
  *   healthy_sections:list<GroupSectionData>,
  *   header:DrillLayerHeader
@@ -138,11 +137,10 @@ class ActionsQueueGroupsBuilder {
 
 		return [
 			'layer'          => [
-				'bucket_selection'      => $bucketSelection,
-				'healthy_heading_label' => $this->healthySectionHeadingLabel(),
-				'active_sections'       => $resolvedGroups[ 'active_sections' ],
-				'healthy_sections'      => $resolvedGroups[ 'healthy_sections' ],
-				'header'                => $bucketSelection[ 'header' ],
+				'bucket_selection' => $bucketSelection,
+				'active_sections'  => $resolvedGroups[ 'active_sections' ],
+				'healthy_sections' => $resolvedGroups[ 'healthy_sections' ],
+				'header'           => $bucketSelection[ 'header' ],
 			],
 			'groups_indexed' => $resolvedGroups[ 'groups_indexed' ],
 		];
@@ -183,10 +181,6 @@ class ActionsQueueGroupsBuilder {
 		);
 
 		return $this->contractBuilder()->buildResolvedGroups( $bucketLabel, $resolvedSeeds );
-	}
-
-	private function healthySectionHeadingLabel() :string {
-		return __( 'No action required', 'wp-simple-firewall' );
 	}
 
 	protected function buildGroupScanSource() :ActionsQueueGroupScanSource {

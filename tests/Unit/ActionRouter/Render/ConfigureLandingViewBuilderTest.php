@@ -96,7 +96,6 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			[ 'firewall' ],
 			\array_column( $view[ 'sections' ][ 3 ][ 'cards' ] ?? [], 'key' )
 		);
-		$this->assertSame( '1 healthy zone', $view[ 'sections' ][ 3 ][ 'disclosure_label' ] ?? '' );
 		$this->assertSame(
 			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ] ?? '',
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'preview_text' ] ?? ''

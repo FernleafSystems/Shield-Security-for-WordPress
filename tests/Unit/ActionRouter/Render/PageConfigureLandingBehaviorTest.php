@@ -28,6 +28,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	StatusDetailGroupsBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -39,10 +40,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestRequest,
 	UnitTestUsers
 };
+use Twig\{
+	Environment,
+	Loader\FilesystemLoader
+};
 
 class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+	use PluginPathsTrait;
 
 	private array $servicesSnapshot = [];
 	private object $secAdminController;
@@ -220,23 +226,18 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			[ 'secadmin' ],
 			\array_column( $sections[ 0 ][ 'cards' ] ?? [], 'key' )
 		);
-		$this->assertFalse( (bool)( $sections[ 0 ][ 'collapsible' ] ?? true ) );
 		$this->assertSame(
 			[ 'login' ],
 			\array_column( $sections[ 1 ][ 'cards' ] ?? [], 'key' )
 		);
-		$this->assertFalse( (bool)( $sections[ 1 ][ 'collapsible' ] ?? true ) );
 		$this->assertSame(
 			[ 'general' ],
 			\array_column( $sections[ 2 ][ 'cards' ] ?? [], 'key' )
 		);
-		$this->assertFalse( (bool)( $sections[ 2 ][ 'collapsible' ] ?? true ) );
 		$this->assertSame(
 			[ 'firewall' ],
 			\array_column( $sections[ 3 ][ 'cards' ] ?? [], 'key' )
 		);
-		$this->assertTrue( (bool)( $sections[ 3 ][ 'collapsible' ] ?? false ) );
-		$this->assertSame( '1 healthy zone', $sections[ 3 ][ 'disclosure_label' ] ?? '' );
 	}
 
 	public function test_landing_refresh_reuses_the_configure_root_step_contract() :void {
@@ -250,6 +251,83 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $rootStep[ 'badge_status' ] ?? '' );
 		$this->assertSame( 'configure', $rootStep[ 'color_key' ] ?? '' );
 		$this->assertNotSame( '', $rootStep[ 'next_step' ] ?? '' );
+	}
+
+	public function test_zone_layer_renders_healthy_zones_directly_without_the_shared_disclosure_wrapper() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+		$sections = $this->invokeNonPublicMethod( $page, 'getConfigureZoneSections' );
+		$html = $this->twig()->render( '/wpadmin/components/configure/layer_zones.twig', [
+			'sections' => $sections,
+		] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]' )->length,
+			'Configure zones should not render the shared healthy disclosure wrapper'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query(
+				'//button[@data-drill-target="diagnosis" and contains(concat(" ", normalize-space(@class), " "), " status-good ") and .//h4[normalize-space()="Firewall"]]'
+			)->length,
+			'Configure zones should render healthy zone cards directly in the grid'
+		);
+	}
+
+	public function test_diagnosis_layer_renders_healthy_rows_directly_without_the_shared_disclosure_wrapper() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+		$diagnosis = $this->invokeNonPublicMethod( $page, 'getConfigureZoneDiagnosis', [ 'firewall' ] );
+		$html = $this->twig()->render( '/wpadmin/components/configure/layer_diagnosis.twig', [
+			'diagnosis' => $diagnosis,
+		] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame(
+			0,
+			$xpath->query( '//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]' )->length,
+			'Configure diagnosis should not render the shared healthy disclosure wrapper'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//*[@data-configure-diagnosis="1" and @data-configure-zone="firewall"]' )->length,
+			'Configure diagnosis should render the selected diagnosis container'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query(
+				'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row--good ")]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__title ") and normalize-space()="WAF Rules"]'
+			)->length,
+			'Configure diagnosis should render healthy rows directly in the diagnosis stack'
+		);
+	}
+
+	private function twig() :Environment {
+		return new Environment(
+			new FilesystemLoader( $this->getPluginFilePath( 'templates/twig' ) ),
+			[
+				'cache'            => false,
+				'debug'            => false,
+				'strict_variables' => false,
+			]
+		);
+	}
+
+	private function createDomXPathFromHtml( string $html ) :\DOMXPath {
+		$doc = new \DOMDocument();
+		$previous = \libxml_use_internal_errors( true );
+		try {
+			$doc->loadHTML(
+				'<?xml encoding="utf-8" ?>'.$html,
+				\LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD
+			);
+		}
+		finally {
+			\libxml_clear_errors();
+			\libxml_use_internal_errors( $previous );
+		}
+
+		return new \DOMXPath( $doc );
 	}
 
 	private function zoneTileFixtures() :array {
@@ -459,36 +537,28 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			'diagnoses'       => $diagnoses,
 			'sections'        => [
 				[
-					'key'              => 'critical',
-					'cards'            => [
+					'key'   => 'critical',
+					'cards' => [
 						$this->buildZoneCardFixture( $zoneTileFixtures[ 0 ], $diagnoses[ 'secadmin' ] ),
 					],
-					'collapsible'      => false,
-					'disclosure_label' => '',
 				],
 				[
-					'key'              => 'warning',
-					'cards'            => [
+					'key'   => 'warning',
+					'cards' => [
 						$this->buildZoneCardFixture( $zoneTileFixtures[ 2 ], $diagnoses[ 'login' ] ),
 					],
-					'collapsible'      => false,
-					'disclosure_label' => '',
 				],
 				[
-					'key'              => 'general',
-					'cards'            => [
+					'key'   => 'general',
+					'cards' => [
 						$this->buildZoneCardFixture( $zoneTileFixtures[ 3 ], $diagnoses[ 'general' ] ),
 					],
-					'collapsible'      => false,
-					'disclosure_label' => '',
 				],
 				[
-					'key'              => 'healthy',
-					'cards'            => [
+					'key'   => 'healthy',
+					'cards' => [
 						$this->buildZoneCardFixture( $zoneTileFixtures[ 1 ], $diagnoses[ 'firewall' ] ),
 					],
-					'collapsible'      => true,
-					'disclosure_label' => '1 healthy zone',
 				],
 			],
 			'posture_summary' => [

@@ -23,7 +23,7 @@
 				</section>
 			{% endfor %}
 
-			{% set healthy_body_html %}
+			{% if healthy_sections is not empty %}
 				<div class="actions-queue-groups__healthy-stack">
 					{% for section in healthy_sections %}
 						<section class="configure-zones__section">
@@ -42,14 +42,6 @@
 						</section>
 					{% endfor %}
 				</div>
-			{% endset %}
-
-			{% if healthy_sections is not empty %}
-				{% include '/wpadmin/components/page/healthy_disclosure.twig' with {
-					label: healthy_heading_label,
-					body_html: healthy_body_html,
-					body_class: 'actions-queue-groups__healthy-body'
-				} only %}
 			{% endif %}
 		</div>
 	{% endif %}

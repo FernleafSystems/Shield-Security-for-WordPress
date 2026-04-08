@@ -179,8 +179,8 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-healthy-disclosure-body="1"]//*[contains(concat(" ", normalize-space(@class), " "), " item-box item-box--good ")]',
-			'Groups refresh should re-render the selected maintenance group inside the healthy disclosure body'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box item-box--good ")]',
+			'Groups refresh should re-render the selected maintenance group inside the visible healthy stack'
 		);
 	}
 

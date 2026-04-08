@@ -5,10 +5,6 @@ class ActionsQueuePage {
 		this.page = page;
 	}
 
-	healthyToggle() {
-		return this.page.locator( '[data-actions-queue-groups="1"] [data-healthy-disclosure-toggle="1"]' ).first();
-	}
-
 	assetTile( panelTarget ) {
 		return this.page.locator( `[data-mode-tile="1"][data-mode-panel-target="${panelTarget}"]` ).first();
 	}
@@ -24,15 +20,7 @@ class ActionsQueuePage {
 		await this.clickElement( bucket );
 		await expect( this.page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 
-		let group = await this.waitForGroupWithRetry( bucket, fixture.group_key );
-		const hasVisibleGroup = async () => group !== null && await group.isVisible().catch( () => false );
-		if ( fixture.group_section === 'healthy' && !( await hasVisibleGroup() ) ) {
-			const healthyToggle = this.healthyToggle();
-			if ( await healthyToggle.count() > 0 ) {
-				await this.clickElement( healthyToggle );
-			}
-			group = await this.waitForGroupWithRetry( bucket, fixture.group_key );
-		}
+		const group = await this.waitForGroupWithRetry( bucket, fixture.group_key );
 
 		if ( group === null ) {
 			throw new Error( `Unable to locate Actions Queue group "${fixture.group_key}" in the groups layer.` );

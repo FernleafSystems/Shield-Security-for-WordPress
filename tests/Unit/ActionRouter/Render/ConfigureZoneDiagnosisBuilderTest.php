@@ -102,7 +102,8 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'label' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
-		$this->assertNotSame( '', $diagnosis[ 'healthy_rows_heading' ] ?? '' );
+		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
+		$this->assertArrayNotHasKey( 'healthy_rows_heading', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'next_move_heading' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'next_move' ] ?? '' );
 		$this->assertArrayNotHasKey( 'settings_href', $diagnosis );
@@ -131,8 +132,9 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
+		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'preview_text' ] ?? '' );
-		$this->assertNotSame( '', $diagnosis[ 'healthy_rows_heading' ] ?? '' );
+		$this->assertArrayNotHasKey( 'healthy_rows_heading', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'next_move' ] ?? '' );
 	}
 
@@ -161,6 +163,8 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'review_rows_heading', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'risk_context' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'preview_text' ] ?? '' );
+		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
+		$this->assertNotSame( '', $diagnosis[ 'next_move' ] ?? '' );
 		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'review_rows' ][ 0 ] );
 		$this->assertTrue( $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
 		$this->assertSame( 'traffic_logging', $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
