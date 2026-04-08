@@ -1,12 +1,30 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneDiagnosisBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	Render\PluginAdminPages\ConfigureZoneDiagnosisBuilder,
+	SecurityAdminRemove
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	UnitTestControllerFactory,
+	UnitTestPluginUrls
+};
 
 class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
+
+	private object $secAdminController;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -14,6 +32,31 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		$this->secAdminController = new class {
+			public bool $enabled = true;
+
+			public function isEnabledSecAdmin() :bool {
+				return $this->enabled;
+			}
+		};
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			null,
+			new class( $this->secAdminController ) {
+				public object $comps;
+
+				public function __construct( object $secAdminController ) {
+					$this->comps = (object)[
+						'sec_admin' => $secAdminController,
+					];
+				}
+			}
+		);
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		parent::tearDown();
 	}
 
 	public function test_mixed_issue_zone_uses_issue_rows_for_findings_and_guidance() :void {
@@ -171,6 +214,31 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'Set a PIN before more admins are added.', $diagnosis[ 'preview_text' ] );
 		$this->assertSame( 'Set a PIN before more admins are added.', $diagnosis[ 'problem_rows' ][ 0 ][ 'summary' ] );
+	}
+
+	public function test_secadmin_header_includes_disable_action_when_enabled() :void {
+		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
+			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical component', [] )
+		);
+
+		$this->assertCount( 1, $diagnosis[ 'header' ][ 'actions' ] );
+		$this->assertSame( 'Disable Security Admin', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'deactivate', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'type' ] ?? '' );
+		$this->assertStringContainsString( '/admin/zones/overview?zone=secadmin', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
+		$this->assertStringContainsString(
+			'return_context='.SecurityAdminRemove::RETURN_CONTEXT_CONFIGURE_SECADMIN,
+			$diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'href' ] ?? ''
+		);
+	}
+
+	public function test_secadmin_header_omits_disable_action_when_disabled() :void {
+		$this->secAdminController->enabled = false;
+
+		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
+			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical component', [] )
+		);
+
+		$this->assertSame( [], $diagnosis[ 'header' ][ 'actions' ] );
 	}
 
 	private function buildZoneTile(

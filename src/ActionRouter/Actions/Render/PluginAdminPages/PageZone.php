@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\SecurityZone;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminDisableActionBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\{
@@ -26,13 +26,9 @@ class PageZone extends BasePluginAdminPage {
 		switch ( $this->action_data[ 'zone_slug' ] ) {
 
 			case Secadmin::Slug():
-				if ( $con->comps->sec_admin->isEnabledSecAdmin() ) {
-					$hrefs[] = [
-						'title' => __( 'Disable Security Admin', 'wp-simple-firewall' ),
-						'href'  => $URLs->noncedPluginAction( SecurityAdminRemove::class, $URLs->adminHome(), [
-							'quietly' => '1',
-						] ),
-					];
+				$disableAction = ( new SecurityAdminDisableActionBuilder() )->buildContextualHref();
+				if ( !empty( $disableAction ) ) {
+					$hrefs[] = $disableAction;
 				}
 				break;
 

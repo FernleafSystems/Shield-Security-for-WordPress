@@ -28,6 +28,11 @@ class UnitTestPluginUrls {
 		return '/admin/'.$nav.'/'.$subnav;
 	}
 
+	public function configureHome( string $zone = '' ) :string {
+		$url = '/admin/zones/overview';
+		return empty( $zone ) ? $url : $url.'?zone='.$zone;
+	}
+
 	public function adminIpRules() :string {
 		return '/admin/ips/rules';
 	}
@@ -71,5 +76,28 @@ class UnitTestPluginUrls {
 	public function actionsQueueScans( string $zone = '' ) :string {
 		$zone = empty( $zone ) ? 'scans' : $zone;
 		return '/admin/scans/overview?zone='.$zone;
+	}
+
+	public function noncedPluginAction( string $action, ?string $url = null, array $aux = [] ) :string {
+		$params = \array_merge( [
+			'action'  => 'shield_action',
+			'ex'      => $action::SLUG,
+			'exnonce' => 'nonce-'.$action::SLUG,
+		], $aux );
+
+		$baseUrl = $url ?? '/admin/home';
+
+		return $baseUrl.( \str_contains( $baseUrl, '?' ) ? '&' : '?' ).\implode(
+			'&',
+			\array_map(
+				static fn( string $key, string $value ) :string => $key.'='.$value,
+				\array_keys( $params ),
+				\array_map( 'strval', \array_values( $params ) )
+			)
+		);
+	}
+
+	public function zone( string $zoneSlug ) :string {
+		return '/admin/zones/'.$zoneSlug;
 	}
 }

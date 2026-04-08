@@ -45,6 +45,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	use InvokesNonPublicMethods;
 
 	private array $servicesSnapshot = [];
+	private object $secAdminController;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -95,7 +96,26 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers( 1 ),
 		] );
-		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
+		$this->secAdminController = new class {
+			public bool $enabled = true;
+
+			public function isEnabledSecAdmin() :bool {
+				return $this->enabled;
+			}
+		};
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			null,
+			new class( $this->secAdminController ) {
+				public object $comps;
+
+				public function __construct( object $secAdminController ) {
+					$this->comps = (object)[
+						'sec_admin' => $secAdminController,
+					];
+				}
+			}
+		);
 	}
 
 	protected function tearDown() :void {
@@ -154,6 +174,22 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
 		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'active_back_label' ] ?? '' );
+	}
+
+	public function test_secadmin_diagnosis_header_exposes_disable_context_action_when_enabled() :void {
+		ServicesState::installItems( [
+			'service_request'   => new UnitTestRequest( [ 'zone' => 'secadmin' ] ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
+		] );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$actions = $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'actions' ] ?? [];
+
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'Disable Security Admin', $actions[ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'deactivate', $actions[ 0 ][ 'type' ] ?? '' );
 	}
 
 	public function test_invalid_zone_deep_link_falls_back_to_zone_layer() :void {

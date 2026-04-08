@@ -17,7 +17,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	UnitTestPluginUrls
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class ConfigureLandingViewBuilderTest extends BaseUnitTest {
@@ -97,6 +100,11 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ] ?? '',
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'preview_text' ] ?? ''
+		);
+		$this->assertCount( 1, $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ] ?? [] );
+		$this->assertSame(
+			'Disable Security Admin',
+			$view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? ''
 		);
 		$this->assertSame( '78% - 1 critical - 1 needs work - 1 good', $view[ 'posture_summary' ][ 'summary' ] ?? '' );
 		$this->assertSame( 'Warning', $view[ 'posture_summary' ][ 'chip_label' ] ?? '' );
@@ -255,11 +263,19 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->plugin_urls = new UnitTestPluginUrls();
 		$controller->svgs = new class {
 			public function iconClass( string $icon ) :string {
 				return 'bi bi-'.$icon;
 			}
 		};
+		$controller->comps = (object)[
+			'sec_admin' => new class {
+				public function isEnabledSecAdmin() :bool {
+					return true;
+				}
+			},
+		];
 		PluginControllerInstaller::install( $controller );
 	}
 }

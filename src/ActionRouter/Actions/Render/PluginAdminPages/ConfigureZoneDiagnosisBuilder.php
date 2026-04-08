@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminDisableActionBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
+
 /**
  * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
@@ -10,6 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-import-type DetailAction from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroupRow from StatusDetailGroupsBuilder
+ * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
  */
 class ConfigureZoneDiagnosisBuilder {
 
@@ -24,6 +28,12 @@ class ConfigureZoneDiagnosisBuilder {
 		'headers'  => 'HTTP headers strengthen the browser-facing security posture around transport and content handling.',
 		'general'  => 'General controls shape site-wide defaults, logging, and supporting security behaviour that other zones depend on.',
 	];
+
+	private ?SecurityAdminDisableActionBuilder $securityAdminDisableActionBuilder;
+
+	public function __construct( ?SecurityAdminDisableActionBuilder $securityAdminDisableActionBuilder = null ) {
+		$this->securityAdminDisableActionBuilder = $securityAdminDisableActionBuilder;
+	}
 
 	/**
 	 * @param ConfigureLandingTile $zoneTile
@@ -81,6 +91,7 @@ class ConfigureZoneDiagnosisBuilder {
 			'badge'              => $zoneBadge,
 			'badge_status'       => $zoneTile[ 'status' ],
 			'color_key'          => $zoneTile[ 'status' ],
+			'actions'            => $this->buildHeaderActions( $zoneKey ),
 		] );
 
 		$zoneSelection = [
@@ -117,6 +128,19 @@ class ConfigureZoneDiagnosisBuilder {
 			'zone_selection'            => $zoneSelection,
 			'zone_selection_json'       => OperatorChromeContract::encodeJson( $zoneSelection ),
 		];
+	}
+
+	/**
+	 * @return list<OperatorChromeActionInput>
+	 */
+	private function buildHeaderActions( string $zoneKey ) :array {
+		return $zoneKey === Secadmin::Slug()
+			? $this->getSecurityAdminDisableActionBuilder()->buildConfigureContextActions()
+			: [];
+	}
+
+	private function getSecurityAdminDisableActionBuilder() :SecurityAdminDisableActionBuilder {
+		return $this->securityAdminDisableActionBuilder ??= new SecurityAdminDisableActionBuilder();
 	}
 
 	/**

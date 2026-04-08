@@ -161,6 +161,44 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_secadmin_diagnosis_header_actions_only_when_security_admin_is_enabled() :void {
+		$snapshot = $this->snapshotSelectedOptions( [
+			'admin_access_key',
+			'sec_admin_users',
+		] );
+
+		try {
+			$con = $this->requireController();
+			$con->opts
+				->optSet( 'admin_access_key', \wp_hash_password( 'integration-pin-123' ) )
+				->optSet( 'sec_admin_users', [ 'admin' ] )
+				->store();
+
+			$enabledPayload = $this->renderConfigureDiagnosis( [
+				'zone' => 'secadmin',
+			] );
+
+			$con->opts
+				->optSet( 'admin_access_key', '' )
+				->optSet( 'sec_admin_users', [] )
+				->store();
+
+			$disabledPayload = $this->renderConfigureDiagnosis( [
+				'zone' => 'secadmin',
+			] );
+
+			$this->assertCount( 1, $enabledPayload[ 'header' ][ 'actions' ] ?? [] );
+			$this->assertSame(
+				'Disable Security Admin',
+				(string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' )
+			);
+			$this->assertSame( [], $disabledPayload[ 'header' ][ 'actions' ] ?? [ 'unexpected' ] );
+		}
+		finally {
+			$this->restoreSelectedOptions( $snapshot );
+		}
+	}
+
 	public function test_users_tile_builder_data_no_longer_surfaces_default_admin_user() :void {
 		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
 		$usersTiles = \array_values( \array_filter(

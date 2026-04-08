@@ -30,8 +30,10 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW );
 	}
 
-	public function configureHome() :string {
-		return $this->adminTopNav( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW );
+	public function configureHome( string $zone = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW );
+		$zone = sanitize_key( $zone );
+		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
 	}
 
 	public function investigateHome() :string {
