@@ -12,7 +12,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueScanStateBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsRailTabAvailability;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanAssetCardsBuilder,
+	ScansResultsRailTabAvailability
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -65,12 +68,69 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
+		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', $this->newScanAssetCardsBuilderStub() );
 
 		$state = $builder->build();
 
 		$this->assertSame( 4, $state[ 'tabs' ][ 'plugins' ][ 'count' ] );
 		$this->assertSame( 4, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
 		$this->assertSame( [ 'plugin_files' ], \array_column( $state[ 'rows' ], 'key' ) );
+	}
+
+	public function test_build_routes_fully_ignored_plugins_to_fix_now_as_warning_items() :void {
+		$counts = $this->getMockBuilder( Counts::class )
+					   ->disableOriginalConstructor()
+					   ->onlyMethods( [ 'countAffectedPluginAssets' ] )
+					   ->getMock();
+		$counts->method( 'countAffectedPluginAssets' )->willReturn( 0 );
+
+		$availability = new class extends ScansResultsRailTabAvailability {
+			public function build( string $tabKey ) :array {
+				return $tabKey === 'plugins'
+					? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					]
+					: [
+						'is_available'          => false,
+						'show_in_actions_queue' => false,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					];
+			}
+		};
+
+		$builder = new ActionsQueueScanStateBuilder();
+		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', $this->newScanAssetCardsBuilderStub( [
+			[
+				'key'          => 'ignored-plugin/ignored-plugin.php',
+				'status'       => 'warning',
+				'icon_class'   => 'bi bi-plug-fill',
+				'title'        => 'Ignored Plugin',
+				'stat_text'    => '2 discovered files are currently ignored.',
+				'meta_text'    => 'ignored-plugin/ignored-plugin.php',
+				'count_badge'  => 2,
+				'subject_type' => 'plugin',
+				'subject_id'   => 'ignored-plugin/ignored-plugin.php',
+				'has_update'   => false,
+			],
+		] ) );
+
+		$state = $builder->build();
+
+		$this->assertSame( 1, $state[ 'tabs' ][ 'plugins' ][ 'count' ] );
+		$this->assertSame( 'warning', $state[ 'tabs' ][ 'plugins' ][ 'status' ] );
+		$this->assertSame( 1, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( 'warning', $state[ 'tabs' ][ 'summary' ][ 'status' ] );
+		$this->assertSame( 'warning', $state[ 'rail_accent_status' ] );
+		$this->assertSame( [ 'plugin_files_ignored' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 'warning', $state[ 'rows' ][ 0 ][ 'severity' ] );
+		$this->assertSame( 'Review', $state[ 'rows' ][ 0 ][ 'action' ] );
+		$this->assertSame( '1 plugin has discovered files currently ignored.', $state[ 'rows' ][ 0 ][ 'text' ] );
 	}
 
 	public function test_build_routes_abandoned_assets_to_separate_abandoned_tab_and_deduped_summary() :void {
@@ -169,5 +229,16 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$reflection = new \ReflectionProperty( $subject, $property );
 		$reflection->setAccessible( true );
 		$reflection->setValue( $subject, $value );
+	}
+
+	private function newScanAssetCardsBuilderStub( array $fullyIgnoredPluginSummaries = [] ) :ActionsQueueScanAssetCardsBuilder {
+		return new class( $fullyIgnoredPluginSummaries ) extends ActionsQueueScanAssetCardsBuilder {
+			public function __construct( private array $fullyIgnoredPluginSummaries ) {
+			}
+
+			public function buildFullyIgnoredPluginSummaryRecords() :array {
+				return $this->fullyIgnoredPluginSummaries;
+			}
+		};
 	}
 }

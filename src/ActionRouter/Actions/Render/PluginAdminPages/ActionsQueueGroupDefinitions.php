@@ -32,7 +32,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  * }
  * @phpstan-type SummaryBehaviour array{
  *   definition_key:string,
- *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'maintenance',
+ *   seed_strategy:'attention_aggregate'|'asset_cards'|'plugin_assets'|'vulnerability_section'|'maintenance',
  *   asset_source?:'plugins'|'themes',
  *   vulnerability_section?:'vulnerable'|'abandoned'
  * }
@@ -134,7 +134,12 @@ class ActionsQueueGroupDefinitions {
 	private const SUMMARY_BEHAVIOUR_OVERRIDES = [
 		'plugin_files' => [
 			'definition_key' => 'plugins',
-			'seed_strategy'  => 'asset_cards',
+			'seed_strategy'  => 'plugin_assets',
+			'asset_source'   => 'plugins',
+		],
+		'plugin_files_ignored' => [
+			'definition_key' => 'plugins',
+			'seed_strategy'  => 'plugin_assets',
 			'asset_source'   => 'plugins',
 		],
 		'theme_files' => [

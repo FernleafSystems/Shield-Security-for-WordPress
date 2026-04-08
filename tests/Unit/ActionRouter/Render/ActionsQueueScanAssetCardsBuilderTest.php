@@ -86,11 +86,46 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $builder->tableBuildCalls() );
 	}
 
+	public function test_build_fully_ignored_plugin_summary_records_filters_out_plugins_with_active_results() :void {
+		$builder = $this->newBuilder(
+			[
+				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 2 ],
+			],
+			[
+				'active-plugin/active-plugin.php' => [
+					'subject_type' => 'plugin',
+					'subject_id'   => 'active-plugin/active-plugin.php',
+					'title'        => 'Active Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
+				],
+				'ignored-plugin/ignored-plugin.php' => [
+					'subject_type' => 'plugin',
+					'subject_id'   => 'ignored-plugin/ignored-plugin.php',
+					'title'        => 'Ignored Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
+				],
+			],
+			[
+				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 1 ],
+				[ 'slug' => 'ignored-plugin/ignored-plugin.php', 'file_count' => 3 ],
+			]
+		);
+
+		$records = $builder->buildFullyIgnoredPluginSummaryRecords();
+
+		$this->assertSame( [ 'ignored-plugin/ignored-plugin.php' ], \array_column( $records, 'key' ) );
+		$this->assertSame( [ 3 ], \array_column( $records, 'count_badge' ) );
+		$this->assertSame( '3 discovered files are currently ignored.', $records[ 0 ][ 'stat_text' ] ?? '' );
+	}
+
 	/**
-	 * @param list<array{slug:string,file_count:int}> $groupedRows
+	 * @param list<array{slug:string,file_count:int}> $activeGroupedRows
 	 * @param array<string,array<string,mixed>> $metadataBySlug
+	 * @param list<array{slug:string,file_count:int}>|null $ignoredGroupedRows
 	 */
-	private function newBuilder( array $groupedRows, array $metadataBySlug ) :object {
+	private function newBuilder( array $activeGroupedRows, array $metadataBySlug, ?array $ignoredGroupedRows = null ) :object {
 		$resolver = new class( $metadataBySlug ) extends ActionsQueueAssetMetadataResolver {
 
 			private array $metadataBySlug;
@@ -104,17 +139,25 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			}
 		};
 
-		return new class( $resolver, $groupedRows ) extends ActionsQueueScanAssetCardsBuilder {
+		return new class( $resolver, $activeGroupedRows, $ignoredGroupedRows ?? $activeGroupedRows ) extends ActionsQueueScanAssetCardsBuilder {
 			private int $tableBuildCalls = 0;
-			private array $groupedRows;
+			private array $activeGroupedRows;
+			private array $ignoredGroupedRows;
 
-			public function __construct( ActionsQueueAssetMetadataResolver $resolver, array $groupedRows ) {
+			public function __construct(
+				ActionsQueueAssetMetadataResolver $resolver,
+				array $activeGroupedRows,
+				array $ignoredGroupedRows
+			) {
 				parent::__construct( $resolver );
-				$this->groupedRows = $groupedRows;
+				$this->activeGroupedRows = $activeGroupedRows;
+				$this->ignoredGroupedRows = $ignoredGroupedRows;
 			}
 
 			protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
-				return $this->groupedRows;
+				return !empty( $resultsDisplayOptions[ 'ignored_only' ] )
+					? $this->ignoredGroupedRows
+					: $this->activeGroupedRows;
 			}
 
 			protected function buildFileStatusTable( string $subjectType, string $subjectId, array $resultsDisplayOptions ) :array {

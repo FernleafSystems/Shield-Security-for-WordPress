@@ -86,6 +86,10 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 
 		$seeds = [];
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
+			if ( $definitionKey === 'plugins' && $this->scanSource->fullyIgnoredPluginSummaries() !== [] ) {
+				continue;
+			}
+
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seeds[] = [

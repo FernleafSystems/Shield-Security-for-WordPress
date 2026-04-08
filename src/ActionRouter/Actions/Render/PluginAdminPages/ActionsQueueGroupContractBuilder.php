@@ -165,12 +165,9 @@ class ActionsQueueGroupContractBuilder {
 		}
 
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
-		$renderActionData = \array_merge(
-			$this->queueScanResultsOptions->buildDisplayContextActionData(),
-			[
-				'subject_type' => $metadata[ 'subject_type' ],
-				'subject_id'   => $metadata[ 'subject_id' ],
-			]
+		$renderActionData = $this->queueScanResultsOptions->buildSubjectActionData(
+			$metadata[ 'subject_type' ],
+			$metadata[ 'subject_id' ]
 		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,

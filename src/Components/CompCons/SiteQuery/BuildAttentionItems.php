@@ -56,6 +56,7 @@ class BuildAttentionItems {
 		'vulnerable_assets',
 		'wp_files',
 		'plugin_files',
+		'plugin_files_ignored',
 		'theme_files',
 		'file_locker',
 		'abandoned',

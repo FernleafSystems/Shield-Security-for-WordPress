@@ -16,12 +16,6 @@ async function waitForScanResultsTableRows( table ) {
 	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
 }
 
-async function expectScanResultsTableEmpty( table ) {
-	await expect( table ).toBeVisible();
-	await expect( table.locator( 'tbody tr' ).first() ).toContainText( 'There are no items to display.', { timeout: 20_000 } );
-	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
-}
-
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
 	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -114,8 +108,8 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
 } );
 
-test( 'actions queue restores the same ignored-plugin asset panel after the shared table success event', async ( { page } ) => {
-	await withActionsQueueFixture( 'ignored_plugin_asset_cards', async ( fixture ) => {
+test( 'actions queue keeps the same ignored-plugin direct table after the shared table success event', async ( { page } ) => {
+	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -123,10 +117,12 @@ test( 'actions queue restores the same ignored-plugin asset panel after the shar
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toBeVisible();
-
-		const panel = await actionsQueuePage.openAssetPanel( fixture.panel_target );
-		const scanResultsTable = panel.locator( '[data-scan-results-table="1"]' );
+		const rail = page.locator( '[data-operator-context-rail="1"]' );
+		const detailTitle = rail.locator( '.operator-context-rail__title' );
+		const detailBadge = rail.locator( '.shield-badge' );
+		const titleText = ( await detailTitle.textContent() || '' ).trim();
+		const badgeText = ( await detailBadge.textContent() || '' ).trim();
+		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
 		await expect( scanResultsTable ).toBeVisible();
 		await waitForScanResultsTableRows( scanResultsTable );
 		await scanResultsTable.evaluate( ( table ) => {
@@ -135,12 +131,11 @@ test( 'actions queue restores the same ignored-plugin asset panel after the shar
 			} ) );
 		} );
 
-		const refreshedPanel = actionsQueuePage.assetPanel( fixture.panel_target );
-		const refreshedTile = actionsQueuePage.assetTile( fixture.panel_target );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( refreshedTile ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
-		await expect( refreshedPanel ).toHaveAttribute( 'aria-hidden', 'false', { timeout: 20_000 } );
-		await expect( refreshedPanel.locator( '[data-scan-results-table="1"]' ) ).toBeVisible();
+		await expect( detailTitle ).toHaveText( titleText, { timeout: 20_000 } );
+		await expect( detailBadge ).toHaveText( badgeText, { timeout: 20_000 } );
+		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
+		await expect( scanResultsTable ).toBeVisible();
 	} );
 } );
 
@@ -172,15 +167,17 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect( ignoreAllActions ).toHaveCount( 0, { timeout: 20_000 } );
 		await expect( detailTitle ).toHaveText( titleText, { timeout: 20_000 } );
-		await expect( detailBadge ).toHaveText( '0 items', { timeout: 20_000 } );
+		await expect( detailBadge ).toHaveText( '1 item', { timeout: 20_000 } );
 		await expect( displayForm ).toBeVisible();
+		await expect( displayForm.locator( 'input[name="include_ignored"]' ) ).toBeChecked();
+		await expect( displayForm.locator( 'input[name="include_ignored"]' ) ).toBeDisabled();
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
-		await expectScanResultsTableEmpty( scanResultsTable );
+		await waitForScanResultsTableRows( scanResultsTable );
 	} );
 } );
 
-test( 'actions queue saves context-box display toggles and restores the ignored-plugin asset panel', async ( { page } ) => {
-	await withActionsQueueFixture( 'ignored_plugin_asset_cards', async ( fixture ) => {
+test( 'actions queue saves context-box display toggles and keeps the ignored-plugin direct table visible', async ( { page } ) => {
+	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -200,19 +197,16 @@ test( 'actions queue saves context-box display toggles and restores the ignored-
 		await expect( repairedToggle ).not.toBeChecked();
 		await expect( deletedToggle ).not.toBeChecked();
 
-		await actionsQueuePage.openAssetPanel( fixture.panel_target );
+		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+		await waitForScanResultsTableRows( scanResultsTable );
 		await repairedToggle.check();
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect( repairedToggle ).toBeChecked( { timeout: 20_000 } );
 		await expect( ignoredToggle ).toBeChecked();
 		await expect( ignoredToggle ).toBeDisabled();
-
-		const refreshedPanel = actionsQueuePage.assetPanel( fixture.panel_target );
-		const refreshedTile = actionsQueuePage.assetTile( fixture.panel_target );
-		await expect( refreshedTile ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
-		await expect( refreshedPanel ).toHaveAttribute( 'aria-hidden', 'false', { timeout: 20_000 } );
-		await expect( refreshedPanel.locator( '[data-scan-results-table="1"]' ) ).toBeVisible();
+		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
+		await expect( scanResultsTable ).toBeVisible();
 	} );
 } );
 

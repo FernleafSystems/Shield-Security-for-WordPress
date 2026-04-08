@@ -690,7 +690,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? null );
 	}
 
-	public function test_groups_ajax_keeps_missing_selected_plugin_asset_group_scoped_to_direct_table_detail() :void {
+	public function test_groups_ajax_keeps_selected_fully_ignored_plugin_group_scoped_to_direct_table_detail() :void {
 		$this->enableAssetScanFixture( [ 'plugins' ] );
 
 		$pluginSlug = self::con()->base_file;
@@ -716,10 +716,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
+		$this->assertSame( 'warning', (string)( $payload[ 'selected_group' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) );
 		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertSame( '0 items', (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 'Back to Fix now', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
@@ -728,13 +729,22 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertDisplayOptionsHeader(
 			(array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ),
 			[
-				'include_ignored'  => false,
+				'include_ignored'  => true,
 				'include_repaired' => false,
 				'include_deleted'  => false,
-			]
+			],
+			true
 		);
 		$this->assertSame( 'actions_queue', (string)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'results_display_options', (array)( $payload[ 'selected_group' ][ 'render_action_data' ] ?? [] ) );
+		$this->assertSame(
+			[
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
+			],
+			(array)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
+		);
 		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $payload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
 
 		$detailPayload = $this->renderSelectedGroupDetail( 'critical', $selectedGroupKey );
@@ -745,13 +755,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'file_scan_results',
 			'plugin',
 			$pluginSlug,
-			'Missing selected plugin detail AJAX'
+			'Ignored-only selected plugin detail AJAX'
 		);
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
 			0,
-			'Missing selected plugin detail AJAX should keep the direct table instead of reopening the asset chooser'
+			'Ignored-only selected plugin detail AJAX should keep the direct table instead of reopening the asset chooser'
 		);
 	}
 
@@ -1044,7 +1054,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_ignored_plugin_group_keeps_forced_ignored_scope_and_stored_deleted_repaired_flags() :void {
+	public function test_ignored_plugin_group_keeps_forced_ignored_scope_and_stored_deleted_repaired_flags_on_direct_table_detail() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_pluginsthemes_local',
 		] );
@@ -1074,10 +1084,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$groupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
 			'bucket' => 'critical',
-			'group'  => 'plugins',
+			'group'  => 'plugins:'.$pluginSlug,
 		] );
-		$this->assertSame( 'plugins', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'asset_cards', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertDisplayOptionsHeader(
 			(array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ),
 			[
@@ -1096,9 +1106,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			],
 			(array)( $groupsPayload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
 		);
-		$this->assertSame( 'scanresults_plugins', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
-		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'plugins' );
+		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
 		$this->assertNotSame( '', \trim( (string)( $detailPayload[ 'html' ] ?? '' ) ) );
+		$datatable = $this->executeInvestigationTableFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
+		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? -1 ) );
+		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? -1 ) );
 	}
 
 	public function test_file_locker_detail_render_in_actions_queue_context_marks_lazy_asset_panels() :void {

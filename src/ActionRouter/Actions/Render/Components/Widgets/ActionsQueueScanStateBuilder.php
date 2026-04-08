@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanAssetCardsBuilder,
 	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -47,6 +48,7 @@ class ActionsQueueScanStateBuilder {
 
 	private ?ScansResultsRailTabAvailability $tabAvailability = null;
 	private ?Counts $displayCounts = null;
+	private ?ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder = null;
 
 	/**
 	 * @return ActionsQueueScanState
@@ -134,9 +136,16 @@ class ActionsQueueScanStateBuilder {
 		$count = $tabKey === 'plugins'
 			? $this->getDisplayCounts()->countAffectedPluginAssets()
 			: $this->getDisplayCounts()->countAffectedThemeAssets();
+		$fullyIgnoredPluginCount = $tabKey === 'plugins'
+			? \count( $this->getScanAssetCardsBuilder()->buildFullyIgnoredPluginSummaryRecords() )
+			: 0;
+		$totalCount = $count + $fullyIgnoredPluginCount;
+		$status = $count > 0
+			? 'critical'
+			: ( $fullyIgnoredPluginCount > 0 ? 'warning' : 'good' );
 		$tabs[ $tabKey ] = [
-			'count'  => $count,
-			'status' => $count > 0 ? 'critical' : 'good',
+			'count'  => $totalCount,
+			'status' => $status,
 		];
 		$accentStatuses[] = $tabs[ $tabKey ][ 'status' ];
 
@@ -163,6 +172,28 @@ class ActionsQueueScanStateBuilder {
 		);
 		if ( $row !== null ) {
 			$rows[] = $row;
+		}
+
+		if ( $tabKey === 'plugins' ) {
+			$ignoredRow = $this->buildIssueRow(
+				'plugin_files_ignored',
+				$this->scanSectionLabel( 'plugin_files_ignored', __( 'Plugin Files', 'wp-simple-firewall' ) ),
+				$fullyIgnoredPluginCount,
+				'warning',
+				\sprintf(
+					_n(
+						'%s plugin has discovered files currently ignored.',
+						'%s plugins have discovered files currently ignored.',
+						$fullyIgnoredPluginCount,
+						'wp-simple-firewall'
+					),
+					$fullyIgnoredPluginCount
+				),
+				__( 'Review', 'wp-simple-firewall' )
+			);
+			if ( $ignoredRow !== null ) {
+				$rows[] = $ignoredRow;
+			}
 		}
 	}
 
@@ -384,6 +415,14 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		return $this->displayCounts;
+	}
+
+	private function getScanAssetCardsBuilder() :ActionsQueueScanAssetCardsBuilder {
+		if ( $this->scanAssetCardsBuilder === null ) {
+			$this->scanAssetCardsBuilder = new ActionsQueueScanAssetCardsBuilder();
+		}
+
+		return $this->scanAssetCardsBuilder;
 	}
 
 	private function scanSectionLabel( string $summaryKey, string $fallback ) :string {

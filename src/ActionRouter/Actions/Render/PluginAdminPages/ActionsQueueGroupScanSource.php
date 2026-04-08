@@ -18,6 +18,7 @@ class ActionsQueueGroupScanSource {
 	private ?array $activeThemeSummaries = null;
 	private ?array $ignoredPluginSummaries = null;
 	private ?array $ignoredThemeSummaries = null;
+	private ?array $fullyIgnoredPluginSummaries = null;
 	private ?array $vulnerabilitiesPayload = null;
 	private ?int $ignoredWordpressCount = null;
 
@@ -57,6 +58,17 @@ class ActionsQueueGroupScanSource {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * @return list<QueueAssetSummaryRecord>
+	 */
+	public function fullyIgnoredPluginSummaries() :array {
+		if ( $this->fullyIgnoredPluginSummaries === null ) {
+			$this->fullyIgnoredPluginSummaries = $this->scanAssetCardsBuilder->buildFullyIgnoredPluginSummaryRecords();
+		}
+
+		return $this->fullyIgnoredPluginSummaries;
 	}
 
 	/**

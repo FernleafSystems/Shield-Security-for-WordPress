@@ -87,6 +87,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 
 		$this->assertSame( 'wordpress', $definitions->groupKeyForSummaryKey( 'wp_files' ) );
 		$this->assertSame( 'plugins', $definitions->groupKeyForSummaryKey( 'plugin_files' ) );
+		$this->assertSame( 'plugins', $definitions->groupKeyForSummaryKey( 'plugin_files_ignored' ) );
 		$this->assertSame( 'themes', $definitions->groupKeyForSummaryKey( 'theme_files' ) );
 		$this->assertSame( 'vulnerabilities', $definitions->groupKeyForSummaryKey( 'vulnerable_assets' ) );
 		$this->assertSame( 'abandoned', $definitions->groupKeyForSummaryKey( 'abandoned' ) );
@@ -116,10 +117,18 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'definition_key' => 'plugins',
-				'seed_strategy'  => 'asset_cards',
+				'seed_strategy'  => 'plugin_assets',
 				'asset_source'   => 'plugins',
 			],
 			$definitions->summaryBehaviourForKey( 'plugin_files' )
+		);
+		$this->assertSame(
+			[
+				'definition_key' => 'plugins',
+				'seed_strategy'  => 'plugin_assets',
+				'asset_source'   => 'plugins',
+			],
+			$definitions->summaryBehaviourForKey( 'plugin_files_ignored' )
 		);
 		$this->assertSame(
 			[

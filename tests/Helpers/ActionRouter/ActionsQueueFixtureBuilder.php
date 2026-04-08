@@ -167,7 +167,7 @@ class ActionsQueueFixtureBuilder {
 	private function seedScenario( string $scenario, array &$state ) :array {
 		return match ( $scenario ) {
 			'direct_table'                => $this->seedDirectTable( $state ),
-			'ignored_plugin_asset_cards' => $this->seedIgnoredPluginAssetCards( $state ),
+			'ignored_plugin_direct_table' => $this->seedIgnoredPluginDirectTable( $state ),
 			'file_locker_lazy'           => $this->seedFileLockerLazy( $state ),
 			default                      => throw new \RuntimeException( 'Unknown Actions Queue fixture scenario: '.$scenario ),
 		};
@@ -232,7 +232,7 @@ class ActionsQueueFixtureBuilder {
 	 * @phpstan-param FixtureState $state
 	 * @return ScenarioDefinition
 	 */
-	private function seedIgnoredPluginAssetCards( array &$state ) :array {
+	private function seedIgnoredPluginDirectTable( array &$state ) :array {
 		RuntimeTestState::applyPremiumCapabilities( [
 			'scan_file_areas',
 			'scan_pluginsthemes_local',
@@ -268,9 +268,9 @@ class ActionsQueueFixtureBuilder {
 		}
 
 		return [
-			'scenario'                    => 'ignored_plugin_asset_cards',
-			'target_group_key'            => 'plugins',
-			'expected_detail_shell'       => 'asset_cards',
+			'scenario'                    => 'ignored_plugin_direct_table',
+			'target_group_key'            => 'plugins:'.$pluginSlug,
+			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,

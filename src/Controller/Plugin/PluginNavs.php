@@ -514,7 +514,7 @@ class PluginNavs {
 				'slug'            => 'plugins',
 				'label'           => __( 'Plugin Files', 'wp-simple-firewall' ),
 				'icon'            => 'plug',
-				'summary_keys'    => [ 'plugin_files' ],
+				'summary_keys'    => [ 'plugin_files', 'plugin_files_ignored' ],
 			],
 			'themes'          => [
 				'slug'            => 'themes',

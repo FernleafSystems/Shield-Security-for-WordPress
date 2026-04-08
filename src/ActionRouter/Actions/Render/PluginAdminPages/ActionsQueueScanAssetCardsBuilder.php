@@ -138,6 +138,31 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
+	 * @return list<QueueAssetSummaryRecord>
+	 */
+	public function buildFullyIgnoredPluginSummaryRecords() :array {
+		$activeSlugs = \array_fill_keys(
+			\array_column( $this->buildSummaryRecords( 'plugin', $this->queueScanResultsOptions->activeOnly() ), 'key' ),
+			true
+		);
+
+		return \array_values( \array_map(
+			fn( array $summary ) :array => \array_merge(
+				$summary,
+				[
+					'stat_text' => $this->buildQueueAssetDiscoveredIgnoredStatText(
+						(int)( $summary[ 'count_badge' ] ?? 0 )
+					),
+				]
+			),
+			\array_filter(
+				$this->buildSummaryRecords( 'plugin', $this->queueScanResultsOptions->ignoredOnly() ),
+				static fn( array $summary ) :bool => !isset( $activeSlugs[ $summary[ 'key' ] ] )
+			)
+		) );
+	}
+
+	/**
 	 * @phpstan-param AssetType $assetType
 	 * @param array{
 	 *   include_ignored:bool,
@@ -235,6 +260,18 @@ class ActionsQueueScanAssetCardsBuilder {
 
 		return \sprintf(
 			_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
+			$fileCount
+		);
+	}
+
+	protected function buildQueueAssetDiscoveredIgnoredStatText( int $fileCount ) :string {
+		return \sprintf(
+			_n(
+				'%s discovered file is currently ignored.',
+				'%s discovered files are currently ignored.',
+				$fileCount,
+				'wp-simple-firewall'
+			),
 			$fileCount
 		);
 	}

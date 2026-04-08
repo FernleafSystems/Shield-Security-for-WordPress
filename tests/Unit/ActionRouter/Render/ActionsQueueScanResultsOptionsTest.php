@@ -68,4 +68,39 @@ class ActionsQueueScanResultsOptionsTest extends BaseUnitTest {
 			] )
 		);
 	}
+
+	public function test_build_subject_action_data_owns_subject_scope_and_optional_display_flags() :void {
+		$helper = new ActionsQueueScanResultsOptions();
+
+		$this->assertSame(
+			[
+				'display_context' => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+				'subject_type'    => 'plugin',
+				'subject_id'      => 'example-plugin/example-plugin.php',
+			],
+			$helper->buildSubjectActionData( 'plugin', 'example-plugin/example-plugin.php' )
+		);
+
+		$this->assertSame(
+			[
+				'display_context'         => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+				'results_display_options' => [
+					'include_ignored'  => true,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => true,
+				],
+				'subject_type'            => 'plugin',
+				'subject_id'              => 'example-plugin/example-plugin.php',
+			],
+			$helper->buildSubjectActionData(
+				'plugin',
+				'example-plugin/example-plugin.php',
+				[
+					'include_ignored' => '1',
+					'ignored_only'    => true,
+				]
+			)
+		);
+	}
 }

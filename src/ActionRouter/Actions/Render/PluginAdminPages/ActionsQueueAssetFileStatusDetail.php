@@ -18,14 +18,10 @@ class ActionsQueueAssetFileStatusDetail extends BaseRender {
 
 	protected function getRenderData() :array {
 		$options = new ActionsQueueScanResultsOptions();
-		$scanResultsActionData = $options->buildDisplayContextActionData();
 		$explicitOptions = $options->explicitOptionsFromActionData( $this->action_data );
-		if ( $explicitOptions !== null ) {
-			$scanResultsActionData = \array_merge(
-				$scanResultsActionData,
-				$options->buildExplicitActionData( $explicitOptions )
-			);
-		}
+		$scanResultsActionData = $explicitOptions === null
+			? $options->buildDisplayContextActionData()
+			: $options->buildExplicitActionData( $explicitOptions );
 
 		return [
 			'table' => ( new ScanResultsTableContractBuilder() )->buildFileStatus(

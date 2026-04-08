@@ -119,7 +119,7 @@ class ActionsQueueContextDisplayOptionsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scan_results_display_form_submit', $actionData[ 'ex' ] ?? '' );
 	}
 
-	public function test_build_for_ignored_asset_group_forces_ignored_switch_but_preserves_other_flags() :void {
+	public function test_build_for_ignored_direct_table_group_forces_ignored_switch_but_preserves_other_flags() :void {
 		$builder = new ActionsQueueContextDisplayOptionsBuilder(
 			new class extends ActionsQueueScanResultsOptions {
 				public function storedOptions() :array {
@@ -133,7 +133,7 @@ class ActionsQueueContextDisplayOptionsBuilderTest extends BaseUnitTest {
 
 		$displayOptions = $builder->buildForGroup(
 			'plugins',
-			'asset_cards',
+			'direct_table',
 			[
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [

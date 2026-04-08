@@ -130,7 +130,7 @@ class ActionsQueueBucketsBuilder {
 		];
 
 		foreach ( $attentionQuery[ 'items' ] as $item ) {
-			$bucketKey = $this->bucketKeyForStatus( $item[ 'severity' ] );
+			$bucketKey = $this->bucketKeyForAttentionItem( $item );
 			if ( !isset( $sources[ $bucketKey ] ) ) {
 				continue;
 			}
@@ -165,6 +165,15 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return 'later';
+	}
+
+	/**
+	 * @phpstan-param AttentionItem $item
+	 */
+	private function bucketKeyForAttentionItem( array $item ) :string {
+		return ( $item[ 'key' ] ?? '' ) === 'plugin_files_ignored'
+			? 'critical'
+			: $this->bucketKeyForStatus( (string)( $item[ 'severity' ] ?? '' ) );
 	}
 
 	/**

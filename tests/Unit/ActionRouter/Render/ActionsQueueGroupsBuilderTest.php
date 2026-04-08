@@ -825,14 +825,19 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
 	}
 
-	public function test_build_critical_bucket_only_makes_healthy_scan_groups_clickable_when_ignored_results_exist() :void {
+	public function test_build_critical_bucket_uses_explicit_plugin_groups_for_fully_ignored_plugins() :void {
 		$builder = $this->createBuilder(
 			[],
 			[],
 			[],
 			[],
 			[
-				$this->makeQueueAssetSummary( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
+				\array_merge(
+					$this->makeQueueAssetSummary( 'ignored-plugin', 'Ignored Plugin', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
+					[
+						'stat_text' => '2 discovered files are currently ignored.',
+					]
+				),
 			],
 			[],
 			3
@@ -841,7 +846,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$data = $builder->build(
 			'critical',
 			[
-				'items' => [],
+				'items' => [
+					[
+						'key'      => 'plugin_files_ignored',
+						'count'    => 1,
+						'severity' => 'warning',
+						'zone'     => 'scans',
+					],
+				],
 			],
 			[
 				'scans'       => [
@@ -881,6 +893,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		foreach ( $this->flattenSections( $data[ 'healthy_sections' ] ) as $group ) {
 			$groups[ $group[ 'key' ] ] = $group;
 		}
+		$activeGroups = [];
+		foreach ( $this->flattenSections( $data[ 'active_sections' ] ) as $group ) {
+			$activeGroups[ $group[ 'key' ] ] = $group;
+		}
 
 		$this->assertTrue( $groups[ 'wordpress' ][ 'is_interactive' ] );
 		$this->assertSame(
@@ -899,14 +915,24 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $groups[ 'wordpress' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertSame( 'scanresults_wordpress', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'actions_queue', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
-		$this->assertTrue( $groups[ 'plugins' ][ 'is_interactive' ] );
-		$this->assertSame( 2, $groups[ 'plugins' ][ 'item_count' ] );
-		$this->assertSame( [], $groups[ 'plugins' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( 'scanresults_plugins', $groups[ 'plugins' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'actions_queue', $groups[ 'plugins' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
+		$this->assertArrayNotHasKey( 'plugins', $groups );
 		$this->assertFalse( $groups[ 'themes' ][ 'is_interactive' ] );
 		$this->assertSame( [], $groups[ 'themes' ][ 'render_action_data' ] );
-		$this->assertSame( [ '', '', '' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
+		$this->assertArrayHasKey( 'plugins:ignored-plugin', $activeGroups );
+		$this->assertSame( 'warning', $activeGroups[ 'plugins:ignored-plugin' ][ 'status' ] );
+		$this->assertSame( 2, $activeGroups[ 'plugins:ignored-plugin' ][ 'item_count' ] );
+		$this->assertSame( '2 discovered files are currently ignored.', $activeGroups[ 'plugins:ignored-plugin' ][ 'narrative' ] );
+		$this->assertSame( [], $activeGroups[ 'plugins:ignored-plugin' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame(
+			[
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
+			],
+			$activeGroups[ 'plugins:ignored-plugin' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
+		);
+		$this->assertSame( [ '', '' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
 	}
 
 	public function test_build_reuses_shared_active_and_ignored_pane_options_for_scan_groups() :void {
@@ -935,6 +961,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'key'      => 'plugin_files',
 						'count'    => 3,
 						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+					[
+						'key'      => 'plugin_files_ignored',
+						'count'    => 1,
+						'severity' => 'warning',
 						'zone'     => 'scans',
 					],
 					[
@@ -1096,6 +1128,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						private array $pluginPaneCalls = [];
 						private array $themePaneCalls = [];
 						private ?array $vulnerabilitiesPayload = null;
+						private bool $fullyIgnoredPluginSummariesLoaded = false;
 						private array $pluginCards;
 						private array $themeCards;
 						private array $vulnerabilities;
@@ -1169,6 +1202,20 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 							}
 
 							return 0;
+						}
+
+						public function fullyIgnoredPluginSummaries() :array {
+							if ( !$this->fullyIgnoredPluginSummariesLoaded ) {
+								$this->fullyIgnoredPluginSummariesLoaded = true;
+								$this->pluginPaneCalls[] = [
+									'include_ignored'  => true,
+									'include_repaired' => false,
+									'include_deleted'  => false,
+									'ignored_only'     => true,
+								];
+							}
+
+							return $this->ignoredPluginCards;
 						}
 
 						public function vulnerabilitySection( string $sectionKey ) :array {

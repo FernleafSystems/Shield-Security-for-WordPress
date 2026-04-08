@@ -108,6 +108,32 @@ class ActionsQueueScanResultsOptions {
 	}
 
 	/**
+	 * @param array<string,mixed>|null $options
+	 * @return array{
+	 *   display_context:string,
+	 *   subject_type:string,
+	 *   subject_id:string,
+	 *   results_display_options?:array{
+	 *     include_ignored:bool,
+	 *     include_repaired:bool,
+	 *     include_deleted:bool,
+	 *     ignored_only:bool
+	 *   }
+	 * }
+	 */
+	public function buildSubjectActionData( string $subjectType, string $subjectId, ?array $options = null ) :array {
+		return \array_merge(
+			$options === null
+				? $this->buildDisplayContextActionData()
+				: $this->buildExplicitActionData( $options ),
+			[
+				'subject_type' => $subjectType,
+				'subject_id'   => $subjectId,
+			]
+		);
+	}
+
+	/**
 	 * @param array<string,mixed> $actionData
 	 * @return array{
 	 *   include_ignored:bool,

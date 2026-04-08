@@ -262,4 +262,23 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 3, $classified[ 'review' ][ 'item_count' ] );
 		$this->assertSame( 0, $classified[ 'critical' ][ 'item_count' ] );
 	}
+
+	public function test_classify_routes_fully_ignored_plugin_attention_items_to_fix_now() :void {
+		$classified = ( new ActionsQueueBucketsBuilder() )->classify(
+			[
+				'items' => [
+					[
+						'key'      => 'plugin_files_ignored',
+						'label'    => 'Plugin Files',
+						'count'    => 2,
+						'severity' => 'warning',
+					],
+				],
+			]
+		);
+
+		$this->assertSame( 2, $classified[ 'critical' ][ 'item_count' ] );
+		$this->assertCount( 1, $classified[ 'critical' ][ 'attention_items' ] );
+		$this->assertSame( 0, $classified[ 'review' ][ 'item_count' ] );
+	}
 }
