@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldTableBase } from "./ShieldTableBase";
+import { bindActivityLogMetaPopover } from "./ActivityLogMetaPopover";
 
 export class InvestigationTable extends ShieldTableBase {
 
@@ -41,6 +42,7 @@ export class InvestigationTable extends ShieldTableBase {
 			const datatable = $tableElement.DataTable();
 			this.bindBusyStateLifecycle( datatable );
 			this.ensureSearchDelay( datatable );
+			this.bindTableBehaviors( tableEl, context );
 			return;
 		}
 
@@ -56,6 +58,13 @@ export class InvestigationTable extends ShieldTableBase {
 		const datatable = $tableElement.DataTable( cfg );
 		this.bindBusyStateLifecycle( datatable );
 		this.ensureSearchDelay( datatable );
+		this.bindTableBehaviors( tableEl, context );
+	}
+
+	bindTableBehaviors( tableEl, tableContext ) {
+		if ( tableContext.tableType === 'activity' ) {
+			bindActivityLogMetaPopover( tableEl, tableContext.tableAction );
+		}
 	}
 
 	ensureSearchDelay( datatable ) {

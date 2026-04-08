@@ -19,6 +19,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investiga
 
 class InvestigationTableAction extends TableActionBase {
 
+	use HandlesRequestMetaTableAction;
+
 	public const SLUG = 'investigationtable_action';
 	private const ERROR_UNSUPPORTED_SUB_ACTION = 'unsupported_sub_action';
 	private const ERROR_MISSING_REQUIRED_ACTION_DATA = 'missing_required_action_data';
@@ -35,6 +37,7 @@ class InvestigationTableAction extends TableActionBase {
 	protected function getSubActionHandlers() :array {
 		return [
 			InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA => fn() => $this->retrieveTableData(),
+			InvestigationTableContract::SUB_ACTION_GET_REQUEST_META    => fn() => $this->getRequestMeta(),
 		];
 	}
 
@@ -44,6 +47,9 @@ class InvestigationTableAction extends TableActionBase {
 				InvestigationTableContract::REQ_KEY_TABLE_TYPE,
 				InvestigationTableContract::REQ_KEY_SUBJECT_TYPE,
 				InvestigationTableContract::REQ_KEY_SUBJECT_ID,
+			],
+			InvestigationTableContract::SUB_ACTION_GET_REQUEST_META    => [
+				InvestigationTableContract::REQ_KEY_RID,
 			],
 		];
 	}

@@ -186,6 +186,14 @@ async function withActionsQueueFixture( scenario, runScenario ) {
 	);
 }
 
+async function withIpAnalysisActivityMetaFixture( runScenario ) {
+	return withWpFixture(
+		'ip-analysis-activity-meta',
+		[ 'seed' ],
+		runScenario
+	);
+}
+
 module.exports = {
 	buildShieldUrl,
 	dismissBlockingDialogs,
@@ -194,5 +202,6 @@ module.exports = {
 	selectSelect2Option,
 	waitForShieldPage,
 	withActionsQueueFixture,
+	withIpAnalysisActivityMetaFixture,
 	withWpFixture,
 };

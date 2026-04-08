@@ -2,6 +2,7 @@ const { test, expect } = require( '@playwright/test' );
 const {
 	openShieldRoute,
 	selectSelect2Option,
+	withIpAnalysisActivityMetaFixture,
 } = require( './support/shield-browser' );
 
 const panelSelector = '[data-investigate-panel="1"]';
@@ -22,6 +23,19 @@ const investigationTableRequestMatcher = ( tableType ) => ( response ) => {
 	return request.method() === 'POST'
 		&& postData.includes( 'sub_action=retrieve_table_data' )
 		&& postData.includes( `table_type=${tableType}` );
+};
+
+const requestMetaResponseMatcher = ( rid ) => ( response ) => {
+	if ( !response.url().includes( '/admin-ajax.php' ) ) {
+		return false;
+	}
+
+	const request = response.request();
+	const postData = request.postData() || '';
+
+	return request.method() === 'POST'
+		&& postData.includes( 'sub_action=get_request_meta' )
+		&& postData.includes( `rid=${rid}` );
 };
 
 const expectPanelState = async ( page, panel, { subject, isLoaded, lookupKey = '' } ) => {
@@ -68,6 +82,23 @@ const expectInvestigationTableInitialized = async ( panel, tableType ) => {
 			message: `Expected ${tableType} investigation table to be initialized by DataTables.`,
 		}
 	).toBe( true );
+};
+
+const expectRequestMetaPopover = async ( page, root, rid, expectedMeta ) => {
+	const metaButton = root.locator( '.tab-pane.active.show td.meta > button[data-toggle="popover"]' ).first();
+	await expect( metaButton ).toBeVisible();
+
+	await Promise.all( [
+		page.waitForResponse( requestMetaResponseMatcher( rid ) ),
+		metaButton.click(),
+	] );
+
+	const popoverBody = page.locator( '.popover.show .popover-body' ).last();
+	await expect( popoverBody ).toBeVisible();
+
+	for ( const marker of expectedMeta ) {
+		await expect( popoverBody ).toContainText( marker );
+	}
 };
 
 test( 'investigate user reset uses the shared generic panel path and self shortcut', async ( { page } ) => {
@@ -298,6 +329,45 @@ test( 'investigate landing IP analysis loads investigation tables without runtim
 	await expect.poll(
 		() => pageErrors,
 		{ message: `Expected no browser runtime errors while loading drill-down IP analysis investigation tables: ${pageErrors.join( '; ' )}` }
+	).toEqual( [] );
+} );
+
+test( 'investigate landing IP activity meta button loads request meta popover', async ( { page } ) => {
+	const pageErrors = [];
+	page.on( 'pageerror', ( error ) => {
+		pageErrors.push( error.message );
+	} );
+
+	await withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+		await openShieldRoute( page, {
+			nav: 'activity',
+			nav_sub: 'overview',
+			subject: 'ip',
+			analyse_ip: fixture.ip,
+		} );
+
+		const panel = page.locator( '[data-drill-layer="1"] [data-investigate-panel="1"]' );
+		await expectPanelState( page, panel, {
+			subject: 'ip',
+			isLoaded: true,
+		} );
+
+		const inlineTabs = await getInvestigationInlineTabs( panel );
+		const targetTab = getInvestigationTab( inlineTabs, 'activity' );
+
+		await Promise.all( [
+			page.waitForResponse( investigationTableRequestMatcher( 'activity' ) ),
+			targetTab.click(),
+		] );
+
+		await expect( targetTab ).toHaveClass( /is-active/ );
+		await expectInvestigationTableInitialized( panel, 'activity' );
+		await expectRequestMetaPopover( page, panel, fixture.rid, fixture.expected_meta );
+	} );
+
+	await expect.poll(
+		() => pageErrors,
+		{ message: `Expected no browser runtime errors while opening the IP investigation request-meta popover: ${pageErrors.join( '; ' )}` }
 	).toEqual( [] );
 } );
 

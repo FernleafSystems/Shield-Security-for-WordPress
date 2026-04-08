@@ -165,23 +165,30 @@ class TestDataFactory {
 	 * Insert an activity log entry.
 	 */
 	public static function insertActivityLog( string $eventSlug, string $ip = '10.10.10.10', array $overrides = [] ) :int {
-		$con = self::con();
-		$dbh = $con->db_con->activity_logs;
 
 		// Create IP + request log records to satisfy FK constraint: ips → req_logs → at_logs
 		$ipRecord = self::createIpRecord( $ip );
 		$reqRecord = ( new RequestRecords() )->loadReq( \substr( \wp_generate_uuid4(), 0, 10 ), $ipRecord->id );
+		return self::insertActivityLogForRequest( $reqRecord->id, $eventSlug, $overrides );
+	}
+
+	/**
+	 * Insert an activity log entry for an existing request log row.
+	 *
+	 * @param array<string,mixed> $overrides
+	 */
+	public static function insertActivityLogForRequest( int $reqRef, string $eventSlug, array $overrides = [] ) :int {
+		$dbh = self::con()->db_con->activity_logs;
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Record $record */
 		$record = $dbh->getRecord();
 		$record->event_slug = $eventSlug;
 		$record->site_id = $overrides[ 'site_id' ] ?? \get_current_blog_id();
-		$record->req_ref = $reqRecord->id;
+		$record->req_ref = $reqRef;
 
 		$dbh->getQueryInserter()->insert( $record );
 
-		global $wpdb;
-		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
+		return self::lastInsertId();
 	}
 
 	/**

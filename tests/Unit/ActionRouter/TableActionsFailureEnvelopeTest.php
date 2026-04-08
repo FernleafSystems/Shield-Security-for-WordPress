@@ -88,7 +88,10 @@ class TableActionsFailureEnvelopeTest extends BaseUnitTest {
 			],
 			[
 				'action' => new InvestigationTableActionTestDouble( [] ),
-				'keys'   => [ InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA ],
+				'keys'   => [
+					InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
+					InvestigationTableContract::SUB_ACTION_GET_REQUEST_META,
+				],
 			],
 		];
 

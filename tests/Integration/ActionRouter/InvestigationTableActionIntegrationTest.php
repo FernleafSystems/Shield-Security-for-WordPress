@@ -203,6 +203,31 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertFalse( \in_array( $otherIp, $ips, true ) );
 	}
 
+	public function testGetRequestMetaReturnsRequestMetaHtmlForInvestigatedActivityRequest() :void {
+		$rid = 'rqmeta1234';
+		$requestId = TestDataFactory::insertRequestLog( '203.0.113.103', [
+			'rid'  => $rid,
+			'verb' => 'POST',
+			'path' => '/fixture/request-meta',
+			'code' => 418,
+			'meta' => [
+				'ua' => 'Investigation Integration Fixture/1.0',
+				'ts' => '1710000000',
+			],
+		] );
+		TestDataFactory::insertActivityLogForRequest( $requestId, 'user_login' );
+
+		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION => InvestigationTableContract::SUB_ACTION_GET_REQUEST_META,
+			InvestigationTableContract::REQ_KEY_RID        => $rid,
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertStringContainsString( '/fixture/request-meta', (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertStringContainsString( 'Investigation Integration Fixture/1.0', (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertStringContainsString( '418', (string)( $payload[ 'html' ] ?? '' ) );
+	}
+
 	public function testValidTrafficIpPayloadReturnsOnlyRowsForInvestigatedIp() :void {
 		$targetIp = '203.0.113.111';
 		$otherIp = '203.0.113.112';

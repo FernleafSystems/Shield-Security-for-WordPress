@@ -9,7 +9,9 @@ class InvestigationTableContract {
 	public const REQ_KEY_SUBJECT_TYPE = 'subject_type';
 	public const REQ_KEY_SUBJECT_ID = 'subject_id';
 	public const REQ_KEY_TABLE_DATA = 'table_data';
+	public const REQ_KEY_RID = 'rid';
 	public const SUB_ACTION_RETRIEVE_TABLE_DATA = 'retrieve_table_data';
+	public const SUB_ACTION_GET_REQUEST_META = 'get_request_meta';
 	public const TABLE_TYPE_ACTIVITY = 'activity';
 	public const TABLE_TYPE_TRAFFIC = 'traffic';
 	public const TABLE_TYPE_SESSIONS = 'sessions';

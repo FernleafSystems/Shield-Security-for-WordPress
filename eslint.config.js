@@ -3,7 +3,9 @@ const js = require( '@eslint/js' );
 module.exports = [
 	{
 		files: [
+			'assets/js/components/tables/ActivityLogMetaPopover.js',
 			'assets/js/components/tables/InvestigationTable.js',
+			'assets/js/components/tables/ShieldTableActivityLog.js',
 			'assets/js/components/tables/ShieldTableBase.js',
 		],
 		languageOptions: {

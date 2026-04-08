@@ -42,6 +42,27 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$this->assertSame( 'missing_required_action_data', $payload[ 'error_code' ] ?? '' );
 	}
 
+	public function testGetRequestMetaWithoutRidReturnsFailurePayload() :void {
+		$payload = $this->runAction( [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION => InvestigationTableContract::SUB_ACTION_GET_REQUEST_META,
+		] );
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
+		$this->assertArrayHasKey( 'message', $payload );
+		$this->assertSame( 'missing_required_action_data', $payload[ 'error_code' ] ?? '' );
+	}
+
+	public function testGetRequestMetaReturnsHtmlPayload() :void {
+		$payload = ( new InvestigationTableActionRequestMetaSuccessUnitTestDouble( [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION => InvestigationTableContract::SUB_ACTION_GET_REQUEST_META,
+			InvestigationTableContract::REQ_KEY_RID        => 'fixture-rid',
+		] ) )->runExecForTest();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertSame( '<div>fixture-rid</div>', $payload[ 'html' ] ?? '' );
+	}
+
 	/**
 	 * @dataProvider provideRetrieveTableDataNormalizationCases
 	 */
@@ -272,6 +293,16 @@ class InvestigationTableActionEchoTableDataBuilderTestDouble extends BaseInvesti
 	public function build() :array {
 		return [
 			'table_data' => $this->table_data,
+		];
+	}
+}
+
+class InvestigationTableActionRequestMetaSuccessUnitTestDouble extends InvestigationTableActionUnitTestDouble {
+
+	protected function getRequestMeta() :array {
+		return [
+			'success' => true,
+			'html'    => '<div>'.(string)( $this->action_data[ InvestigationTableContract::REQ_KEY_RID ] ?? '' ).'</div>',
 		];
 	}
 }

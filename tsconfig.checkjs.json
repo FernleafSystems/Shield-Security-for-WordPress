@@ -21,7 +21,9 @@
     "./assets/js/components/services/AjaxService.d.ts",
     "./assets/js/components/ui/OffCanvasService.d.ts",
     "./assets/js/util/ObjectOps.d.ts",
+    "./assets/js/components/tables/ActivityLogMetaPopover.js",
     "./assets/js/components/tables/ShieldTableBase.js",
+    "./assets/js/components/tables/ShieldTableActivityLog.js",
     "./assets/js/components/tables/InvestigationTable.js"
   ]
 }
