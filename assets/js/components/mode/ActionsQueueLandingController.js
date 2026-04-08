@@ -208,10 +208,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 
 		const renderAction = this.selectedGroup.detail_render_action;
-		if ( ObjectOps.IsEmpty( renderAction ) ) {
-			return Promise.resolve( null );
-		}
-
 		const layer = this.getLayerByKey( this.shellEl, 'detail' );
 		const body = layer?.querySelector( '.drill-layer__body' ) || null;
 		if ( layer === null || body === null ) {
@@ -840,7 +836,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	readGroupSelectionPayload( selection ) {
 		return {
 			...this.readCountedSelectionPayload( selection ),
-			detail_shell: selection.detail_shell.trim(),
+			detail_shell: selection.detail_shell,
 			detail_render_action: selection.detail_render_action,
 		};
 	}

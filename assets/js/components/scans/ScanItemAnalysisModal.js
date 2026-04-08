@@ -96,9 +96,11 @@ export class ScanItemAnalysisModal {
 		const spinner = document.getElementById( 'ShieldWaitSpinner' );
 		if ( spinner instanceof HTMLElement ) {
 			const clone = spinner.cloneNode( true );
-			clone.id = '';
-			clone.classList.remove( 'd-none' );
-			return clone.outerHTML;
+			if ( clone instanceof HTMLElement ) {
+				clone.id = '';
+				clone.classList.remove( 'd-none' );
+				return clone.outerHTML;
+			}
 		}
 
 		return '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>';

@@ -1,5 +1,15 @@
 import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
 
+/**
+ * @typedef {object} ScanResultsRowActionOptions
+ * @property {JQuery<Element>|null} [$tableElement]
+ * @property {any} [datatable]
+ * @property {any} [scanResultsAction]
+ * @property {any} [renderItemAnalysis]
+ * @property {((action: string, rids?: string[]) => void)|null} [onAction]
+ * @property {string} [namespace]
+ */
+
 export function buildScanResultsButtons( { includeReload = false, onReload = null, onBulkAction = null } = {} ) {
 	const buttons = [];
 
@@ -59,6 +69,9 @@ export function buildScanResultsButtons( { includeReload = false, onReload = nul
 	return buttons;
 }
 
+/**
+ * @param {ScanResultsRowActionOptions} [options]
+ */
 export function bindScanResultsRowActions( {
 	$tableElement,
 	datatable,

@@ -12,9 +12,17 @@ import {
 
 export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 
+	layerRequests = {};
+	rootEl = null;
+	shellEl = null;
+
 	initializeCurrentRoot() {
 		this.rootEl = this.getRoot();
 		this.shellEl = this.getShell( this.rootEl );
+	}
+
+	getRoot() {
+		return null;
 	}
 
 	getShell( root = this.rootEl ) {
@@ -58,6 +66,11 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 			...( header && typeof header === 'object' ? header : {} ),
 			summary: String( loadingText || '' ).trim(),
 		};
+	}
+
+	buildLoadingMarkup( message ) {
+		void message;
+		return '';
 	}
 
 	loadLayerContent( layerKey, renderAction, showPlaceholder, loadingText, onSuccess ) {
@@ -156,5 +169,10 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 			.replace( />/g, '&gt;' )
 			.replace( /"/g, '&quot;' )
 			.replace( /'/g, '&#39;' );
+	}
+
+	renderLayerFailure( body, layerKey ) {
+		void body;
+		void layerKey;
 	}
 }

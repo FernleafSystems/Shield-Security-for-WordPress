@@ -8,6 +8,7 @@ module.exports = [
 			'assets/js/components/tables/ShieldTableActivityLog.js',
 			'assets/js/components/tables/ShieldTableBase.js',
 			'assets/js/components/mode/StepTabsController.js',
+			'assets/js/components/mode/ActionsQueueLandingController.js',
 		],
 		languageOptions: {
 			ecmaVersion: 'latest',
@@ -18,6 +19,8 @@ module.exports = [
 				Element: 'readonly',
 				HTMLElement: 'readonly',
 				HTMLButtonElement: 'readonly',
+				HTMLInputElement: 'readonly',
+				HTMLFormElement: 'readonly',
 				CustomEvent: 'readonly',
 				WeakSet: 'readonly',
 				setTimeout: 'readonly',

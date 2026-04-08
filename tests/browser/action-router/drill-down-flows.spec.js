@@ -16,6 +16,12 @@ async function waitForScanResultsTableRows( table ) {
 	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
 }
 
+async function expectScanResultsTableEmpty( table ) {
+	await expect( table ).toBeVisible();
+	await expect( table.locator( 'tbody tr' ).first() ).toContainText( 'There are no items to display.', { timeout: 20_000 } );
+	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
+}
+
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
 	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -180,6 +186,41 @@ test( 'actions queue restores the same ignored-plugin asset panel after the shar
 		await expect( refreshedTile ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
 		await expect( refreshedPanel ).toHaveAttribute( 'aria-hidden', 'false', { timeout: 20_000 } );
 		await expect( refreshedPanel.locator( '[data-scan-results-table="1"]' ) ).toBeVisible();
+	} );
+} );
+
+test( 'actions queue ignores all results from the context rail and refreshes the direct table in place', async ( { page } ) => {
+	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		await openShieldRoute( page, {
+			nav: 'scans',
+			nav_sub: 'overview',
+		} );
+
+		await actionsQueuePage.drillToDetail( fixture );
+		const rail = page.locator( '[data-operator-context-rail="1"]' );
+		const detailTitle = rail.locator( '.operator-context-rail__title' );
+		const detailBadge = rail.locator( '.shield-badge' );
+		const displayForm = rail.locator( '[data-operator-context-display-form="1"]' );
+		const ignoreAllActions = rail.locator( '[data-operator-context-action-ajax="1"]' )
+			.filter( { hasText: /^Ignore All Results$/ } );
+		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+		const titleText = ( await detailTitle.textContent() || '' ).trim();
+
+		await waitForScanResultsTableRows( scanResultsTable );
+		await expect( ignoreAllActions ).toHaveCount( 1 );
+		await expect( displayForm ).toBeVisible();
+
+		page.once( 'dialog', ( dialog ) => dialog.accept() );
+		await actionsQueuePage.clickElement( ignoreAllActions.first() );
+
+		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+		await expect( ignoreAllActions ).toHaveCount( 0, { timeout: 20_000 } );
+		await expect( detailTitle ).toHaveText( titleText, { timeout: 20_000 } );
+		await expect( detailBadge ).toHaveText( '0 items', { timeout: 20_000 } );
+		await expect( displayForm ).toBeVisible();
+		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
+		await expectScanResultsTableEmpty( scanResultsTable );
 	} );
 } );
 
