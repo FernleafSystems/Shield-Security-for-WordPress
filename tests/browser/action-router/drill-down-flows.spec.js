@@ -183,6 +183,43 @@ test( 'actions queue restores the same ignored-plugin asset panel after the shar
 	} );
 } );
 
+test( 'actions queue saves context-box display toggles and restores the ignored-plugin asset panel', async ( { page } ) => {
+	await withActionsQueueFixture( 'ignored_plugin_asset_cards', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		await openShieldRoute( page, {
+			nav: 'scans',
+			nav_sub: 'overview',
+		} );
+
+		await actionsQueuePage.drillToDetail( fixture );
+		const rail = page.locator( '[data-operator-context-rail="1"]' );
+		const displayForm = rail.locator( '[data-operator-context-display-form="1"]' );
+		const ignoredToggle = displayForm.locator( 'input[name="include_ignored"]' );
+		const repairedToggle = displayForm.locator( 'input[name="include_repaired"]' );
+		const deletedToggle = displayForm.locator( 'input[name="include_deleted"]' );
+
+		await expect( displayForm ).toBeVisible();
+		await expect( ignoredToggle ).toBeChecked();
+		await expect( ignoredToggle ).toBeDisabled();
+		await expect( repairedToggle ).not.toBeChecked();
+		await expect( deletedToggle ).not.toBeChecked();
+
+		await actionsQueuePage.openAssetPanel( fixture.panel_target );
+		await repairedToggle.check();
+
+		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+		await expect( repairedToggle ).toBeChecked( { timeout: 20_000 } );
+		await expect( ignoredToggle ).toBeChecked();
+		await expect( ignoredToggle ).toBeDisabled();
+
+		const refreshedPanel = actionsQueuePage.assetPanel( fixture.panel_target );
+		const refreshedTile = actionsQueuePage.assetTile( fixture.panel_target );
+		await expect( refreshedTile ).toHaveAttribute( 'aria-expanded', 'true', { timeout: 20_000 } );
+		await expect( refreshedPanel ).toHaveAttribute( 'aria-hidden', 'false', { timeout: 20_000 } );
+		await expect( refreshedPanel.locator( '[data-scan-results-table="1"]' ) ).toBeVisible();
+	} );
+} );
+
 test( 'actions queue lazy-loads the file locker asset panel to a terminal state on demand', async ( { page } ) => {
 	await withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );

@@ -134,8 +134,10 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 			[
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
-					'include_ignored' => true,
-					'ignored_only'    => true,
+					'include_ignored'  => true,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => true,
 				],
 			],
 			$definitions->ignoredRenderActionDataForGroupKey( 'plugins', 2 )

@@ -311,7 +311,7 @@ class ActionsQueueGroupDefinitions {
 	 */
 	public function ignoredRenderActionDataForGroupKey( string $groupKey, int $ignoredCount ) :array {
 		return $ignoredCount > 0 && $this->healthyIgnoredSourceForGroupKey( $groupKey ) !== ''
-			? $this->queueScanResultsOptions->buildIgnoredOnlyActionData()
+			? $this->queueScanResultsOptions->buildForcedIgnoredActionData()
 			: [];
 	}
 

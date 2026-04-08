@@ -76,8 +76,10 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame(
 			[
 				[
-					'include_ignored' => true,
-					'ignored_only'    => true,
+					'include_ignored'  => true,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => true,
 				],
 			],
 			$assetCardsBuilder->getSeenOptions()
@@ -89,8 +91,10 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'actions_queue', $tableAction[ 'display_context' ] ?? '' );
 		$this->assertSame(
 			[
-				'include_ignored' => true,
-				'ignored_only'    => true,
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
 			],
 			$tableAction[ 'results_display_options' ] ?? []
 		);

@@ -14,8 +14,10 @@ class LoadFileScanResultsTableDataCountTest extends BaseUnitTest {
 	public function testCountAllUsesDisplayOptionsCounterWithoutTouchingRetrievePath() :void {
 		[ $loader, $calls ] = $this->createLoader();
 		$loader->results_display_options = [
-			'include_ignored' => true,
-			'ignored_only'    => false,
+			'include_ignored'  => true,
+			'include_repaired' => true,
+			'include_deleted'  => false,
+			'ignored_only'     => false,
 		];
 
 		$this->assertSame( 21, $loader->countAll() );
@@ -24,8 +26,10 @@ class LoadFileScanResultsTableDataCountTest extends BaseUnitTest {
 		$this->assertSame( 1, $calls->displayCountCalls );
 		$this->assertSame(
 			[
-				'include_ignored' => true,
-				'ignored_only'    => false,
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
 			],
 			$calls->lastDisplayOptions
 		);

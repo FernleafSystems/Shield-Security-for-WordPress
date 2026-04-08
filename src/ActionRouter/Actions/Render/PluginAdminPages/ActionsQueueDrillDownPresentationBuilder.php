@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
+ * @phpstan-import-type OperatorChromeDisplayOptionsInput from OperatorChromeContract
  * @phpstan-type BucketSelection array{
  *   key:string,
  *   label:string,
@@ -102,7 +103,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		int $itemCount,
 		string $detailShell,
 		string $summary,
-		array $actions = []
+		array $actions = [],
+		array $displayOptions = []
 	) :array {
 		$header = $this->buildGroupHeader(
 			$bucketLabel,
@@ -111,7 +113,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$iconClass,
 			$itemCount,
 			$summary,
-			$actions
+			$actions,
+			$displayOptions
 		);
 		$selection = [
 			'key'          => $key,
@@ -167,7 +170,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = []
+		array $actions = [],
+		array $displayOptions = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $label ),
@@ -182,6 +186,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge_status'       => $status,
 			'color_key'          => $status,
 			'actions'            => $actions,
+			'display_options'    => $displayOptions,
 		] );
 	}
 }

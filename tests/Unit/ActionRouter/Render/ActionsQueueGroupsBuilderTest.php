@@ -878,8 +878,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
-					'include_ignored' => true,
-					'ignored_only'    => true,
+					'include_ignored'  => true,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => true,
 				],
 			],
 			$groups[ 'wordpress' ][ 'render_action_data' ]
@@ -957,15 +959,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame(
 			[
-				[ 'include_ignored' => false, 'ignored_only' => false ],
-				[ 'include_ignored' => true, 'ignored_only' => true ],
+				[ 'include_ignored' => false, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => false ],
+				[ 'include_ignored' => true, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => true ],
 			],
 			$builder->getPluginPaneCalls()
 		);
 		$this->assertSame(
 			[
-				[ 'include_ignored' => false, 'ignored_only' => false ],
-				[ 'include_ignored' => true, 'ignored_only' => true ],
+				[ 'include_ignored' => false, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => false ],
+				[ 'include_ignored' => true, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => true ],
 			],
 			$builder->getThemePaneCalls()
 		);
@@ -1107,16 +1109,20 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						public function activeAssetSummariesForSource( string $assetSource ) :array {
 							if ( $assetSource === 'plugins' ) {
 								$this->pluginPaneCalls[] = [
-									'include_ignored' => false,
-									'ignored_only'    => false,
+									'include_ignored'  => false,
+									'include_repaired' => false,
+									'include_deleted'  => false,
+									'ignored_only'     => false,
 								];
 								return $this->pluginCards;
 							}
 
 							if ( $assetSource === 'themes' ) {
 								$this->themePaneCalls[] = [
-									'include_ignored' => false,
-									'ignored_only'    => false,
+									'include_ignored'  => false,
+									'include_repaired' => false,
+									'include_deleted'  => false,
+									'ignored_only'     => false,
 								];
 								return $this->themeCards;
 							}
@@ -1131,16 +1137,20 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 							if ( $ignoredSource === 'plugins' ) {
 								$this->pluginPaneCalls[] = [
-									'include_ignored' => true,
-									'ignored_only'    => true,
+									'include_ignored'  => true,
+									'include_repaired' => false,
+									'include_deleted'  => false,
+									'ignored_only'     => true,
 								];
 								return (int)\array_sum( \array_column( $this->ignoredPluginCards, 'count_badge' ) );
 							}
 
 							if ( $ignoredSource === 'themes' ) {
 								$this->themePaneCalls[] = [
-									'include_ignored' => true,
-									'ignored_only'    => true,
+									'include_ignored'  => true,
+									'include_repaired' => false,
+									'include_deleted'  => false,
+									'ignored_only'     => true,
 								];
 								return (int)\array_sum( \array_column( $this->ignoredThemeCards, 'count_badge' ) );
 							}

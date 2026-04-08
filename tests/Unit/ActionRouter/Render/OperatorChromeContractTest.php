@@ -17,14 +17,27 @@ class OperatorChromeContractTest extends BaseUnitTest {
 
 	public function test_normalize_header_keeps_only_supported_context_action_fields() :void {
 		$header = OperatorChromeContract::normalizeHeader( [
-			'title'   => 'Example Plugin',
-			'actions' => [
+			'title'           => 'Example Plugin',
+			'actions'         => [
 				[
 					'label'            => 'Ignore All Results',
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
 					'type'             => 'deactivate',
 					'confirm_text'     => 'Ignore all active results for Example Plugin?',
 					'unexpected'       => 'discard',
+				],
+			],
+			'display_options' => [
+				'title'       => 'Display Results',
+				'action_json' => '{"ex":"scan_results_display_form_submit"}',
+				'controls'    => [
+					[
+						'name'       => 'include_ignored',
+						'label'      => 'Include Ignored Results',
+						'checked'    => true,
+						'disabled'   => false,
+						'unexpected' => 'discard',
+					],
 				],
 			],
 		] );
@@ -43,6 +56,21 @@ class OperatorChromeContractTest extends BaseUnitTest {
 				],
 			],
 			$header[ 'actions' ]
+		);
+		$this->assertSame(
+			[
+				'title'       => 'Display Results',
+				'action_json' => '{"ex":"scan_results_display_form_submit"}',
+				'controls'    => [
+					[
+						'name'     => 'include_ignored',
+						'label'    => 'Include Ignored Results',
+						'checked'  => true,
+						'disabled' => false,
+					],
+				],
+			],
+			$header[ 'display_options' ]
 		);
 	}
 
@@ -80,6 +108,14 @@ class OperatorChromeContractTest extends BaseUnitTest {
 				],
 			],
 			$header[ 'actions' ]
+		);
+		$this->assertSame(
+			[
+				'title'       => '',
+				'action_json' => '',
+				'controls'    => [],
+			],
+			$header[ 'display_options' ]
 		);
 	}
 }

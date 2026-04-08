@@ -19,6 +19,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.bindModePanelHandlers();
 		this.bindMaintenanceActionHandlers();
 		this.bindOperatorContextActionHandlers();
+		this.bindOperatorContextDisplayHandlers();
 		this.bindTableActionHandlers();
 		this.bindDrillDownHandlers();
 		this.initializeCurrentRoot();
@@ -69,6 +70,15 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.hasBoundOperatorContextActionHandlers = true;
 
 		document.addEventListener( 'click', ( evt ) => this.handleOperatorContextActionClick( evt ) );
+	}
+
+	bindOperatorContextDisplayHandlers() {
+		if ( this.hasBoundOperatorContextDisplayHandlers ) {
+			return;
+		}
+		this.hasBoundOperatorContextDisplayHandlers = true;
+
+		document.addEventListener( 'change', ( evt ) => this.handleOperatorContextDisplayChange( evt ) );
 	}
 
 	bindTableActionHandlers() {
@@ -575,6 +585,52 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			.catch( () => null );
 	}
 
+	handleOperatorContextDisplayChange( evt ) {
+		const input = evt.target instanceof Element
+			? evt.target.closest( '[data-operator-context-display-toggle="1"]' )
+			: null;
+		if ( !( input instanceof HTMLInputElement ) ) {
+			return;
+		}
+
+		const root = this.rootEl || this.getRoot();
+		if ( root === null || !root.contains( input ) || this.selectedBucket === null || this.selectedGroup === null ) {
+			return;
+		}
+
+		const form = input.closest( '[data-operator-context-display-form="1"]' );
+		if ( !( form instanceof HTMLFormElement ) || form.dataset.operatorContextDisplaySubmitting === '1' ) {
+			return;
+		}
+
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+
+		const actionData = this.parseJsonDataset( form.dataset.operatorContextDisplayAction );
+		if ( ObjectOps.IsEmpty( actionData ) ) {
+			return;
+		}
+
+		form.dataset.operatorContextDisplaySubmitting = '1';
+
+		( new AjaxService() )
+			.send( {
+				...actionData,
+				form_data: this.serializeContextDisplayForm( form ),
+			} )
+			.then( ( resp ) => {
+				if ( !resp?.success ) {
+					return;
+				}
+
+				return this.refreshCurrentDetailLayer( this.selectedGroup?.detail_shell === 'asset_cards' );
+			} )
+			.catch( () => null )
+			.finally( () => {
+				delete form.dataset.operatorContextDisplaySubmitting;
+			} );
+	}
+
 	refreshAfterNestedAction( reloadDetail ) {
 		const openAssetPanelTarget = reloadDetail
 			? this.getOpenAssetPanelTarget()
@@ -598,6 +654,19 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		} );
 	}
 
+	refreshCurrentDetailLayer( restoreAssetPanel ) {
+		const openAssetPanelTarget = restoreAssetPanel
+			? this.getOpenAssetPanelTarget()
+			: '';
+
+		return this.loadDetailLayer( false ).then( ( detailData ) => {
+			if ( openAssetPanelTarget.length > 0 ) {
+				this.restoreOpenAssetPanel( openAssetPanelTarget );
+			}
+			return detailData;
+		} );
+	}
+
 	getOpenAssetPanelTarget() {
 		const assetShell = this.rootEl?.querySelector( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) || null;
 		const openPanel = assetShell?.querySelector( '[data-mode-panel="1"].is-open' ) || null;
@@ -616,6 +685,16 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		if ( trigger instanceof HTMLElement ) {
 			trigger.click();
 		}
+	}
+
+	serializeContextDisplayForm( form ) {
+		const formData = {};
+		form.querySelectorAll( '[data-operator-context-display-toggle="1"]' ).forEach( ( field ) => {
+			if ( field instanceof HTMLInputElement && field.name.length > 0 ) {
+				formData[ field.name ] = field.checked ? 'Y' : 'N';
+			}
+		} );
+		return formData;
 	}
 
 	resetGroupsLayerHeader( shell ) {

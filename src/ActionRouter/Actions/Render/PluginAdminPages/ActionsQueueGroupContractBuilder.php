@@ -49,6 +49,7 @@ class ActionsQueueGroupContractBuilder {
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
 	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
 	private ActionsQueueContextActionsBuilder $contextActionsBuilder;
+	private ActionsQueueContextDisplayOptionsBuilder $contextDisplayOptionsBuilder;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
@@ -62,6 +63,9 @@ class ActionsQueueGroupContractBuilder {
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
 		$this->contextActionsBuilder = $contextActionsBuilder ?? new ActionsQueueContextActionsBuilder(
+			$this->queueScanResultsOptions
+		);
+		$this->contextDisplayOptionsBuilder = new ActionsQueueContextDisplayOptionsBuilder(
 			$this->queueScanResultsOptions
 		);
 	}
@@ -99,6 +103,7 @@ class ActionsQueueGroupContractBuilder {
 	private function buildDefinitionEmptyGroup( string $groupKey, string $bucketLabel ) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $groupKey );
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
+		$renderActionData = $definition[ 'render_action_data' ];
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$groupKey,
@@ -107,7 +112,13 @@ class ActionsQueueGroupContractBuilder {
 			$definition[ 'icon_class' ],
 			0,
 			$definition[ 'detail_shell' ],
-			$narrative
+			$narrative,
+			[],
+			$this->contextDisplayOptionsBuilder->buildForGroup(
+				$definition[ 'key' ],
+				$definition[ 'detail_shell' ],
+				$renderActionData
+			)
 		);
 
 		return [
@@ -126,7 +137,7 @@ class ActionsQueueGroupContractBuilder {
 			'is_interactive'      => false,
 			'detail_table'        => [],
 			'render_action_class' => $definition[ 'render_action_class' ],
-			'render_action_data'  => $definition[ 'render_action_data' ],
+			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
 			'summary_row'         => [],
 			'selection'           => $selection,
@@ -149,6 +160,13 @@ class ActionsQueueGroupContractBuilder {
 		}
 
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
+		$renderActionData = \array_merge(
+			$this->queueScanResultsOptions->buildDisplayContextActionData(),
+			[
+				'subject_type' => $metadata[ 'subject_type' ],
+				'subject_id'   => $metadata[ 'subject_id' ],
+			]
+		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$groupKey,
@@ -157,7 +175,13 @@ class ActionsQueueGroupContractBuilder {
 			$metadata[ 'icon_class' ],
 			0,
 			'direct_table',
-			$narrative
+			$narrative,
+			[],
+			$this->contextDisplayOptionsBuilder->buildForGroup(
+				$definitionKey,
+				'direct_table',
+				$renderActionData
+			)
 		);
 
 		return [
@@ -176,15 +200,7 @@ class ActionsQueueGroupContractBuilder {
 			'is_interactive'      => false,
 			'detail_table'        => [],
 			'render_action_class' => ActionsQueueAssetFileStatusDetail::class,
-			'render_action_data'  => \array_merge(
-				$this->queueScanResultsOptions->buildExplicitActionData(
-					$this->queueScanResultsOptions->activeOnly()
-				),
-				[
-					'subject_type' => $metadata[ 'subject_type' ],
-					'subject_id'   => $metadata[ 'subject_id' ],
-				]
-			),
+			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => [],
 			'summary_row'         => [],
 			'selection'           => $selection,
@@ -281,6 +297,11 @@ class ActionsQueueGroupContractBuilder {
 			$seed[ 'item_count' ],
 			$renderActionData
 		);
+		$displayOptions = $this->contextDisplayOptionsBuilder->buildForGroup(
+			$seed[ 'definition_key' ],
+			$seed[ 'detail_shell' ],
+			$renderActionData
+		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$seed[ 'key' ],
@@ -290,7 +311,8 @@ class ActionsQueueGroupContractBuilder {
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
 			$narrative,
-			$contextActions
+			$contextActions,
+			$displayOptions
 		);
 
 		return [

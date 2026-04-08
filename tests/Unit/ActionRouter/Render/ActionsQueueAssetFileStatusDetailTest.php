@@ -118,6 +118,15 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 		$this->assertSame( 'plugin', $tableAction[ 'type' ] ?? '' );
 		$this->assertSame( 'akismet/akismet.php', $tableAction[ 'file' ] ?? '' );
 		$this->assertSame( 'actions_queue', $tableAction[ 'display_context' ] ?? '' );
+		$this->assertSame(
+			[
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
+			],
+			$tableAction[ 'results_display_options' ] ?? []
+		);
 		$this->assertArrayNotHasKey( 'subject_type', $tableAction );
 		$this->assertArrayNotHasKey( 'subject_id', $tableAction );
 	}

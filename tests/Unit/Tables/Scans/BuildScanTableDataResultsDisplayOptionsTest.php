@@ -19,16 +19,19 @@ class BuildScanTableDataResultsDisplayOptionsTest extends BaseUnitTest {
 	public function testGetRecordsLoaderNormalizesExplicitResultsDisplayOptions() :void {
 		$builder = $this->createBuilder();
 		$builder->results_display_options = [
-			'include_ignored' => 'yes',
-			'ignored_only'    => 1,
+			'include_ignored'  => 'yes',
+			'include_repaired' => 1,
+			'ignored_only'     => 1,
 		];
 
 		$loader = $builder->exposeGetRecordsLoader();
 
 		$this->assertSame(
 			[
-				'include_ignored' => true,
-				'ignored_only'    => true,
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
 			],
 			$loader->results_display_options
 		);

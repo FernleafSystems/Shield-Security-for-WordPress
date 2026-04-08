@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ScanResultsTableContractBuilder,
+	ScansResultsViewBuilder
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
@@ -20,6 +23,9 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias( static fn( string $single, string $plural, int $count ) :string => $count === 1 ? $single : $plural );
 		Functions\when( 'sanitize_key' )->alias( static fn( string $value ) :string => \strtolower( \preg_replace( '/[^a-z0-9_]/', '', $value ) ?? '' ) );
@@ -145,10 +151,14 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 					'attributes'   => [],
 				],
 			],
-			'table'             => [
-				'subject_type' => $assetType,
-				'subject_id'   => $subjectId,
-			],
+			'table'             => ( new ScanResultsTableContractBuilder() )->buildFileStatus(
+				$assetType,
+				$subjectId,
+				'/queue/scans',
+				[
+					'display_context' => 'actions_queue',
+				]
+			),
 		];
 	}
 

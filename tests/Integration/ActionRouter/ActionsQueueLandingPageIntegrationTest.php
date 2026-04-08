@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsDisplayFormSubmit;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Malware as MalwarePane;
@@ -45,6 +46,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'file_locker' );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			MaintenanceIssueStateProvider::OPT_KEY,
+			'scan_results_table_display',
 		] );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
@@ -191,10 +193,33 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $expectedScope[ 'file' ], (string)( $actionData[ 'file' ] ?? '' ) );
 		$this->assertSame(
 			[
-				'include_ignored' => false,
-				'ignored_only'    => false,
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
 			],
 			(array)( $actionData[ 'results_display_options' ] ?? [] )
+		);
+	}
+
+	private function assertDisplayOptionsHeader( array $header, array $expectedStates, bool $ignoredToggleDisabled = false ) :void {
+		$displayOptions = (array)( $header[ 'display_options' ] ?? [] );
+		$this->assertSame( 'Display Results', (string)( $displayOptions[ 'title' ] ?? '' ) );
+		$this->assertCount( 3, $displayOptions[ 'controls' ] ?? [] );
+		$actionData = \json_decode( (string)( $displayOptions[ 'action_json' ] ?? '' ), true );
+		$this->assertIsArray( $actionData );
+		$this->assertSame( ScanResultsDisplayFormSubmit::SLUG, (string)( $actionData[ 'ex' ] ?? '' ) );
+		$this->assertSame(
+			$expectedStates,
+			\array_column( (array)( $displayOptions[ 'controls' ] ?? [] ), 'checked', 'name' )
+		);
+		$this->assertSame(
+			[
+				'include_ignored'  => $ignoredToggleDisabled,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+			],
+			\array_column( (array)( $displayOptions[ 'controls' ] ?? [] ), 'disabled', 'name' )
 		);
 	}
 
@@ -213,6 +238,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $groupKey, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ), $expectedScope );
+		$this->assertDisplayOptionsHeader(
+			(array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ),
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+			]
+		);
 
 		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
 			'bucket' => $bucket,
@@ -221,6 +254,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $groupKey, (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertIgnoreAllHeaderAction( (array)( $detailPayload[ 'header' ] ?? [] ), $expectedScope );
+		$this->assertDisplayOptionsHeader(
+			(array)( $detailPayload[ 'header' ] ?? [] ),
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+			]
+		);
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
@@ -649,6 +690,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Back to Review next', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? null );
 	}
 
 	public function test_groups_ajax_keeps_missing_selected_plugin_asset_group_scoped_to_direct_table_detail() :void {
@@ -686,14 +728,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( 'actions_queue', (string)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
-		$this->assertSame(
+		$this->assertDisplayOptionsHeader(
+			(array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ),
 			[
-				'include_ignored' => false,
-				'ignored_only'    => false,
-			],
-			(array)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+			]
 		);
+		$this->assertSame( 'actions_queue', (string)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'results_display_options', (array)( $payload[ 'selected_group' ][ 'render_action_data' ] ?? [] ) );
 
 		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
 			'bucket' => 'critical',
@@ -705,6 +749,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame( $pluginTitle, (string)( $detailPayload[ 'group_selection' ][ 'label' ] ?? '' ) );
 		$this->assertSame( [], $detailPayload[ 'header' ][ 'actions' ] ?? null );
+		$this->assertDisplayOptionsHeader(
+			(array)( $detailPayload[ 'header' ] ?? [] ),
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+			]
+		);
 		$this->assertInvestigationTableContractPresent(
 			$xpath,
 			'file_scan_results',
@@ -1016,6 +1068,76 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$xpath,
 			'//*[@data-mode-tiles="1" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-asset-cards__grid ")]',
 			'Plugin pane render in Actions Queue context should render the asset-card grid'
+		);
+	}
+
+	public function test_ignored_plugin_group_keeps_forced_ignored_scope_and_stored_deleted_repaired_flags() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_pluginsthemes_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] )
+			 ->optSet( 'scan_results_table_display', [ 'include_repaired', 'include_deleted' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		foreach ( [ 1, 2 ] as $_ ) {
+			$tracked = TestDataFactory::insertAfsFileScanResultTracked(
+				$afsId,
+				$this->pluginMainPathFragment( $pluginSlug ),
+				[
+					'is_in_plugin' => 1,
+					'ptg_slug'     => $pluginSlug,
+				]
+			);
+			TestDataFactory::markScanResultItemIgnored( (int)$tracked[ 'result_item_id' ] );
+		}
+		$this->resetScanResultCountMemoization();
+
+		$groupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'critical',
+			'group'  => 'plugins',
+		] );
+		$this->assertSame( 'plugins', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'asset_cards', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertDisplayOptionsHeader(
+			(array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ),
+			[
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => true,
+			],
+			true
+		);
+		$this->assertSame(
+			[
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => true,
+				'ignored_only'     => true,
+			],
+			(array)( $groupsPayload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
+		);
+
+		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
+			'bucket' => 'critical',
+			'group'  => 'plugins',
+		] );
+		$this->assertSame( 'plugins', (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'asset_cards', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertDisplayOptionsHeader(
+			(array)( $detailPayload[ 'header' ] ?? [] ),
+			[
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => true,
+			],
+			true
 		);
 	}
 

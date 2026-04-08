@@ -139,7 +139,12 @@ class ActionsQueueScanAssetCardsBuilder {
 
 	/**
 	 * @phpstan-param AssetType $assetType
-	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
+	 * @param array{
+	 *   include_ignored:bool,
+	 *   include_repaired:bool,
+	 *   include_deleted:bool,
+	 *   ignored_only:bool
+	 * } $resultsDisplayOptions
 	 * @return list<array{slug:string,file_count:int}>
 	 */
 	protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
@@ -186,12 +191,17 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
-	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
+	 * @param array{
+	 *   include_ignored:bool,
+	 *   include_repaired:bool,
+	 *   include_deleted:bool,
+	 *   ignored_only:bool
+	 * } $resultsDisplayOptions
 	 * @return array<string,mixed>
 	 */
 	protected function buildFileStatusTable( string $subjectType, string $subjectId, array $resultsDisplayOptions ) :array {
 		$scanResultsActionData = $this->queueScanResultsOptions->buildDisplayContextActionData();
-		if ( $resultsDisplayOptions[ 'include_ignored' ] || $resultsDisplayOptions[ 'ignored_only' ] ) {
+		if ( $resultsDisplayOptions !== $this->queueScanResultsOptions->activeOnly() ) {
 			$scanResultsActionData = $this->queueScanResultsOptions->buildExplicitActionData( $resultsDisplayOptions );
 		}
 
@@ -208,7 +218,12 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
-	 * @param array{include_ignored:bool,ignored_only:bool} $resultsDisplayOptions
+	 * @param array{
+	 *   include_ignored:bool,
+	 *   include_repaired:bool,
+	 *   include_deleted:bool,
+	 *   ignored_only:bool
+	 * } $resultsDisplayOptions
 	 */
 	protected function buildQueueAssetStatText( int $fileCount, array $resultsDisplayOptions ) :string {
 		if ( $resultsDisplayOptions[ 'ignored_only' ] ) {

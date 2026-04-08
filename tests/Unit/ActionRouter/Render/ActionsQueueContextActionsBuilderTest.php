@@ -182,8 +182,10 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 		$this->assertSame( $expectedFile, $actionData[ 'file' ] ?? '' );
 		$this->assertSame(
 			[
-				'include_ignored' => false,
-				'ignored_only'    => false,
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
 			],
 			$actionData[ 'results_display_options' ] ?? []
 		);
