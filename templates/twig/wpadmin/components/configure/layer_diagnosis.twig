@@ -42,9 +42,4 @@
 	{% if diagnosis.healthy_rows is not empty %}
 		{{ render_rows(diagnosis.healthy_rows, diagnosis_id, 'healthy') }}
 	{% endif %}
-
-	<div class="configure-diagnosis__next-move">
-		<div class="configure-diagnosis__section-title">{{ diagnosis.next_move_heading }}</div>
-		<p class="configure-diagnosis__next-move-copy">{{ diagnosis.next_move }}</p>
-	</div>
 </div>

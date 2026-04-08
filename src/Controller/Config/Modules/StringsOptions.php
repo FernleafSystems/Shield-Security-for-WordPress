@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
-use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,7 +20,6 @@ class StringsOptions {
 		$opts = $con->comps->opts_lookup;
 		$pluginName = $con->labels->Name;
 		$silentCaptcha = $con->labels->getBrandName( 'silentcaptcha' );
-		$modStrings = new StringsModules();
 
 		switch ( $key ) {
 			case 'autoupdate_plugin_self':

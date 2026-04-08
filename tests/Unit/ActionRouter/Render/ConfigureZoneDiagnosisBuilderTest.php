@@ -104,8 +104,8 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
 		$this->assertArrayNotHasKey( 'healthy_rows_heading', $diagnosis );
-		$this->assertNotSame( '', $diagnosis[ 'next_move_heading' ] ?? '' );
-		$this->assertNotSame( '', $diagnosis[ 'next_move' ] ?? '' );
+		$this->assertArrayNotHasKey( 'next_move_heading', $diagnosis );
+		$this->assertArrayNotHasKey( 'next_move', $diagnosis );
 		$this->assertArrayNotHasKey( 'settings_href', $diagnosis );
 		$this->assertArrayNotHasKey( 'settings_label', $diagnosis );
 		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'problem_rows' ][ 0 ] );
@@ -135,7 +135,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'preview_text' ] ?? '' );
 		$this->assertArrayNotHasKey( 'healthy_rows_heading', $diagnosis );
-		$this->assertNotSame( '', $diagnosis[ 'next_move' ] ?? '' );
+		$this->assertArrayNotHasKey( 'next_move', $diagnosis );
 	}
 
 	public function test_general_zone_uses_neutral_review_state() :void {
@@ -164,7 +164,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $diagnosis[ 'risk_context' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'preview_text' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
-		$this->assertNotSame( '', $diagnosis[ 'next_move' ] ?? '' );
+		$this->assertArrayNotHasKey( 'next_move', $diagnosis );
 		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'review_rows' ][ 0 ] );
 		$this->assertTrue( $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
 		$this->assertSame( 'traffic_logging', $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );

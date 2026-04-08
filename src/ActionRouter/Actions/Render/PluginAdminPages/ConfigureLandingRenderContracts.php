@@ -85,8 +85,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   zone_status_label:string,
  *   preview_text:string,
  *   risk_context:string,
- *   next_move_heading:string,
- *   next_move:string,
  *   problem_rows:list<DiagnosisFinding>,
  *   review_rows:list<DiagnosisFinding>,
  *   healthy_rows:list<DiagnosisFinding>,

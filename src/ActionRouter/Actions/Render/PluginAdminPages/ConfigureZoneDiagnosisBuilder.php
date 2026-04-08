@@ -109,8 +109,6 @@ class ConfigureZoneDiagnosisBuilder {
 			'zone_status_label'         => $zoneTile[ 'status_label' ],
 			'preview_text'              => $previewText,
 			'risk_context'              => $riskContext,
-			'next_move_heading'         => __( 'Next move', 'wp-simple-firewall' ),
-			'next_move'                 => $nextMove,
 			'problem_rows'              => $problemFindings,
 			'review_rows'               => $reviewFindings,
 			'healthy_rows'              => $healthyFindings,

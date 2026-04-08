@@ -118,6 +118,12 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathCount(
 			$xpath,
+			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__next-move ")]',
+			0,
+			'Diagnosis AJAX should not render the removed next-move block'
+		);
+		$this->assertXPathCount(
+			$xpath,
 			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
 			0,
 			'Configure diagnosis should not render the shared healthy disclosure wrapper'

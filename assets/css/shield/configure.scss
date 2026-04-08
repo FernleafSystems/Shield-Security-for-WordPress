@@ -172,30 +172,9 @@
 	gap: 1rem;
 }
 
-.configure-diagnosis__section-title {
-	font-size: 0.85rem;
-	font-weight: 700;
-	margin: 0;
-}
-
 .configure-diagnosis__settings {
 	display: grid;
 	gap: 0.6rem;
-}
-
-.configure-diagnosis__next-move {
-	border-top: 1px solid $border-color-neutral-subtle;
-	display: grid;
-	gap: 0.5rem;
-	margin-top: 1rem;
-	padding: 1rem 0 0;
-}
-
-.configure-diagnosis__next-move-copy {
-	color: #5f6974;
-	font-size: 0.8125rem;
-	font-weight: 400;
-	line-height: 1.45;
 }
 
 .configure-diagnosis .shield-detail-item {
