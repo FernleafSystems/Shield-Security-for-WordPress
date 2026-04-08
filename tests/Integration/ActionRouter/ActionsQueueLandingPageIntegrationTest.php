@@ -469,6 +469,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-buckets ") and contains(concat(" ", normalize-space(@class), " "), " shield-stack ")]',
+			'Bucket layer should keep the shared stack spacing container'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-buckets ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
 			'Bucket layer should render the healthy summary content directly in the bucket layer'
 		);

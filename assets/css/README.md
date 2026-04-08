@@ -236,7 +236,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
 | `security-admin.scss` | Security admin modal and PIN form |
-| `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, `.shield-mode-strip*`, plus dashboard-specific components |
+| `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, `.shield-stack`, `.shield-mode-strip*`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)
 

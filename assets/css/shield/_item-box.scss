@@ -3,13 +3,13 @@
 // Lightweight grouped-list component for overview displays.
 // Default: amber 3px left border - review / maintenance items.
 // --good: green gradient background - healthy / no-action-required items.
+// External spacing is container-owned so stack/grid parents control separation.
 
 .item-box {
 	background: #fff;
 	border: 1px solid $border-color-neutral-subtle;
 	border-left: 3px solid $status-color-warning;
 	border-radius: $card-border-radius;
-	margin-bottom: 0.75rem;
 	padding: 1.25rem 1.5rem;
 }
 

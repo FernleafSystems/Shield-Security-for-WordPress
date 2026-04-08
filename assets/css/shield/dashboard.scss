@@ -46,6 +46,14 @@
 }
 
 // ------------------------------------
+// Reusable: .shield-stack (default vertical stack)
+// ------------------------------------
+.shield-stack {
+	display: grid;
+	gap: 1rem;
+}
+
+// ------------------------------------
 // Reusable: .shield-mode-strip (landing status strip)
 // Keep this as the canonical top-of-page status strip styling. Future consumers
 // should extend this shared primitive rather than recreating page-local strip variants.
