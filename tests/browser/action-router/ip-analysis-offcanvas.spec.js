@@ -78,7 +78,7 @@ const expectRequestMetaPopover = async ( page, offcanvas, rid, expectedMeta ) =>
 		metaButton.click(),
 	] );
 
-	const popoverBody = page.locator( '.popover.show .popover-body' ).last();
+	const popoverBody = offcanvas.locator( '.popover.show .popover-body' ).last();
 	await expect( popoverBody ).toBeVisible();
 
 	for ( const marker of expectedMeta ) {

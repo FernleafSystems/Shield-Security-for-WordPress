@@ -16,7 +16,7 @@
     "types": ["jquery"]
   },
   "files": [
-    "./assets/js/components/tables/investigation-tables.globals.d.ts",
+    "./assets/js/components/checked-js.globals.d.ts",
     "./assets/js/components/BaseComponent.d.ts",
     "./assets/js/components/services/AjaxService.d.ts",
     "./assets/js/components/ui/OffCanvasService.d.ts",
@@ -24,6 +24,7 @@
     "./assets/js/components/tables/ActivityLogMetaPopover.js",
     "./assets/js/components/tables/ShieldTableBase.js",
     "./assets/js/components/tables/ShieldTableActivityLog.js",
-    "./assets/js/components/tables/InvestigationTable.js"
+    "./assets/js/components/tables/InvestigationTable.js",
+    "./assets/js/components/mode/StepTabsController.js"
   ]
 }

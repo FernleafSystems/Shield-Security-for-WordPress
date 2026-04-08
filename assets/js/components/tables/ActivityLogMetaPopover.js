@@ -22,7 +22,7 @@ export function bindActivityLogMetaPopover( rootEl, tableAction ) {
 		animation: true,
 		customClass: 'audit-meta',
 		placement: 'left',
-		container: 'body',
+		container: resolvePopoverContainer( rootEl ),
 		title: 'Request Meta Info',
 		content: ( element ) => {
 			const reqData = ObjectOps.ObjClone( tableAction );
@@ -36,10 +36,13 @@ export function bindActivityLogMetaPopover( rootEl, tableAction ) {
 				Popover.getInstance( element )?.setContent( {
 					'.popover-body': resp?.data?.html || '',
 				} );
-			} )
-			.finally();
+			} );
 
 			return 'Loading Meta Info...';
 		},
 	} );
+}
+
+function resolvePopoverContainer( rootEl ) {
+	return rootEl.closest( '.offcanvas' ) || document.body;
 }

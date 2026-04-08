@@ -51,3 +51,21 @@ test( 'dashboard mode selector opens each operator mode landing route', async ( 
 		await expect( page.locator( `[data-mode-shell="1"][data-mode="${route.mode}"]` ) ).toBeVisible();
 	}
 } );
+
+test( 'dashboard overview renders the current context rail without runtime errors', async ( { page } ) => {
+	const pageErrors = [];
+	page.on( 'pageerror', ( error ) => {
+		pageErrors.push( error.message );
+	} );
+
+	await openShieldRoute( page, dashboardRoute );
+
+	await expect( page.locator( '[data-mode-shell="1"][data-mode="dashboard"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /Dashboard/i );
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__summary' ) ).not.toHaveText( '' );
+
+	await expect.poll(
+		() => pageErrors,
+		{ message: `Expected no browser runtime errors while rendering the dashboard context rail: ${pageErrors.join( '; ' )}` }
+	).toEqual( [] );
+} );

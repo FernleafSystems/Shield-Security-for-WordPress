@@ -408,21 +408,20 @@ export class StepTabsController extends BaseAutoExecComponent {
 	}
 
 	buildHomeStep( rootStep, homeLabel, homeHref, isCurrent, showLabel = false ) {
-		return {
-			label: homeLabel,
+		const step = this.buildVisualStep( {
+			breadcrumb_label: homeLabel,
 			title: homeLabel,
-			summary: isCurrent ? this.readText( rootStep?.summary ) : '',
-			focus: isCurrent ? this.readText( rootStep?.focus ) : '',
-			nextStep: isCurrent ? this.readText( rootStep?.next_step ) : '',
-			iconClass: isCurrent ? this.readText( rootStep?.icon_class ) : '',
-			tabIconClass: 'bi bi-house-fill',
-			badge: '',
-			badgeStatus: 'neutral',
-			colorKey: 'home',
-			target: isCurrent ? null : { kind: 'href', value: homeHref },
-			isCurrent,
-			showLabel,
-		};
+			summary: isCurrent ? rootStep?.summary : '',
+			focus: isCurrent ? rootStep?.focus : '',
+			next_step: isCurrent ? rootStep?.next_step : '',
+			icon_class: isCurrent ? rootStep?.icon_class : '',
+			actions: isCurrent ? rootStep?.actions : [],
+			color_key: 'home',
+		}, isCurrent ? null : { kind: 'href', value: homeHref }, isCurrent );
+
+		step.tabIconClass = 'bi bi-house-fill';
+		step.showLabel = showLabel;
+		return step;
 	}
 
 	buildInvestigateResolvedStep( shell, genericStep ) {
@@ -502,9 +501,10 @@ export class StepTabsController extends BaseAutoExecComponent {
 	}
 
 	getOperatorShellForElement( element ) {
-		return element instanceof Element
+		const operatorShell = element instanceof Element
 			? element.closest( '[data-mode-shell="1"][data-operator-chrome="1"]' )
 			: null;
+		return operatorShell instanceof HTMLElement ? operatorShell : null;
 	}
 
 	getEventOperatorShell( element ) {
