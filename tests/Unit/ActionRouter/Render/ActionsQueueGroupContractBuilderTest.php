@@ -62,6 +62,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'Example Plugin', $pluginGroup[ 'selection' ][ 'label' ] );
 		$this->assertSame( 'Example Plugin', $pluginGroup[ 'selection' ][ 'header' ][ 'title' ] );
+		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertFalse( $pluginGroup[ 'is_interactive' ] );
 
 		$this->assertSame( 'Example Theme', $themeGroup[ 'label' ] );
@@ -70,6 +71,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'theme', $themeGroup[ 'render_action_data' ][ 'subject_type' ] );
 		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'Example Theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
+		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 	}
 
 	public function test_build_empty_group_uses_generic_base_group_when_scoped_asset_cannot_be_resolved() :void {

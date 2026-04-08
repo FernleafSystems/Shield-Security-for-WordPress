@@ -48,6 +48,7 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 				'badge'              => '2 items',
 				'badge_status'       => 'critical',
 				'color_key'          => 'critical',
+				'actions'            => [],
 			],
 			$selection[ 'header' ]
 		);
@@ -73,6 +74,7 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'Critical queue', $selection[ 'header' ][ 'meta' ] ?? '' );
 		$this->assertSame( 'good', $selection[ 'header' ][ 'badge_status' ] ?? '' );
+		$this->assertSame( [], $selection[ 'header' ][ 'actions' ] ?? null );
 	}
 
 	public function test_build_group_selection_includes_detail_shell() :void {
@@ -109,11 +111,44 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 				'badge'              => '1 item',
 				'badge_status'       => 'warning',
 				'color_key'          => 'warning',
+				'actions'            => [],
 			],
 			$selection[ 'header' ]
 		);
 		$selectionForJson = $selection;
 		unset( $selectionForJson[ 'selection_json' ] );
 		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
+	}
+
+	public function test_build_group_selection_keeps_context_actions_in_header_and_selection_json() :void {
+		$builder = new ActionsQueueDrillDownPresentationBuilder();
+
+		$selection = $builder->buildGroupSelection(
+			'Fix now',
+			'plugins:example-plugin/example-plugin.php',
+			'Example Plugin',
+			'critical',
+			'bi bi-plug-fill',
+			3,
+			'direct_table',
+			'3 files need review.',
+			[
+				[
+					'kind'             => 'ajax',
+					'label'            => 'Ignore All Results',
+					'type'             => 'deactivate',
+					'icon_class'       => 'bi bi-eye-slash-fill',
+					'ajax_action_json' => '{"sub_action":"ignore_all"}',
+					'confirm_text'     => 'Ignore all active results for Example Plugin?',
+				],
+			]
+		);
+
+		$this->assertSame( 'Ignore All Results', $selection[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'ajax', $selection[ 'header' ][ 'actions' ][ 0 ][ 'kind' ] ?? '' );
+		$this->assertSame(
+			$selection[ 'header' ][ 'actions' ],
+			\json_decode( $selection[ 'selection_json' ], true )[ 'header' ][ 'actions' ] ?? []
+		);
 	}
 }

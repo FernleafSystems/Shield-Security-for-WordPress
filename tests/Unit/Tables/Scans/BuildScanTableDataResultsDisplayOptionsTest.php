@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Tables\Scans;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\{
 	BuildScanTableData,
 	LoadFileScanResultsTableData
@@ -9,6 +10,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class BuildScanTableDataResultsDisplayOptionsTest extends BaseUnitTest {
+
+	protected function setUp() :void {
+		parent::setUp();
+		Functions\when( 'esc_sql' )->alias( static fn( string $value ) :string => $value );
+	}
 
 	public function testGetRecordsLoaderNormalizesExplicitResultsDisplayOptions() :void {
 		$builder = $this->createBuilder();
@@ -25,6 +31,13 @@ class BuildScanTableDataResultsDisplayOptionsTest extends BaseUnitTest {
 				'ignored_only'    => true,
 			],
 			$loader->results_display_options
+		);
+		$this->assertSame(
+			[
+				"`rim`.`meta_key`='ptg_slug'",
+				"`rim`.`meta_value`='akismet/akismet.php'",
+			],
+			$loader->custom_record_retriever_wheres
 		);
 	}
 

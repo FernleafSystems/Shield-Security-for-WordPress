@@ -108,6 +108,72 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $staleItem->item_repaired_at ?? 0 ) );
 	}
 
+	public function test_ignore_all_sub_action_ignores_full_active_plugin_scope_without_page_reload() :void {
+		$pluginSlug = self::con()->base_file;
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$activeOne = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
+		$activeTwo = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
+		$alreadyIgnored = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
+		TestDataFactory::markScanResultItemIgnored( (int)$alreadyIgnored[ 'result_item_id' ] );
+
+		$beforeActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$this->assertSame( 2, (int)( $beforeActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+			'sub_action' => 'ignore_all',
+			'type'       => 'plugin',
+			'file'       => $pluginSlug,
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
+
+		$afterActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+		$afterIgnored = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->ignoredOnly() );
+		$this->assertSame( 3, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+		$this->assertEqualsCanonicalizing(
+			[
+				(int)$activeOne[ 'scan_result_id' ],
+				(int)$activeTwo[ 'scan_result_id' ],
+				(int)$alreadyIgnored[ 'scan_result_id' ],
+			],
+			\array_column( $afterIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+		);
+	}
+
+	public function test_ignore_all_sub_action_returns_in_place_noop_when_scope_is_already_empty() :void {
+		$pluginSlug = self::con()->base_file;
+		$ignored = $this->seedPluginScanResult( $pluginSlug );
+		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
+
+		$beforeActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$this->assertSame( 0, (int)( $beforeActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+			'sub_action' => 'ignore_all',
+			'type'       => 'plugin',
+			'file'       => $pluginSlug,
+		] )->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
+		$this->assertSame( 'No matching items remain in this view.', (string)( $payload[ 'message' ] ?? '' ) );
+
+		$afterActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+		$afterIgnored = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->ignoredOnly() );
+		$this->assertSame( 1, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+		$this->assertSame(
+			[ (int)$ignored[ 'scan_result_id' ] ],
+			\array_column( $afterIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+		);
+	}
+
 	public function test_active_plugin_results_do_not_prepare_stale_rows_outside_the_loaded_page() :void {
 		$pluginSlug = self::con()->base_file;
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );

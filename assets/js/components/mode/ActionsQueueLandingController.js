@@ -18,6 +18,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		this.bindModePanelHandlers();
 		this.bindMaintenanceActionHandlers();
+		this.bindOperatorContextActionHandlers();
 		this.bindTableActionHandlers();
 		this.bindDrillDownHandlers();
 		this.initializeCurrentRoot();
@@ -59,6 +60,15 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.hasBoundMaintenanceActionHandlers = true;
 
 		document.addEventListener( 'click', ( evt ) => this.handleMaintenanceActionClick( evt ) );
+	}
+
+	bindOperatorContextActionHandlers() {
+		if ( this.hasBoundOperatorContextActionHandlers ) {
+			return;
+		}
+		this.hasBoundOperatorContextActionHandlers = true;
+
+		document.addEventListener( 'click', ( evt ) => this.handleOperatorContextActionClick( evt ) );
 	}
 
 	bindTableActionHandlers() {
@@ -510,6 +520,46 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		const actionData = this.parseJsonDataset( target.dataset.actionsQueueMaintenanceAction );
 		if ( ObjectOps.IsEmpty( actionData ) ) {
+			return;
+		}
+
+		( new AjaxService() )
+			.send( actionData )
+			.then( ( resp ) => {
+				if ( !resp?.success ) {
+					return;
+				}
+
+				return this.refreshAfterNestedAction( true );
+			} )
+			.catch( () => null );
+	}
+
+	handleOperatorContextActionClick( evt ) {
+		const target = evt.target instanceof Element
+			? evt.target.closest( '[data-operator-context-action-ajax="1"]' )
+			: null;
+		if ( target === null ) {
+			return;
+		}
+
+		const root = this.rootEl || this.getRoot();
+		if ( root === null || !root.contains( target ) ) {
+			return;
+		}
+
+		evt.preventDefault();
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		BootstrapTooltips.HideAndDisposeTooltip( target );
+
+		const actionData = this.parseJsonDataset( target.dataset.operatorContextActionJson );
+		if ( ObjectOps.IsEmpty( actionData ) ) {
+			return;
+		}
+
+		const confirmText = String( target.dataset.operatorContextActionConfirm || '' ).trim();
+		if ( confirmText.length > 0 && !window.confirm( confirmText ) ) {
 			return;
 		}
 

@@ -161,6 +161,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'badge'              => $tilesByKey[ 'ip' ][ 'stat_text' ],
 				'badge_status'       => 'info',
 				'color_key'          => 'investigate',
+				'actions'            => [],
 			],
 			$tilesByKey[ 'ip' ][ 'header' ] ?? []
 		);

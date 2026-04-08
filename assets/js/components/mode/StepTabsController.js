@@ -283,6 +283,22 @@ export class StepTabsController extends BaseAutoExecComponent {
 			fragment.appendChild( section );
 		} );
 
+		if ( step.actions.length > 0 ) {
+			const section = document.createElement( 'div' );
+			section.className = 'operator-context-rail__section';
+			const sectionLabel = document.createElement( 'div' );
+			sectionLabel.className = 'operator-context-rail__section-label';
+			sectionLabel.textContent = labels.actions;
+			const actionsWrap = document.createElement( 'div' );
+			actionsWrap.className = 'operator-context-rail__actions';
+
+			step.actions.forEach( ( action ) => actionsWrap.appendChild( this.buildContextActionElement( action ) ) );
+
+			section.appendChild( sectionLabel );
+			section.appendChild( actionsWrap );
+			fragment.appendChild( section );
+		}
+
 		railBody.replaceChildren( fragment );
 	}
 
@@ -349,10 +365,46 @@ export class StepTabsController extends BaseAutoExecComponent {
 			badge: this.readText( stepData?.badge ),
 			badgeStatus: this.readText( stepData?.badge_status ) || 'neutral',
 			colorKey: this.readText( stepData?.color_key ) || 'neutral',
+			actions: Array.isArray( stepData?.actions ) ? stepData.actions : [],
 			target,
 			isCurrent,
 			showLabel: true,
 		};
+	}
+
+	buildContextActionElement( action ) {
+		const kind = this.readText( action?.kind ) || 'href';
+		const type = this.readText( action?.type ) || 'navigate';
+		const el = kind === 'ajax'
+			? document.createElement( 'button' )
+			: document.createElement( 'a' );
+
+		if ( el instanceof HTMLButtonElement ) {
+			el.type = 'button';
+			el.dataset.operatorContextActionAjax = '1';
+			el.dataset.operatorContextActionJson = this.readText( action?.ajax_action_json );
+			const confirmText = this.readText( action?.confirm_text );
+			if ( confirmText.length > 0 ) {
+				el.dataset.operatorContextActionConfirm = confirmText;
+			}
+		}
+		else {
+			el.href = this.readText( action?.href ) || '#';
+		}
+
+		el.className = `shield-action-chip shield-action-chip--${type} operator-context-rail__action`;
+
+		const iconClass = this.readText( action?.icon_class );
+		if ( iconClass.length > 0 ) {
+			const icon = document.createElement( 'i' );
+			icon.className = iconClass;
+			icon.setAttribute( 'aria-hidden', 'true' );
+			el.appendChild( icon );
+		}
+
+		el.appendChild( document.createTextNode( this.readText( action?.label ) ) );
+
+		return el;
 	}
 
 	buildHomeStep( rootStep, homeLabel, homeHref, isCurrent, showLabel = false ) {
@@ -471,6 +523,7 @@ export class StepTabsController extends BaseAutoExecComponent {
 			title: shell.dataset.operatorContextTitle,
 			focus: shell.dataset.operatorContextFocus,
 			next: shell.dataset.operatorContextNext,
+			actions: shell.dataset.operatorContextActions,
 		};
 	}
 

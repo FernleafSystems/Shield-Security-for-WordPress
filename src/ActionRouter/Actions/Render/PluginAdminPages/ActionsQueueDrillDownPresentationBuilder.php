@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
+ * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
  * @phpstan-type BucketSelection array{
  *   key:string,
  *   label:string,
@@ -63,7 +64,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $status,
 		string $iconClass,
 		int $itemCount,
-		string $summary
+		string $summary,
+		array $actions = []
 	) :array {
 		$header = $this->buildBucketHeader(
 			$label,
@@ -71,7 +73,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$status,
 			$iconClass,
 			$itemCount,
-			$summary
+			$summary,
+			$actions
 		);
 		$selection = [
 			'key'           => $key,
@@ -98,7 +101,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $detailShell,
-		string $summary
+		string $summary,
+		array $actions = []
 	) :array {
 		$header = $this->buildGroupHeader(
 			$bucketLabel,
@@ -106,7 +110,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$status,
 			$iconClass,
 			$itemCount,
-			$summary
+			$summary,
+			$actions
 		);
 		$selection = [
 			'key'          => $key,
@@ -132,7 +137,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $status,
 		string $iconClass,
 		int $itemCount,
-		string $summary
+		string $summary,
+		array $actions = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $label ),
@@ -147,6 +153,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $status,
 			'color_key'          => $status,
+			'actions'            => $actions,
 		] );
 	}
 
@@ -159,7 +166,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $status,
 		string $iconClass,
 		int $itemCount,
-		string $summary
+		string $summary,
+		array $actions = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $label ),
@@ -173,6 +181,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge'              => $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $status,
 			'color_key'          => $status,
+			'actions'            => $actions,
 		] );
 	}
 }

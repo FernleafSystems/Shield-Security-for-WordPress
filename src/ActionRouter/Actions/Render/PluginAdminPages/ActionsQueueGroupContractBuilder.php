@@ -48,17 +48,22 @@ class ActionsQueueGroupContractBuilder {
 	private ActionsQueueDrillDownPresentationBuilder $presentation;
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
 	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ActionsQueueContextActionsBuilder $contextActionsBuilder;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueDrillDownPresentationBuilder $presentation,
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
-		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null
+		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null,
+		?ActionsQueueContextActionsBuilder $contextActionsBuilder = null
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->presentation = $presentation;
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
+		$this->contextActionsBuilder = $contextActionsBuilder ?? new ActionsQueueContextActionsBuilder(
+			$this->queueScanResultsOptions
+		);
 	}
 
 	/**
@@ -267,6 +272,15 @@ class ActionsQueueGroupContractBuilder {
 			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'attention_items' ], $seed[ 'item_count' ] );
 		$isInteractive = $seed[ 'is_interactive_override' ]
 			?? $this->determineInteractivity( $seed );
+		$renderActionData = $seed[ 'render_action_data_override' ]
+			?? $definition[ 'render_action_data' ];
+		$contextActions = $this->contextActionsBuilder->buildForGroup(
+			$seed[ 'definition_key' ],
+			$seed[ 'label' ],
+			$seed[ 'detail_shell' ],
+			$seed[ 'item_count' ],
+			$renderActionData
+		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$seed[ 'key' ],
@@ -275,7 +289,8 @@ class ActionsQueueGroupContractBuilder {
 			$iconClass,
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
-			$narrative
+			$narrative,
+			$contextActions
 		);
 
 		return [
@@ -300,8 +315,7 @@ class ActionsQueueGroupContractBuilder {
 			'detail_table'        => $seed[ 'detail_table' ],
 			'render_action_class' => $seed[ 'render_action_class_override' ]
 				?? $definition[ 'render_action_class' ],
-			'render_action_data'  => $seed[ 'render_action_data_override' ]
-				?? $definition[ 'render_action_data' ],
+			'render_action_data'  => $renderActionData,
 			'maintenance_rows'    => $seed[ 'maintenance_rows' ],
 			'summary_row'         => $seed[ 'summary_row' ],
 			'selection'           => $selection,

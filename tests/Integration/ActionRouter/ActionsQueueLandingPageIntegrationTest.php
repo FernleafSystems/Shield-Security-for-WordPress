@@ -178,6 +178,51 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $payload[ 'datatable_data' ];
 	}
 
+	/**
+	 * @param array<string,mixed> $header
+	 * @param array{type:string,file:string} $expectedScope
+	 */
+	private function assertIgnoreAllHeaderAction( array $header, array $expectedScope ) :void {
+		$this->assertSame( 'Ignore All Results', (string)( $header[ 'actions' ][ 0 ][ 'label' ] ?? '' ) );
+		$actionData = \json_decode( (string)( $header[ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ), true );
+		$this->assertIsArray( $actionData );
+		$this->assertSame( 'ignore_all', (string)( $actionData[ 'sub_action' ] ?? '' ) );
+		$this->assertSame( $expectedScope[ 'type' ], (string)( $actionData[ 'type' ] ?? '' ) );
+		$this->assertSame( $expectedScope[ 'file' ], (string)( $actionData[ 'file' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'include_ignored' => false,
+				'ignored_only'    => false,
+			],
+			(array)( $actionData[ 'results_display_options' ] ?? [] )
+		);
+	}
+
+	/**
+	 * @param array{type:string,file:string} $expectedScope
+	 */
+	private function assertDirectTableGroupAndDetailExposeIgnoreAllAction(
+		string $bucket,
+		string $groupKey,
+		array $expectedScope
+	) :void {
+		$groupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => $bucket,
+			'group'  => $groupKey,
+		] );
+		$this->assertSame( $groupKey, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ), $expectedScope );
+
+		$detailPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownDetail::SLUG, [
+			'bucket' => $bucket,
+			'group'  => $groupKey,
+		] );
+		$this->assertSame( $groupKey, (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertIgnoreAllHeaderAction( (array)( $detailPayload[ 'header' ] ?? [] ), $expectedScope );
+	}
+
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
 		$matches = \array_values( \array_filter(
 			$zoneTiles,
@@ -603,6 +648,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'Back to Review next', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
 	}
 
 	public function test_groups_ajax_keeps_missing_selected_plugin_asset_group_scoped_to_direct_table_detail() :void {
@@ -639,6 +685,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertSame( 'actions_queue', (string)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 		$this->assertSame(
 			[
@@ -657,6 +704,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $selectedGroupKey, (string)( $detailPayload[ 'group_selection' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $detailPayload[ 'group_selection' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame( $pluginTitle, (string)( $detailPayload[ 'group_selection' ][ 'label' ] ?? '' ) );
+		$this->assertSame( [], $detailPayload[ 'header' ][ 'actions' ] ?? null );
 		$this->assertInvestigationTableContractPresent(
 			$xpath,
 			'file_scan_results',
@@ -814,6 +862,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'render_data', $payload );
 		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'summary' ] ?? '' ) );
+		$this->assertSame( 'Ignore All Results', (string)( $payload[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' ) );
+		$this->assertSame( 'ignore_all', (string)( \json_decode(
+			(string)( $payload[ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ),
+			true
+		)[ 'sub_action' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-actions-queue-detail="1"]',
@@ -856,6 +909,75 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame(
 			[ $this->pluginMainPathFragment( $pluginSlug ) ],
 			\array_column( $datatable[ 'data' ] ?? [], 'file' )
+		);
+	}
+
+	public function test_wordpress_direct_table_group_and_detail_expose_ignore_all_action() :void {
+		$this->enableAssetScanFixture( [ 'wp' ] );
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'    => 'wp-admin/admin.php',
+			'is_in_core' => 1,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$this->assertDirectTableGroupAndDetailExposeIgnoreAllAction(
+			'critical',
+			'wordpress',
+			[
+				'type' => 'wordpress',
+				'file' => 'wordpress',
+			]
+		);
+	}
+
+	public function test_theme_direct_table_group_and_detail_expose_ignore_all_action() :void {
+		$this->enableAssetScanFixture( [ 'themes' ] );
+
+		$themeSlug = \wp_get_theme()->get_stylesheet();
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$this->assertDirectTableGroupAndDetailExposeIgnoreAllAction(
+			'critical',
+			'themes:'.$themeSlug,
+			[
+				'type' => 'theme',
+				'file' => $themeSlug,
+			]
+		);
+	}
+
+	public function test_malware_direct_table_group_and_detail_expose_ignore_all_action() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_malware_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id' => 'infected.php',
+			'is_mal'  => 1,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$this->assertDirectTableGroupAndDetailExposeIgnoreAllAction(
+			'critical',
+			'malware',
+			[
+				'type' => 'malware',
+				'file' => 'malware',
+			]
 		);
 	}
 

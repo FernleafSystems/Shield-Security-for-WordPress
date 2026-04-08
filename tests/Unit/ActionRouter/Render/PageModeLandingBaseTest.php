@@ -121,7 +121,7 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertSame( 'Landing Subtitle', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'summary' ] ?? '' );
 		$this->assertSame( 'configure', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame(
-			'{"breadcrumb_label":"Landing Title","title":"Landing Title","summary":"Landing Subtitle","focus":"","next_step":"","icon_class":"icon-gear","badge":"","badge_status":"good","color_key":"configure"}',
+			'{"breadcrumb_label":"Landing Title","title":"Landing Title","summary":"Landing Subtitle","focus":"","next_step":"","icon_class":"icon-gear","badge":"","badge_status":"good","color_key":"configure","actions":[]}',
 			$data[ 'vars' ][ 'mode_shell' ][ 'root_step_json' ] ?? ''
 		);
 		$this->assertSame( 'zone_one', $data[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'key' ] );

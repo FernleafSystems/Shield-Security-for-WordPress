@@ -14,16 +14,85 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueGroupsBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Services\Core\{
+	General,
+	Request,
+	Users
+};
 
 class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
 		Functions\when( 'number_format_i18n' )->alias( static fn( int $number ) :string => (string)$number );
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
+		);
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.( \is_array( $value ) ? \rawurlencode( (string)\json_encode( $value ) ) : $value );
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
+		);
+
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_wpgeneral' => new class extends General {
+				public function ajaxURL() :string {
+					return '/admin-ajax.php';
+				}
+			},
+			'service_request' => new class extends Request {
+				public function ip() :string {
+					return '127.0.0.1';
+				}
+
+				public function ts( bool $update = true ) :int {
+					return 1700000000;
+				}
+			},
+			'service_wpusers' => new class extends Users {
+				public function getCurrentWpUserId() {
+					return 0;
+				}
+			},
+		] );
+	}
+
+	protected function tearDown() :void {
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
 	}
 
 	public function test_build_group_scan_source_constructs_with_real_scan_asset_cards_builder_wiring() :void {
@@ -211,6 +280,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
+		$this->assertSame( 'Ignore All Results', $group[ 'selection' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'ignore_all', $this->decodeAjaxAction(
+			$group[ 'selection' ][ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
+		)[ 'sub_action' ] ?? '' );
 	}
 
 	public function test_build_review_bucket_groups_requested_system_and_wordpress_items_without_changing_plugin_maintenance_cards() :void {
@@ -812,8 +885,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$groups[ 'wordpress' ][ 'render_action_data' ]
 		);
 		$this->assertSame( 3, $groups[ 'wordpress' ][ 'item_count' ] );
+		$this->assertSame( [], $groups[ 'wordpress' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertTrue( $groups[ 'plugins' ][ 'is_interactive' ] );
 		$this->assertSame( 2, $groups[ 'plugins' ][ 'item_count' ] );
+		$this->assertSame( [], $groups[ 'plugins' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertFalse( $groups[ 'themes' ][ 'is_interactive' ] );
 		$this->assertSame( [], $groups[ 'themes' ][ 'render_action_data' ] );
 		$this->assertSame( [ '', '', '' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );

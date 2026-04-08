@@ -4,9 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sca
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseForScan;
-use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property string $type
@@ -88,36 +87,8 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 
 	protected function getRecordsLoader() :LoadFileScanResultsTableData {
 		$loader = new LoadFileScanResultsTableData();
-		switch ( $this->type ) {
-			case 'plugin':
-				$loader->custom_record_retriever_wheres = [
-					sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
-					sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $this->file ),
-				];
-				break;
-			case 'theme':
-				$theme = Services::WpThemes()->getThemeAsVo( $this->file );
-				if ( !empty( $theme ) ) {
-					$loader->custom_record_retriever_wheres = [
-						sprintf( "%s.`meta_key`='ptg_slug'", RetrieveBase::ABBR_RESULTITEMMETA ),
-						sprintf( "%s.`meta_value`='%s'", RetrieveBase::ABBR_RESULTITEMMETA, $theme->stylesheet ),
-					];
-				}
-				break;
-			case 'malware':
-				$loader->custom_record_retriever_wheres = [
-					sprintf( "%s.`meta_key`='is_mal'", RetrieveBase::ABBR_RESULTITEMMETA ),
-					sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
-				];
-				break;
-			case 'wordpress':
-			default:
-				$loader->custom_record_retriever_wheres = [
-					sprintf( "%s.`meta_key`='is_in_core'", RetrieveBase::ABBR_RESULTITEMMETA ),
-					sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
-				];
-				break;
-		}
+		$loader->custom_record_retriever_wheres = ( new ScanResultsScopeResolver() )
+			->wheresForActionScope( $this->type, $this->file );
 
 		$explicitResultsDisplayOptions = $this->getExplicitResultsDisplayOptions();
 		if ( $explicitResultsDisplayOptions !== null ) {

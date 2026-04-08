@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ScanResultsTableAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\{
 	ForMalware,
 	ForPluginTheme,
@@ -15,6 +16,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\{
 };
 
 class ScanResultsTableContractBuilder {
+
+	private ScanResultsScopeResolver $scopeResolver;
+
+	public function __construct( ?ScanResultsScopeResolver $scopeResolver = null ) {
+		$this->scopeResolver = $scopeResolver ?? new ScanResultsScopeResolver();
+	}
 
 	/**
 	 * @return array<string,mixed>
@@ -27,23 +34,19 @@ class ScanResultsTableContractBuilder {
 	) :array {
 		$subjectType = \strtolower( \trim( $subjectType ) );
 		$subjectId = \trim( $subjectId );
+		$tableActionData = \array_merge(
+			$this->scopeResolver->canonicalActionDataForSubject( $subjectType, $subjectId ),
+			$scanResultsActionData
+		);
 
 		switch ( $subjectType ) {
 			case InvestigationTableContract::SUBJECT_TYPE_CORE:
 				$datatablesInit = ( new ForWordpress() )->buildRaw();
-				$tableActionData = \array_merge( [
-					'type' => 'wordpress',
-					'file' => 'wordpress',
-				], $scanResultsActionData );
 				break;
 			case InvestigationTableContract::SUBJECT_TYPE_PLUGIN:
 			case InvestigationTableContract::SUBJECT_TYPE_THEME:
 			default:
 				$datatablesInit = ( new ForPluginTheme() )->buildRaw();
-				$tableActionData = \array_merge( [
-					'type' => $subjectType,
-					'file' => $subjectId,
-				], $scanResultsActionData );
 				break;
 		}
 
@@ -87,10 +90,10 @@ class ScanResultsTableContractBuilder {
 			'warning',
 			'malware',
 			( new ForMalware() )->buildRaw(),
-			ActionData::Build( ScanResultsTableAction::class, true, \array_merge( [
-				'type' => 'malware',
-				'file' => 'malware',
-			], $scanResultsActionData ) ),
+			ActionData::Build( ScanResultsTableAction::class, true, \array_merge(
+				$this->scopeResolver->normalizeActionScope( 'malware', 'malware' ),
+				$scanResultsActionData
+			) ),
 			$fullLogHref,
 			__( 'Full Scan Results', 'wp-simple-firewall' )
 		);
