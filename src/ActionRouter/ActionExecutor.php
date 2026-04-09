@@ -44,7 +44,7 @@ class ActionExecutor {
 			if ( Services::WpGeneral()->isAjax() ) {
 				throw $iane;
 			}
-			wp_die( sprintf( 'Unexpected data. Please try again. Action Slug: "%s"; Data: "%s"', $classOrSlug, var_export( $data, true ) ) );
+			wp_die( __( 'Unexpected data. Please try again.', 'wp-simple-firewall' ) );
 		}
 
 		if ( !$routedResponse instanceof RoutedResponse ) {

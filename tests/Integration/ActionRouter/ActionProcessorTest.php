@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionDoesNotExistException;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -23,5 +24,17 @@ class ActionProcessorTest extends ShieldIntegrationTestCase {
 	public function test_get_action_invalid_slug_throws() {
 		$this->expectException( ActionDoesNotExistException::class );
 		$this->processor()->getAction( 'nonexistent_action_class', [] );
+	}
+
+	public function test_get_action_strips_user_supplied_action_overrides() :void {
+		$action = $this->processor()->getAction( AjaxRender::SLUG, [
+			'action_overrides' => [
+				'is_nonce_verify_required' => false,
+			],
+			'render_slug'      => AjaxRender::SLUG,
+		] );
+
+		$this->assertArrayNotHasKey( 'action_overrides', $action->action_data );
+		$this->assertSame( AjaxRender::SLUG, $action->action_data[ 'render_slug' ] ?? '' );
 	}
 }

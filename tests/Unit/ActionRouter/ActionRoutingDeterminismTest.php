@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueDrillDownGroups,
@@ -36,5 +37,15 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, ActionsMap::ActionFromSlug( ActionsQueueAssetFileStatusDetail::SLUG ) );
 		$this->assertSame( ActionsQueueDrillDownGroups::class, ActionsMap::ActionFromSlug( ActionsQueueDrillDownGroups::SLUG ) );
 		$this->assertSame( ConfigureDrillDownDiagnosis::class, ActionsMap::ActionFromSlug( ConfigureDrillDownDiagnosis::SLUG ) );
+	}
+
+	public function testActionSlugPatternAcceptsLiveSlugWithDigits() :void {
+		$this->assertTrue( ActionData::isValidActionSlug( MfaLoginVerifyStep::SLUG ) );
+		$this->assertSame( MfaLoginVerifyStep::SLUG, ActionData::extractActionSlug( MfaLoginVerifyStep::SLUG ) );
+	}
+
+	public function testActionSlugPatternRejectsMalformedSlug() :void {
+		$this->assertFalse( ActionData::isValidActionSlug( 'bad slug!' ) );
+		$this->assertSame( '', ActionData::extractActionSlug( 'bad slug!' ) );
 	}
 }
