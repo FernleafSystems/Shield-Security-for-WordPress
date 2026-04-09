@@ -177,6 +177,10 @@ class MaintenanceItemIgnoreTestDouble extends MaintenanceItemIgnore {
 		return '';
 	}
 
+	protected function isNonceVerifyRequired() :bool {
+		return false;
+	}
+
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
 		return $this->provider;
 	}
@@ -193,6 +197,10 @@ class MaintenanceItemUnignoreTestDouble extends MaintenanceItemUnignore {
 
 	protected function getMinimumUserAuthCapability() :string {
 		return '';
+	}
+
+	protected function isNonceVerifyRequired() :bool {
+		return false;
 	}
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {

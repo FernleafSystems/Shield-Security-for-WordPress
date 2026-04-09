@@ -132,6 +132,9 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'kind' ] ?? ''
 		);
 		$this->assertNotEmpty(
+			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action' ][ 'exnonce' ] ?? ''
+		);
+		$this->assertNotEmpty(
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'secondary_actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
 		);
 	}

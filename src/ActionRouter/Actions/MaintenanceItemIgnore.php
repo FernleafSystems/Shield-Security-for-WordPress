@@ -4,7 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 
-class MaintenanceItemIgnore extends SecurityAdminBase {
+class MaintenanceItemIgnore extends BaseAction {
+
+	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'maintenance_item_ignore';
 
