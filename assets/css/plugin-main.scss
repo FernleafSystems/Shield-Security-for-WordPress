@@ -199,6 +199,8 @@ label input[type=checkbox] {
 
 #PageMain-Shield {
   font-size: 13px;
+  position: relative;
+  z-index: 0;
 }
 
 .overflow_container {

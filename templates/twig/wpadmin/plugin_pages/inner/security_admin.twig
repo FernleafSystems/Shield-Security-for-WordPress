@@ -1,13 +1,10 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div id="SecurityAdminOverlay" class="modal fade"
+	<div id="SecurityAdminOverlay" class="security-admin-overlay"
 		 role="dialog" tabindex="-1"
 		 aria-labelledby="SecurityAdminLabel"
-		 aria-modal="true"
-		 aria-hidden="true"
-		 data-bs-backdrop="static"
-		 data-bs-keyboard="false">
+		 aria-describedby="SecurityAdminDescription">
 		<div class="modal-dialog security-admin-dialog">
 			<div id="IcwpWpsfSecurityAdmin" class="modal-content rounded-3 shield-modal-content-raised">
 				<div class="modal-body p-4 p-md-5">
@@ -19,7 +16,7 @@
 								<i class="{{ imgs.icon_shield }}" aria-hidden="true"></i>
 							</div>
 							<h5 id="SecurityAdminLabel" class="mb-1 fw-semibold text-secondary">{{ strings.aar_enter_access_key }}</h5>
-							<p class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
+							<p id="SecurityAdminDescription" class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
 						</div>
 
 						<div class="mb-3">

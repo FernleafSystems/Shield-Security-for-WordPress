@@ -18,7 +18,7 @@ assets/css/
     zones.scss                Security zone component cards
     merlin.scss               Merlin setup wizard
     meters.scss               Meter gauge styling
-    security-admin.scss       Security admin PIN modal
+    security-admin.scss       Security admin pane-scoped overlay/dialog
     options.scss              Module options pages
     ip_analyse.scss           IP analysis off-canvas (options-style rail layout)
     reports.scss              Security report styles (reference only — actual CSS is inline in Twig)
@@ -235,7 +235,7 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
-| `security-admin.scss` | Security admin modal and PIN form |
+| `security-admin.scss` | Security admin pane-scoped overlay/dialog and PIN form |
 | `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, `.shield-stack`, `.shield-mode-strip*`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)

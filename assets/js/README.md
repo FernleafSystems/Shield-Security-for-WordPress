@@ -53,12 +53,12 @@ MainWP uses Semantic UI jQuery plugins with the same names, so Bootstrap and Mai
 
 ### What Was Changed
 
-1. Kept `SecurityAdmin.js` as Bootstrap-modal implementation for `main` (Shield pages) to preserve 21.2.4 UX parity.
-2. Added a separate `SecurityAdminWpAdmin.js` for `wpadmin` path with no Bootstrap JS import.
-3. Wired `AppWpAdmin` to `SecurityAdminWpAdmin`, while `AppMain` continues to use `SecurityAdmin`.
-4. Removed temporary `noConflict()` and temporary overlay CSS workaround.
+1. Removed Bootstrap modal behavior from Security Admin entirely.
+2. Collapsed `main` and `wpadmin` onto the same `SecurityAdmin.js` implementation.
+3. Switched the restricted Shield admin route to a local overlay/dialog that stays inside the Shield pane instead of blocking the full WordPress admin viewport.
+4. Removed the old split-component rationale and the temporary overlay workaround.
 
-Result: `shield-wpadmin.bundle.js` no longer carries Bootstrap JS in this path, so the jQuery bridge collision source is removed without changing Shield-page modal behavior.
+Result: the Security Admin restriction no longer imports Bootstrap modal JS for this flow, and overlapping WordPress admin submenus stay clickable outside the Shield pane.
 
 ## Automated CI Guard
 
