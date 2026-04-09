@@ -38,6 +38,24 @@ const requestMetaResponseMatcher = ( rid ) => ( response ) => {
 		&& postData.includes( `rid=${rid}` );
 };
 
+const isLiveTrafficPollRequest = ( request ) => {
+	const postData = request.postData() || '';
+	return request.url().includes( '/admin-ajax.php' )
+		&& request.method() === 'POST'
+		&& postData.includes( 'render_traffic_live_logs' );
+};
+
+const parseWrappedAjaxJson = ( raw ) => {
+	const openJsonTag = '##APTO_OPEN##';
+	const closeJsonTag = '##APTO_CLOSE##';
+	if ( raw.includes( openJsonTag ) ) {
+		const start = raw.indexOf( openJsonTag ) + openJsonTag.length;
+		const end = raw.lastIndexOf( closeJsonTag );
+		return JSON.parse( raw.substring( start, end ) );
+	}
+	return JSON.parse( raw );
+};
+
 const expectPanelState = async ( page, panel, { subject, isLoaded, lookupKey = '' } ) => {
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-subject', subject );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', isLoaded ? '1' : '0' );
@@ -527,11 +545,6 @@ test( 'investigate landing preloads generic subjects and keeps live traffic lazy
 test( 'investigate landing starts and stops live traffic polling with the live panel', async ( { page } ) => {
 	const livePollWindowMs = 5_500;
 	let livePollCount = 0;
-	const isLiveTrafficPollRequest = ( request ) => {
-		const postData = request.postData() || '';
-		return request.url().includes( '/admin-ajax.php' )
-			&& postData.includes( 'render_traffic_live_logs' );
-	};
 
 	await page.route( '**/admin-ajax.php**', async ( route ) => {
 		if ( isLiveTrafficPollRequest( route.request() ) ) {
@@ -587,4 +600,79 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
 	await page.waitForTimeout( livePollWindowMs + 500 );
 	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
+} );
+
+test( 'investigate live traffic auth-refresh poll reloads the page from an authenticated admin request', async ( { page } ) => {
+	let dialogCount = 0;
+	let livePollCount = 0;
+	let captureNextLivePoll = false;
+
+	page.on( 'dialog', async ( dialog ) => {
+		dialogCount++;
+		await dialog.dismiss();
+	} );
+
+	const authRefreshContractPromise = new Promise( ( resolve, reject ) => {
+		const timeoutId = setTimeout( () => {
+			reject( new Error( 'Timed out waiting for the real auth-refresh live traffic response.' ) );
+		}, 15_000 );
+
+		page.route( '**/admin-ajax.php**', async ( route ) => {
+			if ( !isLiveTrafficPollRequest( route.request() ) ) {
+				await route.continue();
+				return;
+			}
+
+			livePollCount++;
+			const response = await route.fetch();
+			const body = await response.text();
+			const payload = parseWrappedAjaxJson( body );
+
+			if ( captureNextLivePoll && payload?.data?.auth_refresh_required === true ) {
+				captureNextLivePoll = false;
+				clearTimeout( timeoutId );
+				resolve( {
+					headers: route.request().headers(),
+					payload,
+				} );
+			}
+
+			await route.fulfill( {
+				response,
+				body,
+			} );
+		} ).catch( reject );
+	} );
+
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const panel = page.locator( panelSelector );
+	await clickSubjectTile( page, 'live_traffic' );
+
+	await expectPanelState( page, panel, {
+		subject: 'live_traffic',
+		isLoaded: true,
+	} );
+	await expect.poll( () => livePollCount ).toBeGreaterThan( 0 );
+
+	captureNextLivePoll = true;
+	await page.context().clearCookies();
+
+	const authRefreshContract = await authRefreshContractPromise;
+
+	expect( authRefreshContract.headers[ 'x-shield-auth-refresh' ] || '' ).toBe( '1' );
+	expect( authRefreshContract.payload.success ).toBe( false );
+	expect( authRefreshContract.payload.data.auth_refresh_required ).toBe( true );
+	expect( authRefreshContract.payload.data.page_reload ).toBe( true );
+	expect( authRefreshContract.payload.data.show_toast ).toBe( false );
+	expect( authRefreshContract.payload.data.error_code ).toBe( 'user_auth_required' );
+	expect( typeof authRefreshContract.payload.data.message ).toBe( 'string' );
+	expect( authRefreshContract.payload.data.message.length ).toBeGreaterThan( 0 );
+	expect( authRefreshContract.payload.data.error ).toBe( authRefreshContract.payload.data.message );
+
+	await expect.poll( () => page.url() ).toContain( '/wp-login.php' );
+	await expect.poll( () => dialogCount ).toBe( 0 );
 } );

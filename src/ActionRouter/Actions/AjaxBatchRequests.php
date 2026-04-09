@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\SecurityAdminRequiredException,
 	Exceptions\UserAuthRequiredException,
 	ResponseAdapter\AjaxResponseAdapter,
+	Utility\AuthRefreshRequest,
 	Utility\ResponseEnvelopeNormalizer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
@@ -28,35 +29,45 @@ class AjaxBatchRequests extends BaseAction {
 	private const MAX_BATCH_SIZE = 50;
 
 	protected function exec() {
-		$requests = $this->action_data[ 'requests' ];
+		try {
+			$requests = $this->action_data[ 'requests' ];
 
-		if ( !\is_array( $requests ) ) {
-			throw new ActionException( __( 'Invalid batch request format.', 'wp-simple-firewall' ) );
-		}
-		if ( \count( $requests ) > self::MAX_BATCH_SIZE ) {
-			throw new ActionException(
-				sprintf(
-				/* translators: %s: request count limit */
-					__( 'Too many batched requests. Maximum allowed is %s.', 'wp-simple-firewall' ),
-					self::MAX_BATCH_SIZE
-				)
-			);
-		}
-
-		$lastRequestIndexes = $this->collectLastRequestIndexes( $requests );
-		$results = [];
-		foreach ( $requests as $index => $requestItem ) {
-			$key = $this->extractResultKey( $requestItem, $index );
-			if ( ( $lastRequestIndexes[ $key ] ?? $index ) !== $index ) {
-				continue;
+			if ( !\is_array( $requests ) ) {
+				throw new ActionException( __( 'Invalid batch request format.', 'wp-simple-firewall' ) );
 			}
-			$results[ $key ] = $this->processBatchRequest( $requestItem );
-		}
+			if ( \count( $requests ) > self::MAX_BATCH_SIZE ) {
+				throw new ActionException(
+					sprintf(
+					/* translators: %s: request count limit */
+						__( 'Too many batched requests. Maximum allowed is %s.', 'wp-simple-firewall' ),
+						self::MAX_BATCH_SIZE
+					)
+				);
+			}
 
-		$this->response()->setPayload( [
-			'message' => '',
-			'results' => $results,
-		] )->setPayloadSuccess( true );
+			$lastRequestIndexes = $this->collectLastRequestIndexes( $requests );
+			$results = [];
+			foreach ( $requests as $index => $requestItem ) {
+				$key = $this->extractResultKey( $requestItem, $index );
+				if ( ( $lastRequestIndexes[ $key ] ?? $index ) !== $index ) {
+					continue;
+				}
+				$results[ $key ] = $this->processBatchRequest( $requestItem );
+			}
+
+			$this->response()->setPayload( [
+				'message' => '',
+				'results' => $results,
+			] )->setPayloadSuccess( true );
+		}
+		catch ( UserAuthRequiredException $e ) {
+			if ( !AuthRefreshRequest::isRequested() ) {
+				throw $e;
+			}
+			$this->response()
+				->setPayload( ResponseEnvelopeNormalizer::forAjaxAuthRefresh() )
+				->setPayloadSuccess( false );
+		}
 	}
 
 	protected function getRequiredDataKeys() :array {
@@ -138,6 +149,9 @@ class AjaxBatchRequests extends BaseAction {
 			);
 		}
 		catch ( UserAuthRequiredException $e ) {
+			if ( AuthRefreshRequest::isRequested() ) {
+				throw $e;
+			}
 			return $this->buildFailureResult( $e->getMessage(), 403 );
 		}
 		catch ( ActionException $e ) {

@@ -80,4 +80,20 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'Payload Page', $payload[ 'page_title' ] ?? '' );
 		$this->assertFalse( $payload[ 'show_toast' ] ?? true );
 	}
+
+	public function test_for_ajax_auth_refresh_builds_reload_contract() :void {
+		$payload = ResponseEnvelopeNormalizer::forAjaxAuthRefresh();
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
+		$this->assertTrue( $payload[ 'auth_refresh_required' ] ?? false );
+		$this->assertFalse( $payload[ 'show_toast' ] ?? true );
+		$this->assertSame( 'user_auth_required', $payload[ 'error_code' ] ?? '' );
+		$this->assertSame(
+			'Your WordPress session has expired. Reloading the page now.',
+			$payload[ 'message' ] ?? ''
+		);
+		$this->assertSame( $payload[ 'message' ] ?? '', $payload[ 'error' ] ?? '' );
+		$this->assertSame( '', $payload[ 'html' ] ?? null );
+	}
 }

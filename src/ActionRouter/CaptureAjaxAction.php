@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	ActionException,
 	InvalidActionNonceException,
-	SecurityAdminRequiredException
+	SecurityAdminRequiredException,
+	UserAuthRequiredException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\AuthRefreshRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Ajax\Response;
 use FernleafSystems\Wordpress\Services\Services;
@@ -67,6 +69,16 @@ class CaptureAjaxAction extends CaptureActionBase {
 				'message' => $msg,
 				'error'   => $msg,
 			];
+		}
+		catch ( UserAuthRequiredException $e ) {
+			$statusCode = 401;
+			$response = AuthRefreshRequest::isRequested()
+				? ResponseEnvelopeNormalizer::forAjaxAuthRefresh()
+				: [
+					'success' => false,
+					'message' => $e->getMessage(),
+					'error'   => $e->getMessage(),
+				];
 		}
 		catch ( ActionException $e ) {
 			$statusCode = empty( $e->getCode() ) ? 400 : $e->getCode();

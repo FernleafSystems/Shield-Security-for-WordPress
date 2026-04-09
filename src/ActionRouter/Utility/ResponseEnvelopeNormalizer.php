@@ -49,6 +49,20 @@ class ResponseEnvelopeNormalizer {
 		return self::forAjax( $payload );
 	}
 
+	public static function forAjaxAuthRefresh() :array {
+		$message = __( 'Your WordPress session has expired. Reloading the page now.', 'wp-simple-firewall' );
+
+		return self::forAjax( [
+			'success'               => false,
+			'page_reload'           => true,
+			'auth_refresh_required' => true,
+			'show_toast'            => false,
+			'error_code'            => 'user_auth_required',
+			'message'               => $message,
+			'error'                 => $message,
+		] );
+	}
+
 	private static function ajaxBaseDefaults( string $message, string $error, string $html ) :array {
 		return [
 			'success' => false,

@@ -8,11 +8,17 @@ import { RestService } from "./RestService";
 
 export class AjaxService {
 
+	static authRefreshPending = false;
+	static authRefreshPendingPromise = null;
+
 	bg( data ) {
 		return this.send( data, false, true );
 	}
 
 	send( data, showOverlay = false, quiet = false ) {
+		if ( AjaxService.authRefreshPending ) {
+			return AjaxService.suspendForAuthRefresh();
+		}
 
 		if ( showOverlay ) {
 			ShieldOverlay.Show();
@@ -21,7 +27,15 @@ export class AjaxService {
 		return this
 		.req( data )
 		.then( respJSON => {
-			if ( !quiet && respJSON.data.message.length > 0 ) {
+			if ( this.isAuthRefreshResponse( respJSON ) ) {
+				this.handleAuthRefresh( respJSON );
+				return AjaxService.suspendForAuthRefresh();
+			}
+
+			if ( !quiet
+				&& respJSON?.data?.show_toast !== false
+				&& typeof respJSON?.data?.message === 'string'
+				&& respJSON.data.message.length > 0 ) {
 				if ( typeof shieldServices === 'undefined' ) {
 					alert( respJSON.data.message );
 				}
@@ -81,25 +95,43 @@ export class AjaxService {
 
 	constructFetchRequestData( core, method = 'POST' ) {
 		core.apto_wrap_response = 1;
+		const headers = {
+			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+			'X-Requested-With': 'XMLHttpRequest',
+		};
+		if ( this.shouldRequestAuthRefresh( core ) ) {
+			headers[ 'X-Shield-Auth-Refresh' ] = '1';
+		}
 		return {
 			method: method,
 			body: ( new URLSearchParams( qs.stringify( core ) ) ).toString(),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				'X-Requested-With': 'XMLHttpRequest',
-			},
+			headers,
 		};
 	};
 
-	constructFetchRequestDataOld( core, method = 'POST' ) {
-		core.apto_wrap_response = 1;
-		return {
-			method: method,
-			body: ( new URLSearchParams( core ) ).toString(),
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				'X-Requested-With': 'XMLHttpRequest',
-			},
-		};
-	};
+	shouldRequestAuthRefresh( core ) {
+		return core?.action === 'shield_action'
+			&& document?.body?.classList?.contains( 'wp-admin' );
+	}
+
+	isAuthRefreshResponse( respJSON ) {
+		return !!( respJSON?.data?.auth_refresh_required );
+	}
+
+	handleAuthRefresh( respJSON ) {
+		if ( AjaxService.authRefreshPending ) {
+			return;
+		}
+
+		AjaxService.authRefreshPending = true;
+		ShieldOverlay.Show();
+		Navigation.RedirectOrReload( respJSON, null );
+	}
+
+	static suspendForAuthRefresh() {
+		if ( AjaxService.authRefreshPendingPromise === null ) {
+			AjaxService.authRefreshPendingPromise = new Promise( () => {} );
+		}
+		return AjaxService.authRefreshPendingPromise;
+	}
 }
