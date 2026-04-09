@@ -28,7 +28,6 @@ class PluginImportFromSite extends BaseAction {
 					(string)$formParams[ 'MasterSiteSecretKey' ],
 					$doNetwork
 				);
-				self::con()->opts->optSet( 'importexport_enable', 'Y' );
 				$success = true;
 				$msg = __( 'Options imported successfully', 'wp-simple-firewall' );
 			}

@@ -2,10 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-class PluginImportExport_UpdateNotified extends BaseAction {
-
-	use Traits\AuthNotRequired;
-	use Traits\NonceVerifyNotRequired;
+class PluginImportExport_UpdateNotified extends PluginImportExport_Base {
 
 	public const SLUG = 'importexport_updatenotified';
 

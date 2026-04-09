@@ -15,7 +15,7 @@ class ImportExportController {
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return self::con()->opts->optIs( 'importexport_enable', 'Y' );
 	}
 
@@ -61,29 +61,29 @@ class ImportExportController {
 		}
 	}
 
-	public function getImportExportMasterImportUrl() :string {
+	public function getImportExportMasterImportUrl(): string {
 		return self::con()->opts->optGet( 'importexport_masterurl' );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getImportExportWhitelist() :array {
+	public function getImportExportWhitelist(): array {
 		return self::con()->opts->optGet( 'importexport_whitelist' );
 	}
 
-	public function getImportExportSecretKey() :string {
+	public function getImportExportSecretKey(): string {
 		$opts = self::con()->opts;
 		$ID = $opts->optGet( 'importexport_secretkey' );
 		if ( empty( $ID ) || Services::Request()->ts() > $opts->optGet( 'importexport_secretkey_expires_at' ) ) {
 			$ID = \hash( 'sha1', ( new InstallationID() )->id().wp_rand( 0, \PHP_INT_MAX ) );
 			$opts->optSet( 'importexport_secretkey', $ID )
-				 ->optSet( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
+			     ->optSet( 'importexport_secretkey_expires_at', Services::Request()->ts() + \DAY_IN_SECONDS );
 		}
 		return $ID;
 	}
 
-	public function verifySecretKey( string $secret ) :bool {
+	public function verifySecretKey( string $secret ): bool {
 		return !empty( $secret ) && $this->getImportExportSecretKey() == $secret;
 	}
 
@@ -100,17 +100,16 @@ class ImportExportController {
 	 */
 	public function runOptionsUpdateNotified() {
 		$con = self::con();
-		// Ensure import/export feature is enabled (for cron and auto-import to run)
-		$con->opts->optSet( 'importexport_enable', 'Y' );
-
-		$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
-		if ( !wp_next_scheduled( $cronHook ) ) {
-			wp_schedule_single_event( Services::Request()->ts() + \rand( 30, 180 ), $cronHook );
-			$con->comps->events->fireEvent( 'import_notify_received', [
-				'audit_params' => [
-					'master_site' => $con->opts->optGet( 'importexport_masterurl' )
-				]
-			] );
+		if ( $con->opts->optIs( 'importexport_enable', 'Y' ) && !empty( $this->getImportExportMasterImportUrl() ) ) {
+			$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
+			if ( !wp_next_scheduled( $cronHook ) ) {
+				wp_schedule_single_event( Services::Request()->ts() + \wp_rand( 30, 180 ), $cronHook );
+				$con->comps->events->fireEvent( 'import_notify_received', [
+					'audit_params' => [
+						'master_site' => $con->opts->optGet( 'importexport_masterurl' )
+					]
+				] );
+			}
 		}
 	}
 
