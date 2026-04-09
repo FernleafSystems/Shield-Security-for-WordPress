@@ -11,18 +11,11 @@ class SecurityAdminRemove extends SecurityAdminBase {
 	use NonceVerifyRequired;
 
 	public const SLUG = 'secadmin_remove_confirm';
-	public const RETURN_CONTEXT_CONFIGURE_SECADMIN = 'configure_secadmin';
 
 	protected function exec() {
 		( new RemoveSecAdmin() )->remove( (bool)( $this->action_data[ 'quietly' ] ?? false ) );
-		$redirectUrl = self::con()->plugin_urls->zone( Secadmin::Slug() );
-		switch ( sanitize_key( (string)( $this->action_data[ 'return_context' ] ?? '' ) ) ) {
-			case self::RETURN_CONTEXT_CONFIGURE_SECADMIN:
-				$redirectUrl = self::con()->plugin_urls->configureHome( Secadmin::Slug() );
-				break;
-		}
 		$this->response()
 			 ->setPayloadSuccess( true )
-			 ->setPayloadRedirectNextStep( $redirectUrl );
+			 ->setPayloadRedirectNextStep( self::con()->plugin_urls->zone( Secadmin::Slug() ) );
 	}
 }

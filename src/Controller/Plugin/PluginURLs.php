@@ -266,6 +266,6 @@ class PluginURLs {
 	}
 
 	public function zone( string $zoneSlug ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_ZONES, $zoneSlug );
+		return $this->configureHome( $zoneSlug );
 	}
 }

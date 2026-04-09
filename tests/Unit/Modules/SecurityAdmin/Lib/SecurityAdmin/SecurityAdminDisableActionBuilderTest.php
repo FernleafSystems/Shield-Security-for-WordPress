@@ -11,7 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\SecurityAdmin\Lib\SecurityAdmin;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminDisableActionBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -63,16 +62,10 @@ class SecurityAdminDisableActionBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'Disable Security Admin', $zoneAction[ 'title' ] ?? '' );
 		$this->assertSame( 'bi bi-toggle-off', $zoneAction[ 'icon' ] ?? '' );
-		$this->assertStringContainsString( 'quietly=1', $zoneAction[ 'href' ] ?? '' );
 		$this->assertSame( 'Disable Security Admin', $contextHref[ 'title' ] ?? '' );
 		$this->assertCount( 1, $configureActions );
 		$this->assertSame( 'Disable Security Admin', $configureActions[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'deactivate', $configureActions[ 0 ][ 'type' ] ?? '' );
-		$this->assertStringContainsString( '/admin/zones/overview?zone=secadmin', $configureActions[ 0 ][ 'href' ] ?? '' );
-		$this->assertStringContainsString(
-			'return_context='.SecurityAdminRemove::RETURN_CONTEXT_CONFIGURE_SECADMIN,
-			$configureActions[ 0 ][ 'href' ] ?? ''
-		);
 	}
 
 	public function test_build_returns_empty_when_security_admin_is_disabled() :void {

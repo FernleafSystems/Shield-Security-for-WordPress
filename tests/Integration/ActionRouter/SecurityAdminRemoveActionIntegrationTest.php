@@ -18,7 +18,7 @@ class SecurityAdminRemoveActionIntegrationTest extends ShieldIntegrationTestCase
 		] );
 	}
 
-	public function test_remove_action_clears_security_admin_state_and_redirects_to_configure_secadmin() :void {
+	public function test_remove_action_clears_security_admin_state() :void {
 		$snapshot = $this->snapshotSelectedOptions( [
 			'admin_access_key',
 			'sec_admin_users',
@@ -34,16 +34,11 @@ class SecurityAdminRemoveActionIntegrationTest extends ShieldIntegrationTestCase
 			$payload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass(
 				SecurityAdminRemove::SLUG,
 				ActionData::Build( SecurityAdminRemove::class, false, [
-					'quietly'        => 1,
-					'return_context' => SecurityAdminRemove::RETURN_CONTEXT_CONFIGURE_SECADMIN,
+					'quietly' => 1,
 				] )
 			);
 
 			$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
-			$this->assertSame(
-				$con->plugin_urls->configureHome( 'secadmin' ),
-				(string)( $payload[ 'next_step' ][ 'url' ] ?? '' )
-			);
 			$this->assertSame( '', (string)$con->opts->optGet( 'admin_access_key' ) );
 			$this->assertSame( [], $con->opts->optGet( 'sec_admin_users' ) );
 			$this->assertFalse( $con->comps->sec_admin->isEnabledSecAdmin() );

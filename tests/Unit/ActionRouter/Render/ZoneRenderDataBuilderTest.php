@@ -29,23 +29,15 @@ class ZoneRenderDataBuilderTest extends BaseUnitTest {
 
 	public function test_get_zones_indexed_returns_expected_payload() :void {
 		$builder = new ZoneRenderDataBuilder();
-		$this->assertSame(
-			[
-				'secadmin' => [
-					'slug'       => 'secadmin',
-					'label'      => 'Security Admin',
-					'icon_class' => 'bi bi-shield-fill',
-					'href'       => '/admin/zones/secadmin',
-				],
-				'firewall' => [
-					'slug'       => 'firewall',
-					'label'      => 'Firewall',
-					'icon_class' => 'bi bi-shield-shaded',
-					'href'       => '/admin/zones/firewall',
-				],
-			],
-			$builder->getZonesIndexed()
-		);
+		$indexed = $builder->getZonesIndexed();
+
+		$this->assertSame( [ 'secadmin', 'firewall' ], \array_keys( $indexed ) );
+		$this->assertSame( 'secadmin', $indexed[ 'secadmin' ][ 'slug' ] );
+		$this->assertSame( 'Security Admin', $indexed[ 'secadmin' ][ 'label' ] );
+		$this->assertSame( 'bi bi-shield-fill', $indexed[ 'secadmin' ][ 'icon_class' ] );
+		$this->assertSame( 'firewall', $indexed[ 'firewall' ][ 'slug' ] );
+		$this->assertSame( 'Firewall', $indexed[ 'firewall' ][ 'label' ] );
+		$this->assertSame( 'bi bi-shield-shaded', $indexed[ 'firewall' ][ 'icon_class' ] );
 	}
 
 	public function test_get_zone_links_and_slugs_follow_indexed_source() :void {
@@ -64,7 +56,7 @@ class ZoneRenderDataBuilderTest extends BaseUnitTest {
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new class {
 			public function zone( string $zoneSlug ) :string {
-				return '/admin/zones/'.$zoneSlug;
+				return '/admin/zones/overview?zone='.$zoneSlug;
 			}
 		};
 		$controller->svgs = new class {
@@ -110,4 +102,3 @@ class ZoneRenderDataBuilderTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 }
-

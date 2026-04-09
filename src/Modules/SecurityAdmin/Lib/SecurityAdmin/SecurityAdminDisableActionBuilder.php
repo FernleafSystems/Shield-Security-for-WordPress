@@ -55,10 +55,7 @@ class SecurityAdminDisableActionBuilder {
 				'label'      => $this->label(),
 				'type'       => 'deactivate',
 				'icon_class' => $this->iconClass(),
-				'href'       => $this->buildHref(
-					self::con()->plugin_urls->configureHome( Secadmin::Slug() ),
-					SecurityAdminRemove::RETURN_CONTEXT_CONFIGURE_SECADMIN
-				),
+				'href'       => $this->buildHref( self::con()->plugin_urls->configureHome( Secadmin::Slug() ) ),
 			],
 		];
 	}
@@ -81,18 +78,13 @@ class SecurityAdminDisableActionBuilder {
 		];
 	}
 
-	private function buildHref( string $baseUrl, string $returnContext = '' ) :string {
+	private function buildHref( string $baseUrl ) :string {
 		return self::con()->plugin_urls->noncedPluginAction(
 			SecurityAdminRemove::class,
 			$baseUrl,
-			\array_merge(
-				[
-					'quietly' => '1',
-				],
-				empty( $returnContext ) ? [] : [
-					'return_context' => $returnContext,
-				]
-			)
+			[
+				'quietly' => '1',
+			]
 		);
 	}
 

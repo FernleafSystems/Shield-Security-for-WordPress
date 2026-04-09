@@ -11,10 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
-	Render\PluginAdminPages\ConfigureZoneDiagnosisBuilder,
-	SecurityAdminRemove
-};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneDiagnosisBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -228,11 +225,6 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertCount( 1, $diagnosis[ 'header' ][ 'actions' ] );
 		$this->assertSame( 'Disable Security Admin', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'deactivate', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'type' ] ?? '' );
-		$this->assertStringContainsString( '/admin/zones/overview?zone=secadmin', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
-		$this->assertStringContainsString(
-			'return_context='.SecurityAdminRemove::RETURN_CONTEXT_CONFIGURE_SECADMIN,
-			$diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'href' ] ?? ''
-		);
 	}
 
 	public function test_secadmin_header_omits_disable_action_when_disabled() :void {

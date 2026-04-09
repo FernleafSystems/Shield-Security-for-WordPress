@@ -98,6 +98,6 @@ class UnitTestPluginUrls {
 	}
 
 	public function zone( string $zoneSlug ) :string {
-		return '/admin/zones/'.$zoneSlug;
+		return $this->configureHome( $zoneSlug );
 	}
 }
