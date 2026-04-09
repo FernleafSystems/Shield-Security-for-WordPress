@@ -20,7 +20,7 @@ class DailyCron extends BaseCron {
 	public function getFirstRunTimestamp() :int {
 		$hour = ( \rand( -3, 7 ) + 24 )%24;
 		if ( $hour === 0 ) {
-			$hour += \rand( 1, 7 );
+			$hour += wp_rand( 1, 7 );
 		}
 
 		$chosenHour = (int)apply_filters( 'shield/daily_cron_hour', $hour );
@@ -30,8 +30,8 @@ class DailyCron extends BaseCron {
 
 		$carbon = Services::Request()
 						  ->carbon( true )
-						  ->minute( \rand( 1, 59 ) )
-						  ->second( \rand( 1, 59 ) );
+						  ->minute( wp_rand( 1, 59 ) )
+						  ->second( wp_rand( 1, 59 ) );
 		if ( $carbon->hour >= $chosenHour ) {
 			$carbon->addDay();
 		}
