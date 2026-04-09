@@ -1,7 +1,6 @@
 import Sortable from 'sortablejs';
 import { ShieldTableBase } from "./ShieldTableBase";
 import { ObjectOps } from "../../util/ObjectOps";
-import { AjaxService } from "../services/AjaxService";
 
 /**
  * Rows-Reorder extension for Datatables is terrible. When using server-side there's no way to gather
@@ -107,7 +106,9 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 						const items = [];
 						group.querySelectorAll( 'td.drag > div' )
 							 .forEach( ( item ) => {
-								 items.push( item.dataset.rid );
+								 if ( item instanceof HTMLElement ) {
+								 	items.push( item.dataset.rid );
+								 }
 							 } );
 						this.action( {
 							sub_action: 'reorder',
@@ -120,19 +121,11 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 	}
 
 	action( params = {} ) {
-		return ( new AjaxService() )
-		.send( ObjectOps.Merge( this._base_data.ajax.table_action, params ) )
-		.then( ( resp ) => {
-			if ( resp.success ) {
-				this.tableReload();
-				if ( resp.data.message.length > 0 ) {
-					shieldServices.notification().showMessage( resp.data.message, resp.success );
-				}
-			}
-			else {
-				alert( resp.data.message );
-				console.log( resp );
-			}
-		} );
+		return this.sendTableActionRequest(
+			this.$table,
+			ObjectOps.Merge( this._base_data.ajax.table_action, params ),
+			'Communications error with site.',
+			{ reloadTableOnSuccess: true }
+		);
 	}
 }

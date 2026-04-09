@@ -1,5 +1,4 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 
 export class ShieldTableIpRules extends ShieldTableBase {
@@ -16,7 +15,7 @@ export class ShieldTableIpRules extends ShieldTableBase {
 				className: 'action create-ip-rule btn-outline-info mb-2',
 				action: () => {
 					const triggerEl = document.querySelector( 'a.offcanvas_form_create_ip_rule' );
-					if ( triggerEl ) {
+					if ( triggerEl instanceof HTMLElement ) {
 						triggerEl.click();
 					}
 				}
@@ -29,11 +28,18 @@ export class ShieldTableIpRules extends ShieldTableBase {
 		super.bindEvents();
 
 		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', ( targetEl ) => {
+			const rid = targetEl instanceof HTMLElement ? targetEl.dataset[ 'rid' ] || '' : '';
 			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				( new AjaxService() )
-				.send( ObjectOps.Merge( this._base_data.ajax.rule_delete, { rid: targetEl.dataset[ 'rid' ] } ) )
-				.then( () => this.tableReload() )
-				.finally();
+				if ( rid.length < 1 ) {
+					return;
+				}
+
+				this.sendTableActionRequest(
+					this.$table,
+					ObjectOps.Merge( this._base_data.ajax.rule_delete, { rid } ),
+					'Communications error with site.',
+					{ reloadTableOnSuccess: true }
+				).catch( () => null );
 			}
 		} );
 		shieldEventsHandler_Main.addHandler(

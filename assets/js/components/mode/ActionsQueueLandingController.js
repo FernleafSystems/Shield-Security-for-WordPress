@@ -3,6 +3,7 @@ import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
+import { ShieldTableBase } from "../tables/ShieldTableBase";
 
 export class ActionsQueueLandingController extends DrillDownAsyncControllerBase {
 
@@ -603,16 +604,28 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
+		const busyTable = this.getCurrentDirectTable();
+		this.setDirectTableBusy( busyTable, true );
+
 		( new AjaxService() )
 			.send( actionData )
 			.then( ( resp ) => {
 				if ( !resp?.success ) {
-					return;
+					this.setDirectTableBusy( busyTable, false );
+					return null;
 				}
 
-				return this.refreshAfterNestedAction( true );
+				return this.refreshAfterNestedAction( true ).then( ( refreshResult ) => {
+					if ( refreshResult === null ) {
+						this.setDirectTableBusy( busyTable, false );
+					}
+					return refreshResult;
+				} );
 			} )
-			.catch( () => null );
+			.catch( () => {
+				this.setDirectTableBusy( busyTable, false );
+				return null;
+			} );
 	}
 
 	handleOperatorContextDisplayChange( evt ) {
@@ -641,6 +654,8 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
+		const busyTable = this.getCurrentDirectTable();
+		this.setDirectTableBusy( busyTable, true );
 		form.dataset.operatorContextDisplaySubmitting = '1';
 
 		( new AjaxService() )
@@ -650,12 +665,22 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			} )
 			.then( ( resp ) => {
 				if ( !resp?.success ) {
-					return;
+					this.setDirectTableBusy( busyTable, false );
+					return null;
 				}
 
-				return this.refreshCurrentDetailLayer( this.selectedGroup?.detail_shell === 'asset_cards' );
+				return this.refreshCurrentDetailLayer( this.selectedGroup?.detail_shell === 'asset_cards' )
+					.then( ( refreshResult ) => {
+						if ( refreshResult === null ) {
+							this.setDirectTableBusy( busyTable, false );
+						}
+						return refreshResult;
+					} );
 			} )
-			.catch( () => null )
+			.catch( () => {
+				this.setDirectTableBusy( busyTable, false );
+				return null;
+			} )
 			.finally( () => {
 				delete form.dataset.operatorContextDisplaySubmitting;
 			} );
@@ -750,6 +775,18 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		return operatorShell instanceof HTMLElement
 			? operatorShell
 			: null;
+	}
+
+	getCurrentDirectTable() {
+		const table = this.rootEl
+			?.querySelector( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ) || null;
+		return table instanceof HTMLTableElement
+			? table
+			: null;
+	}
+
+	setDirectTableBusy( tableEl, isBusy ) {
+		return ShieldTableBase.setBusyForTableElement( tableEl, isBusy );
 	}
 
 	resetGroupsLayerHeader( shell ) {

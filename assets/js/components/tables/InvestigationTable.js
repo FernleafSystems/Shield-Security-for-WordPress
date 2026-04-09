@@ -54,9 +54,13 @@ export class InvestigationTable extends ShieldTableBase {
 				ajax: ( data, callback, settings ) => this.datatablesAjaxRequest( data, callback, settings, context )
 			}
 		);
+		cfg.on = this.buildDatatableEventConfig(
+			context.datatablesInit?.on,
+			cfg.on
+		);
 
 		const datatable = $tableElement.DataTable( cfg );
-		this.bindBusyStateLifecycle( datatable );
+		this.markBusyStateLifecycleBound( datatable );
 		this.ensureSearchDelay( datatable );
 		this.bindTableBehaviors( tableEl, context );
 	}

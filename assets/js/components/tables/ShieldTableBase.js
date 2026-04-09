@@ -10,8 +10,6 @@ import { OffCanvasService } from "../ui/OffCanvasService";
 
 export class ShieldTableBase extends BaseComponent {
 
-	#pendingBusyClearContainers = new WeakSet();
-
 	init() {
 		let selector = this.getTableSelector();
 		if ( selector.length > 0 ) {
@@ -41,7 +39,7 @@ export class ShieldTableBase extends BaseComponent {
 
 	setupDatatable() {
 		this.$table = this.$el.DataTable( this.buildDatatableConfig() );
-		this.bindBusyStateLifecycle( this.$table );
+		this.markBusyStateLifecycleBound( this.$table );
 		this.addButtons();
 		this.bindEvents();
 		this.ensureSearchDelay();
@@ -77,10 +75,14 @@ export class ShieldTableBase extends BaseComponent {
 	}
 
 	buildDatatableConfig() {
-		return $.extend(
-			this._base_data.vars.datatables_init,
-			this.getDefaultDatatableConfig()
+		const sourceConfig = this._base_data?.vars?.datatables_init || {};
+		const defaultConfig = this.getDefaultDatatableConfig();
+		const config = $.extend( {}, sourceConfig, defaultConfig );
+		config.on = this.buildDatatableEventConfig(
+			sourceConfig?.on,
+			defaultConfig?.on
 		);
+		return config;
 	}
 
 	datatablesAjaxRequest( data, callback, settings ) {
@@ -129,6 +131,29 @@ export class ShieldTableBase extends BaseComponent {
 			},
 			pageLength: 25
 		};
+	}
+
+	buildDatatableEventConfig( sourceEvents, defaultEvents ) {
+		const events = {
+			...this.normalizeDatatableEvents( sourceEvents ),
+			...this.normalizeDatatableEvents( defaultEvents ),
+		};
+		const existingProcessingHandler = typeof events.processing === 'function'
+			? events.processing
+			: null;
+
+		events.processing = ( e, settings, isBusy ) => {
+			this.handleDatatableProcessing( settings, isBusy );
+			existingProcessingHandler?.( e, settings, isBusy );
+		};
+
+		return events;
+	}
+
+	normalizeDatatableEvents( events ) {
+		return events && typeof events === 'object'
+			? events
+			: {};
 	}
 
 	addButtons() {
@@ -183,6 +208,13 @@ export class ShieldTableBase extends BaseComponent {
 		return container instanceof HTMLElement ? container : null;
 	}
 
+	markBusyStateLifecycleBound( datatableOrSettings = null ) {
+		const container = this.resolveTableContainer( datatableOrSettings );
+		if ( container !== null ) {
+			container.dataset.shieldBusyLifecycleBound = '1';
+		}
+	}
+
 	bindBusyStateLifecycle( datatable ) {
 		const container = this.resolveTableContainer( datatable );
 		if ( container === null || container.dataset.shieldBusyLifecycleBound === '1' ) {
@@ -190,32 +222,59 @@ export class ShieldTableBase extends BaseComponent {
 		}
 
 		container.dataset.shieldBusyLifecycleBound = '1';
-		datatable.on( 'draw.shieldBusyState', () => {
-			if ( this.#pendingBusyClearContainers.has( container ) ) {
-				this.clearTableBusy( datatable );
-			}
+		datatable.on( 'processing.shieldBusyState', ( e, settings, isBusy ) => {
+			this.handleDatatableProcessing( settings, isBusy );
 		} );
+	}
+
+	handleDatatableProcessing( datatableOrSettings, isBusy ) {
+		ShieldTableBase.applyBusyStateToContainer(
+			this.resolveTableContainer( datatableOrSettings ),
+			isBusy
+		);
 	}
 
 	setTableBusy( datatableOrSettings, isBusy ) {
 		const datatable = this.resolveDatatable( datatableOrSettings );
-		const container = this.resolveTableContainer( datatable );
-		if ( datatable === null || container === null ) {
+		const processingDatatable = /** @type {{processing?: ( isBusy: boolean ) => void}|null} */ ( datatable );
+		if ( processingDatatable === null || typeof processingDatatable.processing !== 'function' ) {
 			return;
 		}
 
-		container.classList.toggle( 'shield-table-is-busy', isBusy );
-		container.setAttribute( 'aria-busy', isBusy ? 'true' : 'false' );
-		if ( typeof datatable.processing === 'function' ) {
-			datatable.processing( isBusy );
-		}
-		if ( !isBusy ) {
-			this.#pendingBusyClearContainers.delete( container );
-		}
+		processingDatatable.processing( isBusy );
 	}
 
 	clearTableBusy( datatableOrSettings = null ) {
 		this.setTableBusy( datatableOrSettings, false );
+	}
+
+	static applyBusyStateToContainer( container, isBusy ) {
+		if ( !( container instanceof HTMLElement ) ) {
+			return false;
+		}
+
+		container.classList.toggle( 'shield-table-is-busy', isBusy );
+		container.setAttribute( 'aria-busy', isBusy ? 'true' : 'false' );
+		return true;
+	}
+
+	static resolveDatatableForTableElement( tableEl ) {
+		return tableEl instanceof HTMLTableElement
+			&& $.fn.dataTable
+			&& $.fn.dataTable.isDataTable( tableEl )
+			? $( tableEl ).DataTable()
+			: null;
+	}
+
+	static setBusyForTableElement( tableEl, isBusy ) {
+		const datatable = ShieldTableBase.resolveDatatableForTableElement( tableEl );
+		const processingDatatable = /** @type {{processing?: ( isBusy: boolean ) => void}|null} */ ( datatable );
+		if ( processingDatatable === null || typeof processingDatatable.processing !== 'function' ) {
+			return false;
+		}
+
+		processingDatatable.processing( isBusy );
+		return true;
 	}
 
 	extractResponseData( resp ) {
@@ -245,24 +304,6 @@ export class ShieldTableBase extends BaseComponent {
 		}
 	}
 
-	queueBusyClearOnNextDraw( datatableOrSettings ) {
-		const container = this.resolveTableContainer( datatableOrSettings );
-		if ( container !== null ) {
-			this.#pendingBusyClearContainers.add( container );
-		}
-	}
-
-	reloadBusyTable( datatableOrSettings ) {
-		const datatable = this.resolveDatatable( datatableOrSettings );
-		if ( datatable === null ) {
-			return;
-		}
-
-		this.setTableBusy( datatable, true );
-		this.queueBusyClearOnNextDraw( datatable );
-		datatable.ajax.reload( null );
-	}
-
 	dispatchTableActionSuccess( datatableOrSettings, reqData, responseData ) {
 		const container = this.resolveTableContainer( datatableOrSettings );
 		if ( container === null ) {
@@ -278,7 +319,7 @@ export class ShieldTableBase extends BaseComponent {
 		} ) );
 	}
 
-	sendTableActionRequest( datatableOrSettings, reqData, fallbackErrorMessage = 'Communications error with site.' ) {
+	sendTableActionRequest( datatableOrSettings, reqData, fallbackErrorMessage = 'Communications error with site.', options = {} ) {
 		const datatable = this.resolveDatatable( datatableOrSettings );
 		if ( datatable === null || reqData === null || typeof reqData !== 'object' ) {
 			return Promise.resolve( null );
@@ -291,8 +332,8 @@ export class ShieldTableBase extends BaseComponent {
 		.then( ( resp ) => {
 			if ( resp?.success ) {
 				const responseData = this.extractResponseData( resp );
-				if ( responseData.table_reload ) {
-					this.reloadBusyTable( datatable );
+				if ( responseData.table_reload || options.reloadTableOnSuccess ) {
+					this.tableReload( datatable );
 				}
 				else {
 					this.clearTableBusy( datatable );
@@ -305,6 +346,11 @@ export class ShieldTableBase extends BaseComponent {
 				alert( this.extractResponseMessage( resp, fallbackErrorMessage ) );
 			}
 			return resp;
+		} )
+		.catch( ( error ) => {
+			this.clearTableBusy( datatable );
+			alert( fallbackErrorMessage );
+			throw error;
 		} );
 	}
 
@@ -320,18 +366,12 @@ export class ShieldTableBase extends BaseComponent {
 			data.sub_action = action;
 			data.rids = RIDs;
 
-			( new AjaxService() )
-			.send( data )
-			.then( ( resp ) => {
-				if ( resp.success ) {
-					this.tableReload();
-					shieldServices.notification().showMessage( resp.data.message, resp.success );
-				}
-				else {
-					alert( resp.data.message );
-				}
-			} )
-			.catch( ( error ) => {
+			this.sendTableActionRequest(
+				this.$table,
+				data,
+				'Communications error with site.',
+				{ reloadTableOnSuccess: true }
+			).catch( ( error ) => {
 				console.log( error );
 			} );
 		}
@@ -349,7 +389,10 @@ export class ShieldTableBase extends BaseComponent {
 		return RIDs;
 	}
 
-	tableReload() {
-		this.$table.ajax.reload( null );
+	tableReload( datatableOrSettings = null ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		if ( datatable !== null ) {
+			datatable.ajax.reload( null );
+		}
 	}
 }
