@@ -225,10 +225,53 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'vulnerable_assets', 'abandoned' ], \array_column( $state[ 'rows' ], 'key' ) );
 	}
 
+	public function test_build_surfaces_healthy_file_locker_row_without_changing_summary_count() :void {
+		$availability = new class extends ScansResultsRailTabAvailability {
+			public function build( string $tabKey ) :array {
+				return $tabKey === 'file_locker'
+					? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					]
+					: [
+						'is_available'          => false,
+						'show_in_actions_queue' => false,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					];
+			}
+		};
+
+		$builder = new class extends ActionsQueueScanStateBuilder {
+			protected function getProblemFileLockerCount() :int {
+				return 0;
+			}
+		};
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+
+		$state = $builder->build();
+
+		$this->assertSame( 0, $state[ 'tabs' ][ 'file_locker' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'file_locker' ][ 'status' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'summary' ][ 'status' ] );
+		$this->assertSame( 'good', $state[ 'rail_accent_status' ] );
+		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 0, $state[ 'rows' ][ 0 ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'rows' ][ 0 ][ 'severity' ] );
+	}
+
 	private function setPrivateProperty( object $subject, string $property, $value ) :void {
-		$reflection = new \ReflectionProperty( $subject, $property );
-		$reflection->setAccessible( true );
-		$reflection->setValue( $subject, $value );
+		$reflection = new \ReflectionObject( $subject );
+		while ( !$reflection->hasProperty( $property ) && $reflection->getParentClass() !== false ) {
+			$reflection = $reflection->getParentClass();
+		}
+
+		$propertyReflection = $reflection->getProperty( $property );
+		$propertyReflection->setAccessible( true );
+		$propertyReflection->setValue( $subject, $value );
 	}
 
 	private function newScanAssetCardsBuilderStub( array $fullyIgnoredPluginSummaries = [] ) :ActionsQueueScanAssetCardsBuilder {

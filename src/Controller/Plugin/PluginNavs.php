@@ -668,6 +668,13 @@ class PluginNavs {
 				'drill_bucket'          => 'critical',
 			],
 			[
+				'key'                   => 'file_locker',
+				'zone'                  => 'scans',
+				'component_class'       => Component\ScanResultsFileLocker::class,
+				'availability_strategy' => 'scan_file_locker_enabled',
+				'drill_bucket'          => 'critical',
+			],
+			[
 				'key'                   => 'vulnerable_assets',
 				'zone'                  => 'scans',
 				'component_class'       => Component\ScanResultsWpv::class,

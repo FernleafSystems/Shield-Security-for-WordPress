@@ -825,6 +825,48 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
 	}
 
+	public function test_build_with_selected_group_keeps_healthy_file_locker_interactive_at_zero_items() :void {
+		$builder = $this->createBuilder();
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'file_locker',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'file_locker',
+						'label'             => 'File Locker',
+						'description'       => 'Locked files are healthy.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$healthyGroups = $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] );
+
+		$this->assertSame( [ 'file_locker' ], \array_column( $healthyGroups, 'key' ) );
+		$this->assertSame( 'File Changes', $healthyGroups[ 0 ][ 'label' ] );
+		$this->assertSame( 'asset_cards', $healthyGroups[ 0 ][ 'detail_shell' ] );
+		$this->assertTrue( $healthyGroups[ 0 ][ 'is_interactive' ] );
+		$this->assertSame( 0, $healthyGroups[ 0 ][ 'item_count' ] );
+		$this->assertSame( 'actions_queue', $healthyGroups[ 0 ][ 'render_action_data' ][ 'display_context' ] ?? '' );
+		$this->assertSame( 'file_locker', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'File Changes', $payload[ 'selected_group' ][ 'label' ] );
+		$this->assertSame( 'asset_cards', $payload[ 'selected_group' ][ 'detail_shell' ] );
+		$this->assertTrue( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertSame( 0, $payload[ 'selected_group' ][ 'item_count' ] );
+		$this->assertSame( 'actions_queue', $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' );
+		$this->assertSame( 'scanresults_filelocker', $payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+	}
+
 	public function test_build_critical_bucket_uses_explicit_plugin_groups_for_fully_ignored_plugins() :void {
 		$builder = $this->createBuilder(
 			[],

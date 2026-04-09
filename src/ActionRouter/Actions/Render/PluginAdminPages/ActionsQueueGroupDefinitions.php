@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   drill_hint_single:string,
  *   drill_hint_plural:string,
  *   summary_keys:list<string>,
+ *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
  *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes',
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,mixed>
@@ -46,6 +47,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
 			'drill_hint_plural'     => 'View %s files',
+			'healthy_interaction_mode' => 'ignored_only',
 			'healthy_ignored_source' => 'wordpress',
 			'render_action_class'   => Wordpress::class,
 			'render_action_data'    => 'scan_results',
@@ -56,6 +58,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
 			'drill_hint_plural'     => 'View %s files',
+			'healthy_interaction_mode' => 'ignored_only',
 			'healthy_ignored_source' => 'plugins',
 			'render_action_class'   => Plugins::class,
 			'render_action_data'    => 'scan_results',
@@ -66,6 +69,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
 			'drill_hint_plural'     => 'View %s files',
+			'healthy_interaction_mode' => 'ignored_only',
 			'healthy_ignored_source' => 'themes',
 			'render_action_class'   => Themes::class,
 			'render_action_data'    => 'scan_results',
@@ -76,6 +80,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'linked',
 			'drill_hint_single'     => '',
 			'drill_hint_plural'     => '',
+			'healthy_interaction_mode' => 'none',
 			'healthy_ignored_source' => '',
 			'render_action_class'   => Vulnerabilities::class,
 			'render_action_data'    => [
@@ -88,6 +93,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'linked',
 			'drill_hint_single'     => '',
 			'drill_hint_plural'     => '',
+			'healthy_interaction_mode' => 'none',
 			'healthy_ignored_source' => '',
 			'render_action_class'   => Vulnerabilities::class,
 			'render_action_data'    => [
@@ -101,6 +107,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
 			'drill_hint_plural'     => 'View %s files',
+			'healthy_interaction_mode' => 'none',
 			'healthy_ignored_source' => '',
 			'render_action_class'   => Malware::class,
 			'render_action_data'    => 'scan_results',
@@ -112,6 +119,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
 			'drill_hint_plural'     => 'View %s files',
+			'healthy_interaction_mode' => 'default_detail',
 			'healthy_ignored_source' => '',
 			'render_action_class'   => FileLocker::class,
 			'render_action_data'    => 'scan_results',
@@ -124,6 +132,7 @@ class ActionsQueueGroupDefinitions {
 			'card_type'             => 'category',
 			'drill_hint_single'     => '',
 			'drill_hint_plural'     => '',
+			'healthy_interaction_mode' => 'none',
 			'healthy_ignored_source' => '',
 			'render_action_class'   => Maintenance::class,
 			'render_action_data'    => 'none',
@@ -213,6 +222,7 @@ class ActionsQueueGroupDefinitions {
 				'drill_hint_single'   => __( $metadata[ 'drill_hint_single' ], 'wp-simple-firewall' ),
 				'drill_hint_plural'   => __( $metadata[ 'drill_hint_plural' ], 'wp-simple-firewall' ),
 				'summary_keys'        => $scanDefinition[ 'summary_keys' ],
+				'healthy_interaction_mode' => $metadata[ 'healthy_interaction_mode' ],
 				'healthy_ignored_source' => $metadata[ 'healthy_ignored_source' ],
 				'render_action_class' => $metadata[ 'render_action_class' ],
 				'render_action_data'  => $this->renderActionDataForMode( $metadata[ 'render_action_data' ] ),
@@ -230,6 +240,7 @@ class ActionsQueueGroupDefinitions {
 			'drill_hint_single'   => '',
 			'drill_hint_plural'   => '',
 			'summary_keys'        => [],
+			'healthy_interaction_mode' => 'none',
 			'healthy_ignored_source' => '',
 			'render_action_class' => $maintenance[ 'render_action_class' ],
 			'render_action_data'  => [],
@@ -247,6 +258,7 @@ class ActionsQueueGroupDefinitions {
 				'drill_hint_single'   => '',
 				'drill_hint_plural'   => '',
 				'summary_keys'        => [],
+				'healthy_interaction_mode' => 'none',
 				'healthy_ignored_source' => '',
 				'render_action_class' => $maintenance[ 'render_action_class' ],
 				'render_action_data'  => [],
@@ -309,6 +321,10 @@ class ActionsQueueGroupDefinitions {
 
 	public function healthyIgnoredSourceForGroupKey( string $groupKey ) :string {
 		return (string)( $this->definitionForGroupKey( $groupKey )[ 'healthy_ignored_source' ] ?? '' );
+	}
+
+	public function healthyInteractionModeForGroupKey( string $groupKey ) :string {
+		return (string)( $this->definitionForGroupKey( $groupKey )[ 'healthy_interaction_mode' ] ?? 'none' );
 	}
 
 	/**

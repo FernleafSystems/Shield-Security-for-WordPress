@@ -30,6 +30,7 @@ class ActionsQueueLandingAssessmentBuilder {
 	use StandardStatusMapping;
 
 	private ?ActionsQueueItemIcons $itemIcons = null;
+	private ?ScansResultsRailTabAvailability $scanRailTabAvailability = null;
 
 	/**
 	 * @return AssessmentRowsByZone
@@ -136,6 +137,8 @@ class ActionsQueueLandingAssessmentBuilder {
 				return $scansCon->AFS()->isScanEnabledThemes();
 			case 'scan_malware_enabled':
 				return $scansCon->AFS()->isEnabledMalwareScanPHP();
+			case 'scan_file_locker_enabled':
+				return $this->scanRailTabAvailability()->build( 'file_locker' )[ 'is_available' ];
 			case 'scan_wpv_enabled':
 				return $scansCon->WPV()->isEnabled();
 			case 'scan_apc_enabled':
@@ -224,5 +227,13 @@ class ActionsQueueLandingAssessmentBuilder {
 		}
 
 		return $this->itemIcons;
+	}
+
+	private function scanRailTabAvailability() :ScansResultsRailTabAvailability {
+		if ( $this->scanRailTabAvailability === null ) {
+			$this->scanRailTabAvailability = new ScansResultsRailTabAvailability();
+		}
+
+		return $this->scanRailTabAvailability;
 	}
 }

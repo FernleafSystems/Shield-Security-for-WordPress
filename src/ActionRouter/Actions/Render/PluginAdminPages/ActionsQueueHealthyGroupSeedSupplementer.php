@@ -98,9 +98,7 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 				'definition_key'              => $definitionKey,
 				'heading_label'               => $definition[ 'label' ],
 				'label'                       => $definition[ 'label' ],
-				'item_count'                  => $interaction[ 'item_count' ] > 0
-					? $interaction[ 'item_count' ]
-					: \count( $rows ),
+				'item_count'                  => $interaction[ 'item_count_override' ] ?? \count( $rows ),
 				'status'                      => 'good',
 				'narrative'                   => $this->combineHealthyAssessmentNarratives( $rows ),
 				'detail_shell'                => $definition[ 'detail_shell' ],
@@ -133,19 +131,36 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 	/**
 	 * @return array{
 	 *   is_interactive:bool,
-	 *   item_count:int,
+	 *   item_count_override:int|null,
 	 *   render_action_data:array<string,mixed>
 	 * }
 	 */
 	private function buildHealthyScanInteraction( string $definitionKey ) :array {
+		$interactionMode = $this->groupDefinitions->healthyInteractionModeForGroupKey( $definitionKey );
+		if ( $interactionMode === 'default_detail' ) {
+			return [
+				'is_interactive'      => true,
+				'item_count_override' => 0,
+				'render_action_data'  => $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ],
+			];
+		}
+
+		if ( $interactionMode !== 'ignored_only' ) {
+			return [
+				'is_interactive'      => false,
+				'item_count_override' => null,
+				'render_action_data'  => [],
+			];
+		}
+
 		$ignoredCount = $this->scanSource->ignoredCountForSource(
 			$this->groupDefinitions->healthyIgnoredSourceForGroupKey( $definitionKey )
 		);
 
 		return [
-			'is_interactive'    => $ignoredCount > 0,
-			'item_count'        => $ignoredCount,
-			'render_action_data' => $this->groupDefinitions->ignoredRenderActionDataForGroupKey( $definitionKey, $ignoredCount ),
+			'is_interactive'      => $ignoredCount > 0,
+			'item_count_override' => $ignoredCount > 0 ? $ignoredCount : null,
+			'render_action_data'  => $this->groupDefinitions->ignoredRenderActionDataForGroupKey( $definitionKey, $ignoredCount ),
 		];
 	}
 

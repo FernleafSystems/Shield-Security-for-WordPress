@@ -135,6 +135,44 @@ class BuildAttentionItemsTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $query[ 'summary' ][ 'severity' ] );
 		$this->assertSame( 7, $query[ 'summary' ][ 'total' ] );
 	}
+
+	public function test_build_excludes_zero_count_scan_rows_from_attention_payload() :void {
+		$query = ( new BuildAttentionItemsScanStateTestDouble(
+			[
+				'rows' => [
+					[
+						'key'      => 'plugin_files',
+						'zone'     => 'scans',
+						'label'    => 'Plugin Files',
+						'text'     => 'Plugin files need review.',
+						'count'    => 2,
+						'severity' => 'warning',
+						'href'     => '/plugins',
+						'action'   => 'Open',
+						'target'   => '',
+					],
+					[
+						'key'      => 'file_locker',
+						'zone'     => 'scans',
+						'label'    => 'File Locker',
+						'text'     => 'Locked files are healthy.',
+						'count'    => 0,
+						'severity' => 'good',
+						'href'     => '/locker',
+						'action'   => 'Review',
+						'target'   => '',
+					],
+				],
+				'tabs'               => [],
+				'rail_accent_status' => 'warning',
+			]
+		) )->build();
+
+		$this->assertSame( [ 'plugin_files' ], \array_column( $query[ 'items' ], 'key' ) );
+		$this->assertSame( 2, $query[ 'summary' ][ 'total' ] );
+		$this->assertFalse( $query[ 'summary' ][ 'is_all_clear' ] );
+		$this->assertSame( 2, $query[ 'groups' ][ 'scans' ][ 'total' ] );
+	}
 }
 
 class BuildAttentionItemsTestDouble extends BuildAttentionItems {
@@ -153,5 +191,22 @@ class BuildAttentionItemsTestDouble extends BuildAttentionItems {
 
 	protected function buildMaintenanceItems() :array {
 		return $this->maintenanceItems;
+	}
+}
+
+class BuildAttentionItemsScanStateTestDouble extends BuildAttentionItems {
+
+	private array $scanState;
+
+	public function __construct( array $scanState ) {
+		$this->scanState = $scanState;
+	}
+
+	protected function buildScanState() :array {
+		return $this->scanState;
+	}
+
+	protected function buildMaintenanceItems() :array {
+		return [];
 	}
 }

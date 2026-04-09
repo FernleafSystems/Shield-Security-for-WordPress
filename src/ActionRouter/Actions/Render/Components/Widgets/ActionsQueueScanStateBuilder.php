@@ -21,7 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   disabled_message:string,
  *   disabled_status:string
  * }
- * @phpstan-type ActionsQueueScanIssueRow array{
+ * @phpstan-type ActionsQueueScanRow array{
  *   key:string,
  *   zone:'scans',
  *   label:string,
@@ -37,7 +37,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string
  * }
  * @phpstan-type ActionsQueueScanState array{
- *   rows:list<ActionsQueueScanIssueRow>,
+ *   rows:list<ActionsQueueScanRow>,
  *   tabs:array<string,ActionsQueueScanTabMetrics>,
  *   rail_accent_status:string
  * }
@@ -54,7 +54,7 @@ class ActionsQueueScanStateBuilder {
 	 * @return ActionsQueueScanState
 	 */
 	public function build() :array {
-		/** @var list<ActionsQueueScanIssueRow> $rows */
+		/** @var list<ActionsQueueScanRow> $rows */
 		$rows = [];
 		/** @var array<string,ActionsQueueScanTabMetrics> $tabs */
 		$tabs = [];
@@ -83,7 +83,7 @@ class ActionsQueueScanStateBuilder {
 	}
 
 	/**
-	 * @param list<ActionsQueueScanIssueRow> $rows
+	 * @param list<ActionsQueueScanRow> $rows
 	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
 	 * @param list<string> $accentStatuses
 	 */
@@ -101,7 +101,7 @@ class ActionsQueueScanStateBuilder {
 		];
 		$accentStatuses[] = $status;
 
-		$row = $this->buildIssueRow(
+		$row = $this->buildScanRow(
 			'wp_files',
 			$this->scanSectionLabel( 'wp_files', __( 'WordPress Files', 'wp-simple-firewall' ) ),
 			$count,
@@ -118,7 +118,7 @@ class ActionsQueueScanStateBuilder {
 	}
 
 	/**
-	 * @param list<ActionsQueueScanIssueRow> $rows
+	 * @param list<ActionsQueueScanRow> $rows
 	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
 	 * @param list<string> $accentStatuses
 	 */
@@ -149,7 +149,7 @@ class ActionsQueueScanStateBuilder {
 		];
 		$accentStatuses[] = $tabs[ $tabKey ][ 'status' ];
 
-		$row = $this->buildIssueRow(
+		$row = $this->buildScanRow(
 			$tabKey === 'plugins' ? 'plugin_files' : 'theme_files',
 			$this->scanSectionLabel(
 				$tabKey === 'plugins' ? 'plugin_files' : 'theme_files',
@@ -175,7 +175,7 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		if ( $tabKey === 'plugins' ) {
-			$ignoredRow = $this->buildIssueRow(
+			$ignoredRow = $this->buildScanRow(
 				'plugin_files_ignored',
 				$this->scanSectionLabel( 'plugin_files_ignored', __( 'Plugin Files', 'wp-simple-firewall' ) ),
 				$fullyIgnoredPluginCount,
@@ -198,7 +198,7 @@ class ActionsQueueScanStateBuilder {
 	}
 
 	/**
-	 * @param list<ActionsQueueScanIssueRow> $rows
+	 * @param list<ActionsQueueScanRow> $rows
 	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
 	 * @param list<string> $accentStatuses
 	 */
@@ -241,7 +241,7 @@ class ActionsQueueScanStateBuilder {
 			}
 		}
 
-		$vulnerableRow = $this->buildIssueRow(
+		$vulnerableRow = $this->buildScanRow(
 			'vulnerable_assets',
 			__( 'Vulnerable Assets', 'wp-simple-firewall' ),
 			$vulnerableAssetsCount,
@@ -256,7 +256,7 @@ class ActionsQueueScanStateBuilder {
 			$rows[] = $vulnerableRow;
 		}
 
-		$abandonedRow = $this->buildIssueRow(
+		$abandonedRow = $this->buildScanRow(
 			'abandoned',
 			__( 'Abandoned Assets', 'wp-simple-firewall' ),
 			$abandonedAssetsCount,
@@ -277,7 +277,7 @@ class ActionsQueueScanStateBuilder {
 	}
 
 	/**
-	 * @param list<ActionsQueueScanIssueRow> $rows
+	 * @param list<ActionsQueueScanRow> $rows
 	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
 	 * @param list<string> $accentStatuses
 	 */
@@ -300,7 +300,7 @@ class ActionsQueueScanStateBuilder {
 		];
 		$accentStatuses[] = $status;
 
-		$row = $this->buildIssueRow(
+		$row = $this->buildScanRow(
 			'malware',
 			$this->scanSectionLabel( 'malware', __( 'Malware', 'wp-simple-firewall' ) ),
 			$count,
@@ -317,7 +317,7 @@ class ActionsQueueScanStateBuilder {
 	}
 
 	/**
-	 * @param list<ActionsQueueScanIssueRow> $rows
+	 * @param list<ActionsQueueScanRow> $rows
 	 * @param array<string,ActionsQueueScanTabMetrics> $tabs
 	 * @param list<string> $accentStatuses
 	 */
@@ -332,7 +332,7 @@ class ActionsQueueScanStateBuilder {
 			return;
 		}
 
-		$count = \count( ( new LoadFileLocks() )->withProblems() );
+		$count = $this->getProblemFileLockerCount();
 		$status = $count > 0 ? 'warning' : 'good';
 		$tabs[ 'file_locker' ] = [
 			'count'  => $count,
@@ -340,16 +340,19 @@ class ActionsQueueScanStateBuilder {
 		];
 		$accentStatuses[] = $status;
 
-		$row = $this->buildIssueRow(
+		$row = $this->buildScanRow(
 			'file_locker',
 			$this->scanSectionLabel( 'file_locker', __( 'File Locker', 'wp-simple-firewall' ) ),
 			$count,
-			'warning',
-			\sprintf(
-				_n( '%s locked file needs review.', '%s locked files need review.', $count, 'wp-simple-firewall' ),
-				$count
-			),
-			__( 'Review', 'wp-simple-firewall' )
+			$status,
+			$count > 0
+				? \sprintf(
+					_n( '%s locked file needs review.', '%s locked files need review.', $count, 'wp-simple-firewall' ),
+					$count
+				)
+				: __( "Locked files don't appear to have any changes that need review.", 'wp-simple-firewall' ),
+			__( 'Review', 'wp-simple-firewall' ),
+			true
 		);
 		if ( $row !== null ) {
 			$rows[] = $row;
@@ -367,17 +370,18 @@ class ActionsQueueScanStateBuilder {
 	}
 
 	/**
-	 * @return ActionsQueueScanIssueRow|null
+	 * @return ActionsQueueScanRow|null
 	 */
-	private function buildIssueRow(
+	private function buildScanRow(
 		string $key,
 		string $label,
 		int $count,
 		string $severity,
 		string $text,
-		string $action
+		string $action,
+		bool $includeWhenZero = false
 	) :?array {
-		if ( $count <= 0 ) {
+		if ( $count < 0 || ( $count === 0 && !$includeWhenZero ) ) {
 			return null;
 		}
 
@@ -392,6 +396,10 @@ class ActionsQueueScanStateBuilder {
 			'action'   => $action,
 			'target'   => '',
 		];
+	}
+
+	protected function getProblemFileLockerCount() :int {
+		return \count( ( new LoadFileLocks() )->withProblems() );
 	}
 
 	/**

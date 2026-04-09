@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueScanStateBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
@@ -10,6 +11,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\L
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-import-type ActionsQueueScanRow from ActionsQueueScanStateBuilder
+ * @phpstan-import-type ActionsQueueScanState from ActionsQueueScanStateBuilder
+ */
 class PageOperatorModeLanding extends BaseRender {
 
 	public const SLUG = 'plugin_admin_page_operator_mode_landing';
@@ -22,6 +27,8 @@ class PageOperatorModeLanding extends BaseRender {
 	];
 
 	private ?array $attentionQueryCache = null;
+	/** @var ActionsQueueScanState|null */
+	private ?array $scanStateCache = null;
 
 	protected function getRenderData() :array {
 		$attentionQuery = $this->getAttentionQuery();
@@ -36,6 +43,7 @@ class PageOperatorModeLanding extends BaseRender {
 		$sessionSummary = $this->getInvestigateSessionSummary();
 		$reportsSummary = $this->getReportsSummary();
 		$actionsLane = $this->buildActionsLane( $queueSummary, $queueZoneGroups );
+		$queueScanRows = $this->getQueueScanRows();
 		$secondaryLanes = [
 			$this->buildInvestigateLane( $sessionSummary ),
 			$this->buildConfigureLane( $configPercentage, $configTraffic ),
@@ -57,7 +65,7 @@ class PageOperatorModeLanding extends BaseRender {
 				],
 				'actions_lane'       => $actionsLane,
 				'secondary_lanes'    => $secondaryLanes,
-				'actions_queue_rows' => $this->buildActionsQueueRows( $queueZoneGroups ),
+				'actions_queue_rows' => $this->buildActionsQueueRows( $queueScanRows, $queueZoneGroups ),
 				'live_monitor'       => $this->buildLiveMonitorVars(),
 			],
 		];
@@ -195,6 +203,7 @@ class PageOperatorModeLanding extends BaseRender {
 	}
 
 	/**
+	 * @param list<ActionsQueueScanRow> $scanRows
 	 * @param list<array{
 	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
@@ -209,11 +218,10 @@ class PageOperatorModeLanding extends BaseRender {
 	 *   count:int
 	 * }>
 	 */
-	private function buildActionsQueueRows( array $zoneGroups ) :array {
-		$scanGroup = $this->findQueueZoneGroupByZone( $zoneGroups, 'scans' );
+	private function buildActionsQueueRows( array $scanRows, array $zoneGroups ) :array {
 		$rows = \array_values( \array_map(
-			fn( array $item ) :array => $this->buildScanQueueRowFromQueueItem( $item ),
-			$scanGroup[ 'items' ]
+			fn( array $item ) :array => $this->buildScanQueueRowFromScanStateRow( $item ),
+			$scanRows
 		) );
 		$rows[] = $this->buildMaintenanceQueueRow( $zoneGroups );
 
@@ -221,7 +229,7 @@ class PageOperatorModeLanding extends BaseRender {
 	}
 
 	/**
-	 * @param array<string,mixed> $item
+	 * @param ActionsQueueScanRow $item
 	 * @return array{
 	 *   key:string,
 	 *   label:string,
@@ -230,7 +238,7 @@ class PageOperatorModeLanding extends BaseRender {
 	 *   count:int
 	 * }
 	 */
-	private function buildScanQueueRowFromQueueItem( array $item ) :array {
+	private function buildScanQueueRowFromScanStateRow( array $item ) :array {
 		$key = (string)$item[ 'key' ];
 
 		return [
@@ -544,5 +552,23 @@ class PageOperatorModeLanding extends BaseRender {
 
 	protected function buildAttentionQuery() :array {
 		return self::con()->comps->site_query->attention();
+	}
+
+	/**
+	 * @return ActionsQueueScanState
+	 */
+	protected function buildScanState() :array {
+		return ( new ActionsQueueScanStateBuilder() )->build();
+	}
+
+	/**
+	 * @return list<ActionsQueueScanRow>
+	 */
+	private function getQueueScanRows() :array {
+		if ( $this->scanStateCache === null ) {
+			$this->scanStateCache = $this->buildScanState();
+		}
+
+		return $this->scanStateCache[ 'rows' ];
 	}
 }

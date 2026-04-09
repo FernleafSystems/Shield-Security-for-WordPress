@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-import-type ActionsQueueScanIssueRow from ActionsQueueScanStateBuilder
+ * @phpstan-import-type ActionsQueueScanRow from ActionsQueueScanStateBuilder
  * @phpstan-import-type ActionsQueueScanState from ActionsQueueScanStateBuilder
  * @phpstan-import-type MaintenanceIssueState from MaintenanceIssueStateProvider
  * @phpstan-type AttentionItem array{
@@ -96,7 +96,7 @@ class BuildAttentionItems {
 	 */
 	protected function buildScanItems() :array {
 		/** @var ActionsQueueScanState $scanState */
-		$scanState = ( new ActionsQueueScanStateBuilder() )->build();
+		$scanState = $this->buildScanState();
 
 		return $this->sortItems( \array_map(
 			static function ( array $item ) :array {
@@ -115,8 +115,18 @@ class BuildAttentionItems {
 					'supports_sub_items' => false,
 				];
 			},
-			$scanState[ 'rows' ]
+			\array_values( \array_filter(
+				$scanState[ 'rows' ],
+				static fn( array $item ) :bool => (int)( $item[ 'count' ] ?? 0 ) > 0
+			) )
 		) );
+	}
+
+	/**
+	 * @return ActionsQueueScanState
+	 */
+	protected function buildScanState() :array {
+		return ( new ActionsQueueScanStateBuilder() )->build();
 	}
 
 	/**

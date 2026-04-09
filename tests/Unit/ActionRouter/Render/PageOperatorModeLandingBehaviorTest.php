@@ -393,19 +393,20 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	public function test_actions_queue_rows_follow_queue_scan_item_order_and_append_maintenance() :void {
 		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
 			[
+				[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 4 ],
+				[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'critical', 'count' => 3 ],
+				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'severity' => 'critical', 'count' => 2 ],
+				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 5 ],
+				[ 'key' => 'theme_files', 'label' => 'Theme Files', 'severity' => 'warning', 'count' => 1 ],
+				[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'critical', 'count' => 6 ],
+				[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 2 ],
+			],
+			[
 				[
 					'zone'         => 'scans',
 					'severity'     => 'critical',
 					'total'        => 23,
-					'items'        => [
-						[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 4 ],
-						[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'critical', 'count' => 3 ],
-						[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'severity' => 'critical', 'count' => 2 ],
-						[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 5 ],
-						[ 'key' => 'theme_files', 'label' => 'Theme Files', 'severity' => 'warning', 'count' => 1 ],
-						[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'critical', 'count' => 6 ],
-						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 2 ],
-					],
+					'items'        => [],
 				],
 				[
 					'zone'         => 'maintenance',
@@ -452,14 +453,15 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	public function test_actions_queue_rows_only_include_queue_scan_items_and_maintenance() :void {
 		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
 			[
+				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 2 ],
+				[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
+			],
+			[
 				[
 					'zone'         => 'scans',
 					'severity'     => 'warning',
 					'total'        => 2,
-					'items'        => [
-						[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 2 ],
-						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
-					],
+					'items'        => [],
 				],
 			],
 		] );
@@ -476,6 +478,69 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			],
 			\array_combine( \array_column( $rows, 'key' ), \array_column( $rows, 'severity' ) )
 		);
+	}
+
+	public function test_render_data_uses_scan_state_rows_without_replacing_attention_summary_state() :void {
+		$page = new PageOperatorModeLandingTestDouble(
+			[
+				'generated_at' => 1700000000,
+				'summary'      => [
+					'total'        => 1,
+					'severity'     => 'warning',
+					'is_all_clear' => false,
+				],
+				'items'        => [],
+				'groups'       => [
+					'scans'       => [
+						'zone'     => 'scans',
+						'severity' => 'good',
+						'total'    => 0,
+						'items'    => [],
+					],
+					'maintenance' => [
+						'zone'     => 'maintenance',
+						'severity' => 'warning',
+						'total'    => 1,
+						'items'    => [],
+					],
+				],
+			],
+			[],
+			200000,
+			[
+				'rows' => [
+					[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'critical', 'count' => 99 ],
+					[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
+				],
+				'tabs'               => [],
+				'rail_accent_status' => 'critical',
+			]
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$actionsQueueRows = $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [];
+
+		$this->assertSame(
+			[ 'plugin_files', 'file_locker', 'maintenance' ],
+			\array_column( $actionsQueueRows, 'key' )
+		);
+		$this->assertSame(
+			[
+				'plugin_files' => 99,
+				'file_locker'  => 0,
+				'maintenance'  => 1,
+			],
+			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'count' ) )
+		);
+		$this->assertSame(
+			[
+				'plugin_files' => 'critical',
+				'file_locker'  => 'good',
+				'maintenance'  => 'warning',
+			],
+			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'severity' ) )
+		);
+		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' );
 	}
 
 	public function test_render_data_exposes_actions_queue_title_and_secondary_lanes() :void {
@@ -561,14 +626,18 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
 	private int $currentTimestamp;
 
+	private ?array $scanState;
+
 	public function __construct(
 		array $attentionQuery,
 		array $sessions = [],
-		int $currentTimestamp = 200000
+		int $currentTimestamp = 200000,
+		?array $scanState = null
 	) {
 		$this->attentionQuery = $attentionQuery;
 		$this->sessions = $sessions;
 		$this->currentTimestamp = $currentTimestamp;
+		$this->scanState = $scanState;
 	}
 
 	protected function getZonePosture() :array {
@@ -597,6 +666,20 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
 	protected function buildAttentionQuery() :array {
 		return $this->attentionQuery;
+	}
+
+	protected function buildScanState() :array {
+		if ( $this->scanState !== null ) {
+			return $this->scanState;
+		}
+
+		return [
+			'rows'               => \is_array( $this->attentionQuery[ 'groups' ][ 'scans' ][ 'items' ] ?? null )
+				? $this->attentionQuery[ 'groups' ][ 'scans' ][ 'items' ]
+				: [],
+			'tabs'               => [],
+			'rail_accent_status' => 'good',
+		];
 	}
 }
 

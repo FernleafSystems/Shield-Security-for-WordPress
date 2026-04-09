@@ -1143,6 +1143,48 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_healthy_file_locker_is_visible_on_landing_and_in_critical_healthy_stack() :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', [ 'wpconfig' ] )
+			 ->store();
+
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+		self::con()->comps->file_locker->clearLocks();
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		$queueRows = \is_array( $vars[ 'actions_queue_rows' ] ?? null ) ? $vars[ 'actions_queue_rows' ] : [];
+		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
+		$fileLockerRows = \array_values( \array_filter(
+			$queueRows,
+			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
+		) );
+
+		$this->assertCount( 1, $fileLockerRows );
+		$this->assertSame( 'good', (string)( $fileLockerRows[ 0 ][ 'severity' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $fileLockerRows[ 0 ][ 'count' ] ?? -1 ) );
+
+		$fileLockerAssessments = \array_values( \array_filter(
+			\is_array( $scans[ 'assessment_rows' ] ?? null ) ? $scans[ 'assessment_rows' ] : [],
+			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
+		) );
+
+		$this->assertCount( 1, $fileLockerAssessments );
+		$this->assertSame( 'good', (string)( $fileLockerAssessments[ 0 ][ 'status' ] ?? '' ) );
+
+		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'file_locker' );
+		$this->assertSame( 'file_locker', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'asset_cards', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertTrue( (bool)( $groupsPayload[ 'selected_group' ][ 'is_interactive' ] ?? false ) );
+		$this->assertSame( 0, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
+		$this->assertSame( 'actions_queue', (string)( $groupsPayload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
+		$this->assertSame( FileLockerPane::SLUG, (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+	}
+
 	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {
 		$this->requireController()->opts->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] );
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
@@ -1445,6 +1487,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $tabs[ 'file_locker' ][ 'status' ] ?? '' ) );
 		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'maintenance' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 6 + $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
