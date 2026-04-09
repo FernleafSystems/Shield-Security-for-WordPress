@@ -21,6 +21,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ConfigureSearchResults,
 	ConfigureZoneDiagnosisBuilder,
 	ConfigureDrillDownDiagnosis,
 	OperatorChromeContract,
@@ -114,10 +115,28 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			null,
 			new class( $this->secAdminController ) {
 				public object $comps;
+				public object $cfg;
 
 				public function __construct( object $secAdminController ) {
 					$this->comps = (object)[
 						'sec_admin' => $secAdminController,
+						'zones'     => new class {
+							public function enumZoneComponents() :array {
+								return [
+									'2fa'          => true,
+									'traffic_logging' => true,
+									'waf_rules'    => true,
+								];
+							}
+						},
+					];
+					$this->cfg = (object)[
+						'configuration' => (object)[
+							'options' => [
+								'login_action' => [ 'section' => 'section_twofactor_auth' ],
+								'request_log_enabled' => [ 'section' => 'section_log_requests' ],
+							],
+						],
 					];
 				}
 			}
@@ -135,6 +154,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$diagnosisAction = \json_decode( (string)( $vars[ 'configure_ajax' ][ 'diagnosis_render_action_json' ] ?? '' ), true );
+		$searchAction = \json_decode( (string)( $vars[ 'configure_ajax' ][ 'search_render_action_json' ] ?? '' ), true );
 
 		$this->assertArrayNotHasKey( 'zone_tiles', $vars );
 		$this->assertArrayNotHasKey( 'rail', $vars );
@@ -157,12 +178,17 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'configure_posture_strip', $vars );
 		$this->assertSame(
 			ConfigureDrillDownDiagnosis::SLUG,
-			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ 'render_slug' ] ?? ''
+			$diagnosisAction[ 'render_slug' ] ?? ''
 		);
 		$this->assertSame(
 			PluginNavs::NAV_ZONES,
-			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ Constants::NAV_ID ] ?? ''
+			$diagnosisAction[ Constants::NAV_ID ] ?? ''
 		);
+		$this->assertSame(
+			ConfigureSearchResults::SLUG,
+			$searchAction[ 'render_slug' ] ?? ''
+		);
+		$this->assertSame( '', $vars[ 'configure_focus_request_json' ] ?? 'missing' );
 	}
 
 	public function test_valid_zone_deep_link_preloads_diagnosis_layer() :void {
@@ -211,6 +237,44 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
+	}
+
+	public function test_valid_focus_deep_link_is_normalized_into_landing_payload() :void {
+		ServicesState::installItems( [
+			'service_request'   => new UnitTestRequest( [
+				'zone'        => 'login',
+				'row_key'     => '2fa',
+				'config_item' => 'login_action',
+			] ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
+		] );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$focus = \json_decode( (string)( $vars[ 'configure_focus_request_json' ] ?? '' ), true );
+
+		$this->assertSame( [
+			'row_key'     => '2fa',
+			'config_item' => 'login_action',
+		], $focus );
+	}
+
+	public function test_invalid_row_key_is_rejected_from_focus_payload() :void {
+		ServicesState::installItems( [
+			'service_request'   => new UnitTestRequest( [
+				'zone'        => 'login',
+				'row_key'     => 'missing_row',
+				'config_item' => 'login_action',
+			] ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
+		] );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+
+		$this->assertSame( '', $vars[ 'configure_focus_request_json' ] ?? 'missing' );
 	}
 
 	public function test_zone_sections_split_critical_warning_general_and_healthy() :void {
@@ -340,6 +404,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'1 critical component',
 				[
 					$this->buildZoneComponentFixture(
+						'pin_protection',
 						'PIN Protection',
 						'critical',
 						'Issue',
@@ -356,6 +421,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'All components healthy',
 				[
 					$this->buildZoneComponentFixture(
+						'waf_rules',
 						'WAF Rules',
 						'good',
 						'Active',
@@ -371,6 +437,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'1 component needs work',
 				[
 					$this->buildZoneComponentFixture(
+						'2fa',
 						'2FA',
 						'warning',
 						'Needs Work',
@@ -387,6 +454,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'General settings',
 				[
 					$this->buildZoneComponentFixture(
+						'traffic_logging',
 						'Traffic Logging',
 						'neutral',
 						'General',
@@ -431,6 +499,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function buildZoneComponentFixture(
+		string $key,
 		string $title,
 		string $status,
 		string $statusLabel,
@@ -438,6 +507,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		array $explanations = []
 	) :array {
 		return [
+			'key'               => $key,
 			'title'             => $title,
 			'status'            => $status,
 			'status_label'      => $statusLabel,
@@ -450,12 +520,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'icon'    => 'bi bi-gear-fill',
 				'tooltip' => '',
 				'classes' => [ 'zone_component_action' ],
-				'data'    => [
-					'zone_component_action' => 'offcanvas_zone_component_config',
-					'zone_component_slug'   => \strtolower( \str_replace( ' ', '_', $title ) ),
-					'form_context'          => 'offcanvas',
+					'data'    => [
+						'zone_component_action' => 'offcanvas_zone_component_config',
+						'zone_component_slug'   => $key,
+						'form_context'          => 'offcanvas',
+					],
 				],
-			],
 		];
 	}
 

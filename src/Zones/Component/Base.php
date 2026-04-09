@@ -77,6 +77,17 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		) );
 	}
 
+	public function configureRowKey() :string {
+		foreach ( $this->configZoneComponentSlugs() as $slug ) {
+			$key = sanitize_key( \is_string( $slug ) ? \trim( $slug ) : '' );
+			if ( $key !== '' ) {
+				return $key;
+			}
+		}
+
+		throw new \LogicException( 'Configure component rows require a stable non-empty component scope slug.' );
+	}
+
 	public function getLinks() :array {
 		return [];
 	}

@@ -8,6 +8,78 @@
 
 @import '../mode-palette';
 
+.configure-landing__search {
+	margin-bottom: 1rem;
+}
+
+.configure-landing__search-label {
+	display: block;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	margin-bottom: 0.375rem;
+	text-transform: uppercase;
+}
+
+.configure-landing__search-input-wrap {
+	position: relative;
+}
+
+.configure-landing__search-input {
+	background: #fff;
+	border-radius: $card-border-radius;
+}
+
+.configure-landing__search-hint {
+	color: #5f6974;
+	font-size: 0.8rem;
+	margin: 0.45rem 0 0;
+}
+
+.configure-landing__search-results {
+	margin-top: 0.75rem;
+}
+
+.configure-search-results {
+	background: #fff;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	box-shadow: $card-box-shadow;
+	overflow: hidden;
+}
+
+.configure-search-results__item {
+	display: grid;
+	gap: 0.2rem;
+}
+
+.configure-search-results__type {
+	display: inline-flex;
+	font-size: 0.68rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.configure-search-results__type--option {
+	color: $mode-configure;
+}
+
+.configure-search-results__type--zone {
+	color: $status-color-info;
+}
+
+.configure-search-results__label {
+	color: #1d2327;
+	font-weight: 600;
+}
+
+.configure-search-results__summary,
+.configure-search-results__empty {
+	color: #5f6974;
+	font-size: 0.8rem;
+}
+
 .configure-zones {
 	display: grid;
 	gap: 1.2rem;

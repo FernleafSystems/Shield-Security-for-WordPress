@@ -1,3 +1,4 @@
+import { Collapse } from 'bootstrap';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
@@ -13,6 +14,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	run() {
 		this.ajaxBase = this._base_data.ajax.offcanvas_zone_component_config;
 		this.batchRequestData = this._base_data.ajax.batch_requests || {};
+		this.pendingRequestedFocus = null;
 
 		shieldEventsHandler_Main.addHandler(
 			'shown.bs.collapse',
@@ -37,6 +39,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	initializeCurrentRoot() {
 		this.rootEl = this.getConfigureRoot();
 		if ( this.rootEl !== null ) {
+			this.maybeApplyRequestedFocus();
 			this.preloadExpansionForms();
 		}
 	}
@@ -49,6 +52,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		if ( this.expansionHasLoadedForm( expansion ) ) {
 			this.setSaveButtonDisabled( expansion, false );
 			UiContentActivator.activateCurrentSubtree( expansion );
+			this.maybeFocusRequestedConfigItem( expansion );
 			return;
 		}
 
@@ -73,6 +77,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 		const form = tempDiv.querySelector( 'form.options_form_for' );
 		if ( form === null ) {
+			this.clearPendingRequestedFocusForExpansion( expansion );
 			this.renderLoadFailure( placeholder, expansion, 'No settings are available for this component.' );
 			return;
 		}
@@ -89,6 +94,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		this.setSaveButtonDisabled( expansion, false );
 		if ( expansion?.classList.contains( 'show' ) ) {
 			UiContentActivator.activateCurrentSubtree( expansion );
+			this.maybeFocusRequestedConfigItem( expansion );
 		}
 	}
 
@@ -130,12 +136,81 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		} );
 	}
 
+	maybeApplyRequestedFocus() {
+		const rootEl = this.rootEl;
+		if ( rootEl === null || rootEl.dataset.configureFocusHandled === '1' ) {
+			return;
+		}
+
+		rootEl.dataset.configureFocusHandled = '1';
+		const focus = this.parseFocusRequest( rootEl.dataset.configureFocusRequest || '' );
+		if ( ObjectOps.IsEmpty( focus ) ) {
+			return;
+		}
+
+		this.pendingRequestedFocus = focus;
+
+		const expansion = this.getRequestedFocusExpansion( rootEl, focus );
+		if ( !( expansion instanceof Element ) ) {
+			this.clearPendingRequestedFocus();
+			return;
+		}
+
+		const collapse = Collapse.getOrCreateInstance( expansion, { toggle: false } );
+		collapse.show();
+		if ( expansion.classList.contains( 'show' ) ) {
+			this.handleExpansionOpened( expansion );
+		}
+	}
+
 	getPreloadablePlaceholders( root ) {
 		return [ ...root.querySelectorAll( '[data-configure-expand-ajax="1"]' ) ].filter( ( placeholder ) => {
 			return !this.isPlaceholderLoading( placeholder )
 				&& !this.expansionHasLoadedForm( this.getExpansionFromPlaceholder( placeholder ) )
 				&& !ObjectOps.IsEmpty( this.buildRequestData( placeholder ) );
 		} );
+	}
+
+	parseFocusRequest( json = '' ) {
+		if ( typeof json !== 'string' || json.trim().length < 2 ) {
+			return {};
+		}
+
+		try {
+			const parsed = JSON.parse( json );
+			const rowKey = typeof parsed?.row_key === 'string' ? parsed.row_key : '';
+			if ( rowKey.length < 1 ) {
+				return {};
+			}
+
+			return {
+				row_key: rowKey,
+				config_item: typeof parsed?.config_item === 'string' ? parsed.config_item : '',
+			};
+		}
+		catch ( e ) {
+			return {};
+		}
+	}
+
+	getRequestedFocusExpansion( root, focus ) {
+		if ( !( root instanceof Element ) || typeof focus?.row_key !== 'string' || focus.row_key.length < 1 ) {
+			return null;
+		}
+
+		const itemWrapper = root.querySelector( `[data-configure-row-key="${focus.row_key}"]` );
+		if ( !( itemWrapper instanceof Element ) ) {
+			return null;
+		}
+
+		const expansion = itemWrapper.querySelector( '[data-shield-expand-body="1"]' );
+		if ( !( expansion instanceof Element ) ) {
+			return null;
+		}
+
+		return root.contains( expansion )
+			? expansion
+			: null;
 	}
 
 	buildBatchItemID( placeholder, index ) {
@@ -223,6 +298,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	handleBatchFailure( placeholder, expansion ) {
 		delete placeholder.dataset.configureExpandLoading;
 		this.setSaveButtonDisabled( expansion, true );
+		this.clearPendingRequestedFocusForExpansion( expansion );
 
 		if ( expansion !== null && expansion.classList.contains( 'show' ) ) {
 			this.renderLoadFailure( placeholder, expansion, 'Unable to load these settings. Please try again.' );
@@ -231,6 +307,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 	renderLoadFailure( placeholder, expansion, message ) {
 		delete placeholder.dataset.configureExpandLoading;
+		this.clearPendingRequestedFocusForExpansion( expansion );
 		placeholder.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( message )}</div>`;
 		this.setSaveButtonDisabled( expansion, true );
 	}
@@ -298,5 +375,78 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		.replace( />/g, '&gt;' )
 		.replace( /"/g, '&quot;' )
 		.replace( /'/g, '&#39;' );
+	}
+
+	maybeFocusRequestedConfigItem( expansion ) {
+		const focus = this.pendingRequestedFocus;
+		if ( ObjectOps.IsEmpty( focus ) || !( expansion instanceof Element ) || this.getExpansionRowKey( expansion ) !== focus.row_key ) {
+			return;
+		}
+
+		if ( !focus.config_item ) {
+			this.finalizePendingRequestedFocus();
+			return;
+		}
+
+		const field = expansion.querySelector( `[name="${focus.config_item}"]` ) || null;
+		if ( !( field instanceof HTMLElement ) ) {
+			this.clearPendingRequestedFocus();
+			return;
+		}
+
+		field.scrollIntoView( {
+			block: 'center',
+			behavior: 'auto',
+		} );
+
+		if ( typeof field.focus === 'function' ) {
+			field.focus( {
+				preventScroll: true,
+			} );
+		}
+
+		this.finalizePendingRequestedFocus();
+	}
+
+	clearPendingRequestedFocus() {
+		this.pendingRequestedFocus = null;
+	}
+
+	clearPendingRequestedFocusForExpansion( expansion ) {
+		if ( !( expansion instanceof Element ) ) {
+			return;
+		}
+
+		const focus = this.pendingRequestedFocus;
+		if ( !ObjectOps.IsEmpty( focus ) && this.getExpansionRowKey( expansion ) === focus.row_key ) {
+			this.clearPendingRequestedFocus();
+		}
+	}
+
+	finalizePendingRequestedFocus() {
+		const focus = this.pendingRequestedFocus;
+		const rootEl = this.rootEl;
+		this.pendingRequestedFocus = null;
+		if ( !( rootEl instanceof HTMLElement ) || ObjectOps.IsEmpty( focus ) ) {
+			return;
+		}
+
+		rootEl.dataset.configureFocusRequest = '';
+		this.cleanFocusQueryArgsFromUrl();
+	}
+
+	cleanFocusQueryArgsFromUrl() {
+		try {
+			const nextUrl = new URL( window.location.href );
+			nextUrl.searchParams.delete( 'row_key' );
+			nextUrl.searchParams.delete( 'config_item' );
+			window.history.replaceState( window.history.state || {}, '', nextUrl.toString() );
+		}
+		catch ( e ) {
+		}
+	}
+
+	getExpansionRowKey( expansion ) {
+		return expansion?.closest( '[data-configure-row-key]' )?.dataset?.configureRowKey || '';
 	}
 }

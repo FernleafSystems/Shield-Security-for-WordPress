@@ -68,10 +68,12 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $tilesByKey[ 'secadmin' ][ 'status' ] );
 		$this->assertCount( 2, $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ] );
 		$this->assertSame( 'PIN Protection', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'title' ] ?? '' );
+		$this->assertSame( 'pin_protection', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ][ 0 ][ 'key' ] ?? '' );
 		$secadminGeneral = $this->findComponentByOptionKeys(
 			$tilesByKey[ 'secadmin' ][ 'panel' ][ 'components' ],
 			'admin_access_restrict_plugins'
 		);
+		$this->assertSame( 'general_settings', $secadminGeneral[ 'key' ] ?? '' );
 		$this->assertSame(
 			'admin_access_restrict_plugins',
 			$secadminGeneral[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
@@ -94,6 +96,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			[ 'Bot SPAM Blocking', 'Human SPAM Filtering', 'Trusted Commenters' ],
 			\array_column( \array_slice( $tilesByKey[ 'spam' ][ 'panel' ][ 'components' ], 0, 3 ), 'title' )
 		);
+		$this->assertSame(
+			[ 'bot_spam_blocking', 'human_spam_filtering', 'trusted_commenters' ],
+			\array_column( \array_slice( $tilesByKey[ 'spam' ][ 'panel' ][ 'components' ], 0, 3 ), 'key' )
+		);
 		$spamGeneral = $this->findComponentByOptionKeys(
 			$tilesByKey[ 'spam' ][ 'panel' ][ 'components' ],
 			'comments_cooldown'
@@ -108,6 +114,15 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'stat_line' ] ?? '' );
 		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'status_label' ] ?? '' );
 		$this->assertCount( 2, $tilesByKey[ 'general' ][ 'panel' ][ 'components' ] );
+	}
+
+	public function test_build_rejects_duplicate_component_row_keys_within_a_zone() :void {
+		$this->installDuplicateKeyControllerStub();
+
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'Configure component row keys must be unique within a zone' );
+
+		( new ConfigureZoneTilesBuilder() )->build();
 	}
 
 	/**
@@ -378,6 +393,120 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
+	private function installDuplicateKeyControllerStub() :void {
+		$loginZone = $this->newZone( 'module_login' );
+		$buildComponent = static function ( string $title, array $options, string $slug ) :Component\Base {
+			return new class( $title, $options, $slug ) extends Component\Base {
+				private string $localTitle;
+				private array $localOptions;
+				private string $localSlug;
+
+				public function __construct( string $title, array $options, string $slug ) {
+					$this->localTitle = $title;
+					$this->localOptions = $options;
+					$this->localSlug = $slug;
+				}
+
+				public function title() :string {
+					return $this->localTitle;
+				}
+
+				public function enabledStatus() :string {
+					return EnumEnabledStatus::GOOD;
+				}
+
+				public function getOptions() :array {
+					return $this->localOptions;
+				}
+
+				protected function configZoneComponentSlugs() :array {
+					return [ $this->localSlug ];
+				}
+			};
+		};
+
+		/** @var SecurityZonesCon $zonesCon */
+		$zonesCon = new class( $loginZone, $buildComponent ) extends SecurityZonesCon {
+			private Zone\Base $loginZone;
+			private $buildComponent;
+
+			public function __construct( Zone\Base $loginZone, callable $buildComponent ) {
+				$this->loginZone = $loginZone;
+				$this->buildComponent = $buildComponent;
+			}
+
+			public function getZone( string $slug ) :Zone\Base {
+				return $this->loginZone;
+			}
+
+			public function getZoneComponent( string $slug ) :Component\Base {
+				return ( $this->buildComponent )( 'Unused', [], $slug );
+			}
+
+			public function getComponentsForZone( Zone\Base $zone ) :array {
+				return [
+					( $this->buildComponent )( 'First Duplicate', [ 'first_option' ], 'duplicate_key' ),
+					( $this->buildComponent )( 'Second Duplicate', [ 'second_option' ], 'duplicate_key' ),
+				];
+			}
+		};
+
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->svgs = new class {
+			public function iconClass( string $icon ) :string {
+				return 'bi bi-'.$icon;
+			}
+		};
+		$controller->labels = new class {
+			public bool $is_whitelabelled = false;
+			public string $Name = 'Shield';
+
+			public function getBrandName( string $brand ) :string {
+				return $brand;
+			}
+		};
+		$controller->caps = new class {
+			public function hasCap( string $cap ) :bool {
+				return true;
+			}
+		};
+		$controller->cfg = (object)[
+			'configuration' => new class {
+				public array $options = [];
+				public array $sections = [];
+			},
+		];
+		$controller->opts = new class {
+			public function optGet( string $key ) {
+				return null;
+			}
+
+			public function optHasAccess( string $key ) :bool {
+				return true;
+			}
+
+			public function optDef( string $key ) :array {
+				return [];
+			}
+		};
+		$controller->comps = (object)[
+			'zones'       => $zonesCon,
+			'opts_lookup' => new class {
+				public function getFirewallParametersWhitelist() :array {
+					return [];
+				}
+			},
+			'license'     => new class {
+				public function hasValidWorkingLicense() :bool {
+					return false;
+				}
+			},
+		];
+
+		PluginControllerInstaller::install( $controller );
+	}
+
 	private function newZone( string $moduleSlug ) :Zone\Base {
 		return new class( $moduleSlug ) extends Zone\Base {
 			private string $moduleSlug;
@@ -397,21 +526,24 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		string $enabledStatus,
 		string $subtitle,
 		array $explanation,
-		array $options = []
+		array $options = [],
+		?string $slug = null
 	) :Component\Base {
-		return new class( $title, $enabledStatus, $subtitle, $explanation, $options ) extends Component\Base {
+		return new class( $title, $enabledStatus, $subtitle, $explanation, $options, $slug ) extends Component\Base {
 			private string $localTitle;
 			private string $localEnabledStatus;
 			private string $localSubtitle;
 			private array $localExplanation;
 			private array $localOptions;
+			private string $localSlug;
 
-			public function __construct( string $title, string $enabledStatus, string $subtitle, array $explanation, array $options ) {
+			public function __construct( string $title, string $enabledStatus, string $subtitle, array $explanation, array $options, ?string $slug ) {
 				$this->localTitle = $title;
 				$this->localEnabledStatus = $enabledStatus;
 				$this->localSubtitle = $subtitle;
 				$this->localExplanation = $explanation;
 				$this->localOptions = $options;
+				$this->localSlug = $slug ?? \strtolower( \str_replace( ' ', '_', $title ) );
 			}
 
 			public function title() :string {
@@ -432,6 +564,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 
 			public function getOptions() :array {
 				return $this->localOptions;
+			}
+
+			protected function configZoneComponentSlugs() :array {
+				return [ $this->localSlug ];
 			}
 		};
 	}

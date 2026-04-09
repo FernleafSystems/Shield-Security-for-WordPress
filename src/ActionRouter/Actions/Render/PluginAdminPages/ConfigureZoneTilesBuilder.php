@@ -23,6 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   force_neutral?:bool
  * }
  * @phpstan-type ConfigureComponentContract array{
+ *   key:string,
  *   title:string,
  *   status:string,
  *   status_label:string,
@@ -52,6 +53,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  * }
  */
 class ConfigureZoneTilesBuilder {
+
+	private const GENERAL_SETTINGS_ROW_KEY = 'general_settings';
 
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
@@ -126,6 +129,7 @@ class ConfigureZoneTilesBuilder {
 			}
 		}
 
+		$this->assertValidUniqueComponentKeys( $components );
 		return $components;
 	}
 
@@ -141,15 +145,17 @@ class ConfigureZoneTilesBuilder {
 			),
 			fn( string $expl ) :bool => $expl !== ''
 		) );
+		$configAction = $this->normalizeActionContract( $component->getActions()[ 'config' ] ?? null );
 
 		return [
+			'key'               => $component->configureRowKey(),
 			'title'             => $component->title(),
 			'status'            => $status,
 			'status_label'      => $this->componentStatusLabel( $status ),
 			'status_icon_class' => $this->componentStatusIconClass( $status ),
 			'note'              => $this->componentNote( $component ),
 			'explanations'      => $explanations,
-			'config_action'     => $this->normalizeActionContract( $component->getActions()[ 'config' ] ?? null ),
+			'config_action'     => $configAction,
 		];
 	}
 
@@ -164,6 +170,7 @@ class ConfigureZoneTilesBuilder {
 		}
 
 		return [
+			'key'               => self::GENERAL_SETTINGS_ROW_KEY,
 			'title'             => __( 'General settings', 'wp-simple-firewall' ),
 			'status'            => 'neutral',
 			'status_label'      => $this->componentStatusLabel( 'neutral' ),
@@ -180,6 +187,23 @@ class ConfigureZoneTilesBuilder {
 				],
 			] ),
 		];
+	}
+
+	/**
+	 * @param list<ConfigureComponentContract> $components
+	 */
+	private function assertValidUniqueComponentKeys( array $components ) :void {
+		$seenKeys = [];
+		foreach ( $components as $component ) {
+			$key = (string)( $component[ 'key' ] ?? '' );
+			if ( $key === '' ) {
+				throw new \LogicException( 'Configure component rows require a stable non-empty row key.' );
+			}
+			if ( isset( $seenKeys[ $key ] ) ) {
+				throw new \LogicException( 'Configure component row keys must be unique within a zone: '.$key );
+			}
+			$seenKeys[ $key ] = true;
+		}
 	}
 
 	private function componentStatusIconClass( string $status ) :string {

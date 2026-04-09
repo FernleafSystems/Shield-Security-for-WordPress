@@ -106,8 +106,21 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'settings_href', $diagnosis );
 		$this->assertArrayNotHasKey( 'settings_label', $diagnosis );
 		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'problem_rows' ][ 0 ] );
+		$this->assertSame( '2fa', $diagnosis[ 'problem_rows' ][ 0 ][ 'key' ] ?? '' );
 		$this->assertTrue( $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
+		$this->assertSame(
+			'configure-diagnosis-login-2fa',
+			$diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'id' ] ?? ''
+		);
 		$this->assertSame( '2fa', $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame(
+			'configure-diagnosis-login-captcha',
+			$diagnosis[ 'problem_rows' ][ 1 ][ 'expand_action' ][ 'id' ] ?? ''
+		);
+		$this->assertSame(
+			'configure-diagnosis-login-password_reset',
+			$diagnosis[ 'healthy_rows' ][ 0 ][ 'expand_action' ][ 'id' ] ?? ''
+		);
 		$this->assertSame( 'password_reset', $diagnosis[ 'healthy_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'Password reset is enabled.', $diagnosis[ 'healthy_rows' ][ 0 ][ 'summary' ] );
 	}
@@ -163,7 +176,12 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
 		$this->assertArrayNotHasKey( 'next_move', $diagnosis );
 		$this->assertArrayNotHasKey( 'inline_control', $diagnosis[ 'review_rows' ][ 0 ] );
+		$this->assertSame( 'traffic_logging', $diagnosis[ 'review_rows' ][ 0 ][ 'key' ] ?? '' );
 		$this->assertTrue( $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
+		$this->assertSame(
+			'configure-diagnosis-general-traffic_logging',
+			$diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'id' ] ?? ''
+		);
 		$this->assertSame( 'traffic_logging', $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
 	}
 
@@ -178,6 +196,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertSame(
 			[
+				'key'               => 'review_fallback',
 				'title'             => 'Good',
 				'summary'           => 'All components healthy',
 				'status'            => 'neutral',
@@ -185,6 +204,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 				'status_icon_class' => 'bi bi-info-circle-fill',
 				'explanations'      => [],
 				'expand_action'     => [
+					'id'              => '',
 					'is_expandable'   => false,
 					'label'           => '',
 					'title'           => '',
@@ -192,6 +212,25 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 				],
 			],
 			$diagnosis[ 'review_rows' ][ 0 ]
+		);
+	}
+
+	public function test_build_rejects_rows_without_producer_owned_keys() :void {
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'producer-owned row key' );
+
+		( new ConfigureZoneDiagnosisBuilder() )->build(
+			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 component needs work', [
+				[
+					'status' => 'warning',
+					'rows'   => [
+						\array_merge(
+							$this->buildDetailRow( 'Missing Key', 'warning', 'Needs Work', 'Broken row.' ),
+							[ 'key' => '' ]
+						),
+					],
+				],
+			] )
 		);
 	}
 

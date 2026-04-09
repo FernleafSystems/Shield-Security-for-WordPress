@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureSearchResults;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
@@ -35,11 +36,16 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return $this->processActionPayloadWithAdminBypass( ConfigureDrillDownDiagnosis::SLUG, $params );
 	}
 
+	private function renderConfigureSearchResults( array $params = [] ) :array {
+		return $this->processActionPayloadWithAdminBypass( ConfigureSearchResults::SLUG, $params );
+	}
+
 	public function test_landing_renders_shared_operator_chrome_and_two_layer_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
 		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] ?? null );
 		$vars = $payload[ 'render_data' ][ 'vars' ];
+		$diagnosisAction = \json_decode( (string)( $vars[ 'configure_ajax' ][ 'diagnosis_render_action_json' ] ?? '' ), true );
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
 		$this->assertModeShellPayload( $vars, 'configure', 'configure', false );
@@ -49,15 +55,15 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 		$this->assertSame(
 			ActionData::FIELD_SHIELD,
-			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ ActionData::FIELD_ACTION ] ?? ''
+			$diagnosisAction[ ActionData::FIELD_ACTION ] ?? ''
 		);
 		$this->assertSame(
 			AjaxRender::SLUG,
-			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ ActionData::FIELD_EXECUTE ] ?? ''
+			$diagnosisAction[ ActionData::FIELD_EXECUTE ] ?? ''
 		);
 		$this->assertSame(
 			ConfigureDrillDownDiagnosis::SLUG,
-			$vars[ 'configure_ajax' ][ 'diagnosis_render_action' ][ 'render_slug' ] ?? ''
+			$diagnosisAction[ 'render_slug' ] ?? ''
 		);
 		$this->assertNotSame( '', (string)( $payload[ 'render_output' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'title' ] ?? '' ) );
@@ -86,6 +92,36 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertSame( 'Login', (string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $invalidPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
+	}
+
+	public function test_landing_search_dock_exposes_search_action_and_normalized_focus_payload() :void {
+		$payload = $this->renderConfigureLandingPage( [
+			'zone'        => 'spam',
+			'row_key'     => 'general_settings',
+			'config_item' => 'comments_cooldown',
+		] );
+		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing search dock' );
+
+		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
+		$searchAction = \json_decode( (string)( $vars[ 'configure_ajax' ][ 'search_render_action_json' ] ?? '' ), true );
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
+
+		$this->assertSame(
+			ConfigureSearchResults::SLUG,
+			$searchAction[ 'render_slug' ] ?? ''
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-landing="1"]//*[@data-configure-search-input="1"]',
+			'Configure landing should render the search dock input'
+		);
+		$this->assertSame(
+			[
+				'row_key'     => 'general_settings',
+				'config_item' => 'comments_cooldown',
+			],
+			\json_decode( (string)( $vars[ 'configure_focus_request_json' ] ?? '' ), true )
+		);
 	}
 
 	public function test_diagnosis_ajax_returns_html_context_and_optional_landing_refresh() :void {
@@ -139,6 +175,40 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_search_render_returns_flat_option_and_zone_results_for_real_query() :void {
+		$payload = $this->renderConfigureSearchResults( [
+			'search' => 'silentcaptcha',
+		] );
+		$this->assertRouteRenderOutputHealthy( $payload, 'configure search results' );
+
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-search-results="1"]',
+			'Configure search should render the flat results container'
+		);
+		$this->assertGreaterThan(
+			0,
+			$xpath->query( '//*[@data-configure-search-results="1"]//a[contains(@class, "configure-search-results__item")]' )->length
+		);
+		$this->assertGreaterThan(
+			0,
+			$xpath->query( '//*[@data-configure-search-results="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-search-results__type--option ")]' )->length
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-search-results="1"]//a[contains(@href, "row_key=") and contains(@href, "config_item=")]',
+			'Configure search option links should target the exact configure row key'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-configure-search-results="1"]//a[contains(@href, "expand_id=") or contains(@href, "zone_component_slug=") or contains(@href, "option_keys=")]',
+			0,
+			'Configure search option links should not depend on replaced deep-link contracts'
+		);
+	}
+
 	public function test_scans_and_spam_diagnosis_render_scoped_rows_and_general_settings() :void {
 		$scansPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'scans',
@@ -151,22 +221,22 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertXPathExists(
 			$scansXpath,
-			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="scan_scheduling" and @data-config_item="scan_frequency"]',
+			'//*[@data-configure-row-key="scan_scheduling"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="scan_scheduling" and @data-config_item="scan_frequency"]',
 			'Scans diagnosis should expose the scan scheduling config expansion contract'
 		);
 		$this->assertXPathExists(
 			$scansXpath,
-			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_scans" and @data-option_keys="ptg_reinstall_links"]',
+			'//*[@data-configure-row-key="general_settings"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_scans" and @data-option_keys="ptg_reinstall_links"]',
 			'Scans diagnosis should expose the general scans settings expansion contract'
 		);
 		$this->assertXPathExists(
 			$spamXpath,
-			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="trusted_commenters" and @data-config_item="trusted_commenter_minimum"]',
+			'//*[@data-configure-row-key="trusted_commenters"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="trusted_commenters" and @data-config_item="trusted_commenter_minimum"]',
 			'Spam diagnosis should expose the trusted commenters config expansion contract'
 		);
 		$this->assertXPathExists(
 			$spamXpath,
-			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_spam" and @data-option_keys="comments_cooldown"]',
+			'//*[@data-configure-row-key="general_settings"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_spam" and @data-option_keys="comments_cooldown"]',
 			'Spam diagnosis should expose the general spam settings expansion contract'
 		);
 	}
@@ -183,12 +253,12 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertXPathExists(
 			$loginXpath,
-			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="login_hide"]',
+			'//*[@data-configure-row-key="login_hide"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="login_hide"]',
 			'Login diagnosis should still surface the login-hide expansion row'
 		);
 		$this->assertXPathExists(
 			$ipsXpath,
-			'//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="ip_blocking_rules"]',
+			'//*[@data-configure-row-key="ip_blocking_rules"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="ip_blocking_rules"]',
 			'IPs diagnosis should still surface the IP blocking rules expansion row'
 		);
 	}

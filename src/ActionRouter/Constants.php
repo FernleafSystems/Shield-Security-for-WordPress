@@ -248,6 +248,7 @@ class Constants {
 		Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail::class,
 		Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups::class,
 		Actions\Render\PluginAdminPages\PageConfigureLanding::class,
+		Actions\Render\PluginAdminPages\ConfigureSearchResults::class,
 		Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis::class,
 		Actions\Render\PluginAdminPages\PageReportsLanding::class,
 		Actions\Render\PluginAdminPages\PageInvestigateLanding::class,

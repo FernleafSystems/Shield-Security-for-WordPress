@@ -356,41 +356,15 @@ class SelectSearchData {
 		$strSection = ( new StringsSections() )->getFor( self::con()->opts->optDef( $optKey )[ 'section' ] );
 		$strOpts = ( new StringsOptions() )->getFor( $optKey );
 
-		$allWords = \array_filter( \array_map( '\trim',
-			\explode( ' ', \preg_replace( '#\(\):-#', ' ', \strip_tags( \implode( ' ', \array_merge(
-				[
-					$strOpts[ 'name' ],
-					$strOpts[ 'summary' ],
-					( \is_array( $strOpts[ 'description' ] ) ? \implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ] ),
-					$strSection[ 'title' ],
-					$strSection[ 'title_short' ],
-				],
-				$strSection[ 'summary' ]
-			) ) ) ) )
+		return ( new SearchTextTokenBuilder() )->build( \array_merge(
+			[
+				$strOpts[ 'name' ],
+				$strOpts[ 'summary' ],
+				\is_array( $strOpts[ 'description' ] ) ? \implode( ' ', $strOpts[ 'description' ] ) : $strOpts[ 'description' ],
+				$strSection[ 'title' ],
+				$strSection[ 'title_short' ],
+			],
+			$strSection[ 'summary' ]
 		) );
-
-		return \implode( ' ',
-			\array_unique( \array_filter(
-				\array_merge(
-					$allWords,
-					\array_map(
-						function ( $word ) {
-							return \preg_match( '#s$#i', $word ) ? null : $word.'s';
-						},
-						$allWords
-					),
-					\array_map(
-						function ( $word ) {
-							$trimmed = \rtrim( $word, 's' );
-							return $trimmed === $word ? null : $trimmed;
-						},
-						$allWords
-					)
-				),
-				function ( $word ) {
-					return !empty( $word ) && \strlen( $word ) > 2;
-				}
-			) )
-		);
 	}
 }

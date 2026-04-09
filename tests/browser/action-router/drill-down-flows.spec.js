@@ -16,6 +16,21 @@ async function waitForScanResultsTableRows( table ) {
 	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
 }
 
+async function delay( milliseconds ) {
+	return new Promise( ( resolve ) => setTimeout( resolve, milliseconds ) );
+}
+
+function isConfigureSearchRequest( request, searchTerm ) {
+	const postData = request.postData() || '';
+	const params = new URLSearchParams( postData );
+	return params.get( 'render_slug' ) === 'render_configure_search_results'
+		&& params.get( 'search' ) === searchTerm;
+}
+
+function isConfigureSearchResponse( response, searchTerm ) {
+	return isConfigureSearchRequest( response.request(), searchTerm );
+}
+
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
 	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -106,6 +121,76 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
+} );
+
+test( 'configure search keeps the newest results and deep-links into the matching option', async ( { page } ) => {
+	await page.route( '**/admin-ajax.php*', async ( route ) => {
+		const request = route.request();
+		if ( isConfigureSearchRequest( request, 'scan frequency' ) ) {
+			await delay( 800 );
+		}
+		else if ( isConfigureSearchRequest( request, 'comments cooldown' ) ) {
+			await delay( 50 );
+		}
+
+		await route.continue();
+	} );
+
+	await openShieldRoute( page, {
+		nav: 'zones',
+		nav_sub: 'overview',
+	} );
+
+	const searchInput = page.locator( '[data-configure-search-input="1"]' );
+	await expect( searchInput ).toBeVisible();
+
+	const firstSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'scan frequency' ) );
+	const firstSearchResponse = page.waitForResponse( ( response ) => isConfigureSearchResponse( response, 'scan frequency' ) );
+	await searchInput.fill( 'scan frequency' );
+	await firstSearchRequest;
+
+	const secondSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'comments cooldown' ) );
+	const secondSearchResponse = page.waitForResponse( ( response ) => isConfigureSearchResponse( response, 'comments cooldown' ) );
+	await searchInput.fill( 'comments cooldown' );
+	await secondSearchRequest;
+	await Promise.all( [ firstSearchResponse, secondSearchResponse ] );
+
+	const optionResult = page.locator( '[data-configure-search-results="1"] a' )
+		.filter( { hasText: /Comments Cooldown/i } )
+		.first();
+	await expect( optionResult ).toBeVisible( { timeout: 20_000 } );
+	await expect( optionResult ).toBeVisible();
+	await expect(
+		page.locator( '[data-configure-search-results="1"] a' ).filter( { hasText: /Daily Scan Frequency/i } )
+	).toHaveCount( 0 );
+	await expect( optionResult ).toHaveAttribute( 'href', /row_key=general_settings/ );
+	await expect( optionResult ).toHaveAttribute( 'href', /config_item=comments_cooldown/ );
+	const optionHref = await optionResult.getAttribute( 'href' );
+	const targetUrl = new URL( optionHref, 'https://example.test' );
+	const targetRowKey = targetUrl.searchParams.get( 'row_key' ) || '';
+	expect( targetRowKey ).toBe( 'general_settings' );
+
+	await Promise.all( [
+		page.waitForURL( ( url ) => {
+			return url.searchParams.get( 'nav' ) === 'zones'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& url.searchParams.get( 'zone' ) === 'spam';
+		}, { timeout: 20_000 } ),
+		optionResult.click(),
+	] );
+
+	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
+	const targetExpansion = page.locator( `[data-configure-row-key="${targetRowKey}"] [data-shield-expand-body="1"]` );
+	await expect( targetExpansion ).toHaveClass( /show/, { timeout: 20_000 } );
+	await expect(
+		page.locator( `[data-configure-row-key="${targetRowKey}"] form.options_form_for [name="comments_cooldown"]` ).first()
+	).toBeVisible( { timeout: 20_000 } );
+	await expect.poll( () => new URL( page.url() ).searchParams.get( 'row_key' ) || '' ).toBe( '' );
+	await expect.poll( () => new URL( page.url() ).searchParams.get( 'config_item' ) || '' ).toBe( '' );
+
+	await page.reload();
+	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
+	await expect( page.locator( `[data-configure-row-key="${targetRowKey}"] [data-shield-expand-body="1"].show` ) ).toHaveCount( 0 );
 } );
 
 test( 'actions queue keeps the same ignored-plugin direct table after the shared table success event', async ( { page } ) => {

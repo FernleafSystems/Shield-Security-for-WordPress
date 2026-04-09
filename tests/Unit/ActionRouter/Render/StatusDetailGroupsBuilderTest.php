@@ -78,6 +78,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$groups = ( new StatusDetailGroupsBuilder() )->buildForConfigure(
 			[
 				[
+					'key'               => 'passive_logging',
 					'title'             => 'Passive Logging',
 					'note'              => 'Logs are enabled.',
 					'status'            => 'good',
@@ -87,6 +88,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'config_action'     => [],
 				],
 				[
+					'key'               => 'primary_control',
 					'title'             => 'Primary Control',
 					'note'              => 'Requires immediate setup.',
 					'status'            => 'critical',
@@ -106,6 +108,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					],
 				],
 				[
+					'key'               => 'secondary_control',
 					'title'             => 'Secondary Control',
 					'note'              => 'Needs attention.',
 					'status'            => 'warning',
@@ -115,6 +118,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'config_action'     => [],
 				],
 				[
+					'key'               => 'general_settings',
 					'title'             => 'General Settings',
 					'note'              => 'General configuration.',
 					'status'            => 'neutral',
@@ -124,6 +128,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'config_action'     => [],
 				],
 				[
+					'key'               => 'another_warning',
 					'title'             => 'Another Warning',
 					'note'              => 'Also needs attention.',
 					'status'            => 'warning',
@@ -136,6 +141,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [ 'critical', 'warning', 'good', 'neutral' ], \array_column( $groups, 'status' ) );
+		$this->assertSame( [ 'primary_control' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'key' ) );
 		$this->assertSame( [ 'Primary Control' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'title' ) );
 		$this->assertSame( [ 'Secondary Control', 'Another Warning' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'title' ) );
 		$this->assertSame( 'Configure', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );

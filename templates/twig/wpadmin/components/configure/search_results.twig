@@ -1,0 +1,21 @@
+<div class="configure-search-results"
+	 data-configure-search-results="1">
+	{% if flags.has_results %}
+		<div class="list-group list-group-flush">
+			{% for result in vars.results %}
+				<a class="list-group-item list-group-item-action configure-search-results__item"
+				   href="{{ result.href }}">
+					<span class="configure-search-results__type configure-search-results__type--{{ result.type }}">
+						{{ result.type == 'zone' ? strings.zone_label : strings.option_label }}
+					</span>
+					<span class="configure-search-results__label">{{ result.label }}</span>
+					{% if result.summary is not empty %}
+						<span class="configure-search-results__summary">{{ result.summary }}</span>
+					{% endif %}
+				</a>
+			{% endfor %}
+		</div>
+	{% else %}
+		<p class="configure-search-results__empty mb-0">{{ strings.no_results }}</p>
+	{% endif %}
+</div>

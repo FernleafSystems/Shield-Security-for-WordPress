@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 trait BuildsConfigureLandingData {
 
 	private ?array $configureLandingViewDataCache = null;
+	private ?array $configureFocusRequestCache = null;
 
 	protected function getRequestedConfigureZoneKey() :string {
 		return sanitize_key( $this->getTextInputFromRequestOrActionData( 'zone' ) );
@@ -20,6 +21,43 @@ trait BuildsConfigureLandingData {
 	protected function getValidRequestedConfigureZoneKey() :string {
 		$zoneKey = $this->getRequestedConfigureZoneKey();
 		return isset( $this->getConfigureLandingTileLookup()[ $zoneKey ] ) ? $zoneKey : '';
+	}
+
+	/**
+	 * @return array{
+	 *   row_key:string,
+	 *   config_item:string
+	 * }|array{}
+	 */
+	protected function getRequestedConfigureFocusRequest() :array {
+		if ( $this->configureFocusRequestCache !== null ) {
+			return $this->configureFocusRequestCache;
+		}
+
+		$focus = [];
+		$zoneKey = $this->getValidRequestedConfigureZoneKey();
+		if ( $zoneKey !== '' ) {
+			$rowKey = sanitize_key( $this->getTextInputFromRequestOrActionData( 'row_key' ) );
+			$configItem = sanitize_key( $this->getTextInputFromRequestOrActionData( 'config_item' ) );
+			if ( empty( self::con()->cfg->configuration->options[ $configItem ] ?? [] ) ) {
+				$configItem = '';
+			}
+
+			if ( $rowKey !== '' && \in_array( $rowKey, $this->getConfigureDiagnosisRowKeys( $zoneKey ), true ) ) {
+				$focus = [
+					'row_key'     => $rowKey,
+					'config_item' => $configItem,
+				];
+			}
+		}
+
+		$this->configureFocusRequestCache = $focus;
+		return $this->configureFocusRequestCache;
+	}
+
+	protected function buildRequestedConfigureFocusRequestJson() :string {
+		$focus = $this->getRequestedConfigureFocusRequest();
+		return empty( $focus ) ? '' : $this->encodeJson( $focus );
 	}
 
 	/**
@@ -109,5 +147,23 @@ trait BuildsConfigureLandingData {
 
 	protected function buildConfigureOperatorRootStepJson() :string {
 		return $this->getConfigureLandingViewData()[ 'root_step_json' ];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function getConfigureDiagnosisRowKeys( string $zoneKey ) :array {
+		$rows = \array_merge(
+			$this->getConfigureZoneDiagnosis( $zoneKey )[ 'problem_rows' ],
+			$this->getConfigureZoneDiagnosis( $zoneKey )[ 'review_rows' ],
+			$this->getConfigureZoneDiagnosis( $zoneKey )[ 'healthy_rows' ]
+		);
+
+		return \array_values( \array_filter( \array_map(
+			static fn( array $row ) :string => !empty( $row[ 'expand_action' ][ 'is_expandable' ] )
+				? (string)( $row[ 'key' ] ?? '' )
+				: '',
+			$rows
+		) ) );
 	}
 }

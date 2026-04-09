@@ -57,18 +57,9 @@ class ConfigureZoneDiagnosisBuilder {
 			? $this->buildReviewNextMove( $zoneTile )
 			: $this->buildIssueNextMove( $firstIssue, $zoneLabel );
 		$riskContext = $this->buildRiskContext( $zoneTile, $previewText, $isReviewState );
-		$problemFindings = \array_values( \array_map(
-			fn( array $row ) :array => $this->buildFinding( $row ),
-			$problemRows
-		) );
-		$reviewFindings = \array_values( \array_map(
-			fn( array $row ) :array => $this->buildFinding( $row ),
-			$reviewRows
-		) );
-		$healthyFindings = \array_values( \array_map(
-			fn( array $row ) :array => $this->buildFinding( $row ),
-			$healthyRows
-		) );
+		$problemFindings = $this->buildFindingsForSection( $problemRows, $zoneKey );
+		$reviewFindings = $this->buildFindingsForSection( $reviewRows, $zoneKey );
+		$healthyFindings = $this->buildFindingsForSection( $healthyRows, $zoneKey );
 		$zoneBadge = $isReviewState
 			? $this->buildReviewBadge( $zoneTile )
 			: $this->buildFindingsBadge( \count( $problemFindings ) );
@@ -167,16 +158,30 @@ class ConfigureZoneDiagnosisBuilder {
 	 * @param DetailGroupRow $row
 	 * @return DiagnosisFinding
 	 */
-	private function buildFinding( array $row ) :array {
+	private function buildFinding( array $row, string $zoneKey ) :array {
+		$rowKey = $this->requireRowKey( $row );
+
 		return [
+			'key'               => $rowKey,
 			'title'             => $row[ 'title' ],
 			'summary'           => $this->primarySummary( $row ),
 			'status'            => $row[ 'status' ],
 			'status_label'      => $row[ 'status_label' ],
 			'status_icon_class' => $row[ 'status_icon_class' ],
 			'explanations'      => $row[ 'explanations' ],
-			'expand_action'     => $this->buildExpandAction( $row[ 'action' ] ),
+			'expand_action'     => $this->buildExpandAction( $row[ 'action' ], $this->buildExpandId( $zoneKey, $rowKey ) ),
 		];
+	}
+
+	/**
+	 * @param list<DetailGroupRow> $rows
+	 * @return list<DiagnosisFinding>
+	 */
+	private function buildFindingsForSection( array $rows, string $zoneKey ) :array {
+		return \array_values( \array_map(
+			fn( array $row ) :array => $this->buildFinding( $row, $zoneKey ),
+			$rows
+		) );
 	}
 
 	/**
@@ -187,6 +192,7 @@ class ConfigureZoneDiagnosisBuilder {
 		string $summary
 	) :array {
 		return [
+			'key'               => 'review_fallback',
 			'title'             => $title,
 			'summary'           => $summary,
 			'status'            => 'neutral',
@@ -201,7 +207,7 @@ class ConfigureZoneDiagnosisBuilder {
 	 * @param array{}|DetailAction $action
 	 * @return DiagnosisExpandAction
 	 */
-	private function buildExpandAction( array $action ) :array {
+	private function buildExpandAction( array $action, string $expandId ) :array {
 		$dataAttributes = [];
 		$isExpandable = false;
 
@@ -212,6 +218,7 @@ class ConfigureZoneDiagnosisBuilder {
 		}
 
 		return [
+			'id'              => $isExpandable ? $expandId : '',
 			'is_expandable'   => $isExpandable,
 			'label'           => (string)( $action[ 'label' ] ?? __( 'Configure', 'wp-simple-firewall' ) ),
 			'title'           => (string)( $action[ 'title' ] ?? '' ),
@@ -224,11 +231,37 @@ class ConfigureZoneDiagnosisBuilder {
 	 */
 	private function buildCollapsedExpandAction() :array {
 		return [
+			'id'              => '',
 			'is_expandable'   => false,
 			'label'           => '',
 			'title'           => '',
 			'data_attributes' => [],
 		];
+	}
+
+	private function buildExpandId( string $zoneKey, string $rowKey ) :string {
+		return \sprintf(
+			'configure-diagnosis-%s-%s',
+			$this->normalizeExpandIdSegment( $zoneKey ),
+			$this->normalizeExpandIdSegment( $rowKey )
+		);
+	}
+
+	/**
+	 * @param DetailGroupRow $row
+	 */
+	private function requireRowKey( array $row ) :string {
+		$rowKey = (string)( $row[ 'key' ] ?? '' );
+		if ( $rowKey === '' ) {
+			throw new \LogicException(
+				'Configure diagnosis rows require a non-empty producer-owned row key: '.(string)( $row[ 'title' ] ?? '[untitled]' )
+			);
+		}
+		return $rowKey;
+	}
+
+	private function normalizeExpandIdSegment( string $value ) :string {
+		return (string)( \preg_replace( '/[^a-z0-9_-]+/', '-', \strtolower( \trim( $value ) ) ) ?? '' );
 	}
 
 	/**

@@ -34,6 +34,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   cta?:DetailActionInput
  * }
  * @phpstan-type ConfigureComponentRow array{
+ *   key:string,
  *   title:string,
  *   note:string,
  *   status:string,
@@ -165,7 +166,7 @@ class StatusDetailGroupsBuilder {
 		) );
 
 		return [
-			'key'               => $component[ 'title' ] !== '' ? $component[ 'title' ] : 'component-'.$sortIndex,
+			'key'               => $component[ 'key' ],
 			'title'             => $component[ 'title' ],
 			'summary'           => $component[ 'note' ],
 			'status'            => $status,

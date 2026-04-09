@@ -36,13 +36,18 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
 		] );
+		$searchAction = $this->buildAjaxRenderActionData( ConfigureSearchResults::class, [
+			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
+		] );
 		return \array_merge(
 			parent::getLandingVars(),
 			[
 				'configure_ajax'          => [
-					'diagnosis_render_action'      => $diagnosisAction,
 					'diagnosis_render_action_json' => $this->encodeJson( $diagnosisAction ),
+					'search_render_action_json'    => $this->encodeJson( $searchAction ),
 				],
+				'configure_focus_request_json' => $this->buildRequestedConfigureFocusRequestJson(),
 			]
 		);
 	}
@@ -53,6 +58,10 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
 			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),
+			'search_label'        => __( 'Search Configure', 'wp-simple-firewall' ),
+			'search_placeholder'  => __( 'Search zones and options...', 'wp-simple-firewall' ),
+			'search_hint'         => __( 'Search as you type to jump directly to a zone or option.', 'wp-simple-firewall' ),
+			'search_loading'      => __( 'Searching Configure...', 'wp-simple-firewall' ),
 		];
 	}
 

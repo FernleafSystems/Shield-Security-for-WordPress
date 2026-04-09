@@ -63,12 +63,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   header:DrillLayerHeader
  * }
  * @phpstan-type DiagnosisExpandAction array{
+ *   id:string,
  *   is_expandable:bool,
  *   label:string,
  *   title:string,
  *   data_attributes:DetailActionData
  * }
  * @phpstan-type DiagnosisFinding array{
+ *   key:string,
  *   title:string,
  *   summary:string,
  *   status:string,
