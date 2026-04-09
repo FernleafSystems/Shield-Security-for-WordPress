@@ -102,6 +102,13 @@ class FileLockerController {
 		$this->locks = null;
 	}
 
+	public function reassessLocksNow() :void {
+		// User-triggered file actions must refresh persisted lock status immediately.
+		$this->clearLocks();
+		( new Ops\AssessLocks() )->run();
+		$this->clearLocks();
+	}
+
 	/**
 	 * @throws \Exception
 	 */

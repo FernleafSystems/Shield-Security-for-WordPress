@@ -3,24 +3,33 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 
 	private array $optionSnapshot = [];
+	private array $tempPaths = [];
 
 	public function set_up() {
 		parent::set_up();
 		$this->requireDb( 'file_locker' );
 		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
-		$this->optionSnapshot = $this->snapshotSelectedOptions( [ 'file_locker' ] );
+		$this->optionSnapshot = $this->snapshotSelectedOptions( [ 'file_locker', 'filelocker_state', 'snapi_data' ] );
 	}
 
 	public function tear_down() {
 		$this->restoreSelectedOptions( $this->optionSnapshot );
 		if ( static::con() !== null ) {
 			static::con()->comps->file_locker->clearLocks();
+		}
+		foreach ( $this->tempPaths as $path ) {
+			if ( \is_string( $path ) && $path !== '' && \file_exists( $path ) ) {
+				@\unlink( $path );
+			}
 		}
 		parent::tear_down();
 	}
@@ -55,5 +64,49 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->comps->file_locker->purge();
 
 		$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
+	}
+
+	public function test_reassess_locks_now_clears_stale_problem_state_without_touching_cooldown() :void {
+		$con = $this->requireController();
+		$handler = $this->requireDb( 'file_locker' );
+
+		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
+		RuntimeTestState::primeShieldNetHandshake();
+
+		$tempPath = \tempnam( \sys_get_temp_dir(), 'shield-file-locker-' );
+		$this->assertIsString( $tempPath );
+		$this->tempPaths[] = $tempPath;
+		$this->assertTrue( Services::WpFs()->putFileContent( $tempPath, 'original-file-content' ) );
+
+		$record = $handler->getRecord();
+		$record->type = 'wpconfig';
+		$record->path = $tempPath;
+		$record->hash_original = \sha1( 'original-file-content' );
+		$record->hash_current = \sha1( 'stale-different-content' );
+		$record->public_key_id = 1;
+		$record->cipher = 'aes-256-cbc';
+		$record->content = 'encrypted-content-wpconfig';
+		$record->detected_at = \time() - 60;
+		$handler->getQueryInserter()->insert( $record );
+
+		global $wpdb;
+		$recordId = (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
+		$this->assertGreaterThan( 0, $recordId );
+
+		$state = $con->comps->file_locker->getState();
+		$state[ 'last_analysis_started_at' ] = 123456;
+		$con->opts->optSet( 'filelocker_state', $state )->store();
+		$con->comps->file_locker->clearLocks();
+
+		$this->assertCount( 1, ( new LoadFileLocks() )->withProblems() );
+
+		$con->comps->file_locker->reassessLocksNow();
+
+		/** @var object $updated */
+		$updated = $handler->getQuerySelector()->byId( $recordId );
+		$this->assertSame( 0, (int)$updated->detected_at );
+		$this->assertSame( '', (string)$updated->hash_current );
+		$this->assertCount( 0, ( new LoadFileLocks() )->withProblems() );
+		$this->assertSame( 123456, (int)$con->comps->file_locker->getState()[ 'last_analysis_started_at' ] );
 	}
 }

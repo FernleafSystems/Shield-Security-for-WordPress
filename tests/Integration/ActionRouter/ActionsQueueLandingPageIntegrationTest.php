@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
@@ -36,6 +37,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	use PluginAdminRouteRenderAssertions;
 
 	private array $optionsSnapshot = [];
+	private array $tempPaths = [];
 
 	public function set_up() {
 		parent::set_up();
@@ -46,7 +48,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'file_locker' );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			MaintenanceIssueStateProvider::OPT_KEY,
+			'file_locker',
+			'filelocker_state',
 			'scan_results_table_display',
+			'snapi_data',
 		] );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
@@ -68,6 +73,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		if ( static::con() !== null ) {
 			static::con()->comps->file_locker->clearLocks();
 			$this->restoreSelectedOptions( $this->optionsSnapshot );
+		}
+		foreach ( $this->tempPaths as $path ) {
+			if ( \is_string( $path ) && $path !== '' && \file_exists( $path ) ) {
+				@\unlink( $path );
+			}
 		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
@@ -1183,6 +1193,94 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( 'actions_queue', (string)( $groupsPayload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 		$this->assertSame( FileLockerPane::SLUG, (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+	}
+
+	public function test_file_locker_warning_clears_on_landing_immediately_after_reassessment() :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', [ 'wpconfig' ] )
+			 ->store();
+		RuntimeTestState::primeShieldNetHandshake();
+
+		$tempPath = \tempnam( \sys_get_temp_dir(), 'shield-file-locker-landing-' );
+		$this->assertIsString( $tempPath );
+		$this->tempPaths[] = $tempPath;
+		$this->assertTrue( Services::WpFs()->putFileContent( $tempPath, 'original-file-content' ) );
+
+		$handler = $this->requireDb( 'file_locker' );
+		$record = $handler->getRecord();
+		$record->type = 'wpconfig';
+		$record->path = $tempPath;
+		$record->hash_original = \sha1( 'original-file-content' );
+		$record->hash_current = \sha1( 'stale-different-content' );
+		$record->public_key_id = 1;
+		$record->cipher = 'aes-256-cbc';
+		$record->content = 'encrypted-content-wpconfig';
+		$record->detected_at = \time() - 60;
+		$handler->getQueryInserter()->insert( $record );
+
+		self::con()->comps->file_locker->clearLocks();
+
+		$warningPayload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $warningPayload, 'actions queue landing file locker warning state' );
+		$warningVars = \is_array( $warningPayload[ 'render_data' ][ 'vars' ] ?? null )
+			? $warningPayload[ 'render_data' ][ 'vars' ]
+			: [];
+		$warningQueueRows = \is_array( $warningVars[ 'actions_queue_rows' ] ?? null )
+			? $warningVars[ 'actions_queue_rows' ]
+			: [];
+		$warningScans = $this->findZoneTile(
+			\is_array( $warningVars[ 'zone_tiles' ] ?? null )
+				? $warningVars[ 'zone_tiles' ]
+				: [],
+			'scans'
+		);
+		$fileLockerWarningRows = \array_values( \array_filter(
+			$warningQueueRows,
+			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
+		) );
+		$fileLockerWarningAssessments = \array_values( \array_filter(
+			\is_array( $warningScans[ 'assessment_rows' ] ?? null ) ? $warningScans[ 'assessment_rows' ] : [],
+			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
+		) );
+
+		$this->assertCount( 1, $fileLockerWarningRows );
+		$this->assertSame( 'warning', (string)( $fileLockerWarningRows[ 0 ][ 'severity' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $fileLockerWarningRows[ 0 ][ 'count' ] ?? 0 ) );
+		$this->assertCount( 1, $fileLockerWarningAssessments );
+		$this->assertSame( 'warning', (string)( $fileLockerWarningAssessments[ 0 ][ 'status' ] ?? '' ) );
+
+		self::con()->comps->file_locker->reassessLocksNow();
+
+		$healthyPayload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $healthyPayload, 'actions queue landing file locker healthy state' );
+		$healthyVars = \is_array( $healthyPayload[ 'render_data' ][ 'vars' ] ?? null )
+			? $healthyPayload[ 'render_data' ][ 'vars' ]
+			: [];
+		$healthyQueueRows = \is_array( $healthyVars[ 'actions_queue_rows' ] ?? null )
+			? $healthyVars[ 'actions_queue_rows' ]
+			: [];
+		$healthyScans = $this->findZoneTile(
+			\is_array( $healthyVars[ 'zone_tiles' ] ?? null )
+				? $healthyVars[ 'zone_tiles' ]
+				: [],
+			'scans'
+		);
+		$fileLockerHealthyRows = \array_values( \array_filter(
+			$healthyQueueRows,
+			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
+		) );
+		$fileLockerHealthyAssessments = \array_values( \array_filter(
+			\is_array( $healthyScans[ 'assessment_rows' ] ?? null ) ? $healthyScans[ 'assessment_rows' ] : [],
+			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
+		) );
+
+		$this->assertCount( 1, $fileLockerHealthyRows );
+		$this->assertSame( 'good', (string)( $fileLockerHealthyRows[ 0 ][ 'severity' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $fileLockerHealthyRows[ 0 ][ 'count' ] ?? -1 ) );
+		$this->assertCount( 1, $fileLockerHealthyAssessments );
+		$this->assertSame( 'good', (string)( $fileLockerHealthyAssessments[ 0 ][ 'status' ] ?? '' ) );
 	}
 
 	public function test_scans_assessment_rows_include_plugin_and_theme_files_only_when_asset_scan_gates_are_satisfied() :void {

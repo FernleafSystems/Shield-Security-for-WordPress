@@ -47,7 +47,9 @@ class Accept {
 				'created_at'    => Services::Request()->ts(), // update "locked at"
 			] );
 
-		$FL->clearLocks();
+		if ( $success ) {
+			$FL->reassessLocksNow();
+		}
 		return $success;
 	}
 }
