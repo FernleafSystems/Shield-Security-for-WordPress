@@ -18,23 +18,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investiga
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type VulnerabilityPanelContract array{
+ *   count:int,
+ *   status:string,
+ *   title:string,
+ *   summary:string,
+ *   lookup_href:string,
+ *   lookup_text:string
+ * }
+ */
 abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 
 	use InvestigateAssetOptionsBuilder;
 	use InvestigateCountCache;
 	use InvestigateRenderContracts;
 	use InvestigateStatusMapping;
-
-	/**
-	 * @phpstan-type VulnerabilityPanelContract array{
-	 *   count:int,
-	 *   status:string,
-	 *   title:string,
-	 *   summary:string,
-	 *   lookup_href:string,
-	 *   lookup_text:string
-	 * }
-	 */
 
 	private ?InvestigateAssetDataAdapter $assetDataAdapter = null;
 

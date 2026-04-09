@@ -168,6 +168,8 @@ yarn.lock text eol=lf
 /vendor_prefixed export-ignore
 /node_modules export-ignore
 /postcss.config.js export-ignore
+/eslint.config.js export-ignore
+/tsconfig.checkjs.json export-ignore
 
 # Legacy vendor directories (should not be copied from source)
 # This should NOT be removed unless legacy plugin packager handling has been removed.

@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
+ * @phpstan-import-type QueueAssetSummaryRecord from ActionsQueueScanAssetCardsBuilder
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupSeedCollector {
