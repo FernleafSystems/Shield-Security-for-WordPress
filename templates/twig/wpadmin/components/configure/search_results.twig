@@ -4,6 +4,9 @@
 		<div class="configure-search-results__list">
 			{% for result in vars.results %}
 				<a class="configure-search-results__item"
+				   data-configure-search-result="1"
+				   data-drill-zone-selection="{{ result.selection_json|e('html_attr') }}"
+				   data-configure-focus-request="{{ result.focus_request_json|e('html_attr') }}"
 				   href="{{ result.href }}">
 					<span class="configure-search-results__icon">
 						<i class="{{ result.icon_class }}" aria-hidden="true"></i>

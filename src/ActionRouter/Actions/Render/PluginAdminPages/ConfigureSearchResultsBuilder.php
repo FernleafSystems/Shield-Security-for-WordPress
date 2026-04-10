@@ -105,6 +105,8 @@ class ConfigureSearchResultsBuilder {
 				'summary'    => $diagnosis[ 'preview_text' ] !== ''
 					? $diagnosis[ 'preview_text' ]
 					: $diagnosis[ 'risk_context' ],
+				'selection_json'     => $diagnosis[ 'zone_selection_json' ],
+				'focus_request_json' => '',
 				'href'       => self::con()->plugin_urls->configureHome( $diagnosis[ 'zone_key' ] ),
 				'score'      => $score,
 			];
@@ -158,6 +160,8 @@ class ConfigureSearchResultsBuilder {
 				'icon_class' => self::con()->svgs->iconClass( 'sliders' ),
 				'label'      => $optionStrings[ 'name' ],
 				'summary'    => $this->buildOptionSummary( $focusTarget[ 'row_title' ], $optionStrings ),
+				'selection_json'     => $focusTarget[ 'selection_json' ],
+				'focus_request_json' => $this->buildFocusRequestJson( $optionKey, $focusTarget ),
 				'href'       => URL::Build(
 					self::con()->plugin_urls->configureHome( $focusTarget[ 'zone_key' ] ),
 					$this->buildFocusQueryArgs( $optionKey, $focusTarget )
@@ -211,11 +215,18 @@ class ConfigureSearchResultsBuilder {
 		];
 	}
 
+	private function buildFocusRequestJson( string $optionKey, array $focusTarget ) :string {
+		return OperatorChromeContract::encodeJson(
+			$this->buildFocusQueryArgs( $optionKey, $focusTarget )
+		);
+	}
+
 	/**
 	 * @return array<string,array{
 	 *   zone_key:string,
 	 *   row_key:string,
 	 *   row_title:string,
+	 *   selection_json:string,
 	 *   priority:int
 	 * }>
 	 */
@@ -316,6 +327,7 @@ class ConfigureSearchResultsBuilder {
 				'zone_key'   => $diagnosis[ 'zone_key' ],
 				'row_key'    => $rowKey,
 				'row_title'  => (string)( $row[ 'title' ] ?? '' ),
+				'selection_json' => $diagnosis[ 'zone_selection_json' ],
 				'priority'   => $priority,
 			];
 		}

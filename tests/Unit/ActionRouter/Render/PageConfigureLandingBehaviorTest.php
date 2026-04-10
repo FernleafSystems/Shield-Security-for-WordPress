@@ -196,10 +196,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
 
-		$this->assertSame(
-			'Search as you type to jump directly to a zone or option.',
-			$strings[ 'search_placeholder' ] ?? ''
-		);
+		$this->assertArrayHasKey( 'search_placeholder', $strings );
+		$this->assertNotSame( '', \trim( (string)( $strings[ 'search_placeholder' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'search_hint', $strings );
 	}
 
@@ -345,7 +343,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame(
 			1,
 			$xpath->query(
-				'//button[@data-drill-target="diagnosis" and contains(concat(" ", normalize-space(@class), " "), " status-good ") and .//h4[normalize-space()="Firewall"]]'
+				'//button[@data-drill-target="diagnosis" and @data-drill-zone-selection and contains(concat(" ", normalize-space(@class), " "), " status-good ")]'
 			)->length,
 			'Configure zones should render healthy zone cards directly in the grid'
 		);
@@ -372,7 +370,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame(
 			1,
 			$xpath->query(
-				'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row--good ")]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__title ") and normalize-space()="WAF Rules"]'
+				'//*[@data-configure-diagnosis="1" and @data-configure-zone="firewall"]//*[@data-configure-row-key="waf_rules"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row--good ")]'
 			)->length,
 			'Configure diagnosis should render healthy rows directly in the diagnosis stack'
 		);

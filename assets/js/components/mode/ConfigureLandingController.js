@@ -57,6 +57,11 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			( item ) => this.handleRetryClick( item ),
 			false
 		);
+		shieldEventsHandler_Main.add_Click(
+			'[data-configure-landing="1"] [data-configure-search-result="1"]',
+			( item, evt ) => this.handleSearchResultClick( item, evt ),
+			false
+		);
 	}
 
 	bindSaveHandlers() {
@@ -100,31 +105,36 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			return;
 		}
 
-		const diagnosisIndex = this.getLayerIndexByKey( shell, 'diagnosis' );
-		const drillCtrl = this.getDrillDownController();
-		if ( diagnosisIndex < 0 || drillCtrl === null ) {
+		this.rootEl = root;
+		this.shellEl = shell;
+		this.openDiagnosisSelection( zone );
+	}
+
+	handleSearchResultClick( item, evt ) {
+		if ( this.shouldAllowDefaultSearchResultClick( item, evt ) ) {
+			return;
+		}
+
+		evt.preventDefault();
+
+		const root = this.rootEl || this.getRoot();
+		if ( root === null || !root.contains( item ) ) {
+			return;
+		}
+
+		const zone = this.readZoneSelection( item );
+		if ( zone.key.length < 1 ) {
 			return;
 		}
 
 		this.rootEl = root;
-		this.shellEl = shell;
-		this.selectedZone = zone;
-		this.cancelLayerRequest( 'diagnosis' );
-
-		drillCtrl.drillTo( shell, diagnosisIndex );
-		const cachedDiagnosis = this.readDiagnosisCacheEntry( zone.key );
-		if ( cachedDiagnosis !== null ) {
-			this.applyDiagnosisCacheEntry( cachedDiagnosis );
-			return;
-		}
-
-		drillCtrl.updateLayerHeader(
-			shell,
-			diagnosisIndex,
-			this.buildLoadingHeader( zone.header, this.getDiagnosisLoadingText() )
-		);
-
-		this.loadDiagnosisLayer();
+		this.shellEl = this.getShell( root );
+		this.cancelPendingSearch();
+		this.clearSearchUi( root );
+		this.openDiagnosisSelection( zone, {
+			focusRequestJson: String( item.dataset.configureFocusRequest || '' ),
+			historyUrl: item instanceof HTMLAnchorElement ? item.href : '',
+		} );
 	}
 
 	loadDiagnosisLayer( { showPlaceholder = true, includeLandingRefresh = false } = {} ) {
@@ -233,7 +243,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		}
 
 		this.renderSearchLoading( root, searchBody );
-		this.searchTimeout = setTimeout( () => this.performSearch( query, searchBody ), 250 );
+		this.searchTimeout = setTimeout( () => this.performSearch( query, searchBody ), this.getSearchDebounceMs() );
 	}
 
 	performSearch( query, searchBody ) {
@@ -296,8 +306,16 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		return this.rootEl?.dataset.configureSearchLoading || '';
 	}
 
+	getSearchDebounceMs() {
+		return 350;
+	}
+
 	getSearchMinChars() {
 		return this.parseInteger( this.rootEl?.dataset.configureSearchMinChars || 3 );
+	}
+
+	getSearchInput( root = this.rootEl ) {
+		return root?.querySelector( '[data-configure-search-input="1"]' ) || null;
 	}
 
 	getSearchBody( root = this.rootEl ) {
@@ -345,6 +363,18 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		this.setSearchState( 'idle', root );
 	}
 
+	clearSearchUi( root = this.rootEl ) {
+		const input = this.getSearchInput( root );
+		if ( input !== null ) {
+			input.value = '';
+		}
+
+		const searchBody = this.getSearchBody( root );
+		if ( searchBody !== null ) {
+			this.clearSearchResults( root, searchBody );
+		}
+	}
+
 	setSearchState( state, root = this.rootEl ) {
 		const dock = this.getSearchDock( root );
 		if ( dock !== null ) {
@@ -371,6 +401,84 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		spinner.classList.remove( 'd-none' );
 		spinner.querySelector( '.spinner-border' )?.classList.remove( 'm-5' );
 		return spinner.outerHTML;
+	}
+
+	shouldAllowDefaultSearchResultClick( item, evt ) {
+		if ( !( item instanceof HTMLAnchorElement ) ) {
+			return true;
+		}
+		if ( item.target === '_blank' || item.hasAttribute( 'download' ) ) {
+			return true;
+		}
+
+		const mouseEvt = evt instanceof MouseEvent ? evt : null;
+		if ( mouseEvt === null ) {
+			return false;
+		}
+
+		return mouseEvt.button !== 0
+			|| mouseEvt.metaKey
+			|| mouseEvt.ctrlKey
+			|| mouseEvt.shiftKey
+			|| mouseEvt.altKey;
+	}
+
+	openDiagnosisSelection( zone, { focusRequestJson = '', historyUrl = '' } = {} ) {
+		const shell = this.shellEl;
+		const diagnosisIndex = this.getLayerIndexByKey( shell, 'diagnosis' );
+		const drillCtrl = this.getDrillDownController();
+		if ( diagnosisIndex < 0 || drillCtrl === null || shell === null ) {
+			return Promise.resolve( null );
+		}
+
+		this.selectedZone = zone;
+		this.cancelLayerRequest( 'diagnosis' );
+		drillCtrl.drillTo( shell, diagnosisIndex );
+
+		if ( historyUrl.length > 0 ) {
+			this.replaceHistoryUrl( historyUrl );
+		}
+
+		const cachedDiagnosis = this.readDiagnosisCacheEntry( zone.key );
+		if ( cachedDiagnosis !== null ) {
+			this.applyDiagnosisCacheEntry( cachedDiagnosis );
+			this.applyFocusRequest( focusRequestJson );
+			return Promise.resolve( cachedDiagnosis );
+		}
+
+		drillCtrl.updateLayerHeader(
+			shell,
+			diagnosisIndex,
+			this.buildLoadingHeader( zone.header, this.getDiagnosisLoadingText() )
+		);
+
+		return this.loadDiagnosisLayer().then( ( data ) => {
+			if ( data !== null ) {
+				this.applyFocusRequest( focusRequestJson );
+			}
+			return data;
+		} );
+	}
+
+	applyFocusRequest( focusRequestJson = '' ) {
+		if ( String( focusRequestJson || '' ).trim().length < 2 ) {
+			return;
+		}
+
+		const app = globalThis.shieldAppMain || null;
+		if ( !app || typeof app.getComponent !== 'function' ) {
+			return;
+		}
+
+		app.getComponent( 'configure_expand_loader' )?.applyFocusRequestFromJson?.( focusRequestJson );
+	}
+
+	replaceHistoryUrl( nextUrl = '' ) {
+		if ( typeof nextUrl !== 'string' || nextUrl.length < 1 ) {
+			return;
+		}
+
+		window.history.replaceState( window.history.state || {}, '', nextUrl );
 	}
 
 	resetDiagnosisCacheForRoot( root ) {

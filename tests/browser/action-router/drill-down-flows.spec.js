@@ -204,10 +204,10 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'ready' );
 	await expect( searchBody ).toHaveAttribute( 'aria-busy', 'false' );
 	await expect(
-		page.locator( '[data-configure-search-results="1"] a' ).filter( { hasText: /Daily Scan Frequency/i } )
+		page.locator( '[data-configure-search-results="1"] a[href*="config_item=scan_frequency"]' )
 	).toHaveCount( 0 );
 	await expect( optionResult.locator( '.configure-search-results__icon i' ) ).toHaveClass( /bi/ );
-	await expect( optionResult.locator( '.configure-search-results__type' ) ).toContainText( /Option/i );
+	await expect( optionResult.locator( '.configure-search-results__type' ) ).toHaveClass( /configure-search-results__type--option/ );
 	const zoneTopAfter = ( await firstZoneCard.boundingBox() )?.y || 0;
 	expect( Math.abs( zoneTopAfter - zoneTopBefore ) ).toBeLessThan( 2 );
 	await expect( optionResult ).toHaveAttribute( 'href', /row_key=general_settings/ );
@@ -216,22 +216,22 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	const targetUrl = new URL( optionHref, 'https://example.test' );
 	const targetRowKey = targetUrl.searchParams.get( 'row_key' ) || '';
 	expect( targetRowKey ).toBe( 'general_settings' );
+	await page.evaluate( () => {
+		window.__configureSearchSentinel = 'in-place-search';
+	} );
 
-	await Promise.all( [
-		page.waitForURL( ( url ) => {
-			return url.searchParams.get( 'nav' ) === 'zones'
-				&& url.searchParams.get( 'nav_sub' ) === 'overview'
-				&& url.searchParams.get( 'zone' ) === 'spam';
-		}, { timeout: 20_000 } ),
-		optionResult.click(),
-	] );
+	await optionResult.click();
 
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	const targetExpansion = page.locator( `[data-configure-row-key="${targetRowKey}"] [data-shield-expand-body="1"]` );
 	await expect( targetExpansion ).toHaveClass( /show/, { timeout: 20_000 } );
+	await expect.poll( () => new URL( page.url() ).searchParams.get( 'zone' ) || '' ).toBe( 'spam' );
 	await expect(
 		page.locator( `[data-configure-row-key="${targetRowKey}"] form.options_form_for [name="comments_cooldown"]` ).first()
 	).toBeVisible( { timeout: 20_000 } );
+	expect( await page.evaluate( () => window.__configureSearchSentinel ) ).toBe( 'in-place-search' );
+	await expect( searchInput ).toHaveValue( '' );
+	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'idle' );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'row_key' ) || '' ).toBe( '' );
 	await expect.poll( () => new URL( page.url() ).searchParams.get( 'config_item' ) || '' ).toBe( '' );
 

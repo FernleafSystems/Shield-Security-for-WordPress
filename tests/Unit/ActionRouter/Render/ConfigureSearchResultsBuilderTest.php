@@ -105,10 +105,24 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
 		$this->assertSame( 'Spam', $results[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'bi bi-shield-fill', $results[ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( [
+			'key'        => 'spam',
+			'label'      => 'Spam',
+			'status'     => 'warning',
+			'icon_class' => 'bi bi-shield-fill',
+			'header'     => [
+				'title' => 'Spam',
+			],
+		], \json_decode( (string)( $results[ 0 ][ 'selection_json' ] ?? '' ), true ) );
+		$this->assertSame( '', $results[ 0 ][ 'focus_request_json' ] ?? 'missing' );
 		$this->assertSame( 'option', $results[ 1 ][ 'type' ] ?? '' );
 		$this->assertSame( 'Bot Challenge Toggle', $results[ 1 ][ 'label' ] ?? '' );
 		$this->assertSame( 'silentCAPTCHA settings switch', $results[ 1 ][ 'summary' ] ?? '' );
 		$this->assertSame( 'bi bi-sliders', $results[ 1 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( [
+			'row_key'     => 'silentcaptcha_component',
+			'config_item' => 'custom_silentcaptcha_toggle',
+		], \json_decode( (string)( $results[ 1 ][ 'focus_request_json' ] ?? '' ), true ) );
 		$this->assertSame(
 			'/admin/zones/overview?zone=spam&row_key=silentcaptcha_component&config_item=custom_silentcaptcha_toggle',
 			$results[ 1 ][ 'href' ] ?? ''
@@ -145,6 +159,15 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 					'zone_key'      => 'spam',
 					'zone_label'    => 'Spam',
 					'zone_icon_class' => 'bi bi-shield-fill',
+					'zone_selection_json' => \json_encode( [
+						'key'        => 'spam',
+						'label'      => 'Spam',
+						'status'     => 'warning',
+						'icon_class' => 'bi bi-shield-fill',
+						'header'     => [
+							'title' => 'Spam',
+						],
+					], JSON_THROW_ON_ERROR ),
 					'preview_text'  => 'Review silentCAPTCHA settings and comment protection.',
 					'risk_context'  => 'Spam settings protect comment workflows.',
 					'problem_rows'  => [

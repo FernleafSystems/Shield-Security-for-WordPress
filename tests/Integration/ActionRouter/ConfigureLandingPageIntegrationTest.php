@@ -213,6 +213,16 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
+			'//*[@data-configure-search-results="1"]//a[@data-configure-search-result="1" and @data-drill-zone-selection]',
+			'Configure search results should expose in-page drill selection data'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-search-results="1"]//a[contains(@href, "row_key=") and contains(@href, "config_item=") and @data-configure-focus-request]',
+			'Configure search option results should expose the in-page focus payload'
+		);
+		$this->assertXPathExists(
+			$xpath,
 			'//*[@data-configure-search-results="1"]//a[contains(@href, "row_key=") and contains(@href, "config_item=")]',
 			'Configure search option links should target the exact configure row key'
 		);

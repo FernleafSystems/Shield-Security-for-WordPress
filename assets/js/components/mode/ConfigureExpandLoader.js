@@ -149,24 +149,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 
 		rootEl.dataset.configureFocusHandled = '1';
-		const focus = this.parseFocusRequest( rootEl.dataset.configureFocusRequest || '' );
-		if ( focus === null ) {
-			return;
-		}
-
-		this.pendingRequestedFocus = focus;
-
-		const expansion = this.getRequestedFocusExpansion( rootEl, focus );
-		if ( !( expansion instanceof Element ) ) {
-			this.clearPendingRequestedFocus();
-			return;
-		}
-
-		const collapse = Collapse.getOrCreateInstance( expansion, { toggle: false } );
-		collapse.show();
-		if ( expansion.classList.contains( 'show' ) ) {
-			this.handleExpansionOpened( expansion );
-		}
+		this.applyFocusRequestFromJson( rootEl.dataset.configureFocusRequest || '' );
 	}
 
 	getPreloadablePlaceholders( root ) {
@@ -198,6 +181,38 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		catch {
 			return null;
 		}
+	}
+
+	applyFocusRequestFromJson( json = '' ) {
+		const focus = this.parseFocusRequest( json );
+		return focus === null
+			? false
+			: this.applyFocusRequest( focus );
+	}
+
+	applyFocusRequest( focus ) {
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : this.getConfigureRoot();
+		if ( !( rootEl instanceof HTMLElement ) || focus === null || focus.row_key.length < 1 ) {
+			return false;
+		}
+
+		this.rootEl = rootEl;
+		rootEl.dataset.configureFocusRequest = JSON.stringify( focus );
+		this.pendingRequestedFocus = focus;
+
+		const expansion = this.getRequestedFocusExpansion( rootEl, focus );
+		if ( !( expansion instanceof Element ) ) {
+			this.clearPendingRequestedFocus();
+			return false;
+		}
+
+		const collapse = Collapse.getOrCreateInstance( expansion, { toggle: false } );
+		collapse.show();
+		if ( expansion.classList.contains( 'show' ) ) {
+			this.handleExpansionOpened( expansion );
+		}
+
+		return true;
 	}
 
 	getRequestedFocusExpansion( root, focus ) {

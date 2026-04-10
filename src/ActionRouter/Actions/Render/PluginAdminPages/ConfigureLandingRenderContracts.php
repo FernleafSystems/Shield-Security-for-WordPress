@@ -99,6 +99,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string,
  *   label:string,
  *   summary:string,
+ *   selection_json:string,
+ *   focus_request_json:string,
  *   href:string
  * }
  * @phpstan-type ConfigureLandingViewData array{
