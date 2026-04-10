@@ -96,7 +96,9 @@ export class AppMain extends AppBase {
 		this.components.investigate_landing = new InvestigateLandingController(
 			'investigate_landing' in comps ? comps.investigate_landing : {}
 		);
-		this.components.configure_landing = new ConfigureLandingController();
+		this.components.configure_landing = new ConfigureLandingController(
+			'zones_manager' in comps ? comps.zones_manager : {}
+		);
 		this.components.actions_queue_landing = new ActionsQueueLandingController();
 		this.components.reports_landing = new ReportsLandingController();
 		this.components.detail_row_expand = new DetailRowExpandController();

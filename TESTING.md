@@ -90,7 +90,8 @@ npm run playwright:install
 php bin/shield dev:site:up
 php bin/shield test:site:up
 composer test:browser
-composer test:browser -- --grep "Select2 lookup flow"
+composer test:browser -- -- -g "Select2 lookup flow"
+composer test:browser -- -- tests/browser/action-router/drill-down-flows.spec.js -g "configure opens a prefetched diagnosis without a standalone diagnosis request" --list
 ```
 
 Operational notes:
@@ -103,7 +104,12 @@ Operational notes:
 6. Both local sites fail fast if required source prerequisites are missing. At minimum, keep Composer dependencies, `plugin.json`, and built assets current before starting either site or running Playwright.
 7. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to `test:package-targeted` and `test:package-full`.
 8. Local browser work requires Docker plus a supported Node 20 binary for Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node.
-9. CI runs Chromium only. Headed debugging is still available by forwarding Playwright flags through the browser command, for example: `composer test:browser -- --headed`.
+9. CI runs Chromium only. Headed debugging is still available by forwarding Playwright flags through the browser command, for example: `composer test:browser -- -- --headed`.
+10. Composer browser-arg forwarding is two-stage and must be explicit:
+    - First `--` stops Composer argument parsing.
+    - Second `--` is passed through to `php bin/shield test:browser` so Symfony stops parsing options and forwards the remaining arguments to Playwright.
+    - Do not use `composer test:browser -- --grep "..."`; that is parsed at the wrong layer and fails.
+    - Use `composer test:browser -- -- -g "..."` for a pure Playwright grep, or `composer test:browser -- -- <path-or-filter> -g "..."` when you also want to narrow to a file.
 
 ### Optional Playground Tooling
 

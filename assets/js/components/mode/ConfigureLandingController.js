@@ -1,5 +1,6 @@
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxService } from "../services/AjaxService";
+import { AjaxBatchService } from "../services/AjaxBatchService";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 
 export class ConfigureLandingController extends DrillDownAsyncControllerBase {
@@ -9,6 +10,10 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 	}
 
 	run() {
+		this.batchRequestData = this._base_data?.ajax?.batch_requests || {};
+		this.diagnosisCache = new Map();
+		this.preloadGeneration = 0;
+		this.lastConfigureRoot = null;
 		this.layerRequests = {};
 		this.selectedZone = null;
 		this.searchTimeout = null;
@@ -18,6 +23,21 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		this.bindSaveHandlers();
 		this.bindSearchHandlers();
 		this.initializeCurrentRoot();
+	}
+
+	initializeCurrentRoot() {
+		super.initializeCurrentRoot();
+
+		if ( this.rootEl !== this.lastConfigureRoot ) {
+			this.resetDiagnosisCacheForRoot( this.rootEl );
+		}
+
+		if ( this.rootEl === null || this.shellEl === null ) {
+			return;
+		}
+
+		this.seedDiagnosisCacheFromCurrentLayer();
+		this.preloadDiagnosisLayers();
 	}
 
 	bindDrillDownHandlers() {
@@ -91,6 +111,12 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		this.cancelLayerRequest( 'diagnosis' );
 
 		drillCtrl.drillTo( shell, diagnosisIndex );
+		const cachedDiagnosis = this.readDiagnosisCacheEntry( zone.key );
+		if ( cachedDiagnosis !== null ) {
+			this.applyDiagnosisCacheEntry( cachedDiagnosis );
+			return;
+		}
+
 		drillCtrl.updateLayerHeader(
 			shell,
 			diagnosisIndex,
@@ -128,11 +154,12 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		}
 
 		const zoneSelection = this.readSelectionPayload( data.zone_selection );
+		this.storeDiagnosisCacheEntry( data );
 		this.selectedZone = {
 			...( this.selectedZone || {} ),
 			...zoneSelection,
 		};
-		drillCtrl.updateLayerHeader( this.shellEl, 1, data.header || zoneSelection.header );
+		drillCtrl.updateLayerHeader( this.shellEl, 1, data.header );
 		this.applyLandingRefresh( data.landing_refresh || null );
 		this.reinitializeExpandLoader();
 	}
@@ -151,6 +178,8 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 				this.applyLayerHtml( zonesBody, landingRefresh.zones_html );
 			}
 		}
+
+		this.restartDiagnosisPreload();
 	}
 
 	handleRetryClick( item ) {
@@ -290,6 +319,180 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 	buildSearchFailureMarkup() {
 		const message = this.rootEl?.dataset.configureLayerError || '';
 		return `<div class="text-muted small">${this.escapeHtml( message )}</div>`;
+	}
+
+	resetDiagnosisCacheForRoot( root ) {
+		this.lastConfigureRoot = root;
+		this.diagnosisCache = new Map();
+		this.preloadGeneration++;
+		this.selectedZone = null;
+	}
+
+	seedDiagnosisCacheFromCurrentLayer() {
+		const diagnosisBody = this.getDiagnosisLayerBody();
+		const diagnosis = diagnosisBody?.querySelector( '[data-configure-diagnosis="1"]' ) || null;
+		if ( !( diagnosis instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const zoneKey = String( diagnosis.dataset.configureZone || '' ).trim();
+		const zoneSelection = this.getZoneSelectionByKey( zoneKey );
+		if ( zoneSelection === null ) {
+			return;
+		}
+
+		const diagnosisHeader = this.parseJsonDataset(
+			this.getLayerByKey( this.shellEl, 'diagnosis' )?.dataset.drillLayerHeader || '{}'
+		);
+		const html = diagnosisBody?.innerHTML || '';
+		if ( html.trim().length < 1 ) {
+			return;
+		}
+
+		this.storeDiagnosisCacheEntry( {
+			html,
+			header: diagnosisHeader,
+			zone_selection: zoneSelection,
+		} );
+		this.selectedZone = {
+			...( this.selectedZone || {} ),
+			...zoneSelection,
+		};
+	}
+
+	preloadDiagnosisLayers() {
+		const root = this.rootEl;
+		if ( root === null
+			|| ObjectOps.IsEmpty( this.batchRequestData )
+			|| String( root.dataset.configureDiagnosisAction || '' ).trim().length < 1 ) {
+			return;
+		}
+
+		const zoneSelections = this.getZoneSelections().filter(
+			( zoneSelection ) => this.readDiagnosisCacheEntry( zoneSelection.key ) === null
+		);
+		if ( zoneSelections.length < 1 ) {
+			return;
+		}
+
+		const generation = this.preloadGeneration;
+		const batch = new AjaxBatchService( this.batchRequestData );
+
+		zoneSelections.forEach( ( zoneSelection ) => {
+			const renderAction = this.buildRenderAction( root.dataset.configureDiagnosisAction, {
+				zone: zoneSelection.key,
+			} );
+			if ( ObjectOps.IsEmpty( renderAction ) ) {
+				return;
+			}
+
+			batch.add( {
+				id: `configure-diagnosis-${zoneSelection.key}`,
+				request: renderAction,
+				onSuccess: ( result ) => this.handleDiagnosisBatchSuccess( result, generation, root ),
+			} );
+		} );
+
+		batch.flush();
+	}
+
+	handleDiagnosisBatchSuccess( result, generation, root ) {
+		if ( generation !== this.preloadGeneration || root !== this.lastConfigureRoot ) {
+			return;
+		}
+
+		this.storeDiagnosisCacheEntry( result?.data || {}, generation );
+	}
+
+	restartDiagnosisPreload() {
+		const selectedZoneKey = this.selectedZone?.key || '';
+		const selectedZoneCache = selectedZoneKey.length > 0
+			? this.readDiagnosisCacheEntry( selectedZoneKey )
+			: null;
+
+		this.preloadGeneration++;
+		this.diagnosisCache = new Map();
+
+		if ( selectedZoneCache !== null ) {
+			this.diagnosisCache.set( selectedZoneKey, {
+				...selectedZoneCache,
+				generation: this.preloadGeneration,
+			} );
+		}
+
+		this.preloadDiagnosisLayers();
+	}
+
+	storeDiagnosisCacheEntry( data, generation = this.preloadGeneration ) {
+		const cacheEntry = this.buildDiagnosisCacheEntry( data );
+		if ( cacheEntry === null ) {
+			return;
+		}
+
+		this.diagnosisCache.set( cacheEntry.key, {
+			...cacheEntry,
+			generation,
+		} );
+	}
+
+	buildDiagnosisCacheEntry( data ) {
+		const zoneSelection = this.readSelectionPayload( data?.zone_selection );
+		const html = typeof data?.html === 'string' ? data.html : '';
+		if ( zoneSelection.key.length < 1 || html.trim().length < 1 ) {
+			return null;
+		}
+
+		return {
+			key: zoneSelection.key,
+			html,
+			header: data?.header,
+			zone_selection: zoneSelection,
+		};
+	}
+
+	readDiagnosisCacheEntry( zoneKey ) {
+		const cacheEntry = this.diagnosisCache.get( String( zoneKey || '' ).trim() ) || null;
+		if ( cacheEntry === null || cacheEntry.generation !== this.preloadGeneration ) {
+			return null;
+		}
+
+		return cacheEntry;
+	}
+
+	applyDiagnosisCacheEntry( cacheEntry ) {
+		const drillCtrl = this.getDrillDownController();
+		const diagnosisBody = this.getDiagnosisLayerBody();
+		if ( this.shellEl === null || diagnosisBody === null || drillCtrl === null ) {
+			return;
+		}
+
+		const zoneSelection = this.readSelectionPayload( cacheEntry.zone_selection );
+		this.selectedZone = {
+			...( this.selectedZone || {} ),
+			...zoneSelection,
+		};
+		this.applyLayerHtml( diagnosisBody, cacheEntry.html );
+		drillCtrl.updateLayerHeader( this.shellEl, 1, cacheEntry.header );
+		this.reinitializeExpandLoader();
+	}
+
+	getDiagnosisLayerBody() {
+		const diagnosisLayer = this.getLayerByKey( this.shellEl, 'diagnosis' );
+		return diagnosisLayer?.querySelector( '.drill-layer__body' ) || null;
+	}
+
+	getZoneSelections() {
+		return Array.from(
+			this.rootEl?.querySelectorAll( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ) || []
+		).map( ( item ) => this.readZoneSelection( item ) ).filter(
+			( zoneSelection ) => zoneSelection.key.length > 0
+		);
+	}
+
+	getZoneSelectionByKey( zoneKey ) {
+		return this.getZoneSelections().find(
+			( zoneSelection ) => zoneSelection.key === zoneKey
+		) || null;
 	}
 
 	reinitializeExpandLoader() {

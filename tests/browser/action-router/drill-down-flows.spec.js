@@ -31,6 +31,13 @@ function isConfigureSearchResponse( response, searchTerm ) {
 	return isConfigureSearchRequest( response.request(), searchTerm );
 }
 
+function isConfigureDiagnosisDirectRequest( request, zoneKey ) {
+	const postData = request.postData() || '';
+	const params = new URLSearchParams( postData );
+	return params.get( 'render_slug' ) === 'configure_drill_down_diagnosis'
+		&& params.get( 'zone' ) === zoneKey;
+}
+
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
 	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -121,6 +128,33 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
+} );
+
+test( 'configure opens a prefetched diagnosis without a standalone diagnosis request', async ( { page } ) => {
+	let directDiagnosisRequestCount = 0;
+
+	await page.route( '**/admin-ajax.php*', async ( route ) => {
+		if ( isConfigureDiagnosisDirectRequest( route.request(), 'secadmin' ) ) {
+			directDiagnosisRequestCount++;
+		}
+
+		await route.continue();
+	} );
+
+	await openShieldRoute( page, {
+		nav: 'zones',
+		nav_sub: 'overview',
+	} );
+	await page.waitForLoadState( 'networkidle' );
+
+	const zone = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' )
+		.filter( { hasText: /Security Admin/i } )
+		.first();
+	await expect( zone ).toBeVisible();
+
+	await zone.click();
+	await expect( page.locator( '[data-configure-diagnosis="1"][data-configure-zone="secadmin"]' ) ).toBeVisible();
+	expect( directDiagnosisRequestCount ).toBe( 0 );
 } );
 
 test( 'configure search keeps the newest results and deep-links into the matching option', async ( { page } ) => {
