@@ -12,6 +12,8 @@
 		 data-configure-search-min-chars="3"
 		 data-configure-focus-request="{{ vars.configure_focus_request_json|e('html_attr') }}">
 		<div class="configure-landing__search"
+			 data-configure-search-dock="1"
+			 data-configure-search-state="idle"
 			 data-configure-section="search">
 			<label class="configure-landing__search-label" for="ConfigureLandingSearchInput">{{ strings.search_label }}</label>
 			<div class="configure-landing__search-input-wrap">
@@ -21,10 +23,11 @@
 					   data-configure-search-input="1"
 					   autocomplete="off"
 					   placeholder="{{ strings.search_placeholder }}">
+				<div class="configure-landing__search-results"
+					 data-configure-search-body="1"
+					 aria-live="polite"
+					 aria-busy="false"></div>
 			</div>
-			<p class="configure-landing__search-hint">{{ strings.search_hint }}</p>
-			<div class="configure-landing__search-results"
-				 data-configure-search-body="1"></div>
 		</div>
 		<div class="configure-landing__drilldown"
 			 data-configure-section="drilldown">

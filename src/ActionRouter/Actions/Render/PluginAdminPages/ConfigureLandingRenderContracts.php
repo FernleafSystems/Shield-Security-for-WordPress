@@ -94,6 +94,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   zone_selection:DrillSelection,
  *   zone_selection_json:string
  * }
+ * @phpstan-type ConfigureSearchResult array{
+ *   type:'zone'|'option',
+ *   icon_class:string,
+ *   label:string,
+ *   summary:string,
+ *   href:string
+ * }
  * @phpstan-type ConfigureLandingViewData array{
  *   tiles:list<ConfigureLandingTile>,
  *   tile_lookup:array<string,ConfigureLandingTile>,

@@ -115,6 +115,17 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-configure-landing="1"]//*[@data-configure-search-input="1"]',
 			'Configure landing should render the search dock input'
 		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-search-dock="1" and @data-configure-search-state="idle"]//*[@data-configure-search-body="1" and @aria-live="polite" and @aria-busy="false"]',
+			'Configure landing should render an idle live-region search dock'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-landing__search-hint ")]',
+			0,
+			'Configure landing should not render the removed helper paragraph'
+		);
 		$this->assertSame(
 			[
 				'row_key'     => 'general_settings',
@@ -195,6 +206,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan(
 			0,
 			$xpath->query( '//*[@data-configure-search-results="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-search-results__type--option ")]' )->length
+		);
+		$this->assertGreaterThan(
+			0,
+			$xpath->query( '//*[@data-configure-search-results="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-search-results__icon ")]/i' )->length
 		);
 		$this->assertXPathExists(
 			$xpath,

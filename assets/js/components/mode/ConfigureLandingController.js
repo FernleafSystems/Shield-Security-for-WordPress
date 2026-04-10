@@ -36,6 +36,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			return;
 		}
 
+		this.setSearchState( 'idle', this.rootEl );
 		this.seedDiagnosisCacheFromCurrentLayer();
 		this.preloadDiagnosisLayers();
 	}
@@ -227,11 +228,11 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		this.cancelPendingSearch();
 
 		if ( query.length < this.getSearchMinChars() ) {
-			this.replaceLayerBodyHtml( searchBody, '' );
+			this.clearSearchResults( root, searchBody );
 			return;
 		}
 
-		this.replaceLayerBodyHtml( searchBody, this.buildLoadingMarkup( this.getSearchLoadingText() ) );
+		this.renderSearchLoading( root, searchBody );
 		this.searchTimeout = setTimeout( () => this.performSearch( query, searchBody ), 250 );
 	}
 
@@ -241,7 +242,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			search: query,
 		} );
 		if ( ObjectOps.IsEmpty( renderAction ) ) {
-			this.replaceLayerBodyHtml( searchBody, '' );
+			this.clearSearchResults( this.rootEl, searchBody );
 			return;
 		}
 
@@ -256,15 +257,16 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 				}
 
 				if ( !resp.success || typeof resp?.data?.render_output !== 'string' ) {
-					this.replaceLayerBodyHtml( searchBody, this.buildSearchFailureMarkup() );
+					this.renderSearchFailure( this.rootEl, searchBody );
 					return;
 				}
 
 				this.replaceLayerBodyHtml( searchBody, resp.data.render_output, true );
+				this.setSearchState( 'ready', this.rootEl );
 			} )
 			.catch( () => {
 				if ( this.searchRequestKey === requestKey ) {
-					this.replaceLayerBodyHtml( searchBody, this.buildSearchFailureMarkup() );
+					this.renderSearchFailure( this.rootEl, searchBody );
 				}
 			} )
 			.finally( () => {
@@ -302,6 +304,10 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		return root?.querySelector( '[data-configure-search-body="1"]' ) || null;
 	}
 
+	getSearchDock( root = this.rootEl ) {
+		return root?.querySelector( '[data-configure-search-dock="1"]' ) || null;
+	}
+
 	renderLayerFailure( body, layerKey ) {
 		const message = this.rootEl?.dataset.configureLayerError || '';
 		const retry = this.rootEl?.dataset.configureLayerRetry || '';
@@ -318,7 +324,53 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
 	buildSearchFailureMarkup() {
 		const message = this.rootEl?.dataset.configureLayerError || '';
-		return `<div class="text-muted small">${this.escapeHtml( message )}</div>`;
+		return this.buildSearchStatusMarkup( message );
+	}
+
+	renderSearchLoading( root, searchBody ) {
+		this.replaceLayerBodyHtml(
+			searchBody,
+			this.buildSearchStatusMarkup( this.getSearchLoadingText(), true )
+		);
+		this.setSearchState( 'loading', root );
+	}
+
+	renderSearchFailure( root, searchBody ) {
+		this.replaceLayerBodyHtml( searchBody, this.buildSearchFailureMarkup() );
+		this.setSearchState( 'error', root );
+	}
+
+	clearSearchResults( root, searchBody ) {
+		this.replaceLayerBodyHtml( searchBody, '' );
+		this.setSearchState( 'idle', root );
+	}
+
+	setSearchState( state, root = this.rootEl ) {
+		const dock = this.getSearchDock( root );
+		if ( dock !== null ) {
+			dock.dataset.configureSearchState = state;
+		}
+
+		const searchBody = this.getSearchBody( root );
+		if ( searchBody !== null ) {
+			searchBody.setAttribute( 'aria-busy', state === 'loading' ? 'true' : 'false' );
+		}
+	}
+
+	buildSearchStatusMarkup( message, includeSpinner = false ) {
+		const spinnerMarkup = includeSpinner
+			? `<span class="configure-search-results__spinner">${this.buildSearchSpinnerMarkup()}</span>`
+			: '';
+
+		return `<div class="configure-search-results configure-search-results--status" data-configure-search-results="1"><div class="configure-search-results__status">${spinnerMarkup}<span class="configure-search-results__status-text">${this.escapeHtml( message )}</span></div></div>`;
+	}
+
+	buildSearchSpinnerMarkup() {
+		const spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
+		spinner.id = '';
+		spinner.classList.remove( 'd-none' );
+		spinner.querySelector( '.spinner-border' )?.classList.remove( 'm-5' );
+		return spinner.outerHTML;
 	}
 
 	resetDiagnosisCacheForRoot( root ) {

@@ -97,18 +97,21 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		$results = $this->newBuilder()->build( 'silentcaptcha' );
 
 		$this->assertNotSame( [], $results );
-		$this->assertSame( [ 'option', 'zone' ], \array_column( $results, 'type' ) );
+		$this->assertSame( [ 'zone', 'option' ], \array_column( $results, 'type' ) );
 		$this->assertSame(
 			[],
 			\array_diff( \array_column( $results, 'type' ), [ 'option', 'zone' ] )
 		);
-		$this->assertSame( 'option', $results[ 0 ][ 'type' ] ?? '' );
-		$this->assertSame( 'Bot Challenge Toggle', $results[ 0 ][ 'label' ] ?? '' );
-		$this->assertSame( 'zone', $results[ 1 ][ 'type' ] ?? '' );
-		$this->assertSame( 'Spam', $results[ 1 ][ 'label' ] ?? '' );
+		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( 'Spam', $results[ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'bi bi-shield-fill', $results[ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'option', $results[ 1 ][ 'type' ] ?? '' );
+		$this->assertSame( 'Bot Challenge Toggle', $results[ 1 ][ 'label' ] ?? '' );
+		$this->assertSame( 'silentCAPTCHA settings switch', $results[ 1 ][ 'summary' ] ?? '' );
+		$this->assertSame( 'bi bi-sliders', $results[ 1 ][ 'icon_class' ] ?? '' );
 		$this->assertSame(
 			'/admin/zones/overview?zone=spam&row_key=silentcaptcha_component&config_item=custom_silentcaptcha_toggle',
-			$results[ 0 ][ 'href' ] ?? ''
+			$results[ 1 ][ 'href' ] ?? ''
 		);
 	}
 
@@ -125,6 +128,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotContains( 'Orphan Search Target', \array_column( $optionResults, 'label' ) );
 		$this->assertSame( 'Comments Cooldown', $optionResults[ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'Minimum Time Interval Between Comments (seconds)', $optionResults[ 0 ][ 'summary' ] ?? '' );
 		$this->assertSame(
 			'/admin/zones/overview?zone=spam&row_key=general_settings&config_item=comments_cooldown',
 			$optionResults[ 0 ][ 'href' ] ?? ''
@@ -140,6 +144,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'spam' => [
 					'zone_key'      => 'spam',
 					'zone_label'    => 'Spam',
+					'zone_icon_class' => 'bi bi-shield-fill',
 					'preview_text'  => 'Review silentCAPTCHA settings and comment protection.',
 					'risk_context'  => 'Spam settings protect comment workflows.',
 					'problem_rows'  => [
@@ -203,6 +208,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 
 			public function getBrandName( string $brand ) :string {
 				return $brand === 'silentcaptcha' ? 'silentCAPTCHA' : $brand;
+			}
+		};
+		$controller->svgs = new class {
+			public function iconClass( string $icon ) :string {
+				return 'bi bi-'.$icon;
 			}
 		};
 		$controller->cfg = (object)[

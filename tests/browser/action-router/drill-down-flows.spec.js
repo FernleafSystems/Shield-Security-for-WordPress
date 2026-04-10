@@ -176,12 +176,19 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	} );
 
 	const searchInput = page.locator( '[data-configure-search-input="1"]' );
+	const searchDock = page.locator( '[data-configure-search-dock="1"]' );
+	const searchBody = page.locator( '[data-configure-search-body="1"]' );
+	const firstZoneCard = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first();
 	await expect( searchInput ).toBeVisible();
+	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'idle' );
+	const zoneTopBefore = ( await firstZoneCard.boundingBox() )?.y || 0;
 
 	const firstSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'scan frequency' ) );
 	const firstSearchResponse = page.waitForResponse( ( response ) => isConfigureSearchResponse( response, 'scan frequency' ) );
 	await searchInput.fill( 'scan frequency' );
 	await firstSearchRequest;
+	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'loading' );
+	await expect( searchBody ).toHaveAttribute( 'aria-busy', 'true' );
 
 	const secondSearchRequest = page.waitForRequest( ( request ) => isConfigureSearchRequest( request, 'comments cooldown' ) );
 	const secondSearchResponse = page.waitForResponse( ( response ) => isConfigureSearchResponse( response, 'comments cooldown' ) );
@@ -194,9 +201,15 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 		.first();
 	await expect( optionResult ).toBeVisible( { timeout: 20_000 } );
 	await expect( optionResult ).toBeVisible();
+	await expect( searchDock ).toHaveAttribute( 'data-configure-search-state', 'ready' );
+	await expect( searchBody ).toHaveAttribute( 'aria-busy', 'false' );
 	await expect(
 		page.locator( '[data-configure-search-results="1"] a' ).filter( { hasText: /Daily Scan Frequency/i } )
 	).toHaveCount( 0 );
+	await expect( optionResult.locator( '.configure-search-results__icon i' ) ).toHaveClass( /bi/ );
+	await expect( optionResult.locator( '.configure-search-results__type' ) ).toContainText( /Option/i );
+	const zoneTopAfter = ( await firstZoneCard.boundingBox() )?.y || 0;
+	expect( Math.abs( zoneTopAfter - zoneTopBefore ) ).toBeLessThan( 2 );
 	await expect( optionResult ).toHaveAttribute( 'href', /row_key=general_settings/ );
 	await expect( optionResult ).toHaveAttribute( 'href', /config_item=comments_cooldown/ );
 	const optionHref = await optionResult.getAttribute( 'href' );

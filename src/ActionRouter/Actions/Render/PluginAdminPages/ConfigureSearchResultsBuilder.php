@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @phpstan-import-type ConfigureLandingViewData from ConfigureLandingRenderContracts
+ * @phpstan-import-type ConfigureSearchResult from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisFinding from ConfigureLandingRenderContracts
  */
@@ -29,6 +30,9 @@ class ConfigureSearchResultsBuilder {
 		$this->searchTextTokenBuilder = $searchTextTokenBuilder ?? new SearchTextTokenBuilder();
 	}
 
+	/**
+	 * @return list<ConfigureSearchResult>
+	 */
 	public function build( string $search ) :array {
 		$terms = $this->extractSearchTerms( $search );
 		if ( empty( $terms ) ) {
@@ -95,13 +99,14 @@ class ConfigureSearchResultsBuilder {
 			}
 
 			$results[] = [
-				'type'    => 'zone',
-				'label'   => $diagnosis[ 'zone_label' ],
-				'summary' => $diagnosis[ 'preview_text' ] !== ''
+				'type'       => 'zone',
+				'icon_class' => $diagnosis[ 'zone_icon_class' ],
+				'label'      => $diagnosis[ 'zone_label' ],
+				'summary'    => $diagnosis[ 'preview_text' ] !== ''
 					? $diagnosis[ 'preview_text' ]
 					: $diagnosis[ 'risk_context' ],
-				'href'    => self::con()->plugin_urls->configureHome( $diagnosis[ 'zone_key' ] ),
-				'score'   => $score,
+				'href'       => self::con()->plugin_urls->configureHome( $diagnosis[ 'zone_key' ] ),
+				'score'      => $score,
 			];
 		}
 
@@ -149,14 +154,15 @@ class ConfigureSearchResultsBuilder {
 			}
 
 			$results[] = [
-				'type'    => 'option',
-				'label'   => $optionStrings[ 'name' ],
-				'summary' => $this->buildOptionSummary( $focusTarget[ 'zone_label' ], $focusTarget[ 'row' ], $optionStrings ),
-				'href'    => URL::Build(
+				'type'       => 'option',
+				'icon_class' => self::con()->svgs->iconClass( 'sliders' ),
+				'label'      => $optionStrings[ 'name' ],
+				'summary'    => $this->buildOptionSummary( $focusTarget[ 'row_title' ], $optionStrings ),
+				'href'       => URL::Build(
 					self::con()->plugin_urls->configureHome( $focusTarget[ 'zone_key' ] ),
 					$this->buildFocusQueryArgs( $optionKey, $focusTarget )
 				),
-				'score'   => $score,
+				'score'      => $score,
 			];
 		}
 
@@ -185,14 +191,17 @@ class ConfigureSearchResultsBuilder {
 		) );
 	}
 
-	private function buildOptionSummary( string $zoneLabel, array $row, array $optionStrings ) :string {
-		$rowTitle = \trim( (string)( $row[ 'title' ] ?? '' ) );
+	private function buildOptionSummary( string $rowTitle, array $optionStrings ) :string {
 		$summary = \trim( (string)( $optionStrings[ 'summary' ] ?? '' ) );
-		$detail = $rowTitle !== '' && $rowTitle !== (string)( $optionStrings[ 'name' ] ?? '' )
-			? $rowTitle
-			: $summary;
+		if ( $summary !== '' && \strcasecmp( $summary, (string)( $optionStrings[ 'name' ] ?? '' ) ) !== 0 ) {
+			return $summary;
+		}
 
-		return \trim( $zoneLabel.( $detail !== '' ? ' - '.$detail : '' ) );
+		$description = $optionStrings[ 'description' ] ?? [];
+		$descriptionSummary = \trim( \is_array( $description ) ? (string)( $description[ 0 ] ?? '' ) : (string)$description );
+		return $descriptionSummary !== ''
+			? $descriptionSummary
+			: \trim( $rowTitle );
 	}
 
 	private function buildFocusQueryArgs( string $optionKey, array $focusTarget ) :array {
@@ -205,9 +214,8 @@ class ConfigureSearchResultsBuilder {
 	/**
 	 * @return array<string,array{
 	 *   zone_key:string,
-	 *   zone_label:string,
 	 *   row_key:string,
-	 *   row:DiagnosisFinding,
+	 *   row_title:string,
 	 *   priority:int
 	 * }>
 	 */
@@ -306,9 +314,8 @@ class ConfigureSearchResultsBuilder {
 
 			$lookup[ $optionKey ] = [
 				'zone_key'   => $diagnosis[ 'zone_key' ],
-				'zone_label' => $diagnosis[ 'zone_label' ],
 				'row_key'    => $rowKey,
-				'row'        => $row,
+				'row_title'  => (string)( $row[ 'title' ] ?? '' ),
 				'priority'   => $priority,
 			];
 		}
@@ -352,7 +359,7 @@ class ConfigureSearchResultsBuilder {
 	}
 
 	private function typePriority( string $type ) :int {
-		return $type === 'option' ? 0 : 1;
+		return $type === 'zone' ? 0 : 1;
 	}
 
 	private function normalizeCsvString( string $value ) :string {

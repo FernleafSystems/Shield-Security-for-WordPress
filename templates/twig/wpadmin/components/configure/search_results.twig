@@ -1,17 +1,22 @@
 <div class="configure-search-results"
 	 data-configure-search-results="1">
 	{% if flags.has_results %}
-		<div class="list-group list-group-flush">
+		<div class="configure-search-results__list">
 			{% for result in vars.results %}
-				<a class="list-group-item list-group-item-action configure-search-results__item"
+				<a class="configure-search-results__item"
 				   href="{{ result.href }}">
-					<span class="configure-search-results__type configure-search-results__type--{{ result.type }}">
-						{{ result.type == 'zone' ? strings.zone_label : strings.option_label }}
+					<span class="configure-search-results__icon">
+						<i class="{{ result.icon_class }}" aria-hidden="true"></i>
 					</span>
-					<span class="configure-search-results__label">{{ result.label }}</span>
-					{% if result.summary is not empty %}
-						<span class="configure-search-results__summary">{{ result.summary }}</span>
-					{% endif %}
+					<span class="configure-search-results__copy">
+						<span class="configure-search-results__type configure-search-results__type--{{ result.type }}">
+							{{ result.type == 'zone' ? strings.zone_label : strings.option_label }}
+						</span>
+						<span class="configure-search-results__label">{{ result.label }}</span>
+						{% if result.summary is not empty %}
+							<span class="configure-search-results__summary">{{ result.summary }}</span>
+						{% endif %}
+					</span>
 				</a>
 			{% endfor %}
 		</div>

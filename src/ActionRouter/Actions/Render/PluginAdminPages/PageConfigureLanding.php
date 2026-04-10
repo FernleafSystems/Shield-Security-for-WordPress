@@ -58,9 +58,8 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
 			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),
-			'search_label'        => __( 'Search Configure', 'wp-simple-firewall' ),
-			'search_placeholder'  => __( 'Search zones and options...', 'wp-simple-firewall' ),
-			'search_hint'         => __( 'Search as you type to jump directly to a zone or option.', 'wp-simple-firewall' ),
+			'search_label'        => __( 'Search Configure Options', 'wp-simple-firewall' ),
+			'search_placeholder'  => __( 'Search as you type to jump directly to a zone or option.', 'wp-simple-firewall' ),
 			'search_loading'      => __( 'Searching Configure...', 'wp-simple-firewall' ),
 		];
 	}

@@ -191,6 +191,18 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $vars[ 'configure_focus_request_json' ] ?? 'missing' );
 	}
 
+	public function test_landing_strings_put_search_guidance_in_the_placeholder() :void {
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$strings = $this->invokeNonPublicMethod( $page, 'getLandingStrings' );
+
+		$this->assertSame(
+			'Search as you type to jump directly to a zone or option.',
+			$strings[ 'search_placeholder' ] ?? ''
+		);
+		$this->assertArrayNotHasKey( 'search_hint', $strings );
+	}
+
 	public function test_valid_zone_deep_link_preloads_diagnosis_layer() :void {
 		ServicesState::installItems( [
 			'service_request'   => new UnitTestRequest( [ 'zone' => 'login' ] ),
