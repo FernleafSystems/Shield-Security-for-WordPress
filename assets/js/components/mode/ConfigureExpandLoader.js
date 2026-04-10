@@ -5,6 +5,10 @@ import { AjaxBatchService } from "../services/AjaxBatchService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 
+/**
+ * @typedef {{row_key: string, config_item: string}} ConfigureFocusRequest
+ */
+
 export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 	canRun() {
@@ -14,6 +18,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	run() {
 		this.ajaxBase = this._base_data.ajax.offcanvas_zone_component_config;
 		this.batchRequestData = this._base_data.ajax.batch_requests || {};
+		/** @type {ConfigureFocusRequest|null} */
 		this.pendingRequestedFocus = null;
 
 		shieldEventsHandler_Main.addHandler(
@@ -45,7 +50,8 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	}
 
 	getConfigureRoot() {
-		return document.querySelector( '[data-configure-landing="1"]' );
+		const root = document.querySelector( '[data-configure-landing="1"]' );
+		return root instanceof HTMLElement ? root : null;
 	}
 
 	handleExpansionOpened( expansion ) {
@@ -76,7 +82,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		tempDiv.innerHTML = responseHtml;
 
 		const form = tempDiv.querySelector( 'form.options_form_for' );
-		if ( form === null ) {
+		if ( !( form instanceof HTMLFormElement ) ) {
 			this.clearPendingRequestedFocusForExpansion( expansion );
 			this.renderLoadFailure( placeholder, expansion, 'No settings are available for this component.' );
 			return;
@@ -86,7 +92,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		form.querySelector( '.shield-options-rail-save' )?.remove();
 
 		const rail = form.querySelector( '.shield-options-rail' );
-		if ( rail ) {
+		if ( rail instanceof HTMLElement ) {
 			rail.style.display = 'none';
 		}
 
@@ -99,7 +105,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	}
 
 	preloadExpansionForms() {
-		const rootEl = this.rootEl;
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : null;
 		if ( rootEl === null || ObjectOps.IsEmpty( this.batchRequestData ) ) {
 			return;
 		}
@@ -137,14 +143,14 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	}
 
 	maybeApplyRequestedFocus() {
-		const rootEl = this.rootEl;
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : null;
 		if ( rootEl === null || rootEl.dataset.configureFocusHandled === '1' ) {
 			return;
 		}
 
 		rootEl.dataset.configureFocusHandled = '1';
 		const focus = this.parseFocusRequest( rootEl.dataset.configureFocusRequest || '' );
-		if ( ObjectOps.IsEmpty( focus ) ) {
+		if ( focus === null ) {
 			return;
 		}
 
@@ -165,7 +171,8 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 	getPreloadablePlaceholders( root ) {
 		return [ ...root.querySelectorAll( '[data-configure-expand-ajax="1"]' ) ].filter( ( placeholder ) => {
-			return !this.isPlaceholderLoading( placeholder )
+			return placeholder instanceof HTMLElement
+				&& !this.isPlaceholderLoading( placeholder )
 				&& !this.expansionHasLoadedForm( this.getExpansionFromPlaceholder( placeholder ) )
 				&& !ObjectOps.IsEmpty( this.buildRequestData( placeholder ) );
 		} );
@@ -173,14 +180,14 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 	parseFocusRequest( json = '' ) {
 		if ( typeof json !== 'string' || json.trim().length < 2 ) {
-			return {};
+			return null;
 		}
 
 		try {
 			const parsed = JSON.parse( json );
 			const rowKey = typeof parsed?.row_key === 'string' ? parsed.row_key : '';
 			if ( rowKey.length < 1 ) {
-				return {};
+				return null;
 			}
 
 			return {
@@ -188,23 +195,23 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 				config_item: typeof parsed?.config_item === 'string' ? parsed.config_item : '',
 			};
 		}
-		catch ( e ) {
-			return {};
+		catch {
+			return null;
 		}
 	}
 
 	getRequestedFocusExpansion( root, focus ) {
-		if ( !( root instanceof Element ) || typeof focus?.row_key !== 'string' || focus.row_key.length < 1 ) {
+		if ( !( root instanceof HTMLElement ) || focus === null || focus.row_key.length < 1 ) {
 			return null;
 		}
 
 		const itemWrapper = root.querySelector( `[data-configure-row-key="${focus.row_key}"]` );
-		if ( !( itemWrapper instanceof Element ) ) {
+		if ( !( itemWrapper instanceof HTMLElement ) ) {
 			return null;
 		}
 
 		const expansion = itemWrapper.querySelector( '[data-shield-expand-body="1"]' );
-		if ( !( expansion instanceof Element ) ) {
+		if ( !( expansion instanceof HTMLElement ) ) {
 			return null;
 		}
 
@@ -319,23 +326,23 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 	handleSaveClick( button ) {
 		const expansion = button.closest( '[data-shield-expand-body="1"]' );
-		if ( expansion === null ) {
+		if ( !( expansion instanceof HTMLElement ) ) {
 			return;
 		}
 
 		const form = expansion.querySelector( 'form.options_form_for' );
-		if ( form !== null ) {
+		if ( form instanceof HTMLFormElement ) {
 			form.requestSubmit();
 		}
 	}
 
 	setSaveButtonDisabled( expansion, isDisabled ) {
-		if ( !( expansion instanceof Element ) ) {
+		if ( !( expansion instanceof HTMLElement ) ) {
 			return;
 		}
 
 		const button = expansion.querySelector( '.shield-detail-expansion__btn-save' );
-		if ( button !== null ) {
+		if ( button instanceof HTMLButtonElement ) {
 			button.disabled = isDisabled;
 		}
 	}
@@ -344,20 +351,28 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		const spinner = document.getElementById( 'ShieldWaitSpinner' );
 		if ( spinner instanceof HTMLElement ) {
 			const clone = spinner.cloneNode( true );
-			clone.id = '';
-			clone.classList.remove( 'd-none' );
-			return clone.outerHTML;
+			if ( clone instanceof HTMLElement ) {
+				clone.id = '';
+				clone.classList.remove( 'd-none' );
+				return clone.outerHTML;
+			}
 		}
 
 		return '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-3" role="status"><span class="visually-hidden">Loading...</span></div></div>';
 	}
 
 	getExpansionPlaceholder( expansion ) {
-		return expansion.querySelector( '[data-configure-expand-ajax="1"]' );
+		const placeholder = expansion instanceof HTMLElement
+			? expansion.querySelector( '[data-configure-expand-ajax="1"]' )
+			: null;
+		return placeholder instanceof HTMLElement ? placeholder : null;
 	}
 
 	getExpansionFromPlaceholder( placeholder ) {
-		return placeholder.closest( '[data-shield-expand-body="1"]' );
+		const expansion = placeholder instanceof HTMLElement
+			? placeholder.closest( '[data-shield-expand-body="1"]' )
+			: null;
+		return expansion instanceof HTMLElement ? expansion : null;
 	}
 
 	expansionHasLoadedForm( expansion ) {
@@ -379,7 +394,7 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 
 	maybeFocusRequestedConfigItem( expansion ) {
 		const focus = this.pendingRequestedFocus;
-		if ( ObjectOps.IsEmpty( focus ) || !( expansion instanceof Element ) || this.getExpansionRowKey( expansion ) !== focus.row_key ) {
+		if ( focus === null || !( expansion instanceof HTMLElement ) || this.getExpansionRowKey( expansion ) !== focus.row_key ) {
 			return;
 		}
 
@@ -413,21 +428,21 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 	}
 
 	clearPendingRequestedFocusForExpansion( expansion ) {
-		if ( !( expansion instanceof Element ) ) {
+		if ( !( expansion instanceof HTMLElement ) ) {
 			return;
 		}
 
 		const focus = this.pendingRequestedFocus;
-		if ( !ObjectOps.IsEmpty( focus ) && this.getExpansionRowKey( expansion ) === focus.row_key ) {
+		if ( focus !== null && this.getExpansionRowKey( expansion ) === focus.row_key ) {
 			this.clearPendingRequestedFocus();
 		}
 	}
 
 	finalizePendingRequestedFocus() {
 		const focus = this.pendingRequestedFocus;
-		const rootEl = this.rootEl;
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : null;
 		this.pendingRequestedFocus = null;
-		if ( !( rootEl instanceof HTMLElement ) || ObjectOps.IsEmpty( focus ) ) {
+		if ( rootEl === null || focus === null ) {
 			return;
 		}
 
@@ -442,11 +457,17 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 			nextUrl.searchParams.delete( 'config_item' );
 			window.history.replaceState( window.history.state || {}, '', nextUrl.toString() );
 		}
-		catch ( e ) {
+		catch {
+			return;
 		}
 	}
 
 	getExpansionRowKey( expansion ) {
-		return expansion?.closest( '[data-configure-row-key]' )?.dataset?.configureRowKey || '';
+		const itemWrapper = expansion instanceof HTMLElement
+			? expansion.closest( '[data-configure-row-key]' )
+			: null;
+		return itemWrapper instanceof HTMLElement
+			? itemWrapper.dataset.configureRowKey || ''
+			: '';
 	}
 }

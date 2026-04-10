@@ -3,6 +3,8 @@ const js = require( '@eslint/js' );
 module.exports = [
 	{
 		files: [
+			'assets/js/util/ObjectOps.js',
+			'assets/js/components/services/AjaxBatchService.js',
 			'assets/js/components/tables/ActivityLogMetaPopover.js',
 			'assets/js/components/tables/InvestigationTable.js',
 			'assets/js/components/tables/ShieldTableActivityLog.js',
@@ -10,6 +12,7 @@ module.exports = [
 			'assets/js/components/tables/ShieldTableIpRules.js',
 			'assets/js/components/tables/ShieldTableSecurityRules.js',
 			'assets/js/components/tables/ShieldTableSessions.js',
+			'assets/js/components/mode/ConfigureExpandLoader.js',
 			'assets/js/components/mode/StepTabsController.js',
 			'assets/js/components/mode/ActionsQueueLandingController.js',
 		],
@@ -26,6 +29,7 @@ module.exports = [
 				HTMLInputElement: 'readonly',
 				HTMLFormElement: 'readonly',
 				CustomEvent: 'readonly',
+				URL: 'readonly',
 				WeakSet: 'readonly',
 				setTimeout: 'readonly',
 				clearTimeout: 'readonly',
