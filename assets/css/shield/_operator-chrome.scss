@@ -233,7 +233,7 @@
 }
 
 .operator-context-rail__header {
-	align-items: flex-start;
+	align-items: center;
 	border-bottom: 1px solid $border-color-neutral-subtle;
 	display: flex;
 	gap: 0.4rem;
@@ -248,20 +248,10 @@
 	flex-shrink: 0;
 	font-size: 0.9rem;
 	justify-content: center;
-	padding-top: 0.1rem;
 }
 
 .operator-context-rail__title-wrap {
 	min-width: 0;
-}
-
-.operator-context-rail__eyebrow {
-	color: #687281;
-	font-size: 0.62rem;
-	font-weight: 700;
-	letter-spacing: 0.08em;
-	margin-bottom: 0.25rem;
-	text-transform: uppercase;
 }
 
 .operator-context-rail__title-row {

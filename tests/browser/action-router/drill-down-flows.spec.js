@@ -59,6 +59,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await expect( actionTabs ).toHaveCount( 3 );
 		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 		await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Actions Queue/i );
+		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__eyebrow' ) ).toHaveCount( 0 );
 		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).not.toHaveText( '' );
 
 		const group = await actionsQueuePage.waitForGroupWithRetry( bucket, fixture.group_key );

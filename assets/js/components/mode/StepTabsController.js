@@ -232,10 +232,6 @@ export class StepTabsController extends BaseAutoExecComponent {
 		const labels = this.getRailLabels( shell );
 		const titleWrap = document.createElement( 'div' );
 		titleWrap.className = 'operator-context-rail__title-wrap';
-		const eyebrow = document.createElement( 'div' );
-		eyebrow.className = 'operator-context-rail__eyebrow';
-		eyebrow.textContent = labels.title;
-		titleWrap.appendChild( eyebrow );
 
 		const titleRow = document.createElement( 'div' );
 		titleRow.className = 'operator-context-rail__title-row';
@@ -586,7 +582,6 @@ export class StepTabsController extends BaseAutoExecComponent {
 
 	getRailLabels( shell ) {
 		return {
-			title: shell.dataset.operatorContextTitle,
 			focus: shell.dataset.operatorContextFocus,
 			next: shell.dataset.operatorContextNext,
 			actions: shell.dataset.operatorContextActions,

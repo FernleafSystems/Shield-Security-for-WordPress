@@ -86,6 +86,7 @@ test( 'dashboard overview renders the current context rail without runtime error
 	await openShieldRoute( page, dashboardRoute );
 
 	await expect( page.locator( '[data-mode-shell="1"][data-mode="dashboard"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__eyebrow' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /Dashboard/i );
 	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__summary' ) ).not.toHaveText( '' );
 
@@ -95,7 +96,7 @@ test( 'dashboard overview renders the current context rail without runtime error
 	).toEqual( [] );
 } );
 
-test( 'dashboard overview stacks earlier, auto-collapses the live monitor, and top-aligns the context rail header', async ( { page } ) => {
+test( 'dashboard overview stacks earlier, auto-collapses the live monitor, and keeps the context rail header horizontal', async ( { page } ) => {
 	await page.setViewportSize( { width: 1500, height: 1100 } );
 	await openShieldRoute( page, dashboardRoute );
 	await dismissBlockingDialogs( page );
@@ -113,7 +114,8 @@ test( 'dashboard overview stacks earlier, auto-collapses the live monitor, and t
 	await expect( sideStack ).toBeVisible();
 	await expect( liveMonitor ).toHaveAttribute( 'data-is-collapsed', '0' );
 	await expect( liveMonitorToggle ).toHaveAttribute( 'aria-expanded', 'true' );
-	await expect.poll( async () => railHeader.evaluate( ( el ) => window.getComputedStyle( el ).alignItems ) ).toBe( 'flex-start' );
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__eyebrow' ) ).toHaveCount( 0 );
+	await expect.poll( async () => railHeader.evaluate( ( el ) => window.getComputedStyle( el ).alignItems ) ).toBe( 'center' );
 
 	const wideFeaturedBox = await featuredCard.boundingBox();
 	const wideSideBox = await sideStack.boundingBox();

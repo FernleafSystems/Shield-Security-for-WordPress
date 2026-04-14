@@ -156,7 +156,6 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 				[
 					'mode_panel_title'         => __( 'Details', 'wp-simple-firewall' ),
 					'mode_panel_close'         => __( 'Close', 'wp-simple-firewall' ),
-					'operator_context_title'   => __( 'Current Context', 'wp-simple-firewall' ),
 					'operator_context_focus'   => __( 'Focus', 'wp-simple-firewall' ),
 					'operator_context_next'    => __( 'Next Step', 'wp-simple-firewall' ),
 					'operator_context_actions' => __( 'Actions', 'wp-simple-firewall' ),
