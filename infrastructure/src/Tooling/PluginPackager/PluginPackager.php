@@ -30,6 +30,8 @@ class PluginPackager {
 
 	private PostStraussCleanup $postStraussCleanup;
 
+	private LegacyPathCompatibilityPlan $legacyPathCompatibilityPlan;
+
 	private LegacyPathDuplicator $legacyPathDuplicator;
 
 	private PackageVerifier $packageVerifier;
@@ -50,8 +52,9 @@ class PluginPackager {
 		$this->fileCopier = new PluginFileCopier( $this->projectRoot, $this->logger );
 		$this->versionUpdater = new VersionUpdater( $this->projectRoot, $this->logger );
 		$this->postStraussCleanup = new PostStraussCleanup( $this->directoryRemover, $this->logger );
-		$this->legacyPathDuplicator = new LegacyPathDuplicator( $this->logger );
-		$this->packageVerifier = new PackageVerifier( $this->logger );
+		$this->legacyPathCompatibilityPlan = LegacyPathCompatibilityPlan::current();
+		$this->legacyPathDuplicator = new LegacyPathDuplicator( $this->legacyPathCompatibilityPlan, $this->logger );
+		$this->packageVerifier = new PackageVerifier( $this->legacyPathCompatibilityPlan, $this->logger );
 	}
 
 	/**

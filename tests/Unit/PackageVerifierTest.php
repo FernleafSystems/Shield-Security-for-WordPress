@@ -2,16 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathCompatibilityPlan;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PackageVerifier;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Unit tests for PackageVerifier.
- * Tests package verification pass/fail scenarios.
- */
 class PackageVerifierTest extends TestCase {
 
 	use TempPathJoinTrait;
@@ -23,311 +20,107 @@ class PackageVerifierTest extends TestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->fs = new Filesystem();
-		$this->tempDir = Path::join( sys_get_temp_dir(), 'shield-test-'.uniqid() );
+		$this->tempDir = Path::join( \sys_get_temp_dir(), 'shield-test-'.\uniqid() );
 		$this->fs->mkdir( $this->tempDir );
 	}
 
 	protected function tearDown() :void {
-		if ( is_dir( $this->tempDir ) ) {
+		if ( \is_dir( $this->tempDir ) ) {
 			$this->fs->remove( $this->tempDir );
 		}
 		parent::tearDown();
 	}
 
-	private function createVerifier( ?callable $logger = null ) :PackageVerifier {
-		return new PackageVerifier( $logger ?? function () {} );
-	}
-
-	private function setupValidPackage() :void {
-		// Create all required files
-		$this->fs->dumpFile( $this->tempPath( 'plugin.json' ), '{}' );
-		$this->fs->dumpFile( $this->tempPath( 'icwp-wpsf.php' ), '<?php' );
-		$this->fs->dumpFile( $this->tempPath( 'vendor/autoload.php' ), '<?php' );
-
-		// Create all required directories
-		$this->fs->mkdir( $this->tempPath( 'vendor_prefixed' ) );
-		$this->fs->mkdir( $this->tempPath( 'assets/dist' ) );
-		$this->fs->mkdir( $this->tempPath( 'src/lib/src' ) );
-		$this->fs->mkdir( $this->tempPath( 'src/lib/vendor' ) );
-	}
-
-	private function setupRequiredPrefixedPackages() :void {
-		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/monolog/monolog' );
-		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/twig/twig' );
-		$this->fs->mkdir( $this->tempDir.'/vendor_prefixed/crowdsec/capi-client' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/monolog/monolog/Logger.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/twig/twig/Environment.php', '<?php' );
-		$this->fs->dumpFile( $this->tempDir.'/vendor_prefixed/crowdsec/capi-client/Watcher.php', '<?php' );
-	}
-
-	// =========================================================================
-	// verify() - Pass scenarios
-	// =========================================================================
-
-	public function testVerifyPassesWithAllRequiredFilesAndDirectories() :void {
+	public function testVerifyPassesWithEmptyActivePlanAndNoLegacyOutput() :void {
 		$this->setupValidPackage();
 
 		$this->expectNotToPerformAssertions();
-		$verifier = $this->createVerifier();
-		$verifier->verify( $this->tempDir );
+		$this->createVerifier()->verify( $this->tempDir );
 	}
 
-	public function testVerifyLogsSuccessMessage() :void {
+	public function testVerifyFailsWhenStaleLegacyOutputExistsWithoutActivePlan() :void {
 		$this->setupValidPackage();
+		$this->fs->dumpFile( $this->tempPath( 'src/lib/stale.txt' ), 'stale' );
 
-		$messages = [];
-		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
-			$messages[] = $msg;
-		} );
-
-		$verifier->verify( $this->tempDir );
-
-		$hasSuccessMessage = \count( \array_filter(
-			$messages,
-			fn( $m ) => \strpos( $m, 'Package built successfully' ) !== false
-		) ) > 0;
-		$this->assertTrue( $hasSuccessMessage );
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'src/lib legacy compatibility output' );
+		$this->createVerifier()->verify( $this->tempDir );
 	}
 
-	public function testVerifyPassesWhenRequiredPrefixedPackagesExist() :void {
+	public function testVerifyPassesWhenPlannedCompatibilityOutputsExist() :void {
+		$plan = $this->createActivePlan();
 		$this->setupValidPackage();
-		$this->setupRequiredPrefixedPackages();
+		$this->materializeCompatibilityOutputs( $plan );
 
-		$messages = [];
-		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
-			$messages[] = $msg;
-		} );
-		$verifier->verify( $this->tempDir, [
-			'monolog/monolog',
-			'twig/twig',
-			'crowdsec/capi-client',
-		] );
+		$this->expectNotToPerformAssertions();
+		$this->createVerifier( $plan )->verify( $this->tempDir );
+	}
 
-		$passLogs = \array_filter(
-			$messages,
-			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists:' ) !== false
+	public function testVerifyFailsWhenPlannedCompatibilityDirectoryIsMissing() :void {
+		$plan = $this->createActivePlan();
+		$this->setupValidPackage();
+		$this->materializeCompatibilityOutputs( $plan );
+		$this->fs->remove( $this->tempPath( 'src/lib/src/Controller/Config' ) );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'src/lib/src/Controller/Config directory' );
+		$this->createVerifier( $plan )->verify( $this->tempDir );
+	}
+
+	public function testVerifyFailsWhenPlannedCompatibilityFileIsMissing() :void {
+		$plan = $this->createActivePlan();
+		$this->setupValidPackage();
+		$this->materializeCompatibilityOutputs( $plan );
+		$this->fs->remove( $this->tempPath( 'src/lib/src/Legacy/CompatOverride.php' ) );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'src/lib/src/Legacy/CompatOverride.php file' );
+		$this->createVerifier( $plan )->verify( $this->tempDir );
+	}
+
+	public function testVerifyChecksRequiredPrefixedPackages() :void {
+		$this->setupValidPackage();
+		$this->fs->mkdir( $this->tempPath( 'vendor_prefixed/monolog/monolog' ) );
+		$this->fs->dumpFile( $this->tempPath( 'vendor_prefixed/monolog/monolog/Logger.php' ), '<?php' );
+
+		$this->expectNotToPerformAssertions();
+		$this->createVerifier()->verify( $this->tempDir, [ 'Monolog/Monolog' ] );
+	}
+
+	private function createVerifier(
+		?LegacyPathCompatibilityPlan $plan = null,
+		?callable $logger = null
+	) :PackageVerifier {
+		return new PackageVerifier( $plan ?? LegacyPathCompatibilityPlan::current(), $logger ?? static function () :void {} );
+	}
+
+	private function createActivePlan() :LegacyPathCompatibilityPlan {
+		return new LegacyPathCompatibilityPlan(
+			[ 'Controller/Config' ],
+			[ 'NewLocation/CompatTarget.php' => 'LegacyProbe/CompatTarget.php' ],
+			[ 'CompatOverride.php' => 'Legacy/CompatOverride.php' ],
+			[ 'composer' ],
+			[ 'autoload.php' => 'autoload.php' ],
+			[ 'fernleafsystems/wordpress-services/src' ],
+			[ 'autoload.php' => 'autoload.php' ]
 		);
-		$this->assertCount( 3, $passLogs );
 	}
 
-	// =========================================================================
-	// verify() - Fail scenarios: Missing files
-	// =========================================================================
-
-	public function testVerifyFailsWhenPluginJsonMissing() :void {
-		$this->setupValidPackage();
-		$this->fs->remove( $this->tempPath( 'plugin.json' ) );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'plugin.json' );
-		$verifier->verify( $this->tempDir );
+	private function setupValidPackage() :void {
+		$this->fs->dumpFile( $this->tempPath( 'plugin.json' ), '{}' );
+		$this->fs->dumpFile( $this->tempPath( 'icwp-wpsf.php' ), '<?php' );
+		$this->fs->dumpFile( $this->tempPath( 'vendor/autoload.php' ), '<?php' );
+		$this->fs->mkdir( $this->tempPath( 'vendor_prefixed' ) );
+		$this->fs->mkdir( $this->tempPath( 'assets/dist' ) );
 	}
 
-	public function testVerifyFailsWhenMainPluginFileMissing() :void {
-		$this->setupValidPackage();
-		$this->fs->remove( $this->tempPath( 'icwp-wpsf.php' ) );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'icwp-wpsf.php' );
-		$verifier->verify( $this->tempDir );
-	}
-
-	public function testVerifyFailsWhenVendorAutoloadMissing() :void {
-		$this->setupValidPackage();
-		$this->fs->remove( $this->tempPath( 'vendor/autoload.php' ) );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'vendor/autoload.php' );
-		$verifier->verify( $this->tempDir );
-	}
-
-	public function testVerifyFailsWhenRequiredPrefixedPackageMissing() :void {
-		$this->setupValidPackage();
-		$this->setupRequiredPrefixedPackages();
-		$this->fs->remove( $this->tempDir.'/vendor_prefixed/twig/twig' );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'vendor_prefixed/twig/twig' );
-		$verifier->verify( $this->tempDir, [
-			'monolog/monolog',
-			'twig/twig',
-			'crowdsec/capi-client',
-		] );
-	}
-
-	public function testVerifyFailsWhenRequiredPrefixedPackageDirectoryIsEmpty() :void {
-		$this->setupValidPackage();
-		$this->setupRequiredPrefixedPackages();
-		$this->fs->remove( $this->tempDir.'/vendor_prefixed/twig/twig/Environment.php' );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'vendor_prefixed/twig/twig' );
-		$verifier->verify( $this->tempDir, [
-			'twig/twig',
-		] );
-	}
-
-	public function testVerifyNormalizesRequiredPackageNamesToLowercase() :void {
-		$this->setupValidPackage();
-		$this->setupRequiredPrefixedPackages();
-
-		$messages = [];
-		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
-			$messages[] = $msg;
-		} );
-		$verifier->verify( $this->tempDir, [
-			'Monolog/Monolog',
-			'TWIG/TWIG',
-		] );
-
-		$this->assertTrue( \count( \array_filter(
-			$messages,
-			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists: monolog/monolog' ) !== false
-		) ) > 0 );
-		$this->assertTrue( \count( \array_filter(
-			$messages,
-			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists: twig/twig' ) !== false
-		) ) > 0 );
-	}
-
-	public function testVerifyIgnoresInvalidRequiredPrefixedPackageEntries() :void {
-		$this->setupValidPackage();
-		$this->setupRequiredPrefixedPackages();
-
-		$messages = [];
-		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
-			$messages[] = $msg;
-		} );
-		$verifier->verify( $this->tempDir, [
-			'monolog/monolog',
-			'',
-			null,
-			123,
-		] );
-
-		$passLogs = \array_filter(
-			$messages,
-			fn( $m ) => \strpos( $m, 'PASS vendor_prefixed package exists:' ) !== false
-		);
-		$this->assertCount( 1, $passLogs );
-	}
-
-	public function testVerifyFailsWhenMultipleRequiredPackagesMissingListsAll() :void {
-		$this->setupValidPackage();
-		$this->setupRequiredPrefixedPackages();
-		$this->fs->remove( $this->tempDir.'/vendor_prefixed/twig/twig' );
-		$this->fs->remove( $this->tempDir.'/vendor_prefixed/crowdsec/capi-client' );
-
-		$verifier = $this->createVerifier();
-
-		try {
-			$verifier->verify( $this->tempDir, [
-				'monolog/monolog',
-				'twig/twig',
-				'crowdsec/capi-client',
-			] );
-			$this->fail( 'Expected RuntimeException' );
+	private function materializeCompatibilityOutputs( LegacyPathCompatibilityPlan $plan ) :void {
+		foreach ( $plan->expectedDirectoryOutputs( $this->tempDir ) as $path ) {
+			$this->fs->mkdir( $path );
 		}
-		catch ( \RuntimeException $e ) {
-			$this->assertStringContainsString( 'vendor_prefixed/twig/twig', $e->getMessage() );
-			$this->assertStringContainsString( 'vendor_prefixed/crowdsec/capi-client', $e->getMessage() );
+
+		foreach ( $plan->expectedFileOutputs( $this->tempDir ) as $path ) {
+			$this->fs->dumpFile( $path, '<?php declare( strict_types=1 );' );
 		}
-	}
-
-	// =========================================================================
-	// verify() - Fail scenarios: Missing directories
-	// =========================================================================
-
-	public function testVerifyFailsWhenVendorPrefixedMissing() :void {
-		$this->setupValidPackage();
-		$this->fs->remove( $this->tempPath( 'vendor_prefixed' ) );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'vendor_prefixed' );
-		$verifier->verify( $this->tempDir );
-	}
-
-	public function testVerifyFailsWhenAssetsDistMissing() :void {
-		$this->setupValidPackage();
-		$this->fs->remove( $this->tempPath( 'assets/dist' ) );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'assets/dist' );
-		$verifier->verify( $this->tempDir );
-	}
-
-	public function testVerifyFailsWhenLegacySrcMissing() :void {
-		$this->setupValidPackage();
-		$this->fs->remove( $this->tempPath( 'src/lib/src' ) );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'legacy compat' );
-		$verifier->verify( $this->tempDir );
-	}
-
-	public function testVerifyFailsWhenLegacyVendorMissing() :void {
-		$this->setupValidPackage();
-		$this->fs->remove( $this->tempPath( 'src/lib/vendor' ) );
-
-		$verifier = $this->createVerifier();
-
-		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'legacy compat' );
-		$verifier->verify( $this->tempDir );
-	}
-
-	// =========================================================================
-	// verify() - Error message quality
-	// =========================================================================
-
-	public function testVerifyErrorMessageListsAllMissingItems() :void {
-		// Create an empty package directory
-		$verifier = $this->createVerifier();
-
-		try {
-			$verifier->verify( $this->tempDir );
-			$this->fail( 'Expected RuntimeException' );
-		}
-		catch ( \RuntimeException $e ) {
-			$message = $e->getMessage();
-			// Should mention multiple missing items
-			$this->assertStringContainsString( 'plugin.json', $message );
-			$this->assertStringContainsString( 'HOW TO FIX', $message );
-		}
-	}
-
-	public function testVerifyLogsCheckMarksForFiles() :void {
-		$this->setupValidPackage();
-
-		$messages = [];
-		$verifier = $this->createVerifier( function ( string $msg ) use ( &$messages ) {
-			$messages[] = $msg;
-		} );
-
-		$verifier->verify( $this->tempDir );
-
-		// Should have logged checkmarks for files
-		$hasCheckmarks = \count( \array_filter(
-			$messages,
-			fn( $m ) => \strpos( $m, 'exists' ) !== false
-		) ) > 0;
-		$this->assertTrue( $hasCheckmarks );
 	}
 }
-

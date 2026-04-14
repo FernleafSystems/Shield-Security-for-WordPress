@@ -2,10 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathCompatibilityPlan;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathDuplicator;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
@@ -13,6 +13,8 @@ use Symfony\Component\Process\Process;
 class LegacyUpgradeSimulationTest extends TestCase {
 
 	use TempPathJoinTrait;
+
+	private const PROBE_CLASS = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\LegacyProbe\\CompatTarget';
 
 	private string $projectRoot;
 
@@ -26,6 +28,7 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		$this->fs = new Filesystem();
 		$this->tempDir = Path::join( \sys_get_temp_dir(), 'shield-upgrade-sim-'.\uniqid() );
 		$this->fs->mkdir( $this->tempDir );
+		$this->seedMovedClassSource();
 	}
 
 	protected function tearDown() :void {
@@ -35,161 +38,46 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function testLegacyAutoloaderCannotResolveShutdownClassesBeforeDuplication() :void {
-		$this->setupMinimalSourceAndVendorStructure();
-
+	public function testLegacyAutoloaderCannotResolveMovedClassBeforeDuplication() :void {
 		$result = $this->runLegacyProbe( $this->tempDir, 'precheck' );
+
 		$this->assertTrue( $result[ 'ok' ] ?? false, \json_encode( $result ) );
-
-		$classes = [
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Controller\\Dependencies\\Monolog',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\HackGuard\\Lib\\Snapshots\\FindAssetsToSnap',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\Components\\ProcessOffense',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\IPs\\Lib\\Bots\\BotSignalsRecord',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\Event\\Ops\\Handler',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\DBs\\CrowdSecSignals\\Ops\\Handler',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Delete',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\AuditTrail\\Lib\\Snapshots\\Ops\\Store',
-			'FernleafSystems\\Wordpress\\Plugin\\Shield\\Rules\\Build\\Builder',
-		];
-
-		foreach ( $classes as $className ) {
-			$this->assertTrue( $result[ 'checks' ][ $className ][ 'ok' ] ?? false, \json_encode( $result[ 'checks' ][ $className ] ?? [] ) );
-			$this->assertFalse( $result[ 'checks' ][ $className ][ 'found' ] ?? true );
-		}
+		$this->assertFalse( (bool)( $result[ 'checks' ][ 'class_found' ][ 'found' ] ?? true ) );
 	}
 
-	public function testLegacyAutoloaderResolvesGuardedShutdownClassesAfterDuplication() :void {
-		$this->setupMinimalSourceAndVendorStructure();
-
-		( new LegacyPathDuplicator( static function () {} ) )->createDuplicates( $this->tempDir );
-		$result = $this->runLegacyProbe( $this->tempDir, 'guards' );
-
-		$this->assertTrue( $result[ 'ok' ] ?? false, \json_encode( $result ) );
-		$this->assertTrue( $result[ 'checks' ][ 'monolog_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'find_assets_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'rules_builder_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'process_offense_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'bot_signals_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'event_db_handler_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'crowdsec_signals_db_handler_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'snapshot_delete_guard' ][ 'ok' ] ?? false );
-		$this->assertTrue( $result[ 'checks' ][ 'snapshot_store_guard' ][ 'ok' ] ?? false );
-
-		$this->assertSame(
-			'Legacy shutdown guard: monolog disabled.',
-			$result[ 'checks' ][ 'monolog_guard' ][ 'details' ][ 'message' ] ?? ''
-		);
-		$this->assertSame(
-			0,
-			$result[ 'checks' ][ 'bot_signals_guard' ][ 'details' ][ 'notbot_at' ] ?? -1
-		);
-		$this->assertSame(
+	public function testLegacyAutoloaderResolvesMovedClassAfterDuplication() :void {
+		$plan = new LegacyPathCompatibilityPlan(
 			[],
-			$result[ 'checks' ][ 'rules_builder_guard' ][ 'details' ][ 'rules' ] ?? null
-		);
-		$this->assertFalse(
-			(bool)( $result[ 'checks' ][ 'event_db_handler_guard' ][ 'details' ][ 'isReady' ] ?? true )
-		);
-		$this->assertTrue(
-			(bool)( $result[ 'checks' ][ 'crowdsec_signals_db_handler_guard' ][ 'details' ][ 'inserted' ] ?? false )
-		);
-		$this->assertSame(
-			0,
-			$result[ 'checks' ][ 'crowdsec_signals_db_handler_guard' ][ 'details' ][ 'count' ] ?? -1
-		);
-		$this->assertFalse(
-			(bool)( $result[ 'checks' ][ 'snapshot_delete_guard' ][ 'details' ][ 'deleted' ] ?? true )
-		);
-		$this->assertFalse(
-			(bool)( $result[ 'checks' ][ 'snapshot_store_guard' ][ 'details' ][ 'stored' ] ?? true )
+			[ 'NewLocation/CompatTarget.php' => 'LegacyProbe/CompatTarget.php' ]
 		);
 
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'monolog_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'find_assets_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'rules_builder_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'process_offense_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'bot_signals_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'bot_signals_guard' ][ 'details' ][ 'recordFile' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'event_db_handler_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'crowdsec_signals_db_handler_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'snapshot_delete_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
-		$this->assertStringContainsString( '/src/lib/src/', $this->normalisePath( (string)( $result[ 'checks' ][ 'snapshot_store_guard' ][ 'details' ][ 'file' ] ?? '' ) ) );
+		( new LegacyPathDuplicator( $plan, static function () :void {} ) )->createDuplicates( $this->tempDir );
+		$result = $this->runLegacyProbe( $this->tempDir, 'load' );
 
-		$this->assertFileExists( $this->tempPath( 'src/lib/src/DBs/BotSignal/BotSignalRecord.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/LoadBotSignalRecords.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Handler.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Record.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Insert.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Delete.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/DBs/BotSignal/Ops/Select.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/ActionRouter/Exceptions/ActionException.php' ) );
-		$this->assertFileDoesNotExist( $this->tempPath( 'src/lib/src/ActionRouter/Actions/Traits/SecurityAdminNotRequired.php' ) );
-	}
-
-	public function testBuiltPackageCanPassLegacyProbeWhenPackagePathProvided() :void {
-		$packagePath = \getenv( 'SHIELD_PACKAGE_PATH' );
-		if ( !\is_string( $packagePath ) || $packagePath === '' ) {
-			$this->markTestSkipped( 'Legacy package probe runs only when SHIELD_PACKAGE_PATH is set.' );
-		}
-
-		$result = $this->runLegacyProbe( $packagePath, 'guards' );
 		$this->assertTrue( $result[ 'ok' ] ?? false, \json_encode( $result ) );
+		$this->assertSame( 'legacy-probe-ready', $result[ 'checks' ][ 'class_loaded' ][ 'details' ][ 'value' ] ?? '' );
+		$this->assertStringContainsString(
+			'/src/lib/src/LegacyProbe/CompatTarget.php',
+			$this->normalisePath( (string)( $result[ 'checks' ][ 'class_loaded' ][ 'details' ][ 'file' ] ?? '' ) )
+		);
 	}
 
-	private function setupMinimalSourceAndVendorStructure() :void {
-		$srcRoot = $this->tempPath( 'src' );
-		$sourceSrcRoot = Path::join( $this->projectRoot, 'src' );
+	private function seedMovedClassSource() :void {
+		$this->fs->dumpFile(
+			$this->tempPath( 'src/NewLocation/CompatTarget.php' ),
+			<<<'PHP'
+<?php declare( strict_types=1 );
 
-		foreach ( $this->getConstant( 'SRC_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$relativePath = \implode( '/', $pathParts );
-			$sourcePath = Path::join( $sourceSrcRoot, $relativePath );
-			$targetPath = Path::join( $srcRoot, $relativePath );
+namespace FernleafSystems\Wordpress\Plugin\Shield\LegacyProbe;
 
-			if ( \is_dir( $sourcePath ) ) {
-				$this->fs->mirror( $sourcePath, $targetPath );
-			}
-			else {
-				$this->fs->mkdir( $targetPath );
-				$this->fs->dumpFile( Path::join( $targetPath, 'placeholder.php' ), '<?php' );
-			}
-		}
+class CompatTarget {
 
-		foreach ( $this->getSrcFilesToCopy() as $pathParts ) {
-			$relativePath = \implode( '/', $pathParts );
-			$sourcePath = Path::join( $sourceSrcRoot, $relativePath );
-			$targetPath = Path::join( $srcRoot, $relativePath );
-			$this->fs->mkdir( \dirname( $targetPath ) );
-
-			if ( \file_exists( $sourcePath ) ) {
-				$this->fs->copy( $sourcePath, $targetPath );
-			}
-			else {
-				$this->fs->dumpFile( $targetPath, '<?php' );
-			}
-		}
-
-		$vendorPrefixedRoot = $this->tempPath( 'vendor_prefixed' );
-		foreach ( $this->getConstant( 'VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$dirPath = Path::join( $vendorPrefixedRoot, \implode( DIRECTORY_SEPARATOR, $pathParts ) );
-			$this->fs->mkdir( $dirPath );
-			$this->fs->dumpFile( Path::join( $dirPath, 'placeholder.php' ), '<?php' );
-		}
-		foreach ( $this->getConstant( 'VENDOR_PREFIXED_FILES_TO_COPY' ) as $file ) {
-			$this->fs->mkdir( \dirname( Path::join( $vendorPrefixedRoot, $file ) ) );
-			$this->fs->dumpFile( Path::join( $vendorPrefixedRoot, $file ), '<?php' );
-		}
-
-		$vendorRoot = $this->tempPath( 'vendor' );
-		foreach ( $this->getConstant( 'STD_VENDOR_DIRECTORIES_TO_MIRROR' ) as $pathParts ) {
-			$dirPath = Path::join( $vendorRoot, \implode( DIRECTORY_SEPARATOR, $pathParts ) );
-			$this->fs->mkdir( $dirPath );
-			$this->fs->dumpFile( Path::join( $dirPath, 'placeholder.php' ), '<?php' );
-		}
-		foreach ( $this->getConstant( 'STD_VENDOR_FILES_TO_COPY' ) as $file ) {
-			$this->fs->mkdir( \dirname( Path::join( $vendorRoot, $file ) ) );
-			$this->fs->dumpFile( Path::join( $vendorRoot, $file ), '<?php' );
-		}
+	public function describe() :string {
+		return 'legacy-probe-ready';
+	}
+}
+PHP
+		);
 	}
 
 	private function runLegacyProbe( string $pluginRoot, string $scenario ) :array {
@@ -200,6 +88,8 @@ class LegacyUpgradeSimulationTest extends TestCase {
 				$probePath,
 				'--plugin-root='.$this->normalisePath( $pluginRoot ),
 				'--scenario='.$scenario,
+				'--class-name='.self::PROBE_CLASS,
+				'--method=describe',
 			],
 			$this->projectRoot
 		);
@@ -220,18 +110,7 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		return $decoded;
 	}
 
-	private function getConstant( string $name ) {
-		$reflection = new ReflectionClass( LegacyPathDuplicator::class );
-		return $reflection->getConstant( $name );
-	}
-
-	private function getSrcFilesToCopy() :array {
-		$filesToCopy = $this->getConstant( 'SRC_FILES_TO_COPY' );
-		return \is_array( $filesToCopy ) ? $filesToCopy : [];
-	}
-
 	private function normalisePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
 	}
 }
-

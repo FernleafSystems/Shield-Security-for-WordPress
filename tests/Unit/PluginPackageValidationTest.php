@@ -56,6 +56,7 @@ class PluginPackageValidationTest extends TestCase {
 			'vendor/thecodingmachine/safe',
 			'packages/thecodingmachine-safe',
 			'vendor_prefixed/autoload-files.php',
+			'src/lib',
 		];
 
 		foreach ( $excludedItems as $item ) {

@@ -10,151 +10,90 @@ use Symfony\Component\Filesystem\Path;
  *
  * During WordPress plugin upgrades, the old autoloader is still loaded in memory
  * with the old PSR-4 paths. When shutdown hooks fire, PHP tries to autoload classes
- * from the OLD paths but the NEW files are on disk. This class duplicates the classes
- * that are autoloaded during shutdown to their legacy paths.
+ * from the old paths but the new files are on disk. This class duplicates selected
+ * files to their legacy paths when a compatibility plan is active.
  */
 class LegacyPathDuplicator {
 
-	/**
-	 * Source directories to mirror (full copy).
-	 *
-	 * Only directories still required for late autoload/shutdown compatibility are included.
-	 */
-	private const SRC_DIRECTORIES_TO_MIRROR = [
-		[ 'Controller', 'Config' ],              // OptsHandler::store() at shutdown
-	];
-	/**
-	 * Explicit legacy override source -> destination mappings.
-	 *
-	 * @var array<string,string>
-	 */
-	private const LEGACY_OVERRIDE_FILE_MAP = [
-		'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php'                      => 'Modules/AuditTrail/Lib/Snapshots/Ops/Delete.php',
-		'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php'                       => 'Modules/AuditTrail/Lib/Snapshots/Ops/Store.php',
-		'ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php' => 'ActionRouter/Actions/Render/Components/FormSecurityAdminLoginBox.php',
-		'Controller/Dependencies/Monolog.php'                                  => 'Controller/Dependencies/Monolog.php',
-		'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php'                 => 'Modules/HackGuard/Lib/Snapshots/FindAssetsToSnap.php',
-		'Modules/IPs/Components/ProcessOffense.php'                            => 'Modules/IPs/Components/ProcessOffense.php',
-		'Modules/IPs/Lib/Bots/BotSignalsRecord.php'                            => 'Modules/IPs/Lib/Bots/BotSignalsRecord.php',
-		'DBs/BotSignal/BotSignalRecord.php'                                    => 'DBs/BotSignal/BotSignalRecord.php',
-		'DBs/Event/Ops/Handler.php'                                            => 'DBs/Event/Ops/Handler.php',
-		'DBs/CrowdSecSignals/Ops/Handler.php'                                  => 'DBs/CrowdSecSignals/Ops/Handler.php',
-		'Rules/Build/Builder.php'                                              => 'Rules/Build/Builder.php',
-	];
-	/**
-	 * Vendor prefixed directories to mirror
-	 */
-	private const VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR = [
-		[ 'composer' ],  // Autoloader metadata
-	];
-	/**
-	 * Vendor prefixed files to copy
-	 */
-	private const VENDOR_PREFIXED_FILES_TO_COPY = [
-		'autoload.php',
-		'autoload-classmap.php',
-	];
-	/**
-	 * Standard vendor directories to mirror (for shutdown compatibility)
-	 */
-	private const STD_VENDOR_DIRECTORIES_TO_MIRROR = [
-		[ 'fernleafsystems', 'wordpress-services', 'src' ], // Used for beta upgrades handling
-		[ 'composer' ],            // Autoloader metadata
-	];
-	/**
-	 * Standard vendor files to copy
-	 */
-	private const STD_VENDOR_FILES_TO_COPY = [
-	];
+	private LegacyPathCompatibilityPlan $plan;
 
 	/** @var callable */
 	private $logger;
 
-	public function __construct( callable $logger ) {
+	private string $overridesRootDir;
+
+	public function __construct(
+		LegacyPathCompatibilityPlan $plan,
+		callable $logger,
+		?string $overridesRootDir = null
+	) {
+		$this->plan = $plan;
 		$this->logger = $logger;
+		$this->overridesRootDir = $overridesRootDir ?? Path::join( __DIR__, 'LegacyOverrides', 'src' );
 	}
 
-	/**
-	 * Create legacy path duplicates for upgrade compatibility.
-	 */
 	public function createDuplicates( string $targetDir ) :void {
+		$fs = new Filesystem();
+		$legacyRootDir = $this->plan->legacyRootDir( $targetDir );
+
+		if ( \file_exists( $legacyRootDir ) ) {
+			$fs->remove( $legacyRootDir );
+		}
+
+		if ( !$this->plan->hasWork() ) {
+			$this->log( 'No active legacy path duplicates configured for this release.' );
+			return;
+		}
+
 		$this->log( 'Creating legacy path duplicates for upgrade compatibility...' );
 
-		$fs = new Filesystem();
-		$srcDir = Path::join( $targetDir, 'src' );
-		$legacySrcDir = Path::join( $targetDir, 'src', 'lib', 'src' );
-		$vendorPrefixedDir = Path::join( $targetDir, 'vendor_prefixed' );
-		$legacyVendorPrefixedDir = Path::join( $targetDir, 'src', 'lib', 'vendor_prefixed' );
-		$vendorDir = Path::join( $targetDir, 'vendor' );
-		$legacyVendorDir = Path::join( $targetDir, 'src', 'lib', 'vendor' );
+		$this->mirrorRelativeDirectories(
+			$fs,
+			Path::join( $targetDir, 'src' ),
+			$this->plan->legacySourceRootDir( $targetDir ),
+			$this->plan->sourceDirectoriesToMirror()
+		);
+		$this->copyMappedFiles(
+			$fs,
+			Path::join( $targetDir, 'src' ),
+			$this->plan->legacySourceRootDir( $targetDir ),
+			$this->plan->sourceFilesToCopy()
+		);
+		$this->applyLegacyOverrides( $fs, $this->plan->legacySourceRootDir( $targetDir ) );
 
-		// Create legacy directory structure
-		$fs->mkdir( $legacySrcDir, 0755 );
-		$fs->mkdir( $legacyVendorPrefixedDir, 0755 );
-		$fs->mkdir( $legacyVendorDir, 0755 );
-
-		// Mirror source directories
-		\array_map(
-			fn( array $path ) => $fs->mirror(
-				Path::join( $srcDir, ...$path ),
-				Path::join( $legacySrcDir, ...$path )
-			),
-			self::SRC_DIRECTORIES_TO_MIRROR
+		$this->mirrorRelativeDirectories(
+			$fs,
+			Path::join( $targetDir, 'vendor_prefixed' ),
+			$this->plan->legacyVendorPrefixedRootDir( $targetDir ),
+			$this->plan->vendorPrefixedDirectoriesToMirror()
+		);
+		$this->copyMappedFiles(
+			$fs,
+			Path::join( $targetDir, 'vendor_prefixed' ),
+			$this->plan->legacyVendorPrefixedRootDir( $targetDir ),
+			$this->plan->vendorPrefixedFilesToCopy()
 		);
 
-		// Apply known legacy shutdown overrides without affecting runtime source files.
-		$this->applyLegacyOverrides( $legacySrcDir );
-
-		// Mirror vendor prefixed directories
-		\array_map(
-			fn( array $path ) => $fs->mirror(
-				Path::join( $vendorPrefixedDir, ...$path ),
-				Path::join( $legacyVendorPrefixedDir, ...$path )
-			),
-			self::VENDOR_PREFIXED_DIRECTORIES_TO_MIRROR
+		$this->mirrorRelativeDirectories(
+			$fs,
+			Path::join( $targetDir, 'vendor' ),
+			$this->plan->legacyVendorRootDir( $targetDir ),
+			$this->plan->vendorDirectoriesToMirror()
 		);
-
-		// Copy vendor prefixed files
-		\array_map(
-			function ( string $file ) use ( $fs, $vendorPrefixedDir, $legacyVendorPrefixedDir ) :void {
-				$src = Path::join( $vendorPrefixedDir, $file );
-				if ( \file_exists( $src ) ) {
-					$fs->copy( $src, Path::join( $legacyVendorPrefixedDir, $file ) );
-				}
-			},
-			self::VENDOR_PREFIXED_FILES_TO_COPY
-		);
-
-		// Mirror standard vendor directories
-		\array_map(
-			fn( array $path ) => $fs->mirror(
-				Path::join( $vendorDir, ...$path ),
-				Path::join( $legacyVendorDir, ...$path )
-			),
-			self::STD_VENDOR_DIRECTORIES_TO_MIRROR
-		);
-
-		// Copy standard vendor files
-		\array_map(
-			function ( string $file ) use ( $fs, $vendorDir, $legacyVendorDir ) :void {
-				$src = Path::join( $vendorDir, $file );
-				if ( \file_exists( $src ) ) {
-					$fs->copy( $src, Path::join( $legacyVendorDir, $file ) );
-				}
-			},
-			self::STD_VENDOR_FILES_TO_COPY
+		$this->copyMappedFiles(
+			$fs,
+			Path::join( $targetDir, 'vendor' ),
+			$this->plan->legacyVendorRootDir( $targetDir ),
+			$this->plan->vendorFilesToCopy()
 		);
 
 		$this->log( '  ✓ Created legacy path duplicates for upgrade compatibility' );
 	}
 
-	private function applyLegacyOverrides( string $legacySrcDir ) :void {
-		$fs = new Filesystem();
-		$overridesRoot = $this->getLegacyOverridesRootDir();
-
-		foreach ( self::LEGACY_OVERRIDE_FILE_MAP as $sourceRelativePath => $legacyRelativePath ) {
-			$sourcePath = Path::join( $overridesRoot, ...\explode( '/', $sourceRelativePath ) );
-			if ( !\file_exists( $sourcePath ) ) {
+	private function applyLegacyOverrides( Filesystem $fs, string $legacySrcDir ) :void {
+		foreach ( $this->plan->overrideFileMap() as $sourceRelativePath => $legacyRelativePath ) {
+			$sourcePath = Path::join( $this->overridesRootDir, ...\explode( '/', $sourceRelativePath ) );
+			if ( !\is_file( $sourcePath ) ) {
 				throw new \RuntimeException( \sprintf( 'Required legacy override missing: %s', $sourcePath ) );
 			}
 
@@ -164,8 +103,45 @@ class LegacyPathDuplicator {
 		}
 	}
 
-	protected function getLegacyOverridesRootDir() :string {
-		return Path::join( __DIR__, 'LegacyOverrides/src' );
+	/**
+	 * @param string[] $relativePaths
+	 */
+	private function mirrorRelativeDirectories(
+		Filesystem $fs,
+		string $sourceRootDir,
+		string $destRootDir,
+		array $relativePaths
+	) :void {
+		foreach ( $relativePaths as $relativePath ) {
+			$src = Path::join( $sourceRootDir, ...\explode( '/', $relativePath ) );
+			if ( !\is_dir( $src ) ) {
+				throw new \RuntimeException( \sprintf( 'Required legacy source directory missing: %s', $src ) );
+			}
+
+			$dest = Path::join( $destRootDir, ...\explode( '/', $relativePath ) );
+			$fs->mirror( $src, $dest );
+		}
+	}
+
+	/**
+	 * @param array<string,string> $fileMap
+	 */
+	private function copyMappedFiles(
+		Filesystem $fs,
+		string $sourceRootDir,
+		string $destRootDir,
+		array $fileMap
+	) :void {
+		foreach ( $fileMap as $sourceRelativePath => $destRelativePath ) {
+			$src = Path::join( $sourceRootDir, ...\explode( '/', $sourceRelativePath ) );
+			if ( !\is_file( $src ) ) {
+				throw new \RuntimeException( \sprintf( 'Required legacy source file missing: %s', $src ) );
+			}
+
+			$dest = Path::join( $destRootDir, ...\explode( '/', $destRelativePath ) );
+			$fs->mkdir( \dirname( $dest ), 0755 );
+			$fs->copy( $src, $dest, true );
+		}
 	}
 
 	private function log( string $message ) :void {

@@ -157,6 +157,22 @@ class PluginFileCopierTest extends TestCase {
 		);
 	}
 
+	public function testSrcLibCompatibilityTreeIgnoredAsPackagerOwnedOutput() :void {
+		$copier = $this->createFileCopier();
+		$patterns = $copier->getExportIgnorePatterns();
+
+		$this->assertTrue(
+			$copier->shouldExcludePath( 'src/lib/LegacyProbe/CompatTarget.php', $patterns )
+		);
+		$this->assertTrue(
+			$copier->shouldExcludePath( 'src/lib', $patterns )
+		);
+		$this->assertFalse(
+			$copier->shouldExcludePath( 'src/library/CompatTarget.php', $patterns ),
+			'Prefix match must not catch similarly named paths outside the packager-owned subtree'
+		);
+	}
+
 	// =========================================================================
 	// getExportIgnorePatterns() - Parser logic
 	// =========================================================================
