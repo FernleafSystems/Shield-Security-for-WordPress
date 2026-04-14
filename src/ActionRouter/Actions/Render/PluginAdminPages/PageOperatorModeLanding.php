@@ -219,11 +219,18 @@ class PageOperatorModeLanding extends BaseRender {
 	 * }>
 	 */
 	private function buildActionsQueueRows( array $scanRows, array $zoneGroups ) :array {
-		$rows = \array_values( \array_map(
-			fn( array $item ) :array => $this->buildScanQueueRowFromScanStateRow( $item ),
-			$scanRows
-		) );
-		$rows[] = $this->buildMaintenanceQueueRow( $zoneGroups );
+		$rows = [];
+		foreach ( $scanRows as $item ) {
+			if ( (int)( $item[ 'count' ] ?? 0 ) < 1 ) {
+				continue;
+			}
+			$rows[] = $this->buildScanQueueRowFromScanStateRow( $item );
+		}
+
+		$maintenanceGroup = $this->findQueueZoneGroupByZone( $zoneGroups, 'maintenance' );
+		if ( (int)( $maintenanceGroup[ 'total' ] ?? 0 ) > 0 ) {
+			$rows[] = $this->buildMaintenanceQueueRow( $maintenanceGroup );
+		}
 
 		return $rows;
 	}
@@ -255,12 +262,12 @@ class PageOperatorModeLanding extends BaseRender {
 	}
 
 	/**
-	 * @param list<array{
+	 * @param array{
 	 *   zone:'scans'|'maintenance',
 	 *   severity:string,
 	 *   total:int,
 	 *   items:list<array<string,mixed>>
-	 * }> $zoneGroups
+	 * } $maintenanceGroup
 	 * @return array{
 	 *   key:string,
 	 *   label:string,
@@ -269,9 +276,8 @@ class PageOperatorModeLanding extends BaseRender {
 	 *   count:int
 	 * }
 	 */
-	private function buildMaintenanceQueueRow( array $zoneGroups ) :array {
-		$maintenanceGroup = $this->findQueueZoneGroupByZone( $zoneGroups, 'maintenance' );
-		$count = $maintenanceGroup[ 'total' ];
+	private function buildMaintenanceQueueRow( array $maintenanceGroup ) :array {
+		$count = (int)( $maintenanceGroup[ 'total' ] ?? 0 );
 
 		return [
 			'key'        => 'maintenance',

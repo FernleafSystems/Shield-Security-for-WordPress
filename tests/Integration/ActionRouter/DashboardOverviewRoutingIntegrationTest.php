@@ -392,4 +392,22 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
+	public function test_operator_mode_landing_omits_healthy_file_locker_and_zero_maintenance_rows() :void {
+		$this->requireDb( 'file_locker' );
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+
+		self::con()->opts
+			->optSet( 'file_locker', [ 'wpconfig' ] )
+			->store();
+
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+		self::con()->comps->file_locker->clearLocks();
+
+		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
+		$rows = $this->getActionsQueueRows( $renderData );
+
+		$this->assertSame( [], $rows );
+		$this->assertSame( 'good', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
+	}
+
 }

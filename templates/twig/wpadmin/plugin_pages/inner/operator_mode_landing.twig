@@ -31,21 +31,23 @@
 					<p class="operator-mode-landing__featured-desc">{{ featured_lane.description }}</p>
 				{% endif %}
 
-				<div class="operator-mode-landing__queue-list shield-stack-detail-list">
-					{% for row in vars.actions_queue_rows|default([]) %}
-						<div class="operator-mode-landing__queue-row shield-stack-detail-row is-{{ row.severity }}">
-							<span class="operator-mode-landing__queue-icon" aria-hidden="true">
-								<i class="{{ row.icon_class }}"></i>
-							</span>
-							<div class="shield-stack-detail-copy">
-								<div class="shield-stack-detail-title">{{ row.label }}</div>
+				{% if vars.actions_queue_rows is not empty %}
+					<div class="operator-mode-landing__queue-list shield-stack-detail-list">
+						{% for row in vars.actions_queue_rows %}
+							<div class="operator-mode-landing__queue-row shield-stack-detail-row is-{{ row.severity }}">
+								<span class="operator-mode-landing__queue-icon" aria-hidden="true">
+									<i class="{{ row.icon_class }}"></i>
+								</span>
+								<div class="shield-stack-detail-copy">
+									<div class="shield-stack-detail-title">{{ row.label }}</div>
+								</div>
+								<div class="shield-stack-detail-meta">
+									<span class="shield-badge {{ badge_class_map[row.severity] }}">{{ row.count }}</span>
+								</div>
 							</div>
-							<div class="shield-stack-detail-meta">
-								<span class="shield-badge {{ badge_class_map[row.severity|default('neutral')] ?? 'badge-disabled' }}">{{ row.count }}</span>
-							</div>
-						</div>
-					{% endfor %}
-				</div>
+						{% endfor %}
+					</div>
+				{% endif %}
 
 				<span class="operator-mode-landing__featured-cta">
 					{{ strings.actions_queue_cta|default('View Actions Queue') }}
@@ -97,6 +99,6 @@
 	</div>
 
 	{% include '/wpadmin/components/dashboard/live_monitor.twig' with {
-		vars: vars.live_monitor|default({})
+		vars: vars.live_monitor
 	} only %}
 </div>

@@ -292,6 +292,7 @@
 	transition: background 0.5s ease;
 }
 
+// Keep this paired with DashboardLiveMonitor.js compact-mode threshold.
 .operator-mode-landing__grid {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -508,7 +509,7 @@
 	&.status-critical { color: $status-color-critical; }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1249.98px) {
 	.operator-mode-landing__grid {
 		grid-template-columns: minmax(0, 1fr);
 	}

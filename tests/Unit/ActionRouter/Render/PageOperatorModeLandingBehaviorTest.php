@@ -467,14 +467,12 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame(
-			[ 'plugin_files', 'file_locker', 'maintenance' ],
+			[ 'plugin_files' ],
 			\array_column( $rows, 'key' )
 		);
 		$this->assertSame(
 			[
 				'plugin_files' => 'warning',
-				'file_locker'  => 'good',
-				'maintenance'  => 'good',
 			],
 			\array_combine( \array_column( $rows, 'key' ), \array_column( $rows, 'severity' ) )
 		);
@@ -521,13 +519,12 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$actionsQueueRows = $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [];
 
 		$this->assertSame(
-			[ 'plugin_files', 'file_locker', 'maintenance' ],
+			[ 'plugin_files', 'maintenance' ],
 			\array_column( $actionsQueueRows, 'key' )
 		);
 		$this->assertSame(
 			[
 				'plugin_files' => 99,
-				'file_locker'  => 0,
 				'maintenance'  => 1,
 			],
 			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'count' ) )
@@ -535,7 +532,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'plugin_files' => 'critical',
-				'file_locker'  => 'good',
 				'maintenance'  => 'warning',
 			],
 			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'severity' ) )
@@ -584,7 +580,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
 		);
 		$this->assertSame(
-			[ 'malware', 'vulnerable_assets', 'file_locker', 'maintenance' ],
+			[ 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [], 'key' )
 		);
 	}

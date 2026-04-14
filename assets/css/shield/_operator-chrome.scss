@@ -233,7 +233,7 @@
 }
 
 .operator-context-rail__header {
-	align-items: center;
+	align-items: flex-start;
 	border-bottom: 1px solid $border-color-neutral-subtle;
 	display: flex;
 	gap: 0.4rem;
@@ -248,6 +248,7 @@
 	flex-shrink: 0;
 	font-size: 0.9rem;
 	justify-content: center;
+	padding-top: 0.1rem;
 }
 
 .operator-context-rail__title-wrap {

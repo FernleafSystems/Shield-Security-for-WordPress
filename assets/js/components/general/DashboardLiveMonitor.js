@@ -2,6 +2,9 @@ import { BaseComponent } from "../BaseComponent";
 import { AjaxService } from "../services/AjaxService";
 import { LiveTrafficPoller } from "./LiveTrafficPoller";
 
+// Keep this paired with the dashboard overview stack breakpoint in dashboard.scss.
+const DASHBOARD_COMPACT_BREAKPOINT = 1249.98;
+
 export class DashboardLiveMonitor extends BaseComponent {
 
 	init() {
@@ -17,7 +20,10 @@ export class DashboardLiveMonitor extends BaseComponent {
 		this.poller = null;
 		this.resizeObserver = null;
 		this.dockingUpdatePending = false;
+		this.compactModeQuery = null;
+		this.autoCollapsedByCompactMode = false;
 		this.boundScheduleDockingUpdate = () => this.scheduleDockingUpdate();
+		this.boundHandleCompactModeChange = ( evt ) => this.handleCompactModeChange( evt );
 		this.exec();
 	}
 
@@ -48,6 +54,7 @@ export class DashboardLiveMonitor extends BaseComponent {
 		}
 
 		this.setupDockingLayout();
+		this.setupCompactModeBehavior();
 	}
 
 	buildBatchRequestData() {
@@ -77,6 +84,7 @@ export class DashboardLiveMonitor extends BaseComponent {
 	}
 
 	toggleCollapsed() {
+		this.autoCollapsedByCompactMode = false;
 		this.applyCollapsedState( !this.isCollapsed() );
 		this.persistCollapsedState();
 	}
@@ -121,6 +129,41 @@ export class DashboardLiveMonitor extends BaseComponent {
 		}
 
 		this.scheduleDockingUpdate();
+	}
+
+	setupCompactModeBehavior() {
+		if ( typeof window.matchMedia !== 'function' ) {
+			return;
+		}
+
+		this.compactModeQuery = window.matchMedia( `(max-width: ${DASHBOARD_COMPACT_BREAKPOINT}px)` );
+		if ( typeof this.compactModeQuery.addEventListener === 'function' ) {
+			this.compactModeQuery.addEventListener( 'change', this.boundHandleCompactModeChange );
+		}
+		else if ( typeof this.compactModeQuery.addListener === 'function' ) {
+			this.compactModeQuery.addListener( this.boundHandleCompactModeChange );
+		}
+
+		this.applyCompactModeState( this.compactModeQuery.matches );
+	}
+
+	handleCompactModeChange( evt ) {
+		this.applyCompactModeState( !!evt?.matches );
+	}
+
+	applyCompactModeState( isCompactMode ) {
+		if ( isCompactMode ) {
+			if ( !this.isCollapsed() ) {
+				this.autoCollapsedByCompactMode = true;
+				this.applyCollapsedState( true );
+			}
+			return;
+		}
+
+		if ( this.autoCollapsedByCompactMode && this.isCollapsed() ) {
+			this.applyCollapsedState( false );
+		}
+		this.autoCollapsedByCompactMode = false;
 	}
 
 	scheduleDockingUpdate() {
