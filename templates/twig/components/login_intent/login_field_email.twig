@@ -1,6 +1,44 @@
-{% extends '/components/login_intent/login_field.twig' %}
+<div class="mfa-pane-content">
+	<div class="mfa-pane-label">
+		<span>{{ strings.email_heading }}</span>
+		<span class="mfa-pane-muted">{{ strings.email_hint }}</span>
+	</div>
 
-{% block after_login_field_input %}
-	{{ parent() }}
-	[ <button type="button" id="ajax_intent_email_send" class="shield-button-link" title="">{{ field.supp.send_email }}</button> ]
-{% endblock %}
+	<div class="mfa-otp-group mfa-enhanced-otp"
+		 data-otp-group
+		 data-otp-target="{{ field.id }}"
+		 data-otp-mode="text"
+		 hidden>
+		{% for digit_index in 1..6 %}
+			{% if digit_index == 4 %}
+				<div class="mfa-otp-sep" aria-hidden="true"></div>
+			{% endif %}
+			<input type="text"
+				   maxlength="1"
+				   autocomplete="one-time-code"
+				   inputmode="text"
+				   data-otp
+				   aria-label="{{ strings.otp_digit_aria|format(digit_index) }}">
+		{% endfor %}
+	</div>
+
+	<div class="mfa-resend-row mfa-enhanced-helper" data-enhanced-only hidden>
+		<span>{{ strings.email_resend_ask }}</span>
+		<button type="button" id="ajax_intent_email_send">{{ field.supp.send_email }}</button>
+	</div>
+
+	<div class="mfa-fallback-wrap">
+		<label class="mfa-fallback-label" for="{{ field.id }}">{{ field.text }}</label>
+		<input type="{{ field.type }}"
+			   name="{{ field.name }}"
+			   value="{{ field.value }}"
+			   class="mfa-fallback-input"
+			   id="{{ field.id }}"
+			   placeholder="{{ field.placeholder }}"
+			   autocomplete="off"
+			{% for datakey, dataval in field.datas %}
+				data-{{ datakey }}="{{ dataval }}"
+			{% endfor %}
+		/>
+	</div>
+</div>

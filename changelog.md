@@ -1,3 +1,7 @@
+#### Unreleased
+
+* **IMPROVED**: Redesigned the custom Shield two-factor login verification portal while preserving the existing verification flow and the WP login replica experience.
+
 #### 9.1 Series
 *Released: 23rd April 2020* - [Release Announcement](https://clk.shldscrty.com/shieldrelease91)
 

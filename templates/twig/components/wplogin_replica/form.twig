@@ -9,7 +9,7 @@
 	{% endfor %}
 
 	{% for login_field in content.login_fields %}
-		{{ login_field|raw }}
+		{{ login_field.html|raw }}
 	{% endfor %}
 
 	{% if flags.can_skip_mfa %}

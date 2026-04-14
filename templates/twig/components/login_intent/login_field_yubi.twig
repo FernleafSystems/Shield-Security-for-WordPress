@@ -1,1 +1,22 @@
-{% extends '/components/login_intent/login_field.twig' %}
+<div class="mfa-pane-hero">
+	<div class="mfa-pane-hero-circle">
+		<i class="bi bi-key-fill" aria-hidden="true"></i>
+	</div>
+
+	<h3>{{ strings.yubi_heading }}</h3>
+	<p>{{ strings.yubi_body }}</p>
+
+	<div class="mfa-yubi-input-wrap">
+		<input type="{{ field.type }}"
+			   name="{{ field.name }}"
+			   value="{{ field.value }}"
+			   id="{{ field.id }}"
+			   class="mfa-yubi-input yubi-input{% for class in field.classes %} {{ class }}{% endfor %}"
+			   placeholder="{{ strings.yubi_placeholder }}"
+			   autocomplete="off"
+			{% for datakey, dataval in field.datas %}
+				data-{{ datakey }}="{{ dataval }}"
+			{% endfor %}
+		/>
+	</div>
+</div>

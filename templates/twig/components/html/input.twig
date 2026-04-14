@@ -1,15 +1,15 @@
 {% block input %}
 	{% block before_input %}{% endblock %}
-	{% if field.element|default('input') == "input" %}
+	{% if field.element == "input" %}
 		<input
 				type="{{ field.type }}"
 				name="{{ field.name }}"
-				value="{{ field.value|default('') }}"
-				class="form-control{% for class in field.classes|default([]) %} {{ class }}{% endfor %}"
-				id="{{ field.id|default(field.name) }}"
-				placeholder="{{ field.placeholder|default('') }}"
+				value="{{ field.value }}"
+				class="form-control{% for class in field.classes %} {{ class }}{% endfor %}"
+				id="{{ field.id }}"
+				placeholder="{{ field.placeholder }}"
 				autocomplete="off"
-				{% for datakey, dataval in field.datas|default([]) %}
+				{% for datakey, dataval in field.datas %}
 					data-{{ datakey }}="{{ dataval }}"
 				{% endfor %}
 				{% block input_field_attribute %}{% endblock %}
@@ -18,10 +18,10 @@
 		<button
 				type="{{ field.type }}"
 				name="{{ field.name }}"
-				value="{{ field.value|default('') }}"
-				class="form-control{% for class in field.classes|default([]) %} {{ class }}{% endfor %}"
-				id="{{ field.id|default(field.name) }}"
-				{% for datakey, dataval in field.datas|default([]) %}
+				value="{{ field.value }}"
+				class="form-control{% for class in field.classes %} {{ class }}{% endfor %}"
+				id="{{ field.id }}"
+				{% for datakey, dataval in field.datas %}
 					data-{{ datakey }}="{{ dataval }}"
 				{% endfor %}
 				{% block button_field_attribute %}{% endblock %}
