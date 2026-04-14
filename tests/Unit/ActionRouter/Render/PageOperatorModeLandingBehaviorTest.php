@@ -397,6 +397,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'critical', 'count' => 3 ],
 				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'severity' => 'critical', 'count' => 2 ],
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 5 ],
+				[ 'key' => 'plugin_files_ignored', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 3 ],
 				[ 'key' => 'theme_files', 'label' => 'Theme Files', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'critical', 'count' => 6 ],
 				[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 2 ],
@@ -406,7 +407,15 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					'zone'         => 'scans',
 					'severity'     => 'critical',
 					'total'        => 23,
-					'items'        => [],
+					'items'        => [
+						[ 'key' => 'malware', 'count' => 4, 'severity' => 'critical' ],
+						[ 'key' => 'vulnerable_assets', 'count' => 3, 'severity' => 'critical' ],
+						[ 'key' => 'wp_files', 'count' => 2, 'severity' => 'critical' ],
+						[ 'key' => 'plugin_files', 'count' => 5, 'severity' => 'warning' ],
+						[ 'key' => 'theme_files', 'count' => 1, 'severity' => 'warning' ],
+						[ 'key' => 'abandoned', 'count' => 6, 'severity' => 'critical' ],
+						[ 'key' => 'file_locker', 'count' => 2, 'severity' => 'warning' ],
+					],
 				],
 				[
 					'zone'         => 'maintenance',
@@ -437,6 +446,19 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		);
 		$this->assertSame(
 			[
+				'Malware',
+				'Vulnerabilities',
+				'WordPress Files',
+				'Plugins with Modified Files',
+				'Themes with Modified Files',
+				'Abandoned Assets',
+				'File Locker',
+				'Maintenance Items',
+			],
+			\array_column( $rows, 'label' )
+		);
+		$this->assertSame(
+			[
 				'bi bi-bug',
 				'bi bi-shield-exclamation',
 				'bi bi-wordpress',
@@ -454,6 +476,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
 			[
 				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 2 ],
+				[ 'key' => 'plugin_files_ignored', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 1 ],
 				[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
 			],
 			[
@@ -461,7 +484,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					'zone'         => 'scans',
 					'severity'     => 'warning',
 					'total'        => 2,
-					'items'        => [],
+					'items'        => [
+						[ 'key' => 'plugin_files', 'count' => 2, 'severity' => 'warning' ],
+					],
 				],
 			],
 		] );
@@ -470,6 +495,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			[ 'plugin_files' ],
 			\array_column( $rows, 'key' )
 		);
+		$this->assertSame( 'Plugins with Modified Files', $rows[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame(
 			[
 				'plugin_files' => 'warning',
@@ -478,28 +504,75 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_render_data_uses_scan_state_rows_without_replacing_attention_summary_state() :void {
+	public function test_render_data_filters_dashboard_attention_summary_and_keeps_visible_maintenance_items() :void {
 		$page = new PageOperatorModeLandingTestDouble(
 			[
 				'generated_at' => 1700000000,
 				'summary'      => [
-					'total'        => 1,
+					'total'        => 2,
 					'severity'     => 'warning',
 					'is_all_clear' => false,
 				],
-				'items'        => [],
+				'items'        => [
+					[
+						'key'         => 'plugin_files_ignored',
+						'zone'        => 'scans',
+						'label'       => 'Plugin Files',
+						'count'       => 1,
+						'severity'    => 'warning',
+						'description' => 'Ignored plugin files.',
+						'href'        => '/plugins',
+						'action'      => 'Review',
+						'target'      => '',
+					],
+					[
+						'key'         => 'wp_updates',
+						'zone'        => 'maintenance',
+						'label'       => 'WordPress Version',
+						'count'       => 1,
+						'severity'    => 'warning',
+						'description' => 'Updates available.',
+						'href'        => '/updates',
+						'action'      => 'Open',
+						'target'      => '',
+					],
+				],
 				'groups'       => [
 					'scans'       => [
 						'zone'     => 'scans',
-						'severity' => 'good',
-						'total'    => 0,
-						'items'    => [],
+						'severity' => 'warning',
+						'total'    => 1,
+						'items'    => [
+							[
+								'key'         => 'plugin_files_ignored',
+								'zone'        => 'scans',
+								'label'       => 'Plugin Files',
+								'count'       => 1,
+								'severity'    => 'warning',
+								'description' => 'Ignored plugin files.',
+								'href'        => '/plugins',
+								'action'      => 'Review',
+								'target'      => '',
+							],
+						],
 					],
 					'maintenance' => [
 						'zone'     => 'maintenance',
 						'severity' => 'warning',
 						'total'    => 1,
-						'items'    => [],
+						'items'    => [
+							[
+								'key'         => 'wp_updates',
+								'zone'        => 'maintenance',
+								'label'       => 'WordPress Version',
+								'count'       => 1,
+								'severity'    => 'warning',
+								'description' => 'Updates available.',
+								'href'        => '/updates',
+								'action'      => 'Open',
+								'target'      => '',
+							],
+						],
 					],
 				],
 			],
@@ -519,24 +592,23 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$actionsQueueRows = $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [];
 
 		$this->assertSame(
-			[ 'plugin_files', 'maintenance' ],
+			[ 'maintenance' ],
 			\array_column( $actionsQueueRows, 'key' )
 		);
 		$this->assertSame(
 			[
-				'plugin_files' => 99,
-				'maintenance'  => 1,
+				'maintenance' => 1,
 			],
 			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'count' ) )
 		);
 		$this->assertSame(
 			[
-				'plugin_files' => 'critical',
-				'maintenance'  => 'warning',
+				'maintenance' => 'warning',
 			],
 			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'severity' ) )
 		);
 		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' );
+		$this->assertSame( '1 issue needs your attention.', $renderData[ 'strings' ][ 'subtitle' ] ?? '' );
 	}
 
 	public function test_render_data_exposes_actions_queue_title_and_secondary_lanes() :void {
@@ -563,7 +635,19 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 					'zone'     => 'maintenance',
 					'severity' => 'warning',
 					'total'    => 1,
-					'items'    => [],
+					'items'    => [
+						[
+							'key'         => 'wp_updates',
+							'zone'        => 'maintenance',
+							'label'       => 'WordPress Version',
+							'count'       => 1,
+							'severity'    => 'warning',
+							'description' => 'Updates available.',
+							'href'        => '/updates',
+							'action'      => 'Open',
+							'target'      => '',
+						],
+					],
 				],
 			],
 		] );
@@ -583,6 +667,71 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			[ 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [], 'key' )
 		);
+	}
+
+	public function test_render_data_ignores_plugin_files_ignored_when_it_is_the_only_dashboard_issue() :void {
+		$renderData = $this->invokeNonPublicMethod( new PageOperatorModeLandingTestDouble(
+			[
+				'generated_at' => 1700000000,
+				'summary'      => [
+					'total'        => 1,
+					'severity'     => 'warning',
+					'is_all_clear' => false,
+				],
+				'items'        => [
+					[
+						'key'         => 'plugin_files_ignored',
+						'zone'        => 'scans',
+						'label'       => 'Plugin Files',
+						'count'       => 1,
+						'severity'    => 'warning',
+						'description' => 'Ignored plugin files.',
+						'href'        => '/plugins',
+						'action'      => 'Review',
+						'target'      => '',
+					],
+				],
+				'groups'       => [
+					'scans'       => [
+						'zone'     => 'scans',
+						'severity' => 'warning',
+						'total'    => 1,
+						'items'    => [
+							[
+								'key'         => 'plugin_files_ignored',
+								'zone'        => 'scans',
+								'label'       => 'Plugin Files',
+								'count'       => 1,
+								'severity'    => 'warning',
+								'description' => 'Ignored plugin files.',
+								'href'        => '/plugins',
+								'action'      => 'Review',
+								'target'      => '',
+							],
+						],
+					],
+					'maintenance' => [
+						'zone'     => 'maintenance',
+						'severity' => 'good',
+						'total'    => 0,
+						'items'    => [],
+					],
+				],
+			],
+			[],
+			200000,
+			[
+				'rows' => [
+					[ 'key' => 'plugin_files_ignored', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 1 ],
+				],
+				'tabs'               => [],
+				'rail_accent_status' => 'warning',
+			]
+		), 'getRenderData' );
+
+		$this->assertSame( [], $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [] );
+		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' );
+		$this->assertSame( 'Your site is protected. All systems operational.', $renderData[ 'strings' ][ 'subtitle' ] ?? '' );
 	}
 
 	private function newPage() :PageOperatorModeLanding {

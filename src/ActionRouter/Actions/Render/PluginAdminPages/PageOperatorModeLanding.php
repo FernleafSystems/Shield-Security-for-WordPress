@@ -31,7 +31,7 @@ class PageOperatorModeLanding extends BaseRender {
 	private ?array $scanStateCache = null;
 
 	protected function getRenderData() :array {
-		$attentionQuery = $this->getAttentionQuery();
+		$attentionQuery = $this->buildDashboardAttentionQuery( $this->getAttentionQuery() );
 		$queueSummary = $this->getQueueSummary( $attentionQuery );
 		$queueZoneGroups = $this->getQueueZoneGroups( $attentionQuery );
 		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] );
@@ -220,8 +220,13 @@ class PageOperatorModeLanding extends BaseRender {
 	 */
 	private function buildActionsQueueRows( array $scanRows, array $zoneGroups ) :array {
 		$rows = [];
+		$scansGroup = $this->findQueueZoneGroupByZone( $zoneGroups, 'scans' );
+		$visibleScanKeys = \array_fill_keys( \array_column( $scansGroup[ 'items' ] ?? [], 'key' ), true );
+
 		foreach ( $scanRows as $item ) {
-			if ( (int)( $item[ 'count' ] ?? 0 ) < 1 ) {
+			$key = (string)( $item[ 'key' ] ?? '' );
+			if ( (int)( $item[ 'count' ] ?? 0 ) < 1
+				|| !isset( $visibleScanKeys[ $key ] ) ) {
 				continue;
 			}
 			$rows[] = $this->buildScanQueueRowFromScanStateRow( $item );
@@ -250,7 +255,7 @@ class PageOperatorModeLanding extends BaseRender {
 
 		return [
 			'key'        => $key,
-			'label'      => $item[ 'label' ],
+			'label'      => $this->dashboardScanQueueRowLabel( $key, (string)$item[ 'label' ] ),
 			'icon_class' => self::con()->svgs->iconClass( $this->getScanQueueRowIcon( $key ) ),
 			'severity'   => $this->normalizeSeverity( $item[ 'severity' ] ),
 			'count'      => $item[ 'count' ],
@@ -546,6 +551,89 @@ class PageOperatorModeLanding extends BaseRender {
 	private function modeHref( string $mode ) :string {
 		$entry = PluginNavs::defaultEntryForMode( $mode );
 		return self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] );
+	}
+
+	/**
+	 * @param array{
+	 *   generated_at?:int,
+	 *   summary:array{total:int,severity:string,is_all_clear:bool},
+	 *   items:list<array<string,mixed>>,
+	 *   groups:array<string,array{zone:string,severity:string,total:int,items:list<array<string,mixed>>}>
+	 * } $attentionQuery
+	 * @return array{
+	 *   generated_at?:int,
+	 *   summary:array{total:int,severity:string,is_all_clear:bool},
+	 *   items:list<array<string,mixed>>,
+	 *   groups:array<string,array{zone:string,severity:string,total:int,items:list<array<string,mixed>>}>
+	 * }
+	 */
+	private function buildDashboardAttentionQuery( array $attentionQuery ) :array {
+		$filteredItems = \array_values( \array_filter(
+			$attentionQuery[ 'items' ] ?? [],
+			fn( array $item ) :bool => $this->showDashboardAttentionItem( $item )
+		) );
+
+		$groups = [];
+		foreach ( $attentionQuery[ 'groups' ] ?? [] as $groupKey => $group ) {
+			$groupItems = \array_values( \array_filter(
+				$group[ 'items' ] ?? [],
+				fn( array $item ) :bool => $this->showDashboardAttentionItem( $item )
+			) );
+			$groups[ $groupKey ] = [
+				'zone'     => $group[ 'zone' ],
+				'severity' => $this->highestDashboardItemSeverity( $groupItems ),
+				'total'    => (int)\array_sum( \array_column( $groupItems, 'count' ) ),
+				'items'    => $groupItems,
+			];
+		}
+
+		$totalItems = (int)\array_sum( \array_column( $filteredItems, 'count' ) );
+		$attentionQuery[ 'items' ] = $filteredItems;
+		$attentionQuery[ 'groups' ] = $groups;
+		$attentionQuery[ 'summary' ] = [
+			'total'        => $totalItems,
+			'severity'     => $this->highestDashboardItemSeverity( $filteredItems ),
+			'is_all_clear' => $totalItems === 0,
+		];
+
+		return $attentionQuery;
+	}
+
+	/**
+	 * @param array<string,mixed> $item
+	 */
+	private function showDashboardAttentionItem( array $item ) :bool {
+		return (string)( $item[ 'key' ] ?? '' ) !== 'plugin_files_ignored';
+	}
+
+	private function dashboardScanQueueRowLabel( string $key, string $label ) :string {
+		if ( $key === 'plugin_files' ) {
+			return __( 'Plugins with Modified Files', 'wp-simple-firewall' );
+		}
+		if ( $key === 'theme_files' ) {
+			return __( 'Themes with Modified Files', 'wp-simple-firewall' );
+		}
+
+		return $label;
+	}
+
+	/**
+	 * @param list<array<string,mixed>> $items
+	 */
+	private function highestDashboardItemSeverity( array $items ) :string {
+		$severities = \array_map(
+			fn( array $item ) :string => $this->normalizeSeverity( (string)( $item[ 'severity' ] ?? 'good' ) ),
+			$items
+		);
+
+		if ( \in_array( 'critical', $severities, true ) ) {
+			return 'critical';
+		}
+		if ( \in_array( 'warning', $severities, true ) ) {
+			return 'warning';
+		}
+
+		return 'good';
 	}
 
 	private function getAttentionQuery() :array {

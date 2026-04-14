@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constan
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -121,6 +122,34 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 	private function pluginMainPathFragment( string $pluginSlug ) :string {
 		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function getInstalledPluginFiles() :array {
+		$pluginFiles = \array_values( \array_map(
+			static fn( $file ) :string => (string)$file,
+			\array_keys( Services::WpPlugins()->getPlugins() )
+		) );
+		\natsort( $pluginFiles );
+		return \array_values( $pluginFiles );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function requireAtLeastInactivePlugins( int $minimum ) :array {
+		$inactivePlugins = \array_values( \array_diff(
+			$this->getInstalledPluginFiles(),
+			Services::WpPlugins()->getActivePlugins()
+		) );
+
+		if ( \count( $inactivePlugins ) < $minimum ) {
+			$this->markTestSkipped( 'Not enough inactive plugins are available for this integration fixture.' );
+		}
+
+		return \array_slice( $inactivePlugins, 0, $minimum );
 	}
 
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
@@ -390,6 +419,53 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			[ 'investigate', 'configure', 'reports' ],
 			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
 		);
+	}
+
+	public function test_operator_mode_landing_hides_ignored_only_plugin_dashboard_row_and_uses_modified_plugins_label() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_file_areas',
+			'scan_pluginsthemes_local',
+		] );
+
+		self::con()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'file_scan_areas', [ 'plugins' ] )
+			->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$activePluginSlug = self::con()->base_file;
+		$ignoredPluginSlug = $this->requireAtLeastInactivePlugins( 1 )[ 0 ];
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $activePluginSlug ), [
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $activePluginSlug,
+		] );
+		$ignored = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $ignoredPluginSlug ), [
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $ignoredPluginSlug,
+		] );
+		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
+		$this->resetScanResultCountMemoization();
+
+		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
+		$rows = $this->getActionsQueueRows( $renderData );
+		$rowsByKey = [];
+		foreach ( $rows as $row ) {
+			if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
+				$rowsByKey[ (string)$row[ 'key' ] ] = $row;
+			}
+		}
+
+		$this->assertArrayHasKey( 'plugin_files', $rowsByKey );
+		$this->assertArrayNotHasKey( 'plugin_files_ignored', $rowsByKey );
+		$this->assertSame( 'Plugins with Modified Files', (string)( $rowsByKey[ 'plugin_files' ][ 'label' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $rowsByKey[ 'plugin_files' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $rowsByKey[ 'plugin_files' ][ 'severity' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
+		$this->assertSame( '1 issue needs your attention', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_text' ] ?? '' ) );
+		$this->assertSame( '1 issue needs your attention.', (string)( $renderData[ 'strings' ][ 'subtitle' ] ?? '' ) );
 	}
 
 	public function test_operator_mode_landing_omits_healthy_file_locker_and_zero_maintenance_rows() :void {
