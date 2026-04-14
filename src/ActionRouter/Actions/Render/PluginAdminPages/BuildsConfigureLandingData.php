@@ -57,7 +57,7 @@ trait BuildsConfigureLandingData {
 
 	protected function buildRequestedConfigureFocusRequestJson() :string {
 		$focus = $this->getRequestedConfigureFocusRequest();
-		return empty( $focus ) ? '' : $this->encodeJson( $focus );
+		return empty( $focus ) ? '' : OperatorChromeContract::encodeJson( $focus );
 	}
 
 	/**

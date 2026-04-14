@@ -85,7 +85,7 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 			'zone_tiles'         => $viewData[ 'zone_tiles' ],
 			'all_clear'          => $viewData[ 'all_clear' ],
 			'actions_queue_ajax' => [
-				'groups_render_action_json' => $this->encodeJson( $groupsRenderAction ),
+				'groups_render_action_json' => OperatorChromeContract::encodeJson( $groupsRenderAction ),
 			],
 		] );
 	}

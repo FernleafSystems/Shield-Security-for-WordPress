@@ -266,7 +266,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 				'icon_class' => $workspaceCopy[ $workspaceKey ][ 'icon_class' ],
 				'header'     => $workspaceCopy[ $workspaceKey ][ 'header' ],
 			];
-			$selectionJson = $this->encodeJson( $selection );
+			$selectionJson = OperatorChromeContract::encodeJson( $selection );
 
 			$cards[] = [
 				'key'  => $workspaceKey,

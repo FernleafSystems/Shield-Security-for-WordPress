@@ -44,8 +44,8 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 			parent::getLandingVars(),
 			[
 				'configure_ajax'          => [
-					'diagnosis_render_action_json' => $this->encodeJson( $diagnosisAction ),
-					'search_render_action_json'    => $this->encodeJson( $searchAction ),
+					'diagnosis_render_action_json' => OperatorChromeContract::encodeJson( $diagnosisAction ),
+					'search_render_action_json'    => OperatorChromeContract::encodeJson( $searchAction ),
 				],
 				'configure_focus_request_json' => $this->buildRequestedConfigureFocusRequestJson(),
 			]

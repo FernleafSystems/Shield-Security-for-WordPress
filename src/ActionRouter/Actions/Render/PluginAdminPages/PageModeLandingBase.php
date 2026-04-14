@@ -298,10 +298,6 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		return $panel;
 	}
 
-	protected function encodeJson( array $data ) :string {
-		return (string)( \json_encode( $data ) ?: '' );
-	}
-
 	protected function buildLandingIconClass( string $icon ) :string {
 		return self::con()->svgs->iconClass( $icon );
 	}

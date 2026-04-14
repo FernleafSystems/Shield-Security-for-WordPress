@@ -200,7 +200,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 					'stat_text'         => $subject[ 'stat_text' ],
 					'lookup_key'        => $lookupKey,
 					'render_action'     => $renderAction,
-					'render_action_json'=> $this->encodeJson( $renderAction ),
+					'render_action_json'=> OperatorChromeContract::encodeJson( $renderAction ),
 					'header'            => $header,
 					'header_json'       => OperatorChromeContract::encodeJson( $header ),
 				];
