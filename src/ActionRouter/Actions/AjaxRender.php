@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RenderActionTarget;
 
 class AjaxRender extends BaseAction {
 
@@ -14,8 +15,9 @@ class AjaxRender extends BaseAction {
 	public const SLUG = 'ajax_render';
 
 	protected function exec() {
+		$renderAction = RenderActionTarget::require( (string)$this->action_data[ 'render_slug' ] );
 		$routedResponse = self::con()->action_router->action(
-			$this->action_data[ 'render_slug' ],
+			$renderAction,
 			$this->getParamsMinusAjax()
 		);
 		$payload = $routedResponse->payload();

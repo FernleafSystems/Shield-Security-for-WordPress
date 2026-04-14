@@ -19,6 +19,11 @@ class CaptureAjaxAction extends CaptureActionBase {
 		return self::con()->this_req->wp_is_ajax && parent::canRun();
 	}
 
+	protected function transportData() :array {
+		$post = Services::Request()->post;
+		return \is_array( $post ) ? $post : [];
+	}
+
 	protected function theRun() {
 		foreach (
 			[
@@ -35,18 +40,24 @@ class CaptureAjaxAction extends CaptureActionBase {
 	}
 
 	private function ajaxAction() {
-		$con = self::con();
+		$issuePayload = $this->buildAjaxIssuePayload();
+		if ( $issuePayload !== [] ) {
+			$this->issueAjaxResponse( $issuePayload );
+		}
+	}
 
-		$req = Services::Request();
+	protected function buildAjaxIssuePayload() :array {
+		$con = self::con();
+		$transport = $this->transportData();
+
 		try {
 			\ob_start();
 			$routedResponse = $con->action_router->executor()->execute(
-				$this->extractActionSlug(),
-				$req->post,
+				$this->extractActionSlugFromTransport( $transport ),
+				$transport,
 				ActionRoutingController::ACTION_AJAX
 			);
-			$payload = $routedResponse->payload();
-			$response = $this->normaliseAjaxResponse( $payload );
+			$response = $this->normaliseAjaxResponse( $routedResponse->payload() );
 			$statusCode = $routedResponse->statusCode();
 		}
 		catch ( InvalidActionNonceException $e ) {
@@ -92,9 +103,10 @@ class CaptureAjaxAction extends CaptureActionBase {
 			$noise = \ob_get_clean();
 		}
 
-		if ( !empty( $response ) ) {
-			$issuePayload = [
-				'success'     => $response[ 'success' ] ?? false,
+		return empty( $response )
+			? []
+			: [
+				'success'     => (bool)( $response[ 'success' ] ?? false ),
 				'data'        => \array_diff_key( $response, \array_flip( [
 					'action_data',
 					/** TODO: refine action process to ensure that excess data isn't included */
@@ -102,8 +114,10 @@ class CaptureAjaxAction extends CaptureActionBase {
 				'noise'       => $noise,
 				'status_code' => $statusCode
 			];
-			( new Response() )->issue( $issuePayload );
-		}
+	}
+
+	protected function issueAjaxResponse( array $issuePayload ) :void {
+		( new Response() )->issue( $issuePayload );
 	}
 
 	/**

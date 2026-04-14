@@ -17,14 +17,28 @@ class CaptureActionBase {
 	protected ?RoutedResponse $actionResponse = null;
 
 	protected function canRun() :bool {
-		$req = Services::Request();
-		return $req->request( ActionData::FIELD_ACTION ) === ActionData::FIELD_SHIELD
-			   && !empty( $req->request( ActionData::FIELD_EXECUTE ) )
-			   && ActionData::isValidActionSlug( (string)$req->request( ActionData::FIELD_EXECUTE ) );
+		return $this->isRunnableShieldTransport( $this->transportData() );
 	}
 
-	protected function extractActionSlug() :string {
-		return ActionData::extractActionSlug( (string)Services::Request()->request( ActionData::FIELD_EXECUTE ) );
+	protected function transportData() :array {
+		$req = Services::Request();
+		return \array_merge(
+			\is_array( $req->query ) ? $req->query : [],
+			\is_array( $req->post ) ? $req->post : []
+		);
+	}
+
+	protected function isRunnableShieldTransport( array $transport ) :bool {
+		$action = (string)( $transport[ ActionData::FIELD_ACTION ] ?? '' );
+		$slug = (string)( $transport[ ActionData::FIELD_EXECUTE ] ?? '' );
+
+		return $action === ActionData::FIELD_SHIELD
+			   && $slug !== ''
+			   && ActionData::isValidActionSlug( $slug );
+	}
+
+	protected function extractActionSlugFromTransport( array $transport ) :string {
+		return ActionData::extractActionSlug( (string)( $transport[ ActionData::FIELD_EXECUTE ] ?? '' ) );
 	}
 
 	protected function run() {

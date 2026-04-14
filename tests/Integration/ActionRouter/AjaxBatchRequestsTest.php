@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	Actions\AjaxRender,
 	Actions\AjaxBatchRequests,
 	Actions\PluginBadgeClose,
+	Actions\PluginImportExport_UpdateNotified,
 	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
 };
@@ -233,5 +235,27 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 			'no action handler',
 			\strtolower( $payload[ 'results' ][ 'invalid_slug' ][ 'data' ][ 'error' ] ?? '' )
 		);
+	}
+
+	public function test_batch_ajax_render_subrequest_rejects_non_render_target() :void {
+		$subrequest = ActionData::Build( AjaxRender::class, true, [
+			'render_slug' => PluginImportExport_UpdateNotified::SLUG,
+		] );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'invalid_render_target',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$payload = $response->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertArrayHasKey( 'invalid_render_target', $payload[ 'results' ] );
+		$this->assertFalse( $payload[ 'results' ][ 'invalid_render_target' ][ 'success' ] );
+		$this->assertSame( 400, $payload[ 'results' ][ 'invalid_render_target' ][ 'status_code' ] );
+		$this->assertArrayHasKey( 'error', $payload[ 'results' ][ 'invalid_render_target' ][ 'data' ] ?? [] );
 	}
 }

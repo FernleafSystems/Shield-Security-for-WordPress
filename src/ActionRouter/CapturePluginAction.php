@@ -11,11 +11,11 @@ class CapturePluginAction extends CaptureActionBase {
 	}
 
 	protected function theRun() {
-		$req = Services::Request();
+		$transport = $this->transportData();
 		try {
 			$this->actionResponse = self::con()->action_router->action(
-				$this->extractActionSlug(),
-				\array_merge( $req->query, $req->post )
+				$this->extractActionSlugFromTransport( $transport ),
+				$transport
 			);
 		}
 		catch ( \Exception $e ) {

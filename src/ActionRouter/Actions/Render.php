@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RenderActionTarget;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -18,9 +19,10 @@ class Render extends BaseAction {
 	public const SLUG = 'render';
 
 	protected function exec() {
+		$renderAction = RenderActionTarget::require( (string)$this->action_data[ 'render_action_slug' ] );
 		$this->setResponse(
 			self::con()->action_router->action(
-				$this->action_data[ 'render_action_slug' ],
+				$renderAction,
 				\array_filter( $this->action_data[ 'render_action_data' ] ?? [], fn( $item ) => !\is_null( $item ) )
 			)
 		);

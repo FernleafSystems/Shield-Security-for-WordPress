@@ -74,7 +74,7 @@ class ActionData {
 	}
 
 	/**
-	 * @param class-string<BaseAction> $actionClass
+	 * @param class-string<Actions\Render\BaseRender> $actionClass
 	 */
 	public static function BuildAjaxRender( string $actionClass, array $aux = [] ) :array {
 		return self::Build( AjaxRender::class, true, \array_merge( $aux, [ 'render_slug' => $actionClass::SLUG ] ) );

@@ -69,12 +69,16 @@ trait CurrentRequestFixture {
 	}
 
 	protected function applyCurrentShieldAjaxRequest( array $post, bool $isSecurityAdmin ) :ThisRequest {
+		return $this->applyCurrentShieldAjaxRequestWithQuery( [], $post, $isSecurityAdmin );
+	}
+
+	protected function applyCurrentShieldAjaxRequestWithQuery( array $query, array $post, bool $isSecurityAdmin ) :ThisRequest {
 		return $this->applyCurrentRequestState(
 			[
 				'REQUEST_METHOD' => 'POST',
 				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
 			],
-			[],
+			$query,
 			$post,
 			[
 				'path'              => '/wp-admin/admin-ajax.php',

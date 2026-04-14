@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionNonce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionResponse;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
@@ -87,7 +88,7 @@ abstract class BaseAction extends DynPropertiesClass {
 			throw new SecurityAdminRequiredException( sprintf( __( 'Security admin required for action: %s', 'wp-simple-firewall' ), static::SLUG ) );
 		}
 
-		if ( $this->isNonceVerifyRequired() && !ActionNonce::VerifyFromRequest() ) {
+		if ( $this->isNonceVerifyRequired() && !$this->verifyNonce() ) {
 			throw new InvalidActionNonceException( __( 'Invalid Action Nonce Exception.', 'wp-simple-firewall' ) );
 		}
 	}
@@ -128,6 +129,12 @@ abstract class BaseAction extends DynPropertiesClass {
 
 	protected function isNonceVerifyRequired() :bool {
 		return (bool)( $this->getActionOverrides()[ Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED ] ?? self::con()->this_req->wp_is_ajax );
+	}
+
+	protected function verifyNonce() :bool {
+		return self::con()->this_req->wp_is_ajax
+			? ActionNonce::Verify( static::SLUG, (string)( $this->action_data[ ActionData::FIELD_NONCE ] ?? '' ) )
+			: ActionNonce::VerifyFromRequest();
 	}
 
 	protected function isUserAuthRequired() :bool {
