@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\HighValueEven
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -57,38 +58,68 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 	}
 
 	public function test_live_traffic_render_returns_structured_rows() :void {
-		TestDataFactory::insertRequestLog( '203.0.113.61', [
-			'verb'    => 'POST',
-			'path'    => '/wp-login.php',
-			'code'    => 403,
-			'uid'     => get_current_user_id(),
-			'offense' => true,
-			'meta'    => [
-				'query' => 'reauth=1',
+		$originalProviders = get_transient( 'apto_provider_ips' );
+		$this->seedProviderIps( [
+			'services' => [
+				'icontrolwp' => [
+					'name' => 'iControlWP',
+					'type' => [ 'wp_site_management' ],
+					'ips'  => [
+						'4' => [ '203.0.113.0/24' ],
+						'6' => [],
+					],
+				],
+			],
+			'crawlers' => [
+				'google' => [
+					'name'         => 'GoogleBot',
+					'type'         => [ 'search' ],
+					'host_pattern' => '#.+\\.google(bot)?\\.com\\.?$#i',
+					'agents'       => [ 'Googlebot' ],
+				],
 			],
 		] );
 
-		$payload = $this->processor()->processAction( TrafficLiveLogs::SLUG, [
-			'limit' => 5,
-		] )->payload();
-		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
-		$rows = \is_array( $vars[ 'rows' ] ?? null ) ? $vars[ 'rows' ] : [];
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$badgeLabels = \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' );
-		$currentUser = wp_get_current_user();
+		try {
+			TestDataFactory::insertRequestLog( '203.0.113.61', [
+				'verb'    => 'POST',
+				'path'    => '/wp-login.php',
+				'code'    => 403,
+				'uid'     => get_current_user_id(),
+				'offense' => true,
+				'meta'    => [
+					'query' => 'reauth=1',
+					'ua'    => 'iControlWPApp/1.0',
+				],
+			] );
 
-		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
-		$this->assertCount( 1, $rows );
-		$this->assertSame( '203.0.113.61', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
-		$this->assertStringContainsString( 'POST', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
-		$this->assertStringContainsString( '/wp-login.php', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
-		$this->assertContains( (string)( $currentUser->user_login ?? '' ), $badgeLabels );
-		$this->assertContains( '403', $badgeLabels );
-		$this->assertGreaterThanOrEqual( 3, \count( $rows[ 0 ][ 'badges' ] ?? [] ) );
-		$this->assertNotSame( '', (string)( $rows[ 0 ][ 'timestamp' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $rows[ 0 ][ 'description' ] ?? '' ) ) );
-		$this->assertStringNotContainsString( 'Response:', (string)( $rows[ 0 ][ 'description' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( $html ) );
+			$payload = $this->processor()->processAction( TrafficLiveLogs::SLUG, [
+				'limit' => 5,
+			] )->payload();
+			$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
+			$rows = \is_array( $vars[ 'rows' ] ?? null ) ? $vars[ 'rows' ] : [];
+			$html = (string)( $payload[ 'render_output' ] ?? '' );
+			$badgeLabels = \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' );
+			$currentUser = wp_get_current_user();
+
+			$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+			$this->assertCount( 1, $rows );
+			$this->assertSame( '203.0.113.61', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
+			$this->assertStringContainsString( 'POST', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
+			$this->assertStringContainsString( '/wp-login.php', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
+			$this->assertContains( 'iControlWP', $badgeLabels );
+			$this->assertContains( (string)( $currentUser->user_login ?? '' ), $badgeLabels );
+			$this->assertContains( '403', $badgeLabels );
+			$this->assertGreaterThanOrEqual( 4, \count( $rows[ 0 ][ 'badges' ] ?? [] ) );
+			$this->assertNotSame( '', (string)( $rows[ 0 ][ 'timestamp' ] ?? '' ) );
+			$this->assertNotSame( '', \trim( (string)( $rows[ 0 ][ 'description' ] ?? '' ) ) );
+			$this->assertStringNotContainsString( 'Response:', (string)( $rows[ 0 ][ 'description' ] ?? '' ) );
+			$this->assertStringContainsString( 'iControlWP', $html );
+			$this->assertNotSame( '', \trim( $html ) );
+		}
+		finally {
+			$this->restoreProviderIps( $originalProviders );
+		}
 	}
 
 	public function test_set_state_action_persists_collapsed_preference() :void {
@@ -109,5 +140,28 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertTrue( (bool)( $expandPayload[ 'success' ] ?? false ) );
 		$this->assertFalse( (bool)( $expandPayload[ 'is_collapsed' ] ?? true ) );
 		$this->assertFalse( $pref->isCollapsed() );
+	}
+
+	private function seedProviderIps( array $providers ) :void {
+		set_transient( 'apto_provider_ips', $providers, DAY_IN_SECONDS );
+		$this->resetServiceProviderCache();
+	}
+
+	private function restoreProviderIps( $providers ) :void {
+		if ( $providers === false ) {
+			delete_transient( 'apto_provider_ips' );
+		}
+		else {
+			set_transient( 'apto_provider_ips', $providers, DAY_IN_SECONDS );
+		}
+		$this->resetServiceProviderCache();
+	}
+
+	private function resetServiceProviderCache() :void {
+		$serviceProviders = Services::ServiceProviders();
+		$reflection = new \ReflectionObject( $serviceProviders );
+		$property = $reflection->getProperty( 'providers' );
+		$property->setAccessible( true );
+		$property->setValue( $serviceProviders, null );
 	}
 }

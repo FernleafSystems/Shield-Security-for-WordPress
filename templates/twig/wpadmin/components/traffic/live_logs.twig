@@ -1,26 +1,26 @@
-{% set rows = vars.rows|default([]) %}
+{% set rows = vars.rows %}
 {% if rows is empty %}
-	<div class="shield-live-logs__empty">{{ vars.empty|default('No live entries are available yet.') }}</div>
+	<div class="shield-live-logs__empty">{{ vars.empty }}</div>
 {% else %}
 	{% for row in rows %}
 		<div class="shield-live-logs__row">
 			<div class="shield-live-logs__row-main">
-				<div class="shield-live-logs__timestamp">{{ row.timestamp|default('') }}</div>
-				{% if row.ip|default('') is not empty %}
+				<div class="shield-live-logs__timestamp">{{ row.timestamp }}</div>
+				{% if row.ip is not empty %}
 					<div class="shield-live-logs__ip">
-						{% if row.ip_href|default('') is not empty %}
+						{% if row.ip_href is not empty %}
 							<a href="{{ row.ip_href }}" class="offcanvas_ip_analysis" data-ip="{{ row.ip }}">{{ row.ip }}</a>
 						{% else %}
 							{{ row.ip }}
 						{% endif %}
 					</div>
 				{% endif %}
-				<div class="shield-live-logs__title">{{ row.title|default('') }}</div>
-				{% if row.description|default('') is not empty %}
+				<div class="shield-live-logs__title">{{ row.title }}</div>
+				{% if row.description is not empty %}
 					<div class="shield-live-logs__description">{{ row.description }}</div>
 				{% endif %}
-				{% for badge in row.badges|default([]) %}
-					<span class="badge rounded-pill shield-live-logs__badge {{ badge.class|default('bg-secondary-subtle text-body-secondary border border-secondary-subtle') }}">{{ badge.label|default('') }}</span>
+				{% for badge in row.badges %}
+					<span class="badge rounded-pill shield-live-logs__badge {{ badge.class }}">{{ badge.label }}</span>
 				{% endfor %}
 			</div>
 		</div>

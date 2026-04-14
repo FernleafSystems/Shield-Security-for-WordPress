@@ -8,13 +8,30 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LogRecord as RequestLogRecord,
 	Ops\Handler as ReqLogsHandler
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\ResolvesIpIdentity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
+/**
+ * @phpstan-type LiveLogBadge array{
+ *   label:string,
+ *   class:string
+ * }
+ * @phpstan-type LiveLogRow array{
+ *   timestamp:string,
+ *   ip:string,
+ *   ip_href:string,
+ *   title:string,
+ *   description:string,
+ *   badges:list<LiveLogBadge>
+ * }
+ */
 class LiveLogRowsBuilder {
 
 	use PluginControllerConsumer;
+	use ResolvesIpIdentity;
 
 	/**
 	 * This builder currently owns compact timestamp formatting plus activity and
@@ -25,6 +42,7 @@ class LiveLogRowsBuilder {
 
 	/**
 	 * @param ActivityLogRecord[] $records
+	 * @return list<LiveLogRow>
 	 */
 	public function buildActivityRows( array $records ) :array {
 		return \array_values( \array_map(
@@ -35,6 +53,7 @@ class LiveLogRowsBuilder {
 
 	/**
 	 * @param RequestLogRecord[] $records
+	 * @return list<LiveLogRow>
 	 */
 	public function buildTrafficRows( array $records ) :array {
 		return \array_values( \array_map(
@@ -52,6 +71,9 @@ class LiveLogRowsBuilder {
 		return wp_date( $format, $timestamp );
 	}
 
+	/**
+	 * @return LiveLogRow
+	 */
 	public function buildActivityRow( ActivityLogRecord $record ) :array {
 		$title = self::con()->comps->events->getEventName( $record->event_slug );
 		$description = ActivityLogMessageBuilder::Build( $record->event_slug, $record->meta_data ?? [], ' ' );
@@ -66,6 +88,9 @@ class LiveLogRowsBuilder {
 		];
 	}
 
+	/**
+	 * @return LiveLogRow
+	 */
 	public function buildTrafficRow( RequestLogRecord $record ) :array {
 		return [
 			'timestamp'   => $this->buildCompactTimestamp( $record->created_at ),
@@ -101,6 +126,9 @@ class LiveLogRowsBuilder {
 		return \implode( ' | ', $parts );
 	}
 
+	/**
+	 * @return list<LiveLogBadge>
+	 */
 	private function buildTrafficBadges( RequestLogRecord $record ) :array {
 		$badges = [
 			[
@@ -108,6 +136,11 @@ class LiveLogRowsBuilder {
 				'class' => 'bg-secondary-subtle text-body-secondary border border-secondary-subtle',
 			],
 		];
+
+		$identityBadge = $this->buildTrafficIdentityBadge( $record );
+		if ( $identityBadge !== null ) {
+			$badges[] = $identityBadge;
+		}
 
 		if ( $record->uid > 0 ) {
 			$badges[] = [
@@ -131,6 +164,21 @@ class LiveLogRowsBuilder {
 		}
 
 		return $badges;
+	}
+
+	/**
+	 * @return LiveLogBadge|null
+	 */
+	private function buildTrafficIdentityBadge( RequestLogRecord $record ) :?array {
+		$identity = $this->resolveIpIdentity( $record->ip, $record->meta[ 'ua' ] ?? null );
+		if ( $identity === null || $identity[ 0 ] === IpID::UNKNOWN ) {
+			return null;
+		}
+
+		return [
+			'label' => $identity[ 1 ],
+			'class' => 'bg-info-subtle text-info-emphasis border border-info-subtle',
+		];
 	}
 
 	private function buildTrafficUserLabel( RequestLogRecord $record ) :string {

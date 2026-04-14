@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\Users;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 class LiveLogRowsBuilderTest extends BaseUnitTest {
 
@@ -107,6 +108,10 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$record->meta_data = [];
 		$row = $builder->buildActivityRow( $record );
 
+		$this->assertSame(
+			[ 'timestamp', 'ip', 'ip_href', 'title', 'description', 'badges' ],
+			\array_keys( $row )
+		);
 		$this->assertSame( 'IP Blocked', $row[ 'title' ] );
 		$this->assertSame( '198.51.100.40', $row[ 'ip' ] );
 		$this->assertSame( '/ip/198.51.100.40', $row[ 'ip_href' ] );
@@ -118,7 +123,9 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_traffic_row_maps_request_summary_ip_and_badges() :void {
-		$builder = new LiveLogRowsBuilder();
+		$builder = $this->createBuilderWithIdentityResults( [
+			'203.0.113.55|Googlebot/2.1' => [ 'google', 'GoogleBot' ],
+		] );
 		$record = new RequestLogRecord();
 		$record->created_at = 1713278100;
 		$record->ip = '203.0.113.55';
@@ -130,18 +137,120 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$record->uid = 8;
 		$record->meta = [
 			'query' => 'reauth=1',
+			'ua'    => 'Googlebot/2.1',
 		];
 		$row = $builder->buildTrafficRow( $record );
 
+		$this->assertSame(
+			[ 'timestamp', 'ip', 'ip_href', 'title', 'description', 'badges' ],
+			\array_keys( $row )
+		);
 		$this->assertSame( '203.0.113.55', $row[ 'ip' ] );
 		$this->assertSame( '/ip/203.0.113.55', $row[ 'ip_href' ] );
 		$this->assertStringContainsString( 'POST', $row[ 'title' ] );
 		$this->assertStringContainsString( '/wp-login.php', $row[ 'title' ] );
 		$this->assertStringContainsString( 'Offense detected', $row[ 'description' ] );
-		$this->assertContains( 'HTTP', \array_column( $row[ 'badges' ], 'label' ) );
-		$this->assertContains( 'admin-user', \array_column( $row[ 'badges' ], 'label' ) );
-		$this->assertContains( '403', \array_column( $row[ 'badges' ], 'label' ) );
-		$this->assertContains( 'Offense', \array_column( $row[ 'badges' ], 'label' ) );
+		$this->assertSame(
+			[ 'HTTP', 'GoogleBot', 'admin-user', '403', 'Offense' ],
+			\array_column( $row[ 'badges' ], 'label' )
+		);
+		$this->assertSame( [ 'label', 'class' ], \array_keys( $row[ 'badges' ][ 0 ] ) );
 		$this->assertStringNotContainsString( 'Response:', $row[ 'description' ] );
+	}
+
+	public function test_build_traffic_row_suppresses_unknown_identity_badges() :void {
+		$builder = $this->createBuilderWithIdentityResults( [
+			'203.0.113.21|facebookexternalhit/1.1' => [ IpID::UNKNOWN, 'Unknown' ],
+		] );
+		$record = new RequestLogRecord();
+		$record->created_at = 1713278100;
+		$record->ip = '203.0.113.21';
+		$record->verb = 'GET';
+		$record->path = '/';
+		$record->code = 200;
+		$record->type = 'H';
+		$record->offense = false;
+		$record->uid = 0;
+		$record->meta = [
+			'ua' => 'facebookexternalhit/1.1',
+		];
+
+		$row = $builder->buildTrafficRow( $record );
+
+		$this->assertSame( [ 'HTTP', '200' ], \array_column( $row[ 'badges' ], 'label' ) );
+	}
+
+	public function test_build_traffic_row_passes_logged_user_agent_to_identity_resolver() :void {
+		$builder = $this->createBuilderWithIdentityResults( [
+			'198.51.100.19|Googlebot/2.1' => [ 'google', 'GoogleBot' ],
+		] );
+		$record = new RequestLogRecord();
+		$record->created_at = 1713278100;
+		$record->ip = '198.51.100.19';
+		$record->verb = 'GET';
+		$record->path = '/';
+		$record->code = 200;
+		$record->type = 'H';
+		$record->offense = false;
+		$record->uid = 0;
+		$record->meta = [
+			'ua' => 'Googlebot/2.1',
+		];
+
+		$builder->buildTrafficRow( $record );
+
+		$this->assertSame(
+			[
+				[
+					'ip' => '198.51.100.19',
+					'ua' => 'Googlebot/2.1',
+				]
+			],
+			$builder->identityCalls
+		);
+	}
+
+	private function createBuilderWithIdentityResults( array $identityResults ) :LiveLogRowsBuilder {
+		return new class( $identityResults ) extends LiveLogRowsBuilder {
+
+			private array $identityResults;
+
+			public array $identityCalls = [];
+
+			public function __construct( array $identityResults ) {
+				$this->identityResults = $identityResults;
+			}
+
+			protected function createIpIdentifier( string $ip, ?string $userAgent = null ) :IpID {
+				$this->identityCalls[] = [
+					'ip' => $ip,
+					'ua' => $userAgent,
+				];
+
+				$key = $ip.'|'.\trim( (string)$userAgent );
+				if ( !\array_key_exists( $key, $this->identityResults ) ) {
+					throw new \RuntimeException( 'Unexpected identity lookup for '.$key );
+				}
+
+				$result = $this->identityResults[ $key ];
+				if ( $result instanceof \Exception ) {
+					throw $result;
+				}
+
+				return new class( $result ) extends IpID {
+
+					private array $result;
+
+					public function __construct( array $result ) {
+						parent::__construct( '127.0.0.1' );
+						$this->result = $result;
+					}
+
+					public function run() :array {
+						return $this->result;
+					}
+				};
+			}
+		};
 	}
 }

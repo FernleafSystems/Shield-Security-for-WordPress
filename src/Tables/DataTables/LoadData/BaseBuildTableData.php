@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\ResolvesIpIdentity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
@@ -14,10 +15,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
+	use ResolvesIpIdentity;
 
 	private const TOTAL_COUNT_CACHE_TTL = 10;
-
-	private array $ipIdCache = [];
 
 	private array $userCache = [];
 
@@ -311,23 +311,6 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$includeTimestamp ? sprintf( '<br /><small>%s</small>',
 				Services::WpGeneral()->getTimeStringForDisplay( $ts ) ) : ''
 		);
-	}
-
-	protected function resolveIpIdentity( string $ip ) :?array {
-		if ( !isset( $this->ipIdCache[ $ip ] ) ) {
-			try {
-				$this->ipIdCache[ $ip ] = $this->createIpIdentifier( $ip )->run();
-			}
-			catch ( \Exception $e ) {
-				$this->ipIdCache[ $ip ] = false;
-			}
-		}
-		$result = $this->ipIdCache[ $ip ];
-		return $result === false ? null : $result;
-	}
-
-	protected function createIpIdentifier( string $ip ) :IpID {
-		return new IpID( $ip );
 	}
 
 	protected function resolveUser( int $uid ) {
