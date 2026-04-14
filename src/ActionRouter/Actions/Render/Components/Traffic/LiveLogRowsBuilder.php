@@ -177,7 +177,7 @@ class LiveLogRowsBuilder {
 
 		return [
 			'label' => $identity[ 1 ],
-			'class' => 'bg-info-subtle text-info-emphasis border border-info-subtle',
+			'class' => 'shield-live-logs__badge--identity',
 		];
 	}
 

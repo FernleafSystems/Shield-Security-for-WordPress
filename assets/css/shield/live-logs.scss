@@ -77,6 +77,13 @@
 	letter-spacing: 0.03em;
 }
 
+.shield-live-logs__badge--identity {
+	--bs-badge-color: #{$badge-info-color};
+	background-color: $badge-info-bg;
+	border: 1px solid $panel-border-info-subtle;
+	color: $badge-info-color;
+}
+
 .shield-live-logs__empty {
 	color: #646970;
 	font-size: 0.78rem;

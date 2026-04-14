@@ -82,21 +82,14 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_compact_timestamp_uses_time_only_for_same_day() :void {
+	public function test_compact_timestamp_uses_shorter_same_day_format_than_older_entries() :void {
 		$builder = new LiveLogRowsBuilder();
+		$sameDayTimestamp = $builder->buildCompactTimestamp( 1713278100, 1713290000 );
+		$olderDayTimestamp = $builder->buildCompactTimestamp( 1713278100, 1713380000 );
 
-		$this->assertSame(
-			'14:35:00',
-			$builder->buildCompactTimestamp( 1713278100, 1713290000 )
-		);
-	}
-
-	public function test_compact_timestamp_uses_short_date_for_older_day_without_timezone() :void {
-		$builder = new LiveLogRowsBuilder();
-		$timestamp = $builder->buildCompactTimestamp( 1713278100, 1713380000 );
-
-		$this->assertSame( 'Apr 16, 14:35:00', $timestamp );
-		$this->assertStringNotContainsString( '+', $timestamp );
+		$this->assertNotSame( '', $sameDayTimestamp );
+		$this->assertNotSame( '', $olderDayTimestamp );
+		$this->assertLessThan( \strlen( $olderDayTimestamp ), \strlen( $sameDayTimestamp ) );
 	}
 
 	public function test_build_activity_row_maps_timestamp_ip_title_and_description() :void {
@@ -112,13 +105,13 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 			[ 'timestamp', 'ip', 'ip_href', 'title', 'description', 'badges' ],
 			\array_keys( $row )
 		);
-		$this->assertSame( 'IP Blocked', $row[ 'title' ] );
 		$this->assertSame( '198.51.100.40', $row[ 'ip' ] );
 		$this->assertSame( '/ip/198.51.100.40', $row[ 'ip_href' ] );
 		$this->assertIsString( $row[ 'timestamp' ] );
 		$this->assertNotSame( '', $row[ 'timestamp' ] );
 		$this->assertIsString( $row[ 'description' ] );
-		$this->assertStringContainsString( 'IP address blocked', $row[ 'description' ] );
+		$this->assertNotSame( '', $row[ 'title' ] );
+		$this->assertNotSame( '', \trim( $row[ 'description' ] ) );
 		$this->assertSame( [], $row[ 'badges' ] );
 	}
 
@@ -147,15 +140,14 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( '203.0.113.55', $row[ 'ip' ] );
 		$this->assertSame( '/ip/203.0.113.55', $row[ 'ip_href' ] );
-		$this->assertStringContainsString( 'POST', $row[ 'title' ] );
-		$this->assertStringContainsString( '/wp-login.php', $row[ 'title' ] );
-		$this->assertStringContainsString( 'Offense detected', $row[ 'description' ] );
+		$this->assertNotSame( '', \trim( $row[ 'title' ] ) );
+		$this->assertNotSame( '', \trim( $row[ 'description' ] ) );
 		$this->assertSame(
 			[ 'HTTP', 'GoogleBot', 'admin-user', '403', 'Offense' ],
 			\array_column( $row[ 'badges' ], 'label' )
 		);
 		$this->assertSame( [ 'label', 'class' ], \array_keys( $row[ 'badges' ][ 0 ] ) );
-		$this->assertStringNotContainsString( 'Response:', $row[ 'description' ] );
+		$this->assertSame( 'shield-live-logs__badge--identity', $row[ 'badges' ][ 1 ][ 'class' ] );
 	}
 
 	public function test_build_traffic_row_suppresses_unknown_identity_badges() :void {

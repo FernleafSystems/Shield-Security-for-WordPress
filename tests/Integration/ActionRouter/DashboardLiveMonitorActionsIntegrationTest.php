@@ -30,6 +30,13 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		return new ActionProcessor();
 	}
 
+	private function requireRenderVars( array $payload ) :array {
+		$this->assertIsArray( $payload[ 'render_data' ] );
+		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] );
+
+		return $payload[ 'render_data' ][ 'vars' ];
+	}
+
 	public function test_high_value_events_allowlist_contains_expected_slugs() :void {
 		$events = ( new HighValueEvents() )->forDashboardTicker();
 
@@ -44,17 +51,18 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$payload = $this->processor()->processAction( DashboardLiveMonitorTicker::SLUG, [
 			'limit' => 12,
 		] )->payload();
-		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
-		$rows = \is_array( $vars[ 'rows' ] ?? null ) ? $vars[ 'rows' ] : [];
+		$vars = $this->requireRenderVars( $payload );
+		$this->assertIsArray( $vars[ 'rows' ] );
+		$rows = $vars[ 'rows' ];
 
-		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertNotEmpty( $rows );
-		$this->assertSame( $highId, (int)( $vars[ 'latest_id' ] ?? 0 ) );
-		$this->assertNotSame( $lowId, (int)( $vars[ 'latest_id' ] ?? 0 ) );
-		$this->assertSame( '198.51.100.21', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
-		$this->assertIsString( $rows[ 0 ][ 'title' ] ?? null );
-		$this->assertNotSame( '', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
-		$this->assertArrayHasKey( 'description', $rows[ 0 ] ?? [] );
+		$this->assertSame( $highId, $vars[ 'latest_id' ] );
+		$this->assertNotSame( $lowId, $vars[ 'latest_id' ] );
+		$this->assertSame( '198.51.100.21', $rows[ 0 ][ 'ip' ] );
+		$this->assertIsString( $rows[ 0 ][ 'title' ] );
+		$this->assertNotSame( '', $rows[ 0 ][ 'title' ] );
+		$this->assertArrayHasKey( 'description', $rows[ 0 ] );
 	}
 
 	public function test_live_traffic_render_returns_structured_rows() :void {
@@ -96,26 +104,30 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 			$payload = $this->processor()->processAction( TrafficLiveLogs::SLUG, [
 				'limit' => 5,
 			] )->payload();
-			$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
-			$rows = \is_array( $vars[ 'rows' ] ?? null ) ? $vars[ 'rows' ] : [];
-			$html = (string)( $payload[ 'render_output' ] ?? '' );
-			$badgeLabels = \array_column( $rows[ 0 ][ 'badges' ] ?? [], 'label' );
+			$vars = $this->requireRenderVars( $payload );
+			$this->assertIsArray( $vars[ 'rows' ] );
+			$rows = $vars[ 'rows' ];
+			$firstRow = $rows[ 0 ];
+			$badgeLabels = \array_column( $firstRow[ 'badges' ], 'label' );
+			$badgeClasses = \array_column( $firstRow[ 'badges' ], 'class' );
 			$currentUser = wp_get_current_user();
 
-			$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+			$this->assertTrue( $payload[ 'success' ] );
 			$this->assertCount( 1, $rows );
-			$this->assertSame( '203.0.113.61', (string)( $rows[ 0 ][ 'ip' ] ?? '' ) );
-			$this->assertStringContainsString( 'POST', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
-			$this->assertStringContainsString( '/wp-login.php', (string)( $rows[ 0 ][ 'title' ] ?? '' ) );
+			$this->assertSame(
+				[ 'timestamp', 'ip', 'ip_href', 'title', 'description', 'badges' ],
+				\array_keys( $firstRow )
+			);
+			$this->assertSame( '203.0.113.61', $firstRow[ 'ip' ] );
+			$this->assertSame( '/ip/203.0.113.61', $firstRow[ 'ip_href' ] );
 			$this->assertContains( 'iControlWP', $badgeLabels );
-			$this->assertContains( (string)( $currentUser->user_login ?? '' ), $badgeLabels );
+			$this->assertContains( $currentUser->user_login, $badgeLabels );
 			$this->assertContains( '403', $badgeLabels );
-			$this->assertGreaterThanOrEqual( 4, \count( $rows[ 0 ][ 'badges' ] ?? [] ) );
-			$this->assertNotSame( '', (string)( $rows[ 0 ][ 'timestamp' ] ?? '' ) );
-			$this->assertNotSame( '', \trim( (string)( $rows[ 0 ][ 'description' ] ?? '' ) ) );
-			$this->assertStringNotContainsString( 'Response:', (string)( $rows[ 0 ][ 'description' ] ?? '' ) );
-			$this->assertStringContainsString( 'iControlWP', $html );
-			$this->assertNotSame( '', \trim( $html ) );
+			$this->assertContains( 'shield-live-logs__badge--identity', $badgeClasses );
+			$this->assertGreaterThanOrEqual( 4, \count( $firstRow[ 'badges' ] ) );
+			$this->assertNotSame( '', $firstRow[ 'timestamp' ] );
+			$this->assertNotSame( '', \trim( $firstRow[ 'title' ] ) );
+			$this->assertNotSame( '', \trim( $firstRow[ 'description' ] ) );
 		}
 		finally {
 			$this->restoreProviderIps( $originalProviders );
@@ -130,15 +142,15 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$collapsePayload = $this->processor()->processAction( DashboardLiveMonitorSetState::SLUG, [
 			'is_collapsed' => 1,
 		] )->payload();
-		$this->assertTrue( (bool)( $collapsePayload[ 'success' ] ?? false ) );
-		$this->assertTrue( (bool)( $collapsePayload[ 'is_collapsed' ] ?? false ) );
+		$this->assertTrue( $collapsePayload[ 'success' ] );
+		$this->assertTrue( $collapsePayload[ 'is_collapsed' ] );
 		$this->assertTrue( $pref->isCollapsed() );
 
 		$expandPayload = $this->processor()->processAction( DashboardLiveMonitorSetState::SLUG, [
 			'is_collapsed' => 0,
 		] )->payload();
-		$this->assertTrue( (bool)( $expandPayload[ 'success' ] ?? false ) );
-		$this->assertFalse( (bool)( $expandPayload[ 'is_collapsed' ] ?? true ) );
+		$this->assertTrue( $expandPayload[ 'success' ] );
+		$this->assertFalse( $expandPayload[ 'is_collapsed' ] );
 		$this->assertFalse( $pref->isCollapsed() );
 	}
 

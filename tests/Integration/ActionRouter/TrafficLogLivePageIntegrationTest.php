@@ -42,26 +42,46 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 	}
 
-	public function test_live_traffic_route_and_render_actions_share_the_same_markup_contract() :void {
-		$routeHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderLiveTrafficPage(),
-			'traffic live route'
-		);
-		$this->assertStringContainsString( 'SectionTrafficLiveLogs', $routeHtml );
+	private function requireRenderData( array $payload ) :array {
+		$this->assertIsArray( $payload[ 'render_data' ] );
 
-		$fullHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderLiveTrafficInnerPage(),
-			'traffic live full page action'
-		);
-		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
-		$this->assertStringContainsString( 'SectionTrafficLiveLogs', $fullHtml );
+		return $payload[ 'render_data' ];
+	}
 
-		$panelHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderLiveTrafficPanelBody(),
-			'traffic live panel body action'
+	public function test_live_traffic_route_and_render_actions_share_the_same_structured_render_contract() :void {
+		$routePayload = $this->renderLiveTrafficPage();
+		$fullPayload = $this->renderLiveTrafficInnerPage();
+		$panelPayload = $this->renderLiveTrafficPanelBody();
+
+		$routeRenderData = $this->requireRenderData( $routePayload );
+		$fullRenderData = $this->requireRenderData( $fullPayload );
+		$panelRenderData = $this->requireRenderData( $panelPayload );
+
+		$this->assertIsArray( $routeRenderData[ 'vars' ] );
+		$routeVars = $routeRenderData[ 'vars' ];
+
+		$this->assertSame( PluginNavs::SUBNAV_LIVE, $routeVars[ 'active_module_settings' ] );
+		$this->assertSame(
+			$fullRenderData[ 'ajax' ][ 'load_live_logs' ],
+			$panelRenderData[ 'ajax' ][ 'load_live_logs' ]
 		);
-		$this->assertStringContainsString( 'SectionTrafficLiveLogs', $panelHtml );
-		$this->assertStringContainsString( 'shield-live-logs--light', $panelHtml );
-		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
+		$this->assertSame(
+			$fullRenderData[ 'flags' ][ 'is_enabled' ],
+			$panelRenderData[ 'flags' ][ 'is_enabled' ]
+		);
+		$this->assertSame(
+			$fullRenderData[ 'strings' ][ 'inner_page_title' ],
+			$panelRenderData[ 'strings' ][ 'inner_page_title' ]
+		);
+		$this->assertSame(
+			$fullRenderData[ 'strings' ][ 'waiting_live_logs' ],
+			$panelRenderData[ 'strings' ][ 'waiting_live_logs' ]
+		);
+		$this->assertSame(
+			$fullRenderData[ 'imgs' ][ 'inner_page_title_icon' ],
+			$panelRenderData[ 'imgs' ][ 'inner_page_title_icon' ]
+		);
+		$this->assertNotSame( '', $fullRenderData[ 'strings' ][ 'live_view_status' ] );
+		$this->assertNotSame( '', $panelRenderData[ 'strings' ][ 'live_view_status' ] );
 	}
 }
