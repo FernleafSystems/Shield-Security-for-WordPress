@@ -5,9 +5,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Traf
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\AjaxBatchRequests,
+	Actions\MfaGoogleAuthToggle,
 	Actions\PluginBadgeClose,
-	Actions\Render\Components\Traffic\TrafficLiveLogs,
-	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker
+	Actions\PluginAutoDbRepair,
+	Actions\RuleBuilderAction,
+	Actions\Render\Components\ToastPlaceholder,
+	Actions\Render\Components\UserMfa\ConfigForm,
+	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker,
+	Actions\ScansStart,
+	Actions\SecurityAdminAuthClear,
+	Actions\SecurityAdminRemove,
+	Actions\SecurityAdminRequestRemoveByEmail,
+	Actions\SessionsTableAction,
+	Actions\TrafficLogTableAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
@@ -114,6 +124,160 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		);
 
 		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_generic_shield_admin_ajax_direct_actions_are_suppressed() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( PluginBadgeClose::class ),
+			true
+		);
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_generic_shield_admin_ajax_render_requests_are_suppressed() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::BuildAjaxRender( ToastPlaceholder::class ),
+			true
+		);
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_non_security_admin_shield_ajax_requests_remain_loggable() :void {
+		$this->loginAsAdministrator();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( PluginBadgeClose::class ),
+			false
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_query_only_shield_ajax_requests_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequestWithQuery(
+			ActionData::Build( PluginBadgeClose::class ),
+			[],
+			true
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_get_shield_admin_ajax_requests_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$action = ActionData::Build( PluginBadgeClose::class );
+		$this->applyCurrentRequestState(
+			[
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
+			],
+			$action,
+			[],
+			[
+				'path'              => '/wp-admin/admin-ajax.php',
+				'wp_is_ajax'        => true,
+				'is_security_admin' => true,
+			]
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_mfa_setup_ajax_requests_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( MfaGoogleAuthToggle::class ),
+			true
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::BuildAjaxRender( ConfigForm::class ),
+			true
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_security_admin_disable_and_removal_ajax_requests_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+
+		foreach ( [
+			SecurityAdminAuthClear::class,
+			SecurityAdminRemove::class,
+			SecurityAdminRequestRemoveByEmail::class,
+		] as $action ) {
+			$this->applyCurrentShieldAjaxRequest( ActionData::Build( $action ), true );
+
+			$this->assertTrue(
+				$this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ),
+				$action.' should remain loggable.'
+			);
+		}
+	}
+
+	public function test_mutating_shield_admin_ajax_sub_actions_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( TrafficLogTableAction::class, true, [
+				'sub_action' => 'retrieve_table_data',
+			] ),
+			true
+		);
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( SessionsTableAction::class, true, [
+				'sub_action' => 'delete',
+				'rids'       => [ 'session-id' ],
+			] ),
+			true
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_rule_builder_creates_remain_loggable_while_builder_updates_are_suppressed() :void {
+		$this->loginAsSecurityAdmin();
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( RuleBuilderAction::class, true, [
+				'builder_action' => 'update',
+			] ),
+			true
+		);
+
+		$this->assertFalse( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+
+		$this->applyCurrentShieldAjaxRequest(
+			ActionData::Build( RuleBuilderAction::class, true, [
+				'builder_action' => 'create_rule',
+			] ),
+			true
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
+	public function test_high_impact_unaudited_ajax_actions_remain_loggable() :void {
+		$this->loginAsSecurityAdmin();
+
+		foreach ( [
+			ScansStart::class,
+			PluginAutoDbRepair::class,
+		] as $action ) {
+			$this->applyCurrentShieldAjaxRequest( ActionData::Build( $action ), true );
+
+			$this->assertTrue(
+				$this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ),
+				$action.' should remain loggable.'
+			);
+		}
 	}
 
 	public function test_logged_in_admin_heartbeat_requests_are_suppressed() :void {
@@ -244,7 +408,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 	}
 
-	public function test_live_monitor_batch_requests_are_suppressed_only_when_all_nested_requests_match() :void {
+	public function test_shield_admin_ajax_batch_requests_are_suppressed_only_when_all_nested_requests_match() :void {
 		$this->loginAsSecurityAdmin();
 
 		$allSuppressible = ActionData::Build( AjaxBatchRequests::class, true, [
@@ -254,8 +418,8 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 					'request' => ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
 				],
 				[
-					'id'      => 'traffic',
-					'request' => ActionData::BuildAjaxRender( TrafficLiveLogs::class, [ 'limit' => 12 ] ),
+					'id'      => 'badge',
+					'request' => ActionData::Build( PluginBadgeClose::class ),
 				],
 			],
 		] );
@@ -270,8 +434,8 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 					'request' => ActionData::BuildAjaxRender( DashboardLiveMonitorTicker::class, [ 'limit' => 12 ] ),
 				],
 				[
-					'id'      => 'other',
-					'request' => ActionData::Build( PluginBadgeClose::class ),
+					'id'      => 'mfa',
+					'request' => ActionData::Build( MfaGoogleAuthToggle::class ),
 				],
 			],
 		] );
@@ -280,7 +444,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 	}
 
-	public function test_empty_live_monitor_batch_requests_remain_loggable() :void {
+	public function test_empty_shield_admin_ajax_batch_requests_remain_loggable() :void {
 		$this->loginAsSecurityAdmin();
 		$this->applyCurrentShieldAjaxRequest(
 			ActionData::Build( AjaxBatchRequests::class, true, [
@@ -292,7 +456,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
 	}
 
-	public function test_malformed_live_monitor_batch_requests_remain_loggable() :void {
+	public function test_malformed_shield_admin_ajax_batch_requests_remain_loggable() :void {
 		$this->loginAsSecurityAdmin();
 		$this->applyCurrentShieldAjaxRequest(
 			ActionData::Build( AjaxBatchRequests::class, true, [

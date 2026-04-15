@@ -32,7 +32,7 @@ class RequestLogSuppressor {
 	 */
 	private function enumRules() :array {
 		return [
-			new Rules\ShieldLiveMonitorAjax(),
+			new Rules\ShieldSecurityAdminAjax(),
 			new Rules\LoggedInUsersMeRest(),
 			new Rules\LoggedInAdminHeartbeatAjax(),
 			new Rules\LoggedInSimpleShieldAdminGet(),

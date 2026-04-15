@@ -14,25 +14,8 @@ class Context {
 
 	private ThisRequest $req;
 
-	/**
-	 * @var mixed
-	 */
-	private $batchRequests;
-
 	public function __construct( ThisRequest $req ) {
 		$this->req = $req;
-		$this->batchRequests = $this->requestParam( 'requests' );
-	}
-
-	public function execute() :string {
-		return (string)$this->requestParam( ActionData::FIELD_EXECUTE );
-	}
-
-	/**
-	 * @return mixed
-	 */
-	public function batchRequests() {
-		return $this->batchRequests;
 	}
 
 	public function isAjax() :bool {
@@ -53,10 +36,6 @@ class Context {
 
 	public function isPluginAdminPage() :bool {
 		return PluginRequest::IsPluginAdminPage();
-	}
-
-	public function isShieldTransport() :bool {
-		return $this->requestAction() === ActionData::FIELD_SHIELD;
 	}
 
 	public function method() :string {
@@ -88,16 +67,17 @@ class Context {
 		return $keys;
 	}
 
-	public function renderSlug() :string {
-		return (string)$this->requestParam( 'render_slug' );
-	}
-
 	public function restRoute() :string {
 		return $this->req->getRestRoute();
 	}
 
 	public function requestAction() :string {
 		return (string)$this->requestParam( ActionData::FIELD_ACTION );
+	}
+
+	public function postData() :array {
+		$request = $this->req->request;
+		return \is_array( $request->post ) ? $request->post : [];
 	}
 
 	public function screenId() :string {
