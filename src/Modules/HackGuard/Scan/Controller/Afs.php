@@ -22,7 +22,6 @@ class Afs extends Base {
 	protected function run() {
 		parent::run();
 		$this->setupCronHooks();
-		( new Scan\Utilities\PtgAddReinstallLinks() )->execute();
 		( new StoreAction\ScheduleBuildAll() )->execute();
 	}
 
@@ -112,23 +111,6 @@ class Afs extends Base {
 	public function runHourlyCron() {
 		( new StoreAction\CleanStale() )->execute();
 		( new StoreAction\TouchAll() )->execute();
-	}
-
-	public function actionPluginReinstall( string $file ) :bool {
-		$success = false;
-		$WPP = Services::WpPlugins();
-		$plugin = $WPP->getPluginAsVo( $file );
-		if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
-			try {
-				( new StoreAction\Delete() )
-					->setAsset( $plugin )
-					->run();
-				$success = true;
-			}
-			catch ( \Exception $e ) {
-			}
-		}
-		return $success;
 	}
 
 	/**

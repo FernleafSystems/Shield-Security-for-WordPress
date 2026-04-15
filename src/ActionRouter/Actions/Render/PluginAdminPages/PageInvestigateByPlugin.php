@@ -78,4 +78,26 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 	protected function buildLookupAjaxPayload() :array {
 		return [];
 	}
+
+	protected function buildSubjectContextStepJson( string $subjectId, string $subjectTitle ) :string {
+		if ( $subjectId === '' ) {
+			return '';
+		}
+
+		$definition = PluginNavs::investigateLandingSubjectDefinitions()[ 'plugin' ];
+		$title = \trim( $subjectTitle );
+
+		return OperatorChromeContract::encodeJson( OperatorChromeContract::normalizeStep( [
+			'breadcrumb_label' => $title !== '' ? $title : $definition[ 'label' ],
+			'title'            => $title !== '' ? $title : $definition[ 'label' ],
+			'summary'          => $definition[ 'context_summary' ],
+			'focus'            => $definition[ 'context_focus' ],
+			'next_step'        => $definition[ 'context_next_step' ],
+			'icon_class'       => $definition[ 'icon_class' ],
+			'badge'            => $definition[ 'context_badge' ],
+			'badge_status'     => $definition[ 'status' ],
+			'color_key'        => 'investigate',
+			'actions'          => ( new PluginReinstallContextActionBuilder() )->buildForPluginFile( $subjectId, $title ),
+		] ) );
+	}
 }

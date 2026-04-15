@@ -54,7 +54,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 			[
 				'scan_frequency',
 				'file_scan_areas',
-				'ptg_reinstall_links',
+				'optimise_scan_speed',
 				'trusted_commenter_minimum',
 			],
 			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
@@ -67,7 +67,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 	public function test_build_canvas_body_filters_options_when_option_keys_are_provided() :void {
 		$action = new ZoneComponentConfig( [
 			'zone_component_slug' => ModuleScans::Slug(),
-			'option_keys'         => 'ptg_reinstall_links',
+			'option_keys'         => 'optimise_scan_speed',
 		] );
 
 		$body = $this->invokeNonPublicMethod( $action, 'buildCanvasBody' );
@@ -75,7 +75,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'rendered-1', $body );
 		$this->assertSame(
 			[
-				'ptg_reinstall_links',
+				'optimise_scan_speed',
 			],
 			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
 		);
@@ -112,7 +112,7 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 								return [
 									'scan_frequency',
 									'file_scan_areas',
-									'ptg_reinstall_links',
+									'optimise_scan_speed',
 								];
 							}
 						},

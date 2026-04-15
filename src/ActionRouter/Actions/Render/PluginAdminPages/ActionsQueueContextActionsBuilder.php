@@ -15,13 +15,16 @@ class ActionsQueueContextActionsBuilder {
 
 	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
 	private ScanResultsScopeResolver $scopeResolver;
+	private PluginReinstallContextActionBuilder $pluginReinstallActionBuilder;
 
 	public function __construct(
 		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null,
-		?ScanResultsScopeResolver $scopeResolver = null
+		?ScanResultsScopeResolver $scopeResolver = null,
+		?PluginReinstallContextActionBuilder $pluginReinstallActionBuilder = null
 	) {
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
 		$this->scopeResolver = $scopeResolver ?? new ScanResultsScopeResolver();
+		$this->pluginReinstallActionBuilder = $pluginReinstallActionBuilder ?? new PluginReinstallContextActionBuilder();
 	}
 
 	/**
@@ -40,7 +43,7 @@ class ActionsQueueContextActionsBuilder {
 		}
 
 		$explicitOptions = $this->queueScanResultsOptions->explicitOptionsFromActionData( $renderActionData );
-		if ( \is_array( $explicitOptions ) && !empty( $explicitOptions[ 'ignored_only' ] ) ) {
+		if ( $explicitOptions !== null && $explicitOptions[ 'ignored_only' ] ) {
 			return [];
 		}
 
@@ -49,7 +52,7 @@ class ActionsQueueContextActionsBuilder {
 			return [];
 		}
 
-		return [
+		$actions = [
 			[
 				'kind'             => 'ajax',
 				'label'            => __( 'Ignore All Results', 'wp-simple-firewall' ),
@@ -69,6 +72,15 @@ class ActionsQueueContextActionsBuilder {
 				'confirm_text'     => $this->buildConfirmText( $definitionKey, $label ),
 			],
 		];
+
+		if ( $definitionKey === 'plugins' && $scope[ 'type' ] === 'plugin' ) {
+			$actions = \array_merge(
+				$actions,
+				$this->pluginReinstallActionBuilder->buildForPluginFile( $scope[ 'file' ], $label )
+			);
+		}
+
+		return $actions;
 	}
 
 	/**

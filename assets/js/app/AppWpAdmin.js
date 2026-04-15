@@ -1,5 +1,4 @@
 import { AppBase } from "./AppBase";
-import { HackGuardPluginReinstall } from "../components/general/HackGuardPluginReinstall";
 import { IpSourceAutoDetect } from "../components/ips/IpSourceAutoDetect";
 import { NoticeHandler } from "../components/notices/NoticeHandler";
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
@@ -27,7 +26,6 @@ export class AppWpAdmin extends AppBase {
 
 		this.components.ip_detect = ( 'ip_detect' in comps ) ? new IpSourceAutoDetect( comps.ip_detect ) : null;
 		this.components.notices = ( 'notices' in comps ) ? new NoticeHandler( comps.notices ) : null;
-		this.components.plugin_reinstall = ( 'plugin_reinstall' in comps ) ? new HackGuardPluginReinstall( comps.plugin_reinstall ) : null;
 		this.components.sec_admin = ( 'sec_admin' in comps ) ? new SecurityAdmin( comps.sec_admin ) : null;
 		this.components.testrest = ( 'testrest' in comps ) ? new TestRest( comps.testrest ) : null;
 	}

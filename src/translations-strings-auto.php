@@ -209,9 +209,6 @@ if ( false ) { // This ensures the code is never executed but is parsed for tran
 	__( 'Default: Once every 24hrs. To improve security, increase the number of scans per day.', 'wp-simple-firewall' ); // config_spec.options.55.description
 	__( 'Optimise File Scans', 'wp-simple-firewall' ); // config_spec.options.56.summary
 	__( 'Optimise file scans wherever possible.', 'wp-simple-firewall' ); // config_spec.options.56.description
-	__( 'Show Re-Install Links', 'wp-simple-firewall' ); // config_spec.options.57.name
-	__( 'Show Re-Install Links For Plugins', 'wp-simple-firewall' ); // config_spec.options.57.summary
-	__( 'Show links to re-install plugins and offer re-install when activating plugins.', 'wp-simple-firewall' ); // config_spec.options.57.description
 	__( 'Enable Auto-Integrations', 'wp-simple-firewall' ); // config_spec.options.66.name
 	__( "Automatically Enable 3rd Party Integrations As They're Detected", 'wp-simple-firewall' ); // config_spec.options.66.summary
 	__( "When switched-on, any available 3rd party integrations are enabled as soon as they're detected.", 'wp-simple-firewall' ); // config_spec.options.66.description

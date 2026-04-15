@@ -614,6 +614,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 					this.setDirectTableBusy( busyTable, false );
 					return null;
 				}
+				if ( resp?.data?.page_reload ) {
+					return resp;
+				}
 
 				return this.refreshAfterNestedAction( true ).then( ( refreshResult ) => {
 					if ( refreshResult === null ) {

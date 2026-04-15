@@ -12,8 +12,8 @@ export class LiveTrafficPoller {
 		onFailure = null,
 	} = {} ) {
 		this.requestData = requestData;
-		this.intervalMs = Math.max( 1000, parseInt( intervalMs, 10 ) || 5000 );
-		this.maxPolls = Math.max( 1, parseInt( maxPolls, 10 ) || 256 );
+		this.intervalMs = Math.max( 1000, parseInt( String( intervalMs ), 10 ) || 5000 );
+		this.maxPolls = Math.max( 1, parseInt( String( maxPolls ), 10 ) || 256 );
 		this.shouldPoll = typeof shouldPoll === 'function' ? shouldPoll : () => document.hasFocus();
 		this.onSuccess = typeof onSuccess === 'function' ? onSuccess : null;
 		this.onFailure = typeof onFailure === 'function' ? onFailure : null;

@@ -24,6 +24,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestRequest,
 	UnitTestUsers
 };
+use FernleafSystems\Wordpress\Services\Core\Plugins;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 
 class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 
@@ -203,6 +205,93 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 2, (int)( $vars[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'Known Vulnerabilities', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? '' ) );
 		$this->assertArrayHasKey( 'vulnerabilities', $vars[ 'tabs' ] ?? [] );
+		$this->assertNotSame( '', (string)( $vars[ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+	}
+
+	public function test_valid_lookup_includes_reinstall_context_action_for_wporg_plugin() :void {
+		$this->installServices(
+			[ 'plugin_slug' => 'akismet/akismet.php' ],
+			[
+				'akismet/akismet.php' => new PageInvestigateByPluginTestPluginVo( 'akismet/akismet.php', true ),
+			]
+		);
+		$page = new PageInvestigateByPluginUnitTestDouble(
+			(object)[ 'file' => 'akismet/akismet.php' ],
+			[
+				'info'  => [
+					'name'    => 'Akismet',
+					'slug'    => 'akismet',
+					'file'    => 'akismet/akismet.php',
+					'version' => '5.0',
+					'author'  => 'Automattic',
+					'author_url' => '',
+					'dir' => '/wp-content/plugins/akismet',
+					'installed_at' => '2026-02-27',
+				],
+				'flags' => [
+					'is_active' => true,
+					'has_update' => false,
+				],
+				'hrefs' => [
+					'vul_info' => '',
+				],
+				'vars'  => [
+					'count_items' => 0,
+				],
+			]
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextStep = $this->decodeJsonAttr( (string)( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+		$actions = $contextStep[ 'actions' ] ?? [];
+
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
+
+		$actionData = $this->decodeJsonAttr( (string)( $actions[ 0 ][ 'ajax_action_json' ] ?? '' ) );
+		$this->assertSame( 'plugin_reinstall', $actionData[ 'ex' ] ?? '' );
+		$this->assertSame( 'akismet/akismet.php', $actionData[ 'file' ] ?? '' );
+		$this->assertArrayNotHasKey( 'reinstall', $actionData );
+	}
+
+	public function test_valid_lookup_omits_reinstall_context_action_for_non_wporg_plugin() :void {
+		$this->installServices(
+			[ 'plugin_slug' => 'premium/plugin.php' ],
+			[
+				'premium/plugin.php' => new PageInvestigateByPluginTestPluginVo( 'premium/plugin.php', false ),
+			]
+		);
+		$page = new PageInvestigateByPluginUnitTestDouble(
+			(object)[ 'file' => 'premium/plugin.php' ],
+			[
+				'info'  => [
+					'name'    => 'Premium Plugin',
+					'slug'    => 'premium',
+					'file'    => 'premium/plugin.php',
+					'version' => '1.0',
+					'author'  => 'Vendor',
+					'author_url' => '',
+					'dir' => '/wp-content/plugins/premium',
+					'installed_at' => '2026-02-27',
+				],
+				'flags' => [
+					'is_active' => true,
+					'has_update' => false,
+				],
+				'hrefs' => [
+					'vul_info' => '',
+				],
+				'vars'  => [
+					'count_items' => 0,
+				],
+			]
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextStep = $this->decodeJsonAttr( (string)( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+
+		$this->assertSame( [], $contextStep[ 'actions' ] ?? null );
 	}
 
 	public function test_zero_counts_build_empty_table_contracts_and_no_known_vulnerability_title() :void {
@@ -287,11 +376,12 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	private function installServices( array $query = [] ) :void {
+	private function installServices( array $query = [], array $pluginVos = [], array $updates = [] ) :void {
 		ServicesState::installItems( [
 			'service_request'   => new UnitTestRequest( $query ),
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers(),
+			'service_wpplugins' => new PageInvestigateByPluginTestPluginsService( $pluginVos, $updates ),
 		] );
 	}
 
@@ -299,6 +389,50 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		return $json === '' ? [] : \json_decode( $json, true, 512, \JSON_THROW_ON_ERROR );
 	}
 
+}
+
+class PageInvestigateByPluginTestPluginsService extends Plugins {
+
+	private array $pluginVos;
+
+	private array $updates;
+
+	public function __construct( array $pluginVos, array $updates = [] ) {
+		$this->pluginVos = $pluginVos;
+		$this->updates = $updates;
+	}
+
+	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
+		return $this->pluginVos[ $file ] ?? null;
+	}
+
+	public function isUpdateAvailable( $file ) :bool {
+		return !empty( $this->updates[ $file ] );
+	}
+}
+
+class PageInvestigateByPluginTestPluginVo extends WpPluginVo {
+
+	public string $file;
+	public string $Name;
+	public string $Title;
+
+	private bool $isWpOrg;
+
+	public function __construct( string $file, bool $isWpOrg ) {
+		$this->file = $file;
+		$this->Name = 'Test Plugin';
+		$this->Title = 'Test Plugin';
+		$this->isWpOrg = $isWpOrg;
+	}
+
+	public function __get( string $key ) {
+		return $key === 'asset_type' ? 'plugin' : ( $this->{$key} ?? null );
+	}
+
+	public function isWpOrg() :bool {
+		return $this->isWpOrg;
+	}
 }
 
 class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {

@@ -26,7 +26,6 @@ assets/css/
     dashboard-widget.scss     WP dashboard widget
     datatables.css            DataTables customisations
     dialog.css                Dialog/modal styling
-    micromodal.scss           Micro-modal overrides
     third-party-overrides.scss  Third-party library fixes
     toastify.scss             Toast notifications
     video_modal.scss          Video modal

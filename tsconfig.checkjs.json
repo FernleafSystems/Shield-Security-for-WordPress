@@ -34,6 +34,7 @@
     "./assets/js/components/tables/ShieldTableSessions.js",
     "./assets/js/components/mode/ConfigureExpandLoader.js",
     "./assets/js/components/mode/StepTabsController.js",
-    "./assets/js/components/mode/ActionsQueueLandingController.js"
+    "./assets/js/components/mode/ActionsQueueLandingController.js",
+    "./assets/js/components/mode/InvestigateLandingController.js"
   ]
 }

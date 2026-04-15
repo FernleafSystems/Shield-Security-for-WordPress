@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueContextActionsBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueContextActionsBuilder,
+	PluginReinstallContextActionBuilder
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -82,8 +85,12 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_for_active_plugin_direct_table_emits_ignore_all_action() :void {
-		$actions = ( new ActionsQueueContextActionsBuilder() )->buildForGroup(
+	public function test_build_for_active_plugin_direct_table_emits_ignore_and_reinstall_actions() :void {
+		$actions = ( new ActionsQueueContextActionsBuilder(
+			null,
+			null,
+			$this->buildPluginReinstallActionBuilder()
+		) )->buildForGroup(
 			'plugins',
 			'Example Plugin',
 			'direct_table',
@@ -95,7 +102,12 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			]
 		);
 
+		$this->assertCount( 2, $actions );
 		$this->assertIgnoreAllAction( $actions, 'plugin', 'example-plugin/example-plugin.php' );
+		$this->assertSame( 'ajax', $actions[ 1 ][ 'kind' ] ?? '' );
+		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] ?? '' );
+		$this->assertSame( 'reinstall-json', $actions[ 1 ][ 'ajax_action_json' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] ?? '' );
 	}
 
 	public function test_build_for_active_wordpress_direct_table_emits_ignore_all_action() :void {
@@ -170,10 +182,9 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 	}
 
 	private function assertIgnoreAllAction( array $actions, string $expectedType, string $expectedFile ) :void {
-		$this->assertCount( 1, $actions );
-		$this->assertSame( 'Ignore All Results', $actions[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'ajax', $actions[ 0 ][ 'kind' ] ?? '' );
 		$this->assertSame( 'deactivate', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
 
 		$actionData = \json_decode( (string)( $actions[ 0 ][ 'ajax_action_json' ] ?? '' ), true );
 		$this->assertIsArray( $actionData );
@@ -189,5 +200,24 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			],
 			$actionData[ 'results_display_options' ] ?? []
 		);
+	}
+
+	private function buildPluginReinstallActionBuilder() :PluginReinstallContextActionBuilder {
+		return new class extends PluginReinstallContextActionBuilder {
+			public function buildForPluginFile( string $file, string $displayName = '' ) :array {
+				return $file === 'example-plugin/example-plugin.php' && $displayName === 'Example Plugin'
+					? [
+						[
+							'kind'             => 'ajax',
+							'label'            => 'context-action',
+							'type'             => 'update',
+							'icon_class'       => 'bi bi-arrow-clockwise',
+							'ajax_action_json' => 'reinstall-json',
+							'confirm_text'     => 'Confirm reinstall',
+						],
+					]
+					: [];
+			}
+		};
 	}
 }

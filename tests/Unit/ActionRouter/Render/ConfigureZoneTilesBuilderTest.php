@@ -277,7 +277,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					[],
 					[
 						'scan_frequency',
-						'ptg_reinstall_links',
+						'optimise_scan_speed',
 					]
 				),
 				'module_login'                   => $this->newComponent(

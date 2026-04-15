@@ -271,11 +271,6 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'Scans diagnosis should expose the scan scheduling config expansion contract'
 		);
 		$this->assertXPathExists(
-			$scansXpath,
-			'//*[@data-configure-row-key="general_settings"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_scans" and @data-option_keys="ptg_reinstall_links"]',
-			'Scans diagnosis should expose the general scans settings expansion contract'
-		);
-		$this->assertXPathExists(
 			$spamXpath,
 			'//*[@data-configure-row-key="trusted_commenters"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="trusted_commenters" and @data-config_item="trusted_commenter_minimum"]',
 			'Spam diagnosis should expose the trusted commenters config expansion contract'

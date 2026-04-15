@@ -6,7 +6,7 @@ import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { getActiveLayerIndex, getLayersForShell } from "./DrillDownShared";
+import { getActiveLayerIndex, getLayersForShell, parseJsonAttribute } from "./DrillDownShared";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
@@ -60,6 +60,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
 		document.addEventListener( 'click', ( evt ) => this.handlePivotClick( evt ) );
+		document.addEventListener( 'click', ( evt ) => this.handleOperatorContextActionClick( evt ) );
 	}
 
 	initializeCurrentRoot() {
@@ -235,7 +236,53 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.resetLandingToIdle();
 	}
 
-	openSubjectSelection( selection, { requestData, historyUrl, hash = '' } = {} ) {
+	handleOperatorContextActionClick( evt ) {
+		const target = evt.target instanceof Element
+			? evt.target.closest( '[data-operator-context-action-ajax="1"]' )
+			: null;
+		if ( target === null ) {
+			return;
+		}
+
+		const root = this.resolveOperatorContextRoot( target );
+		if ( root === null ) {
+			return;
+		}
+
+		evt.preventDefault();
+		BootstrapTooltips.HideAndDisposeTooltip( target );
+
+		const actionData = parseJsonAttribute( target.dataset.operatorContextActionJson, {} );
+		if ( actionData === null || typeof actionData !== 'object' || Object.keys( actionData ).length < 1 ) {
+			return;
+		}
+
+		const confirmText = String( target.dataset.operatorContextActionConfirm || '' ).trim();
+		if ( confirmText.length > 0 && !window.confirm( confirmText ) ) {
+			return;
+		}
+
+		this.rootEl = root;
+		this.shellEl = this.getShell( root );
+		this.panelEl = this.getPanel( root );
+		target.disabled = true;
+
+		( new AjaxService() )
+			.send( actionData )
+			.then( ( resp ) => {
+				if ( resp?.data?.page_reload ) {
+					return resp;
+				}
+				target.disabled = false;
+				return resp;
+			} )
+			.catch( () => {
+				target.disabled = false;
+				return null;
+			} );
+	}
+
+	openSubjectSelection( selection, { requestData = {}, historyUrl = '', hash = '' } = {} ) {
 		if ( this.shellEl === null || this.panelEl === null ) {
 			return Promise.resolve();
 		}
@@ -600,6 +647,14 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		return this.rootEl || this.getRoot();
 	}
 
+	resolveOperatorContextRoot( target ) {
+		const root = this.rootEl || this.getRoot();
+		const operatorShell = root?.closest( '[data-mode-shell="1"][data-operator-chrome="1"]' ) || null;
+		return root !== null && operatorShell instanceof HTMLElement && operatorShell.contains( target )
+			? root
+			: null;
+	}
+
 	getShell( root = this.rootEl ) {
 		return root?.querySelector( '[data-drill-shell="1"]' ) || null;
 	}
@@ -927,8 +982,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		const placeholder = document.querySelector( '.shield_loading_placeholder_investigate_panel' );
 		if ( placeholder instanceof HTMLElement ) {
 			const clone = placeholder.cloneNode( true );
-			clone.classList.remove( 'd-none' );
-			return clone.outerHTML;
+			if ( clone instanceof HTMLElement ) {
+				clone.classList.remove( 'd-none' );
+				return clone.outerHTML;
+			}
 		}
 
 		return `<div class="text-muted small">${this.escapeHtml( this.getPanelLoadingText() )}</div>`;

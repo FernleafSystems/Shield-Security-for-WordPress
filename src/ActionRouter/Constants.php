@@ -181,7 +181,6 @@ class Constants {
 		Actions\Render\Components\Rules\RulesManager::class,
 		Actions\Render\Components\Scans\FormScanResultsDisplayOptions::class,
 		Actions\Render\Components\Scans\PluginVulnerabilityWarning::class,
-		Actions\Render\Components\Scans\ReinstallDialog::class,
 		Actions\Render\Components\Scans\ScansFileLockerDiff::class,
 		Actions\Render\Components\Scans\ScansProgress::class,
 		Actions\Render\Components\Scans\Results\FileLocker::class,

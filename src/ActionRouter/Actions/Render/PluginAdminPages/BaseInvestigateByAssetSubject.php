@@ -25,6 +25,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 		if ( $hasSubject ) {
 			$assetData = $this->buildSubjectAssetData( $subject );
 			$subjectId = $this->extractAssetSubjectId( $assetData );
+			$subjectTitle = $this->extractAssetSubjectTitle( $assetData );
 			$subjectType = $this->getSubjectType();
 
 			$fileStatusCount = $this->countFileScanResultsForSubject( $subjectType, $subjectId );
@@ -52,8 +53,9 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 			];
 			$overviewRows = $this->buildOverviewRows( $assetData, $vulnerabilities );
 			$subjectHeader = $this->buildSubjectHeaderContract(
-				(string)( $assetData[ 'info' ][ 'name' ] ?? '' ),
-				(string)( $assetData[ 'info' ][ 'version' ] ?? '' )
+				$subjectTitle,
+				(string)( $assetData[ 'info' ][ 'version' ] ?? '' ),
+				$this->buildSubjectContextStepJson( $subjectId, $subjectTitle )
 			);
 		}
 
@@ -108,6 +110,14 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 
 	protected function extractAssetSubjectId( array $assetData ) :string {
 		return $assetData[ 'info' ][ 'file' ];
+	}
+
+	protected function extractAssetSubjectTitle( array $assetData ) :string {
+		return (string)( $assetData[ 'info' ][ 'name' ] ?? '' );
+	}
+
+	protected function buildSubjectContextStepJson( string $subjectId, string $subjectTitle ) :string {
+		return '';
 	}
 
 	abstract protected function getSubjectType() :string;
