@@ -137,7 +137,7 @@ class ConfigureZoneTilesBuilder {
 	 * @return ConfigureComponentContract
 	 */
 	private function buildSingleComponentContract( Component\Base $component, bool $forceNeutral = false ) :array {
-		$status = $forceNeutral ? 'neutral' : $this->componentStatusToSeverity( $component->enabledStatus() );
+		$status = $forceNeutral ? 'neutral' : $this->componentStatusToConfigureStatus( $component->enabledStatus() );
 		$explanations = \array_values( \array_filter(
 			\array_map(
 				fn( $expl ) :string => \trim( (string)$expl ),
@@ -296,7 +296,11 @@ class ConfigureZoneTilesBuilder {
 		}
 	}
 
-	private function componentStatusToSeverity( string $componentStatus ) :string {
+	private function componentStatusToConfigureStatus( string $componentStatus ) :string {
+		if ( $componentStatus === EnumEnabledStatus::NEUTRAL ) {
+			return 'neutral';
+		}
+
 		return EnumEnabledStatus::toSeverity( $componentStatus, 'good' );
 	}
 

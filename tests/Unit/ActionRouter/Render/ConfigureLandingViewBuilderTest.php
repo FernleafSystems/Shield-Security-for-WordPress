@@ -222,6 +222,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		array $explanations = []
 	) :array {
 		return [
+			'key'               => \strtolower( \str_replace( ' ', '_', $title ) ),
 			'title'             => $title,
 			'status'            => $status,
 			'status_label'      => $statusLabel,

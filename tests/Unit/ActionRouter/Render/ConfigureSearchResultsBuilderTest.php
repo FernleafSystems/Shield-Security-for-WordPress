@@ -76,12 +76,40 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'section'         => 'section_bot_comment_spam_common',
 				'zone_comp_slugs' => [ 'module_spam' ],
 			],
+			'comments_cooldown_shadow' => [
+				'section'         => 'section_bot_comment_spam_common',
+				'name'            => 'Cooldown Shadow',
+				'summary'         => 'Should not be claimed by an explicit option_keys row',
+				'description'     => [ 'Explicit option ownership must not expand through the module slug.' ],
+				'zone_comp_slugs' => [ 'module_spam' ],
+			],
 			'orphan_search_target' => [
 				'section'         => 'section_defaults',
 				'name'            => 'Orphan Search Target',
 				'summary'         => 'Should not be shown',
 				'description'     => [ 'No configure diagnosis row owns this option.' ],
 				'zone_comp_slugs' => [ 'orphan_component' ],
+			],
+			'block_aggressive' => [
+				'section'         => 'section_firewall_blocking_options',
+				'name'            => 'Aggressive Scan',
+				'summary'         => 'Aggressively Block Data',
+				'description'     => [ 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.' ],
+				'zone_comp_slugs' => [ 'web_application_firewall', 'module_firewall' ],
+			],
+			'block_send_email' => [
+				'section'         => 'section_firewall_blocking_options',
+				'name'            => 'Send Email Report',
+				'summary'         => 'Send Firewall Trigger Report Email',
+				'description'     => [ 'Send firewall trigger report email.' ],
+				'zone_comp_slugs' => [ 'module_firewall' ],
+			],
+			'hidden_shared_firewall_option' => [
+				'section'         => 'section_firewall_blocking_options',
+				'name'            => 'Hidden Shared Firewall Option',
+				'summary'         => 'Shared owner must not fall back to general module rows',
+				'description'     => [ 'This option has a specific owner that is not visible in Configure diagnosis rows.' ],
+				'zone_comp_slugs' => [ 'missing_firewall_component', 'module_firewall' ],
 			],
 		];
 
@@ -104,6 +132,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
 		$this->assertSame( 'Spam', $results[ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'Review silentCAPTCHA settings and comment protection.', $results[ 0 ][ 'summary' ] ?? '' );
 		$this->assertSame( 'bi bi-shield-fill', $results[ 0 ][ 'icon_class' ] ?? '' );
 		$this->assertSame( [
 			'key'        => 'spam',
@@ -130,7 +159,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_uses_exact_row_keys_and_excludes_unresolvable_options() :void {
-		$results = $this->newBuilder()->build( 'comments cooldown orphan' );
+		$results = $this->newBuilder()->build( 'comments cooldown orphan shadow' );
 		$optionResults = \array_values( \array_filter(
 			$results,
 			static fn( array $result ) :bool => ( $result[ 'type' ] ?? '' ) === 'option'
@@ -141,6 +170,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			\array_diff( \array_column( $results, 'type' ), [ 'option', 'zone' ] )
 		);
 		$this->assertNotContains( 'Orphan Search Target', \array_column( $optionResults, 'label' ) );
+		$this->assertNotContains( 'Cooldown Shadow', \array_column( $optionResults, 'label' ) );
 		$this->assertSame( 'Comments Cooldown', $optionResults[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'Minimum Time Interval Between Comments (seconds)', $optionResults[ 0 ][ 'summary' ] ?? '' );
 		$this->assertSame(
@@ -150,6 +180,37 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'expand_id=', $optionResults[ 0 ][ 'href' ] ?? '' );
 		$this->assertStringNotContainsString( 'zone_component_slug=', $optionResults[ 0 ][ 'href' ] ?? '' );
 		$this->assertStringNotContainsString( 'option_keys=', $optionResults[ 0 ][ 'href' ] ?? '' );
+	}
+
+	public function test_shared_options_prefer_specific_component_rows_over_module_rows() :void {
+		$results = $this->newBuilder()->build( 'aggressive email report' );
+		$optionResults = [];
+		foreach ( $results as $result ) {
+			if ( ( $result[ 'type' ] ?? '' ) === 'option' ) {
+				$optionResults[ $result[ 'label' ] ?? '' ] = $result;
+			}
+		}
+
+		$this->assertSame(
+			'/admin/zones/overview?zone=firewall&row_key=web_application_firewall&config_item=block_aggressive',
+			$optionResults[ 'Aggressive Scan' ][ 'href' ] ?? ''
+		);
+		$this->assertSame(
+			[
+				'row_key'     => 'web_application_firewall',
+				'config_item' => 'block_aggressive',
+			],
+			\json_decode( (string)( $optionResults[ 'Aggressive Scan' ][ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=firewall&row_key=general_settings&config_item=block_send_email',
+			$optionResults[ 'Send Email Report' ][ 'href' ] ?? ''
+		);
+		$this->assertArrayNotHasKey(
+			'Hidden Shared Firewall Option',
+			$optionResults,
+			'Shared-owner options must not fall back to general module rows when their specific owner is not visible.'
+		);
 	}
 
 	private function newBuilder() :ConfigureSearchResultsBuilder {
@@ -203,6 +264,53 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 						],
 					],
 					'healthy_rows'  => [],
+				],
+				'firewall' => [
+					'zone_key'      => 'firewall',
+					'zone_label'    => 'Firewall',
+					'zone_icon_class' => 'bi bi-fire',
+					'zone_selection_json' => \json_encode( [
+						'key'        => 'firewall',
+						'label'      => 'Firewall',
+						'status'     => 'good',
+						'icon_class' => 'bi bi-fire',
+						'header'     => [
+							'title' => 'Firewall',
+						],
+					], JSON_THROW_ON_ERROR ),
+					'preview_text'  => 'Review firewall controls.',
+					'risk_context'  => 'Firewall settings protect request flows.',
+					'problem_rows'  => [],
+					'review_rows'   => [
+						[
+							'key'           => 'general_settings',
+							'title'         => 'Firewall General Settings',
+							'summary'       => 'Adjust module-only firewall settings.',
+							'explanations'  => [ 'General firewall settings.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-firewall-general_settings',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'module_firewall',
+								],
+							],
+						],
+					],
+					'healthy_rows'  => [
+						[
+							'key'           => 'web_application_firewall',
+							'title'         => 'Web Application Firewall',
+							'summary'       => 'Configure WAF rules.',
+							'explanations'  => [ 'Aggressive WAF rules block bad requests.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-firewall-web_application_firewall',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'web_application_firewall',
+								],
+							],
+						],
+					],
 				],
 			],
 		];

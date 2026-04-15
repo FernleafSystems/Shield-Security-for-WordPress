@@ -58,7 +58,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_mixed_issue_zone_uses_issue_rows_for_findings_and_guidance() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 component needs work', [
+			$this->buildZoneTile( 'users', 'Users', 'warning', 'Needs Work', '1 component needs work', [
 				[
 					'status' => 'critical',
 					'rows'   => [
@@ -95,8 +95,8 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertArrayNotHasKey( 'review_rows_heading', $diagnosis );
-		$this->assertSame( 'Login', $diagnosis[ 'header' ][ 'title' ] );
-		$this->assertSame( 'Login', $diagnosis[ 'zone_selection' ][ 'label' ] );
+		$this->assertSame( 'Users', $diagnosis[ 'header' ][ 'title' ] );
+		$this->assertSame( 'Users', $diagnosis[ 'zone_selection' ][ 'label' ] );
 		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
@@ -109,16 +109,16 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( '2fa', $diagnosis[ 'problem_rows' ][ 0 ][ 'key' ] ?? '' );
 		$this->assertTrue( $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] );
 		$this->assertSame(
-			'configure-diagnosis-login-2fa',
+			'configure-diagnosis-users-2fa',
 			$diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'id' ] ?? ''
 		);
 		$this->assertSame( '2fa', $diagnosis[ 'problem_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame(
-			'configure-diagnosis-login-captcha',
+			'configure-diagnosis-users-captcha',
 			$diagnosis[ 'problem_rows' ][ 1 ][ 'expand_action' ][ 'id' ] ?? ''
 		);
 		$this->assertSame(
-			'configure-diagnosis-login-password_reset',
+			'configure-diagnosis-users-password_reset',
 			$diagnosis[ 'healthy_rows' ][ 0 ][ 'expand_action' ][ 'id' ] ?? ''
 		);
 		$this->assertSame( 'password_reset', $diagnosis[ 'healthy_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
@@ -146,6 +146,29 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $diagnosis[ 'preview_text' ] ?? '' );
 		$this->assertArrayNotHasKey( 'healthy_rows_heading', $diagnosis );
 		$this->assertArrayNotHasKey( 'next_move', $diagnosis );
+	}
+
+	public function test_login_preview_does_not_use_hide_login_warning_text() :void {
+		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
+			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 component needs work', [
+				[
+					'status' => 'warning',
+					'rows'   => [
+						$this->buildDetailRow(
+							'Hide WP Login',
+							'warning',
+							'Needs Work',
+							'Hide The WP Login Page.'
+						),
+					],
+				],
+			] )
+		);
+
+		$this->assertSame(
+			'Protect the WordPress login and verify user logins with two-factor authentication.',
+			$diagnosis[ 'preview_text' ]
+		);
 	}
 
 	public function test_general_zone_uses_neutral_review_state() :void {

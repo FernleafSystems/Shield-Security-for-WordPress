@@ -89,6 +89,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			[ '2FA Enforcement', 'Hide WP Login' ],
 			\array_column( $tilesByKey[ 'login' ][ 'panel' ][ 'components' ], 'title' )
 		);
+		$this->assertSame(
+			'neutral',
+			$tilesByKey[ 'login' ][ 'panel' ][ 'components' ][ 1 ][ 'status' ] ?? ''
+		);
 
 		$this->assertSame( 'critical', $tilesByKey[ 'spam' ][ 'status' ] );
 		$this->assertCount( 4, $tilesByKey[ 'spam' ][ 'panel' ][ 'components' ] );
@@ -188,7 +192,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					$this->newComponent( '2FA Enforcement', EnumEnabledStatus::OKAY, '2FA subtitle', [ '2FA is not enforced.' ], [
 						'login_action',
 					] ),
-					$this->newComponent( 'Hide WP Login', EnumEnabledStatus::GOOD, 'Login hide subtitle', [ 'Login URL is hidden.' ], [
+					$this->newComponent( 'Hide WP Login', EnumEnabledStatus::NEUTRAL, 'Login hide subtitle', [], [
 						'rename_wplogin_path',
 					] ),
 				],

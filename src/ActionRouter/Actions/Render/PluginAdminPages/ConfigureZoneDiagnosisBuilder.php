@@ -50,9 +50,7 @@ class ConfigureZoneDiagnosisBuilder {
 		$firstIssue = $problemRows[ 0 ] ?? null;
 		$isReviewState = $zoneKey === 'general' || \count( $problemRows ) < 1;
 
-		$previewText = $isReviewState
-			? $this->buildReviewPreviewText( $zoneTile )
-			: $this->buildIssuePreviewText( $firstIssue, $zoneLabel );
+		$previewText = $this->buildPreviewText( $zoneTile, $firstIssue, $zoneLabel, $isReviewState );
 		$nextMove = $isReviewState
 			? $this->buildReviewNextMove( $zoneTile )
 			: $this->buildIssueNextMove( $firstIssue, $zoneLabel );
@@ -262,6 +260,25 @@ class ConfigureZoneDiagnosisBuilder {
 
 	private function normalizeExpandIdSegment( string $value ) :string {
 		return (string)( \preg_replace( '/[^a-z0-9_-]+/', '-', \strtolower( \trim( $value ) ) ) ?? '' );
+	}
+
+	/**
+	 * @param ConfigureLandingTile $zoneTile
+	 * @param DetailGroupRow|null $firstIssue
+	 */
+	private function buildPreviewText(
+		array $zoneTile,
+		?array $firstIssue,
+		string $zoneLabel,
+		bool $isReviewState
+	) :string {
+		if ( $zoneTile[ 'key' ] === 'login' ) {
+			return __( 'Protect the WordPress login and verify user logins with two-factor authentication.', 'wp-simple-firewall' );
+		}
+
+		return $isReviewState
+			? $this->buildReviewPreviewText( $zoneTile )
+			: $this->buildIssuePreviewText( $firstIssue, $zoneLabel );
 	}
 
 	/**
