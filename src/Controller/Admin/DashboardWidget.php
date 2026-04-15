@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardWidget {
 
@@ -14,6 +15,7 @@ class DashboardWidget {
 	protected function canRun() :bool {
 		$con = self::con();
 		return $con->isValidAdminArea() &&
+			   Services::WpUsers()->isUserAdmin() &&
 			   apply_filters( 'shield/show_dashboard_widget', $con->cfg->properties[ 'show_dashboard_widget' ] ?? true );
 	}
 

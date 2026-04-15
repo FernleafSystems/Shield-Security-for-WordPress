@@ -1,5 +1,6 @@
 #### Unreleased
 
+* **FIXED**: The Shield WordPress dashboard widget is now only available to WordPress administrators.
 * **IMPROVED**: Redesigned the custom Shield two-factor login verification portal while preserving the existing verification flow and the WP login replica experience.
 
 #### 9.1 Series

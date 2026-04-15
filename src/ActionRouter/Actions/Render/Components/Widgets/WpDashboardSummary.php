@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 
 /**
  * @phpstan-import-type ActionsQueueCardData from ActionsQueueCardDataBuilder
@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserA
  */
 class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
-	use AnyUserAuthRequired;
+	use SecurityAdminNotRequired;
 
 	public const SLUG = 'render_dashboard_widget';
 	public const TEMPLATE = '/wpadmin/components/widget/dashboard_actions_queue.twig';

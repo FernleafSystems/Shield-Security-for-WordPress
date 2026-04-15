@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
-	ActionResponse
+	ActionResponse,
+	Exceptions\UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -143,15 +144,32 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $rows[ 0 ][ 'count' ] );
 	}
 
-	public function test_non_plugin_admin_hides_internal_links() :void {
+	public function test_wp_admin_without_security_admin_session_can_render_without_internal_links() :void {
+		\wp_set_current_user( $this->adminUserId );
+		$this->setSecurityAdminContext( false );
+
+		$forceNotPluginAdmin = static fn() :bool => false;
+		\add_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );
+
+		try {
+			$renderData = $this->renderSummaryData();
+
+			$this->assertFalse( $renderData[ 'flags' ][ 'show_internal_links' ] );
+			$this->assertSame( self::con()->plugin_urls->actionsQueueScans(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
+		}
+		finally {
+			\remove_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_non_admin_user_cannot_render_dashboard_summary() :void {
 		$subscriberId = self::factory()->user->create( [
 			'role' => 'subscriber',
 		] );
 		\wp_set_current_user( $subscriberId );
 
-		$renderData = $this->renderSummaryData();
+		$this->expectException( UserAuthRequiredException::class );
 
-		$this->assertFalse( $renderData[ 'flags' ][ 'show_internal_links' ] );
-		$this->assertSame( self::con()->plugin_urls->actionsQueueScans(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
+		$this->renderSummary();
 	}
 }
