@@ -53,11 +53,12 @@ The import order in `plugin-main.scss` matters. Follow this sequence:
 
 1. **Bootstrap color overrides** (`$primary`, `$secondary`, `$info`, `$warning`, `$danger`)
 2. **Bootstrap framework** (`~bootstrap/scss/bootstrap`)
-3. **Third-party vendor CSS** (DataTables, Select2, Intro.js, etc.)
-4. **Shared status variables** (`shield/_status-colors`) -- must come before any shield component
-5. **Shield component styles** (`shield/*.scss`)
-6. **General component styles** (`components/*.scss`)
-7. **Page-level styles** (inline in plugin-main.scss)
+3. **Bootstrap Icons font** (`~bootstrap-icons/font/bootstrap-icons.css`)
+4. **Third-party vendor CSS** (DataTables, Select2, Intro.js, etc.)
+5. **Shared status variables** (`shield/_status-colors`) -- must come before any shield component
+6. **Shield component styles** (`shield/*.scss`)
+7. **General component styles** (`components/*.scss`)
+8. **Page-level styles** (inline in plugin-main.scss)
 
 When adding a new shield component file, import it in the shield section (after `_status-colors` and before `components/`).
 
@@ -268,7 +269,7 @@ The setup wizard (`merlin.scss`) uses a custom **Card Stepper** pattern with van
 
 ### Infrastructure
 
-**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in `plugin-main.scss`. This provides `<i class="bi bi-*">` icon classes used in the wizard stepper checkmarks and profile card feature icons. Webpack's `file-loader` rule emits the font files to `assets/dist/img/`.
+**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in entry bundles that render `<i class="bi bi-*">` icons, including `plugin-main.scss` for Shield admin UI and `plugin-login2fa.scss` for login/MFA UI. The WordPress dashboard widget deliberately avoids Bootstrap framework and Bootstrap Icons imports; its status marks are scoped CSS-only shapes in `shield/dashboard-widget.scss`. Webpack's `file-loader` rule emits Bootstrap Icons font files to `assets/dist/img/`.
 
 ### Custom Stepper
 

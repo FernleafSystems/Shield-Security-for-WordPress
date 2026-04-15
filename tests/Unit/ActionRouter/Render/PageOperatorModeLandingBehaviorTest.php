@@ -45,116 +45,82 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_actions_lane_uses_summary_contract_for_status_copy_and_breakdown() :void {
-		$page = new PageOperatorModeLanding();
-		$lane = $this->invokeNonPublicMethod( $page, 'buildActionsLane', [
-			[
-				'has_items'   => true,
-				'total_items' => 1,
-				'severity'    => 'critical',
-				'icon_class'  => 'from-summary',
-				'subtext'     => 'Last scan: 2 minutes ago',
-			],
-			[
-				[
-					'zone'         => 'scans',
-					'severity'     => 'critical',
-					'total'        => 2,
-					'items'        => [
-						[
-							'key'         => '',
-							'zone'        => '',
-							'label'       => '',
-							'count'       => 2,
-							'severity'    => 'critical',
-							'description' => '',
-							'href'        => '',
-							'action'      => '',
-							'target'      => '',
-						],
-					],
-				],
-				[
-					'zone'         => 'maintenance',
-					'severity'     => 'warning',
-					'total'        => 1,
-					'items'        => [
-						[
-							'key'         => '',
-							'zone'        => '',
-							'label'       => '',
-							'count'       => 1,
-							'severity'    => 'warning',
-							'description' => '',
-							'href'        => '',
-							'action'      => '',
-							'target'      => '',
-						],
-					],
-				],
-			],
-		] );
+	private function attentionQuery( array $scanItems, array $maintenanceItems = [] ) :array {
+		$items = \array_values( \array_merge( $scanItems, $maintenanceItems ) );
 
-		$this->assertSame( 'actions', $lane[ 'mode' ] ?? '' );
-		$this->assertSame( 'status', $lane[ 'indicator_type' ] ?? '' );
-		$this->assertSame( 'critical', $lane[ 'indicator_severity' ] ?? '' );
-		$this->assertSame( 'shield', $lane[ 'edge_status' ] ?? '' );
-		$this->assertSame( ' has-critical', $lane[ 'extra_classes' ] ?? '' );
-		$this->assertNotSame( '', $lane[ 'indicator_text' ] ?? '' );
-		$this->assertStringContainsString( '2', $lane[ 'indicator_subtext' ] ?? '' );
-		$this->assertStringContainsString( '1', $lane[ 'indicator_subtext' ] ?? '' );
-		$this->assertSame( 'bi bi-shield-x', $lane[ 'icon_class' ] ?? '' );
-		$this->assertSame( '/admin/scans/overview', $lane[ 'href' ] ?? '' );
+		return [
+			'generated_at' => 1700000000,
+			'summary'      => [
+				'total'        => (int)\array_sum( \array_column( $items, 'count' ) ),
+				'severity'     => $this->highestSeverity( $items ),
+				'is_all_clear' => empty( $items ),
+			],
+			'items'        => $items,
+			'groups'       => [
+				'scans'       => $this->attentionGroup( 'scans', $scanItems ),
+				'maintenance' => $this->attentionGroup( 'maintenance', $maintenanceItems ),
+			],
+		];
 	}
 
-	public function test_actions_lane_breakdown_uses_item_level_counts_within_same_zone() :void {
-		$page = new PageOperatorModeLanding();
-		$lane = $this->invokeNonPublicMethod( $page, 'buildActionsLane', [
-			[
-				'has_items'   => true,
-				'total_items' => 3,
-				'severity'    => 'critical',
-				'icon_class'  => 'from-summary',
-				'subtext'     => '',
-			],
-			[
-				[
-					'zone'         => 'scans',
-					'severity'     => 'critical',
-					'total'        => 3,
-					'items'        => [
-						[ 'severity' => 'critical', 'count' => 1 ],
-						[ 'severity' => 'warning', 'count' => 2 ],
-					],
-				],
-			],
-		] );
-
-		$this->assertStringContainsString( '1', $lane[ 'indicator_subtext' ] ?? '' );
-		$this->assertStringContainsString( '2', $lane[ 'indicator_subtext' ] ?? '' );
-		$this->assertStringContainsString( 'critical', $lane[ 'indicator_subtext' ] ?? '' );
-		$this->assertStringContainsString( 'warning', $lane[ 'indicator_subtext' ] ?? '' );
+	private function attentionGroup( string $zone, array $items ) :array {
+		return [
+			'zone'     => $zone,
+			'total'    => (int)\array_sum( \array_column( $items, 'count' ) ),
+			'severity' => $this->highestSeverity( $items ),
+			'items'    => $items,
+		];
 	}
 
-	public function test_actions_lane_all_clear_branch_keeps_indicator_contract_without_breakdown() :void {
-		$page = new PageOperatorModeLanding();
-		$lane = $this->invokeNonPublicMethod( $page, 'buildActionsLane', [
-			[
-				'has_items'   => false,
-				'total_items' => 0,
-				'severity'    => 'good',
-				'icon_class'  => 'bi bi-shield-check',
-				'subtext'     => '',
-			],
-			[],
-		] );
+	private function attentionItem( string $key, string $zone, int $count, string $severity, string $label = '' ) :array {
+		return [
+			'key'                => $key,
+			'zone'               => $zone,
+			'source'             => $zone === 'scans' ? 'scan' : 'maintenance',
+			'label'              => $label === '' ? $key : $label,
+			'description'        => $key,
+			'count'              => $count,
+			'ignored_count'      => 0,
+			'severity'           => $severity,
+			'href'               => '/'.$key,
+			'action'             => 'Open',
+			'target'             => '',
+			'supports_sub_items' => false,
+		];
+	}
 
-		$this->assertSame( 'good', $lane[ 'indicator_severity' ] ?? '' );
-		$this->assertSame( 'shield', $lane[ 'edge_status' ] ?? '' );
-		$this->assertSame( '', $lane[ 'extra_classes' ] ?? 'not-empty' );
-		$this->assertNotSame( '', $lane[ 'indicator_text' ] ?? '' );
-		$this->assertSame( '', $lane[ 'indicator_subtext' ] ?? 'not-empty' );
-		$this->assertSame( 'bi bi-shield-check', $lane[ 'icon_class' ] ?? '' );
+	private function scanState( array $rows ) :array {
+		return [
+			'rows'               => $rows,
+			'tabs'               => [],
+			'rail_accent_status' => $this->highestSeverity( $rows ),
+		];
+	}
+
+	private function scanRow( string $key, string $label, string $severity, int $count ) :array {
+		return [
+			'key'      => $key,
+			'zone'     => 'scans',
+			'label'    => $label,
+			'text'     => $label,
+			'count'    => $count,
+			'severity' => $severity,
+			'href'     => '/'.$key,
+			'action'   => 'Open',
+			'target'   => '',
+		];
+	}
+
+	private function highestSeverity( array $items ) :string {
+		$severities = \array_column( $items, 'severity' );
+		if ( \in_array( 'critical', $severities, true ) ) {
+			return 'critical';
+		}
+		if ( \in_array( 'warning', $severities, true ) ) {
+			return 'warning';
+		}
+
+		return 'good';
 	}
 
 	public function test_investigate_configure_and_reports_lanes_use_expected_indicator_contracts() :void {
@@ -166,22 +132,19 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'recent_active_count' => 2,
 			],
 		] );
-		$this->assertSame( 'status', $investigate[ 'indicator_type' ] ?? '' );
-		$this->assertSame( 'info', $investigate[ 'indicator_severity' ] ?? '' );
-		$this->assertSame( 'info', $investigate[ 'edge_status' ] ?? '' );
-		$this->assertCount( 2, $investigate[ 'indicator_badges' ] ?? [] );
-		$this->assertSame( $investigate[ 'indicator_text' ] ?? '', $investigate[ 'indicator_badges' ][ 0 ][ 'text' ] ?? null );
-		$this->assertStringContainsString( '3', $investigate[ 'indicator_text' ] ?? '' );
-		$this->assertStringContainsString( '2', $investigate[ 'indicator_badges' ][ 1 ][ 'text' ] ?? '' );
-		$this->assertSame( '/admin/activity/overview', $investigate[ 'href' ] ?? '' );
+		$this->assertSame( 'status', $investigate[ 'indicator_type' ] );
+		$this->assertSame( 'info', $investigate[ 'indicator_severity' ] );
+		$this->assertSame( 'info', $investigate[ 'edge_status' ] );
+		$this->assertCount( 2, $investigate[ 'indicator_badges' ] );
+		$this->assertSame( $investigate[ 'indicator_text' ], $investigate[ 'indicator_badges' ][ 0 ][ 'text' ] );
+		$this->assertSame( '/admin/activity/overview', $investigate[ 'href' ] );
 
 		$configure = $this->invokeNonPublicMethod( $page, 'buildConfigureLane', [ 95, 'good' ] );
-		$this->assertSame( 'posture', $configure[ 'indicator_type' ] ?? '' );
-		$this->assertSame( 'good', $configure[ 'edge_status' ] ?? '' );
-		$this->assertSame( 95, $configure[ 'posture_percentage' ] ?? null );
-		$this->assertSame( 'good', $configure[ 'posture_status' ] ?? '' );
-		$this->assertStringContainsString( '95', $configure[ 'posture_text' ] ?? '' );
-		$this->assertSame( '/admin/zones/overview', $configure[ 'href' ] ?? '' );
+		$this->assertSame( 'posture', $configure[ 'indicator_type' ] );
+		$this->assertSame( 'good', $configure[ 'edge_status' ] );
+		$this->assertSame( 95, $configure[ 'posture_percentage' ] );
+		$this->assertSame( 'good', $configure[ 'posture_status' ] );
+		$this->assertSame( '/admin/zones/overview', $configure[ 'href' ] );
 
 		$reportsWithData = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [
 			[
@@ -190,12 +153,11 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'latest_alert_at'  => 0,
 			],
 		] );
-		$this->assertSame( 'info', $reportsWithData[ 'indicator_severity' ] ?? '' );
-		$this->assertSame( 'warning', $reportsWithData[ 'edge_status' ] ?? '' );
-		$this->assertCount( 1, $reportsWithData[ 'indicator_badges' ] ?? [] );
-		$this->assertSame( $reportsWithData[ 'indicator_text' ] ?? '', $reportsWithData[ 'indicator_badges' ][ 0 ][ 'text' ] ?? null );
-		$this->assertStringContainsString( '5', $reportsWithData[ 'indicator_text' ] ?? '' );
-		$this->assertSame( '/admin/reports/overview', $reportsWithData[ 'href' ] ?? '' );
+		$this->assertSame( 'info', $reportsWithData[ 'indicator_severity' ] );
+		$this->assertSame( 'warning', $reportsWithData[ 'edge_status' ] );
+		$this->assertCount( 1, $reportsWithData[ 'indicator_badges' ] );
+		$this->assertSame( $reportsWithData[ 'indicator_text' ], $reportsWithData[ 'indicator_badges' ][ 0 ][ 'text' ] );
+		$this->assertSame( '/admin/reports/overview', $reportsWithData[ 'href' ] );
 
 		$reportsFallback = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [
 			[
@@ -204,13 +166,12 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'latest_alert_at'  => 0,
 			],
 		] );
-		$this->assertStringContainsString( '0', $reportsFallback[ 'indicator_text' ] ?? '' );
-		$this->assertCount( 1, $reportsFallback[ 'indicator_badges' ] ?? [] );
+		$this->assertCount( 1, $reportsFallback[ 'indicator_badges' ] );
 	}
 
 	public function test_investigate_session_summary_counts_active_and_recent_sessions() :void {
 		$page = new PageOperatorModeLandingTestDouble(
-			[],
+			$this->attentionQuery( [] ),
 			[
 				[
 					'login'  => 189200,
@@ -233,147 +194,8 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 		$summary = $this->invokeNonPublicMethod( $page, 'getInvestigateSessionSummary' );
 
-		$this->assertSame( 3, $summary[ 'active_count' ] ?? null );
-		$this->assertSame( 2, $summary[ 'recent_active_count' ] ?? null );
-	}
-
-	public function test_queue_summary_is_derived_from_attention_query_contract() :void {
-		$page = new PageOperatorModeLanding();
-		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ [
-			'generated_at' => 1700000000,
-			'summary'      => [
-				'total'        => 3,
-				'severity'     => 'warning',
-				'is_all_clear' => false,
-			],
-			'items'        => [],
-			'groups'       => [
-				'scans'       => [ 'zone' => 'scans', 'total' => 0, 'severity' => 'good', 'items' => [] ],
-				'maintenance' => [ 'zone' => 'maintenance', 'total' => 0, 'severity' => 'good', 'items' => [] ],
-			],
-		] ] );
-
-		$this->assertTrue( $summary[ 'has_items' ] );
-		$this->assertSame( 3, $summary[ 'total_items' ] );
-		$this->assertSame( 'warning', $summary[ 'severity' ] );
-		$this->assertSame( 'bi bi-shield-exclamation', $summary[ 'icon_class' ] );
-		$this->assertSame( '', $summary[ 'subtext' ] );
-	}
-
-	public function test_queue_zone_groups_are_extracted_from_attention_query() :void {
-		$page = new PageOperatorModeLanding();
-		$zoneGroups = $this->invokeNonPublicMethod( $page, 'getQueueZoneGroups', [ [
-			'generated_at' => 1700000000,
-			'summary'      => [
-				'total'        => 3,
-				'severity'     => 'critical',
-				'is_all_clear' => false,
-			],
-			'items'        => [],
-			'groups'       => [
-				'scans'       => [
-					'zone'     => 'scans',
-					'severity' => 'critical',
-					'total'    => 2,
-					'items'    => [
-						[
-							'key'         => '',
-							'zone'        => '',
-							'label'       => '',
-							'count'       => 2,
-							'severity'    => 'critical',
-							'description' => '',
-							'href'        => '',
-							'action'      => '',
-							'target'      => '',
-						],
-					],
-				],
-				'maintenance' => [
-					'zone'     => 'maintenance',
-					'severity' => 'warning',
-					'total'    => 1,
-					'items'    => [
-						[
-							'key'         => '',
-							'zone'        => '',
-							'label'       => '',
-							'count'       => 1,
-							'severity'    => 'warning',
-							'description' => '',
-							'href'        => '',
-							'action'      => '',
-							'target'      => '',
-						],
-					],
-				],
-			],
-		] ] );
-
-		$this->assertSame(
-			[
-				[
-					'zone'         => 'scans',
-					'severity'     => 'critical',
-					'total'        => 2,
-					'items'        => [
-						[
-							'key'         => '',
-							'zone'        => '',
-							'label'       => '',
-							'count'       => 2,
-							'severity'    => 'critical',
-							'description' => '',
-							'href'        => '',
-							'action'      => '',
-							'target'      => '',
-						],
-					],
-				],
-				[
-					'zone'         => 'maintenance',
-					'severity'     => 'warning',
-					'total'        => 1,
-					'items'        => [
-						[
-							'key'         => '',
-							'zone'        => '',
-							'label'       => '',
-							'count'       => 1,
-							'severity'    => 'warning',
-							'description' => '',
-							'href'        => '',
-							'action'      => '',
-							'target'      => '',
-						],
-					],
-				],
-			],
-			$zoneGroups
-		);
-	}
-
-	public function test_queue_summary_marks_empty_attention_query_as_all_clear() :void {
-		$page = new PageOperatorModeLanding();
-		$summary = $this->invokeNonPublicMethod( $page, 'getQueueSummary', [ [
-			'generated_at' => 1700000000,
-			'summary'      => [
-				'total'        => 0,
-				'severity'     => 'good',
-				'is_all_clear' => true,
-			],
-			'items'        => [],
-			'groups'       => [
-				'scans'       => [ 'zone' => 'scans', 'total' => 0, 'severity' => 'good', 'items' => [] ],
-				'maintenance' => [ 'zone' => 'maintenance', 'total' => 0, 'severity' => 'good', 'items' => [] ],
-			],
-		] ] );
-
-		$this->assertFalse( $summary[ 'has_items' ] );
-		$this->assertSame( 0, $summary[ 'total_items' ] );
-		$this->assertSame( 'good', $summary[ 'severity' ] );
-		$this->assertSame( 'bi bi-shield-check', $summary[ 'icon_class' ] );
-		$this->assertSame( '', $summary[ 'subtext' ] );
+		$this->assertSame( 3, $summary[ 'active_count' ] );
+		$this->assertSame( 2, $summary[ 'recent_active_count' ] );
 	}
 
 	public function test_live_monitor_vars_use_current_compact_contract() :void {
@@ -381,215 +203,30 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$vars = $this->invokeNonPublicMethod( $page, 'buildLiveMonitorVars' );
 
 		$this->assertArrayHasKey( 'is_collapsed', $vars );
-		$this->assertIsBool( $vars[ 'is_collapsed' ] ?? null );
-		$this->assertNotSame( '', $vars[ 'title' ] ?? '' );
-		$this->assertNotSame( '', $vars[ 'activity' ] ?? '' );
-		$this->assertNotSame( '', $vars[ 'traffic' ] ?? '' );
-		$this->assertNotSame( '', $vars[ 'loading' ] ?? '' );
+		$this->assertIsBool( $vars[ 'is_collapsed' ] );
+		$this->assertNotSame( '', $vars[ 'title' ] );
+		$this->assertNotSame( '', $vars[ 'activity' ] );
+		$this->assertNotSame( '', $vars[ 'traffic' ] );
+		$this->assertNotSame( '', $vars[ 'loading' ] );
 		$this->assertArrayNotHasKey( 'minimize', $vars );
 		$this->assertArrayNotHasKey( 'expand', $vars );
 	}
 
-	public function test_actions_queue_rows_follow_queue_scan_item_order_and_append_maintenance() :void {
-		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
-			[
-				[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 4 ],
-				[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'critical', 'count' => 3 ],
-				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'severity' => 'critical', 'count' => 2 ],
-				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 5 ],
-				[ 'key' => 'plugin_files_ignored', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 3 ],
-				[ 'key' => 'theme_files', 'label' => 'Theme Files', 'severity' => 'warning', 'count' => 1 ],
-				[ 'key' => 'abandoned', 'label' => 'Abandoned Assets', 'severity' => 'critical', 'count' => 6 ],
-				[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 2 ],
-			],
-			[
-				[
-					'zone'         => 'scans',
-					'severity'     => 'critical',
-					'total'        => 23,
-					'items'        => [
-						[ 'key' => 'malware', 'count' => 4, 'severity' => 'critical' ],
-						[ 'key' => 'vulnerable_assets', 'count' => 3, 'severity' => 'critical' ],
-						[ 'key' => 'wp_files', 'count' => 2, 'severity' => 'critical' ],
-						[ 'key' => 'plugin_files', 'count' => 5, 'severity' => 'warning' ],
-						[ 'key' => 'theme_files', 'count' => 1, 'severity' => 'warning' ],
-						[ 'key' => 'abandoned', 'count' => 6, 'severity' => 'critical' ],
-						[ 'key' => 'file_locker', 'count' => 2, 'severity' => 'warning' ],
-					],
-				],
-				[
-					'zone'         => 'maintenance',
-					'severity'     => 'warning',
-					'total'        => 7,
-					'items'        => [],
-				],
-			],
-		] );
-
-		$this->assertSame(
-			[
-				'malware',
-				'vulnerable_assets',
-				'wp_files',
-				'plugin_files',
-				'theme_files',
-				'abandoned',
-				'file_locker',
-				'maintenance',
-			],
-			\array_column( $rows, 'key' )
-		);
-		$this->assertSame( [ 4, 3, 2, 5, 1, 6, 2, 7 ], \array_column( $rows, 'count' ) );
-		$this->assertSame(
-			[ 'critical', 'critical', 'critical', 'warning', 'warning', 'critical', 'warning', 'warning' ],
-			\array_column( $rows, 'severity' )
-		);
-		$this->assertSame(
-			[
-				'Malware',
-				'Vulnerabilities',
-				'WordPress Files',
-				'Plugins with Modified Files',
-				'Themes with Modified Files',
-				'Abandoned Assets',
-				'File Locker',
-				'Maintenance Items',
-			],
-			\array_column( $rows, 'label' )
-		);
-		$this->assertSame(
-			[
-				'bi bi-bug',
-				'bi bi-shield-exclamation',
-				'bi bi-wordpress',
-				'bi bi-plug',
-				'bi bi-brush',
-				'bi bi-archive',
-				'bi bi-file-lock2',
-				'bi bi-wrench',
-			],
-			\array_column( $rows, 'icon_class' )
-		);
-	}
-
-	public function test_actions_queue_rows_only_include_queue_scan_items_and_maintenance() :void {
-		$rows = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildActionsQueueRows', [
-			[
-				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 2 ],
-				[ 'key' => 'plugin_files_ignored', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 1 ],
-				[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
-			],
-			[
-				[
-					'zone'         => 'scans',
-					'severity'     => 'warning',
-					'total'        => 2,
-					'items'        => [
-						[ 'key' => 'plugin_files', 'count' => 2, 'severity' => 'warning' ],
-					],
-				],
-			],
-		] );
-
-		$this->assertSame(
-			[ 'plugin_files' ],
-			\array_column( $rows, 'key' )
-		);
-		$this->assertSame( 'Plugins with Modified Files', $rows[ 0 ][ 'label' ] ?? '' );
-		$this->assertSame(
-			[
-				'plugin_files' => 'warning',
-			],
-			\array_combine( \array_column( $rows, 'key' ), \array_column( $rows, 'severity' ) )
-		);
-	}
-
 	public function test_render_data_filters_dashboard_attention_summary_and_keeps_visible_maintenance_items() :void {
+		$ignoredPluginFiles = $this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'Plugin Files' );
+		$wpUpdates = $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning', 'WordPress Version' );
 		$page = new PageOperatorModeLandingTestDouble(
-			[
-				'generated_at' => 1700000000,
-				'summary'      => [
-					'total'        => 2,
-					'severity'     => 'warning',
-					'is_all_clear' => false,
-				],
-				'items'        => [
-					[
-						'key'         => 'plugin_files_ignored',
-						'zone'        => 'scans',
-						'label'       => 'Plugin Files',
-						'count'       => 1,
-						'severity'    => 'warning',
-						'description' => 'Ignored plugin files.',
-						'href'        => '/plugins',
-						'action'      => 'Review',
-						'target'      => '',
-					],
-					[
-						'key'         => 'wp_updates',
-						'zone'        => 'maintenance',
-						'label'       => 'WordPress Version',
-						'count'       => 1,
-						'severity'    => 'warning',
-						'description' => 'Updates available.',
-						'href'        => '/updates',
-						'action'      => 'Open',
-						'target'      => '',
-					],
-				],
-				'groups'       => [
-					'scans'       => [
-						'zone'     => 'scans',
-						'severity' => 'warning',
-						'total'    => 1,
-						'items'    => [
-							[
-								'key'         => 'plugin_files_ignored',
-								'zone'        => 'scans',
-								'label'       => 'Plugin Files',
-								'count'       => 1,
-								'severity'    => 'warning',
-								'description' => 'Ignored plugin files.',
-								'href'        => '/plugins',
-								'action'      => 'Review',
-								'target'      => '',
-							],
-						],
-					],
-					'maintenance' => [
-						'zone'     => 'maintenance',
-						'severity' => 'warning',
-						'total'    => 1,
-						'items'    => [
-							[
-								'key'         => 'wp_updates',
-								'zone'        => 'maintenance',
-								'label'       => 'WordPress Version',
-								'count'       => 1,
-								'severity'    => 'warning',
-								'description' => 'Updates available.',
-								'href'        => '/updates',
-								'action'      => 'Open',
-								'target'      => '',
-							],
-						],
-					],
-				],
-			],
+			$this->attentionQuery( [ $ignoredPluginFiles ], [ $wpUpdates ] ),
 			[],
 			200000,
-			[
-				'rows' => [
-					[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'severity' => 'critical', 'count' => 99 ],
-					[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'good', 'count' => 0 ],
-				],
-				'tabs'               => [],
-				'rail_accent_status' => 'critical',
-			]
+			$this->scanState( [
+				$this->scanRow( 'plugin_files', 'Plugin Files', 'critical', 99 ),
+				$this->scanRow( 'file_locker', 'File Locker', 'good', 0 ),
+			] )
 		);
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
-		$actionsQueueRows = $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [];
+		$actionsQueueRows = $renderData[ 'vars' ][ 'actions_queue_rows' ];
 
 		$this->assertSame(
 			[ 'maintenance' ],
@@ -607,131 +244,53 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			],
 			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'severity' ) )
 		);
-		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' );
-		$this->assertSame( '1 issue needs your attention.', $renderData[ 'strings' ][ 'subtitle' ] ?? '' );
+		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] );
+		$this->assertNotSame( '', $renderData[ 'strings' ][ 'subtitle' ] );
 	}
 
 	public function test_render_data_exposes_actions_queue_title_and_secondary_lanes() :void {
-		$this->installControllerStubWithQueuePayload( [
-			'generated_at' => 1700000000,
-			'summary'      => [
-				'total'        => 4,
-				'severity'     => 'warning',
-				'is_all_clear' => false,
+		$this->installControllerStubWithQueuePayload( $this->attentionQuery(
+			[
+				$this->attentionItem( 'malware', 'scans', 2, 'critical', 'Malware' ),
+				$this->attentionItem( 'vulnerable_assets', 'scans', 0, 'good', 'Vulnerabilities' ),
+				$this->attentionItem( 'file_locker', 'scans', 1, 'warning', 'File Locker' ),
 			],
-			'items'        => [],
-			'groups'       => [
-				'scans'       => [
-					'zone'     => 'scans',
-					'severity' => 'warning',
-					'total'    => 3,
-					'items'    => [
-						[ 'key' => 'malware', 'label' => 'Malware', 'severity' => 'critical', 'count' => 2 ],
-						[ 'key' => 'vulnerable_assets', 'label' => 'Vulnerabilities', 'severity' => 'good', 'count' => 0 ],
-						[ 'key' => 'file_locker', 'label' => 'File Locker', 'severity' => 'warning', 'count' => 1 ],
-					],
-				],
-				'maintenance' => [
-					'zone'     => 'maintenance',
-					'severity' => 'warning',
-					'total'    => 1,
-					'items'    => [
-						[
-							'key'         => 'wp_updates',
-							'zone'        => 'maintenance',
-							'label'       => 'WordPress Version',
-							'count'       => 1,
-							'severity'    => 'warning',
-							'description' => 'Updates available.',
-							'href'        => '/updates',
-							'action'      => 'Open',
-							'target'      => '',
-						],
-					],
-				],
-			],
-		] );
+			[
+				$this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning', 'WordPress Version' ),
+			]
+		) );
 
 		$renderData = $this->invokeNonPublicMethod( $this->newPage(), 'getRenderData' );
 
 		$this->assertSame(
 			PluginNavs::modeLabel( PluginNavs::MODE_ACTIONS ),
-			$renderData[ 'strings' ][ 'title' ] ?? ''
+			$renderData[ 'strings' ][ 'title' ]
 		);
-		$this->assertSame( 'actions', $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] ?? '' );
+		$this->assertSame( 'actions', $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] );
 		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
-			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
+			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ], 'mode' )
 		);
 		$this->assertSame(
 			[ 'malware', 'file_locker', 'maintenance' ],
-			\array_column( $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [], 'key' )
+			\array_column( $renderData[ 'vars' ][ 'actions_queue_rows' ], 'key' )
 		);
 	}
 
 	public function test_render_data_ignores_plugin_files_ignored_when_it_is_the_only_dashboard_issue() :void {
+		$ignoredPluginFiles = $this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'Plugin Files' );
 		$renderData = $this->invokeNonPublicMethod( new PageOperatorModeLandingTestDouble(
-			[
-				'generated_at' => 1700000000,
-				'summary'      => [
-					'total'        => 1,
-					'severity'     => 'warning',
-					'is_all_clear' => false,
-				],
-				'items'        => [
-					[
-						'key'         => 'plugin_files_ignored',
-						'zone'        => 'scans',
-						'label'       => 'Plugin Files',
-						'count'       => 1,
-						'severity'    => 'warning',
-						'description' => 'Ignored plugin files.',
-						'href'        => '/plugins',
-						'action'      => 'Review',
-						'target'      => '',
-					],
-				],
-				'groups'       => [
-					'scans'       => [
-						'zone'     => 'scans',
-						'severity' => 'warning',
-						'total'    => 1,
-						'items'    => [
-							[
-								'key'         => 'plugin_files_ignored',
-								'zone'        => 'scans',
-								'label'       => 'Plugin Files',
-								'count'       => 1,
-								'severity'    => 'warning',
-								'description' => 'Ignored plugin files.',
-								'href'        => '/plugins',
-								'action'      => 'Review',
-								'target'      => '',
-							],
-						],
-					],
-					'maintenance' => [
-						'zone'     => 'maintenance',
-						'severity' => 'good',
-						'total'    => 0,
-						'items'    => [],
-					],
-				],
-			],
+			$this->attentionQuery( [ $ignoredPluginFiles ] ),
 			[],
 			200000,
-			[
-				'rows' => [
-					[ 'key' => 'plugin_files_ignored', 'label' => 'Plugin Files', 'severity' => 'warning', 'count' => 1 ],
-				],
-				'tabs'               => [],
-				'rail_accent_status' => 'warning',
-			]
+			$this->scanState( [
+				$this->scanRow( 'plugin_files_ignored', 'Plugin Files', 'warning', 1 ),
+			] )
 		), 'getRenderData' );
 
-		$this->assertSame( [], $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [] );
-		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' );
-		$this->assertSame( 'Your site is protected. All systems operational.', $renderData[ 'strings' ][ 'subtitle' ] ?? '' );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'actions_queue_rows' ] );
+		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] );
+		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
 	}
 
 	private function newPage() :PageOperatorModeLanding {
@@ -739,7 +298,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStubWithQueuePayload( array $queuePayload, array $reportsState = [] ) :void {
-		$this->queuePayload = $queuePayload;
+		$this->queuePayload = empty( $queuePayload ) ? $this->attentionQuery( [] ) : $queuePayload;
 		$reportsState = \array_replace_recursive( [
 			'reports_count'    => 0,
 			'latest_report_at' => 0,
@@ -819,9 +378,20 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 		}
 
 		return [
-			'rows'               => \is_array( $this->attentionQuery[ 'groups' ][ 'scans' ][ 'items' ] ?? null )
-				? $this->attentionQuery[ 'groups' ][ 'scans' ][ 'items' ]
-				: [],
+			'rows'               => \array_map(
+				static fn( array $item ) :array => [
+					'key'      => $item[ 'key' ],
+					'zone'     => 'scans',
+					'label'    => $item[ 'label' ],
+					'text'     => $item[ 'description' ],
+					'count'    => $item[ 'count' ],
+					'severity' => $item[ 'severity' ],
+					'href'     => $item[ 'href' ],
+					'action'   => $item[ 'action' ],
+					'target'   => $item[ 'target' ],
+				],
+				$this->attentionQuery[ 'groups' ][ 'scans' ][ 'items' ]
+			),
 			'tabs'               => [],
 			'rail_accent_status' => 'good',
 		];

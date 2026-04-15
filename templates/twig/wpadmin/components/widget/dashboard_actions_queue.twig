@@ -1,0 +1,47 @@
+<div class="shield-dashboard-widget" data-shield-status="{{ vars.shield_status }}">
+	<div class="shield-dashboard-widget__card is-{{ vars.shield_status }}">
+		<div class="shield-dashboard-widget__accent"></div>
+		<div class="shield-dashboard-widget__body">
+			<div class="shield-dashboard-widget__header">
+				<div class="shield-dashboard-widget__orb" aria-hidden="true">
+					<span class="shield-dashboard-widget__status-mark"></span>
+				</div>
+				<div class="shield-dashboard-widget__copy">
+					<div class="shield-dashboard-widget__eyebrow status-{{ vars.shield_status }}">{{ strings.status_label }}</div>
+					<p class="shield-dashboard-widget__subtitle">{{ strings.subtitle }}</p>
+				</div>
+				{% if flags.has_items %}
+					<span class="shield-dashboard-widget__count is-{{ vars.shield_status }}">{{ vars.summary.total_items }}</span>
+				{% endif %}
+			</div>
+
+			{% if vars.rows is not empty %}
+				<div class="shield-dashboard-widget__list" aria-label="{{ strings.status_label }}">
+					{% for row in vars.rows %}
+						<div class="shield-dashboard-widget__row is-{{ row.severity }}">
+							<span class="shield-dashboard-widget__row-icon" aria-hidden="true"></span>
+							<span class="shield-dashboard-widget__row-label">{{ row.label }}</span>
+							<span class="shield-dashboard-widget__row-count is-{{ row.severity }}">{{ row.count }}</span>
+						</div>
+					{% endfor %}
+				</div>
+			{% else %}
+				<div class="shield-dashboard-widget__all-clear">
+					<span class="shield-dashboard-widget__all-clear-icon" aria-hidden="true"></span>
+					<span>{{ strings.all_clear_message }}</span>
+				</div>
+			{% endif %}
+
+			<div class="shield-dashboard-widget__footer">
+				{% if flags.show_internal_links %}
+					<a href="{{ hrefs.actions_queue }}" class="shield-dashboard-widget__cta">
+						{{ strings.open_actions_queue }}
+						<span class="shield-dashboard-widget__cta-arrow" aria-hidden="true"></span>
+					</a>
+				{% else %}
+					<span class="shield-dashboard-widget__cta is-static">{{ strings.open_actions_queue }}</span>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>

@@ -111,17 +111,6 @@ class AssetsCustomizer {
 					'strings' => Components\Reports\ChartsTrends::clientStrings(),
 				],
 			],
-			'dashboard_widget' => [
-				'key'     => 'dashboard_widget',
-				'handles' => [
-					'wpadmin',
-				],
-				'data'    => [
-					'ajax' => [
-						'render' => ActionData::BuildAjaxRender( Components\Widgets\WpDashboardSummary::class ),
-					]
-				],
-			],
 			'dashboard_live_monitor' => [
 				'key'      => 'dashboard_live_monitor',
 				'required' => PluginNavs::IsNavs( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),

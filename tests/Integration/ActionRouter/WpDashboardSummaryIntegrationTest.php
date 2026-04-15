@@ -9,12 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
-
-	private const WIDGET_CACHE_KEY = 'dashboard-widget-v3-vars';
-	private const LEGACY_WIDGET_CACHE_KEY = 'dashboard-widget-v2-vars';
 
 	private int $adminUserId;
 
@@ -39,14 +35,10 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
 			->store();
 
-		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
-		Transient::Delete( self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY ) );
 		\delete_site_transient( 'update_plugins' );
 	}
 
 	public function tear_down() {
-		Transient::Delete( self::con()->prefix( self::WIDGET_CACHE_KEY ) );
-		Transient::Delete( self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY ) );
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
 	}
@@ -55,10 +47,38 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		return new ActionProcessor();
 	}
 
-	private function renderSummary( $refresh = true ) :ActionResponse {
-		return $this->processor()->processAction( WpDashboardSummary::SLUG, [
-			'refresh' => $refresh,
-		] );
+	private function renderSummary() :ActionResponse {
+		return $this->processor()->processAction( WpDashboardSummary::SLUG );
+	}
+
+	private function renderSummaryPayload() :array {
+		$payload = $this->renderSummary()->payload();
+
+		$this->assertArrayHasKey( 'render_data', $payload );
+		$this->assertIsArray( $payload[ 'render_data' ] );
+		$this->assertArrayHasKey( 'render_template', $payload );
+
+		return $payload;
+	}
+
+	private function renderSummaryData() :array {
+		return $this->renderSummaryPayload()[ 'render_data' ];
+	}
+
+	private function rowsByKey( array $renderData ) :array {
+		$this->assertArrayHasKey( 'vars', $renderData );
+		$this->assertIsArray( $renderData[ 'vars' ] );
+		$this->assertArrayHasKey( 'rows', $renderData[ 'vars' ] );
+		$this->assertIsArray( $renderData[ 'vars' ][ 'rows' ] );
+
+		$rowsByKey = [];
+		foreach ( $renderData[ 'vars' ][ 'rows' ] as $row ) {
+			$this->assertIsArray( $row );
+			$this->assertArrayHasKey( 'key', $row );
+			$rowsByKey[ (string)$row[ 'key' ] ] = $row;
+		}
+
+		return $rowsByKey;
 	}
 
 	private function setPluginUpdateAvailable() :void {
@@ -72,35 +92,25 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		\set_site_transient( 'update_plugins', $updates );
 	}
 
-	public function test_render_returns_v2_template_and_non_empty_output() :void {
-		$payload = $this->renderSummary()->payload();
-		$renderData = $payload[ 'render_data' ] ?? [];
+	public function test_render_returns_actions_queue_widget_template_and_admin_links_contract() :void {
+		$payload = $this->renderSummaryPayload();
+		$renderData = $payload[ 'render_data' ];
 
-		$this->assertSame( '/admin/admin_dashboard_widget_v2.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'render_output' ] ?? '' ) ) );
-		$this->assertSame(
-			self::con()->plugin_urls->actionsQueueScans(),
-			(string)( $renderData[ 'hrefs' ][ 'scans' ] ?? '' )
-		);
+		$this->assertSame( '/wpadmin/components/widget/dashboard_actions_queue.twig', $payload[ 'render_template' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'show_internal_links' ] );
+		$this->assertSame( self::con()->plugin_urls->actionsQueueScans(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
 	}
 
-	public function test_config_score_uses_zone_posture_contract() :void {
-		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
+	public function test_all_clear_renders_green_widget_contract_when_no_items_exist() :void {
+		$renderData = $this->renderSummaryData();
 
-		$percentage = (int)( $vars[ 'config_progress' ][ 'percentage' ] ?? -1 );
-		$this->assertGreaterThanOrEqual( 0, $percentage );
-		$this->assertLessThanOrEqual( 100, $percentage );
-		$this->assertSame( $percentage, (int)( $vars[ 'config_progress' ][ 'totals' ][ 'percentage' ] ?? -1 ) );
-		$this->assertSame(
-			$percentage > 80 ? 'good' : ( $percentage > 40 ? 'warning' : 'critical' ),
-			(string)( $vars[ 'config_traffic' ] ?? '' )
-		);
+		$this->assertFalse( $renderData[ 'flags' ][ 'has_items' ] );
+		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertSame( 0, $renderData[ 'vars' ][ 'summary' ][ 'total_items' ] );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'rows' ] );
 	}
 
-	public function test_action_total_and_severity_reflect_scan_findings() :void {
-		$this->assertTrue( self::con()->comps->scans->AFS()->isEnabledMalwareScanPHP() );
-		$this->assertTrue( self::con()->comps->scans->WPV()->isEnabled() );
-
+	public function test_scan_findings_render_critical_rows_from_shared_queue_builder() :void {
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
 		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
@@ -108,29 +118,29 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
 		TestDataFactory::insertScanResultMeta( $wpvId, 'is_vulnerable' );
 
-		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertGreaterThanOrEqual( 2, (int)( $vars[ 'action_total' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $vars[ 'action_traffic' ] ?? '' ) );
+		$renderData = $this->renderSummaryData();
+		$rowsByKey = $this->rowsByKey( $renderData );
+
+		$this->assertTrue( $renderData[ 'flags' ][ 'has_items' ] );
+		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertArrayHasKey( 'malware', $rowsByKey );
+		$this->assertArrayHasKey( 'vulnerable_assets', $rowsByKey );
+		$this->assertSame( 2, $rowsByKey[ 'malware' ][ 'count' ] );
+		$this->assertSame( 1, $rowsByKey[ 'vulnerable_assets' ][ 'count' ] );
+		$this->assertSame( 'critical', $rowsByKey[ 'malware' ][ 'severity' ] );
+		$this->assertArrayNotHasKey( 'icon_class', $rowsByKey[ 'malware' ] );
 	}
 
-	public function test_action_summary_contract_remains_consistent_for_current_environment() :void {
-		$payload = $this->renderSummary()->payload();
-		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
-
-		$this->assertGreaterThanOrEqual( 0, (int)( $vars[ 'action_total' ] ?? -1 ) );
-		$this->assertContains( (string)( $vars[ 'action_traffic' ] ?? '' ), [ 'good', 'warning', 'critical' ] );
-		$this->assertSame(
-			(int)( $vars[ 'action_total' ] ?? 0 ) === 0,
-			(bool)( $vars[ 'is_all_clear' ] ?? false )
-		);
-	}
-
-	public function test_operational_issue_is_included_in_attention_rows() :void {
+	public function test_operational_issue_renders_warning_maintenance_only_state() :void {
 		$this->setPluginUpdateAvailable();
-		$vars = $this->renderSummary()->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertGreaterThanOrEqual( 1, (int)( $vars[ 'action_total' ] ?? 0 ) );
-		$this->assertSame( 'warning', (string)( $vars[ 'action_traffic' ] ?? '' ) );
-		$this->assertFalse( (bool)( $vars[ 'is_all_clear' ] ?? true ) );
+
+		$renderData = $this->renderSummaryData();
+		$rows = $renderData[ 'vars' ][ 'rows' ];
+
+		$this->assertTrue( $renderData[ 'flags' ][ 'has_items' ] );
+		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertSame( [ 'maintenance' ], \array_column( $rows, 'key' ) );
+		$this->assertGreaterThan( 0, $rows[ 0 ][ 'count' ] );
 	}
 
 	public function test_non_plugin_admin_hides_internal_links() :void {
@@ -139,54 +149,9 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		\wp_set_current_user( $subscriberId );
 
-		$payload = $this->renderSummary()->payload();
-		$renderData = $payload[ 'render_data' ] ?? [];
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$renderData = $this->renderSummaryData();
 
-		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_internal_links' ] ?? true ) );
-		$this->assertStringNotContainsString( 'href="'.self::con()->plugin_urls->adminHome().'"', $html, 'Subscriber dashboard links' );
-		$this->assertStringNotContainsString(
-			'href="'.self::con()->plugin_urls->actionsQueueScans().'"',
-			$html,
-			'Subscriber scans links'
-		);
-	}
-
-	public function test_refresh_parameter_controls_cache_bypass() :void {
-		$first = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$initialTotal = (int)( $first[ 'action_total' ] ?? -1 );
-		$this->assertGreaterThanOrEqual( 0, $initialTotal );
-
-		$this->setPluginUpdateAvailable();
-		$cached = $this->renderSummary( false )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( $initialTotal, (int)( $cached[ 'action_total' ] ?? -1 ) );
-
-		$refreshed = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( $initialTotal + 1, (int)( $refreshed[ 'action_total' ] ?? -1 ) );
-	}
-
-	public function test_refresh_false_string_does_not_bypass_cache() :void {
-		$first = $this->renderSummary( true )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$initialTotal = (int)( $first[ 'action_total' ] ?? -1 );
-		$this->assertGreaterThanOrEqual( 0, $initialTotal );
-
-		$this->setPluginUpdateAvailable();
-		$cached = $this->renderSummary( 'false' )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( $initialTotal, (int)( $cached[ 'action_total' ] ?? -1 ) );
-
-		$refreshed = $this->renderSummary( 'true' )->payload()[ 'render_data' ][ 'vars' ] ?? [];
-		$this->assertSame( $initialTotal + 1, (int)( $refreshed[ 'action_total' ] ?? -1 ) );
-	}
-
-	public function test_legacy_v2_transient_is_removed_during_v3_regeneration() :void {
-		$legacyKey = self::con()->prefix( self::LEGACY_WIDGET_CACHE_KEY );
-		$v3Key = self::con()->prefix( self::WIDGET_CACHE_KEY );
-
-		Transient::Set( $legacyKey, [ 'legacy' => true ], 30 );
-		Transient::Delete( $v3Key );
-		$this->assertNotEmpty( Transient::Get( $legacyKey ) );
-
-		$this->renderSummary( false );
-		$this->assertEmpty( Transient::Get( $legacyKey ) );
+		$this->assertFalse( $renderData[ 'flags' ][ 'show_internal_links' ] );
+		$this->assertSame( self::con()->plugin_urls->actionsQueueScans(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
 	}
 }

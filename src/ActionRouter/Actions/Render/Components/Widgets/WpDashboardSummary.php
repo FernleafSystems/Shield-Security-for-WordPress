@@ -3,89 +3,75 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
+/**
+ * @phpstan-import-type ActionsQueueCardData from ActionsQueueCardDataBuilder
+ * @phpstan-import-type ActionsQueueCardRow from ActionsQueueCardDataBuilder
+ */
 class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
 	use AnyUserAuthRequired;
 
 	public const SLUG = 'render_dashboard_widget';
-	public const TEMPLATE = '/admin/admin_dashboard_widget_v2.twig';
-	private const VARS_CACHE_KEY = 'dashboard-widget-v3-vars';
-	private const LEGACY_VARS_CACHE_KEY = 'dashboard-widget-v2-vars';
+	public const TEMPLATE = '/wpadmin/components/widget/dashboard_actions_queue.twig';
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$vars = $this->getVars( $this->isRefreshRequested() );
-		$vars[ 'generated_at' ] = Services::Request()
-										  ->carbon()
-										  ->setTimestamp( $vars[ 'generated_at' ] )
-										  ->diffForHumans();
+		$queueCard = $this->buildActionsQueueCardData();
+
 		return [
 			'hrefs'   => [
-				'overview' => $con->plugin_urls->adminHome(),
-				'scans'    => $con->plugin_urls->actionsQueueScans(),
+				'actions_queue' => $queueCard[ 'actions_lane' ][ 'href' ],
 			],
 			'flags'   => [
-				'show_internal_links' => $con->isPluginAdmin()
+				'has_items'           => $queueCard[ 'summary' ][ 'has_items' ],
+				'show_internal_links' => $con->isPluginAdmin(),
 			],
 			'strings' => [
-				'title'           => sprintf( '%s: %s', $con->labels->Name, __( 'Overview', 'wp-simple-firewall' ) ),
-				'needs_attention' => __( 'Action Required', 'wp-simple-firewall' ),
-				'all_clear'       => __( 'All Clear', 'wp-simple-firewall' ),
-				'no_issues'       => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
-				'config_posture'  => __( 'Configuration Posture', 'wp-simple-firewall' ),
-				'action_items'    => __( 'Action Items', 'wp-simple-firewall' ),
-				'view_actions'    => __( 'View Actions', 'wp-simple-firewall' ),
-				'view_posture'    => __( 'View Posture', 'wp-simple-firewall' ),
-				'go_to_dashboard' => __( 'Go to Shield Dashboard', 'wp-simple-firewall' ),
-				'last_scan'       => __( 'Last scan', 'wp-simple-firewall' ),
-				'critical'        => __( 'Critical', 'wp-simple-firewall' ),
-				'needs_work'      => __( 'Needs Work', 'wp-simple-firewall' ),
-				'good'            => __( 'Good', 'wp-simple-firewall' ),
-				'refresh'         => __( 'Refresh', 'wp-simple-firewall' ),
+				'status_label'       => $queueCard[ 'actions_lane' ][ 'indicator_text' ],
+				'subtitle'           => $queueCard[ 'subtitle' ],
+				'all_clear_message'  => __( 'No security issues currently need attention.', 'wp-simple-firewall' ),
+				'open_actions_queue' => __( 'Open Actions Queue', 'wp-simple-firewall' ),
 			],
-			'vars'    => $vars,
+			'vars'    => [
+				'shield_status' => $queueCard[ 'shield_status' ],
+				'summary'       => $queueCard[ 'summary' ],
+				'rows'          => $this->buildWidgetRows( $queueCard[ 'actions_queue_rows' ] ),
+			],
 		];
 	}
 
-	private function getVars( bool $refresh ) :array {
-		$con = self::con();
-		$cacheKeyV3 = $con->prefix( self::VARS_CACHE_KEY );
-		$cacheKeyV2 = $con->prefix( self::LEGACY_VARS_CACHE_KEY );
-		$vars = Transient::Get( $cacheKeyV3 );
-		if ( $refresh || empty( $vars ) ) {
-			Transient::Delete( $cacheKeyV2 );
-			$vars = $this->buildFreshVars();
-			Transient::Set( $cacheKeyV3, $vars, 30 );
-		}
-
-		return $vars;
+	/**
+	 * @param list<ActionsQueueCardRow> $queueRows
+	 * @return list<array{key:string,label:string,severity:string,count:int}>
+	 */
+	private function buildWidgetRows( array $queueRows ) :array {
+		return \array_map(
+			static fn( array $row ) :array => [
+				'key'      => $row[ 'key' ],
+				'label'    => $row[ 'label' ],
+				'severity' => $row[ 'severity' ],
+				'count'    => $row[ 'count' ],
+			],
+			$queueRows
+		);
 	}
 
-	private function buildFreshVars() :array {
-		$overview = self::con()->comps->site_query->overview();
-		$configProgress = $overview[ 'posture' ];
-		$configTraffic = BuildZonePosture::trafficFromPercentage( $configProgress[ 'percentage' ] );
-		$actionSummary = $overview[ 'attention_summary' ];
-		$latestScanAt = (int)\max( $overview[ 'scans' ][ 'latest_completed_at' ] );
-
-		return [
-			'generated_at'    => $overview[ 'generated_at' ],
-			'config_progress' => $configProgress,
-			'config_traffic'  => $configTraffic,
-			'action_total'    => $actionSummary[ 'total' ],
-			'action_traffic'  => $actionSummary[ 'severity' ],
-			'is_all_clear'    => $actionSummary[ 'is_all_clear' ],
-			'last_scan_human' => $latestScanAt > 0
-				? Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
-				: '',
-		];
+	/**
+	 * @return ActionsQueueCardData
+	 */
+	protected function buildActionsQueueCardData() :array {
+		return ( new ActionsQueueCardDataBuilder() )->build(
+			$this->buildAttentionQuery(),
+			$this->buildScanState()[ 'rows' ]
+		);
 	}
 
-	private function isRefreshRequested() :bool {
-		return \filter_var( $this->action_data[ 'refresh' ] ?? false, \FILTER_VALIDATE_BOOLEAN );
+	protected function buildAttentionQuery() :array {
+		return self::con()->comps->site_query->attention();
+	}
+
+	protected function buildScanState() :array {
+		return ( new ActionsQueueScanStateBuilder() )->build();
 	}
 }

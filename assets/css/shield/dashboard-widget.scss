@@ -1,240 +1,318 @@
+#ShieldDashboardWidget {
+  --shield-widget-good: #008000;
+  --shield-widget-good-soft: #eef8ef;
+  --shield-widget-good-border: #b8d8b8;
+  --shield-widget-warning: #b98900;
+  --shield-widget-warning-soft: #fff8e6;
+  --shield-widget-warning-border: #ecd28a;
+  --shield-widget-critical: #c62f3e;
+  --shield-widget-critical-soft: #fff1f2;
+  --shield-widget-critical-border: #efb4bc;
+  --shield-widget-surface: #ffffff;
+  --shield-widget-surface-muted: #f6f7f7;
+  --shield-widget-border: #dcdcde;
+  --shield-widget-text: #1d2327;
+  --shield-widget-muted: #50575e;
+  --shield-widget-link: #2271b1;
+  color: var(--shield-widget-text);
+  font-size: 13px;
+}
+
 #ShieldDashboardWidget a {
-  color: #008000 !important;
+  color: inherit !important;
   text-decoration: none;
-  text-shadow: 0 0 0 rgba(0, 0, 0, 0.4);
 }
 
 #ShieldDashboardWidget p {
-  font-size: 14px;
+  margin: 0;
 }
 
-#ShieldDashboardWidget p.no-entries {
-  margin: 3px 0 0 0;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 {
-  color: #1d2327;
-  font-size: 13px;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 a {
-  color: inherit !important;
-  text-decoration: none !important;
-  text-shadow: none;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-main {
-  display: flex;
-  gap: 12px;
-  align-items: stretch;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column {
-  flex: 0 0 230px;
-  border: 1px solid #d0d7de;
-  border-radius: 8px;
+#ShieldDashboardWidget .shield-dashboard-widget__card {
+  background: var(--shield-widget-surface);
+  border: 1px solid var(--shield-widget-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   overflow: hidden;
-  background: #f6f7f7;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column.status-good {
-  background: #f2fbf2;
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-good {
+  border-color: var(--shield-widget-good-border);
+  background: linear-gradient(180deg, var(--shield-widget-good-soft) 0%, var(--shield-widget-surface) 52%);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column.status-warning {
-  background: #fff8ea;
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-warning {
+  border-color: var(--shield-widget-warning-border);
+  background: linear-gradient(180deg, var(--shield-widget-warning-soft) 0%, var(--shield-widget-surface) 52%);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column.status-critical {
-  background: #fff1f2;
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-critical {
+  border-color: var(--shield-widget-critical-border);
+  background: linear-gradient(180deg, var(--shield-widget-critical-soft) 0%, var(--shield-widget-surface) 52%);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column .score-accent {
+#ShieldDashboardWidget .shield-dashboard-widget__accent {
   height: 4px;
-  background: #008000;
+  background: var(--shield-widget-good);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column.status-warning .score-accent {
-  background: #edb41d;
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-warning .shield-dashboard-widget__accent {
+  background: var(--shield-widget-warning);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column.status-critical .score-accent {
-  background: #c62f3e;
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-critical .shield-dashboard-widget__accent {
+  background: var(--shield-widget-critical);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column .score-body {
-  padding: 10px 12px;
+#ShieldDashboardWidget .shield-dashboard-widget__body {
+  padding: 14px;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .gauge-wrap {
-  position: relative;
-  width: 190px;
-  height: 110px;
-  margin: 0 auto;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .gauge-wrap canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .gauge-wrap .gauge-score {
-  position: absolute;
-  left: 50%;
-  bottom: 2px;
-  transform: translateX(-50%);
-  font-weight: 700;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .gauge-scale {
+#ShieldDashboardWidget .shield-dashboard-widget__header {
   display: flex;
-  justify-content: space-between;
-  margin: 2px auto 0;
-  width: 180px;
-  font-size: 10px;
-  color: #646970;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__orb {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  color: var(--shield-widget-good);
+  display: inline-flex;
+  flex: 0 0 42px;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-warning .shield-dashboard-widget__orb {
+  color: var(--shield-widget-warning);
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-critical .shield-dashboard-widget__orb {
+  color: var(--shield-widget-critical);
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__status-mark {
+  display: block;
+  height: 18px;
+  position: relative;
+  width: 18px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__status-mark::before {
+  border-bottom: 3px solid currentColor;
+  border-left: 3px solid currentColor;
+  content: "";
+  height: 7px;
+  left: 3px;
+  position: absolute;
+  top: 4px;
+  transform: rotate(-45deg);
+  width: 12px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-warning .shield-dashboard-widget__status-mark::before,
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-critical .shield-dashboard-widget__status-mark::before {
+  background: currentColor;
+  border: 0;
+  border-radius: 999px;
+  height: 11px;
+  left: 8px;
+  top: 2px;
+  transform: none;
+  width: 3px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-warning .shield-dashboard-widget__status-mark::after,
+#ShieldDashboardWidget .shield-dashboard-widget__card.is-critical .shield-dashboard-widget__status-mark::after {
+  background: currentColor;
+  border-radius: 999px;
+  bottom: 1px;
+  content: "";
+  height: 3px;
+  left: 8px;
+  position: absolute;
+  width: 3px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__eyebrow {
+  color: var(--shield-widget-good);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
   text-transform: uppercase;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-meta {
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+#ShieldDashboardWidget .shield-dashboard-widget__eyebrow.status-warning {
+  color: var(--shield-widget-warning);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-meta .score-label {
-  font-weight: 600;
+#ShieldDashboardWidget .shield-dashboard-widget__eyebrow.status-critical {
+  color: var(--shield-widget-critical);
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .score-meta .score-link {
-  font-weight: 600;
-  color: #2271b1 !important;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-column {
-  flex: 1;
-  min-width: 0;
-  border: 1px solid #d0d7de;
-  border-radius: 8px;
-  background: #ffffff;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-column.status-good {
-  background: #f2fbf2;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-column.status-warning {
-  background: #fff8ea;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-column.status-critical {
-  background: #fff1f2;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .dashicons {
-  width: 18px;
-  height: 18px;
-  font-size: 18px;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .dashicons.status-warning {
-  color: #b98900;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .dashicons.status-critical {
-  color: #c62f3e;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .dashicons.status-good {
-  color: #008000;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .attention-title {
+#ShieldDashboardWidget .shield-dashboard-widget__subtitle {
+  color: var(--shield-widget-text);
   font-size: 13px;
-  font-weight: 700;
+  line-height: 1.45;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-header .attention-badge {
-  margin-left: auto;
-  background: #f0f0f1;
+#ShieldDashboardWidget .shield-dashboard-widget__count {
+  align-items: center;
+  background: rgba(0, 128, 0, 0.08);
+  border: 1px solid rgba(0, 128, 0, 0.16);
   border-radius: 999px;
-  padding: 1px 8px;
-  font-size: 11px;
+  color: var(--shield-widget-good);
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 1;
+  margin-left: auto;
+  min-width: 32px;
+  padding: 7px 10px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__count.is-warning {
+  background: rgba(185, 137, 0, 0.10);
+  border-color: rgba(185, 137, 0, 0.2);
+  color: var(--shield-widget-warning);
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__count.is-critical {
+  background: rgba(198, 47, 62, 0.10);
+  border-color: rgba(198, 47, 62, 0.2);
+  color: var(--shield-widget-critical);
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__row {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(208, 215, 222, 0.75);
+  border-radius: 10px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: auto 1fr auto;
+  padding: 9px 10px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__row-icon {
+  background: currentColor;
+  border-radius: 999px;
+  color: var(--shield-widget-muted);
+  height: 9px;
+  width: 9px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__row.is-warning .shield-dashboard-widget__row-icon,
+#ShieldDashboardWidget .shield-dashboard-widget__row-count.is-warning {
+  color: var(--shield-widget-warning);
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__row.is-critical .shield-dashboard-widget__row-icon,
+#ShieldDashboardWidget .shield-dashboard-widget__row-count.is-critical {
+  color: var(--shield-widget-critical);
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__row-label {
+  color: var(--shield-widget-text);
+  font-weight: 600;
+  min-width: 0;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__row-count {
+  color: var(--shield-widget-good);
+  font-size: 12px;
   font-weight: 700;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-all-clear {
-  margin: 2px 0 0;
-  color: #3c434a;
+#ShieldDashboardWidget .shield-dashboard-widget__all-clear {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed rgba(0, 128, 0, 0.2);
+  border-radius: 10px;
+  color: var(--shield-widget-muted);
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-summary {
-  margin: 2px 0 0;
-  color: #3c434a;
+#ShieldDashboardWidget .shield-dashboard-widget__all-clear-icon {
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  color: var(--shield-widget-good);
+  flex: 0 0 16px;
+  height: 16px;
+  position: relative;
+  width: 16px;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-actions {
-  margin-top: auto;
+#ShieldDashboardWidget .shield-dashboard-widget__all-clear-icon::before {
+  border-bottom: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  content: "";
+  height: 4px;
+  left: 3px;
+  position: absolute;
+  top: 4px;
+  transform: rotate(-45deg);
+  width: 8px;
+}
+
+#ShieldDashboardWidget .shield-dashboard-widget__footer {
+  border-top: 1px solid rgba(220, 220, 222, 0.9);
+  margin-top: 14px;
   padding-top: 10px;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .attention-action-link {
-  font-weight: 600;
-  color: #2271b1 !important;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer {
-  margin-top: 10px;
-  border-top: 1px solid #dcdcde;
-  padding-top: 8px;
-  display: flex;
+#ShieldDashboardWidget .shield-dashboard-widget__cta {
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer .footer-left {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer .footer-link {
+  color: var(--shield-widget-link) !important;
+  display: inline-flex;
   font-weight: 600;
-  color: #2271b1 !important;
+  gap: 6px;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer .scan-time {
-  color: #646970;
+#ShieldDashboardWidget .shield-dashboard-widget__cta.is-static {
+  color: var(--shield-widget-muted) !important;
 }
 
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer .footer-refresh {
-  color: #2271b1 !important;
-  font-weight: 600;
-}
-
-#ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-footer button.footer-refresh {
-  appearance: none;
+#ShieldDashboardWidget .shield-dashboard-widget__cta-arrow {
+  border-bottom: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  display: inline-block;
+  height: 7px;
+  transform: rotate(-45deg);
+  width: 7px;
 }
 
 @media (max-width: 782px) {
-  #ShieldDashboardWidget .shield-dashboard-widget-v2 .widget-main {
-    flex-direction: column;
+  #ShieldDashboardWidget .shield-dashboard-widget__body {
+    padding: 12px;
   }
 
-  #ShieldDashboardWidget .shield-dashboard-widget-v2 .score-column {
-    flex-basis: auto;
+  #ShieldDashboardWidget .shield-dashboard-widget__header {
+    flex-wrap: wrap;
+  }
+
+  #ShieldDashboardWidget .shield-dashboard-widget__count {
+    margin-left: 54px;
   }
 }
