@@ -176,7 +176,12 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 			new UnitTestActionRouter(
 				new RenderCapture(),
 				static fn( string $action, array $actionData ) :string => 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' )
-			)
+			),
+			(object)[
+				'this_req' => (object)[
+					'ip' => '127.0.0.1',
+				],
+			]
 		);
 	}
 

@@ -17,8 +17,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   status:string,
  *   stat_text:string,
  *   subnav_hint:string|null,
- *   panel_title:string,
- *   panel_status:string,
+ *   context_summary:string,
+ *   context_focus:string,
+ *   context_next_step:string,
+ *   context_badge:string,
  *   render_action:string,
  *   render_nav:string,
  *   render_subnav:string,
@@ -186,7 +188,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 				$renderAction = $subject[ 'is_enabled' ]
 					? $this->buildPanelRenderActionData( $subject )
 					: [];
-				$header = $this->buildSubjectHeader( $subject, $lookupKey );
+				$header = $this->buildSubjectHeader( $subject );
 				$this->subjectTilesCache[] = [
 					'key'               => $subject[ 'key' ],
 					'is_enabled'        => $subject[ 'is_enabled' ],
@@ -269,21 +271,17 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	 * @param SubjectDefinition $subject
 	 * @return DrillLayerHeader
 	 */
-	private function buildSubjectHeader( array $subject, string $lookupKey ) :array {
-		$nextStep = $lookupKey === ''
-			? __( 'Review tabs for activity details. Use actions to respond.', 'wp-simple-firewall' )
-			: __( 'Use the panel below to look up and explore.', 'wp-simple-firewall' );
-
+	private function buildSubjectHeader( array $subject ) :array {
 		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $subject[ 'label' ] ),
 			'active_back_label'  => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
 			'breadcrumb_label'   => $subject[ 'label' ],
 			'title'              => $subject[ 'label' ],
-			'summary'            => $nextStep,
-			'focus'              => $subject[ 'stat_text' ],
-			'next_step'          => __( 'Use the panel tabs and actions to continue the investigation.', 'wp-simple-firewall' ),
+			'summary'            => $subject[ 'context_summary' ],
+			'focus'              => $subject[ 'context_focus' ],
+			'next_step'          => $subject[ 'context_next_step' ],
 			'icon_class'         => $subject[ 'icon_class' ],
-			'badge'              => $subject[ 'stat_text' ],
+			'badge'              => $subject[ 'context_badge' ],
 			'badge_status'       => $subject[ 'status' ],
 			'color_key'          => 'investigate',
 		] );

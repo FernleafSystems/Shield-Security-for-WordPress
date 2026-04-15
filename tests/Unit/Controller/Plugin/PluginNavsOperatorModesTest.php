@@ -89,6 +89,12 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		foreach ( PluginNavs::investigateLandingSubjectDefinitions() as $subjectKey => $definition ) {
 			$subNav = $definition[ 'subnav_hint' ];
 			$this->assertIsString( $definition[ 'lookup_key' ] );
+			$this->assertArrayNotHasKey( 'panel_title', $definition );
+			$this->assertArrayNotHasKey( 'panel_status', $definition );
+			$this->assertNotSame( '', \trim( $definition[ 'context_summary' ] ) );
+			$this->assertNotSame( '', \trim( $definition[ 'context_focus' ] ) );
+			$this->assertNotSame( '', \trim( $definition[ 'context_next_step' ] ) );
+			$this->assertNotSame( '', \trim( $definition[ 'context_badge' ] ) );
 			if ( !\is_string( $subNav ) || $subNav === '' ) {
 				$this->assertSame( '', PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ) );
 				$this->assertContains( $definition[ 'render_nav' ], [

@@ -54,7 +54,8 @@ class InvestigateByIpViewBuilder {
 	 *     offcanvas_history_mode:string,
 	 *     subject_header:array{}|array{
 	 *       title:string,
-	 *       meta:string
+	 *       meta:string,
+	 *       context_step_json:string
 	 *     },
 	 *   },
 	 *   display:array{
@@ -96,10 +97,7 @@ class InvestigateByIpViewBuilder {
 				'lookup_shortcuts' => $this->buildLookupShortcuts(),
 				'offcanvas_history_mode' => '',
 				'subject_header'  => $hasSubject
-					? [
-						'title' => $lookup,
-						'meta'  => '',
-					]
+					? $this->buildSubjectHeaderContract( $lookup, '', $this->buildResolvedContextStepJson( $lookup ) )
 					: [],
 			],
 			'display' => $this->normalizeLookupDisplayContract( $display ),
@@ -129,5 +127,21 @@ class InvestigateByIpViewBuilder {
 				'bi bi-globe2'
 			),
 		];
+	}
+
+	private function buildResolvedContextStepJson( string $ip ) :string {
+		$subject = PluginNavs::investigateLandingSubjectDefinitions()[ 'ip' ];
+
+		return OperatorChromeContract::encodeJson( OperatorChromeContract::normalizeStep( [
+			'breadcrumb_label' => $ip,
+			'title'            => $ip,
+			'summary'          => __( 'Review sessions, activity, and request history for this IP address.', 'wp-simple-firewall' ),
+			'focus'            => $subject[ 'context_focus' ],
+			'next_step'        => __( 'Use the tabs to switch between sessions, activity, and recent traffic.', 'wp-simple-firewall' ),
+			'icon_class'       => $subject[ 'icon_class' ],
+			'badge'            => $subject[ 'context_badge' ],
+			'badge_status'     => $subject[ 'status' ],
+			'color_key'        => PluginNavs::MODE_INVESTIGATE,
+		] ) );
 	}
 }

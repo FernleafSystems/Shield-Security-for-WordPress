@@ -7,7 +7,8 @@
 		{% include '/wpadmin/components/investigate/subject_header.twig' with {
 			title: vars.subject_header.title,
 			meta: vars.subject_header.meta,
-			change_label: change_label
+			change_label: change_label,
+			context_step_json: vars.subject_header.context_step_json
 		} only %}
 	{% endif %}
 	{% if show_lookup_with_subject %}

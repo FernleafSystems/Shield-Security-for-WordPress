@@ -1,15 +1,14 @@
-{% set header_title = title|default('') %}
-{% set header_meta = meta|default('') %}
-{% set change_label = change_label|default('') %}
-
 <div class="investigate-subject-header"
 	 data-investigate-subject-header="1"
-	 data-investigate-breadcrumb-label="{{ header_title|e('html_attr') }}">
+	 data-investigate-breadcrumb-label="{{ title|e('html_attr') }}"
+	 {% if context_step_json is not empty %}
+	 data-investigate-context-step="{{ context_step_json|e('html_attr') }}"
+	 {% endif %}>
 	<div class="d-flex align-items-start flex-wrap gap-2">
 		<div>
-			<div class="investigate-subject-header__title" data-investigate-subject-title="1">{{ header_title }}</div>
-			{% if header_meta is not empty %}
-				<div class="investigate-subject-header__meta">{{ header_meta }}</div>
+			<div class="investigate-subject-header__title" data-investigate-subject-title="1">{{ title }}</div>
+			{% if meta is not empty %}
+				<div class="investigate-subject-header__meta">{{ meta }}</div>
 			{% endif %}
 		</div>
 		{% if change_label is not empty %}

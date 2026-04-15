@@ -85,6 +85,15 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( '/admin/activity/by_ip', $renderData[ 'hrefs' ][ 'by_ip' ] );
 		$this->assertSame( '203.0.113.88', $renderData[ 'vars' ][ 'analyse_ip' ] );
 		$this->assertSame( '203.0.113.88', $renderData[ 'vars' ][ 'subject_header' ][ 'title' ] );
+		$contextStep = \json_decode( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ], true );
+		$this->assertSame( '203.0.113.88', $contextStep[ 'title' ] ?? '' );
+		$this->assertSame( '203.0.113.88', $contextStep[ 'breadcrumb_label' ] ?? '' );
+		$this->assertSame( 'Review sessions, activity, and request history for this IP address.', $contextStep[ 'summary' ] ?? '' );
+		$this->assertSame( 'Requests, activity logs, and sessions tied to one IP address.', $contextStep[ 'focus' ] ?? '' );
+		$this->assertSame( 'Use the tabs to switch between sessions, activity, and recent traffic.', $contextStep[ 'next_step' ] ?? '' );
+		$this->assertSame( 'IP activity', $contextStep[ 'badge' ] ?? '' );
+		$this->assertSame( 'info', $contextStep[ 'badge_status' ] ?? '' );
+		$this->assertSame( 'investigate', $contextStep[ 'color_key' ] ?? '' );
 		$this->assertNotSame( '', $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' );
 		$this->assertSame( '', $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' );
 		$shortcut = $renderData[ 'vars' ][ 'lookup_shortcuts' ][ 0 ] ?? [];

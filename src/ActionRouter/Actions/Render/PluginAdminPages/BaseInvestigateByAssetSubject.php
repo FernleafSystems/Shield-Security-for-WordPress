@@ -51,10 +51,10 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				),
 			];
 			$overviewRows = $this->buildOverviewRows( $assetData, $vulnerabilities );
-			$subjectHeader = [
-				'title' => (string)( $assetData[ 'info' ][ 'name' ] ?? '' ),
-				'meta'  => (string)( $assetData[ 'info' ][ 'version' ] ?? '' ),
-			];
+			$subjectHeader = $this->buildSubjectHeaderContract(
+				(string)( $assetData[ 'info' ][ 'name' ] ?? '' ),
+				(string)( $assetData[ 'info' ][ 'version' ] ?? '' )
+			);
 		}
 
 		return [

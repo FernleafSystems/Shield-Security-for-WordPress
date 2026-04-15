@@ -71,10 +71,10 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			);
 			$railNavItems = $this->buildRailNavItems( $summaryStats );
 			$tables = $this->buildTableContractsForUser( $subject->ID );
-			$subjectHeader = [
-				'title' => (string)$subject->user_login,
-				'meta'  => empty( $subject->user_email ) ? '' : (string)$subject->user_email,
-			];
+			$subjectHeader = $this->buildSubjectHeaderContract(
+				(string)$subject->user_login,
+				empty( $subject->user_email ) ? '' : (string)$subject->user_email
+			);
 		}
 
 		return [

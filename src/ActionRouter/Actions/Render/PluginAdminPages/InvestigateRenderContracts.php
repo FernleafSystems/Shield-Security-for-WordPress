@@ -40,6 +40,11 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   show_lookup_with_subject:bool,
  *   change_label:string
  * }
+ * @phpstan-type SubjectHeaderContract array{
+ *   title:string,
+ *   meta:string,
+ *   context_step_json:string
+ * }
  * @phpstan-type InvestigationTableContract array{
  *   title:string,
  *   status:string,
@@ -149,6 +154,17 @@ trait InvestigateRenderContracts {
 
 	protected function buildLookupAjaxAttrValue( array $lookupAjax ) :string {
 		return $this->buildJsonAttrValue( $lookupAjax );
+	}
+
+	/**
+	 * @return SubjectHeaderContract
+	 */
+	protected function buildSubjectHeaderContract( string $title, string $meta = '', string $contextStepJson = '' ) :array {
+		return [
+			'title'             => $title,
+			'meta'              => $meta,
+			'context_step_json' => $contextStepJson,
+		];
 	}
 
 	/**

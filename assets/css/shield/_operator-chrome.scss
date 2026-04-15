@@ -251,14 +251,16 @@
 }
 
 .operator-context-rail__title-wrap {
+	flex: 1 1 auto;
 	min-width: 0;
 }
 
 .operator-context-rail__title-row {
 	align-items: center;
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	gap: 0.45rem;
+	min-width: 0;
 }
 
 .operator-context-rail__title {
@@ -267,6 +269,12 @@
 	font-weight: 700;
 	line-height: 1.25;
 	margin: 0;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.operator-context-rail__title-row .shield-badge {
+	flex-shrink: 0;
 }
 
 .operator-context-rail__summary {

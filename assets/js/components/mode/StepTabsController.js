@@ -486,6 +486,18 @@ export class StepTabsController extends BaseAutoExecComponent {
 			return null;
 		}
 
+		const resolvedContextStep = this.readInvestigateResolvedContextStep( panel );
+		if ( resolvedContextStep !== null ) {
+			return {
+				...genericStep,
+				...resolvedContextStep,
+				label: resolvedContextStep.label || resolvedLabel,
+				title: resolvedContextStep.title || resolvedLabel,
+				target: null,
+				isCurrent: true,
+			};
+		}
+
 		return {
 			...genericStep,
 			label: resolvedLabel,
@@ -556,10 +568,30 @@ export class StepTabsController extends BaseAutoExecComponent {
 	}
 
 	readInvestigateResolvedLabel( panel ) {
-		const subjectHeader = panel.querySelector( '[data-investigate-subject-header="1"]' );
+		const subjectHeader = this.getInvestigateSubjectHeader( panel );
 		return subjectHeader instanceof HTMLElement
 			? String( subjectHeader.dataset.investigateBreadcrumbLabel || '' ).trim()
 			: '';
+	}
+
+	readInvestigateResolvedContextStep( panel ) {
+		const subjectHeader = this.getInvestigateSubjectHeader( panel );
+		if ( !( subjectHeader instanceof HTMLElement ) ) {
+			return null;
+		}
+
+		const resolvedStep = this.buildVisualStep(
+			this.readStepData( subjectHeader.dataset.investigateContextStep ),
+			null,
+			true
+		);
+		return resolvedStep.label.length > 0 || resolvedStep.title.length > 0
+			? resolvedStep
+			: null;
+	}
+
+	getInvestigateSubjectHeader( panel ) {
+		return panel.querySelector( '[data-investigate-subject-header="1"]' );
 	}
 
 	getOperatorShellForElement( element ) {

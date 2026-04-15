@@ -265,6 +265,22 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
 
+	const rail = page.locator( '[data-operator-context-rail="1"]' );
+	const railTitle = rail.locator( '.operator-context-rail__title' );
+	const railBadge = rail.locator( '.operator-context-rail__title-row .shield-badge' );
+	await expect( railTitle ).toHaveText( '203.0.113.88' );
+	await expect( railBadge ).toHaveText( 'IP activity' );
+	await expect( rail.locator( '.operator-context-rail__summary' ) ).toHaveText(
+		'Review sessions, activity, and request history for this IP address.'
+	);
+	await expect( rail ).not.toContainText( 'Use the panel below to look up and explore.' );
+	await expect( rail ).not.toContainText( 'Use the panel tabs and actions to continue the investigation.' );
+	const titleBox = await railTitle.boundingBox();
+	const badgeBox = await railBadge.boundingBox();
+	expect( titleBox ).not.toBeNull();
+	expect( badgeBox ).not.toBeNull();
+	expect( Math.abs( ( titleBox?.y || 0 ) - ( badgeBox?.y || 0 ) ) ).toBeLessThan( 8 );
+
 	await Promise.all( [
 		page.waitForURL(
 			( url ) => url.searchParams.get( 'subject' ) === 'ip'

@@ -199,6 +199,28 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_subject_header_contract_always_includes_context_step_json() :void {
+		$subject = new InvestigateRenderContractsTestDouble();
+
+		$this->assertSame(
+			[
+				'title'             => 'operator',
+				'meta'              => 'operator@example.com',
+				'context_step_json' => '',
+			],
+			$subject->subjectHeader( 'operator', 'operator@example.com' )
+		);
+
+		$this->assertSame(
+			[
+				'title'             => '203.0.113.88',
+				'meta'              => '',
+				'context_step_json' => '{"title":"203.0.113.88"}',
+			],
+			$subject->subjectHeader( '203.0.113.88', '', '{"title":"203.0.113.88"}' )
+		);
+	}
+
 	public function test_controller_backed_route_helpers_build_expected_contracts() :void {
 		$subject = new InvestigateRenderContractsTestDouble();
 
@@ -300,6 +322,10 @@ class InvestigateRenderContractsTestDouble {
 
 	public function lookupAjaxAttr( array $lookupAjax ) :string {
 		return $this->buildLookupAjaxAttrValue( $lookupAjax );
+	}
+
+	public function subjectHeader( string $title, string $meta = '', string $contextStepJson = '' ) :array {
+		return $this->buildSubjectHeaderContract( $title, $meta, $contextStepJson );
 	}
 
 	public function withEmptyState( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
