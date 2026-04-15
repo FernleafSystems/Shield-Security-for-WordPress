@@ -16,7 +16,7 @@
 		</a>
 	{% endif %}
 
-	<div class="shield-mode-selector">
+	<div class="shield-mode-selector" data-shield-tour="sidebar-menu">
 		{% for mode_item in sidebar.mode_items|default([]) %}
 			<a href="{{ mode_item.href|default('#') }}"
 			   class="mode-item {{ mode_item.active|default(false) ? 'active' : '' }} {{ mode_item.classes|default([])|join(' ') }}"
@@ -25,13 +25,6 @@
 			   {% for data_key,data_val in mode_item.data|default([]) %}
 				   data-{{ data_key }}="{{ data_val }}"
 			   {% endfor %}
-			   {% if mode_item.introjs|default([]) is not empty %}
-				   {% if mode_item.introjs.title|default('') is not empty %}
-					   data-introtitle="{{ mode_item.introjs.title }}"
-				   {% endif %}
-				   data-intro="{{ mode_item.introjs.body|default('') }}"
-				   data-introposition="right"
-			   {% endif %}
 			>
 				<span class="mode-icon"><i class="{{ mode_item.img|default('') }}" aria-hidden="true"></i></span>
 				<span class="mode-label">{{ mode_item.title }}</span>

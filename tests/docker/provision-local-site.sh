@@ -66,8 +66,6 @@ if [ "${SITE_PROFILE}" = "test" ]; then
 		}
 
 		$now = time();
-		$all[ "values" ][ "free" ][ "v20_intro_closed_at" ] = $now;
-		$all[ "values" ][ "pro" ][ "v20_intro_closed_at" ] = $now;
 		update_option( $optionName, $all );
 
 		$adminUser = get_user_by( "login", getenv( "SHIELD_LOCAL_SITE_ADMIN_USER" ) ?: "admin" );
@@ -82,7 +80,7 @@ if [ "${SITE_PROFILE}" = "test" ]; then
 				if ( !is_array( $userMeta ) ) {
 					$userMeta = [];
 				}
-				$userMeta[ "tours" ] = [ "navigation_v1" => $now ];
+				$userMeta[ "tours" ] = [ "dashboard_v1" => $now ];
 				update_user_meta( (int)$adminUser->ID, $metaKey, $userMeta );
 			}
 		}

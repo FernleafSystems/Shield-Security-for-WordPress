@@ -388,15 +388,7 @@ class NavMenuBuilder {
 			'target'    => '',
 			'data'      => [],
 			'badge'     => [],
-			'introjs'   => [],
 		], $item );
-
-		if ( !empty( $item[ 'introjs' ] ) ) {
-			$item[ 'classes' ][] = 'tour-'.$this->getIntroJsTourID();
-			if ( empty( $item[ 'introjs' ][ 'title' ] ) ) {
-				$item[ 'introjs' ][ 'title' ] = $item[ 'title' ];
-			}
-		}
 
 		if ( empty( $item[ 'sub_items' ] ) ) {
 			$item[ 'classes' ][] = 'body_content_link';
@@ -436,10 +428,6 @@ class NavMenuBuilder {
 
 		$item[ 'classes' ] = \array_values( \array_unique( \array_filter( $item[ 'classes' ] ) ) );
 		return $item;
-	}
-
-	private function getIntroJsTourID() :string {
-		return 'navigation_v1';
 	}
 
 	private function resolveCurrentMode() :string {

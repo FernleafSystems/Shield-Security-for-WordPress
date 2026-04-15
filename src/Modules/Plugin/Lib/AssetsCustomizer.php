@@ -300,17 +300,7 @@ class AssetsCustomizer {
 				'handles'  => [
 					'main',
 				],
-				'data'     => fn() => [
-					'ajax'  => [
-						Components\Modals\IntroVideoModal::SLUG     => ActionData::Build( Components\Modals\IntroVideoModal::class ),
-						Actions\SetFlagShieldIntroVideoClosed::SLUG => ActionData::Build( Actions\SetFlagShieldIntroVideoClosed::class ),
-					],
-					'flags' => [
-						'show_video' => $con->comps->sec_admin->isCurrentlySecAdmin()
-										&& $con->opts->optGet( 'v20_intro_closed_at' ) === 0
-										&& $con->opts->optGet( 'installation_time' ) < 1721722000
-					],
-				],
+				'data'     => [],
 			],
 			'mod_options'      => [
 				'key'     => 'mod_options',
@@ -600,8 +590,7 @@ class AssetsCustomizer {
 							'finished' => ActionData::Build( Actions\PluginMarkTourFinished::class ),
 						],
 						'vars' => [
-							'tours'  => $tourManager->getAllTours(),
-							'states' => $tourManager->getStates(),
+							'tour' => $tourManager->getTour(),
 						]
 					];
 				},

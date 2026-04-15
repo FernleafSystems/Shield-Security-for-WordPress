@@ -3102,12 +3102,6 @@
         "default": []
     },
     {
-        "key": "v20_intro_closed_at",
-        "section": "section_hidden",
-        "type": "integer",
-        "default": 0
-    },
-    {
         "key": "dismissed_notices",
         "section": "section_hidden",
         "type": "array",

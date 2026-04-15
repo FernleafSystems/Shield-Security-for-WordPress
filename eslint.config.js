@@ -5,6 +5,8 @@ module.exports = [
 		files: [
 			'assets/js/util/ObjectOps.js',
 			'assets/js/components/services/AjaxBatchService.js',
+			'assets/js/components/general/MiscHooks.js',
+			'assets/js/components/general/Tours.js',
 			'assets/js/components/tables/ActivityLogMetaPopover.js',
 			'assets/js/components/tables/InvestigationTable.js',
 			'assets/js/components/tables/ShieldTableActivityLog.js',

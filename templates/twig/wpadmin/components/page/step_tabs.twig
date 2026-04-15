@@ -1,14 +1,11 @@
 {% import "/common/macros.twig" as icwp_macros %}
 
-<div class="operator-step-tabs" data-operator-step-tabs="1">
+<div class="operator-step-tabs" data-operator-step-tabs="1" data-shield-tour="breadcrumbs">
 	<div class="operator-step-tabs__list" data-operator-step-tabs-list="1"></div>
 
 	{% if hrefs.inner_page_contextual_hrefs|default([]) is not empty %}
 		<div class="operator-step-tabs__actions">
-			<div class="btn-group dropstart tour-navigation_v1"
-				 data-introtitle="Action Menu"
-				 data-introposition="left"
-				 data-intro="Certain pages have their own specific actions. Use this menu for shortcuts to useful tools and options.">
+			<div class="btn-group dropstart">
 				<button type="button"
 						class="btn btn-link dropdown-toggle page-action-menu-toggle"
 						data-bs-toggle="dropdown"

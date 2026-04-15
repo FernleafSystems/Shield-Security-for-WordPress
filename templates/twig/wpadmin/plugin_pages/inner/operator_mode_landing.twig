@@ -11,6 +11,7 @@
 		<a href="{{ featured_lane.href }}"
 		   class="operator-mode-landing__featured shield-card{{ featured_lane.extra_classes }}"
 		   data-mode="{{ featured_lane.mode }}"
+		   data-shield-tour="dashboard-actions"
 		   aria-label="{{ featured_lane.label }}">
 			<div class="shield-card-accent status-{{ featured_lane.indicator_severity }}"></div>
 			<div class="operator-mode-landing__featured-body">
@@ -32,7 +33,7 @@
 				{% endif %}
 
 				{% if vars.actions_queue_rows is not empty %}
-					<div class="operator-mode-landing__queue-list shield-stack-detail-list">
+					<div class="operator-mode-landing__queue-list shield-stack-detail-list" data-shield-tour="dashboard-queue">
 						{% for row in vars.actions_queue_rows %}
 							<div class="operator-mode-landing__queue-row shield-stack-detail-row is-{{ row.severity }}">
 								<span class="operator-mode-landing__queue-icon" aria-hidden="true">
@@ -61,6 +62,7 @@
 				<a href="{{ lane.href }}"
 				   class="operator-mode-landing__side-card shield-card"
 				   data-mode="{{ lane.mode }}"
+				   data-shield-tour="dashboard-{{ lane.mode|e('html_attr') }}"
 				   aria-label="{{ lane.label }}">
 					<div class="shield-card-accent status-{{ lane.edge_status }}"></div>
 					<div class="operator-mode-landing__side-body">
