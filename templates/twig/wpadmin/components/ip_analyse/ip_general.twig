@@ -1,120 +1,194 @@
-<div class="row">
+<div style="overflow-x:auto">
+	<div style="min-width:720px">
+		<div style="display:grid; grid-template-columns:240px minmax(0,1fr)">
+			<div style="border-right:1px solid #eaecee; padding:1.25rem 1.125rem; display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:1rem; text-align:center">
+				<div style="display:flex; flex-direction:column; align-items:center">
+					<div style="width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid; font-size:1.75rem; margin-bottom:.65rem; color:{{ vars.overview.verdict_color }}; border-color:{{ vars.overview.verdict_border_color }}; background:{{ vars.overview.verdict_background_color }}">
+						<i class="bi {{ vars.overview.verdict_icon_class }}"></i>
+					</div>
+					<div class="text-{{ vars.overview.verdict_text_class }}" style="font-size:1rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase">
+						{{ vars.overview.verdict_label }}
+					</div>
+					<div style="font-size:.7rem; color:#5f6974">{{ vars.ip }}</div>
+				</div>
 
-	<div class="col">
-		<h5 class="mb-3">{{ strings.title_status }}</h5>
+				<div style="width:100%">
+					<div style="display:flex; align-items:flex-end; justify-content:center; gap:.75rem; width:100%">
+						<div class="text-{{ vars.overview.score_text_class }}" style="font-family:monospace; font-size:2.25rem; font-weight:900; line-height:1">
+							{{ vars.overview.score_label }}
+						</div>
+						<div style="display:flex; flex-direction:column; align-items:flex-start; padding-bottom:3px">
+							<span style="font-size:.67rem; color:#5f6974; text-transform:uppercase; letter-spacing:.04em">{{ strings.signal_score }}</span>
+							<span class="text-{{ vars.overview.bot_risk_text_class }}" style="font-size:.8rem; font-weight:700">{{ vars.overview.bot_risk_label }} {{ strings.bot_risk }}</span>
+						</div>
+					</div>
 
-		<dl>
-			<dt class="mb-1">{{ strings.status.offenses }}</dt>
-			<dd>
-				<p>
-					<span class="bigger-badge badge bg-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}">
-						{{ vars.status.offenses }}
-					</span>
-					{% if vars.status.offenses > 0 %}
-						<a href="#" class="ms-2 text-primary ip_analyse_action"
-						   data-ip_action="reset_offenses" data-ip="{{ vars.ip }}">{{ strings.reset_offenses }}</a>
+					<div style="width:100%; margin-top:.65rem">
+						<div style="display:flex; justify-content:space-between; font-size:.68rem; color:#5f6974; margin-bottom:3px">
+							<span>{{ strings.human }}</span>
+							<span>{{ strings.bot }}</span>
+						</div>
+						<div style="position:relative; height:8px; border-radius:4px; background:#e9ecef; overflow:hidden">
+							<div class="bg-{{ vars.overview.risk_bar.fill_class }}" style="position:absolute; top:0; bottom:0; left:{{ vars.overview.risk_bar.fill_left_percent }}%; width:{{ vars.overview.risk_bar.fill_width_percent }}%"></div>
+							<div style="position:absolute; top:-2px; bottom:-2px; left:{{ vars.overview.risk_bar.threshold_percent }}%; width:2px; margin-left:-1px; background:#5f6974"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div style="padding:1.125rem">
+				<h6 style="font-size:.82rem; font-weight:700; color:#1d2327; margin-bottom:.75rem">
+					{{ strings.title_signals }}
+					<span class="badge rounded-pill bg-secondary ms-1" style="font-size:.67rem; vertical-align:middle">{{ vars.signals.total }}</span>
+				</h6>
+				<div class="row g-3">
+					<div class="col-6">
+						<div style="font-size:.75rem; font-weight:700; color:#008000; border-bottom:2px solid #008000; padding-bottom:.35rem; margin-bottom:.35rem; display:flex; justify-content:space-between">
+							<span><i class="bi bi-check-circle-fill me-1"></i>{{ strings.human_indicators }}</span>
+							<span>{{ vars.signals.positive.count }}</span>
+						</div>
+						{% for signal in vars.signals.positive.rows %}
+							<div style="display:flex; align-items:center; gap:.4rem; padding:.28rem 0; border-bottom:1px solid #f5f6f5; font-size:.79rem">
+								<i class="bi bi-check-circle-fill text-success" style="font-size:.72rem; flex-shrink:0"></i>
+								<span style="flex:1">{{ signal.name }}</span>
+								<span style="font-size:.62rem; color:#5f6974">{{ signal.when }}</span>
+								<span style="font-family:monospace; font-weight:700; font-size:.72rem; padding:.1rem .4rem; border-radius:4px; background:#e6f5e6; color:#006400; white-space:nowrap">{{ signal.score_label }}</span>
+							</div>
+						{% else %}
+							<div style="font-size:.79rem; color:#5f6974; padding:.28rem 0">{{ strings.none_recorded }}</div>
+						{% endfor %}
+						<div class="text-success" style="font-size:.75rem; font-weight:600; padding-top:.35rem">
+							{{ strings.total }}: {{ vars.signals.positive.total_label }}
+						</div>
+					</div>
+					<div class="col-6">
+						<div style="font-size:.75rem; font-weight:700; color:#c62f3e; border-bottom:2px solid #c62f3e; padding-bottom:.35rem; margin-bottom:.35rem; display:flex; justify-content:space-between">
+							<span><i class="bi bi-x-circle-fill me-1"></i>{{ strings.bot_indicators }}</span>
+							<span>{{ vars.signals.negative.count }}</span>
+						</div>
+						{% for signal in vars.signals.negative.rows %}
+							<div style="display:flex; align-items:center; gap:.4rem; padding:.28rem 0; border-bottom:1px solid #f5f6f5; font-size:.79rem">
+								<i class="bi bi-x-circle-fill text-danger" style="font-size:.72rem; flex-shrink:0"></i>
+								<span style="flex:1">{{ signal.name }}</span>
+								<span style="font-size:.62rem; color:#5f6974">{{ signal.when }}</span>
+								<span style="font-family:monospace; font-weight:700; font-size:.72rem; padding:.1rem .4rem; border-radius:4px; background:#fdeaec; color:#c62f3e; white-space:nowrap">{{ signal.score_label }}</span>
+							</div>
+						{% else %}
+							<div style="font-size:.79rem; color:#5f6974; padding:.28rem 0">{{ strings.none_recorded }}</div>
+						{% endfor %}
+						<div class="text-danger" style="font-size:.75rem; font-weight:600; padding-top:.35rem">
+							{{ strings.total }}: {{ vars.signals.negative.total_label }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<hr style="margin:0; border-color:#d9dfd9; border-width:1px 0 0 0">
+
+		<div style="display:grid; grid-template-columns:1fr 1fr auto; background:#fafbfa">
+			<div style="padding:1rem 1.125rem">
+				<div style="font-size:.72rem; font-weight:700; color:#5f6974; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.65rem">{{ strings.title_security }}</div>
+
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi {{ vars.status.is_blocked ? 'bi-lock-fill text-danger' : 'bi-unlock text-success' }}" style="width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.status.is_blocked }}</span>
+					{% if vars.status.is_blocked %}
+						<a href="#" class="text-primary ip_analyse_action" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.unblock_ip }}</a>
+					{% elseif not vars.status.is_bypass %}
+						<a href="#" class="text-primary ip_analyse_action" data-ip_action="block" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.block_ip }}</a>
 					{% endif %}
-				</p>
-			</dd>
-
-			<dt class="mb-1">{{ strings.status.is_blocked }}</dt>
-			<dd>
-				<p>
-					<span class="bigger-badge badge bg-{{ vars.status.is_blocked ? 'danger' : 'success' }}">
+					<span class="badge bg-{{ vars.status.is_blocked ? 'danger' : 'success' }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">
 						{{ vars.status.is_blocked ? strings.status.block_type : strings.no }}
 					</span>
-					{% if vars.status.is_blocked %}
-						<a href="#" class="ms-2 text-primary ip_analyse_action"
-						   data-ip_action="unblock" data-ip="{{ vars.ip }}">{{ strings.unblock_ip }}</a>
-					{% elseif not vars.status.is_bypass %}
-						<a href="#" class="ms-2 text-primary ip_analyse_action"
-						   data-ip_action="block" data-ip="{{ vars.ip }}">{{ strings.block_ip }}</a>
+				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi bi-check-square" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.status.is_bypass }}</span>
+					{% if vars.status.is_bypass %}
+						<a href="#" class="text-primary ip_analyse_action" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.unbypass_ip }}</a>
+					{% else %}
+						<a href="#" class="text-primary ip_analyse_action" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.bypass_ip }}</a>
 					{% endif %}
-				</p>
-			</dd>
-
-			<dt class="mb-1">{{ strings.status.is_bypass }}</dt>
-			<dd>
-				<p>
-					<span class="bigger-badge badge bg-{{ vars.status.is_bypass ? 'warning' : 'success' }}">
+					<span class="badge bg-{{ vars.status.is_bypass ? 'warning text-dark' : 'success' }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">
 						{{ vars.status.is_bypass ? strings.yes : strings.no }}
 					</span>
-					{% if vars.status.is_bypass %}
-						<a href="#" class="ms-2 text-primary ip_analyse_action"
-						   data-ip_action="unbypass" data-ip="{{ vars.ip }}">{{ strings.unbypass_ip }}</a>
-					{% else %}
-						<a href="#" class="ms-2 text-primary ip_analyse_action"
-						   data-ip_action="bypass" data-ip="{{ vars.ip }}">{{ strings.bypass_ip }}</a>
+				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi bi-exclamation-triangle-fill text-warning" style="width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.status.offenses }}</span>
+					{% if vars.status.offenses > 0 %}
+						<a href="#" class="text-primary ip_analyse_action" data-ip_action="reset_offenses" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.reset_offenses }}</a>
 					{% endif %}
-				</p>
-			</dd>
-
-			<dt class="mb-1">{{ strings.status.ip_reputation }}</dt>
-			<dd>
-				<p>
-					<span class="bigger-badge badge bg-{{ vars.status.is_bot ? 'warning' : 'success' }}">
-						{{ vars.status.ip_reputation_score }}
+					<span class="badge bg-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">
+						{{ vars.status.offenses > 0 ? vars.status.offenses : strings.no }}
 					</span>
-					<a href="#" class="ms-2 text-primary ip_analyse_action"
-					   data-ip_action="delete_notbot" data-ip="{{ vars.ip }}">{{ strings.delete_notbot }}</a>
-				</p>
-			</dd>
+				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:none; font-size:.81rem">
+					<i class="bi bi-shield-fill" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.status.ip_reputation }}</span>
+					<a href="#" class="text-primary ip_analyse_action" data-ip_action="delete_notbot" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.delete_notbot }}</a>
+					<span class="badge bg-{{ vars.overview.local_reputation_badge_class }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">{{ vars.overview.bot_risk_label }}</span>
+				</div>
+			</div>
 
-			<dt class="mb-1">{{ strings.status.snapi_ip_reputation }}</dt>
-			<dd>
-				<p>
-					<span class="bigger-badge badge bg-{{ vars.status.is_bot ? 'warning' : 'success' }}">
-						{{ vars.status.snapi_reputation_score }}
-					</span>
-					<a href="{{ hrefs.snapi_reputation_details }}"
-					   target="_blank"
-					   class="ms-2 text-primary"
-					>{{ strings.see_details }}</a>
-				</p>
-			</dd>
-		</dl>
+			<div style="padding:1rem 1.125rem; border-left:1px solid #e9ecee">
+				<div style="font-size:.72rem; font-weight:700; color:#5f6974; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.65rem">{{ strings.title_identity }}</div>
+
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi bi-cloud-check" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.status.snapi_ip_reputation }}</span>
+					<a href="{{ hrefs.snapi_reputation_details }}" target="_blank" class="text-primary" style="font-size:.75rem; white-space:nowrap">{{ strings.see_details }}</a>
+					<span class="badge bg-{{ vars.overview.shieldnet_reputation_badge_class }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">{{ vars.status.snapi_reputation_score }}</span>
+				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi bi-globe2" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.identity.country }}</span>
+					<span style="font-weight:500; color:#1d2327">{{ vars.identity.country_name }}</span>
+				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi bi-arrow-repeat" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.identity.rdns }}</span>
+					<span title="{{ vars.identity.rdns }}" style="font-size:.8rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500; color:#1d2327">{{ vars.identity.rdns }}</span>
+				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:1px solid #f0f1f0; font-size:.81rem">
+					<i class="bi bi-person-badge" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.identity.who_is_it }}</span>
+					<span style="font-weight:500; color:#1d2327">{{ vars.identity.who_is_it }}</span>
+				</div>
+				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:none; font-size:.81rem">
+					<i class="bi bi-box-arrow-up-right" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
+					<span style="flex:1; color:#5f6974">{{ strings.extras.ip_whois }}</span>
+					<a href="{{ vars.extras.ip_whois }}" target="_blank" class="text-primary" style="font-size:.75rem; white-space:nowrap">{{ strings.extras.query_ip_whois }}</a>
+				</div>
+			</div>
+
+			<div style="padding:1rem 1.125rem; border-left:1px solid #e9ecee; background:#f5f6f5; min-width:190px; display:flex; flex-direction:column">
+				<div style="font-size:.72rem; font-weight:700; color:#5f6974; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.65rem">{{ strings.title_actions }}</div>
+				<div style="display:flex; flex-direction:column; gap:.4rem">
+					{% if vars.status.is_blocked %}
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+							<i class="bi bi-unlock"></i>{{ strings.unblock_ip }}
+						</a>
+					{% elseif not vars.status.is_bypass %}
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="block" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+							<i class="bi bi-lock"></i>{{ strings.block_ip }}
+						</a>
+					{% endif %}
+					{% if vars.status.is_bypass %}
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+							<i class="bi bi-x-square"></i>{{ strings.unbypass_ip }}
+						</a>
+					{% else %}
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+							<i class="bi bi-check-square"></i>{{ strings.bypass_ip }}
+						</a>
+					{% endif %}
+					<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="delete_notbot" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem; opacity:.8">
+						<i class="bi bi-arrow-counterclockwise"></i>{{ strings.delete_notbot }}
+					</a>
+				</div>
+			</div>
+		</div>
 	</div>
-
-	<div class="col">
-		<h5 class="mb-3">{{ strings.title_general }}</h5>
-
-		<dl>
-			<dt>{{ strings.identity.who_is_it }}</dt>
-			<dd>
-				<p>{{ vars.identity.who_is_it }}</p>
-			</dd>
-
-			<dt>{{ strings.identity.rdns }}</dt>
-			<dd>
-				<p>{{ vars.identity.rdns }}</p>
-			</dd>
-
-			<dt>{{ strings.identity.country }}
-{#				({{ strings.identity.timezone }})#}
-			</dt>
-			<dd>
-				<p>
-					{{ vars.identity.country_name }}
-{#					({{ vars.identity.timezone }})#}
-				</p>
-			</dd>
-
-{#			<dt>{{ strings.identity.coordinates }}</dt>#}
-{#			<dd>#}
-{#				<p>{{ vars.identity.coordinates }}</p>#}
-{#			</dd>#}
-		</dl>
-	</div>
-
-	<div class="col">
-		<h5 class="mb-3">{{ strings.extras.title }}</h5>
-
-		<dl>
-			<dt>{{ strings.extras.ip_whois }}</dt>
-			<dd>
-				<p><a href="{{ vars.extras.ip_whois }}" target="_blank">{{ strings.extras.query_ip_whois }}</a></p>
-			</dd>
-		</dl>
-	</div>
-
 </div>

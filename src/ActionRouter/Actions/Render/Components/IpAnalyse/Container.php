@@ -18,9 +18,6 @@ class Container extends Base {
 				'general'  => $actionRouter->render( General::class, [
 					'ip' => $ip,
 				] ),
-				'signals'  => $actionRouter->render( BotSignals::class, [
-					'ip' => $ip,
-				] ),
 				'sessions' => $actionRouter->render( Sessions::class, [
 					'ip' => $ip,
 				] ),
@@ -32,15 +29,10 @@ class Container extends Base {
 				] ),
 			],
 			'strings' => [
-				'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
-				'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
 				'nav_general'  => __( 'Overview', 'wp-simple-firewall' ),
 				'nav_sessions' => CommonDisplayStrings::get( 'user_sessions_label' ),
 				'nav_audit'    => __( 'Activity Log', 'wp-simple-firewall' ),
 				'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'ip' => $ip,
 			],
 		];
 	}

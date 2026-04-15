@@ -10,23 +10,43 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\Container;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\ContainerRenderer;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\{
+	Activity,
+	BotSignals,
+	General,
+	Sessions,
+	Traffic
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestIpUtils
+};
 
 class IpAnalyseContainerRendererTest extends BaseUnitTest {
 
 	private object $capture;
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_ip' => new UnitTestIpUtils(),
+		] );
 		$this->installControllerStub();
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -43,10 +63,40 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_container_excludes_bot_signals_tab_content() :void {
+		$container = new class( [
+			'ip' => '198.51.100.20',
+		] ) extends Container {
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+		};
+
+		$data = $container->exposeRenderData();
+
+		$this->assertArrayHasKey( 'general', $data[ 'content' ] );
+		$this->assertArrayHasKey( 'sessions', $data[ 'content' ] );
+		$this->assertArrayHasKey( 'activity', $data[ 'content' ] );
+		$this->assertArrayHasKey( 'traffic', $data[ 'content' ] );
+		$this->assertArrayNotHasKey( 'signals', $data[ 'content' ] );
+		$this->assertArrayNotHasKey( 'nav_signals', $data[ 'strings' ] );
+		$this->assertSame(
+			[
+				General::class,
+				Sessions::class,
+				Activity::class,
+				Traffic::class,
+			],
+			\array_column( $this->capture->renders, 'action' )
+		);
+		$this->assertNotContains( BotSignals::class, \array_column( $this->capture->renders, 'action' ) );
+	}
+
 	private function installControllerStub() :void {
 		$this->capture = (object)[
 			'action'     => '',
 			'actionData' => [],
+			'renders'    => [],
 		];
 
 		/** @var Controller $controller */
@@ -61,6 +111,10 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 			public function render( string $action, array $actionData = [] ) :string {
 				$this->capture->action = $action;
 				$this->capture->actionData = $actionData;
+				$this->capture->renders[] = [
+					'action'     => $action,
+					'actionData' => $actionData,
+				];
 				return 'rendered-ipanalyse-container';
 			}
 		};

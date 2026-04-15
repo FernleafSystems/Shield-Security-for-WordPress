@@ -10,13 +10,6 @@
 			is_focus: true
 		},
 		{
-			target: '#' ~ tab_id_prefix ~ '-signals',
-			id: tab_nav_prefix ~ '-signals',
-			controls: tab_id_prefix ~ '-signals',
-			label: strings.nav_signals,
-			is_focus: false
-		},
-		{
 			target: '#' ~ tab_id_prefix ~ '-sessions',
 			id: tab_nav_prefix ~ '-sessions',
 			controls: tab_id_prefix ~ '-sessions',
@@ -55,17 +48,8 @@
 						 role="tabpanel"
 						 aria-labelledby="{{ tab_nav_prefix }}-general">
 					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.general|default('no content')|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="{{ tab_id_prefix }}-signals"
-						 role="tabpanel"
-						 aria-labelledby="{{ tab_nav_prefix }}-signals">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.signals|default('no content')|raw }}
+					<div class="shield-options-panel-body p-0">
+						{{ content.general|raw }}
 					</div>
 				</section>
 				<section class="tab-pane shield-options-panel"
@@ -74,7 +58,7 @@
 						 aria-labelledby="{{ tab_nav_prefix }}-sessions">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
-						{{ content.sessions|default('no content')|raw }}
+						{{ content.sessions|raw }}
 					</div>
 				</section>
 				<section class="tab-pane shield-options-panel"
@@ -83,7 +67,7 @@
 						 aria-labelledby="{{ tab_nav_prefix }}-audit">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
-						{{ content.activity|default('no content')|raw }}
+						{{ content.activity|raw }}
 					</div>
 				</section>
 				<section class="tab-pane shield-options-panel"
@@ -92,7 +76,7 @@
 						 aria-labelledby="{{ tab_nav_prefix }}-traffic">
 					<div class="shield-options-panel-accent"></div>
 					<div class="shield-options-panel-body">
-						{{ content.traffic|default('no content')|raw }}
+						{{ content.traffic|raw }}
 					</div>
 				</section>
 			</div>
