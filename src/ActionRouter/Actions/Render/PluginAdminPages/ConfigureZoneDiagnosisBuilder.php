@@ -27,6 +27,7 @@ class ConfigureZoneDiagnosisBuilder {
 		'spam'     => 'SPAM controls reduce low-value submissions before they become moderation or abuse problems.',
 		'headers'  => 'HTTP headers strengthen the browser-facing security posture around transport and content handling.',
 		'general'  => 'General controls shape site-wide defaults, logging, and supporting security behaviour that other zones depend on.',
+		'reports_alerts' => 'Reports and alerts control how site security activity is surfaced to administrators.',
 	];
 
 	private ?SecurityAdminDisableActionBuilder $securityAdminDisableActionBuilder;

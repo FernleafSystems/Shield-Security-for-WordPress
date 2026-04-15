@@ -46,7 +46,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 
 	public function test_build_returns_expected_tile_contract_and_general_settings_rows() :void {
 		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
-		$this->assertCount( 9, $tiles );
+		$this->assertCount( 10, $tiles );
 		$this->assertSame(
 			\array_column( PluginNavs::configureLandingTileDefinitions(), 'key' ),
 			\array_column( $tiles, 'key' )
@@ -62,7 +62,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			$this->assertSame( !$tile[ 'is_enabled' ], $tile[ 'is_disabled' ] );
 			$this->assertSame( 'bi bi-', \substr( $tile[ 'icon_class' ], 0, 6 ) );
 			$this->assertSame( 'bi bi-', \substr( $tile[ 'status_icon_class' ], 0, 6 ) );
-			$this->assertSame( $tile[ 'include_in_posture' ], $tile[ 'key' ] !== 'general' );
+			$this->assertSame(
+				!\in_array( $tile[ 'key' ], [ 'general', 'reports_alerts' ], true ),
+				$tile[ 'include_in_posture' ]
+			);
 		}
 
 		$this->assertSame( 'good', $tilesByKey[ 'secadmin' ][ 'status' ] );
@@ -115,9 +118,29 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'neutral', $spamGeneral[ 'status' ] ?? '' );
 
 		$this->assertSame( 'neutral', $tilesByKey[ 'general' ][ 'status' ] );
-		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'stat_line' ] ?? '' );
-		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'status_label' ] ?? '' );
+		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'stat_line' ] );
+		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'status_label' ] );
 		$this->assertCount( 2, $tilesByKey[ 'general' ][ 'panel' ][ 'components' ] );
+
+		$tileDefinitionsByKey = \array_column( PluginNavs::configureLandingTileDefinitions(), null, 'key' );
+		$this->assertSame( 'neutral', $tilesByKey[ 'reports_alerts' ][ 'status' ] );
+		$this->assertSame(
+			$tileDefinitionsByKey[ 'reports_alerts' ][ 'stat_line' ],
+			$tilesByKey[ 'reports_alerts' ][ 'stat_line' ]
+		);
+		$this->assertCount( 2, $tilesByKey[ 'reports_alerts' ][ 'panel' ][ 'components' ] );
+		$this->assertSame(
+			[ Component\InstantAlerts::Slug(), Component\Reporting::Slug() ],
+			\array_column( $tilesByKey[ 'reports_alerts' ][ 'panel' ][ 'components' ], 'key' )
+		);
+		foreach ( $tilesByKey[ 'reports_alerts' ][ 'panel' ][ 'components' ] as $component ) {
+			$this->assertNotSame( '', $component[ 'title' ] );
+			$this->assertSame( 'neutral', $component[ 'status' ] );
+			$this->assertSame(
+				$component[ 'key' ],
+				$component[ 'config_action' ][ 'data' ][ 'zone_component_slug' ]
+			);
+		}
 	}
 
 	public function test_build_rejects_duplicate_component_row_keys_within_a_zone() :void {
@@ -315,6 +338,27 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 						'request_log_paths',
 						'request_log_enabled',
 					]
+				),
+				Component\InstantAlerts::Slug()  => $this->newComponent(
+					'Instant Alerts',
+					EnumEnabledStatus::GOOD,
+					'Instant alerts on critical events.',
+					[],
+					[
+						'instant_alert_admins',
+						'enable_admin_login_email_notification',
+					],
+					Component\InstantAlerts::Slug()
+				),
+				Component\Reporting::Slug()       => $this->newComponent(
+					'Reporting',
+					EnumEnabledStatus::OKAY,
+					"See what's happening with reports.",
+					[],
+					[
+						'frequency_alert',
+					],
+					Component\Reporting::Slug()
 				),
 			]
 		) extends SecurityZonesCon {

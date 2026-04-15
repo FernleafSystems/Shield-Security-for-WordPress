@@ -20,7 +20,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   component_slug?:string,
  *   component_slugs?:list<string>,
  *   include_in_posture?:bool,
- *   force_neutral?:bool
+ *   force_neutral?:bool,
+ *   stat_line?:string
  * }
  * @phpstan-type ConfigureComponentContract array{
  *   key:string,
@@ -101,7 +102,7 @@ class ConfigureZoneTilesBuilder {
 			'status_label'      => $this->tileStatusLabel( $status ),
 			'status_icon_class' => $this->tileStatusIconClass( $status ),
 			'stat_line'         => $forceNeutral
-				? __( 'General settings', 'wp-simple-firewall' )
+				? $this->forcedNeutralStatLine( $definition )
 				: $this->buildTileStatLine( $components ),
 			'panel'             => [
 				'title'        => $definition[ 'label' ],
@@ -110,6 +111,17 @@ class ConfigureZoneTilesBuilder {
 				'components'   => $components,
 			],
 		];
+	}
+
+	/**
+	 * @param TileDefinition $definition
+	 */
+	private function forcedNeutralStatLine( array $definition ) :string {
+		$statLine = \trim( (string)( $definition[ 'stat_line' ] ?? '' ) );
+		if ( $statLine === '' ) {
+			throw new \LogicException( 'Forced-neutral configure tiles require a non-empty stat line.' );
+		}
+		return $statLine;
 	}
 
 	/**

@@ -18,7 +18,7 @@
 	{% if expand.is_expandable %}
 		{% set expansion_body %}
 			<div data-configure-expand-ajax="1"
-				 {% for key, value in expand.data_attributes %}data-{{ key }}="{{ value }}"{% endfor %}></div>
+				 {% for key, value in expand.data_attributes %}data-{{ key }}="{{ value|e('html_attr') }}"{% endfor %}></div>
 		{% endset %}
 
 		{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {

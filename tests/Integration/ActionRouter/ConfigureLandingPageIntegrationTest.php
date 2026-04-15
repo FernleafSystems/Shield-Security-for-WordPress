@@ -186,6 +186,27 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_reports_alerts_diagnosis_returns_neutral_zone_contract() :void {
+		$payload = $this->renderConfigureDiagnosis( [
+			'zone' => 'reports_alerts',
+		] );
+
+		$this->assertArrayHasKey( 'zone_selection', $payload );
+		$this->assertArrayHasKey( 'header', $payload );
+		$this->assertIsArray( $payload[ 'zone_selection' ] );
+		$this->assertIsArray( $payload[ 'header' ] );
+		$this->assertSame( 'reports_alerts', $payload[ 'zone_selection' ][ 'key' ] );
+		$this->assertSame( 'neutral', $payload[ 'zone_selection' ][ 'status' ] );
+		$this->assertSame(
+			$payload[ 'zone_selection' ][ 'label' ],
+			$payload[ 'header' ][ 'title' ]
+		);
+		$this->assertSame( 'neutral', $payload[ 'header' ][ 'badge_status' ] );
+		$this->assertNotSame( '', $payload[ 'header' ][ 'summary' ] );
+		$this->assertNotSame( '', $payload[ 'header' ][ 'focus' ] );
+		$this->assertNotSame( '', $payload[ 'html' ] );
+	}
+
 	public function test_search_render_returns_flat_option_and_zone_results_for_real_query() :void {
 		$payload = $this->renderConfigureSearchResults( [
 			'search' => 'silentcaptcha',

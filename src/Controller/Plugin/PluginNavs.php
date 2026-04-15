@@ -413,16 +413,8 @@ class PluginNavs {
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon:string,
-	 *   zone_slug?:string,
-	 *   component_slug?:string,
-	 *   component_slugs?:list<string>,
-	 *   include_in_posture?:bool,
-	 *   force_neutral?:bool
-	 * }>
+	 * @phpstan-import-type TileDefinition from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder
+	 * @return list<TileDefinition>
 	 */
 	public static function configureLandingTileDefinitions() :array {
 		return [
@@ -484,6 +476,19 @@ class PluginNavs {
 				],
 				'include_in_posture' => false,
 				'force_neutral'      => true,
+				'stat_line'          => __( 'General settings', 'wp-simple-firewall' ),
+			],
+			[
+				'key'                => 'reports_alerts',
+				'label'              => __( 'Reports & Alerts', 'wp-simple-firewall' ),
+				'icon'               => 'bell',
+				'component_slugs'    => [
+					InstantAlerts::Slug(),
+					Reporting::Slug(),
+				],
+				'include_in_posture' => false,
+				'force_neutral'      => true,
+				'stat_line'          => __( 'Report and alert settings', 'wp-simple-firewall' ),
 			],
 		];
 	}

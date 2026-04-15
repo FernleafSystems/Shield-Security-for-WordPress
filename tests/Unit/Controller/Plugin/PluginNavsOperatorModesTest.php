@@ -166,6 +166,10 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$this->assertNotSame( '', \trim( $definition[ 'key' ] ) );
 			$this->assertNotSame( '', \trim( $definition[ 'label' ] ) );
 			$this->assertNotSame( '', \trim( $definition[ 'icon' ] ) );
+			if ( !empty( $definition[ 'force_neutral' ] ) ) {
+				$this->assertArrayHasKey( 'stat_line', $definition );
+				$this->assertNotSame( '', \trim( $definition[ 'stat_line' ] ) );
+			}
 		}
 	}
 
