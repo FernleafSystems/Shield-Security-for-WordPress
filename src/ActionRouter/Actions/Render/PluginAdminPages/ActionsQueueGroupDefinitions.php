@@ -48,6 +48,7 @@ class ActionsQueueGroupDefinitions {
 			'sort_order'            => 2,
 			'section_key'           => 'wordpress',
 			'section_order'         => 0,
+			'section_label_override' => 'File Integrity',
 			'detail_shell'          => 'direct_table',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -259,7 +260,10 @@ class ActionsQueueGroupDefinitions {
 			if ( $definition[ 'section_label' ] === ''
 				&& $sectionKey !== ''
 				&& isset( $definitions[ $sectionKey ] ) ) {
-				$definition[ 'section_label' ] = $definitions[ $sectionKey ][ 'label' ];
+				$ownerSectionLabel = $definitions[ $sectionKey ][ 'section_label' ];
+				$definition[ 'section_label' ] = $ownerSectionLabel !== ''
+					? $ownerSectionLabel
+					: $definitions[ $sectionKey ][ 'label' ];
 			}
 		}
 		unset( $definition );
@@ -373,11 +377,11 @@ class ActionsQueueGroupDefinitions {
 	}
 
 	public function healthyIgnoredSourceForGroupKey( string $groupKey ) :string {
-		return (string)( $this->definitionForGroupKey( $groupKey )[ 'healthy_ignored_source' ] ?? '' );
+		return $this->definitionForGroupKey( $groupKey )[ 'healthy_ignored_source' ];
 	}
 
 	public function healthyInteractionModeForGroupKey( string $groupKey ) :string {
-		return (string)( $this->definitionForGroupKey( $groupKey )[ 'healthy_interaction_mode' ] ?? 'none' );
+		return $this->definitionForGroupKey( $groupKey )[ 'healthy_interaction_mode' ];
 	}
 
 	/**
@@ -406,7 +410,7 @@ class ActionsQueueGroupDefinitions {
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function renderActionDataForMode( $mode ) :array {
+	private function renderActionDataForMode( array|string $mode ) :array {
 		if ( \is_array( $mode ) ) {
 			return $mode;
 		}

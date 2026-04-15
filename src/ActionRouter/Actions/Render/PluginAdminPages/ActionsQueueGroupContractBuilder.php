@@ -39,6 +39,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   active_sections:list<GroupSectionData>,
  *   healthy_sections:list<GroupSectionData>
  * }
+ * @phpstan-type GroupSectionEntry array{
+ *   section_key:string,
+ *   heading_label:string,
+ *   group:GroupData
+ * }
  */
 class ActionsQueueGroupContractBuilder {
 
@@ -80,8 +85,8 @@ class ActionsQueueGroupContractBuilder {
 
 		return [
 			'groups_indexed'   => $partitionedGroups[ 'groups_indexed' ],
-			'active_sections'  => $this->buildSectionsFromEntries( $partitionedGroups[ 'active_entries' ], false ),
-			'healthy_sections' => $this->buildSectionsFromEntries( $partitionedGroups[ 'healthy_entries' ], true ),
+			'active_sections'  => $this->buildSectionsFromEntries( $partitionedGroups[ 'active_entries' ] ),
+			'healthy_sections' => $this->buildSectionsFromEntries( $partitionedGroups[ 'healthy_entries' ] ),
 		];
 	}
 
@@ -258,8 +263,8 @@ class ActionsQueueGroupContractBuilder {
 	 * @param list<GroupSeed> $resolvedSeeds
 	 * @return array{
 	 *   groups_indexed:array<string,GroupData>,
-	 *   active_entries:list<array{section_key:string,heading_label:string,group:GroupData}>,
-	 *   healthy_entries:list<array{section_key:string,heading_label:string,group:GroupData}>
+	 *   active_entries:list<GroupSectionEntry>,
+	 *   healthy_entries:list<GroupSectionEntry>
 	 * }
 	 */
 	private function partitionResolvedGroups( string $bucketLabel, array $resolvedSeeds ) :array {
@@ -477,10 +482,10 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	/**
-	 * @param list<array{section_key:string,heading_label:string,group:GroupData}> $entries
+	 * @param list<GroupSectionEntry> $entries
 	 * @return list<GroupSectionData>
 	 */
-	private function buildSectionsFromEntries( array $entries, bool $suppressSingleGroupDuplicateHeadings ) :array {
+	private function buildSectionsFromEntries( array $entries ) :array {
 		$sections = [];
 		foreach ( $entries as $entry ) {
 			$sectionKey = $entry[ 'section_key' ];
@@ -497,16 +502,6 @@ class ActionsQueueGroupContractBuilder {
 			$sections[ \array_key_last( $sections ) ][ 'groups' ][] = $entry[ 'group' ];
 		}
 
-		if ( $suppressSingleGroupDuplicateHeadings ) {
-			foreach ( $sections as &$section ) {
-				if ( \count( $section[ 'groups' ] ) === 1
-					&& $section[ 'heading_label' ] === $section[ 'groups' ][ 0 ][ 'label' ] ) {
-					$section[ 'heading_label' ] = '';
-				}
-			}
-			unset( $section );
-		}
-
 		return \array_values( \array_map(
 			static fn( array $section ) :array => [
 				'heading_label' => $section[ 'heading_label' ],
@@ -520,13 +515,13 @@ class ActionsQueueGroupContractBuilder {
 	 * @phpstan-param GroupSeed $seed
 	 */
 	private function determineInteractivity( array $seed ) :bool {
-		return ( $seed[ 'detail_shell' ] ?? '' ) !== 'maintenance'
+		return $seed[ 'detail_shell' ] !== 'maintenance'
 			&& ( $seed[ 'card_type_override' ] ?? '' ) !== 'linked'
 			&& (
 				!empty( $seed[ 'detail_table' ] )
 				|| !empty( $seed[ 'render_action_class_override' ] )
 				|| !empty( $seed[ 'render_action_data_override' ] )
-				|| ( $seed[ 'item_count' ] ?? 0 ) > 0
+				|| $seed[ 'item_count' ] > 0
 			);
 	}
 

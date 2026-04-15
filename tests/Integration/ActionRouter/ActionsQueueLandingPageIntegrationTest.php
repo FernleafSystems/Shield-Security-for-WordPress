@@ -800,8 +800,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Abandoned Assets"]',
-			'Healthy abandoned assets should render in the visible healthy stack'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//section[.//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Abandoned Assets"] and .//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Abandoned Assets"]]',
+			'Healthy abandoned assets should render under their own visible heading'
 		);
 		$this->assertXPathCount(
 			$xpath,

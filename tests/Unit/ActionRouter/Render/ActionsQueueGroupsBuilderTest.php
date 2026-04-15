@@ -244,7 +244,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			\array_column( $groups, 'card_type' )
 		);
 		$this->assertSame(
-			[ 'WordPress Files', 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', 'Abandoned Assets' ],
+			[ 'File Integrity', 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', 'Abandoned Assets' ],
 			\array_column( $data[ 'active_sections' ], 'heading_label' )
 		);
 		$this->assertSame(
@@ -306,7 +306,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scanresults_malware', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 	}
 
-	public function test_build_keeps_wordpress_files_heading_for_wordpress_only_active_findings() :void {
+	public function test_build_keeps_file_integrity_heading_for_wordpress_only_active_findings() :void {
 		$data = $this->createBuilder()->build(
 			'critical',
 			[
@@ -325,7 +325,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( [ 'WordPress Files' ], \array_column( $data[ 'active_sections' ], 'heading_label' ) );
+		$this->assertSame( [ 'File Integrity' ], \array_column( $data[ 'active_sections' ], 'heading_label' ) );
 		$this->assertSame( [ 'wordpress' ], \array_column( $data[ 'active_sections' ][ 0 ][ 'groups' ], 'key' ) );
 		$this->assertSame( [], $data[ 'healthy_sections' ] );
 	}
@@ -845,6 +845,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
+		$this->assertSame(
+			[ 'Known Vulnerabilities', 'Abandoned Assets' ],
+			\array_column( $payload[ 'layer' ][ 'healthy_sections' ], 'heading_label' )
+		);
 		$healthyGroups = $this->flattenSections( $payload[ 'layer' ][ 'healthy_sections' ] );
 		$this->assertSame( [ 'vulnerabilities', 'abandoned' ], \array_column( $healthyGroups, 'key' ) );
 		$this->assertSame( 'linked', $healthyGroups[ 0 ][ 'card_type' ] );
@@ -900,6 +904,85 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Abandoned Assets', $payload[ 'selected_group' ][ 'label' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
 		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
+	}
+
+	public function test_build_keeps_healthy_scan_sections_visible_after_active_vulnerability_section() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[
+				'count'    => 1,
+				'status'   => 'critical',
+				'sections' => [
+					'vulnerable' => [
+						'label' => 'Known Vulnerabilities',
+						'items' => [
+							[
+								'key'         => 'vulnerability-example-plugin',
+								'asset_key'   => 'example-plugin',
+								'label'       => 'Example Plugin',
+								'description' => '1 known vulnerability needs review.',
+								'count'       => 1,
+								'severity'    => 'critical',
+								'actions'     => [],
+							],
+						],
+					],
+					'abandoned'  => [
+						'label' => 'Abandoned Assets',
+						'items' => [],
+					],
+				],
+			]
+		);
+
+		$data = $builder->build(
+			'critical',
+			[
+				'items' => [
+					[
+						'key'      => 'vulnerable_assets',
+						'count'    => 1,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+				],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'theme_files',
+						'label'             => 'Theme Files',
+						'description'       => 'All theme files appear to be valid.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+					[
+						'key'               => 'abandoned',
+						'label'             => 'Abandoned Assets',
+						'description'       => 'Previous scans did not detect any abandoned assets.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ 'Known Vulnerabilities' ], \array_column( $data[ 'active_sections' ], 'heading_label' ) );
+		$this->assertSame( [ 'Theme Files', 'Abandoned Assets' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
+		$this->assertSame(
+			[ 'vulnerabilities:vulnerability-example-plugin' ],
+			\array_column( $data[ 'active_sections' ][ 0 ][ 'groups' ], 'key' )
+		);
+		$this->assertSame(
+			[ 'themes', 'abandoned' ],
+			\array_column( $this->flattenSections( $data[ 'healthy_sections' ] ), 'key' )
+		);
 	}
 
 	public function test_build_with_selected_group_keeps_healthy_file_locker_interactive_at_zero_items() :void {
@@ -1051,7 +1134,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			],
 			$activeGroups[ 'plugins:ignored-plugin' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
-		$this->assertSame( [ '', '' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
+		$this->assertSame( [ 'File Integrity', 'Theme Files' ], \array_column( $data[ 'healthy_sections' ], 'heading_label' ) );
 	}
 
 	public function test_build_reuses_shared_active_and_ignored_pane_options_for_scan_groups() :void {

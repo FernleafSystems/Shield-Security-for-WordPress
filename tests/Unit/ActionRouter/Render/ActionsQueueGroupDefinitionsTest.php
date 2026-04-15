@@ -72,9 +72,9 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'wordpress' ) );
 		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'malware' ) );
 		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'file_locker' ) );
-		$this->assertSame( 'WordPress Files', $definitions->sectionLabelForGroupKey( 'wordpress' ) );
-		$this->assertSame( 'WordPress Files', $definitions->sectionLabelForGroupKey( 'malware' ) );
-		$this->assertSame( 'WordPress Files', $definitions->sectionLabelForGroupKey( 'file_locker' ) );
+		$this->assertSame( 'File Integrity', $definitions->sectionLabelForGroupKey( 'wordpress' ) );
+		$this->assertSame( 'File Integrity', $definitions->sectionLabelForGroupKey( 'malware' ) );
+		$this->assertSame( 'File Integrity', $definitions->sectionLabelForGroupKey( 'file_locker' ) );
 
 		$this->assertSame( 1, $definitions->sectionOrderForGroupKey( 'vulnerabilities' ) );
 		$this->assertSame( 2, $definitions->sectionOrderForGroupKey( 'plugins' ) );
