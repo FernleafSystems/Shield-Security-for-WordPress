@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 /**
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
- * @phpstan-import-type GroupData from ActionsQueueGroupsBuilder
+ * @phpstan-import-type GroupSectionData from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupSelection from ActionsQueueDrillDownPresentationBuilder
  */
 class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
@@ -19,8 +19,8 @@ class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
 	 * @return array{
 	 *   bucket_selection:BucketSelection,
 	 *   empty_message:string,
-	 *   active_sections:list<array{heading_label:string,groups:list<GroupData>}>,
-	 *   healthy_sections:list<array{heading_label:string,groups:list<GroupData>}>,
+	 *   active_sections:list<GroupSectionData>,
+	 *   healthy_sections:list<GroupSectionData>,
 	 *   header:DrillLayerHeader,
 	 *   selected_group?:GroupSelection,
 	 *   landing_refresh?:array{

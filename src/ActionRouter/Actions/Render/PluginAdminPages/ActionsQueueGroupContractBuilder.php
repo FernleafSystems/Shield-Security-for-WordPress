@@ -17,7 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   key:string,
  *   is_healthy:bool,
  *   definition_key:string,
- *   heading_label:string,
  *   label:string,
  *   item_count:int,
  *   status:string,
@@ -81,8 +80,8 @@ class ActionsQueueGroupContractBuilder {
 
 		return [
 			'groups_indexed'   => $partitionedGroups[ 'groups_indexed' ],
-			'active_sections'  => $this->buildSectionsFromEntries( $partitionedGroups[ 'active_entries' ] ),
-			'healthy_sections' => $this->buildSectionsFromEntries( $partitionedGroups[ 'healthy_entries' ] ),
+			'active_sections'  => $this->buildSectionsFromEntries( $partitionedGroups[ 'active_entries' ], false ),
+			'healthy_sections' => $this->buildSectionsFromEntries( $partitionedGroups[ 'healthy_entries' ], true ),
 		];
 	}
 
@@ -218,6 +217,11 @@ class ActionsQueueGroupContractBuilder {
 	 */
 	private function sortSeeds( array &$resolvedSeeds ) :void {
 		\usort( $resolvedSeeds, function ( array $left, array $right ) :int {
+			$healthCmp = $this->healthOrderForSeed( $left ) <=> $this->healthOrderForSeed( $right );
+			if ( $healthCmp !== 0 ) {
+				return $healthCmp;
+			}
+
 			$sectionCmp = $this->sectionOrderForSeed( $left ) <=> $this->sectionOrderForSeed( $right );
 			if ( $sectionCmp !== 0 ) {
 				return $sectionCmp;
@@ -228,9 +232,12 @@ class ActionsQueueGroupContractBuilder {
 				return $orderCmp;
 			}
 
-			$headingCmp = \strcmp( $left[ 'heading_label' ], $right[ 'heading_label' ] );
-			if ( $headingCmp !== 0 ) {
-				return $headingCmp;
+			$sectionKeyCmp = \strcmp(
+				$this->groupDefinitions->sectionKeyForGroupKey( $left[ 'definition_key' ] ),
+				$this->groupDefinitions->sectionKeyForGroupKey( $right[ 'definition_key' ] )
+			);
+			if ( $sectionKeyCmp !== 0 ) {
+				return $sectionKeyCmp;
 			}
 
 			$statusCmp = StatusPriority::rank( $right[ 'status' ] ) <=> StatusPriority::rank( $left[ 'status' ] );
@@ -251,8 +258,8 @@ class ActionsQueueGroupContractBuilder {
 	 * @param list<GroupSeed> $resolvedSeeds
 	 * @return array{
 	 *   groups_indexed:array<string,GroupData>,
-	 *   active_entries:list<array{heading_label:string,group:GroupData}>,
-	 *   healthy_entries:list<array{heading_label:string,group:GroupData}>
+	 *   active_entries:list<array{section_key:string,heading_label:string,group:GroupData}>,
+	 *   healthy_entries:list<array{section_key:string,heading_label:string,group:GroupData}>
 	 * }
 	 */
 	private function partitionResolvedGroups( string $bucketLabel, array $resolvedSeeds ) :array {
@@ -264,7 +271,8 @@ class ActionsQueueGroupContractBuilder {
 			$group = $this->resolveSeed( $bucketLabel, $seed );
 			$indexed[ $group[ 'key' ] ] = $group;
 			$entry = [
-				'heading_label' => $seed[ 'heading_label' ],
+				'section_key'   => $this->groupDefinitions->sectionKeyForGroupKey( $seed[ 'definition_key' ] ),
+				'heading_label' => $this->groupDefinitions->sectionLabelForGroupKey( $seed[ 'definition_key' ] ),
 				'group'         => $group,
 			];
 			if ( $seed[ 'is_healthy' ] ) {
@@ -457,22 +465,31 @@ class ActionsQueueGroupContractBuilder {
 	/**
 	 * @phpstan-param GroupSeed $seed
 	 */
-	private function sectionOrderForSeed( array $seed ) :int {
+	private function healthOrderForSeed( array $seed ) :int {
 		return $seed[ 'is_healthy' ] ? 1 : 0;
 	}
 
 	/**
-	 * @param list<array{heading_label:string,group:GroupData}> $entries
+	 * @phpstan-param GroupSeed $seed
+	 */
+	private function sectionOrderForSeed( array $seed ) :int {
+		return $this->groupDefinitions->sectionOrderForGroupKey( $seed[ 'definition_key' ] );
+	}
+
+	/**
+	 * @param list<array{section_key:string,heading_label:string,group:GroupData}> $entries
 	 * @return list<GroupSectionData>
 	 */
-	private function buildSectionsFromEntries( array $entries ) :array {
+	private function buildSectionsFromEntries( array $entries, bool $suppressSingleGroupDuplicateHeadings ) :array {
 		$sections = [];
 		foreach ( $entries as $entry ) {
+			$sectionKey = $entry[ 'section_key' ];
 			$headingLabel = $entry[ 'heading_label' ];
 			$shouldStartNew = empty( $sections )
-				|| $sections[ \array_key_last( $sections ) ][ 'heading_label' ] !== $headingLabel;
+				|| $sections[ \array_key_last( $sections ) ][ 'section_key' ] !== $sectionKey;
 			if ( $shouldStartNew ) {
 				$sections[] = [
+					'section_key'    => $sectionKey,
 					'heading_label' => $headingLabel,
 					'groups'        => [],
 				];
@@ -480,15 +497,23 @@ class ActionsQueueGroupContractBuilder {
 			$sections[ \array_key_last( $sections ) ][ 'groups' ][] = $entry[ 'group' ];
 		}
 
-		foreach ( $sections as &$section ) {
-			if ( \count( $section[ 'groups' ] ) === 1
-				&& $section[ 'heading_label' ] === $section[ 'groups' ][ 0 ][ 'label' ] ) {
-				$section[ 'heading_label' ] = '';
+		if ( $suppressSingleGroupDuplicateHeadings ) {
+			foreach ( $sections as &$section ) {
+				if ( \count( $section[ 'groups' ] ) === 1
+					&& $section[ 'heading_label' ] === $section[ 'groups' ][ 0 ][ 'label' ] ) {
+					$section[ 'heading_label' ] = '';
+				}
 			}
+			unset( $section );
 		}
-		unset( $section );
 
-		return $sections;
+		return \array_values( \array_map(
+			static fn( array $section ) :array => [
+				'heading_label' => $section[ 'heading_label' ],
+				'groups'        => $section[ 'groups' ],
+			],
+			$sections
+		) );
 	}
 
 	/**

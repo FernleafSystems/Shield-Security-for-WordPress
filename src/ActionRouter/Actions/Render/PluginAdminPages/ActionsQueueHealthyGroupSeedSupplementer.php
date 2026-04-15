@@ -96,7 +96,6 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 				'key'                         => $definitionKey,
 				'is_healthy'                  => true,
 				'definition_key'              => $definitionKey,
-				'heading_label'               => $definition[ 'label' ],
 				'label'                       => $definition[ 'label' ],
 				'item_count'                  => $interaction[ 'item_count_override' ] ?? \count( $rows ),
 				'status'                      => 'good',

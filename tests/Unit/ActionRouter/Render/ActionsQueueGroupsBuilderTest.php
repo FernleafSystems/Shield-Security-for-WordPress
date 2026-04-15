@@ -4,8 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
+	FileLocker,
 	Malware,
-	Vulnerabilities
+	Vulnerabilities,
+	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
@@ -21,6 +23,9 @@ use FernleafSystems\Wordpress\Services\Core\{
 	Users
 };
 
+/**
+ * @phpstan-import-type GroupSectionData from ActionsQueueGroupsBuilder
+ */
 class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
@@ -114,7 +119,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				$this->makeQueueAssetSummary( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
 			],
 			[
-				'count'    => 1,
+				'count'    => 2,
 				'status'   => 'critical',
 				'sections' => [
 					'vulnerable' => [
@@ -147,7 +152,17 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					],
 					'abandoned'  => [
 						'label' => 'Abandoned Assets',
-						'items' => [],
+						'items' => [
+							[
+								'key'         => 'abandoned-example-theme',
+								'asset_key'   => 'example-theme',
+								'label'       => 'Example Theme',
+								'description' => 'This asset appears to be abandoned and should be reviewed.',
+								'count'       => 1,
+								'severity'    => 'critical',
+								'actions'     => [],
+							],
+						],
 					],
 				],
 			]
@@ -157,6 +172,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'critical',
 			[
 				'items' => [
+					[
+						'key'      => 'wp_files',
+						'count'    => 4,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
 					[
 						'key'      => 'plugin_files',
 						'count'    => 3,
@@ -181,6 +202,18 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'severity' => 'critical',
 						'zone'     => 'scans',
 					],
+					[
+						'key'      => 'file_locker',
+						'count'    => 5,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+					[
+						'key'      => 'abandoned',
+						'count'    => 1,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
 				],
 			],
 			[
@@ -193,21 +226,41 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( 'Fix now', $data[ 'bucket_selection' ][ 'label' ] );
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
-		$this->assertSame( 7, $data[ 'bucket_selection' ][ 'item_count' ] );
+		$this->assertSame( 17, $data[ 'bucket_selection' ][ 'item_count' ] );
 		$this->assertSame(
-			[ 'vulnerabilities:vulnerability-example-plugin', 'plugins:example-plugin', 'themes:example-theme', 'malware' ],
+			[
+				'wordpress',
+				'malware',
+				'file_locker',
+				'vulnerabilities:vulnerability-example-plugin',
+				'plugins:example-plugin',
+				'themes:example-theme',
+				'abandoned:abandoned-example-theme',
+			],
 			\array_column( $groups, 'key' )
 		);
-		$this->assertSame( [ 'linked', 'expandable', 'expandable', 'expandable' ], \array_column( $groups, 'card_type' ) );
-		$this->assertSame( [ 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', '' ], \array_column( $data[ 'active_sections' ], 'heading_label' ) );
-		$this->assertSame( Vulnerabilities::class, $groups[ 0 ][ 'render_action_class' ] );
-		$this->assertSame( [ 'section' => 'vulnerable' ], $groups[ 0 ][ 'render_action_data' ] );
-		$this->assertSame( Malware::class, $groups[ 3 ][ 'render_action_class' ] );
+		$this->assertSame(
+			[ 'expandable', 'expandable', 'expandable', 'linked', 'expandable', 'expandable', 'linked' ],
+			\array_column( $groups, 'card_type' )
+		);
+		$this->assertSame(
+			[ 'WordPress Files', 'Known Vulnerabilities', 'Plugin Files', 'Theme Files', 'Abandoned Assets' ],
+			\array_column( $data[ 'active_sections' ], 'heading_label' )
+		);
+		$this->assertSame(
+			[ 'wordpress', 'malware', 'file_locker' ],
+			\array_column( $data[ 'active_sections' ][ 0 ][ 'groups' ], 'key' )
+		);
+		$this->assertSame( Wordpress::class, $groups[ 0 ][ 'render_action_class' ] );
+		$this->assertSame( Malware::class, $groups[ 1 ][ 'render_action_class' ] );
+		$this->assertSame( FileLocker::class, $groups[ 2 ][ 'render_action_class' ] );
+		$this->assertSame( Vulnerabilities::class, $groups[ 3 ][ 'render_action_class' ] );
+		$this->assertSame( [ 'section' => 'vulnerable' ], $groups[ 3 ][ 'render_action_data' ] );
 		$this->assertSame(
 			[
 				'display_context' => 'actions_queue',
 			],
-			$groups[ 3 ][ 'render_action_data' ]
+			$groups[ 1 ][ 'render_action_data' ]
 		);
 		$this->assertSame(
 			[
@@ -226,31 +279,55 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'icon_class' => 'bi-box-arrow-up-right',
 				],
 			],
-			$groups[ 0 ][ 'links' ]
+			$groups[ 3 ][ 'links' ]
 		);
-		$this->assertSame( 'direct_table', $groups[ 1 ][ 'detail_shell' ] );
-		$this->assertSame( [], $groups[ 1 ][ 'detail_table' ] );
-		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 1 ][ 'render_action_class' ] );
+		$this->assertSame( 'direct_table', $groups[ 4 ][ 'detail_shell' ] );
+		$this->assertSame( [], $groups[ 4 ][ 'detail_table' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 4 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
 				'display_context' => 'actions_queue',
 				'subject_type'    => 'plugin',
 				'subject_id'      => 'example-plugin/example-plugin.php',
 			],
-			$groups[ 1 ][ 'render_action_data' ]
+			$groups[ 4 ][ 'render_action_data' ]
 		);
-		$this->assertSame( 'ajax_render', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'ex' ] ?? '' );
-		$this->assertSame( 'actions_queue_asset_file_status_detail', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'plugin', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'subject_type' ] ?? '' );
+		$this->assertSame( 'ajax_render', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'ex' ] ?? '' );
+		$this->assertSame( 'actions_queue_asset_file_status_detail', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'plugin', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'subject_type' ] ?? '' );
 		$this->assertSame(
 			'example-plugin/example-plugin.php',
-			$groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'subject_id' ] ?? ''
+			$groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'subject_id' ] ?? ''
 		);
-		$this->assertSame( 'actions_queue', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
-		$this->assertSame( 'View 3 files', $groups[ 1 ][ 'drill_hint' ] );
-		$this->assertSame( '2 suspected malware results need review.', $groups[ 3 ][ 'narrative' ] );
-		$this->assertSame( 'View 2 files', $groups[ 3 ][ 'drill_hint' ] );
-		$this->assertSame( 'scanresults_malware', $groups[ 3 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'actions_queue', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
+		$this->assertSame( 'View 3 files', $groups[ 4 ][ 'drill_hint' ] );
+		$this->assertSame( '2 suspected malware results need review.', $groups[ 1 ][ 'narrative' ] );
+		$this->assertSame( 'View 2 files', $groups[ 1 ][ 'drill_hint' ] );
+		$this->assertSame( 'scanresults_malware', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+	}
+
+	public function test_build_keeps_wordpress_files_heading_for_wordpress_only_active_findings() :void {
+		$data = $this->createBuilder()->build(
+			'critical',
+			[
+				'items' => [
+					[
+						'key'      => 'wp_files',
+						'count'    => 1,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+					],
+				],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ 'WordPress Files' ], \array_column( $data[ 'active_sections' ], 'heading_label' ) );
+		$this->assertSame( [ 'wordpress' ], \array_column( $data[ 'active_sections' ][ 0 ][ 'groups' ], 'key' ) );
+		$this->assertSame( [], $data[ 'healthy_sections' ] );
 	}
 
 	public function test_build_group_returns_selected_plugin_asset_with_lazy_direct_table_detail() :void {
@@ -1061,7 +1138,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @param list<array{heading_label:string,groups:list<array<string,mixed>>}> $sections
+	 * @param list<GroupSectionData> $sections
 	 * @return list<array<string,mixed>>
 	 */
 	private function flattenSections( array $sections ) :array {
@@ -1072,7 +1149,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @param array{active_sections:list<array{heading_label:string,groups:list<array<string,mixed>>}>,healthy_sections:list<array{heading_label:string,groups:list<array<string,mixed>>}>} $layer
+	 * @param array{active_sections:list<GroupSectionData>,healthy_sections:list<GroupSectionData>} $layer
 	 * @return list<array<string,mixed>>
 	 */
 	private function flattenLayerGroups( array $layer ) :array {

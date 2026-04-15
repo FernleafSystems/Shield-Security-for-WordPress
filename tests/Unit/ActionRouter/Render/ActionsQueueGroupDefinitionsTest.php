@@ -63,6 +63,34 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( Maintenance::class, $definitions[ 'maintenance_wordpress' ][ 'render_action_class' ] );
 	}
 
+	public function test_definitions_own_group_section_metadata_for_fix_now_ordering() :void {
+		$definitions = new ActionsQueueGroupDefinitions();
+
+		$this->assertSame( 'wordpress', $definitions->sectionKeyForGroupKey( 'wordpress' ) );
+		$this->assertSame( 'wordpress', $definitions->sectionKeyForGroupKey( 'malware' ) );
+		$this->assertSame( 'wordpress', $definitions->sectionKeyForGroupKey( 'file_locker' ) );
+		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'wordpress' ) );
+		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'malware' ) );
+		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'file_locker' ) );
+		$this->assertSame( 'WordPress Files', $definitions->sectionLabelForGroupKey( 'wordpress' ) );
+		$this->assertSame( 'WordPress Files', $definitions->sectionLabelForGroupKey( 'malware' ) );
+		$this->assertSame( 'WordPress Files', $definitions->sectionLabelForGroupKey( 'file_locker' ) );
+
+		$this->assertSame( 1, $definitions->sectionOrderForGroupKey( 'vulnerabilities' ) );
+		$this->assertSame( 2, $definitions->sectionOrderForGroupKey( 'plugins' ) );
+		$this->assertSame( 3, $definitions->sectionOrderForGroupKey( 'themes' ) );
+		$this->assertSame( 4, $definitions->sectionOrderForGroupKey( 'abandoned' ) );
+		$this->assertSame( 'Known Vulnerabilities', $definitions->sectionLabelForGroupKey( 'vulnerabilities' ) );
+		$this->assertSame( 'Plugin Files', $definitions->sectionLabelForGroupKey( 'plugins' ) );
+		$this->assertSame( 'Theme Files', $definitions->sectionLabelForGroupKey( 'themes' ) );
+		$this->assertSame( 'Abandoned Assets', $definitions->sectionLabelForGroupKey( 'abandoned' ) );
+
+		$this->assertSame( 2, $definitions->sortOrderForGroupKey( 'wordpress' ) );
+		$this->assertSame( 5, $definitions->sortOrderForGroupKey( 'malware' ) );
+		$this->assertSame( 6, $definitions->sortOrderForGroupKey( 'file_locker' ) );
+		$this->assertSame( '', $definitions->sectionLabelForGroupKey( 'maintenance' ) );
+	}
+
 	public function test_drill_hint_patterns_are_group_specific() :void {
 		$definitions = ( new ActionsQueueGroupDefinitions() )->all();
 

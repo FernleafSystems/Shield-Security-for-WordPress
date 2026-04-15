@@ -20,6 +20,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   key:string,
  *   label:string,
  *   sort_order:int,
+ *   section_key:string,
+ *   section_order:int,
+ *   section_label:string,
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',
@@ -43,6 +46,8 @@ class ActionsQueueGroupDefinitions {
 	private const GROUP_METADATA = [
 		'wordpress' => [
 			'sort_order'            => 2,
+			'section_key'           => 'wordpress',
+			'section_order'         => 0,
 			'detail_shell'          => 'direct_table',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -54,6 +59,8 @@ class ActionsQueueGroupDefinitions {
 		],
 		'plugins' => [
 			'sort_order'            => 3,
+			'section_key'           => 'plugins',
+			'section_order'         => 2,
 			'detail_shell'          => 'asset_cards',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -65,6 +72,8 @@ class ActionsQueueGroupDefinitions {
 		],
 		'themes' => [
 			'sort_order'            => 4,
+			'section_key'           => 'themes',
+			'section_order'         => 3,
 			'detail_shell'          => 'asset_cards',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -76,6 +85,9 @@ class ActionsQueueGroupDefinitions {
 		],
 		'vulnerabilities' => [
 			'sort_order'            => 0,
+			'section_key'           => 'vulnerabilities',
+			'section_order'         => 1,
+			'section_label_override' => 'Known Vulnerabilities',
 			'detail_shell'          => 'direct_table',
 			'card_type'             => 'linked',
 			'drill_hint_single'     => '',
@@ -89,6 +101,8 @@ class ActionsQueueGroupDefinitions {
 		],
 		'abandoned' => [
 			'sort_order'            => 1,
+			'section_key'           => 'abandoned',
+			'section_order'         => 4,
 			'detail_shell'          => 'direct_table',
 			'card_type'             => 'linked',
 			'drill_hint_single'     => '',
@@ -103,6 +117,8 @@ class ActionsQueueGroupDefinitions {
 		'malware' => [
 			'label_override'        => 'Malware Detections',
 			'sort_order'            => 5,
+			'section_key'           => 'wordpress',
+			'section_order'         => 0,
 			'detail_shell'          => 'direct_table',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -115,6 +131,8 @@ class ActionsQueueGroupDefinitions {
 		'file_locker' => [
 			'label_override'        => 'File Changes',
 			'sort_order'            => 6,
+			'section_key'           => 'wordpress',
+			'section_order'         => 0,
 			'detail_shell'          => 'asset_cards',
 			'card_type'             => 'expandable',
 			'drill_hint_single'     => 'View %s file',
@@ -127,6 +145,8 @@ class ActionsQueueGroupDefinitions {
 		'maintenance' => [
 			'label_override'        => 'Maintenance Items',
 			'sort_order'            => 7,
+			'section_key'           => '',
+			'section_order'         => 99,
 			'icon_class'            => 'bi bi-wrench',
 			'detail_shell'          => 'maintenance',
 			'card_type'             => 'category',
@@ -216,6 +236,11 @@ class ActionsQueueGroupDefinitions {
 				'key'                 => $key,
 				'label'               => __( $metadata[ 'label_override' ] ?? $scanDefinition[ 'label' ], 'wp-simple-firewall' ),
 				'sort_order'          => $metadata[ 'sort_order' ],
+				'section_key'         => $metadata[ 'section_key' ],
+				'section_order'       => $metadata[ 'section_order' ],
+				'section_label'       => isset( $metadata[ 'section_label_override' ] )
+					? __( $metadata[ 'section_label_override' ], 'wp-simple-firewall' )
+					: '',
 				'icon_class'          => $metadata[ 'icon_class' ] ?? PluginNavs::actionsLandingScanRailIconClass( $key ),
 				'detail_shell'        => $metadata[ 'detail_shell' ],
 				'card_type'           => $metadata[ 'card_type' ],
@@ -229,11 +254,24 @@ class ActionsQueueGroupDefinitions {
 			];
 		}
 
+		foreach ( $definitions as &$definition ) {
+			$sectionKey = $definition[ 'section_key' ];
+			if ( $definition[ 'section_label' ] === ''
+				&& $sectionKey !== ''
+				&& isset( $definitions[ $sectionKey ] ) ) {
+				$definition[ 'section_label' ] = $definitions[ $sectionKey ][ 'label' ];
+			}
+		}
+		unset( $definition );
+
 		$maintenance = self::GROUP_METADATA[ 'maintenance' ];
 		$definitions[ 'maintenance' ] = [
 			'key'                 => 'maintenance',
 			'label'               => __( $maintenance[ 'label_override' ], 'wp-simple-firewall' ),
 			'sort_order'          => $maintenance[ 'sort_order' ],
+			'section_key'         => $maintenance[ 'section_key' ],
+			'section_order'       => $maintenance[ 'section_order' ],
+			'section_label'       => '',
 			'icon_class'          => $maintenance[ 'icon_class' ],
 			'detail_shell'        => $maintenance[ 'detail_shell' ],
 			'card_type'           => $maintenance[ 'card_type' ],
@@ -252,6 +290,9 @@ class ActionsQueueGroupDefinitions {
 				'key'                 => $groupKey,
 				'label'               => __( $group[ 'label' ], 'wp-simple-firewall' ),
 				'sort_order'          => $maintenance[ 'sort_order' ],
+				'section_key'         => $maintenance[ 'section_key' ],
+				'section_order'       => $maintenance[ 'section_order' ],
+				'section_label'       => '',
 				'icon_class'          => $itemIcons->iconClassForKey( $group[ 'icon_key' ] ),
 				'detail_shell'        => $maintenance[ 'detail_shell' ],
 				'card_type'           => $maintenance[ 'card_type' ],
@@ -295,6 +336,18 @@ class ActionsQueueGroupDefinitions {
 
 	public function sortOrderForGroupKey( string $groupKey ) :int {
 		return $this->definitionForGroupKey( $groupKey )[ 'sort_order' ];
+	}
+
+	public function sectionKeyForGroupKey( string $groupKey ) :string {
+		return $this->definitionForGroupKey( $groupKey )[ 'section_key' ];
+	}
+
+	public function sectionOrderForGroupKey( string $groupKey ) :int {
+		return $this->definitionForGroupKey( $groupKey )[ 'section_order' ];
+	}
+
+	public function sectionLabelForGroupKey( string $groupKey ) :string {
+		return $this->definitionForGroupKey( $groupKey )[ 'section_label' ];
 	}
 
 	/**

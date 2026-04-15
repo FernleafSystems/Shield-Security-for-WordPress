@@ -48,7 +48,6 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'key'                 => $maintenanceItem[ 'key' ],
 			'is_healthy'          => $isHealthy,
 			'definition_key'      => 'maintenance',
-			'heading_label'       => '',
 			'label'               => $maintenanceItem[ 'label' ],
 			'item_count'          => $isHealthy
 				? $this->visibleCount( $maintenanceItem )
@@ -80,7 +79,6 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'key'              => $groupKey,
 			'is_healthy'       => $isHealthy,
 			'definition_key'   => $groupKey,
-			'heading_label'    => '',
 			'label'            => $definition[ 'label' ],
 			'item_count'       => $itemCount,
 			'status'           => $this->aggregateStatus( $maintenanceItems ),
