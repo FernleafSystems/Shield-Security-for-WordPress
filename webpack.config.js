@@ -22,6 +22,7 @@ module.exports = {
 	},
 	entry: {
 		'shield-main': pathResources + '/plugin-main.js',
+		'shield-plugin_onboarding': pathResources + '/plugin-onboarding.js',
 		'shield-badge': pathResources + '/plugin-badge.js',
 		'shield-blockpage': pathResources + '/plugin-blockpage.js',
 		'shield-login_2fa': pathResources + '/plugin-login_2fa.js',

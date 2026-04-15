@@ -2290,16 +2290,6 @@ msgstr ""
 msgid "Critical"
 msgstr ""
 
-#: src/ActionRouter/Actions/Render/Components/Modals/IntroVideoModal.php:16
-#, php-format
-msgid "Demo: Important UI changes with %s v20"
-msgstr ""
-
-#: src/ActionRouter/Actions/Render/Components/Modals/IntroVideoModal.php:17
-#, php-format
-msgid "%s for WordPress v20 Introduction"
-msgstr ""
-
 #: src/ActionRouter/Actions/Render/Components/OffCanvas/FormReportCreate.php:15
 msgid "Create New Report"
 msgstr ""

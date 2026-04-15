@@ -80,7 +80,7 @@ if [ "${SITE_PROFILE}" = "test" ]; then
 				if ( !is_array( $userMeta ) ) {
 					$userMeta = [];
 				}
-				$userMeta[ "tours" ] = [ "dashboard_v1" => $now ];
+				$userMeta[ "tours" ] = [ "dashboard_v22" => $now ];
 				update_user_meta( (int)$adminUser->ID, $metaKey, $userMeta );
 			}
 		}

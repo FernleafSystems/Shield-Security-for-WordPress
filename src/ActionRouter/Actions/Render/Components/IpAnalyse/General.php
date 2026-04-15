@@ -68,19 +68,18 @@ class General extends Base {
 			$record = ( new BotSignalsRecord() )
 				->setIP( $ip )
 				->retrieve();
-			if ( !empty( $record ) ) {
-				$carbon = Services::Request()->carbon();
-				foreach ( $scores as $scoreKey => $scoreValue ) {
-					if ( $scoreValue !== 0 ) {
-						$column = $scoreKey.'_at';
-						if ( empty( $record->{$column} ) ) {
-							$signalTimestamps[ $scoreKey ] = \in_array( $scoreKey, [ 'known', 'created' ] )
-								? __( 'N/A', 'wp-simple-firewall' )
-								: __( 'Never Recorded', 'wp-simple-firewall' );
-						}
-						else {
-							$signalTimestamps[ $scoreKey ] = $carbon->setTimestamp( $record->{$column} )->diffForHumans();
-						}
+
+			$carbon = Services::Request()->carbon();
+			foreach ( $scores as $scoreKey => $scoreValue ) {
+				if ( $scoreValue !== 0 ) {
+					$column = $scoreKey.'_at';
+					if ( empty( $record->{$column} ) ) {
+						$signalTimestamps[ $scoreKey ] = \in_array( $scoreKey, [ 'known', 'created' ] )
+							? __( 'N/A', 'wp-simple-firewall' )
+							: __( 'Never Recorded', 'wp-simple-firewall' );
+					}
+					else {
+						$signalTimestamps[ $scoreKey ] = $carbon->setTimestamp( $record->{$column} )->diffForHumans();
 					}
 				}
 			}

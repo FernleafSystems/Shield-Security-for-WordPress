@@ -20,9 +20,59 @@ declare const shieldEventsHandler_Main: {
 	addHandler( eventName: string, selector: string, callback: ( targetEl: Element, evt: Event ) => void, suppress?: boolean ) :void;
 };
 
+declare module "*.scss";
+
+type ShieldPluginOnboardingStepData = {
+	selector: string;
+	title: string;
+	intro: string;
+	position: string;
+	required: boolean;
+};
+
+type ShieldPluginOnboardingVideoModalData = {
+	is_enabled: boolean;
+	embed_url: string;
+	modal_title: string;
+	video_title: string;
+	body_copy: string;
+	continue_label: string;
+	skip_label: string;
+};
+
+type ShieldPluginOnboardingTourData = {
+	key: string;
+	is_available: boolean;
+	steps: ShieldPluginOnboardingStepData[];
+	options: Record<string, any>;
+	video_modal: ShieldPluginOnboardingVideoModalData;
+};
+
+type ShieldPluginOnboardingBaseData = {
+	ajax: {
+		finished: Record<string, any>;
+	};
+	vars: {
+		tour: ShieldPluginOnboardingTourData;
+	};
+};
+
+type ShieldPluginOnboardingGlobal = {
+	comps?: {
+		plugin_onboarding?: ShieldPluginOnboardingBaseData;
+	};
+};
+
 interface Window {
 	shieldAppMain?: {
 		components?: Record<string, any>;
+	};
+	shield_vars_plugin_onboarding?: ShieldPluginOnboardingGlobal;
+	Vimeo?: {
+		Player: new ( iframe: HTMLIFrameElement ) => {
+			destroy?: () => Promise<void>;
+			unload?: () => Promise<void>;
+		};
 	};
 }
 

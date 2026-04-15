@@ -36,11 +36,24 @@ class AssetsCustomizer {
 	}
 
 	protected function run() {
+		add_filter( 'shield/custom_enqueue_assets', fn( array $assets ) => $this->buildCustomEnqueueAssets( $assets ) );
+
 		add_filter( 'shield/custom_localisations', function ( array $locals, string $hook = '', array $handles = [] ) {
-			$this->hook = $hook;
-			$this->handles = $handles;
-			return \array_merge( $locals, \array_filter( $this->buildForComponents() ) );
+			return $this->buildCustomLocalisations( $locals, $hook, $handles );
 		}, 10, 3 );
+	}
+
+	private function buildCustomEnqueueAssets( array $assets ) :array {
+		if ( $this->isPluginOnboardingRequired() ) {
+			$assets[] = 'plugin_onboarding';
+		}
+		return \array_unique( $assets );
+	}
+
+	private function buildCustomLocalisations( array $locals, string $hook = '', array $handles = [] ) :array {
+		$this->hook = $hook;
+		$this->handles = $handles;
+		return \array_merge( $locals, \array_filter( $this->buildForComponents() ) );
 	}
 
 	private function buildForComponents() :array {
@@ -578,10 +591,11 @@ class AssetsCustomizer {
 					];
 				},
 			],
-			'tours'            => [
-				'key'     => 'tours',
-				'handles' => [
-					'main',
+			'plugin_onboarding' => [
+				'key'      => 'plugin_onboarding',
+				'required' => $this->isPluginOnboardingRequired(),
+				'handles'  => [
+					'plugin_onboarding',
 				],
 				'data'    => function () {
 					$tourManager = new TourManager();
@@ -628,5 +642,9 @@ class AssetsCustomizer {
 				 || ( self::con()->comps->opts_lookup->ipSource() === 'AUTO_DETECT_IP' && $since > \DAY_IN_SECONDS )
 				 || ( Services::WpUsers()->isUserAdmin() && !empty( $req->query( 'shield_check_ip_source' ) ) )
 		);
+	}
+
+	private function isPluginOnboardingRequired() :bool {
+		return ( ( new TourManager() )->getTour()[ 'is_available' ] ?? false ) === true;
 	}
 }

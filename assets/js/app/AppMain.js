@@ -44,7 +44,6 @@ import { ShieldTableSessions } from "../components/tables/ShieldTableSessions";
 import { ShieldStrings } from "../services/ShieldStrings";
 import { ShieldEventsHandler } from "../services/ShieldEventsHandler";
 import { SuperSearchService } from "../components/search/SuperSearchService";
-import { Tours } from "../components/general/Tours";
 import { TrafficLiveLogs } from "../components/general/TrafficLiveLogs";
 import { TestRest } from "../components/general/TestRest";
 import { ShieldTableScansHistory } from "../components/tables/ShieldTableScansHistory";
@@ -112,7 +111,6 @@ export class AppMain extends AppBase {
 		this.components.scans = ( 'scans' in comps ) ? new ScansHandler( comps.scans ) : null;
 		this.components.sec_admin = ( 'sec_admin' in comps ) ? new SecurityAdmin( comps.sec_admin ) : null;
 		this.components.testrest = ( 'testrest' in comps ) ? new TestRest( comps.testrest ) : null;
-		this.components.tours = ( 'tours' in comps ) ? new Tours( comps.tours ) : null;
 		this.components.traffic = ( 'traffic' in comps ) ? new TrafficLiveLogs( comps.traffic ) : null;
 
 		this.components.tables_activity = ( 'activity' in comps.tables ) ? new ShieldTableActivityLog( comps.tables.activity ) : null;

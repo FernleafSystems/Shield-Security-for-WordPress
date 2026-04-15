@@ -26,6 +26,19 @@
             }
         },
         {
+            "handle": "plugin_onboarding",
+            "deps": [
+                "shield/tp/vimeo_player"
+            ],
+            "types": [
+                "js",
+                "css"
+            ],
+            "flags": {
+                "admin_only": true
+            }
+        },
+        {
             "handle": "wpadmin",
             "zones": [
                 "wp_admin"
