@@ -15,7 +15,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\ContainerRenderer;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse\{
 	Activity,
-	BotSignals,
 	General,
 	Sessions,
 	Traffic
@@ -89,7 +88,6 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 			],
 			\array_column( $this->capture->renders, 'action' )
 		);
-		$this->assertNotContains( BotSignals::class, \array_column( $this->capture->renders, 'action' ) );
 	}
 
 	private function installControllerStub() :void {

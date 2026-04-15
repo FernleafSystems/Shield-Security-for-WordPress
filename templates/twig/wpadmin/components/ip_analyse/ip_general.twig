@@ -1,7 +1,7 @@
 <div style="overflow-x:auto">
 	<div style="min-width:720px">
 		<div style="display:grid; grid-template-columns:240px minmax(0,1fr)">
-			<div style="border-right:1px solid #eaecee; padding:1.25rem 1.125rem; display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:1rem; text-align:center">
+			<div style="border:1px solid {{ vars.overview.verdict_card_border_color }}; border-radius:8px; margin:1rem; padding:1.1rem 1rem; display:flex; flex-direction:column; align-items:center; justify-content:space-between; gap:1rem; text-align:center; background:{{ vars.overview.verdict_card_background_color }}">
 				<div style="display:flex; flex-direction:column; align-items:center">
 					<div style="width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid; font-size:1.75rem; margin-bottom:.65rem; color:{{ vars.overview.verdict_color }}; border-color:{{ vars.overview.verdict_border_color }}; background:{{ vars.overview.verdict_background_color }}">
 						<i class="bi {{ vars.overview.verdict_icon_class }}"></i>
@@ -165,28 +165,26 @@
 
 			<div style="padding:1rem 1.125rem; border-left:1px solid #e9ecee; background:#f5f6f5; min-width:190px; display:flex; flex-direction:column">
 				<div style="font-size:.72rem; font-weight:700; color:#5f6974; text-transform:uppercase; letter-spacing:.06em; margin-bottom:.65rem">{{ strings.title_actions }}</div>
+				{% set action_button_style = 'width:100%; margin:0; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem' %}
 				<div style="display:flex; flex-direction:column; gap:.4rem">
 					{% if vars.status.is_blocked %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-unlock"></i>{{ strings.unblock_ip }}
 						</a>
 					{% elseif not vars.status.is_bypass %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="block" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="block" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-lock"></i>{{ strings.block_ip }}
 						</a>
 					{% endif %}
 					{% if vars.status.is_bypass %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-x-square"></i>{{ strings.unbypass_ip }}
 						</a>
 					{% else %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem">
+						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-check-square"></i>{{ strings.bypass_ip }}
 						</a>
 					{% endif %}
-					<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="delete_notbot" data-ip="{{ vars.ip }}" style="width:100%; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem; opacity:.8">
-						<i class="bi bi-arrow-counterclockwise"></i>{{ strings.delete_notbot }}
-					</a>
 				</div>
 			</div>
 		</div>

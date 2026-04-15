@@ -156,7 +156,6 @@ class Constants {
 		Actions\Render\Components\IpAnalyse\Container::class,
 		Actions\Render\Components\IpAnalyse\General::class,
 		Actions\Render\Components\IpAnalyse\Activity::class,
-		Actions\Render\Components\IpAnalyse\BotSignals::class,
 		Actions\Render\Components\IpAnalyse\Sessions::class,
 		Actions\Render\Components\IpAnalyse\Traffic::class,
 		Actions\Render\Components\IPs\FormIpRuleAdd::class,

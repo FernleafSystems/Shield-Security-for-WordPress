@@ -24,7 +24,7 @@ class LoginIntentFormShield extends BaseForm {
 				'page_title'         => __( 'Verify your login', 'wp-simple-firewall' ),
 				'page_subtitle'      => __( "Choose a method you've registered.", 'wp-simple-firewall' ),
 				'secure_session'     => __( 'Secure session', 'wp-simple-firewall' ),
-				'hero_heading'       => __( 'One more step to your dashboard.', 'wp-simple-firewall' ),
+				'hero_heading'       => __( 'Confirm Your Identity.', 'wp-simple-firewall' ),
 				'hero_body'          => __( "Pick any method you've set up. We'll get you in as soon as you confirm it's really you.", 'wp-simple-firewall' ),
 				'stat_session'       => __( 'Session', 'wp-simple-firewall' ),
 				'stat_session_value' => __( 'Encrypted', 'wp-simple-firewall' ),
