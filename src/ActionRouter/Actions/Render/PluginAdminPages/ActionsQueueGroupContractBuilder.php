@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupManagementLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
- * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
  * @phpstan-type GroupSeed array{
  *   key:string,
  *   is_healthy:bool,
@@ -350,7 +349,7 @@ class ActionsQueueGroupContractBuilder {
 			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],
 			'narrative'           => $narrative,
 			'drill_hint'          => $this->buildDrillHint(
-				$definition,
+				$seed[ 'definition_key' ],
 				$seed[ 'item_count' ],
 				$seed[ 'detail_shell' ],
 				$seed[ 'status' ]
@@ -426,23 +425,23 @@ class ActionsQueueGroupContractBuilder {
 		}
 	}
 
-	/**
-	 * @phpstan-param GroupDefinition $definition
-	 */
-	private function buildDrillHint( array $definition, int $itemCount, string $detailShell, string $status ) :string {
+	private function buildDrillHint( string $definitionKey, int $itemCount, string $detailShell, string $status ) :string {
 		if ( $itemCount < 1 || $detailShell === 'maintenance' || $status === 'good' ) {
 			return '';
 		}
-		if ( $definition[ 'drill_hint_single' ] === '' || $definition[ 'drill_hint_plural' ] === '' ) {
-			return '';
-		}
 
-		$pattern = _n(
-			$definition[ 'drill_hint_single' ],
-			$definition[ 'drill_hint_plural' ],
-			$itemCount,
-			'wp-simple-firewall'
-		);
+		switch ( $definitionKey ) {
+			case 'wordpress':
+			case 'plugins':
+			case 'themes':
+			case 'malware':
+			case 'file_locker':
+				$pattern = _n( 'View %s file', 'View %s files', $itemCount, 'wp-simple-firewall' );
+				break;
+
+			default:
+				return '';
+		}
 
 		return \sprintf( $pattern, number_format_i18n( $itemCount ) );
 	}

@@ -16,7 +16,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueGroupsBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	MaintenancePluginsService,
+	ServicesState
+};
 use FernleafSystems\Wordpress\Services\Core\{
 	General,
 	Request,
@@ -92,6 +95,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					return 0;
 				}
 			},
+			'service_wpplugins' => new MaintenancePluginsService( [
+				'updates'       => [],
+				'plugins'       => [],
+				'active'        => [],
+				'plugin_vos'    => [],
+				'activate_urls' => [],
+				'upgrade_urls'  => [],
+			] ),
 		] );
 	}
 

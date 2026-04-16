@@ -51,6 +51,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance' ][ 'card_type' ] );
 		$this->assertSame( Maintenance::class, $definitions[ 'maintenance' ][ 'render_action_class' ] );
+		$this->assertSame( 'Maintenance Items', $definitions[ 'maintenance' ][ 'label' ] );
 		$this->assertSame( 'System', $definitions[ 'maintenance_system' ][ 'label' ] );
 		$this->assertSame( 'bi bi-shield-lock-fill', $definitions[ 'maintenance_system' ][ 'icon_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance_system' ][ 'detail_shell' ] );
@@ -89,25 +90,6 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 5, $definitions->sortOrderForGroupKey( 'malware' ) );
 		$this->assertSame( 6, $definitions->sortOrderForGroupKey( 'file_locker' ) );
 		$this->assertSame( '', $definitions->sectionLabelForGroupKey( 'maintenance' ) );
-	}
-
-	public function test_drill_hint_patterns_are_group_specific() :void {
-		$definitions = ( new ActionsQueueGroupDefinitions() )->all();
-
-		$this->assertSame( 'View %s file', $definitions[ 'plugins' ][ 'drill_hint_single' ] );
-		$this->assertSame( 'View %s files', $definitions[ 'plugins' ][ 'drill_hint_plural' ] );
-		$this->assertSame( 'View %s file', $definitions[ 'themes' ][ 'drill_hint_single' ] );
-		$this->assertSame( 'View %s files', $definitions[ 'themes' ][ 'drill_hint_plural' ] );
-		$this->assertSame( 'View %s file', $definitions[ 'wordpress' ][ 'drill_hint_single' ] );
-		$this->assertSame( 'View %s files', $definitions[ 'wordpress' ][ 'drill_hint_plural' ] );
-		$this->assertSame( 'View %s file', $definitions[ 'malware' ][ 'drill_hint_single' ] );
-		$this->assertSame( 'View %s files', $definitions[ 'malware' ][ 'drill_hint_plural' ] );
-		$this->assertSame( 'View %s file', $definitions[ 'file_locker' ][ 'drill_hint_single' ] );
-		$this->assertSame( 'View %s files', $definitions[ 'file_locker' ][ 'drill_hint_plural' ] );
-		$this->assertSame( '', $definitions[ 'vulnerabilities' ][ 'drill_hint_single' ] );
-		$this->assertSame( '', $definitions[ 'vulnerabilities' ][ 'drill_hint_plural' ] );
-		$this->assertSame( '', $definitions[ 'maintenance' ][ 'drill_hint_single' ] );
-		$this->assertSame( '', $definitions[ 'maintenance' ][ 'drill_hint_plural' ] );
 	}
 
 	public function test_summary_keys_map_back_to_canonical_group_keys() :void {

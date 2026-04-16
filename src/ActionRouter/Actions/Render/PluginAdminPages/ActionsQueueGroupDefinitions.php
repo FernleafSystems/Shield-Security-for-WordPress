@@ -26,8 +26,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   icon_class:string,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',
- *   drill_hint_single:string,
- *   drill_hint_plural:string,
  *   summary_keys:list<string>,
  *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
  *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes',
@@ -45,119 +43,97 @@ class ActionsQueueGroupDefinitions {
 
 	private const GROUP_METADATA = [
 		'wordpress' => [
-			'sort_order'            => 2,
-			'section_key'           => 'wordpress',
-			'section_order'         => 0,
-			'section_label_override' => 'File Integrity',
-			'detail_shell'          => 'direct_table',
-			'card_type'             => 'expandable',
-			'drill_hint_single'     => 'View %s file',
-			'drill_hint_plural'     => 'View %s files',
+			'sort_order'               => 2,
+			'section_key'              => 'wordpress',
+			'section_order'            => 0,
+			'detail_shell'             => 'direct_table',
+			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'ignored_only',
-			'healthy_ignored_source' => 'wordpress',
-			'render_action_class'   => Wordpress::class,
-			'render_action_data'    => 'scan_results',
+			'healthy_ignored_source'   => 'wordpress',
+			'render_action_class'      => Wordpress::class,
+			'render_action_data'       => 'scan_results',
 		],
 		'plugins' => [
-			'sort_order'            => 3,
-			'section_key'           => 'plugins',
-			'section_order'         => 2,
-			'detail_shell'          => 'asset_cards',
-			'card_type'             => 'expandable',
-			'drill_hint_single'     => 'View %s file',
-			'drill_hint_plural'     => 'View %s files',
+			'sort_order'               => 3,
+			'section_key'              => 'plugins',
+			'section_order'            => 2,
+			'detail_shell'             => 'asset_cards',
+			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'ignored_only',
-			'healthy_ignored_source' => 'plugins',
-			'render_action_class'   => Plugins::class,
-			'render_action_data'    => 'scan_results',
+			'healthy_ignored_source'   => 'plugins',
+			'render_action_class'      => Plugins::class,
+			'render_action_data'       => 'scan_results',
 		],
 		'themes' => [
-			'sort_order'            => 4,
-			'section_key'           => 'themes',
-			'section_order'         => 3,
-			'detail_shell'          => 'asset_cards',
-			'card_type'             => 'expandable',
-			'drill_hint_single'     => 'View %s file',
-			'drill_hint_plural'     => 'View %s files',
+			'sort_order'               => 4,
+			'section_key'              => 'themes',
+			'section_order'            => 3,
+			'detail_shell'             => 'asset_cards',
+			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'ignored_only',
-			'healthy_ignored_source' => 'themes',
-			'render_action_class'   => Themes::class,
-			'render_action_data'    => 'scan_results',
+			'healthy_ignored_source'   => 'themes',
+			'render_action_class'      => Themes::class,
+			'render_action_data'       => 'scan_results',
 		],
 		'vulnerabilities' => [
-			'sort_order'            => 0,
-			'section_key'           => 'vulnerabilities',
-			'section_order'         => 1,
-			'section_label_override' => 'Known Vulnerabilities',
-			'detail_shell'          => 'direct_table',
-			'card_type'             => 'linked',
-			'drill_hint_single'     => '',
-			'drill_hint_plural'     => '',
+			'sort_order'               => 0,
+			'section_key'              => 'vulnerabilities',
+			'section_order'            => 1,
+			'detail_shell'             => 'direct_table',
+			'card_type'                => 'linked',
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source' => '',
-			'render_action_class'   => Vulnerabilities::class,
-			'render_action_data'    => [
+			'healthy_ignored_source'   => '',
+			'render_action_class'      => Vulnerabilities::class,
+			'render_action_data'       => [
 				'section' => 'vulnerable',
 			],
 		],
 		'abandoned' => [
-			'sort_order'            => 1,
-			'section_key'           => 'abandoned',
-			'section_order'         => 4,
-			'detail_shell'          => 'direct_table',
-			'card_type'             => 'linked',
-			'drill_hint_single'     => '',
-			'drill_hint_plural'     => '',
+			'sort_order'               => 1,
+			'section_key'              => 'abandoned',
+			'section_order'            => 4,
+			'detail_shell'             => 'direct_table',
+			'card_type'                => 'linked',
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source' => '',
-			'render_action_class'   => Vulnerabilities::class,
-			'render_action_data'    => [
+			'healthy_ignored_source'   => '',
+			'render_action_class'      => Vulnerabilities::class,
+			'render_action_data'       => [
 				'section' => 'abandoned',
 			],
 		],
 		'malware' => [
-			'label_override'        => 'Malware Detections',
-			'sort_order'            => 5,
-			'section_key'           => 'wordpress',
-			'section_order'         => 0,
-			'detail_shell'          => 'direct_table',
-			'card_type'             => 'expandable',
-			'drill_hint_single'     => 'View %s file',
-			'drill_hint_plural'     => 'View %s files',
+			'sort_order'               => 5,
+			'section_key'              => 'wordpress',
+			'section_order'            => 0,
+			'detail_shell'             => 'direct_table',
+			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source' => '',
-			'render_action_class'   => Malware::class,
-			'render_action_data'    => 'scan_results',
+			'healthy_ignored_source'   => '',
+			'render_action_class'      => Malware::class,
+			'render_action_data'       => 'scan_results',
 		],
 		'file_locker' => [
-			'label_override'        => 'File Changes',
-			'sort_order'            => 6,
-			'section_key'           => 'wordpress',
-			'section_order'         => 0,
-			'detail_shell'          => 'asset_cards',
-			'card_type'             => 'expandable',
-			'drill_hint_single'     => 'View %s file',
-			'drill_hint_plural'     => 'View %s files',
+			'sort_order'               => 6,
+			'section_key'              => 'wordpress',
+			'section_order'            => 0,
+			'detail_shell'             => 'asset_cards',
+			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'default_detail',
-			'healthy_ignored_source' => '',
-			'render_action_class'   => FileLocker::class,
-			'render_action_data'    => 'scan_results',
+			'healthy_ignored_source'   => '',
+			'render_action_class'      => FileLocker::class,
+			'render_action_data'       => 'scan_results',
 		],
 		'maintenance' => [
-			'label_override'        => 'Maintenance Items',
-			'sort_order'            => 7,
-			'section_key'           => '',
-			'section_order'         => 99,
-			'icon_class'            => 'bi bi-wrench',
-			'detail_shell'          => 'maintenance',
-			'card_type'             => 'category',
-			'drill_hint_single'     => '',
-			'drill_hint_plural'     => '',
+			'sort_order'               => 7,
+			'section_key'              => '',
+			'section_order'            => 99,
+			'icon_class'               => 'bi bi-wrench',
+			'detail_shell'             => 'maintenance',
+			'card_type'                => 'category',
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source' => '',
-			'render_action_class'   => Maintenance::class,
-			'render_action_data'    => 'none',
-			'summary_keys'          => [],
+			'healthy_ignored_source'   => '',
+			'render_action_class'      => Maintenance::class,
+			'render_action_data'       => 'none',
 		],
 	];
 
@@ -191,18 +167,16 @@ class ActionsQueueGroupDefinitions {
 
 	private const REVIEW_MAINTENANCE_GROUPS = [
 		'maintenance_system' => [
-			'label'      => 'System',
-			'icon_key'   => 'system_ssl_certificate',
-			'item_keys'  => [
+			'icon_key'  => 'system_ssl_certificate',
+			'item_keys' => [
 				'system_lib_openssl',
 				'system_ssl_certificate',
 				'system_php_version',
 			],
 		],
 		'maintenance_wordpress' => [
-			'label'      => 'WordPress',
-			'icon_key'   => 'wp_updates',
-			'item_keys'  => [
+			'icon_key'  => 'wp_updates',
+			'item_keys' => [
 				'wp_updates',
 				'wp_db_password',
 				'default_admin_user',
@@ -233,25 +207,22 @@ class ActionsQueueGroupDefinitions {
 
 		foreach ( PluginNavs::actionsQueueScanDefinitions() as $key => $scanDefinition ) {
 			$metadata = self::GROUP_METADATA[ $key ];
+			$labelOverride = $this->labelOverrideForGroupKey( $key );
 			$definitions[ $key ] = [
-				'key'                 => $key,
-				'label'               => __( $metadata[ 'label_override' ] ?? $scanDefinition[ 'label' ], 'wp-simple-firewall' ),
-				'sort_order'          => $metadata[ 'sort_order' ],
-				'section_key'         => $metadata[ 'section_key' ],
-				'section_order'       => $metadata[ 'section_order' ],
-				'section_label'       => isset( $metadata[ 'section_label_override' ] )
-					? __( $metadata[ 'section_label_override' ], 'wp-simple-firewall' )
-					: '',
-				'icon_class'          => $metadata[ 'icon_class' ] ?? PluginNavs::actionsLandingScanRailIconClass( $key ),
-				'detail_shell'        => $metadata[ 'detail_shell' ],
-				'card_type'           => $metadata[ 'card_type' ],
-				'drill_hint_single'   => __( $metadata[ 'drill_hint_single' ], 'wp-simple-firewall' ),
-				'drill_hint_plural'   => __( $metadata[ 'drill_hint_plural' ], 'wp-simple-firewall' ),
-				'summary_keys'        => $scanDefinition[ 'summary_keys' ],
+				'key'                      => $key,
+				'label'                    => $labelOverride !== '' ? $labelOverride : $scanDefinition[ 'label' ],
+				'sort_order'               => $metadata[ 'sort_order' ],
+				'section_key'              => $metadata[ 'section_key' ],
+				'section_order'            => $metadata[ 'section_order' ],
+				'section_label'            => $this->sectionLabelOverrideForGroupKey( $key ),
+				'icon_class'               => $metadata[ 'icon_class' ] ?? PluginNavs::actionsLandingScanRailIconClass( $key ),
+				'detail_shell'             => $metadata[ 'detail_shell' ],
+				'card_type'                => $metadata[ 'card_type' ],
+				'summary_keys'             => $scanDefinition[ 'summary_keys' ],
 				'healthy_interaction_mode' => $metadata[ 'healthy_interaction_mode' ],
-				'healthy_ignored_source' => $metadata[ 'healthy_ignored_source' ],
-				'render_action_class' => $metadata[ 'render_action_class' ],
-				'render_action_data'  => $this->renderActionDataForMode( $metadata[ 'render_action_data' ] ),
+				'healthy_ignored_source'   => $metadata[ 'healthy_ignored_source' ],
+				'render_action_class'      => $metadata[ 'render_action_class' ],
+				'render_action_data'       => $this->renderActionDataForMode( $metadata[ 'render_action_data' ] ),
 			];
 		}
 
@@ -270,43 +241,39 @@ class ActionsQueueGroupDefinitions {
 
 		$maintenance = self::GROUP_METADATA[ 'maintenance' ];
 		$definitions[ 'maintenance' ] = [
-			'key'                 => 'maintenance',
-			'label'               => __( $maintenance[ 'label_override' ], 'wp-simple-firewall' ),
-			'sort_order'          => $maintenance[ 'sort_order' ],
-			'section_key'         => $maintenance[ 'section_key' ],
-			'section_order'       => $maintenance[ 'section_order' ],
-			'section_label'       => '',
-			'icon_class'          => $maintenance[ 'icon_class' ],
-			'detail_shell'        => $maintenance[ 'detail_shell' ],
-			'card_type'           => $maintenance[ 'card_type' ],
-			'drill_hint_single'   => '',
-			'drill_hint_plural'   => '',
-			'summary_keys'        => [],
+			'key'                      => 'maintenance',
+			'label'                    => $this->labelOverrideForGroupKey( 'maintenance' ),
+			'sort_order'               => $maintenance[ 'sort_order' ],
+			'section_key'              => $maintenance[ 'section_key' ],
+			'section_order'            => $maintenance[ 'section_order' ],
+			'section_label'            => '',
+			'icon_class'               => $maintenance[ 'icon_class' ],
+			'detail_shell'             => $maintenance[ 'detail_shell' ],
+			'card_type'                => $maintenance[ 'card_type' ],
+			'summary_keys'             => [],
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source' => '',
-			'render_action_class' => $maintenance[ 'render_action_class' ],
-			'render_action_data'  => [],
+			'healthy_ignored_source'   => '',
+			'render_action_class'      => $maintenance[ 'render_action_class' ],
+			'render_action_data'       => [],
 		];
 
 		$itemIcons = new ActionsQueueItemIcons();
 		foreach ( self::REVIEW_MAINTENANCE_GROUPS as $groupKey => $group ) {
 			$definitions[ $groupKey ] = [
-				'key'                 => $groupKey,
-				'label'               => __( $group[ 'label' ], 'wp-simple-firewall' ),
-				'sort_order'          => $maintenance[ 'sort_order' ],
-				'section_key'         => $maintenance[ 'section_key' ],
-				'section_order'       => $maintenance[ 'section_order' ],
-				'section_label'       => '',
-				'icon_class'          => $itemIcons->iconClassForKey( $group[ 'icon_key' ] ),
-				'detail_shell'        => $maintenance[ 'detail_shell' ],
-				'card_type'           => $maintenance[ 'card_type' ],
-				'drill_hint_single'   => '',
-				'drill_hint_plural'   => '',
-				'summary_keys'        => [],
+				'key'                      => $groupKey,
+				'label'                    => $this->reviewMaintenanceLabelForGroupKey( $groupKey ),
+				'sort_order'               => $maintenance[ 'sort_order' ],
+				'section_key'              => $maintenance[ 'section_key' ],
+				'section_order'            => $maintenance[ 'section_order' ],
+				'section_label'            => '',
+				'icon_class'               => $itemIcons->iconClassForKey( $group[ 'icon_key' ] ),
+				'detail_shell'             => $maintenance[ 'detail_shell' ],
+				'card_type'                => $maintenance[ 'card_type' ],
+				'summary_keys'             => [],
 				'healthy_interaction_mode' => 'none',
-				'healthy_ignored_source' => '',
-				'render_action_class' => $maintenance[ 'render_action_class' ],
-				'render_action_data'  => [],
+				'healthy_ignored_source'   => '',
+				'render_action_class'      => $maintenance[ 'render_action_class' ],
+				'render_action_data'       => [],
 			];
 		}
 
@@ -418,5 +385,47 @@ class ActionsQueueGroupDefinitions {
 		return $mode === 'scan_results'
 			? $this->queueScanResultsOptions->buildDisplayContextActionData()
 			: [];
+	}
+
+	private function labelOverrideForGroupKey( string $groupKey ) :string {
+		switch ( $groupKey ) {
+			case 'malware':
+				return __( 'Malware Detections', 'wp-simple-firewall' );
+
+			case 'file_locker':
+				return __( 'File Changes', 'wp-simple-firewall' );
+
+			case 'maintenance':
+				return __( 'Maintenance Items', 'wp-simple-firewall' );
+
+			default:
+				return '';
+		}
+	}
+
+	private function sectionLabelOverrideForGroupKey( string $groupKey ) :string {
+		switch ( $groupKey ) {
+			case 'wordpress':
+				return __( 'File Integrity', 'wp-simple-firewall' );
+
+			case 'vulnerabilities':
+				return __( 'Known Vulnerabilities', 'wp-simple-firewall' );
+
+			default:
+				return '';
+		}
+	}
+
+	private function reviewMaintenanceLabelForGroupKey( string $groupKey ) :string {
+		switch ( $groupKey ) {
+			case 'maintenance_system':
+				return __( 'System', 'wp-simple-firewall' );
+
+			case 'maintenance_wordpress':
+				return __( 'WordPress', 'wp-simple-firewall' );
+
+			default:
+				return '';
+		}
 	}
 }
