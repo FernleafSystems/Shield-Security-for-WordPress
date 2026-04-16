@@ -23,7 +23,7 @@ class ImportController {
 	 */
 	public function __construct( ?array $bridges = null ) {
 		$this->bridges = \array_values( \array_filter(
-			$bridges ?? [ new WordpressTwoFactorBridge() ],
+			$bridges ?? [ new WordpressTwoFactorBridge(), new WordfenceLoginSecurityBridge() ],
 			static fn( $bridge ) => $bridge instanceof SupplierBridgeInterface
 		) );
 	}

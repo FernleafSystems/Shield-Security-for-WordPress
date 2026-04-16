@@ -2100,6 +2100,13 @@
         "min": 0
     },
     {
+        "key": "mfa_import_wordfence_ls_unavailable",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "type": "boolean",
+        "default": false
+    },
+    {
         "key": "form_spam_providers",
         "section": "section_spam",
         "zone_comp_slugs": [

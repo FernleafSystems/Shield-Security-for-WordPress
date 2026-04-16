@@ -107,10 +107,15 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
+		$otpCandidates = $this->getNormalizedOtpCandidates( $otp );
+
 		foreach ( $this->loadMfaRecords() as $loadMfaRecord ) {
-			if ( wp_check_password( \str_replace( '-', '', $otp ), $loadMfaRecord->unique_id ) ) {
-				$valid = true;
-				self::con()->db_con->mfa->getQueryDeleter()->deleteRecord( $loadMfaRecord );
+			foreach ( $otpCandidates as $otpCandidate ) {
+				if ( wp_check_password( $otpCandidate, $loadMfaRecord->unique_id ) ) {
+					$valid = true;
+					self::con()->db_con->mfa->getQueryDeleter()->deleteRecord( $loadMfaRecord );
+					break 2;
+				}
 			}
 		}
 		return $valid;
@@ -144,5 +149,22 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 				] )
 			)
 		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getNormalizedOtpCandidates( string $otp ) :array {
+		$normalized = (string)\preg_replace( '#[\s-]+#', '', $otp );
+		$candidates = [ $normalized ];
+
+		if ( \preg_match( '#^[a-f0-9]+$#i', $normalized ) === 1 ) {
+			$candidates[] = \strtolower( $normalized );
+		}
+
+		return \array_values( \array_unique( \array_filter(
+			$candidates,
+			static fn( string $candidate ) => $candidate !== ''
+		) ) );
 	}
 }
