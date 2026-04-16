@@ -4,9 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PreStore;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogRetentionPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogRetentionPolicy;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -21,17 +19,6 @@ class OptsHandler extends DynPropertiesClass {
 	public const TYPE_ALL = 'all';
 	public const TYPE_FREE = 'free';
 	public const TYPE_PRO = 'pro';
-
-	/**
-	 * @var string[]
-	 */
-	private const LEGACY_LOGGING_OPTION_KEYS = [
-		'log_level_db',
-		'audit_trail_auto_clean',
-		'type_exclusions',
-		'custom_exclusions',
-		'auto_clean',
-	];
 
 	private array $changes = [];
 
@@ -302,9 +289,6 @@ class OptsHandler extends DynPropertiesClass {
 	 * Use only when you're sure the option key exists.
 	 */
 	public function optDef( string $key ) :array {
-		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
-			return $this->legacyLoggingOptionDefs()[ $key ];
-		}
 		return self::con()->cfg->configuration->options[ $key ];
 	}
 
@@ -338,14 +322,10 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function optExists( string $key ) :bool {
-		return isset( self::con()->cfg->configuration->options[ $key ] ) || $this->isLegacyLoggingOptionKey( $key );
+		return isset( self::con()->cfg->configuration->options[ $key ] );
 	}
 
 	public function optGet( string $key ) {
-		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
-			return $this->legacyLoggingOptionValues()[ $key ];
-		}
-
 		$value = $this->values()[ $key ] ?? null;
 
 		if ( $this->optExists( $key ) ) {
@@ -388,17 +368,10 @@ class OptsHandler extends DynPropertiesClass {
 	}
 
 	public function optReset( string $key ) :void {
-		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
-			return;
-		}
 		$this->optSet( $key, $this->optDefault( $key ) );
 	}
 
 	public function optSet( string $key, $newValue ) :self {
-		if ( $this->isLegacyLoggingOptionKey( $key ) ) {
-			return $this;
-		}
-
 		try {
 			$current = $this->values()[ $key ] ?? null;
 			$newValue = ( new Opts\PreSetOptSanitize( $key, $newValue ) )->run();
@@ -446,59 +419,6 @@ class OptsHandler extends DynPropertiesClass {
 				break;
 		}
 		return $valid;
-	}
-
-	private function isLegacyLoggingOptionKey( string $key ) :bool {
-		return \in_array( $key, self::LEGACY_LOGGING_OPTION_KEYS, true );
-	}
-
-	/**
-	 * @return array<string,array<string,mixed>>
-	 */
-	private function legacyLoggingOptionDefs() :array {
-		return [
-			'log_level_db'          => [
-				'type'    => 'multiple_select',
-				'default' => $this->legacyLoggingOptionValues()[ 'log_level_db' ],
-			],
-			'audit_trail_auto_clean' => [
-				'type'    => 'integer',
-				'default' => $this->legacyLoggingOptionValues()[ 'audit_trail_auto_clean' ],
-			],
-			'type_exclusions'       => [
-				'type'    => 'array',
-				'default' => [],
-			],
-			'custom_exclusions'     => [
-				'type'    => 'array',
-				'default' => [],
-			],
-			'auto_clean'            => [
-				'type'    => 'integer',
-				'default' => $this->legacyLoggingOptionValues()[ 'auto_clean' ],
-			],
-		];
-	}
-
-	/**
-	 * @return array<string,mixed>
-	 */
-	private function legacyLoggingOptionValues() :array {
-		$activityPolicy = new ActivityLogRetentionPolicy();
-		$activityRetentionDays = \max(
-			1,
-			(int)\ceil( $activityPolicy->defaultRetentionSeconds()/\DAY_IN_SECONDS )
-		);
-		$requestRetentionDays = ( new RequestLogRetentionPolicy() )->retentionDays()[ 'standard' ];
-		$levels = $activityPolicy->canonicalLevels();
-
-		return [
-			'log_level_db'          => $levels,
-			'audit_trail_auto_clean' => $activityRetentionDays,
-			'type_exclusions'       => [],
-			'custom_exclusions'     => [],
-			'auto_clean'            => \max( 1, (int)$requestRetentionDays ),
-		];
 	}
 
 	private function defaultAllStorageStruct() :array {
