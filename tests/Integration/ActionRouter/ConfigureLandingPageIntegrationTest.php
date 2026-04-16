@@ -255,6 +255,42 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_search_render_matches_hyphenated_and_compact_dash_option_queries() :void {
+		$cases = [
+			[
+				'search'      => 'in-plugin',
+				'config_item' => 'enable_upgrade_admin_notice',
+			],
+			[
+				'search'      => 'xml-rpc',
+				'config_item' => 'disable_xmlrpc',
+			],
+			[
+				'search'      => 'xmlrpc',
+				'config_item' => 'disable_xmlrpc',
+			],
+		];
+
+		foreach ( $cases as $case ) {
+			$payload = $this->renderConfigureSearchResults( [
+				'search' => $case[ 'search' ],
+			] );
+			$this->assertRouteRenderOutputHealthy( $payload, 'configure search results for '.$case[ 'search' ] );
+
+			$result = $this->findConfigureOptionResultByConfigItem(
+				(array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] ),
+				$case[ 'config_item' ]
+			);
+
+			$this->assertNotNull(
+				$result,
+				'Configure search should return the expected option result for '.$case[ 'search' ]
+			);
+			$this->assertSame( 'option', $result[ 'type' ] ?? '' );
+			$this->assertNotSame( '', (string)( $result[ 'href' ] ?? '' ) );
+		}
+	}
+
 	public function test_scans_and_spam_diagnosis_render_scoped_rows_and_general_settings() :void {
 		$scansPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'scans',
@@ -356,5 +392,20 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		foreach ( $components as $component ) {
 			$this->assertNotSame( [], $component[ 'config_action' ] ?? [] );
 		}
+	}
+
+	private function findConfigureOptionResultByConfigItem( array $results, string $configItem ) :?array {
+		foreach ( $results as $result ) {
+			if ( !\is_array( $result ) || ( $result[ 'type' ] ?? '' ) !== 'option' ) {
+				continue;
+			}
+
+			$focusRequest = \json_decode( (string)( $result[ 'focus_request_json' ] ?? '' ), true );
+			if ( \is_array( $focusRequest ) && ( $focusRequest[ 'config_item' ] ?? '' ) === $configItem ) {
+				return $result;
+			}
+		}
+
+		return null;
 	}
 }

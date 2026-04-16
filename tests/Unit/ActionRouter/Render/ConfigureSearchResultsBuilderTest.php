@@ -111,6 +111,10 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'description'     => [ 'This option has a specific owner that is not visible in Configure diagnosis rows.' ],
 				'zone_comp_slugs' => [ 'missing_firewall_component', 'module_firewall' ],
 			],
+			'disable_xmlrpc' => [
+				'section'         => 'section_apixml',
+				'zone_comp_slugs' => [ 'xml_rpc_component' ],
+			],
 		];
 
 		$this->installControllerStub();
@@ -213,6 +217,41 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_hyphenated_option_queries_match_compact_and_split_dash_terms() :void {
+		$xmlRpcResults = $this->newBuilder()->build( 'xml-rpc' );
+		$xmlRpcCompactResults = $this->newBuilder()->build( 'xmlrpc' );
+
+		$xmlRpcResult = $this->findOptionResultByConfigItem( $xmlRpcResults, 'disable_xmlrpc' );
+		$xmlRpcCompactResult = $this->findOptionResultByConfigItem( $xmlRpcCompactResults, 'disable_xmlrpc' );
+
+		$this->assertNotNull( $xmlRpcResult );
+		$this->assertSame( 'option', $xmlRpcResult[ 'type' ] ?? '' );
+		$this->assertSame(
+			[
+				'row_key'     => 'xml_rpc_component',
+				'config_item' => 'disable_xmlrpc',
+			],
+			\json_decode( (string)( $xmlRpcResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=security&row_key=xml_rpc_component&config_item=disable_xmlrpc',
+			$xmlRpcResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $xmlRpcCompactResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'xml_rpc_component',
+				'config_item' => 'disable_xmlrpc',
+			],
+			\json_decode( (string)( $xmlRpcCompactResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=security&row_key=xml_rpc_component&config_item=disable_xmlrpc',
+			$xmlRpcCompactResult[ 'href' ] ?? ''
+		);
+	}
+
 	private function newBuilder() :ConfigureSearchResultsBuilder {
 		$landingViewData = [
 			'diagnoses' => [
@@ -312,6 +351,40 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 						],
 					],
 				],
+				'security' => [
+					'zone_key'      => 'security',
+					'zone_label'    => 'Security',
+					'zone_icon_class' => 'bi bi-lock-fill',
+					'zone_selection_json' => \json_encode( [
+						'key'        => 'security',
+						'label'      => 'Security',
+						'status'     => 'warning',
+						'icon_class' => 'bi bi-lock-fill',
+						'header'     => [
+							'title' => 'Security',
+						],
+					], JSON_THROW_ON_ERROR ),
+					'preview_text'  => 'Review API and XML-RPC controls.',
+					'risk_context'  => 'Security settings protect exposed WordPress system interfaces.',
+					'problem_rows'  => [],
+					'review_rows'   => [
+						[
+							'key'           => 'xml_rpc_component',
+							'title'         => 'XML-RPC Controls',
+							'summary'       => 'Review XML-RPC hardening.',
+							'explanations'  => [ 'Disable XML-RPC when it is not required.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-security-xml_rpc_component',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'xml_rpc_component',
+									'config_item'         => 'disable_xmlrpc',
+								],
+							],
+						],
+					],
+					'healthy_rows'  => [],
+				],
 			],
 		];
 
@@ -365,5 +438,20 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		};
 
 		PluginControllerInstaller::install( $controller );
+	}
+
+	private function findOptionResultByConfigItem( array $results, string $configItem ) :?array {
+		foreach ( $results as $result ) {
+			if ( !\is_array( $result ) || ( $result[ 'type' ] ?? '' ) !== 'option' ) {
+				continue;
+			}
+
+			$focusRequest = \json_decode( (string)( $result[ 'focus_request_json' ] ?? '' ), true );
+			if ( \is_array( $focusRequest ) && ( $focusRequest[ 'config_item' ] ?? '' ) === $configItem ) {
+				return $result;
+			}
+		}
+
+		return null;
 	}
 }

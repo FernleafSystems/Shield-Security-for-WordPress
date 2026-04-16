@@ -32,6 +32,18 @@ class PluginSuperSearchIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_super_search_matches_compact_dash_config_queries() :void {
+		$payload = ( new ActionProcessor() )->processAction( PluginSuperSearch::SLUG, [
+			'search' => 'xmlrpc',
+		] )->payload();
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertTrue(
+			$this->resultsContainChildId( (array)( $payload[ 'results' ] ?? [] ), 'config_disable_xmlrpc' ),
+			'Expected super search to include the XML-RPC config option for compact dash queries.'
+		);
+	}
+
 	private function resultsContainIp( array $groups, string $expectedIp ) :bool {
 		foreach ( $groups as $group ) {
 			if ( !\is_array( $group ) || !\is_array( $group[ 'children' ] ?? null ) ) {
@@ -42,6 +54,23 @@ class PluginSuperSearchIntegrationTest extends ShieldIntegrationTestCase {
 					continue;
 				}
 				if ( (string)( $child[ 'ip' ] ?? '' ) === $expectedIp ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private function resultsContainChildId( array $groups, string $expectedId ) :bool {
+		foreach ( $groups as $group ) {
+			if ( !\is_array( $group ) || !\is_array( $group[ 'children' ] ?? null ) ) {
+				continue;
+			}
+			foreach ( $group[ 'children' ] as $child ) {
+				if ( !\is_array( $child ) ) {
+					continue;
+				}
+				if ( (string)( $child[ 'id' ] ?? '' ) === $expectedId ) {
 					return true;
 				}
 			}

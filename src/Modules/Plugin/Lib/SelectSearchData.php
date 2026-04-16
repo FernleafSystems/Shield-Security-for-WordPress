@@ -16,6 +16,12 @@ class SelectSearchData {
 
 	use PluginControllerConsumer;
 
+	private SearchTextTokenBuilder $searchTextTokenBuilder;
+
+	public function __construct( ?SearchTextTokenBuilder $searchTextTokenBuilder = null ) {
+		$this->searchTextTokenBuilder = $searchTextTokenBuilder ?? new SearchTextTokenBuilder();
+	}
+
 	public function build( string $terms ) :array {
 		$terms = \strtolower( \trim( sanitize_text_field( $terms ) ) );
 		return $this->postProcessResults( \array_merge( $this->textSearch( $terms ), $this->ipSearch( $terms ) ) );
@@ -82,14 +88,7 @@ class SelectSearchData {
 	 * All arrays must have simple numeric keys starting from 0.
 	 */
 	protected function textSearch( string $search ) :array {
-		// Terms must all be at least 3 characters.
-		$terms = \array_filter( \array_unique( \array_map(
-			function ( $term ) {
-				$term = \strtolower( \trim( $term ) );
-				return \strlen( $term ) > 2 ? $term : '';
-			},
-			\explode( ' ', $search )
-		) ) );
+		$terms = $this->searchTextTokenBuilder->extractTerms( $search );
 
 		$optionGroups = \array_merge(
 			$this->getToolsSearch(),
@@ -99,9 +98,12 @@ class SelectSearchData {
 		);
 
 		foreach ( $optionGroups as $optGroupKey => $optionGroup ) {
+			$groupTokens = $this->searchTextTokenBuilder->build( [ (string)( $optionGroup[ 'text' ] ?? '' ) ] );
 			foreach ( $optionGroup[ 'children' ] as $optKey => $option ) {
-
-				$count = $this->searchString( $option[ 'tokens' ].' '.$optionGroup[ 'text' ], $terms );
+				$count = $this->searchTextTokenBuilder->countMatches(
+					\trim( (string)( $option[ 'tokens' ] ?? '' ).' '.$groupTokens ),
+					$terms
+				);
 				if ( $count > 0 ) {
 					$optionGroups[ $optGroupKey ][ 'children' ][ $optKey ][ 'count' ] = $count;
 					// Remove unnecessary 'tokens' from data sent back to select2
@@ -127,10 +129,6 @@ class SelectSearchData {
 		}
 
 		return \array_values( $optionGroups );
-	}
-
-	private function searchString( string $haystack, array $needles ) :int {
-		return \count( \array_intersect( $needles, \array_map( '\trim', \explode( ' ', \strtolower( $haystack ) ) ) ) );
 	}
 
 	private function getExternalSearch() :array {
@@ -356,7 +354,7 @@ class SelectSearchData {
 		$strSection = ( new StringsSections() )->getFor( self::con()->opts->optDef( $optKey )[ 'section' ] );
 		$strOpts = ( new StringsOptions() )->getFor( $optKey );
 
-		return ( new SearchTextTokenBuilder() )->build( \array_merge(
+		return $this->searchTextTokenBuilder->build( \array_merge(
 			[
 				$strOpts[ 'name' ],
 				$strOpts[ 'summary' ],

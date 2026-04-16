@@ -20,4 +20,34 @@ class SearchTextTokenBuilderTest extends BaseUnitTest {
 		$this->assertContains( 'bot', $tokens );
 		$this->assertNotContains( 'ip', $tokens );
 	}
+
+	public function test_build_adds_compact_tokens_for_hyphenated_terms() :void {
+		$tokens = \explode( ' ', ( new SearchTextTokenBuilder() )->build( [
+			'Disable XML-RPC',
+			'In-Plugin Notices',
+		] ) );
+
+		$this->assertContains( 'xml', $tokens );
+		$this->assertContains( 'rpc', $tokens );
+		$this->assertContains( 'xmlrpc', $tokens );
+		$this->assertContains( 'plugin', $tokens );
+		$this->assertContains( 'inplugin', $tokens );
+	}
+
+	public function test_extract_terms_normalizes_hyphenated_queries_for_matching() :void {
+		$builder = new SearchTextTokenBuilder();
+
+		$this->assertSame(
+			[ 'xml', 'rpc', 'xmlrpc' ],
+			$builder->extractTerms( 'xml-rpc' )
+		);
+		$this->assertSame(
+			[ 'xmlrpc' ],
+			$builder->extractTerms( 'xmlrpc' )
+		);
+		$this->assertSame(
+			[ 'plugin', 'inplugin' ],
+			$builder->extractTerms( 'In-Plugin' )
+		);
+	}
 }

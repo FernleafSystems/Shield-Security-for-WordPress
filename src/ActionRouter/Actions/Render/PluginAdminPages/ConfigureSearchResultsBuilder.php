@@ -34,7 +34,7 @@ class ConfigureSearchResultsBuilder {
 	 * @return list<ConfigureSearchResult>
 	 */
 	public function build( string $search ) :array {
-		$terms = $this->extractSearchTerms( $search );
+		$terms = $this->searchTextTokenBuilder->extractTerms( sanitize_text_field( $search ) );
 		if ( empty( $terms ) ) {
 			return [];
 		}
@@ -66,19 +66,6 @@ class ConfigureSearchResultsBuilder {
 	}
 
 	/**
-	 * @return list<string>
-	 */
-	private function extractSearchTerms( string $search ) :array {
-		return \array_values( \array_filter( \array_unique( \array_map(
-			static function ( string $term ) :string {
-				$term = \strtolower( \trim( $term ) );
-				return \strlen( $term ) > 2 ? $term : '';
-			},
-			\explode( ' ', sanitize_text_field( $search ) )
-		) ) ) );
-	}
-
-	/**
 	 * @return ConfigureLandingViewData
 	 */
 	private function getConfigureLandingViewData() :array {
@@ -93,7 +80,7 @@ class ConfigureSearchResultsBuilder {
 
 		foreach ( $this->getConfigureLandingViewData()[ 'diagnoses' ] as $diagnosis ) {
 			$tokens = $this->buildZoneTokens( $diagnosis );
-			$score = $this->searchString( $tokens, $terms );
+			$score = $this->searchTextTokenBuilder->countMatches( $tokens, $terms );
 			if ( $score < 1 ) {
 				continue;
 			}
@@ -145,7 +132,7 @@ class ConfigureSearchResultsBuilder {
 				continue;
 			}
 
-			$score = $this->searchString(
+			$score = $this->searchTextTokenBuilder->countMatches(
 				$this->buildOptionTokens( $optionKey ),
 				$terms
 			);
@@ -370,13 +357,6 @@ class ConfigureSearchResultsBuilder {
 					&& ( !empty( $specificSlugs ) || !$this->hasSpecificZoneComponentSlug( $ownerSlugs ) );
 			}
 		) ) );
-	}
-
-	private function searchString( string $haystack, array $needles ) :int {
-		return \count( \array_intersect(
-			$needles,
-			\array_map( '\trim', \explode( ' ', \strtolower( $haystack ) ) )
-		) );
 	}
 
 	private function typePriority( string $type ) :int {
