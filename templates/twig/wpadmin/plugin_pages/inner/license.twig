@@ -1,155 +1,178 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<style>
-		#ButtonBuyNow {
-			margin: 20px;
-		}
-		.card {
-			margin-bottom: 20px;
-		}
-		.license-summary .card-body {
-			padding: 0;
-		}
-	</style>
-
-	<div class="row">
-		<div class="col-lg-5 license-summary">
-
-			{% if not flags.is_premium %}
-				<div class="row">
-					<div class="col">
-						<p>{{ strings.pro_available_blurb }}</p>
-						<ol>
-							<li>{{ strings.license_step_purchase_prefix }}
-								<a href="https://clk.shldscrty.com/buyshieldpro" target="_blank">{{ strings.license_step_purchase_link }}</a>.
-							</li>
-							<li>{{ strings.license_step_register }}</li>
-							<li>{{ strings.license_step_activate }}</li>
-						</ol>
-
-						<p class="text-center">
-							<a href="https://clk.shldscrty.com/buyshieldpro" target="_blank" id="ButtonBuyNow"
-							   class="btn btn-large btn-outline-success">
-								{{ strings.cta_upgrade }}</a>
-						</p>
+	<div class="license-page">
+		{% if flags.is_pro or flags.has_licence %}
+			<div class="sp-panel">
+				<div class="sp-panel-accent {{ vars.status_card.accent_class }}"></div>
+				<div class="status-card-body">
+					<div class="status-orb {{ vars.status_card.orb_class }}">
+						<i class="{{ vars.status_card.orb_icon }}" aria-hidden="true"></i>
+					</div>
+					<div class="flex-grow-1">
+						<div class="status-eyebrow">{{ strings.license_status_eyebrow }}</div>
+						<h2 class="status-title">
+							{{ vars.status_card.title }}
+							<span class="sp-badge {{ vars.status_card.badge_class }}">
+								<i class="{{ vars.status_card.badge_icon }}" aria-hidden="true"></i>
+								{{ vars.status_card.badge_text }}
+							</span>
+						</h2>
+						<p class="status-sub{% if vars.status_card.is_expired %} danger{% endif %}">{{ vars.status_card.subtitle }}</p>
+						<div class="lic-row-grid">
+							{% for license_key, license_val in vars.license_table %}
+								{% if license_val is not empty %}
+									<div>
+										<div class="lic-row-item-label">{{ attribute(strings, license_key) }}</div>
+										<div class="lic-row-item-value{% if license_key == 'installation_id' %} mono{% endif %}{% if vars.status_card.is_expired and license_key == 'license_expires' %} danger{% endif %}">{{ license_val|raw }}</div>
+									</div>
+								{% endif %}
+							{% endfor %}
+						</div>
 					</div>
 				</div>
-			{% endif %}
-
-			<h6 class="mb-2">{{ strings.title_license_summary }}</h6>
-			<table class="table table-hover table-sm mb-0">
-				<tbody>
-					{% for license_key, license_val in vars.license_table %}
-						{% if license_val is not empty %}
-							<tr>
-								<th scope="row">{{ attribute(strings, license_key) }}:</th>
-								<td class="">{{ license_val|raw }}</td>
-							</tr>
-						{% endif %}
-					{% endfor %}
-				</tbody>
-			</table>
-
-			<div class="row mt-4">
-				<div class="col">
-					<h6 class="mb-2">{{ strings.title_license_activation }}</h6>
-					<ol>
-						<li>
-							<a target="_blank" href="{{ hrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
-						</li>
-						<li>{{ strings.url_to_activate }}:
-							<code class="fw-bold">{{ vars.activation_url }}</code></li>
-						<li>{{ strings.license_check_limit }}.
-							<br />({{ strings.more_frequent }})
-						</li>
-					</ol>
-
-					<p class="text-center">
-						<a href="#"
-						   id="LicenseLookup"
-						   class="btn btn-success m-2 license-action"
-						   data-action="lookup"
-						   {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
-							{{ strings.check_license }}
+				<div class="status-card-footer">
+					{% if vars.status_card.is_expired %}
+						<a href="{{ hrefs.shield_pro_url }}"
+						   target="_blank"
+						   rel="noopener noreferrer"
+						   class="btn-sp-renew">
+							<i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
+							{{ strings.license_renew }}
 						</a>
-					</p>
-
+						<button type="button"
+								id="LicenseLookup"
+								class="btn-sp-danger-outline license-action"
+								data-action="lookup"
+								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
+							<i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+							{{ strings.check_license }}
+						</button>
+						<button type="button"
+								class="btn-sp-danger-outline is-muted license-action"
+								data-action="clear"
+								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
+							<i class="bi bi-x-circle" aria-hidden="true"></i>
+							{{ strings.clear_license }}
+						</button>
+					{% else %}
+						<button type="button"
+								id="LicenseLookup"
+								class="btn-sp-outline license-action"
+								data-action="lookup"
+								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
+							<i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+							{{ strings.check_license }}
+						</button>
+						<button type="button"
+								class="btn-sp-danger-outline license-action"
+								data-action="clear"
+								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
+							<i class="bi bi-x-circle" aria-hidden="true"></i>
+							{{ strings.clear_license }}
+						</button>
+					{% endif %}
+					<button type="button"
+							title="{{ strings.incase_debug }}"
+							class="btn-ghost license-action ms-auto"
+							data-action="debug">
+						<i class="bi bi-bug" aria-hidden="true"></i>
+						{{ strings.debug }}
+					</button>
 				</div>
 			</div>
+		{% else %}
+			<div class="sp-panel">
+				<div class="sp-panel-accent accent-green"></div>
+				<div class="row g-0">
+					<div class="col-lg-5">
+						<div class="action-panel">
+							<div>
+								<div class="ap-eyebrow">{{ strings.license_upgrade_eyebrow }}</div>
+								<h2 class="ap-title">{{ strings.license_activate_title }}</h2>
+								<p class="ap-sub">{{ strings.license_activate_subtitle }}</p>
+							</div>
 
-			<div class="row">
-				<div class="col text-start">
-					<p class="">
-						{% if flags.is_pro %}
-							<a href="#"
-							   class="btn py-0 px-2 btn-outline-warning text-dark license-action"
-							   data-action="clear"
-							   {% if not flags.button_enabled_check %}disabled="disabled"{% endif %} >
-								&#10008; {{ strings.clear_license }}
+							<ul class="ap-steps">
+								<li class="ap-step">
+									<span class="ap-step-num">1</span>
+									<div class="ap-step-text">
+										<a target="_blank" rel="noopener noreferrer" href="{{ hrefs.keyless_cp }}">{{ strings.activate_site_in }}</a>
+									</div>
+								</li>
+								<li class="ap-step">
+									<span class="ap-step-num">2</span>
+									<div class="ap-step-text">
+										<div class="url-block-label">{{ strings.url_to_activate }}</div>
+										<div class="url-block">{{ vars.activation_url }}</div>
+									</div>
+								</li>
+								<li class="ap-step">
+									<span class="ap-step-num">3</span>
+									<div class="ap-step-text">
+										{{ strings.license_check_limit }}.
+										<small>{{ strings.more_frequent }}</small>
+									</div>
+								</li>
+							</ul>
+
+							<button type="button"
+									id="LicenseLookup"
+									class="btn-sp-primary license-action"
+									data-action="lookup"
+									{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
+								<i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+								{{ strings.license_check_now }}
+							</button>
+
+							<a href="{{ hrefs.shield_pro_url }}"
+							   target="_blank"
+							   rel="noopener noreferrer"
+							   class="pricing-link">
+								{{ strings.license_pricing_plans }}
+								<i class="bi bi-arrow-right" aria-hidden="true"></i>
 							</a>
-						{% else %}
-							<a href="https://clk.shldscrty.com/buyshieldpro" target="_blank" class="card-link"
-							   class="">{{ strings.go_pro }}</a>
-						{% endif %}
-						<a href="#"
-						   title="{{ strings.incase_debug }}"
-						   data-action="debug"
-						   class="btn btn-link btn-sm p-0 license-action float-end">{{ strings.debug }}</a>
-					</p>
+						</div>
+						<div class="action-panel-footer">
+							<button type="button"
+									title="{{ strings.incase_debug }}"
+									class="btn-ghost license-action"
+									data-action="debug">
+								<i class="bi bi-bug" aria-hidden="true"></i>
+								{{ strings.debug }}
+							</button>
+						</div>
+					</div>
+
+					<div class="col-auto col-sep d-none d-lg-block"></div>
+
+					<div class="col-lg">
+						<div class="gallery-panel">
+							<div class="gallery-label">{{ strings.license_gallery_label }}</div>
+							<div class="feat-gallery">
+								{% for feature in vars.pro_feature_tiles %}
+									<div class="feat-tile">
+										<div class="feat-tile-icon">
+											<i class="{{ imgs.svgs.thumbs_up }}" aria-hidden="true"></i>
+										</div>
+										<div class="feat-tile-body">
+											<div class="feat-tile-title">{{ feature.title|raw }}</div>
+											<div class="feat-tile-desc">{{ feature.description|raw }}</div>
+										</div>
+									</div>
+								{% endfor %}
+							</div>
+							<div class="gallery-footer">
+								<a href="https://clk.shldscrty.com/gp" target="_blank" rel="noopener noreferrer">
+									{{ strings.cta_view_features }}
+									<i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+								</a>
+							</div>
+						</div>
+					</div>
 				</div>
-
 			</div>
-
-		</div>
-
-		<div class="col-lg-7">
-		  <div class="card gopro-card">
-
-			  <div class="card-body">
-
-				  <div class="d-grid mb-3">
-					  <a href="https://clk.shldscrty.com/gp"
-						 target="_blank"
-						 class="btn {{ flags.is_pro ? 'btn-outline-success' : 'btn-success' }}">
-						  {{ strings.cta_view_features }}</a>
-				  </div>
-
-				  <div class="accordion" id="AccordionProFeatures">
-					  {% for feature_key,feature in strings.pro_features %}
-						  <div class="accordion-item">
-							  <h2 class="accordion-header" id="featureHeading{{ feature_key }}">
-								  <button class="accordion-button {{ feature_key == 0 ? '' : 'collapsed' }}"
-										  type="button"
-										  data-bs-toggle="collapse"
-										  data-bs-target="#collapse{{ feature_key }}"
-										  aria-expanded="false" aria-controls="collapse{{ feature_key }}">
-									  <span class="svg-container me-2 text-success"><i class="{{ imgs.svgs.thumbs_up }}" aria-hidden="true"></i></span>
-									  {{ feature.title|raw }}
-								  </button>
-							  </h2>
-
-							  <div id="collapse{{ feature_key }}"
-								   class="accordion-collapse collapse {{ feature_key == 0 ? 'show' : '' }}"
-								   data-bs-parent="#AccordionProFeatures"
-								   aria-labelledby="featureHeading{{ feature_key }}">
-								  <div class="accordion-body">
-									  {% for line in feature.lines %}
-										  {{ line|raw }}
-									  {% endfor %}
-									  {% if feature.href|default('') is not empty %}
-										  <br /><a href="{{ feature.href }}" target="_blank"
-												   class="btn btn-outline-dark btn-sm mt-2">{{ strings.more_info_label }}</a>
-									  {% endif %}
-								  </div>
-							  </div>
-
-						  </div>
-					  {% endfor %}
-				  </div>
-			  </div>
-			</div>
-		</div>
+		{% endif %}
 	</div>
 	<hr />
 {% endblock %}

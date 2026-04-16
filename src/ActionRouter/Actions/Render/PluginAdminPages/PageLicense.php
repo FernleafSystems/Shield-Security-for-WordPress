@@ -17,6 +17,9 @@ class PageLicense extends BasePluginAdminPage {
 		$carb = Services::Request()->carbon();
 
 		$lic = $con->comps->license->getLicense();
+		$isPro = $con->isPremiumActive();
+		$hasLicence = !empty( $lic->item_name ) || !empty( $lic->customer_email );
+		$proFeatures = $this->getProFeatureStrings();
 
 		$expiresAt = $lic->getExpiresAt();
 		if ( $expiresAt > 0 && $expiresAt != \PHP_INT_MAX ) {
@@ -46,13 +49,54 @@ class PageLicense extends BasePluginAdminPage {
 			);
 		}
 
+		$strings = [
+			'inner_page_title'    => sprintf( __( '%s License Management', 'wp-simple-firewall' ), $con->labels->Name ),
+			'inner_page_subtitle' => sprintf( __( 'Seamlessly activate and manage your %s license without any license keys.', 'wp-simple-firewall' ), $con->labels->Name ),
+			'pro_features'        => $proFeatures,
+
+			'pro_available_blurb'          => sprintf( __( '%s Pro is available from our online store.', 'wp-simple-firewall' ), $con->labels->Name ),
+			'title_license_summary'        => __( 'License Summary', 'wp-simple-firewall' ),
+			'title_license_activation'     => __( 'License Activation', 'wp-simple-firewall' ),
+			'license_upgrade_eyebrow'      => __( 'Upgrade', 'wp-simple-firewall' ),
+			'license_activate_title'       => sprintf( __( 'Activate %s Pro', 'wp-simple-firewall' ), $con->labels->Name ),
+			'license_activate_subtitle'    => __( 'No licence keys. Simply register your site and Pro features activate automatically.', 'wp-simple-firewall' ),
+			'license_check_now'            => __( 'Check Licence Now', 'wp-simple-firewall' ),
+			'license_pricing_plans'        => __( 'See pricing plans', 'wp-simple-firewall' ),
+			'license_gallery_label'        => __( 'What you unlock with Pro', 'wp-simple-firewall' ),
+			'license_status_eyebrow'       => sprintf( __( '%s Pro', 'wp-simple-firewall' ), $con->labels->Name ),
+			'license_active_title'         => __( 'Licence Active', 'wp-simple-firewall' ),
+			'license_active_badge'         => __( 'Pro', 'wp-simple-firewall' ),
+			'license_active_subtitle'      => sprintf( __( 'Your %s Pro licence is active and your site is fully protected.', 'wp-simple-firewall' ), $con->labels->Name ),
+			'license_expired_title'        => __( 'Licence Expired', 'wp-simple-firewall' ),
+			'license_expired_badge'        => __( 'Expired', 'wp-simple-firewall' ),
+			'license_expired_subtitle'     => __( 'Pro features are currently inactive. Renew your licence to restore full protection.', 'wp-simple-firewall' ),
+			'license_renew'                => __( 'Renew Licence', 'wp-simple-firewall' ),
+			'license_step_purchase_prefix' => __( 'Just grab a new license from the', 'wp-simple-firewall' ),
+			'license_step_purchase_link'   => sprintf( __( '%s Pro store', 'wp-simple-firewall' ), $con->labels->Name ),
+			'license_step_register'        => __( 'Register your site URL with our control panel.', 'wp-simple-firewall' ),
+			'license_step_activate'        => __( "Activate your license on your sites using the 'Check License' button.", 'wp-simple-firewall' ),
+			'check_license'                => __( 'Check License', 'wp-simple-firewall' ),
+			'clear_license'                => __( 'Remove License', 'wp-simple-firewall' ),
+			'url_to_activate'              => __( 'URL To Activate', 'wp-simple-firewall' ),
+			'activate_site_in'             => sprintf(
+				__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
+				__( 'Keyless Activation', 'wp-simple-firewall' )
+			),
+			'license_check_limit'          => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
+			'more_frequent'                => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
+			'incase_debug'                 => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
+			'cta_upgrade'                  => sprintf( __( 'Upgrade To %s Pro Now', 'wp-simple-firewall' ), $con->labels->Name ),
+			'cta_view_features'            => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
+		];
+
 		return [
 			'flags'   => [
 				'show_ads'              => false,
 				'button_enabled_check'  => true,
 				'show_standard_options' => false,
 				'show_alt_content'      => true,
-				'is_pro'                => $con->isPremiumActive(),
+				'has_licence'           => $hasLicence,
+				'is_pro'                => $isPro,
 			],
 			'hrefs'   => [
 				'shield_pro_url' => 'https://clk.shldscrty.com/shieldpro',
@@ -71,31 +115,7 @@ class PageLicense extends BasePluginAdminPage {
 					'maxlength' => $config->def( 'license_key_length' ),
 				]
 			],
-			'strings' => [
-				'inner_page_title'    => sprintf( __( '%s License Management', 'wp-simple-firewall' ), $con->labels->Name ),
-				'inner_page_subtitle' => sprintf( __( 'Seamlessly activate and manage your %s license without any license keys.', 'wp-simple-firewall' ), $con->labels->Name ),
-				'pro_features'        => $this->getProFeatureStrings(),
-
-				'pro_available_blurb'          => sprintf( __( '%s Pro is available from our online store.', 'wp-simple-firewall' ), $con->labels->Name ),
-				'title_license_summary'        => __( 'License Summary', 'wp-simple-firewall' ),
-				'title_license_activation'     => __( 'License Activation', 'wp-simple-firewall' ),
-				'license_step_purchase_prefix' => __( 'Just grab a new license from the', 'wp-simple-firewall' ),
-				'license_step_purchase_link'   => sprintf( __( '%s Pro store', 'wp-simple-firewall' ), $con->labels->Name ),
-				'license_step_register'        => __( 'Register your site URL with our control panel.', 'wp-simple-firewall' ),
-				'license_step_activate'        => __( "Activate your license on your sites using the 'Check License' button.", 'wp-simple-firewall' ),
-				'check_license'                => __( 'Check License', 'wp-simple-firewall' ),
-				'clear_license'                => __( 'Remove License', 'wp-simple-firewall' ),
-				'url_to_activate'              => __( 'URL To Activate', 'wp-simple-firewall' ),
-				'activate_site_in'             => sprintf(
-					__( 'Activate this site URL in your %s control panel', 'wp-simple-firewall' ),
-					__( 'Keyless Activation', 'wp-simple-firewall' )
-				),
-				'license_check_limit'          => sprintf( __( 'Licenses may be checked once every %s seconds', 'wp-simple-firewall' ), 20 ),
-				'more_frequent'                => __( 'more frequent checks will be ignored', 'wp-simple-firewall' ),
-				'incase_debug'                 => __( 'In case of activation problems, click the link', 'wp-simple-firewall' ),
-				'cta_upgrade'                  => sprintf( __( 'Upgrade To %s Pro Now', 'wp-simple-firewall' ), $con->labels->Name ),
-				'cta_view_features'            => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
-			],
+			'strings' => $strings,
 			'vars'    => [
 				'license_table'  => [
 					'product_name'    => $lic->item_name,
@@ -106,8 +126,36 @@ class PageLicense extends BasePluginAdminPage {
 					'wphashes_token'  => $con->comps->api_token->hasToken() ? '&#10004;' : '&#10006;',
 					'installation_id' => ( new InstallationID() )->id(),
 				],
-				'activation_url' => $con->comps->license->activationURL(),
+				'activation_url'   => $con->comps->license->activationURL(),
+				'pro_feature_tiles' => $this->buildProFeatureTiles( $proFeatures ),
+				'status_card'      => $this->buildStatusCardVars( !$isPro && $hasLicence, $strings ),
 			],
+		];
+	}
+
+	private function buildProFeatureTiles( array $proFeatures ) :array {
+		return \array_map(
+			function ( array $feature ) :array {
+				return [
+					'title'       => $feature[ 'title' ],
+					'description' => $feature[ 'lines' ][ 0 ] ?? '',
+				];
+			},
+			$proFeatures
+		);
+	}
+
+	private function buildStatusCardVars( bool $isExpired, array $strings ) :array {
+		return [
+			'accent_class' => $isExpired ? 'accent-danger' : 'accent-green',
+			'orb_class'    => $isExpired ? 'orb-danger' : 'orb-green',
+			'orb_icon'     => $isExpired ? 'bi bi-shield-x' : 'bi bi-shield-fill-check',
+			'title'        => $isExpired ? $strings[ 'license_expired_title' ] : $strings[ 'license_active_title' ],
+			'badge_class'  => $isExpired ? 'badge-danger' : 'badge-green',
+			'badge_icon'   => $isExpired ? 'bi bi-exclamation-triangle-fill' : 'bi bi-check-circle-fill',
+			'badge_text'   => $isExpired ? $strings[ 'license_expired_badge' ] : $strings[ 'license_active_badge' ],
+			'subtitle'     => $isExpired ? $strings[ 'license_expired_subtitle' ] : $strings[ 'license_active_subtitle' ],
+			'is_expired'   => $isExpired,
 		];
 	}
 
