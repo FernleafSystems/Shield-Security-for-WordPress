@@ -48,7 +48,7 @@ abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 		$record->unique_id = $secret;
 		$record->label = preg_replace( '#[^\sa-z0-9_-]#i', '', $label );
 		$record->data = $data;
-		return $dbh->getQueryInserter()->insert( $record );
+		return ( new MfaRecordsHandler() )->insert( $record );
 	}
 
 	public function removeFromProfile() :void {

@@ -2,6 +2,7 @@
 
 * **FIXED**: The Shield WordPress dashboard widget is now only available to WordPress administrators.
 * **IMPROVED**: Redesigned the custom Shield two-factor login verification portal while preserving the existing verification flow and the WP login replica experience.
+* **IMPROVED**: New Google Authenticator registrations now use 32-character base32 secrets while existing registrations remain valid.
 
 #### 9.1 Series
 *Released: 23rd April 2020* - [Release Announcement](https://clk.shldscrty.com/shieldrelease91)

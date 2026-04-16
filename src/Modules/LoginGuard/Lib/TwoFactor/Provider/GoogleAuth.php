@@ -19,6 +19,8 @@ use Psr\Cache\InvalidArgumentException;
 class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'ga';
+	private const COMPAT_MIN_SECRET_LENGTH = 16;
+	private const GENERATED_SECRET_LENGTH = 32;
 
 	/**
 	 * @var Secret
@@ -31,9 +33,9 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	protected function maybeMigrate() :void {
 		$meta = self::con()->user_metas->for( $this->getUser() );
-		$legacySecret = $meta->ga_secret;
-		if ( !empty( $legacySecret ) && \strlen( $legacySecret ) === 16 && $meta->ga_validated ) {
-			$this->createNewSecretRecord( $legacySecret, 'Google Auth' );
+		$legacySecret = \trim( (string)$meta->ga_secret );
+		if ( !empty( $legacySecret ) && $meta->ga_validated && self::IsValidBase32Secret( $legacySecret )
+			 && ( $this->hasValidSecret() || $this->createNewSecretRecord( $legacySecret, 'Google Auth' ) ) ) {
 			unset( $meta->ga_secret );
 			unset( $meta->ga_validated );
 		}
@@ -178,7 +180,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	private function genTempSecret() :Secret {
 		if ( !isset( $this->tempSecret ) ) {
-			$this->tempSecret = ( new SecretFactory() )->create(
+			$this->tempSecret = ( new SecretFactory( self::GENERATED_SECRET_LENGTH ) )->create(
 				\preg_replace( '#[^\da-z]#i', '', Services::WpGeneral()->getSiteName() ),
 				sanitize_user( $this->getUser()->user_login )
 			);
@@ -196,7 +198,7 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	public static function IsValidBase32Secret( string $secret ) :bool {
 		$secret = \trim( $secret );
-		return \strlen( $secret ) >= 16
+		return \strlen( $secret ) >= self::COMPAT_MIN_SECRET_LENGTH
 			   && ( \strlen( $secret ) % 8 ) === 0
 			   && \preg_match( '#^[A-Z2-7]+$#', $secret ) === 1;
 	}

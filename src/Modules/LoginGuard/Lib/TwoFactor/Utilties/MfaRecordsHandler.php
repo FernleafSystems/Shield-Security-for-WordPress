@@ -14,13 +14,14 @@ class MfaRecordsHandler {
 	 */
 	private static array $records = [];
 
-	public function insert( MfaDB\Record $record ) {
-		self::con()
+	public function insert( MfaDB\Record $record ) :bool {
+		$inserted = self::con()
 			->db_con
 			->mfa
 			->getQueryInserter()
 			->insert( $record );
 		unset( self::$records[ $record->user_id ] );
+		return (bool)$inserted;
 	}
 
 	public function update( MfaDB\Record $record, array $updateData ) {
