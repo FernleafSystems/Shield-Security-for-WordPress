@@ -375,9 +375,10 @@ class ActionsQueueGroupDefinitions {
 	}
 
 	/**
+	 * @param array<string,mixed>|string $mode
 	 * @return array<string,mixed>
 	 */
-	private function renderActionDataForMode( array|string $mode ) :array {
+	private function renderActionDataForMode( $mode ) :array {
 		if ( \is_array( $mode ) ) {
 			return $mode;
 		}

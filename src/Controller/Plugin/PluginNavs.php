@@ -16,6 +16,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-import-type TileDefinition from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder
+ */
 class PluginNavs {
 
 	use PluginControllerConsumer;
@@ -413,7 +416,6 @@ class PluginNavs {
 	}
 
 	/**
-	 * @phpstan-import-type TileDefinition from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder
 	 * @return list<TileDefinition>
 	 */
 	public static function configureLandingTileDefinitions() :array {
