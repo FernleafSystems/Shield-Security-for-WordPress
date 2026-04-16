@@ -78,6 +78,8 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_posture_routes_report_all_clear_attention_when_no_items_need_action() :void {
+		$this->ignoreAllCurrentMaintenanceItems();
+
 		$canonicalAttention = self::con()->comps->site_query->attention();
 		$this->assertSame( 0, $canonicalAttention[ 'summary' ][ 'total' ] );
 		$this->assertSame( 'good', $canonicalAttention[ 'summary' ][ 'severity' ] );
@@ -231,5 +233,17 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 	public function denyRestPermissionFilter( $verify, \WP_REST_Request $request ) {
 		unset( $verify, $request );
 		return new \WP_Error( 'shield_rest_denied', 'Denied by test filter.' );
+	}
+
+	private function ignoreAllCurrentMaintenanceItems() :void {
+		$provider = new MaintenanceIssueStateProvider();
+		$currentIdentifiers = $provider->currentIssueIdentifiersByKey();
+
+		$this->requireController()->opts
+			 ->optSet(
+				 MaintenanceIssueStateProvider::OPT_KEY,
+				 $provider->normalizeIgnoredItems( $currentIdentifiers, $currentIdentifiers )
+			 )
+			 ->store();
 	}
 }

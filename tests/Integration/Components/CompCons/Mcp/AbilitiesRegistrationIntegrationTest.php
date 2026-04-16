@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons\Mcp;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\McpCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildScanFindings;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -74,7 +75,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertIsArray( $result );
 		$this->assertTrue( $result[ 'is_available' ] );
-		$this->assertSame( [ 'wpv', 'apc' ], $result[ 'filters' ][ 'scan_slugs' ] );
+		$this->assertEqualsCanonicalizing( [ 'wpv', 'apc' ], $result[ 'filters' ][ 'scan_slugs' ] );
 		$this->assertSame( [ 'is_vulnerable' ], $result[ 'filters' ][ 'states' ] );
 		$this->assertSame( 1, $result[ 'results' ][ 'wpv' ][ 'total' ] );
 		$this->assertSame( 0, $result[ 'results' ][ 'apc' ][ 'total' ] );
@@ -100,11 +101,16 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->registerShieldAbilities();
 
 		\add_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10, 2 );
-		$result = \wp_get_ability( AbilityDefinitions::NAME_POSTURE_OVERVIEW )->execute();
+		$ability = \wp_get_ability( AbilityDefinitions::NAME_POSTURE_OVERVIEW );
+		$permissionResult = $ability->check_permissions();
+		$this->setExpectedIncorrectUsage( 'WP_Ability::execute' );
+		$result = $ability->execute();
 		\remove_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10 );
 
+		$this->assertInstanceOf( \WP_Error::class, $permissionResult );
+		$this->assertSame( 'shield_rest_denied', $permissionResult->get_error_code() );
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'shield_rest_denied', $result->get_error_code() );
+		$this->assertSame( 'ability_invalid_permissions', $result->get_error_code() );
 	}
 
 	private function unregisterShieldAbilities() :void {
@@ -123,7 +129,9 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function registerShieldAbilities() :void {
-		self::con()->comps->mcp->resetExecution()->execute();
+		$this->unregisterShieldAbilities();
+		RuntimeRegistry::Reset();
+		( new McpCon() )->execute();
 		\do_action( 'wp_abilities_api_categories_init' );
 		\do_action( 'wp_abilities_api_init' );
 	}

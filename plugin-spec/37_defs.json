@@ -35,6 +35,7 @@
     },
     "max_free_days": 7,
     "action_hook_priority": 1000,
+    "dashboard_intro_video_url_v22": "https://vimeo.com/986378588/fde2b1c5f7?share=copy&fl=sv&fe=ci",
     "url_spam_blacklist_terms": "https://raw.githubusercontent.com/splorp/wordpress-comment-blacklist/master/blacklist.txt",
     "human_spam_check_items": [
         "author_name",

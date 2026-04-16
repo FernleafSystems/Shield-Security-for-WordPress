@@ -103,6 +103,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( 'Y', (string)$this->opts->optGet( 'importexport_enable' ) );
 		$this->assertSame( 'https://current-master.example.com', (string)$this->opts->optGet( 'importexport_masterurl' ) );
 		$this->assertStringContainsString( 'importexport_export', $this->httpRequest->lastRequestedUrl() );
+		$this->assertStringNotContainsString( 'secret', $this->httpRequest->lastRequestedUrl() );
 	}
 
 	public function test_cron_import_preserves_local_sync_state_and_master_url() :void {

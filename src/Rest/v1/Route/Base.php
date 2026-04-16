@@ -22,7 +22,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Route\Ro
 		) {
 			$verify = true;
 		}
-		return $verify;
+		return $verify === true ? true : $this->normalizePermissionDeniedResult( $verify );
 	}
 
 	protected function getConfigDefaults() :array {
@@ -50,5 +50,33 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Core\Rest\Route\Ro
 	 */
 	public function isRouteAvailable() :bool {
 		return self::con()->caps->canRestAPILevel2();
+	}
+
+	/**
+	 * @param \WP_Error|bool $verify
+	 */
+	private function normalizePermissionDeniedResult( $verify ) :\WP_Error {
+		$status = \function_exists( '\rest_authorization_required_code' ) ? \rest_authorization_required_code() : 403;
+
+		if ( \is_wp_error( $verify ) ) {
+			$errorCode = $verify->get_error_code();
+			$errorData = $verify->get_error_data( $errorCode );
+			$errorMessage = $verify->get_error_message( $errorCode );
+
+			return new \WP_Error(
+				empty( $errorCode ) ? 'shield_rest_permission_denied' : (string)$errorCode,
+				empty( $errorMessage ) ? __( 'Sorry, you are not allowed to access this resource.', 'wp-simple-firewall' ) : $errorMessage,
+				\array_merge(
+					\is_array( $errorData ) ? $errorData : [],
+					[ 'status' => (int)( \is_array( $errorData ) ? ( $errorData[ 'status' ] ?? $status ) : $status ) ]
+				)
+			);
+		}
+
+		return new \WP_Error(
+			'shield_rest_permission_denied',
+			__( 'Sorry, you are not allowed to access this resource.', 'wp-simple-firewall' ),
+			[ 'status' => $status ]
+		);
 	}
 }

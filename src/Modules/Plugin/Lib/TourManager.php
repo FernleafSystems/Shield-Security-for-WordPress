@@ -11,7 +11,7 @@ class TourManager {
 	use PluginControllerConsumer;
 
 	public const TOUR_DASHBOARD = 'dashboard_v22';
-	private const OPT_DASHBOARD_INTRO_VIDEO_URL = 'dashboard_intro_video_url';
+	private const DEF_DASHBOARD_INTRO_VIDEO_URL = 'dashboard_intro_video_url_v22';
 
 	public function getAllTours() :array {
 		return [
@@ -122,7 +122,7 @@ class TourManager {
 	 */
 	private function getDashboardVideoModal() :array {
 		$embedURL = $this->normaliseVimeoEmbedUrl(
-			(string)self::con()->opts->optGet( self::OPT_DASHBOARD_INTRO_VIDEO_URL )
+			(string)( self::con()->cfg->configuration->def( self::DEF_DASHBOARD_INTRO_VIDEO_URL ) ?? '' )
 		);
 
 		return [

@@ -172,9 +172,11 @@ class AssetsCustomizerControllerStub extends Controller {
 		$this->pluginAdminPage = $pluginAdminPage;
 		$this->pluginAdmin = $pluginAdmin;
 		$this->user_metas = $userMetas;
-		$this->opts = new AssetsCustomizerOptsStub( [
-			'dashboard_intro_video_url' => $dashboardVideoURL,
-		] );
+		$this->cfg = (object)[
+			'configuration' => new AssetsCustomizerConfigStub( [
+				'dashboard_intro_video_url_v22' => $dashboardVideoURL,
+			] ),
+		];
 	}
 
 	public function isPluginAdminPageRequest() :bool {
@@ -203,15 +205,15 @@ class AssetsCustomizerUserMetasStub {
 	}
 }
 
-class AssetsCustomizerOptsStub {
+class AssetsCustomizerConfigStub {
 
-	private array $opts;
+	private array $defs;
 
-	public function __construct( array $opts ) {
-		$this->opts = $opts;
+	public function __construct( array $defs ) {
+		$this->defs = $defs;
 	}
 
-	public function optGet( string $key ) {
-		return $this->opts[ $key ] ?? '';
+	public function def( string $key ) {
+		return $this->defs[ $key ] ?? null;
 	}
 }

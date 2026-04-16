@@ -42,8 +42,7 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_plain_request_does_not_create_cache_dir_until_feature_uses_it() :void {
 		$con = $this->requireController();
-		$preferredTempDir = $this->createTrackedTempDir( 'shield-cache-dir-' );
-		$expectedCacheDir = \path_join( $preferredTempDir, (string)$con->cfg->paths[ 'cache' ] );
+		$preferredTempDir = $this->createRuntimeTrackedTempDir( 'shield-cache-dir-' );
 
 		$con->opts
 			->optSet( 'preferred_temp_dir', $preferredTempDir )
@@ -51,8 +50,10 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->store();
 		$this->resetCacheDirHandlerState();
 
-		Services::WpFs()->deleteDir( $expectedCacheDir );
-		$this->assertFalse( Services::WpFs()->isDir( $expectedCacheDir ) );
+		$resolvedCacheDir = $con->cache_dir_handler->dir();
+		$this->assertNotSame( '', $resolvedCacheDir );
+		Services::WpFs()->deleteDir( $resolvedCacheDir );
+		$this->assertFalse( Services::WpFs()->isDir( $resolvedCacheDir ) );
 
 		$this->applyCurrentRequestState( [
 			'REQUEST_METHOD' => 'GET',
@@ -60,12 +61,12 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$con->onWpShutdown();
 
-		$this->assertFalse( Services::WpFs()->isDir( $expectedCacheDir ), 'Plain request should not eagerly create the cache directory.' );
+		$this->assertFalse( Services::WpFs()->isDir( $resolvedCacheDir ), 'Plain request should not eagerly create the cache directory.' );
 
 		$con->comps->translation_downloads->getLocaleMoFilePath( 'fr_FR' );
 
-		$this->assertTrue( Services::WpFs()->isDir( $expectedCacheDir ) );
-		$this->assertTrue( Services::WpFs()->isDir( \path_join( $expectedCacheDir, 'languages' ) ) );
+		$this->assertTrue( Services::WpFs()->isDir( $resolvedCacheDir ) );
+		$this->assertTrue( Services::WpFs()->isDir( \path_join( $resolvedCacheDir, 'languages' ) ) );
 	}
 
 	private function resetCacheDirHandlerState() :void {
@@ -76,5 +77,14 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 		$prop = $ref->getProperty( 'cacheDirHandler' );
 		$prop->setAccessible( true );
 		$prop->setValue( $con->plugin, null );
+	}
+
+	private function createRuntimeTrackedTempDir( string $prefix ) :string {
+		$path = \wp_normalize_path( \path_join( \get_temp_dir(), $prefix.\bin2hex( \random_bytes( 6 ) ) ) );
+		if ( !Services::WpFs()->isDir( $path ) && !Services::WpFs()->mkdir( $path ) ) {
+			throw new \RuntimeException( 'Failed to create runtime temporary directory: '.$path );
+		}
+		$this->trackedTempDirs[] = $path;
+		return $path;
 	}
 }

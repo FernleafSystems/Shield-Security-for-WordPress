@@ -3,12 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\General;
 
 class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase {
+
+	private const SOURCE_MASTER_URL = 'https://example.com';
+	private const CONFIGURED_MASTER_URL = 'https://example.com/configured-master';
 
 	private array $optionsSnapshot = [];
 	private array $servicesSnapshot = [];
@@ -18,6 +22,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 
 	public function set_up() {
 		parent::set_up();
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
@@ -52,7 +57,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			'importexport_masterurl' => 'https://imported-master.example.com',
 		] );
 
-		( new Import() )->fromSite( 'https://source-master.example.com' );
+		( new Import() )->fromSite( self::SOURCE_MASTER_URL );
 
 		$this->assertSame( 'Y', (string)$con->opts->optGet( 'importexport_enable' ) );
 		$this->assertSame( 'https://current-master.example.com', (string)$con->opts->optGet( 'importexport_masterurl' ) );
@@ -62,7 +67,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'importexport_enable', 'N' )
-			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
 			->store();
 
 		$this->forceCronMode( true );
@@ -74,7 +79,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		( new Import() )->fromSite();
 
 		$this->assertSame( 'N', (string)$con->opts->optGet( 'importexport_enable' ) );
-		$this->assertSame( 'https://configured-master.example.com', (string)$con->opts->optGet( 'importexport_masterurl' ) );
+		$this->assertSame( self::CONFIGURED_MASTER_URL, (string)$con->opts->optGet( 'importexport_masterurl' ) );
 	}
 
 	public function test_explicit_network_add_sets_requested_master_url() :void {
@@ -89,17 +94,17 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			'importexport_masterurl' => 'https://imported-master.example.com',
 		] );
 
-		( new Import() )->fromSite( 'https://source-master.example.com', '', true );
+		( new Import() )->fromSite( self::SOURCE_MASTER_URL, '', true );
 
 		$this->assertSame( 'Y', (string)$con->opts->optGet( 'importexport_enable' ) );
-		$this->assertSame( 'https://source-master.example.com', (string)$con->opts->optGet( 'importexport_masterurl' ) );
+		$this->assertSame( self::SOURCE_MASTER_URL, (string)$con->opts->optGet( 'importexport_masterurl' ) );
 	}
 
 	public function test_notify_noops_when_local_sync_is_disabled() :void {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'importexport_enable', 'N' )
-			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
 			->store();
 		$this->captureShieldEvents();
 
@@ -113,7 +118,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'importexport_enable', 'Y' )
-			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
 			->store();
 		$this->captureShieldEvents();
 
@@ -146,7 +151,12 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		}
 
 		$this->httpStub = static function ( $pre, $args, $url ) use ( $options ) {
-			if ( !\is_string( $url ) || !\str_contains( $url, PluginImportExport_UpdateNotified::SLUG ) && !\str_contains( $url, 'importexport_export' ) ) {
+			if ( !\is_string( $url ) ) {
+				return $pre;
+			}
+			$query = [];
+			\parse_str( (string)( \wp_parse_url( $url, \PHP_URL_QUERY ) ?? '' ), $query );
+			if ( (string)( $query[ 'ex' ] ?? '' ) !== PluginImportExport_Export::SLUG ) {
 				return $pre;
 			}
 

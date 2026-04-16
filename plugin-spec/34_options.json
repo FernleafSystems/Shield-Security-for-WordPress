@@ -3010,13 +3010,6 @@
         "default": []
     },
     {
-        "key": "dashboard_intro_video_url",
-        "tracking_exclude": true,
-        "section": "section_hidden",
-        "type": "text",
-        "default": "https://vimeo.com/986378588/fde2b1c5f7?share=copy&fl=sv&fe=ci"
-    },
-    {
         "key": "tracking_last_sent_at",
         "section": "section_hidden",
         "type": "integer",

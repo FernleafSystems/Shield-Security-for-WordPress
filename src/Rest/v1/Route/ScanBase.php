@@ -32,34 +32,14 @@ abstract class ScanBase extends Base {
 		switch ( $reqArgKey ) {
 
 			case 'scan_slugs':
-				$possible = self::con()->comps->scans->getScanSlugs();
-				$value = \array_intersect( $possible, $value );
-				if ( empty( $value ) ) {
-					$value = $possible;
-				}
+				$value = \array_values( \array_unique( \array_filter( \array_map(
+					static fn( $slug ) :string => \trim( (string)$slug ),
+					\is_array( $value ) ? $value : \explode( ',', (string)$value )
+				), static fn( string $slug ) :bool => $slug !== '' ) ) );
 				break;
 
 			default:
 				return parent::customSanitizeRequestArg( $value, $request, $reqArgKey );
-		}
-
-		return $value;
-	}
-
-	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
-
-		switch ( $reqArgKey ) {
-
-			case 'scan_slugs':
-				$possible = self::con()->comps->scans->getScanSlugs();
-				$slugsSent = \array_filter( \is_array( $value ) ? $value : \explode( ',', $value ) );
-				if ( !empty( $slugsSent ) && \count( \array_diff( $slugsSent, $possible ) ) > 0 ) {
-					throw new \Exception( sprintf( 'Invalid scan slugs provided. Please only supply: %s', \implode( ', ', $possible ) ) );
-				}
-				break;
-
-			default:
-				return parent::customValidateRequestArg( $value, $request, $reqArgKey );
 		}
 
 		return $value;

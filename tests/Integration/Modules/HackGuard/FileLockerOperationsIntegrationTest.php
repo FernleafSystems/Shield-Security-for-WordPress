@@ -17,8 +17,8 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->requireDb( 'file_locker' );
-		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
 		$this->optionSnapshot = $this->snapshotSelectedOptions( [ 'file_locker', 'filelocker_state', 'snapi_data' ] );
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
 	}
 
 	public function tear_down() {
@@ -35,43 +35,42 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_clean_lock_records_deletes_rows_for_unselected_lock_types() :void {
+		global $wpdb;
 		$con = $this->requireController();
-		$handler = $this->requireDb( 'file_locker' );
+		$handler = $this->prepareFileLockerRuntime( [ 'wpconfig' ] );
 
-		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
 		TestDataFactory::insertFileLockRecord( 'root_index', ABSPATH.'index.php' );
 		$con->comps->file_locker->clearLocks();
+		$this->assertSame( 2, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
 
 		( new CleanLockRecords() )->run();
 
-		$records = $handler->getQuerySelector()
-						   ->setNoOrderBy()
-						   ->queryWithResult();
-		$this->assertCount( 1, $records );
-		$this->assertSame( 'wpconfig', $records[ 0 ]->type );
+		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$this->assertSame(
+			[ 'wpconfig' ],
+			$wpdb->get_col( "SELECT type FROM {$reloadedHandler->getTable()} ORDER BY id ASC" )
+		);
 	}
 
 	public function test_purge_deletes_existing_file_lock_rows() :void {
 		global $wpdb;
 		$con = $this->requireController();
-		$handler = $this->requireDb( 'file_locker' );
+		$handler = $this->prepareFileLockerRuntime( [ 'wpconfig' ] );
 
-		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
 		$this->assertSame( 1, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
 
 		$con->comps->file_locker->purge();
 
-		$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
+		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$this->assertTrue( $reloadedHandler->tableExists() );
+		$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$reloadedHandler->getTable()}" ) );
 	}
 
 	public function test_reassess_locks_now_clears_stale_problem_state_without_touching_cooldown() :void {
 		$con = $this->requireController();
-		$handler = $this->requireDb( 'file_locker' );
-
-		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
-		RuntimeTestState::primeShieldNetHandshake();
+		$handler = $this->prepareFileLockerRuntime( [ 'wpconfig' ] );
 
 		$tempPath = \tempnam( \sys_get_temp_dir(), 'shield-file-locker-' );
 		$this->assertIsString( $tempPath );
@@ -108,5 +107,20 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '', (string)$updated->hash_current );
 		$this->assertCount( 0, ( new LoadFileLocks() )->withProblems() );
 		$this->assertSame( 123456, (int)$con->comps->file_locker->getState()[ 'last_analysis_started_at' ] );
+	}
+
+	/**
+	 * Optional file-locker storage is only ready after the feature is enabled
+	 * and ShieldNet-backed runtime prerequisites are in place.
+	 */
+	private function prepareFileLockerRuntime( array $lockTypes ) {
+		$con = $this->requireController();
+		RuntimeTestState::primeShieldNetHandshake();
+		$con->opts->optSet( 'file_locker', $lockTypes )->store();
+
+		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$con->comps->file_locker->clearLocks();
+
+		return $handler;
 	}
 }

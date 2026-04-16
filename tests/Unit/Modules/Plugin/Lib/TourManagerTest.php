@@ -210,9 +210,11 @@ class TourManagerControllerStub extends Controller {
 		$this->pluginAdminPage = $pluginAdminPage;
 		$this->pluginAdmin = $pluginAdmin;
 		$this->user_metas = $userMetas;
-		$this->opts = new TourManagerOptsStub( [
-			'dashboard_intro_video_url' => $dashboardVideoURL,
-		] );
+		$this->cfg = (object)[
+			'configuration' => new TourManagerConfigStub( [
+				'dashboard_intro_video_url_v22' => $dashboardVideoURL,
+			] ),
+		];
 	}
 
 	public function isPluginAdminPageRequest() :bool {
@@ -237,15 +239,15 @@ class TourManagerUserMetasStub {
 	}
 }
 
-class TourManagerOptsStub {
+class TourManagerConfigStub {
 
-	private array $opts;
+	private array $defs;
 
-	public function __construct( array $opts ) {
-		$this->opts = $opts;
+	public function __construct( array $defs ) {
+		$this->defs = $defs;
 	}
 
-	public function optGet( string $key ) {
-		return $this->opts[ $key ] ?? '';
+	public function def( string $key ) {
+		return $this->defs[ $key ] ?? null;
 	}
 }

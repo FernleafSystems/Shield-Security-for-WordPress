@@ -143,11 +143,13 @@ class Import {
 
 		// Don't send the network setup request if it's the cron.
 		$data = [
-			'secret' => $secretKey,
 			'url'    => Services::WpGeneral()->getHomeUrl(),
 			'id'     => $this->getImportID(),
 			'method' => 'json',
 		];
+		if ( !empty( $secretKey ) ) {
+			$data[ 'secret' ] = $secretKey;
+		}
 		if ( !\is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
 			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
 		}

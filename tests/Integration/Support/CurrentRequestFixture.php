@@ -14,6 +14,7 @@ trait CurrentRequestFixture {
 			'server'   => $_SERVER,
 			'query'    => $_GET,
 			'post'     => $_POST,
+			'request'  => $_REQUEST,
 			'services' => ServicesState::snapshot(),
 			'this_req' => self::con()->this_req ?? null,
 		];
@@ -23,6 +24,7 @@ trait CurrentRequestFixture {
 		$_SERVER = \is_array( $snapshot[ 'server' ] ?? null ) ? $snapshot[ 'server' ] : [];
 		$_GET = \is_array( $snapshot[ 'query' ] ?? null ) ? $snapshot[ 'query' ] : [];
 		$_POST = \is_array( $snapshot[ 'post' ] ?? null ) ? $snapshot[ 'post' ] : [];
+		$_REQUEST = \is_array( $snapshot[ 'request' ] ?? null ) ? $snapshot[ 'request' ] : [];
 
 		ServicesState::restore( \is_array( $snapshot[ 'services' ] ?? null ) ? $snapshot[ 'services' ] : [] );
 
@@ -47,8 +49,11 @@ trait CurrentRequestFixture {
 		], $server );
 		$_GET = $query;
 		$_POST = $post;
+		$_REQUEST = \array_merge( $query, $post );
 
 		$request = new ServicesRequest();
+		$request->query = $query;
+		$request->post = $post;
 		ServicesState::mergeItems( [
 			'service_request' => $request,
 		] );
