@@ -191,7 +191,14 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	}
 
 	protected function isValidSecret( $secret ) :bool {
-		return parent::isValidSecret( $secret ) && \strlen( $secret->unique_id ) === 16;
+		return parent::isValidSecret( $secret ) && self::IsValidBase32Secret( $secret->unique_id );
+	}
+
+	public static function IsValidBase32Secret( string $secret ) :bool {
+		$secret = \trim( $secret );
+		return \strlen( $secret ) >= 16
+			   && ( \strlen( $secret ) % 8 ) === 0
+			   && \preg_match( '#^[A-Z2-7]+$#', $secret ) === 1;
 	}
 
 	public static function ProviderName() :string {
