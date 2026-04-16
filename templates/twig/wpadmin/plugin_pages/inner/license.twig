@@ -36,20 +36,20 @@
 						<a href="{{ hrefs.shield_pro_url }}"
 						   target="_blank"
 						   rel="noopener noreferrer"
-						   class="btn-sp-renew">
+						   class="btn btn-danger">
 							<i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
 							{{ strings.license_renew }}
 						</a>
 						<button type="button"
 								id="LicenseLookup"
-								class="btn-sp-danger-outline license-action"
+								class="btn btn-outline-primary license-action"
 								data-action="lookup"
 								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
 							<i class="bi bi-arrow-repeat" aria-hidden="true"></i>
 							{{ strings.check_license }}
 						</button>
 						<button type="button"
-								class="btn-sp-danger-outline is-muted license-action"
+								class="btn btn-outline-danger license-action"
 								data-action="clear"
 								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
 							<i class="bi bi-x-circle" aria-hidden="true"></i>
@@ -58,14 +58,14 @@
 					{% else %}
 						<button type="button"
 								id="LicenseLookup"
-								class="btn-sp-outline license-action"
+								class="btn btn-outline-primary license-action"
 								data-action="lookup"
 								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
 							<i class="bi bi-arrow-repeat" aria-hidden="true"></i>
 							{{ strings.check_license }}
 						</button>
 						<button type="button"
-								class="btn-sp-danger-outline license-action"
+								class="btn btn-outline-danger license-action"
 								data-action="clear"
 								{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
 							<i class="bi bi-x-circle" aria-hidden="true"></i>
@@ -74,7 +74,7 @@
 					{% endif %}
 					<button type="button"
 							title="{{ strings.incase_debug }}"
-							class="btn-ghost license-action ms-auto"
+							class="btn btn-outline-secondary license-action ms-auto"
 							data-action="debug">
 						<i class="bi bi-bug" aria-hidden="true"></i>
 						{{ strings.debug }}
@@ -118,7 +118,7 @@
 
 							<button type="button"
 									id="LicenseLookup"
-									class="btn-sp-primary license-action"
+									class="btn btn-outline-primary license-action align-self-start"
 									data-action="lookup"
 									{% if not flags.button_enabled_check %}disabled="disabled"{% endif %}>
 								<i class="bi bi-arrow-repeat" aria-hidden="true"></i>
@@ -136,7 +136,7 @@
 						<div class="action-panel-footer">
 							<button type="button"
 									title="{{ strings.incase_debug }}"
-									class="btn-ghost license-action"
+									class="btn btn-outline-secondary license-action"
 									data-action="debug">
 								<i class="bi bi-bug" aria-hidden="true"></i>
 								{{ strings.debug }}
@@ -174,5 +174,4 @@
 			</div>
 		{% endif %}
 	</div>
-	<hr />
 {% endblock %}

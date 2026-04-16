@@ -26,102 +26,6 @@
 		background: $danger;
 	}
 
-	.btn-sp-primary,
-	.btn-sp-outline,
-	.btn-sp-danger-outline,
-	.btn-sp-renew,
-	.btn-ghost {
-		align-items: center;
-		appearance: none;
-		border-radius: 8px;
-		cursor: pointer;
-		display: inline-flex;
-		font-size: 0.84rem;
-		font-weight: 600;
-		gap: 0.35rem;
-		justify-content: center;
-		line-height: 1.2;
-		text-decoration: none;
-		transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
-	}
-
-	.btn-sp-primary {
-		background: $primary;
-		border: 2px solid $primary;
-		color: #fff;
-		padding: 0.5rem 1.2rem;
-		width: 100%;
-
-		&:hover:not(:disabled) {
-			background: #006400;
-			border-color: #006400;
-			color: #fff;
-		}
-	}
-
-	.btn-sp-outline {
-		background: transparent;
-		border: 2px solid $primary;
-		color: $primary;
-		padding: 0.45rem 1.1rem;
-
-		&:hover:not(:disabled) {
-			background: $status-bg-good-light;
-			color: $primary;
-		}
-	}
-
-	.btn-sp-danger-outline {
-		background: transparent;
-		border: 2px solid $danger;
-		color: $danger;
-		font-size: 0.8rem;
-		padding: 0.4rem 1rem;
-
-		&:hover:not(:disabled) {
-			background: $status-bg-critical-light;
-			color: $danger;
-		}
-
-		&.is-muted {
-			opacity: 0.7;
-		}
-	}
-
-	.btn-sp-renew {
-		background: $danger;
-		border: 2px solid $danger;
-		color: #fff;
-		padding: 0.48rem 1.2rem;
-
-		&:hover {
-			background: #a52535;
-			border-color: #a52535;
-			color: #fff;
-		}
-	}
-
-	.btn-ghost {
-		background: none;
-		border: none;
-		color: $license-muted;
-		font-size: 0.78rem;
-		font-weight: 500;
-		padding: 0;
-
-		&:hover {
-			color: $license-text;
-		}
-	}
-
-	.btn-sp-primary:disabled,
-	.btn-sp-outline:disabled,
-	.btn-sp-danger-outline:disabled,
-	.btn-ghost:disabled {
-		cursor: default;
-		opacity: 0.55;
-	}
-
 	.ap-eyebrow,
 	.gallery-label,
 	.status-eyebrow,
@@ -494,14 +398,11 @@
 			align-items: stretch;
 			flex-direction: column;
 
-			.btn-sp-outline,
-			.btn-sp-danger-outline,
-			.btn-sp-renew,
-			.btn-ghost {
+			.btn {
 				width: 100%;
 			}
 
-			.btn-ghost.ms-auto {
+			.ms-auto {
 				margin-left: 0 !important;
 			}
 		}
