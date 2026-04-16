@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
+
 class ScanResultsDisplayFormSubmit extends BaseAction {
 
 	public const SLUG = 'scan_results_display_form_submit';
@@ -30,8 +32,13 @@ class ScanResultsDisplayFormSubmit extends BaseAction {
 		}
 
 		$this->response()->setPayload( [
-			'page_reload' => $con->opts->optChanged( 'scan_results_table_display' ),
+			'page_reload' => $this->requiresPageReload( $con->opts->optChanged( 'scan_results_table_display' ) ),
 			'message'     => $msg,
 		] )->setPayloadSuccess( $success );
+	}
+
+	private function requiresPageReload( bool $optionChanged ) :bool {
+		return $optionChanged
+			   && ( $this->action_data[ 'display_context' ] ?? '' ) !== ActionsQueueScanResultsOptions::DISPLAY_CONTEXT;
 	}
 }

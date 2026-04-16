@@ -36,7 +36,11 @@ class ActionsQueueContextDisplayOptionsBuilder {
 		return [
 			'title'       => __( 'Display Results', 'wp-simple-firewall' ),
 			'action_json' => OperatorChromeContract::encodeJson(
-				ActionData::Build( ScanResultsDisplayFormSubmit::class )
+				ActionData::Build(
+					ScanResultsDisplayFormSubmit::class,
+					true,
+					$this->queueScanResultsOptions->buildDisplayContextActionData()
+				)
 			),
 			'controls'    => [
 				$this->buildControl(

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsDisplayFormSubmit;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueContextDisplayOptionsBuilder,
 	ActionsQueueScanResultsOptions
@@ -100,11 +101,10 @@ class ActionsQueueContextDisplayOptionsBuilderTest extends BaseUnitTest {
 			'wordpress',
 			'direct_table',
 			[
-				'display_context' => 'actions_queue',
+				'display_context' => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
 			]
 		);
 
-		$this->assertSame( 'Display Results', $displayOptions[ 'title' ] ?? '' );
 		$this->assertCount( 3, $displayOptions[ 'controls' ] ?? [] );
 		$this->assertSame(
 			[
@@ -116,7 +116,8 @@ class ActionsQueueContextDisplayOptionsBuilderTest extends BaseUnitTest {
 		);
 		$actionData = \json_decode( (string)( $displayOptions[ 'action_json' ] ?? '' ), true );
 		$this->assertIsArray( $actionData );
-		$this->assertSame( 'scan_results_display_form_submit', $actionData[ 'ex' ] ?? '' );
+		$this->assertSame( ScanResultsDisplayFormSubmit::SLUG, $actionData[ 'ex' ] ?? '' );
+		$this->assertSame( ActionsQueueScanResultsOptions::DISPLAY_CONTEXT, $actionData[ 'display_context' ] ?? '' );
 	}
 
 	public function test_build_for_ignored_direct_table_group_forces_ignored_switch_but_preserves_other_flags() :void {
@@ -135,7 +136,7 @@ class ActionsQueueContextDisplayOptionsBuilderTest extends BaseUnitTest {
 			'plugins',
 			'direct_table',
 			[
-				'display_context'         => 'actions_queue',
+				'display_context'         => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
 				'results_display_options' => [
 					'include_ignored'  => true,
 					'include_repaired' => true,

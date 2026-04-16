@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueSca
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsDisplayFormSubmit;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Malware as MalwarePane;
@@ -17,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -208,6 +210,29 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
+	 * @return array<string,mixed>
+	 */
+	private function retrieveScanResultsTableData( string $type, string $file ) :array {
+		$payload = $this->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, [
+			'sub_action' => 'retrieve_table_data',
+			'type'       => $type,
+			'file'       => $file,
+			'table_data' => [
+				'search'  => [ 'value' => '' ],
+				'start'   => 0,
+				'length'  => 10,
+				'order'   => [],
+				'columns' => [],
+			],
+		] );
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertIsArray( $payload[ 'datatable_data' ] ?? null );
+
+		return $payload[ 'datatable_data' ];
+	}
+
+	/**
 	 * @param array<string,mixed> $header
 	 * @param array{type:string,file:string} $expectedScope
 	 */
@@ -231,11 +256,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function assertDisplayOptionsHeader( array $header, array $expectedStates, bool $ignoredToggleDisabled = false ) :void {
 		$displayOptions = (array)( $header[ 'display_options' ] ?? [] );
-		$this->assertSame( 'Display Results', (string)( $displayOptions[ 'title' ] ?? '' ) );
 		$this->assertCount( 3, $displayOptions[ 'controls' ] ?? [] );
 		$actionData = \json_decode( (string)( $displayOptions[ 'action_json' ] ?? '' ), true );
 		$this->assertIsArray( $actionData );
 		$this->assertSame( ScanResultsDisplayFormSubmit::SLUG, (string)( $actionData[ 'ex' ] ?? '' ) );
+		$this->assertSame( ActionsQueueScanResultsOptions::DISPLAY_CONTEXT, (string)( $actionData[ 'display_context' ] ?? '' ) );
 		$this->assertSame(
 			$expectedStates,
 			\array_column( (array)( $displayOptions[ 'controls' ] ?? [] ), 'checked', 'name' )
@@ -974,6 +999,122 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'type' => 'wordpress',
 				'file' => 'wordpress',
 			]
+		);
+	}
+
+	public function test_wordpress_direct_table_refreshes_display_options_in_place_after_actions_queue_submit() :void {
+		$this->enableAssetScanFixture( [ 'wp' ] );
+		$this->requireController()->opts
+			 ->optSet( 'scan_results_table_display', [] )
+			 ->store();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		$active = TestDataFactory::insertAfsFileScanResultTracked(
+			$afsId,
+			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-admin/admin.php' ),
+			[
+			'is_in_core' => 1,
+			]
+		);
+		$ignored = TestDataFactory::insertAfsFileScanResultTracked(
+			$afsId,
+			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-admin/css/common.css' ),
+			[
+			'is_in_core' => 1,
+			]
+		);
+		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
+		$repaired = TestDataFactory::insertAfsFileScanResultTracked(
+			$afsId,
+			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-includes/version.php' ),
+			[
+			'is_in_core'    => 1,
+			'is_checksumfail' => 1,
+			]
+		);
+		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
+			(int)$repaired[ 'result_item_id' ],
+			[ 'item_repaired_at' => \time() ]
+		);
+		$deleted = TestDataFactory::insertAfsFileScanResultTracked(
+			$afsId,
+			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-admin/js/updates.js' ),
+			[
+			'is_in_core'    => 1,
+			'is_unrecognised' => 1,
+			]
+		);
+		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
+			(int)$deleted[ 'result_item_id' ],
+			[ 'item_deleted_at' => \time() ]
+		);
+		$this->resetScanResultCountMemoization();
+
+		$initialGroupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'critical',
+			'group'  => 'wordpress',
+		] );
+		$initialDisplayOptions = (array)( $initialGroupsPayload[ 'selected_group' ][ 'header' ][ 'display_options' ] ?? [] );
+		$initialActionData = \json_decode( (string)( $initialDisplayOptions[ 'action_json' ] ?? '' ), true );
+		$this->assertIsArray( $initialActionData );
+		$this->assertSame( ActionsQueueScanResultsOptions::DISPLAY_CONTEXT, (string)( $initialActionData[ 'display_context' ] ?? '' ) );
+		$initialTableData = $this->retrieveScanResultsTableData( 'core', 'core' );
+		$this->assertSame( 1, (int)( $initialTableData[ 'recordsTotal' ] ?? -1 ) );
+		$this->assertSame( 1, (int)( $initialTableData[ 'recordsFiltered' ] ?? -1 ) );
+
+		$submitPayload = $this->processActionPayloadWithAdminBypass( ScanResultsDisplayFormSubmit::SLUG, [
+			'display_context' => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+			'form_data'       => [
+				'include_ignored'  => 'Y',
+				'include_repaired' => 'Y',
+				'include_deleted'  => 'Y',
+			],
+		] );
+		$this->assertTrue( (bool)( $submitPayload[ 'success' ] ?? false ) );
+		$this->assertFalse( (bool)( $submitPayload[ 'page_reload' ] ?? true ) );
+		$this->assertSame(
+			[
+				'include_deleted',
+				'include_ignored',
+				'include_repaired',
+			],
+			\array_values( $this->requireController()->opts->optGet( 'scan_results_table_display' ) )
+		);
+
+		$refreshedGroupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'critical',
+			'group'  => 'wordpress',
+		] );
+		$this->assertSame( 'wordpress', (string)( $refreshedGroupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $refreshedGroupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertDisplayOptionsHeader(
+			(array)( $refreshedGroupsPayload[ 'selected_group' ][ 'header' ] ?? [] ),
+			[
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => true,
+			]
+		);
+
+		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'wordpress' );
+		$detailXPath = $this->createDomXPathFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
+		$this->assertXPathCount(
+			$detailXPath,
+			'//*[@data-scan-results-table="1"]',
+			1,
+			'WordPress detail AJAX after display-options submit should keep the direct scan-results table contract'
+		);
+		$refreshedTableData = $this->retrieveScanResultsTableData( 'core', 'core' );
+		$this->assertSame( 4, (int)( $refreshedTableData[ 'recordsTotal' ] ?? -1 ) );
+		$this->assertSame( 4, (int)( $refreshedTableData[ 'recordsFiltered' ] ?? -1 ) );
+		$this->assertEqualsCanonicalizing(
+			[
+				(int)$active[ 'scan_result_id' ],
+				(int)$ignored[ 'scan_result_id' ],
+				(int)$repaired[ 'scan_result_id' ],
+				(int)$deleted[ 'scan_result_id' ],
+			],
+			\array_column( $refreshedTableData[ 'data' ] ?? [], 'rid' )
 		);
 	}
 

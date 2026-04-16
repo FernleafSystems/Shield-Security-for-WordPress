@@ -332,6 +332,9 @@ test( 'actions queue saves context-box display toggles and keeps the ignored-plu
 
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
 		await waitForScanResultsTableRows( scanResultsTable );
+		await page.evaluate( () => {
+			window.__actionsQueueDisplayToggleSentinel = 'detail-still-live';
+		} );
 		await repairedToggle.check();
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
@@ -339,6 +342,12 @@ test( 'actions queue saves context-box display toggles and keeps the ignored-plu
 		await expect( ignoredToggle ).toBeChecked();
 		await expect( ignoredToggle ).toBeDisabled();
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
+		await expect( scanResultsTable ).toBeVisible();
+		await page.waitForTimeout( 2500 );
+		expect( await page.evaluate( () => window.__actionsQueueDisplayToggleSentinel || '' ) ).toBe( 'detail-still-live' );
+		await expect( page.locator( '[data-actions-queue-retry]' ) ).toHaveCount( 0 );
+		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+		await expect( repairedToggle ).toBeChecked();
 		await expect( scanResultsTable ).toBeVisible();
 	} );
 } );
