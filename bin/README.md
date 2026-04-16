@@ -17,7 +17,7 @@ This directory contains developer tooling scripts for build, packaging, release,
 ## Windows-Safe Invocation Rules
 
 1. Do not pass absolute Windows host paths to Bash scripts when avoidable.
-2. Prefer running from a known working directory and passing repo-relative script paths (for example `./bin/run-docker-tests.sh`).
+2. Prefer running from a known working directory and passing repo-relative script paths (for example `php bin/shield test:source`).
 3. If Bash is required on Windows, resolve it explicitly when needed (for example `Program Files/Git/bin/bash.exe`) rather than relying on ambiguous `PATH` resolution.
 4. Use `cmd /c` only when you need Windows shell built-ins or `.cmd` launcher behavior.
 5. If a Git-Bash shell script invokes native Windows PHP, convert POSIX paths with `cygpath -m` before passing file/path arguments to PHP.

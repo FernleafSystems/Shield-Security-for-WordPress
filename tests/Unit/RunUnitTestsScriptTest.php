@@ -25,26 +25,6 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=auto', $commands );
 	}
 
-	public function testComposerUnitSerialScriptUsesDispatcher() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
-		}
-
-		$commands = $this->getComposerScriptCommands( 'test:unit:serial' );
-		$this->assertContains( '@build:config', $commands );
-		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=serial', $commands );
-	}
-
-	public function testComposerUnitParallelScriptUsesDispatcher() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
-		}
-
-		$commands = $this->getComposerScriptCommands( 'test:unit:parallel' );
-		$this->assertContains( '@build:config', $commands );
-		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=parallel', $commands );
-	}
-
 	public function testRunUnitTestsAutoModeExecutesSuccessfully() :void {
 		$this->skipIfPackageScriptUnavailable();
 

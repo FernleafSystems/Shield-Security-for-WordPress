@@ -13,7 +13,9 @@ class RuntimeTestState {
 		$plugin = \function_exists( 'shield_security_get_plugin' )
 			? \shield_security_get_plugin()
 			: null;
-		$controller = $plugin?->getController();
+		$controller = \is_object( $plugin ) && \method_exists( $plugin, 'getController' )
+			? $plugin->getController()
+			: null;
 		if ( !$controller instanceof Controller ) {
 			throw new \RuntimeException( 'Shield Controller is not available.' );
 		}
@@ -109,10 +111,11 @@ class RuntimeTestState {
 			$con->opts->optSet( (string)$key, $value );
 		}
 
-		if ( $store && $con->opts->hasChanges() ) {
-			$con->opts->store();
+		if ( $store ) {
+			self::persistAndRefreshOptions( $snapshot );
+			return;
 		}
-		self::forcePersistOptions( $snapshot );
+		self::refreshOptionsRuntimeState();
 	}
 
 	/**
@@ -121,8 +124,7 @@ class RuntimeTestState {
 	public static function applyPremiumCapabilities( array $capabilities ) :void {
 		$con = self::controller();
 		$ts = \time();
-
-		$con->comps->license->updateLicenseData( [
+		$licenseData = [
 			'checksum'         => 'runtime-test-license',
 			'success'          => true,
 			'license'          => 'valid',
@@ -134,18 +136,18 @@ class RuntimeTestState {
 				fn( $cap ) => \is_string( $cap ) && $cap !== ''
 			) ) ),
 			'lic_version'      => 1,
-		] );
+		];
+
+		$con->comps->license->updateLicenseData( $licenseData );
 
 		$con->opts
 			->optSet( 'license_activated_at', $ts )
-			->optSet( 'license_deactivated_at', 0 )
-			->store();
-		self::forcePersistOptions( [
-			'license_data'           => $con->opts->optGet( 'license_data' ),
-			'license_activated_at'   => $con->opts->optGet( 'license_activated_at' ),
-			'license_deactivated_at' => $con->opts->optGet( 'license_deactivated_at' ),
+			->optSet( 'license_deactivated_at', 0 );
+		self::persistAndRefreshOptions( [
+			'license_data'           => $licenseData,
+			'license_activated_at'   => $ts,
+			'license_deactivated_at' => 0,
 		] );
-		self::resetOptionsRuntimeCache();
 	}
 
 	public static function disablePremiumCapabilities() :void {
@@ -153,14 +155,12 @@ class RuntimeTestState {
 		$con->comps->license->updateLicenseData( [] );
 		$con->opts
 			->optSet( 'license_activated_at', 0 )
-			->optSet( 'license_deactivated_at', 0 )
-			->store();
-		self::forcePersistOptions( [
+			->optSet( 'license_deactivated_at', 0 );
+		self::persistAndRefreshOptions( [
 			'license_data'           => [],
 			'license_activated_at'   => 0,
 			'license_deactivated_at' => 0,
 		] );
-		self::resetOptionsRuntimeCache();
 	}
 
 	public static function primeShieldNetHandshake() :void {
@@ -235,5 +235,32 @@ class RuntimeTestState {
 			$property->setAccessible( true );
 			$property->setValue( $opts, $value );
 		}
+
+		unset( $opts->mod_opts_all, $opts->mod_opts_free, $opts->mod_opts_pro );
+	}
+
+	/**
+	 * @param array<string,mixed> $updates
+	 */
+	private static function persistAndRefreshOptions( array $updates ) :void {
+		self::forcePersistOptions( $updates );
+		self::refreshOptionsRuntimeState();
+	}
+
+	private static function refreshOptionsRuntimeState() :void {
+		self::clearOptionsDirtyState();
+		self::resetOptionsRuntimeCache();
+	}
+
+	private static function clearOptionsDirtyState() :void {
+		$opts = self::controller()->opts;
+		$reflection = new \ReflectionClass( OptsHandler::class );
+		if ( !$reflection->hasProperty( 'changes' ) ) {
+			return;
+		}
+
+		$property = $reflection->getProperty( 'changes' );
+		$property->setAccessible( true );
+		$property->setValue( $opts, [] );
 	}
 }

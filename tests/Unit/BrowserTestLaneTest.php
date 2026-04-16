@@ -86,10 +86,12 @@ class BrowserTestLaneTest extends TestCase {
 
 		$this->expectExceptionMessage( 'Playwright is not installed' );
 
+		\ob_start();
 		try {
 			$lane->run( $projectRoot );
 		}
 		finally {
+			\ob_end_clean();
 			$this->assertCount( 0, $dockerComposeExecutor->calls );
 			$this->assertCount( 0, $playwrightRunner->calls );
 		}

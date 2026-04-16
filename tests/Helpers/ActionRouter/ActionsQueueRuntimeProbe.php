@@ -66,9 +66,11 @@ class ActionsQueueRuntimeProbe {
 		'review',
 	];
 
-	public function __construct(
-		private ?PluginAdminRouteRuntime $routeRuntime = null
-	) {
+	/** @var PluginAdminRouteRuntime|null */
+	private $routeRuntime;
+
+	public function __construct( ?PluginAdminRouteRuntime $routeRuntime = null ) {
+		$this->routeRuntime = $routeRuntime;
 	}
 
 	private ?array $landingPayload = null;

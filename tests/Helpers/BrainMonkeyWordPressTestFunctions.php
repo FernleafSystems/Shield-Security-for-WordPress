@@ -13,6 +13,20 @@ trait BrainMonkeyWordPressTestFunctions {
 
 		Functions\when( 'is_multisite' )->justReturn( false );
 		Functions\when( 'remove_all_filters' )->justReturn( true );
+		Functions\when( 'sanitize_key' )->alias(
+			static function ( $key ) :string {
+				if ( !\is_scalar( $key ) ) {
+					return '';
+				}
+				$sanitized = \preg_replace( '/[^a-z0-9_\-]/', '', \strtolower( \trim( (string)$key ) ) );
+				return \is_string( $sanitized ) ? $sanitized : '';
+			}
+		);
+		Functions\when( 'wp_rand' )->alias(
+			static function ( int $min = 0, int $max = 0 ) :int {
+				return $max >= $min ? $min : $max;
+			}
+		);
 
 		Functions\when( 'get_option' )->alias(
 			static function ( string $key, $default = false ) use ( &$options ) {

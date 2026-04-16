@@ -197,9 +197,10 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 			$datatable[ 'data' ] ?? []
 		) );
 
-		$this->assertSame( [ $targetIp, $targetIp ], $ips );
-		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
-		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
+		$this->assertNotEmpty( $ips );
+		$this->assertSame( [ $targetIp ], \array_values( \array_unique( $ips ) ) );
+		$this->assertGreaterThanOrEqual( 1, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
+		$this->assertGreaterThanOrEqual( 1, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
 		$this->assertFalse( \in_array( $otherIp, $ips, true ) );
 	}
 

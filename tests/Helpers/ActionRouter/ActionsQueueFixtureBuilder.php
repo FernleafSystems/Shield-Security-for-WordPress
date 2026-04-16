@@ -59,9 +59,11 @@ class ActionsQueueFixtureBuilder {
 		'scan_result_item_meta',
 	];
 
-	public function __construct(
-		private ?ActionsQueueRuntimeProbe $runtimeProbe = null
-	) {
+	/** @var ActionsQueueRuntimeProbe|null */
+	private $runtimeProbe;
+
+	public function __construct( ?ActionsQueueRuntimeProbe $runtimeProbe = null ) {
+		$this->runtimeProbe = $runtimeProbe;
 	}
 
 	/**
@@ -165,12 +167,16 @@ class ActionsQueueFixtureBuilder {
 	 * @return ScenarioDefinition
 	 */
 	private function seedScenario( string $scenario, array &$state ) :array {
-		return match ( $scenario ) {
-			'direct_table'                => $this->seedDirectTable( $state ),
-			'ignored_plugin_direct_table' => $this->seedIgnoredPluginDirectTable( $state ),
-			'file_locker_lazy'           => $this->seedFileLockerLazy( $state ),
-			default                      => throw new \RuntimeException( 'Unknown Actions Queue fixture scenario: '.$scenario ),
-		};
+		switch ( $scenario ) {
+			case 'direct_table':
+				return $this->seedDirectTable( $state );
+			case 'ignored_plugin_direct_table':
+				return $this->seedIgnoredPluginDirectTable( $state );
+			case 'file_locker_lazy':
+				return $this->seedFileLockerLazy( $state );
+			default:
+				throw new \RuntimeException( 'Unknown Actions Queue fixture scenario: '.$scenario );
+		}
 	}
 
 	/**

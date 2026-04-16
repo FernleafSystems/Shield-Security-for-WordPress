@@ -34,7 +34,7 @@ class BuildRecentActivityIntegrationTest extends ShieldIntegrationTestCase {
 			$itemsByKey[ $item[ 'key' ] ] = $item;
 		}
 
-		$this->assertSameCanonicalizing( \array_keys( $recentEvents ), \array_keys( $itemsByKey ) );
+		$this->assertEqualsCanonicalizing( \array_keys( $recentEvents ), \array_keys( $itemsByKey ) );
 		$this->assertArrayHasKey( $recordedKey, $itemsByKey );
 		$this->assertArrayHasKey( $missingKey, $itemsByKey );
 		$this->assertTrue( $itemsByKey[ $recordedKey ][ 'has_record' ] );

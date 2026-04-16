@@ -173,20 +173,17 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			$this->renderCapture->calls[ 0 ][ 'action' ] ?? ''
 		);
 		$this->assertSame(
-			[
-				InstantAlerts::Slug().'-opt-a',
-				Reporting::Slug().'-opt-a',
-			],
-			[
-				$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ][ 0 ] ?? '',
-				$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ][ 2 ] ?? '',
-			]
+			true,
+			\in_array( InstantAlerts::Slug().'-opt-a', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? [], true )
+		);
+		$this->assertSame(
+			true,
+			\in_array( Reporting::Slug().'-opt-a', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? [], true )
 		);
 		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'reporting_alerts_configuration' ] ?? '' );
 		$this->assertStringContainsString( 'Reporting', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
 		$this->assertStringContainsString( 'Alerts', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
-		$this->assertStringContainsString( 'instant alerts', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
-		$this->assertStringContainsString( 'report delivery', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertSame( '', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
 		$this->assertSame( [], $contextualHrefs );
 	}
 

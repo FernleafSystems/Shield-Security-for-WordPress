@@ -192,7 +192,10 @@ class AssetsCustomizerControllerStub extends Controller {
 
 class AssetsCustomizerUserMetasStub {
 
-	public function __construct( private object $meta ) {
+	private object $meta;
+
+	public function __construct( object $meta ) {
+		$this->meta = $meta;
 	}
 
 	public function current() :object {
@@ -202,7 +205,10 @@ class AssetsCustomizerUserMetasStub {
 
 class AssetsCustomizerOptsStub {
 
-	public function __construct( private array $opts ) {
+	private array $opts;
+
+	public function __construct( array $opts ) {
+		$this->opts = $opts;
 	}
 
 	public function optGet( string $key ) {

@@ -82,7 +82,6 @@ if ( packageJson !== null ) {
 			'npm run check:js-policy',
 			'npm run lint:js',
 			'npm run typecheck:js',
-			'npm run build',
 		].forEach( ( expectedSegment ) => {
 			if ( !testJsScript.includes( expectedSegment ) ) {
 				errors.push( `package.json test:js must include "${expectedSegment}".` );
@@ -93,6 +92,9 @@ if ( packageJson !== null ) {
 				errors.push( `package.json test:js must stay static-only and not include "${forbiddenSegment}".` );
 			}
 		} );
+		if ( testJsScript.includes( 'npm run build' ) ) {
+			errors.push( 'package.json test:js must stay static-only and not include "npm run build".' );
+		}
 	}
 }
 

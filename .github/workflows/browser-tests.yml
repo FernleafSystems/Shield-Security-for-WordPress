@@ -5,6 +5,14 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  pull_request:
+    branches: [ develop, main, master, docker-matrix-testing-research ]
+    paths:
+      - 'assets/js/**'
+      - 'templates/twig/**'
+      - 'src/ActionRouter/**'
+      - 'tests/browser/**'
+      - 'playwright.config.*'
   workflow_dispatch:
   schedule:
     - cron: '30 6 * * 1-5'

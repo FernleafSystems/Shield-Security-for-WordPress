@@ -58,12 +58,10 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 		$this->applyCurrentShieldAjaxRequestWithQuery( $query, $request, false );
 
 		$subject = new CaptureAjaxActionTransportConsistencyTestDouble();
-		$issuePayload = $subject->buildIssuePayloadForTest();
-
 		$this->assertTrue( $subject->canRunForTest() );
-		$this->assertFalse( (bool)( $issuePayload[ 'success' ] ?? true ) );
-		$this->assertSame( 401, $issuePayload[ 'status_code' ] ?? null );
-		$this->assertFalse( (bool)( $issuePayload[ 'data' ][ 'success' ] ?? true ) );
+		$this->expectException( \WPDieException::class );
+		$this->expectExceptionMessage( 'Unexpected data. Please try again.' );
+		$subject->buildIssuePayloadForTest();
 	}
 
 	public function test_query_only_action_slug_does_not_steer_post_ajax_payload() :void {

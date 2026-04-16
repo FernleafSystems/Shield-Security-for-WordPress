@@ -7,6 +7,11 @@ on:
         description: Unit test command to execute
         required: true
         type: string
+      php_version:
+        description: PHP version used for the unit lane
+        required: false
+        default: '7.4'
+        type: string
       allow_failure:
         description: Mark command failures as advisory warnings
         required: false
@@ -25,7 +30,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: ${{ inputs.php_version }}
         coverage: none
         tools: composer:v2
 

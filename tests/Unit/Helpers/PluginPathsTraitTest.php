@@ -85,8 +85,8 @@ class PluginPathsTraitTest extends TestCase {
 		}
 
 		$this->assertSame(
-			[ '@php bin/run-playground-local.php --clean' ],
-			$this->getComposerScriptCommands( 'playground:local:clean' )
+			[ '@php bin/run-strauss-dev.php --clean' ],
+			$this->getComposerScriptCommands( 'strauss:clean' )
 		);
 	}
 

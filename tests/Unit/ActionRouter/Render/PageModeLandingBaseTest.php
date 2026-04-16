@@ -117,12 +117,14 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] );
 		$this->assertFalse( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] );
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] );
-		$this->assertSame( 'Landing Title', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'breadcrumb_label' ] ?? '' );
-		$this->assertSame( 'Landing Subtitle', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'summary' ] ?? '' );
-		$this->assertSame( 'configure', $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
+		$rootStep = $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ] ?? [];
+		$this->assertSame( 'Landing Title', $rootStep[ 'breadcrumb_label' ] ?? '' );
+		$this->assertSame( 'Landing Subtitle', $rootStep[ 'summary' ] ?? '' );
+		$this->assertSame( 'configure', $rootStep[ 'color_key' ] ?? '' );
+		$this->assertSame( [], $rootStep[ 'display_options' ][ 'controls' ] ?? [ 'unexpected' ] );
 		$this->assertSame(
-			'{"breadcrumb_label":"Landing Title","title":"Landing Title","summary":"Landing Subtitle","focus":"","next_step":"","icon_class":"icon-gear","badge":"","badge_status":"good","color_key":"configure","actions":[]}',
-			$data[ 'vars' ][ 'mode_shell' ][ 'root_step_json' ] ?? ''
+			$rootStep,
+			\json_decode( (string)( $data[ 'vars' ][ 'mode_shell' ][ 'root_step_json' ] ?? '' ), true )
 		);
 		$this->assertSame( 'zone_one', $data[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'key' ] );
 		$this->assertSame( 'zone_one', $data[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'panel_target' ] );

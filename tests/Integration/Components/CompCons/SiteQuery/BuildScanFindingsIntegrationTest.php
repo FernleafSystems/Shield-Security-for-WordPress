@@ -35,7 +35,7 @@ class BuildScanFindingsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( $query[ 'is_available' ] );
 		$this->assertSame( '', $query[ 'message' ] );
-		$this->assertSame( [ 'wpv', 'apc' ], $query[ 'filters' ][ 'scan_slugs' ] );
+		$this->assertEqualsCanonicalizing( [ 'wpv', 'apc' ], $query[ 'filters' ][ 'scan_slugs' ] );
 		$this->assertSame( [ 'is_vulnerable' ], $query[ 'filters' ][ 'states' ] );
 		$this->assertSame( 1, $query[ 'results' ][ 'wpv' ][ 'total' ] );
 		$this->assertSame( 0, $query[ 'results' ][ 'apc' ][ 'total' ] );

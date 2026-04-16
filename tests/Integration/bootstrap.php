@@ -328,23 +328,13 @@ function shield_integration_bootstrap_phase_prepare() :array {
 	}
 
 	if ( !$found_tests_dir ) {
-		if ( TestEnv::shouldFailMissingWordPressEnv() ) {
-			shield_test_error( 'ERROR: WordPress test environment not found.' );
-			if ( shield_test_verbose() ) {
-				foreach ( $checked_paths as $path ) {
-					shield_test_error( SHIELD_TEST_MSG_CHECKED_PATH_PREFIX.shield_test_format_path_for_log( $path ) );
-				}
-			}
-			exit( 1 );
-		}
-
-		echo 'SKIP: WordPress integration tests skipped (WordPress test environment not found).'.\PHP_EOL;
+		shield_test_error( 'ERROR: WordPress test environment not found.' );
 		if ( shield_test_verbose() ) {
 			foreach ( $checked_paths as $path ) {
-				shield_test_log( SHIELD_TEST_MSG_CHECKED_PATH_PREFIX.shield_test_format_path_for_log( $path ) );
+				shield_test_error( SHIELD_TEST_MSG_CHECKED_PATH_PREFIX.shield_test_format_path_for_log( $path ) );
 			}
 		}
-		exit( 0 );
+		exit( 1 );
 	}
 
 	return [
@@ -435,16 +425,6 @@ function shield_integration_bootstrap_phase_finalize( array $state ) :void {
 	}
 	catch ( \Throwable $e ) {
 		shield_test_fail_bootstrap( 'Error creating Shield DB tables during bootstrap finalize.', $state, $e );
-	}
-
-	// Intentional manual join: helper discovery keeps raw glob path assembly in bootstrap context.
-	$helpers_dir = \dirname( __DIR__ ).'/Helpers';
-	if ( \is_dir( $helpers_dir ) ) {
-		// Intentional manual join: glob pattern is composed directly for bootstrap-time helper loading.
-		foreach ( \glob( $helpers_dir.'/*.php' ) as $helper ) {
-			require_once $helper;
-			shield_test_log( 'Loaded helper: '.\basename( $helper ) );
-		}
 	}
 
 	shield_test_log( '=== SHIELD INTEGRATION TEST BOOTSTRAP COMPLETE ===' );

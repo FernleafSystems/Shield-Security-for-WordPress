@@ -15,6 +15,31 @@ $TMPDIR = [System.IO.Path]::GetTempPath().TrimEnd('\\')
 $WP_TESTS_DIR = "$TMPDIR\wordpress-tests-lib"
 $WP_CORE_DIR = "$TMPDIR\wordpress"
 
+Function Test-WordPressCoreValid {
+    $wpLoad = Join-Path $WP_CORE_DIR "wp-load.php"
+    $httpBootstrap = Join-Path $WP_CORE_DIR "wp-includes\class-wp-http.php"
+    $requestsAutoload = Join-Path $WP_CORE_DIR "wp-includes\Requests\src\Autoload.php"
+    $legacyRequests = Join-Path $WP_CORE_DIR "wp-includes\class-requests.php"
+
+    if (-Not (Test-Path $wpLoad) -or -Not (Test-Path $httpBootstrap)) {
+        return $false
+    }
+
+    $httpBootstrapContent = Get-Content $httpBootstrap -Raw
+    if ($httpBootstrapContent -match "Requests/src/Autoload\.php") {
+        return Test-Path $requestsAutoload
+    }
+    if ($httpBootstrapContent -match "class-requests\.php") {
+        return Test-Path $legacyRequests
+    }
+
+    return $true
+}
+
+Function Test-WordPressTestsLibValid {
+    return (Test-Path (Join-Path $WP_TESTS_DIR "includes\functions.php")) -and (Test-Path (Join-Path $WP_TESTS_DIR "includes\bootstrap.php"))
+}
+
 # Function to download files
 Function Download-File {
     param (
@@ -44,7 +69,11 @@ If ($WP_VERSION -match "^\d+\.\d+-(beta|RC)\d+") {
     $WP_TESTS_TAG = "tags/$LatestVersion"
 }
 
-# Create directories if they don't exist
+# Create directories if they don't exist or refresh stale installs
+If ((Test-Path $WP_CORE_DIR) -and -Not (Test-WordPressCoreValid)) {
+    Remove-Item -LiteralPath $WP_CORE_DIR -Recurse -Force
+}
+
 If (-Not (Test-Path $WP_CORE_DIR)) {
     New-Item -ItemType Directory -Force -Path $WP_CORE_DIR | Out-Null
     
@@ -59,6 +88,10 @@ If (-Not (Test-Path $WP_CORE_DIR)) {
 }
 
 # Setup the test suite
+If ((Test-Path $WP_TESTS_DIR) -and -Not (Test-WordPressTestsLibValid)) {
+    Remove-Item -LiteralPath $WP_TESTS_DIR -Recurse -Force
+}
+
 If (-Not (Test-Path $WP_TESTS_DIR)) {
     New-Item -ItemType Directory -Force -Path $WP_TESTS_DIR | Out-Null
     svn co "https://develop.svn.wordpress.org/$WP_TESTS_TAG/tests/phpunit/includes/" "$WP_TESTS_DIR/includes"

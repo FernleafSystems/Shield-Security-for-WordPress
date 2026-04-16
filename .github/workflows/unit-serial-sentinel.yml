@@ -10,4 +10,4 @@ jobs:
     name: 'Unit Serial Sentinel'
     uses: ./.github/workflows/reusable-unit-tests.yml
     with:
-      run_command: composer test:unit:serial
+      run_command: php bin/run-unit-tests.php --runner-mode=serial

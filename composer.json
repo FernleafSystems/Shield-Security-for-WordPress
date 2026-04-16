@@ -91,61 +91,24 @@
       "@test:unit",
       "@test:integration"
     ],
-    "test:fast":        [
-      "@build:config",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Rules",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml tests/Integration/Rules tests/Integration/CrossSystem/RuleToEventToAuditFlowTest.php tests/Integration/Bots/BotEventListenerTest.php"
-    ],
     "test:unit":        [
       "@build:config",
       "@php bin/run-unit-tests.php --runner-mode=auto"
     ],
-    "test:unit:serial": [
-      "@build:config",
-      "@php bin/run-unit-tests.php --runner-mode=serial"
-    ],
-    "test:unit:parallel": [
-      "@build:config",
-      "@php bin/run-unit-tests.php --runner-mode=parallel"
-    ],
-    "test:passkeys": [
-      "@build:config",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/LoginGuard/Lib/TwoFactor/Passkey/WebauthnLibAdapterTest.php"
-    ],
-    "test:unit:verify-power": [
-      "@test:unit:serial",
-      "@test:unit:parallel"
-    ],
     "test:integration": [
+      "Composer\\Config::disableProcessTimeout",
       "@build:config",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml"
-    ],
-    "test:source":      [
-      "Composer\\Config::disableProcessTimeout",
-      "@php bin/shield test:source"
-    ],
-    "test:integration:local": [
-      "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:integration-local"
     ],
     "test:browser": [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:browser"
     ],
-    "test:package-targeted": [
+    "test:package": [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:package-targeted"
     ],
-    "test:package-full": [
-      "Composer\\Config::disableProcessTimeout",
-      "@php bin/shield test:package-full"
-    ],
-    "analyze":          "@analyze:source",
-    "analyze:package":  [
-      "Composer\\Config::disableProcessTimeout",
-      "@php bin/shield analyze:package"
-    ],
-    "analyze:source":   "@php bin/shield analyze:source",
+    "analyze":          "@php bin/shield analyze:source",
     "package-plugin":   [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/package-plugin.php"
@@ -154,10 +117,6 @@
       "Composer\\Config::disableProcessTimeout",
       "@php bin/build-zip.php"
     ],
-    "playground:local": "@php bin/run-playground-local.php",
-    "playground:local:check": "@php bin/run-playground-local.php --run-blueprint",
-    "playground:package:check": "@php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package",
-    "playground:local:clean": "@php bin/run-playground-local.php --clean",
     "strauss:dev":      "@php bin/run-strauss-dev.php",
     "strauss:clean":    "@php bin/run-strauss-dev.php --clean"
   },

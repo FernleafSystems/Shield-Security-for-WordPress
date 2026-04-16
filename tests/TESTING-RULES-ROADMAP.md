@@ -6,10 +6,10 @@ This document tracks rules and firewall test-coverage work only. It is not the o
 - `Action`: Run the new critical-path integration tests in Docker and capture baseline results/issues.
 - `Owner`: Engineering
 - `Status`: Ready
-- `Pointer`: `composer test:fast` then inspect `tests/Integration/Rules/`
+- `Pointer`: `composer test:integration` then inspect `tests/Integration/Rules/`
 
 ## Working Entry Point
-- Start from `composer test:fast`, then inspect `tests/Integration/Rules/` for the specific rule or firewall area under review.
+- Start from `composer test:integration`, then inspect `tests/Integration/Rules/` for the specific rule or firewall area under review.
 
 ## Progress Board
 | Phase | Scope | Status | Next Step |
@@ -39,6 +39,6 @@ This document tracks rules and firewall test-coverage work only. It is not the o
 ## Deferred Option (Explicitly Deferred)
 - Separate split-suite commands (for example per-area unit/integration commands) are deferred.
 - Revisit only if:
-  1. `composer test:fast` is no longer fast enough, or
+  1. `composer test:integration` is no longer practical for the area under review, or
   2. CI/runtime pressure requires finer partitioning, or
   3. Failure triage needs narrower suite boundaries.

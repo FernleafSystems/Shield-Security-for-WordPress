@@ -1,39 +1,8 @@
 name: Docker Tests
 
-# Cancel previous runs for the same branch
 concurrency:
   group: docker-tests-${{ github.ref }}
   cancel-in-progress: true
-
-# Evidence-Based Docker CI/CD Implementation - FULLY VALIDATED ✅
-#
-# This workflow implements optional Docker testing following proven patterns from established WordPress plugins:
-#
-# RESEARCH FINDINGS:
-# - Yoast SEO: No Docker in CI/CD, uses native GitHub Actions with MySQL services, matrix testing
-# - Easy Digital Downloads: Optional Docker with docker-compose-phpunit.yml, manual trigger only
-# - WooCommerce: No Docker usage found, relies on native GitHub Actions
-#
-# OUR APPROACH (Following EDD Pattern + Working Evidence):
-# - Scheduled + manual triggers for full packaged validation
-# - Simple MariaDB + test-runner architecture (matching EDD's docker-compose-phpunit.yml)
-# - Repository mounted to /app (following EDD volume pattern)
-# - Uses standard WordPress testing with bin/install-wp-tests.sh
-# - BUILD STEPS ADDED: Based on tests.yml evidence - Node.js, npm, asset building (MANDATORY)
-# - FULLY VALIDATED: Script permissions, line endings, dependencies, environment configuration
-#
-# VALIDATION COMPLETED:
-# ✅ All build steps copied from working tests.yml workflow
-# ✅ Node.js setup, npm dependencies, and asset building are mandatory
-# ✅ Script permissions verified (755), line endings confirmed (Unix LF)
-# ✅ Docker images build successfully, all dependencies included
-# ✅ Environment properly configured, validation checklist available
-# ✅ PRODUCTION READY - Tested and validated implementation
-#
-# TRIGGER CONFIGURATION:
-# - Scheduled weekday runs for full packaged validation
-# - Manual triggers allow testing specific PHP/WordPress combinations when needed
-# - Maintains proven patterns while adding Docker flexibility for branch validation
 
 on:
   workflow_dispatch:
@@ -298,48 +267,10 @@ jobs:
           --package-dir="${{ github.workspace }}/shield-package" \
           --package-dir-relative="shield-package"
 
-  playground-package-smoke:
-    name: "Playground Package Smoke"
-    needs: [detect-wp-versions, build-package]
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ needs.detect-wp-versions.outputs.default_php }}
-        coverage: none
-        tools: composer:v2
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.10'
-        cache: npm
-
-    - name: Install dependencies
-      run: |
-        composer install --no-interaction --prefer-dist --optimize-autoloader
-        npm ci --no-audit --no-fund
-        npm install --prefix tools/playground --no-audit --no-fund
-
-    - name: Download package artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: shield-package
-        path: ${{ github.workspace }}/shield-package
-
-    - name: Run playground package smoke check
-      run: |
-        composer playground:package:check -- --php="${{ needs.detect-wp-versions.outputs.default_php }}" --wp="${{ needs.detect-wp-versions.outputs.latest }}"
-
   cache-cleanup-post-run:
     name: "Post-run Cache Cleanup"
     if: always()
-    needs: [docker-test, package-analysis, playground-package-smoke]
+    needs: [docker-test, package-analysis]
     runs-on: ubuntu-latest
     permissions:
       actions: write

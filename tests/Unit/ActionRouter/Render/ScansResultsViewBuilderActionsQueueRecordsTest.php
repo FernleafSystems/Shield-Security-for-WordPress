@@ -50,7 +50,11 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 
 		$builder = new class( $assetCardsBuilder ) extends ScansResultsViewBuilder {
 
-			public function __construct( private ActionsQueueScanAssetCardsBuilder $assetCardsBuilder ) {
+			/** @var ActionsQueueScanAssetCardsBuilder */
+			private $assetCardsBuilder;
+
+			public function __construct( ActionsQueueScanAssetCardsBuilder $assetCardsBuilder ) {
+				$this->assetCardsBuilder = $assetCardsBuilder;
 			}
 
 			protected function getRailTabAvailability( string $tabKey ) :array {

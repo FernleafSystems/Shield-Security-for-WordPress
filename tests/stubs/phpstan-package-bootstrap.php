@@ -5,7 +5,7 @@ $packageRootEnv = \getenv( 'SHIELD_PACKAGE_PATH' );
 
 if ( !\is_string( $packageRootEnv ) || $packageRootEnv === '' ) {
 	throw new \RuntimeException(
-		'SHIELD_PACKAGE_PATH is not set. Run packaged analysis through bin/run-docker-tests.sh --analyze-package.'
+		'SHIELD_PACKAGE_PATH is not set. Run packaged analysis through php bin/shield analyze:package.'
 	);
 }
 

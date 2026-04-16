@@ -106,29 +106,32 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 		$controller->comps = (object)[
 			'zones' => new class {
 				public function getZoneComponent( string $slug ) :object {
-					return match ( $slug ) {
-						ModuleScans::Slug() => new class {
-							public function getOptions() :array {
-								return [
-									'scan_frequency',
-									'file_scan_areas',
-									'optimise_scan_speed',
-								];
-							}
-						},
-						ModuleSpam::Slug() => new class {
-							public function getOptions() :array {
-								return [
-									'trusted_commenter_minimum',
-								];
-							}
-						},
-						default => new class {
-							public function getOptions() :array {
-								return [];
-							}
-						},
-					};
+					switch ( $slug ) {
+						case ModuleScans::Slug():
+							return new class {
+								public function getOptions() :array {
+									return [
+										'scan_frequency',
+										'file_scan_areas',
+										'optimise_scan_speed',
+									];
+								}
+							};
+						case ModuleSpam::Slug():
+							return new class {
+								public function getOptions() :array {
+									return [
+										'trusted_commenter_minimum',
+									];
+								}
+							};
+						default:
+							return new class {
+								public function getOptions() :array {
+									return [];
+								}
+							};
+					}
 				}
 			},
 		];

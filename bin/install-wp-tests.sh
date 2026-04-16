@@ -48,6 +48,29 @@ TMPDIR=$(echo $TMPDIR | sed -e "s/\/$//")
 WP_TESTS_DIR=${WP_TESTS_DIR-$TMPDIR/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-$TMPDIR/wordpress/}
 
+wp_core_valid() {
+	local http_bootstrap="$WP_CORE_DIR/wp-includes/class-wp-http.php"
+
+	[ -f "$WP_CORE_DIR/wp-load.php" ] || return 1
+	[ -f "$http_bootstrap" ] || return 1
+
+	if grep -q 'Requests/src/Autoload.php' "$http_bootstrap"; then
+		[ -f "$WP_CORE_DIR/wp-includes/Requests/src/Autoload.php" ]
+		return $?
+	fi
+
+	if grep -q 'class-requests.php' "$http_bootstrap"; then
+		[ -f "$WP_CORE_DIR/wp-includes/class-requests.php" ]
+		return $?
+	fi
+
+	return 0
+}
+
+wp_tests_lib_valid() {
+	[ -f "$WP_TESTS_DIR/includes/functions.php" ] && [ -f "$WP_TESTS_DIR/includes/bootstrap.php" ]
+}
+
 check_svn_installed() {
     shield_debug "=== SHIELD DEBUG: Checking for SVN installation ==="
     if ! command -v svn >/dev/null 2>&1; then
@@ -135,11 +158,15 @@ fi
 
 install_wp() {
 
-	if [ -d $WP_CORE_DIR ]; then
+	if [ -d "$WP_CORE_DIR" ] && ! wp_core_valid; then
+		rm -rf "$WP_CORE_DIR"
+	fi
+
+	if [ -d "$WP_CORE_DIR" ]; then
 		return;
 	fi
 
-	mkdir -p $WP_CORE_DIR
+	mkdir -p "$WP_CORE_DIR"
 
 	if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 		mkdir -p $TMPDIR/wordpress-nightly
@@ -183,8 +210,12 @@ install_test_suite() {
 		local ioption='-i'
 	fi
 
+	if [ -d "$WP_TESTS_DIR" ] && ! wp_tests_lib_valid; then
+		rm -rf "$WP_TESTS_DIR"
+	fi
+
 	# set up testing suite if it doesn't yet exist
-	if [ ! -d $WP_TESTS_DIR ]; then
+	if [ ! -d "$WP_TESTS_DIR" ]; then
 		shield_debug "=== SHIELD DEBUG: Creating WordPress test directory: $WP_TESTS_DIR ==="
 		# set up testing suite
 		mkdir -p $WP_TESTS_DIR

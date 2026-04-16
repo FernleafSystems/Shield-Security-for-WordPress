@@ -52,13 +52,13 @@ npx @wp-playground/cli@latest server --blueprint=./infrastructure/wordpress-org/
 
 ### B) Validate local trunk/working-copy plugin code before publishing
 
-Use the Composer shortcuts (recommended).
+Use the local helper directly.
 
 Purpose in plain English:
 
-- `playground:local` = start an interactive Playground site in your browser for manual testing.
-- `playground:local:check` = run a smoke check and print explicit PASS/FAIL output.
-- `playground:local:clean` = remove old local Playground runtime artifacts created by this helper.
+- `php bin/run-playground-local.php` = start an interactive Playground site in your browser for manual testing.
+- `php bin/run-playground-local.php --run-blueprint` = run a smoke check and print explicit PASS/FAIL output.
+- `php bin/run-playground-local.php --clean` = remove old local Playground runtime artifacts created by this helper.
 
 For deterministic local runs (no `npx` network fetch), install the isolated local Playground tools once:
 
@@ -66,12 +66,12 @@ For deterministic local runs (no `npx` network fetch), install the isolated loca
 npm install --prefix tools/playground --no-audit --no-fund
 ```
 
-`playground:local` and `playground:local:check` look in `tools/playground` first and only fall back to the root `node_modules` bin for legacy setups.
+The local helper looks in `tools/playground` first and only falls back to the root `node_modules` bin for legacy setups.
 
 Start interactive local Playground:
 
 ```bash
-composer playground:local
+php bin/run-playground-local.php
 ```
 
 This starts a local Playground server and mounts the current Git working copy as:
@@ -80,29 +80,23 @@ This starts a local Playground server and mounts the current Git working copy as
 Run non-interactive smoke check:
 
 ```bash
-composer playground:local:check
+php bin/run-playground-local.php --run-blueprint
 ```
 
 Run cleanup:
 
 ```bash
-composer playground:local:clean
+php bin/run-playground-local.php --clean
 ```
 
 Optional overrides:
 
 ```bash
-composer playground:local -- --php=8.3 --wp=latest --port=9500
-composer playground:local:check -- --strict
+php bin/run-playground-local.php --php=8.3 --wp=latest --port=9500
+php bin/run-playground-local.php --run-blueprint --strict
 ```
 
-Package artifact smoke (Playground lane):
-
-```bash
-composer playground:package:check
-```
-
-Equivalent explicit command:
+Package artifact smoke example:
 
 ```bash
 php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package --php=8.2 --wp=latest
@@ -113,7 +107,7 @@ This package-artifact Playground smoke complements (does not replace) Docker/MyS
 Version note:
 
 - The local helper writes generated blueprints with `preferredVersions` set from your requested `--php` and `--wp` values.
-- This keeps `composer playground:local*` behavior deterministic even if upstream CLI flags drift.
+- This keeps local helper behavior deterministic even if upstream CLI flags drift.
 
 Expected smoke check output includes:
 
@@ -135,7 +129,7 @@ Required checks for PASS:
 - Admin login step succeeds
 - WordPress.org blueprint schema is valid
 
-Warnings and failure diagnostics are shown explicitly in console output, including an output tail on failure. `playground:local:check` always removes per-run temp artifacts after execution. Interactive `playground:local` performs a runtime PHP probe before startup and blocks startup on mismatch.
+Warnings and failure diagnostics are shown explicitly in console output, including an output tail on failure. `php bin/run-playground-local.php --run-blueprint` always removes per-run temp artifacts after execution. Interactive `php bin/run-playground-local.php` performs a runtime PHP probe before startup and blocks startup on mismatch.
 
 ## WordPress.org Rollout
 

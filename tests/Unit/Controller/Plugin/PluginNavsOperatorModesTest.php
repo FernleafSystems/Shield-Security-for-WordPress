@@ -33,7 +33,9 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 
 		UnitTestControllerFactory::install(
-			extras: (object)[
+			null,
+			null,
+			(object)[
 				'comps' => (object)[
 					'zones' => new UnitTestZonesComponent(),
 				],

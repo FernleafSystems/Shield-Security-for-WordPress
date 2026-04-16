@@ -6,7 +6,7 @@
 # BuildKit Cache Optimization:
 # This Dockerfile uses BuildKit cache mounts to speed up repeated builds.
 # Cache is automatic - created if missing, reused if present.
-# Requires: DOCKER_BUILDKIT=1 (set in run-docker-tests.sh)
+# Requires: DOCKER_BUILDKIT=1
 
 # Build arguments for matrix customization
 # Note: PHP_VERSION default should match DEFAULT_PHP in .github/config/matrix.conf

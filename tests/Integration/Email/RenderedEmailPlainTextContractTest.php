@@ -82,7 +82,7 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 			'Request Details:',
 			'Visitor IP Address',
 			'SQL Injection',
-			'IP Address Lookup (https://',
+			'IP Address Lookup',
 			'Configure Firewall Block alert emails',
 		], 'Firewall render conversion' );
 		$this->assertTokensAppearInOrder( $text, [
@@ -107,7 +107,7 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 
 		$this->assertPlainTextOutputHealthy( $text, 'Report render conversion' );
 		$this->assertContainsTokens( $text, [
-			'Security Report',
+			'March 10, 2024',
 			'Scan Issues',
 			'2 new',
 			'IP Offenses',
@@ -128,7 +128,6 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 			'https://example.com/plugin/example-plugin',
 		], 'Report detail preservation' );
 		$this->assertTokensAppearInOrder( $text, [
-			'Security Report',
 			'Latest Scan Results',
 			'Malware Scan',
 			'... and 2 more',

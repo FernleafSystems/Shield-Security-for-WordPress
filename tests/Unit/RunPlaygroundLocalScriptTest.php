@@ -33,21 +33,6 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( '--strict', $output );
 	}
 
-	public function testComposerDeclaresPlaygroundCleanScript() :void {
-		if ( $this->isTestingPackage() ) {
-			$this->markTestSkipped( 'composer.json is excluded from packaged artifacts (source-only assertion)' );
-		}
-
-		$cleanCommands = $this->getComposerScriptCommands( 'playground:local:clean' );
-		$this->assertContains( '@php bin/run-playground-local.php --clean', $cleanCommands );
-
-		$packageCheckCommands = $this->getComposerScriptCommands( 'playground:package:check' );
-		$this->assertContains(
-			'@php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package',
-			$packageCheckCommands
-		);
-	}
-
 	public function testRunPlaygroundCheckFailsFastForMissingPluginRoot() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$missingPluginRoot = sys_get_temp_dir().DIRECTORY_SEPARATOR.'shield-playground-missing-'.bin2hex( random_bytes( 4 ) );

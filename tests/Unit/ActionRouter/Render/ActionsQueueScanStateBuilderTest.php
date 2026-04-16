@@ -276,7 +276,11 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 	private function newScanAssetCardsBuilderStub( array $fullyIgnoredPluginSummaries = [] ) :ActionsQueueScanAssetCardsBuilder {
 		return new class( $fullyIgnoredPluginSummaries ) extends ActionsQueueScanAssetCardsBuilder {
-			public function __construct( private array $fullyIgnoredPluginSummaries ) {
+			/** @var array */
+			private $fullyIgnoredPluginSummaries;
+
+			public function __construct( array $fullyIgnoredPluginSummaries ) {
+				$this->fullyIgnoredPluginSummaries = $fullyIgnoredPluginSummaries;
 			}
 
 			public function buildFullyIgnoredPluginSummaryRecords() :array {

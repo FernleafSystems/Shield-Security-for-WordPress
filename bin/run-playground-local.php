@@ -9,13 +9,13 @@ use Symfony\Component\Process\Process;
  * Run WordPress Playground against the current Git working copy under the real plugin slug.
  *
  * Defaults to interactive server mode:
- *   composer playground:local
+ *   php bin/run-playground-local.php
  *
  * Non-interactive activation/login smoke test with explicit report:
- *   composer playground:local:check
+ *   php bin/run-playground-local.php --run-blueprint
  *
  * Cleanup old runtime artifacts:
- *   composer playground:local:clean
+ *   php bin/run-playground-local.php --clean
  */
 
 const EXIT_PASS = 0;
@@ -201,7 +201,7 @@ function runInteractiveServer(
 	echo "Mounted plugin path: {$pluginPathInVfs}\n";
 	echo "Open in browser: http://127.0.0.1:{$port}/wp-admin/\n";
 	echo "Pruned stale runs: {$pruned['removed_dirs']} directories, ".formatBytes( $pruned['removed_bytes'] )."\n";
-	echo "Cleanup command: composer playground:local:clean\n";
+	echo "Cleanup command: php bin/run-playground-local.php --clean\n";
 	echo sprintf(
 		"Version Verification: requested PHP %s (major.minor %s), runtime PHP %s (major.minor %s)\n",
 		$runtimeProbe['requested_php'],
@@ -1302,12 +1302,12 @@ Options:
   --help            Show this help.
 
 Examples:
-  composer playground:local
-  composer playground:local:check
-  composer playground:local:clean
-  composer playground:local -- --php=8.3 --port=9500
-  composer playground:local:check -- --strict
-  composer playground:local:check -- --plugin-root=./shield-package
+  php bin/run-playground-local.php
+  php bin/run-playground-local.php --run-blueprint
+  php bin/run-playground-local.php --clean
+  php bin/run-playground-local.php --php=8.3 --port=9500
+  php bin/run-playground-local.php --run-blueprint --strict
+  php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package
 
 Notes:
   Local Playground workflows use the isolated tools/playground install first and fall back to the root node_modules bin only for legacy setups.

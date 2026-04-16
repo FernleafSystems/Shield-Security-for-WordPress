@@ -141,12 +141,17 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 				'badge_status'       => 'warning',
 				'color_key'          => 'warning',
 				'actions'            => [],
+				'display_options'    => [
+					'title'       => '',
+					'action_json' => '',
+					'controls'    => [],
+				],
 			],
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? []
 		);
 		$this->assertSame(
-			'{"compact_back_label":"Back to Bucket Detail","active_back_label":"Back to Queue","meta":"Warning","breadcrumb_label":"","title":"Bucket Detail","summary":"Narrow the queue.","focus":"","next_step":"","icon_class":"bi bi-eye","badge":"Review","badge_status":"warning","color_key":"warning","actions":[]}',
-			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header_json' ] ?? ''
+			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [],
+			\json_decode( (string)( $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header_json' ] ?? '' ), true )
 		);
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 		$this->assertArrayNotHasKey( 'index', $vars[ 'drill_shell' ][ 'layers' ][ 0 ] ?? [] );

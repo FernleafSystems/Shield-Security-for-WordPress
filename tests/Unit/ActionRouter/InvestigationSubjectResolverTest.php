@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationSubjectResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\{
 	InvalidInvestigationSubjectIdentifierException,
-	UnsupportedInvestigationSubjectTypeException
+	UnsupportedInvestigationSubjectTypeException,
+	UnsupportedInvestigationTableTypeException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
@@ -36,15 +37,15 @@ class InvestigationSubjectResolverTest extends BaseUnitTest {
 		$resolver = $this->buildResolverWithAssets( [ 'akismet/akismet.php' ] );
 
 		$this->expectException( InvalidInvestigationSubjectIdentifierException::class );
-		$resolver->normalize( 'file_scan_results', 'plugin', "test-plugin' OR 1=1 --" );
+		$resolver->normalize( 'activity', 'plugin', "test-plugin' OR 1=1 --" );
 	}
 
 	public function testNormalizeAcceptsAllowListedPluginSlug() :void {
 		$slug = 'my plugin/main file.php';
 		$resolver = $this->buildResolverWithAssets( [ $slug ] );
-		$normalized = $resolver->normalize( 'file_scan_results', 'plugin', $slug );
+		$normalized = $resolver->normalize( 'activity', 'plugin', $slug );
 
-		$this->assertSame( 'file_scan_results', $normalized[ 'table_type' ] );
+		$this->assertSame( 'activity', $normalized[ 'table_type' ] );
 		$this->assertSame( 'plugin', $normalized[ 'subject_type' ] );
 		$this->assertSame( $slug, $normalized[ 'subject_id' ] );
 	}
@@ -52,7 +53,7 @@ class InvestigationSubjectResolverTest extends BaseUnitTest {
 	public function testNormalizeAcceptsUrlEncodedAllowListedPluginSlug() :void {
 		$slug = 'my plugin/main file.php';
 		$resolver = $this->buildResolverWithAssets( [ $slug ] );
-		$normalized = $resolver->normalize( 'file_scan_results', 'plugin', 'my%20plugin/main%20file.php' );
+		$normalized = $resolver->normalize( 'activity', 'plugin', 'my%20plugin/main%20file.php' );
 
 		$this->assertSame( $slug, $normalized[ 'subject_id' ] );
 	}
@@ -70,7 +71,7 @@ class InvestigationSubjectResolverTest extends BaseUnitTest {
 		$resolver = $this->buildResolverWithAssets();
 
 		$this->expectException( UnsupportedInvestigationSubjectTypeException::class );
-		$resolver->normalize( 'sessions', 'ip', '1.2.3.4' );
+		$resolver->normalize( 'sessions', 'plugin', 'akismet/akismet.php' );
 	}
 
 	public function testNormalizeAcceptsInstalledPluginForActivityTable() :void {
@@ -100,12 +101,10 @@ class InvestigationSubjectResolverTest extends BaseUnitTest {
 		$this->assertSame( 'core', $normalized[ 'subject_id' ] );
 	}
 
-	public function testNormalizeAcceptsMalwareSubjectForMalwareScanResultsTable() :void {
+	public function testNormalizeRejectsUnsupportedMalwareScanResultsTableType() :void {
 		$resolver = $this->buildResolverWithAssets();
-		$normalized = $resolver->normalize( 'malware_scan_results', 'malware', 'anything-here' );
 
-		$this->assertSame( 'malware_scan_results', $normalized[ 'table_type' ] );
-		$this->assertSame( 'malware', $normalized[ 'subject_type' ] );
-		$this->assertSame( 'malware', $normalized[ 'subject_id' ] );
+		$this->expectException( UnsupportedInvestigationTableTypeException::class );
+		$resolver->normalize( 'malware_scan_results', 'malware', 'anything-here' );
 	}
 }

@@ -8,14 +8,6 @@ This document is subordinate to [TESTING.md](../../TESTING.md). Use `TESTING.md`
 php bin/shield <command>
 ```
 
-Compatibility entrypoints remain:
-
-```bash
-./bin/run-docker-tests.sh
-php bin/run-docker-tests.php
-php bin/run-static-analysis.php
-```
-
 ## Modes
 
 | Mode | Behavior | Typical Use |
@@ -31,7 +23,6 @@ Show live help at any time:
 
 ```bash
 php bin/shield --help
-php bin/run-docker-tests.php --help
 ```
 
 ## Environment Variables
@@ -69,7 +60,7 @@ php bin/run-docker-tests.php --help
 
 ## Runtime Topology
 
-Source mode (`default` / `--source`):
+Source mode:
 
 1. Uses `tests/docker/docker-compose.yml`.
 2. Runs one setup pass before runtime streams.
@@ -82,7 +73,6 @@ Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`)
 
 1. Resolved through `php bin/shield` lane services.
 2. Package path resolution supports explicit `--package-path` or deterministic temp package build.
-3. Compatibility adapters map legacy flags to these commands.
 
 Local sidecar mode (`test:integration-local`):
 
@@ -117,14 +107,11 @@ php bin/shield analyze:source --refresh-setup
 ## Quick Examples
 
 ```bash
-# Source runtime checks (default)
+# Source runtime checks
 php bin/shield test:source
 
 # Local integration with DB sidecar
 php bin/shield test:integration-local
-
-# Compatibility explicit source runtime checks
-./bin/run-docker-tests.sh --source
 
 # Package-targeted runtime checks
 php bin/shield test:package-targeted
@@ -142,7 +129,7 @@ php bin/shield analyze:package
 ## Troubleshooting
 
 1. Ensure Docker is installed and the daemon is running.
-2. Use `php bin/run-docker-tests.php --help` to verify mode flags.
+2. Use `php bin/shield --help` to verify mode flags.
 3. If a mode fails immediately, check for unknown arguments and conflicting mode flags.
 4. If Composer reports `Could not authenticate against github.com`, verify auth:
 

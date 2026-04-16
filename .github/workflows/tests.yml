@@ -62,6 +62,26 @@ jobs:
     - name: Run tooling guard
       run: php bin/shield analyze:tooling
 
+  js-static:
+    name: 'JS Static'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.10'
+        cache: npm
+
+    - name: Install dependencies
+      run: npm ci --no-audit --no-fund
+
+    - name: Run JS static checks
+      run: npm run test:js
+
   source-static-analysis:
     name: 'Source Static Analysis'
     runs-on: ubuntu-latest
@@ -87,12 +107,21 @@ jobs:
     - name: Run source static analysis
       run: php bin/shield analyze:source
 
-  unit-parallel:
-    name: 'Unit Parallel'
+  unit-php74:
+    name: 'Unit PHP 7.4'
     uses: ./.github/workflows/reusable-unit-tests.yml
     needs: tooling-guard
     with:
       run_command: composer test:unit
+      php_version: '7.4'
+
+  unit-latest:
+    name: 'Unit Latest PHP'
+    uses: ./.github/workflows/reusable-unit-tests.yml
+    needs: tooling-guard
+    with:
+      run_command: composer test:unit
+      php_version: '8.4'
 
   source-docker-runtime:
     name: 'Source Docker Runtime'
@@ -110,7 +139,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.4'
+        php-version: '8.2'
         coverage: none
         tools: composer:v2
 

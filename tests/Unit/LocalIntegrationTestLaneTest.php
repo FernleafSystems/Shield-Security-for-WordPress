@@ -54,12 +54,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$dockerComposeExecutor->calls[ 0 ][ 'compose_files' ]
 		);
 		$this->assertSame(
-			[
-				'DOCKER_BUILDKIT' => '1',
-				'MSYS_NO_PATHCONV' => '1',
-				'COMPOSE_PROJECT_NAME' => 'shield-local-db',
-				'SHIELD_PACKAGE_PATH' => false,
-			],
+			$this->expectedDockerEnvOverrides(),
 			$dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ]
 		);
 
@@ -86,6 +81,10 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$processRunner->calls[ 1 ][ 'command' ]
 		);
 		$this->assertSame(
+			$this->expectedPhpUnitEnvOverrides(),
+			$processRunner->calls[ 1 ][ 'env_overrides' ]
+		);
+		$this->assertSame(
 			[
 				\PHP_BINARY,
 				'./vendor/phpunit/phpunit/phpunit',
@@ -96,17 +95,14 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			],
 			$processRunner->calls[ 2 ][ 'command' ]
 		);
-		foreach ( $processRunner->calls as $call ) {
-			$this->assertSame(
-				[
-					'DOCKER_BUILDKIT' => '1',
-					'MSYS_NO_PATHCONV' => '1',
-					'COMPOSE_PROJECT_NAME' => 'shield-local-db',
-					'SHIELD_PACKAGE_PATH' => false,
-				],
-				$call[ 'env_overrides' ]
-			);
-		}
+		$this->assertSame(
+			$this->expectedDockerEnvOverrides(),
+			$processRunner->calls[ 0 ][ 'env_overrides' ]
+		);
+		$this->assertSame(
+			$this->expectedPhpUnitEnvOverrides(),
+			$processRunner->calls[ 2 ][ 'env_overrides' ]
+		);
 	}
 
 	public function testDbDownOnlyRunsComposeDownAndExits() :void {
@@ -162,5 +158,27 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	 */
 	private function createRecordingInstallerCommandBuilder( array $command ) :RecordingLocalWpTestsInstallerCommandBuilder {
 		return new RecordingLocalWpTestsInstallerCommandBuilder( $command );
+	}
+
+	/**
+	 * @return array<string,string|false>
+	 */
+	private function expectedDockerEnvOverrides() :array {
+		return [
+			'DOCKER_BUILDKIT' => '1',
+			'MSYS_NO_PATHCONV' => '1',
+			'COMPOSE_PROJECT_NAME' => 'shield-local-db',
+			'SHIELD_PACKAGE_PATH' => false,
+		];
+	}
+
+	/**
+	 * @return array<string,string|false>
+	 */
+	private function expectedPhpUnitEnvOverrides() :array {
+		return \array_merge( $this->expectedDockerEnvOverrides(), [
+			'WP_TESTS_DIR' => \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
+			'WP_CORE_DIR' => \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress',
+		] );
 	}
 }

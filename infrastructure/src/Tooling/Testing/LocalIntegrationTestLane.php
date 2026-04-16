@@ -56,6 +56,7 @@ class LocalIntegrationTestLane {
 			self::COMPOSE_PROJECT_NAME,
 			true
 		);
+		$phpUnitEnvOverrides = \array_merge( $envOverrides, $this->buildWordPressTestEnvOverrides() );
 
 		if ( $dbDown ) {
 			return $this->dockerComposeExecutor->run(
@@ -79,7 +80,7 @@ class LocalIntegrationTestLane {
 			return 1;
 		}
 
-		if ( $this->processRunner->runForExitCode( $this->buildBuildConfigCommand(), $rootDir, null, $envOverrides ) !== 0 ) {
+		if ( $this->processRunner->runForExitCode( $this->buildBuildConfigCommand(), $rootDir, null, $phpUnitEnvOverrides ) !== 0 ) {
 			return 1;
 		}
 
@@ -87,7 +88,7 @@ class LocalIntegrationTestLane {
 			$this->buildPhpUnitCommand( $phpunitArgs ),
 			$rootDir,
 			null,
-			$envOverrides
+			$phpUnitEnvOverrides
 		);
 	}
 
@@ -152,5 +153,17 @@ class LocalIntegrationTestLane {
 			],
 			$phpunitArgs
 		);
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function buildWordPressTestEnvOverrides() :array {
+		$tempDir = \rtrim( \sys_get_temp_dir(), "\\/" );
+
+		return [
+			'WP_TESTS_DIR' => $tempDir.\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
+			'WP_CORE_DIR'  => $tempDir.\DIRECTORY_SEPARATOR.'wordpress',
+		];
 	}
 }

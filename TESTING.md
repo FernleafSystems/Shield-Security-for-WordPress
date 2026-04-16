@@ -1,85 +1,43 @@
 # Shield Testing Guide
 
-`TESTING.md` is Shield's single source of truth for operational testing guidance. If another document conflicts with this file on testing commands, workflow roles, wrapper status, or verification flow, follow `TESTING.md`.
+`TESTING.md` is Shield's single source of truth for the supported test command surface and workflow roles. If another document disagrees with this file, follow `TESTING.md`.
 
 Supporting docs:
 
-1. [`tests/docker/README.md`](tests/docker/README.md) for Docker-runner specifics only.
-2. [`docs/test-suite-full-audit-2026-03-15.md`](docs/test-suite-full-audit-2026-03-15.md) for per-test keep/remove/improve decisions.
-3. [`tests/TESTING-RULES-ROADMAP.md`](tests/TESTING-RULES-ROADMAP.md) for the rules/firewall testing roadmap.
+1. [`tests/docker/README.md`](tests/docker/README.md) for Docker-runner mechanics only.
+2. [`docs/test-suite-full-audit-2026-03-15.md`](docs/test-suite-full-audit-2026-03-15.md) for the audit record.
+3. [`tests/TESTING-RULES-ROADMAP.md`](tests/TESTING-RULES-ROADMAP.md) for rules/firewall coverage planning only.
 
-## Recommended Command Map
+## Public Commands
 
 | Goal | Command | Notes |
 |---|---|---|
-| Fast local subset | `composer test:fast` | Rules-focused subset for rapid iteration |
-| Full local test suite | `composer test` | Runs unit and integration suites |
-| Unit tests only | `composer test:unit` | Auto mode: parallel by default, serial fallback when `--filter` is passed |
-| Unit tests (force serial) | `composer test:unit:serial` | Troubleshooting and compatibility checks |
-| Unit tests (force parallel) | `composer test:unit:parallel` | Forces ParaTest regardless of filter args |
-| Integration tests only | `composer test:integration` | Includes config generation |
-| Local integration DB sidecar | `composer test:integration:local` | Composer wrapper for `php bin/shield test:integration-local` |
+| Full local confidence gate | `composer test` | Builds config, then runs unit and integration lanes |
+| Unit tests | `composer test:unit` | Default developer unit entry point |
+| Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane |
 | Browser lane | `composer test:browser` | Playwright + axe against the isolated local Docker WordPress test site on port `8889` |
-| Source runtime | `php bin/shield test:source` | Canonical source-first Docker runtime lane |
-| Package-targeted runtime | `php bin/shield test:package-targeted` | Canonical focused package validation lane |
-| Package-full runtime | `php bin/shield test:package-full` | Canonical full packaged Docker runtime lane |
-| Tooling guard | `php bin/shield analyze:tooling` | Fail-fast syntax lint + tooling/test-platform PHPStan |
-| Source static analysis | `php bin/shield analyze:source` | Canonical source static-analysis lane |
-| Packaged static analysis | `php bin/shield analyze:package` | Canonical packaged static-analysis lane |
-| Source static analysis (composer) | `composer analyze` | Default maps to `composer analyze:source` |
-| Packaged static analysis (composer) | `composer analyze:package` | Composer wrapper for packaged analysis |
+| Package validation | `composer test:package` | Public wrapper around targeted package validation |
+| Source static analysis | `composer analyze` | Public wrapper around source static analysis |
+| JS static checks | `npm run test:js` | Policy, ESLint, and checkJs TypeScript validation only |
 
-## Command Surface Notes
+## Internal Lane Ownership
 
-1. Primary CLI: `php bin/shield <command>`.
-2. Composer runtime wrappers remain available:
-   - `composer test:source`
-   - `composer test:integration:local`
-   - `composer test:browser`
-   - `composer test:package-targeted`
-   - `composer test:package-full`
-3. `composer analyze` maps to `composer analyze:source`.
-4. `test:source` and `analyze:source` cache setup state by default for faster local reruns.
-5. Use `--refresh-setup` to force setup refresh:
-   - `php bin/shield test:source --refresh-setup`
-   - `php bin/shield analyze:source --refresh-setup`
+These commands remain the owned internal lanes behind the public surface and CI workflows. Do not add new public wrappers for them.
 
-## Compatibility Adapters
-
-These remain supported, but they are adapters around `php bin/shield`, not the primary interface:
-
-| Adapter | Scope |
+| Internal Command | Role |
 |---|---|
-| `./bin/run-docker-tests.sh` | Backwards-compatible Docker/runtime adapter |
-| `php bin/run-docker-tests.php` | Backwards-compatible Docker/runtime adapter |
-| `php bin/run-static-analysis.php` | Backwards-compatible static-analysis adapter |
+| `php bin/shield analyze:tooling` | Fail-fast syntax lint and tooling/test-platform analysis on PHP 7.4 |
+| `php bin/shield analyze:source` | Canonical source static-analysis lane |
+| `php bin/shield analyze:package` | Packaged static analysis lane |
+| `php bin/shield test:source` | Source-first Docker runtime lane |
+| `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
+| `php bin/shield test:package-targeted` | Targeted package validation lane |
+| `php bin/shield test:package-full` | Scheduled/manual deep packaged runtime lane |
+| `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 
-Adapter mode map:
+`test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
 
-| Adapter Mode | Behavior |
-|---|---|
-| `./bin/run-docker-tests.sh` or `./bin/run-docker-tests.sh --source` | Source runtime checks against the working tree |
-| `./bin/run-docker-tests.sh --package-targeted` | Focused package validation checks |
-| `./bin/run-docker-tests.sh --package-full` | Full packaged runtime checks |
-| `./bin/run-docker-tests.sh --analyze-source` | Source static analysis checks |
-| `./bin/run-docker-tests.sh --analyze-package` | Packaged static analysis checks |
-| `php bin/run-static-analysis.php` or `php bin/run-static-analysis.php --source` | Source static analysis checks |
-| `php bin/run-static-analysis.php --package` | Packaged static analysis checks |
-
-## Local Integration DB Sidecar
-
-Use this when you want fast local integration loops on host PHP without running the full Docker runtime lanes:
-
-```bash
-composer test:integration:local
-composer test:integration:local -- -- --filter RuleBuilderTest
-```
-
-Teardown is explicit and isolated to the sidecar project:
-
-```bash
-php bin/shield test:integration-local --db-down
-```
+`composer test:integration` is now focused on behaviour-level WordPress runtime coverage. Browser-managed ActionRouter page-shell and DOM-contract tests are intentionally excluded from the default PHPUnit integration lane and covered via `composer test:browser`.
 
 ## Local Browser Lane
 
@@ -102,7 +60,7 @@ Operational notes:
 4. `php bin/shield dev:site:reset` and `php bin/shield test:site:reset` destroy and reprovision their respective sites; `dev:site:down` and `test:site:down` stop them while preserving state.
 5. `php bin/shield dev:site:wp plugin list` and `php bin/shield test:site:wp plugin list` run WP-CLI against the appropriate local `wp-cli` container after ensuring the site is ready. The command appends `--allow-root` automatically when it is not already present.
 6. Both local sites fail fast if required source prerequisites are missing. At minimum, keep Composer dependencies, `plugin.json`, and built assets current before starting either site or running Playwright.
-7. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to `test:package-targeted` and `test:package-full`.
+7. The browser lane is intentionally source-only. Do not add packaged-only `vendor_prefixed` content to this runtime; prefixed dependency validation belongs to the package lanes.
 8. Local browser work requires Docker plus a supported Node 20 binary for Playwright. `php bin/run-node-tool.php` resolves that on demand without changing the machine default Node.
 9. CI runs Chromium only. Headed debugging is still available by forwarding Playwright flags through the browser command, for example: `composer test:browser -- -- --headed`.
 10. Composer browser-arg forwarding is two-stage and must be explicit:
@@ -113,13 +71,13 @@ Operational notes:
 
 ### Optional Playground Tooling
 
-Raw Playground is no longer the default browser lane. Keep it for standalone smoke/debug work only:
+Raw Playground is no longer part of the supported test surface. Keep the local helper only for standalone smoke or debugging work:
 
 ```bash
 npm install --prefix tools/playground --no-audit --no-fund
-composer playground:local
-composer playground:local:check
-composer playground:local:clean
+php bin/run-playground-local.php
+php bin/run-playground-local.php --run-blueprint
+php bin/run-playground-local.php --clean
 ```
 
 ## CI Workflow Role Split
@@ -127,14 +85,15 @@ composer playground:local:clean
 Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/tests.yml)
 
 1. Tooling guard on PHP 7.4 via `php bin/shield analyze:tooling`.
-2. Source static analysis via `composer analyze:source`.
-3. Parallel unit tests via `composer test:unit`.
-4. Source Docker runtime checks focused on runtime and integration coverage.
-5. Package-targeted validation against the built artifact.
+2. JS static checks via `npm run test:js`.
+3. Source static analysis via `composer analyze`.
+4. Unit tests on PHP 7.4 and latest supported PHP via `composer test:unit`.
+5. Source Docker runtime checks focused on runtime and integration coverage.
+6. Package-targeted validation against the built artifact.
 
 Serial compatibility sentinel: [`.github/workflows/unit-serial-sentinel.yml`](.github/workflows/unit-serial-sentinel.yml)
 
-1. Runs `composer test:unit:serial`.
+1. Runs `php bin/run-unit-tests.php --runner-mode=serial`.
 2. Triggered by `workflow_dispatch`.
 3. Runs weekly at `0 5 * * 1` (05:00 UTC every Monday).
 
@@ -142,15 +101,14 @@ Scheduled/manual packaged pathway: [`.github/workflows/docker-tests.yml`](.githu
 
 1. Runs the full packaged matrix runtime checks.
 2. Runs packaged static analysis.
-3. Runs package playground smoke checks.
-4. Triggered by `workflow_dispatch` and the weekday schedule `0 6 * * 1-5` (06:00 UTC Monday through Friday).
+3. Triggered by `workflow_dispatch` and the weekday schedule `0 6 * * 1-5` (06:00 UTC Monday through Friday).
 
 Scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/workflows/browser-tests.yml)
 
 1. Installs Composer and Node dependencies.
 2. Rebuilds admin assets for the checked-out source tree.
 3. Installs Chromium and runs the ActionRouter Playwright + axe lane against the isolated local Docker WordPress test site.
-4. Triggered by `workflow_dispatch` and the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday).
+4. Triggered by `workflow_dispatch`, the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday), and PRs that touch ActionRouter/browser-owned UI paths.
 
 ## Local Verification Commands
 
@@ -158,8 +116,6 @@ Use these to verify the command surface and documentation alignment:
 
 ```bash
 php bin/shield --help
-php bin/run-docker-tests.php --help
-php bin/run-static-analysis.php --help
 composer run-script --list
 ```
 
@@ -176,7 +132,7 @@ For GitHub authentication issues during Docker or source runs, use the troublesh
 
 ## Operational Boundaries
 
-1. Keep testing validation focused on runtime, static analysis, and package correctness.
+1. Keep testing validation focused on runtime, static analysis, package correctness, and browser coverage where it replaces brittle PHP UI assertions.
 2. Do not add tests that assert documentation prose.
-3. Ignore unrelated non-conflicting workspace changes while implementing testing-doc updates.
-4. If conflicting changes are found in the touched testing-doc slice, stop and report before continuing.
+3. Ignore unrelated non-conflicting workspace changes while implementing testing updates.
+4. If conflicting changes are found in the touched testing slice, stop and report before continuing.
