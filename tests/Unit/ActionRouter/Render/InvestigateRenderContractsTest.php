@@ -232,10 +232,29 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			],
 			$subject->lookupRoute( PluginNavs::SUBNAV_ACTIVITY_BY_IP )
 		);
-		$this->assertSame(
-			'/admin/activity/logs?search=user_id%3A42',
-			$subject->fullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, 'user_id:42' )
-		);
+	}
+
+	public function test_build_rail_nav_items_from_tabs_uses_plain_label_when_count_missing() :void {
+		$items = ( new InvestigateRenderContractsTestDouble() )->railNavItemsFromTabs( [
+			[
+				'target'    => '#tabOne',
+				'nav_id'    => 'tab-one',
+				'controls'  => 'tabOne',
+				'label'     => 'Overview',
+				'is_active' => true,
+			],
+			[
+				'target'    => '#tabTwo',
+				'nav_id'    => 'tab-two',
+				'controls'  => 'tabTwo',
+				'label'     => 'Activity',
+				'count'     => 4,
+				'is_active' => false,
+			],
+		] );
+
+		$this->assertSame( 'Overview', (string)( $items[ 0 ][ 'label' ] ?? '' ) );
+		$this->assertSame( 'Activity (4)', (string)( $items[ 1 ][ 'label' ] ?? '' ) );
 	}
 
 	public function test_with_empty_state_strips_table_metadata_when_records_do_not_exist() :void {
@@ -336,8 +355,8 @@ class InvestigateRenderContractsTestDouble {
 		return $this->buildLookupRouteContract( $subNav );
 	}
 
-	public function fullLogHrefWithSearch( string $nav, string $subNav, string $search ) :string {
-		return $this->buildFullLogHrefWithSearch( $nav, $subNav, $search );
+	public function railNavItemsFromTabs( array $tabs ) :array {
+		return $this->buildRailNavItemsFromTabs( $tabs );
 	}
 
 	public function tableContainerContract(

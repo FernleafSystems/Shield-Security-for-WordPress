@@ -35,22 +35,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 			$rows = ( new InvestigateOverviewRowsBuilder() )->forUser(
 				$user,
 				[
-					'sessions' => [ 'count' => 2 ],
-					'activity' => [ 'count' => 3 ],
-					'requests' => [ 'count' => 4 ],
-					'ips'      => [ 'count' => 5 ],
-				],
-				[
-					'role'          => 'Administrator',
-					'last_login_ip' => '203.0.113.77',
-					'recent_ips'    => [ '203.0.113.77', '198.51.100.12' ],
-					'event_score'   => 6,
-					'shield_status' => 'Tracked',
+					'role'            => 'Administrator',
+					'last_login_ip'   => '203.0.113.77',
+					'recent_ips'      => [ '203.0.113.77', '198.51.100.12' ],
+					'shield_status'   => 'Active',
+					'wp_profile_href' => '/wp-admin/user-edit.php?user_id=7',
 				]
 			);
 
 			$this->assertSame(
-				[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Event Score', 'Shield Status' ],
+				[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Shield Status', 'WordPress Profile' ],
 				\array_column( $rows, 'label' )
 			);
 			$this->assertSame(
@@ -61,11 +55,36 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 					'Administrator',
 					'203.0.113.77',
 					'203.0.113.77, 198.51.100.12',
-					'6',
-					'Tracked',
+					'Active',
+					'Open Profile',
 				],
 				\array_column( $rows, 'value' )
 			);
+			$this->assertSame( '/wp-admin/user-edit.php?user_id=7', (string)( $rows[ 7 ][ 'value_href' ] ?? '' ) );
+		}
+
+		public function test_user_rows_omit_profile_row_when_profile_href_missing() :void {
+			$user = new \WP_User();
+			$user->ID = 9;
+			$user->user_login = 'reviewer';
+			$user->user_email = 'reviewer@example.com';
+			$user->display_name = 'Review User';
+
+			$rows = ( new InvestigateOverviewRowsBuilder() )->forUser(
+				$user,
+				[
+					'role'          => 'Editor',
+					'last_login_ip' => '198.51.100.19',
+					'recent_ips'    => [],
+					'shield_status' => 'Suspended',
+				]
+			);
+
+			$this->assertSame(
+				[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Shield Status' ],
+				\array_column( $rows, 'label' )
+			);
+			$this->assertNotContains( 'WordPress Profile', \array_column( $rows, 'label' ) );
 		}
 
 		public function test_plugin_asset_rows_include_update_and_vulnerability_status() :void {

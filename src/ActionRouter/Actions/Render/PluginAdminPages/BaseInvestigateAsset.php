@@ -126,23 +126,6 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		return $tabs;
 	}
 
-	protected function buildRailNavItemsFromTabs( array $tabs ) :array {
-		$items = [];
-		foreach ( $tabs as $tab ) {
-			$count = $tab[ 'count' ];
-			$items[] = [
-				'target'   => $tab[ 'target' ],
-				'id'       => $tab[ 'nav_id' ],
-				'controls' => $tab[ 'controls' ],
-				'label'    => $count === null
-					? $tab[ 'label' ]
-					: \sprintf( '%s (%d)', $tab[ 'label' ], $count ),
-				'is_focus' => $tab[ 'is_active' ],
-			];
-		}
-		return $items;
-	}
-
 	/**
 	 * @return array<string,mixed>
 	 */

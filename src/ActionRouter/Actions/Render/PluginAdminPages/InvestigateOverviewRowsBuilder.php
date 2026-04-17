@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\I
 
 class InvestigateOverviewRowsBuilder {
 
-	public function forUser( \WP_User $subject, array $summaryStats, array $context = [] ) :array {
+	public function forUser( \WP_User $subject, array $context = [] ) :array {
 		$recentIps = $context[ 'recent_ips' ] ?? [];
 		$recentIpsText = \is_array( $recentIps ) && !empty( $recentIps )
 			? \implode( ', ', \array_map( '\trim', $recentIps ) )
@@ -14,10 +14,10 @@ class InvestigateOverviewRowsBuilder {
 
 		$role = (string)( $context[ 'role' ] ?? __( 'Unknown', 'wp-simple-firewall' ) );
 		$lastLoginIp = (string)( $context[ 'last_login_ip' ] ?? __( 'Unknown', 'wp-simple-firewall' ) );
-		$eventScore = (string)( $context[ 'event_score' ] ?? 0 );
-		$shieldStatus = (string)( $context[ 'shield_status' ] ?? __( 'Tracked', 'wp-simple-firewall' ) );
+		$shieldStatus = (string)( $context[ 'shield_status' ] ?? __( 'Active', 'wp-simple-firewall' ) );
+		$wpProfileHref = (string)( $context[ 'wp_profile_href' ] ?? '' );
 
-		return [
+		$rows = [
 			[
 				'label' => __( 'Username', 'wp-simple-firewall' ),
 				'value' => $subject->user_login,
@@ -43,14 +43,20 @@ class InvestigateOverviewRowsBuilder {
 				'value' => $recentIpsText,
 			],
 			[
-				'label' => __( 'Event Score', 'wp-simple-firewall' ),
-				'value' => $eventScore,
-			],
-			[
 				'label' => __( 'Shield Status', 'wp-simple-firewall' ),
 				'value' => $shieldStatus,
 			],
 		];
+
+		if ( $wpProfileHref !== '' ) {
+			$rows[] = [
+				'label'      => __( 'WordPress Profile', 'wp-simple-firewall' ),
+				'value'      => __( 'Open Profile', 'wp-simple-firewall' ),
+				'value_href' => $wpProfileHref,
+			];
+		}
+
+		return $rows;
 	}
 
 	public function forAsset(

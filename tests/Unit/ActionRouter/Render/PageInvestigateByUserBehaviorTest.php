@@ -10,6 +10,7 @@ namespace {
 			public string $user_login = '';
 			public string $user_email = '';
 			public string $display_name = '';
+			public array $roles = [];
 		}
 	}
 }
@@ -26,7 +27,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render {
 
 use Brain\Monkey\Functions;
-use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByUser;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -84,6 +84,9 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 				}
 				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
 			}
+		);
+		Functions\when( 'get_edit_user_link' )->alias(
+			static fn( int $userId ) :string => '/wp-admin/user-edit.php?user_id='.$userId
 		);
 
 		$this->servicesSnapshot = ServicesState::snapshot();
@@ -211,6 +214,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'summary', $vars );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
+		$this->assertArrayHasKey( 'tabs', $vars );
 		$this->assertArrayHasKey( 'rail_nav_items', $vars );
 		$this->assertArrayHasKey( 'overview_rows', $vars );
 		$this->assertSame( 'tab-navlink-user-overview', (string)( $railNavItems[ 0 ][ 'id' ] ?? '' ) );
@@ -225,6 +229,10 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 				'tab-navlink-user-ips',
 			],
 			\array_column( $railNavItems, 'id' )
+		);
+		$this->assertSame(
+			[ 'Overview', 'Sessions', 'Activity', 'Requests', 'IP Addresses' ],
+			\array_column( $railNavItems, 'label' )
 		);
 		$this->assertArrayHasKey( 'sessions', $tables );
 		$this->assertArrayHasKey( 'activity', $tables );
@@ -242,15 +250,19 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'sessions' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'requests' ] ?? [] );
-		$this->assertSame( 'Full Log', (string)( $tables[ 'sessions' ][ 'full_log_text' ] ?? '' ) );
-		$this->assertSame( 'btn btn-outline-secondary btn-sm', (string)( $tables[ 'sessions' ][ 'full_log_button_class' ] ?? '' ) );
 		$this->assertTrue( (bool)( $tables[ 'sessions' ][ 'is_flat' ] ?? false ) );
+		$this->assertFalse( (bool)( $tables[ 'sessions' ][ 'show_header' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'requests' ][ 'show_header' ] ?? true ) );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'sessions' ] ?? [] );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'requests' ] ?? [] );
 		$this->assertSame( InvestigationTableContract::SUBJECT_TYPE_USER, $tables[ 'sessions' ][ 'subject_type' ] ?? '' );
 		$this->assertSame( 42, (int)( $tables[ 'sessions' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'activity' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'requests' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame(
-			[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Event Score', 'Shield Status' ],
+			[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Shield Status', 'WordPress Profile' ],
 			\array_column( $overviewRows, 'label' )
 		);
 		$this->assertSame(
@@ -261,23 +273,12 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 				'Unknown',
 				'203.0.113.9',
 				'198.51.100.4, 192.0.2.1, 203.0.113.9',
-				'1',
-				'Tracked',
+				'Active',
+				'Open Profile',
 			],
 			\array_column( $overviewRows, 'value' )
 		);
-
-		$activityHref = (string)( $tables[ 'activity' ][ 'full_log_href' ] ?? '' );
-		$requestsHref = (string)( $tables[ 'requests' ][ 'full_log_href' ] ?? '' );
-		$sessionsHref = (string)( $tables[ 'sessions' ][ 'full_log_href' ] ?? '' );
-
-		$activityQuery = [];
-		$requestsQuery = [];
-		\parse_str( (string)\parse_url( $activityHref, \PHP_URL_QUERY ), $activityQuery );
-		\parse_str( (string)\parse_url( $requestsHref, \PHP_URL_QUERY ), $requestsQuery );
-		$this->assertSame( '/admin/activity/sessions', (string)\parse_url( $sessionsHref, \PHP_URL_PATH ) );
-		$this->assertSame( 'user_id:42', (string)( $activityQuery[ 'search' ] ?? '' ) );
-		$this->assertSame( 'user_id:42', (string)( $requestsQuery[ 'search' ] ?? '' ) );
+		$this->assertSame( '/wp-admin/user-edit.php?user_id=42', (string)( $overviewRows[ 7 ][ 'value_href' ] ?? '' ) );
 
 		$relatedIps = $vars[ 'related_ips' ] ?? [];
 		$this->assertCount( 3, $relatedIps );
@@ -308,7 +309,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_summary_ip_status_prefers_warning_over_good_when_no_critical_ip_exists() :void {
+	public function test_overview_rows_include_recent_ips_without_offense_score_noise() :void {
 		$user = new \WP_User();
 		$user->ID = 7;
 		$user->user_login = 'analyst';
@@ -350,7 +351,68 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		);
 		\sort( $recentIps );
 		$this->assertSame( [ '198.51.100.77', '203.0.113.55' ], $recentIps );
-		$this->assertSame( '0', (string)( $overviewByLabel[ 'Event Score' ] ?? '' ) );
+		$this->assertSame( 'Active', (string)( $overviewByLabel[ 'Shield Status' ] ?? '' ) );
+	}
+
+	public function test_build_overview_context_marks_suspended_users_and_never_returns_tracked() :void {
+		$user = new \WP_User();
+		$user->ID = 7;
+		$user->user_login = 'suspended-user';
+		$user->user_email = 'suspended@example.com';
+		$user->display_name = 'Suspended User';
+		$user->roles = [ 'shop_manager' ];
+
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			null,
+			(object)[
+				'user_metas' => new class {
+					public function for( \WP_User $user ) :object {
+						return (object)[
+							'record' => (object)[
+								'hard_suspended_at' => 1234,
+								'ip_ref'            => 0,
+							],
+						];
+					}
+				},
+				'db_con' => (object)[
+					'ips' => new class {
+						public function getQuerySelector() :object {
+							return new class {
+								public function byId( int $id ) {
+									return null;
+								}
+							};
+						}
+					},
+				],
+			]
+		);
+
+		$page = new class extends PageInvestigateByUser {
+		};
+
+		$context = $this->invokeNonPublicMethod(
+			$page,
+			'buildOverviewContext',
+			[
+				$user,
+				[
+					[
+						'ip'               => '203.0.113.55',
+						'last_activity_ts' => 1100,
+					],
+				],
+				[],
+			]
+		);
+
+		$this->assertSame( 'Shop Manager', (string)( $context[ 'role' ] ?? '' ) );
+		$this->assertSame( '203.0.113.55', (string)( $context[ 'last_login_ip' ] ?? '' ) );
+		$this->assertSame( 'Suspended', (string)( $context[ 'shield_status' ] ?? '' ) );
+		$this->assertSame( '/wp-admin/user-edit.php?user_id=7', (string)( $context[ 'wp_profile_href' ] ?? '' ) );
+		$this->assertNotSame( 'Tracked', (string)( $context[ 'shield_status' ] ?? '' ) );
 	}
 
 	public function test_render_data_includes_lookup_helper_string() :void {
@@ -444,23 +506,18 @@ class PageInvestigateByUserUnitTestDouble extends PageInvestigateByUser {
 		return $this->requestLogs;
 	}
 
-	protected function buildOverviewContext( \WP_User $subject, array $sessions, array $requestLogs, array $relatedIps ) :array {
+	protected function buildOverviewContext( \WP_User $subject, array $sessions, array $relatedIps ) :array {
 		$recentIps = \array_values( \array_unique( \array_map(
 			static fn( array $card ) :string => (string)( $card[ 'ip' ] ?? '' ),
 			$relatedIps
 		) ) );
 
-		$eventScore = \count( \array_filter(
-			$requestLogs,
-			static fn( array $log ) :bool => !empty( $log[ 'offense' ] )
-		) );
-
 		return [
-			'role'          => 'Unknown',
-			'last_login_ip' => (string)( $sessions[ 0 ][ 'ip' ] ?? 'Unknown' ),
-			'recent_ips'    => \array_values( \array_filter( $recentIps ) ),
-			'event_score'   => $eventScore,
-			'shield_status' => 'Tracked',
+			'role'            => 'Unknown',
+			'last_login_ip'   => (string)( $sessions[ 0 ][ 'ip' ] ?? 'Unknown' ),
+			'recent_ips'      => \array_values( \array_filter( $recentIps ) ),
+			'shield_status'   => 'Active',
+			'wp_profile_href' => '/wp-admin/user-edit.php?user_id='.$subject->ID,
 		];
 	}
 

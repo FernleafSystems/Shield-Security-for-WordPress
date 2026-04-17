@@ -27,7 +27,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Investigatio
 	ForSessions as InvestigationSessionsTableBuilder,
 	ForTraffic as InvestigationTrafficTableBuilder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageInvestigateByUser extends BasePluginAdminPage {
@@ -36,9 +35,9 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	public const SLUG = 'plugin_admin_page_investigate_by_user';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_user.twig';
-	private const LIMIT_SESSIONS = 50;
-	private const LIMIT_ACTIVITY_LOGS = 75;
-	private const LIMIT_REQUEST_LOGS = 75;
+	private const CONTEXT_SESSIONS_LIMIT = 50;
+	private const CONTEXT_ACTIVITY_LOGS_LIMIT = 75;
+	private const CONTEXT_REQUEST_LOGS_LIMIT = 75;
 
 	protected function getRenderData() :array {
 		$con = self::con();
@@ -51,7 +50,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$useStaticLookup = $userLookupBuilder->shouldUseStaticSelect();
 		$lookupAjax = $useStaticLookup ? [] : $this->buildLookupAjaxContract( 'user', 1 );
 
-		$summaryStats = [];
+		$tabs = [];
 		$overviewRows = [];
 		$railNavItems = [];
 		$tables = [];
@@ -63,13 +62,12 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			$activityLogs = $this->buildActivityLogs( $subject );
 			$requestLogs = $this->buildRequestLogs( $subject );
 			$relatedIps = $this->getRelatedIpCardsBuilder()->build( $sessions, $activityLogs, $requestLogs );
-			$summaryStats = $this->buildSummaryStats( $sessions, $activityLogs, $requestLogs, $relatedIps );
-			$overviewRows = $this->buildOverviewRows(
+			$tabs = $this->buildUserTabsPayload();
+			$overviewRows = ( new InvestigateOverviewRowsBuilder() )->forUser(
 				$subject,
-				$summaryStats,
-				$this->buildOverviewContext( $subject, $sessions, $requestLogs, $relatedIps )
+				$this->buildOverviewContext( $subject, $sessions, $relatedIps )
 			);
-			$railNavItems = $this->buildRailNavItems( $summaryStats );
+			$railNavItems = $this->buildRailNavItemsFromTabs( $tabs );
 			$tables = $this->buildTableContractsForUser( $subject->ID );
 			$subjectHeader = $this->buildSubjectHeaderContract(
 				(string)$subject->user_login,
@@ -97,7 +95,6 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'lookup_submit'       => __( 'Load User Context', 'wp-simple-firewall' ),
 				'lookup_helper'       => __( 'Type at least 1 character to search by username, display name, email, or user ID.', 'wp-simple-firewall' ),
 				'change_subject'      => __( 'Change user', 'wp-simple-firewall' ),
-				'overview_title'      => __( 'User Overview', 'wp-simple-firewall' ),
 				'not_found_title'     => __( 'No Matching User Found', 'wp-simple-firewall' ),
 				'not_found_text'      => __( 'No WordPress user matched your lookup value. Try a different search term.', 'wp-simple-firewall' ),
 				'related_ips_title'   => __( 'Related IP Addresses', 'wp-simple-firewall' ),
@@ -114,6 +111,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'lookup_shortcuts' => $this->buildLookupShortcuts(),
 				'offcanvas_history_mode' => '',
 				'subject_header'   => $subjectHeader,
+				'tabs'             => $tabs,
 				'overview_rows'    => $overviewRows,
 				'rail_nav_items'   => $railNavItems,
 				'tables'           => $tables,
@@ -126,11 +124,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		return ( new ResolveUserLookup() )->resolve( $lookup );
 	}
 
-	protected function buildOverviewRows( \WP_User $subject, array $summaryStats, array $context = [] ) :array {
-		return ( new InvestigateOverviewRowsBuilder() )->forUser( $subject, $summaryStats, $context );
-	}
-
-	protected function buildOverviewContext( \WP_User $subject, array $sessions, array $requestLogs, array $relatedIps ) :array {
+	protected function buildOverviewContext( \WP_User $subject, array $sessions, array $relatedIps ) :array {
 		$con = self::con();
 		$meta = $con->user_metas->for( $subject );
 
@@ -168,142 +162,95 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		) ) );
 		$recentIps = \array_slice( $recentIps, 0, 6 );
 
-		$eventScore = 0;
-		foreach ( $requestLogs as $requestLog ) {
-			if ( !empty( $requestLog[ 'offense' ] ) ) {
-				$eventScore++;
-			}
-		}
-
 		$shieldStatus = ( (int)( $meta->record->hard_suspended_at ?? 0 ) > 0 )
 			? __( 'Suspended', 'wp-simple-firewall' )
-			: __( 'Tracked', 'wp-simple-firewall' );
-
-		return [
-			'role'          => $roleText,
-			'last_login_ip' => $lastLoginIp === '' ? __( 'Unknown', 'wp-simple-firewall' ) : $lastLoginIp,
-			'recent_ips'    => empty( $recentIps ) ? [] : $recentIps,
-			'event_score'   => $eventScore,
-			'shield_status' => $shieldStatus,
-		];
-	}
-
-	protected function buildSummaryStats( array $sessions, array $activityLogs, array $requestLogs, array $relatedIps ) :array {
-		$sessionsCount = \count( $sessions );
-		$activityCount = \count( $activityLogs );
-		$requestsCount = \count( $requestLogs );
-		$relatedIpsCount = \count( $relatedIps );
-
-		$hasRequestOffense = false;
-		foreach ( $requestLogs as $row ) {
-			if ( !empty( $row[ 'offense' ] ) ) {
-				$hasRequestOffense = true;
-				break;
-			}
+			: __( 'Active', 'wp-simple-firewall' );
+		$wpProfileHref = '';
+		if ( \function_exists( 'get_edit_user_link' ) ) {
+			$wpProfileHref = (string)get_edit_user_link( $subject->ID );
+		}
+		if ( $wpProfileHref === '' && \function_exists( 'admin_url' ) ) {
+			$wpProfileHref = (string)\admin_url( 'user-edit.php?user_id='.(int)$subject->ID );
 		}
 
-		$ipsStatus = StatusPriority::highest(
-			\array_map(
-				static fn( array $card ) :string => $card[ 'status' ],
-				$relatedIps
-			)
-		);
-
 		return [
-			'sessions' => [
-				'label'  => __( 'Sessions', 'wp-simple-firewall' ),
-				'count'  => $sessionsCount,
-				'status' => $sessionsCount > 0 ? 'good' : 'info',
-			],
-			'activity' => [
-				'label'  => __( 'Activity', 'wp-simple-firewall' ),
-				'count'  => $activityCount,
-				'status' => $activityCount > 0 ? 'warning' : 'info',
-			],
-			'requests' => [
-				'label'  => __( 'Requests', 'wp-simple-firewall' ),
-				'count'  => $requestsCount,
-				'status' => $hasRequestOffense ? 'critical' : ( $requestsCount > 0 ? 'warning' : 'info' ),
-			],
-			'ips'      => [
-				'label'  => __( 'IP Addresses', 'wp-simple-firewall' ),
-				'count'  => $relatedIpsCount,
-				'status' => $ipsStatus,
-			],
+			'role'            => $roleText,
+			'last_login_ip'   => $lastLoginIp === '' ? __( 'Unknown', 'wp-simple-firewall' ) : $lastLoginIp,
+			'recent_ips'      => empty( $recentIps ) ? [] : $recentIps,
+			'shield_status'   => $shieldStatus,
+			'wp_profile_href' => $wpProfileHref,
 		];
 	}
 
-	protected function buildRailNavItems( array $summaryStats ) :array {
-		$sessionSummary = $summaryStats[ 'sessions' ];
-		$activitySummary = $summaryStats[ 'activity' ];
-		$requestSummary = $summaryStats[ 'requests' ];
-		$ipSummary = $summaryStats[ 'ips' ];
-
-		return [
-			[
-				'target'   => '#tabInvestigateUserOverview',
-				'id'       => 'tab-navlink-user-overview',
-				'controls' => 'tabInvestigateUserOverview',
-				'label'    => __( 'Overview', 'wp-simple-firewall' ),
-				'is_focus' => true,
+	protected function buildUserTabsPayload() :array {
+		$tabs = [
+			'overview' => [
+				'pane_id'   => 'tabInvestigateUserOverview',
+				'nav_id'    => 'tab-navlink-user-overview',
+				'label'     => __( 'Overview', 'wp-simple-firewall' ),
+				'count'     => null,
+				'is_active' => true,
 			],
-			[
-				'target'   => '#tabInvestigateUserSessions',
-				'id'       => 'tab-navlink-user-sessions',
-				'controls' => 'tabInvestigateUserSessions',
-				'label'    => \sprintf( '%s (%d)', $sessionSummary[ 'label' ], $sessionSummary[ 'count' ] ),
-				'is_focus' => false,
+			'sessions' => [
+				'pane_id'   => 'tabInvestigateUserSessions',
+				'nav_id'    => 'tab-navlink-user-sessions',
+				'label'     => __( 'Sessions', 'wp-simple-firewall' ),
+				'count'     => null,
+				'is_active' => false,
 			],
-			[
-				'target'   => '#tabInvestigateUserActivity',
-				'id'       => 'tab-navlink-user-activity',
-				'controls' => 'tabInvestigateUserActivity',
-				'label'    => \sprintf( '%s (%d)', $activitySummary[ 'label' ], $activitySummary[ 'count' ] ),
-				'is_focus' => false,
+			'activity' => [
+				'pane_id'   => 'tabInvestigateUserActivity',
+				'nav_id'    => 'tab-navlink-user-activity',
+				'label'     => __( 'Activity', 'wp-simple-firewall' ),
+				'count'     => null,
+				'is_active' => false,
 			],
-			[
-				'target'   => '#tabInvestigateUserRequests',
-				'id'       => 'tab-navlink-user-requests',
-				'controls' => 'tabInvestigateUserRequests',
-				'label'    => \sprintf( '%s (%d)', $requestSummary[ 'label' ], $requestSummary[ 'count' ] ),
-				'is_focus' => false,
+			'requests' => [
+				'pane_id'   => 'tabInvestigateUserRequests',
+				'nav_id'    => 'tab-navlink-user-requests',
+				'label'     => __( 'Requests', 'wp-simple-firewall' ),
+				'count'     => null,
+				'is_active' => false,
 			],
-			[
-				'target'   => '#tabInvestigateUserIps',
-				'id'       => 'tab-navlink-user-ips',
-				'controls' => 'tabInvestigateUserIps',
-				'label'    => \sprintf( '%s (%d)', $ipSummary[ 'label' ], $ipSummary[ 'count' ] ),
-				'is_focus' => false,
+			'ips'      => [
+				'pane_id'   => 'tabInvestigateUserIps',
+				'nav_id'    => 'tab-navlink-user-ips',
+				'label'     => __( 'IP Addresses', 'wp-simple-firewall' ),
+				'count'     => null,
+				'is_active' => false,
 			],
 		];
+
+		foreach ( $tabs as $key => $tab ) {
+			$tabs[ $key ][ 'target' ] = '#'.$tab[ 'pane_id' ];
+			$tabs[ $key ][ 'controls' ] = $tab[ 'pane_id' ];
+		}
+
+		return $tabs;
 	}
 
 	protected function buildTableContractsForUser( int $uid ) :array {
 		$subjectType = InvestigationTableContract::SUBJECT_TYPE_USER;
 		$tableAction = ActionData::Build( InvestigationTableAction::class );
-		$searchToken = \sprintf( 'user_id:%d', $uid );
 
 		$specs = [
 			'sessions' => [
-				'title'      => __( 'Recent Sessions', 'wp-simple-firewall' ),
+				'title'      => __( 'Sessions', 'wp-simple-firewall' ),
 				'status'     => 'good',
 				'table_type' => InvestigationTableContract::TABLE_TYPE_SESSIONS,
 				'builder'    => new InvestigationSessionsTableBuilder(),
-				'href'       => self::con()->plugin_urls->investigateUserSessions(),
 			],
 			'activity' => [
-				'title'      => __( 'Recent Activity Logs', 'wp-simple-firewall' ),
+				'title'      => __( 'Activity', 'wp-simple-firewall' ),
 				'status'     => 'warning',
 				'table_type' => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
 				'builder'    => new InvestigationActivityTableBuilder(),
-				'href'       => $this->buildFullLogHrefWithSearch( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS, $searchToken ),
 			],
 			'requests' => [
-				'title'      => __( 'Recent Request Logs', 'wp-simple-firewall' ),
+				'title'      => __( 'Requests', 'wp-simple-firewall' ),
 				'status'     => 'warning',
 				'table_type' => InvestigationTableContract::TABLE_TYPE_TRAFFIC,
 				'builder'    => new InvestigationTrafficTableBuilder(),
-				'href'       => $this->buildFullLogHrefWithSearch( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS, $searchToken ),
 			],
 		];
 
@@ -317,10 +264,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				$spec[ 'status' ],
 				$spec[ 'table_type' ],
 				$spec[ 'builder' ],
-				$spec[ 'href' ]
 			);
-			$contracts[ $key ][ 'is_flat' ] = true;
-			$contracts[ $key ] = $this->normalizeInvestigationTableContract( $contracts[ $key ] );
 		}
 		return $contracts;
 	}
@@ -332,10 +276,9 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		string $title,
 		string $status,
 		string $tableType,
-		BaseInvestigationTable $tableBuilder,
-		string $fullLogHref
+		BaseInvestigationTable $tableBuilder
 	) :array {
-		return $this->buildTableContainerContract(
+		$table = $this->buildTableContainerContract(
 			$title,
 			$status,
 			$tableType,
@@ -344,9 +287,13 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			$tableBuilder
 				->setSubject( $subjectType, $uid )
 				->buildRaw(),
-			$tableAction,
-			$fullLogHref
+			$tableAction
 		);
+
+		$table[ 'is_flat' ] = true;
+		$table[ 'show_header' ] = false;
+
+		return $this->normalizeInvestigationTableContract( $table );
 	}
 
 	protected function buildSessions( \WP_User $subject ) :array {
@@ -364,13 +311,13 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 			return $b[ 'last_activity_ts' ] <=> $a[ 'last_activity_ts' ];
 		} );
 
-		$sessions = \array_slice( $sessions, 0, self::LIMIT_SESSIONS );
+		$sessions = \array_slice( $sessions, 0, self::CONTEXT_SESSIONS_LIMIT );
 		return \array_values( $sessions );
 	}
 
 	protected function buildActivityLogs( \WP_User $subject ) :array {
 		$loader = ( new LoadLogs() )->forUserId( (int)$subject->ID );
-		$loader->limit = self::LIMIT_ACTIVITY_LOGS;
+		$loader->limit = self::CONTEXT_ACTIVITY_LOGS_LIMIT;
 		$loader->order_by = 'created_at';
 		$loader->order_dir = 'DESC';
 
@@ -385,7 +332,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 
 	protected function buildRequestLogs( \WP_User $subject ) :array {
 		$loader = ( new LoadRequestLogs() )->forUserId( (int)$subject->ID );
-		$loader->limit = self::LIMIT_REQUEST_LOGS;
+		$loader->limit = self::CONTEXT_REQUEST_LOGS_LIMIT;
 		$loader->order_by = 'created_at';
 		$loader->order_dir = 'DESC';
 

@@ -18,7 +18,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use LookupRouteFormAssertions;
+	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -93,68 +94,31 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertSame( 'sessions', (string)( $tables[ 'sessions' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $tables[ 'activity' ][ 'table_type' ] ?? '' ) );
-		$this->assertSame( 'requests', (string)( $tables[ 'requests' ][ 'table_type' ] ?? '' ) );
+		$this->assertSame( 'traffic', (string)( $tables[ 'requests' ][ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'user', (string)( $tables[ 'sessions' ][ 'subject_type' ] ?? '' ) );
 		$this->assertSame( $userId, (int)( $tables[ 'sessions' ][ 'subject_id' ] ?? 0 ) );
+		$this->assertFalse( (bool)( $tables[ 'sessions' ][ 'show_header' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
+		$this->assertFalse( (bool)( $tables[ 'requests' ][ 'show_header' ] ?? true ) );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'sessions' ] ?? [] );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
+		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'requests' ] ?? [] );
 
 		$payload = $this->renderByUserPage( (string)$userId );
 		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-user route' );
 		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$subjects = [];
-		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
-			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
-				$subjects[ (string)$subject[ 'key' ] ] = $subject;
-			}
-		}
-
-		$this->assertSame( 'user', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
-		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
-		$this->assertTrue( (bool)( $subjects[ 'user' ][ 'is_loaded' ] ?? false ) );
+		$this->assertArrayNotHasKey( 'subjects', $routeVars );
+		$this->assertArrayNotHasKey( 'mode_panel', $routeVars );
+		$this->assertArrayNotHasKey( 'tables', $routeVars );
 	}
 
-	public function test_no_lookup_renders_without_investigation_table_markers() :void {
+	public function test_no_lookup_route_wrapper_exposes_no_user_investigation_contracts() :void {
 		$payload = $this->renderByUserPage();
 		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-user route without lookup' );
 		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$subjects = [];
-		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
-			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
-				$subjects[ (string)$subject[ 'key' ] ] = $subject;
-			}
-		}
-
-		$this->assertSame( 'user', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
-		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
-		$this->assertFalse( (bool)( $subjects[ 'user' ][ 'is_loaded' ] ?? true ) );
-	}
-
-	public function test_full_log_links_include_user_search_prefilter() :void {
-		$userId = \get_current_user_id();
-		$this->assertGreaterThan( 0, $userId );
-		$this->seedRequestLogForUser( $userId );
-
-		$renderData = (array)( $this->renderByUserInnerPage( (string)$userId )[ 'render_data' ] ?? [] );
-		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
-		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
-
-		$tables = (array)( $renderData[ 'vars' ][ 'tables' ] ?? [] );
-		$searchValues = [];
-		foreach ( [ 'sessions', 'activity', 'requests' ] as $tableKey ) {
-			$query = [];
-			\parse_str(
-				(string)\parse_url( (string)( $tables[ $tableKey ][ 'full_log_href' ] ?? '' ), \PHP_URL_QUERY ),
-				$query
-			);
-			if ( isset( $query[ 'search' ] ) ) {
-				$searchValues[] = (string)$query[ 'search' ];
-			}
-		}
-
-		$this->assertContains( 'user_id:'.$userId, $searchValues );
-		$this->assertGreaterThanOrEqual( 2, \count( \array_filter(
-			$searchValues,
-			static fn( string $search ) :bool => $search === 'user_id:'.$userId
-		) ) );
+		$this->assertArrayNotHasKey( 'subjects', $routeVars );
+		$this->assertArrayNotHasKey( 'mode_panel', $routeVars );
+		$this->assertSame( [], (array)( $routeVars[ 'tables' ] ?? [] ) );
 	}
 
 	public function test_ip_panel_renders_card_wrapper_status_and_counts_for_related_ip() :void {
@@ -193,24 +157,60 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 	}
 
-	public function test_full_page_and_panel_body_actions_share_the_same_user_markup_contract() :void {
+	public function test_full_page_and_panel_body_actions_share_the_same_user_render_contract() :void {
 		$userId = \get_current_user_id();
 		$this->assertGreaterThan( 0, $userId );
 		$this->seedRequestLogForUser( $userId );
 
-		$fullHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByUserInnerPage( (string)$userId ),
+		$fullPayload = $this->renderByUserInnerPage( (string)$userId );
+		$this->assertRouteRenderOutputHealthy(
+			$fullPayload,
 			'investigate by-user full page action'
 		);
-		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
-
-		$panelHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByUserPanelBody( (string)$userId ),
+		$panelPayload = $this->renderByUserPanelBody( (string)$userId );
+		$this->assertRouteRenderOutputHealthy(
+			$panelPayload,
 			'investigate by-user panel body action'
 		);
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
-		$this->assertStringContainsString( 'ShieldInvestigateByUserTabsNav', $panelHtml );
-		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
+
+		$this->assertSame( '/wpadmin/plugin_pages/inner/investigate_by_user.twig', (string)( $fullPayload[ 'render_template' ] ?? '' ) );
+		$this->assertSame( '/wpadmin/components/investigate/user_body.twig', (string)( $panelPayload[ 'render_template' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'has_subject'       => true,
+				'has_lookup'        => true,
+				'subject_not_found' => false,
+			],
+			\array_intersect_key(
+				(array)( $fullPayload[ 'render_data' ][ 'flags' ] ?? [] ),
+				[
+					'has_subject'       => true,
+					'has_lookup'        => true,
+					'subject_not_found' => true,
+				]
+			)
+		);
+		$this->assertSame(
+			\array_intersect_key(
+				(array)( $fullPayload[ 'render_data' ][ 'flags' ] ?? [] ),
+				[
+					'has_subject'       => true,
+					'has_lookup'        => true,
+					'subject_not_found' => true,
+				]
+			),
+			\array_intersect_key(
+				(array)( $panelPayload[ 'render_data' ][ 'flags' ] ?? [] ),
+				[
+					'has_subject'       => true,
+					'has_lookup'        => true,
+					'subject_not_found' => true,
+				]
+			)
+		);
+		$this->assertSame(
+			(array)( $fullPayload[ 'render_data' ][ 'vars' ] ?? [] ),
+			(array)( $panelPayload[ 'render_data' ][ 'vars' ] ?? [] )
+		);
 	}
 }

@@ -8,18 +8,17 @@
 
 	{% set panes = [
 		{
-			id: 'tabInvestigateUserOverview',
-			nav_id: 'tab-navlink-user-overview',
+			id: vars.tabs.overview.pane_id,
+			nav_id: vars.tabs.overview.nav_id,
 			is_active: true,
 			body_include: '/wpadmin/components/investigate/overview_table.twig',
 			body_vars: {
-				title: strings.overview_title,
 				rows: vars.overview_rows
 			}
 		},
 		{
-			id: 'tabInvestigateUserSessions',
-			nav_id: 'tab-navlink-user-sessions',
+			id: vars.tabs.sessions.pane_id,
+			nav_id: vars.tabs.sessions.nav_id,
 			is_active: false,
 			body_include: '/wpadmin/components/investigate/table_container.twig',
 			body_vars: {
@@ -27,8 +26,8 @@
 			}
 		},
 		{
-			id: 'tabInvestigateUserActivity',
-			nav_id: 'tab-navlink-user-activity',
+			id: vars.tabs.activity.pane_id,
+			nav_id: vars.tabs.activity.nav_id,
 			is_active: false,
 			body_include: '/wpadmin/components/investigate/table_container.twig',
 			body_vars: {
@@ -36,8 +35,8 @@
 			}
 		},
 		{
-			id: 'tabInvestigateUserRequests',
-			nav_id: 'tab-navlink-user-requests',
+			id: vars.tabs.requests.pane_id,
+			nav_id: vars.tabs.requests.nav_id,
 			is_active: false,
 			body_include: '/wpadmin/components/investigate/table_container.twig',
 			body_vars: {
@@ -45,8 +44,8 @@
 			}
 		},
 		{
-			id: 'tabInvestigateUserIps',
-			nav_id: 'tab-navlink-user-ips',
+			id: vars.tabs.ips.pane_id,
+			nav_id: vars.tabs.ips.nav_id,
 			is_active: false,
 			body_include: '/wpadmin/components/investigate/user_related_ips_panel.twig',
 			body_vars: {

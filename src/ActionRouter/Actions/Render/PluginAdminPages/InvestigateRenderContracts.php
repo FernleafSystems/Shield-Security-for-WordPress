@@ -9,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @phpstan-type LookupBehaviorContract array{
@@ -201,15 +200,6 @@ trait InvestigateRenderContracts {
 		);
 	}
 
-	protected function buildFullLogHrefWithSearch( string $nav, string $subNav, string $search ) :string {
-		return URL::Build(
-			self::con()->plugin_urls->adminTopNav( $nav, $subNav ),
-			[
-				'search' => $search,
-			]
-		);
-	}
-
 	/**
 	 * @param array<string,mixed> $datatablesInit
 	 * @param array<string,mixed> $tableAction
@@ -283,6 +273,23 @@ trait InvestigateRenderContracts {
 			],
 			$table
 		);
+	}
+
+	protected function buildRailNavItemsFromTabs( array $tabs ) :array {
+		$items = [];
+		foreach ( $tabs as $tab ) {
+			$count = $tab[ 'count' ] ?? null;
+			$items[] = [
+				'target'   => (string)( $tab[ 'target' ] ?? '' ),
+				'id'       => (string)( $tab[ 'nav_id' ] ?? '' ),
+				'controls' => (string)( $tab[ 'controls' ] ?? '' ),
+				'label'    => $count === null
+					? (string)( $tab[ 'label' ] ?? '' )
+					: \sprintf( '%s (%d)', (string)( $tab[ 'label' ] ?? '' ), (int)$count ),
+				'is_focus' => !empty( $tab[ 'is_active' ] ),
+			];
+		}
+		return $items;
 	}
 
 	/**
