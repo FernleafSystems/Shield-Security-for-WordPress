@@ -110,6 +110,19 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( [], $this->getLocalisedCompsForHandle( 'plugin_onboarding' ) );
 	}
 
+	public function test_main_handle_localizes_navigation_component_without_dead_dynamic_load_payload() :void {
+		$this->installEnvironment();
+
+		$naviComp = $this->getComponentDefinition( 'navi' );
+
+		$this->assertSame( 'navi', $naviComp[ 'key' ] ?? '' );
+		$this->assertContains( 'main', $naviComp[ 'handles' ] ?? [] );
+		$this->assertArrayNotHasKey(
+			'dynamic_load',
+			\is_callable( $naviComp[ 'data' ] ?? null ) ? \call_user_func( $naviComp[ 'data' ] )[ 'ajax' ] ?? [] : $naviComp[ 'data' ][ 'ajax' ] ?? []
+		);
+	}
+
 	private function installEnvironment( array $query = [], array $completedTours = [] ) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
@@ -160,6 +173,13 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			}
 		}
 		return [];
+	}
+
+	private function getComponentDefinition( string $key ) :array {
+		$method = new \ReflectionMethod( AssetsCustomizer::class, 'components' );
+		$method->setAccessible( true );
+		$components = $method->invoke( new AssetsCustomizer() );
+		return \is_array( $components[ $key ] ?? null ) ? $components[ $key ] : [];
 	}
 }
 

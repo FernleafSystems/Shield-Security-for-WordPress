@@ -1,0 +1,70 @@
+.shield-mode-nav-placeholder {
+	display: block;
+}
+
+.shield-mode-nav-placeholder__loading-bar {
+	height: 4px;
+	margin-bottom: 1rem;
+}
+
+.shield-mode-nav-placeholder__layout {
+	align-items: start;
+}
+
+.shield-mode-nav-placeholder__layout .shield-rail-layout__content {
+	min-width: 0;
+}
+
+.shield-mode-nav-placeholder__layout .shield-rail-layout__sidebar {
+	min-height: 1px;
+}
+
+.shield-mode-nav-placeholder__breadcrumbs {
+	border-bottom: none;
+	margin-bottom: 1.25rem;
+	padding-bottom: 0;
+}
+
+.shield-mode-nav-placeholder__breadcrumbs .operator-step-tabs__list {
+	gap: 0.35rem;
+}
+
+.shield-mode-nav-placeholder__crumb,
+.shield-mode-nav-placeholder__crumb:first-child,
+.shield-mode-nav-placeholder__crumb:only-child {
+	background: transparent;
+	border-radius: 0;
+	clip-path: none;
+	filter: none;
+	padding: 0;
+}
+
+.shield-mode-nav-placeholder__crumb + .shield-mode-nav-placeholder__crumb {
+	margin-left: 0.2rem;
+}
+
+.shield-mode-nav-placeholder__action {
+	flex-shrink: 0;
+}
+
+.shield-mode-nav-placeholder__card,
+.shield-mode-nav-placeholder__tile,
+.shield-mode-nav-placeholder__summary-panel {
+	pointer-events: none;
+}
+
+.shield-mode-nav-placeholder__summary-panel {
+	margin-top: 0.9rem;
+}
+
+.shield-mode-nav-placeholder__search {
+	margin-bottom: 1.1rem;
+}
+
+.shield-mode-nav-placeholder__tile {
+	align-items: flex-start;
+}
+
+.shield-mode-nav-placeholder__tile-icon {
+	flex-shrink: 0;
+}

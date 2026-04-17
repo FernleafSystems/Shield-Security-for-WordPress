@@ -40,6 +40,63 @@ const modeRoutes = [
 	{ mode: 'reports', nav: 'reports', nav_sub: 'overview' },
 ];
 
+async function interceptModeNavigationRaf( page ) {
+	await page.evaluate( () => {
+		const queuedFrames = [];
+
+		window.__shieldModeNavTest = {
+			flush() {
+				const callbacks = queuedFrames.splice( 0, queuedFrames.length );
+				callbacks.forEach( ( callback ) => callback( window.performance.now() ) );
+			},
+		};
+
+		window.requestAnimationFrame = ( callback ) => {
+			queuedFrames.push( callback );
+			return queuedFrames.length;
+		};
+	} );
+}
+
+async function flushInterceptedModeNavigationRaf( page ) {
+	await page.evaluate( () => {
+		window.__shieldModeNavTest?.flush();
+	} );
+}
+
+test( 'dashboard mode selector shows a matching loading placeholder before each mode navigation completes', async ( { page } ) => {
+	for ( const route of modeRoutes ) {
+		await openShieldRoute( page, dashboardRoute );
+		await dismissBlockingDialogs( page );
+
+		const modeLink = page.locator( `#NavSideBar .mode-item[data-mode="${route.mode}"]` );
+		await expect( modeLink ).toBeVisible();
+		await interceptModeNavigationRaf( page );
+
+		await modeLink.click();
+
+		const visiblePlaceholder = page.locator(
+			`#PageMainBody_Inner-Apto [data-shield-nav-loading-placeholder="${route.mode}"]`
+		);
+
+		await expect( visiblePlaceholder ).toBeVisible();
+		await expect( visiblePlaceholder ).not.toHaveAttribute( 'aria-hidden', 'true' );
+		await expect( page.locator( '#PageMainBody_Inner-Apto' ) ).toHaveAttribute( 'aria-busy', 'true' );
+
+		const completedNavigation = page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === route.nav && url.searchParams.get( 'nav_sub' ) === route.nav_sub,
+			{ timeout: 20_000, waitUntil: 'domcontentloaded' }
+		);
+		await flushInterceptedModeNavigationRaf( page );
+		await flushInterceptedModeNavigationRaf( page );
+		await completedNavigation;
+		await page.waitForLoadState( 'domcontentloaded' );
+		await dismissBlockingDialogs( page );
+
+		await expect( page.locator( `[data-mode-shell="1"][data-mode="${route.mode}"]` ) ).toBeVisible();
+	}
+} );
+
 test( 'dashboard mode selector opens each operator mode landing route', async ( { page } ) => {
 	await openShieldRoute( page, dashboardRoute );
 

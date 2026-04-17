@@ -332,11 +332,7 @@ class AssetsCustomizer {
 				'handles' => [
 					'main',
 				],
-				'data'    => fn() => [
-					'ajax' => [
-						'dynamic_load' => ActionData::Build( Actions\DynamicPageLoad::class ),
-					]
-				],
+				'data'    => [],
 			],
 			'notices'          => [
 				'key'     => 'notices',
