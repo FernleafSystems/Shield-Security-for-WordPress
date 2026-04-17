@@ -114,7 +114,7 @@ class TourManagerTest extends BaseUnitTest {
 		$this->assertFalse( ( new TourManager() )->getTour()[ 'is_available' ] );
 	}
 
-	public function test_default_dashboard_video_url_enables_video_modal_with_normalized_embed_url() :void {
+	public function test_default_dashboard_video_url_is_normalized_to_embed_url() :void {
 		$this->installRequest( [] );
 		$this->installController();
 
@@ -123,7 +123,6 @@ class TourManagerTest extends BaseUnitTest {
 		$query = [];
 		\parse_str( (string)( $urlParts[ 'query' ] ?? '' ), $query );
 
-		$this->assertTrue( $videoModal[ 'is_enabled' ] );
 		$this->assertSame( 'player.vimeo.com', $urlParts[ 'host' ] ?? '' );
 		$this->assertSame( '/video/986378588', $urlParts[ 'path' ] ?? '' );
 		$this->assertSame( 'fde2b1c5f7', $query[ 'h' ] ?? '' );
@@ -132,25 +131,24 @@ class TourManagerTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'fe', $query );
 	}
 
-	public function test_invalid_dashboard_video_url_disables_video_modal_only() :void {
+	public function test_invalid_dashboard_video_url_produces_blank_embed_url() :void {
 		$this->installRequest( [] );
 		$this->installController( true, true, [], 'https://example.com/video' );
 
 		$tour = ( new TourManager() )->getTour();
 
 		$this->assertTrue( $tour[ 'is_available' ] );
-		$this->assertFalse( $tour[ 'video_modal' ][ 'is_enabled' ] );
 		$this->assertSame( '', $tour[ 'video_modal' ][ 'embed_url' ] );
 	}
 
-	public function test_blank_dashboard_video_url_disables_video_modal_only() :void {
+	public function test_blank_dashboard_video_url_produces_blank_embed_url() :void {
 		$this->installRequest( [] );
 		$this->installController( true, true, [], '' );
 
 		$tour = ( new TourManager() )->getTour();
 
 		$this->assertTrue( $tour[ 'is_available' ] );
-		$this->assertFalse( $tour[ 'video_modal' ][ 'is_enabled' ] );
+		$this->assertSame( '', $tour[ 'video_modal' ][ 'embed_url' ] );
 	}
 
 	public function test_supported_vimeo_url_forms_are_normalized() :void {
@@ -168,7 +166,6 @@ class TourManagerTest extends BaseUnitTest {
 			$query = [];
 			\parse_str( (string)( $urlParts[ 'query' ] ?? '' ), $query );
 
-			$this->assertTrue( $videoModal[ 'is_enabled' ] );
 			$this->assertSame( 'player.vimeo.com', $urlParts[ 'host' ] ?? '' );
 			$this->assertSame( $case[ 1 ], $urlParts[ 'path' ] ?? '' );
 			$this->assertSame( $case[ 2 ], $query[ 'h' ] ?? '' );

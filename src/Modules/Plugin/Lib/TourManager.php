@@ -126,7 +126,8 @@ class TourManager {
 		);
 
 		return [
-			'is_enabled'     => !empty( $embedURL ),
+			// Hold dashboard intro video for release while keeping payload ready for quick re-enable later.
+			'is_enabled'     => false,
 			'embed_url'      => $embedURL,
 			'modal_title'    => __( 'Welcome To Shield Security', 'wp-simple-firewall' ),
 			'video_title'    => __( 'Shield Security Dashboard Introduction', 'wp-simple-firewall' ),
