@@ -40,14 +40,7 @@ class PageAdminPlugin extends BaseRender {
 			}
 		}
 
-		// The particular renderer for the main page body area, based on navigation
 		$delegateAction = PluginNavs::GetNavHierarchy()[ $nav ][ 'sub_navs' ][ $subNav ][ 'handler' ] ?? '';
-		if ( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ) {
-			$delegateAction = PluginAdminPages\PageDashboardOverview::class;
-		}
-		elseif ( $nav === PluginNavs::NAV_ACTIVITY && PluginNavs::isInvestigateLegacyContextSubNav( $subNav ) ) {
-			$delegateAction = PluginAdminPages\PageInvestigateLanding::class;
-		}
 		if ( empty( $delegateAction ) ) {
 			throw new ActionException( 'Unavailable nav handling: '.$nav.' '.$subNav );
 		}

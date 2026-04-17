@@ -196,7 +196,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 			return $this->workspaceContractsCache;
 		}
 
-		$workspaceDefinitions = PluginNavs::reportsLandingWorkspaceDefinitions();
+		$workspaceDefinitions = PluginNavs::reportsWorkspaceDefinitions();
 		$settingsDefinition = $workspaceDefinitions[ PluginNavs::SUBNAV_REPORTS_SETTINGS ];
 		$workspaceBodies = [
 			PluginNavs::SUBNAV_REPORTS_LIST     => self::con()->action_router->render( ReportsTable::class ),

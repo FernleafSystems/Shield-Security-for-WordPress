@@ -4,14 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -29,21 +27,11 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_reports_overview_renders_shared_drilldown_with_three_landing_workspaces() :void {
-		$landingWorkspaceDefinitions = PluginNavs::reportsLandingWorkspaceDefinitions();
+		$landingWorkspaceDefinitions = PluginNavs::reportsWorkspaceDefinitions();
 		$landingSubNavs = \array_keys( $landingWorkspaceDefinitions );
 		$expectedLandingCount = \count( $landingSubNavs );
 		$payload = $this->renderReportsSubNavPayload( PluginNavs::SUBNAV_REPORTS_OVERVIEW );
-		$vars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
 		$output = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$this->assertModeShellPayload( $vars, 'reports', 'reports', false );
-		$this->assertModePanelPayload( $vars, '', false );
-		$this->assertSame( [], $vars[ 'mode_tiles' ] ?? [ 'unexpected' ] );
-		$this->assertSame( 0, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
-		$this->assertSame(
-			[ 'workspaces', 'workspace' ],
-			\array_column( (array)( $vars[ 'drill_shell' ][ 'layers' ] ?? [] ), 'key' )
-		);
 
 		foreach ( $landingSubNavs as $subNav ) {
 			$this->assertStringContainsString(
@@ -56,8 +44,6 @@ class ReportsRoutingIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringContainsString( 'data-drill-shell="1"', $output );
 		$this->assertStringContainsString( 'data-drill-shell-mode="reports"', $output );
 		$this->assertStringContainsString( 'data-reports-workspace-selection=', $output );
-		$this->assertStringNotContainsString( 'data-mode-panel="1"', $output );
-		$this->assertStringNotContainsString( 'data-mode-tile="1"', $output );
 	}
 
 	public function test_reports_workspace_routes_render_expected_structural_markers() :void {

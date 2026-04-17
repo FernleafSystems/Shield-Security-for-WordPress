@@ -87,4 +87,27 @@ class ConstantsLegacyDashboardCleanupTest extends BaseUnitTest {
 			Constants::ACTIONS
 		);
 	}
+
+	public function test_removed_full_page_investigate_actions_are_not_registered() :void {
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageInvestigateByUser',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageInvestigateByIp',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageInvestigateByPlugin',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageInvestigateByTheme',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageInvestigateByCore',
+			Constants::ACTIONS
+		);
+	}
 }

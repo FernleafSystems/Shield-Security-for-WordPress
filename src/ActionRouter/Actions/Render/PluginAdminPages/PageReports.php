@@ -92,8 +92,6 @@ class PageReports extends BasePluginAdminPage {
 	 *   content_key:string,
 	 *   render_action:string,
 	 *   show_create_action:bool,
-	 *   show_in_sidebar:bool,
-	 *   show_on_landing:bool,
 	 *   config_zone_component_slugs:list<string>
 	 * }
 	 */

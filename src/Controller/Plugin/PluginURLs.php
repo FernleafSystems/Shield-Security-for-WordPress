@@ -261,6 +261,13 @@ class PluginURLs {
 					return $this->actionsQueueScans();
 			}
 		}
+		elseif ( $nav === PluginNavs::NAV_REPORTS ) {
+			switch ( $subNav ) {
+				case 'alerts':
+				case 'reporting':
+					return $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS );
+			}
+		}
 
 		return null;
 	}

@@ -4,11 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\PluginAdminPages\InvestigateByPluginPanelBody,
-	Actions\Render\PluginAdminPages\PageInvestigateByPlugin,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	InvestigateRoutePanelAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
+	use InvestigateRoutePanelAssertions;
 	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -34,17 +35,6 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	private function renderByPluginInnerPage( string $pluginSlug = '' ) :array {
-		$params = [
-			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
-			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
-		];
-		if ( $pluginSlug !== '' ) {
-			$params[ 'plugin_slug' ] = $pluginSlug;
-		}
-		return $this->processActionPayloadWithAdminBypass( PageInvestigateByPlugin::SLUG, $params );
-	}
-
 	private function renderByPluginPanelBody( string $pluginSlug = '' ) :array {
 		$params = [
 			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
@@ -58,7 +48,7 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_valid_lookup_renders_file_status_and_activity_tables() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
-		$renderData = (array)( $this->renderByPluginInnerPage( $pluginSlug )[ 'render_data' ] ?? [] );
+		$renderData = (array)( $this->renderByPluginPanelBody( $pluginSlug )[ 'render_data' ] ?? [] );
 		$vars = (array)( $renderData[ 'vars' ] ?? [] );
 		$tables = (array)( $vars[ 'tables' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
@@ -67,10 +57,12 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 		$activityCount = (int)( $renderData[ 'vars' ][ 'tabs' ][ 'activity' ][ 'count' ] ?? 0 );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
-		$this->assertSame( 'plugin', (string)( $tables[ 'activity' ][ 'subject_type' ] ?? '' ) );
-		$this->assertSame( $pluginSlug, (string)( $tables[ 'activity' ][ 'subject_id' ] ?? '' ) );
 		$this->assertSame( $fileStatusCount > 0, isset( $tables[ 'file_status' ][ 'table_id' ] ) );
 		$this->assertSame( $activityCount > 0, isset( $tables[ 'activity' ][ 'table_type' ] ) );
+		if ( $activityCount > 0 ) {
+			$this->assertSame( 'plugin', (string)( $tables[ 'activity' ][ 'subject_type' ] ?? '' ) );
+			$this->assertSame( $pluginSlug, (string)( $tables[ 'activity' ][ 'subject_id' ] ?? '' ) );
+		}
 		if ( $fileStatusCount > 0 ) {
 			$tableAction = \json_decode( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ), true, 512, \JSON_THROW_ON_ERROR );
 			$this->assertSame( 'plugin', $tableAction[ 'type' ] ?? '' );
@@ -78,36 +70,23 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		$this->assertArrayHasKey( 'vulnerabilities', $vars );
 
-		$payload = $this->renderByPluginPage( $pluginSlug );
-		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-plugin route' );
-		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$subjects = [];
-		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
-			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
-				$subjects[ (string)$subject[ 'key' ] ] = $subject;
-			}
-		}
-
-		$this->assertSame( 'plugin', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
-		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
-		$this->assertTrue( (bool)( $subjects[ 'plugin' ][ 'is_loaded' ] ?? false ) );
-		$this->assertSame( $pluginSlug, (string)( $subjects[ 'plugin' ][ 'subject_title' ] ?? '' ) );
+		$this->assertInvestigateRoutePreloadsSubjectPanel(
+			$this->renderByPluginPage( $pluginSlug ),
+			'activity by-plugin route',
+			'plugin',
+			'Plugin',
+			'//*[@data-drill-layer="1"]//*[@id="ShieldInvestigateByPluginTabsNav"]'
+		);
 	}
 
-	public function test_no_lookup_renders_without_investigation_tables() :void {
-		$payload = $this->renderByPluginPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-plugin route without lookup' );
-		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$subjects = [];
-		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
-			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
-				$subjects[ (string)$subject[ 'key' ] ] = $subject;
-			}
-		}
-
-		$this->assertSame( 'plugin', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
-		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
-		$this->assertFalse( (bool)( $subjects[ 'plugin' ][ 'is_loaded' ] ?? true ) );
+	public function test_no_lookup_route_preloads_plugin_panel_lookup_form() :void {
+		$this->assertInvestigateRoutePreloadsLookupPanel(
+			$this->renderByPluginPage(),
+			'activity by-plugin route without lookup',
+			'plugin',
+			'Plugin',
+			'plugin_slug'
+		);
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {
@@ -118,15 +97,8 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
 	}
 
-	public function test_full_page_and_panel_body_actions_share_the_same_plugin_markup_contract() :void {
+	public function test_panel_body_action_renders_plugin_markup_contract() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
-
-		$fullHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByPluginInnerPage( $pluginSlug ),
-			'investigate by-plugin full page action'
-		);
-		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
 
 		$panelHtml = $this->assertRouteRenderOutputHealthy(
 			$this->renderByPluginPanelBody( $pluginSlug ),

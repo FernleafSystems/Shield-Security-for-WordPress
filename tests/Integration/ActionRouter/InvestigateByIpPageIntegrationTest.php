@@ -4,12 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\PluginAdminPages\InvestigateByIpPanelBody,
-	Actions\Render\PluginAdminPages\PageInvestigateByIp,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	HtmlDomAssertions,
+	InvestigateRoutePanelAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	use HtmlDomAssertions;
+	use InvestigateRoutePanelAssertions;
 	use LookupRouteFormAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -40,17 +41,6 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	private function renderByIpInnerPage( string $ip = '' ) :array {
-		$params = [
-			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
-			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_IP,
-		];
-		if ( $ip !== '' ) {
-			$params[ 'analyse_ip' ] = $ip;
-		}
-		return $this->processActionPayloadWithAdminBypass( PageInvestigateByIp::SLUG, $params );
-	}
-
 	private function renderByIpPanelBody( string $ip = '' ) :array {
 		$params = [
 			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
@@ -63,7 +53,7 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_valid_ip_lookup_renders_ip_analysis_container() :void {
-		$renderData = (array)( $this->renderByIpInnerPage( '203.0.113.88' )[ 'render_data' ] ?? [] );
+		$renderData = (array)( $this->renderByIpPanelBody( '203.0.113.88' )[ 'render_data' ] ?? [] );
 		$vars = (array)( $renderData[ 'vars' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
@@ -71,37 +61,23 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertSame( '203.0.113.88', (string)( $vars[ 'analyse_ip' ] ?? '' ) );
 
-		$payload = $this->renderByIpPage( '203.0.113.88' );
-		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-ip route' );
-		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$subjects = [];
-		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
-			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
-				$subjects[ (string)$subject[ 'key' ] ] = $subject;
-			}
-		}
-
-		$this->assertSame( 'ip', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
-		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
-		$this->assertTrue( (bool)( $subjects[ 'ip' ][ 'is_loaded' ] ?? false ) );
-		$this->assertSame( '203.0.113.88', (string)( $subjects[ 'ip' ][ 'subject_title' ] ?? '' ) );
-		$this->assertSame( 'analyse_ip', (string)( $subjects[ 'ip' ][ 'lookup_key' ] ?? '' ) );
+		$this->assertInvestigateRoutePreloadsSubjectPanel(
+			$this->renderByIpPage( '203.0.113.88' ),
+			'activity by-ip route',
+			'ip',
+			'IP Address',
+			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]'
+		);
 	}
 
-	public function test_no_lookup_renders_without_ip_analysis_container() :void {
-		$payload = $this->renderByIpPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-ip route without lookup' );
-		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$subjects = [];
-		foreach ( (array)( $routeVars[ 'subjects' ] ?? [] ) as $subject ) {
-			if ( \is_array( $subject ) && isset( $subject[ 'key' ] ) ) {
-				$subjects[ (string)$subject[ 'key' ] ] = $subject;
-			}
-		}
-
-		$this->assertSame( 'ip', (string)( $routeVars[ 'mode_panel' ][ 'active_target' ] ?? '' ) );
-		$this->assertTrue( (bool)( $routeVars[ 'mode_panel' ][ 'is_open' ] ?? false ) );
-		$this->assertFalse( (bool)( $subjects[ 'ip' ][ 'is_loaded' ] ?? true ) );
+	public function test_no_lookup_route_preloads_ip_panel_lookup_form() :void {
+		$this->assertInvestigateRoutePreloadsLookupPanel(
+			$this->renderByIpPage(),
+			'activity by-ip route without lookup',
+			'ip',
+			'IP Address',
+			'analyse_ip'
+		);
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {
@@ -112,15 +88,7 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
 	}
 
-	public function test_full_page_and_panel_body_actions_share_the_same_ip_markup_contract() :void {
-		$fullHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByIpInnerPage( '203.0.113.88' ),
-			'investigate by-ip full page action'
-		);
-		$this->assertStringContainsString( 'data-inner-page-body-shell="1"', $fullHtml );
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $fullHtml );
-		$this->assertIpInvestigationTablesMarkup( $fullHtml, '203.0.113.88', 'investigate by-ip full page action' );
-
+	public function test_panel_body_action_renders_ip_markup_contract() :void {
 		$panelHtml = $this->assertRouteRenderOutputHealthy(
 			$this->renderByIpPanelBody( '203.0.113.88' ),
 			'investigate by-ip panel body action'

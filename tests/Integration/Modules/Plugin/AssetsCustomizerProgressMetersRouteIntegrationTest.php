@@ -73,6 +73,15 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		$this->assertComponentHasAjaxKey( $comps, 'investigate_landing', 'batch_requests' );
 	}
 
+	public function test_investigate_subject_route_localizes_investigate_landing_batch_requests() :void {
+		$comps = $this->getMainLocalisedComponentsForRoute(
+			PluginNavs::NAV_ACTIVITY,
+			PluginNavs::SUBNAV_ACTIVITY_BY_USER
+		);
+
+		$this->assertComponentHasAjaxKey( $comps, 'investigate_landing', 'batch_requests' );
+	}
+
 	public function test_dashboard_live_monitor_is_localized_for_dashboard_overview() :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_DASHBOARD,

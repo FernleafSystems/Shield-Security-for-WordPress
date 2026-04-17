@@ -50,19 +50,17 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		}
 	}
 
-	public function test_reports_workspace_filters_are_filtered_views_of_the_workspace_definition() :void {
+	public function test_reports_workspace_definitions_only_expose_live_routes() :void {
 		$workspace = PluginNavs::reportsWorkspaceDefinitions();
-		$sidebar = PluginNavs::reportsSidebarWorkspaceDefinitions();
-		$landing = PluginNavs::reportsLandingWorkspaceDefinitions();
 		$routeHandlers = PluginNavs::reportsRouteHandlers();
 
 		$this->assertSame(
-			\array_keys( \array_filter( $workspace, static fn( array $definition ) :bool => $definition[ 'show_in_sidebar' ] ) ),
-			\array_keys( $sidebar )
-		);
-		$this->assertSame(
-			\array_keys( \array_filter( $workspace, static fn( array $definition ) :bool => $definition[ 'show_on_landing' ] ) ),
-			\array_keys( $landing )
+			[
+				PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::SUBNAV_REPORTS_SETTINGS,
+				PluginNavs::SUBNAV_REPORTS_CHARTS,
+			],
+			\array_keys( $workspace )
 		);
 		$this->assertSame( \key( $workspace ), PluginNavs::reportsDefaultWorkspaceSubNav() );
 		$this->assertSame( PluginAdminPages\PageReportsLanding::class, $routeHandlers[ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
@@ -77,7 +75,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		}
 	}
 
-	public function test_investigate_subject_definitions_drive_activity_routes_and_legacy_helpers() :void {
+	public function test_investigate_subject_definitions_drive_activity_routes() :void {
 		$hierarchy = PluginNavs::GetNavHierarchy()[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ];
 
 		foreach ( PluginNavs::investigateLandingSubjectDefinitions() as $subjectKey => $definition ) {
@@ -102,15 +100,12 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$this->assertArrayHasKey( $subNav, $hierarchy );
 			$this->assertSame( $definition[ 'label' ], $hierarchy[ $subNav ][ 'label' ] ?? '' );
 			$this->assertSame( $subjectKey, PluginNavs::investigateSubjectKeyForSubNav( $subNav ) );
-			$this->assertTrue( PluginNavs::isInvestigateLegacyContextSubNav( $subNav ) );
+			$this->assertSame( PluginAdminPages\PageInvestigateLanding::class, $hierarchy[ $subNav ][ 'handler' ] ?? '' );
 			$this->assertSame( $subNav, $definition[ 'render_subnav' ] );
 		}
-
-		$this->assertFalse( PluginNavs::isInvestigateLegacyContextSubNav( PluginNavs::SUBNAV_LOGS ) );
-		$this->assertFalse( PluginNavs::isInvestigateLegacyContextSubNav( PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) );
 	}
 
-	public function test_activity_and_reports_hierarchy_keep_route_specific_handlers() :void {
+	public function test_activity_and_reports_hierarchy_keep_canonical_handlers() :void {
 		$hierarchy = PluginNavs::GetNavHierarchy();
 
 		$this->assertSame(
@@ -125,10 +120,28 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginAdminPages\PageActivityLogTable::class,
 			$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ PluginNavs::SUBNAV_LOGS ][ 'handler' ]
 		);
+		foreach ( [
+			PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+			PluginNavs::SUBNAV_ACTIVITY_BY_IP,
+			PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN,
+			PluginNavs::SUBNAV_ACTIVITY_BY_THEME,
+			PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
+		] as $subNav ) {
+			$this->assertSame(
+				PluginAdminPages\PageInvestigateLanding::class,
+				$hierarchy[ PluginNavs::NAV_ACTIVITY ][ 'sub_navs' ][ $subNav ][ 'handler' ]
+			);
+		}
 		$this->assertSame(
 			PluginAdminPages\PageReportsLanding::class,
 			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_OVERVIEW ][ 'handler' ]
 		);
+		foreach ( \array_keys( PluginNavs::reportsWorkspaceDefinitions() ) as $subNav ) {
+			$this->assertSame(
+				PluginAdminPages\PageReports::class,
+				$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ $subNav ][ 'handler' ]
+			);
+		}
 	}
 
 	public function test_configure_hierarchy_keeps_overview_only_zones_and_live_zone_component_routes() :void {

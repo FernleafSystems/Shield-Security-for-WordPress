@@ -128,6 +128,31 @@ class CaptureRedirectsTest extends BaseUnitTest {
 			'state'   => [ 'state' ],
 		];
 	}
+
+	/**
+	 * @dataProvider providerLegacyReportsRoutes
+	 */
+	public function test_legacy_reports_routes_redirect_to_settings( string $subNav ) :void {
+		$this->request->query = [
+			'page'                => 'icwp-wpsf-plugin',
+			Constants::NAV_ID     => 'reports',
+			Constants::NAV_SUB_ID => $subNav,
+		];
+
+		( new CaptureRedirects() )->run();
+
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=settings',
+			$this->responseCapture->redirectTo
+		);
+	}
+
+	public function providerLegacyReportsRoutes() :array {
+		return [
+			'alerts'    => [ 'alerts' ],
+			'reporting' => [ 'reporting' ],
+		];
+	}
 }
 
 class RedirectCaptureResponse extends Response {

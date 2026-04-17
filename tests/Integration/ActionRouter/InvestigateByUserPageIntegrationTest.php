@@ -4,13 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\PluginAdminPages\InvestigateByUserPanelBody,
-	Actions\Render\PluginAdminPages\PageInvestigateByUser,
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	InvestigateRoutePanelAssertions,
 	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
+	use InvestigateRoutePanelAssertions;
 	use LookupRouteFormAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -37,17 +38,6 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 			PluginNavs::SUBNAV_ACTIVITY_BY_USER,
 			$lookup !== '' ? [ 'user_lookup' => $lookup ] : []
 		);
-	}
-
-	private function renderByUserInnerPage( string $lookup = '' ) :array {
-		$params = [
-			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
-			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
-		];
-		if ( $lookup !== '' ) {
-			$params[ 'user_lookup' ] = $lookup;
-		}
-		return $this->processActionPayloadWithAdminBypass( PageInvestigateByUser::SLUG, $params );
 	}
 
 	private function renderByUserPanelBody( string $lookup = '' ) :array {
@@ -85,7 +75,7 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $userId );
 		$this->seedRequestLogForUser( $userId );
 
-		$renderData = (array)( $this->renderByUserInnerPage( (string)$userId )[ 'render_data' ] ?? [] );
+		$renderData = (array)( $this->renderByUserPanelBody( (string)$userId )[ 'render_data' ] ?? [] );
 		$vars = (array)( $renderData[ 'vars' ] ?? [] );
 		$tables = (array)( $vars[ 'tables' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
@@ -104,21 +94,23 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'requests' ] ?? [] );
 
-		$payload = $this->renderByUserPage( (string)$userId );
-		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-user route' );
-		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$this->assertArrayNotHasKey( 'subjects', $routeVars );
-		$this->assertArrayNotHasKey( 'mode_panel', $routeVars );
-		$this->assertArrayNotHasKey( 'tables', $routeVars );
+		$this->assertInvestigateRoutePreloadsSubjectPanel(
+			$this->renderByUserPage( (string)$userId ),
+			'activity by-user route',
+			'user',
+			'User',
+			'//*[@data-drill-layer="1"]//*[@id="ShieldInvestigateByUserTabsNav"]'
+		);
 	}
 
-	public function test_no_lookup_route_wrapper_exposes_no_user_investigation_contracts() :void {
-		$payload = $this->renderByUserPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'legacy by-user route without lookup' );
-		$routeVars = (array)( $payload[ 'render_data' ][ 'vars' ] ?? [] );
-		$this->assertArrayNotHasKey( 'subjects', $routeVars );
-		$this->assertArrayNotHasKey( 'mode_panel', $routeVars );
-		$this->assertSame( [], (array)( $routeVars[ 'tables' ] ?? [] ) );
+	public function test_no_lookup_route_preloads_user_panel_lookup_form() :void {
+		$this->assertInvestigateRoutePreloadsLookupPanel(
+			$this->renderByUserPage(),
+			'activity by-user route without lookup',
+			'user',
+			'User',
+			'user_lookup'
+		);
 	}
 
 	public function test_ip_panel_renders_card_wrapper_status_and_counts_for_related_ip() :void {
@@ -126,7 +118,7 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $userId );
 		$this->seedRequestLogForUser( $userId, '203.0.113.88' );
 
-		$renderData = (array)( $this->renderByUserInnerPage( (string)$userId )[ 'render_data' ] ?? [] );
+		$renderData = (array)( $this->renderByUserPanelBody( (string)$userId )[ 'render_data' ] ?? [] );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_lookup' ] ?? null );
 		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
 		$relatedIps = \array_values(
@@ -157,23 +149,17 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 	}
 
-	public function test_full_page_and_panel_body_actions_share_the_same_user_render_contract() :void {
+	public function test_panel_body_action_preserves_user_render_contract() :void {
 		$userId = \get_current_user_id();
 		$this->assertGreaterThan( 0, $userId );
 		$this->seedRequestLogForUser( $userId );
 
-		$fullPayload = $this->renderByUserInnerPage( (string)$userId );
-		$this->assertRouteRenderOutputHealthy(
-			$fullPayload,
-			'investigate by-user full page action'
-		);
 		$panelPayload = $this->renderByUserPanelBody( (string)$userId );
 		$this->assertRouteRenderOutputHealthy(
 			$panelPayload,
 			'investigate by-user panel body action'
 		);
 
-		$this->assertSame( '/wpadmin/plugin_pages/inner/investigate_by_user.twig', (string)( $fullPayload[ 'render_template' ] ?? '' ) );
 		$this->assertSame( '/wpadmin/components/investigate/user_body.twig', (string)( $panelPayload[ 'render_template' ] ?? '' ) );
 		$this->assertSame(
 			[
@@ -181,24 +167,6 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 				'has_lookup'        => true,
 				'subject_not_found' => false,
 			],
-			\array_intersect_key(
-				(array)( $fullPayload[ 'render_data' ][ 'flags' ] ?? [] ),
-				[
-					'has_subject'       => true,
-					'has_lookup'        => true,
-					'subject_not_found' => true,
-				]
-			)
-		);
-		$this->assertSame(
-			\array_intersect_key(
-				(array)( $fullPayload[ 'render_data' ][ 'flags' ] ?? [] ),
-				[
-					'has_subject'       => true,
-					'has_lookup'        => true,
-					'subject_not_found' => true,
-				]
-			),
 			\array_intersect_key(
 				(array)( $panelPayload[ 'render_data' ][ 'flags' ] ?? [] ),
 				[
@@ -208,9 +176,6 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 				]
 			)
 		);
-		$this->assertSame(
-			(array)( $fullPayload[ 'render_data' ][ 'vars' ] ?? [] ),
-			(array)( $panelPayload[ 'render_data' ][ 'vars' ] ?? [] )
-		);
+		$this->assertArrayHasKey( 'tables', (array)( $panelPayload[ 'render_data' ][ 'vars' ] ?? [] ) );
 	}
 }

@@ -126,13 +126,29 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
 	}
 
-	public function test_legacy_admin_route_redirect_maps_obsolete_scan_routes_to_actions_queue() :void {
+	public function test_legacy_admin_route_redirect_maps_obsolete_routes_to_canonical_destinations() :void {
 		$urls = new PluginURLs();
 
-		$expected = '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans';
-		$this->assertSame( $expected, $urls->legacyAdminRouteRedirect( 'scans', 'results' ) );
-		$this->assertSame( $expected, $urls->legacyAdminRouteRedirect( 'scans', 'history' ) );
-		$this->assertSame( $expected, $urls->legacyAdminRouteRedirect( 'scans', 'state' ) );
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans',
+			$urls->legacyAdminRouteRedirect( 'scans', 'results' )
+		);
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans',
+			$urls->legacyAdminRouteRedirect( 'scans', 'history' )
+		);
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans',
+			$urls->legacyAdminRouteRedirect( 'scans', 'state' )
+		);
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=settings',
+			$urls->legacyAdminRouteRedirect( 'reports', 'alerts' )
+		);
+		$this->assertSame(
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=settings',
+			$urls->legacyAdminRouteRedirect( 'reports', 'reporting' )
+		);
 		$this->assertNull( $urls->legacyAdminRouteRedirect( 'reports', 'list' ) );
 	}
 }

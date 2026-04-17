@@ -60,7 +60,7 @@ class PageAdminPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'ip', $data[ 'subject' ] ?? '' );
 	}
 
-	public function test_activity_legacy_by_user_route_overrides_subject_with_canonical_user_key() :void {
+	public function test_activity_by_user_route_overrides_subject_with_canonical_user_key() :void {
 		$action = new PageAdminPlugin( [
 			'user_lookup' => 'admin@example.com',
 			'subject'     => 'ip',
@@ -76,7 +76,7 @@ class PageAdminPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'user', $data[ 'subject' ] ?? '' );
 	}
 
-	public function test_activity_legacy_by_core_route_sets_canonical_core_subject_without_lookup() :void {
+	public function test_activity_by_core_route_sets_canonical_core_subject_without_lookup() :void {
 		$action = new PageAdminPlugin();
 
 		$data = $this->invokeBuildDelegateActionData(

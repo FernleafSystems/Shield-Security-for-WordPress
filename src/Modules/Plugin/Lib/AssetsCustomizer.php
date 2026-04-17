@@ -189,7 +189,11 @@ class AssetsCustomizer {
 			],
 			'investigate_landing' => [
 				'key'      => 'investigate_landing',
-				'required' => PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ),
+				'required' => PluginNavs::GetNav() === PluginNavs::NAV_ACTIVITY
+							  && (
+								  PluginNavs::GetSubNav() === PluginNavs::SUBNAV_ACTIVITY_OVERVIEW
+								  || PluginNavs::investigateSubjectKeyForSubNav( PluginNavs::GetSubNav() ) !== ''
+							  ),
 				'handles'  => [
 					'main',
 				],
