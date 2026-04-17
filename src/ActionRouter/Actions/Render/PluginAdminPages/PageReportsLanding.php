@@ -211,12 +211,12 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 				'icon_class'   => 'bi bi-file-text',
 				'status'       => 'neutral',
 				'status_label' => __( 'Review', 'wp-simple-firewall' ),
-				'oneliner'     => __( 'Inspect report history and open the report details you need next.', 'wp-simple-firewall' ),
+				'oneliner'     => __( 'Inspect report history and view the report details you need.', 'wp-simple-firewall' ),
 				'description'  => '',
 				'header'       => $this->buildWorkspaceHeader(
 					$workspaceDefinitions[ PluginNavs::SUBNAV_REPORTS_LIST ][ 'menu_title' ],
-					__( 'Review security reports and report output.', 'wp-simple-firewall' ),
-					__( 'Use the table to inspect report history and open the next report details you need.', 'wp-simple-firewall' ),
+					__( 'Review security reports.', 'wp-simple-firewall' ),
+					__( 'Use the table to inspect report history and open the report details you need.', 'wp-simple-firewall' ),
 					'bi bi-file-text',
 					__( 'Reports', 'wp-simple-firewall' )
 				),
@@ -225,12 +225,12 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 				'icon_class'   => 'bi bi-sliders',
 				'status'       => 'neutral',
 				'status_label' => __( 'Configure', 'wp-simple-firewall' ),
-				'oneliner'     => __( 'Adjust reporting and alert settings inline without leaving the landing view.', 'wp-simple-firewall' ),
+				'oneliner'     => __( 'Receive only the alerts and reports that you want.', 'wp-simple-firewall' ),
 				'description'  => $settingsDefinition[ 'page_subtitle' ],
 				'header'       => $this->buildWorkspaceHeader(
 					$settingsDefinition[ 'menu_title' ],
 					$settingsDefinition[ 'page_subtitle' ],
-					__( 'Adjust reporting and alert settings inline, then save your changes.', 'wp-simple-firewall' ),
+					__( 'Adjust reporting and alert settings, then save your changes.', 'wp-simple-firewall' ),
 					'bi bi-sliders',
 					__( 'Settings', 'wp-simple-firewall' )
 				),

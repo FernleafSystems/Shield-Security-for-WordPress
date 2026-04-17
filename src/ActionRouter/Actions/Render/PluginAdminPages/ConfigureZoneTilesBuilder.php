@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   key:string,
  *   label:string,
  *   icon:string,
+ *   summary:string,
  *   zone_slug?:string,
  *   component_slug?:string,
  *   component_slugs?:list<string>,
@@ -41,6 +42,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   include_in_posture:bool,
  *   label:string,
  *   icon_class:string,
+ *   summary:string,
  *   status:string,
  *   status_label:string,
  *   status_icon_class:string,
@@ -98,6 +100,7 @@ class ConfigureZoneTilesBuilder {
 			'include_in_posture' => $includeInPosture,
 			'label'             => $definition[ 'label' ],
 			'icon_class'        => self::con()->svgs->iconClass( $definition[ 'icon' ] ),
+			'summary'           => $this->requiredSummary( $definition ),
 			'status'            => $status,
 			'status_label'      => $this->tileStatusLabel( $status ),
 			'status_icon_class' => $this->tileStatusIconClass( $status ),
@@ -122,6 +125,17 @@ class ConfigureZoneTilesBuilder {
 			throw new \LogicException( 'Forced-neutral configure tiles require a non-empty stat line.' );
 		}
 		return $statLine;
+	}
+
+	/**
+	 * @param TileDefinition $definition
+	 */
+	private function requiredSummary( array $definition ) :string {
+		$summary = \trim( (string)( $definition[ 'summary' ] ?? '' ) );
+		if ( $summary === '' ) {
+			throw new \LogicException( 'Configure tiles require a non-empty summary.' );
+		}
+		return $summary;
 	}
 
 	/**

@@ -20,15 +20,15 @@ class ChartOptions {
 		return [
 			'conn_kill'               => [
 				'label'       => __( 'Connections Killed', 'wp-simple-firewall' ),
-				'description' => __( 'Connections terminated after repeated offenses.', 'wp-simple-firewall' ),
+				'description' => __( 'Connections terminated from blocked IP addresses.', 'wp-simple-firewall' ),
 			],
 			'ip_blocked'              => [
 				'label'       => __( 'IP Blocks', 'wp-simple-firewall' ),
-				'description' => __( 'IP addresses blocked after crossing offense limits.', 'wp-simple-firewall' ),
+				'description' => __( 'IP addresses added to block list after exceeding limits.', 'wp-simple-firewall' ),
 			],
 			'ip_offense'              => [
 				'label'       => __( 'IP Offences', 'wp-simple-firewall' ),
-				'description' => __( 'Recorded offenses attributed to visitor IP addresses.', 'wp-simple-firewall' ),
+				'description' => __( 'Offenses commited by all visitors.', 'wp-simple-firewall' ),
 			],
 			'login_block'             => [
 				'label'       => __( 'Login Blocks', 'wp-simple-firewall' ),

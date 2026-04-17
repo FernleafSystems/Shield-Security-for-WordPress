@@ -62,6 +62,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			$this->assertSame( !$tile[ 'is_enabled' ], $tile[ 'is_disabled' ] );
 			$this->assertSame( 'bi bi-', \substr( $tile[ 'icon_class' ], 0, 6 ) );
 			$this->assertSame( 'bi bi-', \substr( $tile[ 'status_icon_class' ], 0, 6 ) );
+			$this->assertNotSame( '', \trim( (string)( $tile[ 'summary' ] ?? '' ) ) );
 			$this->assertSame(
 				!\in_array( $tile[ 'key' ], [ 'general', 'reports_alerts' ], true ),
 				$tile[ 'include_in_posture' ]
@@ -124,6 +125,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 
 		$tileDefinitionsByKey = \array_column( PluginNavs::configureLandingTileDefinitions(), null, 'key' );
 		$this->assertSame( 'neutral', $tilesByKey[ 'reports_alerts' ][ 'status' ] );
+		$this->assertSame(
+			$tileDefinitionsByKey[ 'login' ][ 'summary' ],
+			$tilesByKey[ 'login' ][ 'summary' ]
+		);
 		$this->assertSame(
 			$tileDefinitionsByKey[ 'reports_alerts' ][ 'stat_line' ],
 			$tilesByKey[ 'reports_alerts' ][ 'stat_line' ]

@@ -142,7 +142,7 @@ class ConfigureLandingViewBuilder {
 			'icon_class'     => $zoneTile[ 'icon_class' ],
 			'status'         => $zoneTile[ 'status' ],
 			'status_label'   => $zoneTile[ 'status_label' ],
-			'preview_text'   => $diagnosis[ 'preview_text' ],
+			'summary'        => $zoneTile[ 'summary' ],
 			'selection_json' => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];

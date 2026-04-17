@@ -97,8 +97,12 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			\array_column( $view[ 'sections' ][ 3 ][ 'cards' ] ?? [], 'key' )
 		);
 		$this->assertSame(
+			$view[ 'tiles' ][ 0 ][ 'summary' ] ?? '',
+			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ] ?? ''
+		);
+		$this->assertNotSame(
 			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ] ?? '',
-			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'preview_text' ] ?? ''
+			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ] ?? ''
 		);
 		$this->assertCount( 1, $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ] ?? [] );
 		$this->assertSame(
@@ -123,6 +127,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'Security Admin',
 				'critical',
 				'Critical',
+				'Protect plugin and core admin settings with an extra admin security layer.',
 				'1 critical component',
 				[
 					$this->buildZoneComponentFixture(
@@ -139,6 +144,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'Firewall',
 				'good',
 				'Good',
+				'Stabilized firewall summary.',
 				'All components healthy',
 				[
 					$this->buildZoneComponentFixture(
@@ -154,6 +160,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'Login',
 				'warning',
 				'Needs Work',
+				'Stabilized login summary.',
 				'1 component needs work',
 				[
 					$this->buildZoneComponentFixture(
@@ -170,6 +177,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'General',
 				'neutral',
 				'General',
+				'Stabilized general summary.',
 				'General settings',
 				[
 					$this->buildZoneComponentFixture(
@@ -189,6 +197,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		string $label,
 		string $status,
 		string $statusLabel,
+		string $summary,
 		string $statLine,
 		array $components,
 		bool $includeInPosture = true
@@ -201,6 +210,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			'include_in_posture' => $includeInPosture,
 			'label'              => $label,
 			'icon_class'         => 'bi bi-gear',
+			'summary'            => $summary,
 			'status'             => $status,
 			'status_label'       => $statusLabel,
 			'status_icon_class'  => 'bi bi-shield-check',

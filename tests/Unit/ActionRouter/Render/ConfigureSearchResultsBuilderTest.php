@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 
 	private array $optionDefs;
+	private array $landingViewData;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -116,6 +117,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'zone_comp_slugs' => [ 'xml_rpc_component' ],
 			],
 		];
+		$this->landingViewData = $this->landingViewDataFixture();
 
 		$this->installControllerStub();
 	}
@@ -136,7 +138,10 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
 		$this->assertSame( 'Spam', $results[ 0 ][ 'label' ] ?? '' );
-		$this->assertSame( 'Review silentCAPTCHA settings and comment protection.', $results[ 0 ][ 'summary' ] ?? '' );
+		$this->assertSame(
+			$this->landingViewData[ 'tile_lookup' ][ 'spam' ][ 'summary' ],
+			$results[ 0 ][ 'summary' ] ?? ''
+		);
 		$this->assertSame( 'bi bi-shield-fill', $results[ 0 ][ 'icon_class' ] ?? '' );
 		$this->assertSame( [
 			'key'        => 'spam',
@@ -217,6 +222,18 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_zone_search_matches_authored_tile_summary_text() :void {
+		$results = $this->newBuilder()->build( 'stable firewall' );
+
+		$this->assertNotSame( [], $results );
+		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( 'Firewall', $results[ 0 ][ 'label' ] ?? '' );
+		$this->assertSame(
+			$this->landingViewData[ 'tile_lookup' ][ 'firewall' ][ 'summary' ],
+			$results[ 0 ][ 'summary' ] ?? ''
+		);
+	}
+
 	public function test_hyphenated_option_queries_match_compact_and_split_dash_terms() :void {
 		$xmlRpcResults = $this->newBuilder()->build( 'xml-rpc' );
 		$xmlRpcCompactResults = $this->newBuilder()->build( 'xmlrpc' );
@@ -253,7 +270,34 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 	}
 
 	private function newBuilder() :ConfigureSearchResultsBuilder {
-		$landingViewData = [
+		return new ConfigureSearchResultsBuilder(
+			new class( $this->landingViewData ) extends ConfigureLandingViewBuilder {
+				private array $landingViewData;
+
+				public function __construct( array $landingViewData ) {
+					$this->landingViewData = $landingViewData;
+				}
+
+				public function build() :array {
+					return $this->landingViewData;
+				}
+			}
+		);
+	}
+
+	private function landingViewDataFixture() :array {
+		return [
+			'tile_lookup' => [
+				'spam' => [
+					'summary' => 'Stable spam summary.',
+				],
+				'firewall' => [
+					'summary' => 'Stable firewall summary.',
+				],
+				'security' => [
+					'summary' => 'Stable security summary.',
+				],
+			],
 			'diagnoses' => [
 				'spam' => [
 					'zone_key'      => 'spam',
@@ -387,20 +431,6 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				],
 			],
 		];
-
-		return new ConfigureSearchResultsBuilder(
-			new class( $landingViewData ) extends ConfigureLandingViewBuilder {
-				private array $landingViewData;
-
-				public function __construct( array $landingViewData ) {
-					$this->landingViewData = $landingViewData;
-				}
-
-				public function build() :array {
-					return $this->landingViewData;
-				}
-			}
-		);
 	}
 
 	private function installControllerStub() :void {

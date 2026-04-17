@@ -77,9 +77,11 @@ class ConfigureSearchResultsBuilder {
 
 	private function buildZoneResults( array $terms ) :array {
 		$results = [];
+		$landingViewData = $this->getConfigureLandingViewData();
 
-		foreach ( $this->getConfigureLandingViewData()[ 'diagnoses' ] as $diagnosis ) {
-			$tokens = $this->buildZoneTokens( $diagnosis );
+		foreach ( $landingViewData[ 'diagnoses' ] as $diagnosis ) {
+			$zoneSummary = $this->requireZoneSummary( $diagnosis[ 'zone_key' ] );
+			$tokens = $this->buildZoneTokens( $diagnosis, $zoneSummary );
 			$score = $this->searchTextTokenBuilder->countMatches( $tokens, $terms );
 			if ( $score < 1 ) {
 				continue;
@@ -89,7 +91,7 @@ class ConfigureSearchResultsBuilder {
 				'type'       => 'zone',
 				'icon_class' => $diagnosis[ 'zone_icon_class' ],
 				'label'      => $diagnosis[ 'zone_label' ],
-				'summary'    => $diagnosis[ 'preview_text' ],
+				'summary'    => $zoneSummary,
 				'selection_json'     => $diagnosis[ 'zone_selection_json' ],
 				'focus_request_json' => '',
 				'href'       => self::con()->plugin_urls->configureHome( $diagnosis[ 'zone_key' ] ),
@@ -100,7 +102,21 @@ class ConfigureSearchResultsBuilder {
 		return $results;
 	}
 
-	private function buildZoneTokens( array $diagnosis ) :string {
+	private function requireZoneSummary( string $zoneKey ) :string {
+		$tile = $this->getConfigureLandingViewData()[ 'tile_lookup' ][ $zoneKey ] ?? null;
+		if ( !\is_array( $tile ) ) {
+			throw new \LogicException( 'Configure search zone results require a landing tile for every diagnosis: '.$zoneKey );
+		}
+
+		$summary = \trim( (string)( $tile[ 'summary' ] ?? '' ) );
+		if ( $summary === '' ) {
+			throw new \LogicException( 'Configure search zone results require a non-empty tile summary: '.$zoneKey );
+		}
+
+		return $summary;
+	}
+
+	private function buildZoneTokens( array $diagnosis, string $zoneSummary ) :string {
 		$rowTexts = [];
 		foreach ( $this->getDiagnosisRowsInSearchOrder( $diagnosis ) as $row ) {
 			$rowTexts[] = $row[ 'title' ];
@@ -113,6 +129,7 @@ class ConfigureSearchResultsBuilder {
 		return $this->searchTextTokenBuilder->build( \array_merge(
 			[
 				$diagnosis[ 'zone_label' ],
+				$zoneSummary,
 				$diagnosis[ 'preview_text' ],
 				$diagnosis[ 'risk_context' ],
 			],

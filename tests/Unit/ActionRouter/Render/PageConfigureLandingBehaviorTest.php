@@ -411,6 +411,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'Security Admin',
 				'critical',
 				'Critical',
+				'Stable security admin summary.',
 				'1 critical component',
 				[
 					$this->buildZoneComponentFixture(
@@ -428,6 +429,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'Firewall',
 				'good',
 				'Good',
+				'Stable firewall summary.',
 				'All components healthy',
 				[
 					$this->buildZoneComponentFixture(
@@ -444,6 +446,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'Login',
 				'warning',
 				'Needs Work',
+				'Stable login summary.',
 				'1 component needs work',
 				[
 					$this->buildZoneComponentFixture(
@@ -461,6 +464,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'General',
 				'neutral',
 				'General',
+				'Stable general summary.',
 				'General settings',
 				[
 					$this->buildZoneComponentFixture(
@@ -481,6 +485,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		string $label,
 		string $status,
 		string $statusLabel,
+		string $summary,
 		string $statLine,
 		array $components,
 		bool $includeInPosture = true
@@ -493,6 +498,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			'include_in_posture' => $includeInPosture,
 			'label'             => $label,
 			'icon_class'        => 'bi bi-gear',
+			'summary'           => $summary,
 			'status'            => $status,
 			'status_label'      => $statusLabel,
 			'status_icon_class' => 'bi bi-shield-check',
@@ -666,7 +672,7 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			'icon_class'     => $zoneTile[ 'icon_class' ],
 			'status'         => $zoneTile[ 'status' ],
 			'status_label'   => $zoneTile[ 'status_label' ],
-			'preview_text'   => $diagnosis[ 'preview_text' ],
+			'summary'        => $zoneTile[ 'summary' ],
 			'selection_json' => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];

@@ -16,6 +16,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   include_in_posture:bool,
  *   label:string,
  *   icon_class:string,
+ *   summary:string,
  *   status:string,
  *   status_label:string,
  *   status_icon_class:string,
@@ -34,7 +35,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string,
  *   status:string,
  *   status_label:string,
- *   preview_text:string,
+ *   summary:string,
  *   selection_json:string,
  *   is_disabled:bool
  * }
