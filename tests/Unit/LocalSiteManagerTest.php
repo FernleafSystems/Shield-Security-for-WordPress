@@ -31,7 +31,7 @@ class LocalSiteManagerTest extends TestCase {
 	}
 
 	public function testEnsureReadyStartsAndProvisionsWhenSiteIsNotRunning() :void {
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
@@ -58,13 +58,14 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertCount( 2, $runtimeRefresher->resolveCalls );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
 		$this->assertSame( 'wordpress-container', $runtimeRefresher->refreshCalls[ 0 ][ 'container_id' ] );
-		$this->assertCount( 1, $processRunner->calls );
-		$this->assertSame( 'docker', $processRunner->calls[ 0 ][ 'command' ][ 0 ] );
-		$this->assertContains( 'wp-cli', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertCount( 2, $processRunner->calls );
+		$this->assertSame( [ \PHP_BINARY, './bin/build-config.php' ], $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertSame( 'docker', $processRunner->calls[ 1 ][ 'command' ][ 0 ] );
+		$this->assertContains( 'wp-cli', $processRunner->calls[ 1 ][ 'command' ] );
 	}
 
 	public function testEnsureReadyPassesTestProfileProvisioningMetadata() :void {
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
@@ -80,12 +81,12 @@ class LocalSiteManagerTest extends TestCase {
 
 		$manager->ensureReady( $this->projectRoot, true );
 
-		$this->assertContains( 'SHIELD_LOCAL_SITE_PROFILE=test', $processRunner->calls[ 0 ][ 'command' ] );
-		$this->assertContains( 'SHIELD_LOCAL_SITE_TITLE=Shield Local Test Site', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_PROFILE=test', $processRunner->calls[ 1 ][ 'command' ] );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_TITLE=Shield Local Test Site', $processRunner->calls[ 1 ][ 'command' ] );
 	}
 
 	public function testEnsureReadyReusesHealthySiteAndOnlyRunsProvisioning() :void {
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
 		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
@@ -103,11 +104,11 @@ class LocalSiteManagerTest extends TestCase {
 
 		$this->assertCount( 0, $dockerComposeExecutor->calls );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-		$this->assertCount( 1, $processRunner->calls );
+		$this->assertCount( 2, $processRunner->calls );
 	}
 
 	public function testWpEnsuresReadyThenRunsWpCliPassthrough() :void {
-		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
 		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
@@ -125,7 +126,7 @@ class LocalSiteManagerTest extends TestCase {
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-		$this->assertCount( 2, $processRunner->calls );
+		$this->assertCount( 3, $processRunner->calls );
 		$this->assertSame(
 			[
 				'docker',
@@ -141,12 +142,15 @@ class LocalSiteManagerTest extends TestCase {
 				'list',
 				'--allow-root',
 			],
-			$processRunner->calls[ 1 ][ 'command' ]
+			$processRunner->calls[ 2 ][ 'command' ]
 		);
 	}
 
 	public function testWpCaptureReturnsCommandStdoutAndRoutesSetupNoiseToStderr() :void {
 		$processRunner = new RecordingProcessRunner( [
+			[
+				'exit_code' => 0,
+			],
 			[
 				'exit_code' => 0,
 				'stdout' => "provisioning\n",
@@ -175,15 +179,16 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( "{\"ok\":true}\n", $captured[ 'stdout' ] );
 		$this->assertStringContainsString( 'provisioning', $captured[ 'stderr' ] );
 		$this->assertStringContainsString( 'fixture-warning', $captured[ 'stderr' ] );
-		$this->assertCount( 2, $processRunner->calls );
-		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
+		$this->assertCount( 3, $processRunner->calls );
+		$this->assertFalse( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
 		$this->assertTrue( $processRunner->calls[ 1 ][ 'has_output_callback' ] );
+		$this->assertTrue( $processRunner->calls[ 2 ][ 'has_output_callback' ] );
 	}
 
 	public function testEnsureReadyFailsFastWhenReusedSiteIsUnhealthyBeforeRefresh() :void {
 		$this->expectExceptionMessage( 'Local dev site is already running but unhealthy before runtime refresh.' );
 
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
 		$probe = new RecordingLocalSiteProbe( [ false ], [ true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
@@ -203,14 +208,14 @@ class LocalSiteManagerTest extends TestCase {
 		finally {
 			$this->assertCount( 0, $dockerComposeExecutor->calls );
 			$this->assertCount( 0, $runtimeRefresher->refreshCalls );
-			$this->assertCount( 0, $processRunner->calls );
+			$this->assertCount( 1, $processRunner->calls );
 		}
 	}
 
 	public function testEnsureReadyFailsFastWhenSiteIsUnhealthyAfterRefresh() :void {
 		$this->expectExceptionMessage( 'Local dev site is unhealthy after runtime refresh.' );
 
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
 		$probe = new RecordingLocalSiteProbe( [ true ], [ false ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
@@ -229,7 +234,7 @@ class LocalSiteManagerTest extends TestCase {
 		}
 		finally {
 			$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-			$this->assertCount( 0, $processRunner->calls );
+			$this->assertCount( 1, $processRunner->calls );
 		}
 	}
 
@@ -272,7 +277,7 @@ class LocalSiteManagerTest extends TestCase {
 	public function testEnsureReadyFailsFastWhenSiteIsUnhealthyAfterProvisioning() :void {
 		$this->expectExceptionMessage( 'Local dev site is unhealthy after provisioning.' );
 
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
 		$probe = new RecordingLocalSiteProbe( [ true, false ], [ true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
@@ -291,12 +296,12 @@ class LocalSiteManagerTest extends TestCase {
 		}
 		finally {
 			$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-			$this->assertCount( 1, $processRunner->calls );
+			$this->assertCount( 2, $processRunner->calls );
 		}
 	}
 
 	public function testResetDestroysStateAndReprovisions() :void {
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
@@ -347,7 +352,7 @@ class LocalSiteManagerTest extends TestCase {
 	}
 
 	public function testTestSiteUsesDistinctProjectNamePortAndDbName() :void {
-		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
@@ -368,13 +373,77 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 'shield_test_site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_NAME' ] );
 	}
 
+	public function testEnsureReadyFailsFastWhenSourceMetadataRemainsOutOfSync() :void {
+		$this->writeMetadataFiles( $this->projectRoot, '21.99.3', '21.99.3', '21.99.4', '202604.1701', '202604.1801' );
+		$this->expectExceptionMessage( 'Generated plugin.json is out of sync with plugin-spec/01_properties.json' );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
+			new RecordingProcessRunner( [ 0 ] ),
+			new RecordingTestingEnvironmentResolver(),
+			new RecordingDockerComposeExecutor(),
+			new RecordingLocalSiteProbe(),
+			new RecordingLocalSiteRuntimeRefresher( [ '' ] )
+		);
+
+		$manager->ensureReady( $this->projectRoot, false );
+	}
+
+	public function testEnsureReadyFailsFastWhenPluginHeaderRemainsOutOfSync() :void {
+		$this->writeMetadataFiles( $this->projectRoot, '21.99.4', '21.99.3', '21.99.3', '202604.1701', '202604.1701' );
+		$this->expectExceptionMessage( 'Generated plugin.json and icwp-wpsf.php plugin header are out of sync' );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
+			new RecordingProcessRunner( [ 0 ] ),
+			new RecordingTestingEnvironmentResolver(),
+			new RecordingDockerComposeExecutor(),
+			new RecordingLocalSiteProbe(),
+			new RecordingLocalSiteRuntimeRefresher( [ '' ] )
+		);
+
+		$manager->ensureReady( $this->projectRoot, false );
+	}
+
 	private function seedRequiredFiles( string $rootDir ) :void {
 		\mkdir( Path::join( $rootDir, 'vendor' ), 0777, true );
 		\mkdir( Path::join( $rootDir, 'assets', 'dist' ), 0777, true );
 		\mkdir( Path::join( $rootDir, 'node_modules', '@playwright', 'test' ), 0777, true );
+		\mkdir( Path::join( $rootDir, 'plugin-spec' ), 0777, true );
+		\mkdir( Path::join( $rootDir, 'bin' ), 0777, true );
 		\file_put_contents( Path::join( $rootDir, 'vendor', 'autoload.php' ), '<?php' );
-		\file_put_contents( Path::join( $rootDir, 'plugin.json' ), '{}' );
-		\file_put_contents( Path::join( $rootDir, 'icwp-wpsf.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'bin', 'build-config.php' ), '<?php' );
+		$this->writeMetadataFiles( $rootDir, '21.99.3', '21.99.3', '21.99.3', '202604.1701', '202604.1701' );
 		\file_put_contents( Path::join( $rootDir, 'node_modules', '@playwright', 'test', 'cli.js' ), '' );
+	}
+
+	private function writeMetadataFiles(
+		string $rootDir,
+		string $headerVersion,
+		string $sourceVersion,
+		string $configVersion,
+		string $sourceBuild,
+		string $configBuild
+	) :void {
+		\file_put_contents(
+			Path::join( $rootDir, 'plugin-spec', '01_properties.json' ),
+			\json_encode( [
+				'version' => $sourceVersion,
+				'build' => $sourceBuild,
+			], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ) ?: '{}'
+		);
+		\file_put_contents(
+			Path::join( $rootDir, 'plugin.json' ),
+			\json_encode( [
+				'properties' => [
+					'version' => $configVersion,
+					'build' => $configBuild,
+				],
+			], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ) ?: '{}'
+		);
+		\file_put_contents(
+			Path::join( $rootDir, 'icwp-wpsf.php' ),
+			"<?php\n/*\n * Version: {$headerVersion}\n */\n"
+		);
 	}
 }

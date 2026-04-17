@@ -23,7 +23,7 @@ class BrowserTestLaneTest extends TestCase {
 		$this->seedRequiredFiles( $projectRoot );
 
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
-		$siteProcessRunner = new RecordingProcessRunner( [ 0 ] );
+		$siteProcessRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
 		$siteManager = new LocalSiteManager(
 			LocalSiteDefinitions::test(),
@@ -101,9 +101,27 @@ class BrowserTestLaneTest extends TestCase {
 		\mkdir( Path::join( $rootDir, 'vendor' ), 0777, true );
 		\mkdir( Path::join( $rootDir, 'assets', 'dist' ), 0777, true );
 		\mkdir( Path::join( $rootDir, 'node_modules', '@playwright', 'test' ), 0777, true );
+		\mkdir( Path::join( $rootDir, 'plugin-spec' ), 0777, true );
+		\mkdir( Path::join( $rootDir, 'bin' ), 0777, true );
 		\file_put_contents( Path::join( $rootDir, 'vendor', 'autoload.php' ), '<?php' );
-		\file_put_contents( Path::join( $rootDir, 'plugin.json' ), '{}' );
-		\file_put_contents( Path::join( $rootDir, 'icwp-wpsf.php' ), '<?php' );
+		\file_put_contents(
+			Path::join( $rootDir, 'plugin-spec', '01_properties.json' ),
+			\json_encode( [
+				'version' => '21.99.3',
+				'build' => '202604.1701',
+			], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ) ?: '{}'
+		);
+		\file_put_contents(
+			Path::join( $rootDir, 'plugin.json' ),
+			\json_encode( [
+				'properties' => [
+					'version' => '21.99.3',
+					'build' => '202604.1701',
+				],
+			], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ) ?: '{}'
+		);
+		\file_put_contents( Path::join( $rootDir, 'bin', 'build-config.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'icwp-wpsf.php' ), "<?php\n/*\n * Version: 21.99.3\n */\n" );
 		\file_put_contents( Path::join( $rootDir, 'node_modules', '@playwright', 'test', 'cli.js' ), '' );
 	}
 }
