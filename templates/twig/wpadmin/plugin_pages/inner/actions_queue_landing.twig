@@ -11,12 +11,6 @@
 		 data-actions-layer-retry="{{ strings.layer_retry }}"
 		 data-actions-queue-groups-action="{{ vars.actions_queue_ajax.groups_render_action_json }}">
 
-		{% if flags.queue_is_empty %}
-			{% include '/wpadmin/components/actions_queue/all_clear.twig' with {
-				all_clear: vars.all_clear
-			} only %}
-		{% endif %}
-
 		{% if flags.has_drilldown_content %}
 			<div class="actions-landing__drilldown" data-actions-queue-section="drilldown">
 				{% include '/wpadmin/components/page/drill_down_shell.twig' with {

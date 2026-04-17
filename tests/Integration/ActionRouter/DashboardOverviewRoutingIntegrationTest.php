@@ -6,18 +6,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	ActionResponse,
 	Actions\ScanResultsTableAction,
+	Actions\Render\Components\Widgets\MaintenanceIssueStateProvider,
 	Actions\Render\Components\Widgets\NeedsAttentionQueue,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	HtmlDomAssertions,
+	PluginAdminRouteRenderAssertions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
+	use HtmlDomAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	private int $adminUserId;
@@ -375,6 +380,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			'scan_pluginsthemes_local',
 			'scan_vulnerabilities',
 		] );
+		$themeSlug = \wp_get_theme()->get_stylesheet();
 
 		self::con()->opts
 			->optSet( 'enable_core_file_integrity_scan', 'Y' )
@@ -386,8 +392,16 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
 		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_core' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_plugin' );
-		TestDataFactory::insertScanResultMeta( $afsId, 'is_in_theme' );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'      => self::con()->base_file,
+			'is_in_plugin' => 1,
+			'ptg_slug'     => self::con()->base_file,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id'     => $themeSlug,
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
 
 		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
 		TestDataFactory::insertScanResultMeta( $wpvId, 'is_vulnerable' );
@@ -398,8 +412,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->setPluginUpdateAvailable();
 		$this->resetScanResultCountMemoization();
 
-		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
+		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
+		$renderData = $payload[ 'render_data' ] ?? [];
 		$rows = $this->getActionsQueueRows( $renderData );
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 		$rowsByKey = [];
 		foreach ( $rows as $row ) {
 			if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
@@ -415,9 +431,19 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		}
 		$this->assertGreaterThan( 0, (int)( $rowsByKey[ 'maintenance' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'actions', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] ?? '' ) );
+		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
 		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
 			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
+		);
+		$descriptionNode = $this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured-desc ")]',
+			'Dashboard featured Actions Queue card should keep the standard description when actionable rows exist'
+		);
+		$this->assertSame(
+			\trim( (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'description' ] ?? '' ) ),
+			\trim( (string)$descriptionNode->textContent )
 		);
 	}
 
@@ -471,19 +497,56 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	public function test_operator_mode_landing_omits_healthy_file_locker_and_zero_maintenance_rows() :void {
 		$this->requireDb( 'file_locker' );
 		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+		$optionsSnapshot = $this->snapshotSelectedOptions( [ MaintenanceIssueStateProvider::OPT_KEY ] );
 
-		self::con()->opts
-			->optSet( 'file_locker', [ 'wpconfig' ] )
-			->store();
+		try {
+			self::con()->opts
+				->optSet( 'file_locker', [ 'wpconfig' ] )
+				->optSet(
+					MaintenanceIssueStateProvider::OPT_KEY,
+					( new MaintenanceIssueStateProvider() )->currentIssueIdentifiersByKey()
+				)
+				->store();
 
-		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
-		self::con()->comps->file_locker->clearLocks();
+			TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+			self::con()->comps->file_locker->clearLocks();
 
-		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
-		$rows = $this->getActionsQueueRows( $renderData );
+			$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
+			$renderData = $payload[ 'render_data' ] ?? [];
+			$rows = $this->getActionsQueueRows( $renderData );
+			$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
-		$this->assertSame( [], $rows );
-		$this->assertSame( 'good', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
+			$this->assertSame( [], $rows );
+			$this->assertSame( 'good', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
+			$this->assertSame(
+				[ 'scans', 'maintenance' ],
+				\array_column( $renderData[ 'vars' ][ 'actions_all_clear' ][ 'zone_chips' ] ?? [], 'slug' )
+			);
+			$descriptionNode = $this->assertXPathExists(
+				$xpath,
+				'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured-desc ")]',
+				'Dashboard featured Actions Queue card should render the moved all-clear explanation copy'
+			);
+			$this->assertSame(
+				\trim( (string)( $renderData[ 'vars' ][ 'actions_all_clear' ][ 'subtitle' ] ?? '' ) ),
+				\trim( (string)$descriptionNode->textContent )
+			);
+			$this->assertXPathCount(
+				$xpath,
+				'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured ")]//*[contains(concat(" ", normalize-space(@class), " "), " shield-needs-attention__chip ")]',
+				2,
+				'Dashboard featured Actions Queue card should render the moved clear-state zone chips'
+			);
+			$this->assertXPathCount(
+				$xpath,
+				'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured ")]//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__queue-row ")]',
+				0,
+				'Dashboard featured Actions Queue card should not render queue rows in the clear state'
+			);
+		}
+		finally {
+			$this->restoreSelectedOptions( $optionsSnapshot );
+		}
 	}
 
 }

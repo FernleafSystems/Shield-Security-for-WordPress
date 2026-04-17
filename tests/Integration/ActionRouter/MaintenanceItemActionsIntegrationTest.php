@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActio
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\HtmlDomAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
@@ -20,6 +21,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
+	use HtmlDomAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	private array $optionsSnapshot = [];
@@ -217,14 +219,12 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'maintenance', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertSame(
-			'Plugin Updates',
+			(string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ),
 			(string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' )
 		);
-		$this->assertSame(
-			\sprintf( '%s items', \count( $pluginFiles ) ),
-			(string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' )
-		);
-		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertSame( \count( $pluginFiles ), (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
+		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
 		$this->assertXPathExists(

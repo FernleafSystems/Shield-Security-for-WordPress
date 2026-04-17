@@ -120,15 +120,6 @@ trait BuildsActionsQueueLandingData {
 			->render();
 	}
 
-	protected function renderAllClearCard() :string {
-		return self::con()->comps->render
-			->setTemplate( '/wpadmin/components/actions_queue/all_clear.twig' )
-			->setData( [
-				'all_clear' => $this->getLandingViewData()[ 'all_clear' ],
-			] )
-			->render();
-	}
-
 	protected function buildActionsQueueOperatorRootStep() :array {
 		$viewData = $this->getLandingViewData();
 		$summary = $viewData[ 'summary' ];

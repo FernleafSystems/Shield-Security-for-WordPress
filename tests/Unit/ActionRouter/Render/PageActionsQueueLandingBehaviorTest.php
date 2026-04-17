@@ -154,7 +154,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 	}
 
-	public function test_all_clear_flag_follows_attention_summary_and_strings_stay_aligned() :void {
+	public function test_all_clear_flag_follows_attention_summary_without_queue_box_contract() :void {
 		$this->capture->queuePayload = $this->buildQueuePayload(
 			false,
 			0,
@@ -169,14 +169,13 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$page = $this->newPage();
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $renderData[ 'vars' ];
-		$strings = $renderData[ 'strings' ];
 
 		$this->assertTrue( $renderData[ 'flags' ][ 'queue_is_empty' ] );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
-		$this->assertSame( 'All Clear', $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' );
-		$this->assertSame( $strings[ 'all_clear_title' ], $vars[ 'all_clear' ][ 'title' ] );
-		$this->assertSame( $strings[ 'all_clear_subtitle' ], $vars[ 'all_clear' ][ 'subtitle' ] );
-		$this->assertSame( $strings[ 'all_clear_icon_class' ], $vars[ 'all_clear' ][ 'icon_class' ] );
+		$this->assertSame( 'good', $vars[ 'mode_shell' ][ 'root_step' ][ 'badge_status' ] ?? '' );
+		$this->assertNotSame( '', \trim( (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) ) );
+		$this->assertArrayNotHasKey( 'all_clear', $vars );
+		$this->assertArrayNotHasKey( 'all_clear_title', $renderData[ 'strings' ] );
 	}
 
 	public function test_root_step_json_helper_reuses_the_landing_root_step_contract() :void {

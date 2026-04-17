@@ -59,17 +59,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *     total_items:int,
  *     critical_count:int,
  *     warning_count:int
- *   },
- *   all_clear:array{
- *     title:string,
- *     subtitle:string,
- *     icon_class:string,
- *     zone_chips:list<array{
- *       slug:string,
- *       label:string,
- *       icon_class:string,
- *       severity:string
- *     }>
  *   }
  * }
  */
@@ -96,7 +85,6 @@ class ActionsQueueLandingViewBuilder {
 			'zones_indexed'  => $zonesIndexed,
 			'zone_tiles'     => $zoneTiles,
 			'status_overview' => $this->buildStatusOverviewContract( $summary, $zoneTiles ),
-			'all_clear'      => $this->buildAllClearContract( $zonesIndexed ),
 		];
 	}
 
@@ -246,51 +234,6 @@ class ActionsQueueLandingViewBuilder {
 			'total_items'    => $summary[ 'total_items' ],
 			'critical_count' => $criticalCount,
 			'warning_count'  => $warningCount,
-		];
-	}
-
-	/**
-	 * @param array<string,ZoneGroup> $zonesIndexed
-	 * @return array{
-	 *   title:string,
-	 *   subtitle:string,
-	 *   icon_class:string,
-	 *   zone_chips:list<array{
-	 *     slug:string,
-	 *     label:string,
-	 *     icon_class:string,
-	 *     severity:string
-	 *   }>
-	 * }
-	 */
-	private function buildAllClearContract( array $zonesIndexed ) :array {
-		$strings = $this->buildAllClearStringDefaults();
-		$chipIconClass = self::con()->svgs->iconClass( 'check-circle-fill' );
-
-		return [
-			'title'      => $strings[ 'all_clear_title' ],
-			'subtitle'   => $strings[ 'all_clear_subtitle' ],
-			'icon_class' => $strings[ 'all_clear_icon_class' ],
-			'zone_chips' => \array_map(
-				static fn( array $zone ) :array => [
-					'slug'       => $zone[ 'slug' ],
-					'label'      => $zone[ 'label' ],
-					'icon_class' => $chipIconClass,
-					'severity'   => 'good',
-				],
-				\array_values( $zonesIndexed )
-			),
-		];
-	}
-
-	/**
-	 * @return array<string,string>
-	 */
-	private function buildAllClearStringDefaults() :array {
-		return [
-			'all_clear_title'      => __( 'All security zones are clear', 'wp-simple-firewall' ),
-			'all_clear_subtitle'   => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
-			'all_clear_icon_class' => self::con()->svgs->iconClass( 'shield-check' ),
 		];
 	}
 

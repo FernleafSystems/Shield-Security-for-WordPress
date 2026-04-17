@@ -50,6 +50,7 @@ class PageOperatorModeLanding extends BaseRender {
 			'vars'    => [
 				'shield_status'      => $queueCard[ 'shield_status' ],
 				'shield_icon_class'  => $queueCard[ 'shield_icon_class' ],
+				'actions_all_clear'  => $queueCard[ 'summary' ][ 'has_items' ] ? null : $queueCard[ 'all_clear' ],
 				'lanes'              => [
 					$queueCard[ 'actions_lane' ],
 					...$secondaryLanes,

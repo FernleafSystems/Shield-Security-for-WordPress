@@ -47,6 +47,7 @@ class NeedsAttentionQueueDataBuilder {
 	 */
 	public function build( array $actionData = [] ) :array {
 		$baseData = $this->buildBaseData();
+		$allClear = ( new ActionsQueueAllClearDataBuilder() )->build( $this->getZonesData() );
 		$isCompactAllClear = !empty( $actionData[ 'compact_all_clear' ] );
 		$statusStripText = $baseData[ 'summary' ][ 'has_items' ]
 			? sprintf(
@@ -67,9 +68,9 @@ class NeedsAttentionQueueDataBuilder {
 				'title'                   => __( 'Action Required', 'wp-simple-firewall' ),
 				'issues_found'            => __( 'Actions Required', 'wp-simple-firewall' ),
 				'all_clear'               => __( 'All Clear', 'wp-simple-firewall' ),
-				'all_clear_icon_class'    => self::con()->svgs->iconClass( 'shield-check' ),
-				'all_clear_title'         => __( 'All security zones are clear', 'wp-simple-firewall' ),
-				'all_clear_subtitle'      => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
+				'all_clear_icon_class'    => $allClear[ 'icon_class' ],
+				'all_clear_title'         => $allClear[ 'title' ],
+				'all_clear_subtitle'      => $allClear[ 'subtitle' ],
 				'all_clear_message'       => __( 'No security actions currently require your attention.', 'wp-simple-firewall' ),
 				'last_scan_subtext'       => $baseData[ 'last_scan_subtext' ],
 			],
@@ -78,7 +79,7 @@ class NeedsAttentionQueueDataBuilder {
 				'overall_severity' => $baseData[ 'summary' ][ 'severity' ],
 				'total_items'      => $baseData[ 'summary' ][ 'total_items' ],
 				'zone_groups'      => $baseData[ 'zone_groups' ],
-				'zone_chips'       => $this->buildAllClearZoneChips(),
+				'zone_chips'       => $allClear[ 'zone_chips' ],
 			],
 		];
 	}
@@ -169,21 +170,6 @@ class NeedsAttentionQueueDataBuilder {
 			],
 			$items
 		) );
-	}
-
-	private function buildAllClearZoneChips() :array {
-		$chips = [];
-		$zonesData = $this->getZonesData();
-		$chipIconClass = self::con()->svgs->iconClass( 'check-circle-fill' );
-		foreach ( $this->getZoneSlugs() as $zone ) {
-			$chips[] = [
-				'slug'       => $zone,
-				'label'      => $zonesData[ $zone ][ 'label' ],
-				'icon_class' => $chipIconClass,
-				'severity'   => 'good',
-			];
-		}
-		return $chips;
 	}
 
 	private function getZoneSlugs() :array {

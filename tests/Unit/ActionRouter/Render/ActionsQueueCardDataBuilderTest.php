@@ -1,8 +1,17 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueAllClearDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -142,12 +151,17 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			] ),
 			[ $this->scanRow( 'plugin_files_ignored', 'Plugin Files', 'warning', 1 ) ]
 		);
+		$expectedAllClear = ( new ActionsQueueAllClearDataBuilder() )->build( [
+			'scans'       => [ 'label' => 'Scans' ],
+			'maintenance' => [ 'label' => 'Maintenance' ],
+		] );
 
 		$this->assertFalse( $data[ 'summary' ][ 'has_items' ] );
 		$this->assertSame( 0, $data[ 'summary' ][ 'total_items' ] );
 		$this->assertSame( 'good', $data[ 'shield_status' ] );
 		$this->assertSame( [], $data[ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $data[ 'actions_lane' ][ 'indicator_severity' ] );
+		$this->assertSame( $expectedAllClear, $data[ 'all_clear' ] );
 	}
 
 	public function test_build_rows_follow_scan_state_order_and_append_maintenance() :void {

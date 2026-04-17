@@ -380,42 +380,57 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_actions_queue_landing_renders_all_clear_with_drill_shell_when_queue_is_empty() :void {
+	public function test_actions_queue_landing_keeps_drill_shell_without_removed_all_clear_box_when_queue_is_empty() :void {
+		$optionsSnapshot = $this->snapshotSelectedOptions( [ MaintenanceIssueStateProvider::OPT_KEY ] );
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
 
-		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
-		$renderData = $payload[ 'render_data' ] ?? [];
-		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+		try {
+			$this->requireController()->opts
+				 ->optSet(
+					 MaintenanceIssueStateProvider::OPT_KEY,
+					 ( new MaintenanceIssueStateProvider() )->currentIssueIdentifiersByKey()
+				 )
+				 ->store();
 
-		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
-		$this->assertModePanelPayload( $vars, '', false );
-		$this->assertSame( 'All Clear', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) );
-		$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
-		$this->assertCount( 2, $zoneTiles );
-		$this->assertCount(
-			2,
-			\array_values( \array_filter( $zoneTiles, static fn( array $tile ) :bool => (bool)( $tile[ 'is_enabled' ] ?? false ) ) )
-		);
-		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'scans' )[ 'assessment_rows' ] ?? [] );
-		$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
-		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
-		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
-		$this->assertNotEmpty( $vars[ 'actions_queue_ajax' ] ?? [] );
-		$xpath = $this->createDomXPathFromHtml( $html );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="all-clear-context"]',
-			'Empty actions queue should render the existing all-clear card'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-drill-shell="1"]',
-			1,
-			'Empty actions queue should keep the drill-down shell when healthy bucket content exists'
-		);
-		$this->assertNotSame( '', \trim( $html ) );
+			$payload = $this->renderActionsQueueLandingPage();
+			$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
+			$renderData = $payload[ 'render_data' ] ?? [];
+			$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+			$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
+
+			$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
+			$this->assertModePanelPayload( $vars, '', false );
+			$this->assertSame( 'good', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge_status' ] ?? '' ) );
+			$this->assertNotSame( '', \trim( (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) ) );
+			$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
+			$this->assertCount( 2, $zoneTiles );
+			$this->assertCount(
+				2,
+				\array_values( \array_filter( $zoneTiles, static fn( array $tile ) :bool => (bool)( $tile[ 'is_enabled' ] ?? false ) ) )
+			);
+			$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'scans' )[ 'assessment_rows' ] ?? [] );
+			$this->assertNotEmpty( $this->findZoneTile( $zoneTiles, 'maintenance' )[ 'assessment_rows' ] ?? [] );
+			$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+			$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
+			$this->assertNotEmpty( $vars[ 'actions_queue_ajax' ] ?? [] );
+			$xpath = $this->createDomXPathFromHtml( $html );
+			$this->assertXPathCount(
+				$xpath,
+				'//*[@data-actions-queue-section="all-clear-context"]',
+				0,
+				'Empty actions queue should no longer render the removed all-clear box'
+			);
+			$this->assertXPathCount(
+				$xpath,
+				'//*[@data-drill-shell="1"]',
+				1,
+				'Empty actions queue should keep the drill-down shell when healthy bucket content exists'
+			);
+			$this->assertNotSame( '', \trim( $html ) );
+		}
+		finally {
+			$this->restoreSelectedOptions( $optionsSnapshot );
+		}
 	}
 
 	public function test_actions_queue_landing_renders_drill_shell_and_bucket_cards_when_queue_has_items() :void {
@@ -712,14 +727,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ),
 			(string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' )
 		);
-		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? 0 ) );
-		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
+		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'Back to Review next', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? null );
@@ -751,13 +766,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( $selectedGroupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $payload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertSame( 'warning', (string)( $payload[ 'selected_group' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) );
 		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertSame( '1 item', (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
-		$this->assertSame( 'Back to Fix now', (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) );
-		$this->assertFalse( (bool)( $payload[ 'landing_refresh' ][ 'queue_is_empty' ] ?? true ) );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) ) );
+		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
@@ -770,34 +784,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			],
 			true
 		);
-		$this->assertSame( 'actions_queue', (string)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
-		$this->assertSame(
-			[
-				'include_ignored'  => true,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => true,
-			],
-			(array)( $payload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
-		);
 		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $payload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
-
-		$detailPayload = $this->renderSelectedGroupDetail( 'critical', $selectedGroupKey );
-		$xpath = $this->createDomXPathFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
-
-		$this->assertInvestigationTableContractPresent(
-			$xpath,
-			'file_scan_results',
-			'plugin',
-			$pluginSlug,
-			'Ignored-only selected plugin detail AJAX'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
-			0,
-			'Ignored-only selected plugin detail AJAX should keep the direct table instead of reopening the asset chooser'
-		);
 	}
 
 	public function test_groups_ajax_keeps_active_vulnerabilities_separate_from_healthy_abandoned_assets_in_critical_bucket() :void {

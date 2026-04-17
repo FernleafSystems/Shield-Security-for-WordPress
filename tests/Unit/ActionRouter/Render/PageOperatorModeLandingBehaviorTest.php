@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueAllClearDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
@@ -275,6 +276,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			[ 'malware', 'file_locker', 'maintenance' ],
 			\array_column( $renderData[ 'vars' ][ 'actions_queue_rows' ], 'key' )
 		);
+		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
 	}
 
 	public function test_render_data_ignores_plugin_files_ignored_when_it_is_the_only_dashboard_issue() :void {
@@ -287,10 +289,15 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				$this->scanRow( 'plugin_files_ignored', 'Plugin Files', 'warning', 1 ),
 			] )
 		), 'getRenderData' );
+		$expectedAllClear = ( new ActionsQueueAllClearDataBuilder() )->build( [
+			'scans'       => [ 'label' => 'Scans' ],
+			'maintenance' => [ 'label' => 'Maintenance' ],
+		] );
 
 		$this->assertSame( [], $renderData[ 'vars' ][ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertSame( $expectedAllClear, $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
 	}
 
 	private function newPage() :PageOperatorModeLanding {

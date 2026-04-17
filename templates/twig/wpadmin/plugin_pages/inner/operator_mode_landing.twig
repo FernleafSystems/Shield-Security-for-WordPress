@@ -28,7 +28,7 @@
 					</div>
 				</div>
 
-				{% if featured_lane.description is not empty %}
+				{% if featured_lane.description is not empty and vars.actions_all_clear is null %}
 					<p class="operator-mode-landing__featured-desc">{{ featured_lane.description }}</p>
 				{% endif %}
 
@@ -46,6 +46,15 @@
 									<span class="shield-badge {{ badge_class_map[row.severity] }}">{{ row.count }}</span>
 								</div>
 							</div>
+						{% endfor %}
+					</div>
+				{% elseif vars.actions_all_clear is not null %}
+					<p class="operator-mode-landing__featured-desc">{{ vars.actions_all_clear.subtitle }}</p>
+					<div class="shield-needs-attention__chips">
+						{% for chip in vars.actions_all_clear.zone_chips %}
+							<span class="shield-needs-attention__chip is-{{ chip.severity }}">
+								<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
+							</span>
 						{% endfor %}
 					</div>
 				{% endif %}

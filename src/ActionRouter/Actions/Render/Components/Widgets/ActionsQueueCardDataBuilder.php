@@ -37,6 +37,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   subtitle:string,
  *   shield_status:string,
  *   shield_icon_class:string,
+ *   all_clear:array{
+ *     title:string,
+ *     subtitle:string,
+ *     icon_class:string,
+ *     zone_chips:list<array{
+ *       slug:string,
+ *       label:string,
+ *       icon_class:string,
+ *       severity:string
+ *     }>
+ *   },
  *   actions_lane:ActionsQueueCardLane,
  *   actions_queue_rows:list<ActionsQueueCardRow>
  * }
@@ -67,6 +78,7 @@ class ActionsQueueCardDataBuilder {
 			'subtitle'           => $this->buildShieldSubtitle( $queueSummary ),
 			'shield_status'      => $shieldStatus,
 			'shield_icon_class'  => $this->buildShieldIconClass( $shieldStatus ),
+			'all_clear'          => $this->buildAllClearData(),
 			'actions_lane'       => $this->buildActionsLane( $queueSummary, $zoneGroups ),
 			'actions_queue_rows' => $this->buildActionsQueueRows( $scanRows, $zoneGroups ),
 		];
@@ -302,6 +314,32 @@ class ActionsQueueCardDataBuilder {
 		}
 
 		return $label;
+	}
+
+	/**
+	 * @return array{
+	 *   title:string,
+	 *   subtitle:string,
+	 *   icon_class:string,
+	 *   zone_chips:list<array{
+	 *     slug:string,
+	 *     label:string,
+	 *     icon_class:string,
+	 *     severity:string
+	 *   }>
+	 * }
+	 */
+	private function buildAllClearData() :array {
+		$zonesIndexed = \array_map(
+			static fn( string $slug, array $zone ) :array => [
+				'slug'  => $slug,
+				'label' => $zone[ 'label' ],
+			],
+			\array_keys( PluginNavs::actionsLandingZoneDefinitions() ),
+			\array_values( PluginNavs::actionsLandingZoneDefinitions() )
+		);
+
+		return ( new ActionsQueueAllClearDataBuilder() )->build( $zonesIndexed );
 	}
 
 	/**

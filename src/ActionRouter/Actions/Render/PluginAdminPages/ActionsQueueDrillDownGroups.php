@@ -24,11 +24,9 @@ class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
 	 *   header:DrillLayerHeader,
 	 *   selected_group?:GroupSelection,
 	 *   landing_refresh?:array{
-	 *     queue_is_empty:bool,
 	 *     has_drilldown_content:bool,
 	 *     root_step_json:string,
-	 *     buckets_html:string,
-	 *     all_clear_html:string
+	 *     buckets_html:string
 	 *   }
 	 * }
 	 */
@@ -61,17 +59,11 @@ class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
 			'header'           => $groups[ 'header' ],
 		];
 		if ( !empty( $this->action_data[ 'include_landing_refresh' ] ) ) {
-			$landingView = $this->getLandingViewData();
-			$isQueueEmpty = !$landingView[ 'summary' ][ 'has_items' ];
 			$hasDrilldownContent = $this->hasDrilldownContent();
 			$data[ 'landing_refresh' ] = [
-				'queue_is_empty'         => $isQueueEmpty,
 				'has_drilldown_content'  => $hasDrilldownContent,
 				'root_step_json'         => $this->buildActionsQueueOperatorRootStepJson(),
 				'buckets_html'           => $hasDrilldownContent ? $this->renderBucketsLayer() : '',
-				'all_clear_html'         => $isQueueEmpty
-					? $this->renderAllClearCard()
-					: '',
 			];
 		}
 		if ( isset( $renderPayload[ 'selected_group' ] ) ) {

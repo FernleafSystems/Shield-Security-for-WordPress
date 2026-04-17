@@ -53,12 +53,8 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingStrings() :array {
 		$zones = $this->getZonesIndexed();
-		$allClear = $this->getLandingViewData()[ 'all_clear' ];
 
 		return [
-			'all_clear_title'        => $allClear[ 'title' ],
-			'all_clear_subtitle'     => $allClear[ 'subtitle' ],
-			'all_clear_icon_class'   => $allClear[ 'icon_class' ],
 			'zone_scans'             => $zones[ 'scans' ][ 'label' ],
 			'zone_maintenance'       => $zones[ 'maintenance' ][ 'label' ],
 			'pane_loading'           => __( 'Loading scan details...', 'wp-simple-firewall' ),
@@ -83,7 +79,6 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 
 		return \array_merge( parent::getLandingVars(), [
 			'zone_tiles'         => $viewData[ 'zone_tiles' ],
-			'all_clear'          => $viewData[ 'all_clear' ],
 			'actions_queue_ajax' => [
 				'groups_render_action_json' => OperatorChromeContract::encodeJson( $groupsRenderAction ),
 			],

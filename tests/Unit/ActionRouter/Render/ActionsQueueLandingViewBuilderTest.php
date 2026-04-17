@@ -86,7 +86,7 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_maps_summary_tiles_and_all_clear_contract() :void {
+	public function test_build_maps_summary_tiles_and_status_overview_contract() :void {
 		$payload = $this->buildQueuePayload(
 			true,
 			6,
@@ -109,7 +109,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		$zonesIndexed = $view[ 'zones_indexed' ] ?? [];
 		$zoneTiles = $view[ 'zone_tiles' ] ?? [];
 		$statusOverview = $view[ 'status_overview' ] ?? [];
-		$allClear = $view[ 'all_clear' ] ?? [];
 
 		$this->assertSame( true, $view[ 'summary' ][ 'has_items' ] ?? false );
 		$this->assertSame( 6, $view[ 'summary' ][ 'total_items' ] ?? 0 );
@@ -122,11 +121,6 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $zoneTiles, 'key' ) );
 		$this->assertSame( 'Scans', $zonesIndexed[ 'scans' ][ 'label' ] ?? '' );
 		$this->assertSame( 'Maintenance', $zonesIndexed[ 'maintenance' ][ 'label' ] ?? '' );
-
-		$this->assertSame(
-			[ 'scans', 'maintenance' ],
-			\array_column( $allClear[ 'zone_chips' ] ?? [], 'slug' )
-		);
 	}
 
 	public function test_assessment_rows_keep_clear_zones_interactive_without_creating_issue_counts() :void {

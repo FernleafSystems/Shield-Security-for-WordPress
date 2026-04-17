@@ -296,11 +296,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		this.updateOperatorRootStep( landingRefresh.root_step_json || '' );
 
-		this.syncAllClearSection(
-			Boolean( landingRefresh.queue_is_empty ),
-			typeof landingRefresh.all_clear_html === 'string' ? landingRefresh.all_clear_html : ''
-		);
-
 		if ( landingRefresh.has_drilldown_content === false ) {
 			const drilldown = this.rootEl.querySelector( '[data-actions-queue-section="drilldown"]' );
 			if ( drilldown !== null ) {
@@ -323,35 +318,6 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 
 		return false;
-	}
-
-	syncAllClearSection( shouldShow, html ) {
-		if ( this.rootEl === null ) {
-			return;
-		}
-
-		const existing = this.rootEl.querySelector( '[data-actions-queue-section="all-clear-context"]' );
-		if ( !shouldShow ) {
-			existing?.remove();
-			return;
-		}
-
-		if ( html.length < 1 ) {
-			return;
-		}
-
-		if ( existing !== null ) {
-			existing.outerHTML = html;
-			return;
-		}
-
-		const drilldown = this.rootEl.querySelector( '[data-actions-queue-section="drilldown"]' );
-		if ( drilldown !== null ) {
-			drilldown.insertAdjacentHTML( 'beforebegin', html );
-			return;
-		}
-
-		this.rootEl.insertAdjacentHTML( 'beforeend', html );
 	}
 
 	handleRetryClick( item ) {
