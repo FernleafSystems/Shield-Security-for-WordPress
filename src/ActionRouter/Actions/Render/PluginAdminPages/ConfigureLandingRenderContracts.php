@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 /**
- * @phpstan-import-type ConfigureComponentContract from ConfigureZoneTilesBuilder
+ * @phpstan-import-type ConfigureRowContract from ConfigureZoneTilesBuilder
  * @phpstan-import-type DetailActionData from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
@@ -25,7 +25,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *     title:string,
  *     status:string,
  *     status_label:string,
- *     components:list<ConfigureComponentContract>,
+ *     rows:list<ConfigureRowContract>,
  *     detail_groups:list<DetailGroup>
  *   }
  * }

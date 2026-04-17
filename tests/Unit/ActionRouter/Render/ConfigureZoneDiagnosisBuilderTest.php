@@ -58,7 +58,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_mixed_issue_zone_uses_issue_rows_for_findings_and_guidance() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'users', 'Users', 'warning', 'Needs Work', '1 component needs work', [
+			$this->buildZoneTile( 'users', 'Users', 'warning', 'Needs Work', '1 group needs work', [
 				[
 					'status' => 'critical',
 					'rows'   => [
@@ -127,7 +127,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_all_good_zone_enters_review_state_without_findings() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'firewall', 'Firewall', 'good', 'Good', 'All components healthy', [
+			$this->buildZoneTile( 'firewall', 'Firewall', 'good', 'Good', 'All groups healthy', [
 				[
 					'status' => 'good',
 					'rows'   => [
@@ -150,7 +150,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_login_preview_does_not_use_hide_login_warning_text() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 component needs work', [
+			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 group needs work', [
 				[
 					'status' => 'warning',
 					'rows'   => [
@@ -210,7 +210,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_empty_review_state_exposes_producer_owned_fallback_review_row() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'firewall', 'Firewall', 'good', 'Good', 'All components healthy', [] )
+			$this->buildZoneTile( 'firewall', 'Firewall', 'good', 'Good', 'All groups healthy', [] )
 		);
 
 		$this->assertSame( [], $diagnosis[ 'problem_rows' ] );
@@ -221,7 +221,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 			[
 				'key'               => 'review_fallback',
 				'title'             => 'Good',
-				'summary'           => 'All components healthy',
+				'summary'           => 'All groups healthy',
 				'status'            => 'neutral',
 				'status_label'      => 'Review',
 				'status_icon_class' => 'bi bi-info-circle-fill',
@@ -243,7 +243,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->expectExceptionMessage( 'producer-owned row key' );
 
 		( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 component needs work', [
+			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 group needs work', [
 				[
 					'status' => 'warning',
 					'rows'   => [
@@ -259,7 +259,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_fallback_summary_prefers_explanation_then_title() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical component', [
+			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical group', [
 				[
 					'status' => 'critical',
 					'rows'   => [
@@ -281,7 +281,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 
 	public function test_secadmin_header_includes_disable_action_when_enabled() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical component', [] )
+			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
 		);
 
 		$this->assertCount( 1, $diagnosis[ 'header' ][ 'actions' ] );
@@ -293,7 +293,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->secAdminController->enabled = false;
 
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
-			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical component', [] )
+			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical group', [] )
 		);
 
 		$this->assertSame( [], $diagnosis[ 'header' ][ 'actions' ] );
@@ -320,7 +320,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 				'title'         => $label,
 				'status'        => $status,
 				'status_label'  => $statusLabel,
-				'components'    => [],
+				'rows'          => [],
 				'detail_groups' => $detailGroups,
 			],
 		];

@@ -45,7 +45,7 @@ class ConfigureRowKeyTest extends BaseUnitTest {
 		};
 
 		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'stable non-empty component scope slug' );
+		$this->expectExceptionMessage( 'stable non-empty row scope slug' );
 		$component->configureRowKey();
 	}
 }

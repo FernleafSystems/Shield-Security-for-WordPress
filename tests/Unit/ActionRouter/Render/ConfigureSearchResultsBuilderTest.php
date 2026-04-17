@@ -116,6 +116,34 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'section'         => 'section_apixml',
 				'zone_comp_slugs' => [ 'xml_rpc_component' ],
 			],
+			'frequency_alert' => [
+				'section'         => 'section_reporting',
+				'name'            => 'Alert Reporting Frequency',
+				'summary'         => 'How often alert reports are sent',
+				'description'     => [ 'Configure how frequently alert reports are delivered.' ],
+				'zone_comp_slugs' => [ 'reporting', 'instant_alerts' ],
+			],
+			'instant_alert_admins' => [
+				'section'         => 'section_alerts',
+				'name'            => 'Instant Alerts For Admins',
+				'summary'         => 'Send immediate alerts to admins',
+				'description'     => [ 'Choose which admin alerts should be sent instantly.' ],
+				'zone_comp_slugs' => [ 'instant_alerts', 'reporting' ],
+			],
+			'enable_email_authentication' => [
+				'section'         => 'section_2fa_email',
+				'name'            => 'Email Authentication',
+				'summary'         => 'Use email-based login verification',
+				'description'     => [ 'Require email authentication during login.' ],
+				'zone_comp_slugs' => [ 'two_factor_auth', 'module_login' ],
+			],
+			'enable_passkeys' => [
+				'section'         => 'section_2fa_passkeys',
+				'name'            => 'Passkeys',
+				'summary'         => 'Enable passkey login verification',
+				'description'     => [ 'Allow passkeys as part of login verification.' ],
+				'zone_comp_slugs' => [ 'two_factor_auth', 'module_login' ],
+			],
 		];
 		$this->landingViewData = $this->landingViewDataFixture();
 
@@ -269,6 +297,80 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_reports_and_alert_option_queries_route_to_scoped_rows() :void {
+		$reportResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'alert reporting frequency' ),
+			'frequency_alert'
+		);
+		$alertResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'instant admins alert' ),
+			'instant_alert_admins'
+		);
+
+		$this->assertNotNull( $reportResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'reporting',
+				'config_item' => 'frequency_alert',
+			],
+			\json_decode( (string)( $reportResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=reports_alerts&row_key=reporting&config_item=frequency_alert',
+			$reportResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $alertResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'instant_alerts',
+				'config_item' => 'instant_alert_admins',
+			],
+			\json_decode( (string)( $alertResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=reports_alerts&row_key=instant_alerts&config_item=instant_alert_admins',
+			$alertResult[ 'href' ] ?? ''
+		);
+	}
+
+	public function test_two_factor_option_queries_route_to_split_rows() :void {
+		$emailResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'email authentication verification' ),
+			'enable_email_authentication'
+		);
+		$passkeyResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'passkeys verification' ),
+			'enable_passkeys'
+		);
+
+		$this->assertNotNull( $emailResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'two_factor_email',
+				'config_item' => 'enable_email_authentication',
+			],
+			\json_decode( (string)( $emailResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=login&row_key=two_factor_email&config_item=enable_email_authentication',
+			$emailResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $passkeyResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'two_factor_otp_passkeys',
+				'config_item' => 'enable_passkeys',
+			],
+			\json_decode( (string)( $passkeyResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=login&row_key=two_factor_otp_passkeys&config_item=enable_passkeys',
+			$passkeyResult[ 'href' ] ?? ''
+		);
+	}
+
 	private function newBuilder() :ConfigureSearchResultsBuilder {
 		return new ConfigureSearchResultsBuilder(
 			new class( $this->landingViewData ) extends ConfigureLandingViewBuilder {
@@ -296,6 +398,12 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				],
 				'security' => [
 					'summary' => 'Stable security summary.',
+				],
+				'reports_alerts' => [
+					'summary' => 'Stable reports and alerts summary.',
+				],
+				'login' => [
+					'summary' => 'Stable login summary.',
 				],
 			],
 			'diagnoses' => [
@@ -429,6 +537,117 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 					],
 					'healthy_rows'  => [],
 				],
+				'reports_alerts' => [
+					'zone_key'      => 'reports_alerts',
+					'zone_label'    => 'Reports & Alerts',
+					'zone_icon_class' => 'bi bi-bell-fill',
+					'zone_selection_json' => \json_encode( [
+						'key'        => 'reports_alerts',
+						'label'      => 'Reports & Alerts',
+						'status'     => 'neutral',
+						'icon_class' => 'bi bi-bell-fill',
+						'header'     => [
+							'title' => 'Reports & Alerts',
+						],
+					], JSON_THROW_ON_ERROR ),
+					'preview_text'  => 'Review reporting and alert delivery settings.',
+					'risk_context'  => 'Reports and alerts keep operators informed about plugin activity.',
+					'problem_rows'  => [],
+					'review_rows'   => [
+						[
+							'key'           => 'reporting',
+							'title'         => 'Reports',
+							'summary'       => 'Configure report delivery settings.',
+							'explanations'  => [ 'Control scheduled reporting frequency.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-reports_alerts-reporting',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'reporting',
+									'option_keys'         => 'frequency_alert',
+								],
+							],
+						],
+						[
+							'key'           => 'instant_alerts',
+							'title'         => 'Instant Alerts',
+							'summary'       => 'Configure immediate alert delivery.',
+							'explanations'  => [ 'Send high-signal alerts to admins right away.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-reports_alerts-instant_alerts',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'instant_alerts',
+									'option_keys'         => 'instant_alert_admins',
+								],
+							],
+						],
+					],
+					'healthy_rows'  => [],
+				],
+				'login' => [
+					'zone_key'      => 'login',
+					'zone_label'    => 'Login',
+					'zone_icon_class' => 'bi bi-person-lock',
+					'zone_selection_json' => \json_encode( [
+						'key'        => 'login',
+						'label'      => 'Login',
+						'status'     => 'warning',
+						'icon_class' => 'bi bi-person-lock',
+						'header'     => [
+							'title' => 'Login',
+						],
+					], JSON_THROW_ON_ERROR ),
+					'preview_text'  => 'Review login verification settings.',
+					'risk_context'  => 'Login settings protect authentication flows.',
+					'problem_rows'  => [
+						[
+							'key'           => 'two_factor_general',
+							'title'         => '2FA General Settings',
+							'summary'       => 'Review core two-factor settings.',
+							'explanations'  => [ 'Require strong two-factor coverage.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-login-two_factor_general',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'two_factor_auth',
+									'option_keys'         => 'mfa_verify_page,allow_backupcodes',
+								],
+							],
+						],
+					],
+					'review_rows'   => [
+						[
+							'key'           => 'two_factor_email',
+							'title'         => 'Email Authentication',
+							'summary'       => 'Configure email-based login verification.',
+							'explanations'  => [ 'Use email authentication where it fits your login flow.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-login-two_factor_email',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'two_factor_auth',
+									'option_keys'         => 'enable_email_authentication',
+								],
+							],
+						],
+						[
+							'key'           => 'two_factor_otp_passkeys',
+							'title'         => 'OTP & Passkeys',
+							'summary'       => 'Configure authenticator apps and passkeys.',
+							'explanations'  => [ 'Passkeys and OTP apps strengthen login verification.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-login-two_factor_otp_passkeys',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'two_factor_auth',
+									'option_keys'         => 'enable_passkeys',
+								],
+							],
+						],
+					],
+					'healthy_rows'  => [],
+				],
 			],
 		];
 	}
@@ -436,7 +655,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new UnitTestPluginUrls();
+		$controller->plugin_urls = new class extends UnitTestPluginUrls {
+			public function cfgForZoneComponent( string $slug ) :string {
+				return '/admin/config/'.$slug;
+			}
+		};
 		$controller->labels = new class {
 			public string $Name = 'Shield';
 
@@ -455,11 +678,27 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'sections' => [],
 			],
 		];
+		$controller->comps = (object)[
+			'license'     => new class {
+				public function hasValidWorkingLicense() :bool {
+					return false;
+				}
+			},
+			'opts_lookup' => new class {
+				public function getReportEmail() :string {
+					return 'reports@example.com';
+				}
+			},
+		];
 		$controller->opts = new class( $this->optionDefs ) {
 			private array $optionDefs;
 
 			public function __construct( array $optionDefs ) {
 				$this->optionDefs = $optionDefs;
+			}
+
+			public function optGet( string $key ) {
+				return null;
 			}
 
 			public function optDef( string $key ) :array {

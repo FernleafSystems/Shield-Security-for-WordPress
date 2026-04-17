@@ -128,9 +128,9 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'critical',
 				'Critical',
 				'Protect plugin and core admin settings with an extra admin security layer.',
-				'1 critical component',
+				'1 critical group',
 				[
-					$this->buildZoneComponentFixture(
+					$this->buildZoneRowFixture(
 						'PIN Protection',
 						'critical',
 						'Issue',
@@ -145,9 +145,9 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'good',
 				'Good',
 				'Stabilized firewall summary.',
-				'All components healthy',
+				'All groups healthy',
 				[
-					$this->buildZoneComponentFixture(
+					$this->buildZoneRowFixture(
 						'WAF Rules',
 						'good',
 						'Active',
@@ -161,9 +161,9 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'warning',
 				'Needs Work',
 				'Stabilized login summary.',
-				'1 component needs work',
+				'1 group needs work',
 				[
-					$this->buildZoneComponentFixture(
+					$this->buildZoneRowFixture(
 						'2FA',
 						'warning',
 						'Needs Work',
@@ -180,7 +180,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'Stabilized general summary.',
 				'General settings',
 				[
-					$this->buildZoneComponentFixture(
+					$this->buildZoneRowFixture(
 						'Traffic Logging',
 						'neutral',
 						'General',
@@ -199,7 +199,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		string $statusLabel,
 		string $summary,
 		string $statLine,
-		array $components,
+		array $rows,
 		bool $includeInPosture = true
 	) :array {
 		return [
@@ -219,12 +219,12 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'title'        => $label,
 				'status'       => $status,
 				'status_label' => $statusLabel,
-				'components'   => $components,
+				'rows'         => $rows,
 			],
 		];
 	}
 
-	private function buildZoneComponentFixture(
+	private function buildZoneRowFixture(
 		string $title,
 		string $status,
 		string $statusLabel,

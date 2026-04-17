@@ -77,6 +77,39 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		) );
 	}
 
+	/**
+	 * @return list<array{
+	 *   key:string,
+	 *   title:string,
+	 *   enabled_status:string,
+	 *   note:string,
+	 *   explanations:list<string>,
+	 *   config_scope:array{
+	 *     zone_component_slugs:list<string>,
+	 *     option_keys:list<string>,
+	 *     config_item:string,
+	 *     title:string
+	 *   }
+	 * }>
+	 */
+	public function configureRows() :array {
+		return [
+			$this->buildConfigureRowInput(
+				$this->configureRowKey(),
+				$this->title(),
+				$this->enabledStatus(),
+				$this->configureRowNote(),
+				$this->explanation(),
+				[
+					'zone_component_slugs' => $this->configZoneComponentSlugs(),
+					'option_keys'          => $this->getOptions(),
+					'config_item'          => $this->configItem(),
+					'title'                => $this->configureActionTitle(),
+				]
+			),
+		];
+	}
+
 	public function configureRowKey() :string {
 		foreach ( $this->configZoneComponentSlugs() as $slug ) {
 			$key = sanitize_key( \is_string( $slug ) ? \trim( $slug ) : '' );
@@ -85,7 +118,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 			}
 		}
 
-		throw new \LogicException( 'Configure component rows require a stable non-empty component scope slug.' );
+		throw new \LogicException( 'Configure rows require a stable non-empty row scope slug.' );
 	}
 
 	public function getLinks() :array {
@@ -128,6 +161,20 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return \count( $this->getOptions() ) > 0;
 	}
 
+	protected function configureRowNote() :string {
+		$subtitle = \trim( $this->subtitle() );
+		if ( $subtitle !== '' ) {
+			return $subtitle;
+		}
+
+		$firstExplanation = \trim( (string)( $this->explanation()[ 0 ] ?? '' ) );
+		return $firstExplanation;
+	}
+
+	protected function configureActionTitle() :string {
+		return __( 'Edit Settings', 'wp-simple-firewall' );
+	}
+
 	/**
 	 * @return list<string>
 	 */
@@ -141,6 +188,104 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 	protected function configItem() :string {
 		return '';
+	}
+
+	/**
+	 * @param list<string> $sections
+	 * @return list<string>
+	 */
+	protected function configureRowOptionsForSections( array $sections ) :array {
+		$sections = \array_values( \array_filter( \array_map(
+			static fn( $section ) :string => \trim( (string)$section ),
+			$sections
+		) ) );
+		if ( empty( $sections ) ) {
+			return [];
+		}
+
+		return \array_values( \array_filter(
+			$this->getOptions(),
+			static fn( string $optionKey ) :bool => \in_array(
+				(string)( self::con()->cfg->configuration->options[ $optionKey ][ 'section' ] ?? '' ),
+				$sections,
+				true
+			)
+		) );
+	}
+
+	/**
+	 * @param list<string> $zoneComponentSlugs
+	 * @param list<string> $optionKeys
+	 * @return array{
+	 *   zone_component_slugs:list<string>,
+	 *   option_keys:list<string>,
+	 *   config_item:string,
+	 *   title:string
+	 * }
+	 */
+	protected function buildConfigureRowScope(
+		array $zoneComponentSlugs,
+		array $optionKeys,
+		string $configItem = '',
+		string $title = ''
+	) :array {
+		$zoneComponentSlugs = \array_values( \array_filter( \array_map(
+			static fn( $slug ) :string => \trim( (string)$slug ),
+			$zoneComponentSlugs
+		) ) );
+		$optionKeys = \array_values( \array_filter( \array_map(
+			static fn( $optionKey ) :string => \trim( (string)$optionKey ),
+			$optionKeys
+		) ) );
+
+		return [
+			'zone_component_slugs' => $zoneComponentSlugs,
+			'option_keys'          => $optionKeys,
+			'config_item'          => \trim( $configItem ),
+			'title'                => \trim( $title ),
+		];
+	}
+
+	/**
+	 * @param list<string> $explanations
+	 * @return array{
+	 *   key:string,
+	 *   title:string,
+	 *   enabled_status:string,
+	 *   note:string,
+	 *   explanations:list<string>,
+	 *   config_scope:array{
+	 *     zone_component_slugs:list<string>,
+	 *     option_keys:list<string>,
+	 *     config_item:string,
+	 *     title:string
+	 *   }
+	 * }
+	 */
+	protected function buildConfigureRowInput(
+		string $key,
+		string $title,
+		string $enabledStatus,
+		string $note,
+		array $explanations,
+		array $configScope
+	) :array {
+		$key = sanitize_key( $key );
+		if ( $key === '' ) {
+			throw new \LogicException( 'Configure rows require a stable non-empty producer-owned key.' );
+		}
+
+		return [
+			'key'            => $key,
+			'title'          => \trim( $title ),
+			'enabled_status' => \trim( $enabledStatus ),
+			'note'           => \trim( $note ),
+			'explanations'   => \array_values( \array_filter( \array_map(
+				static fn( $line ) :string => \trim( (string)$line ),
+				$explanations
+			) ) ),
+			'config_scope'   => $configScope,
+		];
 	}
 
 	/**

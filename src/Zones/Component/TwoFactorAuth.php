@@ -14,6 +14,50 @@ class TwoFactorAuth extends Base {
 		return __( "It's best practice to protect user access with at least one 2FA method.", 'wp-simple-firewall' );
 	}
 
+	public function configureRows() :array {
+		return [
+			$this->buildConfigureRowInput(
+				'two_factor_general',
+				__( '2FA General Settings', 'wp-simple-firewall' ),
+				$this->enabledStatus(),
+				__( 'Configure the core login-verification flow and backup access behaviour.', 'wp-simple-firewall' ),
+				$this->explanation(),
+				$this->buildConfigureRowScope(
+					$this->configZoneComponentSlugs(),
+					$this->configureRowOptionsForSections( [ 'section_twofactor_auth' ] ),
+					'',
+					__( 'Edit 2FA general settings', 'wp-simple-firewall' )
+				)
+			),
+			$this->buildConfigureRowInput(
+				'two_factor_email',
+				__( 'Email Authentication', 'wp-simple-firewall' ),
+				EnumEnabledStatus::NEUTRAL,
+				__( 'Configure email-based verification and role enforcement.', 'wp-simple-firewall' ),
+				[],
+				$this->buildConfigureRowScope(
+					$this->configZoneComponentSlugs(),
+					$this->configureRowOptionsForSections( [ 'section_2fa_email' ] ),
+					'',
+					__( 'Edit email authentication settings', 'wp-simple-firewall' )
+				)
+			),
+			$this->buildConfigureRowInput(
+				'two_factor_otp_passkeys',
+				__( 'OTP & Passkeys', 'wp-simple-firewall' ),
+				EnumEnabledStatus::NEUTRAL,
+				__( 'Configure authenticator apps, Yubikey OTP, and passkey support.', 'wp-simple-firewall' ),
+				[],
+				$this->buildConfigureRowScope(
+					$this->configZoneComponentSlugs(),
+					$this->configureRowOptionsForSections( [ 'section_2fa_otp', 'section_2fa_passkeys' ] ),
+					'',
+					__( 'Edit OTP and passkey settings', 'wp-simple-firewall' )
+				)
+			),
+		];
+	}
+
 	protected function tooltip() :string {
 		return __( 'Edit settings for the most common 2FA factors', 'wp-simple-firewall' );
 	}

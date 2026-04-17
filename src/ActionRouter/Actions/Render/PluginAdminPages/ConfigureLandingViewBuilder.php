@@ -80,7 +80,7 @@ class ConfigureLandingViewBuilder {
 	 */
 	private function attachDetailGroups( array $zoneTile ) :array {
 		$zoneTile[ 'panel' ][ 'detail_groups' ] = $this->detailGroupsBuilder->buildForConfigure(
-			\array_values( $zoneTile[ 'panel' ][ 'components' ] ?? [] )
+			\array_values( $zoneTile[ 'panel' ][ 'rows' ] ?? [] )
 		);
 		return $zoneTile;
 	}

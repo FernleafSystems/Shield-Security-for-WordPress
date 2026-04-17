@@ -24,7 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   force_neutral?:bool,
  *   stat_line?:string
  * }
- * @phpstan-type ConfigureComponentContract array{
+ * @phpstan-type ConfigureRowContract array{
  *   key:string,
  *   title:string,
  *   status:string,
@@ -51,7 +51,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *     title:string,
  *     status:string,
  *     status_label:string,
- *     components:list<ConfigureComponentContract>
+ *     rows:list<ConfigureRowContract>
  *   }
  * }
  */
@@ -87,8 +87,8 @@ class ConfigureZoneTilesBuilder {
 		$forceNeutral = !empty( $definition[ 'force_neutral' ] );
 		$zone = $this->zoneForDefinition( $definition );
 		$visibleComponents = $this->componentsForDefinition( $definition, $zone );
-		$components = $this->buildComponentContracts( $zone, $visibleComponents, $forceNeutral );
-		$status = $forceNeutral ? 'neutral' : $this->aggregateTileStatus( $components );
+		$rows = $this->buildRowContracts( $zone, $visibleComponents, $forceNeutral );
+		$status = $forceNeutral ? 'neutral' : $this->aggregateTileStatus( $rows );
 		$includeInPosture = !\array_key_exists( 'include_in_posture', $definition )
 			|| (bool)$definition[ 'include_in_posture' ];
 
@@ -106,12 +106,12 @@ class ConfigureZoneTilesBuilder {
 			'status_icon_class' => $this->tileStatusIconClass( $status ),
 			'stat_line'         => $forceNeutral
 				? $this->forcedNeutralStatLine( $definition )
-				: $this->buildTileStatLine( $components ),
+				: $this->buildTileStatLine( $rows ),
 			'panel'             => [
 				'title'        => $definition[ 'label' ],
 				'status'       => $status,
 				'status_label' => $this->tileStatusLabel( $status ),
-				'components'   => $components,
+				'rows'         => $rows,
 			],
 		];
 	}
@@ -140,57 +140,80 @@ class ConfigureZoneTilesBuilder {
 
 	/**
 	 * @param list<Component\Base> $visibleComponents
-	 * @return list<ConfigureComponentContract>
+	 * @return list<ConfigureRowContract>
 	 */
-	private function buildComponentContracts( ?Zone\Base $zone, array $visibleComponents, bool $forceNeutral ) :array {
-		$components = \array_map(
-			fn( Component\Base $component ) :array => $this->buildSingleComponentContract( $component, $forceNeutral ),
-			$visibleComponents
-		);
-
-		if ( !$forceNeutral ) {
-			$generalSettings = $this->buildGeneralSettingsComponentContract( $zone, $visibleComponents );
-			if ( $generalSettings !== [] ) {
-				$components[] = $generalSettings;
+	private function buildRowContracts( ?Zone\Base $zone, array $visibleComponents, bool $forceNeutral ) :array {
+		$rowInputs = [];
+		foreach ( $visibleComponents as $component ) {
+			foreach ( $component->configureRows() as $rowInput ) {
+				$rowInputs[] = $rowInput;
 			}
 		}
 
-		$this->assertValidUniqueComponentKeys( $components );
-		return $components;
+		$rows = \array_map(
+			fn( array $rowInput ) :array => $this->buildSingleRowContract( $rowInput, $forceNeutral ),
+			$rowInputs
+		);
+
+		if ( !$forceNeutral ) {
+			$generalSettings = $this->buildGeneralSettingsRowContract( $zone, $rows );
+			if ( $generalSettings !== [] ) {
+				$rows[] = $generalSettings;
+			}
+		}
+
+		$this->assertValidUniqueRowKeys( $rows );
+		return $rows;
 	}
 
 	/**
-	 * @return ConfigureComponentContract
+	 * @param array{
+	 *   key:string,
+	 *   title:string,
+	 *   enabled_status:string,
+	 *   note:string,
+	 *   explanations:list<string>,
+	 *   config_scope:array{
+	 *     zone_component_slugs:list<string>,
+	 *     option_keys:list<string>,
+	 *     config_item:string,
+	 *     title:string
+	 *   }
+	 * } $rowInput
+	 * @return ConfigureRowContract
 	 */
-	private function buildSingleComponentContract( Component\Base $component, bool $forceNeutral = false ) :array {
-		$status = $forceNeutral ? 'neutral' : $this->componentStatusToConfigureStatus( $component->enabledStatus() );
+	private function buildSingleRowContract( array $rowInput, bool $forceNeutral = false ) :array {
+		$status = $forceNeutral ? 'neutral' : $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
 		$explanations = \array_values( \array_filter(
 			\array_map(
-				fn( $expl ) :string => \trim( (string)$expl ),
-				$component->explanation()
+				static fn( $expl ) :string => \trim( (string)$expl ),
+				$rowInput[ 'explanations' ]
 			),
-			fn( string $expl ) :bool => $expl !== ''
+			static fn( string $expl ) :bool => $expl !== ''
 		) );
-		$configAction = $this->normalizeActionContract( $component->getActions()[ 'config' ] ?? null );
+		$configAction = $this->buildConfigActionForScope( $rowInput[ 'config_scope' ] );
 
 		return [
-			'key'               => $component->configureRowKey(),
-			'title'             => $component->title(),
+			'key'               => $rowInput[ 'key' ],
+			'title'             => $rowInput[ 'title' ],
 			'status'            => $status,
 			'status_label'      => $this->componentStatusLabel( $status ),
 			'status_icon_class' => $this->componentStatusIconClass( $status ),
-			'note'              => $this->componentNote( $component ),
+			'note'              => $rowInput[ 'note' ],
 			'explanations'      => $explanations,
 			'config_action'     => $configAction,
 		];
 	}
 
 	/**
-	 * @param list<Component\Base> $visibleComponents
-	 * @return array{}|ConfigureComponentContract
+	 * @param list<ConfigureRowContract> $rows
+	 * @return array{}|ConfigureRowContract
 	 */
-	private function buildGeneralSettingsComponentContract( ?Zone\Base $zone, array $visibleComponents ) :array {
-		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve( $zone, $visibleComponents );
+	private function buildGeneralSettingsRowContract( ?Zone\Base $zone, array $rows ) :array {
+		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve(
+			$zone,
+			$this->extractCoveredOptionKeysFromRows( $rows )
+		);
 		if ( empty( $scope ) ) {
 			return [];
 		}
@@ -203,30 +226,49 @@ class ConfigureZoneTilesBuilder {
 			'status_icon_class' => $this->componentStatusIconClass( 'neutral' ),
 			'note'              => __( 'Additional settings in this zone that are not covered by a dedicated callout.', 'wp-simple-firewall' ),
 			'explanations'      => [],
-			'config_action'     => $this->normalizeActionContract( [
-				'title' => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'icon'  => self::con()->svgs->iconClass( 'gear' ),
-				'data'  => [
-					'zone_component_action' => ZoneComponentConfig::SLUG,
-					'zone_component_slug'   => \implode( ',', $scope[ 'zone_component_slugs' ] ),
-					'option_keys'           => \implode( ',', $scope[ 'option_keys' ] ),
-				],
+			'config_action'     => $this->buildConfigActionForScope( [
+				'zone_component_slugs' => $scope[ 'zone_component_slugs' ],
+				'option_keys'          => $scope[ 'option_keys' ],
+				'config_item'          => '',
+				'title'                => __( 'Edit Settings', 'wp-simple-firewall' ),
 			] ),
 		];
 	}
 
 	/**
-	 * @param list<ConfigureComponentContract> $components
+	 * @param list<ConfigureRowContract> $rows
+	 * @return list<string>
 	 */
-	private function assertValidUniqueComponentKeys( array $components ) :void {
+	private function extractCoveredOptionKeysFromRows( array $rows ) :array {
+		$coveredOptionKeys = [];
+		foreach ( $rows as $row ) {
+			$optionKeys = (string)( $row[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? '' );
+			if ( $optionKeys === '' ) {
+				continue;
+			}
+			foreach ( \explode( ',', $optionKeys ) as $optionKey ) {
+				$optionKey = \trim( $optionKey );
+				if ( $optionKey !== '' ) {
+					$coveredOptionKeys[] = $optionKey;
+				}
+			}
+		}
+
+		return \array_values( \array_unique( $coveredOptionKeys ) );
+	}
+
+	/**
+	 * @param list<ConfigureRowContract> $rows
+	 */
+	private function assertValidUniqueRowKeys( array $rows ) :void {
 		$seenKeys = [];
-		foreach ( $components as $component ) {
-			$key = (string)( $component[ 'key' ] ?? '' );
+		foreach ( $rows as $row ) {
+			$key = (string)( $row[ 'key' ] ?? '' );
 			if ( $key === '' ) {
-				throw new \LogicException( 'Configure component rows require a stable non-empty row key.' );
+				throw new \LogicException( 'Configure rows require a stable non-empty row key.' );
 			}
 			if ( isset( $seenKeys[ $key ] ) ) {
-				throw new \LogicException( 'Configure component row keys must be unique within a zone: '.$key );
+				throw new \LogicException( 'Configure row keys must be unique within a zone: '.$key );
 			}
 			$seenKeys[ $key ] = true;
 		}
@@ -236,58 +278,56 @@ class ConfigureZoneTilesBuilder {
 		return $this->standardStatusIconClass( $status, 'exclamation-triangle-fill' );
 	}
 
-	private function componentNote( Component\Base $component ) :string {
-		$subtitle = \trim( $component->subtitle() );
-		if ( $subtitle !== '' ) {
-			return $subtitle;
-		}
-		$explanations = $component->explanation();
-		$first = \is_array( $explanations ) ? \trim( (string)\current( $explanations ) ) : '';
-		return $first;
+	/**
+	 * @param list<array{title:string,status:string,status_label:string,note:string}> $rows
+	 */
+	private function aggregateTileStatus( array $rows ) :string {
+		return StatusPriority::highest( \array_column( $rows, 'status' ), 'good' );
 	}
 
 	/**
-	 * @param list<array{title:string,status:string,status_label:string,note:string}> $components
+	 * @param list<array{title:string,status:string,status_label:string,note:string}> $rows
 	 */
-	private function aggregateTileStatus( array $components ) :string {
-		return StatusPriority::highest( \array_column( $components, 'status' ), 'good' );
-	}
-
-	/**
-	 * @param list<array{title:string,status:string,status_label:string,note:string}> $components
-	 */
-	private function buildTileStatLine( array $components ) :string {
+	private function buildTileStatLine( array $rows ) :string {
 		$criticalCount = 0;
 		$warningCount = 0;
-		foreach ( $components as $component ) {
-			if ( $component[ 'status' ] === 'critical' ) {
+		foreach ( $rows as $row ) {
+			if ( $row[ 'status' ] === 'critical' ) {
 				$criticalCount++;
 			}
-			elseif ( $component[ 'status' ] === 'warning' ) {
+			elseif ( $row[ 'status' ] === 'warning' ) {
 				$warningCount++;
 			}
 		}
 
 		if ( $criticalCount > 0 && $warningCount > 0 ) {
-			return sprintf(
-				__( '%1$s critical, %2$s need work', 'wp-simple-firewall' ),
-				$criticalCount,
+			$criticalText = sprintf(
+				_n( '%s critical group', '%s critical groups', $criticalCount, 'wp-simple-firewall' ),
+				$criticalCount
+			);
+			$warningText = sprintf(
+				_n( '%s group needs work', '%s groups need work', $warningCount, 'wp-simple-firewall' ),
 				$warningCount
+			);
+			return sprintf(
+				__( '%1$s, %2$s', 'wp-simple-firewall' ),
+				$criticalText,
+				$warningText
 			);
 		}
 		if ( $criticalCount > 0 ) {
 			return sprintf(
-				_n( '%s critical component', '%s critical components', $criticalCount, 'wp-simple-firewall' ),
+				_n( '%s critical group', '%s critical groups', $criticalCount, 'wp-simple-firewall' ),
 				$criticalCount
 			);
 		}
 		if ( $warningCount > 0 ) {
 			return sprintf(
-				_n( '%s component needs work', '%s components need work', $warningCount, 'wp-simple-firewall' ),
+				_n( '%s group needs work', '%s groups need work', $warningCount, 'wp-simple-firewall' ),
 				$warningCount
 			);
 		}
-		return __( 'All components healthy', 'wp-simple-firewall' );
+		return __( 'All groups healthy', 'wp-simple-firewall' );
 	}
 
 	private function tileStatusLabel( string $status ) :string {
@@ -328,6 +368,38 @@ class ConfigureZoneTilesBuilder {
 		}
 
 		return EnumEnabledStatus::toSeverity( $componentStatus, 'good' );
+	}
+
+	/**
+	 * @param array{
+	 *   zone_component_slugs:list<string>,
+	 *   option_keys:list<string>,
+	 *   config_item:string,
+	 *   title:string
+	 * } $scope
+	 * @return array<string,mixed>
+	 */
+	private function buildConfigActionForScope( array $scope ) :array {
+		if ( empty( $scope[ 'zone_component_slugs' ] ) ) {
+			return [];
+		}
+
+		$data = [
+			'zone_component_action' => ZoneComponentConfig::SLUG,
+			'zone_component_slug'   => \implode( ',', $scope[ 'zone_component_slugs' ] ),
+		];
+		if ( !empty( $scope[ 'option_keys' ] ) ) {
+			$data[ 'option_keys' ] = \implode( ',', $scope[ 'option_keys' ] );
+		}
+		if ( !empty( $scope[ 'config_item' ] ) ) {
+			$data[ 'config_item' ] = $scope[ 'config_item' ];
+		}
+
+		return $this->normalizeActionContract( [
+			'title' => $scope[ 'title' ] ?: __( 'Edit Settings', 'wp-simple-firewall' ),
+			'icon'  => self::con()->svgs->iconClass( 'gear' ),
+			'data'  => $data,
+		] );
 	}
 
 	/**

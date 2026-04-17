@@ -32,9 +32,7 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 
 		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve(
 			$this->newZone( [ 'module_secadmin' ] ),
-			[
-				$this->newComponent( [ 'pin_toggle' ] ),
-			]
+			[ 'pin_toggle' ]
 		);
 
 		$this->assertSame( [ 'module_secadmin' ], $scope[ 'zone_component_slugs' ] ?? [] );
@@ -49,21 +47,15 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 		$resolver = new ConfigureGeneralSettingsScopeResolver();
 		$this->assertSame( [], $resolver->resolve(
 			$this->newZone( [ 'module_login' ] ),
-			[
-				$this->newComponent( [ 'rename_wplogin_path' ] ),
-			]
+			[ 'rename_wplogin_path' ]
 		) );
 		$this->assertSame( [], $resolver->resolve(
 			$this->newZone( [] ),
-			[
-				$this->newComponent( [ 'rename_wplogin_path' ] ),
-			]
+			[ 'rename_wplogin_path' ]
 		) );
 		$this->assertSame( [], $resolver->resolve(
 			null,
-			[
-				$this->newComponent( [ 'rename_wplogin_path' ] ),
-			]
+			[ 'rename_wplogin_path' ]
 		) );
 	}
 
@@ -74,10 +66,7 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 
 		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve(
 			$this->newZone( [ 'module_scans' ] ),
-			[
-				$this->newComponent( [ 'scan_frequency', 'scan_path_exclusions' ] ),
-				$this->newComponent( [ 'scan_path_exclusions' ] ),
-			]
+			[ 'scan_frequency', 'scan_path_exclusions', 'scan_path_exclusions' ]
 		);
 
 		$this->assertSame( [ 'module_scans' ], $scope[ 'zone_component_slugs' ] ?? [] );
@@ -132,20 +121,6 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 
 			public function getConfigZoneComponentSlugs() :array {
 				return $this->localZoneComponentSlugs;
-			}
-		};
-	}
-
-	private function newComponent( array $options ) :Component\Base {
-		return new class( $options ) extends Component\Base {
-			private array $localOptions;
-
-			public function __construct( array $options ) {
-				$this->localOptions = $options;
-			}
-
-			public function getOptions() :array {
-				return $this->localOptions;
 			}
 		};
 	}

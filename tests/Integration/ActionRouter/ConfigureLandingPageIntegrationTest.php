@@ -190,6 +190,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderConfigureDiagnosis( [
 			'zone' => 'reports_alerts',
 		] );
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
 
 		$this->assertArrayHasKey( 'zone_selection', $payload );
 		$this->assertArrayHasKey( 'header', $payload );
@@ -205,6 +206,16 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', $payload[ 'header' ][ 'summary' ] );
 		$this->assertNotSame( '', $payload[ 'header' ][ 'focus' ] );
 		$this->assertNotSame( '', $payload[ 'html' ] );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-row-key="reporting"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="reporting" and contains(@data-option_keys, "block_send_email_address") and contains(@data-option_keys, "frequency_alert") and contains(@data-option_keys, "frequency_info")]',
+			'Reports diagnosis should expose a reporting-only scoped row'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-configure-row-key="instant_alerts"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="instant_alerts" and contains(@data-option_keys, "instant_alert_admins") and contains(@data-option_keys, "enable_admin_login_email_notification")]',
+			'Reports diagnosis should expose an instant-alerts-only scoped row'
+		);
 	}
 
 	public function test_search_render_returns_flat_option_and_zone_results_for_real_query() :void {
@@ -330,6 +341,21 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertXPathExists(
 			$loginXpath,
+			'//*[@data-configure-row-key="two_factor_general"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="two_factor_auth" and contains(@data-option_keys, "mfa_verify_page") and contains(@data-option_keys, "allow_backupcodes")]',
+			'Login diagnosis should expose the split 2FA general settings row'
+		);
+		$this->assertXPathExists(
+			$loginXpath,
+			'//*[@data-configure-row-key="two_factor_email"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="two_factor_auth" and contains(@data-option_keys, "enable_email_authentication")]',
+			'Login diagnosis should expose the split 2FA email row'
+		);
+		$this->assertXPathExists(
+			$loginXpath,
+			'//*[@data-configure-row-key="two_factor_otp_passkeys"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="two_factor_auth" and contains(@data-option_keys, "enable_google_authenticator") and contains(@data-option_keys, "enable_passkeys")]',
+			'Login diagnosis should expose the split OTP and passkeys row'
+		);
+		$this->assertXPathExists(
+			$loginXpath,
 			'//*[@data-configure-row-key="login_hide"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="login_hide"]',
 			'Login diagnosis should still surface the login-hide expansion row'
 		);
@@ -386,11 +412,11 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 
 		$this->assertCount( 1, $usersTiles );
-		$components = $usersTiles[ 0 ][ 'panel' ][ 'components' ] ?? [];
+		$rows = $usersTiles[ 0 ][ 'panel' ][ 'rows' ] ?? [];
 
-		$this->assertNotContains( 'Default Admin User', \array_column( $components, 'title' ) );
-		foreach ( $components as $component ) {
-			$this->assertNotSame( [], $component[ 'config_action' ] ?? [] );
+		$this->assertNotContains( 'Default Admin User', \array_column( $rows, 'title' ) );
+		foreach ( $rows as $row ) {
+			$this->assertNotSame( [], $row[ 'config_action' ] ?? [] );
 		}
 	}
 

@@ -33,7 +33,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   severity:string,
  *   cta?:DetailActionInput
  * }
- * @phpstan-type ConfigureComponentRow array{
+ * @phpstan-type ConfigureRow array{
  *   key:string,
  *   title:string,
  *   note:string,
@@ -90,17 +90,17 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param list<ConfigureComponentRow> $components
+	 * @param list<ConfigureRow> $rows
 	 * @return list<DetailGroup>
 	 */
-	public function buildForConfigure( array $components ) :array {
-		$rows = [];
+	public function buildForConfigure( array $rows ) :array {
+		$detailRows = [];
 
-		foreach ( \array_values( $components ) as $index => $component ) {
-			$rows[] = $this->buildConfigureComponentRow( $component, $index );
+		foreach ( \array_values( $rows ) as $index => $row ) {
+			$detailRows[] = $this->buildConfigureRow( $row, $index );
 		}
 
-		return $this->groupRows( $rows );
+		return $this->groupRows( $detailRows );
 	}
 
 	/**
@@ -151,27 +151,27 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param ConfigureComponentRow $component
+	 * @param ConfigureRow $row
 	 * @return DetailGroupRow
 	 */
-	private function buildConfigureComponentRow( array $component, int $sortIndex ) :array {
-		$status = $this->normalizeStatus( $component[ 'status' ] );
-		$action = $this->normalizeAction( $component[ 'config_action' ], __( 'Configure', 'wp-simple-firewall' ) );
+	private function buildConfigureRow( array $row, int $sortIndex ) :array {
+		$status = $this->normalizeStatus( $row[ 'status' ] );
+		$action = $this->normalizeAction( $row[ 'config_action' ], __( 'Configure', 'wp-simple-firewall' ) );
 		$explanations = \array_values( \array_filter(
 			\array_map(
 				static fn( $explanation ) :string => \trim( (string)$explanation ),
-				$component[ 'explanations' ]
+				$row[ 'explanations' ]
 			),
 			static fn( string $explanation ) :bool => $explanation !== ''
 		) );
 
 		return [
-			'key'               => $component[ 'key' ],
-			'title'             => $component[ 'title' ],
-			'summary'           => $component[ 'note' ],
+			'key'               => $row[ 'key' ],
+			'title'             => $row[ 'title' ],
+			'summary'           => $row[ 'note' ],
 			'status'            => $status,
-			'status_label'      => $component[ 'status_label' ],
-			'status_icon_class' => $component[ 'status_icon_class' ],
+			'status_label'      => $row[ 'status_label' ],
+			'status_icon_class' => $row[ 'status_icon_class' ],
 			'count_badge'       => null,
 			'badge_status'      => $this->badgeStatus( $status ),
 			'explanations'      => $explanations,

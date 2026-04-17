@@ -15,6 +15,24 @@ class Reporting extends Base {
 		return __( "See what's happening with reports.", 'wp-simple-firewall' );
 	}
 
+	public function configureRows() :array {
+		return [
+			$this->buildConfigureRowInput(
+				'reporting',
+				__( 'Reports', 'wp-simple-firewall' ),
+				EnumEnabledStatus::NEUTRAL,
+				__( 'Manage report email delivery and reporting frequency.', 'wp-simple-firewall' ),
+				[],
+				$this->buildConfigureRowScope(
+					$this->configZoneComponentSlugs(),
+					$this->configureRowOptionsForSections( [ 'section_reporting' ] ),
+					'',
+					__( 'Edit report settings', 'wp-simple-firewall' )
+				)
+			),
+		];
+	}
+
 	protected function status() :array {
 		$status = parent::status();
 		$email = (string)self::con()->opts->optGet( 'block_send_email_address' );

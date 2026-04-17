@@ -123,7 +123,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 						'zones'     => new class {
 							public function enumZoneComponents() :array {
 								return [
-									'2fa'          => true,
+									'two_factor_general' => true,
 									'traffic_logging' => true,
 									'waf_rules'    => true,
 								];
@@ -133,7 +133,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 					$this->cfg = (object)[
 						'configuration' => (object)[
 							'options' => [
-								'login_action' => [ 'section' => 'section_twofactor_auth' ],
+								'mfa_verify_page' => [ 'section' => 'section_twofactor_auth' ],
 								'request_log_enabled' => [ 'section' => 'section_log_requests' ],
 							],
 						],
@@ -253,8 +253,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		ServicesState::installItems( [
 			'service_request'   => new UnitTestRequest( [
 				'zone'        => 'login',
-				'row_key'     => '2fa',
-				'config_item' => 'login_action',
+				'row_key'     => 'two_factor_general',
+				'config_item' => 'mfa_verify_page',
 			] ),
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers( 1 ),
@@ -265,8 +265,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$focus = \json_decode( (string)( $vars[ 'configure_focus_request_json' ] ?? '' ), true );
 
 		$this->assertSame( [
-			'row_key'     => '2fa',
-			'config_item' => 'login_action',
+			'row_key'     => 'two_factor_general',
+			'config_item' => 'mfa_verify_page',
 		], $focus );
 	}
 
@@ -275,7 +275,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			'service_request'   => new UnitTestRequest( [
 				'zone'        => 'login',
 				'row_key'     => 'missing_row',
-				'config_item' => 'login_action',
+				'config_item' => 'mfa_verify_page',
 			] ),
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers( 1 ),
@@ -412,9 +412,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'critical',
 				'Critical',
 				'Stable security admin summary.',
-				'1 critical component',
+				'1 critical group',
 				[
-					$this->buildZoneComponentFixture(
+					$this->buildZoneRowFixture(
 						'pin_protection',
 						'PIN Protection',
 						'critical',
@@ -430,9 +430,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'good',
 				'Good',
 				'Stable firewall summary.',
-				'All components healthy',
+				'All groups healthy',
 				[
-					$this->buildZoneComponentFixture(
+					$this->buildZoneRowFixture(
 						'waf_rules',
 						'WAF Rules',
 						'good',
@@ -447,11 +447,11 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'warning',
 				'Needs Work',
 				'Stable login summary.',
-				'1 component needs work',
+				'1 group needs work',
 				[
-					$this->buildZoneComponentFixture(
-						'2fa',
-						'2FA',
+					$this->buildZoneRowFixture(
+						'two_factor_general',
+						'2FA General Settings',
 						'warning',
 						'Needs Work',
 						'2FA requires review.',
@@ -467,7 +467,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'Stable general summary.',
 				'General settings',
 				[
-					$this->buildZoneComponentFixture(
+					$this->buildZoneRowFixture(
 						'traffic_logging',
 						'Traffic Logging',
 						'neutral',
@@ -487,7 +487,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		string $statusLabel,
 		string $summary,
 		string $statLine,
-		array $components,
+		array $rows,
 		bool $includeInPosture = true
 	) :array {
 		return [
@@ -507,14 +507,14 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'title'        => $label,
 				'status'       => $status,
 				'status_label' => $statusLabel,
-				'components'   => $components,
+				'rows'         => $rows,
 				'detail_groups' => ( new StatusDetailGroupsBuilder() )
-					->buildForConfigure( $components ),
+					->buildForConfigure( $rows ),
 			],
 		];
 	}
 
-	private function buildZoneComponentFixture(
+	private function buildZoneRowFixture(
 		string $key,
 		string $title,
 		string $status,
