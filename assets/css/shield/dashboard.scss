@@ -249,10 +249,11 @@
 		0 0 0 2px var(--shield-color),
 		0 0 12px var(--shield-glow);
 	transition: color 0.5s ease, box-shadow 0.6s ease;
-	animation: shield-breathe 4s ease-in-out infinite;
+	// Keyframes are bundle-global, so orb animations must stay component-scoped.
+	animation: shield-dashboard-orb-breathe 4s ease-in-out infinite;
 }
 
-@keyframes shield-breathe {
+@keyframes shield-dashboard-orb-breathe {
 	0%, 100% {
 		box-shadow:
 			0 0 0 2px var(--shield-color),

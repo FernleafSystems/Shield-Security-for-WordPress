@@ -278,7 +278,7 @@
 	}
 
 	.orb-green {
-		animation: shield-breathe 4s ease-in-out infinite;
+		animation: shield-license-orb-breathe 4s ease-in-out infinite;
 		background: $status-bg-good-light;
 		box-shadow: 0 0 0 2px $primary, 0 0 14px rgba( 0, 128, 0, 0.14 );
 		color: $primary;
@@ -290,7 +290,7 @@
 		color: $danger;
 	}
 
-	@keyframes shield-breathe {
+	@keyframes shield-license-orb-breathe {
 		0%,
 		100% {
 			box-shadow: 0 0 0 2px $primary, 0 0 12px rgba( 0, 128, 0, 0.14 );
