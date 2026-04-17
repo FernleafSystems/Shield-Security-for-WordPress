@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Login\TwoFactor\Import\ImportController as TwoFactorImportController;
 use FernleafSystems\Wordpress\Plugin\Shield;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\AbstractShieldProvider;
@@ -27,7 +28,7 @@ class MfaController {
 	private array $providers;
 
 	private MfaProfilesController $mfaProfilesCon;
-	private Import\ImportController $mfaImportCon;
+	private TwoFactorImportController $mfaImportCon;
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->wp_is_xmlrpc;
@@ -103,8 +104,8 @@ class MfaController {
 		return $this->mfaProfilesCon ??= new MfaProfilesController();
 	}
 
-	public function getMfaImportCon() :Import\ImportController {
-		return $this->mfaImportCon ??= new Import\ImportController();
+	public function getMfaImportCon() :TwoFactorImportController {
+		return $this->mfaImportCon ??= new TwoFactorImportController();
 	}
 
 	public function onWpLoaded() {

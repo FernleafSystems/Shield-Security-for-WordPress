@@ -254,6 +254,6 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	}
 
 	private function getSourceRepo() :PasskeySourcesHandler {
-		return $this->sourceRepo ?? $this->sourceRepo = ( new PasskeySourcesHandler() )->setWpUser( $this->getUser() );
+		return $this->sourceRepo ??= ( new PasskeySourcesHandler() )->setWpUser( $this->getUser() );
 	}
 }

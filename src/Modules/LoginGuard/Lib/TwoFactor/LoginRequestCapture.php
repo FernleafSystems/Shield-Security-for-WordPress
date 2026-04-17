@@ -30,8 +30,7 @@ class LoginRequestCapture {
 	protected function captureLogin( \WP_User $user ) {
 		$con = self::con();
 		$mfaCon = $con->comps->mfa;
-		$isAppPasswordAuth = Services::WpUsers()->isAppPasswordAuth();
-		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !$isAppPasswordAuth ) {
+		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !Services::WpUsers()->isAppPasswordAuth() ) {
 
 			if ( !$this->canUserMfaSkip( $user ) ) {
 				$loginNonce = \bin2hex( \random_bytes( 32 ) );

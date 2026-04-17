@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
 use Base32\Base32;
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Import\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Login\TwoFactor\Import\{
 	ImportController,
 	ImportQueue,
 	ImportUserProcessor,

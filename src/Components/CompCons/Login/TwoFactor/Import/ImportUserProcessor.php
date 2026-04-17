@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Import;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Login\TwoFactor\Import;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
@@ -22,8 +22,8 @@ class ImportUserProcessor {
 		$factorStates = $this->getShieldFactorStatesForUser( $user );
 		$importableFactorSlugs = \array_values( \array_filter(
 			$bridge->getSupportedFactorSlugs(),
-			fn( string $factorSlug ) => ( $factorStates[ $factorSlug ][ 'available' ] ?? false )
-									   && ( $factorStates[ $factorSlug ][ 'vacant' ] ?? false )
+			fn( string $factorSlug ) => $factorStates[ $factorSlug ][ 'available' ]
+									   && $factorStates[ $factorSlug ][ 'vacant' ]
 		) );
 
 		if ( empty( $importableFactorSlugs ) ) {
@@ -37,9 +37,9 @@ class ImportUserProcessor {
 			return $result;
 		}
 
-		$this->importGaForUser( $user, $data, $result, $factorStates[ GoogleAuth::ProviderSlug() ] ?? [] );
-		$this->importEmailForUser( $user, $data, $result, $factorStates[ Email::ProviderSlug() ] ?? [] );
-		$this->importBackupCodesForUser( $user, $data, $result, $factorStates[ BackupCodes::ProviderSlug() ] ?? [] );
+		$this->importGaForUser( $user, $data, $result, $factorStates[ GoogleAuth::ProviderSlug() ] );
+		$this->importEmailForUser( $user, $data, $result, $factorStates[ Email::ProviderSlug() ] );
+		$this->importBackupCodesForUser( $user, $data, $result, $factorStates[ BackupCodes::ProviderSlug() ] );
 
 		$result->importedFactorSlugs = \array_values( \array_unique( $result->importedFactorSlugs ) );
 
@@ -47,7 +47,11 @@ class ImportUserProcessor {
 	}
 
 	/**
-	 * @return array<string, array{available: bool, vacant: bool}>
+	 * @return array{
+	 *   ga:array{available: bool, vacant: bool},
+	 *   email:array{available: bool, vacant: bool},
+	 *   backupcode:array{available: bool, vacant: bool}
+	 * }
 	 */
 	private function getShieldFactorStatesForUser( \WP_User $user ) :array {
 		$availableProviders = self::con()->comps->mfa->getProvidersAvailableToUser( $user );
@@ -69,7 +73,7 @@ class ImportUserProcessor {
 	}
 
 	/**
-	 * @param array{available?: bool, vacant?: bool} $factorState
+	 * @param array{available: bool, vacant: bool} $factorState
 	 */
 	private function importGaForUser( \WP_User $user, SupplierFactorData $data, UserImportResult $result, array $factorState ) :void {
 		$providerSlug = GoogleAuth::ProviderSlug();
@@ -77,10 +81,10 @@ class ImportUserProcessor {
 			return;
 		}
 
-		if ( !( $factorState[ 'available' ] ?? false ) ) {
+		if ( !$factorState[ 'available' ] ) {
 			$result->skippedFactorReasons[ $providerSlug ] = self::SKIP_SHIELD_PROVIDER_UNAVAILABLE;
 		}
-		elseif ( !( $factorState[ 'vacant' ] ?? false ) ) {
+		elseif ( !$factorState[ 'vacant' ] ) {
 			$result->skippedFactorReasons[ $providerSlug ] = self::SKIP_EXISTING_SHIELD_PROFILE;
 		}
 		elseif ( isset( $data->skippedFactorReasons[ $providerSlug ] ) ) {
@@ -101,7 +105,7 @@ class ImportUserProcessor {
 	}
 
 	/**
-	 * @param array{available?: bool, vacant?: bool} $factorState
+	 * @param array{available: bool, vacant: bool} $factorState
 	 */
 	private function importEmailForUser( \WP_User $user, SupplierFactorData $data, UserImportResult $result, array $factorState ) :void {
 		$providerSlug = Email::ProviderSlug();
@@ -109,10 +113,10 @@ class ImportUserProcessor {
 			return;
 		}
 
-		if ( !( $factorState[ 'available' ] ?? false ) ) {
+		if ( !$factorState[ 'available' ] ) {
 			$result->skippedFactorReasons[ $providerSlug ] = self::SKIP_SHIELD_PROVIDER_UNAVAILABLE;
 		}
-		elseif ( !( $factorState[ 'vacant' ] ?? false ) ) {
+		elseif ( !$factorState[ 'vacant' ] ) {
 			$result->skippedFactorReasons[ $providerSlug ] = self::SKIP_EXISTING_SHIELD_PROFILE;
 		}
 		elseif ( $data->emailEnabled ) {
@@ -122,7 +126,7 @@ class ImportUserProcessor {
 	}
 
 	/**
-	 * @param array{available?: bool, vacant?: bool} $factorState
+	 * @param array{available: bool, vacant: bool} $factorState
 	 */
 	private function importBackupCodesForUser( \WP_User $user, SupplierFactorData $data, UserImportResult $result, array $factorState ) :void {
 		$providerSlug = BackupCodes::ProviderSlug();
@@ -130,10 +134,10 @@ class ImportUserProcessor {
 			return;
 		}
 
-		if ( !( $factorState[ 'available' ] ?? false ) ) {
+		if ( !$factorState[ 'available' ] ) {
 			$result->skippedFactorReasons[ $providerSlug ] = self::SKIP_SHIELD_PROVIDER_UNAVAILABLE;
 		}
-		elseif ( !( $factorState[ 'vacant' ] ?? false ) ) {
+		elseif ( !$factorState[ 'vacant' ] ) {
 			$result->skippedFactorReasons[ $providerSlug ] = self::SKIP_EXISTING_SHIELD_PROFILE;
 		}
 		elseif ( !empty( $data->backupCodeHashes ) ) {

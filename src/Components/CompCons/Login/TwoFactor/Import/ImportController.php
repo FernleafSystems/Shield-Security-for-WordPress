@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Import;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Login\TwoFactor\Import;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -24,6 +24,9 @@ class ImportController {
 		$this->getQueue();
 	}
 
+	/**
+	 * @throws \InvalidArgumentException
+	 */
 	public function startImportRun( string $supplierSlug ) :array {
 		$supplierSlug = \sanitize_key( $supplierSlug );
 		$bridge = $this->getSupplierBridge( $supplierSlug );
@@ -194,8 +197,7 @@ class ImportController {
 	}
 
 	private function getSupplierBridge( string $supplierSlug ) :?SupplierBridgeInterface {
-		$bridges = $this->buildSupplierBridges();
-		return $bridges[ $supplierSlug ] ?? null;
+		return $this->buildSupplierBridges()[ $supplierSlug ] ?? null;
 	}
 
 	private function getQueue() :ImportQueue {
