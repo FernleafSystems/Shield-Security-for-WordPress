@@ -213,7 +213,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@data-configure-row-key="instant_alerts"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="instant_alerts" and contains(@data-option_keys, "instant_alert_admins") and contains(@data-option_keys, "enable_admin_login_email_notification")]',
+			'//*[@data-configure-row-key="instant_alerts"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="instant_alerts" and contains(@data-option_keys, "instant_alert_admins") and contains(@data-option_keys, "instant_alert_admin_login")]',
 			'Reports diagnosis should expose an instant-alerts-only scoped row'
 		);
 	}

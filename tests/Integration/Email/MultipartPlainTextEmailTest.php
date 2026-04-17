@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\AdminLoginNotification;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\BackupCodeUsed;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\FirewallBlockAlert;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts\EmailReport;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
@@ -31,12 +31,15 @@ class MultipartPlainTextEmailTest extends ShieldIntegrationTestCase {
 
 	public function test_admin_email_transport_generates_alt_body_with_admin_footer() :void {
 		$con = $this->requireController();
-		$html = $con->action_router->render( AdminLoginNotification::class, [
-			'role_name'  => 'Administrator+',
-			'home_url'   => 'https://example.com',
-			'username'   => 'managedadmin',
-			'user_email' => 'managedadmin@example.com',
-			'ip'         => '198.51.100.23',
+		$html = $con->action_router->render( EmailInstantAlertAdminLogin::class, [
+			'alert_data' => [
+				'admin_login' => [
+					'role_name'  => 'Administrator+',
+					'username'   => 'managedadmin',
+					'user_email' => 'managedadmin@example.com',
+					'ip'         => '198.51.100.23',
+				]
+			],
 		] );
 
 		$con->email_con->sendVO( EmailVO::Factory( 'recipient@example.com', 'Admin login test', $html ) );
@@ -49,13 +52,15 @@ class MultipartPlainTextEmailTest extends ShieldIntegrationTestCase {
 		$this->assertPlainTextOutputHealthy( $plain, 'Admin transport alt body' );
 		$this->assertContainsTokens( $plain, [
 			'Administrator+ login',
-			'Details for this user are below:',
+			'Login Details',
 			'managedadmin@example.com',
 			'Configure security email recipient',
 		], 'Admin transport alt body' );
 		$this->assertTokensAppearInOrder( $plain, [
-			'Details for this user are below:',
-			'Site URL: https://example.com',
+			'Site Address (URL): https://example.com',
+			'As requested, Shield is notifying you of a successful Administrator+ login',
+			'Important: This user may now be subject to additional Two-Factor Authentication before completing their login.',
+			'Login Details',
 			'Username: managedadmin',
 			'Email: managedadmin@example.com',
 			'IP Address: 198.51.100.23',
@@ -177,12 +182,15 @@ class MultipartPlainTextEmailTest extends ShieldIntegrationTestCase {
 
 	public function test_send_vo_does_not_leave_phpmailer_alt_body_hook_active() :void {
 		$con = $this->requireController();
-		$html = $con->action_router->render( AdminLoginNotification::class, [
-			'role_name'  => 'Administrator+',
-			'home_url'   => 'https://example.com',
-			'username'   => 'managedadmin',
-			'user_email' => 'managedadmin@example.com',
-			'ip'         => '198.51.100.23',
+		$html = $con->action_router->render( EmailInstantAlertAdminLogin::class, [
+			'alert_data' => [
+				'admin_login' => [
+					'role_name'  => 'Administrator+',
+					'username'   => 'managedadmin',
+					'user_email' => 'managedadmin@example.com',
+					'ip'         => '198.51.100.23',
+				]
+			],
 		] );
 
 		$con->email_con->sendVO( EmailVO::Factory( 'recipient@example.com', 'Scoped hook test', $html ) );

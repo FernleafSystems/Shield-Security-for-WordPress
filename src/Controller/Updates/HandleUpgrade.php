@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
@@ -29,6 +30,11 @@ class HandleUpgrade {
 
 		add_action( $hook, function ( $previousVersion ) {
 			$con = self::con();
+
+			( new OptionsCorrections() )->runUpgradeMigrations();
+			if ( $con->opts->hasChanges() ) {
+				$con->opts->store();
+			}
 
 			Services::ServiceProviders()->clearProviders();
 			$con->plugin->deleteAllPluginCrons();

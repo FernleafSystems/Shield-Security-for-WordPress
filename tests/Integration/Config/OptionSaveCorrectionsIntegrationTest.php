@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,6 +32,8 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'request_whitelist',
 		'importexport_whitelist',
 		'file_locker',
+		'instant_alert_admin_login',
+		'enable_admin_login_email_notification',
 	];
 
 	private array $originalOptions = [];
@@ -139,6 +143,101 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->optSet( 'importexport_masterurl', $url )->store();
 
 		$this->assertSame( $url, $con->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_legacy_admin_login_notification_migrates_during_store() :void {
+		$con = $this->requireController();
+
+		$con->opts
+			->optSet( 'instant_alert_admin_login', 'disabled' )
+			->optSet( 'enable_admin_login_email_notification', 'Admin-Notify@example.com, invalid-value' )
+			->store();
+
+		$this->assertSame( 'email', $con->opts->optGet( 'instant_alert_admin_login' ) );
+		$this->assertSame( '', $con->opts->optGet( 'enable_admin_login_email_notification' ) );
+	}
+
+	public function test_legacy_admin_login_notification_without_valid_email_does_not_migrate_during_store() :void {
+		$con = $this->requireController();
+
+		$con->opts
+			->optSet( 'instant_alert_admin_login', 'disabled' )
+			->optSet( 'enable_admin_login_email_notification', 'invalid-value, another-invalid-value' )
+			->store();
+
+		$this->assertSame( 'disabled', $con->opts->optGet( 'instant_alert_admin_login' ) );
+		$this->assertSame(
+			'invalid-value, another-invalid-value',
+			$con->opts->optGet( 'enable_admin_login_email_notification' )
+		);
+	}
+
+	public function test_legacy_admin_login_notification_migrates_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'instant_alert_admin_login'             => 'disabled',
+			'enable_admin_login_email_notification' => 'legacy-admin@example.com',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( 'email', $con->opts->optGet( 'instant_alert_admin_login' ) );
+		$this->assertSame( '', $con->opts->optGet( 'enable_admin_login_email_notification' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_legacy_admin_login_notification_without_valid_email_does_not_migrate_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'instant_alert_admin_login'             => 'disabled',
+			'enable_admin_login_email_notification' => 'invalid-value',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( 'disabled', $con->opts->optGet( 'instant_alert_admin_login' ) );
+		$this->assertSame( 'invalid-value', $con->opts->optGet( 'enable_admin_login_email_notification' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	/**
+	 * @param array<string,mixed> $values
+	 */
+	private function replaceStoredOptionValues( array $values ) :void {
+		$con = $this->requireController();
+		$all = Services::WpGeneral()->getOption( $this->optsAllOptionName() );
+		if ( !\is_array( $all ) ) {
+			$all = [
+				'version'       => $con->cfg->version(),
+				'values'        => [
+					OptsHandler::TYPE_FREE => [],
+					OptsHandler::TYPE_PRO  => [],
+				],
+				'xfer_excluded' => [],
+			];
+		}
+
+		foreach ( $values as $key => $value ) {
+			$all[ 'values' ][ OptsHandler::TYPE_FREE ][ $key ] = $value;
+			$all[ 'values' ][ OptsHandler::TYPE_PRO ][ $key ] = $value;
+		}
+
+		Services::WpGeneral()->updateOption( $this->optsAllOptionName(), $all );
+		$con->opts = new OptsHandler();
+	}
+
+	private function optsAllOptionName() :string {
+		return $this->requireController()->prefix( 'opts_all', '_' );
 	}
 
 }

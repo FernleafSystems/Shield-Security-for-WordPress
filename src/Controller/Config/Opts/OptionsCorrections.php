@@ -12,6 +12,7 @@ class OptionsCorrections {
 
 	public function run() :void {
 		$this->audit();
+		$this->alerts();
 		$this->comments();
 		$this->firewall();
 		$this->headers();
@@ -21,6 +22,10 @@ class OptionsCorrections {
 		$this->scanners();
 		$this->securityAdmin();
 		$this->user();
+	}
+
+	public function runUpgradeMigrations() :void {
+		$this->alerts();
 	}
 
 	/**
@@ -44,6 +49,15 @@ class OptionsCorrections {
 		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
 			$opts->optSet( 'enable_live_log', 'N' )
 					 ->optSet( 'live_log_started_at', 0 );
+		}
+	}
+
+	private function alerts() :void {
+		$opts = self::con()->opts;
+
+		if ( $this->hasLegacyAdminLoginNotificationEmail() ) {
+			$opts->optSet( 'instant_alert_admin_login', 'email' )
+				 ->optSet( 'enable_admin_login_email_notification', '' );
 		}
 	}
 
@@ -274,5 +288,18 @@ class OptionsCorrections {
 		if ( $opts->optChanged( 'email_checks' ) ) {
 			$opts->optSet( 'email_checks', \array_unique( \array_merge( $opts->optGet( 'email_checks' ), [ 'syntax' ] ) ) );
 		}
+	}
+
+	/**
+	 * Legacy option allowed multiple emails. Migration only cares whether any valid email exists.
+	 */
+	private function hasLegacyAdminLoginNotificationEmail() :bool {
+		return !empty( \array_filter(
+			\array_map(
+				static fn( string $email ) :string => \trim( \strtolower( $email ) ),
+				\explode( ',', (string)self::con()->opts->optGet( 'enable_admin_login_email_notification' ) )
+			),
+			static fn( string $email ) :bool => Services::Data()->validEmail( $email )
+		) );
 	}
 }

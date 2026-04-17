@@ -160,7 +160,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			\array_column( $tilesByKey[ 'reports_alerts' ][ 'panel' ][ 'rows' ], 'key' )
 		);
 		$this->assertSame(
-			'instant_alert_admins,enable_admin_login_email_notification',
+			'instant_alert_admins,instant_alert_admin_login',
 			$tilesByKey[ 'reports_alerts' ][ 'panel' ][ 'rows' ][ 0 ][ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
 		);
 		$this->assertSame(
@@ -422,7 +422,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					[],
 					[
 						'instant_alert_admins',
-						'enable_admin_login_email_notification',
+						'instant_alert_admin_login',
 					],
 					[
 						[
@@ -431,7 +431,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 							'status'       => EnumEnabledStatus::NEUTRAL,
 							'note'         => 'Manage immediate alerts for important security events.',
 							'explanations' => [],
-							'option_keys'  => [ 'instant_alert_admins', 'enable_admin_login_email_notification' ],
+							'option_keys'  => [ 'instant_alert_admins', 'instant_alert_admin_login' ],
 						],
 					],
 					Component\InstantAlerts::Slug()

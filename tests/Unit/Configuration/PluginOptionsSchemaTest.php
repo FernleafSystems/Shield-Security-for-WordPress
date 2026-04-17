@@ -272,36 +272,49 @@ class PluginOptionsSchemaTest extends TestCase {
 		);
 	}
 
-	public function testAdminLoginNotificationOptionUsesAlertsReportingContract() :void {
-		$this->assertArrayHasKey( 'enable_admin_login_email_notification', $this->options );
-		$option = $this->options['enable_admin_login_email_notification'];
+	public function testAdminLoginInstantAlertOptionUsesAlertsReportingContract() :void {
+		$this->assertArrayHasKey( 'instant_alert_admin_login', $this->options );
+		$option = $this->options['instant_alert_admin_login'];
 
 		$this->assertIsArray( $option );
 		$this->assertSame( 'section_alerts', $option['section'] );
 		$this->assertSame( [ 'instant_alerts', 'reporting' ], $option['zone_comp_slugs'] );
 		$this->assertNotContains( 'module_users', $option['zone_comp_slugs'] );
-		$this->assertSame( 'text', $option['type'] );
-		$this->assertSame( '', $option['default'] );
-		$this->assertSame( true, $option['sensitive'] );
+		$this->assertSame( 'select', $option['type'] );
+		$this->assertSame( 'disabled', $option['default'] );
+		$this->assertArrayHasKey( 'value_options', $option );
+		$this->assertSame( [ 'disabled', 'email' ], \array_column( $option['value_options'], 'value_key' ) );
 		$this->assertSame( 788, $option['beacon_id'] );
 	}
 
-	public function testAdminLoginNotificationOptionIsGroupedWithInstantAlertsInSourceSpec() :void {
+	public function testAdminLoginInstantAlertOptionIsGroupedWithInstantAlertsInSourceSpec() :void {
 		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
 		$keys = \array_column( $options, 'key' );
 		$instantAdminsIndex = \array_search( 'instant_alert_admins', $keys, true );
-		$adminLoginIndex = \array_search( 'enable_admin_login_email_notification', $keys, true );
+		$adminLoginIndex = \array_search( 'instant_alert_admin_login', $keys, true );
 
 		$this->assertNotFalse( $instantAdminsIndex );
 		$this->assertNotFalse( $adminLoginIndex );
 		$this->assertSame( $instantAdminsIndex + 1, $adminLoginIndex );
-		$this->assertSame( 'instant_alert_vulnerabilities', $keys[ $adminLoginIndex + 1 ] );
 
 		$option = $options[ $adminLoginIndex ];
 		$this->assertSame( 'section_alerts', $option['section'] );
 		$this->assertSame( [ 'instant_alerts', 'reporting' ], $option['zone_comp_slugs'] );
 		$this->assertNotContains( 'module_users', $option['zone_comp_slugs'] );
 		$this->assertSame( 788, $option['beacon_id'] );
+	}
+
+	public function testLegacyAdminLoginNotificationOptionIsHiddenAndNonTransferable() :void {
+		$this->assertArrayHasKey( 'enable_admin_login_email_notification', $this->options );
+		$option = $this->options['enable_admin_login_email_notification'];
+
+		$this->assertIsArray( $option );
+		$this->assertSame( 'section_hidden', $option['section'] );
+		$this->assertSame( 'text', $option['type'] );
+		$this->assertSame( '', $option['default'] );
+		$this->assertSame( true, $option['sensitive'] );
+		$this->assertSame( false, $option['transferable'] ?? true );
+		$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
 	}
 
 	public function testSecurityOverviewPrefsOptionIsAbsentFromGeneratedConfig() :void {

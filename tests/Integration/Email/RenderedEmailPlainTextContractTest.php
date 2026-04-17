@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\AdminLoginNotification;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\BackupCodeUsed;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\FirewallBlockAlert;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts\EmailReport;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\BuildReportEmailFixture;
@@ -18,12 +18,15 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 	use PlainTextEmailAssertions;
 
 	public function test_admin_login_notification_render_converts_cleanly() :void {
-		$html = $this->requireController()->action_router->render( AdminLoginNotification::class, [
-			'role_name'  => 'Administrator+',
-			'home_url'   => 'https://example.com',
-			'username'   => 'managedadmin',
-			'user_email' => 'managedadmin@example.com',
-			'ip'         => '198.51.100.23',
+		$html = $this->requireController()->action_router->render( EmailInstantAlertAdminLogin::class, [
+			'alert_data' => [
+				'admin_login' => [
+					'role_name'  => 'Administrator+',
+					'username'   => 'managedadmin',
+					'user_email' => 'managedadmin@example.com',
+					'ip'         => '198.51.100.23',
+				]
+			],
 		] );
 
 		$text = ( new ConvertHtmlToText() )->run( $html );
@@ -35,8 +38,10 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 			'Configure security email recipient',
 		], 'Admin render conversion' );
 		$this->assertTokensAppearInOrder( $text, [
-			'Details for this user are below:',
-			'Site URL: https://example.com',
+			'Site Address (URL): https://example.com',
+			'As requested, Shield is notifying you of a successful Administrator+ login',
+			'Important: This user may now be subject to additional Two-Factor Authentication before completing their login.',
+			'Login Details',
 			'Username: managedadmin',
 			'Email: managedadmin@example.com',
 			'IP Address: 198.51.100.23',

@@ -117,6 +117,7 @@ class InstantAlertsCon {
 
 	private function enumHandlers() :array {
 		return [
+			'admin_login'        => InstantAlerts\Handlers\AlertHandlerAdminLogin::class,
 			'admins'             => InstantAlerts\Handlers\AlertHandlerAdmins::class,
 			'filelocker'         => InstantAlerts\Handlers\AlertHandlerFileLocker::class,
 			'vulnerabilities'    => InstantAlerts\Handlers\AlertHandlerVulnerabilities::class,

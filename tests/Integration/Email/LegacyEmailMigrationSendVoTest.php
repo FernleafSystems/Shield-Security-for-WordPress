@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\LicenseEmails;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\UserSessionHandler;
@@ -86,10 +87,12 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->mails, 'Second deactivated email should be throttled.' );
 	}
 
-	public function testAdminLoginNotificationEmailIsSentWithExpectedDetails() :void {
+	public function testAdminLoginInstantAlertEmailIsSentToReportRecipientWithExpectedDetails() :void {
 		$con = $this->requireController();
 		$con->this_req->ip = '198.51.100.23';
-		$con->opts->optSet( 'enable_admin_login_email_notification', 'admin-notify@example.com' );
+		$con->opts
+			->optSet( 'instant_alert_admin_login', 'email' )
+			->optSet( 'block_send_email_address', 'admin-notify@example.com' );
 
 		$userId = self::factory()->user->create( [
 			'role'       => 'administrator',
@@ -98,16 +101,41 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		] );
 		$user = get_user_by( 'id', $userId );
 
-		$handler = new UserSessionHandler();
-		$method = new \ReflectionMethod( $handler, 'sendAdminLoginEmailNotification' );
-		$method->setAccessible( true );
-		$method->invoke( $handler, $user );
+		( new AlertHandlerAdminLogin() )->execute();
+
+		do_action( 'wp_login', $user->user_login, $user );
 
 		$mail = $this->lastMail();
-		$this->assertStringContainsString( 'Just Logged Into', (string)( $mail[ 'subject' ] ?? '' ) );
-		$this->assertStringContainsString( 'Details for this user are below:', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertStringContainsString( 'Alert: Admin Login Detected', (string)( $mail[ 'subject' ] ?? '' ) );
+		$this->assertStringContainsString( 'As requested, Shield is notifying you of a successful Administrator+ login', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertStringContainsString( 'Login Details', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertStringContainsString( 'managedadmin@example.com', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'admin-notify@example.com', (string)( $mail[ 'to' ] ?? '' ) );
 		$this->assertStringContainsString( 'Configure security email recipient', (string)( $mail[ 'message' ] ?? '' ) );
+	}
+
+	public function testAdminLoginInstantAlertSuppressesDuplicateUserLoginNoticeForSameRecipient() :void {
+		$con = $this->requireController();
+		$con->this_req->ip = '198.51.100.23';
+		$con->opts
+			->optSet( 'instant_alert_admin_login', 'email' )
+			->optSet( 'enable_user_login_email_notification', 'Y' )
+			->optSet( 'block_send_email_address', 'managedadmin@example.com' );
+
+		$userId = self::factory()->user->create( [
+			'role'       => 'administrator',
+			'user_login' => 'managedadmin',
+			'user_email' => 'managedadmin@example.com',
+		] );
+		$user = get_user_by( 'id', $userId );
+
+		( new AlertHandlerAdminLogin() )->execute();
+		( new UserSessionHandler() )->execute();
+
+		do_action( 'wp_login', $user->user_login, $user );
+
+		$this->assertCount( 1, $this->mails );
+		$this->assertStringContainsString( 'Alert: Admin Login Detected', (string)( $this->lastMail()[ 'subject' ] ?? '' ) );
 	}
 
 	public function testBackupCodeUsedEmailIsUserStyleFooter() :void {

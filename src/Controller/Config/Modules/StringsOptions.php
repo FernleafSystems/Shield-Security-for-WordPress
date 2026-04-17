@@ -1086,6 +1086,14 @@ class StringsOptions {
 					sprintf( __( "Using %s's exclusive Snapshot technology, changes to admins that are made directly on the WP database will also be detected!", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
+			case 'instant_alert_admin_login':
+				$name = __( 'Admin Login', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted when an administrator-level user logs in', 'wp-simple-firewall' );
+				$desc = [
+					__( 'This alert uses your configured security reporting email recipient.', 'wp-simple-firewall' ),
+					__( 'If the same address belongs to the user who just logged in, the user login notice is suppressed to avoid duplicate emails.', 'wp-simple-firewall' ),
+				];
+				break;
 
 			case 'instant_alert_shield_deactivated':
 				$name = sprintf( __( '%s Deactivated', 'wp-simple-firewall' ), $pluginName );
@@ -1339,17 +1347,6 @@ class StringsOptions {
 							__( 'Use %1$s to test for excessive requests within a %2$s minutes interval.', 'wp-simple-firewall' ), '<code>3600</code>', 60 ) ),
 					__( 'Use a smaller interval to reduce the risk of blocking legitimate visitors.', 'wp-simple-firewall' )
 				];
-				break;
-			case 'enable_admin_login_email_notification':
-				$name = __( 'Admin Login Notification Email', 'wp-simple-firewall' );
-				$summary = __( 'Send An Notification Email When Administrator Logs In', 'wp-simple-firewall' );
-				$desc = [
-					__( 'If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address.', 'wp-simple-firewall' ),
-					__( 'No email address - No Notification.', 'wp-simple-firewall' ),
-				];
-				$desc[] = self::con()->isPremiumActive() ?
-					__( 'Multiple email addresses may be supplied, separated by a comma.', 'wp-simple-firewall' ) :
-					__( 'Please upgrade your plan if you need to notify multiple email addresses.', 'wp-simple-firewall' );
 				break;
 			case 'enable_user_login_email_notification':
 				$name = __( 'User Login Notification Email', 'wp-simple-firewall' );
