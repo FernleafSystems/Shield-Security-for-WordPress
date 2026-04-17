@@ -16,7 +16,6 @@ class Constants {
 		Actions\BlockdownFormSubmit::class,
 		Actions\CrowdsecResetEnrollment::class,
 		Actions\DismissAdminNotice::class,
-		Actions\DynamicPageLoad::class,
 		Actions\DashboardLiveMonitorSetState::class,
 		Actions\ActionsQueueScanRailMetrics::class,
 		Actions\FileDownload::class,
@@ -120,9 +119,6 @@ class Constants {
 
 		Actions\AjaxRender::class,
 		Actions\AjaxBatchRequests::class,
-
-		Actions\DynamicLoad\ConfigForZoneComponents::class,
-		Actions\DynamicLoad\Zone::class,
 
 		Actions\PluginAdmin\PluginAdminPageHandler::class,
 
@@ -234,9 +230,7 @@ class Constants {
 		Actions\Render\MainWP\ExtPage\TabSitesListing::class,
 		Actions\Render\PageAdminPlugin::class,
 		Actions\Render\PluginAdminPages\PageActivityLogTable::class,
-		Actions\Render\PluginAdminPages\PageConfigForZoneComponents::class,
 		Actions\Render\PluginAdminPages\PageDebug::class,
-		Actions\Render\PluginAdminPages\PageDynamicLoad::class,
 		Actions\Render\PluginAdminPages\PageMerlin::class,
 		Actions\Render\PluginAdminPages\PageDashboardOverview::class,
 		Actions\Render\PluginAdminPages\PageOperatorModeLanding::class,
@@ -273,7 +267,6 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
 		Actions\Render\PluginAdminPages\PageToolLockdown::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
-		Actions\Render\PluginAdminPages\PageZone::class,
 		Actions\Render\PluginAdminPages\PageZoneComponentConfig::class,
 		Actions\Render\Utility\DbDescribeTable::class,
 	];

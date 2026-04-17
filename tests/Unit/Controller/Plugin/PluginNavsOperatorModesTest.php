@@ -32,15 +32,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			static fn( string $key ) :string => \strtolower( \trim( $key ) )
 		);
 
-		UnitTestControllerFactory::install(
-			null,
-			null,
-			(object)[
-				'comps' => (object)[
-					'zones' => new UnitTestZonesComponent(),
-				],
-			]
-		);
+		$this->installZonesFixture();
 	}
 
 	protected function tearDown() :void {
@@ -139,6 +131,34 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_configure_hierarchy_keeps_overview_only_zones_and_live_zone_component_routes() :void {
+		$zoneComponentSlugs = [
+			'module_plugin' => true,
+			'reporting'     => true,
+		];
+		$this->installZonesFixture(
+			[
+				'secadmin' => true,
+				'firewall' => true,
+			],
+			$zoneComponentSlugs
+		);
+
+		$hierarchy = PluginNavs::GetNavHierarchy();
+		$zonesSubNavs = $hierarchy[ PluginNavs::NAV_ZONES ][ 'sub_navs' ];
+		$zoneComponentSubNavs = $hierarchy[ PluginNavs::NAV_ZONE_COMPONENTS ][ 'sub_navs' ];
+
+		$this->assertSame( [ PluginNavs::SUBNAV_ZONES_OVERVIEW ], \array_keys( $zonesSubNavs ) );
+		$this->assertSame(
+			PluginAdminPages\PageConfigureLanding::class,
+			$zonesSubNavs[ PluginNavs::SUBNAV_ZONES_OVERVIEW ][ 'handler' ]
+		);
+		$this->assertSame( \array_keys( $zoneComponentSlugs ), \array_keys( $zoneComponentSubNavs ) );
+		foreach ( $zoneComponentSubNavs as $route ) {
+			$this->assertSame( PluginAdminPages\PageZoneComponentConfig::class, $route[ 'handler' ] ?? '' );
+		}
+	}
+
 	public function test_actions_assessment_definitions_keep_runtime_component_invariants() :void {
 		$definitions = PluginNavs::actionsLandingAssessmentDefinitions();
 		$maintenance = \array_filter( $definitions, static fn( array $definition ) :bool => $definition[ 'zone' ] === 'maintenance' );
@@ -194,5 +214,25 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( 'vulnerabilities', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'vulnerable_assets' )[ 'slug' ] ?? '' );
 		$this->assertSame( 'abandoned', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
 		$this->assertSame( 'vulnerabilities', PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
+	}
+
+	private function installZonesFixture(
+		array $zones = [
+			'secadmin' => true,
+			'firewall' => true,
+		],
+		array $zoneComponents = [
+			'secadmin' => true,
+		]
+	) :void {
+		UnitTestControllerFactory::install(
+			null,
+			null,
+			(object)[
+				'comps' => (object)[
+					'zones' => new UnitTestZonesComponent( $zones, $zoneComponents ),
+				],
+			]
+		);
 	}
 }

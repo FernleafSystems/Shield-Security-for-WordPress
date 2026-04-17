@@ -60,4 +60,31 @@ class ConstantsLegacyDashboardCleanupTest extends BaseUnitTest {
 			Constants::ACTIONS
 		);
 	}
+
+	public function test_legacy_configure_dynamic_load_actions_and_pages_are_not_registered() :void {
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\DynamicPageLoad',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\DynamicLoad\\Zone',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\DynamicLoad\\ConfigForZoneComponents',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageDynamicLoad',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageZone',
+			Constants::ACTIONS
+		);
+		$this->assertNotContains(
+			'FernleafSystems\\Wordpress\\Plugin\\Shield\\ActionRouter\\Actions\\Render\\PluginAdminPages\\PageConfigForZoneComponents',
+			Constants::ACTIONS
+		);
+	}
 }

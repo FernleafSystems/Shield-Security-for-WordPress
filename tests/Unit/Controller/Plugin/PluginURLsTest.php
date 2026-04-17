@@ -114,6 +114,8 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=activity&nav_sub=overview', $urls->investigateHome() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview', $urls->reportsHome() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans', $urls->modeHome( 'actions' ) );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview&zone=login', $urls->zone( 'login' ) );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zone_components&nav_sub=module_plugin', $urls->cfgForZoneComponent( 'module_plugin' ) );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=run', $urls->scansRun() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=debug', $urls->debugInfo() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=blockdown', $urls->lockdown() );

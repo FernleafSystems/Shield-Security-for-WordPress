@@ -4356,7 +4356,6 @@ msgid "Purge Provider IPs"
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/PluginAdminPages/PageDebug.php:33
-#: src/ActionRouter/Actions/Render/PluginAdminPages/PageZone.php:41
 msgid "Reset CrowdSec Enrollment"
 msgstr ""
 
@@ -5143,7 +5142,6 @@ msgstr ""
 msgid "View and manage details of current user sessions on the site."
 msgstr ""
 
-#: src/ActionRouter/Actions/Render/PluginAdminPages/PageZone.php:31
 #: src/Zones/Zone/Secadmin.php:16
 msgid "Disable Security Admin"
 msgstr ""

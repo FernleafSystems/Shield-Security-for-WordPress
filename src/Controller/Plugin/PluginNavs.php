@@ -1075,15 +1075,9 @@ class PluginNavs {
 	private static function zonesNavDefinition() :array {
 		return [
 			'name'     => __( 'Security Zones', 'wp-simple-firewall' ),
-			'sub_navs' => \array_merge(
-				[
-					self::SUBNAV_ZONES_OVERVIEW => self::routeDefinition( PluginAdminPages\PageConfigureLanding::class ),
-				],
-				\array_map(
-					fn() :array => self::routeDefinition( PluginAdminPages\PageDynamicLoad::class ),
-					\array_flip( \array_keys( self::con()->comps->zones->enumZones() ) )
-				)
-			),
+			'sub_navs' => [
+				self::SUBNAV_ZONES_OVERVIEW => self::routeDefinition( PluginAdminPages\PageConfigureLanding::class ),
+			],
 		];
 	}
 
