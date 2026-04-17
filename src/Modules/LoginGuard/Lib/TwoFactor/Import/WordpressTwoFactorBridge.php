@@ -1,10 +1,13 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Login\TwoFactor\Import;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Import;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\GoogleAuth;
 
 class WordpressTwoFactorBridge implements SupplierBridgeInterface {
 
-	public const ACTIVE_PLUGIN_FILE = 'two-factor/two-factor.php';
 	public const OPT_SITE_ENABLED_PROVIDERS = 'two_factor_enabled_providers';
 	public const META_ENABLED_PROVIDERS = '_two_factor_enabled_providers';
 	public const META_TOTP_SECRET = '_two_factor_totp_key';
@@ -20,11 +23,15 @@ class WordpressTwoFactorBridge implements SupplierBridgeInterface {
 		return 'wordpress_two_factor';
 	}
 
-	public function isApplicable() :bool {
-		return !$this->isSourcePluginActive();
+	public function getSupportedFactorSlugs() :array {
+		return [
+			GoogleAuth::ProviderSlug(),
+			Email::ProviderSlug(),
+			BackupCodes::ProviderSlug(),
+		];
 	}
 
-	public function discoverForUser( \WP_User $user ) :SupplierFactorData {
+	public function discoverForUser( \WP_User $user, array $importableFactorSlugs = [] ) :SupplierFactorData {
 		$data = new SupplierFactorData();
 
 		$enabledProvidersRaw = get_user_meta( $user->ID, self::META_ENABLED_PROVIDERS, true );
@@ -42,16 +49,21 @@ class WordpressTwoFactorBridge implements SupplierBridgeInterface {
 								|| !empty( $backupCodes );
 
 		if ( \in_array( 'Two_Factor_Totp', $enabledProviders, true ) && $totpSecret !== '' ) {
+			$data->sourceFactorSlugs[] = GoogleAuth::ProviderSlug();
 			$data->gaSecret = $totpSecret;
 		}
 
 		if ( \in_array( 'Two_Factor_Email', $enabledProviders, true ) ) {
+			$data->sourceFactorSlugs[] = Email::ProviderSlug();
 			$data->emailEnabled = true;
 		}
 
 		if ( \in_array( 'Two_Factor_Backup_Codes', $enabledProviders, true ) ) {
+			$data->sourceFactorSlugs[] = BackupCodes::ProviderSlug();
 			$data->backupCodeHashes = \array_values( \array_unique( $backupCodes ) );
 		}
+
+		$data->sourceFactorSlugs = \array_values( \array_unique( $data->sourceFactorSlugs ) );
 
 		return $data;
 	}
@@ -88,13 +100,5 @@ class WordpressTwoFactorBridge implements SupplierBridgeInterface {
 			\array_map( 'strval', \is_array( $providers ) ? $providers : [] ),
 			self::SUPPORTED_PROVIDERS
 		) );
-	}
-
-	private function isSourcePluginActive() :bool {
-		if ( !\function_exists( 'is_plugin_active' ) && \defined( 'ABSPATH' ) ) {
-			require_once ABSPATH.'wp-admin/includes/plugin.php';
-		}
-
-		return \function_exists( 'is_plugin_active' ) && \is_plugin_active( self::ACTIVE_PLUGIN_FILE );
 	}
 }

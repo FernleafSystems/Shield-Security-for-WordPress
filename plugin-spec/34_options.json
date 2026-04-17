@@ -2100,11 +2100,12 @@
         "min": 0
     },
     {
-        "key": "mfa_import_wordfence_ls_unavailable",
+        "key": "mfa_import_run",
         "section": "section_hidden",
         "tracking_exclude": true,
-        "type": "boolean",
-        "default": false
+        "transferable": false,
+        "type": "array",
+        "default": []
     },
     {
         "key": "form_spam_providers",

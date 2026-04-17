@@ -27,12 +27,14 @@ class MfaController {
 	private array $providers;
 
 	private MfaProfilesController $mfaProfilesCon;
+	private Import\ImportController $mfaImportCon;
 
 	protected function canRun() :bool {
 		return !self::con()->this_req->wp_is_xmlrpc;
 	}
 
 	protected function run() {
+		$this->getMfaImportCon()->execute();
 		add_action( 'init', [ $this, 'onWpInit' ], HookTimings::INIT_LOGIN_INTENT_REQUEST_CAPTURE ); // Login Intent
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] ); // Profile handling
 		add_action( 'admin_init', [ $this, 'onAdminInit' ] );
@@ -99,6 +101,10 @@ class MfaController {
 
 	public function getMfaProfilesCon() :MfaProfilesController {
 		return $this->mfaProfilesCon ??= new MfaProfilesController();
+	}
+
+	public function getMfaImportCon() :Import\ImportController {
+		return $this->mfaImportCon ??= new Import\ImportController();
 	}
 
 	public function onWpLoaded() {

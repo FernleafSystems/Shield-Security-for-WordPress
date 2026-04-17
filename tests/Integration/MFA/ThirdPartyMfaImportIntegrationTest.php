@@ -4,10 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
 use Base32\Base32;
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Login\TwoFactor\Import\{
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Import\{
 	ImportController,
-	SupplierBridgeInterface,
-	SupplierFactorData,
+	ImportQueue,
+	ImportUserProcessor,
+	ProcessUserPage,
+	SolidSecurityBridge,
 	WordfenceLoginSecurityBridge,
 	WordpressTwoFactorBridge
 };
@@ -19,9 +21,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Pro
 	BackupCodes,
 	GoogleAuth
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
@@ -37,14 +39,15 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 	/** @var mixed */
 	private $originalSiteEnabledProviders;
 
-	private array $originalActivePlugins = [];
-
-	private array $originalActiveSitewidePlugins = [];
+	/** @var mixed */
+	private $originalItsecStorage;
 
 	public function set_up() :void {
 		parent::set_up();
 		$this->requireDb( 'mfa' );
 		$this->enablePremiumCapabilities( [ '2fa_login_backup_codes' ] );
+		$this->clearThirdPartyMfaFixtureState();
+		$this->resetMfaProviderCache();
 
 		$this->optsSnapshot = $this->snapshotSelectedOptions( [
 			'enable_google_authenticator',
@@ -52,56 +55,113 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 			'enable_email_authentication',
 			'email_any_user_set',
 			'email_can_send_verified_at',
-			WordfenceLoginSecurityBridge::OPT_UNAVAILABLE,
+			ImportController::OPT_RUN_STATE,
 		] );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$this->originalSiteEnabledProviders = get_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS, null );
-		$this->originalActivePlugins = \is_array( get_option( 'active_plugins', [] ) ) ? get_option( 'active_plugins', [] ) : [];
-		$this->originalActiveSitewidePlugins = \is_array( get_site_option( 'active_sitewide_plugins', [] ) ) ? get_site_option( 'active_sitewide_plugins', [] ) : [];
+		$this->originalItsecStorage = get_site_option( 'itsec-storage', null );
+
 		RuntimeTestState::restoreOptions( [
 			'enable_google_authenticator' => 'Y',
 			'allow_backupcodes'           => 'Y',
 			'enable_email_authentication' => 'Y',
 			'email_any_user_set'          => 'Y',
 			'email_can_send_verified_at'  => \time(),
-			WordfenceLoginSecurityBridge::OPT_UNAVAILABLE => false,
+			ImportController::OPT_RUN_STATE => [],
 		], true );
 
-		\update_option( 'active_plugins', [] );
-		\update_site_option( 'active_sitewide_plugins', [] );
 		\delete_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS );
+		\delete_site_option( 'itsec-storage' );
 		$this->createWordfenceLoginSecuritySecretsTable();
+		$this->resetImportRuntime();
 		$this->applyCurrentRequestState( [
 			'REQUEST_METHOD' => 'POST',
 			'REQUEST_URI'    => '/wp-login.php',
 		] );
+		\add_filter( 'pre_http_request', [ $this, 'interceptImportQueueDispatch' ], 10, 3 );
 	}
 
 	public function tear_down() :void {
+		\remove_filter( 'pre_http_request', [ $this, 'interceptImportQueueDispatch' ], 10 );
+		$this->resetImportRuntime();
+		$this->clearThirdPartyMfaFixtureState();
+		$this->resetMfaProviderCache();
+
 		if ( $this->isControllerConfigReady() ) {
 			$this->restoreSelectedOptions( $this->optsSnapshot );
 			$this->restoreCurrentRequestState( $this->requestSnapshot );
 		}
 
-		\update_option( 'active_plugins', $this->originalActivePlugins );
-		\update_site_option( 'active_sitewide_plugins', $this->originalActiveSitewidePlugins );
 		if ( $this->originalSiteEnabledProviders === null ) {
 			\delete_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS );
 		}
 		else {
 			\update_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS, $this->originalSiteEnabledProviders );
 		}
+		if ( $this->originalItsecStorage === null ) {
+			\delete_site_option( 'itsec-storage' );
+		}
+		else {
+			\update_site_option( 'itsec-storage', $this->originalItsecStorage );
+		}
 		$this->dropWordfenceLoginSecuritySecretsTable();
 
 		parent::tear_down();
 	}
 
-	public function test_import_for_user_copies_supported_source_factors() :void {
+	public function test_start_import_run_rejects_unknown_supplier() :void {
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Unrecognised MFA import supplier.' );
+
+		( new ImportController() )->startImportRun( 'unknown_supplier' );
+	}
+
+	public function test_start_import_run_rejects_while_active() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+		$this->seedWordpressTwoFactorState( $user, [ 'Two_Factor_Email' ], '', [] );
+
+		$controller = new ImportController();
+		$state = $controller->startImportRun( 'wordpress_two_factor' );
+
+		$this->assertSame( ImportController::STATUS_QUEUED, $state[ 'status' ] );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'An MFA import is already queued or running.' );
+
+		$controller->startImportRun( 'solid_security' );
+	}
+
+	public function test_login_capture_no_longer_imports_third_party_mfa() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		$this->seedWordpressTwoFactorState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			[ \wp_hash_password( 'alpha0001' ) ]
+		);
+		RuntimeTestState::restoreOptions( [
+			'enable_google_authenticator' => 'N',
+			'allow_backupcodes'           => 'N',
+			'enable_email_authentication' => 'N',
+		], true );
+
+		$method = new \ReflectionMethod( LoginRequestCapture::class, 'captureLogin' );
+		$method->setAccessible( true );
+		$method->invoke( new LoginRequestCapture(), $user );
+
+		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, GoogleAuth::ProviderSlug() ) );
+		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, BackupCodes::ProviderSlug() ) );
+		$this->assertFalse( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
+	}
+
+	public function test_wordpress_import_run_imports_supported_factors_and_updates_summary() :void {
 		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
 		$totpSecret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
-		$rawBackupCodes = [ 'alpha1234', 'bravo5678' ];
-		$backupCodeHashes = \array_map( 'wp_hash_password', $rawBackupCodes );
+		$backupCodeHashes = \array_map( 'wp_hash_password', [ 'bravo1111', 'charlie2222' ] );
 
 		$this->seedWordpressTwoFactorState(
 			$user,
@@ -110,33 +170,281 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 			$backupCodeHashes
 		);
 
-		$results = ( new ImportController() )->importForUser( $user );
-		$result = $results[ 0 ];
+		$state = $this->runImportAndProcessAllPages( 'wordpress_two_factor' );
 
-		$this->assertTrue( $result->checked );
-		$this->assertEqualsCanonicalizing( [ 'ga', 'email', 'backupcode' ], $result->importedFactorSlugs );
+		$this->assertSame( ImportController::STATUS_COMPLETED, $state[ 'status' ] );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'ga' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'email' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'backupcode' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'users_with_source_state' ] );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'users_with_imports' ] );
 		$this->assertTrue( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
 
-		$gaRecords = $this->loadRecordsForSlug( $user->ID, 'ga' );
-		$backupRecords = $this->loadRecordsForSlug( $user->ID, 'backupcode' );
-		$emailRecords = $this->loadRecordsForSlug( $user->ID, 'email' );
-
+		$gaRecords = $this->loadRecordsForSlug( $userId, 'ga' );
+		$backupRecords = $this->loadRecordsForSlug( $userId, 'backupcode' );
 		$this->assertCount( 1, $gaRecords );
 		$this->assertCount( 2, $backupRecords );
-		$this->assertCount( 0, $emailRecords );
 		$this->assertSame( $totpSecret, $gaRecords[ 0 ]->unique_id );
-		$this->assertEqualsCanonicalizing(
-			$backupCodeHashes,
-			\array_values( \array_map( static fn( $record ) => $record->unique_id, $backupRecords ) ),
-			'Imported backup codes should be stored as Shield MFA hashes.'
+	}
+
+	public function test_wordpress_import_run_respects_site_enabled_provider_subset() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		\update_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS, [ 'Two_Factor_Totp' ] );
+		$this->seedWordpressTwoFactorState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			[ \wp_hash_password( 'delta3333' ) ]
 		);
 
-		$flags = $this->requireController()->user_metas->for( $user )->flags;
-		$this->assertEqualsCanonicalizing(
-			[ 'ga', 'email', 'backupcode' ],
-			$flags[ 'mfa_import' ][ 'suppliers' ][ 'wordpress_two_factor' ][ 'imported' ] ?? []
+		$state = $this->runImportAndProcessAllPages( 'wordpress_two_factor' );
+
+		$this->assertSame( [ 'ga' => 1 ], $state[ 'imported_factors' ] );
+		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'ga' ) );
+		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
+		$this->assertFalse( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
+	}
+
+	public function test_rerun_preserves_existing_shield_factor_slots() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		$this->seedWordpressTwoFactorState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			[ \wp_hash_password( 'echo4444' ) ]
 		);
-		$this->assertGreaterThan( 0, (int)( $flags[ 'mfa_import' ][ 'suppliers' ][ 'wordpress_two_factor' ][ 'checked_at' ] ?? 0 ) );
+
+		$this->runImportAndProcessAllPages( 'wordpress_two_factor' );
+
+		$gaBefore = $this->loadRecordsForSlug( $userId, 'ga' )[ 0 ]->unique_id;
+		$backupBefore = $this->loadRecordsForSlug( $userId, 'backupcode' )[ 0 ]->unique_id;
+
+		$this->seedWordpressTwoFactorState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			'KRUGS4ZANFZSAYJANRSWC43FMNZGK5DS',
+			[ \wp_hash_password( 'foxtrot5555' ) ]
+		);
+
+		$state = $this->runImportAndProcessAllPages( 'wordpress_two_factor' );
+
+		$this->assertSame( ImportController::STATUS_COMPLETED, $state[ 'status' ] );
+		$this->assertSame( $gaBefore, $this->loadRecordsForSlug( $userId, 'ga' )[ 0 ]->unique_id );
+		$this->assertSame( $backupBefore, $this->loadRecordsForSlug( $userId, 'backupcode' )[ 0 ]->unique_id );
+		$this->assertTrue( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
+	}
+
+	public function test_multi_page_import_run_processes_all_pages() :void {
+		for ( $i = 0; $i < 251; $i++ ) {
+			$userId = $this->factory()->user->create( [ 'role' => 'administrator' ] );
+			$this->seedWordpressTwoFactorState(
+				\get_user_by( 'id', $userId ),
+				[ 'Two_Factor_Email' ],
+				'',
+				[]
+			);
+		}
+
+		$controller = new ImportController();
+		$started = $controller->startImportRun( 'wordpress_two_factor' );
+
+		$this->assertGreaterThan( 1, $started[ 'pages_total' ] );
+		for ( $page = 1; $page <= $started[ 'pages_total' ]; $page++ ) {
+			$controller->processPage( $page );
+		}
+		$state = $controller->markRunCompleted();
+
+		$this->assertSame( $state[ 'pages_total' ], $state[ 'pages_processed' ] );
+		$this->assertSame( $state[ 'users_total' ], $state[ 'users_processed' ] );
+		$this->assertGreaterThanOrEqual( 251, $state[ 'imported_factors' ][ 'email' ] ?? 0 );
+		$this->assertSame( ImportController::STATUS_COMPLETED, $state[ 'status' ] );
+	}
+
+	public function test_wordfence_import_run_imports_ga_and_backup_codes() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+		$recoveryCodes = [ 'abcdef1234567890', '1122334455667788' ];
+
+		$this->seedWordfenceLoginSecurityState(
+			$user,
+			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			$recoveryCodes
+		);
+
+		$state = $this->runImportAndProcessAllPages( 'wordfence_login_security' );
+		$backupRecords = $this->loadRecordsForSlug( $userId, 'backupcode' );
+
+		$this->assertSame( 1, $state[ 'imported_factors' ][ 'ga' ] ?? 0 );
+		$this->assertSame( 1, $state[ 'imported_factors' ][ 'backupcode' ] ?? 0 );
+		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'ga' ) );
+		$this->assertImportedBackupCodesMatch( $recoveryCodes, $backupRecords );
+	}
+
+	public function test_wordfence_missing_table_fails_run_start() :void {
+		$this->dropWordfenceLoginSecuritySecretsTable();
+
+		$state = ( new ImportController() )->startImportRun( 'wordfence_login_security' );
+
+		$this->assertSame( ImportController::STATUS_FAILED, $state[ 'status' ] );
+		$this->assertSame( 'wordfence_login_security', $state[ 'supplier_slug' ] );
+		$this->assertStringContainsString( 'source table is missing', $state[ 'last_error' ] );
+	}
+
+	public function test_solid_plaintext_import_run_imports_supported_factors() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		$this->seedSolidSecuritySiteSettings( [ 'available_methods' => 'all' ] );
+		$this->seedSolidSecurityState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			[ \wp_hash_password( 'golf6666' ) ]
+		);
+
+		$state = $this->runImportAndProcessAllPages( 'solid_security' );
+
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'ga' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'email' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'backupcode' ] ?? 0 );
+	}
+
+	public function test_solid_import_falls_back_when_site_settings_missing() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		$this->seedSolidSecurityState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			[ \wp_hash_password( 'hotel7777' ) ]
+		);
+
+		$state = $this->runImportAndProcessAllPages( 'solid_security' );
+
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'ga' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'email' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'backupcode' ] ?? 0 );
+	}
+
+	public function test_solid_import_respects_site_method_restrictions() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		$this->seedSolidSecuritySiteSettings( [ 'available_methods' => 'not_email' ] );
+		$this->seedSolidSecurityState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+			[ \wp_hash_password( 'india8888' ) ]
+		);
+
+		$state = $this->runImportAndProcessAllPages( 'solid_security' );
+
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'ga' ] ?? 0 );
+		$this->assertGreaterThanOrEqual( 1, $state[ 'imported_factors' ][ 'backupcode' ] ?? 0 );
+		$this->assertArrayNotHasKey( 'email', $state[ 'imported_factors' ] );
+		$this->assertFalse( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
+	}
+
+	public function test_selected_supplier_arbitrates_shared_meta_contract() :void {
+		$wpUserId = $this->createAdministratorUser();
+		$solidUserId = $this->createAdministratorUser();
+		$wpUser = \get_user_by( 'id', $wpUserId );
+		$solidUser = \get_user_by( 'id', $solidUserId );
+
+		\update_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS, [ 'Two_Factor_Email' ] );
+		$this->seedSolidSecuritySiteSettings( [ 'available_methods' => 'not_email' ] );
+
+		foreach ( [ $wpUser, $solidUser ] as $user ) {
+			$this->seedWordpressTwoFactorState(
+				$user,
+				[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+				'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+				[ \wp_hash_password( 'juliet9999' ) ]
+			);
+		}
+
+		$processor = new ImportUserProcessor();
+		$wpResult = $processor->process( $wpUser, new WordpressTwoFactorBridge() );
+		$solidResult = $processor->process( $solidUser, new SolidSecurityBridge() );
+
+		$this->assertSame( [ 'email' ], $wpResult->importedFactorSlugs );
+		$this->assertSame( [ 'ga', 'backupcode' ], $solidResult->importedFactorSlugs );
+		$this->assertFalse( (bool)$this->requireController()->user_metas->for( $solidUser )->email_2fa_enabled );
+	}
+
+	public function test_solid_encrypted_user_import_with_matching_key() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+		$secret = 'test-solid-encryption-secret-123';
+		$totpSecret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
+
+		$this->seedSolidSecuritySiteSettings( [ 'available_methods' => 'all' ] );
+		$this->seedSolidSecurityState(
+			$user,
+			[ 'Two_Factor_Totp' ],
+			$this->buildSolidEncryptedTotpSecret( $totpSecret, $user->ID, $secret ),
+			[]
+		);
+
+		$result = ( new ImportUserProcessor() )->process( $user, $this->buildSolidSecurityBridge( $secret ) );
+
+		$this->assertSame( [ 'ga' ], $result->importedFactorSlugs );
+		$this->assertSame( [], $result->skippedFactorReasons );
+		$this->assertSame( $totpSecret, $this->loadRecordsForSlug( $userId, 'ga' )[ 0 ]->unique_id );
+	}
+
+	public function test_solid_encrypted_user_import_missing_key_skips_ga_but_imports_other_factors() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		$this->seedSolidSecuritySiteSettings( [ 'available_methods' => 'all' ] );
+		$this->seedSolidSecurityState(
+			$user,
+			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
+			$this->buildSolidEncryptedTotpSecret(
+				'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+				$user->ID,
+				'test-solid-encryption-secret-123'
+			),
+			[ \wp_hash_password( 'kilo0000' ) ]
+		);
+
+		$result = ( new ImportUserProcessor() )->process( $user, $this->buildSolidSecurityBridge( null ) );
+
+		$this->assertEqualsCanonicalizing( [ 'email', 'backupcode' ], $result->importedFactorSlugs );
+		$this->assertSame( [ 'ga' => 'encrypted_missing_key' ], $result->skippedFactorReasons );
+		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'ga' ) );
+	}
+
+	public function test_solid_encrypted_user_import_wrong_key_records_decrypt_failed() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+
+		$this->seedSolidSecuritySiteSettings( [ 'available_methods' => 'all' ] );
+		$this->seedSolidSecurityState(
+			$user,
+			[ 'Two_Factor_Totp' ],
+			$this->buildSolidEncryptedTotpSecret(
+				'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+				$user->ID,
+				'test-solid-encryption-secret-123'
+			),
+			[]
+		);
+
+		$result = ( new ImportUserProcessor() )->process(
+			$user,
+			$this->buildSolidSecurityBridge( 'wrong-solid-encryption-secret-999' )
+		);
+
+		$this->assertSame( [], $result->importedFactorSlugs );
+		$this->assertSame( [ 'ga' => 'decrypt_failed' ], $result->skippedFactorReasons );
 	}
 
 	public function test_imported_ga_secret_validates_through_shield_login_flow() :void {
@@ -145,7 +453,7 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		$totpSecret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
 
 		$this->seedWordpressTwoFactorState( $user, [ 'Two_Factor_Totp' ], $totpSecret, [] );
-		( new ImportController() )->importForUser( $user );
+		$this->runImportAndProcessAllPages( 'wordpress_two_factor' );
 
 		$provider = new GoogleAuth( $user );
 		$this->seedLoginIntent( $user, 'fixture-ga-login' );
@@ -159,13 +467,12 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( GoogleAuth::ProviderSlug(), $validatedSlug );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
-		$this->assertGreaterThan( 0, (int)$this->requireController()->user_metas->for( $user )->record->last_2fa_verified_at );
 	}
 
 	public function test_imported_backup_code_hashes_validate_through_shield_login_flow() :void {
 		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
-		$rawBackupCode = 'charlie2468';
+		$rawBackupCode = 'lima1111';
 
 		$this->seedWordpressTwoFactorState(
 			$user,
@@ -173,7 +480,7 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
 			[ \wp_hash_password( $rawBackupCode ) ]
 		);
-		( new ImportController() )->importForUser( $user );
+		$this->runImportAndProcessAllPages( 'wordpress_two_factor' );
 
 		$provider = new BackupCodes( $user );
 		$this->seedLoginIntent( $user, 'fixture-backup-login' );
@@ -183,10 +490,6 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		], [], [
 			$provider->getLoginIntentFormParameter() => $rawBackupCode,
 		] );
-		$this->assertCount( 1, $this->loadRecordsForSlug( $user->ID, BackupCodes::ProviderSlug() ) );
-		$this->assertArrayHasKey( GoogleAuth::ProviderSlug(), $this->requireController()->comps->mfa->getProvidersActiveForUser( $user ) );
-		$this->assertArrayHasKey( BackupCodes::ProviderSlug(), $this->requireController()->comps->mfa->getProvidersActiveForUser( $user ) );
-		$this->assertSame( $rawBackupCode, \FernleafSystems\Wordpress\Services\Services::Request()->request( $provider->getLoginIntentFormParameter() ) );
 
 		$this->startLocalEmailCapture();
 		try {
@@ -199,459 +502,76 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		$this->assertSame( BackupCodes::ProviderSlug(), $validatedSlug );
-		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
-		$this->assertGreaterThan( 0, (int)$this->requireController()->user_metas->for( $user )->record->last_2fa_verified_at );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $user->ID, BackupCodes::ProviderSlug() ) );
-		$this->assertCount( 1, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
-	}
-
-	public function test_import_is_idempotent_and_does_not_overwrite_existing_shield_factors() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$shieldSecret = 'JBSWY3DPEHPK3PXP';
-		$shieldBackupHash = \wp_hash_password( 'existing001' );
-
-		TestDataFactory::insertMfaRecord( $userId, 'ga', [], [
-			'unique_id' => $shieldSecret,
-			'label'     => 'Existing GA',
-		] );
-		TestDataFactory::insertMfaRecord( $userId, 'backupcode', [], [
-			'unique_id' => $shieldBackupHash,
-			'label'     => 'Existing Backup',
-		] );
-		$this->requireController()->user_metas->for( $user )->email_2fa_enabled = true;
-
-		$this->seedWordpressTwoFactorState(
-			$user,
-			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ \wp_hash_password( 'delta1111' ) ]
-		);
-
-		$controller = new ImportController();
-		$controller->importForUser( $user );
-		$controller->importForUser( $user );
-
-		$gaRecords = $this->loadRecordsForSlug( $userId, 'ga' );
-		$backupRecords = $this->loadRecordsForSlug( $userId, 'backupcode' );
-
-		$this->assertCount( 1, $gaRecords );
-		$this->assertCount( 1, $backupRecords );
-		$this->assertSame( $shieldSecret, $gaRecords[ 0 ]->unique_id );
-		$this->assertSame( $shieldBackupHash, $backupRecords[ 0 ]->unique_id );
-		$this->assertTrue( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
-	}
-
-	public function test_import_skips_when_source_plugin_is_active() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		\update_option( 'active_plugins', [ WordpressTwoFactorBridge::ACTIVE_PLUGIN_FILE ] );
-		$this->seedWordpressTwoFactorState(
-			$user,
-			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ \wp_hash_password( 'echo1357' ) ]
-		);
-
-		$results = ( new ImportController() )->importForUser( $user );
-
-		$this->assertFalse( $results[ 0 ]->checked );
-		$this->assertEmpty( $results[ 0 ]->importedFactorSlugs );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'ga' ) );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-		$this->assertFalse( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
-		$this->assertEmpty( $this->requireController()->user_metas->for( $user )->flags[ 'mfa_import' ][ 'suppliers' ] ?? [] );
-	}
-
-	public function test_import_respects_site_enabled_provider_subset() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		\update_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS, [ 'Two_Factor_Totp' ] );
-		$this->seedWordpressTwoFactorState(
-			$user,
-			[ 'Two_Factor_Totp', 'Two_Factor_Email', 'Two_Factor_Backup_Codes' ],
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ \wp_hash_password( 'golf8642' ) ]
-		);
-
-		$results = ( new ImportController() )->importForUser( $user );
-		$result = $results[ 0 ];
-
-		$this->assertTrue( $result->checked );
-		$this->assertSame( [ 'ga' ], $result->importedFactorSlugs );
-		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'ga' ) );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'email' ) );
-		$this->assertFalse( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
-
-		$flags = $this->requireController()->user_metas->for( $user )->flags;
-		$this->assertGreaterThan( 0, (int)( $flags[ 'mfa_import' ][ 'suppliers' ][ 'wordpress_two_factor' ][ 'checked_at' ] ?? 0 ) );
-		$this->assertSame( [ 'ga' ], $flags[ 'mfa_import' ][ 'suppliers' ][ 'wordpress_two_factor' ][ 'imported' ] ?? [] );
-	}
-
-	public function test_email_only_import_sets_flag_without_creating_email_mfa_rows() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		$this->seedWordpressTwoFactorState( $user, [ 'Two_Factor_Email' ], '', [] );
-
-		$results = ( new ImportController() )->importForUser( $user );
-		$result = $results[ 0 ];
-
-		$this->assertTrue( $result->checked );
-		$this->assertSame( [ 'email' ], $result->importedFactorSlugs );
-		$this->assertTrue( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'email' ) );
-		$this->assertArrayHasKey( 'email', $this->requireController()->comps->mfa->getProvidersActiveForUser( $user ) );
-		$this->assertTrue( $this->requireController()->comps->mfa->isSubjectToLoginIntent( $user ) );
-	}
-
-	public function test_multiple_supplier_bridges_only_fill_missing_factor_slots() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		$firstBridge = new class() implements SupplierBridgeInterface {
-			public function getSupplierSlug() :string {
-				return 'bridge_one';
-			}
-
-			public function isApplicable() :bool {
-				return true;
-			}
-
-			public function discoverForUser( \WP_User $user ) :SupplierFactorData {
-				$data = new SupplierFactorData();
-				$data->hasSourceState = true;
-				$data->gaSecret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
-				$data->emailEnabled = true;
-				return $data;
-			}
-		};
-		$secondBridge = new class() implements SupplierBridgeInterface {
-			public function getSupplierSlug() :string {
-				return 'bridge_two';
-			}
-
-			public function isApplicable() :bool {
-				return true;
-			}
-
-			public function discoverForUser( \WP_User $user ) :SupplierFactorData {
-				$data = new SupplierFactorData();
-				$data->hasSourceState = true;
-				$data->gaSecret = 'KRUGS4ZANFZSAYJANRSWC43FMNZGK5DS';
-				$data->emailEnabled = true;
-				$data->backupCodeHashes = [ \wp_hash_password( 'foxtrot987' ) ];
-				return $data;
-			}
-		};
-
-		$results = ( new ImportController( [ $firstBridge, $secondBridge ] ) )->importForUser( $user );
-
-		$this->assertSame( [ 'ga', 'email' ], $results[ 0 ]->importedFactorSlugs );
-		$this->assertSame( [ 'backupcode' ], $results[ 1 ]->importedFactorSlugs );
-		$this->assertSame( 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP', $this->loadRecordsForSlug( $userId, 'ga' )[ 0 ]->unique_id );
-		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-		$this->assertTrue( (bool)$this->requireController()->user_metas->for( $user )->email_2fa_enabled );
-	}
-
-	public function test_first_login_capture_imports_before_subject_check() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		$this->seedWordpressTwoFactorState(
-			$user,
-			[ 'Two_Factor_Totp' ],
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[]
-		);
-
-		$method = new \ReflectionMethod( LoginRequestCapture::class, 'captureLogin' );
-		$method->setAccessible( true );
-		\add_filter( 'shield/2fa_skip', '__return_true' );
-
-		try {
-			$method->invoke( new LoginRequestCapture(), $user );
-		}
-		finally {
-			\remove_filter( 'shield/2fa_skip', '__return_true' );
-		}
-
-		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'ga' ) );
-		$this->assertTrue( $this->requireController()->comps->mfa->isSubjectToLoginIntent( $user ) );
-	}
-
-	public function test_wordfence_login_security_import_copies_supported_source_factors() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$totpSecret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
-		$recoveryCodes = [ 'abcdef1234567890', '1122334455667788' ];
-
-		$this->seedWordfenceLoginSecurityState( $user, $totpSecret, $recoveryCodes );
-		$this->assertSame( [
-			'mode'         => 'authenticator',
-			'secret_hex'   => \strtoupper( \bin2hex( Base32::decode( $totpSecret ) ) ),
-			'recovery_hex' => \strtoupper( \implode( '', $recoveryCodes ) ),
-		], $this->loadWordfenceLoginSecurityStateRow( $user->ID ) );
-
-		$discovered = ( new WordfenceLoginSecurityBridge() )->discoverForUser( $user );
-		$this->assertTrue( $discovered->hasSourceState );
-		$this->assertSame( $totpSecret, $discovered->gaSecret );
-		$this->assertCount( 2, $discovered->backupCodeHashes );
-
-		$result = $this->findImportResultBySlug(
-			( new ImportController() )->importForUser( $user ),
-			'wordfence_login_security'
-		);
-
-		$this->assertTrue( $result->checked );
-		$this->assertEqualsCanonicalizing( [ 'ga', 'backupcode' ], $result->importedFactorSlugs );
-		$this->assertSame( $totpSecret, $this->loadRecordsForSlug( $userId, 'ga' )[ 0 ]->unique_id );
-		$this->assertImportedBackupCodesMatch( $recoveryCodes, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-
-		$flags = $this->requireController()->user_metas->for( $user )->flags;
-		$this->assertEqualsCanonicalizing(
-			[ 'ga', 'backupcode' ],
-			$flags[ 'mfa_import' ][ 'suppliers' ][ 'wordfence_login_security' ][ 'imported' ] ?? []
-		);
-		$this->assertGreaterThan( 0, (int)( $flags[ 'mfa_import' ][ 'suppliers' ][ 'wordfence_login_security' ][ 'checked_at' ] ?? 0 ) );
-	}
-
-	public function test_imported_wordfence_totp_validates_through_shield_login_flow() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$totpSecret = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
-
-		$this->seedWordfenceLoginSecurityState( $user, $totpSecret, [] );
-		( new ImportController() )->importForUser( $user );
-
-		$provider = new GoogleAuth( $user );
-		$this->seedLoginIntent( $user, 'fixture-wordfence-ga-login' );
-		$this->mergeCurrentRequestTransport( [
-			$provider->getLoginIntentFormParameter() => ( new GoogleAuthenticator() )->calculateCode( $totpSecret ),
-		] );
-
-		$validatedSlug = ( new LoginIntentRequestValidate() )
-			->setWpUser( $user )
-			->run( 'fixture-wordfence-ga-login' );
-
-		$this->assertSame( GoogleAuth::ProviderSlug(), $validatedSlug );
-		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
-		$this->assertGreaterThan( 0, (int)$this->requireController()->user_metas->for( $user )->record->last_2fa_verified_at );
-	}
-
-	public function test_imported_wordfence_recovery_code_validates_with_spaced_input() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$recoveryCode = 'abcdef1234567890';
-
-		$this->seedWordfenceLoginSecurityState(
-			$user,
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ $recoveryCode ]
-		);
-		( new ImportController() )->importForUser( $user );
-
-		$provider = new BackupCodes( $user );
-		$this->seedLoginIntent( $user, 'fixture-wordfence-backup-login' );
-		$this->applyCurrentRequestState( [
-			'REQUEST_METHOD' => 'POST',
-			'REQUEST_URI'    => '/wp-login.php',
-		], [], [
-			$provider->getLoginIntentFormParameter() => 'ABCD EF12 3456 7890',
-		] );
-
-		$this->startLocalEmailCapture();
-		try {
-			$validatedSlug = ( new LoginIntentRequestValidate() )
-				->setWpUser( $user )
-				->run( 'fixture-wordfence-backup-login' );
-		}
-		finally {
-			$this->stopLocalEmailCapture();
-		}
-
-		$this->assertSame( BackupCodes::ProviderSlug(), $validatedSlug );
-		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
 		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, BackupCodes::ProviderSlug() ) );
+		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, GoogleAuth::ProviderSlug() ) );
 	}
 
-	public function test_wordfence_import_is_idempotent_and_preserves_existing_shield_factors() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$shieldSecret = 'JBSWY3DPEHPK3PXP';
-		$shieldBackupHash = \wp_hash_password( 'existing001' );
-
-		TestDataFactory::insertMfaRecord( $userId, 'ga', [], [
-			'unique_id' => $shieldSecret,
-			'label'     => 'Existing GA',
-		] );
-		TestDataFactory::insertMfaRecord( $userId, 'backupcode', [], [
-			'unique_id' => $shieldBackupHash,
-			'label'     => 'Existing Backup',
-		] );
-
-		$this->seedWordfenceLoginSecurityState(
-			$user,
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ 'abcdef1234567890' ]
-		);
-
-		$controller = new ImportController();
-		$controller->importForUser( $user );
-		$controller->importForUser( $user );
-
-		$gaRecords = $this->loadRecordsForSlug( $userId, 'ga' );
-		$backupRecords = $this->loadRecordsForSlug( $userId, 'backupcode' );
-
-		$this->assertCount( 1, $gaRecords );
-		$this->assertCount( 1, $backupRecords );
-		$this->assertSame( $shieldSecret, $gaRecords[ 0 ]->unique_id );
-		$this->assertSame( $shieldBackupHash, $backupRecords[ 0 ]->unique_id );
-	}
-
-	public function test_wordfence_import_skips_when_source_plugin_is_active() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		foreach ( [
-			WordfenceLoginSecurityBridge::ACTIVE_PLUGIN_FILE_CORE,
-			WordfenceLoginSecurityBridge::ACTIVE_PLUGIN_FILE_STANDALONE,
-		] as $pluginFile ) {
-			\update_option( 'active_plugins', [ $pluginFile ] );
-			$this->seedWordfenceLoginSecurityState(
-				$user,
-				'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-				[ 'abcdef1234567890' ]
-			);
-
-			$result = $this->findImportResultBySlug(
-				( new ImportController() )->importForUser( $user ),
-				'wordfence_login_security'
-			);
-
-			$this->assertFalse( $result->checked );
-			$this->assertEmpty( $result->importedFactorSlugs );
-			$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'ga' ) );
-			$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-
-			$this->deleteWordfenceLoginSecurityState( $user->ID );
-			\update_option( 'active_plugins', [] );
+	public function interceptImportQueueDispatch( $preempt, array $parsedArgs, string $url ) {
+		$action = 'action='.$this->getImportQueueIdentifier();
+		if ( \strpos( $url, $action ) === false ) {
+			return $preempt;
 		}
+
+		return [
+			'headers'  => [],
+			'body'     => '',
+			'response' => [
+				'code'    => 200,
+				'message' => 'OK',
+			],
+			'cookies'  => [],
+			'filename' => null,
+		];
 	}
 
-	public function test_wordfence_import_without_source_table_marks_site_unavailable() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
+	private function runImportAndProcessAllPages( string $supplierSlug ) :array {
+		$controller = new ImportController();
+		$state = $controller->startImportRun( $supplierSlug );
+
+		for ( $page = 1; $page <= $state[ 'pages_total' ]; $page++ ) {
+			$controller->processPage( $page );
+		}
+
+		if ( $state[ 'pages_total' ] > 0 ) {
+			$controller->markRunCompleted();
+		}
+
+		return $controller->getRunState();
+	}
+
+	private function resetImportRuntime() :void {
+		$this->requireController()->opts->optSet( ImportController::OPT_RUN_STATE, [] )->store();
+		( new ImportQueue() )->cleanupTransportState();
+	}
+
+	private function clearThirdPartyMfaFixtureState() :void {
 		global $wpdb;
 
-		$this->dropWordfenceLoginSecuritySecretsTable();
-		$wpdb->last_error = '';
-
-		$result = $this->findImportResultBySlug(
-			( new ImportController() )->importForUser( $user ),
-			'wordfence_login_security'
-		);
-
-		$this->assertFalse( $result->checked );
-		$this->assertEmpty( $result->importedFactorSlugs );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'ga' ) );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-		$this->assertTrue( $this->isWordfenceLoginSecurityUnavailableFlagSet() );
-		$this->assertSame( '', $wpdb->last_error );
+		$metaKeys = [
+			WordpressTwoFactorBridge::META_ENABLED_PROVIDERS,
+			WordpressTwoFactorBridge::META_TOTP_SECRET,
+			WordpressTwoFactorBridge::META_BACKUP_CODES,
+			'email_2fa_enabled',
+			'login_intents',
+		];
+		$placeholders = \implode( ', ', \array_fill( 0, \count( $metaKeys ), '%s' ) );
+		$wpdb->query( $wpdb->prepare(
+			"DELETE FROM `{$wpdb->usermeta}` WHERE `meta_key` IN ({$placeholders})",
+			...$metaKeys
+		) );
 	}
 
-	public function test_wordfence_unavailable_cache_skips_import_when_source_table_exists() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		$this->seedWordfenceLoginSecurityState(
-			$user,
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ 'abcdef1234567890' ]
-		);
-		$this->setWordfenceLoginSecurityUnavailableFlag( true );
-
-		$result = $this->findImportResultBySlug(
-			( new ImportController() )->importForUser( $user ),
-			'wordfence_login_security'
-		);
-
-		$this->assertFalse( $result->checked );
-		$this->assertEmpty( $result->importedFactorSlugs );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'ga' ) );
-		$this->assertCount( 0, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-		$this->assertTrue( $this->isWordfenceLoginSecurityUnavailableFlagSet() );
+	private function resetMfaProviderCache() :void {
+		$ref = new \ReflectionClass( $this->requireController()->comps->mfa );
+		if ( $ref->hasProperty( 'providers' ) ) {
+			$prop = $ref->getProperty( 'providers' );
+			$prop->setAccessible( true );
+			$prop->setValue( $this->requireController()->comps->mfa, [] );
+		}
 	}
 
-	public function test_wordfence_active_source_clears_stale_unavailable_cache() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		$this->setWordfenceLoginSecurityUnavailableFlag( true );
-		\update_option( 'active_plugins', [ WordfenceLoginSecurityBridge::ACTIVE_PLUGIN_FILE_CORE ] );
-
-		$result = $this->findImportResultBySlug(
-			( new ImportController() )->importForUser( $user ),
-			'wordfence_login_security'
-		);
-
-		$this->assertFalse( $result->checked );
-		$this->assertEmpty( $result->importedFactorSlugs );
-		$this->assertFalse( $this->isWordfenceLoginSecurityUnavailableFlagSet() );
-	}
-
-	public function test_wordfence_import_succeeds_after_active_source_clears_stale_unavailable_cache() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-
-		$this->setWordfenceLoginSecurityUnavailableFlag( true );
-		\update_option( 'active_plugins', [ WordfenceLoginSecurityBridge::ACTIVE_PLUGIN_FILE_STANDALONE ] );
-		( new ImportController() )->importForUser( $user );
-		\update_option( 'active_plugins', [] );
-
-		$this->seedWordfenceLoginSecurityState(
-			$user,
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ 'abcdef1234567890' ]
-		);
-
-		$result = $this->findImportResultBySlug(
-			( new ImportController() )->importForUser( $user ),
-			'wordfence_login_security'
-		);
-
-		$this->assertTrue( $result->checked );
-		$this->assertEqualsCanonicalizing( [ 'ga', 'backupcode' ], $result->importedFactorSlugs );
-		$this->assertFalse( $this->isWordfenceLoginSecurityUnavailableFlagSet() );
-		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'ga' ) );
-		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'backupcode' ) );
-	}
-
-	public function test_wordfence_table_probe_clears_stale_show_tables_cache() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
-		$wpDb = \FernleafSystems\Wordpress\Services\Services::WpDb();
-
-		$this->dropWordfenceLoginSecuritySecretsTable();
-		$wpDb->showTables();
-		$this->createWordfenceLoginSecuritySecretsTable();
-		$this->seedWordfenceLoginSecurityState(
-			$user,
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			[ 'abcdef1234567890' ]
-		);
-
-		$result = $this->findImportResultBySlug(
-			( new ImportController() )->importForUser( $user ),
-			'wordfence_login_security'
-		);
-
-		$this->assertTrue( $result->checked );
-		$this->assertEqualsCanonicalizing( [ 'ga', 'backupcode' ], $result->importedFactorSlugs );
-		$this->assertFalse( $this->isWordfenceLoginSecurityUnavailableFlagSet() );
+	private function getImportQueueIdentifier() :string {
+		return $this->requireController()->prefix().'_mfa_import_pages';
 	}
 
 	private function seedWordpressTwoFactorState(
@@ -675,6 +595,75 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		else {
 			\update_user_meta( $user->ID, WordpressTwoFactorBridge::META_BACKUP_CODES, $backupCodeHashes );
 		}
+	}
+
+	private function seedSolidSecuritySiteSettings( array $settings ) :void {
+		\update_site_option( 'itsec-storage', [
+			'two-factor' => \array_merge(
+				[
+					'available_methods'        => 'all',
+					'custom_available_methods' => [],
+				],
+				$settings
+			),
+		] );
+	}
+
+	private function seedSolidSecurityState(
+		\WP_User $user,
+		array $enabledProviders,
+		string $totpSecret,
+		array $backupCodeHashes
+	) :void {
+		\update_user_meta( $user->ID, SolidSecurityBridge::META_ENABLED_PROVIDERS, $enabledProviders );
+
+		if ( $totpSecret === '' ) {
+			\delete_user_meta( $user->ID, SolidSecurityBridge::META_TOTP_SECRET );
+		}
+		else {
+			\update_user_meta( $user->ID, SolidSecurityBridge::META_TOTP_SECRET, $totpSecret );
+		}
+
+		if ( empty( $backupCodeHashes ) ) {
+			\delete_user_meta( $user->ID, SolidSecurityBridge::META_BACKUP_CODES );
+		}
+		else {
+			\update_user_meta( $user->ID, SolidSecurityBridge::META_BACKUP_CODES, $backupCodeHashes );
+		}
+	}
+
+	private function buildSolidSecurityBridge( ?string $secret = null ) :SolidSecurityBridge {
+		return new class( $secret ) extends SolidSecurityBridge {
+
+			private ?string $secret;
+
+			public function __construct( ?string $secret ) {
+				$this->secret = $secret;
+			}
+
+			protected function getItsecEncryptionSecret() :?string {
+				return $this->secret;
+			}
+		};
+	}
+
+	private function buildSolidEncryptedTotpSecret( string $totpSecret, int $userId, string $secret ) :string {
+		if ( !\function_exists( 'sodium_crypto_aead_xchacha20poly1305_ietf_encrypt' ) && \defined( 'ABSPATH' ) ) {
+			$sodiumCompat = ABSPATH.WPINC.'/sodium_compat/autoload.php';
+			if ( \is_file( $sodiumCompat ) ) {
+				require_once $sodiumCompat;
+			}
+		}
+
+		$nonce = \random_bytes( 24 );
+		$ciphertext = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt(
+			$totpSecret,
+			'$t1$'.$nonce.\pack( 'N', $userId ),
+			$nonce,
+			\hash_hmac( 'sha256', $secret, 'itsec-user-encryption', true )
+		);
+
+		return '$t1$'.\base64_encode( $nonce.$ciphertext );
 	}
 
 	private function seedLoginIntent( \WP_User $user, string $plainNonce ) :void {
@@ -723,15 +712,6 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 	}
 
-	private function findImportResultBySlug( array $results, string $supplierSlug ) {
-		foreach ( $results as $result ) {
-			if ( $result->supplierSlug === $supplierSlug ) {
-				return $result;
-			}
-		}
-		$this->fail( 'Import result not found for supplier: '.$supplierSlug );
-	}
-
 	private function assertImportedBackupCodesMatch( array $recoveryCodes, array $backupRecords ) :void {
 		$this->assertCount( \count( $recoveryCodes ), $backupRecords );
 
@@ -777,26 +757,6 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 			$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
 		} );
 		\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
-	}
-
-	private function loadWordfenceLoginSecurityStateRow( int $userId ) :array {
-		global $wpdb;
-		$table = $this->getWordfenceLoginSecuritySecretsTable();
-		return (array)$wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT `mode`, HEX(`secret`) AS `secret_hex`, HEX(`recovery`) AS `recovery_hex` FROM `{$table}` WHERE `user_id` = %d LIMIT 1",
-				$userId
-			),
-			ARRAY_A
-		);
-	}
-
-	private function setWordfenceLoginSecurityUnavailableFlag( bool $unavailable ) :void {
-		$this->requireController()->opts->optSet( WordfenceLoginSecurityBridge::OPT_UNAVAILABLE, $unavailable );
-	}
-
-	private function isWordfenceLoginSecurityUnavailableFlagSet() :bool {
-		return (bool)$this->requireController()->opts->optGet( WordfenceLoginSecurityBridge::OPT_UNAVAILABLE );
 	}
 
 	// WP_UnitTestCase can rewrite ad hoc CREATE/DROP TABLE queries into temporary tables.

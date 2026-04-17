@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Login\TwoFactor\Import\ImportController;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayDynamic;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\{
 	ShieldLoginIntentPage,
@@ -32,9 +31,6 @@ class LoginRequestCapture {
 		$con = self::con();
 		$mfaCon = $con->comps->mfa;
 		$isAppPasswordAuth = Services::WpUsers()->isAppPasswordAuth();
-		if ( !$isAppPasswordAuth ) {
-			( new ImportController() )->importForUser( $user );
-		}
 		if ( $mfaCon->isSubjectToLoginIntent( $user ) && !$isAppPasswordAuth ) {
 
 			if ( !$this->canUserMfaSkip( $user ) ) {
