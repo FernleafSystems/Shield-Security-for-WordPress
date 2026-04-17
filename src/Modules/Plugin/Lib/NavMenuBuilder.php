@@ -143,35 +143,66 @@ class NavMenuBuilder {
 	 * @return list<array<string,mixed>>
 	 */
 	private function buildConfigureTools() :array {
-		$con = self::con();
-		$zoneCon = $con->comps->zones;
+		$toolItemsById = [];
+		foreach ( StaticToolDefinitions::forMode( PluginNavs::MODE_CONFIGURE ) as $definition ) {
+			$toolItemsById[ $definition[ 'id' ] ] = $this->buildToolItemFromDefinition( $definition );
+		}
+
+		$toolItemsById[ 'tool_whitelabel' ] = $this->buildConfigureZoneToolItem(
+			Whitelabel::Slug(),
+			PluginNavs::NAV_TOOLS.'-whitelabel',
+			__( 'White Label', 'wp-simple-firewall' ),
+			'palette'
+		);
+		$toolItemsById[ 'tool_loginhide' ] = $this->buildConfigureZoneToolItem(
+			LoginHide::Slug(),
+			PluginNavs::NAV_TOOLS.'-loginhide',
+			__( 'Hide Login', 'wp-simple-firewall' ),
+			'person-lock'
+		);
+		$toolItemsById[ 'tool_integrations' ] = $this->buildConfigureZoneToolItem(
+			ModuleIntegrations::Slug(),
+			PluginNavs::NAV_TOOLS.'-integrations',
+			__( 'Integrations', 'wp-simple-firewall' ),
+			'puzzle'
+		);
+
+		// Configure sidebar mixes route links and zone offcanvas actions, so final UI order lives here.
+		return \array_map(
+			function ( string $toolId ) use ( $toolItemsById ) :array {
+				if ( !isset( $toolItemsById[ $toolId ] ) ) {
+					throw new \LogicException( sprintf( 'Missing configure sidebar tool definition: %s', $toolId ) );
+				}
+				return $toolItemsById[ $toolId ];
+			},
+			$this->configureToolOrder()
+		);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function configureToolOrder() :array {
+		return [
+			'tool_rules_manage',
+			'tool_rules_build',
+			'tool_lockdown',
+			'tool_importexport',
+			'tool_whitelabel',
+			'tool_loginhide',
+			'tool_integrations',
+			'tool_guidedsetup',
+			'tool_debug',
+		];
+	}
+
+	private function buildConfigureZoneToolItem( string $componentSlug, string $slug, string $title, string $icon ) :array {
 		return \array_merge(
-			$this->buildStaticToolItemsForMode( PluginNavs::MODE_CONFIGURE ),
+			self::con()->comps->zones->getZoneComponent( $componentSlug )->getActions()[ 'config' ],
 			[
-			\array_merge(
-				$zoneCon->getZoneComponent( Whitelabel::Slug() )->getActions()[ 'config' ],
-				[
-					'slug'  => PluginNavs::NAV_TOOLS.'-whitelabel',
-					'title' => __( 'White Label', 'wp-simple-firewall' ),
-					'img'   => $con->svgs->iconClass( 'palette' ),
-				]
-			),
-			\array_merge(
-				$zoneCon->getZoneComponent( LoginHide::Slug() )->getActions()[ 'config' ],
-				[
-					'slug'  => PluginNavs::NAV_TOOLS.'-loginhide',
-					'title' => __( 'Hide Login', 'wp-simple-firewall' ),
-					'img'   => $con->svgs->iconClass( 'person-lock' ),
-				]
-			),
-			\array_merge(
-				$zoneCon->getZoneComponent( ModuleIntegrations::Slug() )->getActions()[ 'config' ],
-				[
-					'slug'  => PluginNavs::NAV_TOOLS.'-integrations',
-					'title' => __( 'Integrations', 'wp-simple-firewall' ),
-					'img'   => $con->svgs->iconClass( 'puzzle' ),
-				]
-			),
+				'slug'  => $slug,
+				'title' => $title,
+				'img'   => self::con()->svgs->iconClass( $icon ),
 			]
 		);
 	}
