@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 
 class ScanResultsFileLocker extends ScanResultsBase {
@@ -17,6 +18,12 @@ class ScanResultsFileLocker extends ScanResultsBase {
 	}
 
 	public function descProtected() :string {
+		$pendingDisplays = new GetPendingFileLockDisplays();
+		$pendingCount = $pendingDisplays->count();
+		if ( $pendingCount > 0 ) {
+			return $pendingDisplays->describeCount( $pendingCount );
+		}
+
 		return __( "Locked files don't appear to have any changes that need review.", 'wp-simple-firewall' );
 	}
 

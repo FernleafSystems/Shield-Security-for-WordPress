@@ -227,6 +227,7 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 			$overrides[ 'malwareEnabled' ] ?? false,
 			$overrides[ 'afsDisplayItems' ] ?? [],
 			$overrides[ 'problemFileLocks' ] ?? [],
+			$overrides[ 'pendingFileLockDisplays' ] ?? [],
 			$overrides[ 'goodFileLocks' ] ?? [],
 			$overrides[ 'pluginRailItems' ] ?? [],
 			$overrides[ 'themeRailItems' ] ?? [],
@@ -254,6 +255,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	private bool $malwareEnabled;
 	private array $afsDisplayItems;
 	private array $problemLocks;
+	private array $pendingFileLockDisplays;
 	private array $goodLocks;
 	private array $pluginRailItems;
 	private array $themeRailItems;
@@ -277,6 +279,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		bool $malwareEnabled = false,
 		array $afsDisplayItems = [],
 		array $problemLocks = [],
+		array $pendingFileLockDisplays = [],
 		array $goodLocks = [],
 		array $pluginRailItems = [],
 		array $themeRailItems = [],
@@ -299,6 +302,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		$this->malwareEnabled = $malwareEnabled;
 		$this->afsDisplayItems = $afsDisplayItems;
 		$this->problemLocks = $problemLocks;
+		$this->pendingFileLockDisplays = $pendingFileLockDisplays;
 		$this->goodLocks = $goodLocks;
 		$this->pluginRailItems = $pluginRailItems;
 		$this->themeRailItems = $themeRailItems;
@@ -384,6 +388,10 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 	protected function getGoodFileLocks() :array {
 		return $this->goodLocks;
+	}
+
+	protected function getPendingFileLockDisplays() :array {
+		return $this->pendingFileLockDisplays;
 	}
 
 	protected function isFileLockerEnabled() :bool {

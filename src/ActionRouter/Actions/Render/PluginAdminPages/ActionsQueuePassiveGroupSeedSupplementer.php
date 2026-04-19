@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
+
 /**
  * @phpstan-import-type BucketSource from ActionsQueueBucketsBuilder
  * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
@@ -147,6 +149,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		}
 
 		$seeds = [];
+		$pendingFileLockerCount = $this->getPendingFileLockerCount();
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
 			if ( $definitionKey === 'plugins' && $this->bucketHasFullyIgnoredPluginAttention( $bucketSource ) ) {
 				continue;
@@ -172,9 +175,41 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'maintenance_rows'            => [],
 				'summary_row'                 => [],
 			];
+			if ( $definitionKey === 'file_locker' && $pendingFileLockerCount > 0 ) {
+				$seeds[ \array_key_last( $seeds ) ] = \array_merge(
+					$seeds[ \array_key_last( $seeds ) ],
+					[
+						'status'                        => 'neutral',
+						'narrative'                     => $this->describePendingFileLockerState( $pendingFileLockerCount ),
+						'status_label_override'         => __( 'Pending', 'wp-simple-firewall' ),
+						'header_summary_override'       => $this->describePendingFileLockerState( $pendingFileLockerCount ),
+						'header_focus_override'         => \sprintf(
+							_n(
+								'%s protected file is still waiting for its first lock.',
+								'%s protected files are still waiting for their first lock.',
+								$pendingFileLockerCount,
+								'wp-simple-firewall'
+							),
+							$pendingFileLockerCount
+						),
+						'header_next_step_override'     => __( 'Open this view to monitor the files still waiting for their first lock.', 'wp-simple-firewall' ),
+						'header_badge_override'         => __( 'Pending', 'wp-simple-firewall' ),
+						'header_badge_status_override'  => 'neutral',
+						'header_color_key_override'     => 'neutral',
+					]
+				);
+			}
 		}
 
 		return $seeds;
+	}
+
+	protected function getPendingFileLockerCount() :int {
+		return $this->pendingFileLockDisplays()->count();
+	}
+
+	private function describePendingFileLockerState( int $pendingFileLockerCount ) :string {
+		return $this->pendingFileLockDisplays()->describeCount( $pendingFileLockerCount );
 	}
 
 	/**
@@ -257,5 +292,9 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		}
 
 		return $grouped;
+	}
+
+	private function pendingFileLockDisplays() :GetPendingFileLockDisplays {
+		return new GetPendingFileLockDisplays();
 	}
 }

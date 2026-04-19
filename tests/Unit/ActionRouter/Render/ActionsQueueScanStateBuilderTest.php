@@ -248,6 +248,10 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 			protected function getProblemFileLockerCount() :int {
 				return 0;
 			}
+
+			protected function getPendingFileLockerCount() :int {
+				return 0;
+			}
 		};
 		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
 
@@ -261,6 +265,50 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( 0, $state[ 'rows' ][ 0 ][ 'count' ] );
 		$this->assertSame( 'good', $state[ 'rows' ][ 0 ][ 'severity' ] );
+		$this->assertSame( "Locked files don't appear to have any changes that need review.", $state[ 'rows' ][ 0 ][ 'text' ] );
+	}
+
+	public function test_build_surfaces_pending_file_locker_copy_without_changing_summary_count() :void {
+		$availability = new class extends ScansResultsRailTabAvailability {
+			public function build( string $tabKey ) :array {
+				return $tabKey === 'file_locker'
+					? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					]
+					: [
+						'is_available'          => false,
+						'show_in_actions_queue' => false,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					];
+			}
+		};
+
+		$builder = new class extends ActionsQueueScanStateBuilder {
+			protected function getProblemFileLockerCount() :int {
+				return 0;
+			}
+
+			protected function getPendingFileLockerCount() :int {
+				return 2;
+			}
+		};
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+
+		$state = $builder->build();
+
+		$this->assertSame( 0, $state[ 'tabs' ][ 'file_locker' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'file_locker' ][ 'status' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'summary' ][ 'status' ] );
+		$this->assertSame( 'good', $state[ 'rail_accent_status' ] );
+		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 0, $state[ 'rows' ][ 0 ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'rows' ][ 0 ][ 'severity' ] );
+		$this->assertSame( '2 initial file locks are still being created.', $state[ 'rows' ][ 0 ][ 'text' ] );
 	}
 
 	private function setPrivateProperty( object $subject, string $property, $value ) :void {

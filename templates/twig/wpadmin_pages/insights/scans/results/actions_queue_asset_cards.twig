@@ -76,7 +76,11 @@
 						</div>
 					{% endif %}
 					<div class="actions-queue-asset-panel__body" data-actions-queue-asset-panel-content="1">
-						{% if item.table is not empty %}
+						{% if item.body_notice is not empty %}
+							<div class="alert alert-{{ item.body_notice_variant|e('html_attr') }} mb-0">
+								<p class="m-0">{{ item.body_notice }}</p>
+							</div>
+						{% elseif item.table is not empty %}
 							{% include '/wpadmin/components/scans/scan_results_table.twig' with {
 								table: item.table
 							} only %}

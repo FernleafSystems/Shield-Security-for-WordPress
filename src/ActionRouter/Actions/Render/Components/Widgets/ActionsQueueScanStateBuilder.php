@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
 	Counts
@@ -333,6 +334,7 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		$count = $this->getProblemFileLockerCount();
+		$pendingCount = $this->getPendingFileLockerCount();
 		$status = $count > 0 ? 'warning' : 'good';
 		$tabs[ 'file_locker' ] = [
 			'count'  => $count,
@@ -350,7 +352,9 @@ class ActionsQueueScanStateBuilder {
 					_n( '%s locked file needs review.', '%s locked files need review.', $count, 'wp-simple-firewall' ),
 					$count
 				)
-				: __( "Locked files don't appear to have any changes that need review.", 'wp-simple-firewall' ),
+				: ( $pendingCount > 0
+					? $this->describePendingFileLockerCount( $pendingCount )
+					: __( "Locked files don't appear to have any changes that need review.", 'wp-simple-firewall' ) ),
 			__( 'Review', 'wp-simple-firewall' ),
 			true
 		);
@@ -402,6 +406,14 @@ class ActionsQueueScanStateBuilder {
 		return \count( ( new LoadFileLocks() )->withProblems() );
 	}
 
+	protected function getPendingFileLockerCount() :int {
+		return $this->pendingFileLockDisplays()->count();
+	}
+
+	protected function describePendingFileLockerCount( int $pendingCount ) :string {
+		return $this->pendingFileLockDisplays()->describeCount( $pendingCount );
+	}
+
 	/**
 	 * @return RailTabAvailability
 	 */
@@ -436,6 +448,10 @@ class ActionsQueueScanStateBuilder {
 	private function scanSectionLabel( string $summaryKey, string $fallback ) :string {
 		$definition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( $summaryKey );
 		return $definition[ 'label' ] ?? $fallback;
+	}
+
+	private function pendingFileLockDisplays() :GetPendingFileLockDisplays {
+		return new GetPendingFileLockDisplays();
 	}
 
 	/**

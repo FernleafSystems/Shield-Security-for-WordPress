@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -42,7 +43,9 @@ use FernleafSystems\Wordpress\Services\Services;
  *   stat_text:string,
  *   meta_text:string,
  *   show_meta_in_tile:bool,
- *   count_badge:int,
+ *   count_badge:int|null,
+ *   body_notice:string,
+ *   body_notice_variant:string,
  *   panel_data:QueueAssetPanelData,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>
@@ -59,10 +62,13 @@ use FernleafSystems\Wordpress\Services\Services;
  *   meta_text:string,
  *   show_meta_in_tile:bool,
  *   count_badge:null,
+ *   body_notice:string,
+ *   body_notice_variant:string,
  *   panel_data:QueueAssetPanelData,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>
  * }
+ * @phpstan-import-type PendingFileLockDisplay from GetPendingFileLockDisplays
  * @phpstan-type SummaryRow array{
  *   key:string,
  *   label:string,
@@ -562,7 +568,7 @@ class ScansResultsViewBuilder {
 
 			case 'file_locker':
 				$items = $this->buildFileLockerRailItems( $fileLockerPayload );
-				$count = $this->countNonGoodItems( $items );
+				$count = empty( $items ) ? 0 : \count( $this->getProblemFileLocks() );
 				return \array_merge( $definition, [
 					'count'  => $count,
 					'status' => $count > 0 ? 'warning' : 'good',
@@ -945,9 +951,11 @@ class ScansResultsViewBuilder {
 				$lock[ 'stat_text' ],
 				$lock[ 'status' ]
 			);
-			$row[ 'section_label' ] = $lock[ 'status' ] === 'good'
-				? __( 'All clear', 'wp-simple-firewall' )
-				: __( 'Needs attention', 'wp-simple-firewall' );
+			$row[ 'section_label' ] = $lock[ 'status' ] === 'warning'
+				? __( 'Needs attention', 'wp-simple-firewall' )
+				: ( $lock[ 'status' ] === 'neutral'
+					? __( 'Pending', 'wp-simple-firewall' )
+					: __( 'All clear', 'wp-simple-firewall' ) );
 			$items[] = $row;
 		}
 
@@ -962,10 +970,20 @@ class ScansResultsViewBuilder {
 		foreach ( $this->getProblemFileLocks() as $lock ) {
 			$records[] = $this->buildFileLockerQueueRecord( $lock, 'warning' );
 		}
+		foreach ( $this->getPendingFileLockDisplays() as $pendingLock ) {
+			$records[] = $this->buildPendingFileLockerQueueRecord( $pendingLock );
+		}
 		foreach ( $this->getGoodFileLocks() as $lock ) {
 			$records[] = $this->buildFileLockerQueueRecord( $lock, 'good' );
 		}
 		return $records;
+	}
+
+	/**
+	 * @return list<PendingFileLockDisplay>
+	 */
+	protected function getPendingFileLockDisplays() :array {
+		return ( new GetPendingFileLockDisplays() )->run();
 	}
 
 	/**
@@ -1236,12 +1254,33 @@ class ScansResultsViewBuilder {
 				: $this->describeFileLockerRecord( $lock ),
 			'meta_text'          => $path,
 			'show_meta_in_tile'  => false,
-			'count_badge'        => null,
-			'actions'            => [],
-			'table'              => [],
-			'render_action' => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
+			'render_action'      => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
 				'rid' => $rid,
 			] ),
+		] );
+	}
+
+	/**
+	 * @param PendingFileLockDisplay $pendingLock
+	 * @return QueueFileLockerCard
+	 */
+	private function buildPendingFileLockerQueueRecord( array $pendingLock ) :array {
+		$fileKey = sanitize_key( $pendingLock[ 'file_key' ] );
+		$path = $pendingLock[ 'path' ];
+
+		return $this->normalizeQueueAssetCard( [
+			'key'                => 'pending:'.$fileKey,
+			'panel_id'           => 'actions-queue-filelocker-card-pending-'.$fileKey,
+			'panel_target'       => 'actions-queue-filelocker-pending-'.$fileKey,
+			'status'             => 'neutral',
+			'icon_class'         => 'bi bi-file-lock2-fill',
+			'title'              => $pendingLock[ 'title' ],
+			'rail_title'         => $path,
+			'stat_text'          => __( 'Initial lock is still being created.', 'wp-simple-firewall' ),
+			'meta_text'          => $path,
+			'show_meta_in_tile'  => false,
+			'body_notice'        => __( 'Shield is still creating the first lock for this file. Check back in about a minute for the full lock details.', 'wp-simple-firewall' ),
+			'body_notice_variant' => 'info',
 		] );
 	}
 
@@ -1337,6 +1376,8 @@ class ScansResultsViewBuilder {
 			'meta_text'         => '',
 			'show_meta_in_tile' => true,
 			'count_badge'       => null,
+			'body_notice'       => '',
+			'body_notice_variant' => '',
 			'panel_data'        => [],
 			'actions'           => [],
 			'table'             => [],

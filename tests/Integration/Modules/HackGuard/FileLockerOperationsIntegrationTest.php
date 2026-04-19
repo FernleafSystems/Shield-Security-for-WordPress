@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -107,6 +108,22 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '', (string)$updated->hash_current );
 		$this->assertCount( 0, ( new LoadFileLocks() )->withProblems() );
 		$this->assertSame( 123456, (int)$con->comps->file_locker->getState()[ 'last_analysis_started_at' ] );
+	}
+
+	public function test_get_pending_file_lock_displays_returns_only_outstanding_selected_files() :void {
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+		static::con()->comps->file_locker->clearLocks();
+
+		$pendingDisplays = ( new GetPendingFileLockDisplays() )->run();
+
+		$this->assertSame( [ 'root_index' ], \array_column( $pendingDisplays, 'file_key' ) );
+		$this->assertSame( [ 'index.php' ], \array_column( $pendingDisplays, 'title' ) );
+		$this->assertSame(
+			[ \wp_normalize_path( ABSPATH.'index.php' ) ],
+			\array_column( $pendingDisplays, 'path' )
+		);
 	}
 
 	/**

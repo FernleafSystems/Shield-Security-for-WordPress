@@ -1311,6 +1311,52 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_file_locker_detail_render_in_actions_queue_context_shows_pending_cards_until_initial_locks_exist() :void {
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+
+		$payload = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$html = (string)( $payload[ 'render_output' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertXPathExists(
+			$xpath,
+			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
+			'Pending File Locker pane render in Actions Queue context should use the asset-card shell'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
+			0,
+			'Pending File Locker pane render should not fall through to the standard empty state'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__subject-label ") and contains(normalize-space(), "wp-config.php")]',
+			'Pending File Locker pane render should list wp-config.php as a pending File Locker card'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__subject-label ") and contains(normalize-space(), "index.php")]',
+			'Pending File Locker pane render should list index.php as a pending File Locker card'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-mode-panel="1" and @data-actions-queue-asset-panel-lazy="0" and @data-actions-queue-asset-panel-loaded="1" and not(@data-actions-queue-asset-render-action)]',
+			2,
+			'Pending File Locker pane render should expose static non-lazy asset panels for pending files'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-scan-results-table="1"]',
+			0,
+			'Pending File Locker pane render should not emit a scan results table contract'
+		);
+		$this->assertStringContainsString( 'Initial lock is still being created.', $html );
+	}
+
 	public function test_fix_now_groups_surface_disabled_scan_lanes_when_only_setup_or_upgrade_is_missing() :void {
 		$this->disableCriticalScanLanesFixture();
 
@@ -1382,6 +1428,32 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( 'actions_queue', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'display_context' ] ?? '' ) );
 		$this->assertSame( FileLockerPane::SLUG, (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+	}
+
+	public function test_pending_file_locker_keeps_zero_metrics_but_uses_pending_group_copy() :void {
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+
+		$metricsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
+		$tabs = \is_array( $metricsPayload[ 'tabs' ] ?? null ) ? $metricsPayload[ 'tabs' ] : [];
+		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
+
+		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $tabs[ 'file_locker' ][ 'status' ] ?? '' ) );
+		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
+
+		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'file_locker' );
+
+		$this->assertSame( 'file_locker', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
+		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'Pending', (string)( $groupsPayload[ 'selected_group' ][ 'status_label' ] ?? '' ) );
+		$this->assertSame( 'Pending', (string)( $groupsPayload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'badge_status' ] ?? '' ) );
+		$this->assertStringContainsString(
+			'initial file locks are still being created',
+			\strtolower( (string)( $groupsPayload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'summary' ] ?? '' ) )
+		);
 	}
 
 	public function test_file_locker_warning_clears_on_landing_immediately_after_reassessment() :void {

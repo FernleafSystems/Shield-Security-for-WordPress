@@ -160,17 +160,25 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( [], $pane[ 'cards' ] );
 	}
 
-	public function test_actions_queue_file_locker_pane_uses_per_card_panels_and_orders_problem_locks_first() :void {
+	public function test_actions_queue_file_locker_pane_uses_per_card_panels_and_orders_problem_pending_and_good_locks() :void {
 		$builder = $this->createBuilder( [
 			'problemFileLocks' => [ (object)[ 'id' => 14, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
+			'pendingFileLockDisplays' => [
+				[
+					'file_key' => 'root_index',
+					'title'    => 'index.php',
+					'path'     => '/index.php',
+				],
+			],
 			'goodFileLocks'    => [ (object)[ 'id' => 15, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
 		] );
 
 		$pane = $builder->buildActionsQueueFileLockerPane();
 		$this->assertFalse( $pane[ 'is_disabled' ] );
-		$this->assertCount( 2, $pane[ 'cards' ] );
+		$this->assertCount( 3, $pane[ 'cards' ] );
 		$this->assertSame( 'warning', $pane[ 'cards' ][ 0 ][ 'status' ] );
-		$this->assertSame( 'good', $pane[ 'cards' ][ 1 ][ 'status' ] );
+		$this->assertSame( 'neutral', $pane[ 'cards' ][ 1 ][ 'status' ] );
+		$this->assertSame( 'good', $pane[ 'cards' ][ 2 ][ 'status' ] );
 		$this->assertSame( 'actions-queue-filelocker-card-14', $pane[ 'cards' ][ 0 ][ 'panel_id' ] );
 		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( '/wp-config.php', $pane[ 'cards' ][ 0 ][ 'meta_text' ] );
@@ -184,24 +192,40 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			],
 			\json_decode( (string)( $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '' ), true )
 		);
+		$this->assertSame( '1', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
+		$this->assertSame( '0', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
+		$this->assertSame( [], \json_decode( (string)( $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '[]' ), true ) );
+		$this->assertSame( 'Initial lock is still being created.', $pane[ 'cards' ][ 1 ][ 'stat_text' ] );
+		$this->assertSame( '/index.php', $pane[ 'cards' ][ 1 ][ 'meta_text' ] );
+		$this->assertNotSame( '', $pane[ 'cards' ][ 1 ][ 'body_notice' ] );
+		$this->assertSame( 'info', $pane[ 'cards' ][ 1 ][ 'body_notice_variant' ] );
 	}
 
-	public function test_file_locker_groups_problem_and_good_locks_into_distinct_sections() :void {
+	public function test_file_locker_groups_problem_pending_and_good_locks_into_distinct_sections_without_changing_issue_count() :void {
 		$builder = $this->createBuilder( [
 			'fileLockerPayload' => $this->buildFileLockerPayload( '', true ),
 			'problemFileLocks'  => [ (object)[ 'id' => 21, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
+			'pendingFileLockDisplays' => [
+				[
+					'file_key' => 'root_index',
+					'title'    => 'index.php',
+					'path'     => '/index.php',
+				],
+			],
 			'goodFileLocks'     => [ (object)[ 'id' => 22, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
 		] );
 
 		$flTab = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'file_locker' );
 		$items = $flTab[ 'items' ] ?? [];
 
-		$this->assertCount( 2, $items );
+		$this->assertCount( 3, $items );
 		$this->assertSame( 'warning', $items[ 0 ][ 'status' ] ?? '' );
-		$this->assertSame( 'good', $items[ 1 ][ 'status' ] ?? '' );
+		$this->assertSame( 'neutral', $items[ 1 ][ 'status' ] ?? '' );
+		$this->assertSame( 'good', $items[ 2 ][ 'status' ] ?? '' );
 		$this->assertNotSame( '', $items[ 0 ][ 'section_label' ] ?? '' );
 		$this->assertNotSame( '', $items[ 1 ][ 'section_label' ] ?? '' );
 		$this->assertNotSame( $items[ 0 ][ 'section_label' ] ?? '', $items[ 1 ][ 'section_label' ] ?? '' );
+		$this->assertSame( 'Pending', $items[ 1 ][ 'section_label' ] ?? '' );
 		$this->assertSame( 1, $flTab[ 'count' ] ?? -1 );
 		$this->assertSame( 'warning', $flTab[ 'status' ] ?? '' );
 	}

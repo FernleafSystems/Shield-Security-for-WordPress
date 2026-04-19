@@ -39,7 +39,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  *     file_locker_enabled:bool,
  *     files_to_lock:list<string>,
  *     lock_count:int,
- *     problem_lock_count:int
+ *     problem_lock_count:int,
+ *     pending_lock_count:int
  *   },
  *   rail_tabs:array<string,array{count:int,status:string}>,
  *   buckets:array<string,BucketGroupSummary>
@@ -305,7 +306,12 @@ class ActionsQueueRuntimeProbe {
 				'file_locker_enabled' => $fileLockerEnabled,
 				'files_to_lock'       => $filesToLock,
 				'lock_count'          => \count( $fileLockerController->getLocks() ),
-				'problem_lock_count'  => \count( $fileLockerCards ),
+				'problem_lock_count'  => \count(
+					\array_filter( $fileLockerCards, static fn( array $card ) :bool => ( $card[ 'status' ] ?? '' ) === 'warning' )
+				),
+				'pending_lock_count'  => \count(
+					\array_filter( $fileLockerCards, static fn( array $card ) :bool => ( $card[ 'status' ] ?? '' ) === 'neutral' )
+				),
 			];
 		}
 

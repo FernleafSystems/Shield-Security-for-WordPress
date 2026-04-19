@@ -26,9 +26,9 @@ class FileLocker extends Base {
 					'is_disabled' => $pane[ 'is_disabled' ],
 				],
 				'strings' => [
-					'no_issues'         => __( 'No File Locker items require review.', 'wp-simple-firewall' ),
+					'no_issues'         => __( 'No File Locker entries are currently available to review.', 'wp-simple-firewall' ),
 					'disabled_message'  => $pane[ 'disabled_message' ],
-					'select_asset_hint' => __( 'Select a locked file above to review its current details.', 'wp-simple-firewall' ),
+					'select_asset_hint' => __( 'Select a file above to review its current status and details.', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
 					'asset_cards'      => $pane[ 'cards' ],
