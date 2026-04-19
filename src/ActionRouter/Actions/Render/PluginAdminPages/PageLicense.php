@@ -99,7 +99,7 @@ class PageLicense extends BasePluginAdminPage {
 				'is_pro'                => $isPro,
 			],
 			'hrefs'   => [
-				'shield_pro_url' => 'https://clk.shldscrty.com/shieldpro',
+				'shield_pro_url' => 'https://clk.shldscrty.com/buyshieldpro',
 				'iframe_url'     => $config->def( 'landing_page_url' ),
 				'keyless_cp'     => $config->def( 'keyless_cp' ),
 			],
