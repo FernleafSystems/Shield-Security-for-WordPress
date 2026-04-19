@@ -81,7 +81,7 @@ const clickSubjectTile = async ( page, subject ) => {
 
 const getInvestigationInlineTabs = async ( panel ) => {
 	const inlineTabs = panel.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' );
-	await expect( inlineTabs ).toHaveCount( 5 );
+	await expect( inlineTabs ).toHaveCount( 4 );
 	return inlineTabs;
 };
 

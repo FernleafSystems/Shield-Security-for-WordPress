@@ -25,12 +25,12 @@
 
 					<div style="width:100%; margin-top:.65rem">
 						<div style="display:flex; justify-content:space-between; font-size:.68rem; color:#5f6974; margin-bottom:3px">
-							<span>{{ strings.human }}</span>
 							<span>{{ strings.bot }}</span>
+							<span>{{ strings.human }}</span>
 						</div>
 						<div style="position:relative; height:8px; border-radius:4px; background:#e9ecef; overflow:hidden">
-							<div class="bg-{{ vars.overview.risk_bar.fill_class }}" style="position:absolute; top:0; bottom:0; left:{{ vars.overview.risk_bar.fill_left_percent }}%; width:{{ vars.overview.risk_bar.fill_width_percent }}%"></div>
-							<div style="position:absolute; top:-2px; bottom:-2px; left:{{ vars.overview.risk_bar.threshold_percent }}%; width:2px; margin-left:-1px; background:#5f6974"></div>
+							<div class="bg-{{ vars.overview.verdict_bar.fill_class }}" style="position:absolute; top:0; bottom:0; left:{{ vars.overview.verdict_bar.fill_left_percent }}%; width:{{ vars.overview.verdict_bar.fill_width_percent }}%"></div>
+							<div style="position:absolute; top:-2px; bottom:-2px; left:{{ vars.overview.verdict_bar.pivot_percent }}%; width:2px; margin-left:-1px; background:#5f6974"></div>
 						</div>
 					</div>
 				</div>

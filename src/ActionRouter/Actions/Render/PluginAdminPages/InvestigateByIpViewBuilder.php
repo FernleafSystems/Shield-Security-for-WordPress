@@ -72,6 +72,7 @@ class InvestigateByIpViewBuilder {
 		$lookup = \trim( sanitize_text_field( $lookup ) );
 		$hasLookup = $lookup !== '';
 		$hasSubject = $hasLookup && Services::IP()->isValidIp( $lookup );
+		$display = $this->normalizeLookupDisplayContract( $display );
 		$lookupAjax = $this->buildLookupAjaxContract( 'ip', 3 );
 
 		return [
@@ -100,10 +101,10 @@ class InvestigateByIpViewBuilder {
 					? $this->buildSubjectHeaderContract( $lookup, '', $this->buildResolvedContextStepJson( $lookup ) )
 					: [],
 			],
-			'display' => $this->normalizeLookupDisplayContract( $display ),
+			'display' => $display,
 			'content' => [
 				'ip_analysis' => $hasSubject
-					? ( new ContainerRenderer() )->render( $lookup )
+					? ( new ContainerRenderer() )->render( $lookup, (bool)$display[ 'show_lookup_with_subject' ] )
 					: '',
 			],
 		];

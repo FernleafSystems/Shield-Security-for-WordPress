@@ -1,84 +1,42 @@
 <div class="shield-ipanalyse options_form_for--modern">
-	{% set tab_id_prefix = 'tabIpInfo-' ~ unique_render_id %}
-	{% set tab_nav_prefix = 'tab-navlink-ip-' ~ unique_render_id %}
-	{% set rail_nav_items = [
-		{
-			target: '#' ~ tab_id_prefix ~ '-general',
-			id: tab_nav_prefix ~ '-general',
-			controls: tab_id_prefix ~ '-general',
-			label: strings.nav_general,
-			is_focus: true
-		},
-		{
-			target: '#' ~ tab_id_prefix ~ '-sessions',
-			id: tab_nav_prefix ~ '-sessions',
-			controls: tab_id_prefix ~ '-sessions',
-			label: strings.nav_sessions,
-			is_focus: false
-		},
-		{
-			target: '#' ~ tab_id_prefix ~ '-audit',
-			id: tab_nav_prefix ~ '-audit',
-			controls: tab_id_prefix ~ '-audit',
-			label: strings.nav_audit,
-			is_focus: false
-		},
-		{
-			target: '#' ~ tab_id_prefix ~ '-traffic',
-			id: tab_nav_prefix ~ '-traffic',
-			controls: tab_id_prefix ~ '-traffic',
-			label: strings.nav_traffic,
-			is_focus: false
-		}
-	] %}
+	{% if flags.render_inline_tabs %}
+		<div class="investigate-panel__tabs" data-investigate-panel-tabs="1">
+			{% for tab in tabs %}
+				<button type="button"
+						class="investigate-panel__tab {{ tab.is_focus ? 'is-active active' : '' }}"
+						data-investigate-panel-tab="1"
+						data-investigate-panel-target="{{ tab.target }}"
+						role="tab"
+						aria-controls="{{ tab.controls }}"
+						aria-selected="{{ tab.is_focus ? 'true' : 'false' }}">
+					{{ tab.label }}
+				</button>
+			{% endfor %}
+		</div>
+	{% endif %}
 
 	<div class="shield-options-layout has-rail">
 		<aside class="shield-options-rail">
 			<div class="shield-options-rail-accent"></div>
 			{% include '/components/config/options_rail_tabs.twig' with {
-				nav_items: rail_nav_items,
+				nav_items: tabs,
 				nav_list_class: 'shield-ipanalyse-tabs'
 			} only %}
 		</aside>
 
 		<div class="shield-options-content">
 			<div class="tab-content shield-ipanalyse-content">
-				<section class="tab-pane shield-options-panel active show"
-						 id="{{ tab_id_prefix }}-general"
-						 role="tabpanel"
-						 aria-labelledby="{{ tab_nav_prefix }}-general">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body p-0">
-						{{ content.general|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="{{ tab_id_prefix }}-sessions"
-						 role="tabpanel"
-						 aria-labelledby="{{ tab_nav_prefix }}-sessions">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.sessions|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="{{ tab_id_prefix }}-audit"
-						 role="tabpanel"
-						 aria-labelledby="{{ tab_nav_prefix }}-audit">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.activity|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="{{ tab_id_prefix }}-traffic"
-						 role="tabpanel"
-						 aria-labelledby="{{ tab_nav_prefix }}-traffic">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.traffic|raw }}
-					</div>
-				</section>
+				{% for tab in tabs %}
+					<section class="tab-pane shield-options-panel {{ tab.is_focus ? 'active show' : '' }}"
+							 id="{{ tab.controls }}"
+							 role="tabpanel"
+							 aria-labelledby="{{ tab.id }}">
+						<div class="shield-options-panel-accent"></div>
+						<div class="shield-options-panel-body {{ tab.panel_body_class }}">
+							{{ attribute(content, tab.content_key)|raw }}
+						</div>
+					</section>
+				{% endfor %}
 			</div>
 		</div>
 	</div>

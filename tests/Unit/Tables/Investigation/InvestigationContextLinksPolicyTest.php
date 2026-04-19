@@ -63,6 +63,7 @@ class InvestigationContextLinksPolicyTest extends BaseUnitTest {
 
 		$this->assertStringContainsString( 'offcanvas_ip_analysis', $link );
 		$this->assertStringContainsString( '/admin/ip-analysis/203.0.113.88', $link );
+		$this->assertStringContainsString( 'data-ip="203.0.113.88"', $link );
 		$this->assertStringContainsString( 'investigate-ip-deeplink', $link );
 		$this->assertStringContainsString( '/admin/activity/by_ip?analyse_ip=203.0.113.88', $link );
 	}

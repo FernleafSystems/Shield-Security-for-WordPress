@@ -49,14 +49,27 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_render_passes_ip_only() :void {
+	public function test_render_defaults_to_embedded_container() :void {
 		$output = ( new ContainerRenderer() )->render( '198.51.100.20' );
 
 		$this->assertSame( 'rendered-ipanalyse-container', $output );
 		$this->assertSame( Container::class, $this->capture->action );
 		$this->assertSame(
 			[
-				'ip' => '198.51.100.20',
+				'ip'                 => '198.51.100.20',
+				'render_inline_tabs' => false,
+			],
+			$this->capture->actionData
+		);
+	}
+
+	public function test_render_can_request_standalone_inline_tabs() :void {
+		( new ContainerRenderer() )->render( '198.51.100.20', true );
+
+		$this->assertSame(
+			[
+				'ip'                 => '198.51.100.20',
+				'render_inline_tabs' => true,
 			],
 			$this->capture->actionData
 		);
@@ -78,7 +91,12 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'activity', $data[ 'content' ] );
 		$this->assertArrayHasKey( 'traffic', $data[ 'content' ] );
 		$this->assertArrayNotHasKey( 'signals', $data[ 'content' ] );
-		$this->assertArrayNotHasKey( 'nav_signals', $data[ 'strings' ] );
+		$this->assertFalse( (bool)( $data[ 'flags' ][ 'render_inline_tabs' ] ?? true ) );
+		$this->assertCount( 4, $data[ 'tabs' ] ?? [] );
+		$this->assertSame(
+			[ 'general', 'sessions', 'activity', 'traffic' ],
+			\array_column( $data[ 'tabs' ] ?? [], 'content_key' )
+		);
 		$this->assertSame(
 			[
 				General::class,

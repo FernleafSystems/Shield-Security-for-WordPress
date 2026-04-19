@@ -83,7 +83,7 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 	}
 
-	public function test_ip_analysis_offcanvas_reuses_investigate_lookup_and_inline_tabs_contract() :void {
+	public function test_ip_analysis_offcanvas_reuses_investigate_lookup_and_renders_inline_tabs() :void {
 		$payload = $this->processor()->processAction( IpAnalysis::SLUG, [
 			'ip' => '198.51.100.20',
 		] )->payload();
@@ -101,8 +101,23 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]',
-			'IP analysis offcanvas inline tabs host contract'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="Overview"]',
+			'IP analysis offcanvas overview tab contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="User Sessions"]',
+			'IP analysis offcanvas sessions tab contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="Activity Log"]',
+			'IP analysis offcanvas activity tab contract'
+		);
+		$this->assertXPathExists(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="Recent Traffic"]',
+			'IP analysis offcanvas traffic tab contract'
 		);
 	}
 }

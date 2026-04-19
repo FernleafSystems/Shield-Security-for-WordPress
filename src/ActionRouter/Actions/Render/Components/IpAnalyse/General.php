@@ -59,7 +59,7 @@ class General extends Base {
 		$totalScore = \array_sum( $scores );
 		$humanScore = $calcScores->probability();
 		$botRiskScore = 100 - $humanScore;
-		$humanThreshold = self::con()->comps->opts_lookup->getSilentCaptchaBotThreshold();
+		$humanThreshold = $this->clampPercent( self::con()->comps->opts_lookup->getSilentCaptchaBotThreshold() );
 		$botRiskThreshold = $this->clampPercent( 100 - $humanThreshold );
 		$signalNames = ( new BotSignalNames() )->getBotSignalNames();
 
@@ -176,7 +176,7 @@ class General extends Base {
 					'bot_risk_text_class'              => $riskClass,
 					'local_reputation_badge_class'     => $riskClass,
 					'shieldnet_reputation_badge_class' => $isBot ? 'warning text-dark' : 'success',
-					'risk_bar'                         => $this->buildRiskBar( $botRiskScore, $botRiskThreshold ),
+					'verdict_bar'                      => $this->buildVerdictBar( $humanScore, $humanThreshold, $isBot ),
 				],
 				'signals'          => [
 					'total'    => \count( $signalTimestamps ),
@@ -229,18 +229,23 @@ class General extends Base {
 	}
 
 	/**
-	 * @return array{threshold_percent: int, fill_left_percent: int, fill_width_percent: int, fill_class: string}
+	 * @return array{pivot_percent: int, fill_left_percent: int, fill_width_percent: int, fill_class: string}
 	 */
-	private function buildRiskBar( int $botRiskScore, int $botRiskThreshold ) :array {
-		$risk = $this->clampPercent( $botRiskScore );
-		$threshold = $this->clampPercent( $botRiskThreshold );
-		$isHighBotRisk = $risk > $threshold;
+	private function buildVerdictBar( int $humanScore, int $humanThreshold, bool $isBot ) :array {
+		$score = $this->clampPercent( $humanScore );
+		$threshold = $this->clampPercent( $humanThreshold );
+		$fillLeft = $isBot
+			? \min( $score, $threshold )
+			: $threshold;
+		$fillWidth = $isBot
+			? \max( 0, $threshold - $score )
+			: \max( 0, $score - $threshold );
 
 		return [
-			'threshold_percent'  => $threshold,
-			'fill_left_percent'  => $isHighBotRisk ? $threshold : $risk,
-			'fill_width_percent' => $isHighBotRisk ? $risk - $threshold : $threshold - $risk,
-			'fill_class'         => $isHighBotRisk ? 'danger' : 'success',
+			'pivot_percent'      => $threshold,
+			'fill_left_percent'  => $fillLeft,
+			'fill_width_percent' => $fillWidth,
+			'fill_class'         => $isBot ? 'danger' : 'success',
 		];
 	}
 

@@ -27,6 +27,8 @@ use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 
+	private object $capture;
+
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
@@ -120,6 +122,30 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'ip', $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] );
 		$this->assertSame( 'rendered-ip:203.0.113.88', $renderData[ 'content' ][ 'ip_analysis' ] );
+		$this->assertSame(
+			[
+				'ip'                 => '203.0.113.88',
+				'render_inline_tabs' => false,
+			],
+			$this->capture->actionData
+		);
+	}
+
+	public function test_offcanvas_display_requests_standalone_inline_tabs() :void {
+		$this->installServices( static fn( string $ip ) :bool => $ip === '203.0.113.88' );
+
+		( new InvestigateByIpViewBuilder() )->build( '203.0.113.88', [
+			'show_lookup_with_subject' => true,
+			'show_subject_header'      => false,
+		] );
+
+		$this->assertSame(
+			[
+				'ip'                 => '203.0.113.88',
+				'render_inline_tabs' => true,
+			],
+			$this->capture->actionData
+		);
 	}
 
 	public function test_invalid_lookup_preserves_lookup_contract_without_ip_analysis_content() :void {
@@ -137,6 +163,11 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
+		$this->capture = (object)[
+			'action'     => '',
+			'actionData' => [],
+		];
+
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new class {
@@ -148,8 +179,16 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
 			}
 		};
-		$controller->action_router = new class {
+		$controller->action_router = new class( $this->capture ) {
+			private object $capture;
+
+			public function __construct( object $capture ) {
+				$this->capture = $capture;
+			}
+
 			public function render( string $action, array $actionData = [] ) :string {
+				$this->capture->action = $action;
+				$this->capture->actionData = $actionData;
 				return 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' );
 			}
 		};

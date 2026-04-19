@@ -36,6 +36,25 @@ const investigationTabLabels = {
 	traffic: 'Recent Traffic',
 };
 
+const openIpAnalysisOffcanvasFromClick = async ( page, ip ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'logs',
+	} );
+
+	const trigger = page.locator( `.offcanvas_ip_analysis[data-ip="${ip}"]` ).first();
+	await expect( trigger ).toBeVisible();
+	await trigger.click();
+
+	const offcanvas = page.locator( '#AptoOffcanvas.show' );
+	await expect( offcanvas ).toBeVisible();
+
+	const inlineTabs = offcanvas.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' );
+	await expect( inlineTabs ).toHaveCount( 4 );
+
+	return { offcanvas, inlineTabs };
+};
+
 const openIpAnalysisOffcanvas = async ( page, ip ) => {
 	await openShieldRoute( page, {
 		nav: 'ips',
@@ -47,7 +66,7 @@ const openIpAnalysisOffcanvas = async ( page, ip ) => {
 	await expect( offcanvas ).toBeVisible();
 
 	const inlineTabs = offcanvas.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' );
-	await expect( inlineTabs ).toHaveCount( 5 );
+	await expect( inlineTabs ).toHaveCount( 4 );
 
 	return { offcanvas, inlineTabs };
 };
@@ -86,19 +105,21 @@ const expectRequestMetaPopover = async ( page, offcanvas, rid, expectedMeta ) =>
 	}
 };
 
-test( 'preloaded IP analysis offcanvas opens and switches inline tabs', async ( { page } ) => {
-	const { offcanvas, inlineTabs } = await openIpAnalysisOffcanvas( page, '198.51.100.20' );
-	await expect( offcanvas.locator( '#AptoOffcanvasLabel' ) ).toBeVisible();
+test( 'clicked IP link opens the IP analysis offcanvas with the four investigation tabs', async ( { page } ) => {
+	await withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+		const { offcanvas, inlineTabs } = await openIpAnalysisOffcanvasFromClick( page, fixture.ip );
+		await expect( offcanvas.locator( '#AptoOffcanvasLabel' ) ).toBeVisible();
+		await expect( inlineTabs ).toHaveText( [ 'Overview', 'User Sessions', 'Activity Log', 'Recent Traffic' ] );
 
-	await expect( inlineTabs.first() ).toBeVisible();
-	const targetTab = getInvestigationTab( inlineTabs, 'sessions' );
-	const targetLabel = await targetTab.textContent();
-	await targetTab.click();
+		const targetTab = getInvestigationTab( inlineTabs, 'sessions' );
+		const targetLabel = await targetTab.textContent();
+		await targetTab.click();
 
-	await expect( targetTab ).toHaveClass( /is-active/ );
-	await expect(
-		offcanvas.locator( '.shield-options-rail-nav .nav-link.active' )
-	).toContainText( targetLabel ? targetLabel.trim() : '' );
+		await expect( targetTab ).toHaveClass( /is-active/ );
+		await expect(
+			offcanvas.locator( '.shield-options-rail-nav .nav-link.active' )
+		).toContainText( targetLabel ? targetLabel.trim() : '' );
+	} );
 } );
 
 test( 'preloaded IP analysis offcanvas loads investigation tables without runtime errors', async ( { page } ) => {
