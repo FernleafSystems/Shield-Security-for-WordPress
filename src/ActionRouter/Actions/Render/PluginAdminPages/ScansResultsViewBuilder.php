@@ -80,6 +80,17 @@ use FernleafSystems\Wordpress\Services\Services;
  *   status_icon_class:string,
  *   status_label:string
  * }
+ * @phpstan-type DisabledPaneAction array{
+ *   type:string,
+ *   label:string,
+ *   href:string,
+ *   icon_class:string,
+ *   tooltip_attr:string,
+ *   class_name:string,
+ *   target:string,
+ *   rel:string,
+ *   attributes:array<string,string>
+ * }
  * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilityItem from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
@@ -87,18 +98,23 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-type QueueAssetPane array{
  *   is_disabled:bool,
  *   disabled_message:string,
+ *   disabled_actions:list<DisabledPaneAction>,
  *   cards:list<QueueAssetCard>
  * }
  * @phpstan-type QueueFileLockerPane array{
  *   is_disabled:bool,
  *   disabled_message:string,
+ *   disabled_actions:list<DisabledPaneAction>,
  *   cards:list<QueueFileLockerCard>
  * }
  * @phpstan-type RailTabAvailability array{
  *   is_available:bool,
  *   show_in_actions_queue:bool,
+ *   show_in_fix_now:bool,
+ *   disabled_reason:''|'not_enabled'|'upgrade_required',
  *   disabled_message:string,
- *   disabled_status:string
+ *   disabled_status:string,
+ *   disabled_actions:list<DisabledPaneAction>
  * }
  * @phpstan-type SectionPayload array{
  *   render_output:string,
@@ -768,24 +784,15 @@ class ScansResultsViewBuilder {
 	 * @return QueueFileLockerPane
 	 */
 	public function buildActionsQueueFileLockerPane() :array {
-		if ( !$this->isFileLockerEnabled() ) {
-			return [
-				'is_disabled'      => true,
-				'disabled_message' => __( 'File Locker is not enabled.', 'wp-simple-firewall' ),
-				'cards'            => [],
-			];
-		}
-		if ( !$this->isPremiumActive() ) {
-			return [
-				'is_disabled'      => true,
-				'disabled_message' => __( 'File Locker is available only with the Pro version.', 'wp-simple-firewall' ),
-				'cards'            => [],
-			];
+		$availability = $this->getRailTabAvailability( 'file_locker' );
+		if ( !$availability[ 'is_available' ] ) {
+			return $this->buildDisabledAssetPane( $availability );
 		}
 
 		return [
 			'is_disabled'      => false,
 			'disabled_message' => '',
+			'disabled_actions' => [],
 			'cards'            => $this->buildFileLockerQueueRecords(),
 		];
 	}
@@ -835,16 +842,13 @@ class ScansResultsViewBuilder {
 	private function buildActionsQueuePluginThemePane( string $assetType, ?array $resultsDisplayOptions = null ) :array {
 		$availability = $this->getRailTabAvailability( $assetType === 'plugin' ? 'plugins' : 'themes' );
 		if ( !$availability[ 'is_available' ] ) {
-			return [
-				'is_disabled'      => true,
-				'disabled_message' => $availability[ 'disabled_message' ],
-				'cards'            => [],
-			];
+			return $this->buildDisabledAssetPane( $availability );
 		}
 
 		return [
 			'is_disabled'      => false,
 			'disabled_message' => '',
+			'disabled_actions' => [],
 			'cards'            => $this->buildPluginThemeIssueRecords(
 				$assetType,
 				$this->queueScanResultsOptions()->normalize( $resultsDisplayOptions )
@@ -1007,7 +1011,8 @@ class ScansResultsViewBuilder {
 	 *   is_loaded:bool,
 	 *   is_disabled:bool,
 	 *   disabled_message:string,
-	 *   disabled_status:string
+	 *   disabled_status:string,
+	 *   disabled_actions:list<DisabledPaneAction>
 	 * }
 	 */
 	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
@@ -1024,12 +1029,14 @@ class ScansResultsViewBuilder {
 		$isDisabled = false;
 		$disabledMessage = '';
 		$disabledStatus = $availability[ 'disabled_status' ];
+		$disabledActions = [];
 
-		if ( \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware' ], true )
-			 && !$availability[ 'is_available' ] ) {
+		if ( !$availability[ 'is_available' ]
+			 && \in_array( $tabKey, [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true ) ) {
 			$isDisabled = true;
 			$status = $disabledStatus;
 			$disabledMessage = $availability[ 'disabled_message' ];
+			$disabledActions = $availability[ 'disabled_actions' ] ?? [];
 		}
 
 		if ( !$isDisabled ) {
@@ -1087,6 +1094,7 @@ class ScansResultsViewBuilder {
 			'is_disabled' => $isDisabled,
 			'disabled_message' => $disabledMessage,
 			'disabled_status'  => $disabledStatus,
+			'disabled_actions' => $disabledActions,
 			'render_action'    => [],
 			'show_count_placeholder' => false,
 		];
@@ -1114,6 +1122,19 @@ class ScansResultsViewBuilder {
 		}
 
 		return $availability;
+	}
+
+	/**
+	 * @phpstan-param RailTabAvailability $availability
+	 * @return QueueAssetPane|QueueFileLockerPane
+	 */
+	private function buildDisabledAssetPane( array $availability ) :array {
+		return [
+			'is_disabled'      => true,
+			'disabled_message' => $availability[ 'disabled_message' ],
+			'disabled_actions' => $availability[ 'disabled_actions' ] ?? [],
+			'cards'            => [],
+		];
 	}
 
 	/**

@@ -8,7 +8,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  */
-class ActionsQueueHealthyGroupSeedSupplementer {
+class ActionsQueuePassiveGroupSeedSupplementer {
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
@@ -41,7 +41,15 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 	) :array {
 		$seeds = [];
 
-		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+		foreach ( $this->buildHealthyScanSeedsForBucket( $bucketKey, $bucketSource, $assessmentRowsByZone[ 'scans' ] ?? [] ) as $seed ) {
+			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
+				continue;
+			}
+			$seeds[] = $seed;
+			$existingGroupKeys[ $seed[ 'key' ] ] = true;
+		}
+
+		foreach ( $this->buildDisabledScanSeedsForBucket( $bucketKey, $bucketSource ) as $seed ) {
 			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
 				continue;
 			}
@@ -65,10 +73,64 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 	}
 
 	/**
+	 * @return list<GroupSeed>
+	 */
+	private function buildDisabledScanSeedsForBucket( string $bucketKey, array $bucketSource ) :array {
+		if ( $bucketKey !== 'critical' ) {
+			return [];
+		}
+
+		$seeds = [];
+		foreach ( $bucketSource[ 'disabled_groups' ] as $definitionKey => $availability ) {
+			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
+			$statusLabel = $availability[ 'disabled_reason' ] === 'upgrade_required'
+				? __( 'Upgrade Required', 'wp-simple-firewall' )
+				: __( 'Not Enabled', 'wp-simple-firewall' );
+
+			$seeds[] = [
+				'key'                     => $definitionKey,
+				'is_healthy'              => false,
+				'definition_key'          => $definitionKey,
+				'label'                   => $definition[ 'label' ],
+				'item_count'              => 0,
+				'status'                  => 'neutral',
+				'narrative'               => $availability[ 'disabled_message' ],
+				'detail_shell'            => $definition[ 'detail_shell' ],
+				'links'                   => [],
+				'management_link'         => [],
+				'is_interactive_override' => true,
+				'detail_table'            => [],
+				'attention_items'         => [],
+				'maintenance_rows'        => [],
+				'summary_row'             => [],
+				'status_label_override'   => $statusLabel,
+				'header_summary_override' => $availability[ 'disabled_message' ],
+				'header_focus_override'   => $availability[ 'disabled_reason' ] === 'upgrade_required'
+					? __( 'Upgrade this plan to unlock this protection.', 'wp-simple-firewall' )
+					: __( 'Open settings to switch on this protection.', 'wp-simple-firewall' ),
+				'header_next_step_override' => $availability[ 'disabled_reason' ] === 'upgrade_required'
+					? __( 'Use the action below to review the upgrade path for this protection.', 'wp-simple-firewall' )
+					: __( 'Use the action below to open the relevant settings and switch this protection on.', 'wp-simple-firewall' ),
+				'header_badge_override'      => $statusLabel,
+				'header_badge_status_override' => 'neutral',
+				'header_color_key_override'    => 'neutral',
+				'context_actions_override'     => [],
+				'display_options_override'     => [],
+			];
+			if ( \in_array( $definitionKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
+				$seeds[ \array_key_last( $seeds ) ][ 'card_type_override' ] = 'expandable';
+			}
+		}
+
+		return $seeds;
+	}
+
+	/**
+	 * @phpstan-param BucketSource $bucketSource
 	 * @param list<AssessmentRow> $assessmentRows
 	 * @return list<GroupSeed>
 	 */
-	private function buildHealthyScanSeedsForBucket( string $bucketKey, array $assessmentRows ) :array {
+	private function buildHealthyScanSeedsForBucket( string $bucketKey, array $bucketSource, array $assessmentRows ) :array {
 		$rowsByDefinitionKey = [];
 
 		foreach ( $assessmentRows as $row ) {
@@ -86,7 +148,7 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 
 		$seeds = [];
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
-			if ( $definitionKey === 'plugins' && $this->scanSource->fullyIgnoredPluginSummaries() !== [] ) {
+			if ( $definitionKey === 'plugins' && $this->bucketHasFullyIgnoredPluginAttention( $bucketSource ) ) {
 				continue;
 			}
 
@@ -113,6 +175,19 @@ class ActionsQueueHealthyGroupSeedSupplementer {
 		}
 
 		return $seeds;
+	}
+
+	/**
+	 * @phpstan-param BucketSource $bucketSource
+	 */
+	private function bucketHasFullyIgnoredPluginAttention( array $bucketSource ) :bool {
+		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
+			if ( ( $item[ 'key' ] ?? '' ) === 'plugin_files_ignored' ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

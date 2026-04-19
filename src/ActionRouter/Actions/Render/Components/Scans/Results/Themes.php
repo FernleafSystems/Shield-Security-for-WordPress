@@ -30,8 +30,9 @@ class Themes extends PluginThemesBase {
 					'select_asset_hint' => __( 'Select a theme above to review its file table.', 'wp-simple-firewall' ),
 				],
 				'vars'    => [
-					'asset_cards' => $pane[ 'cards' ],
-					'count_items' => \count( $pane[ 'cards' ] ),
+					'asset_cards'      => $pane[ 'cards' ],
+					'count_items'      => \count( $pane[ 'cards' ] ),
+					'disabled_actions' => $pane[ 'disabled_actions' ],
 				],
 			] );
 		}

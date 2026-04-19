@@ -12,6 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupManagementLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
+ * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
+ * @phpstan-import-type OperatorChromeDisplayOptionsInput from OperatorChromeContract
  * @phpstan-type GroupSeed array{
  *   key:string,
  *   is_healthy:bool,
@@ -26,6 +28,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive_override?:bool,
+ *   status_label_override?:string,
+ *   header_summary_override?:string,
+ *   header_focus_override?:string,
+ *   header_next_step_override?:string,
+ *   header_badge_override?:string,
+ *   header_badge_status_override?:string,
+ *   header_color_key_override?:string,
+ *   context_actions_override?:list<OperatorChromeActionInput>,
+ *   display_options_override?:OperatorChromeDisplayOptionsInput,
  *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction>,
  *   render_action_data_override?:array<string,mixed>,
@@ -308,18 +319,30 @@ class ActionsQueueGroupContractBuilder {
 			?? $this->determineInteractivity( $seed );
 		$renderActionData = $seed[ 'render_action_data_override' ]
 			?? $definition[ 'render_action_data' ];
-		$contextActions = $this->contextActionsBuilder->buildForGroup(
-			$seed[ 'definition_key' ],
-			$seed[ 'label' ],
-			$seed[ 'detail_shell' ],
-			$seed[ 'item_count' ],
-			$renderActionData
-		);
-		$displayOptions = $this->contextDisplayOptionsBuilder->buildForGroup(
-			$seed[ 'definition_key' ],
-			$seed[ 'detail_shell' ],
-			$renderActionData
-		);
+		$contextActions = \array_key_exists( 'context_actions_override', $seed )
+			? $seed[ 'context_actions_override' ]
+			: $this->contextActionsBuilder->buildForGroup(
+				$seed[ 'definition_key' ],
+				$seed[ 'label' ],
+				$seed[ 'detail_shell' ],
+				$seed[ 'item_count' ],
+				$renderActionData
+			);
+		$displayOptions = \array_key_exists( 'display_options_override', $seed )
+			? $seed[ 'display_options_override' ]
+			: $this->contextDisplayOptionsBuilder->buildForGroup(
+				$seed[ 'definition_key' ],
+				$seed[ 'detail_shell' ],
+				$renderActionData
+			);
+		$headerOverrides = \array_filter( [
+			'summary'      => $seed[ 'header_summary_override' ] ?? '',
+			'focus'        => $seed[ 'header_focus_override' ] ?? '',
+			'next_step'    => $seed[ 'header_next_step_override' ] ?? '',
+			'badge'        => $seed[ 'header_badge_override' ] ?? '',
+			'badge_status' => $seed[ 'header_badge_status_override' ] ?? '',
+			'color_key'    => $seed[ 'header_color_key_override' ] ?? '',
+		], static fn( string $value ) :bool => $value !== '' );
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$seed[ 'key' ],
@@ -335,7 +358,8 @@ class ActionsQueueGroupContractBuilder {
 			),
 			$narrative,
 			$contextActions,
-			$displayOptions
+			$displayOptions,
+			$headerOverrides
 		);
 
 		return [
@@ -343,7 +367,7 @@ class ActionsQueueGroupContractBuilder {
 			'label'               => $seed[ 'label' ],
 			'item_count'          => $seed[ 'item_count' ],
 			'status'              => $seed[ 'status' ],
-			'status_label'        => $this->standardStatusLabel( $seed[ 'status' ] ),
+			'status_label'        => $seed[ 'status_label_override' ] ?? $this->standardStatusLabel( $seed[ 'status' ] ),
 			'icon_class'          => $iconClass,
 			'detail_shell'        => $seed[ 'detail_shell' ],
 			'card_type'           => $seed[ 'card_type_override' ] ?? $definition[ 'card_type' ],

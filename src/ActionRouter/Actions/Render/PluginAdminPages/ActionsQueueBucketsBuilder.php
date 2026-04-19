@@ -14,7 +14,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int,
- *   healthy_item_count:int
+ *   healthy_item_count:int,
+ *   disabled_item_count:int,
+ *   disabled_upgrade_count:int,
+ *   disabled_groups:array<string,array{
+ *     is_available:bool,
+ *     show_in_actions_queue:bool,
+ *     show_in_fix_now:bool,
+ *     disabled_reason:''|'not_enabled'|'upgrade_required',
+ *     disabled_message:string,
+ *     disabled_status:string,
+ *     disabled_actions:list<array<string,mixed>>
+ *   }>
  * }
  * @phpstan-type BucketData array{
  *   key:string,
@@ -22,6 +33,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status:string,
  *   state_label:string,
  *   item_count:int,
+ *   display_count:int,
  *   is_interactive:bool,
  *   summary_text:string,
  *   icon_class:string,
@@ -33,6 +45,11 @@ class ActionsQueueBucketsBuilder {
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
 	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
 	private ?ActionsQueueCompactSummaryRowBuilder $summaryRowBuilder = null;
+	private ?ScansResultsRailTabAvailability $scanAvailability = null;
+
+	public function __construct( ?ScansResultsRailTabAvailability $scanAvailability = null ) {
+		$this->scanAvailability = $scanAvailability;
+	}
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -40,6 +57,18 @@ class ActionsQueueBucketsBuilder {
 	 * @return list<BucketData>
 	 */
 	public function build( array $attentionQuery, array $assessmentRowsByZone ) :array {
+		return $this->buildWithSources( $attentionQuery, $assessmentRowsByZone )[ 'buckets' ];
+	}
+
+	/**
+	 * @param AttentionQuery $attentionQuery
+	 * @param AssessmentRowsByZone $assessmentRowsByZone
+	 * @return array{
+	 *   buckets:list<BucketData>,
+	 *   sources:array<string,BucketSource>
+	 * }
+	 */
+	public function buildWithSources( array $attentionQuery, array $assessmentRowsByZone ) :array {
 		$sources = $this->classify( $attentionQuery, $assessmentRowsByZone );
 		$buckets = [];
 		$presentation = $this->presentation();
@@ -48,6 +77,7 @@ class ActionsQueueBucketsBuilder {
 			$bucketSource = $sources[ $bucketKey ];
 			$status = $this->bucketStatus( $bucketSource );
 			$summary = $this->buildBucketHeaderSummary( $definition[ 'label' ], $bucketSource );
+			$headerOverrides = $this->buildBucketHeaderOverrides( $bucketSource );
 			$selection = $presentation->buildBucketSelection(
 				$bucketKey,
 				$definition[ 'label' ],
@@ -55,22 +85,30 @@ class ActionsQueueBucketsBuilder {
 				$status,
 				$definition[ 'icon_class' ],
 				$bucketSource[ 'item_count' ],
-				$summary
+				$summary,
+				[],
+				$headerOverrides
 			);
 			$buckets[] = [
 				'key'            => $bucketKey,
 				'label'          => $definition[ 'label' ],
 				'status'         => $status,
-				'state_label'    => $this->buildBucketStateLabel( $status ),
+				'state_label'    => $this->buildBucketStateLabel( $status, $bucketSource ),
 				'item_count'     => $bucketSource[ 'item_count' ],
-				'is_interactive' => $bucketSource[ 'item_count' ] > 0 || $bucketSource[ 'healthy_item_count' ] > 0,
+				'display_count'  => $this->buildBucketDisplayCount( $bucketSource ),
+				'is_interactive' => $bucketSource[ 'item_count' ] > 0
+					|| $bucketSource[ 'healthy_item_count' ] > 0
+					|| $bucketSource[ 'disabled_item_count' ] > 0,
 				'summary_text'   => $this->buildSummaryText( $bucketSource ),
 				'icon_class'     => $definition[ 'icon_class' ],
 				'selection'      => $selection,
 			];
 		}
 
-		return $buckets;
+		return [
+			'buckets' => $buckets,
+			'sources' => $sources,
+		];
 	}
 
 	/**
@@ -121,11 +159,17 @@ class ActionsQueueBucketsBuilder {
 				'attention_items' => [],
 				'item_count' => 0,
 				'healthy_item_count' => 0,
+				'disabled_item_count' => 0,
+				'disabled_upgrade_count' => 0,
+				'disabled_groups' => [],
 			],
 			'review' => [
 				'attention_items' => [],
 				'item_count' => 0,
 				'healthy_item_count' => 0,
+				'disabled_item_count' => 0,
+				'disabled_upgrade_count' => 0,
+				'disabled_groups' => [],
 			],
 		];
 
@@ -148,6 +192,19 @@ class ActionsQueueBucketsBuilder {
 				if ( isset( $sources[ $bucketKey ] ) ) {
 					$sources[ $bucketKey ][ 'healthy_item_count' ]++;
 				}
+			}
+		}
+
+		foreach ( $this->groupDefinitions()->criticalScanGroupKeys() as $groupKey ) {
+			$availability = $this->scanAvailability()->build( $groupKey );
+			if ( empty( $availability[ 'show_in_fix_now' ] ) || !empty( $availability[ 'is_available' ] ) ) {
+				continue;
+			}
+
+			$sources[ 'critical' ][ 'disabled_item_count' ]++;
+			$sources[ 'critical' ][ 'disabled_groups' ][ $groupKey ] = $availability;
+			if ( ( $availability[ 'disabled_reason' ] ?? '' ) === 'upgrade_required' ) {
+				$sources[ 'critical' ][ 'disabled_upgrade_count' ]++;
 			}
 		}
 
@@ -183,6 +240,9 @@ class ActionsQueueBucketsBuilder {
 		$summaryParts = $this->buildAttentionSummaryParts( $bucketSource[ 'attention_items' ] );
 
 		if ( empty( $summaryParts ) ) {
+			if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
+				return $this->buildDisabledSummaryText( $bucketSource );
+			}
 			return $bucketSource[ 'healthy_item_count' ] > 0
 				? __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' )
 				: __( 'No items in this bucket.', 'wp-simple-firewall' );
@@ -316,6 +376,10 @@ class ActionsQueueBucketsBuilder {
 				: StatusPriority::highest( \array_column( $bucketSource[ 'attention_items' ], 'severity' ), 'warning' );
 		}
 
+		if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
+			return 'neutral';
+		}
+
 		return $bucketSource[ 'healthy_item_count' ] > 0 ? 'good' : 'neutral';
 	}
 
@@ -327,12 +391,20 @@ class ActionsQueueBucketsBuilder {
 			return $this->presentation()->buildBucketFocusText( $bucketLabel, $bucketSource[ 'item_count' ] );
 		}
 
+		if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
+			return $this->buildDisabledSummaryText( $bucketSource );
+		}
+
 		return $bucketSource[ 'healthy_item_count' ] > 0
 			? __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' )
 			: __( 'There is nothing to review in this bucket right now.', 'wp-simple-firewall' );
 	}
 
-	private function buildBucketStateLabel( string $status ) :string {
+	private function buildBucketStateLabel( string $status, array $bucketSource ) :string {
+		if ( $status === 'neutral' && $bucketSource[ 'disabled_item_count' ] > 0 ) {
+			return __( 'Needs Setup', 'wp-simple-firewall' );
+		}
+
 		switch ( $status ) {
 			case 'critical':
 				return __( 'Critical', 'wp-simple-firewall' );
@@ -343,6 +415,50 @@ class ActionsQueueBucketsBuilder {
 			default:
 				return __( 'Unavailable', 'wp-simple-firewall' );
 		}
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 * @return array<string,string>
+	 */
+	private function buildBucketHeaderOverrides( array $bucketSource ) :array {
+		if ( $bucketSource[ 'item_count' ] > 0 || $bucketSource[ 'disabled_item_count' ] < 1 ) {
+			return [];
+		}
+
+		return [
+			'focus'        => $bucketSource[ 'disabled_upgrade_count' ] === $bucketSource[ 'disabled_item_count' ]
+				? __( 'Upgrade available protections in this bucket.', 'wp-simple-firewall' )
+				: __( 'Available protections in this bucket still need setup.', 'wp-simple-firewall' ),
+			'next_step'    => __( 'Open a lane to switch on protection or review the upgrade path.', 'wp-simple-firewall' ),
+			'badge'        => $this->presentation()->buildLaneBadge( $bucketSource[ 'disabled_item_count' ] ),
+			'badge_status' => 'neutral',
+			'color_key'    => 'neutral',
+		];
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 */
+	private function buildDisabledSummaryText( array $bucketSource ) :string {
+		if ( $bucketSource[ 'disabled_upgrade_count' ] === $bucketSource[ 'disabled_item_count' ] ) {
+			return __( 'Some protections in this bucket require a Pro plan before they can run.', 'wp-simple-firewall' );
+		}
+
+		if ( $bucketSource[ 'disabled_upgrade_count' ] > 0 ) {
+			return __( 'Some protections in this bucket need setup or a Pro plan before they can run.', 'wp-simple-firewall' );
+		}
+
+		return __( 'Some protections in this bucket are available but not enabled yet.', 'wp-simple-firewall' );
+	}
+
+	/**
+	 * @param BucketSource $bucketSource
+	 */
+	private function buildBucketDisplayCount( array $bucketSource ) :int {
+		return $bucketSource[ 'item_count' ] > 0
+			? $bucketSource[ 'item_count' ]
+			: $bucketSource[ 'disabled_item_count' ];
 	}
 
 	/**
@@ -381,5 +497,13 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		return $this->summaryRowBuilder;
+	}
+
+	protected function scanAvailability() :ScansResultsRailTabAvailability {
+		if ( $this->scanAvailability === null ) {
+			$this->scanAvailability = new ScansResultsRailTabAvailability();
+		}
+
+		return $this->scanAvailability;
 	}
 }

@@ -18,13 +18,13 @@ class Wordpress extends Base {
 	private ?array $actionsQueuePaneCache = null;
 
 	protected function getRenderTemplate() :string {
-		return $this->isActionsQueueDisplayContext()
+		return $this->isActionsQueueDisplayContext() && !$this->getActionsQueuePane()[ 'is_disabled' ]
 			? '/wpadmin/components/scans/scan_results_table.twig'
 			: parent::getRenderTemplate();
 	}
 
 	protected function getRenderData() :array {
-		if ( $this->isActionsQueueDisplayContext() ) {
+		if ( $this->isActionsQueueDisplayContext() && !$this->getActionsQueuePane()[ 'is_disabled' ] ) {
 			$emptyText = __( "Previous scans didn't detect any modified, missing, or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' );
 			$queueScanResultsOptions = new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions();
 			$resultsDisplayOptions = $this->getActionsQueueExplicitResultsDisplayOptions();

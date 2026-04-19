@@ -32,13 +32,8 @@ class ActionsQueueAssetMetadataResolver {
 	 */
 	public function resolve( string $assetType, string $assetKey ) :?array {
 		$assetType = \strtolower( \trim( $assetType ) );
-		$subjectId = $this->normalizeAssetSubjectId( $assetType, $assetKey );
-		if ( $subjectId === '' ) {
-			return null;
-		}
-
 		if ( $assetType === InvestigationTableContract::SUBJECT_TYPE_PLUGIN ) {
-			$asset = Services::WpPlugins()->getPluginAsVo( $subjectId, true );
+			$asset = $this->resolvePluginVo( $assetKey );
 			if ( !$asset instanceof WpPluginVo ) {
 				return null;
 			}
@@ -56,7 +51,7 @@ class ActionsQueueAssetMetadataResolver {
 			return null;
 		}
 
-		$asset = Services::WpThemes()->getThemeAsVo( $subjectId, true );
+		$asset = $this->resolveThemeVo( $assetKey );
 		if ( !$asset instanceof WpThemeVo ) {
 			return null;
 		}
@@ -68,6 +63,28 @@ class ActionsQueueAssetMetadataResolver {
 			'icon_class'   => 'bi bi-palette-fill',
 			'has_update'   => $asset->hasUpdate(),
 		];
+	}
+
+	private function resolvePluginVo( string $assetKey ) :?WpPluginVo {
+		$assetKey = \trim( $assetKey );
+		$asset = $assetKey === '' ? null : Services::WpPlugins()->getPluginAsVo( $assetKey, true );
+		if ( $asset instanceof WpPluginVo ) {
+			return $asset;
+		}
+
+		$subjectId = $this->normalizeAssetSubjectId( InvestigationTableContract::SUBJECT_TYPE_PLUGIN, $assetKey );
+		return $subjectId === '' ? null : Services::WpPlugins()->getPluginAsVo( $subjectId, true );
+	}
+
+	private function resolveThemeVo( string $assetKey ) :?WpThemeVo {
+		$assetKey = \trim( $assetKey );
+		$asset = $assetKey === '' ? null : Services::WpThemes()->getThemeAsVo( $assetKey, true );
+		if ( $asset instanceof WpThemeVo ) {
+			return $asset;
+		}
+
+		$subjectId = $this->normalizeAssetSubjectId( InvestigationTableContract::SUBJECT_TYPE_THEME, $assetKey );
+		return $subjectId === '' ? null : Services::WpThemes()->getThemeAsVo( $subjectId, true );
 	}
 
 	private function normalizeAssetSubjectId( string $assetType, string $assetKey ) :string {

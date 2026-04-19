@@ -15,6 +15,7 @@ abstract class BaseRender extends BaseAction {
 	use NonceVerifyNotRequired;
 
 	public const TEMPLATE = '';
+	public const GO_PRO_URL = 'https://clk.shldscrty.com/shieldgoprofeature';
 
 	protected function exec() {
 		$this->render()->response();
@@ -169,7 +170,7 @@ abstract class BaseRender extends BaseAction {
 
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
 				'plugin_home'    => $con->labels->PluginURI,
-				'go_pro'         => 'https://clk.shldscrty.com/shieldgoprofeature',
+				'go_pro'         => self::GO_PRO_URL,
 				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),

@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueBucketsBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueBucketsBuilder,
+	ScansResultsRailTabAvailability
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
@@ -17,7 +20,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_returns_only_critical_and_review_buckets() :void {
-		$builder = new ActionsQueueBucketsBuilder();
+		$builder = $this->newBuilder();
 
 		$buckets = $builder->build(
 			[
@@ -104,7 +107,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_keeps_healthy_only_bucket_interactive_and_good() :void {
-		$builder = new ActionsQueueBucketsBuilder();
+		$builder = $this->newBuilder();
 
 		$buckets = $builder->build(
 			[
@@ -160,7 +163,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_healthy_rows_collects_only_good_assessment_rows() :void {
-		$builder = new ActionsQueueBucketsBuilder();
+		$builder = $this->newBuilder();
 
 		$healthyRows = $builder->buildHealthyRows(
 			[
@@ -237,7 +240,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_classify_skips_attention_items_without_supported_bucket_sources() :void {
-		$builder = new ActionsQueueBucketsBuilder();
+		$builder = $this->newBuilder();
 
 		$classified = $builder->classify(
 			[
@@ -264,7 +267,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_classify_routes_fully_ignored_plugin_attention_items_to_fix_now() :void {
-		$classified = ( new ActionsQueueBucketsBuilder() )->classify(
+		$classified = $this->newBuilder()->classify(
 			[
 				'items' => [
 					[
@@ -280,5 +283,26 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $classified[ 'critical' ][ 'item_count' ] );
 		$this->assertCount( 1, $classified[ 'critical' ][ 'attention_items' ] );
 		$this->assertSame( 0, $classified[ 'review' ][ 'item_count' ] );
+	}
+
+	private function newBuilder( array $availability = [] ) :ActionsQueueBucketsBuilder {
+		return new ActionsQueueBucketsBuilder(
+			new class( $availability ) extends ScansResultsRailTabAvailability {
+				public function __construct( private array $availability ) {
+				}
+
+				public function build( string $tabKey ) :array {
+					return $this->availability[ $tabKey ] ?? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'show_in_fix_now'       => true,
+						'disabled_reason'       => '',
+						'disabled_message'      => '',
+						'disabled_status'       => '',
+						'disabled_actions'      => [],
+					];
+				}
+			}
+		);
 	}
 }

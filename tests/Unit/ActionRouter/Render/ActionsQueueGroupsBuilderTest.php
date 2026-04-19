@@ -11,9 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
+	ActionsQueueBucketsBuilder,
 	ActionsQueueGroupMaintenanceSource,
 	ActionsQueueGroupScanSource,
-	ActionsQueueGroupsBuilder
+	ActionsQueueGroupsBuilder,
+	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -382,6 +384,93 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'ignore_all', $this->decodeAjaxAction(
 			$group[ 'selection' ][ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? ''
 		)[ 'sub_action' ] ?? '' );
+	}
+
+	public function test_build_surfaces_disabled_fix_now_scan_groups_as_neutral_clickable_cards() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[],
+			[],
+			[],
+			0,
+			[
+				'wordpress' => [
+					'is_available'     => false,
+					'disabled_reason'  => 'not_enabled',
+					'disabled_message' => 'WordPress core scanning is not enabled.',
+				],
+				'vulnerabilities' => [
+					'is_available'     => false,
+					'disabled_reason'  => 'upgrade_required',
+					'disabled_message' => 'Vulnerability scanning requires an upgrade.',
+				],
+				'file_locker' => [
+					'is_available'     => false,
+					'disabled_reason'  => 'upgrade_required',
+					'disabled_message' => 'File Locker requires an upgrade.',
+				],
+			]
+		);
+
+		$data = $builder->build(
+			'critical',
+			[ 'items' => [] ],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+		$groups = [];
+		foreach ( $this->flattenSections( $data[ 'active_sections' ] ) as $group ) {
+			$groups[ $group[ 'key' ] ] = $group;
+		}
+
+		$this->assertSame( [ 'wordpress', 'file_locker', 'vulnerabilities' ], \array_keys( $groups ) );
+		$this->assertSame( 'neutral', $groups[ 'wordpress' ][ 'status' ] );
+		$this->assertSame( 'Not Enabled', $groups[ 'wordpress' ][ 'status_label' ] );
+		$this->assertTrue( $groups[ 'wordpress' ][ 'is_interactive' ] );
+		$this->assertSame( 'expandable', $groups[ 'vulnerabilities' ][ 'card_type' ] );
+		$this->assertSame( 'Upgrade Required', $groups[ 'vulnerabilities' ][ 'status_label' ] );
+		$this->assertSame( 'expandable', $groups[ 'file_locker' ][ 'card_type' ] );
+	}
+
+	public function test_build_with_selected_disabled_scan_group_uses_neutral_header_and_suppresses_result_controls() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[],
+			[],
+			[],
+			0,
+			[
+				'vulnerabilities' => [
+					'is_available'     => false,
+					'disabled_reason'  => 'upgrade_required',
+					'disabled_message' => 'Vulnerability scanning requires an upgrade.',
+				],
+			]
+		);
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'vulnerabilities',
+			[ 'items' => [] ],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( 'vulnerabilities', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'neutral', $payload[ 'selected_group' ][ 'status' ] );
+		$this->assertSame( 'Upgrade Required', $payload[ 'selected_group' ][ 'status_label' ] );
+		$this->assertTrue( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertSame( 'Upgrade Required', $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'badge' ] ?? '' );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? null );
 	}
 
 	public function test_build_review_bucket_groups_requested_system_and_wordpress_items_without_changing_plugin_maintenance_cards() :void {
@@ -1286,7 +1375,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		array $maintenanceItems = [],
 		array $ignoredPluginCards = [],
 		array $ignoredThemeCards = [],
-		int $ignoredWordpressCount = 0
+		int $ignoredWordpressCount = 0,
+		array $tabAvailability = []
 	) :ActionsQueueGroupsBuilder {
 		return new class(
 			$pluginCards,
@@ -1295,7 +1385,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$maintenanceItems,
 			$ignoredPluginCards,
 			$ignoredThemeCards,
-			$ignoredWordpressCount
+			$ignoredWordpressCount,
+			$tabAvailability
 		) extends ActionsQueueGroupsBuilder {
 
 			private ?ActionsQueueGroupScanSource $scanSource = null;
@@ -1307,6 +1398,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			private array $ignoredPluginCards;
 			private array $ignoredThemeCards;
 			private int $ignoredWordpressCount;
+			private array $tabAvailability;
 
 			public function __construct(
 				array $pluginCards,
@@ -1315,7 +1407,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				array $maintenanceItems,
 				array $ignoredPluginCards,
 				array $ignoredThemeCards,
-				int $ignoredWordpressCount
+				int $ignoredWordpressCount,
+				array $tabAvailability
 			) {
 				$this->pluginCards = $pluginCards;
 				$this->themeCards = $themeCards;
@@ -1324,6 +1417,37 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				$this->ignoredPluginCards = $ignoredPluginCards;
 				$this->ignoredThemeCards = $ignoredThemeCards;
 				$this->ignoredWordpressCount = $ignoredWordpressCount;
+				$this->tabAvailability = $tabAvailability;
+			}
+
+			protected function buildBucketsBuilder() :ActionsQueueBucketsBuilder {
+				return new ActionsQueueBucketsBuilder( $this->buildRailTabAvailability() );
+			}
+
+			protected function buildRailTabAvailability() :ScansResultsRailTabAvailability {
+				return new class( $this->tabAvailability ) extends ScansResultsRailTabAvailability {
+
+					private array $states;
+
+					public function __construct( array $states ) {
+						$this->states = $states;
+					}
+
+					public function build( string $tabKey ) :array {
+						$state = $this->states[ $tabKey ] ?? [];
+						$isAvailable = (bool)( $state[ 'is_available' ] ?? true );
+
+						return \array_merge( [
+							'is_available'          => $isAvailable,
+							'show_in_actions_queue' => true,
+							'show_in_fix_now'       => true,
+							'disabled_reason'       => '',
+							'disabled_message'      => '',
+							'disabled_status'       => 'neutral',
+							'disabled_actions'      => [],
+						], $state );
+					}
+				};
 			}
 
 			protected function buildGroupScanSource() :ActionsQueueGroupScanSource {

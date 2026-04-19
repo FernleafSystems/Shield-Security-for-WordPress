@@ -285,6 +285,13 @@ class ActionsQueueGroupDefinitions {
 		return $this->summaryBehaviourForKey( $summaryKey )[ 'definition_key' ];
 	}
 
+	/**
+	 * @return list<string>
+	 */
+	public function criticalScanGroupKeys() :array {
+		return \array_values( \array_keys( PluginNavs::actionsQueueScanDefinitions() ) );
+	}
+
 	public function groupKeyForGroupKey( string $groupKey ) :string {
 		if ( \strpos( $groupKey, ':' ) !== false ) {
 			$definitionKey = \strstr( $groupKey, ':', true );

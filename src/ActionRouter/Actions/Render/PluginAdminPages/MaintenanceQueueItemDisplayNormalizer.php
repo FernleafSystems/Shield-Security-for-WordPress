@@ -388,8 +388,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 					__( 'Manage this plugin', 'wp-simple-firewall' ),
 					'bi bi-arrow-right-circle-fill',
 					__( 'Manage this plugin', 'wp-simple-firewall' ),
-					true,
-					'_blank'
+					true
 				),
 				\in_array( $plugin->file, $ignoredIdentifiers, true ),
 				'wp_plugins_inactive'

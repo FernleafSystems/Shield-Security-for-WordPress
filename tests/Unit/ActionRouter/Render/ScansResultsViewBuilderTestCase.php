@@ -436,8 +436,11 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 			'is_available'          => $isAvailable,
 			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ], true )
 				|| ( $tabKey === 'wordpress' && $this->wordpressEnabled ),
+			'show_in_fix_now'       => \in_array( $tabKey, [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true ),
+			'disabled_reason'       => '',
 			'disabled_message'      => '',
 			'disabled_status'       => 'neutral',
+			'disabled_actions'      => [],
 		];
 	}
 

@@ -8,7 +8,7 @@
 					{% if not bucket.is_interactive %}disabled{% endif %}>
 				<div class="actions-queue-bucket-card__severity">
 					<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>
-					<span class="actions-queue-bucket-card__count">{{ bucket.item_count }}</span>
+					<span class="actions-queue-bucket-card__count">{{ bucket.display_count }}</span>
 				</div>
 				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>
 				<div class="actions-queue-bucket-card__summary">{{ bucket.summary_text }}</div>

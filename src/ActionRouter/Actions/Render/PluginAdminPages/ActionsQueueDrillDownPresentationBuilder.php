@@ -6,6 +6,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
  * @phpstan-import-type OperatorChromeDisplayOptionsInput from OperatorChromeContract
+ * @phpstan-type HeaderOverrides array{
+ *   summary?:string,
+ *   focus?:string,
+ *   next_step?:string,
+ *   badge?:string,
+ *   badge_status?:string,
+ *   color_key?:string
+ * }
  * @phpstan-type BucketSelection array{
  *   key:string,
  *   label:string,
@@ -32,6 +40,13 @@ class ActionsQueueDrillDownPresentationBuilder {
 	public function buildItemBadge( int $itemCount ) :string {
 		return \sprintf(
 			_n( '%s item', '%s items', $itemCount, 'wp-simple-firewall' ),
+			$itemCount
+		);
+	}
+
+	public function buildLaneBadge( int $itemCount ) :string {
+		return \sprintf(
+			_n( '%s lane', '%s lanes', $itemCount, 'wp-simple-firewall' ),
 			$itemCount
 		);
 	}
@@ -67,7 +82,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = []
+		array $actions = [],
+		array $headerOverrides = []
 	) :array {
 		$header = $this->buildBucketHeader(
 			$label,
@@ -76,7 +92,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$iconClass,
 			$itemCount,
 			$summary,
-			$actions
+			$actions,
+			$headerOverrides
 		);
 		$selection = [
 			'key'           => $key,
@@ -106,7 +123,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		array $detailRenderAction,
 		string $summary,
 		array $actions = [],
-		array $displayOptions = []
+		array $displayOptions = [],
+		array $headerOverrides = []
 	) :array {
 		$header = $this->buildGroupHeader(
 			$bucketLabel,
@@ -116,7 +134,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$itemCount,
 			$summary,
 			$actions,
-			$displayOptions
+			$displayOptions,
+			$headerOverrides
 		);
 		$selection = [
 			'key'          => $key,
@@ -144,7 +163,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 		string $iconClass,
 		int $itemCount,
 		string $summary,
-		array $actions = []
+		array $actions = [],
+		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $label ),
@@ -152,13 +172,13 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'breadcrumb_label'   => $label,
 			'title'              => $label,
 			'meta'               => $meta,
-			'summary'            => $summary,
-			'focus'              => $meta,
-			'next_step'          => __( 'Choose one grouped finding to review the matching results.', 'wp-simple-firewall' ),
+			'summary'            => $overrides[ 'summary' ] ?? $summary,
+			'focus'              => $overrides[ 'focus' ] ?? $meta,
+			'next_step'          => $overrides[ 'next_step' ] ?? __( 'Choose one grouped finding to review the matching results.', 'wp-simple-firewall' ),
 			'icon_class'         => $iconClass,
-			'badge'              => $this->buildItemBadge( $itemCount ),
-			'badge_status'       => $status,
-			'color_key'          => $status,
+			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
+			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
+			'color_key'          => $overrides[ 'color_key' ] ?? $status,
 			'actions'            => $actions,
 		] );
 	}
@@ -174,20 +194,21 @@ class ActionsQueueDrillDownPresentationBuilder {
 		int $itemCount,
 		string $summary,
 		array $actions = [],
-		array $displayOptions = []
+		array $displayOptions = [],
+		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
 			'compact_back_label' => $this->buildBackLabel( $label ),
 			'active_back_label'  => $this->buildBackLabel( $bucketLabel ),
 			'breadcrumb_label'   => $label,
 			'title'              => $label,
-			'summary'            => $summary,
-			'focus'              => $this->buildItemBadge( $itemCount ),
-			'next_step'          => __( 'Review the scoped results and complete the next action.', 'wp-simple-firewall' ),
+			'summary'            => $overrides[ 'summary' ] ?? $summary,
+			'focus'              => $overrides[ 'focus' ] ?? $this->buildItemBadge( $itemCount ),
+			'next_step'          => $overrides[ 'next_step' ] ?? __( 'Review the scoped results and complete the next action.', 'wp-simple-firewall' ),
 			'icon_class'         => $iconClass,
-			'badge'              => $this->buildItemBadge( $itemCount ),
-			'badge_status'       => $status,
-			'color_key'          => $status,
+			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
+			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
+			'color_key'          => $overrides[ 'color_key' ] ?? $status,
 			'actions'            => $actions,
 			'display_options'    => $displayOptions,
 		] );

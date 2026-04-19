@@ -75,8 +75,9 @@ class ActionsQueueGroupsBuilder {
 	private ?ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder = null;
 	private ?ActionsQueueGroupScanSource $groupScanSource = null;
 	private ?ActionsQueueGroupMaintenanceSource $groupMaintenanceSource = null;
+	private ?ActionsQueueBucketsBuilder $bucketsBuilder = null;
 	private ?ActionsQueueGroupSeedCollector $seedCollector = null;
-	private ?ActionsQueueHealthyGroupSeedSupplementer $healthySeedSupplementer = null;
+	private ?ActionsQueuePassiveGroupSeedSupplementer $passiveSeedSupplementer = null;
 	private ?ActionsQueueGroupContractBuilder $contractBuilder = null;
 
 	/**
@@ -123,9 +124,10 @@ class ActionsQueueGroupsBuilder {
 	 * @return ComputedGroups
 	 */
 	private function compute( string $bucketKey, array $attentionQuery, array $assessmentRowsByZone ) :array {
-		$bucketsBuilder = new ActionsQueueBucketsBuilder();
-		$buckets = $this->indexBucketsByKey( $bucketsBuilder->build( $attentionQuery, $assessmentRowsByZone ) );
-		$bucketSources = $bucketsBuilder->classify( $attentionQuery );
+		$bucketsBuilder = $this->bucketsBuilder();
+		$bucketBuild = $bucketsBuilder->buildWithSources( $attentionQuery, $assessmentRowsByZone );
+		$buckets = $this->indexBucketsByKey( $bucketBuild[ 'buckets' ] );
+		$bucketSources = $bucketBuild[ 'sources' ];
 		$bucket = $buckets[ $bucketKey ];
 		$resolvedGroups = $this->buildGroupsForBucket(
 			$bucketKey,
@@ -172,7 +174,7 @@ class ActionsQueueGroupsBuilder {
 		$activeSeeds = $this->seedCollector()->collect( $bucketKey, $bucketSource );
 		$resolvedSeeds = \array_merge(
 			$activeSeeds,
-			$this->healthySeedSupplementer()->supplement(
+			$this->passiveSeedSupplementer()->supplement(
 				$bucketKey,
 				$bucketSource,
 				$assessmentRowsByZone,
@@ -198,6 +200,14 @@ class ActionsQueueGroupsBuilder {
 		return new ActionsQueueGroupMaintenanceSource(
 			new MaintenanceQueueItemDisplayNormalizer()
 		);
+	}
+
+	protected function buildBucketsBuilder() :ActionsQueueBucketsBuilder {
+		return new ActionsQueueBucketsBuilder( $this->buildRailTabAvailability() );
+	}
+
+	protected function buildRailTabAvailability() :ScansResultsRailTabAvailability {
+		return new ScansResultsRailTabAvailability();
 	}
 
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {
@@ -257,9 +267,9 @@ class ActionsQueueGroupsBuilder {
 		return $this->seedCollector;
 	}
 
-	private function healthySeedSupplementer() :ActionsQueueHealthyGroupSeedSupplementer {
-		if ( $this->healthySeedSupplementer === null ) {
-			$this->healthySeedSupplementer = new ActionsQueueHealthyGroupSeedSupplementer(
+	private function passiveSeedSupplementer() :ActionsQueuePassiveGroupSeedSupplementer {
+		if ( $this->passiveSeedSupplementer === null ) {
+			$this->passiveSeedSupplementer = new ActionsQueuePassiveGroupSeedSupplementer(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
 				$this->groupScanSource(),
@@ -267,7 +277,7 @@ class ActionsQueueGroupsBuilder {
 			);
 		}
 
-		return $this->healthySeedSupplementer;
+		return $this->passiveSeedSupplementer;
 	}
 
 	private function groupScanSource() :ActionsQueueGroupScanSource {
@@ -297,5 +307,13 @@ class ActionsQueueGroupsBuilder {
 		}
 
 		return $this->contractBuilder;
+	}
+
+	private function bucketsBuilder() :ActionsQueueBucketsBuilder {
+		if ( $this->bucketsBuilder === null ) {
+			$this->bucketsBuilder = $this->buildBucketsBuilder();
+		}
+
+		return $this->bucketsBuilder;
 	}
 }

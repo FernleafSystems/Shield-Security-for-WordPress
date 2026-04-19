@@ -53,8 +53,25 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 				'plugins' => [
 					'is_available'          => false,
 					'show_in_actions_queue' => true,
+					'show_in_fix_now'       => true,
+					'disabled_reason'       => 'not_enabled',
 					'disabled_message'      => $message,
 					'disabled_status'       => 'neutral',
+					'disabled_actions'      => [
+						[
+							'type'         => 'navigate',
+							'label'      => 'Turn On Scanning',
+							'href'       => 'javascript:{}',
+							'icon_class' => 'bi bi-arrow-right-circle-fill',
+							'tooltip_attr' => '',
+							'class_name' => 'zone_component_action',
+							'target'     => '',
+							'rel'        => '',
+							'attributes' => [
+								'data-zone_component_action' => 'offcanvas_zone_component_config',
+							],
+						],
+					],
 				],
 			],
 		] );
@@ -65,6 +82,14 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$this->assertSame( 0, $pane[ 'count_items' ] ?? -1 );
 		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
 		$this->assertSame( $message, $pane[ 'disabled_message' ] ?? '' );
+		$this->assertSame( 'Turn On Scanning', $pane[ 'disabled_actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'navigate', $pane[ 'disabled_actions' ][ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( 'javascript:{}', $pane[ 'disabled_actions' ][ 0 ][ 'href' ] ?? '' );
+		$this->assertSame( 'bi bi-arrow-right-circle-fill', $pane[ 'disabled_actions' ][ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'tooltip_attr' ] ?? 'unexpected' );
+		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'target' ] ?? 'unexpected' );
+		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'rel' ] ?? 'unexpected' );
+		$this->assertSame( 'zone_component_action', $pane[ 'disabled_actions' ][ 0 ][ 'class_name' ] ?? '' );
 	}
 
 	public function test_theme_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
@@ -166,6 +191,28 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$pane = $builder->buildRailPaneData( 'malware' );
 		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
 		$this->assertSame( $message, $pane[ 'disabled_message' ] ?? '' );
+		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
+	}
+
+	public function test_wordpress_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
+		$builder = $this->createBuilder( [
+			'wordpressEnabled' => false,
+			'tabAvailability'  => [
+				'wordpress' => [
+					'is_available'          => false,
+					'show_in_actions_queue' => false,
+					'show_in_fix_now'       => true,
+					'disabled_reason'       => 'not_enabled',
+					'disabled_message'      => 'wordpress-unavailable-sentinel',
+					'disabled_status'       => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'wordpress' );
+		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'neutral', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 'wordpress-unavailable-sentinel', $pane[ 'disabled_message' ] ?? '' );
 		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
 	}
 

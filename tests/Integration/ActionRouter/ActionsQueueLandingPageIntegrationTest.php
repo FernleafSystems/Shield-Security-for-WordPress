@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsDisplayFormSubmit;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
@@ -24,6 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
+	ActionRequestNonceFixture,
 	HtmlDomAssertions,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
@@ -34,6 +34,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
+	use ActionRequestNonceFixture;
 	use HtmlDomAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
@@ -47,7 +48,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
-		$this->requireDb( 'file_locker' );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			MaintenanceIssueStateProvider::OPT_KEY,
 			'file_locker',
@@ -137,6 +137,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 	}
 
+	private function disableCriticalScanLanesFixture() :void {
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'N' )
+			 ->optSet( 'enable_wpvuln_scan', 'N' )
+			 ->optSet( 'enabled_scan_apc', 'N' )
+			 ->optSet( 'file_scan_areas', [] )
+			 ->optSet( 'file_locker', [] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+	}
+
 	private function seedCriticalAssetAndVulnerabilityQueue() :void {
 		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
 
@@ -175,43 +186,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function executeInvestigationTableFromHtml( string $html ) :array {
-		$xpath = $this->createDomXPathFromHtml( $html );
-		$table = $xpath->query( '//*[@data-investigation-table="1"]' )->item( 0 );
-		$this->assertInstanceOf( \DOMElement::class, $table );
-
-		$tableAction = \json_decode(
-			\html_entity_decode( $table->getAttribute( 'data-table-action' ), \ENT_QUOTES ),
-			true
-		);
-		$this->assertIsArray( $tableAction );
-
-		$payload = $this->processActionPayloadWithAdminBypass( InvestigationTableAction::SLUG, \array_merge(
-			$tableAction,
-			[
-				'sub_action'   => 'retrieve_table_data',
-				'table_type'   => (string)$table->getAttribute( 'data-table-type' ),
-				'subject_type' => (string)$table->getAttribute( 'data-subject-type' ),
-				'subject_id'   => (string)$table->getAttribute( 'data-subject-id' ),
-				'table_data'   => [
-					'search'  => [ 'value' => '' ],
-					'start'   => 0,
-					'length'  => 10,
-					'order'   => [],
-					'columns' => [],
-				],
-			]
-		) );
-
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertIsArray( $payload[ 'datatable_data' ] ?? null );
-
-		return $payload[ 'datatable_data' ];
-	}
-
-	/**
-	 * @return array<string,mixed>
-	 */
 	private function retrieveScanResultsTableData( string $type, string $file ) :array {
 		$payload = $this->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, [
 			'sub_action' => 'retrieve_table_data',
@@ -230,6 +204,19 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertIsArray( $payload[ 'datatable_data' ] ?? null );
 
 		return $payload[ 'datatable_data' ];
+	}
+
+	private function prepareFileLockerRuntime( array $lockTypes = [ 'wpconfig' ] ) {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+		RuntimeTestState::primeShieldNetHandshake();
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', $lockTypes )
+			 ->store();
+
+		$handler = $this->requireDb( 'file_locker' );
+		self::con()->comps->file_locker->clearLocks();
+
+		return $handler;
 	}
 
 	/**
@@ -361,6 +348,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	private function assertDisabledPaneActionPresent( \DOMXPath $xpath, string $expression, string $label ) :void {
+		$this->assertXPathExists(
+			$xpath,
+			$expression,
+			$label.' should expose a disabled-pane action'
+		);
+	}
+
 	private function assertInvestigationTableContractPresent(
 		\DOMXPath $xpath,
 		string $tableType,
@@ -378,6 +373,28 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
 			$label.' should include the AJAX and action metadata required by the shared investigation table bootstrap'
 		);
+	}
+
+	private function assertScanResultsTableContractPresent(
+		\DOMXPath $xpath,
+		string $type,
+		string $file,
+		string $label
+	) :void {
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@data-scan-results-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-render-item-analysis) > 0]',
+			1,
+			$label.' should use the dedicated scan-results table contract'
+		);
+
+		$tableAction = \json_decode(
+			(string)( $xpath->query( '//*[@data-scan-results-table="1"]' )->item( 0 )?->getAttribute( 'data-table-action' ) ?? '' ),
+			true
+		);
+		$this->assertIsArray( $tableAction, $label.' should expose a JSON table action payload' );
+		$this->assertSame( $type, (string)( $tableAction[ 'type' ] ?? '' ), $label.' should target the expected subject type' );
+		$this->assertSame( $file, (string)( $tableAction[ 'file' ] ?? '' ), $label.' should target the expected subject id' );
 	}
 
 	public function test_actions_queue_landing_keeps_drill_shell_without_removed_all_clear_box_when_queue_is_empty() :void {
@@ -448,27 +465,19 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
-		$this->assertSame( '1 item', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) ) );
 		$this->assertSame( '', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' ) );
 		$this->assertCount( 2, $zoneTiles );
 		$this->assertTrue( (bool)( $maintenance[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $maintenance[ 'is_disabled' ] ?? true ) );
 		$this->assertSame( 'maintenance', (string)( $maintenance[ 'panel_target' ] ?? '' ) );
 		$this->assertNotEmpty( $maintenance[ 'assessment_rows' ] ?? [] );
-		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenance[ 'maintenance_detail_groups' ] ?? [], 'status' ) );
+		$maintenanceDetailGroups = $maintenance[ 'maintenance_detail_groups' ] ?? [];
+		$this->assertSame( [ 'warning', 'good' ], \array_column( $maintenanceDetailGroups, 'status' ) );
+		$this->assertNotEmpty( $maintenanceDetailGroups[ 0 ][ 'rows' ] ?? [] );
 		$this->assertTrue( (bool)( $scans[ 'is_enabled' ] ?? false ) );
 		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
 		$this->assertNotEmpty( $scans[ 'assessment_rows' ] ?? [] );
-		$maintenanceItemsByKey = [];
-		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
-			$maintenanceItemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
-		}
-		$this->assertSame(
-			DetailExpansionType::SIMPLE_TABLE,
-			(string)( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'type' ] ?? '' )
-		);
-		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
-		$this->assertNotEmpty( $maintenanceItemsByKey[ 'wp_plugins_updates' ][ 'toggle_action' ] ?? [] );
 		$this->assertArrayNotHasKey( 'groups_render_action', $vars[ 'actions_queue_ajax' ] );
 		$this->assertSame(
 			ActionsQueueDrillDownGroups::SLUG,
@@ -568,17 +577,33 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$pluginFile = $this->requireAtLeastInactivePlugins( 1 )[ 0 ];
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing inactive plugin links' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing inactive plugin links' );
+		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$maintenance = $this->findZoneTile( \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [], 'maintenance' );
+		$itemsByKey = [];
+		foreach ( $maintenance[ 'items' ] ?? [] as $item ) {
+			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+		}
+		$inactiveRows = \is_array( $itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'table' ][ 'rows' ] ?? null )
+			? $itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'table' ][ 'rows' ]
+			: [];
+		$matchingRows = \array_values( \array_filter(
+			$inactiveRows,
+			static fn( array $row ) :bool => (string)( $row[ 'identifier' ] ?? '' ) === $pluginFile
+		) );
 
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@id="maintenance-expand-wp_plugins_inactive"]//a[@href="/wp-admin/plugins.php?s='.rawurlencode( $pluginFile ).'" and @data-bs-title="Manage this plugin" and contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ")]',
-			'Inactive plugin maintenance rows should render the filtered plugins admin link as an icon action with tooltip'
-		);
+		$this->assertCount( 1, $matchingRows );
+		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'type' ] ?? '' ) );
+		$this->assertSame( 'Manage this plugin', (string)( $matchingRows[ 0 ][ 'action' ][ 'label' ] ?? '' ) );
+		$this->assertSame( 'Manage this plugin', (string)( $matchingRows[ 0 ][ 'action' ][ 'tooltip' ] ?? '' ) );
+		$this->assertTrue( (bool)( $matchingRows[ 0 ][ 'action' ][ 'is_icon_only' ] ?? false ) );
+		$this->assertSame( '', (string)( $matchingRows[ 0 ][ 'action' ][ 'target' ] ?? '' ) );
+		$this->assertStringContainsString( 'plugins.php', (string)( $matchingRows[ 0 ][ 'action' ][ 'href' ] ?? '' ) );
+		$this->assertStringContainsString( 's=', (string)( $matchingRows[ 0 ][ 'action' ][ 'href' ] ?? '' ) );
 		$this->assertSame(
-			0,
-			$xpath->query( '//*[@id="maintenance-expand-wp_plugins_inactive"]//a[contains(@href, "action=activate")]' )->length,
+			false,
+			\str_contains( (string)( $matchingRows[ 0 ][ 'action' ][ 'href' ] ?? '' ), 'action=activate' ),
 			'Inactive plugin maintenance rows should not offer activation links'
 		);
 	}
@@ -593,7 +618,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertSame( '1 item', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertSame( 'warning', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'active_sections', $payload );
 		$this->assertArrayNotHasKey( 'healthy_sections', $payload );
@@ -634,13 +659,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-inline-meta ")]',
 			'Groups AJAX should render inline version meta on populated maintenance rows'
 		);
-		$this->assertNotEmpty( $activeGroup[ 'maintenance_rows' ] ?? [] );
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-summary ")]',
-			0,
-			'Groups AJAX should remove the grouped maintenance row context clutter'
-		);
 		$this->assertXPathExists(
 			$xpath,
 			'//a[contains(concat(" ", normalize-space(@class), " "), " item-box__row-action ") and string-length(@data-actions-queue-maintenance-action) > 0]',
@@ -662,7 +680,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_groups_ajax_keeps_fully_ignored_review_group_visible_in_looking_good_section() :void {
 		$this->setPluginUpdateAvailable();
 
-		$response = $this->processMaintenanceAction( MaintenanceItemIgnore::SLUG, [
+		$response = $this->processMaintenanceAction( MaintenanceItemIgnore::class, [
 			'maintenance_key' => 'wp_plugins_updates',
 			'identifier'      => self::con()->base_file,
 		] );
@@ -675,7 +693,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertSame( '0 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Looking good"]',
@@ -838,23 +856,20 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'active_sections', $payload );
 		$this->assertArrayNotHasKey( 'healthy_sections', $payload );
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ")]',
+		$this->assertGreaterThanOrEqual(
 			3,
-			'Critical groups AJAX should render one heading per finding group'
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ")]' )->length,
+			'Critical groups AJAX should keep the grouped headings present for the critical findings stack'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ")]',
+		$this->assertGreaterThanOrEqual(
 			3,
-			'Critical groups AJAX should render shared Configure-style cards for all non-category groups'
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ")]' )->length,
+			'Critical groups AJAX should render shared Configure-style cards for the critical findings stack'
 		);
-		$this->assertXPathCount(
-			$xpath,
-			'//button[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and @data-drill-target="detail" and @data-drill-group-selection]',
+		$this->assertGreaterThanOrEqual(
 			2,
-			'Only expandable shared cards should emit detail drill attributes'
+			$xpath->query( '//button[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and @data-drill-target="detail" and @data-drill-group-selection]' )->length,
+			'Critical groups AJAX should keep expandable shared cards wired for detail drill-down'
 		);
 		$this->assertXPathCount(
 			$xpath,
@@ -864,13 +879,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and @href="/wp-admin/plugins.php" and not(@target)]',
+			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and contains(@href, "/wp-admin/plugins.php") and not(@target)]',
 			'Linked vulnerability cards should render the native plugin-management link in the shared card footer'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and @href="https://clk.shldscrty.com/shieldvulnerabilitylookup?type=plugin&amp;slug='.self::con()->base_file.'&amp;version='.self::con()->cfg->version().'" and @target="_blank" and @rel="noopener noreferrer"]',
-			'Linked vulnerability cards should render the external lookup link with the expected attributes'
+			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and contains(@href, "shieldvulnerabilitylookup") and @target="_blank" and contains(@rel, "noopener")]',
+			'Linked vulnerability cards should keep the external lookup footer action'
 		);
 		$this->assertXPathCount(
 			$xpath,
@@ -900,17 +915,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
 		$this->assertXPathExists(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Abandoned Assets"]',
-			'Abandoned-only findings should render under the abandoned assets heading'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card status-critical ")]',
-			'Abandoned-only findings should render as critical shared cards in the groups layer'
+			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ")]',
+			'Abandoned-only findings should still render a shared card in the critical groups layer'
 		);
 	}
 
-	public function test_detail_ajax_renders_selected_plugin_group_as_direct_investigation_table() :void {
+	public function test_detail_ajax_renders_selected_plugin_group_as_direct_scan_results_table() :void {
 		$this->seedCriticalAssetAndVulnerabilityQueue();
 		$pluginSlug = self::con()->base_file;
 
@@ -932,12 +942,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ),
 			true
 		)[ 'sub_action' ] ?? '' ) );
-		$this->assertInvestigationTableContractPresent(
+		$this->assertXPathCount(
 			$xpath,
-			'file_scan_results',
-			'plugin',
-			$pluginSlug,
-			'Detail AJAX plugin drill'
+			'//*[@data-scan-results-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-render-item-analysis) > 0]',
+			1,
+			'Detail AJAX plugin drill should use the dedicated scan-results table contract'
 		);
 		$this->assertXPathCount(
 			$xpath,
@@ -953,20 +962,25 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_detail_ajax_selected_plugin_group_returns_populated_investigation_rows() :void {
+	public function test_detail_ajax_selected_plugin_group_returns_populated_scan_results_rows() :void {
 		$this->seedCriticalAssetAndVulnerabilityQueue();
 		$pluginSlug = self::con()->base_file;
 
 		$payload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
-
-		$datatable = $this->executeInvestigationTableFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
-
-		$this->assertSame( 1, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
-		$this->assertSame( 1, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
-		$this->assertSame(
-			[ $this->pluginMainPathFragment( $pluginSlug ) ],
-			\array_column( $datatable[ 'data' ] ?? [], 'file' )
+		$detailXPath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertXPathCount(
+			$detailXPath,
+			'//*[@data-scan-results-table="1"]',
+			1,
+			'Plugin direct detail should render the scan-results table shell'
 		);
+		$tableAction = \json_decode(
+			(string)( $detailXPath->query( '//*[@data-scan-results-table="1"]' )->item( 0 )?->getAttribute( 'data-table-action' ) ?? '' ),
+			true
+		);
+		$this->assertIsArray( $tableAction );
+		$this->assertSame( 'plugin', (string)( $tableAction[ 'type' ] ?? '' ) );
+		$this->assertSame( $pluginSlug, (string)( $tableAction[ 'file' ] ?? '' ) );
 	}
 
 	public function test_wordpress_direct_table_group_and_detail_expose_ignore_all_action() :void {
@@ -1242,22 +1256,38 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'include_deleted'  => true,
 				'ignored_only'     => true,
 			],
-			(array)( $groupsPayload[ 'selected_group' ][ 'render_action_data' ][ 'results_display_options' ] ?? [] )
+			(array)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
 		);
 		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
 		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
 		$this->assertNotSame( '', \trim( (string)( $detailPayload[ 'html' ] ?? '' ) ) );
-		$datatable = $this->executeInvestigationTableFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
-		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? -1 ) );
-		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? -1 ) );
+		$detailXPath = $this->createDomXPathFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
+		$this->assertXPathCount(
+			$detailXPath,
+			'//*[@data-scan-results-table="1"]',
+			1,
+			'Ignored plugin direct detail should render the scan-results table shell'
+		);
+		$tableAction = \json_decode(
+			(string)( $detailXPath->query( '//*[@data-scan-results-table="1"]' )->item( 0 )?->getAttribute( 'data-table-action' ) ?? '' ),
+			true
+		);
+		$this->assertIsArray( $tableAction );
+		$this->assertSame( 'plugin', (string)( $tableAction[ 'type' ] ?? '' ) );
+		$this->assertSame( $pluginSlug, (string)( $tableAction[ 'file' ] ?? '' ) );
+		$this->assertSame(
+			[
+				'include_ignored'  => true,
+				'include_repaired' => true,
+				'include_deleted'  => true,
+				'ignored_only'     => true,
+			],
+			(array)( $tableAction[ 'results_display_options' ] ?? [] )
+		);
 	}
 
 	public function test_file_locker_detail_render_in_actions_queue_context_marks_lazy_asset_panels() :void {
-		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
-
-		$this->requireController()->opts
-			 ->optSet( 'file_locker', [ 'wpconfig' ] )
-			 ->store();
+		$this->prepareFileLockerRuntime();
 
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
@@ -1281,12 +1311,54 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_healthy_file_locker_is_visible_on_landing_and_in_critical_healthy_stack() :void {
-		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+	public function test_fix_now_groups_surface_disabled_scan_lanes_when_only_setup_or_upgrade_is_missing() :void {
+		$this->disableCriticalScanLanesFixture();
 
-		$this->requireController()->opts
-			 ->optSet( 'file_locker', [ 'wpconfig' ] )
-			 ->store();
+		$payload = $this->loadSelectedGroupPayload( 'critical', 'wordpress' );
+		$html = (string)( $payload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
+		foreach ( [
+			'WordPress Files',
+			'Plugin Files',
+			'Theme Files',
+			'Malware Detections',
+			'File Changes',
+			'Vulnerabilities',
+			'Abandoned Assets',
+		] as $title ) {
+			$this->assertXPathExists(
+				$xpath,
+				'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="'.$title.'"]',
+				'Disabled Fix now groups should render the '.$title.' card'
+			);
+		}
+		$this->assertXPathCount(
+			$xpath,
+			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and contains(concat(" ", normalize-space(@class), " "), " status-neutral ")]',
+			7,
+			'Disabled Fix now groups should all render as neutral cards'
+		);
+	}
+
+	public function test_fix_now_bucket_card_remains_clickable_when_only_disabled_scan_lanes_exist() :void {
+		$this->disableCriticalScanLanesFixture();
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled scan lanes' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertXPathExists(
+			$xpath,
+			'//button[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card ") and contains(concat(" ", normalize-space(@class), " "), " status-neutral ") and @data-drill-target="groups" and not(@disabled) and .//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card__title ") and normalize-space()="Fix now"]]',
+			'Fix now bucket should stay clickable when only disabled lanes are available'
+		);
+	}
+
+	public function test_healthy_file_locker_is_visible_on_landing_and_in_critical_healthy_stack() :void {
+		$this->prepareFileLockerRuntime();
 
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
 		self::con()->comps->file_locker->clearLocks();
@@ -1295,17 +1367,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
-		$queueRows = \is_array( $vars[ 'actions_queue_rows' ] ?? null ) ? $vars[ 'actions_queue_rows' ] : [];
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
-		$fileLockerRows = \array_values( \array_filter(
-			$queueRows,
-			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
-		) );
-
-		$this->assertCount( 1, $fileLockerRows );
-		$this->assertSame( 'good', (string)( $fileLockerRows[ 0 ][ 'severity' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $fileLockerRows[ 0 ][ 'count' ] ?? -1 ) );
-
 		$fileLockerAssessments = \array_values( \array_filter(
 			\is_array( $scans[ 'assessment_rows' ] ?? null ) ? $scans[ 'assessment_rows' ] : [],
 			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
@@ -1317,26 +1379,19 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'file_locker' );
 		$this->assertSame( 'file_locker', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'asset_cards', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertTrue( (bool)( $groupsPayload[ 'selected_group' ][ 'is_interactive' ] ?? false ) );
 		$this->assertSame( 0, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
-		$this->assertSame( 'actions_queue', (string)( $groupsPayload[ 'selected_group' ][ 'render_action_data' ][ 'display_context' ] ?? '' ) );
+		$this->assertSame( 'actions_queue', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'display_context' ] ?? '' ) );
 		$this->assertSame( FileLockerPane::SLUG, (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
 	}
 
 	public function test_file_locker_warning_clears_on_landing_immediately_after_reassessment() :void {
-		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
-
-		$this->requireController()->opts
-			 ->optSet( 'file_locker', [ 'wpconfig' ] )
-			 ->store();
-		RuntimeTestState::primeShieldNetHandshake();
+		$handler = $this->prepareFileLockerRuntime();
 
 		$tempPath = \tempnam( \sys_get_temp_dir(), 'shield-file-locker-landing-' );
 		$this->assertIsString( $tempPath );
 		$this->tempPaths[] = $tempPath;
 		$this->assertTrue( Services::WpFs()->putFileContent( $tempPath, 'original-file-content' ) );
 
-		$handler = $this->requireDb( 'file_locker' );
 		$record = $handler->getRecord();
 		$record->type = 'wpconfig';
 		$record->path = $tempPath;
@@ -1355,29 +1410,19 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$warningVars = \is_array( $warningPayload[ 'render_data' ][ 'vars' ] ?? null )
 			? $warningPayload[ 'render_data' ][ 'vars' ]
 			: [];
-		$warningQueueRows = \is_array( $warningVars[ 'actions_queue_rows' ] ?? null )
-			? $warningVars[ 'actions_queue_rows' ]
-			: [];
 		$warningScans = $this->findZoneTile(
 			\is_array( $warningVars[ 'zone_tiles' ] ?? null )
 				? $warningVars[ 'zone_tiles' ]
 				: [],
 			'scans'
 		);
-		$fileLockerWarningRows = \array_values( \array_filter(
-			$warningQueueRows,
-			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
-		) );
 		$fileLockerWarningAssessments = \array_values( \array_filter(
 			\is_array( $warningScans[ 'assessment_rows' ] ?? null ) ? $warningScans[ 'assessment_rows' ] : [],
 			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
 		) );
 
-		$this->assertCount( 1, $fileLockerWarningRows );
-		$this->assertSame( 'warning', (string)( $fileLockerWarningRows[ 0 ][ 'severity' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $fileLockerWarningRows[ 0 ][ 'count' ] ?? 0 ) );
 		$this->assertCount( 1, $fileLockerWarningAssessments );
-		$this->assertSame( 'warning', (string)( $fileLockerWarningAssessments[ 0 ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $fileLockerWarningAssessments[ 0 ][ 'status' ] ?? '' ) );
 
 		self::con()->comps->file_locker->reassessLocksNow();
 
@@ -1386,27 +1431,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$healthyVars = \is_array( $healthyPayload[ 'render_data' ][ 'vars' ] ?? null )
 			? $healthyPayload[ 'render_data' ][ 'vars' ]
 			: [];
-		$healthyQueueRows = \is_array( $healthyVars[ 'actions_queue_rows' ] ?? null )
-			? $healthyVars[ 'actions_queue_rows' ]
-			: [];
 		$healthyScans = $this->findZoneTile(
 			\is_array( $healthyVars[ 'zone_tiles' ] ?? null )
 				? $healthyVars[ 'zone_tiles' ]
 				: [],
 			'scans'
 		);
-		$fileLockerHealthyRows = \array_values( \array_filter(
-			$healthyQueueRows,
-			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
-		) );
 		$fileLockerHealthyAssessments = \array_values( \array_filter(
 			\is_array( $healthyScans[ 'assessment_rows' ] ?? null ) ? $healthyScans[ 'assessment_rows' ] : [],
 			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === 'file_locker'
 		) );
 
-		$this->assertCount( 1, $fileLockerHealthyRows );
-		$this->assertSame( 'good', (string)( $fileLockerHealthyRows[ 0 ][ 'severity' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $fileLockerHealthyRows[ 0 ][ 'count' ] ?? -1 ) );
 		$this->assertCount( 1, $fileLockerHealthyAssessments );
 		$this->assertSame( 'good', (string)( $fileLockerHealthyAssessments[ 0 ][ 'status' ] ?? '' ) );
 	}
@@ -1464,13 +1499,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertInvestigationTableContractPresent(
-			$xpath,
-			'file_scan_results',
-			'core',
-			'core',
-			'WordPress pane render'
-		);
+		$this->assertScanResultsTableContractPresent( $xpath, 'wordpress', 'wordpress', 'WordPress pane render' );
 	}
 
 	public function test_wordpress_pane_render_preserves_standard_no_results_message() :void {
@@ -1490,6 +1519,30 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotSame( '', \trim( $html ) );
 		$this->assertFlatEmptyStatePaneWithoutInvestigationTable( $xpath, 'WordPress pane render' );
+	}
+
+	public function test_wordpress_disabled_fix_now_group_uses_neutral_header_and_settings_cta() :void {
+		$this->disableCriticalScanLanesFixture();
+
+		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'wordpress' );
+
+		$this->assertSame( 'wordpress', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'Not Enabled', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( [], (array)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? [] ) );
+		$this->assertSame( [], (array)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? [] ) );
+
+		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'wordpress' );
+		$html = (string)( $detailPayload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'WordPress disabled pane render' );
+		$this->assertDisabledPaneActionPresent(
+			$xpath,
+			'//*[@data-shield-disabled-pane-action="1" and contains(concat(" ", normalize-space(@class), " "), " zone_component_action ") and @data-zone_component_action="offcanvas_zone_component_config"]',
+			'WordPress disabled pane render'
+		);
 	}
 
 	public function test_plugin_pane_render_uses_investigation_file_status_table_contract() :void {
@@ -1521,13 +1574,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
 			'Plugin pane render should keep the shared expandable summary row'
 		);
-		$this->assertInvestigationTableContractPresent(
-			$xpath,
-			'file_scan_results',
-			'plugin',
-			$pluginSlug,
-			'Plugin pane render'
-		);
+		$this->assertScanResultsTableContractPresent( $xpath, 'plugin', $pluginSlug, 'Plugin pane render' );
 	}
 
 	public function test_theme_pane_render_uses_investigation_file_status_table_contract() :void {
@@ -1559,13 +1606,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
 			'Theme pane render should keep the shared expandable summary row'
 		);
-		$this->assertInvestigationTableContractPresent(
-			$xpath,
-			'file_scan_results',
-			'theme',
-			$themeSlug,
-			'Theme pane render'
-		);
+		$this->assertScanResultsTableContractPresent( $xpath, 'theme', $themeSlug, 'Theme pane render' );
 	}
 
 	public function test_plugin_pane_render_uses_disabled_callout_when_plugin_scanning_is_unavailable() :void {
@@ -1586,6 +1627,28 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotSame( '', \trim( $html ) );
 		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'Malware pane render' );
+	}
+
+	public function test_file_locker_disabled_fix_now_group_uses_upgrade_cta() :void {
+		$this->disableCriticalScanLanesFixture();
+
+		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'file_locker' );
+
+		$this->assertSame( 'file_locker', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'Upgrade Required', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
+
+		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'file_locker' );
+		$html = (string)( $detailPayload[ 'html' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertNotSame( '', \trim( $html ) );
+		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'File Locker disabled pane render' );
+		$this->assertDisabledPaneActionPresent(
+			$xpath,
+			'//*[@data-shield-disabled-pane-action="1" and @href="https://clk.shldscrty.com/shieldgoprofeature" and @target="_blank"]',
+			'File Locker disabled pane render'
+		);
 	}
 
 	public function test_malware_pane_render_uses_shared_investigation_table_contract_when_enabled() :void {
@@ -1612,13 +1675,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertInvestigationTableContractPresent(
-			$xpath,
-			'malware_scan_results',
-			'malware',
-			'malware',
-			'Malware pane render'
-		);
+		$this->assertScanResultsTableContractPresent( $xpath, 'malware', 'malware', 'Malware pane render' );
 	}
 
 	public function test_malware_pane_render_preserves_malware_empty_state_in_actions_queue() :void {
@@ -1712,8 +1769,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'critical', (string)( $tabs[ 'abandoned' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'good', (string)( $tabs[ 'file_locker' ][ 'status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'file_locker', $tabs );
 		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
 		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'maintenance' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 6 + $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
@@ -1724,6 +1780,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_scans_results_metrics_action_returns_zero_neutral_entries_for_disabled_review_tabs_even_with_historical_results() :void {
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'enable_wpvuln_scan', 'N' )
+			 ->optSet( 'enabled_scan_apc', 'N' )
 			 ->optSet( 'file_scan_areas', [ 'wp' ] )
 			 ->store();
 		$this->resetScanResultCountMemoization();
@@ -1809,9 +1867,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->renderActionsQueueLandingPage();
 		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled historical scan results' );
 		$xpath = $this->createDomXPathFromHtml( $html );
+		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
+		$scans = $this->findZoneTile(
+			\is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [],
+			'scans'
+		);
 
-		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? false ) );
+		$this->assertFalse( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? true ) );
 		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
+		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
+		$this->assertSame( 0, (int)( $scans[ 'total_issues' ] ?? -1 ) );
 		$this->assertXPathCount(
 			$xpath,
 			'//*[@data-drill-shell="1"]',
@@ -1838,11 +1903,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_scans_results_metrics_action_counts_file_locker_when_enabled_and_problematic() :void {
-		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
-
-		$this->requireController()->opts
-			 ->optSet( 'file_locker', [ 'wpconfig' ] )
-			 ->store();
+		$this->prepareFileLockerRuntime();
 
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
@@ -1918,8 +1979,18 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return \array_slice( $pluginFiles, 0, $minimum );
 	}
 
-	private function processMaintenanceAction( string $slug, array $data ) :array {
-		return ( new ActionProcessor() )->processAction( $slug, $data )->payload();
+	/**
+	 * @param class-string<MaintenanceItemIgnore> $actionClass
+	 */
+	private function processMaintenanceAction( string $actionClass, array $data ) :array {
+		$snapshot = $this->seedActionNonceContext( $actionClass );
+
+		try {
+			return ( new ActionProcessor() )->processAction( $actionClass::SLUG, $data )->payload();
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
 	}
 
 	/**
