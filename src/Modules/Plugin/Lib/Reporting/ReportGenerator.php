@@ -4,12 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\FullPageDisplayNonTerminating;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports as ReportsActions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReport;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\{
+	SecurityReport,
+	SecurityReportAlert
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Uuid;
@@ -19,33 +20,7 @@ class ReportGenerator {
 	use PluginControllerConsumer;
 
 	public function auto() {
-		try {
-			$alert = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_ALERT );
-			$alert->record = $this->buildAndStore( $alert );
-			$this->sendNotificationEmail( $alert );
-			$this->markAlertsAsNotified();
-
-			// Mark info as generated so it doesn't fire redundantly next cycle.
-			// This is internal bookkeeping and shouldn't replace the alert audit entry.
-			try {
-				$info = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_INFO );
-				$this->buildAndStore( $info, true );
-			}
-			catch ( Exceptions\ReportBuildException $e ) {
-			}
-
-			return;
-		}
-		catch ( Exceptions\ReportBuildException $e ) {
-		}
-
-		try {
-			$info = ( new CreateReportVO() )->create( Constants::REPORT_TYPE_INFO );
-			$info->record = $this->buildAndStore( $info );
-			$this->sendNotificationEmail( $info );
-		}
-		catch ( Exceptions\ReportBuildException $e ) {
-		}
+		( new AutoReportCoordinator() )->run();
 	}
 
 	/**
@@ -64,7 +39,7 @@ class ReportGenerator {
 	/**
 	 * @throws Exceptions\ReportDataEmptyException
 	 */
-	private function buildAndStore( ReportVO $report, bool $suppressGeneratedAudit = false ) :ReportsDB\Record {
+	public function buildAndStore( ReportVO $report ) :ReportsDB\Record {
 		$con = self::con();
 
 		$areasData = [];
@@ -88,6 +63,7 @@ class ReportGenerator {
 		}
 		$report->areas_data = $areasData;
 
+		$this->prepareReportContracts( $report );
 		$this->preRenderChecks( $report );
 		if ( \count( $report->areas_data ) === 0 ) {
 			throw new Exceptions\ReportDataEmptyException( 'empty report data' );
@@ -95,7 +71,7 @@ class ReportGenerator {
 
 		try {
 			$payload = $con->action_router->action( FullPageDisplayNonTerminating::class, [
-				'render_slug' => SecurityReport::SLUG,
+				'render_slug' => $this->getRenderSlugForReportType( $report->type ),
 				'render_data' => [
 					'report' => $report->getRawData(),
 				],
@@ -119,22 +95,31 @@ class ReportGenerator {
 
 		$con->db_con->reports->getQueryInserter()->insert( $record );
 
-		$eventMeta = [
+		$con->comps->events->fireEvent( $this->getGeneratedReportEventKey( $report->type ), [
 			'audit_params' => [
 				'type'     => $con->comps->reports->getReportTypeName( $record->type ),
 				'interval' => $record->interval_length,
 			]
-		];
-		if ( $suppressGeneratedAudit ) {
-			$eventMeta[ 'suppress_audit' ] = true;
-		}
-		$con->comps->events->fireEvent( $this->getGeneratedReportEventKey( $report->type ), $eventMeta );
+		] );
 
 		return $record;
 	}
 
 	private function getGeneratedReportEventKey( string $reportType ) :string {
 		return $reportType === Constants::REPORT_TYPE_ALERT ? 'report_generated_alert' : 'report_generated';
+	}
+
+	private function getRenderSlugForReportType( string $reportType ) :string {
+		return $reportType === Constants::REPORT_TYPE_ALERT ? SecurityReportAlert::SLUG : SecurityReport::SLUG;
+	}
+
+	private function prepareReportContracts( ReportVO $report ) :void {
+		if ( $report->type === Constants::REPORT_TYPE_ALERT ) {
+			$report->alert_digest = ( new BuildAlertDigestContract() )->build( $report );
+		}
+		elseif ( $report->type === Constants::REPORT_TYPE_INFO ) {
+			$report->info_headline = ( new BuildInfoHeadlineContract() )->build();
+		}
 	}
 
 	/**
@@ -146,8 +131,10 @@ class ReportGenerator {
 	private function preRenderChecks( ReportVO $report ) :void {
 		$data = $report->areas_data;
 		$inspector = new ReportDataInspector( $data );
-		if ( $report->type === Constants::REPORT_TYPE_ALERT && $inspector->countScanResultsNew() === 0 ) {
+		if ( $report->type === Constants::REPORT_TYPE_ALERT
+			 && empty( $report->alert_digest[ 'has_new_items' ] ) ) {
 			$data = [];
+			$report->alert_digest = [];
 		}
 		elseif ( $report->type === Constants::REPORT_TYPE_INFO && $inspector->countAll() === 0 ) {
 			// if there's nothing to report, don't create a report.
@@ -156,23 +143,26 @@ class ReportGenerator {
 		$report->areas_data = $data;
 	}
 
-	private function sendNotificationEmail( ReportVO $report ) {
+	public function sendNotificationEmail( ReportVO $report ) {
 		$con = self::con();
 
 		$isAlert = $report->type === Constants::REPORT_TYPE_ALERT;
 		$subjectLabel = $isAlert
 			? __( 'Security Alert', 'wp-simple-firewall' )
 			: __( 'Security Report', 'wp-simple-firewall' );
+		$renderClass = $isAlert
+			? ReportsActions\Contexts\EmailReportAlert::class
+			: ReportsActions\Contexts\EmailReportInfo::class;
 
 		try {
 			$email = EmailVO::Factory(
 				$con->comps->opts_lookup->getReportEmail(),
 				$subjectLabel.' - '.$con->labels->Name,
 				$con->action_router->render(
-					ReportsActions\Contexts\EmailReport::class,
+					$renderClass,
 					[
 						'home_url'     => Services::WpGeneral()->getHomeUrl(),
-						'reports'      => [ $report ],
+						'report'       => $report,
 						'detail_level' => 'detailed',
 					]
 				)
@@ -193,26 +183,28 @@ class ReportGenerator {
 		}
 	}
 
-	private function markAlertsAsNotified() {
-		$con = self::con();
+	public function persistAlertNotifications( ReportVO $report ) :bool {
+		$targetIDs = \array_values( \array_unique( \array_map(
+			'intval',
+			\array_filter(
+				\is_array( $report->alert_digest[ 'notification_target_ids' ] ?? null )
+					? $report->alert_digest[ 'notification_target_ids' ]
+					: [],
+				static fn( $id ) :bool => (int)$id > 0
+			)
+		) ) );
 
-		/** @var FileLockerDB\Update $updater */
-		$updater = $con->db_con->file_locker->getQueryUpdater();
-		foreach ( ( new LoadFileLocks() )->withProblemsNotNotified() as $record ) {
-			$updater->markNotified( $record );
+		if ( empty( $targetIDs ) ) {
+			return false;
 		}
-		$con->comps->file_locker->clearLocks();
 
-		// Standard Scan Results
-		$con->db_con
-			->scan_result_items
-			->getQueryUpdater()
-			->setUpdateWheres( [
-				'notified_at' => 0,
-			] )
-			->setUpdateData( [
-				'notified_at' => Services::Request()->ts()
-			] )
-			->query();
+		$updated = Services::WpDb()->doSql( sprintf(
+			'UPDATE `%s` SET `notified_at`=%d WHERE `id` IN (%s) AND `notified_at`=0;',
+			self::con()->db_con->scan_result_items->getTable(),
+			Services::Request()->ts(),
+			\implode( ',', $targetIDs )
+		) );
+
+		return \is_numeric( $updated ) && (int)$updated === \count( $targetIDs );
 	}
 }

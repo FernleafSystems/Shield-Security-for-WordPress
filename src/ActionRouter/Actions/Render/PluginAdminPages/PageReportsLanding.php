@@ -225,12 +225,12 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 				'icon_class'   => 'bi bi-sliders',
 				'status'       => 'neutral',
 				'status_label' => __( 'Configure', 'wp-simple-firewall' ),
-				'oneliner'     => __( 'Receive only the alerts and reports that you want.', 'wp-simple-firewall' ),
+				'oneliner'     => __( 'Configure critical alert digests and informational status reports.', 'wp-simple-firewall' ),
 				'description'  => $settingsDefinition[ 'page_subtitle' ],
 				'header'       => $this->buildWorkspaceHeader(
 					$settingsDefinition[ 'menu_title' ],
 					$settingsDefinition[ 'page_subtitle' ],
-					__( 'Adjust reporting and alert settings, then save your changes.', 'wp-simple-firewall' ),
+					__( 'Adjust alert digest and informational reporting settings, then save your changes.', 'wp-simple-firewall' ),
 					'bi bi-sliders',
 					__( 'Settings', 'wp-simple-firewall' )
 				),

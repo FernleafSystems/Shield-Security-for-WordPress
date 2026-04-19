@@ -1,0 +1,144 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_branding %}
+	<tr>
+		<td style="height: 4px; background-color: #c62f3e; background: linear-gradient(90deg, #c62f3e, #f7d5d8); font-size: 0; line-height: 0;">&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td style="padding: 24px 28px 18px; border-bottom: 1px solid #e5d6d8;">
+			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td style="vertical-align: middle;">
+						<div style="font-size: 20px; font-weight: 700; color: #222222; line-height: 1.2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.strings.security_alert }}
+						</div>
+						<div style="font-size: 13px; color: #888888; line-height: 1.4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.vars.site_url }}
+						</div>
+					</td>
+					<td style="text-align: right; vertical-align: middle;">
+						<span style="display: inline-block; background: #faf5f6; border: 1px solid #e5d6d8; border-radius: 8px; padding: 5px 12px; font-size: 12px; color: #555555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.vars.report.date_start }} &ndash; {{ body.vars.report.date_end }}
+						</span>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+{% endblock %}
+
+{% block email_header %}
+	<p style="margin: 0; padding: 12px 16px; font-size: 13px; color: #666666; line-height: 1.5; background: #faf5f6; border-bottom: 1px solid #e5d6d8; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+		{{ body.strings.intro_text }}
+	</p>
+{% endblock %}
+
+{% block email_body %}
+	{% set digest = body.vars.report.digest %}
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 14px 0 12px; border: 1px solid #ecd5d8; border-radius: 10px; background: #fff7f8;">
+		<tr>
+			<td width="33%" style="padding: 14px 10px; text-align: center; border-right: 1px solid #ecd5d8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+				<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #a06d74; margin-bottom: 4px;">{{ body.strings.new_issues }}</div>
+				<div style="font-size: 24px; font-weight: 700; color: #c62f3e; line-height: 1.1;">{{ digest.summary.new_total }}</div>
+			</td>
+			<td width="33%" style="padding: 14px 10px; text-align: center; border-right: 1px solid #ecd5d8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+				<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #a06d74; margin-bottom: 4px;">{{ body.strings.outstanding_issues }}</div>
+				<div style="font-size: 24px; font-weight: 700; color: #b97a00; line-height: 1.1;">{{ digest.summary.outstanding_total }}</div>
+			</td>
+			<td width="33%" style="padding: 14px 10px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+				<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #a06d74; margin-bottom: 4px;">{{ body.strings.current_issues }}</div>
+				<div style="font-size: 24px; font-weight: 700; color: #222222; line-height: 1.1;">{{ digest.summary.current_total }}</div>
+			</td>
+		</tr>
+	</table>
+
+	{% for row in digest.rows %}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px; border: 1px solid #e5d6d8; border-radius: 10px; overflow: hidden;">
+			<tr>
+				<td style="padding: 12px 14px; background: {{ row.has_new ? '#fff1f3' : '#faf7f0' }}; border-left: 4px solid {{ row.has_new ? '#c62f3e' : '#edb41d' }};">
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+						<tr>
+							<td style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+								<div style="font-size: 14px; font-weight: 700; color: #222222;">{{ row.title }}</div>
+								<div style="font-size: 12px; color: #666666; margin-top: 2px;">{{ row.count_summary }}</div>
+							</td>
+							<td style="text-align: right; vertical-align: top;">
+								<a href="{{ row.review_href }}" target="_blank" style="display: inline-block; padding: 8px 14px; border-radius: 8px; background: #222222; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+									{{ row.review_action }}
+								</a>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			{% if row.new_count > 0 %}
+				<tr>
+					<td style="padding: 12px 14px 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+						<div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #c62f3e; font-weight: 700;">{{ body.strings.new_issues }}</div>
+					</td>
+				</tr>
+				{% for item in row.new_items %}
+					<tr>
+						<td style="padding: 6px 14px; font-family: Consolas, 'Courier New', monospace; font-size: 12px; color: #333333; background: #fffafb;">
+							{{ item.label }} <span style="display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 8px; background: #fdeaec; color: #c62f3e; font-size: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 700;">{{ body.strings.new_badge }}</span>
+						</td>
+					</tr>
+				{% endfor %}
+				{% if row.hidden_new_count > 0 %}
+					<tr>
+						<td style="padding: 6px 14px 10px; font-size: 12px; color: #666666; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.strings.and_x_more|format(row.hidden_new_count) }}
+						</td>
+					</tr>
+				{% endif %}
+			{% endif %}
+			{% if row.outstanding_count > 0 %}
+				<tr>
+					<td style="padding: 12px 14px 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+						<div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #b97a00; font-weight: 700;">{{ body.strings.outstanding_issues }}</div>
+					</td>
+				</tr>
+				{% for item in row.outstanding_items %}
+					<tr>
+						<td style="padding: 6px 14px; font-family: Consolas, 'Courier New', monospace; font-size: 12px; color: #333333;">
+							{{ item.label }}
+						</td>
+					</tr>
+				{% endfor %}
+				{% if row.hidden_outstanding_count > 0 %}
+					<tr>
+						<td style="padding: 6px 14px 10px; font-size: 12px; color: #666666; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.strings.and_x_more|format(row.hidden_outstanding_count) }}
+						</td>
+					</tr>
+				{% endif %}
+			{% endif %}
+		</table>
+	{% endfor %}
+
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 18px 0 10px;">
+		<tr>
+			<td align="center">
+				<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+					<tr>
+						<td style="border-radius: 8px; background-color: #c62f3e; background: linear-gradient(135deg, #a82131, #c62f3e);">
+							<a href="{{ body.vars.report.href }}" target="_blank" style="display: inline-block; padding: 12px 32px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+								{{ body.strings.view_full_report }} &rarr;
+							</a>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+{% endblock %}
+
+{% block email_footer %}
+	<div style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; color: #999999; line-height: 1.5;">
+		<div style="margin-bottom: 6px;">{{ body.strings.generated_by_plugin }}</div>
+		{% for section in footer %}
+			<div>{{ section|raw }}</div>
+		{% endfor %}
+	</div>
+{% endblock %}

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ActivityLogsMeta\Ops as MetaDB,
 	Event\Ops as EventsDB
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 	Afs,
@@ -25,13 +26,21 @@ class BuildForScans extends BuildBase {
 	private const ITEMS_CAP = 20;
 
 	public function build() :array {
-		return [
-			'scan_results' => $this->buildMergedResults(),
-			'scan_repairs' => $this->buildForRepairs(),
-		];
+		$data = [];
+		foreach ( $this->requestedSections() as $section ) {
+			switch ( $section ) {
+				case 'scan_results':
+					$data[ 'scan_results' ] = $this->buildMergedResults();
+					break;
+				case 'scan_repairs':
+					$data[ 'scan_repairs' ] = $this->buildForRepairs();
+					break;
+			}
+		}
+		return $data;
 	}
 
-	private function buildMergedResults() :array {
+	protected function buildMergedResults() :array {
 		$scansCon = self::con()->comps->scans;
 		$cActive = new Counts( RetrieveCount::CONTEXT_ACTIVE_PROBLEMS );
 		$cNew = new Counts( RetrieveCount::CONTEXT_NOT_YET_NOTIFIED );
@@ -111,11 +120,13 @@ class BuildForScans extends BuildBase {
 			'available'   => $flEnabled,
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
+			'notification_target_ids' => [],
 		];
 	}
 
 	private function buildWpvEntry( ScansController $scansCon, Counts $cActive, Counts $cNew ) :array {
 		$items = [];
+		$notificationTargetIDs = [];
 		if ( $scansCon->WPV()->isEnabled() && !$scansCon->WPV()->isRestricted() ) {
 			$wpvResults = $scansCon->WPV()->getResultsForDisplay();
 			$slugs = $wpvResults->getUniqueSlugs();
@@ -125,7 +136,7 @@ class BuildForScans extends BuildBase {
 				foreach ( $slugItems as $si ) {
 					if ( $si->VO->notified_at === 0 ) {
 						$isNew = true;
-						break;
+						$notificationTargetIDs[] = (int)$si->VO->resultitem_id;
 					}
 				}
 				if ( \strpos( $slug, '/' ) !== false ) {
@@ -150,16 +161,21 @@ class BuildForScans extends BuildBase {
 			'available'   => $scansCon->WPV()->isEnabled(),
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
+			'notification_target_ids' => \array_values( \array_unique( $notificationTargetIDs ) ),
 		];
 	}
 
 	private function buildApcEntry( ScansController $scansCon, Counts $cActive, Counts $cNew ) :array {
 		$items = [];
+		$notificationTargetIDs = [];
 		if ( !$scansCon->APC()->isRestricted() ) {
 			$apcItems = $scansCon->APC()->getResultsForDisplay()->getAllItems();
 			foreach ( $apcItems as $item ) {
 				$slug = $item->VO->item_id;
 				$isNew = $item->VO->notified_at === 0;
+				if ( $isNew ) {
+					$notificationTargetIDs[] = (int)$item->VO->resultitem_id;
+				}
 				if ( \strpos( $slug, '/' ) !== false ) {
 					$asset = Services::WpPlugins()->getPluginAsVo( $slug );
 					$label = !empty( $asset ) ? $asset->Title : $slug;
@@ -182,6 +198,7 @@ class BuildForScans extends BuildBase {
 			'available'   => $scansCon->APC()->isEnabled(),
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
+			'notification_target_ids' => \array_values( \array_unique( $notificationTargetIDs ) ),
 		];
 	}
 
@@ -190,8 +207,12 @@ class BuildForScans extends BuildBase {
 	 */
 	private function buildAfsEntry( array $allAfsItems, string $filterField, string $name, int $activeCount, int $newCount, bool $available ) :array {
 		$items = [];
+		$notificationTargetIDs = [];
 		foreach ( $allAfsItems as $item ) {
 			if ( $item->{$filterField} ) {
+				if ( $item->VO->notified_at === 0 ) {
+					$notificationTargetIDs[] = (int)$item->VO->resultitem_id;
+				}
 				$items[] = [
 					'label'  => $item->path_fragment,
 					'is_new' => $item->VO->notified_at === 0,
@@ -209,10 +230,11 @@ class BuildForScans extends BuildBase {
 			'available'   => $available,
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
+			'notification_target_ids' => \array_values( \array_unique( $notificationTargetIDs ) ),
 		];
 	}
 
-	private function buildForRepairs() :array {
+	protected function buildForRepairs() :array {
 		/** @var EventsDB\Select $selectorEvents */
 		$selectorEvents = self::con()->db_con->events->getQuerySelector();
 
@@ -251,5 +273,20 @@ class BuildForScans extends BuildBase {
 		}
 
 		return $repairs;
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	protected function requestedSections() :array {
+		$sections = $this->report->areas[ Constants::REPORT_AREA_SCANS ] ?? [];
+		if ( !\is_array( $sections ) ) {
+			$sections = [ 'scan_results', 'scan_repairs' ];
+		}
+
+		return \array_values( \array_intersect(
+			[ 'scan_results', 'scan_repairs' ],
+			$sections
+		) );
 	}
 }

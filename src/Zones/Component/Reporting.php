@@ -12,7 +12,7 @@ class Reporting extends Base {
 	}
 
 	public function subtitle() :string {
-		return __( "See what's happening with reports.", 'wp-simple-firewall' );
+		return __( 'Manage alert digests and informational status reports.', 'wp-simple-firewall' );
 	}
 
 	public function configureRows() :array {
@@ -21,7 +21,7 @@ class Reporting extends Base {
 				'reporting',
 				__( 'Reports', 'wp-simple-firewall' ),
 				EnumEnabledStatus::NEUTRAL,
-				__( 'Manage report email delivery and reporting frequency.', 'wp-simple-firewall' ),
+				__( 'Manage alert digest delivery, informational reports, and reporting email settings.', 'wp-simple-firewall' ),
 				[],
 				$this->buildConfigureRowScope(
 					$this->configZoneComponentSlugs(),

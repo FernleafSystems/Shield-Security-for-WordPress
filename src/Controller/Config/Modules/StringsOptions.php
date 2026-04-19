@@ -1074,8 +1074,8 @@ class StringsOptions {
 				$name = __( 'Info Reports Frequency', 'wp-simple-firewall' );
 				$summary = __( 'How Often Informational Reports Will Be Sent To You', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Choose when you should be sent non-critical information and reports about your site security.', 'wp-simple-firewall' ),
-					__( 'Information and reports are typically statistics.', 'wp-simple-firewall' )
+					__( 'Choose when you should be sent informational status reports about your site security.', 'wp-simple-firewall' ),
+					__( 'Information reports lead with current alert status and then include broader reporting detail such as statistics and changes.', 'wp-simple-firewall' )
 				];
 				break;
 

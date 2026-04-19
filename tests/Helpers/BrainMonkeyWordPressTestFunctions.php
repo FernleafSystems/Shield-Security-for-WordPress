@@ -27,6 +27,8 @@ trait BrainMonkeyWordPressTestFunctions {
 				return $max >= $min ? $min : $max;
 			}
 		);
+		Functions\when( 'wp_timezone' )->justReturn( new \DateTimeZone( 'UTC' ) );
+		Functions\when( 'wp_timezone_string' )->justReturn( 'UTC' );
 
 		Functions\when( 'get_option' )->alias(
 			static function ( string $key, $default = false ) use ( &$options ) {

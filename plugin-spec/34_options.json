@@ -2685,7 +2685,7 @@
         "beacon_id": 233,
         "name": "Alert Reports Frequency",
         "summary": "How Often Should You Be Sent Reports With Important Alerts",
-        "description": "Decide when you should be sent reports with alerts about your site security."
+        "description": "Decide when you should be sent alert digests covering new critical issues and older unresolved critical issues on your site."
     },
     {
         "key": "frequency_info",
@@ -2726,7 +2726,7 @@
         "beacon_id": 232,
         "name": "Info Reports Frequency",
         "summary": "How Often Should You Be Sent Information Reports",
-        "description": "Decide when you should be sent non-critical information and reports about your site security."
+        "description": "Decide when you should be sent informational status reports covering current alert status, site activity, and broader security reporting detail."
     },
     {
         "key": "instant_alert_shield_deactivated",

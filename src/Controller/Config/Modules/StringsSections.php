@@ -270,7 +270,7 @@ class StringsSections {
 				$title = __( 'Reports', 'wp-simple-firewall' );
 				$short = __( 'Reports', 'wp-simple-firewall' );
 				$summary = [
-					__( 'Receive regular reports from the plugin summarising important events.', 'wp-simple-firewall' ),
+					__( 'Receive alert digests for critical issues and informational reports for overall site status.', 'wp-simple-firewall' ),
 					sprintf( __( 'Your reporting email address is: %s', 'wp-simple-firewall' ),
 						'<code>'.self::con()->comps->opts_lookup->getReportEmail().'</code>' )
 					.' '.
@@ -278,7 +278,7 @@ class StringsSections {
 						self::con()->plugin_urls->cfgForZoneComponent( Reporting::Slug() ),
 						__( 'Update reporting email address', 'wp-simple-firewall' )
 					),
-					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), sprintf( __( 'Choose the most appropriate frequency to receive alerts from %s according to your schedule.', 'wp-simple-firewall' ), $name ) ),
+					sprintf( '%s - %s', __( 'Purpose', 'wp-simple-firewall' ), __( 'Set how often critical alert digests and informational status reports should be delivered.', 'wp-simple-firewall' ) ),
 				];
 				break;
 			case 'section_importexport' :

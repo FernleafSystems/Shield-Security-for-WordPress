@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -20,46 +21,43 @@ class CreateReportVO {
 		$this->rep = new ReportVO();
 		$this->rep->type = $reportType;
 
-		$this->setReportInterval()
-			 ->setPreviousReport()
-			 ->setReportAreas()
-			 ->setIntervalBoundaries();
-
-		$this->rep->title = sprintf( '%s :: %s :: %s',
-			self::con()->comps->reports->getReportTypeName( $reportType ),
-			\ucfirst( $this->rep->interval ),
-			__( 'Auto-Generated', 'wp-simple-firewall' )
-		);
+		$this->rep->interval = $this->determineReportInterval( $reportType );
+		$this->rep->previous = $this->lookupPreviousReport( $reportType, $this->rep->interval );
+		$this->rep->areas = $this->determineReportAreas( $reportType );
+		$this->setIntervalBoundaries();
+		$this->rep->title = $this->buildReportTitle( $reportType, $this->rep->interval );
 
 		return $this->rep;
 	}
 
-	private function setReportAreas() :self {
-		$this->rep->areas = self::con()->comps->reports->getReportAreas( true );
-		return $this;
+	protected function determineReportAreas( string $reportType ) :array {
+		return $reportType === Constants::REPORT_TYPE_ALERT
+			? [
+				Constants::REPORT_AREA_SCANS => [ 'scan_results' ],
+			]
+			: self::con()->comps->reports->getReportAreas( true );
 	}
 
-	private function setReportInterval() :self {
-		switch ( $this->rep->type ) {
+	protected function determineReportInterval( string $reportType ) :string {
+		switch ( $reportType ) {
 			case Constants::REPORT_TYPE_ALERT:
-				$this->rep->interval = self::con()->comps->reports->getReportFrequencyAlert();
-				break;
+				return self::con()->comps->reports->getReportFrequencyAlert();
 			case Constants::REPORT_TYPE_INFO:
 			default:
-				$this->rep->interval = self::con()->comps->reports->getReportFrequencyInfo();
-				break;
+				return self::con()->comps->reports->getReportFrequencyInfo();
 		}
-		return $this;
 	}
 
-	private function setPreviousReport() :self {
+	/**
+	 * @return ReportsDB\Record|false|null
+	 */
+	protected function lookupPreviousReport( string $reportType, string $interval ) {
 		/** @var ReportsDB\Select $sel */
 		$sel = self::con()->db_con->reports->getQuerySelector();
-		$this->rep->previous = $sel->filterByType( $this->rep->type )
-								   ->filterByInterval( $this->rep->interval )
-								   ->setOrderBy( 'created_at' )
-								   ->first();
-		return $this;
+		return $sel->filterByType( $reportType )
+				   ->filterByInterval( $interval )
+				   ->setOrderBy( 'created_at' )
+				   ->first();
 	}
 
 	/**
@@ -68,64 +66,42 @@ class CreateReportVO {
 	 * @throws \Exception
 	 */
 	private function setIntervalBoundaries() :self {
-		$req = Services::Request();
+		$interval = $this->rep->interval;
+		$resolver = $this->buildIntervalWindowResolver();
 
-		$intervalToReport = $req->carbon( true );
-		$currentIntervalStart = $req->carbon( true );
-
-		switch ( $this->rep->interval ) {
-			case 'hourly':
-				$currentIntervalStart->startOfHour();
-				$intervalToReport->subHour();
-				$start = $intervalToReport->startOfHour()->timestamp;
-				$end = $intervalToReport->endOfHour()->timestamp;
-				break;
-			case 'daily':
-				$currentIntervalStart->startOfDay();
-				$intervalToReport->subDay();
-				$start = $intervalToReport->startOfDay()->timestamp;
-				$end = $intervalToReport->endOfDay()->timestamp;
-				break;
-			case 'weekly':
-				$currentIntervalStart->startOfWeek();
-				$intervalToReport->subWeek();
-				$start = $intervalToReport->startOfWeek()->timestamp;
-				$end = $intervalToReport->endOfWeek()->timestamp;
-				break;
-			case 'biweekly':
-				$currentIntervalStart->startOfWeek();
-				$intervalToReport->subWeeks( 2 )->startOfWeek();
-				$start = $intervalToReport->timestamp;
-				$end = ( clone $intervalToReport )->addWeek()->endOfWeek()->timestamp;
-				break;
-			case 'monthly':
-				$currentIntervalStart->startOfMonth();
-				$intervalToReport->day( 15 )->subMonth();
-				$start = $intervalToReport->startOfMonth()->timestamp;
-				$end = $intervalToReport->endOfMonth()->timestamp;
-				break;
-			case 'yearly':
-				$currentIntervalStart->startOfYear();
-				$intervalToReport->subYear();
-				$start = $intervalToReport->startOfYear()->timestamp;
-				$end = $intervalToReport->endOfYear()->timestamp;
-				break;
-			case 'disabled':
-			default:
-				throw new Exceptions\ReportTypeDisabledException( 'Attempting to create a report for a disabled interval.' );
+		if ( !$resolver->isSupportedScheduledInterval( $interval ) ) {
+			throw new Exceptions\ReportTypeDisabledException( 'Attempting to create a report for a disabled interval.' );
 		}
 
-		if ( $this->rep->previous instanceof ReportsDB\Record && $end <= $this->rep->previous->interval_end_at ) {
+		$window = $resolver->resolveCompletedWindow( $interval, $this->currentRequestCarbon() );
+
+		if ( $this->rep->previous instanceof ReportsDB\Record && $window->end_at <= $this->rep->previous->interval_end_at ) {
 			throw new Exceptions\DuplicateReportException( 'Attempting to create a duplicate report based on interval.' );
 		}
 
-		if ( $end > $currentIntervalStart->timestamp ) { // sanity check
+		if ( $window->end_at >= $this->currentRequestCarbon()->timestamp ) { // sanity check
 			throw new \Exception( 'Attempting to create for an interval greater than the current interval.' );
 		}
 
-		$this->rep->start_at = $start;
-		$this->rep->end_at = $end;
+		$this->rep->start_at = $window->start_at;
+		$this->rep->end_at = $window->end_at;
 
 		return $this;
+	}
+
+	protected function buildReportTitle( string $reportType, string $interval ) :string {
+		return sprintf( '%s :: %s :: %s',
+			self::con()->comps->reports->getReportTypeName( $reportType ),
+			\ucfirst( $interval ),
+			__( 'Auto-Generated', 'wp-simple-firewall' )
+		);
+	}
+
+	protected function buildIntervalWindowResolver() :ReportIntervalWindowResolver {
+		return new ReportIntervalWindowResolver();
+	}
+
+	protected function currentRequestCarbon() :Carbon {
+		return Carbon::createFromTimestamp( Services::Request()->ts(), \wp_timezone() );
 	}
 }

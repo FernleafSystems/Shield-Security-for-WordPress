@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-
 class ReportDataInspector {
-
-	use PluginControllerConsumer;
 
 	private array $data;
 
@@ -62,6 +58,20 @@ class ReportDataInspector {
 		}
 
 		return $statsForDisplay;
+	}
+
+	public function getChangesForEmailDisplay() :array {
+		return \array_filter(
+			$this->data[ Constants::REPORT_AREA_CHANGES ] ?? [],
+			static fn( $changeZone ) :bool => \is_array( $changeZone ) && ( (int)( $changeZone[ 'total' ] ?? 0 ) > 0 )
+		);
+	}
+
+	public function getScanRepairsForEmailDisplay() :array {
+		return \array_filter(
+			$this->data[ Constants::REPORT_AREA_SCANS ][ 'scan_repairs' ] ?? [],
+			static fn( $repairZone ) :bool => \is_array( $repairZone ) && ( (int)( $repairZone[ 'count' ] ?? 0 ) > 0 )
+		);
 	}
 
 	public function countChangeZonesWithChanges() :int {
