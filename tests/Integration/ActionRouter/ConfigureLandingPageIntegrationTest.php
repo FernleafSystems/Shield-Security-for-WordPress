@@ -361,8 +361,19 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$this->assertXPathExists(
 			$ipsXpath,
-			'//*[@data-configure-row-key="ip_blocking_rules"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="ip_blocking_rules"]',
-			'IPs diagnosis should still surface the IP blocking rules expansion row'
+			'//*[@data-configure-row-key="crowdsec_blocking"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="crowdsec_blocking" and contains(@data-option_keys, "cs_block") and contains(@data-option_keys, "cs_enroll_id")]',
+			'IPs diagnosis should surface the CrowdSec row with both blocking and enrolment settings'
+		);
+		$this->assertXPathExists(
+			$ipsXpath,
+			'//*[@data-configure-row-key="auto_ip_blocking"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="auto_ip_blocking" and contains(@data-option_keys, "user_auto_recover") and contains(@data-option_keys, "request_whitelist")]',
+			'IPs diagnosis should surface auto IP blocking with unblock and whitelist settings'
+		);
+		$this->assertXPathCount(
+			$ipsXpath,
+			'//*[@data-configure-row-key="ip_blocking_rules"]',
+			0,
+			'IPs diagnosis should no longer render the obsolete IP blocking rules row'
 		);
 	}
 
@@ -418,6 +429,43 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		foreach ( $rows as $row ) {
 			$this->assertNotSame( [], $row[ 'config_action' ] ?? [] );
 		}
+	}
+
+	public function test_real_tile_build_only_keeps_explicit_same_zone_duplicate_option_ownership() :void {
+		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
+		$allowedDuplicates = [
+			'users' => [
+				'enable_password_policies',
+			],
+		];
+		$unexpectedDuplicates = [];
+
+		foreach ( $tiles as $tile ) {
+			$optionRows = [];
+			foreach ( $tile[ 'panel' ][ 'rows' ] ?? [] as $row ) {
+				$optionKeys = \array_filter( \array_map(
+					'trim',
+					\explode( ',', (string)( $row[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? '' ) )
+				) );
+				foreach ( $optionKeys as $optionKey ) {
+					$optionRows[ $optionKey ][] = (string)( $row[ 'key' ] ?? '' );
+				}
+			}
+
+			foreach ( $optionRows as $optionKey => $rowKeys ) {
+				if ( \count( $rowKeys ) < 2 ) {
+					continue;
+				}
+
+				if ( \in_array( $optionKey, $allowedDuplicates[ $tile[ 'key' ] ] ?? [], true ) ) {
+					continue;
+				}
+
+				$unexpectedDuplicates[ $tile[ 'key' ].':'.$optionKey ] = $rowKeys;
+			}
+		}
+
+		$this->assertSame( [], $unexpectedDuplicates );
 	}
 
 	private function findConfigureOptionResultByConfigItem( array $results, string $configItem ) :?array {

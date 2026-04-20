@@ -144,6 +144,57 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'status_label' ] );
 		$this->assertCount( 2, $tilesByKey[ 'general' ][ 'panel' ][ 'rows' ] );
 
+		$this->assertSame( 'warning', $tilesByKey[ 'ips' ][ 'status' ] );
+		$this->assertSame( '1 group needs work', $tilesByKey[ 'ips' ][ 'stat_line' ] );
+		$this->assertSame(
+			[ 'auto_ip_blocking', 'crowdsec_blocking', 'silent_captcha', 'bot_actions' ],
+			\array_column( $tilesByKey[ 'ips' ][ 'panel' ][ 'rows' ], 'key' )
+		);
+		$this->assertSame(
+			'transgression_limit,auto_expire,user_auto_recover,request_whitelist',
+			$this->findRowByKey( $tilesByKey[ 'ips' ][ 'panel' ][ 'rows' ], 'auto_ip_blocking' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+		$this->assertSame(
+			'cs_block,cs_enroll_id',
+			$this->findRowByKey( $tilesByKey[ 'ips' ][ 'panel' ][ 'rows' ], 'crowdsec_blocking' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+		$this->assertSame(
+			'track_loginfailed,track_xmlrpc',
+			$this->findRowByKey( $tilesByKey[ 'ips' ][ 'panel' ][ 'rows' ], 'bot_actions' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+		$this->assertNotContains( 'general_settings', \array_column( $tilesByKey[ 'ips' ][ 'panel' ][ 'rows' ], 'key' ) );
+
+		$this->assertSame( 'critical', $tilesByKey[ 'users' ][ 'status' ] );
+		$this->assertSame( '2 critical groups, 1 group needs work', $tilesByKey[ 'users' ][ 'stat_line' ] );
+		$this->assertSame(
+			'enable_password_policies',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'password_policies' )[ 'config_action' ][ 'data' ][ 'config_item' ] ?? ''
+		);
+		$this->assertSame(
+			'enable_password_policies,pass_expire,pass_force_existing',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'password_policies' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+		$this->assertSame(
+			'pass_prevent_pwned',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'pwned_passwords' )[ 'config_action' ][ 'data' ][ 'config_item' ] ?? ''
+		);
+		$this->assertSame(
+			'enable_password_policies,pass_prevent_pwned',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'pwned_passwords' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+		$this->assertSame(
+			'pass_min_strength',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'password_strength' )[ 'config_action' ][ 'data' ][ 'config_item' ] ?? ''
+		);
+		$this->assertSame(
+			'enable_password_policies,pass_min_strength',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'password_strength' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+		$this->assertSame(
+			'manual_suspend',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'general_settings' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+
 		$tileDefinitionsByKey = \array_column( PluginNavs::configureLandingTileDefinitions(), null, 'key' );
 		$this->assertSame( 'neutral', $tilesByKey[ 'reports_alerts' ][ 'status' ] );
 		$this->assertSame(
@@ -199,6 +250,19 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		return [];
 	}
 
+	/**
+	 * @param list<array<string,mixed>> $rows
+	 * @return array<string,mixed>|array{}
+	 */
+	private function findRowByKey( array $rows, string $rowKey ) :array {
+		foreach ( $rows as $row ) {
+			if ( (string)( $row[ 'key' ] ?? '' ) === $rowKey ) {
+				return $row;
+			}
+		}
+		return [];
+	}
+
 	private function installControllerStub() :void {
 		$secadminZone = $this->newZone( 'module_secadmin' );
 		$firewallZone = $this->newZone( 'module_firewall' );
@@ -233,12 +297,23 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					] ),
 				],
 				\spl_object_id( $ipsZone )      => [
-					$this->newComponent( 'Auto IP Blocking', EnumEnabledStatus::GOOD, 'IP subtitle', [ 'IP blocking is active.' ], [
+					$this->newComponent( 'Automatic IP Blocking', EnumEnabledStatus::GOOD, 'IP subtitle', [ 'IP blocking is active.' ], [
+						'transgression_limit',
+						'auto_expire',
 						'user_auto_recover',
-					] ),
-					$this->newComponent( 'IP Blocking Rules', EnumEnabledStatus::GOOD, 'Rules subtitle', [ 'Rules are active.' ], [
 						'request_whitelist',
-					] ),
+					], 'auto_ip_blocking' ),
+					$this->newComponent( 'CrowdSec IP Blocking', EnumEnabledStatus::GOOD, 'CrowdSec subtitle', [ 'CrowdSec blocking is active.' ], [
+						'cs_block',
+						'cs_enroll_id',
+					], 'crowdsec_blocking' ),
+					$this->newComponent( 'silentCAPTCHA', EnumEnabledStatus::GOOD, 'Bot challenge subtitle', [ 'silentCAPTCHA is active.' ], [
+						'antibot_minimum',
+					], 'silent_captcha' ),
+					$this->newComponent( 'Bot Actions', EnumEnabledStatus::OKAY, 'Bot actions subtitle', [ 'Some bot actions need review.' ], [
+						'track_loginfailed',
+						'track_xmlrpc',
+					], 'bot_actions' ),
 				],
 				\spl_object_id( $scansZone )    => [
 					$this->newComponent( 'Scan Schedule', EnumEnabledStatus::NEUTRAL_ENABLED, 'Scan subtitle', [ 'Scans are active.' ], [
@@ -291,6 +366,19 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					] ),
 				],
 				\spl_object_id( $usersZone )    => [
+					$this->newComponentWithConfigItem( 'Password Policies', EnumEnabledStatus::GOOD, 'Password policy', [ 'Password policy is active.' ], [
+						'enable_password_policies',
+						'pass_expire',
+						'pass_force_existing',
+					], 'enable_password_policies', 'password_policies' ),
+					$this->newComponentWithConfigItem( 'Block Pwned Passwords', EnumEnabledStatus::BAD, 'Pwned password policy', [ 'Pwned password checks are disabled.' ], [
+						'enable_password_policies',
+						'pass_prevent_pwned',
+					], 'pass_prevent_pwned', 'pwned_passwords' ),
+					$this->newComponentWithConfigItem( 'Enforce Minimum Password Strength', EnumEnabledStatus::BAD, 'Password strength policy', [ 'Minimum password strength is too low.' ], [
+						'enable_password_policies',
+						'pass_min_strength',
+					], 'pass_min_strength', 'password_strength' ),
 					$this->newComponent( 'Inactive Users', EnumEnabledStatus::OKAY, 'Inactive user policy', [ 'Suspension policy needs review.' ] ),
 				],
 				\spl_object_id( $spamZone )     => [
@@ -337,8 +425,15 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					'',
 					[],
 					[
+						'transgression_limit',
+						'auto_expire',
 						'user_auto_recover',
 						'request_whitelist',
+						'cs_block',
+						'cs_enroll_id',
+						'antibot_minimum',
+						'track_loginfailed',
+						'track_xmlrpc',
 					]
 				),
 				'module_scans'                   => $this->newComponent(
@@ -372,6 +467,11 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					'',
 					[],
 					[
+						'enable_password_policies',
+						'pass_expire',
+						'pass_force_existing',
+						'pass_prevent_pwned',
+						'pass_min_strength',
 						'manual_suspend',
 					]
 				),
@@ -709,6 +809,64 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 
 			public function getOptions() :array {
 				return $this->localOptions;
+			}
+
+			protected function configZoneComponentSlugs() :array {
+				return [ $this->localSlug ];
+			}
+		};
+	}
+
+	private function newComponentWithConfigItem(
+		string $title,
+		string $enabledStatus,
+		string $subtitle,
+		array $explanation,
+		array $options,
+		string $configItem,
+		?string $slug = null
+	) :Component\Base {
+		return new class( $title, $enabledStatus, $subtitle, $explanation, $options, $configItem, $slug ) extends Component\Base {
+			private string $localTitle;
+			private string $localEnabledStatus;
+			private string $localSubtitle;
+			private array $localExplanation;
+			private array $localOptions;
+			private string $localConfigItem;
+			private string $localSlug;
+
+			public function __construct( string $title, string $enabledStatus, string $subtitle, array $explanation, array $options, string $configItem, ?string $slug ) {
+				$this->localTitle = $title;
+				$this->localEnabledStatus = $enabledStatus;
+				$this->localSubtitle = $subtitle;
+				$this->localExplanation = $explanation;
+				$this->localOptions = $options;
+				$this->localConfigItem = $configItem;
+				$this->localSlug = $slug ?? \strtolower( \str_replace( ' ', '_', $title ) );
+			}
+
+			public function title() :string {
+				return $this->localTitle;
+			}
+
+			public function subtitle() :string {
+				return $this->localSubtitle;
+			}
+
+			public function enabledStatus() :string {
+				return $this->localEnabledStatus;
+			}
+
+			public function explanation() :array {
+				return $this->localExplanation;
+			}
+
+			public function getOptions() :array {
+				return $this->localOptions;
+			}
+
+			protected function configItem() :string {
+				return $this->localConfigItem;
 			}
 
 			protected function configZoneComponentSlugs() :array {

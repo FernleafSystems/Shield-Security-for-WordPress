@@ -287,6 +287,27 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', $vars[ 'configure_focus_request_json' ] ?? 'missing' );
 	}
 
+	public function test_invalid_config_item_is_cleared_when_not_owned_by_selected_row() :void {
+		ServicesState::installItems( [
+			'service_request'   => new UnitTestRequest( [
+				'zone'        => 'login',
+				'row_key'     => 'two_factor_general',
+				'config_item' => 'request_log_enabled',
+			] ),
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_wpusers'   => new UnitTestUsers( 1 ),
+		] );
+		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$focus = \json_decode( (string)( $vars[ 'configure_focus_request_json' ] ?? '' ), true );
+
+		$this->assertSame( [
+			'row_key'     => 'two_factor_general',
+			'config_item' => '',
+		], $focus );
+	}
+
 	public function test_zone_sections_split_critical_warning_general_and_healthy() :void {
 		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
 
@@ -455,7 +476,11 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 						'warning',
 						'Needs Work',
 						'2FA requires review.',
-						[ 'Require 2FA for administrators.' ]
+						[ 'Require 2FA for administrators.' ],
+						[
+							'option_keys' => 'mfa_verify_page,allow_backupcodes',
+							'config_item' => 'mfa_verify_page',
+						]
 					),
 				]
 			),
@@ -520,7 +545,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		string $status,
 		string $statusLabel,
 		string $note,
-		array $explanations = []
+		array $explanations = [],
+		array $actionData = []
 	) :array {
 		return [
 			'key'               => $key,
@@ -540,7 +566,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 						'zone_component_action' => 'offcanvas_zone_component_config',
 						'zone_component_slug'   => $key,
 						'form_context'          => 'offcanvas',
-					],
+					] + $actionData,
 				],
 		];
 	}

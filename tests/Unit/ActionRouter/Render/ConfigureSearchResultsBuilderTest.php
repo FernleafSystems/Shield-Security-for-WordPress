@@ -144,6 +144,30 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'description'     => [ 'Allow passkeys as part of login verification.' ],
 				'zone_comp_slugs' => [ 'two_factor_auth', 'module_login' ],
 			],
+			'user_auto_recover' => [
+				'section'         => 'section_auto_black_list',
+				'zone_comp_slugs' => [ 'auto_ip_blocking', 'module_ips' ],
+			],
+			'request_whitelist' => [
+				'section'         => 'section_auto_black_list',
+				'zone_comp_slugs' => [ 'auto_ip_blocking', 'module_ips' ],
+			],
+			'cs_enroll_id' => [
+				'section'         => 'section_crowdsec',
+				'zone_comp_slugs' => [ 'crowdsec_blocking', 'module_ips' ],
+			],
+			'enable_password_policies' => [
+				'section'         => 'section_passwords',
+				'zone_comp_slugs' => [ 'password_policies', 'pwned_passwords', 'password_strength', 'module_users' ],
+			],
+			'pass_prevent_pwned' => [
+				'section'         => 'section_passwords',
+				'zone_comp_slugs' => [ 'pwned_passwords', 'module_users' ],
+			],
+			'pass_min_strength' => [
+				'section'         => 'section_passwords',
+				'zone_comp_slugs' => [ 'password_strength', 'module_users' ],
+			],
 		];
 		$this->landingViewData = $this->landingViewDataFixture();
 
@@ -371,6 +395,111 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_ips_and_users_option_queries_route_to_retagged_rows() :void {
+		$userAutoRecoverResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'auto unblock visitor' ),
+			'user_auto_recover'
+		);
+		$requestWhitelistResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'request path whitelist' ),
+			'request_whitelist'
+		);
+		$crowdsecEnrollResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'crowdsec enroll id' ),
+			'cs_enroll_id'
+		);
+		$pwnedPasswordsResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'prevent pwned passwords' ),
+			'pass_prevent_pwned'
+		);
+		$passwordStrengthResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'minimum password strength' ),
+			'pass_min_strength'
+		);
+		$passwordPoliciesResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'enforce password policies' ),
+			'enable_password_policies'
+		);
+
+		$this->assertNotNull( $userAutoRecoverResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'auto_ip_blocking',
+				'config_item' => 'user_auto_recover',
+			],
+			\json_decode( (string)( $userAutoRecoverResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=ips&row_key=auto_ip_blocking&config_item=user_auto_recover',
+			$userAutoRecoverResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $requestWhitelistResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'auto_ip_blocking',
+				'config_item' => 'request_whitelist',
+			],
+			\json_decode( (string)( $requestWhitelistResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=ips&row_key=auto_ip_blocking&config_item=request_whitelist',
+			$requestWhitelistResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $crowdsecEnrollResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'crowdsec_blocking',
+				'config_item' => 'cs_enroll_id',
+			],
+			\json_decode( (string)( $crowdsecEnrollResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=ips&row_key=crowdsec_blocking&config_item=cs_enroll_id',
+			$crowdsecEnrollResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $pwnedPasswordsResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'pwned_passwords',
+				'config_item' => 'pass_prevent_pwned',
+			],
+			\json_decode( (string)( $pwnedPasswordsResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=users&row_key=pwned_passwords&config_item=pass_prevent_pwned',
+			$pwnedPasswordsResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $passwordStrengthResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'password_strength',
+				'config_item' => 'pass_min_strength',
+			],
+			\json_decode( (string)( $passwordStrengthResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=users&row_key=password_strength&config_item=pass_min_strength',
+			$passwordStrengthResult[ 'href' ] ?? ''
+		);
+
+		$this->assertNotNull( $passwordPoliciesResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'password_policies',
+				'config_item' => 'enable_password_policies',
+			],
+			\json_decode( (string)( $passwordPoliciesResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertSame(
+			'/admin/zones/overview?zone=users&row_key=password_policies&config_item=enable_password_policies',
+			$passwordPoliciesResult[ 'href' ] ?? ''
+		);
+	}
+
 	private function newBuilder() :ConfigureSearchResultsBuilder {
 		return new ConfigureSearchResultsBuilder(
 			new class( $this->landingViewData ) extends ConfigureLandingViewBuilder {
@@ -404,6 +533,12 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				],
 				'login' => [
 					'summary' => 'Stable login summary.',
+				],
+				'ips' => [
+					'summary' => 'Stable bots and IPs summary.',
+				],
+				'users' => [
+					'summary' => 'Stable user protection summary.',
 				],
 			],
 			'diagnoses' => [
@@ -648,6 +783,121 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 					],
 					'healthy_rows'  => [],
 				],
+				'ips' => [
+					'zone_key'      => 'ips',
+					'zone_label'    => 'Bots & IPs',
+					'zone_icon_class' => 'bi bi-robot',
+					'zone_selection_json' => \json_encode( [
+						'key'        => 'ips',
+						'label'      => 'Bots & IPs',
+						'status'     => 'warning',
+						'icon_class' => 'bi bi-robot',
+						'header'     => [
+							'title' => 'Bots & IPs',
+						],
+					], JSON_THROW_ON_ERROR ),
+					'preview_text'  => 'Review automatic IP blocking, CrowdSec, and bot handling.',
+					'risk_context'  => 'IP settings block repeat offenders and known malicious visitors.',
+					'problem_rows'  => [
+						[
+							'key'           => 'auto_ip_blocking',
+							'title'         => 'Automatic IP Blocking',
+							'summary'       => 'Configure automatic blocking and recovery rules.',
+							'explanations'  => [ 'Automatic IP blocking limits repeat offenders.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-ips-auto_ip_blocking',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'auto_ip_blocking',
+									'option_keys'         => 'user_auto_recover,request_whitelist',
+								],
+							],
+						],
+					],
+					'review_rows'   => [
+						[
+							'key'           => 'crowdsec_blocking',
+							'title'         => 'CrowdSec IP Blocking',
+							'summary'       => 'Configure CrowdSec list handling and enrolment.',
+							'explanations'  => [ 'CrowdSec can block known malicious IPs before they trigger local defenses.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-ips-crowdsec_blocking',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'crowdsec_blocking',
+									'option_keys'         => 'cs_enroll_id',
+								],
+							],
+						],
+					],
+					'healthy_rows'  => [],
+				],
+				'users' => [
+					'zone_key'      => 'users',
+					'zone_label'    => 'Users',
+					'zone_icon_class' => 'bi bi-person-badge-fill',
+					'zone_selection_json' => \json_encode( [
+						'key'        => 'users',
+						'label'      => 'Users',
+						'status'     => 'warning',
+						'icon_class' => 'bi bi-person-badge-fill',
+						'header'     => [
+							'title' => 'Users',
+						],
+					], JSON_THROW_ON_ERROR ),
+					'preview_text'  => 'Review password rules and user account protections.',
+					'risk_context'  => 'User settings enforce password and account protection rules.',
+					'problem_rows'  => [
+						[
+							'key'           => 'password_policies',
+							'title'         => 'Password Policies',
+							'summary'       => 'Enable and review core password policies.',
+							'explanations'  => [ 'Password policies apply the configured password restrictions.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-users-password_policies',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'password_policies',
+									'option_keys'         => 'enable_password_policies',
+									'config_item'         => 'enable_password_policies',
+								],
+							],
+						],
+					],
+					'review_rows'   => [
+						[
+							'key'           => 'pwned_passwords',
+							'title'         => 'Block Pwned Passwords',
+							'summary'       => 'Prevent compromised passwords from being used.',
+							'explanations'  => [ 'Pwned password checks block known compromised passwords.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-users-pwned_passwords',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'pwned_passwords',
+									'option_keys'         => 'enable_password_policies,pass_prevent_pwned',
+									'config_item'         => 'pass_prevent_pwned',
+								],
+							],
+						],
+						[
+							'key'           => 'password_strength',
+							'title'         => 'Enforce Minimum Password Strength',
+							'summary'       => 'Require stronger passwords.',
+							'explanations'  => [ 'Minimum password strength rules prevent weak credentials.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-users-password_strength',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'password_strength',
+									'option_keys'         => 'enable_password_policies,pass_min_strength',
+									'config_item'         => 'pass_min_strength',
+								],
+							],
+						],
+					],
+					'healthy_rows'  => [],
+				],
 			],
 		];
 	}
@@ -684,6 +934,15 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 					return false;
 				}
 			},
+			'crowdsec'    => new class {
+				public function getCApiStore() {
+					return new class {
+						public function retrieveMachineId() :string {
+							return '';
+						}
+					};
+				}
+			},
 			'opts_lookup' => new class {
 				public function getReportEmail() :string {
 					return 'reports@example.com';
@@ -699,6 +958,13 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 
 			public function optGet( string $key ) {
 				return null;
+			}
+
+			public function optDefault( string $key ) {
+				return match ( $key ) {
+					'transgression_limit' => 10,
+					default => null,
+				};
 			}
 
 			public function optDef( string $key ) :array {

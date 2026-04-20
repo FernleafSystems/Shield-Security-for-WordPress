@@ -18,6 +18,10 @@ class PwnedPasswords extends Base {
 		return __( "Edit settings to prevent use of 'pwned' passwords", 'wp-simple-firewall' );
 	}
 
+	protected function configItem() :string {
+		return 'pass_prevent_pwned';
+	}
+
 	/**
 	 * @inheritDoc
 	 */
