@@ -237,6 +237,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			'note'              => $note,
 			'explanations'      => $explanations,
 			'config_action'     => [
+				'label'   => 'Configure',
 				'title'   => 'Configure '.$title,
 				'href'    => 'javascript:{}',
 				'icon'    => 'bi bi-gear-fill',

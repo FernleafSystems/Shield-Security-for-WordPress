@@ -38,4 +38,8 @@ class UsernameFishingBlock extends Base {
 	protected function postureWeight() :int {
 		return 3;
 	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
 }

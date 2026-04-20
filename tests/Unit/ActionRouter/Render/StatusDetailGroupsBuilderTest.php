@@ -96,14 +96,14 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_icon_class' => 'bi bi-x-circle-fill',
 					'explanations'      => [ 'Critical explanation' ],
 					'config_action'     => [
+						'label'   => 'Configure',
 						'href'    => 'javascript:{}',
 						'icon'    => 'bi bi-gear',
 						'classes' => [ 'zone_component_action' ],
 						'data'    => [
 							'zone_component_action' => 'offcanvas_zone_component_config',
 							'zone_component_slug'   => 'primary_control',
-							'Retry-Count'           => 7,
-							''                      => 'drop-me',
+							'retry-count'          => '7',
 						],
 					],
 				],

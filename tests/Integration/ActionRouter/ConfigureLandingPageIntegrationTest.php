@@ -468,6 +468,36 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $unexpectedDuplicates );
 	}
 
+	public function test_real_builder_reflects_grouped_and_downgraded_warning_rows() :void {
+		$snapshot = $this->snapshotSelectedOptions( [
+			'enable_core_file_integrity_scan',
+			'file_scan_areas',
+			'file_repair_areas',
+			'disable_xmlrpc',
+		] );
+
+		try {
+			$this->requireController()->opts
+				->optSet( 'enable_core_file_integrity_scan', 'Y' )
+				->optSet( 'file_scan_areas', [ 'malware_php', 'plugins', 'themes', 'wpcontent', 'wproot' ] )
+				->optSet( 'file_repair_areas', [ 'plugin', 'theme' ] )
+				->optSet( 'disable_xmlrpc', 'N' )
+				->store();
+
+			$tiles = ( new ConfigureZoneTilesBuilder() )->build();
+			$fileScanningRow = $this->findBuiltConfigureRowByKey( $tiles, 'file_scanning' );
+			$xmlRpcRow = $this->findBuiltConfigureRowByKey( $tiles, 'xml_rpc_disable' );
+
+			$this->assertNotNull( $fileScanningRow );
+			$this->assertNotNull( $xmlRpcRow );
+			$this->assertSame( 'okay', $fileScanningRow[ 'enabled_status' ] ?? null );
+			$this->assertSame( 'okay', $xmlRpcRow[ 'enabled_status' ] ?? null );
+		}
+		finally {
+			$this->restoreSelectedOptions( $snapshot );
+		}
+	}
+
 	private function findConfigureOptionResultByConfigItem( array $results, string $configItem ) :?array {
 		foreach ( $results as $result ) {
 			if ( !\is_array( $result ) || ( $result[ 'type' ] ?? '' ) !== 'option' ) {
@@ -477,6 +507,18 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$focusRequest = \json_decode( (string)( $result[ 'focus_request_json' ] ?? '' ), true );
 			if ( \is_array( $focusRequest ) && ( $focusRequest[ 'config_item' ] ?? '' ) === $configItem ) {
 				return $result;
+			}
+		}
+
+		return null;
+	}
+
+	private function findBuiltConfigureRowByKey( array $tiles, string $rowKey ) :?array {
+		foreach ( $tiles as $tile ) {
+			foreach ( $tile[ 'panel' ][ 'rows' ] ?? [] as $row ) {
+				if ( ( $row[ 'key' ] ?? '' ) === $rowKey ) {
+					return $row;
+				}
 			}
 		}
 

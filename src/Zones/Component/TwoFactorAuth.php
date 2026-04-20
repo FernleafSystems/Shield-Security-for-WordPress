@@ -15,13 +15,14 @@ class TwoFactorAuth extends Base {
 	}
 
 	public function configureRows() :array {
+		$generalStatus = $this->configureStatus();
 		return [
 			$this->buildConfigureRowInput(
 				'two_factor_general',
 				__( '2FA General Settings', 'wp-simple-firewall' ),
-				$this->enabledStatus(),
+				$generalStatus[ 'level' ],
 				__( 'Configure the core login-verification flow and backup access behaviour.', 'wp-simple-firewall' ),
-				$this->explanation(),
+				$generalStatus[ 'exp' ],
 				$this->buildConfigureRowScope(
 					$this->configZoneComponentSlugs(),
 					$this->configureRowOptionsForSections( [ 'section_twofactor_auth' ] ),

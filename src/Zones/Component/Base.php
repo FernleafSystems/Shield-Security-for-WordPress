@@ -93,13 +93,14 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	 * }>
 	 */
 	public function configureRows() :array {
+		$configureStatus = $this->configureStatus();
 		return [
 			$this->buildConfigureRowInput(
 				$this->configureRowKey(),
 				$this->title(),
-				$this->enabledStatus(),
-				$this->configureRowNote(),
-				$this->explanation(),
+				$configureStatus[ 'level' ],
+				$this->configureRowNote( $configureStatus[ 'exp' ] ),
+				$configureStatus[ 'exp' ],
 				[
 					'zone_component_slugs' => $this->configZoneComponentSlugs(),
 					'option_keys'          => $this->getOptions(),
@@ -161,18 +162,42 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		return \count( $this->getOptions() ) > 0;
 	}
 
-	protected function configureRowNote() :string {
+	/**
+	 * @param list<string> $explanations
+	 */
+	protected function configureRowNote( array $explanations = [] ) :string {
 		$subtitle = \trim( $this->subtitle() );
 		if ( $subtitle !== '' ) {
 			return $subtitle;
 		}
 
-		$firstExplanation = \trim( (string)( $this->explanation()[ 0 ] ?? '' ) );
+		$firstExplanation = \trim( (string)( ( $explanations[ 0 ] ?? $this->explanation()[ 0 ] ?? '' ) ) );
 		return $firstExplanation;
 	}
 
 	protected function configureActionTitle() :string {
 		return __( 'Edit Settings', 'wp-simple-firewall' );
+	}
+
+	/**
+	 * @return array{level:string,exp:list<string>}
+	 */
+	protected function configureStatus() :array {
+		$status = [
+			'level' => $this->enabledStatus(),
+			'exp'   => $this->explanation(),
+		];
+
+		if ( $status[ 'level' ] === EnumEnabledStatus::BAD
+			 && $this->configureTreatsBadStatusAsWarning() ) {
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+		}
+
+		return $status;
+	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return false;
 	}
 
 	/**
@@ -284,12 +309,17 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 				static fn( $line ) :string => \trim( (string)$line ),
 				$explanations
 			) ) ),
-			'config_scope'   => $configScope,
+			'config_scope'   => $this->buildConfigureRowScope(
+				$configScope[ 'zone_component_slugs' ] ?? [],
+				$configScope[ 'option_keys' ] ?? [],
+				(string)( $configScope[ 'config_item' ] ?? '' ),
+				(string)( $configScope[ 'title' ] ?? '' )
+			),
 		];
 	}
 
 	/**
-	 * @return array{level:string,expl:string[]}
+	 * @return array{level:string,exp:string[]}
 	 */
 	protected function status() :array {
 		return [
@@ -300,6 +330,10 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 	protected function postureWeight() :int {
 		return 0;
+	}
+
+	protected function resolveBooleanMethod( object $object, string $method, bool $fallback ) :bool {
+		return \method_exists( $object, $method ) ? (bool)$object->{$method}() : $fallback;
 	}
 
 	/**
