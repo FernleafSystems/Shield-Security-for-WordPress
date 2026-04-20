@@ -120,4 +120,105 @@ class MainWPTabSitesListingTest extends BaseUnitTest {
 		$this->assertSame( '/jump/admin/scans/overview', $site[ 'shield' ][ 'href_issues' ] );
 		$this->assertArrayNotHasKey( 'grades', $site[ 'shield' ] );
 	}
+
+	public function test_build_entire_site_data_maps_critical_attention_to_red_button() :void {
+		$page = new class extends TabSitesListing {
+			protected function getSiteByID( int $id ) :MWPSiteVO {
+				unset( $id );
+				return ( new MWPSiteVO() )->applyFromArray( [
+					'id'      => '43',
+					'plugins' => \wp_json_encode( [
+						[ 'slug' => 'shield.php', 'active' => true ],
+					] ),
+				] );
+			}
+
+			protected function loadSyncData( $site ) {
+				unset( $site );
+				return ( new SyncVO() )->applyFromArray( [
+					'meta'     => [
+						'sync_at'    => 1700000000,
+						'has_update' => false,
+					],
+					'overview' => [
+						'attention_summary' => [
+							'total'        => 2,
+							'severity'     => 'critical',
+							'is_all_clear' => false,
+						],
+					],
+				] );
+			}
+
+			protected function detectClientPluginStatus( $site ) :array {
+				unset( $site );
+				return [ ClientPluginStatus::ACTIVE => 'Active' ];
+			}
+
+			protected function getJumpUrlFor( string $siteID, string $page ) :string {
+				unset( $siteID );
+				return '/jump'.$page;
+			}
+
+			public function buildSiteDataForTest( array $site ) :array {
+				return $this->buildEntireSiteData( $site );
+			}
+		};
+
+		$site = $page->buildSiteDataForTest( [
+			'id'   => 43,
+			'name' => 'Critical Example',
+			'url'  => 'https://critical.example.com',
+		] );
+
+		$this->assertSame( 2, $site[ 'shield' ][ 'issues' ] );
+		$this->assertSame( 'red', $site[ 'shield' ][ 'issues_button_class' ] );
+		$this->assertTrue( $site[ 'shield' ][ 'has_issues' ] );
+	}
+
+	public function test_build_entire_site_data_treats_sync_required_site_as_non_active_even_with_stale_payload() :void {
+		$page = new class extends TabSitesListing {
+			protected function getSiteByID( int $id ) :MWPSiteVO {
+				unset( $id );
+				return ( new MWPSiteVO() )->applyFromArray( [
+					'id'      => '44',
+					'plugins' => \wp_json_encode( [
+						[ 'slug' => 'shield.php', 'active' => true ],
+					] ),
+				] );
+			}
+
+			protected function loadSyncData( $site ) {
+				unset( $site );
+				return ( new SyncVO() )->applyFromArray( [
+					'integrity'   => [
+						'status' => 'ok',
+					],
+					'scan_issues' => [
+						'malware' => 7,
+					],
+				] );
+			}
+
+			protected function detectClientPluginStatus( $site ) :array {
+				unset( $site );
+				return [ ClientPluginStatus::NEED_SYNC => 'Sync Required' ];
+			}
+
+			public function buildSiteDataForTest( array $site ) :array {
+				return $this->buildEntireSiteData( $site );
+			}
+		};
+
+		$site = $page->buildSiteDataForTest( [
+			'id'   => 44,
+			'name' => 'Stale Example',
+			'url'  => 'https://stale.example.com',
+		] );
+
+		$this->assertFalse( $site[ 'shield' ][ 'is_active' ] );
+		$this->assertTrue( $site[ 'shield' ][ 'is_sync_rqd' ] );
+		$this->assertFalse( $site[ 'shield' ][ 'has_issues' ] );
+		$this->assertSame( 0, $site[ 'shield' ][ 'issues' ] ?? 0 );
+	}
 }

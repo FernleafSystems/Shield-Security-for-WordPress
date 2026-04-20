@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\{
+	MWPSiteVO,
+	SyncVO
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\Consumers\MWPSiteConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -27,12 +31,12 @@ class ClientPluginStatus {
 	 * TODO: Consider things like global disabled / forceoff
 	 */
 	public function detect() :array {
-		$sync = LoadShieldSyncData::Load( $this->getMwpSite() );
+		$sync = $this->loadSyncData( $this->getMwpSite() );
 		$m = $sync->meta;
 
 		if ( $this->isActive() ) {
 
-			if ( empty( $sync->getRawData() ) ) {
+			if ( empty( $sync->getRawData() ) || !$sync->hasMainwpAttentionSummary() ) {
 				$status = self::NEED_SYNC;
 			}
 			elseif ( empty( $m->is_pro ) ) {
@@ -61,6 +65,10 @@ class ClientPluginStatus {
 			$status = self::NOT_INSTALLED;
 		}
 		return [ $status => $this->getStatusText()[ $status ] ];
+	}
+
+	protected function loadSyncData( MWPSiteVO $site ) :SyncVO {
+		return LoadShieldSyncData::Load( $site );
 	}
 
 	public function getInstalledPlugin() :?array {

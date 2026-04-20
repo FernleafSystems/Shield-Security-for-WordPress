@@ -172,4 +172,73 @@ class MainWPSitesListTableColumnTest extends BaseUnitTest {
 		$this->assertSame( 0, $data[ 'vars' ][ 'issues_count' ] );
 		$this->assertSame( 'green', $data[ 'vars' ][ 'issues_button_class' ] );
 	}
+
+	public function test_active_critical_site_renders_red_button() :void {
+		$page = new class( [
+			'raw_mainwp_site_data' => [
+				'id'      => 101,
+				'plugins' => \wp_json_encode( [
+					[ 'slug' => 'shield.php', 'active' => true ],
+				] ),
+			],
+		] ) extends SitesListTableColumn {
+			protected function loadSyncData( MWPSiteVO $site ) {
+				unset( $site );
+				return ( new SyncVO() )->applyFromArray( [
+					'overview' => [
+						'attention_summary' => [
+							'total'        => 2,
+							'severity'     => 'critical',
+							'is_all_clear' => false,
+						],
+					],
+				] );
+			}
+
+			protected function detectClientPluginStatus( MWPSiteVO $site ) :array {
+				unset( $site );
+				return [ ClientPluginStatus::ACTIVE => 'Active' ];
+			}
+		};
+
+		$data = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertSame( 2, $data[ 'vars' ][ 'issues_count' ] );
+		$this->assertSame( 'red', $data[ 'vars' ][ 'issues_button_class' ] );
+	}
+
+	public function test_sync_required_site_keeps_stale_payload_out_of_active_issue_state() :void {
+		$page = new class( [
+			'raw_mainwp_site_data' => [
+				'id'      => 102,
+				'plugins' => \wp_json_encode( [
+					[ 'slug' => 'shield.php', 'active' => true ],
+				] ),
+			],
+		] ) extends SitesListTableColumn {
+			protected function loadSyncData( MWPSiteVO $site ) {
+				unset( $site );
+				return ( new SyncVO() )->applyFromArray( [
+					'integrity'   => [
+						'status' => 'ok',
+					],
+					'scan_issues' => [
+						'malware' => 9,
+					],
+				] );
+			}
+
+			protected function detectClientPluginStatus( MWPSiteVO $site ) :array {
+				unset( $site );
+				return [ ClientPluginStatus::NEED_SYNC => 'Sync Required' ];
+			}
+		};
+
+		$data = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+
+		$this->assertFalse( $data[ 'flags' ][ 'is_active' ] );
+		$this->assertTrue( $data[ 'flags' ][ 'is_sync_rqd' ] );
+		$this->assertSame( 0, $data[ 'vars' ][ 'issues_count' ] );
+		$this->assertSame( 'green', $data[ 'vars' ][ 'issues_button_class' ] );
+	}
 }

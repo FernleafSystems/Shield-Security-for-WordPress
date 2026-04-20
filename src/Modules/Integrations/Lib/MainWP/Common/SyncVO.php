@@ -41,33 +41,72 @@ class SyncVO extends DynPropertiesClass {
 	 */
 	public function mainwpIssuesSummary( bool $isActive = true ) :array {
 		if ( !$isActive ) {
-			return [
-				'count'        => 0,
-				'severity'     => 'good',
-				'has_issues'   => false,
-				'button_class' => 'green',
-			];
+			return $this->emptyMainwpIssuesSummary();
 		}
 
-		$attention = \is_array( $this->overview[ 'attention_summary' ] ?? null )
-			? $this->overview[ 'attention_summary' ]
-			: [];
-		$count = \max( 0, (int)( $attention[ 'total' ] ?? 0 ) );
-		$severity = $this->normalizeIssueSeverity( (string)( $attention[ 'severity' ] ?? 'good' ) );
+		$attention = $this->canonicalMainwpAttentionSummary();
+		if ( $attention === null ) {
+			return $this->emptyMainwpIssuesSummary();
+		}
 
 		return [
-			'count'        => $count,
-			'severity'     => $severity,
-			'has_issues'   => $count > 0,
-			'button_class' => $this->buttonClassForSeverity( $severity ),
+			'count'        => $attention[ 'total' ],
+			'severity'     => $attention[ 'severity' ],
+			'has_issues'   => $attention[ 'total' ] > 0,
+			'button_class' => $this->buttonClassForSeverity( $attention[ 'severity' ] ),
+		];
+	}
+
+	public function hasMainwpAttentionSummary() :bool {
+		return $this->canonicalMainwpAttentionSummary() !== null;
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function mainwpAttentionSummary() :array {
+		return \is_array( $this->overview[ 'attention_summary' ] ?? null )
+			? $this->overview[ 'attention_summary' ]
+			: [];
+	}
+
+	/**
+	 * @return MainWPIssuesSummary
+	 */
+	private function emptyMainwpIssuesSummary() :array {
+		return [
+			'count'        => 0,
+			'severity'     => 'good',
+			'has_issues'   => false,
+			'button_class' => 'green',
 		];
 	}
 
 	/**
-	 * @return 'good'|'warning'|'critical'
+	 * @return array{total:int,severity:'good'|'warning'|'critical'}|null
 	 */
-	private function normalizeIssueSeverity( string $severity ) :string {
-		return \in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ? $severity : 'good';
+	private function canonicalMainwpAttentionSummary() :?array {
+		$attention = $this->mainwpAttentionSummary();
+
+		if ( !\array_key_exists( 'total', $attention ) || !\array_key_exists( 'severity', $attention ) ) {
+			return null;
+		}
+
+		if ( !\is_numeric( $attention[ 'total' ] ) ) {
+			return null;
+		}
+
+		$total = (int)$attention[ 'total' ];
+		$severity = $attention[ 'severity' ];
+
+		if ( $total < 0 || !\in_array( $severity, [ 'good', 'warning', 'critical' ], true ) ) {
+			return null;
+		}
+
+		return [
+			'total'    => $total,
+			'severity' => $severity,
+		];
 	}
 
 	/**

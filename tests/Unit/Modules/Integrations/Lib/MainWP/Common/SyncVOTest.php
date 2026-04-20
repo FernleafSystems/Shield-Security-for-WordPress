@@ -7,23 +7,31 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class SyncVOTest extends BaseUnitTest {
 
-	public function test_mainwp_issues_summary_normalizes_attention_contract() :void {
-		$summary = ( new SyncVO() )->applyFromArray( [
-			'overview' => [
-				'attention_summary' => [
-					'total'    => 4,
-					'severity' => 'warning',
-				],
-			],
-		] )
-								   ->mainwpIssuesSummary();
+	public function test_mainwp_issues_summary_maps_canonical_severities_to_expected_button_classes() :void {
+		$cases = [
+			'good'     => [ 'total' => 0, 'button_class' => 'green', 'has_issues' => false ],
+			'warning'  => [ 'total' => 4, 'button_class' => 'orange', 'has_issues' => true ],
+			'critical' => [ 'total' => 2, 'button_class' => 'red', 'has_issues' => true ],
+		];
 
-		$this->assertSame( [
-			'count'        => 4,
-			'severity'     => 'warning',
-			'has_issues'   => true,
-			'button_class' => 'orange',
-		], $summary );
+		foreach ( $cases as $severity => $expected ) {
+			$sync = ( new SyncVO() )->applyFromArray( [
+				'overview' => [
+					'attention_summary' => [
+						'total'    => $expected[ 'total' ],
+						'severity' => $severity,
+					],
+				],
+			] );
+
+			$this->assertTrue( $sync->hasMainwpAttentionSummary() );
+			$this->assertSame( [
+				'count'        => $expected[ 'total' ],
+				'severity'     => $severity,
+				'has_issues'   => $expected[ 'has_issues' ],
+				'button_class' => $expected[ 'button_class' ],
+			], $sync->mainwpIssuesSummary() );
+		}
 	}
 
 	public function test_mainwp_issues_summary_defaults_inactive_or_invalid_payload_to_all_clear() :void {
@@ -35,6 +43,8 @@ class SyncVOTest extends BaseUnitTest {
 				],
 			],
 		] );
+
+		$this->assertFalse( $sync->hasMainwpAttentionSummary() );
 
 		$this->assertSame( [
 			'count'        => 0,
@@ -49,5 +59,18 @@ class SyncVOTest extends BaseUnitTest {
 			'has_issues'   => false,
 			'button_class' => 'green',
 		], $sync->mainwpIssuesSummary( false ) );
+	}
+
+	public function test_mainwp_attention_summary_is_not_present_for_legacy_payloads() :void {
+		$sync = ( new SyncVO() )->applyFromArray( [
+			'integrity'   => [
+				'status' => 'ok',
+			],
+			'scan_issues' => [
+				'malware' => 2,
+			],
+		] );
+
+		$this->assertFalse( $sync->hasMainwpAttentionSummary() );
 	}
 }
