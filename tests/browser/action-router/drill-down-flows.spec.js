@@ -80,6 +80,27 @@ test( 'actions queue drills into groups and back out, opening details when avail
 	} );
 } );
 
+test( 'actions queue warning breadcrumb uses warning palette', async ( { page } ) => {
+	await withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		await openShieldRoute( page, {
+			nav: 'scans',
+			nav_sub: 'overview',
+		} );
+
+		await actionsQueuePage.drillToDetail( fixture );
+
+		const activeBreadcrumb = page.locator( '[data-operator-step-tab="1"][aria-current="step"]' );
+		await expect( activeBreadcrumb ).toHaveAttribute( 'data-color-key', 'warning' );
+		await expect.poll(
+			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).backgroundColor )
+		).toBe( 'rgb(237, 180, 29)' );
+		await expect.poll(
+			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).color )
+		).toBe( 'rgb(29, 35, 39)' );
+	} );
+} );
+
 test( 'configure renders zones directly, drills into diagnosis, and drills back out', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'zones',
