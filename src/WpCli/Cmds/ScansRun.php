@@ -41,6 +41,12 @@ class ScansRun extends ScansBase {
 				\implode( '`, `--', $scansCon->getScanSlugs() ) ) );
 		}
 
-		$scansCon->startNewScans( $scans );
+		$blocked = $scansCon->getStartBlockedMessage( true );
+		if ( $blocked !== '' ) {
+			\WP_CLI::error( $blocked );
+		}
+		if ( !$scansCon->startNewScans( $scans ) ) {
+			\WP_CLI::error( 'No scans were started.' );
+		}
 	}
 }

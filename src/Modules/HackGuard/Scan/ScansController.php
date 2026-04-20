@@ -9,7 +9,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib\Utility\CleanOutOldGuardFiles,
 	Scan\Queue\CleanQueue,
 	Scan\Queue\ProcessQueueWpcli,
-	Scan\Results\Update
+	Scan\Results\Update,
+	Scan\FindingsModel\State as FindingsModelState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
@@ -156,18 +157,27 @@ class ScansController {
 	}
 
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
+		if ( !$this->canStartScans( Services::WpGeneral()->isWpCli() ) ) {
+			return false;
+		}
+
 		$toScan = [];
 		foreach ( $scans as $slugOrCon ) {
 			try {
 				$scanCon = \is_string( $slugOrCon ) ? $this->getScanCon( $slugOrCon ) : $slugOrCon;
 				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
+					( new Init\CreateNewScan() )->run(
+						$scanCon->getSlug(),
+						'full',
+						'',
+						Services::WpGeneral()->isWpCli() ? 'cli' : ( self::con()->opts->optGet( 'is_scan_cron' ) ? 'cron' : 'manual' )
+					);
 					$toScan[] = $scanCon->getSlug();
 					if ( $resetIgnored ) {
 						( new Update() )
 							->setScanController( $scanCon )
 							->clearIgnored();
 					}
-					self::con()->comps->scans->addRemoveScanToBuild( $scanCon->getSlug() );
 				}
 			}
 			catch ( \Exception $e ) {
@@ -186,8 +196,70 @@ class ScansController {
 		return !empty( $toScan );
 	}
 
+	public function startAfsAssetScan( string $assetType, string $assetKey, bool $resetIgnored = false ) :bool {
+		if ( !$this->canStartScans( Services::WpGeneral()->isWpCli() ) ) {
+			return false;
+		}
+
+		$assetType = \in_array( $assetType, [ 'plugin', 'theme' ], true ) ? $assetType : '';
+		$assetKey = trim( $assetKey );
+		if ( $assetType === '' || $assetKey === '' ) {
+			return false;
+		}
+
+		try {
+			$scanCon = $this->AFS();
+			if ( !$scanCon->isReady() ) {
+				return false;
+			}
+
+			( new Init\CreateNewScan() )->run(
+				$scanCon->getSlug(),
+				$assetType,
+				$assetKey,
+				'asset_change'
+			);
+
+			if ( $resetIgnored ) {
+				( new Update() )
+					->setScanController( $scanCon )
+					->clearIgnoredWithinScope( $assetType, $assetKey );
+			}
+		}
+		catch ( \Exception $e ) {
+			return false;
+		}
+
+		if ( Services::WpGeneral()->isWpCli() ) {
+			( new ProcessQueueWpcli() )->execute();
+		}
+		else {
+			self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
+		}
+
+		return true;
+	}
+
 	public function getCanScansExecute() :bool {
 		return \count( $this->getReasonsScansCantExecute() ) === 0;
+	}
+
+	public function canStartScans( bool $isCli = false ) :bool {
+		return $this->getStartBlockedMessage( $isCli ) === '';
+	}
+
+	public function getStartBlockedMessage( bool $isCli = false ) :string {
+		if ( !( new FindingsModelState() )->isReady() ) {
+			return __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' );
+		}
+		if ( !$isCli && !$this->getCanScansExecute() ) {
+			$reasons = $this->getReasonsScansCantExecute();
+			if ( \in_array( 'reason_not_call_self', $reasons, true ) ) {
+				return __( "Scans can't start because this site currently can't make HTTP requests to itself.", 'wp-simple-firewall' );
+			}
+			return __( 'Scans cannot execute right now.', 'wp-simple-firewall' );
+		}
+		return '';
 	}
 
 	public function getFirstRunTimestamp() :int {
@@ -215,45 +287,6 @@ class ScansController {
 		return $c->hour( $startHour )
 				 ->minute( $startMinute )
 				 ->second( 0 )->timestamp;
-	}
-
-	public function addRemoveScanToBuild( string $scan, bool $addScan = true ) :void {
-		$scans = $this->getScansToBuild();
-		if ( $addScan ) {
-			$scans[ $scan ] = Services::Request()->ts();
-		}
-		else {
-			unset( $scans[ $scan ] );
-		}
-		$this->setScansToBuild( $scans );
-	}
-
-	/**
-	 * @return int[] - keys are scan slugs
-	 */
-	public function getScansToBuild() :array {
-		$toBuild = self::con()->opts->optGet( 'scans_to_build' );
-		if ( !empty( $toBuild ) ) {
-			$wasCount = \count( $toBuild );
-			// We keep scans "to build" for no longer than a minute to prevent indefinite halting with failed Async HTTP.
-			$toBuild = \array_filter( $toBuild,
-				function ( $toBuildAt ) {
-					return \is_int( $toBuildAt )
-						   && Services::Request()->carbon()->subMinute()->timestamp < $toBuildAt;
-				}
-			);
-			if ( $wasCount !== \count( $toBuild ) ) {
-				$this->setScansToBuild( $toBuild );
-			}
-		}
-		return $toBuild;
-	}
-
-	private function setScansToBuild( array $scans ) :void {
-		self::con()
-			->opts
-			->optSet( 'scans_to_build', \array_intersect_key( $scans, \array_flip( $this->getScanSlugs() ) ) )
-			->store();
 	}
 
 	protected function getCronFrequency() {

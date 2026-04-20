@@ -12,6 +12,15 @@ trait Common {
 		return $this->addWhereIn( 'scan', $scans );
 	}
 
+	public function filterByStatus( string $status ) {
+		return $this->addWhereEquals( 'status', $status );
+	}
+
+	public function filterByScope( string $scopeType, string $scopeKey = '' ) {
+		return $this->addWhereEquals( 'scope_type', $scopeType )
+					->addWhereEquals( 'scope_key', $scopeKey );
+	}
+
 	public function filterByNotFinished() {
 		return $this->addWhereEquals( 'finished_at', 0 );
 	}

@@ -33,7 +33,6 @@ class CommonDisplayStrings {
 			'more_info_label'         => __( 'More Info', 'wp-simple-firewall' ),
 			'notice_label'            => __( 'Notice', 'wp-simple-firewall' ),
 			'patch_label'             => __( 'Patch', 'wp-simple-firewall' ),
-			'history_label'           => __( 'History', 'wp-simple-firewall' ),
 			'diff_label'              => __( 'Diff', 'wp-simple-firewall' ),
 			'contents_label'          => __( 'Contents', 'wp-simple-firewall' ),
 			'report_type_label'       => __( 'Report Type', 'wp-simple-firewall' ),

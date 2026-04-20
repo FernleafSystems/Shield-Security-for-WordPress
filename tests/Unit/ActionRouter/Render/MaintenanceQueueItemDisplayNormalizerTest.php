@@ -216,7 +216,7 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
 		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'tooltip' ] ?? '' );
 		$this->assertTrue( (bool)( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'is_icon_only' ] ?? false ) );
-		$this->assertSame( '_blank', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'target' ] ?? '' );
+		$this->assertSame( '', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'target' ] ?? '' );
 		$this->assertSame(
 			'/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
 			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? ''

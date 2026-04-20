@@ -28,42 +28,40 @@ class LatestScanResultWheresBuilderTest extends BaseUnitTest {
 		$builder = new LatestScanResultWheresBuilder();
 
 		$this->assertSame( [
-			"`sr`.`scan_ref`=99",
-			"`ri`.`deleted_at`=0",
+			"`ri`.`scan`='afs'",
 			"`ri`.`auto_filtered_at`=0",
 			"`ri`.`ignored_at`=0",
-			"`ri`.`item_repaired_at`=0",
-			"`ri`.`item_deleted_at`=0",
-		], $builder->forContext( 99, RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ) );
+			"`ri`.`resolved_at`=0",
+		], $builder->forContext( 'afs', RetrieveCount::CONTEXT_ACTIVE_PROBLEMS ) );
 
 		$this->assertSame( [
-			"`sr`.`scan_ref`=99",
-			"`ri`.`deleted_at`=0",
-			"`ri`.`item_repaired_at`=0",
-			"`ri`.`item_deleted_at`=0",
-		], $builder->forLatestResults( 99 ) );
+			"`ri`.`scan`='afs'",
+			"`ri`.`resolved_at`=0",
+		], $builder->forLatestResults( 'afs' ) );
 	}
 
 	public function test_for_results_display_with_options_supports_queue_owned_ignored_only_filters() :void {
 		$builder = new LatestScanResultWheresBuilder();
 
 		$this->assertSame( [
-			"`sr`.`scan_ref`=99",
-			"`ri`.`deleted_at`=0",
+			"`ri`.`scan`='afs'",
 			"`ri`.`auto_filtered_at`=0",
+			"`ri`.`resolution_reason`!='clean_rescan'",
+			"`ri`.`resolution_reason`!='asset_replaced'",
 			"`ri`.`ignored_at`=0",
-			"`ri`.`item_repaired_at`=0",
-			"`ri`.`item_deleted_at`=0",
-		], $builder->forResultsDisplayWithOptions( 99 ) );
+			"(`ri`.`resolved_at`=0 OR `ri`.`resolution_reason`!='repaired')",
+			"(`ri`.`resolved_at`=0 OR `ri`.`resolution_reason`!='deleted')",
+		], $builder->forResultsDisplayWithOptions( 'afs' ) );
 
 		$this->assertSame( [
-			"`sr`.`scan_ref`=99",
-			"`ri`.`deleted_at`=0",
+			"`ri`.`scan`='afs'",
 			"`ri`.`auto_filtered_at`=0",
+			"`ri`.`resolution_reason`!='clean_rescan'",
+			"`ri`.`resolution_reason`!='asset_replaced'",
 			"`ri`.`ignored_at`>0",
-			"`ri`.`item_repaired_at`=0",
-			"`ri`.`item_deleted_at`=0",
-		], $builder->forResultsDisplayWithOptions( 99, [
+			"(`ri`.`resolved_at`=0 OR `ri`.`resolution_reason`!='repaired')",
+			"(`ri`.`resolved_at`=0 OR `ri`.`resolution_reason`!='deleted')",
+		], $builder->forResultsDisplayWithOptions( 'afs', [
 			'include_ignored' => true,
 			'ignored_only'    => true,
 		] ) );

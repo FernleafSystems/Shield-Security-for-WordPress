@@ -21,40 +21,43 @@ class ProcessQueueWpcli {
 	protected function run() {
 		$con = self::con();
 
-		foreach ( \array_keys( $con->comps->scans->getScansToBuild() ) as $scan ) {
-			$con->comps->scans->addRemoveScanToBuild( $scan, false );
-			$con->opts->store();
+		do {
+			$queuedScan = $con->db_con->scans->getQuerySelector()
+						 ->filterByStatus( 'queued' )
+						 ->setOrderBy( 'created_at', 'ASC', true )
+						 ->first();
+			if ( empty( $queuedScan ) ) {
+				break;
+			}
+
 			try {
 				WP_CLI::log( sprintf( __( 'Building scan items for scan: %s', 'wp-simple-firewall' ),
-					$con->comps->scans->getScanCon( $scan )->getScanName()
+					$con->comps->scans->getScanCon( $queuedScan->scan )->getScanName()
 				) );
-				( new QueueInit() )->init( $scan );
-			}
-			catch ( \Exception $e ) {
-			}
-		}
+				( new QueueInit() )->init( (int)$queuedScan->id );
 
-		WP_CLI::log( __( 'Starting scans…', 'wp-simple-firewall' ) );
+				WP_CLI::log( __( 'Starting scans...', 'wp-simple-firewall' ) );
 
-		/** @var ScanItemsDB\Select $selector */
-		$selector = $con->db_con->scan_items->getQuerySelector();
-		$progress = WP_CLI\Utils\make_progress_bar( __( 'Scans progress', 'wp-simple-firewall' ),
-			\array_sum( $selector->countAllForEachScan() ) );
+				/** @var ScanItemsDB\Select $selector */
+				$selector = $con->db_con->scan_items->getQuerySelector();
+				$progress = WP_CLI\Utils\make_progress_bar( __( 'Scans progress', 'wp-simple-firewall' ),
+					\array_sum( $selector->countAllForEachScan() ) );
 
-		do {
-			try {
-				$qItem = ( new QueueItems() )->next();
-				( new ProcessQueueItem() )->run( $qItem );
+				do {
+					$qItem = ( new QueueItems() )->next();
+					( new ProcessQueueItem() )->run( $qItem );
+					$progress->tick();
+				} while ( !empty( $qItem ) );
+
+				$progress->finish();
+				( new CompleteQueue() )->complete();
+				WP_CLI::log( __( 'Scans complete.', 'wp-simple-firewall' ) );
 			}
 			catch ( NoQueueItems $e ) {
-				$qItem = null;
 			}
-			$progress->tick();
-		} while ( !empty( $qItem ) );
-
-		( new CompleteQueue() )->complete();
-
-		$progress->finish();
-		WP_CLI::log( __( 'Scans complete.', 'wp-simple-firewall' ) );
+			catch ( \Throwable $e ) {
+				( new RunState() )->markFailed( (int)$queuedScan->id );
+			}
+		} while ( !empty( $queuedScan ) );
 	}
 }

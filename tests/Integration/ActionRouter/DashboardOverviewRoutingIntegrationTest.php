@@ -226,7 +226,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
 			'sub_action' => 'ignore',
-			'rids'       => [ (int)$active[ 'scan_result_id' ] ],
+			'rids'       => [ (int)$active[ 'result_item_id' ] ],
 		] )->payload();
 
 		$this->assertTrue( $actionPayload[ 'success' ] ?? false );
@@ -243,7 +243,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
 		$this->assertNotEmpty( $staleItem );
-		$this->assertSame( 0, (int)( $staleItem->item_repaired_at ?? 0 ) );
+		$this->assertSame( 0, (int)( $staleItem->resolved_at ?? 0 ) );
 	}
 
 	public function test_disabled_malware_wpv_apc_do_not_inject_rows() :void {

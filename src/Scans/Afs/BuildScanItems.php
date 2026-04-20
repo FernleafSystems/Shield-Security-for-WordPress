@@ -4,23 +4,30 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanItems {
 
 	use PluginControllerConsumer;
+	use ScanActionConsumer;
 
 	protected function preBuild() {
 		$con = self::con();
 		/** @var ScanActionVO $action */
-		$action = $con->comps->scans->AFS()->getScanActionVO();
+		$action = $this->getScanActionVO();
 
 		$pluginsDir = \dirname( $con->getRootDir() );
 		$themesDir = \dirname( Services::WpThemes()->getCurrent()->get_stylesheet_directory() );
 
+		$action->valid_files = [];
 		$rootDirs = [];
-		foreach (
+		if ( $action->scope_type === 'plugin' || $action->scope_type === 'theme' ) {
+			$rootDirs = $this->buildScopedRootDirs( $action );
+		}
+		else {
+			foreach (
 			[
 				ABSPATH                          => [
 					'depth' => 1,
@@ -66,11 +73,12 @@ class BuildScanItems {
 				],
 			] as $dir => $dirAttr
 		) {
-			if ( \count( \array_intersect( $dirAttr[ 'areas' ], $con->comps->scans->AFS()
-																				  ->getFileScanAreas() ) ) > 0 ) {
-				// we don't include the plugins and themes if WP Content Dir is already included.
-				if ( !\in_array( $dir, [ $pluginsDir, $themesDir ] ) || !isset( $rootDirs[ WP_CONTENT_DIR ] ) ) {
-					$rootDirs[ $dir ] = $dirAttr[ 'depth' ];
+				if ( \count( \array_intersect( $dirAttr[ 'areas' ], $con->comps->scans->AFS()
+																					  ->getFileScanAreas() ) ) > 0 ) {
+					// we don't include the plugins and themes if WP Content Dir is already included.
+					if ( !\in_array( $dir, [ $pluginsDir, $themesDir ] ) || !isset( $rootDirs[ WP_CONTENT_DIR ] ) ) {
+						$rootDirs[ $dir ] = $dirAttr[ 'depth' ];
+					}
 				}
 			}
 		}
@@ -91,10 +99,13 @@ class BuildScanItems {
 	public function run() :array {
 		$this->preBuild();
 
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 		$files = \array_filter(
 			\array_unique( \array_merge(
+				$this->buildExplicitValidFiles(),
 				$this->buildFilesFromDisk(),
-				$this->buildFilesFromWpHashes()
+				$action->scope_type === 'full' ? $this->buildFilesFromWpHashes() : []
 			) ),
 			fn( $path ) => !$this->isWhitelistedPath( $path ),
 		);
@@ -122,7 +133,7 @@ class BuildScanItems {
 
 	private function buildFilesFromDisk() :array {
 		/** @var ScanActionVO $action */
-		$action = self::con()->comps->scans->AFS()->getScanActionVO();
+		$action = $this->getScanActionVO();
 
 		$files = [];
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
@@ -144,6 +155,47 @@ class BuildScanItems {
 		return $files;
 	}
 
+	private function buildExplicitValidFiles() :array {
+		$files = [];
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		foreach ( \is_array( $action->valid_files ) ? $action->valid_files : [] as $path ) {
+			if ( Services::WpFs()->isAccessibleFile( $path ) ) {
+				$file = new \SplFileInfo( $path );
+				if ( !$this->isAutoFilterFile( $file ) ) {
+					$files[] = wp_normalize_path( $path );
+				}
+			}
+		}
+		return $files;
+	}
+
+	private function buildScopedRootDirs( ScanActionVO $action ) :array {
+		if ( $action->scope_type === 'plugin' ) {
+			$plugin = Services::WpPlugins()->getPluginAsVo( $action->scope_key, true );
+			if ( !empty( $plugin ) ) {
+				if ( \dirname( $plugin->file ) === '.' ) {
+					$action->valid_files = [
+						wp_normalize_path( path_join( WP_PLUGIN_DIR, $plugin->file ) ),
+					];
+					return [];
+				}
+				return [
+					$plugin->getInstallDir() => 0,
+				];
+			}
+		}
+		elseif ( $action->scope_type === 'theme' ) {
+			$theme = Services::WpThemes()->getThemeAsVo( $action->scope_key, true );
+			if ( !empty( $theme ) ) {
+				return [
+					$theme->getInstallDir() => 0,
+				];
+			}
+		}
+		return [];
+	}
+
 	private function isAutoFilterFile( \SplFileInfo $file ) :bool {
 		/**
 		 * Remove anything in wp-content as this is only relevant for Plugins/Themes/Malware
@@ -161,7 +213,7 @@ class BuildScanItems {
 		$whitelisted = false;
 
 		/** @var ScanActionVO $action */
-		$action = self::con()->comps->scans->AFS()->getScanActionVO();
+		$action = $this->getScanActionVO();
 		foreach ( $action->paths_whitelisted as $wlPathRegEx ) {
 			if ( \preg_match( $wlPathRegEx, $path ) ) {
 				$whitelisted = true;

@@ -67,11 +67,11 @@ class BuildScanFindingsTest extends BaseUnitTest {
 		], $query[ 'results' ][ 'afs' ][ 'items' ][ 0 ] );
 	}
 
-	public function test_build_marks_findings_unavailable_while_scans_are_running() :void {
+	public function test_build_marks_findings_unavailable_while_findings_model_is_reconciling() :void {
 		$query = ( new BuildScanFindingsTestDouble( false ) )->build( [ 'wpv' ], [] );
 
 		$this->assertFalse( $query[ 'is_available' ] );
-		$this->assertSame( 'Results are unavailable while scans are currently running.', $query[ 'message' ] );
+		$this->assertSame( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', $query[ 'message' ] );
 		$this->assertSame( [], $query[ 'results' ] );
 	}
 

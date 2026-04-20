@@ -37,7 +37,7 @@ class Malai extends BaseComponent {
 			],
 			'vars'    => [
 				'form' => [
-					'rid' => $item->VO->scanresult_id,
+					'rid' => $item->VO->resultitem_id,
 				]
 			],
 			'strings' => [

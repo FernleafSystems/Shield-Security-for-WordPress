@@ -11,39 +11,34 @@ class LatestScanResultWheresBuilder {
 	/**
 	 * @return list<string>
 	 */
-	public function forActiveProblems( int $latestScanId ) :array {
-		return \array_merge( $this->buildBase( $latestScanId ), [
+	public function forActiveProblems( string $scanSlug ) :array {
+		return \array_merge( $this->buildBase( $scanSlug ), [
 			"`ri`.`auto_filtered_at`=0",
 			"`ri`.`ignored_at`=0",
-			"`ri`.`item_repaired_at`=0",
-			"`ri`.`item_deleted_at`=0",
+			"`ri`.`resolved_at`=0",
 		] );
 	}
 
 	/**
 	 * @return list<string>
 	 */
-	public function forContext( int $latestScanId, int $context ) :array {
+	public function forContext( string $scanSlug, int $context ) :array {
 		switch ( $context ) {
 			case RetrieveCount::CONTEXT_NOT_YET_NOTIFIED:
-				return $this->forNotYetNotified( $latestScanId );
+				return $this->forNotYetNotified( $scanSlug );
 			case RetrieveCount::CONTEXT_RESULTS_DISPLAY:
-				return $this->forResultsDisplay( $latestScanId );
+				return $this->forResultsDisplay( $scanSlug );
 			case RetrieveCount::CONTEXT_ACTIVE_PROBLEMS:
 			default:
-				return $this->forActiveProblems( $latestScanId );
+				return $this->forActiveProblems( $scanSlug );
 		}
 	}
 
 	/**
 	 * @return list<string>
 	 */
-	public function forNotYetNotified( int $latestScanId ) :array {
-		return \array_merge( $this->buildBase( $latestScanId ), [
-			"`ri`.`auto_filtered_at`=0",
-			"`ri`.`ignored_at`=0",
-			"`ri`.`item_repaired_at`=0",
-			"`ri`.`item_deleted_at`=0",
+	public function forNotYetNotified( string $scanSlug ) :array {
+		return \array_merge( $this->forActiveProblems( $scanSlug ), [
 			"`ri`.`notified_at`=0",
 		] );
 	}
@@ -51,9 +46,14 @@ class LatestScanResultWheresBuilder {
 	/**
 	 * @return list<string>
 	 */
-	public function forResultsDisplay( int $latestScanId ) :array {
-		$includes = self::con()->opts->optGet( 'scan_results_table_display' );
-		return $this->forResultsDisplayWithOptions( $latestScanId, [
+	public function forResultsDisplay( string $scanSlug ) :array {
+		try {
+			$includes = self::con()->opts->optGet( 'scan_results_table_display' );
+		}
+		catch ( \Throwable $e ) {
+			$includes = [];
+		}
+		return $this->forResultsDisplayWithOptions( $scanSlug, [
 			'include_ignored'  => \is_array( $includes ) && \in_array( 'include_ignored', $includes, true ),
 			'include_repaired' => \is_array( $includes ) && \in_array( 'include_repaired', $includes, true ),
 			'include_deleted'  => \is_array( $includes ) && \in_array( 'include_deleted', $includes, true ),
@@ -64,10 +64,12 @@ class LatestScanResultWheresBuilder {
 	 * @param array<string,mixed> $options
 	 * @return list<string>
 	 */
-	public function forResultsDisplayWithOptions( int $latestScanId, array $options = [] ) :array {
+	public function forResultsDisplayWithOptions( string $scanSlug, array $options = [] ) :array {
 		$options = $this->normalizeResultsDisplayOptions( $options );
-		$wheres = \array_merge( $this->buildBase( $latestScanId ), [
+		$wheres = \array_merge( $this->buildBase( $scanSlug ), [
 			"`ri`.`auto_filtered_at`=0",
+			"`ri`.`resolution_reason`!='clean_rescan'",
+			"`ri`.`resolution_reason`!='asset_replaced'",
 		] );
 
 		if ( $options[ 'ignored_only' ] ) {
@@ -77,10 +79,10 @@ class LatestScanResultWheresBuilder {
 			$wheres[] = "`ri`.`ignored_at`=0";
 		}
 		if ( !$options[ 'include_repaired' ] ) {
-			$wheres[] = "`ri`.`item_repaired_at`=0";
+			$wheres[] = "(`ri`.`resolved_at`=0 OR `ri`.`resolution_reason`!='repaired')";
 		}
 		if ( !$options[ 'include_deleted' ] ) {
-			$wheres[] = "`ri`.`item_deleted_at`=0";
+			$wheres[] = "(`ri`.`resolved_at`=0 OR `ri`.`resolution_reason`!='deleted')";
 		}
 
 		return $wheres;
@@ -89,20 +91,19 @@ class LatestScanResultWheresBuilder {
 	/**
 	 * @return list<string>
 	 */
-	public function forLatestResults( int $latestScanId ) :array {
-		return \array_merge( $this->buildBase( $latestScanId ), [
-			"`ri`.`item_repaired_at`=0",
-			"`ri`.`item_deleted_at`=0",
+	public function forLatestResults( string $scanSlug ) :array {
+		return \array_merge( $this->buildBase( $scanSlug ), [
+			"`ri`.`resolved_at`=0",
 		] );
 	}
 
 	/**
 	 * @return list<string>
 	 */
-	private function buildBase( int $latestScanId ) :array {
+	private function buildBase( string $scanSlug ) :array {
+		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanSlug ) ?? '';
 		return [
-			\sprintf( "`sr`.`scan_ref`=%d", $latestScanId ),
-			"`ri`.`deleted_at`=0",
+			\sprintf( "`ri`.`scan`='%s'", $scanSlug ),
 		];
 	}
 

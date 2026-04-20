@@ -14,8 +14,13 @@ class CreateNewScan {
 	/**
 	 * @throws ScanExistsException|\Exception
 	 */
-	public function run( string $slug ) :?ScansDB\Record {
-		if ( $this->scanExists( $slug ) ) {
+	public function run(
+		string $slug,
+		string $scopeType = 'full',
+		string $scopeKey = '',
+		string $trigger = 'manual'
+	) :?ScansDB\Record {
+		if ( $this->scanExists( $slug, $scopeType, $scopeKey ) ) {
 			throw new ScanExistsException( $slug );
 		}
 
@@ -23,6 +28,10 @@ class CreateNewScan {
 		/** @var ScansDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->scan = $slug;
+		$record->status = 'queued';
+		$record->scope_type = $scopeType;
+		$record->scope_key = $scopeKey;
+		$record->trigger = $trigger;
 		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {
 			throw new \Exception( sprintf( 'Failed to create/insert a new scan "%s".', $slug ) );
@@ -31,10 +40,11 @@ class CreateNewScan {
 		return $dbh->getQuerySelector()->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 	}
 
-	private function scanExists( string $slug ) :bool {
+	private function scanExists( string $slug, string $scopeType, string $scopeKey ) :bool {
 		/** @var ScansDB\Select $selector */
 		$selector = self::con()->db_con->scans->getQuerySelector();
 		return $selector->filterByScan( $slug )
+						->filterByScope( $scopeType, $scopeKey )
 						->filterByNotFinished()
 						->count() > 0;
 	}

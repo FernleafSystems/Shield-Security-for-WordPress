@@ -73,13 +73,13 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@id="tabHistory-tab" and @aria-controls="tabHistory"]',
-			'Scan item analysis history tab contract'
+			'//*[@id="tabContents-tab" and @aria-controls="tabContents"]',
+			'Scan item analysis contents tab contract'
 		);
 		$this->assertXPathExists(
 			$xpath,
-			'//*[@id="tabHistory" and @aria-labelledby="tabHistory-tab"]',
-			'Scan item analysis history panel contract'
+			'//*[@id="tabContents" and @aria-labelledby="tabContents-tab"]',
+			'Scan item analysis contents panel contract'
 		);
 	}
 

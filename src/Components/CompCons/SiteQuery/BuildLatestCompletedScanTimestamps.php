@@ -42,6 +42,8 @@ class BuildLatestCompletedScanTimestamps {
 				->scans
 				->getQuerySelector()
 				->filterByScan( $scanSlug )
+				->filterByStatus( 'completed' )
+				->addWhereEquals( 'scope_type', 'full' )
 				->filterByFinished()
 				->setOrderBy( 'id', 'DESC', true )
 				->first();

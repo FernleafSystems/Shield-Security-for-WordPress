@@ -429,6 +429,14 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				'comps'         => (object)[
 					'scans'   => new UnitTestScansComponent(),
 					'license' => new UnitTestLicenseComponent( false ),
+					'file_locker' => new class {
+						public function isEnabled() :bool {
+							return false;
+						}
+					},
+				],
+				'labels'        => (object)[
+					'Name' => 'Shield Security',
 				],
 				'action_router' => new PageActionsQueueActionRouter( $this->capture ),
 			]

@@ -19,6 +19,6 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	}
 
 	public function getDescriptionForAudit() :string {
-		return sprintf( '%s: %s', ( \strpos( $this->VO->item_id, '/' ) ? 'Plugin' : 'Theme' ), $this->VO->item_id );
+		return sprintf( '%s: %s', $this->VO->item_type === 'p' ? 'Plugin' : 'Theme', $this->VO->item_id );
 	}
 }

@@ -19,57 +19,42 @@ class RetrieveCount extends RetrieveBase {
 	}
 
 	public function count( int $context = self::CONTEXT_ACTIVE_PROBLEMS ) :int {
-		$count = 0;
+		$wheresBuilder = new LatestScanResultWheresBuilder();
+		$scanSlug = $this->getScanController()->getSlug();
+		switch ( $context ) {
+			case self::CONTEXT_NOT_YET_NOTIFIED:
+				$specificWheres = $wheresBuilder->forNotYetNotified( $scanSlug );
+				break;
 
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$wheresBuilder = new LatestScanResultWheresBuilder();
-			switch ( $context ) {
-				case self::CONTEXT_NOT_YET_NOTIFIED:
-					$specificWheres = $wheresBuilder->forNotYetNotified( $latestID );
-					break;
+			case self::CONTEXT_RESULTS_DISPLAY:
+				$specificWheres = $wheresBuilder->forResultsDisplay( $scanSlug );
+				break;
 
-				case self::CONTEXT_RESULTS_DISPLAY:
-					$specificWheres = $wheresBuilder->forResultsDisplay( $latestID );
-					break;
-
-				case self::CONTEXT_ACTIVE_PROBLEMS:
-				default:
-					$specificWheres = $wheresBuilder->forActiveProblems( $latestID );
-					break;
-			}
-
-			$count = $this->countForSpecificWheres( $specificWheres );
+			case self::CONTEXT_ACTIVE_PROBLEMS:
+			default:
+				$specificWheres = $wheresBuilder->forActiveProblems( $scanSlug );
+				break;
 		}
 
-		return $count;
+		return $this->countForSpecificWheres( $specificWheres );
 	}
 
 	/**
 	 * @param array<string,mixed> $options
 	 */
 	public function countForResultsDisplay( array $options = [] ) :int {
-		$latestID = $this->getLatestScanID();
-		return $latestID >= 0
-			? $this->countForSpecificWheres(
-				( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $latestID, $options )
-			)
-			: 0;
+		return $this->countForSpecificWheres(
+			( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $this->getScanController()->getSlug(), $options )
+		);
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
 		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
-						FROM `%s` as sr
-						INNER JOIN `%s` as `scans`
-							ON `sr`.scan_ref = `scans`.id
-						INNER JOIN `%s` as `ri`
-							ON `sr`.resultitem_ref = `ri`.id
+						FROM `%s` as `ri`
 						INNER JOIN `%s` as %s
 							ON %s.`ri_ref` = `ri`.id
 						WHERE %%s;",
-			$dbCon->scan_results->getTable(),
-			$dbCon->scans->getTable(),
 			$dbCon->scan_result_items->getTable(),
 			$dbCon->scan_result_item_meta->getTable(),
 			self::ABBR_RESULTITEMMETA,

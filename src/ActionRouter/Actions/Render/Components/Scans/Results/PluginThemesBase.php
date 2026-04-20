@@ -118,7 +118,7 @@ abstract class PluginThemesBase extends Base {
 			],
 			'flags' => $flags,
 			'vars'  => [
-				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->scanresult_id,
+				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->resultitem_id,
 				'count_items'   => $countGuardFiles + \count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];

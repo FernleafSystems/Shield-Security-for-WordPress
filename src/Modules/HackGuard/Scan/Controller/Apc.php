@@ -60,9 +60,9 @@ class Apc extends BaseForAssets {
 	/**
 	 * @throws \Exception
 	 */
-	public function buildScanAction() :Scans\Apc\ScanActionVO {
+	public function buildScanAction( ?Scans\Base\BaseScanActionVO $scanAction = null ) :Scans\Apc\ScanActionVO {
 		return ( new Scans\Apc\BuildScanAction() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanActionVO( $scanAction ?? $this->newScanActionVO() )
 			->build()
 			->getScanActionVO();
 	}

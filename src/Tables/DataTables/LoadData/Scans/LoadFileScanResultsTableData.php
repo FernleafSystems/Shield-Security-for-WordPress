@@ -61,7 +61,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function getDataFromItem( ResultItem $item ) :array {
 		$data = \array_merge( $item->getRawData(), [
-			'rid'              => $item->VO->scanresult_id,
+			'rid'              => $item->VO->resultitem_id,
 			'file'             => $item->path_fragment,
 			'created_at'       => $item->VO->created_at,
 			'detected_since'   => Services::Request()
@@ -155,22 +155,22 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$actions[] = sprintf( '<button class="action view-file btn-dark %s" title="%s" data-rid="%s">%s</button>',
 				\implode( ' ', $defaultButtonClasses ),
 				__( 'View File Details', 'wp-simple-firewall' ),
-				$item->VO->scanresult_id,
+				$item->VO->resultitem_id,
 				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'zoom-in.svg' ) )
 			);
 		}
 
-		if ( $item->VO->item_deleted_at === 0 && ( $item->is_unrecognised || $item->is_mal ) ) {
+		if ( !$item->VO->isDeleted() && ( $item->is_unrecognised || $item->is_mal ) ) {
 			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
 				\implode( ' ', $defaultButtonClasses ),
 				__( 'Delete', 'wp-simple-firewall' ),
-				$item->VO->scanresult_id,
+				$item->VO->resultitem_id,
 				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'x-square.svg' ) )
 			);
 		}
 
 		try {
-			if ( $item->VO->item_repaired_at === 0 && ( $item->is_checksumfail || $item->is_missing || $item->is_mal ) ) {
+			if ( !$item->VO->isRepaired() && ( $item->is_checksumfail || $item->is_missing || $item->is_mal ) ) {
 				$actionHandler = self::con()
 					->comps
 					->scans
@@ -181,7 +181,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 					$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
 						\implode( ' ', $defaultButtonClasses ),
 						__( 'Repair', 'wp-simple-firewall' ),
-						$item->VO->scanresult_id,
+						$item->VO->resultitem_id,
 						sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'tools.svg' ) )
 					);
 				}
@@ -194,7 +194,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
 				\implode( ' ', $defaultButtonClasses ),
 				__( 'Ignore', 'wp-simple-firewall' ),
-				$item->VO->scanresult_id,
+				$item->VO->resultitem_id,
 				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'eye-slash-fill.svg' ) )
 			);
 		}
@@ -304,15 +304,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				$meta[] = __( 'Obsolete WP core file', 'wp-simple-firewall' );
 			}
 		}
-		elseif ( $item->VO->item_deleted_at > 0 ) {
+		elseif ( $item->VO->isDeleted() ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Deleted', 'wp-simple-firewall' ),
-				$carbon->setTimestamp( $item->VO->item_deleted_at )->diffForHumans()
+				$carbon->setTimestamp( $item->VO->resolved_at )->diffForHumans()
 			);
 		}
 
-		if ( $item->VO->item_repaired_at > 0 ) {
+		if ( $item->VO->isRepaired() ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Repaired', 'wp-simple-firewall' ),
-				$carbon->setTimestamp( $item->VO->item_repaired_at )->diffForHumans()
+				$carbon->setTimestamp( $item->VO->resolved_at )->diffForHumans()
 			);
 		}
 
@@ -343,7 +343,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {
 		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
-			$item->VO->scanresult_id,
+			$item->VO->resultitem_id,
 			esc_html( $item->path_fragment )
 		);
 	}

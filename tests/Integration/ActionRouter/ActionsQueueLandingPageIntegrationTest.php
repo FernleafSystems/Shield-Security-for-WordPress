@@ -1035,7 +1035,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
 			(int)$repaired[ 'result_item_id' ],
-			[ 'item_repaired_at' => \time() ]
+			[
+				'resolved_at'       => \time(),
+				'resolution_reason' => 'repaired',
+			]
 		);
 		$deleted = TestDataFactory::insertAfsFileScanResultTracked(
 			$afsId,
@@ -1047,7 +1050,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
 			(int)$deleted[ 'result_item_id' ],
-			[ 'item_deleted_at' => \time() ]
+			[
+				'resolved_at'       => \time(),
+				'resolution_reason' => 'deleted',
+			]
 		);
 		$this->resetScanResultCountMemoization();
 
@@ -1110,10 +1116,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 4, (int)( $refreshedTableData[ 'recordsFiltered' ] ?? -1 ) );
 		$this->assertEqualsCanonicalizing(
 			[
-				(int)$active[ 'scan_result_id' ],
-				(int)$ignored[ 'scan_result_id' ],
-				(int)$repaired[ 'scan_result_id' ],
-				(int)$deleted[ 'scan_result_id' ],
+				(int)$active[ 'result_item_id' ],
+				(int)$ignored[ 'result_item_id' ],
+				(int)$repaired[ 'result_item_id' ],
+				(int)$deleted[ 'result_item_id' ],
 			],
 			\array_column( $refreshedTableData[ 'data' ] ?? [], 'rid' )
 		);

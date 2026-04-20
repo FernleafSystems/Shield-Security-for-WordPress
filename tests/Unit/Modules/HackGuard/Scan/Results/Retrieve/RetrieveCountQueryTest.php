@@ -1,5 +1,13 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -43,11 +51,11 @@ class RetrieveCountQueryTest extends BaseUnitTest {
 		$this->assertCount( 2, $queries );
 		foreach ( $queries as $query ) {
 			$this->assertStringContainsString( 'COUNT(*)', $query );
-			$this->assertStringContainsString( "`sr`.`scan_ref`=55", $query );
+			$this->assertStringContainsString( "`ri`.`scan`='afs'", $query );
 			$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $query );
 			$this->assertStringContainsString( "`ri`.`ignored_at`=0", $query );
-			$this->assertStringContainsString( "`ri`.`item_repaired_at`=0", $query );
-			$this->assertStringContainsString( "`ri`.`item_deleted_at`=0", $query );
+			$this->assertStringContainsString( "`ri`.`resolution_reason`!='clean_rescan'", $query );
+			$this->assertStringContainsString( "`ri`.`resolution_reason`!='asset_replaced'", $query );
 			$this->assertStringContainsString( "`rim`.`meta_key`='ptg_slug'", $query );
 			$this->assertStringContainsString( "`rim`.`meta_value`='shield/shield.php'", $query );
 			$this->assertSame( 1, \substr_count( $query, "`rim`.`meta_key`='ptg_slug'" ) );

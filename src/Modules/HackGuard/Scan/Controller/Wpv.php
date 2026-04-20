@@ -71,9 +71,9 @@ class Wpv extends BaseForAssets {
 		return self::con()->opts->optIs( 'enable_wpvuln_scan', 'Y' ) && !$this->isRestricted();
 	}
 
-	public function buildScanAction() :Scans\Wpv\ScanActionVO {
+	public function buildScanAction( ?Scans\Base\BaseScanActionVO $scanAction = null ) :Scans\Wpv\ScanActionVO {
 		return ( new Scans\Wpv\BuildScanAction() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanActionVO( $scanAction ?? $this->newScanActionVO() )
 			->build()
 			->getScanActionVO();
 	}

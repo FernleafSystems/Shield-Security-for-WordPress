@@ -10,7 +10,13 @@ class ScansStart extends ScanBase {
 		if ( $this->getScansStatus()[ 'enqueued_count' ] > 0 ) {
 			throw new ApiException( 'Scans are already running.' );
 		}
-		self::con()->comps->scans->startNewScans( $this->getWpRestRequest()->get_param( 'scan_slugs' ) );
+		$blocked = self::con()->comps->scans->getStartBlockedMessage();
+		if ( $blocked !== '' ) {
+			throw new ApiException( $blocked );
+		}
+		if ( !self::con()->comps->scans->startNewScans( $this->getWpRestRequest()->get_param( 'scan_slugs' ) ) ) {
+			throw new ApiException( 'No scans were selected.' );
+		}
 		return $this->getScansStatus();
 	}
 }

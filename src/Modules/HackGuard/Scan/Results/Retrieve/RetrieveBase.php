@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -19,19 +18,7 @@ abstract class RetrieveBase extends DynPropertiesClass {
 
 	protected $additionalWheres = [];
 
-	protected $latestScanID;
-
 	abstract public function buildQuery( array $selectFields = [] ) :string;
-
-	protected function getLatestScanID() :int {
-		if ( !isset( $this->latestScanID ) ) {
-			/** @var ScansDB\Select $scansSelector */
-			$scansSelector = self::con()->db_con->scans->getQuerySelector();
-			$latest = $scansSelector->getLatestForScan( $this->getScanController()->getSlug() );
-			$this->latestScanID = empty( $latest ) ? -1 : $latest->id;
-		}
-		return $this->latestScanID;
-	}
 
 	abstract protected function getBaseQuery( bool $joinWithResultMeta = false ) :string;
 

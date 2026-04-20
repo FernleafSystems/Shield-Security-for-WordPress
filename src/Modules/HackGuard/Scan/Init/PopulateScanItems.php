@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
@@ -22,7 +22,10 @@ class PopulateScanItems {
 		$dbhItems = self::con()->db_con->scan_items;
 
 		$scanRecord = $this->getRecord();
-		$scanAction = $scanCon->buildScanAction();
+		$scanActionVO = $scanCon->newScanActionVO();
+		$scanActionVO->scope_type = (string)( $scanRecord->scope_type ?? 'full' );
+		$scanActionVO->scope_key = (string)( $scanRecord->scope_key ?? '' );
+		$scanAction = $scanCon->buildScanAction( $scanActionVO );
 
 		// ScanItems are stored separately
 		$allItems = $scanAction->items;
@@ -30,8 +33,14 @@ class PopulateScanItems {
 
 		$scanRecord->meta = $scanAction->getRawData();
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanRecord->id, [
-			'meta' => $scanRecord->getRawData()[ 'meta' ]
+			'meta'             => $scanRecord->getRawData()[ 'meta' ],
+			'last_process_at'  => Services::Request()->ts(),
 		] );
+
+		if ( empty( $allItems ) ) {
+			( new SetScanCompleted() )->run( (int)$scanRecord->id );
+			return;
+		}
 
 		$sliceSize = $scanCon->getQueueGroupSize();
 
@@ -44,11 +53,9 @@ class PopulateScanItems {
 			$allItems = \array_slice( $allItems, $sliceSize );
 		} while ( !empty( $allItems ) );
 
-		// Marks the scan record as ready to run. It cannot run until this flag is set.
-		// This prevents a timing issue where we're populating scan items but the scan could get picked up and executed.
-		// TODO: review whether this entirely necessary depending on how scans are kicked off.
 		self::con()->db_con->scans->getQueryUpdater()->updateRecord( $scanRecord, [
-			'ready_at' => Services::Request()->ts()
+			'status'          => 'running',
+			'last_process_at' => Services::Request()->ts(),
 		] );
 	}
 }

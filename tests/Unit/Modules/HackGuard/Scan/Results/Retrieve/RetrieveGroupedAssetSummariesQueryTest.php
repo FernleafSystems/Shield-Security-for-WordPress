@@ -58,14 +58,13 @@ class RetrieveGroupedAssetSummariesQueryTest extends BaseUnitTest {
 			],
 		], $rows );
 		$this->assertCount( 1, $queries[ 'select' ] );
-		$this->assertStringContainsString( "SELECT `slug_meta`.`meta_value` AS `slug`, COUNT(DISTINCT `ri`.`id`) AS `file_count`", $queries[ 'select' ][ 0 ] );
-		$this->assertStringContainsString( "`membership_meta`.`meta_key`='is_in_plugin'", $queries[ 'select' ][ 0 ] );
-		$this->assertStringContainsString( "`slug_meta`.`meta_key`='ptg_slug'", $queries[ 'select' ][ 0 ] );
-		$this->assertStringContainsString( "`slug_meta`.`meta_value`!=''", $queries[ 'select' ][ 0 ] );
+		$this->assertStringContainsString( "SELECT `ri`.`asset_key` AS `slug`, COUNT(DISTINCT `ri`.`id`) AS `file_count`", $queries[ 'select' ][ 0 ] );
+		$this->assertStringContainsString( "`ri`.`asset_type`='plugin'", $queries[ 'select' ][ 0 ] );
+		$this->assertStringContainsString( "`ri`.`asset_key`!=''", $queries[ 'select' ][ 0 ] );
 		$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $queries[ 'select' ][ 0 ] );
 		$this->assertStringContainsString( "`ri`.`ignored_at`>0", $queries[ 'select' ][ 0 ] );
-		$this->assertStringContainsString( 'GROUP BY `slug_meta`.`meta_value`', $queries[ 'select' ][ 0 ] );
-		$this->assertStringContainsString( 'ORDER BY `file_count` DESC, `slug_meta`.`meta_value` ASC', $queries[ 'select' ][ 0 ] );
+		$this->assertStringContainsString( 'GROUP BY `ri`.`asset_key`', $queries[ 'select' ][ 0 ] );
+		$this->assertStringContainsString( 'ORDER BY `file_count` DESC, `ri`.`asset_key` ASC', $queries[ 'select' ][ 0 ] );
 	}
 
 	public function test_count_for_context_uses_same_afs_joins_with_context_filters() :void {
@@ -77,11 +76,10 @@ class RetrieveGroupedAssetSummariesQueryTest extends BaseUnitTest {
 
 		$this->assertSame( 4, $count );
 		$this->assertCount( 1, $queries[ 'count' ] );
-		$this->assertStringContainsString( 'SELECT COUNT(DISTINCT `slug_meta`.`meta_value`)', $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`membership_meta`.`meta_key`='is_in_plugin'", $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`slug_meta`.`meta_key`='ptg_slug'", $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`slug_meta`.`meta_value`!=''", $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`sr`.`scan_ref`=101", $queries[ 'count' ][ 0 ] );
+		$this->assertStringContainsString( 'SELECT COUNT(DISTINCT `ri`.`asset_key`)', $queries[ 'count' ][ 0 ] );
+		$this->assertStringContainsString( "`ri`.`asset_type`='plugin'", $queries[ 'count' ][ 0 ] );
+		$this->assertStringContainsString( "`ri`.`asset_key`!=''", $queries[ 'count' ][ 0 ] );
+		$this->assertStringContainsString( "`ri`.`scan`='afs'", $queries[ 'count' ][ 0 ] );
 		$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $queries[ 'count' ][ 0 ] );
 		$this->assertStringContainsString( "`ri`.`ignored_at`=0", $queries[ 'count' ][ 0 ] );
 		$this->assertStringNotContainsString( 'GROUP BY', $queries[ 'count' ][ 0 ] );

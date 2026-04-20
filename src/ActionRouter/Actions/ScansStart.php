@@ -12,10 +12,13 @@ class ScansStart extends ScansBase {
 		$con = self::con();
 		$success = false;
 		$reloadPage = false;
-		$msg = __( 'No scans were selected', 'wp-simple-firewall' );
+		$msg = $con->comps->scans->getStartBlockedMessage();
+		if ( $msg === '' ) {
+			$msg = __( 'No scans were selected', 'wp-simple-firewall' );
+		}
 
 		$params = FormParams::Retrieve();
-		if ( !empty( $params ) ) {
+		if ( $con->comps->scans->canStartScans() && !empty( $params ) ) {
 			$selectedScans = \array_intersect( \array_keys( $params ), $con->comps->scans->getScanSlugs() );
 			$resetIgnore = (bool)( $params[ 'opt_clear_ignore' ] ?? false );
 			if ( $con->comps->scans->startNewScans( $selectedScans, $resetIgnore ) ) {

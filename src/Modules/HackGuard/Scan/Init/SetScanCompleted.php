@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -13,53 +14,52 @@ class SetScanCompleted {
 
 	use PluginControllerConsumer;
 
-	public function run( string $scan ) {
+	public function run( int $scanID ) {
 		$con = self::con();
 		$dbCon = $con->db_con;
 		$count = (int)Services::WpDb()->getVar(
 			sprintf( "SELECT count(*)
-						FROM `%s` as `scans`
-						INNER JOIN `%s` as `si`
-							ON `si`.`scan_ref` = `scans`.`id`
-							AND `si`.`finished_at`=0
-						WHERE `scans`.`scan`='%s'
-						  AND `scans`.`ready_at` > 0
-						  AND `scans`.`finished_at`=0;",
-				$dbCon->scans->getTable(),
+						FROM `%s` as `si`
+						WHERE `si`.`scan_ref` = %d
+						  AND `si`.`finished_at`=0;",
 				$dbCon->scan_items->getTable(),
-				$scan
+				$scanID
 			)
 		);
 
 		if ( $count === 0 ) {
-			$dbCon
-				->scans
-				->getQueryUpdater()
-				->setUpdateWheres( [
-					'scan'        => $scan,
-					'finished_at' => 0,
-				] )
-				->setUpdateData( [
-					'finished_at' => Services::Request()->ts()
-				] )
-				->query();
+			$scanRecord = $dbCon->scans->getQuerySelector()->byId( $scanID );
+			if ( empty( $scanRecord ) ) {
+				return;
+			}
+			$now = Services::Request()->ts();
+			( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState() )->markCompleted( $scanID );
 
-			$scanCon = $con->comps->scans->getScanCon( $scan );
+			$this->resolveStaleItemsForRun( $scanID, $scanRecord, $now );
+
+			$scanCon = $con->comps->scans->getScanCon( $scanRecord->scan );
 			$con->comps->events->fireEvent( 'scan_run', [
 				'audit_params' => [
 					'scan' => $scanCon->getScanName()
 				]
 			] );
 
-			$this->auditLatestScanItems( $scanCon );
+			$this->auditLatestScanItems( $scanCon, $scanID );
 		}
 	}
 
 	/**
 	 * @param Base $scanCon
 	 */
-	private function auditLatestScanItems( $scanCon ) {
-		$results = $scanCon->getResultsForDisplay();
+	private function auditLatestScanItems( $scanCon, int $scanID ) {
+		$resultItemIDs = self::con()->db_con->scan_results->getQuerySelector()
+						 ->filterByScan( $scanID )
+						 ->getDistinctForColumn( 'resultitem_ref' );
+		$results = empty( $resultItemIDs )
+			? $scanCon->getNewResultsSet()
+			: ( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems() )
+				->setScanController( $scanCon )
+				->byIDs( $resultItemIDs );
 
 		if ( $results->countItems() > 0 ) {
 
@@ -80,5 +80,55 @@ class SetScanCompleted {
 				]
 			] );
 		}
+	}
+
+	private function resolveStaleItemsForRun( int $scanID, ScansDB\Record $scanRecord, int $resolvedAt ) :void {
+		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanRecord->scan ) ?? '';
+		$observedItemIDs = self::con()->db_con->scan_results->getQuerySelector()
+						 ->filterByScan( $scanID )
+						 ->getDistinctForColumn( 'resultitem_ref' );
+		$notInObserved = empty( $observedItemIDs )
+			? ''
+			: sprintf( " AND `id` NOT IN (%s)", implode( ',', array_map( 'intval', $observedItemIDs ) ) );
+		$scopeWhere = $this->buildScopeWhere( $scanRecord );
+		$reason = $scanSlug === 'afs'
+			&& \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true )
+			&& $scanRecord->trigger === 'asset_change'
+				? 'asset_replaced'
+				: 'clean_rescan';
+
+		Services::WpDb()->doSql(
+			sprintf(
+				"UPDATE `%s`
+					SET `resolved_at`=%d,
+						`resolution_reason`='%s'
+					WHERE `scan`='%s'
+					  AND `resolved_at`=0
+					  %s
+					  %s;",
+				self::con()->db_con->scan_result_items->getTable(),
+				$resolvedAt,
+				$reason,
+				$scanSlug,
+				$scopeWhere,
+				$notInObserved
+			)
+		);
+	}
+
+	private function buildScopeWhere( ScansDB\Record $scanRecord ) :string {
+		if ( $scanRecord->scan !== 'afs' || $scanRecord->scope_type === 'full' ) {
+			return '';
+		}
+
+		if ( \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true ) ) {
+			return sprintf(
+				" AND `asset_type`='%s' AND `asset_key`='%s'",
+				esc_sql( $scanRecord->scope_type ),
+				esc_sql( $scanRecord->scope_key )
+			);
+		}
+
+		return '';
 	}
 }

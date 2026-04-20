@@ -668,6 +668,11 @@
             "has_updated_at": true,
             "col_older_than": "updated_at",
             "cols_custom": {
+                "scan": {
+                    "macro_type": "char",
+                    "length": 3,
+                    "comment": "Owning Scan Slug"
+                },
                 "item_type": {
                     "macro_type": "char",
                     "length": 1,
@@ -677,6 +682,16 @@
                     "macro_type": "varchar",
                     "length": 256,
                     "comment": "Result Item ID"
+                },
+                "asset_type": {
+                    "macro_type": "varchar",
+                    "length": 16,
+                    "comment": "Normalised Asset Type"
+                },
+                "asset_key": {
+                    "macro_type": "varchar",
+                    "length": 256,
+                    "comment": "Normalised Asset Key"
                 },
                 "ignored_at": {
                     "macro_type": "timestamp",
@@ -694,6 +709,19 @@
                     "macro_type": "timestamp",
                     "comment": "Attempted Repair At"
                 },
+                "last_seen_at": {
+                    "macro_type": "timestamp",
+                    "comment": "Last Seen In Scan"
+                },
+                "resolved_at": {
+                    "macro_type": "timestamp",
+                    "comment": "Resolved At"
+                },
+                "resolution_reason": {
+                    "macro_type": "varchar",
+                    "length": 20,
+                    "comment": "Resolution Reason"
+                },
                 "item_repaired_at": {
                     "macro_type": "timestamp",
                     "comment": "Item Repaired At"
@@ -702,7 +730,35 @@
                     "macro_type": "timestamp",
                     "comment": "Item Deleted At"
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "scan_item_resolution",
+                    "columns": [
+                        "scan",
+                        "item_type",
+                        "item_id",
+                        "resolved_at"
+                    ]
+                },
+                {
+                    "key_name": "scan_asset_resolution",
+                    "columns": [
+                        "scan",
+                        "asset_type",
+                        "asset_key",
+                        "resolved_at"
+                    ]
+                },
+                {
+                    "key_name": "scan_notified_resolution",
+                    "columns": [
+                        "scan",
+                        "notified_at",
+                        "resolved_at"
+                    ]
+                }
+            ]
         },
         "scan_result_item_meta": {
             "name": "Scan Result Items Metadata",
@@ -818,6 +874,34 @@
                     "length": 3,
                     "comment": "Scan Slug"
                 },
+                "status": {
+                    "macro_type": "varchar",
+                    "length": 12,
+                    "comment": "Scan Status"
+                },
+                "scope_type": {
+                    "macro_type": "varchar",
+                    "length": 12,
+                    "comment": "Run Scope Type"
+                },
+                "scope_key": {
+                    "macro_type": "varchar",
+                    "length": 256,
+                    "comment": "Run Scope Key"
+                },
+                "trigger": {
+                    "macro_type": "varchar",
+                    "length": 20,
+                    "comment": "Run Trigger"
+                },
+                "started_at": {
+                    "macro_type": "timestamp",
+                    "comment": "Run Started At"
+                },
+                "last_process_at": {
+                    "macro_type": "timestamp",
+                    "comment": "Worker Last Touched Run"
+                },
                 "ready_at": {
                     "macro_type": "timestamp",
                     "comment": "Scan Ready At"
@@ -830,7 +914,26 @@
                     "macro_type": "meta",
                     "comment": "Scan Meta Info"
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "status_created_at",
+                    "columns": [
+                        "status",
+                        "created_at"
+                    ]
+                },
+                {
+                    "key_name": "scan_scope_status_created_at",
+                    "columns": [
+                        "scan",
+                        "scope_type",
+                        "scope_key",
+                        "status",
+                        "created_at"
+                    ]
+                }
+            ]
         },
         "scan_items": {
             "name": "Scan Items",
@@ -883,7 +986,16 @@
                         "ref_table": "icwp_wpsf_resultitems"
                     }
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "scan_ref_resultitem_ref",
+                    "columns": [
+                        "scan_ref",
+                        "resultitem_ref"
+                    ]
+                }
+            ]
         },
         "user_meta": {
             "name": "User Meta",

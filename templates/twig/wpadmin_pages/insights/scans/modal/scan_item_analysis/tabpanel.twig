@@ -16,18 +16,6 @@
 
 			<li class="nav-item">
 				<a class="nav-link"
-				   id="tabHistory-tab"
-				   data-bs-toggle="tab"
-				   role="tab"
-				   href="#tabHistory"
-				   aria-controls="tabHistory"
-				   aria-selected="false">
-					{{ strings.tab_history }}
-				</a>
-			</li>
-
-			<li class="nav-item">
-				<a class="nav-link"
 				   id="tabContents-tab"
 				   data-bs-toggle="tab"
 				   role="tab"
@@ -74,14 +62,6 @@
 		<div class="row">
 			<div class="col pt-3">
 				{{ content.tab_info|raw }}
-			</div>
-		</div>
-	</div>
-
-	<div class="tab-pane" id="tabHistory" role="tabpanel" aria-labelledby="tabHistory-tab">
-		<div class="row">
-			<div class="col pt-3">
-				{{ content.tab_history|raw }}
 			</div>
 		</div>
 	</div>

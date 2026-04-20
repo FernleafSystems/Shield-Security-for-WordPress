@@ -942,18 +942,18 @@
         "default": []
     },
     {
-        "key": "scans_to_build",
-        "section": "section_hidden",
-        "tracking_exclude": true,
-        "type": "array",
-        "default": []
-    },
-    {
         "key": "is_scan_cron",
         "section": "section_hidden",
         "tracking_exclude": true,
         "type": "boolean",
         "default": false
+    },
+    {
+        "key": "scan_findings_model_state",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "type": "text",
+        "default": "ready"
     },
     {
         "key": "filelocker_state",

@@ -16,6 +16,17 @@ class CompleteQueue {
 		$deleter = $con->db_con->scan_items->getQueryDeleter();
 		$deleter->filterByFinished()->query();
 
+		$activeCount = $con->db_con->scans->getQuerySelector()
+			->filterByNotFinished()
+			->addWhereIn( 'status', [ 'queued', 'building', 'running' ] )
+			->count();
+		if ( $activeCount > 0 ) {
+			if ( $con->db_con->scans->getQuerySelector()->filterByStatus( 'queued' )->count() > 0 ) {
+				$con->comps->scans_queue->getQueueBuilder()->dispatch();
+			}
+			return;
+		}
+
 		if ( $con->opts->optGet( 'is_scan_cron' ) && !wp_next_scheduled( $con->prefix( 'post_scan' ) ) ) {
 			wp_schedule_single_event( Services::Request()->ts() + 5, $con->prefix( 'post_scan' ) );
 		}

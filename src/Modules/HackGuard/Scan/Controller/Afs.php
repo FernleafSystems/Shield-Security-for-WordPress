@@ -23,6 +23,11 @@ class Afs extends Base {
 		parent::run();
 		$this->setupCronHooks();
 		( new StoreAction\ScheduleBuildAll() )->execute();
+		add_action( 'upgrader_process_complete', [ $this, 'queueAssetScansFromUpgraderProcessComplete' ], 10, 2 );
+		add_filter( 'upgrader_post_install', [ $this, 'queueAssetScansFromUpgraderPostInstall' ], 10, 2 );
+		add_action( 'pre_uninstall_plugin', [ $this, 'queuePluginAssetScan' ] );
+		add_action( 'deleted_plugin', [ $this, 'queuePluginAssetScan' ] );
+		add_action( 'deleted_theme', [ $this, 'queueThemeAssetScan' ], 10, 2 );
 	}
 
 	/**
@@ -88,9 +93,30 @@ class Afs extends Base {
 
 		/** @var ResultItemsDB\Record $record */
 		$record = self::con()->db_con->scan_result_items->getRecord();
+		$record->scan = $this->getSlug();
 		$record->auto_filtered_at = $autoFiltered ? Services::Request()->ts() : 0;
 		$record->item_id = $rawResult[ 'path_fragment' ];
 		$record->item_type = ResultItemsDB\Handler::ITEM_TYPE_FILE;
+		$record->last_seen_at = Services::Request()->ts();
+		$record->resolved_at = 0;
+		$record->resolution_reason = '';
+
+		if ( !empty( $rawResult[ 'is_in_core' ] ) ) {
+			$record->asset_type = 'core';
+			$record->asset_key = 'core';
+		}
+		elseif ( !empty( $rawResult[ 'is_in_plugin' ] ) ) {
+			$record->asset_type = 'plugin';
+			$record->asset_key = (string)( $rawResult[ 'ptg_slug' ] ?? '' );
+		}
+		elseif ( !empty( $rawResult[ 'is_in_theme' ] ) ) {
+			$record->asset_type = 'theme';
+			$record->asset_key = (string)( $rawResult[ 'ptg_slug' ] ?? '' );
+		}
+		else {
+			$record->asset_type = 'other';
+			$record->asset_key = '';
+		}
 
 		$metaToClear = [
 			'auto_filter',
@@ -146,14 +172,14 @@ class Afs extends Base {
 
 		$changed = false;
 		if ( ( $item->is_unrecognised || $item->is_mal || $item->is_unidentified )
-			 && $item->VO->item_deleted_at === 0
+			 && !$item->VO->isDeleted()
 			 && !Services::WpFs()->isAccessibleFile( $item->path_full ) ) {
-			$changed = $updater->setItemDeleted( $item->VO->resultitem_id );
+			$changed = $updater->setItemAssetReplaced( $item->VO->resultitem_id );
 		}
 		elseif ( $item->is_in_core ) {
 			$CFH = Services::CoreFileHashes();
 			if ( $item->is_missing && !$CFH->isCoreFile( $item->path_full ) ) {
-				$changed = $dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$changed = $updater->setItemAssetReplaced( $item->VO->resultitem_id );
 			}
 			elseif ( $item->is_checksumfail && $CFH->isCoreFileHashValid( $item->path_full ) ) {
 				$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
@@ -162,7 +188,7 @@ class Afs extends Base {
 		elseif ( $item->is_in_plugin || $item->is_in_theme ) {
 			try {
 				$verifiedHash = ( new Hashes\Query() )->verifyHash( $item->path_full );
-				if ( $item->VO->item_repaired_at === 0 && $item->is_checksumfail && $verifiedHash ) {
+				if ( !$item->VO->isRepaired() && $item->is_checksumfail && $verifiedHash ) {
 					$changed = $updater->setItemRepaired( $item->VO->resultitem_id );
 				}
 			}
@@ -170,8 +196,7 @@ class Afs extends Base {
 				// hashes are unavailable, so we do nothing
 			}
 			catch ( Exceptions\NonAssetFileException $e ) {
-				// asset has probably been since removed
-				$changed = $dbhResultItems->getQueryDeleter()->deleteById( $item->VO->resultitem_id );
+				$changed = $updater->setItemAssetReplaced( $item->VO->resultitem_id );
 			}
 			catch ( Exceptions\UnrecognisedAssetFile $e ) {
 				// unrecognised file
@@ -244,11 +269,55 @@ class Afs extends Base {
 		return false;
 	}
 
-	public function buildScanAction() :Scans\Afs\ScanActionVO {
+	public function buildScanAction( ?Scans\Base\BaseScanActionVO $scanAction = null ) :Scans\Afs\ScanActionVO {
 		return ( new Scans\Afs\BuildScanAction() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanActionVO( $scanAction ?? $this->newScanActionVO() )
 			->build()
 			->getScanActionVO();
+	}
+
+	public function queueAssetScansFromUpgraderProcessComplete( $handler, $data ) :void {
+		unset( $handler );
+
+		if ( !\is_array( $data ) ) {
+			return;
+		}
+
+		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'plugin' ) {
+			foreach ( \array_filter( \is_array( $data[ 'plugins' ] ?? null ) ? $data[ 'plugins' ] : [] ) as $plugin ) {
+				$this->queuePluginAssetScan( (string)$plugin );
+			}
+		}
+
+		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'theme' ) {
+			foreach ( \array_filter( \is_array( $data[ 'themes' ] ?? null ) ? $data[ 'themes' ] : [] ) as $theme ) {
+				$this->queueThemeAssetScan( (string)$theme, true );
+			}
+		}
+	}
+
+	public function queueAssetScansFromUpgraderPostInstall( $response, $hookExtra ) {
+		if ( \is_array( $hookExtra ) ) {
+			if ( !empty( $hookExtra[ 'plugin' ] ) ) {
+				$this->queuePluginAssetScan( (string)$hookExtra[ 'plugin' ] );
+			}
+			if ( !empty( $hookExtra[ 'theme' ] ) ) {
+				$this->queueThemeAssetScan( (string)$hookExtra[ 'theme' ], true );
+			}
+		}
+		return $response;
+	}
+
+	public function queuePluginAssetScan( string $plugin ) :void {
+		if ( $plugin !== '' ) {
+			self::con()->comps->scans->startAfsAssetScan( 'plugin', $plugin );
+		}
+	}
+
+	public function queueThemeAssetScan( string $stylesheet, bool $wasDeleted = true ) :void {
+		if ( $wasDeleted && $stylesheet !== '' ) {
+			self::con()->comps->scans->startAfsAssetScan( 'theme', $stylesheet );
+		}
 	}
 
 	/**

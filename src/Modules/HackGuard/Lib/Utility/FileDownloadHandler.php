@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Utility;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanResults\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as FindingsModelState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -15,6 +16,9 @@ class FileDownloadHandler {
 	 * @throws \Exception
 	 */
 	public function downloadByItemId( int $resultID ) :array {
+		if ( !( new FindingsModelState() )->isReady() ) {
+			throw new \Exception( __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' ) );
+		}
 		$item = ( new RetrieveItems() )->byID( $resultID );
 
 		if ( $item->VO->item_type !== Handler::ITEM_TYPE_FILE || empty( $item->VO->item_id ) ) {

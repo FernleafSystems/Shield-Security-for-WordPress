@@ -35,7 +35,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_ignore_sub_action_removes_plugin_row_from_active_results_without_page_reload() :void {
 		$pluginSlug = self::con()->base_file;
 		$tracked = $this->seedPluginScanResult( $pluginSlug );
-		$scanResultId = (int)( $tracked[ 'scan_result_id' ] ?? 0 );
+		$scanResultId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
 		$resultItemId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
 		$this->assertGreaterThan( 0, $scanResultId );
 		$this->assertGreaterThan( 0, $resultItemId );
@@ -92,7 +92,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
 			'sub_action' => 'ignore',
-			'rids'       => [ (int)$active[ 'scan_result_id' ] ],
+			'rids'       => [ (int)$active[ 'result_item_id' ] ],
 		] )->payload();
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
@@ -105,7 +105,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
 		$this->assertNotEmpty( $staleItem );
-		$this->assertSame( 0, (int)( $staleItem->item_repaired_at ?? 0 ) );
+		$this->assertSame( 0, (int)( $staleItem->resolved_at ?? 0 ) );
 	}
 
 	public function test_ignore_all_sub_action_ignores_full_active_plugin_scope_without_page_reload() :void {
@@ -136,9 +136,9 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 3, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 		$this->assertEqualsCanonicalizing(
 			[
-				(int)$activeOne[ 'scan_result_id' ],
-				(int)$activeTwo[ 'scan_result_id' ],
-				(int)$alreadyIgnored[ 'scan_result_id' ],
+				(int)$activeOne[ 'result_item_id' ],
+				(int)$activeTwo[ 'result_item_id' ],
+				(int)$alreadyIgnored[ 'result_item_id' ],
 			],
 			\array_column( $afterIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
@@ -169,7 +169,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$afterIgnored = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->ignoredOnly() );
 		$this->assertSame( 1, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 		$this->assertSame(
-			[ (int)$ignored[ 'scan_result_id' ] ],
+			[ (int)$ignored[ 'result_item_id' ] ],
 			\array_column( $afterIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
 	}
@@ -203,7 +203,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
 		$this->assertNotEmpty( $item );
-		$this->assertSame( 0, (int)( $item->item_repaired_at ?? 0 ) );
+		$this->assertSame( 0, (int)( $item->resolved_at ?? 0 ) );
 	}
 
 	public function test_retrieve_table_data_normalizes_explicit_results_display_options() :void {
@@ -229,11 +229,11 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $payload[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 		$this->assertSame( 1, (int)( $payload[ 'datatable_data' ][ 'recordsFiltered' ] ?? -1 ) );
 		$this->assertSame(
-			[ (int)$ignored[ 'scan_result_id' ] ],
+			[ (int)$ignored[ 'result_item_id' ] ],
 			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
 		$this->assertNotContains(
-			(int)$active[ 'scan_result_id' ],
+			(int)$active[ 'result_item_id' ],
 			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
 	}

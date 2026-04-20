@@ -22,41 +22,35 @@ class RetrieveItems extends RetrieveBase {
 	public const CONTEXT_NOT_YET_NOTIFIED = 3;
 
 	public function retrieveResults( int $context ) {
-		$results = null;
+		$wheresBuilder = new LatestScanResultWheresBuilder();
+		$scanSlug = $this->getScanController()->getSlug();
+		switch ( $context ) {
 
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$wheresBuilder = new LatestScanResultWheresBuilder();
-			switch ( $context ) {
-
-				case self::CONTEXT_RESULTS_TABLE:
-					$specificWheres = $wheresBuilder->forResultsDisplay( $latestID );
-					break;
+			case self::CONTEXT_RESULTS_TABLE:
+				$specificWheres = $wheresBuilder->forResultsDisplay( $scanSlug );
+				break;
 
 				case self::CONTEXT_AUTOREPAIR:
+					$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanSlug ) ?? '';
 					$specificWheres = [
-						sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-						"`ri`.`deleted_at`=0",
-						"`ri`.`item_repaired_at`=0",
-						"`ri`.`item_deleted_at`=0",
+						\sprintf( "`ri`.`scan`='%s'", $scanSlug ),
+						"`ri`.`resolved_at`=0",
 						"`ri`.`attempt_repair_at`=0",
 						"`ri`.`ignored_at`=0"
 					];
-					break;
+				break;
 
-				case self::CONTEXT_NOT_YET_NOTIFIED:
-					$specificWheres = $wheresBuilder->forNotYetNotified( $latestID );
-					break;
+			case self::CONTEXT_NOT_YET_NOTIFIED:
+				$specificWheres = $wheresBuilder->forNotYetNotified( $scanSlug );
+				break;
 
-				case self::CONTEXT_LATEST:
-				default:
-					$specificWheres = $wheresBuilder->forLatestResults( $latestID );
-					break;
-			}
-
-			$results = $this->retrieveByWheres( $specificWheres );
+			case self::CONTEXT_LATEST:
+			default:
+				$specificWheres = $wheresBuilder->forLatestResults( $scanSlug );
+				break;
 		}
 
+		$results = $this->retrieveByWheres( $specificWheres );
 		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
 	}
 
@@ -67,14 +61,11 @@ class RetrieveItems extends RetrieveBase {
 			$stateMetaKeys
 		) ) ) );
 
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$wheres = ( new LatestScanResultWheresBuilder() )->forLatestResults( $latestID );
-			if ( !empty( $stateMetaKeys ) ) {
-				$wheres[] = $this->buildStateMetaExistsWhere( $stateMetaKeys );
-			}
-			$results = $this->retrieveByWheres( $wheres );
+		$wheres = ( new LatestScanResultWheresBuilder() )->forLatestResults( $this->getScanController()->getSlug() );
+		if ( !empty( $stateMetaKeys ) ) {
+			$wheres[] = $this->buildStateMetaExistsWhere( $stateMetaKeys );
 		}
+		$results = $this->retrieveByWheres( $wheres );
 
 		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
 	}
@@ -83,27 +74,24 @@ class RetrieveItems extends RetrieveBase {
 	 * @return Scans\Base\ResultItem
 	 * @throws \Exception
 	 */
-	public function byID( int $scanResultID ) {
+	public function byID( int $resultItemID ) {
 		$WPDB = Services::WpDb();
 
-		// Need to determine the scan from the scan result.
-		$scan = $WPDB->getVar( sprintf( "SELECT `scans`.`scan`
-					FROM `%s` as `scans`
-					INNER JOIN `%s` as `sr`
-						ON `sr`.`scan_ref` = `scans`.`id` AND `sr`.`id` = %s 
+		$scan = $WPDB->getVar( sprintf( "SELECT `ri`.`scan`
+					FROM `%s` as `ri`
+					WHERE `ri`.`id` = %s
 					LIMIT 1;",
-			self::con()->db_con->scans->getTable(),
-			self::con()->db_con->scan_results->getTable(),
-			$scanResultID
+			self::con()->db_con->scan_result_items->getTable(),
+			$resultItemID
 		) );
 		if ( empty( $scan ) ) {
-			throw new \Exception( sprintf( __( 'Could not determine scan type from the scan result ID %s.', 'wp-simple-firewall' ), $scanResultID ) );
+			throw new \Exception( sprintf( __( 'Could not determine scan type from the result item ID %s.', 'wp-simple-firewall' ), $resultItemID ) );
 		}
 		$this->setScanController( self::con()->comps->scans->getScanCon( $scan ) );
 
 		$query = $this
 			->addWheres( [
-				sprintf( "`sr`.`id`=%s", $scanResultID )
+				sprintf( "`ri`.`id`=%s", $resultItemID )
 			] )
 			->buildQuery( $this->standardSelectFields() );
 		$raw = Services::WpDb()->selectCustom( $query );
@@ -111,7 +99,7 @@ class RetrieveItems extends RetrieveBase {
 
 		$resultSet = $this->convertToResultsSet( $rawResults );
 		if ( $resultSet->countItems() !== 1 ) {
-			throw new \Exception( sprintf( __( 'Scan result with ID %s does not exist.', 'wp-simple-firewall' ), $scanResultID ) );
+			throw new \Exception( sprintf( __( 'Scan result with ID %s does not exist.', 'wp-simple-firewall' ), $resultItemID ) );
 		}
 		$items = $resultSet->getAllItems();
 		return \array_shift( $items );
@@ -123,16 +111,13 @@ class RetrieveItems extends RetrieveBase {
 	public function byIDs( array $IDs ) {
 		$results = [];
 		if ( !$this->getScanController()->isRestricted() ) {
-			$latestID = $this->getLatestScanID();
-			if ( $latestID >= 0 ) {
-				$query = $this
-					->addWheres( [
-						sprintf( "`sr`.`id` IN (%s)", \implode( ',', $IDs ) )
-					] )
-					->buildQuery( $this->standardSelectFields() );
-				$raw = Services::WpDb()->selectCustom( $query );
-				$results = empty( $raw ) ? [] : $raw;
-			}
+			$query = $this
+				->addWheres( [
+					sprintf( "`ri`.`id` IN (%s)", \implode( ',', $IDs ) )
+				] )
+				->buildQuery( $this->standardSelectFields() );
+			$raw = Services::WpDb()->selectCustom( $query );
+			$results = empty( $raw ) ? [] : $raw;
 		}
 
 		return $this->convertToResultsSet( $results );
@@ -153,13 +138,9 @@ class RetrieveItems extends RetrieveBase {
 			return $this->retrieveResults( self::CONTEXT_RESULTS_TABLE );
 		}
 
-		$results = null;
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
-			$results = $this->retrieveByWheres(
-				( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $latestID, $options )
-			);
-		}
+		$results = $this->retrieveByWheres(
+			( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $this->getScanController()->getSlug(), $options )
+		);
 
 		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
 	}
@@ -177,7 +158,6 @@ class RetrieveItems extends RetrieveBase {
 	public function retrieve() {
 		return $this->retrieveByWheres( [
 			"`ri`.`auto_filtered_at`=0",
-			"`ri`.`deleted_at`=0"
 		] );
 	}
 
@@ -205,8 +185,8 @@ class RetrieveItems extends RetrieveBase {
 	protected function convertToResultsSet( array $results ) {
 		$con = self::con();
 		$resultsSet = $this->getNewResultsSet();
-
-		$workingScan = empty( $this->getScanController() ) ? '' : $this->getScanController()->getSlug();
+		$workingScan = $this->getScanController();
+		$workingScanSlug = empty( $workingScan ) ? '' : $workingScan->getSlug();
 
 		/** @var ScanResultVO[] $scanResults */
 		$scanResults = \array_map( function ( $r ) {
@@ -216,25 +196,11 @@ class RetrieveItems extends RetrieveBase {
 		$this->addMetaToResults( $scanResults );
 
 		foreach ( $scanResults as $vo ) {
-
-			// we haven't specified a type of scan, so we're collecting all results.
-			if ( empty( $workingScan ) ) {
-				foreach ( $vo->meta as $scanMeta ) {
-					$item = $con->comps
-						->scans
-						->getScanCon( $vo->scan )
-						->getNewResultItem()
-						->applyFromArray( $vo->meta );
-					$item->VO = $vo;
-					$resultsSet->addItem( $item );
-				}
-			}
-			elseif ( !empty( $vo->scan ) ) {
-				$item = $con->comps
-					->scans
-					->getScanCon( $workingScan )
-					->getNewResultItem()
-					->applyFromArray( $vo->meta );
+			$scanCon = empty( $workingScanSlug )
+				? $con->comps->scans->getScanCon( $vo->scan )
+				: $con->comps->scans->getScanCon( $workingScanSlug );
+			if ( !empty( $scanCon ) ) {
+				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta );
 				$item->VO = $vo;
 				$resultsSet->addItem( $item );
 			}
@@ -277,18 +243,12 @@ class RetrieveItems extends RetrieveBase {
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
 		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
-						FROM `%s` as sr
-						INNER JOIN `%s` as `scans`
-							ON `sr`.scan_ref = `scans`.id
-						INNER JOIN `%s` as `ri`
-							ON `sr`.resultitem_ref = `ri`.id
+						FROM `%s` as `ri`
 						%s
 						WHERE %%s
 						%s
 						%s
 						%s;",
-			$dbCon->scan_results->getTable(),
-			$dbCon->scans->getTable(),
 			$dbCon->scan_result_items->getTable(),
 			$joinWithResultMeta ?
 				sprintf( 'INNER JOIN `%s` as %s ON %s.`ri_ref` = `ri`.id',
@@ -296,7 +256,7 @@ class RetrieveItems extends RetrieveBase {
 					self::ABBR_RESULTITEMMETA,
 					self::ABBR_RESULTITEMMETA
 				) : '',
-			empty( $this->order_by ) ? 'ORDER BY `sr`.`id` ASC' : sprintf( 'ORDER BY %s %s', $this->order_by, $this->order_dir ),
+			empty( $this->order_by ) ? 'ORDER BY `ri`.`id` ASC' : sprintf( 'ORDER BY %s %s', $this->order_by, $this->order_dir ),
 			empty( $this->limit ) ? '' : sprintf( 'LIMIT %s', (int)$this->limit ),
 			empty( $this->offset ) ? '' : sprintf( 'OFFSET %s', (int)$this->offset )
 		);
@@ -304,18 +264,20 @@ class RetrieveItems extends RetrieveBase {
 
 	private function standardSelectFields() :array {
 		return [
-			'`scans`.`scan`',
-			'`scans`.`created_at` as `scan_created_at`',
-			'`scans`.`id` as `scan_id`',
-			'`sr`.`id` as `scanresult_id`',
+			'`ri`.`scan`',
+			'0 as `scan_created_at`',
+			'0 as `scan_id`',
 			'`ri`.`id` as `resultitem_id`',
 			'`ri`.`item_type`',
 			'`ri`.`item_id`',
+			'`ri`.`asset_type`',
+			'`ri`.`asset_key`',
 			'`ri`.`ignored_at`',
 			'`ri`.`notified_at`',
 			'`ri`.`attempt_repair_at`',
-			'`ri`.`item_repaired_at`',
-			'`ri`.`item_deleted_at`',
+			'`ri`.`last_seen_at`',
+			'`ri`.`resolved_at`',
+			'`ri`.`resolution_reason`',
 			'`ri`.`created_at`',
 		];
 	}

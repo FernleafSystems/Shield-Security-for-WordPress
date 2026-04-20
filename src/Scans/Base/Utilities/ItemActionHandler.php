@@ -51,13 +51,7 @@ abstract class ItemActionHandler {
 			->setScanItem( $item )
 			->delete(); // Exception if can't delete
 		if ( $item->deleted ) {
-			self::con()
-				->db_con
-				->scan_result_items
-				->getQueryUpdater()
-				->updateById( $item->VO->resultitem_id, [
-					'item_deleted_at' => Services::Request()->ts()
-				] );
+			self::con()->db_con->scan_result_items->getQueryUpdater()->setItemDeleted( $item->VO->resultitem_id );
 			$item->repair_event_status = 'delete_success';
 		}
 
@@ -100,7 +94,8 @@ abstract class ItemActionHandler {
 				'attempt_repair_at' => Services::Request()->ts()
 			];
 			if ( $item->repaired ) {
-				$updateInfo[ 'item_repaired_at' ] = Services::Request()->ts();
+				$updateInfo[ 'resolved_at' ] = Services::Request()->ts();
+				$updateInfo[ 'resolution_reason' ] = 'repaired';
 			}
 			self::con()
 				->db_con

@@ -20,8 +20,8 @@ class QueueItems {
 						INNER JOIN `%s` as `si`
 							ON `si`.`scan_ref` = `scans`.`id` 
 							AND `si`.`started_at`=0
-						WHERE `scans`.`ready_at` > 0 AND `scans`.`finished_at`=0
-						ORDER BY `si`.`id` ASC
+						WHERE `scans`.`status`='running' AND `scans`.`finished_at`=0
+						ORDER BY `scans`.`created_at` ASC, `si`.`id` ASC
 						LIMIT 1;",
 				self::con()->db_con->scans->getTable(),
 				self::con()->db_con->scan_items->getTable()

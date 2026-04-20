@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as FindingsModelState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -63,7 +64,7 @@ class BuildScanFindings {
 		];
 
 		if ( !$query[ 'is_available' ] ) {
-			$query[ 'message' ] = __( 'Results are unavailable while scans are currently running.', 'wp-simple-firewall' );
+			$query[ 'message' ] = __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' );
 			return $query;
 		}
 
@@ -84,7 +85,7 @@ class BuildScanFindings {
 	}
 
 	protected function isAvailable() :bool {
-		return self::con()->comps->site_query->scanRuntime()[ 'enqueued_count' ] < 1;
+		return ( new FindingsModelState() )->isReady();
 	}
 
 	/**
@@ -208,21 +209,14 @@ class BuildScanFindings {
 	}
 
 	private function determineScope( $item ) :string {
-		if ( !empty( $item->is_in_core ) ) {
-			return 'core';
-		}
-		if ( !empty( $item->is_in_plugin ) ) {
-			return 'plugin';
-		}
-		if ( !empty( $item->is_in_theme ) ) {
-			return 'theme';
-		}
-		return 'other';
+		return \in_array( (string)( $item->VO->asset_type ?? '' ), [ 'core', 'plugin', 'theme', 'other' ], true )
+			? (string)$item->VO->asset_type
+			: 'other';
 	}
 
 	private function determineAssetSlug( $item ) :string {
-		return !empty( $item->is_in_plugin ) || !empty( $item->is_in_theme )
-			? \trim( (string)( $item->ptg_slug ?? '' ) )
+		return \in_array( (string)( $item->VO->asset_type ?? '' ), [ 'plugin', 'theme' ], true )
+			? \trim( (string)( $item->VO->asset_key ?? '' ) )
 			: '';
 	}
 

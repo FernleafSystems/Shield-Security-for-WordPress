@@ -126,15 +126,15 @@ class Counts {
 					break;
 				case 'wp_files':
 					$resultsCount->setScanController( $scansCon->AFS() )
-								 ->addWheres( [ "`rim`.`meta_key`='is_in_core'", ] );
+								 ->addWheres( [ "`ri`.`asset_type`='core'", ] );
 					break;
 				case 'plugin_files':
 					$resultsCount->setScanController( $scansCon->AFS() )
-								 ->addWheres( [ "`rim`.`meta_key`='is_in_plugin'", ] );
+								 ->addWheres( [ "`ri`.`asset_type`='plugin'", ] );
 					break;
 				case 'theme_files':
 					$resultsCount->setScanController( $scansCon->AFS() )
-								 ->addWheres( [ "`rim`.`meta_key`='is_in_theme'", ] );
+								 ->addWheres( [ "`ri`.`asset_type`='theme'", ] );
 					break;
 				case 'abandoned':
 					$resultsCount->setScanController( $scansCon->APC() )
@@ -179,11 +179,6 @@ class Counts {
 	 * @param list<array{alias:string,on:string}> $joins
 	 */
 	private function countDistinctColumnValues( string $scanSlug, string $selectColumn, array $joins ) :int {
-		$latestScanId = $this->getLatestScanId( $scanSlug );
-		if ( $latestScanId < 1 ) {
-			return 0;
-		}
-
 		$dbCon = self::con()->db_con;
 		$joinSql = \implode( ' ', \array_map(
 			static fn( array $join ) :string => \sprintf(
@@ -196,16 +191,13 @@ class Counts {
 		) );
 		$query = \sprintf(
 			"SELECT COUNT(DISTINCT %s)
-			FROM `%s` AS `sr`
-			INNER JOIN `%s` AS `ri`
-				ON `sr`.`resultitem_ref`=`ri`.`id`
+			FROM `%s` AS `ri`
 			%s
 			WHERE %s",
 			$selectColumn,
-			$dbCon->scan_results->getTable(),
 			$dbCon->scan_result_items->getTable(),
 			$joinSql,
-			\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $latestScanId, $this->context ) )
+			\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $scanSlug, $this->context ) )
 		);
 
 		return (int)Services::WpDb()->getVar( $query );
@@ -219,23 +211,15 @@ class Counts {
 		$dbCon = self::con()->db_con;
 
 		foreach ( $filters as $filter ) {
-			$latestScanId = $this->getLatestScanId( $filter[ 'scan_slug' ] );
-			if ( $latestScanId < 1 ) {
-				continue;
-			}
-
 			$queries[] = \sprintf(
 				"SELECT DISTINCT `ri`.`item_id`
-				FROM `%s` AS `sr`
-				INNER JOIN `%s` AS `ri`
-					ON `sr`.`resultitem_ref`=`ri`.`id`
+				FROM `%s` AS `ri`
 				INNER JOIN `%s` AS `rim`
 					ON `rim`.`ri_ref`=`ri`.`id`
 				WHERE %s AND `rim`.`meta_key`='%s'",
-				$dbCon->scan_results->getTable(),
 				$dbCon->scan_result_items->getTable(),
 				$dbCon->scan_result_item_meta->getTable(),
-				\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $latestScanId, $this->context ) ),
+				\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $filter[ 'scan_slug' ], $this->context ) ),
 				$filter[ 'meta_key' ]
 			);
 		}
@@ -250,11 +234,6 @@ class Counts {
 				\implode( ' UNION ', $queries )
 			)
 		);
-	}
-
-	private function getLatestScanId( string $scanSlug ) :int {
-		$latest = self::con()->db_con->scans->getQuerySelector()->getLatestForScan( $scanSlug );
-		return empty( $latest ) ? 0 : (int)$latest->id;
 	}
 
 	private function getLatestScanWheresBuilder() :LatestScanResultWheresBuilder {

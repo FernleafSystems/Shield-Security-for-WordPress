@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as ScanFindingsModelState;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HandleUpgrade {
@@ -32,6 +33,7 @@ class HandleUpgrade {
 			$con = self::con();
 
 			( new OptionsCorrections() )->runUpgradeMigrations();
+			( new ScanFindingsModelState() )->prepareUpgrade();
 			if ( $con->opts->hasChanges() ) {
 				$con->opts->store();
 			}

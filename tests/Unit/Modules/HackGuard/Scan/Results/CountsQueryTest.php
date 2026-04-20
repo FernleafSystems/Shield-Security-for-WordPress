@@ -43,7 +43,8 @@ class CountsQueryTest extends BaseUnitTest {
 		$this->assertSame( 5, $counts->countAffectedPluginAssets() );
 
 		$this->assertCount( 1, $queries );
-		$this->assertStringContainsString( 'COUNT(DISTINCT `slug_meta`.`meta_value`)', $queries[ 0 ] );
+		$this->assertStringContainsString( 'COUNT(DISTINCT `ri`.`asset_key`)', $queries[ 0 ] );
+		$this->assertStringContainsString( "`ri`.`asset_type`='plugin'", $queries[ 0 ] );
 	}
 
 	public function test_count_distinct_vulnerable_assets_uses_db_side_distinct_item_count() :void {
@@ -55,7 +56,7 @@ class CountsQueryTest extends BaseUnitTest {
 		$this->assertSame( 3, $count );
 		$this->assertCount( 1, $queries );
 		$this->assertStringContainsString( 'COUNT(DISTINCT `ri`.`item_id`)', $queries[ 0 ] );
-		$this->assertStringContainsString( "`sr`.`scan_ref`=202", $queries[ 0 ] );
+		$this->assertStringContainsString( "`ri`.`scan`='wpv'", $queries[ 0 ] );
 		$this->assertStringContainsString( "`rim`.`meta_key`='is_vulnerable'", $queries[ 0 ] );
 		$this->assertStringNotContainsString( 'SELECT DISTINCT', $queries[ 0 ] );
 	}
@@ -70,8 +71,8 @@ class CountsQueryTest extends BaseUnitTest {
 		$this->assertCount( 1, $queries );
 		$this->assertStringContainsString( 'SELECT COUNT(*) FROM (', $queries[ 0 ] );
 		$this->assertStringContainsString( 'UNION', $queries[ 0 ] );
-		$this->assertStringContainsString( "`sr`.`scan_ref`=202", $queries[ 0 ] );
-		$this->assertStringContainsString( "`sr`.`scan_ref`=303", $queries[ 0 ] );
+		$this->assertStringContainsString( "`ri`.`scan`='wpv'", $queries[ 0 ] );
+		$this->assertStringContainsString( "`ri`.`scan`='apc'", $queries[ 0 ] );
 		$this->assertStringContainsString( "`rim`.`meta_key`='is_vulnerable'", $queries[ 0 ] );
 		$this->assertStringContainsString( "`rim`.`meta_key`='is_abandoned'", $queries[ 0 ] );
 	}

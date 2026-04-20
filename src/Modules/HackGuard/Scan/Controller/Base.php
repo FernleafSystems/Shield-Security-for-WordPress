@@ -142,6 +142,13 @@ abstract class Base {
 		return $this->scanActionVO ??= ScanActionFromSlug::GetAction( $this->getSlug() );
 	}
 
+	/**
+	 * @return Scans\Afs\ScanActionVO|Scans\Apc\ScanActionVO|BaseScanActionVO|Scans\Wpv\ScanActionVO
+	 */
+	public function newScanActionVO() {
+		return ScanActionFromSlug::GetAction( $this->getSlug() );
+	}
+
 	public function getScanName() :string {
 		return $this->getStrings()[ 'name' ];
 	}
@@ -245,7 +252,7 @@ abstract class Base {
 	/**
 	 * @return BaseScanActionVO|mixed
 	 */
-	abstract public function buildScanAction();
+	abstract public function buildScanAction( ?BaseScanActionVO $scanAction = null );
 
 	abstract public function buildScanResult( array $rawResult ) :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record;
 }

@@ -17,8 +17,7 @@ class CleanQueue {
 
 	protected function run() {
 		$this->resetStaleScanItems();
-		$this->deleteStaleScans();
-		$this->deleteStaleResultItems();
+		$this->failStaleScans();
 	}
 
 	private function resetStaleScanItems() {
@@ -30,66 +29,65 @@ class CleanQueue {
 		);
 	}
 
-	private function deleteStaleScans() {
-		$this->deleteStaleScansForTime();
-		$this->deleteScansWithNoScanItems();
-	}
-
-	private function deleteStaleResultItems() {
-		$resultItemIds = self::con()
-			->db_con
-			->scan_results
-			->getQuerySelector()
-			->getDistinctForColumn( 'resultitem_ref' );
-		if ( !empty( $resultItemIds ) ) {
-			// 1. Get IDs for all scan items
-			Services::WpDb()->doSql(
-				sprintf( "DELETE FROM `%s` WHERE `id` NOT IN (%s)",
-					self::con()->db_con->scan_result_items->getTable(),
-					\implode( ',', $resultItemIds )
-				)
-			);
-		}
+	private function failStaleScans() {
+		$this->failStaleScansForTime();
+		$this->failScansWithNoScanItems();
 	}
 
 	/**
 	 * Stale: Scan has been ready for 20 minutes
 	 */
-	private function deleteStaleScansForTime() {
-		/** @var ScansDB\Delete $deleter */
-		$deleter = self::con()->db_con->scans->getQueryDeleter();
+	private function failStaleScansForTime() {
+		$selector = self::con()->db_con->scans->getQuerySelector();
+		$scanIDs = [];
 
-		// Scan created but hasn't been set to ready within 10 minutes.
-		$deleter->filterByNotReady()
+		foreach ( [
+			$selector->reset()
+				->filterByStatus( 'queued' )
 				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 5 )->timestamp )
-				->query();
-
-		// Scan set to ready for longer than 9 minutes but never finished.
-		$deleter->reset()
+				->getDistinctForColumn( 'id' ),
+			$selector->reset()
+				->filterByStatus( 'building' )
 				->filterByNotFinished()
-				->filterByReady()
 				->addWhereOlderThan(
 					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
-					'ready_at'
-				)->query();
+					'last_process_at'
+				)->getDistinctForColumn( 'id' ),
+			$selector->reset()
+				->filterByNotFinished()
+				->filterByStatus( 'running' )
+				->addWhereOlderThan(
+					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
+					'last_process_at'
+				)->getDistinctForColumn( 'id' ),
+		] as $matchingIDs ) {
+			$scanIDs = \array_merge( $scanIDs, \is_array( $matchingIDs ) ? $matchingIDs : [] );
+		}
+
+		$runState = new RunState();
+		foreach ( \array_unique( \array_map( '\intval', $scanIDs ) ) as $scanID ) {
+			if ( $scanID > 0 ) {
+				$runState->markFailed( $scanID );
+			}
+		}
 	}
 
 	/**
 	 * Scan set to ready but no scan items available.
 	 */
-	private function deleteScansWithNoScanItems() {
+	private function failScansWithNoScanItems() {
 		$dbCon = self::con()->db_con;
 		/** @var ScansDB\Select $selector */
 		$selector = $dbCon->scans->getQuerySelector();
 		/** @var ScansDB\Record[] $scans */
-		$scans = $selector->filterByReady()
+		$scans = $selector->filterByStatus( 'running' )
 						  ->filterByNotFinished()
 						  ->queryWithResult();
 		foreach ( $scans as $scan ) {
 			/** @var ScanItemsDB\Select $selectorSI */
 			$selectorSI = $dbCon->scan_items->getQuerySelector();
 			if ( $selectorSI->filterByScan( $scan->id )->count() === 0 ) {
-				$dbCon->scans->getQueryDeleter()->deleteById( $scan->id );
+				( new RunState() )->markFailed( (int)$scan->id );
 			}
 		}
 	}

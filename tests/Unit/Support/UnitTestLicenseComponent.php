@@ -13,4 +13,11 @@ class UnitTestLicenseComponent {
 	public function hasValidWorkingLicense() :bool {
 		return $this->isPremium;
 	}
+
+	public function getLicense() :object {
+		return (object)[
+			'capabilities' => [],
+			'lic_version'  => 0,
+		];
+	}
 }

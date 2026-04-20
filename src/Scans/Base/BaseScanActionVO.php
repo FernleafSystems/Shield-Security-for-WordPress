@@ -6,6 +6,8 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
 
 /**
  * @property string   $scan
+ * @property string   $scope_type
+ * @property string   $scope_key
  * @property int      $created_at
  * @property int      $finished_at
  * @property int      $site_assets
