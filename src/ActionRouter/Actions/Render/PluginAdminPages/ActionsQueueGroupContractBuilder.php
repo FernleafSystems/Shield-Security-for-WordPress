@@ -16,7 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type OperatorChromeDisplayOptionsInput from OperatorChromeContract
  * @phpstan-type GroupSeed array{
  *   key:string,
- *   is_healthy:bool,
  *   definition_key:string,
  *   label:string,
  *   item_count:int,
@@ -90,13 +89,12 @@ class ActionsQueueGroupContractBuilder {
 	 * @return ResolvedGroups
 	 */
 	public function buildResolvedGroups( string $bucketLabel, array $resolvedSeeds ) :array {
-		$this->sortSeeds( $resolvedSeeds );
 		$partitionedGroups = $this->partitionResolvedGroups( $bucketLabel, $resolvedSeeds );
 
 		return [
 			'groups_indexed'   => $partitionedGroups[ 'groups_indexed' ],
-			'active_sections'  => $this->buildSectionsFromEntries( $partitionedGroups[ 'active_entries' ] ),
-			'healthy_sections' => $this->buildSectionsFromEntries( $partitionedGroups[ 'healthy_entries' ] ),
+			'active_sections'  => $this->buildActiveSections( $partitionedGroups[ 'active_entries' ] ),
+			'healthy_sections' => $this->buildHealthySections( $partitionedGroups[ 'healthy_entries' ] ),
 		];
 	}
 
@@ -229,48 +227,6 @@ class ActionsQueueGroupContractBuilder {
 
 	/**
 	 * @param list<GroupSeed> $resolvedSeeds
-	 */
-	private function sortSeeds( array &$resolvedSeeds ) :void {
-		\usort( $resolvedSeeds, function ( array $left, array $right ) :int {
-			$healthCmp = $this->healthOrderForSeed( $left ) <=> $this->healthOrderForSeed( $right );
-			if ( $healthCmp !== 0 ) {
-				return $healthCmp;
-			}
-
-			$sectionCmp = $this->sectionOrderForSeed( $left ) <=> $this->sectionOrderForSeed( $right );
-			if ( $sectionCmp !== 0 ) {
-				return $sectionCmp;
-			}
-
-			$orderCmp = $this->definitionOrderForSeed( $left ) <=> $this->definitionOrderForSeed( $right );
-			if ( $orderCmp !== 0 ) {
-				return $orderCmp;
-			}
-
-			$sectionKeyCmp = \strcmp(
-				$this->groupDefinitions->sectionKeyForGroupKey( $left[ 'definition_key' ] ),
-				$this->groupDefinitions->sectionKeyForGroupKey( $right[ 'definition_key' ] )
-			);
-			if ( $sectionKeyCmp !== 0 ) {
-				return $sectionKeyCmp;
-			}
-
-			$statusCmp = StatusPriority::rank( $right[ 'status' ] ) <=> StatusPriority::rank( $left[ 'status' ] );
-			if ( $statusCmp !== 0 ) {
-				return $statusCmp;
-			}
-
-			$countCmp = $right[ 'item_count' ] <=> $left[ 'item_count' ];
-			if ( $countCmp !== 0 ) {
-				return $countCmp;
-			}
-
-			return \strcmp( $left[ 'label' ], $right[ 'label' ] );
-		} );
-	}
-
-	/**
-	 * @param list<GroupSeed> $resolvedSeeds
 	 * @return array{
 	 *   groups_indexed:array<string,GroupData>,
 	 *   active_entries:list<GroupSectionEntry>,
@@ -290,11 +246,11 @@ class ActionsQueueGroupContractBuilder {
 				'heading_label' => $this->groupDefinitions->sectionLabelForGroupKey( $seed[ 'definition_key' ] ),
 				'group'         => $group,
 			];
-			if ( $seed[ 'is_healthy' ] ) {
-				$healthyEntries[] = $entry;
+			if ( $this->isActiveStatus( $group[ 'status' ] ) ) {
+				$activeEntries[] = $entry;
 			}
 			else {
-				$activeEntries[] = $entry;
+				$healthyEntries[] = $entry;
 			}
 		}
 
@@ -483,55 +439,144 @@ class ActionsQueueGroupContractBuilder {
 		return $count;
 	}
 
-	/**
-	 * @phpstan-param GroupSeed $seed
-	 */
-	private function definitionOrderForSeed( array $seed ) :int {
-		return $this->groupDefinitions->sortOrderForGroupKey( $seed[ 'definition_key' ] );
-	}
+	private function buildActiveSections( array $entries ) :array {
+		$sections = $this->buildSectionsMap( $entries );
+		\usort( $sections, fn( array $left, array $right ) :int => $this->compareActiveSections( $left, $right ) );
 
-	/**
-	 * @phpstan-param GroupSeed $seed
-	 */
-	private function healthOrderForSeed( array $seed ) :int {
-		return $seed[ 'is_healthy' ] ? 1 : 0;
-	}
-
-	/**
-	 * @phpstan-param GroupSeed $seed
-	 */
-	private function sectionOrderForSeed( array $seed ) :int {
-		return $this->groupDefinitions->sectionOrderForGroupKey( $seed[ 'definition_key' ] );
+		return \array_values( \array_map( function ( array $section ) :array {
+			\usort( $section[ 'groups' ], fn( array $left, array $right ) :int => $this->compareGroups( $left, $right, false ) );
+			return [
+				'heading_label' => $section[ 'heading_label' ],
+				'groups'        => $section[ 'groups' ],
+			];
+		}, $sections ) );
 	}
 
 	/**
 	 * @param list<GroupSectionEntry> $entries
 	 * @return list<GroupSectionData>
 	 */
-	private function buildSectionsFromEntries( array $entries ) :array {
+	private function buildHealthySections( array $entries ) :array {
+		\usort( $entries, fn( array $left, array $right ) :int => $this->compareHealthyEntries( $left, $right ) );
+		$sections = $this->buildSectionsMap( $entries );
+
+		return \array_values( \array_map( function ( array $section ) :array {
+			return [
+				'heading_label' => $section[ 'heading_label' ],
+				'groups'        => $section[ 'groups' ],
+			];
+		}, $sections ) );
+	}
+
+	/**
+	 * @param list<GroupSectionEntry> $entries
+	 * @return list<array{
+	 *   section_key:string,
+	 *   heading_label:string,
+	 *   groups:list<GroupData>
+	 * }>
+	 */
+	private function buildSectionsMap( array $entries ) :array {
 		$sections = [];
 		foreach ( $entries as $entry ) {
 			$sectionKey = $entry[ 'section_key' ];
-			$headingLabel = $entry[ 'heading_label' ];
-			$shouldStartNew = empty( $sections )
-				|| $sections[ \array_key_last( $sections ) ][ 'section_key' ] !== $sectionKey;
-			if ( $shouldStartNew ) {
-				$sections[] = [
+			if ( !isset( $sections[ $sectionKey ] ) ) {
+				$sections[ $sectionKey ] = [
 					'section_key'    => $sectionKey,
-					'heading_label' => $headingLabel,
+					'heading_label'  => $entry[ 'heading_label' ],
 					'groups'        => [],
 				];
 			}
-			$sections[ \array_key_last( $sections ) ][ 'groups' ][] = $entry[ 'group' ];
+			$sections[ $sectionKey ][ 'groups' ][] = $entry[ 'group' ];
 		}
 
-		return \array_values( \array_map(
-			static fn( array $section ) :array => [
-				'heading_label' => $section[ 'heading_label' ],
-				'groups'        => $section[ 'groups' ],
-			],
-			$sections
-		) );
+		return \array_values( $sections );
+	}
+
+	/**
+	 * @param array{section_key:string,heading_label:string,groups:list<GroupData>} $left
+	 * @param array{section_key:string,heading_label:string,groups:list<GroupData>} $right
+	 */
+	private function compareActiveSections( array $left, array $right ) :int {
+		$sectionCmp = $this->sectionOrderForSectionKey( $left[ 'section_key' ] ) <=> $this->sectionOrderForSectionKey( $right[ 'section_key' ] );
+		if ( $sectionCmp !== 0 ) {
+			return $sectionCmp;
+		}
+
+		return \strcmp( $left[ 'heading_label' ], $right[ 'heading_label' ] );
+	}
+
+	/**
+	 * @phpstan-param GroupSectionEntry $left
+	 * @phpstan-param GroupSectionEntry $right
+	 */
+	private function compareHealthyEntries( array $left, array $right ) :int {
+		$healthyCmp = $this->healthyGroupOrder( $left[ 'group' ][ 'status' ] ) <=> $this->healthyGroupOrder( $right[ 'group' ][ 'status' ] );
+		if ( $healthyCmp !== 0 ) {
+			return $healthyCmp;
+		}
+
+		$sectionCmp = $this->sectionOrderForSectionKey( $left[ 'section_key' ] ) <=> $this->sectionOrderForSectionKey( $right[ 'section_key' ] );
+		if ( $sectionCmp !== 0 ) {
+			return $sectionCmp;
+		}
+
+		if ( $left[ 'section_key' ] !== $right[ 'section_key' ] ) {
+			return \strcmp( $left[ 'heading_label' ], $right[ 'heading_label' ] );
+		}
+
+		return $this->compareGroups( $left[ 'group' ], $right[ 'group' ], true );
+	}
+
+	/**
+	 * @phpstan-param GroupData $left
+	 * @phpstan-param GroupData $right
+	 */
+	private function compareGroups( array $left, array $right, bool $healthy ) :int {
+		if ( $healthy ) {
+			$healthyCmp = $this->healthyGroupOrder( $left[ 'status' ] ) <=> $this->healthyGroupOrder( $right[ 'status' ] );
+			if ( $healthyCmp !== 0 ) {
+				return $healthyCmp;
+			}
+		}
+		else {
+			$activeCmp = $this->activeGroupOrder( $left[ 'status' ] ) <=> $this->activeGroupOrder( $right[ 'status' ] );
+			if ( $activeCmp !== 0 ) {
+				return $activeCmp;
+			}
+		}
+
+		$orderCmp = $this->groupDefinitions->sortOrderForGroupKey( $left[ 'key' ] ) <=> $this->groupDefinitions->sortOrderForGroupKey( $right[ 'key' ] );
+		if ( $orderCmp !== 0 ) {
+			return $orderCmp;
+		}
+
+		$countCmp = $right[ 'item_count' ] <=> $left[ 'item_count' ];
+		if ( $countCmp !== 0 ) {
+			return $countCmp;
+		}
+
+		return \strcmp( $left[ 'label' ], $right[ 'label' ] );
+	}
+
+	private function sectionOrderForSectionKey( string $sectionKey ) :int {
+		if ( $sectionKey === '' ) {
+			return 999;
+		}
+
+		return $this->groupDefinitions->sectionOrderForGroupKey( $sectionKey );
+	}
+
+	private function isActiveStatus( string $status ) :bool {
+		return \in_array( StatusPriority::normalize( $status, 'info' ), [ 'critical', 'warning' ], true );
+	}
+
+	private function healthyGroupOrder( string $status ) :int {
+		return StatusPriority::normalize( $status, 'info' ) === 'good' ? 0 : 1;
+	}
+
+	private function activeGroupOrder( string $status ) :int {
+		return StatusPriority::normalize( $status, 'warning' ) === 'critical' ? 0 : 1;
 	}
 
 	/**

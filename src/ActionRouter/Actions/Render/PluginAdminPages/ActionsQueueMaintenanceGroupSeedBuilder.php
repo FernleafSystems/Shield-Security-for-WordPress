@@ -46,7 +46,6 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 		return [
 			'key'                 => $maintenanceItem[ 'key' ],
-			'is_healthy'          => $isHealthy,
 			'definition_key'      => 'maintenance',
 			'label'               => $maintenanceItem[ 'label' ],
 			'item_count'          => $isHealthy
@@ -77,7 +76,6 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 		return [
 			'key'              => $groupKey,
-			'is_healthy'       => $isHealthy,
 			'definition_key'   => $groupKey,
 			'label'            => $definition[ 'label' ],
 			'item_count'       => $itemCount,

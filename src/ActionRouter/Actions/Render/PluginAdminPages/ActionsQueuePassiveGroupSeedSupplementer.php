@@ -91,7 +91,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 
 			$seeds[] = [
 				'key'                     => $definitionKey,
-				'is_healthy'              => false,
 				'definition_key'          => $definitionKey,
 				'label'                   => $definition[ 'label' ],
 				'item_count'              => 0,
@@ -159,7 +158,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seeds[] = [
 				'key'                         => $definitionKey,
-				'is_healthy'                  => true,
 				'definition_key'              => $definitionKey,
 				'label'                       => $definition[ 'label' ],
 				'item_count'                  => $interaction[ 'item_count_override' ] ?? \count( $rows ),

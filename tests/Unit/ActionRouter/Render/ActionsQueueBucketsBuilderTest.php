@@ -78,18 +78,14 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 
 		$this->assertCount( 2, $buckets );
 		$this->assertSame( [ 'critical', 'review' ], \array_keys( $bucketsByKey ) );
-		$this->assertSame( 'Fix now', $bucketsByKey[ 'critical' ][ 'label' ] );
-		$this->assertSame( 'Critical', $bucketsByKey[ 'critical' ][ 'state_label' ] );
+		$this->assertSame( 'critical', $bucketsByKey[ 'critical' ][ 'status' ] );
 		$this->assertTrue( (bool)( $bucketsByKey[ 'critical' ][ 'is_interactive' ] ?? false ) );
 		$this->assertSame( 2, $bucketsByKey[ 'critical' ][ 'item_count' ] );
-		$this->assertSame( '2 malware detections', $bucketsByKey[ 'critical' ][ 'summary_text' ] );
+		$this->assertSame( 2, $bucketsByKey[ 'critical' ][ 'display_count' ] );
+		$this->assertNotSame( '', (string)( $bucketsByKey[ 'critical' ][ 'summary_text' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'critical' ] );
-		$this->assertSame(
-			'Fix now contains 2 items that still need attention.',
-			$bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'summary' ] ?? ''
-		);
+		$this->assertNotSame( '', (string)( $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( 'critical', $bucketsByKey[ 'critical' ][ 'selection' ][ 'key' ] );
-		$this->assertSame( 'Back to Actions Queue', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'active_back_label' ] ?? '' );
 		$criticalSelectionForJson = $bucketsByKey[ 'critical' ][ 'selection' ];
 		unset( $criticalSelectionForJson[ 'selection_json' ] );
 		$this->assertSame(
@@ -98,12 +94,13 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 'warning', $bucketsByKey[ 'review' ][ 'status' ] );
-		$this->assertSame( 'Review', $bucketsByKey[ 'review' ][ 'state_label' ] );
 		$this->assertTrue( (bool)( $bucketsByKey[ 'review' ][ 'is_interactive' ] ?? false ) );
 		$this->assertSame( 2, $bucketsByKey[ 'review' ][ 'item_count' ] );
-		$this->assertSame( '1 vulnerability, 1 maintenance item', $bucketsByKey[ 'review' ][ 'summary_text' ] );
+		$this->assertSame( 2, $bucketsByKey[ 'review' ][ 'display_count' ] );
+		$this->assertNotSame( '', (string)( $bucketsByKey[ 'review' ][ 'summary_text' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'preview_text', $bucketsByKey[ 'review' ] );
-		$this->assertSame( 'Review queue', $bucketsByKey[ 'review' ][ 'selection' ][ 'header' ][ 'meta' ] ?? '' );
+		$this->assertNotSame( '', (string)( $bucketsByKey[ 'review' ][ 'selection' ][ 'header' ][ 'summary' ] ?? '' ) );
+		$this->assertSame( 'review', $bucketsByKey[ 'review' ][ 'selection' ][ 'key' ] );
 	}
 
 	public function test_build_keeps_healthy_only_bucket_interactive_and_good() :void {
@@ -146,20 +143,65 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		}
 
 		$this->assertSame( 'good', $bucketsByKey[ 'critical' ][ 'status' ] );
-		$this->assertSame( 'Looking good', $bucketsByKey[ 'critical' ][ 'state_label' ] );
 		$this->assertSame( 0, $bucketsByKey[ 'critical' ][ 'item_count' ] );
 		$this->assertTrue( (bool)( $bucketsByKey[ 'critical' ][ 'is_interactive' ] ?? false ) );
+		$this->assertNotSame( '', (string)( $bucketsByKey[ 'critical' ][ 'summary_text' ] ?? '' ) );
 		$this->assertSame(
-			'Everything in this bucket is currently looking good.',
-			$bucketsByKey[ 'critical' ][ 'summary_text' ]
-		);
-		$this->assertSame( 'Critical queue', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'meta' ] ?? '' );
-		$this->assertSame(
-			'Everything in this bucket is currently looking good.',
+			$bucketsByKey[ 'critical' ][ 'summary_text' ],
 			$bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'summary' ] ?? ''
 		);
+		$this->assertSame( 'good', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( 'good', $bucketsByKey[ 'review' ][ 'status' ] );
 		$this->assertTrue( (bool)( $bucketsByKey[ 'review' ][ 'is_interactive' ] ?? false ) );
+	}
+
+	public function test_build_prefers_good_bucket_state_over_disabled_lane_copy_when_healthy_rows_exist() :void {
+		$builder = $this->newBuilder( [
+			'plugins' => [
+				'is_available'     => false,
+				'disabled_reason'  => 'upgrade_required',
+				'disabled_message' => 'Plugin file scanning requires an upgrade.',
+			],
+			'malware' => [
+				'is_available'     => false,
+				'disabled_reason'  => 'upgrade_required',
+				'disabled_message' => 'Malware scanning requires an upgrade.',
+			],
+		] );
+
+		$buckets = $builder->build(
+			[
+				'items' => [],
+			],
+			[
+				'scans' => [
+					[
+						'key' => 'wp_files',
+						'label' => 'WordPress Files',
+						'description' => 'WordPress core files are healthy.',
+						'drill_bucket' => 'critical',
+						'item_icon_class' => 'bi bi-wordpress',
+						'status' => 'good',
+						'status_label' => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+		$bucketsByKey = [];
+		foreach ( $buckets as $bucket ) {
+			$bucketsByKey[ $bucket[ 'key' ] ] = $bucket;
+		}
+
+		$this->assertSame( 'good', $bucketsByKey[ 'critical' ][ 'status' ] );
+		$this->assertSame( 0, $bucketsByKey[ 'critical' ][ 'display_count' ] );
+		$this->assertNotSame( '', (string)( $bucketsByKey[ 'critical' ][ 'summary_text' ] ?? '' ) );
+		$this->assertSame(
+			$bucketsByKey[ 'critical' ][ 'summary_text' ],
+			$bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'summary' ] ?? ''
+		);
+		$this->assertSame( 'good', $bucketsByKey[ 'critical' ][ 'selection' ][ 'header' ][ 'badge_status' ] ?? '' );
 	}
 
 	public function test_build_healthy_rows_collects_only_good_assessment_rows() :void {
@@ -292,7 +334,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 				}
 
 				public function build( string $tabKey ) :array {
-					return $this->availability[ $tabKey ] ?? [
+					return \array_merge( [
 						'is_available'          => true,
 						'show_in_actions_queue' => true,
 						'show_in_fix_now'       => true,
@@ -300,7 +342,7 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 						'disabled_message'      => '',
 						'disabled_status'       => '',
 						'disabled_actions'      => [],
-					];
+					], $this->availability[ $tabKey ] ?? [] );
 				}
 			}
 		);

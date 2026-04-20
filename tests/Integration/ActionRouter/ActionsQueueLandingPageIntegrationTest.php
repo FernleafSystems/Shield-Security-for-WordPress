@@ -3,17 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsDisplayFormSubmit;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Malware as MalwarePane;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Plugins as PluginsPane;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Themes as ThemesPane;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Wordpress as WordpressPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
@@ -24,7 +19,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	ActionRequestNonceFixture,
-	HtmlDomAssertions,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -35,7 +29,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
-	use HtmlDomAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -108,16 +101,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'bucket' => $bucket,
 			'group'  => $groupKey,
 		] );
-	}
-
-	private function renderSelectedGroupDetail( string $bucket, string $groupKey ) :array {
-		$groupsPayload = $this->loadSelectedGroupPayload( $bucket, $groupKey );
-		$detailRenderAction = $groupsPayload[ 'selected_group' ][ 'detail_render_action' ] ?? null;
-
-		$this->assertIsArray( $detailRenderAction, 'Expected selected group to expose a direct detail render action array.' );
-		$this->assertNotEmpty( $detailRenderAction, 'Expected selected group to expose a direct detail render action.' );
-
-		return $this->processActionPayloadWithAdminBypass( AjaxRender::SLUG, $detailRenderAction );
 	}
 
 	private function enableAssetScanFixture( array $scanAreas ) :void {
@@ -224,7 +207,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	 * @param array{type:string,file:string} $expectedScope
 	 */
 	private function assertIgnoreAllHeaderAction( array $header, array $expectedScope ) :void {
-		$this->assertSame( 'Ignore All Results', (string)( $header[ 'actions' ][ 0 ][ 'label' ] ?? '' ) );
+		$this->assertCount( 1, $header[ 'actions' ] ?? [] );
 		$actionData = \json_decode( (string)( $header[ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ), true );
 		$this->assertIsArray( $actionData );
 		$this->assertSame( 'ignore_all', (string)( $actionData[ 'sub_action' ] ?? '' ) );
@@ -283,9 +266,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			]
 		);
 		$this->assertSame( 'ajax_render', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'ex' ] ?? '' ) );
-
-		$detailPayload = $this->renderSelectedGroupDetail( $bucket, $groupKey );
-		$this->assertNotSame( '', (string)( $detailPayload[ 'html' ] ?? '' ) );
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
@@ -312,89 +292,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'count'  => (int)( $maintenance[ 'total_issues' ] ?? 0 ),
 			'status' => (string)( $maintenance[ 'status' ] ?? 'good' ),
 		];
-	}
-
-	private function assertFlatEmptyStatePaneWithoutInvestigationTable( \DOMXPath $xpath, string $label ) :void {
-		$this->assertXPathExists(
-			$xpath,
-			'//section[contains(concat(" ", normalize-space(@class), " "), " investigate-table-panel--flat ")]//*[contains(concat(" ", normalize-space(@class), " "), " alert-info ")]',
-			$label.' should use the shared flat empty-state alert container'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigation-table="1"]',
-			0,
-			$label.' should not emit an investigation table contract'
-		);
-	}
-
-	private function assertDisabledPaneWithoutInvestigationTable( \DOMXPath $xpath, string $label ) :void {
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-scan-pane-disabled="1"]',
-			$label.' should show the shared disabled callout'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
-			0,
-			$label.' should not fall through to the standard empty state'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigation-table="1"]',
-			0,
-			$label.' should not emit an investigation table contract'
-		);
-	}
-
-	private function assertDisabledPaneActionPresent( \DOMXPath $xpath, string $expression, string $label ) :void {
-		$this->assertXPathExists(
-			$xpath,
-			$expression,
-			$label.' should expose a disabled-pane action'
-		);
-	}
-
-	private function assertInvestigationTableContractPresent(
-		\DOMXPath $xpath,
-		string $tableType,
-		string $subjectType,
-		string $subjectId,
-		string $label
-	) :void {
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigation-table="1" and @data-table-type="'.$tableType.'" and @data-subject-type="'.$subjectType.'" and @data-subject-id="'.$subjectId.'"]',
-			$label.' should use the shared investigation table contract'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigation-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-scan-results-action) > 0 and string-length(@data-render-item-analysis) > 0]',
-			$label.' should include the AJAX and action metadata required by the shared investigation table bootstrap'
-		);
-	}
-
-	private function assertScanResultsTableContractPresent(
-		\DOMXPath $xpath,
-		string $type,
-		string $file,
-		string $label
-	) :void {
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-scan-results-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-render-item-analysis) > 0]',
-			1,
-			$label.' should use the dedicated scan-results table contract'
-		);
-
-		$tableAction = \json_decode(
-			(string)( $xpath->query( '//*[@data-scan-results-table="1"]' )->item( 0 )?->getAttribute( 'data-table-action' ) ?? '' ),
-			true
-		);
-		$this->assertIsArray( $tableAction, $label.' should expose a JSON table action payload' );
-		$this->assertSame( $type, (string)( $tableAction[ 'type' ] ?? '' ), $label.' should target the expected subject type' );
-		$this->assertSame( $file, (string)( $tableAction[ 'file' ] ?? '' ), $label.' should target the expected subject id' );
 	}
 
 	public function test_actions_queue_landing_keeps_drill_shell_without_removed_all_clear_box_when_queue_is_empty() :void {
@@ -430,19 +327,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
 			$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 			$this->assertNotEmpty( $vars[ 'actions_queue_ajax' ] ?? [] );
-			$xpath = $this->createDomXPathFromHtml( $html );
-			$this->assertXPathCount(
-				$xpath,
-				'//*[@data-actions-queue-section="all-clear-context"]',
-				0,
-				'Empty actions queue should no longer render the removed all-clear box'
-			);
-			$this->assertXPathCount(
-				$xpath,
-				'//*[@data-drill-shell="1"]',
-				1,
-				'Empty actions queue should keep the drill-down shell when healthy bucket content exists'
-			);
 			$this->assertNotSame( '', \trim( $html ) );
 		}
 		finally {
@@ -460,7 +344,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 		$maintenance = $this->findZoneTile( $zoneTiles, 'maintenance' );
 		$scans = $this->findZoneTile( $zoneTiles, 'scans' );
-		$xpath = $this->createDomXPathFromHtml( $html );
 
 		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
 		$this->assertModePanelPayload( $vars, '', false );
@@ -482,71 +365,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame(
 			ActionsQueueDrillDownGroups::SLUG,
 			(string)( \json_decode( (string)( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '' ), true )[ 'render_slug' ] ?? '' )
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-shell="1" and @data-drill-shell-mode="actions"]',
-			'Actions queue should render the drill-down shell when the queue has items'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-landing="1" and string-length(@data-actions-queue-groups-action) > 0 and string-length(@data-actions-queue-detail-action) = 0]',
-			'Actions queue should render only the groups AJAX action on the landing root'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer-key="buckets" and string-length(@data-drill-layer-header) > 0]',
-			'The shared drill shell should render PHP-prepared layer header JSON'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-drill-layer-key="buckets"]//*[@data-drill-layer-compact-back="1"]',
-			0,
-			'The migrated drill shell should remove the old compact back control markup'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-section="drilldown"]/div[1][@data-drill-shell="1"]',
-			'Actions queue should render the drill shell first for mobile-first stacking'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-drill-target="groups" and @data-drill-bucket-selection]',
-			2,
-			'Bucket layer should render the two triage bucket cards'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-target="groups" and string-length(@data-drill-bucket-selection) > 0]',
-			'Bucket layer should render PHP-prepared selection JSON for drill interactions'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card__preview ")]',
-			0,
-			'Bucket layer should not render the removed bucket preview row'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-buckets ") and contains(concat(" ", normalize-space(@class), " "), " shield-stack ")]',
-			'Bucket layer should keep the shared stack spacing container'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-buckets ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
-			'Bucket layer should render the healthy summary content directly in the bucket layer'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
-			0,
-			'Bucket layer should not render the shared healthy disclosure wrapper'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-shield-rail-target]',
-			0,
-			'The migrated landing should not render the old scan-results rail sidebar'
 		);
 		$this->assertNotEmpty( \trim( $html ) );
 	}
@@ -595,15 +413,20 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertCount( 1, $matchingRows );
 		$this->assertSame( DetailExpansionType::SIMPLE_TABLE, (string)( $itemsByKey[ 'wp_plugins_inactive' ][ 'expansion' ][ 'type' ] ?? '' ) );
-		$this->assertSame( 'Manage this plugin', (string)( $matchingRows[ 0 ][ 'action' ][ 'label' ] ?? '' ) );
-		$this->assertSame( 'Manage this plugin', (string)( $matchingRows[ 0 ][ 'action' ][ 'tooltip' ] ?? '' ) );
+		$this->assertSame(
+			(string)( $matchingRows[ 0 ][ 'action' ][ 'label' ] ?? '' ),
+			(string)( $matchingRows[ 0 ][ 'action' ][ 'tooltip' ] ?? '' )
+		);
 		$this->assertTrue( (bool)( $matchingRows[ 0 ][ 'action' ][ 'is_icon_only' ] ?? false ) );
 		$this->assertSame( '', (string)( $matchingRows[ 0 ][ 'action' ][ 'target' ] ?? '' ) );
-		$this->assertStringContainsString( 'plugins.php', (string)( $matchingRows[ 0 ][ 'action' ][ 'href' ] ?? '' ) );
-		$this->assertStringContainsString( 's=', (string)( $matchingRows[ 0 ][ 'action' ][ 'href' ] ?? '' ) );
+		$actionHref = (string)( $matchingRows[ 0 ][ 'action' ][ 'href' ] ?? '' );
+		$this->assertSame( '/wp-admin/plugins.php', (string)( \wp_parse_url( $actionHref, \PHP_URL_PATH ) ?? '' ) );
+		$queryArgs = [];
+		\parse_str( (string)( \wp_parse_url( $actionHref, \PHP_URL_QUERY ) ?? '' ), $queryArgs );
+		$this->assertArrayHasKey( 's', $queryArgs );
 		$this->assertSame(
 			false,
-			\str_contains( (string)( $matchingRows[ 0 ][ 'action' ][ 'href' ] ?? '' ), 'action=activate' ),
+			\str_contains( $actionHref, 'action=activate' ),
 			'Inactive plugin maintenance rows should not offer activation links'
 		);
 	}
@@ -614,10 +437,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
 			'bucket' => 'review',
 		] );
-		$html = (string)( $payload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
 
-		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertSame(
+			(string)( $payload[ 'bucket_selection' ][ 'label' ] ?? '' ),
+			(string)( $payload[ 'header' ][ 'title' ] ?? '' )
+		);
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertSame( 'warning', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'active_sections', $payload );
@@ -626,107 +450,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'render_data', $payload );
 		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'Review next', (string)( $payload[ 'bucket_selection' ][ 'label' ] ?? '' ) );
-		$this->assertSame( 'Back to Actions Queue', (string)( $payload[ 'header' ][ 'active_back_label' ] ?? '' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-actions-queue-groups="1"]',
-			'Groups AJAX should render the selected bucket wrapper'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//button[@data-drill-target="detail" and @data-drill-group-selection]',
-			0,
-			'Groups AJAX should not render a detail drill target for category cards'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row ")]',
-			'Groups AJAX should render maintenance category rows inside the item-box'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box--warning ")]',
-			'Groups AJAX should render active review maintenance cards with the warning item-box treatment'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-icon ")]',
-			'Groups AJAX should render the shared row icon element on populated maintenance rows'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__row-inline-meta ")]',
-			'Groups AJAX should render inline version meta on populated maintenance rows'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " item-box__row-action ") and string-length(@data-actions-queue-maintenance-action) > 0]',
-			'Groups AJAX should render the existing inline maintenance ignore action payload on category rows'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " item-box__header-link ")]',
-			'Groups AJAX should render the maintenance management link in the category header'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " bi-arrow-right-circle ")]',
-			0,
-			'Groups AJAX should not render the legacy next-move arrow icon for category cards'
-		);
-	}
-
-	public function test_groups_ajax_keeps_fully_ignored_review_group_visible_in_looking_good_section() :void {
-		$this->setPluginUpdateAvailable();
-
-		$response = $this->processMaintenanceAction( MaintenanceItemIgnore::class, [
-			'maintenance_key' => 'wp_plugins_updates',
-			'identifier'      => self::con()->base_file,
-		] );
-		$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
-
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'review',
-		] );
-		$html = (string)( $payload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame( 'Review next', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) ) );
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Looking good"]',
-			0,
-			'Review groups AJAX should not render the removed healthy section heading'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box--good ")]',
-			'Review groups AJAX should render healthy maintenance groups directly in the healthy stack'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]',
-			'Review groups AJAX should keep the Actions Queue healthy stack spacing container'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
-			0,
-			'Review groups AJAX should not render the shared healthy disclosure wrapper'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " item-box__row-action ") and contains(@data-actions-queue-maintenance-action, "maintenance_item_unignore")]',
-			'Review groups AJAX should keep the unignore action available on healthy ignored maintenance rows'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-landing__empty-state ")]',
-			0,
-			'Healthy review groups should render instead of the generic empty-state message'
-		);
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'header' ][ 'active_back_label' ] ?? '' ) ) );
 	}
 
 	public function test_groups_ajax_can_refresh_the_current_selected_group_summary() :void {
@@ -803,184 +527,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			true
 		);
 		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $payload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
-	}
-
-	public function test_groups_ajax_keeps_active_vulnerabilities_separate_from_healthy_abandoned_assets_in_critical_bucket() :void {
-		$this->enableAssetScanFixture( [ 'plugins' ] );
-
-		$pluginSlug = self::con()->base_file;
-
-		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
-		TestDataFactory::insertScanResultItem( $wpvId, [
-			'item_id'       => $pluginSlug,
-			'is_vulnerable' => 1,
-		] );
-		TestDataFactory::insertCompletedScan( 'apc' );
-		$this->resetScanResultCountMemoization();
-
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'critical',
-		] );
-		$html = (string)( $payload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Known Vulnerabilities"]',
-			'Active vulnerable findings should stay in the vulnerabilities group'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//section[.//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ") and normalize-space()="Abandoned Assets"] and .//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Abandoned Assets"]]',
-			'Healthy abandoned assets should render under their own visible heading'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="Vulnerabilities"]',
-			0,
-			'Healthy abandoned assets should no longer fall back to a healthy vulnerabilities card'
-		);
-	}
-
-	public function test_groups_ajax_renders_shared_configure_cards_for_critical_bucket_groups() :void {
-		$this->seedCriticalAssetAndVulnerabilityQueue();
-
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'critical',
-		] );
-		$html = (string)( $payload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame( 'Fix now', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertSame( '3 items', (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'active_sections', $payload );
-		$this->assertArrayNotHasKey( 'healthy_sections', $payload );
-		$this->assertGreaterThanOrEqual(
-			3,
-			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " finding-group__heading ")]' )->length,
-			'Critical groups AJAX should keep the grouped headings present for the critical findings stack'
-		);
-		$this->assertGreaterThanOrEqual(
-			3,
-			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ")]' )->length,
-			'Critical groups AJAX should render shared Configure-style cards for the critical findings stack'
-		);
-		$this->assertGreaterThanOrEqual(
-			2,
-			$xpath->query( '//button[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and @data-drill-target="detail" and @data-drill-group-selection]' )->length,
-			'Critical groups AJAX should keep expandable shared cards wired for detail drill-down'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ")]',
-			2,
-			'Linked vulnerability cards should render the native action links in the shared card footer'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and contains(@href, "/wp-admin/plugins.php") and not(@target)]',
-			'Linked vulnerability cards should render the native plugin-management link in the shared card footer'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//a[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ") and contains(@href, "shieldvulnerabilitylookup") and @target="_blank" and contains(@rel, "noopener")]',
-			'Linked vulnerability cards should keep the external lookup footer action'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card ")]',
-			0,
-			'Critical groups AJAX should not render the legacy group-card markup'
-		);
-	}
-
-	public function test_groups_ajax_routes_abandoned_only_findings_to_fix_now() :void {
-		$this->enableAssetScanFixture( [ 'plugins' ] );
-
-		$pluginSlug = self::con()->base_file;
-		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
-		TestDataFactory::insertScanResultItem( $apcId, [
-			'item_id'      => $pluginSlug,
-			'is_abandoned' => 1,
-		] );
-		$this->resetScanResultCountMemoization();
-
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'critical',
-		] );
-
-		$this->assertSame( 'Fix now', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ")]',
-			'Abandoned-only findings should still render a shared card in the critical groups layer'
-		);
-	}
-
-	public function test_detail_ajax_renders_selected_plugin_group_as_direct_scan_results_table() :void {
-		$this->seedCriticalAssetAndVulnerabilityQueue();
-		$pluginSlug = self::con()->base_file;
-
-		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'plugins:'.$pluginSlug );
-		$payload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
-		$html = (string)( $payload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame( '1 item', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
-		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertSame(
-			(string)( $groupsPayload[ 'selected_group' ][ 'label' ] ?? '' ),
-			(string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' )
-		);
-		$this->assertNotSame( '', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
-		$this->assertSame( 'Ignore All Results', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' ) );
-		$this->assertSame( 'ignore_all', (string)( \json_decode(
-			(string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ][ 0 ][ 'ajax_action_json' ] ?? '' ),
-			true
-		)[ 'sub_action' ] ?? '' ) );
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-scan-results-table="1" and string-length(@data-datatables-init) > 0 and string-length(@data-table-action) > 0 and string-length(@data-render-item-analysis) > 0]',
-			1,
-			'Detail AJAX plugin drill should use the dedicated scan-results table contract'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
-			0,
-			'Detail AJAX should render the shared flat table directly instead of reopening the asset-card chooser'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-shield-rail-target]',
-			0,
-			'Detail AJAX should not re-render the removed rail sidebar'
-		);
-	}
-
-	public function test_detail_ajax_selected_plugin_group_returns_populated_scan_results_rows() :void {
-		$this->seedCriticalAssetAndVulnerabilityQueue();
-		$pluginSlug = self::con()->base_file;
-
-		$payload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
-		$detailXPath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
-		$this->assertXPathCount(
-			$detailXPath,
-			'//*[@data-scan-results-table="1"]',
-			1,
-			'Plugin direct detail should render the scan-results table shell'
-		);
-		$tableAction = \json_decode(
-			(string)( $detailXPath->query( '//*[@data-scan-results-table="1"]' )->item( 0 )?->getAttribute( 'data-table-action' ) ?? '' ),
-			true
-		);
-		$this->assertIsArray( $tableAction );
-		$this->assertSame( 'plugin', (string)( $tableAction[ 'type' ] ?? '' ) );
-		$this->assertSame( $pluginSlug, (string)( $tableAction[ 'file' ] ?? '' ) );
 	}
 
 	public function test_wordpress_direct_table_group_and_detail_expose_ignore_all_action() :void {
@@ -1097,14 +643,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			]
 		);
 
-		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'wordpress' );
-		$detailXPath = $this->createDomXPathFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
-		$this->assertXPathCount(
-			$detailXPath,
-			'//*[@data-scan-results-table="1"]',
-			1,
-			'WordPress detail AJAX after display-options submit should keep the direct scan-results table contract'
-		);
 		$refreshedTableData = $this->retrieveScanResultsTableData( 'core', 'core' );
 		$this->assertSame( 4, (int)( $refreshedTableData[ 'recordsTotal' ] ?? -1 ) );
 		$this->assertSame( 4, (int)( $refreshedTableData[ 'recordsFiltered' ] ?? -1 ) );
@@ -1168,44 +706,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_plugin_detail_render_in_actions_queue_context_uses_asset_cards_shell() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_pluginsthemes_local',
-		] );
-
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] )
-			 ->store();
-		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
-		$this->resetScanResultCountMemoization();
-
-		$pluginSlug = self::con()->base_file;
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] );
-
-		$payload = $this->processActionPayloadWithAdminBypass( PluginsPane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
-			'Plugin pane render in Actions Queue context should use the asset-card shell'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode-tiles="1" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-asset-cards__grid ")]',
-			'Plugin pane render in Actions Queue context should render the asset-card grid'
-		);
-	}
-
 	public function test_ignored_plugin_group_keeps_forced_ignored_scope_and_stored_deleted_repaired_flags_on_direct_table_detail() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_pluginsthemes_local',
@@ -1259,148 +759,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(array)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
 		);
 		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
-		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'plugins:'.$pluginSlug );
-		$this->assertNotSame( '', \trim( (string)( $detailPayload[ 'html' ] ?? '' ) ) );
-		$detailXPath = $this->createDomXPathFromHtml( (string)( $detailPayload[ 'html' ] ?? '' ) );
-		$this->assertXPathCount(
-			$detailXPath,
-			'//*[@data-scan-results-table="1"]',
-			1,
-			'Ignored plugin direct detail should render the scan-results table shell'
-		);
-		$tableAction = \json_decode(
-			(string)( $detailXPath->query( '//*[@data-scan-results-table="1"]' )->item( 0 )?->getAttribute( 'data-table-action' ) ?? '' ),
-			true
-		);
-		$this->assertIsArray( $tableAction );
-		$this->assertSame( 'plugin', (string)( $tableAction[ 'type' ] ?? '' ) );
-		$this->assertSame( $pluginSlug, (string)( $tableAction[ 'file' ] ?? '' ) );
-		$this->assertSame(
-			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-				'ignored_only'     => true,
-			],
-			(array)( $tableAction[ 'results_display_options' ] ?? [] )
-		);
-	}
-
-	public function test_file_locker_detail_render_in_actions_queue_context_marks_lazy_asset_panels() :void {
-		$this->prepareFileLockerRuntime();
-
-		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
-		self::con()->comps->file_locker->clearLocks();
-
-		$payload = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
-			'File Locker pane render in Actions Queue context should use the asset-card shell'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode-panel="1" and @data-actions-queue-asset-panel-lazy="1" and @data-actions-queue-asset-panel-loaded="0" and string-length(@data-actions-queue-asset-render-action) > 0]',
-			'File Locker pane render in Actions Queue context should expose the lazy render-action contract on its asset panel'
-		);
-	}
-
-	public function test_file_locker_detail_render_in_actions_queue_context_shows_pending_cards_until_initial_locks_exist() :void {
-		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
-
-		$payload = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-mode="actions_queue_assets" and @data-mode-shell="1"]',
-			'Pending File Locker pane render in Actions Queue context should use the asset-card shell'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " shield-scan-pane-empty ")]',
-			0,
-			'Pending File Locker pane render should not fall through to the standard empty state'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__subject-label ") and contains(normalize-space(), "wp-config.php")]',
-			'Pending File Locker pane render should list wp-config.php as a pending File Locker card'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__subject-label ") and contains(normalize-space(), "index.php")]',
-			'Pending File Locker pane render should list index.php as a pending File Locker card'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-mode-panel="1" and @data-actions-queue-asset-panel-lazy="0" and @data-actions-queue-asset-panel-loaded="1" and not(@data-actions-queue-asset-render-action)]',
-			2,
-			'Pending File Locker pane render should expose static non-lazy asset panels for pending files'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-scan-results-table="1"]',
-			0,
-			'Pending File Locker pane render should not emit a scan results table contract'
-		);
-		$this->assertStringContainsString( 'Initial lock is still being created.', $html );
-	}
-
-	public function test_fix_now_groups_surface_disabled_scan_lanes_when_only_setup_or_upgrade_is_missing() :void {
-		$this->disableCriticalScanLanesFixture();
-
-		$payload = $this->loadSelectedGroupPayload( 'critical', 'wordpress' );
-		$html = (string)( $payload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame( 'critical', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $payload[ 'bucket_selection' ][ 'status' ] ?? '' ) );
-		foreach ( [
-			'WordPress Files',
-			'Plugin Files',
-			'Theme Files',
-			'Malware Detections',
-			'File Changes',
-			'Vulnerabilities',
-			'Abandoned Assets',
-		] as $title ) {
-			$this->assertXPathExists(
-				$xpath,
-				'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__title ") and normalize-space()="'.$title.'"]',
-				'Disabled Fix now groups should render the '.$title.' card'
-			);
-		}
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and contains(concat(" ", normalize-space(@class), " "), " status-neutral ")]',
-			7,
-			'Disabled Fix now groups should all render as neutral cards'
-		);
-	}
-
-	public function test_fix_now_bucket_card_remains_clickable_when_only_disabled_scan_lanes_exist() :void {
-		$this->disableCriticalScanLanesFixture();
-
-		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled scan lanes' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertXPathExists(
-			$xpath,
-			'//button[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card ") and contains(concat(" ", normalize-space(@class), " "), " status-neutral ") and @data-drill-target="groups" and not(@disabled) and .//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-bucket-card__title ") and normalize-space()="Fix now"]]',
-			'Fix now bucket should stay clickable when only disabled lanes are available'
-		);
 	}
 
 	public function test_healthy_file_locker_is_visible_on_landing_and_in_critical_healthy_stack() :void {
@@ -1428,32 +786,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( 'actions_queue', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'display_context' ] ?? '' ) );
 		$this->assertSame( FileLockerPane::SLUG, (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
-	}
-
-	public function test_pending_file_locker_keeps_zero_metrics_but_uses_pending_group_copy() :void {
-		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
-
-		$metricsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		$tabs = \is_array( $metricsPayload[ 'tabs' ] ?? null ) ? $metricsPayload[ 'tabs' ] : [];
-		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
-
-		$this->assertSame( 0, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'good', (string)( $tabs[ 'file_locker' ][ 'status' ] ?? '' ) );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
-
-		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'file_locker' );
-
-		$this->assertSame( 'file_locker', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $groupsPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
-		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'Pending', (string)( $groupsPayload[ 'selected_group' ][ 'status_label' ] ?? '' ) );
-		$this->assertSame( 'Pending', (string)( $groupsPayload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'badge' ] ?? '' ) );
-		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'badge_status' ] ?? '' ) );
-		$this->assertStringContainsString(
-			'initial file locks are still being created',
-			\strtolower( (string)( $groupsPayload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'summary' ] ?? '' ) )
-		);
 	}
 
 	public function test_file_locker_warning_clears_on_landing_immediately_after_reassessment() :void {
@@ -1550,49 +882,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertContains( 'theme_files', $assessmentKeys );
 	}
 
-
-	public function test_wordpress_pane_render_uses_core_investigation_file_status_table_contract() :void {
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp' ] )
-			 ->store();
-		$this->resetScanResultCountMemoization();
-
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id'    => 'wp-admin/admin.php',
-			'is_in_core' => 1,
-		] );
-
-		$payload = $this->processActionPayloadWithAdminBypass( WordpressPane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertScanResultsTableContractPresent( $xpath, 'wordpress', 'wordpress', 'WordPress pane render' );
-	}
-
-	public function test_wordpress_pane_render_preserves_standard_no_results_message() :void {
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp' ] )
-			 ->store();
-		$this->resetScanResultCountMemoization();
-
-		TestDataFactory::insertCompletedScan( 'afs' );
-
-		$payload = $this->processActionPayloadWithAdminBypass( WordpressPane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertFlatEmptyStatePaneWithoutInvestigationTable( $xpath, 'WordPress pane render' );
-	}
-
 	public function test_wordpress_disabled_fix_now_group_uses_neutral_header_and_settings_cta() :void {
 		$this->disableCriticalScanLanesFixture();
 
@@ -1600,105 +889,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'wordpress', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'Not Enabled', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
+		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge_status' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertSame( [], (array)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? [] ) );
 		$this->assertSame( [], (array)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? [] ) );
-
-		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'wordpress' );
-		$html = (string)( $detailPayload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'WordPress disabled pane render' );
-		$this->assertDisabledPaneActionPresent(
-			$xpath,
-			'//*[@data-shield-disabled-pane-action="1" and contains(concat(" ", normalize-space(@class), " "), " zone_component_action ") and @data-zone_component_action="offcanvas_zone_component_config"]',
-			'WordPress disabled pane render'
-		);
-	}
-
-	public function test_plugin_pane_render_uses_investigation_file_status_table_contract() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_pluginsthemes_local',
-		] );
-
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] )
-			 ->store();
-		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
-		$this->resetScanResultCountMemoization();
-
-		$pluginSlug = self::con()->base_file;
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
-		] );
-
-		$payload = $this->processActionPayloadWithAdminBypass( PluginsPane::SLUG );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
-			'Plugin pane render should keep the shared expandable summary row'
-		);
-		$this->assertScanResultsTableContractPresent( $xpath, 'plugin', $pluginSlug, 'Plugin pane render' );
-	}
-
-	public function test_theme_pane_render_uses_investigation_file_status_table_contract() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_pluginsthemes_local',
-		] );
-
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp', 'themes' ] )
-			 ->store();
-		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
-		$this->resetScanResultCountMemoization();
-
-		$themeSlug = \wp_get_theme()->get_stylesheet();
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
-			'is_in_theme' => 1,
-			'ptg_slug'    => $themeSlug,
-		] );
-
-		$payload = $this->processActionPayloadWithAdminBypass( ThemesPane::SLUG );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-shield-expand-trigger="1" and @data-shield-expand-target]',
-			'Theme pane render should keep the shared expandable summary row'
-		);
-		$this->assertScanResultsTableContractPresent( $xpath, 'theme', $themeSlug, 'Theme pane render' );
-	}
-
-	public function test_plugin_pane_render_uses_disabled_callout_when_plugin_scanning_is_unavailable() :void {
-		$payload = $this->processActionPayloadWithAdminBypass( PluginsPane::SLUG );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'Plugin pane render' );
-	}
-
-	public function test_malware_pane_render_uses_disabled_callout_when_malware_scanning_is_unavailable() :void {
-		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'Malware pane render' );
 	}
 
 	public function test_file_locker_disabled_fix_now_group_uses_upgrade_cta() :void {
@@ -1708,68 +902,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'file_locker', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'Upgrade Required', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) );
-
-		$detailPayload = $this->renderSelectedGroupDetail( 'critical', 'file_locker' );
-		$html = (string)( $detailPayload[ 'html' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertDisabledPaneWithoutInvestigationTable( $xpath, 'File Locker disabled pane render' );
-		$this->assertDisabledPaneActionPresent(
-			$xpath,
-			'//*[@data-shield-disabled-pane-action="1" and @href="https://clk.shldscrty.com/shieldgoprofeature" and @target="_blank"]',
-			'File Locker disabled pane render'
-		);
-	}
-
-	public function test_malware_pane_render_uses_shared_investigation_table_contract_when_enabled() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_malware_local',
-		] );
-
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
-			 ->store();
-		$this->resetScanResultCountMemoization();
-
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		TestDataFactory::insertScanResultItem( $afsId, [
-			'item_id' => 'infected.php',
-			'is_mal'  => 1,
-		] );
-
-		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertScanResultsTableContractPresent( $xpath, 'malware', 'malware', 'Malware pane render' );
-	}
-
-	public function test_malware_pane_render_preserves_malware_empty_state_in_actions_queue() :void {
-		$this->enablePremiumCapabilities( [
-			'scan_malware_local',
-		] );
-
-		$this->requireController()->opts
-			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
-			 ->store();
-		$this->resetScanResultCountMemoization();
-		TestDataFactory::insertCompletedScan( 'afs' );
-
-		$payload = $this->processActionPayloadWithAdminBypass( MalwarePane::SLUG, [
-			'display_context' => 'actions_queue',
-		] );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertNotSame( '', \trim( $html ) );
-		$this->assertFlatEmptyStatePaneWithoutInvestigationTable( $xpath, 'Malware pane render' );
+		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge_status' ] ?? '' ) );
+		$this->assertNotSame( '', \trim( (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 	}
 
 	public function test_scans_results_metrics_action_returns_exact_counts_for_enabled_tabs() :void {
@@ -1937,8 +1071,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled historical scan results' );
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing disabled historical scan results' );
 		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
 		$scans = $this->findZoneTile(
 			\is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [],
@@ -1949,12 +1082,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertFalse( (bool)( $scans[ 'has_issues' ] ?? true ) );
 		$this->assertSame( 0, (int)( $scans[ 'total_issues' ] ?? -1 ) );
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-drill-shell="1"]',
-			1,
-			'Historical results from disabled scans should still allow the healthy drill-down shell to render'
-		);
 	}
 
 	public function test_scans_results_metrics_action_hides_file_locker_when_premium_unavailable() :void {

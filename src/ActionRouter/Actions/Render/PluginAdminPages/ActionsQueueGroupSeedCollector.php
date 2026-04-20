@@ -138,7 +138,6 @@ class ActionsQueueGroupSeedCollector {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 			$seeds[ $seedKey ] = [
 				'key'              => $definitionKey,
-				'is_healthy'       => false,
 				'definition_key'   => $definitionKey,
 				'label'            => $definition[ 'label' ],
 				'item_count'       => 0,
@@ -266,7 +265,6 @@ class ActionsQueueGroupSeedCollector {
 		foreach ( $section[ 'items' ] as $vulnerabilityItem ) {
 			$seeds[] = [
 				'key'              => $definitionKey.':'.$vulnerabilityItem[ 'key' ],
-				'is_healthy'       => false,
 				'definition_key'   => $definitionKey,
 				'label'            => $vulnerabilityItem[ 'label' ],
 				'item_count'       => $vulnerabilityItem[ 'count' ],
@@ -301,7 +299,6 @@ class ActionsQueueGroupSeedCollector {
 
 		return [
 			'key'              => $definitionKey.':'.$summary[ 'key' ],
-			'is_healthy'       => false,
 			'definition_key'   => $definitionKey,
 			'label'            => $summary[ 'title' ],
 			'item_count'       => \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) ),
