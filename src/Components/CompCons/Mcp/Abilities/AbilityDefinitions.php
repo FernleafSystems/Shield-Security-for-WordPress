@@ -30,7 +30,7 @@ class AbilityDefinitions {
 			$this->buildReadOnlyAbility(
 				self::NAME_POSTURE_OVERVIEW,
 				__( 'Shield Site Overview', 'wp-simple-firewall' ),
-				__( 'Returns the current overall security posture summary for the site.', 'wp-simple-firewall' ),
+				__( 'Returns the current Shield site overview, including issue summary and configuration coverage.', 'wp-simple-firewall' ),
 				function ( $input = null ) :array {
 					unset( $input );
 					return self::con()->comps->site_query->overview();

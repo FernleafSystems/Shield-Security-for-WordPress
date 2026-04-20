@@ -27,7 +27,12 @@ class BuildInfoHeadlineContractTest extends BaseUnitTest {
 					'posture'           => [
 						'severity'   => 'warning',
 						'percentage' => 82,
-						'totals'     => [ 'letter_score' => 'B' ],
+						'zones'      => [
+							'total'    => 6,
+							'critical' => 1,
+							'warning'  => 2,
+							'good'     => 3,
+						],
 					],
 					'scans'             => [
 						'latest_completed_at' => [ 1710104400 ],
@@ -44,12 +49,40 @@ class BuildInfoHeadlineContractTest extends BaseUnitTest {
 
 		$headline = $builder->build();
 
-		$this->assertSame( '2 issues need attention', $headline[ 'summary' ][ 'title' ] );
-		$this->assertSame( 'Current alert status across your site.', $headline[ 'summary' ][ 'subtitle' ] );
-		$this->assertSame( '2 issues need attention', $headline[ 'cards' ][ 0 ][ 'value' ] );
-		$this->assertSame( '82% configured', $headline[ 'cards' ][ 1 ][ 'value' ] );
-		$this->assertSame( 'Current posture grade: B', $headline[ 'cards' ][ 1 ][ 'meta' ] );
-		$this->assertSame( 'Last scan: 3 hours ago', $headline[ 'cards' ][ 2 ][ 'value' ] );
+		$this->assertSame( 'attention', $headline[ 'summary' ][ 'state' ] );
+		$this->assertSame( 2, $headline[ 'summary' ][ 'total_issues' ] );
+		$this->assertNotSame( '', \trim( (string)( $headline[ 'summary' ][ 'title' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $headline[ 'summary' ][ 'subtitle' ] ?? '' ) ) );
+		$this->assertSame( [ 'attention', 'coverage', 'scans' ], \array_column( $headline[ 'cards' ], 'key' ) );
+
+		$attentionCard = $headline[ 'cards' ][ 0 ];
+		$this->assertSame( 'attention', $attentionCard[ 'state' ] );
+		$this->assertSame( 'critical', $attentionCard[ 'severity' ] );
+		$this->assertSame( 2, $attentionCard[ 'total_issues' ] );
+		$this->assertSame( $headline[ 'summary' ][ 'title' ], $attentionCard[ 'value' ] );
+		$this->assertNotSame( '', \trim( (string)( $attentionCard[ 'label' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $attentionCard[ 'meta' ] ?? '' ) ) );
+
+		$coverageCard = $headline[ 'cards' ][ 1 ];
+		$this->assertSame( 'warning', $coverageCard[ 'severity' ] );
+		$this->assertSame( 82, $coverageCard[ 'percentage' ] );
+		$this->assertSame( [
+			'total'    => 6,
+			'good'     => 3,
+			'warning'  => 2,
+			'critical' => 1,
+		], $coverageCard[ 'zones' ] );
+		$this->assertNotSame( '', \trim( (string)( $coverageCard[ 'label' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $coverageCard[ 'value' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $coverageCard[ 'meta' ] ?? '' ) ) );
+
+		$scansCard = $headline[ 'cards' ][ 2 ];
+		$this->assertSame( 'completed', $scansCard[ 'state' ] );
+		$this->assertSame( 0, $scansCard[ 'enqueued_count' ] );
+		$this->assertSame( 1710104400, $scansCard[ 'latest_completed_at' ] );
+		$this->assertNotSame( '', \trim( (string)( $scansCard[ 'label' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $scansCard[ 'value' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $scansCard[ 'meta' ] ?? '' ) ) );
 	}
 
 	public function test_build_normalizes_all_clear_and_running_scan_states() :void {
@@ -63,7 +96,12 @@ class BuildInfoHeadlineContractTest extends BaseUnitTest {
 					'posture'           => [
 						'severity'   => 'unknown',
 						'percentage' => 100,
-						'totals'     => [ 'letter_score' => 'A' ],
+						'zones'      => [
+							'total'    => 5,
+							'critical' => 0,
+							'warning'  => 0,
+							'good'     => 5,
+						],
 					],
 					'scans'             => [
 						'latest_completed_at' => [ 0 ],
@@ -76,10 +114,39 @@ class BuildInfoHeadlineContractTest extends BaseUnitTest {
 
 		$headline = $builder->build();
 
-		$this->assertSame( 'All clear right now', $headline[ 'summary' ][ 'title' ] );
-		$this->assertSame( 'All clear', $headline[ 'cards' ][ 0 ][ 'value' ] );
-		$this->assertSame( '100% configured', $headline[ 'cards' ][ 1 ][ 'value' ] );
-		$this->assertSame( 'Scans running', $headline[ 'cards' ][ 2 ][ 'value' ] );
-		$this->assertSame( '2 scan tasks queued', $headline[ 'cards' ][ 2 ][ 'meta' ] );
+		$this->assertSame( 'all_clear', $headline[ 'summary' ][ 'state' ] );
+		$this->assertSame( 0, $headline[ 'summary' ][ 'total_issues' ] );
+		$this->assertNotSame( '', \trim( (string)( $headline[ 'summary' ][ 'title' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $headline[ 'summary' ][ 'subtitle' ] ?? '' ) ) );
+		$this->assertSame( [ 'attention', 'coverage', 'scans' ], \array_column( $headline[ 'cards' ], 'key' ) );
+
+		$attentionCard = $headline[ 'cards' ][ 0 ];
+		$this->assertSame( 'all_clear', $attentionCard[ 'state' ] );
+		$this->assertSame( 'good', $attentionCard[ 'severity' ] );
+		$this->assertSame( 0, $attentionCard[ 'total_issues' ] );
+		$this->assertNotSame( '', \trim( (string)( $attentionCard[ 'label' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $attentionCard[ 'value' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $attentionCard[ 'meta' ] ?? '' ) ) );
+
+		$coverageCard = $headline[ 'cards' ][ 1 ];
+		$this->assertSame( 'good', $coverageCard[ 'severity' ] );
+		$this->assertSame( 100, $coverageCard[ 'percentage' ] );
+		$this->assertSame( [
+			'total'    => 5,
+			'good'     => 5,
+			'warning'  => 0,
+			'critical' => 0,
+		], $coverageCard[ 'zones' ] );
+		$this->assertNotSame( '', \trim( (string)( $coverageCard[ 'label' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $coverageCard[ 'value' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $coverageCard[ 'meta' ] ?? '' ) ) );
+
+		$scansCard = $headline[ 'cards' ][ 2 ];
+		$this->assertSame( 'running', $scansCard[ 'state' ] );
+		$this->assertSame( 2, $scansCard[ 'enqueued_count' ] );
+		$this->assertSame( 0, $scansCard[ 'latest_completed_at' ] );
+		$this->assertNotSame( '', \trim( (string)( $scansCard[ 'label' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $scansCard[ 'value' ] ?? '' ) ) );
+		$this->assertNotSame( '', \trim( (string)( $scansCard[ 'meta' ] ?? '' ) ) );
 	}
 }

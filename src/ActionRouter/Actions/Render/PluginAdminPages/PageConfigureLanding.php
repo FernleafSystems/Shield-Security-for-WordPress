@@ -20,7 +20,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 	}
 
 	protected function getLandingSubtitle() :string {
-		return __( 'Check posture and move from zone review into focused settings changes.', 'wp-simple-firewall' );
+		return __( 'Check coverage and move from zone review into focused settings changes.', 'wp-simple-firewall' );
 	}
 
 	protected function getLandingIcon() :string {
@@ -54,7 +54,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'posture_title'       => __( 'Configuration Posture', 'wp-simple-firewall' ),
+			'posture_title'       => __( 'Configuration Coverage', 'wp-simple-firewall' ),
 			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
 			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),

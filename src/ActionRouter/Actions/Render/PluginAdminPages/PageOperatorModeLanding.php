@@ -5,11 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueScanStateBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\BuildConfigurationCoverage;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -29,9 +29,10 @@ class PageOperatorModeLanding extends BaseRender {
 	protected function getRenderData() :array {
 		$queueCard = $this->buildActionsQueueCardData();
 
-		$configPercentage = $this->getZonePosture()[ 'percentage' ];
+		$coverage = $this->getConfigurationCoverage();
+		$configPercentage = $coverage[ 'percentage' ];
 		$configPercentage = max( 0, min( 100, $configPercentage ) );
-		$configTraffic = BuildZonePosture::trafficFromPercentage( $configPercentage );
+		$configTraffic = $coverage[ 'severity' ];
 
 		$sessionSummary = $this->getInvestigateSessionSummary();
 		$reportsSummary = $this->getReportsSummary();
@@ -75,16 +76,14 @@ class PageOperatorModeLanding extends BaseRender {
 
 	/**
 	 * @return array{
-	 *   components:list<array<string,mixed>>,
-	 *   signals:list<array<string,mixed>>,
-	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
+	 *   severity:'good'|'warning'|'critical',
 	 *   percentage:int,
-	 *   severity:string,
-	 *   status:string
+	 *   controls:array{total:int,good:int,warning:int,critical:int},
+	 *   zones:array{total:int,good:int,warning:int,critical:int}
 	 * }
 	 */
-	protected function getZonePosture() :array {
-		return ( new BuildZonePosture() )->build();
+	protected function getConfigurationCoverage() :array {
+		return ( new BuildConfigurationCoverage() )->build();
 	}
 
 	private function buildLiveMonitorVars() :array {
@@ -145,7 +144,7 @@ class PageOperatorModeLanding extends BaseRender {
 		return [
 			'mode'               => PluginNavs::MODE_CONFIGURE,
 			'label'              => PluginNavs::modeLabel( PluginNavs::MODE_CONFIGURE ),
-			'description'        => __( 'Fine tune your WordPress security posture to exactly what you need.', 'wp-simple-firewall' ),
+			'description'        => __( 'Fine tune your WordPress security coverage to exactly what you need.', 'wp-simple-firewall' ),
 			'href'               => $this->modeHref( PluginNavs::MODE_CONFIGURE ),
 			'icon_class'         => self::con()->svgs->iconClass( 'sliders' ),
 			'edge_status'        => 'good',
@@ -153,7 +152,7 @@ class PageOperatorModeLanding extends BaseRender {
 			'indicator_type'     => 'posture',
 			'posture_percentage' => $percentage,
 			'posture_status'     => $this->normalizeSeverity( $status ),
-			'posture_text'       => sprintf( __( '%s%% configured', 'wp-simple-firewall' ), $percentage ),
+			'posture_text'       => sprintf( __( '%s%% configuration coverage', 'wp-simple-firewall' ), $percentage ),
 		];
 	}
 

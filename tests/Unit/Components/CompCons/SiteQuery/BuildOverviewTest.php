@@ -37,7 +37,22 @@ class BuildOverviewTest extends BaseUnitTest {
 		$this->assertSame( '18.2.1', $overview[ 'site' ][ 'shield_version' ] );
 		$this->assertTrue( $overview[ 'site' ][ 'is_premium' ] );
 		$this->assertSame( 2, $overview[ 'attention_summary' ][ 'total' ] );
-		$this->assertSame( 81, $overview[ 'posture' ][ 'percentage' ] );
+		$this->assertSame( [
+			'severity'   => 'warning',
+			'percentage' => 81,
+			'controls'   => [
+				'total'    => 8,
+				'good'     => 5,
+				'warning'  => 2,
+				'critical' => 1,
+			],
+			'zones'      => [
+				'total'    => 3,
+				'good'     => 1,
+				'warning'  => 1,
+				'critical' => 1,
+			],
+		], $overview[ 'posture' ] );
 		$this->assertTrue( $overview[ 'scans' ][ 'is_running' ] );
 		$this->assertSame( 3, $overview[ 'scans' ][ 'enqueued_count' ] );
 		$this->assertSame( [
@@ -71,14 +86,19 @@ class BuildOverviewTestDouble extends BuildOverview {
 
 	protected function buildPosture() :array {
 		return [
-			'status'     => 'warning',
 			'severity'   => 'warning',
 			'percentage' => 81,
-			'totals'     => [
-				'score'        => 81,
-				'max_weight'   => 100,
-				'percentage'   => 81,
-				'letter_score' => 'B',
+			'controls'   => [
+				'total'    => 8,
+				'good'     => 5,
+				'warning'  => 2,
+				'critical' => 1,
+			],
+			'zones'      => [
+				'total'    => 3,
+				'good'     => 1,
+				'warning'  => 1,
+				'critical' => 1,
 			],
 		];
 	}

@@ -65,7 +65,6 @@
 							{#              <th>{{ strings.site }}</th> #}
 							<th>{{ strings.url }}</th>
 							<th>{{ strings.status }}</th>
-							<th>{{ strings.overall_grade }}</th>
 							<th>{{ strings.issues }}</th>
 							<th>{{ strings.version }}</th>
 							<th>{{ strings.last_sync }}</th>
@@ -82,18 +81,8 @@
 								</span>
 							</td>
 
-							{#              <td> #}
-							{#                {% if site.shield.is_active %} #}
-							{#                  <a href="{{ site.shield.href_manage }}" #}
-							{#                     class="ui mini compact button">{{ strings.manage }}</a> #}
-							{#                {% else %} #}
-							{#                  {{ site.name }} #}
-							{#                {% endif %} #}
-							{#              </td> #}
-
 							<td>
 								{{ site.name }}
-								{#                <a href="{{ site.hrefs.manage_site }}">{{ site.name }}</a> #}
 								<br />
 								<a href="{{ site.url }}" target="_blank" style="text-decoration: none!important;">
 									<small>{{ site.url }} <i class="external alternate icon"></i></small>
@@ -105,14 +94,8 @@
 								</td>
 
 								<td>
-									<a href="{{ site.shield.grades.href }}"
-									   class="ui mini basic compact button {{ site.shield.grades.good ? 'green':'red' }}"
-									   target="_blank">{{ site.shield.grades.integrity }}</a>
-								</td>
-
-								<td>
 									<a href="{{ site.shield.href_issues }}"
-									   class="ui mini basic compact button {{ site.shield.has_issues ? 'red':'green' }}"
+									   class="ui mini basic compact button {{ site.shield.issues_button_class }}"
 									   target="_blank">{{ site.shield.issues }}</a>
 								</td>
 

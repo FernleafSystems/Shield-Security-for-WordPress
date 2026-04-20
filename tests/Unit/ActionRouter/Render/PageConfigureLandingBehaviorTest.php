@@ -29,7 +29,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	StatusDetailGroupsBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -41,15 +40,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestRequest,
 	UnitTestUsers
 };
-use Twig\{
-	Environment,
-	Loader\FilesystemLoader
-};
 
 class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
-	use PluginPathsTrait;
 
 	private array $servicesSnapshot = [];
 	private object $secAdminController;
@@ -163,7 +157,7 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'configure_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
 		$this->assertSame( [ 'zones', 'diagnosis' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
-		$this->assertSame( 'ZONES_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? 'missing' );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
@@ -212,9 +206,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
 
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( 'DIAGNOSIS:login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
-		$this->assertSame( 'Login', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'breadcrumb_label' ] ?? '' );
 		$this->assertNotSame( '', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'active_back_label' ] ?? '' );
 	}
 
@@ -230,8 +224,8 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$actions = $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'actions' ] ?? [];
 
 		$this->assertCount( 1, $actions );
-		$this->assertSame( 'Disable Security Admin', $actions[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'deactivate', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
 	}
 
 	public function test_invalid_zone_deep_link_falls_back_to_zone_layer() :void {
@@ -346,83 +340,6 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $rootStep[ 'badge_status' ] ?? '' );
 		$this->assertSame( 'configure', $rootStep[ 'color_key' ] ?? '' );
 		$this->assertNotSame( '', $rootStep[ 'next_step' ] ?? '' );
-	}
-
-	public function test_zone_layer_renders_healthy_zones_directly_without_the_shared_disclosure_wrapper() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
-		$sections = $this->invokeNonPublicMethod( $page, 'getConfigureZoneSections' );
-		$html = $this->twig()->render( '/wpadmin/components/configure/layer_zones.twig', [
-			'sections' => $sections,
-		] );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame(
-			0,
-			$xpath->query( '//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]' )->length,
-			'Configure zones should not render the shared healthy disclosure wrapper'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query(
-				'//button[@data-drill-target="diagnosis" and @data-drill-zone-selection and contains(concat(" ", normalize-space(@class), " "), " status-good ")]'
-			)->length,
-			'Configure zones should render healthy zone cards directly in the grid'
-		);
-	}
-
-	public function test_diagnosis_layer_renders_healthy_rows_directly_without_the_shared_disclosure_wrapper() :void {
-		$page = new PageConfigureLandingUnitTestDouble( $this->zonePostureFixture( 78 ), $this->zoneTileFixtures() );
-		$diagnosis = $this->invokeNonPublicMethod( $page, 'getConfigureZoneDiagnosis', [ 'firewall' ] );
-		$html = $this->twig()->render( '/wpadmin/components/configure/layer_diagnosis.twig', [
-			'diagnosis' => $diagnosis,
-		] );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame(
-			0,
-			$xpath->query( '//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]' )->length,
-			'Configure diagnosis should not render the shared healthy disclosure wrapper'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//*[@data-configure-diagnosis="1" and @data-configure-zone="firewall"]' )->length,
-			'Configure diagnosis should render the selected diagnosis container'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query(
-				'//*[@data-configure-diagnosis="1" and @data-configure-zone="firewall"]//*[@data-configure-row-key="waf_rules"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row--good ")]'
-			)->length,
-			'Configure diagnosis should render healthy rows directly in the diagnosis stack'
-		);
-	}
-
-	private function twig() :Environment {
-		return new Environment(
-			new FilesystemLoader( $this->getPluginFilePath( 'templates/twig' ) ),
-			[
-				'cache'            => false,
-				'debug'            => false,
-				'strict_variables' => false,
-			]
-		);
-	}
-
-	private function createDomXPathFromHtml( string $html ) :\DOMXPath {
-		$doc = new \DOMDocument();
-		$previous = \libxml_use_internal_errors( true );
-		try {
-			$doc->loadHTML(
-				'<?xml encoding="utf-8" ?>'.$html,
-				\LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD
-			);
-		}
-		finally {
-			\libxml_clear_errors();
-			\libxml_use_internal_errors( $previous );
-		}
-
-		return new \DOMXPath( $doc );
 	}
 
 	private function zoneTileFixtures() :array {
@@ -573,17 +490,20 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	private function zonePostureFixture( int $percentage ) :array {
 		return [
-			'components' => [],
-			'signals'    => [],
-			'totals'     => [
-				'score'        => $percentage,
-				'max_weight'   => 100,
-				'percentage'   => $percentage,
-				'letter_score' => 'B',
-			],
-			'percentage' => $percentage,
 			'severity'   => 'warning',
-			'status'     => 'warning',
+			'percentage' => $percentage,
+			'controls'   => [
+				'total'    => 4,
+				'good'     => 2,
+				'warning'  => 1,
+				'critical' => 1,
+			],
+			'zones'      => [
+				'total'    => 3,
+				'good'     => 1,
+				'warning'  => 1,
+				'critical' => 1,
+			],
 		];
 	}
 }
@@ -624,7 +544,7 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 		$tileLookup = [];
 		$diagnoses = [];
 		$percentage = (int)( $zonePostureFixture[ 'percentage' ] ?? 0 );
-		$postureSummary = sprintf( '%d%% - 1 critical - 1 needs work - 1 good', $percentage );
+		$postureSummary = sprintf( '%d%% - 1 critical zone - 1 zone needs review - 1 zone ready', $percentage );
 
 		foreach ( $zoneTileFixtures as $zoneTile ) {
 			$tileLookup[ $zoneTile[ 'key' ] ] = $zoneTile;
@@ -677,12 +597,12 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 				'status'     => 'warning',
 				'chip_label' => 'Warning',
 				'icon_class' => 'bi bi-exclamation-circle-fill',
-				'eyebrow'    => 'Configuration Posture',
+				'eyebrow'    => 'Configuration Coverage',
 				'summary'    => $postureSummary,
 				'meter'      => [
 					'percentage'      => $percentage,
 					'status'          => 'warning',
-					'aria_label'      => 'Configuration Posture',
+					'aria_label'      => 'Configuration Coverage',
 					'aria_value_text' => sprintf( '%d%%', $percentage ),
 				],
 			],

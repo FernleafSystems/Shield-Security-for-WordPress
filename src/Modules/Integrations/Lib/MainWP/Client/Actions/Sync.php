@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Client\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Sync {
@@ -18,7 +16,7 @@ class Sync {
 	public function run() :array {
 		$con = self::con();
 		return [
-			'meta'        => [
+			'meta'     => [
 				'is_pro'       => $con->isPremiumActive(),
 				'is_mainwp_on' => $this->isPermitted(),
 				'installed_at' => $con->comps->opts_lookup->getInstalledAt(),
@@ -26,12 +24,12 @@ class Sync {
 				'version'      => $con->cfg->version(),
 				'has_update'   => Services::WpPlugins()->isUpdateAvailable( $con->base_file ),
 			],
-			'options'     => [], // not necessary yet ( new ImportExport\Export() )->getFullTransferableOptionsExport(),
-			'integrity'   => \array_intersect_key(
-				( new BuildZonePosture() )->build(),
-				\array_flip( [ 'status', 'totals' ] )
-			),
-			'scan_issues' => ( new Counts() )->all(),
+			'options'  => [], // not necessary yet ( new ImportExport\Export() )->getFullTransferableOptionsExport(),
+			'overview' => $this->buildOverviewQuery(),
 		];
+	}
+
+	protected function buildOverviewQuery() :array {
+		return self::con()->comps->site_query->overview();
 	}
 }

@@ -74,8 +74,8 @@ class UnitTestPluginUrls {
 	}
 
 	public function actionsQueueScans( string $zone = '' ) :string {
-		$zone = empty( $zone ) ? 'scans' : $zone;
-		return '/admin/scans/overview?zone='.$zone;
+		$url = '/admin/scans/overview';
+		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
 	public function noncedPluginAction( string $action, ?string $url = null, array $aux = [] ) :string {

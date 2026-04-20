@@ -2,8 +2,8 @@
 
 	<span data-tooltip="{{ strings.tooltip_issues_found }}: {{ vars.issues_count }}"
 		  data-position="left center">
-		<a class="ui mini compact button {{ vars.issues_count > 0 ? 'red':'green' }}"
-		   href="{{ hrefs.this_extension }}">{{ vars.issues_count }}</a>
+		<a class="ui mini compact button {{ vars.issues_button_class }}"
+		   href="{{ hrefs.issues }}">{{ vars.issues_count }}</a>
 	</span>
 
 {% elseif flags.is_sync_rqd %}

@@ -15,7 +15,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MainWP\ServerAc
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\{
+	MWPSiteVO,
+	SiteOpenUrlBuilder
+};
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -70,7 +73,6 @@ class BaseSubPage extends BaseMWP {
 				'st_sync_rqd'         => sprintf( __( '%s plugin needs to sync.', 'wp-simple-firewall' ), $name ),
 				'st_version_mismatch' => sprintf( __( '%s plugin versions are out of sync.', 'wp-simple-firewall' ), $name ),
 				'st_unknown'          => sprintf( __( "Couldn't determine %s plugin status.", 'wp-simple-firewall' ), $name ),
-				'overall_grade'       => __( 'Grade', 'wp-simple-firewall' ),
 				'actions'             => [
 					'sync'       => sprintf( __( 'Sync %s', 'wp-simple-firewall' ), $name ),
 					'activate'   => sprintf( __( 'Activate %s', 'wp-simple-firewall' ), $name ),
@@ -92,12 +94,7 @@ class BaseSubPage extends BaseMWP {
 	}
 
 	protected function getJumpUrlFor( string $siteID, string $page ) :string {
-		return URL::Build( Services::WpGeneral()->getUrl_AdminPage( 'SiteOpen' ), [
-			'newWindow'  => 'yes',
-			'websiteid'  => $siteID,
-			'_opennonce' => wp_create_nonce( 'mainwp-admin-nonce' ),
-			'location'   => \base64_encode( \str_replace( Services::WpGeneral()->getAdminUrl(), '', $page ) )
-		] );
+		return ( new SiteOpenUrlBuilder() )->build( $siteID, $page );
 	}
 
 	protected function getMenuTopNavItems() :array {
