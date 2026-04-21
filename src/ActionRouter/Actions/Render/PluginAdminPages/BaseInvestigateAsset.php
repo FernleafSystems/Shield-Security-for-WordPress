@@ -62,17 +62,11 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 	}
 
 	protected function buildPluginLookupOptions() :array {
-		return $this->buildAssetOptions(
-			Services::WpPlugins()->getPluginsAsVo(),
-			'file'
-		);
+		return $this->buildAssetOptions( Services::WpPlugins()->getPluginsAsVo(), 'file' );
 	}
 
 	protected function buildThemeLookupOptions() :array {
-		return $this->buildAssetOptions(
-			Services::WpThemes()->getThemesAsVo(),
-			'stylesheet'
-		);
+		return $this->buildAssetOptions( Services::WpThemes()->getThemesAsVo(), 'stylesheet' );
 	}
 
 	protected function buildAssetTabsPayload( string $subjectKey, array $counts, bool $includeVulnerabilities ) :array {

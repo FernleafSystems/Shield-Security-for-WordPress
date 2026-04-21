@@ -185,19 +185,6 @@ class Capabilities {
 			   );
 	}
 
-	public function getMaxLogRetentionDays() :int {
-		if ( $this->hasCap( 'logs_retention_unlimited' ) ) {
-			$max = \PHP_INT_MAX;
-		}
-		elseif ( $this->hasCap( 'logs_retention_31' ) ) {
-			$max = 31;
-		}
-		else {
-			$max = self::con()->cfg->configuration->def( 'max_free_days' );
-		}
-		return $max;
-	}
-
 	private function isPremiumOnlyCap( string $cap ) :bool {
 		return \in_array( $cap, [
 			'2fa_login_backup_codes',
