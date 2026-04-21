@@ -4,7 +4,7 @@
 /node_modules/.cache
 /plugin.json
 /node_modules
-/package-lock.json
+/tools/playground/node_modules/
 /_gsdata_
 /forceoff
 /vendor
@@ -29,6 +29,7 @@ phpunit-*-package.xml
 /tests/Unit/bootstrap-package.php
 /tests/Integration/bootstrap-package.php
 /tests/package/
+/tests/fixtures/passkeys/fixture_ceremony.local.json
 
 # Local build packages (created by local build scripts)
 /builds/
@@ -43,6 +44,8 @@ integration-full.log
 # Local test artifacts
 /test-plugin-package/
 /test-plugin-work/
+/playwright-report/
+/test-results/
 test-plugin-*.log
 /bin/test-powershell-fixes.ps1
 /bin/test-simple.ps1
@@ -87,3 +90,4 @@ CLAUDE.md
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+/.codex/
