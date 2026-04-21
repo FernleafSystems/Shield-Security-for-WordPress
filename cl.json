@@ -48,8 +48,9 @@
         "type":        "improved",
         "title":       "Live Monitoring and Logs: More Signal, Less Noise",
         "description": [
-          "The dashboard now shows a live activity feed so you can see what's happening on your site while you work.",
-          "Traffic and live logs show more useful detail about each request, while filtering out routine admin noise like AJAX and heartbeat traffic."
+          "The dashboard shows a live activity feed so you can see what's happening on your site while you work.",
+          "Traffic and live logs show more useful detail about each request, while filtering out routine admin noise like AJAX and heartbeat traffic.",
+          "Logging configuration simplified and the system automatically retains logs depending on the severity or nature of events."
         ]
       },
       {
@@ -61,10 +62,16 @@
       },
       {
         "type":        "improved",
-        "title":       "Admin Actions: Safer and Less Friction",
+        "title":       "Alerts and Reports",
         "description": [
-          "Login alerts and security notices are more immediate, so important events don't get buried.",
-          "Security Admin controls are cleaner and more predictable, with a simpler way to disable them when needed."
+          "Alerts are now properly distinguished from informational reports. They serve 2 completely different purposes and their content reflects this."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Release Stability Improved",
+        "description": [
+          "Automated tests and analyses detect issues before release, reducing unforeseen errors and impacts on member sites."
         ]
       }
     ],
