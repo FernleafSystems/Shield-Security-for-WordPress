@@ -140,7 +140,7 @@ export function bindScanResultsRowActions( {
 	if ( scanResultsAction !== null && typeof onAction === 'function' ) {
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions > button.action.delete',
+			'td.actions .action.delete',
 			( evt ) => {
 				evt.preventDefault();
 				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
@@ -152,7 +152,7 @@ export function bindScanResultsRowActions( {
 
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions > button.action.ignore',
+			'td.actions .action.ignore',
 			( evt ) => {
 				evt.preventDefault();
 				onAction( 'ignore', [ evt.currentTarget.dataset.rid ] );
@@ -162,7 +162,7 @@ export function bindScanResultsRowActions( {
 
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions > button.action.repair',
+			'td.actions .action.repair',
 			( evt ) => {
 				evt.preventDefault();
 				datatable?.rows?.().deselect?.();

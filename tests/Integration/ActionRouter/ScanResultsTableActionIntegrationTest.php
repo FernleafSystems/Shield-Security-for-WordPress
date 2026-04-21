@@ -8,9 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\HtmlDomAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
+
+	use HtmlDomAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -245,6 +248,30 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringContainsString( 'data-scan-result-ignored-badge="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
 	}
 
+	public function test_retrieve_table_data_exposes_multi_action_buttons_with_tooltip_contract() :void {
+		$tracked = $this->seedWordpressMultiActionScanResult();
+
+		$payload = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ] ?? null;
+
+		$this->assertIsArray( $row );
+		$this->assertSame( (int)$tracked[ 'scan_result_id' ], (int)( $row[ 'rid' ] ?? 0 ) );
+
+		$actionsMarkup = (string)( $row[ 'actions' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $actionsMarkup );
+		$rid = (string)( $row[ 'rid' ] ?? '' );
+
+		$this->assertXPathCount( $xpath, '//button', 4, 'action buttons' );
+		foreach ( [ 'view-file', 'delete', 'repair', 'ignore' ] as $actionClass ) {
+			$query = sprintf( '//button[contains(concat(" ", normalize-space(@class), " "), " %s ")]', $actionClass );
+			$this->assertXPathCount( $xpath, $query, 1, $actionClass.' button' );
+			$this->assertXPathCount( $xpath, $query.'[@data-rid="'.$rid.'"]', 1, $actionClass.' rid contract' );
+			$this->assertXPathCount( $xpath, $query.'[@data-bs-toggle="tooltip"]', 1, $actionClass.' tooltip toggle' );
+			$this->assertXPathCount( $xpath, $query.'[@title!=""]', 1, $actionClass.' title attr' );
+			$this->assertXPathCount( $xpath, $query.'[@data-bs-title!=""]', 1, $actionClass.' data-bs-title attr' );
+		}
+	}
+
 	/**
 	 * @param array<string,mixed> $params
 	 * @return array<string,mixed>
@@ -289,6 +316,18 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	private function seedWordpressScanResult( string $relativePath = 'wp-admin/admin.php' ) :array {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		return $this->seedWordpressScanResultForScan( $scanId, $relativePath );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function seedWordpressMultiActionScanResult( string $relativePath = 'wp-admin/admin.php' ) :array {
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		return TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->corePathFragment( $relativePath ), [
+			'is_in_core'      => 1,
+			'is_checksumfail' => 1,
+			'is_mal'          => 1,
+		] );
 	}
 
 	/**

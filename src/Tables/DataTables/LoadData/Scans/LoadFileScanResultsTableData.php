@@ -74,7 +74,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			'status_file_size' => $this->column_fileSize( $item ),
 			'status_file_type' => $this->column_fileType( $item ),
 			'status'           => $this->getColumnContent_FileStatus( $item ),
-			'actions'          => \implode( ' ', $this->getActions( $item ) ),
+			'actions'          => $this->getActionsMarkup( $item ),
 			'is_ignored'       => $isIgnored,
 			'ignored_label'    => $isIgnored ? __( 'Ignored', 'wp-simple-firewall' ) : '',
 			'DT_RowClass'      => $isIgnored ? 'scan-result-row scan-result-row--ignored' : 'scan-result-row',
@@ -152,27 +152,24 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		$con = self::con();
 		$actions = [];
 
-		$defaultButtonClasses = [
-			'btn',
-			'action',
-		];
-
 		$fileFragment = $item->path_fragment;
 		if ( !empty( $fileFragment ) ) {
-			$actions[] = sprintf( '<button class="action view-file btn-dark %s" title="%s" data-rid="%s">%s</button>',
-				\implode( ' ', $defaultButtonClasses ),
-				__( 'View File Details', 'wp-simple-firewall' ),
+			$actions[] = $this->buildActionButton(
+				'view',
+				'view-file',
 				$item->VO->scanresult_id,
-				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'zoom-in.svg' ) )
+				__( 'View File Details', 'wp-simple-firewall' ),
+				$con->svgs->iconClass( 'zoom-in.svg' )
 			);
 		}
 
 		if ( $item->VO->item_deleted_at === 0 && ( $item->is_unrecognised || $item->is_mal ) ) {
-			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
-				\implode( ' ', $defaultButtonClasses ),
-				__( 'Delete', 'wp-simple-firewall' ),
+			$actions[] = $this->buildActionButton(
+				'delete',
+				'delete',
 				$item->VO->scanresult_id,
-				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'x-square.svg' ) )
+				__( 'Delete', 'wp-simple-firewall' ),
+				$con->svgs->iconClass( 'x-square.svg' )
 			);
 		}
 
@@ -185,11 +182,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 					->getItemActionHandler()
 					->setScanItem( $item );
 				if ( $actionHandler->getRepairHandler()->canRepairItem() ) {
-					$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
-						\implode( ' ', $defaultButtonClasses ),
-						__( 'Repair', 'wp-simple-firewall' ),
+					$actions[] = $this->buildActionButton(
+						'repair',
+						'repair',
 						$item->VO->scanresult_id,
-						sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'tools.svg' ) )
+						__( 'Repair', 'wp-simple-firewall' ),
+						$con->svgs->iconClass( 'tools.svg' )
 					);
 				}
 			}
@@ -198,15 +196,27 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		if ( $item->VO->ignored_at === 0 ) {
-			$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
-				\implode( ' ', $defaultButtonClasses ),
-				__( 'Ignore', 'wp-simple-firewall' ),
+			$actions[] = $this->buildActionButton(
+				'ignore',
+				'ignore',
 				$item->VO->scanresult_id,
-				sprintf( '<i class="%s" aria-hidden="true"></i>', $con->svgs->iconClass( 'eye-slash-fill.svg' ) )
+				__( 'Ignore', 'wp-simple-firewall' ),
+				$con->svgs->iconClass( 'eye-slash-fill.svg' )
 			);
 		}
 
 		return $actions;
+	}
+
+	protected function getActionsMarkup( ResultItem $item ) :string {
+		$actions = $this->getActions( $item );
+
+		return empty( $actions )
+			? ''
+			: sprintf(
+				'<div class="scan-results-row-actions">%s</div>',
+				\implode( '', $actions )
+			);
 	}
 
 	protected function column_fileSize( ResultItem $item ) :string {
@@ -369,5 +379,22 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return \is_array( $this->results_display_options )
 			? $this->results_display_options
 			: null;
+	}
+
+	private function buildActionButton(
+		string $actionKey,
+		string $actionClass,
+		int $scanResultId,
+		string $label,
+		string $iconClass
+	) :string {
+		return sprintf(
+			'<button type="button" class="btn btn-sm btn-light action actions-landing__table-icon-action scan-results-row-action scan-results-row-action--%1$s %2$s" title="%3$s" aria-label="%3$s" data-bs-toggle="tooltip" data-bs-title="%3$s" data-rid="%4$s"><i class="%5$s" aria-hidden="true"></i><span class="visually-hidden">%3$s</span></button>',
+			esc_attr( $actionKey ),
+			esc_attr( $actionClass ),
+			esc_attr( $label ),
+			$scanResultId,
+			esc_attr( $iconClass )
+		);
 	}
 }

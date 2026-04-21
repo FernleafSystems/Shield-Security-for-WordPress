@@ -1,5 +1,6 @@
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxService } from "../services/AjaxService";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { ShieldTableBase } from "./ShieldTableBase";
 import {
 	bindScanResultsRowActions,
@@ -43,7 +44,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			onAction: ( action, rids = [] ) => this.bulkTableAction.call( this, action, rids ),
 			namespace: 'shieldScanResults',
 		} );
-		this.syncResultsDisplayState();
+		this.syncDynamicUi();
 	}
 
 	getButtons() {
@@ -60,7 +61,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 
 	rowSelectionChanged() {
 		syncScanResultsSelectionButtons( this.$table );
-		this.syncResultsDisplayState();
+		this.syncDynamicUi();
 	}
 
 	datatablesAjaxRequest( data, callback, settings ) {
@@ -134,6 +135,15 @@ export class ShieldTableScanResults extends ShieldTableBase {
 	syncResultsDisplayState() {
 		if ( this.$table ) {
 			syncScanResultsDisplayButtons( this.$table, this.resultsDisplayOptions );
+		}
+	}
+
+	syncDynamicUi() {
+		this.syncResultsDisplayState();
+
+		const tableContainer = this.$table?.table?.().container?.() || null;
+		if ( tableContainer instanceof HTMLElement ) {
+			BootstrapTooltips.RegisterNewTooltipsWithin( tableContainer );
 		}
 	}
 
