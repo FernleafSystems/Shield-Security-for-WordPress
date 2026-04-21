@@ -20,7 +20,8 @@ class BuildScanTableDataResultsDisplayOptionsTest extends BaseUnitTest {
 		$builder = $this->createBuilder();
 		$builder->results_display_options = [
 			'include_ignored'  => 'yes',
-			'include_repaired' => 1,
+			'include_repaired' => 'false',
+			'include_deleted'  => '0',
 			'ignored_only'     => 1,
 		];
 
@@ -29,7 +30,7 @@ class BuildScanTableDataResultsDisplayOptionsTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'include_ignored'  => true,
-				'include_repaired' => true,
+				'include_repaired' => false,
 				'include_deleted'  => false,
 				'ignored_only'     => true,
 			],

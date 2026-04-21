@@ -189,10 +189,10 @@ class ActionsQueueGroupDefinitions {
 	 */
 	private ?array $definitions = null;
 
-	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ScanResultsDisplayOptions $queueScanResultsOptions;
 
-	public function __construct( ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null ) {
-		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
+	public function __construct( ?ScanResultsDisplayOptions $queueScanResultsOptions = null ) {
+		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 	}
 
 	/**

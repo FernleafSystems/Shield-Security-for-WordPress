@@ -49,11 +49,6 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 				'badge_status'       => 'critical',
 				'color_key'          => 'critical',
 				'actions'            => [],
-				'display_options'    => [
-					'title'       => '',
-					'action_json' => '',
-					'controls'    => [],
-				],
 			],
 			$selection[ 'header' ]
 		);
@@ -80,7 +75,6 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'Critical queue', $selection[ 'header' ][ 'meta' ] ?? '' );
 		$this->assertSame( 'good', $selection[ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( [], $selection[ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( [], $selection[ 'header' ][ 'display_options' ][ 'controls' ] ?? null );
 	}
 
 	public function test_build_group_selection_includes_detail_shell() :void {
@@ -122,11 +116,6 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 				'badge_status'       => 'warning',
 				'color_key'          => 'warning',
 				'actions'            => [],
-				'display_options'    => [
-					'title'       => '',
-					'action_json' => '',
-					'controls'    => [],
-				],
 			],
 			$selection[ 'header' ]
 		);
@@ -170,40 +159,4 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_build_group_selection_keeps_display_options_in_header_and_selection_json() :void {
-		$builder = new ActionsQueueDrillDownPresentationBuilder();
-
-		$selection = $builder->buildGroupSelection(
-			'Fix now',
-			'wordpress',
-			'WordPress Files',
-			'critical',
-			'bi bi-wordpress',
-			2,
-			'direct_table',
-			[
-				'render_slug' => 'scanresults_wordpress',
-			],
-			'2 WordPress core files need review.',
-			[],
-			[
-				'title'       => 'Display Results',
-				'action_json' => '{"ex":"scan_results_display_form_submit"}',
-				'controls'    => [
-					[
-						'name'     => 'include_ignored',
-						'label'    => 'Include Ignored Results',
-						'checked'  => false,
-						'disabled' => false,
-					],
-				],
-			]
-		);
-
-		$this->assertSame( 'Display Results', $selection[ 'header' ][ 'display_options' ][ 'title' ] ?? '' );
-		$this->assertSame(
-			$selection[ 'header' ][ 'display_options' ],
-			\json_decode( $selection[ 'selection_json' ], true )[ 'header' ][ 'display_options' ] ?? []
-		);
-	}
 }

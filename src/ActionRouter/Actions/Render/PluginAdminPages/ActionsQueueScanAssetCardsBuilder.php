@@ -49,14 +49,14 @@ class ActionsQueueScanAssetCardsBuilder {
 	use PluginControllerConsumer;
 
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
-	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ScanResultsDisplayOptions $queueScanResultsOptions;
 
 	public function __construct(
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
-		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null
+		?ScanResultsDisplayOptions $queueScanResultsOptions = null
 	) {
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
-		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
+		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 	}
 
 	/**

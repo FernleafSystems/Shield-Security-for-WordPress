@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type GroupManagementLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
  * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
- * @phpstan-import-type OperatorChromeDisplayOptionsInput from OperatorChromeContract
  * @phpstan-type GroupSeed array{
  *   key:string,
  *   definition_key:string,
@@ -35,7 +34,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_badge_status_override?:string,
  *   header_color_key_override?:string,
  *   context_actions_override?:list<OperatorChromeActionInput>,
- *   display_options_override?:OperatorChromeDisplayOptionsInput,
  *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction>,
  *   render_action_data_override?:array<string,mixed>,
@@ -61,25 +59,21 @@ class ActionsQueueGroupContractBuilder {
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueDrillDownPresentationBuilder $presentation;
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
-	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ActionsQueueContextActionsBuilder $contextActionsBuilder;
-	private ActionsQueueContextDisplayOptionsBuilder $contextDisplayOptionsBuilder;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueDrillDownPresentationBuilder $presentation,
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
-		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null,
+		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
 		?ActionsQueueContextActionsBuilder $contextActionsBuilder = null
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->presentation = $presentation;
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
-		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
+		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 		$this->contextActionsBuilder = $contextActionsBuilder ?? new ActionsQueueContextActionsBuilder(
-			$this->queueScanResultsOptions
-		);
-		$this->contextDisplayOptionsBuilder = new ActionsQueueContextDisplayOptionsBuilder(
 			$this->queueScanResultsOptions
 		);
 	}
@@ -130,12 +124,7 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[],
-			$this->contextDisplayOptionsBuilder->buildForGroup(
-				$definition[ 'key' ],
-				$definition[ 'detail_shell' ],
-				$renderActionData
-			)
+			[]
 		);
 
 		return [
@@ -194,12 +183,7 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[],
-			$this->contextDisplayOptionsBuilder->buildForGroup(
-				$definitionKey,
-				'direct_table',
-				$renderActionData
-			)
+			[]
 		);
 
 		return [
@@ -284,13 +268,6 @@ class ActionsQueueGroupContractBuilder {
 				$seed[ 'item_count' ],
 				$renderActionData
 			);
-		$displayOptions = \array_key_exists( 'display_options_override', $seed )
-			? $seed[ 'display_options_override' ]
-			: $this->contextDisplayOptionsBuilder->buildForGroup(
-				$seed[ 'definition_key' ],
-				$seed[ 'detail_shell' ],
-				$renderActionData
-			);
 		$headerOverrides = \array_filter( [
 			'summary'      => $seed[ 'header_summary_override' ] ?? '',
 			'focus'        => $seed[ 'header_focus_override' ] ?? '',
@@ -314,7 +291,6 @@ class ActionsQueueGroupContractBuilder {
 			),
 			$narrative,
 			$contextActions,
-			$displayOptions,
 			$headerOverrides
 		);
 

@@ -277,7 +277,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'section' => 'vulnerable' ], $groups[ 3 ][ 'render_action_data' ] );
 		$this->assertSame(
 			[
-				'display_context' => 'actions_queue',
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored'  => false,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => false,
+				],
 			],
 			$groups[ 1 ][ 'render_action_data' ]
 		);
@@ -311,9 +317,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 4 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'display_context' => 'actions_queue',
-				'subject_type'    => 'plugin',
-				'subject_id'      => 'example-plugin/example-plugin.php',
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored'  => false,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => false,
+				],
+				'subject_type'           => 'plugin',
+				'subject_id'             => 'example-plugin/example-plugin.php',
 			],
 			$groups[ 4 ][ 'render_action_data' ]
 		);
@@ -566,7 +578,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'badge' ] ?? ''
 		);
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? null );
+		$this->assertArrayNotHasKey( 'display_options', (array)( $payload[ 'selected_group' ][ 'selection' ][ 'header' ] ?? [] ) );
 	}
 
 	public function test_build_review_bucket_groups_requested_system_and_wordpress_items_without_changing_plugin_maintenance_cards() :void {

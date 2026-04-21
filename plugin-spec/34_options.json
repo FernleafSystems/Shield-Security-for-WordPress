@@ -514,6 +514,7 @@
         "key": "block_send_email",
         "section": "section_firewall_blocking_options",
         "zone_comp_slugs": [
+            "web_application_firewall",
             "module_firewall"
         ],
         "default": "N",
@@ -963,13 +964,6 @@
         "default": []
     },
     {
-        "key": "scan_results_table_display",
-        "section": "section_hidden",
-        "tracking_exclude": true,
-        "type": "array",
-        "default": []
-    },
-    {
         "key": "ignored_maintenance_items",
         "section": "section_hidden",
         "tracking_exclude": true,
@@ -1314,7 +1308,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "xml_rpc_disable",
             "module_ips"
         ],
         "default": "log",
@@ -3218,7 +3211,8 @@
         "key": "enable_user_login_email_notification",
         "section": "section_user_session_management",
         "zone_comp_slugs": [
-            "module_users"
+            "session_theft_protection",
+            "module_login"
         ],
         "sensitive": false,
         "default": "N",
@@ -3490,6 +3484,7 @@
         "key": "manual_suspend",
         "section": "section_suspend",
         "zone_comp_slugs": [
+            "inactive_users",
             "module_users"
         ],
         "premium": true,
@@ -3507,6 +3502,7 @@
         "key": "auto_password",
         "section": "section_suspend",
         "zone_comp_slugs": [
+            "inactive_users",
             "module_users"
         ],
         "premium": true,

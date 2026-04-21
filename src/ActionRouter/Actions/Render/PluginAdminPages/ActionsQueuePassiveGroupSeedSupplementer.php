@@ -116,7 +116,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'header_badge_status_override' => 'neutral',
 				'header_color_key_override'    => 'neutral',
 				'context_actions_override'     => [],
-				'display_options_override'     => [],
 			];
 			if ( \in_array( $definitionKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
 				$seeds[ \array_key_last( $seeds ) ][ 'card_type_override' ] = 'expandable';

@@ -70,7 +70,7 @@ class ActionsQueueGroupsBuilder {
 
 	private ?ActionsQueueGroupDefinitions $groupDefinitions = null;
 	private ?ActionsQueueDrillDownPresentationBuilder $presentation = null;
-	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
+	private ?ScanResultsDisplayOptions $queueScanResultsOptions = null;
 	private ?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null;
 	private ?ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder = null;
 	private ?ActionsQueueGroupScanSource $groupScanSource = null;
@@ -226,9 +226,9 @@ class ActionsQueueGroupsBuilder {
 		return $this->presentation;
 	}
 
-	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
+	private function queueScanResultsOptions() :ScanResultsDisplayOptions {
 		if ( $this->queueScanResultsOptions === null ) {
-			$this->queueScanResultsOptions = new ActionsQueueScanResultsOptions();
+			$this->queueScanResultsOptions = new ScanResultsDisplayOptions();
 		}
 
 		return $this->queueScanResultsOptions;

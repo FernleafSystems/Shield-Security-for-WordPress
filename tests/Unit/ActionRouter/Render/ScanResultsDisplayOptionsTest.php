@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
-class ActionsQueueScanResultsOptionsTest extends BaseUnitTest {
+class ScanResultsDisplayOptionsTest extends BaseUnitTest {
 
 	public function test_normalize_returns_full_four_flag_shape() :void {
-		$options = ( new ActionsQueueScanResultsOptions() )->normalize( [
+		$options = ( new ScanResultsDisplayOptions() )->normalize( [
 			'include_ignored'  => 'yes',
 			'include_repaired' => 1,
 			'ignored_only'     => true,
@@ -25,56 +25,47 @@ class ActionsQueueScanResultsOptionsTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_forced_ignored_options_preserve_stored_repaired_and_deleted_flags() :void {
-		$helper = new class extends ActionsQueueScanResultsOptions {
-			public function storedOptions() :array {
-				return $this->normalize( [
-					'include_repaired' => true,
-					'include_deleted'  => true,
-				] );
-			}
-		};
+	public function test_normalize_treats_false_like_strings_as_false() :void {
+		$options = ( new ScanResultsDisplayOptions() )->normalize( [
+			'include_ignored'  => 'false',
+			'include_repaired' => '0',
+			'include_deleted'  => 'off',
+			'ignored_only'     => 'false',
+		] );
 
 		$this->assertSame(
 			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-				'ignored_only'     => true,
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
 			],
-			$helper->forcedIgnoredOptions()
+			$options
 		);
 	}
 
-	public function test_current_options_from_action_data_falls_back_to_stored_options() :void {
-		$helper = new class extends ActionsQueueScanResultsOptions {
-			public function storedOptions() :array {
-				return $this->normalize( [
-					'include_ignored'  => true,
-					'include_repaired' => true,
-				] );
-			}
-		};
-
+	public function test_current_options_from_action_data_defaults_to_active_only() :void {
+		$helper = new ScanResultsDisplayOptions();
 		$this->assertSame(
 			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
+				'include_ignored'  => false,
+				'include_repaired' => false,
 				'include_deleted'  => false,
 				'ignored_only'     => false,
 			],
 			$helper->currentOptionsFromActionData( [
-				'display_context' => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+				'display_context' => ScanResultsDisplayOptions::DISPLAY_CONTEXT,
 			] )
 		);
 	}
 
 	public function test_build_subject_action_data_owns_subject_scope_and_optional_display_flags() :void {
-		$helper = new ActionsQueueScanResultsOptions();
+		$helper = new ScanResultsDisplayOptions();
 
 		$this->assertSame(
 			[
-				'display_context' => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+				'display_context'         => ScanResultsDisplayOptions::DISPLAY_CONTEXT,
+				'results_display_options' => $helper->activeOnly(),
 				'subject_type'    => 'plugin',
 				'subject_id'      => 'example-plugin/example-plugin.php',
 			],
@@ -83,7 +74,7 @@ class ActionsQueueScanResultsOptionsTest extends BaseUnitTest {
 
 		$this->assertSame(
 			[
-				'display_context'         => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+				'display_context'         => ScanResultsDisplayOptions::DISPLAY_CONTEXT,
 				'results_display_options' => [
 					'include_ignored'  => true,
 					'include_repaired' => false,

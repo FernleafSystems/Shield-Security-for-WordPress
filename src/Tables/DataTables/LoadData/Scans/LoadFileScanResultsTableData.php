@@ -60,6 +60,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function getDataFromItem( ResultItem $item ) :array {
+		$isIgnored = $item->VO->ignored_at > 0;
 		$data = \array_merge( $item->getRawData(), [
 			'rid'              => $item->VO->scanresult_id,
 			'file'             => $item->path_fragment,
@@ -74,6 +75,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			'status_file_type' => $this->column_fileType( $item ),
 			'status'           => $this->getColumnContent_FileStatus( $item ),
 			'actions'          => \implode( ' ', $this->getActions( $item ) ),
+			'is_ignored'       => $isIgnored,
+			'ignored_label'    => $isIgnored ? __( 'Ignored', 'wp-simple-firewall' ) : '',
+			'DT_RowClass'      => $isIgnored ? 'scan-result-row scan-result-row--ignored' : 'scan-result-row',
+			'DT_RowAttr'       => [
+				'data-scan-result-ignored' => $isIgnored ? '1' : '0',
+			],
 		] );
 
 		if ( $item->is_mal ) {
@@ -341,10 +348,17 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {
-		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
+		return sprintf(
+			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>%s</div>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
 			$item->VO->scanresult_id,
-			esc_html( $item->path_fragment )
+			esc_html( $item->path_fragment ),
+			$item->VO->ignored_at > 0
+				? sprintf(
+					' <span class="badge text-bg-secondary scan-results-ignored-badge" data-scan-result-ignored-badge="1">%s</span>',
+					esc_html__( 'Ignored', 'wp-simple-firewall' )
+				)
+				: ''
 		);
 	}
 

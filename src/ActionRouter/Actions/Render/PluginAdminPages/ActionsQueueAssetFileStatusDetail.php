@@ -17,7 +17,7 @@ class ActionsQueueAssetFileStatusDetail extends BaseRender {
 	}
 
 	protected function getRenderData() :array {
-		$options = new ActionsQueueScanResultsOptions();
+		$options = new ScanResultsDisplayOptions();
 		$explicitOptions = $options->explicitOptionsFromActionData( $this->action_data );
 		$scanResultsActionData = $explicitOptions === null
 			? $options->buildDisplayContextActionData()

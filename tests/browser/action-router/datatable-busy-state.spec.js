@@ -174,7 +174,7 @@ test( 'datatable busy: IP analysis tab loads show busy state from the first inve
 	await expectNotBusyState( container );
 } );
 
-test( 'datatable busy: actions queue display-form refresh marks the visible direct table busy before the table is replaced', async ( { page } ) => {
+test( 'datatable busy: actions queue display-filter reload marks the visible direct table busy while the datatable request is in flight', async ( { page } ) => {
 	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -186,26 +186,27 @@ test( 'datatable busy: actions queue display-form refresh marks the visible dire
 
 		const table = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
 		const container = getDatatableContainer( table );
-		const displayForm = page.locator( '[data-operator-context-display-form="1"]' );
-		const repairedToggle = displayForm.locator( 'input[name="include_repaired"]' );
+		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
+		const repairedToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_repaired"]' ).first();
 
 		await waitForScanResultsTableRows( table );
-		await expect( displayForm ).toBeVisible();
+		await expect( displayCollection ).toBeVisible();
 		await expectNotBusyState( container );
 
 		const delayedRequest = await delayNextMatchingAdminAjaxRequest(
 			page,
-			( request ) => ( request.postData() || '' ).includes( 'ex=scan_results_display_form_submit' )
+			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' )
 		);
 
-		await repairedToggle.check();
+		await displayCollection.click();
+		await repairedToggle.click();
 		await delayedRequest.started;
 		await expectBusyState( container );
 		await delayedRequest.completed;
 
-		await expect( repairedToggle ).toBeChecked( { timeout: 20_000 } );
 		const refreshedTable = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
 		await waitForScanResultsTableRows( refreshedTable );
+		await expect( page.locator( '[data-scan-results-display-collection="1"]' ).first() ).toBeVisible();
 		await expectNotBusyState( getDatatableContainer( refreshedTable ) );
 	} );
 } );

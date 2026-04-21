@@ -26,7 +26,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRoute
 	 * }|null
 	 */
 	protected function getActionsQueueExplicitResultsDisplayOptions() :?array {
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions() )
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
 			->explicitOptionsFromActionData( $this->action_data );
 	}
 

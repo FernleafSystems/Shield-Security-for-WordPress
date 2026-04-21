@@ -16,14 +16,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 class ActionsQueueGroupSeedCollector {
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
-	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupScanSource $scanSource;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
-		ActionsQueueScanResultsOptions $queueScanResultsOptions,
+		ScanResultsDisplayOptions $queueScanResultsOptions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
 		ActionsQueueGroupScanSource $scanSource,
 		ActionsQueueGroupMaintenanceSource $maintenanceSource
@@ -242,7 +242,7 @@ class ActionsQueueGroupSeedCollector {
 					$this->queueScanResultsOptions->buildSubjectActionData(
 						$summary[ 'subject_type' ],
 						$summary[ 'subject_id' ],
-						$this->queueScanResultsOptions->forcedIgnoredOptions()
+						$this->queueScanResultsOptions->ignoredOnly()
 					),
 					[ $ignoredItem ]
 				);

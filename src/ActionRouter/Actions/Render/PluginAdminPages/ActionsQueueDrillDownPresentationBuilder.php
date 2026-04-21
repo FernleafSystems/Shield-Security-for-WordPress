@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
- * @phpstan-import-type OperatorChromeDisplayOptionsInput from OperatorChromeContract
  * @phpstan-type HeaderOverrides array{
  *   summary?:string,
  *   focus?:string,
@@ -123,7 +122,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		array $detailRenderAction,
 		string $summary,
 		array $actions = [],
-		array $displayOptions = [],
 		array $headerOverrides = []
 	) :array {
 		$header = $this->buildGroupHeader(
@@ -134,7 +132,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			$itemCount,
 			$summary,
 			$actions,
-			$displayOptions,
 			$headerOverrides
 		);
 		$selection = [
@@ -194,7 +191,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 		int $itemCount,
 		string $summary,
 		array $actions = [],
-		array $displayOptions = [],
 		array $overrides = []
 	) :array {
 		return OperatorChromeContract::normalizeHeader( [
@@ -210,7 +206,6 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
 			'color_key'          => $overrides[ 'color_key' ] ?? $status,
 			'actions'            => $actions,
-			'display_options'    => $displayOptions,
 		] );
 	}
 }

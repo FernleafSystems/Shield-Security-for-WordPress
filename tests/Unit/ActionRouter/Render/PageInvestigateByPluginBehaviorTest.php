@@ -193,9 +193,14 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$fileStatusAction = $this->decodeJsonAttr( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ) );
 		$this->assertSame( 'plugin', $fileStatusAction[ 'type' ] ?? '' );
 		$this->assertSame( 'akismet/akismet.php', $fileStatusAction[ 'file' ] ?? '' );
-		$this->assertArrayNotHasKey(
-			'results_display_options',
-			$fileStatusAction
+		$this->assertSame(
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
+			],
+			$fileStatusAction[ 'results_display_options' ] ?? []
 		);
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
 		$this->assertSame(

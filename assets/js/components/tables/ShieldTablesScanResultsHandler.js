@@ -8,21 +8,25 @@ export class ShieldTablesScanResultsHandler extends BaseAutoExecComponent {
 		Object.keys( this._base_data ).forEach(
 			( key, idx ) => {
 				let thisTable = ObjectOps.ObjClone( this._base_data[ key ] );
-				if ( thisTable.vars.table_selector.startsWith( '#' ) ) {
-					new ShieldTableScanResults( thisTable );
-				}
-				else {
-					document.querySelectorAll( thisTable.vars.table_selector )
-							.forEach( ( tableElem, idx ) => {
-								if ( tableElem.id ) {
-									let tableData = ObjectOps.ObjClone( thisTable );
-									tableData.vars.table_selector = '#' + tableElem.id;
-									tableData.ajax.table_action.type = tableElem.dataset.type;
-									tableData.ajax.table_action.file = tableElem.dataset.file;
-									new ShieldTableScanResults( tableData );
-								}
-							} );
-				}
+				document.querySelectorAll( thisTable.vars.table_selector )
+					.forEach( ( tableElem ) => {
+						if ( !( tableElem instanceof HTMLTableElement ) || !tableElem.id ) {
+							return;
+						}
+
+						let tableData = ObjectOps.ObjClone( thisTable );
+						tableData.vars.table_selector = '#' + tableElem.id;
+						if ( tableElem.dataset.type ) {
+							tableData.ajax.table_action.type = tableElem.dataset.type;
+						}
+						if ( tableElem.dataset.file ) {
+							tableData.ajax.table_action.file = tableElem.dataset.file;
+						}
+						tableElem.dataset.resultsDisplayOptions = JSON.stringify(
+							tableData.ajax?.table_action?.results_display_options || {}
+						);
+						new ShieldTableScanResults( tableData );
+					} );
 			}
 		);
 	}

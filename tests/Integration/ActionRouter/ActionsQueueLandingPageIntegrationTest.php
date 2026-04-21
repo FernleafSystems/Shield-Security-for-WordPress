@@ -5,14 +5,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsDisplayFormSubmit;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -37,6 +36,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		$this->truncateShieldTables();
 		$this->requireDb( 'scans' );
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
@@ -45,7 +45,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			MaintenanceIssueStateProvider::OPT_KEY,
 			'file_locker',
 			'filelocker_state',
-			'scan_results_table_display',
 			'snapi_data',
 		] );
 		$this->loginAsSecurityAdmin();
@@ -224,24 +223,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	private function assertDisplayOptionsHeader( array $header, array $expectedStates, bool $ignoredToggleDisabled = false ) :void {
-		$displayOptions = (array)( $header[ 'display_options' ] ?? [] );
-		$this->assertCount( 3, $displayOptions[ 'controls' ] ?? [] );
-		$actionData = \json_decode( (string)( $displayOptions[ 'action_json' ] ?? '' ), true );
-		$this->assertIsArray( $actionData );
-		$this->assertSame( ScanResultsDisplayFormSubmit::SLUG, (string)( $actionData[ 'ex' ] ?? '' ) );
-		$this->assertSame( ActionsQueueScanResultsOptions::DISPLAY_CONTEXT, (string)( $actionData[ 'display_context' ] ?? '' ) );
+	private function assertHeaderHasNoDisplayOptions( array $header ) :void {
+		$this->assertArrayNotHasKey( 'display_options', $header );
+	}
+
+	private function assertGroupResultsDisplayOptions( array $selectedGroup, array $expectedOptions ) :void {
 		$this->assertSame(
-			$expectedStates,
-			\array_column( (array)( $displayOptions[ 'controls' ] ?? [] ), 'checked', 'name' )
-		);
-		$this->assertSame(
-			[
-				'include_ignored'  => $ignoredToggleDisabled,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-			],
-			\array_column( (array)( $displayOptions[ 'controls' ] ?? [] ), 'disabled', 'name' )
+			$expectedOptions,
+			(array)( $selectedGroup[ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
 		);
 	}
 
@@ -257,13 +246,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $groupKey, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
 		$this->assertIgnoreAllHeaderAction( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ), $expectedScope );
-		$this->assertDisplayOptionsHeader(
-			(array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ),
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-			]
+		$this->assertHeaderHasNoDisplayOptions( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
+		$this->assertGroupResultsDisplayOptions(
+			(array)( $groupsPayload[ 'selected_group' ] ?? [] ),
+			( new ScanResultsDisplayOptions() )->activeOnly()
 		);
 		$this->assertSame( 'ajax_render', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'ex' ] ?? '' ) );
 	}
@@ -479,7 +465,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? null );
+		$this->assertHeaderHasNoDisplayOptions( (array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ) );
 	}
 
 	public function test_groups_ajax_keeps_selected_fully_ignored_plugin_group_scoped_to_direct_table_detail() :void {
@@ -517,14 +503,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
 		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertDisplayOptionsHeader(
-			(array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ),
-			[
-				'include_ignored'  => true,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-			],
-			true
+		$this->assertHeaderHasNoDisplayOptions( (array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ) );
+		$this->assertGroupResultsDisplayOptions(
+			(array)( $payload[ 'selected_group' ] ?? [] ),
+			( new ScanResultsDisplayOptions() )->ignoredOnly()
 		);
 		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $payload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
 	}
@@ -546,114 +528,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'type' => 'wordpress',
 				'file' => 'wordpress',
 			]
-		);
-	}
-
-	public function test_wordpress_direct_table_refreshes_display_options_in_place_after_actions_queue_submit() :void {
-		$this->enableAssetScanFixture( [ 'wp' ] );
-		$this->requireController()->opts
-			 ->optSet( 'scan_results_table_display', [] )
-			 ->store();
-
-		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
-		$active = TestDataFactory::insertAfsFileScanResultTracked(
-			$afsId,
-			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-admin/admin.php' ),
-			[
-			'is_in_core' => 1,
-			]
-		);
-		$ignored = TestDataFactory::insertAfsFileScanResultTracked(
-			$afsId,
-			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-admin/css/common.css' ),
-			[
-			'is_in_core' => 1,
-			]
-		);
-		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
-		$repaired = TestDataFactory::insertAfsFileScanResultTracked(
-			$afsId,
-			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-includes/version.php' ),
-			[
-			'is_in_core'    => 1,
-			'is_checksumfail' => 1,
-			]
-		);
-		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
-			(int)$repaired[ 'result_item_id' ],
-			[ 'item_repaired_at' => \time() ]
-		);
-		$deleted = TestDataFactory::insertAfsFileScanResultTracked(
-			$afsId,
-			TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.'wp-admin/js/updates.js' ),
-			[
-			'is_in_core'    => 1,
-			'is_unrecognised' => 1,
-			]
-		);
-		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
-			(int)$deleted[ 'result_item_id' ],
-			[ 'item_deleted_at' => \time() ]
-		);
-		$this->resetScanResultCountMemoization();
-
-		$initialGroupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'critical',
-			'group'  => 'wordpress',
-		] );
-		$initialDisplayOptions = (array)( $initialGroupsPayload[ 'selected_group' ][ 'header' ][ 'display_options' ] ?? [] );
-		$initialActionData = \json_decode( (string)( $initialDisplayOptions[ 'action_json' ] ?? '' ), true );
-		$this->assertIsArray( $initialActionData );
-		$this->assertSame( ActionsQueueScanResultsOptions::DISPLAY_CONTEXT, (string)( $initialActionData[ 'display_context' ] ?? '' ) );
-		$initialTableData = $this->retrieveScanResultsTableData( 'core', 'core' );
-		$this->assertSame( 1, (int)( $initialTableData[ 'recordsTotal' ] ?? -1 ) );
-		$this->assertSame( 1, (int)( $initialTableData[ 'recordsFiltered' ] ?? -1 ) );
-
-		$submitPayload = $this->processActionPayloadWithAdminBypass( ScanResultsDisplayFormSubmit::SLUG, [
-			'display_context' => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
-			'form_data'       => [
-				'include_ignored'  => 'Y',
-				'include_repaired' => 'Y',
-				'include_deleted'  => 'Y',
-			],
-		] );
-		$this->assertTrue( (bool)( $submitPayload[ 'success' ] ?? false ) );
-		$this->assertFalse( (bool)( $submitPayload[ 'page_reload' ] ?? true ) );
-		$this->assertSame(
-			[
-				'include_deleted',
-				'include_ignored',
-				'include_repaired',
-			],
-			\array_values( $this->requireController()->opts->optGet( 'scan_results_table_display' ) )
-		);
-
-		$refreshedGroupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
-			'bucket' => 'critical',
-			'group'  => 'wordpress',
-		] );
-		$this->assertSame( 'wordpress', (string)( $refreshedGroupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'direct_table', (string)( $refreshedGroupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertDisplayOptionsHeader(
-			(array)( $refreshedGroupsPayload[ 'selected_group' ][ 'header' ] ?? [] ),
-			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-			]
-		);
-
-		$refreshedTableData = $this->retrieveScanResultsTableData( 'core', 'core' );
-		$this->assertSame( 4, (int)( $refreshedTableData[ 'recordsTotal' ] ?? -1 ) );
-		$this->assertSame( 4, (int)( $refreshedTableData[ 'recordsFiltered' ] ?? -1 ) );
-		$this->assertEqualsCanonicalizing(
-			[
-				(int)$active[ 'scan_result_id' ],
-				(int)$ignored[ 'scan_result_id' ],
-				(int)$repaired[ 'scan_result_id' ],
-				(int)$deleted[ 'scan_result_id' ],
-			],
-			\array_column( $refreshedTableData[ 'data' ] ?? [], 'rid' )
 		);
 	}
 
@@ -706,7 +580,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_ignored_plugin_group_keeps_forced_ignored_scope_and_stored_deleted_repaired_flags_on_direct_table_detail() :void {
+	public function test_ignored_plugin_group_keeps_forced_ignored_scope_on_direct_table_detail() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_pluginsthemes_local',
 		] );
@@ -714,7 +588,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] )
-			 ->optSet( 'scan_results_table_display', [ 'include_repaired', 'include_deleted' ] )
 			 ->store();
 		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
 		$this->resetScanResultCountMemoization();
@@ -740,22 +613,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$this->assertSame( 'plugins:'.$pluginSlug, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
-		$this->assertDisplayOptionsHeader(
-			(array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ),
-			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-			],
-			true
-		);
+		$this->assertHeaderHasNoDisplayOptions( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
 		$this->assertSame(
-			[
-				'include_ignored'  => true,
-				'include_repaired' => true,
-				'include_deleted'  => true,
-				'ignored_only'     => true,
-			],
+			( new ScanResultsDisplayOptions() )->ignoredOnly(),
 			(array)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
 		);
 		$this->assertSame( 'actions_queue_asset_file_status_detail', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
@@ -892,7 +752,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertSame( [], (array)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? [] ) );
-		$this->assertSame( [], (array)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'display_options' ][ 'controls' ] ?? [] ) );
+		$this->assertHeaderHasNoDisplayOptions( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
 	}
 
 	public function test_file_locker_disabled_fix_now_group_uses_upgrade_cta() :void {

@@ -13,16 +13,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
  */
 class ActionsQueueContextActionsBuilder {
 
-	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ScanResultsScopeResolver $scopeResolver;
 	private PluginReinstallContextActionBuilder $pluginReinstallActionBuilder;
 
 	public function __construct(
-		?ActionsQueueScanResultsOptions $queueScanResultsOptions = null,
+		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
 		?ScanResultsScopeResolver $scopeResolver = null,
 		?PluginReinstallContextActionBuilder $pluginReinstallActionBuilder = null
 	) {
-		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ActionsQueueScanResultsOptions();
+		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 		$this->scopeResolver = $scopeResolver ?? new ScanResultsScopeResolver();
 		$this->pluginReinstallActionBuilder = $pluginReinstallActionBuilder ?? new PluginReinstallContextActionBuilder();
 	}

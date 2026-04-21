@@ -295,10 +295,6 @@ export class StepTabsController extends BaseAutoExecComponent {
 			fragment.appendChild( section );
 		}
 
-		if ( step.displayOptions.controls.length > 0 ) {
-			fragment.appendChild( this.buildContextDisplayOptionsSection( step.displayOptions ) );
-		}
-
 		railBody.replaceChildren( fragment );
 	}
 
@@ -366,7 +362,6 @@ export class StepTabsController extends BaseAutoExecComponent {
 			badgeStatus: this.readText( stepData?.badge_status ) || 'neutral',
 			colorKey: this.readText( stepData?.color_key ) || 'neutral',
 			actions: Array.isArray( stepData?.actions ) ? stepData.actions : [],
-			displayOptions: this.readDisplayOptions( stepData?.display_options ),
 			target,
 			isCurrent,
 			showLabel: true,
@@ -407,51 +402,6 @@ export class StepTabsController extends BaseAutoExecComponent {
 
 		return el;
 	}
-
-	buildContextDisplayOptionsSection( displayOptions ) {
-		const section = document.createElement( 'div' );
-		section.className = 'operator-context-rail__section operator-context-rail__section--display-options';
-
-		const sectionLabel = document.createElement( 'div' );
-		sectionLabel.className = 'operator-context-rail__section-label';
-		sectionLabel.textContent = this.readText( displayOptions?.title );
-		section.appendChild( sectionLabel );
-
-		const form = document.createElement( 'form' );
-		form.className = 'operator-context-rail__display-options';
-		form.dataset.operatorContextDisplayForm = '1';
-		form.dataset.operatorContextDisplayAction = this.readText( displayOptions?.action_json );
-
-		displayOptions.controls.forEach( ( control ) => {
-			form.appendChild( this.buildContextDisplayOptionsControl( control ) );
-		} );
-
-		section.appendChild( form );
-		return section;
-	}
-
-	buildContextDisplayOptionsControl( control ) {
-		const field = document.createElement( 'label' );
-		field.className = 'form-check form-switch operator-context-rail__display-switch';
-
-		const input = document.createElement( 'input' );
-		input.className = 'form-check-input';
-		input.type = 'checkbox';
-		input.role = 'switch';
-		input.name = this.readText( control?.name );
-		input.checked = Boolean( control?.checked );
-		input.disabled = Boolean( control?.disabled );
-		input.dataset.operatorContextDisplayToggle = '1';
-		field.appendChild( input );
-
-		const text = document.createElement( 'span' );
-		text.className = 'operator-context-rail__display-switch-label';
-		text.textContent = this.readText( control?.label );
-		field.appendChild( text );
-
-		return field;
-	}
-
 	buildHomeStep( rootStep, homeLabel, homeHref, isCurrent, showLabel = false ) {
 		const step = this.buildVisualStep( {
 			breadcrumb_label: homeLabel,
@@ -509,23 +459,6 @@ export class StepTabsController extends BaseAutoExecComponent {
 
 	readStepData( rawValue ) {
 		return parseJsonAttribute( rawValue, {} );
-	}
-
-	readDisplayOptions( rawDisplayOptions ) {
-		const displayOptions = rawDisplayOptions && typeof rawDisplayOptions === 'object'
-			? rawDisplayOptions
-			: {};
-
-		return {
-			title: this.readText( displayOptions?.title ),
-			action_json: this.readText( displayOptions?.action_json ),
-			controls: Array.isArray( displayOptions?.controls )
-				? displayOptions.controls.filter( ( control ) => {
-					return this.readText( control?.name ).length > 0
-						&& this.readText( control?.label ).length > 0;
-				} )
-				: [],
-		};
 	}
 
 	readText( value ) {

@@ -21,29 +21,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   ajax_action_json:string,
  *   confirm_text:string
  * }
- * @phpstan-type OperatorChromeDisplayOptionControlInput array{
- *   name?:string,
- *   label?:string,
- *   checked?:bool,
- *   disabled?:bool
- * }
- * @phpstan-type OperatorChromeDisplayOptionControl array{
- *   name:string,
- *   label:string,
- *   checked:bool,
- *   disabled:bool
- * }
- * @phpstan-type OperatorChromeDisplayOptionsInput array{
- *   title?:string,
- *   action_json?:string,
- *   controls?:list<OperatorChromeDisplayOptionControlInput>
- * }
- * @phpstan-type OperatorChromeDisplayOptions array{
- *   title:string,
- *   action_json:string,
- *   controls:list<OperatorChromeDisplayOptionControl>
- * }
- *
  * @phpstan-type OperatorChromeStepInput array{
  *   breadcrumb_label?:string,
  *   title?:string,
@@ -54,8 +31,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   badge?:string,
  *   badge_status?:string,
  *   color_key?:string,
- *   actions?:list<OperatorChromeActionInput>,
- *   display_options?:OperatorChromeDisplayOptionsInput
+ *   actions?:list<OperatorChromeActionInput>
  * }
  * @phpstan-type OperatorChromeStep array{
  *   breadcrumb_label:string,
@@ -67,8 +43,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   badge:string,
  *   badge_status:string,
  *   color_key:string,
- *   actions:list<OperatorChromeAction>,
- *   display_options:OperatorChromeDisplayOptions
+ *   actions:list<OperatorChromeAction>
  * }
  * @phpstan-type DrillLayerHeaderInput array{
  *   compact_back_label?:string,
@@ -83,8 +58,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   badge?:string,
  *   badge_status?:string,
  *   color_key?:string,
- *   actions?:list<OperatorChromeActionInput>,
- *   display_options?:OperatorChromeDisplayOptionsInput
+ *   actions?:list<OperatorChromeActionInput>
  * }
  * @phpstan-type DrillLayerHeader array{
  *   compact_back_label:string,
@@ -99,8 +73,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   badge:string,
  *   badge_status:string,
  *   color_key:string,
- *   actions:list<OperatorChromeAction>,
- *   display_options:OperatorChromeDisplayOptions
+ *   actions:list<OperatorChromeAction>
  * }
  */
 final class OperatorChromeContract {
@@ -156,7 +129,6 @@ final class OperatorChromeContract {
 			'badge_status'     => $badgeStatus,
 			'color_key'        => $colorKey,
 			'actions'          => self::normalizeActions( $step[ 'actions' ] ?? [] ),
-			'display_options'  => self::normalizeDisplayOptions( $step[ 'display_options' ] ?? [] ),
 		];
 	}
 
@@ -182,7 +154,6 @@ final class OperatorChromeContract {
 				'badge_status'     => $header[ 'badge_status' ] ?? '',
 				'color_key'        => $header[ 'color_key' ] ?? ( $header[ 'badge_status' ] ?? '' ),
 				'actions'          => $header[ 'actions' ] ?? [],
-				'display_options'  => $header[ 'display_options' ] ?? [],
 			] )
 		);
 	}
@@ -245,55 +216,6 @@ final class OperatorChromeContract {
 			},
 			$actions
 		), static fn( array $action ) :bool => self::isRenderableAction( $action ) ) );
-	}
-
-	/**
-	 * @param mixed $displayOptions
-	 * @return OperatorChromeDisplayOptions
-	 */
-	private static function normalizeDisplayOptions( $displayOptions ) :array {
-		if ( !\is_array( $displayOptions ) ) {
-			return self::emptyDisplayOptions();
-		}
-
-		$normalized = [
-			'title'       => self::normalizeText( $displayOptions[ 'title' ] ?? '' ),
-			'action_json' => self::normalizeText( $displayOptions[ 'action_json' ] ?? '' ),
-			'controls'    => \array_values( \array_filter( \array_map(
-				static function ( $control ) :array {
-					if ( !\is_array( $control ) ) {
-						return [];
-					}
-
-					return [
-						'name'     => self::sanitizeKey( (string)( $control[ 'name' ] ?? '' ) ),
-						'label'    => self::normalizeText( $control[ 'label' ] ?? '' ),
-						'checked'  => !empty( $control[ 'checked' ] ),
-						'disabled' => !empty( $control[ 'disabled' ] ),
-					];
-				},
-				\is_array( $displayOptions[ 'controls' ] ?? null ) ? $displayOptions[ 'controls' ] : []
-			), static fn( array $control ) :bool => $control !== []
-				&& $control[ 'name' ] !== ''
-				&& $control[ 'label' ] !== '' ) ),
-		];
-
-		return $normalized[ 'title' ] !== ''
-			&& $normalized[ 'action_json' ] !== ''
-			&& !empty( $normalized[ 'controls' ] )
-			? $normalized
-			: self::emptyDisplayOptions();
-	}
-
-	/**
-	 * @return OperatorChromeDisplayOptions
-	 */
-	private static function emptyDisplayOptions() :array {
-		return [
-			'title'       => '',
-			'action_json' => '',
-			'controls'    => [],
-		];
 	}
 
 	/**

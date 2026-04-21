@@ -27,19 +27,6 @@ class OperatorChromeContractTest extends BaseUnitTest {
 					'unexpected'       => 'discard',
 				],
 			],
-			'display_options' => [
-				'title'       => 'Display Results',
-				'action_json' => '{"ex":"scan_results_display_form_submit"}',
-				'controls'    => [
-					[
-						'name'       => 'include_ignored',
-						'label'      => 'Include Ignored Results',
-						'checked'    => true,
-						'disabled'   => false,
-						'unexpected' => 'discard',
-					],
-				],
-			],
 		] );
 
 		$this->assertSame( 'Example Plugin', $header[ 'title' ] );
@@ -56,21 +43,6 @@ class OperatorChromeContractTest extends BaseUnitTest {
 				],
 			],
 			$header[ 'actions' ]
-		);
-		$this->assertSame(
-			[
-				'title'       => 'Display Results',
-				'action_json' => '{"ex":"scan_results_display_form_submit"}',
-				'controls'    => [
-					[
-						'name'     => 'include_ignored',
-						'label'    => 'Include Ignored Results',
-						'checked'  => true,
-						'disabled' => false,
-					],
-				],
-			],
-			$header[ 'display_options' ]
 		);
 	}
 
@@ -108,14 +80,6 @@ class OperatorChromeContractTest extends BaseUnitTest {
 				],
 			],
 			$header[ 'actions' ]
-		);
-		$this->assertSame(
-			[
-				'title'       => '',
-				'action_json' => '',
-				'controls'    => [],
-			],
-			$header[ 'display_options' ]
 		);
 	}
 }

@@ -114,8 +114,10 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'actions_queue', $tableAction[ 'display_context' ] ?? '' );
 		$this->assertSame(
 			[
-				'include_ignored' => true,
-				'ignored_only'    => true,
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
 			],
 			$tableAction[ 'results_display_options' ] ?? []
 		);
@@ -123,7 +125,7 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', (string)( $renderItemAnalysis[ 'render_slug' ] ?? '' ) );
 	}
 
-	public function testFileStatusBuilderDoesNotInjectExplicitFiltersWithoutInput() :void {
+	public function testFileStatusBuilderDefaultsToExplicitActiveOnlyFilters() :void {
 		$table = ( new ScanResultsTableContractBuilder() )->buildFileStatus(
 			'plugin',
 			'akismet/akismet.php',
@@ -136,7 +138,15 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		$tableAction = $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) );
 
 		$this->assertSame( 'actions_queue', $tableAction[ 'display_context' ] ?? '' );
-		$this->assertArrayNotHasKey( 'results_display_options', $tableAction );
+		$this->assertSame(
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
+			],
+			$tableAction[ 'results_display_options' ] ?? []
+		);
 	}
 
 	public function testFileStatusBuilderEmptyStatePreservesFullLogHrefAndDropsTableAttrs() :void {
