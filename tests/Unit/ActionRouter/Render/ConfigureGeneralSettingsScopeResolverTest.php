@@ -73,10 +73,9 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 		$this->assertSame( [ 'optimise_scan_speed' ], $scope[ 'option_keys' ] ?? [] );
 	}
 
-	public function test_resolve_excludes_users_and_firewall_options_now_owned_by_visible_rows() :void {
+	public function test_resolve_excludes_user_options_now_owned_by_visible_rows() :void {
 		$this->installZonesController( [
-			'module_users'    => [ 'manual_suspend', 'auto_password' ],
-			'module_firewall' => [ 'block_send_email', 'clean_wp_rubbish' ],
+			'module_users' => [ 'manual_suspend', 'auto_password' ],
 		] );
 
 		$resolver = new ConfigureGeneralSettingsScopeResolver();
@@ -84,13 +83,6 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 			$this->newZone( [ 'module_users' ] ),
 			[ 'manual_suspend', 'auto_password' ]
 		) );
-		$this->assertSame(
-			[ 'clean_wp_rubbish' ],
-			$resolver->resolve(
-				$this->newZone( [ 'module_firewall' ] ),
-				[ 'block_send_email' ]
-			)[ 'option_keys' ] ?? []
-		);
 	}
 
 	private function installZonesController( array $optionsBySlug ) :void {

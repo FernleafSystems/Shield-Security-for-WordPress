@@ -304,6 +304,50 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertSame( 788, $option['beacon_id'] );
 	}
 
+	public function testFirewallBlockInstantAlertOptionUsesAlertsReportingContract() :void {
+		$this->assertArrayHasKey( 'instant_alert_firewall_block', $this->options );
+		$option = $this->options['instant_alert_firewall_block'];
+
+		$this->assertIsArray( $option );
+		$this->assertSame( 'section_alerts', $option['section'] );
+		$this->assertSame( [ 'instant_alerts', 'reporting' ], $option['zone_comp_slugs'] );
+		$this->assertSame( 'select', $option['type'] );
+		$this->assertSame( 'disabled', $option['default'] );
+		$this->assertSame( [ 'disabled', 'email' ], \array_column( $option['value_options'] ?? [], 'value_key' ) );
+		$this->assertSame( 788, $option['beacon_id'] );
+	}
+
+	public function testFirewallBlockInstantAlertAndLegacyOptionAreGroupedInSourceSpec() :void {
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		$keys = \array_column( $options, 'key' );
+		$adminLoginIndex = \array_search( 'instant_alert_admin_login', $keys, true );
+		$firewallBlockIndex = \array_search( 'instant_alert_firewall_block', $keys, true );
+		$legacyBlockEmailIndex = \array_search( 'block_send_email', $keys, true );
+
+		$this->assertNotFalse( $adminLoginIndex );
+		$this->assertNotFalse( $firewallBlockIndex );
+		$this->assertNotFalse( $legacyBlockEmailIndex );
+		$this->assertSame( $adminLoginIndex + 1, $firewallBlockIndex );
+		$this->assertSame( $firewallBlockIndex + 1, $legacyBlockEmailIndex );
+
+		$option = $options[ $firewallBlockIndex ];
+		$this->assertSame( 'section_alerts', $option['section'] );
+		$this->assertSame( [ 'instant_alerts', 'reporting' ], $option['zone_comp_slugs'] );
+		$this->assertSame( 788, $option['beacon_id'] );
+	}
+
+	public function testLegacyFirewallBlockEmailOptionIsHiddenAndNonTransferable() :void {
+		$this->assertArrayHasKey( 'block_send_email', $this->options );
+		$option = $this->options['block_send_email'];
+
+		$this->assertIsArray( $option );
+		$this->assertSame( 'section_hidden', $option['section'] );
+		$this->assertSame( 'checkbox', $option['type'] );
+		$this->assertSame( 'N', $option['default'] );
+		$this->assertSame( false, $option['transferable'] ?? true );
+		$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+	}
+
 	public function testLegacyAdminLoginNotificationOptionIsHiddenAndNonTransferable() :void {
 		$this->assertArrayHasKey( 'enable_admin_login_email_notification', $this->options );
 		$option = $this->options['enable_admin_login_email_notification'];

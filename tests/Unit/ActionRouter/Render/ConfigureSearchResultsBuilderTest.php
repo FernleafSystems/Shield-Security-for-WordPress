@@ -98,13 +98,6 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'description'     => [ 'Employs a set of aggressive rules to detect and block malicious data submitted to your site.' ],
 				'zone_comp_slugs' => [ 'web_application_firewall', 'module_firewall' ],
 			],
-			'block_send_email' => [
-				'section'         => 'section_firewall_blocking_options',
-				'name'            => 'Send Email Report',
-				'summary'         => 'Send Firewall Trigger Report Email',
-				'description'     => [ 'Send firewall trigger report email.' ],
-				'zone_comp_slugs' => [ 'web_application_firewall', 'module_firewall' ],
-			],
 			'hidden_shared_firewall_option' => [
 				'section'         => 'section_firewall_blocking_options',
 				'name'            => 'Hidden Shared Firewall Option',
@@ -135,6 +128,20 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'name'            => 'Instant Alerts For Admins',
 				'summary'         => 'Send immediate alerts to admins',
 				'description'     => [ 'Choose which admin alerts should be sent instantly.' ],
+				'zone_comp_slugs' => [ 'instant_alerts', 'reporting' ],
+			],
+			'instant_alert_admin_login' => [
+				'section'         => 'section_alerts',
+				'name'            => 'Admin Login',
+				'summary'         => 'Be alerted when an administrator-level user logs in',
+				'description'     => [ 'Send an immediate alert for admin logins.' ],
+				'zone_comp_slugs' => [ 'instant_alerts', 'reporting' ],
+			],
+			'instant_alert_firewall_block' => [
+				'section'         => 'section_alerts',
+				'name'            => 'Firewall Blocks',
+				'summary'         => 'Be alerted when the firewall blocks a request',
+				'description'     => [ 'Use with caution for high-volume block traffic.' ],
 				'zone_comp_slugs' => [ 'instant_alerts', 'reporting' ],
 			],
 			'enable_email_authentication' => [
@@ -269,7 +276,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_shared_options_prefer_specific_component_rows_over_module_rows() :void {
-		$results = $this->newBuilder()->build( 'aggressive email report' );
+		$results = $this->newBuilder()->build( 'aggressive firewall blocks' );
 		$optionResults = [];
 		foreach ( $results as $result ) {
 			if ( ( $result[ 'type' ] ?? '' ) === 'option' ) {
@@ -289,10 +296,10 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $optionResults[ 'Aggressive Scan' ][ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertResultHrefQueryMatches( $optionResults[ 'Send Email Report' ], [
-			'zone'        => 'firewall',
-			'row_key'     => 'web_application_firewall',
-			'config_item' => 'block_send_email',
+		$this->assertResultHrefQueryMatches( $optionResults[ 'Firewall Blocks' ], [
+			'zone'        => 'reports_alerts',
+			'row_key'     => 'instant_alerts',
+			'config_item' => 'instant_alert_firewall_block',
 		] );
 		$this->assertArrayNotHasKey(
 			'Hidden Shared Firewall Option',
@@ -358,6 +365,10 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			$this->newBuilder()->build( 'instant admins alert' ),
 			'instant_alert_admins'
 		);
+		$firewallAlertResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'firewall blocks alert' ),
+			'instant_alert_firewall_block'
+		);
 
 		$this->assertNotNull( $reportResult );
 		$this->assertSame(
@@ -385,6 +396,20 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			'zone'        => 'reports_alerts',
 			'row_key'     => 'instant_alerts',
 			'config_item' => 'instant_alert_admins',
+		] );
+
+		$this->assertNotNull( $firewallAlertResult );
+		$this->assertSame(
+			[
+				'row_key'     => 'instant_alerts',
+				'config_item' => 'instant_alert_firewall_block',
+			],
+			\json_decode( (string)( $firewallAlertResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertResultHrefQueryMatches( $firewallAlertResult, [
+			'zone'        => 'reports_alerts',
+			'row_key'     => 'instant_alerts',
+			'config_item' => 'instant_alert_firewall_block',
 		] );
 	}
 
@@ -798,7 +823,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 								'is_expandable'   => true,
 								'data_attributes' => [
 									'zone_component_slug' => 'instant_alerts',
-									'option_keys'         => 'instant_alert_admins',
+									'option_keys'         => 'instant_alert_admins,instant_alert_admin_login,instant_alert_firewall_block',
 								],
 							],
 						],

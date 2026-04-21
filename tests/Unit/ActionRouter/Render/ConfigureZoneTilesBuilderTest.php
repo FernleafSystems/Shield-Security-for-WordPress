@@ -210,7 +210,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			\array_column( $tilesByKey[ 'reports_alerts' ][ 'panel' ][ 'rows' ], 'key' )
 		);
 		$this->assertSame(
-			'instant_alert_admins,instant_alert_admin_login',
+			'instant_alert_admins,instant_alert_admin_login,instant_alert_firewall_block',
 			$tilesByKey[ 'reports_alerts' ][ 'panel' ][ 'rows' ][ 0 ][ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
 		);
 		$this->assertSame(
@@ -293,7 +293,6 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				\spl_object_id( $firewallZone ) => [
 					$this->newComponent( 'WAF Rules', EnumEnabledStatus::GOOD, 'WAF subtitle', [ 'WAF rules are active.' ], [
 						'waf_rules',
-						'block_send_email',
 					] ),
 				],
 				\spl_object_id( $ipsZone )      => [
@@ -425,7 +424,6 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					[],
 					[
 						'waf_rules',
-						'block_send_email',
 						'clean_wp_rubbish',
 					]
 				),
@@ -538,6 +536,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					[
 						'instant_alert_admins',
 						'instant_alert_admin_login',
+						'instant_alert_firewall_block',
 					],
 					[
 						[
@@ -546,7 +545,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 							'status'       => EnumEnabledStatus::NEUTRAL,
 							'note'         => 'Manage immediate alerts for important security events.',
 							'explanations' => [],
-							'option_keys'  => [ 'instant_alert_admins', 'instant_alert_admin_login' ],
+							'option_keys'  => [ 'instant_alert_admins', 'instant_alert_admin_login', 'instant_alert_firewall_block' ],
 						],
 					],
 					Component\InstantAlerts::Slug()

@@ -34,6 +34,8 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'file_locker',
 		'instant_alert_admin_login',
 		'enable_admin_login_email_notification',
+		'instant_alert_firewall_block',
+		'block_send_email',
 	];
 
 	private array $originalOptions = [];
@@ -206,6 +208,68 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'disabled', $con->opts->optGet( 'instant_alert_admin_login' ) );
 		$this->assertSame( 'invalid-value', $con->opts->optGet( 'enable_admin_login_email_notification' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_legacy_firewall_block_email_migrates_during_store() :void {
+		$con = $this->requireController();
+
+		$con->opts
+			->optSet( 'instant_alert_firewall_block', 'disabled' )
+			->optSet( 'block_send_email', 'Y' )
+			->store();
+
+		$this->assertSame( 'email', $con->opts->optGet( 'instant_alert_firewall_block' ) );
+		$this->assertSame( 'N', $con->opts->optGet( 'block_send_email' ) );
+	}
+
+	public function test_legacy_firewall_block_email_disabled_state_does_not_migrate_during_store() :void {
+		$con = $this->requireController();
+
+		$con->opts
+			->optSet( 'instant_alert_firewall_block', 'disabled' )
+			->optSet( 'block_send_email', 'N' )
+			->store();
+
+		$this->assertSame( 'disabled', $con->opts->optGet( 'instant_alert_firewall_block' ) );
+		$this->assertSame( 'N', $con->opts->optGet( 'block_send_email' ) );
+	}
+
+	public function test_legacy_firewall_block_email_migrates_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'instant_alert_firewall_block' => 'disabled',
+			'block_send_email'             => 'Y',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( 'email', $con->opts->optGet( 'instant_alert_firewall_block' ) );
+		$this->assertSame( 'N', $con->opts->optGet( 'block_send_email' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_legacy_firewall_block_email_disabled_state_does_not_migrate_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'instant_alert_firewall_block' => 'disabled',
+			'block_send_email'             => 'N',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( 'disabled', $con->opts->optGet( 'instant_alert_firewall_block' ) );
+		$this->assertSame( 'N', $con->opts->optGet( 'block_send_email' ) );
 
 		$con->cfg->previous_version = $previousVersion;
 	}

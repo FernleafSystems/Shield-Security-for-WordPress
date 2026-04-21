@@ -3,8 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\BackupCodeUsed;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\FirewallBlockAlert;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertAdminLogin;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\InstantAlerts\EmailInstantAlertFirewallBlock;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts\{
 	EmailReportAlert,
 	EmailReportInfo
@@ -52,16 +52,16 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_firewall_block_alert_render_converts_request_details_and_links() :void {
-		$con = $this->requireController();
-		$con->this_req->path = '/wp-login.php';
-
-		$html = $con->action_router->render( FirewallBlockAlert::class, [
-			'ip'         => '203.0.113.10',
-			'block_meta' => [
-				'firewall_rule_name'  => 'SQL Injection',
-				'match_pattern'       => 'select%20from',
-				'match_request_param' => 'query',
-				'match_request_value' => 'select from wp_users',
+		$html = $this->requireController()->action_router->render( EmailInstantAlertFirewallBlock::class, [
+			'alert_data' => [
+				'firewall_block' => [
+					'ip'                  => '203.0.113.10',
+					'request_path'        => '/wp-login.php',
+					'firewall_rule_name'  => 'SQL Injection',
+					'match_pattern'       => 'select%20from',
+					'match_request_param' => 'query',
+					'match_request_value' => 'select from wp_users',
+				],
 			],
 		] );
 

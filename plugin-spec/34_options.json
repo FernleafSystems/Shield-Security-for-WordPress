@@ -511,21 +511,6 @@
         "description": "Prevents comment floods and ensure a minimum period before any further comments are accepted on the site."
     },
     {
-        "key": "block_send_email",
-        "section": "section_firewall_blocking_options",
-        "zone_comp_slugs": [
-            "web_application_firewall",
-            "module_firewall"
-        ],
-        "default": "N",
-        "type": "checkbox",
-        "link_info": "",
-        "link_blog": "",
-        "name": "Send Email Report",
-        "summary": "Send Firewall Trigger Report Email",
-        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
-    },
-    {
         "key": "page_params_whitelist",
         "section": "section_firewall_blocking_options",
         "zone_comp_slugs": [
@@ -2790,6 +2775,39 @@
         "name": "Admin Login",
         "summary": "Be alerted when an administrator-level user logs in",
         "description": "Be alerted when an administrator-level user logs in."
+    },
+    {
+        "key": "instant_alert_firewall_block",
+        "section": "section_alerts",
+        "zone_comp_slugs": [
+            "instant_alerts",
+            "reporting"
+        ],
+        "type": "select",
+        "default": "disabled",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "email",
+                "text": "Email"
+            }
+        ],
+        "beacon_id": 788,
+        "link_info": "",
+        "link_blog": "",
+        "name": "Firewall Blocks",
+        "summary": "Be alerted when the firewall blocks a request",
+        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
+    },
+    {
+        "key": "block_send_email",
+        "section": "section_hidden",
+        "default": "N",
+        "type": "checkbox",
+        "transferable": false
     },
     {
         "key": "enable_admin_login_email_notification",

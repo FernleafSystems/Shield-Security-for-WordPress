@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerFirewallBlock;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallBlock extends Base {
@@ -36,7 +36,7 @@ class FirewallBlock extends Base {
 
 	private function preBlock() {
 		$con = self::con();
-		if ( $con->opts->optIs( 'block_send_email', 'Y' ) ) {
+		if ( $con->opts->optIs( 'instant_alert_firewall_block', 'email' ) ) {
 			do_action( 'shield/firewall_pre_block' );
 			$con->comps->events->fireEvent(
 				$this->sendBlockEmail() ? 'fw_email_success' : 'fw_email_fail',
@@ -47,19 +47,35 @@ class FirewallBlock extends Base {
 
 	private function sendBlockEmail() :bool {
 		$con = self::con();
-
-		$blockMeta = $con->rules->getConditionMeta()->getRawData();
-		$blockMeta[ 'firewall_rule_name' ] = $blockMeta[ 'match_name' ] ?? 'Unknown';
-
-		return $con->email_con->sendVO(
-			EmailVO::Factory(
-				$con->comps->opts_lookup->getReportEmail(),
-				__( 'Firewall Block Alert', 'wp-simple-firewall' ),
-				$con->action_router->render( Actions\Render\Components\Email\FirewallBlockAlert::class, [
-					'ip'         => $this->req->ip,
-					'block_meta' => $blockMeta
-				] )
-			)
+		return $con->comps->instant_alerts->updateAlertDataFor(
+			new AlertHandlerFirewallBlock(),
+			[
+				'firewall_block' => $this->buildAlertPayload(),
+			]
 		);
+	}
+
+	/**
+	 * @return array{
+	 *   ip:string,
+	 *   request_path:string,
+	 *   firewall_rule_name:string,
+	 *   match_pattern:string,
+	 *   match_request_param:string,
+	 *   match_request_value:string
+	 * }
+	 */
+	private function buildAlertPayload() :array {
+		$blockMeta = self::con()->rules->getConditionMeta()->getRawData();
+		$fallback = static fn( string $value, string $default = 'Unavailable' ) :string => $value !== '' ? $value : $default;
+
+		return [
+			'ip'                  => $fallback( (string)$this->req->ip ),
+			'request_path'        => $fallback( (string)Services::Request()->getPath() ),
+			'firewall_rule_name'  => $fallback( (string)( $blockMeta[ 'match_name' ] ?? '' ), 'Unknown' ),
+			'match_pattern'       => $fallback( (string)( $blockMeta[ 'match_pattern' ] ?? '' ) ),
+			'match_request_param' => $fallback( (string)( $blockMeta[ 'match_request_param' ] ?? '' ) ),
+			'match_request_value' => $fallback( (string)( $blockMeta[ 'match_request_value' ] ?? '' ) ),
+		];
 	}
 }

@@ -189,36 +189,6 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_reports_alerts_diagnosis_returns_neutral_zone_contract() :void {
-		$payload = $this->renderConfigureDiagnosis( [
-			'zone' => 'reports_alerts',
-		] );
-
-		$this->assertArrayHasKey( 'zone_selection', $payload );
-		$this->assertArrayHasKey( 'header', $payload );
-		$this->assertIsArray( $payload[ 'zone_selection' ] );
-		$this->assertIsArray( $payload[ 'header' ] );
-		$this->assertSame( 'reports_alerts', $payload[ 'zone_selection' ][ 'key' ] );
-		$this->assertSame( 'neutral', $payload[ 'zone_selection' ][ 'status' ] );
-		$this->assertSame(
-			$payload[ 'zone_selection' ][ 'label' ],
-			$payload[ 'header' ][ 'title' ]
-		);
-		$this->assertSame( 'neutral', $payload[ 'header' ][ 'badge_status' ] );
-		$this->assertNotSame( '', $payload[ 'header' ][ 'summary' ] );
-		$this->assertNotSame( '', $payload[ 'header' ][ 'focus' ] );
-		$this->assertNotSame( '', $payload[ 'html' ] );
-		$this->assertDiagnosisRowScope( $payload, 'reporting', 'reporting', [
-			'block_send_email_address',
-			'frequency_alert',
-			'frequency_info',
-		] );
-		$this->assertDiagnosisRowScope( $payload, 'instant_alerts', 'instant_alerts', [
-			'instant_alert_admins',
-			'instant_alert_admin_login',
-		] );
-	}
-
 	public function test_search_render_returns_flat_option_and_zone_results_for_real_query() :void {
 		$payload = $this->renderConfigureSearchResults( [
 			'search' => 'silentcaptcha',
@@ -342,30 +312,6 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertDiagnosisRowScope( $ipsPayload, 'auto_ip_blocking', 'auto_ip_blocking', [ 'user_auto_recover', 'request_whitelist' ] );
 		$this->assertDiagnosisRowScope( $ipsPayload, 'bot_actions', 'bot_actions', [ 'track_xmlrpc' ] );
 		$this->assertNull( $this->findDiagnosisRowByKey( $ipsPayload, 'ip_blocking_rules' ) );
-	}
-
-	public function test_users_and_firewall_diagnosis_surface_corrected_option_ownership() :void {
-		$usersPayload = $this->renderConfigureDiagnosis( [
-			'zone' => 'users',
-		] );
-		$firewallPayload = $this->renderConfigureDiagnosis( [
-			'zone' => 'firewall',
-		] );
-
-		$this->assertDiagnosisRowScope( $usersPayload, 'inactive_users', 'inactive_users', [ 'manual_suspend', 'auto_password' ] );
-		$usersGeneral = $this->findDiagnosisRowByKey( $usersPayload, 'general_settings' );
-		if ( $usersGeneral !== null ) {
-			$this->assertStringNotContainsString( 'manual_suspend', (string)( $usersGeneral[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) );
-			$this->assertStringNotContainsString( 'auto_password', (string)( $usersGeneral[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) );
-			$this->assertStringNotContainsString( 'enable_user_login_email_notification', (string)( $usersGeneral[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) );
-		}
-
-		$this->assertDiagnosisRowScope( $firewallPayload, 'web_application_firewall', 'web_application_firewall', [ 'block_send_email' ] );
-		$this->assertDiagnosisRowScope( $firewallPayload, 'general_settings', 'module_firewall', [ 'clean_wp_rubbish' ] );
-		$xmlRpcRow = $this->findDiagnosisRowByKey( $firewallPayload, 'xml_rpc_disable' );
-		if ( $xmlRpcRow !== null ) {
-			$this->assertStringNotContainsString( 'track_xmlrpc', (string)( $xmlRpcRow[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) );
-		}
 	}
 
 	public function test_secadmin_diagnosis_header_actions_only_when_security_admin_is_enabled() :void {

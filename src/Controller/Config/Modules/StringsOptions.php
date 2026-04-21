@@ -129,11 +129,6 @@ class StringsOptions {
 					sprintf( '<strong>%s</strong> - %s', __( 'Warning', 'wp-simple-firewall' ), __( 'May cause an increase in false-positive firewall blocks.', 'wp-simple-firewall' ) )
 				];
 				break;
-			case 'block_send_email':
-				$name = __( 'Send Email Report', 'wp-simple-firewall' );
-				$summary = __( 'Send Firewall Trigger Report Email', 'wp-simple-firewall' );
-				$desc = [ __( 'Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host', 'wp-simple-firewall' ) ];
-				break;
 			case 'page_params_whitelist':
 				$name = __( 'Whitelist Parameters', 'wp-simple-firewall' );
 				$summary = __( 'Detail pages and parameters that are whitelisted (ignored by the firewall)', 'wp-simple-firewall' );
@@ -1092,6 +1087,14 @@ class StringsOptions {
 				$desc = [
 					__( 'This alert uses your configured security reporting email recipient.', 'wp-simple-firewall' ),
 					__( 'If the same address belongs to the user who just logged in, the user login notice is suppressed to avoid duplicate emails.', 'wp-simple-firewall' ),
+				];
+				break;
+			case 'instant_alert_firewall_block':
+				$name = __( 'Firewall Blocks', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted when the firewall blocks a request', 'wp-simple-firewall' );
+				$desc = [
+					__( 'This alert uses your configured security reporting email recipient.', 'wp-simple-firewall' ),
+					__( 'Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host.', 'wp-simple-firewall' ),
 				];
 				break;
 
