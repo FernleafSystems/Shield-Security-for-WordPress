@@ -73,7 +73,7 @@ class UnitTestPluginUrls {
 		return '/admin/ips/rules?analyse_ip='.$ip;
 	}
 
-	public function actionsQueueScans( string $zone = '' ) :string {
+	public function actionsQueueScans( string $zone = 'scans' ) :string {
 		$url = '/admin/scans/overview';
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}

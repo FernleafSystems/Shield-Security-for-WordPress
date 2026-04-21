@@ -13,7 +13,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
 	Counts
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\{
+	StatusPriority,
+	WordpressReleaseChannel
+};
 
 /**
  * @phpstan-type RailTabAvailability array{
@@ -111,7 +114,9 @@ class ActionsQueueScanStateBuilder {
 				_n( '%s WordPress core file needs review.', '%s WordPress core files need review.', $count, 'wp-simple-firewall' ),
 				$count
 			),
-			__( 'Repair', 'wp-simple-firewall' )
+			( new WordpressReleaseChannel() )->isDevelopmentBuild()
+				? __( 'Review', 'wp-simple-firewall' )
+				: __( 'Repair', 'wp-simple-firewall' )
 		);
 		if ( $row !== null ) {
 			$rows[] = $row;
