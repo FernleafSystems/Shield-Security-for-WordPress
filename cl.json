@@ -54,10 +54,9 @@
       },
       {
         "type":        "improved",
-        "title":       "MFA: Easier Setup and Smoother Migration",
+        "title":       "MFA: Smoother 2FA Login",
         "description": [
-          "The MFA verification portal has been redesigned to be cleaner and easier to work through.",
-          "If you're moving from an older Shield setup or from Wordfence Login Security, Shield can now carry your existing MFA data across automatically."
+          "The MFA verification portal has been redesigned to be cleaner and easier to use."
         ]
       },
       {
