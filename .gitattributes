@@ -153,6 +153,7 @@ yarn.lock text eol=lf
 
 # Documentation (readme.txt is kept for WordPress.org)
 /docs export-ignore
+/kb export-ignore
 /README.md export-ignore
 /TESTING.md export-ignore
 /changelog.md export-ignore
@@ -168,15 +169,16 @@ yarn.lock text eol=lf
 /vendor_prefixed export-ignore
 /node_modules export-ignore
 /postcss.config.js export-ignore
+/eslint.config.js export-ignore
+/tsconfig.checkjs.json export-ignore
 
-# Legacy vendor directories (should not be copied from source)
-# This should NOT be removed unless legacy plugin packager handling has been removed.
-/src/lib/vendor export-ignore
-/src/lib/vendor_prefixed export-ignore
-/src/lib/strauss.phar export-ignore
+# Packager-owned src/lib compatibility output should never be copied from source.
+# Keep this rule until the compatibility-packaging mechanism itself is removed.
+/src/lib export-ignore
 
 # Testing
 /tests export-ignore
+/test-results export-ignore
 /patchwork.json export-ignore
 /phpunit.xml export-ignore
 /phpunit.xml.bak export-ignore
@@ -188,6 +190,11 @@ yarn.lock text eol=lf
 # Development tools
 /prototypes export-ignore
 /translations-tools export-ignore
+/playwright.config.js export-ignore
+/phpstan-baseline.neon export-ignore
+/phpstan.neon.dist export-ignore
+/phpstan.package.neon.dist export-ignore
+/phpstan.tooling.neon.dist export-ignore
 
 # Frontend source files (compiled bundles are in assets/dist/)
 /assets/css export-ignore
