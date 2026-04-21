@@ -7,29 +7,48 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 class InactiveUsers extends Base {
 
 	public function title() :string {
-		return __( 'Auto-Suspend Inactive Users', 'wp-simple-firewall' );
+		return __( 'User Suspension', 'wp-simple-firewall' );
 	}
 
 	public function subtitle() :string {
-		return __( 'Disable account access for inactive users.', 'wp-simple-firewall' );
+		return __( 'Manually or automatically suspend user accounts to prevent login.', 'wp-simple-firewall' );
 	}
 
 	protected function tooltip() :string {
-		return __( 'Edit settings on user auto-suspension', 'wp-simple-firewall' );
+		return __( 'Edit settings on user suspension', 'wp-simple-firewall' );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	protected function status() :array {
+		$con = self::con();
 		$status = parent::status();
+		$userSuspend = $con->comps->user_suspend;
+		$optsLookup = $con->comps->opts_lookup;
 
-		if ( self::con()->comps->user_suspend->isSuspendAutoIdleEnabled() ) {
+		$hasManualSuspend = $userSuspend->isSuspendManualEnabled();
+		$hasAutoIdleSuspend = $userSuspend->isSuspendAutoIdleEnabled();
+		$hasAutoPasswordSuspend = $userSuspend->isSuspendAutoPasswordEnabled();
+		$autoPasswordEnabled = $con->opts->optIs( 'auto_password', 'Y' );
+
+		if ( $hasAutoIdleSuspend || $hasAutoPasswordSuspend ) {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
 		else {
-			$status[ 'level' ] = EnumEnabledStatus::BAD;
-			$status[ 'exp' ][] = __( "User accounts that become inactive may still be allowed access, even if the account is compromised.", 'wp-simple-firewall' );
+			$status[ 'level' ] = EnumEnabledStatus::OKAY;
+			$status[ 'exp' ][] = $hasManualSuspend
+				? __( 'Only manual user suspension is available; users are not suspended automatically.', 'wp-simple-firewall' )
+				: __( 'No effective automatic user suspension rule is configured.', 'wp-simple-firewall' );
+		}
+
+		if ( $autoPasswordEnabled && !$hasAutoPasswordSuspend ) {
+			if ( !$optsLookup->isPassPoliciesEnabled() ) {
+				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password policies are turned off.', 'wp-simple-firewall' );
+			}
+			if ( $optsLookup->getPassExpireTimeout() <= 0 ) {
+				$status[ 'exp' ][] = __( 'Expired-password suspension is enabled but password expiration is not configured.', 'wp-simple-firewall' );
+			}
 		}
 
 		return $status;
@@ -37,9 +56,5 @@ class InactiveUsers extends Base {
 
 	protected function postureWeight() :int {
 		return 2;
-	}
-
-	protected function configureTreatsBadStatusAsWarning() :bool {
-		return true;
 	}
 }

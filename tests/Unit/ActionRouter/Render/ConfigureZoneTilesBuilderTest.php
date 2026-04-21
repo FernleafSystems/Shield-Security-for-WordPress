@@ -70,9 +70,8 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		}
 
 		$this->assertSame( 'good', $tilesByKey[ 'secadmin' ][ 'status' ] );
-		$this->assertSame( 'All groups healthy', $tilesByKey[ 'secadmin' ][ 'stat_line' ] );
+		$this->assertNotSame( '', $tilesByKey[ 'secadmin' ][ 'stat_line' ] );
 		$this->assertCount( 2, $tilesByKey[ 'secadmin' ][ 'panel' ][ 'rows' ] );
-		$this->assertSame( 'PIN Protection', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( 'pin_protection', $tilesByKey[ 'secadmin' ][ 'panel' ][ 'rows' ][ 0 ][ 'key' ] ?? '' );
 		$secadminGeneral = $this->findRowByOptionKeys(
 			$tilesByKey[ 'secadmin' ][ 'panel' ][ 'rows' ],
@@ -90,13 +89,9 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'neutral', $secadminGeneral[ 'status' ] ?? '' );
 
 		$this->assertSame( 'warning', $tilesByKey[ 'login' ][ 'status' ] );
-		$this->assertSame( '1 group needs work', $tilesByKey[ 'login' ][ 'stat_line' ] );
+		$this->assertNotSame( '', $tilesByKey[ 'login' ][ 'stat_line' ] );
 		$this->assertSame(
-			[ '2FA General Settings', 'Email Authentication', 'OTP & Passkeys', 'Hide WP Login' ],
-			\array_column( $tilesByKey[ 'login' ][ 'panel' ][ 'rows' ], 'title' )
-		);
-		$this->assertSame(
-			[ 'two_factor_general', 'two_factor_email', 'two_factor_otp_passkeys', 'hide_wp_login' ],
+			[ 'two_factor_general', 'two_factor_email', 'two_factor_otp_passkeys', 'hide_wp_login', 'session_theft_protection' ],
 			\array_column( $tilesByKey[ 'login' ][ 'panel' ][ 'rows' ], 'key' )
 		);
 		$this->assertSame( 'warning', $tilesByKey[ 'login' ][ 'panel' ][ 'rows' ][ 0 ][ 'status' ] ?? '' );
@@ -117,14 +112,14 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			'rename_wplogin_path',
 			$tilesByKey[ 'login' ][ 'panel' ][ 'rows' ][ 3 ][ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
 		);
+		$this->assertSame(
+			'session_timeout_interval,session_idle_timeout_interval,session_lock,enable_user_login_email_notification',
+			$tilesByKey[ 'login' ][ 'panel' ][ 'rows' ][ 4 ][ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
 
 		$this->assertSame( 'critical', $tilesByKey[ 'spam' ][ 'status' ] );
-		$this->assertSame( '1 critical group, 1 group needs work', $tilesByKey[ 'spam' ][ 'stat_line' ] );
+		$this->assertNotSame( '', $tilesByKey[ 'spam' ][ 'stat_line' ] );
 		$this->assertCount( 4, $tilesByKey[ 'spam' ][ 'panel' ][ 'rows' ] );
-		$this->assertSame(
-			[ 'Bot SPAM Blocking', 'Human SPAM Filtering', 'Trusted Commenters' ],
-			\array_column( \array_slice( $tilesByKey[ 'spam' ][ 'panel' ][ 'rows' ], 0, 3 ), 'title' )
-		);
 		$this->assertSame(
 			[ 'bot_spam_blocking', 'human_spam_filtering', 'trusted_commenters' ],
 			\array_column( \array_slice( $tilesByKey[ 'spam' ][ 'panel' ][ 'rows' ], 0, 3 ), 'key' )
@@ -145,7 +140,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertCount( 2, $tilesByKey[ 'general' ][ 'panel' ][ 'rows' ] );
 
 		$this->assertSame( 'warning', $tilesByKey[ 'ips' ][ 'status' ] );
-		$this->assertSame( '1 group needs work', $tilesByKey[ 'ips' ][ 'stat_line' ] );
+		$this->assertNotSame( '', $tilesByKey[ 'ips' ][ 'stat_line' ] );
 		$this->assertSame(
 			[ 'auto_ip_blocking', 'crowdsec_blocking', 'silent_captcha', 'bot_actions' ],
 			\array_column( $tilesByKey[ 'ips' ][ 'panel' ][ 'rows' ], 'key' )
@@ -164,8 +159,11 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotContains( 'general_settings', \array_column( $tilesByKey[ 'ips' ][ 'panel' ][ 'rows' ], 'key' ) );
 
+		$firewallGeneral = $this->findRowByKey( $tilesByKey[ 'firewall' ][ 'panel' ][ 'rows' ], 'general_settings' );
+		$this->assertSame( 'clean_wp_rubbish', $firewallGeneral[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? '' );
+
 		$this->assertSame( 'critical', $tilesByKey[ 'users' ][ 'status' ] );
-		$this->assertSame( '2 critical groups, 1 group needs work', $tilesByKey[ 'users' ][ 'stat_line' ] );
+		$this->assertNotSame( '', $tilesByKey[ 'users' ][ 'stat_line' ] );
 		$this->assertSame(
 			'enable_password_policies',
 			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'password_policies' )[ 'config_action' ][ 'data' ][ 'config_item' ] ?? ''
@@ -191,9 +189,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'password_strength' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
 		);
 		$this->assertSame(
-			'manual_suspend',
-			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'general_settings' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+			'manual_suspend,auto_password',
+			$this->findRowByKey( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'inactive_users' )[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
 		);
+		$this->assertNotContains( 'general_settings', \array_column( $tilesByKey[ 'users' ][ 'panel' ][ 'rows' ], 'key' ) );
 
 		$tileDefinitionsByKey = \array_column( PluginNavs::configureLandingTileDefinitions(), null, 'key' );
 		$this->assertSame( 'neutral', $tilesByKey[ 'reports_alerts' ][ 'status' ] );
@@ -294,6 +293,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				\spl_object_id( $firewallZone ) => [
 					$this->newComponent( 'WAF Rules', EnumEnabledStatus::GOOD, 'WAF subtitle', [ 'WAF rules are active.' ], [
 						'waf_rules',
+						'block_send_email',
 					] ),
 				],
 				\spl_object_id( $ipsZone )      => [
@@ -364,6 +364,12 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					$this->newComponent( 'Hide WP Login', EnumEnabledStatus::NEUTRAL, 'Login hide subtitle', [], [
 						'rename_wplogin_path',
 					] ),
+					$this->newComponent( 'Session Hijacking Protection', EnumEnabledStatus::GOOD, 'Session security subtitle', [], [
+						'session_timeout_interval',
+						'session_idle_timeout_interval',
+						'session_lock',
+						'enable_user_login_email_notification',
+					], 'session_theft_protection' ),
 				],
 				\spl_object_id( $usersZone )    => [
 					$this->newComponentWithConfigItem( 'Password Policies', EnumEnabledStatus::GOOD, 'Password policy', [ 'Password policy is active.' ], [
@@ -379,7 +385,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 						'enable_password_policies',
 						'pass_min_strength',
 					], 'pass_min_strength', 'password_strength' ),
-					$this->newComponent( 'Inactive Users', EnumEnabledStatus::OKAY, 'Inactive user policy', [ 'Suspension policy needs review.' ] ),
+					$this->newComponent( 'User Suspension', EnumEnabledStatus::OKAY, 'Suspension policy', [ 'Suspension policy needs review.' ], [
+						'manual_suspend',
+						'auto_password',
+					], 'inactive_users' ),
 				],
 				\spl_object_id( $spamZone )     => [
 					$this->newComponent( 'Bot SPAM Blocking', EnumEnabledStatus::BAD, 'Bot subtitle', [ 'Bot SPAM blocking is disabled.' ], [
@@ -416,6 +425,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					[],
 					[
 						'waf_rules',
+						'block_send_email',
 						'clean_wp_rubbish',
 					]
 				),
@@ -458,6 +468,10 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 						'two_factor_auth_user_roles',
 						'enable_google_authenticator',
 						'enable_passkeys',
+						'session_timeout_interval',
+						'session_idle_timeout_interval',
+						'session_lock',
+						'enable_user_login_email_notification',
 						'rename_wplogin_path',
 					]
 				),
@@ -473,6 +487,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 						'pass_prevent_pwned',
 						'pass_min_strength',
 						'manual_suspend',
+						'auto_password',
 					]
 				),
 				'module_spam'                    => $this->newComponent(

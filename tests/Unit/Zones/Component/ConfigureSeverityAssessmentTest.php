@@ -72,7 +72,19 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			'rate limiting'       => [ fn() => new RateLimiting(), [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledTrafficLimiter' => false ] ) ] ],
 			'file editing'        => [ fn() => new FileEditingBlock(), [ 'disable_file_editing' => 'N' ], [] ],
 			'crowdsec'            => [ fn() => new CrowdsecBlocking(), [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledCrowdSecAutoBlock' => false ] ) ] ],
-			'inactive users'      => [ fn() => new InactiveUsers(), [], [ 'user_suspend' => new class { public function isSuspendAutoIdleEnabled() :bool { return false; } } ] ],
+			'inactive users'      => [ fn() => new InactiveUsers(), [], [ 'user_suspend' => new class {
+				public function isSuspendManualEnabled() :bool {
+					return false;
+				}
+
+				public function isSuspendAutoIdleEnabled() :bool {
+					return false;
+				}
+
+				public function isSuspendAutoPasswordEnabled() :bool {
+					return false;
+				}
+			} ] ],
 			'spam registration'   => [ fn() => new SpamUserRegisterBlock(), [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'getEmailValidateChecks' => [] ] ) ] ],
 			'comment spam bot'    => [ fn() => new CommentSpamBlockBot(), [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledSilentCaptchaCommentSpam' => false ] ) ] ],
 			'comment spam human'  => [ fn() => new CommentSpamBlockHuman(), [], [ 'opts_lookup' => $this->buildOptsLookupStub( [ 'enabledHumanCommentSpam' => false ] ) ] ],
@@ -299,21 +311,112 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 	}
 
 	public function test_two_factor_general_row_uses_configure_status_path() :void {
-		$this->installController(
-			[],
-			[
-				'mfa' => new class {
-					public function collateMfaProviderClasses() :array {
-						return [];
-					}
-				},
-			]
-		);
+		$this->installController( [
+			'allow_backupcodes' => 'Y',
+		] );
 
 		$row = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_general' );
 
 		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 1, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_two_factor_email_row_requires_end_to_end_usability() :void {
+		$this->installController( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 12345,
+			'email_any_user_set'          => 'Y',
+		] );
+
+		$emailRow = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_email' );
+		$generalRow = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_general' );
+		$otpRow = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_otp_passkeys' );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $emailRow[ 'enabled_status' ] ?? null );
+		$this->assertSame( EnumEnabledStatus::OKAY, $generalRow[ 'enabled_status' ] ?? null );
+		$this->assertSame( EnumEnabledStatus::OKAY, $otpRow[ 'enabled_status' ] ?? null );
+	}
+
+	public function test_two_factor_email_row_warns_when_email_delivery_is_unverified() :void {
+		$this->installController( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 0,
+			'email_any_user_set'          => 'Y',
+		] );
+
+		$row = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_email' );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
+		$this->assertCount( 1, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_two_factor_otp_and_passkeys_row_is_good_when_an_otp_provider_is_usable() :void {
+		$this->installController( [
+			'enable_google_authenticator' => 'Y',
+		] );
+
+		$row = $this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_otp_passkeys' );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] ?? null );
+		$this->assertSame( [], $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_inactive_users_row_warns_when_only_manual_suspension_is_available() :void {
+		$this->installController(
+			[],
+			[
+				'user_suspend' => new class {
+					public function isSuspendManualEnabled() :bool {
+						return true;
+					}
+
+					public function isSuspendAutoIdleEnabled() :bool {
+						return false;
+					}
+
+					public function isSuspendAutoPasswordEnabled() :bool {
+						return false;
+					}
+				},
+			]
+		);
+
+		$row = $this->firstConfigureRow( new InactiveUsers() );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
+		$this->assertCount( 1, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_inactive_users_row_explains_ineffective_password_expiry_suspension() :void {
+		$this->installController(
+			[
+				'auto_password' => 'Y',
+			],
+			[
+				'opts_lookup' => $this->buildOptsLookupStub( [
+					'isPassPoliciesEnabled' => false,
+					'getPassExpireTimeout'  => 0,
+				] ),
+				'user_suspend' => new class {
+					public function isSuspendManualEnabled() :bool {
+						return false;
+					}
+
+					public function isSuspendAutoIdleEnabled() :bool {
+						return false;
+					}
+
+					public function isSuspendAutoPasswordEnabled() :bool {
+						return false;
+					}
+				},
+			]
+		);
+
+		$row = $this->firstConfigureRow( new InactiveUsers() );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] ?? null );
+		$this->assertCount( 3, $row[ 'explanations' ] ?? [] );
 	}
 
 	/**
@@ -428,8 +531,16 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				},
 				'opts_lookup' => $this->buildOptsLookupStub(),
 				'user_suspend' => new class {
+					public function isSuspendManualEnabled() :bool {
+						return false;
+					}
+
 					public function isSuspendAutoIdleEnabled() :bool {
 						return true;
+					}
+
+					public function isSuspendAutoPasswordEnabled() :bool {
+						return false;
 					}
 				},
 				'sec_admin' => new class {
@@ -461,6 +572,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				return $this->overrides[ 'isPassPoliciesEnabled' ] ?? true;
 			}
 
+			public function isPluginEnabled() :bool {
+				return $this->overrides[ 'isPluginEnabled' ] ?? true;
+			}
+
 			public function enabledTrafficLimiter() :bool {
 				return $this->overrides[ 'enabledTrafficLimiter' ] ?? true;
 			}
@@ -483,6 +598,14 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 			public function getCommenterTrustedMinimum() :int {
 				return $this->overrides[ 'getCommenterTrustedMinimum' ] ?? 2;
+			}
+
+			public function getLoginGuardEmailAuth2FaRoles() :array {
+				return $this->overrides[ 'getLoginGuardEmailAuth2FaRoles' ] ?? [];
+			}
+
+			public function getPassExpireTimeout() :int {
+				return $this->overrides[ 'getPassExpireTimeout' ] ?? 0;
 			}
 		};
 	}

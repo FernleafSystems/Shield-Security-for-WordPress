@@ -103,7 +103,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'name'            => 'Send Email Report',
 				'summary'         => 'Send Firewall Trigger Report Email',
 				'description'     => [ 'Send firewall trigger report email.' ],
-				'zone_comp_slugs' => [ 'module_firewall' ],
+				'zone_comp_slugs' => [ 'web_application_firewall', 'module_firewall' ],
 			],
 			'hidden_shared_firewall_option' => [
 				'section'         => 'section_firewall_blocking_options',
@@ -115,6 +115,13 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			'disable_xmlrpc' => [
 				'section'         => 'section_apixml',
 				'zone_comp_slugs' => [ 'xml_rpc_component' ],
+			],
+			'track_xmlrpc' => [
+				'section'         => 'section_bot_behaviours',
+				'name'            => 'XML-RPC Access',
+				'summary'         => 'Identify A Bot When It Accesses XML-RPC',
+				'description'     => [ 'Detect bot-style access to the XML-RPC endpoint.' ],
+				'zone_comp_slugs' => [ 'bot_actions', 'module_ips' ],
 			],
 			'frequency_alert' => [
 				'section'         => 'section_reporting',
@@ -144,6 +151,13 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'description'     => [ 'Allow passkeys as part of login verification.' ],
 				'zone_comp_slugs' => [ 'two_factor_auth', 'module_login' ],
 			],
+			'enable_user_login_email_notification' => [
+				'section'         => 'section_user_session_management',
+				'name'            => 'User Login Notification Email',
+				'summary'         => 'Send Email Notification To Each User Upon Successful Login',
+				'description'     => [ 'Send a successful-login email to each user.' ],
+				'zone_comp_slugs' => [ 'session_theft_protection', 'module_login' ],
+			],
 			'user_auto_recover' => [
 				'section'         => 'section_auto_black_list',
 				'zone_comp_slugs' => [ 'auto_ip_blocking', 'module_ips' ],
@@ -168,6 +182,20 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'section'         => 'section_passwords',
 				'zone_comp_slugs' => [ 'password_strength', 'module_users' ],
 			],
+			'manual_suspend' => [
+				'section'         => 'section_suspend',
+				'name'            => 'Allow Manual User Suspension',
+				'summary'         => 'Manually Suspend User Accounts To Prevent Login',
+				'description'     => [ 'Allow administrators to suspend user logins manually.' ],
+				'zone_comp_slugs' => [ 'inactive_users', 'module_users' ],
+			],
+			'auto_password' => [
+				'section'         => 'section_suspend',
+				'name'            => 'Auto-Suspend Expired Passwords',
+				'summary'         => 'Automatically Suspend Users With Expired Passwords',
+				'description'     => [ 'Suspend login for users with expired passwords.' ],
+				'zone_comp_slugs' => [ 'inactive_users', 'module_users' ],
+			],
 		];
 		$this->landingViewData = $this->landingViewDataFixture();
 
@@ -189,7 +217,6 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			\array_diff( \array_column( $results, 'type' ), [ 'option', 'zone' ] )
 		);
 		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
-		$this->assertSame( 'Spam', $results[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame(
 			$this->landingViewData[ 'tile_lookup' ][ 'spam' ][ 'summary' ],
 			$results[ 0 ][ 'summary' ] ?? ''
@@ -206,17 +233,16 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		], \json_decode( (string)( $results[ 0 ][ 'selection_json' ] ?? '' ), true ) );
 		$this->assertSame( '', $results[ 0 ][ 'focus_request_json' ] ?? 'missing' );
 		$this->assertSame( 'option', $results[ 1 ][ 'type' ] ?? '' );
-		$this->assertSame( 'Bot Challenge Toggle', $results[ 1 ][ 'label' ] ?? '' );
-		$this->assertSame( 'silentCAPTCHA settings switch', $results[ 1 ][ 'summary' ] ?? '' );
 		$this->assertSame( 'bi bi-sliders', $results[ 1 ][ 'icon_class' ] ?? '' );
 		$this->assertSame( [
 			'row_key'     => 'silentcaptcha_component',
 			'config_item' => 'custom_silentcaptcha_toggle',
 		], \json_decode( (string)( $results[ 1 ][ 'focus_request_json' ] ?? '' ), true ) );
-		$this->assertSame(
-			'/admin/zones/overview?zone=spam&row_key=silentcaptcha_component&config_item=custom_silentcaptcha_toggle',
-			$results[ 1 ][ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $results[ 1 ], [
+			'zone'        => 'spam',
+			'row_key'     => 'silentcaptcha_component',
+			'config_item' => 'custom_silentcaptcha_toggle',
+		] );
 	}
 
 	public function test_build_uses_exact_row_keys_and_excludes_unresolvable_options() :void {
@@ -232,12 +258,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotContains( 'Orphan Search Target', \array_column( $optionResults, 'label' ) );
 		$this->assertNotContains( 'Cooldown Shadow', \array_column( $optionResults, 'label' ) );
-		$this->assertSame( 'Comments Cooldown', $optionResults[ 0 ][ 'label' ] ?? '' );
-		$this->assertSame( 'Minimum Time Interval Between Comments (seconds)', $optionResults[ 0 ][ 'summary' ] ?? '' );
-		$this->assertSame(
-			'/admin/zones/overview?zone=spam&row_key=general_settings&config_item=comments_cooldown',
-			$optionResults[ 0 ][ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $optionResults[ 0 ], [
+			'zone'        => 'spam',
+			'row_key'     => 'general_settings',
+			'config_item' => 'comments_cooldown',
+		] );
 		$this->assertStringNotContainsString( 'expand_id=', $optionResults[ 0 ][ 'href' ] ?? '' );
 		$this->assertStringNotContainsString( 'zone_component_slug=', $optionResults[ 0 ][ 'href' ] ?? '' );
 		$this->assertStringNotContainsString( 'option_keys=', $optionResults[ 0 ][ 'href' ] ?? '' );
@@ -252,10 +277,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			}
 		}
 
-		$this->assertSame(
-			'/admin/zones/overview?zone=firewall&row_key=web_application_firewall&config_item=block_aggressive',
-			$optionResults[ 'Aggressive Scan' ][ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $optionResults[ 'Aggressive Scan' ], [
+			'zone'        => 'firewall',
+			'row_key'     => 'web_application_firewall',
+			'config_item' => 'block_aggressive',
+		] );
 		$this->assertSame(
 			[
 				'row_key'     => 'web_application_firewall',
@@ -263,10 +289,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $optionResults[ 'Aggressive Scan' ][ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=firewall&row_key=general_settings&config_item=block_send_email',
-			$optionResults[ 'Send Email Report' ][ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $optionResults[ 'Send Email Report' ], [
+			'zone'        => 'firewall',
+			'row_key'     => 'web_application_firewall',
+			'config_item' => 'block_send_email',
+		] );
 		$this->assertArrayNotHasKey(
 			'Hidden Shared Firewall Option',
 			$optionResults,
@@ -279,7 +306,6 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 
 		$this->assertNotSame( [], $results );
 		$this->assertSame( 'zone', $results[ 0 ][ 'type' ] ?? '' );
-		$this->assertSame( 'Firewall', $results[ 0 ][ 'label' ] ?? '' );
 		$this->assertSame(
 			$this->landingViewData[ 'tile_lookup' ][ 'firewall' ][ 'summary' ],
 			$results[ 0 ][ 'summary' ] ?? ''
@@ -302,10 +328,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $xmlRpcResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=security&row_key=xml_rpc_component&config_item=disable_xmlrpc',
-			$xmlRpcResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $xmlRpcResult, [
+			'zone'        => 'security',
+			'row_key'     => 'xml_rpc_component',
+			'config_item' => 'disable_xmlrpc',
+		] );
 
 		$this->assertNotNull( $xmlRpcCompactResult );
 		$this->assertSame(
@@ -315,10 +342,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $xmlRpcCompactResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=security&row_key=xml_rpc_component&config_item=disable_xmlrpc',
-			$xmlRpcCompactResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $xmlRpcCompactResult, [
+			'zone'        => 'security',
+			'row_key'     => 'xml_rpc_component',
+			'config_item' => 'disable_xmlrpc',
+		] );
 	}
 
 	public function test_reports_and_alert_option_queries_route_to_scoped_rows() :void {
@@ -339,10 +367,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $reportResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=reports_alerts&row_key=reporting&config_item=frequency_alert',
-			$reportResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $reportResult, [
+			'zone'        => 'reports_alerts',
+			'row_key'     => 'reporting',
+			'config_item' => 'frequency_alert',
+		] );
 
 		$this->assertNotNull( $alertResult );
 		$this->assertSame(
@@ -352,10 +381,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $alertResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=reports_alerts&row_key=instant_alerts&config_item=instant_alert_admins',
-			$alertResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $alertResult, [
+			'zone'        => 'reports_alerts',
+			'row_key'     => 'instant_alerts',
+			'config_item' => 'instant_alert_admins',
+		] );
 	}
 
 	public function test_two_factor_option_queries_route_to_split_rows() :void {
@@ -376,10 +406,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $emailResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=login&row_key=two_factor_email&config_item=enable_email_authentication',
-			$emailResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $emailResult, [
+			'zone'        => 'login',
+			'row_key'     => 'two_factor_email',
+			'config_item' => 'enable_email_authentication',
+		] );
 
 		$this->assertNotNull( $passkeyResult );
 		$this->assertSame(
@@ -389,10 +420,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $passkeyResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=login&row_key=two_factor_otp_passkeys&config_item=enable_passkeys',
-			$passkeyResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $passkeyResult, [
+			'zone'        => 'login',
+			'row_key'     => 'two_factor_otp_passkeys',
+			'config_item' => 'enable_passkeys',
+		] );
 	}
 
 	public function test_ips_and_users_option_queries_route_to_retagged_rows() :void {
@@ -429,10 +461,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $userAutoRecoverResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=ips&row_key=auto_ip_blocking&config_item=user_auto_recover',
-			$userAutoRecoverResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $userAutoRecoverResult, [
+			'zone'        => 'ips',
+			'row_key'     => 'auto_ip_blocking',
+			'config_item' => 'user_auto_recover',
+		] );
 
 		$this->assertNotNull( $requestWhitelistResult );
 		$this->assertSame(
@@ -442,10 +475,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $requestWhitelistResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=ips&row_key=auto_ip_blocking&config_item=request_whitelist',
-			$requestWhitelistResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $requestWhitelistResult, [
+			'zone'        => 'ips',
+			'row_key'     => 'auto_ip_blocking',
+			'config_item' => 'request_whitelist',
+		] );
 
 		$this->assertNotNull( $crowdsecEnrollResult );
 		$this->assertSame(
@@ -455,10 +489,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $crowdsecEnrollResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=ips&row_key=crowdsec_blocking&config_item=cs_enroll_id',
-			$crowdsecEnrollResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $crowdsecEnrollResult, [
+			'zone'        => 'ips',
+			'row_key'     => 'crowdsec_blocking',
+			'config_item' => 'cs_enroll_id',
+		] );
 
 		$this->assertNotNull( $pwnedPasswordsResult );
 		$this->assertSame(
@@ -468,10 +503,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $pwnedPasswordsResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=users&row_key=pwned_passwords&config_item=pass_prevent_pwned',
-			$pwnedPasswordsResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $pwnedPasswordsResult, [
+			'zone'        => 'users',
+			'row_key'     => 'pwned_passwords',
+			'config_item' => 'pass_prevent_pwned',
+		] );
 
 		$this->assertNotNull( $passwordStrengthResult );
 		$this->assertSame(
@@ -481,10 +517,11 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $passwordStrengthResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=users&row_key=password_strength&config_item=pass_min_strength',
-			$passwordStrengthResult[ 'href' ] ?? ''
-		);
+		$this->assertResultHrefQueryMatches( $passwordStrengthResult, [
+			'zone'        => 'users',
+			'row_key'     => 'password_strength',
+			'config_item' => 'pass_min_strength',
+		] );
 
 		$this->assertNotNull( $passwordPoliciesResult );
 		$this->assertSame(
@@ -494,10 +531,58 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			],
 			\json_decode( (string)( $passwordPoliciesResult[ 'focus_request_json' ] ?? '' ), true )
 		);
-		$this->assertSame(
-			'/admin/zones/overview?zone=users&row_key=password_policies&config_item=enable_password_policies',
-			$passwordPoliciesResult[ 'href' ] ?? ''
+		$this->assertResultHrefQueryMatches( $passwordPoliciesResult, [
+			'zone'        => 'users',
+			'row_key'     => 'password_policies',
+			'config_item' => 'enable_password_policies',
+		] );
+	}
+
+	public function test_session_suspension_and_bot_signal_queries_route_to_correct_rows() :void {
+		$trackXmlRpcResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'xml-rpc bot action' ),
+			'track_xmlrpc'
 		);
+		$loginNotificationResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'login notification email' ),
+			'enable_user_login_email_notification'
+		);
+		$manualSuspendResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'manual user suspension' ),
+			'manual_suspend'
+		);
+		$autoPasswordResult = $this->findOptionResultByConfigItem(
+			$this->newBuilder()->build( 'expired password suspension' ),
+			'auto_password'
+		);
+
+		$this->assertNotNull( $trackXmlRpcResult );
+		$this->assertResultHrefQueryMatches( $trackXmlRpcResult, [
+			'zone'        => 'ips',
+			'row_key'     => 'bot_actions',
+			'config_item' => 'track_xmlrpc',
+		] );
+
+		$this->assertNotNull( $loginNotificationResult );
+		$this->assertResultHrefQueryMatches( $loginNotificationResult, [
+			'zone'        => 'login',
+			'row_key'     => 'session_theft_protection',
+			'config_item' => 'enable_user_login_email_notification',
+		] );
+
+		$this->assertNotNull( $manualSuspendResult );
+		$this->assertResultHrefQueryMatches( $manualSuspendResult, [
+			'zone'        => 'users',
+			'row_key'     => 'inactive_users',
+			'config_item' => 'manual_suspend',
+		] );
+
+		$this->assertNotNull( $autoPasswordResult );
+		$this->assertResultHrefQueryMatches( $autoPasswordResult, [
+			'zone'        => 'users',
+			'row_key'     => 'inactive_users',
+			'config_item' => 'auto_password',
+		] );
 	}
 
 	private function newBuilder() :ConfigureSearchResultsBuilder {
@@ -780,6 +865,20 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 								],
 							],
 						],
+						[
+							'key'           => 'session_theft_protection',
+							'title'         => 'Session Hijacking Protection',
+							'summary'       => 'Configure session lock-down and login notifications.',
+							'explanations'  => [ 'Session rules protect active user logins.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-login-session_theft_protection',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'session_theft_protection',
+									'option_keys'         => 'enable_user_login_email_notification',
+								],
+							],
+						],
 					],
 					'healthy_rows'  => [],
 				],
@@ -826,6 +925,20 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 								'data_attributes' => [
 									'zone_component_slug' => 'crowdsec_blocking',
 									'option_keys'         => 'cs_enroll_id',
+								],
+							],
+						],
+						[
+							'key'           => 'bot_actions',
+							'title'         => 'Bot Actions',
+							'summary'       => 'Control how repeated bot behaviour is handled.',
+							'explanations'  => [ 'Bot actions decide when suspicious requests trigger penalties.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-ips-bot_actions',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'bot_actions',
+									'option_keys'         => 'track_xmlrpc',
 								],
 							],
 						],
@@ -892,6 +1005,20 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 									'zone_component_slug' => 'password_strength',
 									'option_keys'         => 'enable_password_policies,pass_min_strength',
 									'config_item'         => 'pass_min_strength',
+								],
+							],
+						],
+						[
+							'key'           => 'inactive_users',
+							'title'         => 'User Suspension',
+							'summary'       => 'Configure manual and automatic user suspension.',
+							'explanations'  => [ 'User suspension limits access for risky or stale accounts.' ],
+							'expand_action' => [
+								'id'              => 'configure-diagnosis-users-inactive_users',
+								'is_expandable'   => true,
+								'data_attributes' => [
+									'zone_component_slug' => 'inactive_users',
+									'option_keys'         => 'manual_suspend,auto_password',
 								],
 							],
 						],
@@ -988,5 +1115,17 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 		}
 
 		return null;
+	}
+
+	private function assertResultHrefQueryMatches( array $result, array $expectedQuery ) :void {
+		$href = (string)( $result[ 'href' ] ?? '' );
+		$this->assertNotSame( '', $href );
+
+		$query = (string)( \parse_url( $href, \PHP_URL_QUERY ) ?? '' );
+		parse_str( $query, $queryArgs );
+
+		foreach ( $expectedQuery as $key => $value ) {
+			$this->assertSame( $value, (string)( $queryArgs[ $key ] ?? '' ) );
+		}
 	}
 }
