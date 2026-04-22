@@ -141,11 +141,6 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 				'badge_status'       => 'warning',
 				'color_key'          => 'warning',
 				'actions'            => [],
-				'display_options'    => [
-					'title'       => '',
-					'action_json' => '',
-					'controls'    => [],
-				],
 			],
 			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? []
 		);

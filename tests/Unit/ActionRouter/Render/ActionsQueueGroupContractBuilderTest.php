@@ -120,26 +120,39 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $pluginGroup[ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'display_context' => 'actions_queue',
-				'subject_type'    => 'plugin',
-				'subject_id'      => 'example-plugin/example-plugin.php',
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored'  => false,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => false,
+				],
+				'subject_type'            => 'plugin',
+				'subject_id'              => 'example-plugin/example-plugin.php',
 			],
 			$pluginGroup[ 'render_action_data' ]
 		);
 		$this->assertSame( 'Example Plugin', $pluginGroup[ 'selection' ][ 'label' ] );
 		$this->assertSame( 'Example Plugin', $pluginGroup[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( 'Display Results', $pluginGroup[ 'selection' ][ 'header' ][ 'display_options' ][ 'title' ] ?? '' );
 		$this->assertFalse( $pluginGroup[ 'is_interactive' ] );
 
 		$this->assertSame( 'Example Theme', $themeGroup[ 'label' ] );
 		$this->assertSame( 'direct_table', $themeGroup[ 'detail_shell' ] );
 		$this->assertSame( 'actions_queue', $themeGroup[ 'render_action_data' ][ 'display_context' ] );
+		$this->assertSame(
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
+			],
+			$themeGroup[ 'render_action_data' ][ 'results_display_options' ] ?? []
+		);
 		$this->assertSame( 'theme', $themeGroup[ 'render_action_data' ][ 'subject_type' ] );
 		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'Example Theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( 'Display Results', $themeGroup[ 'selection' ][ 'header' ][ 'display_options' ][ 'title' ] ?? '' );
 	}
 
 	public function test_build_empty_group_uses_generic_base_group_when_scoped_asset_cannot_be_resolved() :void {

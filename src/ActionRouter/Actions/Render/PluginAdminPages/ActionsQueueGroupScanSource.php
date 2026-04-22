@@ -13,7 +13,7 @@ class ActionsQueueGroupScanSource {
 
 	private ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder;
 	private ScansVulnerabilitiesBuilder $scansVulnerabilitiesBuilder;
-	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ?array $activePluginSummaries = null;
 	private ?array $activeThemeSummaries = null;
 	private ?array $ignoredPluginSummaries = null;
@@ -25,7 +25,7 @@ class ActionsQueueGroupScanSource {
 	public function __construct(
 		ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder,
 		ScansVulnerabilitiesBuilder $scansVulnerabilitiesBuilder,
-		ActionsQueueScanResultsOptions $queueScanResultsOptions
+		ScanResultsDisplayOptions $queueScanResultsOptions
 	) {
 		$this->scanAssetCardsBuilder = $scanAssetCardsBuilder;
 		$this->scansVulnerabilitiesBuilder = $scansVulnerabilitiesBuilder;

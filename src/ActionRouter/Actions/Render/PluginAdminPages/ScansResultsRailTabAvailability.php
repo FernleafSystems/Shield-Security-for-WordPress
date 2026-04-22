@@ -6,23 +6,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
+/**
+ * @phpstan-import-type DisabledPaneAction from ScansResultsViewBuilder
+ */
 class ScansResultsRailTabAvailability {
 
 	use PluginControllerConsumer;
-
-	/**
-	 * @phpstan-type DisabledPaneAction array{
-	 *   type:string,
-	 *   label:string,
-	 *   href:string,
-	 *   icon_class:string,
-	 *   tooltip_attr:string,
-	 *   class_name:string,
-	 *   target:string,
-	 *   rel:string,
-	 *   attributes:array<string,string>
-	 * }
-	 */
 
 	/**
 	 * @var array<string,array{

@@ -38,4 +38,8 @@ class CrowdsecBlocking extends Base {
 	protected function postureWeight() :int {
 		return 6;
 	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
 }

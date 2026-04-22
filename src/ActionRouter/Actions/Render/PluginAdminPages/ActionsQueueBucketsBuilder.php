@@ -240,12 +240,13 @@ class ActionsQueueBucketsBuilder {
 		$summaryParts = $this->buildAttentionSummaryParts( $bucketSource[ 'attention_items' ] );
 
 		if ( empty( $summaryParts ) ) {
+			if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
+				return __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' );
+			}
 			if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
 				return $this->buildDisabledSummaryText( $bucketSource );
 			}
-			return $bucketSource[ 'healthy_item_count' ] > 0
-				? __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' )
-				: __( 'No items in this bucket.', 'wp-simple-firewall' );
+			return __( 'No items in this bucket.', 'wp-simple-firewall' );
 		}
 
 		return \implode( ', ', \array_slice( $summaryParts, 0, 2 ) );
@@ -376,11 +377,15 @@ class ActionsQueueBucketsBuilder {
 				: StatusPriority::highest( \array_column( $bucketSource[ 'attention_items' ], 'severity' ), 'warning' );
 		}
 
+		if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
+			return 'good';
+		}
+
 		if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
 			return 'neutral';
 		}
 
-		return $bucketSource[ 'healthy_item_count' ] > 0 ? 'good' : 'neutral';
+		return 'neutral';
 	}
 
 	/**
@@ -391,13 +396,15 @@ class ActionsQueueBucketsBuilder {
 			return $this->presentation()->buildBucketFocusText( $bucketLabel, $bucketSource[ 'item_count' ] );
 		}
 
+		if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
+			return __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' );
+		}
+
 		if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
 			return $this->buildDisabledSummaryText( $bucketSource );
 		}
 
-		return $bucketSource[ 'healthy_item_count' ] > 0
-			? __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' )
-			: __( 'There is nothing to review in this bucket right now.', 'wp-simple-firewall' );
+		return __( 'There is nothing to review in this bucket right now.', 'wp-simple-firewall' );
 	}
 
 	private function buildBucketStateLabel( string $status, array $bucketSource ) :string {
@@ -422,7 +429,9 @@ class ActionsQueueBucketsBuilder {
 	 * @return array<string,string>
 	 */
 	private function buildBucketHeaderOverrides( array $bucketSource ) :array {
-		if ( $bucketSource[ 'item_count' ] > 0 || $bucketSource[ 'disabled_item_count' ] < 1 ) {
+		if ( $bucketSource[ 'item_count' ] > 0
+			|| $bucketSource[ 'healthy_item_count' ] > 0
+			|| $bucketSource[ 'disabled_item_count' ] < 1 ) {
 			return [];
 		}
 
@@ -456,9 +465,15 @@ class ActionsQueueBucketsBuilder {
 	 * @param BucketSource $bucketSource
 	 */
 	private function buildBucketDisplayCount( array $bucketSource ) :int {
-		return $bucketSource[ 'item_count' ] > 0
-			? $bucketSource[ 'item_count' ]
-			: $bucketSource[ 'disabled_item_count' ];
+		if ( $bucketSource[ 'item_count' ] > 0 ) {
+			return $bucketSource[ 'item_count' ];
+		}
+
+		if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
+			return 0;
+		}
+
+		return $bucketSource[ 'disabled_item_count' ];
 	}
 
 	/**

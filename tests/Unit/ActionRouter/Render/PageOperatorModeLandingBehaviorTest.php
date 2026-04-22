@@ -351,19 +351,22 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 		$this->scanState = $scanState;
 	}
 
-	protected function getZonePosture() :array {
+	protected function getConfigurationCoverage() :array {
 		return [
-			'components' => [],
-			'signals'    => [],
-			'totals'     => [
-				'score'        => 72,
-				'max_weight'   => 100,
-				'percentage'   => 72,
-				'letter_score' => 'B',
-			],
-			'percentage' => 72,
 			'severity'   => 'warning',
-			'status'     => 'warning',
+			'percentage' => 72,
+			'controls'   => [
+				'total'    => 6,
+				'good'     => 3,
+				'warning'  => 2,
+				'critical' => 1,
+			],
+			'zones'      => [
+				'total'    => 3,
+				'good'     => 1,
+				'warning'  => 1,
+				'critical' => 1,
+			],
 		];
 	}
 

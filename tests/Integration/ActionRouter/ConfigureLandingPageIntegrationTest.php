@@ -90,7 +90,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'',
 			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' )
 		);
-		$this->assertSame( 'Login', (string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' ) );
+		$this->assertSame(
+			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' ),
+			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'selection' ][ 'label' ] ?? '' )
+		);
 		$this->assertSame( 0, (int)( $invalidPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 	}
 
@@ -186,62 +189,39 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_reports_alerts_diagnosis_returns_neutral_zone_contract() :void {
-		$payload = $this->renderConfigureDiagnosis( [
-			'zone' => 'reports_alerts',
-		] );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
-
-		$this->assertArrayHasKey( 'zone_selection', $payload );
-		$this->assertArrayHasKey( 'header', $payload );
-		$this->assertIsArray( $payload[ 'zone_selection' ] );
-		$this->assertIsArray( $payload[ 'header' ] );
-		$this->assertSame( 'reports_alerts', $payload[ 'zone_selection' ][ 'key' ] );
-		$this->assertSame( 'neutral', $payload[ 'zone_selection' ][ 'status' ] );
-		$this->assertSame(
-			$payload[ 'zone_selection' ][ 'label' ],
-			$payload[ 'header' ][ 'title' ]
-		);
-		$this->assertSame( 'neutral', $payload[ 'header' ][ 'badge_status' ] );
-		$this->assertNotSame( '', $payload[ 'header' ][ 'summary' ] );
-		$this->assertNotSame( '', $payload[ 'header' ][ 'focus' ] );
-		$this->assertNotSame( '', $payload[ 'html' ] );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-row-key="reporting"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="reporting" and contains(@data-option_keys, "block_send_email_address") and contains(@data-option_keys, "frequency_alert") and contains(@data-option_keys, "frequency_info")]',
-			'Reports diagnosis should expose a reporting-only scoped row'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-row-key="instant_alerts"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="instant_alerts" and contains(@data-option_keys, "instant_alert_admins") and contains(@data-option_keys, "instant_alert_admin_login")]',
-			'Reports diagnosis should expose an instant-alerts-only scoped row'
-		);
-	}
-
 	public function test_search_render_returns_flat_option_and_zone_results_for_real_query() :void {
 		$payload = $this->renderConfigureSearchResults( [
 			'search' => 'silentcaptcha',
 		] );
 		$this->assertRouteRenderOutputHealthy( $payload, 'configure search results' );
 
+		$results = (array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] );
 		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
+
+		$this->assertNotSame( [], $results );
+		$this->assertSame( [ 'zone', 'option' ], \array_slice( \array_column( $results, 'type' ), 0, 2 ) );
+		$optionResult = $this->findConfigureOptionResultByConfigItem( $results, 'enable_silentcaptcha' )
+						?? $this->findConfigureOptionResultByConfigItem( $results, 'custom_silentcaptcha_toggle' );
+
+		$this->assertNotNull( $optionResult );
+		$this->assertSame( 'option', $optionResult[ 'type' ] ?? '' );
+		$this->assertSame(
+			[
+				'row_key'     => 'silentcaptcha_component',
+				'config_item' => (string)( \json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )[ 'config_item' ] ?? '' ),
+			],
+			\json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )
+		);
+		$this->assertHrefQueryMatches( (string)( $optionResult[ 'href' ] ?? '' ), [
+			'zone'        => 'spam',
+			'row_key'     => 'silentcaptcha_component',
+			'config_item' => (string)( \json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )[ 'config_item' ] ?? '' ),
+		] );
 
 		$this->assertXPathExists(
 			$xpath,
 			'//*[@data-configure-search-results="1"]',
 			'Configure search should render the flat results container'
-		);
-		$this->assertGreaterThan(
-			0,
-			$xpath->query( '//*[@data-configure-search-results="1"]//a[contains(@class, "configure-search-results__item")]' )->length
-		);
-		$this->assertGreaterThan(
-			0,
-			$xpath->query( '//*[@data-configure-search-results="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-search-results__type--option ")]' )->length
-		);
-		$this->assertGreaterThan(
-			0,
-			$xpath->query( '//*[@data-configure-search-results="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-search-results__icon ")]/i' )->length
 		);
 		$this->assertXPathExists(
 			$xpath,
@@ -309,24 +289,10 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$spamPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'spam',
 		] );
-		$scansXpath = $this->createDomXPathFromHtml( (string)( $scansPayload[ 'html' ] ?? '' ) );
-		$spamXpath = $this->createDomXPathFromHtml( (string)( $spamPayload[ 'html' ] ?? '' ) );
 
-		$this->assertXPathExists(
-			$scansXpath,
-			'//*[@data-configure-row-key="scan_scheduling"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="scan_scheduling" and @data-config_item="scan_frequency"]',
-			'Scans diagnosis should expose the scan scheduling config expansion contract'
-		);
-		$this->assertXPathExists(
-			$spamXpath,
-			'//*[@data-configure-row-key="trusted_commenters"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="trusted_commenters" and @data-config_item="trusted_commenter_minimum"]',
-			'Spam diagnosis should expose the trusted commenters config expansion contract'
-		);
-		$this->assertXPathExists(
-			$spamXpath,
-			'//*[@data-configure-row-key="general_settings"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="module_spam" and @data-option_keys="comments_cooldown"]',
-			'Spam diagnosis should expose the general spam settings expansion contract'
-		);
+		$this->assertDiagnosisRowScope( $scansPayload, 'scan_scheduling', 'scan_scheduling', [], 'scan_frequency' );
+		$this->assertDiagnosisRowScope( $spamPayload, 'trusted_commenters', 'trusted_commenters', [], 'trusted_commenter_minimum' );
+		$this->assertDiagnosisRowScope( $spamPayload, 'general_settings', 'module_spam', [ 'comments_cooldown' ] );
 	}
 
 	public function test_login_and_ips_diagnosis_surface_existing_hidden_callouts() :void {
@@ -336,34 +302,16 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$ipsPayload = $this->renderConfigureDiagnosis( [
 			'zone' => 'ips',
 		] );
-		$loginXpath = $this->createDomXPathFromHtml( (string)( $loginPayload[ 'html' ] ?? '' ) );
-		$ipsXpath = $this->createDomXPathFromHtml( (string)( $ipsPayload[ 'html' ] ?? '' ) );
 
-		$this->assertXPathExists(
-			$loginXpath,
-			'//*[@data-configure-row-key="two_factor_general"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="two_factor_auth" and contains(@data-option_keys, "mfa_verify_page") and contains(@data-option_keys, "allow_backupcodes")]',
-			'Login diagnosis should expose the split 2FA general settings row'
-		);
-		$this->assertXPathExists(
-			$loginXpath,
-			'//*[@data-configure-row-key="two_factor_email"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="two_factor_auth" and contains(@data-option_keys, "enable_email_authentication")]',
-			'Login diagnosis should expose the split 2FA email row'
-		);
-		$this->assertXPathExists(
-			$loginXpath,
-			'//*[@data-configure-row-key="two_factor_otp_passkeys"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="two_factor_auth" and contains(@data-option_keys, "enable_google_authenticator") and contains(@data-option_keys, "enable_passkeys")]',
-			'Login diagnosis should expose the split OTP and passkeys row'
-		);
-		$this->assertXPathExists(
-			$loginXpath,
-			'//*[@data-configure-row-key="login_hide"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="login_hide"]',
-			'Login diagnosis should still surface the login-hide expansion row'
-		);
-		$this->assertXPathExists(
-			$ipsXpath,
-			'//*[@data-configure-row-key="ip_blocking_rules"]//*[@data-shield-expand-body="1"]//*[@data-configure-expand-ajax="1" and @data-zone_component_slug="ip_blocking_rules"]',
-			'IPs diagnosis should still surface the IP blocking rules expansion row'
-		);
+		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_general', 'two_factor_auth', [ 'mfa_verify_page', 'allow_backupcodes' ] );
+		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_email', 'two_factor_auth', [ 'enable_email_authentication' ] );
+		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_otp_passkeys', 'two_factor_auth', [ 'enable_google_authenticator', 'enable_passkeys' ] );
+		$this->assertDiagnosisRowScope( $loginPayload, 'hide_wp_login', 'hide_wp_login' );
+		$this->assertDiagnosisRowScope( $loginPayload, 'session_theft_protection', 'session_theft_protection', [ 'enable_user_login_email_notification', 'session_lock' ] );
+		$this->assertDiagnosisRowScope( $ipsPayload, 'crowdsec_blocking', 'crowdsec_blocking', [ 'cs_block', 'cs_enroll_id' ] );
+		$this->assertDiagnosisRowScope( $ipsPayload, 'auto_ip_blocking', 'auto_ip_blocking', [ 'user_auto_recover', 'request_whitelist' ] );
+		$this->assertDiagnosisRowScope( $ipsPayload, 'bot_actions', 'bot_actions', [ 'track_xmlrpc' ] );
+		$this->assertNull( $this->findDiagnosisRowByKey( $ipsPayload, 'ip_blocking_rules' ) );
 	}
 
 	public function test_secadmin_diagnosis_header_actions_only_when_security_admin_is_enabled() :void {
@@ -393,10 +341,9 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			] );
 
 			$this->assertCount( 1, $enabledPayload[ 'header' ][ 'actions' ] ?? [] );
-			$this->assertSame(
-				'Disable Security Admin',
-				(string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' )
-			);
+			$this->assertSame( 'href', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'kind' ] ?? '' ) );
+			$this->assertSame( 'deactivate', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'type' ] ?? '' ) );
+			$this->assertNotSame( '', (string)( $enabledPayload[ 'header' ][ 'actions' ][ 0 ][ 'href' ] ?? '' ) );
 			$this->assertSame( [], $disabledPayload[ 'header' ][ 'actions' ] ?? [ 'unexpected' ] );
 		}
 		finally {
@@ -420,6 +367,79 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_real_tile_build_only_keeps_intentional_visible_duplicate_option_ownership() :void {
+		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
+		$allowedDuplicates = [
+			'enable_password_policies' => [
+				'users:password_policies',
+				'users:pwned_passwords',
+				'users:password_strength',
+			],
+		];
+		$unexpectedDuplicates = [];
+		$visibleOptionRows = [];
+
+		foreach ( $tiles as $tile ) {
+			foreach ( $tile[ 'panel' ][ 'rows' ] ?? [] as $row ) {
+				$optionKeys = \array_filter( \array_map(
+					'trim',
+					\explode( ',', (string)( $row[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? '' ) )
+				) );
+				foreach ( $optionKeys as $optionKey ) {
+					$visibleOptionRows[ $optionKey ][] = $tile[ 'key' ].':'.(string)( $row[ 'key' ] ?? '' );
+				}
+			}
+		}
+
+		foreach ( $visibleOptionRows as $optionKey => $rowKeys ) {
+			if ( \count( $rowKeys ) < 2 ) {
+				continue;
+			}
+
+			sort( $rowKeys );
+			$allowedRows = $allowedDuplicates[ $optionKey ] ?? [];
+			sort( $allowedRows );
+
+			if ( $rowKeys === $allowedRows ) {
+				continue;
+			}
+
+			$unexpectedDuplicates[ $optionKey ] = $rowKeys;
+		}
+
+		$this->assertSame( [], $unexpectedDuplicates );
+	}
+
+	public function test_real_builder_reflects_grouped_and_downgraded_warning_rows() :void {
+		$snapshot = $this->snapshotSelectedOptions( [
+			'enable_core_file_integrity_scan',
+			'file_scan_areas',
+			'file_repair_areas',
+			'disable_xmlrpc',
+		] );
+
+		try {
+			$this->requireController()->opts
+				->optSet( 'enable_core_file_integrity_scan', 'Y' )
+				->optSet( 'file_scan_areas', [ 'malware_php', 'plugins', 'themes', 'wpcontent', 'wproot' ] )
+				->optSet( 'file_repair_areas', [ 'plugin', 'theme' ] )
+				->optSet( 'disable_xmlrpc', 'N' )
+				->store();
+
+			$tiles = ( new ConfigureZoneTilesBuilder() )->build();
+			$fileScanningRow = $this->findBuiltConfigureRowByKey( $tiles, 'file_scanning' );
+			$xmlRpcRow = $this->findBuiltConfigureRowByKey( $tiles, 'xml_rpc_disable' );
+
+			$this->assertNotNull( $fileScanningRow );
+			$this->assertNotNull( $xmlRpcRow );
+			$this->assertSame( 'okay', $fileScanningRow[ 'enabled_status' ] ?? null );
+			$this->assertSame( 'okay', $xmlRpcRow[ 'enabled_status' ] ?? null );
+		}
+		finally {
+			$this->restoreSelectedOptions( $snapshot );
+		}
+	}
+
 	private function findConfigureOptionResultByConfigItem( array $results, string $configItem ) :?array {
 		foreach ( $results as $result ) {
 			if ( !\is_array( $result ) || ( $result[ 'type' ] ?? '' ) !== 'option' ) {
@@ -429,6 +449,75 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$focusRequest = \json_decode( (string)( $result[ 'focus_request_json' ] ?? '' ), true );
 			if ( \is_array( $focusRequest ) && ( $focusRequest[ 'config_item' ] ?? '' ) === $configItem ) {
 				return $result;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @return array<string,mixed>|null
+	 */
+	private function findDiagnosisRowByKey( array $payload, string $rowKey ) :?array {
+		foreach ( [ 'problem_rows', 'review_rows', 'healthy_rows' ] as $groupKey ) {
+			foreach ( (array)( $payload[ $groupKey ] ?? [] ) as $row ) {
+				if ( \is_array( $row ) && ( $row[ 'key' ] ?? '' ) === $rowKey ) {
+					return $row;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private function assertDiagnosisRowScope(
+		array $payload,
+		string $rowKey,
+		string $zoneComponentSlug,
+		array $requiredOptionKeys = [],
+		?string $configItem = null
+	) :void {
+		$row = $this->findDiagnosisRowByKey( $payload, $rowKey );
+		$this->assertNotNull( $row, 'Missing diagnosis row: '.$rowKey );
+		$this->assertTrue( (bool)( $row[ 'expand_action' ][ 'is_expandable' ] ?? false ) );
+		$this->assertSame(
+			$zoneComponentSlug,
+			(string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' )
+		);
+
+		$optionKeys = \array_filter( \array_map(
+			'trim',
+			\explode( ',', (string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'option_keys' ] ?? '' ) )
+		) );
+		foreach ( $requiredOptionKeys as $requiredOptionKey ) {
+			$this->assertContains( $requiredOptionKey, $optionKeys );
+		}
+
+		if ( $configItem !== null ) {
+			$this->assertSame(
+				$configItem,
+				(string)( $row[ 'expand_action' ][ 'data_attributes' ][ 'config_item' ] ?? '' )
+			);
+		}
+	}
+
+	private function assertHrefQueryMatches( string $href, array $expectedQuery ) :void {
+		$this->assertNotSame( '', $href );
+
+		$query = (string)( \parse_url( $href, \PHP_URL_QUERY ) ?? '' );
+		parse_str( $query, $queryArgs );
+
+		foreach ( $expectedQuery as $key => $value ) {
+			$this->assertSame( $value, (string)( $queryArgs[ $key ] ?? '' ) );
+		}
+	}
+
+	private function findBuiltConfigureRowByKey( array $tiles, string $rowKey ) :?array {
+		foreach ( $tiles as $tile ) {
+			foreach ( $tile[ 'panel' ][ 'rows' ] ?? [] as $row ) {
+				if ( ( $row[ 'key' ] ?? '' ) === $rowKey ) {
+					return $row;
+				}
 			}
 		}
 

@@ -109,7 +109,7 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 			return null;
 		}
 
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions() )
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
 			->normalize( $this->results_display_options );
 	}
 }

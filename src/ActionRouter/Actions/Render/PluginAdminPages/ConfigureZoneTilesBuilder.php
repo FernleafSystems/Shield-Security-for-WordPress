@@ -184,13 +184,6 @@ class ConfigureZoneTilesBuilder {
 	 */
 	private function buildSingleRowContract( array $rowInput, bool $forceNeutral = false ) :array {
 		$status = $forceNeutral ? 'neutral' : $this->componentStatusToConfigureStatus( $rowInput[ 'enabled_status' ] );
-		$explanations = \array_values( \array_filter(
-			\array_map(
-				static fn( $expl ) :string => \trim( (string)$expl ),
-				$rowInput[ 'explanations' ]
-			),
-			static fn( string $expl ) :bool => $expl !== ''
-		) );
 		$configAction = $this->buildConfigActionForScope( $rowInput[ 'config_scope' ] );
 
 		return [
@@ -200,7 +193,7 @@ class ConfigureZoneTilesBuilder {
 			'status_label'      => $this->componentStatusLabel( $status ),
 			'status_icon_class' => $this->componentStatusIconClass( $status ),
 			'note'              => $rowInput[ 'note' ],
-			'explanations'      => $explanations,
+			'explanations'      => $rowInput[ 'explanations' ],
 			'config_action'     => $configAction,
 		];
 	}
@@ -396,6 +389,7 @@ class ConfigureZoneTilesBuilder {
 		}
 
 		return $this->normalizeActionContract( [
+			'label' => __( 'Configure', 'wp-simple-firewall' ),
 			'title' => $scope[ 'title' ] ?: __( 'Edit Settings', 'wp-simple-firewall' ),
 			'icon'  => self::con()->svgs->iconClass( 'gear' ),
 			'data'  => $data,
@@ -470,6 +464,7 @@ class ConfigureZoneTilesBuilder {
 		}
 
 		return [
+			'label'   => (string)( $action[ 'label' ] ?? __( 'Configure', 'wp-simple-firewall' ) ),
 			'title'   => (string)( $action[ 'title' ] ?? __( 'Edit Settings', 'wp-simple-firewall' ) ),
 			'href'    => (string)( $action[ 'href' ] ?? 'javascript:{}' ),
 			'icon'    => (string)( $action[ 'icon' ] ?? self::con()->svgs->iconClass( 'gear' ) ),

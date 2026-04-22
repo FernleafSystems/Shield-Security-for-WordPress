@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueScanResultsOptions,
+	ScanResultsDisplayOptions,
 	ScanResultsTableContractBuilder,
 	ScansResultsViewBuilder
 };
@@ -26,7 +26,7 @@ class Wordpress extends Base {
 	protected function getRenderData() :array {
 		if ( $this->isActionsQueueDisplayContext() && !$this->getActionsQueuePane()[ 'is_disabled' ] ) {
 			$emptyText = __( "Previous scans didn't detect any modified, missing, or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' );
-			$queueScanResultsOptions = new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions();
+			$queueScanResultsOptions = new ScanResultsDisplayOptions();
 			$resultsDisplayOptions = $this->getActionsQueueExplicitResultsDisplayOptions();
 			$scanResultsActionData = $queueScanResultsOptions->buildDisplayContextActionData();
 			if ( $resultsDisplayOptions !== null ) {
@@ -82,7 +82,7 @@ class Wordpress extends Base {
 			\sprintf( "%s.`meta_value`=1", RetrieveBase::ABBR_RESULTITEMMETA ),
 		];
 		$loader->results_display_options = $resultsDisplayOptions
-			?? ( new ActionsQueueScanResultsOptions() )->storedOptions();
+			?? ( new ScanResultsDisplayOptions() )->activeOnly();
 		return $loader;
 	}
 }

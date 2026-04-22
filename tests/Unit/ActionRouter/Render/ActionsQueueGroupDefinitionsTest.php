@@ -29,7 +29,13 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( Wordpress::class, $definitions[ 'wordpress' ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'display_context' => 'actions_queue',
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored'  => false,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => false,
+				],
 			],
 			$definitions[ 'wordpress' ][ 'render_action_data' ]
 		);

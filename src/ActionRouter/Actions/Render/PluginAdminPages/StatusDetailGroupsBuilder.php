@@ -41,7 +41,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   status_label:string,
  *   status_icon_class:string,
  *   explanations:list<string>,
- *   config_action:DetailActionInput
+ *   config_action:array{}|DetailAction
  * }
  * @phpstan-type DetailGroupRow array{
  *   key:string,
@@ -156,14 +156,7 @@ class StatusDetailGroupsBuilder {
 	 */
 	private function buildConfigureRow( array $row, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $row[ 'status' ] );
-		$action = $this->normalizeAction( $row[ 'config_action' ], __( 'Configure', 'wp-simple-firewall' ) );
-		$explanations = \array_values( \array_filter(
-			\array_map(
-				static fn( $explanation ) :string => \trim( (string)$explanation ),
-				$row[ 'explanations' ]
-			),
-			static fn( string $explanation ) :bool => $explanation !== ''
-		) );
+		$action = $row[ 'config_action' ];
 
 		return [
 			'key'               => $row[ 'key' ],
@@ -174,7 +167,7 @@ class StatusDetailGroupsBuilder {
 			'status_icon_class' => $row[ 'status_icon_class' ],
 			'count_badge'       => null,
 			'badge_status'      => $this->badgeStatus( $status ),
-			'explanations'      => $explanations,
+			'explanations'      => $row[ 'explanations' ],
 			'action'            => $action,
 			'is_expandable'     => $this->isExpandableAction( $action ),
 			'sort_index'        => $sortIndex,

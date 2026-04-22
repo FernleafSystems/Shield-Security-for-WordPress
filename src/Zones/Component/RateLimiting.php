@@ -50,4 +50,8 @@ class RateLimiting extends Base {
 	protected function postureWeight() :int {
 		return 2;
 	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
 }

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 /**
  * @phpstan-import-type ConfigureZoneTileContract from ConfigureZoneTilesBuilder
@@ -23,18 +22,18 @@ class ConfigureLandingViewBuilder {
 	private ConfigureZoneTilesBuilder $tilesBuilder;
 	private StatusDetailGroupsBuilder $detailGroupsBuilder;
 	private ConfigureZoneDiagnosisBuilder $diagnosisBuilder;
-	private BuildZonePosture $zonePostureBuilder;
+	private BuildConfigurationCoverage $configurationCoverageBuilder;
 
 	public function __construct(
 		?ConfigureZoneTilesBuilder $tilesBuilder = null,
 		?StatusDetailGroupsBuilder $detailGroupsBuilder = null,
 		?ConfigureZoneDiagnosisBuilder $diagnosisBuilder = null,
-		?BuildZonePosture $zonePostureBuilder = null
+		?BuildConfigurationCoverage $configurationCoverageBuilder = null
 	) {
 		$this->tilesBuilder = $tilesBuilder ?? new ConfigureZoneTilesBuilder();
 		$this->detailGroupsBuilder = $detailGroupsBuilder ?? new StatusDetailGroupsBuilder();
 		$this->diagnosisBuilder = $diagnosisBuilder ?? new ConfigureZoneDiagnosisBuilder();
-		$this->zonePostureBuilder = $zonePostureBuilder ?? new BuildZonePosture();
+		$this->configurationCoverageBuilder = $configurationCoverageBuilder ?? new BuildConfigurationCoverage();
 	}
 
 	/**
@@ -50,7 +49,7 @@ class ConfigureLandingViewBuilder {
 			$diagnoses[ $zoneTile[ 'key' ] ] = $this->diagnosisBuilder->build( $zoneTile );
 		}
 
-		$postureSummary = $this->buildPostureSummary( $tiles, $this->zonePostureBuilder->build() );
+		$postureSummary = $this->buildPostureSummary( $this->configurationCoverageBuilder->build() );
 		$rootStep = $this->buildOperatorRootStep( $postureSummary );
 
 		return [
@@ -155,61 +154,47 @@ class ConfigureLandingViewBuilder {
 	}
 
 	/**
-	 * @param list<ConfigureLandingTile> $tiles
 	 * @param array{
-	 *   components:list<array<string,mixed>>,
-	 *   signals:list<array<string,mixed>>,
-	 *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string},
+	 *   severity:'good'|'warning'|'critical',
 	 *   percentage:int,
-	 *   severity:string,
-	 *   status:string
+	 *   controls:array{total:int,good:int,warning:int,critical:int},
+	 *   zones:array{total:int,good:int,warning:int,critical:int}
 	 * } $postureSource
 	 * @return ConfigurePostureSummary
 	 */
-	private function buildPostureSummary( array $tiles, array $postureSource ) :array {
+	private function buildPostureSummary( array $postureSource ) :array {
 		$posturePercentage = $postureSource[ 'percentage' ];
-		$postureStatus = BuildZonePosture::trafficFromPercentage( $posturePercentage );
+		$postureStatus = $postureSource[ 'severity' ];
 
 		return [
 			'status'     => $postureStatus,
 			'chip_label' => $this->standardStatusLabel( $postureStatus ),
 			'icon_class' => $this->standardStatusIconClass( $postureStatus ),
-			'eyebrow'    => __( 'Configuration Posture', 'wp-simple-firewall' ),
-			'summary'    => $this->buildPostureSummaryText( $tiles, $posturePercentage ),
+			'eyebrow'    => __( 'Configuration Coverage', 'wp-simple-firewall' ),
+			'summary'    => $this->buildPostureSummaryText( $postureSource ),
 			'meter'      => [
 				'percentage'      => $posturePercentage,
 				'status'          => $postureStatus,
-				'aria_label'      => __( 'Configuration Posture', 'wp-simple-firewall' ),
+				'aria_label'      => __( 'Configuration Coverage', 'wp-simple-firewall' ),
 				'aria_value_text' => \sprintf( '%s%%', $posturePercentage ),
 			],
 		];
 	}
 
 	/**
-	 * @param list<ConfigureLandingTile> $tiles
+	 * @param array{
+	 *   percentage:int,
+	 *   zones:array{total:int,good:int,warning:int,critical:int}
+	 * } $postureSource
 	 */
-	private function buildPostureSummaryText( array $tiles, int $posturePercentage ) :string {
-		$counts = [
-			'good'     => 0,
-			'warning'  => 0,
-			'critical' => 0,
-		];
-
-		foreach ( $tiles as $zoneTile ) {
-			if ( !$zoneTile[ 'include_in_posture' ] ) {
-				continue;
-			}
-			if ( isset( $counts[ $zoneTile[ 'status' ] ] ) ) {
-				$counts[ $zoneTile[ 'status' ] ]++;
-			}
-		}
-
+	private function buildPostureSummaryText( array $postureSource ) :string {
+		$zoneCounts = $postureSource[ 'zones' ];
 		return \sprintf(
 			__( '%1$s%% - %2$s - %3$s - %4$s', 'wp-simple-firewall' ),
-			$posturePercentage,
-			\sprintf( _n( '%s critical', '%s critical', $counts[ 'critical' ], 'wp-simple-firewall' ), $counts[ 'critical' ] ),
-			\sprintf( _n( '%s needs work', '%s need work', $counts[ 'warning' ], 'wp-simple-firewall' ), $counts[ 'warning' ] ),
-			\sprintf( _n( '%s good', '%s good', $counts[ 'good' ], 'wp-simple-firewall' ), $counts[ 'good' ] )
+			$postureSource[ 'percentage' ],
+			\sprintf( _n( '%s critical zone', '%s critical zones', $zoneCounts[ 'critical' ], 'wp-simple-firewall' ), $zoneCounts[ 'critical' ] ),
+			\sprintf( _n( '%s zone needs review', '%s zones need review', $zoneCounts[ 'warning' ], 'wp-simple-firewall' ), $zoneCounts[ 'warning' ] ),
+			\sprintf( _n( '%s zone ready', '%s zones ready', $zoneCounts[ 'good' ], 'wp-simple-firewall' ), $zoneCounts[ 'good' ] )
 		);
 	}
 

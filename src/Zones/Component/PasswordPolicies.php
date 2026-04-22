@@ -14,6 +14,10 @@ class PasswordPolicies extends Base {
 		return __( 'Restrict password parameters to ensure higher user account security.', 'wp-simple-firewall' );
 	}
 
+	protected function configItem() :string {
+		return 'enable_password_policies';
+	}
+
 	protected function postureWeight() :int {
 		return 3;
 	}

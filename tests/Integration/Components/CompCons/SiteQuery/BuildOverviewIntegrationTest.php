@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons\SiteQuery;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\BuildConfigurationCoverage;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildOverviewIntegrationTest extends ShieldIntegrationTestCase {
@@ -41,7 +41,7 @@ class BuildOverviewIntegrationTest extends ShieldIntegrationTestCase {
 		$overview = self::con()->comps->site_query->overview();
 		$attention = self::con()->comps->site_query->attention();
 		$runtime = self::con()->comps->site_query->scanRuntime();
-		$posture = ( new BuildZonePosture() )->build();
+		$posture = ( new BuildConfigurationCoverage() )->build();
 
 		$this->assertSame( Services::WpGeneral()->getHomeUrl(), $overview[ 'site' ][ 'url' ] );
 		$this->assertSame( Services::WpGeneral()->getSiteName(), $overview[ 'site' ][ 'name' ] );
@@ -49,12 +49,9 @@ class BuildOverviewIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::con()->isPremiumActive(), $overview[ 'site' ][ 'is_premium' ] );
 
 		$this->assertSame( $attention[ 'summary' ], $overview[ 'attention_summary' ] );
-		$this->assertSame( [
-			'status'     => $posture[ 'status' ],
-			'severity'   => $posture[ 'severity' ],
-			'percentage' => $posture[ 'percentage' ],
-			'totals'     => $posture[ 'totals' ],
-		], $overview[ 'posture' ] );
+		$this->assertSame( $posture, $overview[ 'posture' ] );
+		$this->assertArrayNotHasKey( 'status', $overview[ 'posture' ] );
+		$this->assertArrayNotHasKey( 'totals', $overview[ 'posture' ] );
 		$this->assertSame( $runtime[ 'is_running' ], $overview[ 'scans' ][ 'is_running' ] );
 		$this->assertSame( $runtime[ 'enqueued_count' ], $overview[ 'scans' ][ 'enqueued_count' ] );
 

@@ -1530,7 +1530,7 @@ class ScansResultsViewBuilder {
 		return new ActionsQueueScanAssetCardsBuilder();
 	}
 
-	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
-		return new ActionsQueueScanResultsOptions();
+	private function queueScanResultsOptions() :ScanResultsDisplayOptions {
+		return new ScanResultsDisplayOptions();
 	}
 }

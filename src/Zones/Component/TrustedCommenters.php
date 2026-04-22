@@ -35,4 +35,8 @@ class TrustedCommenters extends Base {
 		}
 		return $status;
 	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
 }

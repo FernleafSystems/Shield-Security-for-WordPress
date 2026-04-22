@@ -91,7 +91,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 
 			$seeds[] = [
 				'key'                     => $definitionKey,
-				'is_healthy'              => false,
 				'definition_key'          => $definitionKey,
 				'label'                   => $definition[ 'label' ],
 				'item_count'              => 0,
@@ -117,7 +116,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'header_badge_status_override' => 'neutral',
 				'header_color_key_override'    => 'neutral',
 				'context_actions_override'     => [],
-				'display_options_override'     => [],
 			];
 			if ( \in_array( $definitionKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
 				$seeds[ \array_key_last( $seeds ) ][ 'card_type_override' ] = 'expandable';
@@ -159,7 +157,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seeds[] = [
 				'key'                         => $definitionKey,
-				'is_healthy'                  => true,
 				'definition_key'              => $definitionKey,
 				'label'                       => $definition[ 'label' ],
 				'item_count'                  => $interaction[ 'item_count_override' ] ?? \count( $rows ),

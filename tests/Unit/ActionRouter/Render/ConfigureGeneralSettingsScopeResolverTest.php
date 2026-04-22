@@ -73,6 +73,18 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 		$this->assertSame( [ 'optimise_scan_speed' ], $scope[ 'option_keys' ] ?? [] );
 	}
 
+	public function test_resolve_excludes_user_options_now_owned_by_visible_rows() :void {
+		$this->installZonesController( [
+			'module_users' => [ 'manual_suspend', 'auto_password' ],
+		] );
+
+		$resolver = new ConfigureGeneralSettingsScopeResolver();
+		$this->assertSame( [], $resolver->resolve(
+			$this->newZone( [ 'module_users' ] ),
+			[ 'manual_suspend', 'auto_password' ]
+		) );
+	}
+
 	private function installZonesController( array $optionsBySlug ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();

@@ -122,6 +122,71 @@ td.severity .severity-icon > .bi {
 .shield-section-datatable table.dataTable.table-striped > tbody > tr.odd.selected > * {
 	background-color: #9db69d;
 }
+.shield-section-datatable table.dataTable > tbody > tr.scan-result-row--ignored > * {
+	color: #6b7280;
+}
+.shield-section-datatable table.dataTable.table-striped > tbody > tr.scan-result-row--ignored > * {
+	background-color: #f3f4f6;
+}
+.shield-section-datatable table.dataTable.table-striped > tbody > tr.scan-result-row--ignored.odd > * {
+	background-color: #e5e7eb;
+}
+.shield-section-datatable .scan-results-file-cell {
+	align-items: center;
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+.shield-section-datatable .scan-results-ignored-badge {
+	font-size: 0.7rem;
+	letter-spacing: 0.02em;
+}
+.shield-section-datatable table[data-scan-results-table="1"] th.actions,
+.shield-section-datatable table[data-scan-results-table="1"] td.actions {
+	min-width: 10rem !important;
+	width: 10rem !important;
+	max-width: none;
+	white-space: nowrap;
+}
+.shield-section-datatable table[data-scan-results-table="1"] td.actions {
+	padding-left: 0.35rem;
+	padding-right: 0.35rem;
+}
+.shield-section-datatable .scan-results-row-actions {
+	align-items: center;
+	display: inline-flex;
+	flex-wrap: nowrap;
+	gap: 0.2rem;
+	justify-content: flex-start;
+}
+.shield-section-datatable .scan-results-row-action {
+	background-color: #fff;
+	border: 1px solid #d0d7de;
+	color: #3c434a;
+}
+.shield-section-datatable .scan-results-row-action:hover,
+.shield-section-datatable .scan-results-row-action:focus-visible {
+	background-color: #f6f7f7;
+	border-color: #b7c0c8;
+}
+.shield-section-datatable .scan-results-row-action--view {
+	color: #0b57a4;
+}
+.shield-section-datatable .scan-results-row-action--delete {
+	color: #b42318;
+}
+.shield-section-datatable .scan-results-row-action--repair {
+	color: #8a6708;
+}
+.shield-section-datatable .scan-results-row-action--ignore {
+	color: #646970;
+}
+.shield-section-datatable .dt-buttons .dt-button.scan-results-display-filter.active,
+.shield-section-datatable .dt-buttons .dt-button.display-results.active {
+	background-color: #d1e7dd;
+	border-color: #84c5a2;
+	color: #1f5131;
+}
 
 td.page {
 	word-wrap: break-word !important;

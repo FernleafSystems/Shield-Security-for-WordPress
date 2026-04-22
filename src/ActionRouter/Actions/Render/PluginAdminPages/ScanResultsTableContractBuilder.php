@@ -18,9 +18,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\{
 class ScanResultsTableContractBuilder {
 
 	private ScanResultsScopeResolver $scopeResolver;
+	private ScanResultsDisplayOptions $displayOptions;
 
-	public function __construct( ?ScanResultsScopeResolver $scopeResolver = null ) {
+	public function __construct( ?ScanResultsScopeResolver $scopeResolver = null, ?ScanResultsDisplayOptions $displayOptions = null ) {
 		$this->scopeResolver = $scopeResolver ?? new ScanResultsScopeResolver();
+		$this->displayOptions = $displayOptions ?? new ScanResultsDisplayOptions();
 	}
 
 	/**
@@ -37,6 +39,10 @@ class ScanResultsTableContractBuilder {
 		$tableActionData = \array_merge(
 			$this->scopeResolver->canonicalActionDataForSubject( $subjectType, $subjectId ),
 			$scanResultsActionData
+		);
+		$tableActionData = $this->displayOptions->mergeIntoActionData(
+			$tableActionData,
+			$this->displayOptions->explicitOptionsFromActionData( $tableActionData )
 		);
 
 		switch ( $subjectType ) {
@@ -85,15 +91,20 @@ class ScanResultsTableContractBuilder {
 	 * @return array<string,mixed>
 	 */
 	public function buildMalware( string $fullLogHref, array $scanResultsActionData = [] ) :array {
+		$tableActionData = $this->displayOptions->mergeIntoActionData(
+			\array_merge(
+				$this->scopeResolver->normalizeActionScope( 'malware', 'malware' ),
+				$scanResultsActionData
+			),
+			$this->displayOptions->explicitOptionsFromActionData( $scanResultsActionData )
+		);
+
 		return $this->buildTableContract(
 			__( 'Malware Results', 'wp-simple-firewall' ),
 			'warning',
 			'malware',
 			( new ForMalware() )->buildRaw(),
-			ActionData::Build( ScanResultsTableAction::class, true, \array_merge(
-				$this->scopeResolver->normalizeActionScope( 'malware', 'malware' ),
-				$scanResultsActionData
-			) ),
+			ActionData::Build( ScanResultsTableAction::class, true, $tableActionData ),
 			$fullLogHref,
 			__( 'Full Scan Results', 'wp-simple-firewall' )
 		);
@@ -137,6 +148,7 @@ class ScanResultsTableContractBuilder {
 			'table_id'                  => 'ShieldScanResultsTable-'.\substr( \md5( $tableKey ), 0, 12 ),
 			'datatables_init_attr'      => $this->encodeJsonAttr( $datatablesInit ),
 			'table_action_attr'         => $this->encodeJsonAttr( $tableAction ),
+			'results_display_options_attr' => $this->encodeJsonAttr( $tableAction[ 'results_display_options' ] ?? [] ),
 			'render_item_analysis_attr' => $this->encodeJsonAttr(
 				ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class )
 			),

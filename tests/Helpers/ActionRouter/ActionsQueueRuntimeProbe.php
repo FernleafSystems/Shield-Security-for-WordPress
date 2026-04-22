@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueSca
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueGroupsBuilder,
 	ActionsQueueLandingAssessmentBuilder,
-	ActionsQueueScanResultsOptions,
+	ScanResultsDisplayOptions,
 	PageActionsQueueLanding,
 	ScansResultsViewBuilder
 };
@@ -78,7 +78,7 @@ class ActionsQueueRuntimeProbe {
 	private ?array $metricsPayload = null;
 	private ?array $attentionQuery = null;
 	private ?array $assessmentRowsByZone = null;
-	private ?ActionsQueueScanResultsOptions $queueScanResultsOptions = null;
+	private ?ScanResultsDisplayOptions $queueScanResultsOptions = null;
 	private ?ScansResultsViewBuilder $viewBuilder = null;
 	private ?array $paneCounts = null;
 	private ?array $fileLockerState = null;
@@ -246,9 +246,9 @@ class ActionsQueueRuntimeProbe {
 		return $this->assessmentRowsByZone;
 	}
 
-	private function queueScanResultsOptions() :ActionsQueueScanResultsOptions {
+	private function queueScanResultsOptions() :ScanResultsDisplayOptions {
 		if ( $this->queueScanResultsOptions === null ) {
-			$this->queueScanResultsOptions = new ActionsQueueScanResultsOptions();
+			$this->queueScanResultsOptions = new ScanResultsDisplayOptions();
 		}
 
 		return $this->queueScanResultsOptions;

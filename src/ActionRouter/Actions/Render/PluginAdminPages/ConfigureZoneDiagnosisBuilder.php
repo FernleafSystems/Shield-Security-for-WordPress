@@ -219,7 +219,7 @@ class ConfigureZoneDiagnosisBuilder {
 		return [
 			'id'              => $isExpandable ? $expandId : '',
 			'is_expandable'   => $isExpandable,
-			'label'           => (string)( $action[ 'label' ] ?? __( 'Configure', 'wp-simple-firewall' ) ),
+			'label'           => (string)( $action[ 'label' ] ?? '' ),
 			'title'           => (string)( $action[ 'title' ] ?? '' ),
 			'data_attributes' => $dataAttributes,
 		];

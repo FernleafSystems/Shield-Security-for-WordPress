@@ -3,44 +3,42 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionProcessor,
 	Actions\ScanResultsTableAction
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\HtmlDomAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
+	use HtmlDomAssertions;
+
 	public function set_up() {
 		parent::set_up();
+		$this->truncateShieldTables();
 		$this->requireDb( 'scans' );
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->loginAsSecurityAdmin();
 		$this->requireController()->this_req->wp_is_ajax = false;
-		$this->enablePremiumCapabilities( [
-			'scan_file_areas',
-			'scan_pluginsthemes_local',
-		] );
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
-			 ->optSet( 'file_scan_areas', [ 'plugins' ] )
+			 ->optSet( 'file_scan_areas', [ 'wp' ] )
 			 ->store();
-		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
 		$this->resetScanResultCountMemoization();
 	}
 
-	public function test_ignore_sub_action_removes_plugin_row_from_active_results_without_page_reload() :void {
-		$pluginSlug = self::con()->base_file;
-		$tracked = $this->seedPluginScanResult( $pluginSlug );
+	public function test_ignore_sub_action_removes_wordpress_row_from_active_results_without_page_reload() :void {
+		$tracked = $this->seedWordpressScanResult();
 		$scanResultId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
 		$resultItemId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
 		$this->assertGreaterThan( 0, $scanResultId );
 		$this->assertGreaterThan( 0, $resultItemId );
 
-		$beforeActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$beforeActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
 		$this->assertTrue( $beforeActive[ 'success' ] ?? false );
 		$this->assertSame( 1, (int)( $beforeActive[ 'datatable_data' ][ 'recordsTotal' ] ?? 0 ) );
 		$this->assertSame( 1, (int)( $beforeActive[ 'datatable_data' ][ 'recordsFiltered' ] ?? 0 ) );
@@ -49,10 +47,10 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			\array_column( $beforeActive[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
 
-		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+		$payload = $this->processScanResultsAction( [
 			'sub_action' => 'ignore',
 			'rids'       => [ $scanResultId ],
-		] )->payload();
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
@@ -64,13 +62,13 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $item );
 		$this->assertGreaterThan( 0, (int)( $item->ignored_at ?? 0 ) );
 
-		$afterActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$afterActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
 		$this->assertTrue( $afterActive[ 'success' ] ?? false );
 		$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 		$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsFiltered' ] ?? -1 ) );
 		$this->assertCount( 0, $afterActive[ 'datatable_data' ][ 'data' ] ?? [] );
 
-		$afterIgnored = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->ignoredOnly() );
+		$afterIgnored = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
 		$this->assertTrue( $afterIgnored[ 'success' ] ?? false );
 		$this->assertSame( 1, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? 0 ) );
 		$this->assertSame( 1, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsFiltered' ] ?? 0 ) );
@@ -81,19 +79,17 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_ignore_sub_action_does_not_clean_unrelated_stale_rows_in_same_scan() :void {
-		$pluginSlug = self::con()->base_file;
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
-		$active = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
-		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin'    => 1,
-			'ptg_slug'        => $pluginSlug,
+		$active = $this->seedWordpressScanResultForScan( $scanId );
+		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->corePathFragment( 'wp-admin/update.php' ), [
+			'is_in_core'      => 1,
 			'is_checksumfail' => 1,
 		] );
 
-		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+		$payload = $this->processScanResultsAction( [
 			'sub_action' => 'ignore',
 			'rids'       => [ (int)$active[ 'result_item_id' ] ],
-		] )->payload();
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
@@ -108,31 +104,30 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $staleItem->resolved_at ?? 0 ) );
 	}
 
-	public function test_ignore_all_sub_action_ignores_full_active_plugin_scope_without_page_reload() :void {
-		$pluginSlug = self::con()->base_file;
+	public function test_ignore_all_sub_action_ignores_full_active_wordpress_scope_without_page_reload() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
-		$activeOne = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
-		$activeTwo = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
-		$alreadyIgnored = $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
+		$activeOne = $this->seedWordpressScanResultForScan( $scanId );
+		$activeTwo = $this->seedWordpressScanResultForScan( $scanId, 'wp-admin/update.php' );
+		$alreadyIgnored = $this->seedWordpressScanResultForScan( $scanId, 'wp-includes/version.php' );
 		TestDataFactory::markScanResultItemIgnored( (int)$alreadyIgnored[ 'result_item_id' ] );
 
-		$beforeActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$beforeActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
 		$this->assertSame( 2, (int)( $beforeActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 
-		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+		$payload = $this->processScanResultsAction( [
 			'sub_action' => 'ignore_all',
-			'type'       => 'plugin',
-			'file'       => $pluginSlug,
-		] )->payload();
+			'type'       => 'wordpress',
+			'file'       => 'wordpress',
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
 		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
 
-		$afterActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$afterActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
 		$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 
-		$afterIgnored = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->ignoredOnly() );
+		$afterIgnored = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
 		$this->assertSame( 3, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 		$this->assertEqualsCanonicalizing(
 			[
@@ -145,28 +140,27 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_ignore_all_sub_action_returns_in_place_noop_when_scope_is_already_empty() :void {
-		$pluginSlug = self::con()->base_file;
-		$ignored = $this->seedPluginScanResult( $pluginSlug );
+		$ignored = $this->seedWordpressScanResult();
 		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
 
-		$beforeActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$beforeActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
 		$this->assertSame( 0, (int)( $beforeActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 
-		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+		$payload = $this->processScanResultsAction( [
 			'sub_action' => 'ignore_all',
-			'type'       => 'plugin',
-			'file'       => $pluginSlug,
-		] )->payload();
+			'type'       => 'wordpress',
+			'file'       => 'wordpress',
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
 		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
 		$this->assertSame( 'No matching items remain in this view.', (string)( $payload[ 'message' ] ?? '' ) );
 
-		$afterActive = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+		$afterActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
 		$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 
-		$afterIgnored = $this->retrievePluginRows( $pluginSlug, ( new ActionsQueueScanResultsOptions() )->ignoredOnly() );
+		$afterIgnored = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
 		$this->assertSame( 1, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
 		$this->assertSame(
 			[ (int)$ignored[ 'result_item_id' ] ],
@@ -174,25 +168,21 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_active_plugin_results_do_not_prepare_stale_rows_outside_the_loaded_page() :void {
-		$pluginSlug = self::con()->base_file;
+	public function test_active_wordpress_results_do_not_prepare_stale_rows_outside_the_loaded_page() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
-		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin'   => 1,
-			'ptg_slug'       => $pluginSlug,
+		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->corePathFragment( 'wp-admin/update.php' ), [
+			'is_in_core'      => 1,
 			'is_checksumfail' => 1,
 		] );
 
 		for ( $i = 0; $i < 10; $i++ ) {
-			TestDataFactory::insertAfsFileScanResult( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
-				'is_in_plugin' => 1,
-				'ptg_slug'     => $pluginSlug,
+			TestDataFactory::insertAfsFileScanResult( $scanId, $this->corePathFragment( 'wp-admin/admin.php' ), [
+				'is_in_core' => 1,
 			] );
 		}
 
-		$payload = $this->retrievePluginRows(
-			$pluginSlug,
-			( new ActionsQueueScanResultsOptions() )->activeOnly(),
+		$payload = $this->retrieveWordpressRows(
+			( new ScanResultsDisplayOptions() )->activeOnly(),
 			$this->tableDataFixture( 10, 10 )
 		);
 
@@ -207,23 +197,24 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_retrieve_table_data_normalizes_explicit_results_display_options() :void {
-		$pluginSlug = self::con()->base_file;
-		$active = $this->seedPluginScanResult( $pluginSlug );
-		$ignored = $this->seedPluginScanResult( $pluginSlug );
+		$active = $this->seedWordpressScanResult();
+		$ignored = $this->seedWordpressScanResult( 'wp-admin/update.php' );
 		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
 
-		$payload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+		$payload = $this->processScanResultsAction( [
 			'sub_action'              => 'retrieve_table_data',
 			'table_data'              => $this->tableDataFixture(),
-			'type'                    => 'plugin',
-			'file'                    => $pluginSlug,
-			'display_context'         => ActionsQueueScanResultsOptions::DISPLAY_CONTEXT,
+			'type'                    => 'core',
+			'file'                    => 'core',
+			'display_context'         => ScanResultsDisplayOptions::DISPLAY_CONTEXT,
 			'results_display_options' => [
-				'include_ignored' => '1',
-				'ignored_only'    => 1,
-				'unexpected'      => 'discard-me',
+				'include_ignored'  => '1',
+				'include_repaired' => 'false',
+				'include_deleted'  => '0',
+				'ignored_only'     => 1,
+				'unexpected'       => 'discard-me',
 			],
-		] )->payload();
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertSame( 1, (int)( $payload[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
@@ -238,23 +229,71 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	private function processor() :ActionProcessor {
-		return new ActionProcessor();
+	public function test_retrieve_table_data_exposes_ignored_row_contract_fields() :void {
+		$ignored = $this->seedWordpressScanResult();
+		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
+
+		$payload = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ] ?? null;
+
+		$this->assertIsArray( $row );
+		$this->assertTrue( (bool)( $row[ 'is_ignored' ] ?? false ) );
+		$this->assertSame( 'Ignored', (string)( $row[ 'ignored_label' ] ?? '' ) );
+		$this->assertSame( 'scan-result-row scan-result-row--ignored', (string)( $row[ 'DT_RowClass' ] ?? '' ) );
+		$this->assertSame(
+			[ 'data-scan-result-ignored' => '1' ],
+			(array)( $row[ 'DT_RowAttr' ] ?? [] )
+		);
+		$this->assertStringContainsString( 'data-scan-result-file-cell="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
+		$this->assertStringContainsString( 'data-scan-result-ignored-badge="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
+	}
+
+	public function test_retrieve_table_data_exposes_multi_action_buttons_with_tooltip_contract() :void {
+		$tracked = $this->seedWordpressMultiActionScanResult();
+
+		$payload = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ] ?? null;
+
+		$this->assertIsArray( $row );
+		$this->assertSame( (int)$tracked[ 'result_item_id' ], (int)( $row[ 'rid' ] ?? 0 ) );
+
+		$actionsMarkup = (string)( $row[ 'actions' ] ?? '' );
+		$xpath = $this->createDomXPathFromHtml( $actionsMarkup );
+		$rid = (string)( $row[ 'rid' ] ?? '' );
+
+		$this->assertXPathCount( $xpath, '//button', 4, 'action buttons' );
+		foreach ( [ 'view-file', 'delete', 'repair', 'ignore' ] as $actionClass ) {
+			$query = sprintf( '//button[contains(concat(" ", normalize-space(@class), " "), " %s ")]', $actionClass );
+			$this->assertXPathCount( $xpath, $query, 1, $actionClass.' button' );
+			$this->assertXPathCount( $xpath, $query.'[@data-rid="'.$rid.'"]', 1, $actionClass.' rid contract' );
+			$this->assertXPathCount( $xpath, $query.'[@data-bs-toggle="tooltip"]', 1, $actionClass.' tooltip toggle' );
+			$this->assertXPathCount( $xpath, $query.'[@title!=""]', 1, $actionClass.' title attr' );
+			$this->assertXPathCount( $xpath, $query.'[@data-bs-title!=""]', 1, $actionClass.' data-bs-title attr' );
+		}
+	}
+
+	/**
+	 * @param array<string,mixed> $params
+	 * @return array<string,mixed>
+	 */
+	private function processScanResultsAction( array $params ) :array {
+		return ( new PluginAdminRouteRuntime() )
+			->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, $params );
 	}
 
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function retrievePluginRows( string $pluginSlug, array $resultsDisplayOptions, ?array $tableData = null ) :array {
-		return $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+	private function retrieveWordpressRows( array $resultsDisplayOptions, ?array $tableData = null ) :array {
+		return $this->processScanResultsAction( [
 			'sub_action' => 'retrieve_table_data',
 			'table_data' => $tableData ?? $this->tableDataFixture(),
-			'type'       => 'plugin',
-			'file'       => $pluginSlug,
+			'type'       => 'core',
+			'file'       => 'core',
 			...(
-				new ActionsQueueScanResultsOptions()
+				new ScanResultsDisplayOptions()
 			)->buildExplicitActionData( $resultsDisplayOptions ),
-		] )->payload();
+		] );
 	}
 
 	private function tableDataFixture( int $start = 0, int $length = 10 ) :array {
@@ -267,25 +306,36 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
-	private function pluginMainPathFragment( string $pluginSlug ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
+	private function corePathFragment( string $relativePath ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.\ltrim( $relativePath, '/\\' ) );
 	}
 
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function seedPluginScanResult( string $pluginSlug ) :array {
+	private function seedWordpressScanResult( string $relativePath = 'wp-admin/admin.php' ) :array {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
-		return $this->seedPluginScanResultForScan( $scanId, $pluginSlug );
+		return $this->seedWordpressScanResultForScan( $scanId, $relativePath );
 	}
 
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function seedPluginScanResultForScan( int $scanId, string $pluginSlug ) :array {
-		return TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
-			'is_in_plugin' => 1,
-			'ptg_slug'     => $pluginSlug,
+	private function seedWordpressMultiActionScanResult( string $relativePath = 'wp-admin/admin.php' ) :array {
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		return TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->corePathFragment( $relativePath ), [
+			'is_in_core'      => 1,
+			'is_checksumfail' => 1,
+			'is_mal'          => 1,
+		] );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function seedWordpressScanResultForScan( int $scanId, string $relativePath = 'wp-admin/admin.php' ) :array {
+		return TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->corePathFragment( $relativePath ), [
+			'is_in_core' => 1,
 		] );
 	}
 }

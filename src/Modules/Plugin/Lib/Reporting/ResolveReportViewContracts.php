@@ -32,8 +32,25 @@ class ResolveReportViewContracts {
 
 	/**
 	 * @return array{
-	 *   summary:array{title:string,subtitle:string},
-	 *   cards:list<array{label:string,value:string,meta:string}>
+	 *   summary:array{
+	 *     title:string,
+	 *     subtitle:string,
+	 *     state?:'attention'|'all_clear',
+	 *     total_issues?:int
+	 *   },
+	 *   cards:list<array{
+	 *     label:string,
+	 *     value:string,
+	 *     meta:string,
+	 *     key?:'attention'|'coverage'|'scans',
+	 *     state?:'attention'|'all_clear'|'running'|'completed'|'not_started',
+	 *     severity?:'good'|'warning'|'critical',
+	 *     total_issues?:int,
+	 *     percentage?:int,
+	 *     zones?:array{total:int,good:int,warning:int,critical:int},
+	 *     enqueued_count?:int,
+	 *     latest_completed_at?:int
+	 *   }>
 	 * }
 	 */
 	public function infoHeadline( ReportVO $report ) :array {
@@ -48,7 +65,10 @@ class ResolveReportViewContracts {
 
 	/**
 	 * @return array{
-	 *   summary:array{title:string,subtitle:string},
+	 *   summary:array{
+	 *     title:string,
+	 *     subtitle:string
+	 *   },
 	 *   cards:list<array{label:string,value:string,meta:string}>
 	 * }
 	 */

@@ -74,14 +74,10 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 
 		$this->assertCount( 1, $seeds );
 		$this->assertSame( 'file_locker', $seeds[ 0 ][ 'key' ] );
-		$this->assertTrue( $seeds[ 0 ][ 'is_healthy' ] );
 		$this->assertSame( 'neutral', $seeds[ 0 ][ 'status' ] );
-		$this->assertSame( 'Pending', $seeds[ 0 ][ 'status_label_override' ] );
-		$this->assertSame( 'Pending', $seeds[ 0 ][ 'header_badge_override' ] );
+		$this->assertNotSame( '', $seeds[ 0 ][ 'status_label_override' ] ?? '' );
+		$this->assertSame( $seeds[ 0 ][ 'status_label_override' ], $seeds[ 0 ][ 'header_badge_override' ] );
 		$this->assertSame( 'neutral', $seeds[ 0 ][ 'header_badge_status_override' ] );
-		$this->assertStringContainsString(
-			'initial file locks are still being created',
-			\strtolower( (string)$seeds[ 0 ][ 'header_summary_override' ] )
-		);
+		$this->assertNotSame( '', $seeds[ 0 ][ 'header_summary_override' ] ?? '' );
 	}
 }

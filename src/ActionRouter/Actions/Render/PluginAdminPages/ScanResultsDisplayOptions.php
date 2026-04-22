@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-
-class ActionsQueueScanResultsOptions {
-
-	use PluginControllerConsumer;
+class ScanResultsDisplayOptions {
 
 	public const DISPLAY_CONTEXT = 'actions_queue';
 
@@ -54,21 +50,33 @@ class ActionsQueueScanResultsOptions {
 	 * }
 	 */
 	public function normalize( ?array $options ) :array {
-		return [
-			'include_ignored'  => !empty( $options[ 'include_ignored' ] ),
-			'include_repaired' => !empty( $options[ 'include_repaired' ] ),
-			'include_deleted'  => !empty( $options[ 'include_deleted' ] ),
-			'ignored_only'     => !empty( $options[ 'ignored_only' ] ),
+		$normalized = [
+			'include_ignored'  => $this->toBool( $options[ 'include_ignored' ] ?? false ),
+			'include_repaired' => $this->toBool( $options[ 'include_repaired' ] ?? false ),
+			'include_deleted'  => $this->toBool( $options[ 'include_deleted' ] ?? false ),
+			'ignored_only'     => $this->toBool( $options[ 'ignored_only' ] ?? false ),
 		];
+
+		if ( $normalized[ 'ignored_only' ] ) {
+			$normalized[ 'include_ignored' ] = true;
+		}
+
+		return $normalized;
 	}
 
 	/**
-	 * @return array{display_context:string}
+	 * @return array{
+	 *   display_context:string,
+	 *   results_display_options:array{
+	 *     include_ignored:bool,
+	 *     include_repaired:bool,
+	 *     include_deleted:bool,
+	 *     ignored_only:bool
+	 *   }
+	 * }
 	 */
 	public function buildDisplayContextActionData() :array {
-		return [
-			'display_context' => self::DISPLAY_CONTEXT,
-		];
+		return $this->mergeIntoActionData( [], $this->activeOnly() );
 	}
 
 	/**
@@ -84,12 +92,7 @@ class ActionsQueueScanResultsOptions {
 	 * }
 	 */
 	public function buildExplicitActionData( array $options ) :array {
-		return \array_merge(
-			$this->buildDisplayContextActionData(),
-			[
-				'results_display_options' => $this->normalize( $options ),
-			]
-		);
+		return $this->mergeIntoActionData( [], $options );
 	}
 
 	/**
@@ -104,7 +107,7 @@ class ActionsQueueScanResultsOptions {
 	 * }
 	 */
 	public function buildForcedIgnoredActionData() :array {
-		return $this->buildExplicitActionData( $this->forcedIgnoredOptions() );
+		return $this->buildExplicitActionData( $this->ignoredOnly() );
 	}
 
 	/**
@@ -113,7 +116,7 @@ class ActionsQueueScanResultsOptions {
 	 *   display_context:string,
 	 *   subject_type:string,
 	 *   subject_id:string,
-	 *   results_display_options?:array{
+	 *   results_display_options:array{
 	 *     include_ignored:bool,
 	 *     include_repaired:bool,
 	 *     include_deleted:bool,
@@ -123,12 +126,32 @@ class ActionsQueueScanResultsOptions {
 	 */
 	public function buildSubjectActionData( string $subjectType, string $subjectId, ?array $options = null ) :array {
 		return \array_merge(
-			$options === null
-				? $this->buildDisplayContextActionData()
-				: $this->buildExplicitActionData( $options ),
+			$this->mergeIntoActionData( [], $options ?? $this->activeOnly() ),
 			[
 				'subject_type' => $subjectType,
 				'subject_id'   => $subjectId,
+			]
+		);
+	}
+
+	/**
+	 * @param array<string,mixed> $actionData
+	 * @return array{
+	 *   display_context:string,
+	 *   results_display_options:array{
+	 *     include_ignored:bool,
+	 *     include_repaired:bool,
+	 *     include_deleted:bool,
+	 *     ignored_only:bool
+	 *   }
+	 * }&array<string,mixed>
+	 */
+	public function mergeIntoActionData( array $actionData, ?array $options = null ) :array {
+		return \array_merge(
+			$actionData,
+			[
+				'display_context'         => self::DISPLAY_CONTEXT,
+				'results_display_options' => $this->normalize( $options ?? $this->activeOnly() ),
 			]
 		);
 	}
@@ -158,46 +181,21 @@ class ActionsQueueScanResultsOptions {
 	 * }
 	 */
 	public function currentOptionsFromActionData( array $actionData ) :array {
-		return $this->explicitOptionsFromActionData( $actionData ) ?? $this->storedOptions();
+		return $this->explicitOptionsFromActionData( $actionData ) ?? $this->activeOnly();
 	}
 
 	/**
-	 * @return array{
-	 *   include_ignored:bool,
-	 *   include_repaired:bool,
-	 *   include_deleted:bool,
-	 *   ignored_only:bool
-	 * }
+	 * @param mixed $value
 	 */
-	public function forcedIgnoredOptions() :array {
-		return \array_merge(
-			$this->storedOptions(),
-			[
-				'include_ignored' => true,
-				'ignored_only'    => true,
-			]
-		);
-	}
+	private function toBool( $value ) :bool {
+		if ( \is_bool( $value ) ) {
+			return $value;
+		}
 
-	/**
-	 * @return array{
-	 *   include_ignored:bool,
-	 *   include_repaired:bool,
-	 *   include_deleted:bool,
-	 *   ignored_only:bool
-	 * }
-	 */
-	public function storedOptions() :array {
-		try {
-			$stored = self::con()->opts->optGet( 'scan_results_table_display' );
-			return $this->normalize( [
-				'include_ignored'  => \is_array( $stored ) && \in_array( 'include_ignored', $stored, true ),
-				'include_repaired' => \is_array( $stored ) && \in_array( 'include_repaired', $stored, true ),
-				'include_deleted'  => \is_array( $stored ) && \in_array( 'include_deleted', $stored, true ),
-			] );
+		if ( \is_string( $value ) || \is_int( $value ) || \is_float( $value ) ) {
+			return \filter_var( $value, \FILTER_VALIDATE_BOOLEAN, \FILTER_NULL_ON_FAILURE ) ?? false;
 		}
-		catch ( \Throwable $e ) {
-			return $this->activeOnly();
-		}
+
+		return false;
 	}
 }

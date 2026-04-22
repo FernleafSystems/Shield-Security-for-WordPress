@@ -121,7 +121,7 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertSame( 'Landing Title', $rootStep[ 'breadcrumb_label' ] ?? '' );
 		$this->assertSame( 'Landing Subtitle', $rootStep[ 'summary' ] ?? '' );
 		$this->assertSame( 'configure', $rootStep[ 'color_key' ] ?? '' );
-		$this->assertSame( [], $rootStep[ 'display_options' ][ 'controls' ] ?? [ 'unexpected' ] );
+		$this->assertArrayNotHasKey( 'display_options', $rootStep );
 		$this->assertSame(
 			$rootStep,
 			\json_decode( (string)( $data[ 'vars' ][ 'mode_shell' ][ 'root_step_json' ] ?? '' ), true )

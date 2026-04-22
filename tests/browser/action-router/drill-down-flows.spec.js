@@ -16,6 +16,15 @@ async function waitForScanResultsTableRows( table ) {
 	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
 }
 
+async function waitForScanResultsTableEmpty( table ) {
+	await expect( table ).toBeVisible();
+	await expect.poll(
+		async () => await table.locator( 'tbody tr[data-scan-result-ignored]' ).count(),
+		{ timeout: 20_000 }
+	).toBe( 0 );
+	await expect( table.locator( 'tbody' ) ).toContainText( /current display filters/i );
+}
+
 async function delay( milliseconds ) {
 	return new Promise( ( resolve ) => setTimeout( resolve, milliseconds ) );
 }
@@ -36,6 +45,34 @@ function isConfigureDiagnosisDirectRequest( request, zoneKey ) {
 	const params = new URLSearchParams( postData );
 	return params.get( 'render_slug' ) === 'configure_drill_down_diagnosis'
 		&& params.get( 'zone' ) === zoneKey;
+}
+
+async function operatorContextAjaxAction( rail, matcher ) {
+	const actions = rail.locator( '[data-operator-context-action-ajax="1"]' );
+	const count = await actions.count();
+
+	for ( let index = 0; index < count; index++ ) {
+		const candidate = actions.nth( index );
+		const actionJson = await candidate.getAttribute( 'data-operator-context-action-json' );
+		if ( !actionJson ) {
+			continue;
+		}
+
+		try {
+			const action = JSON.parse( actionJson );
+			if ( matcher( action ) ) {
+				return candidate;
+			}
+		}
+		catch ( error ) {
+		}
+	}
+
+	return null;
+}
+
+async function hasOperatorContextAjaxAction( rail, matcher ) {
+	return ( await operatorContextAjaxAction( rail, matcher ) ) !== null;
 }
 
 test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
@@ -77,6 +114,27 @@ test( 'actions queue drills into groups and back out, opening details when avail
 
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
+	} );
+} );
+
+test( 'actions queue warning breadcrumb uses warning palette', async ( { page } ) => {
+	await withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		await openShieldRoute( page, {
+			nav: 'scans',
+			nav_sub: 'overview',
+		} );
+
+		await actionsQueuePage.drillToDetail( fixture );
+
+		const activeBreadcrumb = page.locator( '[data-operator-step-tab="1"][aria-current="step"]' );
+		await expect( activeBreadcrumb ).toHaveAttribute( 'data-color-key', 'warning' );
+		await expect.poll(
+			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).backgroundColor )
+		).toBe( 'rgb(237, 180, 29)' );
+		await expect.poll(
+			async () => activeBreadcrumb.evaluate( ( el ) => window.getComputedStyle( el ).color )
+		).toBe( 'rgb(29, 35, 39)' );
 	} );
 } );
 
@@ -283,33 +341,44 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await actionsQueuePage.drillToDetail( fixture );
 		const rail = page.locator( '[data-operator-context-rail="1"]' );
 		const detailTitle = rail.locator( '.operator-context-rail__title' );
-		const detailBadge = rail.locator( '.shield-badge' );
-		const displayForm = rail.locator( '[data-operator-context-display-form="1"]' );
-		const ignoreAllActions = rail.locator( '[data-operator-context-action-ajax="1"]' )
-			.filter( { hasText: /^Ignore All Results$/ } );
+		const ignoreAllAction = await operatorContextAjaxAction(
+			rail,
+			( action ) => action?.sub_action === 'ignore_all'
+		);
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
+		const ignoredFilter = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
 		const titleText = ( await detailTitle.textContent() || '' ).trim();
 
 		await waitForScanResultsTableRows( scanResultsTable );
-		await expect( ignoreAllActions ).toHaveCount( 1 );
-		await expect( displayForm ).toBeVisible();
+		expect( ignoreAllAction ).not.toBeNull();
+		await expect( displayCollection ).toBeVisible();
+		await displayCollection.click();
+		await ignoredFilter.click();
+		await waitForScanResultsTableRows( scanResultsTable );
 
 		page.once( 'dialog', ( dialog ) => dialog.accept() );
-		await actionsQueuePage.clickElement( ignoreAllActions.first() );
+		await actionsQueuePage.clickElement( ignoreAllAction );
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( ignoreAllActions ).toHaveCount( 0, { timeout: 20_000 } );
+		await expect.poll(
+			async () => await hasOperatorContextAjaxAction(
+				rail,
+				( action ) => action?.sub_action === 'ignore_all'
+			),
+			{ timeout: 20_000 }
+		).toBe( false );
 		await expect( detailTitle ).toHaveText( titleText, { timeout: 20_000 } );
-		await expect( detailBadge ).toHaveText( '1 item', { timeout: 20_000 } );
-		await expect( displayForm ).toBeVisible();
-		await expect( displayForm.locator( 'input[name="include_ignored"]' ) ).toBeChecked();
-		await expect( displayForm.locator( 'input[name="include_ignored"]' ) ).toBeDisabled();
+		await expect( displayCollection ).toBeVisible();
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":true/, { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
 		await waitForScanResultsTableRows( scanResultsTable );
+		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 1 );
+		await expect( scanResultsTable.locator( 'tbody tr[data-scan-result-ignored="1"]' ) ).toHaveCount( 1 );
 	} );
 } );
 
-test( 'actions queue saves context-box display toggles and keeps the ignored-plugin direct table visible', async ( { page } ) => {
+test( 'actions queue display collection can hide an ignored-only direct table without replacing the table shell', async ( { page } ) => {
 	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -318,37 +387,41 @@ test( 'actions queue saves context-box display toggles and keeps the ignored-plu
 		} );
 
 		await actionsQueuePage.drillToDetail( fixture );
-		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		const displayForm = rail.locator( '[data-operator-context-display-form="1"]' );
-		const ignoredToggle = displayForm.locator( 'input[name="include_ignored"]' );
-		const repairedToggle = displayForm.locator( 'input[name="include_repaired"]' );
-		const deletedToggle = displayForm.locator( 'input[name="include_deleted"]' );
-
-		await expect( displayForm ).toBeVisible();
-		await expect( ignoredToggle ).toBeChecked();
-		await expect( ignoredToggle ).toBeDisabled();
-		await expect( repairedToggle ).not.toBeChecked();
-		await expect( deletedToggle ).not.toBeChecked();
-
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
+		const ignoredToggle = page.locator( '[role="dialog"] [data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
+
 		await waitForScanResultsTableRows( scanResultsTable );
-		await page.evaluate( () => {
-			window.__actionsQueueDisplayToggleSentinel = 'detail-still-live';
-		} );
-		await repairedToggle.check();
+		await expect( displayCollection ).toBeVisible();
+		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 2 );
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":true/ );
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":true/ );
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_repaired":false/ );
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_deleted":false/ );
+
+		const noLegacySubmit = page.waitForRequest(
+			( request ) => ( request.postData() || '' ).includes( 'ex=scan_results_display_form_submit' ),
+			{ timeout: 1500 }
+		).then( () => false ).catch( () => true );
+		const tableReload = page.waitForRequest(
+			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
+			{ timeout: 20_000 }
+		);
+		await displayCollection.click();
+		await expect( ignoredToggle ).toBeVisible();
+		await ignoredToggle.click();
+		await tableReload;
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( repairedToggle ).toBeChecked( { timeout: 20_000 } );
-		await expect( ignoredToggle ).toBeChecked();
-		await expect( ignoredToggle ).toBeDisabled();
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
-		await expect( scanResultsTable ).toBeVisible();
-		await page.waitForTimeout( 2500 );
-		expect( await page.evaluate( () => window.__actionsQueueDisplayToggleSentinel || '' ) ).toBe( 'detail-still-live' );
+		await waitForScanResultsTableEmpty( scanResultsTable );
+		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":false/ );
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":false/ );
+		await expect( displayCollection ).toBeVisible();
+		expect( await noLegacySubmit ).toBe( true );
 		await expect( page.locator( '[data-actions-queue-retry]' ) ).toHaveCount( 0 );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( repairedToggle ).toBeChecked();
-		await expect( scanResultsTable ).toBeVisible();
 	} );
 } );
 

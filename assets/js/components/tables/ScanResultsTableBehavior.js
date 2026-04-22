@@ -10,7 +10,13 @@ import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
  * @property {string} [namespace]
  */
 
-export function buildScanResultsButtons( { includeReload = false, onReload = null, onBulkAction = null } = {} ) {
+export function buildScanResultsButtons( {
+	includeReload = false,
+	onReload = null,
+	onBulkAction = null,
+	displayFilters = null,
+} = {} ) {
+	/** @type {any[]} */
 	const buttons = [];
 
 	if ( includeReload && typeof onReload === 'function' ) {
@@ -24,6 +30,51 @@ export function buildScanResultsButtons( { includeReload = false, onReload = nul
 
 	if ( typeof onBulkAction !== 'function' ) {
 		return buttons;
+	}
+
+	if ( displayFilters && typeof displayFilters.onToggle === 'function' ) {
+		buttons.push( {
+			extend: 'collection',
+			text: 'Display Results',
+			name: 'display-results',
+			className: 'action display-results btn-outline-secondary mb-2',
+			autoClose: false,
+			attr: {
+				'data-scan-results-display-collection': '1',
+			},
+			buttons: [
+				{
+					text: 'Show Ignored Results',
+					name: 'display-filter-ignored',
+					className: 'scan-results-display-filter btn-outline-secondary mb-2',
+					attr: {
+						'data-scan-results-display-filter': '1',
+						'data-scan-results-display-option': 'include_ignored',
+					},
+					action: ( e, dt ) => displayFilters.onToggle( 'include_ignored', dt ),
+				},
+				{
+					text: 'Show Repaired Results',
+					name: 'display-filter-repaired',
+					className: 'scan-results-display-filter btn-outline-secondary mb-2',
+					attr: {
+						'data-scan-results-display-filter': '1',
+						'data-scan-results-display-option': 'include_repaired',
+					},
+					action: ( e, dt ) => displayFilters.onToggle( 'include_repaired', dt ),
+				},
+				{
+					text: 'Show Deleted Results',
+					name: 'display-filter-deleted',
+					className: 'scan-results-display-filter btn-outline-secondary mb-2',
+					attr: {
+						'data-scan-results-display-filter': '1',
+						'data-scan-results-display-option': 'include_deleted',
+					},
+					action: ( e, dt ) => displayFilters.onToggle( 'include_deleted', dt ),
+				},
+			],
+		} );
 	}
 
 	buttons.push(
@@ -89,7 +140,7 @@ export function bindScanResultsRowActions( {
 	if ( scanResultsAction !== null && typeof onAction === 'function' ) {
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions > button.action.delete',
+			'td.actions .action.delete',
 			( evt ) => {
 				evt.preventDefault();
 				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
@@ -101,7 +152,7 @@ export function bindScanResultsRowActions( {
 
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions > button.action.ignore',
+			'td.actions .action.ignore',
 			( evt ) => {
 				evt.preventDefault();
 				onAction( 'ignore', [ evt.currentTarget.dataset.rid ] );
@@ -111,7 +162,7 @@ export function bindScanResultsRowActions( {
 
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions > button.action.repair',
+			'td.actions .action.repair',
 			( evt ) => {
 				evt.preventDefault();
 				datatable?.rows?.().deselect?.();
@@ -149,4 +200,35 @@ export function bindScanResultsSelectionButtons( datatable, namespace = 'shieldS
 export function syncScanResultsSelectionButtons( datatable ) {
 	const hasSelections = datatable.rows( { selected: true } ).count() > 0;
 	datatable.buttons( 'selected-ignore:name, selected-repair:name' )[ hasSelections ? 'enable' : 'disable' ]();
+}
+
+export function syncScanResultsDisplayButtons( datatable, resultsDisplayOptions = {} ) {
+	const displayOptions = normalizeResultsDisplayOptions( resultsDisplayOptions );
+
+	[
+		[ 'display-filter-ignored:name', displayOptions.include_ignored ],
+		[ 'display-filter-repaired:name', displayOptions.include_repaired ],
+		[ 'display-filter-deleted:name', displayOptions.include_deleted ],
+		[ 'display-results:name', displayOptions.include_ignored || displayOptions.include_repaired || displayOptions.include_deleted ],
+	].forEach( ( [ selector, isActive ] ) => {
+		const button = datatable.button( selector );
+		if ( button && typeof button.active === 'function' ) {
+			button.active( Boolean( isActive ) );
+		}
+	} );
+}
+
+export function normalizeResultsDisplayOptions( options = {} ) {
+	const normalized = {
+		include_ignored: Boolean( options?.include_ignored ),
+		include_repaired: Boolean( options?.include_repaired ),
+		include_deleted: Boolean( options?.include_deleted ),
+		ignored_only: Boolean( options?.ignored_only ),
+	};
+
+	if ( normalized.ignored_only ) {
+		normalized.include_ignored = true;
+	}
+
+	return normalized;
 }

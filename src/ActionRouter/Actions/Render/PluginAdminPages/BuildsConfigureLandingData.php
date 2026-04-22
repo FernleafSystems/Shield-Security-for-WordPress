@@ -43,7 +43,12 @@ trait BuildsConfigureLandingData {
 				$configItem = '';
 			}
 
-			if ( $rowKey !== '' && \in_array( $rowKey, $this->getConfigureDiagnosisRowKeys( $zoneKey ), true ) ) {
+			$rowFocusLookup = $this->getConfigureDiagnosisRowFocusLookup( $zoneKey );
+			if ( $rowKey !== '' && isset( $rowFocusLookup[ $rowKey ] ) ) {
+				if ( $configItem !== '' && !\in_array( $configItem, $rowFocusLookup[ $rowKey ], true ) ) {
+					$configItem = '';
+				}
+
 				$focus = [
 					'row_key'     => $rowKey,
 					'config_item' => $configItem,
@@ -150,20 +155,44 @@ trait BuildsConfigureLandingData {
 	}
 
 	/**
-	 * @return list<string>
+	 * @return array<string,list<string>>
 	 */
-	private function getConfigureDiagnosisRowKeys( string $zoneKey ) :array {
+	private function getConfigureDiagnosisRowFocusLookup( string $zoneKey ) :array {
 		$rows = \array_merge(
 			$this->getConfigureZoneDiagnosis( $zoneKey )[ 'problem_rows' ],
 			$this->getConfigureZoneDiagnosis( $zoneKey )[ 'review_rows' ],
 			$this->getConfigureZoneDiagnosis( $zoneKey )[ 'healthy_rows' ]
 		);
 
-		return \array_values( \array_filter( \array_map(
-			static fn( array $row ) :string => !empty( $row[ 'expand_action' ][ 'is_expandable' ] )
-				? (string)( $row[ 'key' ] ?? '' )
-				: '',
-			$rows
-		) ) );
+		$lookup = [];
+		foreach ( $rows as $row ) {
+			if ( empty( $row[ 'expand_action' ][ 'is_expandable' ] ) ) {
+				continue;
+			}
+
+			$rowKey = sanitize_key( (string)( $row[ 'key' ] ?? '' ) );
+			if ( $rowKey === '' ) {
+				continue;
+			}
+
+			$dataAttributes = \is_array( $row[ 'expand_action' ][ 'data_attributes' ] ?? null )
+				? $row[ 'expand_action' ][ 'data_attributes' ]
+				: [];
+			$allowedOptionKeys = [];
+			$configItem = sanitize_key( (string)( $dataAttributes[ 'config_item' ] ?? '' ) );
+			if ( $configItem !== '' ) {
+				$allowedOptionKeys[] = $configItem;
+			}
+			foreach ( \explode( ',', (string)( $dataAttributes[ 'option_keys' ] ?? '' ) ) as $optionKey ) {
+				$optionKey = sanitize_key( $optionKey );
+				if ( $optionKey !== '' ) {
+					$allowedOptionKeys[] = $optionKey;
+				}
+			}
+
+			$lookup[ $rowKey ] = \array_values( \array_unique( $allowedOptionKeys ) );
+		}
+
+		return $lookup;
 	}
 }

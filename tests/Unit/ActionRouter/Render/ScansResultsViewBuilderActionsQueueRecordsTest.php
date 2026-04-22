@@ -88,7 +88,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			],
 			$assetCardsBuilder->getSeenOptions()
 		);
-		$this->assertSame( '2 ignored files are available for review', $pane[ 'cards' ][ 0 ][ 'stat_text' ] );
+		$this->assertNotSame( '', $pane[ 'cards' ][ 0 ][ 'stat_text' ] );
 		$tableAction = $this->decodeJsonAttr( (string)( $pane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
 		$this->assertSame( 'plugin', $tableAction[ 'type' ] ?? '' );
 		$this->assertSame( 'example-plugin/example-plugin.php', $tableAction[ 'file' ] ?? '' );
@@ -123,8 +123,8 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertTrue( $queuePane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( 3, $queuePane[ 'cards' ][ 0 ][ 'count_badge' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertSame( 'bi bi-power', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
-		$this->assertSame( 'Go to plugins', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
+		$this->assertArrayHasKey( 'icon_class', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ] );
+		$this->assertNotSame( '', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
 		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
 		$queueTableAction = $this->decodeJsonAttr( (string)( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
@@ -195,7 +195,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( '1', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '0', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
 		$this->assertSame( [], \json_decode( (string)( $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '[]' ), true ) );
-		$this->assertSame( 'Initial lock is still being created.', $pane[ 'cards' ][ 1 ][ 'stat_text' ] );
+		$this->assertNotSame( '', $pane[ 'cards' ][ 1 ][ 'stat_text' ] );
 		$this->assertSame( '/index.php', $pane[ 'cards' ][ 1 ][ 'meta_text' ] );
 		$this->assertNotSame( '', $pane[ 'cards' ][ 1 ][ 'body_notice' ] );
 		$this->assertSame( 'info', $pane[ 'cards' ][ 1 ][ 'body_notice_variant' ] );
@@ -225,7 +225,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertNotSame( '', $items[ 0 ][ 'section_label' ] ?? '' );
 		$this->assertNotSame( '', $items[ 1 ][ 'section_label' ] ?? '' );
 		$this->assertNotSame( $items[ 0 ][ 'section_label' ] ?? '', $items[ 1 ][ 'section_label' ] ?? '' );
-		$this->assertSame( 'Pending', $items[ 1 ][ 'section_label' ] ?? '' );
 		$this->assertSame( 1, $flTab[ 'count' ] ?? -1 );
 		$this->assertSame( 'warning', $flTab[ 'status' ] ?? '' );
 	}

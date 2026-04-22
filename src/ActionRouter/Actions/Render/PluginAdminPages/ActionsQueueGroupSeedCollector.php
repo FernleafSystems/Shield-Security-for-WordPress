@@ -16,14 +16,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 class ActionsQueueGroupSeedCollector {
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
-	private ActionsQueueScanResultsOptions $queueScanResultsOptions;
+	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupScanSource $scanSource;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
-		ActionsQueueScanResultsOptions $queueScanResultsOptions,
+		ScanResultsDisplayOptions $queueScanResultsOptions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
 		ActionsQueueGroupScanSource $scanSource,
 		ActionsQueueGroupMaintenanceSource $maintenanceSource
@@ -138,7 +138,6 @@ class ActionsQueueGroupSeedCollector {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 			$seeds[ $seedKey ] = [
 				'key'              => $definitionKey,
-				'is_healthy'       => false,
 				'definition_key'   => $definitionKey,
 				'label'            => $definition[ 'label' ],
 				'item_count'       => 0,
@@ -243,7 +242,7 @@ class ActionsQueueGroupSeedCollector {
 					$this->queueScanResultsOptions->buildSubjectActionData(
 						$summary[ 'subject_type' ],
 						$summary[ 'subject_id' ],
-						$this->queueScanResultsOptions->forcedIgnoredOptions()
+						$this->queueScanResultsOptions->ignoredOnly()
 					),
 					[ $ignoredItem ]
 				);
@@ -266,7 +265,6 @@ class ActionsQueueGroupSeedCollector {
 		foreach ( $section[ 'items' ] as $vulnerabilityItem ) {
 			$seeds[] = [
 				'key'              => $definitionKey.':'.$vulnerabilityItem[ 'key' ],
-				'is_healthy'       => false,
 				'definition_key'   => $definitionKey,
 				'label'            => $vulnerabilityItem[ 'label' ],
 				'item_count'       => $vulnerabilityItem[ 'count' ],
@@ -301,7 +299,6 @@ class ActionsQueueGroupSeedCollector {
 
 		return [
 			'key'              => $definitionKey.':'.$summary[ 'key' ],
-			'is_healthy'       => false,
 			'definition_key'   => $definitionKey,
 			'label'            => $summary[ 'title' ],
 			'item_count'       => \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) ),

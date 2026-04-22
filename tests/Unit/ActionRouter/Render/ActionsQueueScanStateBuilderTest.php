@@ -20,11 +20,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Count
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
+	ServicesState,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls
 };
+use FernleafSystems\Wordpress\Services\Core\General;
 
 class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -33,9 +37,11 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
 		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
+		$this->servicesSnapshot = ServicesState::snapshot();
 	}
 
 	protected function tearDown() :void {
+		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
@@ -311,6 +317,80 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( '2 initial file locks are still being created.', $state[ 'rows' ][ 0 ][ 'text' ] );
 	}
 
+	public function test_build_uses_repair_action_for_wordpress_files_on_stable_build() :void {
+		$this->installWpVersion( '6.8.1' );
+
+		$counts = $this->getMockBuilder( Counts::class )
+					   ->disableOriginalConstructor()
+					   ->onlyMethods( [ 'countWPFiles' ] )
+					   ->getMock();
+		$counts->method( 'countWPFiles' )->willReturn( 2 );
+
+		$availability = new class extends ScansResultsRailTabAvailability {
+			public function build( string $tabKey ) :array {
+				return $tabKey === 'wordpress'
+					? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					]
+					: [
+						'is_available'          => false,
+						'show_in_actions_queue' => false,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					];
+			}
+		};
+
+		$builder = new ActionsQueueScanStateBuilder();
+		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+
+		$state = $builder->build();
+
+		$this->assertSame( [ 'wp_files' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 'Repair', $state[ 'rows' ][ 0 ][ 'action' ] );
+	}
+
+	public function test_build_uses_review_action_for_wordpress_files_on_development_build() :void {
+		$this->installWpVersion( '6.9-beta1' );
+
+		$counts = $this->getMockBuilder( Counts::class )
+					   ->disableOriginalConstructor()
+					   ->onlyMethods( [ 'countWPFiles' ] )
+					   ->getMock();
+		$counts->method( 'countWPFiles' )->willReturn( 2 );
+
+		$availability = new class extends ScansResultsRailTabAvailability {
+			public function build( string $tabKey ) :array {
+				return $tabKey === 'wordpress'
+					? [
+						'is_available'          => true,
+						'show_in_actions_queue' => true,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					]
+					: [
+						'is_available'          => false,
+						'show_in_actions_queue' => false,
+						'disabled_message'      => '',
+						'disabled_status'       => 'neutral',
+					];
+			}
+		};
+
+		$builder = new ActionsQueueScanStateBuilder();
+		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
+		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
+
+		$state = $builder->build();
+
+		$this->assertSame( [ 'wp_files' ], \array_column( $state[ 'rows' ], 'key' ) );
+		$this->assertSame( 'Review', $state[ 'rows' ][ 0 ][ 'action' ] );
+	}
+
 	private function setPrivateProperty( object $subject, string $property, $value ) :void {
 		$reflection = new \ReflectionObject( $subject );
 		while ( !$reflection->hasProperty( $property ) && $reflection->getParentClass() !== false ) {
@@ -335,5 +415,18 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 				return $this->fullyIgnoredPluginSummaries;
 			}
 		};
+	}
+
+	private function installWpVersion( string $version ) :void {
+		ServicesState::mergeItems( [
+			'service_wpgeneral' => new class( $version ) extends General {
+				public function __construct( private string $version ) {
+				}
+
+				public function getVersion( $ignoreClassicpress = false ) {
+					return $this->version;
+				}
+			},
+		] );
 	}
 }

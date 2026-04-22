@@ -13,7 +13,6 @@ class Ips extends Base {
 	public function components() :array {
 		return [
 			Component\AutoIpBlocking::class,
-			Component\IpBlockingRules::class,
 			Component\CrowdsecBlocking::class,
 			Component\SilentCaptcha::class,
 			Component\BotActions::class,

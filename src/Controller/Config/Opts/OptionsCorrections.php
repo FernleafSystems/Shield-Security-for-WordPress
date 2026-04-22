@@ -59,6 +59,11 @@ class OptionsCorrections {
 			$opts->optSet( 'instant_alert_admin_login', 'email' )
 				 ->optSet( 'enable_admin_login_email_notification', '' );
 		}
+
+		if ( $this->hasLegacyFirewallBlockEmailAlertEnabled() ) {
+			$opts->optSet( 'instant_alert_firewall_block', 'email' )
+				 ->optSet( 'block_send_email', 'N' );
+		}
 	}
 
 	private function comments() :void {
@@ -301,5 +306,9 @@ class OptionsCorrections {
 			),
 			static fn( string $email ) :bool => Services::Data()->validEmail( $email )
 		) );
+	}
+
+	private function hasLegacyFirewallBlockEmailAlertEnabled() :bool {
+		return self::con()->opts->optIs( 'block_send_email', 'Y' );
 	}
 }

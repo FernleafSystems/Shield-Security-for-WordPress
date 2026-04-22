@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as FindingsModelState;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
 	RetrieveItems,
 	ScanResultsScopeResolver
@@ -30,7 +30,7 @@ class ScanResultsTableAction extends ScansBase {
 					$response = $this->doAction( $this->action_data[ 'sub_action' ], $this->getItemIDs() );
 					break;
 				case 'ignore_all':
-					$response = $this->doScopedAction( 'ignore', ( new ActionsQueueScanResultsOptions() )->activeOnly() );
+					$response = $this->doScopedAction( 'ignore', ( new ScanResultsDisplayOptions() )->activeOnly() );
 					break;
 				default:
 					throw new \Exception( 'Not a supported scan tables sub_action: '.$this->action_data[ 'sub_action' ] );
@@ -184,7 +184,7 @@ class ScanResultsTableAction extends ScansBase {
 	 */
 	private function retrieveTableData() :array {
 		$builder = new BuildScanTableData();
-		$options = new ActionsQueueScanResultsOptions();
+		$options = new ScanResultsDisplayOptions();
 		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 		$builder->type = $this->action_data[ 'type' ] ?? '';
 		$builder->file = $this->action_data[ 'file' ] ?? '';

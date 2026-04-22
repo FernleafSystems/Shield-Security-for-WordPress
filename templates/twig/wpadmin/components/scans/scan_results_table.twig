@@ -13,6 +13,7 @@
 					   data-scan-results-table="1"
 					   data-datatables-init="{{ table.datatables_init_attr|e('html_attr') }}"
 					   data-table-action="{{ table.table_action_attr|e('html_attr') }}"
+					   data-results-display-options="{{ table.results_display_options_attr|e('html_attr') }}"
 					   {% if table.render_item_analysis_attr is not empty %}data-render-item-analysis="{{ table.render_item_analysis_attr|e('html_attr') }}"{% endif %}
 				></table>
 			{% endif %}

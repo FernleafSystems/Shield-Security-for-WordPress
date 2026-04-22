@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\BuildConfigurationCoverage;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -16,10 +16,10 @@ use FernleafSystems\Wordpress\Services\Services;
  *   is_premium:bool
  * }
  * @phpstan-type OverviewPosture array{
- *   status:string,
- *   severity:string,
+ *   severity:'good'|'warning'|'critical',
  *   percentage:int,
- *   totals:array{score:int,max_weight:int,percentage:int,letter_score:string}
+ *   controls:array{total:int,good:int,warning:int,critical:int},
+ *   zones:array{total:int,good:int,warning:int,critical:int}
  * }
  * @phpstan-type OverviewScans array{
  *   is_running:bool,
@@ -57,12 +57,7 @@ class BuildOverview {
 			'generated_at'      => Services::Request()->ts(),
 			'site'              => $this->buildSite(),
 			'attention_summary' => $attention[ 'summary' ],
-			'posture'           => [
-				'status'     => $posture[ 'status' ],
-				'severity'   => $posture[ 'severity' ],
-				'percentage' => $posture[ 'percentage' ],
-				'totals'     => $posture[ 'totals' ],
-			],
+			'posture'           => $posture,
 			'scans'             => [
 				'is_running'         => $runtime[ 'is_running' ],
 				'enqueued_count'     => $runtime[ 'enqueued_count' ],
@@ -80,7 +75,7 @@ class BuildOverview {
 	}
 
 	protected function buildPosture() :array {
-		return ( new BuildZonePosture() )->build();
+		return ( new BuildConfigurationCoverage() )->build();
 	}
 
 	protected function buildScanRuntime() :array {

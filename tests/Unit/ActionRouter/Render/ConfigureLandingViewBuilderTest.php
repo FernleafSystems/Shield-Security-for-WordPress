@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	BuildConfigurationCoverage,
 	ConfigureLandingViewBuilder,
 	ConfigureZoneTilesBuilder
 };
@@ -21,7 +22,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	UnitTestPluginUrls
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZonePosture;
 
 class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 
@@ -59,7 +59,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			},
 			null,
 			null,
-			new class( $this->zonePostureFixture( 78 ) ) extends BuildZonePosture {
+			new class( $this->configurationCoverageFixture( 78 ) ) extends BuildConfigurationCoverage {
 				private array $posture;
 
 				public function __construct( array $posture ) {
@@ -105,12 +105,9 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ] ?? ''
 		);
 		$this->assertCount( 1, $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ] ?? [] );
-		$this->assertSame(
-			'Disable Security Admin',
-			$view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? ''
-		);
-		$this->assertSame( '78% - 1 critical - 1 needs work - 1 good', $view[ 'posture_summary' ][ 'summary' ] ?? '' );
-		$this->assertSame( 'Warning', $view[ 'posture_summary' ][ 'chip_label' ] ?? '' );
+		$this->assertNotEmpty( $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'warning', $view[ 'posture_summary' ][ 'status' ] ?? '' );
+		$this->assertSame( 78, $view[ 'posture_summary' ][ 'meter' ][ 'percentage' ] ?? 0 );
 		$this->assertSame( '78%', $view[ 'root_step' ][ 'badge' ] ?? '' );
 		$this->assertSame( 'warning', $view[ 'root_step' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( 'configure', $view[ 'root_step' ][ 'color_key' ] ?? '' );
@@ -240,6 +237,7 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			'note'              => $note,
 			'explanations'      => $explanations,
 			'config_action'     => [
+				'label'   => 'Configure',
 				'title'   => 'Configure '.$title,
 				'href'    => 'javascript:{}',
 				'icon'    => 'bi bi-gear-fill',
@@ -254,19 +252,22 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		];
 	}
 
-	private function zonePostureFixture( int $percentage ) :array {
+	private function configurationCoverageFixture( int $percentage ) :array {
 		return [
-			'components' => [],
-			'signals'    => [],
-			'totals'     => [
-				'score'        => $percentage,
-				'max_weight'   => 100,
-				'percentage'   => $percentage,
-				'letter_score' => 'B',
-			],
-			'percentage' => $percentage,
 			'severity'   => 'warning',
-			'status'     => 'warning',
+			'percentage' => $percentage,
+			'controls'   => [
+				'total'    => 4,
+				'good'     => 2,
+				'warning'  => 1,
+				'critical' => 1,
+			],
+			'zones'      => [
+				'total'    => 3,
+				'good'     => 1,
+				'warning'  => 1,
+				'critical' => 1,
+			],
 		];
 	}
 

@@ -42,6 +42,10 @@ class ContactFormSpamBlockBot extends Base {
 		return 3;
 	}
 
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
+
 	/**
 	 * @return string[]
 	 */

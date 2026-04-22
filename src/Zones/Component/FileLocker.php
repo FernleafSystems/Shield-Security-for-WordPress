@@ -18,18 +18,42 @@ class FileLocker extends Base {
 		return __( 'Edit which key files to protect', 'wp-simple-firewall' );
 	}
 
+	protected function configureStatus() :array {
+		$toLock = $this->selectedLockedFiles();
+		$status = parent::status();
+
+		if ( empty( $toLock ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( 'FileLocker is not configured for any files.', 'wp-simple-firewall' );
+		}
+		if ( !\in_array( 'wpconfig', $toLock, true ) ) {
+			$status[ 'level' ] = EnumEnabledStatus::BAD;
+			$status[ 'exp' ][] = __( "wp-config.php isn't protected against tampering.", 'wp-simple-firewall' );
+		}
+
+		foreach ( $this->fileLockDefinitions() as $fileKey => $definition ) {
+			if ( $fileKey !== 'wpconfig' && !\in_array( $fileKey, $toLock, true ) ) {
+				$status[ 'exp' ][] = $definition[ 'disabled_message' ];
+			}
+		}
+
+		if ( $status[ 'level' ] !== EnumEnabledStatus::BAD ) {
+			$status[ 'level' ] = empty( $status[ 'exp' ] ) ? EnumEnabledStatus::GOOD : EnumEnabledStatus::OKAY;
+		}
+
+		return $status;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
 	protected function status() :array {
-		$con = self::con();
 		$status = parent::status();
-
-		$toLock = $con->comps->file_locker->getFilesToLock();
+		$toLock = $this->selectedLockedFiles();
 		if ( empty( $toLock ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::BAD;
 		}
-		elseif ( \in_array( 'wpconfig', $toLock ) ) {
+		elseif ( \in_array( 'wpconfig', $toLock, true ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
 		else {
@@ -37,7 +61,7 @@ class FileLocker extends Base {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 		}
 
-		if ( !\in_array( 'root_index', $toLock ) ) {
+		if ( !\in_array( 'root_index', $toLock, true ) ) {
 			$status[ 'exp' ][] = __( "Root index.php file isn't protected against tampering.", 'wp-simple-firewall' );
 		}
 
@@ -45,23 +69,16 @@ class FileLocker extends Base {
 	}
 
 	public function postureSignals() :array {
-		$toLock = self::con()->comps->file_locker->getFilesToLock();
-		$defs = [
-			'wpconfig'    => [ 'slug' => 'scan_enabled_filelocker_wpconfig', 'title' => 'wp-config.php', 'weight' => 6 ],
-			'htaccess'    => [ 'slug' => 'scan_enabled_filelocker_htaccess', 'title' => '.htaccess', 'weight' => 5 ],
-			'root_index'  => [ 'slug' => 'scan_enabled_filelocker_index', 'title' => 'index.php', 'weight' => 5 ],
-			'webconfig'   => [ 'slug' => 'scan_enabled_filelocker_webconfig', 'title' => 'web.config', 'weight' => 5 ],
-		];
-
+		$toLock = $this->selectedLockedFiles();
 		$signals = [];
-		foreach ( $defs as $fileKey => $definition ) {
+		foreach ( $this->fileLockDefinitions() as $fileKey => $definition ) {
 			$enabled = \in_array( $fileKey, $toLock, true );
 			$signals[] = $this->buildPostureSignal(
 				$definition[ 'slug' ],
 				sprintf( __( 'Critical File Protection: %s', 'wp-simple-firewall' ), $definition[ 'title' ] ),
 				$definition[ 'weight' ],
 				$enabled ? $definition[ 'weight' ] : 0,
-				$enabled ? 'good' : 'warning',
+				$enabled ? 'good' : $definition[ 'severity' ],
 				$enabled,
 				[
 					$enabled
@@ -71,5 +88,56 @@ class FileLocker extends Base {
 			);
 		}
 		return $signals;
+	}
+
+	/**
+	 * @return array<string,array{slug:string,title:string,weight:int,severity:string,disabled_message:string}>
+	 */
+	private function fileLockDefinitions() :array {
+		return [
+			'wpconfig' => [
+				'slug'             => 'scan_enabled_filelocker_wpconfig',
+				'title'            => 'wp-config.php',
+				'weight'           => 6,
+				'severity'         => 'critical',
+				'disabled_message' => __( "wp-config.php isn't protected against tampering.", 'wp-simple-firewall' ),
+			],
+			'theme_functions' => [
+				'slug'             => 'scan_enabled_filelocker_theme_functions',
+				'title'            => 'functions.php',
+				'weight'           => 3,
+				'severity'         => 'warning',
+				'disabled_message' => __( "Theme functions.php isn't protected against tampering.", 'wp-simple-firewall' ),
+			],
+			'root_htaccess' => [
+				'slug'             => 'scan_enabled_filelocker_htaccess',
+				'title'            => '.htaccess',
+				'weight'           => 5,
+				'severity'         => 'warning',
+				'disabled_message' => __( "Root .htaccess isn't protected against tampering.", 'wp-simple-firewall' ),
+			],
+			'root_index' => [
+				'slug'             => 'scan_enabled_filelocker_index',
+				'title'            => 'index.php',
+				'weight'           => 5,
+				'severity'         => 'warning',
+				'disabled_message' => __( "Root index.php isn't protected against tampering.", 'wp-simple-firewall' ),
+			],
+			'root_webconfig' => [
+				'slug'             => 'scan_enabled_filelocker_webconfig',
+				'title'            => 'web.config',
+				'weight'           => 5,
+				'severity'         => 'warning',
+				'disabled_message' => __( "Root web.config isn't protected against tampering.", 'wp-simple-firewall' ),
+			],
+		];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function selectedLockedFiles() :array {
+		$files = self::con()->comps->file_locker->getFilesToLock();
+		return \is_array( $files ) ? \array_values( \array_filter( $files, 'is_string' ) ) : [];
 	}
 }

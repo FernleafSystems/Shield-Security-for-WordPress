@@ -114,9 +114,7 @@
 }
 
 .operator-step-tabs__tab[data-color-key="reports"].is-active,
-.operator-step-tabs__tab[data-color-key="reports"]:disabled,
-.operator-step-tabs__tab[data-color-key="warning"].is-active,
-.operator-step-tabs__tab[data-color-key="warning"]:disabled {
+.operator-step-tabs__tab[data-color-key="reports"]:disabled {
 	background: $mode-reports;
 	color: #ffffff;
 }
@@ -124,6 +122,13 @@
 .operator-step-tabs__tab[data-color-key="warning"] {
 	background: $status-bg-warning-light;
 	color: $badge-warning-color;
+}
+
+// Keep warning status breadcrumbs on warning palette, not reports mode palette.
+.operator-step-tabs__tab[data-color-key="warning"].is-active,
+.operator-step-tabs__tab[data-color-key="warning"]:disabled {
+	background: $status-color-warning;
+	color: #1d2327;
 }
 
 .operator-step-tabs__tab[data-color-key="critical"] {

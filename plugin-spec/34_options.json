@@ -511,20 +511,6 @@
         "description": "Prevents comment floods and ensure a minimum period before any further comments are accepted on the site."
     },
     {
-        "key": "block_send_email",
-        "section": "section_firewall_blocking_options",
-        "zone_comp_slugs": [
-            "module_firewall"
-        ],
-        "default": "N",
-        "type": "checkbox",
-        "link_info": "",
-        "link_blog": "",
-        "name": "Send Email Report",
-        "summary": "Send Firewall Trigger Report Email",
-        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
-    },
-    {
         "key": "page_params_whitelist",
         "section": "section_firewall_blocking_options",
         "zone_comp_slugs": [
@@ -963,13 +949,6 @@
         "default": []
     },
     {
-        "key": "scan_results_table_display",
-        "section": "section_hidden",
-        "tracking_exclude": true,
-        "type": "array",
-        "default": []
-    },
-    {
         "key": "ignored_maintenance_items",
         "section": "section_hidden",
         "tracking_exclude": true,
@@ -1132,7 +1111,6 @@
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
             "auto_ip_blocking",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "type": "integer",
@@ -1150,7 +1128,6 @@
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
             "auto_ip_blocking",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "hour",
@@ -1184,7 +1161,7 @@
         "key": "user_auto_recover",
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
-            "ip_blocking_rules",
+            "auto_ip_blocking",
             "module_ips"
         ],
         "premium": true,
@@ -1212,7 +1189,7 @@
         "key": "request_whitelist",
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
-            "ip_blocking_rules",
+            "auto_ip_blocking",
             "module_ips"
         ],
         "premium": true,
@@ -1230,7 +1207,6 @@
         "section": "section_crowdsec",
         "zone_comp_slugs": [
             "crowdsec_blocking",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "block_with_unblock",
@@ -1260,7 +1236,7 @@
         "key": "cs_enroll_id",
         "section": "section_crowdsec",
         "zone_comp_slugs": [
-            "ip_blocking_rules",
+            "crowdsec_blocking",
             "module_ips"
         ],
         "sensitive": true,
@@ -1279,7 +1255,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "transgression-single",
@@ -1318,8 +1293,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "xml_rpc_disable",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "log",
@@ -1358,7 +1331,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1401,7 +1373,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1444,7 +1415,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1487,7 +1457,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1530,7 +1499,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1573,7 +1541,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -2810,6 +2777,39 @@
         "description": "Be alerted when an administrator-level user logs in."
     },
     {
+        "key": "instant_alert_firewall_block",
+        "section": "section_alerts",
+        "zone_comp_slugs": [
+            "instant_alerts",
+            "reporting"
+        ],
+        "type": "select",
+        "default": "disabled",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "email",
+                "text": "Email"
+            }
+        ],
+        "beacon_id": 788,
+        "link_info": "",
+        "link_blog": "",
+        "name": "Firewall Blocks",
+        "summary": "Be alerted when the firewall blocks a request",
+        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
+    },
+    {
+        "key": "block_send_email",
+        "section": "section_hidden",
+        "default": "N",
+        "type": "checkbox",
+        "transferable": false
+    },
+    {
         "key": "enable_admin_login_email_notification",
         "section": "section_hidden",
         "sensitive": true,
@@ -3229,7 +3229,8 @@
         "key": "enable_user_login_email_notification",
         "section": "section_user_session_management",
         "zone_comp_slugs": [
-            "module_users"
+            "session_theft_protection",
+            "module_login"
         ],
         "sensitive": false,
         "default": "N",
@@ -3406,7 +3407,6 @@
         "key": "pass_prevent_pwned",
         "section": "section_passwords",
         "zone_comp_slugs": [
-            "password_policies",
             "pwned_passwords",
             "module_users"
         ],
@@ -3424,7 +3424,6 @@
         "section": "section_passwords",
         "zone_comp_slugs": [
             "password_strength",
-            "password_policies",
             "module_users"
         ],
         "premium": true,
@@ -3503,6 +3502,7 @@
         "key": "manual_suspend",
         "section": "section_suspend",
         "zone_comp_slugs": [
+            "inactive_users",
             "module_users"
         ],
         "premium": true,
@@ -3520,6 +3520,7 @@
         "key": "auto_password",
         "section": "section_suspend",
         "zone_comp_slugs": [
+            "inactive_users",
             "module_users"
         ],
         "premium": true,

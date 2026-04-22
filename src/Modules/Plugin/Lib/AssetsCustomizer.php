@@ -400,9 +400,6 @@ class AssetsCustomizer {
 						'start'            => ActionData::Build( Actions\ScansStart::class ),
 						'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
 						'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
-
-						'form_scan_results_display_submit' => ActionData::Build( Actions\ScanResultsDisplayFormSubmit::class ),
-						'render_offcanvas'                 => ActionData::BuildAjaxRender( Components\OffCanvas\FormScanResultsDisplayOptions::class ),
 					],
 					'flags' => [
 						'initial_check' => $con->comps->scans_queue->hasRunningScans(),
@@ -415,10 +412,13 @@ class AssetsCustomizer {
 							'malware'      => [
 								'ajax' => [
 									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true, [
-										'type' => 'malware',
-										'file' => 'malware',
-									] ),
+									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true,
+										( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
+											->mergeIntoActionData( [
+												'type' => 'malware',
+												'file' => 'malware',
+											] )
+									),
 								],
 								'vars' => [
 									'table_selector'  => '#ShieldTable-ScanResultsMalware',
@@ -428,10 +428,13 @@ class AssetsCustomizer {
 							'wordpress'    => [
 								'ajax' => [
 									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true, [
-										'type' => 'wordpress',
-										'file' => 'wordpress',
-									] ),
+									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true,
+										( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
+											->mergeIntoActionData( [
+												'type' => 'wordpress',
+												'file' => 'wordpress',
+											] )
+									),
 								],
 								'vars' => [
 									'table_selector'  => '#ShieldTable-ScanResultsWordpress',

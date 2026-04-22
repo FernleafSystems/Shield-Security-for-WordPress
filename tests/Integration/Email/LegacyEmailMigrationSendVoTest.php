@@ -18,6 +18,7 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		$this->enablePremiumCapabilities( [ 'instant_alerts' ] );
 		$this->mails = [];
 		add_filter( 'pre_wp_mail', [ $this, 'captureWpMail' ], 10, 2 );
 	}
@@ -93,13 +94,16 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		$con->opts
 			->optSet( 'instant_alert_admin_login', 'email' )
 			->optSet( 'block_send_email_address', 'admin-notify@example.com' );
+		$this->resetInstantAlertsCache();
 
 		$userId = self::factory()->user->create( [
 			'role'       => 'administrator',
-			'user_login' => 'managedadmin',
-			'user_email' => 'managedadmin@example.com',
+			'user_login' => 'managedadmin-notify',
+			'user_email' => 'managedadmin-notify@example.com',
 		] );
+		$this->assertIsInt( $userId );
 		$user = get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
 
 		( new AlertHandlerAdminLogin() )->execute();
 
@@ -107,9 +111,9 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
 		$mail = $this->lastMail();
 		$this->assertStringContainsString( 'Alert: Admin Login Detected', (string)( $mail[ 'subject' ] ?? '' ) );
-		$this->assertStringContainsString( 'As requested, Shield is notifying you of a successful Administrator+ login', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertStringContainsString( 'successful Administrator+ login', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'Login Details', (string)( $mail[ 'message' ] ?? '' ) );
-		$this->assertStringContainsString( 'managedadmin@example.com', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertStringContainsString( 'managedadmin-notify@example.com', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'admin-notify@example.com', (string)( $mail[ 'to' ] ?? '' ) );
 		$this->assertStringContainsString( 'Configure security email recipient', (string)( $mail[ 'message' ] ?? '' ) );
 	}
@@ -120,14 +124,17 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		$con->opts
 			->optSet( 'instant_alert_admin_login', 'email' )
 			->optSet( 'enable_user_login_email_notification', 'Y' )
-			->optSet( 'block_send_email_address', 'managedadmin@example.com' );
+			->optSet( 'block_send_email_address', 'managedadmin-duplicate@example.com' );
+		$this->resetInstantAlertsCache();
 
 		$userId = self::factory()->user->create( [
 			'role'       => 'administrator',
-			'user_login' => 'managedadmin',
-			'user_email' => 'managedadmin@example.com',
+			'user_login' => 'managedadmin-duplicate',
+			'user_email' => 'managedadmin-duplicate@example.com',
 		] );
+		$this->assertIsInt( $userId );
 		$user = get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
 
 		( new AlertHandlerAdminLogin() )->execute();
 		( new UserSessionHandler() )->execute();
@@ -161,5 +168,11 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 	private function lastMail() :array {
 		$this->assertNotEmpty( $this->mails, 'Expected at least one captured email.' );
 		return $this->mails[ \count( $this->mails ) - 1 ];
+	}
+
+	private function resetInstantAlertsCache() :void {
+		$alertsProperty = new \ReflectionProperty( $this->requireController()->comps->instant_alerts, 'alerts' );
+		$alertsProperty->setAccessible( true );
+		$alertsProperty->setValue( $this->requireController()->comps->instant_alerts, null );
 	}
 }

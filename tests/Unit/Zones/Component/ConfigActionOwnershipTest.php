@@ -15,6 +15,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	PasswordPolicies,
+	PasswordStrength,
+	PwnedPasswords,
 	ScanScheduling,
 	TrustedCommenters
 };
@@ -40,6 +43,18 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 		$trustedCommentersAction = ( new TrustedCommenters() )->getActions()[ 'config' ] ?? [];
 		$this->assertSame( TrustedCommenters::Slug(), $trustedCommentersAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'trusted_commenter_minimum', $trustedCommentersAction[ 'data' ][ 'config_item' ] ?? '' );
+
+		$passwordPoliciesAction = ( new PasswordPolicies() )->getActions()[ 'config' ] ?? [];
+		$this->assertSame( PasswordPolicies::Slug(), $passwordPoliciesAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame( 'enable_password_policies', $passwordPoliciesAction[ 'data' ][ 'config_item' ] ?? '' );
+
+		$pwnedPasswordsAction = ( new PwnedPasswords() )->getActions()[ 'config' ] ?? [];
+		$this->assertSame( PwnedPasswords::Slug(), $pwnedPasswordsAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame( 'pass_prevent_pwned', $pwnedPasswordsAction[ 'data' ][ 'config_item' ] ?? '' );
+
+		$passwordStrengthAction = ( new PasswordStrength() )->getActions()[ 'config' ] ?? [];
+		$this->assertSame( PasswordStrength::Slug(), $passwordStrengthAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame( 'pass_min_strength', $passwordStrengthAction[ 'data' ][ 'config_item' ] ?? '' );
 	}
 
 	private function installControllerStub() :void {
@@ -58,6 +73,26 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 						'zone_comp_slugs' => [
 							TrustedCommenters::Slug(),
 							'module_spam',
+						],
+					],
+					'enable_password_policies' => [
+						'zone_comp_slugs' => [
+							PasswordPolicies::Slug(),
+							PwnedPasswords::Slug(),
+							PasswordStrength::Slug(),
+							'module_users',
+						],
+					],
+					'pass_prevent_pwned' => [
+						'zone_comp_slugs' => [
+							PwnedPasswords::Slug(),
+							'module_users',
+						],
+					],
+					'pass_min_strength' => [
+						'zone_comp_slugs' => [
+							PasswordStrength::Slug(),
+							'module_users',
 						],
 					],
 				],

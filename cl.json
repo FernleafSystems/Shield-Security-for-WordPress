@@ -1,4 +1,82 @@
 {
+  "22.0": {
+    "version":     "22.0",
+    "released_at": 1776686400,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease220",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide220"
+    },
+    "title":       "Guided Security Workflows",
+    "description": [
+      "Shield 22.0 reshapes the plugin around clearer day-to-day security work: what needs attention, what to investigate, what to configure, and what your reports are telling you.",
+      "It also improves live monitoring, MFA migration, IP analysis, and several admin protection flows."
+    ],
+    "items": [
+      {
+        "type":        "new",
+        "title":       "A Clearer Picture of What Needs Your Attention",
+        "description": [
+          "The dashboard now leads you through your security work in a logical order: what to fix, what to investigate, what to configure, and what your reports are telling you.",
+          "The WordPress dashboard widget shows the same priority items as the Actions Queue, so you always know where things stand without digging."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Actions Queue: Fix the Right Things First",
+        "description": [
+          "The Actions Queue now separates urgent issues from follow-up work, so you're not wading through a flat list to figure out what actually matters.",
+          "Scan findings, maintenance tasks, File Locker items, and quick actions are easier to review and act on without losing context."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Investigate: Faster Answers About Users, IPs, and More",
+        "description": [
+          "Investigate now has dedicated views for users, IPs, plugins, themes, core files, live traffic, and sessions, so you go straight to what you're looking for.",
+          "IP analysis shows more at a glance: clearer summaries, identity details, and the actions you actually need."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Configure and Reports: Less Hunting, More Doing",
+        "description": [
+          "Configure now surfaces weak settings more directly, with in-place search so you can find and fix problems without losing your place.",
+          "Reports has a cleaner layout, better data presentation, and it's easier to manage and clean up what you've already run."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Live Monitoring and Logs: More Signal, Less Noise",
+        "description": [
+          "The dashboard shows a live activity feed so you can see what's happening on your site while you work.",
+          "Traffic and live logs show more useful detail about each request, while filtering out routine admin noise like AJAX and heartbeat traffic.",
+          "Logging configuration simplified and the system automatically retains logs depending on the severity or nature of events."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "MFA: Smoother 2FA Login",
+        "description": [
+          "The MFA verification portal has been redesigned to be cleaner and easier to use."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Alerts and Reports",
+        "description": [
+          "Alerts are now properly distinguished from informational reports. They serve 2 completely different purposes and their content reflects this."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Release Stability Improved",
+        "description": [
+          "Automated tests and analyses detect issues before release, reducing unforeseen errors and impacts on member sites."
+        ]
+      }
+    ],
+    "patches":     []
+  },
   "21.2": {
     "version":     "21.2",
     "released_at": 1770900000,

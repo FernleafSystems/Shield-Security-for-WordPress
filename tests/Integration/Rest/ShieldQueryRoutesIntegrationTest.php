@@ -104,6 +104,8 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 			'severity'     => 'good',
 			'is_all_clear' => true,
 		], $overviewPayload[ 'attention_summary' ] );
+		$this->assertArrayNotHasKey( 'status', $overviewPayload[ 'posture' ] ?? [] );
+		$this->assertArrayNotHasKey( 'totals', $overviewPayload[ 'posture' ] ?? [] );
 	}
 
 	public function test_activity_recent_route_returns_canonical_recent_activity_payload() :void {
