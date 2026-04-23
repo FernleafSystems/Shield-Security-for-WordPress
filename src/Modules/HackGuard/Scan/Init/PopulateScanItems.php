@@ -5,8 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class PopulateScanItems {
 
@@ -20,7 +20,6 @@ class PopulateScanItems {
 	public function run() {
 		$scanCon = $this->getScanController();
 		$dbhItems = self::con()->db_con->scan_items;
-		$now = Services::Request()->ts();
 
 		$scanRecord = $this->getRecord();
 		$scanActionVO = $scanCon->newScanActionVO();
@@ -34,9 +33,9 @@ class PopulateScanItems {
 
 		$scanRecord->meta = $scanAction->getRawData();
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanRecord->id, [
-			'meta'             => $scanRecord->getRawData()[ 'meta' ],
-			'last_process_at'  => $now,
+			'meta' => $scanRecord->getRawData()[ 'meta' ],
 		] );
+		( new RunState() )->touch( (int)$scanRecord->id );
 
 		if ( empty( $allItems ) ) {
 			( new SetScanCompleted() )->run( (int)$scanRecord->id );
@@ -56,9 +55,6 @@ class PopulateScanItems {
 			$allItems = \array_slice( $allItems, $sliceSize );
 		} while ( !empty( $allItems ) );
 
-		self::con()->db_con->scans->getQueryUpdater()->updateRecord( $scanRecord, [
-			'ready_at'        => $now,
-			'last_process_at' => $now,
-		] );
+		( new RunState() )->markBuilt( (int)$scanRecord->id );
 	}
 }

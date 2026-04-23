@@ -14,6 +14,11 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	protected $cron_interval = 1;
 
+	public function __construct() {
+		parent::__construct( 'shield_scanq', self::con()->getPluginPrefix( '_' ) );
+		$this->setExpirationInterval( \MINUTE_IN_SECONDS*10 );
+	}
+
 	protected function get_post_args() {
 		$args = parent::get_post_args();
 

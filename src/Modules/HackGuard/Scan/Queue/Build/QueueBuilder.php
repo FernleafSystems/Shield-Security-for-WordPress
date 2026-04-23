@@ -14,6 +14,10 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	protected $cron_interval = 1;
 
+	public function __construct() {
+		parent::__construct( 'shield_scanqbuild', self::con()->getPluginPrefix( '_' ) );
+	}
+
 	/**
 	 * Get batch
 	 *
@@ -110,7 +114,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function is_queue_empty() {
 		$activeCount = self::con()->db_con->scans->getQuerySelector()
-						 ->addWhereIn( 'status', [ 'building', 'running' ] )
+						 ->addWhereIn( 'status', [ 'building', 'built', 'running' ] )
 						 ->filterByNotFinished()
 						 ->count();
 		return $activeCount > 0 || self::con()->db_con->scans->getQuerySelector()->filterByStatus( 'queued' )->count() < 1;

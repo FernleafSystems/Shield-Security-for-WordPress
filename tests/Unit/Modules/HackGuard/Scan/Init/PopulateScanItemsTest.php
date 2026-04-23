@@ -30,7 +30,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_run_sets_ready_at_after_persisting_queue_items_without_marking_running() :void {
+	public function test_run_marks_scan_built_after_persisting_queue_items() :void {
 		$scanUpdates = [];
 		$itemInsertCount = 0;
 		$this->installController( $scanUpdates, $itemInsertCount, true );
@@ -47,10 +47,13 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			->run();
 
 		$this->assertSame( 2, $itemInsertCount );
-		$this->assertCount( 2, $scanUpdates );
+		$this->assertCount( 3, $scanUpdates );
 		$this->assertArrayHasKey( 'meta', $scanUpdates[ 0 ][ 'data' ] );
-		$this->assertSame( 1700004000, $scanUpdates[ 1 ][ 'data' ][ 'ready_at' ] ?? null );
-		$this->assertArrayNotHasKey( 'status', $scanUpdates[ 1 ][ 'data' ] );
+		$this->assertArrayNotHasKey( 'last_process_at', $scanUpdates[ 0 ][ 'data' ] );
+		$this->assertSame( [ 'last_process_at' => 1700004000 ], $scanUpdates[ 1 ][ 'data' ] );
+		$this->assertSame( 'built', $scanUpdates[ 2 ][ 'data' ][ 'status' ] ?? null );
+		$this->assertSame( 1700004000, $scanUpdates[ 2 ][ 'data' ][ 'ready_at' ] ?? null );
+		$this->assertSame( 1700004000, $scanUpdates[ 2 ][ 'data' ][ 'last_process_at' ] ?? null );
 	}
 
 	public function test_run_throws_when_queue_item_persistence_fails() :void {
@@ -121,11 +124,6 @@ class PopulateScanItemsTest extends BaseUnitTest {
 
 						public function updateById( int $scanID, array $data ) :bool {
 							$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
-							return true;
-						}
-
-						public function updateRecord( object $record, array $data ) :bool {
-							$this->updates[] = [ 'scan_id' => $record->id, 'data' => $data ];
 							return true;
 						}
 					};

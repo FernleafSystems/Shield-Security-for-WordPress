@@ -28,6 +28,9 @@ class Controller {
 	}
 
 	public function onWpLoaded() {
+		$this->getQueueBuilder();
+		$this->getQueueProcessor();
+
 		if ( $this->hasRunningScans()
 			 || ( self::con()->isPluginAdminPageRequest() && PluginNavs::GetNav() === PluginNavs::NAV_SCANS ) ) {
 			$this->maybeRedispatchQueues();
@@ -79,23 +82,23 @@ class Controller {
 	public function hasRunningScans() :bool {
 		return self::con()->db_con->scans->getQuerySelector()
 				   ->filterByNotFinished()
-				   ->addWhereIn( 'status', [ 'queued', 'building', 'running' ] )
+				   ->addWhereIn( 'status', [ 'queued', 'building', 'built', 'running' ] )
 				   ->count() > 0;
 	}
 
 	public function getQueueBuilder() :Build\QueueBuilder {
-		return $this->queueBuilder ?? $this->queueBuilder = new Build\QueueBuilder( 'shield_scanqbuild' );
+		return $this->queueBuilder ?? $this->queueBuilder = new Build\QueueBuilder();
 	}
 
 	public function getQueueProcessor() :QueueProcessor {
-		return $this->queueProcessor ?? $this->queueProcessor = ( new QueueProcessor( 'shield_scanq' ) )->setExpirationInterval( \MINUTE_IN_SECONDS*10 );
+		return $this->queueProcessor ?? $this->queueProcessor = new QueueProcessor();
 	}
 
 	private function hasReadyScanWork() :bool {
 		return self::con()->db_con->scans->getQuerySelector()
 				   ->filterByNotFinished()
 				   ->filterByReady()
-				   ->addWhereIn( 'status', [ 'building', 'running' ] )
+				   ->addWhereIn( 'status', [ 'built', 'running' ] )
 				   ->count() > 0;
 	}
 

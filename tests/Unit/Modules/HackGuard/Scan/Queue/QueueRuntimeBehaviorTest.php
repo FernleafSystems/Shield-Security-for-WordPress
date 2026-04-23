@@ -22,9 +22,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
+	Build\QueueBuilder,
+	CleanQueue,
 	CompleteQueue,
+	Controller as QueueController,
 	ProcessQueueItem,
 	QueueItemVO,
+	QueueItems,
+	QueueProcessor,
 	RunState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -33,6 +38,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestRequest
 };
+use FernleafSystems\Wordpress\Services\Core\Db;
 
 class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
@@ -169,6 +175,98 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 				'not_finished' => true,
 			]
 		], $deletedScanItems );
+	}
+
+	public function test_mark_built_sets_status_and_ready_timestamp() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001500 ),
+		] );
+
+		$scanUpdates = [];
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class( $scanUpdates ) {
+					public array $updates;
+
+					public function __construct( array &$updates ) {
+						$this->updates = &$updates;
+					}
+
+					public function getQueryUpdater() :object {
+						return new class( $this->updates ) {
+							public array $updates;
+
+							public function __construct( array &$updates ) {
+								$this->updates = &$updates;
+							}
+
+							public function updateById( int $scanID, array $data ) :bool {
+								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
+								return true;
+							}
+						};
+					}
+				},
+			],
+		] );
+
+		( new RunState() )->markBuilt( 61 );
+
+		$this->assertSame( [
+			[
+				'scan_id' => 61,
+				'data'    => [
+					'status'          => 'built',
+					'ready_at'        => 1700001500,
+					'last_process_at' => 1700001500,
+				],
+			],
+		], $scanUpdates );
+	}
+
+	public function test_touch_updates_last_process_timestamp_only() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
+		] );
+
+		$scanUpdates = [];
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class( $scanUpdates ) {
+					public array $updates;
+
+					public function __construct( array &$updates ) {
+						$this->updates = &$updates;
+					}
+
+					public function getQueryUpdater() :object {
+						return new class( $this->updates ) {
+							public array $updates;
+
+							public function __construct( array &$updates ) {
+								$this->updates = &$updates;
+							}
+
+							public function updateById( int $scanID, array $data ) :bool {
+								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
+								return true;
+							}
+						};
+					}
+				},
+			],
+		] );
+
+		( new RunState() )->touch( 62 );
+
+		$this->assertSame( [
+			[
+				'scan_id' => 62,
+				'data'    => [
+					'last_process_at' => 1700001555,
+				],
+			],
+		], $scanUpdates );
 	}
 
 	public function test_process_queue_item_marks_scan_failed_when_scan_execution_throws() :void {
@@ -424,6 +522,191 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, $dispatches );
 	}
 
+	public function test_queue_items_selects_built_and_running_scans_only() :void {
+		$queries = [];
+		ServicesState::installItems( [
+			'service_wpdb' => new class( $queries ) extends Db {
+				public array $queries;
+
+				public function __construct( array &$queries ) {
+					$this->queries = &$queries;
+				}
+
+				public function selectRow( string $query, $format = null ) {
+					unset( $format );
+					$this->queries[] = $query;
+					return [
+						'scan_id'  => 71,
+						'scan'     => 'afs',
+						'meta'     => base64_encode( json_encode( [ 'scan_meta' => 'value' ] ) ),
+						'qitem_id' => 8,
+						'items'    => base64_encode( json_encode( [ 'item-a' ] ) ),
+					];
+				}
+			},
+		] );
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class {
+					public function getTable() :string {
+						return 'shield_scans';
+					}
+				},
+				'scan_items' => new class {
+					public function getTable() :string {
+						return 'shield_scan_items';
+					}
+				},
+			],
+		] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( 71, $item->scan_id );
+		$this->assertSame( 8, $item->qitem_id );
+		$this->assertNotEmpty( $queries );
+		$this->assertStringContainsString( "`scans`.`status` IN ('built','running')", $queries[ 0 ] );
+		$this->assertStringNotContainsString( "'building','running'", $queries[ 0 ] );
+		$this->assertStringNotContainsString( "'queued'", $queries[ 0 ] );
+	}
+
+	public function test_clean_queue_does_not_fail_stale_queued_scan_while_active_scan_exists() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700005000 ),
+			'service_wpdb'    => new class extends Db {
+				public function doSql( string $sqlQuery ) {
+					unset( $sqlQuery );
+					return true;
+				}
+			},
+		] );
+
+		$scanUpdates = [];
+		$deletedScanItems = [];
+		$this->installCleanQueueController(
+			1,
+			[
+				'queued:created_at' => [ 81 ],
+			],
+			$scanUpdates,
+			$deletedScanItems
+		);
+
+		( new CleanQueue() )->execute();
+
+		$this->assertSame( [], $scanUpdates );
+		$this->assertSame( [], $deletedScanItems );
+	}
+
+	public function test_clean_queue_fails_stale_built_scan_once() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700006000 ),
+			'service_wpdb'    => new class extends Db {
+				public function doSql( string $sqlQuery ) {
+					unset( $sqlQuery );
+					return true;
+				}
+			},
+		] );
+
+		$scanUpdates = [];
+		$deletedScanItems = [];
+		$this->installCleanQueueController(
+			1,
+			[
+				'built:ready_at'        => [ 91 ],
+				'built:last_process_at' => [ 91 ],
+			],
+			$scanUpdates,
+			$deletedScanItems
+		);
+
+		( new CleanQueue() )->execute();
+
+		$this->assertCount( 1, $scanUpdates );
+		$this->assertSame( 91, $scanUpdates[ 0 ][ 'scan_id' ] );
+		$this->assertSame( 'failed', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
+		$this->assertSame( 1700006000, $scanUpdates[ 0 ][ 'data' ][ 'finished_at' ] ?? null );
+		$this->assertSame( [ 91 ], $deletedScanItems );
+	}
+
+	public function test_on_wp_loaded_registers_queue_schedules_without_running_scans() :void {
+		Functions\when( 'add_action' )->justReturn( true );
+		Functions\when( 'add_filter' )->justReturn( true );
+
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest(),
+		] );
+
+		$this->installController( [
+			'cfg' => (object)[
+				'properties' => [
+					'slug_parent' => 'icwp',
+					'slug_plugin' => 'wpsf',
+				],
+			],
+			'plugin_urls' => new class {
+				public function rootAdminPageSlug() :string {
+					return 'icwp_wpsf';
+				}
+			},
+			'db_con' => (object)[
+				'scans' => new class {
+					public function getQuerySelector() :object {
+						return new class {
+							public function filterByNotFinished() :self {
+								return $this;
+							}
+
+							public function addWhereIn( string $column, array $values ) :self {
+								unset( $column, $values );
+								return $this;
+							}
+
+							public function count() :int {
+								return 0;
+							}
+						};
+					}
+				},
+			],
+		] );
+
+		$controller = new QueueController();
+		$controller->onWpLoaded();
+
+		$builder = $this->readObjectProperty( $controller, 'queueBuilder' );
+		$processor = $this->readObjectProperty( $controller, 'queueProcessor' );
+
+		$this->assertInstanceOf( QueueBuilder::class, $builder );
+		$this->assertInstanceOf( QueueProcessor::class, $processor );
+		$this->assertSame( 'icwp_wpsf_shield_scanqbuild_cron_interval', $this->readObjectProperty( $builder, 'cron_interval_identifier' ) );
+		$this->assertSame( 'icwp_wpsf_shield_scanq_cron_interval', $this->readObjectProperty( $processor, 'cron_interval_identifier' ) );
+	}
+
+	public function test_scan_queue_transport_uses_plugin_prefix() :void {
+		Functions\when( 'add_action' )->justReturn( true );
+		Functions\when( 'add_filter' )->justReturn( true );
+
+		$this->installController( [
+			'cfg' => (object)[
+				'properties' => [
+					'slug_parent' => 'icwp',
+					'slug_plugin' => 'wpsf',
+				],
+			],
+		] );
+
+		$builder = new QueueBuilder();
+		$processor = new QueueProcessor();
+
+		$this->assertSame( 'icwp_wpsf_shield_scanqbuild', $this->readObjectProperty( $builder, 'identifier' ) );
+		$this->assertSame( 'icwp_wpsf_shield_scanqbuild_cron_interval', $this->readObjectProperty( $builder, 'cron_interval_identifier' ) );
+		$this->assertSame( 'icwp_wpsf_shield_scanq', $this->readObjectProperty( $processor, 'identifier' ) );
+		$this->assertSame( 'icwp_wpsf_shield_scanq_cron_interval', $this->readObjectProperty( $processor, 'cron_interval_identifier' ) );
+		$this->assertSame( \MINUTE_IN_SECONDS*10, $processor->getExpirationInterval() );
+	}
+
 	private function installController( array $properties ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -431,5 +714,187 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			$controller->{$property} = $value;
 		}
 		PluginControllerInstaller::install( $controller );
+	}
+
+	private function installCleanQueueController(
+		int $activeScanCount,
+		array $staleIDsByStatusAndColumn,
+		array &$scanUpdates,
+		array &$deletedScanItems
+	) :void {
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class( $activeScanCount, $staleIDsByStatusAndColumn, $scanUpdates ) {
+					private object $selector;
+					public array $updates;
+
+					public function __construct( int $activeScanCount, array $staleIDsByStatusAndColumn, array &$updates ) {
+						$this->updates = &$updates;
+						$this->selector = new class( $activeScanCount, $staleIDsByStatusAndColumn ) {
+							private int $activeScanCount;
+							private array $staleIDsByStatusAndColumn;
+							private string $status = '';
+							private array $statuses = [];
+							private string $olderColumn = 'created_at';
+
+							public function __construct( int $activeScanCount, array $staleIDsByStatusAndColumn ) {
+								$this->activeScanCount = $activeScanCount;
+								$this->staleIDsByStatusAndColumn = $staleIDsByStatusAndColumn;
+							}
+
+							public function reset() :self {
+								$this->status = '';
+								$this->statuses = [];
+								$this->olderColumn = 'created_at';
+								return $this;
+							}
+
+							public function filterByStatus( string $status ) :self {
+								$this->status = $status;
+								return $this;
+							}
+
+							public function filterByNotFinished() :self {
+								return $this;
+							}
+
+							public function filterByReady() :self {
+								return $this;
+							}
+
+							public function addWhereIn( string $column, array $values ) :self {
+								if ( $column === 'status' ) {
+									$this->statuses = $values;
+								}
+								return $this;
+							}
+
+							public function addWhereOlderThan( int $timestamp, string $column = 'created_at' ) :self {
+								unset( $timestamp );
+								$this->olderColumn = $column;
+								return $this;
+							}
+
+							public function count() :int {
+								return $this->statuses === [ 'building', 'built', 'running' ] ? $this->activeScanCount : 0;
+							}
+
+							public function getDistinctForColumn( string $column ) :array {
+								unset( $column );
+								return $this->staleIDsByStatusAndColumn[ $this->status.':'.$this->olderColumn ] ?? [];
+							}
+
+							public function queryWithResult() :array {
+								return [];
+							}
+
+							public function byId( int $scanID ) :object {
+								return new class( $scanID ) {
+									public int $id;
+									public array $meta = [];
+
+									public function __construct( int $scanID ) {
+										$this->id = $scanID;
+									}
+
+									public function __get( string $key ) {
+										return $this->{$key} ?? null;
+									}
+
+									public function __set( string $key, $value ) :void {
+										$this->{$key} = $value;
+									}
+
+									public function getRawData() :array {
+										return [
+											'id'   => $this->id,
+											'meta' => base64_encode( wp_json_encode( $this->meta ) ?: '{}' ),
+										];
+									}
+								};
+							}
+						};
+					}
+
+					public function getQuerySelector() :object {
+						return $this->selector;
+					}
+
+					public function getQueryUpdater() :object {
+						return new class( $this->updates ) {
+							public array $updates;
+
+							public function __construct( array &$updates ) {
+								$this->updates = &$updates;
+							}
+
+							public function updateById( int $scanID, array $data ) :bool {
+								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
+								return true;
+							}
+						};
+					}
+				},
+				'scan_items' => new class( $deletedScanItems ) {
+					public array $deleted;
+
+					public function __construct( array &$deleted ) {
+						$this->deleted = &$deleted;
+					}
+
+					public function getTable() :string {
+						return 'shield_scan_items';
+					}
+
+					public function getQuerySelector() :object {
+						return new class {
+							public function filterByScan( int $scanID ) :self {
+								unset( $scanID );
+								return $this;
+							}
+
+							public function count() :int {
+								return 1;
+							}
+						};
+					}
+
+					public function getQueryDeleter() :object {
+						return new class( $this->deleted ) {
+							public array $deleted;
+							private int $scanID = 0;
+
+							public function __construct( array &$deleted ) {
+								$this->deleted = &$deleted;
+							}
+
+							public function filterByScan( int $scanID ) :self {
+								$this->scanID = $scanID;
+								return $this;
+							}
+
+							public function filterByNotFinished() :self {
+								return $this;
+							}
+
+							public function query() :bool {
+								$this->deleted[] = $this->scanID;
+								return true;
+							}
+						};
+					}
+				},
+			],
+		] );
+	}
+
+	private function readObjectProperty( object $object, string $property ) {
+		$reflectionClass = new \ReflectionClass( $object );
+		while ( !$reflectionClass->hasProperty( $property ) ) {
+			$reflectionClass = $reflectionClass->getParentClass();
+		}
+		$reflection = $reflectionClass->getProperty( $property );
+		$reflection->setAccessible( true );
+		return $reflection->getValue( $object );
 	}
 }

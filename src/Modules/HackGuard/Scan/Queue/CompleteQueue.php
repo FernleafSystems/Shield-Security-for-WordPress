@@ -18,7 +18,7 @@ class CompleteQueue {
 
 		$activeCount = $con->db_con->scans->getQuerySelector()
 			->filterByNotFinished()
-			->addWhereIn( 'status', [ 'queued', 'building', 'running' ] )
+			->addWhereIn( 'status', [ 'queued', 'building', 'built', 'running' ] )
 			->count();
 		if ( $activeCount > 0 ) {
 			if ( $con->db_con->scans->getQuerySelector()->filterByStatus( 'queued' )->count() > 0 ) {

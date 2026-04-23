@@ -35,19 +35,41 @@ class CleanQueue {
 	}
 
 	/**
-	 * Stale: Scan has been ready for 20 minutes
+	 * Stale scans are failed according to their current lifecycle state.
 	 */
 	private function failStaleScansForTime() {
 		$selector = self::con()->db_con->scans->getQuerySelector();
 		$scanIDs = [];
 
+		if ( $selector->reset()
+					 ->filterByNotFinished()
+					 ->addWhereIn( 'status', [ 'building', 'built', 'running' ] )
+					 ->count() === 0 ) {
+			$queuedIDs = $selector->reset()
+				->filterByStatus( 'queued' )
+				->filterByNotFinished()
+				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 5 )->timestamp )
+				->getDistinctForColumn( 'id' );
+			$scanIDs = \array_merge( $scanIDs, \is_array( $queuedIDs ) ? $queuedIDs : [] );
+		}
+
 		foreach ( [
 			$selector->reset()
-				->filterByStatus( 'queued' )
-				->addWhereOlderThan( Services::Request()->carbon()->subMinutes( 5 )->timestamp )
-				->getDistinctForColumn( 'id' ),
-			$selector->reset()
 				->filterByStatus( 'building' )
+				->filterByNotFinished()
+				->addWhereOlderThan(
+					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
+					'last_process_at'
+				)->getDistinctForColumn( 'id' ),
+			$selector->reset()
+				->filterByStatus( 'built' )
+				->filterByNotFinished()
+				->addWhereOlderThan(
+					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
+					'ready_at'
+				)->getDistinctForColumn( 'id' ),
+			$selector->reset()
+				->filterByStatus( 'built' )
 				->filterByNotFinished()
 				->addWhereOlderThan(
 					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
@@ -80,7 +102,7 @@ class CleanQueue {
 		/** @var ScansDB\Select $selector */
 		$selector = $dbCon->scans->getQuerySelector();
 		/** @var ScansDB\Record[] $scans */
-		$scans = $selector->addWhereIn( 'status', [ 'building', 'running' ] )
+		$scans = $selector->addWhereIn( 'status', [ 'built', 'running' ] )
 						  ->filterByNotFinished()
 						  ->filterByReady()
 						  ->queryWithResult();

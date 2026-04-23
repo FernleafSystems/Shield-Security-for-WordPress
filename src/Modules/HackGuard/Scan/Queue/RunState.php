@@ -31,6 +31,21 @@ class RunState {
 		] );
 	}
 
+	public function markBuilt( int $scanID ) :void {
+		$now = Services::Request()->ts();
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+			'status'          => 'built',
+			'ready_at'        => $now,
+			'last_process_at' => $now,
+		] );
+	}
+
+	public function touch( int $scanID ) :void {
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => Services::Request()->ts(),
+		] );
+	}
+
 	public function markCompleted( int $scanID ) :void {
 		$now = Services::Request()->ts();
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
