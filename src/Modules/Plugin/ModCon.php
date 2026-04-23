@@ -17,7 +17,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\{
 };
 
 class ModCon {
-
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
@@ -29,10 +28,7 @@ class ModCon {
 
 	private Processor $processor;
 
-	/**
-	 * @var Lib\TrackingVO
-	 */
-	private $tracking;
+	private Lib\TrackingVO $tracking;
 
 	/**
 	 * @throws \Exception
@@ -48,7 +44,7 @@ class ModCon {
 	/**
 	 * @throws \Exception
 	 */
-	public function getProcessor() :Processor {
+	public function getProcessor(): Processor {
 		return $this->processor ??= new Processor();
 	}
 
@@ -66,14 +62,14 @@ class ModCon {
 		self::con()->comps->assets_customizer->execute();
 	}
 
-	public function getCacheDirHandler() :CacheDirHandler {
+	public function getCacheDirHandler(): CacheDirHandler {
 		if ( !isset( $this->cacheDirHandler ) ) {
 			$this->cacheDirHandler = $this->buildCacheDirHandler();
 		}
 		return $this->cacheDirHandler;
 	}
 
-	protected function buildCacheDirHandler() :CacheDirHandler {
+	protected function buildCacheDirHandler(): CacheDirHandler {
 		$con = self::con();
 		$url = Services::WpGeneral()->getWpUrl();
 
@@ -135,26 +131,30 @@ class ModCon {
 		}
 		$con->this_req->ip = Services::Request()->ip();
 		$con->this_req->ip_is_public = !empty( $con->this_req->ip )
-									   && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
+		                               && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function canSiteLoopback() :bool {
+	public function canSiteLoopback(): bool {
 		$can = false;
-		if ( \class_exists( '\WP_Site_Health' ) && \method_exists( '\WP_Site_Health', 'get_instance' ) ) {
-			$can = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
+
+		if ( !\class_exists( '\WP_Site_Health' ) && \defined( 'ABSPATH' ) ) {
+			$siteHealthFile = path_join( ABSPATH, '/wp-admin/includes/class-wp-site-health.php' );
+			if ( Services::WpFs()->isAccessibleFile( $siteHealthFile ) ) {
+				require_once $siteHealthFile;
+			}
 		}
-		if ( !$can ) {
-			$can = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
-				'timeout' => 10
-			] );
+
+		if ( \class_exists( '\WP_Site_Health' )
+		     && \method_exists( '\WP_Site_Health', 'get_instance' )
+		     && \method_exists( \WP_Site_Health::get_instance(), 'get_test_loopback_requests' ) ) {
+			$result = \WP_Site_Health::get_instance()->get_test_loopback_requests();
+			$can = \is_array( $result ) && ( $result[ 'status' ] ?? '' ) === 'good';
 		}
+
 		return $can;
 	}
 
-	public function storeRealInstallDate() :int {
+	public function storeRealInstallDate(): int {
 		$key = self::con()->prefix( 'install_date', '_' );
 		$now = Services::Request()->ts();
 		$wpDate = (int)Services::WpGeneral()->getOption( $key );
@@ -195,10 +195,7 @@ class ModCon {
 		}, 100, 0 );
 	}
 
-	public function getTracking() :Lib\TrackingVO {
-		if ( !isset( $this->tracking ) ) {
-			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( self::con()->opts->optGet( 'transient_tracking' ) );
-		}
-		return $this->tracking;
+	public function getTracking(): Lib\TrackingVO {
+		return $this->tracking ??= ( new Lib\TrackingVO() )->applyFromArray( self::con()->opts->optGet( 'transient_tracking' ) );
 	}
 }

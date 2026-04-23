@@ -216,15 +216,8 @@ class Collate {
 	private function getShieldCapabilities() :array {
 		$con = self::con();
 
-		try {
-			$loopback = $this->yesNo( $con->plugin->canSiteLoopback() );
-		}
-		catch ( \Exception $e ) {
-			$loopback = __( 'Unknown - requires WP v5.4+', 'wp-simple-firewall' );
-		}
-
 		$data = [
-			__( 'Can Loopback Request', 'wp-simple-firewall' )       => $loopback,
+			__( 'Can Loopback Request', 'wp-simple-firewall' )       => $this->yesNo( $con->plugin->canSiteLoopback() ),
 			__( 'NotBot Frontend JS Loading', 'wp-simple-firewall' ) => $this->yesNo( ( new TestNotBotLoading() )->test() ),
 			sprintf( __( 'Handshake %s', 'wp-simple-firewall' ), $con->labels->getBrandName( 'shieldnet' ) ) => $this->yesNo( $con->comps->shieldnet->canHandshake() ),
 			__( 'WP Hashes Ping', 'wp-simple-firewall' )             => $this->yesNo( ( new ApiPing() )->ping() ),
