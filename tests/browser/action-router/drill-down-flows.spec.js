@@ -399,10 +399,6 @@ test( 'actions queue display collection can hide an ignored-only direct table wi
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_repaired":false/ );
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_deleted":false/ );
 
-		const noLegacySubmit = page.waitForRequest(
-			( request ) => ( request.postData() || '' ).includes( 'ex=scan_results_display_form_submit' ),
-			{ timeout: 1500 }
-		).then( () => false ).catch( () => true );
 		const tableReload = page.waitForRequest(
 			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
 			{ timeout: 20_000 }
@@ -419,7 +415,6 @@ test( 'actions queue display collection can hide an ignored-only direct table wi
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":false/ );
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":false/ );
 		await expect( displayCollection ).toBeVisible();
-		expect( await noLegacySubmit ).toBe( true );
 		await expect( page.locator( '[data-actions-queue-retry]' ) ).toHaveCount( 0 );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 	} );

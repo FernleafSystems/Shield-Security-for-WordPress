@@ -87,16 +87,6 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	protected function findTabByKey( array $tabs, string $key ) :array {
-		foreach ( $tabs as $tab ) {
-			if ( ( $tab[ 'key' ] ?? '' ) === $key ) {
-				return $tab;
-			}
-		}
-		$this->fail( 'Tab "'.$key.'" not found in: '.\implode( ', ', \array_column( $tabs, 'key' ) ) );
-		return [];
-	}
-
 	protected function makeDetailRow( string $title, string $status, ?int $countBadge = null ) :array {
 		return [
 			'title'         => $title,
@@ -162,46 +152,6 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 		];
 	}
 
-	protected function makeAfsItem( string $flag, array $extra = [] ) :object {
-		return (object)\array_merge( [
-			'path_fragment'   => 'test/'.\uniqid( '', true ).'.php',
-			'is_in_core'      => 0,
-			'is_mal'          => 0,
-			'is_missing'      => 0,
-			'is_checksumfail' => 0,
-			'is_unrecognised' => 0,
-			'is_unidentified' => 0,
-		], $extra, [ $flag => 1 ] );
-	}
-
-	protected function buildSectionPayload( string $renderOutput, int $countItems ) :array {
-		return [
-			'render_output' => $renderOutput,
-			'render_data'   => [
-				'vars' => [
-					'count_items' => $countItems,
-				],
-			],
-		];
-	}
-
-	protected function buildFileLockerPayload( string $renderOutput, bool $isEnabled, int $countItems = 0 ) :array {
-		return [
-			'render_output' => $renderOutput,
-			'render_data'   => [
-				'flags' => [
-					'is_enabled'    => $isEnabled,
-					'is_restricted' => false,
-				],
-				'vars' => [
-					'file_locks' => [
-						'count_items' => $countItems,
-					],
-				],
-			],
-		];
-	}
-
 	protected function buildEmptyVulnerabilities() :array {
 		return [
 			'count'    => 0,
@@ -212,20 +162,10 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 
 	protected function createBuilder( array $overrides = [] ) :ScansResultsViewBuilderTestDouble {
 		return new ScansResultsViewBuilderTestDouble(
-			$overrides[ 'summaryRows' ] ?? [],
-			$overrides[ 'assessmentRows' ] ?? [],
-			$overrides[ 'wordpressPayload' ] ?? $this->buildSectionPayload( '', 0 ),
-			$overrides[ 'pluginsPayload' ] ?? $this->buildSectionPayload( '', 0 ),
-			$overrides[ 'themesPayload' ] ?? $this->buildSectionPayload( '', 0 ),
-			$overrides[ 'malwarePayload' ] ?? $this->buildSectionPayload( '', 0 ),
-			$overrides[ 'fileLockerPayload' ] ?? $this->buildFileLockerPayload( '', false ),
 			$overrides[ 'vulnerabilities' ] ?? $this->buildEmptyVulnerabilities(),
-			$overrides[ 'wordpressEnabled' ] ?? false,
 			$overrides[ 'pluginsEnabled' ] ?? false,
 			$overrides[ 'themesEnabled' ] ?? false,
 			$overrides[ 'vulnerabilitiesEnabled' ] ?? false,
-			$overrides[ 'malwareEnabled' ] ?? false,
-			$overrides[ 'afsDisplayItems' ] ?? [],
 			$overrides[ 'problemFileLocks' ] ?? [],
 			$overrides[ 'pendingFileLockDisplays' ] ?? [],
 			$overrides[ 'goodFileLocks' ] ?? [],
@@ -240,20 +180,10 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 
 class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
-	private array $summaryRows;
-	private array $assessmentRows;
-	private array $wordpressPayload;
-	private array $pluginsPayload;
-	private array $themesPayload;
-	private array $malwarePayload;
-	private array $fileLockerPayload;
 	private array $vulnerabilities;
-	private bool $wordpressEnabled;
 	private bool $pluginsEnabled;
 	private bool $themesEnabled;
 	private bool $vulnerabilitiesEnabled;
-	private bool $malwareEnabled;
-	private array $afsDisplayItems;
 	private array $problemLocks;
 	private array $pendingFileLockDisplays;
 	private array $goodLocks;
@@ -264,20 +194,10 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	private array $tabAvailability;
 
 	public function __construct(
-		array $summaryRows,
-		array $assessmentRows,
-		array $wordpressPayload,
-		array $pluginsPayload,
-		array $themesPayload,
-		array $malwarePayload,
-		array $fileLockerPayload,
 		array $vulnerabilities,
-		bool $wordpressEnabled,
 		bool $pluginsEnabled = false,
 		bool $themesEnabled = false,
 		bool $vulnerabilitiesEnabled = false,
-		bool $malwareEnabled = false,
-		array $afsDisplayItems = [],
 		array $problemLocks = [],
 		array $pendingFileLockDisplays = [],
 		array $goodLocks = [],
@@ -287,20 +207,10 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		array $themeIssueRecords = [],
 		array $tabAvailability = []
 	) {
-		$this->summaryRows = $summaryRows;
-		$this->assessmentRows = $assessmentRows;
-		$this->wordpressPayload = $wordpressPayload;
-		$this->pluginsPayload = $pluginsPayload;
-		$this->themesPayload = $themesPayload;
-		$this->malwarePayload = $malwarePayload;
-		$this->fileLockerPayload = $fileLockerPayload;
 		$this->vulnerabilities = $vulnerabilities;
-		$this->wordpressEnabled = $wordpressEnabled;
 		$this->pluginsEnabled = $pluginsEnabled;
 		$this->themesEnabled = $themesEnabled;
 		$this->vulnerabilitiesEnabled = $vulnerabilitiesEnabled;
-		$this->malwareEnabled = $malwareEnabled;
-		$this->afsDisplayItems = $afsDisplayItems;
 		$this->problemLocks = $problemLocks;
 		$this->pendingFileLockDisplays = $pendingFileLockDisplays;
 		$this->goodLocks = $goodLocks;
@@ -311,55 +221,8 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		$this->tabAvailability = $tabAvailability;
 	}
 
-	protected function buildSummaryRows() :array {
-		return \array_values( \array_map( static fn( array $row ) :array => \array_merge( [
-			'key'      => '',
-			'label'    => '',
-			'text'     => '',
-			'severity' => 'warning',
-			'count'    => 0,
-			'action'   => '',
-			'href'     => '',
-		], $row ), $this->summaryRows ) );
-	}
-
-	protected function buildAssessmentRows() :array {
-		return \array_values( \array_map( static fn( array $row ) :array => \array_merge( [
-			'key'               => '',
-			'label'             => '',
-			'status'            => 'good',
-			'description'       => '',
-			'status_icon_class' => '',
-			'status_label'      => '',
-		], $row ), $this->assessmentRows ) );
-	}
-
-	protected function buildWordpressSectionPayload() :array {
-		return $this->wordpressPayload;
-	}
-
-	protected function buildPluginsSectionPayload() :array {
-		return $this->pluginsPayload;
-	}
-
-	protected function buildThemesSectionPayload() :array {
-		return $this->themesPayload;
-	}
-
-	protected function buildMalwareSectionPayload() :array {
-		return $this->malwarePayload;
-	}
-
-	protected function buildFileLockerSectionPayload() :array {
-		return $this->fileLockerPayload;
-	}
-
 	protected function buildVulnerabilities() :array {
 		return $this->vulnerabilities;
-	}
-
-	protected function isWordpressTabEnabled() :bool {
-		return $this->wordpressEnabled;
 	}
 
 	protected function isPluginsRailTabEnabled() :bool {
@@ -374,14 +237,6 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		return $this->vulnerabilitiesEnabled;
 	}
 
-	protected function isMalwareRailTabEnabled() :bool {
-		return $this->malwareEnabled;
-	}
-
-	protected function getAfsDisplayItems() :array {
-		return $this->afsDisplayItems;
-	}
-
 	protected function getProblemFileLocks() :array {
 		return $this->problemLocks;
 	}
@@ -392,14 +247,6 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 	protected function getPendingFileLockDisplays() :array {
 		return $this->pendingFileLockDisplays;
-	}
-
-	protected function isFileLockerEnabled() :bool {
-		return true;
-	}
-
-	protected function isPremiumActive() :bool {
-		return true;
 	}
 
 	protected function buildPluginThemeRailItemsDirect( string $assetType ) :array {
@@ -417,9 +264,6 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		}
 
 		switch ( $tabKey ) {
-			case 'wordpress':
-				$isAvailable = $this->wordpressEnabled;
-				break;
 			case 'plugins':
 				$isAvailable = $this->pluginsEnabled;
 				break;
@@ -428,9 +272,6 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 				break;
 			case 'vulnerabilities':
 				$isAvailable = $this->vulnerabilitiesEnabled;
-				break;
-			case 'malware':
-				$isAvailable = $this->malwareEnabled;
 				break;
 			case 'file_locker':
 				$isAvailable = true;
@@ -442,9 +283,8 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 		return [
 			'is_available'          => $isAvailable,
-			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'malware', 'file_locker' ], true )
-				|| ( $tabKey === 'wordpress' && $this->wordpressEnabled ),
-			'show_in_fix_now'       => \in_array( $tabKey, [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true ),
+			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'file_locker' ], true ),
+			'show_in_fix_now'       => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'file_locker' ], true ),
 			'disabled_reason'       => '',
 			'disabled_message'      => '',
 			'disabled_status'       => 'neutral',

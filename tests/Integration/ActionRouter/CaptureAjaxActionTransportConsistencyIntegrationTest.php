@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions\Render\Components\Scans\Results\Wordpress,
+	Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail,
 	CaptureAjaxAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -28,7 +28,7 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 	}
 
 	public function test_post_transport_executes_ajax_render_request() :void {
-		$request = ActionData::BuildAjaxRender( Wordpress::class );
+		$request = $this->buildScanResultsRenderRequest();
 		$this->applyCurrentShieldAjaxRequest( $request, false );
 
 		$subject = new CaptureAjaxActionTransportConsistencyTestDouble();
@@ -43,14 +43,14 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 	}
 
 	public function test_query_only_transport_does_not_make_ajax_capture_runnable() :void {
-		$request = ActionData::BuildAjaxRender( Wordpress::class );
+		$request = $this->buildScanResultsRenderRequest();
 		$this->applyCurrentShieldAjaxRequestWithQuery( $request, [], false );
 
 		$this->assertFalse( ( new CaptureAjaxActionTransportConsistencyTestDouble() )->canRunForTest() );
 	}
 
 	public function test_query_only_nonce_does_not_authorize_post_ajax_request() :void {
-		$request = ActionData::BuildAjaxRender( Wordpress::class );
+		$request = $this->buildScanResultsRenderRequest();
 		$query = [
 			ActionData::FIELD_NONCE => (string)( $request[ ActionData::FIELD_NONCE ] ?? '' ),
 		];
@@ -65,7 +65,7 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 	}
 
 	public function test_query_only_action_slug_does_not_steer_post_ajax_payload() :void {
-		$request = ActionData::BuildAjaxRender( Wordpress::class );
+		$request = $this->buildScanResultsRenderRequest();
 		$query = [
 			ActionData::FIELD_ACTION  => (string)( $request[ ActionData::FIELD_ACTION ] ?? '' ),
 			ActionData::FIELD_EXECUTE => (string)( $request[ ActionData::FIELD_EXECUTE ] ?? '' ),
@@ -79,6 +79,13 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 		$this->applyCurrentShieldAjaxRequestWithQuery( $query, $request, false );
 
 		$this->assertFalse( ( new CaptureAjaxActionTransportConsistencyTestDouble() )->canRunForTest() );
+	}
+
+	private function buildScanResultsRenderRequest() :array {
+		return ActionData::BuildAjaxRender( ActionsQueueAssetFileStatusDetail::class, [
+			'type' => 'wordpress',
+			'file' => 'wordpress',
+		] );
 	}
 }
 

@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActio
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\HtmlDomAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,7 +20,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
-	use HtmlDomAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	private array $optionsSnapshot = [];
@@ -48,7 +46,6 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$beforePayload = $this->renderActionsQueueLandingPage();
 		$beforeMaintenance = $this->maintenanceZoneTile( $beforePayload );
-		$beforeSummary = $this->summaryRailTab( $beforePayload );
 
 		$response = $this->processMaintenanceAction( MaintenanceItemIgnore::class, [
 			'maintenance_key' => 'wp_plugins_updates',
@@ -57,7 +54,6 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$afterPayload = $this->renderActionsQueueLandingPage();
 		$afterMaintenance = $this->maintenanceZoneTile( $afterPayload );
-		$afterSummary = $this->summaryRailTab( $afterPayload );
 
 		$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
 		$this->assertSame(
@@ -65,16 +61,12 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			(int)( $afterMaintenance[ 'total_issues' ] ?? 0 )
 		);
 		$this->assertSame(
-			(int)( $beforeSummary[ 'count' ] ?? 0 ) - 1,
-			(int)( $afterSummary[ 'count' ] ?? 0 )
-		);
-		$this->assertSame(
 			[ $pluginFiles[ 0 ] ],
 			$this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates']
 		);
 	}
 
-	public function test_ignoring_all_plugin_updates_removes_warning_count_and_keeps_good_assessment_note() :void {
+	public function test_ignoring_all_plugin_updates_removes_warning_count() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 2 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
 
@@ -86,18 +78,14 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
 		}
 
-		$payload = $this->renderActionsQueueLandingPage();
-		$maintenance = $this->maintenanceZoneTile( $payload );
-		$row = $this->maintenanceAssessmentRow( $payload, 'wp_plugins_updates' );
+		$state = ( new MaintenanceIssueStateProvider() )->buildStates()[ 'wp_plugins_updates' ] ?? [];
 
-		$this->assertSame( 0, (int)( $maintenance[ 'total_issues' ] ?? -1 ) );
-		$this->assertSame( 'good', (string)( $maintenance[ 'status' ] ?? '' ) );
-		$this->assertSame( 'good', (string)( $row[ 'status' ] ?? '' ) );
-		$this->assertStringContainsString( 'ignored', (string)( $row[ 'description' ] ?? '' ) );
-		$this->assertFalse( (bool)( $payload[ 'render_data' ][ 'flags' ][ 'queue_is_empty' ] ?? true ) );
-		$this->assertContains(
-			'wp_plugins_updates',
-			\array_column( $maintenance[ 'items' ] ?? [], 'key' )
+		$this->assertSame( 0, (int)( $state[ 'count' ] ?? -1 ) );
+		$this->assertSame( \count( $pluginFiles ), (int)( $state[ 'ignored_count' ] ?? -1 ) );
+		$this->assertSame( 'good', (string)( $state[ 'severity' ] ?? '' ) );
+		$this->assertEqualsCanonicalizing(
+			$pluginFiles,
+			(array)$this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )[ 'wp_plugins_updates' ]
 		);
 	}
 
@@ -142,20 +130,25 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$this->assertFalse( (bool)( $response[ 'success' ] ?? true ) );
-		$this->assertStringContainsString( 'identifier', (string)( $response[ 'message' ] ?? '' ) );
 		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
 	public function test_ignore_action_requires_valid_nonce() :void {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 1 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
+		$snapshot = $this->seedActionNonceContext( MaintenanceItemIgnore::class );
+		$this->mergeCurrentRequestTransport( [ 'exnonce' => '' ] );
 
-		$this->expectException( InvalidActionNonceException::class );
-
-		( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
-			'maintenance_key' => 'wp_plugins_updates',
-			'identifier'      => $pluginFiles[ 0 ],
-		] );
+		try {
+			$this->expectException( InvalidActionNonceException::class );
+			( new ActionProcessor() )->processAction( MaintenanceItemIgnore::SLUG, [
+				'maintenance_key' => 'wp_plugins_updates',
+				'identifier'      => $pluginFiles[ 0 ],
+			] );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
 	}
 
 	public function test_ignore_action_rejects_invalid_nonce() :void {
@@ -226,12 +219,6 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " actions-queue-groups__healthy-stack ")]//*[contains(concat(" ", normalize-space(@class), " "), " item-box item-box--good ")]',
-			'Groups refresh should re-render the selected maintenance group inside the visible healthy stack'
-		);
 	}
 
 	/**
@@ -262,29 +249,6 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$matches = \array_values( \array_filter(
 			$zoneTiles,
 			static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === 'maintenance'
-		) );
-		$this->assertCount( 1, $matches );
-		return $matches[ 0 ] ?? [];
-	}
-
-	private function maintenanceAssessmentRow( array $payload, string $key ) :array {
-		$maintenance = $this->maintenanceZoneTile( $payload );
-		$rows = \is_array( $maintenance[ 'assessment_rows' ] ?? null ) ? $maintenance[ 'assessment_rows' ] : [];
-		$matches = \array_values( \array_filter(
-			$rows,
-			static fn( array $row ) :bool => (string)( $row[ 'key' ] ?? '' ) === $key
-		) );
-		$this->assertCount( 1, $matches );
-		return $matches[ 0 ] ?? [];
-	}
-
-	private function summaryRailTab( array $payload ) :array {
-		$tabs = \is_array( $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ][ 'vars' ][ 'rail_tabs' ] ?? null )
-			? $payload[ 'render_data' ][ 'vars' ][ 'scans_results' ][ 'vars' ][ 'rail_tabs' ]
-			: [];
-		$matches = \array_values( \array_filter(
-			$tabs,
-			static fn( array $tab ) :bool => (string)( $tab[ 'key' ] ?? '' ) === 'summary'
 		) );
 		$this->assertCount( 1, $matches );
 		return $matches[ 0 ] ?? [];

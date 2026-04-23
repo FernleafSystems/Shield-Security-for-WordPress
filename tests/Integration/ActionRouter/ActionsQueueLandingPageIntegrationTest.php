@@ -3,12 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueGroupsBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingAssessmentBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\DetailExpansionType;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
@@ -22,7 +23,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Suppo
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
@@ -264,20 +264,67 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @return array{count:int,status:string}
+	 * @return array<string,array{count:int,status:string}>
 	 */
-	private function getMaintenanceQueueMetricsFromLanding() :array {
-		$payload = $this->renderActionsQueueLandingPage();
-		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
-		$maintenance = $this->findZoneTile(
-			\is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [],
-			'maintenance'
-		);
-
-		return [
-			'count'  => (int)( $maintenance[ 'total_issues' ] ?? 0 ),
-			'status' => (string)( $maintenance[ 'status' ] ?? 'good' ),
+	private function buildActionsQueueGroupMetrics() :array {
+		$assessmentBuilder = new ActionsQueueLandingAssessmentBuilder();
+		$assessmentRowsByZone = [
+			'scans'       => $assessmentBuilder->buildForZone( 'scans' ),
+			'maintenance' => $assessmentBuilder->buildForZone( 'maintenance' ),
 		];
+		$groupsBuilder = new ActionsQueueGroupsBuilder();
+		$groups = [];
+
+		foreach ( [ 'critical', 'review' ] as $bucketKey ) {
+			$layer = $groupsBuilder->build(
+				$bucketKey,
+				self::con()->comps->site_query->attention(),
+				$assessmentRowsByZone
+			);
+			foreach ( \is_array( $layer[ 'active_sections' ] ?? null ) ? $layer[ 'active_sections' ] : [] as $section ) {
+				foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
+					$key = (string)( $group[ 'key' ] ?? '' );
+					if ( $key === '' ) {
+						continue;
+					}
+					$groups[ $key ] = [
+						'count'  => (int)( $group[ 'item_count' ] ?? 0 ),
+						'status' => (string)( $group[ 'status' ] ?? '' ),
+					];
+				}
+			}
+		}
+
+		return $groups;
+	}
+
+	/**
+	 * @param array<string,array{count:int,status:string}> $groups
+	 */
+	private function groupCountForPrefix( array $groups, string $prefix ) :int {
+		$count = 0;
+		foreach ( $groups as $key => $group ) {
+			if ( \str_starts_with( $key, $prefix ) ) {
+				$count += $group[ 'count' ];
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * @param array<string,array{count:int,status:string}> $groups
+	 * @return list<string>
+	 */
+	private function groupStatusesForPrefix( array $groups, string $prefix ) :array {
+		$statuses = [];
+		foreach ( $groups as $key => $group ) {
+			if ( \str_starts_with( $key, $prefix ) ) {
+				$statuses[] = $group[ 'status' ];
+			}
+		}
+
+		return \array_values( \array_unique( $statuses ) );
 	}
 
 	public function test_actions_queue_landing_keeps_drill_shell_without_removed_all_clear_box_when_queue_is_empty() :void {
@@ -766,7 +813,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', \trim( (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 	}
 
-	public function test_scans_results_metrics_action_returns_exact_counts_for_enabled_tabs() :void {
+	public function test_actions_queue_scan_groups_return_exact_counts_for_enabled_sources() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_pluginsthemes_local',
 			'scan_vulnerabilities',
@@ -819,31 +866,29 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'is_abandoned' => 1,
 		] );
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
-		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
+		$groups = $this->buildActionsQueueGroupMetrics();
 
-		$this->assertSame( 1, (int)( $tabs[ 'wordpress' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'wordpress' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'plugins' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'plugins' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'themes' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'themes' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'abandoned' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'abandoned' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'malware' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'file_locker', $tabs );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'maintenance' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 6 + $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $groups[ 'wordpress' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $groups[ 'wordpress' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 2, $this->groupCountForPrefix( $groups, 'plugins:' ) );
+		$this->assertSame( [ 'critical' ], $this->groupStatusesForPrefix( $groups, 'plugins:' ) );
+		$this->assertSame( 1, $this->groupCountForPrefix( $groups, 'themes:' ) );
+		$this->assertSame( [ 'critical' ], $this->groupStatusesForPrefix( $groups, 'themes:' ) );
+		$this->assertSame( 1, (int)( $groups[ 'malware' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $groups[ 'malware' ][ 'status' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'file_locker', $groups );
+
+		$this->assertCount( 1, \array_filter(
+			\array_keys( $groups ),
+			static fn( string $key ) :bool => \str_starts_with( $key, 'vulnerabilities:' )
+		) );
+		$this->assertCount( 1, \array_filter(
+			\array_keys( $groups ),
+			static fn( string $key ) :bool => \str_starts_with( $key, 'abandoned:' )
+		) );
 	}
 
-	public function test_scans_results_metrics_action_returns_zero_neutral_entries_for_disabled_review_tabs_even_with_historical_results() :void {
+	public function test_actions_queue_groups_do_not_surface_disabled_review_sources_with_historical_results() :void {
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			 ->optSet( 'enable_wpvuln_scan', 'N' )
@@ -882,28 +927,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$this->resetScanResultCountMemoization();
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
-		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
+		$groups = $this->buildActionsQueueGroupMetrics();
 
-		$this->assertSame( 0, (int)( $tabs[ 'wordpress' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'good', (string)( $tabs[ 'wordpress' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $tabs[ 'plugins' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'neutral', (string)( $tabs[ 'plugins' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $tabs[ 'themes' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'neutral', (string)( $tabs[ 'themes' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'neutral', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $tabs[ 'abandoned' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'neutral', (string)( $tabs[ 'abandoned' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $tabs[ 'malware' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( 'neutral', (string)( $tabs[ 'malware' ][ 'status' ] ?? '' ) );
-		$this->assertArrayNotHasKey( 'file_locker', $tabs );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'maintenance' ][ 'status' ] ?? '' ) );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( $maintenance[ 'status' ], (string)( $tabs[ 'summary' ][ 'status' ] ?? '' ) );
-		$this->assertSame( $maintenance[ 'status' ], (string)( $payload[ 'rail_accent_status' ] ?? '' ) );
+		$this->assertSame( 0, $this->groupCountForPrefix( $groups, 'plugins:' ) );
+		$this->assertSame( 0, $this->groupCountForPrefix( $groups, 'themes:' ) );
+		$this->assertArrayNotHasKey( 'malware', $groups );
+		$this->assertSame( 0, \count( \array_filter(
+			\array_keys( $groups ),
+			static fn( string $key ) :bool => \str_starts_with( $key, 'vulnerabilities:' )
+				|| \str_starts_with( $key, 'abandoned:' )
+		) ) );
 	}
 
 	public function test_disabled_historical_scan_results_do_not_surface_in_actions_queue_summary() :void {
@@ -944,7 +977,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, (int)( $scans[ 'total_issues' ] ?? -1 ) );
 	}
 
-	public function test_scans_results_metrics_action_hides_file_locker_when_premium_unavailable() :void {
+	public function test_actions_queue_groups_hide_file_locker_when_premium_unavailable() :void {
 		$this->requireController()->opts
 			 ->optSet( 'file_locker', [ 'wpconfig' ] )
 			 ->store();
@@ -952,36 +985,24 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
-		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
+		$groups = $this->buildActionsQueueGroupMetrics();
 
-		$this->assertArrayNotHasKey( 'file_locker', $tabs );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
+		$this->assertArrayNotHasKey( 'file_locker', $groups );
 	}
 
-	public function test_scans_results_metrics_action_counts_file_locker_when_enabled_and_problematic() :void {
+	public function test_actions_queue_groups_count_file_locker_when_enabled_and_problematic() :void {
 		$this->prepareFileLockerRuntime();
 
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php', \time() );
 		self::con()->comps->file_locker->clearLocks();
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
-		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
+		$groups = $this->buildActionsQueueGroupMetrics();
 
-		$this->assertSame( 1, (int)( $tabs[ 'file_locker' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'warning', (string)( $tabs[ 'file_locker' ][ 'status' ] ?? '' ) );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( $maintenance[ 'count' ] + 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
-		$this->assertSame(
-			StatusPriority::highest( [ 'warning', $maintenance[ 'status' ] ], 'good' ),
-			(string)( $tabs[ 'summary' ][ 'status' ] ?? '' )
-		);
+		$this->assertSame( 1, (int)( $groups[ 'file_locker' ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $groups[ 'file_locker' ][ 'status' ] ?? '' ) );
 	}
 
-	public function test_scans_results_metrics_action_dedupes_same_asset_across_vulnerable_and_abandoned_sections() :void {
+	public function test_actions_queue_groups_dedupe_same_asset_across_vulnerable_and_abandoned_sections() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_pluginsthemes_local',
 			'scan_vulnerabilities',
@@ -1009,20 +1030,20 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'is_abandoned' => 1,
 		] );
 
-		$payload = $this->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		$tabs = \is_array( $payload[ 'tabs' ] ?? null ) ? $payload[ 'tabs' ] : [];
-		$maintenance = $this->getMaintenanceQueueMetricsFromLanding();
+		$groups = $this->buildActionsQueueGroupMetrics();
+		$vulnerabilityGroups = \array_values( \array_filter(
+			\array_keys( $groups ),
+			static fn( string $key ) :bool => \str_starts_with( $key, 'vulnerabilities:' )
+		) );
+		$abandonedGroups = \array_values( \array_filter(
+			\array_keys( $groups ),
+			static fn( string $key ) :bool => \str_starts_with( $key, 'abandoned:' )
+		) );
 
-		$this->assertSame( 1, (int)( $tabs[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'vulnerabilities' ][ 'status' ] ?? '' ) );
-		$this->assertSame( 1, (int)( $tabs[ 'abandoned' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $tabs[ 'abandoned' ][ 'status' ] ?? '' ) );
-		$this->assertSame( $maintenance[ 'count' ], (int)( $tabs[ 'maintenance' ][ 'count' ] ?? -1 ) );
-		$this->assertSame( $maintenance[ 'count' ] + 1, (int)( $tabs[ 'summary' ][ 'count' ] ?? 0 ) );
-		$this->assertSame(
-			StatusPriority::highest( [ 'critical', $maintenance[ 'status' ] ], 'good' ),
-			(string)( $tabs[ 'summary' ][ 'status' ] ?? '' )
-		);
+		$this->assertCount( 1, $vulnerabilityGroups );
+		$this->assertCount( 1, $abandonedGroups );
+		$this->assertSame( 'critical', (string)( $groups[ $vulnerabilityGroups[ 0 ] ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $groups[ $abandonedGroups[ 0 ] ][ 'status' ] ?? '' ) );
 	}
 
 	/**

@@ -247,34 +247,38 @@ class ActionsQueueScanStateBuilder {
 			}
 		}
 
-		$vulnerableRow = $this->buildScanRow(
-			'vulnerable_assets',
-			__( 'Vulnerable Assets', 'wp-simple-firewall' ),
-			$vulnerableAssetsCount,
-			'critical',
-			\sprintf(
-				_n( '%s vulnerable asset detected.', '%s vulnerable assets detected.', $vulnerableAssetsCount, 'wp-simple-firewall' ),
-				$vulnerableAssetsCount
-			),
-			__( 'Update', 'wp-simple-firewall' )
-		);
-		if ( $vulnerableRow !== null ) {
-			$rows[] = $vulnerableRow;
+		if ( $vulnerabilitiesAvailability[ 'is_available' ] ) {
+			$vulnerableRow = $this->buildScanRow(
+				'vulnerable_assets',
+				__( 'Vulnerable Assets', 'wp-simple-firewall' ),
+				$vulnerableAssetsCount,
+				'critical',
+				\sprintf(
+					_n( '%s vulnerable asset detected.', '%s vulnerable assets detected.', $vulnerableAssetsCount, 'wp-simple-firewall' ),
+					$vulnerableAssetsCount
+				),
+				__( 'Update', 'wp-simple-firewall' )
+			);
+			if ( $vulnerableRow !== null ) {
+				$rows[] = $vulnerableRow;
+			}
 		}
 
-		$abandonedRow = $this->buildScanRow(
-			'abandoned',
-			__( 'Abandoned Assets', 'wp-simple-firewall' ),
-			$abandonedAssetsCount,
-			'critical',
-			\sprintf(
-				_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $abandonedAssetsCount, 'wp-simple-firewall' ),
-				$abandonedAssetsCount
-			),
-			__( 'Update', 'wp-simple-firewall' )
-		);
-		if ( $abandonedRow !== null ) {
-			$rows[] = $abandonedRow;
+		if ( $abandonedAvailability[ 'is_available' ] ) {
+			$abandonedRow = $this->buildScanRow(
+				'abandoned',
+				__( 'Abandoned Assets', 'wp-simple-firewall' ),
+				$abandonedAssetsCount,
+				'critical',
+				\sprintf(
+					_n( '%s abandoned asset detected.', '%s abandoned assets detected.', $abandonedAssetsCount, 'wp-simple-firewall' ),
+					$abandonedAssetsCount
+				),
+				__( 'Update', 'wp-simple-firewall' )
+			);
+			if ( $abandonedRow !== null ) {
+				$rows[] = $abandonedRow;
+			}
 		}
 
 		return ( $vulnerabilitiesAvailability[ 'is_available' ] || $abandonedAvailability[ 'is_available' ] )

@@ -18,8 +18,8 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @phpstan-type QueueAssetMetadata array{
- *   subject_type:string,
- *   subject_id:string,
+ *   type:string,
+ *   file:string,
  *   title:string,
  *   icon_class:string,
  *   has_update:bool
@@ -39,11 +39,11 @@ class ActionsQueueAssetMetadataResolver {
 			}
 
 			return [
-				'subject_type' => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-				'subject_id'   => (string)$asset->file,
-				'title'        => (string)$asset->Title,
-				'icon_class'   => 'bi bi-plug-fill',
-				'has_update'   => $asset->hasUpdate(),
+				'type'       => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+				'file'       => (string)$asset->file,
+				'title'      => (string)$asset->Title,
+				'icon_class' => 'bi bi-plug-fill',
+				'has_update' => $asset->hasUpdate(),
 			];
 		}
 
@@ -57,11 +57,11 @@ class ActionsQueueAssetMetadataResolver {
 		}
 
 		return [
-			'subject_type' => InvestigationTableContract::SUBJECT_TYPE_THEME,
-			'subject_id'   => (string)$asset->stylesheet,
-			'title'        => (string)$asset->Name,
-			'icon_class'   => 'bi bi-palette-fill',
-			'has_update'   => $asset->hasUpdate(),
+			'type'       => InvestigationTableContract::SUBJECT_TYPE_THEME,
+			'file'       => (string)$asset->stylesheet,
+			'title'      => (string)$asset->Name,
+			'icon_class' => 'bi bi-palette-fill',
+			'has_update' => $asset->hasUpdate(),
 		];
 	}
 

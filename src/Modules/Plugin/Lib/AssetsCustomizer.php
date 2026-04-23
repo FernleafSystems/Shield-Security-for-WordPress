@@ -16,9 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForReports,
 	ForSecurityRules,
 	ForSessions,
-	ForTraffic,
-	Scans\ForMalware,
-	Scans\ForWordpress
+	ForTraffic
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -406,42 +404,6 @@ class AssetsCustomizer {
 					],
 					'hrefs' => [
 						'actions_queue_scans' => $con->plugin_urls->actionsQueueScans(),
-					],
-					'vars'  => [
-						'scan_results_tables' => [
-							'malware'      => [
-								'ajax' => [
-									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true,
-										( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
-											->mergeIntoActionData( [
-												'type' => 'malware',
-												'file' => 'malware',
-											] )
-									),
-								],
-								'vars' => [
-									'table_selector'  => '#ShieldTable-ScanResultsMalware',
-									'datatables_init' => ( new ForMalware() )->buildRaw(),
-								],
-							],
-							'wordpress'    => [
-								'ajax' => [
-									'render_item_analysis' => ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class ),
-									'table_action'         => ActionData::Build( Actions\ScanResultsTableAction::class, true,
-										( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
-											->mergeIntoActionData( [
-												'type' => 'wordpress',
-												'file' => 'wordpress',
-											] )
-									),
-								],
-								'vars' => [
-									'table_selector'  => '#ShieldTable-ScanResultsWordpress',
-									'datatables_init' => ( new ForWordpress() )->buildRaw(),
-								],
-							],
-						],
 					],
 				],
 			],

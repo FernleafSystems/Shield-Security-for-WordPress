@@ -5,9 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	Malware,
-	Vulnerabilities,
-	Wordpress
+	Vulnerabilities
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
@@ -270,13 +268,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[ 'wordpress', 'malware', 'file_locker' ],
 			\array_column( $data[ 'active_sections' ][ 0 ][ 'groups' ], 'key' )
 		);
-		$this->assertSame( Wordpress::class, $groups[ 0 ][ 'render_action_class' ] );
-		$this->assertSame( Malware::class, $groups[ 1 ][ 'render_action_class' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 0 ][ 'render_action_class' ] );
+		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 1 ][ 'render_action_class' ] );
 		$this->assertSame( FileLocker::class, $groups[ 2 ][ 'render_action_class' ] );
 		$this->assertSame( Vulnerabilities::class, $groups[ 3 ][ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'vulnerable' ], $groups[ 3 ][ 'render_action_data' ] );
 		$this->assertSame(
 			[
+				'type'                    => 'malware',
+				'file'                    => 'malware',
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
 					'include_ignored'  => false,
@@ -317,6 +317,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $groups[ 4 ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
+				'type'                    => 'plugin',
+				'file'                    => 'example-plugin/example-plugin.php',
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
 					'include_ignored'  => false,
@@ -324,23 +326,21 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'include_deleted'  => false,
 					'ignored_only'     => false,
 				],
-				'subject_type'           => 'plugin',
-				'subject_id'             => 'example-plugin/example-plugin.php',
 			],
 			$groups[ 4 ][ 'render_action_data' ]
 		);
 		$this->assertSame( 'ajax_render', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'ex' ] ?? '' );
 		$this->assertSame( 'actions_queue_asset_file_status_detail', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'plugin', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'subject_type' ] ?? '' );
+		$this->assertSame( 'plugin', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'type' ] ?? '' );
 		$this->assertSame(
 			'example-plugin/example-plugin.php',
-			$groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'subject_id' ] ?? ''
+			$groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'file' ] ?? ''
 		);
 		$this->assertSame( 'actions_queue', $groups[ 4 ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
 		$this->assertNotSame( '', $groups[ 4 ][ 'drill_hint' ] );
 		$this->assertNotSame( '', $groups[ 1 ][ 'narrative' ] );
 		$this->assertNotSame( '', $groups[ 1 ][ 'drill_hint' ] );
-		$this->assertSame( 'scanresults_malware', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'actions_queue_asset_file_status_detail', $groups[ 1 ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 	}
 
 	public function test_build_keeps_file_integrity_heading_for_wordpress_only_active_findings() :void {
@@ -399,7 +399,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', $group[ 'drill_hint' ] );
 		$this->assertSame( [], $group[ 'detail_table' ] );
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $group[ 'render_action_class' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'render_action_data' ][ 'subject_id' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $group[ 'render_action_data' ][ 'file' ] );
 		$this->assertSame( 'plugins:example-plugin', $group[ 'selection' ][ 'key' ] );
 		$this->assertSame( 'direct_table', $group[ 'selection' ][ 'detail_shell' ] );
 		$this->assertSame( 'actions_queue_asset_file_status_detail', $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
@@ -1290,6 +1290,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertTrue( $groups[ 'wordpress' ][ 'is_interactive' ] );
 		$this->assertSame(
 			[
+				'type'                    => 'wordpress',
+				'file'                    => 'wordpress',
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
 					'include_ignored'  => true,
@@ -1302,7 +1304,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 3, $groups[ 'wordpress' ][ 'item_count' ] );
 		$this->assertSame( [], $groups[ 'wordpress' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( 'scanresults_wordpress', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( 'actions_queue_asset_file_status_detail', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'actions_queue', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
 		$this->assertArrayNotHasKey( 'plugins', $groups );
 		$this->assertFalse( $groups[ 'themes' ][ 'is_interactive' ] );
@@ -1460,8 +1462,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'stat_text'    => \sprintf( $count === 1 ? '%s file needs review' : '%s files need review', $count ),
 			'meta_text'    => $subjectId,
 			'count_badge'  => $count,
-			'subject_type' => $subjectType,
-			'subject_id'   => $subjectId,
+			'type'         => $subjectType,
+			'file'         => $subjectId,
 			'has_update'   => false,
 		];
 	}

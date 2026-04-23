@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetMetadataResolver,
 	ActionsQueueScanAssetCardsBuilder,
+	ActionsQueueScanResultsTableBuilder,
 	ScansResultsViewBuilder
 };
 
@@ -15,11 +16,11 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 
 			public function resolve( string $assetType, string $assetKey ) :?array {
 				return [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'example-plugin/example-plugin.php',
-					'title'        => 'Example Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => false,
+					'type'       => 'plugin',
+					'file'       => 'example-plugin/example-plugin.php',
+					'title'      => 'Example Plugin',
+					'icon_class' => 'bi bi-plug-fill',
+					'has_update' => false,
 				];
 			}
 		};
@@ -41,6 +42,23 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 
 			protected function buildFullLogHref() :string {
 				return '/queue/scans';
+			}
+
+			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+				return new class extends ActionsQueueScanResultsTableBuilder {
+					public function buildTableForScope( string $type, string $file, string $emptyText, ?array $options = null ) :array {
+						$displayOptions = ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
+							->normalize( $options );
+						return [
+							'table_action_attr' => \json_encode( [
+								'type'                    => $type,
+								'file'                    => $file,
+								'display_context'         => 'actions_queue',
+								'results_display_options' => $displayOptions,
+							], \JSON_THROW_ON_ERROR ),
+						];
+					}
+				};
 			}
 
 			public function getSeenOptions() :array {
@@ -203,7 +221,6 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 
 	public function test_file_locker_groups_problem_pending_and_good_locks_into_distinct_sections_without_changing_issue_count() :void {
 		$builder = $this->createBuilder( [
-			'fileLockerPayload' => $this->buildFileLockerPayload( '', true ),
 			'problemFileLocks'  => [ (object)[ 'id' => 21, 'path' => '/wp-config.php', 'detected_at' => 1000, 'hash_current' => '' ] ],
 			'pendingFileLockDisplays' => [
 				[
@@ -215,29 +232,32 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			'goodFileLocks'     => [ (object)[ 'id' => 22, 'path' => '/.htaccess', 'detected_at' => 0, 'hash_current' => 'abc123' ] ],
 		] );
 
-		$flTab = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'file_locker' );
-		$items = $flTab[ 'items' ] ?? [];
+		$pane = $builder->buildActionsQueueFileLockerPane();
+		$items = $pane[ 'cards' ] ?? [];
 
 		$this->assertCount( 3, $items );
 		$this->assertSame( 'warning', $items[ 0 ][ 'status' ] ?? '' );
 		$this->assertSame( 'neutral', $items[ 1 ][ 'status' ] ?? '' );
 		$this->assertSame( 'good', $items[ 2 ][ 'status' ] ?? '' );
-		$this->assertNotSame( '', $items[ 0 ][ 'section_label' ] ?? '' );
-		$this->assertNotSame( '', $items[ 1 ][ 'section_label' ] ?? '' );
-		$this->assertNotSame( $items[ 0 ][ 'section_label' ] ?? '', $items[ 1 ][ 'section_label' ] ?? '' );
-		$this->assertSame( 1, $flTab[ 'count' ] ?? -1 );
-		$this->assertSame( 'warning', $flTab[ 'status' ] ?? '' );
 	}
 
 	public function test_file_locker_returns_empty_when_disabled() :void {
 		$builder = $this->createBuilder( [
-			'fileLockerPayload' => $this->buildFileLockerPayload( '', false ),
 			'problemFileLocks'  => [ (object)[ 'path' => '/test', 'detected_at' => 1, 'hash_current' => '' ] ],
+			'tabAvailability'   => [
+				'file_locker' => [
+					'is_available'          => false,
+					'show_in_actions_queue' => false,
+					'disabled_message'      => '',
+					'disabled_status'       => 'neutral',
+					'disabled_actions'      => [],
+				],
+			],
 		] );
 
-		$flTab = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'file_locker' );
-		$this->assertEmpty( $flTab[ 'items' ] ?? [] );
-		$this->assertSame( 'good', $flTab[ 'status' ] ?? '' );
+		$pane = $builder->buildActionsQueueFileLockerPane();
+		$this->assertTrue( $pane[ 'is_disabled' ] );
+		$this->assertSame( [], $pane[ 'cards' ] );
 	}
 
 	public function test_vulnerability_items_preserve_incoming_section_group_labels() :void {
@@ -265,10 +285,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			],
 		] );
 
-		$sectionLabels = \array_column(
-			$this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'vulnerabilities' )[ 'items' ] ?? [],
-			'section_label'
-		);
+		$sectionLabels = \array_column( $builder->buildRailPaneData( 'vulnerabilities' )[ 'items' ] ?? [], 'section_label' );
 		$this->assertContains( $vulnerableLabel, $sectionLabels );
 		$this->assertContains( $abandonedLabel, $sectionLabels );
 	}
@@ -310,7 +327,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			],
 		] );
 
-		$actions = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'vulnerabilities' )[ 'items' ][ 0 ][ 'actions' ] ?? [];
+		$actions = $builder->buildRailPaneData( 'vulnerabilities' )[ 'items' ][ 0 ][ 'actions' ] ?? [];
 		$this->assertCount( 2, $actions );
 		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
 		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] ?? '' );
@@ -319,83 +336,4 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( '_blank', $actions[ 1 ][ 'attributes' ][ 'target' ] ?? '' );
 	}
 
-	public function test_summary_items_with_known_keys_get_row_level_rail_switch_attributes() :void {
-		$builder = $this->createBuilder( [
-			'wordpressEnabled'       => true,
-			'pluginsEnabled'         => true,
-			'themesEnabled'          => true,
-			'vulnerabilitiesEnabled' => true,
-			'malwareEnabled'         => true,
-			'summaryRows'            => [
-				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
-				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
-				[ 'key' => 'theme_files', 'label' => 'Theme Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
-				[ 'key' => 'malware', 'label' => 'Malware', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
-				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
-				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
-				[ 'key' => 'file_locker', 'label' => 'File Locker', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
-			],
-		] );
-
-		$items = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' )[ 'items' ] ?? [];
-		$this->assertCount( 7, $items );
-		$this->assertCount( 1, \array_unique( \array_column( $items, 'section_label' ) ) );
-		$this->assertNotSame( '', $items[ 0 ][ 'section_label' ] ?? '' );
-		foreach ( $items as $item ) {
-			$this->assertSame( [], $item[ 'actions' ] ?? [] );
-			$this->assertNotEmpty( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ?? '' );
-			$this->assertSame( 'button', $item[ 'attributes' ][ 'role' ] ?? '' );
-		}
-	}
-
-	public function test_summary_row_switch_attributes_map_to_correct_tabs() :void {
-		$builder = $this->createBuilder( [
-			'wordpressEnabled'       => true,
-			'pluginsEnabled'         => true,
-			'vulnerabilitiesEnabled' => true,
-			'summaryRows'            => [
-				[ 'key' => 'wp_files', 'label' => 'WordPress Files', 'text' => 'Issues', 'severity' => 'critical', 'count' => 2 ],
-				[ 'key' => 'plugin_files', 'label' => 'Plugin Files', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
-				[ 'key' => 'vulnerable_assets', 'label' => 'Vulns', 'text' => 'Issues', 'severity' => 'critical', 'count' => 3 ],
-				[ 'key' => 'abandoned', 'label' => 'Abandoned', 'text' => 'Issues', 'severity' => 'critical', 'count' => 1 ],
-				[ 'key' => 'file_locker', 'label' => 'File Locker', 'text' => 'Issues', 'severity' => 'warning', 'count' => 1 ],
-			],
-		] );
-
-		$targets = [];
-		foreach ( $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' )[ 'items' ] ?? [] as $item ) {
-			if ( isset( $item[ 'attributes' ][ 'data-shield-rail-switch' ] ) ) {
-				$targets[] = $item[ 'attributes' ][ 'data-shield-rail-switch' ];
-			}
-		}
-
-		$this->assertContains( 'wordpress', $targets );
-		$this->assertContains( 'plugins', $targets );
-		$this->assertContains( 'file_locker', $targets );
-		$this->assertSame( 2, \count( \array_filter( $targets, static fn( string $target ) :bool => $target === 'vulnerabilities' ) ) );
-	}
-
-	public function test_summary_items_with_unknown_keys_fallback_to_href_actions_without_switch_attributes() :void {
-		$builder = $this->createBuilder( [
-			'summaryRows' => [
-				[
-					'key'      => 'wp_updates',
-					'label'    => 'WP Updates',
-					'text'     => 'Update available',
-					'severity' => 'warning',
-					'count'    => 1,
-					'action'   => 'Update',
-					'href'     => 'https://example.com/update',
-				],
-			],
-		] );
-
-		$items = $this->findTabByKey( $builder->build()[ 'vars' ][ 'rail_tabs' ] ?? [], 'summary' )[ 'items' ] ?? [];
-		$this->assertCount( 1, $items );
-		$this->assertNotSame( '', $items[ 0 ][ 'section_label' ] ?? '' );
-		$action = $items[ 0 ][ 'actions' ][ 0 ] ?? [];
-		$this->assertSame( 'navigate', $action[ 'type' ] ?? '' );
-		$this->assertSame( [], $action[ 'attributes' ] ?? [] );
-		$this->assertSame( 'https://example.com/update', $action[ 'href' ] ?? '' );
-	}
 }

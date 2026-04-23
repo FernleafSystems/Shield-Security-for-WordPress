@@ -5,8 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueLandingAssessmentBuilder,
 	ActionsQueueLandingViewBuilder,
-	ActionsQueueScanRailBuilder,
-	ActionsQueueScanRailMetricsBuilder
+	ActionsQueueMaintenanceRailPaneBuilder
 };
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,16 +24,14 @@ class Maintenance extends Base {
 				'maintenance' => $assessmentBuilder->buildForZone( 'maintenance' ),
 			]
 		);
-		$metrics = ( new ActionsQueueScanRailMetricsBuilder() )->build( $attentionQuery );
 		$zoneTiles = [];
 		foreach ( $landingViewData[ 'zone_tiles' ] as $zoneTile ) {
 			$zoneTiles[ $zoneTile[ 'key' ] ] = $zoneTile;
 		}
 
-		$tab = ( new ActionsQueueScanRailBuilder() )->buildMaintenanceTabDefinition(
+		$tab = ( new ActionsQueueMaintenanceRailPaneBuilder() )->buildMaintenancePane(
 			$zoneTiles[ 'maintenance' ][ 'items' ],
-			$zoneTiles[ 'maintenance' ][ 'assessment_rows' ],
-			$metrics[ 'tabs' ][ 'maintenance' ]
+			$zoneTiles[ 'maintenance' ][ 'assessment_rows' ]
 		);
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [

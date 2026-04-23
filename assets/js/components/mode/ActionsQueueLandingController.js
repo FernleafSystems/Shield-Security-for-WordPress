@@ -731,6 +731,14 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 
+		const currentOptions = this.selectedGroup.detail_render_action?.results_display_options || {};
+		if (
+			this.isDefaultActiveOnlyResultsDisplayOptions( resultsDisplayOptions )
+			&& !ObjectOps.IsEmpty( currentOptions )
+		) {
+			return;
+		}
+
 		this.selectedGroup = {
 			...this.selectedGroup,
 			detail_render_action: {
@@ -738,6 +746,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 				results_display_options: resultsDisplayOptions,
 			},
 		};
+	}
+
+	isDefaultActiveOnlyResultsDisplayOptions( resultsDisplayOptions ) {
+		return resultsDisplayOptions?.include_ignored === false
+			&& resultsDisplayOptions?.include_repaired === false
+			&& resultsDisplayOptions?.include_deleted === false
+			&& resultsDisplayOptions?.ignored_only === false;
 	}
 
 	resetGroupsLayerHeader( shell ) {
