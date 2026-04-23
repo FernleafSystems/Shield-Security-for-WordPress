@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as FindingsModelState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
@@ -17,9 +16,6 @@ class Container extends BaseScans {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		if ( !( new FindingsModelState() )->isReady() ) {
-			throw new ActionException( __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' ) );
-		}
 		try {
 			/** @var ResultItem $item */
 			$item = ( new RetrieveItems() )->byID( (int)$this->action_data[ 'rid' ] );

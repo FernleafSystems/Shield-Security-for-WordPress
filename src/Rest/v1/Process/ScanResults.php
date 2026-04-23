@@ -22,10 +22,6 @@ class ScanResults extends ScanBase {
 			throw new ApiException( $e->getMessage(), 400 );
 		}
 
-		if ( !$findings[ 'is_available' ] ) {
-			throw new ApiException( $findings[ 'message' ] );
-		}
-
 		return $findings[ 'results' ];
 	}
 }

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
@@ -1078,5 +1079,27 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		return \array_slice( $inactivePlugins, 0, $minimum );
+	}
+
+	private function insertUnfinishedScan( string $scanSlug, string $status = 'queued', int $readyAt = 0 ) :int {
+		$dbh = self::con()->db_con->scans;
+		$record = $dbh->getRecord();
+		$record->scan = $scanSlug;
+		$record->status = $status;
+		$record->ready_at = $readyAt;
+		$dbh->getQueryInserter()->insert( $record );
+		return (int)Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' );
+	}
+
+	public function test_actions_queue_landing_uses_runtime_warning_as_root_focus_while_scans_are_in_flight() :void {
+		$this->insertUnfinishedScan( 'afs', 'queued' );
+
+		$payload = $this->renderActionsQueueLandingPage();
+		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
+		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
+		$warning = ( new ScanResultsLagWarning() )->getText();
+
+		$this->assertNotSame( '', $warning );
+		$this->assertSame( $warning, (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' ) );
 	}
 }

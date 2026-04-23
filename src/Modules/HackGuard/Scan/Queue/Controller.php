@@ -5,14 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\{
-	LegacyReconcile,
-	LegacyReconcileQueue,
-	State as FindingsModelState
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Controller {
 
@@ -29,22 +23,14 @@ class Controller {
 	 */
 	private $queueProcessor;
 
-	/**
-	 * @var LegacyReconcileQueue
-	 */
-	private $reconcileQueue;
-
 	protected function run() {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
 
 	public function onWpLoaded() {
-		$this->maybeRunFindingsReconcile();
-
 		if ( $this->hasRunningScans()
 			 || ( self::con()->isPluginAdminPageRequest() && PluginNavs::GetNav() === PluginNavs::NAV_SCANS ) ) {
-			$this->getQueueBuilder();
-			$this->getQueueProcessor();
+			$this->maybeRedispatchQueues();
 		}
 	}
 
@@ -97,10 +83,6 @@ class Controller {
 				   ->count() > 0;
 	}
 
-	public function getReconcileQueue() :LegacyReconcileQueue {
-		return $this->reconcileQueue ?? $this->reconcileQueue = new LegacyReconcileQueue();
-	}
-
 	public function getQueueBuilder() :Build\QueueBuilder {
 		return $this->queueBuilder ?? $this->queueBuilder = new Build\QueueBuilder( 'shield_scanqbuild' );
 	}
@@ -109,29 +91,30 @@ class Controller {
 		return $this->queueProcessor ?? $this->queueProcessor = ( new QueueProcessor( 'shield_scanq' ) )->setExpirationInterval( \MINUTE_IN_SECONDS*10 );
 	}
 
-	private function maybeRunFindingsReconcile() :void {
-		$state = new FindingsModelState();
-		if ( $state->current() === FindingsModelState::LEGACY ) {
-			$state->startReconciling();
-		}
+	private function hasReadyScanWork() :bool {
+		return self::con()->db_con->scans->getQuerySelector()
+				   ->filterByNotFinished()
+				   ->filterByReady()
+				   ->addWhereIn( 'status', [ 'building', 'running' ] )
+				   ->count() > 0;
+	}
 
-		if ( !$state->isReconciling() ) {
-			return;
-		}
+	private function hasQueuedScans() :bool {
+		return self::con()->db_con->scans->getQuerySelector()
+				   ->filterByStatus( 'queued' )
+				   ->filterByNotFinished()
+				   ->count() > 0;
+	}
 
-		if ( !$state->hasLegacyRows() ) {
-			$state->markReady();
-			return;
-		}
+	private function maybeRedispatchQueues() :void {
+		$builder = $this->getQueueBuilder();
+		$processor = $this->getQueueProcessor();
 
-		$queue = $this->getReconcileQueue();
-		if ( self::con()->plugin->canSiteLoopback() ) {
-			if ( !$queue->is_processing() ) {
-				$queue->dispatch();
-			}
+		if ( $this->hasQueuedScans() && !$builder->is_processing() ) {
+			$builder->dispatch();
 		}
-		elseif ( self::con()->isValidAdminArea() ) {
-			( new LegacyReconcile() )->processBatch();
+		if ( $this->hasReadyScanWork() && !$processor->is_processing() ) {
+			$processor->dispatch();
 		}
 	}
 }

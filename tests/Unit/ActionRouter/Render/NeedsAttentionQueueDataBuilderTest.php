@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\NeedsAttentionQueueDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -85,6 +86,10 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 						public function overview() :array {
 							throw new \LogicException( 'overview() should not be called.' );
 						}
+
+						public function scanRuntime() :array {
+							return [ 'is_running' => false ];
+						}
 					},
 				],
 			]
@@ -117,6 +122,69 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $data[ 'vars' ][ 'overall_severity' ] );
 		$this->assertSame( [ 'scans' ], \array_column( $data[ 'vars' ][ 'zone_groups' ], 'slug' ) );
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $data[ 'vars' ][ 'zone_chips' ], 'slug' ) );
+	}
+
+	public function test_build_uses_shared_runtime_warning_when_scans_are_in_flight() :void {
+		UnitTestControllerFactory::install(
+			null,
+			null,
+			(object)[
+				'comps' => (object)[
+					'site_query' => new class {
+						public function attention() :array {
+							return [
+								'summary' => [
+									'total' => 0,
+									'severity' => 'good',
+									'is_all_clear' => true,
+								],
+								'groups' => [],
+							];
+						}
+
+						public function latestCompletedScanTimestamps() :array {
+							return [
+								'malware' => 0,
+								'vulnerabilities' => 0,
+								'abandoned' => 0,
+								'core_files' => 0,
+								'plugin_files' => 0,
+								'theme_files' => 0,
+							];
+						}
+
+						public function scanRuntime() :array {
+							return [ 'is_running' => true ];
+						}
+					},
+				],
+			]
+		);
+
+		$builder = new NeedsAttentionQueueDataBuilder();
+		$this->setPrivateProperty( $builder, 'zoneRenderDataBuilder', new class extends ZoneRenderDataBuilder {
+			public function getZoneSlugs() :array {
+				return [ 'scans', 'maintenance' ];
+			}
+
+			public function getZonesIndexed() :array {
+				return [
+					'scans' => [
+						'label' => 'Scans',
+						'icon_class' => 'bi bi-shield',
+					],
+					'maintenance' => [
+						'label' => 'Maintenance',
+						'icon_class' => 'bi bi-tools',
+					],
+				];
+			}
+		} );
+
+		$data = $builder->build();
+
+		$this->assertSame( ( new ScanResultsLagWarning() )->getText(), $data[ 'strings' ][ 'status_strip_subtext' ] );
+		$this->assertSame( ( new ScanResultsLagWarning() )->getText(), $data[ 'vars' ][ 'summary' ][ 'subtext' ] );
 	}
 
 	private function setPrivateProperty( object $subject, string $property, $value ) :void {

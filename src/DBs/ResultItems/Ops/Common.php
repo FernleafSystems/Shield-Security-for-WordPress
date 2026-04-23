@@ -17,11 +17,11 @@ trait Common {
 	}
 
 	public function filterByItemNotRepaired() {
-		return $this->addWhereEquals( 'resolution_reason', 'repaired', true );
+		return $this->addWhereEquals( 'resolution_reason', 'repaired' );
 	}
 
 	public function filterByItemNotDeleted() {
-		return $this->addWhereEquals( 'resolution_reason', 'deleted', true );
+		return $this->addWhereEquals( 'resolution_reason', 'deleted' );
 	}
 
 	public function filterByItemID( string $itemID ) {

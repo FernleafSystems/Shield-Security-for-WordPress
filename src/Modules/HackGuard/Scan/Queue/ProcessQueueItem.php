@@ -36,7 +36,7 @@ class ProcessQueueItem {
 			( new SetScanCompleted() )->run( $item->scan_id );
 		}
 		catch ( \Throwable $e ) {
-			( new RunState() )->markFailed( $item->scan_id );
+			( new RunState() )->markFailed( $item->scan_id, \sprintf( 'Scan processing failed: %s', $e->getMessage() ) );
 			error_log( $e->getMessage() );
 		}
 	}

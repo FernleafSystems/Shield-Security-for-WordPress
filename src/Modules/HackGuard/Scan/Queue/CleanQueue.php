@@ -67,7 +67,7 @@ class CleanQueue {
 		$runState = new RunState();
 		foreach ( \array_unique( \array_map( '\intval', $scanIDs ) ) as $scanID ) {
 			if ( $scanID > 0 ) {
-				$runState->markFailed( $scanID );
+				$runState->markFailed( $scanID, 'Scan timed out before it could finish.' );
 			}
 		}
 	}
@@ -80,14 +80,15 @@ class CleanQueue {
 		/** @var ScansDB\Select $selector */
 		$selector = $dbCon->scans->getQuerySelector();
 		/** @var ScansDB\Record[] $scans */
-		$scans = $selector->filterByStatus( 'running' )
+		$scans = $selector->addWhereIn( 'status', [ 'building', 'running' ] )
 						  ->filterByNotFinished()
+						  ->filterByReady()
 						  ->queryWithResult();
 		foreach ( $scans as $scan ) {
 			/** @var ScanItemsDB\Select $selectorSI */
 			$selectorSI = $dbCon->scan_items->getQuerySelector();
 			if ( $selectorSI->filterByScan( $scan->id )->count() === 0 ) {
-				( new RunState() )->markFailed( (int)$scan->id );
+				( new RunState() )->markFailed( (int)$scan->id, 'Scan queue was ready but no queue items were available.' );
 			}
 		}
 	}

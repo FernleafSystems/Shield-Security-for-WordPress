@@ -25,7 +25,7 @@ class BuildScanFindingsTest extends BaseUnitTest {
 				}
 			},
 		] );
-		$this->builder = new BuildScanFindingsTestDouble( true );
+		$this->builder = new BuildScanFindingsTestDouble();
 	}
 
 	protected function tearDown() :void {
@@ -67,14 +67,6 @@ class BuildScanFindingsTest extends BaseUnitTest {
 		], $query[ 'results' ][ 'afs' ][ 'items' ][ 0 ] );
 	}
 
-	public function test_build_marks_findings_unavailable_while_findings_model_is_reconciling() :void {
-		$query = ( new BuildScanFindingsTestDouble( false ) )->build( [ 'wpv' ], [] );
-
-		$this->assertFalse( $query[ 'is_available' ] );
-		$this->assertSame( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', $query[ 'message' ] );
-		$this->assertSame( [], $query[ 'results' ] );
-	}
-
 	public function test_build_rejects_invalid_supplied_scan_slugs() :void {
 		$this->expectException( \InvalidArgumentException::class );
 		$this->expectExceptionMessage( 'Invalid scan slugs provided.' );
@@ -92,17 +84,7 @@ class BuildScanFindingsTest extends BaseUnitTest {
 
 class BuildScanFindingsTestDouble extends BuildScanFindings {
 
-	private bool $available;
-
 	public array $statesRequestedByScanSlug = [];
-
-	public function __construct( bool $available ) {
-		$this->available = $available;
-	}
-
-	protected function isAvailable() :bool {
-		return $this->available;
-	}
 
 	protected function getScanSlugs() :array {
 		return [ 'afs', 'wpv' ];

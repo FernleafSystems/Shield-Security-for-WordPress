@@ -32,7 +32,15 @@ if ( !\class_exists( 'WP_Error' ) ) {
 
 if ( !\class_exists( 'WP_REST_Request' ) ) {
 	class ShieldWpRestRequestStub {
-		public function __construct( string $method = 'GET', string $route = '/' ) {
+		private array $params;
+
+		public function __construct( $method = 'GET', string $route = '/', array $params = [] ) {
+			unset( $route );
+			$this->params = \is_array( $method ) ? $method : $params;
+		}
+
+		public function get_param( string $key ) {
+			return $this->params[ $key ] ?? null;
 		}
 	}
 

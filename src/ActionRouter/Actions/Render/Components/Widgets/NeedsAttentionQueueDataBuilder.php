@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Zones\ZoneRenderDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -99,6 +100,7 @@ class NeedsAttentionQueueDataBuilder {
 	 */
 	private function buildBaseData() :array {
 		$attention = self::con()->comps->site_query->attention();
+		$warning = ( new ScanResultsLagWarning() )->getText();
 		$latestScanAt = (int)\max( self::con()->comps->site_query->latestCompletedScanTimestamps() );
 		$lastScanSubtext = $latestScanAt > 0
 			? sprintf(
@@ -106,11 +108,12 @@ class NeedsAttentionQueueDataBuilder {
 				Services::Request()->carbon( true )->setTimestamp( $latestScanAt )->diffForHumans()
 			)
 			: '';
+		$summarySubtext = $warning !== '' ? $warning : $lastScanSubtext;
 
 		return [
 			'summary'           => $this->buildQueueSummaryContract(
 				$attention,
-				$lastScanSubtext
+				$summarySubtext
 			),
 			'zone_groups'       => $this->buildZoneGroups( $attention ),
 			'last_scan_subtext' => $lastScanSubtext,

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Functions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 use FernleafSystems\Wordpress\Services\Services;
 
 function get_plugin() :\ICWP_WPSF_Shield_Security {
@@ -61,9 +62,11 @@ function fire_event( string $event ) {
 	get_plugin()->getController()->comps->events->fireEvent( $event );
 }
 
-function start_scans( array $scans ) {
+function start_scans( array $scans ) :StartScansResult {
 	$con = shield_security_get_plugin()->getController();
 	if ( $con->caps->hasCap( 'scan_frequent' ) ) {
-		$con->comps->scans->startNewScans( $scans );
+		return $con->comps->scans->startNewScans( $scans );
 	}
+	return StartScansResult::fromRequested( $scans )
+						   ->addFailures( $scans, StartScansResult::REASON_SCAN_UNAVAILABLE );
 }

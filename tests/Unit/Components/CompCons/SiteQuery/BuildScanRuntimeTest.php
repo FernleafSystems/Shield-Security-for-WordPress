@@ -63,9 +63,33 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 			'requested_slugs' => [],
 		];
 		$this->installRuntimeEnvironment(
-			'',
+			'wpv',
 			[ 'wpv' ],
 			[ 'afs' => false, 'wpv' => true, 'apc' => false ],
+			'Vulnerability Scan',
+			1.0,
+			$scanCalls
+		);
+
+		$runtime = ( new BuildScanRuntime() )->build();
+
+		$this->assertTrue( $runtime[ 'is_running' ] );
+		$this->assertSame( 1, $runtime[ 'enqueued_count' ] );
+		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => false ], $runtime[ 'running_states' ] );
+		$this->assertSame( 'wpv', $runtime[ 'current_slug' ] );
+		$this->assertSame( 'Vulnerability Scan', $runtime[ 'current_name' ] );
+		$this->assertSame( 1.0, $runtime[ 'progress' ] );
+		$this->assertSame( [ 'wpv' ], $scanCalls->requested_slugs );
+	}
+
+	public function test_build_reports_not_running_when_no_enqueued_scans_exist() :void {
+		$scanCalls = (object)[
+			'requested_slugs' => [],
+		];
+		$this->installRuntimeEnvironment(
+			'',
+			[],
+			[ 'afs' => false, 'wpv' => false, 'apc' => false ],
 			'Unused Scan Name',
 			1.0,
 			$scanCalls
@@ -74,11 +98,9 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 		$runtime = ( new BuildScanRuntime() )->build();
 
 		$this->assertFalse( $runtime[ 'is_running' ] );
-		$this->assertSame( 1, $runtime[ 'enqueued_count' ] );
-		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => false ], $runtime[ 'running_states' ] );
+		$this->assertSame( 0, $runtime[ 'enqueued_count' ] );
 		$this->assertSame( '', $runtime[ 'current_slug' ] );
 		$this->assertSame( '', $runtime[ 'current_name' ] );
-		$this->assertSame( 1.0, $runtime[ 'progress' ] );
 		$this->assertSame( [], $scanCalls->requested_slugs );
 	}
 

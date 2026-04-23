@@ -154,6 +154,24 @@ class ShieldQueryRoutesIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $expected[ 'results' ], $this->extractPayload( $data ) );
 	}
 
+	public function test_scan_results_route_ignores_inert_findings_model_option_state() :void {
+		self::con()->opts->optSet( 'scan_findings_model_state', 'reconciling' )->store();
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => 'plugin-vulnerable',
+			'is_vulnerable' => 1,
+		] );
+
+		$request = new \WP_REST_Request( 'GET', '/shield/v1/scan_results' );
+		$request->set_param( 'scan_slugs', [ 'wpv' ] );
+
+		$response = $this->resetRestServer()->dispatch( $request );
+		$data = $this->assertSuccessfulResponse( $response );
+
+		$this->assertSame( 1, (int)( $this->extractPayload( $data )[ 'wpv' ][ 'total' ] ?? 0 ) );
+	}
+
 	public function test_scan_results_route_rejects_invalid_supplied_filters() :void {
 		$request = new \WP_REST_Request( 'GET', '/shield/v1/scan_results' );
 		$request->set_param( 'scan_slugs', [ 'bad-scan' ] );

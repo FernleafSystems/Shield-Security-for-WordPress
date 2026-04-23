@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as FindingsModelState;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
 	RetrieveItems,
@@ -16,9 +15,6 @@ class ScanResultsTableAction extends ScansBase {
 
 	protected function exec() {
 		try {
-			if ( !( new FindingsModelState() )->isReady() ) {
-				throw new \Exception( __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' ) );
-			}
 			switch ( $this->action_data[ 'sub_action' ] ?? '' ) {
 				case 'retrieve_table_data':
 					$response = $this->retrieveTableData();

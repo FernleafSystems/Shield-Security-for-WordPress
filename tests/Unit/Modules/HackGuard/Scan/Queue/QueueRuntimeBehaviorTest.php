@@ -60,9 +60,44 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'db_con' => (object)[
 				'scans' => new class( $scanUpdates ) {
 					public array $updates;
+					private object $record;
 
 					public function __construct( array &$updates ) {
 						$this->updates = &$updates;
+						$this->record = new class {
+							public int $id = 55;
+							public array $meta = [];
+
+							public function __get( string $key ) {
+								return $this->{$key} ?? null;
+							}
+
+							public function __set( string $key, $value ) :void {
+								$this->{$key} = $value;
+							}
+
+							public function getRawData() :array {
+								return [
+									'id' => $this->id,
+									'meta' => base64_encode( wp_json_encode( $this->meta ) ?: '{}' ),
+								];
+							}
+						};
+					}
+
+					public function getQuerySelector() :object {
+						return new class( $this->record ) {
+							private object $record;
+
+							public function __construct( object $record ) {
+								$this->record = $record;
+							}
+
+							public function byId( int $scanID ) :object {
+								$this->record->id = $scanID;
+								return $this->record;
+							}
+						};
 					}
 
 					public function getQueryUpdater() :object {
@@ -120,13 +155,14 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			],
 		] );
 
-		( new RunState() )->markFailed( 55 );
+		( new RunState() )->markFailed( 55, 'Queue build failed.' );
 
 		$this->assertCount( 1, $scanUpdates );
 		$this->assertSame( 55, $scanUpdates[ 0 ][ 'scan_id' ] );
 		$this->assertSame( 'failed', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
 		$this->assertSame( 1700001234, $scanUpdates[ 0 ][ 'data' ][ 'finished_at' ] ?? null );
 		$this->assertSame( 1700001234, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] ?? null );
+		$this->assertNotSame( '', (string)( $scanUpdates[ 0 ][ 'data' ][ 'meta' ] ?? '' ) );
 		$this->assertSame( [
 			[
 				'scan_id'      => 55,
@@ -196,9 +232,45 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 				},
 				'scans' => new class( $scanUpdates ) {
 					public array $updates;
+					private object $record;
 
 					public function __construct( array &$updates ) {
 						$this->updates = &$updates;
+						$this->record = new class {
+							public int $id = 99;
+							public int $started_at = 0;
+							public array $meta = [];
+
+							public function __get( string $key ) {
+								return $this->{$key} ?? null;
+							}
+
+							public function __set( string $key, $value ) :void {
+								$this->{$key} = $value;
+							}
+
+							public function getRawData() :array {
+								return [
+									'id' => $this->id,
+									'meta' => base64_encode( wp_json_encode( $this->meta ) ?: '{}' ),
+								];
+							}
+						};
+					}
+
+					public function getQuerySelector() :object {
+						return new class( $this->record ) {
+							private object $record;
+
+							public function __construct( object $record ) {
+								$this->record = $record;
+							}
+
+							public function byId( int $scanID ) :object {
+								$this->record->id = $scanID;
+								return $this->record;
+							}
+						};
 					}
 
 					public function getQueryUpdater() :object {
@@ -236,6 +308,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'running', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
 		$this->assertSame( 'failed', $scanUpdates[ 1 ][ 'data' ][ 'status' ] ?? null );
 		$this->assertSame( 1700002000, $scanUpdates[ 1 ][ 'data' ][ 'finished_at' ] ?? null );
+		$this->assertNotSame( '', (string)( $scanUpdates[ 1 ][ 'data' ][ 'meta' ] ?? '' ) );
 		$this->assertSame( [ 99 ], $deletedScanItems );
 	}
 

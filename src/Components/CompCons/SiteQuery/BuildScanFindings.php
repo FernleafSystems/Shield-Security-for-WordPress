@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as FindingsModelState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -54,7 +53,7 @@ class BuildScanFindings {
 
 		$query = [
 			'generated_at' => Services::Request()->ts(),
-			'is_available' => $this->isAvailable(),
+			'is_available' => true,
 			'message'      => '',
 			'filters'      => [
 				'scan_slugs' => $scanSlugs,
@@ -62,11 +61,6 @@ class BuildScanFindings {
 			],
 			'results'      => [],
 		];
-
-		if ( !$query[ 'is_available' ] ) {
-			$query[ 'message' ] = __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' );
-			return $query;
-		}
 
 		foreach ( $scanSlugs as $scanSlug ) {
 			$items = \array_values( \array_filter(
@@ -82,10 +76,6 @@ class BuildScanFindings {
 
 		\ksort( $query[ 'results' ] );
 		return $query;
-	}
-
-	protected function isAvailable() :bool {
-		return ( new FindingsModelState() )->isReady();
 	}
 
 	/**

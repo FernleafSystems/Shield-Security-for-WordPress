@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -57,6 +58,11 @@ trait BuildsActionsQueueLandingData {
 	}
 
 	protected function buildSummarySubtext() :string {
+		$warning = ( new ScanResultsLagWarning() )->getText();
+		if ( $warning !== '' ) {
+			return $warning;
+		}
+
 		$latestScanAt = (int)\max( self::con()->comps->site_query->latestCompletedScanTimestamps() );
 
 		return $latestScanAt > 0

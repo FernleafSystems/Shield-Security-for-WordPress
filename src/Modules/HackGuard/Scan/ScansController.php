@@ -5,12 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\{
+	ScanCreateException,
+	ScanExistsException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib\Utility\CleanOutOldGuardFiles,
 	Scan\Queue\CleanQueue,
 	Scan\Queue\ProcessQueueWpcli,
-	Scan\Results\Update,
-	Scan\FindingsModel\State as FindingsModelState
+	Scan\Results\Update
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
@@ -134,7 +137,10 @@ class ScansController {
 	private function cronScan() {
 		if ( $this->getCanScansExecute() ) {
 			self::con()->opts->optSet( 'is_scan_cron', true )->store();
-			$this->startNewScans( $this->getAllScanCons() );
+			$result = $this->startNewScans( $this->getAllScanCons() );
+			if ( $result->hasFailures() ) {
+				error_log( $result->getFailureLogMessage() );
+			}
 		}
 		else {
 			error_log( sprintf( __( '%s scans cannot execute.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
@@ -156,35 +162,60 @@ class ScansController {
 		return $reasons;
 	}
 
-	public function startNewScans( array $scans, bool $resetIgnored = false ) :bool {
+	public function startNewScans( array $scans, bool $resetIgnored = false ) :StartScansResult {
+		$normalized = $this->normalizeStartScanSlugs( $scans );
+		$result = StartScansResult::fromRequested( $normalized );
+
 		if ( !$this->canStartScans( Services::WpGeneral()->isWpCli() ) ) {
-			return false;
+			return $result->addFailures( $normalized, StartScansResult::REASON_SCAN_UNAVAILABLE );
 		}
 
-		$toScan = [];
-		foreach ( $scans as $slugOrCon ) {
+		foreach ( $normalized as $slug ) {
+			$scanCon = $this->getScanCon( $slug );
+			if ( !$scanCon instanceof Controller\Base ) {
+				$result->addFailure( $slug, StartScansResult::REASON_UNKNOWN_SCAN );
+				continue;
+			}
 			try {
-				$scanCon = \is_string( $slugOrCon ) ? $this->getScanCon( $slugOrCon ) : $slugOrCon;
-				if ( $scanCon instanceof Controller\Base && $scanCon->isReady() ) {
-					( new Init\CreateNewScan() )->run(
-						$scanCon->getSlug(),
-						'full',
-						'',
-						Services::WpGeneral()->isWpCli() ? 'cli' : ( self::con()->opts->optGet( 'is_scan_cron' ) ? 'cron' : 'manual' )
-					);
-					$toScan[] = $scanCon->getSlug();
-					if ( $resetIgnored ) {
-						( new Update() )
-							->setScanController( $scanCon )
-							->clearIgnored();
-					}
-				}
+				$isReady = $scanCon->isReady();
 			}
 			catch ( \Exception $e ) {
+				$result->addFailure( $slug, StartScansResult::REASON_SCAN_UNAVAILABLE, $e->getMessage() );
+				continue;
+			}
+			if ( !$isReady ) {
+				$result->addFailure( $slug, StartScansResult::REASON_SCAN_UNAVAILABLE );
+				continue;
+			}
+
+			try {
+				$scan = ( new Init\CreateNewScan() )->run(
+					$scanCon->getSlug(),
+					'full',
+					'',
+					Services::WpGeneral()->isWpCli() ? 'cli' : ( self::con()->opts->optGet( 'is_scan_cron' ) ? 'cron' : 'manual' )
+				);
+				if ( !empty( $scan ) ) {
+					$result->addStarted( $scanCon->getSlug(), (int)$scan->id );
+				}
+				if ( $resetIgnored ) {
+					( new Update() )
+						->setScanController( $scanCon )
+						->clearIgnored();
+				}
+			}
+			catch ( ScanExistsException $e ) {
+				$result->addFailure( $slug, StartScansResult::REASON_ALREADY_EXISTS, $e->getMessage() );
+			}
+			catch ( ScanCreateException $e ) {
+				$result->addFailure( $slug, StartScansResult::REASON_CREATE_FAILED, $e->getMessage() );
+			}
+			catch ( \Exception $e ) {
+				$result->addFailure( $slug, StartScansResult::REASON_CREATE_FAILED, $e->getMessage() );
 			}
 		}
 
-		if ( !empty( $toScan ) ) {
+		if ( $result->hasStarted() ) {
 			if ( Services::WpGeneral()->isWpCli() ) {
 				( new ProcessQueueWpcli() )->execute();
 			}
@@ -193,7 +224,7 @@ class ScansController {
 			}
 		}
 
-		return !empty( $toScan );
+		return $result;
 	}
 
 	public function startAfsAssetScan( string $assetType, string $assetKey, bool $resetIgnored = false ) :bool {
@@ -244,14 +275,23 @@ class ScansController {
 		return \count( $this->getReasonsScansCantExecute() ) === 0;
 	}
 
+	private function normalizeStartScanSlugs( array $scans ) :array {
+		$slugs = [];
+		foreach ( $scans as $slugOrCon ) {
+			$slug = $slugOrCon instanceof Controller\Base ? $slugOrCon->getSlug() : ( \is_string( $slugOrCon ) ? $slugOrCon : '' );
+			$slug = trim( $slug );
+			if ( $slug !== '' && !\in_array( $slug, $slugs, true ) ) {
+				$slugs[] = $slug;
+			}
+		}
+		return $slugs;
+	}
+
 	public function canStartScans( bool $isCli = false ) :bool {
 		return $this->getStartBlockedMessage( $isCli ) === '';
 	}
 
 	public function getStartBlockedMessage( bool $isCli = false ) :string {
-		if ( !( new FindingsModelState() )->isReady() ) {
-			return __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' );
-		}
 		if ( !$isCli && !$this->getCanScansExecute() ) {
 			$reasons = $this->getReasonsScansCantExecute();
 			if ( \in_array( 'reason_not_call_self', $reasons, true ) ) {

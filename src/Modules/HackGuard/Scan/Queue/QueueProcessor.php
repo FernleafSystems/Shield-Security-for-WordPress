@@ -12,6 +12,8 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	use PluginControllerConsumer;
 
+	protected $cron_interval = 1;
+
 	protected function get_post_args() {
 		$args = parent::get_post_args();
 

@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueAllClearDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -35,7 +36,13 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			new UnitTestPluginUrls(),
 			null,
 			(object)[
-				'comps'  => (object)[],
+				'comps'  => (object)[
+					'site_query' => new class {
+						public function scanRuntime() :array {
+							return [ 'is_running' => false ];
+						}
+					},
+				],
 				'db_con' => (object)[],
 			]
 		);
@@ -227,5 +234,27 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'maintenance' ], \array_column( $rows, 'key' ) );
 		$this->assertSame( 'warning', $data[ 'shield_status' ] );
 		$this->assertSame( 'warning', $data[ 'actions_lane' ][ 'indicator_severity' ] );
+	}
+
+	public function test_build_uses_shared_runtime_warning_for_featured_subtitle() :void {
+		PluginControllerInstaller::reset();
+		UnitTestControllerFactory::install(
+			new UnitTestPluginUrls(),
+			null,
+			(object)[
+				'comps'  => (object)[
+					'site_query' => new class {
+						public function scanRuntime() :array {
+							return [ 'is_running' => true ];
+						}
+					},
+				],
+				'db_con' => (object)[],
+			]
+		);
+
+		$data = $this->buildCardData( $this->attentionQuery( [] ) );
+
+		$this->assertSame( ( new ScanResultsLagWarning() )->getText(), $data[ 'subtitle' ] );
 	}
 }

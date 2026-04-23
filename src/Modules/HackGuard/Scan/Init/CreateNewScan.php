@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\ScanExistsException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\{
+	ScanCreateException,
+	ScanExistsException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,7 +15,7 @@ class CreateNewScan {
 	use PluginControllerConsumer;
 
 	/**
-	 * @throws ScanExistsException|\Exception
+	 * @throws ScanCreateException|ScanExistsException
 	 */
 	public function run(
 		string $slug,
@@ -34,7 +37,7 @@ class CreateNewScan {
 		$record->trigger = $trigger;
 		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {
-			throw new \Exception( sprintf( 'Failed to create/insert a new scan "%s".', $slug ) );
+			throw new ScanCreateException( $slug );
 		}
 
 		return $dbh->getQuerySelector()->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );

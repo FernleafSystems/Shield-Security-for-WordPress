@@ -9,12 +9,25 @@ class RunState {
 
 	use PluginControllerConsumer;
 
+	public const META_KEY_LAST_ERROR = 'last_error';
+
 	public function markBuilding( int $scanID ) :void {
 		$now = Services::Request()->ts();
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$update = [
 			'status'          => 'building',
-			'started_at'      => $now,
 			'last_process_at' => $now,
+		];
+		if ( !empty( $scan ) ) {
+			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
+			if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
+				unset( $meta[ self::META_KEY_LAST_ERROR ] );
+				$scan->meta = $meta;
+				$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
+			}
+		}
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+			...$update,
 		] );
 	}
 
@@ -27,23 +40,49 @@ class RunState {
 		] );
 	}
 
-	public function markFailed( int $scanID ) :void {
+	public function markFailed( int $scanID, string $failureMessage = '' ) :void {
 		$now = Services::Request()->ts();
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+		$update = [
 			'finished_at'     => $now,
 			'status'          => 'failed',
 			'last_process_at' => $now,
-		] );
+		];
+		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		if ( !empty( $scan ) ) {
+			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
+			if ( $failureMessage === '' ) {
+				unset( $meta[ self::META_KEY_LAST_ERROR ] );
+			}
+			else {
+				$meta[ self::META_KEY_LAST_ERROR ] = $failureMessage;
+			}
+			$scan->meta = $meta;
+			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
+		}
+
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, $update );
 		$this->deleteUnfinishedItems( $scanID );
 	}
 
 	public function markRunning( int $scanID ) :void {
 		$now = Services::Request()->ts();
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$update = [
 			'status'          => 'running',
-			'started_at'      => $now,
 			'last_process_at' => $now,
-		] );
+		];
+		if ( empty( $scan ) || (int)$scan->started_at === 0 ) {
+			$update[ 'started_at' ] = $now;
+		}
+		if ( !empty( $scan ) ) {
+			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
+			if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
+				unset( $meta[ self::META_KEY_LAST_ERROR ] );
+				$scan->meta = $meta;
+				$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
+			}
+		}
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, $update );
 	}
 
 	public function markUnfinishedRunsFailed() :void {

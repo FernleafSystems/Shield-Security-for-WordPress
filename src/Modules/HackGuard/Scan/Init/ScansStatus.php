@@ -14,9 +14,10 @@ class ScansStatus {
 		return (string)Services::WpDb()->getVar(
 			sprintf( "SELECT `scans`.`scan`
 						FROM `%s` as `scans`
-						WHERE `scans`.`status` IN ('building','running')
+						WHERE `scans`.`status` IN ('queued','building','running')
 						  AND `scans`.`finished_at`=0
-						ORDER BY `scans`.`created_at` ASC
+						ORDER BY CASE WHEN `scans`.`status` IN ('building','running') THEN 0 ELSE 1 END ASC,
+								 `scans`.`created_at` ASC
 						LIMIT 1;",
 				self::con()->db_con->scans->getTable()
 			)

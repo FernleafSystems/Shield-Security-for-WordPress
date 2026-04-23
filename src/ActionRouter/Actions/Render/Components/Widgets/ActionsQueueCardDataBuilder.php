@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -115,6 +116,11 @@ class ActionsQueueCardDataBuilder {
 	 * @param array{has_items:bool,total_items:int,severity:string} $queueSummary
 	 */
 	private function buildShieldSubtitle( array $queueSummary ) :string {
+		$warning = ( new ScanResultsLagWarning() )->getText();
+		if ( $warning !== '' ) {
+			return $warning;
+		}
+
 		return $queueSummary[ 'has_items' ]
 			? sprintf(
 				_n( '%s issue needs your attention.', '%s issues need your attention.', $queueSummary[ 'total_items' ], 'wp-simple-firewall' ),

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as FindingsModelState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
@@ -16,10 +15,7 @@ class ScansMalaiFileQuery extends ScansBase {
 	protected function exec() {
 		$success = false;
 
-		if ( !( new FindingsModelState() )->isReady() ) {
-			$msg = __( 'Scan findings are temporarily unavailable while the findings model is being upgraded.', 'wp-simple-firewall' );
-		}
-		elseif ( self::con()->caps->canScanMalwareMalai() ) {
+		if ( self::con()->caps->canScanMalwareMalai() ) {
 			try {
 				$msg = sprintf( '%s: %s', sprintf( __( '%s Status Report', 'wp-simple-firewall' ), 'MAL{ai}' ),
 					( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatus() ) );

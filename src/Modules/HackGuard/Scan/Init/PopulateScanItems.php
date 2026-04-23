@@ -20,6 +20,7 @@ class PopulateScanItems {
 	public function run() {
 		$scanCon = $this->getScanController();
 		$dbhItems = self::con()->db_con->scan_items;
+		$now = Services::Request()->ts();
 
 		$scanRecord = $this->getRecord();
 		$scanActionVO = $scanCon->newScanActionVO();
@@ -34,7 +35,7 @@ class PopulateScanItems {
 		$scanRecord->meta = $scanAction->getRawData();
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanRecord->id, [
 			'meta'             => $scanRecord->getRawData()[ 'meta' ],
-			'last_process_at'  => Services::Request()->ts(),
+			'last_process_at'  => $now,
 		] );
 
 		if ( empty( $allItems ) ) {
@@ -49,13 +50,15 @@ class PopulateScanItems {
 		$newRecord->scan_ref = $scanRecord->id;
 		do {
 			$newRecord->items = \array_slice( $allItems, 0, $sliceSize );
-			$dbhItems->getQueryInserter()->insert( $newRecord );
+			if ( !$dbhItems->getQueryInserter()->insert( $newRecord ) ) {
+				throw new \RuntimeException( \sprintf( 'Failed to persist queue items for scan "%s".', $scanRecord->scan ) );
+			}
 			$allItems = \array_slice( $allItems, $sliceSize );
 		} while ( !empty( $allItems ) );
 
 		self::con()->db_con->scans->getQueryUpdater()->updateRecord( $scanRecord, [
-			'status'          => 'running',
-			'last_process_at' => Services::Request()->ts(),
+			'ready_at'        => $now,
+			'last_process_at' => $now,
 		] );
 	}
 }

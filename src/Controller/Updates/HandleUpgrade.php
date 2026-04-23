@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\FindingsModel\State as ScanFindingsModelState;
 use FernleafSystems\Wordpress\Services\Services;
 
 class HandleUpgrade {
@@ -23,17 +22,11 @@ class HandleUpgrade {
 		$prev = $con->cfg->previous_version;
 
 		$hook = $con->prefix( 'plugin-upgrade' );
-		if ( \version_compare( $prev, $con->cfg->version(), '<' ) && !wp_next_scheduled( $hook, [ $prev ] ) ) {
-			$con->plugin->deleteAllPluginCrons();
-			Services::ServiceProviders()->clearProviders();
-			wp_schedule_single_event( Services::Request()->ts() + 1, $hook, [ $prev ] );
-		}
-
 		add_action( $hook, function ( $previousVersion ) {
 			$con = self::con();
+			unset( $previousVersion );
 
 			( new OptionsCorrections() )->runUpgradeMigrations();
-			( new ScanFindingsModelState() )->prepareUpgrade();
 			if ( $con->opts->hasChanges() ) {
 				$con->opts->store();
 			}
@@ -50,7 +43,19 @@ class HandleUpgrade {
 					}
 				}
 			}
+
+			$result = $con->comps->scans->startNewScans( \array_values( \array_filter(
+				$con->comps->scans->getAllScanCons(),
+				static fn( $scanCon ) :bool => $scanCon->isReady()
+			) ) );
+			if ( $result->hasFailures() ) {
+				error_log( $result->getFailureLogMessage() );
+			}
 		} );
+
+		if ( \version_compare( $prev, $con->cfg->version(), '<' ) ) {
+			do_action( $hook, $prev );
+		}
 
 		$con->cfg->previous_version = $con->cfg->version();
 		$con->cfg->persist_required = true;

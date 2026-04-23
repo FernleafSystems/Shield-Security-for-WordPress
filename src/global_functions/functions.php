@@ -35,7 +35,7 @@ if ( !\function_exists( '\shield_security_get_plugin' ) ) {
 		Functions\fire_event( $event );
 	}
 
-	function shield_start_scans( array $scans ) {
-		Functions\start_scans( $scans );
+	function shield_start_scans( array $scans ) :\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult {
+		return Functions\start_scans( $scans );
 	}
 }

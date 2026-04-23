@@ -12,6 +12,8 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	use PluginControllerConsumer;
 
+	protected $cron_interval = 1;
+
 	/**
 	 * Get batch
 	 *
@@ -74,7 +76,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 			( new QueueInit() )->init( (int)$scanID );
 		}
 		catch ( \Throwable $e ) {
-			( new RunState() )->markFailed( (int)$scanID );
+			( new RunState() )->markFailed( (int)$scanID, \sprintf( 'Scan queue build failed: %s', $e->getMessage() ) );
 		}
 
 		return false;

@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansStart;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -38,26 +39,12 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_start_blocked_message_prefers_findings_reconcile_state() :void {
-		$this->installController( 'reconciling', true );
-
-		$scans = new ScansController();
-
-		$this->assertSame(
-			'Scan findings are temporarily unavailable while the findings model is being upgraded.',
-			$scans->getStartBlockedMessage()
-		);
-	}
-
 	public function test_cli_is_exempt_from_loopback_guard_but_web_is_not() :void {
-		$this->installController( 'ready', false );
+		$this->installController( false );
 
 		$scans = new ScansController();
 
-		$this->assertSame(
-			"Scans can't start because this site currently can't make HTTP requests to itself.",
-			$scans->getStartBlockedMessage()
-		);
+		$this->assertNotSame( '', $scans->getStartBlockedMessage() );
 		$this->assertSame( '', $scans->getStartBlockedMessage( true ) );
 	}
 
@@ -68,7 +55,11 @@ class ScansStartGuardsTest extends BaseUnitTest {
 			'service_request' => $request,
 		] );
 
-		$this->installActionController();
+		$this->installActionController(
+			canStart: false,
+			blockedReasons: [ 'reason_not_call_self' ],
+			startResult: StartScansResult::fromRequested( [] )
+		);
 
 		$action = new ScansStart();
 		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
@@ -78,26 +69,68 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$payload = $action->response()->payload();
 
 		$this->assertFalse( $payload[ 'success' ] ?? true );
-		$this->assertSame(
-			'Scan findings are temporarily unavailable while the findings model is being upgraded.',
-			(string)( $payload[ 'message' ] ?? '' )
-		);
+		$this->assertSame( StartScansResult::CODE_START_BLOCKED, $payload[ 'error_code' ] ?? '' );
+		$this->assertSame( [ 'reason_not_call_self' ], $payload[ 'blocked_reasons' ] ?? [] );
+		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
 	}
 
-	private function installController( string $findingsState, bool $canLoopback ) :void {
+	public function test_action_router_start_returns_structured_failure_for_selected_scan_that_cannot_start() :void {
+		$request = new UnitTestRequest();
+		$request->post = [ 'afs' => 'Y' ];
+		ServicesState::installItems( [
+			'service_request' => $request,
+		] );
+
+		$this->installActionController(
+			canStart: true,
+			blockedReasons: [],
+			startResult: StartScansResult::fromRequested( [ 'afs' ] )
+										->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS )
+		);
+
+		$action = new ScansStart();
+		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$payload = $action->response()->payload();
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertSame( StartScansResult::CODE_START_FAILED, $payload[ 'error_code' ] ?? '' );
+		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+	}
+
+	public function test_action_router_start_allows_partial_success_with_started_ids_and_failures() :void {
+		$request = new UnitTestRequest();
+		$request->post = [ 'afs' => 'Y', 'wpv' => 'Y' ];
+		ServicesState::installItems( [
+			'service_request' => $request,
+		] );
+
+		$this->installActionController(
+			canStart: true,
+			blockedReasons: [],
+			startResult: StartScansResult::fromRequested( [ 'afs', 'wpv' ] )
+										->addStarted( 'afs', 31 )
+										->addFailure( 'wpv', StartScansResult::REASON_CREATE_FAILED )
+		);
+
+		$action = new ScansStart();
+		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$payload = $action->response()->payload();
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertSame( [ 31 ], $payload[ 'scan_ids' ] ?? [] );
+		$this->assertSame( StartScansResult::CODE_PARTIAL_START, $payload[ 'error_code' ] ?? '' );
+		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+	}
+
+	private function installController( bool $canLoopback ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->opts = new class( $findingsState ) {
-			private string $findingsState;
-
-			public function __construct( string $findingsState ) {
-				$this->findingsState = $findingsState;
-			}
-
-			public function optGet( string $key ) {
-				return $key === 'scan_findings_model_state' ? $this->findingsState : null;
-			}
-		};
 		$controller->plugin = new class( $canLoopback ) extends ModCon {
 			private bool $canLoopback;
 
@@ -113,23 +146,43 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function installActionController() :void {
+	private function installActionController(
+		bool $canStart,
+		array $blockedReasons,
+		StartScansResult $startResult
+	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->comps = (object)[
-			'scans' => new class {
+			'scans' => new class( $canStart, $blockedReasons, $startResult ) {
+				public function __construct(
+					private bool $canStart,
+					private array $blockedReasons,
+					private StartScansResult $startResult
+				) {
+				}
+
 				public function getStartBlockedMessage( bool $isCli = false ) :string {
 					unset( $isCli );
-					return 'Scan findings are temporarily unavailable while the findings model is being upgraded.';
+					return $this->canStart ? '' : 'blocked';
 				}
 
 				public function canStartScans( bool $isCli = false ) :bool {
 					unset( $isCli );
-					return false;
+					return $this->canStart;
+				}
+
+				public function getReasonsScansCantExecute() :array {
+					return $this->blockedReasons;
 				}
 
 				public function getScanSlugs() :array {
 					return [ 'afs', 'apc', 'wpv' ];
+				}
+
+				public function startNewScans( array $scans, bool $resetIgnored = false ) :StartScansResult {
+					unset( $scans, $resetIgnored );
+					return $this->startResult;
 				}
 			},
 			'scans_queue' => new class {

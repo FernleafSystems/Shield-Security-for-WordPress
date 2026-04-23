@@ -36,10 +36,14 @@ abstract class Base {
 	}
 
 	protected function run() {
-		// @phpstan-ignore return.void
 		add_action(
 			self::con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
-			fn() => self::con()->comps->scans->startNewScans( [ $this->getSlug() ] )
+			function () {
+				$result = self::con()->comps->scans->startNewScans( [ $this->getSlug() ] );
+				if ( $result->hasFailures() ) {
+					error_log( $result->getFailureLogMessage() );
+				}
+			}
 		);
 	}
 

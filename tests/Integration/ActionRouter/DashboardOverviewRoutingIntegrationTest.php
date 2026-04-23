@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	ActionResponse,
 	Actions\ScanResultsTableAction,
+	Actions\Render\ScanResultsLagWarning,
 	Actions\Render\Components\Widgets\MaintenanceIssueStateProvider,
 	Actions\Render\Components\Widgets\NeedsAttentionQueue,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
@@ -157,6 +158,16 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return \array_slice( $inactivePlugins, 0, $minimum );
 	}
 
+	private function insertUnfinishedScan( string $scanSlug, string $status = 'queued', int $readyAt = 0 ) :int {
+		$dbh = self::con()->db_con->scans;
+		$record = $dbh->getRecord();
+		$record->scan = $scanSlug;
+		$record->status = $status;
+		$record->ready_at = $readyAt;
+		$dbh->getQueryInserter()->insert( $record );
+		return (int)Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' );
+	}
+
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
@@ -299,6 +310,21 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$this->assertSame( '', (string)( $renderData[ 'strings' ][ 'last_scan_subtext' ] ?? '' ) );
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'summary' ][ 'subtext' ] ?? '' ) );
+	}
+
+	public function test_dashboard_runtime_warning_replaces_summary_subtext_while_scans_are_in_flight() :void {
+		$this->insertUnfinishedScan( 'afs', 'queued' );
+
+		$widgetPayload = $this->renderNeedsAttentionQueue()->payload();
+		$widgetData = $widgetPayload[ 'render_data' ] ?? [];
+		$dashboardPayload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
+		$dashboardData = $dashboardPayload[ 'render_data' ] ?? [];
+		$warning = ( new ScanResultsLagWarning() )->getText();
+
+		$this->assertNotSame( '', $warning );
+		$this->assertSame( $warning, (string)( $widgetData[ 'strings' ][ 'status_strip_subtext' ] ?? '' ) );
+		$this->assertSame( $warning, (string)( $widgetData[ 'vars' ][ 'summary' ][ 'subtext' ] ?? '' ) );
+		$this->assertSame( $warning, (string)( $dashboardData[ 'strings' ][ 'subtitle' ] ?? '' ) );
 	}
 
 	public function test_operator_mode_landing_lanes_are_in_expected_order() :void {

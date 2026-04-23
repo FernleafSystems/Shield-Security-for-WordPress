@@ -13,7 +13,8 @@ export class ScansStart extends BaseComponent {
 	startScans( form ) {
 		( new AjaxService() )
 		.send(
-			ObjectOps.Merge( this._base_data.ajax.start, { form_params: Forms.Serialize( form ) } )
+			ObjectOps.Merge( this._base_data.ajax.start, { form_params: Forms.Serialize( form ) } ),
+			true
 		)
 		.then( ( resp ) => {
 
@@ -22,15 +23,11 @@ export class ScansStart extends BaseComponent {
 					this.#loadResultsPage();
 				}
 				else if ( resp.data.scans_running ) {
-					setTimeout( () => ( new ScansCheck( this._base_data ) ).check(), 1000 );
+					setTimeout( () => ( new ScansCheck( {
+						...this._base_data,
+						started_scan_ids: resp.data.scan_ids || []
+					} ) ).check(), 1000 );
 				}
-			}
-			else {
-				let msg = 'Communications error with site.';
-				if ( resp.data.message !== undefined ) {
-					msg = resp.data.message;
-				}
-				alert( msg );
 			}
 		} )
 		.catch( ( error ) =>

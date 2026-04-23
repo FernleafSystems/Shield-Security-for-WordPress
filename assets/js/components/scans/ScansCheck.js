@@ -6,6 +6,7 @@ export class ScansCheck extends BaseComponent {
 
 	init() {
 		this.scansRunning = false;
+		this.scanFailed = false;
 		this.exec();
 	}
 
@@ -19,18 +20,15 @@ export class ScansCheck extends BaseComponent {
 
 	check() {
 		( new AjaxService() )
-		.send( this._base_data.ajax.check, false )
+		.send( {
+			...this._base_data.ajax.check,
+			scan_ids: this._base_data.started_scan_ids || []
+		}, false )
 		.then( ( resp ) => {
 
 			if ( resp.data.success ) {
-				this.scansRunning = false;
-				if ( resp.data.running ) {
-					for ( const scanKey of Object.keys( resp.data.running ) ) {
-						if ( resp.data.running[ scanKey ] ) {
-							this.scansRunning = true;
-						}
-					}
-				}
+				this.scanFailed = resp.data.failed === true;
+				this.scansRunning = Object.values( resp.data.running ).some( Boolean );
 
 				let modal = $( '#ScanProgressModal' );
 				$( '.modal-body', modal ).html( resp.data.vars.progress_html );
@@ -38,6 +36,7 @@ export class ScansCheck extends BaseComponent {
 			}
 		} )
 		.finally( () => {
+			this.scanFailed ? null :
 			this.scansRunning ?
 				setTimeout( () => this.check(), 3000 )
 				: setTimeout( () => window.location.href = this._base_data.hrefs.actions_queue_scans, 1000 );

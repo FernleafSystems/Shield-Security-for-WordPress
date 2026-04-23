@@ -21,7 +21,7 @@ class ProcessQueueWpcli {
 	protected function run() {
 		$con = self::con();
 
-		do {
+		while ( true ) {
 			$queuedScan = $con->db_con->scans->getQuerySelector()
 						 ->filterByStatus( 'queued' )
 						 ->setOrderBy( 'created_at', 'ASC', true )
@@ -43,21 +43,24 @@ class ProcessQueueWpcli {
 				$progress = WP_CLI\Utils\make_progress_bar( __( 'Scans progress', 'wp-simple-firewall' ),
 					\array_sum( $selector->countAllForEachScan() ) );
 
-				do {
-					$qItem = ( new QueueItems() )->next();
+				while ( true ) {
+					try {
+						$qItem = ( new QueueItems() )->next();
+					}
+					catch ( NoQueueItems $e ) {
+						break;
+					}
 					( new ProcessQueueItem() )->run( $qItem );
 					$progress->tick();
-				} while ( !empty( $qItem ) );
+				}
 
 				$progress->finish();
 				( new CompleteQueue() )->complete();
 				WP_CLI::log( __( 'Scans complete.', 'wp-simple-firewall' ) );
 			}
-			catch ( NoQueueItems $e ) {
-			}
 			catch ( \Throwable $e ) {
-				( new RunState() )->markFailed( (int)$queuedScan->id );
+				( new RunState() )->markFailed( (int)$queuedScan->id, $e->getMessage() );
 			}
-		} while ( !empty( $queuedScan ) );
+		}
 	}
 }
