@@ -11,7 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueAssetFileStatusDetail,
+	ActionsQueueScanResultsTableBuilder
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -99,8 +102,8 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 
 	public function testDedicatedScanTableActionDoesNotCarrySubjectBridgeFields() :void {
 		$action = new class( [
-			'subject_type'          => 'plugin',
-			'subject_id'            => 'akismet/akismet.php',
+			'type'                    => 'plugin',
+			'file'                    => 'akismet/akismet.php',
 			'results_display_options' => [
 				'include_ignored' => true,
 				'ignored_only'    => true,
@@ -109,6 +112,26 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 
 			public function exposeRenderData() :array {
 				return $this->getRenderData();
+			}
+
+			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+				return new class extends ActionsQueueScanResultsTableBuilder {
+					public function buildTableForScope( string $type, string $file, string $emptyText, ?array $options = null ) :array {
+						return [
+							'table_action_attr' => \json_encode( [
+								'type'                    => $type,
+								'file'                    => $file,
+								'display_context'         => 'actions_queue',
+								'results_display_options' => [
+									'include_ignored'  => true,
+									'include_repaired' => false,
+									'include_deleted'  => false,
+									'ignored_only'     => true,
+								],
+							], \JSON_THROW_ON_ERROR ),
+						];
+					}
+				};
 			}
 		};
 

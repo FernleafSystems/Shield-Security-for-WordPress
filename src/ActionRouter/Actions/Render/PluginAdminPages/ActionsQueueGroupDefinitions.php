@@ -6,11 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Maintenance,
-	Malware,
 	Plugins,
 	Themes,
-	Vulnerabilities,
-	Wordpress
+	Vulnerabilities
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -28,7 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   card_type:'expandable'|'linked'|'category',
  *   summary_keys:list<string>,
  *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
- *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes',
+ *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes'|'malware',
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,mixed>
  * }
@@ -50,8 +48,11 @@ class ActionsQueueGroupDefinitions {
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'ignored_only',
 			'healthy_ignored_source'   => 'wordpress',
-			'render_action_class'      => Wordpress::class,
-			'render_action_data'       => 'scan_results',
+			'render_action_class'      => ActionsQueueAssetFileStatusDetail::class,
+			'render_action_data'       => [
+				'type' => 'wordpress',
+				'file' => 'wordpress',
+			],
 		],
 		'plugins' => [
 			'sort_order'               => 3,
@@ -107,10 +108,13 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 0,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source'   => '',
-			'render_action_class'      => Malware::class,
-			'render_action_data'       => 'scan_results',
+			'healthy_interaction_mode' => 'ignored_only',
+			'healthy_ignored_source'   => 'malware',
+			'render_action_class'      => ActionsQueueAssetFileStatusDetail::class,
+			'render_action_data'       => [
+				'type' => 'malware',
+				'file' => 'malware',
+			],
 		],
 		'file_locker' => [
 			'sort_order'               => 6,
@@ -362,7 +366,17 @@ class ActionsQueueGroupDefinitions {
 	 * @return array<string,mixed>
 	 */
 	public function ignoredRenderActionDataForGroupKey( string $groupKey, int $ignoredCount ) :array {
-		return $ignoredCount > 0 && $this->healthyIgnoredSourceForGroupKey( $groupKey ) !== ''
+		if ( $ignoredCount < 1 ) {
+			return [];
+		}
+
+		$source = $this->healthyIgnoredSourceForGroupKey( $groupKey );
+		if ( \in_array( $source, [ 'wordpress', 'malware' ], true ) ) {
+			return ( new ActionsQueueScanResultsTableBuilder( null, $this->queueScanResultsOptions ) )
+				->buildScopeActionData( $source, $source, $this->queueScanResultsOptions->ignoredOnly() );
+		}
+
+		return $source !== ''
 			? $this->queueScanResultsOptions->buildForcedIgnoredActionData()
 			: [];
 	}
@@ -387,7 +401,9 @@ class ActionsQueueGroupDefinitions {
 	 */
 	private function renderActionDataForMode( $mode ) :array {
 		if ( \is_array( $mode ) ) {
-			return $mode;
+			return isset( $mode[ 'type' ], $mode[ 'file' ] )
+				? $this->queueScanResultsOptions->mergeIntoActionData( $mode )
+				: $mode;
 		}
 
 		return $mode === 'scan_results'

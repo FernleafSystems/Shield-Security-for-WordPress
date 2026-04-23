@@ -32,18 +32,18 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			],
 			[
 				'example-plugin/example-plugin.php' => [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'example-plugin/example-plugin.php',
-					'title'        => 'Example Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => false,
+					'type'       => 'plugin',
+					'file'       => 'example-plugin/example-plugin.php',
+					'title'      => 'Example Plugin',
+					'icon_class' => 'bi bi-plug-fill',
+					'has_update' => false,
 				],
 				'busy-plugin/busy-plugin.php'    => [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'busy-plugin/busy-plugin.php',
-					'title'        => 'Busy Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => false,
+					'type'       => 'plugin',
+					'file'       => 'busy-plugin/busy-plugin.php',
+					'title'      => 'Busy Plugin',
+					'icon_class' => 'bi bi-plug-fill',
+					'has_update' => false,
 				],
 			]
 		);
@@ -63,11 +63,11 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			],
 			[
 				'example-plugin/example-plugin.php' => [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'example-plugin/example-plugin.php',
-					'title'        => 'Example Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => true,
+					'type'       => 'plugin',
+					'file'       => 'example-plugin/example-plugin.php',
+					'title'      => 'Example Plugin',
+					'icon_class' => 'bi bi-plug-fill',
+					'has_update' => true,
 				],
 			]
 		);
@@ -77,7 +77,7 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertCount( 1, $records );
 		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'key' ] );
 		$this->assertSame( 2, $records[ 0 ][ 'count_badge' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'table' ][ 'subject_id' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'table' ][ 'file' ] );
 		$this->assertSame( [ 'update', 'deactivate' ], \array_column( $records[ 0 ][ 'actions' ], 'type' ) );
 		$this->assertSame( 'bi bi-arrow-up-circle-fill', $records[ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
 		$this->assertSame( 'Go to updates', $records[ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
@@ -93,18 +93,18 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			],
 			[
 				'active-plugin/active-plugin.php' => [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'active-plugin/active-plugin.php',
-					'title'        => 'Active Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => false,
+					'type'       => 'plugin',
+					'file'       => 'active-plugin/active-plugin.php',
+					'title'      => 'Active Plugin',
+					'icon_class' => 'bi bi-plug-fill',
+					'has_update' => false,
 				],
 				'ignored-plugin/ignored-plugin.php' => [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'ignored-plugin/ignored-plugin.php',
-					'title'        => 'Ignored Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => false,
+					'type'       => 'plugin',
+					'file'       => 'ignored-plugin/ignored-plugin.php',
+					'title'      => 'Ignored Plugin',
+					'icon_class' => 'bi bi-plug-fill',
+					'has_update' => false,
 				],
 			],
 			[
@@ -160,12 +160,12 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 					: $this->activeGroupedRows;
 			}
 
-			protected function buildFileStatusTable( string $subjectType, string $subjectId, array $resultsDisplayOptions ) :array {
+			protected function buildFileStatusTable( string $type, string $file, array $resultsDisplayOptions ) :array {
 				$this->tableBuildCalls++;
 				return [
 					'table_type'   => 'file_scan_results',
-					'subject_type' => $subjectType,
-					'subject_id'   => $subjectId,
+					'type'         => $type,
+					'file'         => $file,
 				];
 			}
 

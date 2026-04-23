@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
-
 /**
  * @phpstan-import-type QueueAssetSummaryRecord from ActionsQueueScanAssetCardsBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
@@ -21,6 +19,7 @@ class ActionsQueueGroupScanSource {
 	private ?array $fullyIgnoredPluginSummaries = null;
 	private ?array $vulnerabilitiesPayload = null;
 	private ?int $ignoredWordpressCount = null;
+	private ?int $ignoredMalwareCount = null;
 
 	public function __construct(
 		ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder,
@@ -49,6 +48,9 @@ class ActionsQueueGroupScanSource {
 	public function ignoredCountForSource( string $ignoredSource ) :int {
 		if ( $ignoredSource === 'wordpress' ) {
 			return $this->ignoredWordpressCount();
+		}
+		if ( $ignoredSource === 'malware' ) {
+			return $this->ignoredMalwareCount();
 		}
 		if ( $ignoredSource === 'plugins' ) {
 			return $this->countQueueAssetSummaryResults( $this->ignoredPluginSummaries() );
@@ -148,16 +150,26 @@ class ActionsQueueGroupScanSource {
 
 	private function ignoredWordpressCount() :int {
 		if ( $this->ignoredWordpressCount === null ) {
-			$loader = new LoadFileScanResultsTableData();
-			$loader->custom_record_retriever_wheres = [
-				"`rim`.`meta_key`='is_in_core'",
-				"`rim`.`meta_value`=1",
-			];
-			$loader->results_display_options = $this->queueScanResultsOptions->ignoredOnly();
-			$this->ignoredWordpressCount = $loader->countAll();
+			$this->ignoredWordpressCount = $this->buildScanResultsTableBuilder()->countForScope(
+				'wordpress',
+				'wordpress',
+				$this->queueScanResultsOptions->ignoredOnly()
+			);
 		}
 
 		return $this->ignoredWordpressCount;
+	}
+
+	private function ignoredMalwareCount() :int {
+		if ( $this->ignoredMalwareCount === null ) {
+			$this->ignoredMalwareCount = $this->buildScanResultsTableBuilder()->countForScope(
+				'malware',
+				'malware',
+				$this->queueScanResultsOptions->ignoredOnly()
+			);
+		}
+
+		return $this->ignoredMalwareCount;
 	}
 
 	/**
@@ -168,5 +180,9 @@ class ActionsQueueGroupScanSource {
 			static fn( array $summary ) :int => (int)( $summary[ 'count_badge' ] ?? 0 ),
 			$summaries
 		) );
+	}
+
+	private function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+		return new ActionsQueueScanResultsTableBuilder( null, $this->queueScanResultsOptions );
 	}
 }

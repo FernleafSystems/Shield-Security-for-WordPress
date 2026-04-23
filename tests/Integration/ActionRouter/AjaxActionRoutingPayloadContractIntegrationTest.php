@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
 	Actions\AjaxRender,
-	Actions\Render\Components\Scans\Results\Wordpress
+	Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -29,7 +29,7 @@ class AjaxActionRoutingPayloadContractIntegrationTest extends ShieldIntegrationT
 	}
 
 	public function test_ajax_routing_returns_rendered_html_for_ajax_render_request() :void {
-		$request = ActionData::BuildAjaxRender( Wordpress::class );
+		$request = $this->buildScanResultsRenderRequest();
 
 		$this->applyCurrentShieldAjaxRequest( $request, false );
 
@@ -45,5 +45,12 @@ class AjaxActionRoutingPayloadContractIntegrationTest extends ShieldIntegrationT
 		$this->assertArrayHasKey( 'html', $payload );
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'html' ] ?? '' ) ) );
 		$this->assertSame( 200, $routed->statusCode() );
+	}
+
+	private function buildScanResultsRenderRequest() :array {
+		return ActionData::BuildAjaxRender( ActionsQueueAssetFileStatusDetail::class, [
+			'type' => 'wordpress',
+			'file' => 'wordpress',
+		] );
 	}
 }

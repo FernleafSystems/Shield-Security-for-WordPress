@@ -59,39 +59,17 @@ class ScanResultsDisplayOptionsTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_build_subject_action_data_owns_subject_scope_and_optional_display_flags() :void {
+	public function test_active_and_ignored_keeps_terminal_filters_out_of_liveness_scope() :void {
 		$helper = new ScanResultsDisplayOptions();
 
 		$this->assertSame(
 			[
-				'display_context'         => ScanResultsDisplayOptions::DISPLAY_CONTEXT,
-				'results_display_options' => $helper->activeOnly(),
-				'subject_type'    => 'plugin',
-				'subject_id'      => 'example-plugin/example-plugin.php',
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
 			],
-			$helper->buildSubjectActionData( 'plugin', 'example-plugin/example-plugin.php' )
-		);
-
-		$this->assertSame(
-			[
-				'display_context'         => ScanResultsDisplayOptions::DISPLAY_CONTEXT,
-				'results_display_options' => [
-					'include_ignored'  => true,
-					'include_repaired' => false,
-					'include_deleted'  => false,
-					'ignored_only'     => true,
-				],
-				'subject_type'            => 'plugin',
-				'subject_id'              => 'example-plugin/example-plugin.php',
-			],
-			$helper->buildSubjectActionData(
-				'plugin',
-				'example-plugin/example-plugin.php',
-				[
-					'include_ignored' => '1',
-					'ignored_only'    => true,
-				]
-			)
+			$helper->activeAndIgnored()
 		);
 	}
 }

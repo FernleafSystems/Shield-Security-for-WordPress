@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ActionsQueueScanRailMetrics;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueGroupsBuilder,
 	ActionsQueueLandingAssessmentBuilder,
@@ -42,7 +41,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  *     problem_lock_count:int,
  *     pending_lock_count:int
  *   },
- *   rail_tabs:array<string,array{count:int,status:string}>,
  *   buckets:array<string,BucketGroupSummary>
  * }
  * @phpstan-type GroupContext array{
@@ -75,14 +73,12 @@ class ActionsQueueRuntimeProbe {
 	}
 
 	private ?array $landingPayload = null;
-	private ?array $metricsPayload = null;
 	private ?array $attentionQuery = null;
 	private ?array $assessmentRowsByZone = null;
 	private ?ScanResultsDisplayOptions $queueScanResultsOptions = null;
 	private ?ScansResultsViewBuilder $viewBuilder = null;
 	private ?array $paneCounts = null;
 	private ?array $fileLockerState = null;
-	private ?array $railTabs = null;
 	private array $groupsByBucket = [];
 	private array $detailSummaries = [];
 
@@ -119,7 +115,6 @@ class ActionsQueueRuntimeProbe {
 			) ),
 			'pane_counts'       => $this->paneCounts(),
 			'file_locker_state' => $this->fileLockerState(),
-			'rail_tabs'         => $this->railTabs(),
 			'buckets'           => $buckets,
 		];
 	}
@@ -316,32 +311,6 @@ class ActionsQueueRuntimeProbe {
 		}
 
 		return $this->fileLockerState;
-	}
-
-	private function metricsPayload() :array {
-		if ( $this->metricsPayload === null ) {
-			$this->metricsPayload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ActionsQueueScanRailMetrics::SLUG );
-		}
-
-		return $this->metricsPayload;
-	}
-
-	private function railTabs() :array {
-		if ( $this->railTabs === null ) {
-			$tabs = $this->metricsPayload()[ 'tabs' ] ?? null;
-			$tabs = \is_array( $tabs )
-				? $tabs
-				: [];
-			$this->railTabs = [];
-			foreach ( $tabs as $key => $tab ) {
-				$this->railTabs[ (string)$key ] = [
-					'count'  => (int)( $tab[ 'count' ] ?? 0 ),
-					'status' => (string)( $tab[ 'status' ] ?? '' ),
-				];
-			}
-		}
-
-		return $this->railTabs;
 	}
 
 	private function groupsLayerForBucket( string $bucketKey ) :array {

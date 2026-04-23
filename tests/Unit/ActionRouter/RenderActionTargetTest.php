@@ -8,18 +8,24 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts\EmailReportAlert;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Report\SecurityReportAlert;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\Wordpress;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RenderActionTarget;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class RenderActionTargetTest extends BaseUnitTest {
 
 	public function test_resolve_accepts_render_action_slug() :void {
-		$this->assertSame( Wordpress::class, RenderActionTarget::resolve( Wordpress::SLUG ) );
+		$this->assertSame(
+			ActionsQueueAssetFileStatusDetail::class,
+			RenderActionTarget::resolve( ActionsQueueAssetFileStatusDetail::SLUG )
+		);
 	}
 
 	public function test_resolve_accepts_render_action_class() :void {
-		$this->assertSame( Wordpress::class, RenderActionTarget::resolve( Wordpress::class ) );
+		$this->assertSame(
+			ActionsQueueAssetFileStatusDetail::class,
+			RenderActionTarget::resolve( ActionsQueueAssetFileStatusDetail::class )
+		);
 	}
 
 	public function test_resolve_accepts_new_report_render_actions() :void {

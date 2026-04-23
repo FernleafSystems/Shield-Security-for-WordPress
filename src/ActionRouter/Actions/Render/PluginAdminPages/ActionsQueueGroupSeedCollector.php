@@ -179,9 +179,9 @@ class ActionsQueueGroupSeedCollector {
 				$definitionKey,
 				$summary,
 				StatusPriority::normalize( $item[ 'severity' ], 'warning' ),
-				$this->queueScanResultsOptions->buildSubjectActionData(
-					$summary[ 'subject_type' ],
-					$summary[ 'subject_id' ]
+				$this->buildScanResultsTableBuilder()->buildScopeActionData(
+					$summary[ 'type' ],
+					$summary[ 'file' ]
 				),
 				[ $item ]
 			);
@@ -219,9 +219,9 @@ class ActionsQueueGroupSeedCollector {
 					'plugins',
 					$summary,
 					StatusPriority::normalize( $activeItem[ 'severity' ], 'warning' ),
-					$this->queueScanResultsOptions->buildSubjectActionData(
-						$summary[ 'subject_type' ],
-						$summary[ 'subject_id' ]
+					$this->buildScanResultsTableBuilder()->buildScopeActionData(
+						$summary[ 'type' ],
+						$summary[ 'file' ]
 					),
 					[ $activeItem ]
 				);
@@ -239,9 +239,9 @@ class ActionsQueueGroupSeedCollector {
 					'plugins',
 					$summary,
 					StatusPriority::normalize( $ignoredItem[ 'severity' ], 'warning' ),
-					$this->queueScanResultsOptions->buildSubjectActionData(
-						$summary[ 'subject_type' ],
-						$summary[ 'subject_id' ],
+					$this->buildScanResultsTableBuilder()->buildScopeActionData(
+						$summary[ 'type' ],
+						$summary[ 'file' ],
 						$this->queueScanResultsOptions->ignoredOnly()
 					),
 					[ $ignoredItem ]
@@ -354,5 +354,9 @@ class ActionsQueueGroupSeedCollector {
 		}
 
 		return $grouped;
+	}
+
+	private function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+		return new ActionsQueueScanResultsTableBuilder( null, $this->queueScanResultsOptions );
 	}
 }

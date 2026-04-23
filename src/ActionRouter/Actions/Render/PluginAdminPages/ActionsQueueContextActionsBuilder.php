@@ -90,15 +90,13 @@ class ActionsQueueContextActionsBuilder {
 	private function determineScopeForGroup( string $definitionKey, array $renderActionData ) :array {
 		switch ( $definitionKey ) {
 			case 'wordpress':
-				return $this->scopeResolver->normalizeActionScope( 'wordpress', 'wordpress' );
 			case 'malware':
-				return $this->scopeResolver->normalizeActionScope( 'malware', 'malware' );
 			case 'plugins':
 			case 'themes':
-				$subjectType = \trim( (string)( $renderActionData[ 'subject_type' ] ?? '' ) );
-				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
-				return $subjectType !== '' && $subjectId !== ''
-					? $this->scopeResolver->canonicalActionDataForSubject( $subjectType, $subjectId )
+				$type = \trim( (string)( $renderActionData[ 'type' ] ?? '' ) );
+				$file = \trim( (string)( $renderActionData[ 'file' ] ?? '' ) );
+				return $type !== '' && $file !== ''
+					? $this->scopeResolver->normalizeActionScope( $type, $file )
 					: [];
 			default:
 				return [];
