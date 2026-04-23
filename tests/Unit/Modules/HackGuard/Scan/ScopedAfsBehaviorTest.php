@@ -34,7 +34,6 @@ use FernleafSystems\Wordpress\Services\Core\Db;
 class ScopedAfsBehaviorTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -43,30 +42,11 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalizePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'trailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalizePath( $path ), '/' ).'/' );
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalizePath( $path ) );
-		if ( !\defined( 'ABSPATH' ) ) {
-			\define( 'ABSPATH', $this->normalizePath( $this->makeTempDir( 'abspath' ) ).'/' );
-		}
-		if ( !\defined( 'WP_CONTENT_DIR' ) ) {
-			\define( 'WP_CONTENT_DIR', wp_normalize_path( ABSPATH.'wp-content' ) );
-		}
-		if ( !\defined( 'WP_PLUGIN_DIR' ) ) {
-			\define( 'WP_PLUGIN_DIR', wp_normalize_path( WP_CONTENT_DIR.'/plugins' ) );
-		}
-		if ( !\defined( 'WPINC' ) ) {
-			\define( 'WPINC', 'wp-includes' );
-		}
-		@mkdir( WP_CONTENT_DIR, 0777, true );
-		@mkdir( WP_PLUGIN_DIR, 0777, true );
-		@mkdir( ABSPATH.WPINC, 0777, true );
-		@mkdir( ABSPATH.'wp-admin', 0777, true );
 	}
 
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
 		parent::tearDown();
 	}
 
@@ -166,7 +146,7 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$record->scan = 'afs';
 		$record->scope_type = 'plugin';
 		$record->scope_key = 'akismet/akismet.php';
-		$record->trigger = 'asset_change';
+		$record->run_trigger = 'asset_change';
 
 		$method = new \ReflectionMethod( SetScanCompleted::class, 'resolveStaleItemsForRun' );
 		$method->setAccessible( true );
@@ -226,29 +206,8 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normalizePath( \sys_get_temp_dir().'/shield-scan-test-'.$suffix.'-'.\uniqid() );
-		@mkdir( $dir, 0777, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
-	}
-
 	private function normalizePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
-		}
-		@rmdir( $dir );
 	}
 }
 

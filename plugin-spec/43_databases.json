@@ -889,7 +889,7 @@
                     "length": 256,
                     "comment": "Run Scope Key"
                 },
-                "trigger": {
+                "run_trigger": {
                     "macro_type": "varchar",
                     "length": 20,
                     "comment": "Run Trigger"

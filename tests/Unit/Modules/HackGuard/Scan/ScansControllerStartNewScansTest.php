@@ -13,7 +13,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Afs as AfsController,
+	Base
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -73,6 +76,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 			StartScansResult::REASON_UNKNOWN_SCAN,
 			StartScansResult::REASON_SCAN_UNAVAILABLE,
 		], \array_column( $result->getFailures(), 'reason' ) );
+		$this->assertInsertedScanRunTrigger( $scansDb->insertedRecords[ 101 ], 'manual' );
 		$this->assertSame( 1, $queue->dispatches );
 		$this->assertSame( 0, $wpDb->writeCount );
 	}
@@ -115,6 +119,35 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertFalse( $result->hasStarted() );
 		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $result->getFailures(), 'reason' ) );
 		$this->assertSame( 0, $queue->dispatches );
+	}
+
+	public function test_afs_asset_change_scan_creation_uses_run_trigger_contract() :void {
+		$scansDb = new StartScansFakeScansDb();
+		$queue = new StartScansFakeQueue();
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$started = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestAfsController( true ),
+		] ) )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+
+		$this->assertTrue( $started );
+		$this->assertCount( 1, $scansDb->insertedRecords );
+		$record = $scansDb->insertedRecords[ 101 ];
+		$this->assertSame( 'plugin', $record->scope_type );
+		$this->assertSame( 'akismet/akismet.php', $record->scope_key );
+		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
+		$this->assertSame( 1, $queue->dispatches );
+	}
+
+	private function assertInsertedScanRunTrigger( Record $record, string $expectedRunTrigger ) :void {
+		$this->assertSame( $expectedRunTrigger, $record->run_trigger );
+		$this->assertArrayHasKey( 'run_trigger', $record->getRawData() );
+		$this->assertArrayNotHasKey( 'trigger', $record->getRawData() );
 	}
 
 	private function installController( StartScansFakeScansDb $scansDb, StartScansFakeQueue $queue ) :void {
@@ -190,6 +223,20 @@ class StartScansTestScanController extends Base {
 	public function buildScanResult( array $rawResult ) :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record {
 		unset( $rawResult );
 		return new \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record();
+	}
+}
+
+class StartScansTestAfsController extends AfsController {
+
+	public function __construct( private bool $ready ) {
+	}
+
+	public function getSlug() :string {
+		return 'afs';
+	}
+
+	public function isReady() :bool {
+		return $this->ready;
 	}
 }
 

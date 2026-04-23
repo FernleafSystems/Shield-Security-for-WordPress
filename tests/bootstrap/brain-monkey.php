@@ -40,9 +40,52 @@ if ( ! defined( 'DB_PASSWORD' ) ) {
 	define( 'DB_PASSWORD', 'dummy_password' );
 }
 
-// Set ABSPATH if not already defined
+// Set a minimal WordPress filesystem root if not already defined.
+$shieldBrainMonkeyTempRoot = null;
 if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', true );
+	$shieldBrainMonkeyTempRoot = rtrim( str_replace( '\\', '/', sys_get_temp_dir() ), '/' )
+								 .'/shield-brain-monkey-wp-'.uniqid();
+	define( 'ABSPATH', $shieldBrainMonkeyTempRoot.'/' );
+}
+if ( ! defined( 'WP_CONTENT_DIR' ) ) {
+	define( 'WP_CONTENT_DIR', rtrim( str_replace( '\\', '/', ABSPATH ), '/' ).'/wp-content' );
+}
+if ( ! defined( 'WP_PLUGIN_DIR' ) ) {
+	define( 'WP_PLUGIN_DIR', rtrim( str_replace( '\\', '/', WP_CONTENT_DIR ), '/' ).'/plugins' );
+}
+if ( ! defined( 'WPINC' ) ) {
+	define( 'WPINC', 'wp-includes' );
+}
+
+foreach ( [
+	ABSPATH,
+	WP_CONTENT_DIR,
+	WP_PLUGIN_DIR,
+	rtrim( str_replace( '\\', '/', ABSPATH ), '/' ).'/'.WPINC,
+	rtrim( str_replace( '\\', '/', ABSPATH ), '/' ).'/wp-admin',
+] as $shieldBrainMonkeyDir ) {
+	if ( is_string( $shieldBrainMonkeyDir ) && $shieldBrainMonkeyDir !== '' ) {
+		@mkdir( $shieldBrainMonkeyDir, 0777, true );
+	}
+}
+
+if ( $shieldBrainMonkeyTempRoot !== null ) {
+	register_shutdown_function( static function () use ( $shieldBrainMonkeyTempRoot ) :void {
+		$shieldBrainMonkeyTempRoot = rtrim( str_replace( '\\', '/', $shieldBrainMonkeyTempRoot ), '/' );
+		$expectedPrefix = rtrim( str_replace( '\\', '/', sys_get_temp_dir() ), '/' ).'/shield-brain-monkey-wp-';
+		if ( strpos( $shieldBrainMonkeyTempRoot, $expectedPrefix ) !== 0 || !is_dir( $shieldBrainMonkeyTempRoot ) ) {
+			return;
+		}
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $shieldBrainMonkeyTempRoot, \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $iterator as $item ) {
+			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
+		}
+		@rmdir( $shieldBrainMonkeyTempRoot );
+	} );
 }
 
 // Reset opcache if available (useful for testing)

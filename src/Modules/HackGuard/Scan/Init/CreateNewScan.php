@@ -21,7 +21,7 @@ class CreateNewScan {
 		string $slug,
 		string $scopeType = 'full',
 		string $scopeKey = '',
-		string $trigger = 'manual'
+		string $runTrigger = 'manual'
 	) :?ScansDB\Record {
 		if ( $this->scanExists( $slug, $scopeType, $scopeKey ) ) {
 			throw new ScanExistsException( $slug );
@@ -34,7 +34,7 @@ class CreateNewScan {
 		$record->status = 'queued';
 		$record->scope_type = $scopeType;
 		$record->scope_key = $scopeKey;
-		$record->trigger = $trigger;
+		$record->run_trigger = $runTrigger;
 		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {
 			throw new ScanCreateException( $slug );

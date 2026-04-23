@@ -93,7 +93,7 @@ class SetScanCompleted {
 		$scopeWhere = $this->buildScopeWhere( $scanRecord );
 		$reason = $scanSlug === 'afs'
 			&& \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true )
-			&& $scanRecord->trigger === 'asset_change'
+			&& $scanRecord->run_trigger === 'asset_change'
 				? 'asset_replaced'
 				: 'clean_rescan';
 
